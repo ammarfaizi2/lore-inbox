@@ -1,54 +1,78 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314547AbSEBOcD>; Thu, 2 May 2002 10:32:03 -0400
+	id <S314529AbSEBOcw>; Thu, 2 May 2002 10:32:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314529AbSEBOcC>; Thu, 2 May 2002 10:32:02 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:34436 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S314545AbSEBOb6>; Thu, 2 May 2002 10:31:58 -0400
-Date: Thu, 2 May 2002 10:34:00 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "antonelloderosa@inwind.it" <antonelloderosa@inwind.it>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Controlling the serial port at kernel level
-In-Reply-To: <GVHJF8$22E1DB45CCF0A82248ED8BF5C4871821@inwind.it>
-Message-ID: <Pine.LNX.3.95.1020502102019.14365A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314545AbSEBOcv>; Thu, 2 May 2002 10:32:51 -0400
+Received: from revdns.flarg.info ([213.152.47.19]:396 "EHLO noodles.internal")
+	by vger.kernel.org with ESMTP id <S314529AbSEBOcs>;
+	Thu, 2 May 2002 10:32:48 -0400
+Date: Thu, 2 May 2002 15:32:50 +0100
+From: Dave Jones <davej@suse.de>
+To: Andreas Dilger <adilger@turbolabs.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: ext2 errors under fsx with 2.5.12-dj1.
+Message-ID: <20020502143250.GA19533@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Andreas Dilger <adilger@turbolabs.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 May 2002, antonelloderosa@inwind.it wrote:
+Hi Andreas,
+ Under a stress test of multiple fsx's, the following messages
+appeared..
 
-> Hallo,
-> I would find the way of controlling the serial port at kernel
-> level; more precisely I want to set the DTR or RTS pin of the serial
-> port whenever my host send or receive an udp packet. 
-> 
-> Can you help me?
-> 
-> Please answer me as soon as possible!!!
-> 
-> Thanks a lot !!
+EXT2-fs error (device ide0(3,65)): ext2_free_blocks: Freeing blocks not
+in datazone - block = 2553887680, count = 1
+EXT2-fs error (device ide0(3,65)): ext2_free_blocks: Freeing blocks not
+in datazone - block = 67108864, count = 1
+EXT2-fs error (device ide0(3,65)): ext2_free_blocks: Freeing blocks not
+in datazone - block = 1048576, count = 1
+EXT2-fs error (device ide0(3,65)): ext2_free_blocks: Freeing blocks not
+in datazone - block = 1048576, count = 1
+EXT2-fs error (device ide0(3,65)): ext2_free_blocks: Freeing blocks not
+in datazone - block = 16777216, count = 1
+EXT2-fs error (device ide0(3,65)): ext2_free_blocks: Freeing blocks not
+in datazone - block = 16777216, count = 1
+EXT2-fs error (device ide0(3,65)): ext2_free_blocks: Freeing blocks not
+in datazone - block = 2375129740, count = 1
+EXT2-fs error (device ide0(3,65)): ext2_free_blocks: Freeing blocks not
+in datazone - block = 1598358905, count = 1
+EXT2-fs error (device ide0(3,65)): ext2_free_blocks: Freeing blocks not
+in datazone - block = 15730344, count = 1
+EXT2-fs error (device ide0(3,65)): ext2_free_blocks: Freeing blocks not
+in datazone - block = 4125625412, count = 1
+EXT2-fs error (device ide0(3,65)): ext2_free_blocks: Freeing blocks not
+in datazone - block = 16777216, count = 1
 
-If this is just a hack and you don't care if it screws up
-somebody else using the UART, just....
 
-#define BASE 0x3f8  // For first UART
-#define MCR 0x3fc
-#define DTR 0x01
-#define RTS 0x02
+My tree has the following patch, which I believe you authored, or were
+at least involved in..
 
-... read/write directly to the MCR port, saving the bits you don't
-want to change... You use the outb(value, port); and inb(port);
-instructions for ports.
+--- linux-2.5.12/fs/ext2/balloc.c   Wed May  1 01:08:55 2002
++++ linux-2.5/fs/ext2/balloc.c  Sat Mar 23 22:56:32 2002
+@@ -250,8 +250,9 @@
+ 
+    lock_super (sb);
+    es = EXT2_SB(sb)->s_es;
+-   if (block < le32_to_cpu(es->s_first_data_block) || 
+-       (block + count) > le32_to_cpu(es->s_blocks_count)) {
++   if (block < le32_to_cpu(es->s_first_data_block) ||
++       block + count < block ||
++       block + count > le32_to_cpu(es->s_blocks_count)) {
+        ext2_error (sb, "ext2_free_blocks",
+                "Freeing blocks not in datazone - "
+                "block = %lu, count = %lu", block, count);
 
 
-Cheers,
-Dick Johnson
+Any thoughts ?
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+	Dave.
 
-                 Windows-2000/Professional isn't.
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

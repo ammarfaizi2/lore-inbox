@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278798AbRJZRwU>; Fri, 26 Oct 2001 13:52:20 -0400
+	id <S278808AbRJZR7A>; Fri, 26 Oct 2001 13:59:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278805AbRJZRwK>; Fri, 26 Oct 2001 13:52:10 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30220 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S278798AbRJZRv6>; Fri, 26 Oct 2001 13:51:58 -0400
-Subject: Re: Linux 2.4.13-ac1
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Fri, 26 Oct 2001 18:54:00 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        cswingle@iarc.uaf.edu (Christopher S. Swingley),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20011026194301.M30905@athlon.random> from "Andrea Arcangeli" at Oct 26, 2001 07:43:01 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15xBBA-0000pp-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S278807AbRJZR6u>; Fri, 26 Oct 2001 13:58:50 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:40713 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S278808AbRJZR6g>;
+	Fri, 26 Oct 2001 13:58:36 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: kdb v1.9 for 2.4.13-ac1
+In-Reply-To: Your message of "Fri, 26 Oct 2001 15:50:45 +0100."
+             <20011026155045.A1213@lightning.swansea.linux.org.uk> 
+Date: Sat, 27 Oct 2001 03:59:00 +1000
+Message-ID: <9952.1004119140@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> simply because the <2.4.10 buffer cache layer wasn't able to do proper
-> readahead on the blkdev. Now we do readahead properly and so in turn
-> the the lack of media-change trust of the vfs shows up. So as far I can
-> tell the right fix have no influence on the blkdev in pagecache, but it
-> only consists in resurrecting the media-change detection with a
-> per-device bitflag whitelist. I cannot see other source of stalls across
-> a close/open cycle.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I'm not currently sure if the impact is from the cost of the page cache
-flushing or the invalidate/re-read it triggers. There probably are two or
-three seeks on the DVD if the data is invalidated so that would make sense.
+Content-Type: text/plain; charset=us-ascii
 
-Alan
+On Fri, 26 Oct 2001 15:50:45 +0100, 
+Alan Cox <laughing@shared-source.org> wrote:
+>2.4.13-ac1
+
+ftp://oss.sgi.com/projects/kdb/download/ix86/kdb-v1.9-2.4.13-ac1.bz2
+
+So many patches, so little time ...
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE72aRji4UHNye0ZOoRAn+rAKCwdWgo/Udz33hKh3QYUvyUIh5owQCg988W
+Uz9PZTCH8/MAEczLeBRHxLs=
+=gKVJ
+-----END PGP SIGNATURE-----
+

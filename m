@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264222AbTIIRy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 13:54:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264257AbTIIRy3
+	id S264249AbTIIR7R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 13:59:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbTIIR7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 13:54:29 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:61503 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S264222AbTIIRy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 13:54:28 -0400
-Date: Tue, 9 Sep 2003 18:53:23 +0100
-From: Dave Jones <davej@redhat.com>
-To: Mika Liljeberg <mika.liljeberg@welho.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Dennis Freise <Cataclysm@final-frontier.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: New ATI FireGL driver supports 2.6 kernel
-Message-ID: <20030909175323.GB932@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Mika Liljeberg <mika.liljeberg@welho.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Dennis Freise <Cataclysm@final-frontier.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <001a01c3765b$1f1ad6e0$0419a8c0@firestarter.shnet.org> <20030908225401.GD681@redhat.com> <1063069344.28622.53.camel@dhcp23.swansea.linux.org.uk> <20030909075023.GA8065@redhat.com> <1063129307.777.8.camel@hades>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1063129307.777.8.camel@hades>
-User-Agent: Mutt/1.5.4i
+	Tue, 9 Sep 2003 13:59:16 -0400
+Received: from n105.priced2go.net ([208.179.93.105]:43933 "EHLO
+	ying.yingternet.com") by vger.kernel.org with ESMTP id S264249AbTIIR7P
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 13:59:15 -0400
+Message-ID: <3F5E14FC.5090001@yingternet.com>
+Date: Tue, 09 Sep 2003 10:59:24 -0700
+From: Ying-Hung Chen <ying@yingternet.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: wierd raid 1 problem
+X-Enigmail-Version: 0.76.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 09, 2003 at 08:41:47PM +0300, Mika Liljeberg wrote:
- > > For one it links in the GPL'd nvidia GART module.
- > Hmm, dunno about that:
- > $ grep -i license nvidia-agp.c
- > MODULE_LICENSE("GPL and additional rights");
- > All the rest seems to be under a BSD style license.
+Hi all,
 
-The 'additional rights' on AGPGART come from the time when
-it was in the XFree86 tree. If anything its dual-license
-GPL & X11.  The problem with 'additional rights' tags in
-drivers is they rarely state what those rights are.
+	I have recently encounter a weird raid 1 problem on my system. Here is 
+my setup:
 
-		Dave
+i have two ide harddisk on a promise ide control card (PDC20262)
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+and here is my /etc/raidtab file
+
+raiddev       /dev/md0
+raid-level    1
+chunk-size    64k
+persistent-superblock 1
+
+nr-raid-disks 2
+     device    /dev/hdd1
+     raid-disk 0
+     device    /dev/hdb1
+     raid-disk 1
+
+
+the file system is XFS. everything works most of time except from time 
+to time, files seem to get corrupted. I test the integrity by running 
+rpm --checks *.rpm continuously to verify the signature of the file.
+
+the corrupted files seem to 'recover' itself if i leave the machine 
+alone for a while or umount and mount back the filesystem.
+
+does anyone have this type of temperory file corruption problem? I 
+tested it against 2.4.2x kernel including the last vanilla 2.4.22 + xfs 
+patches, they all seem to have the same problem
+
+Thanks,
+
+-Ying
+

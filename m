@@ -1,104 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268268AbUIKRiP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268232AbUIKRlR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268268AbUIKRiP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 13:38:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268259AbUIKRfG
+	id S268232AbUIKRlR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 13:41:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268210AbUIKRlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 13:35:06 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:6317 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S268232AbUIKRdT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 13:33:19 -0400
-Message-ID: <414336DD.9030003@free.fr>
-Date: Sat, 11 Sep 2004 19:33:17 +0200
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: eric.valette@free.fr
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, petkan@nucleusys.com
-Subject: Re: rtl8150.c ethernet driver : usb_unlink_urb ->usb_kill_urb
-References: <413DB68C.7030508@free.fr> <4140256C.5090803@free.fr> <20040909152454.14f7ebc9.akpm@osdl.org> <20040909223605.GA17655@kroah.com> <414335FB.8050203@free.fr>
-In-Reply-To: <414335FB.8050203@free.fr>
-Content-Type: multipart/mixed;
- boundary="------------000902000700010505040607"
+	Sat, 11 Sep 2004 13:41:17 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:12534 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268232AbUIKRk1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 13:40:27 -0400
+Subject: Re: [Patch 4/4] cpusets top mask just online, not all possible
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: Anton Blanchard <anton@samba.org>, Andrew Morton <akpm@osdl.org>,
+       Simon.Derr@bull.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, IWAMOTO Toshihiro <iwamoto@valinux.co.jp>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+In-Reply-To: <20040911100731.2f400271.pj@sgi.com>
+References: <20040911082810.10372.86008.84920@sam.engr.sgi.com>
+	 <20040911082834.10372.51697.75658@sam.engr.sgi.com>
+	 <20040911141001.GD32755@krispykreme>  <20040911100731.2f400271.pj@sgi.com>
+Content-Type: text/plain
+Message-Id: <1094924372.3997.16.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 11 Sep 2004 10:39:32 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000902000700010505040607
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Now that I've actuallly _looked_ at your code, I noticed that the
+mems_allowed really is just a nodemask_t.  
 
-Eric Valette wrote:
-> 
->> I'll defer to Petkan as to what to do about this, as he sent me that
->> patch for a good reason I imagine :)
-> 
-> 
-> While we are looking at this driver, here is a way to avoid one full 
-> page of annoying messages at shutdown/module unload.
-> 
-> Signed-off-by: Eric Valette <Eric.Valette@free.fr>
+So, you shouldn't have much to worry about from the current memory
+hotplug stuff because we don't mess with hotplugging actual NUMA nodes
+yet.  As I eluded to before, you might need notification of we ever get
+down to a zero-sized node, but that should be id.  You'll certainly need
+notification when entire nodes go offline, so I'm adding Martin Bligh to
+the cc list (we just talked about NUMA hotplug yesterday).
 
-Wrong patch, sorry...
+Martin, you might want to look back in your LKML archives for where this
+discussion came from.
 
--- 
-    __
-   /  `                   	Eric Valette
-  /--   __  o _.          	6 rue Paul Le Flem
-(___, / (_(_(__         	35740 Pace
+-- Dave
 
-Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
-E-mail: eric.valette@free.fr
-
-
-
-
---------------000902000700010505040607
-Content-Type: text/x-patch;
- name="patch_rtl8150.c.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch_rtl8150.c.patch"
-
---- linux/drivers/usb/net/rtl8150.c-2.6.9-rc1-mm4.orig	2004-09-09 11:15:11.000000000 +0200
-+++ linux/drivers/usb/net/rtl8150.c	2004-09-11 14:06:44.000000000 +0200
-@@ -341,7 +341,7 @@
- 
- static int rtl8150_reset(rtl8150_t * dev)
- {
--	u8 data = 0x11;
-+	u8 data = 0x10;
- 	int i = HZ;
- 
- 	set_registers(dev, CR, 1, &data);
-@@ -389,10 +389,10 @@
- 
- static void unlink_all_urbs(rtl8150_t * dev)
- {
--	usb_unlink_urb(dev->rx_urb);
--	usb_unlink_urb(dev->tx_urb);
--	usb_unlink_urb(dev->intr_urb);
--	usb_unlink_urb(dev->ctrl_urb);
-+	usb_kill_urb(dev->rx_urb);
-+	usb_kill_urb(dev->tx_urb);
-+	usb_kill_urb(dev->intr_urb);
-+	usb_kill_urb(dev->ctrl_urb);
- }
- 
- static inline struct sk_buff *pull_skb(rtl8150_t *dev)
-@@ -656,7 +656,7 @@
- 	rtl8150_t *dev = netdev_priv(netdev);
- 	warn("%s: Tx timeout.", netdev->name);
- 	dev->tx_urb->transfer_flags |= URB_ASYNC_UNLINK;
--	usb_unlink_urb(dev->tx_urb);
-+	usb_kill_urb(dev->tx_urb);
- 	dev->stats.tx_errors++;
- }
- 
-
---------------000902000700010505040607--

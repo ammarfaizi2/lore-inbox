@@ -1,76 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbULFQ07@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbULFQ3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261555AbULFQ07 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 11:26:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbULFQ07
+	id S261553AbULFQ3t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 11:29:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbULFQ3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 11:26:59 -0500
-Received: from mailfe06.swip.net ([212.247.154.161]:54526 "EHLO
-	mailfe06.swip.net") by vger.kernel.org with ESMTP id S261555AbULFQ04
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 11:26:56 -0500
-X-T2-Posting-ID: 2Ngqim/wGkXHuU4sHkFYGQ==
-Subject: Re: The bugzilla story
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org, zwane@holomorphy.com, akpm@osdl.org
-In-Reply-To: <476570000.1102346931@[10.10.2.4]>
-References: <1102342960.727.59.camel@boxen>
-	 <476570000.1102346931@[10.10.2.4]>
-Content-Type: text/plain
-Date: Mon, 06 Dec 2004 17:26:45 +0100
-Message-Id: <1102350405.727.79.camel@boxen>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Dec 2004 11:29:49 -0500
+Received: from brown.brainfood.com ([146.82.138.61]:17057 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S261561AbULFQ2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 11:28:47 -0500
+Date: Mon, 6 Dec 2004 10:28:18 -0600 (CST)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Ed L Cashin <ecashin@coraid.com>
+cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.9
+In-Reply-To: <87acsrqval.fsf@coraid.com>
+Message-ID: <Pine.LNX.4.58.0412061027510.2173@gradall.private.brainfood.com>
+References: <87acsrqval.fsf@coraid.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-12-06 at 07:28 -0800, Martin J. Bligh wrote:
-> > As some of you may have noticed I've been doing a run on bugzilla for
-> > the last few days to close old bugs and upgrade those who still are real
-> > bugs.
-> > 
-> > I have a few things that I would like to enforce on bugzilla to makes it
-> > more maintanable which it clearly hasn't been for a while - there are
-> > lots and lots of bugs open older than 2.6.0-final.
-> > 
-> > I think the alternative trees section should be dropped. This is
-> > especially a matter for -mm which has most reports of the alternative
-> > trees in bugzilla. -mm changes way too rapidly to keep track of at
-> > bugzilla ending up with open bugs that are fixed long ago.
-> > 
-> > I also think this goes for any alternative tree, that problems should be
-> > reported directly to the maintainer/LKML of the tree. Only if a problem
-> > can be reproduced with the mainline kernel should the bug be reported at
-> > bugzilla. 
-> > 
-> > New bugzilla reports against other trees than mainline should be
-> > rejected and ask the submitter to report directly to the
-> > maintainer/LKML.
-> > 
-> > Andrew, what do you think about bug reports against -mm on bugzilla?
-> > 
-> > Does anyone see a problem with this? 
-> 
-> The subtrees section was created for exactly that reason - to isolate the
-> bugs in alternate trees, and keep the out of everyone else's hair. Now if
-> one was to argue that bugs in -mm should be cleaned up much more agressively,
-> that'd make a lot of sense ... but that should be fairly easy to do as 
-> they're in a separate category you can search by.
-> 
-> The main issue is that there haven't been many people doing what you're doing
-> now ... going through and housekeeping the bugs.
+On Mon, 6 Dec 2004, Ed L Cashin wrote:
 
-The thing is that -mm changes so fast that a bug reported can be solved
-an hour later, leaving a stale bug report for a few days (or years).
-Whoever wants to pick up the bug quite much has to mail either the
-bug-submitter asking if the bug has been resolved, mail the maintainer
-of whatever area the bug concerns or mail akpm. 
+> The included patch allows the Linux kernel to use the ATA over
+> Ethernet (AoE) network protocol to communicate with any block device
+> that handles the AoE protocol.  The Coraid EtherDrive (R) Storage
+> Blade is the first hardware using AoE.
+>
+> AoE devices on the LAN are accessable as block devices and can be used
+> with filesystems, Software RAID, LVM, etc.
+>
+> Like IP, AoE is an ethernet-level network protocol, registered with
+> the IEEE.  Unlike IP, AoE is not routable.
+>
+> This patch is released under the terms of the GPL.
+>
+> (We also have an AoE driver for the 2.4 kernel that we plan to release
+> soon.)
 
-This leads me to thinking that bugzilla doesn't serve any functionality
-for at least -mm.
-
-Alexander
-
-
+Is there a free server for this?

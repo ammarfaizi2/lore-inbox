@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266187AbUHHTBv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266186AbUHHTD1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266187AbUHHTBv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 15:01:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUHHTBv
+	id S266186AbUHHTD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 15:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266153AbUHHTD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 15:01:51 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:32996 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S266187AbUHHTBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 15:01:38 -0400
-Date: Sun, 8 Aug 2004 20:01:29 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: ak@muc.de, <mpm@selenic.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Allow to disable shmem.o
-In-Reply-To: <20040808113732.3416a4ee.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0408081944430.2377-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Sun, 8 Aug 2004 15:03:26 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:31287 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S266186AbUHHTDP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 15:03:15 -0400
+Date: Sun, 8 Aug 2004 21:05:08 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, sam@ravnborg.org,
+       zippel@linux-m68k.org
+Subject: Re: [PATCH] save kernel version in .config file
+Message-ID: <20040808190508.GD22610@mars.ravnborg.org>
+Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>, sam@ravnborg.org,
+	zippel@linux-m68k.org
+References: <20040803225753.15220897.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040803225753.15220897.rddunlap@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Aug 2004, Andrew Morton wrote:
-> Hugh Dickins <hugh@veritas.com> wrote:
-> >
-> > But somehow I still prefer Matt's patch, which offers a lot more.
+On Tue, Aug 03, 2004 at 10:57:53PM -0700, Randy.Dunlap wrote:
 > 
-> Me too - it's sneaky.
+> (from June/2004 email thread:
+> http://marc.theaimsgroup.com/?t=108753573200001&r=1&w=2
+> )
 > 
-> I suspect it's more SMp scalable than shmem.c too?
+> Several people found this useful, none opposed (afaik).
+> 
+> Saves kernel version in .config file, e.g.:
+> 
+> #
+> # Automatically generated make config: don't edit
+> # Linux kernel version: 2.6.8-rc3
+> # Tue Aug  3 22:55:57 2004
+> #
+> 
+> Please merge.
 
-I bet it is (unless it falls into generic filepage overheads
-which shmem is skating past e.g. attempts to readahead).
+Applied - thanks.
 
-Though I hope not notably more so by the time I've finished
-reworking shmem_getpage (was on the right track yesterday,
-but other issues have intervened today).
-
-They should both come down to find_get_page (find_lock_page in
-shmem.c's case, only an issue when contention on same page),
-alloc_page, add_to_page_cache: contention on tree_lock.
-
-Its main deficiency (aside from the lack of swap use, which in
-some contexts is a plus) is its lack of resource limiting.
-
-Hugh
-
+	Sam

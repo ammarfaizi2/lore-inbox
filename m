@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315238AbSEOARb>; Tue, 14 May 2002 20:17:31 -0400
+	id <S316170AbSEOA3D>; Tue, 14 May 2002 20:29:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316169AbSEOARa>; Tue, 14 May 2002 20:17:30 -0400
-Received: from 216-220-241-232.midmaine.com ([216.220.241.232]:50186 "EHLO
-	nic-naa.net") by vger.kernel.org with ESMTP id <S315238AbSEOARa>;
-	Tue, 14 May 2002 20:17:30 -0400
-Message-Id: <200205150011.g4F0BI9u010990@nic-naa.net>
-To: "Woodruff, Robert J" <woody@co.intel.com>
-cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com, brunner@nic-naa.net
-Subject: Re: InfiniBand BOF @ LSM - topics of interest 
-In-Reply-To: Your message of "Mon, 13 May 2002 09:25:41 PDT."
-             <D9223EB959A5D511A98F00508B68C20C0BFB7E68@orsmsx108.jf.intel.com> 
-Date: Tue, 14 May 2002 20:11:18 -0400
-From: Eric Brunner-Williams in Portland Maine <brunner@nic-naa.net>
+	id <S316171AbSEOA3C>; Tue, 14 May 2002 20:29:02 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8976 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316170AbSEOA3C>; Tue, 14 May 2002 20:29:02 -0400
+Date: Tue, 14 May 2002 17:28:03 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Pavel Machek <pavel@suse.cz>
+cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+        Diego Calleja <DiegoCG@teleline.es>, Andi Kleen <ak@muc.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] CONFIG_ISA
+In-Reply-To: <20020513123731.B34@toy.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0205141725430.22739-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Soliciting specific topics that people would like to discuss at the LSM
-> InfiniBand BOF.
-> There are at least 2 that I thought might be good discussion topics;
-	...
-> Others ?
 
-Well, I'm sort of partial to MPI as a reason to pursue the bandwidth/latency
-data fabric goose. 
 
-The DAT project (kDAPL) seems worth disussion too.
+On Mon, 13 May 2002, Pavel Machek wrote:
+>
+> outb to 0x80, and watch it go to ISA. Not all ports < 0x80 are mainboard.
 
-My two beads of wampum,
-Eric
+True and false. 0x0-0xff is specced for motherboard stuff, and you'r enot
+supposed to use them for add-in cards.
+
+Anyway, add-in ISA cards are _supposed_ to all be in the 0x100-0x3ff IO
+port range. Anything else might be routed to the MB or over PCI.
+
+But yes, motherboards generally do negative decoding for ISA, so anything
+that isn't claimed by anything else will just be sent out to the ISA bus.
+
+In particular, PC's aren't really standardized, they are mostly a big heap
+of "existing practice".
+
+		Linus
+

@@ -1,44 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132128AbRAXAia>; Tue, 23 Jan 2001 19:38:30 -0500
+	id <S132167AbRAXAlA>; Tue, 23 Jan 2001 19:41:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132167AbRAXAiU>; Tue, 23 Jan 2001 19:38:20 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:28680 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S132128AbRAXAiM>;
-	Tue, 23 Jan 2001 19:38:12 -0500
-Date: Wed, 24 Jan 2001 01:38:00 +0100
-From: Andi Kleen <ak@suse.de>
-To: Pete Elton <elton@iqs.net>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-Subject: Re: Turning off ARP in linux-2.4.0
-Message-ID: <20010124013800.A12632@gruyere.muc.suse.de>
-In-Reply-To: <20010124011011.A12252@gruyere.muc.suse.de> <200101240027.QAA14665@tech1.nameservers.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200101240027.QAA14665@tech1.nameservers.com>; from elton@iqs.net on Tue, Jan 23, 2001 at 04:27:21PM -0800
+	id <S132216AbRAXAku>; Tue, 23 Jan 2001 19:40:50 -0500
+Received: from iq.sch.bme.hu ([152.66.226.168]:29993 "EHLO iq.rulez.org")
+	by vger.kernel.org with ESMTP id <S132207AbRAXAki>;
+	Tue, 23 Jan 2001 19:40:38 -0500
+Date: Wed, 24 Jan 2001 01:43:26 +0100 (CET)
+From: Sasi Peter <sape@iq.rulez.org>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Godfrey Livingstone <godfrey@hattaway-associates.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Ingo's RAID patch for 2.2.18 final?
+In-Reply-To: <20010124010936.A1201@athlon.random>
+Message-ID: <Pine.LNX.4.30.0101240126500.3522-100000@iq.rulez.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 23, 2001 at 04:27:21PM -0800, Pete Elton wrote:
-> Any ideas on how I can turn off the arping?  I guess the thing that I 
+On Wed, 24 Jan 2001, Andrea Arcangeli wrote:
 
-I explained it in my last mail how to do it using arpfilter. I do not claim 
-that it is an elegant solution.
+> > 2.2.19preXaaX Virtually disabled I/O cache extention-by-swapout, working
+> > on previous (semi)stock kernels (raid+ide patched) :(
+> Can you measure a performance degradation because of that? Previous kernels was
+> certainly not a good example because they was swapping out stuff even with
+> `cp /dev/zero .`.
 
-It's probably not worse a hack than hidden is in the first place though.
+Still produced an overall average extra 30+% more serviced bandwidth for
+fileserving. (large files, we can call them high BW streaming...)
 
-> am most curious about is how it ending up being removed from the kernel
-> in the first place.  It must have been a decision that someone made.
-> Either, we don't need that any more since we can do it this way, or
-> we'll take it out since nobody uses it.
+> You said me your machine start to swapout when the filesystem cache reaches
+> 100mbytes (on your 384Mbyte box). That seems sane behaviour on a misc load. We
 
-It was only submitted to 2.2 a few months ago (=years after 2.3 branched), but 
-never added to 2.4. 
+Nope.
 
+> could add some additional bit of page aging to swapout more when it worth
+> indeed, but current balance looks just quite sane.
 
--Andi
+Ok let's see: the box does a lot of this fileserving. 3MB/s+
+
+Sometimes I use it interactivelly (pine, X, netscape).
+
+Sometimes others log in remotely, pine, etc.
+
+Sometimes they read their mail (apache, neomail)
+
+bind runs for one (1) zone.
+
+Sshd is listening.
+
+Sendmail is listening.
+
+Infrequently friends use squid proxy on it.
+
+Notes runs, currently is being tested, buteven more infrequently.
+
+=> So, basically, a lot of stuff is runing, but they are rarely used.
+Compared to the gain which could result swapping out the more or less
+inactive processes' pages, freeing ram for the all time fileservings cache
+(30+ high speed streams from 4 disks does really need some caching).
+
+I do not say the case is "nothing is active please store everything on
+swap, get back only what is needed", but the actual situation is on the
+contrary: 0 (zero) bytes swapped out!
+
+Can't say, of these many daemons nothing can be swapped out (and should
+under I/O load)!
+
+And even if I don't think this zero swapping is ok, I do use it, because I
+do not get a single "VM: do_try_to_free_pages failed for ..." no more...
+The performance just used to be better, but the whole more instable.
+
+Be this, if this is the price for stability.
+
+-- 
+SaPE - Peter, Sasi - mailto:sape@sch.hu - http://sape.iq.rulez.org/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261834AbSJVADG>; Mon, 21 Oct 2002 20:03:06 -0400
+	id <S261839AbSJVAI6>; Mon, 21 Oct 2002 20:08:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261836AbSJVADG>; Mon, 21 Oct 2002 20:03:06 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:25285 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S261834AbSJVADG>;
-	Mon, 21 Oct 2002 20:03:06 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S261836AbSJVAI6>; Mon, 21 Oct 2002 20:08:58 -0400
+Received: from pc132.utati.net ([216.143.22.132]:35456 "HELO
+	merlin.webofficenow.com") by vger.kernel.org with SMTP
+	id <S261839AbSJVAI6> convert rfc822-to-8bit; Mon, 21 Oct 2002 20:08:58 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: Any hope of fixing shutdown power off for SMP?
+Date: Mon, 21 Oct 2002 14:15:03 -0500
+User-Agent: KMail/1.4.3
+Cc: Jurriaan <thunder7@xs4all.nl>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.3.96.1021021163731.4564A-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1021021163731.4564A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15796.38594.516266.130894@napali.hpl.hp.com>
-Date: Mon, 21 Oct 2002 17:07:30 -0700
-To: Erich Focht <efocht@ess.nec.de>
-Cc: David Mosberger <davidm@hpl.hp.com>, Matthew Dobson <colpatch@us.ibm.com>,
-       "linux-ia64" <linux-ia64@linuxia64.org>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] topology for ia64
-In-Reply-To: <200210051904.22480.efocht@ess.nec.de>
-References: <200210051904.22480.efocht@ess.nec.de>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210211415.03206.landley@trommello.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Sat, 5 Oct 2002 19:04:22 +0200, Erich Focht <efocht@ess.nec.de> said:
+On Monday 21 October 2002 15:41, Bill Davidsen wrote:
+> On Sun, 20 Oct 2002, Rob Landley wrote:
+> > On Sunday 20 October 2002 21:45, Bill Davidsen wrote:
+> > > On Sun, 20 Oct 2002, Jurriaan wrote:
+> > > > 2.5.43 will power down my smp VP6 board if I replace the BUG() calls
+> > > > in arch/i386/kernel/apm.c with warnings. Somehow, the kernel doesn't
+> > > > succesfully schedule itself to run on CPU 0. However, for my bios
+> > > > that isn't needed.
+> > >
+> > > Are you using the real-mode call? Perhaps I should try NOT doing that,
+> > > and see if it solves the problem. That used to be the solution, but
+> > > things change.
+> >
+> > None of my systems will power down on UP if I enable the "local apic
+> > support on uniprocessors" option.
+> >
+> > Something about the APIC code prevents the power down from occuring.  The
+> > symptoms are as you describe: the drives spin down, and the power goes
+> > off immediately if you press the button (instead of having to hold it
+> > down), but the power doesn't go off by itself.
+> >
+> > Works fine if I compile without local APIC support.
+>
+> Hum, and you can quote me on that. I don't have that particular problem at
+> all, my problem is only with SMP.
 
-  Erich> Hi David, please find attached a first attempt to implement
-  Erich> the topology.h macros/routines for IA64. We need this for the
-  Erich> NUMA scheduler setup.
+SMP machines have the APIC enabled by default.  Hence the problem sounds like 
+it's (at least being triggered by) the APIC code.
 
-Why does the cpu_to_node_map[] exist for non-NUMA configurations?  It
-seems to me that it would be better to make cpu_to_node_map a macro
-that uses an array-check for NUMA configurations and a simple test
-against phys_cpu_present_map() for non-NUMA.
+> Anyway, my kernels are SMP, and if I boot "nosmp" they work fine with
+> every APIC in sight enabled. This may or may not be the same problem, you
+> could build an SMP kernel and boot it "nosmp" with APIC on and see what
+> that does (if you're curious).
 
-	--david
+Dunno.  The boxen I currently manage are UP (cheaper that way), so I don't 
+actually need the APIC, so I switched it off and life went on.  Alan Cox 
+seems to be of the opinion that bios bugs are involved, which should come as 
+no surprise. :)
+
+Rob

@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314080AbSEMQMD>; Mon, 13 May 2002 12:12:03 -0400
+	id <S314083AbSEMQQJ>; Mon, 13 May 2002 12:16:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314083AbSEMQMC>; Mon, 13 May 2002 12:12:02 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:27923 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S314080AbSEMQMB>; Mon, 13 May 2002 12:12:01 -0400
-Date: Mon, 13 May 2002 12:08:09 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Zlatko Calusic <zlatko.calusic@iskon.hr>
-cc: Rik van Riel <riel@conectiva.com.br>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] IO wait accounting
-In-Reply-To: <87bsbl9ogw.fsf@atlas.iskon.hr>
-Message-ID: <Pine.LNX.3.96.1020513120027.27042A-100000@gatekeeper.tmr.com>
+	id <S314093AbSEMQQI>; Mon, 13 May 2002 12:16:08 -0400
+Received: from www.cdhutmusic.co.sz ([196.28.7.66]:51928 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S314083AbSEMQQH>; Mon, 13 May 2002 12:16:07 -0400
+Date: Mon, 13 May 2002 17:52:26 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Steve Kieu <haiquy@yahoo.com>, kernel <linux-kernel@vger.kernel.org>
+Subject: Re: OOPS 2.4.19-pre7-ac4 (Was: strange things in kernel 2.4.19-pre7-ac4
+ + preempt patch)
+In-Reply-To: <200205131412.g4DECHY06608@Port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.44.0205131736240.353-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 May 2002, Zlatko Calusic wrote:
+On Mon, 13 May 2002, Denis Vlasenko wrote:
 
-> Rik van Riel <riel@conectiva.com.br> writes:
+> > I did use memtest86 and all test is passed, no errors.
+> > And problem still persists with 2.4.19-pre8-ac2 ; oops
+> > after exiting X
 > >
-> > And should we measure read() waits as well as page faults or
-> > just page faults ?
-> >
+> > Now I have to use 2.4.16 ; any way all kernel before
+> > 2.4.19-pre2 is normal, I did not test 2.4.19-preX>2
+> > but 2.4.19-pre7-ac4 and 2.4.19-pre8-ac2
 > 
-> Definitely both. Somewhere on the web was a nice document explaining
-> how Solaris measures iowait%, I read it few years ago and it was a
-> great stuff (quite nice explanation).
+> When no one answers on lkml to your oops report, you
+> have basically the only choice: start looking at stack trace
+> yourself, insert printks here and there, recompile and give it a try.
 
-  I'm out of town so I miss a bit of this, but I agree, what you want time
-waiting for IO, total.
+This looks fishy...
 
-  That said, it would probably be useful to keep the first patch
-information, since overall disk performance reflects in total IOwait,
-while wait VM is useful comparing the several flavors of vm tuning and
-enhancement, bot the the implementors and the users, who may have unusual
-configurations.
+static void i810_free_page(drm_device_t *dev, unsigned long page)
+{
+        struct page * p = virt_to_page(page);
+        if(page == 0UL)
+                return;
 
-  I hope that write blocks are falling into place as well, because even
-though they are less common, you still get programs which build ugly stuff
-like a full 700MB CD image in memory and do that last write (or close, or
-fsync, etc). This is bad with large memory, and unspeakable with small,
-where stuff is being paged in and writen out.
+        put_page(p);
+        unlock_page(p);
+[...]
+
+You get to unlock_page with p = %eax
+
+void unlock_page(struct page *page)
+{
+        wait_queue_head_t *waitqueue = page_waitqueue(page);
+
+[...]
+
+The question now is... what is going on here???
+
+static void i810_free_page(drm_device_t *dev, unsigned long page <-- )
+{
+        struct page * p = virt_to_page(page); <--
+
+What exactly is unsigned long page supposed to be? I sure as hell hope its 
+an address... if it is, thats a really strange variable naming...
+
+Cheers,
+	Zwane Mwaikambo
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+http://function.linuxpower.ca
+		
 

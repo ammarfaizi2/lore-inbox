@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270510AbTHLPXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 11:23:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270501AbTHLPXP
+	id S270458AbTHLPZn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 11:25:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270461AbTHLPZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 11:23:15 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:23245 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S270510AbTHLPXB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 11:23:01 -0400
-Date: Tue, 12 Aug 2003 08:22:55 -0700
-From: long <tlnguyen@snoqualmie.dp.intel.com>
-Message-Id: <200308121522.h7CFMtc4003862@snoqualmie.dp.intel.com>
-To: greg@kroah.com, zwane@linuxpower.ca
-Subject: Re: Updated MSI Patches
-Cc: jun.nakajima@intel.com, linux-kernel@vger.kernel.org,
-       pcihpd-discuss@lists.sourceforge.net, tlnguyen@snoqualmie.dp.intel.com,
-       tom.l.nguyen@intel.com
+	Tue, 12 Aug 2003 11:25:43 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:64149 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S270458AbTHLPZf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 11:25:35 -0400
+Subject: Re: [PATCH] [2.6.0-test3] request_firmware related problems.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, ranty@debian.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       willy@debian.org
+In-Reply-To: <3F36CE8D.8090201@pobox.com>
+References: <20030810210646.GA6746@ranty.pantax.net>
+	 <20030810142928.4b734e8d.akpm@osdl.org> <3F36CD93.4010704@pobox.com>
+	 <3F36CE8D.8090201@pobox.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1060701706.21159.26.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 12 Aug 2003 16:21:46 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > I hope there may be a way to determine the number of vectors supported 
-> > > by CPU during the run-time. I look at the file ../include/asm-i386/mach-
-> > > default/irq_vectors.h, the maximum of vectors (256) is already well 
-> > > commented.
-> > 
-> > Yeah, but that's in reference to APIC interrupt sources, right?  Does
-> > that correspond to these "vectors" too?  If so, why not just use the
-> > existing NR_IRQS value instead of creating your own?
+On Llu, 2003-08-11 at 00:00, Jeff Garzik wrote:
+> > 2) ponder perhaps an implementation that would use generic keventd until 
+> > a certain load is reached; then, create per-cpu kernel threads just like 
+> > private workqueue creation occurs now.  i.e. switch from shared 
+> > (keventd) to private at runtime.
 > 
-> There isn't a 1:1 relationship between NR_IRQS and NR_VECTORS we really 
-> shouldn't mix them together. NR_IRQS can be much higher than 256 whilst 
-> on i386 we're fixed to 256 vectors due to that being the Interrupt 
-> Descriptor Table capacity. It is still possible to service more interrupt 
-> lines than 256 on SMP however by making IDTs per 'interrupt servicing 
-> node'
+> 
+> 3) offer private workqueue interface like we have now -- but one thread 
+> only, not NN threads
 
-> Ah, so for processors other than i386, NR_VECTORS can be bigger?
+4) Have one permanent thread running which kicks off another thread
+whenever something has been on the queue for more than 5 seconds and
+reaps threads when the queue is empty for 30 ?
 
-> I think a nice description is still needed for this value for just this
-> reason :)
-
-Agree. Will put some comments describing this value. 
-
-Thanks,
-Long

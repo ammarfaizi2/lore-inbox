@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275822AbRJ2PdE>; Mon, 29 Oct 2001 10:33:04 -0500
+	id <S276021AbRJ2Pkz>; Mon, 29 Oct 2001 10:40:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275989AbRJ2Pcz>; Mon, 29 Oct 2001 10:32:55 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5469 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S275822AbRJ2Pcn>; Mon, 29 Oct 2001 10:32:43 -0500
-To: Daniel Duke <danduke@iprimus.com.au>
-Cc: "Linux Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.4.x freezes on boot
-In-Reply-To: <01C16009.C6751AA0.danduke@iprimus.com.au>
-From: ebiederman@uswest.net (Eric W. Biederman)
-Date: 29 Oct 2001 08:22:27 -0700
-In-Reply-To: <01C16009.C6751AA0.danduke@iprimus.com.au>
-Message-ID: <m1bsiqjwss.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S276032AbRJ2Pkf>; Mon, 29 Oct 2001 10:40:35 -0500
+Received: from pl038.nas921.ichikawa.nttpc.ne.jp ([210.165.234.38]:13329 "EHLO
+	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S275990AbRJ2PkZ>;
+	Mon, 29 Oct 2001 10:40:25 -0500
+Date: Tue, 30 Oct 2001 00:39:09 +0900
+From: Bruce Harada <bruce@ask.ne.jp>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.0-preXX compile errors solved
+Message-Id: <20011030003909.5f60fbd9.bruce@ask.ne.jp>
+X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.8; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Duke <danduke@iprimus.com.au> writes:
 
-> As the subject indicates, I'm having trouble running 2.4.x kernels.  I've 
-> tried 2.4.10 and 2.4.13, and both of them compile perfectly (no errors) but 
-> when I insert them into LILO and reboot I get the following:
-> 
-> LILO:  Linux
-> Loading Linux........
-> 
-> and the computer freezes at this point, every time.  I've tried compiling 
-> it for PIII/Celeron Coppermine (which is the correct one for me I think) 
-> and 386.  I've compiled the kernel under Debian GNU/Linux 2.2r3 (kernel 
-> 2.2.19) with GCC 2.91.66.
+I was getting compile errors for 2.2.20-pre11 on a Slackware 3.6 box. Since the
+errors involved undefined symbols and unmatched struct definitions, I made the
+silly assumption that I was missing a header file somewhere.
 
-Hmm.  It looks like something is up wrong with lilo.  If you don't get
-as far as the Uncompressing line, you haven't even gotten to the linux
-kernel.  It may be something in the 16 bit setup code that queries
-the BIOS but that is unlikely.
+After looking at it a bit more carefully and repatching, I finally noticed that
+patch was failing partway through... :(
 
-Hmm.  Actually more likely which kernel have you pointed lilo to?
-arch/i386/boot/bzImage?
+The problem goes back to 2.2.20-pre4, where the following appears in the section
+of the patch relating to arch/ppc/kernel/openpic.c:
 
-Eric
+-#endif /* CONFIG_PMAC_PBOOK */
+\ No newline at end of file    
++#endif /* CONFIG_PMAC_PBOOK */
+
+It would appear that later versions of diff output the "\ No newline..." line
+when they find a file that has, surprise surprise, no newline at the end.
+What I failed to realise was that older versions of patch (in my case, 2.1b)
+choke on this kind of thing with a malformed patch error. I tried a later
+version (2.5), which copes with it quite happily.
+
+While I realise that the answer will most likely be "Upgrade your userland!", it
+might be a good idea to consider filtering these lines out for the 2.2 series,
+since it's more likely to be run on older boxes.
+
+Bruce

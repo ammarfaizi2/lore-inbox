@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312694AbSDSUbQ>; Fri, 19 Apr 2002 16:31:16 -0400
+	id <S312790AbSDSUdK>; Fri, 19 Apr 2002 16:33:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312790AbSDSUbP>; Fri, 19 Apr 2002 16:31:15 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:44297
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S312694AbSDSUbO>; Fri, 19 Apr 2002 16:31:14 -0400
-Date: Fri, 19 Apr 2002 13:30:03 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Heinz Diehl <hd@cavy.de>
-cc: linux-kernel@vger.kernel.org, jmagallon@able.es
-Subject: Re: [PATCHSET] Linux 2.4.19-pre7-jam1
-In-Reply-To: <20020419140520.GA1687@chiara.cavy.de>
-Message-ID: <Pine.LNX.4.10.10204191329230.19117-100000@master.linux-ide.org>
+	id <S312889AbSDSUdJ>; Fri, 19 Apr 2002 16:33:09 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5714 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S312790AbSDSUdJ>; Fri, 19 Apr 2002 16:33:09 -0400
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Mel <mel@csn.ul.ie>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Documenation/vm/numa
+In-Reply-To: <Pine.LNX.4.44.0204190448070.8173-100000@skynet>
+	<2809819807.1019168322@[10.10.2.3]>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 Apr 2002 14:25:50 -0600
+Message-ID: <m1n0vz4er5.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Thank you for the positive report ! :-)
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Fri, 19 Apr 2002, Heinz Diehl wrote:
-
-> On Thu Apr 18 2002, J.A. Magallon wrote:
+"Martin J. Bligh" <Martin.Bligh@us.ibm.com> writes:
 > 
-> > >I also changed '#if 1' to '#if 0' as Andre mentioned but it has no effect,
-> > >my machine hangs at boot time....
-> 
-> > It worked for me, just booted fine with hdparm included...
-> 
-> I just merged "ide-2.4.19-p7.all.convert.5.patch" into my tree, and now
-> it works also for me. With former versions my machine hung at boot time,
-> wether #if 0 or 1 was set.
-> 
-> -- 
-> # Heinz Diehl, 68259 Mannheim, Germany
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Note that there are two possible ways to define a pfn, in my mind.
+> One would be page_phys_addr >> PAGE_SHIFT. The other would be the
+> offset of the struct page for that page within the mythical mem_map
+> array. I prefer the former, though it probably contradicts everyone
+> else ;-) It's useful to have some way to pass around a 36 bit address
+> inside a 32 bit field.
 
+A page frame number (pfn) is definitely the former 
+(page_phys_addr >> PAGE_SHIFT).
+
+Eric

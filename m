@@ -1,102 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263803AbUACTDr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 14:03:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263836AbUACTDr
+	id S263810AbUACS6O (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 13:58:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263792AbUACS5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 14:03:47 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55174 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263803AbUACTCu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 14:02:50 -0500
-Date: Sat, 3 Jan 2004 10:57:37 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Daniel Tram Lux <daniel@starbattle.com>
-cc: Rob Love <rml@ximian.com>, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       steve@drifthost.com, James Bourne <jbourne@hardrock.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Gergely Tamas <dice@mfa.kfki.hu>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: no DRQ after issuing WRITE was Re: 2.4.23-uv3 patch set released
-In-Reply-To: <3FF6A612.90708@starbattle.com>
-Message-ID: <Pine.LNX.4.58.0401031024090.20823@home.osdl.org>
-References: <Pine.LNX.4.51.0312290052470.1599@cafe.hardrock.org> 
- <Pine.LNX.4.58L.0312300935040.22101@logos.cnet>  <Pine.LNX.4.58.0312301130430.2065@home.osdl.org>
-  <Pine.LNX.4.58L.0312301849400.23875@logos.cnet>  <Pine.LNX.4.58.0312301352570.2065@home.osdl.org>
-  <1072823015.4350.40.camel@fur>  <Pine.LNX.4.58.0312301452370.2065@home.osdl.org>
- <1072825101.4350.55.camel@fur> <3FF6A612.90708@starbattle.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 3 Jan 2004 13:57:42 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:32274 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263788AbUACS5i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 13:57:38 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: [CFT][RFC] HT scheduler
+Date: Sat, 03 Jan 2004 13:57:45 -0500
+Organization: TMR Associates, Inc
+Message-ID: <bt72kk$chk$1@gatekeeper.tmr.com>
+References: Your message of "Sat, 13 Dec 2003 17:43:35 +1100."             <3FDAB517.4000309@cyberone.com.au> <20031215060838.BF3D32C257@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1073155540 12852 192.168.12.10 (3 Jan 2004 18:45:40 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+In-Reply-To: <20031215060838.BF3D32C257@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rusty Russell wrote:
 
+> Actually, having produced the patch, I've changed my mind.
+> 
+> While it was spiritually rewarding to separate "struct runqueue" into
+> the stuff which was to do with the runqueue, and the stuff which was
+> per-cpu but there because it was convenient, I'm not sure the churn is
+> worthwhile since we will want the rest of your stuff anyway.
+> 
+> It (and lots of other things) might become worthwhile if single
+> processors with HT become the de-facto standard.  For these, lots of
+> our assumptions about CONFIG_SMP, such as the desirability of per-cpu
+> data, become bogus.
 
-On Sat, 3 Jan 2004, Daniel Tram Lux wrote:
->
-> I tried setting the timeout up as a first fix, it also decreased the 
-> frequency of the error,
-> however it did not get rid of the error.
+Now that Intel is shipping inexpensive CPUs with HT and faster memory 
+bus, I think that's the direction of the mass market. It would be very 
+desirable to have HT help rather than hinder. However, I admit I'm 
+willing to take the 1-2% penalty on light load to get the bonus on heavy 
+load.
 
-That is scary beyond belief.
+If someone has measured the effect of HT on interrupt latency or server 
+transaction response I haven't seen it, but based on a server I just 
+built using WBEL and the RHEL scheduler, first numbers look as if the 
+response is better. This is just based on notably less data in the 
+incoming sockets, but it's encouraging.
 
-Basically you doubled your timeout, and you certainly _should_ have seen 
-at least one more status read from the extra 50 msec you waited. And since 
-your patch (which fixes it) only adds _one_ status read, that implies that 
-the extra 50 msec timeout didn't get a single time through the loop.
+"netstat -t | sort +1nr" shows a LOT fewer sockets with unread bytes.
 
-> The device the error occurs with is a cf card. The error also occurs
-> much more frequently in 2.4.23 than in 2.4.20 (but it can be provoked in
-> 2.4.20). Neither use the preemption patch and both are from kernel.org.
-> The platform is based on an AMD Elan processor which is a 486 compatible
-> processor, running at 133 Mhz. The IDE subsytem does not use any extra
-> drivers and is not a PCI ide chipset.
-
-Yes, that path is only used for PIO writes, so it's clearly not a 
-high-performance IDE setup. Adn yes, I guess with a slow enough CPU and 
-enough interrupt load, you literally could spend 50ms just handling irqs. 
-Still, that is pretty damn scary. But I guess the load:
-
->  ... there is a flood ping running and the machine is being 
-> flood pinged + there is traffic on three serial ports (RS485).
-
-is pretty extreme.
-
-> I saw two possibilities, either disabeling the interrupts while first
-> reading the status and then checking the timeout, after which the
-> interrupts would be enabled again. Or to just make one extra check after
-> the timout has expired because that is cheaper than returning, failing
-> and then resetting the drive. After I applied my patch (using the
-> 5*HZ/100 timeout) my test ran for a full weekend without giving the
-> timeout error.
-
-Ok, I think I'm convinced. That loop and the IDE usage of interrupt
-enables is just crap. I don't think your addition is very pretty, but the 
-alternative is to rewrite the loop to be sane, which isn't going to happen 
-in a stable kernel.
-
-How about a slightly more minimal patch, though? Ie does this work for 
-you?
-
-		Linus
-
-----
-===== drivers/ide/ide-iops.c 1.18 vs edited =====
---- 1.18/drivers/ide/ide-iops.c	Wed Jun 11 18:23:09 2003
-+++ edited/drivers/ide/ide-iops.c	Sat Jan  3 10:54:21 2004
-@@ -647,6 +647,15 @@
- 		timeout += jiffies;
- 		while ((stat = hwif->INB(IDE_STATUS_REG)) & BUSY_STAT) {
- 			if (time_after(jiffies, timeout)) {
-+				/*
-+				 * One last read after the timeout in case
-+				 * heavy interrupt load made us not make any
-+				 * progress during the timeout..
-+				 */
-+				stat = hwif->INB(IDE_STATUS_REG);
-+				if (!(stat & BUSY_STAT))
-+					break;
-+
- 				local_irq_restore(flags);
- 				*startstop = DRIVER(drive)->error(drive, "status timeout", stat);
- 				return 1;
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

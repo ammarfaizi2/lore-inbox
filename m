@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279875AbRKFS3G>; Tue, 6 Nov 2001 13:29:06 -0500
+	id <S279925AbRKFSiI>; Tue, 6 Nov 2001 13:38:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279937AbRKFS24>; Tue, 6 Nov 2001 13:28:56 -0500
-Received: from delta.ds.pg.gda.pl ([213.192.72.1]:35730 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S279893AbRKFS2t>; Tue, 6 Nov 2001 13:28:49 -0500
-Date: Tue, 6 Nov 2001 19:22:41 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Charles Marslett <cmarslett9@cs.com>
-cc: Greg Sheard <greg@ecsc.co.uk>, Martin Mares <mj@ucw.cz>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [OT] Intel chipset development documents
-In-Reply-To: <3BE31A2B.9A52ABC4@cs.com>
-Message-ID: <Pine.GSO.3.96.1011106191915.24538E-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S279893AbRKFSh7>; Tue, 6 Nov 2001 13:37:59 -0500
+Received: from mustard.heime.net ([194.234.65.222]:11945 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S279925AbRKFShj>; Tue, 6 Nov 2001 13:37:39 -0500
+Date: Tue, 6 Nov 2001 19:37:38 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Compaq NC6136Gig support
+Message-ID: <Pine.LNX.4.30.0111061932520.25031-100000@mustard.heime.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Nov 2001, Charles Marslett wrote:
+hi
 
-> All the PPro and newer chip sets use Type 1 so far as I am aware.  Also,
-> I don't know of any chips that support both -- you get one or the other.
+I plan to get a Compaq server, but it looks like the NIC isn't officially
+supported in Linux. Compaq gives access to an rpm package including the
+driver source.
 
- The i430LX/NX chipset supports both.  Docs for the chipset are still
-available from the Intel site. 
+Does anyone know if this will be merged into the official or -ac tree
+soon?
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+thanks
+
+roy
+
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
 

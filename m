@@ -1,55 +1,28 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314743AbSEPVkz>; Thu, 16 May 2002 17:40:55 -0400
+	id <S314787AbSEPVxC>; Thu, 16 May 2002 17:53:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314755AbSEPVky>; Thu, 16 May 2002 17:40:54 -0400
-Received: from scfdns02.sc.intel.com ([143.183.152.26]:9688 "EHLO
-	crotus.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S314743AbSEPVkx>; Thu, 16 May 2002 17:40:53 -0400
-Message-Id: <200205162140.g4GLelw01400@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Mark Gross <mgross@unix-os.sc.intel.com>
-Reply-To: mgross@unix-os.sc.intel.com
-Organization: SSG Intel
-To: Robert Love <rml@tech9.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PATCH Multithreaded core dump support for the 2.5.14 (and 15) kernel.
-Date: Thu, 16 May 2002 14:40:24 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: Daniel Jacobowitz <dan@debian.org>, Andi Kleen <ak@suse.de>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E178SrT-00057L-00@the-village.bc.nu> <1021584279.914.4.camel@sinai>
+	id <S314841AbSEPVxB>; Thu, 16 May 2002 17:53:01 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46340 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314787AbSEPVxB>; Thu, 16 May 2002 17:53:01 -0400
+Subject: Re: [PATCH 2.4.19pre8][RFC] remove-NFS-close-to-open from VFS (was Re: [PATCHSET] 2.4.19-pre8-jp12)
+To: joergprante@gmx.de
+Date: Thu, 16 May 2002 23:13:01 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <200205162142.AWF00051@netmail.netcologne.de> from "=?iso-8859-15?q?J=F6rg=20Prante?=" at May 16, 2002 11:40:19 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E178TUb-0005Bh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 May 2002 05:24 pm, Robert Love wrote:
-> On Thu, 2002-05-16 at 14:32, Alan Cox wrote:
-> > > For this to happen that semaphore would have to held across
-> > > schedule()'s. The ONLY place I've seen that in the kernel is
-> > > set_CPUs_allowed + migration_thread.
-> >
-> > The 2.5 kernel is pre-emptible.
->
-> Indeed :)
->
-> But there is plenty of places in the kernel - sans preemption - where we
-> sleep while holding a semaphore.  Was that the original question?  If
-> so, set_cpus_allowed by be one of the few _explicit_ places but we
-> implicitly sleep holding a semaphore all over.  Heck, we use them for
-> user-space synchronization.
->
-> 	Robert Love
->
+> Is it possible to leave the VFS layer untouched? Or restrict the dentry 
+> revalidation to NFS and let other remote file systems coexist, i.e. without 
+> revalidation calls? 
 
-The original question was:
-Couldn't the TCore patch deadlock in elf_core_dump on a semiphore held by a 
-sleeping process that gets placed onto the phantom runque?
-
-So far I can't tell the problem is real or not, but I'm worried :(
-
-I haven't hit any such deadlocks in my stress testing, such as it is.  In my 
-review of the code I don't see any obviouse problems dispite the fact that 
-the mmap_sem is explicitly grabbed by elf_core_dump.
-
---mgross
+Really the other file systems want fixing - that revalidation is a real bug
+fix and the situation could occur for other network file systems too

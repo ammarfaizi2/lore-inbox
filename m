@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268095AbTBRXqa>; Tue, 18 Feb 2003 18:46:30 -0500
+	id <S268105AbTBRXtP>; Tue, 18 Feb 2003 18:49:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268098AbTBRXqa>; Tue, 18 Feb 2003 18:46:30 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:8882 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S268095AbTBRXq3>; Tue, 18 Feb 2003 18:46:29 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "Rob Emanuele" <rje@cyan.com>
-Date: Wed, 19 Feb 2003 10:56:11 +1100
+	id <S268106AbTBRXtP>; Tue, 18 Feb 2003 18:49:15 -0500
+Received: from ip252-142.choiceonecom.com ([216.47.252.142]:33292 "EHLO
+	explorer.reliacomp.net") by vger.kernel.org with ESMTP
+	id <S268105AbTBRXtO>; Tue, 18 Feb 2003 18:49:14 -0500
+Message-ID: <3E52C86A.7060208@cendatsys.com>
+Date: Tue, 18 Feb 2003 17:57:30 -0600
+From: Edward King <edk@cendatsys.com>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.0rc1) Gecko/20020417
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Simon Kirby <sim@netnation.com>
+CC: Robbert Kouprie <robbert@radium.jvb.tudelft.nl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.4.21-pre4] IDE hangs box after timeout
+References: <Pine.LNX.4.44.0302181257260.16107-100000@radium.jvb.tudelft.nl> <20030218204627.GA28379@netnation.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15954.51227.385648.487733@notabene.cse.unsw.edu.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Fixing a non-redundant raid
-In-Reply-To: message from Rob Emanuele on Tuesday February 18
-References: <002d01c2d7a2$2071adf0$a301a8c0@rje1xp>
-X-Mailer: VM 7.07 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday February 18, rje@cyan.com wrote:
-> I've got a raid that I was running w/o a spare disk.  One of the drives
-> was being flakey and I restarted the machine and I was wondering if I
-> can recover the data on the raid.  It did not have a spare disk.  There
-> are 12 drives in the stripe set.  According the the logs one drive isn't
-> listed as a raid drive (sdi1) and the other's (sdb1) event counter is
-> behind.  Is there anything I can do or is it a loss and I should rebuild
-> the array with a hot spare :)?
-> 
-> I attached the logs.
-> 
-> Thanks for any help,
-> 
-> Rob
+Simon Kirby wrote:
 
-Get mdadm, assemble with --force.
-e.g.
+>On Tue, Feb 18, 2003 at 01:25:40PM +0100, Robbert Kouprie wrote:
+>  
+>
+>>Kernels older than 2.4.18 don't have LBA48 support, so would restrict the
+>>20269 in its use. I also encountered the problem with kernel 2.4.17 +
+>>Andre Hedrick's IDE patch, though. Also with 2.4.18/19 and various 2.4.20
+>>-pre and -ac versions upto 2.4.20-rc1-ac4. Testing 2.4.21-pre4-ac4 now.
+>>    
+>>
 
- mdadm --assemble --force /dev/md0 /dev/sd[abcdefghijkl]1
+Just wanted to jump in -- I have the same problem with 2.4.21-pre4-ac4. 
+ I've got 2  PDC20268's running 4 WD 200GB drives.
 
-NeilBrown
+Powersupply is a 550 watt  Antec.
 
-http://www.kernel.org/pub/linux/utils/raid/mdadm/
+I have a seperate 13gb drive that I'm booting from on the motherboard, 
+so the system doesn't lock and reboots bring everything back fine.
+
+I the bios on my PDC's is 2..20.0.14, tried with different cables (same 
+problem).  The drives do seem to come back -- acts as if it has a hard 
+time resetting the drives but finally comes back (after about 5-10 minutes).
+
+Regards,
+
+- Edward King
+
+
+
+

@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbVDCJqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbVDCJvx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261628AbVDCJqH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 05:46:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVDCJqH
+	id S261635AbVDCJvx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 05:51:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbVDCJvx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 05:46:07 -0400
-Received: from [213.170.72.194] ([213.170.72.194]:468 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261628AbVDCJqB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 05:46:01 -0400
-Message-ID: <424FBB56.5090503@yandex.ru>
-Date: Sun, 03 Apr 2005 13:45:58 +0400
-From: "Artem B. Bityuckiy" <dedekind@yandex.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en, ru, en-us
-MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "Artem B. Bityuckiy" <dedekind@infradead.org>, dwmw2@infradead.org,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
-Subject: Re: [RFC] CryptoAPI & Compression
-References: <E1DGxa7-0000GH-00@gondolin.me.apana.org.au> <Pine.LNX.4.58.0504011534460.9305@phoenix.infradead.org> <20050401152325.GB4150@gondor.apana.org.au> <Pine.LNX.4.58.0504011640340.9305@phoenix.infradead.org> <20050401221303.GA6557@gondor.apana.org.au> <424FA7B4.6050008@yandex.ru> <20050403084415.GA20326@gondor.apana.org.au> <424FB06B.3060607@yandex.ru> <20050403093044.GA20608@gondor.apana.org.au>
-In-Reply-To: <20050403093044.GA20608@gondor.apana.org.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 3 Apr 2005 05:51:53 -0400
+Received: from host207-193-149-62.serverdedicati.aruba.it ([62.149.193.207]:6086
+	"EHLO chernobyl.investici.org") by vger.kernel.org with ESMTP
+	id S261635AbVDCJvv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 05:51:51 -0400
+Subject: Re: Problem mounting dvd if the drive spin down
+From: Nate Grey <nate@paranoici.org>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20050402113012.6a1b3880.akpm@osdl.org>
+References: <1112459636.15372.18.camel@maggot.MetalZone.lan>
+	 <20050402113012.6a1b3880.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sun, 03 Apr 2005 11:51:46 +0200
+Message-Id: <1112521906.3809.10.camel@maggot.MetalZone.lan>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 Dropline GNOME 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2005-04-02 at 11:30 -0800, Andrew Morton wrote:
+
+> Did it work OK under any other kernel versions?  If so, which?
+
+At least it works in 2.6.7, I jump from .7 to .9 then .10 and
+finally .11, I notice this problem in 2.6.10 firstly.
+
+If you need addictional info about the drive just ask.
+
+I forgot to say that at boot time hdparm is run on the device:
+
+hdparm -c1 -d1 -u1 -X66 /dev/hdc
 
 
-Herbert Xu wrote:
-> You can't compress 1M-12bytes into 1M using zlib when the block size
-> is 64K.
-Here is a cite from RFC-1951 (page 4):
+Thank you.
 
-    A compressed data set consists of a series of blocks, corresponding
-    to successive blocks of input data.  The block sizes are arbitrary,
-    except that non-compressible blocks are limited to 65,535 bytes.
 
-Thus,
+P.S.
 
-1. 64K is only applied to non-compressible data, in which case zlib just 
-copies it as it is, adding a 1-byte header and a 1-byte EOB marker.
+hdc: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+hdc: cdrom_decode_status: error=0x40 { LastFailedSense=0x04 }
+ide: failed opcode was: unknown
+hdc: ide_intr: huh? expected NULL handler on exit
+hdc: ATAPI reset complete
+end_request: I/O error, dev hdc, sector 64
+isofs_fill_super: bread failed, dev=hdc, iso_blknum=16, block=16
 
-2. 64K is just the *upper limit*, and blocks may be shorter.
 
-3. If zlib compressed data (i.e., applied LZ77 & Huffman), blocks may 
-have arbitrary length.
-
-So, I don't see any reason why I can't.
-
--- 
-Best Regards,
-Artem B. Bityuckiy,
-St.-Petersburg, Russia.

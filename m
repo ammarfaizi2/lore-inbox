@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280191AbRLNXOv>; Fri, 14 Dec 2001 18:14:51 -0500
+	id <S280365AbRLNXRL>; Fri, 14 Dec 2001 18:17:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280365AbRLNXOl>; Fri, 14 Dec 2001 18:14:41 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:36437 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S280191AbRLNXOd>; Fri, 14 Dec 2001 18:14:33 -0500
-From: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>
-To: linux-kernel@vger.kernel.org
-Date: Sat, 15 Dec 2001 00:13:46 +0100
-MIME-Version: 1.0
-Subject: re: NFS client llseek
-Message-ID: <3C1A95BA.4338.37EC9A1@localhost>
-In-Reply-To: <200112142109.fBEL90123231@kahuna.cag.cpqcorp.net>
-X-mailer: Pegasus Mail for Windows (v4.01)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	id <S280817AbRLNXRB>; Fri, 14 Dec 2001 18:17:01 -0500
+Received: from AMontpellier-201-1-5-9.abo.wanadoo.fr ([193.251.15.9]:60937
+	"EHLO awak") by vger.kernel.org with ESMTP id <S280365AbRLNXQz> convert rfc822-to-8bit;
+	Fri, 14 Dec 2001 18:16:55 -0500
+Subject: Re: freeze (2.4.17-pre/rc + Promise 20265)
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Francois Romieu <romieu@cogenit.fr>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011215000534.A3993@se1.cogenit.fr>
+In-Reply-To: <20011214231932.A2949@se1.cogenit.fr>
+	<1008369045.1793.46.camel@nomade>  <20011215000534.A3993@se1.cogenit.fr>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.14.09.00 (Preview Release)
+Date: 15 Dec 2001 00:09:54 +0100
+Message-Id: <1008371395.2049.52.camel@nomade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-   Like http://www.opengfs.org ?
-
-
-/Pedro
-
-On 14 Dec 2001 at 12:45, dzafman@kahuna.cag.cpqcorp.net wrote:
-
+le sam 15-12-2001 à 00:05, Francois Romieu a écrit :
+> Xavier Bestel <xavier.bestel@free.fr> :
+> > Click left mouse button to restart and disable ACPI
 > 
-> By the way, we are looking at the challenges of integrating a fully
-> coherent distributed/cluster filesystem into the Linux filesystem
-> architecture.
+> Nothing changed.
 > 
+> <head scratch>
+> What makes you believe there's X on this machine ?
 
+Well, I have the exact same symptom and have seen it reported here by
+others, and the cause is ACPI, since several kernel revisions.
+But I read your dmesg, apparently you didn't configure it.
+
+	Xav
 

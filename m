@@ -1,80 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263308AbTC0ROi>; Thu, 27 Mar 2003 12:14:38 -0500
+	id <S263336AbTC0RZX>; Thu, 27 Mar 2003 12:25:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263328AbTC0RNt>; Thu, 27 Mar 2003 12:13:49 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5386 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263317AbTC0RNY>; Thu, 27 Mar 2003 12:13:24 -0500
-Date: Thu, 27 Mar 2003 09:22:29 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: shmulik.hen@intel.com, <dane@aiinet.com>,
-       <bonding-devel@lists.sourceforge.net>,
-       <bonding-announce@lists.sourceforge.net>, <netdev@oss.sgi.com>,
-       <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>,
-       <mingo@redhat.com>, <kuznet@ms2.inr.ac.ru>
-Subject: Re: BUG or not? GFP_KERNEL with interrupts disabled.
-In-Reply-To: <20030327.054357.17283294.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0303270917290.29072-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263329AbTC0RYV>; Thu, 27 Mar 2003 12:24:21 -0500
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:18409 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S263336AbTC0RXz>; Thu, 27 Mar 2003 12:23:55 -0500
+Date: Thu, 27 Mar 2003 18:32:45 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: rmk@arm.linux.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.5] pcmcia: fix pcmcia_bind_driver
+Message-ID: <20030327173245.GA1344@brodo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Don't allow "bind_request" to be called before "register_pccard_driver".
 
-On Thu, 27 Mar 2003, David S. Miller wrote:
-> 
->    Further more, holding a lock_irq doesn't mean bottom halves are disabled
->    too, it just means interrupts are disabled and no *new* softirq can be
->    queued. Consider the following situation:
->    
-> I think local_bh_enable() should check irqs_disabled() and honour that.
-> What you are showing here, that BH's can run via local_bh_enable()
-> even when IRQs are disabled, is a BUG().
+	Dominik
 
-I'd disagree.
-
-I do agree that we should obviously not run bottom halves with interrupts 
-disabled, but I think the _real_ bug is doing "local_bh_enable()" in the 
-first place. It's a nesting bug: you must nest the "stronger" lock inside 
-the weaker one, which means that the following is right:
-
-	local_bh_disable()
-		..
-		local_irq_disable()
-		...
-		local_irq_enable()
-		..
-	local_bh_enable()
-
-and this is WRONG:
-
-	local_irq_disable() (or spinlock)
-		..
-		local_bh_disable()
-		..
-		local_bh_enable()	!BUG BUG BUG!
-		..
-	local_irq_enable()
-
-So the bug is, in my opinion, not in BK handling, but in the caller.
-
-I missed the start of this thread, so I don't know how hard this is to 
-fix. But if you have a buggy sequence, the _simple_ fix may be to do 
-somehting like this:
-
-+++	local_bh_disable()
-	local_irq_disable() (or spinlock)
-		..
-		local_bh_disable()
-		..
-		local_bh_enable()	! now it's a no-op and no longer a bug
-		..
-	local_irq_enable()
-+++	local_bh_enable()
-
-What's the code sequence?
-
-		Linus
-
+diff -ruN linux-original/drivers/pcmcia/ds.c linux/drivers/pcmcia/ds.c
+--- linux-original/drivers/pcmcia/ds.c	2003-03-27 18:21:51.000000000 +0100
++++ linux/drivers/pcmcia/ds.c	2003-03-27 18:25:36.000000000 +0100
+@@ -188,35 +188,21 @@
+ 			   void (*detach)(dev_link_t *))
+ {
+     struct pcmcia_driver *driver;
+-    socket_bind_t *b;
+-    struct pcmcia_bus_socket *bus_sock;
+ 
+     DEBUG(0, "ds: register_pccard_driver('%s')\n", (char *)dev_info);
+     driver = get_pcmcia_driver(dev_info);
+-    if (!driver) {
+-	driver = kmalloc(sizeof(struct pcmcia_driver), GFP_KERNEL);
+-	if (!driver) return -ENOMEM;
+-	memset(driver, 0, sizeof(struct pcmcia_driver));
+-	driver->drv.name = (char *)dev_info;
+-	pcmcia_register_driver(driver);
+-    }
++    if (driver)
++	    return -EBUSY;
++
++    driver = kmalloc(sizeof(struct pcmcia_driver), GFP_KERNEL);
++    if (!driver) return -ENOMEM;
++    memset(driver, 0, sizeof(struct pcmcia_driver));
++    driver->drv.name = (char *)dev_info;
++    pcmcia_register_driver(driver);
+ 
+     driver->attach = attach;
+     driver->detach = detach;
+-    if (driver->use_count == 0) return 0;
+-    
+-    /* Instantiate any already-bound devices */
+-    down_read(&bus_socket_list_rwsem);
+-    list_for_each_entry(bus_sock, &bus_socket_list, socket_list) {
+-	for (b = bus_sock->bind; b; b = b->next) {
+-	    if (b->driver != driver) continue;
+-	    b->instance = driver->attach();
+-	    if (b->instance == NULL)
+-		printk(KERN_NOTICE "ds: unable to create instance "
+-		       "of '%s'!\n", driver->drv.name);
+-	}
+-    }
+-    up_read(&bus_socket_list_rwsem);
++
+     return 0;
+ } /* register_pccard_driver */
+ 
+@@ -414,13 +400,8 @@
+     DEBUG(2, "bind_request(%d, '%s')\n", i,
+ 	  (char *)bind_info->dev_info);
+     driver = get_pcmcia_driver(&bind_info->dev_info);
+-    if (driver == NULL) {
+-	driver = kmalloc(sizeof(struct pcmcia_driver), GFP_KERNEL);
+-	if (!driver) return -ENOMEM;
+-	memset(driver, 0, sizeof(struct pcmcia_driver));
+-	driver->drv.name = bind_info->dev_info;
+-	pcmcia_register_driver(driver);
+-    }
++    if (!driver)
++	    return -EINVAL;
+ 
+     for (b = s->bind; b; b = b->next)
+ 	if ((driver == b->driver) &&

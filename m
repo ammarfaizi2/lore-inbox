@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317102AbSHPUwt>; Fri, 16 Aug 2002 16:52:49 -0400
+	id <S317693AbSHPVAP>; Fri, 16 Aug 2002 17:00:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317181AbSHPUws>; Fri, 16 Aug 2002 16:52:48 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:53474 "EHLO
-	zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S317102AbSHPUwr>; Fri, 16 Aug 2002 16:52:47 -0400
-Message-ID: <3D5D6621.E33EA4BE@nortelnetworks.com>
-Date: Fri, 16 Aug 2002 16:52:49 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S317864AbSHPVAP>; Fri, 16 Aug 2002 17:00:15 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:38899 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S317693AbSHPVAO>; Fri, 16 Aug 2002 17:00:14 -0400
+Message-ID: <3D5D68C4.8030806@us.ibm.com>
+Date: Fri, 16 Aug 2002 14:04:04 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Oliver Xymoron <oxymoron@waste.org>
-Cc: Jon Burgess <Jon_Burgess@eur.3com.com>, henrique@cyclades.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Problem with random.c and PPC
-References: <80256C17.00376E92.00@notesmta.eur.3com.com> <20020816195254.GL5418@waste.org>
-Content-Type: text/plain; charset=us-ascii
+To: Patrick Mochel <mochel@osdl.org>
+CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Subject: Re: [PATCH] add buddyinfo /proc entry
+References: <Pine.LNX.4.44.0208161158270.1048-100000@cherise.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron wrote:
+Patrick Mochel wrote:
+> You're making things up and spreading FUD. Why would you want to do that? 
 
-> There is little to no reliably unpredictable data in network
-> interrupts and the current scheme does not include for the mixing of
-> untrusted sources. It's very likely that an attacker can measure,
-> model, and control such timings down to the resolution of the PCI bus
-> clock on a quiescent system. This is more than good enough to defeat
-> entropy generation on systems without a TSC and given that the bus
-> clock is a multiple of the processor clock, it's likely possible to
-> extend this to TSC-based systems as well.
+Because IBM has a grand, secret plan to replace driverfs with 
+BigBlueFS.  We have brainwashed Linus into taking it and we will rule 
+the world!
 
-> Entropy accounting is very fickle - if you overestimate _at all_, your
-> secret state becomes theoretically predictable. I have some patches
-> that create an API for adding such hard to predict but potentially
-> observable data to the entropy pool without accounting it as actual
-> entropy, as well as cleaning up some other major accounting errors but
-> I'm not quite done testing them.
+No, I'm just being selfish and I'm a bit uninformed.  I understand it 
+better now because Greg explained why you want to do it.  The thing 
+that did it for me was Linus's decree that vm tunables _will_ move to 
+driverfs.  That changes the scenario from "Greg and Patrick are 
+bitching" to "Linus wants this" and thus it will be the wave of the 
+future.   Maybe you guys need to make this a bit more clear.
 
-The problem is this.  If you have an embedded system that is headless, diskless, keyboardless, and
-mouseless, then your only remaining source of any interrupt-based entropy is the network.  Also, if
-you add entropy to the pool without accounting it as entropy, then how does that help anything?  You
-can currently add anything you want to the pool and it will stir it in but not bump the entropy
-count.
+> Oh right, it's because most "kernel developers" would rather bitch about 
+> that which they do not understand and cut down other developers than suck 
+> it up and actually try to learn something from someone else. 
 
-Granted, a proper solution would involve a hardware-based system for entropy generation, but in the
-absence of a proper solution you do the best you can.
+I'm trying to understand, that's why I asked so many questions.  I am 
+mistaken about the machine not booting completely if it doesn't 
+understand a fs-type, Greg corrected me here.
 
-For the general user, network-based interrupts are likely okay.  If you have an attacker
-sophisticated enough that it can predict the arrival time of a network packet down to 30ns (the
-timing of a 33MHz PCI bus) from across the network, then I think you will probably have the
-resources for a hardware entropy generator.
-
-This has been discussed many times, and the concensus seems to be that yes it is not secure, but
-there are people who have literally no other option.
-
-Chris
-
-
+Summary:
+A driverfs version of this patch is on the way.
 -- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Dave Hansen
+haveblue@us.ibm.com
+

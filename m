@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263964AbRFRNuU>; Mon, 18 Jun 2001 09:50:20 -0400
+	id <S263980AbRFRN4K>; Mon, 18 Jun 2001 09:56:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263980AbRFRNuK>; Mon, 18 Jun 2001 09:50:10 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:20538 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S263964AbRFRNt4>; Mon, 18 Jun 2001 09:49:56 -0400
-Date: Mon, 18 Jun 2001 15:49:43 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: German Gomez Garcia <german@piraos.com>,
-        Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Strange behaviour of swap under 2.4.5-ac15
-Message-ID: <20010618154943.C13836@athlon.random>
-In-Reply-To: <Pine.LNX.4.33.0106181150320.11843-100000@hal9000.piraos.com> <Pine.LNX.4.21.0106181036150.2056-100000@imladris.rielhome.conectiva>
+	id <S263978AbRFRN4C>; Mon, 18 Jun 2001 09:56:02 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:25107 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S263970AbRFRNz4>; Mon, 18 Jun 2001 09:55:56 -0400
+Date: Mon, 18 Jun 2001 15:55:31 +0200
+From: Jan Hudec <bulb@ucw.cz>
+To: Colonel <klink@clouddancer.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: your mail
+Message-ID: <20010618155531.A21070@artax.karlin.mff.cuni.cz>
+In-Reply-To: <20010613015519.151BF78599@mail.clouddancer.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0106181036150.2056-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Mon, Jun 18, 2001 at 10:37:21AM -0300
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010613015519.151BF78599@mail.clouddancer.com>; from klink@clouddancer.com on Tue, Jun 12, 2001 at 06:55:19PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 18, 2001 at 10:37:21AM -0300, Rik van Riel wrote:
-> Yes, this is expected behaviour with -ac14, -pre3 and newer.
+> So it seems that PnP finds the card, but the connections (or even the
+> forced values) to the sb module fail.  Back when this was a single
+> processor machine, but still running 2.4 kernel, a windoze
+> installation found the SB at the listed interface parameters.
+> 
+> 
+> Anyone have a solution?
+> 
+> Same problem without modules.conf settings, valid version of mod
+> utilities, a web search did not help,...
 
-If that means anything that doesn't happen here based on pre3.
+I had a similar problem with different card (Gravi Usltrasound PnP).
+The solution turned out to be to avoid dma 1 channel. May be some BIOSes
+or ISA chipsets got the 8-bit dma channels handling wrong, but I really
+don't know. Btw: for me 2.2.x autodetected right, 2.4.x need explicit setting.
 
-Andrea
+--------------------------------------------------------------------------------
+                  				- Jan Hudec `Bulb' <bulb@ucw.cz>

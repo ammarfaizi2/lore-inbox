@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286085AbRLTFQj>; Thu, 20 Dec 2001 00:16:39 -0500
+	id <S286111AbRLTFVA>; Thu, 20 Dec 2001 00:21:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286099AbRLTFQ3>; Thu, 20 Dec 2001 00:16:29 -0500
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:44043 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S286085AbRLTFQS>; Thu, 20 Dec 2001 00:16:18 -0500
-Date: Thu, 20 Dec 2001 00:16:18 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200112200516.fBK5GI826556@devserv.devel.redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: billh@tierra.ucsd.edu
-Subject: Re: aio
-In-Reply-To: <mailman.1008817860.10606.linux-kernel2news@redhat.com>
-In-Reply-To: <20011219171631.A544@burn.ucsd.edu> <20011219.172046.08320763.davem@redhat.com> <20011219182628.A13280@burn.ucsd.edu> <20011219.184527.31638196.davem@redhat.com> <mailman.1008817860.10606.linux-kernel2news@redhat.com>
+	id <S286123AbRLTFUu>; Thu, 20 Dec 2001 00:20:50 -0500
+Received: from [139.84.194.100] ([139.84.194.100]:38554 "EHLO
+	eclipse.pheared.net") by vger.kernel.org with ESMTP
+	id <S286111AbRLTFUp>; Thu, 20 Dec 2001 00:20:45 -0500
+Date: Thu, 20 Dec 2001 00:19:41 -0500 (EST)
+From: Kevin <kevin@pheared.net>
+To: Jason Czerak <Jason-Czerak@Jasnik.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Suggestions for linux security patches
+In-Reply-To: <1008794926.842.6.camel@neworder>
+Message-ID: <Pine.GSO.4.40.0112200017280.1846-100000@eclipse.pheared.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I attribute the lack of technical discussion to the least common denomiator
-> culture of the Linux community and not the merits of the actual technical
-> system itself. That's what linux-aio@ is for...
-> 
-> And using lkml as a AIO forum is probably outside of the scope of this list
-> and group.
+On 19 Dec 2001, Jason Czerak grunted something like:
 
-Bill, who is going to read linux-aio? There are many splinter
-lists. Just about a week ago Dave Gilbert hissed at me for
-not posting to linux-scsi. OK, I admit, the USB cabal made me
-to subscribe to linux-usb-devel - only because the subsystem
-was so out of whack that I was spending all my time trying to fix
-it and dealing with broken sourceforge listserver did not make
-it much worse. I can make exception for Ben, out of pure respect.
-But then what? Those lists proliferate like cockroaches, every day!
-I wish I could subscribe to linux-aio, linux-scsi, linux-nfs,
-linux-networking, linux-afs, linux-sound, an OpenGFS list,
-and "open" AFS list, linux-s390, linux-on-vaio, linux-usb-user,
-linux-infi-devel, Hotplug, and perhaps more.
+[Jason-] I'm running linux 2.4.16, and I"m looking to the best possibly kernel
+[Jason-] patch to harden things up a bit. Primarly I wish to have what is in
+[Jason-] openwall's and grsecurity's patches is the buffer oveflow protection,
+[Jason-] but I'm unable to use the openwall patch because it only support 2.2.X
+[Jason-] kernels ATM. I applied the grsecurity patch but for some reason when
+[Jason-] running mozilla as non-root, the GUI for mozilla is all messed up (and I
+[Jason-] enabled sysctl support so nothing was enabled by default except stuff
+[Jason-] that isn't able to use sysctl).
 
--- Pete
+Has anyone tried the NSA linux security setup?  I've looked it over but
+haven't gone so far as to actually run it.
+
+BTW, mozilla gets F-ed up for me sometimes when I foolishly run Netscape 6
+and NS6 rewrites several of the config files.  Usually rm'ing ~/.mozilla
+does it.  Could be very unrelated though.
+
+-[ kevin@pheared.net                 devel.pheared.net ]-
+-[ Rather be forgotten, than remembered for giving in. ]-
+-[ ZZ = g ^ (xb * xa) mod p      g = h^{(p-1)/q} mod p ]-
+

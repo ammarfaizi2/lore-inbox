@@ -1,85 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262397AbSJWAzz>; Tue, 22 Oct 2002 20:55:55 -0400
+	id <S262368AbSJWBAl>; Tue, 22 Oct 2002 21:00:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262414AbSJWAzz>; Tue, 22 Oct 2002 20:55:55 -0400
-Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:57031 "EHLO
-	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S262397AbSJWAzy>; Tue, 22 Oct 2002 20:55:54 -0400
-Date: Tue, 22 Oct 2002 20:54:29 -0400 (EDT)
-From: Frank Davis <fdavis@si.rr.com>
-X-X-Sender: fdavis@localhost.localdomain
-To: linux-kernel@vger.kernel.org
-cc: fdavis@si.rr.com, <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] 2.5.44-ac1 : drivers/net/wan/ remove STATIC macro
-Message-ID: <Pine.LNX.4.44.0210222052180.913-100000@localhost.localdomain>
+	id <S262414AbSJWBAl>; Tue, 22 Oct 2002 21:00:41 -0400
+Received: from mail.cyberus.ca ([216.191.240.111]:62906 "EHLO cyberus.ca")
+	by vger.kernel.org with ESMTP id <S262368AbSJWBAk>;
+	Tue, 22 Oct 2002 21:00:40 -0400
+Date: Tue, 22 Oct 2002 20:59:22 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
+Subject: Re: rtnetlink interface state monitoring problems. 
+In-Reply-To: <24818.1035226670@passion.cambridge.redhat.com>
+Message-ID: <Pine.GSO.4.30.0210222055170.24323-100000@shell.cyberus.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-  The following patches remove STATIC macro references.
 
-Regards,
-Frank
 
---- linux/drivers/net/wan/sdlamain.c.old	Sat Oct 19 12:05:27 2002
-+++ linux/drivers/net/wan/sdlamain.c	Tue Oct 22 20:24:24 2002
-@@ -173,12 +173,6 @@
- 
- /****** Defines & Macros ****************************************************/
- 
--#ifdef	_DEBUG_
--#define	STATIC
--#else
--#define	STATIC		static
--#endif
--
- #define	DRV_VERSION	5		/* version number */
- #define	DRV_RELEASE	0		/* release (minor version) number */
- #define	MAX_CARDS	16		/* max number of adapters */
-@@ -209,7 +203,7 @@
- static int ioctl_exec	(sdla_t* card, sdla_exec_t* u_exec, int);
- 
- /* Miscellaneous functions */
--STATIC void sdla_isr	(int irq, void* dev_id, struct pt_regs *regs);
-+static void sdla_isr	(int irq, void* dev_id, struct pt_regs *regs);
- static void release_hw  (sdla_t *card);
- static void run_wanpipe_tq (unsigned long);
- 
-@@ -1092,7 +1086,7 @@
-  * o acknowledge SDLA hardware interrupt.
-  * o call protocol-specific interrupt service routine, if any.
-  */
--STATIC void sdla_isr (int irq, void* dev_id, struct pt_regs *regs)
-+static void sdla_isr (int irq, void* dev_id, struct pt_regs *regs)
- {
- #define	card	((sdla_t*)dev_id)
- 
+On Mon, 21 Oct 2002, David Woodhouse wrote:
 
---- linux/drivers/net/wan/wanpipe_multppp.c.old	Sat Oct 19 12:05:27 2002
-+++ linux/drivers/net/wan/wanpipe_multppp.c	Tue Oct 22 20:27:10 2002
-@@ -58,12 +58,6 @@
- 
- /****** Defines & Macros ****************************************************/
- 
--#ifdef	_DEBUG_
--#define	STATIC
--#else
--#define	STATIC		static
--#endif
--
- /* reasons for enabling the timer interrupt on the adapter */
- #define TMR_INT_ENABLED_UDP   	0x01
- #define TMR_INT_ENABLED_UPDATE	0x02
-@@ -1347,7 +1341,7 @@
- /*============================================================================
-  * Cisco HDLC interrupt service routine.
-  */
--STATIC void wsppp_isr (sdla_t* card)
-+static void wsppp_isr (sdla_t* card)
- {
- 	netdevice_t* dev;
- 	SHARED_MEMORY_INFO_STRUCT* flags = NULL;
+>
+> hadi@cyberus.ca said:
+> > I cant see anything on netlink and irda; i am also not very familiar
+> > with either IrDA or Bluetooth. Regardless,  you dont need to be a net
+> > device to use netlink.
+>
+> IrDA devices are network devices. The core network code sends a RTM_NETLINK
+> message when they go up or down. All is well, and once the permission fix
+> gets into the kernel I'm using, my irda monitor applet no longer needs to
+> poll the state of the interface.
+>
+
+Ah, ok. I see what you mean - for a moment i thought IrDA was doing
+something clever with netlink.
+
+> But Bluetooth devices are not network devices, it seems. There exists no
+> current mechanism for notifying anyone of state changes. Should we invent a
+> new method of notification using netlink, or should Bluetooth interfaces in
+> fact be normal network devices just like IrDA devices are?
+>
+
+I think the only time you should go netdev is when it makes sense to run
+IP. Is there IP over bluttooth? Then you could take advantage of all the
+nice features provided by netdevices (other than being IP devices;->).
+If not, it probably time for someone to write a generic notification
+scheme via netlink.
+
+cheers,
+jamal
 

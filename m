@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262196AbVCOBPQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbVCOBQa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262196AbVCOBPQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 20:15:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbVCOBPQ
+	id S262194AbVCOBQa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 20:16:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbVCOBQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 20:15:16 -0500
-Received: from fire.osdl.org ([65.172.181.4]:34180 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261253AbVCOBOy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 20:14:54 -0500
-Date: Mon, 14 Mar 2005 17:08:26 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: ashok.raj@intel.com, linux-kernel@vger.kernel.org, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org, davidm@hpl.hp.com, hch@lst.de
-Subject: Re: Fix irq_affinity write from /proc for IPF
-Message-Id: <20050314170826.26c1a7f4.akpm@osdl.org>
-In-Reply-To: <20050314162330.A22861@unix-os.sc.intel.com>
-References: <20050314155004.A22573@unix-os.sc.intel.com>
-	<20050314155923.4847aea3.akpm@osdl.org>
-	<20050314162330.A22861@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 14 Mar 2005 20:16:30 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:4359 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262194AbVCOBPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 20:15:54 -0500
+Date: Tue, 15 Mar 2005 02:15:46 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: maximilian attems <janitor@sternwelten.at>
+Cc: lmkl <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: [patch trivial] as-iosched fix path to Documentation
+Message-ID: <20050315011546.GG3207@stusta.de>
+References: <20041208174401.GC2237@stro.at> <20041209190721.GA15918@ai.wu-wien.ac.at> <20050309234223.GD10685@sputnik.stro.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050309234223.GD10685@sputnik.stro.at>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ashok Raj <ashok.raj@intel.com> wrote:
->
-> > Is it not possible for ia64's ->set_affinity() handler to do this deferring?
-> > 
-> 
-> There are other places where we re-program, and its fine to call the 
-> current version of set_affinity directly, like when we are doing cpu offline
-> and trying to force migrate irqs for ia64.
-> 
-> Changing the default set_affinity() for ia64 would result in many changes, 
-> this still keeps the same purpose of those access functions, and 
-> differentiates the proc write cases alone without changing the meaning 
-> of those handler functions. (and a smaller patch)
-> 
-> this would further complicate the force migrate irq's when we consider 
-> MSI interrupts as well. Since it would have its own set_affinity, and we need
-> to hack into MSI's set affinity handler as well which would complicate things.
+On Thu, Mar 10, 2005 at 12:42:23AM +0100, maximilian attems wrote:
 
-OK, just checking.
+> From: Klaus Ita <klaus@worstofall.com>
+> 
+> subject says all, patch still applies.
+>...
 
-I'll include this change in the next batch, probably post-2.6.12-rc1, thanks.
+Fix is already in -mm for some time.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,44 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129458AbQLGXwz>; Thu, 7 Dec 2000 18:52:55 -0500
+	id <S130786AbQLGXxf>; Thu, 7 Dec 2000 18:53:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129846AbQLGXwg>; Thu, 7 Dec 2000 18:52:36 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:14088 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S129458AbQLGXwc>; Thu, 7 Dec 2000 18:52:32 -0500
-From: Steven Cole <scole@lanl.gov>
-Reply-To: scole@lanl.gov
-Date: Thu, 7 Dec 2000 16:21:58 -0700
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Cc: florian@galois.de
-Subject: Re: oops in 2.4.0test12-pre5+reiserfs+crypto
+	id <S129846AbQLGXxU>; Thu, 7 Dec 2000 18:53:20 -0500
+Received: from cip.physik.uni-wuerzburg.de ([132.187.42.13]:55305 "EHLO
+	wpax13.physik.uni-wuerzburg.de") by vger.kernel.org with ESMTP
+	id <S129352AbQLGXwq>; Thu, 7 Dec 2000 18:52:46 -0500
+Date: Thu, 7 Dec 2000 23:58:21 +0100 (MET)
+From: Andreas Klein <asklein@cip.physik.uni-wuerzburg.de>
+To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+cc: linux-kernel@vger.kernel.org, drew@colorado.edu
+Subject: Re: bug in scsi.c
+In-Reply-To: <Pine.LNX.4.21.0012071858460.4388-100000@penguin.homenet>
+Message-ID: <Pine.GHP.4.21.0012072342460.24819-100000@wpax13.physik.uni-wuerzburg.de>
 MIME-Version: 1.0
-Message-Id: <00120716215803.01067@spc.esa.lanl.gov>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 7 Dec 2000, Tigran Aivazian wrote:
 
-Florian Schmitt <florian@galois.de> wrote:
->I had the following oops while doing a "find -name" and playing mp3s on 
+> On Thu, 7 Dec 2000, Andreas Klein wrote:
+> 
+> > hello,
+> > 
+> > I have found a problem in scsi.c which in present in the 2.2 and 2.4
+> > series. the scsi error handler thread is created with:
+> > 
+> > kernel_thread((int (*)(void *)) scsi_error_handler,
+> >                                 (void *) shpnt, 0);
+> > 
+> > This will lead to problems, when you have to umount the filesystem on
+> > which the scsi-hostapter module is located.
+> > To solve to problem I would propose to change this to:
+> > 
+> > kernel_thread((int (*)(void *)) scsi_error_handler,
+> >                       (void *) shpnt, CLONE_FILES);
+> 
+> Hi Andreas,
+> 
+> Unfortunately, CLONE_FILES is not enough because the module may be loaded
+> from the directory containing it, i.e. the thread's cwd may point to that
+> filesystem and that would keep it busy. Or-ing CLONE_FS into flags
+> wouldn't help either...
 
-If you're running 2.4.0-test12-pre5 or later with reiserfs, you should be 
-aware that this can be unsafe due to a problem with reiserfs_writepage.
-Fortunately, Chris Mason just posted a patch to fix this on the reiserfs-list,
-against reiserfs-3.6.22.  The recent reiserfs-list archives can be found at:
+Yes, you are right with that.
 
-http://marc.theaimsgroup.com/?l=reiserfs&r=1&w=2&b=200012
+> A proper way to release the references to resources is to call daemonize()
+> function from within the kernel thread function, which calls
+> exit_fs()/exit_files() internally.
 
-This may have nothing to do with your oops, but if you're going to run
-2.4.0-test12-pre5,6,7 then go get the writepage.diff patch, and apply it
-after applying linux-2.4.0-test10-reiserfs-3.6.22-patch.
+Nearly correct, the daemonize function does NOT call exit_files. This has
+to be done manually. Looking at the 2.4.0-test10 source I saw, that
+someone has already fixed the problem by calling exit_files and daemonize.
+In the 2.2 series someone tried cut-copy-paste programing from the
+daemonize function, but exit_files was forgotten. The following patch
+should fix the problem for 2.2.16, while leaving scsi.c untouched.
 
-Of course, this is bleeding edge, so the usual caveats apply.
+--- linux/drivers/scsi/scsi_error.c.orig        Thu Dec  7 23:56:47 2000
++++ linux/drivers/scsi/scsi_error.c     Fri Dec  8 00:13:20 2000
+@@ -1935,6 +1935,7 @@
+         * user space pages.  We don't need them, and if we didn't close 
+them
+         * they would be locked into memory.
+         */
++       exit_files(current);
+        exit_mm(current);
+ 
+        current->session = 1;
 
-Good luck,
-Steven
+Bye,
+
+-- Andreas Klein
+   asklein@cip.physik.uni-wuerzburg.de
+   root / webmaster @cip.physik.uni-wuerzburg.de
+   root / webmaster @www.physik.uni-wuerzburg.de
+_____________________________________
+|                                   | 
+|   Long live our gracious AMIGA!   |
+|___________________________________|
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

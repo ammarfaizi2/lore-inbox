@@ -1,63 +1,126 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274131AbRI3Uc6>; Sun, 30 Sep 2001 16:32:58 -0400
+	id <S274161AbRI3Ufs>; Sun, 30 Sep 2001 16:35:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274134AbRI3Ucs>; Sun, 30 Sep 2001 16:32:48 -0400
-Received: from ns1.austin.rr.com ([24.93.35.63]:24074 "EHLO ns2.austin.rr.com")
-	by vger.kernel.org with ESMTP id <S274131AbRI3Ucj>;
-	Sun, 30 Sep 2001 16:32:39 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Marvin Justice <mjustice@austin.rr.com>
-Reply-To: mjustice@austin.rr.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: DMA problem (?) w/2.4.6-xfs and ServerWorks OSB4 Chipset 
-Date: Sun, 30 Sep 2001 15:37:16 -0500
-X-Mailer: KMail [version 1.2]
-Cc: timm@fnal.gov
+	id <S274146AbRI3Ufj>; Sun, 30 Sep 2001 16:35:39 -0400
+Received: from mail2.aracnet.com ([216.99.193.35]:51719 "EHLO
+	mail2.aracnet.com") by vger.kernel.org with ESMTP
+	id <S274134AbRI3UfY>; Sun, 30 Sep 2001 16:35:24 -0400
+From: "M. Edward Borasky" <znmeb@aracnet.com>
+To: "Luigi Genoni" <kernel@Expansa.sns.it>
+Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: GCC 2.95, 2.96 and 3.0 on linear algebra (was RE: 2 GB file limitation)
+Date: Sun, 30 Sep 2001 13:35:48 -0700
+Message-ID: <HBEHIIBBKKNOBLMPKCBBOENMDNAA.znmeb@aracnet.com>
 MIME-Version: 1.0
-Message-Id: <01093015371606.00965@bozo>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.4.33.0109302009120.9073-100000@Expansa.sns.it>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The error :
+The Atlas main page is on SourceForge at
 
-Curious - OSB4 thinks the DMA is still running.
-OSB4 wait exit
+http://math-atlas.sourceforge.net/
 
-appears to occur during the "rewrite" phase of Bonnie++ every time we run it.
-The setup is a Tyan 2515 with a Seagate ST310211A drive. Bonnie ran for ~48 
-hours on 2.4.10 without slowdown (I assume this is because the extra check in 
--ac isn't present) but there was some file system corruption after the 1st 24 
-hours:
+The Atlas performance list archive is at
 
-EXT2-fs error (device ide0(3,6)): ext2_free_blocks: Freeing blocks not in 
-datazone - block = 2138996092, count = 1
+http://www.geocrawler.com/lists/3/SourceForge/15666/0/
 
-Here's the lspci:
+and the main Atlas developer list archive is at
 
-00:00.0 Host bridge: ServerWorks CNB20LE (rev 06)
-	Flags: bus master, medium devsel, latency 32
+http://www.geocrawler.com/lists/3/SourceForge/15667/0/
 
-00:00.1 Host bridge: ServerWorks CNB20LE (rev 06)
-	Flags: bus master, medium devsel, latency 16
+I haven't seen any Sparc data; I have an Athlon at home and Pentia and
+Alphas at work, so if Sparc results went by me I ignored them.
 
-[snip]
+--
+M. Edward (Ed) Borasky, Chief Scientist, Borasky Research
+http://www.borasky-research.net  http://www.aracnet.com/~znmeb
+mailto:znmeb@borasky-research.net  mailto:znmeb@aracnet.com
 
-00:0f.0 ISA bridge: ServerWorks OSB4 (rev 50)
-	Subsystem: ServerWorks OSB4
-	Flags: bus master, medium devsel, latency 0
+Q: How do you tell when a pineapple is ready to eat?
+A: It picks up its knife and fork.
 
-00:0f.1 IDE interface: ServerWorks: Unknown device 0211 (prog-if 8a [Master 
-SecP PriP])
-	Flags: bus master, medium devsel, latency 64
-	I/O ports at ffa0 [size=16]
+> -----Original Message-----
+> From: Luigi Genoni [mailto:kernel@Expansa.sns.it]
+> Sent: Sunday, September 30, 2001 11:12 AM
+> To: M. Edward Borasky
+> Cc: Linux Kernel
+> Subject: Re: GCC 2.95, 2.96 and 3.0 on linear algebra (was RE: 2 GB file
+> limitation)
+>
+>
+> yes, thanx,
+> I am very interested in those details.
+>
+> For the tests i made on sparc64 gcc 3.0.1 is really faster than previous
+> versions (2.95.3 and egcs 1.1.2), but on AMD Athlon is a different story.
+> I think I can infer that gcc speed depends a lot from CPUs, but
+> usually and storically gcc was heavilly x86 optimized...
+>
+> Luigi
+>
+> On Sun, 30 Sep 2001, M. Edward Borasky wrote:
+>
+> > I have heard from the Atlas linear algebra folks the following:
+> >
+> > 1. For compiling Atlas, both on Athlons and Pentia, GCC 2.95.x produces
+> > *significantly* faster operation than either 3.0.x or 2.96.x
+> > 2. For IA64, the reverse is true: GCC 3.0.x produces
+> significantly faster
+> > code.
+> >
+> > I can dig up the URL for the mailing list if anyone cares for
+> the details.
+> >
+> > --
+> > M. Edward (Ed) Borasky, Chief Scientist, Borasky Research
+> > http://www.borasky-research.net  http://www.aracnet.com/~znmeb
+> > mailto:znmeb@borasky-research.net  mailto:znmeb@aracnet.com
+> >
+> > Q: How do you tell when a pineapple is ready to eat?
+> > A: It picks up its knife and fork.
+> >
+> > > -----Original Message-----
+> > > From: linux-kernel-owner@vger.kernel.org
+> > > [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Gábor Lénárt
+> > > Sent: Sunday, September 30, 2001 1:24 AM
+> > > To: Luigi Genoni
+> > > Cc: Linux Kernel
+> > > Subject: Re: 2 GB file limitation
+> >
+> > [snip]
+> >
+> > > > > I think you can get >2GB support if you've Gcc 3.0. Even with
+> > > the latest
+> > > > >
+> > > > ???
+> > > > I am using it and I am using gcc 2.95.3 for normal things,
+> > > > and to compiled my kernel and my libc, because gcc
+> > > > 3.0.1 produces slower binaries on my Athlons (yes, with athlon
+> > > > optimizzations turned on), at less for my programs, and it
+> is better to
+> > > > avoid it for glibc compilation because of back compatibility issues.
+> > >
+> > > Yes, gcc3 is (well at least NOW) a piece of shit. It produces
+> BIGGER and
+> > > SLOWER binaries ... Checked on: Athlon, AMD K6-2.
+> > > With the same gcc command line ...
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>
+>
 
-
--- 
-Marvin Justice
-Software Developer
-BOXX Technologies, Inc.
-www.boxxtech.com
-512-235-6318 (V)
-412-835-0434 (F)

@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267528AbUHEAcx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267526AbUHEAip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267528AbUHEAcx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 20:32:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267527AbUHEAcx
+	id S267526AbUHEAip (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 20:38:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267527AbUHEAip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 20:32:53 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:32198 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S267524AbUHEAcu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 20:32:50 -0400
-Date: Wed, 4 Aug 2004 17:31:42 -0700
-From: Grant Grundler <iod00d@hp.com>
-To: Pat Gefre <pfg@sgi.com>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Altix I/O code reorganization
-Message-ID: <20040805003142.GJ548@cup.hp.com>
-References: <200408042014.i74KE8fD141211@fsgi900.americas.sgi.com>
-Mime-Version: 1.0
+	Wed, 4 Aug 2004 20:38:45 -0400
+Received: from web51801.mail.yahoo.com ([206.190.38.232]:22112 "HELO
+	web51801.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267526AbUHEAin (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 20:38:43 -0400
+Message-ID: <20040805003843.33108.qmail@web51801.mail.yahoo.com>
+Date: Wed, 4 Aug 2004 17:38:43 -0700 (PDT)
+From: Phy Prabab <phyprabab@yahoo.com>
+Subject: Controlling PCI device enumeration
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408042014.i74KE8fD141211@fsgi900.americas.sgi.com>
-User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 04, 2004 at 03:14:08PM -0500, Pat Gefre wrote:
-> We are posting this code for review before submitting for inclusion in
-> the 2.5 tree.
+Hello,
 
-I'm sure you really meant 2.6.
+Is there any way to controll bus enumeration at boot
+time?
 
-> The patch set is at: ftp://oss.sgi.com/projects/sn2/sn2-update/
-> 
-> It is based off the http://lia64.bkbits.net/to-linus-2.5 tree
+I am using 2.6.7 and 8.  The issue is I have a system
+with 2 FC cards that are enumerated first before the
+on board controller (scsi).  I need to know how to
+make sure that:
+1> the on board controller is first (so I can boot
+properly)
+2> make sure the FC cards are always enumerated in the
+same order.
 
-I was previously told to not use that tree.
-It's only for linus to pull a subset of patches from.
-
-Tony, is "http://lia64.bkbits.net:8080/linux-ia64-2.56" the right
-tree to use?
+Thanks you for your help.
+Phy
 
 
-hth,
-grant
+		
+__________________________________
+Do you Yahoo!?
+New and Improved Yahoo! Mail - Send 10MB messages!
+http://promotions.yahoo.com/new_mail 

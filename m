@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129393AbRAaDAd>; Tue, 30 Jan 2001 22:00:33 -0500
+	id <S129431AbRAaDCX>; Tue, 30 Jan 2001 22:02:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129675AbRAaDAX>; Tue, 30 Jan 2001 22:00:23 -0500
-Received: from [64.160.188.242] ([64.160.188.242]:23557 "HELO
-	mail.hislinuxbox.com") by vger.kernel.org with SMTP
-	id <S129393AbRAaDAP>; Tue, 30 Jan 2001 22:00:15 -0500
-Date: Tue, 30 Jan 2001 18:59:38 -0800 (PST)
-From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-To: linux-kernel@vger.kernel.org
-Subject: VIA VT82C686X
-Message-ID: <Pine.LNX.4.21.0101301847530.3488-100000@ns-01.hislinuxbox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129675AbRAaDCN>; Tue, 30 Jan 2001 22:02:13 -0500
+Received: from ns.snowman.net ([63.80.4.34]:48394 "EHLO ns.snowman.net")
+	by vger.kernel.org with ESMTP id <S129431AbRAaDB6>;
+	Tue, 30 Jan 2001 22:01:58 -0500
+Date: Tue, 30 Jan 2001 22:01:48 -0500
+From: Stephen Frost <sfrost@snowman.net>
+To: David Ford <david@linux.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.x and SMP fails to compile (`current' undefined)
+Message-ID: <20010130220148.Y26953@ns>
+Mail-Followup-To: David Ford <david@linux.com>,
+	LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <3A777E1A.8F124207@linux.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AVGAi4VzQ7CM9FTC"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A777E1A.8F124207@linux.com>; from david@linux.com on Tue, Jan 30, 2001 at 06:53:14PM -0800
+X-Editor: Vim http://www.vim.org/
+X-Info: http://www.snowman.net
+X-Operating-System: Linux/2.2.16 (i686)
+X-Uptime: 10:01pm  up 167 days,  1:45,  9 users,  load average: 2.00, 2.00, 2.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Woohoo! Just found out that ATA66 on the VIA aint too great.
+--AVGAi4VzQ7CM9FTC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I set the kernel boot options idebus=66 ide0=ata66 enabling ATA66
-according to dmesg. The HDD is a WDC UDMA100 30.5GB drive. I retried the
+* David Ford (david@linux.com) wrote:
+> A person just brought up a problem in #kernelnewbies, building an SMP
+> kernel doesn't work very well, current is undefined.  I don't have more
+> time to debug it but I'll strip the config and put it up at
+> http://stuph.org/smp-config
 
-dd if=/dev/hda7 of=/tmp/testing2.img bs=1024k count=2000 
+	They're trying to compile SMP for Athlon/K7 (CONFIG_MK7=y).
 
-on one VT, ran renice -20 on the dd process then ran procinfo on another
-and top on a 3rd. I logged into a fourth and ran sync;sync;sync;sync;sync.
+		Stephen
 
-After @30 seconds the machine became totally unresponsive, locking up all
-but the current VT.
+--AVGAi4VzQ7CM9FTC
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-I let it sit there and waited until the dd finished in case the renice was
-what killed the control. When dd finished I tried running any type of
-command but the tty was completely frozen. All other VTs were non
-responsive as well.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE6d4AcrzgMPqB3kigRAmaMAJ4vWGoJ+s0dPF/6E2U5rwCMdzTt2gCZARVP
+gK72wC3fr1KJ/2RwCwaSvVM=
+=wJuU
+-----END PGP SIGNATURE-----
 
-This is gonna be fun when I test the Promise controller. hehe
-
-
-David D.W. Downey
-
-
+--AVGAi4VzQ7CM9FTC--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

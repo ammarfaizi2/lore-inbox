@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266058AbUGEPJy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266141AbUGEPMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266058AbUGEPJy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 11:09:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266136AbUGEPJy
+	id S266141AbUGEPMv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 11:12:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266139AbUGEPMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 11:09:54 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:63452 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S266058AbUGEPJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 11:09:52 -0400
-Date: Mon, 5 Jul 2004 16:09:51 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Daniel Phillips <phillips@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
-Message-ID: <20040705150951.GA18210@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Daniel Phillips <phillips@redhat.com>, linux-kernel@vger.kernel.org
-References: <200407050209.29268.phillips@redhat.com>
+	Mon, 5 Jul 2004 11:12:51 -0400
+Received: from burro.logi-track.com ([213.239.193.212]:45968 "EHLO
+	mail.logi-track.com") by vger.kernel.org with ESMTP id S266136AbUGEPMr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 11:12:47 -0400
+Date: Mon, 5 Jul 2004 17:12:25 +0200
+From: Markus Schaber <schabios@logi-track.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel BUG at drivers/usb/storage/usb.c:848
+Message-Id: <20040705171225.7767408b@kingfisher.intern.logi-track.com>
+In-Reply-To: <20040702224927.GB7969@kroah.com>
+References: <20040701121836.07db4217@kingfisher.intern.logi-track.com>
+	<20040702224927.GB7969@kroah.com>
+Organization: logi-track ag, =?ISO-8859-15?Q?z=FCrich?=
+X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+X-Face: Nx5T&>Nj$VrVPv}sC3IL&)TqHHOKCz/|)R$i"*r@w0{*I6w;UNU_hdl1J4NI_m{IMztq=>cmM}1gCLbAF+9\#CGkG8}Y{x%SuQ>1#t:;Z(|\qdd[i]HStki~#w1$TPF}:0w-7"S\Ev|_a$K<GcL?@F\BY,ut6tC0P<$eV&ypzvlZ~R00!A
+X-PGP-Key: http://schabi.de/pubkey.asc
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200407050209.29268.phillips@redhat.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 05, 2004 at 02:09:29AM -0400, Daniel Phillips wrote:
-> Red Hat and (the former) Sistina Software are pleased to announce that 
-> we will host a two day kickoff workshop on GFS and Cluster 
-> Infrastructure in Minneapolis, July 29 and 30, not too long after OLS.  
-> We call this the "Cluster Summit" because it goes well beyond GFS, and 
-> is really about building a comprehensive cluster infrastructure for 
-> Linux, which will hopefully be a reality by the time Linux 2.8 arrives.  
-> If we want that, we have to start now, and we have to work like fiends, 
-> time is short.  We offer as a starting point, functional code for a 
-> half-dozen major, generic cluster subsystems that Sistina has had under 
-> development for several years.
+Hi, Greg,
 
-Don't you think it's a little too short-term?  I'd rather see the cluster
-software that could be merged mid-term on KS (and that seems to be only OCFS2
-so far)
+On Fri, 2 Jul 2004 15:49:27 -0700
+Greg KH <greg@kroah.com> wrote:
 
+> > Running Kernel 2.6.4-mm2 (We use an mm2 kernel because of problems
+> > with highmem and cryto-loop playing together which seemed to be
+> > solved in mm2) and dd'ing from a IDE disk in an external USB case,
+> > the following just happened (from /var/log/syslog):
+> 
+> 2.6.4-mm2 is quite an old kernel.  Care to get a newer one to see if
+> this is still an issue or not?
+
+It's quite some effort to update those specific machines, but we planned
+to update to 2.6.7 until we heared that there are some problems with
+this version (especially, a co-worker of mine trying 2.6.7-mm1 on a
+similar hardware and using both crypto-loop and highmem has had random
+crashes, and some apps (including sun jdk 1.4) segfaulting on startup.).
+
+Now we plan to update to some 2.6.6 version. Is dm-crypt considered
+stable enough to give it a test shot? This way, we could get rid of
+crypto-loop and thus avoid having to try the mm patches.
+
+
+Thanks,
+Markus
+
+-- 
+markus schaber | dipl. informatiker
+logi-track ag | rennweg 14-16 | ch 8001 zürich
+phone +41-43-888 62 52 | fax +41-43-888 62 53
+mailto:schabios@logi-track.com | www.logi-track.com

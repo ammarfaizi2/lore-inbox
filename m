@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286412AbRLTWI5>; Thu, 20 Dec 2001 17:08:57 -0500
+	id <S284019AbRLTWPR>; Thu, 20 Dec 2001 17:15:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286410AbRLTWIr>; Thu, 20 Dec 2001 17:08:47 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:40987 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S286412AbRLTWIl>; Thu, 20 Dec 2001 17:08:41 -0500
-Date: Thu, 20 Dec 2001 17:08:36 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: torvalds@transmeta.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: RFC: bio_vec bits, kmap_atomic
-Message-ID: <20011220170836.C6276@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S286413AbRLTWPI>; Thu, 20 Dec 2001 17:15:08 -0500
+Received: from [206.168.69.42] ([206.168.69.42]:5504 "HELO
+	xerxes.data-raptors.com") by vger.kernel.org with SMTP
+	id <S284034AbRLTWO7>; Thu, 20 Dec 2001 17:14:59 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Elyse Grasso <emgrasso@data-raptors.com>
+Reply-To: emgrasso@data-raptors.com
+To: Dave Jones <davej@suse.de>
+Subject: Re: apm gpf on Inspiron2500 with 2.4.9
+Date: Thu, 20 Dec 2001 15:13:04 -0700
+X-Mailer: KMail [version 1.3.1]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0112200117210.26043-100000@Appserv.suse.de>
+In-Reply-To: <Pine.LNX.4.33.0112200117210.26043-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011220221506Z284034-18284+5230@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Thanks, I'll look into that. 
 
-It looks like 2.5.2-pre1 is working towards recreating all the kvec helpers 
-that I already wrote and offered in the kvec series of patches.  Do you want 
-to continue recreating code, or would you like to merge?
+The gpfs happen whenever Linux tries to do anything apm related, including 
+bringing up apmd at boot time, bringing up pcmcia (which evidently calls 
+apmd)... whenever.
 
-Another issue: would you accept a patch to convert kmap_atomic into a more 
-kmap-like function that only allows 2 kmaps per "context" for bounce 
-copies?  As it stands, the fact that many kmap_atomic users have to disable 
-interrupts is a gross wart that makes things stupidly slow.  Oh, and by 
-context I'm thinking of kernel mode, bottom half, softirq and interrupt.  
-This probably means hard limiting the maximum irq depth to 8 or so, but I 
-suspect we need to do that 
-
-		-ben
--- 
-Fish.
+On Wednesday 19 December 2001 05:19 pm, Dave Jones wrote:
+> On Wed, 19 Dec 2001, Elyse Grasso wrote:
+> 
+> > EIP:  0050:[<00002ffb>]       Not tainted
+> 
+> The 0050 means you went bang in BIOS context.
+> See if theres a BIOS upgrade available.
+> 
+> If this is occuring at shutdown time, try the "Use real mode APM
+> BIOS call to power off" option in the APM section of the kernel
+> configuration.
+> 
+> Dave,
+> 
+> -- 
+> | Dave Jones.        http://www.codemonkey.org.uk
+> | SuSE Labs
+> 
+> 
+> 

@@ -1,36 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266380AbUGUAgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266379AbUGUAyx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266380AbUGUAgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 20:36:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266379AbUGUAgJ
+	id S266379AbUGUAyx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 20:54:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266381AbUGUAyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 20:36:09 -0400
-Received: from main.gmane.org ([80.91.224.249]:64190 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266380AbUGUAfm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 20:35:42 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Tue, 20 Jul 2004 20:54:53 -0400
+Received: from 214.98-30-64.ftth.swbr.surewest.net ([64.30.98.214]:50189 "HELO
+	sublime.the-space.net") by vger.kernel.org with SMTP
+	id S266379AbUGUAyu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 20:54:50 -0400
+Date: Tue, 20 Jul 2004 17:55:32 -0700 (PDT)
+From: Andy Biddle <andyb@chainsaw.com>
+X-X-Sender: andyb@sublime.winfirst.com
 To: linux-kernel@vger.kernel.org
-From: Moritz Muehlenhoff <jmm@informatik.uni-bremen.de>
-Subject: Status of IEEE1394 vulnerability in 2.4
-Date: Wed, 21 Jul 2004 02:32:57 +0200
-Organization: Cocytus
-Message-ID: <p6q0t1-2a3.ln1@legolas.mmuehlenhoff.de>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: pd9e188ed.dip.t-dialin.net
-User-Agent: slrn/0.9.8.0 (Linux)
+Subject: Asus A7M266-D, Linux 2.6.7 and APIC
+Message-ID: <20040720175509.H48409@sublime.winfirst.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-what's the status of the IEEE 1394 vulnerability wrt
-kernel 2.4? [1]
-Will it be fixed in 2.4.27? rc3 is two weeks old and
-there haven't been bitkeeper snapshots since April.
+I'm having what I suspect is a newbie-type problem, but I assure you I've
+looked around.
 
-Cheers,
-        Moritz
+I have a dual-proc server that I've recently decided to overhaul.  It's an
+Asus A7M266-D motherboard.  It had been running with dual Athlon MP 1800+s
+and RedHat and BIOS rev 1003 for at least a year with no real problems.
 
-Footnotes:
-[1] http://www.osvdb.org/displayvuln.php?osvdb_id=7253
+First I decided to change the OS to Gentoo.  I build the system with no
+problem and built a custom kernel based on linux 2.6.7-gentoo-r11.
+Everything was working great.  Then I changed out the procs and went with
+dual Athlon MP 2800+s.  To support these, I needed to (according to Asus's
+website) upgrade the BIOS to 1011.002 or higher.  (Latest is 1011.003, so
+that's what I used.)
+
+Now, when I boot to this custom kernel I get about 2 seconds into the boot
+process before the system starts spewing constant "APIC error on CPU0:
+04(04)" messages.   It stops booting at that point.
+
+I've done a little research and it seems that I'm supposed to do a couple
+of things:
+	1.  Disable "MPS 1.4 Support" in the BIOS.
+	2.  pass the kernel "noapic" as a parameter.
+
+I've done both of these and I STILL get the APIC messages.  (Which leads
+me to suspect the "noapic" isn't working or I'm doing it wrong at the very
+least.)
+
+I've build another custom kernel where the only difference is that SMP is
+disabled.  Sure enough, that works like a champ, but with only the single
+CPU.
+
+I've searched through the kernel "make menuconfig" menus and can't see
+that I'm missing anything.  In fact, I can't even FIND "APIC" options
+unless I disable SMP...
+
+I'm just about out of ideas here... Any suggestions?
+
+Thanks,
+AndyB
+-
+To unsubscribe from this list: send the line "unsubscribe linux-smp" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
 

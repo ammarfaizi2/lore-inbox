@@ -1,45 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264038AbUECViR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264082AbUECVkY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264038AbUECViR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 17:38:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264057AbUECViR
+	id S264082AbUECVkY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 17:40:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbUECVkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 17:38:17 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:744 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S264038AbUECViI (ORCPT
+	Mon, 3 May 2004 17:40:24 -0400
+Received: from fw.osdl.org ([65.172.181.6]:3979 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264085AbUECVjK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 17:38:08 -0400
-Date: Mon, 3 May 2004 23:24:50 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       davidm@hpl.hp.com, bunk@fs.tum.de, eyal@eyal.emu.id.au,
-       linux-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc3: modular DVB tda1004x broken
-Message-ID: <20040503212450.GC31580@wohnheim.fh-wedel.de>
-References: <408F9BD8.8000203@eyal.emu.id.au> <20040501201342.GL2541@fs.tum.de> <Pine.LNX.4.58.0405011536300.18014@ppc970.osdl.org> <20040501161035.67205a1f.akpm@osdl.org> <Pine.LNX.4.58.0405011653560.18014@ppc970.osdl.org> <20040501175134.243b389c.akpm@osdl.org> <16534.35355.671554.321611@napali.hpl.hp.com> <Pine.LNX.4.58.0405031336470.1589@ppc970.osdl.org> <20040503140251.274e1239.akpm@osdl.org> <20040503211607.GG17014@parcelfarce.linux.theplanet.co.uk>
+	Mon, 3 May 2004 17:39:10 -0400
+Date: Mon, 3 May 2004 14:41:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: jmorris@redhat.com, linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov
+Subject: Re: [PATCH][SELINUX] Re-open descriptors closed on exec by SELinux
+ to /dev/null
+Message-Id: <20040503144130.42ba1fda.akpm@osdl.org>
+In-Reply-To: <1083603014.7446.197.camel@moss-spartans.epoch.ncsc.mil>
+References: <1083603014.7446.197.camel@moss-spartans.epoch.ncsc.mil>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040503211607.GG17014@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 May 2004 22:16:07 +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> 
-> I'd rather kill open() completely - we only have a handful of in-tree users
-> and there's no good reason to keep that crap, AFAICS.  I'm gathering the
-> list of in-tree callers of open()/lseek()/close() and so far a lot of them
-> look buggy.  More on that later...
+Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+>
+> +/* Create an open file that refers to the null device.
+> +   Derived from the OpenWall LSM. */
+> +struct file *open_devnull(void) 
+> +{
+> +	struct inode *inode;
+> +	struct dentry *dentry;
+> +	struct file *file = NULL;
+> +	struct inode_security_struct *isec;
+> +	dev_t dev;
+> +
+> +	inode = new_inode(current->fs->rootmnt->mnt_sb);
+> +	if (!inode)
+> +		goto out;
+> +
+> +	dentry = dget(d_alloc_root(inode));
+> +	if (!dentry)
+> +		goto out_iput;
+> +
+> +	file = get_empty_filp();
+> +	if (!file)
+> +		goto out_dput;
+> +
+> +	dev = MKDEV(MEM_MAJOR, 3); /* null device */
+> +
+> +	inode->i_uid = current->fsuid;
+> +	inode->i_gid = current->fsgid;
+> +	inode->i_blksize = PAGE_SIZE;
+> +	inode->i_blocks = 0;
+> +	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+> +	inode->i_state = I_DIRTY; /* so that mark_inode_dirty won't touch us */
+> +
+> +	isec = inode->i_security;
+> +	isec->sid = SECINITSID_DEVNULL;
+> +	isec->sclass = SECCLASS_CHR_FILE;
+> +	isec->initialized = 1;
+> +
+> +	file->f_flags = O_RDWR;
+> +	file->f_mode = FMODE_READ | FMODE_WRITE;
+> +	file->f_dentry = dentry;
+> +	file->f_vfsmnt = mntget(current->fs->rootmnt);
+> +	file->f_pos = 0;
+> +
+> +	init_special_inode(inode, S_IFCHR | S_IRUGO | S_IWUGO, dev);
+> +	if (inode->i_fop->open(inode, file))
+> +		goto out_fput;
+> +
+> +out:
+> +	return file;
+> +out_fput:
+> +	mntput(file->f_vfsmnt);
+> +	put_filp(file);
+> +out_dput:	
+> +	dput(dentry);
+> +out_iput:	
+> +	iput(inode);
+> +	file = NULL;
+> +	goto out;
+> +}
 
-Do you know how many of those exist purely for the purpose of passing
-a struct file to one of the various read/write functions?
+That seems to be a heck of a lot of code to get a file* which refers to
+/dev/null.  I guess calling flip_open("/dev/null") is a bit grubby, but are
+you sure there's no simpler way?
 
-Jörn
-
--- 
-The grand essentials of happiness are: something to do, something to
-love, and something to hope for.
--- Allan K. Chalmers

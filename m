@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264811AbSJORYP>; Tue, 15 Oct 2002 13:24:15 -0400
+	id <S264793AbSJORW6>; Tue, 15 Oct 2002 13:22:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264812AbSJORYP>; Tue, 15 Oct 2002 13:24:15 -0400
-Received: from host194.steeleye.com ([66.206.164.34]:11019 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S264811AbSJORYO>; Tue, 15 Oct 2002 13:24:14 -0400
-Message-Id: <200210151730.g9FHU4f03129@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Summit support for 2.5 - now with subarch! [4/5] 
-In-Reply-To: Message from "Martin J. Bligh" <mbligh@aracnet.com> 
-   of "Mon, 14 Oct 2002 16:35:12 PDT." <2001880782.1034613312@[10.10.2.3]> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 15 Oct 2002 10:30:04 -0700
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S264811AbSJORW6>; Tue, 15 Oct 2002 13:22:58 -0400
+Received: from ios.uri1.com ([216.161.22.188]:9112 "EHLO x")
+	by vger.kernel.org with ESMTP id <S264793AbSJORW5>;
+	Tue, 15 Oct 2002 13:22:57 -0400
+Date: Tue, 15 Oct 2002 17:01:01 +0000 (GMT)
+From: Brak <brak@x.interzone.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19 TCP-RST ignored by kernel, keeps sending SYN-ACK (no ECN in
+ kernel config)
+Message-ID: <Pine.LNX.4.44.0210151646050.15109-100000@x.interzone.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > This should really be in a .c file in mach-summit.  I know a single line file 
-> > with just a variable in it is a bit strange, but the principle of the subarch 
-> > stuff is to have anything subarch specific (which this is) in mach-<subarch>.
 
-> That's pretty pointless for one variable. I think you're taking things
-> to ridiculous extremes.
+I really hope someone else has seen this before.
 
-OK, I agree that a single .c file for one variable is very extreme.  I think 
-you also would agree with me that if it had been ten variables and an exported 
-function then it should live in a separate .c file in the summit specific code.
+Summary:
+2.4.19 Kernel doesn't close out connection from SYN_RECV state when
+properly sequenced TCP-RST is received.  2.4.12-ac3 behaves properly.
 
-My concern is that there will come a day when the summit code is enhanced to 
-add the extra nine variables and the function.  Since there's nowhere in 
-mach-summit to add them, they get added to smpboot.c.  Now we have a go around 
-on linux-kernel about why they should be in a separate .c file.
+Full Description:
+I have a load balancer that is doing simple health checks by poking at a
+port, lets say 80.  The load balancers sends a SYN to the port.  This puts
+the port in the SYN_RECV state.  The Linux server responds with a SYN-ACK.
+Next, the load balancer responds with a RST.  When I was running the
+2.4.12-ac3 kernel, the socket sitting in SYN_RECV went away, as it should.
 
-You see the issue: I code by looking at how someone else did it, so if we're 
-setting a precedent then it should be done correctly rather than catching and 
-correcting a mistake we expect someone will now make.
+With 2.4.19, the socket stays in SYN_RECV, and the kernel keeps sending
+SYN-ACK's to the load balancer.  Each time the load balancer receives a
+SYN-ACK it send another TCP-RST, which again, causes nothing to happen to
+the socket.
 
-If you can promise me that summit will never need an extra variable or 
-exported function as the code evolves from now until the end of the 
-architecture then I can live with summit_x86 in the main line.
+10:14:51.089620 < 192.168.50.46.1097 > 192.168.50.254.80: S
+779425095:779425095(0) win 16384 <mss 1460>
+10:14:51.089656 > 192.168.50.254.80 > 192.168.50.46.1097: S
+144111045:144111045(0) ack 779425096 win 5840 <mss 1460> (DF)
+10:14:51.093041 < 192.168.50.46.1097 > 192.168.50.254.80: R
+779425096:779425096(0) win 1 (DF)
+10:14:54.330613 > 192.168.50.254.80 > 192.168.50.46.1097: S
+144111045:144111045(0) ack 779425096 win 5840 <mss 1460> (DF)
+10:14:54.330796 < 192.168.50.46.1097 > 192.168.50.254.80: R
+779425096:779425096(0) win 0 (DF)
+10:15:00.330614 > 192.168.50.254.80 > 192.168.50.46.1097: S
+144111045:144111045(0) ack 779425096 win 5840 <mss 1460> (DF)
+10:15:00.330797 < 192.168.50.46.1097 > 192.168.50.254.80: R
+779425096:779425096(0) win 0 (DF)
 
-James
 
+/proc/versions
+Linux version 2.4.19 (root) (gcc version 2.96 20000731
+(Red Hat Linux 7.1 2.96-98)) #1 Fri Sep 13 19:08:36 PDT 2002
 

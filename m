@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263567AbTEOBVz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 21:21:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263576AbTEOBVy
+	id S263571AbTEOBb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 21:31:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263582AbTEOBbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 21:21:54 -0400
-Received: from pat.uio.no ([129.240.130.16]:30698 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S263567AbTEOBVw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 21:21:52 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Garance A Drosihn <drosih@rpi.edu>, Jan Harkes <jaharkes@cs.cmu.edu>,
-       David Howells <dhowells@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <linux-fsdevel@vger.kernel.org>, <openafs-devel@openafs.org>
-Subject: Re: [OpenAFS-devel] Re: [PATCH] PAG support, try #2
-References: <Pine.LNX.4.44.0305141749490.28007-100000@home.transmeta.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 15 May 2003 03:34:25 +0200
-In-Reply-To: <Pine.LNX.4.44.0305141749490.28007-100000@home.transmeta.com>
-Message-ID: <shshe7xt2la.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	Wed, 14 May 2003 21:31:55 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:1192 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263571AbTEOBbw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 21:31:52 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Andrew Theurer <habanero@us.ibm.com>
+Reply-To: habanero@us.ibm.com
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Re: [patch] Re: Bug 619 - sched_best_cpu does not pick best cpu (1/1)
+Date: Wed, 14 May 2003 20:48:53 -0500
+User-Agent: KMail/1.4.3
+Cc: anton@samba.org, "" <colpatch@us.ibm.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Bill Hartner <bhartner@us.ibm.com>,
+       Andrew Morton <akpm@zip.com.au>, Robert Love <rml@tech9.net>,
+       "" <linux-kernel@vger.kernel.org>
+References: <3EB70EEC.9040004@us.ibm.com> <200305142029.45413.habanero@us.ibm.com> <Pine.LNX.4.50.0305142124440.19782-100000@montezuma.mastecende.com>
+In-Reply-To: <Pine.LNX.4.50.0305142124440.19782-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: Please contact postmaster@uio.no for more information
-X-UiO-MailScanner: Found to be clean
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200305142048.53530.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Linus Torvalds <torvalds@transmeta.com> writes:
+On Wednesday 14 May 2003 20:26, Zwane Mwaikambo wrote:
+> On Wed, 14 May 2003, Andrew Theurer wrote:
+> > +int nr_cpus_in_node[MAX_NUMNODES] = { [0 ... (MAX_NUMNODES -1)] = 0};
+>
+> [snip...]
+>
+> > +static inline int nr_cpus_node(int node)
+> > +{
+> > +	return nr_cpus_in_node[node];
+> > +}
+> > +
+> >  static inline int cpu_to_node(int cpu)
+> >  {
+> >  	int node;
+>
+> How about an hweight() on node_to_cpumask?
 
-     > I'm interested in a much more generic issue of "user
-     > credentials", and here a PAG can be _one_ credential that a
-     > user holds on to. But to be useful, a user has to be able to
-     > have multiple such credentials. While one might be his "AFS
-     > userid", another will be his NFS mount credentials, and a third
-     > one will be his key to decrypt his home directory on that
-     > machine.
+I'd rather cache it.  I believe hweight() will be the asm-generic routine.
 
-The interesting thing about a PAG is that it is a handle that is
-shared between userland and the kernel, and carries information about
-which collection of authentication tokens/credentials a process holds.
+-Andrew
 
-RPCSEC can be made to use it to communicate which bag of creds the
-userland daemon may use when it attempts to negotiate a new security
-context for an NFS user. At the moment all we can tell is 'use the
-credentials of uid=zyx' which is no good if the user wants 2
-subprocesses to authenticate using different remote kerberos accounts,
-say.
-
-Cheers,
-  Trond

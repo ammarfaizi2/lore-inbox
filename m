@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbUJ1Nx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbUJ1N5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261675AbUJ1Nx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 09:53:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbUJ1Nx6
+	id S261152AbUJ1N5e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 09:57:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbUJ1N5V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 09:53:58 -0400
-Received: from ipcop.bitmover.com ([192.132.92.15]:29648 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S261675AbUJ1Nx4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 09:53:56 -0400
-Date: Thu, 28 Oct 2004 06:53:48 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: James Bruce <bruce@andrew.cmu.edu>
-Cc: Linus Torvalds <torvalds@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
-       Andrea Arcangeli <andrea@novell.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BK kernel workflow
-Message-ID: <20041028135348.GA18099@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	James Bruce <bruce@andrew.cmu.edu>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Andrea Arcangeli <andrea@novell.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <1098707342.7355.44.camel@localhost.localdomain> <20041025133951.GW14325@dualathlon.random> <20041025162022.GA27979@work.bitmover.com> <20041025164732.GE14325@dualathlon.random> <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org> <Pine.LNX.4.61.0410252350240.17266@scrub.home> <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org> <Pine.LNX.4.61.0410270223080.877@scrub.home> <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org> <4180B9E9.3070801@andrew.cmu.edu>
+	Thu, 28 Oct 2004 09:57:21 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:21654 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261211AbUJ1Nz5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 09:55:57 -0400
+Date: Thu, 28 Oct 2004 15:57:06 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>
+Subject: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.5.2
+Message-ID: <20041028135706.GA25849@elte.hu>
+References: <20041027135309.GA8090@elte.hu> <12917.195.245.190.94.1098890763.squirrel@195.245.190.94> <20041027205126.GA25091@elte.hu> <20041027211957.GA28571@elte.hu> <33083.192.168.1.5.1098919913.squirrel@192.168.1.5> <20041028063630.GD9781@elte.hu> <20668.195.245.190.93.1098952275.squirrel@195.245.190.93> <20041028085656.GA21535@elte.hu> <26253.195.245.190.93.1098955051.squirrel@195.245.190.93> <20041028093215.GA27694@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4180B9E9.3070801@andrew.cmu.edu>
+In-Reply-To: <20041028093215.GA27694@elte.hu>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Actually it's not that simple.  With the free BK license it's not _your_ 
-> choice that affects validity; It's the choice of any person at your 
-> company deciding for everyone else.  So if one OSDL employee uses the 
-> free BK licence, *nobody else* at OSDL can work on an SCM, even at home 
-> in their spare time.  Technically, if any one of the other 10,000 people 
-> at my university work on an SCM, I can't use it either since they pay 
-> me.  I try to bury my head in the sand and think that they aren't.  In 
-> reality however, I can't vouch for what the other 9,999 people are 
-> doing.  
 
-The reason it is worded that way is so that we avoid the situation where
-one guy is doing the work on $SCM and the other guy is sitting there 
-running BK commands in order to reverse engineer BK.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-We aren't going to come make a fuss if you are using BK and some other
-guy is tinkering with CVS, we're not unreasonable people.  On the other
-hand, that doesn't give you carte blanche, if your officemate or friend
-is working on a BK replacement and you are helping him, yes, we will 
-likely make a fuss.
--- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+> (right now it's not possible to do wakeup-timing without
+> LATENCY_TRACE, i'll fix that.)
+
+i've fixed this in -RT-V0.5.2. Also, the trace_enabled=4 method is
+deprecated now and the new mechanism is to use:
+
+    /proc/sys/kernel/preempt_wakeup_timing
+
+this flag is default-enabled. So starting at -RT-V0.5.2 to activate
+wakeup timing it's enough to enable PREEMPT_TIMING and reset the max
+after bootup:
+
+    echo 0 > /proc/sys/kernel/preempt_max_latency
+
+this will switch back to critical-section timing/tracing:
+
+    echo 0 > /proc/sys/kernel/preempt_wakeup_timing
+
+	Ingo

@@ -1,42 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265051AbUGMOCN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265086AbUGMOFy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265051AbUGMOCN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 10:02:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265086AbUGMOCN
+	id S265086AbUGMOFy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 10:05:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265133AbUGMOFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 10:02:13 -0400
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:8457 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S265051AbUGMOCF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 10:02:05 -0400
-From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
-To: lorenzo@gnu.org, pageexec@freemail.hu
-Subject: Re: Kernel hacking option "Debug memory allocations" possible leak of PaX memory randomization
-Date: Tue, 13 Jul 2004 16:01:39 +0200
-User-Agent: KMail/1.6.2
+	Tue, 13 Jul 2004 10:05:54 -0400
+Received: from core.ece.northwestern.edu ([129.105.5.1]:59333 "EHLO
+	core.ece.northwestern.edu") by vger.kernel.org with ESMTP
+	id S265086AbUGMOFk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 10:05:40 -0400
+Message-ID: <1089727279.40f3eb2f82a6c@core.ece.northwestern.edu>
+Date: Tue, 13 Jul 2004 09:01:19 -0500
+From: lya755@ece.northwestern.edu
+To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: linux-kernel@vger.kernel.org
-References: <1089726693.3283.21.camel@localhost>
-In-Reply-To: <1089726693.3283.21.camel@localhost>
-X-Operating-System: Linux 2.6.5-wolk3.0 i686 GNU/Linux
+Subject: Re: question about ramdisk
+References: <1089651469.40f2c30d44364@core.ece.northwestern.edu> <ccugqu$tun$1@terminus.zytor.com>
+In-Reply-To: <ccugqu$tun$1@terminus.zytor.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Organization: Linux-Systeme GmbH
-Message-Id: <200407131601.39909@WOLK>
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
+X-Originating-IP: 138.15.107.179
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 July 2004 15:51, Lorenzo Hernandez Garcia-Hierro wrote:
+Thank you! Can you pls tell me where I can find related references? I've been 
+looking into several books about kernel and part of the kernel code, but no 
+luck so far.. 
 
-Hi Lorenzo,
+Thanks for any comments!
 
-> Is anyone of you having the same situation, is it an unexpected behavior or
-> it's a bug on the kernel source?
-> Is that option non-compatible with PaX RANDSTACK and the rest of PaX's
-> memory randomization features?
+Quoting "H. Peter Anvin" <hpa@zytor.com>:
 
-CC pageexec at freemail dot hu - He's the PaX programmer.
+> Followup to:  <1089651469.40f2c30d44364@core.ece.northwestern.edu>
+> By author:    lya755@ece.northwestern.edu
+> In newsgroup: linux.dev.kernel
+> >
+> > Hi all,
+> > 
+> > I am learning linux kernel and have a question about ramdisk. When loading
+> an 
+> > executable in ramdisk, is the kernel loading the code all at a time to
+> memory 
+> > and then execute, or is it loading only a page at one time and generating a
+> 
+> > page fault to fetch another page?
+> > 
+> > Thanks for any comments! Waiting desprately for your help.
+> > 
+> 
+> Neither.  The code is already in RAM.  It's mapped into the process
+> address space and run in place.
+> 
+> 	-hpa
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-ciao, Marc
+
+
+_________________________________________________________
+This message was sent through the NU ECE webmail gateway.

@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263447AbTKKUSZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 15:18:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263698AbTKKUSZ
+	id S263408AbTKKUJY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 15:09:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbTKKUJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 15:18:25 -0500
-Received: from ppp-62-245-162-69.mnet-online.de ([62.245.162.69]:38528 "EHLO
-	frodo.midearth.frodoid.org") by vger.kernel.org with ESMTP
-	id S263447AbTKKUSY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 15:18:24 -0500
-To: Maciej Zenczykowski <maze@cela.pl>
-Cc: Julien Oster <lkml-20031111@mc.frodoid.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Tue, 11 Nov 2003 15:09:24 -0500
+Received: from codepoet.org ([166.70.99.138]:5020 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S263408AbTKKUJW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 15:09:22 -0500
+Date: Tue, 11 Nov 2003 13:09:22 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Julien Oster <lkml-20031111@mc.frodoid.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: A7N8X (Deluxe) Madness
-From: Julien Oster <lkml-20031111@mc.frodoid.org>
-Organization: FRODOID.ORG
-X-Face: #C"_SRmka_V!KOD9IoD~=}8-P'ekRGm,8qOM6%?gaT(k:%{Y+\Cbt.$Zs<[X|e)<BNuB($kI"KIs)dw,YmS@vA_67nR]^AQC<w;6'Y2Uxo_DT.yGXKkr/s/n'Th!P-O"XDK4Et{`Di:l2e!d|rQoo+C6)96S#E)fNj=T/rGqUo$^vL_'wNY\V,:0$q@,i2E<w[_l{*VQPD8/h5Y^>?:O++jHKTA(
-Date: Tue, 11 Nov 2003 21:18:22 +0100
-In-Reply-To: <Pine.LNX.4.44.0311112054020.30654-100000@gaia.cela.pl> (Maciej
- Zenczykowski's message of "Tue, 11 Nov 2003 20:55:16 +0100 (CET)")
-Message-ID: <frodoid.frodo.87n0b2zmk1.fsf@usenet.frodoid.org>
-User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
-References: <Pine.LNX.4.44.0311112054020.30654-100000@gaia.cela.pl>
-MIME-Version: 1.0
+Message-ID: <20031111200922.GA9276@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Julien Oster <lkml-20031111@mc.frodoid.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <frodoid.frodo.87r80eznz9.fsf@usenet.frodoid.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <frodoid.frodo.87r80eznz9.fsf@usenet.frodoid.org>
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej Zenczykowski <maze@cela.pl> writes:
+On Tue Nov 11, 2003 at 08:47:38PM +0100, Julien Oster wrote:
+> 
+> Hello,
+> 
+> seriously, I'm pretty fed up with it.
+> 
+> I have an ASUS A7N8X Deluxe mainboard. Yeah, right, that thing causing
+> serious trouble. I'm getting hard lockups all the time. No panic, no
+> message, no sysrq, no blinking cursor in the framebuffer. Gone for good.
 
-Hello Maciej,
+Does it help if you go into the BIOS and set the IDE controller
+to "Compatible Mode" rather than "Enhanced Mode"?
 
->> So, things are totally different between 2.6.0-test9 and
->> 2.4.22-ac4. 2.6.0-test9 doesn't like the slightest IDE load with that
->> mainboard at all. 2.4.22-ac4 doesn't care, runs for hours or for days
->> and then locks up when it just gets bored or something similar.
+ -Erik
 
-> I'd guess one is locking up due to hard disk load,
-> and the other is locking up due to automatic suspend/standby issues.
-> Can you verify that the ac kernel isn't locking up due to a 'screensaver' 
-> type problem?
-
-Interesting question. I also thought about that one. However,
-regarding X, the machine sometimes crashes before the X Server
-screensaver (nothing special there, just the built in one that turns
-the screen black) is clearing the screen and sometimes afterwards. If
-it crashes afterwards, I can of course not see when it crashed, since
-I don't see the clock on the screen anymore.
-
-And there's nothing else which I could think of. I have resetted the
-spinout time for the harddisks to "never" (for different reasons) and
-I don't think that there's any power saving stuff enabled in BIOS
-setup. I'll check that. However, I'm afraid there really isn't any
-screensaver or powersaving thing within my system, of course for the
-standard X screensaver, which doesn't seem related to it.
-
-Regards,
-Julien
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

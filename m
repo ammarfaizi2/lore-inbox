@@ -1,70 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130211AbRCHWza>; Thu, 8 Mar 2001 17:55:30 -0500
+	id <S130126AbRCHW5u>; Thu, 8 Mar 2001 17:57:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130238AbRCHWzU>; Thu, 8 Mar 2001 17:55:20 -0500
-Received: from munk.apl.washington.edu ([128.95.96.184]:46608 "EHLO
-	munk.apl.washington.edu") by vger.kernel.org with ESMTP
-	id <S130211AbRCHWzN>; Thu, 8 Mar 2001 17:55:13 -0500
-Date: Thu, 8 Mar 2001 14:50:46 -0800 (PST)
-From: Brian Dushaw <dushaw@munk.apl.washington.edu>
+	id <S130129AbRCHW5l>; Thu, 8 Mar 2001 17:57:41 -0500
+Received: from cmailg1.svr.pol.co.uk ([195.92.195.171]:32592 "EHLO
+	cmailg1.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S130126AbRCHW5V>; Thu, 8 Mar 2001 17:57:21 -0500
+Date: Thu, 8 Mar 2001 22:59:17 +0000 (GMT)
+From: Will Newton <will@misconception.org.uk>
+X-X-Sender: <will@dogfox.localdomain>
 To: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux kernel - and regular sync'ing?
-In-Reply-To: <20010308223319.A25679@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.30.0103081439400.18253-100000@munk.apl.washington.edu>
+Subject: ES1371 driver in kernel 2.4.2
+Message-ID: <Pine.LNX.4.33.0103082255560.11750-100000@dogfox.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the interests of finishing off this thread:
-  Thanks to all who replied to my question on how to get a notebook
-disk to spin down.  The clear consensus is:
-- the problem was probably caused by the cron daemon (I have some doubts
-    about this, but never mind)
-- the problem is fixed by adding the "noatime" option when mounting the
-    root filesystem (I use /etc/fstab to do this)
-- there appears to be no harm in not updating the inode access times with
-    this option.
-- I am now using "hdparm -S 6 /dev/hda" to great effect; placed in my
-    /etc/rc.d/rc.local file.
-- Naturally as soon as I learned all this from this e-mail thread, I found
-    the appropriate paragraph in an out-of-the-way spot on the "Linux on
-    Notebooks" pages (this must be one of Murphy's Laws... :) )
-- I've added this discussion to my notebook web page in the interest of
-    spreading this gem of information.
 
-B.D.
+I am still having problems with this driver.
 
+When loading the driver I get:
 
-On Thu, 8 Mar 2001, Russell King wrote:
+es1371: version v0.27 time 00:47:56 Mar  7 2001
+es1371: found chip, vendor id 0x1274 device id 0x1371 revision 0x08
+PCI: Found IRQ 10 for device 00:0b.0
+es1371: found es1371 rev 8 at io 0xa400 irq 10
+es1371: features: joystick 0x0
+ac97_codec: AC97  codec, id: 0x0000:0x0000 (Unknown)
+spurious 8259A interrupt: IRQ7.
 
-> On Thu, Mar 08, 2001 at 12:09:51PM +0000, Alan Cox wrote:
-> > To quote the linux on palmax page
-> >
-> >    For startup my /etc/rc.d/rc.local contains the following lines.
-> > mount -o remount,rw,noatime /
-> > /sbin/hdparm -S 15 /dev/hda
->
-> Or else place "noatime" in /etc/fstab, which is probably the better
-> place for it.
->
-> --
-> Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
->              http://www.arm.linux.org.uk/personal/aboutme.html
->
+This last line seems strange as /proc/interrupts does not list IRQ7:
 
--- 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  0:    2515137          XT-PIC  timer
+  1:      18752          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  4:    2438600          XT-PIC  serial
+  5:          0          XT-PIC  bttv
+  8:          1          XT-PIC  rtc
+ 10:          0          XT-PIC  es1371
+ 12:     310926          XT-PIC  PS/2 Mouse
+ 14:     137157          XT-PIC  ide0
+ 15:      35714          XT-PIC  ide1
+NMI:          0
+ERR:          1
 
-Brian Dushaw
-Applied Physics Laboratory
-University of Washington
-1013 N.E. 40th Street
-Seattle, WA  98105-6698
-(206) 685-4198   (206) 543-1300
-(206) 543-6785 (fax)
-dushaw@apl.washington.edu
+The chip is actually a Cirrus Logic CS4297A.
 
-Web Page:  http://staff.washington.edu/dushaw/index.html
 

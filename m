@@ -1,241 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbVBIT5F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbVBIT72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261904AbVBIT5F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 14:57:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbVBIT5F
+	id S261906AbVBIT72 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 14:59:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbVBIT72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 14:57:05 -0500
-Received: from pop-a065d19.pas.sa.earthlink.net ([207.217.121.253]:47036 "EHLO
-	pop-a065d19.pas.sa.earthlink.net") by vger.kernel.org with ESMTP
-	id S261904AbVBIT4W convert rfc822-to-8bit (ORCPT
+	Wed, 9 Feb 2005 14:59:28 -0500
+Received: from lug-owl.de ([195.71.106.12]:16055 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S261911AbVBIT64 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 14:56:22 -0500
-From: Eric Bambach <eric@cisu.net>
-Reply-To: eric@cisu.net
-To: linux-kernel@vger.kernel.org
-Subject: High Interrupt load crashes SMP Athlon MPs
-Date: Wed, 9 Feb 2005 13:54:43 -0600
-User-Agent: KMail/1.7.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Wed, 9 Feb 2005 14:58:56 -0500
+Date: Wed, 9 Feb 2005 20:58:54 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
+       Linux-Input <linux-input@atrey.karlin.mff.cuni.cz>
+Subject: Re: [RFC/RFT] [patch] Elo serial touchscreen driver
+Message-ID: <20050209195854.GJ10594@lug-owl.de>
+Mail-Followup-To: Paulo Marques <pmarques@grupopie.com>,
+	Vojtech Pavlik <vojtech@suse.cz>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Linux-Input <linux-input@atrey.karlin.mff.cuni.cz>
+References: <20050208164227.GA9790@ucw.cz> <420A0ECF.3090406@grupopie.com> <20050209170015.GC16670@ucw.cz> <20050209171438.GI10594@lug-owl.de> <20050209173026.GA17797@ucw.cz> <420A518A.9040500@grupopie.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="JjsO4Ft8DCMnlCnY"
 Content-Disposition: inline
-Message-Id: <200502091354.43348.eric@cisu.net>
+In-Reply-To: <420A518A.9040500@grupopie.com>
+X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
- After doing much research I have come to the conclusion that the kernel might 
-be at fault (in conjuction with the mobo) for hard-locking my box. Please 
-read below to see if you can help me.
- I am coming to wits end with this MSI K7D Master-L board. I have narrowed it 
-down to find that anything that causes alot of interrupts will lock the box. 
-By lock I mean a HARD lock, no ping, no mouse, no oops, no sysrq, no nothing. 
-It is a sudden and TOTAL lockup. A ping -f and playing xmms at the same time 
-will cause the box to lock in minutes while as if there is very little 
-activity I can run for perhaps an hour or so maybe more (havent had the time 
-or the patience to baby-sit an idle box for more than an hour. This is my 
-main box.)
 
- When I ran this box as a single-cpu system with an athlon mp2400 it ran fine. 
-Perhaps something with SMP is triggering a nasty bug.
+--JjsO4Ft8DCMnlCnY
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The motherboard was bought to replace another motherboard and so I could go 
-SMP. The ram, powersupply,ALL cards, basically all the hardware are known 
-good and have been used for months in another system. The LCD here is the 
-mobo.
+On Wed, 2005-02-09 18:08:10 +0000, Paulo Marques <pmarques@grupopie.com>
+wrote in message <420A518A.9040500@grupopie.com>:
+> >>Additionally, there are two other things that need to be addressed (and
+> >>I'm willing to actually write code for this, but need input from other
+> >>parties, too:)
+> >>
+> >>	- Touchscreen calibration
+> >>		Basically all these touchscreens are capable of being
+> >>		calibrated. It's not done with just pushing the X/Y
+> >>		values the kernel receives into the Input API. These
+> >>		beasts may get physically mis-calibrated and eg. report
+> >>		things like (xmax - xmin) <=3D 20, so resolution would be
+> >>		really bad and kernel reported min/max values were only
+> >>		"theoretical" values, based on the protocol specs.
+> >>		I think about a simple X11 program for this. Comments?
+>=20
+> Touch screens doing this are severely brain-damaged. And yes, I've come=
+=20
+> across a few of them, but not lately.
 
-I have googled extensivly and have tried many things to see if I can alleviate 
-the problem, so far nothing. Does anyone have any ideas to see if this is a 
-kernel problem?
+That's IMHO not brain-damaged, but pure physics: just consider scratches
+or dust (or other substances) applied to the touch foil. This happens
+all the time, so the touch screen gets out of calibration. This won't
+happen on a screen used only twice a day. But think about a touch screen
+that's tortured all the day with pencils, finger rings, dirty fingers,
+=2E..
 
-Is this a known problem? Is there a patch to fix this? I am trying to avoid 
-replacing/returning such a beautiful and expensive motherboard.
+> I would say that a tool to recover the touch screen into a "usable"=20
+> state, by talking directly to the serial port, and "calibrating" it to=20
+> max possible / min possible values would be the best way to deal with thi=
+s.
 
-Here is excerpt from a Redhat mailing list
->If your motherboard's using the AMD-768 chipset for the Southbridge, you
->may have run afoul of a bug in interrupt masking which can hang the
->system.  The reports thus far on the linux kernel list imply that plugging
->in a PS/2 mouse seems to work around the problem; it's worked for me (MSI
->K7D Master board with dual Athlons), though I've only had a few days'
->trial so far.
+Min/Max values (as of protocol theory) is possibly not the very best you
+can do with the hardware. I more thing about submitting these (after
+physical calibration) to the kernel driver to supply them to it's users.
 
-So it seems to suggest something in the kernel has something in part to do 
-with the lockup. Anyone have any suggestions? Any info I can provide?
+> Modern touchscreens just send the A/D data to the PC, and let the real=20
+> processor do the math (it can even do more complex calculations, like=20
+> compensate for rotation, etc.). IMHO calibration should be handled by=20
+> software.
 
-Here is a non-exhaustive unordered list of various things I've tried.
+Is this done eg. by Elo, Mutouch, Fujitsu, T-Sharc (to only name the
+most common)? I don't think so...
 
--Combonations of noapic nolapic acpi=off
--Increasing the vcore slightly
--Downloading and compiling the latest kernel (see uname -a output)
--Recompiled the kernel, ran make clean
--turning DMA off in the bios
--turning DMS off via hdparm
--running without a PATA drive at all (all scsi)
--Removing ALL unneccesary cards
--Removing ALL unnecesary devices (to recude power consumption)
--Disabling USB and removing USB support from the kernel
--Installing sensors and making sure voltages/temps are nominal (they are)
--installed and used irqbalance
--Disable preempt
--Try the onboard lan and a 64bit pci gigabit lan card mutually exclusively
--Removed side-panel and verified heat is not an issue
--Updated to latest BIOS version
+> >>	- POS keyboards
+> >>		These are real beasties. Next to LEDs and keycaps, they
+> >>		can contain barcode scanners, magnetic card readers and
+> >>		displays. Right now, there's no good API to pass
+> >>		something as complex as "three-track magnetic stripe
+> >>		data" or a whole scanned EAN barcode. Also, some
+> >>		keyboards can be written to (change display contents,
+> >>		switch on/off scanners, ...).
+> >
+> >
+> >We probably don't want magnetic stripe data to go through the input
+> >event stream (although it is possible to do that), so a new interface
+> >would be most likely necessary.
+>=20
+> It's even worse. Most keyboards don't separate the real keys from=20
+> magnetic stripe reader events, and just simulate key presses for MSR=20
+> data. They expect the software to be in a state where it is waiting for=
+=20
+> that data, and will process it accordingly.
 
----------------hardware and kernel specs--------------
-bot403@eric bot403 $ su
-Password:
-</home/bot403:13:32:45>
-root@eric >uname -a
-Linux eric 2.6.10-gentoo-r6 #2 SMP Tue Feb 8 17:12:59 CST 2005 i686 AMD 
-Athlon(tm) MP 2600+ AuthenticAMD GNU/Linux
-</home/bot403:13:32:47>
-root@eric >lspci -v
-0000:00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] 
-System Controller (rev 11)
-        Flags: bus master, 66Mhz, medium devsel, latency 32
-        Memory at e8000000 (32-bit, prefetchable)
-        Memory at fd005000 (32-bit, prefetchable) [size=4K]
-        I/O ports at ec00 [disabled] [size=4]
-        Capabilities: [a0] AGP version 2.0
+This only happens if you don't configurethe MSR properly :-) Most of
+them can be configured to send quite complex (as in: structured) init
+sequences that cannot be generated by a keyboard (ie multiple break
+codes without make codes and the like).=20
 
-0000:00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] AGP 
-Bridge (prog-if 00 [Normal decode])
-        Flags: bus master, 66Mhz, medium devsel, latency 32
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
-        Memory behind bridge: f8000000-f9ffffff
-        Prefetchable memory behind bridge: f0000000-f7ffffff
+MfG, JBG
 
-0000:00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ISA (rev 
-05)
-        Flags: bus master, 66Mhz, medium devsel, latency 0
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
+k!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
 
-0000:00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE 
-(rev 04) (prog-if 8a [Master SecP PriP])
-        Subsystem: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE
-        Flags: bus master, medium devsel, latency 32
-        I/O ports at e000 [size=16]
+--JjsO4Ft8DCMnlCnY
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-0000:00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI (rev 03)
-        Subsystem: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI
-        Flags: medium devsel
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-0000:00:09.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1010 Ultra3 
-SCSI Adapter (rev 01)
-        Subsystem: LSI Logic / Symbios Logic: Unknown device 1030
-        Flags: bus master, medium devsel, latency 72, IRQ 153
-        I/O ports at e400
-        Memory at fd006000 (64-bit, non-prefetchable) [size=1K]
-        Memory at fd002000 (64-bit, non-prefetchable) [size=8K]
-        Capabilities: [40] Power Management version 2
+iD8DBQFCCmt+Hb1edYOZ4bsRAolxAJ4606N0K1FHbL9MTNGQ93kWl9EFtgCfXPc6
+8Hi/IxgwPj9C0FM9yZ+IL5o=
+=3MCj
+-----END PGP SIGNATURE-----
 
-0000:00:09.1 SCSI storage controller: LSI Logic / Symbios Logic 53c1010 Ultra3 
-SCSI Adapter (rev 01)
-        Subsystem: LSI Logic / Symbios Logic: Unknown device 1030
-        Flags: bus master, medium devsel, latency 72, IRQ 161
-        I/O ports at e800
-        Memory at fd004000 (64-bit, non-prefetchable) [size=1K]
-        Memory at fd000000 (64-bit, non-prefetchable) [size=8K]
-        Capabilities: [40] Power Management version 2
-
-0000:00:10.0 PCI bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] PCI (rev 
-05) (prog-if 00 [Normal decode])
-        Flags: bus master, 66Mhz, medium devsel, latency 32
-        Bus: primary=00, secondary=02, subordinate=02, sec-latency=32
-        I/O behind bridge: 0000d000-0000dfff
-        Memory behind bridge: fb000000-fcffffff
-        Expansion ROM at 0000d000 [disabled] [size=4K]
-
-0000:01:05.0 VGA compatible controller: nVidia Corporation NV28 [GeForce4 Ti 
-4200 AGP 8x] (rev a1) (prog-if 00 [VGA])
-        Flags: bus master, 66Mhz, medium devsel, latency 248, IRQ 153
-        Memory at f8000000 (32-bit, non-prefetchable)
-        Memory at f0000000 (32-bit, prefetchable) [size=128M]
-        Capabilities: [60] Power Management version 2
-        Capabilities: [44] AGP version 3.0
-
-0000:02:09.0 Ethernet controller: Intel Corp. 82559ER (rev 09)
-        Subsystem: Intel Corp.: Unknown device 3000
-        Flags: bus master, medium devsel, latency 32, IRQ 153
-        Memory at fc020000 (32-bit, non-prefetchable)
-        I/O ports at d000 [size=64]
-        Memory at fc000000 (32-bit, non-prefetchable) [size=128K]
-        Capabilities: [dc] Power Management version 2
-
-</home/bot403:13:32:49>
-root@eric >cat /proc/interrupts
-           CPU0       CPU1
-  0:     315584     309379    IO-APIC-edge  timer
-  1:        638        724    IO-APIC-edge  i8042
-  2:          0          0          XT-PIC  cascade
-  8:          2          0    IO-APIC-edge  rtc
- 12:       8054      11784    IO-APIC-edge  i8042
- 14:       1879       1247    IO-APIC-edge  ide0
-153:    1174407    1153144   IO-APIC-level  sym53c8xx, eth0, nvidia
-161:          0          0   IO-APIC-level  sym53c8xx
-NMI:          0          0
-LOC:     624860     624868
-ERR:          0
-MIS:          0
-</home/bot403:13:32:52>
-root@eric >cat /proc/cpuinfo
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 10
-model name      : AMD Athlon(tm) MP 2600+
-stepping        : 0
-cpu MHz         : 1999.946
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
-cmovpat pse36 mmx fxsr sse pni syscall mp mmxext 3dnowext 3dnow
-bogomips        : 3932.16
-
-processor       : 1
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 10
-model name      : AMD Athlon(tm) MP
-stepping        : 0
-cpu MHz         : 1999.946
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
-cmovpat pse36 mmx fxsr sse pni syscall mp mmxext 3dnowext 3dnow
-bogomips        : 3989.50
-
-</home/bot403:13:32:55>
-root@eric >  
----------------EOF hardware and kernel specs EOF--------------
-
-
-----------------------------------------
---EB
-
-> All is fine except that I can reliably "oops" it simply by trying to read
-> from /proc/apm (e.g. cat /proc/apm).
-> oops output and ksymoops-2.3.4 output is attached.
-> Is there anything else I can contribute?
-
-The latitude and longtitude of the bios writers current position, and
-a ballistic missile.
-
-                --Alan Cox LKML-December 08,2000 
-
-----------------------------------------
+--JjsO4Ft8DCMnlCnY--

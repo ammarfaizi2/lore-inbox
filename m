@@ -1,62 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268832AbUI2Sw3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268805AbUI2Stl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268832AbUI2Sw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 14:52:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268817AbUI2SuA
+	id S268805AbUI2Stl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 14:49:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268817AbUI2Ssw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 14:50:00 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:58762 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268834AbUI2Sth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 14:49:37 -0400
-Subject: Re: IDE Hotswap
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-Cc: Suresh Grandhi <Sureshg@ami.com>,
-       "'linux-ide@vger.kernel.org'" <linux-ide@vger.kernel.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200409292020.25192.bzolnier@elka.pw.edu.pl>
-References: <8CCBDD5583C50E4196F012E79439B45C069657DB@atl-ms1.megatrends.com>
-	 <200409291408.55211.bzolnier@elka.pw.edu.pl>
-	 <1096468515.15905.43.camel@localhost.localdomain>
-	 <200409292020.25192.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1096479982.15905.71.camel@localhost.localdomain>
+	Wed, 29 Sep 2004 14:48:52 -0400
+Received: from fw.osdl.org ([65.172.181.6]:49115 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268819AbUI2Sr4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 14:47:56 -0400
+Date: Wed, 29 Sep 2004 11:47:54 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: riel@redhat.com, linux-kernel@vger.kernel.org
+Subject: [PATCH 3/4] make can_do_mlock useful for mlock/mlockall
+Message-ID: <20040929114754.S1924@build.pdx.osdl.net>
+References: <20040929114244.Q1924@build.pdx.osdl.net> <20040929114538.R1924@build.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 29 Sep 2004 18:46:23 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040929114538.R1924@build.pdx.osdl.net>; from chrisw@osdl.org on Wed, Sep 29, 2004 at 11:45:39AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-09-29 at 19:20, Bartlomiej Zolnierkiewicz wrote:
-> > Doesn't occur in the 2.4 situation or the 2.6 stuff with the locking in
-> > the 2.6.8.1-ac patch.
-> 
-> I will verify this in a few days, I have some real work to do first.
+Move the simple can_do_mlock() check before the full rlimits based
+restriction checks for mlock() and mlockall().  As it is, the check
+adds nothing.  This has a side-effect of eliminating an unnecessary call
+to can_do_mlock() on the munlockall() path.
 
-2.6 is the important stuff sure.
+Signed-off-by: Chris Wright <chrisw@osdl.org>
 
-> > > - double unlock obvious mistake
-> > Details ?
-> 
-> 2003/08/16 alan               | 	/* Drive shutdown sequence done */
-> 2003/08/16 alan               | 	/* Prevent new opens ?? */
-> 2003/08/16 alan               | 	spin_unlock_irqrestore(&io_request_lock, flags);
-> 2003/08/16 alan               | 	/*
-> 2003/08/16 alan               | 	 * Flush kernel side caches, and dump the /proc files
-> 2003/08/16 alan               | 	 */
-> 2003/08/16 alan               | 	spin_unlock_irqrestore(&io_request_lock, flags);
-> 
-
-Thanks. I'll go over this when I dig out the one little bit 2.4.2x needs
-for hotplug to behave right with hard disks that I should get to
-Marcelo.
-
-> OK BKL protects us against i.e. concurrent HDIO_GETGEO
-> and hotplug ioctl.  There is however no protection for controller
-> hotplug.
-
-Agreed.
-
-
+--- 2.6.9-rc2/mm/mlock.c~can_do_mlock	2004-09-28 15:06:54.668639256 -0700
++++ 2.6.9-rc2/mm/mlock.c	2004-09-28 15:08:56.175167456 -0700
+@@ -60,8 +60,6 @@ static int do_mlock(unsigned long start,
+ 	struct vm_area_struct * vma, * next;
+ 	int error;
+ 
+-	if (on && !can_do_mlock())
+-		return -EPERM;
+ 	len = PAGE_ALIGN(len);
+ 	end = start + len;
+ 	if (end < start)
+@@ -107,6 +105,9 @@ asmlinkage long sys_mlock(unsigned long 
+ 	unsigned long lock_limit;
+ 	int error = -ENOMEM;
+ 
++	if (!can_do_mlock())
++		return -EPERM;
++
+ 	down_write(&current->mm->mmap_sem);
+ 	len = PAGE_ALIGN(len + (start & ~PAGE_MASK));
+ 	start &= PAGE_MASK;
+@@ -138,13 +139,9 @@ asmlinkage long sys_munlock(unsigned lon
+ 
+ static int do_mlockall(int flags)
+ {
+-	unsigned int def_flags;
+ 	struct vm_area_struct * vma;
++	unsigned int def_flags = 0;
+ 
+-	if (!can_do_mlock())
+-		return -EPERM;
+-
+-	def_flags = 0;
+ 	if (flags & MCL_FUTURE)
+ 		def_flags = VM_LOCKED;
+ 	current->mm->def_flags = def_flags;
+@@ -174,6 +171,10 @@ asmlinkage long sys_mlockall(int flags)
+ 	if (!flags || (flags & ~(MCL_CURRENT | MCL_FUTURE)))
+ 		goto out;
+ 
++	ret = -EPERM;
++	if (!can_do_mlock())
++		goto out;
++
+ 	lock_limit = current->rlim[RLIMIT_MEMLOCK].rlim_cur;
+ 	lock_limit >>= PAGE_SHIFT;
+ 

@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263162AbUEGGsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262422AbUEGGvT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263162AbUEGGsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 02:48:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263163AbUEGGsJ
+	id S262422AbUEGGvT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 02:51:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263226AbUEGGvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 02:48:09 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:38540 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S263162AbUEGGsG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 02:48:06 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Oliver Tennert <tennert@science-computing.de>
-Date: Fri, 7 May 2004 16:47:56 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16539.12572.90447.543633@cse.unsw.edu.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH [NFSd] NFSv3/TCP
-In-Reply-To: message from Oliver Tennert on Friday May 7
-References: <Pine.LNX.4.44.0405070834001.4547-100000@picard.science-computing.de>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	Fri, 7 May 2004 02:51:18 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:59779 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262422AbUEGGvQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 02:51:16 -0400
+Date: Fri, 7 May 2004 08:51:05 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Paul Jakma <paul@clubi.ie>
+Cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+Message-ID: <20040507065105.GA10600@devserv.devel.redhat.com>
+References: <20040505013135.7689e38d.akpm@osdl.org> <200405051312.30626.dominik.karall@gmx.net> <200405051822.i45IM2uT018573@turing-police.cc.vt.edu> <20040505215136.GA8070@wohnheim.fh-wedel.de> <200405061518.i46FIAY2016476@turing-police.cc.vt.edu> <1083858033.3844.6.camel@laptop.fenrus.com> <Pine.LNX.4.58.0405070136010.1979@fogarty.jakma.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VS++wcV0S1rZb1Fb"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0405070136010.1979@fogarty.jakma.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday May 7, tennert@science-computing.de wrote:
-> Hi Neil (and others),
+
+--VS++wcV0S1rZb1Fb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+
+On Fri, May 07, 2004 at 01:37:54AM +0100, Paul Jakma wrote:
+> On Thu, 6 May 2004, Arjan van de Ven wrote:
 > 
-> is there any reason why current 2.4 kernels do not allow for
-> NFSSVC_MAXBLKSIZE to become as large as 32k?
-
-Yes.
-At server thread creation, you need to be able to
-   kmalloc(NFSSVC_MAXBLKSIZE+1024)
-(or close to that) once per thread.  On most architectures this is a
-high-order alloc_pages and can often fail.
-Also, on every UDP write request, the server needs to 'kmalloc' a buffer
-to hold the whole request (actually on every request that is
-fragmented, but write is most common).  On most architectures, this
-kmalloc will again require allocative several contiguous pages, which
-can fail.
-
-So this patch is only safe if you have a large-patch arch or only use
-NFS over TCP.
-
-There was once a patch floating around which allowed a larger
-NFSSVC_MAXBLKSIZE on architectures with large page sizes, but it never
-got properly submitted I think.
-
-
+> > Ok I don't want to start a flamewar but... Do we want to hold linux
+> > back until all binary only module vendors have caught up ??
 > 
-> The problem is when I use NFSv3/TCP with a 2.4.25, say, on the server
-> side, as well as on the client side, I am experiencing lockups when
-> copying medium-sized or large files from the NFS fs to a local fs.
+> What about normal linux modules though? Eg, NFS (most likely):
+> 
+> 	https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=121804
 
-There must be some other cause.  Increasing the NFSSVC_MAXBLKSIZE is
-just hiding a real problem I suspect.
+NFSv4 has a > 1Kb stack user; Dave Jones has a fix pending for that...
 
-NeilBrown
+--VS++wcV0S1rZb1Fb
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAmzHYxULwo51rQBIRAumRAJ98yU/uzAwI6Gg6RbPNNSqrQoXBwACdF49k
+Skt/DA8j6SRetgq24ddjx04=
+=elsR
+-----END PGP SIGNATURE-----
+
+--VS++wcV0S1rZb1Fb--

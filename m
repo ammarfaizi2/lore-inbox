@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266429AbUFQJRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266438AbUFQJS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266429AbUFQJRM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 05:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266431AbUFQJRM
+	id S266438AbUFQJS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 05:18:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266435AbUFQJS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 05:17:12 -0400
-Received: from sitemail3.everyone.net ([216.200.145.37]:22176 "EHLO
-	omta08.mta.everyone.net") by vger.kernel.org with ESMTP
-	id S266429AbUFQJRJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 05:17:09 -0400
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-Date: Thu, 17 Jun 2004 02:17:06 -0700 (PDT)
-From: Saurabh Agarwal <saurabhagarwal@linux.net>
+	Thu, 17 Jun 2004 05:18:56 -0400
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:3713 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S266438AbUFQJSt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 05:18:49 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Starting Linux EDK development
-Reply-To: saurabhagarwal@linux.net
-X-Originating-Ip: [202.134.200.4]
-X-Eon-Sig: AQHoxlFA0WGSAAEEVAEAAAAB,382912bc0dd3007130c769476c9c6e8e
-Message-Id: <20040617091706.191703950@sitemail.everyone.net>
+cc: Keir.Fraser@cl.cam.ac.uk, Ian.Pratt@cl.cam.ac.uk
+Subject: Buggy RSDP search in ACPI boot-time code
+Date: Thu, 17 Jun 2004 10:18:44 +0100
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Message-Id: <E1Bat2k-0004cJ-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
-I want to got for embedded developement and i am new to this area .
-I want to know about good tutorials and can i use single mack=hine for development of application ie some kind of device emulator which i can use for linux edk.
-I want to first focus my development on intel platform.
-Is there any freeware tool like vmware as i have windows as my system and i want to work both windows and linux at the same time.
-Please help
-Thanks & Regards
 
+Hi,
 
-_____________________________________________________________
-Linux.Net -->Open Source to everyone
-Powered by Linare Corporation
-http://www.linare.com/
+I think that the 'high-memory' search range in acpi_find_rsdp() in
+arch/i386/kernel/acpi.c (2.4.26) or arch/i386/kernel/acpi/boot.c
+(2.6.5) is incorrect.
+
+It is supposed to search 0xE0000-0x100000, but the length field is
+incorrectly specified as 0xFFFFF. As in the 'proper' ACPI driver, the
+correct length is 0x20000.
+
+The current length means the search grooves on into the kernel itself,
+but since the search string "RSD PTR" only appears in the data
+section, the search will usually terminate before finding
+'itself'. The fact that the search occurs only on 16-byte boundaries
+also helps.
+
+Probably best to fix this though. :-) I've already had to for the Xen
+VMM (much smaller codebase means that the search string resides within
+the too-large search space).
+
+ -- Keir Fraser
+
+PS. Please CC me with responses -- I'm not subscribed.

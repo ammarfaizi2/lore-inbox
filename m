@@ -1,40 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263301AbUFXAcw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263188AbUFXAib@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263301AbUFXAcw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 20:32:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263188AbUFXAcw
+	id S263188AbUFXAib (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 20:38:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263304AbUFXAib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 20:32:52 -0400
-Received: from holomorphy.com ([207.189.100.168]:29830 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263301AbUFXAcv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 20:32:51 -0400
-Date: Wed, 23 Jun 2004 17:32:49 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [oom]: [0/4] fix OOM deadlock running OAST
-Message-ID: <20040624003249.GM1552@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <0406231407.HbLbJbXaHbKbWa5aJb1a4aKb0a3aKb1a0a2aMbMbYa3aLbMb3aJbWaJbXaMbLb1a342@holomorphy.com> <20040623151659.70333c6d.akpm@osdl.org> <20040623223146.GG1552@holomorphy.com> <20040623153758.40e3a865.akpm@osdl.org> <20040623230730.GJ1552@holomorphy.com> <20040623163819.013c8585.akpm@osdl.org> <20040624000308.GK1552@holomorphy.com> <20040623171818.39b73d52.akpm@osdl.org> <20040624002651.GL1552@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040624002651.GL1552@holomorphy.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 23 Jun 2004 20:38:31 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54419 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263188AbUFXAi1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 20:38:27 -0400
+Message-ID: <40DA2272.8050106@pobox.com>
+Date: Wed, 23 Jun 2004 20:38:10 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Jeremy Katz <jeremy.katz@gmail.com>,
+       Stephen Rothwell <sfr@canb.auug.org.au>, Andrew Morton <akpm@osdl.org>,
+       Linus <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       katzj@redhat.com
+Subject: Re: [PATCH] PPC64 iSeries viodasd proc file
+References: <20040618165436.193d5d35.sfr@canb.auug.org.au> <40D305B4.4030009@pobox.com> <20040618151753.GA21596@infradead.org> <cb5afee1040620125272ab9f06@mail.gmail.com> <20040621060435.GA28384@kroah.com> <cb5afee10406210914451dc6@mail.gmail.com> <cb5afee10406231415293e90c0@mail.gmail.com> <20040623220303.GD6548@kroah.com>
+In-Reply-To: <20040623220303.GD6548@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 23, 2004 at 05:26:51PM -0700, William Lee Irwin III wrote:
-> Then it sounds like the smaller fix below may be better for you.
+Greg KH wrote:
+> On Wed, Jun 23, 2004 at 05:15:54PM -0400, Jeremy Katz wrote:
+> 
+>>For example, /sys/bus/ide/devices/* and then symlinks forever... lots
+>>of readdir, readlink, etc makes probing far slower and more complex
+>>than the simple /proc/ide/ide?/*/ that could be used before.
+> 
+> 
+> Yes, ide never got completly moved over to sysfs like scsi did.  We
+> never had the time to do this work, sorry.
+> 
+> But now your parsing should be easier with the one-value to one-file
+> rule, right?  And libsysfs should help out here with all of the symlinks
+> and readdir, etc calls.
+> 
+> 
+>>>>Also, things in sysfs aren't exactly stable enough to count on as a
+>>>>dependable interface, but that's something the kernel has never
+>>>>reliably exported to userspace.
+>>>
+>>>Why isn't sysfs stable enough?  You can find any driver instantly.  And
+>>>any device bound to that driver in a stable and repeatable manner.
+>>
+>>Again, not sysfs itself.  How information is exported via sysfs.  I'm
+>>not saying that things exported via /proc are always the picture of
+>>stability here (cf the recent change from /proc/scsi/usb-storage-$host
+>>to /proc/scsi/usb-storage/$host), but at the same time, things in
+>>/proc have tended to settle down in the general case.  This just isn't
+>>true yet with sysfs and is only the sort of thing that can happen with
+>>time.
+>>
+>>There are also other things; I guess consistency is a better word. 
+>>People like to say use /sys/block to show block devices, but that
+>>shows a lot of "useless" block devices from the point of view of
+>>trying to show disks.
+> 
+> 
+> But all of those devices are block devices.  You want a hardware
+> picture, right?  sysfs never said it would show you just that, but it
+> makes it easier to determine.
+> 
+> For this specific instance, just look for block devices that have a
+> device symlink that points to a real device.
+> 
+> 
+>>>So, give me specific examples, or stop ranting for no reason.
+>>
+>>And to be more constructive (after a discussion with Jeff this
+>>afternoon which is when I realized the reply didn't go out), what
+>>would be _very_ useful to have from a "probing disks" perspective
+>>would be a way to enumerate easily and simply from within sysfs the
+>>disks that are associated with a specific controller.
+> 
+> 
+> Hm, I think libsysfs can give you this, if you ask for the block devices
+> that are associated with each individual device associated with a
+> driver.
+> 
+> The whole "what driver controls what devices" is not a simple one to one
+> mapping all the time, with drivers that work on multiple types of
+> busses, and drivers that control devices that contain multiple class
+> devices, etc.  It's not a simple thing to solve, sorry.
 
-Also, as we're fixing this a different way, could you clarify for me
-which of the pieces of the original fix or related things (e.g. the
-zone->all_unreclaimable stuff, yanking PG_wired stuff off the LRU,
-maybe more) you wanted me to rework and send back in later?
+SET_BLKDEV_DRIVER(), SET_NETDEV_DRIVER(), ...
 
-I'm heading out for an hour or so, so I'll be slightly delayed getting
-those things back to you.
+We need a struct driver just like we have a struct device.
+
+Then binding registered interfaces, of any type, to the driver.
 
 
--- wli
+> But what you can use is the MODULE_DEVICE_TABLE() information in the
+> modules to try to help you out here.  That details a mapping of what
+> kind of devices that specific driver supports.
+
+No, it details what devices a driver supports, not what _type_ of 
+devices the driver supports.
+
+
+>>Note: this should not mean that we then go and remove currently
+>>existing stuff in /proc.  Deprecate it and then it can go away in time
+>>as people switch.  Having to have a flag day is very painful.  It's
+>>far easier to deprecate in one stable series with a new interface
+>>available and then start removing the old ones as things start to
+>>switch over.  If it really is an improvement, then getting people to
+>>change won't be difficult.
+> 
+> 
+> I agree, I don't think that many things have disappeared from /proc just
+> yet, right?  You should just have more information than what you
+> previously did, right?  Or did scsi drop their /proc support fully?
+
+Concrete example:  modprobe sx8.  Now, what block devices did it detect?
+
+	Jeff
+
+

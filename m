@@ -1,151 +1,162 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261206AbSLHNCR>; Sun, 8 Dec 2002 08:02:17 -0500
+	id <S261218AbSLHNS0>; Sun, 8 Dec 2002 08:18:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261218AbSLHNCR>; Sun, 8 Dec 2002 08:02:17 -0500
-Received: from dp.samba.org ([66.70.73.150]:14728 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261206AbSLHNCP>;
-	Sun, 8 Dec 2002 08:02:15 -0500
-Date: Mon, 9 Dec 2002 00:09:08 +1100
-From: Anton Blanchard <anton@samba.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.50-BK + 24 CPUs
-Message-ID: <20021208130908.GE19698@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S261290AbSLHNS0>; Sun, 8 Dec 2002 08:18:26 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:896 "EHLO bilbo.tmr.com")
+	by vger.kernel.org with ESMTP id <S261218AbSLHNSY>;
+	Sun, 8 Dec 2002 08:18:24 -0500
+Date: Sun, 8 Dec 2002 08:25:59 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+X-X-Sender: root@bilbo.tmr.com
+Reply-To: Bill Davidsen <davidsen@tmr.com>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [BENCHMARK] ctxbench 2.4.18 and 2.5.50
+Message-ID: <Pine.LNX.4.44.0212080810350.11404-300000@bilbo.tmr.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463810548-720066511-1039353923=:11404"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Hi,
+---1463810548-720066511-1039353923=:11404
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-I found time to run a few benchmarks over a largish machine (24 way
-ppc64) running 2.5.50-BK from a few days ago.
+The results of these tests indicate that there may be some odd SMP locking 
+issues still in 2.5.xx which were either much less obvious or not present 
+in 2.4.
 
-1. kernel compile benchmark (ie build an x86 2.4.18 kernel)
+The oddness I see
 
-I hijacked /proc/profile to log functions where we call schedule from.
-It shows:
+As these results show, best results were from using a uni kernel, but an 
+SMP kernel with "nosmp" was faster than running SMP. The problem is that 
+with 2.5 kernels the SMP results for multiple runs vary by up to 2:1, and 
+for uni kernels it's more like 5-10% max. I have tried longer runs, more 
+runs, and gotten the same results even in single user mode.
 
-schedules:
- 56283 total
- 41984 pipe_wait
-  9746 do_work
-  1949 do_exit
-  1834 sys_wait4
+The ctxbench measures the number of times two processes can take turns 
+running using various forms of IPC. I'll post a more complete sescription 
+of the benchmark and a link later today. The IPC in question is signals, 
+semiphores, and message queues. Pipes are disabled (didn't work in 2.5.50) 
+and sockets are not currently tested.
 
-ie during the compile we scheduled 56283 times, and 41984 of them were
-caused by pipes. Simple fix, remove -pipe from the Makefile of the
-kernel I was building:
+I am going to enable the pipe testing code, and will rerun the tests and 
+post the results as well as the link to source code by tomorrow at the 
+latest.
 
-schedules:
-  8497 total
-  3665 do_work
-  1878 do_exit
-  1824 sys_wait4
-   306 cpu_idle
-   260 open_namei
-   256 pipe_wait
+-- 
+bill davidsen, CTO TMR Associates, Inc <davidsen@tmr.com>
+  Having the feature freeze for Linux 2.5 on Hallow'een is appropriate,
+since using 2.5 kernels includes a lot of things jumping out of dark
+corners to scare you.
 
-Much nicer. Does it make sense to use -pipe in our kernel Makefile these
-days? Note "do_work" is a ppc64 assembly function which checks
-need_resched and calls schedule if the timeslice has been exceeded. So
-its nice to see almost all of the schedules are due to timeslice
-expiration, processes exiting or processes doing a wait().
 
-Now we can look at the profile:
+---1463810548-720066511-1039353923=:11404
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="x.tmp"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0212080825230.11404@bilbo.tmr.com>
+Content-Description: 2.4.18 results
+Content-Disposition: attachment; filename="x.tmp"
 
-profile:
- 66260 total
- 54227 cpu_idle
-  1000 page_remove_rmap
-   909 __get_page_state
-   830 page_add_rmap
-   753 save_remaining_regs
-   646 do_anonymous_page
-   529 do_page_fault
-   475 release_pages
-   468 pSeries_flush_hash_range
-   462 pSeries_hpte_insert
-   266 __copy_tofrom_user
-   215 zap_pte_range
-   214 sys_brk
-   210 __pagevec_lru_add_active
-   209 buffered_rmqueue
-   201 find_get_page
-   185 vm_enough_memory
-   183 nr_free_pages
+DQoNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT0NCiAgICBSdW4gaW5mb3JtYXRpb24N
+Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT0NCg0KUnVuOiAyLjQuMTgtMTAtYmwNCiAg
+Q1BVX01IeiAgICAgICAgICAgICAgNDk4LjAxNA0KICBDUFV0eXBlICAgICAg
+ICAgICAgICBDZWxlcm9uIChNZW5kb2Npbm8pDQogIE5jcHUgICAgICAgICAg
+ICAgICAgIDENClJ1bjogMi40LjE4LTEwc21wLWJsDQogIENQVV9NSHogICAg
+ICAgICAgICAgIDQ5OC4wMDcNCiAgQ1BVdHlwZSAgICAgICAgICAgICAgQ2Vs
+ZXJvbiAoTWVuZG9jaW5vKQ0KICBOY3B1ICAgICAgICAgICAgICAgICAyDQpS
+dW46IDIuNC4xOC0xMHVuaS1ibA0KICBDUFVfTUh6ICAgICAgICAgICAgICA0
+OTguMDE2DQogIENQVXR5cGUgICAgICAgICAgICAgIENlbGVyb24gKE1lbmRv
+Y2lubykNCiAgTmNwdSAgICAgICAgICAgICAgICAgMQ0KDQoNCj09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT0NCiAgICBSZXN1bHRzIGJ5IElQQyB0eXBlDQo9PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09DQoNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgbG9vcHMvc2VjDQpTSUdVU1IxICAgICAgICAgICAgICAgICAgICAg
+bG93ICAgICAgIGhpZ2ggICAgYXZlcmFnZQ0KICAyLjQuMTgtMTAtYmwgICAg
+ICAgICAgICA3MDcwMyAgICAgIDcxMDI4ICAgICAgNzA5MTQNCiAgMi40LjE4
+LTEwc21wLWJsICAgICAgICAgMzE3NzIgICAgICAzMjUwOCAgICAgIDMyMTgx
+DQogIDIuNC4xOC0xMHVuaS1ibCAgICAgICAgIDYzMDE3ICAgICAgNjM0MzAg
+ICAgICA2MzE2NQ0KDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIGxvb3BzL3NlYw0KbWVzc2FnZSBxdWV1ZSAgICAgICAgICAgICAgIGxv
+dyAgICAgICBoaWdoICAgIGF2ZXJhZ2UNCiAgMi40LjE4LTEwLWJsICAgICAg
+ICAgICAxMjk5OTQgICAgIDEzMDQ0NiAgICAgMTMwMjEyDQogIDIuNC4xOC0x
+MHNtcC1ibCAgICAgICAgIDQ1MDMwICAgICAgNTA2OTEgICAgICA0ODIxOA0K
+ICAyLjQuMTgtMTB1bmktYmwgICAgICAgIDEwNTY0OSAgICAgMTA2NTI5ICAg
+ICAxMDYxODANCg0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICBsb29wcy9zZWMNCnNlbWlwaG9yZSAgICAgICAgICAgICAgICAgICBsb3cg
+ICAgICAgaGlnaCAgICBhdmVyYWdlDQogIDIuNC4xOC0xMC1ibCAgICAgICAg
+ICAgMTQxNzA2ICAgICAxNDI4OTUgICAgIDE0MjM1OA0KICAyLjQuMTgtMTBz
+bXAtYmwgICAgICAgICA0NDcxMiAgICAgIDQ1NDAxICAgICAgNDQ5ODMNCiAg
+Mi40LjE4LTEwdW5pLWJsICAgICAgICAxMTM1MjcgICAgIDExNDAxMyAgICAg
+MTEzNzc0DQoNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+bG9vcHMvc2VjDQpzcGluK3lpZWxkICAgICAgICAgICAgICAgICAgbG93ICAg
+ICAgIGhpZ2ggICAgYXZlcmFnZQ0KICAyLjQuMTgtMTAtYmwgICAgICAgICAg
+IDI4Njg4MiAgICAgMzAwOTg5ICAgICAyOTM4NjQNCiAgMi40LjE4LTEwc21w
+LWJsICAgICAgICA1OTI1ODUgICAgIDY0ODc2OCAgICAgNjIwMjY2DQogIDIu
+NC4xOC0xMHVuaS1ibCAgICAgICAgMTczMzY3ICAgICAxODUwNjMgICAgIDE3
+OTE2MA0KDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGxv
+b3BzL3NlYw0Kc3BpbmxvY2sgICAgICAgICAgICAgICAgICAgIGxvdyAgICAg
+ICBoaWdoICAgIGF2ZXJhZ2UNCiAgMi40LjE4LTEwLWJsICAgICAgICAgICAg
+ICAgIDMgICAgICAgICAgMyAgICAgICAgICAzDQogIDIuNC4xOC0xMHNtcC1i
+bCAgICAgICAxMjA2NjcyICAgIDEyMDc0NzEgICAgMTIwNzE5Mg0KICAyLjQu
+MTgtMTB1bmktYmwgICAgICAgICAgICAgMyAgICAgICAgICAzICAgICAgICAg
+IDMNCg0K
+---1463810548-720066511-1039353923=:11404
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="y.tmp"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0212080825231.11404@bilbo.tmr.com>
+Content-Description: 2.5.50 results
+Content-Disposition: attachment; filename="y.tmp"
 
-Mostly idle time, theres a limit to how much we can parallelize here.
-Note: save_remaining_regs is the syscall/interrupt entry path for ppc64.
-
-2. dbench 24
-
-Lets not pay too much attention here but there are a few things to keep
-in mind:
-
-schedules:
-1635314 total
-753694 cpu_idle
-357910 ext2_new_block
-289189 ext2_free_blocks
-123788 ext2_new_inode
- 95025 ext2_free_inode
-
-Whee, look at all the schedules we took inside the ext2 code. Of course
-its due to the superblock lock semaphore.
-
-profile:
-370142 total
-302615 cpu_idle
-  8600 __copy_tofrom_user
-  3119 schedule
-  2760 current_kernel_time
-
-Lots of idle time in part due to the superblock lock (oh yeah and my
-slow to react finger stopping profiling after the benchmark finished).
-current_kernel_time makes a recent appearance in the profile, we are
-working on a number of things to address this.
-
-3. "University workload"
-
-A benchmark that does lots of shell scripts, cc, troff, etc. 
-
-schedules:
-470212 total
-126262 do_work
- 86986 ext2_free_blocks
- 58039 ext2_new_block
- 53627 cpu_idle
- 43140 ext2_new_inode
- 30934 ext2_free_inode
- 19849 do_exit
- 18526 sys_wait4
-
-The superblock lock semaphore makes an appearance in the schedule
-summary again (ext2_*). Now for the profile:
-
-profile:
-136296 total
- 41592 cpu_idle
- 16319 page_remove_rmap
-  7338 page_add_rmap
-  3583 save_remaining_regs
-  3072 pSeries_flush_hash_range
-  2832 release_pages
-  2584 do_page_fault
-  2281 find_get_page
-  2238 pSeries_hpte_insert
-  2117 copy_page_range
-  2085 current_kernel_time
-  2028 zap_pte_range
-  1886 __get_page_state
-  1689 atomic_dec_and_lock
-
-No big suprises in the profile. This benchmark tends to be a worst case
-scenario for rmap, think of 100s of shells all mapping the same text
-pages.
-
-Anton
+DQoNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT0NCiAgICBSdW4gaW5mb3JtYXRpb24N
+Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT0NCg0KUnVuOiAyLjUuNTAtYmwNCiAgQ1BV
+X01IeiAgICAgICAgICAgICAgNDk3Ljk1MA0KICBDUFV0eXBlICAgICAgICAg
+ICAgICBDZWxlcm9uIChNZW5kb2Npbm8pDQogIE5jcHUgICAgICAgICAgICAg
+ICAgIDENClJ1bjogMi41LjUwc21wLWJsDQogIENQVV9NSHogICAgICAgICAg
+ICAgIDQ5Ny45NTMNCiAgQ1BVdHlwZSAgICAgICAgICAgICAgQ2VsZXJvbiAo
+TWVuZG9jaW5vKQ0KICBOY3B1ICAgICAgICAgICAgICAgICAyDQpSdW46IDIu
+NS41MHVuaS1ibA0KICBDUFVfTUh6ICAgICAgICAgICAgICA0OTcuOTE0DQog
+IENQVXR5cGUgICAgICAgICAgICAgIENlbGVyb24gKE1lbmRvY2lubykNCiAg
+TmNwdSAgICAgICAgICAgICAgICAgMQ0KDQoNCj09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT0NCiAgICBSZXN1bHRzIGJ5IElQQyB0eXBlDQo9PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09DQoNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbG9v
+cHMvc2VjDQpTSUdVU1IxICAgICAgICAgICAgICAgICAgICAgbG93ICAgICAg
+IGhpZ2ggICAgYXZlcmFnZQ0KICAyLjUuNTAtYmwgICAgICAgICAgICAgICA2
+NjA5OCAgICAgIDY2NjM4ICAgICAgNjYzMjENCiAgMi41LjUwc21wLWJsICAg
+ICAgICAgICAgIDY1ODYgICAgICA0NzAyNiAgICAgIDMxMjY2DQogIDIuNS41
+MHVuaS1ibCAgICAgICAgICAgIDU1NDgyICAgICAgNTU2NDcgICAgICA1NTU2
+NQ0KDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGxvb3Bz
+L3NlYw0KbWVzc2FnZSBxdWV1ZSAgICAgICAgICAgICAgIGxvdyAgICAgICBo
+aWdoICAgIGF2ZXJhZ2UNCiAgMi41LjUwLWJsICAgICAgICAgICAgICAxMjA3
+MjAgICAgIDEyMjEwMSAgICAgMTIxNTc0DQogIDIuNS41MHNtcC1ibCAgICAg
+ICAgICAgIDUyMzY1ICAgICAgNzQ2MTcgICAgICA2NjA1OQ0KICAyLjUuNTB1
+bmktYmwgICAgICAgICAgIDEwMTc2NSAgICAgMTAxODMyICAgICAxMDE3OTUN
+Cg0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBsb29wcy9z
+ZWMNCnNlbWlwaG9yZSAgICAgICAgICAgICAgICAgICBsb3cgICAgICAgaGln
+aCAgICBhdmVyYWdlDQogIDIuNS41MC1ibCAgICAgICAgICAgICAgMTI5NTY0
+ICAgICAxMzA2ODMgICAgIDEyOTk5Mg0KICAyLjUuNTBzbXAtYmwgICAgICAg
+ICAgICA2MDg3MSAgICAgIDg3MTU0ICAgICAgNzEyMTINCiAgMi41LjUwdW5p
+LWJsICAgICAgICAgICAxMDcyOTAgICAgIDEwNzcxOSAgICAgMTA3NTIzDQoN
+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbG9vcHMvc2Vj
+DQpzcGluK3lpZWxkICAgICAgICAgICAgICAgICAgbG93ICAgICAgIGhpZ2gg
+ICAgYXZlcmFnZQ0KICAyLjUuNTAtYmwgICAgICAgICAgICAgIDMyNzMyNSAg
+ICAgMzI5MzU4ICAgICAzMjgzNjUNCiAgMi41LjUwc21wLWJsICAgICAgICAg
+ICAzOTExMDQgICAgIDU2MDAwNyAgICAgNDkyMTg3DQogIDIuNS41MHVuaS1i
+bCAgICAgICAgICAgMjQ5NTk1ICAgICAyNDk3MzQgICAgIDI0OTY4NQ0KDQog
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGxvb3BzL3NlYw0K
+c3BpbmxvY2sgICAgICAgICAgICAgICAgICAgIGxvdyAgICAgICBoaWdoICAg
+IGF2ZXJhZ2UNCiAgMi41LjUwLWJsICAgICAgICAgICAgICAgICAgIDMgICAg
+ICAgICAgMyAgICAgICAgICAzDQogIDIuNS41MHNtcC1ibCAgICAgICAgICAx
+MTk1NDAzICAgIDExOTY1MTkgICAgMTE5NjA5NQ0KICAyLjUuNTB1bmktYmwg
+ICAgICAgICAgICAgICAgMyAgICAgICAgICAzICAgICAgICAgIDMNCg0K
+---1463810548-720066511-1039353923=:11404--

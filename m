@@ -1,30 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133096AbRDLKoL>; Thu, 12 Apr 2001 06:44:11 -0400
+	id <S133097AbRDLK4p>; Thu, 12 Apr 2001 06:56:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133097AbRDLKoB>; Thu, 12 Apr 2001 06:44:01 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:13075 "EHLO
+	id <S133098AbRDLK4f>; Thu, 12 Apr 2001 06:56:35 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:20243 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S133096AbRDLKnu>; Thu, 12 Apr 2001 06:43:50 -0400
-Subject: Re: CML2 1.0.0 release announcement
-To: esr@thyrsus.com
-Date: Thu, 12 Apr 2001 11:45:40 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), hch@caldera.de (Christoph Hellwig),
-        davej@suse.de (Dave Jones), linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net,
-        esr@snark.thyrsus.com (Eric S. Raymond)
-In-Reply-To: <20010411204523.C9081@thyrsus.com> from "esr@thyrsus.com" at Apr 11, 2001 08:45:23 PM
+	id <S133097AbRDLK4V>; Thu, 12 Apr 2001 06:56:21 -0400
+Subject: Re: 2.2.19: config help text about "TCO timer"
+To: Ulrich.Windl@rz.uni-regensburg.de (Ulrich Windl)
+Date: Thu, 12 Apr 2001 11:57:56 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3AD56F4C.17863.3AC6DD@localhost> from "Ulrich Windl" at Apr 12, 2001 09:03:05 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14nebe-0000HK-00@the-village.bc.nu>
+Message-Id: <E14nenX-0000Iz-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But, as a separate issue, the CML2 design *could* be reworked to support
-> a multiple-apex tree, if there were any advantage to doing so.  I don't
-> see one.  Do you?
+> I know TCO meaning that, but I can't believe it for a mainboard 
+> component. Should the user then throw the PC away, or what? Or is it 
+> more safe to reboot frequently. What has this to do with costs?
 
-Enough to justify the work - no
+Its a watchdog timer. It reduces the <buzzword>TCO</buzzword> by letting you
+arrange for your machine to reboot regularly if not poked. Its wonderful and
+one of the reasons I deploy i815 motherboards with VIA processors (to avoid
+the need for/regular failure of CPU fans) for remote servers.
+
+Alan
+

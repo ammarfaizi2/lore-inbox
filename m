@@ -1,72 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265795AbUIWUYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266534AbUIWUYG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265795AbUIWUYH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 16:24:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264991AbUIWUVs
+	id S266534AbUIWUYG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 16:24:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266073AbUIWUVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 16:21:48 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:422 "EHLO baikonur.stro.at")
-	by vger.kernel.org with ESMTP id S265795AbUIWUTl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 16:19:41 -0400
-Subject: [patch 1/5]  use list_for_each() drivers/pcmcia/rsrc_mgr.c
-To: akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, domen@coderock.org
-From: janitor@sternwelten.at
-Date: Thu, 23 Sep 2004 22:19:41 +0200
-Message-ID: <E1CAa45-00074X-KK@sputnik>
+	Thu, 23 Sep 2004 16:21:15 -0400
+Received: from mail.humboldt.co.uk ([81.2.65.18]:20436 "EHLO
+	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S264991AbUIWUT3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 16:19:29 -0400
+Subject: Re: [PATCH][2.6] Add command function to struct i2c_adapter
+From: Adrian Cox <adrian@humboldt.co.uk>
+To: Michael Hunold <hunold@linuxtv.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       sensors@Stimpy.netroedge.com, Jon Smirl <jonsmirl@gmail.com>,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <41527696.5060002@linuxtv.org>
+References: <414F111C.9030809@linuxtv.org>
+	 <20040921154111.GA13028@kroah.com>	 <41506099.8000307@web.de>
+	 <41506D78.6030106@web.de> <1095843365.18365.48.camel@localhost>
+	 <20040922102938.M15856@linux-fr.org> <1095854048.18365.75.camel@localhost>
+	 <41527696.5060002@linuxtv.org>
+Content-Type: text/plain
+Message-Id: <1095970724.1683.232.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 23 Sep 2004 21:18:45 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-09-23 at 08:09, Michael Hunold wrote:
+> We need to keep in mind, that the adapter interface must be a per-client 
+> interface. On PCI devices it's simple: you have a i2c bus bound to a dvb 
+> card and know which chipsets can be there. The bus is dvb specific.
+> 
+> On embedded platforms, however, you usually have one one i2c bus, where 
+> everything is present: dvb frontends, audio/video multiplexers, 
+> digital/analog audio converters, stuff like that.
+> 
+> So if you create *the* i2c bus and invite i2c client to participate at 
+> the party, you need to provide different interfaces to the different 
+> chipsets.
+
+I may have to solve a similar problem when connecting an image sensor
+directly to an embedded processor. My current idea looks a bit like
+this:
+
+1) The I2C bus is a platform device, created at boot time, independent
+of my video capture module.
+2) My module contains a dummy I2C driver, which exists solely to grab an
+i2c_adapter pointer for the platform I2C device.
+
+My underlying libraries don't have to worry whether the i2c_adapter came
+from a parent PCI device or a platform device. My only worry is that
+power management may still provide us with a headache, as we'll have to
+cope with platform devices being suspended in any order.
+
+- Adrian Cox
+Humboldt Solutions Ltd.
 
 
-Use list_for_each() where applicable
-- for (list = ymf_devs.next; list != &ymf_devs; list = list->next) {
-+ list_for_each(list, &ymf_devs) {
-pure cosmetic change, defined as a preprocessor macro in:
-include/linux/list.h
-
-
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-
----
-
- linux-2.6.9-rc2-bk7-max/drivers/pcmcia/rsrc_mgr.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
-
-diff -puN drivers/pcmcia/rsrc_mgr.c~list_for_each-pcmcia-rsrc_mgr drivers/pcmcia/rsrc_mgr.c
---- linux-2.6.9-rc2-bk7/drivers/pcmcia/rsrc_mgr.c~list_for_each-pcmcia-rsrc_mgr	2004-09-21 20:46:36.000000000 +0200
-+++ linux-2.6.9-rc2-bk7-max/drivers/pcmcia/rsrc_mgr.c	2004-09-21 20:46:36.000000000 +0200
-@@ -469,7 +469,7 @@ static void validate_mem(struct pcmcia_s
-     }
-     if (lo++)
- 	goto out;
--    for (m = mem_db.next; m != &mem_db; m = mm.next) {
-+    list_for_each(m, &mem_db) {
- 	mm = *m;
- 	/* Only probe < 1 MB */
- 	if (mm.base >= 0x100000) continue;
-@@ -501,7 +501,7 @@ static void validate_mem(struct pcmcia_s
-     
-     if (done++ == 0) {
- 	down(&rsrc_sem);
--	for (m = mem_db.next; m != &mem_db; m = mm.next) {
-+	list_for_each(m, &mem_db) {
- 	    mm = *m;
- 	    if (do_mem_probe(mm.base, mm.num, s))
- 		break;
-@@ -985,11 +985,11 @@ void release_resource_db(void)
- {
-     resource_map_t *p, *q;
-     
--    for (p = mem_db.next; p != &mem_db; p = q) {
-+    list_for_each(p, &mem_db) {
- 	q = p->next;
- 	kfree(p);
-     }
--    for (p = io_db.next; p != &io_db; p = q) {
-+    list_for_each(p, &io_db) {
- 	q = p->next;
- 	kfree(p);
-     }
-_

@@ -1,59 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278555AbRJSRNO>; Fri, 19 Oct 2001 13:13:14 -0400
+	id <S278561AbRJSRdG>; Fri, 19 Oct 2001 13:33:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278557AbRJSRNF>; Fri, 19 Oct 2001 13:13:05 -0400
-Received: from geos.coastside.net ([207.213.212.4]:16048 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S278556AbRJSRM4>; Fri, 19 Oct 2001 13:12:56 -0400
-Mime-Version: 1.0
-Message-Id: <p05100301b7f60a7acc8e@[207.213.214.37]>
-In-Reply-To: <3BCF3941.D4B79FE1@mandrakesoft.com>
-In-Reply-To: <Pine.LNX.4.21.0110181034050.16868-100000@marty.infinity.powertie.org>
- <p05100309b7f4cd5976f7@[10.128.7.49]> <3BCF3941.D4B79FE1@mandrakesoft.com>
-Date: Fri, 19 Oct 2001 10:12:53 -0700
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-From: Jonathan Lundell <jlundell@pobox.com>
+	id <S278562AbRJSRcr>; Fri, 19 Oct 2001 13:32:47 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:53472 "EHLO
+	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S278561AbRJSRcl>; Fri, 19 Oct 2001 13:32:41 -0400
+Date: 19 Oct 2001 19:09:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8B9P9PwHw-B@khms.westfalen.de>
+In-Reply-To: <20011018220604.23253@smtp.wanadoo.fr>
 Subject: Re: [RFC] New Driver Model for 2.5
-Cc: Patrick Mochel <mochelp@infinity.powertie.org>,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+X-Mailer: CrossPoint v3.12d.kh7 R/C435
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <Pine.LNX.4.21.0110180826240.16868-100000@marty.infinity.powertie.org> <Pine.LNX.4.21.0110180826240.16868-100000@marty.infinity.powertie.org> <20011018220604.23253@smtp.wanadoo.fr>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 4:19 PM -0400 10/18/01, Jeff Garzik wrote:
->  > In this particular case, of course, the driver can keep a soft copy
->>  of the current MAC address and and restore from that, but that means
->>  making special cases of special things.
->
->For that specific case, NIC drivers should read a copy of the MAC
->address at probe time, and store it in dev->dev_addr.  Each power-up+if
->open cycle, the MAC address to programmed onto the NIC.  So that is not
->a special case but the normal case, keeping a soft copy of the MAC.
->
->Just being picky :)
+benh@kernel.crashing.org (Benjamin Herrenschmidt)  wrote on 19.10.01 in <20011018220604.23253@smtp.wanadoo.fr>:
 
-No, you're right, and it's especially true of NIC drivers. Partly, I 
-assume, because it's SOP in NIC drivers to routinely reinitialize the 
-hardware after various errors. And for Ethernet makes it easy, 
-because we're allowed to silently discard packets.
+> collisions between uuid's of different devices types. In the case of
+> ethernet hardware, the MAC address seems to be the best type of uuid
+> available, so it would be something like "ethaddr,xx:xx:xx:xx:xx:xx",
+> FireWire has a generic uuid allocation scheme as well, it could be
+> "ieee1394,xxxxxx...", etc...
 
-My own inclination would be to always keep enough information in 
-driver structures to reinitialize the device, though I'd hesitate to 
-assert that this is always possible, or practical.
+I have no idea what Firewire uses, but there are two generic kinds of  
+numbers that the IEEE allocates (actually, they're two different views on  
+a single id space).
 
-WRT the suspend/resume sequence, I'd like to see the process 
-extensible. So, for example, a single suspend entry point with an 
-argument specifying the current action. The stuff I'm working on 
-requires a kind of "suspend with extreme prejudice" in which the 
-driver can't decline to suspend, as well as a suspend that comes 
-*after* a bus (therefore device) reset (which would explain my urge 
-to keep device state in soft structures). This is generally simple 
-enough for Ethernet drivers, but a little trickier for other devices.
+Those are the MAC-48 address used by ethernet, fddi, and various other  
+protocols, and the EUI-64 used by more modern designs (and referenced by  
+IPv6; in fact, there's an algorithm that lets you create an EUI-64 from a  
+MAC-48 via bit stuffing).
 
-BTW (and excuse me for not searching this out, if it's available), is 
-2.5 intended to have a real device tree? There's a related issue for 
-suspend/resume, namely the hierarchical relationship of some devices 
-(eg md->sd->adapter or whatever).
--- 
-/Jonathan Lundell.
+Both of these depend on a 24 bit id called company_id or OUI which you can  
+buy from the IEEE for US$1.250,00 (for 16 million MAC-48's or 1 trillion  
+EUI-64's).
+
+The list of public OUIs is at <URL:http://standards.ieee.org/regauth/oui/ 
+oui.txt> (there are "unlisted numbers" in that namespace, too).
+
+Ah, I see IEEE 1394 *does* use OUIs. Not at all surprising, of course.
+
+So, the namespace should be used, not the appliation. In fact, given the  
+standard conversion from MAC-48 to EUI-64, we should probably just use one  
+namespace for both: my current ethernet card 00:50:FC:0C:63:69 would thus  
+be named "eui-64,00:50:fc:ff:ff:0c:63:69".
+
+More than you ever wanted to know about this stuff: <URL:http:// 
+standards.ieee.org/regauth/oui/>.
+
+Of course, there *are* other namespaces.
+
+MfG Kai

@@ -1,37 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbUK2LjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbUK2Lkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbUK2LjM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 06:39:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbUK2LjM
+	id S261678AbUK2Lkc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 06:40:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbUK2Lkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 06:39:12 -0500
-Received: from pD9562C58.dip.t-dialin.net ([217.86.44.88]:36209 "EHLO
-	mail.linux-mips.net") by vger.kernel.org with ESMTP id S261678AbUK2LjE
+	Mon, 29 Nov 2004 06:40:32 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:36008 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261678AbUK2LkX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 06:39:04 -0500
-Date: Mon, 29 Nov 2004 12:36:13 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: davem@redhat.com, jgarzik@pobox.com, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove dp83840.h
-Message-ID: <20041129113613.GA2718@linux-mips.org>
-References: <20041129111943.GB9722@stusta.de>
-Mime-Version: 1.0
+	Mon, 29 Nov 2004 06:40:23 -0500
+X-Envelope-From: kraxel@bytesex.org
+To: pawfen@wp.pl
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: MTRR vesafb and wrong X performance
+References: <1101338139.1780.9.camel@PC3.dom.pl>
+	<20041124171805.0586a5a1.akpm@osdl.org>
+	<1101419803.1764.23.camel@PC3.dom.pl>
+From: Gerd Knorr <kraxel@bytesex.org>
+Organization: SUSE Labs, Berlin
+Date: 29 Nov 2004 12:12:08 +0100
+In-Reply-To: <1101419803.1764.23.camel@PC3.dom.pl>
+Message-ID: <87is7ogb93.fsf@bytesex.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041129111943.GB9722@stusta.de>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 29, 2004 at 12:19:43PM +0100, Adrian Bunk wrote:
+Pawel Fengler <pawfen@wp.pl> writes:
 
-> dp83840.h is included once but none of the definitions it contains is 
-> actually used.
-> 
-> Is the patch below to remove it OK, or is there any usage planned?
+> > Please send the full dmesg output and the contents of /proc/mtrr for
+> > 2.6.10-rc2.
 
-I would suggest to keep the file as documentation of the DP83840.
+> reg02: base=0xe3000000 (3632MB), size=   4MB: write-combining, count=1
 
-  Ralf
+> vesafb: framebuffer at 0xe3000000, mapped to 0xcc880000, using 1875k,
+> total 4096k
+
+The BIOS reports 4MB video memory, and vesafb adds an mtrr entry for
+that.  Looks ok, with the exception that the reported 4MB are probably
+not correct, otherwise the X-Server wouldn't complain.  vesafb in
+2.6.10-rc2 has a option to overwrite the BIOS-reported value
+(vtotal=n, with n in megabytes), that should fix it.
+
+The reason that you don't see this with old kernels probably is just
+that vesafb doesn't create mtrr entries by default in 2.4.x
+
+  Gerd
+
+-- 
+#define printk(args...) fprintf(stderr, ## args)

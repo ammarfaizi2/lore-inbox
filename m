@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267374AbTAOVzH>; Wed, 15 Jan 2003 16:55:07 -0500
+	id <S267388AbTAOV4v>; Wed, 15 Jan 2003 16:56:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267375AbTAOVzG>; Wed, 15 Jan 2003 16:55:06 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:32264 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S267374AbTAOVzF>; Wed, 15 Jan 2003 16:55:05 -0500
-Date: Wed, 15 Jan 2003 23:03:17 +0100
-From: DervishD <raul@pleyades.net>
-To: Andreas Schwab <schwab@suse.de>
-Cc: Jakob Oestergaard <jakob@unthought.net>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Changing argv[0] under Linux.
-Message-ID: <20030115220317.GL47@DervishD>
-References: <20030114220401.GB241@DervishD> <20030114230418.GB4603@doc.pdx.osdl.net> <20030114231141.GC4603@doc.pdx.osdl.net> <20030115044644.GA18608@mark.mielke.cc> <20030115082527.GA22689@pegasys.ws> <20030115114130.GD66@DervishD> <20030115131617.GA8621@unthought.net> <20030115162219.GB86@DervishD> <20030115164731.GB8621@unthought.net> <jeel7ehzon.fsf@sykes.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <jeel7ehzon.fsf@sykes.suse.de>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+	id <S267389AbTAOV4u>; Wed, 15 Jan 2003 16:56:50 -0500
+Received: from adsl-67-114-19-186.dsl.pltn13.pacbell.net ([67.114.19.186]:61368
+	"HELO adsl-63-202-77-221.dsl.snfc21.pacbell.net") by vger.kernel.org
+	with SMTP id <S267387AbTAOV4t>; Wed, 15 Jan 2003 16:56:49 -0500
+Message-ID: <3E25DB37.2040806@tupshin.com>
+Date: Wed, 15 Jan 2003 14:05:43 -0800
+From: Tupshin Harper <tupshin@tupshin.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Unable to handle kernel NULL pointer kernel 2.4.21-pre3-ac4
+References: <3E24DBAA.4060701@tupshin.com> <3E2508EB.70600@tupshin.com>
+In-Reply-To: <3E2508EB.70600@tupshin.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Andreas :)
+OK....this definitely(well 99.5% chance) seems to be a problem that is 
+in 2.4.21-pre3-ac4, but is not in 2.4.21-pre3, or in linus' bk tree. 
+Also, this problem is not caused by the device-mapper patch which is the 
+only reason I was trying the ac tree in the first place.
 
-> |> down, mainly because it's ugly - and I hate programs that mess with
-> |> argv[0].
-> argv[0] is not required to point to the actual file name of the
-> executable, and in fact, most of the time it won't.
-> Btw, don't use it for setuid programs, it's a huge security hole you can
-> drive a truck through.
+So, it's an ac specific problem separate from the device-mapper code:
 
-    Yes, I suppose that exec'ing whatever is in argv0 is not a good
-idea :((( Didn't think about it.
+Another (possibly related) hint is that at bootup, I get many(measured 
+in the hundreds) reports of "ide: no cache flush required" which is in 
+ide_cacheflush_p in drivers/ide/ide-disk.c, and is only present in the 
+ac tree.
 
-    Any suggestion on how to get the binary name from the core image?
+Does this seem like a likely culprit?
 
-    Thanks a lot for the warning, Andreas :)
+Hello...is this thing on...can anyone hear me? ;-)
 
-    Raúl
+-Tupshin
+

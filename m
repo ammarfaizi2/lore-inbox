@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269161AbUIHVqs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269170AbUIHVzb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269161AbUIHVqs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 17:46:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269169AbUIHVqs
+	id S269170AbUIHVzb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 17:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269168AbUIHVzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 17:46:48 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:6339 "EHLO hermes.sc.intel.com")
-	by vger.kernel.org with ESMTP id S269161AbUIHVqp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 17:46:45 -0400
-Date: Wed, 8 Sep 2004 14:45:52 -0700
-From: tony.luck@intel.com
-Message-Id: <200409082145.i88LjqR05556@unix-os.sc.intel.com>
-Subject: RE: [PATCH] SN2 build fix CONFIG_VIRTUAL_MEM_MAP and CONFIG_DISCONTIGMEM
-Thread-Topic: [PATCH] SN2 build fix CONFIG_VIRTUAL_MEM_MAP and CONFIG_DISCONTIGMEM
-Thread-Index: AcSVXJ2V2rOB091wQv2KBMoL91BIGgAZ9Gug
-To: "Jesse Barnes" <jbarnes@engr.sgi.com>, "Paul Jackson" <pj@sgi.com>
-Cc: "Linus Torvalds" <torvalds@osdl.org>, <ianw@gelato.unsw.edu.au>,
-       "William Irwin" <wli@holomorphy.com>, <linux-kernel@vger.kernel.org>
+	Wed, 8 Sep 2004 17:55:31 -0400
+Received: from smtp.terra.es ([213.4.129.129]:4812 "EHLO tsmtp5.mail.isp")
+	by vger.kernel.org with ESMTP id S269182AbUIHVzU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 17:55:20 -0400
+Date: Wed, 8 Sep 2004 23:55:03 +0200
+From: Diego Calleja <diegocg@teleline.es>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: riel@redhat.com, raybry@sgi.com, marcelo.tosatti@cyclades.com,
+       kernel@kolivas.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, piggin@cyberone.com.au
+Subject: Re: swapping and the value of /proc/sys/vm/swappiness
+Message-Id: <20040908235503.3f01523a.diegocg@teleline.es>
+In-Reply-To: <36100000.1094677832@flay>
+References: <5860000.1094664673@flay>
+	<Pine.LNX.4.44.0409081403500.23362-100000@chimarrao.boston.redhat.com>
+	<20040908215008.10a56e2b.diegocg@teleline.es>
+	<36100000.1094677832@flay>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Thanks Paul, this looks a little simpler than the patch I 
->>posted (I'd rather just make CONFIG_DISCONTIGMEM and
->>CONFIG_VIRTUAL_MEMMAP mandatory on ia64, but that's for
->>another patch).  Linus, since this breakage is in your
->>tree now, can you please apply this assuming Tony has
->>no complaints so that people can build on ia64 again?
->
->I have no complaints.  I see that Linus has already
->applied Paul's patch to his BK tree.
+El Wed, 08 Sep 2004 14:10:32 -0700 "Martin J. Bligh" <mbligh@aracnet.com> escribió:
 
-I want to change my vote :-)  The problem isn't a spurious extra
-"#else" (which Paul's patch removed) ... it is a missing "#endif"
+> I really don't see any point in pushing the self-tuning of the kernel out
+> into userspace. What are you hoping to achieve?
 
-Here's a patch that puts the #else back, adds the #endif, and
-fixes the whitespace to make this nested mess of pre-processor
-noise a bit more legible.
-
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-
-===== include/asm-ia64/page.h 1.28 vs edited =====
---- 1.28/include/asm-ia64/page.h	2004-09-05 20:48:22 +00:00
-+++ edited/include/asm-ia64/page.h	2004-09-08 20:39:23 +00:00
-@@ -86,13 +86,14 @@
- #ifndef CONFIG_DISCONTIGMEM
- # ifdef CONFIG_VIRTUAL_MEM_MAP
- extern struct page *vmem_map;
--#  define pfn_valid(pfn)       (((pfn) < max_mapnr) && ia64_pfn_valid(pfn))
--#  define page_to_pfn(page)    ((unsigned long) (page - vmem_map))
--#  define pfn_to_page(pfn)     (vmem_map + (pfn))
-+#  define pfn_valid(pfn)	(((pfn) < max_mapnr) && ia64_pfn_valid(pfn))
-+#  define page_to_pfn(page)	((unsigned long) (page - vmem_map))
-+#  define pfn_to_page(pfn)	(vmem_map + (pfn))
-+# else
-+#  define pfn_valid(pfn)	(((pfn) < max_mapnr) && ia64_pfn_valid(pfn))
-+#  define page_to_pfn(page)	((unsigned long) (page - mem_map))
-+#  define pfn_to_page(pfn)	(mem_map + (pfn))
- # endif
--#define pfn_valid(pfn)		(((pfn) < max_mapnr) && ia64_pfn_valid(pfn))
--#define page_to_pfn(page)	((unsigned long) (page - mem_map))
--#define pfn_to_page(pfn)	(mem_map + (pfn))
- #endif /* CONFIG_DISCONTIGMEM */
- 
- #define page_to_phys(page)	(page_to_pfn(page) << PAGE_SHIFT)
+Well your own words explain it, I think. "it's all dependant on the workload",
+which means that only the user knows what he is going to do with the machine
+and that the kernel doesn't knows that, so the algoritms built in the kernel
+may be "not perfect" in their auto-tuning job. The point would be to
+be able to take decisions the kernel can't take because userspace would
+know better how the system should behave, say stupids things like "I want
+to have this set of tunables which make compile jobs 0.01% faster at 12:00
+because at that time a cron job autocompiles cvs snapshots of some project,
+and at 6:00 those jobs have already finished so at that time I want a set
+of tunables optimized for my everyday desktop work which make everthing 0.01%
+slower but the system feels a 5% more reponsive". (well, for that a shell script
+is enought) Kernel however could try to adapt itself to those changes, and do
+it well...I don't really know. This came to my mind when I was thinking about
+irqbalance case, which was somewhat similar, I also remember a discussion
+about a "ktuned" in the mailing lists...I guess it's a matter of coding it
+and get some numbers :-/

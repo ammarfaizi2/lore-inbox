@@ -1,78 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262080AbUCOANT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 19:13:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUCOANT
+	id S262083AbUCOAXM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 19:23:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbUCOAXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 19:13:19 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:20742
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262080AbUCOANR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 19:13:17 -0500
-Date: Mon, 15 Mar 2004 01:14:00 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: marcelo.tosatti@cyclades.com, j-nomura@ce.jp.nec.com,
-       linux-kernel@vger.kernel.org, riel@redhat.com, torvalds@osdl.org
-Subject: Re: [2.4] heavy-load under swap space shortage
-Message-ID: <20040315001400.GX30940@dualathlon.random>
-References: <20040310.195707.521627048.nomura@linux.bs1.fc.nec.co.jp> <Pine.LNX.4.44.0403141638390.1554-100000@dmt.cyclades> <20040314121503.13247112.akpm@osdl.org> <20040314230138.GV30940@dualathlon.random> <20040314152253.05c58ecc.akpm@osdl.org>
+	Sun, 14 Mar 2004 19:23:12 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:384 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262083AbUCOAXJ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 19:23:09 -0500
+Message-Id: <200403130515.i2D5F7DG009253@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Adam Jones <adam@yggdrasl.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NVIDIA and 2.6.4? 
+In-Reply-To: Your message of "Fri, 12 Mar 2004 18:24:01 GMT."
+             <adam.20040312182401$5015%samael.haus@yggdrasl.demon.co.uk> 
+From: Valdis.Kletnieks@vt.edu
+References: <405082A2.5040304@blueyonder.co.uk> <200403111326.08055.maxvalde@fis.unam.mx> <405112DD.2020009@blueyonder.co.uk>
+            <adam.20040312182401$5015%samael.haus@yggdrasl.demon.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040314152253.05c58ecc.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Content-Type: multipart/signed; boundary="==_Exmh_811765798P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 13 Mar 2004 00:15:07 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 14, 2004 at 03:22:53PM -0800, Andrew Morton wrote:
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> >
-> > > 
-> > > Having a magic knob is a weak solution: the majority of people who are
-> > > affected by this problem won't know to turn it on.
-> > 
-> > that's why I turned it _on_ by default in my tree ;)
-> 
-> So maybe Marcelo should apply this patch, and also turn it on by default.
+--==_Exmh_811765798P
+Content-Type: text/plain; charset=us-ascii
 
-yes, I would suggest so. If anybody can find any swap-regression on
-small UP machines then reporting to us on l-k will be welcome. So far
-nobody could notice any swap difference at swap regime AFIK, and the
-improvement for the fast path is dramatic on the big smp boxes.
-
-> > There are workloads where adding anonymous pages to the lru is
-> > suboptimal for both the vm (cache shrinking) and the fast path too
-> > (lru_cache_add), not sure how 2.6 optimizes those bits, since with 2.6
-> > you're forced to add those pages to the lru somehow and that implies
-> > some form of locking.
+On Fri, 12 Mar 2004 18:24:01 GMT, Adam Jones <adam@yggdrasl.demon.co.uk>  said:
+> In a futile gesture against entropy, Sid Boyce wrote:
+> > Max Valdez wrote:
 > 
-> Basically a bunch of tweeaks:
+> > >Been using nvidia modules for quite a few 2.6.x kernels, most of them mmX.
+ 
+> > >without problems
 > 
-> - Per-zone lru locks (which implicitly made them per-node)
-
-the 16-ways weren't numa, and these days 16-ways HT (8-ways phys) are
-not so uncommon anymore.
-
+> I'm using it here with 2.6.4, no problems as yet.
 > 
-> - Adding/removing sixteen pages for one taking of the lock.
+> > Something strange happened, I shall try 2.6.4-mm1 shortly to see if it 
+> > is still the same. I reckon though that I've suffered a filesystem 
+> > corruption.
 > 
-> - Making the lock irq-safe (it had to be done for other reasons, but
->   reduced contention by 30% on 4-way due to not having a CPU wander off to
->   service an interrupt while holding a critical lock).
-> 
-> - In page reclaim, snip 32 pages off the lru completely and drop the
->   lock while we go off and process them.
+> A quick thought - have you got CONFIG_REGPARM enabled in the kernel
+> config?  If so, disable it and try again.  (It's almost certain to
+> cause crashes with binary modules.)
 
-sounds good, thanks.
+Also, the NVidia driver uses a bit of kernel stack, so it's incompatible
+with the CONFIG_4KSTACKS option in recent -mm kernels...
 
-I don't see other ways to optimize it (and I never enjoyed too much the
-per-zone lru since it has some downside too with a worst case on 2G
-systems). peraphs a further optimization could be a transient per-cpu
-lru refiled only by the page reclaim (so absolutely lazy while lots of
-ram is free), but maybe that's already what you're doing when you say
-"Adding/removing sixteen pages for one taking of the lock". Though the
-fact you say "sixteen pages" sounds like it's not as lazy as it could
-be.
+--==_Exmh_811765798P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAUpjacC3lWbTT17ARAkl1AJ9+3XIG/F33yJAOj8qGfOwzxyoC3QCg+FA4
+iXkWC2lW+qGkpIdRvZ/TqAo=
+=ZNhI
+-----END PGP SIGNATURE-----
+
+--==_Exmh_811765798P--

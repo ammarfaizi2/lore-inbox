@@ -1,83 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265815AbTAILrD>; Thu, 9 Jan 2003 06:47:03 -0500
+	id <S266135AbTAIL5J>; Thu, 9 Jan 2003 06:57:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265886AbTAILrD>; Thu, 9 Jan 2003 06:47:03 -0500
-Received: from ns.indranet.co.nz ([210.54.239.210]:59594 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id <S265815AbTAILrC>; Thu, 9 Jan 2003 06:47:02 -0500
-Date: Fri, 10 Jan 2003 00:55:22 +1300
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: ipv6 stack seems to forget to send ACKs
-Message-ID: <27430000.1042113322@localhost.localdomain>
-In-Reply-To: <20030109123857.A15625@bitwizard.nl>
-References: <20030108130850.GQ22951@wiggy.net>
- <20030109123857.A15625@bitwizard.nl>
-X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+	id <S265909AbTAIL5J>; Thu, 9 Jan 2003 06:57:09 -0500
+Received: from warden3-p.diginsite.com ([208.147.64.186]:29131 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id <S265894AbTAIL5G>; Thu, 9 Jan 2003 06:57:06 -0500
+Date: Thu, 9 Jan 2003 03:52:51 -0800 (PST)
+From: David Lang <dlang@diginsite.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+cc: dipankar@in.ibm.com, <linux-scsi@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: aic7xxx broken in 2.5.53/54 ?
+In-Reply-To: <274040000.1041869813@aslan.scsiguy.com>
+Message-ID: <Pine.LNX.4.44.0301090346180.28704-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I just tried 2.5.55 and it still locks up. I will hook up my laptop and
+see if I can get aa serial console dump tomorrow night.
 
+messages are
 
---On Thursday, January 09, 2003 12:38:58 +0100 Rogier Wolff 
-<R.E.Wolff@BitWizard.nl> wrote:
+Slave Alloc 0
+launching DV thread
+begin domain validation
+scsi0:2477 going from state 0 to state 1
+scsi0:A:0:0: sending INQ
+scsi0:timeout while doing DV command 12
+scsi0:0:0:0 command completed status=0x90000
+scsi0:A:0:0 enntering ahc_linux_dv_transition, state=1 statis=0x14005, cmd->result=0x90000
+scsi0:2645 going from state 1 to state 1
 
-> On Wed, Jan 08, 2003 at 02:08:50PM +0100, Wichert Akkerman wrote:
->>
+at this point all the messages between the 'going to state' messages
+repeat exactly, this happens for a couple min and then a whole bunch of
+other stuff scrolls by (I don't know if this happens on previous versions,
+I had given up before that much time had passed) the final message is
+something about a recovery sleep and then the machine stops responding (I
+waited 10 min this time to make sure it wasn't going to start working
+again)
 
-Looked normal and then:
+Daavid Lang
 
+ On Mon, 6 Jan 2003, Justin T. Gibbs wrote:
+
+> Date: Mon, 06 Jan 2003 09:16:53 -0700
+> From: Justin T. Gibbs <gibbs@scsiguy.com>
+> To: dipankar@in.ibm.com
+> Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+> Subject: Re: aic7xxx broken in 2.5.53/54 ?
 >
->> 13:57:40.282351 2001:968:1::2.8000 > tornado.wiggy.net.33035: .
->> 9359225:9360433(1208) ack 1 win 5712 <nop,nop,timestamp 369670744 846103>
+> > Hi Justin,
+> >
+> > On Fri, Jan 03, 2003 at 08:14:06AM -0700, Justin T. Gibbs wrote:
+> >> > Looks like the aic7xxx driver in 2.5.53 and 54 are broken on my
+> >> > hardware.
+> >>
+> >> It looks like the driver recovers fine.
+> >
+> > Not for long. It dies shortly afterwards.
 >
-> But now: No ack! Funny.
-
-Might be SACK deciding not to...
-
->> 13:57:40.284307 2001:968:1::2.8000 > tornado.wiggy.net.33035: .
->> 9360433:9360653(220) ack 1 win 5712 <nop,nop,timestamp 369670744 846103>
+> In what fashion?
 >
-> Another packet, no ack!
+> >> > aic7xxx: PCI Device 0:1:0 failed memory mapped test.  Using PIO.
+> >> > Uhhuh. NMI received for unknown reason 25 on CPU 0.
+> >>
+> >> SERR must be enabled by your BIOS.  I will change the driver so
+> >> that, should the memory mapped I/O test fail, an SERR (and thus an
+> >> NMI) is not generated.
+> >
+> > I guess having to use PIO with aic7xxx is bad. MMIO failure is
+> > what we need to investigate.
 >
->> 13:57:40.297307 2001:968:1::2.8000 > tornado.wiggy.net.33035: .
->> 9360653:9361861(1208) ack 1 win 5712 <nop,nop,timestamp 369670745 846104>
->> 13:57:40.297376 tornado.wiggy.net.33035 > 2001:968:1::2.8000: . ack
->> 9359225 win 32616 <nop,nop,timestamp 846111 369670744,nop,nop,sack sack
->> 1 {9360653:9361861} >
+> The only way that I know how to investigate these issues is
+> with a PCI bus analyzer.  We're in the process of going through
+> all of the systems we have in our lab to see which ones fail and
+> why, but I certainly don't have one of every failing system on
+> the planet. 8-)
 >
-> Another packet, but this time it SACKs  the just-recieved packet. It looks
-> as if the two packets inbetween somehow were not recognized as belonging
-> with this connection.
-
-or SACK forgot about them?
-
-> Two more packets, and still more hints towards the other machine that
-> we're missing 9359225-9360653
+> >> Just out of curiosity, do you have any strange PCI options enabled
+> >> in your BIOS?  I remeber seeing memory mapped I/O failures on this
+> >> ServerWorks chipset under FreeBSD in the past, but an updated BIOS
+> >> resolved the issue for the affected users.  It seemed that the BIOS
+> >> incorrectly placed the Adaptec controller in a prefetchable region.
+> >>
+> >
+> > I didn't change anything in that box since it was delivered to me. FYI
+> > it is an IBM x250. Would it help if I can get a PCI space dump and mtrr
+> > dump ? FWIW, the older driver works fine. Does the older driver use
+> > only PIO ?
 >
->> 13:57:40.568652 2001:968:1::2.8000 > tornado.wiggy.net.33035: .
->> 9359225:9360433(1208) ack 1 win 5712 <nop,nop,timestamp 369670773 846113>
+> It would be good to know the chipset on the motherboard.  As to why
+> the old driver worked, for 6.X.X drivers, you may have just been lucky.
+> For 5.X.X drivers, they perform a read after every register write to
+> "manually" prevent any byte-merging.  These reads are actually more
+> expensive than just using PIO.  Neither of these older drivers included
+> a test to try and catch fishy behavior.
 >
-> So, it retransmits the first. but we don't see it as beloging to
-> this connection or something, so it gets ignored.
-
-or we're waiting for the other one to ACK them both in one go?
-
-> It looks as if somehow those two packets 9359225:9360433 and
-> 9360433:9360653 get  mangled in a way as to invalidate the checksum. This
-> would cause "silent drop"  of these packets before they were acked....
-
-Could be data dependant, so there's a pattern in the packet contents that 
-causes this?
-
-> Can you check the stats counters, to see if they are indeed dropped?
+> --
+> Justin
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 >
-> 				Roger.
-
-

@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVAGA3u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVAGAd2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261229AbVAGA3u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 19:29:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVAGA3X
+	id S261154AbVAGAd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 19:33:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVAGAdX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 19:29:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:42973 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261190AbVAGAZD (ORCPT
+	Thu, 6 Jan 2005 19:33:23 -0500
+Received: from gprs215-35.eurotel.cz ([160.218.215.35]:649 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261154AbVAGAcv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 19:25:03 -0500
-Date: Thu, 6 Jan 2005 16:29:28 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, paulmck@us.ibm.com,
-       arjan@infradead.org, linux-kernel@vger.kernel.org, jtk@us.ibm.com,
-       wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
-       greghk@us.ibm.com, torvalds@osdl.org
-Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
-Message-Id: <20050106162928.650e9d71.akpm@osdl.org>
-In-Reply-To: <20050106234123.GA27869@infradead.org>
-References: <20050106190538.GB1618@us.ibm.com>
-	<1105039259.4468.9.camel@laptopd505.fenrus.org>
-	<20050106201531.GJ1292@us.ibm.com>
-	<20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk>
-	<20050106210408.GM1292@us.ibm.com>
-	<20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk>
-	<20050106152621.395f935e.akpm@osdl.org>
-	<20050106234123.GA27869@infradead.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 6 Jan 2005 19:32:51 -0500
+Date: Fri, 7 Jan 2005 01:29:22 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-mm2: swsusp regression
+Message-ID: <20050107002921.GA1300@elf.ucw.cz>
+References: <20050106002240.00ac4611.akpm@osdl.org> <200501061848.11719.rjw@sisk.pl> <20050106225233.GD2766@elf.ucw.cz> <200501070041.43023.rjw@sisk.pl> <20050106234829.GF28777@elf.ucw.cz> <1105057470.3254.0.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1105057470.3254.0.camel@desktop.cunninghams>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
->
-> > I think the exports should be restored.  So does Linus ("Not that I like it
-> > all that much, but I don't think we should break existing modules unless we
-> > have a very specific reason to break just those modules.").
-> 
-> No.  I specificly asked the question how they're using it and they're use is
-> 
->  a) completely buggy
->  b) poking so deep in the kernel that the user falls under the GPL
->     derived works clause.  As a copyright holder of quite a bit of fs/*.c
->     I certainly wouldn't give IBM a special exception to use it even if
->     it was exported.
-> 
-> These exports were only added for intermezzo during 2.4.x and with the
-> removal of intermezzo they go.  They never were a public API, and that they
-> were needed at all was a managment mistake in how that code was merged.
+Hi!
 
-Fine.  Completely agree.  Sometimes people do need to be forced to make
-such changes - I don't think anyone would disagree with that.
+> AMD64 doesn't have MTRRs, does it? If it does, I'd bet on an SMP
+> hang.
 
-What's under discussion here is "how to do it".  Do we just remove things
-when we notice them, or do we give (say) 12 months notice?
+I bet AMD64 does have MTRRs. It is backward compatible to i386,
+remember?
+
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

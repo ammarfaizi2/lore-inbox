@@ -1,71 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264479AbUBEFHi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 00:07:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265056AbUBEFHi
+	id S264936AbUBEFRN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 00:17:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264366AbUBEFRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 00:07:38 -0500
-Received: from web9708.mail.yahoo.com ([216.136.128.166]:35723 "HELO
-	web9708.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264479AbUBEFHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 00:07:33 -0500
-Message-ID: <20040205050730.40649.qmail@web9708.mail.yahoo.com>
-Date: Wed, 4 Feb 2004 21:07:30 -0800 (PST)
-From: Alok Mooley <rangdi@yahoo.com>
-Subject: Re: Active Memory Defragmentation: Our implementation & problems
-To: root@chaos.analogic.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>
-In-Reply-To: <Pine.LNX.4.53.0402041427270.2947@chaos>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Feb 2004 00:17:13 -0500
+Received: from esperance.ozonline.com.au ([203.23.159.248]:42452 "EHLO
+	ozonline.com.au") by vger.kernel.org with ESMTP id S264359AbUBEFRL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 00:17:11 -0500
+Date: Thu, 5 Feb 2004 16:21:38 +1100
+From: Davin McCall <davmac@ozonline.com.au>
+To: Davin McCall <davmac@ozonline.com.au>
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [PATCH] various IDE patches/cleanups
+Message-Id: <20040205162138.124d0276.davmac@ozonline.com.au>
+In-Reply-To: <20040130143355.630346cc.davmac@ozonline.com.au>
+References: <20040103152802.6e27f5c5.davmac@ozonline.com.au>
+	<200401051516.03364.bzolnier@elka.pw.edu.pl>
+	<20040106135155.66535c13.davmac@ozonline.com.au>
+	<200401061213.39843.bzolnier@elka.pw.edu.pl>
+	<20040130142725.1a408f9e.davmac@ozonline.com.au>
+	<20040130143041.1eb70817.davmac@ozonline.com.au>
+	<20040130143355.630346cc.davmac@ozonline.com.au>
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Damn, I found a problem with this. Needs to set hwgroup->expiry to NULL before releasing ide_lock; that prevents ide_timer_expiry() from running the expiry() handler and instead it will simulate an interrupt.
 
---- "Richard B. Johnson" <root@chaos.analogic.com>
-wrote:
-> All "blocks" are the same size, i.e., PAGE_SIZE.
-> When RAM
-> is tight the content of a page is written to the
-> swap-file
-> according to a least-recently-used protocol. This
-> frees
-> a page. Pages are allocated to a process only one
-> page at
-> a time. This prevents some hog from grabbing all the
-> memory
-> in the machine. Memory allocation and physical page
-> allocation
-> are two different things, I can malloc() a gigabyte
-> of RAM on
-> a machine. It only gets allocated when an attempt is
-> made
-> to access a page.
+Otherwise, expiry() may return non-zero which will cause the timer to be reset. The interrupt would effectively be lost. In some cases (abuses?) this would lock the whole hwgroup forever as the expiry() function always returns > 0 (ide-cd.c, cdrom_timer_expiry() for example).
 
-Only userspace processes are allocated pages via
-page-faults, i.e., one page at a time. Processes
-running in kernel mode can request higher order blocks
-(8K,16K...4M, which are 2 pages,4 pages...1024 pages
-respectively) from the buddy allocator directly. If
-external fragmentation is rampant, requests for these
-higher order blocks may fail. The defragmentation
-utility intends to provide a faster option for higher
-order block formation before swapping (which is the
-last alternative). By the way, 
-malloc finally takes memory from the buddy allocator
-itself (by page-faults), & the defragmenter is out to
-reduce the external fragmentation caused by the buddy
-allocator. Swapping ofcourse cannot be completely
-avoided if the machine is genuinely short of memory.
-Defragmentation may now sound better than needless
-swapping or memory allocation failures, not just
-another cpu hog! 
-
-Regards,
-Alok
+Here's the revised patch.
 
 
-__________________________________
-Do you Yahoo!?
-Yahoo! Finance: Get your refund fast by filing online.
-http://taxes.yahoo.com/filing.html
+diff -urN linux-2.6.0-patch2/drivers/ide/ide-io.c linux-2.6.0/drivers/ide/ide-io.c
+--- linux-2.6.0-patch2/drivers/ide/ide-io.c	Wed Jan 28 22:55:00 2004
++++ linux-2.6.0/drivers/ide/ide-io.c	Wed Jan 28 23:49:17 2004
+@@ -1303,8 +1303,12 @@
+ 		hwgroup->busy = 1;	/* paranoia */
+ 		printk(KERN_ERR "%s: ide_intr: hwgroup->busy was 0 ??\n", drive->name);
+ 	}
++	if (!del_timer(&hwgroup->timer)) {
++		/* timer has expired, ide_timer_expiry is waiting to get lock */
++		hwgroup->expiry = NULL;
++		spin_unlock(&ide_lock);
++		return IRQ_HANDLED;
++	}
+ 	hwgroup->handler = NULL;
+-	del_timer(&hwgroup->timer);
+ 	spin_unlock(&ide_lock);
+ 
+ 	if (drive->unmask)

@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbVC3Vm6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262221AbVC3Vn5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbVC3Vm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 16:42:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbVC3Vm5
+	id S262221AbVC3Vn5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 16:43:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbVC3Vn4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 16:42:57 -0500
-Received: from 71-33-33-84.albq.qwest.net ([71.33.33.84]:23959 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S262282AbVC3Vmr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 16:42:47 -0500
-Date: Wed, 30 Mar 2005 14:44:28 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-cc: linux-kernel@vger.kernel.org, seife@suse.de,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>
-Subject: Re: smp/swsusp done right
-In-Reply-To: <20050330212253.GB1347@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.61.0503301437550.12965@montezuma.fsmlabs.com>
-References: <20050323204019.GA11616@elf.ucw.cz>
- <Pine.LNX.4.61.0503301413050.12965@montezuma.fsmlabs.com>
- <20050330212253.GB1347@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 30 Mar 2005 16:43:56 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:27039 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262221AbVC3Vnv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 16:43:51 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1112218750.3691.165.camel@localhost.localdomain>
+References: <Pine.OSF.4.05.10503302042450.2022-100000@da410.phys.au.dk>
+	 <1112212608.3691.147.camel@localhost.localdomain>
+	 <1112218750.3691.165.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 30 Mar 2005 16:43:43 -0500
+Message-Id: <1112219023.3691.168.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Mar 2005, Pavel Machek wrote:
 
-> Hi!
+On Wed, 2005-03-30 at 16:39 -0500, Steven Rostedt wrote:
+> On Wed, 2005-03-30 at 14:56 -0500, Steven Rostedt wrote:
 > 
-> > > This is against -mm kernel; it is smp swsusp done right, and it
-> > > actually works for me. Unlike previous hacks, it uses cpu hotplug
-> > > infrastructure. Disable CONFIG_MTRR before you try this...
-> > > 
-> > > Test this if you can, and report any problems. If not enough people
-> > > scream, this is going to -mm.
+> > Because of the stupid BKL, I'm going with a combination of your idea and
+> > my idea for the solution of pending owners.  I originally wanted the
+> > stealer of the lock to put the task that was robbed back on the list.
+> > But because of the BKL, you end up with a state that a task can be
+> > blocked by two locks at the same time. This causes hell with priority
+> > inheritance.
 > > 
-> > Yay! Thanks for getting that done Pavel =)
-> 
-> Well, I guess it is thank you -- I got rid of ugly FIXME that would
-> involve arch-dependend assembly to be solved properly.
-> 
-> ... hmm, can play_dead handle all the memory being overwritten? Also
-> it should probably save and restore registers including MTRRs.
 
-play_dead currently can't handle memory being overwritten, i guess you'd 
-probably want to put the hook to kill the processor for real there. We 
-probably only have to make sure that MTRRs are restored on resume, which 
-should be taken care of by the current code since ACPI hotplug probably 
-requires it too.
+ [snip]
 
-> ...so I more moved ugly FIXME to better place. Oh well, at least it
-> uses common infrastructure now. People at Intel doing suspend-to-RAM
-> on smp systems will need to solve it properly, anyway, because they
-> need to go to real mode and back.
+> It's a relatively simple patch, but it took a lot of pain since I was
+> trying very hard to have the stealer do the work. But the BKL proved to
+> be too much.
 
-Sounds like a perfect candidate =)
+Oh, I forgot, this is patched against V0.7.41-11. Ingo, you're moving so
+fast, I can't keep up. I'll download your latest later, and see if this
+patch still qualifies.
 
-Thanks,
-	Zwane
+-- Steve
+
 

@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263592AbUCUCz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 21:55:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263597AbUCUCz4
+	id S262854AbUCUDN5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 22:13:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263594AbUCUDN5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 21:55:56 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:4513 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id S263592AbUCUCzz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 21:55:55 -0500
-Subject: Re: ACPI error with 2.4.26-pre5
-From: Len Brown <len.brown@intel.com>
-To: Andrew Clayton <andrew@digital-domain.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F5EB1@hdsmsx402.hd.intel.com>
-References: <A6974D8E5F98D511BB910002A50A6647615F5EB1@hdsmsx402.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1079837748.7279.784.camel@dhcppc4>
+	Sat, 20 Mar 2004 22:13:57 -0500
+Received: from uslink-66.173.43-133.uslink.net ([66.173.43.133]:60551 "EHLO
+	dingdong.cryptoapps.com") by vger.kernel.org with ESMTP
+	id S262854AbUCUDN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 22:13:56 -0500
+Date: Sat, 20 Mar 2004 19:13:55 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: can device drivers return non-ram via vm_ops->nopage?
+Message-ID: <20040321031355.GB3930@dingdong.cryptoapps.com>
+References: <20040320133025.GH9009@dualathlon.random> <Pine.LNX.4.58.0403200937500.1106@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 20 Mar 2004 21:55:49 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0403200937500.1106@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for reporting this Andrew.
+On Sat, Mar 20, 2004 at 09:39:51AM -0800, Linus Torvalds wrote:
 
-This appears to be a regression in ACPICA 20040311.
+> If a driver wants to map non-RAM pages, that's perfectly ok, but it
+> MUST NOT happen through "nopage()". The driver should map them with
+> "remap_page_range()", and thus never take a page fault for such
+> pages at all.
 
-I've snagged the info you collectd and put it in this bug report:
-
-http://bugzilla.kernel.org/show_bug.cgi?id=2339
-
-Please add yourself to the bug's cc:, and
-attach the output from acpidmp,
-available in /usr/sbin/, or in pmtools:
-http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
-
-thanks,
--Len
+This is what the fetchop driver does.
 
 

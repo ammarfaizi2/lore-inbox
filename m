@@ -1,33 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268358AbRGZRNB>; Thu, 26 Jul 2001 13:13:01 -0400
+	id <S268458AbRGZRLb>; Thu, 26 Jul 2001 13:11:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268371AbRGZRMv>; Thu, 26 Jul 2001 13:12:51 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23311 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268358AbRGZRMl>; Thu, 26 Jul 2001 13:12:41 -0400
-Subject: Re: Validating Pointers
-To: tpepper@vato.org
-Date: Thu, 26 Jul 2001 18:12:57 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20010726100955.B18938@cb.vato.org> from "tpepper@vato.org" at Jul 26, 2001 10:09:55 AM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S268371AbRGZRLW>; Thu, 26 Jul 2001 13:11:22 -0400
+Received: from smtp.monmouth.com ([209.191.58.6]:6152 "EHLO smtp.monmouth.com")
+	by vger.kernel.org with ESMTP id <S268358AbRGZRLN>;
+	Thu, 26 Jul 2001 13:11:13 -0400
+Message-ID: <3B604125.D11E95F8@monmouth.com>
+Date: Thu, 26 Jul 2001 12:11:18 -0400
+From: Dipak Biswas <dipak@monmouth.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-6.1smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Pogz-00048x-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Facing problem
+In-Reply-To: <20010725030855.696.qmail@pc7.prs.nunet.net>
+Content-Type: multipart/mixed;
+ boundary="------------0404E55CD7C51E668835FADC"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> Should the i386 access_ok() fail when checking a copy to/from userspace
-> from/to a static in a driver module?  The __copy_to|from_user work fine
-> and copy_to|from_user fail, but I guess that doesn't mean access_ok()
-> is the culprit.  I don't know intel assembly and the platforms for
-> which I do get the assembly don't do much in access_ok() so there's no
-> comparing...but I'd have thought they'd be more concerned with the user
-> address location than the kernel one.
+This is a multi-part message in MIME format.
+--------------0404E55CD7C51E668835FADC
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-You can't pass kernel address as if they were userspace. It might happen to
-sometimes work on some architectures. Take a look at the set_fs() stuff
+Hi all,
+    I'm facing problem to bring up 2.4.5 kernel properly. The eth0 is not
+coming up and lockd is failing because of lockdsvc function not found. I'm
+attaching part of /var/log/boot.log file for your info.
+
+Thanks in advance,
+Dipak
+
+
+
+--------------0404E55CD7C51E668835FADC
+Content-Type: text/plain; charset=us-ascii;
+ name="bootlog.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="bootlog.txt"
+
+Jul 26 09:57:56 mozart syslog: syslogd startup succeeded
+Jul 26 09:57:56 mozart syslog: klogd startup succeeded
+Jul 26 09:57:56 mozart identd: identd startup succeeded
+Jul 26 09:57:57 mozart atd: atd startup succeeded
+Jul 26 09:57:57 mozart crond: crond startup succeeded
+Jul 26 09:57:57 mozart rc: Starting pcmcia succeeded
+Jul 26 09:57:45 mozart rc.sysinit: Mounting proc filesystem succeeded 
+Jul 26 09:57:45 mozart sysctl: net.ipv4.ip_forward = 0 
+Jul 26 09:57:45 mozart sysctl: net.ipv4.conf.all.rp_filter = 1 
+Jul 26 09:57:45 mozart sysctl: kernel.sysrq = 0 
+Jul 26 09:57:45 mozart sysctl: error: 'net.ipv4.ip_always_defrag' is an unknown key 
+Jul 26 09:57:45 mozart rc.sysinit: Configuring kernel parameters succeeded 
+Jul 26 09:57:45 mozart date: Thu Jul 26 09:57:45 EDT 2001 
+Jul 26 09:57:45 mozart rc.sysinit: Setting clock : Thu Jul 26 09:57:45 EDT 2001 succeeded 
+Jul 26 09:57:45 mozart rc.sysinit: Activating swap partitions succeeded 
+Jul 26 09:57:45 mozart rc.sysinit: Setting hostname mozart succeeded 
+Jul 26 09:57:45 mozart fsck: /dev/hda8: clean, 38953/218176 files, 291624/435755 blocks 
+Jul 26 09:57:45 mozart rc.sysinit: Checking root filesystem succeeded 
+Jul 26 09:57:45 mozart rc.sysinit: Remounting root filesystem in read-write mode succeeded 
+Jul 26 09:57:45 mozart rc.sysinit: Finding module dependencies succeeded 
+Jul 26 09:57:45 mozart aumix-minimal: aumix:  error opening mixer 
+Jul 26 09:57:45 mozart rc.sysinit: Loading mixer settings failed 
+Jul 26 09:57:45 mozart fsck: /dev/hda1: clean, 31/6024 files, 9908/24066 blocks 
+Jul 26 09:57:45 mozart fsck: /dev/hda6: clean, 2123/641280 files, 264924/1281175 blocks 
+Jul 26 09:57:45 mozart fsck: /dev/hda7: clean, 319/256512 files, 8082/512064 blocks 
+Jul 26 09:57:45 mozart fsck: /dev/hda5: clean, 144942/1310720 files, 876420/2616579 blocks 
+Jul 26 09:57:45 mozart rc.sysinit: Checking filesystems succeeded 
+Jul 26 09:57:45 mozart rc.sysinit: Mounting local filesystems succeeded 
+Jul 26 09:57:45 mozart rc.sysinit: Turning on user and group quotas for local filesystems succeeded 
+Jul 26 09:57:58 mozart inet: inetd startup succeeded
+Jul 26 09:57:46 mozart rc.sysinit: Enabling swap space succeeded 
+Jul 26 09:57:55 mozart kudzu:  succeeded 
+Jul 26 09:57:55 mozart sysctl: net.ipv4.ip_forward = 0 
+Jul 26 09:57:55 mozart sysctl: net.ipv4.conf.all.rp_filter = 1 
+Jul 26 09:57:55 mozart sysctl: kernel.sysrq = 0 
+Jul 26 09:57:55 mozart sysctl: error: 'net.ipv4.ip_always_defrag' is an unknown key 
+Jul 26 09:57:55 mozart network: Setting network parameters succeeded 
+Jul 26 09:57:55 mozart network: Bringing up interface lo succeeded 
+Jul 26 09:57:55 mozart ifup: Delaying eth0 initialization. 
+Jul 26 09:57:55 mozart network: Bringing up interface eth0 failed 
+Jul 26 09:57:55 mozart portmap: portmap startup succeeded 
+Jul 26 09:57:55 mozart rpc.lockd: lockdsvc: Function not implemented 
+Jul 26 09:57:55 mozart nfslock: rpc.lockd startup failed 
+Jul 26 09:57:56 mozart nfslock: rpc.statd startup succeeded 
+Jul 26 09:57:56 mozart apmd: apmd startup succeeded 
+Jul 26 09:57:56 mozart random: Initializing random number generator succeeded 
+Jul 26 09:57:58 mozart lpd: lpd startup succeeded
+Jul 26 09:57:56 mozart mount: mount: RPC: Unable to send; errno = Network is unreachable 
+Jul 26 09:57:56 mozart mount: mount: RPC: Unable to send; errno = Network is unreachable 
+Jul 26 09:57:58 mozart keytable: Loading keymap: 
+Jul 26 09:57:56 mozart netfs: Mounting NFS filesystems failed 
+Jul 26 09:57:56 mozart netfs: Mounting other filesystems succeeded 
+Jul 26 09:57:58 mozart keytable: Loading /usr/lib/kbd/keymaps/i386/qwerty/us.kmap.gz
+Jul 26 09:57:58 mozart keytable: Loading system font: 
+Jul 26 09:57:58 mozart rc: Starting keytable succeeded
+Jul 26 09:57:58 mozart gpm: gpm startup succeeded
+Jul 26 09:57:59 mozart httpd: [Thu Jul 26 09:57:59 2001] [alert] httpd: Could not determine the server's fully qualified domain name, using 127.0.0.1 for ServerName
+Jul 26 09:57:59 mozart httpd: 
+Jul 26 09:57:59 mozart httpd: httpd startup succeeded
+Jul 26 09:58:23 mozart tomcat: Using classpath: /var/tomcat/lib/ant.jar:/var/tomcat/lib/jasper.jar:/var/tomcat/lib/jaxp.jar:/var/tomcat/lib/parser.jar:/var/tomcat/lib/servlet.jar:/var/tomcat/lib/test:/var/tomcat/lib/webserver.jar:/usr/java/jdk1.3.0_02/lib/tools.jar
+Jul 26 09:58:23 mozart tomcat: tomcat startup succeeded
+Jul 26 09:58:25 mozart xfs: xfs startup succeeded
+Jul 26 09:58:26 mozart linuxconf: Linuxconf final setup
+Jul 26 09:58:28 mozart rc: Starting linuxconf succeeded
+
+
+--------------0404E55CD7C51E668835FADC--
+

@@ -1,70 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262240AbVCIAPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262411AbVCIAJm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262240AbVCIAPX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 19:15:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVCIAOV
+	id S262411AbVCIAJm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 19:09:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVCIAGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 19:14:21 -0500
-Received: from nevyn.them.org ([66.93.172.17]:65433 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S262240AbVCIANF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 19:13:05 -0500
-Date: Tue, 8 Mar 2005 19:12:55 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Roland McGrath <roland@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Cagney <cagney@redhat.com>
-Subject: Re: More trouble with i386 EFLAGS and ptrace
-Message-ID: <20050309001254.GA1496@nevyn.them.org>
-Mail-Followup-To: Roland McGrath <roland@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Cagney <cagney@redhat.com>
-References: <20050307044920.GA25093@nevyn.them.org> <200503072129.j27LTCnl030702@magilla.sf.frob.com>
+	Tue, 8 Mar 2005 19:06:31 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:37257 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262427AbVCHXuw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 18:50:52 -0500
+Subject: Re: RFD: Kernel release numbering
+From: Lee Revell <rlrevell@joe-job.com>
+To: szonyi calin <caszonyi@yahoo.com>
+Cc: Dave Jones <davej@redhat.com>, torvalds@osdl.org, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050308232552.97747.qmail@web52907.mail.yahoo.com>
+References: <20050308232552.97747.qmail@web52907.mail.yahoo.com>
+Content-Type: text/plain
+Date: Tue, 08 Mar 2005 18:50:51 -0500
+Message-Id: <1110325851.6510.23.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503072129.j27LTCnl030702@magilla.sf.frob.com>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 07, 2005 at 01:29:12PM -0800, Roland McGrath wrote:
-> > Is this semantically different from the patch I posted, i.e. is there
-> > any case which one of them covers and not the other?
+On Wed, 2005-03-09 at 00:25 +0100, szonyi calin wrote:
+> I reported once a bug on alsa-devel and cc-ed on lkml 
+> The sequencer isn't working with my card cs4239 with alsa.
 > 
-> Yes, the second case that I described when I said there were two cases!
-> (Sheesh.)
 
-Calm down, there were already two cases.  I reread your message and
-couldn't pick out the answer, or I wouldn't have asked.
+What exactly do you mean by "it isn't working"?
 
->  To repeat, when the process was doing PTRACE_SINGLESTEP and then
-> stops on some other signal rather than because of the single-step trap
-> (e.g. single-stepping an instruction that faults), ptrace will show TF set
-> in its registers.  With my patch, it will show TF clear.
+90% of "MIDI does not work" bug reports are from users who expect
+playing MIDI files to work OOTB like it does on Mac and Windows.
 
-I can reproduce this problem with the patch that Linus committed, so
-you should probably update your patch for a current snapshot and nag
-him about it.
+This only works because those OS'es come bundled with a toy softsynth.
+With ALSA, you either need a supported hardware wavetable synth
+(emu10k1) or a real soft synth like Timidity or Fluidsynth.
 
-> > That is an inability to set breakpoints in the vsyscall page.  Andrew
-> > told me (last May, wow) that he thought this worked in Fedora, but I
-> > haven't seen any signs of the code.  It would certainly be a Good Thing
-> > if it is possible!
-> 
-> Fedora kernels use a normal mapping (with randomized location) for the
-> page, rather than the fixed high address in the vanilla kernel.  The
-> FIXADDR_USER_START area is globally mapped in a special way not using
-> normal vma data structures, and is permanently read-only in all tasks.  
-> COW via ptrace works normally for Fedora's flavor, but no writing is ever
-> possible to the fixmap page.
+Anyway, please repost your bug report to alsa-devel.  There is no point
+in cc'ing LKML for ALSA problems, unless you find a problem like a
+regression in ALSA functionality from one kernel release to another.
 
-Blech.  I assume that there is no way to map a normal VMA over top of
-the fixed page, for a particular process?  This makes debugging the
-vsyscall DSO a real pain.
+Lee
 
--- 
-Daniel Jacobowitz
-CodeSourcery, LLC

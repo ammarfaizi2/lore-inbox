@@ -1,164 +1,314 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263606AbTLAQZX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 11:25:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263645AbTLAQZX
+	id S263880AbTLAQqc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 11:46:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263883AbTLAQqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 11:25:23 -0500
-Received: from pop.gmx.de ([213.165.64.20]:63176 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263606AbTLAQZO (ORCPT
+	Mon, 1 Dec 2003 11:46:32 -0500
+Received: from holomorphy.com ([199.26.172.102]:25801 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263880AbTLAQqX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 11:25:14 -0500
-Date: Mon, 1 Dec 2003 17:25:13 +0100 (MET)
-From: "Juergen Oberhofer" <j.oberhofer@gmx.at>
+	Mon, 1 Dec 2003 11:46:23 -0500
+Date: Mon, 1 Dec 2003 08:46:19 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="========GMXBoundary307301070295913"
-Subject: wake_up_interruptible problem
-X-Priority: 3 (Normal)
-X-Authenticated: #2614397
-Message-ID: <30730.1070295913@www47.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
+Subject: Re: pgcl-2.6.0-test5-bk3-17
+Message-ID: <20031201164619.GI19856@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+References: <20031128041558.GW19856@holomorphy.com> <20031128072148.GY8039@holomorphy.com> <20031130164301.GK8039@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031130164301.GK8039@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME encapsulated multipart message -
-please use a MIME-compliant e-mail program to open it.
+On Sun, Nov 30, 2003 at 08:43:01AM -0800, William Lee Irwin III wrote:
+> @@ -107,6 +108,12 @@ enum fixed_addresses {
+>  	FIX_BTMAP_END = __end_of_permanent_fixed_addresses,
+>  	FIX_BTMAP_BEGIN = FIX_BTMAP_END + NR_FIX_BTMAPS - 1,
+>  	FIX_WP_TEST,
+> +#ifdef CONFIG_HIGHMEM
+> +	FIX_KMAP_BEGIN = __virt_to_fix(__fix_to_virt(FIX_WP_TEST+1) & PAGE_MASK) - PAGE_MMUCOUNT + 1,
+> +	FIX_KMAP_END = FIX_KMAP_BEGIN+((KM_TYPE_NR*NR_CPUS+1)*PAGE_MMUCOUNT)-1,
+> +	FIX_PKMAP_BEGIN = __virt_to_fix(__fix_to_virt(FIX_KMAP_END+1) & PKMAP_MASK) - PAGE_MMUCOUNT + 1,
+> +	FIX_PKMAP_END = FIX_PKMAP_BEGIN + (LAST_PKMAP+1)*PAGE_MMUCOUNT - 1,
+> +#endif
+>  	__end_of_fixed_addresses
 
-Dies ist eine mehrteilige Nachricht im MIME-Format -
-bitte verwenden Sie zum Lesen ein MIME-konformes Mailprogramm.
+BZZZT. kmap_atomic_to_pfn() et al all check vaddr < FIXADDR_START
+and FIXADDR_START == __fix_to_virt(__end_of_permanent_fixed_addresses);
+hence, plopping these guys down out by the FIX_BTMAP_*'s is bogus.
+Worse yet, vmallocspace will overlap the bastards since we have
+VMALLOC_END == FIXADDR_START - 2*MMUPAGE_SIZE.
 
---========GMXBoundary307301070295913
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Conservative and unnecessarily invasive fix (debug code and all) below.
 
-Hi,
-I'm trying to implement a timer, which on each timer interrupt wakes up
-every process that got blocked by a read call. 
-My problem is the following: if I'm insmod'ing the module (I've attached the
-file) the execution gets
-blocked on the wake_up_interruptible(&timer_queue); call. If I'm
-uncommenting this line everything
-goes smooth and the timer counts without problems. Does somebody have a
-hint? Some ideas?
-Regards
-Juergen
+I wonder if at some point I'll get buried under all the pr_debug()'s.
+I guess it might give ppl an idea of exactly how much I've had to debug
+over the course of all this, assuming anyone bothers looking. At any
+rate, this does have the distinct advantage of running userspace.
 
-void timerEvent(unsigned long arg)
-{
-    tick_count++;
-   wake_up_interruptible(&timer_queue);
-    timer.expires= jiffies + timer_delay;
-    add_timer(&timer);
-}
 
-int __init init_timer_module(void)
-{
-    /* Create the proc entry and make it readable and writeable by all -
-0666 */
-    timer_file = create_proc_entry("timer", 0666, NULL);
-    if (timer_file == NULL) {
-        return -ENOMEM;
-    }
+-- wli
 
-    /* Set timer_file fields */
-    timer_file->read_proc = &proc_read_timer;
-    timer_file->write_proc = &proc_write_timer;
-    timer_file->owner = THIS_MODULE;
 
-    SET_MODULE_OWNER(&timer_fops);
-
-    /* register /dev/tick */
-    register_chrdev(TICK_MAJOR, "tick", &timer_fops);
-
-    init_timer(&timer);
-    timer.expires= jiffies + timer_delay;
-    timer.function=timerEvent;
-    timer.data=42;
-    add_timer(&timer);
-
-    /* everything initialized */
-    printk(KERN_INFO "%s %s initialized\n", MODULE_NAME, MODULE_VERSION);
-    return 0;
-}
-
--- 
-HoHoHo! Seid Ihr auch alle schön brav gewesen?
-
-GMX Weihnachts-Special: Die 1. Adresse für Weihnachts-
-männer und -frauen! http://www.gmx.net/de/cgi/specialmail
-
-+++ GMX - die erste Adresse für Mail, Message, More! +++
---========GMXBoundary307301070295913
-Content-Type: text/plain; name="amu_timer.c"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="amu_timer.c"
-
-LyoNCiAqIGFtdV9tb2R1bGUuYyBpcyBiYXNlZCBvbiBwcm9jZnNfZXhhbXBsZS5jIGJ5IEVyaWsg
-TW91dy4NCiAqIEZvciBtb3JlIGluZm9ybWF0aW9uLCBwbGVhc2Ugc2VlIFRoZSBMaW51eCBLZXJu
-ZWwgUHJvY2ZzIEd1aWRlLA0KICogaHR0cDovL2tlcm5lbG5ld2JpZXMub3JnL2RvY3VtZW50cy9r
-ZG9jL3Byb2Nmcy1ndWlkZS9sa3Byb2Nmc2d1aWRlLmh0bWwNCiAqDQogKiBKLkouIEJvb3IsIEFp
-bVN5cyBidg0KICogICBodHRwOi8vd3d3LmFpbXN5cy5ubA0KICogICBqamJvb3JAYWltc3lzLm5s
-DQogKi8NCg0KLyoNCiR7Q1JPU1NfQ09NUElMRX1nY2MgLU8yIC1EX19LRVJORUxfXyAtRE1PRFVM
-RSBhbXVfdGltZXIuYyAtbyBhbXVfdGltZXIubw0KDQoqLw0KDQoNCiNpbmNsdWRlIDxsaW51eC9t
-b2R1bGUuaD4NCiNpbmNsdWRlIDxsaW51eC9rZXJuZWwuaD4NCiNpbmNsdWRlIDxsaW51eC9pbml0
-Lmg+DQojaW5jbHVkZSA8bGludXgvcHJvY19mcy5oPg0KI2luY2x1ZGUgPGxpbnV4L2ZzLmg+DQoj
-aW5jbHVkZSA8YXNtL3VhY2Nlc3MuaD4NCg0KI2RlZmluZSBUSUNLX01BSk9SICAgICAgMjQxDQoN
-CiNkZWZpbmUgTU9EVUxFX1ZFUlNJT04gIjAuMSINCiNkZWZpbmUgTU9EVUxFX05BTUUgInRpbWVy
-Ig0KDQpzdGF0aWMgc3RydWN0IHByb2NfZGlyX2VudHJ5ICp0aW1lcl9maWxlOw0KDQpzdGF0aWMg
-c3RydWN0IHRpbWVyX2xpc3QgdGltZXI7DQpzdGF0aWMgdW5zaWduZWQgbG9uZyB0aWNrX2NvdW50
-ID0gMDsNCnN0YXRpYyBpbnQgdGltZXJfZGVsYXkgPSAxOw0KDQpERUNMQVJFX1dBSVRfUVVFVUVf
-SEVBRCh0aW1lcl9xdWV1ZSk7DQoNCmludCB0aW1lcl9vcGVuKHN0cnVjdCBpbm9kZSogaW5vZGUs
-IHN0cnVjdCBmaWxlKiBmaWxwKTsNCnNzaXplX3QgdGltZXJfcmVhZCAoc3RydWN0IGZpbGUgKmZp
-bHAsIGNoYXIgKmJ1Ziwgc2l6ZV90IGNvdW50LCBsb2ZmX3QgKmZfcG9zKTsNCmludCB0aW1lcl9y
-ZWxlYXNlKHN0cnVjdCBpbm9kZSogaW5vZGUsIHN0cnVjdCBmaWxlKiBmaWxwKTsNCg0Kc3RhdGlj
-IHN0cnVjdCBmaWxlX29wZXJhdGlvbnMgdGltZXJfZm9wcyA9IHsNCiAgICBvcGVuOiB0aW1lcl9v
-cGVuLA0KICAgIHJlYWQ6IHRpbWVyX3JlYWQsDQogICAgcmVsZWFzZTogdGltZXJfcmVsZWFzZQ0K
-fTsNCg0Kc3RhdGljIGludCBwcm9jX3JlYWRfdGltZXIoY2hhciAqcGFnZSwgY2hhciAqKnN0YXJ0
-LCBvZmZfdCBvZmYsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGludCBjb3VudCwg
-aW50ICplb2YsIHZvaWQgKmRhdGEpDQp7DQogICAgaW50IGxlbjsNCiAgICBsZW4gPSBzcHJpbnRm
-KHBhZ2UsICJuciBvZiB0aW1lciB0aWNrczogJWx1XG4iLCB0aWNrX2NvdW50KTsNCiAgICByZXR1
-cm4gbGVuOw0KfQ0KDQoNCnN0YXRpYyBpbnQgcHJvY193cml0ZV90aW1lcihzdHJ1Y3QgZmlsZSAq
-ZmlsZSwgY29uc3QgY2hhciAqYnVmZmVyLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgdW5zaWduZWQgbG9uZyBjb3VudCwgdm9pZCAqZGF0YSkNCnsNCiAgICByZXR1cm4gMDsNCn0N
-Cg0Kdm9pZCB0aW1lckV2ZW50KHVuc2lnbmVkIGxvbmcgYXJnKQ0Kew0KICAgIHRpY2tfY291bnQr
-KzsNCiAgICB3YWtlX3VwX2ludGVycnVwdGlibGUoJnRpbWVyX3F1ZXVlKTsNCiAgICB0aW1lci5l
-eHBpcmVzPSBqaWZmaWVzICsgdGltZXJfZGVsYXk7DQogICAgYWRkX3RpbWVyKCZ0aW1lcik7DQp9
-DQoNCmludCBfX2luaXQgaW5pdF90aW1lcl9tb2R1bGUodm9pZCkNCnsNCiAgICAvKiBDcmVhdGUg
-dGhlIHByb2MgZW50cnkgYW5kIG1ha2UgaXQgcmVhZGFibGUgYW5kIHdyaXRlYWJsZSBieSBhbGwg
-LSAwNjY2ICovDQogICAgdGltZXJfZmlsZSA9IGNyZWF0ZV9wcm9jX2VudHJ5KCJ0aW1lciIsIDA2
-NjYsIE5VTEwpOw0KICAgIGlmICh0aW1lcl9maWxlID09IE5VTEwpIHsNCiAgICAgICAgcmV0dXJu
-IC1FTk9NRU07DQogICAgfQ0KICAgIA0KICAgIC8qIFNldCB0aW1lcl9maWxlIGZpZWxkcyAqLw0K
-ICAgIHRpbWVyX2ZpbGUtPnJlYWRfcHJvYyA9ICZwcm9jX3JlYWRfdGltZXI7DQogICAgdGltZXJf
-ZmlsZS0+d3JpdGVfcHJvYyA9ICZwcm9jX3dyaXRlX3RpbWVyOw0KICAgIHRpbWVyX2ZpbGUtPm93
-bmVyID0gVEhJU19NT0RVTEU7DQogICAgDQogICAgU0VUX01PRFVMRV9PV05FUigmdGltZXJfZm9w
-cyk7DQogICAgDQogICAgLyogcmVnaXN0ZXIgL2Rldi90aWNrICovDQogICAgcmVnaXN0ZXJfY2hy
-ZGV2KFRJQ0tfTUFKT1IsICJ0aWNrIiwgJnRpbWVyX2ZvcHMpOw0KICAgIA0KICAgIGluaXRfdGlt
-ZXIoJnRpbWVyKTsNCiAgICB0aW1lci5leHBpcmVzPSBqaWZmaWVzICsgdGltZXJfZGVsYXk7DQog
-ICAgdGltZXIuZnVuY3Rpb249dGltZXJFdmVudDsNCiAgICB0aW1lci5kYXRhPTQyOw0KICAgIGFk
-ZF90aW1lcigmdGltZXIpOw0KICAgIA0KICAgIC8qIGV2ZXJ5dGhpbmcgaW5pdGlhbGl6ZWQgKi8N
-CiAgICBwcmludGsoS0VSTl9JTkZPICIlcyAlcyBpbml0aWFsaXplZFxuIiwgTU9EVUxFX05BTUUs
-IE1PRFVMRV9WRVJTSU9OKTsNCiAgICByZXR1cm4gMDsNCn0NCg0Kc3RhdGljIHZvaWQgX19leGl0
-IGNsZWFudXBfdGltZXJfbW9kdWxlKHZvaWQpDQp7DQogICAgZGVsX3RpbWVyKCZ0aW1lcik7DQog
-ICAgcmVtb3ZlX3Byb2NfZW50cnkoInRpbWVyIiwgTlVMTCk7DQogICAgdW5yZWdpc3Rlcl9jaHJk
-ZXYoVElDS19NQUpPUiwgInRpY2siKTsNCiAgICANCiAgICBwcmludGsoS0VSTl9JTkZPICIlcyAl
-cyByZW1vdmVkXG4iLCBNT0RVTEVfTkFNRSwgTU9EVUxFX1ZFUlNJT04pOw0KfQ0KDQppbnQgdGlt
-ZXJfb3BlbihzdHJ1Y3QgaW5vZGUqIGlub2RlLCBzdHJ1Y3QgZmlsZSogZmlscCkNCnsNCiAgICBy
-ZXR1cm4gMDsNCn0NCg0KaW50IHRpbWVyX3JlbGVhc2Uoc3RydWN0IGlub2RlKiBpbm9kZSwgc3Ry
-dWN0IGZpbGUqIGZpbHApDQp7DQogICAgcmV0dXJuIDA7DQp9DQoNCnNzaXplX3QgdGltZXJfcmVh
-ZCAoc3RydWN0IGZpbGUgKmZpbHAsIGNoYXIgKmJ1Ziwgc2l6ZV90IGNvdW50LCBsb2ZmX3QgKmZf
-cG9zKQ0Kew0KICAgIC8qIGR1bW15IHJlYWQgdG8gd2FpdCBvbiBrZXJuZWwgdGltZXIgKi8NCiAg
-ICB3aGlsZSAoMSkgew0KICAgICAgIGludGVycnVwdGlibGVfc2xlZXBfb24oJnRpbWVyX3F1ZXVl
-KTsNCiAgICAgICBpZiAoc2lnbmFsX3BlbmRpbmcgKGN1cnJlbnQpKSAgLyogYSBzaWduYWwgYXJy
-aXZlZCAqLw0KICAgICAgICAgICByZXR1cm4gLUVSRVNUQVJUU1lTOyAvKiB0ZWxsIHRoZSBmcyBs
-YXllciB0byBoYW5kbGUgaXQgKi8NCiAgICAgICBlbHNlIGJyZWFrOw0KICAgIH0gDQogICAgcmV0
-dXJuIDA7DQp9DQoNCiNpZmRlZiBNT0RVTEUNCi8qIGhlcmUgYXJlIHRoZSBjb21waWxlciBtYWNy
-b3MgZm9yIG1vZHVsZSBvcGVyYXRpb24gKi8NCm1vZHVsZV9pbml0KGluaXRfdGltZXJfbW9kdWxl
-KTsNCm1vZHVsZV9leGl0KGNsZWFudXBfdGltZXJfbW9kdWxlKTsNCiNlbmRpZg0KDQpNT0RVTEVf
-QVVUSE9SKCJKLkouIEJvb3IsIEFpbVN5cyBidiIpOw0KTU9EVUxFX0RFU0NSSVBUSU9OKCJ0aW1l
-ciBtb2R1bGUiKTsNCk1PRFVMRV9MSUNFTlNFKCJHUEwiKTsNCg0KRVhQT1JUX05PX1NZTUJPTFM7
-DQoNCg==
-
---========GMXBoundary307301070295913--
-
+diff -prauN pgcl-2.6.0-test11-8/arch/i386/mm/highmem.c pgcl-2.6.0-test11-9/arch/i386/mm/highmem.c
+--- pgcl-2.6.0-test11-8/arch/i386/mm/highmem.c	2003-11-30 18:57:20.000000000 -0800
++++ pgcl-2.6.0-test11-9/arch/i386/mm/highmem.c	2003-12-01 08:29:54.000000000 -0800
+@@ -45,6 +45,9 @@ void *kmap_atomic(struct page *page, enu
+ 
+ 	idx = type + KM_TYPE_NR*smp_processor_id();
+ 	vaddr = __fix_to_virt(FIX_KMAP_END) + PAGE_SIZE*idx;
++	pr_debug("kmap_atomic(%d) has pfn 0x%lx, idx %d, vaddr 0x%lx\n",
++		type, page_to_pfn(page), idx, vaddr);
++	BUG_ON(vaddr % PAGE_SIZE);
+ 	BUG_ON(vaddr > __fix_to_virt(FIX_KMAP_BEGIN));
+ 	BUG_ON(vaddr < __fix_to_virt(FIX_KMAP_END));
+ 
+@@ -54,6 +57,9 @@ void *kmap_atomic(struct page *page, enu
+ 	pgd = pgd_offset_k(addr);
+ 	pmd = pmd_offset(pgd, addr);
+ 
++	/* barf on non-present pagetables */
++	BUG_ON(pmd_none(*pmd));
++
+ 	/* barf on highmem-allocated pagetables */
+ 	BUG_ON((pmd_val(*pmd) >> MMUPAGE_SHIFT) >= max_low_pfn);
+ 
+@@ -66,8 +72,13 @@ void *kmap_atomic(struct page *page, enu
+ 		BUG_ON(addr < vaddr);
+ 		BUG_ON(addr - vaddr >= PAGE_SIZE);
+ 		BUG_ON(!pfn_valid(pfn + k));
+-		if (pte_pfn(pte[k]) == pfn + k)
++		pr_debug("%s: mapping pfn 0x%lx at vaddr 0x%lx\n",
++				__FUNCTION__, pfn, vaddr);
++		if (pte_pfn(pte[k]) == pfn + k) {
++			pr_debug("%s: skipping already-set kmap_atomic() pte\n",
++				__FUNCTION__);
+ 			continue;
++		}
+ 
+ 		set_pte(&pte[k], pfn_pte(pfn + k, kmap_prot));
+ 		__flush_tlb_one(addr);
+@@ -86,7 +97,7 @@ void kunmap_atomic(void *kvaddr, enum km
+ 	pmd_t *pmd;
+ 	pte_t *pte;
+ 
+-	if (vaddr < FIXADDR_START) { // FIXME
++	if (vaddr < __fix_to_virt(__end_of_fixed_addresses)) { // FIXME
+ 		dec_preempt_count();
+ 		return;
+ 	}
+@@ -106,7 +117,9 @@ void kunmap_atomic(void *kvaddr, enum km
+ 	for (k = 0; k < PAGE_MMUCOUNT; ++k, vaddr += MMUPAGE_SIZE) {
+ 		pte_clear(&pte[k]);
+ 		__flush_tlb_one(vaddr);
+-	}
++	} else
++		pr_debug("%s: skipping already-set kmap_atomic() pte\n",
++				__FUNCTION__);
+ 
+ 	dec_preempt_count();
+ }
+@@ -119,17 +132,18 @@ unsigned long kmap_atomic_to_pfn(void *p
+ 	pmd_t *pmd;
+ 	pte_t *pte;
+ 
+-	if (vaddr < FIXADDR_START)
++	/*
++	 * Not for vmallocspace!!!
++	 */
++	BUG_ON(vaddr >= VMALLOC_START && vaddr < __VMALLOC_END);
++	if (vaddr < VMALLOC_START)
+ 		return __pa(vaddr)/MMUPAGE_SIZE;
+ 
+ 	pgd = pgd_offset_k(vaddr);
+ 	pmd = pmd_offset(pgd, vaddr);
++	BUG_ON(pmd_none(*pmd));
+ 	pte = pte_offset_kernel(pmd, vaddr);
+ 
+-	/*
+-	 * unsigned long idx = virt_to_fix(vaddr);
+-	 * pte = &kmap_pte[idx*PAGE_MMUCOUNT];
+-	 */
+ 	return pte_pfn(*pte);
+ }
+ 
+@@ -145,11 +159,15 @@ void kmap_atomic_sg(pte_t *ptes[], pte_a
+ 	inc_preempt_count();
+ 	idx = type + KM_TYPE_NR*smp_processor_id();
+ 	base = vaddr = __fix_to_virt(FIX_KMAP_END) + PAGE_SIZE*idx;
++	pr_debug("kmap_atomic_sg(%d) has idx %d, vaddr 0x%lx\n",
++		type, idx, vaddr);
++	BUG_ON(vaddr % PAGE_SIZE);
+ 	BUG_ON(vaddr > __fix_to_virt(FIX_KMAP_BEGIN));
+ 	BUG_ON(vaddr < __fix_to_virt(FIX_KMAP_END));
+ 
+ 	pgd = pgd_offset_k(vaddr);
+ 	pmd = pmd_offset(pgd, vaddr);
++	BUG_ON(pmd_none(*pmd));
+ 	pte = pte_offset_kernel(pmd, vaddr);
+ 	for (k = 0; k < PAGE_MMUCOUNT; ++k, vaddr += MMUPAGE_SIZE) {
+ 		unsigned long pfn = paddrs[k]/MMUPAGE_SIZE;
+@@ -163,6 +181,8 @@ void kmap_atomic_sg(pte_t *ptes[], pte_a
+ 		BUG_ON((u32)ptes[k] < base);
+ 		BUG_ON((u32)ptes[k] - base >= PAGE_SIZE);
+ 
++		pr_debug("%s: mapping pfn 0x%lx at vaddr 0x%lx\n",
++				__FUNCTION__, pfn, vaddr);
+ 		if (pte_pfn(pte[k]) != pfn) {
+ 			set_pte(&pte[k], pfn_pte(pfn, kmap_prot));
+ 			__flush_tlb_one(vaddr);
+diff -prauN pgcl-2.6.0-test11-8/arch/i386/mm/init.c pgcl-2.6.0-test11-9/arch/i386/mm/init.c
+--- pgcl-2.6.0-test11-8/arch/i386/mm/init.c	2003-11-30 12:45:48.000000000 -0800
++++ pgcl-2.6.0-test11-9/arch/i386/mm/init.c	2003-12-01 01:29:26.000000000 -0800
+@@ -212,11 +212,6 @@ EXPORT_SYMBOL(kmap_prot);
+ 
+ #define kmap_init()	do { kmap_prot = PAGE_KERNEL; } while (0)
+ 
+-void __init permanent_kmaps_init(pgd_t *pgd_base)
+-{
+-	page_table_range_init(PKMAP_BASE, PKMAP_BASE + PAGE_SIZE*LAST_PKMAP, pgd_base);
+-}
+-
+ void __init one_highpage_init(struct page *page, unsigned long pfn, int bad_ppro)
+ {
+ 	if (page_is_ram(pfn) && !(bad_ppro && page_kills_ppro(pfn))) {
+@@ -243,7 +238,6 @@ extern void set_highmem_pages_init(int);
+ 
+ #else
+ #define kmap_init() do { } while (0)
+-#define permanent_kmaps_init(pgd_base) do { } while (0)
+ #define set_highmem_pages_init(bad_ppro) do { } while (0)
+ #endif /* CONFIG_HIGHMEM */
+ 
+@@ -288,8 +282,6 @@ static void __init pagetable_init (void)
+ 	vaddr = __fix_to_virt(__end_of_fixed_addresses - 1) & PMD_MASK;
+ 	page_table_range_init(vaddr, 0, pgd_base);
+ 
+-	permanent_kmaps_init(pgd_base);
+-
+ #ifdef CONFIG_X86_PAE
+ 	/*
+ 	 * Add low memory identity-mappings - SMP needs it when
+diff -prauN pgcl-2.6.0-test11-8/include/asm-generic/rmap.h pgcl-2.6.0-test11-9/include/asm-generic/rmap.h
+--- pgcl-2.6.0-test11-8/include/asm-generic/rmap.h	2003-11-27 21:55:19.000000000 -0800
++++ pgcl-2.6.0-test11-9/include/asm-generic/rmap.h	2003-12-01 07:21:48.000000000 -0800
+@@ -57,6 +57,8 @@ static inline void pgtable_add_rmap(stru
+ 	page->mapping = (void *)mm;
+ 	page->index = address & ~(VIRT_AREA_MAPPED_PER_PTE_PAGE - 1);
+ 	inc_page_state(nr_page_table_pages);
++	pr_debug("%s: installing pte page at pfn 0x%lx at uvaddr 0x%lx\n",
++			__FUNCTION__, page_to_pfn(page), page->index);
+ }
+ 
+ static inline void pgtable_remove_rmap(struct page * page)
+@@ -75,6 +77,8 @@ static inline void pgtable_remove_rmap(s
+ 			BUG_ON(atomic_read(&page->count) <= 0);
+ 	}
+ 
++	pr_debug("%s: removing pte page at pfn 0x%lx at uvaddr 0x%lx\n",
++			__FUNCTION__, page_to_pfn(page), page->index);
+ 	page->mapping = NULL;
+ 	page->index = 0;
+ 	dec_page_state(nr_page_table_pages);
+@@ -109,24 +113,36 @@ static inline unsigned long ptep_to_addr
+ 	unsigned long kvaddr = (unsigned long)ptep;
+ 	unsigned long swpage_voff = kvaddr/sizeof(pte_t);
+ 
++	pr_debug("entered ptep_to_address(%p)\n", ptep);
++	pr_debug("swpage_voff = 0x%lx\n", swpage_voff);
++
+ 	if (1) {
+ 		pgd_t *pgd;
+ 		pmd_t *pmd;
+ 		pte_t *pte;
+-		unsigned long pfn;
++		unsigned long vaddr, pfn;
+ 		struct page *page;
+ 
+ 		pgd = pgd_offset_k(kvaddr);
++		pr_debug("ptep_to_address() saw pgd mapping ptep at %p\n", pgd);
+ 		pmd = pmd_offset(pgd, kvaddr);
++		pr_debug("ptep_to_address() saw pmd mapping ptep at %p\n", pmd);
+ 		pte = pte_offset_kernel(pmd, kvaddr);
++		pr_debug("ptep_to_address() saw pte mapping ptep at %p\n", pte);
+ 		pfn = pte_pfn(*pte);
++		pr_debug("ptep_to_address() saw ptep held in pfn 0x%lx\n",
++			pfn);
++		if (pfn != kmap_atomic_to_pfn(ptep))
++			pr_debug("pfn doesn't match kmap_atomic_to_pfn()!\n");
+ 		page = pfn_to_page(pfn);
+-		return page->index + PMD_SIZE*(pfn % PAGE_MMUCOUNT)
++		vaddr = page->index + PMD_SIZE*(pfn % PAGE_MMUCOUNT)
+ 			+ MMUPAGE_SIZE*(swpage_voff % PTRS_PER_PTE);
++		pr_debug("ptep_to_address() returning 0x%lx\n", vaddr);
++		return vaddr;
+ 	} else {
+ 		struct page *page = pfn_to_page(kmap_atomic_to_pfn(ptep));
+ 
+-		WARN_ON(kvaddr > (unsigned long)(-PAGE_SIZE));
++		WARN_ON(kvaddr > (unsigned long)(-MMUPAGE_SIZE));
+ 
+ 		swpage_voff %= MMUPAGES_MAPPED_PER_PTE_PAGE;
+ 		/* WARN_ON(swpage_voff != pfn - page_to_pfn(page)); */
+diff -prauN pgcl-2.6.0-test11-8/include/asm-i386/fixmap.h pgcl-2.6.0-test11-9/include/asm-i386/fixmap.h
+--- pgcl-2.6.0-test11-8/include/asm-i386/fixmap.h	2003-11-30 18:57:20.000000000 -0800
++++ pgcl-2.6.0-test11-9/include/asm-i386/fixmap.h	2003-12-01 07:33:29.000000000 -0800
+@@ -69,11 +69,12 @@
+  * worth of virtualspace.
+  */
+ #define FIXADDR_TOP	(-MMUPAGE_SIZE)
+-#define __FIXADDR_SIZE	(__end_of_permanent_fixed_addresses << MMUPAGE_SHIFT)
++#define __FIXADDR_SIZE	(__end_of_fixed_addresses << MMUPAGE_SHIFT)
+ #define FIXADDR_START	(FIXADDR_TOP - __FIXADDR_SIZE)
+ 
+ #define __fix_to_virt(x)	(FIXADDR_TOP - ((x) << MMUPAGE_SHIFT))
+ #define __virt_to_fix(x)	((FIXADDR_TOP - ((x) & MMUPAGE_MASK)) >> MMUPAGE_SHIFT)
++#define __fixmap_align(x,a)	__virt_to_fix(__fix_to_virt(x) & (a))
+ 
+ enum fixed_addresses {
+ 	/* reserved pte's for temporary kernel mappings */
+@@ -102,18 +103,19 @@ enum fixed_addresses {
+ 	FIX_ACPI_BEGIN,
+ 	FIX_ACPI_END = FIX_ACPI_BEGIN + FIX_ACPI_PAGES - 1,
+ #endif
++#ifdef CONFIG_HIGHMEM
++	FIX_HIGHMEM_HOLE,
++	FIX_KMAP_BEGIN = __fixmap_align(FIX_HIGHMEM_HOLE+1, PAGE_MASK) + 1,
++	FIX_KMAP_END = FIX_KMAP_BEGIN + KM_TYPE_NR*NR_CPUS*PAGE_MMUCOUNT - 1,
++	FIX_PKMAP_BEGIN = __fixmap_align(FIX_KMAP_END+1, PKMAP_MASK) + 1,
++	FIX_PKMAP_END = FIX_PKMAP_BEGIN + LAST_PKMAP*PAGE_MMUCOUNT - 1,
++#endif
+ 	__end_of_permanent_fixed_addresses,
+ 	/* temporary boot-time mappings, used before ioremap() is functional */
+ #define NR_FIX_BTMAPS	16
+ 	FIX_BTMAP_END = __end_of_permanent_fixed_addresses,
+ 	FIX_BTMAP_BEGIN = FIX_BTMAP_END + NR_FIX_BTMAPS - 1,
+ 	FIX_WP_TEST,
+-#ifdef CONFIG_HIGHMEM
+-	FIX_KMAP_BEGIN = __virt_to_fix(__fix_to_virt(FIX_WP_TEST+1) & PAGE_MASK) - PAGE_MMUCOUNT + 1,
+-	FIX_KMAP_END = FIX_KMAP_BEGIN+((KM_TYPE_NR*NR_CPUS+1)*PAGE_MMUCOUNT)-1,
+-	FIX_PKMAP_BEGIN = __virt_to_fix(__fix_to_virt(FIX_KMAP_END+1) & PKMAP_MASK) - PAGE_MMUCOUNT + 1,
+-	FIX_PKMAP_END = FIX_PKMAP_BEGIN + (LAST_PKMAP+1)*PAGE_MMUCOUNT - 1,
+-#endif
+ 	__end_of_fixed_addresses
+ };
+ 
+diff -prauN pgcl-2.6.0-test11-8/include/asm-i386/pgtable.h pgcl-2.6.0-test11-9/include/asm-i386/pgtable.h
+--- pgcl-2.6.0-test11-8/include/asm-i386/pgtable.h	2003-11-29 00:02:03.000000000 -0800
++++ pgcl-2.6.0-test11-9/include/asm-i386/pgtable.h	2003-12-01 07:26:11.000000000 -0800
+@@ -81,7 +81,8 @@ void paging_init(void);
+  * The vmalloc() routines leaves a hole of 4kB between each vmalloced
+  * area for the same reason. ;)
+  */
+-#define VMALLOC_END	(FIXADDR_START-2*MMUPAGE_SIZE)
++#define __VMALLOC_END	__fix_to_virt(__end_of_fixed_addresses)
++#define VMALLOC_END	((__VMALLOC_END-2*MMUPAGE_SIZE) & PMD_MASK)
+ #define __VMALLOC_START	(VMALLOC_END - VMALLOC_RESERVE - 2*MMUPAGE_SIZE)
+ #define VMALLOC_START							\
+ 	(high_memory							\

@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271822AbRHUSta>; Tue, 21 Aug 2001 14:49:30 -0400
+	id <S271819AbRHUSyU>; Tue, 21 Aug 2001 14:54:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271819AbRHUStL>; Tue, 21 Aug 2001 14:49:11 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:7913 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S271815AbRHUStE>;
-	Tue, 21 Aug 2001 14:49:04 -0400
-Date: Tue, 21 Aug 2001 19:49:12 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: David Wagner <daw@mozart.cs.berkeley.edu>, linux-kernel@vger.kernel.org
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: /dev/random in 2.4.6
-Message-ID: <2352526043.998423352@[10.132.112.53]>
-In-Reply-To: <9lu91c$n5v$3@abraham.cs.berkeley.edu>
-In-Reply-To: <9lu91c$n5v$3@abraham.cs.berkeley.edu>
-X-Mailer: Mulberry/2.1.0b3 (Win32)
+	id <S271823AbRHUSyK>; Tue, 21 Aug 2001 14:54:10 -0400
+Received: from beppo.feral.com ([192.67.166.79]:64523 "EHLO beppo.feral.com")
+	by vger.kernel.org with ESMTP id <S271819AbRHUSyF>;
+	Tue, 21 Aug 2001 14:54:05 -0400
+Date: Tue, 21 Aug 2001 11:53:48 -0700 (PDT)
+From: Matthew Jacob <mjacob@feral.com>
+Reply-To: <mjacob@feral.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Jes Sorensen <jes@sunsite.dk>, "David S. Miller" <davem@redhat.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Qlogic/FC firmware
+In-Reply-To: <E15ZGYc-0008SM-00@the-village.bc.nu>
+Message-ID: <20010821115155.X23686-100000@wonky.feral.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No, let's not.  If the attacker has a SHA-1 exploit, then all your
-> SSL and IPSEC and other implementations are insecure, and they are
-> probably the only reason you're using /dev/random anyway.
 
-Fair point, though for some applications one could conceivably be
-using a different hash, and there are applications where breaking
-the hash gives you less than breaking the encryption.
 
-> Instead, let's assume SHA-1 is good, since it probably is, and since
-> you have to assume this anyway for the rest of your system.
+On Tue, 21 Aug 2001, Alan Cox wrote:
 
-But if we assume SHA-1 is good, then you might as well drop all the
-entropy measurement and blocking logic, and /dev/urandom is
-fine for /ANY/ application. Furthermore, if SHA-1 is good,
-Robert's patch does no harm, but makes existing applications
-work.
+> >
+> > >>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> >
+> > >> If the firmware was out of date, update it to a known "Qlogic stamp
+> > >> of approval" version.
+> >
+> > Alan> That requires sorting licensing out with Qlogic. I've talked to
+> > Alan> them usefully about other stuff so I'll pursue it for a seperate
+> > Alan> firmware loader module.
+> >
+> > Well getting firmware out of them tends to be up and down.
+> >
+> > However I just looked through the QLogic v4.27 provided driver from
+> > their web site and it does in fact included firmware with a GPL
+> > license.
 
-IE if we assume SHA-1 is unbreakable, Robert's patch is harmless.
-If we assume SHA-1 /is/ breakable, Robert's patch is harmless
-if, and only if, in situations where it is configured on,
-it doesn't overestimate the entropy network events provide
-(sometimes this may be 0, in which case don't switch it on).
+Interesting- I should have checked- they didn't use to have GPL on the f/w.
+Earlier driver versions didn't! Oops!
 
---
-Alex Bligh
+-matt
+
+

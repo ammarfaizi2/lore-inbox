@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313724AbSDPPub>; Tue, 16 Apr 2002 11:50:31 -0400
+	id <S313719AbSDPPvR>; Tue, 16 Apr 2002 11:51:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313722AbSDPPu3>; Tue, 16 Apr 2002 11:50:29 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4112 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313724AbSDPPtb>; Tue, 16 Apr 2002 11:49:31 -0400
-Date: Tue, 16 Apr 2002 08:46:31 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>,
-        David Lang <david.lang@digitalinsight.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.8 IDE 36
-In-Reply-To: <20020416172434.A1180@ucw.cz>
-Message-ID: <Pine.LNX.4.33.0204160844090.1167-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313722AbSDPPue>; Tue, 16 Apr 2002 11:50:34 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:64675 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S313719AbSDPPsx>;
+	Tue, 16 Apr 2002 11:48:53 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 16 Apr 2002 17:48:44 +0200 (MEST)
+Message-Id: <UTC200204161548.g3GFmiD07271.aeb@smtp.cwi.nl>
+To: DCox@SnapServer.com, linux-kernel@vger.kernel.org,
+        linux-usb-devel@lists.sourceforge.net, mdharm-usb@one-eyed-alien.net
+Subject: [NEW] A SDDR-09 driver
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A moment ago I have made available on ftp.XX.kernel.org
+under linux/kernel/people/aeb/sddr09.c a new SDDR-09 driver,
+namely one that not only reads but also writes.
 
-On Tue, 16 Apr 2002, Vojtech Pavlik wrote:
+It works for me.
+
+Will submit some version for inclusion in 2.5 next week
+or so. Feedback is welcome.
+
+Andries
+
+[On the site mentioned one finds sddr09.c and sddr09.h.
+Now that I think about it, there are a few other small
+changes nearby:
+
+diff -r /linux/2.5/linux-2.5.8/linux/drivers/usb/storage/initializers.h ./initializers.h
+39a40
+> #include <linux/config.h>
+44a46,49
 > 
-> Note that the above commands are no help in case of plugging TIVO
-> drive into a PC. While they assure that all ext2 filesystems are LE on
-> the media and all sun disklabels are BE on the media, still if you plug
-> in a BE ext2 into the system (or a BE PC partition table), the kernel
-> won't understand them.
+> #ifdef CONFIG_USB_STORAGE_SDDR09
+> int sddr09_init(struct us_data *us);
+> #endif
 
-Please use a the network block device, and teach the ndb deamon to just 
-byteswap each word.
+diff -r /linux/2.5/linux-2.5.8/linux/drivers/usb/storage/unusual_devs.h ./unusual_devs.h
+133d132
+< #endif
+139c138
+<               US_SC_SCSI, US_PR_DPCM_USB, NULL, 
+---
+>               US_SC_SCSI, US_PR_DPCM_USB, sddr09_init,
+140a140
+> #endif
 
-Problem solved, WITHOUT keeping bugs in the IDE driver.
-
-Oh, and performance improved at the same time.
-
-What are you guys thinging about? There are two rules here:
- - optimize for the common case
- - keep the code clean.
-
-Both of them say that Martin is 100% right.
-
-		Linus
-
+]

@@ -1,72 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284599AbRLUOxI>; Fri, 21 Dec 2001 09:53:08 -0500
+	id <S284584AbRLUOtS>; Fri, 21 Dec 2001 09:49:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284596AbRLUOw7>; Fri, 21 Dec 2001 09:52:59 -0500
-Received: from olinz-dsl-1316.utaonline.at ([212.152.239.38]:43758 "EHLO
-	falke.mail") by vger.kernel.org with ESMTP id <S284587AbRLUOwr>;
-	Fri, 21 Dec 2001 09:52:47 -0500
-Message-ID: <3C2349C8.1DF70E5F@falke.mail>
-Date: Fri, 21 Dec 2001 15:40:08 +0100
-From: Thomas Winischhofer <tw@webit.com>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-CH,sv
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: @Linus, Marcello, (Alan?) (regards sisfb)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-MDRemoteIP: 10.0.0.13
-X-Return-Path: tw@webit.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+	id <S284596AbRLUOtI>; Fri, 21 Dec 2001 09:49:08 -0500
+Received: from mout01.kundenserver.de ([195.20.224.132]:62521 "EHLO
+	mout01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S284573AbRLUOsz>; Fri, 21 Dec 2001 09:48:55 -0500
+User-Agent: Microsoft-Outlook-Express-Macintosh-Edition/5.02.2106
+Date: Fri, 21 Dec 2001 15:48:29 +0100
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in
+	Configure.help.
+From: Rene Engelhard <mail@rene-engelhard.de>
+To: <linux-kernel@vger.kernel.org>
+Message-ID: <B8490A4D.4093%mail@rene-engelhard.de>
+In-Reply-To: <1008945627.6599.5.camel@localhost.localdomain>
+Mime-version: 1.0
+Content-type: text/plain; charset="US-ASCII"
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Reid Hekman wrote:
 
-Hi, as you might know, the sisfb driver did not work correctly on
-systems with SiS630 and LCD panels, i.e laptops. The problem was the
-type of video bridge used, which is LVDS in most cases.
+> On Fri, 2001-12-21 at 06:50, Rene Engelhard wrote:
+>>>> Why? For instance a millibyte/s might be a hearbeat across a LAN every
+>>>> hour or so or it might be a control traffic requirement for a deep space
+>>>> probe. You might not have an immediate use for the term but it has a
+>>>> specific meaning - and certainly isn't "absurd" (see definition on
+>>>> http://www.dict.org).
+>>> 
+>>> So, is it 1/1024 or 1/1000 bytes ?  :-)
+>> 
+>> 1/1024. Because we are talking about byte.
+> 
+> What does bytes have to do with anything? Is it
+> 1/(2^3 * 10^7) or 1/(2^3 * 2^7)? We're talking about expressing a number
+> of "bytes"; terms of the base number system don't have any bearing --
+> and that's the problem. RAM and addressing are restricted to expressions
 
-The current driver contained in the kernel can't even work in theory, 
-because 
+Right.
 
-1) the tables that should have contained necessary data for refresh and
-timing were empty, and
+8 Bit = 1 Byte
+1024 Byte = 1 KB
+1024 KB = 1 MB
+1024 MB ...
 
-2) this data depends on the type of LCD panels attached and is not the
-same on all machines.
+So we are talking about that, beacuse the X-Byte is defined as 1024 and not
+as 1000 of the previous step.
 
-So, the whole theory with this driver is a failure.
+> in terms of binary numbers, as in 2^10, 2^20, etc. Hard drive
+> manufacturers feel it's neccessary to express storage in terms of base
+> 10 numbers of bytes, even though a sector is 2^9 bytes. In networking,
+> absolute numbers of bits on the wire are whats important. Though for
+> some reason telecom engineers have pinned megabit as 1,024,000 bits.
+> Experienced CS people can glean the proper definition from context, but
+> the terms should really lend themselves to accurate definition all the
+> time. If I just say off the cuff that I'm going to send you a megabyte
+> of data, do I mean 1,000,000 bytes, 1,048,576 bytes, or 1,024,000 bytes?
 
-I therefore re-wrote (and commented) the sisfb driver to read out the
-BIOS data, instead of its very own tables. On non-SiS630 or non-LVDS
-systems, the old code is used.
+What _you_ mean can not be determied from me.
+But *I* would mean 1.048.574, otherwise I would say the 9xxx number or say
+nearly 1 MB.
 
->From the feedback I got, I know that the driver is working in about 50%
-of the SiS630-LVDS-machines out there, depending on what revision of the
-SiS630 and LCD panel being used. This is 50% more than before!
+> With the new measures those would be a megabyte, a mebibyte, and 1,024
+> kilobytes respectively.
 
-The driver has been tested on systems without a video bridge as well
-(ie. desktop machines) and it works there as well. This means I didn't
-break it for other configurations.
-
-The dark side: The driver is - when used on SiS630 and LVDS - not
-LinuxBIOS-capable (because it depends on data stored in the SiS-BIOS)
-
-Are you willing to include the new driver in the kernel?
-
-It's available here: http://members.aon.at/~twinisch/sisfb.tar.gz
-
-I have not made a patch, because this patch would be about as twice as
-huge than the whole code. But if you insist, I could make a patch as
-well. The code is based on 2.4.16. AFAIK there were no changes to sisfb
-up to current 17-rc2. The archive is to be extracted over the existing
-code while in /usr/src/linux/drivers/video/sis/
-
-Thomas
-
--- 
-Thomas Winischhofer
-Vienna/Austria                  Check it out:
-mailto:tw@webit.com              http://www.webit.com/tw
+That's the sense of them.
+ 
+Rene
 

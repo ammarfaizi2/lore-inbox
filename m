@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272540AbRISRl3>; Wed, 19 Sep 2001 13:41:29 -0400
+	id <S273186AbRISRwK>; Wed, 19 Sep 2001 13:52:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274122AbRISRlT>; Wed, 19 Sep 2001 13:41:19 -0400
-Received: from mhw.ulib.iupui.edu ([134.68.164.123]:57030 "EHLO
-	mhw.ULib.IUPUI.Edu") by vger.kernel.org with ESMTP
-	id <S272540AbRISRlO>; Wed, 19 Sep 2001 13:41:14 -0400
-Date: Wed, 19 Sep 2001 12:41:38 -0500 (EST)
-From: "Mark H. Wood" <mwood@IUPUI.Edu>
-X-X-Sender: <mwood@mhw.ULib.IUPUI.Edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: disregard: Re: ide zip 100 won't mount
-In-Reply-To: <courier.3BA68362.00004D02@ny.email-scan.com>
-Message-ID: <Pine.LNX.4.33.0109191239090.12151-100000@mhw.ULib.IUPUI.Edu>
+	id <S274123AbRISRwB>; Wed, 19 Sep 2001 13:52:01 -0400
+Received: from air-1.osdlab.org ([65.201.151.5]:52233 "EHLO
+	osdlab.pdx.osdl.net") by vger.kernel.org with ESMTP
+	id <S273186AbRISRvw>; Wed, 19 Sep 2001 13:51:52 -0400
+Message-ID: <3BA8DAE1.4F1E2195@osdlab.org>
+Date: Wed, 19 Sep 2001 10:50:25 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>, Alan <alan@lxorguk.ukuu.org.uk>,
+        crutcher+kernel@datastacks.com, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Magic SysRq +# in 2.4.9-ac/2.4.10-pre12
+In-Reply-To: <3BA8C01D.79FBD7C3@osdlab.org> <20010919193105.E7179@arthur.ubicom.tudelft.nl> <3BA8D723.51F17211@osdlab.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Sep 2001, Sam Varshavchik wrote:
-> Joseph Cheek writes:
-> > hmm, i went into windows *one more time* just to make sure it was still
-> > working, and not a hardware problem.  well... looks like it doesn't work
-> > in windows either.  must be hardware.
+"Randy.Dunlap" wrote:
+> 
+> Erik Mouw wrote:
 > >
-> > funny thing it shows up in dmesg and in "My Computer", just can't read
-> > from it.
->
-> That's pretty much what the sense codes below did indicate - media problem.
+> > On Wed, Sep 19, 2001 at 08:56:13AM -0700, Randy.Dunlap wrote:
+> > > I have an IBM model KB-9910 keyboard.  When I use
+> > > Alt+SysRQ+number (number: 0...9) on it to change the
+> > > console loglevel, only keys 5 and 6 have the desired
+> > > effect.  I used showkey -s to view the scancodes from
+> > > the other <number> keys, but showkey didn't display
+> > > anything for them.  Any other suggestions?
+> >
+> > Same over here with an IBM PS/2 keyboard that originally came with an
+> > IBM PS2 model 55SX. The IBM keyboard is connected to an Asus M8300
+> > laptop. The keyboard of that laptop has the interesting "feature" that
+> > Alt-SysRQ-m sets the loglevel to 0, and Alt-SysRQ-[suob] also set the
+> > loglevel to a different value instead of doing their job.
+> 
+> I'm having this (my same) problem on a different test system/keyboard,
+> and I'm beginning to think that it's not a keyboard problem,
+> but I don't have any evidence of that one way or the other.
+> 
+> I've tested 2.4.2, 2.4.5, 2.4.6, 2.4.7, 2.4.9, and 2.4.10-pre,
+> and all exhibit the same problem.
 
-For future reference, is there any sort of tool that will decode these
-magic numbers, since the driver doesn't do it for us?  It ought to cut
-down on the number of posts beginning, "my IDE driver began speaking in
-tongues, what is it trying to tell me?"
+My Logitech Y-SG13 keyboard works nicely with Alt+SysRq+#,
+so I won't go after other ghosts.
 
--- 
-Mark H. Wood, Lead System Programmer   mwood@IUPUI.Edu
-Make a good day.
-
+~Randy

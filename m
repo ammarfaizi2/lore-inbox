@@ -1,70 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVAGRLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVAGRMh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbVAGRLP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 12:11:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVAGRLP
+	id S261351AbVAGRMh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 12:12:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVAGRMg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 12:11:15 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:33217 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261345AbVAGRLB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 12:11:01 -0500
-Subject: Re: Make pipe data structure be a circular list of pages, rather
-	than
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Oleg Nesterov <oleg@tv-sign.ru>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0501070735000.2272@ppc970.osdl.org>
-References: <41DE9D10.B33ED5E4@tv-sign.ru>
-	 <Pine.LNX.4.58.0501070735000.2272@ppc970.osdl.org>
+	Fri, 7 Jan 2005 12:12:36 -0500
+Received: from baythorne.infradead.org ([81.187.226.107]:59292 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S261351AbVAGRMR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 12:12:17 -0500
+Subject: Re: do_IRQ: stack overflow: 872..
+From: David Woodhouse <dwmw2@infradead.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Crazy AMD K7 <snort2004@mail.ru>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, Stephen Hemminger <shemminger@osdl.org>
+In-Reply-To: <p73zn0ccaee.fsf@verdi.suse.de>
+References: <1131604877.20041218092730@mail.ru.suse.lists.linux.kernel>
+	 <p73zn0ccaee.fsf@verdi.suse.de>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105113998.24187.361.camel@localhost.localdomain>
+Date: Fri, 07 Jan 2005 17:05:59 +0000
+Message-Id: <1105117559.11753.34.camel@baythorne.infradead.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 07 Jan 2005 16:06:40 +0000
+X-Mailer: Evolution 2.0.2 (2.0.2-3.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-01-07 at 16:17, Linus Torvalds wrote:
-> it a "don't do that then", and I'll wait to see if people do. I can't
-> think of anything that cares about performance that does that anyway:  
-> becuase system calls are reasonably expensive regardless, anybody who
-> cares at all about performance will have buffered things up in user space.
-
-Actually I found a load of apps that do this but they don't care about
-performance. Lots of people have signal handlers that just do
-
-	write(pipe_fd, &signr, sizeof(signr))
-
-so they can drop signalled events into their event loops
-
-
-> > May be it make sense to add data to the last allocated page
-> > until buf->len > PAGE_SIZE ?
+On Sat, 2004-12-18 at 08:50 +0100, Andi Kleen wrote:
+> It's not really an oops, just a warning that stack space got quiet
+> tight.
 > 
-> The reason I don't want to coalesce is that I don't ever want to modify a
-> page that is on a pipe buffer (well, at least not through the pipe buffe
+> The problem seems to be that the br netfilter code is nesting far too
+> deeply and recursing several times. Looks like a design bug to me,
+> it shouldn't do that.
 
-If I can't write 4096 bytes down it one at a time without blocking from
-an empty pipe then its not a pipe in the eyes of the Unix world and the
-standards.
+I don't think it's recursing -- I think the stack trace is just a bit
+noisy. The problem is that the bridge code, especially with br_netfilter
+in the equation, is implicated in code paths which are just _too_ deep.
+This happens when you're bridging packets received in an interrupt while
+you were deep in journalling code, and it's also been seen with a call
+trace something like nfs->sunrpc->ip->bridge->br_netfilter.
 
-> With this organization, a pipe ends up being able to act as a "conduit"  
-> for pretty much any data, including some high-bandwidth things like video
-> streams, where you really _really_ don't want to copy the data. So the 
-> next stage is:
+One option might be to make br_dev_xmit() just queue the packet rather
+than trying to deliver it to all the slave devices immediately. Then the
+actual retransmission can be handled from a context where we're _not_
+short of stack; perhaps from a dedicated kernel thread. 
 
-The data copying impact isn't very high even if it is just done for the
-pipe() case for standards behaviour. You end up with one page that is
-written too and then sent and then freed rather than many.
+Unfortunately that approach would introduce a lot of latency on all
+packets we pass. Another option would be to have all architectures
+provide a stack_available() function and for br_dev_xmit() to queue the
+packet only if we're short of stack, while still sending most packets
+immediately. 
 
-Possibly what should be done is to not use pipe() for this at all but to
-create a more explicit object so we don't confuse existing code and code
-that refuses buffers heavily (plenty of that around). Add "sewer()"[1]
-or "conduit()" and we don't have to change the behaviour of the Unix
-pipe world and risk screwing up apps, and you get to not to have to
-write grungy corner cases to ruin the plan.
+Proof of concept below; obviously the stack_available() is an evil hack
+and would need to be done more sanely. Comments?
+
+===== net/bridge/br_device.c 1.17 vs edited =====
+--- 1.17/net/bridge/br_device.c	2004-07-29 22:40:51 +01:00
++++ edited/net/bridge/br_device.c	2005-01-07 16:54:26 +00:00
+@@ -19,6 +19,13 @@
+ #include <asm/uaccess.h>
+ #include "br_private.h"
+ 
++static inline unsigned long stack_available(void)
++{
++	unsigned long esp;
++	asm volatile("movl %%esp,%0" : "=r"(esp));
++	return esp - (unsigned long)current - sizeof(struct thread_info);
++}
++
+ static struct net_device_stats *br_dev_get_stats(struct net_device *dev)
+ {
+ 	struct net_bridge *br;
+@@ -34,6 +41,14 @@
+ 	const unsigned char *dest = skb->data;
+ 	struct net_bridge_fdb_entry *dst;
+ 
++	if (stack_available() < THREAD_SIZE/2) {
++		if (net_ratelimit()) {
++			printk(KERN_DEBUG "Bridge device %s queues packet due to stack shortage\n",
++			       dev->name);
++		}
++		return NETDEV_TX_BUSY;
++	}
++
+ 	br->statistics.tx_packets++;
+ 	br->statistics.tx_bytes += skb->len;
+ 
+@@ -104,7 +119,7 @@
+ 	SET_MODULE_OWNER(dev);
+ 	dev->stop = br_dev_stop;
+ 	dev->accept_fastpath = br_dev_accept_fastpath;
+-	dev->tx_queue_len = 0;
++	dev->tx_queue_len = 5;
+ 	dev->set_mac_address = NULL;
+ 	dev->priv_flags = IFF_EBRIDGE;
+ }
+
+
+
+
+-- 
+dwmw2
+
 

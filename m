@@ -1,40 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289715AbSBER7Z>; Tue, 5 Feb 2002 12:59:25 -0500
+	id <S289725AbSBER7p>; Tue, 5 Feb 2002 12:59:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289708AbSBER7M>; Tue, 5 Feb 2002 12:59:12 -0500
-Received: from smtp1.vol.cz ([195.250.128.73]:1031 "EHLO smtp1.vol.cz")
-	by vger.kernel.org with ESMTP id <S289711AbSBER5w>;
-	Tue, 5 Feb 2002 12:57:52 -0500
-Date: Tue, 5 Feb 2002 14:21:55 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Jeff Garzik <garzik@havoc.gtf.org>, arjan@fenrus.demon.nl,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Radix-tree pagecache for 2.5
-Message-ID: <20020205142154.D37@toy.ucw.cz>
-In-Reply-To: <20020201144751.A32553@havoc.gtf.org> <Pine.LNX.4.33L.0202021339090.17850-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.33L.0202021339090.17850-100000@imladris.surriel.com>; from riel@conectiva.com.br on Sat, Feb 02, 2002 at 01:39:34PM -0200
+	id <S289718AbSBER7d>; Tue, 5 Feb 2002 12:59:33 -0500
+Received: from cc5993-b.ensch1.ov.nl.home.com ([212.204.161.160]:14608 "HELO
+	packetstorm.nu") by vger.kernel.org with SMTP id <S289711AbSBER7N>;
+	Tue, 5 Feb 2002 12:59:13 -0500
+Reply-To: <alex@packetstorm.nu>
+From: "Alex Scheele" <alex@packetstorm.nu>
+To: "Roger Massey" <rmassey@avaya.com>
+Cc: "Lkml" <linux-kernel@vger.kernel.org>
+Subject: RE: 2.4.17 panic on boot - patch for ide-pci
+Date: Tue, 5 Feb 2002 18:59:09 +0100
+Message-ID: <IOEMLDKDBECBHMIOCKODCECACJAA.alex@packetstorm.nu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <029b01c1ae68$5df20b20$12320987@dr.avaya.com>
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > the biggest reason for this is that we *suck* at readahead for mmap....
-> >
-> > Is there not also fault overhead and similar issues related to mmap(2)
-> > in general, that are not present with read(2)/write(2)?
+[snip]
+> --- drivers/ide/ide-pci.c Mon Feb  4 19:44:02 2002
+> +++ drivers/ide/ide-pci.orig.c Mon Feb  4 19:37:50 2002
+> @@ -836,11 +836,7 @@
+>   pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
+>   class_rev &= 0xff;
 > 
-> If a fault is more expensive than a system call, we're doing
-> something wrong in the page fault path ;)
+> - if(class_rev >= (sizeof(chipset_names)/sizeof(char *))) {
+> -  class_rev = (sizeof(chipset_names)/sizeof(char *)) - 1;
+> - }
+> -
+> - strncpy(d->name, chipset_names[class_rev], strlen(d->name));
+> + strcpy(d->name, chipset_names[class_rev]);
+> 
+>   switch(class_rev) {
+>    case 4:
+> --- drivers/ide/hpt366.c Mon Feb  4 19:32:45 2002
+> +++ drivers/ide/hpt366.orig.c Mon Feb  4 19:33:30 2002
+> @@ -214,9 +214,6 @@
+>   pci_read_config_dword(bmide_dev, PCI_CLASS_REVISION, &class_rev);
+>   class_rev &= 0xff;
+> 
+> - if(class_rev >= (sizeof(chipset_names)/sizeof(char *)))
+> -  class_rev = (sizeof(chipset_names)/sizeof(char *)) -1;
+> -
+>          /*
+>           * at that point bibma+0x2 et bibma+0xa are byte registers
+>           * to investigate:
 
-You can read 128K at a time, but you can't fault 128K...
-								Pavel
+Seems u diffed the wrong way :) original file should be first.
 
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+--
+	Alex (alex@packetstorm.nu)
+
 

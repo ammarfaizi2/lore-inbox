@@ -1,75 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265681AbTAOO6r>; Wed, 15 Jan 2003 09:58:47 -0500
+	id <S265276AbTAOPKL>; Wed, 15 Jan 2003 10:10:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266528AbTAOO6r>; Wed, 15 Jan 2003 09:58:47 -0500
-Received: from smtp-server1.tampabay.rr.com ([65.32.1.34]:50365 "EHLO
-	smtp-server1.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S265681AbTAOO6q>; Wed, 15 Jan 2003 09:58:46 -0500
-From: "Scott Robert Ladd" <scott@coyotegulch.com>
-To: "Kai Henningsen" <kaih@khms.westfalen.de>, <linux-kernel@vger.kernel.org>
-Subject: RE: any chance of 2.6.0-test*?
-Date: Wed, 15 Jan 2003 10:07:23 -0500
-Message-ID: <FKEAJLBKJCGBDJJIPJLJKEJFEDAA.scott@coyotegulch.com>
+	id <S265541AbTAOPKL>; Wed, 15 Jan 2003 10:10:11 -0500
+Received: from inova101.correio.tnext.com.br ([200.222.67.101]:57273 "HELO
+	leia-out.correio.tnext.com.br") by vger.kernel.org with SMTP
+	id <S265276AbTAOPKK>; Wed, 15 Jan 2003 10:10:10 -0500
+Message-ID: <3E257BCC.6050801@macp.eti.br>
+Date: Wed, 15 Jan 2003 13:18:36 -0200
+From: Marcelo Pacheco <marcelo@macp.eti.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: Scott Robert Ladd <scott@coyotegulch.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: any chance of 2.6.0-test*?
+References: <FKEAJLBKJCGBDJJIPJLJKEJFEDAA.scott@coyotegulch.com>
+In-Reply-To: <FKEAJLBKJCGBDJJIPJLJKEJFEDAA.scott@coyotegulch.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <8dqipJL1w-B@khms.westfalen.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Henningsen wrote:
-> Well ... he did have some nice ideas. Unfortunately, they usually don't
-> get palatable until someone else has worked on them.
-
-I actually *liked* Modula-2... but I haven't used it since the very early
-90s. I guess I didn't like it *that* much, huh? ;)
-
-> If you look into Wirth's books and see that the example code in there ...
 >
-> * uses one(!) space indentation
-> * routinely puts several statements on one line
+>
+>For those who growl -- I think this kind of discussion *has* value in the
+>kernel mailing list. Kernel newbies and such can learn a great deal from
+>rational, calm debates among experts; if they learn, their contributions to
+>the kernel will be better.
+>
+>Of course, note the "rational" and "calm" above, which does not apply to the
+>Stallman debate... ;)
+>
+>I enjoy the implementation debates; they give me a better idea of where the
+>kernel is going, so I can figure out where to stick my oar in the waters.
+>
+Yes, but how many times this discussion already happened ?
+I have nothing against the discussion happening ... As long as it 
+doesn't happen a couple of times a year. That's what a list archive is 
+for. The latest generation of Internet users, including some latest 
+generation developers are in general LAZY about looking up archives, 
+they want to post the question now and get an answer, while they could 
+have gotten the answer without bothering anyone. Sure, it takes one a 
+little more effort to search the archives, but that's one person's 
+effort, while posting one message wastes hundreds (perhaps thousands) of 
+people's time.
+And also, the FAQ for the list states it quite clearly that the people 
+doing usefull work here is only really interested in proof that 
+something is better, performance and/or space wise, so if someone has an 
+opinion, first go prove it on some piece of the kernel, the post their 
+opinions along with the results to the list. That's the way to go. 
+Maintenability is important, after speed, memory usage and portability. 
+That's sound engineering, instead of C.S. dogmas.
 
-I've got a copy of the classic "Algorithms + Data Structures = Programs"; in
-it, Wirth uses four-space indentation but a proportional font. The style
-isn't all that bad. Hell, I've got worse stuff in some of *my* books --
-oops, shouldn't have typed that... ;)
+Marcelo Pacheco
 
-One-space indents may very well be an artifact of idiot copy editors, and
-not the author.
-
-> * typically uses one- or two-character variable names
-
-There is one instance when one/two-character variable names make sense:
-mathematical code that directly implements numericla algorithms from the
-text. In such a case, short variable names correspond directly to standard
-notation; using longer names would actually obscure the correspondence
-between text and code. I also don't see the point of using "array_index"
-over a plain old traditional "i" in a loop.
-
-Rarely is any coding "rule" absolute. The point is clarity; if a "goto" or
-one-character identifier make sense, use'em.
-
-For those who growl -- I think this kind of discussion *has* value in the
-kernel mailing list. Kernel newbies and such can learn a great deal from
-rational, calm debates among experts; if they learn, their contributions to
-the kernel will be better.
-
-Of course, note the "rational" and "calm" above, which does not apply to the
-Stallman debate... ;)
-
-I enjoy the implementation debates; they give me a better idea of where the
-kernel is going, so I can figure out where to stick my oar in the waters.
-
---
-Scott Robert Ladd
-Coyote Gulch Productions (http://www.coyotegulch.com)
-Professional programming for science and engineering;
-Interesting and unusual bits of very free code.
 

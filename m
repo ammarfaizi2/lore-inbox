@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311749AbSGKVFN>; Thu, 11 Jul 2002 17:05:13 -0400
+	id <S317909AbSGKVNn>; Thu, 11 Jul 2002 17:13:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317909AbSGKVFM>; Thu, 11 Jul 2002 17:05:12 -0400
-Received: from freesurfmta01.sunrise.ch ([194.230.0.16]:60140 "EHLO
-	freesurfmail.sunrise.ch") by vger.kernel.org with ESMTP
-	id <S311749AbSGKVFI>; Thu, 11 Jul 2002 17:05:08 -0400
-Message-ID: <3D298E8200068368@freesurfmta01.sunrise.ch> (added by
-	    postmaster@freesurf.ch)
-From: "Per Jessen" <per@computer.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Thu, 11 Jul 2002 23:28:31 +0200
-Reply-To: "Per Jessen" <per@computer.org>
-X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1212)
+	id <S317912AbSGKVNm>; Thu, 11 Jul 2002 17:13:42 -0400
+Received: from node-209-133-23-217.caravan.ru ([217.23.133.209]:56841 "EHLO
+	mail.tv-sign.ru") by vger.kernel.org with ESMTP id <S317909AbSGKVNi>;
+	Thu, 11 Jul 2002 17:13:38 -0400
+Message-ID: <3D2DF64D.838BD6D6@tv-sign.ru>
+Date: Fri, 12 Jul 2002 01:19:09 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+CC: Robert Love <rml@tech9.net>
+Subject: Re: Q: preemptible kernel and interrupts consistency.
+References: <3D2DEB91.57FA34E6@tv-sign.ru> <1026420107.1178.279.camel@sinai>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-Subject: Re: Periodic clock tick considered harmful (was: Re: HZ, preferably as small as possible)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Jul 2002 09:44:35 -0700, dank@kegel.com wrote:
+Hello.
 
->Mark Mielke <mark@mark.mielke.cc> wrote:
->> 
->> On Wed, Jul 10, 2002 at 04:09:21PM -0600, Cort Dougan wrote:
->> > Yes, please do make it a config option.  10x interrupt overhead makes me
->> > worry.  It lets users tailor the kernel to their expected load.
->> 
->> All this talk is getting to me.
->> 
->> I thought we recently (1 month ago? 2 months ago?) concluded that
->> increases in interrupt frequency only affects performance by a very
->> small amount, but generates an increase in responsiveness. The only
->> real argument against that I have seen, is the 'power conservation'
->> argument. The idea was, that the scheduler itself did not execute
->> on most interrupts. The clock is updated, and that is about all.
->
->On UML and mainframe Linux, *any* periodic clock tick 
->is heavy overhead when you have a large number of 
->(mostly idle) instances of Linux running, isn't it?   
+Robert Love wrote:
+> However, the only places that set need_resched like that are the
+> scheduler and they do so also under lock so we are safe.
 
-Without knowing what UML is in this context, but assuming that mainframe
-means IBM s390 mainframes, I can confirm that any periodic clock tick
-is heavy overhead. With or without (mostly) idle instances. 
+Safe? Look, if process does not hold any spinlock and interrupts
+disabled, then any distant implicit call to resched_task() silently
+enables irqs. At least, this must be documented.
 
-/Per
+> Also, in your example, being in an interrupt handler bumps the
+> preempt_count so even the scenario you give will not cause a
+> preemption.  If we did not bump the unlock, then your example would give
+> a lot of "scheduling in interrupt" BUGs so we would know it ;-)
 
+No, I meant process context in both scenarios! Note also, that it
+happens even in UP case.
 
+> All that said, there is a bug: the send_reschedule IPI can set
+> need_resched on another CPU.  If the other CPU happens to have
+> interrupts disabled, we can in fact preempt.
 
-regards,
-Per Jessen, Zurich
-http://www.enidan.com - home of the J1 serial console.
+I can't see, how this can happen. Can you explain?
+But it seems unrelated...
 
-Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
-
-
+Oleg.

@@ -1,78 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263394AbTEVWjq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 18:39:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263407AbTEVWjq
+	id S263373AbTEVWyM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 18:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263376AbTEVWyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 18:39:46 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:27849 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263394AbTEVWjo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 18:39:44 -0400
-Date: Fri, 23 May 2003 00:52:27 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Ian Molton <spyro@f2s.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: IDE 2.5.69 possible bogosity...
-In-Reply-To: <20030522232448.21d7ee2f.spyro@f2s.com>
-Message-ID: <Pine.SOL.4.30.0305230044080.27109-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 May 2003 18:54:12 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:30688 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263373AbTEVWyL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 18:54:11 -0400
+Date: Thu, 22 May 2003 16:05:31 -0700 (PDT)
+Message-Id: <20030522.160531.59667592.davem@redhat.com>
+To: akpm@digeo.com
+Cc: mfc@krycek.org, linux-kernel@vger.kernel.org
+Subject: Re: Error during compile of 2.5.69-mm8
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030522160218.57b828db.akpm@digeo.com>
+References: <1053611668.4649.1.camel@krycek>
+	<20030522160218.57b828db.akpm@digeo.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Andrew Morton <akpm@digeo.com>
+   Date: Thu, 22 May 2003 16:02:18 -0700
 
-On Thu, 22 May 2003, Ian Molton wrote:
+   Looks like David converted this macro into a no-op, then moved it into
+   netdevice.h.
+   
+   Problem is, some non-network drivers were using it too.
+   
+They shouldn't, it's backwards compatability crap for net drivers
+only.  Use explicit ->owner references elsewhere.
 
-> Hi.
->
-> Im wondering if this is correct. is the test for initializing in the
-> second for loop correct?
+   Maybe we should put it back the way it was and go edit all the netdrivers?
+   
+Absolutely not.
 
-Unfortunately, yes.
-
-> Im building an IDE driver into my kernel that calls ide_register_hw()
-> twice to register its primary and secondary ports, but only the
-> secondary port is recognised. the first fails, since the test in the
-> first for loop fails and so does the second, so it then 'unregisters'
-
-Too little information, your MAX_HWIFS and default io ports?
-
-> it, despite never having been registered. somehow, this puts my drive
-> INTO the hwif array, so the secondary interface registers OK, passing
-> the other tests.
-
-Where is your driver?
-
-> a hack that allowed the primary interface to register was to register it
-> twice, but that sucks.
->
-> int ide_register_hw (hw_regs_t *hw, ide_hwif_t **hwifp)
-> {
->         int index, retry = 1;
->         ide_hwif_t *hwif;
->
->         do {
->                 for (index = 0; index < MAX_HWIFS; ++index) {
->                         hwif = &ide_hwifs[index];
->                         if (hwif->hw.io_ports[IDE_DATA_OFFSET] ==
-> hw->io_ports[IDE_DATA_OFFSET])
->                                 goto found;
->                 }
->                 for (index = 0; index < MAX_HWIFS; ++index) {
->                         hwif = &ide_hwifs[index];
->
-> *** is the test for initialising (not the !initialising one) here ok?
-> ***
->
->                     if ((!hwif->present && !hwif->mate && !initializing)
-> ||
->                         (!hwif->hw.io_ports[IDE_DATA_OFFSET] &&
-> initializing))
->                                 goto found;
->                 }
->                 for (index = 0; index < MAX_HWIFS; index++)
->                         ide_unregister(index);
->         } while (retry--);
-
-
+Yoshfuji posted a patch on linux-kernel to fix this already.

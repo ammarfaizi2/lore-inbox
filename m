@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264228AbUFFXrq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264238AbUFFX5g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264228AbUFFXrq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 19:47:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264226AbUFFXrq
+	id S264238AbUFFX5g (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 19:57:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264244AbUFFX5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 19:47:46 -0400
-Received: from mail005.syd.optusnet.com.au ([211.29.132.54]:20456 "EHLO
-	mail005.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S264228AbUFFXrp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 19:47:45 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Staircase Scheduler v6.3 for 2.6.7-rc2
-Date: Mon, 7 Jun 2004 09:47:31 +1000
-User-Agent: KMail/1.6.1
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
-       William Lee Irwin III <wli@holomorphy.com>
-References: <200406070139.38433.kernel@kolivas.org>
-In-Reply-To: <200406070139.38433.kernel@kolivas.org>
-MIME-Version: 1.0
+	Sun, 6 Jun 2004 19:57:36 -0400
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:64901 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S264238AbUFFX5f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 19:57:35 -0400
+Date: Mon, 7 Jun 2004 01:57:31 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: linux crashing on amd athlons?
+Message-ID: <20040606235730.GA10458@merlin.emma.line.org>
+Mail-Followup-To: linux kernel <linux-kernel@vger.kernel.org>
+References: <001701c44bf7$c8991f20$0200a8c0@laptop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406070947.31104.kernel@kolivas.org>
+In-Reply-To: <001701c44bf7$c8991f20$0200a8c0@laptop>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jun 2004 01:39, Con Kolivas wrote:
-> This is an update of the scheduler policy mechanism rewrite using the
-> infrastructure of the current O(1) scheduler. Slight changes from the
-> original design require a detailed description. 
+On Sun, 06 Jun 2004, Ameer Armaly wrote:
 
-Seems it wasn't clear unless you look at the code; this has only a single 
-priority queue with no expired array.
+> While installing linux on an amd athlon, the kernel is oopsing and shuting
+> down the computer at random places  within the install.  This is a custom
+> built kernel off of kernel.org I built, which I optimized for athlon then
+> i386 afterwards, but with no luck.
 
-Con
+I have several Athlons (from the venerable 500 to the new XP 2600+) in
+use at various sites, no problems. Among them an XP 1700+ in server use
+with vanilla 2.4.26, rock solid.
+
+Check you've used a supported compiler and binutils, then check the
+hardware. Cooling (heat sink), RAM (try memtest86), power supply, proper
+clock speed and core voltage, proper RAM timing -- these are all
+contributing factors to instability if not carefully chosen and
+installed.
+
+-- 
+Matthias Andree
+
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95

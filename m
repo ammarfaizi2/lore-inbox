@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263397AbTIGR56 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 13:57:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263400AbTIGR56
+	id S263418AbTIGSMx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 14:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbTIGSMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 13:57:58 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:44523 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263397AbTIGR5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 13:57:55 -0400
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Pavel Machek <pavel@suse.cz>, nagendra_tomar@adaptec.com,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Kars de Jong <jongk@linux-m68k.org>,
-       Linux/m68k kernel mailing list 
-	<linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030907135337.GF19977@mail.jlokier.co.uk>
-References: <Pine.LNX.4.44.0309032134040.25093-100000@localhost.localdomain>
-	 <1062674382.21667.32.camel@dhcp23.swansea.linux.org.uk>
-	 <20030905212420.GD220@elf.ucw.cz>
-	 <20030906230911.GA12392@mail.jlokier.co.uk>
-	 <20030907131010.GB18067@atrey.karlin.mff.cuni.cz>
-	 <20030907133543.GD19977@mail.jlokier.co.uk>
-	 <20030907134020.GC18067@atrey.karlin.mff.cuni.cz>
-	 <20030907135337.GF19977@mail.jlokier.co.uk>
-Content-Type: text/plain
+	Sun, 7 Sep 2003 14:12:53 -0400
+Received: from static-ctb-210-9-247-166.webone.com.au ([210.9.247.166]:48142
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S263418AbTIGSMu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 14:12:50 -0400
+Message-ID: <3F5B750D.9060108@cyberone.com.au>
+Date: Mon, 08 Sep 2003 04:12:29 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Robert Love <rml@tech9.net>, jyau_kernel_dev@hotmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
+References: <000101c374a3$2d2f9450$f40a0a0a@Aria>	<1062878664.3754.12.camel@boobies.awol.org>	<3F5ABD3A.7060709@cyberone.com.au>	<20030906231856.6282cd44.akpm@osdl.org>	<1062954122.12822.3.camel@boobies.awol.org> <20030907103447.410016f6.akpm@osdl.org>
+In-Reply-To: <20030907103447.410016f6.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1062957402.16972.37.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Sun, 07 Sep 2003 18:56:43 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-09-07 at 14:53, Jamie Lokier wrote:
-> Pavel Machek wrote:
-> > Perhaps weak ordering matters when you are writting to the MMIO, too?
-> 
-> Perhaps, but the code in arch/i386/kernel/cpu/centaur.c seems to try
-> hard to set weak ordering for RAM, not the whole address space.
 
-There are three cases I know of where you get weak store ordering that
-is visible in some way
 
-#1 Pentium Pro due to an errata, hence the need for lock in the
-spin_unlock
+Andrew Morton wrote:
 
-#2 Centaur Winchip (where OOSTORE off is worth 10-30% performance on
-common tasks). A lot of that has to do with the nature of the CPU and 
-the old socket 7 bus stuff. Its not SMP but we have to care about it
-for mmio not because mmio is itself out of order (we leave it in order)
-but because of DMA. We must ensure that our writes to ram finish
--before- we kick off the hardware copying the data...
+>Robert Love <rml@tech9.net> wrote:
+>
+>> There are a _lot_ of scheduler changes in 2.6-mm, and who knows which
+>> ones are an improvement, a detriment, and a noop?
+>>
+>
+>We know that sched-2.6.0-test2-mm2-A3.patch caused the regression, and
+>we now that sched-CAN_MIGRATE_TASK-fix.patch mostly fixed it up.
+>
+>What we don't know is whether the thing which sched-CAN_MIGRATE_TASK-fix.patch
+>fixed was the thing which sched-2.6.0-test2-mm2-A3.patch broke.
+>
+>
 
-#3 Weak store ordering via sse type instructions, where its intentional
-and an sfence is needed eventually
+I think Robert was just talking about general improvements or regressions,
+etc. I don't think Con is going too badly though - the small amount of
+feedback I read about it is normally positive.
+
+I think we might as well use -linus tree for testing while its still in
+the test release phase. It probably gets a few orders of magnitude more
+testing than mm.
+
 

@@ -1,67 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271680AbTGRCPd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 22:15:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271681AbTGRCPd
+	id S271687AbTGRCUh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 22:20:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271695AbTGRCUQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 22:15:33 -0400
-Received: from ore.jhcloos.com ([64.240.156.239]:2565 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id S271680AbTGRCPc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 22:15:32 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SET_MODULE_OWNER
-References: <1058446580.18647.11.camel@ezquiel.nara.homeip.net>
-	<3F16C190.3080205@pobox.com>
-	<200307171756.19826.schlicht@uni-mannheim.de>
-	<3F16C83A.2010303@pobox.com>
-	<20030717125942.7fab1141.davem@redhat.com>
-	<1058477803.754.11.camel@ezquiel.nara.homeip.net>
-	<20030717144031.3bbacee5.davem@redhat.com>
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-In-Reply-To: <20030717144031.3bbacee5.davem@redhat.com>
-Date: 17 Jul 2003 22:27:57 -0400
-Message-ID: <m3isq0d0wi.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
-MIME-Version: 1.0
+	Thu, 17 Jul 2003 22:20:16 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:13580 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S271689AbTGRCSa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 22:18:30 -0400
+Message-Id: <200307180241.h6I2fCe2004594@ccure.karaya.com>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: uml-patch-2.5.70-1
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Thu, 17 Jul 2003 22:41:12 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David S Miller <davem@redhat.com> writes:
+I got around to getting the UML 2.5 tree up to date again, and this update
+to 2.5.70 is the result.  I know it's a bit behind the times, but I'm catching
+up.
 
->> Can't shutdown the system either. Init hangs waiting for
->> modprobe to die.
+There are no functional changes.  The only change is the update to 2.5.70.
 
-As this happened to me too, when I wanted to try out the new e100
-module w/o rebooting, I'll pipe in below.
+The 2.5.70-1 UML patch is available at
+	http://jdike.stearns.org/mirror/uml-patch-2.5.70-1.bz2
 
-David> That's a bug we need to fix.
+For the other UML mirrors and other downloads, see 
+        http://user-mode-linux.sourceforge.net/dl-sf.html
+ 
+Other links of interest:
+ 
+        The UML project home page : http://user-mode-linux.sourceforge.net
+        The UML Community site : http://usermodelinux.org
 
-David> What driver are you using? 
-
-e100.ko
-
-David> Are you using ipv6? 
-
-Yes, compiled in.
-
-David> Any netfilter modules?
-
-Yes, a basic firewall + nat, with eth0 as the inside and ppp0 outside.
-It is a mix of compiled in and modular.
-
-David> Anything else interesting or "unique" about your
-David> particular setup?
-
-It used to be rmmod would fail until all of the sockets were closed.
-Instead it just hung.  Attempting to shutdown network services to
-free any eth0 sockets didn't help.  A reboot attempt also hung as
-per above.  Had to use SysRq to sync/umount/boot.
-
-The exact .config is available in bk://cloos.bkbits.net/linux-2.5-jhc
-as of the revision dated 2003/06/28.  That was between 2.5.73 and .74.
-
--JimC
+				Jeff
 

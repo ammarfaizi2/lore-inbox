@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274176AbRIXVyR>; Mon, 24 Sep 2001 17:54:17 -0400
+	id <S274177AbRIXVys>; Mon, 24 Sep 2001 17:54:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274170AbRIXVyH>; Mon, 24 Sep 2001 17:54:07 -0400
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:9491 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S274165AbRIXVxy>; Mon, 24 Sep 2001 17:53:54 -0400
-X-Apparently-From: <mlrecv@yahoo.com>
-Reply-To: <mlrecv@yahoo.com>
-From: "Zhifeng F. Chen" <mlrecv@yahoo.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: HIGHMEM problem.
-Date: Mon, 24 Sep 2001 17:54:18 -0400
-Message-ID: <CNEAKFLBCODPEFGEGALPKECKCEAA.mlrecv@yahoo.com>
+	id <S274170AbRIXVyi>; Mon, 24 Sep 2001 17:54:38 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:44558 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S274177AbRIXVyY>; Mon, 24 Sep 2001 17:54:24 -0400
+Message-ID: <3BAFABA9.9A8DD1B4@zip.com.au>
+Date: Mon, 24 Sep 2001 14:54:49 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: J Troy Piper <jtp@dok.org>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: ext3-2.4-0.9.10
+In-Reply-To: <20010924163546.C244@dok.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+J Troy Piper wrote:
+> 
+> Hey Andrew,
+> 
+> Any more progress on my journal_revoke BUG?  Strangely enough, I've been
+> mounting the drives as ext2 to try and avoid the errors, but I *STILL* hit
+> the BUG when untar'ing a large file, or compiling a large file (ie. kernel
+> source), which is somewhat unnerving.
 
-    I am using a Emulex's cLAN 1000 adapter in some machines. And with much
-effort and help, I coud finally make the clan-2.0.x driver work under kernel
-2.4.9 (and 2.4.10). However, I found if I turn "High Memory Support" off,
-the kernel only report 896M through /proc/meminfo, but clan can work well.
-On the other hand, if I turn "High Memory Support" to 4G or 64G, the kernel
-can report the memory correctly, but clan gets "RX Async interrupt: vi 0,
-error 010000" error (2.4.9) or clan gets "fatal (PCI?) error (status 2200)
-result 0".
-
-    I don't know if it's the problem of the kernel or the driver. And
-without Highmem support, is that 128M memory really wasted? Or,  are they
-just used by kernel and can't be used by user?
-
-Sincerely
-ZF
-
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
-
+That should have been fixed in 0.9.9????

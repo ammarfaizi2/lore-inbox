@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317666AbSGJXLU>; Wed, 10 Jul 2002 19:11:20 -0400
+	id <S317669AbSGJXNM>; Wed, 10 Jul 2002 19:13:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317668AbSGJXLT>; Wed, 10 Jul 2002 19:11:19 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:17093 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S317666AbSGJXLR>;
-	Wed, 10 Jul 2002 19:11:17 -0400
-Date: Thu, 11 Jul 2002 01:13:35 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Patch for Menuconfig script
-Message-ID: <20020710231335.GG29001@khan.acc.umu.se>
-References: <20020708151412.GB695@opus.bloom.county> <21071.1026168807@ocs3.intra.ocs.com.au>
+	id <S317668AbSGJXNK>; Wed, 10 Jul 2002 19:13:10 -0400
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:39440 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317669AbSGJXNH>; Wed, 10 Jul 2002 19:13:07 -0400
+Date: Thu, 11 Jul 2002 00:15:49 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Pavel Machek <pavel@ucw.cz>, "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OT] /proc/cpuinfo output from some arch
+Message-ID: <20020711001549.D17806@flint.arm.linux.org.uk>
+References: <20020707002006.B5242@flint.arm.linux.org.uk> <200207070030.g670UbT166497@saturn.cs.uml.edu> <20020710002017.GA540@elf.ucw.cz> <3D2CB1D9.20807@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <21071.1026168807@ocs3.intra.ocs.com.au>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D2CB1D9.20807@zytor.com>; from hpa@zytor.com on Wed, Jul 10, 2002 at 03:14:49PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 09, 2002 at 08:53:27AM +1000, Keith Owens wrote:
-> On Mon, 8 Jul 2002 08:14:12 -0700, 
-> Tom Rini <trini@kernel.crashing.org> wrote:
-> >On Sun, Jul 07, 2002 at 11:22:10PM +0100, Riley Williams wrote:
-> >> > This is just a patch to the Menuconfig script (can be easily adapted
-> >> > to the other ones) that allows you to configure the kernel without
-> >> > the requirement of bash (I tested it with ksh, in POSIX-only mode).  
-> >> > Feel free to flame me :P
-> >> 
-> >> Does it also work in the case where the current shell is csh or tcsh
-> >> (for example)?
-> >
-> >Er.. why wouldn't it?
-> >$ head -1 scripts/Menuconfig 
-> >#! /bin/sh
+On Wed, Jul 10, 2002 at 03:14:49PM -0700, H. Peter Anvin wrote:
+> Pavel Machek wrote:
+> > 
+> > I thought that cpuinfo was ment to be non-chaning after boot? 
+> > 
+> > Perhaps we want /proc/cpu/0/temperature containing single int?
+> > 
 > 
-> The #! line is irrelevant.  The script is invoked via
-> 
->   $(CONFIG_SHELL) scripts/Menuconfig arch/$(ARCH)/config.in
-> 
-> Large chunks of kbuild assume that CONFIG_SHELL is bash.  Don't bother
-> trying to cleanup all the code that assumes bash, just
->   make CONFIG_SHELL=/path/to/bash ...
+> /proc/cpu/<number>/<datapoint> would be a lot better for a whole bunch
+> of things.
 
-As long as the new, bash-ignorant code is as good as the old one, and
-works equally well with bash and hopefully better with other shells,
-I see no harm, and a lot of benefit, in accepting the patch.
+What about /proc/sys/cpu/<number>/<datapoint> ?
 
-Yes, a lot of code assumes bash is there, but unlike the case of gcc,
-there are good alternatives. Let us enable people who use
-ksh/tcsh/rc/whatever as their main shell to remove the bash they keep
-installed simply to be able to build their kernels.
+We decided on the above path for cpufreq after mulling it over for several
+weeks...  it might be a good idea if we can all agree to put stuff in one
+place, rather than spreading it out across /crap^w/proc
 
-For those who wonders: I use bash, nothing else. Still I think it is
-silly to argue against this kind of patches because a lot of other
-parts of the build-system/config-systems till depends on bash.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Getting rid of the bash:isms everywhere is far from impossible; look at
-Debian, they are mostly there.
-
-
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317366AbSGVNu7>; Mon, 22 Jul 2002 09:50:59 -0400
+	id <S315200AbSGUXBc>; Sun, 21 Jul 2002 19:01:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317364AbSGVNu4>; Mon, 22 Jul 2002 09:50:56 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:25054 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S317360AbSGVNuu>; Mon, 22 Jul 2002 09:50:50 -0400
-Date: Mon, 22 Jul 2002 15:53:53 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Ramit Bhalla <ramit.bhalla@wipro.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Compiling bug - broken compile
-In-Reply-To: <KMELKICNHILNIJDACGAIIECCCKAA.ramit.bhalla@wipro.com>
-Message-ID: <Pine.NEB.4.44.0207221552050.10993-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S315210AbSGUXBc>; Sun, 21 Jul 2002 19:01:32 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:38596 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S315200AbSGUXBb>; Sun, 21 Jul 2002 19:01:31 -0400
+Date: Mon, 22 Jul 2002 01:04:25 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Mike Galbraith <efault@gmx.de>
+cc: Tomas Szepe <szepe@pinerecords.com>,
+       Thunder from the hill <thunder@ngforever.de>,
+       Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Give Bartlomiej a break!  (Re: Impressions of IDE 98?)
+Message-ID: <Pine.SOL.4.30.0207220032410.15795-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Jul 2002, Ramit Bhalla wrote:
 
-> Hi,
->
-> I'm using the 2.4.7 Kernel.
->...
+On Sun, 21 Jul 2002, Mike Galbraith wrote:
 
-2.4.7 is really outdated and contains many bugs that are fixed in more
-recent kernels. Could you check whether the problem still exists in kernel
-2.4.18?
+>> Well you don't necessarily have to be an IDE guru to realize something's
+>> wrong when you see a bloke constantly breaking the subsystem, practically
+>> never fixing it up himself, disappearing for a month w/o saying a word
+>> after having fried 2.5.25 completely and not really caring about what
+>> others have to say about the code.
 
-> Regards,
-> Ramit Bhalla.
+> No, you don't have to be a guru to notice that the rewrite is proving
+> difficult.
 
-TIA
-Adrian
+You also don't have to be a guru to notice that recently most of the
+content of the rewrite is moving code here and there, unfolding functions,
+renaming them and changing intendation. Check yourself.
+Also imagine how hard is now to track changes from 2.4 to 2.5
+now and fix bugs.
 
--- 
+Yup, please give me a break from having to track this changes. :-)
 
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+If you go through all the ide-clean patches you will see that much
+of the cruft has been removed, some things fixed but there is still
+plenty of work to do.
 
+Next problem is that Martin seems to not care that his style of
+development (pushing stuff immediately to Linus instead of lkml -> some
+reasonable delay -> Linus) _constantly_ interferes other people doing
+kernel hacking.
 
+I don't want next flamewar or personal bashing here,
+please only _think_ for a while about issues raised.
+
+Regards
+--
+Bartlomiej
 

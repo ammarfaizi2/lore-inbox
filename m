@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317072AbSH0VRF>; Tue, 27 Aug 2002 17:17:05 -0400
+	id <S317112AbSH0VOS>; Tue, 27 Aug 2002 17:14:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317107AbSH0VRF>; Tue, 27 Aug 2002 17:17:05 -0400
-Received: from barbados.bluemug.com ([63.195.182.101]:46086 "EHLO
-	barbados.bluemug.com") by vger.kernel.org with ESMTP
-	id <S317072AbSH0VRE>; Tue, 27 Aug 2002 17:17:04 -0400
-Date: Tue, 27 Aug 2002 14:21:02 -0700
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Zheng Jian-Ming <zjm@cis.nctu.edu.tw>, linux-kernel@vger.kernel.org
-Subject: Re: problems with changing UID/GID
-Message-ID: <20020827212102.GA7541@bluemug.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Zheng Jian-Ming <zjm@cis.nctu.edu.tw>, linux-kernel@vger.kernel.org
-References: <20020826133028.GA21965@cissol7.cis.nctu.edu.tw> <1030369551.1750.4.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1030369551.1750.4.camel@irongate.swansea.linux.org.uk>
-X-PGP-Key: http://web.bluemug.com/~miket/OpenPGP/5C09BB33.asc
-X-PGP-Fingerprint: C518 67A5 F5C5 C784 A196  B480 5C97 3BBD 5C09 BB33
-From: Mike Touloumtzis <miket@bluemug.com>
+	id <S317215AbSH0VOS>; Tue, 27 Aug 2002 17:14:18 -0400
+Received: from quark.didntduck.org ([216.43.55.190]:45073 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S317112AbSH0VOR>; Tue, 27 Aug 2002 17:14:17 -0400
+Message-ID: <3D6BEC8A.5030905@didntduck.org>
+Date: Tue, 27 Aug 2002 17:18:02 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@suse.de>,
+       Marc Dietrich <Marc.Dietrich@hrz.uni-giessen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] M386 flush_one_tlb invlpg
+References: <Pine.LNX.4.44.0208271216440.1419-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 26, 2002 at 02:45:51PM +0100, Alan Cox wrote:
-> On Mon, 2002-08-26 at 14:30, Zheng Jian-Ming wrote:
+Linus Torvalds wrote:
+> On Tue, 27 Aug 2002, Hugh Dickins wrote:
 > 
-> > But, the credentials are per-task in Linux, so it's possible to have
-> > two tasks in a process running under different UIDs.
+>>I just sent the 2.4.20-pre4 asm-i386/pgtable.h patch to Marcelo:
+>>here's patch against 2.5.31 or current BK: please apply.
 > 
-> Really useful isnt it
 > 
-> There are other reasons for wanting refcounted credential structures (eg
-> NFS writeback) so it may well be that once those go in for other reasons
-> it makes sense to provide an option to do shared credentials for
-> threaded apps. It is however nontrivial and you might want to see how
-> your other systems respond to things like a file open on a slow device
-> while a second thread is strobing the uid between two values. Does it
-> change uid mid syscall, does it get the permissions checks right if so ?
+> This test is senseless, in my opinion:
 > 
-> Its non trivial stuff, if not plain crazy to implement a literal
-> interpretation of (eg does a write fail half way if you change userid in
-> another thread ?)
+> 
+>>+		if (cpu_has_pge)					\
+>>+			__flush_tlb_single(addr);			\
+> 
+> 
+> The test _should_ be for something like
+> 
+> 	if (cpu_has_invlpg)
+> 		__flush_tlb_single(addr);
+> 
+> since we want to use the invlpg instruction regardless of any PGE issues 
+> if it is available.
+> 
+> There's another issue, which is the fact that I do not believe that invlpg 
+> is even guaranteed to invalidate a G page at all - although obviously all 
+> current CPU's seem to work that way. However, I don't see that documented 
+> anywhere. 
 
-Does POSIX really require that granularity of change?  Would an
-implementation which, say, stored all credentials per-thread/task
-and only picked up changes from other threads at kernel entry/exit
-not be in spec?  That seems like a lower overhead solution than
-locking all access to UIDs.
+P4 System Programming Guide, Section 10.9:
+The INVLPG instruction invalidates the TLB for a specific page. This 
+instruction is the most efficient in cases where software only needs to 
+invalidate a specific page, because it improves performance over 
+invalidating the whole TLB. This instruction is not affected by the 
+state of the G flag in a page-directory or page-table entry.
 
-miket

@@ -1,56 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264142AbTEXHZL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 May 2003 03:25:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264185AbTEXHZL
+	id S264221AbTEXHxw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 May 2003 03:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264222AbTEXHxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 May 2003 03:25:11 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51980 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264142AbTEXHZK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 May 2003 03:25:10 -0400
-Date: Sat, 24 May 2003 08:38:07 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       linux-ia64@linuxia64.org, davidm@napali.hpl.hp.com, akpm@digeo.com
-Subject: Re: /proc/kcore - how to fix it
-Message-ID: <20030524083807.A1192@flint.arm.linux.org.uk>
-Mail-Followup-To: "Luck, Tony" <tony.luck@intel.com>,
-	Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-	linux-ia64@linuxia64.org, davidm@napali.hpl.hp.com, akpm@digeo.com
-References: <DD755978BA8283409FB0087C39132BD101B00E0A@fmsmsx404.fm.intel.com>
+	Sat, 24 May 2003 03:53:51 -0400
+Received: from h80ad2699.async.vt.edu ([128.173.38.153]:57766 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S264221AbTEXHxu (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sat, 24 May 2003 03:53:50 -0400
+Message-Id: <200305240805.h4O85f9O009429@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Jim Keniston <jkenisto@us.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Anton Blanchard <anton@samba.org>,
+       "Feldman, Scott" <scott.feldman@intel.com>, Greg KH <greg@kroah.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Phil Cayton <phil.cayton@intel.com>,
+       Russell King <rmk@arm.linux.org.uk>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: [RFC] [PATCH] Net device error logging (revised) 
+In-Reply-To: Your message of "Fri, 23 May 2003 23:21:24 PDT."
+             <3ECF0F64.AAD25389@us.ibm.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <3ECF0F64.AAD25389@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <DD755978BA8283409FB0087C39132BD101B00E0A@fmsmsx404.fm.intel.com>; from tony.luck@intel.com on Fri, May 23, 2003 at 04:51:43PM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Content-Type: multipart/signed; boundary="==_Exmh_66314912P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 24 May 2003 04:05:41 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 23, 2003 at 04:51:43PM -0700, Luck, Tony wrote:
-> > One alternative I considered was to use just do a page table lookup.
-> > But I fear that some architectures use direct mapping registers etc.
-> > with mappings not in the page tables for the direct mapping, so it 
-> > probably won't work for everybody.
-> 
-> You are right.  IA64 maps the kernel with some locked registers, so
-> there are no pagetables to show that the mapping exists.
+--==_Exmh_66314912P
+Content-Type: text/plain; charset=us-ascii
 
-ARM maps the kernel direct-mapped RAM using 1MB section mappings, which
-the normal pgd/pmd/pte macros don't recognise as being valid.
+On Fri, 23 May 2003 23:21:24 PDT, Jim Keniston said:
 
-> I don't know ... you'll have to dust off those fixes for /proc to let
-> the negative file offsets get as far as the kcore.c code so we can
-> see what utilities work.  In practice we probably don't care about
-> anything other than gdb.
+> - With Steve Hemminger's creation of the "net" device class a few days
+> ago, the network device's interface name is now sufficient to find the
+> information about the underlying device in sysfs (even without running
+> ethtool).  So these macros no longer log the device's driver name and
+> bus ID.
 
-gdb definitely breaks - that's why I had to do the changes in the first
-place.  gdb tries to lseek to negative 64-bit file offsets, which the
-kernel rejects with EINVAL iirc.  (Tried it earlier this week.)
+Is something *else* logging the driver name and bus ID?
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Just because an interface is called 'eth2' when the message is logged
+doesn't mean it's still eth2 when you actually *read* the message.
+And no, you *can't* rely on finding the "renaming bus-ID to ethN" message
+in the logs - if the system is unstable the last bit of local logging may
+go bye-bye if not synced, and messages about network hardware problems are
+*very* prone to not making it to the syslog server (I wonder why? ;).
 
+Been there, done that, it's not fun.  Almost swapped out the wrong eth1
+a *second* time before realizing what was really going on...
+
+--==_Exmh_66314912P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+zyfUcC3lWbTT17ARAlRpAKCjpTPiL/ZOwFIEGMOgKHKVQZxtkwCgkyOB
+gHbZjNch5l9CS35Uzq4x93M=
+=X1IW
+-----END PGP SIGNATURE-----
+
+--==_Exmh_66314912P--

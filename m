@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317689AbSFLMJF>; Wed, 12 Jun 2002 08:09:05 -0400
+	id <S317690AbSFLMLy>; Wed, 12 Jun 2002 08:11:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317690AbSFLMJE>; Wed, 12 Jun 2002 08:09:04 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:55754 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S317689AbSFLMJD> convert rfc822-to-8bit; Wed, 12 Jun 2002 08:09:03 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.name>
-To: "David S. Miller" <davem@redhat.com>, wjhun@ayrnetworks.com
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-Date: Wed, 12 Jun 2002 14:08:26 +0200
-User-Agent: KMail/1.4.1
-Cc: paulus@samba.org, roland@topspin.com, linux-kernel@vger.kernel.org
-In-Reply-To: <15619.9534.521209.93822@nanango.paulus.ozlabs.org> <20020610110740.B30336@ayrnetworks.com> <20020612.044759.115989376.davem@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200206121408.26897.oliver@neukum.name>
+	id <S317691AbSFLMLx>; Wed, 12 Jun 2002 08:11:53 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:34823 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S317690AbSFLMLw>; Wed, 12 Jun 2002 08:11:52 -0400
+Message-Id: <200206121211.g5CCBjZt030139@pincoya.inf.utfsm.cl>
+To: Ben Greear <greearb@candelatech.com>
+cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: RFC: per-socket statistics on received/dropped packets 
+In-Reply-To: Message from Ben Greear <greearb@candelatech.com> 
+   of "Tue, 11 Jun 2002 23:26:40 MST." <3D06E9A0.5060801@candelatech.com> 
+Date: Wed, 12 Jun 2002 08:11:45 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 12. Juni 2002 13:47 schrieb David S. Miller:
->    From: William Jhun <wjhun@ayrnetworks.com>
->    Date: Mon, 10 Jun 2002 11:07:40 -0700
->
->    On Sun, Jun 09, 2002 at 09:27:05PM -0700, David S. Miller wrote:
->    > I'm trying to specify this such that knowledge of cachelines and
->    > whatnot don't escape the arch specific code, ho hum...  Looks like
->    > that isn't possible.
->
->    Perhaps provide macros in asm/pci.h that will:
->
-> You don't understand, I think.  I want to avoid the drivers doing
-> any of the "align this, align that" stuff.  I want the allocation
-> to do it for them, that way the code is in one place.
+[Cc:'s stripped]
 
-That means that all buffers must be allocated seperately.
-Is it worth that ? How about skbuffs ?
+Ben Greear <greearb@candelatech.com> said:
+> Pekka Savola wrote:
+> > Just to chime in my support (not that I don't think anyone needs it), I 
+> > think socket-based counters are An Extremely Bad Idea.  
 
-	Regards
-		Oliver
+[...]
 
+> If they are useful to some people, and have zero performance affect on others
+> (due to being a configurable kernel feature), then what is your
+> complaint?
+
+That it adds code, which impacts _everybody_ futzing around in that area,
+specially if it is a configurable option (this means multiplying the
+possible configurations to be tested).
+
+> I see two reasons left to dislike this feature:
+> 
+> 1)  General increase in #ifdef'd code.  This actually seems like
+>     a pretty good argument, but I haven't seen anyone mention it
+>     specifically.
+
+Right.
+
+> 2)  General dislike for a feature that one personally has no use for.
+>     Seems to be Dave's main (professed) excuse.
+
+General dislike for adding features of _extremely_ limited (debugging!) use?
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

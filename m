@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290289AbSE1D42>; Mon, 27 May 2002 23:56:28 -0400
+	id <S293203AbSE1D72>; Mon, 27 May 2002 23:59:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293203AbSE1D41>; Mon, 27 May 2002 23:56:27 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:9374 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S290289AbSE1D40>;
-	Mon, 27 May 2002 23:56:26 -0400
-Date: Mon, 27 May 2002 20:41:14 -0700 (PDT)
-Message-Id: <20020527.204114.126236775.davem@redhat.com>
-To: szepe@pinerecords.com
-Cc: colin@gibbs.dhs.org, linux-kernel@vger.kernel.org, tcallawa@redhat.com,
-        sparclinux@vger.kernel.org, aurora-sparc-devel@linuxpower.org
-Subject: Re: 2.4 SRMMU bug revisited
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020527213016.GB7155@beth.pinerecords.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S312486AbSE1D71>; Mon, 27 May 2002 23:59:27 -0400
+Received: from nycsmtp1fb.rdc-nyc.rr.com ([24.29.99.76]:29453 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S293203AbSE1D70>;
+	Mon, 27 May 2002 23:59:26 -0400
+Date: Mon, 27 May 2002 23:50:11 -0400 (EDT)
+From: Frank Davis <fdavis@si.rr.com>
+X-X-Sender: <fdavis@localhost.localdomain>
+To: <linux-kernel@vger.kernel.org>
+cc: <fdavis@si.rr.com>, <torvalds@transmeta.com>
+Subject: [PATCH] 2.5.18 : drivers/pci/pool.c (revised)
+Message-ID: <Pine.LNX.4.33.0205272347350.1518-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Tomas Szepe <szepe@pinerecords.com>
-   Date: Mon, 27 May 2002 23:30:16 +0200
+Hello all,
+  Here's a revised patch for drivers/pci/pool.c that addresses the 
+warning. This one fixes the cause. Please review for inclusion.
 
-   http://linux.bkbits.net:8080/linux-2.4/
-   
-The BK repository to use has the URL:
+Regards,
+Frank
 
-	bk://linux.bkbits.net/linux-2.4
+--- drivers/pci/pool.c.old	Mon May 27 23:45:08 2002
++++ drivers/pci/pool.c	Mon May 27 23:45:13 2002
+@@ -309,9 +309,9 @@
+ 		return;
+ 	}
+ 	if (page->bitmap [map] & (1UL << block)) {
+-		printk (KERN_ERR "pci_pool_free %s/%s, dma %x already free\n",
++		printk (KERN_ERR "pci_pool_free %s/%s, dma %lx already free\n",
+ 			pool->dev ? pool->dev->slot_name : NULL,
+-			pool->name, dma);
++	A		pool->name, (unsigned long) dma);
+ 		return;
+ 	}
+ 	memset (vaddr, POOL_POISON_BYTE, pool->size);
 
-The web stuff is updated still by hand and is as a result chronically
-out of date.

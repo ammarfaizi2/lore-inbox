@@ -1,75 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273414AbRIRTTZ>; Tue, 18 Sep 2001 15:19:25 -0400
+	id <S273421AbRIRTZF>; Tue, 18 Sep 2001 15:25:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273415AbRIRTTP>; Tue, 18 Sep 2001 15:19:15 -0400
-Received: from ezri.xs4all.nl ([194.109.253.9]:1217 "HELO ezri.xs4all.nl")
-	by vger.kernel.org with SMTP id <S273414AbRIRTTI>;
-	Tue, 18 Sep 2001 15:19:08 -0400
-Date: Tue, 18 Sep 2001 21:19:30 +0200 (CEST)
-From: Eric Lammerts <eric@lammerts.org>
-To: David Acklam <dackl@post.com>
-cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>, <greg@kroah.com>
-Subject: Re: compiled-in (non-modular) USB initialization bug
-In-Reply-To: <Pine.LNX.4.33.0109180025320.8401-100000@ally.lammerts.org>
-Message-ID: <Pine.LNX.4.33.0109182108001.10503-100000@ally.lammerts.org>
+	id <S273419AbRIRTYq>; Tue, 18 Sep 2001 15:24:46 -0400
+Received: from forge.redmondlinux.org ([209.81.49.42]:64742 "EHLO
+	forge.redmondlinux.org") by vger.kernel.org with ESMTP
+	id <S273418AbRIRTYl>; Tue, 18 Sep 2001 15:24:41 -0400
+Message-ID: <3BA79F09.9060509@cheek.com>
+Date: Tue, 18 Sep 2001 12:22:49 -0700
+From: Joseph Cheek <joseph@cheek.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010914
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Steven Walter <srwalter@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ide-]scsi timeouts while writing cdrom
+In-Reply-To: <Pine.LNX.4.10.10109142131030.28176-100000@forge.redmondlinux.org> <20010915122542.A23825@hapablap.dyn.dhs.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+cool, i turned off DMA on both cd's and it works now!  i still get 
+timeouts but not enough to crash the system.
 
-On Tue, 18 Sep 2001, Eric Lammerts wrote:
+Steven Walter wrote:
+
+>With what drive chipset is this?
 >
-> The following patch adds the "ip=wait" option. It makes ipconfig.c
-> retry forever until is has found a suitable device to do
-> dhcp/bootp/rarp.
+>In any event, try doing an 'hdparm -d0 /dev/hdd' and see if that fixes
+>it.  That will turn off DMA on the CD-RW, which is probably causing the
+>trouble.  If not, see if turning off DMA on /all/ the drives fixes it.
+>
+>I had a problem similar to this on my system, with an AMD-751 ide
+>controller.  To fix it, all I had to do was turn on CONFIG_EXPERIMENTAL
+>and then "AMD Viper ATA-66 Override (WIP)".  After that, the problem
+>went away.
+>
+>On Fri, Sep 14, 2001 at 09:36:26PM -0700, Joseph Cheek wrote:
+>
+>>hello all,
+>>
+>>my shiny new cdrw hangs the system when i try to burn a cdrom.  i've got a
+>>a completely IDE system.  hda and hdb are hard drives while hdc is a
+>>standard cdrom and hdd is a cdrw.
+>>
+>>while burning cdrecord writes a couple of tracks and then the whole system
+>>freezes [i need to hard power off].  i can blank cdrw's in the drive just
+>>fine, however.  i'm running 2.4.9-ac10 SMP [on a single-proc system] and
+>>all partitions are ext3.  ide-scsi is loaded as a module at boot.
+>>
+>>here's what /var/log/messages shows:
+>>
+>>Sep 14 21:12:45 sanfrancisco kernel: scsi : aborting command due to
+>>timeout : pid 0, scsi0, channel 0, id 1, lun 0 0x00 00 00 00 00 00
+>>Sep 14 21:12:54 sanfrancisco kernel: Device not ready.  Make sure there is
+>>a disc in the drive.
+>>Sep 14 21:12:55 sanfrancisco last message repeated 2 times
+>>Sep 14 21:13:20 sanfrancisco kernel: hdb: timeout waiting for DMA
+>>Sep 14 21:13:20 sanfrancisco kernel: ide_dmaproc: chipset supported
+>>ide_dma_timeout func only: 14
+>>Sep 14 21:13:26 sanfrancisco kernel: scsi : aborting command due to
+>>timeout : pid 0, scsi0, channel 0, id 1, lun 0 0x43 00 00 00 00 00 00 00
+>>0c 00
+>>Sep 14 21:13:37 sanfrancisco kernel: scsi : aborting command due to
+>>timeout : pid 0, scsi0, channel 0, id 0, lun 0 0x2a 00 00 00 05 92 00 00
+>>1f 00
+>>Sep 14 21:13:37 sanfrancisco kernel: hdc: timeout waiting for DMA
+>>Sep 14 21:13:37 sanfrancisco kernel: ide_dmaproc: chipset supported
+>>ide_dma_timeout func only: 14
+>>Sep 14 21:13:37 sanfrancisco kernel: hdd: status timeout: status=0xd8 {
+>>Busy }
+>>Sep 14 21:13:37 sanfrancisco kernel: hdd: DMA disabled
+>>Sep 14 21:13:37 sanfrancisco kernel: hdd: drive not ready for command
+>>Sep 14 21:13:41 sanfrancisco kernel: hdd: ATAPI reset complete
+>>Sep 14 21:13:41 sanfrancisco kernel: hdd: irq timeout: status=0xd0 { Busy
+>>}
+>>Sep 14 21:13:42 sanfrancisco kernel: hdd: ATAPI reset complete
+>>Sep 14 21:13:42 sanfrancisco kernel: hdd: irq timeout: status=0x80 { Busy
+>>}
+>>Sep 14 21:13:42 sanfrancisco kernel: scsi0 channel 0 : resetting for
+>>second half of retries.
+>>Sep 14 21:13:42 sanfrancisco kernel: SCSI bus is being reset for host 0
+>>channel 0.
+>>
+>>any guesses?
+>>
+>>thanks!
+>>
+>>joe
+>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>
 
-This was a dumb patch. It didn't schedule so the USB kernel thread
-could not do anything. This is fixed in the patch below. The ip=wait
-parameter is gone now: it'll always wait for a net device if you're
-doing nfsroot.
-
-I've tested it with a Pegasus USB ethernet adapter and it works ok.
-
-You can even boot the kernel without any adapter plugged in. It will
-patiently wait for you to plug one in. Then it'll start the
-dhcp/bootp/rarp stuff.
-
-Eric
-
-
---- linux-2.4.9-ac7/net/ipv4/ipconfig.c.orig	Wed May  2 05:59:24 2001
-+++ linux-2.4.9-ac7/net/ipv4/ipconfig.c	Tue Sep 18 17:16:07 2001
-@@ -80,6 +80,8 @@
- #define CONF_PRE_OPEN		(HZ/2)	/* Before opening: 1/2 second */
- #define CONF_POST_OPEN		(1*HZ)	/* After opening: 1 second */
-
-+#define CONF_DEV_WAIT		(1*HZ)
-+
- /* Define the timeout for waiting for a DHCP/BOOTP/RARP reply */
- #define CONF_OPEN_RETRIES 	2	/* (Re)open devices twice */
- #define CONF_SEND_RETRIES 	6	/* Send six requests per open */
-@@ -1105,8 +1107,20 @@
- 		;
-
- 	/* Setup all network devices */
--	if (ic_open_devs() < 0)
-+	while (ic_open_devs() < 0) {
-+#ifdef CONFIG_ROOT_NFS
-+		if (ROOT_DEV == MKDEV(UNNAMED_MAJOR, 255)) {
-+			printk(KERN_ERR
-+				"IP-Config: Retrying forever (NFS root)...\n");
-+
-+			// wait a while and try again
-+		        current->state = TASK_INTERRUPTIBLE;
-+                	schedule_timeout(CONF_DEV_WAIT);
-+                	continue;
-+		}
-+#endif
- 		return -1;
-+        }
-
- 	/* Give drivers a chance to settle */
- 	jiff = jiffies + CONF_POST_OPEN;
 

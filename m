@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282802AbRK0FIT>; Tue, 27 Nov 2001 00:08:19 -0500
+	id <S282812AbRK0FK7>; Tue, 27 Nov 2001 00:10:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282804AbRK0FIJ>; Tue, 27 Nov 2001 00:08:09 -0500
-Received: from zero.tech9.net ([209.61.188.187]:36361 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S282802AbRK0FIA>;
-	Tue, 27 Nov 2001 00:08:00 -0500
-Subject: Re: [PATCH] proc-based cpu affinity user interface
-From: Robert Love <rml@tech9.net>
-To: Anton Blanchard <anton@samba.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011127153740.A13824@krispykreme>
-In-Reply-To: <1006831902.842.0.camel@phantasy> 
-	<20011127153740.A13824@krispykreme>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
-Date: 27 Nov 2001 00:08:28 -0500
-Message-Id: <1006837709.971.6.camel@phantasy>
+	id <S282809AbRK0FKt>; Tue, 27 Nov 2001 00:10:49 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:26248
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S282813AbRK0FKd>; Tue, 27 Nov 2001 00:10:33 -0500
+Date: Mon, 26 Nov 2001 22:10:12 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: olh@suse.de, marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: [PATCH] net/802/Makefile
+Message-ID: <20011126221012.C13091@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <Pine.LNX.4.21.0111261514070.13961-100000@freak.distro.conectiva> <20011126.112033.88487539.davem@redhat.com> <20011126203527.C31937@suse.de> <20011126.114045.102135510.davem@redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011126.114045.102135510.davem@redhat.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-11-26 at 23:37, Anton Blanchard wrote:
-> > Attached is my procfs-based implementation of a user interface for
-> > getting and setting a task's CPU affinity.  Patch is against 2.4.16. 
+On Mon, Nov 26, 2001 at 11:40:45AM -0800, David S. Miller wrote:
+>    From: Olaf Hering <olh@suse.de>
+>    Date: Mon, 26 Nov 2001 20:35:27 +0100
 > 
-> Have you seen Andrew Mortons cpus_allowed patch?
+>    Can you submit that version? ;)
+>    
+> No, because it is writable by the user in every kernel source tree I
+> have ever seen, the change makes no sense.
 
-No, although Andrew mentioned he had worked on it to me.
+You haven't tried a BitKeeper tree then.  You have to explicitly get
+write permission.
 
-Looking it over...its of course very similar.  One thing to note is his
-patch doesn't incorporate the bits from Ingo's patch that I borrowed. 
-I.e., use of cpu_online_map, the forcing of the reschedule, etc.  I
-favor some of the differences in my variant.
+> In the official tarballs it is writable, and even in every CVS tree
+> (2.2.x, 2.4.x vger) I have looked at it is writable.
+> 
+> And as Alan has stated, this code is pretty irrelevant soon.
 
-I am glad to see he wrote a proc_write function, because I was worried I
-was reimplementing something there, but I suppose not.
+If this rewrite goes into 2.4, yes.  And using 2.2 as an example it
+could after a while...
 
-Either way, I'd like to see one of these in the kernel.
-
-	Robert Love
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,60 +1,229 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266135AbSLYJaT>; Wed, 25 Dec 2002 04:30:19 -0500
+	id <S266175AbSLYK3F>; Wed, 25 Dec 2002 05:29:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266160AbSLYJaT>; Wed, 25 Dec 2002 04:30:19 -0500
-Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:4749 "EHLO
-	mail.kolivas.net") by vger.kernel.org with ESMTP id <S266135AbSLYJaS>;
-	Wed, 25 Dec 2002 04:30:18 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Con Kolivas <conman@kolivas.net>
-Reply-To: conman@kolivas.net
-To: vda@port.imtp.ilyichevsk.odessa.ua,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] scheduler tunables with contest - exit_weight
-Date: Wed, 25 Dec 2002 20:38:25 +1100
-User-Agent: KMail/1.4.3
-References: <200212220818.22906.conman@kolivas.net> <200212250835.gBP8ZMs17478@Port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200212250835.gBP8ZMs17478@Port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212252038.29905.conman@kolivas.net>
+	id <S266186AbSLYK3E>; Wed, 25 Dec 2002 05:29:04 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:40384 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S266175AbSLYK3B>; Wed, 25 Dec 2002 05:29:01 -0500
+Message-Id: <4.3.2.7.2.20021225112816.00b58a90@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Wed, 25 Dec 2002 11:37:46 +0100
+To: linux-kernel@vger.kernel.org
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: 2.5.53 aic7xxx problems ?
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Following turns up in the log.
+Cause for concern ?
+HW is:
+  Adaptec 39160 - 2 x U160 on channel A, 2 x U160 on channel B (Id's 0,1,2,3)
+  Adaptec 2940AU - DVD + DAT (Id's 4,5)
 
-On Thu, 26 Dec 2002 12:24 am, Denis Vlasenko wrote:
-> On 21 December 2002 19:18, Con Kolivas wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >
-> > osdl hardware, contest results, 2.5.52-mm2 with scheduler tunable -
-> > exit weight (ew1= exit weight ==1 and so on)
-> >
-> > io_load:
-> > Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-> > ew0 [5]                 105.3   90      16      22      2.91
-> > ew1 [5]                 86.4    97      12      18      2.39
-> > ew2 [5]                 74.9    109     9       18      2.07
-> > ew3 [5]                 84.2    100     11      19      2.33
-> > ew4 [5]                 83.8    102     10      18      2.31
-> > ew5 [5]                 89.9    93      12      20      2.48
-> > ew6 [5]                 97.5    88      13      20      2.69
-> > ew7 [5]                 89.2    95      12      20      2.46
->
-> In spite of worrying reports of decreasing single task performance,
-> does it make sense to add "null_load" test? ;)
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): SCB 2: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 8 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 14 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): SCB 3: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 8 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 14 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): SCB 2: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 8 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 14 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): SCB 3: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 14 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): SCB 2: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 12 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 14 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): SCB 3: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 12 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 14 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): SCB 2: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 768 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 14 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:5:0): SCB 2: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:5:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:5:0): Handled Residual of 10 bytes
+Dec 25 11:18:40 margit kernel: (scsi0:A:0:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi0:A:0:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi0:A:0:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi0:A:0:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi0:A:0:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi0:A:1:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi0:A:1:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi0:A:1:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi0:A:1:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi0:A:1:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:2:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:2:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:2:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:2:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:2:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:3:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:3:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:3:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:3:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:3:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): SCB 3: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 14 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): SCB 2: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 14 bytes
+Dec 25 11:18:40 margit kernel: sr0: CDROM not ready.  Make sure there is a 
+disc in the drive.
+Dec 25 11:18:40 margit kernel: cdrom: open failed.
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): SCB 2: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 14 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): SCB 3: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 12 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 14 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): SCB 2: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 12 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 14 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): SCB 3: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 8 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 14 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): SCB 2: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 8 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 14 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): SCB 3: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 8 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 14 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): SCB 2: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 14 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): SCB 3: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 12 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 14 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): SCB 2: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 12 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 14 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): SCB 3: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 768 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:4:0): Handled Residual of 14 bytes
+Dec 25 11:18:40 margit kernel: (scsi2:A:5:0): SCB 3: requests Check Status
+Dec 25 11:18:40 margit kernel: (scsi2:A:5:0): Sending Sense
+Dec 25 11:18:40 margit kernel: (scsi2:A:5:0): Handled Residual of 10 bytes
+Dec 25 11:18:40 margit kernel: (scsi0:A:0:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi0:A:0:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi0:A:0:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi0:A:0:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi0:A:0:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi0:A:1:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi0:A:1:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi0:A:1:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi0:A:1:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi0:A:1:0): Handled Residual of 752 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (752 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:2:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:2:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:2:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:2:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:2:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:3:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:3:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:3:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:3:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
+Dec 25 11:18:40 margit kernel: (scsi1:A:3:0): Handled Residual of 748 bytes
+Dec 25 11:18:40 margit kernel: Saw underflow (748 of 768 bytes). Treated as 
+error
 
-I've simplified the data. There is no significant difference in the no_load 
-groups with changes to the scheduler tunables over useful ranges. 
+Merry Christmas all.
+Margit 
 
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE+CXyRF6dfvkL3i1gRAtSyAJ9XThpp5iCI1FcjDxVOESbm5ialywCgg7Vb
-HN+jWurjIwXngqCUOmDWhh0=
-=7Iy8
------END PGP SIGNATURE-----

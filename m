@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271520AbRHPI0Y>; Thu, 16 Aug 2001 04:26:24 -0400
+	id <S271522AbRHPIjR>; Thu, 16 Aug 2001 04:39:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271522AbRHPI0O>; Thu, 16 Aug 2001 04:26:14 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:24595 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S271520AbRHPI0J>; Thu, 16 Aug 2001 04:26:09 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: David Ford <david@erisksecurity.com>, linux-kernel@vger.kernel.org
-Subject: Re: VM and N-order allocation failed.
-Date: Thu, 16 Aug 2001 10:32:41 +0200
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <3B7AE7D2.3070900@erisksecurity.com>
-In-Reply-To: <3B7AE7D2.3070900@erisksecurity.com>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
+	id <S271523AbRHPIjH>; Thu, 16 Aug 2001 04:39:07 -0400
+Received: from finch-post-12.mail.demon.net ([194.217.242.41]:40710 "EHLO
+	finch-post-12.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S271522AbRHPIiz>; Thu, 16 Aug 2001 04:38:55 -0400
+Date: Thu, 16 Aug 2001 09:37:58 +0100 (BST)
+From: Steve Hill <steve@navaho.co.uk>
+To: Andreas Dilger <adilger@turbolinux.com>
+cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: /dev/random in 2.4.6
+In-Reply-To: <200108151713.f7FHDg0n013420@webber.adilger.int>
+Message-ID: <Pine.LNX.4.21.0108160934340.2107-100000@sorbus.navaho>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010816082620Z16213-1231+1148@humbolt.nl.linux.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 15, 2001 11:21 pm, David Ford wrote:
-> I've a friend who has a small box doing routing/firewalling/nat for a 
-> /27 and the bandwidth is pretty tiny.  The machine has 32megs of ram and 
-> 100 in swap.
-> 
-> It dies anywhere from an hour after reboot to 12 hours later, on console 
-> are messages like so "__alloc_pages: 0-order allocation failed." and 
-> "ip_conntrack: table full, dropping packet."
-> 
-> His prior kernel was 2.4.7, nothing special, he's using 3com 
-> 3cSOHO100-TX and Cpq Neteligent 10/100.  I just upped him to 2.4.8 as a 
-> starter and we'll see how it's going.  I don't have direct access to the 
-> box so I can't give complete information.
-> 
-> Comments and suggestions welcomed,
+On Wed, 15 Aug 2001, Andreas Dilger wrote:
 
-We should add the GFP_* allocation flags to that allocation failed
-message so we know whether it's atomic, noio, nofs, highmem or what.
+> Yes, it is possible to increase the size of the in-kernel entropy pool
+> by changing the value in linux/drivers/char/random.c.  You will likely
+> also need to fix up the user-space scripts that save and restore the
+> entropy on shutdown/startup (they can check /proc/sys/kernel/random/poolsize,
+> if available, to see how many bytes to read/write).
 
-Please define 'it dies' a little more precisely - oops, deadlock,
-livelock, app terminated or what.  Then please supply the /proc/meminfo
-if possible or shift-ScrLk dump to console (roughly the same thing).
+It didn't help - there just isn't enough entropy data being generated
+between boot time and when I extract the random numbers.  This is
+basically a system to install a linux distribution, so it's booted off the
+network with a readonly root NFS, so there is no saved entropy data to
+load, so I'm starting off with an empty entropy pool and having to rely on
+the kernel to generate the data from scratch.  The random numbers are used
+to initialise the ssh and VPN keys.
 
-He needs to upgrade 2.4.9-preX because that is where the VM work is
-being done.  Finally, it would be worth merging this thread with the
-following thread on linux-mm:
+-- 
 
-  0-order allocation problem
+- Steve Hill
+System Administrator         Email: steve@navaho.co.uk
+Navaho Technologies Ltd.       Tel: +44-870-7034015
 
---
-Daniel
+        ... Alcohol and calculus don't mix - Don't drink and derive! ...
+
+

@@ -1,36 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbULJQZt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbULJQ0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261217AbULJQZt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 11:25:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbULJQZt
+	id S261215AbULJQ0p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 11:26:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbULJQ0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 11:25:49 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:985 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261217AbULJQZq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 11:25:46 -0500
-Subject: Re: IDE: strange WAIT_READY dependency on APM
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041209034438.GF22324@stusta.de>
-References: <20041209034438.GF22324@stusta.de>
+	Fri, 10 Dec 2004 11:26:45 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:2234 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261215AbULJQ0i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 11:26:38 -0500
+Subject: Re: [RFC PATCH] debugfs - yet another in-kernel file system
+From: Josh Boyer <jdub@us.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <20041210153027.GB5827@kroah.com>
+References: <20041210005055.GA17822@kroah.com>
+	 <1102689974.26320.39.camel@weaponx.rchland.ibm.com>
+	 <20041210153027.GB5827@kroah.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1102692003.3201.5.camel@localhost.localdomain>
+Message-Id: <1102695997.26320.54.camel@weaponx.rchland.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 10 Dec 2004 15:20:05 +0000
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 10 Dec 2004 10:26:37 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-12-09 at 03:44, Adrian Bunk wrote:
-> The time for the !APM case was already increased from 30msec in 2.4 .
-> Isn't there a timeout that is suitable for all cases?
+On Fri, 2004-12-10 at 09:30, Greg KH wrote:
+> > 
+> > Writing 'Y', 'y', or '1' is allowed, but only 'Y' is ever returned by
+> > the read function (similar for the "false" case).  That can be confusing
+> > to a program if it writes '1', and then checks to see if the value it
+> > wrote took and it gets back 'Y'.  Maybe only allow what you are going to
+> > return for bool values in the write case?
+> 
+> No, this is the exact same way (and pretty much the same code) as the
+> module param stuff is in sysfs today.  Just trying to be consistant
+> here.
 
-The five seconds should be just fine for all cases. The smaller value
-with no
-power manglement should help speed up recovery however. It probably
-doesn't belong CONFIG_APM now ACPI and friends are involved either.
+Ok.  Consistency is a good thing.
+
+> 
+> > > +#define DEBUG_MAGIC	0x64626720
+> > 
+> > #define DEBUGFS_MAGIC
+> 
+> Hm, ok, sure.  That doesn't really matter.
+
+No, not really.  Just a nit.
+
+> 
+> > > +static inline struct dentry *debugfs_create_bool(const char *name, mode_t mode, struct dentry *parent, u32 *value)
+> > > +{ return EFF_PTR(-ENODEV); }
+> > 
+> > Could these just return NULL perhaps?  Would be more like procfs then,
+> > which is what I'd assume most drivers will be converting from.
+> 
+> No, see my previous response as to why this would be a bad thing to do.
+> We should all learn from the mistakes made in the past and try not to
+> repeat them.
+
+Yep, agreed.
+
+josh
 

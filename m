@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263943AbTEOKDg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 06:03:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263944AbTEOKDg
+	id S263944AbTEOKIu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 06:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263945AbTEOKIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 06:03:36 -0400
-Received: from corky.net ([212.150.53.130]:57009 "EHLO marcellos.corky.net")
-	by vger.kernel.org with ESMTP id S263943AbTEOKDf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 06:03:35 -0400
-Date: Thu, 15 May 2003 13:16:17 +0300 (IDT)
-From: Yoav Weiss <ml-lkml@unpatched.org>
-X-X-Sender: yoavw@marcellos.corky.net
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Ahmed Masud <masud@googgun.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: encrypted swap [was: The disappearing sys_call_table export.]
-In-Reply-To: <20030515072425.GA7638@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.44.0305151256210.26657-100000@marcellos.corky.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
+	Thu, 15 May 2003 06:08:50 -0400
+Received: from port-212-202-172-137.reverse.qdsl-home.de ([212.202.172.137]:59805
+	"EHLO jackson.localnet") by vger.kernel.org with ESMTP
+	id S263944AbTEOKIt convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 06:08:49 -0400
+Date: Thu, 15 May 2003 12:25:00 +0200 (CEST)
+Message-Id: <20030515.122500.35026542.rene.rebe@gmx.net>
+To: josh@toad.stack.nl
+Cc: mikpe@csd.uu.se, linux-kernel@vger.kernel.org
+Subject: Re: APIC error
+From: Rene Rebe <rene.rebe@gmx.net>
+In-Reply-To: <20030515120614.R94113@toad.stack.nl>
+References: <20030514.221858.846957347.rene.rebe@gmx.net>
+	<16067.22472.306565.803037@gargle.gargle.HOWL>
+	<20030515120614.R94113@toad.stack.nl>
+X-Mailer: Mew version 3.1 on XEmacs 21.4.12 (Portable Code)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> s/currently running/running now or in the future/
+Hi,
 
-Hopefully near future only, assuming you have a proper log/alert system
-that sends logs to another machine.
-(and if you don't and your box stays owned, you have bigger problems
-than the swap sniffing).
+On: Thu, 15 May 2003 12:09:38 +0200 (CEST),
+    Jos Hulzink <josh@toad.stack.nl> wrote:
+> > No load balancing of I/O interrupts since they will all be directed to
+> > CPU 0 only. Unless your dual P5 is servicing a lot of interrupts, I doubt
+> > it will make a noticeable difference.
+> 
+> On my Dual PII 333, KDE 3.1 runs fine with interrupts mapped to both CPUs,
+> and performance is horrible when only CPU0 receives the interrupts.
+> 
+> Especially moving the timer interrupt to both CPUs makes difference like
+> night and day.
 
->
-> But apart from that, it does really reduce the window, agreed.
->
-> An alternative approach would simply zero all freed memory in the
-> system, with almost identical effects. Almost means you are missing
-> memory (that isn't cleared on reboot on all systems, ...) and this is
-> missing hard disk recovery that can read data already overwritten.
->
-> Arguments against this simpler approach?
+Thanks for all your contributions ;-) But with noapic I also get APIC
+errors from time to time (altough /etc/intrerrupts shows that the
+XT-PIC is used). But anyway the box is not running very reliable in
+both modes and processes seg-fault every now and then and sometimes
+the box freezed. I'll get rid of the box I got for free and no longer
+waste our time ... ;-)
 
-The performance impact for one.  My systems often has processes taking
-hundreds of megabytes in swap.  If we'd have to wipe all this space on the
-disk whenever such process dies, the system would be unusable.
+> Jos
 
-Second, see previous posts on this thread re hardware issues when writing
-zero blocks to some disks.  In short, you're never sure its really clean.
+Sincerely,
+  René Rebe
 
-Third, in case of crash (i.e. when someone pulls the plug and steals the
-server), the system had no chance to clean the swap.
-
-Encrypted swap solves all that.
-
->
-> Jörn
->
-> --
-> Rules of Optimization:
-> Rule 1: Don't do it.
-> Rule 2 (for experts only): Don't do it yet.
-> -- M.A. Jackson
->
-
+--  
+René Rebe - Europe/Germany/Berlin
+  rene@rocklinux.org rene.rebe@gmx.net
+http://www.rocklinux.org http://www.rocklinux.org/people/rene       
+http://gsmp.tfh-berlin.de/gsmp http://gsmp.tfh-berlin.de/rene

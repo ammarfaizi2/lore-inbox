@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbULAVXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbULAVYx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261456AbULAVXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 16:23:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbULAVXQ
+	id S261476AbULAVYx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 16:24:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbULAVYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 16:23:16 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:39671 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261454AbULAVXJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 16:23:09 -0500
-Date: Wed, 1 Dec 2004 15:22:41 -0600
-From: "Jose R. Santos" <jrsantos@austin.ibm.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Matthew Wilcox <matthew@wil.cx>,
-       "Jose R. Santos" <jrsantos@austin.ibm.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: phase change messages cusing slowdown with sym53c8xx_2 driver
-Message-ID: <20041201212241.GA1528@rx8.austin.ibm.com>
-References: <20041130030212.GB22916@austin.ibm.com> <20041201165654.GA32687@rx8.austin.ibm.com> <1101921398.1930.24.camel@mulgrave> <20041201203226.GI5752@parcelfarce.linux.theplanet.co.uk> <1101933788.1930.226.camel@mulgrave>
+	Wed, 1 Dec 2004 16:24:53 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:729 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261476AbULAVYt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 16:24:49 -0500
+Date: Wed, 1 Dec 2004 22:24:13 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Paul Davis <paul@linuxaudiosystems.com>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
+Message-ID: <20041201212413.GF22671@elte.hu>
+References: <20041201155353.GA30193@elte.hu> <Pine.OSF.4.05.10412011708520.8736-100000@da410.ifa.au.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1101933788.1930.226.camel@mulgrave>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.OSF.4.05.10412011708520.8736-100000@da410.ifa.au.dk>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley <James.Bottomley@SteelEye.com> [041201]:
-> Actually, yes, or the attached variant of it.  Does this solve the
-> problem?
-> 
-> There's no reason why we should assume a SCSI_3 or greater device
-> automatically supports ppr (especially if it's inquiry bit is
-> advertising that it doesn't...)
-> 
-> James
 
-That fixes the problem.  No more messages "phase change" messages are
-showing up and the disk performance is as expected.
+* Esben Nielsen <simlo@phys.au.dk> wrote:
 
-Thanks
+> Don't worry about setting up the stuff. Once you have the pipe it
+> ought to be RT in the usage of read/write, but setting it up is
+> something you is something you do "under boot", just as allocating
+> memory and other non-real-time stuff. 
 
--JRS
+actually, the main problem with fifos was they were _not_ atomic even in
+read/write (i myself fully expected them to be that, but they arent). 
+That's the bug/misfeature that i fixed in the latest kernels.
+
+	Ingo

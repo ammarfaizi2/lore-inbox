@@ -1,81 +1,302 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbUCaFsB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 00:48:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbUCaFr7
+	id S261757AbUCaGPa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 01:15:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUCaGPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 00:47:59 -0500
-Received: from turing-police.cirt.vt.edu ([128.173.54.129]:60041 "EHLO
-	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
-	id S261752AbUCaFrn (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 00:47:43 -0500
-Message-Id: <200403310547.i2V5lYae027457@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Humberto Massa <humberto.massa@almg.gov.br>
-Cc: debian-devel@lists.debian.org, debian-legal@lists.debian.org,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: POSSIVEL SPAM-- Re: Binary-only firmware covered by the GPL? 
-In-Reply-To: Your message of "Tue, 30 Mar 2004 14:44:32 -0300."
-             <4069B200.8010309@almg.gov.br> 
-From: Valdis.Kletnieks@vt.edu
-References: <YBtoCC.A.e-C.5maaAB@murphy>
-            <4069B200.8010309@almg.gov.br>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_887855632P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Wed, 31 Mar 2004 01:15:30 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:13449 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S261757AbUCaGPF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 01:15:05 -0500
+Date: Tue, 30 Mar 2004 22:15:08 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: lse-tech <lse-tech@lists.sourceforge.net>
+Subject: 2.6.5-rc3-mjb1
+Message-ID: <25470000.1080713708@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Wed, 31 Mar 2004 00:47:34 -0500
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_887855632P
-Content-Type: text/plain; charset=us-ascii
+The patchset is meant to be pretty stable, not so much a testing ground.
+Main differences from mainline are:
 
-On Tue, 30 Mar 2004 14:44:32 -0300, Humberto Massa said:
+1. Better performance & resource consumption, particularly on larger machines.
+2. Diagnosis tools (kgdb, early_printk, etc).
+3. Updated arch support for AMD64 + PPC64.
+4. Better support for sound, especially OSS emulation over ALSA.
+5. Better support for video (v4l2, bttv, ivtv).
+6. Kexec support.
 
-> There is another fail in your reasons here: as I said before, it just 
-> _happens_ to happen that fw[] = {} *is* the source code. What we must 
-> decide is what to do in the cases where *we don't know*.
-> 
-> After all, what happens is somebody *actually* prefers the binary blob 
-> for modification? And, what happens if _the copyright holder_ actually 
-> prefers the binary blob for modification? No inconsistency here.
+I'd be very interested in feedback from anyone willing to test on any 
+platform, however large or small.
 
-In fact, I was going to suggest that quite possibly, there really *is* no other
-option for source, because the target hardware doesn't have a functional enough
-toolchain, so hand-assembly really *is* the most reasonable thing.
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.6.5-rc3/patch-2.6.5-rc3-mjb1.bz2
 
-That file isn't any worse than my early '80s Compiler Design class project
-(done the last year before lex/yacc became available for the class) - one file
-was a large 247x139x3 (or thereabouts) array of integers, encoding all the
-shift/reduce productions for a compiler for a Pascal subset that actually
-generated working (though painfully ugly) code for the IBM S/370 architecture.
-(The assignment was "Pascal subset plus your choice of one extension" - my
-teammate and I made the mistake of choosing "Fortran-style mixed-mode
-arithmetic", that array was literally 1/4 the size before we started that.)
+Since 2.6.4-mjb1 (~ = changed, + = added, - = dropped)
 
-"You are lost in a maze of tiny little shift/reduce productions, all nearly
-alike"
+Notes: 
 
-And yes, the two of us generated the whole table by hand.  I admit we did
-finally break down and write some tools to verify that each line of the table
-did in fact have the right number of entries, and to add a column of zeros when
-the number of productions went up.
+Humpf. Carnage. Merging up to -rc3 was no fun at all, and lots of stuff has
+temporarily dropped out until I get my act together (most visibly, 4/4 split,
+filesystem AIO, and vsyscall gettimeofday).
 
-*Preferred* source format?  lex/yacc input files.  Did the source ever actually
-*exist* in that format?  Nope... :)
+On the upside, I've picked up Hugh's anon_mm changes ... purely because 
+they're simpler than anon_vma (which is more like what I originally had
+in mind).
+
+-----------------------------------------------------------------------
+
+Now in Linus' tree:
+
+- netpoll						Jeff Garzik / mpm
+- lotsa_sds						Badari
+- build_options_on_oops					Andrew Morton
+- distribute_boot_allocs				Manfred Spraul
 
 
---==_Exmh_887855632P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Dropped:
 
-iD8DBQFAalt2cC3lWbTT17ARAngbAKD1rHOWsuRC1AX080achgALrIXSnACgpBrO
-yacVOCZP7G1idpYk06cctgg=
-=hqEX
------END PGP SIGNATURE-----
+- 4g4g							Ingo Molnar
+- 4g_zap_low_mappings					Martin Lorenz
+- 4g4g_locked_copy					Dave McCracken
+	Will come back as soon as I've got it merged.
+- per_node_rss					Matt Dobson
+	Didn't merge clean for some reason
+- vgtod1						John Stultz
+- vgtod2						John Stultz
+- vgtod3						John Stultz
+	Depended on 4/4 split to go in cleanly
+- objrmap_fixes						Andrea
+- ioremap						Martin / Andy Whitcroft
+	Andy says he's fixed world hunger in a neater way (zone_gap)
+- aio-retry					Suparna, Janet, et al.
+- 4g4g-aio-hang-fix
+- aio-retry-elevated-refcount
+- aio-splice-runlist
+- aio-wait-page
+- aio-fs_read
+- aio-upfront-readahead
+- O_SYNC-speedup
+- aio-O_SYNC
+- gang_lookup_next
+- aio-gang_lookup-fix
+- aio-O_SYNC-short-write
+- aio-read-immediate
+	Filesystem AIO support ... damned if I can work out what's up here.
+- schedstats						Rick Lindsley
+	I need to pick up his new version. Bad Martin.
+- aio_cancel_fix					Chris Mason
+- aio_pipe						Chris Mason
+- raw							Badari
 
---==_Exmh_887855632P--
+
+New:
+
+~ scheduler_2.6.5_rc3_mm1				Nick Piggin
+	New version of sched_domains code from 2.6.5_rc3_mm1
++ 4k_stacks						Arjan / Dave H / bcrl
++ anon_mm2						Hugh Dickins
++ anon_mm3						Hugh Dickins
++ anon_mm4						Hugh Dickins
++ anon_mm5						Hugh Dickins
++ anon_mm6						Hugh Dickins
++ anon_mm7						Hugh Dickins
++ anon_mm8						Hugh Dickins
+~ sysfs_backing_store1					Maneesh Soni
+~ sysfs_backing_store2					Maneesh Soni
+~ sysfs_backing_store3					Maneesh Soni
+~ sysfs_backing_store4					Maneesh Soni
+~ sysfs_backing_store5					Maneesh Soni
+~ sysfs_backing_store6					Maneesh Soni
+	Make sysfs more efficient in its usage of lowmem
+	(picked up new version 0.3a)
+
+~ ivtv						Kevin Thayer / Steven Fuerst
+	Driver for ivtv (includes Hauppauge PVR 250 / 350)
+	Written by Kevin Thayer, ported to 2.6 by Steven Fuerst
++ sched_tunables					R. Love / Darren Hart
+	Provide sched tunables to play with on a rainy day.
++ zone_gap						Andy Whitcroft
+	Fix up the gap between ZONE_NORMAL and ZONE_HIGHMEM on NUMA.
++ max_mp_busses						James Cleverdon
+	Increase MAX_MP_BUSSES
+
+Pending:
+4/4 split
+vsyscall gettimeofday
+per_node_rss
+implicit_huge_pages
+hugetlb_dyn_as
+schedstats
+local_balance_exec
+reluctance in cross-node balance (less_bouncy)
+sched tunables patch
+emulex update
+NUMA membinding API
+x86_64 update
+config_numasched
+sched tunables (reinstante)
+list_of_lists
+Child runs first (akpm)
+Netdump
+
+Present in this patch:
+
+-mjb						Martin J. Bligh
+	Add a tag to the makefile
+
+kgdb						Various
+	Stolen from akpm's 2.6.0-mm1, includes fixes
+
+kgdboe_netpoll					Matt Mackall et al.
+	Kgdb over ethernet support that works with the netpoll infrastructure
+
+kgdboe_build_fix				Andrew Morton
+	Fix kgdboe stuff so non-ia32 platforms build
+
+kgdb_x86_64					Jim Houston
+	Support kgdb on x86_64
+
+kgdb_gdb6_patches				Jim Houston
+	Patches for gdb to support kgdb on x86_64, under scripts/kgdb/
+
+ppc64_reloc_hide				Anton Blanchard / Paul Mackerras
+	PPC 64 fixups
+
+spinlock_inlining				Andrew Morton & Martin J. Bligh
+	Inline spinlocks for profiling. Made into a ugly config option by me.
+
+lockmeter					John Hawkes / Hanna Linder
+	Locking stats.
+
+lockmeter_ia64					Ray Bryant
+	Add a config option for lockmeter on ia64
+
+oops_dump_preceding_code			Andrew Morton
+	dump opcodes preceding and after the offending EIP.
+
+scheduler_2.6.5_rc3_mm1				Nick Piggin
+	sched_domains code
+
+4k_stacks					Arjan / Dave H / bcrl
+	Provide an option to use 4k kernel stacks instead of 8k
+
+confighz					Andrew Morton / Dave Hansen
+	Make HZ a config option of 100 Hz or 1000 Hz
+
+config_page_offset				Dave Hansen / Andrea
+	Make PAGE_OFFSET a config option
+
+numameminfo					Martin Bligh / Keith Mannthey
+	Expose NUMA meminfo information under /proc/meminfo.numa
+
+partial_objrmap					Dave McCracken
+	Object based rmap for filebacked pages.
+
+anon_mm2					Hugh Dickins
+anon_mm3					Hugh Dickins
+anon_mm4					Hugh Dickins
+anon_mm5					Hugh Dickins
+anon_mm6					Hugh Dickins
+anon_mm7					Hugh Dickins
+anon_mm8					Hugh Dickins
+	Object based rmap for anonymous memory
+
+disable preempt					Martin J. Bligh
+	I broke preempt somehow, temporarily disable it to stop accidents
+
+aiofix2						Mingming Cao
+	fixed a bug in ioctx_alloc()
+
+percpu_real_loadavg				Dave Hansen / Martin J. Bligh
+	Tell me what the real load average is, and tell me per cpu.
+
+gfp_node_strict					Dave Hansen
+	Add a node strict binding as a gfp mask option
+
+irqbal_fast					Adam Litke
+	Balance IRQs more readily
+
+kcg						Adam Litke
+	Acylic call graphs from the kernel. Wheeeeeeeeeeeee!
+
+kcg_gcc_detect					Adam Litke
+	Detect older gcc versions that don't work with mcount, and crap out
+
+numa_mem_equals 				Dave Hansen
+	mem= command line parameter NUMA awareness.
+
+autoswap					Con Kolivas
+	Auto-tune swapiness
+
+emulex driver					Emulex
+	Driver for emulex fiberchannel cards
+
+multiple_emulex					Mike Anderson
+	Allow multiple Emulex cards
+
+protocol254					Paul Mackerras / Omkhar 
+	Allow protocol 254
+
+slabtune					Dave McCracken
+	Take slab in bigger bites on larger machines
+
+topdown						Bill Irwin
+	Turn userspace upside down for fun & profit
+
+stacktrace					Adam Litke
+	Stack backtracing via frame pointers
+
+fasync_lock_rcu					Manfred Spraul
+	Use RCU for fasync_lock
+
+kexec						Eric Biederman et al.
+	Exec a kernel for breakfast today.
+
+lockmeter_notsc					Martin J. Bligh
+	Lockmeter does not require CONFIG_X86_TSC.
+
+tiocgdev						Gerd Knorr
+
+vma_statistics						Martin J. Bligh
+	Provide per VMA stats
+
+per_task_TUB						Adam Litke
+	Per task TASK_UNMAPPED_BASE
+
+irq_vector						James Cleverdon
+	Fix irq vector limits for Summit
+
+ivtv						Kevin Thayer / Steven Fuerst
+	Driver for ivtv (includes Hauppauge PVR 250 / 350)
+	Written by Kevin Thayer, ported to 2.6 by Steven Fuerst
+	Version 0.1.9
+
+sysfs_backing_store1					Maneesh Soni
+sysfs_backing_store2					Maneesh Soni
+sysfs_backing_store3					Maneesh Soni
+sysfs_backing_store4					Maneesh Soni
+sysfs_backing_store5					Maneesh Soni
+sysfs_backing_store6					Maneesh Soni
+	Make sysfs more efficient in its usage of lowmem
+
+physnode_map						Martin J. Bligh
+	Hack around problem of missing area in physnode_map
+
+sched_tunables						R. Love / Darren Hart
+	Provide sched tunables to play with on a rainy day.
+
+zone_gap						Andy Whitcroft
+	Fix up the gap between ZONE_NORMAL and ZONE_HIGHMEM on NUMA.
+
+max_mp_busses						James Cleverdon
+	Increase MAX_MP_BUSSES
+
+

@@ -1,86 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265220AbSJWVur>; Wed, 23 Oct 2002 17:50:47 -0400
+	id <S265205AbSJWVsZ>; Wed, 23 Oct 2002 17:48:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265251AbSJWVur>; Wed, 23 Oct 2002 17:50:47 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:11261 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S265220AbSJWVuo>;
-	Wed, 23 Oct 2002 17:50:44 -0400
-Date: Wed, 23 Oct 2002 14:55:13 -0700
-To: "ALESSANDRO.SUARDI" <ALESSANDRO.SUARDI@oracle.com>
-Cc: linux-kernel@vger.kernel.org, irda-users@lists.sourceforge.net
-Subject: Re: 2.5.42: IrDA issues
-Message-ID: <20021023215513.GB24788@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <7886757.1035409088586.JavaMail.nobody@web155>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7886757.1035409088586.JavaMail.nobody@web155>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S265207AbSJWVsX>; Wed, 23 Oct 2002 17:48:23 -0400
+Received: from mtao-m02.ehs.aol.com ([64.12.52.8]:50414 "EHLO
+	mtao-m02.ehs.aol.com") by vger.kernel.org with ESMTP
+	id <S265205AbSJWVsC>; Wed, 23 Oct 2002 17:48:02 -0400
+Date: Wed, 23 Oct 2002 14:54:10 -0700
+From: John Gardiner Myers <jgmyers@netscape.com>
+Subject: Re: async poll
+In-reply-to: <Pine.LNX.4.44.0210231442490.1581-100000@blue1.dev.mcafeelabs.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: linux-aio <linux-aio@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <3DB71A82.6070204@netscape.com>
+MIME-version: 1.0
+Content-type: multipart/signed;
+ boundary=------------ms050103080706030006060807; micalg=sha1;
+ protocol="application/x-pkcs7-signature"
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2b)
+ Gecko/20021016
+References: <Pine.LNX.4.44.0210231442490.1581-100000@blue1.dev.mcafeelabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 01:38:08PM -0800, ALESSANDRO.SUARDI wrote:
-> > On Mon, Oct 21, 2002 at 11:19:35AM +0200, Alessandro Suardi wrote:
-> > > Jean Tourrilhes wrote:
-> 
-> [snip]
-> 
-> > > Will provide irdadump stuff soon[-ish], I'm wading through a backlog
-> > >  of, uhm, too much email. The short-form report really meant "is this
-> > >  a known issue ?"...
-> >      irtty is busted, that's why I asked for the driver you are
-> > using (its clearly a driver issue). I believe smc-ircc and irport are
-> > sick as well.
-> > > Anyway - the box is a Dell Latitude CPx750J with this:
-> > > 
-> > > [root@dolphin root]# findchip -v
-> > > Found SMC FDC37N958FR Controller at 0x3f0, DevID=0x01, Rev. 1
-> > >     SIR Base 0x3e8, FIR Base 0x290
-> > >     IRQ = 4, DMA = 3
-> > >     Enabled: yes, Suspended: no
-> > >     UART compatible: yes
-> > >     Half duplex delay = 3 us
-> > > 
-> > > So clearly I'm using smc-ircc.o.
-> > > 
-> > > (Of course I'll try and reproduce in 2.5.44 tonight or tomorrow).
-> >      Stop ! Daniele Peri has just released a new version of the SMC
-> > driver (smc-ircc2, link on my web page). I would like you to try this
-> > new driver and report to me. I plan to push this new driver in the
-> > kernel soon. So, don't waste too much time on the old driver.
-> 
-> Unfortunately I can't compile the new driver. I modified the Makefile to
->  comment out versioning (which i don't use) and change kernelversion
->  to an appropriate 2.5.44, but it fails like this:
-> 
-> In file included from /usr/src/linux-2.5.44/include/linux/irq.h:19,
->                  from /usr/src/linux-2.5.44/include/asm/hardirq.h:6,
->                  from /usr/src/linux-2.5.44/include/linux/interrupt.h:25,
->                  from /usr/src/linux-2.5.44/include/linux/netdevice.h:454,
->                  from smsc-ircc2.c:47:
-> /usr/src/linux-2.5.44/include/asm/irq.h:16:25: irq_vectors.h: No such file or directory
+This is a cryptographically signed message in MIME format.
 
-	Wow ! That's a weird one.
-	The file in question is in .../arch/i386/mach-generic/. You
-may be able to modify the compile directive to add that to the
-compilation (a "-I" argument).
-	Alternatively, you can drop the source code directly in the
-kernel (you just replace the old smc-ircc.o with the new one and
-recompile).
+--------------ms050103080706030006060807
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> This happens with both drivers pointed by your page.
-> Perhaps 2.5.44 is too new for this driver ?
 
-	Ask Daniele...
 
-> --alessandro
+Davide Libenzi wrote:
 
-	Have fun...
+>Why would you want to have a single fd simultaneously handled by two
+>different threads with all the locking issues that would arise ?
+>
+You would not want this to happen.  Thus you would want the poll 
+facility to somehow prevent returning event N+1 until after the thread 
+that got event N has somehow indicated that it has finished handling the 
+event.
 
-	Jean
+
+
+--------------ms050103080706030006060807
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIK7TCC
+A4UwggLuoAMCAQICAlvfMA0GCSqGSIb3DQEBBAUAMIGTMQswCQYDVQQGEwJVUzELMAkGA1UE
+CBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5l
+IEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2Vy
+dGlmaWNhdGUgQXV0aG9yaXR5MB4XDTAyMDYwMTIwMjIyM1oXDTAyMTEyODIwMjIyM1owfTEL
+MAkGA1UEBhMCVVMxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEXMBUGCgmSJomT8ixk
+AQETB2pnbXllcnMxIzAhBgkqhkiG9w0BCQEWFGpnbXllcnNAbmV0c2NhcGUuY29tMRMwEQYD
+VQQDEwpKb2huIE15ZXJzMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDsB5tbTLWFycke
+FKQwy1MTNx7SFtehB26RBx2gT+6+5/sYfXuLmBOuEOU2646fK0tz4rFOXfR8TcLfxOp3anh2
+3pKDAnBEOp5u75bEIwY5nteR0opdni/CTeyCfJ1uPuYdNKTYC088GwbpzhBRE8n1APHXCBgv
+bnGAuuYw/BqDtwIDAQABo4H8MIH5MA4GA1UdDwEB/wQEAwIFIDAdBgNVHSUEFjAUBggrBgEF
+BQcDAgYIKwYBBQUHAwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0
+aWZpY2F0ZSBNYW5hZ2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRz
+Y2FwZS5jb20wHwYDVR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEE
+NTAzMDEGCCsGAQUFBzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3Nw
+MA0GCSqGSIb3DQEBBAUAA4GBAHhQSSAs8Vmute2hyZulGeFAZewLIz+cDGBOikFTP0/mIPmC
+leog5JnWRqXOcVvQhqGg91d9imNdN6ONBE9dNkVDZPiVcgJ+J3wc+htIAc1duKc1CD3K6CM1
+ouBbe4h4dhLWvyLWIcPPXNiGIBhA0PqoZlumSN3wlWdRqMaTC4P0MIIDhjCCAu+gAwIBAgIC
+W+AwDQYJKoZIhvcNAQEEBQAwgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UE
+BxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQL
+ExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRo
+b3JpdHkwHhcNMDIwNjAxMjAyMjIzWhcNMDIxMTI4MjAyMjIzWjB9MQswCQYDVQQGEwJVUzEb
+MBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRcwFQYKCZImiZPyLGQBARMHamdteWVyczEj
+MCEGCSqGSIb3DQEJARYUamdteWVyc0BuZXRzY2FwZS5jb20xEzARBgNVBAMTCkpvaG4gTXll
+cnMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMkrxhwWBuZImCjNet4bJ6Vdv/iXgHQs
+oXf8wdBaJZ2X6jJ17ZzlSha9mmwt3Z9H8LFfVdS+dz29ri1fBuvf0rcxPWdZkKi6HDag2yNV
+f3CV+650RlyzuQr2RNeirkKvaocmakRdplHRw81Txxoi5sCMrkVPmRWA35ILnNbn6sTvAgMB
+AAGjgf0wgfowDwYDVR0PAQH/BAUDAweAADAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUH
+AwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0aWZpY2F0ZSBNYW5h
+Z2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRzY2FwZS5jb20wHwYD
+VR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEENTAzMDEGCCsGAQUF
+BzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3NwMA0GCSqGSIb3DQEB
+BAUAA4GBAExH0StQaZ/phZAq9PXm8btBCaH3FQsH+P58+LZF/DYQRw/XL+a3ieI6O+YIgMrC
+sQ+vtlCGqTdwvcKhjjgzMS/ialrV0e2COhxzVmccrhjYBvdF8Gzi/bcDxUKoXpSLQUMnMdc3
+2Dtmo+t8EJmuK4U9qCWEFLbt7L1cLnQvFiM4MIID1jCCAz+gAwIBAgIEAgAB5jANBgkqhkiG
+9w0BAQUFADBFMQswCQYDVQQGEwJVUzEYMBYGA1UEChMPR1RFIENvcnBvcmF0aW9uMRwwGgYD
+VQQDExNHVEUgQ3liZXJUcnVzdCBSb290MB4XDTAxMDYwMTEyNDcwMFoXDTA0MDYwMTIzNTkw
+MFowgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmll
+dzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9n
+aWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwgZ8wDQYJKoZI
+hvcNAQEBBQADgY0AMIGJAoGBAOLvXyx2Q4lLGl+z5fiqb4svgU1n/71KD2MuxNyF9p4sSSYg
+/wAX5IiIad79g1fgoxEZEarW3Lzvs9IVLlTGbny/2bnDRtMJBYTlU1xI7YSFmg47PRYHXPCz
+eauaEKW8waTReEwG5WRB/AUlYybr7wzHblShjM5UV7YfktqyEkuNAgMBAAGjggGCMIIBfjBN
+BgNVHR8ERjBEMEKgQKA+hjxodHRwOi8vd3d3MS51cy1ob3N0aW5nLmJhbHRpbW9yZS5jb20v
+Y2dpLWJpbi9DUkwvR1RFUm9vdC5jZ2kwHQYDVR0OBBYEFCnbsi2Dfn+LI7vCzGa5Oegp8wKG
+MGYGA1UdIARfMF0wRgYKKoZIhvhjAQIBBTA4MDYGCCsGAQUFBwIBFipodHRwOi8vd3d3LmJh
+bHRpbW9yZS5jb20vQ1BTL09tbmlSb290Lmh0bWwwEwYDKgMEMAwwCgYIKwYBBQUHAgEwWAYD
+VR0jBFEwT6FJpEcwRTELMAkGA1UEBhMCVVMxGDAWBgNVBAoTD0dURSBDb3Jwb3JhdGlvbjEc
+MBoGA1UEAxMTR1RFIEN5YmVyVHJ1c3QgUm9vdIICAaMwKwYDVR0QBCQwIoAPMjAwMTA2MDEx
+MjQ3MzBagQ8yMDAzMDkwMTIzNTkwMFowDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwQIMAYBAf8C
+AQEwDQYJKoZIhvcNAQEFBQADgYEASmIO2fpGdwQKbA3d/tIiOZkQCq6ILYY9V4TmEiQ3aftZ
+XuIRsPmfpFeGimkfBmPRfe4zNkkQIA8flxcsJ2w9bDkEe+JF6IcbVLZgQW0drgXznfk6NJrj
+e2tMcfjrqCuDsDWQTBloce3wYyJewlvsIHq1sFFz6QfugWd2eVP3ldQxggNUMIIDUAIBATCB
+mjCBkzELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3
+MRswGQYDVQQKExJBbWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dp
+ZXMxJzAlBgNVBAMTHkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICW+AwCQYFKw4D
+AhoFAKCCAg8wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDIx
+MDIzMjE1NDEwWjAjBgkqhkiG9w0BCQQxFgQUEZuA+4E2YcAxmvyMjFh+HoqEFdEwUgYJKoZI
+hvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAw
+BwYFKw4DAgcwDQYIKoZIhvcNAwICASgwgasGCSsGAQQBgjcQBDGBnTCBmjCBkzELMAkGA1UE
+BhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRswGQYDVQQKExJB
+bWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dpZXMxJzAlBgNVBAMT
+HkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICW98wga0GCyqGSIb3DQEJEAILMYGd
+oIGaMIGTMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZp
+ZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xv
+Z2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9yaXR5AgJb3zANBgkq
+hkiG9w0BAQEFAASBgDjdLl3VQBlpi4Lr8zoWoUWsHvs+jNJlmKO+hE/cESeGGTVo3i8FHVL5
+TaUhbr5bby4ovAes6esSKoNa4bRrOYHfm13fGJalSgkn7XOo9/AypiX7m7WqQJeiM+fYDk1J
+XLrO1eOvOmWZ2YdE1sRGtq8nU4EXnbEJr90p1vIhEnV4AAAAAAAA
+--------------ms050103080706030006060807--
+

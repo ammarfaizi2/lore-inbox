@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129166AbQJaPlX>; Tue, 31 Oct 2000 10:41:23 -0500
+	id <S129197AbQJaP4r>; Tue, 31 Oct 2000 10:56:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129470AbQJaPlO>; Tue, 31 Oct 2000 10:41:14 -0500
-Received: from mail-gw.fol.uk.net ([193.218.222.20]:45074 "EHLO
-	mail-gw.fol.uk.net") by vger.kernel.org with ESMTP
-	id <S129286AbQJaPlF>; Tue, 31 Oct 2000 10:41:05 -0500
-Message-ID: <06e301c04351$2eadd4d0$1400000a@farmline.com>
-From: "Geoff Winkless" <geoff@farmline.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <E13qdD3-0007zf-00@the-village.bc.nu>
+	id <S129278AbQJaP4i>; Tue, 31 Oct 2000 10:56:38 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:49930 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129197AbQJaP42>; Tue, 31 Oct 2000 10:56:28 -0500
+Date: Tue, 31 Oct 2000 11:58:08 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Geoff Winkless <geoff@farmline.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.2.17 & VM: do_try_to_free_pages failed / eepro100
-Date: Tue, 31 Oct 2000 15:42:31 -0000
+In-Reply-To: <069c01c0434b$ad0c5a50$1400000a@farmline.com>
+Message-ID: <Pine.LNX.4.21.0010311155530.1475-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Alan Cox" <alan@lxorguk.ukuu.org.uk> writes:
-[about what I wrote]
-> > > VM: do_try_to_free_pages failed for httpd...
-> > > VM: do_try_to_free_pages failed for httpd...
->
-> These if they are odd ones and the box continues are fine, if you get
-masses
-> of them then probably not
 
-What's it actually doing when this happens? Would it help to allocate more
-VM?
+On Tue, 31 Oct 2000, Geoff Winkless wrote:
 
-> > (our quiet periods) the syslog is nearly empty. In extremis it has been
-> > necessary to reboot the machine by kicking the power button.
->
-> Are you using software raid ?
+> Hi
+> 
+> Searching through the archives I found this post on Tue, Sep 12, 2000 at
+> 09:41:13PM +0200 from Octave Klaba
+> 
+> > Hello,
+> > On a high load server, kernel has some errors:
+> >
+> > VM: do_try_to_free_pages failed for httpd...
+> > VM: do_try_to_free_pages failed for httpd...
+> > eth0: Too much work at interrupt, status=0x4050.
+> > eth0: Too much work at interrupt, status=0x4050.
+> >
+> > is there somewhere the new version of driver for eepro100
+> > to make a test ?
+> 
+> I'm wondering if anyone has found a solution for this: our mailserver is
+> exhibiting the same error message (although no mention of the eth0
+> interface, we do also use the eepro100):
 
-No. Should have said it's a Symbios 53c896 SCSI onboard, on an Intel GX
-board.
 
-Incidentally I stupidly compiled in support for the onboard sound, which is
-the es1371 (rev 8) - don't know if this has any bearing but I'll be taking
-it out anyway!
+Apply the following patch: 
 
-Geoff
+ftp://ftp.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2//2.2.18pre17/VM-global-2.2.18pre17-7.bz
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,81 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262116AbVAOE3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262120AbVAOE6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbVAOE3r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 23:29:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbVAOE3r
+	id S262120AbVAOE6f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 23:58:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbVAOE6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 23:29:47 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55722 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262116AbVAOE3o (ORCPT
+	Fri, 14 Jan 2005 23:58:34 -0500
+Received: from mail.joq.us ([67.65.12.105]:25472 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S262120AbVAOE6Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 23:29:44 -0500
-Date: Fri, 14 Jan 2005 20:29:07 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: davidm@hpl.hp.com
-cc: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: sparse warning, or why does jifies_to_msecs() return an int?
-In-Reply-To: <200501150221.j0F2L2aD021862@napali.hpl.hp.com>
-Message-ID: <Pine.LNX.4.58.0501142020130.2310@ppc970.osdl.org>
-References: <200501150221.j0F2L2aD021862@napali.hpl.hp.com>
+	Fri, 14 Jan 2005 23:58:25 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Chris Wright <chrisw@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       paul@linuxaudiosystems.com, arjanv@redhat.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+References: <200501071620.j07GKrIa018718@localhost.localdomain>
+	<1105132348.20278.88.camel@krustophenia.net>
+	<20050107134941.11cecbfc.akpm@osdl.org>
+	<20050107221059.GA17392@infradead.org>
+	<20050107142920.K2357@build.pdx.osdl.net>
+	<87mzvkxxck.fsf@sulphur.joq.us> <20050111212139.GA22817@elte.hu>
+From: "Jack O'Quin" <joq@io.com>
+Date: Fri, 14 Jan 2005 22:56:54 -0600
+In-Reply-To: <20050111212139.GA22817@elte.hu> (Ingo Molnar's message of
+ "Tue, 11 Jan 2005 22:21:39 +0100")
+Message-ID: <87ekgnwaqx.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Ingo Molnar <mingo@elte.hu> writes:
 
-On Fri, 14 Jan 2005, David Mosberger wrote:
->
-> I'm seeing the following warning from sparse:
-> 
-> include/linux/jiffies.h:262:9: warning: cast truncates bits from constant value (3ffffffffffffffe becomes fffffffe)
+> what kind of non-audio workload was there during this test? 43 xruns
+> arent nice but arent that bad either.
 
-Indeed. It happens on any 64-bit architecture, I think.
+Audio playback through JACK didn't work well at all with nice --20,
+even at relatively high latencies (23 msec cycle).  It was bad enough
+that I would not want to use it for anything.  
+
+The 1/2 second max delay was probably more of an issue than the number
+of xruns.  Something really bad happened there.
+
+> this will turn off starvation checking, for testing purposes. (to see
+> whether there's anything else but anti-starvation causing xruns.)
+
+I build a 2.6.10 kernel with just these two changes...
+
+--- kernel/sched.c~	Fri Dec 24 15:35:24 2004
++++ kernel/sched.c	Wed Jan 12 23:48:49 2005
+@@ -95,7 +95,7 @@
+ #define MAX_BONUS		(MAX_USER_PRIO * PRIO_BONUS_RATIO / 100)
+ #define INTERACTIVE_DELTA	  2
+ #define MAX_SLEEP_AVG		(DEF_TIMESLICE * MAX_BONUS)
+-#define STARVATION_LIMIT	(MAX_SLEEP_AVG)
++#define STARVATION_LIMIT	0
+ #define NS_MAX_SLEEP_AVG	(JIFFIES_TO_NS(MAX_SLEEP_AVG))
+ #define CREDIT_LIMIT		100
  
-> it took me a while to realize that this is due to
-> the jiffies_to_msecs(MAX_JIFFY_OFFSET) call in
-> msecs_to_jiffies() and due to the fact that
-> jiffies_to_msecs() returns only an "unsigned int".
-> 
-> Is there are a good reason to constrain the return value to 4 billion
-> msecs?  If so, what's the proper way to shut up sparse?
+--- kernel/workqueue.c~	Fri Dec 24 15:35:40 2004
++++ kernel/workqueue.c	Fri Jan 14 19:34:10 2005
+@@ -188,7 +188,7 @@
+ 
+ 	current->flags |= PF_NOFREEZE;
+ 
+-	set_user_nice(current, -10);
++	set_user_nice(current, -5);
+ 
+ 	/* Block and flush all signals */
+ 	sigfillset(&blocked);
 
-There's no good way to shut up sparse, I think. The fact is, we _are_ 
-losing bits, but it doesn't matter much in this case. I think 
-"jiffies_to_msecs(MAX_JIFFY_OFFSET)" is fundamentally a suspect operation 
-(since the ranges are different for the two types), and I think that the 
-sparse warnign is correct, but it's one of those "doing the wrong thing is 
-not always wrogn enough to matter".
+Since realtime-lsm was not available, I ran the test as root.  Overall
+system performance was not good.  Trying to do mail with xemacs and
+gnus (as I had done before) hung for long periods of time.
 
-> On a related note, there seem to be some overflow issues in
-> jiffies_to_{msec,usec}.  For example:
-> 
-> 	return (j * 1000) / HZ;
-> 
-> can overflow if j > MAXULONG/1000, which is the case for
-> MAX_JIFFY_OFFSET.
+The test did not work correctly.  A number of segfaults occurred.  The
+jackd server hung and had to be killed manually.
 
-Right. Same kind of situation. 
+So, these results aren't worth much, but here's what it reported
+(compared with earlier results)...
 
-> I think it would be better to use:
-> 
-> 	return 1000*(j/HZ) + 1000*(j%HZ)/HZ;
-> 
-> instead.  No?
 
-I don't see it making a huge difference. Whatever you do will be wrong for 
-some value of HZ anyway. If HZ is 10, and j > MAXULONG/10, then...
+                                 With -R       Without -R      Without -R
+                               (SCHED_FIFO)    (nice --20) (STARVATION_LIMIT=0)
 
-The issue is the same: jiffies and msecs have different ranges, so the
-"fix" to some degree would be the same: making MAX_JIFFY_OFFSET small
-enough. But as with the other case, it doesn't much seem to matter - it
-turns out that the overflow cases end up being "very large integers"  
-anyway, which is good enough, since that's what all those MAX_xxx things
-are all about.
+************* SUMMARY RESULT ****************
+Total seconds ran . . . . . . :   300
+Number of clients . . . . . . :    20
+Ports per client  . . . . . . :     4
+Frames per buffer . . . . . . :    64
+*********************************************
+Timeout Count . . . . . . . . :(    1)          (    1)       (    2)	      
+XRUN Count  . . . . . . . . . :     2               43            46	      
+Delay Count (>spare time) . . :     0                0             0	      
+Delay Count (>1000 usecs) . . :     0                0             0	      
+Delay Maximum . . . . . . . . :  3130 usecs   501374 usecs       0 usecs 
+Cycle Maximum . . . . . . . . :   960 usecs     1036 usecs       0 usecs 
+Average DSP Load. . . . . . . :    34.3 %         34.3 %        19.5 %     
 
-In the meantime, a warning might eventually make somebody decide to do
-something intelligent that just makes it all go away (most likely
-something like avoiding the conversion in the first place, and use
-something like MAX_MSECS instead)
+The "{Delay|Cycle} Maximum" values were apparently not reported
+because jackd hung.  I suspect the DSP load went down because many of
+the clients crashed.
 
-		Linus
+I ran it again with -R on this kernel, just to check.  The DSP load
+was back to 33.2%.  It performed as before, except the "{Delay|Cycle}
+Maximum" values were also reported as zero.  Not sure why, don't have
+time to debug it right now.  Running with -R did not impact other
+interactive processes as badly as nice --20 on this kernel.
+
+If you want, I can dig into this some more and try to figure out what
+went wrong.  Did I make the exact changes you wanted?
+
+If it's not interesting, I probably won't bother.
+--
+ joq

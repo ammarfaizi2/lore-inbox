@@ -1,60 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318952AbSICVss>; Tue, 3 Sep 2002 17:48:48 -0400
+	id <S318944AbSICVp2>; Tue, 3 Sep 2002 17:45:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318955AbSICVsk>; Tue, 3 Sep 2002 17:48:40 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:37360
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318952AbSICVsZ>; Tue, 3 Sep 2002 17:48:25 -0400
-Subject: Re: aic7xxx sets CDR offline, how to reset?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <200209032132.g83LWdD09043@localhost.localdomain>
-References: <200209032132.g83LWdD09043@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 03 Sep 2002 22:54:38 +0100
-Message-Id: <1031090078.21439.37.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318945AbSICVp1>; Tue, 3 Sep 2002 17:45:27 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53765 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318944AbSICVo1>; Tue, 3 Sep 2002 17:44:27 -0400
+Date: Tue, 3 Sep 2002 14:52:08 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: One more bio for for floppy users in 2.5.33..
+In-Reply-To: <15733.8764.96293.719729@harpo.it.uu.se>
+Message-ID: <Pine.LNX.4.33.0209031450240.10694-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-09-03 at 22:32, James Bottomley wrote:
-> I think the block layer, which already knows about the barrier ordering, is 
-> the appropriate place for this.  If you think the scsi error handler is a 
-> hairy wart now, just watch it grow into a stonking great carbuncle as I try to 
-> introduce it to the concept of command queue ordering and appropriate recovery.
 
-Point taken
-
-> I agree with your reasoning.  However, errors occur infrequently enough (I 
-> hope) so that its just not worth the extra code complexity to make the error 
-> handler look for that case.
-
-When you ar ehandling CD-ROM problems then they can be quite a lot. Not
-helped by the fact some ancient CD's seem to like to take a long walk in
-the park when told to reset.
-
-> cancellation implementations, it's potentially full of holes.  The only uses 
-> it might have---like oops I didn't mean to fixate that CD, give it back to me 
-> now---aren't clearly defined in the SPEC to produce the desired effect (stop 
-> the fixation so the drive door can be opened).
-
-Yes but does windows assume it. There are two specs 8)
-
-> The pain of coming back from a reset (and I grant, it isn't trivial) is well 
-> known and well implemented in SCSI.  It also, from error handlings point of 
-> view, sets the device back to a known point in the state model.
+On Tue, 3 Sep 2002, Mikael Pettersson wrote:
 > 
+> Confirmed. 2.5.33 + your two patches still corrupts data on a simple
+> dd to then from /dev/fd0 test.
 
-Resetting the bus is antisocial to say the least. We had lots of hangs
-with the old eh handler that went away when the new one didnt keep
-resetting the bus. If we do reset the bus then we have to handle "Sorry
-can't reset the bus" (we have cards that can't or won't) as well as
-being conservative about timings, making sure we don't reset the bus
-during the seconds while a device rattles back into online state and so
-on.
+Ok, if you don't have BK, then here's the floppy driver end_request() 
+cleanup as a plain patch.
+
+This passes dd tests for me, but they were by no means very exhaustive.
+
+		Linus
+
+---
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/09/03	torvalds@home.transmeta.com	1.581.4.2
+# Fix floppy driver end_request() handling - it used to do insane
+# contortions instead of just calling "end_that_request_first()" with
+# the proper sector count.
+# --------------------------------------------
+#
+diff -Nru a/drivers/block/floppy.c b/drivers/block/floppy.c
+--- a/drivers/block/floppy.c	Tue Sep  3 14:51:09 2002
++++ b/drivers/block/floppy.c	Tue Sep  3 14:51:09 2002
+@@ -2295,16 +2295,15 @@
+ {
+ 	kdev_t dev = req->rq_dev;
+ 
+-	if (end_that_request_first(req, uptodate, req->hard_cur_sectors))
++	if (end_that_request_first(req, uptodate, current_count_sectors))
+ 		return;
+ 	add_blkdev_randomness(major(dev));
+ 	floppy_off(DEVICE_NR(dev));
+ 	blkdev_dequeue_request(req);
+ 	end_that_request_last(req);
+ 
+-	/* Get the next request */
+-	req = elv_next_request(QUEUE);
+-	CURRENT = req;
++	/* We're done with the request */
++	CURRENT = NULL;
+ }
+ 
+ 
+@@ -2335,27 +2334,8 @@
+ 
+ 		/* unlock chained buffers */
+ 		spin_lock_irqsave(q->queue_lock, flags);
+-		while (current_count_sectors && CURRENT &&
+-		       current_count_sectors >= req->current_nr_sectors){
+-			current_count_sectors -= req->current_nr_sectors;
+-			req->nr_sectors -= req->current_nr_sectors;
+-			req->sector += req->current_nr_sectors;
+-			end_request(req, 1);
+-		}
++		end_request(req, 1);
+ 		spin_unlock_irqrestore(q->queue_lock, flags);
+-
+-		if (current_count_sectors && CURRENT) {
+-			/* "unlock" last subsector */
+-			req->buffer += current_count_sectors <<9;
+-			req->current_nr_sectors -= current_count_sectors;
+-			req->nr_sectors -= current_count_sectors;
+-			req->sector += current_count_sectors;
+-			return;
+-		}
+-
+-		if (current_count_sectors && !CURRENT)
+-			DPRINT("request list destroyed in floppy request done\n");
+-
+ 	} else {
+ 		if (rq_data_dir(req) == WRITE) {
+ 			/* record write error information */
 

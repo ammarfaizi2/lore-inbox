@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292560AbSB0Pcg>; Wed, 27 Feb 2002 10:32:36 -0500
+	id <S292515AbSB0PjL>; Wed, 27 Feb 2002 10:39:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292581AbSB0Pc1>; Wed, 27 Feb 2002 10:32:27 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:12496 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S292579AbSB0PcS>; Wed, 27 Feb 2002 10:32:18 -0500
-Date: Wed, 27 Feb 2002 07:03:50 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: m.knoblauch@TeraPort.de, Martin.Bligh@us.ibm.com
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19-preX: What we really need: -AA patches finally in
- thetree
-Message-ID: <311985531.1014793429@[10.10.2.3]>
-In-Reply-To: <3C7CB28A.CAD095B5@TeraPort.de>
-In-Reply-To: <3C7CB28A.CAD095B5@TeraPort.de>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S292581AbSB0PjC>; Wed, 27 Feb 2002 10:39:02 -0500
+Received: from [66.150.46.254] ([66.150.46.254]:60084 "EHLO mail.tvol.net")
+	by vger.kernel.org with ESMTP id <S292579AbSB0Pi4>;
+	Wed, 27 Feb 2002 10:38:56 -0500
+Message-ID: <3C7CFD8A.8365878D@wgate.com>
+Date: Wed, 27 Feb 2002 10:38:50 -0500
+From: Michael Sinz <msinz@wgate.com>
+Organization: WorldGate Communications Inc.
+X-Mailer: Mozilla 4.76 [en] (X11; U; FreeBSD 4.5-STABLE i386)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Alan Cox <alan@redhat.com>
+CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] kernel 2.5.5 - coredump sysctl
+In-Reply-To: <200202271405.g1RE5EK15866@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> rmap still sucks on large systems though. I'd love to see rmap
->> in the main kernel, but it needs to get the scalability fixed first.
->> The main problem seems to be pagemap_lru_lock ... Rik & crew
->> know about this problem, but let's give them some time to fix it
->> before rmap gets put into mainline ....
->
->  just out of curiosity: where does "large systems" start in your
-> context?
+Alan Cox wrote:
+> 
+> > BTW - are you looking at merging this into your tree (2.5 and/or 2.4)?
+> > I belive I can continue doing the patching here but it would be nice
+> > to have this generally available as some people (consulting clients of mine)
+> > don't want to run kernels that I build but only ones from RedHat...
+> 
+> I still can't decide if its worth the extra complexity.
+> 
+> I don't btw think the '/' is a big problem - only root can set the core
+> dump path, and current->comm is the "true" name of the program so won't
+> have a / in it
 
-I think the last tests I was doing was on a 12cpu box, which
-gave me about a 40% performance degredation by installing rmap.
-Most people won't be interested in anything near that large,
-but as Rik said, the problems will start on much smaller systems.
-One of the nice things about running really large systems is
-that they show up scalability problems and race conditions
-really quickly and obviously ;-)
+Just call me paranoid...
 
-If someone has data for 4 or 8 way systems, I'd love to see it.
-Else I'll get some myself in a little while.
+As to the extra complexity - it is rather minor change in code and provides
+a way to (a) get core dump names with program names and not just "core"
+and (b) place code dump files somewhere else.
 
-Thanks,
+The second item is the major one for us since most of the "disk" is
+read-only and thus core dumps just don't happen there.  (Almost all of
+the disk is read-only infact.  The only writable place is the /cores
+directory and the tmpfs /etc, /var, and /tmp  Everything else in our
+clusters are either via the database or via other network protocols
+that are optimized for the traffic load, load balancing, and fail-over.
 
-Martin.
+Plus, I really like this on my local machine since the core file cleanup
+is now a simple cleanup in a single directory rather than a find across
+the whole disk looking for coredump files.
 
+The good thing is that the patch goes in rather cleanly right now
+(albeit I need a different one for the SGI tree due to a sysctl
+numbering conflict for their kdb)
+
+-- 
+Michael Sinz ---- Worldgate Communications ---- msinz@wgate.com
+A master's secrets are only as good as
+	the master's ability to explain them to others.

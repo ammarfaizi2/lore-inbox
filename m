@@ -1,70 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129100AbQJ3WPE>; Mon, 30 Oct 2000 17:15:04 -0500
+	id <S129033AbQJ3WVz>; Mon, 30 Oct 2000 17:21:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129157AbQJ3WOz>; Mon, 30 Oct 2000 17:14:55 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:37131 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129100AbQJ3WOj>;
-	Mon, 30 Oct 2000 17:14:39 -0500
-Message-ID: <39FDF2A6.AFA0B513@mandrakesoft.com>
-Date: Mon, 30 Oct 2000 17:13:58 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
+	id <S129040AbQJ3WVg>; Mon, 30 Oct 2000 17:21:36 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:53252 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129033AbQJ3WV2>; Mon, 30 Oct 2000 17:21:28 -0500
+Date: Mon, 30 Oct 2000 14:21:16 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: test10-pre7
+In-Reply-To: <Pine.GSO.4.21.0010301618160.1177-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.10.10010301420050.1085-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test10-pre7
-In-Reply-To: <10523.972943580@ocs3.ocs-net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
+
+
+On Mon, 30 Oct 2000, Alexander Viro wrote:
 > 
-> On Mon, 30 Oct 2000 17:01:20 -0500,
-> Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
-> >Keith Owens wrote:
-> >> USB still gets unresolved symbols when part is in kernel, part is in
-> >> modules and modversions are set.  Patch against 2.4.0-test10-pre7, only
-> >> affects drivers/usb/Makefile.
-> >
-> >Or instead of all that, you could simply call the core init function
-> >from init/main.c...
+> > I didn't actually miss it, I just looked at the users and decided that it
+> > looks like they should never have this issue. But I might have missed
+> > something. As far as I can tell, "read_cache_page()" is only used for
+> > meta-data like things that cannot be truncated.
 > 
-> Does that work when all of usb is a module?  The point of __initcall is
-> to avoid all the conditional code that used to be in main.c.
+> invalidate_inode_pages().
 
-When all of usb is a module, there are no initcalls.
+Nope. It checks the page count these days, so it would never kill such a
+page from under us (we increment the page count while holding the
+pagecache lock).
 
-If you need static initialization for in-kernel init, here is the
-shortest solution I can come up with:
+But yes, I'm starting to agree with you more and more..
 
-/********************* usb.c **********************/
+		Linus
 
-int usbcore_init() {...}
-
-#ifdef MODULE
-module_init(usbcore_init);
-#endif
-module_exit(usbcore_exit);
-
-/******************** main.c ******************/
-
-extern int usbcore_init (void);
-	/* ... */
-#ifdef CONFIG_USB
-	usbcore_init();
-#endif
-
--- 
-Jeff Garzik             | "Mind if I drive?"  -Sam
-Building 1024           | "Not if you don't mind me clawing at the
-MandrakeSoft            |  dash and shrieking like a cheerleader."
-                        |                     -Max
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

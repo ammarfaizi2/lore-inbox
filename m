@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129126AbRB1SE5>; Wed, 28 Feb 2001 13:04:57 -0500
+	id <S129116AbRB1SEr>; Wed, 28 Feb 2001 13:04:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129134AbRB1SEr>; Wed, 28 Feb 2001 13:04:47 -0500
-Received: from emcmail.lss.emc.com ([168.159.48.78]:22703 "EHLO emc.com")
-	by vger.kernel.org with ESMTP id <S129126AbRB1SEg>;
-	Wed, 28 Feb 2001 13:04:36 -0500
-Message-ID: <3A9D3C9E.6090807@emc.com>
-Date: Wed, 28 Feb 2001 12:59:58 -0500
-From: Ric Wheeler <ric@emc.com>
-Reply-To: ric@emc.com
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.10 i686; en-US; m18) Gecko/20010131 Netscape6/6.01
-X-Accept-Language: en
+	id <S129134AbRB1SEh>; Wed, 28 Feb 2001 13:04:37 -0500
+Received: from mauve.csi.cam.ac.uk ([131.111.8.38]:19193 "EHLO
+	mauve.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129116AbRB1SEZ>; Wed, 28 Feb 2001 13:04:25 -0500
+Date: Wed, 28 Feb 2001 18:06:55 +0000 (GMT)
+From: "James A. Sutherland" <jas88@cam.ac.uk>
+To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+cc: Per Erik Stendahl <PerErik@onedial.se>,
+        "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: Unmounting and ejecting the root fs on shutdown.
+In-Reply-To: <Pine.LNX.4.32.0102280750320.24482-100000@filesrv1.baby-dragons.com>
+Message-ID: <Pine.LNX.4.30.0102281806260.7011-100000@dax.joh.cam.ac.uk>
 MIME-Version: 1.0
-To: "David L. Nicol" <david@kasey.umkc.edu>
-CC: Zack Brown <zbrown@tumblerings.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-cluster@nl.linux.org
-Subject: Re: Will Mosix go into the standard kernel?
-In-Reply-To: <Pine.LNX.3.96.1010227091255.780M-100000@renegade> <3A9C1A3A.8BC1BCF2@kasey.umkc.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are two parts of MOSIX that deal with file systems.
-In MOSIX, every migrated process leaves a proxy at its creation (home)
-node that services all system call requests, including IO calls.
+On Wed, 28 Feb 2001, Mr. James W. Laferriere wrote:
 
-What newer versions of MOSIX did is to add the "DFSA" (direct file
-system access) layer that allows MOSIX to support executing file
-system calls locally for migrated process when they are against a
-cache coherent, cluster file system (think GFS).  When this was put
-in MOSIX, they also did a write through, non-caching file system to
-test their DFSA code called MFS.
+>
+> 	Hello James ,  Yup that works alright .  But the difficulty
+> 	Per & I were talking about is after the system (such as
+> 	slackware's live-fs) is -shutdown- the CD drive bay is still
+> 	locked ,  One has to hard-reset (or even power off for some)
+> 	before the bay will open .  I am well aware why the bay does
+> 	not open while the live-fs has it mounted .  But am quite
+> 	baffled as to why the darn thing remains locked after system
+> 	shutdown .  Again I am quite sure I know why that is happening
+> 	as well .  The live-fs is hard read-only and the umount of the
+> 	live-fs can not complete , so the CD drive never receives an
+> 	unlock .  Sound about right ?  Twyl ,  JimL
 
-Both the MOSIX team and the global file system group have been involved
-in getting their stuff to play nicely together.
-
-ric
+The point is, if you mount the CD as /usr, you should then be able to
+unmount it properly on shutdown...
 
 
-
+James.
 

@@ -1,52 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271748AbRICQsC>; Mon, 3 Sep 2001 12:48:02 -0400
+	id <S271747AbRICQnw>; Mon, 3 Sep 2001 12:43:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271753AbRICQrw>; Mon, 3 Sep 2001 12:47:52 -0400
-Received: from tierra.stl.es ([195.235.83.3]:17985 "EHLO tierra.stl.es")
-	by vger.kernel.org with ESMTP id <S271748AbRICQrm>;
-	Mon, 3 Sep 2001 12:47:42 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Transparent proxy support in 2.4 - revisited
-In-Reply-To: <20010903161621.A14859@leeor.math.technion.ac.il>
-	<20010607170825.A18760@leeor.math.technion.ac.il>
-	<20010608014443.A28407@saw.sw.com.sg>
-	<20010903131240.A9791@leeor.math.technion.ac.il>
-	<20010903144442.A32332@castle.nmd.msu.ru>
-	<20010903161621.A14859@leeor.math.technion.ac.il>
-	<20010903175544.A1340@castle.nmd.msu.ru>
-From: Julio Sanchez Fernandez <j_sanchez@stl.es>
-Date: 03 Sep 2001 18:43:07 +0200
-In-Reply-To: Andrey Savochkin's message of "Mon, 3 Sep 2001 17:55:44 +0400"
-Message-ID: <m21ylow7hg.fsf@j-sanchez-p.stl.es>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+	id <S271748AbRICQnn>; Mon, 3 Sep 2001 12:43:43 -0400
+Received: from hank-fep8-0.inet.fi ([194.251.242.203]:47813 "EHLO
+	fep08.tmt.tele.fi") by vger.kernel.org with ESMTP
+	id <S271747AbRICQng>; Mon, 3 Sep 2001 12:43:36 -0400
+Message-ID: <3B93B32A.69D25916@pp.inet.fi>
+Date: Mon, 03 Sep 2001 19:43:22 +0300
+From: Jari Ruusu <jari.ruusu@pp.inet.fi>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19aa2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-crypto@nl.linux.org
+CC: linux-kernel@vger.kernel.org
+Subject: Announce loop-AES-v1.4d file/swap crypto package
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Savochkin <saw@saw.sw.com.sg> writes:
+[linux-kernel also CC'd due to recent encrypted swap discussion]
 
-> It had been broken in 2.2 for months and nobody repaired it => nobody needed
-> it.  I don't know, whether it works now or not.
+In short: If file and swap crypto is all you need, this package is a hassle
+free replacement for international crypto patch and HVR's crypto-api.
 
-Broken?  It worked for me on all kernels I tried from RH, I currently
-run it on 2.2.19.
+This package provides loadable Linux kernel module (loop.o) that has AES
+cipher built-in. The AES cipher can be used to encrypt local file systems
+and disk partitions. For more information about compiling and using the
+driver, see the README file in the package.
 
-> How are you going to determine whether the packet is destined to you or two
-> the real server?
-> That's the main question.
+Features:
+- GPL license.
+- No source modifications to kernel. No patch hassles when you are upgrading
+  your kernel.
+- Works with all recent 2.4, 2.2 and 2.0 kernels, including distro vendor
+  kernels. Encrypted disk images are compatible across all supported
+  kernels.
+- AES cipher is used in CBC mode. Supports 128, 192 and 256 bit keys.
+- Passwords hashed with SHA-256, SHA-384 or SHA-512.
+- 512 byte based IV. IV is immune to variations in transfer size and does
+  not depend on file system block size.
+- Device backed (partition backed) loop is capable of encrypting swap on 2.4
+  kernels.
 
-Maybe follow the method used by NAT now?  I mean, I presume no one
-wants to go back to the old implementation...
+Changes since previous release:
+- Little speed optimization in aes-glue.c
+- External encryption module locking bug is fixed (kernel 2.4 only). This
+  bug did not affect loop-AES operation at all. This fix is from Ingo
+  Rohloff.
+- On 2.4 kernels, device backed loop maintains private pre-allocated pool of
+  RAM pages that are used when kernel is totally out of free RAM. This
+  change also fixes stock loop.c sin of sleeping in make_request_fn().
 
-> If the module always rewrites the destination IP address, and it can't be
-> turned off, it's certainly a misfeature.
-> Make it conditional, or just make a quick hack for yourself, or copy the
-> existing redirect module, fix it and use the new module.
+Kernel 2.4 users who want to encrypt swap partitions should upgrade to this
+version. No need to upgrade if you use older 2.2 or 2.0 kernels.
 
-Well, that's another one to get used to, the old code made the output
-from netstat or lsof extremely informative, something that is pretty
-much lost now in 2.4.x.  Right?
+bzip2 compressed tarball is here:
 
-Julio
+    http://loop-aes.sourceforge.net/loop-AES-v1.4d.tar.bz2
+    md5sum 404f82796bacc479deb266f13ec260b8
+
+PGP signature file, my public key, and fingerprint here:
+
+    http://loop-aes.sourceforge.net/loop-AES-v1.4d.tar.bz2.sign
+    http://loop-aes.sourceforge.net/PGP-public-key.asc
+    1024/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+
+Regards, 
+Jari Ruusu <jari.ruusu@pp.inet.fi>
+

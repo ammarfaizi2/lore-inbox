@@ -1,68 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265067AbSKAQIi>; Fri, 1 Nov 2002 11:08:38 -0500
+	id <S265053AbSKAQIR>; Fri, 1 Nov 2002 11:08:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265070AbSKAQIh>; Fri, 1 Nov 2002 11:08:37 -0500
-Received: from [203.117.131.12] ([203.117.131.12]:16307 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id <S265067AbSKAQIg>; Fri, 1 Nov 2002 11:08:36 -0500
-Message-ID: <3DC2A888.5010502@metaparadigm.com>
-Date: Sat, 02 Nov 2002 00:15:04 +0800
-From: Michael Clark <michael@metaparadigm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, Chris Wedgwood <cw@f00f.org>
+	id <S265067AbSKAQIR>; Fri, 1 Nov 2002 11:08:17 -0500
+Received: from excalibur.cc.purdue.edu ([128.210.189.22]:6917 "EHLO
+	ibm-ps850.purdueriots.com") by vger.kernel.org with ESMTP
+	id <S265053AbSKAQIQ>; Fri, 1 Nov 2002 11:08:16 -0500
+Date: Fri, 1 Nov 2002 11:16:20 -0500 (EST)
+From: Patrick Finnegan <pat@purdueriots.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: What's left over.
-References: <20021031181252.GB24027@tapu.f00f.org> <Pine.LNX.4.44.0210311040080.1526-100000@penguin.transmeta.com> <20021031194351.GA24676@tapu.f00f.org> <apu6cd$4db$1@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.GSO.4.21.0211011004050.20586-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.44.0211011108320.10880-100000@ibm-ps850.purdueriots.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/01/02 23:25, Linus Torvalds wrote:
-> In article <20021031194351.GA24676@tapu.f00f.org>,
-> Chris Wedgwood  <cw@f00f.org> wrote:
-> 
->>On Thu, Oct 31, 2002 at 10:49:10AM -0800, Linus Torvalds wrote:
->>
->>
->>>Any hardware that needs to go off and think about how to encrypt
->>>something sounds like it's so slow as to be unusable. I suspect that
->>>anything that is over the PCI bus is already so slow (even if it
->>>adds no extra cycles of its own) that you're better off using the
->>>CPU for the encryption rather than some external hardware.
->>
->>Except almost all hardware out there that does this stuff is async to
->>some extent...
-> 
-> 
-> That's not my argument.  I realize that external hardware on a PCI bus
-> _has_ to be asynchronous, simply because it is so slow. 
-> 
-> The question I have is whether such external hardware is even worth it
-> any more for any standard crypto work.  With a regular PCI bus
-> fundamentally limiting throughput to something like a maximum of 66MB/s
-> (copy-in and copy-out, and that's so theoretical that it's not even
-> funny - I'd be surprised if RL throughput copying back and forth over a
-> PCI bus is more than 25-30MB/s), I suspect that you can do most crypto
-> faster on the CPU directly these days. 
-> 
-> Maybe not. The only numbers I have is the slowness of PCI.
+What I'm going to say may not be popular, and probably won't win me
+friends, but here it is anyhow:
 
-A 1GHz PIII will do about 8MBytes/sec of 3DES
+On Fri, 1 Nov 2002, Alexander Viro wrote:
 
-Plug in a 2.4Gbs broadcom crypto chip into a 64bit PCI-X slot with the
-same CPU and you should be capable of doing at least 10 times that.
+> On Fri, 1 Nov 2002, Patrick Finnegan wrote:
+>
+> > No, vendor == people who sold or gave us the softare.  Right now, Linus is
+> > acting like he's a big evil corporation that won't add the change no
+> > matter what we say:
+>
+> ... to his tree.  Geez, why could that be?  Maybe because you don't have
+> any rights to decide what patches does anybody else apply to their trees?
+>
+> It's not a fscking public service.  Linus has full control over his
+> tree.  You have equally full control over your tree.  Linus can't
+> tell you what patches to apply in your tree.  You can't tell Linus
+> what patches he should apply to his.
 
-Stuff like RSA is much slower (and benefits more from hardware)
+I'm sorry it _is_ a public service.  Once tens of people started
+contributing to it, it became one.  This is like saying that the
+Washington Monument belongs to the peole that maintain it, any building
+belongs to the repair crews and janitors.  I'm not saying that Linus is
+necessarily a janitor, but when you consider how much of the Linux kernel
+that he didn't write, you may relize that it's not just his kernel.  It
+also belongs to every single person that has written even a single
+line of code in it.
 
-BTW - there are some outdated cryptolib patches with an async
-interface around somewhere (along with patches for freeswan to use
-the async api).
+BTW, "My opinions do not represent the opinions of my employer" for at
+least this email..
 
-I guess the crypto guys like Chris will add the async API if they need
-it (which they do i think ;).
+Pat
+--
+Purdue Universtiy ITAP/RCS
+Information Technology at Purdue
+Research Computing and Storage
+http://www-rcd.cc.purdue.edu
 
-~mc
+http://dilbert.com/comics/dilbert/archive/images/dilbert2040637020924.gif
+
+
 

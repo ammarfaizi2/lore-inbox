@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262067AbTDAGx2>; Tue, 1 Apr 2003 01:53:28 -0500
+	id <S262085AbTDAHKz>; Tue, 1 Apr 2003 02:10:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262083AbTDAGx2>; Tue, 1 Apr 2003 01:53:28 -0500
-Received: from modemcable226.131-200-24.mtl.mc.videotron.ca ([24.200.131.226]:45567
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262067AbTDAGx1>; Tue, 1 Apr 2003 01:53:27 -0500
-Date: Tue, 1 Apr 2003 02:00:29 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: gibbs@scsiguy.com
+	id <S262096AbTDAHKz>; Tue, 1 Apr 2003 02:10:55 -0500
+Received: from [12.47.58.55] ([12.47.58.55]:39675 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id <S262085AbTDAHKy>;
+	Tue, 1 Apr 2003 02:10:54 -0500
+Date: Mon, 31 Mar 2003 23:22:27 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: linux-kernel@vger.kernel.org, gibbs@scsiguy.com
 Subject: Re: aic7(censored) use after free in 2.5.66
-In-Reply-To: <Pine.LNX.4.50.0304010141200.8773-100000@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.50.0304010155470.8773-100000@montezuma.mastecende.com>
+Message-Id: <20030331232227.3f9c9c5f.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.50.0304010155470.8773-100000@montezuma.mastecende.com>
 References: <Pine.LNX.4.50.0304010141200.8773-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	<Pine.LNX.4.50.0304010155470.8773-100000@montezuma.mastecende.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Apr 2003 07:22:11.0009 (UTC) FILETIME=[690F7310:01C2F81F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Apr 2003, Zwane Mwaikambo wrote:
-
-> I got this on boot on an 8way/16G box, perhaps Justin should try 
-> and push his latest? CONFIG_PREEMPT=y if that makes any difference at 
-> all.. If anyone is interested i can provide more info.
+Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
+>
+> > Slab corruption: start=f7d66248, expend=f7d662c7, problemat=f7d662ac
+> > Last user: [<c024f0b7>](ahc_linux_free_device+0x27/0x60)
+> > Data: 
 > 
-> scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.28
-> 
-> Slab corruption: start=f7d66248, expend=f7d662c7, problemat=f7d662ac
-> Last user: [<c024f0b7>](ahc_linux_free_device+0x27/0x60)
-> Data: 
+> This probably wants; Or if we can sleep in all the paths, a  
+> synchronize_kernel after del_timer should suffice.
 
-This probably wants; Or if we can sleep in all the paths, a  
-synchronize_kernel after del_timer should suffice.
+Yes, but no.
 
-Justin?
+The corruption was at offset 52 decimal into struct ahc_linux_device. 
+Without knowing your config it is hard for me to work out what you have at
+that offset.   Rebuild your kernel with -g and do:
 
-Index: linux-2.5.66/drivers/scsi/aic7xxx/aic7xxx_osm.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.66/drivers/scsi/aic7xxx/aic7xxx_osm.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 aic7xxx_osm.c
---- linux-2.5.66/drivers/scsi/aic7xxx/aic7xxx_osm.c	24 Mar 2003 23:39:44 -0000	1.1.1.1
-+++ linux-2.5.66/drivers/scsi/aic7xxx/aic7xxx_osm.c	1 Apr 2003 06:54:01 -0000
-@@ -4097,7 +4097,7 @@ ahc_linux_free_device(struct ahc_softc *
- {
- 	struct ahc_linux_target *targ;
- 
--	del_timer(&dev->timer);
-+	del_timer_sync(&dev->timer);
- 	targ = dev->target;
- 	targ->devices[dev->lun] = NULL;
- 	free(dev, M_DEVBUF);
--- 
-function.linuxpower.ca
+(gdb) p/d &(((struct ahc_linux_device *)0)->maxtags)
+
+until you find which member is at offset 52.
+
+Something incremented that field by one after it was freed.
+

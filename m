@@ -1,83 +1,204 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292542AbSCDRYg>; Mon, 4 Mar 2002 12:24:36 -0500
+	id <S292579AbSCDRZG>; Mon, 4 Mar 2002 12:25:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292549AbSCDRY1>; Mon, 4 Mar 2002 12:24:27 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:21154 "EHLO
+	id <S292549AbSCDRZA>; Mon, 4 Mar 2002 12:25:00 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:22178 "EHLO
 	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S292542AbSCDRYM>; Mon, 4 Mar 2002 12:24:12 -0500
-Date: Mon, 4 Mar 2002 10:38:47 -0700
+	id <S292557AbSCDRYp>; Mon, 4 Mar 2002 12:24:45 -0500
+Date: Mon, 4 Mar 2002 10:39:20 -0700
 From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Harald van Pee <pee@iskp.uni-bonn.de>
+To: Mike Anderson <andmike@us.ibm.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 3Ware Hard Bus Hang 2.4.18 > 220 MB/S
-Message-ID: <20020304103847.A31515@vger.timpanogas.org>
-In-Reply-To: <200203041706.g24H6Kv25543@klee.iskp.uni-bonn.de>
+Subject: Re: queue_nr_requests needs to be selective
+Message-ID: <20020304103920.A31523@vger.timpanogas.org>
+In-Reply-To: <20020301132254.A11528@vger.timpanogas.org> <20020301165104.C6778@beaverton.ibm.com> <20020301213908.B13983@vger.timpanogas.org> <20020301225918.A14239@vger.timpanogas.org> <20020303231634.A15453@beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <200203041706.g24H6Kv25543@klee.iskp.uni-bonn.de>; from pee@iskp.uni-bonn.de on Mon, Mar 04, 2002 at 06:06:20PM +0100
+In-Reply-To: <20020303231634.A15453@beaverton.ibm.com>; from andmike@us.ibm.com on Sun, Mar 03, 2002 at 11:16:34PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+:-)
 
-Problem seems specific to the SuperMicro motherboard + 3Ware.
+They're great cards.
 
 Jeff
 
-On Mon, Mar 04, 2002 at 06:06:20PM +0100, Harald van Pee wrote:
-> Hi,
+
+On Sun, Mar 03, 2002 at 11:16:34PM -0800, Mike Anderson wrote:
+> Thanks Jeff for the data. I went back and re-read the code. 
 > 
-> because I am planning to buy a very similar system, I would like to know:
-> - is this problem solved in the meantime?
-> - does it also occure with older kernels (2.4.16, 2.2.16) or older firmware 
-> (and smaler disks)?
-> - is it only a problem of high transfer rates and does not occure on lower ~ 
-> 150 MB/sec or 30 MB/sec?
+> It looks like the template cmd_per_lun value is recalculated before the
+> scsi-register call is made by the driver. The number is 255 / number of
+> units (which you said from your previous post is one). This then matches
+> your proc info. From the numbers these look like pretty nice cards :-). 
 > 
-> Thanks for your help
-> Harald
+> -Mike
 > 
-> On Wed, Feb 27, 2002 at 10:25:45AM -0700, Jeff V. Merkey wrote:
-> >
-> More info.  I put in some trace code to determine how many io buffer
-> heads were being fed to each adapter.  When the number of bh's reaches
-> numbers above 4244+- buffer heads outstanding at one time, then I see the
-> cards lockup.
-> Jeff
-> >
-> >
-> > Running 4 3Ware 7810 Adapters with the updated 48 bit LBA firmware
-> > for the 78110, and attached to 8 Maxtor 160 GB hard disks on each card
-> > (32 drives total) striping Raid 0m across 5.6 terabytes of disk, I am
-> > seeing about 216-224 MB/S total throughput on writes to local
-> > arrays on 2.4.18. 
-> >
-> > The system is also running an Intel Gigabit Ethernet Card at
-> > 116-122 MB/S with full network traffic and writing this traffic to
-> > the 3Ware arrays.  All this hardware is running on a Serverworks
-> > HE chipset with a SuperMicro motherboard and dual 933 Mhz PIII
-> > processors.
-> >
-> > After running for about 3 hours, the system will hard hang and die. 
-> > Using debugging tools, I have isolated to the hang to the 3Ware
-> > adapters.  If I remove all but a single 3Ware adapter, the system will
-> > run reliably for days at these data rates.  The moment I add more
-> > than one 3Ware 7810 adapter, the system will lock up.  Recent testing
-> > reveals that the hang is in the 3Ware card itself (all the LEDs go
-> > on at once and stay on).  Attempts by the system to reset the adapter
-> > fail until the system is power cycled. 
-> >
-> > 3Ware dfriver version is .16 from the 2.4.18 tree.  Firmware is the 48 bit
-> > LBA version. 
-> >
-> > Please advise. 
-> >
+> Jeff V. Merkey [jmerkey@vger.timpanogas.org] wrote:
+> > 
+> > 
+> > Mike,
+> > 
+> > Here are some numbers from the running system.  This system is 
+> > running at 120 MB/S on a single 3Ware adapter.  Stats attached.  You
+> > will note that the max commands hitting the adapter are way above
+> > 15.  I can only presume this is due to caching behavior on the card.
+> > I do have these cards enabled with caching.  I have had these numbers
+> > as high as 319 MB/S with multiple cards in separate buses.  The system
+> > this test is running on has 3 PCI buses.  2 x 33 Mhz and 1 x 66 Mhz.  
+> > with Serverwork HE Chipset.
+> > 
+> > We are averaging complete saturation of the inbound command queue
+> > on the 3Ware adapter and are posting 64K writes (128 * 512) * 3 on
+> > aeverage with each command.  I have no idea why the 15 queue depth
+> > limit is being exceeded here, possibly due to the fact the adapter 
+> > is caching, but the stats report up to 255 requests being posted 
+> > per driver pass.
+> > 
+> > cat /proc/scsi/3w-xxxx/3
+> > 
+> > scsi3: 3ware Storage Controller
+> > Driver version: 1.02.00.016
+> > Current commands posted:       205
+> > Max commands posted:           255
+> > Current pending commands:        0
+> > Max pending commands:            0
+> > Last sgl length:                 0
+> > Max sgl length:                  3
+> > Last sector count:             128
+> > Max sector count:              256
+> > Resets:                          0
+> > Aborts:                          0
+> > AEN's:                           0
+> > 
+> > 
+> > cat /proc/scsi/3w-xxxx/3
+> > 
+> > scsi3: 3ware Storage Controller
+> > Driver version: 1.02.00.016
+> > Current commands posted:         7
+> > Max commands posted:           255
+> > Current pending commands:        0
+> > Max pending commands:            0
+> > Last sgl length:                 0
+> > Max sgl length:                  3
+> > Last sector count:             128
+> > Max sector count:              256
+> > Resets:                          0
+> > Aborts:                          0
+> > AEN's:                           0
+> > 
+> > 
+> > This test is posting a max of 54,000 4K buffer heads to a single 3Ware
+> > adapter.  See below:
+> > 
+> > 
+> > trxinfo -a  
+> > 
+> > ioctl TRXDRV_QUERY_AIO ret 0
+> > TRXDRV-AIO STATS
+> > aio_submitted-3 aio_completed-25601331 aio_error-0
+> > disk_aio_submitted-25601539 disk_aio_completed-25601331
+> > sync_active [ x x x x x x x x ]
+> > async_active [ x x x x x x x x ]
+> > cb_active-0 aio_sequence-0
+> > bh_count-65536 bh_inuse-32208 bh_max_inuse-54593 bh_waiters-0
+> > hash_hits-0 hash_misses-0 hash_fill-3 hash_total-3
+> > probe_avg-0 probe_max-1
+> > total_read_req-0 total_write_req-25601536 total_fill_req-0
+> > total_complete-25739847
+> > req_sec-0 seconds-12925
+> > 
+> > trxinfo -a  
+> > 
+> > ioctl TRXDRV_QUERY_AIO ret 0
+> > TRXDRV-AIO STATS
+> > aio_submitted-3 aio_completed-25605732 aio_error-0
+> > disk_aio_submitted-25605891 disk_aio_completed-25605732
+> > sync_active [ x x x x x x x x ]
+> > async_active [ x x x x x x x x ]
+> > cb_active-0 aio_sequence-0
+> > bh_count-65536 bh_inuse-31440 bh_max_inuse-54593 bh_waiters-0
+> > hash_hits-0 hash_misses-0 hash_fill-3 hash_total-3
+> > probe_avg-0 probe_max-1
+> > total_read_req-0 total_write_req-25605888 total_fill_req-0
+> > total_complete-25744271
+> > req_sec-0 seconds-12927
+> > 
+> > This test is posting a max of 54,000 4K buffer heads to a single 3Ware
+> > adapter.
+> > 
+> > 
 > > Jeff
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> > 
+> > 
+> > 
+> > On Fri, Mar 01, 2002 at 09:39:08PM -0700, Jeff V. Merkey wrote:
+> > > 
+> > > 
+> > > We are going to sleep a lot in __get_request_wait().  This 
+> > > means the write queue has no free request blocks.  We are mostly writing 
+> > > to the adapter in this test case, and the data we are writing 
+> > > is already in order when it's posted.    
+> > > 
+> > > We are also posting via submit_bh() so you should trace 
+> > > that path.  I am seeing 22,000+ buffer heads posted concurrently
+> > > on each 3Ware card of 4K each with this application
+> > > on the patch for 2.4.19-pre2.  I will post the actual data
+> > > for you.  Stand by. 
+> > > 
+> > > These 3Ware cards are incredible. 
+> > > 
+> > > Jeff
+> > > 
+> > > 
+> > > On Fri, Mar 01, 2002 at 04:51:04PM -0800, Mike Anderson wrote:
+> > > > Jeff V. Merkey [jmerkey@vger.timpanogas.org] wrote:
+> > > > > 
+> > > > > ..snip..
+> > > > >
+> > > > > What is really needed here is to allow queue_nr_requests to be 
+> > > > > configurable on a per adapter/device basis for these high end 
+> > > > > raid cards like 3Ware since in a RAID 0 configuration, 8 drives
+> > > > > are in essence a terabyte (1.3 terrabytes in our configuration) 
+> > > > > and each adapter is showing up as a 1.3 TB device.  64/128
+> > > > > requests are simply not enough to get the full spectrum of 
+> > > > > performance atainable with these cards.
+> > > > > 
+> > > > Not having direct experience on this card it appears that increasing the
+> > > > queue_nr_requests number will not allow you to have more ios in flight.
+> > > > 
+> > > > Unless I am reading the driver wrong you will be limited to
+> > > > TW_MAX_CMDS_PER_LUN (15). This value is used by scsi_build_commandblocks
+> > > > to allocate scsi commands for your scsi_device. This driver does not provide
+> > > > a select_queue_depths function which allows for increase to the default
+> > > > template value. 
+> > > > 
+> > > > Could it be that the experimentation of increasing this number has
+> > > > allowed for better merging.
+> > > > 
+> > > > -Mike
+> > > > -- 
+> > > > Michael Anderson
+> > > > andmike@us.ibm.com
+> > > > 
+> > > > -
+> > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > > the body of a message to majordomo@vger.kernel.org
+> > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > > Please read the FAQ at  http://www.tux.org/lkml/
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> -- 
+> Michael Anderson
+> andmike@us.ibm.com

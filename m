@@ -1,50 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272324AbTHNM3o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 08:29:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272338AbTHNM3o
+	id S272323AbTHNM2R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 08:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272324AbTHNM2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 08:29:44 -0400
-Received: from baloney.puettmann.net ([194.97.54.34]:37570 "EHLO
-	baloney.puettmann.net") by vger.kernel.org with ESMTP
-	id S272324AbTHNM3m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 08:29:42 -0400
-Date: Thu, 14 Aug 2003 14:28:45 +0200
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.22 APM problems with IBM Thinkpad's
-Message-ID: <20030814122845.GA2264@puettmann.net>
-References: <20030813123119.GA25111@puettmann.net> <16186.14686.455795.927909@gargle.gargle.HOWL> <1060783884.8008.64.camel@dhcp23.swansea.linux.org.uk>
+	Thu, 14 Aug 2003 08:28:17 -0400
+Received: from lmail.actcom.co.il ([192.114.47.13]:19869 "EHLO
+	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S272323AbTHNM2M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 08:28:12 -0400
+Date: Thu, 14 Aug 2003 15:28:02 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Simon Haynes <simon@baydel.com>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
+Subject: Re: File access
+Message-ID: <20030814122802.GC7387@actcom.co.il>
+References: <67597854DA5@baydel.com> <20030814121917.GX6898@mea-ext.zmailer.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="NU0Ex4SbNnrxsi6C"
 Content-Disposition: inline
-In-Reply-To: <1060783884.8008.64.camel@dhcp23.swansea.linux.org.uk>
+In-Reply-To: <20030814121917.GX6898@mea-ext.zmailer.org>
 User-Agent: Mutt/1.5.4i
-From: Ruben Puettmann <ruben@puettmann.net>
-X-Scanner: exiscan *19nHDh-0000am-00*hDstr3wgqXs* (Puettmann.NeT, Germany)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 13, 2003 at 03:11:27PM +0100, Alan Cox wrote:
-> On Mer, 2003-08-13 at 14:13, Mikael Pettersson wrote:
-> > With APIC support enabled (SMP or UP_APIC), APM must be constrained:
-> > DISPLAY_BLANK off
-> > CPU_IDLE off
-> > built-in driver, not module
-> 
-> This isnt sufficient because some of the SMM traps off the FN-key 
-> sequences also crash thinkpads if APIC is enabled. Basically *dont use
-> local apic* except on SMP.
 
-sorry but why breaks this all under linux? O.K im not a friend if
-windows but on the preinstalled windowsXP it runs all fine.
+--NU0Ex4SbNnrxsi6C
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Is this a problem of manpower or missing spec's? 
+On Thu, Aug 14, 2003 at 03:19:17PM +0300, Matti Aarnio wrote:
+> On Thu, Aug 14, 2003 at 12:32:18PM +0100, Simon Haynes wrote:
+> > I am currently developing a module which I would like to configure
+> > via a simple text file.=20
+> >=20
+> > I cannot seem to find any information on accessing files via a kernel=
+=20
+> > module.
+> >=20
+> > Is this possible and if so how is it done ?
+>=20
+>   Yes, but it is rather complicated business, and really should not
+>   be done in kernel.   It can be done, but like Richard said, defining
+>   your own set of IOCTLs for the device is better.  The complicated
+>   configuration file parsing can then reside in the user-space utility
+>   program.
 
-        Ruben
+Indeed, do it in user space. But don't use ioctl unless it fits the
+problem better than the other solutions. Use read / write on a device
+file, or a special purpose file system, or sysfs, or even /proc. The
+exact mechanism you should use depends on the nature of the user space
+- kernel space communications.=20
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org
 
--- 
-Ruben Puettmann
-ruben@puettmann.net
-http://www.puettmann.net
+
+--NU0Ex4SbNnrxsi6C
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/O4BRKRs727/VN8sRAlghAJ9o3T80HDl3Pwe050IUMwYfX+h49QCfW6Tx
+4yR+npB1pQmdgLw4iMxBrhM=
+=zvMb
+-----END PGP SIGNATURE-----
+
+--NU0Ex4SbNnrxsi6C--

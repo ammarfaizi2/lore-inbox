@@ -1,82 +1,87 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316080AbSFDBw5>; Mon, 3 Jun 2002 21:52:57 -0400
+	id <S316088AbSFDCFB>; Mon, 3 Jun 2002 22:05:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316088AbSFDBw4>; Mon, 3 Jun 2002 21:52:56 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:51558 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S316080AbSFDBwz>; Mon, 3 Jun 2002 21:52:55 -0400
-Message-Id: <5.1.0.14.2.20020604025121.02168350@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 04 Jun 2002 02:52:49 +0100
-To: Andrew Morton <akpm@zip.com.au>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: [patch] PCI device matching fix
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kees Bakker <kees.bakker@xs4all.nl>, Patrick Mochel <mochel@osdl.org>,
-        Anton Blanchard <anton@samba.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CFC0CC2.D69F2C57@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S316089AbSFDCFA>; Mon, 3 Jun 2002 22:05:00 -0400
+Received: from ausxc10.us.dell.com ([143.166.98.229]:55819 "EHLO
+	ausxc10.us.dell.com") by vger.kernel.org with ESMTP
+	id <S316088AbSFDCFA>; Mon, 3 Jun 2002 22:05:00 -0400
+Message-ID: <9A2D9C0E5A442340BABEBE55D81BEBDB0120518A@AUSXMPS313.aus.amer.dell.com>
+From: Matt_Domsch@Dell.com
+To: matti.aarnio@zmailer.org
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: please kindly get back to me
+Date: Mon, 3 Jun 2002 21:04:53 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 01:41 04/06/02, Andrew Morton wrote:
->The new pci_device_probe() is always passing the zeroeth
->entry in the id_table to the device's probe method.  It
->needs to scan that table for the correct ID first.
->
->This fixes the recent 3c59x strangenesses.
+> On Mon, 2002-06-03 at 20:23, Matti Aarnio wrote:
+> I think there are several free codes of this kind 
+> available, but my time
+> has been chronically over-subscribed to do radical things 
+> like taking this kind of codes into use.
 
-Andrew,
+I've been using SpamAssassin on lists.us.dell.com for a couple months now.
+It's pretty effective, but of course not perfect - maybe one a month gets
+through, though I'm dealing with less traffic than vger.  I'm not actually
+filtering linux-kernel-digest or -daily-digest, except to verify that the
+mail actually was sent from vger and not some spammer.  With procmail
+recipies, it works quite well.  Because I'm using mailman, it's a
+multi-stage thing.  Procmail does the heavy lifting, and mailman sticks
+suspected spam in the moderator queue.
 
-Just as a heads up, this patch does indeed fix my 3c905 misdetection problem.
+/etc/aliases has:
+linux-poweredge:         "|procmail -m /etc/procmailrcs/spamfilter post
+linux-poweredge"
 
-Thanks!!!
+/etc/procmailrcs/spamfilter has:
+# drop known spam senders in our killfile
+:0
+* ? formail -x"From" -x"From:" -x"Sender:" -x"X-Envelope-Sender:" | egrep
+-is -f
+ /home/mailman/SPAMMERS
+/dev/null
 
-         Anton
+:0fw
+| spamc
+
+# This avoids having to moderate completely obvious spam.
+# Send obvious spam to /var/spool/mail/caught-spam
+# Eventually we'll just send it to /dev/null instead.
+:0
+* ? formail -x"X-Spam-Status:" | sed -e 's/hits=//g' | \
+    awk '{if ($2 < 10) exit 1}'
+caught-spam
+
+:0
+|/home/mailman/mail/wrapper $1 $2
 
 
+Messages that match known spammers are dropped.
+Messages with scores < 5 are considered not spam.
+Messages with scores 5-10 are caught by Mailman filters and dropped into
+moderator queue
+Messages with scores > 10 are stored in caught-spam, could be /dev/null - it
+hasn't missed yet.
+Mailman then has its own list of things to catch for moderation, and I've
+mimic'd vger's filters too.
 
->--- 2.5.20/drivers/pci/pci-driver.c~pci-scan    Mon Jun  3 17:37:59 2002
->+++ 2.5.20-akpm/drivers/pci/pci-driver.c        Mon Jun  3 17:38:03 2002
->@@ -38,12 +38,19 @@ pci_match_device(const struct pci_device
->  static int pci_device_probe(struct device * dev)
->  {
->         int error = 0;
->+       struct pci_driver *drv;
->+       struct pci_dev *pci_dev;
->
->-       struct pci_driver * drv = list_entry(dev->driver,struct 
->pci_driver,driver);
->-       struct pci_dev * pci_dev = list_entry(dev,struct pci_dev,dev);
->+       drv = list_entry(dev->driver, struct pci_driver, driver);
->+       pci_dev = list_entry(dev, struct pci_dev, dev);
->
->-       if (drv->probe)
->-               error = drv->probe(pci_dev,drv->id_table);
->+       if (drv->probe) {
->+               const struct pci_device_id *id;
->+
->+               id = pci_match_device(drv->id_table, pci_dev);
->+               if (id)
->+                       error = drv->probe(pci_dev, id);
->+       }
->         return error > 0 ? 0 : -ENODEV;
->  }
->
->
->-
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+Successful messages give automatic whitelist points to the author, which
+cuts down on false positives from people who post regularly.  In all I'm
+quite pleased.  A useful addition would be automatic updates of rules as
+they get added to CVS, but SpamAssassin isn't mature enough to allow such
+quiet yet.
+
+Thanks,
+Matt
 
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+Matt Domsch
+Sr. Software Engineer
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+#1 US Linux Server provider for 2001! (IDC Mar 2002)

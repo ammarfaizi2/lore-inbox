@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262064AbULPXNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262054AbULPXMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262064AbULPXNN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 18:13:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbULPXNM
+	id S262054AbULPXMz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 18:12:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbULPXMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 18:13:12 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:38371 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262064AbULPXJx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 18:09:53 -0500
-Date: Thu, 16 Dec 2004 18:09:34 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Pavel Machek <pavel@suse.cz>, Ian Pratt <Ian.Pratt@cl.cam.ac.uk>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
-       Keir.Fraser@cl.cam.ac.uk
-Subject: Re: arch/xen is a bad idea
-In-Reply-To: <41C20FFF.6000004@tmr.com>
-Message-ID: <Pine.LNX.4.61.0412161808450.26850@chimarrao.boston.redhat.com>
-References: <E1CeLLB-0000Sl-00@mta1.cl.cam.ac.uk><E1CeLLB-0000Sl-00@mta1.cl.cam.ac.uk>
- <20041215114916.GB1232@elf.ucw.cz> <41C20FFF.6000004@tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 16 Dec 2004 18:12:54 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3849 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262054AbULPXKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 18:10:15 -0500
+Date: Fri, 17 Dec 2004 00:10:07 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: james4765@verizon.net
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] computone: remove unnecessary files from drivers/char/ip2
+Message-ID: <20041216231007.GW12937@stusta.de>
+References: <20041216225431.4074.80006.90928@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041216225431.4074.80006.90928@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Dec 2004, Bill Davidsen wrote:
+On Thu, Dec 16, 2004 at 04:54:10PM -0600, james4765@verizon.net wrote:
 
-> Assuming this is practical and would let xen get exposure sooner rather 
-> than later, it would be nice if the hooks could be used for other 
-> projects.
+> Let me try that one again - this time with the right file (oops :)
+> 
+> Remove a makefile and three programs from drivers/char/ip2 - they should not be in the kernel.
+>...
 
-> Who knows what operating systems might run in this way.
+Why did I think I've seen such a patch before?  ;-)
 
-NetBSD and Plan 9 already run on Xen 2.0.  IIRC FreeBSD and
-one of the other BSDs are being ported, too...
+I sent the same patch some time ago and it's already in -mm.
 
+You better send patches against -mm which is already over 17 MB away 
+from -rc3.
+
+cu
+Adrian
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

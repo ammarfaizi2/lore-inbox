@@ -1,40 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272279AbTHRQVk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 12:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272454AbTHRQVk
+	id S272568AbTHRQpW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 12:45:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272664AbTHRQpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 12:21:40 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:61370 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S272279AbTHRQVi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 12:21:38 -0400
-Date: Mon, 18 Aug 2003 09:13:59 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Andries.Brouwer@cwi.nl
-Cc: Dominik.Strasser@t-online.de, hch@infradead.org,
-       linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] Re: [PATCH] scsi.h uses "u8" which isn't defined.
-Message-ID: <20030818091359.A27575@beaverton.ibm.com>
-References: <UTC200308181219.h7ICJfw14963.aeb@smtp.cwi.nl>
+	Mon, 18 Aug 2003 12:45:22 -0400
+Received: from [63.247.75.124] ([63.247.75.124]:26769 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S272568AbTHRQpN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 12:45:13 -0400
+Date: Mon, 18 Aug 2003 12:45:12 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: rth@twiddle.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ALPHA] Update for "name" out of struct device.
+Message-ID: <20030818164512.GF24693@gtf.org>
+References: <200308181611.h7IGBEcW024487@hera.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <UTC200308181219.h7ICJfw14963.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Mon, Aug 18, 2003 at 02:19:41PM +0200
+In-Reply-To: <200308181611.h7IGBEcW024487@hera.kernel.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 18, 2003 at 02:19:41PM +0200, Andries.Brouwer@cwi.nl wrote:
+On Mon, Aug 18, 2003 at 05:24:13AM +0000, Linux Kernel Mailing List wrote:
+> --- a/arch/alpha/kernel/sys_marvel.c	Mon Aug 18 09:11:18 2003
+> +++ b/arch/alpha/kernel/sys_marvel.c	Mon Aug 18 09:11:18 2003
+> @@ -33,6 +33,13 @@
+> +/* ??? Should probably be generic.  */
+> +#ifdef CONFIG_PCI_NAMES
+> +#define pci_pretty_name(x) ((x)->pretty_name)
+> +#else
+> +#define pci_pretty_name(x) ""
+> +#endif
+> +
 
-> For example, this unfortunate discussion started with the u8 in
-> ScsiLun, but this concept, introduced in 2.5.11, has been almost
-> entirely removed again in 2.5.69, and today only occurs in
-> scsi_debug.c. So, we can do
+> @@ -378,7 +385,7 @@
+>  		       PCI_SLOT(dev->devfn), 
+>  		       PCI_FUNC(dev->devfn),
+>  		       hose->index,
+> -		       dev->dev.name);
+> +		       pci_pretty_name (dev));
+>  		printk("  %d message(s) from 0x%04x\n", 
 
-The scsi_debug.c code is there so we can easily test the scsi_scan.c code.
+hmmm, I think a better fix can be had...  We store all that information.
 
-scsi_lun is still used in scsi_scan.c (but not the typedef) when
-CONFIG_SCSI_REPORT_LUNS is enabled (as should be the norm).
+What do you think about the following patch?  It follows the style of
+other PCI core messages, and prints out the same information as before.
 
--- Patrick Mansfield
+This assumes, of course, marvel_map_irq is called after pci_name() is
+assigned a value...
+
+	Jeff
+
+
+
+
+
+===== arch/alpha/kernel/sys_marvel.c 1.7 vs edited =====
+--- 1.7/arch/alpha/kernel/sys_marvel.c	Mon Aug 18 01:23:05 2003
++++ edited/arch/alpha/kernel/sys_marvel.c	Mon Aug 18 12:43:51 2003
+@@ -33,13 +33,6 @@
+ # error NR_IRQS < MARVEL_NR_IRQS !!!
+ #endif
+ 
+-/* ??? Should probably be generic.  */
+-#ifdef CONFIG_PCI_NAMES
+-#define pci_pretty_name(x) ((x)->pretty_name)
+-#else
+-#define pci_pretty_name(x) ""
+-#endif
+-
+ 
+ /*
+  * Interrupt handling.
+@@ -380,12 +373,7 @@
+ 		irq += 0x80;			/* offset for lsi       */
+ 
+ #if 1
+-		printk("PCI:%d:%d:%d (hose %d) [%s] is using MSI\n",
+-		       dev->bus->number, 
+-		       PCI_SLOT(dev->devfn), 
+-		       PCI_FUNC(dev->devfn),
+-		       hose->index,
+-		       pci_pretty_name (dev));
++		printk("PCI:%s is using MSI\n", pci_name (dev));
+ 		printk("  %d message(s) from 0x%04x\n", 
+ 		       1 << ((msg_ctl & PCI_MSI_FLAGS_QSIZE) >> 4),
+ 		       msg_dat);

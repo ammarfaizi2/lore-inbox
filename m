@@ -1,74 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262363AbVC3R4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262368AbVC3SB1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262363AbVC3R4z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 12:56:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262366AbVC3R4z
+	id S262368AbVC3SB1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 13:01:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbVC3SB1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 12:56:55 -0500
-Received: from rproxy.gmail.com ([64.233.170.204]:30740 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262363AbVC3R4t (ORCPT
+	Wed, 30 Mar 2005 13:01:27 -0500
+Received: from fire.osdl.org ([65.172.181.4]:40333 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262368AbVC3SBX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 12:56:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:organization:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=AZU5n0N8iwk1Tb6ro2f+On/ezOIEguhfYYO9gUHfgqbkOcI7QI0PuQf3k4Ynp/4pKxHCHJMaO1cQgjJJ8VmCufAvRu5wKV8rK7UEU6DtsQD7xlylHga/HbG1nv6WvOSPsWVt/VL7fplQNc4ytrFypgbBdKHRyQp5KsJBZGUEpvc=
-From: Vicente Feito <vicente.feito@gmail.com>
-To: linux-os@analogic.com
-Subject: Re: How to debug kernel before there is no printk mechanism?
-Date: Wed, 30 Mar 2005 14:54:41 +0000
-User-Agent: KMail/1.7.1
-Cc: krishna <krishna.c@globaledgesoft.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <424AD247.4080409@globaledgesoft.com> <Pine.LNX.4.61.0503301134240.28049@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0503301134240.28049@chaos.analogic.com>
-Organization: none
+	Wed, 30 Mar 2005 13:01:23 -0500
+Message-ID: <424AE960.8020906@osdl.org>
+Date: Wed, 30 Mar 2005 10:01:04 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Yum Rayan <yum.rayan@gmail.com>
+CC: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: [PATCH] Reduce stack usage in module.c
+References: <df35dfeb05032823137a208b46@mail.gmail.com>	 <424993B0.9010306@osdl.org> <df35dfeb050329222132823897@mail.gmail.com>
+In-Reply-To: <df35dfeb050329222132823897@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503301454.41322.vicente.feito@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Video memory is at b800:0000, for humans 0x0000b800, not at 0x000b8000
+Yum Rayan wrote:
+> On Tue, 29 Mar 2005 09:43:12 -0800, Randy.Dunlap <rddunlap@osdl.org> wrote:
+> 
+>>Yum Rayan wrote:
+>>
+>>>Attempt to reduce stack usage in module.c (linux-2.6.12-rc1-mm3).
+>>>Specifically from checkstack.pl
+> 
+>>>Also while at it, fix following in who_is_doing_it(...)
+>>>- use only as much memory is needed
+>>>- do not write past array index for the boundary case
+>>
+>>I don't see a boundary case problem with the current code,
+>>hence I don't see why the kmalloc(len + 1, GFP_KERNEL) is
+>>needed...
+> 
+> 
+> Let's consider the original code and len = 513
+> 
+>    1399 static void who_is_doing_it(void)
+>    1400 {
+>    1401         /* Print out all the args. */
+>    1402         char args[512];
+>    1403         unsigned long i, len = current->mm->arg_end -
+> current->mm->arg_start;
+>    1404
+>    1405         if (len > 512)
+>    1406                 len = 512;
+>    1407
+>    1408         len -= copy_from_user(args, (void
+> *)current->mm->arg_start, len);
+>    1409
+>    1410         for (i = 0; i < len; i++) {
+>    1411                 if (args[i] == '\0')
+>    1412                         args[i] = ' ';
+>    1413         }
+>    1414         args[i] = 0;
+>    1415         printk("ARGS: %s\n", args);
+>    1416 }
+> 
+> After lines 1410 thru 1413, "i" wil be 512. So line 1414 will be
+> "args[512] = 0". But args is 512 byte array with last legally
+> accessible element at 511?
 
+Yes, it's so obvious (now).  :)
 
-On Wednesday 30 March 2005 04:47 pm, linux-os wrote:
-> On Wed, 30 Mar 2005, krishna wrote:
-> > Hi all,
-> >
-> > How can one debug kernel before there is no printk mechanism in kernel.
-> >
-> > Regards,
-> > Krishna Chaitanya
->
-> Write directly to screen memory at 0x000b8000, or write to the
-> RS-232C UART while polling the TX buf empty bit, or just write
-> bits that mean something to you out the printer port.
->
-> Screen - memory is 16-bit words with the high-word being
-> an attibute byte. FYI 0x07 is a good B&W byte. You can
-> initialize a pointer to it as:
->
-> unsigned short *screen = 0xc00b8000; Since low memory
-> is always mapped, the above cheat will work. The 0xc0000000
-> is PAGE_OFFSET.
->
-> An early '486 was brought up into a 32-bit protected-mode
-> (non linux) operating system using these debugging methods.
-> The first time I got to see some symbol written to the
-> screen in protected-mode marked the start of a week-end-
-> long party. Have fun!
->
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
->   Notice : All mail here is now cached for review by Dictator Bush.
->                   98.36% of all statistics are fiction.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>>File names start one level deeper than wanted.  They should begin
+>>with linux/ or a/ or ./ e.g.
+>>There are plenty of docs on this, please let me know if you need
+>>references to them.
+> 
+> 
+> Point noted. Will post patch to linux/Documentation/SubmittingPatches,
+> hopefully making it more clear. Reworked patch at end of email.
+
+Good idea, thanks.
+
+-- 
+~Randy

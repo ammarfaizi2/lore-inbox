@@ -1,113 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbUBEMtW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 07:49:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264505AbUBEMtW
+	id S265213AbUBEMk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 07:40:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265215AbUBEMk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 07:49:22 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:51386 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261567AbUBEMtS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 07:49:18 -0500
-Date: Thu, 5 Feb 2004 13:48:45 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Antony Gelberg <antony@antgel.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CD-ROMs not working in 2.6
-Message-ID: <20040205124845.GZ11683@suse.de>
-References: <20040205120103.GE1952@brain.pulsesol.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040205120103.GE1952@brain.pulsesol.com>
+	Thu, 5 Feb 2004 07:40:56 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:52352 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S265213AbUBEMky
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 07:40:54 -0500
+Date: Thu, 5 Feb 2004 07:42:06 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Greg KH <greg@kroah.com>
+cc: odain2@mindspring.com, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: proper place for devfs_register_chrdev with pci_module_init
+In-Reply-To: <20040204233400.GA5274@kroah.com>
+Message-ID: <Pine.LNX.4.53.0402050739450.5456@chaos>
+References: <18852317.1075926209540.JavaMail.root@wamui01.slb.atl.earthlink.net>
+ <Pine.LNX.4.53.0402041616230.3277@chaos> <200402041648.29096.odain2@mindspring.com>
+ <Pine.LNX.4.53.0402041723340.3515@chaos> <20040204233400.GA5274@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 05 2004, Antony Gelberg wrote:
-> I asked for a CC which is why I didn't see the reply until I looked in
-> Google groups and it is also why the thread will now be broken as I had
-> to cut and paste the reply as a new message.  Please CC me any replies.
+On Wed, 4 Feb 2004, Greg KH wrote:
 
-Well you were cc'ed, messages was received at your end at 2004-02-04
-11:06:30 CET. So either look harder, or fix your mail setup.
-
-Now, if you would like me to read your mail within a few hours (instead
-of days), then you need to CC me.
-
-> Jens Axboe wrote:
-> >On Wed, Feb 04 2004, Antony Gelberg wrote:
-> >> Hi all,
-> >> 
-> >> I'd appreciate a CC as I'm not subbed.
-> >> 
-> >> I'm running 2.6.0 from the Debian source packages.  All is good,
-> >> except
-> >> my CDROM drives don't work.  Here's some relevant output from
-> >> /var/log/dmesg:
-> >> 
-> >> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-> >> ide: Assuming 33MHz system bus speed for PIO modes; override with
-> >> idebus=xx
-> >> VP_IDE: IDE controller at PCI slot 0000:00:11.1
-> >> ACPI: No IRQ known for interrupt pin A of device 0000:00:11.1 - using
-> >> IRQ 255
-> >> VP_IDE: chipset revision 6
-> >> VP_IDE: not 100% native mode: will probe irqs later
-> >> ide: Assuming 33MHz system bus speed for PIO modes; override with
-> >> idebus=xx
-> >> VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci0000:00:11.1
-> >>     ide0: BM-DMA at 0x8800-0x8807, BIOS settings: hda:pio, hdb:pio
-> >>     ide1: BM-DMA at 0x8808-0x880f, BIOS settings: hdc:DMA, hdd:pio
-> >> hdc: 54X CD-ROM, ATAPI CD/DVD-ROM drive
-> >> ide1 at 0x170-0x177,0x376 on irq 15
-> >> end_request: I/O error, dev hdc, sector 0
-> >> hdc: ATAPI 52X CD-ROM drive, 128kB Cache, UDMA(33)
-> >> Uniform CD-ROM driver Revision: 3.12
-> >> libata version 0.81 loaded.
-> >> sata_promise version 0.86
-> >> ata1: SATA max UDMA/133 cmd 0xE0824200 ctl 0xE0824238 bmdma 0x0 irq 17
-> >> ata2: SATA max UDMA/133 cmd 0xE0824280 ctl 0xE08242B8 bmdma 0x0 irq 17
-> >> 
-> >> Now lspci:
-> >> 00:11.1 IDE interface: VIA Technologies, Inc.
-> >> VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev
-> >> 06)
-> >> 
-> >> Can anyone shed any light on this?  I've tried a different IDE cable.
-> >> I
-> >> disconnected the other drive that was the slave, but no dice.  hdc and
-> >> hdd both reported the I/O error when they were both connected.  The
-> >> system doesn't recognise data or audio discs.
+> On Wed, Feb 04, 2004 at 05:29:31PM -0500, Richard B. Johnson wrote:
 > >
-> >Maybe if you would let us know what doesn't work?! At least post the
-> >full boot messages and make sure you aren't doing anything like passing
-> >hdc/d=ide-scsi through lile/grub.
-> 
-> Sorry, I thought it was obvious.  I'll requote:
-> 
-> >> The system doesn't recognise data or audio discs.
+> > I would call pci_find_class() and continue until a NULL is returned
+> > or my vendor and device are returned in the structure.
+>
+> NOOOOO!!!!!
+>
+> Do NOT do this.  Use pci_register_driver() instead.  Using pci_find_*()
+> is just broken and wrong for 99% of all pci drivers.
+>
+> If you do this you do not hook up into sysfs properly.  You do not get
+> modules automatically loaded for your driver.  You do not get notified
+> if the device is removed from the system.  And, most importantly, you do
+> not get exclusive access to the pci device.
+>
+> As for the original poster, look at one of the many existing char
+> drivers for examples of what you need to do to register a char driver
+> properly.  It really has nothing to do with the pci interface at all
+> (with the exception of when to register it...)
+>
+> thanks,
+>
+> greg k-h
 
-That doesn't contain any sort of real info.
 
-> What I meant was that mounting fails with "no such device", and playing
-> audio CD's fails as well.  No error, just no recognition of the CD.
+WTF? How do you find out if your board in actually in the system?
+You CANNOT load all possible modules, hoping that somebody will
+hot-plug in one of the devices a year from now.
 
-What does cat /proc/sys/dev/cdrom/info contain?
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-> 
-> >> end_request: I/O error, dev hdc, sector 0
-> 
-> I think that this is the problem, but I don't know what it means.  I
-> don't think posting the rest of my bootlog is patricularly helpful, but
-> please let me know if it is.  I am not passing any parameters to lilo.
-
-No, it likely has nothing to do with it.
-
-> I have attached my kernel config in the hope that the list doesn't strip
-> all attachments.
-
-I don't care for your config, attach the boot messages like I asked.
-
--- 
-Jens Axboe
 

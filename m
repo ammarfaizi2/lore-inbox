@@ -1,95 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263195AbTEOAAz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 20:00:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263200AbTEOAAz
+	id S263208AbTEOAC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 20:02:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263206AbTEOACZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 20:00:55 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:42250 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP id S263195AbTEOAAc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 20:00:32 -0400
-Date: Wed, 14 May 2003 17:11:08 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: What exactly does "supports Linux" mean?
-Message-ID: <20030515001108.GC2009@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <200305131114_MC3-1-38B0-3C13@compuserve.com> <yw1x3cjifutq.fsf@zaphod.guide> <20030514021210.GD30766@pegasys.ws> <b9tipu$e3m$4@tangens.hometree.net>
+	Wed, 14 May 2003 20:02:25 -0400
+Received: from smtp3.server.rpi.edu ([128.113.2.3]:31890 "EHLO
+	smtp3.server.rpi.edu") by vger.kernel.org with ESMTP
+	id S263205AbTEOACS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 20:02:18 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b9tipu$e3m$4@tangens.hometree.net>
-User-Agent: Mutt/1.3.27i
+Message-Id: <p05210619bae885784bd4@[128.113.24.47]>
+In-Reply-To: <20030514165838.GD20171@delft.aura.cs.cmu.edu>
+References: <24225.1052909011@warthog.warthog>
+ <20030514165838.GD20171@delft.aura.cs.cmu.edu>
+Date: Wed, 14 May 2003 20:14:39 -0400
+To: Jan Harkes <jaharkes@cs.cmu.edu>, David Howells <dhowells@redhat.com>
+From: Garance A Drosihn <drosih@rpi.edu>
+Subject: [OpenAFS-devel] Re: [PATCH] PAG support, try #2
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2003 at 02:11:10PM +0000, Henning P. Schmiedehausen wrote:
-> jw schultz <jw@pegasys.ws> writes:
-> 
-> >This is really a trademark related labelling issue.  The
-> >trademark allows Linus or his assignee to specify in what
-> >way Linux(tm) may be used in labelling and advertising.
-> >Linux is just like other products with third-party parts and
-> >supplies.  If Linus's assignee (Linux international?) where
-> >to specify explicit guidelines then people would know what
-> >to expect.  Something like:
-> 
-> >Linux certified:
-> >	Mainline kernel has driver and it has been certified
-> >	as functioning with this hardware by OSDL or some
-> >	other officially sanctioned lab.
-> 
-> >Linux supported:
-> >	Mainline kernel has driver.
-> 
-> >Linux compatible:
-> >	Source code driver available as a patch.
-> 
-> >Runs on Linux:
-> >	Binary only driver available that can be used with
-> >	mainline kernel.
-> 
-> >Supports Linux:
-> >	Portion of the purchase price will be donated to
-> >	Linux International.
-> 
+At 12:58 PM -0400 5/14/03, Jan Harkes wrote:
+>On Wed, May 14, 2003, David Howells wrote:
+>  > Here's a revised patch for adding PAG support that
+>  > incorporates suggestions and corrections I've been sent.
+>
+>Please don't call this a pag. PAGs are defined as a simple
+>unique integer session identifier [1]. Their main purpose it
+>to provide a isolated permission environment, think of it as
+>a chroot. So joining or leaving a PAG is just plain wrong.
+>
+>The implementation to add a PAG to Linux is really nothing
+>more than adding single integer to the task and file structs.
+>And a couple of functions to set a new unique value and query
+>the value.
+>
+>AFS (and possibly DFS) style token management uses both the
+>user id (fsuid?) and PAG id. It has simple rules,
+>
+>    All processes with (pag == 0 and same uid) share the
+>        same tokens.
+>    All processes with pag != 0 share the same tokens.
 
-I left out versioning because i don't see that as belonging
-on the front of the box.  That falls under "system
-requirements" with a URL for downloading up-to-date drivers.
+Let me rephrase this just a little bit, to make sure everyone
+is getting the exactly same idea:
 
-Hardware that has a driver in, or for, the mainline
-development tree but not the stable tree should probably
-not qualify or should have another another category or a
-category modifier.
+     For any process where pag != 0, that process will share
+     tokens with all other processes that have the exact same
+     pag value as it has.  This is true even if the different
+     processes are tied to different user ids.
 
-> As there is no real body to enforce misuse of these labels, they're
-> moot.
+     Eg:  When doing 'sudo blah', the 'blah' process will
+     still be in the exact same pag, and it will have all
+     the exact same tokens, even though the process is
+     running as uid root.  Another example would be setuid
+     programs.
 
-I'd suggest Linux International. I think Linus has assigned
-trademark enforcement to them.
+There is absolutely no connection between userids and PAG's,
+the same way that there is no connection between userids and
+process-numbers.  (Roughly speaking:) The 10th person to log
+in will get the 10th pag, no matter what userid they happen
+to log in as.
 
-With decent guidelines most manufacturers would be only to
-glad to comply.  Some might even be willing to pony up $$
-for certification or the right to use some copyrighted
-logo.
+It's tokens which have some relation to userids.  In the world
+of AFS, a pag can hold only one token from any one AFS cell
+at a given time.  But I can change which "AFS userid" that I
+am, without changing which pag I am in, and all processes in
+that same pag will instantly become that same "AFS userid".
 
-Those who play fast-and-loose will generally fall in line if
-asked to do so.  Witness the effectiveness of the EFF in
-defending the GPL.  The resistant would face public
-criticism for false labelling (possible criminal fraud
-charges?) and the potential of a trademark infringement
-suit.  The categories i suggest don't really leave anyone
-out.  Even if you make a piece of crap hardware with a
-binary only driver that only supports one kernel version as
-long as you hide which version in the "system requirements"
-(where we all look first) you can claim "runs on Linux".
+>This was my last mail on the subject as I seem the be the
+>only one on that actually seem to view PAGs the way I do.
+
+This would be a shame, as I think you've done a good job of
+presenting a clear picture of what is really needed.
+
+Disclaimer: I have no idea of what code changes would be
+appropriate for the linux kernel, I'm just saying the above
+description matches my idea of what a PAG should be.
 
 -- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt
+Garance Alistair Drosehn            =   gad@gilead.netel.rpi.edu
+Senior Systems Programmer           or  gad@freebsd.org
+Rensselaer Polytechnic Institute    or  drosih@rpi.edu

@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262129AbTCHSMb>; Sat, 8 Mar 2003 13:12:31 -0500
+	id <S262132AbTCHSSL>; Sat, 8 Mar 2003 13:18:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262130AbTCHSMa>; Sat, 8 Mar 2003 13:12:30 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25867 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262129AbTCHSM3>; Sat, 8 Mar 2003 13:12:29 -0500
-Date: Sat, 8 Mar 2003 10:20:54 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Christoph Hellwig <hch@infradead.org>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: [PATCH] 6/6 cacheline align files_lock
-In-Reply-To: <20030308181011.A30313@infradead.org>
-Message-ID: <Pine.LNX.4.44.0303081015440.2954-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262133AbTCHSSL>; Sat, 8 Mar 2003 13:18:11 -0500
+Received: from vitelus.com ([64.81.243.207]:29702 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S262132AbTCHSSK>;
+	Sat, 8 Mar 2003 13:18:10 -0500
+Date: Sat, 8 Mar 2003 10:28:21 -0800
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@digeo.com>, Robert Love <rml@tech9.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+Message-ID: <20030308182821.GB408@vitelus.com>
+References: <20030307070005.GB21885@vitelus.com> <Pine.LNX.4.44.0303070832430.4401-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0303070832430.4401-100000@localhost.localdomain>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sat, 8 Mar 2003, Christoph Hellwig wrote:
+On Fri, Mar 07, 2003 at 08:36:12AM +0100, Ingo Molnar wrote:
+> > I was able to reproduce them by selecting text in Mathematica (ugh, not
+> > a very helpful example). The skips were shorter and about three times as
+> > hard to trigger as on 2.5.63.
 > 
-> Agreed, that's what I actually though when looking into that stuff in more
-> detail a while ago - I just couldn't remember everything now that Martin
-> brought it up again.  Killing the freelist seems like a good idea anyway
-> (or rather keep a small list for the reserved filp that is used only
-> _after_ kmem_cache_alloc() failed)
+> okay, just as a data point, could you try to renice the player
+> process/thread to -2? Does it make the skipping harder to trigger?
+> How about -5, or -10?
 
-Well, the sad part, though, is that the file lists are almost never 
-actually _used_, so even if this is made per-superblock that won't get 
-over the fact that
+Renicing all xmms threads to -2 makes the problem impossible to
+trigger in this way. I'm sorry for having such a stupid testcase;
+Mathematica is proprietary software, and judging by the way it makes
+XMMS skip, it's probably doing something stupid. XMMS also has a "Use
+realtime priority" option, which makes it do:
 
- (a) much of the time you'll still get the lock overhead (not very many
-     superblocks would be impacted: it would usually spread out the
-     current load over two or three super-blocks: pipes, networking and
-     "real" filesystem) and
+	sparam.sched_priority = sched_get_priority_max(SCHED_RR);
+	sched_setscheduler(0, SCHED_RR, &sparam);
 
- (b) it would _still_ be for something that almost never happens -
-     relatively speaking (ie it's currently used for hanging up terminals
-     and for unmounts, and nothing else, I think)
-
-I think we might actually be able to make it really go away, if the file
-list was made per-dentry or something like that (and then use the existing
-dentry->lock instead of dcache_lock). We already keep track of dentries
-for "umount", and if we made the tty layer use another list, we'd get rid 
-of this whole lock entirely.
-
-At this point, though, the 2.6.x thing is clearly to just avoid the false 
-sharing. But somebody can work on this if they feel like a 2.7.x 
-challenge.
-
-		Linus
-
+Obviously, this requires root privileges, however, it also prevents
+the skipping. I wonder if setting CAP_SYS_NICE on xmms and hacking it
+to ignore geteuid() would be safe.

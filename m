@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263364AbTDYPtv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 11:49:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263366AbTDYPtv
+	id S263340AbTDYPzK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 11:55:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263350AbTDYPzK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 11:49:51 -0400
-Received: from collamer.mail.atl.earthlink.net ([199.174.114.9]:15908 "EHLO
-	collamer.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
-	id S263364AbTDYPtu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 11:49:50 -0400
-Date: Fri, 25 Apr 2003 10:56:47 -0400
-From: Wil Reichert <wilreichert@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-rc1-ac1: Filesystem corruption
-Message-Id: <20030425105647.24760c35.wilreichert@yahoo.com>
-In-Reply-To: <20030425073652.GA2089@defiant.crash>
-References: <20030425073652.GA2089@defiant.crash>
-Organization: NA
-X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 25 Apr 2003 11:55:10 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:8832 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263340AbTDYPzJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 11:55:09 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304251610.h3PGAiri001509@81-2-122-30.bradfords.org.uk>
+Subject: Re: Simple x86 Simulator (was: Re: Flame Linus to a crisp!)
+To: miller@techsource.com (Timothy Miller)
+Date: Fri, 25 Apr 2003 17:10:44 +0100 (BST)
+Cc: steve@augart.com (Steven Augart), john@grabjohn.com (John Bradford),
+       linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <3EA9565B.9020905@techsource.com> from "Timothy Miller" at Apr 25, 2003 11:38:03 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've experienced corruption on an ext3 filesystem.
-> Motherboard: Asus A7N8A Chipset: NForce2
+> > We could not.  Consider just the 8 32-bit-wide legacy x86 registers, 
+> > excluding the MMX and FPU registers:
+> > (AX, BX, CX, DX, BP, SI, DI, SP).  32 bits x 8 = 2^256 independent 
+> > states to look up in the table, each state having 256 bits of 
+> > information.  2^264 total bits of information needed.  Assume 1 GB 
+> > dimms (2^30 * 8 bits each = 2^33 bits of info), with a volume of 10 
+> > cm^3 per DIMM (including a tiny amount of space for air circulation.).
+> > Need 34508731733952818937173779311385127262255544860851932776 cubic 
+> > kilometers of space.
+> >
+> > Considerably larger than the volume of the earth, although admittedly 
+> > smaller than the total volume of the universe.
+> > --Steven Augart
 > 
-> Kernel-config is attatched
-> 
-> Harddrives:
-> hda: IBM-DJNA-351520
-> hdb: IC35L080AVVA07-0
+> If this could be done, someone would have done it already.
 
-Maybe your problem is in the kernel, maybe not.  hdb is an IBM 80 Gig?  Be afraid, those drives are notorious for going bad.  Yesterday a similar model randomly ate half a partition then lost its boot sector for a couple hours.  Today I can run a write mode badblocks with no errors to be found.
+It's certainly possible to implement most of the functionality of a
+very simple processor this way, but applying the idea to an X86
+compatible processor was a joke.
 
-Hope you make backups.
+What interests me now is whether we could cache the results of certain
+opcode strings in a separate memory area.
 
-Wil
+Say for example, you have a complicated routine that runs in to
+hundreds of opcodes, which is being applied to large amounts of data,
+word by word.  If one calculation doesn't depend on another, you could
+cache the results, and then merely fetch them from the results cache
+when the input data repeats itself.
+
+I.E. the processor dynamically makes it's own look-up tables.
+
+John.

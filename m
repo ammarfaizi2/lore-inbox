@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317023AbSFZWQa>; Wed, 26 Jun 2002 18:16:30 -0400
+	id <S317181AbSFZW0S>; Wed, 26 Jun 2002 18:26:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317030AbSFZWQ3>; Wed, 26 Jun 2002 18:16:29 -0400
-Received: from web30.achilles.net ([209.151.1.2]:57236 "EHLO
-	web30.achilles.net") by vger.kernel.org with ESMTP
-	id <S317023AbSFZWQ2>; Wed, 26 Jun 2002 18:16:28 -0400
-Subject: Re: x86 Page Sizes
-From: Robert Love <rml@tech9.net>
-To: Dan Sturtevant <dsturtev@plogic.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0206261759230.11230-100000@milhouse.plogic.internal>
-References: <Pine.LNX.4.44.0206261759230.11230-100000@milhouse.plogic.internal>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 26 Jun 2002 18:11:08 -0400
-Message-Id: <1025129491.1144.7.camel@icbm>
-Mime-Version: 1.0
+	id <S317191AbSFZW0R>; Wed, 26 Jun 2002 18:26:17 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:24079 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317181AbSFZW0Q>; Wed, 26 Jun 2002 18:26:16 -0400
+Date: Wed, 26 Jun 2002 19:24:04 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: linux-kernel@vger.kernel.org
+Subject: #kernelnewbies moves
+Message-ID: <Pine.LNX.4.44L.0206261923460.27768-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-06-26 at 18:02, Dan Sturtevant wrote:
-> 
-> I know the x86 linux kernel has 4K pages in userspace and 4M pages in 
-> kernel space.  These two sizes seem to be limitations of the intel 
-> architecture (I think).
-> 
-> Does anyone know a way to increase the userspace page size above 4K?
-> Are there any patches for a 4M userspace pagesize?
+Hi,
 
-Kernel has 4K pages in user and kernel space.  It is the same address
-space and segment, just uses MMU protection.
+due to a possible incompatibility between one of the
+OPN admins soliciting money on a regular basis and the
+policies of the network where kernelnewbies.org is
+hosted we have decided to move the #kernelnewbies IRC
+channel to another network.
 
-x86 does 4K pages.
+You will be able to find us on:
 
-	Robert Love
+	irc.oftc.net / #kernelnewbies
+
+
+Kernelnewbies is a project meant to help people learn
+about operating system development by providing information
+and operating a mailing list and IRC channel where current
+and future developers can help each other. More information
+about kernelnewbies can be found on  http://kernelnewbies.org/
+
+kind regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+--
+Kernelnewbies: Help each other learn about the Linux kernel.
+Archive:       http://mail.nl.linux.org/kernelnewbies/
+FAQ:           http://kernelnewbies.org/faq/
 

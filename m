@@ -1,101 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268396AbUHQUCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268397AbUHQUHF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268396AbUHQUCx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 16:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268397AbUHQUCw
+	id S268397AbUHQUHF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 16:07:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268401AbUHQUHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 16:02:52 -0400
-Received: from gprs214-122.eurotel.cz ([160.218.214.122]:1922 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S268396AbUHQUAg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 16:00:36 -0400
-Date: Tue, 17 Aug 2004 22:00:20 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Coding style: do_this(a,b) vs. do_this(a, b)
-Message-ID: <20040817200020.GA21731@elf.ucw.cz>
-References: <1092743463.5759.1403.camel@cube> <20040817164046.GA19009@elf.ucw.cz> <1092762468.5759.1524.camel@cube>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1092762468.5759.1524.camel@cube>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 17 Aug 2004 16:07:04 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:18532 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S268397AbUHQUHA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 16:07:00 -0400
+Message-ID: <41226512.9000405@microgate.com>
+Date: Tue, 17 Aug 2004 15:05:38 -0500
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, olh@suse.de
+Subject: Re: 2.6.8.1-mm1 Tty problems?
+References: <2a4f155d040817070854931025@mail.gmail.com> <412247FF.5040301@microgate.com> <2a4f155d0408171116688a87f1@mail.gmail.com> <4122501B.7000106@microgate.com> <2a4f155d04081712005fdcdd9b@mail.gmail.com> <41225D16.2050702@microgate.com> <2a4f155d040817124335766947@mail.gmail.com>
+In-Reply-To: <2a4f155d040817124335766947@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+ismail dönmez wrote:
 
-> > Well, you maybe can't tell the difference, but I definitely can. You
-> > can read code aligned by two spaces, right?
+>>That does not look right.
+>>Char dev 3 is the pty major.
+>>This could be left over from running with the controlling-tty patch.
+>>
+>>Try recreating /dev/tty as a char special file:
+>>mknod -m 666 /dev/tty c 5 0
 > 
-> Sure, but you can't mix that in the same file
-> with something else. Indentation and braces have
-> to be consistent. Other stuff matters far less.
-
-This kind of spacing matters, too.
-
-> > > We don't need any more bureaucracy.
-> > > 
-> > > do_this(a,b); (1)
-> > > do_this(a, b); (2)
-> > > do_this (a,b);
-> > 
-> > This looks extremely bad.
-> > 
-> > > do_this (a, b);
-> > > 
-> > > I can read them all. I might notice the space in
-> > > front of the '(', but I might not. Even putting a
-> > > space in front of the ';' isn't unreadable.
-> > > 
-> > > People will pass laws until they are choked off,
-> > > unable to move without being in violation of some
-> > > silly little thing.
-> > 
-> > I've seen people "fixing" code from (2) to (1), because they thought I
-> > prefer (1). (And I definitely don't). So yes, it is important.
 > 
-> Spaces are good for grouping things to increase readability.
-> So one might do this:
-> 
-> foo(a,b,c,d,e,f);
+> Hmm I use udev and /dev/tty dir is created again at startup. So
+> something else is broken too I think.
 
-This looks ugly.
+This is almost certainly related to the addition
+of pty devices to devfs in bk-driver-core.patch
+Change is by olh@suse.de
 
-> bar(a+b, a-b);  // space needed for readability
-> baz(a,b, c,d);  // suppose a and b logically go together, as do c and d
-> zzz(a==b && c==d);   // common for an "if"
+This explains why you are seein pty major devices
+created in a /dev/tty directory.
 
-Would be okay. Notice that I did not add a rule, I just fixed the
-examples to be consistent with each other.
+Specifically the changes in drivers/char/tty_io.c
+in function tty_register_device()
 
-Anyway, as in common english, there should be space after ",". There
-may be exception to the rule (your baz example), but...
+Try backing out that specific portion of bk-driver-core.patch
 
-Here's the patch again. macrofun() is used as an example, but it looks
-ugly, and is not consistent with the rest of the document.
-								Pavel
-
---- clean/Documentation/CodingStyle	2004-05-20 23:08:01.000000000 +0200
-+++ linux/Documentation/CodingStyle	2004-06-06 00:27:11.000000000 +0200
-@@ -356,11 +356,11 @@
- 
- Macros with multiple statements should be enclosed in a do - while block:
- 
--#define macrofun(a,b,c) 			\
-+#define macrofun(a, b, c) 			\
- 	do {					\
- 		if (a == 5)			\
--			do_this(b,c);		\
--	} while (0)
-+			do_this(b, c);		\
-+	} while(0)
- 
- Things to avoid when using macros:
- 
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+--
+Paul Fulghum
+paulkf@microgate.com

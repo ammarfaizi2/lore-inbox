@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288267AbSACROT>; Thu, 3 Jan 2002 12:14:19 -0500
+	id <S288271AbSACRXB>; Thu, 3 Jan 2002 12:23:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288270AbSACROJ>; Thu, 3 Jan 2002 12:14:09 -0500
-Received: from mxzilla2.xs4all.nl ([194.109.6.50]:45327 "EHLO
-	mxzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S288269AbSACROE>; Thu, 3 Jan 2002 12:14:04 -0500
-Date: Thu, 3 Jan 2002 18:13:51 +0100
-From: jtv <jtv@xs4all.nl>
-To: Edgar Toernig <froese@gmx.de>
-Cc: David Woodhouse <dwmw2@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020103181351.C20936@xs4all.nl>
-In-Reply-To: <E16Lvh8-0006E6-00@the-village.bc.nu> <25193.1010018130@redhat.com> <3C347CC3.E7154C36@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C347CC3.E7154C36@gmx.de>; from froese@gmx.de on Thu, Jan 03, 2002 at 04:46:11PM +0100
+	id <S288272AbSACRWv>; Thu, 3 Jan 2002 12:22:51 -0500
+Received: from dsl-213-023-043-223.arcor-ip.net ([213.23.43.223]:31758 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S288271AbSACRWf>;
+	Thu, 3 Jan 2002 12:22:35 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alexander Viro <viro@math.psu.edu>
+Subject: Re: [CFT] [JANITORIAL] Unbork fs.h
+Date: Thu, 3 Jan 2002 18:25:43 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Christoph Hellwig <hch@ns.caldera.de>, acme@conectiva.com.br,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0201031145210.23312-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0201031145210.23312-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16MBch-000194-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 03, 2002 at 04:46:11PM +0100, Edgar Toernig wrote:
+On January 3, 2002 05:47 pm, Alexander Viro wrote:
+> On Thu, 3 Jan 2002, Daniel Phillips wrote:
+> > On January 3, 2002 04:45 pm, Christoph Hellwig wrote:
+> > > In article <E16M7Gz-00015E-00@starship.berlin> you wrote:
+> > > > -	inode = get_empty_inode();
+> > > > +	inode = get_empty_inode(sb);
+> > > 
+> > > How about killing get_empty_inode completly and using new_inode() instead?
+> > > There should be no regularly allocated inode without a superblock.
+> > 
+> > There are: sock_alloc rd_load_image.  However that's a nit because the new, 
+> > improved get_empty_inode understands the concept of null sb.  (Another thing 
+> > we could do is require every inode to have a superblock - that's probably 
+> > where it will go in time.)
 > 
-> The behaviour is undefined by the C standard.  But the mentioned
-> pointer arithmetic is defined in the environment where it has been
-> used.  GCC tries to optimize undefined C-standard behaviour.  And
-> IMHO that's the point.  It may optimize defined behaviour and should
-> not touch things undefined by the standard.
+> It's _already_ there.  RTFS, please - sock_alloc() creates inodes with
+> sockfs superblock in ->i_sb and rd_load_image() just does normal open()
+> for device nodes on rootfs.
 
-Ah, if only things were that easy!  The whole reason the rules are as they
-are in C is that it is not generally decidable whether or not the code
-falls within those rules.  Removing the assumptions we're talking about 
-from the rules would make the ability to optimize code an exception instead 
-of the rule.
+Sockfs - yes, you'll see my patch already does it correctly, I was getting
+a little tired when writing the previous reply... rd_load_image in 2.4.17 is
+still using kdev_t there, however, no super_block anywhere to be seen.  I'll
+track that change if it happens before I bring the patches forward to 2.5.
 
-
-Jeroen
-
+--
+Daniel

@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265045AbTFCPRr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 11:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265046AbTFCPRr
+	id S265049AbTFCPZu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 11:25:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265050AbTFCPZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 11:17:47 -0400
-Received: from hoemail2.lucent.com ([192.11.226.163]:38072 "EHLO
-	hoemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S265045AbTFCPRq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 11:17:46 -0400
-MIME-Version: 1.0
+	Tue, 3 Jun 2003 11:25:50 -0400
+Received: from holomorphy.com ([66.224.33.161]:3751 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S265049AbTFCPZt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 11:25:49 -0400
+Date: Tue, 3 Jun 2003 08:38:59 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Henning Schmiedehausen <hps@intermeta.de>, linux-kernel@vger.kernel.org
+Subject: Re: Question about style when converting from K&R to ANSI C.
+Message-ID: <20030603153859.GV8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Randy.Dunlap" <rddunlap@osdl.org>,
+	Henning Schmiedehausen <hps@intermeta.de>,
+	linux-kernel@vger.kernel.org
+References: <1054446976.19557.23.camel@spc> <20030601132626.GA3012@work.bitmover.com> <1054519757.161606@palladium.transmeta.com> <20030603123256.GG1253@admingilde.org> <20030603124501.GB13838@suse.de> <bbi77j$mb3$1@tangens.hometree.net> <20030603133925.GG20413@holomorphy.com> <1054651445.25694.70.camel@forge.intermeta.de> <20030603082505.33bc3561.rddunlap@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16092.48937.452212.3930@gargle.gargle.HOWL>
-Date: Tue, 3 Jun 2003 11:30:49 -0400
-From: "John Stoffel" <stoffel@lucent.com>
-To: Martin Schlemmer <azarah@gentoo.org>
-Cc: Bernhard Rosenkraenzer <bero@arklinux.org>,
-       KML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.70 and 2.5.70-mm3 hang on bootup
-In-Reply-To: <1054651654.5268.64.camel@workshop.saharacpt.lan>
-References: <Pine.LNX.4.53.0306011742490.3125@dot.kde.org>
-	<16090.15708.707835.911577@gargle.gargle.HOWL>
-	<16090.48773.258921.532437@gargle.gargle.HOWL>
-	<16092.43423.958091.657360@gargle.gargle.HOWL>
-	<1054651654.5268.64.camel@workshop.saharacpt.lan>
-X-Mailer: VM 7.14 under Emacs 20.6.1
+Content-Disposition: inline
+In-Reply-To: <20030603082505.33bc3561.rddunlap@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 03, 2003 at 08:25:05AM -0700, Randy.Dunlap wrote:
+> You did good (or even well considering that you are a
+> non-native speaker).  Yes, whitespace is a trivial problem.
+> ~Randy
+
+Bad whitespace, along with all other coding style violations, is
+a very serious maintainability problem.
 
 
-Martin> On Tue, 2003-06-03 at 15:58, John Stoffel wrote:
->> Thanks for all the help, my initial thoughts that APIC was the root of
->> my problem was wrong, it was all ACPI issues.  Maybe we should put in
->> a note in the Kconfig help entries for people to disable ACPI if they
->> enable SMP and/or UP APIC options?
->> 
-
-Martin> Both my previous board (Asus P4T533-C with 850E chipset) and
-Martin> current one (Asus P4C800 with 875P chipset) works fine with
-Martin> ACPI, APIC, and IO-APIC enabled ....
-
-You have much newer chipsets that I do, I have a 440GX board.  My
-suggestion for the note in Kconfig is merely that if your system hangs
-after printing just a couple of lines on bootup, try disabling ACPI in
-your kernel.
-
-I probably wasn't clear enough.
-
-John
+-- wli

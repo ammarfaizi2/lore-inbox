@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263179AbTFDIW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 04:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbTFDIWZ
+	id S263176AbTFDI1R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 04:27:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTFDI1Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 04:22:25 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:3305 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263169AbTFDIWY (ORCPT
+	Wed, 4 Jun 2003 04:27:16 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:36497 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263176AbTFDI1Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 04:22:24 -0400
-Date: Tue, 3 Jun 2003 21:40:50 +1000
-To: davem@redhat.com
-Cc: linux-net@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: esp name conflict with drivers/char/esp.c
-Message-ID: <20030603114050.GA32065@gondor.apana.org.au>
+	Wed, 4 Jun 2003 04:27:16 -0400
+Date: Wed, 4 Jun 2003 10:40:36 +0200
+From: Vojtech Pavlik <vojtech@ucw.cz>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-yoann@ifrance.com, linux-kernel@vger.kernel.org, vojtech@suse.cz,
+       acahalan@cs.uml.edu
+Subject: Re: another must-fix: major PS/2 mouse problem
+Message-ID: <20030604104036.A5583@ucw.cz>
+References: <1054431962.22103.744.camel@cube> <3EDD87FD.6020307@ifrance.com> <20030603232155.1488c02f.akpm@digeo.com> <20030604094737.C5345@ucw.cz> <20030604005302.41f3b0b8.akpm@digeo.com> <20030604100017.A5475@ucw.cz> <20030604011413.16787964.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030604011413.16787964.akpm@digeo.com>; from akpm@digeo.com on Wed, Jun 04, 2003 at 01:14:13AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi:
+On Wed, Jun 04, 2003 at 01:14:13AM -0700, Andrew Morton wrote:
 
-I was trying to get the native IPsec stack working under 2.4.  It almost
-worked except that NEWSA was coming back with ENOENT.   It turned out
-that the esp module that I loaded was trying to register character
-devices :) It didn't bite me under 2.5 as drivers/char/esp.c didn't
-compile.
+> > > Has this problem been observed in 2.4 kernels?
+> > 
+> >  No, since 2.4 doesn't have the re-sync code in the mouse driver which is
+> >  triggering in this case. But problems with the machine being flooded
+> >  with interrupts from the NIC so hard that it actually cannot do anything
+> >  are quite common.
+> 
+> So is the resync code doing more good than harm?
 
-So one of them's got to be renamed.  Do you have a preference as to
-which way to go?
+Hard to tell. The people for which it does good don't complain.
 
-Thanks,
 -- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Vojtech Pavlik
+SuSE Labs, SuSE CR

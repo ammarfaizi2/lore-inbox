@@ -1,66 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261964AbTDABOe>; Mon, 31 Mar 2003 20:14:34 -0500
+	id <S261966AbTDABX2>; Mon, 31 Mar 2003 20:23:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261966AbTDABOe>; Mon, 31 Mar 2003 20:14:34 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:20611
-	"EHLO x30.random") by vger.kernel.org with ESMTP id <S261964AbTDABOd>;
-	Mon, 31 Mar 2003 20:14:33 -0500
-Date: Tue, 1 Apr 2003 03:25:53 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 64GB NUMA-Q after pgcl
-Message-ID: <20030401012553.GK12718@x30.random>
-References: <20030328040038.GO1350@holomorphy.com> <20030330231945.GH2318@x30.local> <20030331042729.GQ30140@holomorphy.com> <20030331052214.GV13178@holomorphy.com> <20030331230251.F626@nightmaster.csn.tu-chemnitz.de> <20030331222733.GT30140@holomorphy.com>
-Mime-Version: 1.0
+	id <S261970AbTDABX1>; Mon, 31 Mar 2003 20:23:27 -0500
+Received: from 130.146.174.203.mel.ntt.net.au ([203.174.146.130]:5259 "EHLO
+	enki.rimspace.net") by vger.kernel.org with ESMTP
+	id <S261966AbTDABX0>; Mon, 31 Mar 2003 20:23:26 -0500
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Delaying writes to disk when there's no need
+In-Reply-To: <20030331170927.013a0d4a.akpm@digeo.com> (Andrew Morton's
+ message of "Mon, 31 Mar 2003 17:09:27 -0800")
+References: <slrnb843gi.2tt.usenet@bender.home.hensema.net>
+	<20030328231248.GH5147@zaurus.ucw.cz>
+	<slrnb8gbfp.1d6.erik@bender.home.hensema.net>
+	<3E8845A8.20107@aitel.hist.no> <3E88BAF9.8040100@cyberone.com.au>
+	<20030331144500.17bf3a2e.akpm@digeo.com>
+	<87el4ngi8l.fsf@enki.rimspace.net>
+	<20030331170927.013a0d4a.akpm@digeo.com>
+From: Daniel Pittman <daniel@rimspace.net>
+Date: Tue, 01 Apr 2003 11:34:50 +1000
+Message-ID: <87pto7f1ad.fsf@enki.rimspace.net>
+User-Agent: Gnus/5.090016 (Oort Gnus v0.16) XEmacs/21.5 (cabbage)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030331222733.GT30140@holomorphy.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 31, 2003 at 02:27:33PM -0800, William Lee Irwin III wrote:
-> On Sun, Mar 30, 2003 at 09:22:14PM -0800, William Lee Irwin III wrote:
-> >> Miscellaneous side effects happen, like follow_page() and
-> >> get_user_pages() need to return pfn's instead of struct pages.
+On Mon, 31 Mar 2003, Andrew Morton wrote:
+> Daniel Pittman <daniel@rimspace.net> wrote:
+>>
+>> Capturing a real-time video stream from an IEEE1394 DV stream means
+>> writing a stead 3.5MB per second for two on two and a half hours.
+>> 
+>> Linux isn't great at this, using the default writeout policy, even as
+>> recent as 2.5.64. The writer goes OK for a while but, eventually,
+>> blocks on writeout for long enough to drop a frame -- more than
+>> 8/25ths of a second.
+>> 
+>> 
+>> This can be resolved by tuning the default delay before write-out
+>> start to 5 seconds, down from 30, or by running sync every second, or
+>> by doing fsync tricks.
 > 
-> On Mon, Mar 31, 2003 at 11:02:51PM +0200, Ingo Oeser wrote:
-> > Hmm, but you know, that users of get_user_pages() play games with
-> > pages? They need to lock them into memory, mark them eventually
-> > dirty, map them to a struct scatterlist and much more.
-> > I worked on an API (I called it the page-walk-api), to make this
-> > more and more transparent. 
+> Interesting.
 > 
-> There are no changes of semantics, it finds the struct page, does
-> page_cache_get() and fiddles with the struct page just like before, but
-> it needs to use the pfn as the handle to the thing when returning it to
-> the caller, not the struct page pointer.
-> 
-> The caller invariably needs the page structures to do anything, but
-> it also often needs the subpfn (which pfn inside the area tracked by
-> the struct page). The pfn is just the most compact way to pass that
-> information. Things end up doing pfn_to_page() to get at the page
-> structures that are returned in current mainline, and just use the
-> low bits of the pfn to reconstruct the offset into the page for copying
-> and bitblitting and so on.
+> Yes, I expect that you could fix that up by altering
+> dirty_background_ratio and dirty_expire_centisecs.
 
-This complicates things but to get the file offset right it's probably
-unavoidable to leave hard page size knowledge in the common code in
-terms of hard-pfn.
+Those are, in fact, the precise knobs I turned. Well, those and the XFS
+pagebuf layer equivalents.
 
-> On Mon, Mar 31, 2003 at 11:02:51PM +0200, Ingo Oeser wrote:
-> > So if this work will go into 2.6.x, then the page-walk-API will
-> > be needed, or else the driver writers playing tricks with
-> > virtual<->physical<->bus address conversions will go nuts.
-> > So which kernel is the target of this development?
+> The problem with fsync() is that it waits on the writeout. You don't
+> want that to happen - you just want to tell the kernel "I won't be
+> overwriting or deleting this data". Make the kernel queue up and start
+> the IO but not wait on its completion.
+
+Yes, that would be good, because then I wouldn't need to write an IPC
+thing and fork or thread, so that the second thread can be busy blocking
+on the writeout for me.
+
+> It is quite appropriate to do this in fadvise(FADV_DONTNEED) - as a
+> lower-latency fsync(). The app would need to call it once per second
+> or so.
 > 
-> My target for this has always been 2.7; earlier kernels can take
-> things on at the maintainer's discretion. I expect it to live out
-> of tree for a substantial amount of time. =(
+> It would also throw away any written-back pagecache inside your
+> (start, len) which is exactly what your applications wants to happen,
+> so the app should be calling fadvise _anyway_.
+> 
+> What do you think?
 
-Andrea
+I will apply the patch and test later today.  This, however, looks like
+a *really* good thing to me.
+
+  Daniel
+
+-- 
+there's a party going on 
+we'll all be here dancing underground 
+      there's a riot going on 
+we'll all be here dancing underground
+        -- Covenant, _Riot_

@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267694AbSLTBjP>; Thu, 19 Dec 2002 20:39:15 -0500
+	id <S267695AbSLTBqQ>; Thu, 19 Dec 2002 20:46:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267697AbSLTBjP>; Thu, 19 Dec 2002 20:39:15 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36360 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267694AbSLTBjO>; Thu, 19 Dec 2002 20:39:14 -0500
-Date: Thu, 19 Dec 2002 17:47:55 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Daniel Jacobowitz <dan@debian.org>
-cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       "H. Peter Anvin" <hpa@transmeta.com>,
-       Terje Eggestad <terje.eggestad@scali.com>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <20021220005333.GA20227@nevyn.them.org>
-Message-ID: <Pine.LNX.4.44.0212191746200.4545-100000@home.transmeta.com>
+	id <S267700AbSLTBqQ>; Thu, 19 Dec 2002 20:46:16 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:22933 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267695AbSLTBqP>; Thu, 19 Dec 2002 20:46:15 -0500
+Date: Thu, 19 Dec 2002 18:01:34 -0800
+From: Hanna Linder <hannal@us.ibm.com>
+Reply-To: Hanna Linder <hannal@us.ibm.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Hanna Linder <hannal@us.ibm.com>, Eli Carter <eli.carter@inet.com>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Dedicated kernel bug database
+Message-ID: <71820000.1040349694@w-hlinder>
+In-Reply-To: <50260000.1040348396@flay>
+References: <200212192155.gBJLtV6k003254@darkstar.example.net> <3E0240CA.4000502@inet.com> <42790000.1040337942@w-hlinder> <50260000.1040348396@flay>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--On Thursday, December 19, 2002 05:39:56 PM -0800 "Martin J. Bligh" <mbligh@aracnet.com> wrote:
 
+> 
+> Anything in "OPEN" state isn't really assigned to anyone yet.
+> (the state would really better be named "NEW", but it's not). 
+> People should move it to "ASSIGNED" if they're working on it.
 
-On Thu, 19 Dec 2002, Daniel Jacobowitz wrote:
-> >
-> >    (ptrace also doesn't actually allow you to look at the instruction
-> >    contents in high memory, so gdb won't see the instructions in the
-> >    user-mode fast system call trampoline even when it can single-step
-> >    them, and I don't think I'll bother to fix it up).
->
-> This worries me.  I'm no x86 guru, but I assume the trampoline's setting of
-> the TF bit will kick in right around the following 'ret'.  So the
-> application will stop and GDB won't be able to read the instruction at
-> PC.  I bet that makes it unhappy.
+	So the process is to query for all open bugs (but not 
+assigned) then email each person to let them know you are 
+working on it?
 
-It doesn't make gdb all that unhappy, everything seems to work fine
-despite the fact that gdb decides it just can't display the instructions.
+> 
+> Go to file a new bug, click on the link by the subcategories, and it'll
+> tell you (you'll have to pick the main category first).
 
-> Shouldn't be that hard to fix this up in ptrace, though.
+	That is convoluted. You have to file a bug to find out who
+the subsystem maintainers are? Can you put it somewhere more
+obvious?
 
-Or even in user space, since the high pages are all the same in all
-processes (so gdb doesn't even strictly need ptrace, it can just read it's
-_own_ codespace there). But yeah, we could make ptrace aware of the magic
-pages.
+Thanks.
 
-		Linus
+Hanna
 

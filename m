@@ -1,51 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131879AbRAQNkr>; Wed, 17 Jan 2001 08:40:47 -0500
+	id <S132655AbRAQNsI>; Wed, 17 Jan 2001 08:48:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132078AbRAQNkh>; Wed, 17 Jan 2001 08:40:37 -0500
-Received: from mailframe.cabinet.net ([213.169.1.9]:47631 "HELO
-	mailframe.cabinet.net") by vger.kernel.org with SMTP
-	id <S131879AbRAQNke>; Wed, 17 Jan 2001 08:40:34 -0500
-Date: Wed, 17 Jan 2001 15:40:10 +0200 (EET)
-From: Jussi Hamalainen <count@theblah.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: ipchains blocking port 65535
-Message-ID: <Pine.LNX.4.30.0101171530150.20661-100000@shodan.irccrew.org>
+	id <S132495AbRAQNr5>; Wed, 17 Jan 2001 08:47:57 -0500
+Received: from cnxt10196.conexant.com ([198.62.10.196]:5897 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S132462AbRAQNrp>; Wed, 17 Jan 2001 08:47:45 -0500
+Date: Wed, 17 Jan 2001 14:47:03 +0100 (CET)
+From: <rui.sousa@conexant.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] emu10k1 missing unlock's
+Message-ID: <Pine.LNX.4.30.0101171441100.1623-200000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1418531814-979739223=:1623"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There seems to be a bug in ipchains. Matching port 65535 seems to
-always fail. If I set the chain policy to REJECT or DENY and then
-add a rule that accepts TCP to/from ports 0:65535, packets going to
-port 65535 will still be caught by the kernel. Is there a fix for
-this? It's driving me nuts. The firewall box is a 486 with 3 NICs and
-is running kernel 2.2.18 vanilla.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Here is a piece of the kernel log:
+--8323328-1418531814-979739223=:1623
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Jan 17 15:13:03 galileo kernel: Packet log: forward REJECT eth0
-PROTO=6 213.173.130.69:65535 xxx.xxx.xxx.xxx:65535 L=44 S=0x00
-I=16815 F=0x00B6 T=56 (#25)
-Jan 17 15:15:03 galileo kernel: Packet log: forward REJECT eth0
-PROTO=6 213.173.130.69:65535 xxx.xxx.xxx.xxx:65535 L=44 S=0x00
-I=19969 F=0x00B6 T=56 (#25)
-Jan 17 15:17:03 galileo kernel: Packet log: forward REJECT eth0
-PROTO=6 213.173.130.69:65535 xxx.xxx.xxx.xxx:65535 L=44 S=0x00
-I=21869 F=0x00B6 T=56 (#25)
 
-And here a piece of my forward chain:
+Hi,
 
-ACCEPT     tcp  ------  anywhere              myhomenet/27
-any ->   1024:65535
-ACCEPT     udp  ------  anywhere              myhomenet/27
-any ->   1024:65535
+The emu10k1 driver is missing a few unlocks on error exit paths.
+Patch attached against 2.4.1-pre8.
 
--- 
--=[ Count Zero / TBH - Jussi Hämäläinen - email count@theblah.org ]=-
+Rui Sousa
 
+--8323328-1418531814-979739223=:1623
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="emu10k1-2.4.1-pre8.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.30.0101171447030.1623@localhost.localdomain>
+Content-Description: patch
+Content-Disposition: attachment; filename="emu10k1-2.4.1-pre8.patch"
+
+ZGlmZiAtdU5yIGxpbnV4LTIuNC4xLXByZTgvZHJpdmVycy9zb3VuZC9lbXUx
+MGsxL2F1ZGlvLmMgbGludXgtMi40LjEtcHJlOC5uZXcvZHJpdmVycy9zb3Vu
+ZC9lbXUxMGsxL2F1ZGlvLmMNCi0tLSBsaW51eC0yLjQuMS1wcmU4L2RyaXZl
+cnMvc291bmQvZW11MTBrMS9hdWRpby5jCVRodSBTZXAgMjEgMjI6MjU6MDkg
+MjAwMA0KKysrIGxpbnV4LTIuNC4xLXByZTgubmV3L2RyaXZlcnMvc291bmQv
+ZW11MTBrMS9hdWRpby5jCVdlZCBKYW4gMTcgMTM6NTI6NTAgMjAwMQ0KQEAg
+LTM3NSw4ICszNzUsMTAgQEANCiAJCQkJZm9ybWF0ID0gd2lpbnN0LT5mb3Jt
+YXQ7DQogCQkJCWZvcm1hdC5zYW1wbGluZ3JhdGUgPSB2YWw7DQogDQotCQkJ
+CWlmIChlbXUxMGsxX3dhdmVpbl9zZXRmb3JtYXQod2F2ZV9kZXYsICZmb3Jt
+YXQpIDwgMCkNCisJCQkJaWYgKGVtdTEwazFfd2F2ZWluX3NldGZvcm1hdCh3
+YXZlX2RldiwgJmZvcm1hdCkgPCAwKSB7DQorCQkJCQlzcGluX3VubG9ja19p
+cnFyZXN0b3JlKCZ3aWluc3QtPmxvY2ssIGZsYWdzKTsNCiAJCQkJCXJldHVy
+biAtRUlOVkFMOw0KKwkJCQl9DQogDQogCQkJCXZhbCA9IHdpaW5zdC0+Zm9y
+bWF0LnNhbXBsaW5ncmF0ZTsNCiANCkBAIC0zOTMsOCArMzk1LDEwIEBADQog
+CQkJCWZvcm1hdCA9IHdvaW5zdC0+Zm9ybWF0Ow0KIAkJCQlmb3JtYXQuc2Ft
+cGxpbmdyYXRlID0gdmFsOw0KIA0KLQkJCQlpZiAoZW11MTBrMV93YXZlb3V0
+X3NldGZvcm1hdCh3YXZlX2RldiwgJmZvcm1hdCkgPCAwKQ0KKwkJCQlpZiAo
+ZW11MTBrMV93YXZlb3V0X3NldGZvcm1hdCh3YXZlX2RldiwgJmZvcm1hdCkg
+PCAwKSB7DQorCQkJCQlzcGluX3VubG9ja19pcnFyZXN0b3JlKCZ3b2luc3Qt
+PmxvY2ssIGZsYWdzKTsNCiAJCQkJCXJldHVybiAtRUlOVkFMOw0KKwkJCQl9
+DQogDQogCQkJCXZhbCA9IHdvaW5zdC0+Zm9ybWF0LnNhbXBsaW5ncmF0ZTsN
+CiANCkBAIC00MzAsOCArNDM0LDEwIEBADQogCQkJZm9ybWF0ID0gd2lpbnN0
+LT5mb3JtYXQ7DQogCQkJZm9ybWF0LmNoYW5uZWxzID0gdmFsID8gMiA6IDE7
+DQogDQotCQkJaWYgKGVtdTEwazFfd2F2ZWluX3NldGZvcm1hdCh3YXZlX2Rl
+diwgJmZvcm1hdCkgPCAwKQ0KKwkJCWlmIChlbXUxMGsxX3dhdmVpbl9zZXRm
+b3JtYXQod2F2ZV9kZXYsICZmb3JtYXQpIDwgMCkgew0KKwkJCQlzcGluX3Vu
+bG9ja19pcnFyZXN0b3JlKCZ3aWluc3QtPmxvY2ssIGZsYWdzKTsNCiAJCQkJ
+cmV0dXJuIC1FSU5WQUw7DQorCQkJfQ0KIA0KIAkJCXZhbCA9IHdpaW5zdC0+
+Zm9ybWF0LmNoYW5uZWxzIC0gMTsNCiANCkBAIC00NDcsOCArNDUzLDEwIEBA
+DQogCQkJZm9ybWF0ID0gd29pbnN0LT5mb3JtYXQ7DQogCQkJZm9ybWF0LmNo
+YW5uZWxzID0gdmFsID8gMiA6IDE7DQogDQotCQkJaWYgKGVtdTEwazFfd2F2
+ZW91dF9zZXRmb3JtYXQod2F2ZV9kZXYsICZmb3JtYXQpIDwgMCkNCisJCQlp
+ZiAoZW11MTBrMV93YXZlb3V0X3NldGZvcm1hdCh3YXZlX2RldiwgJmZvcm1h
+dCkgPCAwKSB7DQorCQkJCXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJndvaW5z
+dC0+bG9jaywgZmxhZ3MpOw0KIAkJCQlyZXR1cm4gLUVJTlZBTDsNCisJCQl9
+DQogDQogCQkJdmFsID0gd29pbnN0LT5mb3JtYXQuY2hhbm5lbHMgLSAxOw0K
+IA0KQEAgLTQ3OCw4ICs0ODYsMTAgQEANCiAJCQkJZm9ybWF0ID0gd2lpbnN0
+LT5mb3JtYXQ7DQogCQkJCWZvcm1hdC5jaGFubmVscyA9IHZhbDsNCiANCi0J
+CQkJaWYgKGVtdTEwazFfd2F2ZWluX3NldGZvcm1hdCh3YXZlX2RldiwgJmZv
+cm1hdCkgPCAwKQ0KKwkJCQlpZiAoZW11MTBrMV93YXZlaW5fc2V0Zm9ybWF0
+KHdhdmVfZGV2LCAmZm9ybWF0KSA8IDApIHsNCisJCQkJCXNwaW5fdW5sb2Nr
+X2lycXJlc3RvcmUoJndpaW5zdC0+bG9jaywgZmxhZ3MpOw0KIAkJCQkJcmV0
+dXJuIC1FSU5WQUw7DQorCQkJCX0NCiANCiAJCQkJdmFsID0gd2lpbnN0LT5m
+b3JtYXQuY2hhbm5lbHM7DQogDQpAQCAtNDk1LDggKzUwNSwxMCBAQA0KIAkJ
+CQlmb3JtYXQgPSB3b2luc3QtPmZvcm1hdDsNCiAJCQkJZm9ybWF0LmNoYW5u
+ZWxzID0gdmFsOw0KIA0KLQkJCQlpZiAoZW11MTBrMV93YXZlb3V0X3NldGZv
+cm1hdCh3YXZlX2RldiwgJmZvcm1hdCkgPCAwKQ0KKwkJCQlpZiAoZW11MTBr
+MV93YXZlb3V0X3NldGZvcm1hdCh3YXZlX2RldiwgJmZvcm1hdCkgPCAwKSB7
+DQorCQkJCQlzcGluX3VubG9ja19pcnFyZXN0b3JlKCZ3b2luc3QtPmxvY2ss
+IGZsYWdzKTsNCiAJCQkJCXJldHVybiAtRUlOVkFMOw0KKwkJCQl9DQogDQog
+CQkJCXZhbCA9IHdvaW5zdC0+Zm9ybWF0LmNoYW5uZWxzOw0KIA0KQEAgLTU0
+Miw4ICs1NTQsMTAgQEANCiAJCQkJZm9ybWF0ID0gd2lpbnN0LT5mb3JtYXQ7
+DQogCQkJCWZvcm1hdC5iaXRzcGVyY2hhbm5lbCA9IHZhbDsNCiANCi0JCQkJ
+aWYgKGVtdTEwazFfd2F2ZWluX3NldGZvcm1hdCh3YXZlX2RldiwgJmZvcm1h
+dCkgPCAwKQ0KKwkJCQlpZiAoZW11MTBrMV93YXZlaW5fc2V0Zm9ybWF0KHdh
+dmVfZGV2LCAmZm9ybWF0KSA8IDApIHsNCisJCQkJCXNwaW5fdW5sb2NrX2ly
+cXJlc3RvcmUoJndpaW5zdC0+bG9jaywgZmxhZ3MpOw0KIAkJCQkJcmV0dXJu
+IC1FSU5WQUw7DQorCQkJCX0NCiANCiAJCQkJdmFsID0gd2lpbnN0LT5mb3Jt
+YXQuYml0c3BlcmNoYW5uZWw7DQogDQpAQCAtNTU5LDggKzU3MywxMCBAQA0K
+IAkJCQlmb3JtYXQgPSB3b2luc3QtPmZvcm1hdDsNCiAJCQkJZm9ybWF0LmJp
+dHNwZXJjaGFubmVsID0gdmFsOw0KIA0KLQkJCQlpZiAoZW11MTBrMV93YXZl
+b3V0X3NldGZvcm1hdCh3YXZlX2RldiwgJmZvcm1hdCkgPCAwKQ0KKwkJCQlp
+ZiAoZW11MTBrMV93YXZlb3V0X3NldGZvcm1hdCh3YXZlX2RldiwgJmZvcm1h
+dCkgPCAwKSB7DQorCQkJCQlzcGluX3VubG9ja19pcnFyZXN0b3JlKCZ3b2lu
+c3QtPmxvY2ssIGZsYWdzKTsNCiAJCQkJCXJldHVybiAtRUlOVkFMOw0KKwkJ
+CQl9DQogDQogCQkJCXZhbCA9IHdvaW5zdC0+Zm9ybWF0LmJpdHNwZXJjaGFu
+bmVsOw0KIA0KQEAgLTk2OCw2ICs5ODQsNyBAQA0KIAkJZm9yIChpID0gMDsg
+aSA8IHdvaW5zdC0+YnVmZmVyLnBhZ2VzOyBpKyspIHsNCiAJCQlpZiAocmVt
+YXBfcGFnZV9yYW5nZSh2bWEtPnZtX3N0YXJ0ICsgKGkgKiBQQUdFX1NJWkUp
+LCB2aXJ0X3RvX3BoeXMod29pbnN0LT5idWZmZXIuYWRkcltpXSksIFBBR0Vf
+U0laRSwgdm1hLT52bV9wYWdlX3Byb3QpKSB7DQogCQkJCXNwaW5fdW5sb2Nr
+X2lycXJlc3RvcmUoJndvaW5zdC0+bG9jaywgZmxhZ3MpOw0KKwkJCQl1bmxv
+Y2tfa2VybmVsKCk7DQogCQkJCXJldHVybiAtRUFHQUlOOw0KIAkJCX0NCiAJ
+CX0NCg==
+--8323328-1418531814-979739223=:1623--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

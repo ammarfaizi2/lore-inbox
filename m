@@ -1,59 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291473AbSBABea>; Thu, 31 Jan 2002 20:34:30 -0500
+	id <S291484AbSBABhk>; Thu, 31 Jan 2002 20:37:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291476AbSBABeV>; Thu, 31 Jan 2002 20:34:21 -0500
-Received: from ns.suse.de ([213.95.15.193]:19729 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S291473AbSBABeK>;
-	Thu, 31 Jan 2002 20:34:10 -0500
-Date: Fri, 1 Feb 2002 02:34:07 +0100
-From: Dave Jones <davej@suse.de>
-To: Nathan <wfilardo@fuse.net>, rml@tech9.net
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Various issues with 2.5.2-dj6
-Message-ID: <20020201023407.K10343@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Nathan <wfilardo@fuse.net>, rml@tech9.net,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C58B3DD.3000800@fuse.net> <20020131041901.H31313@suse.de> <3C59BA94.1050307@fuse.net>
+	id <S291485AbSBABha>; Thu, 31 Jan 2002 20:37:30 -0500
+Received: from zok.sgi.com ([204.94.215.101]:64976 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S291484AbSBABhY>;
+	Thu, 31 Jan 2002 20:37:24 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Troy Benjegerdes <hozer@drgw.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin 
+In-Reply-To: Your message of "Thu, 31 Jan 2002 17:04:28 -0800."
+             <20020131170428.V1519@work.bitmover.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C59BA94.1050307@fuse.net>; from wfilardo@fuse.net on Thu, Jan 31, 2002 at 04:43:48PM -0500
+Date: Fri, 01 Feb 2002 12:37:15 +1100
+Message-ID: <23817.1012527435@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 04:43:48PM -0500, Nathan wrote:
- > > > Issue 2: Two IEEE1934 modules needed to have "#include 
- > > > <linux/interrupt.h>" added (host.c and another one I forget)
- > > Can you send the gcc error messages of these ?
- > > (A patch would be nice too)
- > >
- > GCC error messages:
- > 
- > gcc -D__KERNEL__ 
- > -I/home/expsoft/src/linux-kernel/linux-2.5/linux/include -Wall 
- > -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
- > -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
- > -march=i686 -DMODULE -DMODVERSIONS -include 
- > /home/expsoft/src/linux-kernel/linux-2.5/linux/include/linux/modversions.h  
- > -DKBUILD_BASENAME=hosts  -c
- > -o hosts.o hosts.c
- > hosts.c: In function `hpsb_ref_host_Rsmp_b2d7a7ae':
- > hosts.c:53: `current' undeclared (first use in this function)
- > hosts.c:53: (Each undeclared identifier is reported only once
- > hosts.c:53: for each function it appears in.)
- > hosts.c:63: warning: implicit declaration of function 
- > `preempt_schedule_Rsmp_707f93dd'
+On Thu, 31 Jan 2002 17:04:28 -0800, 
+Larry McVoy <lm@bitmover.com> wrote:
+>On Fri, Feb 01, 2002 at 11:29:58AM +1100, Keith Owens wrote:
+>> That sounds almost like what I was looking for, with two differences.
+>> 
+>> (1) Implement the collapsed set so bk records that it is equivalent to
+>>     the individual patchsets.  Only record that information in my tree.
+>>     I need the detailed history of what changes went into the collapsed
+>>     set, nobody else does.
+>> 
+>> (2) Somebody else creates a change against the collapsed set and I pull
+>>     that change.  bk notices that the change is again a collapsed set
+>>     for which I have local detail.  The external change becomes a
+>>     branch off the last detailed patch in the collapsed set.
+>
+>This is certainly possible to do.  However, unless you are willing to fund
+>this development, we aren't going to do it.  We will pick up the costs of
+>making changes that you want if and only if we have commercial customers
+>who want (or are likely to want) the same thing.  Nothing personal, it's
+>a business and we make tradeoffs like that all the time.
 
- Looks like another preempt problem to me, as hosts.c doesn't
- reference current in my tree fwics.  The error on line 63
- looks suspect too.
+Understood.
 
- You may also get away with include sched.h instead of interrupt.h
- (which indirectly includes sched.h amongst other things).
+>Collapsing is relatively easy, it's tracking the same content in two
+>different sets of deltas which is hard to get exactly correct.  Certainly
+>possible but I can visualize what it would take and it would be messy and
+>disruptive to the source base for an obscure feature that is unlikely to
+>be used.
+>
+>Why don't you actually use BK for a while and see if you really think
+>you need this feature.  The fact that our customers aren't clamoring for
+>it should tell you something.  They do work as hard and on as much code
+>(in many cases on the same code) as you do.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+This is the way that I use PRCS now and it fits the diff/patch model
+for distributing kernel code that most people are used to, while
+reducing the concerns about information overload.
+
+With PRCS I have branches galore with lots of little changes.  The
+outside world sees complete patch sets, not the individual changes.
+When they send a patch back I work out which internal change it is
+against and start a new branch against it.  The downside with PRCS is
+that the creation of the patch set and storing on an ftp site is a
+manual process, as is identifying which internal change a patch
+response is against and starting a new branch against the last internal
+change.
+
+If bk could automate the creation and tracking of meta patchsets I
+would convert tomorrow, the ability to automatically distribute changes
+is what I miss in PRCS.  But if using bk means that I cannot
+automatically separate and track the internal and external patches then
+there is no benefit to me in converting.  If I have to clone a
+repository to roll up internal patches into an external set and I
+cannot automatically pull changes against the external set back into my
+working repository then bk gives me no advantages.
+

@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264627AbUGHP64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263980AbUGHQDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264627AbUGHP64 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 11:58:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264697AbUGHP64
+	id S263980AbUGHQDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 12:03:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264358AbUGHQDJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 11:58:56 -0400
-Received: from fw.osdl.org ([65.172.181.6]:50322 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264627AbUGHP6v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 11:58:51 -0400
-Date: Thu, 8 Jul 2004 08:58:18 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Miles Bader <miles@gnu.org>
-cc: "David S. Miller" <davem@redhat.com>,
-       Herbert Xu <herbert@gondor.apana.org.au>, chrisw@osdl.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil,
-       jmorris@redhat.com, mika@osdl.org
-Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
-In-Reply-To: <buosmc3gix6.fsf@mctpc71.ucom.lsi.nec.co.jp>
-Message-ID: <Pine.LNX.4.58.0407080855120.1764@ppc970.osdl.org>
-References: <20040707122525.X1924@build.pdx.osdl.net>
- <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au> <20040707202746.1da0568b.davem@redhat.com>
- <buo7jtfi2p9.fsf@mctpc71.ucom.lsi.nec.co.jp> <Pine.LNX.4.58.0407072220060.1764@ppc970.osdl.org>
- <buosmc3gix6.fsf@mctpc71.ucom.lsi.nec.co.jp>
+	Thu, 8 Jul 2004 12:03:09 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:51977 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S263980AbUGHQDG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 12:03:06 -0400
+Message-ID: <40ED759C.2010009@techsource.com>
+Date: Thu, 08 Jul 2004 12:26:04 -0400
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Con Kolivas <kernel@kolivas.org>
+CC: Andrew Morton <akpm@osdl.org>, nigelenki@comcast.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Autoregulate swappiness & inactivation
+References: <40EC13C5.2000101@kolivas.org> <40EC1930.7010805@comcast.net> <40EC1B0A.8090802@kolivas.org> <20040707213822.2682790b.akpm@osdl.org> <cone.1089268800.781084.4554.502@pc.kolivas.org> <20040708001027.7fed0bc4.akpm@osdl.org> <cone.1089273505.418287.4554.502@pc.kolivas.org> <20040708010842.2064a706.akpm@osdl.org> <cone.1089275229.304355.4554.502@pc.kolivas.org>
+In-Reply-To: <cone.1089275229.304355.4554.502@pc.kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Thu, 8 Jul 2004, Miles Bader wrote:
-> >
-> > No it's not.
+Con Kolivas wrote:
+
+> /me hides
 > 
-> I don't have a copy of the standard handy
+> Umm sorry the control systems I look at are physiological and tend to be 
+> exponential, so ignore me.
 
-I have one. It's in my head. It's called the Linux Kernel C standard. Some 
-of it is documented in CodinggStyle, others is just codified in existing 
-practice.
+No.  I see no reason to disregard your understanding of biological 
+control systems.  Millions of years of evolution have fine-tuned some 
+very complex and robust control feedback systems.  While I wouldn't 
+suggest that they're the only way to do the job, they're something that 
+we should definately pay attention to.
 
-> but google shows this snippet on the info-minux mailing list:
-> 
->    From ANSI X3.159-1989 3.2.2.3:
+Frankly, I think the cross-pollination that you bring from your 
+background in medicine can do nothing but help us.
 
-That's some totally irrelevant standard that only acts as a rough 
-guideline. It dosn't know about inline assembly, and it doesn't know about 
-coding standards, and it allows the most atrocious code. There's even a 
-contest in making such code - it's called the Obfuscated C Contest, and it 
-actually encourages using strict ANSI rules.
-
-Me, I don't accept the kind of entries the OCC accepts. 
-
-		Linus

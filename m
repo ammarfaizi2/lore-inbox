@@ -1,74 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314025AbSDKLi3>; Thu, 11 Apr 2002 07:38:29 -0400
+	id <S314026AbSDKLjx>; Thu, 11 Apr 2002 07:39:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314026AbSDKLi2>; Thu, 11 Apr 2002 07:38:28 -0400
-Received: from sv1.valinux.co.jp ([202.221.173.100]:33293 "HELO
-	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S314025AbSDKLi1>;
-	Thu, 11 Apr 2002 07:38:27 -0400
-Date: Thu, 11 Apr 2002 20:38:23 +0900 (JST)
-Message-Id: <20020411.203823.67879801.taka@valinux.co.jp>
-To: davem@redhat.com
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zerocopy NFS updated
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <20020411.005216.107061041.davem@redhat.com>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S314027AbSDKLjw>; Thu, 11 Apr 2002 07:39:52 -0400
+Received: from e-eihq01.eis.ernet.in ([202.41.97.131]:10763 "EHLO
+	e-eihq01.eis.ernet.in") by vger.kernel.org with ESMTP
+	id <S314026AbSDKLjv>; Thu, 11 Apr 2002 07:39:51 -0400
+>Received: from moon.cdotd.ernet.in by cdotd.cdotd.ernet.in (SMI-8.6/SMI-SVR4)
+	id QAA06272; Thu, 11 Apr 2002 16:57:55 -0500
+Date: Thu, 11 Apr 2002 17:08:15 +0500 (GMT+0500)
+From: Anil Kumar <anilk@cdotd.ernet.in>
+To: linux-kernel@vger.kernel.org
+Subject: Read Data from  Serial Port
+In-Reply-To: <15541.28044.720063.458160@notabene.cse.unsw.edu.au>
+Message-ID: <Pine.OSF.4.10.10204111700160.10556-100000@moon.cdotd.ernet.in>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, David
 
-davem>    Now I wonder if we could make these pages COW mode.
-davem>    When some process try to update the pages, they should be duplicated.
-davem>    I's easy to implement it in write(), truncate() and so on.
-davem>    But mmap() is little bit difficult if there no reverse mapping page to PTE.
-davem>    
-davem>    How do you think about this idea?
-davem> 
-davem> I think this idea has such high overhead that it is even not for
-davem> consideration, consider SMP.
+hello all,
+  I am new to Linux .
+ I am looking for provisions in linux Kernel or Linux User Space  through
+which i can read  data directly from
+serial port (A device is Connected to Serial Port).
 
-Hmmm... If I'd implement them.....
-How about following codes ?
+  I read the literature regarding Raw Sockets but could not figure out 
+ how to read data from serial port.
 
-nfsd read()
-{
-	   :
-    page_cache_get(page);
-    if (page is mapped to anywhere)
-        page = duplicate_and_rehash(page);
-    else {
-        page_lock(page);
-	page->flags |= COW;
-	page_unlock(page);
-    }
-    sendpage(page);
-    page_cache_release(page);
-}
+   If there is any URL where i can find  information regarding this please
+mail me that also.
+  
+Thanks in Advance.
+  
+ Bye
+Anil 
 
-generic_file_write()
-{
-    page = _grab_cache_page()
-    lock_page(page);
-    if (page->flags & COW)
-        page = duplicate_and_rehash(page);
-    prepare_write();
-    commit_write();
-    UnlockPage(page);
-    page_cache_release(page)
-}
 
-truncate_list_page()  <-- truncate() calls
-{
-    page_cache_get();
-    lock_page(page);
-    if (page->flags & COW)
-        page = duplicate_and_rehash(page);
-    truncate_partial_page();
-    UnlockPage(page);
-    page_cache_release(page);
-}
+

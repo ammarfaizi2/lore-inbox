@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131514AbRCNTz5>; Wed, 14 Mar 2001 14:55:57 -0500
+	id <S131512AbRCNT4R>; Wed, 14 Mar 2001 14:56:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131513AbRCNTzr>; Wed, 14 Mar 2001 14:55:47 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:65291 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S131512AbRCNTzg>;
-	Wed, 14 Mar 2001 14:55:36 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200103141950.WAA14397@ms2.inr.ac.ru>
-Subject: Re: poll() behaves differently in Linux 2.4.1 vs. Linux 2.2.14 (POLLHUP)
-To: davem@redhat.COM (David S. Miller)
-Date: Wed, 14 Mar 2001 22:50:04 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <15022.53815.129522.746120@pizda.ninka.net> from "David S. Miller" at Mar 14, 1 05:15:00 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S131513AbRCNT4H>; Wed, 14 Mar 2001 14:56:07 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:64918 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S131512AbRCNTzy>;
+	Wed, 14 Mar 2001 14:55:54 -0500
+Date: Wed, 14 Mar 2001 14:55:13 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Szabolcs Szakacsits <szaka@f-secure.com>
+cc: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: system call for process information?
+In-Reply-To: <Pine.LNX.4.30.0103142143300.13864-100000@fs131-224.f-secure.com>
+Message-ID: <Pine.GSO.4.21.0103141451310.4468-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> True, this behavior was changed from 2.2.x.  We now match the behavior
-> of other svr4 systems, in particular Solaris.
 
-Damn, we did not test behaviour on absolutely new clean never
-connected socket... Solaris really may return 0 on it.
+On Wed, 14 Mar 2001, Szabolcs Szakacsits wrote:
 
-However, looking from other hand the issue looks as absolutely
-academic and not related to practice in any way.
+> 
+> On Mon, 12 Mar 2001, Alexander Viro wrote:
+> > On Mon, 12 Mar 2001, Guennadi Liakhovetski wrote:
+> > > I need to collect some info on processes. One way is to read /proc
+> > > tree. But isn't there a system call (ioctl) for this? And what are those
+> > Occam's Razor.  Why invent new syscall when read() works?
+> 
+> read() doesn't really work for this purpose, it blocks way too many
+> times to be very annoying. When finally data arrives it's useless.
 
-Alexey
+Huh? Take code of your non-blocking syscall. Make it ->read() for
+relevant file on /proc or wherever else you want it. See read() not
+blocking...
+
+Whether code blocks or not depends on the code, not on the calling
+conventions. And definitely not on ASCII vs. binary - conversion
+between these formats _is_ doable without blocking operations.
+

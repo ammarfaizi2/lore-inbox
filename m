@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266777AbSLWQKT>; Mon, 23 Dec 2002 11:10:19 -0500
+	id <S266837AbSLWQSS>; Mon, 23 Dec 2002 11:18:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266792AbSLWQKS>; Mon, 23 Dec 2002 11:10:18 -0500
-Received: from holomorphy.com ([66.224.33.161]:49617 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S266777AbSLWQKS>;
-	Mon, 23 Dec 2002 11:10:18 -0500
-Date: Mon, 23 Dec 2002 08:17:36 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
+	id <S266859AbSLWQSS>; Mon, 23 Dec 2002 11:18:18 -0500
+Received: from zork.zork.net ([66.92.188.166]:49812 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id <S266837AbSLWQSR> convert rfc822-to-8bit;
+	Mon, 23 Dec 2002 11:18:17 -0500
 To: linux-kernel@vger.kernel.org
-Cc: axboe@suse.de
-Subject: blkdev.h integer overflows
-Message-ID: <20021223161736.GY25000@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, axboe@suse.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Subject: Re: PAGE = 1k
+References: <20021223162410.M70829@beta.bandnet.com.br>
+From: Sean Neakums <sneakums@zork.net>
+X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
+X-Message-Flag: Message text advisory: EXCRETORY SPEECH, STARKISM(S)
+X-Mailer: Norman
+X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
+X-Alameda: WHY DOESN'T ANYONE KNOW ABOUT ALAMEDA?  IT'S RIGHT NEXT TO
+ OAKLAND!!!
+Organization: The Emadonics Institute
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Mon, 23 Dec 2002 16:26:27 +0000
+In-Reply-To: <20021223162410.M70829@beta.bandnet.com.br> ("User &"'s message
+ of "Mon, 23 Dec 2002 13:24:10 -0300")
+Message-ID: <6uy96gpuq4.fsf@zork.zork.net>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
+ (i386-debian-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-blk_max_pfn is an unsigned long; left shifting by PAGE_SHIFT means
-it may overflow.
+commence  User & quotation:
 
+> it´s possible to use pages of 1kb on x86 ?
 
-Bill
+To my knowledge, the page size used by Linux is dictated by the
+hardware, which means that on x86, for the most part, Linux uses 4k
+pages.
 
-
-diff -urpN mm2-2.5.52-1/include/linux/blkdev.h blk-2.5.52-1/include/linux/blkdev.h
---- mm2-2.5.52-1/include/linux/blkdev.h	2002-12-18 22:01:01.000000000 -0800
-+++ blk-2.5.52-1/include/linux/blkdev.h	2002-12-23 08:06:25.000000000 -0800
-@@ -297,8 +297,8 @@ extern unsigned long blk_max_low_pfn, bl
-  * BLK_BOUNCE_ANY	: don't bounce anything
-  * BLK_BOUNCE_ISA	: bounce pages above ISA DMA boundary
-  */
--#define BLK_BOUNCE_HIGH		(blk_max_low_pfn << PAGE_SHIFT)
--#define BLK_BOUNCE_ANY		(blk_max_pfn << PAGE_SHIFT)
-+#define BLK_BOUNCE_HIGH		((u64)blk_max_low_pfn << PAGE_SHIFT)
-+#define BLK_BOUNCE_ANY		((u64)blk_max_pfn << PAGE_SHIFT)
- #define BLK_BOUNCE_ISA		(ISA_DMA_THRESHOLD)
- 
- extern int init_emergency_isa_pool(void);
+-- 
+ /                          |
+[|] Sean Neakums            |  Questions are a burden to others;
+[|] <sneakums@zork.net>     |      answers a prison for oneself.
+ \                          |

@@ -1,74 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266012AbUFOX1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266013AbUFOXco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266012AbUFOX1N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 19:27:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266016AbUFOX1N
+	id S266013AbUFOXco (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 19:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266014AbUFOXco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 19:27:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:45508 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266012AbUFOX06 (ORCPT
+	Tue, 15 Jun 2004 19:32:44 -0400
+Received: from 206-176-252-18.vbbn.com ([206.176.252.18]:54283 "Helo ygikgs.ca")
+	by vger.kernel.org with SMTP id S266013AbUFOXcn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 19:26:58 -0400
-Date: Tue, 15 Jun 2004 16:26:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: foo@porto.bmb.uga.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: processes hung in D (raid5/dm/ext3)
-Message-Id: <20040615162607.5805a97e.akpm@osdl.org>
-In-Reply-To: <20040615150036.GB12818@porto.bmb.uga.edu>
-References: <20040615062236.GA12818@porto.bmb.uga.edu>
-	<20040615030932.3ff1be80.akpm@osdl.org>
-	<20040615150036.GB12818@porto.bmb.uga.edu>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 15 Jun 2004 19:32:43 -0400
+From: rodney@clr.utoronto.ca
+To: spoof@vger.kernel.org
+Date: Tue, 15 Jun 2004 21:51:38 GMT
+MIME-Version: 1.0
+Subject: EU Beitritt der Tuerkei ? #3453#
+Importance: Normal
+X-Priority: 3 (Normal)
+Message-ID: <99ddaf26b4d3c1.499cf.qmail@clr.utoronto.ca>
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-foo@porto.bmb.uga.edu wrote:
->
-> On Tue, Jun 15, 2004 at 03:09:32AM -0700, Andrew Morton wrote:
-> > Wait for it to happen again, then do
-> > 
-> > 	echo t > /proc/sysrq-trigger
-> > 	dmesg -s 1000000 > foo
-> > 
-> > then send foo, foo.
-> 
-> Here you go.  I did dump 2f /dev/null /export/home.  The first time it
-> completed, the second it hung right away.
-> 
-> This is with 2.6.7-rc3-bk6 with no other patches, also compiled with a
-> newer gcc.
-> 
-> ...
+Aufnahme der Beitrittsverhandlungen mit der Tuerkei oder nicht - eine Entscheidung, die 'das Ende Europas' bedeuten koennte. Dieses Wort stammt vom frueheren franzoesischen Praesidenten Giscard d'Estaing.
+Schon 2002 hatte er davor gewarnt, dass ein Beitritt der Tuerkei zur EU dem 'Ende Europas' gleichkaeme. Die bundesdeutschen Beitrittsbefuerworter verdraengen und verschweigen die unabsehbaren Folgen dieser Entscheidung:
 
-> dump          D 000017f4796ce9b2     0  1887   1853                     (NOTLB)
-> 000001001ae8dbb8 0000000000000006 000001003ffd5948 000001006a6f96f0 
->        0000000000009235 ffffffff803e23a0 000001006a6f9a08 ffffffff802fd643 
->        0000000000000212 0000000000000001 
-> Call Trace:<ffffffff802fd643>{raid5_unplug_device+291} <ffffffff80377d0b>{io_schedule+43} 
->        <ffffffff80155f6a>{__lock_page+250} <ffffffff80155c40>{page_wake_function+0} 
->        <ffffffff80155c40>{page_wake_function+0} <ffffffff801567f6>{do_generic_mapping_read+502} 
->        <ffffffff80156a70>{file_read_actor+0} <ffffffff80156d14>{__generic_file_aio_read+372} 
->        <ffffffff80156dfb>{generic_file_read+123} <ffffffff80169994>{handle_mm_fault+292} 
->        <ffffffff80122ad8>{do_page_fault+440} <ffffffff80130948>{recalc_task_prio+424} 
->        <ffffffff8037748c>{thread_return+41} <ffffffff8017bca7>{vfs_read+199} 
->        <ffffffff8017bf19>{sys_read+73} <ffffffff80123f81>{ia32_sysret+0} 
->        
+(1) Die Tuerkei hat schon jetzt 70 Millionen Einwohner. Sie wird bis zu ihrem EU-Beitritt die BRD in der Bevoelkerungszahl ueberholt haben und in den EU-Institutionen das entsprechende Stimmengewicht erhalten.
+(2) Die Tuerkei passt wirtschaftlich nicht in die EU. Das Land ist hoffnungslos ueberschuldet und waere ohne staendige internationalen Kredite laengst bankrott. Das Pro-Kopf-Einkommen betraegt nur 23% des EU-Durchschnitts. Die EU-Subventionen, auf die die Tuerkei Anspruch haette, wuerden nicht nur den Bruesseler Haushalt sprengen, sondern auch die heute schon ueberschuldeten 'Geberlaender' wie die BRD gaenzlich ruinieren.
+(3) Mit der Aufnahme eines asiatischen Landes und dem Verzicht auf vernuenftige Aussengrenzen verliert die EU ihre Identitaet.
 
-OK, well I'd be suspecting that either devicemapper or raid5 lost an I/O
-completion, causing that page to never be unlocked.
+Trotz dieser unbestreitbaren Sprengsaetze rollt die Kampagne fuer den tuerkischen Beitritt immer schneller und unaufhaltsamer voran: Der tuerkische Regierungschef Erdogan nimmt bereits an den Konferenzen der EU-Regierungschefs teil, freilich noch ohne Stimmrecht und die Tuerkei erhaelt jetzt schon EU-Gelder zur 'Beitrittsvorbereitung'.
+Es ist alles wie bei der Euro-Einfuehrung: Erst erscheint der ganze Plan unrealistisch und wird von vielen fuer undurchfuehrbar gehalten; dann wird eine offene Diskussion ueber Pro und Contra als 'europa- oder fremdenfeindlich' kriminalisiert, und schliesslich wird die Entscheidung hinter verschlossenen Tueren, ohne Beteiligung des demokratischen Souveraens und ohne Volksabstimmung gefaellt und fuer unumkehrbar erklaert.
+Dasselbe Spiel mit den Vorbedingungen: Beim Euro waren es die Maastrichter Kriterien, die schon vor 1999 nicht erfuellt wurden und inzwischen offen missachtet werden. Die Tuerkei-Kriterien heissen: Wiedervereinigung Zyperns (als ob das so wichtig waere), Menschenrechte, Demokratisierung. Nichts hindert Ankara daran, diese Bedingungen pro forma zu erfuellen. Selbst wenn sie erfuellt wuerden, waeren damit die oben angefuehrten grundlegenden Argumente gegen den Tuerkei-Beitritt nicht im geringsten widerlegt.
+Ein uebles Spiel, das den Verdacht naehrt, hier werde eine Verschwoerung gegen Deutschland und Europa angezettelt. Berlin hat sich ohne jedes Waehlermandat bereits festgelegt. Sollte der Beitritt scheitern, sagte Aussenminister Fischer laut 'WamS' vom 8. 2. 2004, wuerde man dafuer 'einen sehr hohen Preis zahlen'.
 
-Please try the latest -mm kernel, which has a few devicemapper changes,
-although they are unlikely to fix this.
+Ein Satz, den man zweimal lesen muss. Fischer droht dem deutschen Volk. Worin der hohe Preis bestehen wuerde, verschweigt er. Vielleicht meint er, dass die in Deutschland lebenden Tuerken auf die Strasse gehen koennten. Oder er fuerchtet den Zorn der USA, die den Beitritt seit Jahren verlangen. Washington weiss genau, dass die Aufnahme Kleinasiens zu einem 'bankrotten Halt' der gesamten EU (so die 'Financial Times' vom 15.1.2004) fuehren koennte. Ganz nuechtern urteilt die 'International Herald Tribune' am 24.11.2003:
 
-If it's possible to remove either raid5 or devicemapper from the picture,
-that would help us find the problem.
-
-Other than that, the chances of getting this fixed are proportional to your
-skill in finding us a way of reproducing it.  A good start would be to tell
-us exactly which commands were used to set up the LVM and the raid array. 
-That way a raid/LVM ignoramus like me can take a look ;)
-
+'Dass die Bevoelkerung in ganz Europa schrumpft, bedeutet, dass noch mehr Einwanderung bevorsteht. Die Aufnahme der Tuerkei als EU-Mitglied wuerde diesen Trend beschleunigen und die Definition Europas unwiderruflich aendern … Viele Europaeer muessen erst noch akzeptieren, dass die traditionell weisse, christliche Kultur ihrer Vorfahren abgeloest wird von einem multikulturellen Mix mit einem starken islamischen Gewicht.'

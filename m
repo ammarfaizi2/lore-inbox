@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132520AbREKBE6>; Thu, 10 May 2001 21:04:58 -0400
+	id <S132547AbREKBLI>; Thu, 10 May 2001 21:11:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132540AbREKBEt>; Thu, 10 May 2001 21:04:49 -0400
-Received: from fjordland.nl.linux.org ([131.211.28.101]:25605 "EHLO
+	id <S132553AbREKBK6>; Thu, 10 May 2001 21:10:58 -0400
+Received: from fjordland.nl.linux.org ([131.211.28.101]:30213 "EHLO
 	fjordland.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S132520AbREKBEh>; Thu, 10 May 2001 21:04:37 -0400
+	id <S132547AbREKBKn>; Thu, 10 May 2001 21:10:43 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andreas Dilger <adilger@turbolinux.com>
+To: Andreas Dilger <adilger@turbolinux.com>, phillips@bonn-fries.net
 Subject: Re: [PATCH][CFT] (updated) ext2 directories in pagecache
-Date: Fri, 11 May 2001 03:04:31 +0200
+Date: Fri, 11 May 2001 03:10:46 +0200
 X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org, Albert Cranford <ac9410@bellsouth.net>
-In-Reply-To: <200105092122.f49LMAVL019186@webber.adilger.int>
-In-Reply-To: <200105092122.f49LMAVL019186@webber.adilger.int>
+Cc: Linux kernel development list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200105102053.f4AKrEke004120@webber.adilger.int>
+In-Reply-To: <200105102053.f4AKrEke004120@webber.adilger.int>
 MIME-Version: 1.0
-Message-Id: <01051103043101.01587@starship>
+Message-Id: <01051103104602.01587@starship>
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 May 2001 23:22, you wrote:
-> Daniel writes [re index directories]:
-> > This is lightly tested and apparently stable.
+On Thursday 10 May 2001 22:53, Andreas Dilger wrote:
+> OK, here are the patches described above.
 >
-> I was looking at the new patch, and I saw something that puzzles me.
-> Why do you set the EXT2_INDEX_FL on a new (empty) directory, rather
-> than only setting it when the dx_root index is created?
-
-This makes it follow the rule: new directories will be created with an 
-index.  (Never mind that the index creation is deferred.)  Now, if you 
-think it's ok to add an index to any directory that grows past one 
-block that's fine with me.  I was looking for a little more predictable 
-behavriour.
-
-A couple of lines of code will go away and the is_dx(dir) tests will 
-get a little faster if we just use 'dir grew past a block' as the rule.
-
-> Setting the flag earlier than that makes it mostly useless, since it
-> will be set on basically every directory.  Not setting it would also
-> make your is_dx() check simply a check for the EXT2_INDEX_FL bit (no
-> need to also check size).
-
-Yep.
-
-> Also no need to set EXT2_COMPAT_DIR_INDEX until such a time that we
-> have a (real) directory with an index, to avoid gratuitous
-> incompatibility with e2fsck.
+> The first one changes the use of the various INDEX flags, so that
+> they only appear when we have mounted with "-o index" (or
+> COMPAT_DIR_INDEX) and actually created an indexed directory.
 >
-> Cheers, Andreas
+> The second one changes the i_nlink counting on indexed dirs so that
+> if it overflows the 16-bit i_link_count field it is set to 1 and we
+> no longer track link counts on this directory.
+>
+> Unfortunately, they haven't been tested.  I've given them several
+> eyeballings and they appear OK, but when I try to run the ext2 index
+> code (even without "-o index" mount option) my system deadlocks
+> somwhere inside my ext2i module (tight loop, but SysRQ still works). 
+> I doubt it is due to these patches, but possibly because I am also
+> working on ext3 code in the same kernel.  I'm just in the process of
+> getting kdb installed into that kernel so I can find out just where
+> it is looping.
 
-Again yep,  you decide, I will fix, or I see a few posts down you have 
-changed the patch, also fine.
+I'll apply and test them in uml tomorrow (3 am here now).  By the way, 
+uml was made in heaven for this sort of filesystem development.  Err, 
+actually it was made by Jeff, but I guess that makes him some kind of 
+angel :-)
 
 --
 Daniel

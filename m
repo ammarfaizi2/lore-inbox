@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312601AbSE2PIy>; Wed, 29 May 2002 11:08:54 -0400
+	id <S313305AbSE2PQg>; Wed, 29 May 2002 11:16:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313305AbSE2PIx>; Wed, 29 May 2002 11:08:53 -0400
-Received: from ns.suse.de ([213.95.15.193]:37134 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S312601AbSE2PIw>;
-	Wed, 29 May 2002 11:08:52 -0400
-Date: Wed, 29 May 2002 17:08:53 +0200
-From: Dave Jones <davej@suse.de>
-To: Corin Hartland-Swann <cdhs@commerce.uk.net>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: bluesmoke, machine check exception, reboot
-Message-ID: <20020529170853.Q27463@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Corin Hartland-Swann <cdhs@commerce.uk.net>,
-	"Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L2.0205280810240.1840-100000@dragon.pdx.osdl.net> <Pine.LNX.4.33L2.0205291414210.19118-100000@buffy.commerce.uk.net>
+	id <S313307AbSE2PQf>; Wed, 29 May 2002 11:16:35 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:4733 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S313305AbSE2PQe>; Wed, 29 May 2002 11:16:34 -0400
+Date: Wed, 29 May 2002 17:15:52 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Robert Love <rml@mvista.com>
+Cc: "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] updated O(1) scheduler for 2.4
+Message-ID: <20020529151552.GJ31701@dualathlon.random>
+In-Reply-To: <1021939600.967.5.camel@sinai> <20020524160223.GA1761@werewolf.able.es> <1022641021.23427.329.camel@sinai>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 29, 2002 at 02:46:51PM +0100, Corin Hartland-Swann wrote:
- > I ran it through parsemce as suggested (thanks Randy), and got the
- > following output:
+On Tue, May 28, 2002 at 07:57:00PM -0700, Robert Love wrote:
+> On Fri, 2002-05-24 at 09:02, J.A. Magallon wrote:
+> 
+> > I had to make this to get it built:
+> > <snip>
+> 
+> Thanks, I have put these changes into the 2.4.19-pre9 version of the
+> patch which is available at:
+> 
+> 	http://www.kernel.org/pub/linux/kernel/people/rml/sched/ingo-O1/sched-O1-rml-2.4.19-pre9-1.patch
 
-parsemce lacks any command line parsing (I just never got around to it yet)
-so you'll have to hack the values in the code at lines 200 or so to
-match the values in your logs.
+I merged it and I've almost finished moving everything on top of it but
+I've a few issues.
 
- > Also http://marc.theaimsgroup.com/?l=linux-kernel&m=101338603328639&w=2
- > mentions a tool decodemca - is that a previous name for parsemce?
+can you elaborate why you __save_flags in do_fork? do_fork is even a
+blocking operation. fork_by_hand runs as well with irq enabled.
+I don't like to safe flags in a fast path if it's not required.
 
-At the time of that message no tool existed at all, once I got it to
-the state its in now, I called it 'parse' instead of 'decode' for some
-reason. There is no alternative tool, just a thinko on my part.
+Then there are longstanding bugs that aren't yet fixed and I ported the
+fixed on top of it (see the parent-timeslice patch in -aa).
 
-    Dave
+the child-run first approch in o1 is suspect, it seems the parent will
+keep running just after a wasteful reschedule, a sched yield instead
+should be invoked like in -aa in the share-timeslice patch in order to
+roll the current->run_list before the schedule is invoked while
+returning to userspace after fork.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+another suspect thing I noticed is the wmb() in resched_task. Can you
+elaborate on what is it trying to serialize (I hope not the read of
+p->need_resched with the stuff below)? Also if something it should be a
+smp_wmb(), same smp_ prefix goes for the other mb() in schedule.
+
+thanks,
+
+Andrea

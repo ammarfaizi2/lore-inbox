@@ -1,86 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267436AbUBROq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 09:46:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267443AbUBROq0
+	id S265989AbUBRQoc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 11:44:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264874AbUBRQoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 09:46:26 -0500
-Received: from mail2.allneo.com ([216.185.99.212]:63717 "EHLO mail1.allneo.com")
-	by vger.kernel.org with ESMTP id S267436AbUBROoZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 09:44:25 -0500
-From: "Brad Cramer" <bcramer@callahanfuneralhome.com>
-To: "'Guennadi Liakhovetski'" <g.liakhovetski@gmx.de>,
-       "'Brad Cramer'" <bcramer@callahanfuneralhome.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: sym53c8xx_2 driver and tekram dc-390u2w kernel-2.6.x
-Date: Wed, 18 Feb 2004 09:44:09 -0500
-Message-ID: <00c301c3f62d$ae3e8540$6501a8c0@office>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-In-Reply-To: <Pine.LNX.4.44.0402180030570.2588-100000@poirot.grange>
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
+	Wed, 18 Feb 2004 11:44:32 -0500
+Received: from main.gmane.org ([80.91.224.249]:63705 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265989AbUBRQmn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 11:42:43 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andreas Happe <andreashappe@gmx.net>
+Subject: [radeonfb] black screen/wrong display size detected
+Date: Wed, 18 Feb 2004 17:42:25 +0100
+Message-ID: <slrnc375fh.145.andreashappe@flatline.ath.cx>
+Reply-To: Andreas Happe <andreashappe@gmx.net>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 62.47.73.173
+User-Agent: slrn/0.9.8.0 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes that is my drive, but after it scans the scsi bus and finds all the
-devices it will not mount any of the partitions. And I know it is not
-corrupted partitions because they mount fine under 2.4.18 using the
-sym53c8xx driver.
-I don't have the exact message in front of me, but when I try to manually
-mount the partitions under 2.6.2 I get errors something about parity errors,
-again I could get the exact message when I get home tonight.
-Brad
+display turns black after loading radeon on bootup (compiled in). It
+stays black, even after xdm should have started.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Guennadi
-Liakhovetski
-Sent: Tuesday, February 17, 2004 6:43 PM
-To: Brad Cramer
-Cc: 'Guennadi Liakhovetski'; linux-kernel@vger.kernel.org
-Subject: RE: sym53c8xx_2 driver and tekram dc-390u2w kernel-2.6.x
+hardware: 	HP Compaq nx7000
+			01:00.0 VGA compatible controller: ATI Technologies Inc
+			Radeon R250 Lf [Radeon Mobility 9000 M9] (rev 01)
 
-On Tue, 17 Feb 2004, Brad Cramer wrote:
+partial dmesg output:
+| Linux version 2.6.3-mm1 (crow@flatline.ath.cx) (gcc version 3.3.2) #7 Wed Feb 18 11:49:15 CET 2004
+| [..]
+| ACPI: RSDP (v000 COMPAQ                                    ) @ 0x000f6350
+| ACPI: RSDT (v001 HP     CPQ0860  0x30090320 CPQ  0x00000001) @ 0x1fff0c84
+| ACPI: FADT (v002 HP     CPQ0860  0x00000002 CPQ  0x00000001) @ 0x1fff0c00
+| ACPI: SSDT (v001 COMPAQ  CPQGysr 0x00001001 MSFT 0x0100000e) @ 0x1fff5bd7
+| ACPI: DSDT (v001 HP       nx7000 0x00010000 MSFT 0x0100000e) @ 0x00000000
+| ACPI: PM-Timer IO Port: 0x1008
+| Built 1 zonelists
+| Local APIC disabled by BIOS -- reenabling.
+| Found and enabled local APIC!
+| Initializing CPU#0
+| Kernel command line: root=/dev/hda2 idebus=66 nmi_watchdog=2 mem=524096K
+| [..]
+| radeonfb: Found Intel x86 BIOS ROM Image
+| radeonfb: Retreived PLL infos from BIOS
+| radeonfb: Reference=27.00 MHz (RefDiv=12) Memory=250.00 Mhz, System=220.00 MHz
+| i2c_adapter i2c-0: registered as adapter #0
+| i2c_adapter i2c-1: registered as adapter #1
+| i2c_adapter i2c-2: registered as adapter #2
+| i2c_adapter i2c-3: registered as adapter #3
+| i2c_adapter i2c-1: master_xfer: with 2 msgs.
+| i2c_adapter i2c-1: master_xfer: with 2 msgs.
+| i2c_adapter i2c-1: master_xfer: with 2 msgs.
+| i2c_adapter i2c-3: master_xfer: with 2 msgs.
+| i2c_adapter i2c-3: master_xfer: with 2 msgs.
+| i2c_adapter i2c-3: master_xfer: with 2 msgs.
+| Non-DDC laptop panel detected
+| i2c_adapter i2c-2: master_xfer: with 2 msgs.
+| i2c_adapter i2c-2: master_xfer: with 2 msgs.
+| i2c_adapter i2c-2: master_xfer: with 2 msgs.
+| i2c_adapter i2c-3: master_xfer: with 2 msgs.
+| i2c_adapter i2c-3: master_xfer: with 2 msgs.
+| i2c_adapter i2c-3: master_xfer: with 2 msgs.
+| radeonfb: Monitor 1 type LCD found
+| radeonfb: Monitor 2 type no found
+| radeonfb: panel ID string: Samsung LTN150P1-L02    
+| radeonfb: detected LVDS panel size from BIOS: 1400x1050
 
-> sym0: <895> rev 0x1 at pci 0000:00:0f.0 irq 11
-> sym0: Tekram NVRAM, ID 7, Fast-40, SE, NO parity
-> sym0: SCSI BUS has been reset.
-> sym0: SCSI BUS mode change from SE to SE.
-> sym0: SCSI BUS has been reset.
-> scsi0 : sym-2.1.18f
->   Vendor: SEAGATE   Model: SX4234514         Rev: 9E21
->   Type:   Direct-Access                      ANSI SCSI revision: 02
+wrong size detected, display is 1680x1050.
 
-Isn't this your drive?
+| radeondb: BIOS provided dividers will be used
+| radeonfb: Assuming panel size 1400x1050
+| radeonfb: Power Management enabled for Mobility chipsets
+| radeonfb: ATI Radeon Lf  DDR SGRAM 64 MB
+| Machine check exception polling timer started.
 
-> sym0:0:0: tagged command queuing enabled, command queue depth 4.
->   Vendor: PIONEER   Model: DVD-ROM DVD-303R  Rev: 2.00
->   Type:   CD-ROM                             ANSI SCSI revision: 02
->   Vendor: IOMEGA    Model: ZIP 100           Rev: J.02
->   Type:   Direct-Access                      ANSI SCSI revision: 02
->   Vendor: SONY      Model: SDT-5000          Rev: 3.26
->   Type:   Sequential-Access                  ANSI SCSI revision: 02
-
-If not, could you also post the relevant part of your 2.4 boot log for
-comparison? If it is, maybe just the enumeration has changed, so, that now
-you have to mount it under a different letter?
-
-Guennadi
----
-Guennadi Liakhovetski
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+Andreas
 

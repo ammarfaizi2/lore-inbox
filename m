@@ -1,50 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261847AbTAIHUl>; Thu, 9 Jan 2003 02:20:41 -0500
+	id <S261742AbTAIHah>; Thu, 9 Jan 2003 02:30:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261854AbTAIHUl>; Thu, 9 Jan 2003 02:20:41 -0500
-Received: from port5.ds1-sby.adsl.cybercity.dk ([212.242.169.198]:49788 "EHLO
-	trider-g7.fabbione.net") by vger.kernel.org with ESMTP
-	id <S261847AbTAIHUj>; Thu, 9 Jan 2003 02:20:39 -0500
-Date: Thu, 9 Jan 2003 08:29:19 +0100 (CET)
-From: Fabio Massimo Di Nitto <fabbione@fabbione.net>
-To: Wichert Akkerman <wichert@wiggy.net>
-Cc: Andrew McGregor <andrew@indranet.co.nz>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: ipv6 stack seems to forget to send ACKs
-In-Reply-To: <20030108224339.GO22951@wiggy.net>
-Message-ID: <Pine.LNX.4.51.0301090822001.19862@trider-g7.ext.fabbione.net>
-References: <20030108130850.GQ22951@wiggy.net>
- <Pine.LNX.4.51.0301081849550.564@diapolon.int.fabbione.net>
- <78180000.1042055993@localhost.localdomain> <20030108224339.GO22951@wiggy.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261854AbTAIHah>; Thu, 9 Jan 2003 02:30:37 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:62477 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261742AbTAIHag>;
+	Thu, 9 Jan 2003 02:30:36 -0500
+Date: Wed, 8 Jan 2003 23:38:49 -0800
+From: Greg KH <greg@kroah.com>
+To: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.21-pre3 fails compile of ehci-hcd.c
+Message-ID: <20030109073849.GC8400@kroah.com>
+References: <1042096276.8219.126.camel@madmax>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1042096276.8219.126.camel@madmax>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 09, 2003 at 02:11:15AM -0500, Kristofer T. Karas wrote:
+> Hello All,
+> 
+> Noticed that I could not get patch-2.4.21-pre3 to compile:
+> 
+> 	make[3]: Entering directory `/usr/src/kernels/linux-2.4.20/drivers/usb'
+> 	ld -m elf_i386 -r -o usbcore.o usb.o usb-debug.o hub.o devio.o inode.o drivers.o devices.o hcd.o
+> 	gcc -D__KERNEL__ -I/usr/src/kernels/linux-2.4.20/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4    -nostdinc -iwithprefix include -DKBUILD_BASENAME=ehci_hcd  -c -o hcd/ehci-hcd.o hcd/ehci-hcd.chcd/ehci-hcd.c: In function `ehci_start':
+> 	hcd/ehci-hcd.c:343: parse error before `;'
+> 	hcd/ehci-hcd.c:416: parse error before `;'
+> 	hcd/ehci-hcd.c: In function `ehci_stop':
+> 	hcd/ehci-hcd.c:501: parse error before `;'
+> 	hcd/ehci-hcd.c: In function `ehci_irq':
+> 	hcd/ehci-hcd.c:685: parse error before `;'
 
-On Wed, 8 Jan 2003, Wichert Akkerman wrote:
+Does this patch solve it for you?
 
-> Previously Andrew McGregor wrote:
-> > Probably on the server's side it got an ICMP Host Unreachable or two as
-> > some router updated its tables, and decided to close the connection.
->
-> The fact that this problem does not seem to occur when using a window
-> XP client seems to contradict the suggestions that it may be a router
-> problem.
->
-> Wichert.
->
->
+thanks,
 
-Is the WinXP client located in the same place where you are?
+greg k-h
 
->From my side the ISP that is giving me problems is xs26.net
-at 2 different points. One is flapping and one is the link between them
-and another ISP (i can't even reach it now) where pkts get seriously
-delayed (from 100ms to more than 350ms) probably due to a slow link.
-But what is seriously annoying is that xs26.net keeps announcing a network
-that it can't reach, fscking the entire routing.
 
-Fabio
-
+--- 1.5/drivers/usb/hcd/ehci-dbg.c	Mon Jan  6 16:43:05 2003
++++ edited/ehci-dbg.c	Wed Jan  8 23:45:02 2003
+@@ -18,37 +18,23 @@
+ 
+ /* this file is part of ehci-hcd.c */
+ 
+-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,50)
+-
+-#define ehci_dbg(ehci, fmt, args...) \
+-	dev_dbg (*(ehci)->hcd.controller, fmt, ## args )
+-#define ehci_err(ehci, fmt, args...) \
+-	dev_err (*(ehci)->hcd.controller, fmt, ## args )
+-#define ehci_info(ehci, fmt, args...) \
+-	dev_info (*(ehci)->hcd.controller, fmt, ## args )
+-#define ehci_warn(ehci, fmt, args...) \
+-	dev_warn (*(ehci)->hcd.controller, fmt, ## args )
+-
+-#else
+-
+ #ifdef DEBUG
+ #define ehci_dbg(ehci, fmt, args...) \
+-	printk(KERN_DEBUG "%s %s: " fmt, hcd_name, \
+-		(ehci)->hcd.pdev->slot_name, ## args )
++	printk(KERN_DEBUG "%s %s: " fmt , hcd_name , \
++		(ehci)->hcd.pdev->slot_name , ## args )
+ #else
+ #define ehci_dbg(ehci, fmt, args...) do { } while (0)
+ #endif
+ 
+ #define ehci_err(ehci, fmt, args...) \
+-	printk(KERN_ERR "%s %s: " fmt, hcd_name, \
+-		(ehci)->hcd.pdev->slot_name, ## args )
++	printk(KERN_ERR "%s %s: " fmt , hcd_name , \
++		(ehci)->hcd.pdev->slot_name , ## args )
+ #define ehci_info(ehci, fmt, args...) \
+-	printk(KERN_INFO "%s %s: " fmt, hcd_name, \
+-		(ehci)->hcd.pdev->slot_name, ## args )
++	printk(KERN_INFO "%s %s: " fmt , hcd_name , \
++		(ehci)->hcd.pdev->slot_name , ## args )
+ #define ehci_warn(ehci, fmt, args...) \
+-	printk(KERN_WARNING "%s %s: " fmt, hcd_name, \
+-		(ehci)->hcd.pdev->slot_name, ## args )
+-#endif
++	printk(KERN_WARNING "%s %s: " fmt , hcd_name , \
++		(ehci)->hcd.pdev->slot_name , ## args )
+ 
+ 
+ #ifdef EHCI_VERBOSE_DEBUG

@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUE1Q6b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbUE1RBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbUE1Q6b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 12:58:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbUE1Q6a
+	id S261426AbUE1RBG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 13:01:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbUE1RBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 12:58:30 -0400
-Received: from mailwasher.lanl.gov ([192.16.0.25]:12334 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S261724AbUE1Q6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 12:58:23 -0400
-In-Reply-To: <20040528164544.GF422@louise.pinerecords.com>
-References: <20040528122854.GA23491@clipper.ens.fr> <1085748363.22636.3102.camel@watt.suse.com> <20040528162450.GE422@louise.pinerecords.com> <1085761753.22636.3329.camel@watt.suse.com> <20040528164544.GF422@louise.pinerecords.com>
-Mime-Version: 1.0 (Apple Message framework v613)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <38445FF4-B0C8-11D8-B96B-000A95CC3A8A@mesatop.com>
-Content-Transfer-Encoding: 7bit
-Cc: David Madore <david.madore@ens.fr>, Chris Mason <mason@suse.com>,
-       linux-kernel@vger.kernel.org
-From: Steven Cole <elenstev@mesatop.com>
-Subject: Re: filesystem corruption (ReiserFS, 2.6.6): regions replaced by \000 bytes
-Date: Fri, 28 May 2004 10:58:19 -0600
-To: Tomas Szepe <szepe@pinerecords.com>
-X-Mailer: Apple Mail (2.613)
+	Fri, 28 May 2004 13:01:05 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:39864 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261426AbUE1RAx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 13:00:53 -0400
+Date: Fri, 28 May 2004 18:00:51 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: braam <braam@clusterfs.com>
+Cc: arjanv@redhat.com, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, "'Phil Schwan'" <phil@clusterfs.com>
+Subject: Re: [PATCH/RFC] Lustre VFS patch
+Message-ID: <20040528170051.GA30411@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	braam <braam@clusterfs.com>, arjanv@redhat.com, torvalds@osdl.org,
+	akpm@osdl.org, linux-kernel@vger.kernel.org,
+	'Phil Schwan' <phil@clusterfs.com>
+References: <1085406284.2780.13.camel@laptop.fenrus.com> <20040528165649.91F1F3100D3@moraine.clusterfs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040528165649.91F1F3100D3@moraine.clusterfs.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, May 29, 2004 at 12:56:40AM +0800, braam wrote:
+> Mostly checks are done like in sys_rename.  
+> 
+> Some cases require new distributed state in the FS, such as the fact that a
+> certain directory is a mountpoint, possibly not on the node doing a rename,
+> but on another node.  
+> 
+> For this the Linux VFS has no api - we added something we call "pinning" for
+> this in 2.4, but not in 2.6 yet.
 
-On May 28, 2004, at 10:45 AM, Tomas Szepe wrote:
+In general I'd be happier to see code like that residing in the VFS,
+especially as I guess other filesystems like AFS would like to have similar
+features.In general I'd be happier to see code like that residing in the VFS,
+especially as I guess other filesystems like AFS would like to have similar
+features.
 
-> On May-28 2004, Fri, 12:29 -0400
-> Chris Mason <mason@suse.com> wrote:
->
->> On Fri, 2004-05-28 at 12:24, Tomas Szepe wrote:
->>> On May-28 2004, Fri, 08:46 -0400
->>> Chris Mason <mason@suse.com> wrote:
->>>
->>>>> The bottom line: I've experienced file corruption, of the following
->>>>> nature: consecutive regions (all, it seems, aligned on 256-byte
->>>>> boundaries, and typically around 1kb or 2kb in length) of seemingly
->>>>> random files are replaced by null bytes.
->>>>
->>>> The good news is that we tracked this one down recently.  2.6.7-rc1
->>>> shouldn't do this anymore.
->>>
->>> So did this only affect SMP machines?
->>
->> No, if you slept in the right spot you could hit it on UP.
->
-> Uh oh.  Any idea about when the bug was introduced?
->
-
-As far as I know, I was the first to publicly complain about
-the bug, first to Bitmover, (I was hitting it when using bk)
-who then figured out that it was a kernel bug, hence the
-long "1352 NUL bytes at end of page" thread.
-
-I first noticed the bug around April 15, doing almost nightly
-kernel updates and builds.  The bug was rather hard to hit
-reliably though, so it could have been there for some time
-earlier.
-
-Steven
+Where's the current lustre code that sits behind those interfaces?  Do you
+have a patch that adds the lustre client to the kernel instead of the huge
+cvs repository containing all kinds of unrelated code ala the obsolete
+lustre 1.0?
 

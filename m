@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbTJSREy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 13:04:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbTJSREx
+	id S261973AbTJSRZg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 13:25:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbTJSRZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 13:04:53 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:30206 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S261928AbTJSREu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 13:04:50 -0400
-Message-ID: <3F92C423.8050403@softhome.net>
-Date: Sun, 19 Oct 2003 19:04:35 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
+	Sun, 19 Oct 2003 13:25:36 -0400
+Received: from 66.Red-80-38-104.pooles.rima-tde.net ([80.38.104.66]:11136 "HELO
+	fulanito.nisupu.com") by vger.kernel.org with SMTP id S261973AbTJSRZf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 13:25:35 -0400
+Message-ID: <006201c39666$5f0aa6b0$0514a8c0@HUSH>
+From: "Carlos Fernandez Sanz" <cfs-lk@nisupu.com>
+To: "Joel Smith" <joelsmith17@comcast.net>, <linux-kernel@vger.kernel.org>
+References: <00b801c3955c$7e623100$0514a8c0@HUSH> <1066579176.7363.3.camel@milo.comcast.net>
+Subject: Re: HighPoint 374
+Date: Sun, 19 Oct 2003 19:28:08 +0200
 MIME-Version: 1.0
-To: "Ihar 'Philips' Filipau" <filia@softhome.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Wichert Akkerman <wichert@wiggy.net>
-Subject: Re: [2.6 patch] add a config option for -Os compilation
-References: <Ip4B.8lT.23@gated-at.bofh.it> <Ip4B.8lT.25@gated-at.bofh.it> <Ip4B.8lT.27@gated-at.bofh.it> <Ip4B.8lT.29@gated-at.bofh.it> <Ip4B.8lT.31@gated-at.bofh.it> <Ip4B.8lT.33@gated-at.bofh.it> <Ip4B.8lT.35@gated-at.bofh.it> <Ip4B.8lT.37@gated-at.bofh.it> <Ip4B.8lT.39@gated-at.bofh.it> <Ip4B.8lT.41@gated-at.bofh.it> <Ip4B.8lT.43@gated-at.bofh.it> <Ip4B.8lT.21@gated-at.bofh.it>
-In-Reply-To: <Ip4B.8lT.21@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ihar 'Philips' Filipau wrote:
-> Wichert Akkerman wrote:
-> 
->> Previously Ihar 'Philips' Filipau wrote:
->>
->>>  The goal of kernel is to provide framework for applications to the 
->>> job well.
->>
->>
->> I doubt anyone using linux for routing would agree with you.
->>
-> 
->   This is different matter.
->   This is IO bound task - and I'm not sure how -Os will perform there.
->   But still this depends on routing protocols and their requirements.
-> 
->   In any way in this case bottleneck is PCI bus (DMA over PCI from NIC 
-> to main memory and back). I bet software will show up in timing tests as 
-> taking <10% of whole time.
-> 
+I get a "no such device" when I try to load the driver, what card exactly do
+you have and how do you load the driver? Any special parameter?
 
-   Sorry I mean't calculations and alike will take <10%.
-   Sure in case of software router 90% of time will be spent in CPU.
+----- Original Message ----- 
+From: "Joel Smith" <joelsmith17@comcast.net>
+To: <linux-kernel@vger.kernel.org>
+Sent: Sunday, October 19, 2003 17:59
+Subject: Re: HighPoint 374
 
--- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
---
-   "... and for $64000 question, could you get yourself vaguely
-      familiar with the notion of on-topic posting?"
-				-- Al Viro @ LKML
+
+>
+> > What's the current status of HPT 374 support? Is it working in any
+kernel
+> > version?
+>
+> In 2.4.21 and 2.4.22 it's working great for me.  I'm using the
+> "experimental" IDE Raid with two disks on a HPT 374 controller with the
+> drivers that come with the kernel.
+>
+>
+> Joel Smith
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263851AbUARU5P (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 15:57:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUARU5O
+	id S263653AbUARU7b (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 15:59:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbUARU7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 15:57:14 -0500
-Received: from colin2.muc.de ([193.149.48.15]:33042 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S263851AbUARU5M (ORCPT
+	Sun, 18 Jan 2004 15:59:30 -0500
+Received: from colin2.muc.de ([193.149.48.15]:62738 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S263653AbUARU73 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 15:57:12 -0500
-Date: 18 Jan 2004 21:58:00 +0100
-Date: Sun, 18 Jan 2004 21:58:00 +0100
+	Sun, 18 Jan 2004 15:59:29 -0500
+Date: 18 Jan 2004 22:00:17 +0100
+Date: Sun, 18 Jan 2004 22:00:17 +0100
 From: Andi Kleen <ak@colin2.muc.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>, jh@suse.cz,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add noinline attribute
-Message-ID: <20040118205800.GA68521@colin2.muc.de>
-References: <20040114083114.GA1784@averell> <Pine.LNX.4.58.0401141519260.4500@evo.osdl.org> <20040115074834.GA38796@colin2.muc.de> <Pine.LNX.4.58.0401151448200.2597@evo.osdl.org> <20040116101345.GA96037@colin2.muc.de> <20040118204700.GA31601@twiddle.net>
+To: Sander <sander@humilis.net>
+Cc: Andi Kleen <ak@muc.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       jh@suse.cz
+Subject: Re: several oopses during boot (was: Re: [PATCH] Add CONFIG for -mregparm=3)
+Message-ID: <20040118210017.GB68521@colin2.muc.de>
+References: <20040114090603.GA1935@averell> <20040117201639.GA16420@favonius> <20040117205302.GA16658@colin2.muc.de> <20040117210715.GA15172@favonius> <20040117212857.GA28114@colin2.muc.de> <20040118054442.GA32278@favonius> <20040118203459.GB8500@favonius>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040118204700.GA31601@twiddle.net>
+In-Reply-To: <20040118203459.GB8500@favonius>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 18, 2004 at 12:47:00PM -0800, Richard Henderson wrote:
-> On Fri, Jan 16, 2004 at 11:13:45AM +0100, Andi Kleen wrote:
-> > Ok, here is a new patch that does the whole thing in generic code and for
-> > modules too. I didn't bother to change the sort algorithm because the 
-> > existing one works well enough.
-> 
-> One, you've still got the function marked __init.
+> I have no idea if it is hardware or software related, and if it has got
+> anything to do with the REGPARM option, but I entered this thread
+> because the kernel oopsed the first time I booted it and the first time
+> I enabled this option.
 
-Already fixed.
+Do the oopses go away when you disable the option? And do they come back
+when you reenable it again? 
 
-> 
-> Two, the format of struct exception_table_entry is arch specific.
-> That comparison won't work on Alpha, because "insn" is encoded 
-> pc-relative.
-
-Hmpf. Would an extable_compare() function in an asm-*/ file work ? 
+You could run memtest86 to make sure your RAM is ok.
 
 -Andi

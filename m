@@ -1,69 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263861AbTDZIu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 04:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264634AbTDZIu6
+	id S264634AbTDZJJa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 05:09:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264635AbTDZJJa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 04:50:58 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:35822 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263861AbTDZIu5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 04:50:57 -0400
-Subject: Re: Merge with DRI CVS tree: remove stale old context switching
-	code and
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: torvalds@transmeta.com
-In-Reply-To: <200304260008.h3Q08gYK005886@hera.kernel.org>
-References: <200304260008.h3Q08gYK005886@hera.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-N1vesKew46t/SAXMfqbC"
-Organization: Red Hat, Inc.
-Message-Id: <1051347784.1421.4.camel@laptop.fenrus.com>
+	Sat, 26 Apr 2003 05:09:30 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:30168 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S264634AbTDZJJ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 05:09:29 -0400
+Date: Sat, 26 Apr 2003 11:21:38 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: rmoser <mlmoser@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Coding regulations
+Message-ID: <20030426092138.GE23757@wohnheim.fh-wedel.de>
+References: <200304252214120970.019AF211@smtp.comcast.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
-Date: 26 Apr 2003 11:03:05 +0200
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200304252214120970.019AF211@smtp.comcast.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 25 April 2003 22:14:12 -0400, rmoser wrote:
+> 
+> Yeah just a quick question.  Not that I am actually able to code kernel
+> level drivers (I wish), but when I do code that would be part of one, I would
+> prefer not to make it a hassle for others to impliment.
+> 
+> To the point, I tend to do C++ classes, then make a C interface.  Makes
+> it easier for me to program.  Now, you may not want to mess with the C++
+> and convert it over, plus you may not want C++ code in the kernel.  I am
+> about to start on the compression code for the fast algorithm that may be
+> used for kernel swap compression and compressed swap-on-ram, assuming
+> these swap modules are implimented.  I don't want to cause any... oddities.
+> 
+> The C interfaces are just C functions that take a numerical handle which
+> identifies a class in a self-sorting linked list, as well as all the other data that
+> goes to each member function of the classes.  I can still do it in C alone but
+> it's a little more work.  Just don't wanna mess anyone/anything up.
 
---=-N1vesKew46t/SAXMfqbC
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The kernel uses c only (plus a little asm, if there is just no other
+possibility). If it is trivial for me to convert your c++ to c, I will
+do that. But since I don't really speak c++, c would be nicer.
 
-On Sat, 2003-04-26 at 00:58, Linux Kernel Mailing List wrote:
+Jörn
 
-> =20
->  void *DRM(realloc)(void *oldpt, size_t oldsize, size_t size, int area)
->  {
->  	void *pt;
-> =20
-> -	if (!(pt =3D DRM(alloc)(size, area))) return NULL;
-> +	if (!(pt =3D kmalloc(size, GFP_KERNEL))) return NULL;
->  	if (oldpt && oldsize) {
->  		memcpy(pt, oldpt, oldsize);
-> -		DRM(free)(oldpt, oldsize, area);
-> +		kfree(oldpt);
->  	}
->  	return pt;
->  }
-
-this looks like buggy code, if you use realloc to shrink the allocation
-the memcpy overwrites random memory.
-
-
-
-
---=-N1vesKew46t/SAXMfqbC
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+qktIxULwo51rQBIRAkWxAJ96+Ppq8oKY5DhXXpOMsU9PIplIRgCfW+F3
-tKPxeaesgt/Q57yLl7OSdi0=
-=OMb0
------END PGP SIGNATURE-----
-
---=-N1vesKew46t/SAXMfqbC--
+-- 
+Data dominates. If you've chosen the right data structures and organized
+things well, the algorithms will almost always be self-evident. Data
+structures, not algorithms, are central to programming.
+-- Rob Pike

@@ -1,59 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262908AbVCWUh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262910AbVCWU1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262908AbVCWUh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 15:37:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVCWUh0
+	id S262910AbVCWU1O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 15:27:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262891AbVCWUZB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 15:37:26 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:55014 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262908AbVCWUgq (ORCPT
+	Wed, 23 Mar 2005 15:25:01 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:54919 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262902AbVCWUTy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 15:36:46 -0500
-Date: Wed, 23 Mar 2005 21:36:27 +0100 (MET)
-Message-Id: <200503232036.j2NKaRTq019068@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: david@gibson.dropbear.id.au
-Subject: Re: [PATCH 2.6.12-rc1-mm1 3/3] perfctr: 64-bit values in register descriptors
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+	Wed, 23 Mar 2005 15:19:54 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <29204.1111608899@redhat.com> 
+References: <29204.1111608899@redhat.com> 
+To: torvalds@osdl.org, akpm@osdl.org, Michael A Halcrow <mahalcro@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] Keys: Use RCU to manage session keyring pointer
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
+Date: Wed, 23 Mar 2005 20:19:45 +0000
+Message-ID: <29285.1111609185@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Mar 2005 14:34:30 +1100, David Gibson wrote:
->On Wed, Mar 23, 2005 at 04:00:03AM +0100, Mikael Pettersson wrote:
->> - <linux/perfctr.h>: Change value fields in register descriptors
->>   to 64 bits. This will be needed for ppc64, and ppc32 user-space
->>   on ppc64 kernels, and may eventually also be needed on x86.
->>   We could have different descriptor types for 32 and 64-bit
->>   registers, but that just complicates things for no real benefit.
->> 
->> Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
->
->Erm.. won't this stop i386 binaries working on an x86_64 kernel, since
->kernel and user will have different ideas of the alignment...?
 
-Indeed it does. A brown paper bag occasion :-(
+The attached patch uses RCU to manage the session keyring pointer in struct
+signal_struct. This means that searching need not disable interrupts and get a
+the sighand spinlock to access this pointer. Furthermore, by judicious use of
+rcu_read_(un)lock(), this patch also avoids the need to take and put refcounts
+on the session keyring itself, thus saving on even more atomic ops.
 
-Andrew, please apply the following fix on top of the previous patch.
-This has been tested with i386 binaries on an x86_64 kernel.
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+warthog>diffstat -p1 keys-rcu-session-2612rc1mm1.diff 
+ security/keys/process_keys.c |   42 +++++++++++++++++++++---------------------
+ security/keys/request_key.c  |    7 +++----
+ 2 files changed, 24 insertions(+), 25 deletions(-)
 
-- <linux/perfctr.h>: Change number fields in register descriptors to 64 bits.
-  Otherwise i386 binaries break on x86_64 kernels since the descriptors
-  get larger alignment and sizes on x86_64 than on i386.
-
-Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
-
- include/linux/perfctr.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -rupN linux-2.6.12-rc1-mm1.perfctr-update-common/include/linux/perfctr.h linux-2.6.12-rc1-mm1.perfctr-update-common-fix/include/linux/perfctr.h
---- linux-2.6.12-rc1-mm1.perfctr-update-common/include/linux/perfctr.h	2005-03-23 20:59:47.000000000 +0100
-+++ linux-2.6.12-rc1-mm1.perfctr-update-common-fix/include/linux/perfctr.h	2005-03-23 20:59:57.000000000 +0100
-@@ -29,7 +29,7 @@ struct vperfctr_control {
+diff -uNrp linux-2.6.12-rc1-mm1-keys-umhelper/security/keys/process_keys.c linux-2.6.12-rc1-mm1-keys-rcu-session/security/keys/process_keys.c
+--- linux-2.6.12-rc1-mm1-keys-umhelper/security/keys/process_keys.c	2005-03-23 17:22:46.000000000 +0000
++++ linux-2.6.12-rc1-mm1-keys-rcu-session/security/keys/process_keys.c	2005-03-23 18:27:12.055768099 +0000
+@@ -1,6 +1,6 @@
+ /* process_keys.c: management of a process's keyrings
+  *
+- * Copyright (C) 2004 Red Hat, Inc. All Rights Reserved.
++ * Copyright (C) 2004-5 Red Hat, Inc. All Rights Reserved.
+  * Written by David Howells (dhowells@redhat.com)
+  *
+  * This program is free software; you can redistribute it and/or
+@@ -181,7 +181,7 @@ static int install_process_keyring(struc
+ 			goto error;
+ 		}
  
- /* common description of an arch-specific control register */
- struct perfctr_cpu_reg {
--	__u32 nr;
-+	__u64 nr;
- 	__u64 value;
- };
+-		/* attach or swap keyrings */
++		/* attach keyring */
+ 		spin_lock_irqsave(&tsk->sighand->siglock, flags);
+ 		if (!tsk->signal->process_keyring) {
+ 			tsk->signal->process_keyring = keyring;
+@@ -227,12 +227,14 @@ static int install_session_keyring(struc
  
+ 	/* install the keyring */
+ 	spin_lock_irqsave(&tsk->sighand->siglock, flags);
+-	old = tsk->signal->session_keyring;
+-	tsk->signal->session_keyring = keyring;
++	old = rcu_dereference(tsk->signal->session_keyring);
++	rcu_assign_pointer(tsk->signal->session_keyring, keyring);
+ 	spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
+ 
+ 	ret = 0;
+ 
++	/* we're using RCU on the pointer */
++	synchronize_kernel();
+ 	key_put(old);
+  error:
+ 	return ret;
+@@ -245,8 +247,6 @@ static int install_session_keyring(struc
+  */
+ int copy_thread_group_keys(struct task_struct *tsk)
+ {
+-	unsigned long flags;
+-
+ 	key_check(current->thread_group->session_keyring);
+ 	key_check(current->thread_group->process_keyring);
+ 
+@@ -254,10 +254,10 @@ int copy_thread_group_keys(struct task_s
+ 	tsk->signal->process_keyring = NULL;
+ 
+ 	/* same session keyring */
+-	spin_lock_irqsave(&current->sighand->siglock, flags);
++	rcu_read_lock();
+ 	tsk->signal->session_keyring =
+-		key_get(current->signal->session_keyring);
+-	spin_unlock_irqrestore(&current->sighand->siglock, flags);
++		key_get(rcu_dereference(current->signal->session_keyring));
++	rcu_read_unlock();
+ 
+ 	return 0;
+ 
+@@ -381,8 +381,7 @@ struct key *search_process_keyrings_aux(
+ 					key_match_func_t match)
+ {
+ 	struct task_struct *tsk = current;
+-	unsigned long flags;
+-	struct key *key, *ret, *err, *tmp;
++	struct key *key, *ret, *err;
+ 
+ 	/* we want to return -EAGAIN or -ENOKEY if any of the keyrings were
+ 	 * searchable, but we failed to find a key or we found a negative key;
+@@ -436,17 +435,18 @@ struct key *search_process_keyrings_aux(
+ 	}
+ 
+ 	/* search the session keyring last */
+-	spin_lock_irqsave(&tsk->sighand->siglock, flags);
+-
+-	tmp = tsk->signal->session_keyring;
+-	if (!tmp)
+-		tmp = tsk->user->session_keyring;
+-	atomic_inc(&tmp->usage);
+-
+-	spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
++	if (tsk->signal->session_keyring) {
++		rcu_read_lock();
++		key = keyring_search_aux(
++			rcu_dereference(tsk->signal->session_keyring),
++			type, description, match);
++		rcu_read_unlock();
++	}
++	else {
++		key = keyring_search_aux(tsk->user->session_keyring,
++					 type, description, match);
++	}
+ 
+-	key = keyring_search_aux(tmp, type, description, match);
+-	key_put(tmp);
+ 	if (!IS_ERR(key))
+ 		goto found;
+ 
+diff -uNrp linux-2.6.12-rc1-mm1-keys-umhelper/security/keys/request_key.c linux-2.6.12-rc1-mm1-keys-rcu-session/security/keys/request_key.c
+--- linux-2.6.12-rc1-mm1-keys-umhelper/security/keys/request_key.c	2005-03-23 17:35:16.000000000 +0000
++++ linux-2.6.12-rc1-mm1-keys-rcu-session/security/keys/request_key.c	2005-03-23 18:14:13.908029567 +0000
+@@ -175,13 +175,12 @@ static struct key *__request_key_constru
+ 	key->expiry = now.tv_sec + key_negative_timeout;
+ 
+ 	if (current->signal->session_keyring) {
+-		unsigned long flags;
+ 		struct key *keyring;
+ 
+-		spin_lock_irqsave(&current->sighand->siglock, flags);
+-		keyring = current->signal->session_keyring;
++		rcu_read_lock();
++		keyring = rcu_dereference(current->signal->session_keyring);
+ 		atomic_inc(&keyring->usage);
+-		spin_unlock_irqrestore(&current->sighand->siglock, flags);
++		rcu_read_unlock();
+ 
+ 		key_link(keyring, key);
+ 		key_put(keyring);

@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261965AbVCAQiO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261967AbVCAQoA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbVCAQiO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 11:38:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbVCAQiO
+	id S261967AbVCAQoA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 11:44:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVCAQoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 11:38:14 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14762 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261965AbVCAQhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 11:37:45 -0500
-Message-ID: <42249A44.4020507@pobox.com>
-Date: Tue, 01 Mar 2005 11:37:24 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Tue, 1 Mar 2005 11:44:00 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:60745 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261967AbVCAQn6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 11:43:58 -0500
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [openib-general] [PATCH] Add PCI device ID for new Mellanox HCA
+X-Message-Flag: Warning: May contain useful information
+References: <52fyzfrk29.fsf@topspin.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Tue, 01 Mar 2005 08:42:47 -0800
+In-Reply-To: <52fyzfrk29.fsf@topspin.com> (Roland Dreier's message of "Mon,
+ 28 Feb 2005 21:50:38 -0800")
+Message-ID: <52oee3pbaw.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-CC: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linas Vepstas <linas@austin.ibm.com>,
-       "Luck, Tony" <tony.luck@intel.com>
-Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
-References: <422428EC.3090905@jp.fujitsu.com>
-In-Reply-To: <422428EC.3090905@jp.fujitsu.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 01 Mar 2005 16:42:47.0253 (UTC) FILETIME=[B2FBF850:01C51E7D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hidetoshi Seto wrote:
-> Hi, long time no see :-)
-> 
-> Currently, I/O error is not a leading cause of system failure.
-> However, since Linux nowadays is making great progress on its
-> scalability, and ever larger number of PCI devices are being
-> connected to a single high-performance server, the risk of the
-> I/O error is increasing day by day.
-> 
-> For example, PCI parity error is one of the most common errors
-> in the hardware world. However, the major cause of parity error
-> is not hardware's error but software's - low voltage, humidity,
-> natural radiation... etc. Even though, some platforms are nervous
-> to parity error enough to shutdown the system immediately on such
-> error. So if device drivers can retry its transaction once results
-> as an error, we can reduce the risk of I/O errors.
-> 
-> So I'd like to suggest new interfaces that enable drivers to
-> check - detect error and retry their I/O transaction easily.
+Hi Greg,
 
-I have been thinking about PCI system and parity errors, and how to 
-handle them.  I do not think this is the correct approach.
-
-A simple retry is... too simple.  If you are having a massive problem on 
-your PCI bus, more action should be taken than a retry.
-
-In my opinion each driver needs to be aware of PCI sys/parity errs, and 
-handle them.  For network drivers, this is rather simple -- check the 
-hardware, then restart the DMA engine.  Possibly turning off 
-TSO/checksum to guarantee that bad packets are not accepted.  For SATA 
-and SCSI drivers, this is more complex, as one must retry a number of 
-queued disk commands, after resetting the hardware.
-
-A new API handles none of this.
-
-	Jeff
+It turns out that Mellanox decided to change the device ID at the last
+minute.  So of course there will be parts with both IDs.  Here's an
+updated patch that includes both IDs.  Please use this instead.
+ 
+Thanks,
+  Roland
 
 
 
+Add PCI device IDs for new Mellanox "Sinai" InfiniHost III Lx HCA.
+
+Signed-off-by: Roland Dreier <roland@topspin.com>
+
+--- linux-svn.orig/include/linux/pci_ids.h	2005-02-28 21:10:53.000000000 -0800
++++ linux-svn/include/linux/pci_ids.h	2005-03-01 08:39:49.766178558 -0800
+@@ -1992,6 +1992,8 @@
+ #define PCI_DEVICE_ID_MELLANOX_TAVOR	0x5a44
+ #define PCI_DEVICE_ID_MELLANOX_ARBEL_COMPAT 0x6278
+ #define PCI_DEVICE_ID_MELLANOX_ARBEL	0x6282
++#define PCI_DEVICE_ID_MELLANOX_SINAI_OLD 0x5e8c
++#define PCI_DEVICE_ID_MELLANOX_SINAI	0x6274
+ 
+ #define PCI_VENDOR_ID_PDC		0x15e9
+ #define PCI_DEVICE_ID_PDC_1841		0x1841

@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262677AbTCJAEk>; Sun, 9 Mar 2003 19:04:40 -0500
+	id <S262678AbTCJAKq>; Sun, 9 Mar 2003 19:10:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262678AbTCJAEk>; Sun, 9 Mar 2003 19:04:40 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:45322
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S262677AbTCJAEj>; Sun, 9 Mar 2003 19:04:39 -0500
-Subject: Re: [PATCH] small fixes in brlock.h
-From: Robert Love <rml@tech9.net>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <Pine.LNX.4.50.0303091843250.1464-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0303091843250.1464-100000@montezuma.mastecende.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1047255325.680.22.camel@phantasy.awol.org>
+	id <S262679AbTCJAKq>; Sun, 9 Mar 2003 19:10:46 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:21009 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262678AbTCJAKp>;
+	Sun, 9 Mar 2003 19:10:45 -0500
+Date: Sun, 9 Mar 2003 16:11:02 -0800
+From: Greg KH <greg@kroah.com>
+To: Ben Collins <bcollins@debian.org>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Device removal callback
+Message-ID: <20030310001102.GE6082@kroah.com>
+References: <20030309181413.GA492@phunnypharm.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 09 Mar 2003 19:15:25 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030309181413.GA492@phunnypharm.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-03-09 at 18:44, Zwane Mwaikambo wrote:
+On Sun, Mar 09, 2003 at 01:14:13PM -0500, Ben Collins wrote:
+> 
+> So I added a new callback to the device stucture called remove. This
+> callback is done when device_del is about to remove a device from the
+> tree. I've used this internally to make sure I can walk the list of
+> children myself, and also do some other cleanups.
 
->  #define br_read_unlock_irqrestore(idx, flags) \
-> -	do { br_read_unlock(irx); local_irq_restore(flags); } while (0)
-> +	do { br_read_unlock(idx); local_irq_restore(flags); } while (0)
+But don't you really want to remove the children before you remove the
+parent?  If you do this patch, then the remove() function will have to
+clean up the children first, right?  Can we handle the core recursion
+with the current locks properly?
 
-BTW, I am amazed all these s/idx/irx/ bugs exist and no one noticed
-them.
+Yes, for USB we still have a list of a device's children, as we need
+them for various things, and the current driver model only has a parent
+pointer, not a child pointer (which is good, as for USB we can have
+multiple children).  So in the function where we know a USB device is
+disconnected, we walk our list of children and disconnect them in a
+depth-first order.  With this patch I don't see how it helps me push
+code into the driver core.
 
-I guess nothing uses these irq variants.  In fact, grepping the
-source... wow, not much uses brlocks at all.  Only registered lock is
-BR_NETPROTO_LOCK.  A read lock on it is called only 7 times and a write
-lock is used 31 times.
+Confused,
 
-Everything must of moved over to using RCU or something.  It makes me
-question the future of these things.
-
-	Robert Love
-
+greg k-h

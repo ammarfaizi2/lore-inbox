@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbTDQOhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 10:37:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbTDQOhQ
+	id S261631AbTDQOi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 10:38:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbTDQOiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 10:37:16 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:9735 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261595AbTDQOhM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 10:37:12 -0400
-Subject: Re: [ANNOUNCE]: version 2.00.3 megaraid driver for 2.4.x and 2.5.67
-	kernels
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: "Mukker, Atul" <atulm@lsil.com>, "'alan@redhat.com'" <alan@redhat.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'linux-megaraid-devel@dell.com'" <linux-megaraid-devel@dell.com>,
-       "'linux-megaraid-announce@dell.com'" 
-	<linux-megaraid-announce@dell.com>
-In-Reply-To: <20030417133820.A12503@infradead.org>
-References: <0E3FA95632D6D047BA649F95DAB60E570185F10F@EXA-ATLANTA.se.lsil.com> 
-	<20030417133820.A12503@infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 17 Apr 2003 09:41:59 -0500
-Message-Id: <1050590521.2026.76.camel@mulgrave>
-Mime-Version: 1.0
+	Thu, 17 Apr 2003 10:38:22 -0400
+Received: from 217-126-36-165.uc.nombres.ttd.es ([217.126.36.165]:45516 "EHLO
+	pau.intranet.ct") by vger.kernel.org with ESMTP id S261595AbTDQOhj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 10:37:39 -0400
+Date: Thu, 17 Apr 2003 16:47:35 +0200 (CEST)
+From: Pau Aliagas <linuxnow@newtral.org>
+X-X-Sender: pau@pau.intranet.ct
+To: lkml <linux-kernel@vger.kernel.org>, <jlnance@unity.ncsu.edu>
+Subject: Re: RedHat 9 and 2.5.x support
+In-Reply-To: <20030417142356.GA7195@ncsu.edu>
+Message-ID: <Pine.LNX.4.44.0304171642510.30694-100000@pau.intranet.ct>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-04-17 at 07:38, Christoph Hellwig wrote:
-> On Wed, Apr 16, 2003 at 04:34:22PM -0400, Mukker, Atul wrote:
-> > New megaraid driver 2.00.3 is now available at
-> > ftp://ftp.lsil.com/pub/linux-megaraid For this driver, a patch is also
-> > available for 2.5.67 kernel.
-[...]
+On Thu, 17 Apr 2003 jlnance@unity.ncsu.edu wrote:
 
-I'm not inclined to force style changes in any drivers with active
-maintainers on the grounds that we already have much worse offenders in
-the tree (and style changes do make merging a pain).
+> I have a related question.  While I am confident I can get RH9 to work
+> with a 2.5 kernel, I would like to do this in such a way that booting
+> into a 2.4 kernel still works, and installing updated 2.4 kernel RPMs
+> from Red Hat also continues to work.  I would also like to avoid making
+> any changes that prevent me from upgrading to the next RH release.  I
+> assume I can accomplish this by only making changes that involve installing
+> rpms rather than installing programs directly.  I am not confident I can 
+> accomplish all this, having failed in my attempt with RH8 :-)
+	
+* ftp://ftp.kernel.org/pub/linux/kernel/people/rusty/modutils-2.4.21-18.src.rpm
+* rpmbuild --rebuild modutils-2.4.21-18.src.rpm
+* rpm -Uvh modutils-2.4.21-18.i386.rpm
+* add the new kernel to /boot/grub/grub.conf
 
-I counted one serious issue:
+# vi /etc/rc.d/rc.sysinit 
+:360,360s/ksyms/modules/g
+:wq
 
-The try_module_get problem
-
-One future compatibility issue:
-
-->detect moved to scsi_add_host (for the device model).
-
-One issue that would improve the driver internally:
-
-move hba_soft_state array to dynamic ->hostdata
-
-plus a list of other more style related issues.
-
-I'll fix up the first one, Atul, can you take the other two for a future
-patch (the others Christoph mentions might be nice, too...)?
-
-James
-
+You are done.
+Pau
 

@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269154AbRHPXms>; Thu, 16 Aug 2001 19:42:48 -0400
+	id <S269174AbRHPXps>; Thu, 16 Aug 2001 19:45:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269155AbRHPXmi>; Thu, 16 Aug 2001 19:42:38 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:32896 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S269154AbRHPXm2>;
-	Thu, 16 Aug 2001 19:42:28 -0400
-Date: Thu, 16 Aug 2001 16:40:27 -0700 (PDT)
-Message-Id: <20010816.164027.85686335.davem@redhat.com>
-To: aia21@cam.ac.uk
-Cc: alan@lxorguk.ukuu.org.uk, phillips@bonn-fries.net, tpepper@vato.org,
-        f5ibh@db0bm.ampr.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9 does not compile [PATCH]
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <5.1.0.14.2.20010817002825.00b1e4e0@pop.cus.cam.ac.uk>
-In-Reply-To: <20010816230719Z16545-1231+1256@humbolt.nl.linux.org>
-	<E15XWKz-0006J6-00@the-village.bc.nu>
-	<5.1.0.14.2.20010817002825.00b1e4e0@pop.cus.cam.ac.uk>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S269002AbRHPXpj>; Thu, 16 Aug 2001 19:45:39 -0400
+Received: from oboe.it.uc3m.es ([163.117.139.101]:53515 "EHLO oboe.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S269158AbRHPXpV>;
+	Thu, 16 Aug 2001 19:45:21 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200108162345.f7GNjUw02993@oboe.it.uc3m.es>
+Subject: scheduling with io_lock held in 2.4.6
+To: "linux kernel" <linux-kernel@vger.kernel.org>
+Date: Fri, 17 Aug 2001 01:45:30 +0200 (MET DST)
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Anton Altaparmakov <aia21@cam.ac.uk>
-   Date: Fri, 17 Aug 2001 00:35:02 +0100
+I've been plagued for a month by smp lockups in my block driver
+that I eventually deduced were due to somebody else scheduling while
+holding the io_request_lock spinlock.
 
-   Otherwise I would submit a patch to switch NTFS. I don't like this 3 arg 
-   construct...
+There's nothing so impressive as a direct test, so I put a test for
+the spinlock being held at the front of schedule(), and sure enough, it
+fires every 20s or so when I'm doing nothing in particular on the
+machine:
 
-Linus will reject every such patch, and I have grepping scripts that
-will detect crap like this entering the tree in case he misses
-something.
+  Aug 17 01:36:42 xilofon kernel: Scheduling with io lock held in process 0
 
-Later,
-David S. Miller
-davem@redhat.com
+doing a dd to /dev/null from the ide disk seems to trigger it, but from
+differnt contexts ...
+
+  Aug 17 01:40:58 xilofon kernel: Scheduling with io lock held in process 0
+  Aug 17 01:41:00 xilofon last message repeated 150 times
+  Aug 17 01:41:00 xilofon kernel: Scheduling with io lock held in process 1139
+  Aug 17 01:41:00 xilofon kernel: Scheduling with io lock held in process 0
+  Aug 17 01:41:01 xilofon last message repeated 87 times
+  Aug 17 01:41:01 xilofon kernel: Scheduling with io lock held in process 1141
+  Aug 17 01:41:01 xilofon kernel: Scheduling with io lock held in process 0
+
+
+Surprise, 1139 and 1141 are klogd and syslogd respectively.
+
+Any suggestions as to how to track this further?
+
+Peter

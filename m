@@ -1,89 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVAaM7C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVAaM6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbVAaM7C (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 07:59:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVAaM7C
+	id S261182AbVAaM6M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 07:58:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVAaM6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 07:59:02 -0500
-Received: from moutng.kundenserver.de ([212.227.126.184]:15350 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261186AbVAaM6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 07:58:23 -0500
-From: Peter Busser <busser@m-privacy.de>
-Organization: m-privacy
-To: linux-kernel@vger.kernel.org
-Subject: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
-Date: Mon, 31 Jan 2005 13:57:59 +0100
-User-Agent: KMail/1.7.1
-References: <200501311015.20964.arjan@infradead.org>
-In-Reply-To: <200501311015.20964.arjan@infradead.org>
-Cc: Arjan van de Ven <arjan@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Mon, 31 Jan 2005 07:58:12 -0500
+Received: from colin2.muc.de ([193.149.48.15]:49419 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261182AbVAaM57 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 07:57:59 -0500
+Date: 31 Jan 2005 13:57:58 +0100
+Date: Mon, 31 Jan 2005 13:57:58 +0100
+From: Andi Kleen <ak@muc.de>
+To: Tom Zanussi <zanussi@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@muc.de>, Roman Zippel <zippel@linux-m68k.org>,
+       Robert Wisniewski <bob@watson.ibm.com>, Tim Bird <tim.bird@AM.SONY.COM>,
+       karim@opersys.com
+Subject: Re: [PATCH] relayfs redux, part 2
+Message-ID: <20050131125758.GA23172@muc.de>
+References: <16890.38062.477373.644205@tut.ibm.com> <m1d5volksx.fsf@muc.de> <16892.26990.319480.917561@tut.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501311357.59630.busser@m-privacy.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:e784f4497a7e52bfc8179ee7209408c3
+In-Reply-To: <16892.26990.319480.917561@tut.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, Jan 29, 2005 at 10:58:22PM -0600, Tom Zanussi wrote:
+>  > The logging fast path seems still a bit slow to me. I would like
+>  > to have a logging macro that is not much worse than a stdio putc,
+>  > basically something like
+>  > 
+>  >           get_cpu();
+>  >           if (buffer space > N) { 
+>  >               memcpy(buffer, input, N);
+>  >               buffer pointer += N;
+>  >           } else { 
+>  >               FreeBuffer(input, N); 
+>  >           }    
+>  >           put_cpu();
+>  > 
+> 
+> I think what we have now is somewhat similar, except that we wanted to
 
-> I'm not entirely happy yet (it shows a bug in mmap randomisation) but
-> it's way better than what you get in your tests (this is the
-> desabotaged
-> 0.9.6 version fwiw)
+It's doing a complicated function call which does who knows what in
+the logging fast path (I stopped reading after some point)  
+It definitely is not putc !
 
-As you may or may not know, I am the author of PaXtest. Please tell me what a 
-``desabotaged'' version of PaXtest exactly is. I've never seen a 
-``sabotaged'' PaXtest and I'm interested in finding out who sabotaged it and 
-for what purpose.
+> separate grabbing a slot in the buffer from the memcpy because some
+> applications such as ltt want to be able to directly write into the
+> slot without having to copy it into another buffer first.  How about
 
-Come to think of it, sabotaging a test program seems to be a rather stupid 
-concept. I mean, if you don't like the results, then don't run it. For me the 
-integrity of PaXtest is very important. I mean, who would trust a test-suite 
-if it produces manipulated results? Right, noone! Why would I want to write a 
-test-suite noone uses? Right, I wouldn't, it is a waste of time! It is boring 
-to write a test-suite. So it better not be a waste of time! I'm sincerely 
-flattered by the fact that someone as famous as you uses PaXtest.
+If the inline function to log was fast enough it wouldn't need 
+any such hacks.
 
-Well, PaXtest was designed to dig up hard facts about how well a system 
-protects process integrity. So, if someone sabotages PaXtest and releases a 
-changed version, that means that person clearly has the opposite intention, 
-which is producing false information.
+Note that gcc is quite good at optimizing memcpy, so essentially
+when you e.g. do log(singleint) it should be roughly equivalent
+to a int store into the buffer + the check if there is enough
+buffer space.
 
-The whole concept of sabotaging PaXtest and rigging results doesn't make sense 
-to me. People who do that must not be happy with the results and gain 
-something by rigging them. But to think that it would go unnoticed...? First 
-of all, if you don't like the results, don't run it! Second, run kiddie mode 
-if you want to use PaXtest to feel warm and cozy. Third, the code is out 
-there, anyone can download, compile, run and dissect it. Fourth, it is only a 
-few lines of code per test. In other words, it is trivial to understand for 
-anyone who is worth his salt. Therefore anyone who would want to sabotage it, 
-can easily be publicly exposed and dealt with accordingly. Only stupid people 
-would not be able to figure this out right away or be stupid enough to do it 
-anyway. I honestly can't think of anyone that stupid... But then, you never 
-know, I've been surprised before.
+> something like this for relay reserve, with the local_add_return()
+> gone since we're assuming the client protects the buffer properly for
+> whatever it's doing:
 
-Anyways, I know there are some problems with PaXtest on Fedora, caused by 
-PT_GNU_STACK stuff AFAIK. Unfortunately I don't have access to a Fedora 
-machine and therefore am not able to fix and test it. But I would love to 
-have PaXtest working on Fedora. So if you have it working on Fedora, feel 
-free to send in a patch. There are probably more people who use Fedora who 
-want to check their system's security, so you would really help those people.
+I think relay_reserve shouldn't be in the fast path at all.
 
-I'm sorry to have to bother the people on this list, as you have much more 
-important things to do. But for me personally, the integrity of PaXtest (and 
-related to that, my personal integrity) matters a great deal. So I'd like to 
-get to the bottom of this, even if that means bothering lkml. I hope Arjan 
-can provide facts soon, so I can take action against this sabotage. If anyone 
-else on this mailing list has information on this sabotaged PaXtest matter, 
-then please speak up.
+The simple write should simple be the traditional stdio putc pattern
 
-As a side note, I am really glad that this code goes into the kernel. It is 
-good to finally see some security being added to the Linux kernel. Big thumbs 
-up for the good work!
+	if (buffer + datalen < bufferend) { 
+		memcpy(buffer, data, datalen);
+		buffer += datalen;
+	} else {
+		flush(buffer, datalen); /* flush takes care of the slow path */
+	}
 
-Groetjes,
-Peter.
+This is quite fast for the fast path and expands to reasonably compact 
+inline code too.
+
+The only interesting part is how to protect this against interrupts.
+For that you need an local_irq_save(); local_irq_restore() which
+can be unfortunately quite costly (P4 is really slow at PUSHF) 
+
+That is why I would provide a __ variant of the simple
+where the caller guarantees no disruption by interrupts.
+
+On preemptive kernel the local_irq_save takes care of CPU 
+preemption, the __ variant should probably disable preemption
+to avoid mistakes. For non __ it is not needed.
+
+>  > This would need interrupt protection only if interrupts can access
+>  > it, best you use separate buffers for that too.
+> 
+> Not sure what you mean by separate buffers for that too.  Can you
+> expand on that a little?
+
+You could avoid the local_irq_save() if you use separate interrupt
+buffers that are only accessed in non nesting interrupt context 
+(like softirqs) That would require a sorting step at output though. Not
+sure if it's worth it. The problem is that hardirqs can nest anyways,
+so it wouldn't work for them. However a lot of important code runs
+in softirq (like the network stack) where this is true.
+
+-Andi

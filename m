@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315168AbSGIMp7>; Tue, 9 Jul 2002 08:45:59 -0400
+	id <S314835AbSGIMoX>; Tue, 9 Jul 2002 08:44:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315167AbSGIMp5>; Tue, 9 Jul 2002 08:45:57 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:62412 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S314529AbSGIMpv>;
-	Tue, 9 Jul 2002 08:45:51 -0400
-Date: Tue, 9 Jul 2002 14:48:27 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Tobias Rittweiler <inkognito.anonym@uni.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Subject: Re: [PATCH] 2.4 IDE core for 2.5
-Message-ID: <20020709124827.GA1940@suse.de>
-References: <20020709102249.GA20870@suse.de> <01742490.20020709144349@uni.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01742490.20020709144349@uni.de>
+	id <S315120AbSGIMoW>; Tue, 9 Jul 2002 08:44:22 -0400
+Received: from [199.128.236.1] ([199.128.236.1]:40457 "EHLO
+	intranet.reeusda.gov") by vger.kernel.org with ESMTP
+	id <S314835AbSGIMoV>; Tue, 9 Jul 2002 08:44:21 -0400
+Message-ID: <630DA58AD01AD311B13A00C00D00E9BC05D2020B@CSREESSERVER>
+From: "Martinez, Michael - CSREES/ISTM" <MMARTINEZ@intranet.reeusda.gov>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "Martinez, Michael - CSREES/ISTM" <MMARTINEZ@intranet.reeusda.gov>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: list of compiled in support
+Date: Tue, 9 Jul 2002 08:47:37 -0400 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 09 2002, Tobias Rittweiler wrote:
-> Hello Jens,
-> 
-> Tuesday, July 9, 2002, 12:22:49 PM, you wrote:
-> 
-> JA> *.kernel.org://pub/linux/kernel/people/axboe/patches/v2.5/2.5.25/
-> 
-> After downloading each of the 7 .gz-patches, applying them without any
-> complains, I started to compile the new bzImage, but I got an error
-> in relation to the FAT support. By switching this support off
-> everything'll compile without any further problem though, and I can
-> boot from this image even.. :-)
+Okay. this would require a little C code right? is there a shell command
+line tool I could use instead?
 
-Please send me your full .config, I'll fix this in the next version.
+Michael Martinez
+System Administrator (Contractor)
+Information Systems and Technology Management
+CSREES - United States Department of Agriculture
+(202) 720-6223
 
--- 
-Jens Axboe
 
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+Sent: Tuesday, July 09, 2002 6:20 AM
+To: MMARTINEZ@intranet.reeusda.gov
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: list of compiled in support
+
+
+> How does one tell if a kernel has compiled in support for ipx?
+
+Open an AF_IPX socket

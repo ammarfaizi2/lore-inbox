@@ -1,65 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVA0UDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVA0UDk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbVA0UDf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 15:03:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbVA0UDX
+	id S261155AbVA0UDk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 15:03:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbVA0UDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 15:03:23 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:51160 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261157AbVA0UB3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 15:01:29 -0500
-Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Jack O'Quin" <joq@io.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
-       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
-       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-In-Reply-To: <87pszr1mi1.fsf@sulphur.joq.us>
-References: <200501201542.j0KFgOwo019109@localhost.localdomain>
-	 <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>
-	 <87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>
-	 <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu>
-	 <20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu>
-	 <87sm4opxto.fsf@sulphur.joq.us> <20050126070404.GA27280@elte.hu>
-	 <87fz0neshg.fsf@sulphur.joq.us> <1106782165.5158.15.camel@npiggin-nld.site>
-	 <874qh3bo1u.fsf@sulphur.joq.us> <1106796360.5158.39.camel@npiggin-nld.site>
-	 <87pszr1mi1.fsf@sulphur.joq.us>
+	Thu, 27 Jan 2005 15:03:30 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:13070 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261169AbVA0UDF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 15:03:05 -0500
+Subject: Re: Patch 4/6  randomize the stack pointer
+From: Arjan van de Ven <arjan@infradead.org>
+To: linux-os@analogic.com
+Cc: John Richard Moser <nigelenki@comcast.net>,
+       Linux kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+In-Reply-To: <Pine.LNX.4.61.0501271414010.23221@chaos.analogic.com>
+References: <20050127101117.GA9760@infradead.org>
+	 <20050127101322.GE9760@infradead.org> <41F92721.1030903@comcast.net>
+	 <1106848051.5624.110.camel@laptopd505.fenrus.org>
+	 <41F92D2B.4090302@comcast.net>
+	 <Pine.LNX.4.58.0501271010130.2362@ppc970.osdl.org>
+	 <Pine.LNX.4.61.0501271414010.23221@chaos.analogic.com>
 Content-Type: text/plain
-Date: Thu, 27 Jan 2005 15:01:24 -0500
-Message-Id: <1106856085.25754.10.camel@krustophenia.net>
+Date: Thu, 27 Jan 2005 21:02:58 +0100
+Message-Id: <1106856178.5624.128.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-26 at 23:15 -0600, Jack O'Quin wrote:
-> >> > And finally, with rlimit support, is there any reason why lockup
-> >> > detection and correction can't go into userspace? Even RT
-> >> > throttling could probably be done in a userspace daemon.
-> >> 
-> >> It can.  But, doing it in the kernel is more efficient, and probably
-> >> more reliable.
-> >
-> > Possibly. But the people who want a solution seem to be in a very
-> > small minority, and I'm not sure how much you care about efficiency.
+On Thu, 2005-01-27 at 14:19 -0500, linux-os wrote:
+> Gentlemen,
 > 
-> I do care.  The average overhead of running a watchdog daemon at max
-> priority is tiny.  But, its impact on worst-case trigger latencies is
-> non-trivial and must be added to everything else in the RT subsystem.
+> Isn't the return address on the stack an offset in the
+> code (.text) segment?
+> 
+> How would a random stack-pointer value help? I think you would
+> need to start a program at a random offset, not the stack!
+> No stack-smasher that worked would care about the value of
+> the stack-pointer.
 
-Keep in mind that with the max RT prio rlimit solution audio systems
-using JACK would not even need the external watchdog thread, because
-JACK already has its own watchdog thread.  I also like the max RT prio
-rlimit approach with (optional) watchdog thread running as root because
-it really seems to be the least intrusive out of several good solutions
-to the problem and puts policy details (when to throttle an RT thread)
-in userspace.
+the simple stack exploit works by overflowing a buffer ON THE STACK with
+a "dirty payload and then also overwriting the return address to point
+back into that buffer.
 
-Lee
+(all the security guys on this list will now cringe about this over
+simplification; yes reality is more complex but lets keep the
+explenation simple for Richard) 
+
+pointing back into that buffer needs the address of that buffer. That
+buffer is on the stack, which is now randomized.
+
 

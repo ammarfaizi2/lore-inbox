@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUDSXHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbUDSXIm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbUDSXHF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 19:07:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUDSXHF
+	id S261206AbUDSXIm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 19:08:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbUDSXIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 19:07:05 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:22658 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261184AbUDSXHB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 19:07:01 -0400
-Date: Tue, 20 Apr 2004 01:07:37 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: =?iso-8859-1?q?Fabiano=20Ramos?= <ramos_fabiano@yahoo.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: task switching at Page Faults
-In-Reply-To: <20040419201230.45125.qmail@web20210.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.58.0404200103330.18802@artax.karlin.mff.cuni.cz>
-References: <20040419201230.45125.qmail@web20210.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+	Mon, 19 Apr 2004 19:08:41 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:37037 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S261206AbUDSXIj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 19:08:39 -0400
+Subject: Re: [lhcs-devel] Re: CPU Hotplug broken -mm5 onwards
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Srivatsa Vaddagiri <vatsa@in.ibm.com>, rusty@au1.ibm.com,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       LHCS list <lhcs-devel@lists.sourceforge.net>
+In-Reply-To: <408458D5.5030208@yahoo.com.au>
+References: <20040418170613.GA21769@in.ibm.com>
+	 <408348B6.7020606@yahoo.com.au> <20040419125853.GB6835@in.ibm.com>
+	 <408458D5.5030208@yahoo.com.au>
+Content-Type: text/plain
+Message-Id: <1082416075.5564.4.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 20 Apr 2004 09:07:57 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > 	I am in doubt about the linux kernel behaviour is
-> > this situation:
-> > > supose a have the process A, with the highest
-> > realtime
-> > > priority and SCHED_FIFO policy. The process then
-> > issues a syscall,
-> > > say read():
-> > >
-> > > 	1) Can I be sure that there will be no process
-> > switch during the
-> > > syscall processing, even if the system call causes
-> > a page fault?
-> >
-> > No. If the data read is not in cache and if read
-> > operations causes page
-> > fault there will be process switch.
-> >
-> > Additionally, if you don't mlock memory, there can
-> > be process switch at
-> > any place, because of page faults on code pages or
-> > swapping of data pages.
->
->     I was reading the book "Understanding the Linux
-> kernel", about 2.4, and the authors:
->     1)assure that there is no process switch during
-> the execution of an eception handler (aka syscall).
-> they emphasize it.
+On Tue, 2004-04-20 at 08:55, Nick Piggin wrote:
+> > So, as Rusty said, I think we really need to consider removing
+> > lock_cpu_hotplug from sched_migrate_task. AFAICS that lock
+> > was needed to prevent adding tasks to dead cpus. The same 
+> > can be accomplished by removing lock_cpu_hotplug from sched_migrate_task
+> > and adding a cpu_is_offline check in __migrate_task.
+> > This will eliminate all the deadlocks I have been hitting.
+> > 
+> 
+> Yes this would be a better idea. Care to send Andrew a patch
+> against -mm?
 
-It is wrong. The process switch will occur, if the process blocks waiting
-for some resource (disk IO, keyboard, net or similar). Moreover, on 2.6
-kernels, if you turn on CONFIG_PREEMPT, process switch in kernel may occur
-almost anywhere
+What surprises me is that this is a regression.  The original hotplug
+code on top of Nicksched(TM) removed that lock as part of the "don't
+change cpus_allowed to migrate on exec" fix.  When we pushed the patch
+straight into Linus' tree, we had to do lock_cpu_hotplug because we
+didn't have that code.
 
->     2) say that the execption handler may not generate
-> exceptions, except for page faults.
+Obviously, it escaped somewhere...
 
-That's true. Kernel can generate only page fault.
+Cheers,
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 
->      So, if process switching occurs at page faults, I
-> was wondering which statement is true of if I am
-> missing sth.
->      You mentioned page faults due to code. Aren´t the
-> syscall handlers located in mlocked?
-
-Kernel is nonswappable, but when the syscalls returns from kernel, it can
-generate page-fault because of its code or data were paged-out.
-
-Mikulas
-
-> Thanks again
-> Fabiano

@@ -1,94 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317808AbSGVVPI>; Mon, 22 Jul 2002 17:15:08 -0400
+	id <S317835AbSGVVX5>; Mon, 22 Jul 2002 17:23:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317833AbSGVVPI>; Mon, 22 Jul 2002 17:15:08 -0400
-Received: from www.sgg.ru ([217.23.135.2]:10259 "EHLO mail.sgg.ru")
-	by vger.kernel.org with ESMTP id <S317808AbSGVVPG>;
-	Mon, 22 Jul 2002 17:15:06 -0400
-Message-ID: <3D3C76F0.307C6C3@tv-sign.ru>
-Date: Tue, 23 Jul 2002 01:19:44 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Ingo Molnar <mingo@elte.hu>, george anzinger <george@mvista.com>
-Subject: Re: [patch] big IRQ lock removal, 2.5.27-D9
-References: <Pine.LNX.4.44.0207221650140.11103-100000@localhost.localdomain>
+	id <S317842AbSGVVX5>; Mon, 22 Jul 2002 17:23:57 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:62735 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317835AbSGVVX4>;
+	Mon, 22 Jul 2002 17:23:56 -0400
+Date: Mon, 22 Jul 2002 14:24:56 -0700
+From: Greg KH <greg@kroah.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.27: s390 fixes.
+Message-ID: <20020722212456.GA12291@kroah.com>
+References: <mailman.1027363500.9793.linux-kernel2news@redhat.com> <200207222100.g6ML0UN08293@devserv.devel.redhat.com> <20020722220413.A12952@infradead.org> <20020722171438.A11295@devserv.devel.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020722171438.A11295@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Mon, 24 Jun 2002 20:21:30 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Mon, Jul 22, 2002 at 05:14:38PM -0400, Pete Zaitcev wrote:
+> > Date: Mon, 22 Jul 2002 22:04:13 +0100
+> > From: Christoph Hellwig <hch@infradead.org>
+> 
+> > > > * add sys_security system call
+> > > 
+> > > I do not see the body of the call in the attached patch.
+> > 
+> > Does need to.  Is yet another magic dispatcher that has randomly changing
+> > behaviour depending on the linux crap^H^H^H^Hsecurity module loaded.
+> 
+> I just realized that it comes from the LSM. Sorry.
+> 
+> Why does it need to be added into the architecture and
+> not kept together with the patch-2.5.27-lsm1.gz or such?
+> I am afraid that precludes compilation of architectures
+> without LSM applied.
 
-George Anzinger wrote:
->
-> > then preempt_stop (cli) can be killed in entry.S:ret_from_intr()
->
-> Also at least some of the trap code returns with interrupts enabled.
+Because the LSM framework is now in the kernel, including sys_security.
 
-Then linux already have a bug - ret_from_exception: bypasses
-ret_from_intr:. But as far as i can see, it does not - all users of
-ret_from_exception: do preempt_stop. And so it can be shifted to
-ret_from_exception.
+thanks,
 
-I beleive none of the traps need current_thread_info() in regs->ebx,
-so GET_THREAD_INFO(%ebx) can be killed in error_code:,
-common_interrupt:,
-and BUILD_INTERRUPT().
-
-Not sure it is right time to such minor cleanups, but...
-Patch on top of remove-irqlock-2.5.27-E0:
-
---- arch/i386/kernel/entry.S.orig	Mon Jul 22 23:44:41 2002
-+++ arch/i386/kernel/entry.S	Tue Jul 23 00:04:02 2002
-@@ -185,8 +185,10 @@
- 
- 	# userspace resumption stub bypassing syscall exit tracing
- 	ALIGN
--ret_from_intr:
- ret_from_exception:
-+	preempt_stop
-+ret_from_intr:
-+	GET_THREAD_INFO(%ebx)
- 	movl EFLAGS(%esp), %eax		# mix EFLAGS and CS
- 	movb CS(%esp), %al
- 	testl $(VM_MASK | 3), %eax
-@@ -333,14 +335,12 @@
- common_interrupt:
- 	SAVE_ALL
- 	call do_IRQ
--	GET_THREAD_INFO(%ebx)
- 	jmp ret_from_intr
- 
- #define BUILD_INTERRUPT(name, nr)	\
- ENTRY(name)				\
- 	pushl $nr-256;			\
- 	SAVE_ALL			\
--	GET_THREAD_INFO(%ebx);		\
- 	call smp_/**/name;	\
- 	jmp ret_from_intr;
- 
-@@ -400,10 +400,8 @@
- 	movl $(__KERNEL_DS), %edx
- 	movl %edx, %ds
- 	movl %edx, %es
--	GET_THREAD_INFO(%ebx)
- 	call *%edi
- 	addl $8, %esp
--	preempt_stop
- 	jmp ret_from_exception
- 
- ENTRY(coprocessor_error)
-@@ -430,7 +428,6 @@
- 	pushl $0			# temporary storage for ORIG_EIP
- 	call math_emulate
- 	addl $4, %esp
--	preempt_stop
- 	jmp ret_from_exception
- 
- ENTRY(debug)
-
-Oleg.
+greg k-h

@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263180AbTCSXLe>; Wed, 19 Mar 2003 18:11:34 -0500
+	id <S263229AbTCSXR2>; Wed, 19 Mar 2003 18:17:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263183AbTCSXLe>; Wed, 19 Mar 2003 18:11:34 -0500
-Received: from spc1.esa.lanl.gov ([128.165.67.191]:20864 "EHLO
-	spc1.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S263180AbTCSXLc>; Wed, 19 Mar 2003 18:11:32 -0500
-Subject: Re: 2.5.65-mm2
-From: "Steven P. Cole" <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: Robert Love <rml@tech9.net>
-Cc: jjs <jjs@tmsusa.com>, linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1048115072.775.108.camel@phantasy.awol.org>
-References: <20030319012115.466970fd.akpm@digeo.com>
-	 <1048103489.1962.87.camel@spc9.esa.lanl.gov>
-	 <20030319121055.685b9b8c.akpm@digeo.com>
-	 <1048107434.1743.12.camel@spc1.esa.lanl.gov>
-	 <1048111359.1807.13.camel@spc1.esa.lanl.gov>  <3E78EC63.9050308@tmsusa.com>
-	 <1048114307.1511.12.camel@spc1.esa.lanl.gov>
-	 <1048115072.775.108.camel@phantasy.awol.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048115944.1510.16.camel@spc1.esa.lanl.gov>
+	id <S263230AbTCSXR1>; Wed, 19 Mar 2003 18:17:27 -0500
+Received: from inet-mail2.oracle.com ([148.87.2.202]:4801 "EHLO
+	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
+	id <S263229AbTCSXR0>; Wed, 19 Mar 2003 18:17:26 -0500
+Date: Wed, 19 Mar 2003 15:28:13 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: linux-kernel@vger.kernel.org
+Subject: WimMark I report for 2.5.65-mm2
+Message-ID: <20030319232812.GJ2835@ca-server1.us.oracle.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2-1mdk 
-Date: 19 Mar 2003 16:19:04 -0700
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-03-19 at 16:04, Robert Love wrote:
-> On Wed, 2003-03-19 at 17:51, Steven P. Cole wrote:
-> 
-> > I'll try the different value of max_timeslice with dbench on
-> > reiserfs next.  That's where the lack of response was most evident.
-> 
-> I am curious as to whether reverting sched-D4 fixes this.
-> 
-> If not, the first step is seeing whether this is a bad decision made by
-> the interactivity estimator.  Something like:
-> 
-> 	ps -eo pid,nice,priority,command
-> 
-> for dbench, evolution, and X might be useful.
-> 
-> Thanks,
-> 
-> 	Robert Love
-> 
-In the meantime, Andrew has asked me to revert the sched-D3 patch.  I'm
-recompiling now, and will only have time for that test before I have to
-go do other things.
+WimMark I report for 2.5.65-mm2
 
-Steven
+Runs:  1374.22 1487.19 1437.26
+
+	WimMark I is a rough benchmark we have been running
+here at Oracle against various kernels.  Each run tests an OLTP
+workload on the Oracle database with somewhat restrictive memory
+conditions.  This reduces in-memory buffering of data, allowing for
+more I/O.  The I/O is read and sync write, random and seek-laden.
+	The benchmark is called "WimMark I" because it has no
+official standing and is only a relative benchmark useful for comparing
+kernel changes.  The benchmark is normalized an arbitrary kernel, which
+scores 1000.0.  All other numbers are relative to this.
+	The machine in question is a 4 way 700 MHz Xeon machine with 2GB
+of RAM.  CONFIG_HIGHMEM4GB is selected.  The disk accessed for data is a
+10K RPM U2W SCSI of similar vintage.  The data files are living on an
+ext3 filesystem.  Unless mentioned, all runs are
+on this machine (variation in hardware would indeed change the
+benchmark).
+
+-- 
+
+"Senator let's be sincere,
+ As much as you can."
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

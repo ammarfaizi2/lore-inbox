@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270086AbTGNPBL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 11:01:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270647AbTGNO6Y
+	id S270089AbTGNPBM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 11:01:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270634AbTGNO6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 10:58:24 -0400
-Received: from web60003.mail.yahoo.com ([216.109.116.226]:3507 "HELO
-	web60003.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S270667AbTGNO5V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 10:57:21 -0400
-Message-ID: <20030714151210.66629.qmail@web60003.mail.yahoo.com>
-Date: Mon, 14 Jul 2003 16:12:10 +0100 (BST)
-From: =?iso-8859-1?q?Mike=20Martin?= <redtuxxx@yahoo.co.uk>
-Subject: Re: Kernel oops with 2.5.74 2.5.75
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SOL.4.30.0307141643040.484-100000@mion.elka.pw.edu.pl>
+	Mon, 14 Jul 2003 10:58:09 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:55961 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S270650AbTGNO4R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 10:56:17 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 14 Jul 2003 08:03:41 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: David Schwartz <davids@webmaster.com>, Jamie Lokier <jamie@shareable.org>,
+       Eric Varsanyi <e0206@foo21.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: [Patch][RFC] epoll and half closed TCP connections
+In-Reply-To: <1058170455.561.30.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.55.0307140748510.4371@bigblue.dev.mcafeelabs.com>
+References: <MDEHLPKNGKAHNMBLJOLKEEFKEFAA.davids@webmaster.com> 
+ <Pine.LNX.4.55.0307131605480.15022@bigblue.dev.mcafeelabs.com>
+ <1058170455.561.30.camel@dhcp22.swansea.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-wrote: > 
-> Please send dmesg with oops
-> (make sure you have CONFIG_KALLSYMS enabled).
-> 
+On Mon, 14 Jul 2003, Alan Cox wrote:
 
-I will try when I get home - though I am not too confident about it,
-because the oops happens before any partitions are mounted.
+> For some loads poll/select are actually extremely efficient. X clients
+> batch commands up and there is a cost to switching between tasks for
+> different clients. Viewed as an entire system you actually get quite
+> interesting little graphs, especially in the critical load cases where
+> select/poll's batching effect makes throughput increase rapidly at 100%
+> CPU load, even if it gets you there far too early. Ditto with
+> webservers.
 
-> --
-> Bartlomiej
-> 
-> On Mon, 14 Jul 2003, [iso-8859-1] Mike Martin wrote:
-> 
-> > I am getting a kernel oops with both these kernels as soon as it
-> the
-> > kernel loads the ide drivers (hd*)
-> >
-> > I am using ALI1542 chipset, K6/2 500 cpu
-> > I have tried progressively disabling various ide options (cramfs,
-> > acls tcq etc) to no effect
-> >
-> > I run ext3 compiled in
-> >
-> > This is on a base of RH9 with updated modutils from rawhide.
-> >
-> > The kernel apparrently compiles fine (no errors)
-> >
-> > Anyone any ideas what could be the cause of this (2.5.66 worked
-> on
-> > this machine and runs 2.4.21 fine)
-> >
-> > If its not a simple fix I will bugzilla it
->  
+Indeed, poll/select are very nice APIs and you definitely want to use them
+if your apps does not need certain requirements. If N/M approaches 1, poll
+scales exactly (alomst) like epoll. But poll does not born to scale on
+huge number of fds, and this is recognized by ages. Yesterday I pulled out
+a Mogul paper where (a long time ago) he talks about poll limits and he
+also talks about three ideal APIs to deal with networking load :
 
-__________________________________________________
-Yahoo! Plus - For a better Internet experience
-http://uk.promotions.yahoo.com/yplus/yoffer.html
+declare_interest == epoll_ctl(EPOLL_CTL_ADD)
+revoke_interest == epoll_ctl(EPOLL_CTL_DEL)
+dequeue_next_events == epoll_wait()
+
+This a long time before epoll :)
+
+
+
+- Davide
+

@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270818AbRHXDRd>; Thu, 23 Aug 2001 23:17:33 -0400
+	id <S270841AbRHXD0p>; Thu, 23 Aug 2001 23:26:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270819AbRHXDRY>; Thu, 23 Aug 2001 23:17:24 -0400
-Received: from hq2.fsmlabs.com ([209.155.42.199]:17422 "HELO hq2.fsmlabs.com")
-	by vger.kernel.org with SMTP id <S270818AbRHXDRP>;
-	Thu, 23 Aug 2001 23:17:15 -0400
-Date: Thu, 23 Aug 2001 21:13:17 -0600
-From: Victor Yodaiken <yodaiken@fsmlabs.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Victor Yodaiken <yodaiken@fsmlabs.com>, linux-kernel@vger.kernel.org
-Subject: Re: kfree safe in interrupt context?
-Message-ID: <20010823211316.A5916@hq2>
+	id <S270848AbRHXD0f>; Thu, 23 Aug 2001 23:26:35 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:11794 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S270841AbRHXD0X>;
+	Thu, 23 Aug 2001 23:26:23 -0400
+Date: Thu, 23 Aug 2001 21:22:49 -0600
+From: Cort Dougan <cort@fsmlabs.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: source control?
+Message-ID: <20010823212249.N498@ftsoj.fsmlabs.com>
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0A4@orsmsx35.jf.intel.com> <E15a3tR-0004rN-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E15YR0Y-0007fD-00@localhost>
-User-Agent: Mutt/1.3.18i
-Organization: FSM Labs
+User-Agent: Mutt/1.2i
+In-Reply-To: <E15a3tR-0004rN-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Aug 24, 2001 at 12:28:09AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 19, 2001 at 09:44:45PM +1000, Rusty Russell wrote:
-> In message <20010817211406.A21326@hq2> you write:
-> > Seems like calling kfree from interrupt context should
-> > be ok, but is it? 
-> > If it is safe, is this considered a good thing  or not?
-> 
-> Yes, and it logically has to be, as kmalloc(..., GFP_ATOMIC) is safe
-> from interrupt context.
-> 
-> The network code does this all the time, for example.
-> 
-> Hope that helps,
+That's a great description of all source control!  "Makes it all to easy
+for other people to push crap into your tree"!
 
-It does, but Alan answered first and also much more
-eloquently. -)
+There is great benefit to making it very hard for people to get changes
+into a tree.  It forces people to ask "Is this really worth all the
+effort?" several times.  It's a great filter.
 
-
-
-
-
+} It does. Or at least many of the development teams do. That doesn't mean a
+} general CVS is a good idea. CVS make it all to easy for other people to 
+} push crap into your tree. 

@@ -1,67 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262474AbRENUKc>; Mon, 14 May 2001 16:10:32 -0400
+	id <S262465AbRENUOC>; Mon, 14 May 2001 16:14:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262471AbRENUKW>; Mon, 14 May 2001 16:10:22 -0400
-Received: from [136.159.55.21] ([136.159.55.21]:35737 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S262464AbRENUKI>; Mon, 14 May 2001 16:10:08 -0400
-Date: Mon, 14 May 2001 14:09:15 -0600
-Message-Id: <200105142009.f4EK9FE17307@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>, viro@math.psu.edu
+	id <S262470AbRENUNm>; Mon, 14 May 2001 16:13:42 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:1289 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262465AbRENUNl>; Mon, 14 May 2001 16:13:41 -0400
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <3B0033A4.8BB96F43@mandrakesoft.com>
-In-Reply-To: <3B002FC6.C0093C18@transmeta.com>
-	<3B0033A4.8BB96F43@mandrakesoft.com>
+To: hpa@transmeta.com (H. Peter Anvin)
+Date: Mon, 14 May 2001 21:09:59 +0100 (BST)
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+        torvalds@transmeta.com (Linus Torvalds), viro@math.psu.edu
+In-Reply-To: <3B0038B3.EBB9747A@transmeta.com> from "H. Peter Anvin" at May 14, 2001 12:57:39 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14zOfH-0001LG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik writes:
-> "H. Peter Anvin" wrote:
-> > Linus Torvalds has requested a moratorium on new device number
-> > assignments. His hope is that a new and better method for device space
-> > handing will emerge as a result.
+> > (c) does not require devfs.  most distros ship without it afaik, and
+> > switching to it is not an overnight process, and requires devfsd to be
+> > useful in the real world.
+> > 
 > 
-> Here's my suggestion for a solution.
-> 
-> Once I work through a bunch of net driver problems, I want to release a
-> snapshot block device driver (freezes a blkdev in time).  For this, I
-> needed a block major.  After hearing about the device number freeze, I
-> was wondering if this solution works:
-> 
-> Register block device using existing API, and obtain a dynamically
-> assigned major number.  Export a tiny ramfs which lists all device
-> nodes.  Mounted on /dev/snap, /dev/snap/0 would be the first blkdev for
-> snap's dynamically assigned major.  (Al Viro said he has skeleton code
-> to create such an fs, IIRC)
-> 
-> This solution
-> (a) keeps from grot-ing up /proc even more [I had considered
-> proc_mknod() until viro talked me out of it]
-> (b) does not require centrally assigned majors and minors.
-> (c) does not require devfs.  most distros ship without it afaik, and
-> switching to it is not an overnight process, and requires devfsd to be
-> useful in the real world.
+> It does, however, not manage permissions, nor does it provide for a sane
+> namespace (it exposes too many internal implementation details in the
+> interface -- in particular, the driver becomes part of the namespace, and
+> devices move around between drivers regularly.)
 
-So we add yet another series of hacks to avoid doing what's
-necessary?!?
+It is also very hard to tar that device file.
 
-BTW: I once made a patch that put back in the compatibility device
-names in the kernel, so you don't need to run devfsd for this.
-Obviously, that's not a patch that Linus would want in his kernel
-(otherwise he wouldn't have made me take them out in the first place),
-but it is something vendors can add in their patchsets (does anybody
-ship a virgin kernel?).
+As to devfsd well Al Viro was reporting races in it long ago that I don't 
+believe Richard has had time to fix nor has anyone else fixed. 
 
-This patch is very small and clean. It touches two places in
-fs/devfs/base.c and creates one new file in fs/devfs.
+What is the state on devfs there ?
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

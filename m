@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280725AbRKKAGc>; Sat, 10 Nov 2001 19:06:32 -0500
+	id <S280759AbRKKAj5>; Sat, 10 Nov 2001 19:39:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280758AbRKKAGW>; Sat, 10 Nov 2001 19:06:22 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:27911 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S280725AbRKKAGI>;
-	Sat, 10 Nov 2001 19:06:08 -0500
-Date: Sun, 11 Nov 2001 11:01:08 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: "David S. Miller" <davem@redhat.com>, jakub@redhat.com, bcrl@redhat.com,
-        torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk, arjanv@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] take 2 of the tr-based current
-Message-ID: <20011111110107.A4064@krispykreme>
-In-Reply-To: <20011108211143.A4797@redhat.com> <20011109041327.T4087@devserv.devel.redhat.com> <3BEBEE0B.BA1FD7EE@colorfullife.com> <20011109.070312.88700201.davem@redhat.com> <3BEBF730.86CAE1CC@colorfullife.com>
+	id <S280760AbRKKAjs>; Sat, 10 Nov 2001 19:39:48 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:43555 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S280759AbRKKAji>; Sat, 10 Nov 2001 19:39:38 -0500
+Date: Sat, 10 Nov 2001 19:39:36 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFT] final cur of tr based current for -ac8
+Message-ID: <20011110193936.H17437@redhat.com>
+In-Reply-To: <20011110173331.F17437@redhat.com> <23114.1005432888@ocs3.intra.ocs.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3BEBF730.86CAE1CC@colorfullife.com>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <23114.1005432888@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Sun, Nov 11, 2001 at 09:54:48AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Nov 11, 2001 at 09:54:48AM +1100, Keith Owens wrote:
+> I am still unhappy with that NMI code.  The NMI handler can use generic
+> code including printk, the generic code will use the standard
+> get_current.  Why does nmi.c not do set_current(hard_get_current());
 
-Hi,
+It can in the current version, but that's generally wrong.  The current 
+dependancy is that hard_get_current() only really needs to be used during 
+early boot before the TR register is set.  Once that's done, the code can 
+use smp_processor_id() anywhere.
 
-> No. const == never changes.
-> get_TR changes if a task calls schedule, and return on another cpu.
-
-Yes, I found this exact problem on ppc64 where we would cache the
-processor data area across a schedule(). What was interesting was that
-__attribute__ ((pure)) was not enough to fix this.
-
-static inline struct Paca *get_paca(void) __attribute__ ((pure));
-static inline struct Paca *get_paca(void)
-{
-	struct Paca *rval;
-	__asm__ ("mfspr %0,0x113" : "=r" (rval));
-	return rval;
-}
-
-Alan Modra came to the rescue and found that gcc was optimising too much
-and since the function did not touch any global variables, it would
-upgrade the pure to const. This was on gcc 3.0.X.
-
-Anton
+		-ben
+-- 
+Fish.

@@ -1,59 +1,216 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264524AbUGMAVN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264541AbUGMAXN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264524AbUGMAVN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 20:21:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264522AbUGMAVM
+	id S264541AbUGMAXN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 20:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbUGMAWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 20:21:12 -0400
-Received: from mail021.syd.optusnet.com.au ([211.29.132.132]:6865 "EHLO
-	mail021.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S264524AbUGMAUJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 20:20:09 -0400
-MIME-Version: 1.0
+	Mon, 12 Jul 2004 20:22:10 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:57031 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264519AbUGMAUI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 20:20:08 -0400
+Date: Tue, 13 Jul 2004 02:20:05 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: support@moxa.com.tw
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] mxser.c: fix inlines
+Message-ID: <20040713002004.GC4701@fs.tum.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16627.10931.53356.312224@wombat.chubb.wattle.id.au>
-Date: Tue, 13 Jul 2004 10:20:03 +1000
-From: peterc@gelato.unsw.edu.au
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: Maximum frequency of re-scheduling (minimum time quantum	) que
- stio n
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <320586863@toto.iv>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-F>>>>> "Nick" == Nick Piggin <nickpiggin@yahoo.com.au> writes:
+Trying to compile drivers/char/mxser.c with gcc 3.4 and
+  # define inline         __inline__ __attribute__((always_inline))
+results in the following compile error:
 
-Nick> However well tested your scheduler might be, it needs several
-Nick> orders of magnitude more testing ;) Maybe the best we can hope
-Nick> for is compile time selectable alternatives.  
+<--  snip  -->
+
+...
+  CC      drivers/char/mxser.o
+drivers/char/mxser.c: In function `mxser_interrupt':
+drivers/char/mxser.c:352: sorry, unimplemented: inlining failed in call 
+to 'mxser_receive_chars': function body not available
+drivers/char/mxser.c:1347: sorry, unimplemented: called from here
+drivers/char/mxser.c:354: sorry, unimplemented: inlining failed in call 
+to 'mxser_check_modem_status': function body not available
+drivers/char/mxser.c:1350: sorry, unimplemented: called from here
+drivers/char/mxser.c:353: sorry, unimplemented: inlining failed in call 
+to 'mxser_transmit_chars': function body not available
+drivers/char/mxser.c:1355: sorry, unimplemented: called from here
+make[2]: *** [drivers/char/mxser.o] Error 1
+
+<--  snip  -->
 
 
-Well, Solaris and other SVr4-based systems have run-time selectable
-schedulers -- on a per-process basis.  (Of course, it only makes sense
-to run schedulers that coexist nicely at the same time).  These
-operating systems have the notion of a per-process scheduling class,
-that is essentially some private data, and a vector of functions to be
-called at particular times: when a thread is created, when something
-goes to sleep or wakes up, at timeslice expiration, etc.  The
-dispatcher then does queue management only, so there's a nice
-separation of function.
+The patch below moves mxser_interrupt below the inline functions it 
+uses.
 
-By separating priority bands for each scheduler, you could have many
-different schedulers cooperating simultaneously.  And if you don't
-like the SCHED_OTHER scheduler you could replace it.  With care, this
-could be done retrospectively to running processes.
 
-We could perhaps think of doing this for the 2.7 timeframe.  I'm
-cerrtainly interested, to allow easier experimentation with Gang and
-other NUMA schedulers.
+An alternative approach would be to remove the inlines.
 
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
+
+diffstat output:
+ drivers/char/mxser.c |  128 +++++++++++++++++++++----------------------
+ 1 files changed, 64 insertions(+), 64 deletions(-)
+
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.6.7-mm7-full-gcc3.4/drivers/char/mxser.c.old	2004-07-13 02:12:23.000000000 +0200
++++ linux-2.6.7-mm7-full-gcc3.4/drivers/char/mxser.c	2004-07-13 02:16:13.000000000 +0200
+@@ -348,10 +348,10 @@
+ static void mxser_stop(struct tty_struct *);
+ static void mxser_start(struct tty_struct *);
+ static void mxser_hangup(struct tty_struct *);
+-static irqreturn_t mxser_interrupt(int, void *, struct pt_regs *);
+ static inline void mxser_receive_chars(struct mxser_struct *, int *);
+ static inline void mxser_transmit_chars(struct mxser_struct *);
+ static inline void mxser_check_modem_status(struct mxser_struct *, int);
++static irqreturn_t mxser_interrupt(int, void *, struct pt_regs *);
+ static int mxser_block_til_ready(struct tty_struct *, struct file *, struct mxser_struct *);
+ static int mxser_startup(struct mxser_struct *);
+ static void mxser_shutdown(struct mxser_struct *);
+@@ -1302,69 +1302,6 @@
+ 	wake_up_interruptible(&info->open_wait);
+ }
+ 
+-/*
+- * This is the serial driver's generic interrupt routine
+- */
+-static irqreturn_t mxser_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+-{
+-	int status, i;
+-	struct mxser_struct *info;
+-	struct mxser_struct *port;
+-	int max, irqbits, bits, msr;
+-	int pass_counter = 0;
+-	int handled = 0;
+-
+-	port = 0;
+-	for (i = 0; i < MXSER_BOARDS; i++) {
+-		if (dev_id == &(mxvar_table[i * MXSER_PORTS_PER_BOARD])) {
+-			port = dev_id;
+-			break;
+-		}
+-	}
+-
+-	if (i == MXSER_BOARDS)
+-		return IRQ_NONE;
+-	if (port == 0)
+-		return IRQ_NONE;
+-	max = mxser_numports[mxsercfg[i].board_type];
+-
+-	while (1) {
+-		irqbits = inb(port->vector) & port->vectormask;
+-		if (irqbits == port->vectormask)
+-			break;
+-		handled = 1;
+-		for (i = 0, bits = 1; i < max; i++, irqbits |= bits, bits <<= 1) {
+-			if (irqbits == port->vectormask)
+-				break;
+-			if (bits & irqbits)
+-				continue;
+-			info = port + i;
+-			if (!info->tty ||
+-			  (inb(info->base + UART_IIR) & UART_IIR_NO_INT))
+-				continue;
+-			status = inb(info->base + UART_LSR) & info->read_status_mask;
+-			if (status & UART_LSR_DR)
+-				mxser_receive_chars(info, &status);
+-			msr = inb(info->base + UART_MSR);
+-			if (msr & UART_MSR_ANY_DELTA)
+-				mxser_check_modem_status(info, msr);
+-			if (status & UART_LSR_THRE) {
+-/* 8-2-99 by William
+-   if ( info->x_char || (info->xmit_cnt > 0) )
+- */
+-				mxser_transmit_chars(info);
+-			}
+-		}
+-		if (pass_counter++ > MXSER_ISR_PASS_LIMIT) {
+-#if 0
+-			printk("MOXA Smartio/Indusrtio family driver interrupt loop break\n");
+-#endif
+-			break;	/* Prevent infinite loops */
+-		}
+-	}
+-	return IRQ_RETVAL(handled);
+-}
+-
+ static inline void mxser_receive_chars(struct mxser_struct *info,
+ 					 int *status)
+ {
+@@ -1485,6 +1422,69 @@
+ 	}
+ }
+ 
++/*
++ * This is the serial driver's generic interrupt routine
++ */
++static irqreturn_t mxser_interrupt(int irq, void *dev_id, struct pt_regs *regs)
++{
++	int status, i;
++	struct mxser_struct *info;
++	struct mxser_struct *port;
++	int max, irqbits, bits, msr;
++	int pass_counter = 0;
++	int handled = 0;
++
++	port = 0;
++	for (i = 0; i < MXSER_BOARDS; i++) {
++		if (dev_id == &(mxvar_table[i * MXSER_PORTS_PER_BOARD])) {
++			port = dev_id;
++			break;
++		}
++	}
++
++	if (i == MXSER_BOARDS)
++		return IRQ_NONE;
++	if (port == 0)
++		return IRQ_NONE;
++	max = mxser_numports[mxsercfg[i].board_type];
++
++	while (1) {
++		irqbits = inb(port->vector) & port->vectormask;
++		if (irqbits == port->vectormask)
++			break;
++		handled = 1;
++		for (i = 0, bits = 1; i < max; i++, irqbits |= bits, bits <<= 1) {
++			if (irqbits == port->vectormask)
++				break;
++			if (bits & irqbits)
++				continue;
++			info = port + i;
++			if (!info->tty ||
++			  (inb(info->base + UART_IIR) & UART_IIR_NO_INT))
++				continue;
++			status = inb(info->base + UART_LSR) & info->read_status_mask;
++			if (status & UART_LSR_DR)
++				mxser_receive_chars(info, &status);
++			msr = inb(info->base + UART_MSR);
++			if (msr & UART_MSR_ANY_DELTA)
++				mxser_check_modem_status(info, msr);
++			if (status & UART_LSR_THRE) {
++/* 8-2-99 by William
++   if ( info->x_char || (info->xmit_cnt > 0) )
++ */
++				mxser_transmit_chars(info);
++			}
++		}
++		if (pass_counter++ > MXSER_ISR_PASS_LIMIT) {
++#if 0
++			printk("MOXA Smartio/Indusrtio family driver interrupt loop break\n");
++#endif
++			break;	/* Prevent infinite loops */
++		}
++	}
++	return IRQ_RETVAL(handled);
++}
++
+ static int mxser_block_til_ready(struct tty_struct *tty, struct file *filp,
+ 				 struct mxser_struct *info)
+ {
+

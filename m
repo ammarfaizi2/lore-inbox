@@ -1,91 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262043AbVCZLiE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262044AbVCZLpE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262043AbVCZLiE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 06:38:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVCZLiE
+	id S262044AbVCZLpE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 06:45:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262046AbVCZLpE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 06:38:04 -0500
-Received: from zahadum.xs4all.nl ([194.109.0.112]:31369 "EHLO
-	zahadum.xs4all.nl") by vger.kernel.org with ESMTP id S262043AbVCZLhq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 06:37:46 -0500
-Date: Sat, 26 Mar 2005 12:37:39 +0100
-From: Miquel van Smoorenburg <miquels@cistron.nl>
-To: Chris Stromsoe <cbs@cts.ucla.edu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Erik Horn <eHorn@aad.org>, Erik Horn <Erik_Horn@beavton.k12.or.us>
-Subject: syslogd hang / livelock (was: 2.6.10-rc3, syslogd hangs then processes get stuck in schedule_timeout)
-Message-ID: <20050326113738.GA6599@xs4all.net>
+	Sat, 26 Mar 2005 06:45:04 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:51366 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262044AbVCZLo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 06:44:59 -0500
+Subject: Re: Linux 2.4.30-rc2
+From: Arjan van de Ven <arjan@infradead.org>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050326112256.GN30052@alpha.home.local>
+References: <20050326004631.GC17637@logos.cnet>
+	 <20050326112256.GN30052@alpha.home.local>
+Content-Type: text/plain
+Date: Sat, 26 Mar 2005 12:44:53 +0100
+Message-Id: <1111837493.8042.2.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-NCC-RegID: nl.xs4all
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-References:
-  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=103392
-  http://lkml.org/lkml/2004/12/21/208
-  http://lkml.org/lkml/2004/11/2/17
-
-At Tue, 21 Dec 2004 16:39:43 -0800 (PST) Chris Stromsoe wrote:
-> I'm still seeing this problem.  It repeats every week or week and a half, 
-> usually after logs have been rotated and a dvd has been written.  syslogd 
-> stops writing output, then everything that does schedule_timeout() hangs, 
-> the process table fills, and everything grinds to a halt.
+On Sat, 2005-03-26 at 12:22 +0100, Willy Tarreau wrote:
+> Marcelo,
 > 
-> If the problem is detected early enough, syslogd can be manually killed 
-> and restarted, unwedging everything and returning everything to normal 
-> operation.
+> here's a patch from Dave Jones, which is already in 2.6 and which I've
+> used in my local tree for 6 months now. It removes a useless NULL check
+> in zlib_inflateInit2_(), since 'z' is already dereferenced one line
+> before the test. Can in go in 2.4.30 please ?
 
-I'm seeing the same problem here, and it is not a kernel bug. I'm only
-Cc'ing this to linux-kernel so that it shows up in the archives, since
-there have been postings about the same thing in the past.
+I don't see how such a cleanup-only patch would be a candidate for 2.4
+at all, let alone to go into a -rc3 or a 2.4.30 final at this stage...
 
-There are 2 issues here:
+Can you explain why this one is so important that it has to go in so
+late?
 
-1. syslogd hangs sometimes when running under a 2.6 kernel.
 
-   This is because syslogd set up a timer, called by alarm() every
-   20 minutes by default, which writes a "MARK" entry in one of
-   the logfiles to show that syslogd is still alive.
-
-   That code calls ctime(), which is not re-entrant - and recent
-   glibcs __libc_lock() around ctime() calls, which doesn't do anything
-   on a 2.4 kernel, but uses a futex on a 2.6 kernel.
-
-   So if syslogd happens to be inside ctime() in the main routine,
-   SIGALRM hits, and ctime() is called again, syslogd locks up.
-   A sysrq-T trace will show it hanging in futex_wait.
-
-2. syslog() uses blocking AF_UNIX SOCK_DGRAM sockets.
-
-   When an application calls syslog(), and syslogd is not responding
-   and the socket buffers get full, the app will hang in connect()
-   or send(). This is different from BSD, where send() will return
-   ENOBUFS in this case.
-
-   Try killall -STOP syslogd, then generate some syslog traffic
-   (say with while :; do logger hello; done) and try to ssh into
-   the system - no go. Everything that uses syslog() hangs.
-
-Solutions:
-
-1. syslogd
-
-    Run syslogd with the -m0 option so that it won't do MARKing.
-    The real solution is to fix syslogd to use ctime_r, or better,
-    to just let the ALRM handler set a flag and do the MARK
-    logging in the main loop.
-
-2. syslog()
-
-    Arguably syslog() shouldn't hang like it does now. But making it
-    non-blocking could lead to information loss - a hacker generating
-    lots of bogus syslog messages so that real messages get lost.
-    On the other hand, she can do that anyway and fill up the disk
-    which gives a similar (although more noticable) effect. I'm not
-    sure how or if this should be fixed.
-
-Mike.

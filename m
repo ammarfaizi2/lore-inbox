@@ -1,114 +1,124 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288789AbSAIEmc>; Tue, 8 Jan 2002 23:42:32 -0500
+	id <S288794AbSAIExk>; Tue, 8 Jan 2002 23:53:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288790AbSAIEmX>; Tue, 8 Jan 2002 23:42:23 -0500
-Received: from topic-gw2.topic.com.au ([203.37.31.2]:21500 "EHLO
-	mailhost.topic.com.au") by vger.kernel.org with ESMTP
-	id <S288789AbSAIEmI>; Tue, 8 Jan 2002 23:42:08 -0500
-Date: Wed, 9 Jan 2002 15:40:47 +1100
-From: Jason Thomas <jason@topic.com.au>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] link errors with internal calls to devexit functions
-Message-ID: <20020109044047.GF699@topic.com.au>
+	id <S288795AbSAIExb>; Tue, 8 Jan 2002 23:53:31 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:527 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S288794AbSAIExV>;
+	Tue, 8 Jan 2002 23:53:21 -0500
+Date: Tue, 8 Jan 2002 20:51:09 -0800
+From: Greg KH <greg@kroah.com>
+To: felix-dietlibc@fefe.de, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] klibc requirements
+Message-ID: <20020109045109.GA17776@kroah.com>
+In-Reply-To: <20020108192450.GA14734@kroah.com> <20020109042331.GB31644@codeblau.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20020109042331.GB31644@codeblau.de>
 User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 12 Dec 2001 02:34:50 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo, Heres my second attempt at a patch to fix these compile time
-issues can you check it over and possibly include it in your next
-release.
+On Wed, Jan 09, 2002 at 05:23:31AM +0100, Felix von Leitner wrote:
+> My understanding of what "initramfs programs" actually means is vague at
+> best.  Are these just programs that are intended to work in an initial
+> ram disk?  Or is it a special collection that is included in the kernel
+> distribution?
 
-diff -ur linux-2.4.18-pre2.orig/drivers/media/video/bttv-driver.c linux-2.4.18-pre2/drivers/media/video/bttv-driver.c
---- linux-2.4.18-pre2.orig/drivers/media/video/bttv-driver.c	Sat Dec 22 13:39:39 2001
-+++ linux-2.4.18-pre2/drivers/media/video/bttv-driver.c	Wed Jan  9 13:25:18 2002
-@@ -2820,11 +2820,10 @@
-  *	Scan for a Bt848 card, request the irq and map the io memory 
-  */
- 
--static void __devexit bttv_remove(struct pci_dev *pci_dev)
-+static void bttv_remove_card(struct bttv *btv)
- {
-         u8 command;
-         int j;
--        struct bttv *btv = pci_get_drvdata(pci_dev);
- 
- 	if (bttv_verbose)
- 		printk("bttv%d: unloading\n",btv->nr);
-@@ -2890,10 +2889,18 @@
-         btv->shutdown=1;
-         wake_up(&btv->gpioq);
- 
--	pci_set_drvdata(pci_dev, NULL);
-         return;
- }
- 
-+static void __devexit bttv_remove(struct pci_dev *pci_dev)
-+{
-+        struct bttv *btv = pci_get_drvdata(pci_dev);
-+		
-+	if (btv) {
-+		bttv_remove_card(btv);
-+		pci_set_drvdata(pci_dev, NULL);
-+	}
-+}
- 
- static int __devinit bttv_probe(struct pci_dev *dev, const struct pci_device_id *pci_id)
- {
-@@ -2992,7 +2999,7 @@
- 	pci_set_drvdata(dev,btv);
- 
- 	if(init_bt848(btv) < 0) {
--		bttv_remove(dev);
-+		bttv_remove_card(btv);
- 		return -EIO;
- 	}
- 	bttv_num++;
-diff -ur linux-2.4.18-pre2.orig/drivers/usb/usb-uhci.c linux-2.4.18-pre2/drivers/usb/usb-uhci.c
---- linux-2.4.18-pre2.orig/drivers/usb/usb-uhci.c	Sat Dec 22 13:39:39 2001
-+++ linux-2.4.18-pre2/drivers/usb/usb-uhci.c	Wed Jan  9 14:11:19 2002
-@@ -2845,10 +2845,9 @@
- 	s->running = 1;
- }
- 
--_static void __devexit
--uhci_pci_remove (struct pci_dev *dev)
-+_static void
-+uhci_pci_remove_card (uhci_t *s)
- {
--	uhci_t *s = pci_get_drvdata(dev);
- 	struct usb_device *root_hub = s->bus->root_hub;
- 
- 	s->running = 0;		    // Don't allow submit_urb
-@@ -2868,7 +2867,17 @@
- 	free_irq (s->irq, s);
- 	usb_free_bus (s->bus);
- 	cleanup_skel (s);
--	kfree (s);
-+}
-+
-+_static void __devexit
-+uhci_pci_remove (struct pci_dev *dev)
-+{
-+	uhci_t *s = pci_get_drvdata(dev);
-+	
-+	if (s) {
-+		uhci_pci_remove_card(s);
-+		kfree (s);
-+	}
- }
- 
- _static int __init uhci_start_usb (uhci_t *s)
-@@ -3001,7 +3010,8 @@
- 	s->irq = irq;
- 
- 	if(uhci_start_usb (s) < 0) {
--		uhci_pci_remove(dev);
-+		uhci_pci_remove_card(s);
-+		kfree(s);
- 		return -1;
- 	}
- 
+I don't know if they will be included in the kernel distribution or not.
+But they will be part of the kernel build process, if only to copy them
+to the ramfs image which is then added to the kernel image.
+
+The dietHotplug program will need to be built each time against the
+kernel that it is going to be bundled up with (that's how it gets the
+size improvements.)
+
+Maybe in the end, specialized programs like dietHotplug will become part
+of the kernel source tree, due to them being so tightly bound to it.
+Does anyone else have any thoughts about this?
+
+> I don't see why we would need to include those programs with the kernel.
+> The kernel tries hard to provide backwards compatibility to old versions
+> of syscalls that have changed over the years.  That's why we _have_ a
+> standard.  Also, we don't ship glibc with the kernel sources, and we
+> didn't when our libc was Linux specific.
+
+These programs are basically the movement of a lot of existing in-kernel
+code, to userspace.  And as they need to be bundled up within the kernel
+image itself, they don't need to have to run on any kernel but that one.
+
+> If we follow that argumentation and are talking here about programs that
+> aren't included in the kernel, why demand a specific libc for them at
+> all?  Of course glibc is out of the question, but both the kernel API
+> _and_ the libc API are standardized.  It does not make sense to write
+> code that demands a specific libc if it can be avoided.  If you need
+> any special syscall supported that is not yet part of the diet libc or
+> uClibc, Eric and I will probably be glad to add support for it.
+
+Great!  We are needing a small libc for these userspace programs.  A
+limited number of libc functions, and a clean syscall interface.
+
+> > 	- portable, runs on all platforms that the kernel currently
+> > 	  works on, but doesn't have to run on any non-Linux based OS.
+
+You didn't address this.  What are the future plans of porting dietLibc
+to the platforms that are not currently supported by it (but are by
+Linux)?
+
+> When you link statically, it does not matter whether the libc also
+> supports the rest of POSIX.  The size of libc.a does not matter.  It
+> only matters which parts are referenced.  Since we are talking about new
+> software specifically written for Linux and with the goal to be small,
+> there are no legacy requirements to cater to.  We can write code without
+> printf and stdio, for example.  Also, we probably don't need regular
+> expressions or DNS.  Those are the big space hogs when linking
+> statically against a libc.  In the diet libc, all of the above are very
+> small, but avoiding them in the first place is better then optimizing
+> them for small size.
+> 
+> And if we don't use all that bloaty code, it does not matter if we use
+> diet libc, uClibc or tomorrow's next great small libc.
+
+Agreed.
+
+<good argument against dynamic linking snipped>
+
+You don't have to convince me about not really wanting dynamic linking.
+As I do not know how many programs other people want in their initramfs,
+or the size of these programs, I don't know if the size of a loader and
+the symbol tables will outweigh the size of statically linking all of
+the individual programs themselves.
+
+It's just something to be aware of that we might have to do in the
+future, that's all.  And it's nice to see that dietLibc supports this :)
+
+> > I had asked the dietLibc authors about the ability of tweaking their
+> > library into something that resembles the above, but didn't get a
+> > response.
+> 
+> Huh?
+> What email are you talking about here?
+
+It was sent and received on the dietlibc mailing list on Jan 04, 2001.
+It looks like the mailing list archive for the mailing list doesn't have
+any messages for Jan, 2001, otherwise I would point you at it.  I can
+forward it to you offline if you want me to.
+
+> Before doing any real work, we need to get the specification straight.
+> What exactly do we need?  The initrd stuff is too vague for my taste.
+> How many programs do we want to have?  What should those programs do?
+> 
+> I think you need to ask initrd users.
+> My understanding was that people want to use the IP autoconfiguration
+> stuff from the kernel to initrd.  Is that still so?  What other programs
+> are needed?
+
+These are great questions that need to be answered.  I've started a
+different topic just for it.
+
+thanks,
+
+greg k-h

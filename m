@@ -1,100 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbTI3Kkk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 06:40:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbTI3Kkk
+	id S261293AbTI3Kwu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 06:52:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbTI3Kwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 06:40:40 -0400
-Received: from main.gmane.org ([80.91.224.249]:62870 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261282AbTI3Kkh (ORCPT
+	Tue, 30 Sep 2003 06:52:49 -0400
+Received: from gate.perex.cz ([194.212.165.105]:24197 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S261293AbTI3Kwp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 06:40:37 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andreas Schwarz <usenet.2117@andreas-s.net>
-Subject: Re: irq 12: nobody cared! (2.6.0-test6)
-Date: Tue, 30 Sep 2003 10:38:48 +0000 (UTC)
-Message-ID: <slrnbnina1.5q2.usenet.2117@home.andreas-s.net>
-References: <Pine.GSO.4.44.0309290947230.9442-100000@math.ut.ee> <1064830579.1389.0.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: slrn/0.9.8.0 (Linux)
+	Tue, 30 Sep 2003 06:52:45 -0400
+Date: Tue, 30 Sep 2003 12:51:52 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [ALSA PATCH] OSS emulation fixes
+Message-ID: <Pine.LNX.4.53.0309301247030.1362@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felipe Alfaro Solana wrote:
-> On Mon, 2003-09-29 at 08:56, Meelis Roos wrote:
->> This is Linux 2.6.0-test6 on a PC with VIA KT133A chipset (MSI MS-6330
->> mainboard), PS/2 keyboard, USB mouse. In test5 it hung on boot just
->> after printing
->> mice: PS/2 mouse device common for all mice
->> input: PC Speaker
->> 
->> In 2.6.0-test6, it spits out several "irq 12: nobody cared!" messages
->> with backtraces and then continues as if nothing happened. The system
->> works fine, PS/2 keyboard and USB mouse both work too. Similar
->> configuration (PS/2 keyboard + USB mouse) works fine on an i815 chipset
->> computer.
->
-> Have you tried with 2.6.0-test6-mm1? It includes a fix for ACPI PCI
-> routing which may help in your case.
+Linus, please do a
 
-I get the following message at boot with 2.6.0-test6-mm1:
-=========================================================
+  bk pull http://linux-sound.bkbits.net/linux-sound
 
-irq 12: nobody cared!
-Call Trace:
- [<c010b6ca>] __report_bad_irq+0x2a/0x90
- [<c010b7c0>] note_interrupt+0x70/0xb0
- [<c010bab0>] do_IRQ+0x130/0x140
- [<c0109c88>] common_interrupt+0x18/0x20
- [<c0120b90>] do_softirq+0x40/0xa0
- [<c010ba86>] do_IRQ+0x106/0x140
- [<c0109c88>] common_interrupt+0x18/0x20
- [<c010c03e>] setup_irq+0x9e/0xf0
- [<c027c5e0>] i8042_interrupt+0x0/0x190
- [<c010bb68>] request_irq+0xa8/0xe0
- [<c03c5e3d>] i8042_check_mux+0x3d/0x170
- [<c027c5e0>] i8042_interrupt+0x0/0x190
- [<c03c63a5>] i8042_init+0x115/0x150
- [<c03ae74c>] do_initcalls+0x2c/0xa0
- [<c012ca8f>] init_workqueues+0xf/0x30
- [<c01050d2>] init+0x32/0x140
- [<c01050a0>] init+0x0/0x140
- [<c0107149>] kernel_thread_helper+0x5/0xc
+The GNU patch is available at:
 
-handlers:
-[<c027c5e0>] (i8042_interrupt+0x0/0x190)
-Disabling IRQ #12
-irq 12: nobody cared!
-Call Trace:
- [<c010b6ca>] __report_bad_irq+0x2a/0x90
- [<c010b7c0>] note_interrupt+0x70/0xb0
- [<c010bab0>] do_IRQ+0x130/0x140
- [<c0109c88>] common_interrupt+0x18/0x20
- [<c0120b90>] do_softirq+0x40/0xa0
- [<c010ba86>] do_IRQ+0x106/0x140
- [<c0109c88>] common_interrupt+0x18/0x20
- [<c010c03e>] setup_irq+0x9e/0xf0
- [<c027c5e0>] i8042_interrupt+0x0/0x190
- [<c010bb68>] request_irq+0xa8/0xe0
- [<c03c5fa5>] i8042_check_aux+0x35/0x160
- [<c027c5e0>] i8042_interrupt+0x0/0x190
- [<c03c637c>] i8042_init+0xec/0x150
- [<c03ae74c>] do_initcalls+0x2c/0xa0
- [<c012ca8f>] init_workqueues+0xf/0x30
- [<c01050d2>] init+0x32/0x140
- [<c01050a0>] init+0x0/0x140
- [<c0107149>] kernel_thread_helper+0x5/0xc
+  ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-bk-2003-09-30.patch.gz
 
-handlers:
-[<c027c5e0>] (i8042_interrupt+0x0/0x190)
-Disabling IRQ #12
+Additional notes:
 
--- 
-AVR-Tutorial, über 350 Links
-Forum für AVRGCC und MSPGCC
--> http://www.mikrocontroller.net
+  Linus, please, merge C: (means changed code block) lines to your
+  release change log too - otherwise it's not much readable. Thank you.
 
+The pull command will update the following files:
+
+ include/sound/pcm_oss.h      |    1
+ include/sound/rawmidi.h      |    1
+ sound/core/control.c         |    3 --
+ sound/core/hwdep.c           |    3 +-
+ sound/core/init.c            |    2 -
+ sound/core/oss/pcm_oss.c     |   59 +++++++++++++++++++++++++++++++------------
+ sound/core/pcm_lib.c         |    6 +---
+ sound/core/pcm_native.c      |    9 ++----
+ sound/core/rawmidi.c         |   32 +++++++++++++----------
+ sound/core/seq/seq_lock.c    |   38 ---------------------------
+ sound/core/timer.c           |    1
+ sound/drivers/dummy.c        |   32 +++++++++++++++++++++++
+ sound/isa/sb/emu8000_patch.c |    6 ----
+ sound/isa/sb/emu8000_pcm.c   |   10 ++-----
+ sound/pci/Kconfig            |   12 ++++----
+ sound/pci/via82xx.c          |   21 ++++++++-------
+ sound/pci/vx222/vx222_ops.c  |    6 ----
+ sound/usb/usbaudio.c         |    1
+ sound/usb/usbmixer.c         |   10 +++----
+ 19 files changed, 132 insertions(+), 121 deletions(-)
+
+through these ChangeSets:
+
+<perex@suse.cz> (03/09/30 1.1457)
+   ALSA CVS update
+   D:2003/09/30 11:15:44
+   C:RawMidi Midlevel
+   A:Takashi Iwai <tiwai@suse.de>
+   F:core/rawmidi.c:1.38->1.39
+   L:fixed typos (open_lock -> open_mutex).
+
+<perex@suse.cz> (03/09/30 1.1456)
+   ALSA CVS update
+   D:2003/09/30 11:12:09
+   C:VIA82xx driver
+   A:Takashi Iwai <tiwai@suse.de>
+   F:pci/via82xx.c:1.52->1.53
+   L:- fixed the detection of VIA8233A (it was overridden by dxs_support
+   L:  option).
+
+<perex@suse.cz> (03/09/30 1.1267.62.6)
+   ALSA CVS update
+   D:2003/09/30 10:28:26
+   C:Control Midlevel,HWDEP Midlevel,ALSA Core,PCM Midlevel,RawMidi Midlevel
+   C:Timer Midlevel,ALSA<-OSS emulation,ALSA sequencer,EMU8000 driver
+   C:Digigram VX222 driver,USB generic driver
+   A:Jaroslav Kysela <perex@suse.cz>
+   F:core/control.c:1.37->1.38
+   F:core/hwdep.c:1.21->1.22
+   F:core/init.c:1.38->1.39
+   F:core/pcm_lib.c:1.43->1.44
+   F:core/pcm_native.c:1.81->1.82
+   F:core/rawmidi.c:1.37->1.38
+   F:core/timer.c:1.46->1.47
+   F:core/oss/pcm_oss.c:1.52->1.53
+   F:core/seq/seq_lock.c:1.7->1.8
+   F:include/rawmidi.h:1.10->1.11
+   F:isa/sb/emu8000_patch.c:1.6->1.7
+   F:isa/sb/emu8000_pcm.c:1.10->1.11
+   F:pci/vx222/vx222_ops.c:1.2->1.3
+   F:usb/usbaudio.c:1.65->1.66
+   L:Revised schedule() and set_current_state() calls.
+   L:Replaced need_resched() with cond_resched() call.
+
+<perex@suse.cz> (03/09/30 1.1267.62.5)
+   ALSA CVS update
+   D:2003/09/30 09:58:53
+   C:Generic drivers
+   A:Jaroslav Kysela <perex@suse.cz>
+   F:drivers/dummy.c:1.25->1.26
+   L:Added emu10k1 emulation by Takashi
+
+<perex@suse.cz> (03/09/30 1.1267.62.4)
+   ALSA CVS update
+   D:2003/09/30 08:54:19
+   C:ALSA<-OSS emulation
+   A:Jaroslav Kysela <perex@suse.cz>
+   F:core/oss/pcm_oss.c:1.51->1.52
+   L:Fixed compilation for the sync code commited by mistake.
+   L:Fixed possible race in sync1 code (schedule call) and used schedule_timeout.
+
+<perex@suse.cz> (03/09/30 1.1267.62.3)
+   ALSA CVS update
+   D:2003/09/29 19:16:18
+   C:ALSA<-OSS emulation
+   A:Jaroslav Kysela <perex@suse.cz>
+   F:core/oss/pcm_oss.c:1.50->1.51
+   F:include/pcm_oss.h:1.7->1.8
+   L:Fixed oops in oss_sync() routine.
+
+<perex@suse.cz> (03/09/30 1.1267.62.2)
+   ALSA CVS update
+   D:2003/09/29 08:31:25
+   C:PCI drivers
+   A:Jaroslav Kysela <perex@suse.cz>
+   F:pci/Kconfig:1.8->1.9
+   L:Removed GAMEPORT dependency (already handled in drivers)
+
+<perex@suse.cz> (03/09/30 1.1267.62.1)
+   ALSA CVS update
+   D:2003/09/26 15:29:05
+   C:USB generic driver
+   A:Takashi Iwai <tiwai@suse.de>
+   F:usb/usbmixer.c:1.23->1.24
+   L:probe units even under a selector unit which is marked as ignored or has
+   L:only a single selector.
+
+
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SuSE Labs

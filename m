@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284928AbRLKIA0>; Tue, 11 Dec 2001 03:00:26 -0500
+	id <S284925AbRLKH5g>; Tue, 11 Dec 2001 02:57:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284927AbRLKIAH>; Tue, 11 Dec 2001 03:00:07 -0500
-Received: from [202.54.26.202] ([202.54.26.202]:9351 "EHLO hindon.hss.co.in")
-	by vger.kernel.org with ESMTP id <S284926AbRLKH7y>;
-	Tue, 11 Dec 2001 02:59:54 -0500
-X-Lotus-FromDomain: HSS
-From: gspujar@hss.hns.com
-To: linux-kernel@vger.kernel.org
-cc: achowdhry@hss.hns.com
-Message-ID: <65256B1F.002BF453.00@sandesh.hss.hns.com>
-Date: Tue, 11 Dec 2001 13:33:04 +0530
-Subject: software watchdog
+	id <S284926AbRLKH50>; Tue, 11 Dec 2001 02:57:26 -0500
+Received: from [12.234.19.19] ([12.234.19.19]:34828 "HELO ocean.lucon.org")
+	by vger.kernel.org with SMTP id <S284925AbRLKH5L>;
+	Tue, 11 Dec 2001 02:57:11 -0500
+Date: Mon, 10 Dec 2001 23:57:08 -0800
+From: "H . J . Lu" <hjl@lucon.org>
+To: Linux 1394 <linux1394-devel@lists.sourceforge.net>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Slow Disk I/O with QPS M3 80GB HD
+Message-ID: <20011210235708.A17743@lucon.org>
+In-Reply-To: <20011210203452.A3250@lucon.org>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011210203452.A3250@lucon.org>; from hjl@lucon.org on Mon, Dec 10, 2001 at 08:34:52PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 10, 2001 at 08:34:52PM -0800, H . J . Lu wrote:
+> I have a very strange problem. The disk I/O of my QPS M3 80GB HD is
+> very slow under 2.4.10 and above. I got like 1.77 MB/s from hdparm.
+> But under 2.4.9, I got 14 MB/s on the same hardware. A 30GB HD has
+> consistent I/O performance under 2.4.9 and above on the same bus. Has
+> anyone else seen this? Does anyone have a large (>= 80GB) 1394 HD?
+> 
+
+I did a binary search. 2.4.10-pre10 is the last good kernel. I got
+
+# hdparm -t /dev/sda
+
+/dev/sda:
+ Timing buffered disk reads:  64 MB in  4.40 seconds = 14.55 MB/sec
+
+Even since 2.4.10-pre11 up to 2.4.16, I got about 1.77 MB/sec on the
+same hardware. However, I don't have problems with 80GB IDE HD. Has
+anyone seen I/O problems on large (>= 80GB) SCSI HD or HD with SCSI
+emulation?
 
 
-
-Hi all,
-
-I am using software watchdog in my application.  When the watchdog reboots the
-system,
-
->>>printk(KERN_CRIT "SOFTDOG: Initiating system reboot.\n"); prints the message
-on the console.
-
-I put a delay of 5secs with mdelay, and I can see the message on the console.
-I wanted the message as a syslog,
-
-so I added         kern.crit in /etc/syslog.conf file.,
-But I am not getting the above message in the log file.
-Can any one help me with this ????
-
-Thanks
-Girish
-
-
+H.J.

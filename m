@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286075AbRLHXm5>; Sat, 8 Dec 2001 18:42:57 -0500
+	id <S286069AbRLHXlF>; Sat, 8 Dec 2001 18:41:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286072AbRLHXmn>; Sat, 8 Dec 2001 18:42:43 -0500
-Received: from mta02bw.bigpond.com ([139.134.6.34]:61413 "EHLO
-	mta02bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S286074AbRLHXl1>; Sat, 8 Dec 2001 18:41:27 -0500
-Date: Sat, 8 Dec 2001 21:46:31 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: anton@samba.org, davej@suse.de, marcelo@conectiva.com.br,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: Linux 2.4.17-pre5
-Message-Id: <20011208214631.75573e9a.rusty@rustcorp.com.au>
-In-Reply-To: <E16C8Zk-0003if-00@the-village.bc.nu>
-In-Reply-To: <Pine.LNX.4.33.0112070033450.4486-100000@Appserv.suse.de>
-	<E16C8Zk-0003if-00@the-village.bc.nu>
-X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
-Mime-Version: 1.0
+	id <S286072AbRLHXk4>; Sat, 8 Dec 2001 18:40:56 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34060 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S286069AbRLHXkp>; Sat, 8 Dec 2001 18:40:45 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Typedefs / gcc / HIGHMEM
+Date: 8 Dec 2001 15:40:24 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9uu8d8$spc$1@cesium.transmeta.com>
+In-Reply-To: <200112081838.TAA19684@webserver.ithnet.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Dec 2001 00:09:12 +0000 (GMT)
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
-> > > Actually that one is  various Intel people not me 8)
-> > 
-> > Wouldn't it be better to see such things proven right in 2.5 first ?
+Followup to:  <200112081838.TAA19684@webserver.ithnet.com>
+By author:    Stephan von Krawczynski <skraw@ithnet.com>
+In newsgroup: linux.dev.kernel
+>                                                                       
+> if (tp->rx_buffers[entry].mapping !=                                  
+>    le32_to_cpu(tp->rx_ring[entry].buffer1)) {                         
+>                                                                       
+> The first is u64, the second u32. Either the u64 value is not         
+> required, or the statement is broken. Astonishing there is _no_       
+> compiler warning in this line.                                        
 > 
-> o	2.5 isnt going to be usable for that kind of thing in the near future
-> o	There is no code that is "new" for normal paths (in fact Marcelo
-> 	wanted a change for the only "definitely harmless" one there was)
 
-The sched.c change is also useless (ie. only harmful).  Anton and I looked at
-adapting the scheduler for hyperthreading, but it looks like the recent 
-changes have had the side effect of making hyperthreading + the current
-scheduler "good enough".  If someone wants an in-depth analysis of (1) what
-is required to make the "right" decision for hyperthread scheduling with the
-current scheduler (much more than the current wedge) and (2) why it doesn't
-really matter anyway, please ask.
+Why should there be?  The u32 value gets promoted to u64 before the
+comparison is done.
 
-Anton, can you put the dbench graphs somewhere public?
+> BTW, my personal opinion to "typedef unsigned int u32" is that it     
+> should rather be "typedef unsigned long u32", but this is religious.  
 
-Cheers,
-Rusty.
+I see you have a background in environments where you move between 16-
+and 32-bit machines.  Guess what, in Linux the major movement is
+between 32- and 64-bit machines, and "unsigned int" is consistent,
+whereas "unsigned long" isn't (long is 32 bits on 32-bit machines, 64
+bits on 64-bit machines.)
+
+	-hpa
 -- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

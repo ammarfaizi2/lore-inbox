@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131010AbRAQMmH>; Wed, 17 Jan 2001 07:42:07 -0500
+	id <S130230AbRAQNE3>; Wed, 17 Jan 2001 08:04:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131552AbRAQMl6>; Wed, 17 Jan 2001 07:41:58 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:11680 "EHLO
-	fungus.svenskatest.se") by vger.kernel.org with ESMTP
-	id <S131234AbRAQMls>; Wed, 17 Jan 2001 07:41:48 -0500
-Date: Wed, 17 Jan 2001 13:41:39 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: <linux-kernel@vger.kernel.org>, <marteen.deboer@iua.upf.es>
-Subject: Re: Killing process with SIGKILL and ncpfs
-In-Reply-To: <12D4186E13AE@vcnet.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.30.0101171315590.16284-100000@cola.teststation.com>
+	id <S130406AbRAQNET>; Wed, 17 Jan 2001 08:04:19 -0500
+Received: from web5205.mail.yahoo.com ([216.115.106.86]:35338 "HELO
+	web5205.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S130230AbRAQNER>; Wed, 17 Jan 2001 08:04:17 -0500
+Message-ID: <20010117130415.9423.qmail@web5205.mail.yahoo.com>
+Date: Wed, 17 Jan 2001 05:04:15 -0800 (PST)
+From: Rob Landley <telomerase@yahoo.com>
+Subject: Re: qlogicfc.c hard lockups in 2.4.0 - solved?
+To: Chris Loveland <chris.loveland@trebia.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jan 2001, Petr Vandrovec wrote:
+I think the hangs were actually CAUSED by the messages
+being printked.  If I make those go away, it stops
+getting unhappy.  (I suspect repeatedly printk-ing
+stuff from the middle of the scsi layer with
+interrupts disabled and other fun stuff occuring is
+not a good thing.  Delays something or other long
+enough to trigger a watchdog timer and make the system
+go bye-bye.)
 
-> Hi,
->   Maarten de Boer pointed to me, that if you load some simple program,
-> such as 'void main(void) {}', trace into main (break main; run)
-> and then quit from gdb (Really exit? yes), child process is then
-> killed due to INT3 (probably). Then exit_mmap releases executable
-> mapping - and ncp_do_request is entered with SIGKILL pending!
+Increasing the handle array thingy to 511 seems to
+have made the problem go away for me almost entirely. 
+(Still periodic slight bus stalls from overrunning the
+scsi command queue (the test right before the "should
+never happen" test), but it recovers pretty quickly.)
 
-smbfs has a signal problem in it's fs/smbfs/sock.c, possibly related.
+Throughput's a little over 160 million bytes per
+second on both writes and reads.  That's about 20
+million per second below the maximums (due to the
+stalls), but that's survivable at the moment...
 
-SIGKILL or SIGSTOP can be already pending, or perhaps received while
-waiting in socket->ops->recvmsg(). recvmsg will then return -ERESTARTSYS
-because signal_pending() is true and the smbfs code treats that as a
-network problem (causing unnecessary reconnects and sometimes complete
-failures requiring umount/mount).
+Close enough I can go home and get some sleep, anyway.
 
-I don't know what happens with ncpfs, I don't think you wrote that, but I
-am interested in how it handles this. (Again, I have looked at the ncpfs
-code for useful bits to copy :)
+Unresolved issues:
 
+That handle thingy should probably dynamically scale
+somehow.  (Maybe the "out of handles" behavior could
+resize the array to the next 2^x-1 bump?  I can try to
+whip up a patch to this effect if nobody thinks this
+is too crazy.)
 
-Running strace on a multithreaded program causes problems for smbfs.
-Someone was nice enough to post a small testprogram for this (you may want
-to try it on ncpfs, if you want it I'll find it for you).
+Bus stalls take to long to recover from, slowing
+throughput.  (Pure scsi-ness, I may investigate later
+but haven't a CLUE on this right now.  I'm guessing.)
 
-These problems go away if all signals are blocked. Of course the smbfs
-code would need to be changed to not block on recv, else you may end up
-with a program waiting for network input that can't be killed ... (?)
+Rob
 
-/Urban
-
+__________________________________________________
+Do You Yahoo!?
+Get email at your own domain with Yahoo! Mail. 
+http://personal.mail.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,77 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbTJFTDA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 15:03:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbTJFTC7
+	id S262158AbTJFTFH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 15:05:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbTJFTFH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 15:02:59 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:9866 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261183AbTJFTCw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 15:02:52 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Justin Hibbits <jrh29@po.cwru.edu>, linux-kernel@vger.kernel.org
-Subject: Re: regression between 2.4.18 and 2.4.21/22
-Date: Mon, 6 Oct 2003 21:06:31 +0200
-User-Agent: KMail/1.5.4
-References: <0AB14379-F78D-11D7-86F4-000A95841F44@po.cwru.edu>
-In-Reply-To: <0AB14379-F78D-11D7-86F4-000A95841F44@po.cwru.edu>
+	Mon, 6 Oct 2003 15:05:07 -0400
+Received: from moutng.kundenserver.de ([212.227.126.185]:51148 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262127AbTJFTEw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 15:04:52 -0400
+Message-ID: <3F81BCE9.2010808@onlinehome.de>
+Date: Mon, 06 Oct 2003 21:05:13 +0200
+From: Hans-Georg Thien <1682-600@onlinehome.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5a) Gecko/20030718
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: root@chaos.analogic.com
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: getting timestamp of last interrupt?
+References: <fa.fj0euih.s2sbop@ifi.uio.no> <fa.fvjdidn.13ni70f@ifi.uio.no> <3F7E46AB.3030709@onlinehome.de> <Pine.LNX.4.53.0310060843500.8593@chaos> <3F81B2A3.4040001@onlinehome.de> <Pine.LNX.4.53.0310061426080.11197@chaos>
+In-Reply-To: <Pine.LNX.4.53.0310061426080.11197@chaos>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310062106.31958.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Richard B. Johnson wrote:
 
-Your /dev/hda (IBM DeskStar 60GXP) is not in DMA mode because
-you don't have support for your IDE controller compiled-in.
-Going from 2.4.21 you have to explicitely enable support for IDE chipsets.
-Assumption that current .config file will work with future kernel versions
-is not true.  Please compile kernel with driver for your on-board IDE chipset
-(I deducted from your dmesg that it is VIA82CXXX IDE driver).
+> On Mon, 6 Oct 2003, Hans-Georg Thien wrote:
+> 
+>>
+>>[...]
+>>I'm writing a kernel mode device driver (mouse).
+>>
+>>In that device driver I need the timestamp of the last event for another
+>>kernel mode device (keyboard).
+>>
+>>I do not care if that timestamp is in jiffies or in gettimeofday()
+>>format or whatever format does exist in the world. I am absolutely sure
+>>I can convert it somehow to fit my needs.
+>>
+>>But since it is a kernel mode driver it can not -AFAIK- use the signal()
+>>syscall.
+>>
+>>-Hans
+> 
+> 
+> Then it gets real simple. Just use jiffies, if you can stand the [...]
+I fear that there is still some miss-understanding. Jiffies are totally 
+OK for me. I can use them without any conversion.
 
-Please report back if this cures your problem,
+I'll try to formulate the problem with some other words:
 
-Thanks,
---bartlomiej
+I hope that there is is something like a "jiffie-counter" for the 
+keyboard driver, that stores the actual jiffies value whenever a 
+keyboard interrupt occurs.
 
-On Monday 06 of October 2003 01:38, Justin Hibbits wrote:
-> On Sunday, Oct 5, 2003, at 19:22 America/New_York, Bartlomiej
->
-> Zolnierkiewicz wrote:
-> > Please narrow down kernel version if you want your problem to be cared.
-> >
-> > Try 2.4.19, 2.4.20.  There are also intermediate prepatches at
-> > http://www.kernel.org/pub/linux/kernel/v2.4/testing/old/
-> >
-> > dmesg output and .config can also be useful.
-> >
-> > --bartlomiej
-> >
-> > On Sunday 05 of October 2003 22:21, Justin Hibbits wrote:
-> >> Something very strange is going on with my machine.  With 2.4.18, I
-> >> was
-> >> getting 38MB/s on my main system disk (IBM Deskstar 60gxp), and 35 for
-> >> the other drives (Western Digital).  The IBM drive is on a Promise IDE
-> >> controller (ASUS A7V266-E motherboard), and the others are on a
-> >> PROMISE
-> >> 2069 UDMA133 controller.  However, with 2.4.21 and 2.4.22, it will not
-> >> set the using_dma flag for my IBM drive, but sets it for the others,
-> >> which now get sustained transfer rates of 46MB/s or greater.  I'm
-> >> using
-> >> the same options for all 3 kernels (at least, for the ATA/IDE
-> >> options).
-> >>   Any help would be appreciated, and I'll see if maybe I could do
-> >> something with it when I get time.
->
-> Ok, I tried 2.4.19, which I thought was pretty bad because it randomly
-> crashed all the time, and it worked just fine with all my drives.
-> 2.4.20 with the wolk-4.0 patch also worked.  So, I'm guessing it was
-> between 2.4.20 and 2.4.21....I could try all the prepatches as well,
-> and narrow down exact prepatch, will take some time.  dmesg output for
-> 2.4.21 follows (uses a patchset for XFS, sensors, etc), along with my
-> config, both compressed.
+I hope too, that there is a way to query that "jiffie-counter" from 
+another kernel driver, so that I can write something like
+
+
+mymouse_module.c
+
+...
+void mouse_event(){
+
+    // get the current time in jiffies
+    int now=jiffies;
+
+    // get the jiffie value of the last kbd event
+    int last_kbd_event= ????;  // ... but how to do that ...
+
+    if ((now - last_kbd_event) > delay) {
+	do_some_very_smart_things();
+    }
+   }
+...
+
+-Hans
+
 

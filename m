@@ -1,82 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267427AbTA1RLT>; Tue, 28 Jan 2003 12:11:19 -0500
+	id <S267377AbTA1RN4>; Tue, 28 Jan 2003 12:13:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267442AbTA1RLT>; Tue, 28 Jan 2003 12:11:19 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:18103 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267427AbTA1RLR>;
-	Tue, 28 Jan 2003 12:11:17 -0500
-Date: Tue, 28 Jan 2003 09:14:06 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Yichen Xie <yxie@cs.stanford.edu>
-cc: <linux-kernel@vger.kernel.org>, <mc@cs.stanford.edu>
-Subject: Re: [CHECKER] 87 potential array bounds error/buffer overruns in
- 2.5.53
-In-Reply-To: <Pine.OSF.4.33.0301280104520.272436-100000@glide.stanford.edu>
-Message-ID: <Pine.LNX.4.33L2.0301280904520.30636-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267426AbTA1RN4>; Tue, 28 Jan 2003 12:13:56 -0500
+Received: from [217.167.51.129] ([217.167.51.129]:20451 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S267377AbTA1RNy>;
+	Tue, 28 Jan 2003 12:13:54 -0500
+Subject: Re: [patch 2.5] VGA IO on systems with multiple PCI IO domains
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Martin Mares <mj@ucw.cz>,
+       Richard Henderson <rth@twiddle.net>,
+       "Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030128201057.A690@jurassic.park.msu.ru>
+References: <20030128132406.A9195@jurassic.park.msu.ru>
+	 <Pine.GSO.4.21.0301281126390.9269-100000@vervain.sonytel.be>
+	 <20030128201057.A690@jurassic.park.msu.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1043774595.536.4.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 28 Jan 2003 18:23:15 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Jan 2003, Yichen Xie wrote:
+On Tue, 2003-01-28 at 18:10, Ivan Kokshaysky wrote: 
+> Here's the patch that converts vgacon.c to pci_request_legacy_resource().
+> Tested on i386 and a single-bus alpha (alpha specific bits not included
+> here).
+> 
+> Note that it breaks ppc, as VGA_MAP_MEM() is removed...
 
-| Hi Randy, Thanks for the quick feedback! I had some additional comments
-| below starting with '%'. -Yichen
-|
-| ---------------------------------------------------------
-| % I was thinking about the case where "de" is NULL and "old"
-| % gets garbage from the stack (since there's no initializer);
-| % _devfs_alloc_entry won't be called in this case...
+Ok, if I understand properly, all we have to do on PPC is to implement a
+pci_request_legacy_resource() that will do the right thing for legacy
+VGA memory as well ?
 
-I think I finally see it...  How about:
+Then, please, check the return value of pci_request_legacy_resource()
+for getting to the VGA memory. Some machines (typically PowerMacs)
+simply don't give you a way to generate PCI cycles to those low memory
+addresses (you can't do VGA on those).
 
-| # This one is OK.  _devfs_append_entry() sets <old>.
-| [BUG] "old" might get garbage on the stack
-| /home/yxie/linux-2.5.53/fs/devfs/base.c:1179:_devfs_make_parent_for_leaf
-| : ERROR:BUFFER:1179:1179:Dereferencing uninitialized pointer (*old)
-| evaluated in the following state
-| 	    de = _devfs_alloc_entry (name, next_pos, MODE_DIR);
-| 	    devfs_get (de);
-| 	    if ( !de || _devfs_append_entry (dir, de, FALSE, &old) )
-| 	    {
-		if (!de)
-			return NULL;
-| 		devfs_put (de);
-|
-| Error --->
-| 		if ( !old || !S_ISDIR (old->mode) )
-| 		{
-| 		    devfs_put (old);
-| 		    devfs_put (dir);
-| ---------------------------------------------------------
-| % In the definition of split_status_strings (line #683),
-| % Comma after the first string is missing, so the first and
-| % second string are concatenated together to form one element
-| % --the array only has 7 elements, instead of 8.
-|
-| # I don't see the problem....
-| [BUG] missing comma in definition of split_status_strings
-| /home/yxie/linux-2.5.53/drivers/scsi/aic7xxx/aic79xx_pci.c:808:ahd_pci_s
-| plit_intr: ERROR:BUFFER:808:808:Array bounds error (off >= len) [RANGE]
-| (split_status_strings[bit], len = 7, off = sym_42005934, max(off-len) =
-| 0)
+Disabling VGA dynamically depending on the machine have been a real pain
+until now. With that change, it will now just be a matter for our PPC
+implementation of pci_request_legacy_resource() to fail on machines
+where VGA memory can't be reached.
 
-I'll add a patch for this one to my patches.
+Ben.
 
-| ---------------------------------------------------------
-| % similar reason as above; missing comma after "REQ_SPECIAL"
-|
-| # Don't see a problem here....
-| [BUG] missing comma in rq_flags
-| /home/yxie/linux-2.5.53/drivers/block/ll_rw_blk.c:685:blk_dump_rq_flags:
-| ERROR:BUFFER:685:685:Array bounds error (off >= len) (rq_flags[bit], len
-| = 17, off = 17, min(off-len) = 0)
 
-I'll add a patch for this one to my patches.
-
-Thanks,
--- 
-~Randy
 

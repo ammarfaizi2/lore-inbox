@@ -1,70 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261646AbUCHFPY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 00:15:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbUCHFPY
+	id S261706AbUCHFRx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 00:17:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbUCHFRx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 00:15:24 -0500
-Received: from mail-01.iinet.net.au ([203.59.3.33]:60307 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261646AbUCHFPW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 00:15:22 -0500
-Message-ID: <404C0162.5090304@cyberone.com.au>
-Date: Mon, 08 Mar 2004 16:15:14 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+	Mon, 8 Mar 2004 00:17:53 -0500
+Received: from mail.zero.ou.edu ([129.15.0.75]:39092 "EHLO c3p0.ou.edu")
+	by vger.kernel.org with ESMTP id S261706AbUCHFRv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 00:17:51 -0500
+Date: Sun, 07 Mar 2004 18:07:13 -0600
+From: "Stephen M. Kenton" <skenton@ou.edu>
+Subject: Re: new special filesystem for consideration in 2.6/2.7
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Message-id: <404BB931.1D3C83E8@ou.edu>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.7 [en]C-CCK-MCD NSCPCD47  (Win98; I)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
 X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Ingo Molnar <mingo@elte.hu>, Peter Zaitsev <peter@mysql.com>,
-       Andrew Morton <akpm@osdl.org>, riel@redhat.com, mbligh@aracnet.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high
- end)
-References: <20040303193343.52226603.akpm@osdl.org> <1078371876.3403.810.camel@abyss.local> <20040305103308.GA5092@elte.hu> <20040305141504.GY4922@dualathlon.random> <20040305143210.GA11897@elte.hu> <20040305145837.GZ4922@dualathlon.random> <20040305152622.GA14375@elte.hu> <20040305155317.GC4922@dualathlon.random> <20040307084120.GB17629@elte.hu> <404AF991.9040709@cyberone.com.au> <20040307173352.GC4922@dualathlon.random>
-In-Reply-To: <20040307173352.GC4922@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> If the recent news about giga-bit mram being a real possibility in
+>> the not too far future pans out, this may be get more important.
 
+>This is a reality in embedded devices.  Go read the message again...
 
-Andrea Arcangeli wrote:
+Umm, yes and no.  I did not mean to dis this proposal because I think it
+is worthwhile.  Rather, I was thinking about the problems with really
+large amounts of data.  I don't really think that a few Kilo or Mega
+bytes of data  needs the same sort of infrastructure that will be
+required
+for Tera or Peta bytes.  As an extreme example the few bytes of nv ram
+in the
+cmos clock chips in the original PC/AT did not require much support
+while
+the multiple terabytes of data in my raid farm at work would be very
+vulnerable under this proposal since a rogue process could cause lots of
+damage in very sort order as would losing a memory bank to hardware
+failure.
 
->On Sun, Mar 07, 2004 at 09:29:37PM +1100, Nick Piggin wrote:
->
->>
->>Ingo Molnar wrote:
->>
->>
->>>* Andrea Arcangeli <andrea@suse.de> wrote:
->>>
->>>
->>>
->>>>[...] but I'm quite confortable to say that up to 16G (included) 4:4
->>>>is worthless unless you've to deal with the rmap waste IMHO. [...]
->>>>
->>>>
->>>i've seen workloads on 8G RAM systems that easily filled up the ~800 MB
->>>lowmem zone. (it had to do with many files and having them as a big
->>>dentry cache, so yes, it's unfixable unless you start putting inodes
->>>into highmem which is crazy. And yes, performance broke down unless most
->>>of the dentries/inodes were cached in lowmem.)
->>>
->>>
->>>
->>If you still have any of these workloads around, they would be
->>
->
->I also have workloads that would die with 4:4 and rmap.
->
->
+In the last discussion I saw on the topic on lkml, there was discussion
+about
+whether to even preserve the volume/directory/file abstraction at all
+for
+memory mapped data spaces.  That discussion was quite speculative given
+the lack of affordable *really large* nvram type storage to compete with
+100+ gigabyte disks and even larger raids.  That situation may be
+changing.
+Hence, this may become more important.
 
-I don't doubt that, and of course no amount of tinkering with
-reclaim will help where you are dying due to pinned lowmem.
-
-Ingo's workload sounded like slab cache reclaim improvements in
-recent mm kernels might possibly help. I was purely interested
-in this for testing the reclaim changes.
-
+smk

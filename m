@@ -1,68 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268179AbUHFRGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268074AbUHFRVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268179AbUHFRGR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 13:06:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268190AbUHFRDs
+	id S268074AbUHFRVs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 13:21:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268199AbUHFRUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 13:03:48 -0400
-Received: from fw.osdl.org ([65.172.181.6]:61650 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268200AbUHFQ6j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 12:58:39 -0400
-Date: Fri, 6 Aug 2004 09:58:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Gene Heskett <gene.heskett@verizon.net>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       vda@port.imtp.ilyichevsk.odessa.ua, ak@suse.de,
-       Chris Shoemaker <c.shoemaker@cox.net>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: Possible dcache BUG
-In-Reply-To: <200408060751.07605.gene.heskett@verizon.net>
-Message-ID: <Pine.LNX.4.58.0408060948310.24588@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org>
- <20040806073739.GA6617@elte.hu> <20040806004231.143c8bd2.akpm@osdl.org>
- <200408060751.07605.gene.heskett@verizon.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 6 Aug 2004 13:20:05 -0400
+Received: from mailout.zma.compaq.com ([161.114.64.104]:55304 "EHLO
+	zmamail04.zma.compaq.com") by vger.kernel.org with ESMTP
+	id S268182AbUHFRK5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 13:10:57 -0400
+Date: Fri, 6 Aug 2004 11:34:37 -0500
+From: mike.miller@hp.com
+To: akpm@osdl.org, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: cciss update 7 read_ahead bumped to 1024
+Message-ID: <20040806163437.GA19967@beardog.americas.cpqcorp.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Patch 7
+This patch changes our read_ahead to 1024. This has been shown to increase
+performance. Please consider this for inclusion. It should be applied 
+after the 6 I sent in Aug 5.
 
-
-On Fri, 6 Aug 2004, Gene Heskett wrote:
-> 
-> Linus, Andrew, should I apply this patch too at the next remake?
-
-Might be worth it, but it's more important to see any oops at all, or lack 
-of oopses..
-
-> FWIW, I'm still up (20:38) this morning, and showing plenty (127+ 
-> megs) of free memory.  No crash, no odd log (other than samba 
-> squawking about some option thats been changed & I haven't fixed the 
-> smb.conf) so far.
-> 
-> I'm beginning to like this test patch, Linus, thanks :)
-
-If the only thing you have done is add the list_del_init() debugging 
-patch, then the only thing that has changed is really the access patterns 
-to uncached memory.
-
-The original list_del_init() tries to only do a few single _writes_ to the 
-dentries around it. The added debugging will do _reads_ (and thus bring it 
-into the cache) of the dentry pointers of the dentries around it.
-
-If that change makes a real difference, I really only see two 
-possibilities:
- - there really is a prefetch bug (or possibly, there's a bug in our 
-   prefetch fixup code, and the known prefetch bug just triggers the 
-   problem indirectly)
- - it just changes the timing enough that whatever bug you hit went away.
-
-Now, Chris Shoemaker reported dentry problems on a intel CPU and said that 
-wli had seen something too, but I'm wondering whether Chris and wli might 
-have been seeing the knfsd/xfs-related dentry bug that I found yesterday.  
-So I think the prefetch theory is still alive, but we should check with 
-Chris. Chris?
-
-		Linus
+Thanks,
+mikem
+-------------------------------------------------------------------------------
+diff -burpN lx268-rc3-p006/drivers/block/cciss.c lx268-rc3/drivers/block/cciss.c
+--- lx268-rc3-p006/drivers/block/cciss.c	2004-08-05 14:16:11.567565000 -0500
++++ lx268-rc3/drivers/block/cciss.c	2004-08-06 10:15:31.934926352 -0500
+@@ -115,7 +115,7 @@ static struct board_type products[] = {
+ /*define how many times we will try a command because of bus resets */
+ #define MAX_CMD_RETRIES 3
+ 
+-#define READ_AHEAD 	 256
++#define READ_AHEAD 	 1024
+ #define NR_CMDS		 384 /* #commands that can be outstanding */
+ #define MAX_CTLR 8
+ 

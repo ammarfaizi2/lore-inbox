@@ -1,87 +1,387 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269931AbUJHA0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269875AbUJHA0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269931AbUJHA0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 20:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269894AbUJHAYJ
+	id S269875AbUJHA0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 20:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269876AbUJHAXx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 20:24:09 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:27915 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S269941AbUJHAUE
+	Thu, 7 Oct 2004 20:23:53 -0400
+Received: from CPE-203-51-28-190.nsw.bigpond.net.au ([203.51.28.190]:4080 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP id S269940AbUJHAUD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 20:20:04 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: <martijn@entmoot.nl>, <linux-kernel@vger.kernel.org>
-Subject: RE: UDP recvmsg blocks after select(), 2.6 bug?
-Date: Thu, 7 Oct 2004 17:19:20 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKKEHIONAA.davids@webmaster.com>
+	Thu, 7 Oct 2004 20:20:03 -0400
+Message-ID: <4165DD2C.1050209@eyal.emu.id.au>
+Date: Fri, 08 Oct 2004 10:19:56 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel list <linux-kernel@vger.kernel.org>
+Subject: 2.6 noisy boot messages from gen_probe.c
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <015a01c4acbe$2425b070$161b14ac@boromir>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Thu, 07 Oct 2004 16:56:04 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Thu, 07 Oct 2004 16:56:05 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I get this stuff at bootup, and I do not see why it should
+interest me. Normally one wants to see only detected devices
+and not failed probes. I did not enable any debug option
+in the kernel.
 
-> > POSIX does not require the kernel to predict the future. The
-> > only guarantee
-> > against having a socket operation block is found in
-> > non-blocking sockets.
+It seems to come from
+	mtd/chips/gen_probe.c
+I do have
+	CONFIG_MTD_ICHXROM=m
+because I build all modules. So, should these printk's really
+be KERN_WARNING or should they be removed?
 
-> It is one thing to implement select()/recvmsg() in a non POSIX compliant
-> way; it is another thing to make false claims about that standard. POSIX
-> _does_ guarantee that a call to recvmsg() does not block after a call
-> to select().
+Oct  8 09:58:45 eyal kernel: hub 5-0:1.0: 8 ports detected
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: hub 5-0:1.0: 8 ports detected
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: CFI: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: Support for command set 8007 not present
+Oct  8 09:58:45 eyal kernel: Support for command set 007F not present
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 16-bit bank
+Oct  8 09:58:45 eyal kernel: Support for command set 8007 not present
+Oct  8 09:58:45 eyal kernel: Support for command set 007F not present
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: JEDEC: Found no ichxrom device at location zero
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: Support for command set 8007 not present
+Oct  8 09:58:45 eyal kernel: Support for command set 007F not present
+Oct  8 09:58:45 eyal kernel: gen_probe: No supported Vendor Command Set found
+Oct  8 09:58:45 eyal kernel: Found: SST 49LF004B
+Oct  8 09:58:45 eyal kernel: ichxrom: Found 1 x8 devices at 0x0 in 8-bit bank
+Oct  8 09:58:45 eyal kernel: number of JEDEC chips: 1
 
-	I do not believe this.
-
-> > Suppose, for example, that instead of using 'read' you used
-> > 'recvmsg', and
-> > we add an option to 'recvmsg' to allow you to read datagrams with bad
-> > checksums. What should 'select' do if a datagram is received with a bad
-> > checksum? It has no idea what flavor of 'recvmsg' you're going
-> > to call, so
-> > it can't know if your operation is going to block or not.
-
-> This is all described in detail in the standard.
-
-	Where, specifically, does the standard guarantee that a subsequent call to
-'recvmsg' will not block?
-
-> > No, you are incorrect. Consider, again, a 'recvmsg' flag to allow you to
-> > receive messages even if they have bad checksums versus one that blocks
-> > until a message with a valid checksum is received. The 'select' function
-> > just isn't smart enough.
-> >
-> > Consider a 'select' for write on a TCP socket. How does
-> > 'select' know how
-> > many bytes you're going to write? Again, a 'select' hit just indicates
-> > something relevant has happened, it *cannot* guarantee that a future
-> > operation won't block both because 'select' has no idea what
-> > operation is
-> > going to take place in the future and because things can change
-> > between now
-> > and then.
-
-> You really should read the standard on this..
-
-	I have. We obviously disagree on what it says. Since you're the one
-claiming a guarantee that I claim does not exist, perhaps you could cite
-where you think this guarantee appears.
-
-	DS
-
-
+-- 
+Eyal Lebedinsky	 (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

@@ -1,104 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318102AbSHIAtd>; Thu, 8 Aug 2002 20:49:33 -0400
+	id <S318107AbSHIBGY>; Thu, 8 Aug 2002 21:06:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318105AbSHIAtd>; Thu, 8 Aug 2002 20:49:33 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:53203 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318102AbSHIAtc>;
-	Thu, 8 Aug 2002 20:49:32 -0400
-Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Andrew Morton <akpm@zip.com.au>,
-       andrea@suse.de, davej@suse.de, lkml <linux-kernel@vger.kernel.org>,
-       Paul Larson <plars@austin.ibm.com>,
-       Rik van Riel <riel@conectiva.com.br>
-X-Mailer: Lotus Notes Release 5.0.10  March 22, 2002
-Message-ID: <OF9B5458C8.3B464ED3-ON85256C10.0004B20C-85256C10.0004E452@us.ibm.com>
-From: Hubertus Franke <frankeh@us.ibm.com>
-Date: Thu, 8 Aug 2002 20:53:25 -0400
-X-MIMETrack: Serialize by Router on D01ML244/01/M/IBM(Build V60_M14_08012002 Release
- Candidate|August 01, 2002) at 08/08/2002 20:52:22
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	id <S318109AbSHIBGY>; Thu, 8 Aug 2002 21:06:24 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:48117 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318107AbSHIBGX>; Thu, 8 Aug 2002 21:06:23 -0400
+Subject: Re: [2.6] The List, pass #2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Guillaume Boissiere <boissiere@adiglobal.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3D3761A9.23960.8EB1A2@localhost>
+References: <3D3761A9.23960.8EB1A2@localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 09 Aug 2002 03:30:11 +0100
+Message-Id: <1028860211.28883.136.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-                                                                                                               
-                                                                                                               
-                                                                                                               
+On Fri, 2002-07-19 at 05:47, Guillaume Boissiere wrote:
 
+Missed this originally
 
-I package my stuff up that allows to pull this into user space and run much
-more efficient
-pid allocation test for performance....
-I'll also include the comparision numbers.  Currently remote, so I don't
-have access to
-that info.
-Based on that though it seems with random pid deletion (we surely could
-argue about
-that one) there still seems reasonable benefits to "consider" a twolevel
-algo.
-More tomorrow.
+>   o Improved i2o (Intelligent Input/Ouput) layer
 
-Hubertus Franke
-Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
-, OS-PIC (Chair)
-email: frankeh@us.ibm.com
-(w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
+Improved I2O will make 2.6. The code in 2.5 is way behind 2.4 and
+basically doesn't work. It also needs no core changes affecting anything
+outside of I2O so its a driver item not a core feature by Oct 31
 
+>   o Serial ATA support      
 
-
-
-                                                                                                                                     
-                      Linus Torvalds                                                                                                 
-                      <torvalds@transme        To:       Hubertus Franke/Watson/IBM@IBMUS                                            
-                      ta.com>                  cc:       Rik van Riel <riel@conectiva.com.br>, Andries Brouwer <aebr@win.tue.nl>,    
-                                                Andrew Morton <akpm@zip.com.au>, <andrea@suse.de>, <davej@suse.de>, lkml <linux-     
-                      08/08/2002 06:26          kernel@vger.kernel.org>, Paul Larson <plars@austin.ibm.com>                          
-                      PM                       Subject:  Re: [PATCH] Linux-2.5 fix/improve get_pid()                                 
-                                                                                                                                     
-                                                                                                                                     
-                                                                                                                                     
-
-
-
-
-On Thu, 8 Aug 2002, Linus Torvalds wrote:
->
-> So let's just try Andries approach, suggested patch as follows..
-
-"ps" seems to do ok from a visual standpoint at least up to 99 million.
-Maybe it won't look that good after that, I'm too lazy to test.
-
-The following trivial program is useful for efficiently allocating pid
-numbers without blowing chunks on the VM subsystem and spending all the
-time on page table updates - for people who want to test (look out: I've
-got dual 2.4GHz CPU's with HT, so getting up to 10+ million was easy, your
-milage may wary and at some point you should just compile a kernel that
-starts higher ;).
-
-                         Linus
-
----
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-
-int main()
-{
-        int i;
-        for (i = 1; i < 250000; i++) {
-                if (!vfork())
-                        exit(1);
-                if (waitpid(-1, NULL, WNOHANG) < 0)
-                        perror("waitpid");
-        }
-        return 0;
-}
-
-
-
-
+This should be in 2.4 soon. It will be essential by the time 2.6 is out.
+I don't know what Martin's plans are for it, but again its pure driver
+code so not a core issue
 

@@ -1,71 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316847AbSE1RYp>; Tue, 28 May 2002 13:24:45 -0400
+	id <S316855AbSE1R0a>; Tue, 28 May 2002 13:26:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316855AbSE1RYo>; Tue, 28 May 2002 13:24:44 -0400
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:35561 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S316847AbSE1RYn>; Tue, 28 May 2002 13:24:43 -0400
-Date: Tue, 28 May 2002 19:24:01 +0200
-From: Andi Kleen <ak@muc.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@muc.de>, "David S. Miller" <davem@redhat.com>,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        paul.mckenney@us.ibm.com, andrea@suse.de
-Subject: Re: 8-CPU (SMP) #s for lockfree rtcache
-Message-ID: <20020528192401.A29950@averell>
-In-Reply-To: <20020528171104.D19734@in.ibm.com> <20020528.042514.92633856.davem@redhat.com> <20020528182806.A21303@in.ibm.com> <20020528.054043.06045639.davem@redhat.com> <m3bsb06zt7.fsf@averell.firstfloor.org> <1022605393.9255.116.camel@irongate.swansea.linux.org.uk> <20020528183409.A23001@averell> <1022609447.4123.126.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S316856AbSE1R03>; Tue, 28 May 2002 13:26:29 -0400
+Received: from [66.150.46.254] ([66.150.46.254]:4997 "EHLO mail.tvol.net")
+	by vger.kernel.org with ESMTP id <S316855AbSE1R01>;
+	Tue, 28 May 2002 13:26:27 -0400
+Message-ID: <3CF3BDC4.8030401@wgate.com>
+Date: Tue, 28 May 2002 13:26:28 -0400
+From: Michael Sinz <msinz@wgate.com>
+User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.0rc1) Gecko/20020509
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave McCracken <dmccr@us.ibm.com>
+CC: Linus Torvalds <torvalds@transmeta.com>, Andi Kleen <ak@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC] POSIX personality
+In-Reply-To: <Pine.LNX.4.33.0205211603340.15094-100000@penguin.transmeta.com> <13860000.1022077174@baldur.austin.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 28, 2002 at 08:10:47PM +0200, Alan Cox wrote:
-> On Tue, 2002-05-28 at 17:34, Andi Kleen wrote:
-> > And gain tons of new atomic_incs and decs everywhere in the process?  
-> > I would prefer RCU. 
+Dave McCracken wrote:
+> --On Tuesday, May 21, 2002 04:08:52 PM -0700 Linus Torvalds
+> <torvalds@transmeta.com> wrote:
 > 
-> RCU is a great way to make sure people get module unloading *wrong*. It
-> has to be simple for the driver authors. The odd locked operation on
-> things like open() of a device file is not a performance issue, not
-> remotely. 
-
-open() of device file is not the problem. The problem are lots of other
-data structures that gain module owners and atomic counters all the time.
-
 > 
-> Lots of people write drivers, many of them not SMP kernel locking gurus
-> who have time to understand RCU and when they can or cannot sleep, and
-> what happens if their unload is pre-empted and RCU is in use. The kernel
+>>>One reason for it would be that it would be more efficient. All the
+>>>various shared state needed for POSIX thread group emulation could be
+>>>put into a  single structure with a single reference count.
+>>
+>>Now, that's a separate issue - the issue of the exact _granularity_ of
+>>the  bits, and how you group things together.
+>>
+>>On that front, I don't have any strong feelings - but I suspect that it 
+>>almost always ends up being fairly obvious when it is "right" to group 
+>>things together, and when it isn't.
+>>
+>>For example, we probably could have had just one bit for (FS | FILES),
+>>and  the same is probably true of (SIGHAND | THREAD), but on the whole we 
+>>haven't really had any gray areas when it comes to the grouping. And I 
+>>don't see any coming up.
+>>
+>>Does that mean that we might have a CLONE_POSIXDAMAGE that just covers all
+>>the strange POSIX stuff that make no sense anywhere else? Maybe. But I'd
+>>want that to be just another bit with the same semantic behaviour as the
+>>existing ones, _not_ be some external "POSIX personality".
+> 
+> 
+> I've been thinking along those lines myself.  At this point I'd suggest we
+> implement them as separate, then if in the future no one ever uses them
+> separately we can consider combining them.  I know this can raise some
+> backward compatibility issues but in theory if anyone cares we wouldn't do
+> it.
 
-The current RCU patch doesn't kick in for preemption, so preemption is 
-a non issue.
+I would be worried about the future compatibility here.  It would be easier
+to be compatible to start with a single bit and then add individual bits for
+those features that need to be broken out when it is know to be needed.
+Folding the bits back in is not as easy as you now have to still support
+the individual but yet unneeded.
 
-They have to understand when things can or cannot sleep. Without that
-I think they shouldn't write linux drivers, because they will get many things
-wrong (like spinlocks or even interrupt disabling in 2.5) 
+-- 
+Michael Sinz ---- Worldgate Communications ---- msinz@wgate.com
+A master's secrets are only as good as
+	the master's ability to explain them to others.
 
-With the "simple" module unload RCU variant you just stick a 
-synchronize_kernel() after the module destructor call
 
-It's also no problem for them to sleep in the destructor, the simple
-variant obviously makes no difference here. It also doesn't change any sleeping
-rules; or at least they are not different than in 2.0/2.2.
-
-Just this simple variant plugs a lot of the races and would allow dropping
-some module counts. It also makes all the nasty "cannot do MOD_*USE_COUNT in
-the driver code itself" issues go away.
-
-The remaining hole is driver reentering while the cleanup runs. The simple
-rcu unload assumes that open and cleanup are atomic to each other, which
-is usually not true. Fixing that properly likely requires two stage 
-cleanup as proposed by Rusty/Kaos. 
-
-Still given that the simple variant is not a complete solution, just making
-the issue of not being able to do MOD_*_COUNT in driver code go away would
-be imho a bit step forward. In fact following your initial point it would
-make some code much more obvious to device driver writers.
-
--Andi

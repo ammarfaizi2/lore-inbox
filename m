@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262275AbTIHNIB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 09:08:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbTIHNIB
+	id S261299AbTIHM7W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 08:59:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbTIHM7W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 09:08:01 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:41602 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262275AbTIHNH7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 09:07:59 -0400
-Subject: Re: Hardware supported by the kernel
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Jones <davej@redhat.com>
-Cc: DervishD <raul@pleyades.net>, Ch & Ph Drapela <pcdrap@bluewin.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030908095357.GD10358@redhat.com>
-References: <3F59DF81.8000407@bluewin.ch> <20030906134029.GE69@DervishD>
-	 <20030907223258.GE28927@redhat.com> <20030908092952.GA51@DervishD>
-	 <20030908095357.GD10358@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063026380.21084.24.camel@dhcp23.swansea.linux.org.uk>
+	Mon, 8 Sep 2003 08:59:22 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:28378 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S261299AbTIHM7V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 08:59:21 -0400
+Date: Mon, 8 Sep 2003 14:59:19 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Oleg Drokin <green@namesys.com>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Hans Reiser <reiser@namesys.com>,
+       linux-kernel@vger.kernel.org, Nikita Danilov <god@namesys.com>
+Subject: Re: First impressions of reiserfs4
+Message-ID: <20030908125919.GA25325@DUK2.13thfloor.at>
+Mail-Followup-To: Oleg Drokin <green@namesys.com>,
+	Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+	Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
+	Nikita Danilov <god@namesys.com>
+References: <slrnbl12sv.i4g.erik@bender.home.hensema.net> <3F50D986.6080707@namesys.com> <20030831191419.A23940@bitwizard.nl> <20030908081206.GA17718@namesys.com> <20030908105639.B26722@bitwizard.nl> <20030908090826.GB10487@namesys.com> <20030908113304.A28123@bitwizard.nl> <20030908094825.GD10487@namesys.com> <20030908120531.A28937@bitwizard.nl> <20030908101704.GE10487@namesys.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
-Date: Mon, 08 Sep 2003 14:06:20 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030908101704.GE10487@namesys.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-09-08 at 10:53, Dave Jones wrote:
-> SiS    - Cards like the Xabre are quite cheap, though unsupported,
->          though SiS folks did seemto wnat to help at one point, then
->          when quiet.
+On Mon, Sep 08, 2003 at 02:17:04PM +0400, Oleg Drokin wrote:
+> Hello!
+> 
+> On Mon, Sep 08, 2003 at 12:05:31PM +0200, Rogier Wolff wrote:
+> > > Well, but statfs(2) does not return an "inodes in use" value, that's it.
+> > > > #define LARGE_NUMBER 100000
+> > > > out->total_inodes = fs->oids_in_use + LARGE_NUMBER; 
+> > > > if (out->total_inodes < fs->oids_in_use) 
+> > > >    out -> total_inods = MAXINT;
+> > > > out -> free_inodes = LARGE_NUMBER; 
+> > > > Three lines of code fixes that. 
+> > > Yes, and you get complete crap once you hit the overflow condition?
+> > No. Not complete crap. It's a thirty two bit integer. What do you expect
+> > when you hit the "limit"?
 
-SiS have also since spun off their graphics division. Someone is porting
-the SiS drivers to current DRI at the moment.
+what about
 
-> S3     - Again, poorly performing, specs/drivers are out there.
+total_inods = MAXINT
+free_inodes = total_inods - oids_in_use;
 
-Drivers for 4.2 release by VIA need porting to 4.3
+this would not change from one moment to
+the other, reflect the correct amount, and
+stay within limits for reasonable iods_in_use
 
-> who did I miss ?
-
-Trident - documentation is public, nobody has tackled a driver
-
-Intel - older stuff is slow, newer onboard video is actually pretty good
-and Intel support this stuff seriously. Its not a radeon but it players
-cube perfectly well 8) Presumably intel will eventually fuse the CPU and
-graphics into one chip.
-
-VIA - XFree 4.2 drivers need porting over to 4.3. Original 4.2 code
-provided by VIA. I've got glxgears kind of working but didnt have time
-to go further and fix the span bugs and the locking v acceleration.
-
+best,
+Herbert
 

@@ -1,83 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264229AbUFRGR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264993AbUFRGVJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264229AbUFRGR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 02:17:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264993AbUFRGR5
+	id S264993AbUFRGVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 02:21:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264998AbUFRGVI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 02:17:57 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:23781 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S264229AbUFRGRz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 02:17:55 -0400
-Message-ID: <40D28950.7030500@namesys.com>
-Date: Thu, 17 Jun 2004 23:18:56 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ken Ryan <linuxryan@leesburg-geeks.org>
-CC: Timothy Miller <miller@techsource.com>, linux-kernel@vger.kernel.org,
-       pla@morecom.no
-Subject: Re: mode data=journal in ext3. Is it safe to use?
-References: <40D1B110.7020409@leesburg-geeks.org> <40D1C18B.1030907@techsource.com> <40D1D2F0.7080102@namesys.com> <40D1EDB7.3030401@leesburg-geeks.org>
-In-Reply-To: <40D1EDB7.3030401@leesburg-geeks.org>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Jun 2004 02:21:08 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:44715 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S264993AbUFRGVG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 02:21:06 -0400
+Message-Id: <200406180621.i5I6KlfK011034@zeus.kernel.org>
+From: "CONFIRA A VIDENCIA DE REBECA" <Cecilia@videncia.com>
+Subject: =?ISO-8859-1?Q?Tar=F4?= por telefone
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+Date: Fri, 18 Jun 2004 03:21:04 -0700
+X-Priority: 3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ken Ryan wrote:
+Cigana Rebeca 
 
-> Hans Reiser wrote:
->
->> Timothy Miller wrote:
->>
->>> Doesn't Reiser4 do wear-leveling for flash?
->>
->>
->>
->> No, we don't.  We do have wandering logs, so it would be feasible to 
->> code, but bitmap blocks and super blocks get written to the same 
->> locations repeatedly.
->>
->> Actually, most compact flash devices DO do wear leveling, from what I 
->> have heard.
->
->
->
-> The ones I've seen, only sort of.  They'll allocate writes from 
-> available erased pages to try to distribute their use, but if you
-> have a disk that's, say, 70% read-only data and 30% read-write then 
-> the wear-levelling will only happen on that
-> 30% of the disk.  True wear levelling will actually scrub read-only or 
-> rarely-written data, forcing it to get off its
-> duff so the flash cells they're sitting on can get some exercise, and 
-> give the more worn cells a rest (that scrub
-> helps ECC fix soft errors from weak cells too).  True wear-levelling 
-> is really hard, and obviously requires
-> budgeting extra bandwidth and storage devices for safely shuffling 
-> around data that the application has no
-> intention of moving (picture losing power in the middle of a scrub).  
-> It's not worth it for the consumer CF
-> usage model of "take photos until the card is full, then copy them all 
-> to the PC and wipe the card clean".
->
-> [Yes, I tend to see this from the inside-out: I'm actually an 
-> FPGA/ASIC weenie not a kernel hacker.  One of my current
-> projects is part of a controller chip for a solid-state storage system 
-> with ${bignum} NAND flash chips.  Alas, my specialty
-> is video and graphics, so I'm still coming up the learning curve on 
-> storage systems].
->
->               ken
->
->
->
->
->
-Interesting.  Thanks for educating me. 
+ - Atende ao publico deste 1960, sempre foi destaque em todas as feiras esotéricas que fez.
 
-No existing general purpose filesystem that I know of will address your 
-needs.  We could of course write one if someone paid for it....
+ - Leituras de cartas pelo telefone, R$50,00 reais a consulta (CONFIRMA A ESPIRITUALIDADE E A VIDENCIA E SÓ PAGUE DEPOIS DA CONSULTA).
+Com muita honestidade em tudo que sempre fez
+Voce vai se surpreender com ela!
+
+ - Atende das 2:00pm as 2:00 am
+
+ Telefone: 015-13-3507-4524
+       
+   Celular:    11-9768-7760
+
+Previsões atravez da catomancia e tarô.
+ 
+ O pagamento deve ser efetuado na:
+
+ Caixa Economica Federal - 0104
+agencia: 2158
+ conta corrente:30432-5
+CPF:043.797.778-12
+    em nome de: Aparecida Ines Gomes
+

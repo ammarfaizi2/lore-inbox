@@ -1,45 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262366AbTIUKEp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 06:04:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbTIUKEp
+	id S262352AbTIUKAI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 06:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbTIUKAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 06:04:45 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:64139 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262366AbTIUKEo (ORCPT
+	Sun, 21 Sep 2003 06:00:08 -0400
+Received: from smtpq2.home.nl ([213.51.128.197]:17587 "EHLO smtpq2.home.nl")
+	by vger.kernel.org with ESMTP id S261974AbTIUKAB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 06:04:44 -0400
-Date: Sun, 21 Sep 2003 12:04:36 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Rob Landley <rob@landley.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Keyboard oddness.
-Message-ID: <20030921100436.GA18409@ucw.cz>
-References: <200309201633.22414.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200309201633.22414.rob@landley.net>
-User-Agent: Mutt/1.5.4i
+	Sun, 21 Sep 2003 06:00:01 -0400
+Date: Sun, 21 Sep 2003 11:58:24 +0200 (CEST)
+From: Aschwin Marsman <aschwin@marsman.org>
+X-X-Sender: marsman@localhost.localdomain
+To: marcelo.tosatti@cyclades.com.br, <linux-scsi@vger.kernel.org>
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.23-pre5 BK: aic7xxx_reg.h: Permission Denied
+Message-ID: <Pine.LNX.4.44.0309211135400.4110-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AtHome-MailScanner-Information: Please contact support@home.nl for more information
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 20, 2003 at 04:33:22PM -0400, Rob Landley wrote:
-> I've mentioned my keyboard repeat problems before.  I grepped through the logs 
-> and found a whole bunch of these type messages:
-> 
-> Aug 17 05:28:48 localhost kernel: atkbd.c: Unknown key (set 2, scancode 0x1d0, 
-> on isa0060/serio0) pressed.
-> Aug 19 09:06:51 localhost kernel: atkbd.c: Unknown key (set 2, scancode 0x8e, 
-> on isa0060/serio0) pressed.
-> Aug 22 04:33:36 localhost kernel: atkbd.c: Unknown key (set 2, scancode 0xcd, 
-> 
-> (There's more, it just goes on and on...)
-> 
-> Any clues?  (Thinkpad iSeries...  1200, I think.)
+Hi,
 
-What kernel version? Can you test with latest?
+During the compilation of 2.4.23-pre5 (latest from BK), I get the
+following:
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+aicasm/aicasm -I. -r aic7xxx_reg.h -p aic7xxx_reg_print.c -i aic7xxx_osm.h -o aic7xxx_seq.h aic7xxx.seq
+aic7xxx_reg.h: Permission denied
+make[3]: *** [aic7xxx_seq.h] Error 73
+make[3]: Leaving directory `/home/marsman/src/bk/linux-2.4/drivers/scsi/aic7xxx'
+make[2]: *** [_modsubdir_aic7xxx] Error 2
+make[2]: Leaving directory `/home/marsman/src/bk/linux-2.4/drivers/scsi'
+make[1]: *** [_modsubdir_scsi] Error 2
+make[1]: Leaving directory `/home/marsman/src/bk/linux-2.4/drivers'
+make: *** [_mod_drivers] Error 2
+
+The reason is that:
+aic79xx_reg.h
+aic79xx_reg_print.c
+aic79xx_seq.h
+aic7xxx_reg.h
+aic7xxx_reg_print.c
+aic7xxx_seq.h
+
+are generated files, but they are under version control and therefor readonly, so they can't
+be written. I see two options:
+1) Do not put them under version control
+2) Remove/make them writable before new versions are generated.
+
+I would prefer option one, but you can argue that it is nice to be able to see the history
+of the generated files.
+
+The patch below removes the files before they are written.
+
+--- drivers/scsi/aic7xxx/Makefile.org	Sun Sep 21 07:19:34 2003
++++ drivers/scsi/aic7xxx/Makefile	Sun Sep 21 11:46:29 2003
+@@ -75,6 +75,7 @@
+ 		 -o aic7xxx_seq.h aic7xxx.seq
+ endif
+ $(aic7xxx_gen): aic7xxx.seq aic7xxx.reg aicasm/aicasm
++	$(RM) $(aic7xxx_gen)
+ 	$(aic7xxx_asm_cmd)
+ endif
+ 
+@@ -90,6 +91,7 @@
+ 		 -o aic79xx_seq.h aic79xx.seq
+ endif
+ $(aic79xx_gen): aic79xx.seq aic79xx.reg aicasm/aicasm
++	$(RM) $(aic79xx_gen)
+ 	$(aic79xx_asm_cmd)
+ endif
+ 
+Have a nice weekend,
+ 
+Aschwin Marsman
+ 
+--
+aschwin@marsman.org              http://www.marsman.org
+

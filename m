@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263285AbRFEH4Y>; Tue, 5 Jun 2001 03:56:24 -0400
+	id <S263294AbRFEH5Y>; Tue, 5 Jun 2001 03:57:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263291AbRFEH4O>; Tue, 5 Jun 2001 03:56:14 -0400
-Received: from web14702.mail.yahoo.com ([216.136.224.119]:47378 "HELO
-	web14702.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S263285AbRFEH4F>; Tue, 5 Jun 2001 03:56:05 -0400
-Message-ID: <20010605075604.73137.qmail@web14702.mail.yahoo.com>
-Date: Tue, 5 Jun 2001 00:56:04 -0700 (PDT)
-From: 753 user <user753@yahoo.com>
-Subject: IRQ conflicts
-To: linux-kernel@vger.kernel.org
+	id <S263295AbRFEH5P>; Tue, 5 Jun 2001 03:57:15 -0400
+Received: from inet-mail4.oracle.com ([148.87.2.204]:39919 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S263291AbRFEH5D>; Tue, 5 Jun 2001 03:57:03 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Svein Erik Brostigen <svein.brostigen@oracle.com>
+To: Nick Urbanik <nicku@vtc.edu.hk>,
+        Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Cannot mount old ext2 cdrom, but e2fsck shows no problems
+Date: Tue, 5 Jun 2001 03:59:29 -0400
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <3B1C8C1B.E3946FE1@vtc.edu.hk>
+In-Reply-To: <3B1C8C1B.E3946FE1@vtc.edu.hk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <01060503592906.02249@sparkle.us.oracle.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to know may I use the same IRQs for more
-than one component with 2.4.x?
+On Tuesday 05 June 2001 03:36, Nick Urbanik wrote:
 
-My first network card use the same IRQ as paralell
-port,
-and my second card use the same as my USB have.
+"Snip"
 
-BX chipset, ne2k-pci driver.
+> I will be very grateful for any help that increases my understanding of
+> what is going on.
+>
+> $ sudo mount -t ext2 /dev/scd0 /cdrom -o ro
+Try -t iso9660
 
-With 2.4.5 I *often* get kernel Oopses with IRQ
-routing error messages. This never happend before
-and the only one change was a a second network
-card inserted into the mobo and changed kernel
-from 2.4.3 to 2.4.5.
+> mount: wrong fs type, bad option, bad superblock on /dev/scd0,
+>        or too many mounted file systems
 
-  0:     389014          XT-PIC  timer
-  1:          2          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  3:         50          XT-PIC  
-  5:      27065          XT-PIC  eth0
- 10:      75114          XT-PIC  ide2
- 11:      24916          XT-PIC  eth1
- 12:          0          XT-PIC  EMU10K1
- 14:         12          XT-PIC  ide0
-NMI:          0 
-ERR:          0
+-- 
+Regards
+Svein Erik
 
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail - only $35 
-a year!  http://personal.mail.yahoo.com/
+Marriage is the only adventure open to the cowardly. - Voltaire 
+_____________________________________________________________
+Svein Erik Brostigen       e-mail: svein.brostigen@oracle.com
+Senior Technical Analyst                  Phone: 407.458.7168
+EBC - Extended Business Critical
+Oracle Support Services   
+5955 T.G. Lee Blvd
+Orlando FL, 32822
+
+Enabling the Information Age Through Internet Computing
+_____________________________________________________________
+
+The statements and opinions expressed here are my own and
+do not necessarily represent those of Oracle Corporation.

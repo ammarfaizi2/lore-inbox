@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130560AbQK1Dxs>; Mon, 27 Nov 2000 22:53:48 -0500
+        id <S130572AbQK1D7I>; Mon, 27 Nov 2000 22:59:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130685AbQK1Dxi>; Mon, 27 Nov 2000 22:53:38 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:54537 "EHLO
-        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-        id <S130560AbQK1Dxb>; Mon, 27 Nov 2000 22:53:31 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: KERNEL BUG: console not working in linux
-Date: 27 Nov 2000 19:23:08 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8vv8es$86d$1@cesium.transmeta.com>
-In-Reply-To: <E140Pc3-0003AI-00@the-village.bc.nu> <20001128023652.A9368@veritas.com> <8vv2fa$7n6$1@cesium.transmeta.com> <20001128041409.A9525@veritas.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+        id <S130575AbQK1D67>; Mon, 27 Nov 2000 22:58:59 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:33348 "EHLO
+        penguin.e-mind.com") by vger.kernel.org with ESMTP
+        id <S130572AbQK1D6q>; Mon, 27 Nov 2000 22:58:46 -0500
+Date: Tue, 28 Nov 2000 04:28:50 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: kumon@flab.fujitsu.co.jp
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removal of "static foo = 0"
+Message-ID: <20001128042850.A29908@athlon.random>
+In-Reply-To: <200011270556.VAA12506@baldur.yggdrasil.com> <20001127094139.H599@almesberger.net> <200011270839.AAA28672@pizda.ninka.net> <20001127182113.A15029@athlon.random> <20001127123655.A16930@munchkin.spectacle-pond.org> <20001127200618.A19980@athlon.random> <200011280310.MAA27358@asami.proc.flab.fujitsu.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200011280310.MAA27358@asami.proc.flab.fujitsu.co.jp>; from kumon@flab.fujitsu.co.jp on Tue, Nov 28, 2000 at 12:10:33PM +0900
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20001128041409.A9525@veritas.com>
-By author:    Andries Brouwer <aeb@veritas.com>
-In newsgroup: linux.dev.kernel
->
-> On Mon, Nov 27, 2000 at 05:40:58PM -0800, H. Peter Anvin wrote:
+On Tue, Nov 28, 2000 at 12:10:33PM +0900, kumon@flab.fujitsu.co.jp wrote:
+> If you have two files:
+> test1.c:
+> int a,b,c;
 > 
-> > > What about adding an additional
-> > > 
-> > > 	andb	$0xfe, %al
-> > > 
-> > > in front of the outb?
+> test2.c:
+> int a,c;
 > 
-> > Already in test12-pre1.
-> 
-> Ach, I see I am too slow - had not even seen -pre1 and now Linus
-> already announces -pre2.
-> 
-> Anyway, I considered that this A20 stuff belonged to my docs on
-> the keyboard controller, so added a page
-> 
-> 	http://www.win.tue.nl/~aeb/linux/kbd/A20.html
-> 
-> (written half an hour ago). Comments are welcome.
-> 
+> Which is _stronger_?
 
-One thing... the "thwarted by cache" comment probably isn't very
-useful.  As far as I know the only machines which have the cache
-problem are i386 boxen, but the i386 doesn't have WBINVD.  The i486
-has a pin on the CPU for A20, which takes effect inside the L1 cache,
-and so it shouldn't have any A20 cache issues.
+Those won't link together as they aren't declared static.
 
-	-hpa
+If they would been static they could be ordered file-per-file (note: I'm not
+suggesting anything like that and I'm more than happy the compiler is allowed
+to do sane optimizations with none downside :).
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

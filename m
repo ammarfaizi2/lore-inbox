@@ -1,97 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268153AbUJCU6X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268155AbUJCVHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268153AbUJCU6X (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 16:58:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268155AbUJCU6X
+	id S268155AbUJCVHw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 17:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268156AbUJCVHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 16:58:23 -0400
-Received: from wavehammer.waldi.eu.org ([82.139.196.55]:36744 "EHLO
-	wavehammer.waldi.eu.org") by vger.kernel.org with ESMTP
-	id S268153AbUJCU6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 16:58:19 -0400
-Date: Sun, 3 Oct 2004 22:58:15 +0200
-From: Bastian Blank <bastian@waldi.eu.org>
+	Sun, 3 Oct 2004 17:07:52 -0400
+Received: from scanner1.mail.elte.hu ([157.181.1.137]:1253 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S268155AbUJCVHv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 17:07:51 -0400
+Date: Sun, 3 Oct 2004 23:09:26 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] - s390, sclp compile fix
-Message-ID: <20041003205815.GA8450@wavehammer.waldi.eu.org>
-Mail-Followup-To: Bastian Blank <bastian@waldi.eu.org>,
-	linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, "K.R. Foley" <kr@cybsft.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: [patch] voluntary-preempt-2.6.9-rc3-mm1-S8
+Message-ID: <20041003210926.GA1267@elte.hu>
+References: <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu> <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1LKvkjL3sHcu1TtY"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20040928000516.GA3096@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---1LKvkjL3sHcu1TtY
-Content-Type: multipart/mixed; boundary="gKMricLos+KVdGMg"
-Content-Disposition: inline
+i've released the -S8 VP patch:
 
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm1-S8
 
---gKMricLos+KVdGMg
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+this iteration is mainly a merge to -rc3-mm1. The -rc3-mm1 tree now
+includes the generic-irq-subsystem patch which is a prerequisite of the
+threaded-irqs feature in the -VP patch. As a result of this the -VP
+patch got significantly smaller, down from 224K to 89K.
 
-The attached patch makes s390 sclp driver buildable again.
+also part of the patch are further refinements of the preempt-bkl
+feature and a couple of bugfixes, reported for the -mm tree but not
+included in -rc3-mm1 yet. (All of these were sent to Andrew too so they
+should show up in -mm2.)
 
-Bastian
+to build an -S8 tree from scratch the patching order is:
 
---=20
-Where there's no emotion, there's no motive for violence.
-		-- Spock, "Dagger of the Mind", stardate 2715.1
+   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
+ + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc3.bz2
+ + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm1/2.6.9-rc3-mm1.bz2
+ + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm1-S8
 
---gKMricLos+KVdGMg
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: attachment; filename=diff
-Content-Transfer-Encoding: quoted-printable
-
-diff -ur linux-2.6.9-rc3.orig/drivers/s390/char/sclp_tty.c linux-2.6.9-rc3/=
-drivers/s390/char/sclp_tty.c
---- linux-2.6.9-rc3.orig/drivers/s390/char/sclp_tty.c	2004-10-03 20:37:30.0=
-00000000 +0000
-+++ linux-2.6.9-rc3/drivers/s390/char/sclp_tty.c	2004-10-03 18:16:39.000000=
-000 +0000
-@@ -277,7 +277,7 @@
- 	wake_up(&sclp_tty_waitq);
- 	/* check if the tty needs a wake up call */
- 	if (sclp_tty !=3D NULL) {
--		tty_wakeup(tty);
-+		tty_wakeup(sclp_tty);
- 	}
- }
-=20
-diff -ur linux-2.6.9-rc3.orig/drivers/s390/char/sclp_vt220.c linux-2.6.9-rc=
-3/drivers/s390/char/sclp_vt220.c
---- linux-2.6.9-rc3.orig/drivers/s390/char/sclp_vt220.c	2004-10-03 20:37:30=
-=2E000000000 +0000
-+++ linux-2.6.9-rc3/drivers/s390/char/sclp_vt220.c	2004-10-03 18:17:52.0000=
-00000 +0000
-@@ -139,7 +139,7 @@
- 	wake_up(&sclp_vt220_waitq);
- 	/* Check if the tty needs a wake up call */
- 	if (sclp_vt220_tty !=3D NULL) {
--		tty_wakeup(tty);
-+		tty_wakeup(sclp_vt220_tty);
- 	}
- }
-=20
-
---gKMricLos+KVdGMg--
-
---1LKvkjL3sHcu1TtY
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iEYEARECAAYFAkFgZ+cACgkQnw66O/MvCNFG8QCfS0Oft33CD37APCvzq9lfxsqI
-fkUAn2SBuHb7UjzESTFb75WLv4iNAQef
-=aDoi
------END PGP SIGNATURE-----
-
---1LKvkjL3sHcu1TtY--
+	Ingo

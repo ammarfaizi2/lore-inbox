@@ -1,104 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262947AbTDBIGB>; Wed, 2 Apr 2003 03:06:01 -0500
+	id <S262845AbTDBILb>; Wed, 2 Apr 2003 03:11:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262948AbTDBIGB>; Wed, 2 Apr 2003 03:06:01 -0500
-Received: from ns.suse.de ([213.95.15.193]:4365 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S262947AbTDBIF6>;
-	Wed, 2 Apr 2003 03:05:58 -0500
-Subject: Re: [Lse-tech] Re: [patch][rfc] Memory Binding (1/1)
-From: Andi Kleen <ak@suse.de>
-To: colpatch@us.ibm.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-In-Reply-To: <3E8A151A.1040800@us.ibm.com>
-References: <3E8A135B.3030106@us.ibm.com>  <3E8A151A.1040800@us.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 02 Apr 2003 10:17:16 +0200
-Message-Id: <1049271440.30759.183.camel@averell>
+	id <S262948AbTDBILb>; Wed, 2 Apr 2003 03:11:31 -0500
+Received: from [12.47.58.55] ([12.47.58.55]:33954 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id <S262845AbTDBILa>;
+	Wed, 2 Apr 2003 03:11:30 -0500
+Date: Wed, 2 Apr 2003 00:23:17 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: j-nomura@ce.jp.nec.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18: lru_list_lock contention in write_unlocked_buffers()
+Message-Id: <20030402002317.5bb07d11.akpm@digeo.com>
+In-Reply-To: <20030402.165044.576024545.nomura@hpc.bs1.fc.nec.co.jp>
+References: <20030402.165044.576024545.nomura@hpc.bs1.fc.nec.co.jp>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Apr 2003 08:22:49.0277 (UTC) FILETIME=[0C0CD6D0:01C2F8F1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-02 at 00:39, Matthew Dobson wrote:
+j-nomura@ce.jp.nec.com wrote:
+>
+> Hello,
+> 
+> when I run mkfs while doing other large file I/O in parallel,
+> the system response becomes terribly bad on 2.4.18 kernel.
+> (probably on other 2.4 kernels also)
+> 
+> I found there are hard contention on lru_list_lock, which is mostly held
+> by write_unlocked_buffers().
+> It happens only on large memory machine because lru_list can grow very long
+> and write_some_buffers() scans the long list from head on each call.
+> 
+> Lowlatency patch in aa tree did not help this situation.
+> 
+> The patch below is hasty workaround for it.
+> Any comments, or suggestions to better fix?
+> 
 
-I'm not sure why you do this on shm segments only. Why not directly on
-vmas ? 
+I don't think there's a sane fix for this in the 2.4 context.
 
-I'm considering to add a similar thing to the mm_struct to allow
-processes to allocate on their "homenode" only. But I could also live
-with it being per VMA.
+What you can do is to convert fsync_dev() to sync _all_ devices and not just
+the one which is being closed.
 
-In case of a large number of such bindings or nodes it may make sense
-to cache and share the zone lists, but that can be probably left for a
-future patch.
+It will take longer, but it converts the O(n*n) search into O(n).
 
-> +static inline struct page *__page_cache_alloc(struct address_space *x, int cold)
-> +{
-> +	int gfp_mask;
-> +	struct zonelist *zonelist;
-> +
-> +	gfp_mask = x->gfp_mask;
-> +	if (cold)
-> +		gfp_mask |= __GFP_COLD;
-> +	if (!x->binding)
-> +		zonelist = get_zonelist(gfp_mask);
-> +	else
-> +		zonelist = &x->binding->zonelist;
-> +
-> +	return __alloc_pages(gfp_mask, 0, zonelist);
-> +}
+diff -puN fs/buffer.c~a fs/buffer.c
+--- 24/fs/buffer.c~a	2003-04-02 00:21:39.000000000 -0800
++++ 24-akpm/fs/buffer.c	2003-04-02 00:21:51.000000000 -0800
+@@ -343,6 +343,7 @@ int fsync_no_super(kdev_t dev)
+ 
+ int fsync_dev(kdev_t dev)
+ {
++	dev = NODEV;
+ 	sync_buffers(dev, 0);
+ 
+ 	lock_kernel();
 
-I would move a function of this size out of line. In fact i think it
-should even in the non NUMA case be a simple function call with zonelist
-getting evaluated out-of-line.
-
-
-
-
-> +asmlinkage unsigned long sys_membind(unsigned long start, unsigned long len, 
-> +		unsigned long *mask_ptr, unsigned int mask_len, unsigned long policy)
-> +{
-> +	DECLARE_BITMAP(cpu_mask, NR_CPUS);
-> +	DECLARE_BITMAP(node_mask, MAX_NUMNODES);
-> +	struct vm_area_struct *vma = NULL;
-> +	struct address_space *mapping;
-> +	int error = 0;
-> +
-> +	/* Deal with getting cpu_mask from userspace & translating to node_mask */
-> +	if (mask_len > NR_CPUS) {
-> +		error = -EINVAL;
-> +		goto out;
-> +	}
-
-I don't like that check. It requires hardcoding NR_CPUs (which can be
-variable!) in the application. It would be better to allow arbitary
-length arguments, but only error when there is a bit set outside
-NR_CPUS. Of course arbitary would be hard regarding the copy from user,
-so perhaps use some very big limit (e.g. one page worth of bitmap) 
-
-
-> +	CLEAR_BITMAP(cpu_mask, NR_CPUS);
-> +	CLEAR_BITMAP(node_mask, MAX_NUMNODES);
-> +	if (copy_from_user(cpu_mask, mask_ptr, (mask_len+7)/8)) {
-> +		error = -EFAULT;
-> +		goto out;
-> +	}
-> +	cpumask_to_nodemask(cpu_mask, node_mask);
-> +
-> +	vma = find_vma(current->mm, start);
-> +	if (!(vma && vma->vm_file && vma->vm_ops && 
-> +		vma->vm_ops->nopage == shmem_nopage)) {
-> +		/* This isn't a shm segment.  For now, we bail. */
-> +		printk("%s: Can only bind shm(em) segments for now!\n", __FUNCTION__);
-
-Instead of __FUNCTION__ i would use current->comm here. 
-
-Or better perhaps just remove the error printks.
-
--Andi
-
+_
 

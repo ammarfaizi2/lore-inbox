@@ -1,67 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263722AbUDGQWK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 12:22:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263726AbUDGQWK
+	id S263725AbUDGQVu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 12:21:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263726AbUDGQVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 12:22:10 -0400
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:38410 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S263722AbUDGQWC convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 12:22:02 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6529.0
-content-class: urn:content-classes:message
+	Wed, 7 Apr 2004 12:21:49 -0400
+Received: from dirac.phys.uwm.edu ([129.89.57.19]:27043 "EHLO
+	dirac.phys.uwm.edu") by vger.kernel.org with ESMTP id S263725AbUDGQVq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 12:21:46 -0400
+Date: Wed, 7 Apr 2004 11:21:40 -0500 (CDT)
+From: Bruce Allen <ballen@gravity.phys.uwm.edu>
+To: Andrew Morton <akpm@osdl.org>
+cc: Andy Isaacson <adi@hexapodia.org>, bug-coreutils@gnu.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: dd PATCH: add conv=direct
+In-Reply-To: <20040406173326.0fbb9d7a.akpm@osdl.org>
+Message-ID: <Pine.GSO.4.21.0404071119120.903-100000@dirac.phys.uwm.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: cciss updates for 2.6.6xxx [1/2]
-Date: Wed, 7 Apr 2004 11:21:47 -0500
-Message-ID: <D4CFB69C345C394284E4B78B876C1CF105BC200E@cceexc23.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: cciss updates for 2.6.6xxx [1/2]
-Thread-Index: AcQcu4X5AeyHmIP9R9S+RdjTnEmrogAAJSLw
-From: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: <alpm@odsl.org>, <axboe@suse.de>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 07 Apr 2004 16:21:48.0198 (UTC) FILETIME=[6D096C60:01C41CBC]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yep, you're right. I just regurgitated the same code. I'll pull my head out and try again :(
+> > On modern Linux, apparently the correct way to bypass the buffer cache
+> > when writing to a block device is to open the block device with
+> > O_DIRECT.  This enables, for example, the user to more easily force a
+> > reallocation of a single sector of an IDE disk with a media error
+> > (without overwriting anything but the 1k "sector pair" containing the
+> > error).  dd(1) is convenient for this purpose, but is lacking a method
+> > to force O_DIRECT.  The enclosed patch adds a "conv=direct" flag to
+> > enable this usage.
+> 
+> This would be rather nice to have.  You'll need to ensure that the data
+> is page-aligned in memory.
+> 
+> While you're there, please add an fsync-before-closing option.
 
-mikem
+Andrew, am I right that this is NOT needed for the proposed O_DIRECT
+option, since open(2) says: 
+  "The I/O is synchronous, i.e., at the completion of the read(2) or
+   write(2) system call, data is guaranteed to have been transferred."
+so the write will block until data is physically on the disk.
 
------Original Message-----
-From: Jeff Garzik [mailto:jgarzik@pobox.com]
-Sent: Wednesday, April 07, 2004 11:15 AM
-To: Miller, Mike (OS Dev)
-Cc: alpm@odsl.org; axboe@suse.de; linux-kernel@vger.kernel.org
-Subject: Re: cciss updates for 2.6.6xxx [1/2]
-
-
-mikem@beardog.cca.cpqcorp.net wrote:
-> This patch adds per logical device queues to the HP cciss driver. It currently only implements a single lock but when time permits I will provide that funtionality. Thanks to Jeff Garzik for providing some sample code.
-> This patch built against 2.6.5. Please consider this for inclusion.
-
-
-I appreciate the credit but I don't see that it addressed my original 
-objection -- the starvation issue.
-
-Do you cap the number of per-array requests a "1024 / n_arrays", or 
-something like that?  You mentioned that the hardware has a maximum of 
-1024 outstanding commands, for all devices.  The two typical solutions 
-are a round-robin queue (see carmel.c) or limiting each array such that 
-if all arrays are full of commands, the total outstanding never exceeds 
-1024.
-
-This patch may be OK for -mm, I would rather not see it go upstream -- 
-it seems to me you are choosing to decrease stability to obtain a 
-performance increase.  I think you can increase performance without 
-decreasing stability.
-
-	Jeff
-
-
+Cheers,
+	Bruce
 

@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbUCKLNq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 06:13:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbUCKLNq
+	id S261190AbUCKL00 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 06:26:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbUCKL00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 06:13:46 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:51654 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261184AbUCKLNp (ORCPT
+	Thu, 11 Mar 2004 06:26:26 -0500
+Received: from dp.samba.org ([66.70.73.150]:61840 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261190AbUCKL0Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 06:13:45 -0500
-MIME-Version: 1.0
+	Thu, 11 Mar 2004 06:26:25 -0500
+Date: Thu, 11 Mar 2004 22:22:22 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Mickael Marchand <marchand@kde.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm1
+Message-ID: <20040311112222.GA16751@krispykreme>
+References: <20040310233140.3ce99610.akpm@osdl.org> <200403111017.33363.marchand@kde.org> <20040311030607.22706063.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16464.18916.155063.971896@alkaid.it.uu.se>
-Date: Thu, 11 Mar 2004 12:13:40 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Jonathan Lundell <jlundell@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: nmi oddity
-In-Reply-To: <p0610038abc75b353d82c@[192.168.0.3]>
-References: <p0610038abc75b353d82c@[192.168.0.3]>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <20040311030607.22706063.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Lundell writes:
- > Running smp 2.4.9 (don't ask) with updated nmi logic on a Dell 650 
- > (UP P4), I notice that NMI is running at about 1.08 Hz. Per the 
- > kernel logic, it should be running at HZ (100) Hz.
- > 
- > I'm using NMI_LOCAL_APIC. check_nmi_watchdog() never gets called in 
- > this mode in an smp kernel, near as I can tell, so nmi_hz never gets 
- > set to 1.
- > 
- > What's going on? Or does anyone else see it?
 
-This is a normal. The NMIs are generated from an in-CPU performance
-counter configured to increment once per CPU core clock cycle.
-(There is no wallclock-like event available, alas.)
+> > ioctl32(fsck.reiserfs:201): Unknown cmd fd(4) cmd(80081272){00} arg(ffffdab8) on /dev/ide/host0/bus0/target0/lun0/part4
+> 
+> Is this something which 2.6 has always done, or is it new behaviour?
+> 
+> reiserfs ioctl translation appears to be incomplete...
 
-Whenever the kernel is idle, "hlt" is normally executed which
-stops the CPU until the next external interrupt (typically the
-timer). Hence, an idle machine will see a much lower NMI frequence
-than a non-idle one.
+Some clown is running around "fixing" our ioctls:
 
-This behaviour is not universal. Server Tualatins seem to run at
-full speed all the time; perhaps they ignore hlt?
+X0081272 is BLKGETSIZE64. Yeah its bust, it was one of those calls that
+we passed in sizeof(8) instead of 8. The ioctl should be X0041272. 
+The definition is:
 
-If you want NMI_LOCAL_APIC to be clock-like, upgrade your cooling
-solution and disable hlt.
+#define BLKGETSIZE64 _IOR(0x12,114,size_t)
 
-/Mikael
+However at least in debian unstable, util-linux has:
+
+./fdisk/common.h:#define BLKGETSIZE64 _IOR(0x12,114,8)  /* 8 = sizeof(u64) */
+./lib/get_blocks.c:#define BLKGETSIZE64 _IOR(0x12,114,long long)
+
+ie X0081272
+
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=233626
+
+Anton

@@ -1,36 +1,135 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315806AbSFCXbk>; Mon, 3 Jun 2002 19:31:40 -0400
+	id <S315856AbSFCXfi>; Mon, 3 Jun 2002 19:35:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315856AbSFCXbj>; Mon, 3 Jun 2002 19:31:39 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:58100 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315806AbSFCXbi>; Mon, 3 Jun 2002 19:31:38 -0400
-Subject: Re: please kindly get back to me
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020603222338.F18899@mea-ext.zmailer.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 04 Jun 2002 01:37:20 +0100
-Message-Id: <1023151040.23878.106.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S315883AbSFCXfh>; Mon, 3 Jun 2002 19:35:37 -0400
+Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:31938 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S315862AbSFCXff>; Mon, 3 Jun 2002 19:35:35 -0400
+Message-ID: <20020603233531.10357.qmail@linuxmail.org>
+Content-Type: multipart/mixed; boundary="----------=_1023147331-10095-2"
+Content-Transfer-Encoding: binary
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Anthony Spinillo" <tspinillo@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 04 Jun 2002 07:35:31 +0800
+Subject: Re: INTEL 845G Chipset IDE Quandry
+X-Originating-Ip: 24.49.78.239
+X-Originating-Server: ws4-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-06-03 at 20:23, Matti Aarnio wrote:
->   I think there are several free codes of this kind available, but my time
->   has been chronically over-subscribed to do radical things like taking
->   this kind of codes into use.
+This is a multi-part message in MIME format...
 
-Even then you need to do the work to fix the biggest problem, and I'd
-hate to hack on majordomo for it - that is to hold spam scored messages,
-advise the sender and accept a confirmation email to forward it to the
-list.
+------------=_1023147331-10095-2
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Mailing list admin is a full time job. Matti is an oft forgotten but
-critical cog in the wheels of Linux
+I just tried Andre's patch. I applied it on top of 2.4.19pre9-ac3.(Patch attached below.) It pulled me up to DMA. I tested by setting hdparm -d1 /dev/hdc
+(my DVD drive) and played a DVD with Xine. It played great!
+
+I do not have an IDE hard drive to test, since my HD is SCSI.
+
+I will try Vojtech's patch next, and report in.
+
+Thanks for all your help! (Andre, Vojtech, JeffN and everyone else.)
+
+Tony
 
 
+-- 
+Get your free email from www.linuxmail.org 
+
+
+Powered by Outblaze
+
+------------=_1023147331-10095-2
+Content-Type: application/octet-stream; name="andre.patch"
+Content-Disposition: attachment; filename="andre.patch"
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtdXJOIGxpbnV4LTIuNC4xOS1wOS1hYzMtcHJpc3RpbmUvZHJpdmVy
+cy9pZGUvaWRlLXBjaS5jCmxpbnV4LTIuNC4xOS1wOS1hYzMvZHJpdmVycy9p
+ZGUvaWRlLXBjaS5jCi0tLSBsaW51eC0yLjQuMTktcDktYWMzLXByaXN0aW5l
+L2RyaXZlcnMvaWRlL2lkZS1wY2kuYwlTdW4gSnVuICAyCjE2OjQ5OjA2IDIw
+MDIKKysrIGxpbnV4LTIuNC4xOS1wOS1hYzMvZHJpdmVycy9pZGUvaWRlLXBj
+aS5jCVN1biBKdW4gIDIgMjA6NTI6NDkgMjAwMgpAQCAtNDcsNiArNDcsNyBA
+QAogI2RlZmluZSBERVZJRF9QSUlYNFU1CSgoaWRlX3BjaV9kZXZpZF90KXtQ
+Q0lfVkVORE9SX0lEX0lOVEVMLCAgUENJX0RFVklDRV9JRF9JTlRFTF84Mjgw
+MUNBXzEwfSkKICNkZWZpbmUgREVWSURfUElJWDRVNgkoKGlkZV9wY2lfZGV2
+aWRfdCl7UENJX1ZFTkRPUl9JRF9JTlRFTCwgIFBDSV9ERVZJQ0VfSURfSU5U
+RUxfODI4MDFDQV8xMX0pCiAjZGVmaW5lIERFVklEX1BJSVg0VTcJKChpZGVf
+cGNpX2RldmlkX3Qpe1BDSV9WRU5ET1JfSURfSU5URUwsICBQQ0lfREVWSUNF
+X0lEX0lOVEVMXzgyODAxRV8xMX0pCisjZGVmaW5lIERFVklEX1BJSVg0VTgJ
+KChpZGVfcGNpX2RldmlkX3Qpe1BDSV9WRU5ET1JfSURfSU5URUwsICBQQ0lf
+REVWSUNFX0lEX0lOVEVMXzgyODAxREJfMTF9KQogI2RlZmluZSBERVZJRF9W
+SUFfSURFCSgoaWRlX3BjaV9kZXZpZF90KXtQQ0lfVkVORE9SX0lEX1ZJQSwJ
+IFBDSV9ERVZJQ0VfSURfVklBXzgyQzU2MX0pCiAjZGVmaW5lIERFVklEX01S
+X0lERQkoKGlkZV9wY2lfZGV2aWRfdCl7UENJX1ZFTkRPUl9JRF9WSUEsCSBQ
+Q0lfREVWSUNFX0lEX1ZJQV84MkM1NzZfMX0pCiAjZGVmaW5lIERFVklEX1ZQ
+X0lERQkoKGlkZV9wY2lfZGV2aWRfdCl7UENJX1ZFTkRPUl9JRF9WSUEsCSBQ
+Q0lfREVWSUNFX0lEX1ZJQV84MkM1ODZfMX0pCkBAIC00MzgsNiArNDM5LDcg
+QEAKCXtERVZJRF9QSUlYNFU1LCAiUElJWDQiLAlGSVhVUF9QSUlYLAlQQ0lf
+UElJWCwgICAgQVRBNjZfUElJWCwJICBJTklUX1BJSVgsCSAgTlVMTCwgCSAg
+e3sweDQxLDB4ODAsMHg4MH0sezB4NDMsMHg4MCwweDgwfX0sICAgT05fQk9B
+UkQsCSAgICAgMCB9LAoJe0RFVklEX1BJSVg0VTYsICJQSUlYNCIsCUZJWFVQ
+X1BJSVgsCVBDSV9QSUlYLCAgICBBVEE2Nl9QSUlYLAkgIElOSVRfUElJWCwJ
+ICBOVUxMLCAJICB7ezB4NDEsMHg4MCwweDgwfSx7MHg0MywweDgwLDB4ODB9
+fSwgICBPTl9CT0FSRCwJICAgICAwIH0sCgl7REVWSURfUElJWDRVNywgIlBJ
+SVg0IiwJRklYVVBfUElJWCwJUENJX1BJSVgsICAgIEFUQTY2X1BJSVgsCSAg
+SU5JVF9QSUlYLAkgIE5VTEwsIAkgIHt7MHg0MSwweDgwLDB4ODB9LHsweDQz
+LDB4ODAsMHg4MH19LCAgIE9OX0JPQVJELAkgICAgIDAgfSwKKwl7REVWSURf
+UElJWDRVOCwgIlBJSVg0IiwJRklYVVBfUElJWCwJUENJX1BJSVgsICAgIEFU
+QTY2X1BJSVgsCSAgSU5JVF9QSUlYLAkgIE5VTEwsIAkgIHt7MHg0MSwweDgw
+LDB4ODB9LHsweDQzLDB4ODAsMHg4MH19LCAgIE9OX0JPQVJELAkgICAgIDAg
+fSwKCXtERVZJRF9WSUFfSURFLCAiVklBX0lERSIsCU5VTEwsCQlOVUxMLAkg
+ICAgIE5VTEwsIAkgIE5VTEwsIAkgIE5VTEwsIAkgIHt7MHgwMCwweDAwLDB4
+MDB9LHsweDAwLDB4MDAsMHgwMH19LCAgIE9OX0JPQVJELAkgICAgIDAgfSwK
+CXtERVZJRF9NUl9JREUsCSJWUF9JREUiLAlOVUxMLAkgICAgICAgUENJX1ZJ
+QTgyQ1hYWCwJQVRBNjZfVklBODJDWFhYLElOSVRfVklBODJDWFhYLCBETUFf
+VklBODJDWFhYLCB7ezB4NDAsMHgwMiwweDAyfSwgezB4NDAsMHgwMSwweDAx
+fX0sCU9OX0JPQVJELAkwIH0sCgl7REVWSURfVlBfSURFLAkiVlBfSURFIiwJ
+TlVMTCwJICAgICAgIFBDSV9WSUE4MkNYWFgsCUFUQTY2X1ZJQTgyQ1hYWCxJ
+TklUX1ZJQTgyQ1hYWCwgRE1BX1ZJQTgyQ1hYWCwge3sweDQwLDB4MDIsMHgw
+Mn0sIHsweDQwLDB4MDEsMHgwMX19LAlPTl9CT0FSRCwJMCB9LApkaWZmIC11
+ck4gbGludXgtMi40LjE5LXA5LWFjMy1wcmlzdGluZS9kcml2ZXJzL2lkZS9w
+aWl4LmMKbGludXgtMi40LjE5LXA5LWFjMy9kcml2ZXJzL2lkZS9waWl4LmMK
+LS0tIGxpbnV4LTIuNC4xOS1wOS1hYzMtcHJpc3RpbmUvZHJpdmVycy9pZGUv
+cGlpeC5jCVN1biBKdW4gIDIKMTY6NDk6MDYgMjAwMgorKysgbGludXgtMi40
+LjE5LXA5LWFjMy9kcml2ZXJzL2lkZS9waWl4LmMJU3VuIEp1biAgMiAyMDoz
+NjoyMyAyMDAyCkBAIC05NCw2ICs5NCw3IEBACiAJCWNhc2UgUENJX0RFVklD
+RV9JRF9JTlRFTF84MjgwMUNBXzEwOgogCQljYXNlIFBDSV9ERVZJQ0VfSURf
+SU5URUxfODI4MDFDQV8xMToKIAkJY2FzZSBQQ0lfREVWSUNFX0lEX0lOVEVM
+XzgyODAxRV8xMToKKwkJY2FzZSBQQ0lfREVWSUNFX0lEX0lOVEVMXzgyODAx
+REJfMTE6CiAJCQlwICs9IHNwcmludGYocCwgIkludGVsIFBJSVg0IFVsdHJh
+IDEwMCBDaGlwc2V0LlxuIik7CiAJCQlicmVhazsKIAkJY2FzZSBQQ0lfREVW
+SUNFX0lEX0lOVEVMXzgyMzcyRkJfMToKQEAgLTIxNiw2ICsyMTcsNyBAQAog
+CQljYXNlIFBDSV9ERVZJQ0VfSURfSU5URUxfODI4MDFDQV8xMDoKIAkJY2Fz
+ZSBQQ0lfREVWSUNFX0lEX0lOVEVMXzgyODAxQ0FfMTE6CiAJCWNhc2UgUENJ
+X0RFVklDRV9JRF9JTlRFTF84MjgwMUVfMTE6CisJCWNhc2UgUENJX0RFVklD
+RV9JRF9JTlRFTF84MjgwMURCXzExOgogCQkJbW9kZSB8PSAweDAzOwogCQkJ
+YnJlYWs7CiAJCWNhc2UgUENJX0RFVklDRV9JRF9JTlRFTF84MjgwMUFBXzE6
+CkBAIC01MzQsNiArNTM2LDcgQEAKIAkJY2FzZSBQQ0lfREVWSUNFX0lEX0lO
+VEVMXzgyODAxQ0FfMTA6CiAJCWNhc2UgUENJX0RFVklDRV9JRF9JTlRFTF84
+MjgwMUNBXzExOgogCQljYXNlIFBDSV9ERVZJQ0VfSURfSU5URUxfODI4MDFF
+XzExOgorCQljYXNlIFBDSV9ERVZJQ0VfSURfSU5URUxfODI4MDFEQl8xMToK
+IAkJewogCQkJdW5zaWduZWQgaW50IGV4dHJhID0gMDsKIAkJCXBjaV9yZWFk
+X2NvbmZpZ19kd29yZChkZXYsIDB4NTQsICZleHRyYSk7CmRpZmYgLXVyTiBs
+aW51eC0yLjQuMTktcDktYWMzLXByaXN0aW5lL2luY2x1ZGUvbGludXgvcGNp
+X2lkcy5oCmxpbnV4LTIuNC4xOS1wOS1hYzMvaW5jbHVkZS9saW51eC9wY2lf
+aWRzLmgKLS0tIGxpbnV4LTIuNC4xOS1wOS1hYzMtcHJpc3RpbmUvaW5jbHVk
+ZS9saW51eC9wY2lfaWRzLmgJU3VuCkp1biAgMiAxNjo0OToxNyAyMDAyCisr
+KyBsaW51eC0yLjQuMTktcDktYWMzL2luY2x1ZGUvbGludXgvcGNpX2lkcy5o
+IFN1biBKdW4gIDIgMjA6NTM6NTMKMjAwMgpAQCAtMTY4NSw2ICsxNjg1LDcg
+QEAKICNkZWZpbmUgUENJX0RFVklDRV9JRF9JTlRFTF84MjgwMUNBXzEwCTB4
+MjQ4YQogI2RlZmluZSBQQ0lfREVWSUNFX0lEX0lOVEVMXzgyODAxQ0FfMTEJ
+MHgyNDhiCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfSU5URUxfODI4MDFDQV8x
+MgkweDI0OGMKKyNkZWZpbmUgUENJX0RFVklDRV9JRF9JTlRFTF84MjgwMURC
+XzExCTB4MjRjYgogI2RlZmluZSBQQ0lfREVWSUNFX0lEX0lOVEVMXzgwMzEw
+CTB4NTMwZAogI2RlZmluZSBQQ0lfREVWSUNFX0lEX0lOVEVMXzgyODEwX01D
+MQkweDcxMjAKICNkZWZpbmUgUENJX0RFVklDRV9JRF9JTlRFTF84MjgxMF9J
+RzEJMHg3MTIxCgo=
+
+------------=_1023147331-10095-2--

@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132660AbRALXva>; Fri, 12 Jan 2001 18:51:30 -0500
+	id <S135319AbRALX5y>; Fri, 12 Jan 2001 18:57:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135319AbRALXvT>; Fri, 12 Jan 2001 18:51:19 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50949 "EHLO
+	id <S135610AbRALX5o>; Fri, 12 Jan 2001 18:57:44 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53765 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132660AbRALXvJ>; Fri, 12 Jan 2001 18:51:09 -0500
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardwarerelated?
-To: mingo@elte.hu
-Date: Fri, 12 Jan 2001 23:50:39 +0000 (GMT)
-Cc: frank@unternet.org (Frank de Lange),
-        manfred@colorfullife.com (Manfred Spraul),
-        torvalds@transmeta.com (Linus Torvalds), dwmw2@infradead.org,
-        linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <Pine.LNX.4.30.0101122130310.2772-100000@e2> from "Ingo Molnar" at Jan 12, 2001 09:31:15 PM
+	id <S135319AbRALX5b>; Fri, 12 Jan 2001 18:57:31 -0500
+Subject: Re: 2.4.0 bug - X doesn't start
+To: florin@sgi.com (Florin Andrei)
+Date: Fri, 12 Jan 2001 23:59:18 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A5F86FC.86FA69FB@sgi.com> from "Florin Andrei" at Jan 12, 2001 02:36:44 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14HDxw-0005Gb-00@the-village.bc.nu>
+Message-Id: <E14HE6K-0005Ho-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> WITH. patched 8390.c, patched apic.c, sock io_apic.c. My very strong
-> feeling is that this will be a stable combination, and that this is what
-> we want as a final solution.
+> 	When i boot the system, X Window doesn't start automatically (but if i boot a
+> 2.2 kernel, it does). This is very strange.
+> 	Also, seems like Sendmail waits forever until it starts. But this might be a
+> network card driver problem (not sure, though).
 
-If you do that please #ifdef SMP all the changes. Its impossible to use a modem
-and an ne2K together on a typical PC otherwise. The copy from the NE2K with
-irq disabled is just _SO_ slow you drop bytes continually.
+Its the behaviour changes in 2.4 with regard to UDP error messages. Glibc doesnt
+yet have the code to adapt.
 
-I did all the horrible magic in the ne2k driver for a reason. The other 
-alternative is to provide a way to force the system back out of apic mode
-so the ne2K driver can do a
-
-	goodbye_apic_crap()
-
-type call
+However: It does imply your resolv.conf may reference a server that doesnt
+exist or is unreachable. Unfortunately if your server is across a dialup
+or other link brought up after boot then 2.4 + glibc isnt going to be happy
+until that work is completed and you get a newer glibc
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

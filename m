@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282843AbSBISfQ>; Sat, 9 Feb 2002 13:35:16 -0500
+	id <S284732AbSBISrg>; Sat, 9 Feb 2002 13:47:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282845AbSBISfG>; Sat, 9 Feb 2002 13:35:06 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:2829 "HELO mail.pha.ha-vel.cz")
-	by vger.kernel.org with SMTP id <S282843AbSBISfD>;
-	Sat, 9 Feb 2002 13:35:03 -0500
-Date: Sat, 9 Feb 2002 19:35:00 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Pavel Machek <pavel@suse.cz>, Dave Jones <davej@suse.de>,
-        kernel list <linux-kernel@vger.kernel.org>, vojtech@ucw.cz,
-        andre@linuxdiskcert.org
-Subject: Re: ide cleanup
-Message-ID: <20020209193500.A18944@suse.cz>
-In-Reply-To: <20020206205332.GA3217@elf.ucw.cz> <Pine.LNX.3.96.1020209131726.23246D-100000@gatekeeper.tmr.com>
+	id <S284180AbSBISr0>; Sat, 9 Feb 2002 13:47:26 -0500
+Received: from host194.steeleye.com ([216.33.1.194]:1041 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S282902AbSBISrW>; Sat, 9 Feb 2002 13:47:22 -0500
+Message-Id: <200202091847.g19IlIq02443@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Pavel Machek <pavel@suse.cz>
+cc: James Bottomley <James.Bottomley@HansenPartnership.com>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH: NEW ARCHITECTURE FOR 2.5.3] support for NCR voyager 
+In-Reply-To: Message from Pavel Machek <pavel@suse.cz> 
+   of "Sat, 09 Feb 2002 19:00:58 +0100." <20020209180057.GB113@elf.ucw.cz> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.96.1020209131726.23246D-100000@gatekeeper.tmr.com>; from davidsen@tmr.com on Sat, Feb 09, 2002 at 01:19:58PM -0500
+Date: Sat, 09 Feb 2002 13:47:18 -0500
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 09, 2002 at 01:19:58PM -0500, Bill Davidsen wrote:
-> On Wed, 6 Feb 2002, Pavel Machek wrote:
-> 
-> > -#ifdef CONFIG_BLK_DEV_PDC4030
-> >  	if (IS_PDC4030_DRIVE) {
-> >  		extern ide_startstop_t promise_rw_disk(ide_drive_t *, struct request *, unsigned long);
-> >  		return promise_rw_disk(drive, rq, block);
-> >  	}
-> > -#endif /* CONFIG_BLK_DEV_PDC4030 */
-> 
-> Am I reading this totally wrong, or do you really think it's a good idea
-> to test for a drive even if the user didn't configure such hardware?
+pavel@suse.cz said:
+> Maybe you should stop calling it new architecture? Its mostly
+> i386-compatible, right? 
 
-Well, since IS_PDC4030_DRIVE will always be 0 in that case, the test
-will be optimized out ...
+It's x86 based, and like all good x86 machines, it has a mode where it will 
+boot on a single CPU and look like a microchannel PC.  However, the voyagers 
+were designed to be large multi-CPU SMP machines.  For SMP, it is completely 
+incompatible with the APIC/IO-APIC architecture which linux supports, so the 
+voyager patches provide a completely different SMP HAL, which had to be 
+written from scratch; it's not merely a modification of the existing one.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+> BTW are those "current" machines, or is their production already
+> stopped? 
+
+I believe the last data centre machines (the 32 CPU 51xx series) rolled off 
+NCR's production lines in 2001, so it is pretty much an obsolete machine now.
+
+James
+
+

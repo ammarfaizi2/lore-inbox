@@ -1,64 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266319AbUIWQHt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266512AbUIWQHZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266319AbUIWQHt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 12:07:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266364AbUIWQHs
+	id S266512AbUIWQHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 12:07:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUIWQHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 12:07:48 -0400
-Received: from mail-3-bnl.tiscali.it ([213.205.33.223]:32859 "EHLO
-	mail-3-bnl.tiscali.it") by vger.kernel.org with ESMTP
-	id S266319AbUIWQDw convert rfc822-to-8bit (ORCPT
+	Thu, 23 Sep 2004 12:07:24 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:24524 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266364AbUIWQEY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 12:03:52 -0400
-Date: Thu, 23 Sep 2004 18:03:23 +0200
-Message-ID: <4152E6450000003B@mail-3-bnl.tiscali.it>
-In-Reply-To: <20040922214304.GS16153@parcelfarce.linux.theplanet.co.uk>
-From: "Joel Soete" <soete.joel@tiscali.be>
-Subject: RE: [parisc-linux] [PATCH] Sort generic PCI fixups after specific ones
-To: "Matthew Wilcox" <matthew@wil.cx>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@zip.com.au>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       parisc-linux@parisc-linux.org
+	Thu, 23 Sep 2004 12:04:24 -0400
+Message-ID: <4152F19C.4000804@sgi.com>
+Date: Thu, 23 Sep 2004 10:54:04 -0500
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-15"
-Content-Transfer-Encoding: 8BIT
+To: Steve Longerbeam <stevel@mwwireless.net>
+CC: linux-mm <linux-mm@kvack.org>, lse-tech <lse-tech@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/2] mm: memory policy for page cache allocation
+References: <20040920190033.26965.64678.54625@tomahawk.engr.sgi.com> <20040920205509.GF4242@wotan.suse.de> <414F6C69.8060406@mwwireless.net>
+In-Reply-To: <414F6C69.8060406@mwwireless.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Steve,
 
-> -- Original Message --
-> Date: Wed, 22 Sep 2004 22:43:04 +0100
-> From: Matthew Wilcox <matthew@wil.cx>
-> To: Linus Torvalds <torvalds@osdl.org>,
-> 	Andrew Morton <akpm@zip.com.au>
-> Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-> 	parisc-linux@parisc-linux.org
-> Subject: [parisc-linux] [PATCH] Sort generic PCI fixups after specific
-ones
+Steve Longerbeam wrote:
+
+> -------- original email follows ----------
+> 
+> Hi Andi,
+> 
+> I'm working on adding the features to NUMA mempolicy
+> necessary to support MontaVista's MTA.
+> 
+> Attached is the first of those features, support for
+> global page allocation policy for mapped files. Here's
+> what the patch is doing:
+> 
+> 1. add a shared_policy tree to the address_space object in fs.h.
+> 2. modify page_cache_alloc() in pagemap.h to take an address_space
+>    object and page offset, and use those to allocate a page for the
+>    page cache using the policy in the address_space object.
+> 3. modify filemap.c to pass the additional {mapping, page offset} pair
+>    to page_cache_alloc().
+> 4. Also in filemap.c, implement generic file {set|get}_policy() methods and
+>    add those to generic_file_vm_ops.
+> 5. In filemap_nopage(), verify that any existing page located in the cache
+>    is located in a node that satisfies the file's policy. If it's not in 
+> a node that
+>    satisfies the policy, it must be because the page was allocated 
+> before the
+>    file had any policies. If it's unused, free it and goto retry_find 
+> (will allocate
+>    a new page using the file's policy). Note that a similar operation is 
+> done in
+>    exec.c:setup_arg_pages() for stack pages.
+> 6. Init the file's shared policy in alloc_inode(), and free the shared 
+> policy in
+>    destroy_inode().
+> 
+> I'm working on the remaining features needed for MTA. They are:
+> 
+> - support for policies contained in ELF images, for text and data regions.
+> - support for do_mmap_mempolicy() and do_brk_mempolicy(). Do_mmap()
+>   can allocate pages to the region before the function exits, such as 
+> when pages
+>   are locked for the region. So it's necessary in that case to set the 
+> VMA's policy
+>   within do_mmap() before those pages are allocated.
+> - system calls for mmap_mempolicy and brk_mempolicy.
+> 
+> Let me know your thoughts on the filemap policy patch.
+> 
+> Thanks,
+> Steve
 > 
 > 
-> 
-> The recent change that allowed PCI fixups to be declared everywhere
-> broke IDE on PA-RISC by making the generic IDE fixup be applied before
-> the PA-RISC specific one.  This patch fixes that by sorting generic fixups
-> after the specific ones.  It also obeys the 80-column limit and reduces
-> the amount of grotty macro code.
-> 
-> I'd like to thank Joel Soete for his work tracking down the source of
-> this problem.
->
-Thanks (but too much honor)
 
-That said, I apply your patch against 2.6.9-rc2-pa7 and it boot fine :)
+Steve,
 
-Thanks a lot for great job,
-Joel
+I guess I am a little lost on this without understanding what MTA is.
+Is there a design/requirements document you can point me at?
 
+Also, can you comment on how the above is related to my page cache
+allocation policy patch?   Does having a global page cache allocation
+policy with a per process override satisfy your requirements at all
+or do you specifically have per file policies you want to specify?
 
----------------------------------------------------------------------------
-Tiscali ADSL GO, 29,50 Euro/mois pendant toute une année, profitez-en...
-http://reg.tiscali.be/adsl/welcome.asp?lg=FR
+(Just trying to figure out how to work both of our requirements into
+the kernel in as simple as possible (but no simpler!) fashion.)
 
-
-
+-- 
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------
 

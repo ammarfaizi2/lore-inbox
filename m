@@ -1,28 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262703AbSJGSUY>; Mon, 7 Oct 2002 14:20:24 -0400
+	id <S261687AbSJGS0K>; Mon, 7 Oct 2002 14:26:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262731AbSJGSUY>; Mon, 7 Oct 2002 14:20:24 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:12183 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S262703AbSJGSUX>; Mon, 7 Oct 2002 14:20:23 -0400
-Date: Mon, 7 Oct 2002 14:48:09 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Andi Kleen <ak@muc.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Why does x86_64 support a SuSE-specific ioctl?
-In-Reply-To: <m3it0hexs2.fsf@averell.firstfloor.org>
-Message-ID: <Pine.LNX.4.44L.0210071447270.19958-100000@freak.distro.conectiva>
+	id <S262517AbSJGS0A>; Mon, 7 Oct 2002 14:26:00 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:51841 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S261687AbSJGSZF>;
+	Mon, 7 Oct 2002 14:25:05 -0400
+Date: Mon, 7 Oct 2002 13:30:27 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: "David S. Miller" <davem@redhat.com>
+cc: alan@lxorguk.ukuu.org.uk, <RogerWhile@sim-basis.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Make 2.5.40-ac5 fails
+In-Reply-To: <20021007.085211.83878631.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0210071326270.3323-100000@dad.molina>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 7 Oct 2002, David S. Miller wrote:
 
-Andi,
+>    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+>    Date: 07 Oct 2002 16:57:45 +0100
+>    
+>    A lot of the ISDN layer hasn't yet been updated to the new locking,
+>    ditto a few bits of the netfilter code
+> 
+> The netfilter bits are just missing generic exports of stuff after
+> Ingo's threading changes.
 
-Please send me a patch to remove TIOCGDEV from my tree.
+The following patch hasn't been merged yet.  I've been carrying it for a 
+couple of kernel revisions.
 
-Thanks.
+--- linux-2.5-tm/kernel/ksyms.cksyms.c.orig	Sat Oct  5 19:43:21 2002
++++ linux-2.5-tm/kernel/ksyms.cksyms.c	        Sat Oct  5 20:04:00 2002
+@@ -600,6 +600,8 @@
+ EXPORT_SYMBOL(init_thread_union);
+ 
+ EXPORT_SYMBOL(tasklist_lock);
++EXPORT_SYMBOL(find_task_by_pid);
++EXPORT_SYMBOL(next_thread);
+ #if defined(CONFIG_SMP) && defined(__GENERIC_PER_CPU)
+ EXPORT_SYMBOL(__per_cpu_offset);
+ #endif
 

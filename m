@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262490AbREXXIH>; Thu, 24 May 2001 19:08:07 -0400
+	id <S262500AbREXXJr>; Thu, 24 May 2001 19:09:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262496AbREXXH5>; Thu, 24 May 2001 19:07:57 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:1673 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262490AbREXXHr>;
-	Thu, 24 May 2001 19:07:47 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S262498AbREXXJh>; Thu, 24 May 2001 19:09:37 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:44534 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S262500AbREXXJX>; Thu, 24 May 2001 19:09:23 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200105242308.f4ON8fv8015978@webber.adilger.int>
+Subject: Re: [CHECKER] large stack variables (>=1K) in 2.4.4 and 2.4.4-ac8
+In-Reply-To: <200105242110.OAA29766@csl.Stanford.EDU> "from Dawson Engler at
+ May 24, 2001 02:10:00 pm"
+To: Dawson Engler <engler@csl.stanford.edu>
+Date: Thu, 24 May 2001 17:08:40 -0600 (MDT)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15117.37952.537252.892498@pizda.ninka.net>
-Date: Thu, 24 May 2001 16:07:44 -0700 (PDT)
-To: Bharath Madhavan <bharath_madhavan@ivivity.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Accelerated TCP/IP support from kernel
-In-Reply-To: <25369470B6F0D41194820002B328BDD20717A0@ATLOPS>
-In-Reply-To: <25369470B6F0D41194820002B328BDD20717A0@ATLOPS>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dawson Engler writes:
+> Here are 37 errors where variables >= 1024 bytes are allocated on a
+> function's stack.
 
-Bharath Madhavan writes:
- > I guess 3c905c NIC supports HW checksumming. Is this true?
+First of all, thanks very much for the work you are doing.  It really
+is useful, and a good way to catch those very rare error cases that
+would not otherwise be fixed.
 
-Yes.
+I'm curious about this stack checker.  Does it check for a single
+stack allocation >= 1024 bytes, or does it also check for several
+individual, smaller allocations which total >= 1024 bytes inside
+a single function?  That would be equally useful.
 
- > In this case, do we have any benchmarking for this card 
- > with and without ZERO_COPY (and HW checksumming). I am eager to
- > know by how many times did the system throughput increase?
+On a side note, does anyone know if the kernel does checking if the
+stack overflowed at any time?  It is hard to use Dawson's tools to
+verify call paths because of interrupts and such, but I wonder what
+happens when the kernel stack overflows - OOPS, or silent corruption?
 
-It doesn't matter with 100baseT cards, they are slow enough that even
-with the cpu doing the data copies the link may be easily saturated.
-What you will get is decreased CPU utilization.
-
-You need to go to gigabit or faster link speeds to see any real
-throughput improvement.
-
-Later,
-David S. Miller
-davem@redhat.com
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

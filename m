@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265468AbRFVRBZ>; Fri, 22 Jun 2001 13:01:25 -0400
+	id <S265470AbRFVRJz>; Fri, 22 Jun 2001 13:09:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265469AbRFVRBP>; Fri, 22 Jun 2001 13:01:15 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:18933 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S265468AbRFVRBG>;
-	Fri, 22 Jun 2001 13:01:06 -0400
-Date: Fri, 22 Jun 2001 13:00:58 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Timur Tabi <ttabi@interactivesi.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: What happened to lookup_dentry?
-In-Reply-To: <g_XL8.A.V8G.4n3L7@dinero.interactivesi.com>
-Message-ID: <Pine.GSO.4.21.0106221257330.3434-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265471AbRFVRJp>; Fri, 22 Jun 2001 13:09:45 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:38665 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S265470AbRFVRJ1>;
+	Fri, 22 Jun 2001 13:09:27 -0400
+Date: Fri, 22 Jun 2001 13:12:56 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Russell King <rmk@arm.linux.org.uk>, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Missing help entries in 2.4.6pre5
+Message-ID: <20010622131256.B14651@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Russell King <rmk@arm.linux.org.uk>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010621154934.A6582@thyrsus.com> <20010621205537.X18978@flint.arm.linux.org.uk> <20010621160309.A6744@thyrsus.com> <7987.993197604@redhat.com> <20010622094934.A13075@thyrsus.com> <10604.993218210@redhat.com> <20010622102458.A13435@thyrsus.com> <18157.993221693@redhat.com> <20010622111154.A13799@thyrsus.com> <28493.993227266@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <28493.993227266@redhat.com>; from dwmw2@infradead.org on Fri, Jun 22, 2001 at 05:27:46PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Woodhouse <dwmw2@infradead.org>:
+> OK. You didn't put these two on your ignore list the first time I told you
+> about them. Can I assume, then, that you've done so now and you won't be
+> asking about them again for a while?
 
+Yes.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-On Tue, 19 Jun 2001, Timur Tabi wrote:
-
-> Well, I didn't write the driver that I'm trying to port, so it's a little
-> difficult.  The code in question is:
-> 
-> struct dentry *	de = lookup_dentry(zfcdb[i].fullname, NULL, LOOKUP_FOLLOW);
-> if (IS_ERR(de))
-> 	continue;
-> if (de != zfcdb[i].dentry) 
-> {
-> 	print("zfc: dentry changed for %s\n", zfcdb[i].fullname);
-> 	zfc_file_init(&zfcdb[i], de);
-> }
-> 
-> So it appears it's just checking to see if the dentry for a particular file has
-> changed.
-
-Apparently, more than that. You'll need at least vfsmount in addition to
-dentry. Could you send me the source? In principle, situation looks like
-you need path_init() and path_walk(), but you almost definitely will need
-to make changes in more places than that.
-
-It should be easy to fix, but it's easier to mark the places that need
-fixing in the source than try to describe how to find them ;-)
-
+"Say what you like about my bloody murderous government," I says,
+"but don't insult me poor bleedin' country."
+	-- Edward Abbey

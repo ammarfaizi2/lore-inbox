@@ -1,51 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263451AbTFPG7q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 02:59:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbTFPG7q
+	id S263407AbTFPGz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 02:55:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263451AbTFPGz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 02:59:46 -0400
-Received: from ns.suse.de ([213.95.15.193]:3849 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263451AbTFPG7p (ORCPT
+	Mon, 16 Jun 2003 02:55:57 -0400
+Received: from [4.5.97.206] ([4.5.97.206]:18560 "EHLO gallant")
+	by vger.kernel.org with ESMTP id S263407AbTFPGz4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 02:59:45 -0400
-To: mikpe@csd.uu.se
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: perfctr-2.5.5 released
-References: <200306152229.h5FMTa93026063@harpo.it.uu.se.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 16 Jun 2003 09:13:34 +0200
-In-Reply-To: <200306152229.h5FMTa93026063@harpo.it.uu.se.suse.lists.linux.kernel>
-Message-ID: <p73d6he4hr5.fsf@oldwotan.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 16 Jun 2003 02:55:56 -0400
+Subject: IPSEC problems with GRE.
+From: Julian Blake Kongslie <jblake@omgwallhack.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0vHIMrTl5rCR2/k75JK5"
+Message-Id: <1055746871.2305.7.camel@festa.omgwallhack.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 16 Jun 2003 00:01:11 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mikpe@csd.uu.se writes:
 
-> Version 2.5.5 of perfctr, the Linux/x86 performance
-> monitoring counters driver, is now available at the usual
-> place: http://www.csd.uu.se/~mikpe/linux/perfctr/
-> 
-> x86-64 users please note that the 2.5.71 kernel won't
-> compile on x86-64 due to incomplete 'driver model' changes.
+--=-0vHIMrTl5rCR2/k75JK5
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Hmm? It compiles just fine here even without any patches
-with the defconfig. Ok there are some warnings, but these can be 
-safely ignored.
+Hi there.
 
-(or at least 2.5.71 did, current -bk doesn't again
-because someone changed settimeofday without fixing the ports
-correctly) 
+I've been playing around with IPSec, and I came across a problem with
+encrypting data sent directly by the kernel.
 
-Of course you are usually better off when you apply the current
-patchkit from ftp://ftp.x86-64.org/pub/linux/v2.5/
+Specifically, attempts to encrypt a GRE or IPIP tunnel with ipsec in
+transport mode result in one of:
+	1) No data sent.
+	2) Data sent, ignored by peer.
+	3) Kernel panic, with no SysRq.
 
-> A patch to fix this and two other x86-64 bugs is in the
-> patch-x86_64-2.5.71 file in perfctr's download directory.
+Numbers 1 and 2 might be configuration problems on my part, but I have
+other ipsec setups running fine, and can't see anything different for
+these. Number 3 is a big problem.
 
-When you fix x86-64 bugs you should submit the patches.
+This is on 2.5.70. No third-party modules or other tainting. I can
+provide .configs on request.
 
--Andi
+I don't have the panic copied down, but I can reproduce it and get a
+copy if required.
+
+I know I could certainly accomplish what I want with ipsec tunnel mode,
+but I'm just playing around, and it's a kernel bug in any case.
+
+Thanks.
+
+--=20
+Julian Blake Kongslie <jblake@omgwallhack.org>
+
+--=-0vHIMrTl5rCR2/k75JK5
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA+7Ws3+6o3+Z/zOlURAjuJAJoDefpMe9jMIzgflHBrMG/2W3GDiwCg2ymU
+SwF4UvBg3nSaK20/+Ymu6aE=
+=KNBT
+-----END PGP SIGNATURE-----
+
+--=-0vHIMrTl5rCR2/k75JK5--

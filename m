@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262760AbTCJXKR>; Mon, 10 Mar 2003 18:10:17 -0500
+	id <S261660AbTCJXS5>; Mon, 10 Mar 2003 18:18:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262762AbTCJXKR>; Mon, 10 Mar 2003 18:10:17 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:54545 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S262760AbTCJXKR>; Mon, 10 Mar 2003 18:10:17 -0500
-Date: Tue, 11 Mar 2003 00:20:57 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-Cc: Patrick Mochel <mochel@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SWSUSP Discontiguous pagedir patch
-Message-ID: <20030310232057.GC8555@atrey.karlin.mff.cuni.cz>
-References: <20030307202759.GA2447@elf.ucw.cz> <Pine.LNX.4.33.0303101012230.1002-100000@localhost.localdomain> <20030310192300.GC11310@atrey.karlin.mff.cuni.cz> <1047334626.6245.30.camel@laptop-linux.cunninghams>
+	id <S261900AbTCJXS5>; Mon, 10 Mar 2003 18:18:57 -0500
+Received: from ftpbox.mot.com ([129.188.136.101]:36999 "EHLO ftpbox.mot.com")
+	by vger.kernel.org with ESMTP id <S261660AbTCJXS4>;
+	Mon, 10 Mar 2003 18:18:56 -0500
+X-POPI: The contents of this message are Motorola Internal Use Only (MIUO)
+	unless indicated otherwise in the message.
+Date: Mon, 10 Mar 2003 17:29:35 -0600
+From: Patrick E Kane <kane@urbana.css.mot.com>
+To: phoebe-list@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Stack growing and buffer overflows
+Message-ID: <20030310172935.A1324@scapula.urbana.css.mot.com>
+References: <20030310230012.26391.qmail@linuxmail.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1047334626.6245.30.camel@laptop-linux.cunninghams>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030310230012.26391.qmail@linuxmail.org>; from felipe_alfaro@linuxmail.org on Tue, Mar 11, 2003 at 12:00:12AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+The OpenBSD guys have been working on closing  buffer overflow holes.
+Slashdot has this pointer to a msg from Theo de Raadt: 
+http://groups.google.com/groups?selm=b1aq2h%242q9g%241%40FreeBSD.csie.NCTU.edu.tw&output=gplain
 
-> > Do you think you can suspend with 90% memory kmalloc()-ed?
-> 
-> Is that a fair question? Would 90% of memory ever be kmalloced? If the
-> question is can you suspend with 90% of memory used, then I can answer
-> yes. I do it all the time under the code I'm porting to 2.5. (Nearly
-> there, by the way).
+    In the last while, a couple of people in OpenBSD have
+    been putting some buffer overflow "solutions" into our 
+    source tree; under my continual prodding.  I thought I 
+    would summarize some of these and how they fit together, 
+    since what I have seen written up so far has been
+    wildly inaccurate.  (Bad reporter, no cookie).
 
-No, it was not fair question, not at all. If he'd replied with yes,
-I'd tell him I don't believe that ;-).
-								Pavel
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+    These are, in short form:
+
+       1) PROT_* purity
+       2) W^X
+       3) .rodata
+       4) propolice
+
+    ...
+
+I like the idea of turning off execute permission on the stack pages.
+
+PEK
+---
+
+
+
+
+  

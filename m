@@ -1,225 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264411AbTKUSpl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 13:45:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264413AbTKUSpk
+	id S264415AbTKUSvG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 13:51:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264416AbTKUSvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 13:45:40 -0500
-Received: from uirapuru.fua.br ([200.129.163.1]:22470 "EHLO uirapuru.fua.br")
-	by vger.kernel.org with ESMTP id S264411AbTKUSpe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 13:45:34 -0500
-Message-ID: <18299.200.212.156.130.1069436828.squirrel@webmail.ufam.edu.br>
-Date: Fri, 21 Nov 2003 15:47:08 -0200 (BRST)
-Subject: Adding process physical memoy detailed info in /proc/PID/status
-From: edjard@ufam.edu.br
-To: linux-kernel@vger.kernel.org
-Cc: Mauricio.Lin@indt.org.br, Allan.Bezerra@indt.org.br
-User-Agent: SquirrelMail/1.4.1
+	Fri, 21 Nov 2003 13:51:06 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59805 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264415AbTKUSvA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Nov 2003 13:51:00 -0500
+Message-ID: <3FBE5E70.9060102@pobox.com>
+Date: Fri, 21 Nov 2003 13:50:24 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+To: russell@coker.com.au
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, rask@sygehus.dk,
+       akpm@osdl.org, netdev@oss.sgi.com
+Subject: [PATCH/CFT] de2104x fixes
+References: <200311212051.32352.russell@coker.com.au>
+In-Reply-To: <200311212051.32352.russell@coker.com.au>
+Content-Type: multipart/mixed;
+ boundary="------------060507000103040403010101"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi There,
+This is a multi-part message in MIME format.
+--------------060507000103040403010101
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-We needed to add a detailed info about the physical memory space
-allocated for a given process PID in the /proc/PID/status, similar
-to the pmap of Solaris. Although you may argue the reasons
-of doing that, we are building a performance tool analyser which
-needs such info.
+So, can people give this a test?  It includes a change that, I hope, 
+addresses Russell's problem, as well as a patch from Rask.
 
-We think this may be of use to someone else. We're not sure whether
-the proper place to do that is in the kernel or via module. Anyway,
-below is the patch, followed by an example, of a new output for
-/proc/PID/status
-
-Thanks for any comment,
-
-BR,
-
-Edjard
------------------------------------------------
-10LE/INdT - Labaratorio de Linux
-JOSE - Jungle Open Source dEvelopers
-Manaus, Amazon - Brazil
------------------------------------------------
+	Jeff
 
 
---- linux/fs/proc/task_mmu.c	2003-10-25 14:43:00.000000000 -0400
-+++ linux/fs/proc/task_mmu.c-10LE	2003-11-21 13:51:42.000000000 -0400
-@@ -3,44 +3,87 @@
- #include <linux/seq_file.h>
- #include <asm/uaccess.h>
+P.S.  It would be great if people cc'd me on such bug reports ;-) 
+Quicker to find and respond, these days.
 
+
+--------------060507000103040403010101
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+===== drivers/net/tulip/de2104x.c 1.25 vs edited =====
+--- 1.25/drivers/net/tulip/de2104x.c	Thu Sep 11 18:46:11 2003
++++ edited/drivers/net/tulip/de2104x.c	Fri Nov 21 13:48:17 2003
+@@ -28,8 +28,8 @@
+  */
+ 
+ #define DRV_NAME		"de2104x"
+-#define DRV_VERSION		"0.6"
+-#define DRV_RELDATE		"Sep 1, 2003"
++#define DRV_VERSION		"0.9"
++#define DRV_RELDATE		"Nov 21, 2003"
+ 
+ #include <linux/config.h>
+ #include <linux/module.h>
+@@ -1380,18 +1380,18 @@
+ 		return rc;
+ 	}
+ 
+-	rc = de_init_hw(de);
++	rc = request_irq(dev->irq, de_interrupt, SA_SHIRQ, dev->name, dev);
+ 	if (rc) {
+-		printk(KERN_ERR "%s: h/w init failure, err=%d\n",
+-		       dev->name, rc);
++		printk(KERN_ERR "%s: IRQ %d request failure, err=%d\n",
++		       dev->name, dev->irq, rc);
+ 		goto err_out_free;
+ 	}
+ 
+-	rc = request_irq(dev->irq, de_interrupt, SA_SHIRQ, dev->name, dev);
++	rc = de_init_hw(de);
+ 	if (rc) {
+-		printk(KERN_ERR "%s: IRQ %d request failure, err=%d\n",
+-		       dev->name, dev->irq, rc);
+-		goto err_out_hw;
++		printk(KERN_ERR "%s: h/w init failure, err=%d\n",
++		       dev->name, rc);
++		goto err_out_free_irq;
+ 	}
+ 
+ 	netif_start_queue(dev);
+@@ -1399,10 +1399,8 @@
+ 
+ 	return 0;
+ 
+-err_out_hw:
+-	spin_lock_irqsave(&de->lock, flags);
+-	de_stop_hw(de);
+-	spin_unlock_irqrestore(&de->lock, flags);
++err_out_free_irq:
++	free_irq (dev->irq, dev);
+ 
+ err_out_free:
+ 	de_free_rings(de);
+@@ -1571,13 +1569,17 @@
+ 	    (ecmd->advertising == de->media_advertise))
+ 		return 0; /* nothing to change */
+ 	    
+-	de_link_down(de);
+-	de_stop_rxtx(de);
++	if (netif_running(dev)) {
++		de_link_down(de);
++		de_stop_rxtx(de);
++	}
+ 	
+ 	de->media_type = new_media;
+ 	de->media_lock = media_lock;
+ 	de->media_advertise = ecmd->advertising;
+-	de_set_media(de);
 +
-+void phys_size_10LE(struct mm_struct *mm, unsigned long start_address,
-unsigned long end_address, unsigned long *size) {
-+  pgd_t *my_pgd;
-+  pmd_t *my_pmd;
-+  pte_t *my_pte;
-+  unsigned long page;
-+
-+  for (page = start_address; page < end_address; page += PAGE_SIZE) {
-+    my_pgd = pgd_offset(mm, page);
-+    if (pgd_none(*my_pgd) || pgd_bad(*my_pgd)) break;
-+    my_pmd = pmd_offset(my_pgd, page);
-+    if (pmd_none(*my_pmd) || pmd_bad(*my_pmd)) break;
-+    my_pte = pte_offset_map(my_pmd, page);
-+    if (pte_present(*my_pte)) {
-+      *size += PAGE_SIZE;
-+    }
-+  }
-+}
-+
- char *task_mem(struct mm_struct *mm, char *buffer)
- {
--	unsigned long data = 0, stack = 0, exec = 0, lib = 0;
--	struct vm_area_struct *vma;
--
--	down_read(&mm->mmap_sem);
--	for (vma = mm->mmap; vma; vma = vma->vm_next) {
--		unsigned long len = (vma->vm_end - vma->vm_start) >> 10;
--		if (!vma->vm_file) {
--			data += len;
--			if (vma->vm_flags & VM_GROWSDOWN)
--				stack += len;
--			continue;
--		}
--		if (vma->vm_flags & VM_WRITE)
--			continue;
--		if (vma->vm_flags & VM_EXEC) {
--			exec += len;
--			if (vma->vm_flags & VM_EXECUTABLE)
--				continue;
--			lib += len;
--		}
--	}
--	buffer += sprintf(buffer,
--		"VmSize:\t%8lu kB\n"
--		"VmLck:\t%8lu kB\n"
--		"VmRSS:\t%8lu kB\n"
--		"VmData:\t%8lu kB\n"
--		"VmStk:\t%8lu kB\n"
--		"VmExe:\t%8lu kB\n"
--		"VmLib:\t%8lu kB\n",
--		mm->total_vm << (PAGE_SHIFT-10),
--		mm->locked_vm << (PAGE_SHIFT-10),
--		mm->rss << (PAGE_SHIFT-10),
--		data - stack, stack,
--		exec - lib, lib);
--	up_read(&mm->mmap_sem);
--	return buffer;
-+  unsigned long data = 0, stack = 0, exec = 0, lib = 0;
-+  unsigned long phys_data = 0, phys_stack = 0, phys_exec = 0, phys_lib = 0;
-+  unsigned long phys_brk = 0;
-+  struct vm_area_struct *vma;
-+  down_read(&mm->mmap_sem);
-+  for (vma = mm->mmap; vma; vma = vma->vm_next) {
-+    unsigned long len = (vma->vm_end - vma->vm_start) >> 10;
-+
-+    if (!vma->vm_file) {
-+      phys_size_10LE(mm, vma->vm_start, vma->vm_end, &phys_data);
-+      if (vma->vm_flags & VM_GROWSDOWN) {
-+	stack += len;
-+	phys_size_10LE(mm, vma->vm_start, vma->vm_end, &phys_stack);
-+      }
-+      else {
-+	data += len;
-+      }
-+      continue;
-+    }
-+
-+    if (vma->vm_flags & VM_WRITE)
-+      continue;
-+
-+    if (vma->vm_flags & VM_EXEC) {
-+      exec += len;
-+      phys_size_10LE(mm, vma->vm_start, vma->vm_end, &phys_exec);
-+      if (vma->vm_flags & VM_EXECUTABLE) {
-+	continue;
-+      }
-+      lib += len;
-+      phys_size_10LE(mm, vma->vm_start, vma->vm_end, &phys_lib);
-+    }
-+  }
-+  phys_size_10LE(mm, mm->start_brk, mm->brk, &phys_brk);
-+  buffer += sprintf(buffer,
-+		    "VmSize:\t%8lu kB\n"
-+		    "VmLck:\t%8lu kB\n"
-+		    "VmRSS:\t%8lu kB\n"
-+		    "VmData:\t%8lu kB\n"
-+		    "PhysicalData:\t%8lu kB\n"
-+		    "VmStk:\t%8lu kB\n"
-+		    "PhysicalStk:\t%8lu kB\n"
-+		    "VmExe:\t%8lu kB\n"
-+		    "PhysicalExe:\t%8lu kB\n"
-+		    "VmLib:\t%8lu kB\n"
-+		    "PhysicalLib:\t%8lu kB\n"
-+		    "VmHeap: \t%8lu KB\n"
-+		    "PhysicalHeap: \t%8lu KB\n",
-+		    mm->total_vm << (PAGE_SHIFT-10),
-+		    mm->locked_vm << (PAGE_SHIFT-10),
-+		    mm->rss << (PAGE_SHIFT-10),
-+		    data, (phys_data - phys_stack) >> 10,
-+		    stack, phys_stack >> 10,
-+		    exec - lib, (phys_exec - phys_lib) >> 10,
-+		    lib, phys_lib >> 10,
-+		    (mm->brk - mm->start_brk) >> 10,
-+		    phys_brk >> 10
-+		    );
-+  up_read(&mm->mmap_sem);
-+  return buffer;
++	if (netif_running(dev))
++		de_set_media(de);
+ 	
+ 	return 0;
  }
 
- unsigned long task_vsize(struct mm_struct *mm)
-
-
----------------------  END OF PATCH -----------------------------
-
-
-Here is an output of a new /proc/PID/stat
-
-Originally the command 'cat /proc/PID/status' does not provide the
-information in physical memory of the process with PID. As you can see in
-the example below physical memory allocation is detailed.
->
-> $ cat /proc/1718/status
-> Name:        opera
-> State:        S (sleeping)
-> SleepAVG:        101%
-> Tgid:        1718
-> Pid:        1718
-> PPid:        1631
-> TracerPid:        0
-> Uid:        500        500        500        500
-> Gid:        501        501        501        501
-> FDSize:        256
-> Groups:        501
-> VmSize:           35792 kB
-> VmLck:                kB
-> VmRSS:           21156 kB
-> VmData:            5920 kB
-> PhysicalData:            5556 kB
-> VmStk:              68 kB
-> PhysicalStk:              40 kB
-> VmExe:            5124 kB
-> PhysicalExe:            3408 kB
-> VmLib:           19244 kB
-> PhysicalLib:           10240 kB
-> HeapSize:             5184 KB
-> PhysicalHeap:             5124 KB
-> Threads:        1
-> SigPnd:        0000000000000000
-> ShdPnd:        0000000000000000
-> SigBlk:        0000000100000000
-> SigIgn:        8000000010001000
-> SigCgt:        0000000080010000
-> CapInh:        0000000000000000
-> CapPrm:        0000000000000000
-> CapEff:        0000000000000000
->
+--------------060507000103040403010101--
 

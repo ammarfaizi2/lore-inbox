@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262136AbULQT1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262147AbULQTaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262136AbULQT1U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 14:27:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbULQTYy
+	id S262147AbULQTaH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 14:30:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262142AbULQT3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 14:24:54 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:4844 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262134AbULQTYS (ORCPT
+	Fri, 17 Dec 2004 14:29:47 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:41368 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262137AbULQT20 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 14:24:18 -0500
-Date: Fri, 17 Dec 2004 11:18:20 -0800
-From: Greg KH <greg@kroah.com>
-To: Robert Love <rml@ximian.com>
-Cc: ambx1@neo.rr.com, linux-kernel@vger.kernel.org, mochel@digitalimplant.org,
-       len.brown@intel.com, shaohua.li@intel.com,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>
-Subject: Re: [RFC] Device Resource Management
-Message-ID: <20041217191819.GA21238@kroah.com>
-References: <20041211054509.GA2661@neo.rr.com> <20041216041405.GA23223@kroah.com> <1103173505.6052.282.camel@localhost>
+	Fri, 17 Dec 2004 14:28:26 -0500
+Date: Fri, 17 Dec 2004 20:28:13 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Doug Maxey <dwm@maxeymade.com>
+Cc: kronos@kronoz.cjb.net, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Rashkae <rashkae@tigershaunt.com>
+Subject: Re: Cannot mount multi-session DVD with ide-cd, must use ide-scsi
+Message-ID: <20041217192813.GK3140@suse.de>
+References: <20041217183303.GA9561@dreamland.darkstar.lan> <200412171857.iBHIvQkG012716@falcon30.maxeymade.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1103173505.6052.282.camel@localhost>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <200412171857.iBHIvQkG012716@falcon30.maxeymade.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 16, 2004 at 12:05:05AM -0500, Robert Love wrote:
-> On Wed, 2004-12-15 at 20:14 -0800, Greg KH wrote:
+On Fri, Dec 17 2004, Doug Maxey wrote:
 > 
-> > Why would it matter if we export this info to userspace?  Do any
-> > userspace programs care about this information?
+> On Fri, 17 Dec 2004 19:33:03 +0100, Kronos wrote:
+> ...
+> > 		if (stat) return stat;
+> >+	
+> >+		toc->last_session_lba = be32_to_cpu(ms_tmp.ent.addr.lba);
 > 
-> We'd love to be able to view and manipulate resource information from
-> HAL.  As HAL replaces vendor-specific solutions such as, say, kudzu, it
-> will need to make device/driver decisions and implement work arounds, so
-> this information is incredibly invaluable, let alone just neat to have.
+> Should that be le32_to_cpu?
 
-Ok, fair enough.  I keep forgetting about the PnP resource mess, I guess
-I just want to block that nastiness out of my brain...
+Why? It's read data and that is always big-endian.
 
-thanks,
+-- 
+Jens Axboe
 
-greg k-h

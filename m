@@ -1,50 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317851AbSIBLYl>; Mon, 2 Sep 2002 07:24:41 -0400
+	id <S318016AbSIBL2u>; Mon, 2 Sep 2002 07:28:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318016AbSIBLYk>; Mon, 2 Sep 2002 07:24:40 -0400
-Received: from mx0.gmx.de ([213.165.64.100]:7581 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id <S317851AbSIBLYk>;
-	Mon, 2 Sep 2002 07:24:40 -0400
-Date: Mon, 2 Sep 2002 13:29:05 +0200 (MEST)
-From: Michael Kerrisk <m.kerrisk@gmx.net>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: bulb@vagabond.cybernet.cz, bulb@cimice.maxinet.cz,
-       linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-References: <20020827144421.5ebec0e4.sfr@canb.auug.org.au>
-Subject: Re: Question about leases
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0005657596@gmx.net
-X-Authenticated-IP: [194.230.165.150]
-Message-ID: <24161.1030966145@www61.gmx.net>
-X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id <S318283AbSIBL2u>; Mon, 2 Sep 2002 07:28:50 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:9603 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318016AbSIBL2r>;
+	Mon, 2 Sep 2002 07:28:47 -0400
+Date: Mon, 2 Sep 2002 16:58:53 +0530
+From: Ravikiran G Thirumalai <kiran@in.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, linux-net@vger.kernel.org
+Subject: [rfc] [patch] Qdisc drops not being reported
+Message-ID: <20020902165853.B21589@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, 27 Aug 2002 14:35:17 +1000 Stephen Rothwell <sfr@canb.auug.org.au>
-> wrote:
-> >
-> > On Tue, 27 Aug 2002 03:06:16 +0200 Jan Hudec <bulb@cimice.maxinet.cz>
-> wrote:
-> > >
-> > > Please can anyone throw a bit light on file leases (fcntl F_SETLEASE
-> > > command) or at least point me to some documentation? I can't find any.
-> > 
-> > There isn't any (except maybe the talk I gave at Linux Kongress
-> > last year (http://www.canb.auug.org.au/~sfr/idle.html).
+Hi,
+The Qdisc drops does not seem to be reported to user space for the
+default queuing discipline -- pfifo_fast_ops.  I ran isic tests on a up
+to test if the drops happen at all, and yes there were significant no of
+packets dropped under heavy tx load.  Here is a patch which reports just 
+the qdisc drops to the /proc/net/dev entry.  Does this sound like a 
+good idea?
 
-Not quite true.  I wrote some additions to the fcntl(2) manual page
-describing leases.  Download a recent copy of the man pages from tldp.org.
+Comments welcome.  
 
-Cheers
+-Kiran
 
-Michael
 
--- 
-GMX - Die Kommunikationsplattform im Internet.
-http://www.gmx.net
 
+diff -X dontdiff -ruN linux-2.5.31/include/asm-i386/mmu.h statctr-2.5.31/include/asm-i386/mmu.h
+--- linux-2.5.31/include/asm-i386/mmu.h	Sun Aug 11 07:11:42 2002
++++ statctr-2.5.31/include/asm-i386/mmu.h	Wed Aug 21 12:40:35 2002
+@@ -1,6 +1,8 @@
+ #ifndef __i386_MMU_H
+ #define __i386_MMU_H
+ 
++#include <asm/semaphore.h>
++
+ /*
+  * The i386 doesn't have a mmu context, but
+  * we put the segment information here.
+diff -X dontdiff -ruN linux-2.5.31/net/core/dev.c statctr-2.5.31/net/core/dev.c
+--- linux-2.5.31/net/core/dev.c	Sun Aug 11 07:11:30 2002
++++ statctr-2.5.31/net/core/dev.c	Wed Aug 21 17:57:24 2002
+@@ -1746,10 +1746,12 @@
+ 							  NULL;
+ 	int size;
+ 
++	struct Qdisc *q = dev->qdisc;
++
+ 	if (stats)
+ 		size = sprintf(buffer, "%6s:%8lu %7lu %4lu %4lu %4lu %5lu "
+ 				       "%10lu %9lu %8lu %7lu %4lu %4lu %4lu "
+-				       "%5lu %7lu %10lu\n",
++				       "%5lu %7lu %10lu %10u\n",
+  		   dev->name,
+ 		   stats->rx_bytes,
+ 		   stats->rx_packets, stats->rx_errors,
+@@ -1763,7 +1765,8 @@
+ 		   stats->tx_fifo_errors, stats->collisions,
+ 		   stats->tx_carrier_errors + stats->tx_aborted_errors +
+ 		   	stats->tx_window_errors + stats->tx_heartbeat_errors,
+-		   stats->tx_compressed);
++		   stats->tx_compressed,
++		   q->stats.drops);
+ 	else
+ 		size = sprintf(buffer, "%6s: No statistics available.\n",
+ 			       dev->name);
+@@ -1785,7 +1788,7 @@
+ 
+ 	size = sprintf(buffer,
+ 		"Inter-|   Receive                                                |  Transmit\n"
+-		" face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed\n");
++		" face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed Qdiscdrops\n");
+ 
+ 	pos += size;
+ 	len += size;

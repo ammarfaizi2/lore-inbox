@@ -1,44 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131576AbQKKRJj>; Sat, 11 Nov 2000 12:09:39 -0500
+	id <S131293AbQKKRQU>; Sat, 11 Nov 2000 12:16:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131480AbQKKRJ3>; Sat, 11 Nov 2000 12:09:29 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:31238 "EHLO
+	id <S131468AbQKKRQK>; Sat, 11 Nov 2000 12:16:10 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:32262 "EHLO
 	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S131625AbQKKRJU>; Sat, 11 Nov 2000 12:09:20 -0500
-Date: Sat, 11 Nov 2000 11:05:16 -0700
+	id <S131293AbQKKRP6>; Sat, 11 Nov 2000 12:15:58 -0500
+Date: Sat, 11 Nov 2000 11:11:59 -0700
 From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
 To: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in /var/spool/mqueue]
-Message-ID: <20001111110516.B9464@vger.timpanogas.org>
-In-Reply-To: <Pine.LNX.3.95.1001110142537.5403A-100000@chaos.analogic.com>, <3A0C4D6B.B4FF664C@timpanogas.org> <8ujha2$1ou$1@forge.tanstaafl.de>
+Subject: Re: sendmail fails to deliver mail with attachments in /var/spool/mqueue
+Message-ID: <20001111111159.C9464@vger.timpanogas.org>
+In-Reply-To: <3A0C427A.E015E58A@timpanogas.org>, <3A0C6E01.EFA10590@timpanogas.org> <8uji8q$1ru$1@forge.tanstaafl.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <8ujha2$1ou$1@forge.tanstaafl.de>; from hps@tanstaafl.de on Sat, Nov 11, 2000 at 01:24:18PM +0000
+In-Reply-To: <8uji8q$1ru$1@forge.tanstaafl.de>; from hps@tanstaafl.de on Sat, Nov 11, 2000 at 01:40:42PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 11, 2000 at 01:24:18PM +0000, Henning P. Schmiedehausen wrote:
+On Sat, Nov 11, 2000 at 01:40:42PM +0000, Henning P. Schmiedehausen wrote:
 > jmerkey@timpanogas.org (Jeff V. Merkey) writes:
 > 
-> >I did Dick.  The config is fine.  The daemon is also fine and running. 
-> >What's really weird is that even if I do a "sendmail -v -q" command
-> >(which should force the queue to flush) it still doesn't. 
 > 
-> O Timeout.ident=0s
-> O Timeout.initial=30s (these are the ninieties / 21st century)
+> >We got to the bottom of the sendmail problem.  The line:
 > 
-> Get someone that really has an idea about sendmail. 
+> > -O QueueLA=20 
+> 
+> >and
+> 
+> > -O RefuseLA=18
+> 
+> >Need to be cranked up in sendmail.cf to something high since the
+> >background VM on a very busy Linux box seems to exceed this which causes
+> >large emails to get stuck in the /var/spool/mqueue directory for long
+> >periods of time.  Since vger is getting hammered with FTP all the time,
+> >and is rarely idle.  This also explains what Richard was seeing with VM
+> >thrashing in a box with low memory.  
+> 
+> So what? This is written in the documentation of the program? You do read
+> documentation, do you?
+> 
+> >The problem of dropping connections on 2.4 was related to the O RefuseLA
+> >settings.  The defaults  in the RedHat, Suse, and OpenLinux RPMs are
+> >clearly set too low for modern Linux kernels.  You may want them cranked
+> >up to 100 or something if you want sendmail to always work.  
+> 
+> These settings are for single user / small user numbers boxes.
+> 
+> If you're using an out of the vendor box distribution configuration
+> for a high traffic server, you're nuts. Or ignorant. Or dumb. Or your
+> consultant is an idiot.
 > 
 > 	Regards
 > 		Henning
 
-Ha ha.  It's fixed.
+
+I guess all customers are idiots then, since about 100+ people who were
+using our release downloaded it, and had these problems with sendmail.  This
+disconnect of yours is about what I would expect from someone in a University.
+Some of us don't have the luxury of being able to pontificate in a Univ
+environment -- we have to make a living from Linux -- and provide payroll
+for the people on this list who actually do the core work on Linux.  
+
+If there were not a commercialization effort around Linux, it would still
+be unknown, like TMOK or a lot of other kernels sitting in universities
+somewhere not being deployed.  It's the commercialization effort that made
+Linux a household word.  NT and NetWare servers don't stop forwarding 
+emails when the load average gets too high -- they just work out of the
+box, and hopefully, no so will Linux (our distribution does now since 
+this problem in fixed).
+
+Now we know that sendmail has problems on Linux based on the this load
+average interpretation, which we would not have known if someone had 
+not raised the issue.  
 
 Jeff
 
+  
+
+> 
+> 
 > -- 
 > Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
 > INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de

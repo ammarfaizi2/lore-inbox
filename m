@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270467AbRHNGsF>; Tue, 14 Aug 2001 02:48:05 -0400
+	id <S270466AbRHNGnZ>; Tue, 14 Aug 2001 02:43:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270468AbRHNGrz>; Tue, 14 Aug 2001 02:47:55 -0400
-Received: from camus.xss.co.at ([194.152.162.19]:52748 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id <S270467AbRHNGrk>;
-	Tue, 14 Aug 2001 02:47:40 -0400
-Date: Tue, 14 Aug 2001 08:47:49 +0200 (MET DST)
-From: Martin Hoeller <martin@xss.co.at>
-To: Nicholas Knight <tegeran@home.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: via82cxxx_audio driver bug?
-In-Reply-To: <01081321090000.00204@c779218-a>
-Message-ID: <Pine.LNX.4.02.10108140841350.10030-100000@rimbaud.xss.co.at>
+	id <S270467AbRHNGnQ>; Tue, 14 Aug 2001 02:43:16 -0400
+Received: from office.mandrakesoft.com ([195.68.114.34]:10737 "EHLO
+	office.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S270466AbRHNGnM>; Tue, 14 Aug 2001 02:43:12 -0400
+To: Frederic Lepied <flepied@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org, devfs-announce-list@mobilix.ras.ucalgary.ca
+Subject: Re: devfsd-v1.3.15 available
+In-Reply-To: <200108131647.f7DGlrR01294@mobilix.ras.ucalgary.ca>
+X-URL: <http://www.linux-mandrake.com/
+Organization: MandrakeSoft
+From: Thierry Vignaud <tvignaud@mandrakesoft.com>
+Date: 14 Aug 2001 08:47:12 +0200
+In-Reply-To: <200108131647.f7DGlrR01294@mobilix.ras.ucalgary.ca> (Richard Gooch's message of "Mon, 13 Aug 2001 11:47:53 -0500")
+Message-ID: <m2snevt9xr.fsf@vador.mandrakesoft.com>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.104
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Aug 2001, Nicholas Knight wrote:
+Richard Gooch <rgooch@ras.ucalgary.ca> writes:
 
-> On Monday 13 August 2001 08:19 am, Adrian Cox wrote:
-> >
-> > Are you using 2.4.7 or 2.4.8? Those kernels have new code to talk to
-> > the AC97 codec, which cures lockups on some boards.
+>   Hi, all. I've just released version 1.3.15 of my devfsd (devfs
+> daemon) at: http://www.atnf.csiro.au/~rgooch/linux/
 > 
-> Both, and previous kernels back to 2.4.3 have also shown this.
-> I also replaced via82cxxx_audio.c in 2.4.8 with the latest (.15, 2.4.8 is 
-> ".14b") and recompiled, and the problem persists.
+> Tarball directly available from:
+> ftp://ftp.??.kernel.org/pub/linux/daemons/devfsd/devfsd.tar.gz
+> 
+> AND:
+> ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/daemons/devfsd/devfsd.tar.gz
+> 
+> This works with devfs-patch-v130, kernel 2.3.46 and devfs-patch-v99.7
+> (or later).
+> 
+> The main changes are:
+> 
+> - Updated compatibility entry support for proposed Stallion serial
+>   driver names
+> 
+> - Added compatibility entry support for Rocketport serial driver.
 
-I've the same problem on my Asus K7V Motherboard with kernel 2.4.[1-3].
-In earlier kernels (2.2.1[78]) everything worked fine for me.
-
-Note, that my lockups are just about 1s or so.
-
-
-- martin
-
---------------------------------------------------------------------
-\       Martin Hoeller          | email: martin.hoeller@xss.co.at /    
- \      xS+S Andreas Haumer     | phone: +43-1-6060114-30        /
-  \     Karmarschgasse 51/2/20  | fax:   +43-1-6060114-71       /
-   \    A-1100 Vienna/Austria   |                              /
-    -----------------------------------------------------------
+dispo dans {ke,no,bi}/~tv/rpm/RPMS/i586/devfsd-1.3.15-1mdk.i586.rpm
 

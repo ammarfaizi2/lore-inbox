@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288238AbSA2BM6>; Mon, 28 Jan 2002 20:12:58 -0500
+	id <S288149AbSA2B3E>; Mon, 28 Jan 2002 20:29:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288159AbSA2BMj>; Mon, 28 Jan 2002 20:12:39 -0500
-Received: from gw.lowendale.com.au ([203.26.242.120]:16416 "EHLO
-	marina.lowendale.com.au") by vger.kernel.org with ESMTP
-	id <S288274AbSA2BMb>; Mon, 28 Jan 2002 20:12:31 -0500
-Date: Tue, 29 Jan 2002 12:39:00 +1100 (EST)
-From: Neale Banks <neale@lowendale.com.au>
-To: Doug Ledford <dledford@redhat.com>
-cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
-Subject: Re: [PATCH] i810 driver update.
-In-Reply-To: <3C55D031.5040801@redhat.com>
-Message-ID: <Pine.LNX.4.05.10201291229220.1513-100000@marina.lowendale.com.au>
+	id <S288158AbSA2B2y>; Mon, 28 Jan 2002 20:28:54 -0500
+Received: from dsl-213-023-039-090.arcor-ip.net ([213.23.39.90]:28040 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S288149AbSA2B2r>;
+	Mon, 28 Jan 2002 20:28:47 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Hans Reiser <reiser@namesys.com>
+Subject: Re: [reiserfs-dev] Re: Note describing poor dcache utilization under high memory pressure
+Date: Tue, 29 Jan 2002 02:32:58 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>, linux-kernel@vger.kernel.org,
+        reiserfs-list@namesys.com, reiserfs-dev@namesys.com
+In-Reply-To: <Pine.LNX.4.33.0201280930130.1557-100000@penguin.transmeta.com> <3C55E9E3.50207@namesys.com> <E16VMUj-0000Dz-00@starship.berlin>
+In-Reply-To: <E16VMUj-0000Dz-00@starship.berlin>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16VN8w-0000Ei-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Doug,
+On January 29, 2002 01:51 am, Daniel Phillips wrote:
+> You don't worry about that case.  If there's so much pressure that you
+> scan all the way to the hot end of the lru list then you will recover
+> that hot/cold page[1] and all will be well.  Not that the hot/cold page
+                                      "Note"  ^^^
+> will tend to migrate further away from the hot end of the list than a
+> hot/hot page.
 
-> Marcelo,
-> 
-> This is the final, cooked version of the i810 driver.  It's been out long 
-> enough for me to say with a good deal of certainty that it fixes quite a few 
-> bugs in the existing driver and doesn't introduce any new bugs (that doesn't 
-> mean it fixes all of the existing bugs though, record is still problematic 
-> and full duplex isn't supported, but these aren't regressions since the 
-> current driver is the same way).  This was diff'ed against the latest pre 
-> patch.  Please apply this to your tree.  Thanks.
-[...]
-
-Are the fixes in this going to be applicable to 2.2 also (FWIW, 2.2's
-i810_audio #defines ``DRIVER_VERSION "0.17"'')?
-
-If so, is there any attempt to back-port this driver to 2.2?
-
-I can test (at least compiling, booting and basic sound-playing), but not
-back-port.
-
-Thanks,
-Neale.
-
+-- 
+Daniel

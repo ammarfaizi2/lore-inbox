@@ -1,72 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267405AbUG2B43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267406AbUG2B56@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267405AbUG2B43 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 21:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267406AbUG2B43
+	id S267406AbUG2B56 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 21:57:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267410AbUG2B56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 21:56:29 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:22204 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267405AbUG2B41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 21:56:27 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2, preemptable hardirqs
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Lenar L?hmus <lenar@vision.ee>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-In-Reply-To: <1091063295.18598.2.camel@mindpipe>
-References: <1090732537.738.2.camel@mindpipe>
-	 <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu>
-	 <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu>
-	 <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
-	 <20040726204720.GA26561@elte.hu> <20040727162759.GA32548@elte.hu>
-	 <1090968457.743.3.camel@mindpipe>  <20040728050535.GA14742@elte.hu>
-	 <1091051452.791.52.camel@mindpipe>  <1091063295.18598.2.camel@mindpipe>
-Content-Type: text/plain
-Message-Id: <1091066206.18598.7.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 28 Jul 2004 21:56:47 -0400
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Jul 2004 21:57:58 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:6073 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S267406AbUG2B5q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 21:57:46 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: suparna@in.ibm.com, fastboot@osdl.org, mbligh@aracnet.com,
+       jbarnes@engr.sgi.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
+References: <16734.1090513167@ocs3.ocs.com.au>
+	<20040725235705.57b804cc.akpm@osdl.org>
+	<m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com>
+	<200407280903.37860.jbarnes@engr.sgi.com> <25870000.1091042619@flay>
+	<m14qnr7u7b.fsf@ebiederm.dsl.xmission.com>
+	<20040728133337.06eb0fca.akpm@osdl.org>
+	<1091044742.31698.3.camel@localhost.localdomain>
+	<m1llh367s4.fsf@ebiederm.dsl.xmission.com>
+	<20040728164457.732c2f1d.akpm@osdl.org>
+	<m1d62f6351.fsf@ebiederm.dsl.xmission.com>
+	<20040728180954.1f2baed9.akpm@osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 28 Jul 2004 19:56:47 -0600
+In-Reply-To: <20040728180954.1f2baed9.akpm@osdl.org>
+Message-ID: <m1u0vr4luo.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-28 at 21:08, Lee Revell wrote:
-> On Wed, 2004-07-28 at 17:50, Lee Revell wrote:
-> > On Wed, 2004-07-28 at 01:05, Ingo Molnar wrote:
-> > > * Lee Revell <rlrevell@joe-job.com> wrote:
-> > > if your soundcard doesnt share the irq line with any other 'heavy' 
-> > > interrupt then you can make the irq 'direct' via a simple change to 
-> > > arch/i386/kernel/irq.c, change this line from:
-> > > 
-> > >  #define redirectable_irq(irq) ((irq) != 0)
-> > > 
-> > > to:
-> > > 
-> > >  #define redirectable_irq(irq) (((irq) != 0) && ((irq) != 10))
-> > > 
-> > > (if the soundcard is on IRQ 10).
-> > > 
-> > > does such a change combined with v=3 fix the latencies you are seeing?
-> > 
-> > With L2, 1:3, max_sectors_kb=256, and the above change, the performance
-> > is truly amazing.  Over 20 million interrupts, on a 600Mhz machine, the
-> > worst latency I was able to trigger was 46 usecs.  There does not seem
-> > to be any adverse affect on any aspect of the system.
-> > 
+Andrew Morton <akpm@osdl.org> writes:
+
+> ebiederm@xmission.com (Eric W. Biederman) wrote:
+> >
+> > Andrew Morton <akpm@osdl.org> writes:
 > 
-> Here are some more results.  I am up to 56 million interrupts and I have
-> yet to trigger a latency higher than 46 usecs.  It looks like this is a
-> hard upper limit.
+> OK.  But some (most) of them will sleep, too.  And we shouldn't sleep in a
+> dead kernel.
 
-I have also found that if I stress the VM subsystem severely using
-sysbench --threads=128 --test=memory, jackd will not start, eventually
-its watchdog thread will kill it before it opens the audio ports.  It
-seems likely that under pressure the mlockall() would never return.  I
-can add some debugging code to jackd if you need to see which system
-call is timing out.
+Probably not.  And that is legitimate...
 
-Lee
+> > I agree.  However the gymnastics for doing that have not been worked out.
+> > The drivers cannot clean up stuff yet, nor do we have a good way to run
+> > in memory where DMA transfers on not ongoing.
+> 
+> Don't we?  The 16M of memory was allocated up-front at kexec load time[*],
+> so nobody will be pointing DMA hardware at it.  And the dump kernel won't
+> be pointing DMA hardware at the crashed kernel's pages.
 
+No but we will be running in the first 16M of memory.  The 16M that
+is allocated is currently used to hold a copy of the low 16M.
+ 
+> > So for a first pass I think calling the shutdown methods make sense.
+> 
+> Well.  There aren't any.
+
+Which makes them both safe and worthless.  On the normal kexec path
+they we will need to get them written though.
+
+> > But the first pass is worth it (at least in the kexec tree) to sort out all
+> > of the interface issues and catch the low hanging fruit.
+> 
+> A significant proportion of kernel crashes happen from [soft]irq context,
+> from which we cannot call shutdown methods.  So we need to be able to bring
+> up the dump kernel without having run driver shutdown functions anwyay..
+
+Well if calling shutdown is not really usable, then I we had better
+transition quickly beyond using it...
+ 
+> [*] At least, I _assume_ the 16MB will be prereserved,
+>     physically-contiguous and wholly within ZONE_NORMAL.  Is this wrong?
+
+The problem is that we really won't be using it for running code out
+of because of i386 kernel limitations.  Unless someone can tell
+my why 0 -16MB won't have DMA traffic in them.  Or how to run a kernel
+at an address other than 1MB.
+
+I suspect we can play with the initial page tables and how virtual
+addresses map to physical addresses and fairly simply generate a
+relocatable kernel.  I have not had a chance to investigate that
+though.  Once we have that it will be trivial to run out of the
+reserved 16M and many of the practical problems melt away.
+
+Eric

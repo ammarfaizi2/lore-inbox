@@ -1,89 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264395AbRFXTMV>; Sun, 24 Jun 2001 15:12:21 -0400
+	id <S264400AbRFXTQl>; Sun, 24 Jun 2001 15:16:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264399AbRFXTML>; Sun, 24 Jun 2001 15:12:11 -0400
-Received: from nw02.internal.netwalk.net ([216.69.192.202]:12550 "EHLO
-	nw02.netwalk.net") by vger.kernel.org with ESMTP id <S264395AbRFXTMH>;
-	Sun, 24 Jun 2001 15:12:07 -0400
-Message-ID: <007d01c0fce1$c55a8960$29c845d8@hal9000>
-Reply-To: "David Brown" <dave@codewhore.org>
-From: "David Brown" <dave@codewhore.org>
-To: <andyw@edafio.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <001001c0fcde$a9422ec0$ecbd3fd8@wamprat>
-Subject: Re: Crash on boot (2.4.5)
-Date: Sun, 24 Jun 2001 15:13:35 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S264405AbRFXTQb>; Sun, 24 Jun 2001 15:16:31 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:42465 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S264400AbRFXTQP>;
+	Sun, 24 Jun 2001 15:16:15 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
+Newsgroups: hometree.linux.kernel
+Subject: Re: What are the VM motivations??
+Date: Sun, 24 Jun 2001 19:11:09 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <9h5e0d$rdq$1@forge.intermeta.de>
+In-Reply-To: <20010624161502.4D75C784C4@mail.clouddancer.com> <Pine.LNX.4.21.0106241332540.7419-100000@imladris.rielhome.conectiva>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 993409869 18163 212.34.181.4 (24 Jun 2001 19:11:09 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Sun, 24 Jun 2001 19:11:09 +0000 (UTC)
+X-Copyright: (C) 1996-2001 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel:
+Rik van Riel <riel@conectiva.com.br> writes:
 
-Have you tried swapping in a different stick of RAM and/or running a
-boot-time memory tester? Does it boot on 2.2 or any other OSs?
+>On Sun, 24 Jun 2001, Colonel wrote:
 
-I had a problem like this once before - turned out one of the two 128MB CAS2
-modules were bad. I replaced it and 2.4 booted wonderfully.
+>> It's simple.  I want the old reliable behavior back, the one I found
+>> in kernels from 1.1.41 thru 2.2.14.
+
+>And which one would that be ?   Note that there have been
+>4 different VM subsystems in that time and the kernel has
+>made the transition from the buffer cache to the page cache
+>in that period.
+
+I'd say, what he tries to tell you is that he does not (and I don't
+for this point, either) care, which one it is or how it is implemented
+or whether you're using a page, buffer or crispy chips cache, as long
+as the bugger works, does not lock up, does not lose memory and does
+not kill innocent processes. If you need a roach to wire to the
+computer to do it, fine, tell me how to wire it and I'll start
+lobbying mainboard suppliers to provide six pin sockets for roach
+plugging.
+
+Just as all VMs up to 2.2.19 do (with a few notable exceptions around
+the 2.2.14-2.2.16 range). These VM problems are my biggest stop sign
+to move my production boxes to 2.4.x. My 2.2.x boxes have uptimes in
+the hundreds of days, my 2.0.x boxes do, too:
+
+henning@db1 21:05 ~ > uptime
+  9:05pm  up 410 days, 17:12,  1 user,  load average: 0.15, 0.03, 0.01
+henning@db1 21:05 ~ > uname -an
+Linux db1 2.0.37 #1 Sat Mar 13 19:41:01 MET 1999 i686 unknown
+
+(Heck if that USV in front of the Cobalt Qube wouldn't have died, I'd
+have another 440+ days uptime to boast with.)
+
+That's the stability most of us want to see in the _stable_ kernel
+series. And I fully agree with the fact that I don't want to become a
+VM kernel expert just to run the bugger. =:-)
+
+Some of us like Linux not because it's free but because it's rock
+solid. Because some of us use them to run our businesses on it. If I
+want uptimes in the days range, I'd use Win2k and hire a monkey to
+administrate the box, because it has a nice GUI (TM).
+
+	Regards
+		Henning
 
 
-Good Luck,
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-- Dave
-  dave@codewhore.org
-
-
------ Original Message -----
-From: "Daniel Fraley" <the_toastman@aristotle.net>
-To: <linux-kernel@vger.kernel.org>
-Sent: Sunday, June 24, 2001 2:51 PM
-Subject: Crash on boot (2.4.5)
-
-
-> Hi, everyone..  I'm borrowing my roommate's email, so please send replies
-to
-> andyw@edafio.com.  Thanks!
->
-> Here's my problem...  when I boot anything 2.4, I get several oopsen in a
-> row, all of which are either (most commonly) kernel paging request could
-not
-> be handled, or (much less common) unable to handle kernel Null pointer
-> dereference.  I will send any info on request, but here's my hardware and
-> kernel config:
->
-> iWill KKR-266R (Via 8363 Northbridge, 686B south)
-> AMD tbird 1GHz
-> 256MB cas2 pc133 sdram
-> ATI Radeon DDR 64MB VIVO
-> Kingston KNE120TX (Realtek 8139 chip)
-> SBLive! 5.1
-> IBM GXP75 30GB (on the via ide controller)
-> Pioneer 16x dvd
-> ls120
->
-> This happens regardless if I turn on swap or not.  When swap is on, it is
-a
-> 128MB partition (and yes, I'm aware of the recommendation of 2x RAM, but I
-> believe I read somewhere that someone was working on that, and I didn't
-want
-> to waste the extra 384MB on swap).
->
-> Is there anything I can do to fix this?
->
-> -- andyw
->
-> p.s., booting with devfs=nomount is better, but still causes oopsen (I get
-> to a login prompt, but if I do much more than mount a disk a copy to it,
-the
-> system freaks)
->
->
->
-
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

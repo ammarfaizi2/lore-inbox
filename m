@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264341AbTLBUGi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 15:06:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264345AbTLBUGh
+	id S264333AbTLBUA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 15:00:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264341AbTLBUA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 15:06:37 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:20320 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S264341AbTLBUGg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 15:06:36 -0500
-Date: Wed, 3 Dec 2003 07:05:36 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
-Message-ID: <20031203070536.A2022202@wobbly.melbourne.sgi.com>
-References: <mnet1.1070127696.1558.pinotj@club-internet.fr> <Pine.LNX.4.58.0312011606200.2733@home.osdl.org> <20031202013716.GG621@frodo> <20031202064418.GA2312@frodo> <20031202180540.GR1566@mis-mike-wstn.matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 Dec 2003 15:00:29 -0500
+Received: from mout2.freenet.de ([194.97.50.155]:8911 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S264333AbTLBUAW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 15:00:22 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: "Stefan J. Betz" <stefan_betz@gmx.net>
+Subject: Re: include/linux/version.h
+Date: Tue, 2 Dec 2003 21:00:13 +0100
+User-Agent: KMail/1.5.93
+References: <S263281AbTLBSis/20031202183848Z+2508@vger.kernel.org>
+In-Reply-To: <S263281AbTLBSis/20031202183848Z+2508@vger.kernel.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20031202180540.GR1566@mis-mike-wstn.matchmail.com>; from mfedyk@matchmail.com on Tue, Dec 02, 2003 at 10:05:40AM -0800
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200312022100.14880.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 02, 2003 at 10:05:40AM -0800, Mike Fedyk wrote:
-> On Tue, Dec 02, 2003 at 05:44:18PM +1100, Nathan Scott wrote:
-> > I'm not seeing anything to suggest random slab corruption, and I'm
-> > so far unable to trip things up as easily as you're able to Jerome.
-> > Do you have just a very small amount of memory perhaps?  I can try
-> > running while very low on memory, but thats the only other obvious
-> > thing I can think of atm.
-> 
-> How about XFS on DM on RAID?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I didn't see references to those in Jeromes original description,
-so haven't been testing those in this context.  But I need to do
-more testing on those subsystems anyway, so, will do.
+On Tuesday 02 December 2003 19:35, Stefan J. Betz wrote:
+> Hello People,
 
-cheers.
+Hi Stefan,
 
--- 
-Nathan
+> i have found some wrong thing in include/linux/version.h
+> On my System i have Kernel 2.6.0-test10 & 2.6.0-test11, but in
+> include/linux/version.h i see:
+> #define UTS_RELEASE "2.6.0-test9"
+>
+> correct where:
+> #definde UTS_RELEASE "2.6.0-test11" (for Linux Kernel 2.6.0-test11)...
+
+Hm, I think that file is automatically generated at compile-time,
+isn't it?
+Are you sure, you grepped through the correct tree? Or is this
+an old one, that was sitting in some dusty corner on your disk?
+
+> Greeting Betz Stefan
+>
+> I know that my english is not realy good, but any tipp how i can learn
+> better english is welcome...
+
+Don't read my mails, because they are ugly english, too. 8-)
+
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/zO9NoxoigfggmSgRAhLMAJ43jo4/Pw7em+LbHRMUB4rgn/79EACfb8xa
+fAFiprdxGFZE+aBLRePHS5s=
+=6MLE
+-----END PGP SIGNATURE-----

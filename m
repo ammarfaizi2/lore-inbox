@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbUJYMsj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbUJYMtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261796AbUJYMsj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 08:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbUJYMsj
+	id S261776AbUJYMtm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 08:49:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUJYMtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 08:48:39 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:23775 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261789AbUJYMr1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 08:47:27 -0400
-Date: Mon, 25 Oct 2004 14:47:18 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Timo Sirainen <tss@iki.fi>
-cc: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
-Subject: Re: readdir loses renamed files
-In-Reply-To: <571A250A-2682-11D9-8AC3-000393CC2E90@iki.fi>
-Message-ID: <Pine.LNX.4.53.0410251443370.19850@yvahk01.tjqt.qr>
-References: <431547F9-2624-11D9-8AC3-000393CC2E90@iki.fi>
- <20041025082910.GA17089@taniwha.stupidest.org> <571A250A-2682-11D9-8AC3-000393CC2E90@iki.fi>
+	Mon, 25 Oct 2004 08:49:42 -0400
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:55720 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261776AbUJYMtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 08:49:36 -0400
+Message-ID: <417CF65C.4040008@yahoo.com.au>
+Date: Mon, 25 Oct 2004 22:49:32 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+To: Andrea Arcangeli <andrea@novell.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: ZONE_PADDING wastes 4 bytes of the new cacheline
+References: <20041021224533.GB8756@dualathlon.random> <41785585.6030809@yahoo.com.au> <20041022011057.GC14325@dualathlon.random> <41787840.3060807@yahoo.com.au> <20041022165809.GH14325@dualathlon.random> <4179DF23.4030402@yahoo.com.au> <20041023095955.GR14325@dualathlon.random> <417A30EE.1030205@yahoo.com.au> <20041023110334.GS14325@dualathlon.random> <417A86AC.2080505@yahoo.com.au> <20041025124443.GV14325@dualathlon.random>
+In-Reply-To: <20041025124443.GV14325@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->So if I lose a file, how many times should I scan the directory again
->to know if it's really gone? And is it really worth the extra overhead
+Andrea Arcangeli wrote:
 
-Maybe the use of stat() will show whether a file really exists.
+> I'll adapt the rest of the code to deal with this and test it in a few
+> more minutes.
+> 
 
->The test program that I had showed that the next scan didn't
->necessarily return it either. The file was sometimes lost for as long
->as 5 scans.
+The current stuff is pretty crufty. I think your changes are
+far better (aside from the minor fact they won't compile!).
 
-Unrelated to this issue, I had a look into reiser3 for some other project of
-mine. What I've found was that upon renaming() a file, the old entry is marked
-invisble first, and then the new one is marked visible.
-You would need to meet a lot of conditions to have a file lost (IMO):
-- using reiser3
-- reiserfs_rename() is suspended for as long as 5 scans
-  (only happens either on SMP or UP+preempt)
-- reiserfs_rename() hangs... somwhat, because while(i<5){while(readdir(...)){}}
-  usually takes longer than a rename
-
-
-Jan Engelhardt
--- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de
+Also, switching to a calculation that has seen some real-world
+use would be a good idea before we think about turning it on
+by default.

@@ -1,36 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274862AbSANMTW>; Mon, 14 Jan 2002 07:19:22 -0500
+	id <S287237AbSANMYl>; Mon, 14 Jan 2002 07:24:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289218AbSANMTM>; Mon, 14 Jan 2002 07:19:12 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:26550 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S274862AbSANMS5>;
-	Mon, 14 Jan 2002 07:18:57 -0500
-To: yodaiken@fsmlabs.com
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu>
-	<3C41A545.A903F24C@linux-m68k.org>
-	<20020113153602.GA19130@fenrus.demon.nl>
-	<E16PzHb-00006g-00@starship.berlin>
-	<20020113223438.A19324@hq.fsmlabs.com>
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <20020113223438.A19324@hq.fsmlabs.com>
-Date: 14 Jan 2002 14:17:46 +0200
-Message-ID: <87bsfx9led.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S289219AbSANMYb>; Mon, 14 Jan 2002 07:24:31 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:48154 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S289218AbSANMYN>; Mon, 14 Jan 2002 07:24:13 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200201141224.g0ECOBe28867@devserv.devel.redhat.com>
+Subject: Re: Linux 2.4.18pre3-ac2
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Mon, 14 Jan 2002 07:24:11 -0500 (EST)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <3C42CD74.3020200@evision-ventures.com> from "Martin Dalecki" at Jan 14, 2002 01:22:12 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "yodaiken" == yodaiken  <yodaiken@fsmlabs.com> writes:
-yodaiken> 	It's not even clear how preempt is supposed to interact with SCHED_FIFO.
+> Could you include the i810_audio.c patches eas well please. Without them 
+> the driver isn't quite usable at least on SiS735 based motherboards.
 
-How so ? The POSIX specification is not clear enough or it is not to be followed ?
-
-Regards,
--velco
-
+I'm sure Doug will send i810 audio to Marcelo. I'm not trying to duplicate
+work here. Most of that diff is just because I went back over the patches
+from the transitional period

@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278549AbRJXPHn>; Wed, 24 Oct 2001 11:07:43 -0400
+	id <S278550AbRJXPLn>; Wed, 24 Oct 2001 11:11:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278550AbRJXPHd>; Wed, 24 Oct 2001 11:07:33 -0400
-Received: from e22.nc.us.ibm.com ([32.97.136.228]:38844 "EHLO
-	e22.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S278549AbRJXPHX>; Wed, 24 Oct 2001 11:07:23 -0400
-Subject: Re: patch to exec_domain
-From: Paul Larson <plars@austin.ibm.com>
-To: Kjohn Sasitorn <kjohn@cs.utexas.edu>
-Cc: lkml <linux-kernel@vger.kernel.org>, torvalds@transmeta.com
-In-Reply-To: <20011024093420.A6686@vampire.cs.utexas.edu>
-In-Reply-To: <20011024093420.A6686@vampire.cs.utexas.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.14 (Preview Release)
-Date: 24 Oct 2001 10:12:41 +0000
-Message-Id: <1003918363.26207.2.camel@plars.austin.ibm.com>
+	id <S278551AbRJXPLd>; Wed, 24 Oct 2001 11:11:33 -0400
+Received: from etna.trivadis.com ([193.73.126.2]:50414 "EHLO lttit")
+	by vger.kernel.org with ESMTP id <S278550AbRJXPLX>;
+	Wed, 24 Oct 2001 11:11:23 -0400
+Date: Wed, 24 Oct 2001 17:09:15 +0200
+From: Tim Tassonis <timtas@dplanet.ch>
+To: linux-kernel@vger.kernel.org
+Subject: fdisk: "File size limit exceeded on fdisk" 2.4.10 to 2.4.13-pre6
+X-Mailer: Sylpheed version 0.6.3cvs10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15wPed-0000HM-00@lttit>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-10-24 at 14:34, Kjohn Sasitorn wrote:
-> Currently, the personality(2) system call always returns the previous
-> persona. However, according to the manpage, it should return the previous
-> persona when successful and -1 otherwise. The following patch to
-> lookup_exec_domain() should remedy this behavior:
+Hi everybody
 
-Actually I think that problem was already fixed.  However, this looks
-like it fixes another problem I've seen though where personality doesn't
-return EINVAL if you pass it a bad personality.  Right fix, wrong bug :)
+When I try to create a partition of 2GB using fdisk or parted, I get the
+error "File size limit exceeded (core dumped)". I already read about this
+error on the mailing list, but sadly not of any solution.
 
-Thanks,
-Paul Larson
+Has anybody got one?
 
+Btw: If happend with fdisk from util-linux-2.10f until util-linux-2.11l.
+
+P.S. I'm not subscribed to the list bla bla bla (but read it rather
+often).
+
+Bye
+Tim

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132901AbRA2TVv>; Mon, 29 Jan 2001 14:21:51 -0500
+	id <S129334AbRA2T1v>; Mon, 29 Jan 2001 14:27:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132952AbRA2TVl>; Mon, 29 Jan 2001 14:21:41 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:30472 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132901AbRA2TVW>; Mon, 29 Jan 2001 14:21:22 -0500
-Message-ID: <3A75C2A0.6C21F517@transmeta.com>
-Date: Mon, 29 Jan 2001 11:21:04 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S129282AbRA2T1m>; Mon, 29 Jan 2001 14:27:42 -0500
+Received: from entropy.muc.muohio.edu ([134.53.213.10]:27264 "EHLO
+	entropy.muc.muohio.edu") by vger.kernel.org with ESMTP
+	id <S132786AbRA2T1b>; Mon, 29 Jan 2001 14:27:31 -0500
+Date: Mon, 29 Jan 2001 14:27:13 -0500 (EST)
+From: George <greerga@entropy.muc.muohio.edu>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: "David S. Miller" <davem@redhat.com>, James Sutherland <jas88@cam.ac.uk>,
+        Miquel van Smoorenburg <miquels@traveler.cistron-office.nl>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: ECN: Clearing the air (fwd)
+In-Reply-To: <200101291831.f0TIV7h484162@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.4.30.0101291423000.2416-100000@entropy.muc.muohio.edu>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Linux Post codes during runtime, possibly OT
-In-Reply-To: <200101281012.LAA04278@cave.bitwizard.nl> <3A73F1EB.B6F69A93@transmeta.com> <20010128233425.E1300@bug.ucw.cz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
->> >
-> > And you're still overwriting the POST value written by the BIOS.
-> 
-> So save value from bios at initial boot ;-).
->                                                                 Pavel
+On Mon, 29 Jan 2001, Albert D. Cahalan wrote:
 
-Write-only register.
+>The author is expressing his wish for an ideal world. Note that he
+>also accepts reality. He accepts that PMTU black holes won't go
+>away, even though we might like them to do so.
+>
+>Hell, I think I'm behind one. ICMP is/was blocked to/from/within
+>the entire university. This was to stop ping flood attacks. :-)
 
-	-hpa
+So you get a UDP flood instead.
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Congratulations on breaking something important (PMTU, "Port unreachable",
+etc.) for a false sense of security.
+
+Did you buy a non-upgraded Cisco PIX just to block ECN as well?
+
+-George Greer
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

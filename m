@@ -1,40 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbULTIsY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbULTIsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbULTIsY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 03:48:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbULTIsX
+	id S261167AbULTIsL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 03:48:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbULTIsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 03:48:23 -0500
-Received: from em.njupt.edu.cn ([202.119.230.11]:57743 "HELO njupt.edu.cn")
-	by vger.kernel.org with SMTP id S261248AbULTIrr (ORCPT
+	Mon, 20 Dec 2004 03:48:10 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:43737 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261167AbULTIpY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 03:47:47 -0500
-Message-ID: <303535658.02371@njupt.edu.cn>
-X-WebMAIL-MUA: [10.10.136.115]
-From: "Zhenyu Wu" <y030729@njupt.edu.cn>
-To: linux-kernel@vger.kernel.org
-Date: Mon, 20 Dec 2004 17:40:58 +0800
-Reply-To: "Zhenyu Wu" <y030729@njupt.edu.cn>
-X-Priority: 3
-Subject: About kernel panic!
-Content-Type: text/plain
+	Mon, 20 Dec 2004 03:45:24 -0500
+Date: Mon, 20 Dec 2004 00:44:13 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, zaitcev@redhat.com
+Subject: Re: RFC: [2.6 patch] let BLK_DEV_UB depend on EMBEDDED
+Message-ID: <20041220004413.7284f7e3@lembas.zaitcev.lan>
+In-Reply-To: <20041220080951.GA24728@one-eyed-alien.net>
+References: <20041220001644.GI21288@stusta.de>
+	<20041220003146.GB11358@kroah.com>
+	<20041220013542.GK21288@stusta.de>
+	<20041219205104.5054a156@lembas.zaitcev.lan>
+	<41C65EA0.7020805@osdl.org>
+	<20041220062055.GA22120@one-eyed-alien.net>
+	<20041219223723.3e861fc5@lembas.zaitcev.lan>
+	<20041220080951.GA24728@one-eyed-alien.net>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Everyone,
+On Mon, 20 Dec 2004 00:09:51 -0800, Matthew Dharm <mdharm-kernel@one-eyed-alien.net> wrote:
 
-I think i have met lots of troubles when i am programming in the kernel, so, i
-want to get
-some help.
+> The best idea I have is to hide CONFIG_BLK_DEV_UB behind
+> CONFIG_EXPERIMENTAL.
 
-One of my troubles is that, sometimes, the program can work well, but sometimes,
-there are
-kernel panics. So, does someone else meet such questions, what is the major
-reasons? From the
-indication of the log messages, i can find the messages on allocting the memory, i
-remember, 
-i use the kmalloc to do it, but is there something wrong? 
+I thought about it, but I do not like CONFIG_EXPERIMENTAL as a concept.
+I seem to recall a few instances when it was practically required, because
+some necessary driver was covered by it, and so users ran it always-on.
+AFAIK, both Fedora and Red Hat Enterprise Linux 4 Beta have it enabled
+for that reason. We can try it, certainly, to see if it helps.
 
-Thanks,
+> The next-best idea I have is to make UB print out some sort of warning
+> message at startup.
 
+This is probably a cure worse than the disease.
 
+-- Pete

@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262861AbVCWIAJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262849AbVCWH65@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262861AbVCWIAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 03:00:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVCWH7p
+	id S262849AbVCWH65 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 02:58:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbVCWH5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 02:59:45 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:57044 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261233AbVCWH7V (ORCPT
+	Wed, 23 Mar 2005 02:57:20 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:47496 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S262853AbVCWHz1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 02:59:21 -0500
-Date: Wed, 23 Mar 2005 08:58:54 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
-Message-ID: <20050323075854.GA4348@elte.hu>
-References: <20050322054345.GB1296@us.ibm.com> <20050322072413.GA6149@elte.hu> <20050322092331.GA21465@elte.hu> <20050322093201.GA21945@elte.hu> <20050322100153.GA23143@elte.hu> <20050322112856.GA25129@elte.hu> <20050323061601.GE1294@us.ibm.com> <20050323063317.GB31626@elte.hu> <20050323071604.GA32712@elte.hu> <Pine.LNX.4.58.0503230251180.13140@localhost.localdomain>
+	Wed, 23 Mar 2005 02:55:27 -0500
+Date: Wed, 23 Mar 2005 08:55:25 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Netdev <netdev@oss.sgi.com>,
+       "akpm @ osdl. org Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: netdev-2.6 queue updated
+Message-ID: <20050323075525.GA25273@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Jeff Garzik <jgarzik@pobox.com>, Netdev <netdev@oss.sgi.com>,
+	"akpm @ osdl. org Linux Kernel" <linux-kernel@vger.kernel.org>
+References: <4240E35C.2090203@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503230251180.13140@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <4240E35C.2090203@pobox.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Steven Rostedt <rostedt@goodmis.org> wrote:
-
-> > i think the 'migrate read-count' method is not adequate either, because
-> > all callbacks queued within an RCU read section must be called after the
-> > lock has been dropped - while with the migration method CPU#1 would be
-> > free to process callbacks queued in the RCU read section still active on
-> > CPU#2.
+On Tue, Mar 22, 2005 at 10:32:44PM -0500, Jeff Garzik wrote:
+> Wireless update, and various minor fixes.
 > 
-> Although you can't disable preemption for the duration of the
-> rcu_readlock, what about pinning the process to a CPU while it has the
-> lock.  Would this help solve the migration issue?
+> BK URL, patch URL, and changelog attached.
 
-yes, but that's rather gross. PREEMPT_BKL was opposed by Linus precisely
-because it used such a method - once that was fixed, PREEMPT_BKL got
-accepted. It also limits the execution flow quite much. I'd rather not
-do it if there's any other method.
+Jeff, akpm can you predict if this will make 2.6.12? Especially the wireless
+& hostap stuff.
 
-	Ingo
+>  net/ieee80211/Kconfig                           |   67 
+>  net/ieee80211/Makefile                          |   11 
+>  net/ieee80211/ieee80211_crypt.c                 |  259 +
+>  net/ieee80211/ieee80211_crypt_ccmp.c            |  470 ++
+>  net/ieee80211/ieee80211_crypt_tkip.c            |  708 ++++
+>  net/ieee80211/ieee80211_crypt_wep.c             |  272 +
+>  net/ieee80211/ieee80211_module.c                |  268 +
+>  net/ieee80211/ieee80211_rx.c                    | 1206 +++++++
+>  net/ieee80211/ieee80211_tx.c                    |  448 ++
+>  net/ieee80211/ieee80211_wx.c                    |  471 ++
+
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

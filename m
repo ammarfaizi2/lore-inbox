@@ -1,72 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268159AbUI2C2X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268155AbUI2CaR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268159AbUI2C2X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 22:28:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268164AbUI2C1I
+	id S268155AbUI2CaR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 22:30:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268163AbUI2C2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 22:27:08 -0400
-Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:10368 "EHLO
-	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S268155AbUI2CZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 22:25:02 -0400
-From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: IDE Hotswap
-Date: Wed, 29 Sep 2004 03:54:38 +0200
-User-Agent: KMail/1.6.2
-Cc: Suresh Grandhi <Sureshg@ami.com>,
-       "'linux-ide@vger.kernel.org'" <linux-ide@vger.kernel.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-References: <8CCBDD5583C50E4196F012E79439B45C069657DB@atl-ms1.megatrends.com> <200409282338.10456.bzolnier@elka.pw.edu.pl> <1096407955.14083.45.camel@localhost.localdomain>
-In-Reply-To: <1096407955.14083.45.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
+	Tue, 28 Sep 2004 22:28:32 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:41865 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268155AbUI2C1Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 22:27:25 -0400
+Subject: Re: [PATCH] Use msleep_interruptible for therm_adt7467.c kernel
+	thread
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: akpm@osdl.org, benh@kernel.crashing.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mdz@canonical.com, janitor@sternwelten.at
+In-Reply-To: <20040929015827.GA26337@gondor.apana.org.au>
+References: <20040927102552.GA19183@gondor.apana.org.au>
+	 <1096289501.9930.19.camel@localhost.localdomain>
+	 <20040929015827.GA26337@gondor.apana.org.au>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409290354.38440.bzolnier@elka.pw.edu.pl>
+Message-Id: <1096421071.14637.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 29 Sep 2004 02:24:33 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 28 September 2004 23:45, Alan Cox wrote:
-> On Maw, 2004-09-28 at 22:38, Bartlomiej Zolnierkiewicz wrote:
-> > No and such workaround won't work anyway because
-> > re-register operation is nothing else but unregister+register.
+On Mer, 2004-09-29 at 02:58, Herbert Xu wrote:
+> > A more interesting question is why this isn't being driven off a
+> > timer ?
 > 
-> If you grab the 2.6.8.1-ac patch you can do IDE controller hotplugging
-> and a few other things but not yet drive hotplugging. 2.4 can do drive
-> hotplug although you need a small -ac patch if you see wrong disk
-> geometry data.
-> 
-> For new controllers (ie SATA ones) use Jeff Garzik's serial ATA layer as
-> that is a lot cleaner and the SCSI layer already has a good basic
-> understanding of hotplug management.
-> 
-> > Any help/support is appreciated.
-> 
-> Except for the dynamic stuff I consider the problem solved. Its up to
-> you when and what you merge and I understand why you want to get stuff
-> like sysfs there. 
+> It probably could if the stuff afterwards doesn't sleep.
 
-Your patch is a nice start but it don't solve main issues, not to even
-mention minor stuff like leaving /proc/ide/<chipset> around.
+schedule_work() ?
 
-Merging it now is asking for problems.
-
-> For drive level hotplug its actually a lot easier and I guess that is
-> the case most users care about. The changes done for 2.6 clean up stuff
-
-drive level hotplug is actually much harder
-and it is _required_ for controller level hotplug, no? :)
-
-> like suspend mean the nasties in 2.4 for sequencing have gone away. No
-> refcounting needed since the block and fs layer are doing it all for
-
-It helps but you still get bunch of races.  Refcounting is _really_ needed.
-
-> you. TTY layer, revoke(), and some other current critical bonfires first
-> before I can help with that however.
-
-Fine.
-
-Bartlomiej

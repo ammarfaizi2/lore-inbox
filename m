@@ -1,67 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269437AbUICJJ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269452AbUICJOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269437AbUICJJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 05:09:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269424AbUICJIJ
+	id S269452AbUICJOc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 05:14:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269432AbUICJNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 05:08:09 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:55559 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S269435AbUICJFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 05:05:03 -0400
-Date: Fri, 3 Sep 2004 10:04:56 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Zwane Mwaikambo <zwane@fsmlabs.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH][6/8] Arch agnostic completely out of line locks / arm
-Message-ID: <20040903100456.A7535@flint.arm.linux.org.uk>
-Mail-Followup-To: Zwane Mwaikambo <zwane@fsmlabs.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Matt Mackall <mpm@selenic.com>
-References: <Pine.LNX.4.58.0409021237000.4481@montezuma.fsmlabs.com>
+	Fri, 3 Sep 2004 05:13:51 -0400
+Received: from fw.osdl.org ([65.172.181.6]:54199 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269464AbUICJG1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 05:06:27 -0400
+Date: Fri, 3 Sep 2004 02:04:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Bernhard Rosenkraenzer <bero@arklinux.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.9-rc1-mm2 compilation fixes
+Message-Id: <20040903020435.0027958a.akpm@osdl.org>
+In-Reply-To: <200409030857.25295.bero@arklinux.org>
+References: <200409030857.25295.bero@arklinux.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58.0409021237000.4481@montezuma.fsmlabs.com>; from zwane@fsmlabs.com on Thu, Sep 02, 2004 at 08:02:55PM -0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 02, 2004 at 08:02:55PM -0400, Zwane Mwaikambo wrote:
-> --- linux-2.6.9-rc1-mm1-stage/arch/arm/kernel/time.c	26 Aug 2004 13:13:04 -0000	1.1.1.1
-> +++ linux-2.6.9-rc1-mm1-stage/arch/arm/kernel/time.c	2 Sep 2004 15:51:37 -0000
-> @@ -52,6 +52,18 @@ EXPORT_SYMBOL(rtc_lock);
->  /* change this if you have some constant time drift */
->  #define USECS_PER_JIFFY	(1000000/HZ)
-> 
-> +#ifdef CONFIG_SMP
-> +unsigned long profile_pc(struct pt_regs *regs)
-> +{
-> +	unsigned long pc = instruction_pointer(regs);
-> +
-> +	if (pc >= (unsigned long)&__lock_text_start &&
-> +	    pc <= (unsigned long)&__lock_text_end)
-> +		return regs->ARM_lr;
-> +	return pc;
-> +}
-> +EXPORT_SYMBOL(profile_pc);
-> +#endif
+Bernhard Rosenkraenzer <bero@arklinux.org> wrote:
+>
+> make modules_install doesn't work if the ALSA korg1212 sound module is built - 
+> "grep -h .ko" will find /korg1212.o (. is a regexp character...), and 
+> therefore try to install the nonexistant korg1212.ko.
+> It should be grep -h '\.ko'
 
-Looks good apart from this.  There's no guarantee that LR will be the
-return address inside one of these lock functions - indeed the compiler
-may have saved it onto the stack and decided to use the register for
-something else.
+Yup.  This should be fixed in -mm3, thanks.
 
-Your best bet is to look at the get_wchan() code which walks the stack
-frames (if present.)
+> kernel/wait.c fails to compile with gcc 3.4 due to discrepancies between the 
+> prototype and implementations of __wait_on_bit() and __wait_on_bit_lock()
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+This also.

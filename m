@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129761AbQL2HtU>; Fri, 29 Dec 2000 02:49:20 -0500
+	id <S129458AbQL2IJz>; Fri, 29 Dec 2000 03:09:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129778AbQL2HtL>; Fri, 29 Dec 2000 02:49:11 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:8972 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129761AbQL2Hsx>;
-	Fri, 29 Dec 2000 02:48:53 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Oops when mounting cdrom 
-In-Reply-To: Your message of "Fri, 29 Dec 2000 01:55:51 BST."
-             <3A4BE117.3F58333B@Hell.WH8.TU-Dresden.De> 
+	id <S129480AbQL2IJp>; Fri, 29 Dec 2000 03:09:45 -0500
+Received: from kamov.deltanet.ro ([193.226.175.3]:38151 "HELO
+	kamov.deltanet.ro") by vger.kernel.org with SMTP id <S129458AbQL2IJd>;
+	Fri, 29 Dec 2000 03:09:33 -0500
+Date: Fri, 29 Dec 2000 09:38:40 +0200
+From: Petru Paler <ppetru@ppetru.net>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Jure Pecar <pegasus@telemach.net>, linux-kernel@vger.kernel.org,
+        thttpd@bomb.acme.com
+Subject: Re: linux 2.2.19pre and thttpd (VM-global problem?)
+Message-ID: <20001229093840.A792@ppetru.net>
+In-Reply-To: <3A4BE9B0.5C809AAC@telemach.net> <20001229032953.A9810@athlon.random> <20001229034712.B9810@athlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 29 Dec 2000 18:18:18 +1100
-Message-ID: <16546.978074298@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20001229034712.B9810@athlon.random>; from andrea@suse.de on Fri, Dec 29, 2000 at 03:47:12AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Dec 2000 01:55:51 +0100, 
-"Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De> wrote:
->Can someone explain to me what all those ksymoops warnings are
->about?
->Warning (compare_maps): ksyms_base symbol acpi_clear_event_R__ver_acpi_clear_event not found in System.map.  Ignoring ksyms_base entry
+On Fri, Dec 29, 2000 at 03:47:12AM +0100, Andrea Arcangeli wrote:
+> PS. I'm very suprised thttpd isn't threaded, it should really be threaded at
+>     least on the x86 family to run fast.
 
-Read the lkml FAQ, question 8.8.
+This is one of the main thttpd design points: run in a select() loop. Since
+it is intended for mainly static workloads, it performs quite well...
 
-cliche_generate(man, fish, teach).
-
+--
+Petru Paler, mailto:ppetru@ppetru.net
+http://www.ppetru.net - ICQ: 41817235
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

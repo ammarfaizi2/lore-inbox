@@ -1,76 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130897AbRAPSwd>; Tue, 16 Jan 2001 13:52:33 -0500
+	id <S131639AbRAPS7O>; Tue, 16 Jan 2001 13:59:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131639AbRAPSwY>; Tue, 16 Jan 2001 13:52:24 -0500
-Received: from cmr0.ash.ops.us.uu.net ([198.5.241.38]:26293 "EHLO
-	cmr0.ash.ops.us.uu.net") by vger.kernel.org with ESMTP
-	id <S130897AbRAPSwO>; Tue, 16 Jan 2001 13:52:14 -0500
-Message-ID: <3A6498E7.2FE17BA@uu.net>
-Date: Tue, 16 Jan 2001 13:54:31 -0500
-From: Alex Deucher <adeucher@UU.NET>
-Organization: UUNET
-X-Mailer: Mozilla 4.74 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
-        linux-kernel@vger.kernel.org
-Subject: Re: APM, ACPI, WOL, Oh My!
-In-Reply-To: <Pine.LNX.4.10.10101161336420.1529-100000@coffee.psychology.mcmaster.ca>
+	id <S131984AbRAPS7E>; Tue, 16 Jan 2001 13:59:04 -0500
+Received: from nic.lth.se ([130.235.20.3]:11968 "EHLO nic.lth.se")
+	by vger.kernel.org with ESMTP id <S131639AbRAPS6r>;
+	Tue, 16 Jan 2001 13:58:47 -0500
+Date: Tue, 16 Jan 2001 19:58:37 +0100
+From: Jakob Borg <jakob@borg.pp.se>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG with 2.4.1-pre7 reiserfs
+Message-ID: <20010116195837.A707@borg.pp.se>
+In-Reply-To: <20010116192041.A466@borg.pp.se> <9424br$j3h$1@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <9424br$j3h$1@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Jan 16, 2001 at 10:36:43AM -0800
+X-Operating-System: Linux narayan 2.4.1-pre7 i686 SMP 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Mark Hahn wrote:
+On Tue, Jan 16, 2001 at 10:36:43AM -0800, Linus Torvalds wrote:
+> >I seem to remember more possibly useful information scrolling by my screen,
+> >but it seems to not have made it to the logs, and I will shut down and fsck
+> >the filesystem now...
 > 
-> > mode, but the have the option apm=poweroff in my lilo.conf and with the
-> 
-> apm=power-off.  I'm looking at modern kernels, of course (2.4+).
-> power_off is a valid alternative.  at one time, the magic string
-> was smp-power-off.
-> 
+> It really needs the stack-trace to debug this sanely (along with
+> translations of what the hex numbers are - see the bugreporting
+> documentation in the kernel source tree). 
 
-Whoops, I should reread my emails before I hit send; the actual string I
-have on my PC is apm=power-off.
+Got that in the other mail subjected "More information ... ". In the
+meantime it seems the filesystem is unhurt because of this, but reiserfsck
+says
 
+uread_super_block: bad block is found at a new superblock location
+uread_super_block: bad block is found at an old superblock location
 
-> some bioses also need to be returned to real mode before that call;
-> modern kernels have a config option for that.
+which seems bogus. This is reiserfsck from the same suite that mkreiserfs
+came from ("reiserfsprogs 3.x") so they should be talking about the same
+sort of filesystem.
 
-I tried that option, but it didn't matter, smae behavior.  I also tried
-most if not all of the others like enable apm at boot time etc.
+Regards,
 
-> 
-> > If I shutdown in linux using a vender kernel with apm that powers off
-> > the machine, it powers off fine and stays off until I hit the power
-> > button or I send a wake up packet.  If I shutdown and power off using
-> > win98, or with the power button, the machine goes off, but will then
-> > preceed to reboot with in 3-4 minutes.  This is completely repeatable.
-> > Turning it off manually during the reboot will not stop this.  If I turn
-> > it off manually after it turns itself on, it will continue to try and
-> > reboot itself every few minutes.  they only solution is to let linux
-> > boot and perform a shutdown and power off.  then it stays off.
-> 
-> so don't use win98 ;)
-
-I rarely do, which is why this problem is not as annoying as it could be
-:p
-
-> 
-> > AFAIK, WOL is software independant.  The only thing I can figure it that
-> 
-> it's certainly not.
-
-It's not?  But you can wake your PC remote with a WOL NIC regardless of
-the OS. Shutting the PC down again is another issue.
-
-
-Thanks,
-
-Alex
+-- 
+Jakob Borg            mailto:jakob@borg.pp.se       (personal)
+UNIX/network admin    mailto:jakob@debian.org    (development)
+systems programmer    mailto:jakob@morotsmedia.se       (work)
+                      http://jakob.borg.pp.se/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

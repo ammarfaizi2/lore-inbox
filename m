@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261599AbSJUR4A>; Mon, 21 Oct 2002 13:56:00 -0400
+	id <S261495AbSJURsi>; Mon, 21 Oct 2002 13:48:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261601AbSJUR4A>; Mon, 21 Oct 2002 13:56:00 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:38413 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261599AbSJURz7>; Mon, 21 Oct 2002 13:55:59 -0400
-Date: Mon, 21 Oct 2002 19:02:05 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Listmaster request: Blacklist rms@gnu.org
-Message-ID: <20021021190205.A25380@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-References: <20021021182737.A23371@infradead.org> <Pine.LNX.4.44.0210211950340.8911-100000@serv>
+	id <S261528AbSJURsh>; Mon, 21 Oct 2002 13:48:37 -0400
+Received: from main.gmane.org ([80.91.224.249]:35290 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S261495AbSJURsf>;
+	Mon, 21 Oct 2002 13:48:35 -0400
+To: linux-kernel@vger.kernel.org
+X-Injected-Via-Gmane: http://gmane.org/
+Path: not-for-mail
+From: Nicholas Wourms <nwourms@netscape.net>
+Subject: Re: Linux v2.5.44 - and offline for a week
+Date: Mon, 21 Oct 2002 13:55:35 -0400
+Message-ID: <ap1ev5$1ag$1@main.gmane.org>
+References: <Pine.LNX.4.44.0210182117500.12531-100000@penguin.transmeta.com> <aorjq3$3dm$1@main.gmane.org> <200210201749.41625.landley@trommello.org> <20021021131137.GA12708@suse.de>
+Reply-To: nwourms@netscape.net
+NNTP-Posting-Host: 130-127-121-177.generic.clemson.edu
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0210211950340.8911-100000@serv>; from zippel@linux-m68k.org on Mon, Oct 21, 2002 at 07:57:21PM +0200
+Content-Transfer-Encoding: 7Bit
+X-Trace: main.gmane.org 1035222821 1360 130.127.121.177 (21 Oct 2002 17:53:41 GMT)
+X-Complaints-To: usenet@main.gmane.org
+NNTP-Posting-Date: Mon, 21 Oct 2002 17:53:41 +0000 (UTC)
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 21, 2002 at 07:57:21PM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Mon, 21 Oct 2002, Christoph Hellwig wrote:
-> 
-> > I've adjusted my procmail filters now, still people using web archives
-> > suffer from Richard's ignorance of the technical charta, his bad
-> > trolling and offending everyone on the list.  As his previous posts
-> > have been of a similar "quality" I'd like to request blacklisting him
-> > from the vger list.
-> 
-> That's of course also a way to deal with different opinions. :-(
-> The whole thread was offtopic from the very beginning, but only RMS is
-> disallowed to state his opinion.
-> Requesting censorship like this is highly disgusting.
+Dave Jones wrote:
 
-Well, _he_ started that thread, and the only posts to his list ever
-where to start such threads.  People need to get the difference between
-a technical list and a gnu discussion list.  If he ever wants to post
-a useful patch instead of just rants I'm sure everyone will welcome
-him here.
+> On Sun, Oct 20, 2002 at 05:49:41PM -0500, Rob Landley wrote:
+> 
+>  > There will always be code that's not ready before the freeze, and that
+>  > won't
+>  > make it in.  If this wasn't the case, there wouldn't be a need for a
+>  > cutoff
+>  > date, would there?  "Oh, development is over, there are no more
+>  > interesting
+>  > new patches anywhere, we can all go home now."  Doesn't happen.
+> 
+> Likewise, there _will_ be /some/ things that go in after the freeze.
+> 
+> - Things that are broken now that absolutely need fixing at all costs
+>   before the freeze. Thankfully, most of this work seems to be driver
+>   work. Some subsystems (ISDN, i2o, some of the net protos) need some
+>   more indepth surgery, but this is imo all valid work that can happen
+>   post freeze.
+> - Zero impact features.
+>   As an example, now that the x86 subarch support is merged, even quite
+>   large things, like support for Voyager has no impact on anything else
+>   now. Likewise new filesystems as long as it doesn't require VFS
+>   changes. (Something the Reiser4 folks seem to have realised).
+> - "Oops, this is totally broken" features.
+>   There still seems no concensus on volume management for 2.6
+>   Leaving existing LVM1 users dead in the water with the reply
+>   "leave it to vendors to add the dm/evms patch" just doesn't seem
+>   right. We need *something* for 2.6
+> 
+
+Thanks Dave, those were exactly the features I was worried about not getting 
+in 2.6.
+
+Cheers,
+Nicholas
+
+

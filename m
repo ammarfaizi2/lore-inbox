@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262802AbVCWR5e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261919AbVCWSDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262802AbVCWR5e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 12:57:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262741AbVCWR5d
+	id S261919AbVCWSDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 13:03:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262741AbVCWSDJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 12:57:33 -0500
-Received: from oracle.bridgewayconsulting.com.au ([203.56.14.38]:50882 "EHLO
-	oracle.bridgewayconsulting.com.au") by vger.kernel.org with ESMTP
-	id S262802AbVCWR5Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 12:57:16 -0500
-Date: Thu, 24 Mar 2005 01:57:07 +0800
-From: Bernard Blackham <bernard@blackham.com.au>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Matt <matt@signalz.com>, linux-kernel@vger.kernel.org
-Subject: Promise SX8 performance issues and CARM_MAX_Q
-Message-ID: <20050323175707.GA10481@blackham.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101757822.4309.37.camel@schroder.signalz.com>
-Organization: Dagobah Systems
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 23 Mar 2005 13:03:09 -0500
+Received: from stargate.chelsio.com ([64.186.171.138]:63347 "EHLO
+	stargate.chelsio.com") by vger.kernel.org with ESMTP
+	id S261919AbVCWSDE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 13:03:04 -0500
+content-class: urn:content-classes:message
+Subject: RE: Module compiling issue
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: 8BIT
+Date: Wed, 23 Mar 2005 10:02:35 -0800
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Message-ID: <67D69596DDF0C2448DB0F0547D0F947E01241A3B@yogi.asicdesigners.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Module compiling issue
+Thread-Index: AcUvz3aHuF4ggYYpQfaYx7ASW8WSmQAAoW5a
+From: "Scott Bardone" <sbardone@chelsio.com>
+To: <AndyLiebman@aol.com>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andy,
+These Makefiles are not written as a stand-alone make, they are for the kernel to build the objects. If you want the modules built, just run "make modules" from the top-level kernel after configuring the drivers to be built as modules. 
 
-Playing with a recently acquired Promise SX8 card, we've found
-similar performance results to Matt's post to lkml a few months back
-at http://marc.theaimsgroup.com/?l=linux-kernel&m=110175890323356&w=2
+Scott Bardone
+Chelsio Communications
 
-It appears that the driver is only submitting one command at a time
-per port, which is at least one cause of the slowdowns. By raising
-CARM_MAX_Q from 1 to 3 in drivers/block/sx8.c (it was 3 in an
-earlier pre-merge incarnation of carmel.c), we're getting very
-notable speed improvements, with no side effects just yet.
 
-Knowing very little about what this change has actually done, I've a
-few questions: 
+-----Original Message-----
+From:	linux-kernel-owner@vger.kernel.org on behalf of AndyLiebman@aol.com
+Sent:	Wed 3/23/2005 9:38 AM
+To:	linux-kernel@vger.kernel.org
+Cc:	
+Subject:	Module compiling issue
+I know this isn't the best place to ask this  question -- it's kind of a 
+newbie question -- but I'm very frustrated.  
 
- - Should this be considered dangerous?
- - Why was it taken from 3 to 1?
- - Is CARM_MAX_Q a number defined (or limited) by the hardware?
+Ever since I started using the 2.6.9 kernel and above, I have had  frequent 
+troubles compiling drivers AFTER the new kernel is installed and booted  up. 
 
-Thanks in advance,
+In other words, no issue compiling the kernel itself, as well as all  the 
+modules. But then, if I try to compile a module later (i.e., 3ware 9xxx  driver 
+or Chelsio 10 Gigabit NIC driver), when I type: 
 
-Bernard.
+"make" or "make  -f Makefile" I get back an error: 
 
--- 
- Bernard Blackham <bernard at blackham dot com dot au>
+"No rule to make target 'for' "   or "No rule to make target 'driver' ".  
+Have I missed configuring something  in the kernel. I have gotten this to work 
+once with the 2.6.10 kernel, but I  don't know what I did differently then. 
+
+I would appreciate your help  here. 
+
+Andy Liebman  
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+

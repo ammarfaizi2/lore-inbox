@@ -1,50 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbULWKFK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbULWKup@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbULWKFK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 05:05:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbULWKFK
+	id S261201AbULWKup (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 05:50:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbULWKup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 05:05:10 -0500
-Received: from smtp-vbr6.xs4all.nl ([194.109.24.26]:64268 "EHLO
-	smtp-vbr6.xs4all.nl") by vger.kernel.org with ESMTP id S261198AbULWKFF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 05:05:05 -0500
-Date: Thu, 23 Dec 2004 11:05:08 +0100
-From: Jurriaan <thunder7@xs4all.nl>
-To: selvakumar nagendran <kernelselva@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: insmod error - Invalid module format
-Message-ID: <20041223100508.GA21657@middle.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
-References: <20041223085451.40473.qmail@web60610.mail.yahoo.com>
+	Thu, 23 Dec 2004 05:50:45 -0500
+Received: from ns.suse.de ([195.135.220.2]:62636 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261201AbULWKuc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Dec 2004 05:50:32 -0500
+Date: Thu, 23 Dec 2004 11:50:20 +0100
+From: Andi Kleen <ak@suse.de>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: An apparent x86_64 ptrace bug
+Message-ID: <20041223105020.GA14560@wotan.suse.de>
+References: <200412230759.iBN7xEBG005840@ccure.user-mode-linux.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041223085451.40473.qmail@web60610.mail.yahoo.com>
-X-Message-Flag: Still using Outlook? As you can see, it has some errors.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <200412230759.iBN7xEBG005840@ccure.user-mode-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: selvakumar nagendran <kernelselva@yahoo.com>
-Date: Thu, Dec 23, 2004 at 12:54:51AM -0800
-> Hi,
->    I tried out the simple hello world example module
-> present in lkmpg.txt (linux module programming guide)
-> on linux kernel 2.6.9. But I got an error while I
-> tried to load the created .o file using insmod as
->  ' Invalid Module format'
->  Can anyone help me regarding this?
+On Thu, Dec 23, 2004 at 02:59:14AM -0500, Jeff Dike wrote:
+> I'm seeing some odd ptrace behavior on x86_64.  Namely,
+> 	singlestep hitting the same IP twice,
+> 	r11 and rcx changing values to those in eflags and rip, respectively
 > 
-Normal modules for 2.6.x use .ko as extension, so an .o would be wrong.
+> Singlestep stopping at the same instruction twice is suspicious in itself.
+> In looking through entry.S, I notice that the r11/eflags and rcx/rip pairs
+> have the same relation, namely that one member is stored in the stack slot
+> reserved for the other.
+> 
+> It looks like this is not being fixed up correctly in all cases before
+> returning to userspace.
 
-Did you check google? lkmpg.txt may be outdated.
+That only happens for the system call entry path, and there is no
+system call in your example.
 
-Good luck,
-Jurriaan
--- 
-A woman whose voice and esp could combine to to scramble a man's
-thoughts was an impressive guard. Unless, of course, the burglar
-happens to be a deaf mute...
-	Simon R Green - Mistworld
-Debian (Unstable) GNU/Linux 2.6.10-rc3 2x6078 bogomips load 0.16
+> 
+> Does this ring any bells?  The kernel here is stock FC3, 
+> config-2.6.9-1.681_FC3smp.
+
+
+You could try to revert 
+
+http://linux.bkbits.net:8080/linux-2.6/cset@412a49d0Duv_YlSqDMoYxkNhiBwoWw?nav=index.html|src/|src/arch|src/arch/x86_64|src/arch/x86_64/kernel|related/arch/x86_64/kernel/entry.S
+
+I never liked this patch and I bet it can cause strange problems
+like that.
+
+Another potential issue is a bug I just fixed in that signals could sometimes
+jump two bytes backwards.
+
+> Below is the gdb session in question.  The first stepi seems to be gdb seeing
+> the queued SIGSTOP, which it has been told not to pass along to the process.
+> There are no register changes here.  The next stepi is the interesting one.
+> Here we get the same IP again, plus the rip/rcx and eflags/r11 copying.
+> 
+This could be the "signal restart" bug. Apply this patch.
+
+-Andi
+
+---------------------------------------------------------------
+
+Fix a pretty bad bug that caused sometimes signals on x86-64 
+to be restarted like system calls. This corrupted the RIP and 
+in general caused undesirable effects.
+
+The problem happens because orig_rax is unsigned on x86-64,
+but it originally was signed when the signal code was written.
+And gcc didn't warn about this, because the warning is only in 
+-Wextra. 
+
+In 2.4 we still had a cast for it, but somehow it got dropped
+in 2.5. 
+
+Credit goes to John Slice for tracking it down and Erich Boleyn
+for the original fix. I fixed it at another place too.
+
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+Index: linux/arch/x86_64/kernel/signal.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/signal.c	2004-12-19 15:23:48.%N +0100
++++ linux/arch/x86_64/kernel/signal.c	2004-12-20 21:38:01.%N +0100
+@@ -357,7 +357,7 @@
+ #endif
+ 
+ 	/* Are we from a system call? */
+-	if (regs->orig_rax >= 0) {
++	if ((long)regs->orig_rax >= 0) {
+ 		/* If so, check system call restarting.. */
+ 		switch (regs->rax) {
+ 		        case -ERESTART_RESTARTBLOCK:
+@@ -442,7 +442,7 @@
+ 
+  no_signal:
+ 	/* Did we come from a system call? */
+-	if (regs->orig_rax >= 0) {
++	if ((long)regs->orig_rax >= 0) {
+ 		/* Restart the system call - no handlers present */
+ 		long res = regs->rax;
+ 		if (res == -ERESTARTNOHAND ||

@@ -1,86 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315551AbSECEmp>; Fri, 3 May 2002 00:42:45 -0400
+	id <S315552AbSECFDk>; Fri, 3 May 2002 01:03:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315552AbSECEmo>; Fri, 3 May 2002 00:42:44 -0400
-Received: from sm10.texas.rr.com ([24.93.35.222]:52411 "EHLO sm10.texas.rr.com")
-	by vger.kernel.org with ESMTP id <S315551AbSECEmn>;
-	Fri, 3 May 2002 00:42:43 -0400
-Subject: [PATCH] trivial patch for fixme in ide-pci.c
-From: Gerald Champagne <gerald@io.com>
+	id <S315554AbSECFDj>; Fri, 3 May 2002 01:03:39 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:52671 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S315552AbSECFDi>;
+	Fri, 3 May 2002 01:03:38 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
-Cc: dalecki@evision-ventures.com
-Content-Type: multipart/mixed; boundary="=-lkbSeEnQmZpm0J/jvwT7"
-X-Mailer: Ximian Evolution 1.0.4 
-Date: 02 May 2002 23:42:55 -0500
-Message-Id: <1020400975.5905.63.camel@wiley>
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel 
+In-Reply-To: Your message of "Thu, 02 May 2002 21:17:43 MST."
+             <Pine.LNX.4.33L2.0205022102570.11832-100000@dragon.pdx.osdl.net> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 03 May 2002 15:02:29 +1000
+Message-ID: <7691.1020402149@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2 May 2002 21:17:43 -0700 (PDT), 
+"Randy.Dunlap" <rddunlap@osdl.org> wrote:
+>I kinda like to do 'make bzImage' without making modules also.
+>Would that be difficult to do in kbuild 2.5?
+>Oh, but then I would also (still) need 'make modules'...
 
---=-lkbSeEnQmZpm0J/jvwT7
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Sample testing targets, to see if you made any typing errors.
 
-The following cleanup patch gets rid of a FIXME in ide-pci.c.  It
-compiles, but it's untested since I don't have that hardware.  
+  make vmlinux
+  make arch/i386/boot/bzImage
+  make drivers/acpi (non-recursive)
+  make drivers/acpi-r (recursive)
 
-Gerald
+Do it with NO_MAKEFILE_GEN=1 for much, much! faster builds.  But you
+should really do a clean make installable (which will do modules as
+well) before make install.
 
+>Any ideas about this error?  user error??
+>
+>$ make oldconfig menuconfig
+>
+>... and then
+>
+>[rddunlap@midway linux-2513-pv]$ make -f Makefile-2.5
+>spec value %p not found
+>Using ARCH='i386' AS='as' LD='ld' CC='/usr/bin/gcc' CPP='/usr/bin/gcc
+>-E' AR='ar' HOSTAS='as' HOSTLD='gcc' HOSTCC='gcc' HOSTAR='ar'
+>Generating global Makefile
+>  phase 1 (find all inputs)
+>Error: The CML input files have changed since .config was created.
+>       Always make one of xconfig menuconfig oldconfig defconfig
+>config randconfig allyes allno allmod after changing CML files
+>make: *** [/usr/linsrc/linux-2513-pv/.config] Error 1
 
---=-lkbSeEnQmZpm0J/jvwT7
-Content-Disposition: attachment; filename=hpt366fixme.patch
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/x-patch; name=hpt366fixme.patch; charset=ISO-8859-1
+You mixed the old kbuild 2.4 make *config with a kbuild 2.5 build.
+Don't do that.
 
-diff -urN linux-2.5.13.orig/drivers/ide/hpt366.c linux-2.5.13/drivers/ide/h=
-pt366.c
---- linux-2.5.13.orig/drivers/ide/hpt366.c	Thu May  2 19:22:42 2002
-+++ linux-2.5.13/drivers/ide/hpt366.c	Thu May  2 21:29:32 2002
-@@ -346,8 +346,6 @@
- static unsigned int pci_rev_check_hpt3xx(struct pci_dev *dev);
- static unsigned int pci_rev2_check_hpt3xx(struct pci_dev *dev);
- byte hpt366_proc =3D 0;
--byte hpt363_shared_irq;
--byte hpt363_shared_pin;
- extern char *ide_xfer_verbose (byte xfer_rate);
-=20
- #if defined(DISPLAY_HPT366_TIMINGS) && defined(CONFIG_PROC_FS)
-diff -urN linux-2.5.13.orig/drivers/ide/ide-pci.c linux-2.5.13/drivers/ide/=
-ide-pci.c
---- linux-2.5.13.orig/drivers/ide/ide-pci.c	Thu May  2 19:22:56 2002
-+++ linux-2.5.13/drivers/ide/ide-pci.c	Thu May  2 21:53:01 2002
-@@ -81,17 +81,10 @@
- #endif
-=20
- #ifdef CONFIG_BLK_DEV_HPT366
--extern byte hpt363_shared_irq;
--extern byte hpt363_shared_pin;
--
- extern unsigned int pci_init_hpt366(struct pci_dev *);
- extern unsigned int ata66_hpt366(struct ata_channel *);
- extern void ide_init_hpt366(struct ata_channel *);
- extern void ide_dmacapable_hpt366(struct ata_channel *, unsigned long);
--#else
--/* FIXME: those have to be killed */
--static byte hpt363_shared_irq;
--static byte hpt363_shared_pin;
- #endif
-=20
- #ifdef CONFIG_BLK_DEV_NS87415
-@@ -843,9 +836,7 @@
- 		    (PCI_FUNC(findev->devfn) & 1)) {
- 			dev2 =3D findev;
- 			pci_read_config_byte(dev2, PCI_INTERRUPT_PIN, &pin2);
--			hpt363_shared_pin =3D (pin1 !=3D pin2) ? 1 : 0;
--			hpt363_shared_irq =3D (dev->irq =3D=3D dev2->irq) ? 1 : 0;
--			if (hpt363_shared_pin && hpt363_shared_irq) {
-+			if (pin1 !=3D pin2 && dev->irq =3D=3D dev2->irq) {
- 				d->bootable =3D ON_BOARD;
- 				printk("%s: onboard version of chipset, pin1=3D%d pin2=3D%d\n", dev->n=
-ame, pin1, pin2);
- 			}
+One of the downsides of coexistence, users can get it wrong.
 
---=-lkbSeEnQmZpm0J/jvwT7--
+make -f Makefile-2.5 menuconfig installable
 

@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268122AbUHKQor@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268097AbUHKQqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268122AbUHKQor (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 12:44:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268113AbUHKQoq
+	id S268097AbUHKQqe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 12:46:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268128AbUHKQqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 12:44:46 -0400
-Received: from pegasus.allegientsystems.com ([208.251.178.236]:30726 "EHLO
-	pegasus.lawaudit.com") by vger.kernel.org with ESMTP
-	id S268105AbUHKQnK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 12:43:10 -0400
-Message-ID: <411A4C9D.4040902@optonline.net>
-Date: Wed, 11 Aug 2004 12:43:09 -0400
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040806
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>,
-       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] SCSI midlayer power management
-References: <4119611D.60401@optonline.net> <20040811080935.GA26098@elf.ucw.cz> <411A1B72.1010302@optonline.net> <1092231462.2087.3.camel@mulgrave> <1092237664.19009.23.camel@localhost.localdomain> <1092241693.1590.1.camel@mulgrave>
-In-Reply-To: <1092241693.1590.1.camel@mulgrave>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Aug 2004 12:46:24 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:49422 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S268113AbUHKQpx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 12:45:53 -0400
+Date: Wed, 11 Aug 2004 17:45:23 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Adrian Bunk <bunk@fs.tum.de>,
+       Christoph Hellwig <hch@infradead.org>, wli@holomorphy.com,
+       "David S. Miller" <davem@redhat.com>, schwidefsky@de.ibm.com,
+       linux390@de.ibm.com, sparclinux@vger.kernel.org,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: architectures with their own "config PCMCIA"
+Message-ID: <20040811174523.A30087@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Adrian Bunk <bunk@fs.tum.de>, wli@holomorphy.com,
+	"David S. Miller" <davem@redhat.com>, schwidefsky@de.ibm.com,
+	linux390@de.ibm.com, sparclinux@vger.kernel.org,
+	Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+References: <20040807170122.GM17708@fs.tum.de> <200408072013.01168.arnd@arndb.de> <Pine.GSO.4.58.0408072234290.23642@waterleaf.sonytel.be> <200408072341.17721.arnd@arndb.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200408072341.17721.arnd@arndb.de>; from arnd@arndb.de on Sat, Aug 07, 2004 at 11:41:17PM +0200
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> On Wed, 2004-08-11 at 10:21, Alan Cox wrote:
+On Sat, Aug 07, 2004 at 11:41:17PM +0200, Arnd Bergmann wrote:
+> However, I just tried and found that out of the 23 driver submenus, only
+> "Generic Driver Options", "Block devices", "SCSI device support",
+> "Multi-device support", "Networking support" and "Character devices"
+> make any sense at all. All others depend on some hardware that has
+> never been attached to an s390 box. 
 > 
->>In addition we are not doing SCSI target so multi-initiator is ok.
->>One question James - what are the rules for power management with
->>SCSI when we provide termpwr to a shared bus ?
+> We could of course build some subsystems like MTD, ISDN or FB, but
+> there is still little point without any low-level drivers.
 
-Well there are (at least) two reasons to do shared bus: IP over SCSI and 
-cluster filesystems. At least for cluster filesystems I think the answer 
-is "don't suspend your machine" for the foreseeable future - what 
-happens if your machine goes to sleep while holding cluster FS locks, 
-etc. I doubt any CFS vendors are going to bother to support this any 
-time soon, since it's a HA/server feature and power management is really 
-a desktop/laptop feature.
+That gives this type of code additional build coverage, which is a good
+thing.  Just allow it in the menues, no need to add it to your defconfigs :)
+

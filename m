@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262378AbVBLA4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262379AbVBLA7C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262378AbVBLA4V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 19:56:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbVBLA4V
+	id S262379AbVBLA7C (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 19:59:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbVBLA7C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 19:56:21 -0500
-Received: from orb.pobox.com ([207.8.226.5]:61084 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262378AbVBLA4O (ORCPT
+	Fri, 11 Feb 2005 19:59:02 -0500
+Received: from petasus.ch.intel.com ([143.182.124.5]:9434 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id S262379AbVBLA67 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 19:56:14 -0500
-Date: Fri, 11 Feb 2005 18:56:09 -0600
-From: Nathan Lynch <ntl@pobox.com>
-To: Matthias-Christian Ott <matthias.christian@tiscali.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6-bk: cpu hotplug + preempt = smp_processor_id warnings galore
-Message-ID: <20050212005609.GB14499@otto>
-References: <20050211232821.GA14499@otto> <420D4646.4010600@tiscali.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <420D4646.4010600@tiscali.de>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 11 Feb 2005 19:58:59 -0500
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Using O_DIRECT for file writing in a kernel module
+Date: Fri, 11 Feb 2005 17:58:57 -0700
+Message-ID: <C863B68032DED14E8EBA9F71EB8FE4C20639287E@azsmsx406>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Using O_DIRECT for file writing in a kernel module
+Thread-Index: AcUQnBs1Z359DxBOTymFjwmp+gYZ5A==
+From: "Hanson, Jonathan M" <jonathan.m.hanson@intel.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 12 Feb 2005 00:58:58.0254 (UTC) FILETIME=[0872B6E0:01C5109E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 12, 2005 at 12:56:54AM +0100, Matthias-Christian Ott wrote:
-> Nathan Lynch wrote:
-> 
-> >With 2.6.11-rc3-bk7 on ppc64 I am seeing lots of smp_processor_id
-> >warnings whenever I hotplug cpus:
-...
->
-> Use get_cpu() (It disables preemption) or __smp_processor_id () (on a smp).
-
-It's not necessarily that simple (ok, maybe the idle loop warning is).
-But at least one of the warnings I listed appears to be caused by a
-kernel thread that is normally bound to a particular cpu trying to do
-normal processing on another cpu before it has stopped.  Injudicious
-use of __smp_processor_id or get_cpu in this case would only obscure
-the problem.
-
-
-Nathan
+	I'm trying to write to a file with the O_DIRECT flag from a
+kernel module in a 2.4 series of kernel on x86 hardware. I've learned
+that the O_DIRECT flag requires that the amount of data written and the
+file offset pointer must be multiples of the underlying "block size."
+	To try things out I've been successful is writing to a file with
+O_DIRECT in user space using multiples of PAGE_SIZE.
+	However, when I try to do the same from my kernel module I'm
+always greeted with an -EINVAL as the return code from the write call
+when trying multiples of PAGE_SIZE. Then I realized that the kernel uses
+four megabyte pages and not four kilobyte pages so I tried passing four
+megabytes of data to the write call but also got -EINVAL in return.
+	Is it possible to use O_DIRECT to write a file from a kernel
+module? If so, what size of data do I need to pass so that it will work?
+I've been through Google and the kernel source code but didn't see an
+answer as to the size required to get it to work.
+	Thanks in advance for any assistance offered.
 

@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264400AbTK0ASR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 19:18:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264401AbTK0ASR
+	id S264395AbTK0APT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 19:15:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264400AbTK0APS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 19:18:17 -0500
-Received: from fw.osdl.org ([65.172.181.6]:4819 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264400AbTK0ASQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 19:18:16 -0500
-Subject: Re: Beaver in Detox! (compile stats)
-From: John Cherry <cherry@osdl.org>
+	Wed, 26 Nov 2003 19:15:18 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:48588 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S264395AbTK0APP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 19:15:15 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0311261239510.1524@home.osdl.org>
-References: <Pine.LNX.4.58.0311261239510.1524@home.osdl.org>
-Content-Type: text/plain
-Message-Id: <1069892411.25469.57.camel@cherrytest.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 26 Nov 2003 16:20:11 -0800
+Date: Thu, 27 Nov 2003 11:15:10 +1100
+Message-ID: <16325.16910.697589.124844@notabene.cse.unsw.edu.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+cc: linux-kernel@vger.kernel.org
+Subject: md/raid devices don't show up in /proc/partitions in 2.6 :-(
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.6 Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
 
-Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- -------- ---------
-2.6.0-test11   0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
-2.6.0-test10   0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
-2.6.0-test9    0w/0e       0w/0e   174w/ 0e  12w/0e   3w/0e    217w/0e
-2.6.0-test8    0w/0e       0w/0e   178w/ 0e  12w/0e   3w/0e    219w/0e
-2.6.0-test7    0w/0e       0w/0e   173w/ 1e   8w/0e   3w/0e    226w/0e
-2.6.0-test6    0w/0e       1w/0e   188w/ 1e  12w/0e   3w/0e    260w/2e
-2.6.0-test5    0w/0e       2w/0e   205w/ 9e  15w/1e   0w/0e    305w/5e
-2.6.0-test4    0w/0e       2w/0e   797w/55e  68w/1e   3w/0e   1016w/34e
-2.6.0-test3    0w/0e       2w/0e   755w/66e  62w/1e   7w/9e    984w/42e
-2.6.0-test2    0w/0e       1w/0e   952w/65e  63w/2e   7w/9e   1201w/43e
-2.6.0-test1    0w/0e       1w/0e  1016w/60e  75w/1e   8w/9e   1319w/38e
+I just noticed that md devices do not show up in /proc/partitions in
+2.6.
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-Daily compiles (ia32): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
-Daily compiles (ia64): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
-Latest changes in Linus' bitkeeper tree:
-   http://linux.bkbits.net:8080/linux-2.5
+I realise that they don't actually have partitions and are just 'whole
+devices', but other whole devices do appear in /proc/partitions (Along
+with their partitions if any).
 
-John
+This seems to be a regression from 2.4 where md devices do appear in
+/proc/partitions.
 
-P.S. All compile data should be posted by 5PM PST.  It is still
-building....
+The cause appears to be a patch from 'torvalds' some 15 months ago
+(in version 1.36 for drivers/block/genhd.c) which has the comment:
 
+      Avoid confusion "mount" and "fsck" - don't show things like
+      floppies and CD's in /proc/partitions.
+
+It excluded devices that cannot be partitioned, and devices with zero
+size from /proc/partitions.
+
+The 'zero size' possibly makes sense (2.4 excludes those), but I would
+like to register a vote against excluding devices without partitions,
+as this excluded 'md' devices and I would really like them to be
+included.
+
+
+Is there really a good reason for this?  How badly does mount get
+confused? and is that not the fault of mount?
+
+NeilBrown

@@ -1,68 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267652AbTGHVR0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 17:17:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267666AbTGHVR0
+	id S265402AbTGHVhz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 17:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267702AbTGHVhz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 17:17:26 -0400
-Received: from mithril.c-zone.net ([63.172.74.235]:16396 "EHLO mail.c-zone.net")
-	by vger.kernel.org with ESMTP id S267652AbTGHVRZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 17:17:25 -0400
-Message-ID: <3F0B386F.3080902@c-zone.net>
-Date: Tue, 08 Jul 2003 14:32:31 -0700
-From: jiho@c-zone.net
-Organization: Kidding of Course
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
-X-Accept-Language: en-us
+	Tue, 8 Jul 2003 17:37:55 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:49655 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S265402AbTGHVhx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 17:37:53 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: hdX lost interrupt problem
-References: <3F0AE4DF.80808@ifrance.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C3459B.39CB0F94"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: Race condition between aio_complete and aio_read_evt
+Date: Tue, 8 Jul 2003 14:52:28 -0700
+Message-ID: <41F331DBE1178346A6F30D7CF124B24B2A4886@fmsmsx409.fm.intel.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: Race condition between aio_complete and aio_read_evt
+Thread-Index: AcNFmzmuP/bt5R+bTZiz+5smU0flWQ==
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Cc: <linux-aio@kvack.org>
+X-OriginalArrivalTime: 08 Jul 2003 21:52:29.0347 (UTC) FILETIME=[3A18FF30:01C3459B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-Cédric Barboiron wrote:
+------_=_NextPart_001_01C3459B.39CB0F94
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-  > Hello,
-  >
-  > I'm currently having troubles while trying to listen or rip cds
-  > audios. `cdparanoia -Q` works fine but `strace cdparanoia 1` hangs
-  > at : ioctl(3, 0x530e
-  >
-  > Then I have from `dmesg` : hdc: lost interrupt hdc: lost interrupt (...)
-  >
+We hit a memory ordering race condition on AIO ring buffer tail pointer
+between function aio_complete() and aio_read_evt().
 
-  > hdc: lost interrupt hdc: lost interrupt
-  >
-  > The only thing I found in archives is : " It seems like the 'lost
-  > interrupt' while ripping audio CDs is specific to VIA based
-  > motherboards."
-  >
-  > In fact, I have a VIA based motherboard : VIA KT333 and VIA 8233A
+What happens is that on an architecture that has a relaxed memory
+ordering model like IPF(ia64), explicit memory barrier is required in a
+SMP execution environment.  Considering the following case:
 
-What kind of hard drive is it, with which kind of cable (40-line or
-80-line), and what transfer mode is it running in?
+1 CPU is executing a tight loop of aio_read_evt.  It is pulling event
+off the ring buffer.  During that loop, another CPU is executing
+aio_complete() where it is putting event into the ring buffer and then
+update the tail pointer.  However, due to relaxed memory ordering model,
+the tail pointer can be visible before the actual event is being
+updated.  So the other CPU sees the updated tail pointer but picks up a
+staled event data.
 
-These "lost interrupt" problems date back to UDMA-33.  There were tons
-of them early on, with several OSes, and if I'm not mistaken the
-association seemed to be more with case cooling issues and ribbon
-cables, rather than any particular chipset.
+A memory barrier is required in this case between the event data and
+tail pointer update.  Same is true for the head pointer but the window
+of the race condition is nil.  For function correctness, it is fixed
+here as well.
 
-That *seemed* to be true in my case (and in my case), but I don't have
-absolute knowledge of that because the problem was rare and impossible
-to reproduce on demand.  I had a VIA chipset, 82C586B, but there were
-clear issues with case cooling, and the problem *seemed* to go away when
-those issues were addressed.  That *seemed* to be true for the other
-cases (and cases) I read about, as well.
+By the way, this bug is fixed in the major distributor's kernel on 2.4.x
+kernel series for a while, but somehow hasn't been propagated to 2.5
+kernel yet.
 
-Maybe people with VIA chipsets tend to be reckless with their case
-setups....
+The patch is relative to 2.5.74.
 
+- Ken
 
--- Jim Howard  <jiho@c-zone.net>
+------_=_NextPart_001_01C3459B.39CB0F94
+Content-Type: application/octet-stream;
+	name="aio.memorder.patch"
+Content-Transfer-Encoding: base64
+Content-Description: aio.memorder.patch
+Content-Disposition: attachment;
+	filename="aio.memorder.patch"
 
+ZGlmZiAtTnVyIGxpbnV4LTIuNS43NC9mcy9haW8uYyBsaW51eC0yLjUuNzQuYWlvL2ZzL2Fpby5j
+DQotLS0gbGludXgtMi41Ljc0L2ZzL2Fpby5jCVN1biBKdW4gMjIgMTE6MzI6NDMgMjAwMw0KKysr
+IGxpbnV4LTIuNS43NC5haW8vZnMvYWlvLmMJVHVlIEp1bCAgOCAxNDo0OToyNyAyMDAzDQpAQCAt
+Njc5LDEyICs2NzksMTEgQEANCiAJLyogYWZ0ZXIgZmxhZ2dpbmcgdGhlIHJlcXVlc3QgYXMgZG9u
+ZSwgd2UNCiAJICogbXVzdCBuZXZlciBldmVuIGxvb2sgYXQgaXQgYWdhaW4NCiAJICovDQotCWJh
+cnJpZXIoKTsNCisJd21iKCk7CS8qIG1ha2UgZXZlbnQgdmlzaWJsZSBiZWZvcmUgdXBkYXRpbmcg
+dGFpbCAqLw0KIA0KIAlpbmZvLT50YWlsID0gdGFpbDsNCiAJcmluZy0+dGFpbCA9IHRhaWw7DQog
+DQotCXdtYigpOw0KIAlwdXRfYWlvX3JpbmdfZXZlbnQoZXZlbnQsIEtNX0lSUTApOw0KIAlrdW5t
+YXBfYXRvbWljKHJpbmcsIEtNX0lSUTEpOw0KIA0KQEAgLTcyMSw3ICs3MjAsNyBAQA0KIAlkcHJp
+bnRrKCJpbiBhaW9fcmVhZF9ldnQgaCVsdSB0JWx1IG0lbHVcbiIsDQogCQkgKHVuc2lnbmVkIGxv
+bmcpcmluZy0+aGVhZCwgKHVuc2lnbmVkIGxvbmcpcmluZy0+dGFpbCwNCiAJCSAodW5zaWduZWQg
+bG9uZylyaW5nLT5ucik7DQotCWJhcnJpZXIoKTsNCisNCiAJaWYgKHJpbmctPmhlYWQgPT0gcmlu
+Zy0+dGFpbCkNCiAJCWdvdG8gb3V0Ow0KIA0KQEAgLTczMiw3ICs3MzEsNyBAQA0KIAkJc3RydWN0
+IGlvX2V2ZW50ICpldnAgPSBhaW9fcmluZ19ldmVudChpbmZvLCBoZWFkLCBLTV9VU0VSMSk7DQog
+CQkqZW50ID0gKmV2cDsNCiAJCWhlYWQgPSAoaGVhZCArIDEpICUgaW5mby0+bnI7DQotCQliYXJy
+aWVyKCk7DQorCQltYigpOwkvKiBmaW5pc2ggcmVhZGluZyB0aGUgZXZlbnQgYmVmb3JlIHVwZGF0
+bmcgdGhlIGhlYWQgKi8NCiAJCXJpbmctPmhlYWQgPSBoZWFkOw0KIAkJcmV0ID0gMTsNCiAJCXB1
+dF9haW9fcmluZ19ldmVudChldnAsIEtNX1VTRVIxKTsNCg==
 
+------_=_NextPart_001_01C3459B.39CB0F94--

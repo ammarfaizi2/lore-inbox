@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265202AbUD3S1g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265196AbUD3S1V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265202AbUD3S1g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 14:27:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265193AbUD3S1f
+	id S265196AbUD3S1V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 14:27:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265193AbUD3S1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 14:27:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30882 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265202AbUD3SYr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 14:24:47 -0400
-Date: Fri, 30 Apr 2004 11:27:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.6.6-rc2-bk5 mm/slab.c change broke x86-64 SMP
-Message-Id: <20040430112704.3dca3c4c.akpm@osdl.org>
-In-Reply-To: <200404301611.i3UGBkdK026345@harpo.it.uu.se>
-References: <200404301611.i3UGBkdK026345@harpo.it.uu.se>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Apr 2004 14:27:21 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:61343 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP id S265204AbUD3S0m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 14:26:42 -0400
+Date: Fri, 30 Apr 2004 14:26:41 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: proski@marabou.research.att.com
+To: Simon Kelley <simon@thekelleys.org.uk>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Crash in atmel_cs due to fake device
+Message-ID: <Pine.LNX.4.58.0404301413440.4502@marabou.research.att.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson <mikpe@csd.uu.se> wrote:
->
-> The change to mm/slab.c between 2.6.6-rc2-bk4 and -bk5
-> broke x86-64 SMP. The symptoms are general protection
-> faults in __switch_to shortly after init starts, and
-> then the machine is dead. (Can't be more specific, my
-> box can't log early boot oopses.)
-> 
-> I'm only seeing this with x86-64 SMP; x86-64 UP and i386
-> SMP on the same machine (Athlon64 UP) have no problems.
-> 
-> Reverting 2.6.6-rc2-bk5's change to mm/slab.c eliminates
-> the problem.
+Hi, Simon and everybody!
 
-The "-bk5" terminology doesn't mean much to people who use bitkeeper or who
-use http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/ - I assume
-you refer to the alignment changes?
+Since PCMCIA devices are not devices for the kernel, atmel_cs uses a fake
+device for calling request_firmware().  The fake device has .bus_id
+initialized, but it's not enough for Linux 2.6.6-rc3.  The kernel would
+oops while trying to create a link from /sys/class/firmware/pcmcia/device
+to the location of the device in sysfs.
 
-Does this fix?
+To work around this problem, .kobj.k_name should be defined in the fake
+device.  I know, it's ugly as hell, but I don't see a better solution
+until PCMCIA device drivers are converted to the device model.
 
-diff -puN include/asm-x86_64/processor.h~a include/asm-x86_64/processor.h
---- 25/include/asm-x86_64/processor.h~a	Fri Apr 30 11:24:58 2004
-+++ 25-akpm/include/asm-x86_64/processor.h	Fri Apr 30 11:25:28 2004
-@@ -20,6 +20,8 @@
- #include <asm/mmsegment.h>
- #include <linux/personality.h>
- 
-+#define ARCH_MIN_TASKALIGN L1_CACHE_BYTES
-+
- #define TF_MASK		0x00000100
- #define IF_MASK		0x00000200
- #define IOPL_MASK	0x00003000
+The patch has been compile tested only, but I have tested a similar patch
+with another driver, which is not in the kernel yet (spectrum_cs).  I'm
+quite sure that atmel_cs is affected by this problem.
 
-_
+=============================
+--- linux.orig/drivers/net/wireless/atmel_cs.c
++++ linux/drivers/net/wireless/atmel_cs.c
+@@ -350,6 +350,9 @@ static struct {
+ /* This is strictly temporary, until PCMCIA devices get integrated into the device model. */
+ static struct device atmel_device = {
+         .bus_id    = "pcmcia",
++	.kobj = {
++		.k_name = "atmel_cs"
++	}
+ };
 
+ static void atmel_config(dev_link_t *link)
+=============================
+
+-- 
+Regards,
+Pavel Roskin

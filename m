@@ -1,36 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315566AbSEHXt5>; Wed, 8 May 2002 19:49:57 -0400
+	id <S315570AbSEIAKc>; Wed, 8 May 2002 20:10:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315567AbSEHXt4>; Wed, 8 May 2002 19:49:56 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:54802 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S315566AbSEHXtz>; Wed, 8 May 2002 19:49:55 -0400
-Date: Thu, 9 May 2002 01:49:35 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-To: george anzinger <george@mvista.com>
-cc: Philippe Troin <phil@fifi.org>, vda@port.imtp.ilyichevsk.odessa.ua,
-        Amol Lad <dal_loma@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: kill task in TASK_UNINTERRUPTIBLE
-In-Reply-To: <3CD9B44F.4A023A70@mvista.com>
-Message-ID: <Pine.LNX.4.21.0205090140240.32715-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315571AbSEIAKb>; Wed, 8 May 2002 20:10:31 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:59145 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S315570AbSEIAKa>;
+	Wed, 8 May 2002 20:10:30 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Alexander.Riesen@synopsys.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel 
+In-Reply-To: Your message of "Wed, 08 May 2002 19:25:57 +0200."
+             <20020508172557.GB1044@riesen-pc.gr05.synopsys.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 09 May 2002 10:10:19 +1000
+Message-ID: <13244.1020903019@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 8 May 2002 19:25:57 +0200, 
+Alex Riesen <Alexander.Riesen@synopsys.com> wrote:
+>i've found the reason: the make's stdin was redirected in /dev/null
+>(my make is aliased to a program prettifying output).
 
-On Wed, 8 May 2002, george anzinger wrote:
-
-> > Except for processes accessing NFS files while the NFS server is down:
-> > they will be stuck in TASK_UNINTERRUPTIBLE until the NFS server comes
-> > back up again.
-> 
-> A REALLY good argument for puting timeouts on your NSF mounts!  Don't
-> leave home without them.
-
-Use "mount -o intr" and you can kill the process.
-
-bye, Roman
+Use standard make.
 

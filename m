@@ -1,30 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130612AbQK1ERW>; Mon, 27 Nov 2000 23:17:22 -0500
+        id <S130807AbQK1ETd>; Mon, 27 Nov 2000 23:19:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130650AbQK1ERM>; Mon, 27 Nov 2000 23:17:12 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:17167 "HELO
-        note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-        id <S130612AbQK1EQw>; Mon, 27 Nov 2000 23:16:52 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Date: Tue, 28 Nov 2000 14:46:37 +1100 (EST)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14883.10909.19147.677679@notabene.cse.unsw.edu.au>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test12-pre2
-In-Reply-To: message from Linus Torvalds on Monday November 27
+        id <S130810AbQK1ETX>; Mon, 27 Nov 2000 23:19:23 -0500
+Received: from ip462.boanxx1.adsl.tele.dk ([194.192.130.82]:1936 "EHLO
+        localhost.jbj.dk") by vger.kernel.org with ESMTP id <S130807AbQK1ETG>;
+        Mon, 27 Nov 2000 23:19:06 -0500
+From: "John B. Jacobsen" <jbj_ss@mail.tele.dk>
+Message-Id: <200011280255.eAS2tZ215366@localhost.jbj.dk>
+Subject: Linus daughter
 In-Reply-To: <Pine.LNX.4.10.10011271838080.15454-100000@penguin.transmeta.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-        LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-        8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+ from Linus Torvalds at "Nov 27, 2000 06:45:31 pm"
+To: Linus Torvalds <torvalds@transmeta.com>
+Date: Tue, 28 Nov 2000 03:55:29 +0100 (CET)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday November 27, torvalds@transmeta.com wrote:
 > 
 > Oh, well. Some people saw the (unannounced, and not for public
 > consumption) pre1, so here's pre2. pre1 was just meant to be an interim
@@ -33,15 +29,55 @@ On Monday November 27, torvalds@transmeta.com wrote:
 > Due to the birth of my third daughter last week (yes, I got /.'ed), if you
 > sent me patches that aren't in pre2, you can pretty much consider them
 > lost.
+
+Congratulations with your new child !!
+
+Regards
+
+John
+
+
 > 
 > 		Linus
 > 
+> ---
+> 
+>  - pre2:
+>     - Peter Anvin: more P4 configuration parsing
+>     - Stephen Tweedie: O_SYNC patches. Make O_SYNC/fsync/fdatasync
+>       do the right thing.
+>     - Keith Owens: make mdule loading use the right struct module size
+>     - Boszormenyi Zoltan: get MTRR's right for the >32-bit case
+>     - Alan Cox: various random documentation etc
+>     - Dario Ballabio: EATA and u14-34f update
+>     - Ivan Kokshaysky: unbreak alpha ruffian
+>     - Richard Henderson: PCI bridge initialization on alpha
+>     - Zach Brown: correct locking in Maestro driver
+>     - Geert Uytterhoeven: more m68k updates
+>     - Andrey Savochkin: eepro100 update
+>     - Dag Brattli: irda update
+>     - Johannes Erdfelt: USB update
+> 
+>  - pre1: (for ISDN synchronization _ONLY_! Not complete!)
+>     - Byron Stanoszek: correct decimal precision for CPU MHz in
+>       /proc/cpuinfo
+>     - Ollie Lho: SiS pirq routing.
+>     - Andries Brouwer: isofs cleanups
+>     - Matt Kraai: /proc read() on directories should return EISDIR, not EINVAL
+>     - me: be stricter about what we accept as a PCI bridge setup.
+>     - me: always set PCI interrupts to be level-triggered when we enable them.
+>     - me: updated PageDirty and swap cache handling
+>     - Peter Anvin: update A20 code to work without keyboard controller
+>     - Kai Germaschewski: ISDN updates
+>     - Russell King: ARM updates
+>     - Geert Uytterhoeven: m68k updates
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 
-What happens about the stuff that went in to 2.4.0test11-ac{1,2,3,4}?
-Are you going to "sync-up" with Alan, or should we send bits directly
-to you?
-
-NeilBrown
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

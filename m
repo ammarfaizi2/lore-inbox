@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280697AbRKNQ5O>; Wed, 14 Nov 2001 11:57:14 -0500
+	id <S280705AbRKNQ7e>; Wed, 14 Nov 2001 11:59:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280707AbRKNQ5E>; Wed, 14 Nov 2001 11:57:04 -0500
-Received: from ns.caldera.de ([212.34.180.1]:10384 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S280705AbRKNQ44>;
-	Wed, 14 Nov 2001 11:56:56 -0500
-Date: Wed, 14 Nov 2001 17:56:48 +0100
-Message-Id: <200111141656.fAEGumJ20837@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Cc: Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] reformat mtrr.c to conform to CodingStyle
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <3BF28E0C.C32ACD63@mandrakesoft.com>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S280709AbRKNQ7O>; Wed, 14 Nov 2001 11:59:14 -0500
+Received: from mailout5-1.nyroc.rr.com ([24.92.226.169]:31441 "EHLO
+	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S280705AbRKNQ7K>; Wed, 14 Nov 2001 11:59:10 -0500
+Message-ID: <07ee01c16d2b$ec945550$1a01a8c0@allyourbase>
+From: "Dan Maas" <dmaas@dcine.com>
+To: "Philip Dodd" <smpcomputing@free.fr>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <fa.fqeqjiv.4hidhq@ifi.uio.no>
+Subject: Re: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
+Date: Wed, 14 Nov 2001 11:46:35 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3BF28E0C.C32ACD63@mandrakesoft.com> you wrote:
-> Also, Christoph Hellewig ported NetBSD's indent, which is supposedly a
-> bit better overall than GNU indent. Something else to look into.
+> I confirm that XP chips aren't supported in smp configs
+> by AMD.  I can't of the top of my head give URLs to confirm
 
-Ok, we're getting offtopic, but the url for that 'port' is:
+This is just your typical profit-maximizing hardware vendor price
+discrimination scheme. i.e. make one product, but sell at two different
+price levels. Sprinkle on some FUD about how the cheaper part isn't suitable
+for "professional" use, and there you go... Pretty much all tech companies
+use some variant of this trick, because it is almost always cheaper to
+mass-produce one product and sell a crippled version also, than to
+mass-produce two products with truly different costs.
 
-	http://developer.berlios.de/project/filelist.php?group_id=192
+But since we are all l33t hackers we see right through this and brazenly
+stick unapproved Athlons in SMP systems. (At least until AMD sees this as
+enough of a threat to actually disable SMP functions via technical means =)
 
-Currently it has tar.gz and source/i386 rpm, the CVS tree will be
-up pretty soon.
+Regards,
+Dan
 
-	Christoph
-
--- 
-Of course it doesn't work. We've performed a software upgrade.

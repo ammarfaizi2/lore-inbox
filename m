@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265222AbUJVTxl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267521AbUJVTsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265222AbUJVTxl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 15:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267553AbUJVTtz
+	id S267521AbUJVTsz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 15:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267333AbUJVTqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 15:49:55 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:32923 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S265222AbUJVTrA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 15:47:00 -0400
-Subject: Re: How is user space notified of CPU speed changes?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@novell.com>
-In-Reply-To: <4179623C.9050807@nortelnetworks.com>
-References: <1098399709.4131.23.camel@krustophenia.net>
-	 <1098444170.19459.7.camel@localhost.localdomain>
-	 <1098468316.5580.18.camel@krustophenia.net>
-	 <4179623C.9050807@nortelnetworks.com>
-Content-Type: text/plain
-Message-Id: <1098474416.5580.52.camel@krustophenia.net>
+	Fri, 22 Oct 2004 15:46:13 -0400
+Received: from holomorphy.com ([207.189.100.168]:30661 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267164AbUJVTks (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 15:40:48 -0400
+Date: Fri, 22 Oct 2004 12:40:40 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: Hugepages demand paging V1 [4/4]: Numa patch
+Message-ID: <20041022194040.GC17038@holomorphy.com>
+References: <B05667366EE6204181EABE9C1B1C0EB501F2ADFB@scsmsx401.amr.corp.intel.com> <Pine.LNX.4.58.0410212151310.3524@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0410212158290.3524@schroedinger.engr.sgi.com> <20041022110038.GN17038@holomorphy.com> <Pine.LNX.4.58.0410221235300.9549@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 22 Oct 2004 15:46:57 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0410221235300.9549@schroedinger.engr.sgi.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-22 at 15:40, Chris Friesen wrote:
-> Lee Revell wrote:
-> 
-> > Seems like you are implying that any userspace app that needs to know
-> > the CPU speed is broken.  Is this correct?
-> 
-> No, we're saying that Intel's tsc implementation is broken.  <grin>
-> 
-> x86 really could use an on-die register that increments at 1GHz independent of 
-> clock speed and is synchronized across all CPUs in an SMP box.
+On Fri, 22 Oct 2004, William Lee Irwin III wrote:
+>> dequeue_huge_page() seems to want a nodemask, not a vma, though I
+>> suppose it's not particularly pressing.
 
-Well, it looks like we can just fix JACK to not use the TSC for timing. 
-Seems like the current design is fundamentally incompatible with CPU
-scaling.
+On Fri, Oct 22, 2004 at 12:37:13PM -0700, Christoph Lameter wrote:
+> How about this variation following __alloc_page:
 
-Lee
+Looks reasonable. The bit that struck me as quirky was the mpol_* on
+the NULL vma. This pretty much eliminates the hidden dispatch, so I'm
+happy.
 
+
+-- wli

@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281367AbRKMBFj>; Mon, 12 Nov 2001 20:05:39 -0500
+	id <S281422AbRKMBO3>; Mon, 12 Nov 2001 20:14:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281326AbRKMBFc>; Mon, 12 Nov 2001 20:05:32 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59140 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281422AbRKMBEI>; Mon, 12 Nov 2001 20:04:08 -0500
-Subject: Re: Linux 2.4.15-pre4 - merge with Alan
-To: jamagallon@able.es (J . A . Magallon)
-Date: Tue, 13 Nov 2001 01:11:36 +0000 (GMT)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <20011113004303.C1531@werewolf.able.es> from "J . A . Magallon" at Nov 13, 2001 12:43:03 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E163S6y-0007pw-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S281424AbRKMBOT>; Mon, 12 Nov 2001 20:14:19 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:57605 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S281422AbRKMBOK>; Mon, 12 Nov 2001 20:14:10 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "David S. Miller" <davem@redhat.com>
+Cc: helgehaf@idb.hist.no, linux-kernel@vger.kernel.org
+Subject: Re: speed difference between using hard-linked and modular drives? 
+In-Reply-To: Your message of "Mon, 12 Nov 2001 15:23:04 PDT."
+             <20011112.152304.39155908.davem@redhat.com> 
+Date: Tue, 13 Nov 2001 10:14:22 +1100
+Message-Id: <E163QHW-0007gY-00@wagner>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -		 */
-> -		return scsi_check_sense(SCpnt);
-> +		return SUCCESS;
->  	default:
->  		return FAILED;
->  	}
+In message <20011112.152304.39155908.davem@redhat.com> you write:
+>    From: Rusty Russell <rusty@rustcorp.com.au>
+>    Date: Mon, 12 Nov 2001 20:59:05 +1100
 > 
-> Is really needed ?
+>    (atomic_inc & atomic_dec_and_test for every packet, anyone?).
+> 
+> We already do pay that price, in skb_release_data() :-)
 
-I think so but its only for specific cases like shared busses
+Sorry, I wasn't clear!  skb_release_data() does an atomic ops on the
+skb data region, which is almost certainly on the same CPU.  This is
+an atomic op on a global counter for the module, which almost
+certainly isn't.
+
+For something which (statistically speaking) never happens (module
+unload).
+
+Ouch,
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK

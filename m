@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270474AbRHNHZL>; Tue, 14 Aug 2001 03:25:11 -0400
+	id <S270480AbRHNHfE>; Tue, 14 Aug 2001 03:35:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270477AbRHNHZB>; Tue, 14 Aug 2001 03:25:01 -0400
-Received: from mail.cogenit.fr ([195.68.53.173]:29082 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S270474AbRHNHYs>;
-	Tue, 14 Aug 2001 03:24:48 -0400
-Date: Tue, 14 Aug 2001 09:24:48 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: PinkFreud <pf-kernel@mirkwood.net>
-Cc: linux-kernel@vger.kernel.org
+	id <S270481AbRHNHev>; Tue, 14 Aug 2001 03:34:51 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:27919 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S270480AbRHNHer>; Tue, 14 Aug 2001 03:34:47 -0400
+Message-ID: <3B78D469.91465829@loewe-komp.de>
+Date: Tue, 14 Aug 2001 09:34:01 +0200
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: LOEWE. Kompetenzzentrum Hannover
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.4-64GB-SMP i686)
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: Are we going too fast?
-Message-ID: <20010814092448.B23029@se1.cogenit.fr>
-In-Reply-To: <Pine.LNX.4.20.0108131741360.1037-100000@eriador.mirkwood.net> <Pine.LNX.4.20.0108131908440.311-100000@eriador.mirkwood.net>
-Mime-Version: 1.0
+In-Reply-To: <E15WP7z-0008H0-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.20.0108131908440.311-100000@eriador.mirkwood.net>; from pf-kernel@mirkwood.net on Mon, Aug 13, 2001 at 08:04:54PM -0400
-X-Organisation: Marie's fan club - I
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PinkFreud <pf-kernel@mirkwood.net> :
-[...]
-> The unthinkable has happened - it locked up again.  Same problem.  No
-> keyboard, no mouse, no display, no network.  It was as far gone as
-> possible.
+Alan Cox wrote:
+> 
+> Dont suppose you know where I can get a qnx file system to play with ?
+> 
 
-Is the nmi_oopser (Documentation/nmi_watchdog.txt) inefficient here ?
+You can download the newer QNX RTP at http://get.qnx.com.
 
--- 
-Ueimor
+You can install it in a separate partition ("primary" ones) or
+into an existing Windows FAT FS.
+
+If you want to avoid the effort, I can generate a floppy image and
+email one to you.

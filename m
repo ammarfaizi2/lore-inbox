@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264762AbTIJIYp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 04:24:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264831AbTIJIYp
+	id S264713AbTIJIdG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 04:33:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264718AbTIJIdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 04:24:45 -0400
-Received: from waste.org ([209.173.204.2]:48314 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S264762AbTIJIYn (ORCPT
+	Wed, 10 Sep 2003 04:33:06 -0400
+Received: from dp.samba.org ([66.70.73.150]:36249 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264713AbTIJIdD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 04:24:43 -0400
-Date: Wed, 10 Sep 2003 03:24:35 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 2/3] netpoll: netconsole
-Message-ID: <20030910082435.GG4489@waste.org>
-References: <20030910074256.GD4489@waste.org.suse.lists.linux.kernel> <p73znhdhxkx.fsf@oldwotan.suse.de>
+	Wed, 10 Sep 2003 04:33:03 -0400
+Date: Wed, 10 Sep 2003 18:29:16 +1000
+From: Anton Blanchard <anton@samba.org>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix initramfs permissions on directories and special files
+Message-ID: <20030910082916.GE1532@krispykreme>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <p73znhdhxkx.fsf@oldwotan.suse.de>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 10, 2003 at 10:11:42AM +0200, Andi Kleen wrote:
-> Matt Mackall <mpm@selenic.com> writes:
-> 
-> > This patch uses the netpoll API to transmit kernel printks over UDP
-> > for uses similar to serial console.
-> 
-> One common problem I saw with the original netconsole patches
-> was that the low level drivers' poll function was grabbing the 
-> driver spinlock, but the driver would otherwere do printk
-> with the spinlock hold (->easy deadlock) 
-> 
-> Does your patchkit handle that?
 
-No, haven't encountered it. Which lock are we talking about, specifically?
+Set correct permissions on initramfs directories and special files. We dont
+want to obey the umask here, so do the same thing we do on normal files -
+call sys_chmod.
 
-> P.S.: Also what would be really nice for netconsole
-> would be "kernel ifconfig" similar to what the nfsroot code does. 
-> With that it would be actually possible to use it as a full console 
-> replacement.
 
-It ups the interface if necessary and has enough info to build a
-complete raw packet so if I understand you correctly, it's already
-there. I start getting netconsole messages immediately after
-driver/net initcalls.
+ work-anton/init/initramfs.c |    2 ++
+ 1 files changed, 2 insertions(+)
 
--- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+diff -puN init/initramfs.c~initramfs-fix init/initramfs.c
+--- work/init/initramfs.c~initramfs-fix	2003-09-10 03:11:58.000000000 -0500
++++ work-anton/init/initramfs.c	2003-09-10 03:11:58.000000000 -0500
+@@ -260,11 +260,13 @@ static int __init do_name(void)
+ 	} else if (S_ISDIR(mode)) {
+ 		sys_mkdir(collected, mode);
+ 		sys_chown(collected, uid, gid);
++		sys_chmod(collected, mode);
+ 	} else if (S_ISBLK(mode) || S_ISCHR(mode) ||
+ 		   S_ISFIFO(mode) || S_ISSOCK(mode)) {
+ 		if (maybe_link() == 0) {
+ 			sys_mknod(collected, mode, rdev);
+ 			sys_chown(collected, uid, gid);
++			sys_chmod(collected, mode);
+ 		}
+ 	} else
+ 		panic("populate_root: bogus mode: %o\n", mode);
+
+_

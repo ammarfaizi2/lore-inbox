@@ -1,59 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129068AbRBHXlk>; Thu, 8 Feb 2001 18:41:40 -0500
+	id <S129156AbRBHXsB>; Thu, 8 Feb 2001 18:48:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129141AbRBHXla>; Thu, 8 Feb 2001 18:41:30 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:54546 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S129068AbRBHXlR>;
-	Thu, 8 Feb 2001 18:41:17 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Date: Fri, 9 Feb 2001 00:37:40 MET-1
+	id <S129211AbRBHXru>; Thu, 8 Feb 2001 18:47:50 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:5380 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129156AbRBHXrr>; Thu, 8 Feb 2001 18:47:47 -0500
+Message-ID: <3A833005.5C8E0D81@transmeta.com>
+Date: Thu, 08 Feb 2001 15:47:17 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] Re: UP APIC reenabling vs. cpu type detection o
-CC: linux-kernel@vger.kernel.org, marco@ds2.pg.gda.pl, mingo@redhat.com
-X-mailer: Pegasus Mail v3.40
-Message-ID: <14EFD2E43005@vcnet.vc.cvut.cz>
+To: "Michael H. Warfield" <mhw@wittsend.com>
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: DNS goofups galore...
+In-Reply-To: <95ulrk$aik$1@forge.intermeta.de> <Pine.LNX.4.10.10102081346001.16513-100000@innerfire.net> <95v8am$k6o$1@cesium.transmeta.com> <20010208183232.A1642@alcove.wittsend.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  9 Feb 01 at 0:06, Mikael Pettersson wrote:
-> On Thu, 8 Feb 2001 12:32:01 MET-1, Petr Vandrovec wrote:
+"Michael H. Warfield" wrote:
 > 
-> >I have another question for UP APIC NMI: As I reported some time ago,
-> >if performance counters overflow when LVTPC has 'disabled' bit set,
-> >NMI is lost forever. This causes problems with VMware - it has to
-> >disable NMI deliveries during CR3 (memory mapping) switching, and if 
-> >performance counter overflows at that time, you'll not receive another 
-> >NMI for couple of days on K7 (4.1 * 65536 seconds on fully loaded 1GHz 
-> >Athlon. And 410 * 65536 seconds on idle Athlon)...
+> On Thu, Feb 08, 2001 at 02:58:30PM -0800, H. Peter Anvin wrote:
+> > Followup to:  <Pine.LNX.4.10.10102081346001.16513-100000@innerfire.net>
+> > By author:    Gerhard Mack <gmack@innerfire.net>
+> > In newsgroup: linux.dev.kernel
+> > >
+> > > Thanklfully bind 9 barfs if you even try this sort of thing.
+> > >
 > 
-> How long do you need to keep NMIs blocked?
+> > Personally I find it puzzling what's wrong with MX -> CNAME at all; it
+> > seems like a useful setup without the pitfalls that either NS -> CNAME
+> > or CNAME -> CNAME can cause (NS -> CNAME can trivially result in
+> > irreducible situations; CNAME -> CNAME would require a link maximum
+> > count which could result in obscure breakage.)
+> 
+>         It generally forces another DNS lookup.  If you do a resolve on
+> a name of type=ANY it returns any MX records and A records.  If you then
+> do a resolve on the MX records, you then get a CNAME and then have to
+> add an additional lookup for the CNAME.  If you have a lot of MX records
+> and not all the servers are "up" that can add up to a significant
+> increase in DNS traffic.
+> 
 
-Under some circumstances until `real' (usually timer) interrupt happens :-(
-It is up to 10ms (on ia32).
- 
-> The watchdog (re-)initialises the perfctr to a negative value, but
-> after overflow the counter will read as positive. (You'll have to
-> use rdpmc() and sign-extend the low bits of the high word.)
-> So if, after your critical section, the counter reads as positive
-> you know that you missed an NMI. In that case, just write the restart
-> value to the counter.
-> 
-> Alternatively, if you block the NMI watchdog for a long time, say a
-> couple of thousand cycles or more, you can unconditionally restart it.
+Wouldn't that be true for any CNAME anyway?
 
-Unfortunately both these ways needs intimate knowledge of how UP NMI
-watchdog works in each kernel, and it is incompatible with other
-perfctr uses. Probably I'll switch perfctr delivery to some real
-maskable interrupt while VMware VM owns CPU - if it is possible.
-Then interrupt should be still pending after VM does __sti().
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                    
+	-hpa
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

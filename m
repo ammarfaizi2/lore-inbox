@@ -1,88 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269839AbUJHL2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269838AbUJHL2l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269839AbUJHL2l (ORCPT <rfc822;willy@w.ods.org>);
+	id S269838AbUJHL2l (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 8 Oct 2004 07:28:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269864AbUJHL0P
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269839AbUJHL02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 07:26:15 -0400
-Received: from S010600105aa6e9d5.gv.shawcable.net ([24.68.24.66]:23435 "EHLO
-	spitfire.gotdns.org") by vger.kernel.org with ESMTP id S269841AbUJHLX7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 07:23:59 -0400
-From: Ryan Cumming <ryan@spitfire.gotdns.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: __init poisoning for i386, too
-Date: Fri, 8 Oct 2004 04:23:53 -0700
-User-Agent: KMail/1.7
-References: <20041006221854.GA1622@elf.ucw.cz> <ck4b39$fmp$1@terminus.zytor.com> <20041008110845.GC9106@holomorphy.com>
-In-Reply-To: <20041008110845.GC9106@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart4959269.RQhaGkp06d";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410080423.57685.ryan@spitfire.gotdns.org>
+	Fri, 8 Oct 2004 07:26:28 -0400
+Received: from holomorphy.com ([207.189.100.168]:11734 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269838AbUJHLZK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 07:25:10 -0400
+Date: Fri, 8 Oct 2004 04:24:55 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jaakko Hyv?tti <jaakko@hyvatti.iki.fi>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm2
+Message-ID: <20041008112455.GH9106@holomorphy.com>
+References: <20040922131210.6c08b94c.akpm@osdl.org> <Pine.LNX.4.58.0410021038060.25679@gyre.weather.fi> <20041002004938.175203ba.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041002004938.175203ba.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart4959269.RQhaGkp06d
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_KjnZBuYF+StSVYC"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Jaakko Hyv?tti <jaakko@hyvatti.iki.fi> wrote:
+>> Forgive me for asking a question that probably enough research would
+>> answer, but which exact patch of those listed does fix this problem?  I
+>> cannot find the right one myself, and I would like to just address this
+>> problem that has haunted me at least since 2.6.6, I guess.  Or is the fix
+>> too interdependent with other changes?
 
---Boundary-01=_KjnZBuYF+StSVYC
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Sat, Oct 02, 2004 at 12:49:38AM -0700, Andrew Morton wrote:
+> It was wait_on_bit-must-loop.patch.
+> But that simply fixes a bug which was introduced into an earlier
+> 2.6.9-rcX-mmY kernel.  The bug is certainly not present in any Linus
+> kernel, nor in any 2.6.6/7/8 kernel.
+> So you're seeing something different.  Please send a full report.
 
-On Friday 08 October 2004 04:08, you wrote:
-> On Thu, Oct 07, 2004 at 09:05:45PM +0000, H. Peter Anvin wrote:
-> > What's wrong with using 0xCC (breakpoint instruction)?
-> > If you want an illegal instruction, 0xFF 0xFF is an illegal
-> > instruction, so filling memory with 0xFF will do what you want.
->
-> That sounds better than what I suggested.
->
+Well, for the record, it's that otherwise one would have to honor the
+invariant of no spurious wakeups, which e.g. jbd does not. There
+actually was API forethought put into timeouts, but jbd uses a timer
+and wake_up_process() instead of schedule_timeout(), and is nontrivial
+to convert. It was also anticipated that e.g. other users may trip up.
 
-Here's the trivial patch against 2.4.9-rc3-mm3
 
--Ryan
-
---Boundary-01=_KjnZBuYF+StSVYC
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="trivial-initmem-tweak.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="trivial-initmem-tweak.diff"
-
---- linux-2.6.9-rc3-mm3/arch/i386/mm/init.c	2004-10-08 04:19:46.645395667 -0700
-+++ linux-2.6.9-rc3-mm3-new/arch/i386/mm/init.c	2004-10-08 04:21:51.933318774 -0700
-@@ -723,7 +723,7 @@
- 	for (; addr < (unsigned long)(&__init_end); addr += PAGE_SIZE) {
- 		ClearPageReserved(virt_to_page(addr));
- 		set_page_count(virt_to_page(addr), 1);
--		memset((void *)(addr & ~(PAGE_SIZE-1)), 0xcc, PAGE_SIZE);
-+		memset((void *)(addr & ~(PAGE_SIZE-1)), 0xff, PAGE_SIZE);
- 		free_page(addr);
- 		totalram_pages++;
- 	}
-
---Boundary-01=_KjnZBuYF+StSVYC--
-
---nextPart4959269.RQhaGkp06d
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBZnjNW4yVCW5p+qYRAotlAJwOm976mQjgBvyXx6FoQ33F9KMz6wCeLYoP
-1NQ6MUl7jSUHl3fkrX/8k8E=
-=3SbU
------END PGP SIGNATURE-----
-
---nextPart4959269.RQhaGkp06d--
+-- wli

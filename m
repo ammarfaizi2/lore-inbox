@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129716AbQL1TK1>; Thu, 28 Dec 2000 14:10:27 -0500
+	id <S130849AbQL1TL1>; Thu, 28 Dec 2000 14:11:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129752AbQL1TKR>; Thu, 28 Dec 2000 14:10:17 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:51935 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S129716AbQL1TKF>;
-	Thu, 28 Dec 2000 14:10:05 -0500
-Date: Thu, 28 Dec 2000 19:39:34 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200012281839.TAA20676@harpo.it.uu.se>
-To: fpieraut@casi.polymtl.ca
-Subject: Re: Activating APIC on single processor
-Cc: linux-kernel@vger.kernel.org
+	id <S130756AbQL1TLR>; Thu, 28 Dec 2000 14:11:17 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:56584 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S130592AbQL1TLM>;
+	Thu, 28 Dec 2000 14:11:12 -0500
+Message-ID: <3A4B8895.CEDA8311@innominate.de>
+Date: Thu, 28 Dec 2000 19:38:13 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Re: innd mmap bug in 2.4.0-test12
+In-Reply-To: <Pine.LNX.4.21.0012271717230.14052-100000@duckman.distro.conectiva> <87d7eded2d.fsf@atlas.iskon.hr> <3A4A758F.98EBC605@innominate.de> <3A4B4E62.237DC3C5@innominate.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francis Pieraut wrote:
+[in vmscan.c]
+> Between line 573 and 594 the page can have 1 user and be unlocked, so it
+> can be removed by invalidate_inode_pages, and the mapping will be
+> cleared here:
+> http://innominate.org/~graichen/projects/lxr/source/mm/filemap.c?v=v2.3#L98
 
->I try to activate APIC interrruption on a single processor(PIII) with
->kernel2.4.0-test11.
->
->I activate APIC interruption with the configuration of linux kernel
->2.4.0test-11. In the linux kernel configuration under processor type and
->features I activate "APIC and IO-APIC support on uniprocessor",  and I
->desactivate "Symmetric multi-processing support". The only way I found to
->check APIC activation is looking into /proc/interrupts, no "IO-APIC" can
->be found there. So I read IO-APIC.txt and I suppose there sould be
->conflicts with IRQ of my PCI cards. So I remove all my PCI cards and still
->have no APIC interrupt. 
->Is there another way to check APIC activation? 
->Am-I doing to right things to activate IO-APIC?
+This seems like the obvious thing to do:
 
-CONFIG_X86_UP_IOAPIC only works if you actually have an IO-APIC
-(the "and" in the description is strict), but most UP boards don't
-have one. You should apply the UP-APIC patch, available at:
-
-       http://www.csd.uu.se/~mikpe/linux/upapic/
-
-/Mikael
+--- 2.4.0-test13.clean/mm/filemap.c	Fri Dec 29 03:14:58 2000
++++ 2.4.0-test13/mm/filemap.c	Fri Dec 29 03:16:21 2000
+@@ -96,6 +96,7 @@
+ 	remove_page_from_inode_queue(page);
+ 	remove_page_from_hash_queue(page);
+ 	page->mapping = NULL;
++	ClearPageDirty(page);
+ }
+ 
+ void remove_inode_page(struct page *page)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

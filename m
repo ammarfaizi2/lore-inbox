@@ -1,30 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316659AbSIEDcN>; Wed, 4 Sep 2002 23:32:13 -0400
+	id <S316705AbSIED3e>; Wed, 4 Sep 2002 23:29:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316667AbSIEDcN>; Wed, 4 Sep 2002 23:32:13 -0400
-Received: from pop.gmx.net ([213.165.64.20]:10270 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S316659AbSIEDcM>;
-	Wed, 4 Sep 2002 23:32:12 -0400
-Message-ID: <3D76D142.AFD9E991@gmx.de>
-Date: Thu, 05 Sep 2002 05:36:34 +0200
-From: Edgar Toernig <froese@gmx.de>
-MIME-Version: 1.0
-To: ptb@it.uc3m.es
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: (fwd) Re: [RFC] mount flag "direct"
-References: <200209041254.g84CstS22167@oboe.it.uc3m.es>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316753AbSIED3e>; Wed, 4 Sep 2002 23:29:34 -0400
+Received: from f241.law7.hotmail.com ([216.33.237.241]:65286 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S316705AbSIED3d>;
+	Wed, 4 Sep 2002 23:29:33 -0400
+X-Originating-IP: [216.251.50.73]
+From: "sakib mondal" <sakib@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: hang at "bringing up interface lo:"
+Date: Thu, 05 Sep 2002 03:34:03 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F241ur2iz2Mb1s7nlT200001857@hotmail.com>
+X-OriginalArrivalTime: 05 Sep 2002 03:34:04.0031 (UTC) FILETIME=[151058F0:01C2548D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Peter T. Breuer" wrote:
-> 
-> The point is not to choose a file system, but to be able to use
-> whichever one is preferable _at the time_. This is important.
+Hi,
 
-Heck, then take regular nfs.  It works with any/most filesystems
-and does all you want.  This discussion has become so silly...
+I am runing RH linux-2.4.7-10 on a Dell Optiplex GX110 box (with 256Mb RAM). 
+The system worked fine with networking support. I then added a virtual 
+network driver (similar to 
+ftp://ftp.linux.it/pub/People/Rubini/insane.tar.gz) to the kernel. (There is 
+no change made to drivers/net/loopback.c). I compile the kernel in usual 
+steps (make dep, make clean, make bzImage, make modules, make 
+modules_install). The compilation works fine. However, when I am booting the 
+new kernel image, the system hangs at the prompt "bringing up interface 
+lo:". It does not echo "[OK]".
+The system boots fine in single user mode. When I ran
+"/etc/rc.d/init.d/network start", it got stuck at "./ifup ifcfg-lo".
+Infact, in the ifup script, it is halting at "ip addr add 
+${IPADDR}/${PREFIX} brd
+${BROADCAST:-+} dev ${REALDEVICE} .." called to add adrress for lo. I
+checked that it is correctly using IPADDR=127.0.0.1.
 
-Ciao, ET.
+Since the system works fine with old kernel image, I guess the problem is 
+with the new kernel image. I shall appreciate any pointer on what may go 
+wrong.
+
+TIA.
+
+Regards
+Sakib
+
+
+
+_________________________________________________________________
+Chat with friends online, try MSN Messenger: http://messenger.msn.com
+

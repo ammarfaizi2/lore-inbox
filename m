@@ -1,29 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272697AbRHaOD3>; Fri, 31 Aug 2001 10:03:29 -0400
+	id <S272695AbRHaOGT>; Fri, 31 Aug 2001 10:06:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272698AbRHaODV>; Fri, 31 Aug 2001 10:03:21 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25609 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272697AbRHaODJ>; Fri, 31 Aug 2001 10:03:09 -0400
-Subject: Re: Athlon doesn't like Athlon optimisation?
-To: pgallen@randomlogic.com (Paul G. Allen)
-Date: Fri, 31 Aug 2001 15:06:54 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
-In-Reply-To: <3B8F287A.D3717C07@randomlogic.com> from "Paul G. Allen" at Aug 30, 2001 11:02:34 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272696AbRHaOF7>; Fri, 31 Aug 2001 10:05:59 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11534 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272695AbRHaOFw>; Fri, 31 Aug 2001 10:05:52 -0400
+Date: Fri, 31 Aug 2001 07:02:46 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+cc: "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <200108311322.PAA12269@nbd.it.uc3m.es>
+Message-ID: <Pine.LNX.4.33.0108310655590.15502-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15cowg-0003GG-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My Dual Athlon (1.4GHz) works just fine (with the exception of the ATA 100 -
-> I have to disable DMA).
 
-There is a known errata with the dual athlon chipset where prefetching and
-IDE DMA together hang the box. You might want to scan the chip docs/errata
-and try turning that bit off and see if it helps. If so its one for pci
-quirks
+On Fri, 31 Aug 2001, Peter T. Breuer wrote:
+>
+> On doing a make bzImage no errors showed. On make modules, 4 errors
+> showed, one in tun.c and 3 in pagebuf_io.c (I presume that's from
+> xfs).
+>
+> I probably covered about 25% of the kernel code in that trial.
+
+Good. This implies that the test itself is "reasonable and safe" - it
+doesn't get nasty false positives, and assuming people en dup being happy
+about it never causing surprising sign changes, I think this is a good
+idea.
+
+I _would_ suggest that you change the MIN_BUG() thing to the traditional
+
+	#define compile_time_assert(x) \
+		do { switch (0) { case 0: case (x) != 0: ; } } while (0)
+
+which gives the error from the compiler, and does not depend on the
+assembler.
+
+(Admittedly the error message isn't the nicest in the world, but it gives
+file and line number and include depth etc.. )
+
+> The tun.c one was safe as it was .. the signed value was always
+> positive at the point where the macro was applied.
+
+Note that a _few_ false positives are fine - we can fix them up, and
+people will be happy. The problems happen if the false positives are so
+numerous that it makes common code uglier and harder to read because of
+work-arounds for checkers.
+
+So adding a cast or using an unsigned constant or whatever is fine.
+
+> One thing that worries me is that these should have triggered on
+> the signed/unsigned char comparisons that you were worried about in
+> -Wsigned-compare, and no, they didn't. They did find other
+> signed/unsigned mixes, but not char.
+
+What I _really_ think might be interesting is a
+
+	-Wsign-promote
+
+warnign that hits outside compares (at any implicit promotion that
+changes the sign - ie exactly the cases where K&R v1 and v2 differ), but I
+suspect that it will have even _more_ problems than -Wsign-compare in the
+sense that it probably really needs the compiler to do range analysis for
+any amount of sane output..
+
+		Linus
+

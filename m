@@ -1,70 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264369AbTDPNgN (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 09:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbTDPNgM 
+	id S264368AbTDPNft (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 09:35:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264369AbTDPNft 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 09:36:12 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:27833 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S264369AbTDPNgK 
+	Wed, 16 Apr 2003 09:35:49 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:12440 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S264368AbTDPNfr 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 09:36:10 -0400
-Subject: Re: [RFC][PATCH] Extended Attributes for Security Modules
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: richard offer <offer@sgi.com>
-Cc: Andreas Gruenbacher <ag@bestbits.at>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       lsm <linux-security-module@wirex.com>, "Ted Ts'o" <tytso@mit.edu>,
-       lkml <linux-kernel@vger.kernel.org>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <385390000.1050425884@changeling.engr.sgi.com>
-References: <Pine.LNX.4.33.0304140033100.12311-100000@muriel.parsec.at>
-	 <1050414107.16051.70.camel@moss-huskers.epoch.ncsc.mil>
-	 <385390000.1050425884@changeling.engr.sgi.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1050500841.2682.62.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 16 Apr 2003 09:47:22 -0400
+	Wed, 16 Apr 2003 09:35:47 -0400
+Date: Wed, 16 Apr 2003 06:47:34 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 592] New: BUG at kernel/softirq.c:105
+Message-ID: <86310000.1050500854@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-04-15 at 12:58, richard offer wrote:
-> I see modules as empheral, but attritbutes as permanant. If I'm running one
-> LSM module, I reboot and use a different LSM module, what happens to the
-> attributes that the first module added to the file ?
-> 
-> Either we should guarantee that modules only touch attributes they know
-> about---ignoring all others (but not overwriting them), or we have separate
-> namespaces for each module's attributes.
-> 
-> Stacking modules will work with either scheme, but its seems to be that
-> switching policies over a reboot could easily be broken by a scheme that
-> shared a single namespace.
+http://bugme.osdl.org/show_bug.cgi?id=592
 
-Thanks for your comments.  It occurred to me after I sent my initial
-reply that you might be thinking of a scenario where you have two
-different security modules for two different environments, and you
-switch back and forth between them depending on what environment you are
-working in.  However, I think that this scenario is fundamentally
-flawed, as the two modules will end up needing to be tightly coupled in
-order to provide any continuous guarantees of security and would be
-better implemented as a single module that understands two (or n) states
-of operation and has a mechanism for secure transitions between those
-states.  If you keep them as independent modules, then each module has
-no way of knowing what kind of data mixing occurred while the other
-module was active, so the old attributes of existing files are no longer
-trustworthy, and each module has no way of knowing how to handle new
-files that were created while the other module was active.  You really
-need the two modules to be aware of each other and to maintain
-sufficient state information so that the other module can recover to a
-secure initial state, at which point you might as well merge them into
-one module with multiple states of operation.  A single module with
-multiple states of operation can also potentially support transitions on
-events without a reboot (or the overhead of a full module
-removal+insertion), so you have greater flexibility.
+           Summary: BUG at kernel/softirq.c:105
+    Kernel Version: 2.5.67
+            Status: NEW
+          Severity: normal
+             Owner: rmk@arm.linux.org.uk
+         Submitter: kees.bakker@xs4all.nl
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+
+Problem Description:
+At shutdown, when pppd gets killed this BUG shows up. Here is the syslog:
+Apr 14 22:10:28 iris kernel: kernel BUG at kernel/softirq.c:105!
+Apr 14 22:10:28 iris kernel: invalid operand: 0000 [#1]
+Apr 14 22:10:28 iris kernel: CPU:    0
+Apr 14 22:10:28 iris kernel: EIP:    0060:[<c011f8a3>]    Not tainted
+Apr 14 22:10:28 iris kernel: EFLAGS: 00010002
+Apr 14 22:10:28 iris kernel: EIP is at local_bh_enable+0x43/0x50
+Apr 14 22:10:28 iris kernel: eax: 00000001   ebx: de840e00   ecx: 00000000  
+edx: de840eb2
+Apr 14 22:10:28 iris kernel: esi: 00000000   edi: 00000000   ebp: 00000000  
+esp: de599e28
+Apr 14 22:10:28 iris kernel: ds: 007b   es: 007b   ss: 0068
+Apr 14 22:10:28 iris kernel: Process pptp (pid: 388, threadinfo=de598000
+task=de90e740)
+Apr 14 22:10:28 iris kernel: Stack: c0237910 dfddaf40 c01a95db dfddaf40
+00000001 de8b8000 dede74c0 de8b8000 
+Apr 14 22:10:28 iris kernel:        de840e00 de8b89e4 00000000 c0237231
+de840e00 de8b8000 deca3000 c01fd15f 
+Apr 14 22:10:28 iris kernel:        de8b8000 deca3000 de8b8000 c01f9db3
+deca3000 c01f9e33 deca3000 deca3000 
+Apr 14 22:10:28 iris kernel: Call Trace:
+Apr 14 22:10:28 iris kernel:  [<c0237910>] ppp_async_push+0x90/0x170
+Apr 14 22:10:28 iris kernel:  [<c01a95db>] _devfs_unregister+0x5b/0xa0
+Apr 14 22:10:28 iris kernel:  [<c0237231>] ppp_asynctty_wakeup+0x31/0x70
+Apr 14 22:10:28 iris kernel:  [<c01fd15f>] pty_unthrottle+0x5f/0x70
+Apr 14 22:10:28 iris kernel:  [<c01f9db3>] check_unthrottle+0x33/0x40
+Apr 14 22:10:28 iris kernel:  [<c01f9e33>] n_tty_flush_buffer+0x13/0x60
+Apr 14 22:10:28 iris kernel:  [<c01fd53c>] pty_flush_buffer+0x6c/0x70
+Apr 14 22:10:28 iris kernel:  [<c01f70fe>] do_tty_hangup+0x2fe/0x340
+Apr 14 22:10:28 iris kernel:  [<c01f83b7>] release_dev+0x637/0x680
+Apr 14 22:10:28 iris kernel:  [<c0138239>] slab_destroy+0xa9/0xd0
+Apr 14 22:10:28 iris kernel:  [<c013cf63>] unmap_page_range+0x43/0x70
+Apr 14 22:10:28 iris kernel:  [<c0138e73>] cache_flusharray+0xe3/0x100
+Apr 14 22:10:28 iris kernel:  [<c01f87df>] tty_release+0xf/0x20
+Apr 14 22:10:28 iris kernel:  [<c014bad1>] __fput+0xc1/0xd0
+Apr 14 22:10:28 iris kernel:  [<c014a31d>] filp_close+0x4d/0x80
+Apr 14 22:10:28 iris kernel:  [<c011d577>] put_files_struct+0x57/0xc0
+Apr 14 22:10:28 iris kernel:  [<c011e012>] do_exit+0x102/0x300
+Apr 14 22:10:28 iris kernel:  [<c014a31d>] filp_close+0x4d/0x80
+Apr 14 22:10:28 iris kernel:  [<c011e2c2>] do_group_exit+0x52/0x80
+Apr 14 22:10:28 iris kernel:  [<c010b14b>] syscall_call+0x7/0xb
+Apr 14 22:10:28 iris kernel: 
+Apr 14 22:10:28 iris kernel: Code: 0f 0b 69 00 e9 d7 32 c0 eb d3 8d 76 00
+53 89 c1 9c 5b fa b8 
+
+
+Steps to reproduce:
+Start pppd
+Shutdown the system (I haven't tried to do a killall pppd)
+
 

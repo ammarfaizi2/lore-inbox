@@ -1,65 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130515AbRCLRiF>; Mon, 12 Mar 2001 12:38:05 -0500
+	id <S130517AbRCLRhp>; Mon, 12 Mar 2001 12:37:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130516AbRCLRhz>; Mon, 12 Mar 2001 12:37:55 -0500
-Received: from hood.tvd.be ([195.162.196.21]:7725 "EHLO hood.tvd.be")
-	by vger.kernel.org with ESMTP id <S130515AbRCLRho>;
-	Mon, 12 Mar 2001 12:37:44 -0500
-Date: Mon, 12 Mar 2001 18:34:55 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: tulip-users@lists.sourceforge.net,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: 21041 transmit timed out
-In-Reply-To: <Pine.GSO.4.10.10103121407450.15717-100000@escobaria.sonytel.be>
-Message-ID: <Pine.LNX.4.05.10103121833300.14663-100000@callisto.of.borg>
+	id <S130516AbRCLRhg>; Mon, 12 Mar 2001 12:37:36 -0500
+Received: from idefix.linkvest.com ([194.209.53.99]:13581 "EHLO
+	idefix.linkvest.com") by vger.kernel.org with ESMTP
+	id <S130515AbRCLRh0>; Mon, 12 Mar 2001 12:37:26 -0500
+Message-ID: <B45465FD9C23D21193E90000F8D0F3DF683A35@mailsrv.linkvest.com>
+From: Jean-Eric Cuendet <Jean-Eric.Cuendet@linkvest.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: [NFS] Oops in 2.4.2 - please give advice
+Date: Mon, 12 Mar 2001 18:36:33 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Internet Mail Service (5.5.2650.21)
+List-Help: <mailto:nfs-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <http://lists.sourceforge.net/lists/listinfo/nfs>,<mailto:nfs-request@lists.sourceforge.net?subject=subscribe>
+List-Unsubscribe: <http://lists.sourceforge.net/lists/listinfo/nfs>,<mailto:nfs-request@lists.sourceforge.net?subject=unsubscribe>
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Mar 2001, Geert Uytterhoeven wrote:
-> I made a list of driver versions that showed the problem so far:
-> 
-> | Tulip driver version 0.9.14 (February 20, 2001)
 
-Wow! 0.9.14 in my 2.4.3-pre2 kernel just seem to have recovered from the
-problem:
+Hi,
+I have this Oops with the following config:
+- Stock 2.4.2 (no patch)
+- I have LVM volumes (0.9.1b5)
+- I have Raid0 + Raid5 volumes (v0.90)
+- Filesystems are ext2
+- The machine is a PII 733 with SCSI and IDE disks.
+- The chipset is a VIA but DMA is disabled (for IDE disks).
+Thanks for any help
+-jec
 
-| NETDEV WATCHDOG: eth0: transmit timed out
-| eth0: 21041 transmit timed out, status fc660000, CSR12 000001c8, CSR13 ffffef05, CSR14 ffffff3f, resetting...
-| eth0: 21143 100baseTx sensed media.
-| NETDEV WATCHDOG: eth0: transmit timed out
-| eth0: 21041 transmit timed out, status fc260010, CSR12 000002c8, CSR13 ffffef0d, CSR14 fffff73d, resetting...
-| NETDEV WATCHDOG: eth0: transmit timed out
-| eth0: 21041 transmit timed out, status fc260010, CSR12 000002c8, CSR13 ffffef0d, CSR14 fffff73d, resetting...
-| eth0: Out-of-sync dirty pointer, 243506 vs. 243524.
 
-And eth0 is back online.
+ksymoops 2.4.0 on i686 2.4.2-lb5-n3-6.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.2-lb5-n3-6/ (default)
+     -m /boot/System.map-2.4.2-lb5-n3-6 (specified)
 
-The next few lines in the syslog do look suspicious, though:
+Warning (compare_maps): mismatch on symbol partition_name  , ksyms_base says
+c02086c0, System.map says c014f200.  Ignoring ksyms_base entry
+Mar 12 10:00:02 fatboy kernel: Unable to handle kernel paging request at
+virtual address 00b50008
+Mar 12 10:00:02 fatboy kernel: c0124407
+Mar 12 10:00:02 fatboy kernel: *pde = 00000000
+Mar 12 10:00:02 fatboy kernel: Oops: 0000
+Mar 12 10:00:02 fatboy kernel: CPU:    0
+Mar 12 10:00:02 fatboy kernel: EIP:    0010:[generic_file_readahead+415/708]
+Mar 12 10:00:02 fatboy kernel: EFLAGS: 00010206
+Mar 12 10:00:02 fatboy kernel: eax: c7fa0000   ebx: 00b50000   ecx: 0000000f
+edx: c7fb25e0
+Mar 12 10:00:02 fatboy kernel: esi: 0000022b   edi: c2f9e8a0   ebp: c200bea4
+esp: c377fef8
+Mar 12 10:00:02 fatboy kernel: ds: 0018   es: 0018   ss: 0018
+Mar 12 10:00:02 fatboy kernel: Process tar (pid: 20695, stackpage=c377f000)
+Mar 12 10:00:02 fatboy kernel: Stack: c10f36a8 00000001 c2f9e8a0 00000600
+c119c9e8 00000124 c7fb25e0 0000001f
+Mar 12 10:00:02 fatboy kernel:        00000111 00000013 00000020 000000f2
+0000022b c0124753 00000001 c2f9e8a0
+Mar 12 10:00:02 fatboy kernel:        c200be00 c10f36a8 00002800 0806d9c0
+00000000 bffffaac c10f36a8 00000000
+Mar 12 10:00:02 fatboy kernel: Call Trace: [do_generic_file_read+551/1412]
+[generic_file_read+99/128] [file_read_actor+0/84] [sys_read+142/196]
+[system_call+51/56]
+Mar 12 10:00:02 fatboy kernel: Code: 39 6b 08 75 f4 8b 74 24 14 39 73 0c 75
+eb 53 e8 c9 4e 00 00
+Using defaults from ksymoops -t elf32-i386 -a i386
 
-| release_dev: driver.table[1] not tty for ()
-| release_dev: driver.table[7] not tty for (FikXZdoGQcCWQFGjV5evDzG+mv
-| Q1jmH5buYh7LWpmXr8mfjykOCoR2Ry+NmzL3sE49mLozzdT22tUJKu6ztÄPÂÜð)
-| Warning: dev (04:08) tty->count(2) != #fd's(1) in release_dev
-| release_dev: driver.table[7] not tty for ()
-| Warning: dev (04:41) tty->count(2) != #fd's(1) in tty_open
-| Warning: dev (04:08) tty->count(3) != #fd's(1) in tty_open
-| Warning: dev (04:41) tty->count(3) != #fd's(2) in tty_open
-| Warning: dev (04:41) tty->count(3) != #fd's(2) in release_dev
-| Warning: dev (04:41) tty->count(3) != #fd's(2) in tty_open
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   39 6b 08                  cmp    %ebp,0x8(%ebx)
+Code;  00000003 Before first symbol
+   3:   75 f4                     jne    fffffff9 <_EIP+0xfffffff9> fffffff9
+<END_OF_CODE+37764c3a/???
+Code;  00000005 Before first symbol
+   5:   8b 74 24 14               mov    0x14(%esp,1),%esi
+Code;  00000009 Before first symbol
+   9:   39 73 0c                  cmp    %esi,0xc(%ebx)
+Code;  0000000c Before first symbol
+   c:   75 eb                     jne    fffffff9 <_EIP+0xfffffff9> fffffff9
+<END_OF_CODE+37764c3a/???
+Code;  0000000e Before first symbol
+   e:   53                        push   %ebx
+Code;  0000000f Before first symbol
+   f:   e8 c9 4e 00 00            call   4edd <_EIP+0x4edd> 00004edd Before
+first symbol
 
-Gr{oetje,eeting}s,
 
-						Geert
+1 warning issued.  Results may not be reliable.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+Jean-Eric Cuendet
+Linkvest SA
+Av des Baumettes 19, 1020 Renens Switzerland
+Tel +41 21 632 9043  Fax +41 21 632 9090
+http://www.linkvest.com  E-mail: jean-eric.cuendet@linkvest.com
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+
+
+
+_______________________________________________
+NFS maillist  -  NFS@lists.sourceforge.net
+http://lists.sourceforge.net/lists/listinfo/nfs

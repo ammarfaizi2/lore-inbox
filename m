@@ -1,106 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261485AbSJPXE0>; Wed, 16 Oct 2002 19:04:26 -0400
+	id <S261454AbSJPXCH>; Wed, 16 Oct 2002 19:02:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261486AbSJPXEZ>; Wed, 16 Oct 2002 19:04:25 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:28800 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261485AbSJPXEO>;
-	Wed, 16 Oct 2002 19:04:14 -0400
-Subject: [PATCH] linux-2.4.20-pre11_clustered-apic-tweaks_A0
-From: john stultz <johnstul@us.ibm.com>
-To: marcelo <marcelo@conectiva.com.br>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, James <jamesclv@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 16 Oct 2002 16:02:08 -0700
-Message-Id: <1034809328.19981.219.camel@cog>
-Mime-Version: 1.0
+	id <S261485AbSJPXCH>; Wed, 16 Oct 2002 19:02:07 -0400
+Received: from dp.samba.org ([66.70.73.150]:35244 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261454AbSJPXBP>;
+	Wed, 16 Oct 2002 19:01:15 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com, Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] KBUILD_MODNAME
+Date: Thu, 17 Oct 2002 09:06:52 +1000
+Message-Id: <20021016230712.7717C2C07B@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo, all, 
+Linus (or Kai) please apply (Kai's patch, updated for 2.5.43).
 
-	Originally I was going to send a larger patch that had the rest of the
-needed changes for summit, but I've gone through and split that up even
-more. This is similar to the earlier cleanup I sent you (although this
-one compiles & boots on UP properly :), and just moves some code around
-in preparation for further changes. 
+It works beautifully.
 
-	Again,  this code originally comes from James Cleverdon's summit patch,
-which I have been chopping/crushing/blending up into hopefully more
-easily digestible pieces. Thus I deserve none of the credit, and all the
-blame for this. 
+Thanks,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-please consider for acceptance.
+Name: KBUILD_MODNAME define for build system
+Author: Kai Germaschewski
+Status: Tested on 2.5.38
 
-thanks
--john
+D: This patch adds a -DKBUILD_MODNAME to the kernel compile, which
+D: contains the base of the module name which is being built.
+D: 
+D: - Some sreorganization of the c_flags since they're needed for
+D:   generating modversions (.ver) and compiling
+D: - Use the right KBUILD_MODNAME also when the user just wants a .i/.s/.lst 
+D:   file for debugging and also when generating modversions
+D: - It looks like with your current approach you can't have a ',' or '-' in
+D:   KBUILD_MODNAME - however, that means that KBUILD_MODNAME is not quite
+D:   right for passing module parameters for built-in modules on the command
+D:   line, it would be confusing to pass parameters for ide-cd as 
+D:   ide_cd.foo=whatever. So that part could use a little more thought.
+D: - If you think your module_names trick makes a noticable difference, feel
+D:   free to re-add it.
+D: - It's possible that objects are linked into more than one module - I 
+D:   suppose this shouldn't be a problem, since these objects hopefully
+D:   don't have a module_init() nor do they export symbols. Not sure if your
+D:   patch did handle this.
+D: 
+D: --Kai
 
-diff -Nru a/arch/i386/kernel/apic.c b/arch/i386/kernel/apic.c
---- a/arch/i386/kernel/apic.c	Wed Oct 16 15:52:39 2002
-+++ b/arch/i386/kernel/apic.c	Wed Oct 16 15:52:39 2002
-@@ -261,6 +261,14 @@
- 	apic_write_around(APIC_LVT1, value);
- }
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .19753-linux-2.5.43/Rules.make .19753-linux-2.5.43.updated/Rules.make
+--- .19753-linux-2.5.43/Rules.make	2002-10-15 15:30:50.000000000 +1000
++++ .19753-linux-2.5.43.updated/Rules.make	2002-10-16 19:48:25.000000000 +1000
+@@ -97,11 +97,15 @@ __obj-m = $(filter-out export.o,$(obj-m)
+ multi-used-y := $(sort $(foreach m,$(__obj-y), $(if $($(m:.o=-objs)), $(m))))
+ multi-used-m := $(sort $(foreach m,$(__obj-m), $(if $($(m:.o=-objs)), $(m))))
  
-+static unsigned long calculate_ldr(unsigned long old)
-+{
-+	unsigned long id;
-+	
-+	id = 1UL << smp_processor_id();
-+	return (old & ~APIC_LDR_MASK)|SET_APIC_LOGICAL_ID(id);
-+}
++multi-used   := $(multi-used-y) $(multi-used-m)
 +
- void __init setup_local_APIC (void)
- {
- 	unsigned long value, ver, maxlvt;
-@@ -304,9 +312,7 @@
- 		 * Set up the logical destination ID.
- 		 */
- 		value = apic_read(APIC_LDR);
--		value &= ~APIC_LDR_MASK;
--		value |= (1<<(smp_processor_id()+24));
--		apic_write_around(APIC_LDR, value);
-+		apic_write_around(APIC_LDR, calculate_ldr(value));
- 	}
+ # Build list of the parts of our composite objects, our composite
+ # objects depend on those (obviously)
+ multi-objs-y := $(foreach m, $(multi-used-y), $($(m:.o=-objs)))
+ multi-objs-m := $(foreach m, $(multi-used-m), $($(m:.o=-objs)))
  
- 	/*
-diff -Nru a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
---- a/arch/i386/kernel/io_apic.c	Wed Oct 16 15:52:39 2002
-+++ b/arch/i386/kernel/io_apic.c	Wed Oct 16 15:52:39 2002
-@@ -1067,7 +1067,7 @@
- 		
- 		old_id = mp_ioapics[apic].mpc_apicid;
- 
--		if (mp_ioapics[apic].mpc_apicid >= 0xf) {
-+		if (mp_ioapics[apic].mpc_apicid >= apic_broadcast_id) {
- 			printk(KERN_ERR "BIOS bug, IO-APIC#%d ID is %d in the MPC table!...\n",
- 				apic, mp_ioapics[apic].mpc_apicid);
- 			printk(KERN_ERR "... fixing up to %d. (tell your hw vendor)\n",
-@@ -1086,7 +1086,7 @@
- 			for (i = 0; i < 0xf; i++)
- 				if (!(phys_id_present_map & (1 << i)))
- 					break;
--			if (i >= 0xf)
-+			if (i >= apic_broadcast_id)
- 				panic("Max APIC ID exceeded!\n");
- 			printk(KERN_ERR "... fixing up to %d. (tell your hw vendor)\n",
- 				i);
-diff -Nru a/include/asm-i386/smpboot.h b/include/asm-i386/smpboot.h
---- a/include/asm-i386/smpboot.h	Wed Oct 16 15:52:39 2002
-+++ b/include/asm-i386/smpboot.h	Wed Oct 16 15:52:39 2002
-@@ -41,6 +41,9 @@
- #endif /* CONFIG_X86_IO_APIC */
- #endif /* CONFIG_X86_LOCAL_APIC */
- 
-+#define apic_broadcast_id (APIC_BROADCAST_ID_APIC)
++multi-objs   := $(multi-objs-y) $(multi-objs-m)
 +
-+
- #define TRAMPOLINE_LOW phys_to_virt((clustered_apic_mode == CLUSTERED_APIC_NUMAQ)?0x8:0x467)
- #define TRAMPOLINE_HIGH phys_to_virt((clustered_apic_mode == CLUSTERED_APIC_NUMAQ)?0xa:0x469)
+ # $(subdir-obj-y) is the list of objects in $(obj-y) which do not live
+ # in the local directory
+ subdir-obj-y := $(foreach o,$(obj-y),$(if $(filter-out $(o),$(notdir $(o))),$(o)))
+@@ -132,6 +136,23 @@ subdir-ym	:= $(addprefix $(obj)/,$(subdi
+ # contain a comma
+ depfile = $(subst $(comma),_,$(@D)/.$(@F).d)
  
-
-
-
++# These flags are needed for modversions and compiling, so we define them here
++# already
++# $(modname_flags) #defines KBUILD_MODNAME as the name of the module it will 
++# end up in (or would, if it gets compiled in)
++# Note: It's possible that one object gets potentially linked into more
++#       than one module. In that case KBUILD_MODNAME will be set to foo_bar,
++#       where foo and bar are the name of the modules.
++basename_flags = -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F)))
++modname_flags  = -DKBUILD_MODNAME=$(subst $(comma),_,$(subst -,_,$(modname)))
++c_flags        = -Wp,-MD,$(depfile) $(CFLAGS) $(NOSTDINC_FLAGS) \
++	         $(modkern_cflags) $(EXTRA_CFLAGS) $(CFLAGS_$(*F).o) \
++	         $(basename_flags) $(modname_flags) $(export_flags) 
++
++# Finds the multi-part object the current object will be linked into
++modname-multi = $(subst $(space),_,$(strip $(foreach m,$(multi-used),\
++		$(if $(filter $(*F).o,$($(m:.o=-objs))),$(m:.o=)))))
++
+ # We're called for one of three purposes:
+ # o fastdep: build module version files (.ver) for $(export-objs) in
+ #   the current directory
+@@ -181,11 +202,10 @@ CFLAGS_MODULE := $(filter-out -include l
+ $(addprefix $(MODVERDIR)/,$(real-objs-y:.o=.ver)): modkern_cflags := $(CFLAGS_KERNEL)
+ $(addprefix $(MODVERDIR)/,$(real-objs-m:.o=.ver)): modkern_cflags := $(CFLAGS_MODULE)
+ $(addprefix $(MODVERDIR)/,$(export-objs:.o=.ver)): export_flags   := -D__GENKSYMS__
++# Default for not multi-part modules
++modname = $(*F)
+ 
+-c_flags = -Wp,-MD,$(depfile) $(CFLAGS) $(NOSTDINC_FLAGS) \
+-	  $(modkern_cflags) $(EXTRA_CFLAGS) $(CFLAGS_$(*F).o) \
+-	  -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) \
+-	  $(export_flags) 
++$(addprefix $(MODVERDIR)/,$(multi-objs:.o=.ver)) : modname = $(modname-multi)
+ 
+ # Our objects only depend on modversions.h, not on the individual .ver
+ # files (fix-dep filters them), so touch modversions.h if any of the .ver
+@@ -281,6 +301,7 @@ modkern_cflags := $(CFLAGS_KERNEL)
+ 
+ $(real-objs-m)        : modkern_cflags := $(CFLAGS_MODULE)
+ $(real-objs-m:.o=.i)  : modkern_cflags := $(CFLAGS_MODULE)
++$(real-objs-m:.o=.s)  : modkern_cflags := $(CFLAGS_MODULE)
+ $(real-objs-m:.o=.lst): modkern_cflags := $(CFLAGS_MODULE)
+ 
+ $(export-objs)        : export_flags   := $(EXPORT_FLAGS)
+@@ -288,10 +309,17 @@ $(export-objs:.o=.i)  : export_flags   :
+ $(export-objs:.o=.s)  : export_flags   := $(EXPORT_FLAGS)
+ $(export-objs:.o=.lst): export_flags   := $(EXPORT_FLAGS)
+ 
+-c_flags = -Wp,-MD,$(depfile) $(CFLAGS) $(NOSTDINC_FLAGS) \
+-	  $(modkern_cflags) $(EXTRA_CFLAGS) $(CFLAGS_$(*F).o) \
+-	  -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) \
+-	  $(export_flags) 
++# Default for not multi-part modules
++modname = $(*F)
++
++$(multi-objs-m)         : modname = $(modname-multi)
++$(multi-objs-m:.o=.i)   : modname = $(modname-multi)
++$(multi-objs-m:.o=.s)   : modname = $(modname-multi)
++$(multi-objs-m:.o=.lst) : modname = $(modname-multi)
++$(multi-objs-y)         : modname = $(modname-multi)
++$(multi-objs-y:.o=.i)   : modname = $(modname-multi)
++$(multi-objs-y:.o=.s)   : modname = $(modname-multi)
++$(multi-objs-y:.o=.lst) : modname = $(modname-multi)
+ 
+ quiet_cmd_cc_s_c = CC      $(echo_target)
+ cmd_cc_s_c       = $(CC) $(c_flags) -S -o $@ $< 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .19753-linux-2.5.43/net/unix/af_unix.c .19753-linux-2.5.43.updated/net/unix/af_unix.c
+--- .19753-linux-2.5.43/net/unix/af_unix.c	2002-10-16 15:01:28.000000000 +1000
++++ .19753-linux-2.5.43.updated/net/unix/af_unix.c	2002-10-16 19:48:25.000000000 +1000
+@@ -79,6 +79,8 @@
+  *		  with BSD names.
+  */
+ 
++#undef unix	/* KBUILD_MODNAME */
++
+ #include <linux/module.h>
+ #include <linux/config.h>
+ #include <linux/kernel.h>

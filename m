@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130579AbQKPQgW>; Thu, 16 Nov 2000 11:36:22 -0500
+	id <S131047AbQKPQgc>; Thu, 16 Nov 2000 11:36:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130075AbQKPQgM>; Thu, 16 Nov 2000 11:36:12 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:13046 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130579AbQKPQgD>; Thu, 16 Nov 2000 11:36:03 -0500
-Date: Thu, 16 Nov 2000 14:05:37 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Christoph Hellwig <hch@ns.caldera.de>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: KPATCH] Reserve VM for root (was: Re: Looking for better VM)
-In-Reply-To: <20001116170354.A9501@caldera.de>
-Message-ID: <Pine.LNX.4.21.0011161404540.13085-100000@duckman.distro.conectiva>
+	id <S130075AbQKPQgW>; Thu, 16 Nov 2000 11:36:22 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46902 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130747AbQKPQgJ>; Thu, 16 Nov 2000 11:36:09 -0500
+Subject: Re: APM oops with Dell 5000e laptop
+To: dax@gurulabs.com (Dax Kelson)
+Date: Thu, 16 Nov 2000 16:06:36 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SOL.4.30.0011131537460.27682-100000@ultra1.inconnect.com> from "Dax Kelson" at Nov 13, 2000 03:54:37 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13wRYd-0007yS-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2000, Christoph Hellwig wrote:
-> On Thu, Nov 16, 2000 at 01:51:01PM -0200, Rik van Riel wrote:
-> > > If you think fork() kills the box then ulimit the maximum number
-> > > of user processes (ulimit -u). This is a different issue and a
-> > > bad design in the scheduler (see e.g. Tru64 for a better one).
-> > 
-> > My fair scheduler catches this one just fine. It hasn't
-> > been integrated in the kernel yet, but both VA Linux and
-> > Conectiva use it in their kernel RPM.
-> 
-> BTW: do you have a fairsched patch for 2.4?
+> I just got a Sceptre 6950 (also known as a Dell 5000e), I just installed
+> Red Hat 7.0 on it, and got an APM related oops at boot.
 
-I haven't updated it yet to the latest kernels yet...
+Yep. This is not a Linux problem
 
-[but I, or someone else, should ;)]
+> Here is what got in /var/log/messages, I'm willing to try suggested fixes,
+> etc.  The problem also happens with the 2.4 test kernels.
 
-regards,
+There are no fixes. Return the faulty equipment to the vendor and suggest
+they get a QA department. 
 
-Rik
---
-"What you're running that piece of shit Gnome?!?!"
-       -- Miguel de Icaza, UKUUG 2000
-
-http://www.conectiva.com/		http://www.surriel.com/
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

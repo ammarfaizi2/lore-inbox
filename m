@@ -1,192 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269621AbRHHWoG>; Wed, 8 Aug 2001 18:44:06 -0400
+	id <S269598AbRHHWsG>; Wed, 8 Aug 2001 18:48:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269619AbRHHWn5>; Wed, 8 Aug 2001 18:43:57 -0400
-Received: from nick.dcs.qmw.ac.uk ([138.37.88.61]:35339 "EHLO dcs.qmw.ac.uk")
-	by vger.kernel.org with ESMTP id <S269598AbRHHWns>;
-	Wed, 8 Aug 2001 18:43:48 -0400
-Date: Wed, 8 Aug 2001 23:43:54 +0100 (BST)
-From: Matt Bernstein <matt@theBachChoir.org.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: oops running kudzu on Linux 2.4.7-ac10 (RH 7.2beta; gcc 2.96-95)
-In-Reply-To: <20010808195133.A22469@lightning.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0108082330100.19431-100000@nick.dcs.qmw.ac.uk>
-X-URL: http://www.theBachChoir.org.uk/
+	id <S269599AbRHHWr4>; Wed, 8 Aug 2001 18:47:56 -0400
+Received: from razor.hemmet.chalmers.se ([193.11.251.99]:8841 "EHLO
+	razor.hemmet.chalmers.se") by vger.kernel.org with ESMTP
+	id <S269598AbRHHWrn>; Wed, 8 Aug 2001 18:47:43 -0400
+Message-ID: <3B70701D.1000701@kjellander.com>
+Date: Wed, 08 Aug 2001 00:47:57 +0200
+From: Carl-Johan Kjellander <carljohan@kjellander.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: 386 boot problems with 2.4.7 and 2.4.7-ac9
+In-Reply-To: <3B706C11.7010100@kjellander.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My new PC oopses during boot running /etc/init.d/kudzu (it gets as far as
-writing "Updating /etc/fstab" before it oopses). I've stopped running
-kudzu and I can now boot fine.
+I figured out how to work ksymoops as well.
 
-Unfortunately it's on my home machine--I don't have another one in a fit
-enough state to copy the oops data atm, though further data can be
-provided upon request. [It freezes hard "not syncing".]
+This is the panic from 2.4.7-ac9 compiled with gcc-2.96-85 (Red Hat).
 
-Below is some edited info from the boot messages, and `lspci -vv`:
+ksymoops 2.4.0 on i686 2.4.7.  Options used
+      -v vmlinux (specified)
+      -K (specified)
+      -L (specified)
+      -o /lib/modules/2.4.7-ac9/ (specified)
+      -m System.map (specified)
 
-CPU: Before vendor init, caps: 0183fbff c1c7fbff 00000000, vendor = 2
-[ caps stayed the same ]
+No modules in ksyms, skipping objects
+Unable to handle kernel paging request at virtual address c0800000
+c01eb801
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c01eb801>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010283
+eax: ffffff00   ebx: c0800000   ecx: 00000008   edx: 00000001
+esi: c0800000   edi: c01be12e   ebp: 00800000   esp: c022bfb8
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 1, stackpage=c022b000)
+Stack: 001f4df8 00000000 00000000 c01f4dfc c01e7fd8 c0105000 0008e000 c01e87d2
+        00010f00 c0105041 00010f00 c01e7fd8 c0105000 0008e000 c0105472 00000000
+        c0105038 00098700
+Call Trace: [<c0105000>] [<c0105041>] [<c0105000>] [<c0105472>] [<c0105038>]
+Code: f3 a6 0f 97 c2 0f 92 c0 38 c2 75 45 c6 44 24 03 00 31 f6 8a
 
-Using local APIC timer interrupts.
-calibrating APIC timer ...
-..... CPU clock speed is 999.9683 MHz.
-..... host bus clock speed is 266.6580 MHz.
-cpu: 0, clocks: 2666580, slice: 1333290
-CPU0<T0:2666576,T1:1333280,D:6,S:1333290,C:2666580>
+ >>EIP; c01eb801 <sbf_init+35/184>   <=====
+Trace; c0105000 <_stext+0/0>
+Trace; c0105041 <init+9/13c>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105472 <kernel_thread+26/30>
+Trace; c0105038 <init+0/13c>
+Code;  c01eb801 <sbf_init+35/184>
+00000000 <_EIP>:
+Code;  c01eb801 <sbf_init+35/184>   <=====
+    0:   f3 a6                     repz cmpsb %es:(%edi),%ds:(%esi)   <=====
+Code;  c01eb803 <sbf_init+37/184>
+    2:   0f 97 c2                  seta   %dl
+Code;  c01eb806 <sbf_init+3a/184>
+    5:   0f 92 c0                  setb   %al
+Code;  c01eb809 <sbf_init+3d/184>
+    8:   38 c2                     cmp    %al,%dl
+Code;  c01eb80b <sbf_init+3f/184>
+    a:   75 45                     jne    51 <_EIP+0x51> c01eb852 <sbf_init+86/184>
+Code;  c01eb80d <sbf_init+41/184>
+    c:   c6 44 24 03 00            movb   $0x0,0x3(%esp,1)
+Code;  c01eb812 <sbf_init+46/184>
+   11:   31 f6                     xor    %esi,%esi
+Code;  c01eb814 <sbf_init+48/184>
+   13:   8a 00                     mov    (%eax),%al
 
-PCI: Probing PCI hardware
-Unknown bridge resource 0: assuming transparent
-Unknown bridge resource 1: assuming transparent
-Unknown bridge resource 2: assuming transparent
-PCI: Using IRQ router VIA [1106/0686] at 00:04.0
+  <0>Kernel panic: Attemted to kill init!
 
-VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:04.1
-    ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:DMA, hdd:DMA
-hda: IC35L040AVER07-0, ATA DISK drive
-hdc: IOMEGA ZIP 250 ATAPI Floppy, ATAPI FLOPPY drive
-hdd: LG CD-ROM CRD-8521B, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 80418240 sectors (41174 MB) w/1916KiB Cache, CHS=79780/16/63, UDMA(100)
-Partition check:
- hda:<7>LDM:  DEBUG (ldm.c, 876): validate_partition_table: Found basic MS-DOS partition, not a dynamic disk.
- hda1 hda2 hda3 < hda5 hda6 >
-reiserfs: checking transaction log (device 03:06) ...
-Warning, log replay starting on readonly filesystem
-reiserfs: replayed 14 transactions in 1 seconds
-Using r5 hash to sort names
-ReiserFS version 3.6.25
-VFS: Mounted root (reiserfs filesystem) readonly.
+Again, please CC replies to me.
 
-
-00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 [Irongate]
-System Controller (rev 13)
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort+ >SERR- <PERR-
-        Latency: 32
-        Region 0: Memory at f8000000 (32-bit, prefetchable) [size=64M]
-        Region 1: Memory at f7800000 (32-bit, prefetchable) [size=4K]
-        Region 2: I/O ports at e000 [disabled] [size=4]
-        Capabilities: [a0] AGP version 2.0
-                Status: RQ=15 SBA+ 64bit- FW- Rate=x1,x2
-                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
-
-00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 [Irongate] AGP
-Bridge (prog-if 00 [Normal decode])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-        I/O behind bridge: 0000e000-0000dfff
-        Memory behind bridge: f5f00000-f5efffff
-        Prefetchable memory behind bridge: f7800000-f77fffff
-        BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset- FastB2B-
-
-00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South]
-(rev 40)
-        Subsystem: Asustek Computer, Inc.: Unknown device 8040
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping+ SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Capabilities: [c0] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:04.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
-(prog-if 8a [Master SecP PriP])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32
-        Region 4: I/O ports at d800 [size=16]
-        Capabilities: [c0] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:04.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16) (prog-if
-00 [UHCI])
-        Subsystem: Unknown device 0925:1234
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32, cache line size 08
-        Interrupt: pin D routed to IRQ 10
-        Region 4: I/O ports at d400 [size=32]
-        Capabilities: [80] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:04.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16) (prog-if
-00 [UHCI])
-        Subsystem: Unknown device 0925:1234
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32, cache line size 08
-        Interrupt: pin D routed to IRQ 10
-        Region 4: I/O ports at d000 [size=32]
-        Capabilities: [80] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:04.4 Non-VGA unclassified device: VIA Technologies, Inc. VT82C686
-[Apollo Super ACPI] (rev 40)
-        Subsystem: Asustek Computer, Inc.: Unknown device 8040
-        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin ? routed to IRQ 9
-        Capabilities: [68] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:05.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev
-10)
-        Subsystem: Asustek Computer, Inc.: Unknown device 80e2
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping+ SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (500ns min, 6000ns max)
-        Interrupt: pin A routed to IRQ 11
-        Region 0: I/O ports at a400 [size=256]
-        Capabilities: [c0] Power Management version 2
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0d.0 VGA compatible controller: Matrox Graphics, Inc. MGA 2164W
-[Millennium II] (prog-if 00 [VGA])
-        Subsystem: Matrox Graphics, Inc. MGA-2164W Millennium II
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32
-        Interrupt: pin A routed to IRQ 10
-        Region 0: Memory at f6000000 (32-bit, prefetchable) [size=16M]
-        Region 1: Memory at f5000000 (32-bit, non-prefetchable) [size=16K]
-        Region 2: Memory at f4800000 (32-bit, non-prefetchable) [size=8M]
-        Expansion ROM at 000c0000 [disabled] [size=64K]
-
+/Carl-Johan Kjellander
+-- 
+begin 644 carljohan_at_kjellander_dot_com.gif
+Y1TE&.#=A(0`F`(```````/___RP`````(0`F```"@XR/!\N<#U.;+MI`<[U(>\!UGQ9BGT%>'D2I
+Y*=NX,2@OUF2&<827ILW;^822C>\7!!Z1,!K'B5(6H<SH-"E*TJ3%*/>QI6:7"A>Y?):D2^*U@NCV
+R<MOQ=]V(B6>LZYD-_T1U<@3W]A4(^$-W4]A#V")W6#.R"$;IR'@).46BN7$9>5D``#L`
 

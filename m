@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbUKOHHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbUKOHZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbUKOHHi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 02:07:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbUKOHHi
+	id S261504AbUKOHZr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 02:25:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261543AbUKOHZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 02:07:38 -0500
-Received: from mms3.broadcom.com ([63.70.210.38]:12551 "EHLO mms3.broadcom.com")
-	by vger.kernel.org with ESMTP id S261537AbUKOHHY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 02:07:24 -0500
-X-Server-Uuid: 062D48FB-9769-4139-967C-478C67B5F9C9
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: RE: [PATCH] pci-mmconfig fix for 2.6.9
-Date: Sun, 14 Nov 2004 23:07:13 -0800
-Message-ID: <B1508D50A0692F42B217C22C02D849720312DED5@NT-IRVA-0741.brcm.ad.broadcom.com>
-Thread-Topic: [PATCH] pci-mmconfig fix for 2.6.9
-Thread-Index: AcTK2HWxfKA0BgdSQi2vqMZEkf5hnwABXNwX
-From: "Michael Chan" <mchan@broadcom.com>
-To: "Grant Grundler" <grundler@parisc-linux.org>, "Andi Kleen" <ak@suse.de>
-cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       akpm@osdl.org, greg@kroah.com,
-       "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>
-X-WSS-ID: 6D868A281TG3124110-01-01
+	Mon, 15 Nov 2004 02:25:47 -0500
+Received: from fw.osdl.org ([65.172.181.6]:19404 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261504AbUKOHZl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 02:25:41 -0500
+Date: Sun, 14 Nov 2004 23:25:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc2 doesn't boot
+Message-Id: <20041114232523.2d157f22.akpm@osdl.org>
+In-Reply-To: <20041115040710.GA2235@stusta.de>
+References: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org>
+	<20041115040710.GA2235@stusta.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Grundler wrote:
- 
-> There are two tests in arch/i386/pci/mmconfig.c:pci_mmcfg_init() before
-> the raw_pci_ops is set to &pci_mmcfg. Perhaps some additional crude tests
-> could select a different set of pci_raw_ops to deal with posted writes
-> to mmconfig space. Someone more familiar with those chipsets might
-> find a more elegant solution.
+Adrian Bunk <bunk@stusta.de> wrote:
+>
+> 2.6.10-rc2 doesn't boot.
+> 
+>  It stops at the following place (from a 2.6.10-rc1-mm5 log):
+> 
+>  <--  snip  -->
+> 
+>  ...
+>  ACPI: PCI interrupt 0000:01:00.0[A] -> GSI 11 (level, low) -> IRQ 11
+>  ACPI: PS/2 Keyboard Controller [PS2K] at I/O 0x60, 0x64, irq 1
+>  ACPI: PS/2 Mouse Controller [PS2M] at irq 12
+>  serio: i8042 AUX port at 0x60,0x64 irq 12
+>  serio: i8042 KBD port at 0x60,0x64 irq 1
+>  Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing 
+>  disabled
+>  ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+>  parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE,EPP]
+>  parport0: irq 7 detected
+>  lp0: using parport0 (polling).
+>  io scheduler noop registered
+>  io scheduler anticipatory registered
+>  io scheduler deadline registered
+>  io scheduler cfq registered
+> 
+> 
+>  ---->  2.6.10-rc2 stops here
+> 
+> 
+>  loop: loaded (max 8 devices)
 
-Do you mean something like pci_mmcfg1 for Intel chipsets that implement non-posted mmconfig and pci_mmcfg2 for other chipsets that may implement posted mmconfig? pci_mmcfg2's write method will guarantee that the write has reached the target before returning. If pci_mmcfg2's write method uses read from the target to flush the write, we are back to the original problem of out-of-spec read when writing the PMCSR register. If the flush does not require reading from the target device, then it's fine.
- 
-Michael
-
-
- 
-
+Suggest you add initcall_debug to the kernel boot command line so we can
+see which subsystem is causing the hang.

@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265139AbSKNR0D>; Thu, 14 Nov 2002 12:26:03 -0500
+	id <S265074AbSKNRfJ>; Thu, 14 Nov 2002 12:35:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265140AbSKNR0D>; Thu, 14 Nov 2002 12:26:03 -0500
-Received: from otter.mbay.net ([206.55.237.2]:41226 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S265139AbSKNR0B>;
-	Thu, 14 Nov 2002 12:26:01 -0500
-Date: Thu, 14 Nov 2002 09:32:33 -0800 (PST)
-From: John Alvord <jalvo@mbay.net>
-To: Andi Kleen <ak@suse.de>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: module mess in -CURRENT
-In-Reply-To: <p731y5owj0x.fsf@oldwotan.suse.de>
-Message-ID: <Pine.LNX.4.20.0211140929080.28420-100000@otter.mbay.net>
+	id <S265094AbSKNRfI>; Thu, 14 Nov 2002 12:35:08 -0500
+Received: from kim.it.uu.se ([130.238.12.178]:62932 "EHLO kim.it.uu.se")
+	by vger.kernel.org with ESMTP id <S265074AbSKNRfH>;
+	Thu, 14 Nov 2002 12:35:07 -0500
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15827.57443.872245.136344@kim.it.uu.se>
+Date: Thu, 14 Nov 2002 18:41:55 +0100
+To: Daniel Podlejski <underley@underley.eu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dell Poweredge 2600 SMP
+In-Reply-To: <20021114171431.GA22647@witch.underley.eu.org>
+References: <20021114171431.GA22647@witch.underley.eu.org>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 Nov 2002, Andi Kleen wrote:
+Daniel Podlejski writes:
+ > Any ideas why Linux 2.4.19, 2.4.20-rc1 and -rc1-ac1 with megaraid
+ > driver from http://www.domsch.com/linux/megaraid/ detects four CPUs,
+ > when olny two are on board ?
 
-> Linus Torvalds <torvalds@transmeta.com> writes:
-> 
-> > (There are some other patches I'm still thinking about, notably kprobes
-> > and posix timers, but other than that my plate is fairly empty froma
-> > feature standpoint. And the kexec stuff I want others to test, at least
-> > now it's palatable to me).
-> 
-> How about the nanosecond stat stuff? It is needed for reliable make.
-> 
-> If I sent you a patch would you still consider it? It is not that intrusive, 
-> but needs straightforward editing in all file systems.
-> 
-Owens' kbuild-2.5 handled it a different way and didn't need exact
-timings. That is especially important since nanosecond time accuracy is
-impossible if you are handling a collection of machines doing the
-work. NTP is accurate, but not that accurate.
+Because
+1) it has two hyperthreaded Xeon processors, each of which contains
+   two logical CPUs, and
+2) you didn't disable hyperthreading in the BIOS.
 
-john
-
+Sigh. This is becoming a FAQ...

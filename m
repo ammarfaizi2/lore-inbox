@@ -1,219 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279554AbRJXMuQ>; Wed, 24 Oct 2001 08:50:16 -0400
+	id <S279555AbRJXNAR>; Wed, 24 Oct 2001 09:00:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279556AbRJXMuJ>; Wed, 24 Oct 2001 08:50:09 -0400
-Received: from ns.tasking.nl ([195.193.207.2]:34066 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id <S279554AbRJXMt7>;
-	Wed, 24 Oct 2001 08:49:59 -0400
-Date: Wed, 24 Oct 2001 14:49:09 +0200
-From: Frank van Maarseveen <fvm@altium.nl>
-To: linux-kernel@vger.kernel.org
-Subject: linux/drivers/acpi/include/platform/acgcc.h:103: warning: `wbinvd' redefined
-Message-ID: <20011024144909.A6970@espoo.tasking.nl>
-Reply-To: frank.van.maarseveen@altium.nl
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Subliminal-Message: Use Linux!
-Organization: ALTIUM Software BV
+	id <S279556AbRJXNAI>; Wed, 24 Oct 2001 09:00:08 -0400
+Received: from ns.suse.de ([213.95.15.193]:24581 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S279555AbRJXNAE>;
+	Wed, 24 Oct 2001 09:00:04 -0400
+Date: Wed, 24 Oct 2001 15:00:36 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: <frank.van.maarseveen@altium.nl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: linux/drivers/acpi/include/platform/acgcc.h:103: warning: `wbinvd'
+ redefined
+In-Reply-To: <20011024144909.A6970@espoo.tasking.nl>
+Message-ID: <Pine.LNX.4.30.0110241457350.31131-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux/include/asm/system.h:128: warning: this is the location of the previous definition
+On Wed, 24 Oct 2001, Frank van Maarseveen wrote:
 
-I get tons of these in both 2.4.12 and 2.4.13. Config:
+> linux/include/asm/system.h:128: warning: this is the location of the previous definition
+> I get tons of these in both 2.4.12 and 2.4.13. Config:
 
-CONFIG_X86=y
-CONFIG_ISA=y
-CONFIG_UID16=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_MODULES=y
-CONFIG_M586TSC=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_X86_USE_STRING_486=y
-CONFIG_X86_ALIGNMENT_16=y
-CONFIG_X86_TSC=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_NET=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_HOTPLUG=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PM=y
-CONFIG_ACPI=y
-CONFIG_PNP=y
-CONFIG_ISAPNP=y
-CONFIG_PNPBIOS=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_MD=y
-CONFIG_BLK_DEV_LVM=y
-CONFIG_PACKET=y
-CONFIG_NETLINK=y
-CONFIG_RTNETLINK=y
-CONFIG_NETLINK_DEV=y
-CONFIG_NETFILTER=y
-CONFIG_NETFILTER_DEBUG=y
-CONFIG_FILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_RTNETLINK=y
-CONFIG_NETLINK=y
-CONFIG_IP_MULTIPLE_TABLES=y
-CONFIG_IP_ROUTE_FWMARK=y
-CONFIG_IP_ROUTE_NAT=y
-CONFIG_IP_ROUTE_MULTIPATH=y
-CONFIG_IP_ROUTE_TOS=y
-CONFIG_IP_ROUTE_VERBOSE=y
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_LIMIT=y
-CONFIG_IP_NF_MATCH_MAC=y
-CONFIG_IP_NF_MATCH_MARK=y
-CONFIG_IP_NF_MATCH_MULTIPORT=y
-CONFIG_IP_NF_MATCH_TOS=y
-CONFIG_IP_NF_MATCH_TCPMSS=y
-CONFIG_IP_NF_MATCH_UNCLEAN=y
-CONFIG_IP_NF_MATCH_OWNER=y
-CONFIG_IP_NF_FILTER=y
-CONFIG_IP_NF_TARGET_REJECT=y
-CONFIG_IP_NF_TARGET_MIRROR=y
-CONFIG_IP_NF_MANGLE=y
-CONFIG_IP_NF_TARGET_TOS=y
-CONFIG_IP_NF_TARGET_MARK=y
-CONFIG_IP_NF_TARGET_LOG=y
-CONFIG_IP_NF_TARGET_TCPMSS=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_CMD640=y
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_SD_EXTRA_DEVS=40
-CONFIG_CHR_DEV_ST=y
-CONFIG_BLK_DEV_SR=y
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=y
-CONFIG_SCSI_DEBUG_QUEUES=y
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_LOGGING=y
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=8
-CONFIG_AIC7XXX_RESET_DELAY_MS=5000
-CONFIG_AIC7XXX_BUILD_FIRMWARE=y
-CONFIG_SCSI_SYM53C8XX=y
-CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS=4
-CONFIG_SCSI_NCR53C8XX_MAX_TAGS=32
-CONFIG_SCSI_NCR53C8XX_SYNC=20
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=y
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_VENDOR_3COM=y
-CONFIG_EL3=y
-CONFIG_VORTEX=y
-CONFIG_NET_PCI=y
-CONFIG_EEPRO100=y
-CONFIG_8139TOO=y
-CONFIG_PPP=y
-CONFIG_PPP_FILTER=y
-CONFIG_PPP_ASYNC=y
-CONFIG_PPP_DEFLATE=y
-CONFIG_PPP_BSDCOMP=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_EVDEV=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-CONFIG_SERIAL_EXTENDED=y
-CONFIG_SERIAL_MANY_PORTS=y
-CONFIG_SERIAL_SHARE_IRQ=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_MOUSE=y
-CONFIG_PSMOUSE=y
-CONFIG_NVRAM=y
-CONFIG_AGP=y
-CONFIG_AGP_I810=y
-CONFIG_DRM=y
-CONFIG_DRM_I810=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_REISERFS_FS=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_NFSD=y
-CONFIG_NFSD_V3=y
-CONFIG_SUNRPC=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_SOUND=y
-CONFIG_SOUND_ICH=y
-CONFIG_SOUND_OSS=y
-CONFIG_SOUND_SB=y
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_UHCI=y
-CONFIG_USB_OHCI=y
-CONFIG_USB_STORAGE=y
-CONFIG_USB_STORAGE_DEBUG=y
-CONFIG_USB_STORAGE_DPCM=y
-CONFIG_USB_PRINTER=y
-CONFIG_USB_WACOM=y
-CONFIG_USB_SCANNER=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_DEBUG_SLAB=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_DEBUG_BUGVERBOSE=y
+Fix below sent to Linus a few times. Its been in Alans tree for a while,
+and has been picked up by the ACPI guys a while ago iirc,
+So will probably eventually end up in -linus next time they merge
+with mainline.
+
+Dave.
+
+
+diff -urN --exclude-from=/home/davej/.exclude linux-dj/drivers/acpi/include/platform/acgcc.h linux-test/drivers/acpi/include/platform/acgcc.h
+--- linux-dj/drivers/acpi/include/platform/acgcc.h	Mon Sep 24 00:36:42 2001
++++ linux-test/drivers/acpi/include/platform/acgcc.h	Mon Sep 24 15:52:56 2001
+@@ -101,7 +101,6 @@
+ #define disable() __cli()
+ #define enable()  __sti()
+ #define halt()    __asm__ __volatile__ ("sti; hlt":::"memory")
+-#define wbinvd()  __asm__ __volatile__ ("wbinvd":::"memory")
+
+ /*! [Begin] no source code translation
+  *
+
 
 -- 
-Frank
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+
+

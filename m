@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262956AbUKYDcw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262954AbUKYDiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262956AbUKYDcw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 22:32:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbUKYDcw
+	id S262954AbUKYDiu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 22:38:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262957AbUKYDiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 22:32:52 -0500
-Received: from waste.org ([209.173.204.2]:64428 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262954AbUKYDct (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 22:32:49 -0500
-Date: Wed, 24 Nov 2004 19:06:27 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: George Anzinger <george@mvista.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nanosleep interrupted by ignored signals
-Message-ID: <20041125030627.GK2460@waste.org>
-References: <20041124213521.GJ2460@waste.org> <41A54731.2040607@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41A54731.2040607@mvista.com>
-User-Agent: Mutt/1.3.28i
+	Wed, 24 Nov 2004 22:38:50 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:37137 "EHLO
+	bne.snapgear.com") by vger.kernel.org with ESMTP id S262954AbUKYDir
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 22:38:47 -0500
+Message-ID: <41A55376.3010608@snapgear.com>
+Date: Thu, 25 Nov 2004 13:37:26 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Howells <dhowells@redhat.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Compound page overhaul
+References: <41A49940.6030104@snapgear.com>  <20041122155434.758c6fff.akpm@osdl.org> <11948.1101130077@redhat.com> <29356.1101201515@redhat.com> <20041123081129.3e0121fd.akpm@osdl.org> <20041123171039.GK2714@holomorphy.com> <30282.1101319407@redhat.com>
+In-Reply-To: <30282.1101319407@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 24, 2004 at 06:45:05PM -0800, George Anzinger wrote:
-> Matt Mackall wrote:
-> >Take the following trivial program:
-> >
-> >#include <unistd.h>
-> >
-> >int main(void)
-> >{
-> >	sleep(10);
-> >	return 0;
-> >}
-> >
-> >Run it in an xterm. Note that resizing the xterm has no effect on the
-> >process. Now do the same with strace:
-> >
-> >brk(0x80495bc)                          = 0x80495bc
-> >brk(0x804a000)                          = 0x804a000
-> >rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
-> >rt_sigaction(SIGCHLD, NULL, {SIG_DFL}, 8) = 0
-> >rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
-> >nanosleep({10, 0}, 0xbffff548)          = -1 EINTR (Interrupted system
-> >call)
-> >--- SIGWINCH (Window changed) ---
-> >_exit(0)                                = ?
-> >
-> >In short, nanosleep is getting interrupted by signals that are
-> >supposedly ignored when a process is being praced. This appears to be
-> >a long-standing bug.
-> >
-> >It also appears to be a long-known bug. I found some old discussion of this
-> >problem here but no sign of any resolution:
-> >
-> >http://www.ussg.iu.edu/hypermail/linux/kernel/0108.1/1448.html
-> >
-> >What's the current thinking on this?
+Hi David,
+
+David Howells wrote:
+> Greg Ungerer <gerg@snapgear.com>:
 > 
-> This should have been resolved with the 2.6 changes, in particular, the 
-> restart code.  What kernel are you using?
+>>The refcounting has been annoying me for a while, it just feels
+>>wrong. It has been done that way for a very long time (since 2.4.0
+>>IIRC). I am sure there was more to it back in the 2.4 but I don't
+>>think we need to do it like this any more.
+> 
+> 
+> It was like that in 2.4 also - where I first developed this arch and these mm
+> changes. The refcount-on-free bug is there also. I don't know why no one else
+> has hit it.
+> 
+> 
+>>I don't have any problem with what David has done so far though
+>>I need to test it more extensively first.
+> 
+> 
+> That'd be great! :-)
+> 
+> I need to look at dumping my 2.4 arch & changes into the 2.4-uc kernels too.
 
-Indeed it is. Forgot I still had 2.4 on the box in question, didn't
-notice the restart bit when comparing the 2.6 code against the thread
-above. Mea culpa.
+That would be good :-)
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Regards
+Greg
+
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com

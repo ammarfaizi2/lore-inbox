@@ -1,103 +1,176 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317261AbSH3UXT>; Fri, 30 Aug 2002 16:23:19 -0400
+	id <S317488AbSH3Uil>; Fri, 30 Aug 2002 16:38:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317488AbSH3UXT>; Fri, 30 Aug 2002 16:23:19 -0400
-Received: from adsl-67-112-202-24.dsl.sntc01.pacbell.net ([67.112.202.24]:2784
-	"HELO laura.worldcontrol.com") by vger.kernel.org with SMTP
-	id <S317261AbSH3UXS>; Fri, 30 Aug 2002 16:23:18 -0400
-From: brian@worldcontrol.com
-Date: Fri, 30 Aug 2002 13:27:15 -0700
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: My /dev/hda became /dev/hde after upgrading
-Message-ID: <20020830202715.GA2175@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-References: <20020829052637.GA2520@top.worldcontrol.com> <Pine.LNX.4.10.10208282323000.24156-100000@master.linux-ide.org>
+	id <S317489AbSH3Uil>; Fri, 30 Aug 2002 16:38:41 -0400
+Received: from nilus-1824.adsl.datanet.hu ([195.56.95.46]:31360 "EHLO
+	sunshine.trey.hu") by vger.kernel.org with ESMTP id <S317488AbSH3Uij>;
+	Fri, 30 Aug 2002 16:38:39 -0400
+Subject: 2.4.20-pre5-ac1: IDE DMA problem with Intel D845GVB, resource
+	collisions
+From: =?ISO-8859-1?Q?Micsk=F3_G=E1bor?= <trey@debian.szintezis.hu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 30 Aug 2002 22:42:49 +0200
+Message-Id: <1030740179.391.25.camel@sunshine>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10208282323000.24156-100000@master.linux-ide.org>
-User-Agent: Mutt/1.3.28i
-X-No-Archive: yes
-X-Noarchive: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 28, 2002 at 11:23:36PM -0700, Andre Hedrick wrote:
-> 
-> For now issue in your append line "ide=reverse".
-> This will get you by until it can be fixed.
+Hi!
 
-Thanks, that worked.
+I have a DMA problem with Intel D845GVB chipset. I use the latest BIOS
+for this mainboard (29.08.2002). I try with 2.4.20-pre5-ac1,
+2.4.20-pre4, but does not work. 
 
-An interesting note.  While things were running backwards, that
-is on /dev/hde the filesystem was very slow.  An operation
-that generally ran in about 5 seconds took about a minute.
-A large filesystem backup, generally taking about 5 minutes,
-took about 45 minutes.
+#hdparm -c 1 -d1 -m16 -X69 -k 1 /dev/hda
 
-As of reversing things back (/dev/hda) speed is back to normal.
+/dev/hda:
+ setting 32-bit I/O support flag to 1
+ setting multcount to 16
+ setting using_dma to 1 (on)
+ HDIO_SET_DMA failed: Operation not permitted
+ setting keep_settings to 1 (on)
+ setting xfermode to 69 (UltraDMA mode5)
+ multcount    = 16 (on)
+ I/O support  =  1 (32-bit)
+ using_dma    =  0 (off)
+ keepsettings =  1 (on)
 
-The system only seemed slowed on disk access.
+(2.4.20-pre4)
 
 
+#dmesg | less
 
-> On Wed, 28 Aug 2002 brian@worldcontrol.com wrote:
-> 
-> > While running 2.4.19-pre7-ac2 my system was happily buzzing away.
-> > 
-> > I upgraded to 2.4.19 and my /dev/hda became /dev/hde which caused
-> > various boot problems, which I worked around.
-> > 
-> > It seems clear that upon booting 2.4.19, the newer kernel recognized
-> > the "other" IDE controller on the MB, which 2.4.19-pre7-ac2 had not.
-> > 
-> > The manual that came with the MB said to use the IDE slots marked
-> > IDE0 / IDE1 if I wasn't going to use RAID.
-> > 
-> > If I wanted to use RAID use the slots marked RAID0/RAID1.
-> > 
-> > I was just wondering how linux decides which controller is first
-> > (hda-hdd) and which is second (hde-hdh).
-> > 
-> > Here is what I see from dmesg:
-> > 
-> > Uniform Multi-Platform E-IDE driver Revision: 6.31
-> > ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> > PDC20265: IDE controller on PCI bus 00 dev 70
-> > PDC20265: chipset revision 2
-> > PDC20265: not 100% native mode: will probe irqs later
-> >     ide0: BM-DMA at 0xb400-0xb407, BIOS settings: hda:pio, hdb:DMA
-> >     ide1: BM-DMA at 0xb408-0xb40f, BIOS settings: hdc:pio, hdd:pio
-> > VP_IDE: IDE controller on PCI bus 00 dev 89
-> > PCI: No IRQ known for interrupt pin A of device 00:11.1. Please try using pci=bi
-> > osirq.
-> > VP_IDE: chipset revision 6
-> > VP_IDE: not 100% native mode: will probe irqs later
-> > VP_IDE: VIA vt8233 (rev 00) IDE UDMA100 controller on pci00:11.1
-> >     ide2: BM-DMA at 0xb800-0xb807, BIOS settings: hde:DMA, hdf:pio
-> >     ide3: BM-DMA at 0xb808-0xb80f, BIOS settings: hdg:DMA, hdh:pio
-> > hde: ST380021A, ATA DISK drive
-> > hdg: RW-241040, ATAPI CD/DVD-ROM drive
-> > ide2 at 0x1f0-0x1f7,0x3f6 on irq 14
-> > ide3 at 0x170-0x177,0x376 on irq 15
-> > hde: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=9729/255/63, UDMA(100)
-> > Partition check:
-> >  hde: hde1 hde2 < hde5 hde6 >
-> > 
-> > -- 
-> > Brian Litzinger
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-> Andre Hedrick
-> LAD Storage Consulting Group
+[...]
 
--- 
-Brian Litzinger
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+ICH4: IDE controller on PCI bus 00 dev f9
+PCI: Device 00:1f.1 not available because of resource collisions
+ICH4: (ide_setup_pci_device:) Could not enable device.
+hda: IC35L080AVVA07-0, ATA DISK drive
+hdc: DVD-ROM DDU1621, ATAPI CD/DVD-ROM drive
+hdd: R/RW 4x4x32, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 160836480 sectors (82348 MB) w/1863KiB Cache, CHS=10011/255/63
+hdc: ATAPI 40X DVD-ROM drive, 512kB Cache
+Uniform CD-ROM driver Revision: 3.12
+Partition check:
+ hda: hda1 hda2 hda3 hda4
+
+[...]
+
+#lspci
+
+sunshine:/usr/src/linux# lspci
+00:00.0 Host bridge: Intel Corp.: Unknown device 2560 (rev 01)
+00:01.0 PCI bridge: Intel Corp.: Unknown device 2561 (rev 01)
+00:1d.0 USB Controller: Intel Corp.: Unknown device 24c2 (rev 01)
+00:1d.1 USB Controller: Intel Corp.: Unknown device 24c4 (rev 01)
+00:1d.2 USB Controller: Intel Corp.: Unknown device 24c7 (rev 01)
+00:1e.0 PCI bridge: Intel Corp. 82820 820 (Camino 2) Chipset PCI (rev
+81)
+00:1f.0 ISA bridge: Intel Corp.: Unknown device 24c0 (rev 01)
+00:1f.1 IDE interface: Intel Corp.: Unknown device 24cb (rev 01)
+00:1f.3 SMBus: Intel Corp.: Unknown device 24c3 (rev 01)
+01:00.0 VGA compatible controller: nVidia Corporation NV11 (GeForce2 MX)
+(rev b2)
+02:02.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev
+08)
+02:02.1 Input device controller: Creative Labs SB Live! (rev 08)
+02:04.0 Multimedia video controller: Brooktree Corporation Bt878 (rev
+11)
+02:04.1 Multimedia controller: Brooktree Corporation Bt878 (rev 11)
+02:08.0 Ethernet controller: Intel Corp.: Unknown device 1039 (rev 81)
+
+#cat /proc/pci
+
+sunshine:/usr/src# cat /proc/pci
+PCI devices found:
+  Bus  0, device   0, function  0:
+    Host bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset Host Bridge
+(rev 1).
+      Prefetchable 32 bit memory at 0xf8000000 [0xfbffffff].
+  Bus  0, device   1, function  0:
+    PCI bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset AGP Bridge
+(rev 1).
+      Master Capable.  Latency=32.  Min Gnt=8.
+  Bus  0, device  29, function  0:
+    USB Controller: Intel Corp. 82801DB USB (Hub #1) (rev 1).
+      IRQ 11.
+      I/O at 0xe800 [0xe81f].
+  Bus  0, device  29, function  1:
+    USB Controller: Intel Corp. 82801DB USB (Hub #2) (rev 1).
+      IRQ 9.
+      I/O at 0xe880 [0xe89f].
+  Bus  0, device  29, function  2:
+    USB Controller: Intel Corp. 82801DB USB (Hub #3) (rev 1).
+      IRQ 10.
+      I/O at 0xec00 [0xec1f].
+  Bus  0, device  30, function  0:
+    PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 129).
+      Master Capable.  No bursts.  Min Gnt=6.
+  Bus  0, device  31, function  0:
+    ISA bridge: Intel Corp. 82801DB ISA Bridge (LPC) (rev 1).
+  Bus  0, device  31, function  1:
+    IDE interface: Intel Corp. 82801DB ICH4 IDE (rev 1).
+      IRQ 10.
+      I/O at 0x0 [0x7].
+      I/O at 0x0 [0x3].
+      I/O at 0x0 [0x7].
+      I/O at 0x0 [0x3].
+      I/O at 0xffa0 [0xffaf].
+      Non-prefetchable 32 bit memory at 0x20000000 [0x200003ff].
+  Bus  0, device  31, function  3:
+    SMBus: Intel Corp. 82801DB SMBus (rev 1).
+      IRQ 5.
+      I/O at 0xe480 [0xe49f].
+  Bus  1, device   0, function  0:
+    VGA compatible controller: nVidia Corporation NV11 [GeForce2 MX]
+(rev 178).
+      IRQ 11.
+      Master Capable.  Latency=248.  Min Gnt=5.Max Lat=1.
+      Non-prefetchable 32 bit memory at 0xfd000000 [0xfdffffff].
+      Prefetchable 32 bit memory at 0xe8000000 [0xefffffff].
+  Bus  2, device   2, function  0:
+    Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 8).
+      IRQ 10.
+      Master Capable.  Latency=32.  Min Gnt=2.Max Lat=20.
+      I/O at 0xd880 [0xd89f].
+  Bus  2, device   2, function  1:
+    Input device controller: Creative Labs SB Live! MIDI/Game Port (rev
+8).
+      Master Capable.  Latency=32.  
+      I/O at 0xdc00 [0xdc07].
+  Bus  2, device   4, function  0:
+    Multimedia video controller: Brooktree Corporation Bt878 Video
+Capture (rev 17).
+      IRQ 5.
+      Master Capable.  Latency=32.  Min Gnt=16.Max Lat=40.
+      Prefetchable 32 bit memory at 0xf47fe000 [0xf47fefff].
+  Bus  2, device   4, function  1:
+    Multimedia controller: Brooktree Corporation Bt878 Audio Capture
+(rev 17).
+      IRQ 5.
+      Master Capable.  Latency=32.  Min Gnt=4.Max Lat=255.
+      Prefetchable 32 bit memory at 0xf47ff000 [0xf47fffff].
+  Bus  2, device   8, function  0:
+    Ethernet controller: Intel Corp. 82801BD PRO/100 VE (LOM) Ethernet
+Controller (rev 129).
+      IRQ 3.
+      Master Capable.  Latency=32.  Min Gnt=8.Max Lat=56.
+      Non-prefetchable 32 bit memory at 0xfeaff000 [0xfeafffff].
+      I/O at 0xd800 [0xd83f].
+
+
+Any idea? 
+
+Thx.
+
+Gabor Micsko
+

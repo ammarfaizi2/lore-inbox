@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVB0LFZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVB0LR7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbVB0LFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 06:05:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVB0LFZ
+	id S261351AbVB0LR7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 06:17:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVB0LR6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 06:05:25 -0500
-Received: from [211.87.226.12] ([211.87.226.12]:13038 "HELO qlsc.sdu.edu.cn")
-	by vger.kernel.org with SMTP id S261375AbVB0LFU (ORCPT
+	Sun, 27 Feb 2005 06:17:58 -0500
+Received: from fire.osdl.org ([65.172.181.4]:11210 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261351AbVB0LR5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 06:05:20 -0500
-IP: 211.87.234.238
-Message-ID: <422219ED.5060404@qlsc.sdu.edu.cn>
-Date: Sun, 27 Feb 2005 19:05:17 +0000
-From: Neil <neil@qlsc.sdu.edu.cn>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Yet another I/O modeling
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 27 Feb 2005 06:17:57 -0500
+Date: Sun, 27 Feb 2005 03:16:55 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: benh@kernel.crashing.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, nathanl@austin.ibm.com
+Subject: Re: [PATCH] PPC64: Generic hotplug cpu support
+Message-Id: <20050227031655.67233bb5.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0502010009010.3010@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.61.0502010009010.3010@montezuma.fsmlabs.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,all
-select/poll I/O modeling is fast,easy to use,it returns the number of fd 
-which are acitvity,but you should scan the fd array to find which fd is 
-ready,it costs a lot of time on a heavy load server.
+Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
+>
+> Patch provides a generic hotplug cpu implementation, with the only current 
+>  user being pmac.
 
-I proposal another I/O modeling,named eselect.
-struct eselect_struct{
-    unsigned long readbitmap[MAXBITMAPFD];//suppose the MAXBITMAPFD is 
-MAX OPEN                                         //FD NUMBER PER PROCESS
-    int ret;//-1 on error,non-negative return value is the number of     
-            //acitvity fds
-}
-we can use __set_bit(),__clear_bit(),__find_first_bit()....functions to 
-maintain the bitmap.
-So,you shouldnt scan the fd array any more.
+BUG: using smp_processor_id() in preemptible [00000001] code: swapper/0
+caller is .native_idle+0x30/0x60
 
-
+--- 25/arch/ppc64/kernel/idle.c~ppc64-generic-hotplug-cpu-support-fix	2005-02-27 11:12:47.000000000 -0700
++++ 25-akpm/arch/ppc64/kernel/idle.c	2005-02-27 11:13:03.000000000 -0700
+@@ -294,7 +294,7 @@ static int native_idle(void)
+ 		if (need_resched())
+ 			schedule();
+ 
+-		if (cpu_is_offline(smp_processor_id()) &&
++		if (cpu_is_offline(_smp_processor_id()) &&
+ 		    system_state == SYSTEM_RUNNING)
+ 			cpu_die();
+ 	}
+_
 

@@ -1,30 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271940AbRIMSK2>; Thu, 13 Sep 2001 14:10:28 -0400
+	id <S271935AbRIMSJ2>; Thu, 13 Sep 2001 14:09:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271941AbRIMSKS>; Thu, 13 Sep 2001 14:10:18 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:18441 "EHLO
-	mailout02.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S271940AbRIMSKH>; Thu, 13 Sep 2001 14:10:07 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Jansen <tim@tjansen.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: User Space Emulation of Devices
-Date: Thu, 13 Sep 2001 20:13:13 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <E15hIaN-0005Ta-00@the-village.bc.nu>
-In-Reply-To: <E15hIaN-0005Ta-00@the-village.bc.nu>
-Cc: linux-kernel@vger.kernel.org
+	id <S271940AbRIMSJT>; Thu, 13 Sep 2001 14:09:19 -0400
+Received: from puma.inf.ufrgs.br ([143.54.11.5]:49159 "EHLO inf.ufrgs.br")
+	by vger.kernel.org with ESMTP id <S271935AbRIMSJF>;
+	Thu, 13 Sep 2001 14:09:05 -0400
+Date: Thu, 13 Sep 2001 15:09:51 -0300 (EST)
+From: Roberto Jung Drebes <drebes@inf.ufrgs.br>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Stomping on Athlon bug
+In-Reply-To: <m1r8tbt5i7.fsf@frodo.biederman.org>
+Message-ID: <Pine.GSO.4.21.0109131505170.25973-100000@jacui>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <15hawC-0o9m5oC@fmrl05.sul.t-online.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 September 2001 00:34, Alan Cox wrote:
-> Didnt someone announce a kernel mode corba daemon a while back ?
+On 13 Sep 2001, Eric W. Biederman wrote:
 
-korbit.sourceforge.net
+> Jan Niehusmann <jan@gondor.com> writes:
+> 
+> > On Thu, Sep 13, 2001 at 08:21:49AM -0400, Arjan van de Ven wrote:
+> > > On Thu, Sep 13, 2001 at 02:19:38PM +0200, Jan Niehusmann wrote:
+> > > > But, as far as I understand, STPGNT will not be enabled unless ACPI
+> > > > power saving is in use, so setting the disconnect on STPGNT bit should
+> > > > not matter.
+> > > 
+> > > That is incorrect; it works perferctly well without ACPI.
+> > 
+> > Exactly what is incorrect?
+> > AFAICS, STPGNT is not triggered by hlt, so the linux idle function
+> > doesn't set STPGNT.
+> 
+> Hmm.  At least on the AMD76[12] you can trigger a processor disconnect
+> on hlt.  However the buggy BIOS had disconnects disabled so it doesn't/shouldn't
+> matter.
 
-bye...
+Perhaps this is connected to this question of the unofficial KT7A
+motherboard, available at http://www.viahardware.com/faq/kt7/kt7faq.htm:
+
+Why is my idle temperature so much higher under BIOS version 3R or later?
+
+With previous BIOS versions ABIT set a bit in the BIOS CMOS (offset 52 bit
+7) to "1" to enable the ACPI "HALT" function and cool down the CPU temp in
+idle mode.  This, whilst allowing cooler CPU operation, is against the
+advice of AMD and VIA.  Under earlier AMD processors, however, this
+modification allowed the system to idle cooler and had no ill effects.  
+However, it was been found with newer 133MHz FSB processors running at
+1333MHz and higher, that this software cooling can cause severe stability
+problems - especially under Windows 2000.  As a consequence, in all ABIT
+BIOS releases after version 3R, ABIT have set this bit to "0" - the value
+recommended by AMD and VIA.  This allows the motherboard to be stable with
+all AMD processors at the expense of an increase of 5-10 degrees
+Centigrade during idle (from approximately 35 degs C to 45 degs C).  This
+will not harm your motherboard or processor.  Note that this CMOS setting
+is widely used by other KT133/KT133A based motherboards.  Note that if
+your processor is slower than 1333MHz then you can revert to the previous
+setting of the BIOS by using H-Oda's WCPREDIT and WCPRSET programs to
+modify this register value.  If you are using Hex mode in these programs
+then change register 52 from 6B to EB to re-enable the software cooling.  
+See downloads page for programs.
+
+??
+
+
+--
+Roberto Jung Drebes <drebes@inf.ufrgs.br>
+Porto Alegre, RS - Brasil
+http://www.inf.ufrgs.br/~drebes/
 

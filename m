@@ -1,82 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbQLATZ4>; Fri, 1 Dec 2000 14:25:56 -0500
+	id <S129475AbQLATcQ>; Fri, 1 Dec 2000 14:32:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130109AbQLATZq>; Fri, 1 Dec 2000 14:25:46 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:42502 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129431AbQLATZg>;
-	Fri, 1 Dec 2000 14:25:36 -0500
-Date: Fri, 1 Dec 2000 18:47:46 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Eric Lowe <elowe@myrile.madriver.k12.oh.us>
-Cc: andrea@suse.de, sct@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Updated: raw I/O patches (v2.2)
-Message-ID: <20001201184746.R4978@redhat.com>
-In-Reply-To: <Pine.BSF.4.10.10011211115140.79234-100000@myrile.madriver.k12.oh.us>
-Mime-Version: 1.0
+	id <S130109AbQLATcH>; Fri, 1 Dec 2000 14:32:07 -0500
+Received: from windsormachine.com ([206.48.122.28]:54795 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S129475AbQLATbu>; Fri, 1 Dec 2000 14:31:50 -0500
+Message-ID: <3A27F570.D0FCB2E@windsormachine.com>
+Date: Fri, 01 Dec 2000 14:01:04 -0500
+From: Mike Dresser <mdresser@windsormachine.com>
+Organization: Windsor Machine & Stamping
+X-Mailer: Mozilla 4.75 [en] (Win98; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jesus Cea Avion <jcea@argo.es>
+CC: linux-kernel@vger.kernel.org, l-linux@calvo.teleco.ulpgc.es
+Subject: Re: AX64 too (was: Re: Dma problems - Aopen Ax34pro VIA chipset seagate 
+ drive)
+In-Reply-To: <3A1A354D.3927.5A09E7EB@localhost> <3A27EE7A.549543D5@argo.es>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.BSF.4.10.10011211115140.79234-100000@myrile.madriver.k12.oh.us>; from elowe@myrile.madriver.k12.oh.us on Tue, Nov 21, 2000 at 11:18:15AM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I've got a motherboard with the same Via686a chipset, and i've never had a
+problem with DMA when it's enabled.
+Using a pair of 20 gig IBM drives on the secondary, and a 3.2 quantum primary,
+17.2 gig maxtor.  All using DMA, all work.  Using ultra/33, I wasn't even
+aware this chipset is ultra/66 capable, until last night.  Going to acquire an
+ultra/66 cable, and test udma/66 mode tonight.  And find out what bios setting
+makes the thing not _allow_ dma at all.
 
-On Tue, Nov 21, 2000 at 11:18:15AM -0500, Eric Lowe wrote:
-> 
-> I have updated raw I/O patches with Andrea's and my fixes against 2.2.
-> They check for CONFIG_BIGMEM so they can be applied and compiled
-> without the bigmem patch.
+System used to be flaky with networking, did some memory timing adjustments,
+seems to be ok now.
+Celeron 300@450, 32 meg sdram.
 
-I've just posted an assembly of all of the outstanding raw IO bugfixes
-I know of, to 
+/dev/hdc:
 
-	ftp.uk.linux.org:/pub/linux/sct/fs/raw-io
-and	ftp.*.kernel.org:/pub/linux/kernel/people/sct/raw-io
+Model=IBM-DJNA-352030, FwRev=J58OA30K, SerialNo=GQ0GQF07566
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=34
+ BuffType=DualPortCache, BuffSize=1966kB, MaxMultSect=16, MultSect=off
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=39876480
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4
 
-in kiobuf-2.2.18pre24.tar.gz.  README is appended below.
+/dev/hdc:
+ Timing buffer-cache reads:   128 MB in  1.48 seconds = 86.49 MB/sec
+ Timing buffered disk reads:  64 MB in  4.33 seconds = 14.78 MB/sec
 
-Eric, this contains at least one bug fix that was missing from your
-patch set --- we need a flush_dcache_page() after obtaining the
-mapping on some CPUs (spotted by davem).
+Not too bad for an old 20 gig. Same speeds whether i have -c3 -u1 or not.
 
-I've kept the bigmem and non-bigmem versions separate.  Your
-CONFIG_BIGMEM code did some rather weird (though not strictly buggy)
-things in the case of a non-bigmem-enabled kernel.
+Turn DMA off, it gets slow though
 
-Linus and co are doing a set of cleanups for 2.4 dirty page handling,
-and I'll redo all of the fixes here for 2.4 once that is in place.
-The really important bugfix is the fault-handling one, and we can't do
-that reliably without the VM changes in place.
+/dev/hdc:
+Timing buffer-cache reads:   128 MB in  1.50 seconds = 85.33 MB/sec
+ Timing buffered disk reads:  64 MB in 14.90 seconds =  4.30 MB/sec
 
-Cheers,
- Stephen
+Jesus Cea Avion wrote:
 
-00README:
-This directory contains the following files:
-
-raw-2.2.18pre24.00.new-rawio		: Old (2.2.17, buggy) raw IO patches
-
-raw-2.2.18pre24.01.fix-ENXIO		: Fix return value at end of device
-raw-2.2.18pre24.02.fix-exports		: Export kiobuf symbols to modules
-raw-2.2.18pre24.03.fix-freebuf		: Fix freeing of bh'es on error
-raw-2.2.18pre24.04.fix-mapcopy		: Fix expanding of kiobuf lists
-raw-2.2.18pre24.05.fix-faultin		: Fix faulting/pinning of user pages
-raw-2.2.18pre24.06.fix-freebuf		: Wakup tasks when we free bh'es
-raw-2.2.18pre24.07.fix-dcache		: Flush cpu dcache
-raw-2.2.18pre24.08.fix-retry		: Fix error recovery on fault failure
-
-raw-2.2.18pre24.99.new-bigmem		: Support for bigmem configurations
-
-You can either apply all of these patches in order (the bigmem one is
-optional), or --- preferably --- just apply the ONE of the combined
-patches:
-
-raw-2.2.18pre24.FULL.diff		: raw IO for non-bigmem kernels
-raw-2.2.18pre24.FULL:BIGMEM.diff	: raw IO for bigmem kernels
-
---Stephen Tweedie <sct@redhat.com>, 1 Dec 2000
+> Please, if you respond, send me a copy to my mailbox, too.
+>
+> > Status: kernel 2.4.0-test10 (no patches added)
+> > Problem: getting dma problems - having to run system with no dma
+> > for disc access - seems to be a bus mastering problem.
+> > Hardware: Aopen AX34Pro mother board, Via chipset with via686a,
+> > Seagate Baracuda ATA66 20GB disc - Latest Bios for motherboard
+> > Sony CDU4811 cdrom
+>
+> I have a comparable problem with an Aopen AX64 motherboard. Chipset
+> via686a.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

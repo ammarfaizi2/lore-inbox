@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265127AbUH0OJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265139AbUH0OKS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265127AbUH0OJK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 10:09:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265139AbUH0OJK
+	id S265139AbUH0OKS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 10:10:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUH0OKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 10:09:10 -0400
-Received: from 213-229-38-66.static.adsl-line.inode.at ([213.229.38.66]:39130
-	"HELO mail.falke.at") by vger.kernel.org with SMTP id S265127AbUH0OJH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 10:09:07 -0400
-Message-ID: <412F4008.4050700@winischhofer.net>
-Date: Fri, 27 Aug 2004 16:07:04 +0200
-From: Thomas Winischhofer <thomas@winischhofer.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040819)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel 2.6.8 pwc patches and counterpatches
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Aug 2004 10:10:18 -0400
+Received: from main.gmane.org ([80.91.224.249]:43725 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265139AbUH0OKC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 10:10:02 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Karl Vogel <karl.vogel@seagha.com>
+Subject: Re: 2.6.8.1+patches: Still a memory leak with cdrecord
+Date: Fri, 27 Aug 2004 14:09:57 +0000 (UTC)
+Message-ID: <Xns9552A4ACE4078gmovkeb@80.91.224.252>
+References: <412F27C1.6030100@bio.ifi.lmu.de>
+Reply-To: karl.vogel@seagha.com
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: gateway.seagha.com
+User-Agent: Xnews/5.04.25
+X-Archive: encrypt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Frank Steiner <fsteiner-mail@bio.ifi.lmu.de> wrote in
+news:412F27C1.6030100@bio.ifi.lmu.de: 
 
- > On Fri, 27 Aug 2004, Prakash K. Cheemplavam wrote:
- >
- >>Intersting, that in the legal case, people are having a bad feeling, 
- >>but
- >>in illegal case of doing reverse-engineering, drivers make it into the
- >>kernel...
- >
- >
- >It's not a matter of legal/illegal, like Linus pointed out; it's a 
- >matter of respecting Nemosoft's work and not stabbing him in the back.
+> I'm not able to really track the problem down, because it is not
+> permanent. PCs that were leaking yesterday, went fine this morning
+> for the first 2-3 CDs, then started leaking again. Another PC
+> that was leaking first, is now burning CDs without problems. All
+> that with DMA always off for all the burners. I've also one
+> PC that is always burning CDs without any leak (and they
+> are all running the same kernel and have the same distribution/
+> packet selection installed...).
+> 
+> I've no idea what's causing that flip-flop between leaking/non-leaking
+> behaviour, but some bug is still there. What can I do to provide
+> useful debugging information?
+> 
+> Following is the output of the oom killer.
+
+I'm not sure, but this sounds a bit similar to a problem I am seeing. Are 
+you by any chance using the CFQ scheduler?! (elevator=cfq) If so, give 
+elevator=as or elevator=deadline a go.
+
+The problem I'm seeing is that processes that allocate large amounts of 
+memory, are OOM killed or cause swap storms.
+
+-- http://thread.gmane.org/gmane.linux.kernel/228156
 
 
-OK and if the authors of, say, SMP support say "back it out", Linux ends 
-up without SMP support. Cool.
 
-GPL is GPL. Period.
-
-I think it's enough courtesy to say "Thank you".
-
-
--- 
-Thomas Winischhofer
-Vienna/Austria
-thomas AT winischhofer DOT net	       *** http://www.winischhofer.net
-twini AT xfree86 DOT org

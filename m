@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268541AbUHaWj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268515AbUHaWnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268541AbUHaWj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 18:39:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268527AbUHaWil
+	id S268515AbUHaWnq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 18:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268996AbUHaWlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 18:38:41 -0400
-Received: from fw.osdl.org ([65.172.181.6]:25025 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269232AbUHaWd5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 18:33:57 -0400
-Date: Tue, 31 Aug 2004 15:36:49 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: ak@muc.de, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch]  kill __always_inline
-Message-Id: <20040831153649.7f8a1197.akpm@osdl.org>
-In-Reply-To: <20040831221348.GW3466@fs.tum.de>
-References: <20040831221348.GW3466@fs.tum.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 31 Aug 2004 18:41:04 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:15550 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S268165AbUHaWJX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 18:09:23 -0400
+Subject: Re: [patch] kernel sysfs events layer
+From: Robert Love <rml@ximian.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: greg@kroah.com, kay.sievers@vrfy.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20040831151029.449770ec.akpm@osdl.org>
+References: <1093988576.4815.43.camel@betsy.boston.ximian.com>
+	 <20040831150015.2e0e0906.akpm@osdl.org>
+	 <1093989601.4815.48.camel@betsy.boston.ximian.com>
+	 <20040831151029.449770ec.akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 31 Aug 2004 18:08:53 -0400
+Message-Id: <1093990133.4815.59.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 1.5.94 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@fs.tum.de> wrote:
->
-> An issue that we already discussed at 2.6.8-rc2-mm2 times:
-> 
-> 2.6.9-rc1 includes __always_inline which was formerly in  -mm.
-> __always_inline doesn't make any sense:
-> 
-> __always_inline is _exactly_ the same as __inline__, __inline and inline .
-> 
-> 
-> The patch below removes __always_inline again:
+On Tue, 2004-08-31 at 15:10 -0700, Andrew Morton wrote:
 
-But what happens if we later change `inline' so that it doesn't do
-the `always inline' thing?
+> That's unrelated.   I meant:
 
-An explicit usage of __always_inline is semantically different than
-boring old `inline'.
+Not unrelated - if it were not the case, I'd see your point.  But, ugh,
+add another level of redirection to save the duplication of three lines?
+
+	Robert Love
+
+

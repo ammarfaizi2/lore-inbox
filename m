@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129242AbRBASnb>; Thu, 1 Feb 2001 13:43:31 -0500
+	id <S129261AbRBASoV>; Thu, 1 Feb 2001 13:44:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130866AbRBASnV>; Thu, 1 Feb 2001 13:43:21 -0500
-Received: from [216.151.155.116] ([216.151.155.116]:21769 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S129242AbRBASnH>; Thu, 1 Feb 2001 13:43:07 -0500
-To: Chris Evans <chris@scary.beasts.org>
-Cc: Malcolm Beattie <mbeattie@sable.ox.ac.uk>, <linux-kernel@vger.kernel.org>,
-        <davem@redhat.com>
-Subject: Re: Serious reproducible 2.4.x kernel hang
-In-Reply-To: <Pine.LNX.4.30.0102011826060.397-100000@ferret.lmh.ox.ac.uk>
-From: Doug McNaught <doug@wireboard.com>
-Date: 01 Feb 2001 13:41:57 -0500
-In-Reply-To: Chris Evans's message of "Thu, 1 Feb 2001 18:28:45 +0000 (GMT)"
-Message-ID: <m3bssmgs96.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
+	id <S130866AbRBASoL>; Thu, 1 Feb 2001 13:44:11 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:10256 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129261AbRBASoC>; Thu, 1 Feb 2001 13:44:02 -0500
+Subject: Re: problem with devfsd compilation
+To: hiren_mehta@agilent.com
+Date: Thu, 1 Feb 2001 18:45:02 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <FEEBE78C8360D411ACFD00D0B747797188097A@xsj02.sjs.agilent.com> from "hiren_mehta@agilent.com" at Feb 01, 2001 11:37:59 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14OOjA-0004qS-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Evans <chris@scary.beasts.org> writes:
+> I am trying to compile devfsd on my system running RedHat linux 7.0
+> (kernel 2.2.16-22). I get the error "RTLD_NEXT" undefined. I am not
+> sure where this symbol is defined. Is there anything that I am missing 
+> on my system. 
 
-> [cc: davem because of the severity]
-> 
-> On Thu, 1 Feb 2001, Malcolm Beattie wrote:
-> 
-> > rid of the hang. So it looks as though some combination of
-> > shutdown(2) and SIGABRT is at fault. After the hang the kernel-side
-> 
-> Nope - I've nailed it to a _really_ simple test case. It looks like a
-> read() on a shutdown() unix dgram socket just kills the kernel. Demo code
-> below. I wonder if this affects UP or is SMP only?
+Sounds like a missing include in the devfsd code. That comes from
+dlfcn.h.
 
-Kills my UP K6-2 dead as a doornail (except for pings, as you say). 
+Alan
 
--Doug
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

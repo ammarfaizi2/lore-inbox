@@ -1,42 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289551AbSBEOvf>; Tue, 5 Feb 2002 09:51:35 -0500
+	id <S289559AbSBEO7q>; Tue, 5 Feb 2002 09:59:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289556AbSBEOv0>; Tue, 5 Feb 2002 09:51:26 -0500
-Received: from sun.fadata.bg ([80.72.64.67]:61190 "HELO fadata.bg")
-	by vger.kernel.org with SMTP id <S289549AbSBEOvU>;
-	Tue, 5 Feb 2002 09:51:20 -0500
-To: Jens Axboe <axboe@suse.de>
-Cc: Ralf Oehler <R.Oehler@GDAmbH.com>, Scsi <linux-scsi@vger.kernel.org>,
-        linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>,
-        Jens Axboe <axboe@kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: one-line-patch against SCSI-Read-Error-BUG()
-In-Reply-To: <XFMail.20020205153210.R.Oehler@GDAmbH.com>
-	<20020205152434.A16105@suse.de>
-X-No-CC: Reply to lists, not to me.
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <20020205152434.A16105@suse.de>
-Date: 05 Feb 2002 16:52:59 +0200
-Message-ID: <871yg07zg4.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S289563AbSBEO7h>; Tue, 5 Feb 2002 09:59:37 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:63449 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S289559AbSBEO7R>; Tue, 5 Feb 2002 09:59:17 -0500
+Date: Tue, 5 Feb 2002 15:56:32 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: linux-kernel@vger.kernel.org, Jan Yenya Kasprzak <kas@fi.muni.cz>
+Subject: [patch] fix 2.4.18-pre8 compile error in cosa.c
+Message-ID: <Pine.NEB.4.44.0202051546330.24218-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jens" == Jens Axboe <axboe@suse.de> writes:
+Hi Marcelo,
 
-Jens> On Tue, Feb 05 2002, Ralf Oehler wrote:
->> Hi, List
->> 
->> I think, I found a very simple solution for this annoying BUG().
+the patch below fixes the following compile error in 2.4.18-pre8:
 
-Jens> You fail to understand that the BUG triggering indicates that their is a
-Jens> BUG _somewhere_ -- the triggered BUG is not the bug itself, of course,
-Jens> that would be stupid :-)
+<--  snip  -->
 
-Erm, having a BUG() somewhere can be a bug by itself ;)
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=k6   -DKBUILD_BASENAME=cosa  -c -o cosa.o cosa.c
+cosa.c:109: parse error
 
-I think that's what he meant (regardless if he was right or not). 
+<--  snip  -->
+
+Line 109 is
+  #if LINUX_VERSION_CODE < KERNEL_VERSION(2,3,1)
+
+I was first thinking about including linux/version.h to fix it but since
+in another place where there's in the cosa.c in kernel 2.2.20 a check for
+2.2 kernels the code for the older kernels was already removed in the
+cosa.c in kernel 2.4.18-pre8 I assume that it's no longer intended to use
+this version of the file in 2.2 kernels.
+
+--- drivers/net/wan/cosa.c.old	Tue Feb  5 15:37:20 2002
++++ drivers/net/wan/cosa.c	Tue Feb  5 15:47:37 2002
+@@ -105,13 +105,6 @@
+ #include <net/syncppp.h>
+ #include "cosa.h"
+
+-/* Linux version stuff */
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,3,1)
+-typedef struct wait_queue *wait_queue_head_t;
+-#define DECLARE_WAITQUEUE(wait, current) \
+-	struct wait_queue wait = { current, NULL }
+-#endif
+-
+ /* Maximum length of the identification string. */
+ #define COSA_MAX_ID_STRING	128
+
+
+cu
+Adrian
+
 
 

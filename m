@@ -1,53 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262021AbSIYQad>; Wed, 25 Sep 2002 12:30:33 -0400
+	id <S262029AbSIYRDS>; Wed, 25 Sep 2002 13:03:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262022AbSIYQad>; Wed, 25 Sep 2002 12:30:33 -0400
-Received: from packet.digeo.com ([12.110.80.53]:3526 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262021AbSIYQac>;
-	Wed, 25 Sep 2002 12:30:32 -0400
-Message-ID: <3D91E5DC.665EB3AC@digeo.com>
-Date: Wed, 25 Sep 2002 09:35:40 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
+	id <S262030AbSIYRDS>; Wed, 25 Sep 2002 13:03:18 -0400
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:33472 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262029AbSIYRDR> convert rfc822-to-8bit; Wed, 25 Sep 2002 13:03:17 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: WOLK - Working Overloaded Linux Kernel
+To: wolk-devel@lists.sourceforge.net, wolk-announce@lists.sourceforge.net
+Subject: [ANNOUNCE] WOLK v3.6.1 UPDATE for v3.6 FINAL
+Date: Wed, 25 Sep 2002 19:07:22 +0200
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: frankeh@watson.ibm.com
-CC: Mark_H_Johnson@raytheon.com, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [PATCH] recognize MAP_LOCKED in mmap() call
-References: <OFC0C42F8D.E1325D58-ON86256C38.00695CD8@hou.us.ray.com> <3D88D9DE.2FB9A23D@digeo.com> <200209251142.29341.frankeh@watson.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Sep 2002 16:35:41.0236 (UTC) FILETIME=[963CEF40:01C264B1]
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209251905.45357.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hubertus Franke wrote:
-> 
-> ...
-> This is what the manpage says...
-> 
->        mlockall  disables  paging  for  all pages mapped into the
->        address space of the calling process.  This  includes  the
->        pages  of  the  code,  data  and stack segment, as well as
->        shared libraries, user space kernel  data,  shared  memory
->        and  memory  mapped files. All mapped pages are guaranteed
->        to be resident  in  RAM  when  the  mlockall  system  call
->        returns  successfully  and  they are guaranteed to stay in
->        RAM until the pages  are  unlocked  again  by  munlock  or
->        munlockall  or  until  the  process  terminates  or starts
->        another program with exec.  Child processes do not inherit
->        page locks across a fork.
-> 
-> Do you read that all pages must be faulted in apriori ?
+Hi there,
 
-For MCL_FUTURE.
+this is an update (v3.6.1) for v3.6 FINAL of WOLK. Sorry for the delay.
+I really wanted to fix the strange ALSA unresolved symbols problem :)
 
-> Or is it sufficient to to make sure non of the currently mapped
-> pages are swapped out and future swapout is prohibited.
 
-I'd say that we should try to make all the pages present.  But
-if it's a problem for (say) a hugepage implementation then it's
-unlikely that the world would end if these things were still
-demand paged in.
+Here we go, Changelog from v3.6 -> v3.6.1
+-----------------------------------------
+o   add:    Fair Scheduler v2.4.19 2nd edition          (Rik van Riel)
+o   fixed:  ext3 htree build/linking problem            (me)
+o   fixed:  ext2 compression (e2compr) build problem    (me)
+o   fixed:  cryptoloop.c: 'loop_iv_t'
+             previously declared here                   (me)
+o   fixed:  timepeg INTLAT build problem
+             when CONFIG_PREEMPT is set                 (me)
+o   fixed:  unix.o: unresolved symbols:
+             gr_handle_create/gr_check_create           (me)
+o   fixed:  HTB Configure.help entry missed
+             while updating to HTB3.6                   (me)
+o   fixed:  FINALLY: the unresolved symbols for
+             midi/synth stuff with ALSA                 (me)
+o   fixed:  irda-usb: irda-usb.c compile error          (me)
+o   fixed:  HID (full support) compile error            (me)
+o   fixed:  zftape: zftape-init.c compile error         (Eyal Lebedinsky)
+o   fixed:  missed AIO <-> grsec stuff in
+             include/asm-i386/a.out.h                   (Brad Spengler)
+o   update: htree ext3 v2.4.19-2-dxdir                  (Theodore Ts'o)
+o   update: CPU Frequency Scaling v2.4.19-4             (Dominik Brodowski)
+
+
+!!! Do not use htree in userspace with versions < 1.29 of e2fsprogs !!!
+    See e2fsprogs release notes for 1.29:
+    http://e2fsprogs.sourceforge.net/e2fsprogs-release.html#1.29
+
+    "Fixed a bug in e2fsck which could corrupt a directory when optimizing it
+     (via the -D option) or rebuiliding the hash tree index with a 1 in 512
+     probability, due to a fence post error."
+
+Debian packages (unofficial, by me) are available at:
+- http://wolk.sf.net/e2fsprogs/
+
+
+
+Release Info:
+-------------
+Date   : September, 25th, 2002
+Time   : 7:00 pm CET
+URL    : http://sf.net/projects/wolk
+
+
+md5sums:
+--------
+9ecbb8911ce3da94a0eaa2d132a60965 *linux-2.4.18-wolk3.6-to-3.6.1.patch.bz2
+c92b1a47785bd3bd96aad3debb721dd2 *linux-2.4.18-wolk3.6-to-3.6.1.patch.gz
+
+
+Direkt download links:
+----------------------
+http://prdownloads.sf.net/wolk/linux-2.4.18-wolk3.6-to-3.6.1.patch.bz2
+http://prdownloads.sf.net/wolk/linux-2.4.18-wolk3.6-to-3.6.1.patch.gz
+
+
+Have fun!
+
+-- 
+Kind regards
+        Marc-Christian Petersen
+
+http://sourceforge.net/projects/wolk
+
+PGP/GnuPG Key: 1024D/569DE2E3DB441A16
+Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
+Key available at www.keyserver.net. Encrypted e-mail preferred.

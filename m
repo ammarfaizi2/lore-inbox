@@ -1,74 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129595AbQK3SpF>; Thu, 30 Nov 2000 13:45:05 -0500
+        id <S130792AbQK3TYM>; Thu, 30 Nov 2000 14:24:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129539AbQK3Soy>; Thu, 30 Nov 2000 13:44:54 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:16 "EHLO
-        vger.timpanogas.org") by vger.kernel.org with ESMTP
-        id <S130873AbQK3SZ5>; Thu, 30 Nov 2000 13:25:57 -0500
-Date: Thu, 30 Nov 2000 11:43:49 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Christopher Friesen <cfriesen@nortelnetworks.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fasttrak100 questions...
-Message-ID: <20001130114349.A12564@vger.timpanogas.org>
-In-Reply-To: <8voa7g$d1r$1@forge.tanstaafl.de> <Pine.LNX.4.21.0011291152500.5109-100000@sol.compendium-tech.com> <20001129210830.J17523@forge.tanstaafl.de> <20001129165236.A9536@vger.timpanogas.org> <3A266EE7.4C734350@nortelnetworks.com>
+        id <S130073AbQK3TYC>; Thu, 30 Nov 2000 14:24:02 -0500
+Received: from [212.187.250.66] ([212.187.250.66]:37387 "HELO
+        proxy.jakinternet.co.uk") by vger.kernel.org with SMTP
+        id <S131016AbQK3TKL>; Thu, 30 Nov 2000 14:10:11 -0500
+To: linux-kernel@vger.kernel.org
+From: Jonathan Hudson <jonathan@daria.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3A266EE7.4C734350@nortelnetworks.com>; from cfriesen@nortelnetworks.com on Thu, Nov 30, 2000 at 10:14:47AM -0500
+X-Newsreader: knews 1.0b.1
+x-no-productlinks: yes
+X-Comment-To: Andrew Morton
+In-Reply-To: <UTC200011292154.WAA150996.aeb@aak.cwi.nl> <Pine.GSO.4.21.0011291716190.17068-100000@weyl.math.psu.edu> <3A26625E.446AE3D@uow.edu.au>
+Subject: Re: corruption
+X-Newsgroups: fa.linux.kernel
+Content-Type: text/plain; charset=iso-8859-1
+NNTP-Posting-Host: 192.168.1.1
+Message-ID: <b09.3a269edc.6bd12@trespassersw.daria.co.uk>
+Date: Thu, 30 Nov 2000 18:39:24 GMT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2000 at 10:14:47AM -0500, Christopher Friesen wrote:
-> "Jeff V. Merkey" wrote:
-> > 
-> > On Wed, Nov 29, 2000 at 09:08:30PM +0100, Henning P . Schmiedehausen wrote:
-> 
-> > > I use heavily patched kernels with lots of inhouse-stuff on a regular
-> > > base for my inhouse use and there is _no_ way for you to even get a
-> > > glimpse at it.  I don't give this to anyone, it's all just my personal
-> > > stuff.
-> > 
-> > Depending on the terms of your use of the code, the Copyright holder
-> > can obtain an order compelling you to hand over the code from a
-> > State or US District Court Judge, if you are using it under the terms
-> > of the GPL and fail to provide the modifications upon request, and you
-> > are shown to be "converting" business opportunities to your own
-> > benefit with it, GPL or no.
-> 
-> I think you should re-read the GPL.  You only have to provide source to
-> people to whome you have distributed your new binaries, and you only
-> have to provide that source if you are asked for it.  If you have some
-> code that you have written that is based on GPL'd code, and you are the
-> only person that ever runs the binaries, then there is no obligation for
-> you to make your code available to anybody.
 
-Depends on what terms the code is provided under.  Using GPL code in a 
-for profit enterprise and distributing it to customers does require 
-that the changes be provided upon request.  I have read the GPL, and 
-I've had a lot of lawyers around here read and analyze it too. 
+In article <3A26625E.446AE3D@uow.edu.au>,
+	Andrew Morton <andrewm@uow.edu.au> writes:
+AM> In thread "File corruption part deux", Lawrence Walton wrote:
+>> 
+>> my system has been acting slightly odd on all the pre 12 kernels
+>> with the fs going read only with out any messages until now.
+>> no opps or anything like that, but I did get this just now.
+>> 
+>> EXT2-fs error (device sd(8,2)): ext2_readdir:
+>> bad entry in directory #458430: directory entry
+>> across blocks - offset=152, inode=3393794200,
+>> rec_len=12440, name_len=73
+>>
+AM> 
+AM> 3393794200 == 0xca493098.  A kernel address. And 152 is 0x98,
+AM> which is equal to N * 0x20 + 0x18. Read on...
+AM> 
 
-:-)
+Don't know what these do for your analysis, observed on
+2.4.0test12pre2, compiling mozilla. 
 
-Jeff
+ EXT2-fs error (device ide0(3,11)):
+   ext2_readdir: bad entry in directory #409870: directory entry across blocks
+   - offset=88, inode=3284439128, rec_len=36952, name_len=196
 
-> 
-> Only once you distribute the software to others do you have to make the
-> code available, and even then you only have to make it available to
-> those who have the binaries.  Of course, they can then turn around and
-> do whatever they feel like with it, but thats a different issue.
-> 
-> 
-> -- 
-> Chris Friesen                    | MailStop: 043/33/F10  
-> Nortel Networks                  | work: (613) 765-0557
-> 3500 Carling Avenue              | fax:  (613) 765-2986
-> Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+ EXT2-fs error (device ide0(3,11)): 
+   ext2_add_entry: bad entry in directory #344273: rec_len % 4 != 0 - offset=0, 
+   inode=1769234798, rec_len=28271, name_len=85
+
+Recompiling it with 2.4.0test12pre3 last night did not cause any fs
+problems, at least that I've noticed.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

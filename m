@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317430AbSGIV5E>; Tue, 9 Jul 2002 17:57:04 -0400
+	id <S317435AbSGIWCm>; Tue, 9 Jul 2002 18:02:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317432AbSGIV5D>; Tue, 9 Jul 2002 17:57:03 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61190 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317430AbSGIV5C>; Tue, 9 Jul 2002 17:57:02 -0400
-Subject: Re: BKL removal
-To: rml@mvista.com (Robert Love)
-Date: Tue, 9 Jul 2002 23:21:25 +0100 (BST)
-Cc: wli@holomorphy.com (William Lee Irwin III),
-       ricklind@us.ibm.com (Rick Lindsley), greg@kroah.com (Greg KH),
-       haveblue@us.ibm.com (Dave Hansen),
-       kernel-janitor-discuss@lists.sourceforge.net (kernel-janitor-discuss),
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1026249175.1033.1178.camel@sinai> from "Robert Love" at Jul 09, 2002 02:12:55 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S317436AbSGIWCl>; Tue, 9 Jul 2002 18:02:41 -0400
+Received: from natwar.webmailer.de ([192.67.198.70]:13759 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S317435AbSGIWCk>; Tue, 9 Jul 2002 18:02:40 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.25 CONFIG_X86_UP_IOAPIC breaks keyboard
+Date: Wed, 10 Jul 2002 02:04:55 +0200
+User-Agent: KMail/1.4.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17S3MM-0005qO-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 8bit
+Message-Id: <200207100204.55749.arnd@bergmann-dalldorf.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Places that call schedule() explicitly holding the BKL are rare enough
-> we can probably handle them.  I have a patch that does so (thus turning
-> all cond_resched() calls into no-ops with the preemptive kernel -- my
-> goal).  The other implicit situations are near impossible to handle.
+Hi,
 
-There are lots of them hiding 8)
+After upgrading from 2.5.24 to 2.5.25 (actually bk changeset level
+1.628 + ide patches 1.633 from linux-ide.bkbits.net), my keyboard
+and mouse stopped working.
+Switching off CONFIG_X86_UP_IOAPIC made it work again.
 
-> Summary is, I would love to do things like dismantle the BKLs odd-ball
-> features... cleanly and safely.  Good luck ;)
+The machine is an IBM thinkpad A30p, which actually has an
+IO-APIC as far as I can tell from the old boot logs.
 
-You can actually do it with some testing to catch the missed cases. Move
-them to spinlocks, lob a check if the lock is held into the schedule code
-run it for a while through its various code paths, then remove the debug
-once you trust it
+	Arnd <><

@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317579AbSHEJus>; Mon, 5 Aug 2002 05:50:48 -0400
+	id <S317567AbSHEJuY>; Mon, 5 Aug 2002 05:50:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317581AbSHEJur>; Mon, 5 Aug 2002 05:50:47 -0400
-Received: from angband.namesys.com ([212.16.7.85]:53200 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S317579AbSHEJuq>; Mon, 5 Aug 2002 05:50:46 -0400
-Date: Mon, 5 Aug 2002 13:54:20 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: reiserfs blocks long on getdents64() during concurrent write
-Message-ID: <20020805135420.A30430@namesys.com>
-References: <20020805094429.A5897@namesys.com> <Pine.LNX.4.44.0208051106420.31879-100000@pc40.e18.physik.tu-muenchen.de>
+	id <S317579AbSHEJuY>; Mon, 5 Aug 2002 05:50:24 -0400
+Received: from ppp-217-133-218-75.dialup.tiscali.it ([217.133.218.75]:11199
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S317567AbSHEJuX>; Mon, 5 Aug 2002 05:50:23 -0400
+Subject: Re: [PATCH] [RFC] [2.5 i386] GCC 3.1 -march support, PPRO_FENCE
+	reduction, prefetch fixes and other CPU-related changes
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+       Linux-Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1028545510.17780.28.camel@irongate.swansea.linux.org.uk>
+References: <1028471237.1294.515.camel@ldb>  <20020804185952.GC1670@junk> 
+	<1028492596.1293.535.camel@ldb> 
+	<1028498075.15200.29.camel@irongate.swansea.linux.org.uk> 
+	<1028493814.26332.9.camel@ldb> 
+	<1028505732.15495.38.camel@irongate.swansea.linux.org.uk> 
+	<1028535126.1572.48.camel@ldb> 
+	<1028540954.16550.26.camel@irongate.swansea.linux.org.uk> 
+	<1028539877.1572.108.camel@ldb> 
+	<1028545510.17780.28.camel@irongate.swansea.linux.org.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-lOtG1ARrIyizMQkoA5XE"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 05 Aug 2002 11:53:13 +0200
+Message-Id: <1028541193.1572.114.camel@ldb>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208051106420.31879-100000@pc40.e18.physik.tu-muenchen.de>
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-On Mon, Aug 05, 2002 at 11:22:49AM +0200, Roland Kuhn wrote:
+--=-lOtG1ARrIyizMQkoA5XE
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> BTW: was it directly clear for you for what the do_journal_begin_r() was 
-> waiting? I'm not so familiar with fs coding, especially the locking...
+> If OOSTORE is defined then we can't safely use any mmx operations, so
+> this is all noise and its still the case no change is required
+Yes, this is only for future processors (e.g. out-order AMD/Intels or
+Winchips with extended MMX).
 
-I'd say that it's waiting for journal lock that was captured by kupdated
-(or something like that) doing periodic write_super() calls, when it thinks
-memory is low. Our tests some time ago shown that once memory is lower than
-some value, write_super() "method" is called for every superblock that
-have "dirty" flag set. In reiserfs that flushes the journal, and while journal
-is being flushed, nobody can create new transactions obviously, and since
-ls changes directory's atime in normal case, it want to open new transaction.
-Unfortunatelly dirty flag for reiserfs gets set way to often than necessary,
-we have some patches that should help this (from Chris Mason).
-You can try these for yourself too, for example from here:
-ftp://ftp.suse.com/pub/people/mason/patches/data-logging/02-commit_super-8-relocation.diff.gz 
+So are lfence and mfence OK?
 
-> > > this is to use a sync mount, and there I discovered something really 
-> > > strange: 2.4.19 gives me about 17MB/s while 2.4.18-3 (RedHat) was creeping 
-> > > slow with 10kB/s!
-> > 2.4.18-3 is particularly bad know for this exact problem (slow write speed),
-> > you should consider upgrading to at least 2.4.18-5 kernel from redhat updates.
-> > For me on plain 2.4.18 the problem is not visible that bad as for you.
-> > I.e. ls on a directory where I write this big file finishes in under
-> > half a second.
-> Do you use IDE or SCSI? It seems like the SCSI drivers can have up to 
 
-I tested on IDE.
+--=-lOtG1ARrIyizMQkoA5XE
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-> > You said 2.4.19 writes stuff faster for you, how about testing ls on that
-> > kernel?
-> The call trace was from 2.4.19, and the situation actually was much better 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-Ah, I thought call trace was from 2.4.18-3.
+iD8DBQA9TksJdjkty3ft5+cRAn6mAKCcUS0Okq/n7Xrddnx6yAfMgyNG9QCg1LY/
+ROvoIvYZYYPsRks19NOscZ8=
+=r/U6
+-----END PGP SIGNATURE-----
 
-> than in the 2.4.18-3 case, where it took about 1 minute for ls to come 
-> back. 
-
-So you might try the patch I mentioned or you can mount with nodiratime mount
-option to prevent updqting of directory atimes, but having atimes still to be
-updated on regular files at the same time.
-
-Bye,
-    Oleg
+--=-lOtG1ARrIyizMQkoA5XE--

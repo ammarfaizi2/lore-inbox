@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261995AbULCFCg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261993AbULCFKG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261995AbULCFCg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 00:02:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbULCFCf
+	id S261993AbULCFKG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 00:10:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbULCFKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 00:02:35 -0500
-Received: from fw.osdl.org ([65.172.181.6]:1255 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261996AbULCFCQ (ORCPT
+	Fri, 3 Dec 2004 00:10:06 -0500
+Received: from mail.aei.ca ([206.123.6.14]:42189 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S261993AbULCFKB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 00:02:16 -0500
-Message-ID: <41AFF28D.3030600@osdl.org>
-Date: Thu, 02 Dec 2004 20:58:53 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark Miller <mirell@gmail.com>
-CC: ram mohan <madhaviram123@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Contribute - How to
-References: <20041203042003.57961.qmail@web90007.mail.scd.yahoo.com>	 <41AFEB48.60800@osdl.org> <5d3341c0041202205640aef878@mail.gmail.com>
-In-Reply-To: <5d3341c0041202205640aef878@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 3 Dec 2004 00:10:01 -0500
+Subject: (kernel 2.6.9) insmod: -1 Invalid module format
+From: Stephane Coulombe Bisson <stephcoul@aei.ca>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1102051062.5992.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 03 Dec 2004 00:17:43 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Miller wrote:
-> On Thu, 02 Dec 2004 20:27:52 -0800, Randy.Dunlap <rddunlap@osdl.org> wrote:
-> 
->>ram mohan wrote:
-> 
-> 
->>>4. Can I suggest new features?
->>
->>Of course.  But part of the Linux culture is that
->>ideas/suggestions don't carry much weight.  It's
->>sometimes phrased as:
->>   Shut up and code.
->>or
->>   Show us the code.
->>so send patches too.  :)
-> 
-> 
-> While this may be true of those on the Linux Kernel Mailing List, I
-> would hope (from your statement of "Linux Culture", this would involve
-> things periphially related to Linux, such as KDE), that ideas and
-> suggestions would actually carry _some_ wait.
+Hi,
 
-Good or bad, I mostly use the word "Linux" to mean the kernel,
-not the entire collection of system software.
+I'm new to Linux module dev, I copied a very simple module from a book
+(http://lwn.net/Kernel/LDD2/ch02.lwn) and I can't insert it into the
+kernel.
 
-> Although I can fully understand developers of the Linux Kernel taking
-> this mindset, since it is not dealing with such things as the User
-> Interface.
+I found hundreds of bug reports about it on google without any solution.
+I must be doing something wrong... 
 
-Sure, it's up to each open source project to deal with feature
-requests or suggestions in whatever way that the people in
-the project(s) choose.
+/*----------mymodule.c-----------*/
+#define MODULE
+#include <linux/module.h>
+int init_module(void)  
+{ printk("<1>Hello, world\n"); return 0; }
+void cleanup_module(void) 
+{ printk("<1>Goodbye cruel world\n"); }
+/*----------EOF-----------*/
 
-> Just something I've had to deal with recently. Don't mind me.
+# gcc -c mymodule.c
+# insmod mymodule.o
+insmod: error inserting 'mymodule.o': -1 Invalid module format
 
 
--- 
-~Randy
+Thanks a lot
+
+steph
+

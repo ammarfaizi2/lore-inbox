@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129905AbRAQVwh>; Wed, 17 Jan 2001 16:52:37 -0500
+	id <S129716AbRAQV4H>; Wed, 17 Jan 2001 16:56:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130139AbRAQVw1>; Wed, 17 Jan 2001 16:52:27 -0500
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:27779 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S129905AbRAQVwR>; Wed, 17 Jan 2001 16:52:17 -0500
-Date: Wed, 17 Jan 2001 13:51:31 -0800
-From: Dan Kegel <dank@alumni.caltech.edu>
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-To: dean-list-linux-kernel@arctic.org, linux-kernel@vger.kernel.org,
-        Tony Finch <dot@dotat.at>
-Reply-to: dank@alumni.caltech.edu
-Message-id: <3A6613E3.218F588C@alumni.caltech.edu>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S129773AbRAQVz6>; Wed, 17 Jan 2001 16:55:58 -0500
+Received: from devnull.owl.de ([193.174.11.4]:19730 "EHLO devnull.owl.de")
+	by vger.kernel.org with ESMTP id <S129716AbRAQVzk>;
+	Wed, 17 Jan 2001 16:55:40 -0500
+Date: Wed, 17 Jan 2001 22:49:37 +0100
+From: Matthias Schniedermeyer <ms@citd.de>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Mainboard with Serverworks HE Chipset
+Message-ID: <20010117224937.A5765@citd.de>
+In-Reply-To: <Pine.LNX.4.20.0101170020001.811-100000@citd.owl.de> <20010117101450.Y25659@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <20010117101450.Y25659@mea-ext.zmailer.org>; from matti.aarnio@zmailer.org on Wed, Jan 17, 2001 at 10:14:50AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dean Gaudet wrote:
-> consider the case where you're responding to a pair of pipelined HTTP/1.1 
-> requests. with the HPUX and BSD sendfile() APIs you end up forcing a 
-> packet boundary between the two responses. this is likely to result in 
-> one small packet on the wire after each response. 
+> > Now my problem.
+> > 
+> > The Graphic-Card is a Geforce 2, Xfree is 4.02 (compiled under 2.2.17).
+> > 
+> > When i start X, everything is fine. When i go back to text-console and
+> > wait "some time" and then switch back to X the computer locks solid and i
+> > have to press the Big-Red Button. (Switching back to X after a "short"
+> > periode of time, at the text-console, works "normaly")
+> > 
+> > If anyone needs more information, i will happily provide them.
 > 
-> with the linux TCP_CORK API you only get one trailing small packet
+> 	I have same card, but haven't tried to do that kind of switching..
+> 	.. at least not recently.
 
-Tony Finch tells me that BSD also supports TCP_CORK; in fact, it had it first.
-He wrote:
-> BSDs that include T/TCP (pretty much all of them since 1995) have an
-> option called TCP_NOPUSH which is equivalent to Linux's TCP_CORK. A
-> pity the Linux people didn't know about it when they implemented their
-> version.
->  
-> #if defined(TCP_CORK) && !defined(TCP_NOPUSH)
-> #define TCP_NOPUSH TCP_CORK
-> #endif
+At work i use xterms, at home i use the console. (diffrent profiles <g>)
 
-Can anyone verify it resolves the problem Dean pointed out?
+> 	You don't mention which kernel you are running, and what userspace
+> 	package.
 
-Now, Linus, does that make you hate BSD less? :-)
-- Dan
+I knew i forgot important details. :-)
+
+Kernel is 2.4.1-pre7
+System is/was a SuSE 7.0, when i installed it a few month ago.
+
+
+
+
+Bis denn
+
+-- 
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,72 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265780AbUBCEMP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 23:12:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265794AbUBCEMP
+	id S265778AbUBCEKW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 23:10:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265780AbUBCEKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 23:12:15 -0500
-Received: from wblv-254-118.telkomadsl.co.za ([165.165.254.118]:63879 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S265780AbUBCEMN
+	Mon, 2 Feb 2004 23:10:22 -0500
+Received: from wblv-254-118.telkomadsl.co.za ([165.165.254.118]:62343 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S265778AbUBCEKR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 23:12:13 -0500
-Subject: Re: [ANNOUNCE] udev 015 release
+	Mon, 2 Feb 2004 23:10:17 -0500
+Subject: Re: udev depends on /usr
 From: Martin Schlemmer <azarah@nosferatu.za.org>
 Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
 To: Greg KH <greg@kroah.com>
-Cc: linux-hotplug-devel@lists.sourceforge.net,
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+       linux-hotplug-devel@lists.sourceforge.net,
        Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040202233243.GA1688@kroah.com>
+In-Reply-To: <20040202224419.GA1158@kroah.com>
 References: <20040126215036.GA6906@kroah.com>
-	 <1075401020.7680.25.camel@nosferatu.lan>  <20040202233243.GA1688@kroah.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-QDvhy9ueQsU5r3ebsqhu"
-Message-Id: <1075781541.6931.122.camel@nosferatu.lan>
+	 <20040202223221.GC2748@werewolf.able.es>  <20040202224419.GA1158@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-cOrtb3RS8G68KiTACUvG"
+Message-Id: <1075781426.6931.120.camel@nosferatu.lan>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 03 Feb 2004 06:12:22 +0200
+Date: Tue, 03 Feb 2004 06:10:26 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-QDvhy9ueQsU5r3ebsqhu
+--=-cOrtb3RS8G68KiTACUvG
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, 2004-02-03 at 01:32, Greg KH wrote:
-> On Thu, Jan 29, 2004 at 08:30:20PM +0200, Martin Schlemmer wrote:
-> > On Mon, 2004-01-26 at 23:50, Greg KH wrote:
+On Tue, 2004-02-03 at 00:44, Greg KH wrote:
+> On Mon, Feb 02, 2004 at 11:32:21PM +0100, J.A. Magallon wrote:
 > >=20
-> > I see latest version is very noisy, and although it is a good option
-> > to have, I think it should be tweakable (and recompiling is not always
-> > an option if you want some quick debugging).
+> > On 2004.01.26, Greg KH wrote:
+> > > I've released the 015 version of udev.  It can be found at:
+> > >  	kernel.org/pub/linux/utils/kernel/hotplug/udev-015.tar.gz
+> > >=20
 > >=20
-> > Attached is a simple patch to add a config option to udev.conf to toggl=
-e
-> > logging.
->=20
-> I'm going to hold off on this patch for now for a number of reasons:
-> 	- doesn't apply anymore
-> 	- is buggy as your follow on message stated
-> 	- I don't think it's really needed.
->=20
-> But feel free to convince me otherwise :)
+> > Little problem ;)
+> > I have some modules in /etc/modprobe.preload. Subject of this mail is
+> > ide-cd.
+> >=20
+> > When ide-cd gets loaded, the kernel/udev chain calls
+> > /etc/udev/scripts/ide-devfs.sh, wich uses 'expr'. I my system
+> > (Mandrake 10) and on a RedHat 9 'expr' lives in /usr/bin, and /usr can
+> > be still unmounted when rc.modules is called...
+> >=20
+> > Solution ? Change udev, change coreutils locations...
 >=20
 
-I'll try again with 016 =3D)
+Maybe try to change:
+
+ HOST=3D`expr ${HOST} - 1`
+
+to
+
+ Host=3D$((HOST - 1))
+
+?  It should be sh compatible, but having used bash too long, I
+am not sure 8) (although sh -c 'foo=3D2; echo $((foo + 1))' work
+with bash in sh mode ..)
+
+
+Cheers,
 
 --=20
 Martin Schlemmer
 
---=-QDvhy9ueQsU5r3ebsqhu
+--=-cOrtb3RS8G68KiTACUvG
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBAHx+lqburzKaJYLYRAtCkAKCbsQQMXshahTc09WUIUaPRwaCotQCdFp2f
-ZS2nGi79aGcOcwkX+Fi9vWc=
-=DD4B
+iD8DBQBAHx8yqburzKaJYLYRAgqEAJ0ZX7DoL5URVfKb3kwknS5Mw8SCwgCeP0T3
+LKLfKua+rwkIgJ9WhOAodOk=
+=Rd3y
 -----END PGP SIGNATURE-----
 
---=-QDvhy9ueQsU5r3ebsqhu--
+--=-cOrtb3RS8G68KiTACUvG--
 

@@ -1,42 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262294AbUCLQhI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 11:37:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbUCLQhH
+	id S262293AbUCLQiz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 11:38:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbUCLQiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 11:37:07 -0500
-Received: from main.gmane.org ([80.91.224.249]:32926 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262294AbUCLQhE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 11:37:04 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Mike Hearn <mh@codeweavers.com>
-Subject: Re: [PATCH] binfmt_elf.c allow .bss with no access (p---)
-Date: Fri, 12 Mar 2004 16:42:11 +0000
-Organization: CodeWeavers, Inc
-Message-ID: <pan.2004.03.12.16.42.11.387702@codeweavers.com>
-References: <1078508281.3065.33.camel@linux.littlegreen> <404A1C71.3010507@redhat.com> <1078607410.10313.7.camel@linux.littlegreen> <m1brn8us96.fsf@ebiederm.dsl.xmission.com> <404C0B57.6030607@BitWagon.com> <20040308080615.GS31589@devserv.devel.redhat.com> <4050047F.5010808@BitWagon.com> <pan.2004.03.11.14.23.07.585954@codeweavers.com> <4050BBA1.2080804@BitWagon.com>
-Reply-To: mike@theoretic.com
+	Fri, 12 Mar 2004 11:38:55 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:55309
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262293AbUCLQi1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 11:38:27 -0500
+Date: Fri, 12 Mar 2004 17:39:10 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Rik van Riel <riel@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: anon_vma RFC2
+Message-ID: <20040312163910.GZ30940@dualathlon.random>
+References: <20040312155652.GW30940@dualathlon.random> <Pine.LNX.4.44.0403121602520.5118-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: e-ucs036.dur.ac.uk
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0403121602520.5118-100000@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Mar 2004 11:18:57 -0800, John Reiser wrote:
-> Yes, because the patch considers each PT_LOAD with p_filesz < p_memsz
-> to have a "local" .bss.  This is more general than plain 2.6.3 which
-> creates only one "global" BSS after accumulating information from all
-> of the PT_LOAD.
+On Fri, Mar 12, 2004 at 04:12:10PM +0000, Hugh Dickins wrote:
+> > you're right about vma_split, the way I implemented it is wrong,
+> > basically the as.vma/PageDirect idea is falling apart with vma_split.
+> > I should simply allocate the anon_vma without passing through the direct
+> 
+> Yes, that'll take a lot of the branching out, all much simpler.
 
-Fantastic. I'm afraid I'm unfamiliar with the kernel development process,
-how do I track the patch to find out when it's checked in and which
-releases it's available in (we'd really like 2.4 as well, though it may be
-too late to make it worthwhile for now....)
+indeed.
 
-thanks -mike
+> Simpler still to allocate it earlier?  Perhaps too wasteful.
 
+one trouble with allocate it earlier is that insert_vm_struct would need
+to return a -ENOMEM retval, plus things like MAP_PRIVATE don't
+necessairly need an anon_vma ever (true anon mappings tends to need it
+always instead ;).
+
+So I will have to add a anon_vma_prepare(vma) near all SetPageAnon.
+that's easy.  Infact I may want to coalesce the two things together, it
+will look like:
+
+int anon_vma_prepare_page(vma, page) {
+	if (!vma->anon_vma) {
+		vma->anon_vma = anon_vma_alloc()
+		if (!vma->anon_vma)
+			return -ENOMEM;
+		/* single threaded no locks here */
+		list_add(&vma->anon_vma_node, &anon_vma->anon_vma_head);
+	}
+	SetPageAnon(page);
+
+	return 0;
+}
+
+I will have to handle a retval failure from there, that's the only
+annoyance of removing the PageDirect optimization, I really did the
+PageDirect mostly to leave all the anon_vma allocations to fork().
+
+Now it's the exact opposite, fork will never need to allocate any
+anon_vma anymore, it will only boost the page->mapcount.

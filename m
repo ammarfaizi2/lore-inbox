@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129348AbQLaACL>; Sat, 30 Dec 2000 19:02:11 -0500
+	id <S129348AbQLaA2n>; Sat, 30 Dec 2000 19:28:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135244AbQLaAB7>; Sat, 30 Dec 2000 19:01:59 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:31506 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S129348AbQLaABs>;
-	Sat, 30 Dec 2000 19:01:48 -0500
-From: Daniel Phillips <phillips@innominate.de>
-To: Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [RFC] Generic deferred file writing
-Date: Sun, 31 Dec 2000 00:12:03 +0100
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0012301628120.4082-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0012301628120.4082-100000@weyl.math.psu.edu>
+	id <S129431AbQLaA2e>; Sat, 30 Dec 2000 19:28:34 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:15320 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129348AbQLaA2S>;
+	Sat, 30 Dec 2000 19:28:18 -0500
+Date: Sat, 30 Dec 2000 18:57:43 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Ton Hospel <linux-kernel@ton.iguana.be>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: multiple mount of devices possible 2.4.0-test1 -   
+ 2.4.0-test13-pre4
+In-Reply-To: <92lpm4$nvr$1@post.home.lunix>
+Message-ID: <Pine.GSO.4.21.0012301829190.4082-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Message-Id: <0012310029010A.00966@gimli>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Dec 2000, Alexander Viro wrote:
-> Well, see above. I'm pretty nervous about breaking the ordering of metadata
-> allocation. For pageout() we don't have such ordering. For write() we
-> certainly do. Notice that reserving disk space upon write() and eating it
-> later is _very_ messy job - you'll have to take care of situations when
-> we reserve the space upon write() and get pageout do the real allocation.
-> Not nice, since pageout has no way in hell to tell whether it is eating
-> from a reserved area or just flushing the mmaped one. We could keep the
-> per-bh "reserved" flag to fold that information into the pagecache, but
-> IMO it's simply not worth the trouble. If some filesystems wants that -
-> hey, it can do that right now. Just make ->prepare_write() do reservations
-> and let ->commit_write() mark the page dirty. Then ->writepage() will
-> eventually flush it.
 
-This is a refinement of the idea and some abstraction like that is
-clearly needed, and maybe that is exactly the right one.  For now I'm
-interested in putting this on the table so that we can check the
-stability and performance, maybe uncover come more bugs, then start
-going after some of the things that need to be done to turn it into a
-useful option.
 
-P.S., I humbly apologize for writing (!offset && bytes == PAGE_SIZE)
-when I could have just written (bytes == PAGE_SIZE).
+On Sat, 30 Dec 2000, Ton Hospel wrote:
 
--- 
-Daniel
+> It should still need a special flag or something, since it's
+> impossible for userspace to check this atomically.
+
+To check _what_? Having the same tree mounted in several places is
+allowed. End of story. Atomicity of any kind is a non-issue - if you
+have processes that do not cooperate and do random mounts you are
+getting exactly what you are asking for.
+
+BTW, mount(2) is outside of POSIX scope. Ditto for SuS, so references to
+standards are not likely to work. Not allowing multiple mounts of the same
+fs was an artifact of original namei() implementation. At some point
+(late 80s) it had been fixed by Bell Labs folks in their branch. In Linux
+it had been fixed during the last spring. That's it. You were never promised
+that multiple mounts will not work. Moreover, in special cases they did work
+since long - e.g. Linux procfs could be mounted in several places since
+'94, if not earlier. AFAIK NFS implementations allowed the same thing
+since mid-80s...
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

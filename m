@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265691AbTFNRII (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 13:08:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265692AbTFNRII
+	id S265689AbTFNRFq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 13:05:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265691AbTFNRFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 13:08:08 -0400
-Received: from netmail02.services.quay.plus.net ([212.159.14.221]:57265 "HELO
-	netmail02.services.quay.plus.net") by vger.kernel.org with SMTP
-	id S265691AbTFNRIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 13:08:05 -0400
-From: "Riley Williams" <Riley@Williams.Name>
-To: "Greg KH" <greg@kroah.com>, "David S. Miller" <davem@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: e1000 performance hack for ppc64 (Power4)
-Date: Sat, 14 Jun 2003 18:21:56 +0100
-Message-ID: <BKEGKPICNAKILKJKMHCAGEEKEFAA.Riley@Williams.Name>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+	Sat, 14 Jun 2003 13:05:46 -0400
+Received: from granite.he.net ([216.218.226.66]:38155 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S265689AbTFNRFq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jun 2003 13:05:46 -0400
+Date: Sat, 14 Jun 2003 10:19:18 -0700
+From: Greg KH <greg@kroah.com>
+To: "David S. Miller" <davem@redhat.com>, linux_news-admin@nextphere.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: e1000 performance hack for ppc64 (Power4)
+Message-ID: <20030614171918.GA3539@kroah.com>
+References: <20030613.224122.104034261.davem@redhat.com> <5.1.0.14.2.20030614154954.026b4768@mira-sjcm-3.cisco.com> <20030613.230850.85410095.davem@redhat.com> <20030613.231418.39160686.davem@redhat.com> <20030614170848.GA3324@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20030614170848.GA3324@kroah.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg.
+On Sat, Jun 14, 2003 at 10:08:49AM -0700, Greg KH wrote:
+> On Fri, Jun 13, 2003 at 11:14:18PM -0700, David S. Miller wrote:
+> > 
+> > Folks, can we remove whatever member of this CC: list creates
+> > bounces that say:
+> > 
+> > Your message to Linux_news awaits moderator approval
+> 
+> It's someone subscribed to linux-kernel@vger.kernel.org that causes
+> this.
 
- >> Folks, can we remove whatever member of this CC: list creates
- >> bounces that say:
- >>
- >> Your message to Linux_news awaits moderator approval
+And the offender is:	linux_news@nextphere.com
 
- > It's someone subscribed to linux-kernel@vger.kernel.org that
- > causes this.
- >
- > I've complained to the admin of that mail-news gateway that is
- > barfing on too many CC: members in the past to not do this, but
- > it doesn't seem like they are listening...
+Have fun...
 
-If true, why not just unsub the said gateway from L-K and refuse
-to resub them until they clean up their act. That's what would
-happen with anybody else, after all...
-
-Best wishes from Riley.
----
- * Nothing as pretty as a smile, nothing as ugly as a frown.
-
----
-Outgoing mail is certified Virus Free.
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.489 / Virus Database: 288 - Release Date: 10-Jun-2003
-
+greg k-h

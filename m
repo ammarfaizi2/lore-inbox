@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262856AbRFFNKn>; Wed, 6 Jun 2001 09:10:43 -0400
+	id <S263011AbRFFNZY>; Wed, 6 Jun 2001 09:25:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262923AbRFFNKd>; Wed, 6 Jun 2001 09:10:33 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:31196 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S262856AbRFFNKT>;
-	Wed, 6 Jun 2001 09:10:19 -0400
-Date: Wed, 6 Jun 2001 15:10:11 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200106061310.PAA14058@harpo.it.uu.se>
-To: remi@a2zis.com
-Subject: Re: 2.4.5-ac8 hardlocks when going to standby
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+	id <S263141AbRFFNZO>; Wed, 6 Jun 2001 09:25:14 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:42703 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S263011AbRFFNZF>; Wed, 6 Jun 2001 09:25:05 -0400
+Date: Wed, 6 Jun 2001 15:09:11 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+cc: Tom Vier <tmv5@home.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Linux 2.4.5-ac6
+In-Reply-To: <20010606093700.A1445@jurassic.park.msu.ru>
+Message-ID: <Pine.GSO.3.96.1010606115046.23232A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Jun 2001 23:15:49 +0200, Remi Turk wrote:
+On Wed, 6 Jun 2001, Ivan Kokshaysky wrote:
 
->On Tue, Jun 05, 2001 at 09:37:52PM +0100, Alan Cox wrote:
->> > 2.4.5-ac[4678] all lock hard (no sysreq) when pushing my
->> > power-button (setup from the bios to go to standby) or
->> > when running apm --standby. (apm version 3.0final, RH6.2)
->> > apm --suspend works the way it should.
->> > 
->> > 2.4.5/2.4.6-pre1 don't hardlock.
->> 
->> Are you using the same build options for both
->> What machine is this - laptop ?
->
->It's not a laptop.
->Tbird 950 + Abit KT7 (KT133)
->
->UP APIC is enabled in -ac[4678] and emu10k1 is the in-kernel
+> > No need to patch arch_get_unmapped_area(), but OSF/1 compatibility code
+> > might need fixing.  I suppose an OSF/1 binary must have an appropriate
+> > flag set in its header after building with the -taso option so that the
+> > system knows the binary wants 32-bit addressing.
+> 
+> I'm not sure if COFF headers have such flag at all. I'll check this.
 
-and later quoted Alan as saying:
+ Then how does OSF/1, especially the dynamic linker, know if a binary
+needs 32-bit addressing?  I suppose we could use the same way of
+selection.
 
-> On Tue, Jun 05, 2001 at 10:18:07PM +0100, Alan Cox wrote:
-> > Thanks. UP-APIC is a real candidate for this case.
+ Hmm...:
 
-Actually, I suspect apm.c is at fault here. Suspend works,
-which proves that the PM code in apic.c and nmi.c works.
+$ uname -mprsv
+OSF1 V4.0 1091 alpha alpha
+$ file /usr/bin/X11/real-netscape
+/usr/bin/X11/real-netscape:     COFF format alpha dynamically linked,
+demand paged executable or object module stripped - version 3.11-8
+$ odump -D /usr/bin/X11/real-netscape | grep FLAGS
+                       FLAGS: 0x40000001
+$ odump -D /usr/bin/X11/xterm | grep FLAGS
+                       FLAGS: 0x00000001
 
-But note how apm.c:send_event() ignores standby events and fails
-to propagate them to PM clients. Thus, Remi's box will have an
-activated local APIC and live NMI watchdog when the APM BIOS
-finally gets to do whatever it does at standby.
-It is fatal to have an active local APIC and NMI watchdog at suspend,
-and I can only assume that this is true for standby as well.
+A wild guess: the 32-bit flag is bit 30.
 
-Please try changing apm.c:send_event() to propagate standbys to PM
-clients just like suspends. Does this fix the problem?
+ A second attempt (after a bit of searching in /usr/include):
 
-(Any why use standby in the first place? Any reason you don't
-want to / can't use suspend?)
+$ grep ADDRESSES /usr/include/elf_mips.h
+#define RHF_USE_31BIT_ADDRESSES     0x40000000
 
-/Mikael
+Ah, here it is.  Remember OSF/1 was running on MIPS (DECstation) first and
+they never used ELF but apparently reused a few of its properties.
+
+ So what is needed is already in place and ready to use.
+
+  Maciej
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+

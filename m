@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262078AbVAOBMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262105AbVAOBMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262078AbVAOBMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 20:12:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbVAOBJI
+	id S262105AbVAOBMY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 20:12:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbVAOBJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 20:09:08 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:20673 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262089AbVAOBGp (ORCPT
+	Fri, 14 Jan 2005 20:09:36 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:5400 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262078AbVAOBF2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 20:06:45 -0500
-Date: Sat, 15 Jan 2005 02:06:32 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Karim Yaghmour <karim@opersys.com>
-cc: Andi Kleen <ak@muc.de>, Nikita Danilov <nikita@clusterfs.com>,
-       linux-kernel@vger.kernel.org, Tom Zanussi <zanussi@us.ibm.com>
-Subject: Re: 2.6.11-rc1-mm1
-In-Reply-To: <41E8358A.4030908@opersys.com>
-Message-ID: <Pine.LNX.4.61.0501150101010.30794@scrub.home>
-References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de>
- <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de>
- <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home>
- <41E8358A.4030908@opersys.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 14 Jan 2005 20:05:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Q6m/wICnsc2AYxREhQo3vTTiUvMFzlm/BJ6p6wfGATq/uVykZatL5Lh9db3fnhJ4LzPq6Jjbxi8Nby80GlvAxZoxxq22h1oh6aTe0Tdn3m7Au+5QLvySdNGQTEai4Aca4yAj/yjwoOjsA/YjfeZSTdQuBQPTMJdTe5UAPucRplU=
+Message-ID: <58cb370e05011417057bae2e@mail.gmail.com>
+Date: Sat, 15 Jan 2005 02:05:27 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Gunther Mayer <gunther.mayer@gmx.net>
+Subject: Re: [PATCH-2.6.10] ide-lib printk readability fix
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <41E07F55.8030803@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <41E07F55.8030803@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 08 Jan 2005 16:48:21 -0800, Gunther Mayer <gunther.mayer@gmx.net> wrote:
+> Hi,
+> this improves logic and readability:
+> - remove blank from: AbortedCommand (as other flags)
+> - add blank and {} to error= line
+> - clean up: remove 2 lines and extra printk
+> 
+> before:
+>   hdd: status error: status=0x7f { DriveReady DeviceFault SeekComplete
+> DataRequest CorrectedError Index Error }
+>   hdd: status error: error=0x7fIllegalLengthIndication EndOfMedia
+> Aborted Command MediaChangeRequested LastFailedSense 0x07
+> 
+> after:
+>   hdd: status error: status=0x7f { DriveReady DeviceFault SeekComplete
+> DataRequest CorrectedError Index Error }
+>   hdd: status error: error=0x7f { IllegalLengthIndication EndOfMedia
+> AbortedCommand MediaChangeRequested LastFailedSense=0x07 }
+> 
+> Please apply.
 
-On Fri, 14 Jan 2005, Karim Yaghmour wrote:
-
-> As you can see, most of this is already used in one way or another by
-> LTT. The only thing LTT doesn't use is the dynamic resizing, but as was
-> said earlier in this thread, some people actually want to have this.
-
-This doesn't mean everything has to be put into a single call. Several 
-parameters can still be set after creation.
-
-> start_reserve, end_reserve, rchan_start_reserve:
->         Some subsystems, like LTT, need to be able to write some key
->         data at sub-buffer boundaries. This is to specify how much
->         space is required for said data.
-
-Why should a subsystem care about the details of the buffer management?
-You could move all this into the relay layer by making a relay channel 
-an event channel. I know you want to save space, but having a magic 
-event_struct_size array is not a good idea. If you have that much events, 
-that a little more overhead causes problems, the tracing results won't be 
-reliable anymore anyway.
-Simplicity and maintainability are far more important than saving a few 
-bytes, the general case should be fast and simple, leave the complexity to 
-the special cases.
-
-bye, Roman
+applied

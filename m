@@ -1,70 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143426AbRELATw>; Fri, 11 May 2001 20:19:52 -0400
+	id <S143429AbRELAZm>; Fri, 11 May 2001 20:25:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143427AbRELATm>; Fri, 11 May 2001 20:19:42 -0400
-Received: from jalon.able.es ([212.97.163.2]:1246 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S143426AbRELAT0>;
-	Fri, 11 May 2001 20:19:26 -0400
-Date: Sat, 12 May 2001 02:19:19 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new version of singlecopy pipe
-Message-ID: <20010512021919.C1054@werewolf.able.es>
-In-Reply-To: <3AFC36BA.B71FC470@colorfullife.com> <20010512020742.A1054@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20010512020742.A1054@werewolf.able.es>; from jamagallon@able.es on Sat, May 12, 2001 at 02:07:42 +0200
-X-Mailer: Balsa 1.1.4
+	id <S143428AbRELAZc>; Fri, 11 May 2001 20:25:32 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64782 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S143427AbRELAZU>; Fri, 11 May 2001 20:25:20 -0400
+Subject: Re: OOPS on 2.4.4-ac4
+To: ingo@plato.prima.de (Ingo Renner)
+Date: Sat, 12 May 2001 01:21:54 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <XFMail.010512014854.ingo@plato.prima.de> from "Ingo Renner" at May 12, 2001 01:48:54 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14yNAQ-0001sM-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> computer during this time.=20
+> So I don't know if this has to do with the new networkcard, the new NVIDIA
+> Driver 0.9-769 I installed yesterday with XFree 4.3 or something else. The =
 
-On 05.12 J . A . Magallon wrote:
-> 
-> On 05.11 Manfred Spraul wrote:
-> > 
-> > Please test it.
-> > The kernel space part should be ok, but I know that the
-> > patch can cause deadlocks with buggy user space apps.
-> > 
-> 
-> I tried your patch on 2.4.4-ac8, and something strange happens.
-> Untarring linux-2.4.4 takes a little time, disk light flashes,
-> but no files appear on the disk (just 'Makefile', as you will see below).
-> Doing a separate gunzip - tar xf works fine:
-> 
+> -----------
+> Module                  Size  Used by
+> via82cxxx_audio        16800   2  (autoclean)
+> soundcore               3600   2  (autoclean) [via82cxxx_audio]
+> ac97_codec              8560   0  (autoclean) [via82cxxx_audio]
+> NVdriver              626480  12  (autoclean)
+> vmnet                  16224   3
+> vmmon                  18224   0
+> dmfe                    9408   1  (autoclean)
 
-Quoting myself, I have tried with other tar.gz files and only the first
-file gets extracted.
-With a tar.bz2 file, I get:
-
-werewolf:~/io> gtar jxf src.tar.bz2
-gtar: Skipping to next header
-gtar: Skipping to next header
-gtar: Skipping to next header
-gtar: Skipping to next header
-gtar: Skipping to next header
-gtar: Skipping to next header
-gtar: Skipping to next header
-gtar: Skipping to next header
-gtar: Skipping to next header
-gtar: Skipping to next header
-gtar: Skipping to next header
-gtar: Skipping to next header
-gtar: Skipping to next header
-gtar: Skipping to next header
-gtar: Skipping to next header
-gtar: Skipping to next header
-gtar: Error exit delayed from previous errors
-
-but all files seem to be there.
-
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Linux Mandrake release 8.1 (Cooker) for i586
-Linux werewolf 2.4.4-ac8 #1 SMP Sat May 12 01:16:37 CEST 2001 i686
+You are using binary only drivers. We can't debug them (least of all a 625K
+module thats almost the size of the kernel).  Duplicate the problems on a boot
+that never loaded vmware or nvdriver and its interesting, otherwise take it
+up with vmware and nvidia - they have our source we dont have theirs
 

@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267490AbRGMPO1>; Fri, 13 Jul 2001 11:14:27 -0400
+	id <S267492AbRGMPZH>; Fri, 13 Jul 2001 11:25:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267491AbRGMPOR>; Fri, 13 Jul 2001 11:14:17 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:63500 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S267490AbRGMPOG>; Fri, 13 Jul 2001 11:14:06 -0400
-To: Alexander Griesser <tuxx@aon.at>
-Cc: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>,
-        linux-kernel@vger.kernel.org
-Subject: Re: vfat: attempt to access beyond end of device
-In-Reply-To: <20010712141653.A483@c239-1.fem.tu-ilmenau.de>
-	<87hewi2bgh.fsf@devron.myhome.or.jp> <20010712231830.A17654@aon.at>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: 14 Jul 2001 00:13:40 +0900
-In-Reply-To: <20010712231830.A17654@aon.at>
-Message-ID: <87y9pslv4r.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.103
+	id <S267493AbRGMPY5>; Fri, 13 Jul 2001 11:24:57 -0400
+Received: from pop.gmx.net ([194.221.183.20]:7221 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S267492AbRGMPYk>;
+	Fri, 13 Jul 2001 11:24:40 -0400
+Message-ID: <3B4F1314.B8B528AE@gmx.at>
+Date: Fri, 13 Jul 2001 17:26:12 +0200
+From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: joystick & fortemedia 801 soundcard
+Content-Type: multipart/mixed;
+ boundary="------------0E51BB41D5B715471A72E6ED"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------0E51BB41D5B715471A72E6ED
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Alexander Griesser <tuxx@aon.at> writes:
+Hi!
 
-> When I try to write new files on it, I get:
-> kernel: attempt to access beyond end of device
-> kernel: 16:01: rw=0, want=2081231810, limit=80035798
-> 
-> According to his Problewm:
-> Shouldn't an "int" be enough?
-> 
-> 2^31 = 2147483648
-> And he "wants": 2081231810
-> 
-> Should do, or did I miss something?
+For those who want to use a joystick on the gameport of a soundcard with
+fm801 chipset! Here is a one liner to make it work (just adds the PCI id
+of the gameport):
+--------------0E51BB41D5B715471A72E6ED
+Content-Type: text/plain; charset=us-ascii;
+ name="fm801-joy.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fm801-joy.diff"
 
-kernel: attempt to access beyond end of device
-kernel: 16:01: rw=0, want=2081231810, limit=80035798
-kernel: dev = 16:01, ino = -2120058812
-                           ^^^^^^^^^^^^
-kernel: Filesystem panic (dev 16:01).
+diff -Nur linux-2.4.4+hptraid0.1a/drivers/char/joystick/ns558.c linux/drivers/char/joystick/ns558.c
+--- linux-2.4.4+hptraid0.1a/drivers/char/joystick/ns558.c	Fri Jul 13 17:10:49 2001
++++ linux/drivers/char/joystick/ns558.c	Wed Jul 11 23:15:39 2001
+@@ -158,6 +158,7 @@
+ 	{ 0x1102, 0x7002, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* SB Live! gameport */
+ 	{ 0x125d, 0x1969, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4 }, /* ESS Solo 1 */
+ 	{ 0x5333, 0xca00, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4 }, /* S3 SonicVibes */
++	{ 0x1319, 0x0802, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* FM 801 */
+ 	{ 0, }
+ };
+ MODULE_DEVICE_TABLE(pci, ns558_pci_tbl);
 
-i_pos is -2120058812.
-
-    fat_write_inode()
-        i_pos = -2120058812;                      /* -2120058812 */
-        fat_bread(sb, i_pos >> 4);                /* -132503676 */
-    ...
-    getblk()
-        blocknr = block;                          /* 4162463620 */
-    ...
-    submit_bh()
-        bh->b_rsector = bh->b_blocknr * count;
-    generic_make_request()
-        unsigned long sector = bh->b_rsector;
-
-        printk(KERN_INFO "%s: rw=%d, want=%ld, limit=%d\n",
-               kdevname(bh->b_rdev), rw,
-               (sector + count)>>1, minorsize);   /* 2081231810 */
-
-Thanks.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+--------------0E51BB41D5B715471A72E6ED--
 

@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290297AbSBFIcj>; Wed, 6 Feb 2002 03:32:39 -0500
+	id <S289802AbSBFIhT>; Wed, 6 Feb 2002 03:37:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289802AbSBFIca>; Wed, 6 Feb 2002 03:32:30 -0500
-Received: from dsl-213-023-043-188.arcor-ip.net ([213.23.43.188]:60592 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S290297AbSBFIcM>;
-	Wed, 6 Feb 2002 03:32:12 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "Michael H. Warfield" <mhw@wittsend.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18-pre8 - Good news and bad news...
-Date: Wed, 6 Feb 2002 09:36:33 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020205234009.A6268@alcove.wittsend.com>
-In-Reply-To: <20020205234009.A6268@alcove.wittsend.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16YNZB-0002MP-00@starship.berlin>
+	id <S290306AbSBFIg7>; Wed, 6 Feb 2002 03:36:59 -0500
+Received: from ns.caldera.de ([212.34.180.1]:44422 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S289802AbSBFIg5>;
+	Wed, 6 Feb 2002 03:36:57 -0500
+Date: Wed, 6 Feb 2002 09:35:58 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: davidm@hpl.hp.com, mmadore@turbolinux.com, linux-ia64@linuxia64.org,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [Linux-ia64] Proper fix for sym53c8xx_2 driver and dma64_addr_t
+Message-ID: <20020206093558.A9445@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	"David S. Miller" <davem@redhat.com>, davidm@hpl.hp.com,
+	mmadore@turbolinux.com, linux-ia64@linuxia64.org,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <20020205223804.A22012@caldera.de> <15456.21030.840746.209377@napali.hpl.hp.com> <20020206092129.A8739@caldera.de> <20020206.002906.94555802.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020206.002906.94555802.davem@redhat.com>; from davem@redhat.com on Wed, Feb 06, 2002 at 12:29:06AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 6, 2002 05:40 am, Michael H. Warfield wrote:
-> 	After seeing a post from Alan Cox about 2.4.18-pre7, I compiled
-> that up and started the gateway on it.  After it ran for a day (which
-> previous versions had NOT done) I left it to run for the week I was
-> in New York for LinuxWorld Expo.  OK, So I'm a DAMN IDIOT who likes to
-> live dangerously.  My SO knew how to reboot the gateway in case it went
-> tits up, which it did almost a week later.  It was set up to reboot to
-> a safe kernel (2.2.20) till I could get back and autopsy the corpse.
-> No problem...  :-)
+On Wed, Feb 06, 2002 at 12:29:06AM -0800, David S. Miller wrote:
+> What driver wants to get at this type and what are they using it
+> for?  dma_addr_t should be used by every driver I am aware of
+> except the clustering PCI cards I've been told about and that
+> driver isn't in the kernel at this time.
 > 
-> 	The good news...  The 5a5a5a5a Oops seems to be gone.  The Oops
-> in 2.4.18-pre7 was different and took a LOT longer to blow.  I didn't
-> try to reproduce it, since 2.4.18-pre8 was out.
+> So who needs it? :-)
 
-and the post from Alan was?
+The new sym53c8xx driver (sym2), and that one only if is actually is
+configured for DAC-mode (SYM_CONF_DMA_ADDRESSING_MODE > 0).
+
+	Christoph
 
 -- 
-Daniel
+Of course it doesn't work. We've performed a software upgrade.

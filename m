@@ -1,97 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132911AbRDJDlJ>; Mon, 9 Apr 2001 23:41:09 -0400
+	id <S132910AbRDJDi3>; Mon, 9 Apr 2001 23:38:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132912AbRDJDk7>; Mon, 9 Apr 2001 23:40:59 -0400
-Received: from wcuvax1.wcu.edu ([152.30.1.2]:37901 "EHLO wcuvax1.wcu.edu")
-	by vger.kernel.org with ESMTP id <S132911AbRDJDkl>;
-	Mon, 9 Apr 2001 23:40:41 -0400
-Date: Mon, 09 Apr 2001 23:41:59 -0400
-From: "David St.Clair" <dstclair@cs.wcu.edu>
-Subject: Re: UDMA(66) drive coming up as UDMA(33)?
-In-Reply-To: <008401c0c167$73f14d80$8d19b018@c779218a>
-To: linux-kernel@vger.kernel.org
-Message-id: <986874119.4770.0.camel@bugeyes.wcu.edu>
-MIME-version: 1.0
-X-Mailer: Evolution/0.10+cvs.2001.04.08.08.06 (Preview Release)
-Content-type: text/plain
-In-Reply-To: <986664971.1224.4.camel@bugeyes.wcu.edu>
- <008401c0c167$73f14d80$8d19b018@c779218a>
+	id <S132911AbRDJDiU>; Mon, 9 Apr 2001 23:38:20 -0400
+Received: from mailgw.prontomail.com ([216.163.180.10]:5601 "EHLO
+	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
+	id <S132910AbRDJDiP>; Mon, 9 Apr 2001 23:38:15 -0400
+Message-ID: <3AD27FE6.4987E792@mvista.com>
+Date: Mon, 09 Apr 2001 20:37:10 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: SodaPop <soda@xirr.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [QUESTION] 2.4.x nice level
+In-Reply-To: <Pine.LNX.4.30.0104041104510.9687-100000@xirr.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, I'm positive what I have is an 80pin cable. I may try a diffrent
-one.  I guess I could benchmark the drive in windows and see how it
-compares to linux. (Both are on the same drive). The HPT366 chip is
-integrated on the BE6 motherboard.
-
-The manual says PIO 4 mode should get about 16.6 Mb/s, UDMA 2 33 Mb/s,
-and UDMA 4 66 Mb/s.  Does anyone know what the correct numbers I should
-be seeing in linux? (/w hdparm -t)
-
-Again, my hardware is:
-
-Quantum Fireball KA 13.6 7200 rpm HD
-Abit BE6 /w integrated HPT366 chip
-
-Kernel 2.4.3
-
-
-Thanks,
-
-David St.Clair
-
-
-
-
-On 09 Apr 2001 19:39:23 -0700, Nicholas Knight wrote:
-> ----- Original Message -----
-> From: "David St.Clair" <dstclair@cs.wcu.edu>
-> To: <linux-kernel@vger.kernel.org>
-> Sent: Saturday, April 07, 2001 10:36 AM
-> Subject: UDMA(66) drive coming up as UDMA(33)?
+SodaPop wrote:
 > 
+> I too have noticed that nicing processes does not work nearly as
+> effectively as I'd like it to.  I run on an underpowered machine,
+> and have had to stop running things such as seti because it steals too
+> much cpu time, even when maximally niced.
 > 
-> > I'm trying to get my hard drive to use UDMA/66.  I'm thinking the cable
-> > is not being detected.  When the HPT366 bios is set to UDMA 4; using
-> > hdparm -t, I get a transfer rate of 19.51 MB/s. When the HPT366 bios is
-> > set to PIO 4 the transfer rate is the same. Is this normal for a UDMA/66
-> > drive? What makes me think something is wrong is that the log says
+> As an example, I can run mpg123 and a kernel build concurrently without
+> trouble; but if I add a single maximally niced seti process, mpg123 runs
+> out of gas and will start to skip while decoding.
 > 
-> The speed is dependant on the drive, and has absilutely nothing to do with
-> the UDMA mode, beyond that the controller and cable need to be able to
-> support at least the speed the drive is recieving/outputting data in order
-> for the drive to operate at full speed, 19.51MB/sec sounds right for a good
-> 7200RPM HDD
+> Is there any way we can make nice levels stronger than they currently are
+> in 2.4?  Or is this perhaps a timeslice problem, where once seti gets cpu
+> time it runs longer than it should since it makes relatively few system
+> calls?
 > 
-> >
-> > "ide2: BM-DMA at 0xbc00-0xbc07, BIOS settings: hde:pio" <-- PIO?
-> 
-> hmm this is a little odd but I don't know the ins and outs of the HPT366
-> controller
-> 
-> >
-> > and
-> >
-> > "hde: 27067824 sectors (13859 MB) w/371KiB Cache, CHS=26853/16/63,
-> > UDMA(33)" <--- UDMA(33)? shouldn't it be UDMA(66)?
-> >
-> 
-> this certainly sounds like it's not detecting the cable properly... have you
-> tried replacing it with a new cable that you KNOW supports ATA/66?
-> 
-> 
-> > HPT366: onboard version of chipset, pin1=1 pin2=2
-> 
-> is the HPT366 controller in an add-in card or built into the motherboard? it
-> looks like it's builtin from this line
-> 
-> the bottom line here is that the cable probably isn't being detected
-> properly for some reason, I doubt if it's a kernel problem, the cable is
-> probably "bad", try picking up a new ATA/66+ cable and putting it in there
-> this shouldn't actually cause you problems unless you're often transferring
-> more than 33MB/sec though, which isn't likely on a desktop system, ATA/66
-> and ATA/100 are *generaly* overkill for most desktop systems, even for many
-> powerusers
+In kernel/sched.c for HZ < 200 an adjustment of nice to tick is set up
+to be nice>>2 (i.e. nice /4).  This gives the ratio of nice to time
+slice.  Adjustments are made to make the MOST nice yield 1 jiffy, so
+using this scale and remembering nice ranges from -19 to 20 the least
+nice is 40/4 or 10 ticks.  This implies that if only two tasks are
+running and they are most and least niced then one will get 1/11 of the
+processor, the other 10/11 (about 10% and 90%).  If one is niced and the
+other is not you get 1 and 5 for the time slices or 1/6 and 5/6 (17% and
+83%).  
 
+In 2.2.x systems the full range of nice was used one to one to give 1
+and 39 or 40 or 2.5% and 97.5% for max nice to min.  For most nice to
+normal you would get 1 and 20 or 4.7% and 95.3%.
 
+The comments say the objective is to come up with a time slice of 50ms,
+presumably for the normal nice value of zero.  After translating the
+range this would be a value of 20 and, yep 20/4 give 5 jiffies or 50
+ms.  Sure puts a crimp in the min to max range, however.
+
+George

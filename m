@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbTL1TCL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 14:02:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbTL1TCL
+	id S261928AbTL1TG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 14:06:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbTL1TG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 14:02:11 -0500
-Received: from darkwing.uoregon.edu ([128.223.142.13]:60566 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id S261892AbTL1TCJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 14:02:09 -0500
-Date: Sun, 28 Dec 2003 10:50:00 -0800 (PST)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Johannes Ruscheinski <ruschein@mail-infomine.ucr.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Best Low-cost IDE RAID Solution For 2.6.x? (OT?)
-In-Reply-To: <20031228180424.GA16622@mail-infomine.ucr.edu>
-Message-ID: <Pine.LNX.4.44.0312281032350.21070-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 28 Dec 2003 14:06:58 -0500
+Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:64681 "EHLO
+	falcon.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S261928AbTL1TG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 14:06:58 -0500
+Date: Sun, 28 Dec 2003 13:06:37 -0600
+From: mjt <mjtobler@earthlink.net>
+To: linux-kernel@vger.kernel.org
+Subject: Happy Birthday Linus !!!
+Message-Id: <20031228130637.32bd1c08@linux.local>
+In-Reply-To: <20031228184225.GT18208@waste.org>
+References: <20031228075426.GB24351@conectiva.com.br>
+	<Pine.LNX.4.58.0312280017060.2274@home.osdl.org>
+	<20031228012329.43003de5.davem@redhat.com>
+	<20031228184225.GT18208@waste.org>
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-suse-linux)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-well if you currently have 1tb in 8 non-redundant drives then you using 
-160GB disks... no?
+if rumor has it correct, today is Linus' birthday.
 
-the biggest p-ata disks right now are ~320GB so you can do a ~1TB software 
-raid 5 stripe on a single 4 port ata controller such as a promise tx4000 
-using regular software raid rather than the promise raid. that would end 
-up being fairly inexpensive and buy you more protection.
+... happy 34th Linus !!!
 
-linux software raid hsa been as releiable as anything else we've used over 
-the years, the lack of reliabilitiy in your situation will come entirely 
-from failing disks, lose one and your filesystem is toast.
-
-joelja
-
-On Sun, 28 Dec 2003, Johannes Ruscheinski wrote:
-
-> Hi,
-> 
-> We're looking for a low-cost high-reliability IDE RAID solution that works well
-> with the 2.6.x series of kernels.  We have about 1 TB (8 disks) that we'd
-> like to access in a non-redundant raid mode.  Yes, I know, that lack of
-> redundancy and high reliability are contradictory.  Let's just say that
-> currently we lack the funding to do anything else but we may be able to obtain
-> more funding for our disk storage needs in the near future.
-> 
 
 -- 
--------------------------------------------------------------------------- 
-Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu    
-GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
+<<   http://michaeljtobler.homelinux.com/   >>
+<<          author: "Inside Linux"          >>
 
-
+There's no trick to being a humorist when you have the 
+whole government working for you. - Will Rodgers

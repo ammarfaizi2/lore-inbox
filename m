@@ -1,48 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbUKULiq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263215AbUKULkv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbUKULiq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 06:38:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbUKULip
+	id S263215AbUKULkv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 06:40:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbUKULji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 06:38:45 -0500
-Received: from amsfep13-int.chello.nl ([213.46.243.23]:27180 "EHLO
-	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261704AbUKULih (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 06:39:38 -0500
+Received: from amsfep18-int.chello.nl ([213.46.243.13]:30 "EHLO
+	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261773AbUKULih (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 21 Nov 2004 06:38:37 -0500
 Date: Sun, 21 Nov 2004 12:38:35 +0100
-Message-Id: <200411211138.iALBcZ6l032381@anakin.of.borg>
+Message-Id: <200411211138.iALBcZcV032371@anakin.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 534] M68k: Update HP300 defconfig (enable DIO and HP Lance Ethernet)
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 532] M68k HP Lance Ethernet: Fix leaks on probe/removal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k: Update HP300 defconfig (enable DIO and HP Lance Ethernet)
+HP Lance Ethernet: There's tons of leaks in the hplcance probing code, and it
+doesn't release the memory region on removal either (from Christoph Hellwig)
 
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
---- linux-2.6.10-rc2/arch/m68k/configs/hp300_defconfig	2004-11-18 21:46:29.000000000 +0100
-+++ linux-m68k-2.6.10-rc2/arch/m68k/configs/hp300_defconfig	2004-11-21 11:18:26.000000000 +0100
-@@ -65,7 +65,7 @@
- # CONFIG_APOLLO is not set
- # CONFIG_VME is not set
- CONFIG_HP300=y
--# CONFIG_DIO is not set
-+CONFIG_DIO=y
- # CONFIG_SUN3X is not set
- # CONFIG_Q40 is not set
+--- linux-2.6.10-rc2/drivers/net/hplance.c	2004-11-09 21:12:05.000000000 +0100
++++ linux-m68k-2.6.10-rc2/drivers/net/hplance.c	2004-11-21 10:51:37.000000000 +0100
+@@ -76,25 +76,31 @@
+ 				const struct dio_device_id *ent)
+ {
+ 	struct net_device *dev;
+-	int err;
++	int err = -ENOMEM;
  
-@@ -404,7 +404,7 @@
- #
- CONFIG_NET_ETHERNET=y
- CONFIG_MII=m
--# CONFIG_HPLANCE is not set
-+CONFIG_HPLANCE=y
+ 	dev = alloc_etherdev(sizeof(struct hplance_private));
+ 	if (!dev)
+-		return -ENOMEM;
++		goto out;
  
- #
- # Ethernet (1000 Mbit)
+-	if (!request_mem_region(d->resource.start, d->resource.end-d->resource.start, d->name))
+-		return -EBUSY;
++	err = -EBUSY;
++	if (!request_mem_region(dio_resource_start(d),
++				dio_resource_len(d), d->name))
++		goto out_free_netdev;
+ 
+-	SET_MODULE_OWNER(dev);
+-        
+ 	hplance_init(dev, d);
+ 	err = register_netdev(dev);
+-	if (err) {
+-		free_netdev(dev);
+-		return err;
+-	}
++	if (err)
++		goto out_release_mem_region;
++
+ 	dio_set_drvdata(d, dev);
+ 	return 0;
++
++ out_release_mem_region:
++	release_mem_region(dio_resource_start(d), dio_resource_len(d));
++ out_free_netdev:
++	free_netdev(dev);
++ out:
++	return err;
+ }
+ 
+ static void __devexit hplance_remove_one(struct dio_dev *d)
+@@ -102,6 +108,7 @@
+ 	struct net_device *dev = dio_get_drvdata(d);
+ 
+ 	unregister_netdev(dev);
++	release_mem_region(dio_resource_start(d), dio_resource_len(d));
+ 	free_netdev(dev);
+ }
+ 
 
 Gr{oetje,eeting}s,
 

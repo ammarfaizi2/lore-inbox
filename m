@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbVCGKcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVCGKfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261743AbVCGKcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 05:32:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVCGKcZ
+	id S261749AbVCGKfN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 05:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVCGKcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 05:32:25 -0500
-Received: from coderock.org ([193.77.147.115]:12724 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261740AbVCGKaX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 05:30:23 -0500
-Date: Mon, 7 Mar 2005 11:30:14 +0100
-From: Domen Puncer <domen@coderock.org>
-To: "Edgar, Bob" <Bob.Edgar@commerzbankib.com>
-Cc: "'Jesper Juhl'" <juhl-lkml@dif.dk>, Steve French <sfrench@us.ibm.com>,
-       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Luca Tettamanti <kronos@kronoz.cjb.net>,
-       samba-technical <samba-technical@lists.samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] whitespace cleanups for fs/cifs/file.c
-Message-ID: <20050307103014.GD18117@nd47.coderock.org>
-References: <9D248E1E43ABD411A9B600508BAF6E9B0C737269@xmx7fraib.fra.ib.commerzbank.com>
+	Mon, 7 Mar 2005 05:32:46 -0500
+Received: from bay24-f19.bay24.hotmail.com ([64.4.18.69]:52478 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261738AbVCGK3Y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 05:29:24 -0500
+Message-ID: <BAY24-F19FAC7179CAA290B97156ED85F0@phx.gbl>
+X-Originating-IP: [212.18.59.124]
+X-Originating-Email: [janprunk@hotmail.com]
+From: "Jan Prunk" <janprunk@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: debian kernel 2.4.29
+Date: Mon, 07 Mar 2005 10:29:23 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <9D248E1E43ABD411A9B600508BAF6E9B0C737269@xmx7fraib.fra.ib.commerzbank.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 07 Mar 2005 10:29:23.0370 (UTC) FILETIME=[87B538A0:01C52300]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07/03/05 10:26 +0100, Edgar, Bob wrote:
-> I lurk on the list and didn't comment last time but there is one aspect
-> of this patch that I think is "bad" style. The function declaration should
-> not be on the same line with the type. Why? Try to find the file where a
-> function is defined instead of used. If you grep "^funcname" you'll find
-> it quite simply. The same is true in YFE (mine being vi) /^funcname gets
-> me there in one shot.
+Hello !
 
-Does anybody actually use grep "^funcname"? cscope/ctags is the way.
+I tried to compile kernel 2.4.29 on a debian PARISC machine Gecko 712/60, 
+using PA7100LC processor.
+I executed command to build a custom debian kernel:
+fakeroot make-kpkg --revision=custom.1.0 kernel_image
 
-> 
-> This may not seem an important thing but when you are coming into a
-> project cold and don't know how anything works or where it lives it
-> can be very important. Consider trying to find where some common
-> function from a library is defined in a project with sever 1000 files.
+The kernel config file is available here:
+http://212.18.59.124/kernel-2.4.29/config
 
-Again... cscope or ctags will make your life much easier here.
+The errors in the kernel are following:
+signal.c:66: warning: passing arg 1 of `__put_kernel_asm64' makes
+integer from pointer without a cast
+signal.c:66: warning: passing arg 1 of `__put_user_asm64' makes integer
+from pointer without a cast
+gcc -D__ASSEMBLY__ -traditional -D__KERNEL__
+-I/usr/src/linux-2.4.29/include  -c -o hpmc.o hpmc.S
+gcc -D__ASSEMBLY__ -traditional -D__KERNEL__
+-I/usr/src/linux-2.4.29/include  -c -o real2.o real2.S
+real2.S: Assembler messages:
+real2.S:126: Error: too many positional arguments
+make[2]: *** [real2.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.4.29/arch/parisc/kernel'
+make[1]: *** [_dir_arch/parisc/kernel] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.29'
+make: *** [stamp-build] Error 2
 
-> 
-> I now return you to your regularly scheduled programming.
-> 
-> bob
-> 
-> -----Original Message-----
-> From:
-> samba-technical-bounces+bob.edgar=commerzbankib.com@lists.samba.org
-> [mailto:samba-technical-bounces+bob.edgar=commerzbankib.com@lists.samba.
-> org]On Behalf Of Jesper Juhl
-> Sent: Freitag, 4. März 2005 20:24
-> To: Steve French
-> Cc: Jörn Engel; Luca Tettamanti; samba-technical; Linux Kernel Mailing
-> List; Domen Puncer
-> Subject: [PATCH] whitespace cleanups for fs/cifs/file.c
-...
-> -int
-> -cifs_open(struct inode *inode, struct file *file)
-> +int cifs_open(struct inode *inode, struct file *file)
-...
+If you happen to know how to make this work, I appreciate a copy of your 
+email to my address.
+
+Regards, Jan Prunk
+
+_________________________________________________________________
+Express yourself instantly with MSN Messenger! Download today it's FREE! 
+http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
+

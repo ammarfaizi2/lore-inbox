@@ -1,117 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262126AbTJNBGW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 21:06:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbTJNBGW
+	id S262123AbTJNBCG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 21:02:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbTJNBCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 21:06:22 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:53495 "EHLO
-	pasta.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S262126AbTJNBGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 21:06:19 -0400
-Message-Id: <200310140111.h9E1BR6a015812@pasta.boston.redhat.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Dave Kleikamp <shaggy@austin.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.4.23-pre7] alternate fix for BUG() in exec_mmap()
-In-Reply-To: Your message of "Mon, 13 Oct 2003 14:09:36 +0200."
-Date: Mon, 13 Oct 2003 21:11:27 -0400
-From: Ernie Petrides <petrides@redhat.com>
+	Mon, 13 Oct 2003 21:02:06 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:28579 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S262123AbTJNBCE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 21:02:04 -0400
+Date: Mon, 13 Oct 2003 18:00:51 -0700
+From: Frank Cusack <fcusack@fcusack.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: nfs fstat st_blocks overreporting
+Message-ID: <20031013180051.A8501@google.com>
+References: <20031013075316.A16032@google.com> <16266.50390.93346.47602@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <16266.50390.93346.47602@charged.uio.no>; from trond.myklebust@fys.uio.no on Mon, Oct 13, 2003 at 11:29:26AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 13-Oct-2003 at 14:9 +0200, Andrea Arcangeli wrote:
+On Mon, Oct 13, 2003 at 11:29:26AM -0400, Trond Myklebust wrote:
+> >>>>> " " == Frank Cusack <fcusack@fcusack.com> writes:
+> 
+>      > While you know I disagree that s_blocksize should be wtmult
+>      > (ie, it is wtmult?wtmult:512 and I think it should be
+>      > MAX(rsize,wsize)), in any event the blocks used reporting is
+>      > incorrect in that it assumes a 512 byte blocksize.
+> 
+> Frank,
+> 
+>      man 2 stat
+> 
+>   i_blocks a.k.a. stat->st_blocks is _defined_ to be in 512byte
+> units. It bears no relation to the st_blksize. If you don't like that,
+> spec then by all means appeal to the POSIX committee that wrote
+> it. (You probably wouldn't be the first to do so)
+> 
+>   Pending the outcome of such an appeal, though, the patch must be
+> rejected...
 
-> On Mon, Oct 13, 2003 at 02:52:44AM -0400, Ernie Petrides wrote:
->
-> > --- linux-2.4.21/fs/exec.c.orig
-> > +++ linux-2.4.21/fs/exec.c
-> > @@ -452,9 +452,11 @@ static int exec_mmap(void)
-> > 
-> >  	old_mm = current->mm;
-> >  	if (old_mm && atomic_read(&old_mm->mm_users) == 1) {
-> > +		down_write(&old_mm->mmap_sem);
-> >  		mm_release();
-> >  		exit_aio(old_mm);
-> >  		exit_mmap(old_mm);
-> > +		up_write(&old_mm->mmap_sem);
-> >  		return 0;
-> >  	}
->
-> Is there any special reason you take it around mm_release and exit_aio
-> too? I don't feel this is needed. exit_aio btw still assumes nobody can
-> race, so it doesn't take any spinlock (brlocks actually) to guard
-> against other aio threads, I believe that's ok since as worse the other
-> tasks can mangle the vm with ptrace, they'll never get to mess with aio,
-> only the current task can and the mm_user == 1 check guarantees we've no
-> sibiling threads. the mmap_sem shouldn't help exit_aio anyways, if
-> something it'll make it deadlock if there's any access to the VM that
-> generates a page fault in the cancel() callback.
->
-> So I suggest this sequence should be safe:
->
-> 	mm_release();
-> 	exit_aio(old_mm);
->
-> 	down_write(&old_mm->mmap_sem);
-> 	exit_mmap(old_mm);
-> 	up_write(&old_mm->mmap_sem);
->
-> Please double check ;)
+I'm an idiot.
 
-Yes, this in fact necessary.  I have retested with the locking sequence
-shown above and verified that the problem is still fixed.
-
-Further, I've discovered that in my original version, with the mmap_sem
-held across mm_release() and exit_aio(), there are potential deadlocks
-in at least the following hypothetical calling trees:
-
-	mm_release()
-	  put_user()
-	    direct_put_user()
-	      __put_user_check()
-	        __put_user_size()
-	          __put_user_asm()
-	            [page fault]
-	                do_page_fault()
-	                  down_read(&mm->mmap_sem)
-
-	exit_aio()
-	  aio_cancel_all()
-	    async_poll_cancel()
-	      aio_put_req()
-	        put_ioctx()
-	          __put_ioctx()
-	            aio_free_ring()
-	              down_write(&ctx->mm->mmap_sem)
-
-The corrected patch against 2.4.23-pre7, which restores the fast path in
-exec_mmap() and adds the holding of "mmap_sem" across only the exit_mmap()
-call, is attached below.  Since "mmap_sem" locking is conceptually higher
-than file system locks in the locking hierarchy, the whole calling tree
-from exit_mmap() on down (including potential fput() calls) should be
-safe to run with "mmap_sem" owned.
-
-Thanks for the help.
-
-Cheers.  -ernie
-
-
-
---- linux-2.4.23-pre7/fs/exec.c.orig
-+++ linux-2.4.23-pre7/fs/exec.c
-@@ -426,6 +426,13 @@ static int exec_mmap(void)
- 	struct mm_struct * mm, * old_mm;
- 
- 	old_mm = current->mm;
-+	if (old_mm && atomic_read(&old_mm->mm_users) == 1) {
-+		mm_release();
-+		down_write(&old_mm->mmap_sem);
-+		exit_mmap(old_mm);
-+		up_write(&old_mm->mmap_sem);
-+		return 0;
-+	}
- 
- 	mm = mm_alloc();
- 	if (mm) {
+/fc

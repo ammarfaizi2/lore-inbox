@@ -1,73 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292881AbSCJHr6>; Sun, 10 Mar 2002 02:47:58 -0500
+	id <S292896AbSCJIYM>; Sun, 10 Mar 2002 03:24:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292885AbSCJHrj>; Sun, 10 Mar 2002 02:47:39 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17465 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S292881AbSCJHrf>; Sun, 10 Mar 2002 02:47:35 -0500
-To: Dave Jones <davej@suse.de>
-Cc: Patricia Gaughen <gone@us.ibm.com>, linux-kernel@vger.kernel.org,
-        lse-tech@lists.sourceforge.net
-Subject: Re: [RFC] modularization of i386 setup_arch and mem_init in 2.4.18
-In-Reply-To: <200203082108.g28L8I504672@w-gaughen.des.beaverton.ibm.com>
-	<20020308223330.A15106@suse.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 10 Mar 2002 00:42:15 -0700
-In-Reply-To: <20020308223330.A15106@suse.de>
-Message-ID: <m1zo1gzx60.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S292915AbSCJIYD>; Sun, 10 Mar 2002 03:24:03 -0500
+Received: from 99dyn73.com21.casema.net ([62.234.30.73]:19880 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S292896AbSCJIXt>; Sun, 10 Mar 2002 03:23:49 -0500
+Message-Id: <200203100823.JAA14203@cave.bitwizard.nl>
+Subject: Re: Suspend support for IDE
+In-Reply-To: <E16joxm-0002g6-00@the-village.bc.nu> from Alan Cox at "Mar 9, 2002
+ 10:05:14 pm"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Sun, 10 Mar 2002 09:23:44 +0100 (MET)
+CC: Pavel Machek <pavel@ucw.cz>, dalecki@evision-ventures.com,
+        kernel list <linux-kernel@vger.kernel.org>
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-notice1: This Email contains my Email address. This grants you the right
+X-notice2: to communicate with me using this address, related to the subject
+X-notice3: in this message. Unsollicitated mass-mailings are explictly 
+X-notice4: forbidden here, and by Dutch law. 
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@suse.de> writes:
+Alan Cox wrote:
+> Also there is the some fun about buggy drives and power up happenings. On no
+> account can you issue any command that might touch the platter unless you
+> know the drive is at full running speed when spinning up certain old drives
+> because the firmware in some cases forgets to check the drive is at speed
+> and you physically destroy the disk over time. Thankfully thats old old
+> drives (540Mb quantum if I remember rightly)
 
-> On Fri, Mar 08, 2002 at 01:08:18PM -0800, Patricia Gaughen wrote:
->  > 
->  > Hi,
->  > 
->  > I'm currently working on a discontigmem patch for IBM NUMAQ (an ia32 
->  > NUMA box) and want to reuse the standard i386 code as much as
->  > possible.  To achieve this, I've modularized setup_arch() and
->  > mem_init().  This modularization is what the patch that I've included 
->  > in this email contains.
-> 
->  As a sidenote (sort of related topic) :
->  An idea being kicked around a little right now is x86 subarch
->  support for 2.5. With so many of the niche x86 spin-offs appearing
->  lately, all fighting for their own piece of various files in
->  arch/i386/kernel/, it may be time to do the same as the ARM folks did,
->  and have..
+That could be 1.6G or 2.5G WD drives. AC31600, AC32500. 
 
-I will tenatively vote in favor of this kind of action.  There
-are a couple of directions to consider.  This is a two dimensional
-problem.
+			Roger. 
 
-Dimension 1.  Different basic hardware architectures. 
-  (pc,numaq,visws,voyager)
-Dimension 2.  Different firmware implementations.  
-  (pcbios,linuxbios,openfirmware,acpi?)
-
-And beyond that it is fairly important to be able to build a generic
-kernel.  That works on everything.  You might have to specify a
-command line parameter to tell it which arch it is really running on
-but it should work. 
-
->From working with the alpha I can say that it is just nasty when you
-must have per motherboard information in your kernel.  Generally life
-is much more pleasant if a small handful of things like irq routing
-information is provided by the firmware so you only have to code for a
-specific hardware device, and not a specific motherboard.  
-
-And even if we get to the point of putting in motherboard specific
-code I would suggest it just provide the information like irq routing,
-and which superio chips are present and allow a more generic layer to
-handle their setup.
-
-Anyway on the multiplexing the firmware score I have just done the
-heavy lifting needed so we can put the firmware switching logic 
-all in C code.
-
-Eric
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262652AbVA0QCD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262503AbVA0QMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262652AbVA0QCD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 11:02:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262654AbVA0QCC
+	id S262503AbVA0QMt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 11:12:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbVA0QMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 11:02:02 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:33185 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S262652AbVA0QBo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 11:01:44 -0500
-Date: Thu, 27 Jan 2005 19:21:09 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Greg Kroah-Hartman <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
-Message-ID: <20050127192109.681b32b6@zanzibar.2ka.mipt.ru>
-In-Reply-To: <41F90697.5020408@tmr.com>
-References: <20050124175449.GK3515@stusta.de>
-	<20050124021516.5d1ee686.akpm@osdl.org>
-	<20050124214336.2c555b53@zanzibar.2ka.mipt.ru>
-	<41F90697.5020408@tmr.com>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Jan 2005 11:12:39 -0500
+Received: from rev.193.226.232.37.euroweb.hu ([193.226.232.37]:2468 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262361AbVA0QMh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 11:12:37 -0500
+To: s.b.wielinga@student.utwente.nl
+CC: davidsen@tmr.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+In-reply-to: <20050127155634.GA6476@speedy.student.utwente.nl> (message from
+	Sytse Wielinga on Thu, 27 Jan 2005 16:56:34 +0100)
+Subject: Re: 2.6.11-rc2-mm1: fuse patch needs new libs
+References: <20050125000339.GA610@speedy.student.utwente.nl> <41F90C85.5090705@tmr.com> <20050127155634.GA6476@speedy.student.utwente.nl>
+Message-Id: <E1CuCFP-0003Oz-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 27 Jan 2005 17:11:55 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Jan 2005 10:19:51 -0500
-Bill Davidsen <davidsen@tmr.com> wrote:
 
-> Evgeniy Polyakov wrote:
-> > On Mon, 24 Jan 2005 18:54:49 +0100
-> > Adrian Bunk <bunk@stusta.de> wrote:
+> > >As I personally like for my ls to keep on working, and I assume
+> > >others will, too, I would appreciate it if you could add a
+> > >warning to your announcements the following one or two weeks or
+> > >so, so that people can remove this patch if they don't want to
+> > >update their libs.
 > > 
-> > 
-> >>It seems noone who reviewed the SuperIO patches noticed that there are 
-> >>now two modules "scx200" in the kernel...
-> > 
-> > 
-> > They are almost mutually exlusive(SuperIO contains more advanced), 
-> > so I do not see any problem here.
-> > Only one of them can be loaded in a time.
-> > 
-> > So what does exactly bother you?
-> >
-> That I don't know how to select loading between modules with the same 
-> name. What's the trick?
+> > By any chance would this also break perl programs which readdir?
+> 
+> Of course; I haven't tested it, but the actual ioctls aren't working
+> anymore, so it's not even _possible_ to get them to work with this
+> patch and an old version of the fuse libs, even with perl bindings,
+> which go through the fuse libs anyway.
 
-Use full path.
-Please see discussion in this thread related to module names.
- 
-> -- 
->     -bill davidsen (davidsen@tmr.com)
-> "The secret to procrastination is to put things off until the
->   last possible moment - but no longer"  -me
+First, a little clarification: FUSE doesn't use ioctl() for
+communication between the kernel and userspace.  It uses read() and
+write().
 
+That aside, you are right, that this change breaks any kind of FUSE
+based filesystem.  However the fix is trivial: install FUSE version
+2.2-pre5 or later.  The filesystems themselves don't need to be
+rebuilt, since the fix in the shared library will automatically get
+used.
 
-	Evgeniy Polyakov
+Thanks,
+Miklos
 
-Only failure makes us experts. -- Theo de Raadt

@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVBNSid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVBNSjy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261517AbVBNSid (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 13:38:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVBNSid
+	id S261518AbVBNSjy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 13:39:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261520AbVBNSjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 13:38:33 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:25031 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261517AbVBNSiY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 13:38:24 -0500
-Message-ID: <4210F01E.9070707@us.ibm.com>
-Date: Mon, 14 Feb 2005 10:38:22 -0800
-From: Mingming Cao <cmm@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alex Tomas <alex@clusterfs.com>
-CC: Andreas Dilger <adilger@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
-       tytso@mit.edu, pbadari@us.ibm.com, suparna@in.ibm.com,
-       gerrit@us.ibm.com, tappro@clusterfs.com,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: Latest ext3 patches (extents, mballoc, delayed
- allocation)
-References: <1106354192.3634.19.camel@dyn318043bld.beaverton.ibm.com>	<m3hdl2lehb.fsf@bzzz.home.net> <4207BBEA.7090705@us.ibm.com> <m3y8dude4q.fsf@bzzz.home.net>
-In-Reply-To: <m3y8dude4q.fsf@bzzz.home.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 14 Feb 2005 13:39:53 -0500
+Received: from ds01.webmacher.de ([213.239.192.226]:22468 "EHLO
+	ds01.webmacher.de") by vger.kernel.org with ESMTP id S261518AbVBNSjm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 13:39:42 -0500
+In-Reply-To: <20050214174932.GB8846@bitmover.com>
+References: <20050214020802.GA3047@bitmover.com> <20050214154015.GA8075@bitmover.com> <3586df11f3bb037ab4b0284109ff9c0a@dalecki.de> <200502140923.03155.rmiller@duskglow.com> <20050214174932.GB8846@bitmover.com>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <5bf63809d4ea56bb90d07965d366dbdb@dalecki.de>
 Content-Transfer-Encoding: 7bit
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Russell Miller <rmiller@duskglow.com>
+From: Marcin Dalecki <martin@dalecki.de>
+Subject: Re: [BK] upgrade will be needed
+Date: Mon, 14 Feb 2005 19:33:46 +0100
+To: lm@bitmover.com (Larry McVoy)
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Tomas wrote:
 
-> Good day all, 
-> 
-> I've updated the patchset against 2.6.10. A bunch of bugs have been
-> fixed and mballoc now behaves smarter a bit. Extents and mballoc 
-> patches collects some stats they print upon umount. NOTE: they must
-> not be used to store important data. A lot of things are to be done.
-> 
+On 2005-02-14, at 18:49, Larry McVoy wrote:
+> r it we'd be happy to negotiate a standard
+> click-wrap style license as part of the deal.  Everyone would like that
+> much better it seems.  Are you volunteering to pay?
 
-Thanks Alex, for the hard work.
+I'm not since I'm not using and I don't intend to use BK.
+Oh BTW. the main reason for me is the incomprehendible user interface.
 
-> Please review. Any comments and suggestions are very welcome.
+> On Mon, Feb 14, 2005 at 09:23:03AM -0800, Russell Miller wrote:
+>> It is certainly Larry's choice to license his software any way he 
+>> chooses.
+>>
+>> It is my choice whether or not to use it.
+>
+> Yup, it is.
 
-Will do.
+No it isn't. What a license is, is very well defined by law and not by 
+your
+personal wish list.
 
-> 
-> 
-> The followins crazy listing shows tiobench's results for SMP box:
-> 
-> Random Reads
->                               File  Blk   Num                   Avg     CPU
-> Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency   Eff
-> ---------------------------- ------ ----- ---  ------ ------ --------- -----
-> ext2                          512   4096    1  119.05 40.37%     0.031   295
-> ext3                          512   4096    1  134.78 37.08%     0.028   363
-> ext3rs                        512   4096    1   25.18 8.377%     0.154   301
-
-The throughput here is really weird. Reservation code does not touch 
-read code path. I could imagine that it maybe change the disk layout and 
-make a difference on sequential reads, but I am not sure how it will 
-affect the random read. And this is happening on 1 thread and 4 threads, 
-but for 2 threads, reservation case is the best. I will see if I could 
-repeat the same results here.
-
-Mingming

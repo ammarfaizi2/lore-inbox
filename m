@@ -1,133 +1,242 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262140AbUCLOih (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 09:38:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262142AbUCLOig
+	id S262130AbUCLOsR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 09:48:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262142AbUCLOsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 09:38:36 -0500
-Received: from mail-10.iinet.net.au ([203.59.3.42]:21159 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262140AbUCLOib
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 09:38:31 -0500
-Message-ID: <4051CB60.5050309@cyberone.com.au>
-Date: Sat, 13 Mar 2004 01:38:24 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: "Nakajima, Jun" <jun.nakajima@intel.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm1
-References: <7F740D512C7C1046AB53446D37200173FEB851@scsmsx402.sc.intel.com> <20040312031452.GA41598@colin2.muc.de> <40513B8B.9010301@cyberone.com.au> <20040312141450.GB80958@colin2.muc.de>
-In-Reply-To: <20040312141450.GB80958@colin2.muc.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Mar 2004 09:48:17 -0500
+Received: from pop.gmx.de ([213.165.64.20]:715 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262130AbUCLOsE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 09:48:04 -0500
+X-Authenticated: #1226656
+Date: Fri, 12 Mar 2004 15:46:13 +0100
+From: Marc Giger <gigerstyle@gmx.ch>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.4 on Alpha uninterruptible sleep of processes
+Message-Id: <20040312154613.7567adab@hdg.gigerstyle.ch>
+X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Fri__12_Mar_2004_15_46_13_+0100_VjJ2PZ_IMGMqk9hW"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+
+--Multipart=_Fri__12_Mar_2004_15_46_13_+0100_VjJ2PZ_IMGMqk9hW
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+
+Hi All,
+
+I installed 2.6.4 for the first time on my alpha and run into big
+troubles.
+
+After some time, new started processes are in a uninterruptible
+sleep state. It seems every process that opens a file hangs.
+E.g. I can't tail -f /var/log/messages
+
+witch ~ # uptime
+ 09:44:29 up 14:51,  6 users,  load average: 116.99, 115.78, 110.12
+
+Attached the output of ps -aux and /proc/slabinfo.
+
+I don't know which further informations are needed.
+
+cat /proc/vmstat:
+
+nr_dirty 35
+nr_writeback 0
+nr_unstable 0
+nr_page_table_pages 1477
+nr_mapped 23651
+nr_slab 2390
+pgpgin 463751
+pgpgout 692219
+pswpin 4906
+pswpout 50947
+pgalloc 2795267
+pgfree 2795470
+pgactivate 32874
+pgdeactivate 78053
+pgfault 10497618
+pgmajfault 2668
+pgscan 348418
+pgrefill 762245
+pgsteal 96252
+pginodesteal 22
+kswapd_steal 8564
+kswapd_inodesteal 0
+pageoutrun 95
+allocstall 2415
+pgrotated 49666
+
+I'm going to reboot now
+
+Regards
+
+Marc
 
 
-Andi Kleen wrote:
+--Multipart=_Fri__12_Mar_2004_15_46_13_+0100_VjJ2PZ_IMGMqk9hW
+Content-Type: application/x-gzip;
+ name="out.tar.gz"
+Content-Disposition: attachment;
+ filename="out.tar.gz"
+Content-Transfer-Encoding: base64
 
->On Fri, Mar 12, 2004 at 03:24:43PM +1100, Nick Piggin wrote:
->
->>
->>Andi Kleen wrote:
->>
->>
->>>On Thu, Mar 11, 2004 at 07:04:50PM -0800, Nakajima, Jun wrote:
->>>
->>>
->>>>As we can have more complex architectures in the future, the scheduler
->>>>is flexible enough to represent various scheduling domains effectively,
->>>>and yet keeps the common scheduler code simple.
->>>>
->>>>
->>>I think for SMT alone it's too complex and for NUMA it doesn't do
->>>the right thing for "modern NUMAs" (where NUMA factor is very low
->>>and you have a small number of CPUs for each node). 
->>>
->>>
->>>
->>For SMT it is a less complex than shared runqueues, it is actually
->>less lines of code and smaller object size.
->>
->
->By moving all the complexity into arch/* ?
->
->
+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
+4/l4Pp6P5+P5eD6ej+djYMf/A/Bwf8UAQAEA
 
-
-Well you have a point in a way. At least it is configurable, per
-arch, and done in setup __init code. The whole point really was
-to move the complexity to arch/* (or they can just use the default
-setup, obviously).
-
-
->>It is also more flexible than shared runqueues in that you can still
->>have control over each sibling's runqueue. Con's SMT nice patch for
->>example would probably be more difficult to do with shared runqueues.
->>Shared runqueues also gives zero affinity to siblings. While current
->>implementations may not (do they?) care, future ones might.
->>
->>For Opteron type NUMA, it actually balances much more aggressively
->>than the default NUMA scheduler, especially when a CPU is idle. I
->>don't doubt you aren't seeing great performance, but it should be
->>able to be fixed.
->>
->>The problem is just presumably your lack of time to investigate
->>further, and my lack of problem descriptions or Opterons.
->>
->
->I didn't investigate further on your scheduler because I have my 
->doubts about it being the right approach and it seems to have
->some obvious design bugs (like the racy SMT setup) 
->
->
-
-If you have any ideas about other approaches I would be interested
-to hear them...
-
-Setup needs some work, yes. It isn't a fundamental problem.
-
-
->The problem description is still the same as it was in the past.
->
->Basically it is: schedule as on SMP, but avoid local affinity for newly
->created tasks and balance early. Allow to disable all old style NUMA 
->heuristics.
->
->
-
-That is pretty much what it does now. Apart from moving newly created
-tasks. I think you're pretty brave for wanting to move new *threads*
-off node. If anything, they are the most likely possible thing to
-share memory. But I could add a sched_balance_fork which you can turn
-on if you like.
-
-
->Longer term some homenode scheduling affinity may be still useful,
->but I tried to get that to work on 2.4 and failed, so I'm not sure
->it can be done. The right way may be to keep track how much memory
->each thread allocated on each node and preferably schedule on
->the node with the most memory. But that's future work.
->
->
-
-Yeah. There is no reason why the scheduler should perform worse than
-2.4 for you. We have to get to the bottom of it.
-
->>One thing you definitely want is a sched_balance_fork, is that right?
->>Have you been able to do any benchmarks on recent -mm kernels?
->>
->
->I sent the last benchmarks I did to you (including the tweaks you
->suggested). All did worse than the standard scheduler. Did you 
->change anything significant that makes rebenchmarking useful?
->
->
-
-Yeah thanks for those. There have been quite a few changes and fixes
-to the scheduler since then, so I think it would be worth re-testing.
-
+--Multipart=_Fri__12_Mar_2004_15_46_13_+0100_VjJ2PZ_IMGMqk9hW--

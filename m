@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315921AbSGARYo>; Mon, 1 Jul 2002 13:24:44 -0400
+	id <S315919AbSGARXS>; Mon, 1 Jul 2002 13:23:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315928AbSGARYn>; Mon, 1 Jul 2002 13:24:43 -0400
-Received: from smtp02.web.de ([217.72.192.151]:39440 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S315921AbSGARYl>;
-	Mon, 1 Jul 2002 13:24:41 -0400
-Date: Mon, 1 Jul 2002 19:26:59 +0200
-From: Timo Benk <t_benk@web.de>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Timo Benk <t_benk@web.de>
-Subject: allocate memory in userspace
-Message-ID: <20020701172659.GA4431@toshiba>
-Reply-To: Timo Benk <t_benk@web.de>
+	id <S315921AbSGARXR>; Mon, 1 Jul 2002 13:23:17 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:64799 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S315919AbSGARXQ>; Mon, 1 Jul 2002 13:23:16 -0400
+Date: Mon, 1 Jul 2002 13:25:14 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Ralph Corderoy <ralph@inputplus.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Happy Hacking Keyboard Lite Mk 2 USB Problems with 2.4.18.
+Message-ID: <20020701132514.A17008@devserv.devel.redhat.com>
+References: <zaitcev@redhat.com> <200207011647.g61GlNx14474@blake.inputplus.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200207011647.g61GlNx14474@blake.inputplus.co.uk>; from ralph@inputplus.co.uk on Mon, Jul 01, 2002 at 05:47:23PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Date: Mon, 01 Jul 2002 17:47:23 +0100
+> From: Ralph Corderoy <ralph@inputplus.co.uk>
 
-I am a kernel newbie and i am writing a module. I 
-need to allocate some memory in userspace because
-i want to access syscalls like open(), lstat() etc.
-I need to call these methods in the kernel, and in
-my special case there is no other way, but i 
-do not want to reimplement all the syscalls.
+> > > My theory is that usbkbd.o doesn't cope with ErrorRollover which is
+> > > being generated, unlike hid.o which didn't used to but does now.
+> > 
+> > I have an idea: remove usbkbd or make it extremely hard for newbies to
+> > build (e.g. drop CONFIG_USB_KBD from config.in, so it would need to be
+> > added manually if you want usbkbd).
+> 
+> That doesn't sound too great.
+> 
+> > At the very minimum I would like to see all distros, and especially
+> > SuSE (because of Vojtech) to stop shipping usbkbd.o.
+> 
+> What I'd like to see, if both hid.o and usbkbd.o can handle a keyboard,
+> is that hid.o gets the job.  Then usbkbd.o can stay in config.in and be
+> built just in case it's needed.
 
-I read that it should be possible, but i cannot
-find any example or recipe on how to do it.
-It should work with do_mmap() and fd=-1 and
-MAP_ANON, but i jusst can't get it to work.
+This is exactly why today's situation is broken. Users (and even
+developers) sometimes find that hid does not work. So, they compile
+usbkbd and move along. This means that hid never can reach into
+certain corner cases, such as the infamous HP keyboard p/n 5184-4708.
 
-Do you now any working example, or a good reference
-for the do_mmap() call? 
-
-Thanks in advance,
-
--timo
-
--- 
-gpg key fingerprint = 6832 C8EC D823 4059 0CD1  6FBF 9383 7DBD 109E 98DC
-
+-- Pete

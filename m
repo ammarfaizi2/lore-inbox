@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277034AbRJWTt3>; Tue, 23 Oct 2001 15:49:29 -0400
+	id <S278206AbRJWT7k>; Tue, 23 Oct 2001 15:59:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278203AbRJWTtT>; Tue, 23 Oct 2001 15:49:19 -0400
-Received: from newssvr17-ext.news.prodigy.com ([207.115.63.157]:17366 "EHLO
-	newssvr17.news.prodigy.com") by vger.kernel.org with ESMTP
-	id <S277034AbRJWTtB>; Tue, 23 Oct 2001 15:49:01 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-Newsgroups: linux.dev.kernel
-Subject: Re: More memory == better?
-In-Reply-To: <20011023161340.02EAC9BD76@pop3.telenet-ops.be>
-Organization: TMR Associates, Schenectady NY
-From: davidsen@tmr.com (bill davidsen)
-X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
-Originator: davidsen@deathstar.prodigy.com (Bill Davidsen)
-Message-ID: <fRjB7.3865$bi5.656765064@newssvr17.news.prodigy.com>
-NNTP-Posting-Host: 192.168.192.240
-X-Complaints-To: abuse@prodigy.net
-X-Trace: newssvr17.news.prodigy.com 1003866571 000 192.168.192.240 (Tue, 23 Oct 2001 15:49:31 EDT)
-NNTP-Posting-Date: Tue, 23 Oct 2001 15:49:31 EDT
-Date: Tue, 23 Oct 2001 19:49:31 GMT
+	id <S278207AbRJWT7a>; Tue, 23 Oct 2001 15:59:30 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:47629 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S278206AbRJWT7W>;
+	Tue, 23 Oct 2001 15:59:22 -0400
+Date: Tue, 23 Oct 2001 17:59:39 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: bill davidsen <davidsen@tmr.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [Q] pivot_root and initrd
+In-Reply-To: <bWjB7.3869$Mm5.657055903@newssvr17.news.prodigy.com>
+Message-ID: <Pine.LNX.4.33L.0110231759020.3690-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011023161340.02EAC9BD76@pop3.telenet-ops.be>,
-DevilKin <DevilKin@gmx.net> wrote:
+On Tue, 23 Oct 2001, bill davidsen wrote:
+> In article <9r4c24$g2k$1@cesium.transmeta.com>,
+> H. Peter Anvin <hpa@zytor.com> wrote:
+>
+> | The right thing is to get rid of the old initrd compatibility cruft,
+> | but that's a 2.5 change.
+>
+>   Get rid of??? As long as you have some equivalent capability to get
+> the system up.
 
-| Currently I've got myself a nice setup (amd 1.4ghz, abit kg7raid etc etc) 
-| with 512mb ram... (DDR). I'm wondering if increasing this to 1gb has 
-| advantages (speedwise or anything), since I can get my hands on it at a very 
-| low price...
-| 
-| I must say that even with most of my applications loaded/running, the system 
-| never even touches the swap partition.
-| 
-| So, would it be wise?
+pivot_root(2) in combination with pivot_root(8)
 
-There are some good reasons to add memory.
-
-- disk i/o rates. vmstat will tell you some disk i/o rates, if they are
-high you *may* get better performance with more memnory for cache.
-
-- future applications. As you say it's cheap right now, if you think
-there's a good chance of larger images, more kernel compiles, whatever,
-buy now.
-
-- memory bandwidth. This is very motherboard dependent, read your specs.
-Some systems will use two or four way interleave to increase bandwidth
-to memory or reduce access time. See what your m/b spec tells you.
-
-- you have the money and want to spend it on {something}! Go ahead,
-memory is one of the best investments for any system.
-
-Just remember that to use this memory you need a large memory kernel.
-
+Rik
 -- 
-bill davidsen <davidsen@tmr.com>
-  His first management concern is not solving the problem, but covering
-his ass. If he lived in the middle ages he'd wear his codpiece backward.
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

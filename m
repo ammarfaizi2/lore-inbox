@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263195AbUC2Xwr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 18:52:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263196AbUC2Xwq
+	id S263184AbUC2XwV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 18:52:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263191AbUC2XwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 18:52:46 -0500
-Received: from holomorphy.com ([207.189.100.168]:36510 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263195AbUC2Xwp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 18:52:45 -0500
-Date: Mon, 29 Mar 2004 15:52:33 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: Paul Jackson <pj@sgi.com>, LKML <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH] mask ADT: bitmap and bitop tweaks [1/22]
-Message-ID: <20040329235233.GV791@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Matthew Dobson <colpatch@us.ibm.com>, Paul Jackson <pj@sgi.com>,
-	LKML <linux-kernel@vger.kernel.org>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Andrew Morton <akpm@osdl.org>, Dave Hansen <haveblue@us.ibm.com>
-References: <20040329041249.65d365a1.pj@sgi.com> <1080601576.6742.43.camel@arrakis>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1080601576.6742.43.camel@arrakis>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Mon, 29 Mar 2004 18:52:21 -0500
+Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:50296 "HELO
+	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263184AbUC2XwT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 18:52:19 -0500
+Message-ID: <4068B692.9020307@yahoo.com.au>
+Date: Tue, 30 Mar 2004 09:51:46 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Ingo Molnar <mingo@elte.hu>, jun.nakajima@intel.com, ricklind@us.ibm.com,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
+       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net,
+       mbligh@aracnet.com
+Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
+References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com>	<20040325154011.GB30175@wotan.suse.de>	<20040325190944.GB12383@elte.hu>	<20040325162121.5942df4f.ak@suse.de>	<20040325193913.GA14024@elte.hu>	<20040325203032.GA15663@elte.hu>	<20040329084531.GB29458@wotan.suse.de>	<4068066C.507@yahoo.com.au>	<20040329080150.4b8fd8ef.ak@suse.de>	<20040329114635.GA30093@elte.hu> <20040329221434.4602e062.ak@suse.de>
+In-Reply-To: <20040329221434.4602e062.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 29, 2004 at 03:06:16PM -0800, Matthew Dobson wrote:
-> Do we need to check the last word specially?  If we're assuming that the
-> unused bits are 0's, then they can't affect the check, right?  If we're
-> not assuming the unused bits are 0's, then we need to do this last word
-> special casing in bitmap_xor & bitmap_andnot, because they could set the
-> unused bits.  Or am I confused?
+Andi Kleen wrote:
+> On Mon, 29 Mar 2004 13:46:35 +0200
+> Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> 
+>>* Andi Kleen <ak@suse.de> wrote:
+>>
+>>
+>>>Sorry ignore this report - I just found out I booted the wrong kernel
+>>>by mistake. Currently retesting, also with the proposed change to only
+>>>use a single scheduling domain.
+>>
+>>here are the items that are in the works:
+>>
+>>  redhat.com/~mingo/scheduler-patches/sched.patch
+>>
+>>it's against 2.6.5-rc2-mm5. This patch also reduces the rate of active
+>>balancing a bit.
+> 
+> 
+> I applied only this patch and it did slightly better than the normal -mm* 
+> 1.5 - 2x CPU bandwidth, but still very short of the 3.7x-4x mainline
+> and 2.4 reach.
 
-No, not those two. xor of 0's is 0 again. and of 0 and anything is 0 again.
-xornot and ornot would need those checks if implemented.
-
-
-On Mon, Mar 29, 2004 at 03:06:16PM -0800, Matthew Dobson wrote:
-> Same comments here, both the double ';' and the last word special
-> casing...
-> Looking ahead, patch 2/22 specifically states that we assume all our
-> input masks have the high/unused bits cleared and we promise not to set
-> them.  So we shouldn't need the last word special casing in
-> bitmap_intersect & bitmap_subset...  I think. ;)
-
-It looks like Paul wants those invariants. Which is fine; I can do things
-on behalf of users, or stand back and let them do things themselves.
-
-You're right that intersection (and) and subset (andnot) shouldn't require
-any special cases for the final word.
-
-
--- wli
+So both -mm5 and Ingo's sched.patch are much worse than
+what 2.4 and 2.6 get?

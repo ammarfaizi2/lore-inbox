@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129557AbRABXP4>; Tue, 2 Jan 2001 18:15:56 -0500
+	id <S130480AbRABXRg>; Tue, 2 Jan 2001 18:17:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130480AbRABXPq>; Tue, 2 Jan 2001 18:15:46 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:1550 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129557AbRABXPh> convert rfc822-to-8bit; Tue, 2 Jan 2001 18:15:37 -0500
-Date: Tue, 2 Jan 2001 14:44:53 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Dan Hollis <goemon@anime.net>
-cc: David Woodhouse <dwmw2@infradead.org>,
-        Hakan Lennestal <hakanl@cdt.luth.se>,
-        Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-Subject: Re: Chipsets, DVD-RAM, and timeouts.... 
-In-Reply-To: <Pine.LNX.4.30.0101021441290.15631-100000@anime.net>
-Message-ID: <Pine.LNX.4.10.10101021444010.1037-100000@penguin.transmeta.com>
+	id <S131094AbRABXR0>; Tue, 2 Jan 2001 18:17:26 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:59402
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S130480AbRABXRR>; Tue, 2 Jan 2001 18:17:17 -0500
+Date: Tue, 2 Jan 2001 14:46:24 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Rob Landley <landley@flash.net>
+cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: CPRM copy protection for ATA drives
+In-Reply-To: <3A525923.330B0482@flash.net>
+Message-ID: <Pine.LNX.4.10.10101021442010.26680-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id OAA27423
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2 Jan 2001, Rob Landley wrote:
 
+> And we all remember how the pirates got around this, don't we?  The easy
+> way: crack the program.
 
-On Tue, 2 Jan 2001, Dan Hollis wrote:
+Nope...it is embedded to the vender portion of the media.
 
-> On Tue, 2 Jan 2001, David Woodhouse wrote:
-> > It's a combination of chipset and drive that causes the problems. I've
-> > been using ata66 with the same controller on a different drive
-> > (FUJITSU MPE3136AT) for some time now, and it's been rock solid. It's only
-> > the IBM DTLA drive that's been a problem on this controller.
-> 
-> Maxtor has problems with hpt366 also.
-> 
-> > Highpoint made changes in their 1.26¹ BIOS to correctly support the IBM
-> > DTLA drives. If we can get access to information about what they had to
-> > change, we ought to be able to get it to work on those drives reliably.
-> 
-> Too bad Maxtor is still broken with hpt366...
-> 
-> Also, using CDROM on hpt366 is recipe for disaster...
+> There's nothing new under the sun, and the "zero day warez" people never
+> even broke stride dealing with this sort of thing.  All it WILL do is
+> annoy people who try to legitimately use the system.  And, of coruse,
+> make a lot more people buy SCSI if they sabotage the ATA spec this
+> way...
 
-Does the Maxtor and/or CDROM problems have anything to do with udma66? Ie
-if you can test, can you please check whether it's ok when they are added
-to the blacklists (or if udma66 is just disabled by default)?
+You were not listening, SCSI/MMC grabbed their ankles already!
 
-		Linus
+> Has anybody brought up the LEVELS of nested stupidity in this particular
+> proposal to the committe?  (Committee iq: average intelligence of
+> members, divide by headcount.  Nice to see that holds true.)
+
+Yes, it is not part of the STANDARD because I successfully stopped it for
+now until February.  Oh and I sit and vote on that committee.
+
+> users.  A GPLed program isn't likely to depend on this "feature", is
+> it?  Or the Intel CPU ID...).
+
+It requires a licensed HOST/Application like a JAVA-thingy, or a
+real-local one.
+
+If you want to kill it somebody create a GNU-CPRM and open-source it.
+License it for FREE.
+
+Cheers,
+
+Andre Hedrick
+CTO Timpanogas Research Group
+EVP Linux Development, TRG
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

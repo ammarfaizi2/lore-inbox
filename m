@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287939AbSA0KuO>; Sun, 27 Jan 2002 05:50:14 -0500
+	id <S287940AbSA0KwE>; Sun, 27 Jan 2002 05:52:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287979AbSA0KuF>; Sun, 27 Jan 2002 05:50:05 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:11534 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S287939AbSA0Kt4>;
-	Sun, 27 Jan 2002 05:49:56 -0500
-Date: Sun, 27 Jan 2002 11:49:43 +0100
+	id <S287944AbSA0Kvy>; Sun, 27 Jan 2002 05:51:54 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:14350 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S287940AbSA0Kvn>;
+	Sun, 27 Jan 2002 05:51:43 -0500
+Date: Sun, 27 Jan 2002 11:51:30 +0100
 From: Jens Axboe <axboe@suse.de>
 To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make ide-scsi compile in 2.5
-Message-ID: <20020127114942.A4140@suse.de>
-In-Reply-To: <20020127024631.A28936@wotan.suse.de>
+Cc: Douglas Gilbert <dougg@torque.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sg in lk 2.5.3-pre5
+Message-ID: <20020127115130.B4140@suse.de>
+In-Reply-To: <3C53643E.47EDB3C2@torque.net> <20020127034458.A8992@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020127024631.A28936@wotan.suse.de>
+In-Reply-To: <20020127034458.A8992@wotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Sun, Jan 27 2002, Andi Kleen wrote:
+> On Sat, Jan 26, 2002 at 09:21:50PM -0500, Douglas Gilbert wrote:
+> > Strange that Andi Kleen had problems compiling ide-scsi, 
+> > it compiled and worked on my UP and SMP machines (AMD and
+> > dual Celeron respectively).
 > 
-> ide-scsi doesn't compile currently in 2.5.x. This patch fixes it in a 
-> rather hackish way by adding some kmap_atomic()s.  It would be 
-> probably better to kmap earlier in process context in the request 
-> function instead, but I leave this to the people who know more 
-> about IDE/block layer than me (but apparently not compile ide-scsi..)
+> I must apologize. It seems the removal of scatterlist->address 
+> was a vger tree only change (I tested with vger).  Mainline
+> 2.5 still seems to have it. Nevertheless the patch probably
+> won't hurt to apply.
 
-axboe@burns:~/src/linux> make drivers/scsi/ide-scsi.o
-gcc -D__KERNEL__ -I/home/axboe/src/linux/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686   -c -o drivers/scsi/ide-scsi.o drivers/scsi/ide-scsi.c
-axboe@burns:~/src/linux>
-
-Works for me, what didn't compile?
-
-Are you sure that you aren't hitting the sg address change? AFAICS,
-there should not be a need for highmem mapping here. Requests coming out
-of the block layer for /dev/scd* should be bounced for you, and sg
-doesn't pass on highmem pages iirc.
-
-Puzzled...
+Ah makes sense. Yes the ->address change is pending still. I still don't
+think it's worth it to complicate ide-scsi with kmap, just have it
+bounced. ide-scsi will not live too much longer anyways.
 
 -- 
 Jens Axboe

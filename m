@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbQLOPje>; Fri, 15 Dec 2000 10:39:34 -0500
+	id <S129348AbQLOPkE>; Fri, 15 Dec 2000 10:40:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129348AbQLOPjY>; Fri, 15 Dec 2000 10:39:24 -0500
-Received: from mail-6.tiscalinet.it ([195.130.225.152]:53392 "EHLO
-	mail.tiscalinet.it") by vger.kernel.org with ESMTP
-	id <S129324AbQLOPjT>; Fri, 15 Dec 2000 10:39:19 -0500
-Date: Fri, 15 Dec 2000 15:13:24 +0100
-From: a.airaghi@tiscalinet.it
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test12 randomly hangs up
-Message-ID: <20001215151324.A1134@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-X-Mio-Grande-Amore: Elena 
+	id <S129868AbQLOPjq>; Fri, 15 Dec 2000 10:39:46 -0500
+Received: from waste.org ([209.173.204.2]:24384 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S129348AbQLOPjh>;
+	Fri, 15 Dec 2000 10:39:37 -0500
+Date: Fri, 15 Dec 2000 09:09:05 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Stephen Frost <sfrost@snowman.net>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Netfilter <netfilter@us5.samba.org>
+Subject: Re: test13-pre1 changelog
+In-Reply-To: <20001215093016.S26953@ns>
+Message-ID: <Pine.LNX.4.30.0012150906270.18387-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here too. :((
-My CPU: Pentium 150 (NO overclock). 64 MB RAM.
-Linux freeze (no keyboard, no disk activity) 5-10 minutes after I load X.
-No freezing with other 2.4.0-testxx kernels.
+On Fri, 15 Dec 2000, Stephen Frost wrote:
 
+> * Oliver Xymoron (oxymoron@waste.org) wrote:
+> > On Thu, 14 Dec 2000, Linus Torvalds wrote:
+> >
+> > > A 100ms delay sounds like some interrupt shut up or similar (and then
+> > > timer handling makes it limp along).
+> >
+> > Possibly related datapoint: after several days of uptime, my
+> > 2.4.0-test10pre? machine went into some sort of slow mode after coming
+> > back from suspend (and doing an /etc/init.d/networking restart). Symptoms
+> > seemed to be extra second or so setting up a TCP connection. Ping, etc.,
+> > appeared to work just fine, no packet loss apparent, bandwidth looked good
+> > too. Sadly I had to do actual work that required zippy web access, so I
+> > rebooted rather than doing a thorough diagnostic. This is a VAIO with
+> > compiled in eepro100, no special networking options.
+>
+> 	Actually, I figured out what it was and I feel kind of stupid, and
+> suprised.  I knew I should have tried rebooting before complaining.  It
+> turns out it actually was something in my firewall rules, it appears that
+> for every logged packet there is something along the lines of a 100ms
+> delay that gets added on.
 
-Please note: I'm not subscribed.
+Hmmm, that's seems rather extreme - does it have to wait for klogd to get
+scheduled before it proceeds? I would expect the filtering to be down in
+the noise except at fairly high loads.
 
-
-Ciao
-Ale
 -- 
-Alessandro Airaghi | e-mail: a.airaghi@tiscalinet.it
-                   |         airaghi@freemail.it
-                   |
-                   | home page: http://web.tiscalinet.it/airaghi
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

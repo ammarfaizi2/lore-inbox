@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129551AbQJaQlZ>; Tue, 31 Oct 2000 11:41:25 -0500
+	id <S129713AbQJaQqg>; Tue, 31 Oct 2000 11:46:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129718AbQJaQlP>; Tue, 31 Oct 2000 11:41:15 -0500
-Received: from proxy.ovh.net ([213.244.20.42]:56836 "HELO proxy.ovh.net")
-	by vger.kernel.org with SMTP id <S129551AbQJaQk5>;
-	Tue, 31 Oct 2000 11:40:57 -0500
-Message-ID: <39FEF603.7F6950AF@ovh.net>
-Date: Tue, 31 Oct 2000 17:40:35 +0100
-From: octave klaba <oles@ovh.net>
-X-Mailer: Mozilla 4.73 [en] (Win98; I)
-X-Accept-Language: fr,en
-MIME-Version: 1.0
-To: Geoff Winkless <geoff@farmline.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.17 & VM: do_try_to_free_pages failed / eepro100
-In-Reply-To: <069c01c0434b$ad0c5a50$1400000a@farmline.com>
+	id <S130157AbQJaQq0>; Tue, 31 Oct 2000 11:46:26 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:26922 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129713AbQJaQqQ>; Tue, 31 Oct 2000 11:46:16 -0500
+Date: Tue, 31 Oct 2000 17:44:04 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Steven Pratt <slpratt@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvac.org
+Subject: Re: [PATCH] 2.4.0-test10-pre6  TLB flush race in establish_pte
+Message-ID: <20001031174404.G32766@athlon.random>
+In-Reply-To: <20001031013046.M21935@athlon.random> <39FEF1F0.70822A87@us.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <39FEF1F0.70822A87@us.ibm.com>; from slpratt@us.ibm.com on Tue, Oct 31, 2000 at 10:23:12AM -0600
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Oct 31 12:12:25 mail-client kernel: VM: do_try_to_free_pages failed for
-> sendmail
-> ...
-> Oct 31 12:12:26 mail-client last message repeated 60 times
-> Oct 31 12:12:26 mail-client kernel: VM: do_try_to_free_pages failed for
-> kupdate.
->
-> To agree with Octave, this only appears to happen under load - over weekends
-> (our quiet periods) the syslog is nearly empty. In extremis it has been
-> necessary to reboot the machine by kicking the power button.
+On Tue, Oct 31, 2000 at 10:23:12AM -0600, Steven Pratt wrote:
+> I stand corrected, I missed this is my searching. [..]
 
-on our servers it arrived only when the swap is used. for exemple:
-there is too many requests on the web server, machine begins to swap,
-after 3-4 minutes we have the first VM errors. it is too late. 
-the solutions: reboot server / unplug cable / cut port 80 on the router 
-and wait ... after 3-4 minutes server rebegins to work finely. If you do 
-not touch the swap you have never this problem. another solution is to 
-put lot of ram ;) 
+Never mind, it's nearly impossible to track every single message to l-k.
+It was only informational.
 
-Octave
+> [..] Hopefully this will
+> get in this time.
+
+I hope too indeed :).
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

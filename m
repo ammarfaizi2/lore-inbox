@@ -1,85 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132220AbRDCQUy>; Tue, 3 Apr 2001 12:20:54 -0400
+	id <S132027AbRDCQf0>; Tue, 3 Apr 2001 12:35:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132194AbRDCQUp>; Tue, 3 Apr 2001 12:20:45 -0400
-Received: from ns0.petreley.net ([64.170.109.178]:27552 "EHLO petreley.com")
-	by vger.kernel.org with ESMTP id <S130317AbRDCQUk>;
-	Tue, 3 Apr 2001 12:20:40 -0400
-Date: Tue, 3 Apr 2001 09:19:55 -0700
-From: Nicholas Petreley <nicholas@petreley.com>
-To: Harald Dunkel <harri@synopsys.COM>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS? How reliable is it? Is this the future?
-Message-ID: <20010403091955.A379@petreley.com>
-In-Reply-To: <3AC9BE5A.DE079EE1@Synopsys.COM>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <3AC9BE5A.DE079EE1@Synopsys.COM>; from harri@synopsys.COM on Tue, Apr 03, 2001 at 02:13:14PM +0200
+	id <S132039AbRDCQfQ>; Tue, 3 Apr 2001 12:35:16 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:52190 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S132027AbRDCQfE>;
+	Tue, 3 Apr 2001 12:35:04 -0400
+Date: Tue, 3 Apr 2001 12:34:18 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Andries.Brouwer@cwi.nl, torvalds@transmeta.com, hpa@transmeta.com,
+        linux-kernel@vger.kernel.org, tytso@MIT.EDU
+Subject: Re: Larger dev_t
+In-Reply-To: <200104031605.f33G5D604937@mobilix.atnf.CSIRO.AU>
+Message-ID: <Pine.GSO.4.21.0104031214270.17127-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My Linux boxes are 99% Reiserfs (I work with 2 small ext2
-partitions - the rest are Reiserfs partitions).  Some things
-I have noticed:
 
-The good (2.2 kernels):
 
-* No problems at all using Reiserfs 3.5.x on 2.2 kernels
-* Speed improvements using Reiserfs and squid
-* No NFS problems
-* Rollback of logs is extremely fast vs. fsck
+On Tue, 3 Apr 2001, Richard Gooch wrote:
 
-The bad (2.2 kernels)
+> However, a large number of people run devfs on small to large systems,
+> and these "races" aren't causing problems. People tell me it's quite
+> stable. I run devfs on my systems, and not once have I had a problem
+> due to devfs "races". So I feel it's quite unfair to paint such a dire
+> picture (I'm referring to Martin's comments here, not Alan's).
 
-* Nothing I can think of
+And _that_ approach is the reason why I absolutely refuse to run your code
+on any of my boxen.  Sorry.  If devfs (without serious cleanup) will become
+mandatory I'll fork the tree - better backporting patches to Linus' one than
+depending on current devfs.  You've been sitting on known (and easily fixable)
+bugs and asking to leave fixing them to you for what, 10 months already?
+Furrfu...  You are maintainer of that code.  You keep insisting on having
+everything and a kitchen sink in the devfs and refuse to split the
+functionality into reasonable pieces.  Essentially you are saying that it's
+all or nothing deal.  Fine with me - out of these options I certainly
+prefer the latter.
+								Al
 
-The bad (2.4.x kernels):
-
-* Some corruption problems with various 2.4.x kernels, but
-people are reporting ext2 problems, too, so this is
-probably due at least in part to IDE/PCI chipset issues
-* Some corruption problems if an application 
-uses an nfs-mounted reiserfs partition during
-an unexpected shutdown of the nfs server
-
-The good (2.4.x kernels)
-
-* Reisefsck --rebuild-tree works fine for me
-when I get corruption problems
-
-I haven't used Windows to do any work in years.  Just
-games.  
-
--Nick
-
-* Harald Dunkel (harri@synopsys.COM) [010403 05:17]:
-> Hi folks,
-> 
-> If I get the DVD stuff working, then I won't need NT anymore, i.e.
-> I will have an empty disk.
-> 
-> What is your impression about ReiserFS? Does it work? Is it stable
-> enough for my daily work, or is it something to try out and watch
-> carefully? Do you use ReiserFS for your boot partition?
-> 
-> Or should I try ext3 instead?
-> 
-> 
-> Regards
-> 
-> Harri
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-**********************************************************
-Nicholas Petreley   Caldera Systems - LinuxWorld/InfoWorld
-nicholas@petreley.com - http://www.petreley.com - Eph 6:12
-**********************************************************
-.

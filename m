@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264432AbTFKLtn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 07:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264434AbTFKLtn
+	id S264389AbTFKMDB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 08:03:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264396AbTFKMDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 07:49:43 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:14250
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264432AbTFKLtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 07:49:42 -0400
-Subject: Re: Device-driver debugger on Linux ?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Mathur, Shobhit" <Shobhit_mathur@adaptec.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3EE7B34C.B803F915@adaptec.com>
-References: <3EE7B34C.B803F915@adaptec.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1055332852.872.2.camel@dhcp22.swansea.linux.org.uk>
+	Wed, 11 Jun 2003 08:03:00 -0400
+Received: from main.gmane.org ([80.91.224.249]:31980 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264389AbTFKMC7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 08:02:59 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: RealTek NIC on alpha?
+Date: 11 Jun 2003 14:16:31 +0200
+Message-ID: <yw1x4r2wu7vk.fsf@zaphod.guide>
+References: <20030611091910.GD801@rene-engelhard.de> <wrpznkp9d69.fsf@hina.wild-wind.fr.eu.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 Jun 2003 13:00:58 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
+Cc: debian-alpha@lists.debian.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-06-11 at 23:55, Mathur, Shobhit wrote:
-> Hello,
-> 
-> I would like to know whether there exists a device-driver debugger on
-> Linux like SoftIce on Windows. From the working of kgdb, I understand
-> that the debugging on the Target machine can happen once the code
-> reaches the gdbstub, which is well past the driver-initialisations.
+Marc Zyngier <mzyngier@freesurf.fr> writes:
 
-You can invoke the kgdbstubs stuff very very early, well before device
-driver setup. Also you can (and its normally easier for development)
-load device drivers at run time 
+> Rene> 8139too Fast Ethernet driver 0.9.2
+> Rene> and does not do anything after that.
+> 
+> Make sure CONFIG_8139TOO_PIO is set. I had similar problem on one of
+> my Multias...
+
+A friend of mine had to set the MAC address manually with one of those
+cards.  After that it was fine.
+
+-- 
+Måns Rullgård
+mru@users.sf.net
 

@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262686AbTJNRxI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 13:53:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbTJNRxI
+	id S262635AbTJNSDC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 14:03:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbTJNSDC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 13:53:08 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:30220 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S262686AbTJNRww (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 13:52:52 -0400
-Date: Tue, 14 Oct 2003 19:52:47 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>
-Cc: Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org
-Subject: Re: make htmldocs
-Message-ID: <20031014175247.GB922@mars.ravnborg.org>
-Mail-Followup-To: Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>,
-	Erik Mouw <erik@harddisk-recovery.com>, linux-kernel@vger.kernel.org
-References: <20031013185539.B1832@beton.cybernet.src> <20031014094601.GB15075@bitwizard.nl> <20031014120946.A4969@beton.cybernet.src>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031014120946.A4969@beton.cybernet.src>
-User-Agent: Mutt/1.4.1i
+	Tue, 14 Oct 2003 14:03:02 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50110 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262635AbTJNSDA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 14:03:00 -0400
+Message-ID: <3F8C3A48.5090703@pobox.com>
+Date: Tue, 14 Oct 2003 14:02:48 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Antonio Vargas <wind@cocodriloo.com>
+CC: Daniel Blueman <daniel.blueman@gmx.net>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] [2.4.21] 8139too 'too much work at interrupt'...
+References: <16084.1065694106@www3.gmx.net> <20031009163530.GA7001@wind.cocodriloo.com>
+In-Reply-To: <20031009163530.GA7001@wind.cocodriloo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 14, 2003 at 12:09:46PM +0200, Karel Kulhavý wrote:
-> I have been using Linux Kernel for 7 years but can't anymore
-> because I am unable to read it's manual.
+Antonio Vargas wrote:
+> This happens to me also on 2.4.18 and 2.4.19 (yes, I know they are old).
+> 
+> Happens about once every 5 months, with the box running at
+> about 1 month uptime per reboot (home server, there is no UPS)
 
-The *.tmpl files and the sgml files are easy readable.
-The only thing docbook does is to add a bit more formatting, indexes etc.
-But nothing that prevents you from reading it if you need to do so.
-Please stop this kind of arguments if we shall not stop listening.
 
-When you have figured out how to install the required tools I would
-be glad to receive a write-up that I can include somewhere in the kernel
-to help others in the process.
+It's fairly normal for this event to occur.  It's due to the 8139 
+hardware..  sometimes (perhaps during a DoS or ping flood) you can 
+receive far more tiny packets than the driver wishes to deal with in a 
+single interrupt.
 
-	Sam
+The real solution is to convert the driver to NAPI...
+
+	Jeff
+
+
+

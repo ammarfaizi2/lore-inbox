@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317194AbSEXRaL>; Fri, 24 May 2002 13:30:11 -0400
+	id <S317198AbSEXRdD>; Fri, 24 May 2002 13:33:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317198AbSEXRaK>; Fri, 24 May 2002 13:30:10 -0400
-Received: from [209.184.141.163] ([209.184.141.163]:49617 "HELO UberGeek")
-	by vger.kernel.org with SMTP id <S317194AbSEXRaJ>;
-	Fri, 24 May 2002 13:30:09 -0400
-Subject: Re: [BUG] 2.4 VM sucks. Again
-From: Austin Gonyou <austin@digitalroadkill.net>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <423360000.1022257916@flay>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 24 May 2002 12:30:05 -0500
-Message-Id: <1022261405.9617.39.camel@UberGeek>
-Mime-Version: 1.0
+	id <S317202AbSEXRdC>; Fri, 24 May 2002 13:33:02 -0400
+Received: from loewe.cosy.sbg.ac.at ([141.201.2.12]:57771 "EHLO
+	loewe.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
+	id <S317198AbSEXRdC>; Fri, 24 May 2002 13:33:02 -0400
+Date: Fri, 24 May 2002 19:32:48 +0200 (MET DST)
+From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Tobias Ringstrom <tori@ringstrom.mine.nu>,
+        Myrddin Ambrosius <imipak@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux crypto?
+In-Reply-To: <E17BGWd-0006S2-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.05.10205241932260.11037-100000@mausmaki.cosy.sbg.ac.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-05-24 at 11:31, Martin J. Bligh wrote:
-> >> I'm not sure exactly what Roy was doing, but we were taking a machine
-> >> with 16Gb of RAM, and reading files into the page cache - I think we built up
-> >> 8 million buffer_heads according to slabinfo ... on a P4 they're 128 bytes each,
-> >> on a P3 96 bytes.
-> > 
-> > The buffer heads one would make sense. I only test on realistic sized systems. 
-> 
-> Well, it'll still waste valuable memory there too, though you may not totally kill it.
-> 
-> > Once you pass 4Gb there are so many problems its not worth using x86 in the
-> > long run
-> 
-I assume that you mean by "not worth using x86" you're referring to say,
-degraded performance over other platforms? Well...if you talk
-price/performance, using x86 is perfect in those terms since you can buy
-more boxes and have a more fluid architecture, rather than building a
-monolithic system. Monolithic systems aren't always the best. Just look
-at Fermilab!
+On Fri, 24 May 2002, Alan Cox wrote:
 
-> Nah, we just haven't fixed them yet ;-)
+> > On Wed, 22 May 2002, Alan Cox wrote:
+> > 
+> > > What of it do you actually need in kernel space - encrypted file systems
+> > > certainly ought to be there but are not very well handled in Linux proper
+> > > right now - but anything else ?
+> > 
+> > IPsec.
 > 
-> M.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> At the moment there doesn't appear to be an IPsec stack we can merge however
+
+what about freeswan - with some cleanups?
+
+	tm
+
+-- 
+in some way i do, and in some way i don't.
+

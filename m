@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbUGLUOV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262382AbUGLUSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbUGLUOV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 16:14:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUGLUOV
+	id S262382AbUGLUSP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 16:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbUGLUSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 16:14:21 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:40424 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S262328AbUGLUOT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 16:14:19 -0400
-X-Sasl-enc: Uv3KC/7aniSFEFU5R0pcGA 1089663264
-Message-ID: <00b001c4684c$d060bb20$9aafc742@ROBMHP>
-From: "Rob Mueller" <robm@fastmail.fm>
-To: "William Lee Irwin III" <wli@holomorphy.com>
-Cc: "Chris Mason" <mason@suse.com>, <linux-kernel@vger.kernel.org>
-References: <00f601c46539$0bdf47a0$e6afc742@ROBMHP> <1089377936.3956.148.camel@watt.suse.com> <009e01c46849$f2e85430$9aafc742@ROBMHP> <20040712201154.GI21066@holomorphy.com>
-Subject: Re: Processes stuck in unkillable D state (now seen in 2.6.7-mm6)
-Date: Mon, 12 Jul 2004 13:14:12 -0700
+	Mon, 12 Jul 2004 16:18:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:10164 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262356AbUGLUSM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 16:18:12 -0400
+Date: Mon, 12 Jul 2004 13:17:20 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@redhat.com>
+cc: Jakub Jelinek <jakub@redhat.com>, davidm@hpl.hp.com,
+       suresh.b.siddha@intel.com, jun.nakajima@intel.com,
+       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: serious performance regression due to NX patch
+In-Reply-To: <Pine.LNX.4.58.0407121402160.2451@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.58.0407121315170.1764@ppc970.osdl.org>
+References: <200407100528.i6A5SF8h020094@napali.hpl.hp.com>
+ <Pine.LNX.4.58.0407110437310.26065@devserv.devel.redhat.com>
+ <Pine.LNX.4.58.0407110536130.2248@devserv.devel.redhat.com>
+ <Pine.LNX.4.58.0407110550340.4229@devserv.devel.redhat.com>
+ <20040711123803.GD21264@devserv.devel.redhat.com>
+ <Pine.LNX.4.58.0407121402160.2451@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2149
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2149
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Nice, deep stack there; however, this appears to only be one process. It
-> may be helpful to see the others.
 
-I've put the dumps here. I did sysreq-t twice, thus the 2 dumps. If you diff 
-them, you'll see they're very very similar.
+On Mon, 12 Jul 2004, Ingo Molnar wrote:
+> 
+> so ... this should be #ifndef ia64?
 
-http://robm.fastmail.fm/kernel/t2/
+No. Make it a CONFIG_DEFAULT_NOEXEC and make the relevant architectures do
+a
 
-Rob
+	define_bool DEFAULT_NOEXEC y
 
+in their Kconfig files.
+
+In general, we should _never_ use an architecture-define. They just always
+end up becoming more and more hairy, and less and less obvious what they 
+are all about.
+
+So instead, make a readable and explicit config define, and let each 
+architecture just set it (or not) as they wish.
+
+		Linus

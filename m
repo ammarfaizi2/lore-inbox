@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267736AbTBNW7V>; Fri, 14 Feb 2003 17:59:21 -0500
+	id <S267505AbTBNW6O>; Fri, 14 Feb 2003 17:58:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267773AbTBNW7V>; Fri, 14 Feb 2003 17:59:21 -0500
-Received: from virtisp1.zianet.com ([216.234.192.105]:21006 "HELO
-	mesatop.zianet.com") by vger.kernel.org with SMTP
-	id <S267736AbTBNW7T>; Fri, 14 Feb 2003 17:59:19 -0500
-Subject: Re: 3Com 3cr990 driver release
-From: Steven Cole <elenstev@mesatop.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <1045243705.1353.30.camel@irongate.swansea.linux.org.uk>
-References: <3E4C9FAA.FC8A2DC7@y12.doe.gov>
-	<1045233209.7958.11.camel@irongate.swansea.linux.org.uk>
-	<20030214151920.GA3188@work.bitmover.com>
-	<1045241640.1353.13.camel@irongate.swansea.linux.org.uk>
-	<20030214160915.GC3188@work.bitmover.com> 
-	<1045243705.1353.30.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 14 Feb 2003 16:01:01 -0700
-Message-Id: <1045263664.4920.14.camel@localhost.localdomain>
+	id <S267529AbTBNW6N>; Fri, 14 Feb 2003 17:58:13 -0500
+Received: from ppp-62-245-161-109.mnet-online.de ([62.245.161.109]:48004 "EHLO
+	frodo.midearth.frodoid.org") by vger.kernel.org with ESMTP
+	id <S267505AbTBNW6N>; Fri, 14 Feb 2003 17:58:13 -0500
+Date: Sat, 15 Feb 2003 00:08:50 +0100
+To: linux-kernel@vger.kernel.org
+Subject: why does it *not* crash?
+Message-ID: <20030214230850.GC1073@frodo.midearth.frodoid.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: frodo@dereference.de (Julien Oster)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-02-14 at 10:28, Alan Cox wrote:
-> On Fri, 2003-02-14 at 16:09, Larry McVoy wrote:
-> > Sure you can, unless your objection extends to getting at data which is in
-> > BK over the web.  http://typhoon.bkbits.net:8080/typhoon-2.4/patch@+
-> > 
-> 
-> Patch isnt noted for its handling of pretty blue html btw
-> 
 
-Larry,
+Hello!
 
-A possible solution to this is to provide the equivalent of the
-"Download Message Raw" link which marc.theaimsgroup.com provides, e.g.
-here: http://marc.theaimsgroup.com/?l=linux-net&m=104524036019392&q=raw
+I'm trying to understand memory management on IA-32. I already read a
+lot, and also coded a lot in assembler to test some things out.
 
-BTW, thanks for creating and providing BK.  It seems to me that the
-positive contributions you've made far out-weigh the negative aspects
-which some perceive.
+However, one thing, I just don't understand and I can't seem to find a
+hint how it works.
 
-Steven
+Wenn I write a very small kernel module, which just sets ESP to
+0x00000000, shouldn't the processor shut down and the mainboard reset?
+But no: it causes an oops, kills the process where the error originated from
+(in this case insmod, since it was loading the module) and happily
+continues working as if nothing ever happened.
+
+But how can this work? I know there are special fields in the TSS which
+specify what to load ESP with in case of a privilege transition, but
+there is no privilege transition since I'm already in CPL 0, or is
+there?
+
+Even the IA-32 developer's manual says, that giving ESP a value of 0 in
+CPL 0 should shut down the processer, since there's no stack for
+anything anymore.
+
+So, what's the magic in Linux? :)
+
+Thanks in advance,
+Julien
 

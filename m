@@ -1,71 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263141AbUKTS2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263139AbUKTSbc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263141AbUKTS2x (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 13:28:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263142AbUKTS2x
+	id S263139AbUKTSbc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 13:31:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263145AbUKTSbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 13:28:53 -0500
-Received: from fw.osdl.org ([65.172.181.6]:59274 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263141AbUKTS2u (ORCPT
+	Sat, 20 Nov 2004 13:31:32 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:2194 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S263139AbUKTSb0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 13:28:50 -0500
-Date: Sat, 20 Nov 2004 10:28:27 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Len Brown <len.brown@intel.com>, Chris Wright <chrisw@osdl.org>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-rc2 doesn't boot (if no floppy device)
-In-Reply-To: <20041120124001.GA2829@stusta.de>
-Message-ID: <Pine.LNX.4.58.0411200940410.20993@ppc970.osdl.org>
-References: <20041115152721.U14339@build.pdx.osdl.net> <1100819685.987.120.camel@d845pe>
- <20041118230948.W2357@build.pdx.osdl.net> <1100941324.987.238.camel@d845pe>
- <20041120124001.GA2829@stusta.de>
+	Sat, 20 Nov 2004 13:31:26 -0500
+Message-ID: <419F8D7A.1020305@colorfullife.com>
+Date: Sat, 20 Nov 2004 19:31:22 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: wait_event_interruptible() seems non-atomic
+References: <419F6DEB.6030606@colorfullife.com> <Pine.LNX.4.53.0411201718040.925@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.53.0411201718040.925@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jan Engelhardt wrote:
 
+>>For example the use of down_interruptible() looks wrong to me, I'd use
+>>plain down().
+>>    
+>>
+>
+>I'd like to be able to hit Ctrl+C (in the userspace application) whenever
+>possible. If that's not a reason, blame the book
+>http://www.xml.com/ldd/chapter/book/ch03.html#t8 ("the read method" a further
+>down below)
+>
+>  
+>
+As far as I can see BufferLock is only held for tiny sections - the 
+longest thing is a copy_to_user(), i.e. at worst a swap in. I my opinion 
+the delay for handling Ctrl+C is therefore negligible and not worth the 
+added code for handling down_interruptible().
+You have already written the code, so I'd leave it as it is and I'll 
+blame the book. They probably started from an older version of 
+fs/pipe.c, which contained _interruptible calls. There are gone now, 
+this allowed some cleanup.
 
-On Sat, 20 Nov 2004, Adrian Bunk wrote:
-> 
-> With your patch, the boot failure goes away.
-> This was with a kernel without Linus' patch applied.
-
-It boots for me too, but it all seems pretty accidental.
-
-In particular, the code will disable irq12 (mouse interrupt), so the mouse
-has no chance of working. Having tested it, it so happens that if I boot
-with a mouse actually conntected, the BIOS will not use irq12 for PCI
-devices, so that will hide the problem since ACPI won't try to disable it
-when it doesn't see it.
-
-But if I had more PCI devices, or another legacy device that doesn't have
-the same kind of "test if something is connected" logic, it really looks
-like it would break again. (It's entirely possible that Windows has the
-exact same issue, of course, at which point it's fairly safe to say that 
-manufacturers will have tested this and just not done it, but I don't feel 
-all that safe making that assumption).
-
-So I think the simpler fix is just this one-liner: we should not disable
-preexisting links, because non-PCI devices may depend on the same routing
-information, and thus the comments about "being activated on use" is not
-actually true.
-
-		Linus
-
-===== drivers/acpi/pci_link.c 1.34 vs edited =====
---- 1.34/drivers/acpi/pci_link.c	2004-11-01 23:40:09 -08:00
-+++ edited/drivers/acpi/pci_link.c	2004-11-20 09:43:56 -08:00
-@@ -685,9 +685,6 @@
- 	acpi_link.count++;
- 
- end:
--	/* disable all links -- to be activated on use */
--	acpi_ut_evaluate_object(link->handle, "_DIS", 0, NULL);
--
- 	if (result)
- 		kfree(link);
- 
+--
+    Manfred

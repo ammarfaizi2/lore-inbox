@@ -1,96 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266476AbUFQNBb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266477AbUFQNDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266476AbUFQNBb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 09:01:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266477AbUFQNBa
+	id S266477AbUFQNDj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 09:03:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266481AbUFQNDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 09:01:30 -0400
-Received: from camus.xss.co.at ([194.152.162.19]:9234 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id S266476AbUFQNB2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 09:01:28 -0400
-Message-ID: <40D1961F.7090804@xss.co.at>
-Date: Thu, 17 Jun 2004 15:01:19 +0200
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.27-pre6
-References: <20040616183343.GA9940@logos.cnet>
-In-Reply-To: <20040616183343.GA9940@logos.cnet>
-X-Enigmail-Version: 0.74.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------010701000206060508070808"
+	Thu, 17 Jun 2004 09:03:39 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:690 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S266479AbUFQNDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 09:03:34 -0400
+Date: Thu, 17 Jun 2004 22:04:49 +0900
+From: Takao Indoh <indou.takao@soft.fujitsu.com>
+Subject: Re: [3/4] [PATCH]Diskdump - yet another crash dump function
+In-reply-to: <20040617121356.GA24338@elte.hu>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andi Kleen <ak@muc.de>
+Message-id: <CBC4546BAB9F1Aindou.takao@soft.fujitsu.com>
+MIME-version: 1.0
+X-Mailer: TuruKame 3.55
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+References: <20040617121356.GA24338@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010701000206060508070808
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Thu, 17 Jun 2004 14:13:56 +0200, Ingo Molnar wrote:
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Hi Marcelo,
-
-Marcelo Tosatti wrote:
-> Hi,
+>but there's another possible method (suggested by Alan Cox) that
+>requires no changes to the timer API hotpaths: 'clear' all timer lists
+>upon a crash [once all CPUs have stopped and irqs are disabled] and just
+>let the drivers use the normal timer APIs. Drive timer execution via a
+>polling method.
 >
-> Here goes -pre6. It contains a significant amount of USB fixes, JFS update,
-> netfilter/sctp fixes, CDROM driver update, tg3 update, SPARC/Alpha fixes.
+>this basically approximates your polling based implementation but uses
+>the existing kernel timer data structures and timer mechanism so should
+>be robust and compatible. It doesnt rely on any previous state (because
+>all currently pending timers are discarded) so it's as crash-safe as
+>possible.
 >
-> And more importantly the FPU x86/x86-64 crash fix.
+>what do you think?
 >
-> Read the detailed changelog for more details.
->
-As already reported for -pre5 and still valid for -pre6,
-"make xconfig" is broken due to changes in drivers/hotplug/Config.in
 
-The attached (trivial) patch fixes this problem.
+It sounds good because change of timer/tasklet code is not needed.
+But, I wonder whether this method is safe. For example, if kernel 
+crashes because of problem of timer, clearing lists may be dangerous 
+before dumping. Is it possible to clear all timer lists safely?
 
-HTH
-
-Regards,
-
-- - andreas
-
-- --
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFA0ZYZxJmyeGcXPhERAvJ1AJ0dA82kQ+jk0sdQiF5whMa+nvfxVQCghCGh
-JSw80qVZNyIWwUZLslMdJ/k=
-=3eBJ
------END PGP SIGNATURE-----
-
---------------010701000206060508070808
-Content-Type: text/plain;
- name="hotplug_xconfig_HRT.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="hotplug_xconfig_HRT.patch"
-
---- linux-2.4.27pre6/drivers/hotplug/Config.in.orig	2004-06-17 14:16:42.000000000 +0200
-+++ linux-2.4.27pre6/drivers/hotplug/Config.in	2004-06-17 14:40:02.000000000 +0200
-@@ -17,7 +17,7 @@
- dep_tristate '  SHPC PCI Hotplug driver' CONFIG_HOTPLUG_PCI_SHPC $CONFIG_HOTPLUG_PCI
- dep_mbool '    Use polling mechanism for hot-plug events (for testing purpose)' CONFIG_HOTPLUG_PCI_SHPC_POLL_EVENT_MODE $CONFIG_HOTPLUG_PCI_SHPC
- if [ "$CONFIG_ACPI" = "n" ]; then
--dep_mbool '    For AMD SHPC only: Use $HRT for resource/configuration' CONFIG_HOTPLUG_PCI_SHPC_PHPRM_LEGACY $CONFIG_HOTPLUG_PCI_SHPC 
-+dep_mbool '    For AMD SHPC only: Use HRT for resource/configuration' CONFIG_HOTPLUG_PCI_SHPC_PHPRM_LEGACY $CONFIG_HOTPLUG_PCI_SHPC 
- fi
- dep_tristate '  PCI Express Hotplug driver' CONFIG_HOTPLUG_PCI_PCIE $CONFIG_HOTPLUG_PCI
- dep_mbool '    Use polling mechanism for hot-plug events (for testing purpose)' CONFIG_HOTPLUG_PCI_PCIE_POLL_EVENT_MODE $CONFIG_HOTPLUG_PCI_PCIE
-
---------------010701000206060508070808--
-
+Best Regards,
+Takao Indoh

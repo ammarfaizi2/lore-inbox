@@ -1,46 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265285AbTFUTkZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 15:40:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265287AbTFUTkZ
+	id S265284AbTFUTgy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 15:36:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265285AbTFUTgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 15:40:25 -0400
-Received: from mail15.speakeasy.net ([216.254.0.215]:13188 "EHLO
-	mail.speakeasy.net") by vger.kernel.org with ESMTP id S265285AbTFUTkY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 15:40:24 -0400
-To: Scott Robert Ladd <coyote@coyotegulch.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-References: <063301c32c47$ddc792d0$3f00a8c0@witbe>
-	<1056027789.3ef1b48d3ea2e@support.tuxbox.dk>
-	<03061908145500.25179@tabby> <20030619141443.GR29247@fs.tum.de>
-	<bcsolt$37m$2@news.cistron.nl>
-	<20030619165916.GA14404@work.bitmover.com>
-	<20030620001217.G6248@almesberger.net>
-	<20030620120910.3f2cb001.skraw@ithnet.com>
-	<3EF4ABF7.9050003@coyotegulch.com>
-From: Michael Poole <mdpoole@troilus.org>
-Date: 21 Jun 2003 15:54:06 -0400
-In-Reply-To: <3EF4ABF7.9050003@coyotegulch.com>
-Message-ID: <873ci3b40x.fsf@sanosuke.troilus.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 21 Jun 2003 15:36:54 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:9438 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S265284AbTFUTgx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 15:36:53 -0400
+Date: Sat, 21 Jun 2003 12:51:11 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com, perex@suse.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Isapnp warning
+Message-Id: <20030621125111.0bb3dc1c.akpm@digeo.com>
+In-Reply-To: <Pine.GSO.4.21.0306211658470.869-100000@vervain.sonytel.be>
+References: <1056198688.25975.25.camel@dhcp22.swansea.linux.org.uk>
+	<Pine.GSO.4.21.0306211658470.869-100000@vervain.sonytel.be>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Jun 2003 19:50:56.0149 (UTC) FILETIME=[6DFD8C50:01C3382E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scott Robert Ladd <coyote@coyotegulch.com> writes:
+Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+>
+> > >  int pnp_add_irq_resource(struct pnp_dev *dev, int depnum, struct pnp_irq *data)
+>  > >  {
+>  > > +#ifdef CONFIG_PCI
+>  > >  	int i;
+>  > > +#endif
+>  > 
+>  > This is far uglier than te warning
+> 
+>  It depends on your goals. These warnings distract us from the real harmful
+>  warnings. Will we ever have a kernel that compiles with -Werror?
 
-> A very technocratic view, to be sure. Source code is no guranatee of
-> future portability or viability; for the vast, vast majority of
-> users -- we do care about those, don't we? -- source code is
-> useless.
+It would be nice.  But as soon as we do that, some gcc guy will have a
+brainfart and we'll get a whole new batch of warnings which we cannot turn
+off.  Again.  I've been involved in projects where it was unacceptable to
+upgrade the gcc version for this sole reason.
 
-To the vast, vast majority of users, being able to program their
-computers is even more useless than someone else's source code is.
 
-Detection of the logical fallacy in both views of "uselessness" is
-left as an exercise to the reader.
+Meanwhile, let's do this:
 
-Michael Poole
+diff -puN drivers/pnp/resource.c~misc6 drivers/pnp/resource.c
+--- 25/drivers/pnp/resource.c~misc6	2003-06-21 12:47:23.000000000 -0700
++++ 25-akpm/drivers/pnp/resource.c	2003-06-21 12:47:44.000000000 -0700
+@@ -97,7 +97,6 @@ int pnp_get_max_depnum(struct pnp_dev *d
+ 
+ int pnp_add_irq_resource(struct pnp_dev *dev, int depnum, struct pnp_irq *data)
+ {
+-	int i;
+ 	struct pnp_resources *res;
+ 	struct pnp_irq *ptr;
+ 	res = pnp_find_resources(dev,depnum);
+@@ -113,9 +112,13 @@ int pnp_add_irq_resource(struct pnp_dev 
+ 	else
+ 		res->irq = data;
+ #ifdef CONFIG_PCI
+-	for (i=0; i<16; i++)
+-		if (data->map & (1<<i))
+-			pcibios_penalize_isa_irq(i);
++	{
++		int i;
++
++		for (i=0; i<16; i++)
++			if (data->map & (1<<i))
++				pcibios_penalize_isa_irq(i);
++	}
+ #endif
+ 	return 0;
+ }
+
+_
+

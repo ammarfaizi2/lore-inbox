@@ -1,68 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136618AbRAHG6N>; Mon, 8 Jan 2001 01:58:13 -0500
+	id <S135202AbRAHHDE>; Mon, 8 Jan 2001 02:03:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136778AbRAHG6D>; Mon, 8 Jan 2001 01:58:03 -0500
-Received: from james.kalifornia.com ([208.179.0.2]:7292 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S136618AbRAHG5z>; Mon, 8 Jan 2001 01:57:55 -0500
-Date: Sun, 7 Jan 2001 22:57:45 -0800 (PST)
-From: David Ford <david@linux.com>
-To: Andi Kleen <ak@suse.de>
-cc: Chris Wedgwood <cw@f00f.org>, "David S. Miller" <davem@redhat.com>,
-        greearb@candelatech.com, linux-kernel@vger.kernel.org,
-        netdev@oss.sgi.com
-Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission
- policy!)
-In-Reply-To: <20010108072634.A29753@gruyere.muc.suse.de>
-Message-ID: <Pine.LNX.4.10.10101072232330.12242-100000@Huntington-Beach.Blue-Labs.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136778AbRAHHCy>; Mon, 8 Jan 2001 02:02:54 -0500
+Received: from monza.monza.org ([209.102.105.34]:2058 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S135202AbRAHHCk>;
+	Mon, 8 Jan 2001 02:02:40 -0500
+Date: Sun, 7 Jan 2001 23:02:26 -0800
+From: Tim Wright <timw@splhi.com>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: Christian Loth <chris@gidayu.max.uni-duisburg.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: DHCP Problems with 3com 3c905C Tornado
+Message-ID: <20010107230226.A2074@scutter.internal.splhi.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: Andrew Morton <andrewm@uow.edu.au>,
+	Christian Loth <chris@gidayu.max.uni-duisburg.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010104123139.A15097@gidayu.max.uni-duisburg.de> <3A58725F.A1E3CD37@uow.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A58725F.A1E3CD37@uow.edu.au>; from andrewm@uow.edu.au on Mon, Jan 08, 2001 at 12:42:55AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2001, Andi Kleen wrote:
-> Who says that it names a device? It names interfaces.
-> There are good reasons to have names for ifas, and I see no really good
-> convincing reasons not to put these names into the interface name space.
-> (in addition it'll save a lot of people a lot of grief) 
-> When you're proposing a change that breaks thousands of configuration you
-> need a really good reason for it, and so far I cannot see one. It would 
-> be different if the older way needed lots of hard to maintain fragile code in 
-> the kernel, but that's really not the case. 
+Sounds somewhat familiar. The pump that came with RedHat 6.2 never worked
+correctly at work, but dhcpcd worked just fine (we don't have static IP
+addresses, but there are fewer machines than there are addresses in the pool,
+so effectively, we do :-). The odd thing is that I (mis?)understood in this
+case that dhcpcd was not working either (unless I'm confusing this with a
+different thread). Suffice to say that newer versions of pump seem to work
+much better, at least for me.
 
-If people are upgrading to things like 2.6, then one must expect some
-changes.  The eth0:0 style has already been whittled down, it has nothing
-now but the IP and mask info. It's a something between two styles.  It
-encourages a non-scalable use.  I.e. eth0:2342, or eth0:http.  It came up
-because listing w/ ifconfig -a in it's current form wasn't satisfactorily
-fast.
+Tim
 
-Distributions should be encouraged to use ip rather than ifconfig/route.  It
-works better and does more, the output is more informative, more concise,
-and less confusing.  It doesn't take that much more disk space than ifconfig
-and route does, ifconfig and route take 74K, ip takes 89K. I don't think 15k
-of disk space is sufficient concern, given that inodes are probably page
-size.  That comes out to three pages difference.  Even on a floppy that's
-not much.  I didn't even compile optimized for size either.
+On Mon, Jan 08, 2001 at 12:42:55AM +1100, Andrew Morton wrote:
+> Christian Loth wrote:
+> > 
+> > Hello all,
+> > 
+> >   I recently installed a system with the 3c905C
+> > NIC on RedHat 6.2. In our network, IP adresses
+> > are granted via DHCP, although every host has
+> > a fixed IP instead of a dynamic IP pool. The IP
+> > is statically coupled with the MAC adresses of
+> > our network.
+> 
+> Christian,
+> 
+> I was able to reproduce this.  All sorts of wierd stuff.
+> 
+> All the problems magically disappeared after upgrading
+> to pump-0.8.6.
+> 
+> You wouldn't *believe* how hard it is to find a pump
+> tarball, so I've put one at
+> 
+> 	http://www.uow.edu.au/~andrewm/pump-0.8.6.tar.gz
+> 
+> -
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
-Due to that, 'eth0:n' becomes a byproduct without much merit.  People who
-insist on eth0:n are probably people who also will insist on 1.2.13 for
-their router simply because they don't want or need to change it.  The new
-form with the new tool is easier, especially if you have any cisco
-background.  You can't beat 'ip a a 10.1.1.1/24 brd + dev eth0' for the
-netmask and figuring out the broadcast properly without error.  It's shorter
-and less prone to error and more easily scriptable because you don't need a
-changing label.  It's also more easily parsed by scripts.
-
--d
-
-
---
----NOTICE--- fwd: fwd: fwd: type emails will be deleted automatically.
-      "There is a natural aristocracy among men. The grounds of this are
-      virtue and talents", Thomas Jefferson [1742-1826], 3rd US President
-
+-- 
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288370AbSAHVN4>; Tue, 8 Jan 2002 16:13:56 -0500
+	id <S288351AbSAHVRg>; Tue, 8 Jan 2002 16:17:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288364AbSAHVNq>; Tue, 8 Jan 2002 16:13:46 -0500
-Received: from zero.tech9.net ([209.61.188.187]:34312 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S288351AbSAHVNn>;
-	Tue, 8 Jan 2002 16:13:43 -0500
+	id <S288364AbSAHVR1>; Tue, 8 Jan 2002 16:17:27 -0500
+Received: from zero.tech9.net ([209.61.188.187]:39944 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S288351AbSAHVRQ>;
+	Tue, 8 Jan 2002 16:17:16 -0500
 Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
 From: Robert Love <rml@tech9.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, Andrew Morton <akpm@zip.com.au>,
-        Anton Blanchard <anton@samba.org>, Andrea Arcangeli <andrea@suse.de>,
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Andrew Morton <akpm@zip.com.au>, Anton Blanchard <anton@samba.org>,
+        Andrea Arcangeli <andrea@suse.de>,
         Luigi Genoni <kernel@Expansa.sns.it>,
         Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
         Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Rik van Riel <riel@conectiva.com.br>,
         Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0201081907040.2985-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.33L.0201081907040.2985-100000@imladris.surriel.com>
+In-Reply-To: <E16O2hc-0000B3-00@starship.berlin>
+In-Reply-To: <20020108030420Z287595-13997+1799@vger.kernel.org>
+	<E16Nxjg-00009W-00@starship.berlin> <3C3B4CB7.FEAAF5FC@zip.com.au> 
+	<E16O2hc-0000B3-00@starship.berlin>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
-Date: 08 Jan 2002 16:15:31 -0500
-Message-Id: <1010524532.3383.106.camel@phantasy>
+Date: 08 Jan 2002 16:19:04 -0500
+Message-Id: <1010524746.3225.112.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-01-08 at 16:08, Rik van Riel wrote:
+On Tue, 2002-01-08 at 15:18, Daniel Phillips wrote:
 
-> The preemptible kernel ALSO has to wait for a scheduling point
-> to roll around, since it cannot preempt with spinlocks held.
+> > Instead, a decision needs to be made: "Linux will henceforth be a 
+> > low-latency kernel".
 > 
-> Considering this, I don't see much of an advantage to adding
-> kernel preemption.
+> I thought the intention was to make it a config option?
 
-It only has to wait if locks are held and then only until the locks are
-dropped.  Otherwise it will preempt on the next return from interrupt.
+It was originally, it is now, and I intend it to be.
 
-Future work would be to look into long-held locks and see what we can
-do.
-
-Without preempt-kernel, we have none of this: either run until
-completion or explicit scheduling points. 
+Further, since it uses the existing SMP locks, it doesn't introduce new
+design decisions (the one being protection of implicitly locked per-CPU
+data on preempt).
 
 	Robert Love
 

@@ -1,80 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263926AbTDWBkl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 21:40:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263927AbTDWBkl
+	id S263931AbTDWBnu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 21:43:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263932AbTDWBnk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 21:40:41 -0400
-Received: from granite.he.net ([216.218.226.66]:3600 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S263926AbTDWBkk (ORCPT
+	Tue, 22 Apr 2003 21:43:40 -0400
+Received: from granite.he.net ([216.218.226.66]:28688 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S263931AbTDWBng (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 21:40:40 -0400
-Date: Tue, 22 Apr 2003 18:54:54 -0700
+	Tue, 22 Apr 2003 21:43:36 -0400
+Date: Tue, 22 Apr 2003 18:57:52 -0700
 From: Greg KH <greg@kroah.com>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org,
-       andmike@us.ibm.com
-Subject: Re: [RFC] Device class rework [0/5]
-Message-ID: <20030423015454.GA6298@kroah.com>
-References: <20030422205545.GA4701@kroah.com> <172940000.1051059583@w-hlinder>
+To: Dave Jones <davej@codemonkey.org.uk>, Hanno B?ck <hanno@gmx.de>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       Linux-usb-users@lists.sourceforge.net
+Subject: Re: PATCH: some additional unusual_devs-entries for usb-storage-driver, kernel 2.5.68
+Message-ID: <20030423015752.GA6315@kroah.com>
+References: <20030421214805.7de5e4f3.hanno@gmx.de> <20030422213247.GA5076@kroah.com> <20030423004508.GA4158@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <172940000.1051059583@w-hlinder>
+In-Reply-To: <20030423004508.GA4158@suse.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 22, 2003 at 05:59:43PM -0700, Hanna Linder wrote:
-> --On Tuesday, April 22, 2003 01:55:45 PM -0700 Greg KH <greg@kroah.com> wrote:
+On Wed, Apr 23, 2003 at 01:45:08AM +0100, Dave Jones wrote:
+> On Tue, Apr 22, 2003 at 02:32:47PM -0700, Greg KH wrote:
+>  > On Mon, Apr 21, 2003 at 09:48:05PM +0200, Hanno B?ck wrote:
+>  > > This patch against 2.5.68 adds support for some digital cameras.
+>  > > Same patch is already applied to the 2.4-ac-series.
+>  > > It is taken from the lycoris kernel-source.
+>  > 
+>  > Ok, in talking with the usb-storage author, I'll be accepting all
+>  > unushal_devs.h patches now, as long as they contain the following:
+>  > 	- a comment above the entry with a email address of someone who
+>  > 	  has this device that this entry fixes the driver for them.
+>  > 	  This is to allow us to possibly remove entries at a later time
+>  > 	  if the core changes, and get a verification that it's ok to do
+>  > 	  so.
+>  > 	- a copy of the /proc/bus/usb/devices device entry with the
+>  > 	  device plugged in and the driver loaded (this should not be in
+>  > 	  the patch, but in the body of the email.)
+>  > 	  
+>  > So, if there are any outstanding drivers/usb/storage/unusual_devs.h
+>  > entries that people have floating around, sent them on!
 > 
-> > Here's a set of patches that rework the current class support in the
-> > kernel today into something that works a bit better, and is simpler to
-> > use.
-> 
-> I did a quick sanity test of these patches on a 2-way PIII.
-> It built and booted fine for me. I don't have any devices that 
-> span multiple classes but the patch hasnt changed any of my 
-> existing /sys/class output.
+> I've been carrying these for _moons_. The only reason I've never punted
+> them on is that the US_FL_SL_IDE_BUG bit is odd (nothing seems to use
+> it, so at some point, I must have dropped the other half of the diff).
 
-Hm, are you sure you applied them and are using that kernel?  :)
+Hm, that is strange, I'll ignore that part of the patch :)
 
-/sys/class should look something like this:
-
-$ tree /sys/class/
-/sys/class/
-|-- cpu
-|   `-- cpu0
-|       |-- device -> ../../../devices/sys/cpu0
-|       `-- foo
-|-- input
-`-- tty
-    |-- console0
-    |   `-- dev
-    |-- ptmx0
-    |   `-- dev
-    |-- pts0
-    |   `-- dev
-    |-- pts1
-    |   `-- dev
-    |-- pts2
-    |   `-- dev
-    |-- pts3
-    |   `-- dev
-    |-- pts4
-    |   `-- dev
-    |-- pts5
-    |   `-- dev
-    |-- pts6
-    |   `-- dev
-    |-- pts7
-    |   `-- dev
-    |-- pty0
-    |   `-- dev
-    |-- pty1
-    |   `-- dev
-... and so on...
-
+And what are the odds of getting /proc/bus/usb/devices from those email
+addresses?  I'll try offline to collect them.
 
 thanks,
 

@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264444AbUHSJfl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264386AbUHSJfd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264444AbUHSJfl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 05:35:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUHSJfl
+	id S264386AbUHSJfd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 05:35:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUHSJfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 05:35:41 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:44763 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S264444AbUHSJf1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 05:35:27 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-ID: <16676.29765.963260.634569@alkaid.it.uu.se>
-Date: Thu, 19 Aug 2004 11:35:01 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: =?ISO-8859-1?Q?Ram=F3n_Rey_Vicente?= <ramon.rey@hispalinux.es>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] Update ftape webpage
-In-Reply-To: <4123F54E.4090900@hispalinux.es>
-References: <4123F54E.4090900@hispalinux.es>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+	Thu, 19 Aug 2004 05:35:32 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:47577 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S264386AbUHSJf0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 05:35:26 -0400
+Date: Thu, 19 Aug 2004 02:35:23 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Ryan Cumming <ryan@spitfire.gotdns.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1-mm2
+Message-ID: <20040819093523.GA21213@taniwha.stupidest.org>
+References: <20040819014204.2d412e9b.akpm@osdl.org> <200408190210.53408.ryan@spitfire.gotdns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408190210.53408.ryan@spitfire.gotdns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ramón Rey Vicente writes:
- > --- linux-2.6-rrey/MAINTAINERS.orig	2004-08-19 01:57:52.405537120 +0200
- > +++ linux-2.6-rrey/MAINTAINERS	2004-08-19 02:26:44.012733140 +0200
- > @@ -849,7 +849,7 @@
- >  P:	Claus-Justus Heine
- >  M:	claus@momo.math.rwth-aachen.de
- >  L:	linux-tape@vger.kernel.org
- > -W:	http://www-math.math.rwth-aachen.de/~LBFM/claus/ftape/
- > +W:	http://www.instmath.rwth-aachen.de/~heine/ftape/
- >  S:	Maintained
+On Thu, Aug 19, 2004 at 02:10:50AM -0700, Ryan Cumming wrote:
 
-NAK. If anything it should be marked orphaned or something.
-Heine hasn't maintained the in-kernel code for ages, and the
-web page you listed gives 403 errors on download attempts.
+> From the help text:
+>
+> "ReiserFS V3 is the stablest Linux filesystem, and V4 is the
+> fastest.
 
-Don't remove it though. It still mostly works.
+It's Hans-speak.  Just ignore it if you disagree.  It's not like it's
+an official press release.
+
+
+  --cw

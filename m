@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbUKIUsd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbUKIUvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbUKIUsd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 15:48:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbUKIUsd
+	id S261671AbUKIUvF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 15:51:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbUKIUvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 15:48:33 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:21703 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261668AbUKIUs3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 15:48:29 -0500
-Message-Id: <200411092048.iA9KmPvY016465@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
-To: davids@webmaster.com
-Cc: cfriesen@nortelnetworks.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code 
-In-Reply-To: Your message of "Tue, 09 Nov 2004 12:23:08 PST."
-             <MDEHLPKNGKAHNMBLJOLKAELDPKAA.davids@webmaster.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <MDEHLPKNGKAHNMBLJOLKAELDPKAA.davids@webmaster.com>
+	Tue, 9 Nov 2004 15:51:05 -0500
+Received: from fw.osdl.org ([65.172.181.6]:34503 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261671AbUKIUu7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 15:50:59 -0500
+Date: Tue, 9 Nov 2004 12:55:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Anton Blanchard <anton@samba.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ppc64: Bump MAX_HWIFS in IDE code
+Message-Id: <20041109125507.4bc49b3c.akpm@osdl.org>
+In-Reply-To: <20041109203028.GA26806@krispykreme.ozlabs.ibm.com>
+References: <20041109203028.GA26806@krispykreme.ozlabs.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_534057144P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Tue, 09 Nov 2004 15:48:25 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_534057144P
-Content-Type: text/plain; charset=us-ascii
+Anton Blanchard <anton@samba.org> wrote:
+>
+> 
+> When fully configured, some POWER5 boxes can have much more than 4 IDE
+> interfaces. Increase the limit to reflect this.
+> 
+> Signed-off-by: Anton Blanchard <anton@samba.org>
+> 
+> diff -puN include/asm-ppc64/ide.h~bump_ide_hwifs include/asm-ppc64/ide.h
+> --- gr_work/include/asm-ppc64/ide.h~bump_ide_hwifs	2004-08-25 08:11:54.357759525 -0500
+> +++ gr_work-anton/include/asm-ppc64/ide.h	2004-08-25 08:11:54.366758100 -0500
+> @@ -19,7 +19,7 @@
+>  #ifdef __KERNEL__
+>  
+>  #ifndef MAX_HWIFS
+> -# define MAX_HWIFS	4
+> +# define MAX_HWIFS	16
+>  #endif
 
-On Tue, 09 Nov 2004 12:23:08 PST, David Schwartz said:
+hrmph.  That costs 50kbytes, excluding ide-tape.  It's worth a config
+variable, I think.
 
-> 	Umm, they restrict you from distributing. You don't get new updates if you
-> distribute.
-
-A possibly important legal point is that they never actually restrict your
-rights to distribute everything they've given you.
-
-Barring a contract that *obligates* them to provide you with future binary
-updates, I can't see much to hang a GPL violation on.  They never stop you
-from distributing your current stuff - they merely don't provide you with
-*future* (and quite possibly never-actually-happening) software.  100% of what
-you *do* receive from them you can redistribute.
-
-Yes, it's sleazy, but barring a contractual obligation, probably not illegal.
-
-(If they're not shipping *future* updates out of the kindness of their heart,
-without a contract obligating it, then I'm in deep shit because I haven't shipped
-the LSM I said I'd be posting, but which hasn't happened because of other problems
-I had with -rc1-mm3.  Think about whether you want to be in that boat... ;)
-
---==_Exmh_534057144P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBkS0YcC3lWbTT17ARAs6TAKDbLW3PEBqwEEAIvQwxWW6ovEpUegCgiNLE
-DqtdajgEN6vAKcW6lIpYH1o=
-=nqaA
------END PGP SIGNATURE-----
-
---==_Exmh_534057144P--

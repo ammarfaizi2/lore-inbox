@@ -1,116 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263396AbTEISzm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 14:55:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263397AbTEISzm
+	id S263411AbTEIS5V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 14:57:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263415AbTEIS5V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 14:55:42 -0400
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:35045 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S263396AbTEISzi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 14:55:38 -0400
-Message-ID: <3EBBFC33.7050702@pacbell.net>
-Date: Fri, 09 May 2003 12:06:27 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-X-Accept-Language: en-us, en, fr
+	Fri, 9 May 2003 14:57:21 -0400
+Received: from MEREDITH.DEMENTIA.ORG ([128.2.120.216]:26889 "EHLO
+	meredith.dementia.org") by vger.kernel.org with ESMTP
+	id S263411AbTEIS5S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 14:57:18 -0400
+Date: Fri, 9 May 2003 15:09:51 -0400 (EDT)
+From: Derrick J Brashear <shadow@dementia.org>
+X-X-Sender: shadow@johnstown.andrew.cmu.edu
+To: David Howells <dhowells@redhat.com>
+cc: openafs-devel@openafs.org, linux-kernel@vger.kernel.org
+Subject: Re: Adding an "acceptable" interface to the Linux kernel for AFS 
+In-Reply-To: <525.1052502033@warthog.warthog>
+Message-ID: <Pine.GSO.4.55L-032.0305091456240.736@johnstown.andrew.cmu.edu>
+References: <525.1052502033@warthog.warthog>
 MIME-Version: 1.0
-To: Max Krasnyansky <maxk@qualcomm.com>
-CC: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: [Bluetooth] HCI USB driver update.   Support
- for SCO over HCI USB.
-References: <200304290317.h3T3HOdA027579@hera.kernel.org> <200304290317.h3T3HOdA027579@hera.kernel.org> <5.1.0.14.2.20030429131303.10d7f330@unixmail.qualcomm.com> <5.1.0.14.2.20030429145523.10c52e50@unixmail.qualcomm.com> <5.1.0.14.2.20030508123858.01c004f8@unixmail.qualcomm.com>
-Content-Type: multipart/mixed;
- boundary="------------070709080204000103000307"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070709080204000103000307
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 9 May 2003, David Howells wrote:
 
-Hi Max,
+>
+> > > I'm wondering how attached OpenAFS is to this interface? Can OpenAFS be
+> > > altered to use the following access points instead:
+> >
+> > Generally I think this interface will work.
+>
+> It would be nice, though, not to have to worry about differentiating between
+> pioctls that take a path and those that don't inside of the core kernel.
 
-> Do you think we can add this 
->         struct urb {
->                 ...
->                 struct list_head drv_list;
->                 char drv_cb[X];
->                 char hcd_cb[X]; 
->                 ...
->         };
+I think it may be safe to not deal with them and assume some other
+interface (sysctl or something appropriate) will be used.
 
-Only with kerneldoc ... :)
+> > >  (1) setpag(pag_t pag)
+> >
+> > If you don't specify a pag it should allocate you one, and for
+> > non-priviledged users this should be the only allowed mode.
+>
+> Thinking about it, this shouldn't take an argument at all, and should just put
+> its caller into a completely new PAG with a unique ID.
 
-I'd certainly like the list_head.  Patch attached,
-in case Greg agrees enough.  On x86, this makes
-sizeof(struct urb) == 120, so it's using space
-that was previously wasted.
+There are valid reasons to allow a PAG to be specified, but only with
+priviledge. e.g. user mode protocol translator (afs to nfs)
 
+> "I" being the calling process? That can be done. I could just define that it
+> is permissible for the PAG pointer to be NULL. This makes support for the init
+> process easier, as I don't have to compile in a PAG for it.
 
-As for the skb->cb analogue(s), details need working.
+Yes, I as the caller.
 
-  - What should "X" be?  skb->cb is 48 bytes.
+> > Currently it's possible to set a token when you have no pag, and these
+> > become associated with the uid that set them. (The pag number is not the uid;
+> > Instead any process without a pag but with a uid that has tokens associated
+> > with it gets those tokens.) As long as the above don't bind tightly to a pag,
+> > sure.
+>
+> So you'd have a list of tokens associated with the user too?
 
-  - Should the cb[] arrays be "long"?  They tend to
-    be used for pointers...
-
-  - The HCDs want different amounts of per-urb data.
-    Sizes on x86:
-      * UHCI wants a lot -- 60 bytes!
-      * OHCI typically uses 16 bytes, but more for
-        multi-TD urbs (control 24 bytes, ISO often 36).
-      * EHCI doesn't allocate such extra data.
-
-  - The HCDs would need conversion to use hcd_cb[].
-    I once had a patch that did that, but it's not
-    current.  It made urb->cb replace urb->hcpriv.
-
-I suppose X=60 for hcd_cb[] will be enough, at least
-on 32 bit CPUs.  But you start to see why in the
-new "USB Gadget" API, the analogue of "urb" gets
-allocated by the USB (device) controller rather
-than by generic code:  so that in typical cases,
-no additional per-request allocations are needed.
-
-- Dave
+A uid could have tokens associated with it. They'd get used only for
+PAGless processes running as that uid. Join a PAG and they stop being
+visible to you (the caller)
 
 
+> I suppose I could give both the PAG and the user lists, and search the PAG
+> first, then the user, but what detemines the user? The PAG, the opener of a
+> file or the current process?
+
+The uid of the current process. Again, if you're in a PAG you don't get
+uid tokens. You could create 2 PAG number spaces, 1 using uid
+and one sequential alloc, but then you need more management I guess (or to
+assume kernel code will be able to provide hooks for accepting tokens
+regardless of PAG and just let people who care deal in their code)
 
 
+> > As to pioctl, will it be able to handle things where path cannot be stat'd
+> > in advance? For instance, the prefetching hint (VIOCPREFETCH), if you
+> > could stat it, it wouldn't be a prefetch. Another concern there would be
+> > dangling mount points (a mount point you still have to a volume that's
+> > been deleted) when calling VIOC_AFS_DELETE_MT_PT or VIOC_AFS_STAT_MT_PT.
+>
+> The latter pair of pioctls you've mentioned both require the directory holding
+> the mount point to be locally available as a kernel inode, and both of them
+> require the path to that directory to be supplied as the path argument to
+> pioctl rather than the path of the mountpoint, so I don't see that there'd be
+> a problem there.
+>
+> I don't have documentation on VIOCPREFETCH, but if it's anything like the
+> other two, then it shouldn't be a problem either.
 
---------------070709080204000103000307
-Content-Type: text/plain;
- name="urb.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="urb.patch"
-
---- 1.139/include/linux/usb.h	Wed May  7 00:02:43 2003
-+++ edited/include/linux/usb.h	Thu May  8 20:06:31 2003
-@@ -511,6 +511,8 @@
- /**
-  * struct urb - USB Request Block
-  * @urb_list: For use by current owner of the URB.
-+ * @dev_list: For use by device driver, even while the URB is owned by
-+ * 	usbcore and the HCD.  Th device driver must initialize this list.
-  * @pipe: Holds endpoint number, direction, type, and more.
-  *	Create these values with the eight macros available;
-  *	usb_{snd,rcv}TYPEpipe(dev,endpoint), where the type is "ctrl"
-@@ -669,7 +671,8 @@
- 	spinlock_t lock;		/* lock for the URB */
- 	atomic_t count;			/* reference count of the URB */
- 	void *hcpriv;			/* private data for host controller */
--	struct list_head urb_list;	/* list pointer to all active urbs */
-+	struct list_head urb_list;	/* private data for usbcore */
-+	struct list_head dev_list;	/* private data for device driver */
- 	struct usb_device *dev; 	/* (in) pointer to associated device */
- 	unsigned int pipe;		/* (in) pipe information */
- 	int status;			/* (return) non-ISO status */
-
---------------070709080204000103000307--
+Takes a path to attempt to prefetch as a text string.
 
 

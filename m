@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263973AbTKSK0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 05:26:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263977AbTKSK0Q
+	id S263977AbTKSKiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 05:38:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbTKSKiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 05:26:16 -0500
-Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:29092 "HELO
-	cenedra.office") by vger.kernel.org with SMTP id S263973AbTKSK0P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 05:26:15 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: Daniel Jacobowitz <dan@debian.org>
-Subject: Re: kernel.bkbits.net off the air
-Date: Wed, 19 Nov 2003 10:26:13 +0000
-User-Agent: KMail/1.5.4
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-References: <fa.eto0cvm.1v20528@ifi.uio.no> <200311190024.51548.andrew@walrond.org> <20031119003840.GA29668@nevyn.them.org>
-In-Reply-To: <20031119003840.GA29668@nevyn.them.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 19 Nov 2003 05:38:25 -0500
+Received: from holomorphy.com ([199.26.172.102]:63400 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263977AbTKSKiY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 05:38:24 -0500
+Date: Wed, 19 Nov 2003 02:38:15 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: linux-kernel@vger.kernel.org, anton@samba.org, ak@muc.de
+Subject: Re: format_cpumask()
+Message-ID: <20031119103815.GE19856@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
+	anton@samba.org, ak@muc.de
+References: <20031117033504.GC19856@holomorphy.com> <20031119013238.21944da9.pj@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311191026.13198.andrew@walrond.org>
+In-Reply-To: <20031119013238.21944da9.pj@sgi.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 19 Nov 2003 12:38 am, Daniel Jacobowitz wrote:
->
-> Presumably because he's said several times that the bk2cvs gateway
-> software is based on (and requires) the commercial version of bk.  Not
-> to mention that the way it generates repositories isn't really
-> compatible with this model.
+On Wed, Nov 19, 2003 at 01:32:38AM -0800, Paul Jackson wrote:
+> Wouldn't it be a good idea to pass in the length of the remaining
+> available buffer space and use snprintf, to avoid overruns?
+> We're going to end up with some pretty big cpumasks on some systems --
+> running over a buffer would be nasty.  It would mostly happen during
+> bring up of new bigger systems; but still worth avoiding.
+> A second thought - more controversial - long sequences of digits can get
+> pretty difficult to read.  How about breaking them with a separator
+> character, say every 32 or 64 bits.
 
-I was (obviously?) assuming that the bk(d) was the commercial version, but I 
-don't see how that would affect the client from being o/s?
+I'm happy just to get the numbers into _some_ format that makes sense.
+This could very well be an improvement over the large hexadecimal
+number. I say run with it.
 
-And why is this different from bk2cvs? Because then I have to rsync the cvs 
-repo with all the problems (discussed at length in this thread) of getting a 
-coherent local copy of the repo.
 
-I guess it all comes back to my wanting to host my (commercial and open-
-source) public code repositories with bk, but have to guarantee 100% access 
-to my 'users'. 99% Isn't good enough.
-
-I'm not, Daniel, a FSF/GPL whiner, and do not appreciate being labelled as 
-such.
-
-Andrew Walrond
-
+-- wli

@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263310AbRFACBI>; Thu, 31 May 2001 22:01:08 -0400
+	id <S263316AbRFACH2>; Thu, 31 May 2001 22:07:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263311AbRFACA5>; Thu, 31 May 2001 22:00:57 -0400
-Received: from u-89-18.karlsruhe.ipdial.viaginterkom.de ([62.180.18.89]:9205
-	"EHLO dea.waldorf-gmbh.de") by vger.kernel.org with ESMTP
-	id <S263310AbRFACAp>; Thu, 31 May 2001 22:00:45 -0400
-Date: Fri, 1 Jun 2001 03:57:39 +0200
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to know HZ from userspace?
-Message-ID: <20010601035739.A1630@bacchus.dhis.org>
-In-Reply-To: <20010530203725.H27719@corellia.laforge.distro.conectiva> <9f41vq$our$1@cesium.transmeta.com>
+	id <S263313AbRFACHI>; Thu, 31 May 2001 22:07:08 -0400
+Received: from line128.ba.psg.sk ([195.80.179.128]:39552 "HELO ivan.doma")
+	by vger.kernel.org with SMTP id <S263317AbRFACHE>;
+	Thu, 31 May 2001 22:07:04 -0400
+Date: Fri, 1 Jun 2001 04:06:27 +0200
+From: Ivan <pivo@pobox.sk>
+To: linux-kernel@vger.kernel.org
+Subject: PID of init != 1 when initrd with pivot_root
+Message-ID: <20010601040627.A1335@ivan.doma>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <9f41vq$our$1@cesium.transmeta.com>; from hpa@zytor.com on Wed, May 30, 2001 at 05:07:22PM -0700
-X-Accept-Language: de,en,fr
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 30, 2001 at 05:07:22PM -0700, H. Peter Anvin wrote:
+Well, I upgraded and found pivot_root and the problem is that how do I make init
+run with PID 1. My linuxrc gets PID 7.
 
-> Yes, but that's because the interfaces are broken.  The decision has
-> been that these values should be exported using the default HZ for the
-> architecture, and that it is the kernel's responsibility to scale them
-> when HZ != USER_HZ.  I don't know if any work has been done in this
-> area.
+    1 ?        00:03:05 swapper
+    2 ?        00:00:00 keventd
+    3 ?        00:00:00 kswapd
+    4 ?        00:00:00 kreclaimd
+    5 ?        00:00:00 bdflush
+    6 ?        00:00:00 kupdated
+    7 ?        00:00:00 linuxrc
 
-We have such patches in the MIPS tree but I never dared to send them to
-Linus ...
+init doesn't like running with any other PID than 1. I could probably revert to
+the not so old way of doing things and exit linuxrc and let the kernel change
+root. But then I wouldn't be able to mount root over samba :-(. ( not that I
+have any samba shares :-)
 
-  Ralf
+Ivan Vadovic

@@ -1,83 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261671AbTCNKkq>; Fri, 14 Mar 2003 05:40:46 -0500
+	id <S261676AbTCNKsI>; Fri, 14 Mar 2003 05:48:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261676AbTCNKkq>; Fri, 14 Mar 2003 05:40:46 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:262 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S261671AbTCNKkp>; Fri, 14 Mar 2003 05:40:45 -0500
-Date: Fri, 14 Mar 2003 11:51:32 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz,
-       lm@bitmover.com
-Subject: Never ever use word BitKeeper if Larry does not like you
-Message-ID: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz>
+	id <S261683AbTCNKsI>; Fri, 14 Mar 2003 05:48:08 -0500
+Received: from mail1.ugr.es ([150.214.20.24]:51585 "EHLO mail1.ugr.es")
+	by vger.kernel.org with ESMTP id <S261676AbTCNKsH>;
+	Fri, 14 Mar 2003 05:48:07 -0500
+Subject: make modules_install fail: depmod *** Unresolved symbols (official
+	2.4.20)
+From: Miguel =?ISO-8859-1?Q?Quir=F3s?= <mquiros@ugr.es>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: Universidad de Granada
+Message-Id: <1047639589.1458.43.camel@migelinho.ugr.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 14 Mar 2003 11:59:50 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+			Granada, 14-3-2002
 
-Never ever use word KitBeeper, Larry thinks he owns the world.  
+Hello, I downloaded kernel 2.4.20 and compiled it sucessfully a month
+ago without any aparent problem. Yesterday I tried to compile it again
+in the same computer just changing a couple of small things in the
+configuration (agpart and the network card changed from "module" to
+"yes").
 
-The page originally said "Goal of this project is to create version
-managment system compatible with <prohibited word>".
+make dep, make bzImage and make modules went apparently well (expect for
+a few apparently non-important warnings with bzImage of the type
+Warning: indirect call without '*' when compiling pci-pc and apm).
 
-								Pavel
+But when I try make modules_install, I've got a lot of error messages.
+For each module I've got one line like:
 
-PS: I know forwarding personal message to the mailing list is not
-polite, but this is more of legal threat than personal message...
+depmod:  *** Unresolved symbols in
+/lib/modules/2.4.20/kernel/arch/i386/kernel/microcode.o
 
-PPS: About Toyota: I may not be able to call my company Toyota (if you
-have registered trademark in czech republic, which I doubt), but I'm
-sure able to say that my car contains same engine as Toyota
-1234cdt. And as you named directory in the repository BitKeeper,
-there's no chance not to mention it. 
+followed by a number of lines of the type
 
------ Forwarded message from Larry McVoy <lm@bitmover.com> -----
+depmod:     misc_deregister
+depmod:     __generic_copy_from_use
+depmod:     .....
+.....
+.....
 
-Date: Thu, 13 Mar 2003 20:21:54 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Larry McVoy <lm@bitmover.com>
-Subject: Re: BitBucket: GPL-ed BitKeeper clone
-User-Agent: Mutt/1.4i
+(this kind of error messages appear for every built module)
 
-> Sorry, but I'm doing this on my own, this has nothing to do with SuSE.
+Modules have been however copied to /lib/modules/2.4.20. The kernel
+built in this way boot without problems but I can see the following
+message in /var/log/messages among the usual normal startup messages:
 
-That's fine, I've taken it up with the sourceforge people.  What you 
-are doing is a violation of their terms of use and they'll get you
-to fix it, I don't care who fixes it, I want absolutely no reference
-to anything which can connect that work with BitKeeper.  That's well
-with in our legal rights.
+Incorrect build binary which accesses errno, h_errno or _res directly.
+Need to be fixed.
 
-As for it being on your own time, let's see if SuSE wants the negative
-publicity.  I'm quite willing to make a stink, you've annoyed me and
-I've put up with as much as I'm going to.
+Saving config, doing make mrproper, restoring .config, making dep and
+recompiling does not change anything.
 
-> I believe the wording above is okay; if you miss "BitKeeper is
-> trademark of BitMover" notice, I guess you can have that too. If you
-> want your lawyer to call me, my cellphone is +XXXXXXXXXXXX; if you
-> want to suggest alternate wording, just do that. But I believe saying
-> "compatible with (something)" is okay, and I can allways just misspell
-> it.
+Between the sucess a month ago and the errors yesterday, the only
+important thing I can remember having been done in the computer is to
+upgrade XFree86 which in turn, to satisfy dependences, made me to update
+other many things like glibc, glibc-devel and binutils. Perhaps I have
+had to remove some other package, I do not remember. Actual versions
+are:
+glibc 2.3.1-51 and binutils 2.13.90.0.18-6, upgraded from RawHide RPM
+packages.
 
-No, you can't.  Check into the case law.  If there is any way to connect
-it to our product, it is within our rights to protect our brand.  You 
-can't call your new car company Toyotaa either, Toyota can sue and will
-if they think it infringes on their brand.
+Please, do "Cc" to my address if you reply to the list (I am not list
+member). Thanks for any help.
 
-You are quite welcome to write your own SCM.  You may not take advantage
-of our work, check into the law.  
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
-
------ End forwarded message -----
+Miguel Quirós
 
 -- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+-------------------------
+Miguel Quirós Olozábal
+Departamento de Química Inorgánica. Facultad de Ciencias.
+Universidad de Granada. 18071 Granada (SPAIN).
+email:mquiros@ugr.es
+

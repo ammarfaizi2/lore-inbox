@@ -1,29 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319413AbSILCbr>; Wed, 11 Sep 2002 22:31:47 -0400
+	id <S319414AbSILCgq>; Wed, 11 Sep 2002 22:36:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319414AbSILCbr>; Wed, 11 Sep 2002 22:31:47 -0400
-Received: from rwcrmhc52.attbi.com ([216.148.227.88]:62453 "EHLO
-	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
-	id <S319413AbSILCbq>; Wed, 11 Sep 2002 22:31:46 -0400
-Subject: PCI: device 00:00.0 has unknown header type 7f, ignoring.
-From: Nicholas Miell <nmiell@attbi.com>
+	id <S319415AbSILCgq>; Wed, 11 Sep 2002 22:36:46 -0400
+Received: from [64.6.248.2] ([64.6.248.2]:62881 "EHLO greenie.frogspace.net")
+	by vger.kernel.org with ESMTP id <S319414AbSILCgq>;
+	Wed, 11 Sep 2002 22:36:46 -0400
+Date: Wed, 11 Sep 2002 19:41:25 -0700 (PDT)
+From: cogwepeter@greenie.frogspace.net
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 11 Sep 2002 19:36:28 -0700
-Message-Id: <1031798190.1499.8.camel@entropy>
-Mime-Version: 1.0
+Subject: 2.4.19-ac4 Out of Memory
+In-Reply-To: <Pine.LNX.4.44.0209042038490.13193-100000@greenie.frogspace.net>
+Message-ID: <Pine.LNX.4.44.0209111934280.11402-100000@greenie.frogspace.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been getting this message since, oh, the dawn of time or so.
-I finally worked up enough curiosity to attempt to figure out what the
-mysterious 7f header is, but the PCI specs require money.
 
-So, anyone out there happen to know what header 7f is, and why the
-kernel doesn't recognize it?
- 
-- Nicholas
+Greetings --
+
+I was using mplayer on an i686 2.4.19-ac4 just now, and it suddenly froze.  
+That is to say, it wasn't entirely frozen -- if you moved the mouse and
+waited ten seconds, the cursor would move. Accessing it from another
+terminal (one that was already logged in), I could type at the rate of a
+letter a minute. After a few minutes it resolved itself and came back to
+normal.
+
+/var/log/messages showed this:
+
+kernel: Out of Memory: Killed process 9702 (gmplayer).
+
+I've not encountered this in 2.4.16.
+
+Cheers,
+Peter
 

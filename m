@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266805AbTBGXCA>; Fri, 7 Feb 2003 18:02:00 -0500
+	id <S266839AbTBGXKw>; Fri, 7 Feb 2003 18:10:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266809AbTBGXCA>; Fri, 7 Feb 2003 18:02:00 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:16060 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266805AbTBGXB7>;
-	Fri, 7 Feb 2003 18:01:59 -0500
-Subject: Re: [RFC][PATCH] linux-2.5.59_getcycles_A0
-From: john stultz <johnstul@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <p73ptq3bxh6.fsf@oldwotan.suse.de>
-References: <1044649542.18673.20.camel@w-jstultz2.beaverton.ibm.com.suse.lists.linux.kernel>
-	 <p73ptq3bxh6.fsf@oldwotan.suse.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1044659375.18676.80.camel@w-jstultz2.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 07 Feb 2003 15:09:35 -0800
-Content-Transfer-Encoding: 7bit
+	id <S266840AbTBGXKw>; Fri, 7 Feb 2003 18:10:52 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:36841 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S266839AbTBGXKv>;
+	Fri, 7 Feb 2003 18:10:51 -0500
+Date: Fri, 7 Feb 2003 15:18:25 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Rusty Lynch <rusty@linux.co.intel.com>
+cc: <p_gortmaker@yahoo.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][Trvial 2.5.59] rtc.c is requesting more ioports then it
+ really uses
+In-Reply-To: <1044657656.1132.19.camel@vmhack>
+Message-ID: <Pine.LNX.4.33L2.0302071512350.13440-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-02-07 at 13:19, Andi Kleen wrote:
-> john stultz <johnstul@us.ibm.com> writes:
-> > 	This patch moves the get_cycles() implementation into the timer_opts
-> > subsystem. This patch corrects issues between the hangcheck-timer code
-> > and systems running with timer_cyclone. As an extra bonus, it removes
-> > the CONFIG_X86_TSC #ifdef in get_cycles replacing it with
-> > timer->get_cycles(). 
-> 
-> Is this really a good idea? get_cycles is normally not used to get accurate
-> time, but just to get random numbers for /dev/random or quickly estimate
-> some code (scheduler used to use it for that). I think the TSC even when
-> unsynchronized is better for that than an external timer which potentially
-> lower resolution and long access time.
-> 
-> If you really added it I would at least change the random device to 
-> use the old macro.
+On 7 Feb 2003, Rusty Lynch wrote:
 
-I'm sorry, I'm not seeing get_cycles used in /dev/random (although they
-do make a direct call to rdtsc if its available - which is fine, since
-the TSCs I deal with daily just give random values anyway :). So I don't
-believe that is a concern.  
+| I need to enable a device that talks to port 0x79h, but for some
+| reason the rtc is requesting move bytes then it really uses.  Here
+| is a patch that makes the rtc only request what it uses.
+|
+|     --rustyl
+|
+| --- drivers/char/rtc.c.orig	2003-02-07 14:35:31.000000000 -0800
+| +++ drivers/char/rtc.c	2003-02-07 13:25:45.000000000 -0800
+| @@ -47,7 +47,7 @@
+|
+|  #define RTC_VERSION		"1.11"
+|
+| -#define RTC_IO_EXTENT	0x10	/* Only really two ports, but...	*/
+| +#define RTC_IO_EXTENT	0x2
+|
+|  /*
+|   *	Note that *all* calls to CMOS_READ and CMOS_WRITE are done with
+| -
 
-Additionally, the hangcheck timer code does calculate time (although,
-not system time) using get_cycles, and this gives them a good
-abstraction so the right thing happens on the right box. 
+Some Intel chipset specs list RTC as using 0x70 - 0x77, probably with
+some aliasing in there, so it looks to me like an EXTENT of 8 would be
+safer and still allow you access to 0x79.
 
-Let me know if you have any other concerns.
+I'm looking at 82801BA-ICH2, 82801-ICH3, and 82801AA-ICH0 specs.
 
-thanks
--john
-
-
-
-
-
-
+-- 
+~Randy
 

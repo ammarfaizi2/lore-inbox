@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263145AbVAFW2o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263058AbVAFWac@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263145AbVAFW2o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 17:28:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263093AbVAFW1q
+	id S263058AbVAFWac (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 17:30:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263104AbVAFWaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 17:27:46 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:41992 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263080AbVAFW10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 17:27:26 -0500
-Message-Id: <200501062227.j06MRNGX000392@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/05/2005 with nmh-1.1-RC3
-To: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+	Thu, 6 Jan 2005 17:30:20 -0500
+Received: from gprs215-35.eurotel.cz ([160.218.215.35]:11400 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263033AbVAFW3m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 17:29:42 -0500
+Date: Thu, 6 Jan 2005 23:29:27 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Lion Vollnhals <webmaster@schiggl.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: OT Re: Cherokee Nation Posts Open Source Legisation 
-In-Reply-To: Your message of "Thu, 06 Jan 2005 22:55:45 +0100."
-             <yw1xacrmp6hq.fsf@ford.inprovide.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050106180414.GA11597@mail.gadugi.org> <200501061836.j06IakHo030551@turing-police.cc.vt.edu> <20050106183725.GA12028@mail.gadugi.org> <200501061935.j06JZMq4013855@turing-police.cc.vt.edu> <1105043496.970.49.camel@fury> <20050106213221.GA12866@mail.gadugi.org>
-            <yw1xacrmp6hq.fsf@ford.inprovide.com>
+Subject: Re: [PATCH] swsusp: properly suspend and resume *all* devices
+Message-ID: <20050106222927.GC25913@elf.ucw.cz>
+References: <20050102055753.GB7406@ip68-4-98-123.oc.oc.cox.net> <20050102184239.GA21322@butterfly.hjsoft.com> <1104696556.2478.12.camel@pefyra> <20050103051018.GA4413@ip68-4-98-123.oc.oc.cox.net> <20050103084713.GB2099@elf.ucw.cz> <20050103101423.GA4441@ip68-4-98-123.oc.oc.cox.net> <20050103150505.GA4120@ip68-4-98-123.oc.oc.cox.net> <loom.20050104T093741-631@post.gmane.org> <20050104214315.GB1520@elf.ucw.cz> <41DC0E70.4000005@schiggl.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1105050442_32686P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 06 Jan 2005 17:27:23 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41DC0E70.4000005@schiggl.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1105050442_32686P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Hi!
 
-On Thu, 06 Jan 2005 22:55:45 +0100, =3D?iso-8859-1?q?M=3DE5ns_Rullg=3DE5r=
-d?=3D said:
+> I have a problem with net-devices, ne2000 in particular, in 2.6.9 and 
+> 2.6.10, too. After a resume the ne2000-device doesn't work anymore. I 
+> have to restart it using the initscripts.
+> 
+> How do I add suspend/resume support (to ISA devices, like my ne2000)?
+> Can you point me to some information/tutorial?
 
-> What about the rest of the world?  I'm sure nobody in Europe is bound
-> in any way by US laws.
-
-That's what the head of governments of Panama, Afghanistan, and Iraq thou=
-ght, too ;)
-
-
---==_Exmh_1105050442_32686P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFB3btKcC3lWbTT17ARAgi5AKD6GYrABBehVTpvpKdyH2AogKpG1ACeM/CB
-MRtT0ta85wtUNRvh0Iae3Qk=
-=js2I
------END PGP SIGNATURE-----
-
---==_Exmh_1105050442_32686P--
+Look how i8042 suspend/resume support is done and do it in similar
+way...
+									Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

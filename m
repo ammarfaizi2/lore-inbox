@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281255AbRLLRDY>; Wed, 12 Dec 2001 12:03:24 -0500
+	id <S281116AbRLLRKy>; Wed, 12 Dec 2001 12:10:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281239AbRLLRDO>; Wed, 12 Dec 2001 12:03:14 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48910 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281214AbRLLRDB>; Wed, 12 Dec 2001 12:03:01 -0500
-Subject: Re: VT82C686 && APM deadlock bug?
-To: ast@domdv.de (Andreas Steinmetz)
-Date: Wed, 12 Dec 2001 17:11:27 +0000 (GMT)
-Cc: jdamery@chiark.greenend.org.uk (Jonathan D. Amery),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <XFMail.20011212175053.ast@domdv.de> from "Andreas Steinmetz" at Dec 12, 2001 05:50:53 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S281157AbRLLRKo>; Wed, 12 Dec 2001 12:10:44 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:54262 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S281116AbRLLRKj>; Wed, 12 Dec 2001 12:10:39 -0500
+Date: Wed, 12 Dec 2001 09:14:12 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Davide Libenzi <davidel@xmailserver.org>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Near CPUs ...
+Message-ID: <3126105393.1008148452@[10.10.1.2]>
+In-Reply-To: <Pine.LNX.4.40.0112111806100.1500-100000@blue1.dev.mcafeelabs.com>
+X-Mailer: Mulberry/2.0.5 (Win32)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16ECul-0001kf-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> going wrong during (apm?) screen blanking when there is interrupt activity.
-> Unfortunately the system is frozen solid so there's no chance for any debug
-> trace. It would be nice if someone with detail knowledge of the blanking code
-> could have a look.
+> How to detect CPUs that are "near" ( on the same bus/mb ) on x86/ia64 hardware ?
+> Is the MP configuration data structured in a way that makes you understand
+> this mapping, ie :
 
-APM power management code is buried in the BIOS. We ask the APM bios nicely
-to blank the display and power manage it. If the APM bios does something
-daft we can't do much about it.
+IIRC, for HT, cpus with an APICid that only differ in the last bit are paired 
+(ie (0,1), (2,3), (3,4) ....) 
 
-You can turn apm support off in your XFree86 config and see if that helps
+For systems with clustered APIC ID, the cluster number is the top nibble of the 
+logical APICid - CPUs with the same cluster number are in the same node.
+
+For ia64, I'm not sure.
+
+I suggest you look for Paul Dorwin's topology stuff - it's a more general mechanism
+for describing this stuff - look back through the recent lse-tech archives.
+
+Martin.
+

@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316501AbSEOU40>; Wed, 15 May 2002 16:56:26 -0400
+	id <S316502AbSEOVDn>; Wed, 15 May 2002 17:03:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316502AbSEOU4Z>; Wed, 15 May 2002 16:56:25 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:14864 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S316501AbSEOU4X>; Wed, 15 May 2002 16:56:23 -0400
-Date: Wed, 15 May 2002 21:56:08 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: Rob Landley <landley@trommello.org>
-Cc: John Weber <john.weber@linuxhq.com>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Unofficial but Supported Kernel Patches
-Message-ID: <20020515205607.GA19388@compsoc.man.ac.uk>
-In-Reply-To: <Pine.LNX.4.33L2.0205121935000.18593-100000@dragon.pdx.osdl.net> <3CDF2C7C.7090203@linuxhq.com> <20020515200758.BEAB373B@merlin.webofficenow.com>
+	id <S316503AbSEOVDm>; Wed, 15 May 2002 17:03:42 -0400
+Received: from as3-1-8.ras.s.bonet.se ([217.215.75.181]:6087 "EHLO
+	garbo.kenjo.org") by vger.kernel.org with ESMTP id <S316502AbSEOVDm>;
+	Wed, 15 May 2002 17:03:42 -0400
+Subject: Re: Changelogs on kernel.org
+From: Kenneth Johansson <ken@canit.se>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Larry McVoy <lm@bitmover.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <19065.1021493737@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 15 May 2002 23:03:34 +0200
+Message-Id: <1021496614.917.33.camel@tiger>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Bendik Singers - Afrotid
-X-Toppers: N/A
-X-Scanner: exiscan *1785oj-000C5R-00*niZvy4XZqoU* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 15, 2002 at 09:43:26AM -0400, Rob Landley wrote:
+On Wed, 2002-05-15 at 22:15, David Woodhouse wrote:
+> 
+> lm@bitmover.com said:
+> > It's probably best if you simply view this as a BK limitation which
+> > isn't going away any time soon and don't put junk changesets in the
+> > middle of your stream of changes.  It's easy enough to export the
+> > change you want as a patch, export the comments in the form that bk
+> > comments wants, undo the junk changeset, import the patch, and set the
+> > comments.  Yeah, it's awkward; consider that a feedback loop which
+> > encourages you to think a bit more about what you put in the tree.
+> 
+> What it actually encourages is for people to have multiple throwaway trees. 
+> (Which isn't quite so much of a BK turnoff once you discover compilercache.)
+> 
+> If the tree's going to be thrown away anyway, it doesn't matter if it gets 
+> confused -- how about making it a little easier to backport changesets -- 
+> surely it should be possible to make BK import a changeset iff all the 
+> affected files are identical in both trees before the changeset? 
 
-> it's way better than nothing.)  There's buildable docbook documentation in 
-> the source tarball that in theory could be blasted to HTML and posted online, 
-> and that might be nice to have a standard location for.  (If there is one 
-> already, I missed it.)
+while we are adding to the wishlist here is a few more items.
 
-http://kernelnewbies.org/documents/
+Away to make a clone with all files checked out in edit mode. I find
+that I always do the checkout anyway and maybe it's possible to make it
+faster if it's done at clone time.
 
-john
+Also I have found that it is a pain in the a** to have debug code that I
+really don't want to save but it's temporary usefull. When I do a pull
+that changes the same file the pull don't work and I have to unedit the
+file and lose the debug code or make a needless checkin. I would really
+like if it was possible to do a merge that is only in the checkedout
+file not stored as a changeset.
 
--- 
-"I personally think Windows NT will be the mainstream operating system within a few years."
-"My belief: Linux will never go mainstream."
-"I've always said that Linux could become a serious challenger to Microsoft's Windows NT."
-	- Jesse Berst
+ 
+
+

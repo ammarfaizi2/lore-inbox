@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131472AbRDZTGN>; Thu, 26 Apr 2001 15:06:13 -0400
+	id <S135206AbRDZTId>; Thu, 26 Apr 2001 15:08:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135206AbRDZTGD>; Thu, 26 Apr 2001 15:06:03 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:261 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S131472AbRDZTFw>; Thu, 26 Apr 2001 15:05:52 -0400
-Date: Thu, 26 Apr 2001 15:00:38 -0400
-From: Chris Mason <mason@suse.com>
-To: Alexander Viro <viro@math.psu.edu>, Andrea Arcangeli <andrea@suse.de>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-Message-ID: <235100000.988311638@tiny>
-In-Reply-To: <Pine.GSO.4.21.0104261421050.15385-100000@weyl.math.psu.edu>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
-MIME-Version: 1.0
+	id <S135887AbRDZTIY>; Thu, 26 Apr 2001 15:08:24 -0400
+Received: from dns-229.dhcp-248.nai.com ([161.69.248.229]:14986 "HELO
+	mcafee-labs.nai.com") by vger.kernel.org with SMTP
+	id <S135206AbRDZTIL>; Thu, 26 Apr 2001 15:08:11 -0400
+Message-ID: <XFMail.20010426120834.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <7FADCB99FC82D41199F9000629A85D1A018D3AB4@dcmtechdom.dcmtech.co.in>
+Date: Thu, 26 Apr 2001 12:08:34 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Rajeev Nigam <rajeev.nigam@dcmtech.co.in>
+Subject: RE: Dyanmics Thread at Kernel Level
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On 26-Apr-2001 Rajeev Nigam wrote:
+> Can anybody  tell me, How can I create dynamic threads at Kernel level??
+> 
+> If u have any sample code in which Semaphore, threads, events are
+> implemented, Pls send.
+> 
+> Waiting for ur response.
 
-On Thursday, April 26, 2001 02:24:26 PM -0400 Alexander Viro
-<viro@math.psu.edu> wrote:
+http://www.linux-mag.com/depts/gear.html
 
-> 
-> 
-> On Thu, 26 Apr 2001, Andrea Arcangeli wrote:
-> 
->> correct. I bet other fs are affected as well btw.
-> 
-> If only... block_read() vs. block_write() has the same race. I'm going
-> through the list of all wait_on_buffer() users right now.
-> 
 
-Looks like reiserfs has it too when allocating tree blocks, but it should
-be harder to hit.  The fix should be small but it will take me a bit to
-make sure it doesn't affect the rest of the balancing code.
 
--chris
+
+- Davide
 

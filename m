@@ -1,57 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271260AbRIDNH2>; Tue, 4 Sep 2001 09:07:28 -0400
+	id <S271289AbRIDNLi>; Tue, 4 Sep 2001 09:11:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271289AbRIDNHT>; Tue, 4 Sep 2001 09:07:19 -0400
-Received: from victor.ndsuk.com ([194.202.59.31]:26131 "EHLO victor.ndsuk.com")
-	by vger.kernel.org with ESMTP id <S271260AbRIDNHG>;
-	Tue, 4 Sep 2001 09:07:06 -0400
-Message-ID: <F128989C2E99D4119C110002A507409801555FD8@topper.hrow.ndsuk.com>
-From: "Elgar, Jeremy" <JElgar@ndsuk.com>
+	id <S271643AbRIDNL2>; Tue, 4 Sep 2001 09:11:28 -0400
+Received: from prfdec.natur.cuni.cz ([195.113.56.1]:21520 "EHLO
+	prfdec.natur.cuni.cz") by vger.kernel.org with ESMTP
+	id <S271289AbRIDNLV>; Tue, 4 Sep 2001 09:11:21 -0400
+X-Envelope-From: mmokrejs
+Posted-Date: Tue, 4 Sep 2001 15:11:40 +0200 (MET DST)
+Date: Tue, 4 Sep 2001 15:11:40 +0200 (MET DST)
+From: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
 To: linux-kernel@vger.kernel.org
-Subject: Applying multiple patches 
-Date: Tue, 4 Sep 2001 14:07:56 +0100 
+Subject: __alloc_pages: 0-order allocation failed.
+Message-ID: <Pine.OSF.4.21.0109041500460.8354-100000@prfdec.natur.cuni.cz>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
-Sorry if this is covered somewhere but I had a look last night (and asked
-various people) but came up blank.
+  I'm getting the above error on 2.4.9 kernel with kernel HIGHMEM option
+enabled to 2GB, 2x Intel PentiumIII. The machine has 1GB RAM
+physically. Althougj I've found many report to linux-kernel list during
+past months, not a real solution. Maybe only:
+http://www.alsa-project.org/archive/alsa-devel/msg08629.html
 
-Is there a way to apply multiple patches to a source tree (if the patches
-were produced from the same base tree)
+  I hope it's not related to memory chunks allocated twice, so I think
+it's another problem in 2.4.9, right?
 
-The problem I have is thus,  I want to apply patch-2.4.9-ac6 (I guess might
-as well do ac7 now) and the xfs patch
-but both are from a vanilla 2-4-9.
+Linux version 2.4.9 (user@host) (gcc version 2.95.2 20000220 (Debian GNU/Linux)) #4 SMP Thu Aug 30 15:10:26 CEST 2001
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009f400 (usable)
+ BIOS-e820: 000000000009f400 - 000000000009f800 (reserved)
+ BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 0000000040000000 (usable)
+ BIOS-e820: 00000000fec00000 - 00000000fec02000 (reserved)
+ BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+ BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
+128MB HIGHMEM available.
+Scan SMP from c0000000 for 1024 bytes.
+Scan SMP from c009fc00 for 1024 bytes.
+Scan SMP from c00f0000 for 65536 bytes.
+found SMP MP-table at 000ff780
+hm, page 000ff000 reserved twice.
+hm, page 00100000 reserved twice.
+hm, page 000f0000 reserved twice.
+hm, page 000f1000 reserved twice.
+On node 0 totalpages: 262144
+zone(0): 4096 pages.
+zone(1): 225280 pages.
+zone(2): 32768 pages.
 
-Is there a standard way of doing this or is a `by hand solution`
-
-(I managed to apply the ac first then the xfs (ignoring a couple of files
-that are older in ac) but it was the config file that was messed up)
-
-Its probably quite simple but I couldn't figure it
-
-Cheers
-
-Jeremy
+shell$ free
+             total       used       free     shared    buffers     cached
+Mem:       1028480     992840      35640          0      20832     821524
+-/+ buffers/cache:     150484     877996
+Swap:      2097136     100868    1996268
 
 
-
-
- 
-===============================================================
-Information contained in this email message is intended only for
-use of the individual or entity named above. If the reader of this
-message is not the intended recipient, or the employee or agent
-responsible to deliver it to the intended recipient, you are hereby
-notified that any dissemination, distribution or copying of this
-communication is strictly prohibited. If you have received this
-communication in error, please immediately notify us by email
-to postmaster@ndsuk.com and destroy the original message. 
+  The machine is running apache 1.3.20 and mysql-3.23.41 only, and is
+not loaded yet. :( Any ideas? Thanks.
+-- 
+Martin Mokrejs - PGP5.0i key is at http://www.natur.cuni.cz/~mmokrejs
+MIPS / Institute for Bioinformatics <http://mips.gsf.de>
+GSF - National Research Center for Environment and Health
+Ingolstaedter Landstrasse 1, D-85764 Neuherberg, Germany
 
 

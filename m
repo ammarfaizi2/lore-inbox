@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262422AbVAJSja@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262299AbVAJSj3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262422AbVAJSja (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 13:39:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbVAJSfj
+	id S262299AbVAJSj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 13:39:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbVAJSfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 13:35:39 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:28431 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262286AbVAJSdZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 13:35:55 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:10720 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262404AbVAJSdZ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 10 Jan 2005 13:33:25 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: John Richard Moser <nigelenki@comcast.net>, Andre Tomt <andre@tomt.net>
-Subject: Re: printf() overhead
-Date: Mon, 10 Jan 2005 20:33:14 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <41E18522.7060004@comcast.net> <41E188FE.7010609@tomt.net> <41E19F21.20001@comcast.net>
-In-Reply-To: <41E19F21.20001@comcast.net>
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501102033.14028.vda@port.imtp.ilyichevsk.odessa.ua>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] PCI: Clean up printks in msi.c
+Date: Mon, 10 Jan 2005 10:33:00 -0800
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E5024076EEB2F@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] PCI: Clean up printks in msi.c
+Thread-Index: AcT3O1Yp5l/jVKCATza0ETNhuei4eQABvKPQ
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Roland Dreier" <roland@topspin.com>
+Cc: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>,
+       "Nguyen, Tom L" <tom.l.nguyen@intel.com>, "Greg KH" <greg@kroah.com>
+X-OriginalArrivalTime: 10 Jan 2005 18:33:03.0895 (UTC) FILETIME=[D227EA70:01C4F742]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 January 2005 23:16, John Richard Moser wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> 
-> 
-> Andre Tomt wrote:
-> | John Richard Moser wrote:
-> |
-> |> using strace to run a program takes aeons.  Redirecting the output to a
-> |> file can be a hundred times faster sometimes.  This raises question.
-> |>
-> |> I understand that output to the screen is I/O.  What exactly causes it
-> |> to be slow, and is there a possible way to accelerate the process?
-> |
-> |
-> | The terminal is a major factor; gnome-terminal for example can be
-> | *extremely* slow.
-> |
-> 
-> Is there a way to give the data to the terminal and let the program go
-> while that happens?  Or is there an execution path (i.e. terminal says
-> "WTF NO") that can be missed that way?
+On Monday, January 10, 2005 9:39 AM, Roland Dreier wrote:
+> No problem, here's the patch without any "success" message.
+Look great.
 
-Buffering is finite. strace output most likely overflow it.
-
-Also while strace may finish already, you won't see it in gnome terminal
-until entire strace stdout/stderr is drawn. You will wait anyway. :)
---
-vda
-
+Thanks,
+Long

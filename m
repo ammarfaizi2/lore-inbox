@@ -1,90 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315257AbSFTQhl>; Thu, 20 Jun 2002 12:37:41 -0400
+	id <S315218AbSFTQhc>; Thu, 20 Jun 2002 12:37:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315259AbSFTQhk>; Thu, 20 Jun 2002 12:37:40 -0400
-Received: from mail.storm.ca ([209.87.239.66]:30870 "EHLO mail.storm.ca")
-	by vger.kernel.org with ESMTP id <S315257AbSFTQhh>;
-	Thu, 20 Jun 2002 12:37:37 -0400
-Message-ID: <3D11F7B9.27C74922@storm.ca>
-Date: Thu, 20 Jun 2002 11:41:45 -0400
-From: Sandy Harris <pashley@storm.ca>
-Organization: Flashman's Dragoons
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S315257AbSFTQhb>; Thu, 20 Jun 2002 12:37:31 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:60372 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S315218AbSFTQha>; Thu, 20 Jun 2002 12:37:30 -0400
+Date: Thu, 20 Jun 2002 18:37:13 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Jens Axboe <axboe@suse.de>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Paul Bristow <paul@paulbristow.net>,
+       Gadi Oxman <gadio@netvision.net.il>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.22] simple ide-tape.c and ide-floppy.c cleanup
+In-Reply-To: <3D119EC4.8040604@evision-ventures.com>
+Message-ID: <Pine.SOL.4.30.0206201832420.23175-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: McVoy's Clusters (was Re: latest linus-2.5 BK broken)
-References: <Pine.LNX.4.44.0206191018510.2053-100000@home.transmeta.com> <m1d6umtxe8.fsf@frodo.biederman.org> <20020619222444.A26194@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ I removed half a dozen cc's on this, and am just sending to the
-  list. Do people actually want the cc's?]
 
-Larry McVoy wrote:
+On Thu, 20 Jun 2002, Martin Dalecki wrote:
 
-> > Checkpointing buys three things.  The ability to preempt jobs, the
-> > ability to migrate processes,
+> U¿ytkownik Jens Axboe napisa³:
+> > On Thu, Jun 20 2002, Martin Dalecki wrote:
+> >
+> >>U?ytkownik Jens Axboe napisa?:
+> >>
+> >>>On Wed, Jun 19 2002, Bartlomiej Zolnierkiewicz wrote:
+> >>>
+> >>>Looks pretty good in general, just one minor detail:
+> >>>
+> >>>
+> >>>
+> >>>>+
+> >>>>+/*
+> >>>>+ *	ATAPI packet commands.
+> >>>>+ */
+> >>>>+#define ATAPI_FORMAT_UNIT_CMD		0x04
+> >>>>+#define ATAPI_INQUIRY_CMD		0x12
+> >>>
+> >>>
+> >>>[snip]
+> >>>
+> >>>We already have the "full" list in cdrom.h (GPCMD_*), so lets just use
+> >>>that. After all, ATAPI_MODE_SELECT10_CMD _is_ the same as the SCSI
+> >>>variant (and I think the _CMD post fixing is silly, anyone familiar with
+> >>>this is going to know what ATAPI_WRITE10 means just fine)
+> >>>
+> >>>Same for request_sense, that is already generalized in cdrom.h as well.
+> >>
+> >>I wonder what FreeBSD is using here? I see no need for invention at
+> >>this place.
+> >
+> >
+> > The invention would be adding the ATAPI_* commands, Linux has used the
+> > GPCMD_ convention for quite some time now.
+>
+> Agreed. The ATAPI prefix would be confusing, since those are in reality SCSI
+> commands anyway...
 
-For large multi-processor systems, it isn't clear that those matter
-much. On single user systems I've tried , ps -ax | wc -l usually
-gives some number 50 < n < 100. For a multi-user general purpose
-system, my guess would be something under 50 system processes plus
-50 per user. So for a dozen to 20 users on a departmental server,
-under 1000. A server for a big application, like database or web,
-would have fewer users and more threads, but still only a few 100
-or at most, say 2000.
+I think we should use scsi.h and get rid of GPCMD_* convention also.
+Jens, do you want "corrected" patch?
 
-So at something like 8 CPUs in a personal workstation and 128 or
-256 for a server, things average out to 8 processes per CPU, and
-it is not clear that process migration or any form of pre-emption
-beyond the usual kernel scheduling is needed.
+--
+Bartlomiej Zolnierkiewicz
 
-What combination of resources and loads do you think preemption
-and migration are need for?
-
-> > and the ability to recover from failed nodes, (assuming the 
-> > failed hardware didn't corrupt your jobs checkpoint).
-
-That matters, but it isn't entirely clear that it needs to be done
-in the kernel. Things like databases and journalling filesystems
-already have their own mechanisms and it is not remarkably onerous
-to put them into applications where required.
-
-[big snip]
-
-> Larry McVoy's SMP Clusters
-> 
-> Discussion on November 8, 2001
-> 
-> Larry McVoy, Ted T'so, and Paul McKenney
-> 
-> What is SMP Clusters?
-> 
->      SMP Clusters is a method of partioning an SMP (symmetric
->      multiprocessing) machine's CPUs, memory, and I/O devices
->      so that multiple "OSlets" run on this machine.  Each OSlet
->      owns and controls its partition.  A given partition is
->      expected to contain from 4-8 CPUs, its share of memory,
->      and its share of I/O devices.  A machine large enough to
->      have SMP Clusters profitably applied is expected to have
->      enough of the standard I/O adapters (e.g., ethernet,
->      SCSI, FC, etc.) so that each OSlet would have at least
->      one of each.
-
-I'm not sure whose definition this is:
-   supercomputer: a device for converting compute-bound problems
-      into I/O-bound problems
-but I suspect it is at least partially correct, and Beowulfs are
-sometimes just devices to convert them to network-bound problems.
-
-For a network-bound task like web serving, I can see a large
-payoff in having each OSlet doing its own I/O.
-
-However, in general I fail to see why each OSlet should have
-independent resources rather than something like using one to
-run a shared file system and another to handle the networking
-for everybody.

@@ -1,47 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261910AbTDFNfP (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 09:35:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbTDFNfP (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 09:35:15 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64436 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261910AbTDFNfO (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 09:35:14 -0400
-Date: Sun, 6 Apr 2003 14:46:47 +0100
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: Michael Buesch <freesoftwaredeveloper@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Serial port over TCP/IP
-Message-ID: <20030406134647.GK639@gallifrey>
-References: <200304061447.46393.freesoftwaredeveloper@web.de> <20030406131132.GJ639@gallifrey> <200304061539.00494.freesoftwaredeveloper@web.de>
+	id S262961AbTDFNrG (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 09:47:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262967AbTDFNrG (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 09:47:06 -0400
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:59586 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id S262961AbTDFNrF (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 09:47:05 -0400
+Date: Sun, 6 Apr 2003 15:58:14 +0200
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: poweroff problem
+Message-Id: <20030406155814.68c5c908.us15@os.inf.tu-dresden.de>
+In-Reply-To: <20030406233319.042878d3.sfr@canb.auug.org.au>
+References: <20030405060804.31946.qmail@webmail5.rediffmail.com>
+	<20030406233319.042878d3.sfr@canb.auug.org.au>
+Organization: Disorganized
+X-Mailer: Sylpheed version 0.8.11claws3 (GTK+ 1.2.10; Linux 2.4.21-pre6)
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304061539.00494.freesoftwaredeveloper@web.de>
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.5.66 (i686)
-X-Uptime: 14:40:19 up 1 day,  2:03,  1 user,  load average: 0.02, 0.06, 0.09
-User-Agent: Mutt/1.5.4i
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="9KJpoStd=.pnJUG,"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Michael Buesch (freesoftwaredeveloper@web.de) wrote:
-> On Sunday 06 April 2003 15:11, Dr. David Alan Gilbert wrote:
-> > I keep thinking that it would be nice to have a mechanism for user space
-> > char devices; it would have to have a mechanism to pass all the ioctls
-> > to the process that dealt with it.
-> 
-> But wouldn't this make too much overhead, if implemented all in userspace?
-> I say this, because nbd is also implemented in user- und kernel-space.
+--9KJpoStd=.pnJUG,
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Sure it would have overhead; but it would be a general mechanism and
-mean that the kernel didn't need lots of char drivers (except for boot
-time things). Lots of devices are really just filters/wrappers over
-other more basic devices (look at the growing pile of USB serial
-device drivers).  Most char devices have such a low throughput that the
-little overhead wouldn't make much difference, but would simplify the
-kernel.
+On Sun, 6 Apr 2003 23:33:19 +1000 Stephen Rothwell (SR) wrote:
 
-Dave
- ---------------- Have a happy GNU millennium! ----------------------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+Hello,
+
+SR> On 5 Apr 2003 06:08:04 -0000 "Anant Aneja" <anantaneja@rediffmail.com> wrote:
+SR> >
+SR> > I've got a problem with my 2.4.2-2 kernel.
+SR> > after reaching the power down stage i get a :
+SR> > 1. complete listing of the cpu registers
+SR> > 2. a message saying sementaion fault with halt -i -p -d
+SR> 
+SR> Has it always done this?
+
+I have the same problem with Linux-2.4.21-pre6. I don't know when this started
+to happen because I pretty much never halt my machine.
+
+SR> More likely a BIOS problem that is weel known.
+
+It's not a BIOS problem here. halt works pretty well with Linux-2.5.66 here.
+It's most likely an ACPI problem. What happens here is that the code to power
+down actually does not manage to turn the machine off, instead after a while
+the NMI watchdog kicks in and the kernel oopses.
+
+
+-Udo.
+
+--9KJpoStd=.pnJUG,
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.3.1 (GNU/Linux)
+
+iD8DBQE+kDJ4nhRzXSM7nSkRAgBcAJ44kU4Rbe1d7Kc2P/3umZ8kBzebnQCfWO7Y
+XAQP98CyGlRt+gWPbLpkEhc=
+=5tKn
+-----END PGP SIGNATURE-----
+
+--9KJpoStd=.pnJUG,--

@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269569AbRHQD6V>; Thu, 16 Aug 2001 23:58:21 -0400
+	id <S269584AbRHQEMw>; Fri, 17 Aug 2001 00:12:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269589AbRHQD6N>; Thu, 16 Aug 2001 23:58:13 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:6415 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S269569AbRHQD57>;
-	Thu, 16 Aug 2001 23:57:59 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200108170358.f7H3wCY36744@saturn.cs.uml.edu>
-Subject: Re: installing .01
-To: fattymikefx@yahoo.com
-Date: Thu, 16 Aug 2001 23:58:12 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010817031904.3DFEF501D7@localhost.localdomain> from "tristan" at Aug 16, 2001 11:19:04 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S269589AbRHQEMm>; Fri, 17 Aug 2001 00:12:42 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:31495 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S269584AbRHQEMg>;
+	Fri, 17 Aug 2001 00:12:36 -0400
+Message-ID: <3B7C969D.4DFC6A5C@linux-m68k.org>
+Date: Fri, 17 Aug 2001 05:59:25 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: aia21@cam.ac.uk, tpepper@vato.org, f5ibh@db0bm.ampr.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9 does not compile [PATCH]
+In-Reply-To: <3B7C871E.1B37CA85@linux-m68k.org>
+		<20010816.195906.38712979.davem@redhat.com>
+		<3B7C8E15.3A0D9349@linux-m68k.org> <20010816.203732.107941169.davem@redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tristan writes:
+Hi,
 
-> I want to install the linux kernel 0.01 on my 386 machine, and im
-> lost on how to do it.
+"David S. Miller" wrote:
 
-Go up a few versions, to 0.02 maybe, if you have any hopes of
-running a compiler on this system. You will need at least 4 MB of
-RAM for compiling, since the early kernels didn't support swap.
+>    Please show me a place in the kernel where such code is used and is
+>    not dumb.
+> 
+> Why don't you point out an example yourself?  You seem pretty
+> confident that a comparsion between a signed and unsigned value cannot
+> possible be legitimate.
 
-Minix-386 is a hacked up Minix. Minix is an educational OS for
-the 8088 that was just recently made free. There once was a
-collection of patches that would add 386 feature support.
-So you could get Minix running, patch it, then build Linux.
+No, I did not say this. I said that such warning would be useful and
+that the majority of users does not need the forced cast. This forced
+cast is IMO more dangerous than useful.
+I'd prefer people think about the warning, than suppress that warning
+and let people run into subtle bugs. For the majority of uses, this will
+be a bug or at least carelessness. For the minority of legal uses add a
+cast + comment and everything is fine.
 
-Try this:
-
-The Minix filesystem can be 64 MB at most. Make a partition for
-that, one for swap, and one for a newer Linux distribution.
-This pre-Slackware thing would be a good choice:
-http://www.ibiblio.org/pub/Linux/distributions/MCC/2.0+/
-
-Um, you really don't want to be building gcc on a 386.
-You might have to build intermediate versions, since the
-old gcc might not compile with the most recent gcc.
-Perhaps you have or can borrow a modern machine for builds.
-
-Finding the extras, like libc and a shell, will be hard.
-
-You might need a boot loader called "shoelace". You should
-be able to run this from LILO.
-
-
+bye, Roman

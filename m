@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282644AbRLBTeL>; Sun, 2 Dec 2001 14:34:11 -0500
+	id <S282693AbRLBTfb>; Sun, 2 Dec 2001 14:35:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282625AbRLBTdv>; Sun, 2 Dec 2001 14:33:51 -0500
-Received: from m1000.netcologne.de ([194.8.194.104]:60245 "EHLO
-	m1000.netcologne.de") by vger.kernel.org with ESMTP
-	id <S282600AbRLBTdp>; Sun, 2 Dec 2001 14:33:45 -0500
-Message-ID: <000b01c17b68$2ff846e0$30d8fea9@ecce>
-From: "[MOc]cda*mirabilos" <mirabilos@netcologne.de>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.40.0112021206040.28065-100000@waste.org> <3C0A70DE.65F54283@mandrakesoft.com>
-Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
-Date: Sun, 2 Dec 2001 19:33:15 -0000
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S284283AbRLBTfX>; Sun, 2 Dec 2001 14:35:23 -0500
+Received: from clouddancer.com ([64.42.30.110]:41998 "HELO
+	mail.clouddancer.com") by vger.kernel.org with SMTP
+	id <S282693AbRLBTfJ>; Sun, 2 Dec 2001 14:35:09 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: IBM Thinkpad T21: Hotplugging of cdrom and floppy devices
+In-Reply-To: <9udhi7$t3$1@phoenix.clouddancer.com>
+In-Reply-To: <3C0A4986.8020708@athlon.maya.org> <9udhi7$t3$1@phoenix.clouddancer.com>
+Reply-To: klink@clouddancer.com
+Message-Id: <20011202193450.B36E77843A@phoenix.clouddancer.com>
+Date: Sun,  2 Dec 2001 11:34:50 -0800 (PST)
+From: klink@clouddancer.com (Colonel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But I'm all for removing old stuff.  There is no reason to keep
-> something that flat out doesn't work and hasn't for a long long
-time...
-> if somebody wants to pick it up they can grab linux-2.2 or linux-2.0
-> from any FTP mirror.
+In clouddancer.list.kernel, <andihartmann@freenet.de> wrote:
+>
+>When I put off my floppy-device (/dev/fd1) and put in my cdrom-device 
+>(/dev/hdc; both no pcmcia-devices) or vice versa, the kernel doesn't 
+>recognize this change. The change - LED of the laptop is blinking until 
+>I suspend the laptop for example with apm -s or with the keyboard Fn-F4 
+>and rewake it. After this "little sleep", the kernel suddenly knows 
+>about the new hardware and it can handle it.
+>
+>I tested the hotplugging-feature of the kernel 2.4.x - but I couldn't 
+>get it working.
+>
+>Is there any other possibility to give the kernel a chance to detect a 
+>hardware change without going through the suspend-mode? I mean, is there 
+>a piece of software, which does the same as in the wake-up-situation of 
+>the notebook after suspend?
 
-By the way, what happened to xiafs?
-Back to 2.0.33 it even didn't work (complaints after newfs).
+The Thinkpad linux webpages mention : suspend, swap device, unsuspend.
 
-Just an interest...
-Thorsten
+I suspect there is a BIOS function that handles the device change,
+since that is where the suspend actually occurs.  Windows must call it
+directly.  Hotplugging is for the standard interfaces, the thinkpad
+Ultrabay is unique.  You should probably be asking the IBM linux
+group.
 
+-- 
+Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
 

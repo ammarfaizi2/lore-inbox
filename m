@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287045AbSBRVIm>; Mon, 18 Feb 2002 16:08:42 -0500
+	id <S286521AbSBRVPM>; Mon, 18 Feb 2002 16:15:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287134AbSBRVIY>; Mon, 18 Feb 2002 16:08:24 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:41733 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S287449AbSBRVII>; Mon, 18 Feb 2002 16:08:08 -0500
-Date: Mon, 18 Feb 2002 22:08:03 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18-pre9-mjc2
-Message-ID: <20020218210803.GF14521@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020218205806.GD14521@atrey.karlin.mff.cuni.cz> <E16cv8m-0006po-00@the-village.bc.nu>
+	id <S286590AbSBRVPC>; Mon, 18 Feb 2002 16:15:02 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:8695
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S286521AbSBRVOv>; Mon, 18 Feb 2002 16:14:51 -0500
+Date: Mon, 18 Feb 2002 13:14:53 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+        Anish Srivastava <anish@bidorbuyindia.com>,
+        linux-kernel@vger.kernel.org, edward@thebsh.namesys.com
+Subject: Re: File BlockSize
+Message-ID: <20020218211453.GA20336@matchmail.com>
+Mail-Followup-To: Hans Reiser <reiser@namesys.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Anish Srivastava <anish@bidorbuyindia.com>,
+	linux-kernel@vger.kernel.org, edward@thebsh.namesys.com
+In-Reply-To: <002e01c1b397$1a26d270$3c00a8c0@baazee.com> <20020212075203.GF767@holomorphy.com> <3C6E08FB.7030308@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E16cv8m-0006po-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.24i
+In-Reply-To: <3C6E08FB.7030308@namesys.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Someone should buy thinkpad, destroy it (preferably with CD labeled
-> > Virus 98 or soemthing like that), return, destroy next, return,
-> > destroy next, request money back.
+On Sat, Feb 16, 2002 at 10:23:39AM +0300, Hans Reiser wrote:
+> William Lee Irwin III wrote:
 > 
-> If you want to get arrested it sounds a great idea. Thats up to you
+> >On Tue, Feb 12, 2002 at 01:00:07PM +0530, Anish Srivastava wrote:
+> >
+> >>Hi!!
+> >>Is there any way I can have 8K block sizes in ext2, reiserfs or ext3.
+> >>I am trying to install Oracle on Linux with 8K DB_Block_size.
+> >>But it gives me a Block size mismatch saying that the File BlockSize is 
+> >>only
+> >>4K
+> >>Maybe, there is a kernel patch available which enables Linux to create 8K
+> >>file blocks.
+> >>Thanks in anticipation....
+> >>
+> >
+> >Unfortunately filesystem block sizes larger than PAGE_SIZE are unsupported.
+> >I wish they were, though.
 
-Huh? They are shipping faulty products. Unless their manual say "you
-are only allowed to run windows 95 release 1, Word version 3.71 and
-Outlook 17.32 and nothing else, you have handled your computer
-properly and its *their* problem.
+I believe that is _page cache_ size instead of PAGE_SIZE.  Though,
+page_cache_size is based on PAGE_SIZE...
 
-> > Alternatively make a virus that destroys thinkpads -- should make them
-> > some bad press, too.
+> >
+> I should be more precise, on alpha you can do it with reiserfs.
 > 
-> A virus to destroy any PC is trivial. Just be thankful nobody has crossed
-> the really infectious ones with stuff like chernobyl and disk firmware
-> erasers.
+> Hans
 
-What did chernobyl do? I've never seen PC damaged beyond
-repair. Everyone with a clue has jumper on stuff like flashing, and I
-can imagine that opening the case can void your warranty.
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+And ext2 and ext3 and ...

@@ -1,60 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264051AbTDWOQM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 10:16:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264052AbTDWOQM
+	id S264052AbTDWOXF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 10:23:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264053AbTDWOXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 10:16:12 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:5096 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S264051AbTDWOQH
+	Wed, 23 Apr 2003 10:23:05 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:4744 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264052AbTDWOXD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 10:16:07 -0400
-Date: Wed, 23 Apr 2003 15:57:30 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Wanted: A decent assembler
-In-Reply-To: <200304230906_MC3-1-35A3-DF4@compuserve.com>
-Message-ID: <Pine.GSO.3.96.1030423153532.6238C-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	Wed, 23 Apr 2003 10:23:03 -0400
+Date: Wed, 23 Apr 2003 10:36:55 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Andrew Kirilenko <icedank@gmx.net>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Stored data missed in setup.S
+In-Reply-To: <200304231639.57148.icedank@gmx.net>
+Message-ID: <Pine.LNX.4.53.0304231028270.23276@chaos>
+References: <200304231617.23243.icedank@gmx.net> <Pine.LNX.4.53.0304230925150.23037@chaos>
+ <200304231639.57148.icedank@gmx.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Apr 2003, Chuck Ebbert wrote:
+On Wed, 23 Apr 2003, Andrew Kirilenko wrote:
 
->    "The result of an expression must be an absolute number, or else an
-> offset into a particular section.  If an expression is not absolute,
-> and there is not enough information when `as' sees the expression to
-> know its section, a second pass over the source program might be
-> necessary to interpret the expression--but the second pass is currently
-> not implemented.  `as' aborts with an error message in this situation."
+[SNIPPED...]
 
- But:
+> OK. And now code looks like:
+> -->
+> start_of_setup: # line 160
+> 	# bla bla bla - some checking code
+>         movb    $1, %al
+>         movb    %al, (0x100)
+> ....
+> ....
+> 	cmpb    $1, (0x100)
+> 	je bail820 # and it DON'T jump here
+> <--
+>
 
-    `-'
-          "Subtraction".  If the right argument is absolute, the result
-          has the section of the left argument.  If both arguments are
-          in the same section, the result is absolute.  You may not
-          subtract arguments from different sections.
+> I'm sure, I'm doing something wrong. But what???
 
-> 1:	pushl $vector-256		# 5-byte instruction
-> 	jmp common_interrupt		# 2 or 5 bytes (8 or 32-bit offset)
-> 2:
-> if 2b-1b > 8			# <============================= ERROR
-> 	irq_align=16			# switch to 16-byte alignment
-> endif
+The only possibiity is that the code you just showed is not
+being executed. Absolute location 0x100 is not being overwritten
+by some timer-tick (normally) so whatever you write there should
+remain. You just put a byte of 1 in that location and then
+you compared against a byte of 1. If the CPU was broken, you
+wouldn't have even loaded your code.
 
- This is a bug in gas.  Please check if it is reproducible with the latest
-release (2.13.2.1) and if so, then file a bug report to
-<bug-binutils@gnu.org>.
+It is quite likely that the IP is being diverted around your code
+by some previous code.
 
-  Maciej
+FYI, you can check the progress of your code by 'printing' on
+the screen. Set up ES to point to the screen segment, and write
+letters there:
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+	movw	$0xb800, %ax
+	movb	%ax, %es
+	movb	$'A', %es:(0)
+
+This 'prints' an 'A' at the first location on the screen.
+
+
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

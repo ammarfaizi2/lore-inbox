@@ -1,46 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266386AbUGOWU0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266419AbUGOWYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266386AbUGOWU0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 18:20:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266389AbUGOWU0
+	id S266419AbUGOWYL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 18:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266425AbUGOWYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 18:20:26 -0400
-Received: from fw.osdl.org ([65.172.181.6]:36750 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266386AbUGOWUV (ORCPT
+	Thu, 15 Jul 2004 18:24:10 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:6963 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S266419AbUGOWYG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 18:20:21 -0400
-Date: Thu, 15 Jul 2004 14:04:58 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Losing interrupts
-Message-Id: <20040715140458.3c0aee37.akpm@osdl.org>
-In-Reply-To: <1089927383.24832.14.camel@mindpipe>
-References: <1089843559.22841.8.camel@mindpipe>
-	<1089927383.24832.14.camel@mindpipe>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Jul 2004 18:24:06 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] quiet down per-zone memory stats
+Date: Thu, 15 Jul 2004 18:23:33 -0400
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_lPw9AvuTQf+8WUh"
+Message-Id: <200407151823.33854.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell <rlrevell@joe-job.com> wrote:
->
-> There was an issue several years ago where Matrox figured out they could
-> get slightly better benchmark scores by not checking whether a FIFO on
-> the video card was full before writing to it, which would cause the PCI
-> bus to completely freeze until the FIFO had drained.  Lots of vendors
-> followed suit until one of the audio software vendors figred it out and
-> called them on it, at which point they fixed their drivers.  The effects
-> (massive audio drouputs) and the steps to reproduce (drag a window
-> around the screen slowly) were identical.
 
-There's an XF86Config incantation which is supposed to prevent this: if you
-set it, the driver will poll the FIFO-full bit before actually reading the
-FIFO.
+--Boundary-00=_lPw9AvuTQf+8WUh
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-hm, according to http://www.xfree86.org/3.3.6/3DLabs3.html, the pci_retry
-option _causes_ the bad behaviour, rather than avoiding it.
+On a system with a lot of nodes, 4 lines of output per node is a lot to have 
+to sit through as the system comes up, especially if you're on the other end 
+of a slow serial link.  The information is valuable though, so keep it around 
+for the system logger.  This patch makes the printks for the memory stats use 
+KERN_DEBUG instead of the default loglevel.
 
-Oh, well.  Have a play with that.
+Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
+
+Jesse
+
+--Boundary-00=_lPw9AvuTQf+8WUh
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="per-node-quiet.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="per-node-quiet.patch"
+
+===== mm/page_alloc.c 1.220 vs edited =====
+--- 1.220/mm/page_alloc.c	2004-07-11 01:52:11 -07:00
++++ edited/mm/page_alloc.c	2004-07-15 14:51:07 -07:00
+@@ -1381,7 +1381,7 @@
+ 		for (i = 0; i < MAX_NR_ZONES; i++)
+ 			realtotalpages -= zholes_size[i];
+ 	pgdat->node_present_pages = realtotalpages;
+-	printk("On node %d totalpages: %lu\n", pgdat->node_id, realtotalpages);
++	printk(KERN_DEBUG "On node %d totalpages: %lu\n", pgdat->node_id, realtotalpages);
+ }
+ 
+ 
+@@ -1487,7 +1487,7 @@
+ 			pcp->batch = 1 * batch;
+ 			INIT_LIST_HEAD(&pcp->list);
+ 		}
+-		printk("  %s zone: %lu pages, LIFO batch:%lu\n",
++		printk(KERN_DEBUG "  %s zone: %lu pages, LIFO batch:%lu\n",
+ 				zone_names[j], realsize, batch);
+ 		INIT_LIST_HEAD(&zone->active_list);
+ 		INIT_LIST_HEAD(&zone->inactive_list);
+
+--Boundary-00=_lPw9AvuTQf+8WUh--

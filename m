@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269763AbRHDCbc>; Fri, 3 Aug 2001 22:31:32 -0400
+	id <S269764AbRHDCte>; Fri, 3 Aug 2001 22:49:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269764AbRHDCbX>; Fri, 3 Aug 2001 22:31:23 -0400
-Received: from weta.f00f.org ([203.167.249.89]:15504 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S269763AbRHDCbL>;
-	Fri, 3 Aug 2001 22:31:11 -0400
-Date: Sat, 4 Aug 2001 14:31:55 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
-Cc: Mark Atwood <mra@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: How does "alias ethX drivername" in modules.conf work?
-Message-ID: <20010804143155.G18108@weta.f00f.org>
-In-Reply-To: <m33d78de7d.fsf@flash.localdomain> <20010804132159.F18108@weta.f00f.org> <996888738.24442.1.camel@tduffy-lnx.afara.com>
+	id <S269765AbRHDCtY>; Fri, 3 Aug 2001 22:49:24 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:55307 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S269764AbRHDCtQ>;
+	Fri, 3 Aug 2001 22:49:16 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Alan Cox <laughing@shared-source.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.7-ac5 
+In-Reply-To: Your message of "Fri, 03 Aug 2001 23:41:02 +0100."
+             <20010803234102.A15863@lightning.swansea.linux.org.uk> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <996888738.24442.1.camel@tduffy-lnx.afara.com>
-User-Agent: Mutt/1.3.20i
-X-No-Archive: Yes
+Date: Sat, 04 Aug 2001 12:49:18 +1000
+Message-ID: <24967.996893358@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 03, 2001 at 06:32:18PM -0700, Thomas Duffy wrote:
+On Fri, 3 Aug 2001 23:41:02 +0100, 
+Alan Cox <laughing@shared-source.org> wrote:
+>2.4.7ac5
 
-    so, what happens when you have two eth cards that use the same module?
-    in the isa land, the order you pass the io=0x300,0x240 would determine
-    which order the eth?'s go to...how about in the pci world?
+Please remove kernel.spec from your patches.  It is already out of
+date, the version in your patch is 2.4.7-ac3, not ac5.  Including a
+generated and dynamic file in the shipped kernel only works if the
+patch maintainer remembers to generate it every time.
 
-when the pci module loads, it find all devices and registers them
+If somebody wants the kernel.spec file they can make spec and pick up
+their own kernel version.  In any case, they will probably want to add
+patches and set EXTRAVERSION so a prebuilt kernel.spec is again out of
+date.
 
-
-
-  --cw

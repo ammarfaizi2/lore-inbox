@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265412AbSJXMwW>; Thu, 24 Oct 2002 08:52:22 -0400
+	id <S265439AbSJXM7A>; Thu, 24 Oct 2002 08:59:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265416AbSJXMwV>; Thu, 24 Oct 2002 08:52:21 -0400
-Received: from webmail30.rediffmail.com ([202.54.124.145]:39571 "HELO
-	webmail30.rediffmail.com") by vger.kernel.org with SMTP
-	id <S265412AbSJXMwV>; Thu, 24 Oct 2002 08:52:21 -0400
-Date: 24 Oct 2002 12:59:51 -0000
-Message-ID: <20021024125951.24497.qmail@webmail30.rediffmail.com>
+	id <S265447AbSJXM7A>; Thu, 24 Oct 2002 08:59:00 -0400
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:44052 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S265439AbSJXM67>;
+	Thu, 24 Oct 2002 08:58:59 -0400
+Message-ID: <3DB7F01E.8090208@mvista.com>
+Date: Thu, 24 Oct 2002 08:05:34 -0500
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-From: "Ashwin  Sawant" <sawant_ashwin@rediffmail.com>
-Reply-To: "Ashwin  Sawant" <sawant_ashwin@rediffmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Workqueues and the Nvidia driver
-Content-type: text/plain;
-	format=flowed
-Content-Disposition: inline
+To: dipankar@gamebox.net
+CC: linux-kernel@vger.kernel.org, John Levon <levon@movementarian.org>
+Subject: Re: [PATCH] NMI request/release, version 4
+References: <20021022232345.A25716@dikhow> <3DB59385.6050003@mvista.com> <20021022233853.B25716@dikhow> <3DB59923.9050002@mvista.com> <20021022190818.GA84745@compsoc.man.ac.uk> <3DB5C4F3.5030102@mvista.com> <20021023230327.A27020@dikhow> <3DB6E45F.5010402@mvista.com> <20021024002741.A27739@dikhow> <3DB7033C.1090807@mvista.com> <20021024132004.A29039@dikhow>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Regarding the problems with the nvidia driver on 2.5.44, the 
-problem is, as Dave suggested, the GPL-only workqueues. I changed 
-(for personal use) the relevant EXPORT_SYMBOL_GPLs to 
-EXPORT_SYMBOLs in workqueue.c. It works quite fine even though it 
-is a bit unstable.
-Adding a MODULE_LICENSE("GPL") line to the nvidia driver would 
-have been quicker but I don't somehow think that's allowed :)
-Cheers,
-Ashwin.
+Dipankar Sarma wrote:
 
-__________________________________________________________
-Give your Company an email address like
-ravi @ ravi-exports.com.  Sign up for Rediffmail Pro today!
-Know more. http://www.rediffmailpro.com/signup/
+>Ok, some more comments -
+>
+>On Wed, Oct 23, 2002 at 03:14:52PM -0500, Corey Minyard wrote:
+>  
+>
+>Can release_nmi() be done from irq context ? If not, I don't see
+>why spin_lock_irqsave() is required here. If it can be called
+>from irq context, then I can't see how you can schedule()
+>(or wait_for_completion() for that matter :)).
+>
+I originally was using nmi_handler_lock in the rcu routine (which runs 
+at interrupt level).  You have to turn off interrupts if someone else 
+can claim the lock at interrupt level.  However, I"m not any more, so it 
+can go away.
+
+-Corey
 

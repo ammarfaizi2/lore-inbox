@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268839AbUHLWDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268819AbUHLV6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268839AbUHLWDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 18:03:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268840AbUHLWCw
+	id S268819AbUHLV6j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 17:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268817AbUHLV6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 18:02:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8932 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268835AbUHLWB7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 18:01:59 -0400
-Date: Thu, 12 Aug 2004 23:01:55 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Greg KH <greg@kroah.com>
-Cc: Miles Bader <miles@gnu.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-Message-ID: <20040812220155.GG12936@parcelfarce.linux.theplanet.co.uk>
-References: <20040806211413.77833.qmail@web14926.mail.yahoo.com> <200408111004.02995.jbarnes@engr.sgi.com> <20040811172800.GB14979@kroah.com> <200408111102.10689.jbarnes@engr.sgi.com> <20040811181236.GD14979@kroah.com> <buo1xidw0rs.fsf@mctpc71.ucom.lsi.nec.co.jp> <20040812043818.GB5622@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040812043818.GB5622@kroah.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 12 Aug 2004 17:58:39 -0400
+Received: from smtpout3.compass.net.nz ([203.97.97.135]:57771 "EHLO
+	smtpout1.compass.net.nz") by vger.kernel.org with ESMTP
+	id S268827AbUHLV5g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 17:57:36 -0400
+Date: Fri, 13 Aug 2004 09:58:40 +0000 (UTC)
+From: haiquy@yahoo.com
+X-X-Sender: sk@linuxcd
+Reply-To: haiquy@yahoo.com
+To: linux-kernel@vger.kernel.org
+Subject: Problem report. USB flash disk problem with 2.6.7
+Message-ID: <Pine.LNX.4.53.0408130955440.519@linuxcd>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 11, 2004 at 09:38:18PM -0700, Greg KH wrote:
-> That's what the copyright lawyers at a certian three letter company
-> said is needed, and for some reason I tend to believe what they say :)
 
-On the other hand, you could believe what the US government tells you ...
-http://www.copyright.gov/circs/circ1.html#noc
+Hi,
 
-In particular, the (c) has no relevance; the important bit is the word
-"Copyright":
+I am sorry if this problem has been known. I got a flash disk. Kernel 2.6.7
+can not know if the disk is in the lock mode so it still assumes that
+write is enable and of course when write to disk it causes file system panic
+and nothing written.
 
-   1. The symbol © (the letter C in a circle), or the word "Copyright,"
-   or the abbreviation "Copr."; and
+In 2.4.27 if my disk is locked, it is automatically detected and mount it as read-only
+and this is an expected behavior.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Thank you very much for your time.
+
+
+Steve Kieu

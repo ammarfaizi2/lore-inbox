@@ -1,81 +1,194 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261757AbTIYSV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 14:21:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbTIYSVa
+	id S261726AbTIYS1U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 14:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbTIYSZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 14:21:30 -0400
-Received: from adsl-67-122-122-226.dsl.pltn13.pacbell.net ([67.122.122.226]:56872
-	"EHLO siamese.engr.3ware.com") by vger.kernel.org with ESMTP
-	id S261757AbTIYSTc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 14:19:32 -0400
-Message-ID: <A1964EDB64C8094DA12D2271C04B8126F8C68B@tabby>
-From: Adam Radford <aradford@3WARE.com>
-To: "'Nick Piggin'" <piggin@cyberone.com.au>,
-       Aaron Lehmann <aaronl@vitelus.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: RE: Complete I/O starvation with 3ware raid on 2.6
-Date: Thu, 25 Sep 2003 11:19:20 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Thu, 25 Sep 2003 14:25:16 -0400
+Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:2439 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id S261304AbTIYRT6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 13:19:58 -0400
+Date: Thu, 25 Sep 2003 19:19:17 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] s390 (9/19): xpram driver.
+Message-ID: <20030925171917.GJ2951@mschwid3.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You should set CONFIG_3W_XXXX_CMD_PER_LUN in your .config to 16 or 32.
+ - Make xpram work on 64 bit machines.
+ - Use new-style module_param.
 
--Adam
+diffstat:
+ drivers/s390/block/xpram.c |   45 ++++++++++++++++++++++++++-------------------
+ 1 files changed, 26 insertions(+), 19 deletions(-)
 
------Original Message-----
-From: Nick Piggin [mailto:piggin@cyberone.com.au]
-Sent: Thursday, September 25, 2003 3:29 AM
-To: Aaron Lehmann
-Cc: Andrew Morton; linux-kernel@vger.kernel.org
-Subject: Re: Complete I/O starvation with 3ware raid on 2.6
-
-
-
-
-Aaron Lehmann wrote:
-
->On Thu, Sep 25, 2003 at 07:13:32PM +1000, Nick Piggin wrote:
->
->>But the load average will be 11 because there are processes stuck in the
->>kernel somewhere in D state. Have a look for them. They might be things
->>like pdflush, kswapd, scsi_*, etc.
->>
->
->They're pdflush and kjournald. I don't have sysrq support compiled in
->at the moment.
->
-
-OK, it would be good if you could get a couple of sysrq T snapshots then
-and post them to the list.
-
->
->I've noticed the problem does not occur when the raid can absorb data
->faster than the other drive can throw data at it. My naive mind is
->pretty sure that this is just an issue of way too much being queued
->
-
-Although your system (usr, lib, bin etc) is on the IDE disk, right?
-And that is only doing reads?
-
-How does your system behave if you are doing just the read side (ie.
-going to /dev/null), or just the write side (coming from /dev/zero).
-
->
->for writing. If someone could tell me how to control this parameter,
->I'd definately give it a try [tomorrow]. All I've found on my own is
->#define TW_Q_LENGTH 256 in 3w-xxxx.h and am not sure if this is the
->right thing to change or safe to change.
->
-
-That looks like it, try it at 4.
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+diff -urN linux-2.6/drivers/s390/block/xpram.c linux-2.6-s390/drivers/s390/block/xpram.c
+--- linux-2.6/drivers/s390/block/xpram.c	Mon Sep  8 21:50:18 2003
++++ linux-2.6-s390/drivers/s390/block/xpram.c	Thu Sep 25 18:33:28 2003
+@@ -26,11 +26,12 @@
+  */
+ 
+ #include <linux/module.h>
+-#include <linux/version.h>
++#include <linux/moduleparam.h>
+ #include <linux/ctype.h>  /* isdigit, isxdigit */
+ #include <linux/errno.h>
+ #include <linux/init.h>
+ #include <linux/slab.h>
++#include <linux/blkdev.h>
+ #include <linux/blkpg.h>
+ #include <linux/hdreg.h>  /* HDIO_GETGEO */
+ #include <linux/sysdev.h>
+@@ -58,23 +59,23 @@
+ }; 
+ 
+ typedef struct {
+-	unsigned long	size;		/* size of xpram segment in pages */
+-	unsigned long	offset;		/* start page of xpram segment */
++	unsigned int	size;		/* size of xpram segment in pages */
++	unsigned int	offset;		/* start page of xpram segment */
+ } xpram_device_t;
+ 
+ static xpram_device_t xpram_devices[XPRAM_MAX_DEVS];
+-static int xpram_sizes[XPRAM_MAX_DEVS];
++static unsigned int xpram_sizes[XPRAM_MAX_DEVS];
+ static struct gendisk *xpram_disks[XPRAM_MAX_DEVS];
+-static unsigned long xpram_pages;
++static unsigned int xpram_pages;
+ static int xpram_devs;
+ 
+ /*
+  * Parameter parsing functions.
+  */
+ static int devs = XPRAM_DEVS;
+-static unsigned long sizes[XPRAM_MAX_DEVS];
++static unsigned int sizes[XPRAM_MAX_DEVS];
+ 
+-MODULE_PARM(devs,"i");
++module_param(devs, int, 0);
+ MODULE_PARM(sizes,"1-" __MODULE_STRING(XPRAM_MAX_DEVS) "i"); 
+ 
+ MODULE_PARM_DESC(devs, "number of devices (\"partitions\"), " \
+@@ -149,7 +150,7 @@
+  *           -EIO:         if pgin failed
+  *           -ENXIO:       if xpram has vanished
+  */
+-static int xpram_page_in (unsigned long page_addr, unsigned long xpage_index)
++static int xpram_page_in (unsigned long page_addr, unsigned int xpage_index)
+ {
+ 	int cc;
+ 
+@@ -180,7 +181,7 @@
+ 		return -ENXIO;
+ 	}
+ 	if (cc == 1) {
+-		PRINT_ERR("page in failed for page index %ld.\n",
++		PRINT_ERR("page in failed for page index %u.\n",
+ 			  xpage_index);
+ 		return -EIO;
+ 	}
+@@ -197,7 +198,7 @@
+  *           -EIO:         if pgout failed
+  *           -ENXIO:       if xpram has vanished
+  */
+-static long xpram_page_out (unsigned long page_addr, unsigned long xpage_index)
++static long xpram_page_out (unsigned long page_addr, unsigned int xpage_index)
+ {
+ 	int cc;
+ 
+@@ -228,7 +229,7 @@
+ 		return -ENXIO;
+ 	}
+ 	if (cc == 1) {
+-		PRINT_ERR("page out failed for page index %ld.\n",
++		PRINT_ERR("page out failed for page index %u.\n",
+ 			  xpage_index);
+ 		return -EIO;
+ 	}
+@@ -244,6 +245,8 @@
+ 	int rc;
+ 
+ 	mem_page = (unsigned long) __get_free_page(GFP_KERNEL);
++	if (!mem_page)
++		return -ENOMEM;
+ 	rc = xpram_page_in(mem_page, 0);
+ 	free_page(mem_page);
+ 	return rc ? -ENXIO : 0;
+@@ -254,13 +257,15 @@
+  */
+ static unsigned long __init xpram_highest_page_index(void)
+ {
+-	unsigned long page_index, add_bit;
++	unsigned int page_index, add_bit;
+ 	unsigned long mem_page;
+ 
+ 	mem_page = (unsigned long) __get_free_page(GFP_KERNEL);
++	if (!mem_page)
++		return 0;
+ 
+ 	page_index = 0;
+-	add_bit = 1ULL << (sizeof(unsigned long)*8 - 1);
++	add_bit = 1ULL << (sizeof(unsigned int)*8 - 1);
+ 	while (add_bit > 0) {
+ 		if (xpram_page_in(mem_page, page_index | add_bit) == 0)
+ 			page_index |= add_bit;
+@@ -279,7 +284,7 @@
+ {
+ 	xpram_device_t *xdev = bio->bi_bdev->bd_disk->private_data;
+ 	struct bio_vec *bvec;
+-	unsigned long index;
++	unsigned int index;
+ 	unsigned long page_addr;
+ 	unsigned long bytes;
+ 	int i;
+@@ -290,6 +295,8 @@
+ 	if ((bio->bi_size >> 12) > xdev->size)
+ 		/* Request size is no page-aligned. */
+ 		goto fail;
++	if ((bio->bi_sector >> 3) > 0xffffffffU - xdev->offset)
++		goto fail;
+ 	index = (bio->bi_sector >> 3) + xdev->offset;
+ 	bio_for_each_segment(bvec, bio, i) {
+ 		page_addr = (unsigned long)
+@@ -382,13 +389,13 @@
+ 	PRINT_INFO("  number of devices (partitions): %d \n", xpram_devs);
+ 	for (i = 0; i < xpram_devs; i++) {
+ 		if (xpram_sizes[i])
+-			PRINT_INFO("  size of partition %d: %d kB\n",
++			PRINT_INFO("  size of partition %d: %u kB\n",
+ 				   i, xpram_sizes[i]);
+ 		else
+ 			PRINT_INFO("  size of partition %d to be set "
+ 				   "automatically\n",i);
+ 	}
+-	PRINT_DEBUG("  memory needed (for sized partitions): %ld kB\n",
++	PRINT_DEBUG("  memory needed (for sized partitions): %lu kB\n",
+ 		    mem_needed);
+ 	PRINT_DEBUG("  partitions to be sized automatically: %d\n",
+ 		    mem_auto_no);
+@@ -407,7 +414,7 @@
+ 	if (mem_auto_no) {
+ 		mem_auto = ((pages - mem_needed / 4) / mem_auto_no) * 4;
+ 		PRINT_INFO("  automatically determined "
+-			   "partition size: %ld kB\n", mem_auto);
++			   "partition size: %lu kB\n", mem_auto);
+ 		for (i = 0; i < xpram_devs; i++)
+ 			if (xpram_sizes[i] == 0)
+ 				xpram_sizes[i] = mem_auto;
+@@ -499,8 +506,8 @@
+ 		return -ENODEV;
+ 	}
+ 	xpram_pages = xpram_highest_page_index();
+-	PRINT_INFO("  %li pages expanded memory found (%li KB).\n",
+-		   xpram_pages, xpram_pages*4);
++	PRINT_INFO("  %u pages expanded memory found (%lu KB).\n",
++		   xpram_pages, (unsigned long) xpram_pages*4);
+ 	rc = xpram_setup_sizes(xpram_pages);
+ 	if (rc)
+ 		return rc;

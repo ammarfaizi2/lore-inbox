@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312799AbSDSSP2>; Fri, 19 Apr 2002 14:15:28 -0400
+	id <S312772AbSDSSin>; Fri, 19 Apr 2002 14:38:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312834AbSDSSP1>; Fri, 19 Apr 2002 14:15:27 -0400
-Received: from waste.org ([209.173.204.2]:62670 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S312799AbSDSSP0>;
-	Fri, 19 Apr 2002 14:15:26 -0400
-Date: Fri, 19 Apr 2002 13:15:13 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Peloquin <peloquin@us.ibm.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Bio pool & scsi scatter gather pool usage
-In-Reply-To: <3CBF5B67.E488A8E5@zip.com.au>
-Message-ID: <Pine.LNX.4.44.0204191305560.8537-100000@waste.org>
+	id <S312791AbSDSSin>; Fri, 19 Apr 2002 14:38:43 -0400
+Received: from relay1.pair.com ([209.68.1.20]:26376 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S312772AbSDSSim>;
+	Fri, 19 Apr 2002 14:38:42 -0400
+X-pair-Authenticated: 24.126.75.99
+Message-ID: <3CC06470.F05543C4@kegel.com>
+Date: Fri, 19 Apr 2002 11:39:44 -0700
+From: Dan Kegel <dank@kegel.com>
+Reply-To: dank@kegel.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: printk in init_module mixing with printf in insmod
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Apr 2002, Andrew Morton wrote:
+I recently upgraded my ppc405 embedded system
+from 2.4.2 or so to 2.4.17 or so.  I use modutils-2.4.12.
+When I insert a nongpl module, 
+the 
+  fprintf(stderr, "Warning: loading foo.o will taint kernel\n");
+in insmod and the
+  printk("Hello, world\n");
+in the module are intermixed unpleasantly, yielding output like
+    Warning: loHello,ading foo.o world
+    will taint kernel
 
-> Alan Cox wrote:
-> >
-> > > Perhaps, but calls are expensive. Repeated calls down stacked block
-> > > devices will add up. In only the most unusually cases will there
-> >
-> > You don't need to repeatedly query. At bind time you can compute the
-> > limit for any device heirarchy and be done with it.
-> >
->
-> S'pose so.  The ideal request size is variable, based
-> on the alignment.  So for exampe if the start block is
-> halfway into a stripe, the ideal BIO size is half a stripe.
->
-> But that's a pretty simple table to generate once-off,
-> as you say.
+This garbled output makes reading the debugging printk's difficult.
 
-Perhaps we can return request size _and_ stripe alignment at bind time.
-Then we can do the right thing for RAID/LVM/etc in a pretty
-straightforward manner.  LVMs of RAIDs can return an GCD(LVM stripe, RAID
-stripe) and non-striped devices can return 0 to indicate no restrictions.
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+I suppose this isn't terribly important, since printk's are
+kind of a no-no in production, and this only affects printk's
+in init_module, but it'd be nice to know what
+the cleanest way to get rid of the mixing is.  Adding a sleep
+inside insmod seems heavyhanded.  I suppose I could redirect
+insmod's output to a file, sleep a bit, and then display the 
+file... bleah.
+- Dan

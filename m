@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270543AbTGUQrO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 12:47:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270544AbTGUQrO
+	id S270621AbTGUQwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 12:52:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270622AbTGUQwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 12:47:14 -0400
-Received: from 206-158-102-129.prx.blacksburg.ntc-com.net ([206.158.102.129]:35500
-	"EHLO wombat.ghz.cc") by vger.kernel.org with ESMTP id S270543AbTGUQrK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 12:47:10 -0400
-Message-ID: <32425.216.12.38.216.1058806931.squirrel@www.ghz.cc>
-In-Reply-To: <20030721163517.GA597@www0.org>
-References: <20030721163517.GA597@www0.org>
-Date: Mon, 21 Jul 2003 13:02:11 -0400 (EDT)
-Subject: Re: 2.6.0-test1 won't go further than "uncompressing" on a p1/32MB 
-     pc
-From: "Charles Lepple" <clepple@ghz.cc>
-To: "michaelm" <admin@www0.org>
+	Mon, 21 Jul 2003 12:52:14 -0400
+Received: from gsd.di.uminho.pt ([193.136.20.132]:51073 "EHLO
+	bbb.lsd.di.uminho.pt") by vger.kernel.org with ESMTP
+	id S270621AbTGUQvc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 12:51:32 -0400
+Date: Mon, 21 Jul 2003 18:06:34 +0100
+From: Luciano Miguel Ferreira Rocha <luciano@lsd.di.uminho.pt>
+To: Viaris <bmeneses_beltran@hotmail.com>
 Cc: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+Subject: Re: Problems with kernel 2.5.75 (Urgent)
+Message-ID: <20030721170634.GA5633@lsd.di.uminho.pt>
+Mail-Followup-To: Luciano Miguel Ferreira Rocha <luciano@lsd.di.uminho.pt>,
+	Viaris <bmeneses_beltran@hotmail.com>, linux-kernel@vger.kernel.org
+References: <Law11-OE21KRfcjcMzf0000fbd6@hotmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Law11-OE21KRfcjcMzf0000fbd6@hotmail.com>
+User-Agent: Mutt/1.4.1i
+X-Disclaimer: 'Author of this message is not responsible for any harm done to reader's computer.'
+X-Organization: 'GSD'
+X-Section: 'BIC'
+X-Priority: '1 (Highest)'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-michaelm said:
-> That is on a p1 150MMX 32MB PC, specifically an IBM ThinkPad 560E. It
 
-I just did a diff between your configuration, and that of my ThinkPad 770
-(233 MHz Pentium MMX).
+Hi,
 
-Note to defconfig maintainers: can these options be enabled by default on
-i386 (like they were in 2.4)?
+Module loading has changed in 2.5.x. Do you have module-init-tools installed?
 
-Things that you might want to enable:
+You may get it at http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
 
-CONFIG_ISA=y
+Regards,
+Luciano Rocha
 
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_AT_KEYBOARD=y
-
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-
-You also might want to turn off Trident FB support, and turn on generic
-VESA support. I have had good luck with the VESA driver, but odd,
-irreproducible errors with the Trident code (several versions back;
-haven't retested).
-
--- 
-Charles Lepple <ghz.cc!clepple>
-http://www.ghz.cc/charles/
+On Mon, Jul 21, 2003 at 10:43:25AM -0600, Viaris wrote:
+> Hi all,
+> 
+> I compiled kernel version 2.5.75, before I had kernel 2.4.20, the problem is
+> that I need to enable SCSI DC395x, but when I execute lsmod I not found
+> neither modules loaded, only appear:
+> Module                  Size  Used by
+> 
+> If I mount manually a module (insmod
+> /lib/modules/2.5.75/kernel/drivers/scsi/dc395x.ko) the following message
+> appear: Error inserting
+> '/lib/modules/2.5.75/kernel/drivers/scsi/dc395x.ko': -1 Unknown symbol in
+> module, I have my modules.conf in the directory /lib/modules/2.5.75/ but
+> this kernel no load automatically the modules.
+> 
+> I need to load this module because Ineed to use the tape backup, I have a
+> backu that I need urgent.
+> 
+> How can I do it?
+> 
+> Thanks,
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318254AbSGWXWy>; Tue, 23 Jul 2002 19:22:54 -0400
+	id <S318261AbSGWXYw>; Tue, 23 Jul 2002 19:24:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318255AbSGWXWy>; Tue, 23 Jul 2002 19:22:54 -0400
-Received: from dclient217-162-176-181.hispeed.ch ([217.162.176.181]:16646 "EHLO
-	alder.intra.bruli.net") by vger.kernel.org with ESMTP
-	id <S318254AbSGWXWw>; Tue, 23 Jul 2002 19:22:52 -0400
-From: "Martin Brulisauer" <martin@uceb.org>
-To: "'Ghozlane Toumi'" <ghoz@sympatico.ca>,
-       "'George France'" <france@handhelds.org>,
-       "'Martin Brulisauer'" <martin@uceb.org>,
-       "Oliver Pitzeier" <o.pitzeier@uptime.at>
-Date: Wed, 24 Jul 2002 01:26:00 +0200
-Subject: RE: kbuild 2.5.26 - arch/alpha
-Reply-to: martin@uceb.org
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3D3E0228.30587.32ECAC4@localhost>
-In-reply-to: <001701c2329b$a812f6d0$1211a8c0@pitzeier.priv.at>
-References: <20020723202538.NYJJ13064.tomts23-srv.bellnexxia.net@there>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+	id <S318262AbSGWXYw>; Tue, 23 Jul 2002 19:24:52 -0400
+Received: from relay1.pair.com ([209.68.1.20]:61200 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S318261AbSGWXYu>;
+	Tue, 23 Jul 2002 19:24:50 -0400
+X-pair-Authenticated: 24.126.73.164
+Message-ID: <3D3DE749.43116D50@kegel.com>
+Date: Tue, 23 Jul 2002 16:31:21 -0700
+From: dank@kegel.com
+Reply-To: dank@kegel.com
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: is flock broken in 2.4 or 2.5 kernels or what does this mean?
+References: <3D3DE6B2.FD4BD529@kegel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Jul 2002, at 0:52, Oliver Pitzeier wrote:
-> (Maybe an CVS tree for alpha-kernel developers. Those people
-> must be trusted you can imagine...)
-As I can see in the kernel howto, there is only one
-linux version _all_ patches have to go to at least -
-that's the one Linus maintains. And this makes
-all sense to me - it keeps the kernel alive and
-avoids falling apart over the time.
+dank@kegel.com wrote:
+> 
+> To save others a bit of searching:
+> the original thread was 'broken flock()' on 28 June 2002.
+> 
+> Steven's post and regression test:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=102562226210792&w=2
+> Matthew Wilcox's rip-it-out patch:
+> http://marc.theaimsgroup.com/?l=linux-fsdevel&m=102562469813922&w=2
 
-Martin
-
+See also
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=59992

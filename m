@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261987AbREPPzl>; Wed, 16 May 2001 11:55:41 -0400
+	id <S261986AbREPPxL>; Wed, 16 May 2001 11:53:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261988AbREPPzb>; Wed, 16 May 2001 11:55:31 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:18307 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S261987AbREPPzU>; Wed, 16 May 2001 11:55:20 -0400
-Date: Wed, 16 May 2001 11:55:12 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Possible race in interruptible_sleep_on_timeout()
-Message-ID: <Pine.LNX.3.95.1010516114809.32248A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261987AbREPPxB>; Wed, 16 May 2001 11:53:01 -0400
+Received: from c1473286-a.stcla1.sfba.home.com ([24.176.137.160]:35844 "HELO
+	ocean.lucon.org") by vger.kernel.org with SMTP id <S261986AbREPPwv>;
+	Wed, 16 May 2001 11:52:51 -0400
+Date: Wed, 16 May 2001 08:52:49 -0700
+From: "H . J . Lu" <hjl@lucon.org>
+To: Jalaja Devi <jalajad@yahoo.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Bad udelay usage in drivers/net/aironet4500_card.c
+Message-ID: <20010516085249.B2003@lucon.org>
+In-Reply-To: <20010516123312.978.qmail@web4303.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010516123312.978.qmail@web4303.mail.yahoo.com>; from jalajad@yahoo.com on Wed, May 16, 2001 at 05:33:12AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 16, 2001 at 05:33:12AM -0700, Jalaja Devi wrote:
+> Hi!
+> Could you please tell me how you fixed the udelay
+> problem. cuz, I am encountering the same problem in my
+> driver.
+> 
 
-I lifted the following kernel-thread code from
-../linux/drivers/net/8139too.c, just added a procedure to call.
+I am not a kernel expert. You should ask it on the kernel mailing
+list.
 
-static int gpib_thread(void *unused)
-{
-    unsigned long timeout;
-
-    daemonize();
-    spin_lock_irq(&current->sigmask_lock);
-    sigemptyset(&current->blocked);
-    recalc_sigpending(current);
-    spin_unlock_irq(&current->sigmask_lock);
-    memcpy(current->comm, task_name, sizeof(task_name));
-    for(;;)
-    { 
-        timeout = 0x02;
-        do {
-           timeout = interruptible_sleep_on_timeout(&info->twait, timeout);
-           } while (!signal_pending(current)&&(timeout > 0)); 
-        if(signal_pending(current))
-            up_and_exit(&info->quit, 0);
-        tinker(info->what_to_do);
-    } 
-}
-
-It has been observed that, given the conditions of little or no
-CPU activity except `top`,  procedure "tinker()" will never get
-executed because interruptible_sleep_on_timeout returns the
-same timeout value it received. 
-
-This is on kernel version 2.4.1. Maybe this race has been found and
-fixed?
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+> Thanks for your time,
+> Jalaja
+> 
+> 
+> In 2.4.4, drivers/net/aironet4500_card.c has 
+> 
+> 
+> # grep udelay linux/drivers/net/aironet4500_card.c 
+>                 udelay(1000); 
+>         udelay(100); 
+>                 udelay(10); 
+>         udelay(100000); 
+>         udelay(200000); 
+>         udelay(250000); 
+>         udelay(10000); 
+>         udelay(10000); 
+>         udelay(1000); 
+>         udelay(1000); 
+>         udelay(10000); 
+> 
+> 
+> But on ia32, you cannot use more than 20000 for udelay
+> (). You will get 
+> undefined symbol, __bad_udelay. 
+> 
+> 
+> 
+> 
+> __________________________________________________
+> Do You Yahoo!?
+> Yahoo! Auctions - buy the things you want at great prices
+> http://auctions.yahoo.com/

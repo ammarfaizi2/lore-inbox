@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVBURdd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262046AbVBURjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbVBURdd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 12:33:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262046AbVBURdd
+	id S262046AbVBURjq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 12:39:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbVBURjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 12:33:33 -0500
-Received: from rproxy.gmail.com ([64.233.170.204]:22469 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262048AbVBURdb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 12:33:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=aAB984kHpXDmeOmXwNtVbFFpuKUKYTCVmlGHVLa2CFXxK7CIMzJ8i3/LX3mEYB5W3S1/HN/tOTmFmcqL7CUsnhGU4+FDImg/AlN38I3X2BLCb2jVey1l47Id7VV+iy9ceoQLekSYVipg2KtXIpojy0lUG5GG+OQUeTbsGGrU+Qg=
-Message-ID: <9e47339105022109333ae696dc@mail.gmail.com>
-Date: Mon, 21 Feb 2005 12:33:28 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Problem: how to sequence reset of PCI hardware
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       fbdev <linux-fbdev-devel@lists.sourceforge.net>,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <421A142A.1060302@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 21 Feb 2005 12:39:46 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:24488 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262046AbVBURjp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 12:39:45 -0500
+Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and give
+	dev=/dev/hdX as device
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: "Kiniger, Karl (GE Healthcare)" <karl.kiniger@med.ge.com>,
+       Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <58cb370e0502210725520eee3@mail.gmail.com>
+References: <200502152125.j1FLPSvq024249@turing-police.cc.vt.edu>
+	 <200502161736.j1GHa4gX013635@turing-police.cc.vt.edu>
+	 <cv36kk$54m$1@gatekeeper.tmr.com>
+	 <20050218103107.GA15052@wszip-kinigka.euro.med.ge.com>
+	 <1108998023.15518.93.camel@localhost.localdomain>
+	 <58cb370e0502210725520eee3@mail.gmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-References: <9e47339105022023242e2fd9ce@mail.gmail.com>
-	 <42199DD9.10807@pobox.com> <9e47339105022108527e3c679d@mail.gmail.com>
-	 <421A142A.1060302@pobox.com>
+Message-Id: <1109007488.15518.103.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 21 Feb 2005 17:38:10 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Feb 2005 12:02:34 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
-> <shrug>  You do precisely what you just said:  run it before the
-> device's probe function.
-> 
-> That typically means either initramfs addition or using 'install
-> <module> command...' in /etc/modprobe.conf.
+On Llu, 2005-02-21 at 15:25, Bartlomiej Zolnierkiewicz wrote:
+> I haven't looked closely but I've noticed that these fixes are accessing rq->bio
+> directly which is a layering violation.  Could you de-bio and submit them?
+> [ AFAIR they are already splitted out in RHEL4 ]
 
-How does this work with a built-in framebuffer driver? Isn't it's
-probe function going to get called before I can run something on
-initramfs?
+Not in the near future.
 
+> Speaking about ide-scsi, it will be undeprecated after I fix the locking.
+> Rationale is that ide-scsi is _much_ simpler than ide-{cd,tape}.
+> [ although it doesn't support all the hardware that ide-{cd,tape} do ]
 
-> 
->         Jeff
-> 
-> 
+And vice versa with ide-cd - not always for reasons I understand either.
 
-
--- 
-Jon Smirl
-jonsmirl@gmail.com

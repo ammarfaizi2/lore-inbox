@@ -1,88 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268247AbUJDPjq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268223AbUJDPl7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268247AbUJDPjq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 11:39:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268214AbUJDPiu
+	id S268223AbUJDPl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 11:41:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268240AbUJDPkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 11:38:50 -0400
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:49065 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S268223AbUJDPfI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 11:35:08 -0400
-Date: Mon, 4 Oct 2004 17:35:05 +0200
-From: Martin Zwickel <martin.zwickel@technotrend.de>
+	Mon, 4 Oct 2004 11:40:05 -0400
+Received: from host50.200-117-131.telecom.net.ar ([200.117.131.50]:1436 "EHLO
+	smtp.bensa.ar") by vger.kernel.org with ESMTP id S268223AbUJDPjJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 11:39:09 -0400
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
 To: linux-kernel@vger.kernel.org
-Subject: Re: net_device: set_multicast_list called from interrupt?
-Message-ID: <20041004173505.7c441a1d@phoebee>
-In-Reply-To: <20041004172621.3dd8945f@phoebee>
-References: <20041004172621.3dd8945f@phoebee>
-X-Mailer: Sylpheed-Claws 0.9.12cvs53 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
- CPU 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Organization: Technotrend AG
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Mon__4_Oct_2004_17_35_05_+0200_ZZ8SygfHqhCKgHGV"
+Subject: Re: 2.6.9-rc3-mm2
+Date: Mon, 4 Oct 2004 12:39:05 -0300
+User-Agent: KMail/1.7.1
+Cc: Mathieu Segaud <matt@minas-morgul.org>
+References: <20041004020207.4f168876.akpm@osdl.org> <87oeji93co.fsf@barad-dur.crans.org>
+In-Reply-To: <87oeji93co.fsf@barad-dur.crans.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410041239.05591.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Mon__4_Oct_2004_17_35_05_+0200_ZZ8SygfHqhCKgHGV
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Mathieu Segaud wrote:
+> Hum, and I can see that there is a fix to get reiser4 working with 4Kstacks
+> but reiser4 option still doesn't appear if CONFIG_4KSTACKS is enabled.
 
-On Mon, 4 Oct 2004 17:26:21 +0200
-Martin Zwickel <martin.zwickel@technotrend.de> bubbled:
+On the contrary, it's a fix so it doesn't show on the menu when 4KSTACKS is 
+selected:
 
-> Hi there!
-> 
-> I don't know if this is the right place, but I hope so.
-> 
-> I wrote a network-driver years ago for the 2.4er kernel's.
-> 
-> Now I ported it to the 2.6er kernel but I get some problems because
-> set_multicast_list is called from an interrupt and my driver want's to
-> free/allocate some memory.
-> 
-> Why did the driver work under 2.4, and now stops running on 2.6?
-> 
-> I had a look at http://lwn.net/Articles/30107/:
-> Driver porting: Network drivers
-> 
-> but there was nothing about newly implemented soft-interrupts.
-> 
-> Thanks,
-> Martin
-> 
 
-Ah, just tested it under 2.4er. It's called from an interrupt too.
-So I have to workaround the free/alloc.
+diff -puN fs/Kconfig.reiser4~resier4-4kstacks-fix fs/Kconfig.reiser4
+--- 25/fs/Kconfig.reiser4~resier4-4kstacks-fix 2004-08-21 14:21:30.716818728 
+-0700
++++ 25-akpm/fs/Kconfig.reiser4 2004-08-21 14:21:42.306056896 -0700
+@@ -1,6 +1,6 @@
+ config REISER4_FS
+  tristate "Reiser4 (EXPERIMENTAL very fast general purpose filesystem)"
+- depends on EXPERIMENTAL
++ depends on EXPERIMENTAL && !4KSTACKS
+  default y
+  ---help---
+    Reiser4 is more than twice as fast for both reads and writes as
 
-Sorry!
 
-Martin
-
--- 
-MyExcuse:
-Your EMAIL is now being delivered by the USPS.
-
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
-
---Signature=_Mon__4_Oct_2004_17_35_05_+0200_ZZ8SygfHqhCKgHGV
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBYW2pmjLYGS7fcG0RAvnsAKCtfmdZhXilNnMkC3nGiy/msBvnhwCgo5hq
-qFSh31BlYG3ynj5UbRRq0XY=
-=HCST
------END PGP SIGNATURE-----
-
---Signature=_Mon__4_Oct_2004_17_35_05_+0200_ZZ8SygfHqhCKgHGV--
+Regards,
+Norberto

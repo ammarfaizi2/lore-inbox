@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318929AbSHTO2w>; Tue, 20 Aug 2002 10:28:52 -0400
+	id <S319026AbSHTObl>; Tue, 20 Aug 2002 10:31:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318939AbSHTO2w>; Tue, 20 Aug 2002 10:28:52 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:60114 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S318929AbSHTO2v>;
-	Tue, 20 Aug 2002 10:28:51 -0400
-Date: Tue, 20 Aug 2002 16:32:49 +0200
-From: Axel Siebenwirth <axel@hh59.org>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre4
-Message-ID: <20020820143249.GA1440@prester.freenet.de>
-Mail-Followup-To: Willy Tarreau <willy@w.ods.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0208191944210.10105-100000@freak.distro.conectiva> <20020820053619.GA9401@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020820053619.GA9401@alpha.home.local>
-Organization: hh59.org
-User-Agent: Mutt/1.5.1i
+	id <S319042AbSHTObk>; Tue, 20 Aug 2002 10:31:40 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:57016 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S319026AbSHTObk>;
+	Tue, 20 Aug 2002 10:31:40 -0400
+Date: Tue, 20 Aug 2002 16:36:19 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Dave McCracken <dmccr@us.ibm.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] O(1) sys_exit(), threading, scalable-exit-2.5.31-A6
+In-Reply-To: <Pine.LNX.4.33.0208191427220.1484-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0208201634410.22388-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Willy!
 
-On Tue, 20 Aug 2002, Willy Tarreau wrote:
+the attached patch ontop of BK-curr fixes the ptrace wait4() anomaly that
+can be observed in any previous Linux kernel i could get my hands at. So
+in fact ->ptrace_children, besides being a speedup, also fixed a bug that
+couldnt be fixed in any satisfactory way before.
 
-> Compiled and loaded JFS, but not tested.
+	Ingo
 
-In case you use a gcc compiler 3.1+ please test your jfs extensively. dbench
-works good for me.
-I have had problem with JFS compiled with gcc 3.1+. It causes oopses that
-stop any fs activity and the machine freezes.
+--- linux/kernel/exit.c.orig	Tue Aug 20 16:28:57 2002
++++ linux/kernel/exit.c	Tue Aug 20 16:30:13 2002
+@@ -731,7 +731,7 @@
+ 		tsk = next_thread(tsk);
+ 	} while (tsk != current);
+ 	read_unlock(&tasklist_lock);
+-	if (flag) {
++	if (flag || !list_empty(&current->ptrace_children)) {
+ 		retval = 0;
+ 		if (options & WNOHANG)
+ 			goto end_wait4;
 
-Regards,
-Axel

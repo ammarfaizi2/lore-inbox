@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314275AbSESQIU>; Sun, 19 May 2002 12:08:20 -0400
+	id <S314469AbSESQWP>; Sun, 19 May 2002 12:22:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314469AbSESQIT>; Sun, 19 May 2002 12:08:19 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:36504 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S314275AbSESQIT>;
-	Sun, 19 May 2002 12:08:19 -0400
-Date: Sun, 19 May 2002 17:46:47 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
-Message-ID: <20020519154647.GA3420@elf.ucw.cz>
-In-Reply-To: <3038.1021588938@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S314475AbSESQWO>; Sun, 19 May 2002 12:22:14 -0400
+Received: from schwerin.p4.net ([195.98.200.5]:24434 "EHLO schwerin.p4.net")
+	by vger.kernel.org with ESMTP id <S314469AbSESQWO>;
+	Sun, 19 May 2002 12:22:14 -0400
+Message-ID: <3CE7D1B4.9050706@p4all.de>
+Date: Sun, 19 May 2002 18:24:20 +0200
+From: Michael Dunsky <michael.dunsky@p4all.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Subject: Re: nVidia NIC/IDE/something support?
+In-Reply-To: <200205191514.g4JFEsV13608@mail.pronto.tv>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> Third and final attempt.  Original sent on May 2, second mail sent on
-> May 14, still no response from Linus.
+One thing I've found for nForce chipset: official patches from nVidia 
+(network driver is under nVidia's licence, all the rest is under GPL).
+Hope that helps:
 
-In some unrelated thread (something about fixing "BUG()" macro) he
-said he'd want it merged in pieces.
-									Pavel
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+http://www.nvidia.com/view.asp?IO=linux_nforce_1.0-0236
+
+ciao
+
+Michael
+
+
+Roy Sigurd Karlsbakk wrote:
+ > hi
+ >
+ > I just bought this Asus board, A7N266-VM, with nVidia IDE, LAN and god
+ > knows chipset. Linux doesn't understand it, and I really want it...
+ > Any plans of supporting this? See below for /proc/pci output.
+ >
+ > thanks
+ >
+ > roy
+ >
+ > please cc: to me, as I'm nolonger on the list
+ >
+
+

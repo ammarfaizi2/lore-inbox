@@ -1,121 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261733AbTJMNGs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 09:06:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbTJMNGs
+	id S261746AbTJMNPO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 09:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbTJMNPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 09:06:48 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:17650 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S261733AbTJMNGp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 09:06:45 -0400
-Date: Mon, 13 Oct 2003 15:07:43 +0200 (DFT)
-From: Simon Derr <Simon.Derr@bull.net>
-X-X-Sender: derrs@isabelle.frec.bull.fr
-To: linux-kernel@vger.kernel.org
-cc: Sylvain Jeaugey <sylvain.jeaugey@bull.net>
-Subject: [RFC] cpuset proposal
-Message-ID: <Pine.A41.4.53.0310131503500.173334@isabelle.frec.bull.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 13 Oct 2003 09:15:14 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29192 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261746AbTJMNPE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 09:15:04 -0400
+Date: Mon, 13 Oct 2003 14:14:58 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>
+Subject: [PATCH] Fix pcnet_cs network hotplug
+Message-ID: <20031013141458.A347@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+pcnet_cs registers the network device too early.  The effect of this
+is that the networking hotplug scripts are unable to bring the device
+up automatically.
 
-Hi,
+There are two issues:
+- we were registering the net device before we finished setting up
+  the device (eg, reading the MAC address.)
+- we were using DEV_CONFIG_PENDING to block the net device "open"
+  callback, and as we know the other methods may be called prior
+  to open.
 
-We'd like to introduce our 'CPUSET' Linux feature to the world. It has
-been discussed a few weeks ago and received some positive feedback on
-linux-ia64 and LSE. Since then we have ported it to i386 (as suggested by
-Stephen Hemminger) and would appreciate to receive comments from a wider
-community.
+My only concern with this patch is that we set info->node.dev_name
+after we register the net device, so use of cardctl during the
+hotplug scripts may give unexpected results.  However, I am not
+aware of anyone using cardctl to read the device name in network
+hotplug scripts.
 
-Any opinion, comment, rant, flame, mark of interest or despise is more
-than welcome.
+Please review and merge.  Thanks.
 
-For a more complete description or source code see
-http://www.bullopensource.org/cpuset/
+--- orig/drivers/net/pcmcia/pcnet_cs.c	Sun Sep 28 09:54:43 2003
++++ linux/drivers/net/pcmcia/pcnet_cs.c	Mon Oct 13 14:06:59 2003
+@@ -681,10 +681,6 @@
+     } else {
+ 	dev->if_port = 0;
+     }
+-    if (register_netdev(dev) != 0) {
+-	printk(KERN_NOTICE "pcnet_cs: register_netdev() failed\n");
+-	goto failed;
+-    }
+ 
+     hw_info = get_hwinfo(link);
+     if (hw_info == NULL)
+@@ -699,7 +695,6 @@
+     if (hw_info == NULL) {
+ 	printk(KERN_NOTICE "pcnet_cs: unable to read hardware net"
+ 	       " address for io base %#3lx\n", dev->base_addr);
+-	unregister_netdev(dev);
+ 	goto failed;
+     }
+ 
+@@ -733,8 +728,6 @@
+     ei_status.word16 = 1;
+     ei_status.reset_8390 = &pcnet_reset_8390;
+ 
+-    strcpy(info->node.dev_name, dev->name);
+-    link->dev = &info->node;
+     SET_ETHTOOL_OPS(dev, &netdev_ethtool_ops);
+ 
+     if (info->flags & (IS_DL10019|IS_DL10022)) {
+@@ -743,6 +736,21 @@
+ 	mii_phy_probe(dev);
+ 	if ((id == 0x30) && !info->pna_phy && (info->eth_phy == 4))
+ 	    info->eth_phy = 0;
++    }
++
++    link->dev = &info->node;
++    link->state &= ~DEV_CONFIG_PENDING;
++
++    if (register_netdev(dev) != 0) {
++	printk(KERN_NOTICE "pcnet_cs: register_netdev() failed\n");
++	link->dev = NULL;
++	goto failed;
++    }
++
++    strcpy(info->node.dev_name, dev->name);
++
++    if (info->flags & (IS_DL10019|IS_DL10022)) {
++	u_char id = inb(dev->base_addr + 0x1a);
+ 	printk(KERN_INFO "%s: NE2000 (DL100%d rev %02x): ",
+ 	       dev->name, ((info->flags & IS_DL10022) ? 22 : 19), id);
+ 	if (info->pna_phy)
+@@ -758,7 +766,6 @@
+     printk(" hw_addr ");
+     for (i = 0; i < 6; i++)
+ 	printk("%02X%s", dev->dev_addr[i], ((i<5) ? ":" : "\n"));
+-    link->state &= ~DEV_CONFIG_PENDING;
+     return;
+ 
+ cs_failed:
 
-We'd be also curious about whether a feature of this kind or addressing
-the same issue would be likely to make it into a future version of the
-kernel.
-
-Thanks,
-
-	Simon & Sylvain.
-
-
-What are CPUSETS ?
-------------------
-
-CPUSETs are lightweight objects in the linux kernel that enable users to
-partition their multiprocessor machine by creating execution areas. This
-has been somewhat inspired by the pset or cpumemset patches existing for
-Linux 2.4. A virtualization layer has been added so it becomes possible to
-split a machine in terms of CPUs.
-
-The main motivation of this patch is to give the linux kernel full
-administration capabilities concerning CPUs. CPUSETs are strong jails, and
-a process running inside this predefined area won't be able to run on
-other processors than those given to him. Some domains in which it can be
-useful :
-
-    * Web Servers running multiple instances of the same web application.
-    * Servers running different applications (for instance, a web server
-      and a database).
-    * HPC applications, especially in NUMA machines.
-
-
-
-CPUSETS allow to:
------------------
-
-   1. create sets of CPUs on the system, and bind applications to them
-   2. translate the masks of CPUs given to sched_setaffinity() so they
-stay inside the set of CPUs. With this mechanism, processors are
-virtualized, for the use of sched_setaffinity() and /proc information.
-Thus, any former application using this syscall to bind processes to
-processors will work with virtual CPUs without any change.
-   3. provide a way to create sets of cpus *inside* a set of cpus : hence
-a system administrator can partition a system among users, and users can
-partition their partition among their applications.
-   4. Change on the fly the execution area of a whole set of processes (to
-give more resources to a critical application, for example).
-
-These features have been implemented as a kernel patch for Linux 2.6 and a
-suite of userland tools.
-
-
-Typical CPUSET Usage:
----------------------
-
-    * CPU-bound applications : Many applications (as it is often the case
-for HPC apps) use to have a "one process on one processor" policy. They
-can use sched_setaffinity() to do so, but what if we have to run several
-such apps at the same time ? One can do this by creating a cpuset for each
-app.
-    * Web Serving : A server containing a web server (apache for instance)
-and a database (MySQL, Oracle) may want to have one part of the machine
-dedicated for each task. A cpuset can be created for each task. If the
-server is used to run two instances of this web-system, cpusets can be
-used to split the system in two, and then in each partition create one
-area for the web server and one area for the database.
-    * User administration : an administrator may give fixed numbers of
-CPUs to some classes of users and leave the rest to other users, for
-instance. He can do so by creating cpusets and assigning them to users.
-    * Critical applications : processors inside strict areas may not be
-used by other areas. Thus, a critical application (real time ...) may be
-run inside an area and be sure that other processes won't use its CPU.
-This implies that others applications won't be able to lower its
-reactivity. This can be done by creating a cpuset for the critical
-application, and another for all the other tasks.
-
-
-Future:
--------
-	* In the future, other features such as associating a memory allocation
-policy (such as local node, or round robin) to a set of cpus might be
-added.
-
-	* We are looking forward to the inclusion of the cpuset feature in a
-more visible project...
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

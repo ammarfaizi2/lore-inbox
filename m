@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264017AbUDNJyd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 05:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264021AbUDNJyd
+	id S263567AbUDNKCM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 06:02:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264004AbUDNKCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 05:54:33 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:26290
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264017AbUDNJyc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 05:54:32 -0400
-Date: Wed, 14 Apr 2004 11:54:35 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Alexander Y. Fomichev" <gluk@php4.ru>
-Cc: linux-kernel@vger.kernel.org, admin@list.net.ru
-Subject: Re: 2.6.5-aa3: kernel BUG at mm/objrmap.c:137!
-Message-ID: <20040414095435.GH2150@dualathlon.random>
-References: <200404141257.16731.gluk@php4.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 14 Apr 2004 06:02:12 -0400
+Received: from p4.ensae.fr ([195.6.240.202]:18080 "EHLO pc809.ensae.fr")
+	by vger.kernel.org with ESMTP id S263567AbUDNKCL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 06:02:11 -0400
+From: Guillaume =?iso-8859-1?q?Lac=F4te?= <Guillaume@Lacote.name>
+Reply-To: Guillaume@Lacote.name
+Organization: Guillaume@Lacote.name
+To: =?iso-8859-1?q?J=F6rn=20Engel?= <joern@wohnheim.fh-wedel.de>
+Subject: Re: Using compression before encryption in device-mapper
+Date: Wed, 14 Apr 2004 12:02:07 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org, Linux@glacote.com
+References: <200404131744.40098.Guillaume@Lacote.name> <200404140854.56387.Guillaume@Lacote.name> <20040414094334.GA25975@wohnheim.fh-wedel.de>
+In-Reply-To: <20040414094334.GA25975@wohnheim.fh-wedel.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200404141257.16731.gluk@php4.ru>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Message-Id: <200404141202.07021.Guillaume@Lacote.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 14, 2004 at 12:57:16PM +0400, Alexander Y. Fomichev wrote:
-> G'Day,
-> 
-> I've got a bug on 2.6.5-aa3 today
-> 
-> System: Dual P4 Xeon 2.4GHz, 4G ECC RAM - (production web-server) pretty
-> 	heavy loaded at most time, but i've got it approximately 
-> 	at 02:00 (MSD) when no serious load should be.
-> 	System remained accessible all the time but operations
-> 	with proclist from userspace (i.e. ps, w) appears to be locked. 
+> > Oops ! I thought it was possible to guarantee with the Huffman encoding
+> > (which is more basic than Lempev-Zif) that the compressed data use no
+> > more than 1 bit for every byte (i.e. 12,5% more space).
+>
+> Makes sense, although I'd like to see the proof first.  Shouldn't be
+> too hard to do.
+>
+I was referring to the paper by Jeffrey Scott Vitter "Design and Analysis of 
+Dynamic Huffman Codes" (accessible through http://acm.org). It defines a 
+refinement of the well-known dynamic Huffman algorithm by Faller, Gallager 
+and Knuth such that the encoded length will use at most _one_ more bit per 
+encoded letter than the optimal two-pass Huffman algorithm (it is also shown 
+that the FGK algorithm an use twice the optimal length + on more bit per 
+letter).
 
-I don't think apache2 uses nonlinear. there was an smp race fix in
-2.6.5-aa4, so you may want to try again with 2.6.5-aa5 (latest) just in
-case this was mm corruption triggered by the race.
+My conclusion comes from the fact that for every text, the optimal two-pass 
+huffman encoding can _not_ be longer than the native encoding (apart from the 
+dictionnary encoding). 
 
-Are you using threading with apache2? Such a race could trigger only
-with threads.
+Actually I plan to implement the easier FGK algorithm first - if the whole 
+matter makes sense.
+

@@ -1,53 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbVB1LhK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVB1MHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261368AbVB1LhK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 06:37:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVB1LhK
+	id S261311AbVB1MHY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 07:07:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVB1MHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 06:37:10 -0500
-Received: from www.rapidforum.com ([80.237.244.2]:30382 "HELO rapidforum.com")
-	by vger.kernel.org with SMTP id S261368AbVB1LhD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 06:37:03 -0500
-Message-ID: <42230258.2060204@rapidforum.com>
-Date: Mon, 28 Feb 2005 12:36:56 +0100
-From: Christian Schmid <webmaster@rapidforum.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040817
-X-Accept-Language: de, en
+	Mon, 28 Feb 2005 07:07:24 -0500
+Received: from pop.gmx.net ([213.165.64.20]:57258 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261311AbVB1MHM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 07:07:12 -0500
+X-Authenticated: #19095397
+From: Bernd Schubert <bernd-schubert@gmx.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: swapper: page allocation failure. order:1, mode:0x20
+Date: Mon, 28 Feb 2005 13:07:13 +0100
+User-Agent: KMail/1.7.2
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Slowdown on high-load machines with 3000 sockets
-References: <4221FB13.6090908@rapidforum.com> <Pine.LNX.4.61.0502271216050.19979@chimarrao.boston.redhat.com> <Pine.LNX.4.61.0502271606220.19979@chimarrao.boston.redhat.com> <422239A8.1090503@rapidforum.com> <Pine.LNX.4.61.0502271830380.19979@chimarrao.boston.redhat.com> <42225B34.7020104@rapidforum.com> <Pine.LNX.4.61.0502271905270.19979@chimarrao.boston.redhat.com> <42226607.6020803@rapidforum.com> <4222A887.80301@yahoo.com.au>
-In-Reply-To: <4222A887.80301@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200502281307.13629.bernd-schubert@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Christian Schmid wrote:
-> 
->> I already tried with 300 KB and even used a perl-hash as a 
->> horrible-slow buffer for a readahead-replacement. It still slowed down 
->> on the syswrite to the socket. Thats the strange thing.
->>
-> 
-> Do you have to use manual readahead though? What is the performance
-> like if you just let the kernel do its own thing? The kernel's
-> readahead provides things like automatic scaling and thrashing
-> control, so if possible you should just stick to that.
+Oh no, not this page allocation problems again. In summer I already posted 
+problems with page allocation errors with 2.6.7, but to me it seemed that 
+nobody cared. That time we got those problems every morning during the cron 
+jobs and our main file server always completely crashed.
+This time its our cluster master system and first happend after an uptime 
+of 89 days, kernel is 2.6.9. Besides of those messages, the system still 
+seems to run stable
 
-Acutally, thats why I changed it to manual readahead. I thought the slowdown comes from some weird 
-read-ahead settings. But with the manual read-ahead, this problem appears as well. Its still a 
-phenomenon why this slowdown definetly disappears when I raise /proc/sys/vm/min_free_kbytes to 
-1024000 (until it hits around 4500 sockets) but it seems not to work with smaller or bigger values....
+I really beg for help here, so please please please help me solving this 
+probem. What can I do to solve it?
 
-> Also, can we get a testcase (ie. minimal compilable code) to reproduce
-> this problem?
+First a (dumb) question, what does 'page allocation failure' really mean? 
+Is it some out of memory case?
 
-This is a complex code, thats why I really want to avoid this..... Feel free to ask for traces or 
-anything you want to know though.
 
-Thanks,
-Chris
+Thanks a lot in advance for any help,
+ Bernd
+
+
+
+
+
+Feb 28 10:04:45 hitchcock kernel: swapper: page allocation failure. order:1, mode:0x20
+Feb 28 10:04:45 hitchcock kernel:
+Feb 28 10:04:45 hitchcock kernel: Call Trace:<IRQ> <ffffffff8015b0de>{__alloc_pages+878} <ffffffff8015b10e>{__get_free_pages+14}
+Feb 28 10:04:45 hitchcock kernel:        <ffffffff8015edc6>{kmem_getpages+38} <ffffffff803d064a>{ip_frag_create+26}
+Feb 28 10:04:45 hitchcock kernel:        <ffffffff8016061e>{cache_grow+190} <ffffffff80160e80>{cache_alloc_refill+560}
+Feb 28 10:04:45 hitchcock kernel:        <ffffffff801617e3>{__kmalloc+195} <ffffffff803b5680>{alloc_skb+64}
+Feb 28 10:04:45 hitchcock kernel:        <ffffffff8031727e>{tg3_alloc_rx_skb+222} <ffffffff80317553>{tg3_rx+371}
+Feb 28 10:04:45 hitchcock kernel:        <ffffffff80317977>{tg3_poll+183} <ffffffff803bc306>{net_rx_action+134}
+Feb 28 10:04:45 hitchcock kernel:        <ffffffff8013d0ab>{__do_softirq+123} <ffffffff8013d162>{do_softirq+50}
+Feb 28 10:04:45 hitchcock kernel:        <ffffffff801140ab>{do_IRQ+347} <ffffffff801114eb>{ret_from_intr+0}
+Feb 28 10:04:45 hitchcock kernel:         <EOI> <ffffffff8010f070>{default_idle+0} <ffffffff8010f094>{default_idle+36}
+Feb 28 10:04:45 hitchcock kernel:        <ffffffff8010f147>{cpu_idle+39}
+Feb 28 10:05:41 hitchcock rpc.mountd: authenticated unmount request from beo-04:666 for /lib64 (/lib64)
+Feb 28 10:04:45 hitchcock kernel: swapper: page allocation failure. order:1, mode:0x20
+Feb 28 10:07:36 hitchcock kernel:
+Feb 28 10:07:36 hitchcock kernel: Call Trace:<IRQ> <ffffffff8015b0de>{__alloc_pages+878} <ffffffff8015b10e>{__get_free_pages+14}
+Feb 28 10:07:36 hitchcock kernel:        <ffffffff8015edc6>{kmem_getpages+38} <ffffffff8016061e>{cache_grow+190}
+Feb 28 10:07:36 hitchcock kernel:        <ffffffff80160e80>{cache_alloc_refill+560} <ffffffff801617e3>{__kmalloc+195}
+Feb 28 10:07:36 hitchcock kernel:        <ffffffff803b5680>{alloc_skb+64} <ffffffff8031727e>{tg3_alloc_rx_skb+222}
+Feb 28 10:07:36 hitchcock kernel:        <ffffffff80317553>{tg3_rx+371} <ffffffff80317977>{tg3_poll+183}
+Feb 28 10:07:36 hitchcock kernel:        <ffffffff803bc306>{net_rx_action+134} <ffffffff8013d0ab>{__do_softirq+123}
+Feb 28 10:07:36 hitchcock kernel:        <ffffffff8013d162>{do_softirq+50} <ffffffff801140ab>{do_IRQ+347}
+Feb 28 10:07:36 hitchcock kernel:        <ffffffff801114eb>{ret_from_intr+0}  <EOI> <ffffffff8010f070>{default_idle+0}
+Feb 28 10:07:36 hitchcock kernel:        <ffffffff8010f094>{default_idle+36} <ffffffff8010f147>{cpu_idle+39}
+Feb 28 10:07:36 hitchcock kernel:
+Feb 28 10:07:36 hitchcock kernel: swapper: page allocation failure. order:1, mode:0x20
+Feb 28 10:07:36 hitchcock kernel:
+Feb 28 10:07:36 hitchcock kernel: Call Trace:<IRQ> <ffffffff8015b0de>{__alloc_pages+878} <ffffffff8015b10e>{__get_free_pages+14}
+Feb 28 10:07:36 hitchcock kernel:        <ffffffff8015edc6>{kmem_getpages+38} <ffffffff8016061e>{cache_grow+190}
+Feb 28 10:07:36 hitchcock kernel:        <ffffffff80160e80>{cache_alloc_refill+560} <ffffffff801617e3>{__kmalloc+195}
+Feb 28 10:07:36 hitchcock kernel:        <ffffffff803b5680>{alloc_skb+64} <ffffffff8031727e>{tg3_alloc_rx_skb+222}
+Feb 28 10:07:36 hitchcock kernel:        <ffffffff80317553>{tg3_rx+371} <ffffffff80317977>{tg3_poll+183}
+Feb 28 10:07:36 hitchcock kernel:        <ffffffff803bc306>{net_rx_action+134} <ffffffff8013d0ab>{__do_softirq+123}
+Feb 28 10:07:36 hitchcock kernel:        <ffffffff8013d162>{do_softirq+50} <ffffffff801140ab>{do_IRQ+347}
+Feb 28 10:07:36 hitchcock kernel:        <ffffffff801114eb>{ret_from_intr+0}  <EOI> <ffffffff8010f070>{default_idle+0}
+Feb 28 10:07:36 hitchcock kernel:        <ffffffff8010f094>{default_idle+36} <ffffffff8010f147>{cpu_idle+39}
+
+
+-- 
+Bernd Schubert
+Physikalisch Chemisches Institut / Theoretische Chemie
+Universität Heidelberg
+INF 229
+69120 Heidelberg
+e-mail: bernd.schubert@pci.uni-heidelberg.de

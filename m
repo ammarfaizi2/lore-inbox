@@ -1,70 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273495AbRIUMsk>; Fri, 21 Sep 2001 08:48:40 -0400
+	id <S273496AbRIUM4U>; Fri, 21 Sep 2001 08:56:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273496AbRIUMsa>; Fri, 21 Sep 2001 08:48:30 -0400
-Received: from [195.66.192.167] ([195.66.192.167]:65284 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S273495AbRIUMsP>; Fri, 21 Sep 2001 08:48:15 -0400
-Date: Fri, 21 Sep 2001 15:46:54 +0300
-From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: The Bat! (v1.44)
-Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Organization: IMTP
-X-Priority: 3 (Normal)
-Message-ID: <7126003481.20010921154654@port.imtp.ilyichevsk.odessa.ua>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: NFS daemons in D state for 2 minutes at shutdown
-In-Reply-To: <15275.1922.771056.17407@charged.uio.no>
-In-Reply-To: <3531863216.20010920164639@port.imtp.ilyichevsk.odessa.ua>
- <shswv2tpyvq.fsf@charged.uio.no>
- <1978861221.20010921110112@port.imtp.ilyichevsk.odessa.ua>
- <15275.1922.771056.17407@charged.uio.no>
+	id <S273497AbRIUM4K>; Fri, 21 Sep 2001 08:56:10 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:4106 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S273496AbRIUM4D>;
+	Fri, 21 Sep 2001 08:56:03 -0400
+Date: Fri, 21 Sep 2001 14:55:56 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: davidsen@tmr.com, linux-kernel@vger.kernel.org
+Subject: Re: broken VM in 2.4.10-pre9
+Message-Id: <20010921145556.1f0af431.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.33L.0109210912310.19147-100000@imladris.rielhome.conectiva>
+In-Reply-To: <20010921124338.4e31a635.skraw@ithnet.com>
+	<Pine.LNX.4.33L.0109210912310.19147-100000@imladris.rielhome.conectiva>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Trond,
-Friday, September 21, 2001, 12:25:22 PM, you wrote:
-TM> Bullshit. killall5 is definitely *not* a well accepted method for
-TM> shutting down applications. Try doing that while your network is
-TM> running via a ppp link...
+On Fri, 21 Sep 2001 09:13:07 -0300 (BRST) Rik van Riel <riel@conectiva.com.br>
+wrote:
 
-And what is the well accepted method? I'd like to fix my system,
-so please somebody enlighten me...
+> On Fri, 21 Sep 2001, Stephan von Krawczynski wrote:
+> 
+> > Shit, if I only were able to implement that. Can anybody help me to
+> > proove my point?
+> 
+> Trying to implement your idea would probably pose a nice
+> counter-argument. Without measuring which pages are in
+> heavy use, how are you going to evict the right pages ?
 
-TM> Some programs *have* to be shutdown in a certain order. All RPC
-TM> servers fall into that category.
+Hi Rik,
 
-Somehow, I feel I'm beginning to dislike RPC... Until now,
-I see only added difficulties with RPC-based services
-compared to "ordinary" ones (http etc).
+The really beautiful thing about it is that you can divide it completely in two
+parts:
+1) basic list handling, you obviously need the list itself and some atomic
+functions to queue/dequeue/requeue entries, possibly as well as
+get_next_freeable() for simplicity. The rest vm only uses this to work.
+2) the management "plugins" where you can virtually do any check of heavy use
+or aging or buddy-finding or whatever comes to your mind and requeue
+accordingly. You may do that on every alloc (surely not nice), or on page hits,
+or on low-mem condition (like page_launder), or in a independant process
+(somehow like kswapd), whatever you tend to believe is the best performing way
+- feel free to find the killer-plugin :-). 
 
-TM>> So, why modified killall5 does the job?
-TM> I've no idea how you modified killall5, but if it manages to kill nfsd
-TM> before killing the portmapper, then all will work.
+BUT (and thats the real good point): (2) is completely independant in structure
+and processing from the basic mem-handling, because the only interaction is
+requeuing, which means as a first step (only experimental of course) you could
+just fill the list with addtail and shorten it on demand of free pages with
+remhead (hope my short-terms are understandable). This implements a _very_
+simple aging based on only the age of the allocation and nothing else (FIFO).
+You can spend any time and brain in refining the strategy without ever touching
+the vm basics _and_ (because of the simple and clean interface between (1) and
+(2), you got no chance to screw things up (unless you do not drop entries in a
+bug-implementation)). No obvious need for patches or weird workarounds.
 
-I commented out kill(..SIGSTOP..) / kill(..SIGCONT..) in killall5 source.
+Your opinion?
 
-TM>> Why not make portmapper+NFS daemons killable by TERM, giving
-TM>> them the chance to do proper cleanups rather than abrupt KILL?
-TM> NFS daemons *do* perform proper cleanups. That's the whole essence of
-TM> your problem - they are waiting on the portmapper to acknowledge that
-TM> it has unregistered their service. These are *kernel* daemons and so
-TM> KILL acts just like any signal as far as they are concerned.
-
-Hmm... NFS daemons wait for portmapper which is gone.
-This reminds me of #include order problems in C.
-
-Why nfsd does not die on TERM? It will have a chance of
-unregistering (if portmapper does not bail out upon TERM
-but waits for all RPC services to unregister first).
-Isn't that going to work?
--- 
-Best regards, VDA
-mailto:VDA@port.imtp.ilyichevsk.odessa.ua
+Regards,
+Stephan
 
 

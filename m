@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132951AbRAXWjY>; Wed, 24 Jan 2001 17:39:24 -0500
+	id <S129413AbRAXWjO>; Wed, 24 Jan 2001 17:39:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132989AbRAXWjO>; Wed, 24 Jan 2001 17:39:14 -0500
-Received: from winksmith.com ([63.72.148.216]:58410 "EHLO winksmith.com")
-	by vger.kernel.org with ESMTP id <S132919AbRAXWjC>;
-	Wed, 24 Jan 2001 17:39:02 -0500
-Message-ID: <20010124173854.35773@winksmith.com>
-Date: Wed, 24 Jan 2001 17:38:54 -0500
-From: Mark Smith <mark@winksmith.com>
-To: Steven Ellmore <steve@signalstorm.com>
-Cc: Steve Underwood <steveu@coppice.org>, linux-kernel@vger.kernel.org
-Subject: Re: Probably Off-topic Question...
-Reply-To: mark@winksmith.com
-In-Reply-To: <Pine.LNX.4.10.10101222129310.3031-100000@clueserver.org> <3A6F0D6B.34EB2CB0@coppice.org> <20010124123001.52317@winksmith.com> <3A6F2F9E.6030600@signalstorm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.85e
-In-Reply-To: <3A6F2F9E.6030600@signalstorm.com>; from Steven Ellmore on Wed, Jan 24, 2001 at 07:40:14PM +0000
+	id <S132951AbRAXWjE>; Wed, 24 Jan 2001 17:39:04 -0500
+Received: from ganymede.or.intel.com ([134.134.248.3]:2066 "EHLO
+	ganymede.or.intel.com") by vger.kernel.org with ESMTP
+	id <S129413AbRAXWi5>; Wed, 24 Jan 2001 17:38:57 -0500
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDF61@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: "'Sasi Peter'" <sape@iq.rulez.org>, linux-kernel@vger.kernel.org
+Subject: RE: 2.2.19pre6aa1 USB - Why do I get these?
+Date: Wed, 24 Jan 2001 14:32:53 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 24, 2001 at 07:40:14PM +0000, Steven Ellmore wrote:
-> My VAIO Z505HS brightness control works under Linux.
+
+> Previously unseen. What could be the cause of these messages?
+> (Abit BH6 (Intel BX), Logitech Mouseman+ USB)
 > 
-> Shift + Fn + Brightness (F5) dims
-> Fn + Brightness brightens
-> 
-> If it makes a difference I'm using Left Shift and Left Fn and as you 
-> might expect I'm holding both of those down and then tapping F5 the 
-> required number of times.
+> Jan 24 21:39:15 iq kernel: usb.c: bw_alloc reduced by 118 to 0 for 0
+> requesters
+> Jan 24 21:39:16 iq kernel: usb.c: bw_alloc increased by 118 
+> to 118 for 1 requesters
+..............
 
-none of these things change my brightness one way or the other.
-in particular, which part of the OS would be responsible for
-watching these keystrokes and making the appropriate changes?
+These messages have been there all along.  In recent 2.4
+kernels, they are #ifdef-ed out.  Same needs to be done
+for 2.2.x.
 
-others have told me about this keystroke.  someone had suggested
-that this works differently on my system because i have a newer
-bios?
+~Randy
+_______________________________________________
+|randy.dunlap_at_intel.com        503-677-5408|
+|NOTE: Any views presented here are mine alone|
+|& may not represent the views of my employer.|
+-----------------------------------------------
 
--- 
-Mark Smith
-mark@winksmith.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

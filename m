@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129340AbQKOK6j>; Wed, 15 Nov 2000 05:58:39 -0500
+	id <S129314AbQKOLMc>; Wed, 15 Nov 2000 06:12:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129386AbQKOK63>; Wed, 15 Nov 2000 05:58:29 -0500
-Received: from slc62.modem.xmission.com ([166.70.9.62]:44808 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S129340AbQKOK6Q>; Wed, 15 Nov 2000 05:58:16 -0500
-To: andersen@codepoet.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Q: Linux rebooting directly into linux.
-In-Reply-To: <m17l6deey7.fsf@frodo.biederman.org> <20001114011331.B1496@codepoet.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 14 Nov 2000 07:59:18 -0700
-In-Reply-To: Erik Andersen's message of "Tue, 14 Nov 2000 01:13:32 -0700"
-Message-ID: <m1bsvia9bt.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
-MIME-Version: 1.0
+	id <S129741AbQKOLMW>; Wed, 15 Nov 2000 06:12:22 -0500
+Received: from mean.netppl.fi ([195.242.208.16]:18702 "EHLO mean.netppl.fi")
+	by vger.kernel.org with ESMTP id <S129314AbQKOLMM>;
+	Wed, 15 Nov 2000 06:12:12 -0500
+Date: Wed, 15 Nov 2000 12:42:04 +0200
+From: Pekka Pietikainen <pp@evil.netppl.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] acenic driver update
+Message-ID: <20001115124204.A19484@netppl.fi>
+In-Reply-To: <200011140031.TAA13437@plonk.linuxcare.com> <20001114184505.X18364@esscom.com> <d3aeb1yhy8.fsf@lxplus015.cern.ch>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3i
+In-Reply-To: <d3aeb1yhy8.fsf@lxplus015.cern.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Andersen <andersen@codepoet.org> writes:
-
-> On Thu Nov 09, 2000 at 01:18:24AM -0700, Eric W. Biederman wrote:
-> > 
-> > I have recently developed a patch that allows linux to directly boot
-> > into another linux kernel.  
+On Wed, Nov 15, 2000 at 05:31:27AM +0100, Jes Sorensen wrote:
+> >>>>> "Val" == Val Henson <vhenson@esscom.com> writes:
+> Val> Jes, I just downloaded the 0.48 acenic driver and it still has a
+> Val> reproducible null dereference bug.  Anyone can oops their machine
+> Val> by doing:
 > 
-> Looks very cool.  I'm curious about your decision to use ELF images.  This
-> makes it much less conveinient to use due to the kernel postprocessing, and
-> makes it that the kernel binary from which you initially boot is not
-> necessirily the same as the binary that you re-boot into.  
+> Bugger I think I lost your patch in the noise. Sorry about that, it'll
+> be in the next version.
+> 
+> Val> ifconfig <gige> mtu 9000 ping -f -s 60000 <remote gige host>
+> Val> ifconfig <gige> mtu 1500 ping -f -s 60000 <remote gige host>
+> 
+> Val> I don't have a fix for this.
+> 
+> Hmmm could be a firmware issue, I'll need to look at it. It is however
+> a kind of bug that only root can cause deliberately. Doing ifconfig
+> mtu foo ; ifconfig mtu bar is a little far from normal operation ;-)
+It seems like it's caused by the driver trying to 
+do things while it's still setting up the rings.
 
-The decision here was that I needed to pass a vector of 
-<physical address, length, data> pairs.  The elf program header
-is dead simple and provides it.  So I either had to invent a
-complicated argument passing mechanism for a syscall or have the
-kernel parse a file.
+static void ace_rx_int(struct net_device *dev, u32 rxretprd, u32 rxretcsm)
+{
+	...
+        rip = &ap->skb->rx_jumbo_skbuff[skbidx];
+	...
+	skb = rip->skb;
+	skb_put(skb, retdesc->size); /* crash here */
+	...
+}
 
-> Wouldn't it be more reasonable to simply try to exec whatever file is provided?
-> If the concern is initrds; they can be simply pasted into the kernel binary.
+while the driver might be doing this at the same time:
 
-That's exactly what my preprocessing does. 
+	for (i = 0; i < RX_JUMBO_RING_ENTRIES; i++) { 
+      	 	if (ap->skb->rx_jumbo_skbuff[i].skb) {
+	    	 	ap->rx_jumbo_ring[i].size = 0;
+			set_aceaddr(&ap->rx_jumbo_ring[i].addr,
+			dev_kfree_skb(ap->skb->rx_jumbo_skbuff[i].skb); 
+	 	 	ap->skb->rx_jumbo_skbuff[i].skb = NULL;
+              	}
+         }
+-- 
+Pekka Pietikainen
 
-vmlinux is also an elf binary.  As is arch/i386/boot/bvmlinux but it
-is compressed.
 
-All mkelfImage does is the pasting of initrd's, command lines,
-and just a touch of argument conversion code.
 
-What I don't do deliberately is allow or need setup.S which does
-syscalls to run.  All it does are BIOS calls, and store them in a
-nasty data structure.  I have replaced that data structure with 
-something that is maintainable.  
-
-I would like very much to not need mkelfImage.  However that
-requires further changes to the kernel, and I cannot boot an unpatched
-kernel with that method.  
-
-Eric
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

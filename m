@@ -1,70 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261978AbTICErT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 00:47:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbTICErT
+	id S262133AbTICE7H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 00:59:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbTICE7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 00:47:19 -0400
-Received: from auemail1.lucent.com ([192.11.223.161]:52699 "EHLO
-	auemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S261978AbTICErS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 00:47:18 -0400
-Message-ID: <008501c371d6$77d9d350$8112fc87@ZHANGHAOFENG>
-From: "Zhang haofeng" <zhanghf@blrcsv.china.bell-labs.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: sk_buff problem
-Date: Wed, 3 Sep 2003 12:47:24 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4927.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
+	Wed, 3 Sep 2003 00:59:07 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:50183 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S262133AbTICE7F convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 00:59:05 -0400
+Date: Wed, 3 Sep 2003 06:50:32 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Will L G <diskman@kc.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Compressed VMLINUX Kernel
+Message-ID: <20030903045032.GB24145@alpha.home.local>
+References: <004801c371c1$fc64b0f0$6501a8c0@zephyr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <004801c371c1$fc64b0f0$6501a8c0@zephyr>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
-    Does somebody have some knowledge about /net/ipv6/sit.c?
-    I try to modify sit.c to cater for my requirements: I want to use
-IPv4+UDP+IPv6+IPv6 Data to encapsulate IPv6 packets, thus every IPv6 packet
-will be able to pass through some IPv4 NATs. As you know, sit.c is to
-encapsulate IPv6 packets in IPv4 payload, so it seems that I only need to
-add UDP layer between IPv4 header and IPv6 header in the encapsulated
-packet.
-    But I got problem when I receive an IPv4 UDP packet. I wanna
-de-encapsulate the packet and send UDP data (which is an IPv6 packet) to
-IPv6 upper layer protocol use netif_rx( ).  But it seems that I can not set
-the correspondent field in sk_buff struct correctly.
-    In sit.c, line 396, when 6to4 interface receive a IPv4 packet:
-*****************
-    if (!pskb_may_pull(skb, sizeof(struct ipv6hdr)))
-        goto out;
-...
-    skb->mac.raw= skb->nh.raw;
-    skb->nh.raw= skb-> data;
-...
-    netif_rx(skb);
+On Tue, Sep 02, 2003 at 09:20:46PM -0500, Will L G wrote:
+> I was wondering, is there some method or utility that will allow me to
+> compress my kernel (vmlinux)? I was running an alpha and bzImage and zImage
+> don’t work.  I read all the mans that I could lay my grubby little hands on
+> but none of them mentioned HOW one is the compress a vmlinux kernel.  
+>  
+> The reason ask this is, I boot to linux using an OLD IDE drive and it takes
+> sometime to read a 7mb file. I noticed that the original kernel
+> (Redhat/Compaq derivative) was compressed and somewhat smaller, about less
+> than half the size. Thanks, Will L G
+>  
 
-    So in my modified sit.c, I modify the source code to :
-*****************
-    if (!pskb_may_pull(skb, sizeof(struct ipv6hdr)))
-        goto out;
-...
-    skb->mac.raw= skb->nh.raw;
-    skb->nh.raw= skb->data+sizeof(struct udphdr);
-    skb->protocol = __constant_htons(0x86DD);
-...
-    netif_rx(skb);
-...
+I'm pretty sure I already booted mine with a vmlinux.gz kernel which simply was
+a gzip applied to a normal vmlinux image.
 
-    But it seems that I can not send the IPv6 packet to IPv6 upper layer,
-while the ICMPv4 UDP port unreachable message is sent to the sender. I am
-confused :(
-    Any kind of  help is appreciated.
-
-Zhanghaofeng
-Sep 3rd, 2003
-
-
+Regards,
+willy

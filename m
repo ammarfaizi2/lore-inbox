@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271015AbTGPRnj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 13:43:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271001AbTGPRlw
+	id S270990AbTGPRkI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 13:40:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270969AbTGPRiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 13:41:52 -0400
-Received: from genius.impure.org.uk ([195.82.120.210]:41875 "EHLO
-	genius.impure.org.uk") by vger.kernel.org with ESMTP
-	id S270993AbTGPRl0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 13:41:26 -0400
-Date: Wed, 16 Jul 2003 18:55:35 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: Valdis.Kletnieks@vt.edu, vojtech@suse.cz,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PS2 mouse going nuts during cdparanoia session.
-Message-ID: <20030716175534.GA25712@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Jens Axboe <axboe@suse.de>, Valdis.Kletnieks@vt.edu,
-	vojtech@suse.cz, Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030716165701.GA21896@suse.de> <20030716170352.GJ833@suse.de> <200307161710.h6GHAsU1001493@turing-police.cc.vt.edu> <20030716171706.GN833@suse.de>
+	Wed, 16 Jul 2003 13:38:19 -0400
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:47254 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S270994AbTGPRhN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 13:37:13 -0400
+Date: Wed, 16 Jul 2003 19:51:29 +0200
+To: Pavel Machek <pavel@suse.cz>
+Cc: root@mauve.demon.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: Suspend on one machine, resume elsewhere [was Re: [Swsusp-devel] RE:Re: Thoughts wanted on merging Softwa]
+Message-ID: <20030716195129.A9277@informatik.tu-chemnitz.de>
+References: <20030716083758.GA246@elf.ucw.cz> <200307161037.LAA01628@mauve.demon.co.uk> <20030716104026.GC138@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030716171706.GN833@suse.de>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030716104026.GC138@elf.ucw.cz>; from pavel@suse.cz on Wed, Jul 16, 2003 at 12:40:26PM +0200
+From: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
+X-Spam-Score: -5.0 (-----)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19cqRg-0003mi-00*CGjq5/V4L2A*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 07:17:06PM +0200, Jens Axboe wrote:
- > > Dumb user question - which rippers support SG_IO?  I've been using
- > > cdparanoia mostly for lack of a good reason to migrate - but this
- > > sounds like a good reason. ;)
- > 
- > Not a dumb question at all, see my previous mail :). In short, I don't
- > know. I'm sure a little collective effort could hunt some down (cdda2wav
- > should work, since it uses libscg presumable).
+On Wed, Jul 16, 2003 at 12:40:26PM +0200, Pavel Machek wrote:
+> If you want to migrate programs between machines, run UMLinux, same
+> config, on both machines. Ouch and you'll need swsusp for UMLinux, too
 
-For info, I just tried cdda2wav, and whilst it used less CPU than
-cdparanoia, the dancing mouse effect still occurs 8-(
+That might be more important than you think.
 
-		Dave
+Just start your Oracle in UML and swsusp. Now start your loadbalancer and start
+a copy of that frozen image as soon, as the load reaches a defined limit and
+kill these images again, if load goes down.
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+There might be even more interesting scenarios like this.
+
+Regards
+
+Ingo Oeser

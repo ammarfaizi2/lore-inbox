@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291628AbSBTEWZ>; Tue, 19 Feb 2002 23:22:25 -0500
+	id <S291633AbSBTEf1>; Tue, 19 Feb 2002 23:35:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291627AbSBTEWP>; Tue, 19 Feb 2002 23:22:15 -0500
-Received: from [213.228.128.56] ([213.228.128.56]:20101 "HELO
-	front1.netvisao.pt") by vger.kernel.org with SMTP
-	id <S291628AbSBTEWH>; Tue, 19 Feb 2002 23:22:07 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Connecting through parallel port
-From: pocm@rnl.ist.utl.pt (Paulo J. Matos)
-Date: 20 Feb 2002 04:23:53 +0000
-Message-ID: <87d6z03hnq.fsf@localhost.localdomain>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S291631AbSBTEfS>; Tue, 19 Feb 2002 23:35:18 -0500
+Received: from c9mailgw.prontomail.com ([216.163.188.201]:52242 "EHLO
+	C9Mailgw05.amadis.com") by vger.kernel.org with ESMTP
+	id <S291633AbSBTEfC>; Tue, 19 Feb 2002 23:35:02 -0500
+Message-ID: <3C73272B.9BDE55CE@starband.net>
+Date: Tue, 19 Feb 2002 23:33:47 -0500
+From: Justin Piszcz <war@starband.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Dale Amon <amon@vnl.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: make install doesn't work for kernel factories
+In-Reply-To: <20020220041413.GC29004@vnl.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Have you looked at http://www.installkernel.com/ ?
+ik -i does the install.
 
-I have a LAN at home and know I just got another computer to
-connect to the LAN, I also found a parallel-parallel cable. The
-network is ethernet, is it possible to connect the new computer
-using the parallel ports of the computers to the server of the
-LAN so that this new computer is able to have access to the
-internet and the rest of stuff?
-What do I need to configure in the kernel?
-Is there any how-to out there that answers this question?
+Dale Amon wrote:
 
-Best regards,
-
--- 
-Paulo J. Matos : pocm(_at_)rnl.ist.utl.pt
-Instituto Superior Tecnico - Lisbon    
-Software & Computer Engineering - A.I.
- - > http://www.rnl.ist.utl.pt/~pocm 
- ---	
-	Yes, God had a deadline...
-		So, He wrote it all in Lisp!
+> The following does not work:
+>
+>         make DESTDIR=/my/target/root install
+>
+> it calls
+>
+> exec /sbin/installkernel 2.4.17 bzImage /my/source/directory/linux-2.4.17/System.map
+>
+> and proceeds to drop it on top of the local machine's
+> kernel. installkernel should honor the selection of
+> a different root.
+>
+> --
+> ------------------------------------------------------
+>     Nuke bin Laden:           Dale Amon, CEO/MD
+>   improve the global          Islandone Society
+>      gene pool.               www.islandone.org
+> ------------------------------------------------------
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

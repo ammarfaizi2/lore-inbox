@@ -1,77 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264489AbTDXVjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 17:39:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbTDXVjQ
+	id S264484AbTDXViL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 17:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264487AbTDXViL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 17:39:16 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:21376 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S264490AbTDXVi2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 17:38:28 -0400
-Date: Thu, 24 Apr 2003 23:50:33 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: jsimmons@infradead.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Kernel crash triggered by con2fb
-Message-ID: <20030424215033.GA9384@vana.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Thu, 24 Apr 2003 17:38:11 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:50439 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264484AbTDXViI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 17:38:08 -0400
+Date: Thu, 24 Apr 2003 17:44:39 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Stelian Pop <stelian.pop@fr.alcove.com>, Ben Collins <bcollins@debian.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IEEE-1394 problem on init [ was Re: Linux 2.4.21-rc1 ]
+In-Reply-To: <Pine.LNX.4.53L.0304231609230.5536@freak.distro.conectiva>
+Message-ID: <Pine.LNX.3.96.1030424173619.11734F-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi James,
-  it is not nice that anybody can crash my kernel by
-doing con2fb with unallocated VT.
-				Thanks,
-					Petr Vandrovec
-					vandrove@vc.cvut.cz
+On Wed, 23 Apr 2003, Marcelo Tosatti wrote:
 
-diff -urN linux-2.5.68-c1216.dist/drivers/video/console/fbcon.c linux-2.5.68-c1216.fb/drivers/video/console/fbcon.c
---- linux-2.5.68-c1216.dist/drivers/video/console/fbcon.c	2003-04-24 19:35:16.000000000 +0200
-+++ linux-2.5.68-c1216.fb/drivers/video/console/fbcon.c	2003-04-24 23:37:24.000000000 +0200
-@@ -294,13 +294,17 @@
-  *	Maps a virtual console @unit to a frame buffer device
-  *	@newidx.
-  */
--void set_con2fb_map(int unit, int newidx)
-+int set_con2fb_map(int unit, int newidx)
- {
- 	struct vc_data *vc = vc_cons[unit].d;
- 
-+	if (!vc) {
-+		return -ENODEV;
-+	}
- 	con2fb_map[unit] = newidx;
- 	fbcon_is_default = (vc->vc_sw == &fb_con) ? 1 : 0;
- 	take_over_console(&fb_con, unit, unit, fbcon_is_default);
-+	return 0;
- }
- 
- /*
-diff -urN linux-2.5.68-c1216.dist/drivers/video/console/fbcon.h linux-2.5.68-c1216.fb/drivers/video/console/fbcon.h
---- linux-2.5.68-c1216.dist/drivers/video/console/fbcon.h	2003-04-24 19:35:21.000000000 +0200
-+++ linux-2.5.68-c1216.fb/drivers/video/console/fbcon.h	2003-04-24 23:37:04.000000000 +0200
-@@ -38,7 +38,7 @@
- 
- /* drivers/video/console/fbcon.c */
- extern char con2fb_map[MAX_NR_CONSOLES];
--extern void set_con2fb_map(int unit, int newidx);
-+extern int set_con2fb_map(int unit, int newidx);
- 
-     /*
-      *  Attribute Decoding
-diff -urN linux-2.5.68-c1216.dist/drivers/video/fbmem.c linux-2.5.68-c1216.fb/drivers/video/fbmem.c
---- linux-2.5.68-c1216.dist/drivers/video/fbmem.c	2003-04-24 19:33:03.000000000 +0200
-+++ linux-2.5.68-c1216.fb/drivers/video/fbmem.c	2003-04-24 23:36:48.000000000 +0200
-@@ -1035,7 +1035,7 @@
- 		if (!registered_fb[con2fb.framebuffer])
- 		    return -EINVAL;
- 		if (con2fb.console != 0)
--			set_con2fb_map(con2fb.console-1, con2fb.framebuffer);
-+			return set_con2fb_map(con2fb.console-1, con2fb.framebuffer);
- 		else
- 			fb_console_init();		
- 		return 0;
+> I guess Ben's mega patch (and yes, I also consider it a megapatch for
+> -rc) has to be applied. I just mailed him asking about the possibility
+> of getting only fixes in and not the cleanups, but I guess that might be a
+> bit hard to do _today_. Right Ben ?
+> 
+> And about the sweet complaints about -pre timing, I will release -pre's
+> each damn week for .22.
+> 
+> *!@#!&*.
+
+If I might offer a course of action, if you put thing which are *fixes* in
+the bk releases, and hold *changes* for the next -pre, it might allow
+people to grab bk's to fix the quickly caught things in a new pre, without
+being hit with major changes which might decrease stability.
+
+Clearly any pre is a risk, but there always seem to be errors of the "XXX
+doesn't compile because of typo" type. That way Alan could put all new IDE
+code in each -pre and Andre and others could put fixes in the bk's until
+it worked. => JOKING!! <== but you get the idea.
+
+I'd love to see this in 2.5 as well, just to encourage people to use it!
+I'm not even going to suggest that, there would be the usual flamewar.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

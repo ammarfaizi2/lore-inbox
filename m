@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVDDOxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVDDPEn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbVDDOxq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 10:53:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVDDOxq
+	id S261253AbVDDPEn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 11:04:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVDDPEn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 10:53:46 -0400
-Received: from hammer.engin.umich.edu ([141.213.40.79]:28295 "EHLO
-	hammer.engin.umich.edu") by vger.kernel.org with ESMTP
-	id S261254AbVDDOxp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 10:53:45 -0400
-Date: Mon, 4 Apr 2005 10:53:39 -0400 (EDT)
-From: Christopher Allen Wing <wingc@engin.umich.edu>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: clock runs at double speed on x86_64 system w/ATI RS200 chipset
-In-Reply-To: <200504031231.j33CVtHp021214@harpo.it.uu.se>
-Message-ID: <Pine.LNX.4.58.0504041050250.32159@hammer.engin.umich.edu>
-References: <200504031231.j33CVtHp021214@harpo.it.uu.se>
+	Mon, 4 Apr 2005 11:04:43 -0400
+Received: from mp1-smtp-3.eutelia.it ([62.94.10.163]:20661 "EHLO
+	smtp.eutelia.it") by vger.kernel.org with ESMTP id S261253AbVDDPEl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 11:04:41 -0400
+Message-ID: <42515787.1050304@eutelia.it>
+Date: Mon, 04 Apr 2005 17:04:39 +0200
+From: Sergio Chiesa <sergio.chiesa@eutelia.it>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: "Ju, Seokmann" <sju@lsil.com>
+Subject: Re: Followup: PROBLEM: Kernel bug at tg3.c:2456
+References: <0E3FA95632D6D047BA649F95DAB60E57036627A6@exa-atlanta>
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57036627A6@exa-atlanta>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ju, Seokmann wrote:
+
+> Can you please specify megaraid driver version?
+
+the v2.4.29 bundled one, v2.10.3.
+I'm going to try the last one from your site, the 2.10.9
 
 
-On Sun, 3 Apr 2005, Mikael Pettersson wrote:
+>>Usually there
+>>are no messages on screen, but the last time I get "Kernel bug at
+>>tg3.c:2456"!! on the sender. The skb pointer in the tx_ring_info was
+>>null.... May it be queue overrun?
+> 
+> I would suggest to look into the issue from above perspective. 
 
-> Well, first step is to try w/o ACPI. ACPI is inherently fragile
-> and bugs there can easily explain your timer problems. Either
-> recompile with CONFIG_ACPI=n, or boot with "acpi=off pci=noacpi".
+I found two very old posts (mid 2002) which recall very similar behaviou. I 
+didn't find any fix to this two.
 
-
-When I boot without ACPI (I used 'acpi=off pci=noacpi') the system fails
-to come up all the way; it hangs after loading the SATA driver. (but
-before the SATA driver finishes probing the disks)
-
-I'm guessing that the interrupt from the SATA controller is not getting
-through? Anyway, I assumed that ACPI was basically required for x86_64
-systems to work, is this not really the case?
+http://groups-beta.google.com/group/mlist.linux.kernel/browse_thread/thread/56c3c65c939f0baa/fd63101a0b32ea21?q=tg3&rnum=2#fd63101a0b32ea21
+http://groups-beta.google.com/group/mlist.linux.kernel/browse_thread/thread/8b962774c3c5adef/ca778af36b802362?q=tg3&rnum=6#ca778af36b802362
 
 
-Thanks,
-
-Chris
-wingc@engin.umich.edu
+TIA
+Sergioc.

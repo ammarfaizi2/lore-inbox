@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289671AbSAJUxV>; Thu, 10 Jan 2002 15:53:21 -0500
+	id <S289673AbSAJUxL>; Thu, 10 Jan 2002 15:53:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289672AbSAJUxL>; Thu, 10 Jan 2002 15:53:11 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:50165 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S289405AbSAJUxE>; Thu, 10 Jan 2002 15:53:04 -0500
-Date: Thu, 10 Jan 2002 12:56:48 -0800
-From: Chris Wright <chris@wirex.com>
-To: Senhua Tao <stao@nbnet.nb.ca>
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: absolute path of a process (as the credential of a process)
-Message-ID: <20020110125648.A1412@figure1.int.wirex.com>
-Mail-Followup-To: Senhua Tao <stao@nbnet.nb.ca>,
-	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Manfred Spraul <manfred@colorfullife.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3C3DB937.A7E36933@nbnet.nb.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C3DB937.A7E36933@nbnet.nb.ca>; from stao@nbnet.nb.ca on Thu, Jan 10, 2002 at 11:54:31AM -0400
+	id <S289672AbSAJUxC>; Thu, 10 Jan 2002 15:53:02 -0500
+Received: from quechua.inka.de ([212.227.14.2]:31778 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S289669AbSAJUwz>;
+	Thu, 10 Jan 2002 15:52:55 -0500
+From: Bernd Eckenfels <ecki-news2002-01@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <3C3DDEA9.E8FAB8DC@nortelnetworks.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E16OmBx-0008K2-00@sites.inka.de>
+Date: Thu, 10 Jan 2002 21:52:53 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Senhua Tao (stao@nbnet.nb.ca) wrote:
+In article <3C3DDEA9.E8FAB8DC@nortelnetworks.com> you wrote:
+> Imagine taking an input, doing dsp-type calculations on it, and sending it back
+> as output.  Now...imagine doing it in realtime with the output being fed back to
+> a monitor speaker.  Think about what would happen if the output of the monitor
+> speaker is 1/4 second behind the input at the mike.  Now do you see the
+> problem?  A few ms of delay might be okay.
 
-<some details snipped>
+What kind of signal run time do you normally have in digital sound processing
+equipment? AFAIK one can expect a feew frames with of delay (n x 13ms).
 
-> The ip filter checking can be done in sys_connect(). That is the problem
-> that I am having. I try to get the absolute path of the current process
-> which calls connect() to against the entries in the config file (they
-> also have to be translated to absolute path) and get lost.
+Just dont feed back the processed signal to the singers monitor box.
 
-if you look at the code in fs/proc/base.c::proc_exe_link() you can
-see how the absolute pathname is gathered (note: only on execve is the
-VM_EXECUTABLE flag set).  basically you need the dentry and vfsmount
-of the file.  btw, you are only stopping tcp and bound udp if you hook
-in sys_connect, perhaps you should consider the sendmsg family as well.
-also, if the trojan is a server you have not protected listen/accept or
-resvmsg so sys_socket may be the best spot to watch.
+> If I'm trying to watch a DVD on my computer, and assuming my CPU is powerful
+> enough to decode in realtime, then I want the DVD player to take
+> priority--dropping frames just because I'm starting up netscape is not
+> acceptable.
 
-also, all of this can be done using the LSM framework.  (see lsm.immunix.org
-for patches).
+You do not start up netscape while you do realtime av processing in
+professional environemnt.
 
-cheers,
--chris
+Well, an easy fix is to have the LL patch and do not use swap. Then you only
+need reliable/predictable hardware (which is not so easy to get for PC).
+
+Greetings
+Bernd
+

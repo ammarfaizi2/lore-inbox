@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284451AbRLEV4s>; Wed, 5 Dec 2001 16:56:48 -0500
+	id <S284526AbRLEV4t>; Wed, 5 Dec 2001 16:56:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284526AbRLEV4n>; Wed, 5 Dec 2001 16:56:43 -0500
-Received: from maild.telia.com ([194.22.190.101]:17919 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id <S284536AbRLEV4B>;
-	Wed, 5 Dec 2001 16:56:01 -0500
-Message-Id: <200112052155.fB5Ltxa26014@d1o849.telia.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Jakob Kemi <jakob.kemi@telia.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.17-pre4
-Date: Wed, 5 Dec 2001 22:54:26 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <Pine.LNX.4.21.0112051640570.20575-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0112051640570.20575-100000@freak.distro.conectiva>
+	id <S284536AbRLEV4p>; Wed, 5 Dec 2001 16:56:45 -0500
+Received: from odin.allegientsystems.com ([208.251.178.227]:53634 "EHLO
+	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
+	id <S284451AbRLEV4Y>; Wed, 5 Dec 2001 16:56:24 -0500
+Message-ID: <3C0E97FD.9050909@optonline.net>
+Date: Wed, 05 Dec 2001 16:56:13 -0500
+From: Nathan Bryant <nbryant@optonline.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: Nathan Bryant <nbryant@optonline.net>
+CC: Doug Ledford <dledford@redhat.com>, Mario Mikocevic <mozgy@hinet.hr>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i810 audio patch
+In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com> <3C0D350F.9010408@optonline.net> <3C0D3CF7.6030805@redhat.com> <3C0D4E62.4010904@optonline.net> <3C0D52F1.5020800@optonline.net> <3C0D5796.6080202@redhat.com> <3C0D5CB6.1080600@optonline.net> <3C0D5FC7.3040408@redhat.com> <3C0D77D9.70205@optonline.net> <3C0D8B00.2040603@optonline.net> <3C0D8F02.8010408@redhat.com> <3C0D9456.6090106@optonline.net> <3C0DA1CC.1070408@redhat.com> <3C0DAD26.1020906@optonline.net> <3C0DAF35.50008@redhat.com> <3C0E7DCB.6050600@optonline.net> <3C0E7DFB.2030400@optonline.net> <3C0E7F1C.4060603@redhat.com> <3C0E8DBF.5010000@optonline.net> <3C0E90B2.1030601@redhat.com> <3C0E935F.3070505@optonline.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesdayen den 5 December 2001 19.41, Marcelo Tosatti wrote:
-> Duh. I forgot to add tcp_diag.c and tcp_diag.h in -pre3, which avoid it to
-> compile correctly.
+Nathan Bryant wrote:
+
 >
-> Well, here goes -pre4 which fixes that.
+> also, I ran your other DEBUG_MMAP patch and the news is that count 
+> just sits at 65536 ad nauseum.
 >
-> - Added missing tcp_diag.c and tcp_diag.h       (me)
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
-Hi Marcelo,
+this is because settrigger in 0.9 doesn't: it's setting LVI=CVI so it 
+goes nowhere. this was introduced by the second patch against 0.08 that 
+you sent me...
 
-Since 2.4.14 the ieee1284 parport functions have worked improperly for some 
-drivers (CPiA, W9966 and others). Joe <joeja@mindspring.com> was quick to 
-find the failure. He said he was going to send the patch to you some week ago 
-and maybe he already have. If it somehow got lost in an internet black-hole 
-or something I try to also send it to you. It's just a one-liner which 
-reverts to pre-2.4.14 behavior.
-
---- ieee1284_ops.c.orig	Tue Nov  6 11:29:26 2001
-+++ ieee1284_ops.c	Wed Dec  5 22:44:20 2001
-@@ -592,7 +592,7 @@
- 		}
-
- 		/* Event 44: Set HostAck high, acknowledging handshake. */
--		parport_write_control (port, ctl);
-+		parport_frob_control (port, PARPORT_CONTROL_AUTOFD, 0);
-
- 		/* Event 45: The peripheral has 35ms to set nAck high. */
- 		if (parport_wait_peripheral (port, PARPORT_STATUS_ACK,

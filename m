@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265395AbUHYVuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268749AbUHYVcG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265395AbUHYVuo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 17:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264984AbUHYVsW
+	id S268749AbUHYVcG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 17:32:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268851AbUHYV1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 17:48:22 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:16901 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S263962AbUHYVpw
+	Wed, 25 Aug 2004 17:27:48 -0400
+Received: from mail1.speakeasy.net ([216.254.0.201]:11669 "EHLO
+	mail1.speakeasy.net") by vger.kernel.org with ESMTP id S268786AbUHYVHg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 17:45:52 -0400
-To: Roland McGrath <roland@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] notify_parent and ptrace cleanup
-References: <200408252107.i7PL7XWw017681@magilla.sf.frob.com>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Thu, 26 Aug 2004 06:45:35 +0900
-In-Reply-To: <200408252107.i7PL7XWw017681@magilla.sf.frob.com>
-Message-ID: <87hdqqlwn4.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
+	Wed, 25 Aug 2004 17:07:36 -0400
+Date: Wed, 25 Aug 2004 14:07:33 -0700
+Message-Id: <200408252107.i7PL7XWw017681@magilla.sf.frob.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] notify_parent and ptrace cleanup
+In-Reply-To: Linus Torvalds's message of  Wednesday, 25 August 2004 14:02:47 -0700 <Pine.LNX.4.58.0408251400530.17766@ppc970.osdl.org>
+X-Fcc: ~/Mail/linus
+X-Zippy-Says: I wonder if I could ever get started in the credit world?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > SIGKILL _already_ doesn't actually wake up a ptraced task. It just informs 
-> > the tracer, last I looked.
+> SIGKILL _already_ doesn't actually wake up a ptraced task. It just informs 
+> the tracer, last I looked.
 
-I'm thinking the following issue here,
+I think it's supposed to do so now, and actually fails to only sometimes in
+practice and I don't know what the conditions are.  But, if you find it
+acceptable that a traced task stay stopped in trace and not die from
+SIGKILL until the tracer resumes it or detaches/dies, then aiming for that
+certainly makes it easier to keep the ptrace code race-free.
 
-For example,
+> So a new state should be pretty simple, and I really think it would be the
+> right way to go. That said, I might just be completely wrong - maybe there
+> are practical problems to that approach that I don't see right now.
 
-ptraced task stopping:
-
-   in get_signal_to_deliver(),
-	set_current_state(TASK_STOPPED);
-	spin_unlock_irq(&current->sighand->siglock);
-	notify_parent(current, SIGCHLD);
-	schedule();
-
-in here, root want to kill those tasks,
-
-   kill -> ... -> specific_send_sig_info -> signal_wake_up(t, sig == SIGKILL)
-
-   in signal_wake_up(),
-	mask = TASK_INTERRUPTIBLE;
-	if (resume)
-		mask |= TASK_STOPPED;
-	if (!wake_up_state(t, mask))
+I'm going to try it out very soon and then we can see how the testing goes.
 
 
-Hmm.. I may be missing something...?
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Thanks,
+Roland

@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318810AbSG0TlY>; Sat, 27 Jul 2002 15:41:24 -0400
+	id <S318811AbSG0Tp6>; Sat, 27 Jul 2002 15:45:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318813AbSG0TlY>; Sat, 27 Jul 2002 15:41:24 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:59188 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S318810AbSG0TlX>; Sat, 27 Jul 2002 15:41:23 -0400
-Date: Sat, 27 Jul 2002 22:44:29 +0300
-From: Ville Herva <vherva@niksula.hut.fi>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+	id <S318812AbSG0Tp6>; Sat, 27 Jul 2002 15:45:58 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:39584 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S318811AbSG0Tp5>; Sat, 27 Jul 2002 15:45:57 -0400
+Subject: Re: Funding GPL projects or funding the GPL?
+From: Keith Adamson <keith.adamson@attbi.com>
+To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Speaker twiddling [was: Re: Panicking in morse code]
-Message-ID: <20020727194429.GR1548@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	linux-kernel@vger.kernel.org
-References: <3D4298C6.9080103@sktc.net> <200207271856.g6RIufn63592@saturn.cs.uml.edu>
+In-Reply-To: <200207271946.11727.roger.larsson@skelleftea.mail.telia.com>
+References: <20020727085931.X26813@work.bitmover.com>
+	<Pine.LNX.4.44L.0207271302550.3086-100000@imladris.surriel.com>
+	<20020727092223.B26813@work.bitmover.com> 
+	<200207271946.11727.roger.larsson@skelleftea.mail.telia.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-3) 
+Date: 27 Jul 2002 15:49:53 -0400
+Message-Id: <1027799393.28304.35.camel@h00d0700074d1.ne.client2.attbi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200207271856.g6RIufn63592@saturn.cs.uml.edu>
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 27, 2002 at 02:56:41PM -0400, you [Albert D. Cahalan] wrote:
-> Reality?
+On Sat, 2002-07-27 at 13:46, Roger Larsson wrote:
+> On Saturday 27 July 2002 18.22, Larry McVoy wrote:
+> > On Sat, Jul 27, 2002 at 01:06:56PM -0300, Rik van Riel wrote:
+> > Actually, that's an interesting topic.  Other applications could use
+> > the BK model of "free if you're out in the open" and pay otherwise.
+> > It's pretty effective.  However, it doesn't work very well when the
+> > community beats you to hell for not being GPLed.  I had a thick enough
+> > skin to deal with it, I doubt others would, they'd give up.  It also
+> > doesn't work when people refuse to obey the license because they 
+> > don't agree with it (we had plenty of that).
 > 
-> There's no "set up a microphone and decoder" problem.
-> Most people have a tape recorder. Use that, then play
-> back into the PC's sound card after you reboot. Post the
-> sound file on a web site.
+> Trolltech does the same. And have taken the same amount of heat.
+> (Probably A LOT more... since their Qt is the base for KDE)
+> 
+> /RogerL
+The problem with the present type of donation systems is knowing your
+donation is not going to be abused.
 
-Reality?
+I though a model that may work is a United Way type of model ... have a
+central non-profit act as a clearing house for donations to specific
+open source projects.  The non-profit would do the proper account
+reporting of receipts, overhead, and funding to the various open source
+projects (an effort to keep donation abuse down and allow open non-bias
+account reporting).  Allowing either a general donation or target
+donation from the public to a particular project.  Then a specific
+project would register with the non-profit to receive funding help.  In
+order to qualify you would need to provide certain technical/financial
+reporting of your project to the non-profit to demonstrate you need the
+financial help and you are working on a needed project.
 
-I don't have a tape recorder, and even if I had that procedure is so tedious
-that I'd rather write the oops down with a pen. And I don't use pen
-willingly as it is error prone. (I don't even dare to think what Windows
-people would say if I actually found a magnetophone and a mic and tried to
-sneak into the curiously twittering server room without anyone noticing.)
-
-Let's get real. There's much better solutions already available: 
- - serial console that has been in kernel for ages
-   (sneaking into server room with an old laptop and serial cable
-   at least _looks_ professional)
- - kmsgdump from Willy Tarreau that writes the oops to a floppy (even makes
-   a msdos fs), can use printer and enables pgup/pgdown even after lockup so
-   that you can see the whole kernel ring buffer (who would ever notice if
-   you sneak out from the server room with a floppy or a sheet of paper)
-   http://wtarreau.free.fr/kmsgdump/
- - netconsole from Ingo Molnar that logs the oops over udp (you don't even
-   have to sneak into the server room)
-   http://people.redhat.com/mingo/netconsole-patches/
-
-Now, I would assume that most people have a floppy, printer or a network
-connection. At least more people than have a tape recorder.
+The real problem is getting something like this started.
 
 
--- v --
-
-v@iki.fi

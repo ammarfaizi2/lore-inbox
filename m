@@ -1,28 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262528AbTEVH2B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 03:28:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbTEVH2B
+	id S262569AbTEVHdm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 03:33:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262578AbTEVHdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 03:28:01 -0400
-Received: from [213.171.53.133] ([213.171.53.133]:29452 "EHLO gulipin.miee.ru")
-	by vger.kernel.org with ESMTP id S262528AbTEVH2A (ORCPT
+	Thu, 22 May 2003 03:33:42 -0400
+Received: from rth.ninka.net ([216.101.162.244]:19843 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S262569AbTEVHdl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 03:28:00 -0400
-Date: Thu, 22 May 2003 10:42:53 +0400
-From: Samium Gromoff <deepfire@ibe.miee.ru>
-To: linux-kernel@vger.kernel.org
-Subject: via vt82c694t northbridge specs
-Message-Id: <20030522104253.4118762d.deepfire@ibe.miee.ru>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 22 May 2003 03:33:41 -0400
+Subject: Re: [CHECKER] 12 potential leaks in kernel 2.5.69
+From: "David S. Miller" <davem@redhat.com>
+To: Ted Kremenek <kremenek@cs.stanford.edu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mc@cs.stanford.edu
+In-Reply-To: <BAF1B694.8EBC%kremenek@cs.stanford.edu>
+References: <BAF1B694.8EBC%kremenek@cs.stanford.edu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1053589602.26737.0.camel@rth.ninka.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 22 May 2003 00:46:43 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Is there a place one could have them from?
+On Wed, 2003-05-21 at 23:04, Ted Kremenek wrote:
+> As always, confirmation of these reports is appreciated.
 
-	And yes, i was unable to get them from the via site ;-)
+I took care of the two ipv6 bugs spotted, they were
+legitimate.  Thanks.
 
-regards, Samium Gromoff

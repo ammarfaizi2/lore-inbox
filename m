@@ -1,110 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262404AbSJPMKF>; Wed, 16 Oct 2002 08:10:05 -0400
+	id <S262430AbSJPMLO>; Wed, 16 Oct 2002 08:11:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262425AbSJPMKF>; Wed, 16 Oct 2002 08:10:05 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:65402 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S262404AbSJPMKD>; Wed, 16 Oct 2002 08:10:03 -0400
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: eblade@blackmagik.dynup.net, linux-kernel@vger.kernel.org, mochel@osdl.org,
-       rmk@arm.linux.org.uk
-Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend devices
-References: <200210151952.MAA04189@adam.yggdrasil.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 16 Oct 2002 06:13:22 -0600
-In-Reply-To: <200210151952.MAA04189@adam.yggdrasil.com>
-Message-ID: <m1ptua37kt.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S262434AbSJPMLJ>; Wed, 16 Oct 2002 08:11:09 -0400
+Received: from blowme.phunnypharm.org ([65.207.35.140]:1031 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S262430AbSJPMKk>; Wed, 16 Oct 2002 08:10:40 -0400
+Date: Wed, 16 Oct 2002 08:16:33 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.43
+Message-ID: <20021016121633.GK5613@phunnypharm.org>
+References: <Pine.LNX.4.44.0210152040540.1708-100000@penguin.transmeta.com> <20021016073154.GF4827@suse.de> <20021016120528.GI5613@phunnypharm.org> <20021016120902.GO860@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021016120902.GO860@suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Adam J. Richter" <adam@yggdrasil.com> writes:
+> > > 
+> > > The binary rpms are built on SuSE 8.1, there's a source rpm there too
+> > > though. This is 1.11a37 with Linus patch that allows you do to
+> > 
+> > Can us non-rpm'ers get a tarball, please? Even an upstream tarball with
+> > patches in the topdir would be fine.
+> 
+> The patch is called linus-cdr.diff, tar ball of 1.1a37 can be found off
+> fresmeat.
+> 
 
-[snip details on a lot of hot plug code]
+Thanks. It's currently 403, though.
 
-No major comment except that I know for compact pci you can just
-walk up and unplug it.  As we have several compact pci boards here
-at work.
-
-But thank you for the clarification that a only on badly designed
-hardware a newly plugged in device will
-
-> 	Besides, you have not identified a safe way that a combined
-> ->remove() function can detect such situations more reliably than
-> separate ->quiet() and ->removed(), which at least have the benefit of
-> knowing what the kernel currently thinks the situation is.  So, you
-> really have no basis for saying "Splitting ->remove() into quiet() and
-> ->removed() will be racy."
-
-O.k. Let me attempt a clarification, of what I was thinking.
-Currently pseudo code for remove does:
-
-remove() {
-	if (device_present()) {
-		device_be_quiet()
-	}
-	device_free(device_strucutres);
-}
-
-The way I imagined the split up:
-if (device->present()) {
-        device->be_quiet();
-}
-device->free_resources();
-
-Doing device_be_quiet() without the device_present() check is racy,
-because devices can be physically removed at arbitrary times.  It
-is unreasonable for the generic code to make the strong assumption
-about being able to tell a device driver if the device is still
-present.  So any splitting of the device_present() check and the
-device_be_quiet() code would have to be done, very carefully, and
-would require bus specific code.  And it would be complexity without a
-real payoff.
-
-So if things are split it can at most be:
-device->be_quiet(); /* With the possibility the device has been removed */
-device->free_resources();
-
-I cannot imagine freeing data structures will noticeably slow a reboot
-down, so unless we actually need to tell a device to be quiet for
-other reasons besides driver removal, and machine reboot I do not see
-a point in adding complexity by changing the interface.  There may be
-a valid argument in the suspend to swap case, but I will cross that
-bridge when i come to it. 
-
-For my thinking on how this should be handled:
-
-Except in some very select special instances, I do not know
-of a single device where it is safe to assume the hardware is in a
-sane state at any random given moment when we decide to reboot.  And
-in no common case I know of does linux immediately trigger a machine
-level reset which would render this issue moot.  Therefore asking all
-of the device drivers to be quiet on a reboot sounds very reasonable.
-
-Further the only way I know to make solid code is to put all of your
-eggs in one basket, and just make certain it is a good basket.
-Meaning the more often a function is run with the same requirements
-the more likely it is to be correct.  So running the device ->remove()
-method on reboot and module remove will greatly enhance the chance the
-method is both fast and correct, because it is run often enough that
-people will complain if it is not.
-
-As for the semantic change in ->remove() from 2.4 it feels to me like
-more of a clarification than a real change, in particular ->remove() is
-the opposite of ->probe(), and ->probe() does both allocation and
-device state initialization, and  any code that works correctly with
-the 2.5 clarification should also work in 2.4.   Having to check to
-see if the device is already present has to be done for correctness,
-and that was the only thing that felt to me like the ->remove()
-routine was being really overloaded.
-
-For 2.5 calling remove on reboot may not fix any issues, but it is
-certainly a correct thing to do.  And even if it does not fix issues
-today, it allows bugs to be fixed, as the come up.  And it allows
-the code to be tested by just doing a modular build and inserting
-and removing the module.
-
-Eric
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263496AbTJLR5a (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 13:57:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263497AbTJLR5a
+	id S263498AbTJLSHI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 14:07:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263500AbTJLSHI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 13:57:30 -0400
-Received: from ulysses.news.tiscali.de ([195.185.185.36]:54020 "EHLO
-	ulysses.news.tiscali.de") by vger.kernel.org with ESMTP
-	id S263496AbTJLR53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 13:57:29 -0400
-To: linux-kernel@vger.kernel.org
-Path: 127.0.0.1!nobody
-From: Peter Matthias <espi@epost.de>
-Newsgroups: linux.kernel
-Subject: Re: ACM USB modem on Kernel 2.6.0-test
-Date: Sun, 12 Oct 2003 19:52:39 +0200
-Organization: Tiscali Germany
-Message-ID: <7d4cmb.j9.ln@127.0.0.1>
-References: <FwYB.Z9.25@gated-at.bofh.it>
-NNTP-Posting-Host: 62.246.102.237
+	Sun, 12 Oct 2003 14:07:08 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:31761 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S263498AbTJLSHG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 14:07:06 -0400
+Date: Sun, 12 Oct 2003 20:07:03 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Tony Lindgren <tony@atomide.com>
+Cc: linux-kernel@vger.kernel.org, mochel@osdl.org
+Subject: Re: [PATCH] Make pmdisk suspend more reliable
+Message-ID: <20031012180703.GA2328@mars.ravnborg.org>
+Mail-Followup-To: Tony Lindgren <tony@atomide.com>,
+	linux-kernel@vger.kernel.org, mochel@osdl.org
+References: <20031012161828.GA1728@atomide.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: ulysses.news.tiscali.de 1065981332 73129 62.246.102.237 (12 Oct 2003 17:55:32 GMT)
-X-Complaints-To: abuse@tiscali.de
-NNTP-Posting-Date: Sun, 12 Oct 2003 17:55:32 +0000 (UTC)
-User-Agent: KNode/0.7.2
+Content-Disposition: inline
+In-Reply-To: <20031012161828.GA1728@atomide.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell schrieb:
+On Sun, Oct 12, 2003 at 09:18:28AM -0700, Tony Lindgren wrote:
 
->> usb 3-3: configuration #1 chosen from 2 choices
->> drivers/usb/class/cdc-acm.c: need inactive config #2
->> drivers/usb/class/cdc-acm.c: need inactive config #2
-> 
-> Until we get more intelligence somewhere, do this:
-> 
->     # cd /sys/bus/usb/devices/3-3
->     # echo '2' > bConfigurationValue
->     #
-Thanks, it now works when I load the cdc-acm module after that.
+> --- linux-2.6.0-test7/kernel/power/pmdisk.c-orig	2003-10-12 18:35:58.000000000 +0300
+> +++ linux-2.6.0-test7/kernel/power/pmdisk.c	2003-10-12 19:00:32.000000000 +0300
+> @@ -35,6 +35,7 @@
+>  
+>  
+>  extern int pmdisk_arch_suspend(int resume);
+> +extern int wakeup_bdflush(long nr_pages);
 
-Peter
+Prototypes in .c files is never a good idea.
+wakeup_bdflush is prototyped in include/linux/writeback.h
+
+pmdisk_arch_suspend is expected to be implemented in assembler, which
+explain why it is prototypes locally.
+
+	Sam

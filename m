@@ -1,69 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265365AbTLRWij (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 17:38:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265364AbTLRWij
+	id S265358AbTLRWsd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 17:48:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265364AbTLRWsd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 17:38:39 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:22695 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S265237AbTLRWig
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 17:38:36 -0500
-Subject: Re: [RFC][PATCH] 2.6.0-test11 sched_clock() broken for "drifty ITC"
-From: john stultz <johnstul@us.ibm.com>
-To: John Hawkes <hawkes@babylon.engr.sgi.com>
-Cc: ia64 <linux-ia64@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <200312182044.hBIKiCLY5477429@babylon.engr.sgi.com>
-References: <200312182044.hBIKiCLY5477429@babylon.engr.sgi.com>
-Content-Type: text/plain
-Message-Id: <1071787066.1117.57.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 18 Dec 2003 14:37:47 -0800
+	Thu, 18 Dec 2003 17:48:33 -0500
+Received: from mail.aei.ca ([206.123.6.14]:25813 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S265358AbTLRWsc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 17:48:32 -0500
+From: Ed Tomlinson <edt@aei.ca>
+Organization: me
+To: Hans Reiser <reiser@namesys.com>
+Subject: Re: Linux 2.6.0
+Date: Thu, 18 Dec 2003 17:48:20 -0500
+User-Agent: KMail/1.5.93
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0312171951030.5789@home.osdl.org> <3FE20077.80509@namesys.com> <20031218194203.GM2069@suse.de>
+In-Reply-To: <20031218194203.GM2069@suse.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200312181748.21168.edt@aei.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-12-18 at 12:44, John Hawkes wrote:
-> David Mosberger suggests raising this issue on LKML to encourage a search
-> for a more general solution to my ia64 problem.
-> 
-> My specific problem is that the generic ia64 sched_clock() is broken for
-> "drifty ITC" (the per-CPU cycle counter clock) platforms, such as the SGI
-> sn.  sched_clock() currently uses its local CPU's ITC and therefore on
-> drifty platforms its values are not synchronized across the CPUs.  This
-> results (in part) in an invalid load_balance() is-the-cache-hot-or-not
-> calculation.
+On December 18, 2003 02:42 pm, Jens Axboe wrote:
+> On Thu, Dec 18 2003, Hans Reiser wrote:
+> > bill davidsen wrote:
+> > >In article <006201c3c54c$2bb00c50$0e25fe0a@southpark.ae.poznan.pl>,
+> > >
+> > >Maciej Soltysiak <solt@dns.toxicfilms.tv> wrote:
+> > >| > Wondering if ALSA and Latest Usb updates from Greg KH will make it
+> > >| > into 2.6.1 ?
+> > >|
+> > >| Is anything known about reiserfs4 becoming stable enough to be
+> > >| included
+> > >
+> > >some
+> > >
+> > >| time soon. Maybe around 2.6.3-5
+> > >
+> > >I think that's vastly optimistic. As Hans has reported, it's still
+> > >pretty alpha as yet. And you can thank him for not releasing it until
+> > >he's happy with it!
+> >
+> > I don't think it is vastly optimistic, I hope we can send something in
+> > next month, but you probably know how hard it is to estimate the time to
+> > the last findable bug for a large project like ours.
+>
+> Not to mention the months long period of actually getting user testing
+> and fixing all of those bugs before it's qualifiable for kernel
+> inclusion.
+>
+> I hope you don't expect to actually have something that's worthy of
+> being merged into 2.6.x in a months time?
 
-[snip]
+I would hope it could go into mm though...  That would give a good 
+test base.
 
-> My personal preference is to keep sched_clock() semantics unchanged (i.e.,
-> to presume that all CPU values are synchronized), and to bury non-compliant
-> platform complexity in arch-specific and platform-specific implementations,
-> rather than add any unnecessary complications to sched.c.
-> 
-> As a reference point, the current i386 2.6.0-test11 algorithm is platform-
-> specific and is, in my opinion, less clean than the arch/ia64 change I have
-> proposed:  all i386 NUMA platforms are forced to use the low-resolution
-> "jiffies" value as the only officially synchronized timebase.  (However,
-> with my sched.c patch, it is possible that i386 NUMA platforms could use the
-> unsynchronized higher resolution TSC.)
-
-I've tried switching sched_clock() to call monotonic_clock() on i386
-(both functions do basically the same thing, only monotonic_clock
-redirects to the system's chosen time source). However,the consensus was
-that the access time to read the systems non-"drifty" time source can be
-too expensive to make it worth while. 
-
-I'll concede that I haven't done enough testing to measure it in any
-great detail, but the interest in my patch was very very low. So I'd be
-interested in any measurements you have to the contrary.
-
-Personally, I'd keep your changes arch specific for 2.6. When 2.7 opens
-I'd be very interested in ideas and input for broader change in the time
-subsystem.
-
-thanks
--john
+Ed Tomlinson
 

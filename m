@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267049AbSLDUB3>; Wed, 4 Dec 2002 15:01:29 -0500
+	id <S267048AbSLDUBX>; Wed, 4 Dec 2002 15:01:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267057AbSLDUB3>; Wed, 4 Dec 2002 15:01:29 -0500
-Received: from ns.suse.de ([213.95.15.193]:19987 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267049AbSLDUB2>;
-	Wed, 4 Dec 2002 15:01:28 -0500
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NMI notifiers for 2.5
-References: <1039027142.20387.11.camel@dell_ss3.pdx.osdl.net.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 04 Dec 2002 21:08:59 +0100
-In-Reply-To: Stephen Hemminger's message of "4 Dec 2002 19:46:37 +0100"
-Message-ID: <p731y4xtulg.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S267049AbSLDUBW>; Wed, 4 Dec 2002 15:01:22 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7438 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267048AbSLDUBW>; Wed, 4 Dec 2002 15:01:22 -0500
+Date: Wed, 4 Dec 2002 12:07:11 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: george anzinger <george@mvista.com>
+cc: Stephen Rothwell <sfr@canb.auug.org.au>,
+       LKML <linux-kernel@vger.kernel.org>, <anton@samba.org>,
+       "David S. Miller" <davem@redhat.com>, <ak@muc.de>, <davidm@hpl.hp.com>,
+       <schwidefsky@de.ibm.com>, <ralf@gnu.org>, <willy@debian.org>
+Subject: Re: [PATCH] compatibility syscall layer (lets try again)
+In-Reply-To: <3DEE5DE1.762699E3@mvista.com>
+Message-ID: <Pine.LNX.4.44.0212041203230.1676-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger <shemminger@osdl.org> writes:
 
-> The following generalizes the NMI callback's needed by things like crash
-> dump and debuggers in the same way that panic has notifiers. 
+On Wed, 4 Dec 2002, george anzinger wrote:
 > 
-> Please apply this since it makes writing and maintaining RAS extensions
-> easier. Since there is already a panic_notifier callback, this follows
-> the same model. 
+> As a suggestion for a solution for this, is it true that
+> regs, on a system call, will ALWAYS be at the end of the
+> stack?
 
-> +			
-> +			notifier_call_chain(&nmi_notifier_list, 0, regs);
-> +
+No. Some architectures do not save enough state on the stack by default, 
+and need to do more to use do_signal(). Look at alpha, for example - the 
+default kernel stack doesn't contain all tbe registers needed, and 
+the alpha do_signal() calling convention is different.
 
-Most debuggers/crash dumpers etc. need a way to veto normal processing of NMIs 
-and other exceptions. For NMI the usual case is to turn off the nmi watchdog 
-while you do something slow with interrupts disabled, that requires
-doing the hook very early. Without veta NMI notification is not very useful.
+If you want to handle do_signal(), then you need to do _all_ of this in 
+architecture-specific files. You simply cannot do what you want to do in a 
+generic way.
 
-You want something like:
+		Linus
 
-	if (notifier_call_chain(&nmi_notifier_list, 0, regs) == NOTIFY_BAD)
-		goto ignore;
-
-For a more comprehensive variant see include/asm-x86_64/kdebug.h	
-The x86-64 variant cannot be 1:1 copied because it's still incomplete
-and e.g. does not implement veto for all places where it's needed.
-
-
--Andi

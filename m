@@ -1,104 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278176AbRJLWOK>; Fri, 12 Oct 2001 18:14:10 -0400
+	id <S278177AbRJLWQK>; Fri, 12 Oct 2001 18:16:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278177AbRJLWOA>; Fri, 12 Oct 2001 18:14:00 -0400
-Received: from balu.sch.bme.hu ([152.66.208.40]:31709 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S278176AbRJLWNu>;
-	Fri, 12 Oct 2001 18:13:50 -0400
-Date: Sat, 13 Oct 2001 00:14:01 +0200 (MEST)
-From: Pozsar Balazs <pozsy@sch.bme.hu>
-To: Wakko Warner <wakko@animx.eu.org>
-cc: Mike Panetta <mpanetta@applianceware.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>, <andre@linux-ide.org>
-Subject: Re: IDE Hot-Swap, does it work?, Conspiracy is afoot! (more questions)
-In-Reply-To: <20011012172955.B12857@animx.eu.org>
-Message-ID: <Pine.GSO.4.30.0110130008070.18155-100000@balu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278178AbRJLWQA>; Fri, 12 Oct 2001 18:16:00 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:27744 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S278177AbRJLWPp>; Fri, 12 Oct 2001 18:15:45 -0400
+Date: Sat, 13 Oct 2001 00:15:53 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Duncan Sands <duncan.sands@math.u-psud.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: xine pauses with recent (not -ac) kernels
+Message-ID: <20011013001553.F714@athlon.random>
+In-Reply-To: <01101208552800.00838@baldrick> <20011012161052.R714@athlon.random> <01101300085600.00832@baldrick>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01101300085600.00832@baldrick>; from duncan.sands@math.u-psud.fr on Sat, Oct 13, 2001 at 12:08:56AM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-I've been too asked this question two times in the list, and i haven't
-received any useful answer.
-
-Wakko, could you tell me in detail how to use hdparm -R and -U, because i
-couldn't get it work. Does it (or shoudl it) work for harddisks too?
-
-What chipset/hardware supports ide-hot-swap, and which of these are
-supported in linux?
-Under The Other Operating System 2000 i have seen this working on a few
-machines for example on an asus cusl2 mobo, so that chipset (i think
-intel 815e) at least can got to do this job.
-
-Please someone with more knowledge enlighten me, beaces i really hate
-rebooting just to remove or add a harddisk.
-
-On Fri, 12 Oct 2001, Wakko Warner wrote:
-
-> I've done this with my IDE cdrom in my laptop.  It's hot swappable and I
-> asked about this at one time.  In the source package for hdparm (i know it's
-> in the debian's source package) there's a script for hot add/remove of ide
-> devices.  there's a nice warning attached about ide hotswap
->
-> > Ok, I have played with this a bit since I have recieved no
-> > real respose other than one other person having the same
-> > question, here is what I have found out...
+On Sat, Oct 13, 2001 at 12:08:56AM +0200, Duncan Sands wrote:
+> On Friday 12 October 2001  4:10 pm, Andrea Arcangeli wrote:
+> > On Fri, Oct 12, 2001 at 08:55:28AM +0200, Duncan Sands wrote:
+> > > Subject: xine pauses with recent (not -ac) kernels
+> > >
+> > > Problem: using xine to view an (encrypted) DVD, xine is slow to move
+> > > on to the second .vob file: at the end of the first file, it at best
+> > > waits a few seconds with a black screen and consuming no CPU, before
+> > > moving on to the second file, but sometimes it waits for a long time.
+> > >
+> > > Correct behaviour: the second .vob file starts playing at once.
+> > >
+> > > I think this is a kernel problem because it did not occur up to
+> > > 2.4.9.  The problem appeared between 2.4.10-pre10 and 2.4.10-pre13.
+> > > It is present in 2.4.12.  It doesn't seem to occur in any -ac kernels.
+> > >
+> > > linux-2.4.9 : correct
+> > > ...
+> > > linux-2.4.10-pre10 : correct
+> > > linux-2.4.10-pre11 : fails to compile
+> > > linux-2.4.10-pre12 : oops during system init
+> > > linux-2.4.10-pre13 : problem present
+> > > ...
+> > > linux-2.4.12 : problem present
+> > >
+> > > If I replay the DVD several times, the length of the pause varies, and
+> > > sometimes it does not occur at all.
+> > >
+> > > Any ideas?
 > >
-> > I have a piece of hardware that does have hot-swap IDE
-> > chassis on it, so atleast the IDE bus xcvers should be
-> > able to handle the swapping, as the connection to the
-> > drive is disabled before the can comes all the way out
-> > of the slot.
+> > can you reproduce also on 2.4.12aa1?
 > >
-> >  - I can remove a drive while the system is on and I have
-> >    a software raid 5 on the 4 drives, everything is ok
-> >    after about 2 minutes the system recovers and the software
-> >    raid fails the drive I removed.  This makes sense.
-> >  - After a few minutes I replace the drive I had just failed
-> >    by removing it, and I try to readd it to the system via
-> >    raidhotadd.  One of 2 things happens in this instance,
-> >    depending on what kernel I have loaded.
-> >     - If I have kernel 2.4.2-2 loaded (a stock redhat 7.1
-> >       kernel), the drive reappears, and can be added back
-> >       to the raid (and is added back).
-> >     - If I am running kernel 2.4.10 or any later (AC or non)
-> >       the machine fails to ever be able to read from the disk
-> >       again.  I cannot readd the disk to the arry, nor can I
-> >       fdisk it (or access it in any other way).
-> >  - None of this solves the adding of a drive to the system
-> >    where there was none before boot...  I tried the hdparm -R
-> >    stuff but its useless and hangs my box no matter what I give
-> >    it as paramaters.  This of course may be because I do not
-> >    know how to use it very well...
+> > 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.12
+> >aa1.bz2
 > >
-> > If anyone can help it would be greatly appreciated.  I am
-> > really beginning to believe that IDE will never be as capable
-> > as SCSI in this reguard, atleast not in linux, espically as
-> > any (even if it was broken) support that used to be in the
-> > kernel has disappeared. Please someone convince me otherwise!
-> > Atleast point me in the correct direction as to what in the
-> > kernel would have to be changed to make this work...
-> >
-> > Thanks,
-> > Mike
-> >
-> > --
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> --
->  Lab tests show that use of micro$oft causes cancer in lab animals
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> > Andrea
+> 
+> Yes, it seems to have the same problem.  It even seems a bit worse
+> (just my impression, I didn't do any statistics).
 
--- 
-Pozsar Balazs.
+can you send me a `vmstat 1` during the skips?
 
+are you swapping or making use of applications that uses MAP_SHARED?
+
+Andrea

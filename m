@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbVCWT5c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262036AbVCWT61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262020AbVCWT5c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 14:57:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbVCWT51
+	id S262036AbVCWT61 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 14:58:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262873AbVCWT61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 14:57:27 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:61847 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262020AbVCWT5Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 14:57:16 -0500
-To: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: Fernando Luis Vazquez Cao <fernando@intellilink.co.jp>,
-       fastboot <fastboot@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Query: Kdump: Core Image ELF Format
-References: <1110286210.4195.27.camel@wks126478wss.in.ibm.com>
-	<1111552017.3604.78.camel@localhost.localdomain>
-	<1111574173.4756.20.camel@localhost.localdomain>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 23 Mar 2005 12:54:05 -0700
-In-Reply-To: <1111574173.4756.20.camel@localhost.localdomain>
-Message-ID: <m18y4ervdu.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 23 Mar 2005 14:58:27 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:26754
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262868AbVCWT6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 14:58:03 -0500
+Date: Wed, 23 Mar 2005 11:57:36 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: nickpiggin@yahoo.com.au, akpm@osdl.org, tony.luck@intel.com,
+       benh@kernel.crashing.org, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/6] freepgt: free_pgtables shakeup
+Message-Id: <20050323115736.300f34eb.davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com>
+X-Mailer: Sylpheed version 1.0.3 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal <vgoyal@in.ibm.com> writes:
+On Wed, 23 Mar 2005 17:10:15 +0000 (GMT)
+Hugh Dickins <hugh@veritas.com> wrote:
 
-> On Wed, 2005-03-23 at 13:26 +0900, Fernando Luis Vazquez Cao wrote:
-> > Hi all.
-> > 
-> > On Tue, 2005-03-08 at 18:20 +0530, vivek goyal wrote:
-> > > Core image ELF headers are prepared before crash and stored at a safe
-> > > place in memory. These headers are retrieved over a kexec boot and final
-> > > elf core image is prepared for analysis. 
-> > 
-> > Regarding the preparation of the ELF headers, I think we should also
-> > take into consideration hot-plug memory and create appropriate
-> > mechanisms to deal with it.
-> > 
-> > Assuming that both insertion and removal of memory trigger a hotplug
-> > event that is subsequently handled by the relevant hotplug agent(*), the
-> > latter could be modified so that, on successful memory onlining,
-> > additional PT_LOAD headers are created and tucked in a safe place
-> > together with the others.
-> 
-> I think, re-loading the panic kernel in such event should be an easier
-> solution. Current kexec system call interface does not allow to read
-> back already stored segments, which is necessary to append new PT_LOAD
-> headers to the existing program header list and update ELF header.
+> Here's the recut of those patches, including David Miller's vital fixes.
+> I'm addressing these to Nick rather than Andrew, because they're perhaps
+> not fit for -mm until more testing done and the x86_64 32-bit vdso issue
+> handled.  I'm unlikely to be responsive until next week, sorry: over to
+> you, Nick - thanks.
 
-I thought that is what he was describing.
+Works perfectly fine on sparc64.
 
-Eric
+BTW, I note that we may still want something like that page table
+bitmask stuff I worked on some time ago.  Ie. for things like
+what lat_mmap does in lmbench, I think that situation is more
+realistic than people might thing.

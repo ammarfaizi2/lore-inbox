@@ -1,111 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265227AbTFZAfd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 20:35:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbTFZAfd
+	id S265261AbTFZAlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 20:41:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265276AbTFZAko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 20:35:33 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:17815 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S265227AbTFZAfB convert rfc822-to-8bit
+	Wed, 25 Jun 2003 20:40:44 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29121 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265261AbTFZAjF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 20:35:01 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10565884952122@kroah.com>
-Subject: Re: [PATCH] More PCI fixes for 2.5.73
-In-Reply-To: <1056588494675@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Wed, 25 Jun 2003 17:48:15 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+	Wed, 25 Jun 2003 20:39:05 -0400
+Date: Thu, 26 Jun 2003 01:53:15 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Greg KH <greg@kroah.com>
+Cc: Matthew Wilcox <willy@debian.org>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] pci_name()
+Message-ID: <20030626005315.GD451@parcelfarce.linux.theplanet.co.uk>
+References: <20030625233525.GB451@parcelfarce.linux.theplanet.co.uk> <20030626003620.GB13892@kroah.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030626003620.GB13892@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1429.2.6, 2003/06/25 17:13:44-07:00, greg@kroah.com
+On Wed, Jun 25, 2003 at 05:36:20PM -0700, Greg KH wrote:
+> On Thu, Jun 26, 2003 at 12:35:25AM +0100, Matthew Wilcox wrote:
+> > 
+> > I'd kind of like to get rid of pci_dev->slot_name.  It's redundant with
+> > pci_dev->dev.bus_id, but that's one hell of a search and replace job.
+> > So let me propose pci_name(pci_dev) as a replacement.  That has the
+> 
+> That sounds reasonable.  But do we really need to do this for 2.6?
+> 
+> Just trying to keep things sane...
 
-[PATCH] PCI Hotplug: fix core problem with kobject lifespans.
+I think we really do need to introduce pci_name() for 2.6 (and put it
+in 2.4 too).  We don't need to eliminate pci_dev->slot_name for 2.6,
+but drivers that care need to be able to tell the user which card is
+a message is referring to.  With overlapping pci bus numbers, the 8
+bytes of bus:device.func is no longer unique, so we need to report the
+domain number too.
 
-Added needed release function, now all pci hotplug drivers need to implement
-it...
+That information's already placed in bus_id, but as I said, I don't
+want to start converting all the drivers.  We could just make slot_name
+larger (Anton posted a patch for this) but I don't want to make pci_dev
+even bigger.  Having a nice interface like pci_name() makes drivers more
+portable between 2.4, 2.6 and 2.8 (as Jeff pointed out).
 
-
- drivers/pci/hotplug/pci_hotplug.h      |    4 ++++
- drivers/pci/hotplug/pci_hotplug_core.c |   22 +++++++++++++---------
- 2 files changed, 17 insertions(+), 9 deletions(-)
-
-
-diff -Nru a/drivers/pci/hotplug/pci_hotplug.h b/drivers/pci/hotplug/pci_hotplug.h
---- a/drivers/pci/hotplug/pci_hotplug.h	Wed Jun 25 17:37:57 2003
-+++ b/drivers/pci/hotplug/pci_hotplug.h	Wed Jun 25 17:37:57 2003
-@@ -51,6 +51,8 @@
- 	ssize_t (*show)(struct hotplug_slot *, char *);
- 	ssize_t (*store)(struct hotplug_slot *, const char *, size_t);
- };
-+#define to_hotplug_attr(n) container_of(n, struct hotplug_slot_attribute, attr);
-+
- /**
-  * struct hotplug_slot_ops -the callbacks that the hotplug pci core can use
-  * @owner: The module owner of this structure
-@@ -130,12 +132,14 @@
- 	char				*name;
- 	struct hotplug_slot_ops		*ops;
- 	struct hotplug_slot_info	*info;
-+	void (*release) (struct hotplug_slot *slot);
- 	void				*private;
- 
- 	/* Variables below this are for use only by the hotplug pci core. */
- 	struct list_head		slot_list;
- 	struct kobject			kobj;
- };
-+#define to_hotplug_slot(n) container_of(n, struct hotplug_slot, kobj)
- 
- extern int pci_hp_register		(struct hotplug_slot *slot);
- extern int pci_hp_deregister		(struct hotplug_slot *slot);
-diff -Nru a/drivers/pci/hotplug/pci_hotplug_core.c b/drivers/pci/hotplug/pci_hotplug_core.c
---- a/drivers/pci/hotplug/pci_hotplug_core.c	Wed Jun 25 17:37:57 2003
-+++ b/drivers/pci/hotplug/pci_hotplug_core.c	Wed Jun 25 17:37:57 2003
-@@ -74,20 +74,16 @@
- static ssize_t hotplug_slot_attr_show(struct kobject *kobj,
- 		struct attribute *attr, char *buf)
- {
--	struct hotplug_slot *slot=container_of(kobj,
--			struct hotplug_slot,kobj);
--	struct hotplug_slot_attribute *attribute =
--		container_of(attr, struct hotplug_slot_attribute, attr);
-+	struct hotplug_slot *slot = to_hotplug_slot(kobj);
-+	struct hotplug_slot_attribute *attribute = to_hotplug_attr(attr);
- 	return attribute->show ? attribute->show(slot, buf) : 0;
- }
- 
- static ssize_t hotplug_slot_attr_store(struct kobject *kobj,
- 		struct attribute *attr, const char *buf, size_t len)
- {
--	struct hotplug_slot *slot=container_of(kobj,
--			struct hotplug_slot,kobj);
--	struct hotplug_slot_attribute *attribute =
--		container_of(attr, struct hotplug_slot_attribute, attr);
-+	struct hotplug_slot *slot = to_hotplug_slot(kobj);
-+	struct hotplug_slot_attribute *attribute = to_hotplug_attr(attr);
- 	return attribute->store ? attribute->store(slot, buf, len) : 0;
- }
- 
-@@ -96,8 +92,16 @@
- 	.store = hotplug_slot_attr_store,
- };
- 
-+static void hotplug_slot_release(struct kobject *kobj)
-+{
-+	struct hotplug_slot *slot = to_hotplug_slot(kobj);
-+	if (slot->release)
-+		slot->release(slot);
-+}
-+
- static struct kobj_type hotplug_slot_ktype = {
--	.sysfs_ops = &hotplug_slot_sysfs_ops
-+	.sysfs_ops = &hotplug_slot_sysfs_ops,
-+	.release = &hotplug_slot_release,
- };
- 
- static decl_subsys(hotplug_slots, &hotplug_slot_ktype, NULL);
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

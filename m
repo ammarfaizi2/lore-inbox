@@ -1,92 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVALIt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVALIxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261297AbVALIt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 03:49:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbVALIt5
+	id S261298AbVALIxE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 03:53:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbVALIxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 03:49:57 -0500
-Received: from h80ad2615.async.vt.edu ([128.173.38.21]:53522 "EHLO
-	h80ad2615.async.vt.edu") by vger.kernel.org with ESMTP
-	id S261297AbVALItx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 03:49:53 -0500
-Message-Id: <200501120849.j0C8nkxI000704@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: christos gentsis <christos_gentsis@yahoo.co.uk>
-Cc: root <root@mail.gadugi.org>, linux-kernel@vger.kernel.org
-Subject: Re: Cherokee Nation Posts Open Source Legisation - Invites comments from Community Members 
-In-Reply-To: Your message of "Wed, 12 Jan 2005 07:03:31 GMT."
-             <41E4CBC3.4070302@yahoo.co.uk> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050106180414.GA11597@mail.gadugi.org> <200501061836.j06IakHo030551@turing-police.cc.vt.edu> <20050106183725.GA12028@mail.gadugi.org> <200501061935.j06JZMq4013855@turing-police.cc.vt.edu>
-            <41E4CBC3.4070302@yahoo.co.uk>
+	Wed, 12 Jan 2005 03:53:04 -0500
+Received: from av1-2-sn3.vrr.skanova.net ([81.228.9.106]:58799 "EHLO
+	av1-2-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
+	id S261298AbVALIwz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 03:52:55 -0500
+Date: Wed, 12 Jan 2005 09:52:38 +0100
+From: Voluspa <lista1@telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.11-rc1
+Message-Id: <20050112095238.32a89245.lista1@telia.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1105519785_20664P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 12 Jan 2005 03:49:45 -0500
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Wed__12_Jan_2005_09_52_38_+0100_7QM/BlIYva.dQhT/"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1105519785_20664P
-Content-Type: text/plain; charset=us-ascii
+This is a multi-part message in MIME format.
 
-On Wed, 12 Jan 2005 07:03:31 GMT, christos gentsis said:
-
-> sorry about this question but i didn't understand something in all this 
-> "trade secret" situation...
-> 
-> first: Is there any impact in GNU GPL?
-
-I'm not a lawyer, just a sysadmin/programmer who follows this sort of stuff,
-but it's most likely that this will not impact GPL-licensed software, because
-it isn't attempting to restrict what things can be put into GPL software.
-
-If anything, all this law *actually* does is get Cherokee law to match what
-current US law *already* says.
-
-> second: does this US law means that everything could be a "trade 
-> secret"? even something like the  GUI? or a process bar? and in case 
-> that someone will register them what is going to happens?
-
-It's not a US law - it's a proposed Cherokee law (In the US, there exist
-some Indian reservations that are somewhat autonomous and able to make their
-own laws).
-
-The actual text of the law as proposed is posted at
-http://www.gadugi.org/article.php?story=2005010611364165
-
-The Cherokee law would apparently *ban* publishing open source that
-contains a trade secret, as that would be a "Willful breach or willful
-inducement of a breach of a duty to maintain secrecy;" and therefor a no-no.
-
-(Logic - (1)(d)(i) says it has to be a secret, (1)(d)(ii) says you have to
-apply reasonable efforts to *keep* it secret.  Therefore, *publishing* it
-would be an "improper" means under (1)(a)(iv), and thus (1)(b)(ii)(B) makes it
-"misappropriation"..)
-
-The company can't even claim there is no "breach" or "improper means" because
-they intended to publish the source code as open source - because then it no
-longer meets the "subject of reasonable efforts to maintain secrecy"
-requirement.  If you're not even trying to keep it a secret, it's not a secret.
-
-> third: this under US law, is it applied in EU etc????
-
-It isn't even clear that this law would apply in the US, much less in the EU.
-
-But that's OK, because there's no real danger here, unless you were hoping to
-use the Cherokee law to protect secrets in code you publish as open source....
+--Multipart=_Wed__12_Jan_2005_09_52_38_+0100_7QM/BlIYva.dQhT/
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
 
---==_Exmh_1105519785_20664P
-Content-Type: application/pgp-signature
+Yes, tainted. X black screen, no keyboard. Power button to turn off. I
+really don't feel like compiling lots of debug-kernels to chase this,
+unless someone is really interested, which I doubt.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+-- 
+Mvh
+Mats Johannesson
 
-iD8DBQFB5OSpcC3lWbTT17ARAgPiAKCAHKu9aDDOSCohwrZy1+g53NuibgCeNgJR
-IWUKv6367IYlGyC2sDsT+Hc=
-=x1yj
------END PGP SIGNATURE-----
+--Multipart=_Wed__12_Jan_2005_09_52_38_+0100_7QM/BlIYva.dQhT/
+Content-Type: application/octet-stream;
+ name="bug-2.6.11-rc1.txt"
+Content-Disposition: attachment;
+ filename="bug-2.6.11-rc1.txt"
+Content-Transfer-Encoding: base64
 
---==_Exmh_1105519785_20664P--
+CkphbiAxMiAwODoyODo0NSBsb2tlIGtlcm5lbDogLS0tLS0tLS0tLS0tWyBjdXQgaGVyZSBdLS0t
+LS0tLS0tLS0tCkphbiAxMiAwODoyODo0NSBsb2tlIGtlcm5lbDoga2VybmVsIEJVRyBhdCA8YmFk
+IGZpbGVuYW1lPjozOTUhCkphbiAxMiAwODoyODo0NSBsb2tlIGtlcm5lbDogaW52YWxpZCBvcGVy
+YW5kOiAwMDAwIFsjMV0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiBQUkVFTVBUIApKYW4g
+MTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6IE1vZHVsZXMgbGlua2VkIGluOiBudmlkaWEgODEzOXRv
+byBjcmMzMiBzbmRfc2VxX29zcyBzbmRfZW11MTBrMV9zeW50aCBzbmRfZW11eF9zeW50aCBzbmRf
+c2VxX3Zpcm1pZGkgc25kX3NlcV9taWRpX2V2ZW50IHNuZF9zZXFfbWlkaV9lbXVsIHNuZF9zZXEg
+c25kX3BjbV9vc3Mgc25kX21peGVyX29zcyBzbmRfZW11MTBrMSBzbmRfcmF3bWlkaSBzbmRfc2Vx
+X2RldmljZSBzbmRfYWM5N19jb2RlYyBzbmRfcGNtIHNuZF90aW1lciBzbmRfcGFnZV9hbGxvYyBz
+bmRfdXRpbF9tZW0gc25kX2h3ZGVwIHNuZCBzb3VuZGNvcmUKSmFuIDEyIDA4OjI4OjQ1IGxva2Ug
+a2VybmVsOiBDUFU6ICAgIDAKSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiBFSVA6ICAgIDAw
+NjA6W19fY2hhbmdlX3BhZ2VfYXR0cisxNjkvMjg2XSAgICBUYWludGVkOiBQICAgICAgVkxJCkph
+biAxMiAwODoyODo0NSBsb2tlIGtlcm5lbDogRUZMQUdTOiAwMDIxMzAwMiAgICgyLjYuMTEtcmMx
+KSAKSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiBlYXg6IDA1MDAwMWUzICAgZWJ4OiAwNTE1
+MDAwMCAgIGVjeDogYzEwMDY3YzAgICBlZHg6IDA1MDAwMWUzCkphbiAxMiAwODoyODo0NSBsb2tl
+IGtlcm5lbDogZXNpOiBjMDMzZWM1MCAgIGVkaTogMDAwMDAxNjMgICBlYnA6IGMxMDAwMDAwICAg
+ZXNwOiBjNjFkMWRiNApKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6IGRzOiAwMDdiICAgZXM6
+IDAwN2IgICBzczogMDA2OApKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6IFByb2Nlc3MgWCAo
+cGlkOiA2NTMsIHRocmVhZGluZm89YzYxZDEwMDAgdGFzaz1jZmRhYTBlMCkKSmFuIDEyIDA4OjI4
+OjQ1IGxva2Uga2VybmVsOiBTdGFjazogYzUxNTAwMDAgYzEwYTJhMDAgMDAwMDAwMTAgMDAwMDAw
+MDAgMDAyMDMyNDYgYzAxMGRiN2QgMDAwMDAxNjMgMDAwMDAwMTEgCkphbiAxMiAwODoyODo0NSBs
+b2tlIGtlcm5lbDogICAgICAgIGMxMGEyODAwIGNkYmNkMTIwIGNkYmFjODAwIGM2MWQxZTIwIGMw
+MTBkODYzIDAwMDEwMDAwIGQwYTQwMDAwIGQwZjQ4YmVjIApKYW4gMTIgMDg6Mjg6NDUgbG9rZSBr
+ZXJuZWw6ICAgICAgICBkMGQ1ZDE4MCBkMGE0MDAwMCAwMDAxMDAwMCBjZGJhYzgwMCBkMGQ1ZDE3
+MyBjZmYwODQwMCBjYTBmNGMwMCBjNjFkMWU2MCAKSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVs
+OiBDYWxsIFRyYWNlOgpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbY2hhbmdlX3BhZ2Vf
+YXR0cis0OC85N10KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW2lvdW5tYXArMTAxLzEx
+OF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyODA4OTAzNDgvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyNzg4NzY1NDQvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyNzg4NzY1MzEvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyNzg4NjE2MTcvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyNzg4MjU1OTQvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyNzg4OTgyMjgvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyNzg5MDMxODAvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyNzg4MjU1OTQvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyODA4ODIzMjgvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyNzg4ODU4MzUvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyNzg4MjgxOTgvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyNzg4ODgzMTYvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyNzg4ODg0MDcvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyNzg4OTAwOTcvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyNzg4OTAxMTAvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyNzg4NzczNzQvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyNzg5MDA5NjcvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyNzg5MDEwMTUvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyNzg5MDEwMDMvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyODA4NzM1MTAvMTA3MDE2Mjk0
+NF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW19fZnB1dCs2MS8yMjhdCkphbiAxMiAw
+ODoyODo0NSBsb2tlIGtlcm5lbDogIFtmaWxwX2Nsb3NlKzg5Lzk1XQpKYW4gMTIgMDg6Mjg6NDUg
+bG9rZSBrZXJuZWw6ICBbc3lzZW50ZXJfcGFzdF9lc3ArODIvMTE3XQpKYW4gMTIgMDg6Mjg6NDUg
+bG9rZSBrZXJuZWw6IENvZGU6IDE2IDM1IGMwIGMxIGY5IDA1IGMxIGUxIDBjIDBiIDBkIGM4IDUy
+IDJjIGMwIGU4IDEwIGZmIGZmIGZmIDg5IGQ5IGZmIDQxIDA0IGViIDEyIGE5IDgwIDAwIDAwIDAw
+IDc1IDA5IDA5IGZiIDg5IDFlIGZmIDQ5IDA0IGViIDAyIDwwZj4gMGIgOGIgMDEgZjYgYzQgMDgg
+NzUgNjQgOGIgNDEgMDQgNDAgNzUgMDIgMGYgMGIgYTEgMGMgM2UgMmMgCkphbiAxMiAwODoyODo0
+NSBsb2tlIGtlcm5lbDogIDw2Pm5vdGU6IFhbNjUzXSBleGl0ZWQgd2l0aCBwcmVlbXB0X2NvdW50
+IDEKSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiBzY2hlZHVsaW5nIHdoaWxlIGF0b21pYzog
+WC8weDAwMDAwMDAxLzY1MwpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbc2NoZWR1bGUr
+NjQvMTA2OF0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW2F1dG9yZW1vdmVfd2FrZV9m
+dW5jdGlvbiswLzQ1XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbX19zY2hlZF90ZXh0
+X3N0YXJ0KzEzNC8yMzddCkphbiAxMiAwODoyODo0NSBsb2tlIGtlcm5lbDogIFtkZWZhdWx0X3dh
+a2VfZnVuY3Rpb24rMC8xMl0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3JlbGVhc2Vf
+bWVtKzQ0Ni80NThdCkphbiAxMiAwODoyODo0NSBsb2tlIGtlcm5lbDogIFtfX2Rvd25fZmFpbGVk
+KzcvMTJdCkphbiAxMiAwODoyODo0NSBsb2tlIGtlcm5lbDogIFtwZzArMjgwODkwNzUxLzEwNzAx
+NjI5NDRdCkphbiAxMiAwODoyODo0NSBsb2tlIGtlcm5lbDogIFtwZzArMjc4ODc3Mzc0LzEwNzAx
+NjI5NDRdCkphbiAxMiAwODoyODo0NSBsb2tlIGtlcm5lbDogIFtwZzArMjc4OTAyNTIyLzEwNzAx
+NjI5NDRdCkphbiAxMiAwODoyODo0NSBsb2tlIGtlcm5lbDogIFtwZzArMjc4OTAyNTQ2LzEwNzAx
+NjI5NDRdCkphbiAxMiAwODoyODo0NSBsb2tlIGtlcm5lbDogIFtkcHV0KzI3LzQ1OV0KSmFuIDEy
+IDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyODA4NzcxMjkvMTA3MDE2Mjk0NF0KSmFuIDEy
+IDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW3BnMCsyODA4NzM0MDEvMTA3MDE2Mjk0NF0KSmFuIDEy
+IDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW2Rlc3Ryb3lfaW5vZGUrMzQvNDldCkphbiAxMiAwODoy
+ODo0NSBsb2tlIGtlcm5lbDogIFtfX2ZwdXQrNjEvMjI4XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBr
+ZXJuZWw6ICBbZmlscF9jbG9zZSs4OS85NV0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAg
+W3B1dF9maWxlc19zdHJ1Y3QrODYvMTY5XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBb
+ZG9fZXhpdCsyNTcvNzAzXQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbZG9fdHJhcCsw
+LzE2Ml0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW2RvX2ludmFsaWRfb3ArMC8xMzld
+CkphbiAxMiAwODoyODo0NSBsb2tlIGtlcm5lbDogIFtkb19pbnZhbGlkX29wKzEyNy8xMzldCkph
+biAxMiAwODoyODo0NSBsb2tlIGtlcm5lbDogIFtfX2NoYW5nZV9wYWdlX2F0dHIrMTY5LzI4Nl0K
+SmFuIDEyIDA4OjI4OjQ1IGxva2Uga2VybmVsOiAgW2tvYmplY3RfZ2V0KzE1LzE5XQpKYW4gMTIg
+MDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbZ2V0X2RldmljZSsxNC8yMF0KSmFuIDEyIDA4OjI4OjQ1
+IGxva2Uga2VybmVsOiAgW3BjaV9kZXZfZ2V0KzE1LzE5XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBr
+ZXJuZWw6ICBbcGNpX2dldF9zdWJzeXMrMTc0LzIwNl0KSmFuIDEyIDA4OjI4OjQ1IGxva2Uga2Vy
+bmVsOiAgW3BjaV9nZXRfZGV2aWNlKzExLzE0XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6
+ICBbcGcwKzI4MDg4OTUxMC8xMDcwMTYyOTQ0XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6
+ICBbcGNpX3JlYWQrMjgvMzNdCkphbiAxMiAwODoyODo0NSBsb2tlIGtlcm5lbDogIFtlcnJvcl9j
+b2RlKzQzLzQ4XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbX19jaGFuZ2VfcGFnZV9h
+dHRyKzE2OS8yODZdCkphbiAxMiAwODoyODo0NSBsb2tlIGtlcm5lbDogIFtjaGFuZ2VfcGFnZV9h
+dHRyKzQ4Lzk3XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbaW91bm1hcCsxMDEvMTE4
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI4MDg5MDM0OC8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI3ODg3NjU0NC8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI3ODg3NjUzMS8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI3ODg2MTYxNy8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI3ODgyNTU5NC8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI3ODg5ODIyOC8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI3ODkwMzE4MC8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI3ODgyNTU5NC8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI4MDg4MjMyOC8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI3ODg4NTgzNS8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI3ODgyODE5OC8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI3ODg4ODMxNi8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI3ODg4ODQwNy8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI3ODg5MDA5Ny8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI3ODg5MDExMC8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI3ODg3NzM3NC8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI3ODkwMDk2Ny8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI3ODkwMTAxNS8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI3ODkwMTAwMy8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbcGcwKzI4MDg3MzUxMC8xMDcwMTYyOTQ0
+XQpKYW4gMTIgMDg6Mjg6NDUgbG9rZSBrZXJuZWw6ICBbX19mcHV0KzYxLzIyOF0KSmFuIDEyIDA4
+OjI4OjQ1IGxva2Uga2VybmVsOiAgW2ZpbHBfY2xvc2UrODkvOTVdCkphbiAxMiAwODoyODo0NSBs
+b2tlIGtlcm5lbDogIFtzeXNlbnRlcl9wYXN0X2VzcCs4Mi8xMTddCgo=
+
+--Multipart=_Wed__12_Jan_2005_09_52_38_+0100_7QM/BlIYva.dQhT/--

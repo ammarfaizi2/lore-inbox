@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263167AbRFCP13>; Sun, 3 Jun 2001 11:27:29 -0400
+	id <S263726AbRFDSJ3>; Mon, 4 Jun 2001 14:09:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263389AbRFCP1T>; Sun, 3 Jun 2001 11:27:19 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:13494 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S263167AbRFCPL1>;
-	Sun, 3 Jun 2001 11:11:27 -0400
-Date: Sun, 3 Jun 2001 17:10:53 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200106031510.RAA186549.aeb@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, viro@math.psu.edu
-Subject: Re: symlink_prefix
-Cc: linux-kernel@vger.kernel.org
+	id <S264114AbRFDSHu>; Mon, 4 Jun 2001 14:07:50 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:4624 "EHLO
+	Opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S263717AbRFDR5C>; Mon, 4 Jun 2001 13:57:02 -0400
+Date: Mon, 4 Jun 2001 10:56:00 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Oleg Drokin <green@linuxhacker.ru>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.5-ac7
+Message-ID: <20010604105600.D18033@opus.bloom.county>
+In-Reply-To: <200106030746.f537kSZ12820@linuxhacker.ru> <E156VvF-0004D1-00@the-village.bc.nu> <20010603175911.A1143@linuxhacker.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010603175911.A1143@linuxhacker.ru>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From viro@math.psu.edu Sun Jun  3 13:25:31 2001
 
-    > [One could start a subdiscussion about that part.
-    > The mount(2) system call needs to transport vfs information
-    > and per-fs information. So far, the vfs information used
-    > flag bits only, but sooner or later we'll want to have
-    > strings, and need a vfs_parse_mount_options().
-    > Indeed, many filesystems today have uid= and gid= and
-    > umask= options that might be removed from the individual
-    > filesystems and put into vfs. After all, such options
-    > are also useful for (foreign) ext2 filesystems.]
+On Sun, Jun 03, 2001 at 05:59:11PM +0400, Oleg Drokin wrote:
 
-    _Please_, if we do anything of that kind - let's use a new syscall.
-    Ideally, I'd say
-        fs_fd = open("/fs/ext2", O_RDWR);
-        /* error -> no such filesystem */
-        write(fs_fd. "/dev/sda1", strlen("/dev/sda1"));
-        /* error handling */
-        write(fs_fd, "reserve=5", strlen(....));
-        ...
-        dir = open("/usr/local", O_DIRECTORY);
-        /* error handling */
-        new_mount(dir, MNT_SET, fs_fd);    /* closes dir and fs_fd */
-        /* error handling */
+> On Sun, Jun 03, 2001 at 12:19:52PM +0100, Alan Cox wrote:
+> > > AC> 2.4.5-ac7
+> > > AC> o       Make USB require PCI                            (me)
+> > > Huh?!
+> > > How about people from StrongArm sa11x0 port, who have USB host controller (in
+> > > sa1111 companion chip) but do not have PCI?
+> > The strongarm doesnt have a USB master but a slave.
+> SA11x0 have USB slave, but once you add sa1111 companion chip,
+> you have OHCI compliant USB master, too (and still no PCI)
 
-    Comments?
+I tried replying to this yesterday and it didn't get through, so..
+All of the MPC8xx chips can have a USB controller as well (albiet not OHCI
+or UHCI) and none of them have PCI either.
 
-I do not think this is an improvement. Anyway, it is orthogonal
-to what I discussed.
-
-[My version: keep interface constant, reorganize kernel source
-to do certain things in one place instead of in several places.
-Advantage: treatment becomes uniform and some options that make sense
-for all filesystem types but are available today for some only
-are generalized.
-Your version: invent a new interface, be silent about what happens
-inside the kernel.]
-
-Andries
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284967AbRLRURX>; Tue, 18 Dec 2001 15:17:23 -0500
+	id <S285063AbRLRUTX>; Tue, 18 Dec 2001 15:19:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285006AbRLRURO>; Tue, 18 Dec 2001 15:17:14 -0500
-Received: from mout0.freenet.de ([194.97.50.131]:31879 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S284958AbRLRUQz>;
-	Tue, 18 Dec 2001 15:16:55 -0500
-Message-ID: <3C1FA3E4.6000903@athlon.maya.org>
-Date: Tue, 18 Dec 2001 21:15:32 +0100
-From: Andreas Hartmann <andihartmann@freenet.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17rc1] fatal problem: system time suddenly changes
-In-Reply-To: <3C1F8825.2080802@athlon.maya.org> <20011218124132.B32316@asooo.flowerfire.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S285097AbRLRUTJ>; Tue, 18 Dec 2001 15:19:09 -0500
+Received: from eos.telenet-ops.be ([195.130.132.40]:9353 "EHLO
+	eos.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S285067AbRLRUSq>; Tue, 18 Dec 2001 15:18:46 -0500
+Date: Tue, 18 Dec 2001 21:18:39 +0100
+From: Kurt Roeckx <Q@ping.be>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: wait() and strace -f
+Message-ID: <20011218211839.A4447@ping.be>
+In-Reply-To: <20011218021407.A1595@ping.be> <877krlc60x.fsf@devron.myhome.or.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <877krlc60x.fsf@devron.myhome.or.jp>; from hirofumi@mail.parknet.co.jp on Tue, Dec 18, 2001 at 04:59:58PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Ken,
+On Tue, Dec 18, 2001 at 04:59:58PM +0900, OGAWA Hirofumi wrote:
+> Kurt Roeckx <Q@ping.be> writes:
+> 
+> > I think it's related to strace being the "real" parent of the
+> > child.  But that doesn't really explain why I need 2 childs.
+> 
+> Probably, it's feature (or bug) of strace. I'm seems, if strace has
+> child, trace of a child is started before wait() of parent.  Then,
+> exit() of child continue wait() of parent.
 
-Ken Brownfield wrote:
+If I understand what you're saying, sleep(1) in child1, and
+sleep(2) in the parent should fix the problem, which it doesn't.
 
- > Are you seeing this in earlier kernels?  What about with "noapic"?
+And it still doesn't explain why it only happens with 2 childs.
+
+Maybe I should have mentioned this before: the wait will clean up
+the first child at the time the second child dies, or atleast
+that's what wait() returns.
+
+> >         if (!fork())
+> >         {
+> >                 /* Child 1. */
+> 		  sleep(2);
+> >                 return 0;
+> >         }
+> 
+> The above change is continued the parent after 2 seconds.
+
+I know that too, as I said, only when child 1 dies before the
+parent calls wait().
 
 
-Yes, in all 2.4.x - vanilla kernels. But not in the ac-patches!
-
-I tested it wit or without apic - the behaviour didn't change.
-
-
-Regards,
-Andreas
-
+Kurt
 

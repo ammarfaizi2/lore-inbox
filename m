@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286315AbRLJQtf>; Mon, 10 Dec 2001 11:49:35 -0500
+	id <S284461AbRLJQtz>; Mon, 10 Dec 2001 11:49:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284460AbRLJQt0>; Mon, 10 Dec 2001 11:49:26 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:51218 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S284461AbRLJQtP>; Mon, 10 Dec 2001 11:49:15 -0500
-Date: Mon, 10 Dec 2001 14:48:55 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: <volodya@mindspring.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: mm question
-In-Reply-To: <Pine.LNX.4.20.0112101112430.17492-100000@node2.localnet.net>
-Message-ID: <Pine.LNX.4.33L.0112101448120.4755-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S284460AbRLJQtq>; Mon, 10 Dec 2001 11:49:46 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:55959 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S284461AbRLJQtj>;
+	Mon, 10 Dec 2001 11:49:39 -0500
+Date: Mon, 10 Dec 2001 11:49:36 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andries.Brouwer@cwi.nl
+cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux/Pro  -- clusters
+In-Reply-To: <UTC200112090859.IAA242651.aeb@cwi.nl>
+Message-ID: <Pine.GSO.4.21.0112101136490.14238-100000@binet.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Dec 2001 volodya@mindspring.com wrote:
-> On Mon, 10 Dec 2001, Rik van Riel wrote:
-> > On Mon, 10 Dec 2001, Alan Cox wrote:
-> >
-> > > > I was hoping for something more elegant, but I am not adverse to writing
-> > > > my own get_free_page_from_range().
-> > >
-> > > Thats not a trivial task.
-> >
-> > Especially because we never quite know the users of a
-> > physical page, so moving data around is somewhat hard.
->
-> I don't want to move them - I just want to collect all that are free
-> and then try to free some more.
 
-I could put it on the TODO list for my VM stuff, but it's
-not exactly near the top of the list so it might take quite
-a while more before I get around to this...
 
-http://linuxvm.bkbits.net/
+On Sun, 9 Dec 2001 Andries.Brouwer@cwi.nl wrote:
 
-cheers,
+> [There is more to say, but I have to go, and maybe you and Linus
+> can start telling me why this mechanical approach is silly.
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+Basically you propose to take the current system, replace it with
+something without clear memory management ("let it leak") and then
+try to fix the resulting mess.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+I would rather switch code that uses kdev_t to use of dynamically
+allocated structures.  Subsystem-by-subsystem.  Keeping decent
+memory management on every step.
+
+It's _way_ easier than trying to fix leaks and dangling pointers in
+the fuzzy code we'd get with your approach.  Just look at the fun
+Richard has with devfs right now.
+
+It's easier to convert nth piece when you have n-1 done right and nothing
+else using the objects in question.  Putting the whole thing together
+first and the trying to fix it will be a living horror compared to that.
 

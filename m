@@ -1,88 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267119AbTALO6Q>; Sun, 12 Jan 2003 09:58:16 -0500
+	id <S267125AbTALPXF>; Sun, 12 Jan 2003 10:23:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267114AbTALO6Q>; Sun, 12 Jan 2003 09:58:16 -0500
-Received: from mta10.srv.hcvlny.cv.net ([167.206.5.45]:62143 "EHLO
-	mta10.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S267119AbTALO6N>; Sun, 12 Jan 2003 09:58:13 -0500
-Date: Sun, 12 Jan 2003 10:05:04 -0500
-From: Rob Wilkens <robw@optonline.net>
-Subject: Re: inefficient RT vs efficient non-RT
-In-reply-to: <20030112082822.GB16050@mark.mielke.cc>
-To: Mark Mielke <mark@mark.mielke.cc>
-Cc: Valdis.Kletnieks@vt.edu, David Schwartz <davids@webmaster.com>,
-       linux-kernel@vger.kernel.org
-Reply-to: robw@optonline.net
-Message-id: <1042383903.848.33.camel@RobsPC.RobertWilkens.com>
-Organization: Robert Wilkens
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <20030112075844.GA16050@mark.mielke.cc>
- <200301120804.h0C84jLE011563@turing-police.cc.vt.edu>
- <20030112082822.GB16050@mark.mielke.cc>
+	id <S267138AbTALPXF>; Sun, 12 Jan 2003 10:23:05 -0500
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:32395 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S267125AbTALPXD>; Sun, 12 Jan 2003 10:23:03 -0500
+Message-ID: <3E218A71.5080602@quark.didntduck.org>
+Date: Sun, 12 Jan 2003 10:32:01 -0500
+From: Brian Gerst <bgerst@quark.didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+CC: gibbs@scsiguy.com
+Subject: 2.5.56 aic7xxx boot failure
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-01-12 at 03:28, Mark Mielke wrote:
-> be quite a bit more sophisticated than VxWorks. The reason for making
-> the point is that a guy jumped on linux-devel saying that anybody can
-> write a kernel, and he knows, because he has contributed to
-> VxWorks. He then went on to say that he has personally submitted
-> several dozen patches to VxWorks.
+The new aic7xxx driver hangs on boot with the following messages.  Once 
+the card is hung, only a cold boot will restore it to a sane state 
+(causes problems in older kernels too).
 
-"Several dozen" per week, for two years... Totalling several hundred..
-And almost none of them were in the real time subsystem because at the
-time I didn't even know what reak time meant, so don't blame me for any
-of that portion of the system.  I was simply working on the core
-operating systems functions.
+Boot log:
+---------
+PCI: Found IRQ 10 for device 00:0b.0
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.26
+         <Adaptec aic7850 SCSI adapter>
+         aic7850: Single Channel A, SCSI Id=7, 3/253 SCBs
 
-As per the OS sucking, there were a _total_ of about 10 developers on
-the OS team as I recall.. From memory, Carl, Linda, Rich, Mike, Joe,
-were the real time core system developers, then there was my team, the
-"quality and release engineering team", which consisted of me (general
-debugging), jeff (release), franklyn (nfs expert), xiaofei (not a word
-of english spoken, I don't know what he did), and another robert
-(genuinely good guy, scsi and general debugging expert).  So, let's
-count the total number of developers that I remember: 5+8=13.  One of
-which was responsible for install scripting only,  yep one guy handled
-all that.  Quite impressive if you stop and think about it.  Even more
-impressive is that after I quit, everyone on my team left within a year
-I believe (and they were all there before I got there).  It seems I
-somewhat was a motivational factor for keeping them there, though I
-can't imagine why (maybe having someone near their age -- the other
-development team was all older people).
+(scsi0:A:1:0): refuses WIDE negotiation.  Using 8bit transfers
+scsi0:0:1:0: Attempting to queue an ABORT message
+scsi0: Dumping Card State in Data-in phase, at SEQADDR 0x7b
+ACCUM = 0xfc, SINDEX = 0xb8, DINDEX = 0xa8, ARG_2 = 0x0
+HCNT = 0x20 SCBPTR = 0x0
+ERROR[0x0] SCSIPHASE[0x0] SCSIBUSL[0x20] LASTPHASE[0x40]:(IOI)
+SCSISEQ[0x12]:(ENAUTOATNP|ENRSELI) SBLKCTL[0x0] SEQCTL[0x10]:(FASTMODE)
+SEQ_FLAGS[0x20]:(DPHASE) SSTAT0[0x0] SSTAT1[0x3]:(REQINIT|PHASECHG)
+SSTAT2[0x0] SSTAT3[0x0] SIMODE0[0x0] 
+SIMODE1[0xac]:(ENSCSIPERR|ENBUSFREE|ENSCSIRST|ENSELTIMO)
+SXFRCTL0[0x80]:(DFON) DFCNTRL[0x78]:(HDMAEN|SDMAEN|SCSIEN|WIDEODD)
+DFSTATUS[0x0]
+STACK: 0x0 0x0 0x1b4 0x6e
+SCB count = 4
+Kernel NEXTQSCB = 2
+Card NEXTQSCB = 2
+QINFIFO entries:
+Waiting Queue entries:
+Disconnected Queue entries:
+QOUTFIFO entries:
+Sequencer Free SCB List: 1 2
+Sequencer SCB Info:
+   0 SCB_CONTROL[0x40]:(DISCENB) SCB_SCSIID[0x17] SCB_LUN[0x0]
+SCB_TAG[0x3]
+   1 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
+SCB_LUN[0xff]:(LID) SCB_TAG[0xff]
+   2 SCB_CONTROL[0x0] SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
+SCB_LUN[0xff]:(LID) SCB_TAG[0xff]
+Pending list:
+   3 SCB_CONTROL[0x40]:(DISCENB) SCB_SCSIID[0x17] SCB_LUN[0x0]
+Kernel Free SCB list: 1 0
+Untagged Q(1): 3
+DevQ(0:1:0): 0 waiting
+scsi0:0:1:0: Device is active, asserting ATN
+Recovery code sleeping
 
-Anyway, given that VxWorks is, I believe, the only o.s. that runs on the
-particular NUMA hardware that it targets, or was at the time, comparing
-linux to it is like comparing apples and oranges because your comparing
-different hardware platforms, presumably with different speed processors
-(like an old 200Mhz system which is what they were selling back in 1996
-when I left to a state of the art 2.4 GHz system which they probably
-sell nowadays, if not faster).  If and when Linux does run (RedHawk
-linux, I'm guessing) properly on this platform, it will quickly be
-modified by the real time expert there to meet the real time needs based
-on the changes needed to meet their customers needs.  Of course, once
-that happens, all their proprietary real time knowledge then becomes
-open source....   And when I was there they had already laid off most
-all of there custom hardware engineers -- so if there's not much new
-custom hardware, and no specific knowledge in the software, I don't know
-what the company really has to offer.. Maybe we can look for the death
-of Concurrent Computer Coproration shortly after they switch to Linux...
-Regardless, My point is that was a system done by about 10 people (and
-we support two OS's VxWorks and CX/UX which was BSD).  If you look at
-debian, it's done by "900 volunteers".
+Good Boot log:
+--------------
+PCI: Found IRQ 10 for device 00:0b.0
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.4
+         <Adaptec aic7850 SCSI adapter>
+         aic7850: Single Channel A, SCSI Id=7, 3/253 SCBs
 
--Rob
-p.s. Yes, I left out the "tools team" which had about another ten people
-doing custom compilers, debuggers and that sort of thing.. And of
-course, I'm only referring to the u.s. real time division of the
-company.. They had a u.k. division as well which speicialized in video
-on demand appplications, and they now have a headquarters wihch moved to
-atlanta, only because they were displaced from ft. lauderdale by a
-church when Harris (the previous company's owner) sold the building. 
-The development side of the commpany refused to move, so they just went
-a little (one block) north to pompano beach.
+(scsi0:A:1): 10.000MB/s transfers (10.000MHz, offset 15)
+   Vendor: TOSHIBA   Model: CD-ROM XM-6201TA  Rev: 1030
+   Type:   CD-ROM                             ANSI SCSI revision: 02
+(scsi0:A:3): 10.000MB/s transfers (10.000MHz, offset 15)
+   Vendor: YAMAHA    Model: CRW6416S          Rev: 1.0c
+   Type:   CD-ROM                             ANSI SCSI revision: 02
+(scsi0:A:4:0): refuses synchronous negotiation. Using asynchronous transfers
+   Vendor: IOMEGA    Model: ZIP 100           Rev: E.11
+   Type:   Direct-Access                      ANSI SCSI revision: 02
+Attached scsi removable disk sda at scsi0, channel 0, id 4, lun 0
+sda : MODE SENSE failed.
+sda : status = 1, message = 00, host = 0, driver = 08
+Current sd00:00: sense key Illegal Request
+Additional sense: Invalid field in cdb
+sda : assuming drive cache: write through
+Attached scsi CD-ROM sr0 at scsi0, channel 0, id 1, lun 0
+Attached scsi CD-ROM sr1 at scsi0, channel 0, id 3, lun 0
+sr0: scsi-1 drive
+Uniform CD-ROM driver Revision: 3.12
+sr1: scsi3-mmc drive: 16x/16x writer cd/rw xa/form2 cdda tray
+
+lscpi output:
+-------------
+00:0b.0 SCSI storage controller: Adaptec AHA-7850 (rev 01)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (1000ns min, 1000ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 10
+	Region 0: I/O ports at 9800 [disabled] [size=256]
+	Region 1: Memory at d5800000 (32-bit, non-prefetchable) [size=4K]
+
 

@@ -1,54 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVCYH0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVCYH2m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbVCYH0t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 02:26:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVCYH0t
+	id S261509AbVCYH2m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 02:28:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVCYH2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 02:26:49 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:14095 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261238AbVCYH0p
+	Fri, 25 Mar 2005 02:28:42 -0500
+Received: from smtp-out.tiscali.no ([213.142.64.144]:19473 "EHLO
+	smtp-out.tiscali.no") by vger.kernel.org with ESMTP id S261509AbVCYH2c
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 02:26:45 -0500
-Date: Fri, 25 Mar 2005 18:25:31 +1100
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Jeff Garzik <jgarzik@pobox.com>, David McCullough <davidm@snapgear.com>,
-       cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       James Morris <jmorris@redhat.com>
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
-Message-ID: <20050325072531.GA416@gondor.apana.org.au>
-References: <42439839.7060702@pobox.com> <1111728804.23532.137.camel@uganda> <4243A86D.6000408@pobox.com> <1111731361.20797.5.camel@uganda> <20050325061311.GA22959@gondor.apana.org.au> <1111732459.20797.16.camel@uganda> <20050325063333.GA27939@gondor.apana.org.au> <1111733958.20797.30.camel@uganda> <20050325065622.GA31127@gondor.apana.org.au> <1111735195.20797.42.camel@uganda>
+	Fri, 25 Mar 2005 02:28:32 -0500
+Subject: Re: fork()
+From: Natanael Copa <mlists@tanael.org>
+To: Triffid Hunter <triffid_hunter@funkmunch.net>
+Cc: redoubtable <redoubtable@netcabo.pt>, linux-kernel@vger.kernel.org
+In-Reply-To: <42430439.6090102@funkmunch.net>
+References: <4242EEC3.2000605@netcabo.pt>  <42430439.6090102@funkmunch.net>
+Content-Type: text/plain
+Date: Fri, 25 Mar 2005 08:28:29 +0100
+Message-Id: <1111735709.14150.12.camel@nc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1111735195.20797.42.camel@uganda>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 25, 2005 at 10:19:55AM +0300, Evgeniy Polyakov wrote:
+On Fri, 2005-03-25 at 04:17 +1000, Triffid Hunter wrote:
+> you can limit the max number of processes by putting the following into /etc/security/limits.conf (on my distro, and quite a number of others according to google too)
 > 
-> Noone will complain on Linux if NIC is broken and produces wrong
-> checksum
-> and HW checksum offloading is enabled using ethtools.
+> *	hard	nproc	<max # processes>
+> 
+> you can also limit quite a number of other things in this file, and other files in that directory.
 
-This is completely different.  The worst that can happen with checksum
-offloading is that the packet is dropped.  That's something people deal
-with on a daily basis since the Internet as a whole does not guarantee
-the delivery of packets.
+I bet your PAM nonaware daemons started at boot are not affected by
+those settings. The point is that if you gain access through a non-root
+daemon started from boot scripts, you are no longer limited
+by /etc/security/limits.conf.
 
-On the other hand, /dev/random is something that has always promised
-to deliver random numbers that are totally unpredictable.  People out
-there *depend* on this.
+Try to set hard nproc limits for user UID and run this from your boot
+script:
 
-If that assumption is violated the result could be catastrophic.
+#define UID 65534
+#define MAX 65535
 
-That's why it's OK to have hardware RNG spit out unverified numbers
-in /dev/hw_random, but it's absolutely unaccpetable for the same
-numbers to add entropy to /dev/random without verification.
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+int pids[MAX];
+int main() {
+        int count = 0; pid_t pid;
+        if (setuid(UID) < 0) { perror("setuid"); exit(1); }
+        while ((pid = fork()) >= 0 && count < MAX) {
+                if (pid == 0) { sleep(300); exit(); }
+                pids[count++] = pid;
+        }
+        printf("Forked %i new processes\n", count);
+        while (count--) kill(pids[count], SIGTERM);
+}
+
+You will see that even if user UID is limited
+in /etc/security/limits.conf it will be able to fork many more
+processes.
+
+> > It should exist a global limit in case someone could spawn 
+> > a shell without limits through some flawed application.
+
+I agree on this one. Or the RLIMIT_NPROC should be set to a lower value
+by default.
+
+--
+Natanael Copa
+
+

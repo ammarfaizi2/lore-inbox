@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261715AbSJHV25>; Tue, 8 Oct 2002 17:28:57 -0400
+	id <S261643AbSJHV2M>; Tue, 8 Oct 2002 17:28:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261740AbSJHV25>; Tue, 8 Oct 2002 17:28:57 -0400
-Received: from pc132.utati.net ([216.143.22.132]:6306 "HELO
-	merlin.webofficenow.com") by vger.kernel.org with SMTP
-	id <S261715AbSJHV2t>; Tue, 8 Oct 2002 17:28:49 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Thomas Molina <tmolina@cox.net>
-Subject: Re: The end of embedded Linux?
-Date: Tue, 8 Oct 2002 12:34:17 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: Gigi Duru <giduru@yahoo.com>, <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0210080817420.1787-100000@dad.molina>
-In-Reply-To: <Pine.LNX.4.44.0210080817420.1787-100000@dad.molina>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20021008213416.3CC84544@merlin.webofficenow.com>
+	id <S261665AbSJHV2M>; Tue, 8 Oct 2002 17:28:12 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:25097 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261643AbSJHV2L>;
+	Tue, 8 Oct 2002 17:28:11 -0400
+Date: Tue, 8 Oct 2002 14:30:08 -0700
+From: Greg KH <greg@kroah.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Patrick Mochel <mochel@osdl.org>, Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, andre@linux-ide.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] embedded struct device Re: [patch] IDE driver model update
+Message-ID: <20021008213007.GA10193@kroah.com>
+References: <Pine.LNX.4.44.0210081005320.16276-100000@cherise.pdx.osdl.net> <Pine.GSO.4.21.0210081616120.5897-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0210081616120.5897-100000@weyl.math.psu.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 08 October 2002 09:22 am, Thomas Molina wrote:
-> On Mon, 7 Oct 2002, Rob Landley wrote:
-> > On Monday 07 October 2002 05:56 pm, Gigi Duru wrote:
-> > > --- Rob Landley <landley@trommello.org> wrote:
-> > > > The doorknob is a wonderful user interface...
-> > >
-> > > try driving your car using a doorknob ;)
-> >
-> > The steering wheel is fundamentally different?  (It's certainly
-> > BIGGER...)
->
-> Actually, I believe the wheel, and the rest of the user interface for an
-> auto (gas pedal, brake) are a fine metaphor for this discussion.  The user
-> interface for a car hasn't changed in how many years?  That is despite
-> quite a number of technological devleopments under the hood.  Having a
-> simple user interface for the "novice" doesn't prevent all kinds of weird
-> shifting, throttle control, etc. additions for the "expert".  Having a
-> single doorknob which controls, in a gross way, the action of a large
-> number of "sub-knobs" is good.  Giving access to the "sub-knobs" for the
-> expert is even better.
+On Tue, Oct 08, 2002 at 04:47:49PM -0400, Alexander Viro wrote:
+> > 
+> > The only timing issue is when the device structures are reused. And, it 
+> > seems that that is inherently racy anyway with hotpluggable devices. 
+> 
+> BS.  Neither SCSI, nor USB nor PCI are reusing the structures in question.
+> They are, however, freeing them.
+> 
+> Again, USB disconnect when you are holding a reference to struct device
+> will leave you with pointer to kfree'd area.
 
-And extending the metaphor, even racecar drivers use a steering wheel and gas 
-pedal.  (They almost always prefer manual transmission over auto, and like to 
-have a tachometer in their display, but those are options for regular drivers 
-in normal cars too.)
+This is a USB (and PCI) bug.  I'll fix them, they should be using the
+release() callback that Pat has provided.  With that callback, which
+gets called when the device really wants to be cleaned up, I don't see
+any races in the USB code (well theoretical races, there's still some
+bugs in the current implementation that I'm trying to track down...)
 
-There are 8 zillion strange adjustable things in a racecar, but that's for 
-the pit crew to deal with, not the driver.
+thanks,
 
-The linux kernel is the same.  Going into the source is definitely something 
-the pit crew is responsible for, or your friendly neighborhood garage 
-mechanic, or the guy who likes to change his own oil on the weekends.
-
-"make menuconfig" isn't anywhere near steering wheel simplicity, but the last 
-time we had this discussion "aunt tillie" wandered through, which effectively 
-ended rational debate if you ask me.  (She's like that, I suppose. :)  Still, 
-cluttering it up any more than strictly necessary probably isn't a good thing.
-
-90% of learning to deal with the linux kernel is learning to separate out the 
-stuff you're interested in from the bits you can safely ignore at the moment, 
-so you can tackle things one piece at a time.  (For some value of "safely", 
-anyway... :)
-
-Rob
+greg k-h

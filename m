@@ -1,94 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129618AbRCZXFW>; Mon, 26 Mar 2001 18:05:22 -0500
+	id <S129749AbRCZXPM>; Mon, 26 Mar 2001 18:15:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129624AbRCZXFN>; Mon, 26 Mar 2001 18:05:13 -0500
-Received: from hermes.sistina.com ([208.210.145.141]:20744 "HELO sistina.com")
-	by vger.kernel.org with SMTP id <S129568AbRCZXFC>;
-	Mon, 26 Mar 2001 18:05:02 -0500
-Date: Mon, 26 Mar 2001 17:03:58 -0600
-From: AJ Lewis <lewis@sistina.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, Andreas Dilger <adilger@turbolinux.com>,
-        LA Walsh <law@sgi.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: 64-bit block sizes on 32-bit systems
-Message-ID: <20010326170358.A2872@sistina.com>
-In-Reply-To: <20010326181803.F31126@parcelfarce.linux.theplanet.co.uk> <200103261747.f2QHlEX19564@webber.adilger.int> <20010326190945.I31126@parcelfarce.linux.theplanet.co.uk> <m17l1cz88v.fsf@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <m17l1cz88v.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Mon, Mar 26, 2001 at 11:37:52AM -0700
+	id <S129712AbRCZXPD>; Mon, 26 Mar 2001 18:15:03 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:58271 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S129669AbRCZXOo>;
+	Mon, 26 Mar 2001 18:14:44 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Andreas Franck <afranck@gmx.de>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: ATAPI burner and IDE SCSI emulation
+Date: Tue, 27 Mar 2001 01:13:56 +0200
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <01032701135600.13773@dg1kfa>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello people,
 
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+after having "upgraded" (?) my distro from my wonderfully hand-configured 
+Debian system (which I unfortunately wrecked up lately) to S*SE 7.1, I'm now 
+really displeasured about the IDE-SCSI emulation thing for my ATAPI CD 
+roaster. Not that I was not able to set it up correctly, but being a bit 
+fastidious and used to be able to configure almost everything I wanted, 
+including what drivers I wanted to load, by choosing modules I was deeply 
+disappointed about the sof the IDE SCSI emulation driver, which seems really 
+baroque. 
 
-On Mon, Mar 26, 2001 at 11:37:52AM -0700, Eric W. Biederman wrote:
-> Matthew Wilcox <matthew@wil.cx> writes:
->=20
-> > On Mon, Mar 26, 2001 at 10:47:13AM -0700, Andreas Dilger wrote:
-> > > What do you mean by problems 5 years down the road?  The real issue i=
-s that
-> > > this 32-bit block count limit affects composite devices like MD RAID =
-and
-> > > LVM today, not just individual disks.  There have been several postin=
-gs
-> > > I have seen with people having a problem _today_ with a 2TB limit on
-> > > devices.
-> >=20
-> > people who can afford 2TB of disc can afford to buy a 64-bit processor.
->=20
-> Currently that doesn't solve the problem as block_nr is held in an int.
-> And as gcc compiles an int to a 32bit number on a 64bit processor, the
-> problem still isn't solved.
->=20
-> That at least we need to address.
+For the unknowing, here are the general "newbie" steps nneded to make a 
+simple ATAPI CD roaster roast at all: Compile the kernel with IDE-SCSI 
+support enabled (or as a module), then you have to pass a mysterious 
+"hdx=ide-scsi" on the kernel commandline (through LILO or whatsoever), then 
+the "normal" IDE driver refuses to take any control over your CD burner. This 
+makes it possible for the IDE SCSI driver to take this job.
 
-What I don't understand is why we can't just put an option in the Linux
-config to enable 64-bit block support, as we have with the High Memory
-Support option.  That way the user could select that option if they want it,
-regardless of the processor they are using.  Jens Axboe <axboe@suse.de>
-already mentioned he had patched the kernel to do someting similar earlier
-this month on a similar thread on linux-kernel.
+To actually USE my burner, it even gets more complicated (... I always speak 
+for the "Joe Blow" user, I have gone through all this and succeeded 
+finally...) - I have not only to load the SCSI CD-ROM driver to be able to 
+read any CDs with the burner, reset the /dev/cdrom (or /dev/cdburner) link 
+accordingly, but I also need this mysterious generic SCSI module loaded...
 
-It makes sense to have this option when we have an enterprise level LVM
-and 64-bit file systems such as the Global File System (GFS) for Linux.
+People, my say this is the biggest mess of configuration for me since I last 
+built up my first WNOS TCP/IP system, which was 7 years ago. And this is my 
+mission:
 
-Regards,
---=20
-AJ Lewis
-Sistina Software Inc.                  Voice:  612-379-3951
-1313 5th St SE, Suite 111              Fax:    612-379-3952
-Minneapolis, MN 55414                  E-Mail: lewis@sistina.com
-http://www.sistina.com
+Clean this mess up. Make CD roasting work fine without this SCSI crap (sorry, 
+no offense intended, but from the "user perspective" its friendliness goes 
+far to -ininity...)
 
-Current GPG fingerprint =3D 3B5F 6011 5216 76A5 2F6B  52A0 941E 1261 0029 2=
-648
-Get my key at: http://www.sistina.com/~lewis/gpgkey
- (Unfortunately, the PKS-type keyservers do not work with multiple sub-keys)
+I'd appreciate any comments, am willing to take big slaps on my head from any 
+major wood part, and would like to know if anything/anyone is already working 
+towards this, or is doing any other tasks in this area.
 
------Begin Obligatory Humorous Quote----------------------------------------
-APATHY ERROR: Don't bother striking any key.
------End Obligatory Humorous Quote------------------------------------------
+Im particular I'd better look at the packet writing stuff (who's involved? 
+Jens Axboe?) before I start anything too big :) Again, any comments or 
+pointers to other projects are welcome, I can't wait to be able to toast CDs 
+on my machine without going through this nightmare again :-)
 
---zhXaljGHf11kAtnf
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Greetings (and: please don't take anything personal or too serious, it's just 
+me being frustrated after having set up my system and nothing working 
+again...)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6v8repE6/iGtdjLERAg+GAJ9FDEX1tb9HVc0kC0g1TPHlUaBCVwCeJPz/
-wJ1TLg0SDTH0JNp+tqk0tZs=
-=9JRM
------END PGP SIGNATURE-----
-
---zhXaljGHf11kAtnf--
+Andreas

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262703AbTDEWus (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 17:50:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262704AbTDEWus (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 17:50:48 -0500
-Received: from jalon.able.es ([212.97.163.2]:11999 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id S262703AbTDEWuq (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Apr 2003 17:50:46 -0500
-Date: Sun, 6 Apr 2003 01:02:11 +0200
+	id S262706AbTDEWw3 (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 17:52:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262708AbTDEWw3 (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 17:52:29 -0500
+Received: from jalon.able.es ([212.97.163.2]:41695 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id S262706AbTDEWwC (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Apr 2003 17:52:02 -0500
+Date: Sun, 6 Apr 2003 01:03:28 +0200
 From: "J.A. Magallon" <jamagallon@able.es>
 To: "J.A. Magallon" <jamagallon@able.es>
 Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
        lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] AT_PLATFORM on HT-P4
-Message-ID: <20030405230211.GC12746@werewolf.able.es>
+Subject: Re: Linux 2.4.21-pre7
+Message-ID: <20030405230328.GA12864@werewolf.able.es>
 References: <Pine.LNX.4.53L.0304041815110.32674@freak.distro.conectiva> <20030405224233.GA12746@werewolf.able.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,94 +27,22 @@ On 04.06, J.A. Magallon wrote:
 > 
 > On 04.04, Marcelo Tosatti wrote:
 > > 
-> > So here goes -pre7. Hopefully the last -pre.
-> > 
-> 
 
-This makes P4 Xeon to report correct i686 platform. Without this, 
-all those people that think its ld.so automatically picks i686 libs
-are wrong...
+This kills a redundant printk declaration. AFAIR it broke some people's
+builds.
 
-The original code takes u_platform for coyping ELF_PLATFORM, but
-also supposes it is the top of stack. This changes when we have
-siblings:
-
-    if(smp_num_siblings > 1)
-        u_platform = u_platform - ((current->pid % 64) << 7);
-
-Later:
-
-        NEW_AUX_ENT(0, AT_PLATFORM, (elf_addr_t)(unsigned long) u_platform);
-
-that on HT cpus is broken, isn't it ?
-
-This separates the two things, stack top and u_platform. It could be
-even cleaner, with something like
-
-stack_top = p;
-if (k_platform)
-	sz = strlen(k_platform)+1
-	u_platform = stack_top - sz
-	__copy_to_user(...)
-	stack_top -= sz
-else
-	u_platform = NULL
-...
-if(smp_num_siblings > 1)
-        stack_top = stack_top - ((current->pid % 64) << 7);
-...
-if (u_platform)
-	NEW_AUX_ENT(...)
-
-But I have not tested it. Current patch below.
-
---- linux/fs/binfmt_elf.c.orig	2002-12-28 00:12:32.000000000 +0100
-+++ linux/fs/binfmt_elf.c	2002-12-28 00:32:37.000000000 +0100
-@@ -116,11 +116,14 @@
- 	elf_caddr_t *argv;
- 	elf_caddr_t *envp;
- 	elf_addr_t *sp, *csp;
-+	char *stack_top;
- 	char *k_platform, *u_platform;
- 	long hwcap;
- 	size_t platform_len = 0;
- 	size_t len;
+--- linux/include/asm-i386/spinlock.h.orig    2002-10-15 10:12:25.000000000 +0100
++++ linux/include/asm-i386/spinlock.h 2002-10-15 10:12:35.000000000 +0100
+@@ -6,9 +6,6 @@
+ #include <asm/page.h>
+ #include <linux/config.h>
  
-+	stack_top = p;
-+
- 	/*
- 	 * Get hold of platform and hardware capabilities masks for
- 	 * the machine we are running on.  In some cases (Sparc), 
-@@ -135,8 +138,8 @@
- 		platform_len = strlen(k_platform) + 1;
- 		u_platform = p - platform_len;
- 		__copy_to_user(u_platform, k_platform, platform_len);
--	} else
--		u_platform = p;
-+		stack_top = u_platform;
-+	}
- 
- #if defined(__i386__) && defined(CONFIG_SMP)
- 	/*
-@@ -149,15 +152,14 @@
- 	 * processors. This keeps Mr Marcelo Person happier but should be
- 	 * removed for 2.5
- 	 */
--	 
- 	if(smp_num_siblings > 1)
--		u_platform = u_platform - ((current->pid % 64) << 7);
-+		stack_top -= ((current->pid % NR_CPUS) << 7);
- #endif	
- 
- 	/*
- 	 * Force 16 byte _final_ alignment here for generality.
- 	 */
--	sp = (elf_addr_t *)(~15UL & (unsigned long)(u_platform));
-+	sp = (elf_addr_t *)(~15UL & (unsigned long)(stack_top));
- 	csp = sp;
- 	csp -= (1+DLINFO_ITEMS)*2 + (k_platform ? 2 : 0);
- #ifdef DLINFO_ARCH_ITEMS
-
+-extern int printk(const char * fmt, ...)
+-	__attribute__ ((format (printf, 1, 2)));
+-
+ /* It seems that people are forgetting to
+  * initialize their spinlocks properly, tsk tsk.
+  * Remember to turn this off in 2.4. -ben
 
 -- 
 J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:

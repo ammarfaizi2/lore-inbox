@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbTJGHRo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 03:17:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTJGHRo
+	id S261806AbTJGHj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 03:39:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbTJGHj6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 03:17:44 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:64437 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261863AbTJGHRn
+	Tue, 7 Oct 2003 03:39:58 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:48571 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261806AbTJGHj5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 03:17:43 -0400
-Date: Tue, 7 Oct 2003 12:47:16 +0530
+	Tue, 7 Oct 2003 03:39:57 -0400
+Date: Tue, 7 Oct 2003 12:47:28 +0530
 From: Maneesh Soni <maneesh@in.ibm.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Patrick Mochel <mochel@osdl.org>, Greg KH <gregkh@us.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Dipankar Sarma <dipankar@in.ibm.com>
-Subject: Re: [RFC 2/6] sysfs-mount.patch
-Message-ID: <20031007071716.GC9036@in.ibm.com>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Patrick Mochel <mochel@osdl.org>, Dipankar Sarma <dipankar@in.ibm.com>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Greg KH <gregkh@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC 0/6] Backing Store for sysfs
+Message-ID: <20031007071728.GD9036@in.ibm.com>
 Reply-To: maneesh@in.ibm.com
-References: <20031006085915.GE4220@in.ibm.com> <20031006090003.GF4220@in.ibm.com> <20031006090030.GG4220@in.ibm.com> <20031006134320.GP7665@parcelfarce.linux.theplanet.co.uk>
+References: <20031006202656.GB9908@in.ibm.com> <Pine.LNX.4.44.0310061321440.985-100000@localhost.localdomain> <20031007043157.GA9036@in.ibm.com> <3F824E66.7020006@cyberone.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031006134320.GP7665@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <3F824E66.7020006@cyberone.com.au>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 06, 2003 at 02:43:20PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Mon, Oct 06, 2003 at 02:30:30PM +0530, Maneesh Soni wrote:
-> > @@ -692,6 +693,10 @@ do_kern_mount(const char *fstype, int fl
-> >  	mnt->mnt_mountpoint = sb->s_root;
-> >  	mnt->mnt_parent = mnt;
-> >  	up_write(&sb->s_umount);
-> > +
-> > +	if (!strcmp(fstype, "sysfs"))
-> > +		sysfs_mount = mnt;
-> > +
-> >  	put_filesystem(type);
-> >  	return mnt;
-> >  out_sb:
+On Tue, Oct 07, 2003 at 03:25:58PM +1000, Nick Piggin wrote:
 > 
-> That's too ugly for words.  Vetoed.  Sorry, but *that* will not fly.
+> 
+> >
+> >Having backing store just for leaf dentries should be fine. But there is 
+> >_no_ easy access for attributes. For this also I see some data change 
+> >required as of now. The reasons are 
+> >- not all kobjects belong to a kset. For example, /sys/block/hda/queue
+> >- not all ksets have attribute groups
+> > 
+> >
+> 
+> queue and iosched might not be good examples as they are somewhat broken
+> wrt the block device scheme. Possibly they will be put in their own kset,
+> with /sys/block/hda/queue symlinked to them.
+> 
 
-Yeah.. that was not meant to fly.. and I didnot pushed the patches on runway
-and to any of the Air Traffic Controllers..(tree maintainers) :-).. 
+Well here is more crap then...
 
-I will get rid of sysfs_mount.
+kobjects corresponding to /sys/class/tty/* and /sys/class/net/* have the
+same kset (i.e class_obj) but totally different attributes. There is no
+way to find the attributes given a kobject belonging to lets say 
+/sys/class/net/eth0 except through the hierarchy maintained in pinned sysfs 
+dentries.
 
-Maneesh
+
 -- 
 Maneesh Soni
 Linux Technology Center, 

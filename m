@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263989AbTIIKPM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 06:15:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263997AbTIIKPM
+	id S264018AbTIIKfl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 06:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264021AbTIIKfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 06:15:12 -0400
-Received: from mta204-rme.xtra.co.nz ([210.86.15.147]:29346 "EHLO
-	mta204-rme.xtra.co.nz") by vger.kernel.org with ESMTP
-	id S263989AbTIIKPH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 06:15:07 -0400
-Message-ID: <3F5E8A1F.2070904@tait.co.nz>
-Date: Tue, 09 Sep 2003 22:19:11 -0400
-From: Dmytro Bablinyuk <dmytro.bablinyuk@tait.co.nz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
+	Tue, 9 Sep 2003 06:35:41 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:59644 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S264018AbTIIKfk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 06:35:40 -0400
 MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problem with remap_page_range
-References: <3F5E7ACD.8040106@tait.co.nz> <20030909095926.GA31080@mail.jlokier.co.uk>
-In-Reply-To: <20030909095926.GA31080@mail.jlokier.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16221.44281.111131.741294@gargle.gargle.HOWL>
+Date: Tue, 9 Sep 2003 12:35:37 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Re: Linux 2.6.0-test5
+In-Reply-To: <3F5D0B09.1040802@pobox.com>
+References: <Pine.LNX.4.44.0309081319380.1666-100000@home.osdl.org>
+	<3F5D0B09.1040802@pobox.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->
->Try io_remap_page_range() instead?
->  
->
-I just tried - the problem remains, but what is interesting:
+Jeff Garzik writes:
+ > Note that people seeing "ifconfig down ... ifconfig up" problems need to 
+ > apply this patch.  (to 2.4.23-pre, too)
+ > 
+ > 	Jeff
+ > 
+ > 
+ > diff -Nru a/net/core/dev.c b/net/core/dev.c
+ > --- a/net/core/dev.c	Mon Sep  8 18:14:36 2003
+ > +++ b/net/core/dev.c	Mon Sep  8 18:14:36 2003
+ > @@ -851,7 +851,11 @@
+ >  	 * engine, but this requires more changes in devices. */
+ >  
+ >  	smp_mb__after_clear_bit(); /* Commit netif_running(). */
+ > -	netif_poll_disable(dev);
+ > +	while (test_bit(__LINK_STATE_RX_SCHED, &dev->state)) {
+ > +		/* No hurry. */
+ > +		current->state = TASK_INTERRUPTIBLE;
+ > +		schedule_timeout(1);
+ > +	}
 
-Correct values (driver):
-
-dsp_area[0]=91ba
-dsp_area[1]=bc00
-dsp_area[2]=eb17
-dsp_area[3]=2643
-dsp_area[4]=54cd
-dsp_area[5]=5405
-dsp_area[6]=91ba
-dsp_area[7]=49c2
-dsp_area[8]=1f61
-
-Wrong values (application):
-
-kadr[0]=1c59
-kadr[1]=5405
-kadr[2]=1f61
-kadr[3]=49c2
-kadr[4]=49c2
-kadr[5]=eb17
-kadr[6]=1f61
-kadr[7]=2643
-
-
-It's looks like application has some correct values but it's kind of mess.
-What else could be wrong?
-
-Thank you very much
-
+I independently discovered this bug in 2.4.23-pre3 last night,
+where it caused my laptop to randomly lock up at suspends or
+resumes. That may have been APM doing ifconfigs behind my
+back, I don't know, all I got was a black screen :-(

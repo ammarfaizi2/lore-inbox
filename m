@@ -1,62 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbUCVVHl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 16:07:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbUCVVHk
+	id S263045AbUCVVLI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 16:11:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbUCVVLI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 16:07:40 -0500
-Received: from cpe-024-033-224-91.neo.rr.com ([24.33.224.91]:28369 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S262101AbUCVVHj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 16:07:39 -0500
-Date: Mon, 22 Mar 2004 16:02:52 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: PnPBIOS: Unknown tag '0x82'
-Message-ID: <20040322160252.GA6414@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Meelis Roos <mroos@linux.ee>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <Pine.GSO.4.44.0403221937330.18189-100000@math.ut.ee>
+	Mon, 22 Mar 2004 16:11:08 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:3272 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S263045AbUCVVLA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 16:11:00 -0500
+Subject: [PATCH][SELINUX] Audit compute_sid errors
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       Rik Faith <faith@redhat.com>, Russell Coker <russell@coker.com.au>,
+       lkml <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NY6bxBA9q3xH9i9DyLRm"
+Organization: National Security Agency
+Message-Id: <1079989817.26643.150.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.44.0403221937330.18189-100000@math.ut.ee>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 22 Mar 2004 16:10:17 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 22, 2004 at 07:47:21PM +0200, Meelis Roos wrote:
-> Since the beginning of its existence, the pnpbios driver talks about
-> unknown tag '0x82' on one of my computers. The computer has Intel
-> D815EEA2 mainboard, BIOS has been updated quite recently. I added the
-> tag dump to printout and here it is:
-> 
-> PnPBIOS: Unknown tag '0x82', length '18': 82 12 00 49 6e 74 65 6c 20 46 69 72 6d 77 61 72 65 20
-> 
-> This 0x82 0x12 0x00 and then 'Intel Firmware'.
-> 
-> Anything to worry about? Are the next tags still correctly parsed? The
-> full dmesg is now
-> 
-> PnPBIOS: Scanning system for PnP BIOS support...
-> PnPBIOS: Found PnP BIOS installation structure at 0xc00f2480
-> PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0x1d2a, dseg 0xf0000
-> pnp: 00:09: ioport range 0x4d0-0x4d1 has been reserved
-> pnp: 00:09: ioport range 0xcf8-0xcff could not be reserved
-> PnPBIOS: Unknown tag '0x82', length '18': 82 12 00 49 6e 74 65 6c 20 46 69 72 6d 77 61 72 65 20 .
-> pnp: 00:0b: ioport range 0x800-0x87f has been reserved
-> PnPBIOS: 20 nodes reported by PnP BIOS; 20 recorded by driver
-> 
-> -- 
-> Meelis Roos (mroos@linux.ee)
 
-In this case it should be harmless.  Typically when one tag is
-corrupted (or incorrectly interpreted) it will also complain
-about the following tag because of size checks.  Where did the
-unknown tag occur?  Perhaps in pnpbios_parse_resource_option_data?
+--=-NY6bxBA9q3xH9i9DyLRm
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
-Adam
- 
+This patch against 2.6.5-rc2-mm1 changes an error message printk'd by
+security_compute_sid to use the audit framework instead.  These errors
+reflect situations where a security transition would normally occur due
+to policy, but the resulting security context is not valid.  The patch
+also changes the code to always call the audit framework rather than
+only doing so when permissive as this was causing problems with testing
+policy, and does some code cleanup.  Please apply.
+
+--- linux-2.6.5-rc2-mm1/security/selinux/ss/services.c.orig	2004-03-22 10:5=
+2:25.000000000 -0500
++++ linux-2.6.5-rc2-mm1/security/selinux/ss/services.c	2004-03-22 15:34:31.=
+897927706 -0500
+@@ -26,6 +26,7 @@
+ #include <linux/errno.h>
+ #include <linux/in.h>
+ #include <linux/sched.h>
++#include <linux/audit.h>
+ #include <asm/semaphore.h>
+ #include "flask.h"
+ #include "avc.h"
+@@ -548,32 +549,34 @@
+ 	return rc;
+ }
+=20
+-static inline int compute_sid_handle_invalid_context(
++static int compute_sid_handle_invalid_context(
+ 	struct context *scontext,
+ 	struct context *tcontext,
+ 	u16 tclass,
+ 	struct context *newcontext)
+ {
+-	int rc =3D 0;
+-
+-	if (selinux_enforcing) {
+-		rc =3D -EACCES;
+-	} else {
+-		char *s, *t, *n;
+-		u32 slen, tlen, nlen;
++	char *s =3D NULL, *t =3D NULL, *n =3D NULL;
++	u32 slen, tlen, nlen;
+=20
+-		context_struct_to_string(scontext, &s, &slen);
+-		context_struct_to_string(tcontext, &t, &tlen);
+-		context_struct_to_string(newcontext, &n, &nlen);
+-		printk(KERN_ERR "security_compute_sid:  invalid context %s", n);
+-		printk(" for scontext=3D%s", s);
+-		printk(" tcontext=3D%s", t);
+-		printk(" tclass=3D%s\n", policydb.p_class_val_to_name[tclass-1]);
+-		kfree(s);
+-		kfree(t);
+-		kfree(n);
+-	}
+-	return rc;
++	if (context_struct_to_string(scontext, &s, &slen) < 0)
++		goto out;
++	if (context_struct_to_string(tcontext, &t, &tlen) < 0)
++		goto out;
++	if (context_struct_to_string(newcontext, &n, &nlen) < 0)
++		goto out;
++	audit_log(current->audit_context,
++		  "security_compute_sid:  invalid context %s"
++		  " for scontext=3D%s"
++		  " tcontext=3D%s"
++		  " tclass=3D%s",
++		  n, s, t, policydb.p_class_val_to_name[tclass-1]);
++out:
++	kfree(s);
++	kfree(t);
++	kfree(n);
++	if (!selinux_enforcing)
++		return 0;
++	return -EACCES;
+ }
+=20
+ static int security_compute_sid(u32 ssid,
+
+--=20
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+
+--=-NY6bxBA9q3xH9i9DyLRm
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAX1Y5ct2ZrGjsv6cRAryJAKCEOuH7Ar3FYH+0pLcWaXy3t0rW1ACbBPQH
+aqBBNxkQS4prkXTtKC9oahs=
+=5+vh
+-----END PGP SIGNATURE-----
+
+--=-NY6bxBA9q3xH9i9DyLRm--
+

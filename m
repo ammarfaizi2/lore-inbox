@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319051AbSIDFBS>; Wed, 4 Sep 2002 01:01:18 -0400
+	id <S319055AbSIDFH2>; Wed, 4 Sep 2002 01:07:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319053AbSIDFBS>; Wed, 4 Sep 2002 01:01:18 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:33037 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S319051AbSIDFBR>;
-	Wed, 4 Sep 2002 01:01:17 -0400
-Date: Tue, 3 Sep 2002 22:04:01 -0700
-From: Greg KH <greg@kroah.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       colpatch@us.ibm.com
-Subject: Re: [BUG] 2.5.33 PCI and/or starfire.c broken
-Message-ID: <20020904050401.GA4019@kroah.com>
-References: <20020904035649.GC18800@holomorphy.com> <99179272.1031089797@[10.10.2.3]>
+	id <S319056AbSIDFH2>; Wed, 4 Sep 2002 01:07:28 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:50906 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S319053AbSIDFH1>;
+	Wed, 4 Sep 2002 01:07:27 -0400
+Date: Tue, 03 Sep 2002 22:05:14 -0700 (PDT)
+Message-Id: <20020903.220514.21399526.davem@redhat.com>
+To: rusty@rustcorp.com.au
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, akpm@zip.com.au
+Subject: Re: [PATCH] Important per-cpu fix. 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020904042036.816A62C1B6@lists.samba.org>
+References: <20020903.195455.117344683.davem@redhat.com>
+	<20020904042036.816A62C1B6@lists.samba.org>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <99179272.1031089797@[10.10.2.3]>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 03, 2002 at 09:49:58PM -0700, Martin J. Bligh wrote:
-> > Well, something ugly has happened no 2.5.33's PCI:
-> > 
-> > Somehow SCSI works, but starfire.c doesn't.
-> 
-> It's confused by having a PCI-PCI bridge on a quad other than 0,
-> where the global and local PCI bus numbers don't line up. Rip
-> the card out, or get the horrible kludge I did for 2.4, and use 
-> that.
+   From: Rusty Russell <rusty@rustcorp.com.au>
+   Date: Wed, 04 Sep 2002 14:04:22 +1000
 
-Might I suggest you port that "kludge" to the new 2.5 pci code, as the
-whole goal of those large PCI changes was due to some NUMA changes that
-you and Matt wanted to get into the main kernel.
+   OK.  I really hate working around wierd toolchain bugs (I use 2.95.4
+   here and it's fine), and adding an initializer to the macro is ugly.
+   
+Mine is 2.92.11
 
-Remember, you have your own file to play with now, so put all the
-brain-damaged NUMA crap into it :)
-
-thanks,
-
-greg k-h
+   If you're not going to upgrade your compiler, will you accept a gcc
+   patch to fix this?  If so, where can I get the source to your exact
+   version?
+   
+Oh, "I'm" willing to upgrade "my" compiler, it's my users
+that are the problem.  If you impose 3.1 or whatever, I get less
+people testing on sparc64 as a result.

@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262005AbTDADzT>; Mon, 31 Mar 2003 22:55:19 -0500
+	id <S262024AbTDAEW4>; Mon, 31 Mar 2003 23:22:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262006AbTDADzS>; Mon, 31 Mar 2003 22:55:18 -0500
-Received: from web20513.mail.yahoo.com ([216.136.174.44]:36932 "HELO
-	web20513.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262005AbTDADzS>; Mon, 31 Mar 2003 22:55:18 -0500
-Message-ID: <20030401040641.77875.qmail@web20513.mail.yahoo.com>
-Date: Mon, 31 Mar 2003 20:06:41 -0800 (PST)
-From: raman deep <ramands2110@yahoo.com>
-Subject: Compilation Error my_ops has intializer but incomplete type
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S262045AbTDAEW4>; Mon, 31 Mar 2003 23:22:56 -0500
+Received: from [203.199.93.15] ([203.199.93.15]:23308 "EHLO
+	WS0005.indiatimes.com") by vger.kernel.org with ESMTP
+	id <S262024AbTDAEWz>; Mon, 31 Mar 2003 23:22:55 -0500
+From: "ramands" <ramands@indiatimes.com>
+Message-Id: <200304010401.JAA16708@WS0005.indiatimes.com>
+To: <linux-kernel@vger.kernel.org>
+Reply-To: "ramands" <ramands@indiatimes.com>
+Subject: Compilation Error: variable has intializer but incomplete type
+Date: Tue, 01 Apr 2003 10:04:50 +0530
+X-URL: http://indiatimes.com
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi 
-i am trying to write device driver on linux kernel 2.4
-redhat distribution 
+i am trying to learn and write device driver on linux kernel 2.4 redhat distribution 
 
 iam getting compilation errors for driver code.
-struct file_operations my_ops
-={NULL,my_read,my_write,NULL,NULL,NULL
+struct file_operations my_ops ={NULL,my_read,my_write,NULL,NULL,NULL
 NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
 NULL };
+
 ERROR -> my_ops has intializer but incomplete type
-Can u help with this 
+
+Can anyone help me  with this 
 Regards
 Raman
 
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Tax Center - File online, calculators, forms, and more
-http://platinum.yahoo.com
+
+Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
+
+ Buy The Best In BOOKS at http://www.bestsellers.indiatimes.com
+
+Bid for for Air Tickets @ Re.1 on Air Sahara Flights. Just log on to http://airsahara.indiatimes.com and Bid Now !
+

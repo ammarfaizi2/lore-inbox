@@ -1,79 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135574AbRDXMmq>; Tue, 24 Apr 2001 08:42:46 -0400
+	id <S135573AbRDXMkQ>; Tue, 24 Apr 2001 08:40:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135575AbRDXMmg>; Tue, 24 Apr 2001 08:42:36 -0400
-Received: from corp1.cbn.net.id ([202.158.3.24]:53264 "HELO corp1.cbn.net.id")
-	by vger.kernel.org with SMTP id <S135574AbRDXMmS>;
-	Tue, 24 Apr 2001 08:42:18 -0400
-Date: Tue, 24 Apr 2001 19:44:17 +0700 (JAVT)
-From: <imel96@trustix.co.id>
-To: Alexander Viro <viro@math.psu.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Single user linux
-In-Reply-To: <Pine.GSO.4.21.0104240752320.6992-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33.0104241917540.16169-100000@tessy.trustix.co.id>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135574AbRDXMkH>; Tue, 24 Apr 2001 08:40:07 -0400
+Received: from t2.redhat.com ([199.183.24.243]:49394 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S135573AbRDXMj4>; Tue, 24 Apr 2001 08:39:56 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20010424095304.A2389@flint.arm.linux.org.uk> 
+In-Reply-To: <20010424095304.A2389@flint.arm.linux.org.uk>  <200104232232.AAA12700@kufel.dom> <Pine.LNX.4.33.0104232349530.15177-100000@imladris.demon.co.uk> 
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>,
+        Matan Ziv-Av <matan@svgalib.org>, mythos <papadako@csd.uoc.gr>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Can't compile 2.4.3 with agcc 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 24 Apr 2001 13:37:49 +0100
+Message-ID: <19649.988115869@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 24 Apr 2001, Alexander Viro wrote:
-> What, makes it hard to write viruses for it? Awww, poor skr1pt k1dd13z...
->
+rmk@arm.linux.org.uk said:
+>  grep '__BUG__' System.map | cut -d\  -f3
 
->
-> And would that "use" by any chance include access to network?
->
-
->
-> So let him log in as root, do everything as root and be cracked
-> like a bloody moron he is. Next?
->
-
-come on, it's hard for me as it's hard for you. not everybody
-expect a computer to be like people here thinks how a computer
-should be.
-
-think about personal devices. something like the nokia communicator.
-a system security passwd is acceptable, but that's it. no those-
-device-user would like to know about user account, file ownership,
-etc. they just want to use it.
-
-that also explain why win95 user doesn't want to use NT. not
-because they can't afford it (belive me, here NT costs only
-us$2), but additional headache isn't acceptable.
-
-with multi-user concept, conceptually there should be an
-administrator to create account, grant permission, etc.
-no my sister doesn't want that. i bet there are billions of
-people not willing to learn how to use a computer, they just
-want to use it.
-
-and yes, mobile devices access network.
+Nice try, but nothing prevents even a correct compiler from including it in 
+System.map even though it wouldn't have been called.
 
 
-> What for? If they want root - give them root and be done with that.
-> No need to change the kernel.
->
-> You know, if you really do not understand the implications of
-> running everything with permissions equivalent to root - get
-> the hell out of any UNIX-related programming until you learn.
->
-> If you want CP/M or MacOS - you know where to find them.
-
-so what the hell is transmeta doing with mobile linux (midori).
-is it going to teach multi-user thing to tablet owners?
-surely mortals expect midori to behave like their pc. lets say
-on redhat, they have to login as root to access their files,
-they don't even know what a root is!
-
-lets break unix mind for a while, and give everyone a chance
-to use linux.
-
-
-		imel
-
+--
+dwmw2
 
 

@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266438AbSKLJ7E>; Tue, 12 Nov 2002 04:59:04 -0500
+	id <S266460AbSKLKDS>; Tue, 12 Nov 2002 05:03:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266435AbSKLJ7E>; Tue, 12 Nov 2002 04:59:04 -0500
-Received: from AGrenoble-101-1-1-247.abo.wanadoo.fr ([193.251.23.247]:16365
-	"EHLO awak") by vger.kernel.org with ESMTP id <S266438AbSKLJ7D> convert rfc822-to-8bit;
-	Tue, 12 Nov 2002 04:59:03 -0500
-Subject: Re: devfs
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: john slee <indigoid@higherplane.net>
-Cc: Ian Molton <spyro@f2s.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021112094949.GE17478@higherplane.net>
-References: <20021112093259.3d770f6e.spyro@f2s.com>
-	<1037094221.16831.21.camel@bip>  <20021112094949.GE17478@higherplane.net>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 12 Nov 2002 11:05:36 +0100
-Message-Id: <1037095536.16831.27.camel@bip>
+	id <S266461AbSKLKDS>; Tue, 12 Nov 2002 05:03:18 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:28602 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S266460AbSKLKDR>; Tue, 12 Nov 2002 05:03:17 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Tue, 12 Nov 2002 12:11:48 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+Cc: linux-kernel-list <linux-kernel@vger.kernel.org>
+Subject: Re: second error, bttv 2.5.47
+Message-ID: <20021112111148.GC24454@bytesex.org>
+References: <1036990995.24251.7.camel@flat41> <slrnasva6g.c13.kraxel@bytesex.org> <1037058270.15197.2.camel@flat41>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1037058270.15197.2.camel@flat41>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mar 12/11/2002 à 10:49, john slee a écrit :
-> On Tue, Nov 12, 2002 at 10:43:41AM +0100, Xavier Bestel wrote:
-> > I'm wondering if a totally userspace solution could replace devs ?
-> > Something using hotplug + sysfs and creating directories/nodes as they
-> > appear on the system. This way, the policy (how do I name what) could be
-> > moved out of the kernel.
-> 
-> curious!  you mean similar to (and a logical extension of) the 'disks'
-> command in solaris?  at least i think thats what its called...
+> In file included from drivers/media/video/zr36120.c:43:
 
-I don't know solaris (from an admin POV), but I meant something like,
-well, devfs. On top of which we could add feature like device naming
-stability across system upgrades (I know solaris does that).
+zoran needs a major update (the zoran people are working on it ...)
 
-Xav
+> drivers/media/video/saa7111.c:37: linux/i2c-old.h: No such file or
+> directory
 
+I've seen patches for this one on the list recently.
+
+  Gerd
+
+-- 
+You can't please everybody.  And usually if you _try_ to please
+everybody, the end result is one big mess.
+				-- Linus Torvalds, 2002-04-20

@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263933AbTDNVNF (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 17:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263936AbTDNVNF (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 17:13:05 -0400
-Received: from fed1mtao04.cox.net ([68.6.19.241]:57753 "EHLO
-	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S263933AbTDNVNE (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 17:13:04 -0400
-Message-ID: <3E9B2720.7020803@cox.net>
-Date: Mon, 14 Apr 2003 14:24:48 -0700
-From: "Kevin P. Fleming" <kpfleming@cox.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4a) Gecko/20030401
-X-Accept-Language: en-us, en
+	id S263936AbTDNVOT (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 17:14:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263940AbTDNVOS (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 17:14:18 -0400
+Received: from smtp011.mail.yahoo.com ([216.136.173.31]:63241 "HELO
+	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263936AbTDNVOM (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 17:14:12 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: 2.5 'what to expect' document.
+Date: Mon, 14 Apr 2003 23:25:53 +0200
+User-Agent: KMail/1.5
+References: <20030414193138.GA24870@suse.de> <200304142308.03553.fsdeveloper@yahoo.de> <20030414211311.GA11160@suse.de>
+In-Reply-To: <20030414211311.GA11160@suse.de>
 MIME-Version: 1.0
-To: linux-hotplug-devel@lists.sourceforge.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] /sbin/hotplug multiplexor
-References: <20030414190032.GA4459@kroah.com> <200304142209.56506.oliver@neukum.org> <20030414203328.GA5191@kroah.com> <200304142311.01245.oliver@neukum.org>
-In-Reply-To: <200304142311.01245.oliver@neukum.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Message-Id: <200304142325.47325.fsdeveloper@yahoo.de>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Neukum wrote:
+On Monday 14 April 2003 23:13, Dave Jones wrote:
+> On Mon, Apr 14, 2003 at 11:08:03PM +0200, Michael Buesch wrote:
+>  > Will it be implemented in future to taint the kernel if CPU is
+>  > overclocked?
+>
+> Theoretically possible on most CPUs, but it's not that simple.
+> - Some CPUs don't encode the necessary bits to tell you their
+>   current multiplier/FSB
+> - Some CPUs don't encode the necessary info to tell you the speed
+>   the CPU should be running at.
 
->>>Now let's be conservative and assume 16KB unswappable memory
->>>per task. Now we take the famous 4000 disk case. 64MB. A lot
->>>but probably not deadly. But multiply this by 15 and the machine is
->>>absolutely dead.
->>
->>Ok, then the "Enterprise Edition" of the distros that expect to handle
->>4000 disks will have to add the following patch to their version of the
->>hotplug package.
->>
->>In the meantime, the other 99% of current Linux users will exist just
->>fine :)
-> 
-> 
-> Well, for a little elegance you might introduce subdirectories for each type
-> of hotplug event and use only them.
-> 
+I know. That was exactly the reason for I asked. :)
 
-Personally, this is one reason why I'd much rather see a daemon-based model 
-where each interested daemon can "subscribe" to the messages it is interested 
-in. It's very possible (and likely, i.e. udev) that the steps involved for the 
-daemon to respond to the hotplug event are so lightweight that creating a 
-subprocess to handle them would be very wasteful.
+-- 
+Regards Michael Buesch.
+http://www.8ung.at/tuxsoft
 
-Also, this lends itself to multiple levels of messaging: say, for example, 
-userspace partitioning. How would the proposed scheme manage to invoke the 
-userspace partition reading _after_ udev has done its job? If udev itself 
-generated a message into the queue after the device node had been created, the 
-partitioning code could listen for that instead of the native hotplug event.
+$ cat /dev/zero > /dev/null
+/dev/null: That's *not* funny! :(
 

@@ -1,59 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319857AbSINIj5>; Sat, 14 Sep 2002 04:39:57 -0400
+	id <S319861AbSINIrT>; Sat, 14 Sep 2002 04:47:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319861AbSINIj5>; Sat, 14 Sep 2002 04:39:57 -0400
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:6056 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S319857AbSINIj4>; Sat, 14 Sep 2002 04:39:56 -0400
-Date: Sat, 14 Sep 2002 10:44:40 +0200
-From: Hans-Joachim Baader <hjb@pro-linux.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20-pre7 config errors
-Message-ID: <20020914084436.GC6178@mandel.hjbaader.home>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5QAgd0e35j3NYeGe"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S319862AbSINIrT>; Sat, 14 Sep 2002 04:47:19 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:39954 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S319861AbSINIrT>;
+	Sat, 14 Sep 2002 04:47:19 -0400
+Message-ID: <3D82F8F9.4080604@domdv.de>
+Date: Sat, 14 Sep 2002 10:53:13 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Urban Widmark <urban@teststation.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: compile warning fix for smb_debug.h
+References: <Pine.LNX.4.44.0209141023420.32154-100000@cola.enlightnet.local>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm just wary about the extra blank which is error prone. Otherwise 
+there's no problem.
 
---5QAgd0e35j3NYeGe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Urban Widmark wrote:
+> On Fri, 13 Sep 2002, Andreas Steinmetz wrote:
+> 
+> 
+>>Hi,
+>>attached is a fix for gcc 3.2 deprecated usage warnings for __FUNCTION__ 
+>>in smb_debug.h. As gcc 2.95.3 doesn't issue the warning and can't handle 
+>>the new macro there's a macro selection based on the compiler major 
+>>version. Patch is against 2.4.20pre7.
+> 
+> 
+> Why not just take the version from 2.5?
+> Or is there a problem with this one too and gcc2.95.3?
+> 
+> #ifdef SMBFS_PARANOIA
+> # define PARANOIA(f, a...) printk(KERN_NOTICE "%s: " f, __FUNCTION__ , ## a)
+> #else
+> # define PARANOIA(f, a...) do { ; } while(0)
+> #endif
+> 
+> etc.
+> 
+> Note the extra space ...
+> 
+> /Urban
+> 
+> 
 
-Hi!
+-- 
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH
 
-In certain configurations (small or minimal), with "make menuconfig",
-it is not possible to enter the submenus for
-
- Fusion MPT device support
- ISDN support
- I2O device support
-
-I don't know on which configuration these depend, but it would be nice if
-they told the user the reason rather than doing nothing.
-
-Regards,
-hjb
---=20
-Pro-Linux - Germany's largest volunteer Linux support site
-http://www.pro-linux.de/          Public Key ID 0x3DDBDDEA
-
---5QAgd0e35j3NYeGe
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment:  
-
-iD8DBQE9gvbzLbySPj3b3eoRAmBgAJwP7QYknARZ1r+KyAYrEAFkMMHWPwCfXwPP
-TPsw6wFEdORM4m9GBKuYXzg=
-=Vzhn
------END PGP SIGNATURE-----
-
---5QAgd0e35j3NYeGe--

@@ -1,58 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265808AbUGZSyd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265817AbUGZSy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265808AbUGZSyd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 14:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265959AbUGZSyd
+	id S265817AbUGZSy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 14:54:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264860AbUGZSy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 14:54:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:38285 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265808AbUGZQzl (ORCPT
+	Mon, 26 Jul 2004 14:54:29 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:35998 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S266181AbUGZQ4V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 12:55:41 -0400
-Date: Mon, 26 Jul 2004 09:55:05 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Pasi Sjoholm <ptsjohol@cc.jyu.fi>
-Cc: Francois Romieu <romieu@fr.zoreil.com>,
-       H?ctor Mart?n <hector@marcansoft.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
-       <netdev@oss.sgi.com>, <brad@brad-x.com>
-Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe
- RLT-8139 related)
-Message-Id: <20040726095505.2ddb3bec@dell_ss3.pdx.osdl.net>
-In-Reply-To: <Pine.LNX.4.44.0407261745120.31123-100000@silmu.st.jyu.fi>
-References: <20040725235927.B30025@electric-eye.fr.zoreil.com>
-	<Pine.LNX.4.44.0407261745120.31123-100000@silmu.st.jyu.fi>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Jul 2004 12:56:21 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: [PATCH] physid for nodes
+Date: Mon, 26 Jul 2004 09:51:27 -0700
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_PaTBBjdbiudNemV"
+Message-Id: <200407260951.27968.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Jul 2004 18:15:34 +0300 (EEST)
-Pasi Sjoholm <ptsjohol@cc.jyu.fi> wrote:
 
-> On Sun, 25 Jul 2004, Francois Romieu wrote:
-> 
-> > Pasi Sjoholm <ptsjohol@cc.jyu.fi> :
-> > [...]
-> > > I haven't been able to reproduce this with normal www-browsing or 
-> > > ssh-connections but it's always reproducible when my eth0 is under heavy 
-> > > load.
-> > I guess it can be reproduced even if the binary (nvidia ?) module is never
-> > loaded after boot, right ?
-> 
-> After 24 hours of hard working I can answer yes to this question. 
-> Now I can reproduce this from 2 to 15 minutes with 2 cp-processes from 
-> samba->workstation->nfs, some software building with make -j 3, playing 
-> some mp3 via nfs to notice when kernel goes down.. =) and so on..
-> 
-> After that ksoftirqd takes almost all the cpu-time and the network is not 
-> working at all.
+--Boundary-00=_PaTBBjdbiudNemV
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Is network traffic still coming in? or perhaps there is a network packet
-that causes some soft irq to go into an infinite loop. The recent iptables bug
-with ip options would be an example.
+Here's the node physid patch refreshed against the latest BK bits.  It works 
+ok for nodes, but I'm wondering what to do about other devices.  Is there a 
+structure that we could embed the physid string into that would apply to PCI 
+devices, busses, CPUs, and memory?  Or should we just add the strings on a 
+case-by-case basis?
+
+The ia64 bits also need to be abstracted out...
+
+Thanks,
+Jesse
+
+--Boundary-00=_PaTBBjdbiudNemV
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="node-physid.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="node-physid.patch"
+
+===== arch/ia64/mm/numa.c 1.7 vs edited =====
+--- 1.7/arch/ia64/mm/numa.c	2004-02-03 21:35:17 -08:00
++++ edited/arch/ia64/mm/numa.c	2004-07-26 09:42:34 -07:00
+@@ -19,6 +19,8 @@
+ #include <linux/bootmem.h>
+ #include <asm/mmzone.h>
+ #include <asm/numa.h>
++#include <asm/sn/nodepda.h>
++#include <asm/sn/module.h>
+ 
+ static struct node *sysfs_nodes;
+ static struct cpu *sysfs_cpus;
+@@ -48,6 +50,12 @@
+ 			break;
+ 
+ 	return (i < num_node_memblks) ? node_memblk[i].nid : (num_node_memblks ? -1 : 0);
++}
++
++void node_to_physid(int node, char *buf)
++{
++	struct nodepda_s *nodeinfo = NODEPDA(node);
++	format_module_id(buf, nodeinfo->module->id, MODULE_FORMAT_BRIEF);
+ }
+ 
+ static int __init topology_init(void)
+===== drivers/base/node.c 1.22 vs edited =====
+--- 1.22/drivers/base/node.c	2004-06-27 00:19:31 -07:00
++++ edited/drivers/base/node.c	2004-07-26 09:43:07 -07:00
+@@ -101,6 +101,17 @@
+ }
+ static SYSDEV_ATTR(numastat, S_IRUGO, node_read_numastat, NULL);
+ 
++static ssize_t node_read_physid(struct sys_device * dev, char * buf)
++{
++	struct node *node_dev = to_node(dev);
++	int len;
++
++	len = snprintf(buf, NODE_MAX_PHYSID + 1, "%s\n", node_dev->physid);
++	return len;
++}
++
++static SYSDEV_ATTR(physid,S_IRUGO,node_read_physid,NULL);
++
+ /*
+  * register_node - Setup a driverfs device for a node.
+  * @num - Node number to use when creating the device.
+@@ -112,6 +123,7 @@
+ 	int error;
+ 
+ 	node->cpumap = node_to_cpumask(num);
++	node_to_physid(num, node->physid);
+ 	node->sysdev.id = num;
+ 	node->sysdev.cls = &node_class;
+ 	error = sysdev_register(&node->sysdev);
+@@ -120,6 +132,7 @@
+ 		sysdev_create_file(&node->sysdev, &attr_cpumap);
+ 		sysdev_create_file(&node->sysdev, &attr_meminfo);
+ 		sysdev_create_file(&node->sysdev, &attr_numastat);
++		sysdev_create_file(&node->sysdev, &attr_physid);
+ 	}
+ 	return error;
+ }
+===== include/asm-ia64/topology.h 1.10 vs edited =====
+--- 1.10/include/asm-ia64/topology.h	2004-02-03 21:35:17 -08:00
++++ edited/include/asm-ia64/topology.h	2004-07-26 09:41:24 -07:00
+@@ -45,6 +45,8 @@
+ 
+ void build_cpu_to_node_map(void);
+ 
++extern void node_to_physid(int node, char *buf);
++
+ #endif /* CONFIG_NUMA */
+ 
+ #include <asm-generic/topology.h>
+===== include/asm-ia64/sn/module.h 1.15 vs edited =====
+--- 1.15/include/asm-ia64/sn/module.h	2004-06-07 08:45:42 -07:00
++++ edited/include/asm-ia64/sn/module.h	2004-07-26 09:43:29 -07:00
+@@ -8,6 +8,7 @@
+ #ifndef _ASM_IA64_SN_MODULE_H
+ #define _ASM_IA64_SN_MODULE_H
+ 
++#include <asm/sn/sgi.h>
+ #include <asm/sn/klconfig.h>
+ #include <asm/sn/ksys/elsc.h>
+ 
+===== include/linux/node.h 1.5 vs edited =====
+--- 1.5/include/linux/node.h	2003-08-18 19:46:23 -07:00
++++ edited/include/linux/node.h	2004-07-26 09:41:26 -07:00
+@@ -22,8 +22,11 @@
+ #include <linux/sysdev.h>
+ #include <linux/cpumask.h>
+ 
++#define NODE_MAX_PHYSID 80
++
+ struct node {
+ 	cpumask_t cpumap;	/* Bitmap of CPUs on the Node */
++	char physid[NODE_MAX_PHYSID]; /* Physical ID of node */
+ 	struct sys_device	sysdev;
+ };
+ 
+
+--Boundary-00=_PaTBBjdbiudNemV--

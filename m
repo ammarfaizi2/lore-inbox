@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263338AbTFPFNd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 01:13:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263349AbTFPFNd
+	id S263349AbTFPFSo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 01:18:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263354AbTFPFSo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 01:13:33 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:37380 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S263338AbTFPFNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 01:13:32 -0400
-Date: Mon, 16 Jun 2003 01:16:04 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Jeff <jeffpc@optonline.net>
+	Mon, 16 Jun 2003 01:18:44 -0400
+Received: from granite.he.net ([216.218.226.66]:33039 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S263349AbTFPFSn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 01:18:43 -0400
+Date: Sun, 15 Jun 2003 22:31:58 -0700
+From: Greg KH <greg@kroah.com>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 64-bit fields in struct net_device_stats
-In-Reply-To: <Pine.LNX.4.50.0306152309220.32020-100000@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.50.0306160113330.32730-100000@montezuma.mastecende.com>
-References: <200306152131.09983.jeffpc@optonline.net> <200306152253.36768.jeffpc@optonline.net>
- <Pine.LNX.4.50.0306152309220.32020-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH] Rocketport changes for 2.5.70-bk
+Message-ID: <20030616053158.GA22368@kroah.com>
+References: <20030613195239.GB1260@kroah.com> <200306160226.h5G2Q3VP009683@eeyore.valparaiso.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200306160226.h5G2Q3VP009683@eeyore.valparaiso.cl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Jun 2003, Zwane Mwaikambo wrote:
+On Sun, Jun 15, 2003 at 10:26:03PM -0400, Horst von Brand wrote:
+> Greg KH <greg@kroah.com> said:
+> > Here is rocket driver patch against 2.5.70-bk18.  Changes are:
+> > 
+> > -  Removed non-GPL license text from headers
+> 
+> Cleared that with the writer(s)? Including it in the kernel might have been
+> a mistake from their part...
 
-> On Sun, 15 Jun 2003, Jeff wrote:
-> 
-> > I now realize, that locking is out of the question. Also, it has been
-> 
-> Well spinlocks in particular would be particularly ugly here and cause 
-> horrid cache line ping pong. Other methods of synchronization would have 
-> to be looked at.
-> 
-> > suggested to use per cpu stats and overflow into a global counter. (Thanks
-> > Zwane) This might be a better idea - the problem is, the counter won't be
-> > 100% accurate at all times. The degree of inaccuracy will vary with the
-> > threshold value. On the other hand, if the threshold is relatively low, no
-> > one will notice the difference these days.
-> 
-> This would be one method of doing updates and for stats it would be fine, 
-> however feel free to look into other ways...
+Did you see who wrote that patch?  :)
 
-Looking closer i'd say go for it, there isn't a real locking issue, if 
-you're looking for something to do this should be rather fun with not 
-that much breakage, of course you'd also have to update some userland 
-tools/utilities.
-
-have fun,
-	Zwane
--- 
-function.linuxpower.ca
+greg k-h

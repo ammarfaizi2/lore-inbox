@@ -1,60 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266951AbRGKXq5>; Wed, 11 Jul 2001 19:46:57 -0400
+	id <S267244AbRGKXur>; Wed, 11 Jul 2001 19:50:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266975AbRGKXqr>; Wed, 11 Jul 2001 19:46:47 -0400
-Received: from node-cffb9242.powerinter.net ([207.251.146.66]:39918 "HELO
-	switchmanagement.com") by vger.kernel.org with SMTP
-	id <S266951AbRGKXqa>; Wed, 11 Jul 2001 19:46:30 -0400
-Message-ID: <3B4CE556.9000608@switchmanagement.com>
-Date: Wed, 11 Jul 2001 16:46:30 -0700
-From: Brian Strand <bstrand@switchmanagement.com>
-Organization: Switch Management
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010628
-X-Accept-Language: en-us
+	id <S267206AbRGKXuh>; Wed, 11 Jul 2001 19:50:37 -0400
+Received: from usc.edu ([128.125.253.136]:37370 "EHLO usc.edu")
+	by vger.kernel.org with ESMTP id <S267259AbRGKXuZ>;
+	Wed, 11 Jul 2001 19:50:25 -0400
+Date: Wed, 11 Jul 2001 16:47:46 -0700 (PDT)
+From: Laurent Itti <itti@java.usc.edu>
+To: linux-kernel@vger.kernel.org
+Subject: receive stats null for bond0 in 2.4.6
+Message-ID: <Pine.SV4.3.96.1010711163709.5481B-100000@java.usc.edu>
 MIME-Version: 1.0
-To: Lance Larsh <llarsh@oracle.com>
-CC: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2x Oracle slowdown from 2.2.16 to 2.4.4
-In-Reply-To: <Pine.LNX.4.21.0107111530170.2342-100000@llarsh-pc3.us.oracle.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lance Larsh wrote:
+Hi all:
 
->On Wed, 11 Jul 2001, Brian Strand wrote:
->
->>Our Oracle configuration is on reiserfs on lvm on Mylex.
->>
->I can pretty much tell you it's the reiser+lvm combination that is hurting
->you here.  At the 2.5 kernel summit a few months back, I reported that
->
-Why did it get so much worse going from 2.2.16 to 2.4.4, with an 
-otherwise-identical configuration?  We had reiserfs+lvm under 2.2.16 too.
+just installed 2.4.6 and all is well except that all stats in
+/proc/net/dev are at zero on the receive side for our 3x100Mbps
+channel-bonded network interface (bond0, using kernel module "bonding").
+The interface works great (we do receive packets).  Transmit side stats
+appear ok. All stats also ok on the 3 ethernet boards that are enslaved
+into the bond.
 
->
->some of our servers experienced as much as 10-15x slowdown after we moved
->to 2.4.  As it turned out, the problem was that the new servers (with
->identical hardware to the old servers) were configured to use reiser+lvm,
->whereas the older servers were using ext2 without lvm.  When we rebuilt
->the new servers with ext2 alone, the problem disappeared.  (Note that we
->also tried reiserfs without lvm, which was 5-6x slower than ext2 without
->lvm.)
->
->I ran lots of iozone tests which illustrated a huge difference in write
->throughput between reiser and ext2.  Chris Mason sent me a patch which
->improved the reiser case (removing an unnecessary commit), but it was
->still noticeably slower than ext2.  Therefore I would recommend that
->at this time reiser should not be used for Oracle database files.
->
-How do ext2+lvm, rawio+lvm, ext2 w/o lvm, and rawio w/o lvm compare in 
-terms of Oracle performance?  I am going to try a migration if 2.4.6 
-doesn't make everything better; do you have any suggestions as to the 
-relative performance of each strategy?
+any idea? thanks!
 
-Thanks,
-Brian
+  -- laurent
+
+
+bond0 = eth1 + eth2 + eth3 (eth0 is not enslaved).
+
+[itti@iLab1 ~]$ cat /proc/net/dev
+Inter-|   Receive                                                |
+Transmit
+ face |bytes    packets errs drop fifo frame compressed multicast|bytes
+packets errs drop fifo colls carrier compressed
+    lo:1196053455 3162886    0    0    0     0          0         0
+1196053455 3162886    0    0    0     0       0          0
+ bond0:       0       0    0    0    0     0          0         0
+1178655990 11823521    0    0    0     0       0          0
+  eth0:1087068641 1222724    0    0    0     0          0         0
+38597714  315369 3240    0    0 12601    6480          0
+  eth1:166095439 1917632    0    0    0     0          0         0
+398336394 3941174    0    0    0     0       0          0
+  eth2:165918470 1916726    0    0    0     0          0         0
+390110017 3941174    0    0    8     0       0          0
+  eth3:165932863 1921640    0    0    0     0          0         0
+393562846 3941173    0    0    6     0       0          0
+
+
+-----------------------------------------------------------------------
+Laurent Itti - University of Southern California, Computer Science Dept
+Hedco Neuroscience Building, HNB-30A - Los Angeles, CA 90089-2520 - USA
+Email: itti@java.usc.edu  - Tel: +1(213)740-3527 - Fax: +1(213)740-5687
+-----------------------------------------------------------------------
 
 

@@ -1,123 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132317AbRAHVZS>; Mon, 8 Jan 2001 16:25:18 -0500
+	id <S130497AbRAHV3M>; Mon, 8 Jan 2001 16:29:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131677AbRAHVZJ>; Mon, 8 Jan 2001 16:25:09 -0500
-Received: from hoemail1.lucent.com ([192.11.226.161]:32753 "EHLO
-	hoemlsrv.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id <S131388AbRAHVZD>; Mon, 8 Jan 2001 16:25:03 -0500
-Cc: "David S. Miller" <davem@redhat.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-ID: <3A5A3027.11A56673@linuxia.ih.lucent.com>
-Date: Mon, 08 Jan 2001 15:24:55 -0600
-From: "M.H.VanLeeuwen" <mhvl@linuxia.ih.lucent.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i586)
-X-Accept-Language: en
+	id <S131388AbRAHV3D>; Mon, 8 Jan 2001 16:29:03 -0500
+Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:41975 "EHLO
+	mf2.private") by vger.kernel.org with ESMTP id <S130497AbRAHV2x>;
+	Mon, 8 Jan 2001 16:28:53 -0500
+Date: Mon, 8 Jan 2001 13:30:56 -0800 (PST)
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Reply-To: <whitney@math.berkeley.edu>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: LKML <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        "William A. Stein" <was@math.harvard.edu>
+Subject: Re: Subtle MM bug
+In-Reply-To: <Pine.LNX.4.21.0101081514180.21675-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.30.0101081312290.762-100000@mf2.private>
 MIME-Version: 1.0
-To: Chris Meadors <clubneon@hereintown.net>
-Original-CC: "David S. Miller" <davem@redhat.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Delay in authentication.
-In-Reply-To: <Pine.LNX.4.31.0101080918260.17858-100000@rc.priv.hereintown.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris,
+On Mon, 8 Jan 2001, Rik van Riel wrote:
 
-I reported the same thing on 11/19/00, whether this is a feature or bug for
-2.4.X was not determined.  Was this behavior intentionally changed and why?
+> How does 2.4 perform when you add an extra GB of swap ?
 
-Looks like 2.2.X gives ECONNREFUSED, but 2.4.X doesn't and times out.
+OK, some more data:
 
-http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg13983.html text below.
+First, I tried booting 2.4.0 with "nosmp" to see if the behavior I observe
+is SMP related.  It isn't, there was no difference under 2.4.0 between
+512MB/512MB/1CPU and 512MB/512MB/2CPUs.
 
-Martin
+Second, I tried going to 2GB of swap with 2.4.0, so 512MB/2GB/2CPUs.
+Again, there is no difference:  as soon as swapping begins with two MAGMA
+processes, interactivity suffers.  I notice that while swapping in this
+situation, the HD light is blinking only intermittently.
 
-----------------------------------------
+I also tried logging in to a fourth VT during this second test, and it got
+nowhere.  In fact, this stopped the top updates completely and the HD
+light also stopped.  After 30 seconds of nothing (all I could do is switch
+VT's), I gave up and sent a ^Z to one MAGMA process; this eventually was
+received, and the system immediately recovered.
+
+Perhaps there is some sort of I/O starvation triggered by two swapping
+processes?
+
+Again, under 2.2.19pre6, the exact same tests yield hardly any loss of
+interactivity, I can log in fine (a little slowly) during the top / two
+MAGMA process test.  And once swapping begins, the HD light is continually
+lit.
+
+Again, I'd be happy to do any additional tests, provide more info about my
+machine, etc.
+
+Cheers,
+Wayne
 
 
-       I had occasion to "telinit 1" today and found that it took a long time
-       to login after root passwd was entered.  this doesn't happen with 2.2.X
-       kernels.
 
-       Is this to be expected with the 2.4 series kernels? or a bug?
 
-       Martin
-
-       strace for 2.4.0-test11-pre7
-
-       ---snip---
-       gettimeofday({974665658, 952483}, NULL) = 0
-       socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP) = 3
-       getpid()                                = 305
-       bind(3, {sin_family=AF_INET, sin_port=htons(905), sin_addr=inet_addr("0.0.0.0")}}, 16) 
-       = 0
-       ioctl(3, FIONBIO, [1])                  = 0
-       sendto(3, "\31\23\233@\0\0\0\0\0\0\0\2\0\1\206\240\0\0\0\2\0\0\0\3"..., 56, 0, 
-       {sin_family=AF_INET, sin_port=htons(111),
-       sin_addr=inet_addr("127.0.0.1")}}, 16) = 56
-       poll([{fd=3, events=POLLIN}], 1, 5000)  = 0
-       ioctl(3, SIOCGIFCONF, 0xbfffb33c)       = 0
-       ioctl(3, SIOCGIFFLAGS, 0xbfffb344)      = 0
-       sendto(3, "\31\23\233@\0\0\0\0\0\0\0\2\0\1\206\240\0\0\0\2\0\0\0\3"..., 56, 0, 
-       {sin_family=AF_INET, sin_port=htons(111),
-       sin_addr=inet_addr("127.0.0.1")}}, 16) = 56 
-       ---snip---
-
-       strace for 2.2.17
-
-       ---snip---
-       gettimeofday({974664928, 735539}, NULL) = 0
-       socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP) = 3
-       getpid()                                = 368
-       bind(3, {sin_family=AF_INET, sin_port=htons(968), sin_addr=inet_addr("0.0.0.0")}}, 16) 
-       = 0
-       ioctl(3, FIONBIO, [1])                  = 0
-       sendto(3, "_c\353\331\0\0\0\0\0\0\0\2\0\1\206\240\0\0\0\2\0\0\0\3"..., 56, 0, 
-       {sin_family=AF_INET, sin_port=htons(111),
-       sin_addr=inet_addr("127.0.0.1")}}, 16) = 56
-       poll([{fd=3, events=POLLIN, revents=POLLERR}], 1, 5000) = 1
-       recvfrom(3, 0x8056380, 400, 0, 0xbfffd66c, 0xbfffd618) = -1 ECONNREFUSED (Connection 
-       refused)
-       close(3)                                = 0  
-       ---snip---
-
----------------------------------------------------------------------
-
-Chris Meadors wrote:
-> 
-> On Mon, 8 Jan 2001, David S. Miller wrote:
-> 
-> > This definitely seems like the classic "/etc/nsswitch.conf is told to
-> > look for YP servers and you are not using YP", so have a look and fix
-> > nsswitch.conf if this is in fact the problem.
-> 
-> What I have never gotten, is why on my machines (no specific distro, just
-> everything built from source and installed by me) login takes a long time,
-> unless I have portmap running.
-> 
-> My /etc/nsswitch.conf would seem to be right:
-> 
-> passwd:         files
-> group:          files
-> shadow:         files
-> 
-> hosts:          files dns
-> networks:       files dns
-> 
-> protocols:      files
-> services:       files
-> ethers:         files
-> rpc:            files
-> 
-> netgroup:       files
-> 
-> What else could effect that?
-> 
-> -Chris
-> --
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

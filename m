@@ -1,60 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264902AbTLWC4X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 21:56:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264916AbTLWC4X
+	id S264893AbTLWC5r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 21:57:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264905AbTLWC5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 21:56:23 -0500
-Received: from tolkor.sgi.com ([198.149.18.6]:10177 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id S264902AbTLWC4V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 21:56:21 -0500
-Date: Mon, 22 Dec 2003 20:55:10 -0600 (CST)
-From: Pat Gefre <pfg@sgi.com>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Pat Gefre <pfg@sgi.com>, akpm@osdl.org, davidm@napali.hpl.hp.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Updating our sn code in 2.6
-In-Reply-To: <20031220122749.A5223@infradead.org>
-Message-ID: <Pine.SGI.3.96.1031222204757.20064A-100000@fsgi900.americas.sgi.com>
+	Mon, 22 Dec 2003 21:57:47 -0500
+Received: from mail-03.iinet.net.au ([203.59.3.35]:52882 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S264893AbTLWC5o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 21:57:44 -0500
+Message-ID: <3FE7AF24.40600@cyberone.com.au>
+Date: Tue, 23 Dec 2003 13:57:40 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Con Kolivas <kernel@kolivas.org>
+CC: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.6.0 batch scheduling, HT aware
+References: <200312231138.21734.kernel@kolivas.org> <200312231224.49069.kernel@kolivas.org> <3FE79C32.6050104@cyberone.com.au> <200312231342.56724.kernel@kolivas.org>
+In-Reply-To: <200312231342.56724.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Dec 2003, Christoph Hellwig wrote:
-
-+ On Fri, Dec 19, 2003 at 07:05:05PM -0800, Jesse Barnes wrote:
-+ > Andrew, I'm ok with these patches (and it looks like Christoph doesn't
-+ > find them too repulsive either) and David said he'd rather have you take
-+ > them directly if they look ok.  Will you merge them into your tree
-+ > please?  Like I said, this gets the tree into a very good state for
-+ > people using Altix machines, and contains a number of important bug
-+ > fixes.
-+ 
-+ Well, the pci-reorg patch is just wrong with tht remaining stuff
-+ and breaks the portable I/O code for IP27 and SN2 I'm working on.
-
-I have not heard any compelling reasons for keeping non-ia64, non-Altix
-code in the ia64, Altix code base. The code re-org is aimed towards a
-new ASIC we are working on - we feel it is needed.
 
 
-+ Just kill that pointless renaming and it's okay - the functional
-+ changes are fine anyway.  Also please let Pat fix the bunch of other
+Con Kolivas wrote:
 
-One can always argue that renaming is pointless - since it doesn't
-change the logic - but we'd like to keep the new names.
+>On Tue, 23 Dec 2003 12:36, Nick Piggin wrote:
+>
+>>Con Kolivas wrote:
+>>
+>>>I discussed this with Ingo and that's the sort of thing we thought of.
+>>>Perhaps a relative crossover of 10 dynamic priorities and an absolute
+>>>crossover of 5 static priorities before things got queued together. This
+>>>is really only required for the UP HT case.
+>>>
+>>Well I guess it would still be nice for "SMP HT" as well. Hopefully the
+>>code can be generic enough that it would just carry over nicely. 
+>>
+>
+>I disagree. I can't think of a real world scenario where 2+ physical cpus 
+>would benefit from this.
+>
 
+Well its the same problem. A nice -20 process can still lose 40-55% of its
+performance to a nice 19 process, a figure of 10% is probably too high and
+we'd really want it <= 5% like what happens with a single logical processor.
 
-+ issues before merging, it's not that much anyway..
+>
+>>It does 
+>>have complications though because the load balancer would have to be taught
+>>about it, and those architectures that do hardware priorities probably
+>>don't even want it.
+>>
+>
+>Probably the simple relative/absolute will have to suffice. However it still 
+>doesn't help the fact that running something cpu bound concurrently at nice 0 
+>with something interactive nice 0 is actually slower if you use a UP HT 
+>processor in SMP mode instead of UP.
+>
 
-I think I did. I sent another email with the changes I made for the
-issues you raised - and updated the patches. If I missed any, please
-let me know.
+It will be based on dynamic priorities, possibly with some feedback from
+nice as well, but it probably still won't be perfect and it will probably
+be very complex *cough* hardware priorities *cough* ;)
 
-David or Andrew can you take these patches ?
+I might try to fit it into a more general priority balancing system because
+we currently have similar sorts of failings on regular SMP as well.
 
-Thanks,
--- Pat
 

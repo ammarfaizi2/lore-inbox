@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267345AbTAGPMy>; Tue, 7 Jan 2003 10:12:54 -0500
+	id <S267409AbTAGPTP>; Tue, 7 Jan 2003 10:19:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267398AbTAGPMy>; Tue, 7 Jan 2003 10:12:54 -0500
-Received: from elin.scali.no ([62.70.89.10]:4362 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S267345AbTAGPMx>;
-	Tue, 7 Jan 2003 10:12:53 -0500
-Date: Tue, 7 Jan 2003 16:24:36 +0100 (CET)
-From: Steffen Persvold <sp@scali.com>
-X-X-Sender: sp@sp-laptop.isdn.scali.no
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "David S. Miller" <davem@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: NAPI and tg3
-In-Reply-To: <1041875880.17472.47.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0301070015320.16633-100000@sp-laptop.isdn.scali.no>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267407AbTAGPTP>; Tue, 7 Jan 2003 10:19:15 -0500
+Received: from 200-206-134-238.async.com.br ([200.206.134.238]:32390 "EHLO
+	anthem.async.com.br") by vger.kernel.org with ESMTP
+	id <S267409AbTAGPTO>; Tue, 7 Jan 2003 10:19:14 -0500
+Date: Tue, 7 Jan 2003 13:27:43 -0200
+From: Christian Reis <kiko@async.com.br>
+To: NFS@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: /var/lib/nfs/sm/ files
+Message-ID: <20030107132743.E2628@blackjesus.async.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Jan 2003, Alan Cox wrote:
 
-> > Ok I can try that, but what about the nice level of ksoftirqd ? Any 
-> > specific reason for it beeing 19 (lowest priority) and not 0 (equally to 
-> > most other processes in the system) ?
-> 
-> Its triggered (in theory but not practice) only when we are overloaded, in
-> which case we want to do other *useful* work first rather than using all
-> the cpu to process requests we can't fulfill
-> 
+Hi there,
 
-I've also tried the NAPI patch for e1000 and it experience the same 
-performance problem with multithreaded apps. The "NAPI-HOWTO" doesn't 
-mention that this could be an issue at all. Does any of the NAPI authors 
-(Jeff ?) have any comments ?
+Can `anybody' (Neil, Trond?) explain what the entries in
+/var/lib/nfs/sm/ are for? If they refer to file locks, can we discover
+which files they are referencing so I can try and understand why we get
+leftover entries in there, and in which scenarios?
 
-Regards,
--- 
-  Steffen Persvold   |       Scali AS      
- mailto:sp@scali.com |  http://www.scali.com
-Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
-Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
+I"m still trying to look into the hang problems [1] I'm getting, since
+there hasn't been a lot of progress about it. Anybody have a minute free
+to try and help?
 
+[1] http://www.uwsg.iu.edu/hypermail/linux/kernel/0210.0/1112.html
 
+Take care,
+--
+Christian Reis, Senior Engineer, Async Open Source, Brazil.
+http://async.com.br/~kiko/ | [+55 16] 261 2331 | NMFL

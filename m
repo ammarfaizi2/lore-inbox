@@ -1,109 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136503AbREIOo3>; Wed, 9 May 2001 10:44:29 -0400
+	id <S136510AbREIOqJ>; Wed, 9 May 2001 10:46:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136506AbREIOoJ>; Wed, 9 May 2001 10:44:09 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:38928 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S136503AbREIOnx>; Wed, 9 May 2001 10:43:53 -0400
-Message-ID: <3AF95789.CCF70FD9@evision-ventures.com>
-Date: Wed, 09 May 2001 16:43:21 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en, de
+	id <S136511AbREIOpt>; Wed, 9 May 2001 10:45:49 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25610 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136510AbREIOpe>; Wed, 9 May 2001 10:45:34 -0400
+Subject: Re: reiserfs, xfs, ext2, ext3
+To: martin@bugs.unl.edu.ar (=?iso-8859-1?q?Mart=EDn=20Marqu=E9s?=)
+Date: Wed, 9 May 2001 15:49:17 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01050910381407.26653@bugs> from "=?iso-8859-1?q?Mart=EDn=20Marqu=E9s?=" at May 09, 2001 10:38:14 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: linux-kernel@vger.kernel.org, "Stephen C. Tweedie" <sct@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>, Jens Axboe <axboe@suse.de>
-Subject: Re: blkdev in pagecache
-In-Reply-To: <20010509043456.A2506@athlon.random> <3AF90A3D.7DD7A605@evision-ventures.com> <20010509151612.D2506@athlon.random>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14xVHE-0002VB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> On Wed, May 09, 2001 at 11:13:33AM +0200, Martin Dalecki wrote:
-> > >   (buffered and direct) to work with a 4096 bytes granularity instead of
-> >
-> > You mean PAGE_SIZE :-).
-> 
-> In my first patch it is really 4096 bytes, but yes I agree we should
-> change that to PAGE_CACHE_SIZE. The _only_ reason it's 4096 fixed bytes is that
-> I wasn't sure all the device drivers out there can digest a bh->b_size of
-> 8k/32k/64k (for the non x86 archs) and I checked the minimal PAGE_SIZE
-> supported by linux is 4k. If Jens says I can sumbit 64k b_size without
-> any problem for all the relevant blkdevices then I will change that in a
-> jiffy ;). Anyways changing that is truly easy, just define
-> BUFFERED_BLOCKSIZE to PAGE_CACHE_SIZE instad of 4096 (plus the .._BITS as
-> well) and it should do the trick automatically. So for now I only cared
-> to make it easy to change that.
-> 
-> > Exactly, please see my former explanation... BTW.> If you are gogin into
-> > the range of PAGE_SIZE, it may be very well possible to remove the
-> > whole page assoociated mechanisms of a buffer_head?
-> 
-> I wouldn't be that trivial to drop it, not much different than dropping
-> it when a fs has a 4k blocksize. I think the dynamic allocation of the
-> bh is not that a bad thing, or at least it's an orthogonal problem to
-> moving the blkdev in pagecache ;).
+> that reiserfs has had lots of bugs, and is marked as experimental in kernel 
+> 2.4.4. Not to mention that the people of RH discourage there users from using 
+> it.
 
-I think the only guys which will have a hard time on this will be ibm's 
-AS/390 people and maybe a far fainter pille of problems will araise in
-lvm and raid
-code... As I stated already in esp the AS/390 are the ones most confused
-about
-blksize_size ver. hardsect_size bh->b_size and so on semantics.
-find /usr/src/linux -exec grep blksize_size /dev/null {} \;
-shows this fine as well as the corresponding BLOCK_SIZE redefinition in
-the
-lvm.h file! Well not much worth of caring about I think... (It will just
-*force*
-them to write cleaner code 8-).
+At the time Red Hat 7.1 was mastered Reiserfs was not stable. The reiserfs in
+the RH kernel has some of the tail fixes but newer ones are not present. Also
+it had other problems then: the fsck tool was useless, it didnt work on
+big endian machines (eg PPC, S/390).
 
-> 
-> > Basically this is something which should come down to the strategy
-> > routine
-> > of the corresponding device and be fixed there... And then we have this
-> 
-> so you mean the device driver should make sure blk_size is PAGE_CACHE_SIZE
-> aligned and to take care of writing zero in the pagecache beyond the end
-> of the device? That would be fine from my part but I'm not yet sure
-> that's the cleanest manner to handle that.
+If Hans sent me a patch removing the experimental tag from Reiserfs the only
+thing that would make me hesitate the slightest from applying it would be the
+endianness thing, and thats not enough to stop it being applied.
 
-Yes that's about it. We *can* afford to expect that the case of access
-behind
-a device should be handled as an exception and not by checks
-beforeahead.
-This should greatly simplify the main code...
+> There has also been lots of talks about reiserfs being the cause of some data 
+> lose and performance lose (not sure about this last one).
 
-> 
-> > Some notes about the code:
-> >
-> >       kdev_t dev = inode->i_rdev;
-> > -     struct buffer_head * bh, *bufferlist[NBUF];
-> > -     register char * p;
-> > +     int err;
-> >
-> > -     if (is_read_only(dev))
-> > -             return -EPERM;
-> > +     err = -EIO;
-> > +     if (iblock >= (blk_size[MAJOR(dev)][MINOR(dev)] >>
-> > (BUFFERED_BLOCKSIZE_BITS - BLOCK_SIZE_BITS)))
-> >                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> >
-> > blk_size[MAJOR(dev)] can very well be equal NULL! In this case one is
-> > supposed to assume blk_size[MAJOR(dev)][MINOR(dev)] to be INT_MAX.
-> > Are you shure it's guaranteed here to be already preset?
-> >
-> > Same question goes for calc_end_index and calc_rsize.
-> 
-> that's a bug indeed (a minor one at least because all the relevant
-> blkdevices initialize such array and if it's not initialized you notice
-> before you can make any damage ;), thanks for pointing it out!
+If you are running 2.4.4/2.4.4-ac/2.4.5pre I believe all the relevant reiserfs
+patches are applied. The new fsck seems to work a lot better too. The limiters
+right now are:
+	-	You need a patch for NFS (its on their site no big deal)
+	-	You can only use little endian boxes (x86 for you so ok)
 
-This kind of problem slipery in are the reasons for the last tinny
-encapsulation patch I sendid
-to Linus and Alan (for inclusion into 2.4.5)....
+> So what I want is to know which is the status of this 3 journaling FS. Which 
+> is the one we should look for?
+> 
+> I think that the data lose is not significant in a proxy cache, if the FS is 
+> really fast, as is said reiserfs is.
+
+reiserfs seems to handle large amounts of small files well, up to a point but
+it also seems to degrade over time. ext3 isnt generally available for 2.4 but
+is proving very solid on 2.2 and has good fsck tools. Ext3 does not add
+anything over ext2 in terms of large directories of files and other ext2
+performance limits.
+
+XFS is very fast most of the time (deleting a file is sooooo slow its like using
+old BSD systems). Im not familiar enough with its behaviour under Linux yet.
+
+What you might want to do is to make a partition for 'mystery journalling fs'
+and benchmark a bit.
+
+Alan
+

@@ -1,58 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265502AbUABKpr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 05:45:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265503AbUABKpq
+	id S265500AbUABKo1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 05:44:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265502AbUABKo1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 05:45:46 -0500
-Received: from elma.elma.fi ([192.89.233.77]:52181 "EHLO elma.elma.fi")
-	by vger.kernel.org with ESMTP id S265502AbUABKpe (ORCPT
+	Fri, 2 Jan 2004 05:44:27 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:48060 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265500AbUABKoY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 05:45:34 -0500
-Date: Fri, 2 Jan 2004 12:45:32 +0200 (EET)
-From: Antti Lankila <alankila@elma.net>
-To: linux-kernel@vger.kernel.org
-Subject: USB_UHCI hangs with Thinkpad A31 in 2.6.1-rc1
-Message-ID: <Pine.A41.4.58.0401021209360.56310@tokka.elma.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 2 Jan 2004 05:44:24 -0500
+Date: Fri, 2 Jan 2004 11:44:19 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Christophe Saout <christophe@saout.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       DM-Devel <dm-devel@sistina.com>
+Subject: Re: question about BIO/request ordering / barriers
+Message-ID: <20040102104419.GM5523@suse.de>
+References: <1072879267.22227.10.camel@leto.cs.pocnet.net> <20031231155607.GA5523@suse.de> <1072886889.4395.7.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1072886889.4395.7.camel@leto.cs.pocnet.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With the 2.6.0 kernel, my Microsoft Notebook USB mouse does not recover from
-APM suspend. The light on the backside stays dark. /var/log/messages says:
+On Wed, Dec 31 2003, Christophe Saout wrote:
+> Am Mi, den 31.12.2003 schrieb Jens Axboe um 16:56:
+> 
+> [Sorry for quoting the whole thing again, but I think the DM developers
+> might know about the issue too]
+> 
+> > On Wed, Dec 31 2003, Christophe Saout wrote:
+> > > Hi!
+> > > 
+> > > I'm just digging through the device-mapper code and a question came up:
+> > > 
+> > > Are "intermediate block device drivers" (like device-mapper) allowed to
+> > > reorder BIOs?
+> > > 
+> > > I'm not talking about BIOs submitted from different threads at the same
+> > > time but BIOs submitted from the same thread sequentially, especially
+> > > writes.
+> > > 
+> > > That would mean that BIOs might be reordered around barriers which would
+> > > break potential users.
+> > 
+> > That would not be a good idea. Reordering around a barrier is forbidden,
+> > you may reorder as you please otherwise. Consider yourself the io
+> > scheduler, that is essentially the function you are performing. The io
+> > scheduler will honor the barrier as well.
+> > 
+> > > At the moment I suppose this shouldn't be an issue because I didn't find
+> > > a single user in the whole kernel that actually submits BIOs with
+> > > BIO_RW_BARRIER set via submit_bio/generic_make_request (journaling
+> > > filesystems are simply waiting until all writes are finished before
+> > > continueing, right?).
+> > 
+> > Right, there are some missing bits still.
+> 
+> Ah, ok. So things are probably going to break in the future if they
+> aren't fixed now. That's what I wanted do know.
 
-Dec 31 20:43:37 laptop kernel: usb 2-1: control timeout on ep0out
+Yep
 
-but this works in the 2.4 kernels. With -rc1, the system locked solid when the
-usb_uhci driver got modprobed. No keyboard input, no disk activity, and when
-re-inserting the USB mouse (which is enabled by BIOS at reset), the light
-remained dark.  I saw the first 3 or 4 lines about detected hubs before it
-froze, but I don't have those lines in my system logs.  I only remember they
-were very similar to lines from my 2.6.0:
+> > > There are same cases (in device-mapper) where
+> > > 
+> > > a) writes get get suspended and queued for later submission where it is
+> > > not ensured that those writes are submitted before any other writes that
+> > > could possibly occur after the device gets resumed (generic dm code)
+> > > b) a stack (instead of a fifo) is used to queue requests and submit them
+> > > later (not yet included code)
+> > > c) writes can get queued but reads are directly passed through
+> > > (snapshotting code too)
+> > > 
+> > > Also, if DM recevices a barrier shouldn't this barrier be somehow sent
+> > > to all real devices instead of the one that the request is actually sent
+> > > to?
+> > 
+> > Yes, the driver must take whatever precautions necessary...
+> 
+> Ok, thanks. Let's see what can be done about that.
+> 
+> Is it possible to create empty BIOs that just act as barrier? 
 
-Jan  2 09:57:01 laptop kernel: uhci_hcd 0000:00:1d.1: UHCI Host Controller
-Jan  2 09:57:01 laptop kernel: uhci_hcd 0000:00:1d.1: irq 10, io base 00001820
-Jan  2 09:57:01 laptop kernel: uhci_hcd 0000:00:1d.1: new USB bus registered, assigned bus number 2
+Unfortunately no, the barrier bit currently has to be tied to a bio with
+content. I'd be willing to accept a patch to send down empty barrier
+bio's though, it's a useful feature in this context.
 
-Here's what lspci -v has to say about the controllers:
+> Because I think when device-mapper encounters a BIO with BIO_RW_BARRIER
+> set it then should also create barriers for the other devices.
 
-00:1d.0 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #1) (rev 02) (prog-if 00 [UHCI])
-        Subsystem: IBM ThinkPad A/T/X Series
-        Flags: bus master, medium devsel, latency 0, IRQ 5
-        I/O ports at 1800 [size=32]
-
-And two more near-identical entries with IRQ10, io-port 1820 and IRQ10, 1840.
-My kernel config's enabled USB options are as follows:
-
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_UHCI_HCD=m
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_HIDDEV=y
-
-Please reply with a CC to me if there is any more information you need.
+It's pretty tricky. Search the list archives for past discussions on
+this.
 
 -- 
-Antti
+Jens Axboe
+

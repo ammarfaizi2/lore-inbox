@@ -1,116 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265429AbUFIAOP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265463AbUFIAZI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265429AbUFIAOP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 20:14:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265467AbUFIAOP
+	id S265463AbUFIAZI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 20:25:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265467AbUFIAZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 20:14:15 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:29620 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S265429AbUFIAN6 (ORCPT
+	Tue, 8 Jun 2004 20:25:08 -0400
+Received: from mail.dif.dk ([193.138.115.101]:54179 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S265463AbUFIAY5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 20:13:58 -0400
-Date: Tue, 8 Jun 2004 17:09:35 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
-       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-       mikpe@csd.uu.se, nickpiggin@yahoo.com.au, rusty@rustcorp.com.au,
-       Simon.Derr@bull.net, wli@holomorphy.com
-Subject: PATCH] cpumask 11/10 comment, spacing tweaks
-Message-Id: <20040608170935.0b3f2cc8.pj@sgi.com>
-In-Reply-To: <20040603101115.7f746d98.pj@sgi.com>
-References: <20040603094339.03ddfd42.pj@sgi.com>
-	<20040603101115.7f746d98.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Jun 2004 20:24:57 -0400
+Date: Wed, 9 Jun 2004 02:24:12 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix warnings in drivers/mtd/devices/doc200?.c
+Message-ID: <Pine.LNX.4.56.0406090205170.25359@jjulnx.backbone.dif.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew - If you take my other cpumask patchs, could you add this one?
-	 I just noticed that my 'big cpumask comment' was a bit stale.
 
-	 No code changes - just spacing and comments.
+Here's an attempt to fix the following warnings :
 
-Tweak cpumask.h comments, spacing:
+drivers/mtd/devices/doc2000.c: In function `DoC2k_init':
+drivers/mtd/devices/doc2000.c:567: warning: assignment from incompatible pointer type
+drivers/mtd/devices/doc2000.c:568: warning: assignment from incompatible pointer type
 
- 1) Add comments for cpu_present_map macros: num_present_cpus() and cpu_present()
- 2) Remove comments for obsolete macros: cpu_set_online(), cpu_set_offline()
- 3) Reorder a few comment lines, to match the code and confuse readers of this patch
- 3) Tabify one chunk of code
+drivers/mtd/devices/doc2001.c: In function `DoCMil_init':
+drivers/mtd/devices/doc2001.c:376: warning: assignment from incompatible pointer type
+drivers/mtd/devices/doc2001.c:377: warning: assignment from incompatible pointer type
 
- include/linux/cpumask.h |   34 +++++++++++++++++++---------------
- 1 files changed, 19 insertions(+), 15 deletions(-)
+What goes on in both files is identical, and my attempted fix is also
+identical for both files.
+Here's what goes on:
+An function pointer is assigned to the read_ecc and write_ecc members of a
+struct mtd_info. These members are if the following form :
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+int (*read_ecc) (struct mtd_info *mtd, loff_t from, size_t len, size_t *retlen, u_char *buf, u_char *eccbuf, struct nand_oobinfo *oobsel);
+int (*write_ecc) (struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen, const u_char *buf, u_char *eccbuf, struct nand_oobinfo *oobsel);
 
-Index: 2.6.7-rc2-mm2/include/linux/cpumask.h
-===================================================================
---- 2.6.7-rc2-mm2.orig/include/linux/cpumask.h	2004-06-07 15:45:25.000000000 -0700
-+++ 2.6.7-rc2-mm2/include/linux/cpumask.h	2004-06-08 16:46:05.000000000 -0700
-@@ -47,17 +47,21 @@
-  * int cpumask_scnprintf(buf, len, mask) Format cpumask for printing
-  * int cpumask_parse(ubuf, ulen, mask)	Parse ascii string as cpumask
-  *
-+ * for_each_cpu_mask(cpu, mask)		for-loop cpu over mask
-+ *
-  * int num_online_cpus()		Number of online CPUs
-  * int num_possible_cpus()		Number of all possible CPUs
-+ * int num_present_cpus()		Number of present CPUs
-+ *
-  * int cpu_online(cpu)			Is some cpu online?
-  * int cpu_possible(cpu)		Is some cpu possible?
-- * void cpu_set_online(cpu)		set cpu in cpu_online_map
-- * void cpu_set_offline(cpu)		clear cpu in cpu_online_map
-+ * int cpu_present(cpu)			Is some cpu present (can schedule)?
-+ *
-  * int any_online_cpu(mask)		First online cpu in mask
-  *
-- * for_each_cpu_mask(cpu, mask)		for-loop cpu over mask
-  * for_each_cpu(cpu)			for-loop cpu over cpu_possible_map
-  * for_each_online_cpu(cpu)		for-loop cpu over cpu_online_map
-+ * for_each_present_cpu(cpu)		for-loop cpu over cpu_present_map
-  *
-  * Subtlety:
-  * 1) The 'type-checked' form of cpu_isset() causes gcc (3.3.2, anyway)
-@@ -336,19 +340,19 @@
- extern cpumask_t cpu_present_map;
- 
- #if NR_CPUS > 1
--#define num_online_cpus()    cpus_weight(cpu_online_map)
--#define num_possible_cpus()  cpus_weight(cpu_possible_map)
--#define num_present_cpus()   cpus_weight(cpu_present_map)
--#define cpu_online(cpu)      cpu_isset((cpu), cpu_online_map)
--#define cpu_possible(cpu)    cpu_isset((cpu), cpu_possible_map)
--#define cpu_present(cpu)     cpu_isset((cpu), cpu_present_map)
-+#define num_online_cpus()	cpus_weight(cpu_online_map)
-+#define num_possible_cpus()	cpus_weight(cpu_possible_map)
-+#define num_present_cpus()	cpus_weight(cpu_present_map)
-+#define cpu_online(cpu)		cpu_isset((cpu), cpu_online_map)
-+#define cpu_possible(cpu)	cpu_isset((cpu), cpu_possible_map)
-+#define cpu_present(cpu)	cpu_isset((cpu), cpu_present_map)
- #else
--#define num_online_cpus()    1
--#define num_possible_cpus()  1
--#define num_present_cpus()   1
--#define cpu_online(cpu)      ((cpu) == 0)
--#define cpu_possible(cpu)    ((cpu) == 0)
--#define cpu_present(cpu)     ((cpu) == 0)
-+#define num_online_cpus()	1
-+#define num_possible_cpus()	1
-+#define num_present_cpus()	1
-+#define cpu_online(cpu)		((cpu) == 0)
-+#define cpu_possible(cpu)	((cpu) == 0)
-+#define cpu_present(cpu)	((cpu) == 0)
- #endif
- 
- #define any_online_cpu(mask)			\
+but the protype of the function a pointer to which is assigned to them
+looks like this:
+
+static int doc_read_ecc(struct mtd_info *mtd, loff_t from, size_t len,size_t *retlen, u_char *buf, u_char *eccbuf, int oobsel);
+static int doc_write_ecc(struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen, const u_char *buf, u_char *eccbuf, int oobsel);
+
+The difference is the last parameter "int oobsel" vs the expected "struct nand_oobinfo *oobsel"
+
+I must admit that I do not know what the purpose of "oobsel" is, nor do I
+know very much about these functions or mtd devices in general, but since
+the doc_*_ecc functions do not use the oobsel parameter at all I still
+think I can propose a safe fix by simply changing the functions to take a
+struct nand_oobinfo *  argument instead of their current  int  argument.
+Comments??
+
+In any case, here are two patches that change the functions to take the
+expected argument types and thus kill the warnings. If this looks sane to
+you, then please consider applying. If I've missed something then feel
+free to point out my error.  I've only compile tested these patches.
+
+Patches are against 2.6.7-rc3 :
 
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+--- linux-2.6.7-rc3/drivers/mtd/devices/doc2000.c-orig	2004-06-09 02:01:43.000000000 +0200
++++ linux-2.6.7-rc3/drivers/mtd/devices/doc2000.c	2004-06-09 02:03:22.000000000 +0200
+@@ -53,9 +53,11 @@ static int doc_read(struct mtd_info *mtd
+ static int doc_write(struct mtd_info *mtd, loff_t to, size_t len,
+ 		     size_t *retlen, const u_char *buf);
+ static int doc_read_ecc(struct mtd_info *mtd, loff_t from, size_t len,
+-			size_t *retlen, u_char *buf, u_char *eccbuf, int oobsel);
++			size_t *retlen, u_char *buf, u_char *eccbuf,
++			struct nand_oobinfo *oobsel);
+ static int doc_write_ecc(struct mtd_info *mtd, loff_t to, size_t len,
+-			 size_t *retlen, const u_char *buf, u_char *eccbuf, int oobsel);
++			 size_t *retlen, const u_char *buf, u_char *eccbuf,
++			 struct nand_oobinfo *oobsel);
+ static int doc_read_oob(struct mtd_info *mtd, loff_t ofs, size_t len,
+ 			size_t *retlen, u_char *buf);
+ static int doc_write_oob(struct mtd_info *mtd, loff_t ofs, size_t len,
+@@ -601,7 +603,8 @@ static int doc_read(struct mtd_info *mtd
+ }
+
+ static int doc_read_ecc(struct mtd_info *mtd, loff_t from, size_t len,
+-			size_t * retlen, u_char * buf, u_char * eccbuf, int oobsel)
++			size_t * retlen, u_char * buf, u_char * eccbuf,
++			struct nand_oobinfo *oobsel)
+ {
+ 	struct DiskOnChip *this = (struct DiskOnChip *) mtd->priv;
+ 	unsigned long docptr;
+@@ -750,7 +753,7 @@ static int doc_write(struct mtd_info *mt
+
+ static int doc_write_ecc(struct mtd_info *mtd, loff_t to, size_t len,
+ 			 size_t * retlen, const u_char * buf,
+-			 u_char * eccbuf, int oobsel)
++			 u_char * eccbuf, struct nand_oobinfo *oobsel)
+ {
+ 	struct DiskOnChip *this = (struct DiskOnChip *) mtd->priv;
+ 	int di; /* Yes, DI is a hangover from when I was disassembling the binary driver */
+
+
+--- linux-2.6.7-rc3/drivers/mtd/devices/doc2001.c-orig	2004-06-09 02:04:32.000000000 +0200
++++ linux-2.6.7-rc3/drivers/mtd/devices/doc2001.c	2004-06-09 02:06:32.000000000 +0200
+@@ -37,9 +37,11 @@ static int doc_read(struct mtd_info *mtd
+ static int doc_write(struct mtd_info *mtd, loff_t to, size_t len,
+ 		     size_t *retlen, const u_char *buf);
+ static int doc_read_ecc(struct mtd_info *mtd, loff_t from, size_t len,
+-			size_t *retlen, u_char *buf, u_char *eccbuf, int oobsel);
++			size_t *retlen, u_char *buf, u_char *eccbuf,
++			struct nand_oobinfo *oobsel);
+ static int doc_write_ecc(struct mtd_info *mtd, loff_t to, size_t len,
+-			 size_t *retlen, const u_char *buf, u_char *eccbuf, int oobsel);
++			 size_t *retlen, const u_char *buf, u_char *eccbuf,
++			 struct nand_oobinfo *oobsel);
+ static int doc_read_oob(struct mtd_info *mtd, loff_t ofs, size_t len,
+ 			size_t *retlen, u_char *buf);
+ static int doc_write_oob(struct mtd_info *mtd, loff_t ofs, size_t len,
+@@ -399,15 +401,16 @@ static void DoCMil_init(struct mtd_info
+ 	}
+ }
+
+-static int doc_read (struct mtd_info *mtd, loff_t from, size_t len,
++static int doc_read(struct mtd_info *mtd, loff_t from, size_t len,
+ 		     size_t *retlen, u_char *buf)
+ {
+ 	/* Just a special case of doc_read_ecc */
+ 	return doc_read_ecc(mtd, from, len, retlen, buf, NULL, 0);
+ }
+
+-static int doc_read_ecc (struct mtd_info *mtd, loff_t from, size_t len,
+-			 size_t *retlen, u_char *buf, u_char *eccbuf, int oobsel)
++static int doc_read_ecc(struct mtd_info *mtd, loff_t from, size_t len,
++			 size_t *retlen, u_char *buf, u_char *eccbuf,
++			 struct nand_oobinfo *oobsel)
+ {
+ 	int i, ret;
+ 	volatile char dummy;
+@@ -525,15 +528,16 @@ static int doc_read_ecc (struct mtd_info
+ 	return ret;
+ }
+
+-static int doc_write (struct mtd_info *mtd, loff_t to, size_t len,
++static int doc_write(struct mtd_info *mtd, loff_t to, size_t len,
+ 		      size_t *retlen, const u_char *buf)
+ {
+ 	char eccbuf[6];
+ 	return doc_write_ecc(mtd, to, len, retlen, buf, eccbuf, 0);
+ }
+
+-static int doc_write_ecc (struct mtd_info *mtd, loff_t to, size_t len,
+-			  size_t *retlen, const u_char *buf, u_char *eccbuf, int oobsel)
++static int doc_write_ecc(struct mtd_info *mtd, loff_t to, size_t len,
++			  size_t *retlen, const u_char *buf, u_char *eccbuf,
++			  struct nand_oobinfo *oobsel)
+ {
+ 	int i,ret = 0;
+ 	volatile char dummy;
+
+
+--
+Jesper Juhl <juhl-lkml@dif.dk>
+

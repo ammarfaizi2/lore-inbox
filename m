@@ -1,31 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312923AbSDERpT>; Fri, 5 Apr 2002 12:45:19 -0500
+	id <S313131AbSDERDq>; Fri, 5 Apr 2002 12:03:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312986AbSDERpJ>; Fri, 5 Apr 2002 12:45:09 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:1809 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S312923AbSDERow>; Fri, 5 Apr 2002 12:44:52 -0500
-Date: Fri, 5 Apr 2002 09:44:39 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Sebastian Droege <sebastian.droege@gmx.de>
-cc: Brett Nuske <bnuske@cs.rmit.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: COMPILE BUG: SiS DRM Support
-In-Reply-To: <20020405143410.0cfc2c2c.sebastian.droege@gmx.de>
-Message-ID: <Pine.LNX.4.10.10204050943000.21397-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313133AbSDERDg>; Fri, 5 Apr 2002 12:03:36 -0500
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:2315 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S313131AbSDERDV>; Fri, 5 Apr 2002 12:03:21 -0500
+Date: Fri, 5 Apr 2002 18:02:54 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Init data debugging
+Message-ID: <20020405170254.GA2092@berserk.demon.co.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: Peter Horton <pdh@berserk.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Would it be feasible to add a kernel debugging option which rather than
+discarding init data/code sections just marked the pages as not
+accessible, so illegal accesses could be caught ?
 
-> > Is there any obvious reasons why this isn't compiling?
-> Try compiling with SiS framebuffer device (CONFIG_FB_SIS and 
-> CONFIG_FB_SIS_300 or CONFIG_FB_SIS_315) activated... the SiS DRI driver
-> needs it... don't ask me why ;)
-
-Because they share common code. It is actually better that they work
-together since this way they will not step on each others toes. Someday I
-plan to merge both the fbdev and drm interfaces together.
-
-
+P.

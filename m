@@ -1,72 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263369AbTKFLJW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 06:09:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbTKFLJV
+	id S263497AbTKFLQV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 06:16:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263500AbTKFLQV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 06:09:21 -0500
-Received: from trantor.org.uk ([213.146.130.142]:15080 "EHLO trantor.org.uk")
-	by vger.kernel.org with ESMTP id S263369AbTKFLJJ (ORCPT
+	Thu, 6 Nov 2003 06:16:21 -0500
+Received: from f20.mail.ru ([194.67.57.52]:29714 "EHLO f20.mail.ru")
+	by vger.kernel.org with ESMTP id S263497AbTKFLQU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 06:09:09 -0500
-Subject: Re: CONFIG_PACKET_MMAP revisited
-From: Gianni Tedesco <gianni@scaramanga.co.uk>
-To: odain2@mindspring.com
+	Thu, 6 Nov 2003 06:16:20 -0500
+From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	<arvidjaar@mail.ru>
+To: =?koi8-r?Q?=22?=Larry McVoy=?koi8-r?Q?=22=20?= <lm@bitmover.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <176730-2200310329491330@M2W026.mail2web.com>
-References: <176730-2200310329491330@M2W026.mail2web.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-OSfUzPhMAUiXbAdkoYDA"
-Message-Id: <1068116914.6144.1410.camel@lemsip>
+Subject: Re: linux.bkbits.net down=?koi8-r?Q?=3F?=
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 06 Nov 2003 12:08:34 +0100
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: unknown via proxy [212.30.182.96]
+Date: Thu, 06 Nov 2003 14:22:37 +0300
+In-Reply-To: <20031105151941.GA4195@work.bitmover.com>
+Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	  <arvidjaar@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E1AHiDl-0000It-00.arvidjaar-mail-ru@f20.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-OSfUzPhMAUiXbAdkoYDA
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, 2003-10-29 at 05:09, odain2@mindspring.com wrote:
-> I believe that in normal operation each packet
-> (or with NICs that do interrupt coalescing, every n packets) causes an
-> interrupt which causes a context switch, the kernel then copies the data
-> from the DMA buffer to the shared buffer and does a RETI.  That's fairly
-> expensive.=20
-
-The cost of handling that interrupt and doing an iret is unavoidable
-(ignoring NAPI). The main point you are missing with the ring buffer is
-that if packets come in at a fast enough rate, the usermode task never
-context switches, because there is always data in the ring buffer, so it
-loops in usermode forever.
-
-The problem could be the packets are coming in just too slow to allow
-the ring buffer to work properly and causing the application to sleep on
-poll(2) every time. This would kill performance at pathelogical packet
-rates I guess.
-
-You could work around this by spinning for a few thousand spins before
-calling poll(2) (or even indefinately for that matter, and allow the
-kernel to preempt you if need be).
-
---=20
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
 
 
---=-OSfUzPhMAUiXbAdkoYDA
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+-----Original Message-----
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+> 
+> bkbits is definitely up but we did switch T1 providers recently.
+> That included changing the routes in the backbone.  The only thing I can
+> think of is that your part of the backbone does not have a route for us.
+> We're 192.132.92.*, see if you can traceroute to us.
+> 
 
-iD8DBQA/qiuykbV2aYZGvn0RAjbiAJ4o0DQKkFq70A3I7tPHS4Iv48qejQCfZso2
-NEplrahHzaJQNlmWSTAT3Ws=
-=YF4C
------END PGP SIGNATURE-----
+I can't traceroute behind NAT firewall but I can ping it no problems:
 
---=-OSfUzPhMAUiXbAdkoYDA--
+root@student8:/#> ping linux.bkbits.net
+linux.bkbits.net is alive
 
+the problem is attempt to enter any repository there (linux-2.5, linux-2.4
+or the third, I forgot) just times out.
+
+Oh well, I have to try once more when I am back on my regular system.
+
+thank you
+
+-andrey
+
+> On Wed, Nov 05, 2003 at 02:06:24PM +0300, "Andrey Borzenkov"  wrote:
+> > 
+> > For several days I cannot connect to it. I can reach as far as to
+> > front page but clicking on linux-2.4 or linux-2.5 just timeouts.
+> > 
+> > TIA
+> > 
+> > -andrey
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> -- 
+> ---
+> Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+> 

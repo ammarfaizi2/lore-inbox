@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130839AbQKKNuw>; Sat, 11 Nov 2000 08:50:52 -0500
+	id <S130785AbQKKNux>; Sat, 11 Nov 2000 08:50:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130785AbQKKNuo>; Sat, 11 Nov 2000 08:50:44 -0500
+	id <S130788AbQKKNuo>; Sat, 11 Nov 2000 08:50:44 -0500
 Received: from limes.hometree.net ([194.231.17.49]:26912 "EHLO
 	limes.hometree.net") by vger.kernel.org with ESMTP
-	id <S130788AbQKKNub>; Sat, 11 Nov 2000 08:50:31 -0500
+	id <S130791AbQKKNuc>; Sat, 11 Nov 2000 08:50:32 -0500
 To: linux-kernel@vger.kernel.org
-Date: Sat, 11 Nov 2000 13:35:26 +0000 (UTC)
+Date: Sat, 11 Nov 2000 13:40:42 +0000 (UTC)
 From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
-Message-ID: <8ujhuu$1qu$1@forge.tanstaafl.de>
+Message-ID: <8uji8q$1ru$1@forge.tanstaafl.de>
 Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-In-Reply-To: <jmerkey@timpanogas.org>, <20001111123325.A17600@uni-mainz.de>
+In-Reply-To: <3A0C427A.E015E58A@timpanogas.org>, <3A0C6E01.EFA10590@timpanogas.org>
 Reply-To: hps@tanstaafl.de
-Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in /var/spool/mqueue]
+Subject: Re: sendmail fails to deliver mail with attachments in /var/spool/mqueue
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dominik.kubla@uni-mainz.de (Dominik Kubla) writes:
+jmerkey@timpanogas.org (Jeff V. Merkey) writes:
 
->I can do better! I had a smart ass trying to backup his harddrives
->using email, no less than 2Gig!
 
-So what? Get enough spool space in /var/spool/mqueue and a platform
-with 64 bit file support and it works just fine. I have some boxes
-where the users send 100+ MByte mails on a regular base. Once you beat
-the procmail into submission, this simply works.
+>We got to the bottom of the sendmail problem.  The line:
 
-sendmail is one of the very best pieces of free multi-platform
-software that is available. I really admire the people that wrote
-it. Kudos to everyone that wrote on this software. All hail Eric
-Allman. ;-)
+> -O QueueLA=20 
 
-It is mean, tough, hard to understand and configure but definitely
-industrial strength, proven and reliable. Something you can't say of
-all this sissy "free" software around today.
+>and
 
-And once you get a hang of "left side, right side" rules, you can read
-sendmail.cf like normal text. The idea of using an algorithmic concept
-for a config file still shines after twenty years of development. So
-much for "GUIs".
+> -O RefuseLA=18
 
-	sendmail rocks
+>Need to be cranked up in sendmail.cf to something high since the
+>background VM on a very busy Linux box seems to exceed this which causes
+>large emails to get stuck in the /var/spool/mqueue directory for long
+>periods of time.  Since vger is getting hammered with FTP all the time,
+>and is rarely idle.  This also explains what Richard was seeing with VM
+>thrashing in a box with low memory.  
+
+So what? This is written in the documentation of the program? You do read
+documentation, do you?
+
+>The problem of dropping connections on 2.4 was related to the O RefuseLA
+>settings.  The defaults  in the RedHat, Suse, and OpenLinux RPMs are
+>clearly set too low for modern Linux kernels.  You may want them cranked
+>up to 100 or something if you want sendmail to always work.  
+
+These settings are for single user / small user numbers boxes.
+
+If you're using an out of the vendor box distribution configuration
+for a high traffic server, you're nuts. Or ignorant. Or dumb. Or your
+consultant is an idiot.
+
+	Regards
 		Henning
+
+
 -- 
 Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
 INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de

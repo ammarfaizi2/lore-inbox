@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288843AbSAEPhc>; Sat, 5 Jan 2002 10:37:32 -0500
+	id <S288846AbSAEPob>; Sat, 5 Jan 2002 10:44:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288846AbSAEPhV>; Sat, 5 Jan 2002 10:37:21 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:2310 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S288843AbSAEPhG>;
-	Sat, 5 Jan 2002 10:37:06 -0500
-Date: Sat, 5 Jan 2002 16:37:03 +0100
+	id <S288847AbSAEPoL>; Sat, 5 Jan 2002 10:44:11 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:26118 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S288846AbSAEPoJ>;
+	Sat, 5 Jan 2002 10:44:09 -0500
+Date: Sat, 5 Jan 2002 16:44:05 +0100
 From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Klaus Zerwes <kzerwes@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bug ?
-Message-Id: <20020105163703.730e8b53.skraw@ithnet.com>
-In-Reply-To: <3C36E715.9030303@web.de>
-In-Reply-To: <3C30A9F0.3070603@web.de>
-	<20011231195115.410b871f.skraw@ithnet.com>
-	<3C36E715.9030303@web.de>
+To: Petro <petro@auctionwatch.com>
+Cc: andihartmann@freenet.de, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-Id: <20020105164405.5d9f5232.skraw@ithnet.com>
+In-Reply-To: <20020105092442.GC26154@auctionwatch.com>
+In-Reply-To: <200201040019.BAA30736@webserver.ithnet.com>
+	<3C360D6E.9020207@athlon.maya.org>
+	<20020105092442.GC26154@auctionwatch.com>
 Organization: ith Kommunikationstechnik GmbH
 X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -24,24 +24,13 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 05 Jan 2002 12:44:21 +0100
-Klaus Zerwes <kzerwes@web.de> wrote:
+On Sat, 5 Jan 2002 01:24:42 -0800
+Petro <petro@auctionwatch.com> wrote:
 
-> Stephan von Krawczynski wrote:
-> > Tell us if it happens again with 2.4.17, or if you are sure it does not,
-> > declare it as solved.
-> > 
-> > Regards,
-> > Stephan
-> > 
-> 
-> 
-> I have copmpiles 2.4.16 and did some tests with a mirrored system ( 
-> only the system, without the harddisks with data) using different 
-> NICs: Davicom FE (dmfe), RT 8139C (8139too) and SMC 9432 EtherPower II 
->   83c172 (epic100).
+> "We" (Auctionwatch.com) are experiencing problems that appear to be
+> related to VM, I realize that this question was not directed at me:
 
-Sorry, but why with 2.4.16? Is this a typo?
+And how exactly do the problems look like?
 
 Regards,
 Stephan

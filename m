@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267180AbRHBR1V>; Thu, 2 Aug 2001 13:27:21 -0400
+	id <S267545AbRHBR2L>; Thu, 2 Aug 2001 13:28:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267545AbRHBR1L>; Thu, 2 Aug 2001 13:27:11 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:26780 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S267180AbRHBR1C>;
-	Thu, 2 Aug 2001 13:27:02 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 2 Aug 2001 17:27:07 GMT
-Message-Id: <200108021727.RAA113816@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, garloff@suse.de
-Subject: Re: [PATCH] make psaux reconnect adjustable
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, mantel@suse.de,
-        rubini@vision.unipv.it, torvalds@transmeta.com
+	id <S267782AbRHBR2D>; Thu, 2 Aug 2001 13:28:03 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:56059 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S267545AbRHBR1y>; Thu, 2 Aug 2001 13:27:54 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200108021726.f72HQrMh027270@webber.adilger.int>
+Subject: Re: [PATCH]: reiserfs: D-clear-i_blocks.patch
+In-Reply-To: <15209.30134.699801.417492@beta.namesys.com> "from Nikita Danilov
+ at Aug 2, 2001 07:45:58 pm"
+To: Nikita Danilov <NikitaDanilov@yahoo.com>
+Date: Thu, 2 Aug 2001 11:26:52 -0600 (MDT)
+CC: Linus Torvalds <Torvalds@transmeta.com>,
+        Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
+        linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Kurt Garloff <garloff@suse.de>
+Nikita writes:
+> This patch sets inode.i_blocks to zero on deletion of reiserfs
+> file. This in particular cures hard to believe bug when saving file in
+> EMACS caused top to loose sight of all processes:
+>  . reiserfs didn't properly cleared i_blocks when removing
+>    symlinks. Actually -7 was inserted into unsigned i_blocks field. This
+>    didn't usually hurt because file is being deleted;
+>  . inode is reused for procfs and neither get_new_inode() nor
+>    proc_read_inode() cleared i_blocks;
+>  . now procfs inode has huge i_blocks field;
+>  . top calls stat on it and libc wrapper returns EOVERFLOW, as i_blocks
+>    doesn't fit into user-level struct.
+>  . top sees nothing.
 
-    > Not precisely - it is a boot parameter "psaux-reconnect".
-    > That is better than a sysctl.
+I wonder if you don't have a different problem hiding in there somewhere.
+I was thinking that if a non-zero i_blocks field was causing problems for
+reiserfs, maybe clear_inode() should zero this out for everyone.
 
-    Why should that be better than a sysctl? Boot parameters are ugly. You
-    need to reboot in order to change them ...
+Looking through the reiserfs code (which is rather hard to follow), I see
+that reiserfs_cut_from_item() and prepare_for_delete_or_cut() are changing
+i_blocks, and this is (eventually) called from reiserfs_delete_item() and
+reiserfs_delete_object().  Not that I can point to any specific code, but
+to me it would seem that you are not counting i_blocks correctly somewhere,
+and eventually decrement i_blocks too much (hence -7 in i_blocks).
 
-Of course I hope that we'll handle this correctly at some point,
-without any options or parameters. In my eyes a sysctl is heavier
-infrastructure than a boot parameter, so I prefer the latter
-when a temporary fix is needed.
+So this makes me believe that setting i_blocks=0 is just hiding a block
+leak somewhere in the reiserfs code, or math errors somewhere.
 
-    Your other mail implies that we can fix the problem without manual
-    intervention by parsing AA 00 instead of just AA. If it's true, I'd=20
-    consider that the best solution.=20
+It is also true that clear_inode() or get_new_inode() (or proc_read_inode())
+should initialize all of the used fields to zero so that a problem in one
+filesystem can't cause problems elsewhere.  It appears that i_blocks is
+set to zero by ext2_new_inode(), so probably proc_read_inode() should do
+the same (since it uses i_blocks).
 
-Maybe precisely one person reported this, and his address
-now bounces. If there exist people who need this "psaux-reconnect"
-they can report on the codes they see. Note that just like AA is
-a perfectly normal code, also the sequence AA 00 is perfectly
-normal. Testing for that only diminishes the probability of
-getting it by accident.
+Cheers, Andreas
 
-Instead of adding boot parameters or sysctls or heuristics,
-probably we should just transfer the codes seen to user space,
-e.g. to gpm.  Then it is up to gpm to recognize an AA 00 sequence
-and decide whether that is something special.
-
-Andries
-
+PS - could someone on the reiserfs team (or Linus) run the reiserfs code
+     through "indent" (or auto format in emacs) per Documentation/CodingStyle?
+     It is really a gross mess, to such a point that you can hardly see what
+     is going on.  It's not just that it is a different indent style, it has
+     no coherent indentation or comment formatting at all.  Maybe for 2.5?
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

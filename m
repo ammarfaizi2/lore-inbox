@@ -1,29 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132359AbRDCRJU>; Tue, 3 Apr 2001 13:09:20 -0400
+	id <S132326AbRDCRHk>; Tue, 3 Apr 2001 13:07:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132318AbRDCRJI>; Tue, 3 Apr 2001 13:09:08 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:33799 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132359AbRDCRI3>; Tue, 3 Apr 2001 13:08:29 -0400
-Subject: Re: EATA driver with DPT SmartRAID V
-To: dyp@perchine.com (Denis Perchine)
-Date: Tue, 3 Apr 2001 18:10:19 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200104031700.AAA02001@gw.ac-sw.com> from "Denis Perchine" at Apr 03, 2001 11:58:49 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S132318AbRDCRH2>; Tue, 3 Apr 2001 13:07:28 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:3591 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S132326AbRDCRGa>; Tue, 3 Apr 2001 13:06:30 -0400
+Date: Tue, 3 Apr 2001 19:05:48 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ACPI: S1 working for someone?
+Message-ID: <20010403190548.C29564@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20010403184820.B29564@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14kUJy-0008Sk-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010403184820.B29564@atrey.karlin.mff.cuni.cz>; from pavel@suse.cz on Tue, Apr 03, 2001 at 06:48:20PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there any other way to make it working under 2.4.x? Only working drivers 
-> are up to 2.2.16. I tried to compile them for 2.2.17 from RH 6.2 updates, but 
-> they hang up PC.
+Hi!
 
-DPT (now Adaptec) posted beta drivers for the card. I've asked them to make
-a few more changes for me but their change making cycle seems very slow and 
-I'm waiting for the next round.
+(beware: I wrongly used vger.rutgers.edu in to, so some care is
+required to reply to previous message)
+
+> Hi!
+> 
+> Does S1 going back from S1 work for you? As soon as hit power button
+> in S1, machine powers off... It should just continue where it
+> started. 2.4.3 on toshiba satelite 4030cdt.
+> 								Pavel
+
+-- 
+The best software in life is free (not shareware)!		Pavel
+GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+

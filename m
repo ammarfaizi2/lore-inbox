@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262233AbVCBJIv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262234AbVCBJNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262233AbVCBJIv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 04:08:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbVCBJIv
+	id S262234AbVCBJNw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 04:13:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262235AbVCBJNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 04:08:51 -0500
-Received: from fire.osdl.org ([65.172.181.4]:5550 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262233AbVCBJIn (ORCPT
+	Wed, 2 Mar 2005 04:13:52 -0500
+Received: from pat.uio.no ([129.240.130.16]:57762 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262234AbVCBJNu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 04:08:43 -0500
-Date: Wed, 2 Mar 2005 01:06:14 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Cc: kaigai@ak.jp.nec.com, johnpol@2ka.mipt.ru, hadi@cyberus.ca, tgraf@suug.ch,
-       marcelo.tosatti@cyclades.com, davem@redhat.com, jlan@sgi.com,
-       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, elsa-devel@lists.sourceforge.net
-Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
-Message-Id: <20050302010614.2a8bb483.akpm@osdl.org>
-In-Reply-To: <1109753893.8422.127.camel@frecb000711.frec.bull.fr>
-References: <4221E548.4000008@ak.jp.nec.com>
-	<20050227140355.GA23055@logos.cnet>
-	<42227AEA.6050002@ak.jp.nec.com>
-	<1109575236.8549.14.camel@frecb000711.frec.bull.fr>
-	<20050227233943.6cb89226.akpm@osdl.org>
-	<1109592658.2188.924.camel@jzny.localdomain>
-	<20050228132051.GO31837@postel.suug.ch>
-	<1109598010.2188.994.camel@jzny.localdomain>
-	<20050228135307.GP31837@postel.suug.ch>
-	<1109599803.2188.1014.camel@jzny.localdomain>
-	<20050228142551.GQ31837@postel.suug.ch>
-	<1109604693.1072.8.camel@jzny.localdomain>
-	<20050228191759.6f7b656e@zanzibar.2ka.mipt.ru>
-	<1109665299.8594.55.camel@frecb000711.frec.bull.fr>
-	<42247051.7070303@ak.jp.nec.com>
-	<1109753893.8422.127.camel@frecb000711.frec.bull.fr>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 2 Mar 2005 04:13:50 -0500
+Subject: Re: x86_64: 32bit emulation problems
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andi Kleen <ak@muc.de>
+Cc: Andreas Schwab <schwab@suse.de>, Bernd Schubert <bernd-schubert@web.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050302081858.GA7672@muc.de>
+References: <200502282154.08009.bernd.schubert@pci.uni-heidelberg.de>
+	 <200503012207.02915.bernd-schubert@web.de> <jewtsruie9.fsf@sykes.suse.de>
+	 <200503020019.20256.bernd-schubert@web.de> <jebra3udyo.fsf@sykes.suse.de>
+	 <20050302081858.GA7672@muc.de>
+Content-Type: text/plain
+Date: Wed, 02 Mar 2005 01:13:38 -0800
+Message-Id: <1109754818.10407.48.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=-4.349, required 12,
+	autolearn=disabled, AWL 0.65, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guillaume Thouvenin <guillaume.thouvenin@bull.net> wrote:
->
->   So I ran the lmbench with three different kernels with the fork
->  connector patch I just sent. Results are attached at the end of the mail
->  and there are three different lines which are:
+on den 02.03.2005 Klokka 09:18 (+0100) skreiv Andi Kleen:
+> On Wed, Mar 02, 2005 at 12:46:23AM +0100, Andreas Schwab wrote:
+> > Bernd Schubert <bernd-schubert@web.de> writes:
+> > 
+> > > Hmm, after compiling with -D_FILE_OFFSET_BITS=64 it works fine. But why does 
+> > > it work without this option on a 32bit kernel, but not on a 64bit kernel?
+> > 
+> > See nfs_fileid_to_ino_t for why the inode number is different between
+> > 32bit and 64bit kernels.
 > 
->  	o First line is  a linux-2.6.11-rc4-mm1-cnfork
->  	o Second line is a linux-2.6.11-rc4-mm1
->  	o Third line is  a linux-2.6.11-rc4-mm1-cnfork with a user space
->            application. The user space application listened during 15h 
->            and received 6496 messages.
+> Ok that explains it. Thanks.
 > 
->  Each test has been ran only once. 
+> Best would be probably to just do the shift unconditionally on 64bit kernels
+> too.
 > 
-> ...
->  ------------------------------------------------------------------------------
->  Host                 OS  Mhz null null      open slct sig  sig  fork exec sh  
->                               call  I/O stat clos TCP  inst hndl proc proc proc
->  --------- ------------- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
->  account   Linux 2.6.11- 2765 0.17 0.26 3.57 4.19 16.9 0.51 2.31 162. 629. 2415
->  account   Linux 2.6.11- 2765 0.16 0.26 3.56 4.17 17.6 0.50 2.30 163. 628. 2417
->  account   Linux 2.6.11- 2765 0.16 0.27 3.67 4.25 17.6 0.51 2.28 176. 664. 2456
+> Trond, what do you think?
 
-This is the interesting bit, yes?  5-10% slowdown on fork is expected, but
-why was exec slower?
+Why would this be more appropriate than defining __kernel_ino_t on the
+x86_64 platform to be of the size that you actually want the kernel to
+support?
 
-What does "The user space application listened during 15h" mean?
+I can see no good reason for truncating inode number values on platforms
+that actually do support 64-bit inode numbers, but I can see several
+reasons why you might want not to (utilities that need to detect hard
+linked files for instance).
+
+Cheers,
+  Trond
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
+

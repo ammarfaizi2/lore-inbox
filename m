@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265117AbUBOPf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 10:35:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbUBOPf2
+	id S265060AbUBOPXn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 10:23:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265045AbUBOPW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 10:35:28 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:11648 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S265117AbUBOPfX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 10:35:23 -0500
-Date: Sun, 15 Feb 2004 16:35:57 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: sting sting <zstingx@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: re: keyboard and mouse driver module and...
-Message-ID: <20040215153557.GA326@ucw.cz>
-References: <Sea2-F45ritY7qJSGBJ0001683e@hotmail.com>
+	Sun, 15 Feb 2004 10:22:26 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:44767 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264974AbUBOPWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 10:22:21 -0500
+Date: Sat, 14 Feb 2004 00:19:01 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Jens Axboe <axboe@suse.de>
+Cc: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0, cdrom still showing directories after being erased
+Message-ID: <20040213231900.GI6804@openzaurus.ucw.cz>
+References: <20040205203336.GE10547@stud.uni-erlangen.de> <20040205205421.GE11683@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Sea2-F45ritY7qJSGBJ0001683e@hotmail.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040205205421.GE11683@suse.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 15, 2004 at 02:30:30PM +0200, sting sting wrote:
-> Hello;
-> Thnxs.
-> If I understand right, then in 2.6 , after starting X windows when typing 
-> lsmod,
-> we should see both keyboard.o and mousedev.o .
-> I just want to make sure that I understand you correctly.
+hi!
 
-No. keyboard is always built in, never a module. And regarding mousedev,
-yes, you need that one. But X won't load it for you most likely.
+> > The linux kernel atapi layer makes a TEST UNIT READY and if the media
+> > has changed the cdrom does return an ERR_STAT with a UNIT_ATTENTION
+> > which means that the medium has changed. IF that this the case the
+> > kernel flushes it's buffers.
+> 
+> So the drive ought to report media changed if it knowingly over wrote
+> the table of contents, for instance.
+> 
 
-And its .ko, not .o.
+Why? Media did not change.
+
+You would need cdrom to report media change on each write,
+but that would break packet writing. We should fix
+kernel/cdrecord, not break hw.
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261953AbTEFU4A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 16:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbTEFUz7
+	id S261956AbTEFU5X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 16:57:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbTEFU5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 16:55:59 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:38662 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261953AbTEFUz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 16:55:56 -0400
-Date: Tue, 6 May 2003 22:08:28 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Michael Hunold <hunold@convergence.de>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH[[2.5][3-11] update dvb subsystem core
-Message-ID: <20030506220828.A19971@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Michael Hunold <hunold@convergence.de>,
-	linux-kernel@vger.kernel.org, torvalds@transmeta.com
-References: <3EB7DCF0.2070207@convergence.de>
+	Tue, 6 May 2003 16:57:23 -0400
+Received: from zero.aec.at ([193.170.194.10]:36364 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S261956AbTEFU5Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 16:57:16 -0400
+Date: Tue, 6 May 2003 23:08:31 +0200
+From: Andi Kleen <ak@muc.de>
+To: Andi Kleen <ak@muc.de>
+Cc: Adrian Bunk <bunk@fs.tum.de>, torvalds@transmeta.com, akpm@digeo.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix .altinstructions linking failures
+Message-ID: <20030506210831.GA18315@averell>
+References: <20030506063055.GA15424@averell> <20030506164441.GO9794@fs.tum.de> <20030506195614.GA23831@averell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3EB7DCF0.2070207@convergence.de>; from hunold@convergence.de on Tue, May 06, 2003 at 06:04:00PM +0200
+In-Reply-To: <20030506195614.GA23831@averell>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-and your devfs stuff is a mess.  I already told one of the DVB folks
-(it wasn't you IIRC) that I'll publish a 2.5 devfs API on 2.4 header.
-But first I have to fix the devfs API on 2.5 and randomly bringing
-back old crap and lots of ifdefs in those changing areas won't help.
+On Tue, May 06, 2003 at 09:56:14PM +0200, Andi Kleen wrote:
+> The driver is buggy. The #ifdef MODULE needs to be removed and proc_cpia_destroy 
+> be marked __exit instead, then things will be ok.
 
-What the problem with 2.5, dvb and devfs? 
+FWIW I compiled a "maxi kernel" now (with everything that compiles compiled in) 
+and only cpia seems to have this bug. So with this patch things should be ok
+again.
 
+-Andi
+
+Index: linux/drivers/media/video/cpia.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/drivers/media/video/cpia.c,v
+retrieving revision 1.25
+diff -u -u -r1.25 cpia.c
+--- linux/drivers/media/video/cpia.c	25 Apr 2003 05:41:01 -0000	1.25
++++ linux/drivers/media/video/cpia.c	6 May 2003 20:08:34 -0000
+@@ -1409,12 +1409,10 @@
+ 		LOG("Unable to initialise /proc/cpia\n");
+ }
+ 
+-#ifdef MODULE
+-static void proc_cpia_destroy(void)
++static void __exit proc_cpia_destroy(void)
+ {
+ 	remove_proc_entry("cpia", 0);
+ }
+-#endif /*MODULE*/
+ #endif /* CONFIG_PROC_FS */
+ 
+ /* ----------------------- debug functions ---------------------- */

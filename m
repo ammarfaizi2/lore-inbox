@@ -1,50 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbTKLWbX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 17:31:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbTKLWbX
+	id S261681AbTKLWfx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 17:35:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbTKLWfx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 17:31:23 -0500
-Received: from server2.gameforceone.com ([66.135.33.104]:21205 "HELO
-	mach10.com") by vger.kernel.org with SMTP id S261699AbTKLWbW (ORCPT
+	Wed, 12 Nov 2003 17:35:53 -0500
+Received: from gaia.cela.pl ([213.134.162.11]:6410 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S261681AbTKLWfs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 17:31:22 -0500
-Date: 12 Nov 2003 22:21:23 -0000
-Message-ID: <20031112222123.21762.qmail@mach10.com>
-To: linux-kernel@vger.kernel.org
-From: kleinbeckerscam <kleinbeckerscam@hotmail.com>
-Subject: Klein Becker now under federal investigation
+	Wed, 12 Nov 2003 17:35:48 -0500
+Date: Wed, 12 Nov 2003 23:35:16 +0100 (CET)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Solar Designer <solar@openwall.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.23-pre9 ide+XFree+ptrace=Complete hang
+In-Reply-To: <Pine.LNX.4.44.0311120824450.3288-100000@home.osdl.org>
+Message-ID: <Pine.LNX.4.44.0311122319580.18399-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Congressional Committee on Energy and Commerce comes out swinging against Diet Drugs targeted to Children, FDA Loopholes used to market Illegal Steroids  
+> It really looks like this patch just triggers the real issue. I can't
+> even begin to speculate _how_ it would trigger it, though. At a guess,
+> it might just trigger a bug in the X server that might depend on how the
+> mmap's are laid out - and the strace might be needed just to get a lot
+> of scheduling activity and a large stream of X events (without it, the
+> pty connection to the xterm would mostly end up "chunking" the output of
+> the "ls -lR" and xterm would end up doing a lot more fastscrolls).
 
-STRAFFORD [drugINTEL] - 3 Apr 2003 - The Committee on Energy and Commerce showed no signs of political stupor or regulatory catharsis as it stepped up to take on some of the endemic problems that FTC and FDA have been helpless to deal with.  Targeting nutraceuticals touted as Diet Drugs,  the Committee on Energy and Commerce has demanded documentation of ingredients and clinical demonstration of safety and efficacy that vendors breezily contend is overwhelming but is never cited.  
+strace ls -lR => dies
+strace ls -lR 2>/dev/null => dies.
+strace ls -lR  >/dev/null => dies.
+strace ls -lR 2>/dev/null >/dev/null => doesn't die.
+[only dies during ide disk IO in an xterm under X]
 
-Members of the Committee on Energy and Commerce requested FDA Commissioner Mark McClellan and the Drug Enforcement Agency to investigate and close loopholes allowing banned steroids to get on the market without needing to obtain FDA approval.  Steroid precursors and pro-drugs that will form testosterone-related Illegal Steroids in the body are being sold by companies that were not named in the letters for obvious reasons.
+> Just a theory.
 
-Skinny Pill flouts Congressional Committee on Energy and Commerce Requests
+> Do you have another machine on the network? In particular, some crashes
+> under X are literally just the X server crashing. Sometimes that takes 
+> the whole machine down with it (if it causes X to do stuff to the video 
+> card that the video card really doesn't like), but quite often you can 
+> still ping the machine and maybe log in remotely even when it appears 
+> otherwise dead.
 
-Skinny Pill (see Website) is a name of a company (possibly identical to the Fountain of Youth Group LLC) in Ponte Vedra Beach, Florida, whose president is  Edita Kaye.  This pill contains a number of mostly diuretic herbal components including Uva ursi, juniper berry, and buchu leaf.  Uva ursi is contraindicated in the PDR for children under 12.   All cause the body to lose water.  Dr. Alison Hoppin, chief of the pediatric obesity clinic at Massachusetts General Hospital, said "Diuretics in children can cause kidney problems and electrolyte imbalances if taken long term."  Diuretics are likely to show an artefactual weight loss due to decrease in the amount of water in the body, thus showing immediate changes on the bathroom scale.  
+As I've said it doesn't respond to pings.  As far as I can tell the 
+processor might as well be doing a cli hlt.  As for X - I've had X crash 
+(many) times and never in an unrestorable way - usually you can login from 
+the network or hit my hotkey Fn+\ for bios vm86 int 10 screen reset...
 
-"It's absolutely outrageous; "It's not going to help people lose weight. It's junk science," added Keith Ayoob, a pediatric nutritionist and an American Dietetic Association spokesman.  
+> Ok. The nice thing about getting a serial console is that now you could 
+> try the NMI watchdog - just boot up with "nmi_watchdog=1" on the kernel 
+> command line (or "=2" - see Documentation/nmi_watchdog.txt for more 
+> information on it). 
+> 
+> That won't necessarily see the problem either, especially if it's a total 
+> hardware lockup brought on by X poking registers in unfortunate ways, but 
+> if it's a pure kernel lockup with interrupts disabled, it can help.
 
-Daniel Mowrey, affiliated with competitor Klein-Becker (possibly identical to Basic Research, both of Provo, Utah - a question Congress wants clarified) makers/distributors of diet drug Anorex (See drugINTEL News 27 Jan 2003) states "On her website Kaye claims that her 'Skinny Pill for Kids' is a 'safe, effective weight loss formula for children ages 6 -12'.  However, a review of the National Institutes of Health (NIH) / National Library of Medicine database (PubMed) reveals not one single published clinical trial that has been conducted with anything called the 'Skinny Pill for Kids' or the combination and amount of active ingredients that make up the formula related to weight loss in children ages 6 to 12."  
+OK, I've tried the NMI watchdog with no luck, for both =1 and =2, Celeron 
+Mendocino 400 MHz CPU, any ideas?  I can't see the NMI count in 
+/proc/interrupts being incremented.  The NMI watchdog welcome message 
+shows up on boot (but there is no local APIC).
 
-Klein-Becker receives Congressional Request to put cards on the table
+At the moment I'm thinking this might be caused by graphics acceleration, 
+I'm gonna try with a VGA16 Xserver...
 
-The Klein-Becker / Basic Research criticism is apparently a case of the kettle calling the pot black, perhaps because of its competing product, PediaLean, containing an unidentified product "Pediatropin" derived from the P. rivieri root - all shrouded in mystery and scientific-sounding hype.  A letter  from the Committee on Energy and Commerce points out the deceptive nature of PediaLean advertising and notes the lack of safety or efficacy data.  We found no genus to correlate with "P." rivieri, but the plant in question may be Amorphophallus rivieri also known as Konjac Root.
+Furthermore I tried booting a minimal statically linked (no modules) and 
+min options 2.4.23rc1 + bug triggering patch kernel on this laptop and 
+another stationary P3 1GHz.  The laptop crashes as expected - but the 
+stationary one works no problem - still this is a total exchange of 
+everything... CPU/MEM/video card/IDE controller/mainboard, different 
+program versions (laptop RH9, stationary Fedora 1)... there's just too 
+many possibilities to pin it down.
 
-One of the supporters of PediaLean is Nathalie Chevreau, member of the Scientific Advisory Board of Supplement Watch.  Opinion: Caution is necessary in weighing the endorsements of "Supplement Watch".  A random sampling of the reviews on Nutraceuticals revealed that some valid criticisms were given where appropriate, although it is far from rigorous or comprehensive - for instance, the very important induction of cytochrome oxidases by St. John's wort is not noted, and warnings concerning Ripped Fuel and Ephedra are understated.  Despite the HON affiliation, source literature is rarely cited. At least one member of Supplement Watch is listed with a university affiliation, but it turns out that he was only a postdoctoral student at the university.  Many of the members do not hold doctorates.  Supplement Watch is "internally financed".
+nb. Linus, if you could answer one tiny question - how would I go about 
+reading seg:ofs memory of a ptraced process from the ptracer if seg isn't 
+the normal user_ds but something more wild?  I'm assuming I'd have to read 
+the segment registers descriptor code32/addr32/limit/base add the base to 
+ofs and ptrace(PEEKDATA) with base+ofs as the address... I'd really be 
+grateful - I'm working on an iotrace utility and am lacking this for full 
+functionality (without going about it the hardway of patching the user 
+code of the ptraced process to perform the memory access, continuing
+the child, it performs the access, faults on an int 3, returns to the
+ptraceing parent, which unpatches the child, backs up eip, does whatever 
+I wanted with the data, and continues on with life...)
 
-You can make a complaint to the FDA regarding Supplements at the link below
+Cheers,
 
-
-
-http://www.fda.gov/oc/buyonline/buyonlineform.htm
-
-
-
-
-
+MaZe.
 

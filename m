@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267897AbUHEWMG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268014AbUHEWMB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267897AbUHEWMG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 18:12:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268006AbUHEWGz
+	id S268014AbUHEWMB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 18:12:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268004AbUHEWKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 18:06:55 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:21695 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268004AbUHEWE4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 18:04:56 -0400
-Subject: Re: ide-cd problems
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: Bill Davidsen <davidsen@tmr.com>, Zinx Verituse <zinx@epicsol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040805193520.GA7571@suse.de>
-References: <20040803055337.GA23504@suse.de> <41128070.5050109@tmr.com>
-	 <20040805193520.GA7571@suse.de>
+	Thu, 5 Aug 2004 18:10:39 -0400
+Received: from hostmaster.org ([212.186.110.32]:63632 "HELO hostmaster.org")
+	by vger.kernel.org with SMTP id S267906AbUHEWKR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 18:10:17 -0400
+Subject: linux-2.6.8-rc2 seems to break grub-0.95
+From: Thomas Zehetbauer <thomasz@hostmaster.org>
+To: linux-kernel@vger.kernel.org, bug-grub@gnu.org
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1091739746.8419.35.camel@localhost.localdomain>
+Date: Fri, 06 Aug 2004 00:10:14 +0200
+Message-Id: <1091743814.2333.20.camel@realborg.geizhals.at>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 05 Aug 2004 22:02:27 +0100
+X-Mailer: Evolution 1.5.91 (1.5.91-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-08-05 at 20:35, Jens Axboe wrote:
-> > exotic commands, and given the choice of having users able to send 
-> > arbitrary commands to the device and not access it at all, I would say 
-> > "not at all" would be good.
-> 
-> Then don't make your cdrom device accesable.
+Hi,
 
-Lets get rid of root, I mean you don't need root, you could just turn
-your computer off.
+after compiling and installing linux 2.6.8-rc3 my workstation refused to
+boot the new kernel.
 
-What planet are you living on Jens ?
+Trying to reinstall grub (setup hd0) only made things worse in that it
+hanged in "loading stage2..".
 
-End users have lots of reasons for being able to access /dev/cdrom
-directly and also often for groups of users to access a disk directly
-(for example Oracle databases).
+Even from floppy I could not boot the new kernel and things got even
+worse after reinstalling the files in /boot/grub in that in hanged after
+the message "GRUB".
 
-That means any security model that isn't based around things beyond
-basic device access is flawed.
+I finally figured out that these problem must be related to the kernel
+and after booting linux 2.6.7 and reinstalling the files in /boot/grub
+followed by the boot loader everything seems to be working fine again.
 
-> Affects all devices that accept SG_IO.
+Tom
 
-Then if you refuse to fix SG_IO perhaps all device drivers should remove
-support for it ?
+PS: My config is a software RAID 1 with reiserfs on /dev/hda2
+and /dev/hdc2
 

@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287705AbSAABWh>; Mon, 31 Dec 2001 20:22:37 -0500
+	id <S287709AbSAABcr>; Mon, 31 Dec 2001 20:32:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287706AbSAABWV>; Mon, 31 Dec 2001 20:22:21 -0500
-Received: from mailgate.bodgit-n-scarper.com ([62.49.233.146]:45074 "HELO
-	mould.bodgit-n-scarper.com") by vger.kernel.org with SMTP
-	id <S287705AbSAABWO>; Mon, 31 Dec 2001 20:22:14 -0500
-Date: Tue, 1 Jan 2002 01:21:07 +0000
-From: Matt <matt@bodgit-n-scarper.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: A happy new year
-Message-ID: <20020101012107.A613@butterlicious.bodgit-n-scarper.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020101232033.GA565@www.ekinos.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020101232033.GA565@www.ekinos.com>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.4.13 on i686 (butterlicious)
+	id <S287708AbSAABci>; Mon, 31 Dec 2001 20:32:38 -0500
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:20486 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S287707AbSAABc1>;
+	Mon, 31 Dec 2001 20:32:27 -0500
+Message-Id: <200201010132.g011W5TS001771@sleipnir.valparaiso.cl>
+To: Larry McVoy <lm@bitmover.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: The direction linux is taking 
+In-Reply-To: Your message of "Sat, 29 Dec 2001 15:14:40 -0800."
+             <20011229151440.A21760@work.bitmover.com> 
+X-mailer: MH [Version 6.8.4]
+X-charset: ISO_8859-1
+Date: Mon, 31 Dec 2001 22:32:05 -0300
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 02, 2002 at 12:20:33AM +0100, sebastien geffroy wrote:
->
-> A happy new year to all kernel hackers and thanks for your great job !
-> I hope this year will be THE year of free software.
+Larry McVoy <lm@bitmover.com> said:
 
-If you're gonna post a message like that, at least get your date set
-properly... :-)
+[...]
 
-Matt
+> We have lots of commercial customers using BK on the Linux kernel, they
+> are doing embedded this and that.  The rate of change that they make is
+> much greater than the rate of change made in the Linus maintained tree.
+> I'm not saying it's good or bad, it's just different.  I can say that
+> merging is a huge issue in commercial shops.  It's interesting to hear 
+> that it is not in Linux.
+
+Hummm... I guess this is because yoiu see new (development, pre, ...)
+kernels each few days. Alan said he gets mosly line shifts (==
+non-overlapping patches, or "people should be talking to each other").
+Maybe due to the rapid version turnover? Maybe most of the merging is being
+done by the posters themselves during development, as Ye Kernel Gods refuse
+to do it for them?
+
+I'm surprised that commercial shops see much merging. I'd assume they have
+direct access to the up-to-the-minute source, so _less_ merging should be
+necesary. Or they are (over)confident in their tools, and just work on
+stale sources?
+
+> Some sociology guy with a CS background should do a study on this and 
+> explore the differences.  Is fast change better?  Is slow change better?
+
+I think the difference lies elsewhere.
 -- 
-"Phased plasma rifle in a forty-watt range?"
-"Hey, just what you see, pal"
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616

@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbULMSXw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbULMSgP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbULMSXw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 13:23:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbULMSXM
+	id S261318AbULMSgP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 13:36:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbULMSgP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 13:23:12 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:28728 "EHLO
+	Mon, 13 Dec 2004 13:36:15 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:29752 "EHLO
 	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261307AbULMSJ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 13:09:26 -0500
+	id S261318AbULMSJa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 13:09:30 -0500
 Cc: openib-general@openib.org
-In-Reply-To: <20041213109.GUz9r6Ey44wtDeiY@topspin.com>
+In-Reply-To: <20041213109.3tK6alRLJABxH4bu@topspin.com>
 X-Mailer: Roland's Patchbomber
-Date: Mon, 13 Dec 2004 10:09:23 -0800
-Message-Id: <20041213109.kvbhOIc6xDgg0Bag@topspin.com>
+Date: Mon, 13 Dec 2004 10:09:27 -0800
+Message-Id: <20041213109.cVS0twN822l4xQbR@topspin.com>
 Mime-Version: 1.0
 To: linux-kernel@vger.kernel.org
 From: Roland Dreier <roland@topspin.com>
 X-SA-Exim-Connect-IP: 127.0.0.1
 X-SA-Exim-Mail-From: roland@topspin.com
-Subject: [PATCH][v3][4/21] Add InfiniBand MAD (management datagram) support (public headers)
+Subject: [PATCH][v3][6/21] Add InfiniBand SA (Subnet Administration) query support
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
 X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 13 Dec 2004 18:09:25.0568 (UTC) FILETIME=[E1336400:01C4E13E]
+X-OriginalArrivalTime: 13 Dec 2004 18:09:29.0177 (UTC) FILETIME=[E35A1490:01C4E13E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add public headers for handling InfiniBand MADs (management
-datagrams), including sending and receiving MADs as well as passing
-MADs on to local agents.
+Add support for sending queries to the SA (Subnet Administration).  In
+particular the PathRecord and MCMember (multicast group member) used
+by the IP-over-InfiniBand driver are implemented.
 
 Signed-off-by: Roland Dreier <roland@topspin.com>
 
 
+--- linux-bk.orig/drivers/infiniband/core/Makefile	2004-12-13 09:44:42.966395657 -0800
++++ linux-bk/drivers/infiniband/core/Makefile	2004-12-13 09:44:43.579305364 -0800
+@@ -2,7 +2,8 @@
+ 
+ obj-$(CONFIG_INFINIBAND) += \
+     ib_core.o \
+-    ib_mad.o
++    ib_mad.o \
++    ib_sa.o
+ 
+ ib_core-objs := \
+     packer.o \
+@@ -17,3 +18,5 @@
+     mad.o \
+     smi.o \
+     agent.o
++
++ib_sa-objs := sa_query.o
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-bk/drivers/infiniband/include/ib_mad.h	2004-12-13 09:44:42.628445443 -0800
-@@ -0,0 +1,393 @@
++++ linux-bk/drivers/infiniband/core/sa_query.c	2004-12-13 09:44:43.603301828 -0800
+@@ -0,0 +1,855 @@
 +/*
 + * This software is available to you under a choice of one of two
 + * licenses.  You may choose to be licensed under the terms of the GNU
@@ -56,449 +74,1113 @@ Signed-off-by: Roland Dreier <roland@topspin.com>
 + * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 + * SOFTWARE.
 + *
-+ * Copyright (c) 2004 Mellanox Technologies Ltd.  All rights reserved.
-+ * Copyright (c) 2004 Infinicon Corporation.  All rights reserved.
-+ * Copyright (c) 2004 Intel Corporation.  All rights reserved.
-+ * Copyright (c) 2004 Topspin Corporation.  All rights reserved.
-+ * Copyright (c) 2004 Voltaire Corporation.  All rights reserved.
++ * Copyright (c) 2004 Topspin Communications.  All rights reserved.
 + *
 + * $Id$
 + */
 +
-+#if !defined( IB_MAD_H )
-+#define IB_MAD_H
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/err.h>
++#include <linux/random.h>
++#include <linux/spinlock.h>
++#include <linux/slab.h>
++#include <linux/pci.h>
++#include <linux/dma-mapping.h>
++#include <linux/kref.h>
++#include <linux/idr.h>
 +
-+#include <ib_verbs.h>
++#include <ib_pack.h>
++#include <ib_sa.h>
 +
-+/* Management base version */
-+#define IB_MGMT_BASE_VERSION			1
++MODULE_AUTHOR("Roland Dreier");
++MODULE_DESCRIPTION("InfiniBand subnet administration query support");
++MODULE_LICENSE("Dual BSD/GPL");
 +
-+/* Management classes */
-+#define IB_MGMT_CLASS_SUBN_LID_ROUTED		0x01
-+#define IB_MGMT_CLASS_SUBN_DIRECTED_ROUTE	0x81
-+#define IB_MGMT_CLASS_SUBN_ADM			0x03
-+#define IB_MGMT_CLASS_PERF_MGMT			0x04
-+#define IB_MGMT_CLASS_BM			0x05
-+#define IB_MGMT_CLASS_DEVICE_MGMT		0x06
-+#define IB_MGMT_CLASS_CM			0x07
-+#define IB_MGMT_CLASS_SNMP			0x08
-+#define IB_MGMT_CLASS_VENDOR_RANGE2_START	0x30
-+#define IB_MGMT_CLASS_VENDOR_RANGE2_END		0x4F
-+
-+/* Management methods */
-+#define IB_MGMT_METHOD_GET			0x01
-+#define IB_MGMT_METHOD_SET			0x02
-+#define IB_MGMT_METHOD_GET_RESP			0x81
-+#define IB_MGMT_METHOD_SEND			0x03
-+#define IB_MGMT_METHOD_TRAP			0x05
-+#define IB_MGMT_METHOD_REPORT			0x06
-+#define IB_MGMT_METHOD_REPORT_RESP		0x86
-+#define IB_MGMT_METHOD_TRAP_REPRESS		0x07
-+
-+#define IB_MGMT_METHOD_RESP			0x80
-+
-+#define IB_MGMT_MAX_METHODS			128
-+
-+#define IB_QP0		0
-+#define IB_QP1		cpu_to_be32(1)
-+#define IB_QP1_QKEY	0x80010000
-+
-+struct ib_grh {
-+	u32		version_tclass_flow;
-+	u16		paylen;
-+	u8		next_hdr;
-+	u8		hop_limit;
-+	union ib_gid	sgid;
-+	union ib_gid	dgid;
-+} __attribute__ ((packed));
-+
-+struct ib_mad_hdr {
-+	u8	base_version;
-+	u8	mgmt_class;
-+	u8	class_version;
-+	u8	method;
-+	u16	status;
-+	u16	class_specific;
-+	u64	tid;
-+	u16	attr_id;
-+	u16	resv;
-+	u32	attr_mod;
-+} __attribute__ ((packed));
-+
-+struct ib_rmpp_hdr {
-+	u8	rmpp_version;
-+	u8	rmpp_type;
-+	u8	rmpp_rtime_flags;
-+	u8	rmpp_status;
-+	u32	seg_num;
-+	u32	paylen_newwin;
-+} __attribute__ ((packed));
-+
-+struct ib_mad {
-+	struct ib_mad_hdr	mad_hdr;
-+	u8			data[232];
-+} __attribute__ ((packed));
-+
-+struct ib_rmpp_mad {
-+	struct ib_mad_hdr	mad_hdr;
-+	struct ib_rmpp_hdr	rmpp_hdr;
-+	u8			data[220];
-+} __attribute__ ((packed));
-+
-+struct ib_vendor_mad {
-+	struct ib_mad_hdr	mad_hdr;
-+	struct ib_rmpp_hdr	rmpp_hdr;
-+	u8			reserved;
-+	u8			oui[3];
-+	u8			data[216];
-+} __attribute__ ((packed));
-+
-+struct ib_mad_agent;
-+struct ib_mad_send_wc;
-+struct ib_mad_recv_wc;
-+
-+/**
-+ * ib_mad_send_handler - callback handler for a sent MAD.
-+ * @mad_agent: MAD agent that sent the MAD.
-+ * @mad_send_wc: Send work completion information on the sent MAD.
-+ */
-+typedef void (*ib_mad_send_handler)(struct ib_mad_agent *mad_agent,
-+				    struct ib_mad_send_wc *mad_send_wc);
-+
-+/**
-+ * ib_mad_snoop_handler - Callback handler for snooping sent MADs.
-+ * @mad_agent: MAD agent that snooped the MAD.
-+ * @send_wr: Work request information on the sent MAD.
-+ * @mad_send_wc: Work completion information on the sent MAD.  Valid
-+ *   only for snooping that occurs on a send completion.
-+ *
-+ * Clients snooping MADs should not modify data referenced by the @send_wr
-+ * or @mad_send_wc.
-+ */
-+typedef void (*ib_mad_snoop_handler)(struct ib_mad_agent *mad_agent,
-+				     struct ib_send_wr *send_wr,
-+				     struct ib_mad_send_wc *mad_send_wc);
-+
-+/**
-+ * ib_mad_recv_handler - callback handler for a received MAD.
-+ * @mad_agent: MAD agent requesting the received MAD.
-+ * @mad_recv_wc: Received work completion information on the received MAD.
-+ *
-+ * MADs received in response to a send request operation will be handed to
-+ * the user after the send operation completes.  All data buffers given
-+ * to registered agents through this routine are owned by the receiving
-+ * client, except for snooping agents.  Clients snooping MADs should not
-+ * modify the data referenced by @mad_recv_wc.
-+ */
-+typedef void (*ib_mad_recv_handler)(struct ib_mad_agent *mad_agent,
-+				    struct ib_mad_recv_wc *mad_recv_wc);
-+
-+/**
-+ * ib_mad_agent - Used to track MAD registration with the access layer.
-+ * @device: Reference to device registration is on.
-+ * @qp: Reference to QP used for sending and receiving MADs.
-+ * @recv_handler: Callback handler for a received MAD.
-+ * @send_handler: Callback handler for a sent MAD.
-+ * @snoop_handler: Callback handler for snooped sent MADs.
-+ * @context: User-specified context associated with this registration.
-+ * @hi_tid: Access layer assigned transaction ID for this client.
-+ *   Unsolicited MADs sent by this client will have the upper 32-bits
-+ *   of their TID set to this value.
-+ * @port_num: Port number on which QP is registered
-+ */
-+struct ib_mad_agent {
-+	struct ib_device	*device;
-+	struct ib_qp		*qp;
-+	ib_mad_recv_handler	recv_handler;
-+	ib_mad_send_handler	send_handler;
-+	ib_mad_snoop_handler	snoop_handler;
-+	void			*context;
-+	u32			hi_tid;
-+	u8			port_num;
-+};
-+
-+/**
-+ * ib_mad_send_wc - MAD send completion information.
-+ * @wr_id: Work request identifier associated with the send MAD request.
-+ * @status: Completion status.
-+ * @vendor_err: Optional vendor error information returned with a failed
-+ *   request.
-+ */
-+struct ib_mad_send_wc {
-+	u64			wr_id;
-+	enum ib_wc_status	status;
-+	u32			vendor_err;
-+};
-+
-+/**
-+ * ib_mad_recv_buf - received MAD buffer information.
-+ * @list: Reference to next data buffer for a received RMPP MAD.
-+ * @grh: References a data buffer containing the global route header.
-+ *   The data refereced by this buffer is only valid if the GRH is
-+ *   valid.
-+ * @mad: References the start of the received MAD.
-+ */
-+struct ib_mad_recv_buf {
-+	struct list_head	list;
-+	struct ib_grh		*grh;
-+	struct ib_mad		*mad;
-+};
-+
-+/**
-+ * ib_mad_recv_wc - received MAD information.
-+ * @wc: Completion information for the received data.
-+ * @recv_buf: Specifies the location of the received data buffer(s).
-+ * @mad_len: The length of the received MAD, without duplicated headers.
-+ *
-+ * For received response, the wr_id field of the wc is set to the wr_id
-+ *   for the corresponding send request.
-+ */
-+struct ib_mad_recv_wc {
-+	struct ib_wc		*wc;
-+	struct ib_mad_recv_buf	recv_buf;
-+	int			mad_len;
-+};
-+
-+/**
-+ * ib_mad_reg_req - MAD registration request
-+ * @mgmt_class: Indicates which management class of MADs should be receive
-+ *   by the caller.  This field is only required if the user wishes to
-+ *   receive unsolicited MADs, otherwise it should be 0.
-+ * @mgmt_class_version: Indicates which version of MADs for the given
-+ *   management class to receive.
-+ * @oui: Indicates IEEE OUI when mgmt_class is a vendor class
-+ *   in the range from 0x30 to 0x4f. Otherwise not used.
-+ * @method_mask: The caller will receive unsolicited MADs for any method
-+ *   where @method_mask = 1.
-+ */
-+struct ib_mad_reg_req {
-+	u8	mgmt_class;
-+	u8	mgmt_class_version;
-+	u8	oui[3];
-+	DECLARE_BITMAP(method_mask, IB_MGMT_MAX_METHODS);
-+};
-+
-+/**
-+ * ib_register_mad_agent - Register to send/receive MADs.
-+ * @device: The device to register with.
-+ * @port_num: The port on the specified device to use.
-+ * @qp_type: Specifies which QP to access.  Must be either
-+ *   IB_QPT_SMI or IB_QPT_GSI.
-+ * @mad_reg_req: Specifies which unsolicited MADs should be received
-+ *   by the caller.  This parameter may be NULL if the caller only
-+ *   wishes to receive solicited responses.
-+ * @rmpp_version: If set, indicates that the client will send
-+ *   and receive MADs that contain the RMPP header for the given version.
-+ *   If set to 0, indicates that RMPP is not used by this client.
-+ * @send_handler: The completion callback routine invoked after a send
-+ *   request has completed.
-+ * @recv_handler: The completion callback routine invoked for a received
-+ *   MAD.
-+ * @context: User specified context associated with the registration.
-+ */
-+struct ib_mad_agent *ib_register_mad_agent(struct ib_device *device,
-+					   u8 port_num,
-+					   enum ib_qp_type qp_type,
-+					   struct ib_mad_reg_req *mad_reg_req,
-+					   u8 rmpp_version,
-+					   ib_mad_send_handler send_handler,
-+					   ib_mad_recv_handler recv_handler,
-+					   void *context);
-+
-+enum ib_mad_snoop_flags {
-+	/*IB_MAD_SNOOP_POSTED_SENDS	   = 1,*/
-+	/*IB_MAD_SNOOP_RMPP_SENDS	   = (1<<1),*/
-+	IB_MAD_SNOOP_SEND_COMPLETIONS	   = (1<<2),
-+	/*IB_MAD_SNOOP_RMPP_SEND_COMPLETIONS = (1<<3),*/
-+	IB_MAD_SNOOP_RECVS		   = (1<<4)
-+	/*IB_MAD_SNOOP_RMPP_RECVS	   = (1<<5),*/
-+	/*IB_MAD_SNOOP_REDIRECTED_QPS	   = (1<<6)*/
-+};
-+
-+/**
-+ * ib_register_mad_snoop - Register to snoop sent and received MADs.
-+ * @device: The device to register with.
-+ * @port_num: The port on the specified device to use.
-+ * @qp_type: Specifies which QP traffic to snoop.  Must be either
-+ *   IB_QPT_SMI or IB_QPT_GSI.
-+ * @mad_snoop_flags: Specifies information where snooping occurs.
-+ * @send_handler: The callback routine invoked for a snooped send.
-+ * @recv_handler: The callback routine invoked for a snooped receive.
-+ * @context: User specified context associated with the registration.
-+ */
-+struct ib_mad_agent *ib_register_mad_snoop(struct ib_device *device,
-+					   u8 port_num,
-+					   enum ib_qp_type qp_type,
-+					   int mad_snoop_flags,
-+					   ib_mad_snoop_handler snoop_handler,
-+					   ib_mad_recv_handler recv_handler,
-+					   void *context);
-+
-+/**
-+ * ib_unregister_mad_agent - Unregisters a client from using MAD services.
-+ * @mad_agent: Corresponding MAD registration request to deregister.
-+ *
-+ * After invoking this routine, MAD services are no longer usable by the
-+ * client on the associated QP.
-+ */
-+int ib_unregister_mad_agent(struct ib_mad_agent *mad_agent);
-+
-+/**
-+ * ib_post_send_mad - Posts MAD(s) to the send queue of the QP associated
-+ *   with the registered client.
-+ * @mad_agent: Specifies the associated registration to post the send to.
-+ * @send_wr: Specifies the information needed to send the MAD(s).
-+ * @bad_send_wr: Specifies the MAD on which an error was encountered.
-+ *
-+ * Sent MADs are not guaranteed to complete in the order that they were posted.
-+ */
-+int ib_post_send_mad(struct ib_mad_agent *mad_agent,
-+		     struct ib_send_wr *send_wr,
-+		     struct ib_send_wr **bad_send_wr);
-+
-+/**
-+ * ib_coalesce_recv_mad - Coalesces received MAD data into a single buffer.
-+ * @mad_recv_wc: Work completion information for a received MAD.
-+ * @buf: User-provided data buffer to receive the coalesced buffers.  The
-+ *   referenced buffer should be at least the size of the mad_len specified
-+ *   by @mad_recv_wc.
-+ *
-+ * This call copies a chain of received RMPP MADs into a single data buffer,
-+ * removing duplicated headers.
-+ */
-+void ib_coalesce_recv_mad(struct ib_mad_recv_wc *mad_recv_wc,
-+			  void *buf);
-+
-+/**
-+ * ib_free_recv_mad - Returns data buffers used to receive a MAD to the
-+ *   access layer.
-+ * @mad_recv_wc: Work completion information for a received MAD.
-+ *
-+ * Clients receiving MADs through their ib_mad_recv_handler must call this
-+ * routine to return the work completion buffers to the access layer.
-+ */
-+void ib_free_recv_mad(struct ib_mad_recv_wc *mad_recv_wc);
-+
-+/**
-+ * ib_cancel_mad - Cancels an outstanding send MAD operation.
-+ * @mad_agent: Specifies the registration associated with sent MAD.
-+ * @wr_id: Indicates the work request identifier of the MAD to cancel.
-+ *
-+ * MADs will be returned to the user through the corresponding
-+ * ib_mad_send_handler.
-+ */
-+void ib_cancel_mad(struct ib_mad_agent *mad_agent,
-+		   u64 wr_id);
-+
-+/**
-+ * ib_redirect_mad_qp - Registers a QP for MAD services.
-+ * @qp: Reference to a QP that requires MAD services.
-+ * @rmpp_version: If set, indicates that the client will send
-+ *   and receive MADs that contain the RMPP header for the given version.
-+ *   If set to 0, indicates that RMPP is not used by this client.
-+ * @send_handler: The completion callback routine invoked after a send
-+ *   request has completed.
-+ * @recv_handler: The completion callback routine invoked for a received
-+ *   MAD.
-+ * @context: User specified context associated with the registration.
-+ *
-+ * Use of this call allows clients to use MAD services, such as RMPP,
-+ * on user-owned QPs.  After calling this routine, users may send
-+ * MADs on the specified QP by calling ib_mad_post_send.
-+ */
-+struct ib_mad_agent *ib_redirect_mad_qp(struct ib_qp *qp,
-+					u8 rmpp_version,
-+					ib_mad_send_handler send_handler,
-+					ib_mad_recv_handler recv_handler,
-+					void *context);
-+
-+/**
-+ * ib_process_mad_wc - Processes a work completion associated with a
-+ *   MAD sent or received on a redirected QP.
-+ * @mad_agent: Specifies the registered MAD service using the redirected QP.
-+ * @wc: References a work completion associated with a sent or received
-+ *   MAD segment.
-+ *
-+ * This routine is used to complete or continue processing on a MAD request.
-+ * If the work completion is associated with a send operation, calling
-+ * this routine is required to continue an RMPP transfer or to wait for a
-+ * corresponding response, if it is a request.  If the work completion is
-+ * associated with a receive operation, calling this routine is required to
-+ * process an inbound or outbound RMPP transfer, or to match a response MAD
-+ * with its corresponding request.
-+ */
-+int ib_process_mad_wc(struct ib_mad_agent *mad_agent,
-+		      struct ib_wc *wc);
-+
-+#endif /* IB_MAD_H */
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-bk/drivers/infiniband/include/ib_smi.h	2004-12-13 09:44:42.653441760 -0800
-@@ -0,0 +1,67 @@
 +/*
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available at
-+ * <http://www.fsf.org/copyleft/gpl.html>, or the OpenIB.org BSD
-+ * license, available in the LICENSE.TXT file accompanying this
-+ * software.  These details are also available at
-+ * <http://openib.org/license.html>.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ *
-+ * Copyright (c) 2004 Mellanox Technologies Ltd.  All rights reserved.
-+ * Copyright (c) 2004 Infinicon Corporation.  All rights reserved.
-+ * Copyright (c) 2004 Intel Corporation.  All rights reserved.
-+ * Copyright (c) 2004 Topspin Corporation.  All rights reserved.
-+ * Copyright (c) 2004 Voltaire Corporation.  All rights reserved.
-+ *
-+ * $Id$
++ * These two structures must be packed because they have 64-bit fields
++ * that are only 32-bit aligned.  64-bit architectures will lay them
++ * out wrong otherwise.  (And unfortunately they are sent on the wire
++ * so we can't change the layout)
 + */
-+
-+#if !defined( IB_SMI_H )
-+#define IB_SMI_H
-+
-+#include <ib_mad.h>
-+
-+#define IB_LID_PERMISSIVE			0xFFFF
-+
-+#define IB_SMP_DATA_SIZE			64
-+#define IB_SMP_MAX_PATH_HOPS			64
-+
-+struct ib_smp {
-+	u8	base_version;
-+	u8	mgmt_class;
-+	u8	class_version;
-+	u8	method;
-+	u16	status;
-+	u8	hop_ptr;
-+	u8	hop_cnt;
-+	u64	tid;
-+	u16	attr_id;
-+	u16	resv;
-+	u32	attr_mod;
-+	u64	mkey;
-+	u16	dr_slid;
-+	u16	dr_dlid;
-+	u8	reserved[28];
-+	u8	data[IB_SMP_DATA_SIZE];
-+	u8	initial_path[IB_SMP_MAX_PATH_HOPS];
-+	u8	return_path[IB_SMP_MAX_PATH_HOPS];
++struct ib_sa_hdr {
++	u64			sm_key;
++	u16			attr_offset;
++	u16			reserved;
++	ib_sa_comp_mask		comp_mask;
 +} __attribute__ ((packed));
 +
-+#define IB_SMP_DIRECTION	cpu_to_be16(0x8000)
++struct ib_sa_mad {
++	struct ib_mad_hdr	mad_hdr;
++	struct ib_rmpp_hdr	rmpp_hdr;
++	struct ib_sa_hdr	sa_hdr;
++	u8			data[200];
++} __attribute__ ((packed));
 +
-+static inline u8
-+ib_get_smp_direction(struct ib_smp *smp)
++struct ib_sa_sm_ah {
++	struct ib_ah        *ah;
++	struct kref          ref;
++};
++
++struct ib_sa_port {
++	struct ib_mad_agent *agent;
++	struct ib_mr        *mr;
++	struct ib_sa_sm_ah  *sm_ah;
++	struct work_struct   update_task;
++	spinlock_t           ah_lock;
++	u8                   port_num;
++};
++
++struct ib_sa_device {
++	int                     start_port, end_port;
++	struct ib_event_handler event_handler;
++	struct ib_sa_port port[0];
++};
++
++struct ib_sa_query {
++	void (*callback)(struct ib_sa_query *, int, struct ib_sa_mad *);
++	void (*release)(struct ib_sa_query *);
++	struct ib_sa_port  *port;
++	struct ib_sa_mad   *mad;
++	struct ib_sa_sm_ah *sm_ah;
++	DECLARE_PCI_UNMAP_ADDR(mapping)
++	int                 id;
++};
++
++struct ib_sa_path_query {
++	void (*callback)(int, struct ib_sa_path_rec *, void *);
++	void *context;
++	struct ib_sa_query sa_query;
++};
++
++struct ib_sa_mcmember_query {
++	void (*callback)(int, struct ib_sa_mcmember_rec *, void *);
++	void *context;
++	struct ib_sa_query sa_query;
++};
++
++static void ib_sa_add_one(struct ib_device *device);
++static void ib_sa_remove_one(struct ib_device *device);
++
++static struct ib_client sa_client = {
++	.name   = "sa",
++	.add    = ib_sa_add_one,
++	.remove = ib_sa_remove_one
++};
++
++static spinlock_t idr_lock;
++static DEFINE_IDR(query_idr);
++
++static spinlock_t tid_lock;
++static u32 tid;
++
++enum {
++	IB_SA_ATTR_CLASS_PORTINFO    = 0x01,
++	IB_SA_ATTR_NOTICE	     = 0x02,
++	IB_SA_ATTR_INFORM_INFO	     = 0x03,
++	IB_SA_ATTR_NODE_REC	     = 0x11,
++	IB_SA_ATTR_PORT_INFO_REC     = 0x12,
++	IB_SA_ATTR_SL2VL_REC	     = 0x13,
++	IB_SA_ATTR_SWITCH_REC	     = 0x14,
++	IB_SA_ATTR_LINEAR_FDB_REC    = 0x15,
++	IB_SA_ATTR_RANDOM_FDB_REC    = 0x16,
++	IB_SA_ATTR_MCAST_FDB_REC     = 0x17,
++	IB_SA_ATTR_SM_INFO_REC	     = 0x18,
++	IB_SA_ATTR_LINK_REC	     = 0x20,
++	IB_SA_ATTR_GUID_INFO_REC     = 0x30,
++	IB_SA_ATTR_SERVICE_REC	     = 0x31,
++	IB_SA_ATTR_PARTITION_REC     = 0x33,
++	IB_SA_ATTR_RANGE_REC	     = 0x34,
++	IB_SA_ATTR_PATH_REC	     = 0x35,
++	IB_SA_ATTR_VL_ARB_REC	     = 0x36,
++	IB_SA_ATTR_MC_GROUP_REC	     = 0x37,
++	IB_SA_ATTR_MC_MEMBER_REC     = 0x38,
++	IB_SA_ATTR_TRACE_REC	     = 0x39,
++	IB_SA_ATTR_MULTI_PATH_REC    = 0x3a,
++	IB_SA_ATTR_SERVICE_ASSOC_REC = 0x3b
++};
++
++#define PATH_REC_FIELD(field) \
++	.struct_offset_bytes = offsetof(struct ib_sa_path_rec, field),		\
++	.struct_size_bytes   = sizeof ((struct ib_sa_path_rec *) 0)->field,	\
++	.field_name          = "sa_path_rec:" #field
++
++static const struct ib_field path_rec_table[] = {
++	{ RESERVED,
++	  .offset_words = 0,
++	  .offset_bits  = 0,
++	  .size_bits    = 32 },
++	{ RESERVED,
++	  .offset_words = 1,
++	  .offset_bits  = 0,
++	  .size_bits    = 32 },
++	{ PATH_REC_FIELD(dgid),
++	  .offset_words = 2,
++	  .offset_bits  = 0,
++	  .size_bits    = 128 },
++	{ PATH_REC_FIELD(sgid),
++	  .offset_words = 6,
++	  .offset_bits  = 0,
++	  .size_bits    = 128 },
++	{ PATH_REC_FIELD(dlid),
++	  .offset_words = 10,
++	  .offset_bits  = 0,
++	  .size_bits    = 16 },
++	{ PATH_REC_FIELD(slid),
++	  .offset_words = 10,
++	  .offset_bits  = 16,
++	  .size_bits    = 16 },
++	{ PATH_REC_FIELD(raw_traffic),
++	  .offset_words = 11,
++	  .offset_bits  = 0,
++	  .size_bits    = 1 },
++	{ RESERVED,
++	  .offset_words = 11,
++	  .offset_bits  = 1,
++	  .size_bits    = 3 },
++	{ PATH_REC_FIELD(flow_label),
++	  .offset_words = 11,
++	  .offset_bits  = 4,
++	  .size_bits    = 20 },
++	{ PATH_REC_FIELD(hop_limit),
++	  .offset_words = 11,
++	  .offset_bits  = 24,
++	  .size_bits    = 8 },
++	{ PATH_REC_FIELD(traffic_class),
++	  .offset_words = 12,
++	  .offset_bits  = 0,
++	  .size_bits    = 8 },
++	{ PATH_REC_FIELD(reversible),
++	  .offset_words = 12,
++	  .offset_bits  = 8,
++	  .size_bits    = 1 },
++	{ PATH_REC_FIELD(numb_path),
++	  .offset_words = 12,
++	  .offset_bits  = 9,
++	  .size_bits    = 7 },
++	{ PATH_REC_FIELD(pkey),
++	  .offset_words = 12,
++	  .offset_bits  = 16,
++	  .size_bits    = 16 },
++	{ RESERVED,
++	  .offset_words = 13,
++	  .offset_bits  = 0,
++	  .size_bits    = 12 },
++	{ PATH_REC_FIELD(sl),
++	  .offset_words = 13,
++	  .offset_bits  = 12,
++	  .size_bits    = 4 },
++	{ PATH_REC_FIELD(mtu_selector),
++	  .offset_words = 13,
++	  .offset_bits  = 16,
++	  .size_bits    = 2 },
++	{ PATH_REC_FIELD(mtu),
++	  .offset_words = 13,
++	  .offset_bits  = 18,
++	  .size_bits    = 6 },
++	{ PATH_REC_FIELD(rate_selector),
++	  .offset_words = 13,
++	  .offset_bits  = 24,
++	  .size_bits    = 2 },
++	{ PATH_REC_FIELD(rate),
++	  .offset_words = 13,
++	  .offset_bits  = 26,
++	  .size_bits    = 6 },
++	{ PATH_REC_FIELD(packet_life_time_selector),
++	  .offset_words = 14,
++	  .offset_bits  = 0,
++	  .size_bits    = 2 },
++	{ PATH_REC_FIELD(packet_life_time),
++	  .offset_words = 14,
++	  .offset_bits  = 2,
++	  .size_bits    = 6 },
++	{ PATH_REC_FIELD(preference),
++	  .offset_words = 14,
++	  .offset_bits  = 8,
++	  .size_bits    = 8 },
++	{ RESERVED,
++	  .offset_words = 14,
++	  .offset_bits  = 16,
++	  .size_bits    = 48 },
++};
++
++#define MCMEMBER_REC_FIELD(field) \
++	.struct_offset_bytes = offsetof(struct ib_sa_mcmember_rec, field),	\
++	.struct_size_bytes   = sizeof ((struct ib_sa_mcmember_rec *) 0)->field,	\
++	.field_name          = "sa_mcmember_rec:" #field
++
++static const struct ib_field mcmember_rec_table[] = {
++	{ MCMEMBER_REC_FIELD(mgid),
++	  .offset_words = 0,
++	  .offset_bits  = 0,
++	  .size_bits    = 128 },
++	{ MCMEMBER_REC_FIELD(port_gid),
++	  .offset_words = 4,
++	  .offset_bits  = 0,
++	  .size_bits    = 128 },
++	{ MCMEMBER_REC_FIELD(qkey),
++	  .offset_words = 8,
++	  .offset_bits  = 0,
++	  .size_bits    = 32 },
++	{ MCMEMBER_REC_FIELD(mlid),
++	  .offset_words = 9,
++	  .offset_bits  = 0,
++	  .size_bits    = 16 },
++	{ MCMEMBER_REC_FIELD(mtu_selector),
++	  .offset_words = 9,
++	  .offset_bits  = 16,
++	  .size_bits    = 2 },
++	{ MCMEMBER_REC_FIELD(mtu),
++	  .offset_words = 9,
++	  .offset_bits  = 18,
++	  .size_bits    = 6 },
++	{ MCMEMBER_REC_FIELD(traffic_class),
++	  .offset_words = 9,
++	  .offset_bits  = 24,
++	  .size_bits    = 8 },
++	{ MCMEMBER_REC_FIELD(pkey),
++	  .offset_words = 10,
++	  .offset_bits  = 0,
++	  .size_bits    = 16 },
++	{ MCMEMBER_REC_FIELD(rate_selector),
++	  .offset_words = 10,
++	  .offset_bits  = 16,
++	  .size_bits    = 2 },
++	{ MCMEMBER_REC_FIELD(rate),
++	  .offset_words = 10,
++	  .offset_bits  = 18,
++	  .size_bits    = 6 },
++	{ MCMEMBER_REC_FIELD(packet_life_time_selector),
++	  .offset_words = 10,
++	  .offset_bits  = 24,
++	  .size_bits    = 2 },
++	{ MCMEMBER_REC_FIELD(packet_life_time),
++	  .offset_words = 10,
++	  .offset_bits  = 26,
++	  .size_bits    = 6 },
++	{ MCMEMBER_REC_FIELD(sl),
++	  .offset_words = 11,
++	  .offset_bits  = 0,
++	  .size_bits    = 4 },
++	{ MCMEMBER_REC_FIELD(flow_label),
++	  .offset_words = 11,
++	  .offset_bits  = 4,
++	  .size_bits    = 20 },
++	{ MCMEMBER_REC_FIELD(hop_limit),
++	  .offset_words = 11,
++	  .offset_bits  = 24,
++	  .size_bits    = 8 },
++	{ MCMEMBER_REC_FIELD(scope),
++	  .offset_words = 12,
++	  .offset_bits  = 0,
++	  .size_bits    = 4 },
++	{ MCMEMBER_REC_FIELD(join_state),
++	  .offset_words = 12,
++	  .offset_bits  = 4,
++	  .size_bits    = 4 },
++	{ MCMEMBER_REC_FIELD(proxy_join),
++	  .offset_words = 12,
++	  .offset_bits  = 8,
++	  .size_bits    = 1 },
++	{ RESERVED,
++	  .offset_words = 12,
++	  .offset_bits  = 9,
++	  .size_bits    = 23 },
++};
++
++static void free_sm_ah(struct kref *kref)
 +{
-+	return ((smp->status & IB_SMP_DIRECTION) == IB_SMP_DIRECTION);
++	struct ib_sa_sm_ah *sm_ah = container_of(kref, struct ib_sa_sm_ah, ref);
++
++	ib_destroy_ah(sm_ah->ah);
++	kfree(sm_ah);
 +}
 +
-+#endif /* IB_SMI_H */
++static void update_sm_ah(void *port_ptr)
++{
++	struct ib_sa_port *port = port_ptr;
++	struct ib_sa_sm_ah *new_ah, *old_ah;
++	struct ib_port_attr port_attr;
++	struct ib_ah_attr   ah_attr;
++
++	if (ib_query_port(port->agent->device, port->port_num, &port_attr)) {
++		printk(KERN_WARNING "Couldn't query port\n");
++		return;
++	}
++
++	new_ah = kmalloc(sizeof *new_ah, GFP_KERNEL);
++	if (!new_ah) {
++		printk(KERN_WARNING "Couldn't allocate new SM AH\n");
++		return;
++	}
++
++	kref_init(&new_ah->ref);
++
++	memset(&ah_attr, 0, sizeof ah_attr);
++	ah_attr.dlid     = port_attr.sm_lid;
++	ah_attr.sl       = port_attr.sm_sl;
++	ah_attr.port_num = port->port_num;
++
++	new_ah->ah = ib_create_ah(port->agent->qp->pd, &ah_attr);
++	if (IS_ERR(new_ah->ah)) {
++		printk(KERN_WARNING "Couldn't create new SM AH\n");
++		kfree(new_ah);
++		return;
++	}
++
++	spin_lock_irq(&port->ah_lock);
++	old_ah = port->sm_ah;
++	port->sm_ah = new_ah;
++	spin_unlock_irq(&port->ah_lock);
++
++	if (old_ah)
++		kref_put(&old_ah->ref, free_sm_ah);
++}
++
++static void ib_sa_event(struct ib_event_handler *handler, struct ib_event *event)
++{
++	if (event->event == IB_EVENT_PORT_ERR    ||
++	    event->event == IB_EVENT_PORT_ACTIVE ||
++	    event->event == IB_EVENT_LID_CHANGE  ||
++	    event->event == IB_EVENT_PKEY_CHANGE ||
++	    event->event == IB_EVENT_SM_CHANGE) {
++		struct ib_sa_device *sa_dev =
++			ib_get_client_data(event->device, &sa_client);
++
++		schedule_work(&sa_dev->port[event->element.port_num -
++					    sa_dev->start_port].update_task);
++	}
++}
++
++/**
++ * ib_sa_cancel_query - try to cancel an SA query
++ * @id:ID of query to cancel
++ * @query:query pointer to cancel
++ *
++ * Try to cancel an SA query.  If the id and query don't match up or
++ * the query has already completed, nothing is done.  Otherwise the
++ * query is canceled and will complete with a status of -EINTR.
++ */
++void ib_sa_cancel_query(int id, struct ib_sa_query *query)
++{
++	unsigned long flags;
++	struct ib_mad_agent *agent;
++
++	spin_lock_irqsave(&idr_lock, flags);
++	if (idr_find(&query_idr, id) != query) {
++		spin_unlock_irqrestore(&idr_lock, flags);
++		return;
++	}
++	agent = query->port->agent;
++	spin_unlock_irqrestore(&idr_lock, flags);
++
++	ib_cancel_mad(agent, id);
++}
++EXPORT_SYMBOL(ib_sa_cancel_query);
++
++static void init_mad(struct ib_sa_mad *mad, struct ib_mad_agent *agent)
++{
++	unsigned long flags;
++
++	memset(mad, 0, sizeof *mad);
++
++	mad->mad_hdr.base_version  = IB_MGMT_BASE_VERSION;
++	mad->mad_hdr.mgmt_class    = IB_MGMT_CLASS_SUBN_ADM;
++	mad->mad_hdr.class_version = IB_SA_CLASS_VERSION;
++
++	spin_lock_irqsave(&tid_lock, flags);
++	mad->mad_hdr.tid           =
++		cpu_to_be64(((u64) agent->hi_tid) << 32 | tid++);
++	spin_unlock_irqrestore(&tid_lock, flags);
++}
++
++static int send_mad(struct ib_sa_query *query, int timeout_ms)
++{
++	struct ib_sa_port *port = query->port;
++	unsigned long flags;
++	int ret;
++	struct ib_sge      gather_list;
++	struct ib_send_wr *bad_wr, wr = {
++		.opcode      = IB_WR_SEND,
++		.sg_list     = &gather_list,
++		.num_sge     = 1,
++		.send_flags  = IB_SEND_SIGNALED,
++		.wr	     = {
++			 .ud = {
++				 .mad_hdr     = &query->mad->mad_hdr,
++				 .remote_qpn  = 1,
++				 .remote_qkey = IB_QP1_QKEY,
++				 .timeout_ms  = timeout_ms
++			 }
++		 }
++	};
++
++retry:
++	if (!idr_pre_get(&query_idr, GFP_ATOMIC))
++		return -ENOMEM;
++	spin_lock_irqsave(&idr_lock, flags);
++	ret = idr_get_new(&query_idr, query, &query->id);
++	spin_unlock_irqrestore(&idr_lock, flags);
++	if (ret == -EAGAIN)
++		goto retry;
++	if (ret)
++		return ret;
++
++	wr.wr_id = query->id;
++
++	spin_lock_irqsave(&port->ah_lock, flags);
++	kref_get(&port->sm_ah->ref);
++	query->sm_ah = port->sm_ah;
++	wr.wr.ud.ah  = port->sm_ah->ah;
++	spin_unlock_irqrestore(&port->ah_lock, flags);
++
++	gather_list.addr   = dma_map_single(port->agent->device->dma_device,
++					    query->mad,
++					    sizeof (struct ib_sa_mad),
++					    DMA_TO_DEVICE);
++	gather_list.length = sizeof (struct ib_sa_mad);
++	gather_list.lkey   = port->mr->lkey;
++	pci_unmap_addr_set(query, mapping, gather_list.addr);
++
++	ret = ib_post_send_mad(port->agent, &wr, &bad_wr);
++	if (ret) {
++		dma_unmap_single(port->agent->device->dma_device,
++				 pci_unmap_addr(query, mapping),
++				 sizeof (struct ib_sa_mad),
++				 DMA_TO_DEVICE);
++		kref_put(&query->sm_ah->ref, free_sm_ah);
++		spin_lock_irqsave(&idr_lock, flags);
++		idr_remove(&query_idr, query->id);
++		spin_unlock_irqrestore(&idr_lock, flags);
++	}
++
++	return ret;
++}
++
++static void ib_sa_path_rec_callback(struct ib_sa_query *sa_query,
++				    int status,
++				    struct ib_sa_mad *mad)
++{
++	struct ib_sa_path_query *query =
++		container_of(sa_query, struct ib_sa_path_query, sa_query);
++
++	if (mad) {
++		struct ib_sa_path_rec rec;
++
++		ib_unpack(path_rec_table, ARRAY_SIZE(path_rec_table),
++			  mad->data, &rec);
++		query->callback(status, &rec, query->context);
++	} else
++		query->callback(status, NULL, query->context);
++}
++
++static void ib_sa_path_rec_release(struct ib_sa_query *sa_query)
++{
++	kfree(sa_query->mad);
++	kfree(container_of(sa_query, struct ib_sa_path_query, sa_query));
++}
++
++/**
++ * ib_sa_path_rec_get - Start a Path get query
++ * @device:device to send query on
++ * @port_num: port number to send query on
++ * @rec:Path Record to send in query
++ * @comp_mask:component mask to send in query
++ * @timeout_ms:time to wait for response
++ * @gfp_mask:GFP mask to use for internal allocations
++ * @callback:function called when query completes, times out or is
++ * canceled
++ * @context:opaque user context passed to callback
++ * @sa_query:query context, used to cancel query
++ *
++ * Send a Path Record Get query to the SA to look up a path.  The
++ * callback function will be called when the query completes (or
++ * fails); status is 0 for a successful response, -EINTR if the query
++ * is canceled, -ETIMEDOUT is the query timed out, or -EIO if an error
++ * occurred sending the query.  The resp parameter of the callback is
++ * only valid if status is 0.
++ *
++ * If the return value of ib_sa_path_rec_get() is negative, it is an
++ * error code.  Otherwise it is a query ID that can be used to cancel
++ * the query.
++ */
++int ib_sa_path_rec_get(struct ib_device *device, u8 port_num,
++		       struct ib_sa_path_rec *rec,
++		       ib_sa_comp_mask comp_mask,
++		       int timeout_ms, int gfp_mask,
++		       void (*callback)(int status,
++					struct ib_sa_path_rec *resp,
++					void *context),
++		       void *context,
++		       struct ib_sa_query **sa_query)
++{
++	struct ib_sa_path_query *query;
++	struct ib_sa_device *sa_dev = ib_get_client_data(device, &sa_client);
++	struct ib_sa_port   *port   = &sa_dev->port[port_num - sa_dev->start_port];
++	struct ib_mad_agent *agent  = port->agent;
++	int ret;
++
++	query = kmalloc(sizeof *query, gfp_mask);
++	if (!query)
++		return -ENOMEM;
++	query->sa_query.mad = kmalloc(sizeof *query->sa_query.mad, gfp_mask);
++	if (!query->sa_query.mad) {
++		kfree(query);
++		return -ENOMEM;
++	}
++
++	query->callback = callback;
++	query->context  = context;
++
++	init_mad(query->sa_query.mad, agent);
++
++	query->sa_query.callback              = ib_sa_path_rec_callback;
++	query->sa_query.release               = ib_sa_path_rec_release;
++	query->sa_query.port                  = port;
++	query->sa_query.mad->mad_hdr.method   = IB_MGMT_METHOD_GET;
++	query->sa_query.mad->mad_hdr.attr_id  = cpu_to_be16(IB_SA_ATTR_PATH_REC);
++	query->sa_query.mad->sa_hdr.comp_mask = comp_mask;
++
++	ib_pack(path_rec_table, ARRAY_SIZE(path_rec_table),
++		rec, query->sa_query.mad->data);
++
++	*sa_query = &query->sa_query;
++	ret = send_mad(&query->sa_query, timeout_ms);
++	if (ret) {
++		*sa_query = NULL;
++		kfree(query->sa_query.mad);
++		kfree(query);
++	}
++
++	return ret ? ret : query->sa_query.id;
++}
++EXPORT_SYMBOL(ib_sa_path_rec_get);
++
++static void ib_sa_mcmember_rec_callback(struct ib_sa_query *sa_query,
++					int status,
++					struct ib_sa_mad *mad)
++{
++	struct ib_sa_mcmember_query *query =
++		container_of(sa_query, struct ib_sa_mcmember_query, sa_query);
++
++	if (mad) {
++		struct ib_sa_mcmember_rec rec;
++
++		ib_unpack(mcmember_rec_table, ARRAY_SIZE(mcmember_rec_table),
++			  mad->data, &rec);
++		query->callback(status, &rec, query->context);
++	} else
++		query->callback(status, NULL, query->context);
++}
++
++static void ib_sa_mcmember_rec_release(struct ib_sa_query *sa_query)
++{
++	kfree(sa_query->mad);
++	kfree(container_of(sa_query, struct ib_sa_mcmember_query, sa_query));
++}
++
++int ib_sa_mcmember_rec_query(struct ib_device *device, u8 port_num,
++			     u8 method,
++			     struct ib_sa_mcmember_rec *rec, 
++			     ib_sa_comp_mask comp_mask,
++			     int timeout_ms, int gfp_mask,
++			     void (*callback)(int status,
++					      struct ib_sa_mcmember_rec *resp,
++					      void *context),
++			     void *context,
++			     struct ib_sa_query **sa_query)
++{
++	struct ib_sa_mcmember_query *query;
++	struct ib_sa_device *sa_dev = ib_get_client_data(device, &sa_client);
++	struct ib_sa_port   *port   = &sa_dev->port[port_num - sa_dev->start_port];
++	struct ib_mad_agent *agent  = port->agent;
++	int ret;
++
++	query = kmalloc(sizeof *query, gfp_mask);
++	if (!query)
++		return -ENOMEM;
++	query->sa_query.mad = kmalloc(sizeof *query->sa_query.mad, gfp_mask);
++	if (!query->sa_query.mad) {
++		kfree(query);
++		return -ENOMEM;
++	}
++
++	query->callback = callback;
++	query->context  = context;
++
++	init_mad(query->sa_query.mad, agent);
++
++	query->sa_query.callback              = ib_sa_mcmember_rec_callback;
++	query->sa_query.release               = ib_sa_mcmember_rec_release;
++	query->sa_query.port                  = port;
++	query->sa_query.mad->mad_hdr.method   = method;
++	query->sa_query.mad->mad_hdr.attr_id  = cpu_to_be16(IB_SA_ATTR_MC_MEMBER_REC);
++	query->sa_query.mad->sa_hdr.comp_mask = comp_mask;
++
++	ib_pack(mcmember_rec_table, ARRAY_SIZE(mcmember_rec_table),
++		rec, query->sa_query.mad->data);
++
++	*sa_query = &query->sa_query;
++	ret = send_mad(&query->sa_query, timeout_ms);
++	if (ret) {
++		*sa_query = NULL;
++		kfree(query->sa_query.mad);
++		kfree(query);
++	}
++
++	return ret ? ret : query->sa_query.id;
++}
++EXPORT_SYMBOL(ib_sa_mcmember_rec_query);
++
++static void send_handler(struct ib_mad_agent *agent,
++			 struct ib_mad_send_wc *mad_send_wc)
++{
++	struct ib_sa_query *query;
++	unsigned long flags;
++
++	spin_lock_irqsave(&idr_lock, flags);
++	query = idr_find(&query_idr, mad_send_wc->wr_id);
++	spin_unlock_irqrestore(&idr_lock, flags);
++
++	if (!query)
++		return;
++
++	switch (mad_send_wc->status) {
++	case IB_WC_SUCCESS:
++		/* No callback -- already got recv */
++		break;
++	case IB_WC_RESP_TIMEOUT_ERR:
++		query->callback(query, -ETIMEDOUT, NULL);
++		break;
++	case IB_WC_WR_FLUSH_ERR:
++		query->callback(query, -EINTR, NULL);
++		break;
++	default:
++		query->callback(query, -EIO, NULL);
++		break;
++	}
++
++	dma_unmap_single(agent->device->dma_device,
++			 pci_unmap_addr(query, mapping),
++			 sizeof (struct ib_sa_mad),
++			 DMA_TO_DEVICE);
++	kref_put(&query->sm_ah->ref, free_sm_ah);
++
++	query->release(query);
++
++	spin_lock_irqsave(&idr_lock, flags);
++	idr_remove(&query_idr, mad_send_wc->wr_id);
++	spin_unlock_irqrestore(&idr_lock, flags);
++}
++
++static void recv_handler(struct ib_mad_agent *mad_agent,
++			 struct ib_mad_recv_wc *mad_recv_wc)
++{
++	struct ib_sa_query *query;
++	unsigned long flags;
++
++	spin_lock_irqsave(&idr_lock, flags);
++	query = idr_find(&query_idr, mad_recv_wc->wc->wr_id);
++	spin_unlock_irqrestore(&idr_lock, flags);
++
++	if (query) {
++		if (mad_recv_wc->wc->status == IB_WC_SUCCESS)
++			query->callback(query,
++					mad_recv_wc->recv_buf.mad->mad_hdr.status ?
++					-EINVAL : 0,
++					(struct ib_sa_mad *) mad_recv_wc->recv_buf.mad);
++		else
++			query->callback(query, -EIO, NULL);
++	}
++
++	ib_free_recv_mad(mad_recv_wc);
++}
++
++static void ib_sa_add_one(struct ib_device *device)
++{
++	struct ib_sa_device *sa_dev;
++	int s, e, i;
++
++	if (device->node_type == IB_NODE_SWITCH)
++		s = e = 0;
++	else {
++		s = 1;
++		e = device->phys_port_cnt;
++	}
++
++	sa_dev = kmalloc(sizeof *sa_dev +
++			 (e - s + 1) * sizeof (struct ib_sa_port),
++			 GFP_KERNEL);
++	if (!sa_dev)
++		return;
++
++	sa_dev->start_port = s;
++	sa_dev->end_port   = e;
++
++	for (i = 0; i <= e - s; ++i) {
++		sa_dev->port[i].mr       = NULL;
++		sa_dev->port[i].sm_ah    = NULL;
++		sa_dev->port[i].port_num = i + s;
++		spin_lock_init(&sa_dev->port[i].ah_lock);
++
++		sa_dev->port[i].agent =
++			ib_register_mad_agent(device, i + s, IB_QPT_GSI,
++					      NULL, 0, send_handler,
++					      recv_handler, sa_dev);
++		if (IS_ERR(sa_dev->port[i].agent))
++			goto err;
++
++		sa_dev->port[i].mr = ib_get_dma_mr(sa_dev->port[i].agent->qp->pd,
++						   IB_ACCESS_LOCAL_WRITE);
++		if (IS_ERR(sa_dev->port[i].mr)) {
++			ib_unregister_mad_agent(sa_dev->port[i].agent);
++			goto err;
++		}
++
++		INIT_WORK(&sa_dev->port[i].update_task,
++			  update_sm_ah, &sa_dev->port[i]);
++	}
++
++	/*
++	 * We register our event handler after everything is set up,
++	 * and then update our cached info after the event handler is
++	 * registered to avoid any problems if a port changes state
++	 * during our initialization.
++	 */
++
++	INIT_IB_EVENT_HANDLER(&sa_dev->event_handler, device, ib_sa_event);
++	if (ib_register_event_handler(&sa_dev->event_handler))
++		goto err;
++
++	for (i = 0; i <= e - s; ++i)
++		update_sm_ah(&sa_dev->port[i]);
++
++	ib_set_client_data(device, &sa_client, sa_dev);
++
++	return;
++
++err:
++	while (--i >= 0) {
++		ib_dereg_mr(sa_dev->port[i].mr);
++		ib_unregister_mad_agent(sa_dev->port[i].agent);
++	}
++
++	kfree(sa_dev);
++
++	return;
++}
++
++static void ib_sa_remove_one(struct ib_device *device)
++{
++	struct ib_sa_device *sa_dev = ib_get_client_data(device, &sa_client);
++	int i;
++
++	if (!sa_dev)
++		return;
++
++	ib_unregister_event_handler(&sa_dev->event_handler);
++
++	for (i = 0; i <= sa_dev->end_port - sa_dev->start_port; ++i) {
++		ib_unregister_mad_agent(sa_dev->port[i].agent);
++		kref_put(&sa_dev->port[i].sm_ah->ref, free_sm_ah);
++	}
++
++	kfree(sa_dev);
++}
++
++static int __init ib_sa_init(void)
++{
++	int ret;
++
++	spin_lock_init(&idr_lock);
++	spin_lock_init(&tid_lock);
++
++	get_random_bytes(&tid, sizeof tid);
++
++	ret = ib_register_client(&sa_client);
++	if (ret)
++		printk(KERN_ERR "Couldn't register ib_sa client\n");
++		
++	return ret;
++}
++
++static void __exit ib_sa_cleanup(void)
++{
++	ib_unregister_client(&sa_client);
++}
++
++module_init(ib_sa_init);
++module_exit(ib_sa_cleanup);
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-bk/drivers/infiniband/include/ib_sa.h	2004-12-13 09:44:43.630297851 -0800
+@@ -0,0 +1,269 @@
++/*
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available at
++ * <http://www.fsf.org/copyleft/gpl.html>, or the OpenIB.org BSD
++ * license, available in the LICENSE.TXT file accompanying this
++ * software.  These details are also available at
++ * <http://openib.org/license.html>.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ *
++ * Copyright (c) 2004 Topspin Communications.  All rights reserved.
++ *
++ * $Id$
++ */
++
++#ifndef IB_SA_H
++#define IB_SA_H
++
++#include <linux/compiler.h>
++
++#include <ib_verbs.h>
++#include <ib_mad.h>
++
++enum {
++	IB_SA_CLASS_VERSION	= 2,	/* IB spec version 1.1/1.2 */
++
++	IB_SA_METHOD_DELETE	= 0x15
++};
++
++enum ib_sa_selector {
++	IB_SA_GTE  = 0,
++	IB_SA_LTE  = 1,
++	IB_SA_EQ   = 2,
++	/*
++	 * The meaning of "best" depends on the attribute: for
++	 * example, for MTU best will return the largest available
++	 * MTU, while for packet life time, best will return the
++	 * smallest available life time.
++	 */
++	IB_SA_BEST = 3
++};
++
++typedef u64 __bitwise ib_sa_comp_mask;
++
++#define IB_SA_COMP_MASK(n)	((__force ib_sa_comp_mask) cpu_to_be64(1ull << n))
++
++/*
++ * Structures for SA records are named "struct ib_sa_xxx_rec."  No
++ * attempt is made to pack structures to match the physical layout of
++ * SA records in SA MADs; all packing and unpacking is handled by the
++ * SA query code.
++ *
++ * For a record with structure ib_sa_xxx_rec, the naming convention
++ * for the component mask value for field yyy is IB_SA_XXX_REC_YYY (we
++ * never use different abbreviations or otherwise change the spelling
++ * of xxx/yyy between ib_sa_xxx_rec.yyy and IB_SA_XXX_REC_YYY).
++ *
++ * Reserved rows are indicated with comments to help maintainability.
++ */
++
++/* reserved:								 0 */
++/* reserved:								 1 */
++#define IB_SA_PATH_REC_DGID				IB_SA_COMP_MASK( 2)
++#define IB_SA_PATH_REC_SGID				IB_SA_COMP_MASK( 3)
++#define IB_SA_PATH_REC_DLID				IB_SA_COMP_MASK( 4)
++#define IB_SA_PATH_REC_SLID				IB_SA_COMP_MASK( 5)
++#define IB_SA_PATH_REC_RAW_TRAFFIC			IB_SA_COMP_MASK( 6)
++/* reserved:								 7 */
++#define IB_SA_PATH_REC_FLOW_LABEL       		IB_SA_COMP_MASK( 8)
++#define IB_SA_PATH_REC_HOP_LIMIT			IB_SA_COMP_MASK( 9)
++#define IB_SA_PATH_REC_TRAFFIC_CLASS			IB_SA_COMP_MASK(10)
++#define IB_SA_PATH_REC_REVERSIBLE			IB_SA_COMP_MASK(11)
++#define IB_SA_PATH_REC_NUMB_PATH			IB_SA_COMP_MASK(12)
++#define IB_SA_PATH_REC_PKEY				IB_SA_COMP_MASK(13)
++/* reserved:								14 */
++#define IB_SA_PATH_REC_SL				IB_SA_COMP_MASK(15)
++#define IB_SA_PATH_REC_MTU_SELECTOR			IB_SA_COMP_MASK(16)
++#define IB_SA_PATH_REC_MTU				IB_SA_COMP_MASK(17)
++#define IB_SA_PATH_REC_RATE_SELECTOR			IB_SA_COMP_MASK(18)
++#define IB_SA_PATH_REC_RATE				IB_SA_COMP_MASK(19)
++#define IB_SA_PATH_REC_PACKET_LIFE_TIME_SELECTOR	IB_SA_COMP_MASK(20)
++#define IB_SA_PATH_REC_PACKET_LIFE_TIME			IB_SA_COMP_MASK(21)
++#define IB_SA_PATH_REC_PREFERENCE			IB_SA_COMP_MASK(22)
++
++struct ib_sa_path_rec {
++	/* reserved */
++	/* reserved */
++	union ib_gid dgid;
++	union ib_gid sgid;
++	u16          dlid;
++	u16          slid;
++	int          raw_traffic;
++	/* reserved */
++	u32          flow_label;
++	u8           hop_limit;
++	u8           traffic_class;
++	int          reversible;
++	u8           numb_path;
++	u16          pkey;
++	/* reserved */
++	u8           sl;
++	u8           mtu_selector;
++	enum ib_mtu  mtu;
++	u8           rate_selector;
++	u8           rate;
++	u8           packet_life_time_selector;
++	u8           packet_life_time;
++	u8           preference;
++};
++
++#define IB_SA_MCMEMBER_REC_MGID				IB_SA_COMP_MASK( 0)
++#define IB_SA_MCMEMBER_REC_PORT_GID			IB_SA_COMP_MASK( 1)
++#define IB_SA_MCMEMBER_REC_QKEY				IB_SA_COMP_MASK( 2)
++#define IB_SA_MCMEMBER_REC_MLID				IB_SA_COMP_MASK( 3)
++#define IB_SA_MCMEMBER_REC_MTU_SELECTOR			IB_SA_COMP_MASK( 4)
++#define IB_SA_MCMEMBER_REC_MTU				IB_SA_COMP_MASK( 5)
++#define IB_SA_MCMEMBER_REC_TRAFFIC_CLASS		IB_SA_COMP_MASK( 6)
++#define IB_SA_MCMEMBER_REC_PKEY				IB_SA_COMP_MASK( 7)
++#define IB_SA_MCMEMBER_REC_RATE_SELECTOR		IB_SA_COMP_MASK( 8)
++#define IB_SA_MCMEMBER_REC_RATE				IB_SA_COMP_MASK( 9)
++#define IB_SA_MCMEMBER_REC_PACKET_LIFE_TIME_SELECTOR	IB_SA_COMP_MASK(10)
++#define IB_SA_MCMEMBER_REC_PACKET_LIFE_TIME		IB_SA_COMP_MASK(11)
++#define IB_SA_MCMEMBER_REC_SL				IB_SA_COMP_MASK(12)
++#define IB_SA_MCMEMBER_REC_FLOW_LABEL			IB_SA_COMP_MASK(13)
++#define IB_SA_MCMEMBER_REC_HOP_LIMIT			IB_SA_COMP_MASK(14)
++#define IB_SA_MCMEMBER_REC_SCOPE			IB_SA_COMP_MASK(15)
++#define IB_SA_MCMEMBER_REC_JOIN_STATE			IB_SA_COMP_MASK(16)
++#define IB_SA_MCMEMBER_REC_PROXY_JOIN			IB_SA_COMP_MASK(17)
++
++struct ib_sa_mcmember_rec {
++	union ib_gid mgid;
++	union ib_gid port_gid;
++	u32          qkey;
++	u16          mlid;
++	u8           mtu_selector;
++	enum         ib_mtu mtu;
++	u8           traffic_class;
++	u16          pkey;
++	u8 	     rate_selector;
++	u8 	     rate;
++	u8 	     packet_life_time_selector;
++	u8 	     packet_life_time;
++	u8           sl;
++	u32          flow_label;
++	u8           hop_limit;
++	u8           scope;
++	u8           join_state;
++	int          proxy_join;
++};
++
++struct ib_sa_query;
++
++void ib_sa_cancel_query(int id, struct ib_sa_query *query);
++
++int ib_sa_path_rec_get(struct ib_device *device, u8 port_num,
++		       struct ib_sa_path_rec *rec, 
++		       ib_sa_comp_mask comp_mask,
++		       int timeout_ms, int gfp_mask,
++		       void (*callback)(int status,
++					struct ib_sa_path_rec *resp,
++					void *context),
++		       void *context,
++		       struct ib_sa_query **query);
++
++int ib_sa_mcmember_rec_query(struct ib_device *device, u8 port_num,
++			     u8 method,
++			     struct ib_sa_mcmember_rec *rec,
++			     ib_sa_comp_mask comp_mask,
++			     int timeout_ms, int gfp_mask,
++			     void (*callback)(int status,
++					      struct ib_sa_mcmember_rec *resp,
++					      void *context),
++			     void *context,
++			     struct ib_sa_query **query);
++
++/**
++ * ib_sa_mcmember_rec_set - Start an MCMember set query
++ * @device:device to send query on
++ * @port_num: port number to send query on
++ * @rec:MCMember Record to send in query
++ * @comp_mask:component mask to send in query
++ * @timeout_ms:time to wait for response
++ * @gfp_mask:GFP mask to use for internal allocations
++ * @callback:function called when query completes, times out or is
++ * canceled
++ * @context:opaque user context passed to callback
++ * @sa_query:query context, used to cancel query
++ *
++ * Send an MCMember Set query to the SA (eg to join a multicast
++ * group).  The callback function will be called when the query
++ * completes (or fails); status is 0 for a successful response, -EINTR
++ * if the query is canceled, -ETIMEDOUT is the query timed out, or
++ * -EIO if an error occurred sending the query.  The resp parameter of
++ * the callback is only valid if status is 0.
++ *
++ * If the return value of ib_sa_mcmember_rec_set() is negative, it is
++ * an error code.  Otherwise it is a query ID that can be used to
++ * cancel the query.
++ */
++static inline int
++ib_sa_mcmember_rec_set(struct ib_device *device, u8 port_num,
++		       struct ib_sa_mcmember_rec *rec,
++		       ib_sa_comp_mask comp_mask,
++		       int timeout_ms, int gfp_mask,
++		       void (*callback)(int status,
++					struct ib_sa_mcmember_rec *resp,
++					void *context),
++		       void *context,
++		       struct ib_sa_query **query)
++{
++	return ib_sa_mcmember_rec_query(device, port_num,
++					IB_MGMT_METHOD_SET,
++					rec, comp_mask,
++					timeout_ms, gfp_mask, callback,
++					context, query);
++}
++
++/**
++ * ib_sa_mcmember_rec_delete - Start an MCMember delete query
++ * @device:device to send query on
++ * @port_num: port number to send query on
++ * @rec:MCMember Record to send in query
++ * @comp_mask:component mask to send in query
++ * @timeout_ms:time to wait for response
++ * @gfp_mask:GFP mask to use for internal allocations
++ * @callback:function called when query completes, times out or is
++ * canceled
++ * @context:opaque user context passed to callback
++ * @sa_query:query context, used to cancel query
++ *
++ * Send an MCMember Delete query to the SA (eg to leave a multicast
++ * group).  The callback function will be called when the query
++ * completes (or fails); status is 0 for a successful response, -EINTR
++ * if the query is canceled, -ETIMEDOUT is the query timed out, or
++ * -EIO if an error occurred sending the query.  The resp parameter of
++ * the callback is only valid if status is 0.
++ *
++ * If the return value of ib_sa_mcmember_rec_delete() is negative, it
++ * is an error code.  Otherwise it is a query ID that can be used to
++ * cancel the query.
++ */
++static inline int
++ib_sa_mcmember_rec_delete(struct ib_device *device, u8 port_num,
++			  struct ib_sa_mcmember_rec *rec,
++			  ib_sa_comp_mask comp_mask,
++			  int timeout_ms, int gfp_mask,
++			  void (*callback)(int status,
++					   struct ib_sa_mcmember_rec *resp,
++					   void *context),
++			  void *context,
++			  struct ib_sa_query **query)
++{
++	return ib_sa_mcmember_rec_query(device, port_num,
++					IB_SA_METHOD_DELETE,
++					rec, comp_mask,
++					timeout_ms, gfp_mask, callback,
++					context, query);
++}
++
++
++#endif /* IB_SA_H */
 

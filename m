@@ -1,84 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263114AbUCSQZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 11:25:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263105AbUCSQZQ
+	id S263081AbUCSQcN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 11:32:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263118AbUCSQcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 11:25:16 -0500
-Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:45835 "EHLO
-	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S263114AbUCSQZA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 11:25:00 -0500
-Message-ID: <405B200A.40909@kolumbus.fi>
-Date: Fri, 19 Mar 2004 18:30:02 +0200
-From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Fri, 19 Mar 2004 11:32:13 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:6287 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263111AbUCSQcJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 11:32:09 -0500
+Date: Fri, 19 Mar 2004 11:34:19 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: CDFS
+In-Reply-To: <20040319081039.74a827fe.rddunlap@osdl.org>
+Message-ID: <Pine.LNX.4.53.0403191127040.3230@chaos>
+References: <Pine.LNX.4.53.0403191100030.3154@chaos> <20040319081039.74a827fe.rddunlap@osdl.org>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, Chris Mason <mason@suse.com>
-Subject: Re: [PATCH] barrier patch set
-References: <20040319153554.GC2933@suse.de>
-In-Reply-To: <20040319153554.GC2933@suse.de>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 19.03.2004 18:27:23,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 19.03.2004 18:26:26,
-	Serialize complete at 19.03.2004 18:26:26
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 19 Mar 2004, Randy.Dunlap wrote:
 
-
-Jens Axboe wrote:
-
->Hi,
+> On Fri, 19 Mar 2004 11:01:44 -0500 (EST) Richard B. Johnson wrote:
 >
->A first release of a collected barrier patchset for 2.6.5-rc1-mm2. I
->have a few changes planned to support dm/md + sata, I'll do those
->changes over the weekend.
+> |
+> | Just got a CD/ROM that 'works' on W$, but not Linux.
+> | W$ `properties` call it 'CDFS'. Is there any such Linux
+> | support?
 >
->Reiser has the best barrier support, ext3 works but only if things don't
->go wrong. So only attempt to use the barrier feature on ext3 if on ide
->drives, not SCSI nor SATA.
+> You did try to search for it, right?
 >
->  
->
-What are these brutal pieces...?
+
+Sure did and what I get was an explaination that, for
+Linux, the letters "CDFS" refer to something that "exports
+all the tracks and boot images of a CD as normal files".
+
+That's not what I want. I want to mount a CDFS file-system.
+
+Given that, maybe the explaination is bogus, but I
+need some CDFS file-system support so I can mount
+a Microsoft CDFS CD/ROM. If such support exists, I
+would think that I should be able to do:
+
+mount -t cdfs /dev/cdrom /mnt
 
 
-+static int ide_transform_pc_req(ide_drive_t *drive, struct request *rq)
-+{
-+ if (rq->cmd[0] != 0x35) {
-+ ide_end_request(drive, 0, 0);
-+ return 1;
-+ }
-+
-+ if (!drive->wcache) {
-+ ide_end_request(drive, 1, 0);
-+ return 1;
-+ }
-+
-+ ide_fill_flush_cmd(drive, rq);
-+ return 0;
-+}
-
-
-/*
-+ * basic transformation support for scsi -> ata commands
-+ */
-+ if (blk_pc_request(rq)) {
-+ if (drive->media != ide_disk)
-+ goto kill_rq;
-+ if (ide_transform_pc_req(drive, rq))
-+ return ide_stopped;
-+ }
-+
-
-
-
---Mika
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267427AbTBUNLA>; Fri, 21 Feb 2003 08:11:00 -0500
+	id <S267430AbTBUNSQ>; Fri, 21 Feb 2003 08:18:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267430AbTBUNLA>; Fri, 21 Feb 2003 08:11:00 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:31933 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267427AbTBUNK7>;
-	Fri, 21 Feb 2003 08:10:59 -0500
-Date: Fri, 21 Feb 2003 13:32:43 +0000
+	id <S267432AbTBUNSQ>; Fri, 21 Feb 2003 08:18:16 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:37565 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267430AbTBUNSP>;
+	Fri, 21 Feb 2003 08:18:15 -0500
+Date: Fri, 21 Feb 2003 13:40:35 +0000
 From: Dave Jones <davej@codemonkey.org.uk>
-To: Samium Gromoff <deepfire@ibe.miee.ru>
-Cc: toptan@eunet.eu, linux-kernel@vger.kernel.org
+To: Toplica Tanaskovi?? <toptan@EUnet.yu>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: AGP backport from 2.5 to 2.4.21-pre4
-Message-ID: <20030221133243.GA20044@codemonkey.org.uk>
+Message-ID: <20030221134035.GB20044@codemonkey.org.uk>
 Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Samium Gromoff <deepfire@ibe.miee.ru>, toptan@eunet.eu,
-	linux-kernel@vger.kernel.org
-References: <20030221122051.20942f70.deepfire@ibe.miee.ru>
+	Toplica Tanaskovi?? <toptan@EUnet.yu>, linux-kernel@vger.kernel.org
+References: <200302210501.21131.toptan@EUnet.yu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030221122051.20942f70.deepfire@ibe.miee.ru>
+In-Reply-To: <200302210501.21131.toptan@EUnet.yu>
 User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 21, 2003 at 12:20:51PM +0300, Samium Gromoff wrote:
- > >	GA-7VAXPUltra (KT400)   + ATI Radeon R9000      = passed.
- > >                                                + GeForce 2MX400        = passed.
- > >        Chaintech 7AJA2E (KT133)        + ATI Radeon R9000      = passed.
- > >                                                + GeForce 2MX400        = passed.
- > >
- > >        Abit (i810)                             + ATI Radeon R9000      = passed.
- > >                                                + GeForce 2MX400        = passed.
- > 
- >  From all this hardware only the KT400+R9000 pair possibly engage in AGP8x transfers,
- > and i`m suspicious whether R9000 does it at all...
- > 
- >  So i think somebody testing it on real AGP3.0-capable hardware would do good...
+On Fri, Feb 21, 2003 at 05:40:19AM +0100, Toplica Tanaskovi?? wrote:
 
-A big issue is that there is no AGP3.0 card currently supported by DRI.
-For an AGPx8 test, your only choice seems to be to hack the binary
-drivers provided by ATi etc to try and work with the newstyle gart.
+<hopefully you'll see this on Linux-kernel, as eunet.yu is unresolvable
+ here, and I'm getting bounces>
 
+ > 	I am probably wrong, but I think that via-kt400.c in 2.5 is unnecessary, so 
+ > I've excluded it from this backport, with some changes in via-agp.c. I did 
+ > some tests, but most things are untested due to lack of hardware.
+
+Yes. via-kt400.c was unnecessary (well, it was useful as a standalone
+whilst I was developing it) , which was why it was later merged into
+via-agp.c in 2.5.60. There were also a bunch of other fixes merged
+there, so if you based your backport on an earlier version, I suggest
+you grab those changes.
+ 
 		Dave
 
 -- 

@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318322AbSG3QXh>; Tue, 30 Jul 2002 12:23:37 -0400
+	id <S318327AbSG3QVN>; Tue, 30 Jul 2002 12:21:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318328AbSG3QXg>; Tue, 30 Jul 2002 12:23:36 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:31245 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S318322AbSG3QXf>; Tue, 30 Jul 2002 12:23:35 -0400
-Date: Tue, 30 Jul 2002 12:21:04 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Dominik Brodowski <devel@brodo.de>
-cc: davej@suse.de, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] resolve ACPI oops on boot
-In-Reply-To: <20020724005518.A837@brodo.de>
-Message-ID: <Pine.LNX.3.96.1020730121859.4042J-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318328AbSG3QVN>; Tue, 30 Jul 2002 12:21:13 -0400
+Received: from purple.csi.cam.ac.uk ([131.111.8.4]:8425 "EHLO
+	purple.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S318327AbSG3QVM>; Tue, 30 Jul 2002 12:21:12 -0400
+Message-Id: <5.1.0.14.2.20020730172158.02014160@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 30 Jul 2002 17:28:05 +0100
+To: Nico Schottelius <nico-mutt@schottelius.org>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: Bugs in 2.5.28 [scsi/framebuffer/devfs/floppy/ntfs/trident]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020731175743.GB1249@schottelius.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Jul 2002, Dominik Brodowski wrote:
+At 18:57 31/07/02, Nico Schottelius wrote:
+>Just wanted to report of the following problems:
+>
+>Other bugs:
+>- ntfs sometimes crashes the system: working on a loopback file caused
+>   ntfs to report corruptions in the file system and this hangs system
+>   completly.
+>
+>If you need more informations, just tell me. Currently I've some time
+>to debug parts of the kernel.
 
-> The casts were probably introduced for that reason. Per se, they are not
-> critical - but if there is any assumption later on that the data structure
-> is indeed of the large size, there is a problem.
+I am interested in this ntfs report. Which way round was the loopback file? 
+I.e. did you mount: mount -t ntfs -o loop somefile_on_a_non_ntfs_partition 
+or did you mount: mount -t some_file_system -o loop 
+somefile_on_an_ntfs_partion?
 
-Perhaps the pointer chould be (void *) everywhere, and then cast to the
-right size where and when it is used. Clearly casting the pointer to a
-larger size will result in allignment issues on some machines.
+Can you send me the errors produced? If there is an oops, please decode and 
+send it, too.
+
+Also it may be useful to have the debug output from ntfs (depending on what 
+the errors/oops say - they may be sufficient to pinpoint the problem), i.e. 
+enable debugging when configuring the kernel, and then as root do: echo 1 > 
+/proc/sys/fs/ntfs-debug. Note this will absolutely flood you with debug 
+output so the system will run slow as hell... So it is best to only enable 
+debug messages just before the error occurs if that is possible.
+
+Thanks,
+
+         Anton
+
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266081AbSKOKWm>; Fri, 15 Nov 2002 05:22:42 -0500
+	id <S266042AbSKOKVU>; Fri, 15 Nov 2002 05:21:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266091AbSKOKWc>; Fri, 15 Nov 2002 05:22:32 -0500
-Received: from ns.suse.de ([213.95.15.193]:41230 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S266081AbSKOKWV>;
-	Fri, 15 Nov 2002 05:22:21 -0500
-Date: Fri, 15 Nov 2002 11:29:15 +0100
-From: Andi Kleen <ak@suse.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andi Kleen <ak@suse.de>, Richard Henderson <rth@twiddle.net>,
-       linux-kernel@vger.kernel.org, davidm@hpl.hp.com
-Subject: Re: in-kernel linking issues
-Message-ID: <20021115112915.B26474@wotan.suse.de>
-References: <p73wunfv5b0.fsf@oldwotan.suse.de> <20021115084757.A640A2C145@lists.samba.org>
+	id <S266053AbSKOKVT>; Fri, 15 Nov 2002 05:21:19 -0500
+Received: from relay1.clb.oleane.net ([213.56.31.21]:5594 "EHLO
+	relay1.clb.oleane.net") by vger.kernel.org with ESMTP
+	id <S266042AbSKOKVR>; Fri, 15 Nov 2002 05:21:17 -0500
+Subject: Re: via-rhine weirdness with via kt8235 Southbridge
+From: Nicolas Mailhot <Nicolas.Mailhot@one2team.com>
+To: Roger Luethi <rl@hellgate.ch>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-k6qj+2zY7tWPukOeVkD3"
+Organization: One2team
+Message-Id: <1037356084.2255.5.camel@ulysse.olympe.o2t>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021115084757.A640A2C145@lists.samba.org>
-User-Agent: Mutt/1.3.22.1i
+X-Mailer: Ximian Evolution 1.1.90 (1.1.90-2) (Preview Release)
+Date: 15 Nov 2002 11:28:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2) Use a magic allocator a-la Sparc64.
 
-That is what is currently done.
+--=-k6qj+2zY7tWPukOeVkD3
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> 3) Best-effort: allocate both at alloc-core time (store init ptr in
->    mod_arch_specific) and if they're too far apart, throw that away
->    and fall back to one big alloc.
-> 
-> 4) Implement jump stubs between the two sections.
+Hi,
 
-Does not work, I need data references in the same range to.
-Also frankly I would refuse to cripple my modules just to accomodate the new
-code - it should be the other way around.
+	Please see http://bugzilla.kernel.org/show_bug.cgi?id=3D10, I think
+that's the very same problem on another mobo.
 
+(was also in 2.5 problem reports, do not remember the exact number)
 
--Andi
+Maybe you should take ownership of this bug ?
+
+Regards,
+
+--=20
+Nicolas Mailhot
+
+--=-k6qj+2zY7tWPukOeVkD3
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA91Mw0msj7VFSyrYsRAne6AJ9EKgAS75aQ7OIlRX09dtYehq3yhQCglNzz
+liYxvgesquO9hrXQgEDddwA=
+=BvIv
+-----END PGP SIGNATURE-----
+
+--=-k6qj+2zY7tWPukOeVkD3--
 

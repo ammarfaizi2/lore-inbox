@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292281AbSBOXiP>; Fri, 15 Feb 2002 18:38:15 -0500
+	id <S292282AbSBOXjf>; Fri, 15 Feb 2002 18:39:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292282AbSBOXiJ>; Fri, 15 Feb 2002 18:38:09 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:35490 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S292281AbSBOXhz>;
-	Fri, 15 Feb 2002 18:37:55 -0500
-Date: Fri, 15 Feb 2002 18:37:45 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: Richard Gooch <rgooch@ras.ucalgary.ca>, Dave Jones <davej@suse.de>,
-        Larry McVoy <lm@work.bitmover.com>,
-        Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
-        linux-kernel@vger.kernel.org
+	id <S292283AbSBOXjS>; Fri, 15 Feb 2002 18:39:18 -0500
+Received: from [208.29.163.248] ([208.29.163.248]:56997 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S292282AbSBOXjC>; Fri, 15 Feb 2002 18:39:02 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Dave Jones <davej@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Date: Fri, 15 Feb 2002 15:37:36 -0800 (PST)
 Subject: Re: Disgusted with kbuild developers
-In-Reply-To: <20020215165029.C14418@thyrsus.com>
-Message-ID: <Pine.GSO.4.21.0202151803220.27197-100000@weyl.math.psu.edu>
+In-Reply-To: <20020216002959.P27880@suse.de>
+Message-ID: <Pine.LNX.4.44.0202151535560.2991-100000@dlang.diginsite.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+by the way folks, unless Eric is plain lying to us the 'private flamewar'
+that Linus has with someone that prompted him to splitup the config.help
+stuff was not with Eric.
+
+David Lang
 
 
-On Fri, 15 Feb 2002, Eric S. Raymond wrote:
+On Sat, 16 Feb 2002, Dave Jones wrote:
 
-> Richard Gooch <rgooch@ras.ucalgary.ca>:
-> > Repeat after me: Linus is a bastard. Linus doesn't care.
-> 
-> Fine.  We all know Linus is a bastard. 
-> 
-> If that's so, then why are the likes of Jeff Garzik and Al Viro 
-> spending so much effort trying to make *me* into the bad guy?
-
-I can't speak for Jeff.  Compared to me Linus is downright nice,
-kind and touchy-feely guy.  I'm not.  I don't like manipulative
-arseholes.  I _despise_ inept manipulative arseholes and I really
-can't stand demagogy - what with a massive overdose of that in
-school years (Soviet Union, early 80s - 'nuff said).
-
-Your habit of claiming completely unsubstantiated credentials also
-doesn't help.  Let me spell it out - your pseudo-phylosophical
-essays are handwaving at best and deliberate dishonesty at worst.
-If you expect respect for them - you are looking in the wrong
-place.  You don't understand how kernel development works - that
-much had been made obvious for everyone by the last couple of months.
-And yet you don't hesitate to plug holes in your proposals with empty
-preaching ex cathedra and massive demagogy.
-
-I had seen such guys in Uni.  Usually they taught Marxism-Leninism,
-History of Party, Philosophy, etc.  Nobody with a shred of clue and
-self-respect had touched them with a ten-feet pole.  Excuse me for
-being not too happy to see that type again.
-
+> Date: Sat, 16 Feb 2002 00:29:59 +0100
+> From: Dave Jones <davej@suse.de>
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: Disgusted with kbuild developers
+>
+> On Sat, Feb 16, 2002 at 12:23:12AM +0100, Matthias Andree wrote:
+>  > Are you telling that kernel programmers don't rewrite code from scratch?
+>  > Is that a correct interpretation of "improve the existing system"? Note
+>  > that "it can't be done" can also imply "cannot reasonable be done".
+>  > Eric has done it, without being of kernel hacker temple's fame.
+>
+>  The kernel hacker approach: Gradual change toward a predefined goal.
+>  The Eric approach: Rip out existing, replace with new.
+>
+>  If Al Viro can rewrite the guts of the VFS without hardly anyone
+>  noticing any disturbance, and the configuration system can't be
+>  done this way, something is amiss.
+>
+> --
+> | Dave Jones.        http://www.codemonkey.org.uk
+> | SuSE Labs
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

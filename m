@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267362AbTAGJxj>; Tue, 7 Jan 2003 04:53:39 -0500
+	id <S267363AbTAGJ6t>; Tue, 7 Jan 2003 04:58:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267363AbTAGJxi>; Tue, 7 Jan 2003 04:53:38 -0500
-Received: from mta.sara.nl ([145.100.16.144]:55965 "EHLO mta.sara.nl")
-	by vger.kernel.org with ESMTP id <S267362AbTAGJxh>;
-	Tue, 7 Jan 2003 04:53:37 -0500
-Date: Tue, 7 Jan 2003 11:02:06 +0100
-From: Remco Post <r.post@sara.nl>
-To: thockin@sun.com
-Cc: th122948@scl2.sfbay.sun.com, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK SUMMARY] remove 32 group limit (re-send)
-Message-Id: <20030107110206.469a98e5.r.post@sara.nl>
-In-Reply-To: <200301062329.h06NTZf24210@scl2.sfbay.sun.com>
-References: <200301062329.h06NTZf24210@scl2.sfbay.sun.com>
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; sparc-sun-solaris2.7)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S267366AbTAGJ6t>; Tue, 7 Jan 2003 04:58:49 -0500
+Received: from mail.hometree.net ([212.34.181.120]:43720 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S267363AbTAGJ6s>; Tue, 7 Jan 2003 04:58:48 -0500
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Honest does not pay here ...
+Date: Tue, 7 Jan 2003 10:07:26 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <ave8su$u17$1@forge.intermeta.de>
+References: <200301041809.KAA06893@adam.yggdrasil.com> <avaa2r$ggr$1@forge.intermeta.de> <3E18B76B.8050803@cox.net> <avae9i$gv1$1@forge.intermeta.de> <3E18CC4D.1020604@cox.net> <20030106234116.GH10752@merlin.emma.line.org> <3E1A1A2C.2000409@walrond.org> <20030107012429.GA12944@merlin.emma.line.org>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1041934046 14678 212.34.181.4 (7 Jan 2003 10:07:26 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Tue, 7 Jan 2003 10:07:26 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Jan 2003 15:29:34 -0800 (PST)
-Timothy Hockin <th122948@scl2.sfbay.sun.com> wrote:
+Matthias Andree <matthias.andree@gmx.de> writes:
 
-> Linus,
-> 
-> I've sent this a bunch of times.  I don't know if it is just getting
-> dropped or if there is some reason you don't want it in.  Could you please
-> either explain why it will never go in or what needs to be fixed for it to
-> go in?
-> 
-> This patch removes the hard NGROUPS limit.  It has been in use in a
-> similar form on our systems for some time.  I've sent it several times,
-> and it has evolved a lot from the original form.  I've had no complaints
-> from anyone about this version of the patch.
+>> Until the manufacturers start providing good quality supported drivers 
+>> for their hardware, binary or source, linux will stay exactly where it 
+>> is now; a server room tool and a hobbyists playground.
 
-Wasn't there something about groups and NFS? I remember configuring solaris
-once to allow for more than 32 groups for a single user, and NFS for those
-users that we in more than 32 groups would break horribly. Granted, one
-should not use NFS, if it can be avoided, nor is it reasonable to impose NFS
-limitations on environments that don't use NFS, still, I think it's a good
-thing to ehh, maybe have to enable the use of more than 32 groups in some
-/proc file....
+>> I for one think thats a real shame
 
-Oh btw. In none of our current environments, we actually run into this 32
-group limit, not even in the really big ones.....
+>Only that you can't trust in the el-cheapo vendors claiming Linux
+>support, and an independent certification is needed (not only for Linux,
+>for the *BSDs as well). Without a trusted certification, some crooks may
+>try to claim Linux support and it won't quite work out.
+
+http://www.cs.helsinki.fi/linux/linux-kernel/2001-35/0559.html
+
+Dated 5. September 2001.
+
+	Regards
+		Henning
 
 -- 
-Met vriendelijke groeten,
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-Remco Post
-
-SARA - Stichting Academisch Rekencentrum Amsterdam    http://www.sara.nl
-High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
-
-"I really didn't foresee the Internet. But then, neither did the computer
-industry. Not that that tells us very much of course - the computer industry
-didn't even foresee that the century was going to end." -- Douglas Adams
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262940AbVCWVKH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262934AbVCWVKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262940AbVCWVKH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 16:10:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVCWVJH
+	id S262934AbVCWVKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 16:10:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVCWVIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 16:09:07 -0500
-Received: from fire.osdl.org ([65.172.181.4]:33457 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262917AbVCWVG5 (ORCPT
+	Wed, 23 Mar 2005 16:08:54 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:15764 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262918AbVCWUmw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 16:06:57 -0500
-Date: Wed, 23 Mar 2005 13:06:28 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, mahalcro@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] Keys: Pass session keyring to call_usermodehelper()
-Message-Id: <20050323130628.3a230dec.akpm@osdl.org>
-In-Reply-To: <29204.1111608899@redhat.com>
-References: <29204.1111608899@redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 23 Mar 2005 15:42:52 -0500
+Subject: Re: [CHECKER] ext3 bug in ftruncate() with O_SYNC?
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Stephen Tweedie <sct@redhat.com>, blp@cs.stanford.edu, mc@cs.stanford.edu,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>
+In-Reply-To: <20050321195128.60839eea.akpm@osdl.org>
+References: <87y8chft5j.fsf@benpfaff.org>
+	 <20050321195128.60839eea.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1111610558.1998.193.camel@sisko.sctweedie.blueyonder.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Wed, 23 Mar 2005 20:42:38 +0000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells <dhowells@redhat.com> wrote:
->
-> The attached patch makes it possible to pass a session keyring through to the
->  process spawned by call_usermodehelper().
+Hi,
 
-hm.  Seems likely to attract angry emails due to breakage of out-of-tree
-stuff.  Did you consider
+On Tue, 2005-03-22 at 03:51, Andrew Morton wrote:
 
-static inline int
-call_usermodehelper(char *path, char **argv, char **envp, int wait)
-{
-	return call_usermodehelper_keys(path, argv, envp, NULL, wait);
-}
+> The spec says "Write I/O operations on the file descriptor shall complete
+> as defined by synchronized I/O file integrity completion".
+> 
+> Is ftruncate a "write I/O operation"?  No.
 
-?
+SUS seems to be pretty clear on this.  The syscall descriptions for
+write(2) and pwrite(2) explicitly describe O_SYNC as requiring
+synchronized I/O file integrity completion.  ftruncate() has no such
+requirement.
+
+It would certainly be a reasonable thing to do, but I don't think it
+strictly counts as a bug that we're not honouring O_SYNC here.
+
+--Stephen
+
 

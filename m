@@ -1,70 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129601AbQLIR73>; Sat, 9 Dec 2000 12:59:29 -0500
+	id <S129738AbQLISGu>; Sat, 9 Dec 2000 13:06:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129738AbQLIR7S>; Sat, 9 Dec 2000 12:59:18 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:64018 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129601AbQLIR7N>; Sat, 9 Dec 2000 12:59:13 -0500
-Date: Sat, 9 Dec 2000 09:28:31 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: David Woodhouse <dwmw2@infradead.org>, Ingo Molnar <mingo@chiara.elte.hu>,
-        Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: kernel BUG at buffer.c:827 in test12-pre6 and 7 
-In-Reply-To: <Pine.GSO.4.21.0012090415330.29053-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.10.10012090924390.1574-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129957AbQLISGk>; Sat, 9 Dec 2000 13:06:40 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:65036 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129738AbQLISGd>;
+	Sat, 9 Dec 2000 13:06:33 -0500
+Date: Sat, 9 Dec 2000 18:35:56 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: patch: blk-12
+Message-ID: <20001209183556.G307@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+I've released what will probably be the last blk-xx patch for 2.4, at
+least as far as features go. In fact, blk-12 is just minor tweaks and
+fixes over the previous version. Highlight of changes:
 
-On Sat, 9 Dec 2000, Alexander Viro wrote:
-> 	Fine
-> > -		atomic_inc(&bh->b_count);
-> 
-> 	Why? It's cleaner the old way - why bother postponing that until we
-> lock the thing?
+o Merge elevator merge and insertion scan. This saves an entire linear
+  queue scan when we can't merge a new buffer into the existing list.
 
-I had a rule: we always do the "lock_buffer()" and "b_count increment"
-together with setting "b_end_io = end_buffer_io_async". Why? Because that
-way we pair up the actions, and I could easily verify that every single
-user of "end_buffer_io_async" will increment the count (that is
-decremented in "end_buffer_io_async").
+o More fair merge accounting, actually take request size into account
+  when merging.
 
-We never used to have any rules in this area, and it was sometimes hard to
-match up the actions with each other.
+o Cleanup leftover cruft from previous elevator (nr_segments etc)
 
-> >  int brw_page(int rw, struct page *page, kdev_t dev, int b[], int size)
-> 
-> >  	if (!page->buffers)
-> > +		create_page_buffers(rw, page, dev, b, size);
-> 
-> 		create_empty_buffers(page, dev, size);
+o Request queue aging.
 
-Agreed.
+o Batch freeing of requests. Stock kernels have very bad behaviour
+  under I/O load (load here meaning that the request list is empty,
+  doesn't require much effort...), because as soon as a request is
+  completed and put back on the freelist, a read/write will grab it
+  and the queue will be unplugged again. This effectively disables
+  elevator merging efforts completely. Note -- even though wakeups
+  of wait_for_request are now not a 1-1 mapping, wake-one semantics
+  are maintained.
 
-> 	Modulo the comments above - fine with me. However, there is stuff in
-> drivers/md that I don't understand. Ingo, could you comment on the use of
-> ->b_end_io there?
+o Fix sg indeterminate request completion time, due to scsi_insert_*
+  not providing guarentee of immediate queue run.
 
-I already sent him mail about it for the same reason. 
+o Fix off by one ide-dma setup error
 
-> 	Another bad thing is in mm/filemap.c::writeout_one_page() - it doesn't
-> even check for buffers being mapped, let alone attempt to map them.
-> 	Fortunately, ext2 doesn't use it these days, but the rest of block
-> filesystems... <doubletake> WTF? fsync() merrily ignores mmap()'ed stuff?
+o Bump max request size from 64KB to 1MB, let low level drivers set
+  their own limits (eg IDE has 128KB hw limit). No need to limit
+  nice SCSI hardware, since during the data phase is where we get
+  full throttle.
 
-fsync() has _always_ ignored mmap'ed stuff. 
+o Remove silly s/390 double request get error
 
-If you want to get your mappings synchronized, you absolutely positively
-have to call "msync()".
+It's against 2.4.0-test12-pre7, and can be found here:
 
-		Linus
+*.kernel.org/pub/linux/kernel/axboe/patches/2.4.0-test12-pre7/blk-12.bz2
 
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

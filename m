@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUJLO2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUJLOcv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264377AbUJLO2h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 10:28:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUJLO1P
+	id S265044AbUJLOcv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 10:32:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUJLOcJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 10:27:15 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:26380 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S264377AbUJLOZl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 10:25:41 -0400
-Date: Tue, 12 Oct 2004 16:25:09 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, greg@kroah.com
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [patch] 2.6.9-rc4-mm1: USB compile error with PROC_FS=n
-Message-ID: <20041012142509.GB18579@stusta.de>
-References: <20041011032502.299dc88d.akpm@osdl.org>
+	Tue, 12 Oct 2004 10:32:09 -0400
+Received: from nessie.weebeastie.net ([220.233.7.36]:7826 "EHLO
+	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S264704AbUJLO3J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 10:29:09 -0400
+Date: Wed, 13 Oct 2004 00:29:43 +1000
+From: CaT <cat@zip.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: sct@redhat.com, akpm@digeo.com, adilger@clusterfs.com
+Subject: ext3 error with 2.6.9-rc4
+Message-ID: <20041012142943.GD920@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041011032502.299dc88d.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 11, 2004 at 03:25:02AM -0700, Andrew Morton wrote:
->...
-> All 741 patches
->...
-> bk-usb.patch
->...
+The fs is on a 200gb seagate hd on a promise pci card (20267 - latest
+firmware). It's hdh1. I was tarring a fs on hde1 onto hdh1. It ran for a
+bit and then stopped with my kern.log providing the following error:
 
+Oct 13 00:12:03 nessie kernel: EXT3-fs: mounted filesystem with ordered data mode.
+Oct 13 00:17:03 nessie kernel: EXT3-fs error (device hdh1): ext3_readdir: bad entry in directory #3522561: rec_len is smaller than minimal - offset=4084, inode=3523431, rec_len=0, name_len=0
+Oct 13 00:17:03 nessie kernel: Aborting journal on device hdh1.
+Oct 13 00:17:03 nessie kernel: ext3_abort called.
+Oct 13 00:17:03 nessie kernel: EXT3-fs error (device hdh1): ext3_journal_start: Detected aborted journal
+Oct 13 00:17:03 nessie kernel: Remounting filesystem read-only
+Oct 13 00:17:03 nessie kernel: EXT3-fs error (device hdh1) in start_transaction: Journal has aborted
+Oct 13 00:17:58 nessie kernel: __journal_remove_journal_head: freeing b_committed_data
 
-This removes an #ifdef CONFIG_PROC_FS from drivers/usb/core/inode.c 
-which is required, since now compilation fails with CONFIG_PROC_FS=n:
+A similarish error occured under 2.6.8-rc2:
 
+Sep 19 07:39:29 nessie kernel: attempt to access beyond end of device
+Sep 19 07:39:29 nessie kernel: hdh1: rw=1, want=3186822344, limit=390716802
+Sep 19 07:39:29 nessie kernel: Aborting journal on device hdh1.
+Sep 19 07:39:29 nessie kernel: ext3_abort called.
+Sep 19 07:39:29 nessie kernel: EXT3-fs abort (device hdh1): ext3_journal_start: Detected aborted journal
+Sep 19 07:39:29 nessie kernel: Remounting filesystem read-only
+Sep 19 07:39:29 nessie kernel: EXT3-fs error (device hdh1) in
+start_transaction: Journal has aborted
 
-<--  snip  -->
+This was during a copy from hde2 to hdh1. 2.6.9-rc4 survived this bit
+but died anyway when more data was written to the fs when tarring.
 
-...
-  CC      drivers/usb/core/inode.o
-drivers/usb/core/inode.c: In function `usbfs_init':
-drivers/usb/core/inode.c:750: `proc_bus' undeclared (first use in this function)
-drivers/usb/core/inode.c:750: (Each undeclared identifier is reported only once
-drivers/usb/core/inode.c:750: for each function it appears in.)
-make[3]: *** [drivers/usb/core/inode.o] Error 1
+The HD is brand new.
 
-<--  snip  -->
+Any help I can provide in helping debug this I will gladly give. Just
+give me a shout.
 
-
-The fix is simple:
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.9-rc4-mm1-full/drivers/usb/core/inode.c.old	2004-10-12 16:20:54.000000000 +0200
-+++ linux-2.6.9-rc4-mm1-full/drivers/usb/core/inode.c	2004-10-12 16:23:53.000000000 +0200
-@@ -746,8 +746,10 @@
- 		return retval;
- 	}
- 
-+#ifdef CONFIG_PROC_FS
- 	/* create mount point for usbfs */
- 	usbdir = proc_mkdir("usb", proc_bus);
-+#endif
- 
- 	return 0;
- }
+-- 
+    Red herrings strewn hither and yon.

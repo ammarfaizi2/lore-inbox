@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289739AbSAOXTR>; Tue, 15 Jan 2002 18:19:17 -0500
+	id <S289749AbSAOXVa>; Tue, 15 Jan 2002 18:21:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289741AbSAOXTI>; Tue, 15 Jan 2002 18:19:08 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:56707
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S289739AbSAOXS4>; Tue, 15 Jan 2002 18:18:56 -0500
-Date: Tue, 15 Jan 2002 18:02:19 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Greg KH <greg@kroah.com>
-Cc: Giacomo Catenazzi <cate@debian.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Autoconfiguration: Original design scenario
-Message-ID: <20020115180219.A11058@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Greg KH <greg@kroah.com>, Giacomo Catenazzi <cate@debian.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C4401CD.3040408@debian.org> <20020115105733.B994@flint.arm.linux.org.uk> <3C442395.8010500@debian.org> <20020115183432.GC27059@kroah.com> <20020115133130.A3197@thyrsus.com> <20020115230721.GA29020@kroah.com>
+	id <S289748AbSAOXVS>; Tue, 15 Jan 2002 18:21:18 -0500
+Received: from jalon.able.es ([212.97.163.2]:5113 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S289741AbSAOXVE>;
+	Tue, 15 Jan 2002 18:21:04 -0500
+Date: Wed, 16 Jan 2002 00:26:42 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Unable to compile 2.4.14 on alpha
+Message-ID: <20020116002642.A1838@werewolf.able.es>
+In-Reply-To: <20020114212550.A17323@animx.eu.org> <20020115113213.A1539@werewolf.able.es> <20020115115530.A19073@animx.eu.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020115230721.GA29020@kroah.com>; from greg@kroah.com on Tue, Jan 15, 2002 at 03:07:21PM -0800
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20020115115530.A19073@animx.eu.org>; from wakko@animx.eu.org on mar, ene 15, 2002 at 17:55:30 +0100
+X-Mailer: Balsa 1.3.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com>:
-> > Giacomo will probably answer definitively, but I believe he is already
-> > generating all of the PCI, PNP, and module probes by script.  We're
-> > planning to ship the probe table generator with a future CML2 version.
-> 
-> Why not just have the probe table automatically generated against the
-> current kernel?  That way you don't have to release a new version of the
-> autoconfigure program for _every_ kernel version (including the -pre
-> versions.)
 
-Mainly because there is a certain amount of hand-hacking involved in
-turning the raw output of the probe table generator into a usable
-probe table.
+On 20020115 Wakko Warner wrote:
+>> >arch/alpha/kernel/kernel.o(.exitcall.exit+0x0): undefined reference to `local symbols in discarded section .text.exit'
+>> 
+>> Too bew binutils. .17 works again.
+>
+>Are you saying that 2.4.17 works but prior doesn't?  or were you refering to
+>binutils.
+>
 
-Giacomo is trying to cut down on this and may eliminate it altogether.
-If he doesn't, I'll take a swing at it myself.
+Recent binutils warn about symbols marked as discardable but referenced
+when the driver is built-in instead of modularized. Older ones just shut up.
+
+Original explanation:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=100753194504523&w=2
+
+Corrected mainly in 2.4.17-pre6 (and some leftovers in following pres).
+>From ChangeLog-2.4.17:
+
+pre6:
+...
+- Create __devexit_p() function and use that on 
+  drivers which need it to make it possible to
+  use newer binutils                (Keith Owens)
+...
+
+>Please keep the CC to linux-kernel as my spam filter is tagging your mail
+>server =(
+>
+
+OK.
+
+My ISP has reached the spam-black-lists ? I'm beginning to think that
+those lists are becoming useless. Everybody is there. Some day someone
+will manage to send just ONE message faking vger and the linux kernel
+list will be banned...
+
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-Government is actually the worst failure of civilized man. There has
-never been a really good one, and even those that are most tolerable
-are arbitrary, cruel, grasping and unintelligent.	-- H. L. Mencken 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.18-pre3-beo #5 SMP Sun Jan 13 02:14:04 CET 2002 i686

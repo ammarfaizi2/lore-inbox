@@ -1,27 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283876AbRLZRQO>; Wed, 26 Dec 2001 12:16:14 -0500
+	id <S284584AbRLZRVP>; Wed, 26 Dec 2001 12:21:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284584AbRLZRQE>; Wed, 26 Dec 2001 12:16:04 -0500
-Received: from hall.mail.mindspring.net ([207.69.200.60]:47663 "EHLO
-	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S283876AbRLZRP5>; Wed, 26 Dec 2001 12:15:57 -0500
-Date: Wed, 26 Dec 2001 12:17:27 -0500 (EST)
-From: rpjday <rpjday@mindspring.com>
-X-X-Sender: <rpjday@localhost.localdomain>
-To: <linux-kernel@vger.kernel.org>
-Subject: support or mailing list for CML2?
-In-Reply-To: <Pine.LNX.4.21.0112261350120.9852-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0112261215470.5630-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284599AbRLZRU4>; Wed, 26 Dec 2001 12:20:56 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:46513 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S284584AbRLZRUp>;
+	Wed, 26 Dec 2001 12:20:45 -0500
+Date: Wed, 26 Dec 2001 12:20:44 -0500
+From: Legacy Fishtank <garzik@havoc.gtf.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.2-pre2 forces ramfs on
+Message-ID: <20011226122044.A7125@havoc.gtf.org>
+In-Reply-To: <a0bj07$18l$1@penguin.transmeta.com> <E16JFbk-00028a-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16JFbk-00028a-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Dec 26, 2001 at 03:04:40PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 26, 2001 at 03:04:40PM +0000, Alan Cox wrote:
+> > Because it's small, and if it wasn't there, we'd have to have the small
+> > "rootfs" anyway (which basically duplicated ramfs functionality).
+> 
+> Can ramfs=N longer term actually come back to be "use __init for the RAM
+> fs functions". That would seem to address any space issues even the most 
+> embedded fanatic has. 
 
-  where's the proper forum to discuss CML2?  i just added
-the latest version to the 2.4.17 kernel, started it and
-am getting "bad token" messages almost immediately.
+Nifty idea... We could use __rootfs or similar in the module.
 
-rday
+	Jeff
+
 

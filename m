@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266040AbRHAJKA>; Wed, 1 Aug 2001 05:10:00 -0400
+	id <S265810AbRHAJLk>; Wed, 1 Aug 2001 05:11:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266150AbRHAJJu>; Wed, 1 Aug 2001 05:09:50 -0400
-Received: from [213.96.224.204] ([213.96.224.204]:19719 "HELO manty.net")
-	by vger.kernel.org with SMTP id <S266040AbRHAJJo>;
-	Wed, 1 Aug 2001 05:09:44 -0400
-Date: Wed, 1 Aug 2001 11:09:48 +0200
-From: Santiago Garcia Mantinan <manty@manty.net>
-To: linux-kernel@vger.kernel.org
-Cc: bao.ha@srs.gov, aris@conectiva.com.br, dupuis@lei.ucl.ac.be
-Subject: Problems trying to use a Intel EtherExpress Pro/10
-Message-ID: <20010801110948.A762@man.beta.es>
-Mime-Version: 1.0
+	id <S265636AbRHAJLa>; Wed, 1 Aug 2001 05:11:30 -0400
+Received: from inet-mail4.oracle.com ([148.87.2.204]:56560 "EHLO
+	inet-mail4.oraclecorp.com") by vger.kernel.org with ESMTP
+	id <S265810AbRHAJL0>; Wed, 1 Aug 2001 05:11:26 -0400
+Message-ID: <3B67C82C.3FBCCDC7@oracle.com>
+Date: Wed, 01 Aug 2001 11:13:16 +0200
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+Organization: Oracle Support Services
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-pre3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Nadav Har'El" <nyh@math.technion.ac.il>
+CC: Riley Williams <rhw@MemAlpha.CX>, Guest section DW <dwguest@win.tue.nl>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Virii (sic)
+In-Reply-To: <20010801015116.B11060@win.tue.nl> <Pine.LNX.4.33.0108010754400.9176-100000@infradead.org> <20010801115637.C22440@leeor.math.technion.ac.il>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Nadav Har'El wrote:
+> 
+> On Wed, Aug 01, 2001, Riley Williams wrote about "Re: [OT] Virii (sic)":
+> >  > [The singular is virus. The plural in English is viruses. In
+> >  > Latin there is no plural - it is even debatable whether virus is
+> >  > a noun in Latin - in any case it is indeclinable.]
+> 
+> What I don't understand is why people use the form virii, with a double I!
+> 
+> Just like the plural of abacus is abaci, the plural of cactus is cacti
+> (check the dictionary if you don't believe me), shouldn't the plural of
+> virus be viri, with one I at the end (of course, "viruses" is also currently
+> accepted as a plural, and even preferred by some people).
+> 
+> I think people get confused by the fact that the plural of radius is radii.
+> That extra "I" comes from the i in radius - it shouldn't appear in the plural
+> of "virus"! The plural of the different word "virius" should have been virii.
 
-I have a couple of Intel NICs based on chip FA82595TX, the NIC model is
-650092, wich is not listed on Intel's site. Anyway, it is recogniced on both
-2.2.19 and 2.4.7 as an Intel EtherExpress Pro/10 ISA, I can ifconfig it and
-everything, but when I try to use it, I get either no packets sent, none
-received, or packets sent but also a lot of errors and carrier, anyway, I
-never get to receive a packet.
+As Andries says, there is no known use of plural of 3 nouns from the
+ 2nd Latin declension: vulgus, pelagus and of course virus.
 
-I have tried both cards on different IO ports, different irqs and different
-machines, I have disconected the flash as I have read on the code that this
-could cause problems, but nothing helps.
+This is btw referenced here: http://language.perl.com/misc/virus.html .
 
-Anybody has any idea of how to solve this?
+Hopefully the thread can be dropped...
 
-Thanks in advance!
+--alessandro
 
-Regards...
--- 
-Manty/BestiaTester -> http://manty.net
+"Nothing can light / the dark of the night / like a falling star"
+   (Julee Cruise, "Until the end of the world" soundtrack)

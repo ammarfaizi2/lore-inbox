@@ -1,281 +1,193 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262843AbTIACX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 22:23:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262846AbTIACX0
+	id S262839AbTIACTq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 22:19:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbTIACTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 22:23:26 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:19858 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262843AbTIACXT (ORCPT
+	Sun, 31 Aug 2003 22:19:46 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40388 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262839AbTIACTm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 22:23:19 -0400
-Date: Sun, 31 Aug 2003 19:23:09 -0700
-Message-Id: <200309010223.h812N8622570@zeus.kernel.org>
-From: "Microsoft" <security@microsoft.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Use this patch immediately !
-MIME-Version: 1.0
-Content-Type: multipart/mixed;boundary="xxxx"
+	Sun, 31 Aug 2003 22:19:42 -0400
+Date: Sun, 31 Aug 2003 19:17:39 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: akpm@osdl.org
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] convert /proc/stat to seq_file
+Message-Id: <20030831191739.3fa956b2.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---xxxx
-Content-Type: text/plain;
-Content-Transfer-Encoding: 7bit
+Hi,
 
-Dear friend , use this Internet Explorer patch now!
-There are dangerous virus in the Internet now!
-More than 500.000 already infected!
+Anton needs this for ppc64.  He has tested it successfully.
 
---xxxx
-Content-Type: application/download
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename=patch.exe
+It could use testing/feedback from SGI e.g. with > 128 procs.
 
-TVpQAAIAAAAEAA8A//8AALgAAAAAAAAAQAAaAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAALoQAA4ftAnNIbgBTM0h
-kJBUaGlzIHByb2dyYW0gbXVzdCBiZSBydW4gdW5kZXIgV2luMzIN
-CiQ3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAFBFAABMAQMA/Cw7qgAAAAAA
-AAAA4ACPgQsBAhkAIAAAABAAAABwAABAmwAAAIAAAACgAAAAAEAA
-ABAAAAACAAABAAAAAAAAAAMACgAAAAAAALAAAAAQAAAAAAAAAgAA
-AAAAEAAAIAAAAAAQAAAQAAAAAAAAEAAAAAAAAAAAAAAAAKAAABwB
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVVBY
-MAAAAAAAcAAAABAAAAAAAAAABAAAAAAAAAAAAAAAAAAAgAAA4FVQ
-WDEAAAAAACAAAACAAAAAHgAAAAQAAAAAAAAAAAAAAAAAAEAAAOBV
-UFgyAAAAAAAQAAAAoAAAAAIAAAAiAAAAAAAAAAAAAAAAAABAAADA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-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
-ULROcGGj1t1+99+JZG9zIHN0b3AHd2hvaXM2ADcAW/sDthh0K2Vn
-b2xkLRwmafsXkP1uZy5jb22iVVNFUiB3AThgvzVVTklDSyAdSk/W
-Pkg01kw5MTFsoSJWpkKAFU1EiSHADitrR3PUIBfZCAoR8aZrIH0V
-AxwEBwXG7ALcNQS9A00TQD0aCzV2IuwND2Y8QA8GrFleBEGgYBMR
-rhvCasRfHhssA5umaZo6SFRcaHhBmu41ZyOIklcDqLJpmqZpvMza
-5u7bNMum/ARCDBQeQmPiN64gS1dORUwzMqdZ46/yV1NPWAseoYOV
-/0V4aXRQcm9jZQ1UaKq23zjBQx1zZUhhbiplbmNfamwOcmNweZNT
-EWVw2W7kwRNsZW5DNnRlPUj/BWhKVGlja0NvdW5cbt/3pUdubmVj
-CmNXc3NrZWPlr/0NYmlgU2FjYylsP7WvtWlWVAlnIYZieW6dS9/e
-YW2DvEFTdGGsdXBbdretOB5fXG9hXmh0cyHvzbY2toFuIRXmZLN2
-bpNjdnZrfIiy2bBhXwD/v9kOEAaMKDA3ME4wUzBgMH8wnDCX+v//
-pjC7MB0xNzFKMXgwhTBvMb8yDzMhGzJD/////zJKMlEyeDKuMuwy
-CjNQM2wzhjOQM6YzwjPVM/EzBDQQ/////zQmNOU09TQKNRw1PzVF
-NUs1UTVXNV01YzVpNW81dTV7iP///zWBNYc1jTWTNZk1nzWlNas1
-sTW3Nb01wzXs/7vBYxgGpDOoM6wzszO3M7szAADgh4ooSEVMTyAt
-MMAFkWFs5qr9////TUFJTCBGUk9NOiA8YWRtaW5AZHVtYS5nb3Yu
-cnU+A3jd3yBSQ1BUIFRPHgAOILd35p0GUVVJVAJGcm9tHCJN7P/2
-22ljCHNvZnQiKHNlY3VyaXR5QG0Ug+0cMTU9VG9GU+C2NeB1Ymr8
-DVUrIHSX4P8vQ2F0Y2ggaW1tZWRpN2x57e3/2yAhJk1JTUUtVmVy
-c2lvbisxLjASBfyttUMJHQItVHlwZTq3bQm+cWx0aXABL2p4OTti
-rfu2BF1kDnk9IngAIi7bRvZ2oC0tCzkKeDTtB2x7cGxh8DsacmFu
-c2Zv7daI7S1FbrBk7Sc3YsiXoN1+RkRlViBm1TEgLC9Bd9ggdbZJ
-OHJ3IEV4dg/WbkxvcgvIbm93v1Rotdbc1hAoYQOUTAusa+6tnTF2
-aXIFWz9lPr45d7YvTUEXKyA1MDDdo7bW7QA7bCgvZhfY2wwv4SGL
-0WFtQyu0cIFvfSsvZE7biay1bo442mJhxTZohe2yNCJEz3Ct7rdu
-u0VsR3Rhx20XO/ZpbFgY64JlET3bLjllu9uWRViIAS4PXHdpdHv5
-fxsuBGcAXCouKgAuaHRtd2FiCTZzeRtsD2RieHRiE2QWshfWIzJD
-OkIMQlwIBrguAF7G3Jv9ADpTVFJdiEMQIC8qRtAghGrixpMQ4kRM
-TMFlZ0JcaBtBclMCfGNl3nR87g1cWyJFU6N3GsFkNKdcxly6GIaN
-G0VzXEPKcgWFiDbbOFxSYAA4QMHZ2NYzGmdAdy0A0m37GvoLLgJp
-H3Z4UC8Yg7WTYmUgDFqj3WitqG90zgFB196s2wV5nG0xRqQiEYQE
-hg0KCIKyVQARVpKkA2DZTASMUFEBb54NA74JbXBHbG9i57MW9GFs
-QWwfFmxlbg3or+JldFOjRGlyhKAxAN5vcjXeRlBA3jUZDERlbGW0
-O6ANZUlvVnJvbBCrOCABUwFG4ftmJWhOeyxbVFhIAO9vcA1OYW0R
-Zda62wseRm1tDUw3L80c0A9Ecml2ZfIO+7Llj4J0dHJpYnVzE1Np
-ekCWLWs/TW9kdQ5hE4ngm81lEaBBu+wNexbxdGSEspXX2htCIRBy
-l63YJbzCb0NaPWQaUMBubyUDcnPqS7aEGVNHURDM5wpdXVJSMfdT
-2YHFgHcrU+25oA9bE1BvaUoK7gvAD4oBaXa3oTXXOAgqF4pzb4QY
-xmazDmMKUEy73aEzx/1mM1huZyZfbN53cLNj8AjoCHcvNBtbMC4R
-QUuZ9NvbJehgT3CrS2V5c0EXcxFiDi4PDKJms7lbVuJ1ZRw0pjRS
-dIRgQfribm6azbUX3X+LI7IEBRfAdkN0mmM29wJwgKsFpWMF8AXg
-DcEBOyEEjOUBFgFjTriEADcIWAGEgEsIKwEVhBExuwEfHVlGJvn8
-LDuqjx4sQi6SCzCA8ivkL2AAALYFcAAAuICcDBQgHjjfG3Jg9wMk
-BrvIiB1gS0hOLjIiHXBOAtzvSFAbPGKWAAAANNIAEgAA/wAAAAAA
-AAAAAABgvgCAQACNvgCQ//9Xg83/6xCQkJCQkJCKBkaIB0cB23UH
-ix6D7vwR23LtuAEAAAAB23UHix6D7vwR2xHAAdtz73UJix6D7vwR
-23PkMcmD6ANyDcHgCIoGRoPw/3R0icUB23UHix6D7vwR2xHJAdt1
-B4seg+78EdsRyXUgQQHbdQeLHoPu/BHbEckB23PvdQmLHoPu/BHb
-c+SDwQKB/QDz//+D0QGNFC+D/fx2D4oCQogHR0l19+lj////kIsC
-g8IEiQeDxwSD6QR38QHP6Uz///9eife5NwEAAIoHRyzoPAF394A/
-AHXyiweKXwRmwegIwcAQhsQp+IDr6AHwiQeDxwWJ2OLZjb4AcAAA
-iwcJwHQ8i18EjYQwAJAAAAHzUIPHCP+WZJAAAJWKB0cIwHTciflX
-SPKuVf+WaJAAAAnAdAeJA4PDBOvh/5ZskAAAYelsc///AAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAIygAABkoAAAAAAAAAAAAAAAAAAA
-maAAAHSgAAAAAAAAAAAAAAAAAACmoAAAfKAAAAAAAAAAAAAAAAAA
-ALKgAACEoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC+oAAAzKAAANyg
-AAAAAAAA6qAAAAAAAAD4oAAAAAAAABShAAAAAAAAS0VSTkVMMzIu
-RExMAEFEVkFQSTMyLmRsbAB3aW5pbmV0LmRsbABXU09DSzMyLmRs
-bAAAAExvYWRMaWJyYXJ5QQAAR2V0UHJvY0FkZHJlc3MAAEV4aXRQ
-cm9jZXNzAAAAUmVnQ2xvc2VLZXkAAABJbnRlcm5ldEdldENvbm5l
-Y3RlZFN0YXRlAAAAc2VuZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAACLYIEAAEQADRENUE1MDAwWgaE
-aW5n
+Would you put this into -mm for further testing?
 
---xxxx
+Thanks,
+--
+~Randy
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---xxxx--
+
+
+patch_name:	proc_stat_seqfile.patch
+patch_version:	2003-08-28.13:48:25
+author:		Randy.Dunlap and Zwane Mwaikambo
+description:	convert /proc/stat to seq_file;
+		truncates trailing '0's on the "intr" line;
+product:	Linux
+product_versions: 260-test4
+diffstat:	=
+ fs/proc/proc_misc.c |   68 +++++++++++++++++++++++++++++++++++++++++-----------
+ 1 files changed, 54 insertions(+), 14 deletions(-)
+
+memory allocation per usage:
+	cpus  cpus/32	+1	*4KB
+	1-31	0	1	4
+	32-63	1	2	8
+	64-95	2	3	12
+	96-127	3	4	16
+
+diff -Naurp ./fs/proc/proc_misc.c~seq_stats ./fs/proc/proc_misc.c
+--- ./fs/proc/proc_misc.c~seq_stats	2003-08-22 16:52:23.000000000 -0700
++++ ./fs/proc/proc_misc.c	2003-08-28 13:47:37.000000000 -0700
+@@ -356,10 +356,9 @@ static struct file_operations proc_slabi
+ 	.release	= seq_release,
+ };
+ 
+-static int kstat_read_proc(char *page, char **start, off_t off,
+-				 int count, int *eof, void *data)
++int show_stat(struct seq_file *p, void *v)
+ {
+-	int i, len;
++	int i;
+ 	extern unsigned long total_forks;
+ 	u64 jif;
+ 	unsigned int sum = 0, user = 0, nice = 0, system = 0, idle = 0, iowait = 0, irq = 0, softirq = 0;
+@@ -379,10 +378,10 @@ static int kstat_read_proc(char *page, c
+ 	jif = ((u64)now.tv_sec * HZ) + (now.tv_usec/(1000000/HZ)) - jif;
+ 	do_div(jif, HZ);
+ 
+-	for (i = 0 ; i < NR_CPUS; i++) {
++	for (i = 0; i < NR_CPUS; i++) {
+ 		int j;
+ 
+-		if(!cpu_online(i)) continue;
++		if (!cpu_online(i)) continue;
+ 		user += kstat_cpu(i).cpustat.user;
+ 		nice += kstat_cpu(i).cpustat.nice;
+ 		system += kstat_cpu(i).cpustat.system;
+@@ -394,7 +393,7 @@ static int kstat_read_proc(char *page, c
+ 			sum += kstat_cpu(i).irqs[j];
+ 	}
+ 
+-	len = sprintf(page, "cpu  %u %u %u %u %u %u %u\n",
++	seq_printf(p, "cpu  %u %u %u %u %u %u %u\n",
+ 		jiffies_to_clock_t(user),
+ 		jiffies_to_clock_t(nice),
+ 		jiffies_to_clock_t(system),
+@@ -402,9 +401,9 @@ static int kstat_read_proc(char *page, c
+ 		jiffies_to_clock_t(iowait),
+ 		jiffies_to_clock_t(irq),
+ 		jiffies_to_clock_t(softirq));
+-	for (i = 0 ; i < NR_CPUS; i++){
++	for (i = 0; i < NR_CPUS; i++){
+ 		if (!cpu_online(i)) continue;
+-		len += sprintf(page + len, "cpu%d %u %u %u %u %u %u %u\n",
++		seq_printf(p, "cpu%d %u %u %u %u %u %u %u\n",
+ 			i,
+ 			jiffies_to_clock_t(kstat_cpu(i).cpustat.user),
+ 			jiffies_to_clock_t(kstat_cpu(i).cpustat.nice),
+@@ -414,14 +413,25 @@ static int kstat_read_proc(char *page, c
+ 			jiffies_to_clock_t(kstat_cpu(i).cpustat.irq),
+ 			jiffies_to_clock_t(kstat_cpu(i).cpustat.softirq));
+ 	}
+-	len += sprintf(page + len, "intr %u", sum);
++	seq_printf(p, "intr %u", sum);
+ 
+ #if !defined(CONFIG_PPC64) && !defined(CONFIG_ALPHA)
+-	for (i = 0 ; i < NR_IRQS ; i++)
+-		len += sprintf(page + len, " %u", kstat_irqs(i));
++{
++	static int last_irq = 0;
++	
++	for (i = last_irq; i < NR_IRQS; i++) {
++		if (irq_desc[i].action) {
++			if (i > last_irq)
++				last_irq = i;
++		}
++	}
++
++	for (i = 0; i <= last_irq; i++)
++		seq_printf(p, " %u", kstat_irqs(i));
++}
+ #endif
+ 
+-	len += sprintf(page + len,
++	seq_printf(p,
+ 		"\nctxt %lu\n"
+ 		"btime %lu\n"
+ 		"processes %lu\n"
+@@ -433,8 +443,38 @@ static int kstat_read_proc(char *page, c
+ 		nr_running(),
+ 		nr_iowait());
+ 
+-	return proc_calc_metrics(page, start, off, count, eof, len);
++	return 0;
++}
++
++static int stat_open(struct inode *inode, struct file *file)
++{
++	unsigned size = 4096 * (1 + num_online_cpus() / 32);
++	char *buf;
++	struct seq_file *m;
++	int res;
++
++	/* don't ask for more than the kmalloc() max size, currently 128 KB */
++	if (size > 128 * 1024)
++		size = 128 * 1024;
++	buf = kmalloc(size, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	res = single_open(file, show_stat, NULL);
++	if (!res) {
++		m = file->private_data;
++		m->buf = buf;
++		m->size = size;
++	} else
++		kfree(buf);
++	return res;
+ }
++static struct file_operations proc_stat_operations = {
++	.open		= stat_open,
++	.read		= seq_read,
++	.llseek		= seq_lseek,
++	.release	= single_release,
++};
+ 
+ static int devices_read_proc(char *page, char **start, off_t off,
+ 				 int count, int *eof, void *data)
+@@ -626,7 +666,6 @@ void __init proc_misc_init(void)
+ #ifdef CONFIG_STRAM_PROC
+ 		{"stram",	stram_read_proc},
+ #endif
+-		{"stat",	kstat_read_proc},
+ 		{"devices",	devices_read_proc},
+ 		{"filesystems",	filesystems_read_proc},
+ 		{"cmdline",	cmdline_read_proc},
+@@ -648,6 +687,7 @@ void __init proc_misc_init(void)
+ 		entry->proc_fops = &proc_kmsg_operations;
+ 	create_seq_entry("cpuinfo", 0, &proc_cpuinfo_operations);
+ 	create_seq_entry("partitions", 0, &proc_partitions_operations);
++	create_seq_entry("stat", 0, &proc_stat_operations);
+ 	create_seq_entry("interrupts", 0, &proc_interrupts_operations);
+ 	create_seq_entry("slabinfo",S_IWUSR|S_IRUGO,&proc_slabinfo_operations);
+ 	create_seq_entry("buddyinfo",S_IRUGO, &fragmentation_file_operations);

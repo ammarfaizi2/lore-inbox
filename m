@@ -1,43 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266953AbSKVHEV>; Fri, 22 Nov 2002 02:04:21 -0500
+	id <S265939AbSKVHBD>; Fri, 22 Nov 2002 02:01:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266876AbSKVHEV>; Fri, 22 Nov 2002 02:04:21 -0500
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:46349
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
-	id <S266100AbSKVHEU>; Fri, 22 Nov 2002 02:04:20 -0500
-Subject: Re: RFC - new raid superblock layout for md driver
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       linux-raid@vger.kernel.org
-In-Reply-To: <15835.2798.613940.614361@notabene.cse.unsw.edu.au>
-References: <15835.2798.613940.614361@notabene.cse.unsw.edu.au>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1037949088.29451.20.camel@ixodes.goop.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 21 Nov 2002 23:11:28 -0800
-Content-Transfer-Encoding: 7bit
+	id <S266100AbSKVHBD>; Fri, 22 Nov 2002 02:01:03 -0500
+Received: from wiprom2mx2.wipro.com ([203.197.164.42]:48875 "EHLO
+	wiprom2mx2.wipro.com") by vger.kernel.org with ESMTP
+	id <S265939AbSKVHBC>; Fri, 22 Nov 2002 02:01:02 -0500
+Message-ID: <3DDDD7C6.D09B2501@wipro.com>
+Date: Fri, 22 Nov 2002 12:37:50 +0530
+From: Rashmi Agrawal <rashmi.agrawal@wipro.com>
+Reply-To: rashmi.agrawal@wipro.com
+Organization: wipro tech
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ragnar =?iso-8859-1?Q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+CC: Jesse Pollard <pollard@admin.navo.hpc.mil>, linux-kernel@vger.kernel.org
+Subject: Re: Failover in NFS
+References: <3DD90197.4DDEEE61@wipro.com> <20021118164408.B30589@vestdata.no> <200211181611.06241.pollard@admin.navo.hpc.mil> <20021118232230.F30589@vestdata.no>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-OriginalArrivalTime: 22 Nov 2002 07:07:53.0696 (UTC) FILETIME=[E05C5E00:01C291F5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-19 at 20:09, Neil Brown wrote:
-> My current design looks like:
-> 	/* constant array information - 128 bytes */
->     u32  md_magic
->     u32  major_version == 1
->     u32  feature_map     /* bit map of extra features in superblock */
->     u32  set_uuid[4]
->     u32  ctime
->     u32  level
->     u32  layout
->     u64  size		/* size of component devices, if they are all
-> 			 * required to be the same (Raid 1/5 */
-Can you make 64 bit fields 64 bit aligned?  I think PPC will lay this
-structure out with padding before size, which may well cause confusion. 
-If your routines to load and save the header don't depend on structure
-layout, then it doesn't matter.
-        J
+Hi all,
+
+As an alternative to NFS, how about using OpenAFS(Andrew file system) which
+happens to provide following
+
+1. Failover
+2. Common namespace
+3. Client cachin and efficient wide area protocol for excellent performance.
+
+Or how about using SAMBA.
+
+Any views on the pros and cons??
+
+Regards
+Rashmi
+Ragnar Kjørstad wrote:
+
+> On Mon, Nov 18, 2002 at 04:11:06PM -0600, Jesse Pollard wrote:
+> > > No, you need to move the IP-address from the old nfs-server to the new
+> > > one. Then to the clients it will look like a regular reboot. (Check out
+> > > heartbeat, at http://www.linux-ha.org/)
+> > >
+> > > You need to make sure that NFS is using the shared ip (the one you move
+> > > around) rather than the fixed ip. (I assume you will have a fixed ip on
+> > > each host in addition to the one you move around). Also, you need to put
+> > > /var/lib/nfs on shared stoarage. See the archive for more details.
+> >
+> > It would actually be better to use two floating IP numbers. That way during
+> > normal operation, both servers would be functioning simultaneously
+> > (based on the shared storage on two nodes).
+> >
+> > Then during failover, the floating IP of the failed node is activated on the
+> > remaining node (total of 3 IP numbers now, one real, two floating). The NFS
+> > recovery cycle should then cause the clients to remount the filesystem from
+> > the backup server.
+>
+> Yes, that would be better.
+>
+> But it would not work as described above. There are some important
+> limitations here:
+>
+> - I assumed that /var/lib/nfs is shared. If you want two servers to
+>   be active at once you need a different way to share lock-data.
+>
+> - AFAIK there is no way for statd to service 2 IP's at once.
+>   It will (AFAIK) bind to both adresses, but the problem is the
+>   message that is sent out at startup and includes the ip of
+>   the local host.
+>
+> Neither limitation is a law of nature. They can be fixed. I think there
+> is work going on to change the way locks are stored, and I'm sure the
+> second problem can be solved as well.
+>
+> There may be solutions out there already. E.g. maybe Lifekeeper or
+> Convolo include better support for this?
+>
+> --
+> Ragnar Kjørstad
+> Big Storage
 

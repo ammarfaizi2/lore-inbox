@@ -1,62 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262244AbSKHPwi>; Fri, 8 Nov 2002 10:52:38 -0500
+	id <S266507AbSKHQDi>; Fri, 8 Nov 2002 11:03:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262258AbSKHPwi>; Fri, 8 Nov 2002 10:52:38 -0500
-Received: from 24-216-100-96.charter.com ([24.216.100.96]:19075 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id <S262244AbSKHPwh>;
-	Fri, 8 Nov 2002 10:52:37 -0500
-Date: Fri, 8 Nov 2002 10:59:14 -0500
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: installing modules to ($PREFIX)/lib/modules/2.....
-Message-ID: <20021108155914.GE1319@rdlg.net>
-Mail-Followup-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <20021108154132.GC1319@rdlg.net> <20021108155537.GA1027@mars.ravnborg.org>
+	id <S266518AbSKHQDh>; Fri, 8 Nov 2002 11:03:37 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:27342 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S266507AbSKHQDh>;
+	Fri, 8 Nov 2002 11:03:37 -0500
+Date: Fri, 8 Nov 2002 16:09:55 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] epoll bits 0.30 ...
+Message-ID: <20021108160955.GA30234@bjl1.asuk.net>
+References: <20021106124607.09da5e1c.rusty@rustcorp.com.au> <Pine.LNX.4.44.0211061641180.953-100000@blue1.dev.mcafeelabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021108155537.GA1027@mars.ravnborg.org>
+In-Reply-To: <Pine.LNX.4.44.0211061641180.953-100000@blue1.dev.mcafeelabs.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Davide Libenzi wrote:
+> Rusty, the hash is not under pressure over there. The only time seeks is
+> performed is at file removal ( from the set ) and eventually at file
+> modify. There's a direct link between the wait queue and its item during
+> the high frequency event delivery, so need seek is performed.
 
+It does seem peculiar to use a prime-sized hash table, though.  These
+days, good power-of-two-sized hash functions are well known.
 
-Didn't work.  Put them in /lib/modules/2.4.18. (Didn't bite me this time
-because my server is on a different kernel but will in the near future).
-
-I cut and past exactly as below.
-
-Thus spake Sam Ravnborg (sam@ravnborg.org):
-
-> Date: Fri, 8 Nov 2002 16:55:37 +0100
-> From: Sam Ravnborg <sam@ravnborg.org>
-> To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-> 	Linux-Kernel <linux-kernel@vger.kernel.org>
-> Subject: Re: installing modules to ($PREFIX)/lib/modules/2.....
-> 
-> On Fri, Nov 08, 2002 at 10:41:32AM -0500, Robert L. Harris wrote:
-> >   I've compiled my kernel and modules but want to install the modules to
-> > /tmp/lib/modules/2.4.18 so I can tar that up and move it to the server
-> > in question.  Is there a system for doing this built into the kernel
-> > compile structure I haven't found yet?
-> 
-> make INSTALL_PATH=/tmp modules_install
-> IIRC this is true for 2.4 as well.
-> 
-> 	Sam
-
-
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | PGP Key ID: FC96D405
-                               
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-FYI:
- perl -e 'print $i=pack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10);'
-
+-- Jamie

@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269327AbUI3Qdj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269337AbUI3Qmy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269327AbUI3Qdj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 12:33:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269340AbUI3Qdj
+	id S269337AbUI3Qmy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 12:42:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269342AbUI3Qmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 12:33:39 -0400
-Received: from mail.tmr.com ([216.238.38.203]:57606 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S269327AbUI3QdX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 12:33:23 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: Consistent kernel hang during heavy TCP connection handling load
-Date: Thu, 30 Sep 2004 12:34:35 -0400
-Organization: TMR Associates, Inc
-Message-ID: <cjhc2d$5na$1@gatekeeper.tmr.com>
-References: <20040926174217.GB18172@atrey.karlin.mff.cuni.cz> <NFBBICMEBHKIKEFBPLMCGEHFIJAA.aathan-linux-kernel-1542@cloakmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1096561550 5866 192.168.12.100 (30 Sep 2004 16:25:50 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+	Thu, 30 Sep 2004 12:42:54 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:53893 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S269337AbUI3Qmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 12:42:52 -0400
+Message-ID: <415C37D8.20203@t-online.de>
+Date: Thu, 30 Sep 2004 18:44:08 +0200
+From: franz_pletz@t-online.de (Franz Pletz)
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.3) Gecko/20040917 Thunderbird/0.8 Mnenhy/0.6.0.103
 X-Accept-Language: en-us, en
-In-Reply-To: <NFBBICMEBHKIKEFBPLMCGEHFIJAA.aathan-linux-kernel-1542@cloakmail.com>
+MIME-Version: 1.0
+To: Michal Rokos <michal@rokos.info>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+Subject: Re: [PATCH 2.6] Natsemi - remove compilation warnings
+References: <200409230958.31758.michal@rokos.info> <200409231618.56861.michal@rokos.info>
+In-Reply-To: <200409231618.56861.michal@rokos.info>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ID: rCYyuEZGweMNH-BRrACxJEqpCwqyD0F1PBQj+T9f3xvozzmWRuxfca
+X-TOI-MSGID: 5813d51e-b0af-40d5-bd81-4e3436c0bf20
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew A. wrote:
-> Jan,
+Michal Rokos wrote:
+> On Thursday 23 of September 2004 09:58, you wrote:
 > 
-> Thanks for responding.  When I got no responses, I searched for ways to get more data out of the kernel--I must say that it has been
-> quite a journey to identify what is working, where to get it, and how to install it when it comes to kernel
-> debugging/crash-data-gathering tools.  LKCD for example, is not available at the location you'll eventually arrive at if you search
-> for it in google ... it's not obvious what it's state is (current/defunct/superceded), there's KDB, KGDB, netdump, netconsol,
-> netlog, diskdump (conusingly known as lkdump) etc. etc.  And then, even if you do figure out what tools are current, you then have
-> to match the tool to the particular kernel version you are running -- which can be a task and a half unto itself.
+>>natsemi driver emits a lot of warnings.
+>>This patch make compilation calm again.
+>>Code taken from drivers/net/pci-skeleton.c. Thanks Jeff.
 > 
-> Is diskdump available for 2.4?  Can anyone comment on the choice of tools below?
 > 
-> Anyway, I have also done all of the following:
+> This patch unfortunately makes natsemi stop working... :(
 > 
-> (1) Enabled netdump/netconsole on 2.6.8.1-521 Fedora Core kernel, after first fixing the startup scripts.  Fixes can be found at
-> www.memeplex.com/Linux.html  Note that after I also fixed crash.c to be a 2.6 compliant kernel module, and loading it to test
-> netdump, I always end up with a vmcore-incomplete image approx 45k in size, on the netdump-server.  Can anyone tell me if this is
-> absurdly small, and if so, what might be the solution?  The client box always reboots so I suspect too-small timeouts are the issue.
+> Sorry for sending bad patch - I've been testing it, but loaded the other 
+> module.
 
-My experience is 100% with RH kernels, but the dump should be about 
-memory size, in my case 2.5G or 4G and it is. But I did see hangs which 
-resulted in the size you mention, a few k and hang.
+It seems like your patch unfortunately went into 2.6.9-rc2-mm[3,4] and 
+2.6.9-rc3.
 
-There was a patch floating around to write a core image to a disk 
-partition like Solaris, AIX, and other commercial systems, but Linus was 
-opposed for some reason I remember as "I don't need this and it culd be 
-dangerous" or similar. If that can be retrofitted to a current kernel it 
-would be more useful than netdump, I suspect.
+My Natsemi network card stops working with 2.6.9-rc3. After succesfully 
+revoking your patch from 
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2.6.9-rc2-mm3/broken-out/natsemi-remove-compilation-warnings.patch
+everything works fine.
 
-In any case, the short answer is that what you see is way too short, it 
-sounds like the header info on config, registers, or somesuch that 
-netdump sends first before the core.
+Andrew and Linus, please revoke that one in mainline and mm.
+Thanks.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Franz

@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268247AbRGWOpZ>; Mon, 23 Jul 2001 10:45:25 -0400
+	id <S268251AbRGWOyP>; Mon, 23 Jul 2001 10:54:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268252AbRGWOpP>; Mon, 23 Jul 2001 10:45:15 -0400
-Received: from dragonfire4.delta.com ([205.174.22.24]:17533 "EHLO
-	satlmsghub04.delta-air.com") by vger.kernel.org with ESMTP
-	id <S268247AbRGWOpB>; Mon, 23 Jul 2001 10:45:01 -0400
-Message-ID: <BDEE1F50C0C6D411BBB600204840D7B40124F19E@satlrccdmrus25.delta-air.com>
-From: "Dominick, David" <David.Dominick@delta.com>
-To: linux-kernel@vger.kernel.org
-Subject: a call to stop!!!
-Date: Mon, 23 Jul 2001 10:44:45 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S268252AbRGWOx4>; Mon, 23 Jul 2001 10:53:56 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:43021 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S268251AbRGWOxv>;
+	Mon, 23 Jul 2001 10:53:51 -0400
+Date: Mon, 23 Jul 2001 16:53:47 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jan Just Keijser <janjust@cisco.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: linux 2.4.7: DAC960.c no longer builds
+Message-ID: <20010723165347.F313@suse.de>
+In-Reply-To: <3B5C27BD.A81DF676@cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3B5C27BD.A81DF676@cisco.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+On Mon, Jul 23 2001, Jan Just Keijser wrote:
+> Hi all,
+> 
+> just grabbed the linux 2.4.7 sources and started compiling; it barfs on
+> the DAC960.c module (which I need, actually):
+> 
+> gcc -D__KERNEL__ -I/local/janjust/src/linux-2.4.7/include -Wall
+> -Wstrict-prototypes -Wno-trigraphs -O2
+> -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe  -march=i686
+> -DMODULE -DMODVERSIONS -include
+> /local/janjust/src/linux-2.4.7/include/linux/modversions.h
+> -DEXPORT_SYMTAB -c DAC960.c
+> DAC960.c: In function `DAC960_ProcessRequest':
+> DAC960.c:2771: structure has no member named `sem'
+> make[2]: *** [DAC960.o] Error 1
+> 
+> 
+> This member has indeed been removed from
+> $TOPDIR/include/linux/blkdev.h...
 
-See this?
+See archive, I posted a patch to fix this.
 
-Alan Cox Resigns USENIX Post Over DMCA Arrest 
-[ Censorship ] Posted by timothy on Sat 21 Jul 05:52PM
-from the unintended-consequences dept.
-1millionmhz writes: "NewsForge is reporting that Alan Cox has resigned from
-his position on the USENIX ALS committee in protest of Dimitry Sklyarov's
-arrest in Las Vegas. He is also urging non-US programmers to boycott
-American computing conferences until the DMCA is overturned." Boy, aren't
-you glad that the DMCA now has nine special units to prosecute hacking and
-copyright violations? At least it will help keep the country safe from
-programmers. Update: 07/22 01:05 AM by T: Yup, it's a dupe. Mea culpa -- I
-missed it the first time. Worth dwelling on, though ;) 
+-- 
+Jens Axboe
 
-http://www.newsforge.com/article.pl?sid=01/07/20/1228200
-http://www.cnn.com/2001/LAW/07/20/ashcroft.cybercrime.ap/index.html

@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287048AbSAYAm0>; Thu, 24 Jan 2002 19:42:26 -0500
+	id <S286942AbSAYAsq>; Thu, 24 Jan 2002 19:48:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286942AbSAYAmR>; Thu, 24 Jan 2002 19:42:17 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:36579 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S287048AbSAYAmA>;
-	Thu, 24 Jan 2002 19:42:00 -0500
-Date: Thu, 24 Jan 2002 16:41:57 -0800
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: jt@hpl.hp.com, Linus Torvalds <torvalds@transmeta.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Trigraph warning cleanup for wavelan_cs in 2.5.3-pre5
-Message-ID: <20020124164157.F12682@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <20020124162233.C12682@bougret.hpl.hp.com> <20020124193925.I4459@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020124193925.I4459@redhat.com>; from bcrl@redhat.com on Thu, Jan 24, 2002 at 07:39:25PM -0500
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S287563AbSAYAsh>; Thu, 24 Jan 2002 19:48:37 -0500
+Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:28574 "EHLO
+	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
+	id <S286942AbSAYAsa>; Thu, 24 Jan 2002 19:48:30 -0500
+Date: Thu, 24 Jan 2002 16:47:24 -0800 (PST)
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Reply-To: <whitney@math.berkeley.edu>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+cc: Rasmus B?g Hansen <moffe@amagerkollegiet.dk>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ACPI trouble (Was: Re: [patch] amd athlon cooling on kt266/266a
+ chipset)
+In-Reply-To: <20020124184011.GA23785@vana.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.33.0201241643490.32276-100000@mf1.private>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 24, 2002 at 07:39:25PM -0500, Benjamin LaHaise wrote:
-> On Thu, Jan 24, 2002 at 04:22:33PM -0800, Jean Tourrilhes wrote:
-> > 	Hi Linus,
-> > 
-> > 	This is a trivial patch that fixes some trigraph warning and
-> > was a leftover of the driver backport. I think adding that to your
-> > tree would please Jeff.
-> 
-> Doesn't -Wno-trigraphs in the top level makefile avoid this?  Or is the 
-> file in question not being complied with the correct flags?
-> 
-> 		-ben
 
-	I have no idea, I've nevern seen that on my boxes. Jeff Garzik
-told me that I had to do this, so as it was only cosmetic, I just did
-the patch. Please ask him for details...
+Nice job, Petr, you rock!  Your patch allows my ASUS A7V BIOS 1009 to
+poweroff off under kernel 2.4.18-pre7 with ACPI.  Much easier than the big
+ACPI patch against 2.4.16 from Intel.
 
-	Jean
+Cheers, Wayne
+
+On Thu, 24 Jan 2002, Petr Vandrovec wrote:
+
+> I still have this in my tree. I have no idea who is wrong, whether
+> parser or BIOS.
+> 					Best regards,
+> 						Petr Vandrovec
+> 						vandrove@vc.cvut.cz
+> 
+> diff -urdN linux/drivers/acpi/hardware/hwsleep.c linux/drivers/acpi/hardware/hwsleep.c
+> --- linux/drivers/acpi/hardware/hwsleep.c	Wed Oct 24 21:06:22 2001
+> +++ linux/drivers/acpi/hardware/hwsleep.c	Tue Jan 22 16:17:46 2002
+> @@ -152,6 +152,13 @@
+>  		return status;
+>  	}
+>  
+> +	/* Broken ACPI table on ASUS A7V... it reports type 7, but poweroff is type 2... 
+> +	   sleep is type 1 while ACPI reports type 3, but as I was not able to get 
+> +	   machine to wake from this state without unplugging power cord... */
+> +	if (type_a == 7 && type_b == 7 && sleep_state == ACPI_STATE_S5 && !memcmp(acpi_gbl_DSDT->oem_id, "ASUS\0\0", 6)
+> +			&& !memcmp(acpi_gbl_DSDT->oem_table_id, "A7V     ", 8)) {
+> +		type_a = type_b = 2;
+> +	}
+>  	/* run the _PTS and _GTS methods */
+>  
+>  	MEMSET(&arg_list, 0, sizeof(arg_list));
+

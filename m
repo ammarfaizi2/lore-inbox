@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265163AbUFVV1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265906AbUFVV3F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265163AbUFVV1P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 17:27:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266006AbUFVV1O
+	id S265906AbUFVV3F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 17:29:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265958AbUFVV10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 17:27:14 -0400
-Received: from gate.crashing.org ([63.228.1.57]:1451 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S265163AbUFVV0i (ORCPT
+	Tue, 22 Jun 2004 17:27:26 -0400
+Received: from fw.osdl.org ([65.172.181.6]:41105 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265906AbUFVV1G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 17:26:38 -0400
-Subject: Re: [PATCH][2.6.7-mm1] perfctr ppc32 update
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <16600.39256.669322.177553@alkaid.it.uu.se>
-References: <200406212014.i5LKElHD019224@alkaid.it.uu.se>
-	 <1087928274.1881.4.camel@gaston>
-	 <16600.37372.473221.988885@alkaid.it.uu.se>
-	 <1087935661.1855.10.camel@gaston>
-	 <16600.39256.669322.177553@alkaid.it.uu.se>
-Content-Type: text/plain
-Message-Id: <1087939194.1839.13.camel@gaston>
+	Tue, 22 Jun 2004 17:27:06 -0400
+Date: Tue, 22 Jun 2004 14:27:01 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: walt <wa1ter@hotmail.com>
+Cc: Chris Wright <chrisw@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.7-bk] NFS-related kernel panic
+Message-ID: <20040622142656.J22989@build.pdx.osdl.net>
+References: <fa.l7nhc0k.1k1oepm@ifi.uio.no> <fa.gh5h9hv.b2sm3v@ifi.uio.no> <40D8A122.7020806@hotmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 22 Jun 2004 16:19:55 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <40D8A122.7020806@hotmail.com>; from wa1ter@hotmail.com on Tue, Jun 22, 2004 at 02:14:10PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* walt (wa1ter@hotmail.com) wrote:
+> Chris Wright wrote:
+> 
+> > The lockless loopback transmission patch mucks up the preempt count.
+> > Can you give this patch a try?
+> 
+> I saw an update to loopback.c from linus which I assume was yours --
+> anyway my panic is fixed.  Thanks.
 
-> So what you're saying is that PLL_CFG may not reflect the true
-> relationship between the TB frequency and the core frequency?
+Actually that's from Andrew, and Arthur sent in a minor tweak which has
+yet to hit mainline.  Glad it's working.
 
-Right.
-
-> That shouldn't be a problem as long as there's _some_ in-kernel
-> interface for finding that out. If querying OF isn't the correct
-> approach, then what is?
-
-What do you need exactly ? The TB one or the core one ? the core
-I suppose ? Well, we should probably define an ppc_get_cpu_core_frequency
-or something like that that uses the cpufreq callback like the pmac code
-when cpufreq is enabled or default to the old parsing when not. Look at
-the pmac code. You may also want to install a cpufreq notifier callback
-to be informed of core frequency changes.
-
-Ben.
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

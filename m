@@ -1,130 +1,121 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314097AbSDLOsl>; Fri, 12 Apr 2002 10:48:41 -0400
+	id <S314100AbSDLOwf>; Fri, 12 Apr 2002 10:52:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314100AbSDLOsk>; Fri, 12 Apr 2002 10:48:40 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:41143 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S314097AbSDLOsi>;
-	Fri, 12 Apr 2002 10:48:38 -0400
-Date: Fri, 12 Apr 2002 20:19:50 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Faster reboots (and a better way of taking crashdumps?)
-Message-ID: <20020412201950.A1443@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-In-Reply-To: <1759496962.1018114339@[10.10.2.3]> <m18z80nrxc.fsf@frodo.biederman.org> <3CB1A9A8.1155722E@in.ibm.com> <m1ofgum81l.fsf@frodo.biederman.org> <20020409205636.A1234@in.ibm.com> <m1y9fvlfyb.fsf@frodo.biederman.org> <20020411192649.A1947@in.ibm.com> <m1hemil03d.fsf@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S314101AbSDLOwe>; Fri, 12 Apr 2002 10:52:34 -0400
+Received: from ahmler3.mail.eds.com ([192.85.154.74]:16287 "EHLO
+	ahmler3.mail.eds.com") by vger.kernel.org with ESMTP
+	id <S314100AbSDLOwc>; Fri, 12 Apr 2002 10:52:32 -0400
+Message-ID: <564DE4477544D411AD2C00508BDF0B6A0C9DD138@usahm018.exmi01.exch.eds.com>
+From: "Post, Mark K" <mark.post@eds.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: PROBLEM: kernel mount of initrd fails unless mke2fs uses 1024 byt
+	e blocks
+Date: Fri, 12 Apr 2002 10:52:22 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2655.51)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 11, 2002 at 09:35:34AM -0600, Eric W. Biederman wrote:
-> Suparna Bhattacharya <suparna@in.ibm.com> writes:
-> 
-> 
-> > OK. I hadn't looked at your user space pieces earlier, where you 
-> > patch in the code to jump to real-mode etc. 
-> > (from my perspective this seems to be the main difference vs bootimg)
-> 
-> I have borrowed techniques from all over.  And I will go with whatever
-> works.  In this case I don't see why bootimg wasn't doing that.
->  
-> > > Reseting the video mode like monte does is questionable.
-> > 
-> > Could you explain that a bit ?
-> 
-> 1) You should have done proper video shutdown before you left the
->    previous kernel.
-> 2) You might not have a video card.
-> 3) You might not have a working BIOS.
-> 4) It is generally a very good idea to make a division of who controls
->    what hardware.  And after the initial boot and the kernel has
->    driven the hardware it isn't reliable to give control back to the
->    BIOS.  We may have changed state enough to confuse the BIOS.
-> 
-> Or in summary it is generally unnecessary so why the heck are we doing
-> it.
+[1.] One line summary of the problem:
+	Trying to use an initrd for an installation fails unless the mke2fs
+used a blocksize of 1024 bytes.
 
-OK. The crash with bootimg implementation was known to have occasional
-difficulties when boot got triggered (via panic) while in X -- sometimes 
-having the console messed up, and on some occasions even hangs.
-How's been your experience - no problems in kexec'ing from X, 
-anytime ?
+[2.] Full description of the problem/report:
+	I'm trying to create a Linux for S/390 version 2.2.20 installation
+kernel/ramdisk set.  When I create the ramdisk, if I issue the mke2fs
+command with -b 2048 or -b 4096, it works fine.  But, I try to boot the
+system, I get an "EXT2-fs: Magic mismatch, very weird !" error when the
+kernel tries to mount the ramdisk as the root file system.  If I let the
+blocksize default, or specify -b 1024, everything works fine.
 
-> 
-> > > The basic point though is that the monte kernel interface is not set
-> > > up to support anything but the linux kernel.  The bootimg interface
-> > > if fairly general, the user space just happens to be a little
-> > > immature.
-> > 
-> > I wasn't really looking at the system call interface as yet. That's
-> > important of course, but I first wanted to be understand the actual
-> > boot mechanism and the degree of reliability plus any known
-> > limitations.
-> > 
-> > The interface which is interesting to me ATM is actually the lower
-> > level in-kernel interface to initate the boot with a preloaded image
-> > (i.e after the segments are loaded into a kimage).
-> 
-> O.k.  Any comments, on that interface?
+The comparison that seems to be failing is at line 500 of
+linux/fs/ext/super.c:
+                if (es->s_magic != le16_to_cpu(EXT2_SUPER_MAGIC)) {
+                        printk ("EXT2-fs: Magic mismatch, very weird !\n");
+                        goto failed_mount;
 
-That would be machine_kexec, and the kimage struct, right ?
-So far looks ok, though I haven't looked at it critically. One thing that 
-that I require was a way to pass information across boots - 
-maybe that could be done through command line parameters to the new 
-kernel.
+I put in a couple of printk lines just before the "if" statement, and when
+trying to use an initrd with a "bad" blocksize, the value at es->s_magic is
+binary zeros.  The value generated by le16_to_cpu(EXT2_SUPER_MAGIC is a
+decimal 21487 = 0x53EF.  When the initrd has a 1024 byte blocksize, the
+value at es->s_magic matches correctly.
 
-> 
-> > > As for skipping the real mode setup code, I prefer to do that cleanly
-> > > when it is needed.
-> > > 
-> > > > At first I
-> > > > thought some of your querybios stuff achieves a similar effect,
-> > > > but then is that for linux bios ?
-> > > 
-> > > Yes that is primarily for linuxbios.  But that is when it is necessary
-> > > to skip the real mode setup.  But all you have to do is specify a
-> > 
-> > OK. Now that I have seen your bzImage kexec userland code, I see the 
-> > missing link.  When I'd looked at the older patches around 
-> > the time of our elfboot announcment, I couldn't locate the right
-> > user space pieces, so things weren't clear.
-> 
-> O.k.  Given that I keep evolving this, that is understandable.  
-> Sorry about that.
-> 
-> > > Unless I missed something the Linux kernel won't work on smp though.
-> > > It is a matter of resetting the state of the apics, and ensuring you
-> > > are running on the first processor.  I don't believe bootimg did/does that.
-> > 
-> > What I tried out was the MCLX crash dump implementation using bootimg
-> > and that did work on a 2-way. This has some modifications to run on
-> > the boot_cpu, and also to setup the local APIC and program the LVT0
-> > register. (The pure bootimg patch I had was pretty old, so never 
-> > tried that out separately). 
-> 
-> O.k. cool.  I haven't really looked at that.
-> 
-> > I ran into some errors when building elfboottools.
-> > EM_486 is reported to be undeclared. I think it must somehow be
-> > picking up the wrong elf.h, but didn't dig around too much
-> > into the makefiles. 
-> 
-> Version 2.0 is an early beta.  Some idiot yanked EM_486 and a couple
-> of other symbols out of elf.h from glibc.  Despite the ELF spec says
-> EM_486 at least should be there.  In any case that is just a debugging
-> bit and you can safely disable those.  Or do a make -k and compile the
-> kexec piece, but not the kparam, which isn't really relevant.
+[3.] Keywords (i.e., modules, networking, kernel):
+	initrd, mke2fs, blocksize
 
-I commented out the EM_486 check from the kexec code, and it built
-cleanly. I was able to boot a 2-way system with it, though it seemed
-to take a while, perhaps more so because I didn't seem to be getting
-any of the bootup/startup messages on my console. In one case there were 
-some INIT respawning messages that came up. Not sure the fact that
-I'm using a serial console matters.
+[4.] Kernel version (from /proc/version):
 
-Regards
-Suparna
+[5.] Output of Oops.. message (if applicable) with symbolic information
+resolved (see Documentation/oops-tracing.txt)
+	N/A
+
+[6.] A small shell script or example program which triggers the problem (if
+possible)
+	N/A
+
+[7.] Environment
+	Linux 2.2.20, "vanilla" from kernel.org, compiled on a Linux/390
+2.2.18 system, again, "vanilla" from kernel.org.
+
+[7.1.] Software (add the output of the ver_linux script here)
+	This information is from the *building* Linux system, not the
+failing one:
+# sh scripts/ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+
+Linux slackware 2.2.18 #2 SMP Mon Mar 26 15:04:40 EST 2001 s390 unknown
+
+Gnu C                  2.95.2
+Gnu make               3.79.1
+binutils               2.10.1
+util-linux             2.11b
+mount                  2.11f
+modutils               2.4.6
+e2fsprogs              1.22
+reiserfsprogs          3.x.0j
+Linux C Library        2.1.3
+ldd: version 1.9.9
+Procps                 2.0.7
+Net-tools              1.60
+Kbd                    command
+Sh-utils               2.0
+Modules Loaded         nfsd
+
+[7.2.] Processor information (from /proc/cpuinfo):
+	This information is from the *building* Linux system, not the
+failing one:
+# cat /proc/cpuinfo
+vendor_id       : IBM/S390
+# processors    : 4
+bogomips per cpu: 98.50
+processor 0: version = FF,  identification = 100003,  machine = 9672
+processor 1: version = FF,  identification = 200003,  machine = 9672
+processor 2: version = FF,  identification = 300003,  machine = 9672
+processor 3: version = FF,  identification = 400003,  machine = 9672
+
+[7.3.] Module information (from /proc/modules):
+	This information is from the *building* Linux system, not the
+failing one:
+# cat /proc/modules
+nfsd                  190816   1 (autoclean)
+
+[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
+	N/A
+
+[7.5.] PCI information ('lspci -vvv' as root)
+	N/A
+
+[7.6.] SCSI information (from /proc/scsi/scsi)
+	N/A
+
+[7.7.] Other information that might be relevant to the problem
+       (please look in /proc and include all information that you
+       think to be relevant):
+	None.
+
+
+Mark Post

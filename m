@@ -1,73 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130325AbQK0XsH>; Mon, 27 Nov 2000 18:48:07 -0500
+        id <S130387AbQK0Xsg>; Mon, 27 Nov 2000 18:48:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130319AbQK0Xr7>; Mon, 27 Nov 2000 18:47:59 -0500
-Received: from 173-ZARA-X24.libre.retevision.es ([62.82.243.173]:8713 "EHLO
-        head.redvip.net") by vger.kernel.org with ESMTP id <S129931AbQK0Xrp>;
-        Mon, 27 Nov 2000 18:47:45 -0500
-Message-ID: <3A21A28C.6C1E2BB8@zaralinux.com>
-Date: Mon, 27 Nov 2000 00:53:49 +0100
-From: Jorge Nerin <comandante@zaralinux.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i586)
-X-Accept-Language: es-ES, es, en
+        id <S129931AbQK0XsS>; Mon, 27 Nov 2000 18:48:18 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:16645 "EHLO
+        mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+        id <S130319AbQK0XsK>; Mon, 27 Nov 2000 18:48:10 -0500
+Date: 27 Nov 2000 23:12:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <7qdCHL8Hw-B@khms.westfalen.de>
+In-Reply-To: <8vrstp$o7d$1@cesium.transmeta.com>
+Subject: Re: [PATCH] removal of "static foo = 0"
+X-Mailer: CrossPoint v3.12d.kh5 R/C435
 MIME-Version: 1.0
-To: Gianluca Anzolin <g.anzolin@inwind.it>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: KERNEL BUG: console not working in linux
-In-Reply-To: <20001126222828.A12137@dracula.home.intranet>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <8vrstp$o7d$1@cesium.transmeta.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gianluca Anzolin wrote:
-> 
-> Hello
->         sorry if I'm mailing this twice, but there is a kernel bug in
-> linux 2.2 and linux 2.4. Linux 2.0 is not affected. I tested also
-> FreeBSD, OpenBSD, Windows 95 and DOS and they all work.
-> 
->         The problem is that linux doesn't find the video card: after
-> lilo has loaded the kernel the screen becomes black. The system boots
-> regularily but the screen stays black forever.
-> 
->         In this PC I haven't configured any framebuffer and there isn't
-> X Window. The video card is a TRIDENT 9660 and it is integrated on the
-> mainboard.
-> 
->         I tried to access the system via ssh and I tried to issue the
-> lspci -xvv command. You can find the output (along with the output of
-> pciconf -l from FreeBSD) on http://www.gest.unipd.it/~iig0573/lspci.txt
-> lspci can't find the video card; FreeBSD finds it on 0:9.0
-> 
->         I tried then to boot with pci=direct, bios & conf1 (as somebody
-> told me) but anything changed. I tried also vga framebuffer and to pass
-> the vga=ask argument to the kernel. Nothing changed.
-> 
->         With vga=ask the system asks to choose a video mode. The system
-> can also scan all the video modes of the card. But if I choose any of
-> them the screen becomes black. After some investigation I think the
-> problem is in arch/i386/boot/video.S but I haven't the skills to debug &
-> solve.
-> 
->         Please, help me, I really hope to use linux on this PC...
-> otherwise I must use something else.
-> 
->         Thank you,
-> 
->         Gianluca
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+hpa@zytor.com (H. Peter Anvin)  wrote on 26.11.00 in <8vrstp$o7d$1@cesium.transmeta.com>:
 
-Are you sure you have enabled virtual terminal and console support in
-character devices, and vga text console in console drivers?
+> The problem is that it doesn't.  One could argue this is a gcc bug or
+> rather missed optimization.
+>
+> One can, of course, also write:
+>
+>     static int a /* = 0 */;
+>
+> ... to make it clear to human programmers without making gcc make bad
+> code.
 
--- 
-Jorge Nerin
-<comandante@zaralinux.com>
+This (or similar) has the added advantage of making it obvious that this  
+is documentation, and not a superfluous initialization.
+
+Sure, if you (generic you) look at your own code, you may know what it  
+means if it's written a certain way. But if you look at other's code, or  
+others look at your code, that is not clear. It is clear with a comment.
+
+
+MfG Kai
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

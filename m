@@ -1,78 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265335AbRF0RoM>; Wed, 27 Jun 2001 13:44:12 -0400
+	id <S265334AbRF0Rpm>; Wed, 27 Jun 2001 13:45:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265334AbRF0RoC>; Wed, 27 Jun 2001 13:44:02 -0400
-Received: from mail.lysator.liu.se ([130.236.254.3]:20673 "HELO
-	mail.lysator.liu.se") by vger.kernel.org with SMTP
-	id <S265335AbRF0Rnt>; Wed, 27 Jun 2001 13:43:49 -0400
-Date: Wed, 27 Jun 2001 19:55:31 +0200
-From: Jorgen Cederlof <jc@lysator.liu.se>
+	id <S265339AbRF0Rpc>; Wed, 27 Jun 2001 13:45:32 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.121]:54033 "EHLO paip.net")
+	by vger.kernel.org with ESMTP id <S265334AbRF0RpQ>;
+	Wed, 27 Jun 2001 13:45:16 -0400
 To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
 Subject: Re: [PATCH] User chroot
-Message-ID: <20010627195531.D8203@ondska>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <9hb6rq$49j$1@cesium.transmeta.com>
-User-Agent: Mutt/1.3.18i
-X-eric-conspiracy: There is no conspiracy
+Date: 27 Jun 2001 17:42:55 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <9hd5uv$o95$2@abraham.cs.berkeley.edu>
+In-Reply-To: <200106271357.IAA27308@tomcat.admin.navo.hpc.mil>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 993663775 24869 128.32.45.153 (27 Jun 2001 17:42:55 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 27 Jun 2001 17:42:55 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hpa@zytor.com ("H. Peter Anvin") writes:
+Jesse Pollard  wrote:
+>2. Any penetration is limited to what the user can access.
 
-> Followup to:  <20010627014534.B2654@ondska>
-> By author:    Jorgen Cederlof <jc@lysator.liu.se>
-> In newsgroup: linux.dev.kernel
-> > If we only allow user chroots for processes that have never been
-> > chrooted before, and if the suid/sgid bits won't have any effect under
-> > the new root, it should be perfectly safe to allow any user to chroot.
-> 
-> Safe, perhaps, but also completely useless: there is no way the user
-> can set up a functional environment inside the chroot.
+Sure, but in practice, this is not a limit at all.
 
-Why? Because he can't create device nodes?
-
-First of all, if /dev is on the same file system as the new root, the
-user can ln the device nodes he wants to wherever he wants them in the
-new root. He can't change their permissions, but that should not be
-necessary.
-
-Since I use devfs, I can't do that. But I decided to try how much I
-can do anyway. So I downloaded the big redhat 7.1 image from User-mode
-Linux. I unpacked it and extracted it to a directory using User-mode
-Linux. Since I was a normal user, I could not create any device nodes
-so I left /dev empty.
-
-I chrooted into the directory. Most things seemed to work. I couldn't
-use ping, since it needs to be suid root, and ps didn't work for
-obvious reasons, but besides that everything looked OK.
-
-I started an Xnest and started a gnome-session in it. Now I ran into
-trouble. Some programs complained that they could not open
-/dev/null. I touched /dev/null and put a couple of zeroes in /dev/zero
-just in case. Now everything worked just fine. Gnome started and I
-could run every application included.
-
-The only thing that didn't work was terminal emulators. If I had not
-been using devfs, but had /dev on the same file system as /tmp or ~, I
-could have linked the needed device nodes. If you want to, you can
-have a daemon running outside the root to mirror selected parts of
-/proc into new_root/proc.
-
-There are more uses for chroot than running user desktops, as has been
-pointed out by others. The same arguments as implementing chroot for
-root still applies.
-
-Securing network daemons without needing to be root can be useful. As
-an extra bonus, cracked daemons are prevented from gaining root access
-from buggy suid binaries.
-
-I'm sure you can think of more uses. Don't assume it has no uses just
-because you can't think of anything in two minutes. I tend to use it
-quite often now when I am used to it, and I often find it frustrating
-to work on computers without this patch.
-
-        Jörgen
+Once a malicious party gains access to any account on your
+system (root or non-root), you might as well give up, on all
+but the most painstakingly careful configurations.  That's why
+chroot is potentially valuable.

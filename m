@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272092AbRIJWnD>; Mon, 10 Sep 2001 18:43:03 -0400
+	id <S272093AbRIJWpX>; Mon, 10 Sep 2001 18:45:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272088AbRIJWmx>; Mon, 10 Sep 2001 18:42:53 -0400
-Received: from mail.scsiguy.com ([63.229.232.106]:46354 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S272079AbRIJWmg>; Mon, 10 Sep 2001 18:42:36 -0400
-Message-Id: <200109102242.f8AMgpY21341@aslan.scsiguy.com>
-To: Andreas Steinmetz <ast@domdv.de>
-cc: SPATZ1@t-online.de (Frank Schneider),
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: AIC + RAID1 error? (was: Re: aic7xxx errors) 
-In-Reply-To: Your message of "Tue, 11 Sep 2001 00:29:24 +0200."
-             <XFMail.20010911002924.ast@domdv.de> 
-Date: Mon, 10 Sep 2001 16:42:51 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S272088AbRIJWpN>; Mon, 10 Sep 2001 18:45:13 -0400
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:9393 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S272079AbRIJWo5>;
+	Mon, 10 Sep 2001 18:44:57 -0400
+Message-Id: <5.1.0.14.2.20010910234129.05133ec0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 10 Sep 2001 23:45:13 +0100
+To: Wayne.Brown@altec.com
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: ntfs problem with 2.4.10-pre7
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <86256AC3.0069F85E.00@smtpnotes.altec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Something other made me wonder:
->> I ran the machine several times with the *new* aic7xxx-driver (TCQ=32)
->> and the "aic7xxx=verbose" commandline, and i noticed the following:
->> At every reboot (made by "reboot", RH7.1), the machine was not able to
->> stop the raid5 correctly...it un-mounted the mountpoint (/home) and then
->> it normaly wants to stop the raid...(you see the messages "mdrecoveryd
->> got waken up...") but that did not work and after some time (30sec) the
->> kernel Ooopsed.
+Hi,
 
-...
+At 20:15 10/09/2001, Wayne.Brown@altec.com wrote:
+>Since upgrading to 2.4.10-pre7, accessing my Win2000 ntfs partition (mounted
+>read-only) causes a lockup.  There are no oops messages on the console or 
+>in the
+>logs; if I'm in text mode when it happens the system still responds to 
+><alt-f1>
+>etc. and to <alt-sysrq> but not to anything else.  If I'm in X nether the 
+>mouse
+>nor the keyboard respond.  This is on a ThinkPad 600X with a kernel compiled
+>with egcs-2.91.66.  The last kernel that worked correctly for me was
+>2.4.10-pre4.  I skipped -pre5; -pre6 (with Anton's one-line patch applied to
+>allow compiling with egcs-2.91.66) gives the same lockup as -pre7.
 
->Same behaviour for RAID1 and the new aic7xxx driver for me at nearly every
->reboot. The old driver works just fine (2.4.9).
+When does the lockup occur? When mounting? Later? What is the command that 
+triggers it?
 
-The new driver registers a "reboot notifier" with the system.  If MD
-continues to perform I/O after the aic7xxx driver's notification routine
-is called, the result is undefined.  The aic7xxx driver has already
-shutdown the hardware.  Perhaps I should use a different event to indicate
-it is safe for me to clean up the hardware?
+Could you edit fs/ntfs/Makefile and remove the hash in front of the -DDEBUG 
+in the EXTRA_CFLAGS line? Then recompile, insert the module and as root issue:
 
---
-Justin
+echo -1 > /proc/sys/fs/ntfs-debug
+
+This will activate extensive logging in NTFS. If you now can reproduce the 
+hang and send me the syslog output (which hopefully will be captured) I 
+should be able to figgure out where and why it crashes.
+
+Thanks in advance,
+
+         Anton
+
+
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

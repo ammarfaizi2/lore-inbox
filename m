@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S144145AbRA1UjV>; Sun, 28 Jan 2001 15:39:21 -0500
+	id <S144146AbRA1Ute>; Sun, 28 Jan 2001 15:49:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144147AbRA1UjM>; Sun, 28 Jan 2001 15:39:12 -0500
-Received: from crusoe.degler.net ([160.79.55.71]:448 "EHLO degler.net")
-	by vger.kernel.org with ESMTP id <S144145AbRA1UjC>;
-	Sun, 28 Jan 2001 15:39:02 -0500
-Date: Sun, 28 Jan 2001 15:38:54 -0500
-From: Stephen Degler <sdegler@degler.net>
+	id <S144147AbRA1UtY>; Sun, 28 Jan 2001 15:49:24 -0500
+Received: from [193.100.254.1] ([193.100.254.1]:1552 "EHLO mail.philosys.de")
+	by vger.kernel.org with ESMTP id <S144146AbRA1UtP>;
+	Sun, 28 Jan 2001 15:49:15 -0500
+From: Andreas Huppert <Andreas.Huppert@philosys.de>
+Message-Id: <200101282049.VAA04880@mail.philosys.de>
+Subject: dos-partition mount bug
 To: linux-kernel@vger.kernel.org
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: tulip autonegotiation patch
-Message-ID: <20010128153854.A13829@crusoe.degler.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Date: Sun, 28 Jan 2001 21:49:35 +0100 (CET)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Hi,
+The following bug-report concerns all linux-versions (inclusive 2.2.18) I have
+had to do with!
 
-This one-liner fixes a subtle 21143 autonegotiation problem for me on a Zynx
-quad card.  The driver would claim to negotiate 100-FD, but would report late
-collisions and bad transmit throughput.
+> I have been trying to mount the dos-partition /dev/hdb1 on /dos/d for
+> three years and it fails:
+> My /etc/fstab is:
+> /dev/hda3 / ext2 defaults 0 1
+> /dev/hdb2 /downloads ext2 defaults 0 1
+> /proc /proc proc defaults 0 0
+> /dev/cdrom /cdrom iso9660 ro,noauto,user,exec 0 0
+> /dev/hda4 /usr ext2 defaults 0 2
+> /dev/hda1 /dos/c vfat user,noexec,nosuid,nodev 0 2
+> /dev/hda5 /dos/e vfat user,noexec,nosuid,nodev 0 2
+> /dev/hdb1 /dos/d vfat user,noexec,nosuid,nodev 0 2
+> 
+> and "mount /dos/d" sais:
+> mount: wrong fs type, bad option, bad superblock on /dev/hdb1,
+>        or too many mounted file systems
+> 
+> strace sais:
+> mount("/dev/hdb1", "/dos/d", "vfat",
+> MS_NOSUID|MS_NODEV|MS_NOEXEC|0xc0ed0000, 0x8056fc8) = -1 EINVAL (Invalid
+> argument)
+> 
+> I don´t need to say, that mounting /dos/c and /dos/e works without any
+> problem. On the other hand win'98 works with all dos-partitions normally.
+> Thanks
+> Andreas Huppert
 
-The driver still allows packets to be transmitted during autonegotiation,
-but that only drops a few packets.
-
-skd
-
---- 21142.c.bad	Sun Jan 28 15:26:25 2001
-+++ 21142.c	Sun Jan 28 11:51:59 2001
-@@ -171,7 +171,7 @@
- 			for (i = 0; i < tp->mtable->leafcount; i++)
- 				if (tp->mtable->mleaf[i].media == dev->if_port) {
- 					tp->cur_index = i;
--					tulip_select_media(dev, 0);
-+					tulip_select_media(dev, 1);
- 					setup_done = 1;
- 					break;
- 				}
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,113 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315439AbSGEGJp>; Fri, 5 Jul 2002 02:09:45 -0400
+	id <S315442AbSGEGQI>; Fri, 5 Jul 2002 02:16:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315442AbSGEGJo>; Fri, 5 Jul 2002 02:09:44 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:59122 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S315439AbSGEGJn>;
-	Fri, 5 Jul 2002 02:09:43 -0400
-Message-ID: <3D2538AD.E255167C@mvista.com>
-Date: Thu, 04 Jul 2002 23:11:57 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Xinwen - Fu <xinwenfu@cs.tamu.edu>
-CC: root@chaos.analogic.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel timers vs network card interrupt
-References: <Pine.SOL.4.10.10207041109300.12365-100000@dogbert>
-Content-Type: text/plain; charset=us-ascii
+	id <S315445AbSGEGQH>; Fri, 5 Jul 2002 02:16:07 -0400
+Received: from admin.nni.com ([216.107.0.51]:45318 "EHLO admin.nni.com")
+	by vger.kernel.org with ESMTP id <S315442AbSGEGQG>;
+	Fri, 5 Jul 2002 02:16:06 -0400
+Date: Fri, 5 Jul 2002 02:18:27 -0400
+From: Andrew Rodland <arodland@noln.com>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [OKS] O(1) scheduler in 2.4
+Message-Id: <20020705021827.713e4cc6.arodland@noln.com>
+In-Reply-To: <Pine.LNX.4.44.0207040846340.3309-100000@e2>
+References: <Pine.LNX.3.96.1020703232322.2248C-100000@gatekeeper.tmr.com>
+	<Pine.LNX.4.44.0207040846340.3309-100000@e2>
+X-Mailer: Sylpheed version 0.7.6claws16 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xinwen - Fu wrote:
-> 
->         In fact I want a timer (either in user level or kernel level).
-> This timer (hope it is a periodic timer) must expire at the interval that
-> I specify. For example, if I
-> want that the timer expires at 10ms, it should never be fired at
-> 10.0000000001ms or
-> 9.9999999999ms. That is the key part that I want!
+On Thu, 4 Jul 2002 08:56:01 +0200 (CEST)
+Ingo Molnar <mingo@elte.hu> wrote:
 
-10 nines!  Lots of luck.  You need to spend a LOT more money
-than I have.  Cesium clocks may be able to do this, but not
-computers...
-
-But first, please define "fire".  If you mean that the
-interrupt is generated at this rate, well we can do maybe  4
-or 5 nines.  If, on the other hand you mean "your timer
-function gets cpu cycles", I don't think you will find a
-machine that can do much better than one or 2 nines.  Even
-if the timer is the only interrupt, you still have interrupt
-off times and cache indeterminism to contend with.
-
-If the idea is to to "tickle" some hardware with this
-signal, you will do better to not involve a computer in the
-link.
-
-The utime project had some software that would schedule a
-timer tick early and then loop reading the TSC until the
-"exact" time.  This still has the problems of interrupts and
-cache misses, but it is probably the only way to approach
-what you want.  Nothing magic, you just figure the worst
-case latency and set your timer to expire early enough to be
-ahead of the appointed time.  Then you loop on the TSC
-waiting for your exact time.
-
--g
 > 
->         Have an idea?
+> On Wed, 3 Jul 2002, Bill Davidsen wrote:
 > 
->         Thanks!
+> > > it might be a candidate for inclusion once it has _proven_
+> > > stability and robustness (in terms of tester and developer
+> > > exposion), on the same order of magnitude as the 2.4 kernel - but
+> > > that needs time and exposure in trees like the -ac tree and vendor
+> > > trees. It might not happen at all, during the lifetime of 2.4.
+> > 
+> > It has already proven to be stable and robust in the sense that it
+> > isn't worse than the stock scheduler on typical loads and is vastly
+> > better on some.
 > 
-> Xinwen Fu
+> this is your experience, and i'm happy about that. Whether it's the
+> same experience for 90% of Linux users, time will tell.
 > 
-> On Thu, 4 Jul 2002, george anzinger wrote:
+> > > Note that the O(1) scheduler isnt a security or stability fix,
+> > > neither is it a driver backport. It isnt a feature backport that
+> > > enables hardware that couldnt be used in 2.4 before. The VM was a
+> > > special case because most people agreed that it truly sucked, and
+> > > even though people keep disagreeing about that decision, the VM is
+> > > in a pretty good shape now - and we still have good correlation
+> > > between the VM in 2.5, and the VM in 2.4. The 2.4 scheduler on the
+> > > other hand doesnt suck for 99% of the people, so our hands are not
+> > > forced in any way - we have the choice of a'proven-rock-solid good
+> > > scheduler' vs. an 'even better, but still young scheduler'.
+> > 
+> > Here I disagree. Sure behaves like a stability fix to me. On a
+> > system with a mix of interractive and cpu-bound processes, including
+> > processes with hundreds of threads, you just can't get reasonable
+> > performance balancing with nice() because it is totally impractical
+> > to keep tuning a thread which changes from hog to disk io to socket
+> > waits with a human in the loop. The new scheduler notices this stuff
+> > and makes it work, I don't even know for sure (as in tried it) if
+> > you can have different nice on threads of the same process.
 > 
-> > "Richard B. Johnson" wrote:
-> > >
-> > > On Wed, 3 Jul 2002, Xinwen - Fu wrote:
-> > >
-> > > > Hi, all,
-> > > >       I'm curious that if a network card interrupt happens at the same
-> > > > time as the kernel timer expires, what will happen?
-> > > >
-> > > >       It's said the kernel timer is guaranteed accurate. But if
-> > > > interrupts are not masked off, the network interrupt also should get
-> > > > response when a kernel timer expires. So I don't know who will preempt
-> > > > who.
-> > > >
-> > > >       Thanks for information!
-> > > >
-> > > > Xinwen Fu
-> > >
-> > > The highest priority interrupt will get serviced first. It's the timer.
-> > > Interrupts are serviced in priority-order. Hardware "remembers" which
-> > > ones are pending so none are lost if some driver doesn't do something
-> > > stupid.
-> >
-> > That is true as far as it goes, HOWEVER, timers are serviced
-> > by bottom half code which is run at the end of the
-> > interrupt, WITH THE INTERRUPT SYSTEM ON.  Therefore, timer
-> > servicing can be interrupted by an interrupt and thus be
-> > delayed.
-> >
-> > --
-> > George Anzinger   george@mvista.com
-> > High-res-timers:
-> > http://sourceforge.net/projects/high-res-timers/
-> > Real time sched:  http://sourceforge.net/projects/rtsched/
-> > Preemption patch:
-> > http://www.kernel.org/pub/linux/kernel/people/rml
-> >
+> (yes, it's possible to nice() individual threads.)
+> 
+> > This is not some neat feature to buy a few percent better this or
+> > that, this is roughly 50% more users on the server before it falls
+> > over, and no total bogs when many threads change to hog mode at
+> > once.
+> 
+> are these hard numbers? I havent seen much hard data yet from
+> real-life servers using the O(1) scheduler. There was lots of feedback
+> from desktop-class systems that behave better, but servers used to be
+> pretty good with the previous scheduler as well.
+> 
+> > You will not hear me saying this about preempt, or low-latency, and
+> > I bet that after I try lock-break this weekend I won't fell that I
+> > have to have that either. The O(1) scheduler is self defense against
+> > badly behaved processes, and the reason it should go in mainline is
+> > so it won't depend on someone finding the time to backport the fun
+> > stuff from 2.5 as a patch every time.
+> 
+> well, the O(1) scheduler indeed tries to put up as much defense
+> against'badly behaved' processes as possible. In fact you should try
+> to start up your admin shells via nice -20, that gives much more
+> priority than it used to under the previous scheduler - it's very
+> close to the RT priorities, but without the risks. This works in the
+> other direction as well: nice +19 has a much stronger meaning (in
+> terms of preemption and timeslice distribution) than it used to.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+Very nearly off topic, but I've had a few people on IRC tell me that
+they love O(1) specifically because it has a 'nice that actually does
+something'. As a matter of fact, I've had to change my X startup
+scripts, to make it a bit less selfish; the defaults are just plain
+silly, now.
+
+I had thought before that I had a complaint about processes that spawn a
+large number of children, and then reap them all at once, but it turns
+out that I was just running myself out of memory while conducting the
+test, and that if I avoid swapping, I don't run into any problems. I'm
+running 2.4.19-pre10-ac2 + preempt + some little things, on a 400mhz
+laptop, and it's just about as smooth as I could ask for.
+
+As for O(1) in mainline, I think that it's better than what we've got.
+But as for me, as long as O(1)-sched keeps moving, and AC keeps cranking
+out the patches, I'll be happy. >:) 
+> 
+> 	Ingo
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

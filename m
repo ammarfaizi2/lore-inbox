@@ -1,63 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269517AbUJTMgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270325AbUJTMgd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269517AbUJTMgh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 08:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270199AbUJTMeM
+	id S270325AbUJTMgd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 08:36:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269517AbUJTMdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 08:34:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:16349 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270105AbUJTMdf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 08:33:35 -0400
-Date: Wed, 20 Oct 2004 05:33:31 -0700
-From: John Cherry <cherry@osdl.org>
-Message-Id: <200410201233.i9KCXVOB031073@cherrypit.pdx.osdl.net>
-To: linux-kernel@vger.kernel.org
-Subject: IA32 (2.6.9 - 2004-10-19.21.30) - 44 New warnings (gcc 3.2.2)
+	Wed, 20 Oct 2004 08:33:55 -0400
+Received: from neopsis.com ([213.239.204.14]:60545 "EHLO
+	matterhorn.neopsis.com") by vger.kernel.org with ESMTP
+	id S267668AbUJTMbQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 08:31:16 -0400
+Message-ID: <41765A8C.2020309@dbservice.com>
+Date: Wed, 20 Oct 2004 14:31:08 +0200
+From: Tomas Carnecky <tom@dbservice.com>
+Organization: none
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: my opinion about VGA devices
+References: <417590F3.1070807@dbservice.com> <200410201318.26430.oliver@neukum.org>
+In-Reply-To: <200410201318.26430.oliver@neukum.org>
+X-Enigmail-Version: 0.84.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Neopsis-MailScanner-Information: Please contact the ISP for more information
+X-Neopsis-MailScanner: Found to be clean
+X-MailScanner-From: tom@dbservice.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-*** Warning: "i2o_msg_in_to_virt" [drivers/message/i2o/i2o_block.ko] undefined!
-*** Warning: "i2o_msg_in_to_virt" [drivers/message/i2o/i2o_core.ko] undefined!
-*** Warning: "i2o_msg_in_to_virt" [drivers/message/i2o/i2o_scsi.ko] undefined!
-*** Warning: "i2o_msg_out_to_virt" [drivers/message/i2o/i2o_core.ko] undefined!
-drivers/char/agp/backend.c:281: warning: `inter_module_register' is deprecated (declared at include/linux/module.h:579)
-drivers/char/agp/backend.c:301: warning: `inter_module_unregister' is deprecated (declared at include/linux/module.h:580)
-drivers/char/drm/drm_agpsupport.h:431: warning: `inter_module_put' is deprecated (declared at include/linux/module.h:584)
-drivers/char/drm/drm_stub.h:148: warning: `inter_module_put' is deprecated (declared at include/linux/module.h:584)
-drivers/char/drm/drm_stub.h:150: warning: `inter_module_unregister' is deprecated (declared at include/linux/module.h:580)
-drivers/char/drm/drm_stub.h:206: warning: `inter_module_register' is deprecated (declared at include/linux/module.h:579)
-drivers/char/drm/drm_stub.h:216: warning: `inter_module_unregister' is deprecated (declared at include/linux/module.h:580)
-drivers/isdn/hisax/hisax_fcpcipnp.c:1014: warning: label `out_unregister_isapnp' defined but not used
-drivers/isdn/hisax/hisax_fcpcipnp.c:999: warning: unused variable `pci_nr_found'
-drivers/message/i2o/exec-osm.c:332: warning: assignment makes pointer from integer without a cast
-drivers/message/i2o/exec-osm.c:332: warning: implicit declaration of function `i2o_msg_in_to_virt'
-drivers/message/i2o/i2o_block.c:434: warning: assignment makes pointer from integer without a cast
-drivers/message/i2o/i2o_block.c:434: warning: implicit declaration of function `i2o_msg_in_to_virt'
-drivers/message/i2o/i2o_scsi.c:308: warning: assignment makes pointer from integer without a cast
-drivers/message/i2o/i2o_scsi.c:308: warning: implicit declaration of function `i2o_msg_in_to_virt'
-drivers/message/i2o/pci.c:300: warning: assignment makes pointer from integer without a cast
-drivers/message/i2o/pci.c:300: warning: implicit declaration of function `i2o_msg_out_to_virt'
-drivers/mtd/chips/cfi_cmdset_0001.c:1836: warning: `inter_module_register' is deprecated (declared at include/linux/module.h:579)
-drivers/mtd/chips/cfi_cmdset_0001.c:1837: warning: `inter_module_register' is deprecated (declared at include/linux/module.h:579)
-drivers/mtd/chips/cfi_cmdset_0001.c:1843: warning: `inter_module_unregister' is deprecated (declared at include/linux/module.h:580)
-drivers/mtd/chips/cfi_cmdset_0001.c:1844: warning: `inter_module_unregister' is deprecated (declared at include/linux/module.h:580)
-drivers/mtd/chips/cfi_cmdset_0002.c:1737: warning: `inter_module_register' is deprecated (declared at include/linux/module.h:579)
-drivers/mtd/chips/cfi_cmdset_0002.c:1744: warning: `inter_module_unregister' is deprecated (declared at include/linux/module.h:580)
-drivers/mtd/chips/cfi_cmdset_0020.c:1406: warning: `inter_module_register' is deprecated (declared at include/linux/module.h:579)
-drivers/mtd/chips/cfi_cmdset_0020.c:1412: warning: `inter_module_unregister' is deprecated (declared at include/linux/module.h:580)
-drivers/mtd/chips/gen_probe.c:206: warning: `inter_module_put' is deprecated (declared at include/linux/module.h:584)
-drivers/mtd/devices/doc2000.c:1295: warning: `inter_module_register' is deprecated (declared at include/linux/module.h:579)
-drivers/mtd/devices/doc2000.c:1314: warning: `inter_module_unregister' is deprecated (declared at include/linux/module.h:580)
-drivers/mtd/devices/doc2001.c:861: warning: `inter_module_register' is deprecated (declared at include/linux/module.h:579)
-drivers/mtd/devices/doc2001.c:880: warning: `inter_module_unregister' is deprecated (declared at include/linux/module.h:580)
-drivers/mtd/devices/doc2001plus.c:1127: warning: `inter_module_register' is deprecated (declared at include/linux/module.h:579)
-drivers/mtd/devices/doc2001plus.c:1146: warning: `inter_module_unregister' is deprecated (declared at include/linux/module.h:580)
-drivers/mtd/devices/docprobe.c:315: warning: `inter_module_put' is deprecated (declared at include/linux/module.h:584)
-drivers/video/i810/i810_main.c:1958: warning: `inter_module_put' is deprecated (declared at include/linux/module.h:584)
-kernel/intermodule.c:179: warning: `inter_module_register' is deprecated (declared at kernel/intermodule.c:38)
-kernel/intermodule.c:180: warning: `inter_module_unregister' is deprecated (declared at kernel/intermodule.c:79)
-kernel/intermodule.c:183: warning: `inter_module_put' is deprecated (declared at kernel/intermodule.c:160)
-lib/kobject_uevent.c:27: warning: `action_to_string' defined but not used
-sound/oss/msnd.c:297: warning: implicit declaration of function `enable_irq'
-sound/oss/msnd.c:326: warning: implicit declaration of function `disable_irq'
+Oliver Neukum wrote:
+> Am Mittwoch, 20. Oktober 2004 00:10 schrieb Tomas Carnecky:
+> 
+>>I think this would make the suspend/resume/access/switching etc problems 
+>>much easier to solve since the kernel module could tell the library to 
+>>stop drawing/accessing mmap'ed memory etc. (or if the OpenGL rendering 
+>>is done in the kernel module it could just discard the render commands).
+>>Since the user has no direct access to mmap'ed memory and other critical 
+>>sections of the device, the driver can implement proper power managment 
+>>for suspend/resume etc.
+>>
+>>Well... that's it.. any comments? I'm sure you have.. :)
+> 
+> 
+> You are making damn sure that there will be no useful bug reports
+> about problems with resuming from S3.
+> 
+
+I guess that you are talking about the fact that displaying text 
+messages would be possible only after the first device driver has 
+initialized and registered with the kernel.
+
+You could do the printing in two stages: at the begining the same way as 
+in the current kernel, but as soon as the first driver is registered, 
+the kernel switches to the function provided by the driver.
+
+Something like this:
+
+void print_message(...)
+{
+    if (no_module_registered) {
+       use_print_function_provided_by_the_kernel();
+    } else {
+       if (!printing_disabled) {
+          use_print_function_provided_by_the_driver_module();
+       } else {
+          /* printing disabled by the userspace, we are not
+           * allowed to touch the hardware */
+       }
+    }
+}
+
+tom

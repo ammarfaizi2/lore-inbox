@@ -1,34 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261935AbVAaGOr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbVAaGOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261935AbVAaGOr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 01:14:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbVAaGOq
+	id S261937AbVAaGOd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 01:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVAaGOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 01:14:46 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:23006
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261935AbVAaGON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 01:14:13 -0500
-Date: Sun, 30 Jan 2005 22:08:34 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
-Subject: Re: recent 2.6.x USB HID input weirdness
-Message-Id: <20050130220834.6d5279db.davem@davemloft.net>
-In-Reply-To: <1107150754.7801.8.camel@pegasus>
-References: <20050130212739.060f8e6f.davem@davemloft.net>
-	<1107150754.7801.8.camel@pegasus>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Mon, 31 Jan 2005 01:14:32 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:23946 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261932AbVAaGML (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 01:12:11 -0500
+Subject: Re: 2.4.29, e100 and a WOL packet causes keventd going mad
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: sfeldma@pobox.com
+Cc: David =?ISO-8859-1?Q?H=E4rdeman?= <david@2gen.com>,
+       Michael Gernoth <simigern@stud.uni-erlangen.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+In-Reply-To: <1107147615.18167.433.camel@localhost.localdomain>
+References: <20050130171849.GA3354@hardeman.nu>
+	 <1107143255.18167.428.camel@localhost.localdomain>
+	 <1107143905.21273.33.camel@desktop.cunninghams>
+	 <1107147615.18167.433.camel@localhost.localdomain>
+Content-Type: text/plain
+Message-Id: <1107152056.21273.56.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Mon, 31 Jan 2005 17:14:16 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jan 2005 06:52:34 +0100
-Marcel Holtmann <marcel@holtmann.org> wrote:
+Hi.
 
-> take a look at this patch: http://lkml.org/lkml/2005/1/29/111
+On Mon, 2005-01-31 at 16:00, Scott Feldman wrote:
+> On Sun, 2005-01-30 at 19:58, Nigel Cunningham wrote:
+> > Do you also disable the WOL event when resuming?
+> 
+> Good catch.  How's this look?
 
-That certainly fixes it, thanks :-)
+I looked at it last week because I used it for an example of device
+model drivers at the CELF conference. I got your intel address from the
+top of the .c file, but IIRC it bounced. Providence :>
+
+[...]
+
+> @@ -2333,6 +2331,7 @@ static int e100_resume(struct pci_dev *p
+>  	struct nic *nic = netdev_priv(netdev);
+>  
+>  	pci_set_power_state(pdev, PCI_D0);
+> +	pci_enable_wake(pdev, PCI_D0, 0);
+>  	pci_restore_state(pdev);
+>  	e100_hw_init(nic);
+
+Shouldn't this be disable_wake?
+
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+
+Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
+

@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264471AbTF3HjO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 03:39:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263918AbTF3HjO
+	id S264750AbTF3Huy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 03:50:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263918AbTF3Huy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 03:39:14 -0400
-Received: from mail.gmx.de ([213.165.64.20]:15281 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265079AbTF3Hi6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 03:38:58 -0400
-Message-Id: <5.2.0.9.2.20030630094946.00cfb000@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Mon, 30 Jun 2003 09:57:35 +0200
-To: Con Kolivas <kernel@kolivas.org>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: patch-O1int-0306281420 for 2.5.73 interactivity
-Cc: linux-kernel@vger.kernel.org,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>
-In-Reply-To: <200306301535.49732.kernel@kolivas.org>
-References: <200306291457.40524.kernel@kolivas.org>
- <200306281516.12975.kernel@kolivas.org>
- <200306291132.49068.kernel@kolivas.org>
- <200306291457.40524.kernel@kolivas.org>
+	Mon, 30 Jun 2003 03:50:54 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15887 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263777AbTF3Huw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 03:50:52 -0400
+Date: Mon, 30 Jun 2003 09:05:07 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Paul Rolland <rol@as2917.net>
+Cc: "'Chris Friesen'" <cfriesen@nortelnetworks.com>, paulus@samba.org,
+       linux-kernel@vger.kernel.org, linux-ppp@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: [BUG]:   problem when shutting down ppp connection since 2.5.70
+Message-ID: <20030630090507.A32593@flint.arm.linux.org.uk>
+Mail-Followup-To: Paul Rolland <rol@as2917.net>,
+	'Chris Friesen' <cfriesen@nortelnetworks.com>, paulus@samba.org,
+	linux-kernel@vger.kernel.org, linux-ppp@vger.kernel.org,
+	linux-net@vger.kernel.org
+References: <3EFFA1EA.7090502@nortelnetworks.com> <005e01c33ecd$e20ce6e0$4100a8c0@witbe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <005e01c33ecd$e20ce6e0$4100a8c0@witbe>; from rol@as2917.net on Mon, Jun 30, 2003 at 08:07:25AM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+On Mon, Jun 30, 2003 at 08:07:25AM +0200, Paul Rolland wrote:
+> > Jun 29 17:18:39 doug kernel: unregister_netdevice: waiting 
+> > for ppp0 to 
+> > become free. Usage count = 1
+> 
+> Interestingly, I've got the same with device tun0 on my box, and
+> it appeared at the same time.
+> 2.5.70 was really blocking as it even prevented a normal shutdown
+> of the box :-(
 
-At 03:35 PM 6/30/2003 +1000, Con Kolivas wrote:
->Summary:
->A patch to reduce audio skipping and X jerking under load.
+People with PCMCIA cards have been reporting the same thing.  It sounds
+like something's up with the netdev layer, and it has persisted until
+2.5.73 thus far.
 
-I took it out for a quick spin.  It kills thud graveyard dead.  That's the 
-good news, now for the bad ;-)  With a make -j5 running, kasteroids 
-stutters enough to be pretty annoying.  The patched kernel is making 
-booboos wrt cc1's priority often enough to nail kasteroids pretty 
-hard.  The mouse pointer also jerks around quite a bit,...
+Note that it helps to post such messages to the linux-net lists; some
+of the net people don't read lkml.
 
->It's looking seriously like I'm talking to myelf here, but just in case there
->are lurkers testing this patch, there's a big bug that made it think jiffy
->wraparound was occurring so interactive tasks weren't receiving the boost
->they deserved. Here is a patch with the fix in.
->
->How to use if you're still thinking of testing:
->Use with Hz 1000, and use the granularity patch I posted as well for 
->smoothing
->X off.
-
-...but I'm not using that, because I wanted to see the pure effects of this 
-patch.
-
-         -Mike
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

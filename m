@@ -1,80 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264695AbUEUUWu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265953AbUEUUda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264695AbUEUUWu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 16:22:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265972AbUEUUWu
+	id S265953AbUEUUda (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 16:33:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266016AbUEUUd3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 16:22:50 -0400
-Received: from [141.156.69.115] ([141.156.69.115]:55207 "EHLO
-	mail.infosciences.com") by vger.kernel.org with ESMTP
-	id S264695AbUEUUWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 16:22:47 -0400
-Message-ID: <40AE6509.5070507@infosciences.com>
-Date: Fri, 21 May 2004 16:22:33 -0400
-From: nardelli <jnardelli@infosciences.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Fri, 21 May 2004 16:33:29 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:38066 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265953AbUEUUdA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 16:33:00 -0400
+Date: Fri, 21 May 2004 13:32:10 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andi Kleen <ak@muc.de>
+cc: linux-kernel@vger.kernel.org, brettspamacct@fastclick.com
+Subject: Re: How can I optimize a process on a NUMA architecture(x86-64 specifically)?
+Message-ID: <93090000.1085171530@flay>
+In-Reply-To: <m3lljld1v1.fsf@averell.firstfloor.org>
+References: <1Y6yr-eM-11@gated-at.bofh.it> <1YbRm-4iF-11@gated-at.bofh.it><1Yma3-4cF-3@gated-at.bofh.it> <1YmjP-4jX-37@gated-at.bofh.it><1YmMN-4Kh-17@gated-at.bofh.it> <1Yn67-50q-7@gated-at.bofh.it> <m3lljld1v1.fsf@averell.firstfloor.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-To: jkroon@cs.up.ac.za
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] [PATCH] visor: Fix Oops on disconnect
-References: <40AD3A88.2000002@infosciences.com>    <20040521043032.GA31113@kroah.com>    <40AE5DBB.6030003@infosciences.com> <36233.165.165.44.119.1085169684.squirrel@165.165.44.119>
-In-Reply-To: <36233.165.165.44.119.1085169684.squirrel@165.165.44.119>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jkroon@cs.up.ac.za wrote:
->>I've made all of the changes that recommended below.  If it looks like
->>I've missed anything, please indicate so.
->>
->>
+> "Martin J. Bligh" <mbligh@aracnet.com> writes:
 > 
+>> For any given situation, you can come up with a scheduler mod that improves
+>> things. The problem is making something generic that works well in most
+>> cases. 
 > 
-> [snip]
+> The point behind numa api/numactl is that if the defaults
+> don't work well enough you can tune it by hand to be better.
 > 
-> 
->>>>+	if (num_ports <= 0 || num_ports > 2) {
->>>
->>>
->>>I like the idea of this check, but you are trying to test for a negative
->>>value on a __u16 variable, which is always unsigned.  So that check will
->>>never be true :)
-> 
-> 
-> What happens if num_ports == 0?  Not that hardware should ever report that.
-> 
-> [snip]
-> 
-> 
+> There are some setups which can be significantly improved with some
+> hand tuning, although in many cases the default behaviour is good enough
+> too.
 
-Short answer:
-A warning is logged and num_ports defaults to 2.
+Oh, I'm not denying it can make things better ... just 90% of the people
+who want to try it would be better off leaving it the hell alone ;-)
 
-Long answer:
+M.
 
-Unfortunately, it does not apear that this class of device sends any kind of
-connect info back in repsonse to VISOR_GET_CONNECTION_INFORMATION,
-PALM_GET_EXT_CONNECTION_INFORMATION, or for that matter any request under
-200 (or some similiar number - I don't remember how far I tested).
-
-Based upon a usb packet capture under windoze, I believe that the device
-is not capable of this.  I'd really like some kind of documentation on
-the connection protocol, but I've come up completely empty handed in that
-regard.
-
-The packet capture available at
-http://bugzilla.kernel.org/attachment.cgi?id=2924&action=view shows the
-attempt to send both VISOR_GET_CONNECTION_INFORMATION (3) and 
-PALM_GET_EXT_CONNECTION_INFORMATION (4) requests.  Both times nothing is
-returned.
-
-In any case, when no valid connection info is found, num_ports is initially
-set to 0, a warning is logged, and num_ports defaults to 2.
-
-
--- 
-Joe Nardelli
-jnardelli@infosciences.com

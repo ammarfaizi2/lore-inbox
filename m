@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264715AbRFQKpn>; Sun, 17 Jun 2001 06:45:43 -0400
+	id <S264712AbRFQKiD>; Sun, 17 Jun 2001 06:38:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264716AbRFQKpd>; Sun, 17 Jun 2001 06:45:33 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:39940 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S264715AbRFQKpR>; Sun, 17 Jun 2001 06:45:17 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Bill Pringlemeir <bpringle@sympatico.ca>
-Subject: Re: Newbie idiotic questions.
-Date: Sun, 17 Jun 2001 12:48:01 +0200
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m2d78352do.fsf@sympatico.ca> <3B2C08C2.6CC5D144@mandrakesoft.com>
-In-Reply-To: <3B2C08C2.6CC5D144@mandrakesoft.com>
-MIME-Version: 1.0
-Message-Id: <0106171248010N.00879@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S264715AbRFQKhz>; Sun, 17 Jun 2001 06:37:55 -0400
+Received: from 64-42-29-14.atgi.net ([64.42.29.14]:28432 "HELO
+	mail.clouddancer.com") by vger.kernel.org with SMTP
+	id <S264712AbRFQKhj>; Sun, 17 Jun 2001 06:37:39 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel configuration.  It's not just a job, it's an adventure!
+In-Reply-To: <9ghc7a$ogh$1@ns1.clouddancer.com>
+In-Reply-To: <20010616222709.A11872@thyrsus.com>    <20010617002138.A9374@whitestar.soark.net> <20010617004110.A12668@thyrsus.com> <20010617002138.A9374@whitestar.soark.net>; from    kernel@whitestar.soark.net on Sun, Jun 17, 2001 at 12:21:38AM -0400 <9ghc7a$ogh$1@ns1.clouddancer.com>
+Reply-To: klink@clouddancer.com
+Message-Id: <20010617103737.E4AE7784BD@mail.clouddancer.com>
+Date: Sun, 17 Jun 2001 03:37:37 -0700 (PDT)
+From: klink@clouddancer.com (Colonel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 17 June 2001 03:32, Jeff Garzik wrote:
-> Bill Pringlemeir wrote:
-> > Why is the struct type referenced for the allocation size?  Why not,
-> >
-> >         if ((card->mpuout = kmalloc(sizeof(card->mpuout), GFP_KERNEL))
+In clouddancer.list.kernel, you wrote:
 >
-> because then you would be allocating the size of a pointer, not the size
-> of a structure
+>kernel@whitestar.soark.net <kernel@whitestar.soark.net>:
+>> I have to ask, is this something you wrote, or an actual log from
+>> something you wrote? (=:]
+>
+>What?  Moi, perpetrate a trifling and crude hoax?  You wound me, sir,
+>by supposing I would ever stoop to such gaucherie.  It is so much more
+>*elegantly* absurd to actually write the program, is it not?
+>
+>CML2 Adventure is part of the 1.6.1 release of CML2.  You can download
+>it from <http://www.tuxedo.org/~esr/cml2/> and try it out yourself.
 
-Whoops Jeff, you didn't have your coffee yet:
 
-	struct foo { int a; int b; };
-	struct { struct foo foo; } *foobar;
+It this doesn't get people to try CML2, nothing will.  I still
+remember many years ago walking into the labs and hearing the graduate
+students.  They were shouting stuff like "jump thru the window" and
+"wave rod".  A roomful was engaged in solving "adventr", no useful
+work was accomplished for 3+ days and close to a $100,000 in computer
+dollars was spent after this virus ^h^h^h^h^h^h game appeared on the
+mainframe.
 
-	int main (void)
-	{
-		printf("%i\n", sizeof(struct foo));
-		printf("%i\n", sizeof(foobar->foo));
-		printf("%i\n", sizeof(&foobar->foo));
-	}
+I keep wondering if the Pirate was included....not to mention, "Witt's
+End".
 
-Prints:
 
-	8
-	8
-	4
---
-Daniel
+--My pid is Inigo Montoya.  You killed -9 my parent process.  Prepare to vi. 
+

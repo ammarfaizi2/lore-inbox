@@ -1,93 +1,196 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261749AbSJZAYp>; Fri, 25 Oct 2002 20:24:45 -0400
+	id <S261724AbSJZASU>; Fri, 25 Oct 2002 20:18:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261750AbSJZAYp>; Fri, 25 Oct 2002 20:24:45 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:50883 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261749AbSJZAYn>; Fri, 25 Oct 2002 20:24:43 -0400
-Subject: Re: [PATCH] NUMA scheduler 1/2
-From: Michael Hohnbaum <hohnbaum@us.ibm.com>
-To: Erich Focht <efocht@ess.nec.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Theurer <habanero@us.ibm.com>
-In-Reply-To: <200210251937.53335.efocht@ess.nec.de>
-References: <200210111954.30447.efocht@ess.nec.de> 
-	<200210251937.53335.efocht@ess.nec.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 25 Oct 2002 17:29:18 -0700
-Message-Id: <1035592159.9367.1696.camel@dyn9-47-17-164.beaverton.ibm.com>
-Mime-Version: 1.0
+	id <S261725AbSJZASU>; Fri, 25 Oct 2002 20:18:20 -0400
+Received: from momus.sc.intel.com ([143.183.152.8]:28396 "EHLO
+	momus.sc.intel.com") by vger.kernel.org with ESMTP
+	id <S261724AbSJZASS>; Fri, 25 Oct 2002 20:18:18 -0400
+Message-ID: <D1C0BF20D4AFD411AB98009027AE99881167C7F4@fmsmsx40.fm.intel.com>
+From: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'jeff@aslab.com'" <jeff@aslab.com>, "'ak@muc.de'" <ak@muc.de>
+Cc: "'greg@kroah.com'" <greg@kroah.com>,
+       "Carbonari, Steven" <steven.carbonari@intel.com>,
+       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
+       "Abel, Michael J" <michael.j.abel@intel.com>,
+       "Tarabini, Anthony" <anthony.tarabini@intel.com>,
+       "'andreasW@ati.com'" <andreasW@ati.com>,
+       "Abdul-Khaliq, Rushdan" <rushdan.abdul-khaliq@intel.com>
+Subject: RE: [PATCH] [RESEND] GART driver support for generic AGP 3.0 devi
+	ce detection/enabling & Intel 7205/7505 chipset support
+Date: Fri, 25 Oct 2002 17:23:25 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_000_01C27C85.E63D5930"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-10-25 at 10:37, Erich Focht wrote:
-> Here come the rediffed (for 2.5.44) patches for my version of the
-> NUMA scheduler extensions. I'm only sending the first two parts of
-> the complete set of 5 patches (which make the node affine NUMA scheduler
-> with dynamic homenode selection). The two patches lead to a pooling
-> NUMA scheduler with initial load balancing at exec().
-> 
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
-These patches produced a kernel that built and booted first try for
-me.  Thanks.  I ran kernbench and your numa_test (schedbench) on 
-this numa scheduler (erich44), my simple numa scheduler (hbaum44), and 
-a stock kernel (stock44).
+------_=_NextPart_000_01C27C85.E63D5930
+Content-Type: text/plain;
+	charset="iso-8859-1"
 
-Kernbench:
-                             Elapsed        User      System         CPU
-                 stock44      21.08s     196.80s      58.14s     1208.8%
-                 hbaum44      20.49s     192.57s      50.32s     1184.8%
-                 erich44      21.01s     193.47s      56.71s     1191.0%
+It seems my last message was corrupted at some point, so I'm resending this
+patch - which will hopefully arrive intact.  My apologies for the resend...
+Original mail blurb included below.
 
-Schedbench 4:
-                             Elapsed   TotalUser    TotalSys     AvgUser
-                 stock44       39.47       49.99      157.94        0.96
-                 hbaum44       38.43       48.76      153.77        1.12
-                 erich44       24.28       36.10       97.15        0.79
+thanks,
+matt
 
-Schedbench 8:
-                             Elapsed   TotalUser    TotalSys     AvgUser
-                 stock44       49.46       71.07      395.77        1.92
-                 hbaum44       37.52       57.99      300.25        2.17
-                 erich44       30.67       47.93      245.48        2.59
+-----
+Attached is a patch for generic AGP 3.0 device detection and enabling
+routines as well as specific support for the Intel E7205 and E7505 chipset
+against the 2.4.20-pre9 kernel.   
 
-Schedbench 16:
-                             Elapsed   TotalUser    TotalSys     AvgUser
-                 stock44       64.17       81.48     1026.94        6.41
-                 hbaum44       52.23       73.23      835.81        5.18
-                 erich44       52.25       61.20      836.12        4.69
+This patch adds generic enabling and detection routines based on the AGP 3.0
+spec.  Some of the new features include detection of multiple devices and
+proper isochronous bandwidth allocation to each discovered device, as well
+as the typical host bridge initialization.  This patch also includes support
+for both E7205 and E7505 chipset specific support.  It is prudent to note
+that this patch does not yet implement all of the capabilities defined by
+the AGP 3.0 spec.
 
-Schedbench 32:
-                             Elapsed   TotalUser    TotalSys     AvgUser
-                 stock44       72.45      165.86     2318.84       12.78
-                 hbaum44       56.74      137.58     1816.17        8.81
-                 erich44       55.98      121.19     1791.58        9.35
+For comments, kindly include my address in your mail as I am not currently
+subscribed to lkml...  Otherwise, please apply.
 
-Schedbench 64:
-                             Elapsed   TotalUser    TotalSys     AvgUser
-                 stock44      110.31      461.29     7060.60       26.02
-                 hbaum44       58.30      255.90     3732.08       20.10
-                 erich44       56.94      237.09     3644.95       21.26
+thanks,
+matt
 
-The results seem fairly consistent with what we have been seeing all
-along.  Erich's scheduler tends to be about the same as stock on 
-kernbench, while mine is roughly 5% better.
-  
-On schedbench Erich's does better on small loads, but as 
-the load increases to one task per cpu it becomes a dead heat between
-the two.
 
-It is probably worth noting that my scheduler change is a bit smaller
-with 146 insertions, 27 deletions across 3 files, versus 432 insertions,
-127 deletions across 4 files.  But that should be expected, as my goal
-was to keep the changes as small as possible, while still providing 
-measureable performance gains.
--- 
+------_=_NextPart_000_01C27C85.E63D5930
+Content-Type: application/octet-stream;
+	name="linux-2.4.20-pre9-agp3.patch.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="linux-2.4.20-pre9-agp3.patch.gz"
 
-Michael Hohnbaum                      503-578-5486
-hohnbaum@us.ibm.com                   T/L 775-5486
+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
+8YLKX9Us5UHFXgAA
 
+------_=_NextPart_000_01C27C85.E63D5930--

@@ -1,77 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274611AbRJAF62>; Mon, 1 Oct 2001 01:58:28 -0400
+	id <S274627AbRJAGZ3>; Mon, 1 Oct 2001 02:25:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274610AbRJAF6J>; Mon, 1 Oct 2001 01:58:09 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:15122 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S274596AbRJAF57>;
-	Mon, 1 Oct 2001 01:57:59 -0400
-Date: Mon, 1 Oct 2001 07:55:45 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Bernd Harries <bha@gmx.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: __get_free_pages(): is the MEM really mine?
-In-Reply-To: <3BB71715.A57FA7D4@gmx.de>
-Message-ID: <Pine.LNX.4.33.0110010732140.1792-100000@localhost.localdomain>
+	id <S274628AbRJAGZU>; Mon, 1 Oct 2001 02:25:20 -0400
+Received: from cs666814-197.austin.rr.com ([66.68.14.197]:58867 "EHLO
+	kinison.puremagic.com") by vger.kernel.org with ESMTP
+	id <S274627AbRJAGZR> convert rfc822-to-8bit; Mon, 1 Oct 2001 02:25:17 -0400
+Date: Mon, 1 Oct 2001 01:25:42 -0500 (CDT)
+From: Evan Harris <eharris@puremagic.com>
+To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: RAID5: mkraid --force /dev/md0 doesn't work properly
+In-Reply-To: <20011001055619.B24589@unthought.net>
+Message-ID: <Pine.LNX.4.33.0110010113420.2459-100000@kinison.puremagic.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sun, 30 Sep 2001, Bernd Harries wrote:
+Ok, thanks.  I did that and it worked.  But I have (unfortunately) one more
+question about how raid disks are used.  I've now remade the restarted the
+raid, having left the oldest drive (/dev/sde1) as a failed-disk.  I do a
+raidhotadd /dev/md0 /dev/sde1, and this starts the raid parity rebuild and
+gives this status in /proc/mdstat:
 
-> Is there a guarantee that the n - 1 pages above the 1st one are not
-> donated to other programs while my driver uses them?
+md0 : active raid5 sde1[6] sdi1[5] sdh1[4] sdg1[3] sdf1[2] sdd1[0]
+      179203840 blocks level 5, 256k chunk, algorithm 0 [6/5] [U_UUUU]
+      [=>...................]  recovery =  8.4% (3023688/35840768)
+finish=88.9min speed=6148K/sec
 
-yes. The 2MB block of 512 x 4k pages (we should perhaps call it a 'order 9
-page') is yours.
+Now, my question is: the hotadd seems to have reordered the disks, so when
+the rebuild is completed, do I need to reorder my raidtab to reflect this?
+Like this?
 
-> > is it a fundamental property of the hardware that it needs a continuous
-> > physical memory buffer?
+        device                  /dev/sdd1
+        raid-disk               0
+        device                  /dev/sdf1
+        raid-disk               1
+        device                  /dev/sdg1
+        raid-disk               2
+        device                  /dev/sdh1
+        raid-disk               3
+        device                  /dev/sdi1
+        raid-disk               4
+        device                  /dev/sde1
+        raid-disk               5
+
+Or does the kernel still keep the drives in order as the raidtab already is,
+even though they seem to be out of order in the syslog and /proc/mdstat?  If
+I have to force the recreation of the superblocks at some later point, which
+way will keep the data from being lost?
+
+Thanks.  Evan
+
+-- 
+| Evan Harris - Consultant, Harris Enterprises - eharris@puremagic.com
+|
+| Custom Solutions for your Software, Networking, and Telephony Needs
+
+On Mon, 1 Oct 2001, Jakob Østergaard wrote:
+
+> On Sun, Sep 30, 2001 at 07:51:25PM -0500, Evan Harris wrote:
+> >
+> > Thanks for the fast reply!
+> >
+> > I'm not sure I understand why drive 5 should be failed.  It is one of the
+> > four disks with the most recently correct superblocks.  The disk with the
+> > oldest superblock is #1.  Can you point me to documentation which explains
+> > this better?  I'm a little afraid of doing that without reading more on it,
+> > since it seems to mark yet another of the 4 remaining "good" drives as
+> > "bad".
 >
-> Yes. The FW on the card demands it.
-
-ok. then i'd suggest to do all this allocation at boot-time, and do not
-deallocate it. This is the safest method. Unless it's a point to have the
-driver as a module (for other than development purposes).
-
-> I'll move the code to init_module later once it is stable.
-
-even init_module() can be executed much later: eg. kmod removes the module
-because it's unused, and it's reinserted later. So generally it's really
-unrobust to expect a 9th order allocation to succeed at module_init()
-time.
-
-the fundamental issue is not the lazyness of Linux VM developers. 99.9% of
-all allocations are order 0. 99.9% of the remaining allocations are order
-1 or 2. It takes a fair amount of overhead and complexity to handle
-high-order allocations 'well' - it takes even more effort (and a perverse
-limitation on the use of pointers) to guarantee the success of such
-allocations all the time.
-
-there is a longer-term and robust solution that could be used though. We
-could support a generic 'physical memory pool', that gets allocated on
-bootup (via eg. a physmem=10m kernel boot option), and never gets used for
-other than such critical allocations. Your driver could call eg.
-alloc_physmem(size) and free_physmem(). It would work similarly to
-bootmem.c. This 'physical memory pool' would never be used by generic
-subsystems - only drivers which support hardware with such limitations are
-allowed to use it. The advantage of this approach is that there would be
-one generic way to put physically continuous RAM aside for such drivers -
-so the driver would not have to worry about the VM situation. The other
-advantage is that we could decrease MAX_ORDER significantly (to around 7)
-- support for higher orders increases the runtime overhead of the buddy
-allocator, even for low-order allocations.
-
-(later on we could even add support to grow and shrink the size of the
-physical memory pool (within certain boundaries), so it could be sized
-boot-time.)
-
-would anything like this be useful? Since it's a completely separate pool
-(in fact it wont even show up in the normal memory statistics), it does
-not disturb the existing VM in any way.
-
-	Ingo
+> Oh, sorry,   of course the oldest disk should be marked as failed.
+>
+> But the way you mark a disk failed is to replace "raid-disk" with "failed-disk".
+>
+> What you did in your configuration was to say that sde1 was disk 1, and sdi1 was
+> disk 5 *AND* disk 1 *AND* it was failed.
+>
+> Replace "raid-disk" with "failed-disk" for the device that you want to mark
+> as failed.  Don't touch the numbers.
+>
+> Cheers,
+>
+> --
+> ................................................................
+> :   jakob@unthought.net   : And I see the elder races,         :
+> :.........................: putrid forms of man                :
+> :   Jakob Østergaard      : See him rise and claim the earth,  :
+> :        OZ9ABN           : his downfall is at hand.           :
+> :.........................:............{Konkhra}...............:
+>
 

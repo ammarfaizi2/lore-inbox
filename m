@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317285AbSFGOTq>; Fri, 7 Jun 2002 10:19:46 -0400
+	id <S317289AbSFGOZ0>; Fri, 7 Jun 2002 10:25:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317284AbSFGOTp>; Fri, 7 Jun 2002 10:19:45 -0400
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:54921 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S317281AbSFGOTo>; Fri, 7 Jun 2002 10:19:44 -0400
-From: "Geoff Wood" <sales@xtendcorp.com>
-Subject: Xtend Announces Caviar 3.0
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Reply-To: sales@xtendcorp.com
-Date: Fri, 7 Jun 2002 10:21:00 -0500
-X-Priority: 3
-X-Library: Indy 8.0.25
-Message-Id: <20020607141942.FPBQ14183.tomts8-srv.bellnexxia.net@EdsPC>
+	id <S317294AbSFGOZZ>; Fri, 7 Jun 2002 10:25:25 -0400
+Received: from h-64-105-137-63.SNVACAID.covad.net ([64.105.137.63]:32719 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S317289AbSFGOZY>; Fri, 7 Jun 2002 10:25:24 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Fri, 7 Jun 2002 07:25:19 -0700
+Message-Id: <200206071425.HAA00276@baldur.yggdrasil.com>
+To: torvalds@transmeta.com
+Subject: Trivial PATCH: linux-2.5.20/include/linux/blkdev.h - BLK_DEFAULT_QUEUE needs parentheses
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Finally, a software application designed by people in Telecommunications for people in Telecommunications.
+	The definition of BLK_DEFAULT_QUEUE in
+linux-2.5.20/include/linux/blkdev.h needs parentheses.  Otherwise,
+expressions like "DEFAULT_BLK_QUEUE(major)->queuedata" generate
+compiler errors.
 
-Xtend announces Release 3.0 of it's Caviar Telecommunications product. Caviar is an acronym for Customer Activation Verification Information Accounting and Retention. Release 3.0 of Caviar is currently available for the Telecommunications industry.  It will change the way you do business.
+	Here is the patch.
 
-*Reduce customer churn
-*Full rating, billing, invoicing and collections
-*360 view Customer Care
-*Track multiple plans and products
-*Full provisioning
-
-Contact me and let me show you how or to schedule your own personal web demo.
-
-Geoff Wood
-Xtend Software
-www.xtendcorp.com
-geoff@xtendcorp.com
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
 
 
-
-
-
-To remove yourself from this list, reply with the subject "unsubscribe".
+--- linux-2.5.20/include/linux/blkdev.h	2002-06-02 18:44:44.000000000 -0700
++++ linux/include/linux/blkdev.h	2002-06-07 07:21:15.000000000 -0700
+@@ -281,7 +281,7 @@
+  * so as to eliminate the need for each and every block device
+  * driver to know about the internal structure of blk_dev[].
+  */
+-#define BLK_DEFAULT_QUEUE(_MAJOR)  &blk_dev[_MAJOR].request_queue
++#define BLK_DEFAULT_QUEUE(_MAJOR)  (&blk_dev[_MAJOR].request_queue)
+ 
+ extern struct sec_size * blk_sec[MAX_BLKDEV];
+ extern struct blk_dev_struct blk_dev[MAX_BLKDEV];

@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280705AbRKJUL4>; Sat, 10 Nov 2001 15:11:56 -0500
+	id <S280707AbRKJUOg>; Sat, 10 Nov 2001 15:14:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280707AbRKJULg>; Sat, 10 Nov 2001 15:11:36 -0500
-Received: from pD952A7A1.dip.t-dialin.net ([217.82.167.161]:10369 "EHLO
-	darkside.ddts.net") by vger.kernel.org with ESMTP
-	id <S280705AbRKJUL3>; Sat, 10 Nov 2001 15:11:29 -0500
-Date: Sat, 10 Nov 2001 20:26:52 +0100
-From: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>
+	id <S280708AbRKJUO0>; Sat, 10 Nov 2001 15:14:26 -0500
+Received: from thor.hol.gr ([194.30.192.25]:58805 "HELO thor.hol.gr")
+	by vger.kernel.org with SMTP id <S280707AbRKJUOM>;
+	Sat, 10 Nov 2001 15:14:12 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Panagiotis Moustafellos <panxer@hol.gr>
+Reply-To: panxer@hol.gr
 To: linux-kernel@vger.kernel.org
-Subject: isdn: isdnloop support crashes kernel when compiled in
-Message-ID: <20011110202652.B14401@darkside.ddts.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+Subject: Compile problem 2.4.14 
+Date: Sat, 10 Nov 2001 22:15:00 +0200
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <01111022150000.00265@gryppas>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hoi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The isdnloop support for the ISDN subsystem crashes the kernel when
-compiled in the kernel directly (null pointer reference).
-I guess, this is because parameters are only given as MODULE_PARM().
+Hello all!
 
-I found that in the 2.4.12 kernel, if it's fixed already in higher
-kernels, please excuse me :)
+I am really getting a hard time compiling the 2.4.14..
+My current system has a 2.4.13 (by patching all the way
+from 2.4.9), so I patched the sources, yes after make clean,
+make menuconfig, and make dep ; make bzImage, I get this
+message (during the compilation of vmlinux )
 
-If this is a feature and not a bug, should'nt it then be forced
-to be configured as a module in the Config.in?
+fs/fs.o: In function `dput':
+fs/fs.o(.text+0x10ad5): undefined reference to `atomic_dec_and_lock'
+make: *** [vmlinux] Error 1
 
+Prior to this I was getting this problem, described in a
+message on this mailing list, about
 
-PS: I'm not member on the linux-kernel@ list, so please CC me in
-    replies, thanks.
+drivers/block/block.o: In function `lo_send':
+drivers/block/block.o(.text+0x40eb): undefined reference to 
+`deactivate_page'
+drivers/block/block.o(.text+0x4119): undefined reference to 
+`deactivate_page'
 
+which I solved with the instructions of 
 
-regards,
-   Mario
--- 
-*axiom* welcher sensorische input bewirkte die output-aktion,
-        den irc-chatter mit dem nick "dus" des irc-servers
-        mittels eines kills zu verweisen?
+http://marc.theaimsgroup.com/?l=linux-kernel&m=100533846016359&w=2
+
+Could someone give me some instruction on what could be
+the problem, and hopefully, how to fix it?
+Thanks in advance
+
+- --------
+Panagiotis Moustafellos
+(aka panXer)
+- --------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE77YrNbGyRbxX5XdQRAmmyAKCXQwmvFIC9y8BURxOYwZkOG6bfQQCg0FEM
+EjFT9OsAHaBTkYGsysjpHb0=
+=f59Q
+-----END PGP SIGNATURE-----

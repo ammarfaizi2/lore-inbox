@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262049AbTEFWwo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 18:52:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbTEFWwo
+	id S262029AbTEFWxw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 18:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbTEFWxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 18:52:44 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:55467 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262028AbTEFWwk convert rfc822-to-8bit
+	Tue, 6 May 2003 18:53:46 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:12536 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262028AbTEFWwo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 18:52:40 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10522624132993@kroah.com>
-Subject: Re: [PATCH] PCI hotplug changes for 2.5.69
-In-Reply-To: <10522624131723@kroah.com>
+	Tue, 6 May 2003 18:52:44 -0400
+Date: Tue, 6 May 2003 16:05:39 -0700
 From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 6 May 2003 16:06:53 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Subject: [BK PATCH] PCI hotplug changes for 2.5.69
+Message-ID: <20030506230539.GA4007@kroah.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1084, 2003/05/06 15:35:45-07:00, greg@kroah.com
+Hi,
 
-[PATCH] PCI Hotplug: fix up the acpi driver to work properly again.
+Here's some patches that fix the pci hotplug drivers so that they now
+work again.  Sorry it's taken so long to get these done...
+
+I've also included a patch from Torben Mathiasen that adds PCI-X support
+to the Compaq PCI Hotplug driver.  This patch is in the 2.4 tree
+already.  There are also a few other minor fixes and cleanups in this
+fixing build configurations, and removing unused variables.
 
 
- drivers/hotplug/acpiphp_glue.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletion(-)
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/pci-2.5
 
 
-diff -Nru a/drivers/hotplug/acpiphp_glue.c b/drivers/hotplug/acpiphp_glue.c
---- a/drivers/hotplug/acpiphp_glue.c	Tue May  6 15:55:50 2003
-+++ b/drivers/hotplug/acpiphp_glue.c	Tue May  6 15:55:50 2003
-@@ -806,6 +806,7 @@
- 	struct list_head *l;
- 	struct acpiphp_func *func;
- 	int retval = 0;
-+	int num;
- 
- 	if (slot->flags & SLOT_ENABLED)
- 		goto err_exit;
-@@ -825,7 +826,10 @@
- 		goto err_exit;
- 
- 	/* returned `dev' is the *first function* only! */
--	dev = pci_scan_slot(slot->bridge->pci_bus, PCI_DEVFN(slot->device, 0));
-+	num = pci_scan_slot(slot->bridge->pci_bus, PCI_DEVFN(slot->device, 0));
-+	if (num)
-+		pci_bus_add_devices(slot->bridge->pci_bus);
-+	dev = pci_find_slot(slot->bridge->bus, PCI_DEVFN(slot->device, 0));
- 
- 	if (!dev) {
- 		err("No new device found\n");
+thanks,
+
+greg k-h
+
+
+ Documentation/DocBook/kernel-api.tmpl |    1 
+ drivers/acpi/acpi_ksyms.c             |    1 
+ drivers/hotplug/Kconfig               |    2 
+ drivers/hotplug/acpiphp_glue.c        |    6 
+ drivers/hotplug/cpqphp.h              |  414 ++++++++++++++++++++++++++++++++--
+ drivers/hotplug/cpqphp_core.c         |  114 ++++++++-
+ drivers/hotplug/cpqphp_ctrl.c         |  296 +++++++++++++-----------
+ drivers/hotplug/cpqphp_pci.c          |   21 -
+ drivers/hotplug/ibmphp_core.c         |   14 -
+ 9 files changed, 688 insertions(+), 181 deletions(-)
+-----
+
+
+<rusty:linux.co.intel.com>:
+  o PCI Hotplug: kernel-api docbook fix for now non-existant PCI hotplug
+
+<torben.mathiasen:hp.com>:
+  o PCI Hotplug: cpqphp 66/100/133MHz PCI-X support
+
+Greg Kroah-Hartman:
+  o PCI Hotplug: export the acpi_resource_to_address64 function, as the acpi pci hotplug driver needs it
+  o PCI Hotplug: fix dependancies for CONFIG_HOTPLUG_PCI_ACPI
+  o PCI Hotplug: fix up the acpi driver to work properly again
+  o PCI Hotplug: fix compiler warning in ibm driver
+  o PCI Hotplug: fix up the ibm driver to work properly again
+  o PCI Hotplug: fix up the compaq driver to work properly again
+
+Hanna V. Linder:
+  o patch: remove unnecessary proc stuff from controller struct
 

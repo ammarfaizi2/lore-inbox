@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316906AbSGXHES>; Wed, 24 Jul 2002 03:04:18 -0400
+	id <S318241AbSGXHK7>; Wed, 24 Jul 2002 03:10:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318238AbSGXHES>; Wed, 24 Jul 2002 03:04:18 -0400
-Received: from moutvdom.kundenserver.de ([195.20.224.200]:49633 "EHLO
-	moutvdomng3.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S316906AbSGXHER>; Wed, 24 Jul 2002 03:04:17 -0400
-Date: Wed, 24 Jul 2002 01:07:27 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
+	id <S318244AbSGXHK7>; Wed, 24 Jul 2002 03:10:59 -0400
+Received: from ns1.systime.ch ([194.147.113.1]:64521 "EHLO mail.systime.ch")
+	by vger.kernel.org with ESMTP id <S318241AbSGXHK6>;
+	Wed, 24 Jul 2002 03:10:58 -0400
+From: "Martin Brulisauer" <martin@uceb.org>
 To: Thunder from the hill <thunder@ngforever.de>
-cc: Oliver Pitzeier <o.pitzeier@uptime.at>,
-       "'Jan-Benedict Glaw'" <jbglaw@lug-owl.de>,
-       <linux-kernel@vger.kernel.org>
+Date: Wed, 24 Jul 2002 09:13:46 +0200
 Subject: RE: kbuild 2.5.26 - arch/alpha
-In-Reply-To: <Pine.LNX.4.44.0207240047210.3200-101000@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.44.0207240106000.3200-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+CC: "'Jan-Benedict Glaw'" <jbglaw@lug-owl.de>, <linux-kernel@vger.kernel.org>
+Message-ID: <3D3E6FCA.23195.2901857@localhost>
+References: <002801c232a1$7894db20$1211a8c0@pitzeier.priv.at>
+In-reply-to: <Pine.LNX.4.44.0207240047210.3200-101000@hawkeye.luckynet.adm>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, 24 Jul 2002, Thunder from the hill wrote:
+On 24 Jul 2002, at 0:53, Thunder from the hill wrote:
+> Hi,
+> 
+> On Wed, 24 Jul 2002, Oliver Pitzeier wrote:
+> > > There was a quite good patch sent to l-k some weeks ago which
+> > > (basically) still applies. I'm using this one (with watering 
+> > > eyes waiting for a compileable Linus-Kernel...).
+> > 
+> > I go and search it...
+> 
 > Possibly this one?
+Don't waste our time. If you have to say anything
+constructive do it. If not - keep out of the thread.
 
-No, I can't find it any more, either. It was a big fat file labeled 
-alpha-2.5.20.bz2 or such, IIRC. I've used it until 2.5.24 or so. 
-Unfortunately, it never ended up in the patches directories (wonder why).
-
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+Best Regards,
+Martin
 

@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbUKVWjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbUKVWmW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbUKVWjp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 17:39:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbUKVWgR
+	id S261155AbUKVWmW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 17:42:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbUKVWj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 17:36:17 -0500
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:24977 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261151AbUKVWcx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 17:32:53 -0500
-Message-ID: <41A26910.7090401@yahoo.com.au>
-Date: Tue, 23 Nov 2004 09:32:48 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Christoph Lameter <clameter@sgi.com>, Hugh Dickins <hugh@veritas.com>,
+	Mon, 22 Nov 2004 17:39:57 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:5092 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261156AbUKVWjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 17:39:24 -0500
+Date: Mon, 22 Nov 2004 14:39:19 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Linus Torvalds <torvalds@osdl.org>, Hugh Dickins <hugh@veritas.com>,
        akpm@osdl.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>,
        linux-mm@kvack.org, linux-ia64@vger.kernel.org,
        linux-kernel@vger.kernel.org
 Subject: Re: deferred rss update instead of sloppy rss
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain> <Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <41A26910.7090401@yahoo.com.au>
+Message-ID: <Pine.LNX.4.58.0411221436570.22895@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
+ <Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org> <41A26910.7090401@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Mon, 22 Nov 2004, Christoph Lameter wrote:
-> 
->>The problem is then that the proc filesystem must do an extensive scan
->>over all threads to find users of a certain mm_struct.
-> 
-> 
-> The alternative is to just add a simple list into the task_struct and the
-> head of it into mm_struct. Then, at fork, you just finish the fork() with
-> 
-> 	list_add(p->mm_list, p->mm->thread_list);
-> 
-> and do the proper list_del() in exit_mm() or wherever.
-> 
-> You'll still loop in /proc, but you'll do the minimal loop necessary.
-> 
+On Tue, 23 Nov 2004, Nick Piggin wrote:
 
-Yes, that was what I was thinking we'd have to resort to. Not a bad idea.
+> Deferred rss might be a practical solution, but I'd prefer this if it can
+> be made workable.
 
-It would be nice if you could have it integrated with the locking that
-is already there - for example mmap_sem, although that might mean you'd
-have to take mmap_sem for writing which may limit scalability of thread
-creation / destruction... maybe a seperate lock / semaphore for that list
-itself would be OK.
+Both results in an additional field in task_struct that is going to be
+incremented when the page_table_lock is not held. It would be possible
+to switch to looping in procfs later. The main question with this patchset
+is:
 
-Deferred rss might be a practical solution, but I'd prefer this if it can
-be made workable.
+How and when can we get this get into the kernel?
 

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130220AbRB1PWR>; Wed, 28 Feb 2001 10:22:17 -0500
+	id <S130211AbRB1PVc>; Wed, 28 Feb 2001 10:21:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130217AbRB1PWD>; Wed, 28 Feb 2001 10:22:03 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:14291 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S130220AbRB1PVr>;
-	Wed, 28 Feb 2001 10:21:47 -0500
-Date: Wed, 28 Feb 2001 10:21:44 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Ph. Marek" <marek@mail.bmlv.gv.at>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Kernel bug in inode.c:885 when floppy disk removed
-In-Reply-To: <3.0.6.32.20010228160302.0092f100@pop3.bmlv.gv.at>
-Message-ID: <Pine.GSO.4.21.0102281020390.7107-100000@weyl.math.psu.edu>
+	id <S130227AbRB1PVM>; Wed, 28 Feb 2001 10:21:12 -0500
+Received: from wit393115.student.utwente.nl ([130.89.235.25]:7172 "HELO
+	wit393115.student.utwente.nl") by vger.kernel.org with SMTP
+	id <S130225AbRB1PVD>; Wed, 28 Feb 2001 10:21:03 -0500
+Date: Wed, 28 Feb 2001 16:19:02 +0100 (CET)
+From: Wouter Schoot <wschoot@dds.nl>
+X-X-Sender: <root@wit393115.student.utwente.nl>
+To: <mec@shout.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: AC6 crash
+Message-ID: <Pine.LNX.4.33.0102281617410.633-100000@wit393115.student.utwente.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+
+I entered make menuconfig with 2.4.2 patched with AC6.
+I run 2.4.2 AC2 at the moment, and unpacked 2.4.2 and AC6 from the scratch
 
 
-On Wed, 28 Feb 2001, Ph. Marek wrote:
+Menuconfig has encountered a possible error in one of the kernel's
+configuration files and is unable to continue.  Here is the error
+report:
 
-> Hi everybody!
-> 
-> Hope I didn't forget something necessary.
-> 
-> 
-> 
-> 1:
-> Kernel bug/Segmentation fault when floppy disk removed 2nd time
-> 
-> 
-> 2: 
-> Segmentation fault in a program, 
-> hanging processes in "D"-state,
-> Kernel bug in inode.c:885!
-> 
-> when removing floppy disk before unmounting and then using again
+ Q> scripts/Menuconfig: MCmenu0: command not found
 
-- Doctor, it hurts when I do it!
-- Don't do it, then.
+Please report this to the maintainer <mec@shout.net>.  You may also
+send a problem report to <linux-kernel@vger.kernel.org>.
+
+Please indicate the kernel version you are trying to configure and
+which menu you were trying to enter when this error occurred.
+
+make: *** [menuconfig] Error 1
+root@ascent:/usr/src/linux#
+
+It doesn't like me :(
+
+Wouter Schoot
+-
+wschoot@dds.nl - UIN# 42109851
 

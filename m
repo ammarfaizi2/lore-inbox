@@ -1,83 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265577AbTF2FVt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 01:21:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265579AbTF2FVt
+	id S265579AbTF2FuS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 01:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265580AbTF2FuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 01:21:49 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:5766 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S265577AbTF2FVq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 01:21:46 -0400
-Date: Sat, 28 Jun 2003 22:35:45 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>,
-       Andrew Morton <akpm@digeo.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: 2.5.73-mm1 falling over in SDET
-Message-ID: <6620000.1056864944@[10.10.2.4]>
-In-Reply-To: <1056857338.2514.4.camel@mulgrave>
-References: <45120000.1056810681@[10.10.2.4]><49400000.1056814561@[10.10.2.4]>  <20030628170235.51ee2f69.akpm@digeo.com> <1056857338.2514.4.camel@mulgrave>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Sun, 29 Jun 2003 01:50:18 -0400
+Received: from pop.gmx.net ([213.165.64.20]:59593 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265579AbTF2FuM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 01:50:12 -0400
+Message-Id: <5.2.0.9.2.20030628175043.00cf1e20@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Sun, 29 Jun 2003 08:08:31 +0200
+To: Helge Hafting <helgehaf@aitel.hist.no>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: O(1) scheduler & interactivity improvements
+Cc: Bill Davidsen <davidsen@tmr.com>, Helge Hafting <helgehaf@aitel.hist.no>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030628143432.GA7986@hh.idb.hist.no>
+References: <5.2.0.9.2.20030628064029.00cfa800@pop.gmx.net>
+ <5.2.0.9.2.20030627110106.00cf6068@pop.gmx.net>
+ <5.2.0.9.2.20030628064029.00cfa800@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---James Bottomley <James.Bottomley@SteelEye.com> wrote (on Saturday, June 28, 2003 22:28:57 -0500):
+At 04:34 PM 6/28/2003 +0200, Helge Hafting wrote:
+>On Sat, Jun 28, 2003 at 07:44:26AM +0200, Mike Galbraith wrote:
+>[...]
+> >
+> > I'm no clean freak, but fiddling with scheduling information all over the
+> > place seems like a very bad idea. (before anyone says it, yes, we fiddle
+> > with state all over the place;)  I can imagine doing something dirty in
+> > driver code for specific cases (kdb/mouse are always interactivity
+> > indicators), but not in generic code.
+> >
+> > Besides, the logical bindings for foo | bar | ... | baz do not exist in 
+> the
+> > kernel.  The kernel knows and cares only that single entities are using
+> > open/read/write/close primitives.
+>
+>Data is moved from one process to the next, so the logical binding
+>exists.  It may exist only for the duration of the write & read
+>calls, but that is enough for this purpose.
 
-> On Sat, 2003-06-28 at 19:02, Andrew Morton wrote:
->> Yes, isplinux_queuecommand() returns non-zero and the scsi generic layer
->> cheerfully goes infinitely recursive.
-> 
-> Sigh, certain persons need to be more careful when doing logic
-> alterations.
-> 
-> Try the attached.
+I don't think it is enough, and regarding logical binding, we're talking 
+past each other.
 
-OK, that gets rather further, and I strongly suspect fixes the SCSI
-problem. Thanks very much.
+>Info about the data being transferred (address, amount) must exist somewhere,
+>or data written to pipes would be lost.  This is updated when
+>someone writes into a pipe.  The kernel could, during the write call,
+>transfer some interactvity bonus (if any) and store it along with
+>the other information about the pipe.
 
-But now it just OOMs instead, which seems to be slab failing 
-dismally to shrink it's fat ass enough to fit in that lazy-boy.
-Ext2 doesn't look desparately happy either. Maybe it's really
-that one's fault?
+Well, yes, you can make a bucket to attach something to the data.  What are 
+you going to attach to the data of irman's two completely independent pipe 
+rings that is going to prevent either one or the total of the irman process 
+from eating 100% cpu while I'm trying to login?  See what I mean?  When I 
+say logical binding, I mean an information bucket that the system can look 
+at and determine that process irman has had enough for now, and process 
+mikie_logs_is needs a shot of cpu, or process threaded application A vs 
+process monolithic application B.
 
- EXT2-fs error (device sda2): ext2_new_inode: Free inodes count corrupted in group 30
-Remounting filesystem read-only
-Out of Memory: Killed process 215 (portmap).
-Out of Memory: Killed process 338 (sshd).
+It doesn't really matter that we're talking past each other though.  IMHO, 
+the idea of spreading scheduling information around is at best horribly 
+ugly, and the idea of a process context is at best horribly 
+impractical.  I'd stamp a 0xdeadbeef on both ;-)
 
-larry:~# cat /proc/meminfo
-MemTotal:     16076324 kB
-MemFree:      15068968 kB
-Buffers:           476 kB
-Cached:         260824 kB
-SwapCached:          0 kB
-Active:         241972 kB
-Inactive:        23196 kB
-HighTotal:    15335424 kB
-HighFree:     15047680 kB
-LowTotal:       740900 kB
-LowFree:         21288 kB
-SwapTotal:           0 kB
-SwapFree:            0 kB
-Dirty:               0 kB
-Writeback:           0 kB
-Mapped:           5396 kB
-Slab:           697856 kB
-Committed_AS:     9688 kB
-PageTables:        264 kB
-VmallocTotal:   114680 kB
-VmallocUsed:      3156 kB
-VmallocChunk:   111524 kB
+>The pipe read call would simply grab any transferred bonus and
+>add it to the reader's interactivity bonus.  This should only be
+>a few integer operations on either end of the pipe.
+>The io boost calculated for disk/device operations surely amounts to some
+>code too. It don't mess with every wakeup imaginable, this is specific to
+>pipes.
 
-slabinfo:
+However, I don't think that priority inflation is specific to pipes.
 
-dentry_cache      3999781 4011624    160   24    1 : tunables  120   60    8 : slabdata 167151 167151      0
+>  > This is why I said I could _imagine_ a
+> > process struct... as the container for this missing (it lives in userland)
+> > information.
+> >
+> > Another besides:  it makes zero difference it you add overhead to wakeup
+> > time or go to sleep time.  If it's something you do a lot of, adding
+> > overhead to it is going to hurt a lot.
+> >
+>No doubt about that.  Transferring an extra int per pipe read/write
+>is overhead, I hope the data part of the transfer typically is much
+>bigger than that.
 
-Bad dentries. no no.
+True.
+
+         -Mike 
 

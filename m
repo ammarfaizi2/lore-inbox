@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRAYWqS>; Thu, 25 Jan 2001 17:46:18 -0500
+	id <S129169AbRAYWuK>; Thu, 25 Jan 2001 17:50:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129169AbRAYWqI>; Thu, 25 Jan 2001 17:46:08 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:57613 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129051AbRAYWqC>; Thu, 25 Jan 2001 17:46:02 -0500
-Message-ID: <3A70AC87.391BF581@transmeta.com>
-Date: Thu, 25 Jan 2001 14:45:27 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S129534AbRAYWuB>; Thu, 25 Jan 2001 17:50:01 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:52998 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129169AbRAYWtv>;
+	Thu, 25 Jan 2001 17:49:51 -0500
+Message-ID: <3A70AD03.1147641@innominate.de>
+Date: Thu, 25 Jan 2001 23:47:31 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux Post codes during runtime, possibly OT
-In-Reply-To: <3A709E99.25ADE5F6@echostar.com> <94q96s$9b2$1@cesium.transmeta.com> <20010125143127.F1659@one-eyed-alien.net> <3A70A989.EAEB7AF9@transmeta.com> <20010125144152.G1659@one-eyed-alien.net>
+To: Christoph Rohland <cr@sap.com>, linux-kernel@vger.kernel.org
+Subject: Re: VM subsystem bug in 2.4.0 ?
+In-Reply-To: <Pine.LNX.4.31.0101171932460.31432-100000@localhost.localdomain> <qwwk87tclpu.fsf@sap.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dharm wrote:
-> 
-> Isn't that always the way in the Open Source world? :)
-> 
-> Seriously, tho... does anyone have some list of who is using what ports?
-> At least, in general?
-> 
+Christoph Rohland wrote:
+> As of 2.4.1-pre we pin the pages by increasing the page count for
+> locked segments. No special list needed.
 
-There is one included in Ralf Brown's Interrupt List.  No list you're
-going to find is going to be complete, though.
+Sure no special list is needed.  But without a special list to park
+those pages on they will just circulate on the active/inactive lists,
+wasting CPU cycles and trashing cache.  A special list would be an
+improvement, but is no burning issue.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

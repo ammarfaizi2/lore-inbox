@@ -1,105 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317181AbSGHVyE>; Mon, 8 Jul 2002 17:54:04 -0400
+	id <S317180AbSGHVz3>; Mon, 8 Jul 2002 17:55:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317180AbSGHVyD>; Mon, 8 Jul 2002 17:54:03 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:49062 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S317181AbSGHVyB>; Mon, 8 Jul 2002 17:54:01 -0400
-Date: Mon, 8 Jul 2002 23:56:22 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Paul Bristow <paul@paulbristow.net>
-cc: Martin Dalecki <dalecki@evision-ventures.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5.22] simple ide-tape.c and ide-floppy.c cleanup
-In-Reply-To: <3D29F70D.6020001@paulbristow.net>
-Message-ID: <Pine.SOL.4.30.0207082348540.21406-100000@mion.elka.pw.edu.pl>
+	id <S317182AbSGHVz2>; Mon, 8 Jul 2002 17:55:28 -0400
+Received: from fe5.rdc-kc.rr.com ([24.94.163.52]:39941 "EHLO mail5.wi.rr.com")
+	by vger.kernel.org with ESMTP id <S317180AbSGHVz1>;
+	Mon, 8 Jul 2002 17:55:27 -0400
+Message-ID: <000d01c226ca$cc5ea840$8a981d41@wi.rr.com>
+From: "Ted Kaminski" <mouschi@wi.rr.com>
+To: <jbradford@dial.pipex.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <200207082150.WAA03372@darkstar.example.net>
+Subject: Re: ISAPNP SB16 card with IDE interface
+Date: Mon, 8 Jul 2002 16:59:56 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 8 Jul 2002, Paul Bristow wrote:
-
-> OK.  I kept quiet while the IDE re-write went on so that when it was
-> over I could fix up ide-floppy and start adding some of the requested
-> features that were only really possible with the taskfile capabilities.
->  But I have to jump in with the latest statements from Martin...
-
-Great.
-
-> Martin Dalecki wrote:
+From: <jbradford@dial.pipex.com>
+> Are you sure that the CD-ROM drive is jumpered correctly, because Windows
+may well not complain if
+>it is set to 'slave', but alone on the bus.
 >
-> >U¿ytkownik Eduard Bloch napisa³:
-> >
-> >>Why not another way round? Just make the ide-scsi driver be prefered,
-> >>and hack ide-scsi a bit to simulate the cdrom and adv.floppy devices
-> >>that are expected as /dev/hd* by some user's configuration?
-> >
-> >This is the intention.
 
-Bad intentions?
+In fact, it was originally set to slave during its years of windows use...
+I've moved it over to master (and tried both) after I encountered this
+problem.
 
-> >
-> Since when?  I thought Jens was in the process of getting rid of the
-> ide-scsi kludge with his moves to support cd/dvd writing directly in
-> ide-cd?
+> Also, maybe I'm just being stupid, but why is it being recognised as ide3?
+The numbering starts at 0, so if
+>this is your third interface, it should be ide2.  Could you post a
+less-trimmed copy of your dmesg output to
+>the list, (or just to me, if it'll annoy the list people).
 
-We should have generic packet command interface ATAPI/SCSI,
-ide-cd and sr should care only about ATA(PI)/SCSI specifics.
-Of course if this is possible...
+IDE numbers apparently work just like HD numbers... its not order, it "how
+its connected."  In this case, that means the ISAPNP driver sees that the
+card requests the IRQ/ports associated with ide3.
 
-> >>to be honest - why keep ide-[cd,floppy,tape] when they can be almost
-> >>completely replaced with ide-scsi? I know about only few cdrom devices
-> >>that are broken (== not ATAPI compliant) but can be used with
-> >>workarounds in the current ide-cd driver. OTOH many users do already
-> >>need ide-scsi to access cd recorders and similar hardware, so they would
-> >>benefit much more from having ide-scsi as default than few users of
-> >>broken "atapi" drives.
-> >>
-> >>
-> OK.  I would prefer though to take Linus's comment on board about
-> unifying the removeable media  interfaces. Be they IDE, SCSI, Firewire,
-> USB, whatever.  Let's try to make it something comprehensible for
-> "normal humans", and don't say "let config scripts sort it out - I deal
-> with many user help requests from broken configs.
->
-> Please don't forget that
->   a) some of the broken ide devices will still need fixes even if
-> handled via ide-scsi (and yes, devices on the market today are still
-> broken today)
->   b) some features still need IDE commands (not ATAPI) which I hoped we
-> would have done via taskfile - I guess this is tricky via ide-scsi
->   c) getting ide-scsi working for PCMCIA devices is an absolute f*****g
-> nightmare - for this reason alone I would keep ide-floppy
->   d) many of these devices (LS120/LS240/Zip 100/250 etc) can and need to
-> boot.  I don't even know how to start doing this under ide-scsi in it's
-> present form.
->
-> The current system may be ugly, but if we have to break it in the name
-> of progress we have at least to make the new, improved version work as
-> well (and hopefully better) than the old one.
+and this would be the second interface, not third... (nit-picking...) I'd
+have to put together a special boot disk to get a full dmesg, however...
+We'll see... (I think... Unless boot messages are in /proc someplace, which
+I doubt)
 
-Fully agreed.
-
-> >>Other operating systems did switch to constitent (scsi-based) way of
-> >>accessing all kinds of removable media drivers. Why does Linux have to
-> >>keep a kludge, written years ago without having a good concept?
-> If we can address all these issues I will be extremely happy to helping
-> create a sensible removeable media subsystem.
->
-> --
->
-> Paul
->
-> Linux ide-floppy maintainer
-> Email:	paul@paulbristow.net
-> Web:	http://paulbristow.net
-> ICQ:	11965223
-
-Greets
---
-Bartlomiej
+Ted Kaminski
 

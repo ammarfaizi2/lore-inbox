@@ -1,73 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266428AbRGYUH5>; Wed, 25 Jul 2001 16:07:57 -0400
+	id <S267501AbRGYULH>; Wed, 25 Jul 2001 16:11:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267515AbRGYUHs>; Wed, 25 Jul 2001 16:07:48 -0400
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:54993 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S266574AbRGYUHg>; Wed, 25 Jul 2001 16:07:36 -0400
-Message-Id: <5.1.0.14.2.20010725204755.00b12980@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 25 Jul 2001 21:07:42 +0100
-To: Gabriel Rocha <grocha@neutraldomain.org>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Status of NTFS support was Re: [PATCH] 2.4.7 More tiny
-  NTFS fixes
+	id <S267816AbRGYUK6>; Wed, 25 Jul 2001 16:10:58 -0400
+Received: from speech.braille.uwo.ca ([129.100.109.30]:47628 "EHLO
+	speech.braille.uwo.ca") by vger.kernel.org with ESMTP
+	id <S267501AbRGYUKy>; Wed, 25 Jul 2001 16:10:54 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010723162636.E36051@neutraldomain.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Subject: Re: my patches won't compile under 2.4.7
+In-Reply-To: <E15PUnL-0002bA-00@the-village.bc.nu>
+From: Kirk Reiser <kirk@braille.uwo.ca>
+Date: 25 Jul 2001 16:10:48 -0400
+In-Reply-To: <E15PUnL-0002bA-00@the-village.bc.nu>
+Message-ID: <x7elr4lqgn.fsf@speech.braille.uwo.ca>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-At 00:26 24/07/2001, Gabriel Rocha wrote:
->,----[ On Tue, Jul 24, at 12:14AM, Anton Altaparmakov wrote:
->| Please apply below patch. It is against 2.4.7 and adds three more
->|return checks (it is orthogonal to the one sent on Sunday).
->`----[ End Quote ]---------------------------
->
->Not that I understand what this means, I have no idea. But, I know that
->NTFS used to be really poorly supported in the kernel. I have seen a few
->patches to it ove rthe past couple of weeks and makes me wonder what the
->status of it is now. Anyone care to comment? --gabe
+Huh?  Did you actually write something below Alan? or are you just
+making me feel insecure? 'grin'
 
-I will comment as the current maintainer. (-:
+  Kirk
 
-If you by "poorly supported" mean that it was a more or less abandoned 
-project then that has changed a lot indeed. NTFS is now under active 
-development, both kernel and user space side. I am happy to receive patches 
-and forward them for inclusion if appropriate or integrate them in my local 
-development tree and submit as larger patch later (depends on the 
-triviality of the patches). And I try to respond asap to requests/bug 
-reports/etc. Currently my personal response times are between 5mins and a 
-week or so depending on how busy I am.
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-If by "poorly supported" you mean it doesn't work very well, then that has 
-improved as well. We have a fully functional mkntfs program already on the 
-userspace side and ntfsfix which repairs some of the damage done by the 
-ntfs driver making it a bit somewhat safer to use. The driver itself has 
-much improved in recent months, writing is now relatively ok as long as it 
-happens on a UP system, to simple files and directories. There is still a 
-lot not implemented so only the simple case works for now. Reading is 
-relatively stable and most things are implemented wrt to reading the normal 
-data attribute of both uncompressed and compressed files. We now can cope 
-with large files to the full potential of NTFS (i.e. we cope with 2^63 byte 
-sized files) for example to mention one of the improvements.
-
-So to summarize: we are working on it but don't hold your breath. NTFS is 
-highly complex and extremely poorly documented. Most of our knowledge is 
-based on reverse engineering and looking at on-disk structures with 
-hex/disk editors and it will take considerable time to have a fully working 
-fully featured NTFS implementation...
-
-Anton
-
+> > 
+> > As of 2.4.7 my patches to the kernel won't compile.  It appears to be
+> > something to do with devfs_fs_kernel.h being part of miscdevices.h.  I
+> > have sifted through the code but have not been able to determine
+> > exactly why they won't work any more.  Here is the error output from
+> > my compile:
+> > 
+> > gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586    -c -o speakup.o speakup.c
+> > In file included from /usr/src/linux/include/linux/locks.h:8,
+> >                  from /usr/src/linux/include/linux/devfs_fs_kernel.h:6,
+> >                  from /usr/src/linux/include/linux/miscdevice.h:4,
+> >                  from speakup.c:63:
+> > /usr/src/linux/include/linux/pagemap.h:35: `currcons' undeclared here (not in a function)
+> > /usr/src/linux/include/linux/pagemap.h:35: parse error before `.'
+> > make[4]: *** [speakup.o] Error 1
+> > 
+> > I'm not sure even where to start trying to describe what I've looked
+> > at and what I don't understand.  It appears that page_cache_alloc() is
+> > now an inline function with an argument passed to it, where it used to
+> > be a #define with no arguments.  I see that struct misc_device now has
+> > a new member devfs_handle but the other drivers I've looked at rtc.c
+> > haven't changed their structure members to take this into account.  It
+> > seems nothing new is necessary because misc_register checks if it's
+> > been set or not.  The two error lines don't look to me to have anything
+> > to do with any of these things either currcons isn't used in any of
+> > the misc_device structure or anything I can see which might end up
+> > calling page_cache_alloc().  Can anyone give me any ideas what I
+> > should check to hunt down exactly what's going on here?  It almost
+> > looks like gcc is getting screwed up in it's parsing or something.
+> > 
+> > Any ideas will greatefully be accepted I'm lost!
+> > 
+> >   Kirk
+> > 
+> > -- 
+> > 
+> > Kirk Reiser				The Computer Braille Facility
+> > e-mail: kirk@braille.uwo.ca		University of Western Ontario
+> > phone: (519) 661-3061
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> 
+> 
 
 -- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
+Kirk Reiser				The Computer Braille Facility
+e-mail: kirk@braille.uwo.ca		University of Western Ontario
+phone: (519) 661-3061

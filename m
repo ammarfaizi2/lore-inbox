@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317851AbSGaIWG>; Wed, 31 Jul 2002 04:22:06 -0400
+	id <S317858AbSGaIa2>; Wed, 31 Jul 2002 04:30:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317854AbSGaIWG>; Wed, 31 Jul 2002 04:22:06 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:261 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S317851AbSGaIWG>; Wed, 31 Jul 2002 04:22:06 -0400
-Date: Wed, 31 Jul 2002 09:25:27 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Rik van Riel <riel@conectiva.com.br>, Benjamin LaHaise <bcrl@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       linux-aio@kvack.org
-Subject: Re: async-io API registration for 2.5.29
-Message-ID: <20020731092527.A8443@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrea Arcangeli <andrea@suse.de>,
-	Rik van Riel <riel@conectiva.com.br>,
-	Benjamin LaHaise <bcrl@redhat.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, linux-aio@kvack.org
-References: <20020730214116.GN1181@dualathlon.random> <Pine.LNX.4.44L.0207302219400.23404-100000@imladris.surriel.com> <20020731013238.GJ1181@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020731013238.GJ1181@dualathlon.random>; from andrea@suse.de on Wed, Jul 31, 2002 at 03:32:38AM +0200
+	id <S317856AbSGaIa1>; Wed, 31 Jul 2002 04:30:27 -0400
+Received: from cibs9.sns.it ([192.167.206.29]:54799 "EHLO cibs9.sns.it")
+	by vger.kernel.org with ESMTP id <S317854AbSGaIa0>;
+	Wed, 31 Jul 2002 04:30:26 -0400
+Date: Wed, 31 Jul 2002 10:33:40 +0200 (CEST)
+From: venom@sns.it
+To: Shanti Katta <katta@csee.wvu.edu>
+cc: sparclinux@vger.kernel.org, <linux-kernel@vger.kernel.org>
+Subject: Re: what version of gcc can be used to build kernels on Linux/sparc64?
+In-Reply-To: <1028059341.17195.4.camel@indus>
+Message-ID: <Pine.LNX.4.43.0207311031030.12627-100000@cibs9.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 31, 2002 at 03:32:38AM +0200, Andrea Arcangeli wrote:
-> disagree, merging synchronous requests would make much more sense than
-> merging asynchronous requests in the same syscall, it would make them
-> asynchronous with respect than each other without losing their global
-> synchronous behaviour w.r.t. userspace.
+On 30 Jul 2002, Shanti Katta wrote:
 
-readv/writev..
+> Date: 30 Jul 2002 16:02:20 -0400
+> From: Shanti Katta <katta@csee.wvu.edu>
+> To: sparclinux@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Subject: what version of gcc can be used to build kernels on
+>     Linux/sparc64?
+>
+> I would like to know what version of gcc is currently available to build
+> linux kernels on Linux/Sparc64.
+old egcs patched to compile at 64 bit or gcc 3.1 -m64
+
+> I would like the builds to generate
+> 64-bit executables.
+This is different fron kernel, you need to compile a 64 bit glibc (use
+2.2.5 sources), and so on for all shared libraries you need, then you can
+compile a 64 bit executable.
+I just should add it will be slower than a 32 bit executable  and a little
+bigger, so if you are not sure you need 64 bit because you binary will use
+more than 3.6 GB RAM itself, you do not need a 64 bit executable.
+
+Luigi
+>
+> -Shanti
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312402AbSC3L5m>; Sat, 30 Mar 2002 06:57:42 -0500
+	id <S312458AbSC3MEx>; Sat, 30 Mar 2002 07:04:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312458AbSC3L5c>; Sat, 30 Mar 2002 06:57:32 -0500
-Received: from ce06d.unt0.torres.ka0.zugschlus.de ([212.126.206.6]:56324 "EHLO
-	torres.ka0.zugschlus.de") by vger.kernel.org with ESMTP
-	id <S312402AbSC3L5U>; Sat, 30 Mar 2002 06:57:20 -0500
-Date: Sat, 30 Mar 2002 12:57:18 +0100
-From: Marc Haber <mh+linux-kernel@zugschlus.de>
+	id <S312459AbSC3MEn>; Sat, 30 Mar 2002 07:04:43 -0500
+Received: from khms.westfalen.de ([62.153.201.243]:27014 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S312458AbSC3MEc>; Sat, 30 Mar 2002 07:04:32 -0500
+Date: 30 Mar 2002 12:06:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Subject: [ATM] PCA200E driver seems to ignore UBR Peak Cell Rate
-Message-ID: <20020330125718.A5985@torres.ka0.zugschlus.de>
-Mime-Version: 1.0
+Message-ID: <8LrTyWC1w-B@khms.westfalen.de>
+In-Reply-To: <15524.45472.231096.377756@napali.hpl.hp.com>
+Subject: Re: [PATCH] generic show_stack facility
+X-Mailer: CrossPoint v3.12d.kh8 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Organization: Organisation? Me?! Are you kidding?
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+davidm@napali.hpl.hp.com (David Mosberger)  wrote on 29.03.02 in <15524.45472.231096.377756@napali.hpl.hp.com>:
 
-I recently had to spend some time with a funky ATM problem, and didn't
-find any info on web, mailing list archives or Usenet. We are using a
-Linux machine (running Debian GNU/Linux with kernel 2.4.18, atm-tools
-0.79 and a Fore 200E card). Here is the syslog output from the kernel
-module loading:
+> As far as I know, the x86 version of show_trace() still relies on the
+> fact that (a) return addresses are stored on the memory stack, (b)
+> they are stored in the order in which the routines were called, and
+> (c) that there aren't too many other values on the stack that look
+> like kernel text addresses.  As long as an x86 compiler uses the CALL
+> instruction, that should be the case.
 
-|Mar 18 16:20:08 elena kernel: fore200e: device PCA-200E found at 0xec000000, IRQ 10
-|Mar 18 16:20:08 elena kernel: fore200e: device PCA-200E-0 self-test passed
-|Mar 18 16:20:08 elena kernel: fore200e: device PCA-200E-0 firmware started
-|Mar 18 16:20:08 elena kernel: fore200e: device PCA-200E-0 initialized
-|Mar 18 16:20:08 elena kernel: fore200e: device PCA-200E-0, rev. A, S/N: 48400, ESI: 00:20:48:04:bd:10
-|Mar 18 16:20:08 elena kernel: fore200e: IRQ 10 reserved for device PCA-200E-0
+(b) is certainly not necessarily true for architectures like PPC, but the  
+rest seems fairly unobjectionable - assuming that you first flush out your  
+registers so any addresses only in registers get put on the stack, too. At  
+least outside of Forth, separate return stacks seem to be extremely rare.
 
-For our application (termination of bandwidth limited PVCs connecting
-DSL customers), we need UBR with a specified peak cell rate. However,
-when I try to program this for the PVC (using the command atmarp -s
-10.33.66.62 0.0.33 qos ubr:max_pcr=144kbps), the card seems to ignore
-the pcr, "blasting away" at link speed. This causes the ATM switch on
-the link (which is not under our control) to drop cells, making the IP
-link nearly unuseable.
+And as for the possibility of using several registers for return addresses  
+such that dumping them leaves them on the stack out of order, well, the  
+only thing I can see to get the original order back is to consult debug  
+information that says where, on every call, to look for the next-up return  
+address. Which doesn't seem quite feasible with anything less than a full  
+gdb to do it.
 
-This doesn't seem to apply for CBR, though. cbr:max_pcr=1Mbit yields a
-throughput of 60 KByte/s (way too slow for an 1 Mbit link), and
-cbr:max_pcr=2Mbit yields about 180 Kbyte/s (still too slow for the
-bandwidth allocated, but not double 1 Mbit). Is the Fore 200E hardware
-capable to do UBR with a specified peak cell rate? Do you have any
-idea what I might be doing wrong?
+What I don't see is what connection this can possibly have to the  
+prototype of a stack dump routine.
 
-Any hints will be greatly appreciated. Thanks.
-
-Greetings
-Marc
-
--- 
------------------------------------------------------------------------------
-Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
-Karlsruhe, Germany |  lose things."    Winona Ryder | Fon: *49 721 966 32 15
-Nordisch by Nature |  How to make an American Quilt | Fax: *49 721 966 31 29
+MfG Kai

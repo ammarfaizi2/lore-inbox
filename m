@@ -1,73 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbULPSmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbULPSpS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261984AbULPSmx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 13:42:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbULPSmf
+	id S261977AbULPSpS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 13:45:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbULPSpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 13:42:35 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:34688 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261977AbULPSmb
+	Thu, 16 Dec 2004 13:45:18 -0500
+Received: from dsl027-176-166.sfo1.dsl.speakeasy.net ([216.27.176.166]:26284
+	"EHLO waste.org") by vger.kernel.org with ESMTP id S261977AbULPSpL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 13:42:31 -0500
-Message-ID: <41C1D747.1040706@tmr.com>
-Date: Thu, 16 Dec 2004 13:43:19 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Phani Kandula <phani.lkml@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: doubt about "switch" - default case in af_inet.c
-References: <7d34f21904120905573ddb6d25@mail.gmail.com>
-In-Reply-To: <7d34f21904120905573ddb6d25@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Dec 2004 13:45:11 -0500
+Date: Thu, 16 Dec 2004 10:44:38 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Park Lee <parklee_sel@yahoo.com>
+Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: What's the matter with build-in netconsole?
+Message-ID: <20041216184438.GH2767@waste.org>
+References: <20041216143537.41770.qmail@web51502.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041216143537.41770.qmail@web51502.mail.yahoo.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phani Kandula wrote:
-> Hi all,
-> 
-> I'm a newbie to the Linux. I'm using 2.6.8 kernel. 
-> In /usr/src/linux/net/ipv4/af_inet.c I came across this...
->  <code>
->      switch (sock->state) {
->      default:
->      //do something..
->          goto out;
->      case SS_CONNECTED:
->      //do something..
->          goto out;
->      case SS_CONNECTING:
->      //do something..
->          break;
->      case SS_UNCONNECTED:
->      //do something..
->          break;
->      }
->  </code>
-> 
-> Is there any advantage in having 'default' as the first case? 
-> My understanding is that it will be useful only when 'default' is the
-> most likely case (in general).
-> 
-> Even then, my doubt: How will compiler (say gcc) implement 'default'
-> as the first value? Program is supposed to see all the cases and then
-> decide 'default'. Is this correct?
-> 
-> So, is this the best way to do it? please clarify..
+On Thu, Dec 16, 2004 at 06:35:37AM -0800, Park Lee wrote:
+> Hi,
+>   I try to use netconsole to keep Linux kernel oops to
+> another machine. I've compiled netconsole into the
+> kernel (i.e. select CONFIG_NETCONSOLE=y, when run
+> 'make menuconfig'). 
+>   After that, I put
+> "netconsole=@/,514@192.168.0.1/00:02:3F:03:D2:59"
+> (which is described in
+> /usr/src/linux/Documentation/networking/netconsole.txt)
 
-Just so. The compiler will check some or all of the cases first, and 
-then take the default case. If you look at the code with and without 
-optimization (use -S) you will see that it behaves the same way 
-regardless of the placement of the default case. There is one exception, 
-that is the one where control falls through from one case to another, 
-and the default case is not last and lacks a break, such that the 
-default winds up executing the code from the case(s) following.
+You have to configure a source IP address for built-in netconsole, as
+interfaces normally don't have addresses assigned to them until init.
 
-Do I have to say that the code doing stuff like that is hard to read?
+> to the kernel command line as provided by grub and
+> rerun my machine with the new compiled kernel.
+>   But then, when the system is booting, it shows the
+> following message:
+> 
+> ... ...
+> Uncompressing Linux... Ok, booting the kernel.
+> audit(1103234064.4294965842:0): initialized
+> netconsole: eth0 doesn't exist, aborting.
+> ... ...
+> 
+>   Then, What's the matter with the build-in
+> netconsole? Have I misconfiged the netconsole? and How
+> to really run build-in netconsole?
+
+Is your network driver built in? Is it eth0 (you let netconsole use
+the default)? Is it initialized before netconsole? Please send your
+_entire_ dmesg.
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Mathematics is the supreme nostalgia of our time.

@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285720AbSBXKYU>; Sun, 24 Feb 2002 05:24:20 -0500
+	id <S285850AbSBXLMR>; Sun, 24 Feb 2002 06:12:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285747AbSBXKYJ>; Sun, 24 Feb 2002 05:24:09 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:27665 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S285720AbSBXKX5>; Sun, 24 Feb 2002 05:23:57 -0500
-Date: Sun, 24 Feb 2002 11:23:54 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andre Hedrick <andre@linuxdiskcert.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Flash Back -- kernel 2.1.111
-Message-ID: <20020224112354.A355@ucw.cz>
-In-Reply-To: <Pine.LNX.4.33.0202230953290.14299-100000@penguin.transmeta.com> <Pine.LNX.4.10.10202232035190.5715-100000@master.linux-ide.org>
+	id <S286188AbSBXLL6>; Sun, 24 Feb 2002 06:11:58 -0500
+Received: from gep73-211.bp01catv.broadband.hu ([213.222.137.66]:27142 "EHLO
+	mail.sztalker.hu") by vger.kernel.org with ESMTP id <S285850AbSBXLLs>;
+	Sun, 24 Feb 2002 06:11:48 -0500
+Date: Sun, 24 Feb 2002 12:10:25 +0100
+To: Bongani Hlope <bonganilinux@mweb.co.za>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kdev_t compilation fixes (Framebuffer)
+Message-ID: <20020224121023.A31292@sztalker.hu>
+In-Reply-To: <1014501626.4293.25.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10202232035190.5715-100000@master.linux-ide.org>; from andre@linuxdiskcert.org on Sat, Feb 23, 2002 at 08:42:37PM -0800
+In-Reply-To: <1014501626.4293.25.camel@localhost.localdomain>; from bonganilinux@mweb.co.za on Sun, Feb 24, 2002 at 12:01:01AM +0200
+From: Bakonyi Ferenc <fero@sztalker.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 23, 2002 at 08:42:37PM -0800, Andre Hedrick wrote:
 
-> > What really bugs me about this is that while normally you're hard to
-> > communicate with, this time you have actively _lied_ about the patches on
-> > IRC and in email about how they will cause IDE corruption etc due to
-> > timing changes.
-> 
-> Before I truley reply to this statement above, would you like to recant it?
-> 
-> > No such timing changes existed, and whenever you were asked about what was
-> > actually actively _wrong_ with the patches, you didn't reply.
-> 
-> Here I question the taking of a patch 12 which altered the behavior of the
-> subsystem baseclock to setting up PIO timings for the executing command
-> block operations.  I then looked over the patch again and saw you had not
-> taken it yet.
-> 
-> In that private email, I clearly stated I made a mistake in reading what
-> was accepted into 2.5.5.  The fact is you had not accepted it yet.
-> However I expect you will take it.  Given that very few people in the
-> world have most of the hardware that was effected by that change, and even
-> less have the NDA documents on the rules, please accept the change.
+	Hi!
 
-Maybe then you'll want to point out how patch #12 can change any PIO
-timings? I'm definitely curious ... that'd affect my VIA driver as well,
-you know ...
+On Sun, Feb 24, 2002 at 12:01:01AM +0200, Bongani Hlope wrote:
+> I thinks these were missed during 2.5.2-pre6, Feren I hope you are
+> the right person to send the for the first patch (your name is listed as
+> the Maintainer),Gerd yours is listed for the second patch.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Your patch is already included in the dj-tree, but it is missed from
+Linus' tree. BTW Ani Joshi is listed as the maintainer, not me. :)
+
+Best regards:
+	Ferenc Bakonyi
+
+--- linux-2.5/drivers/video/riva/fbdev.c        Thu Nov 15 00:52:20 2001
++++ linux-2.5-dev/drivers/video/riva/fbdev.c    Sat Feb 23 23:35:08 2002
+@@ -1811,7 +1811,7 @@
+        info = &rinfo->info;
+
+        strcpy(info->modename, rinfo->drvr_name);
+-       info->node = -1;
++       info->node = NODEV;
+        info->flags = FBINFO_FLAG_DEFAULT;
+        info->fbops = &riva_fb_ops;
+
+--- linux-2.5/drivers/video/sis/sis_main.c      Thu Feb 21 23:56:03 2002
++++ linux-2.5-dev/drivers/video/sis/sis_main.c  Sat Feb 23 23:40:22 2002
+@@ -2766,7 +2766,7 @@
+        sisfb_crtc_to_var (&default_var);
+
+        fb_info.changevar = NULL;
+-       fb_info.node = -1;
++       fb_info.node = NODEV;
+        fb_info.fbops = &sisfb_ops;
+        fb_info.disp = &disp;
+        fb_info.switch_con = &sisfb_switch;
+
+

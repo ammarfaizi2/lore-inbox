@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264214AbTJOThg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 15:37:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264215AbTJOThg
+	id S264219AbTJOTis (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 15:38:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264221AbTJOTir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 15:37:36 -0400
-Received: from [217.157.19.70] ([217.157.19.70]:16142 "EHLO jehova.dsm.dk")
-	by vger.kernel.org with ESMTP id S264214AbTJOThe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 15:37:34 -0400
-From: Thomas Horsten <thomas@horsten.com>
-To: Karel =?iso-8859-1?q?Kulhav=FD?= <clock@twibright.com>,
-       Michael Still <mikal@stillhq.com>
-Subject: Re: make htmldocs
-Date: Wed, 15 Oct 2003 20:37:25 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <20031014120946.A4969@beton.cybernet.src> <Pine.LNX.4.44.0310142106220.16081-100000@diskbox.stillhq.com> <20031014160947.A13499@beton.cybernet.src>
-In-Reply-To: <20031014160947.A13499@beton.cybernet.src>
+	Wed, 15 Oct 2003 15:38:47 -0400
+Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:18819
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S264219AbTJOTip (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 15:38:45 -0400
+Date: Wed, 15 Oct 2003 15:38:27 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Peter Maersk-Moller <peter@maersk-moller.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx lockup for SMP for 2.4.22
+In-Reply-To: <3F8D959F.9070908@maersk-moller.net>
+Message-ID: <Pine.LNX.4.53.0310151537510.2328@montezuma.fsmlabs.com>
+References: <3F8D1377.3060509@maersk-moller.net> <3F8D3A47.1000804@maersk-moller.net>
+ <Pine.LNX.4.53.0310151124180.2328@montezuma.fsmlabs.com>
+ <3F8D8690.9040104@maersk-moller.net> <Pine.LNX.4.53.0310151435310.2328@montezuma.fsmlabs.com>
+ <3F8D959F.9070908@maersk-moller.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200310152037.25614.thomas@horsten.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 October 2003 15:09, Karel Kulhavý wrote:
+On Wed, 15 Oct 2003, Peter Maersk-Moller wrote:
 
-> Again, please tell me, how to compile Linux Kernel HTML Documentation.
+> Hmmm ...... It has worked with 2.4.20 ..... but I just went
+> through many hardware and software updates and replacements and I
+> can't (hardware replaced) go back and verify everything ... so I can't
+> really give you a reliable answer here.
+> 
+> I can try to install everything again in a way that will make it fail
+> with 2.4.22 and then download and install older versions until it
+> works again, but that will be a tedious process that will take
+> many hours of work. Maybe, but only maybe, I'll do it, but only
+> if you find it VERY useful.
 
-You know, Linux is a collaborative effort and you seem to think you can come in here
-and order people around.
-
-If you want this included in the documentation, by all means, do the research, come
-up with a formula, add it to the README and submit a patch to Linus.
-
-Thanks.
-
-PS: I know - "Don't feed the trolls".. I won't write any more in this thread.
+No, if you have a suitable workaround, stick with it.
 

@@ -1,85 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264256AbTLUXPn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 18:15:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264257AbTLUXPn
+	id S264264AbTLUX2G (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 18:28:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbTLUX2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 18:15:43 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:34260 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S264256AbTLUXPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 18:15:40 -0500
-Message-ID: <3FE62999.90309@labs.fujitsu.com>
-Date: Mon, 22 Dec 2003 08:15:37 +0900
-From: Tsuchiya Yoshihiro <tsuchiya@labs.fujitsu.com>
-Reply-To: tsuchiya@labs.fujitsu.com
-Organization: Fujitsu Labs
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: filesystem bug?
-References: <3FDD7DFD.7020306@labs.fujitsu.com>	 <1071582242.5462.1.camel@sisko.scot.redhat.com> <3FDF7BE0.205@jpl.nasa.gov>	 <3FDF95EB.2080903@labs.fujitsu.com>  <3FE0E5C6.5040008@labs.fujitsu.com> <1071782986.3666.323.camel@sisko.scot.redhat.com>
-In-Reply-To: <1071782986.3666.323.camel@sisko.scot.redhat.com>
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+	Sun, 21 Dec 2003 18:28:06 -0500
+Received: from zxa8020.lanisdn-gte.net ([206.46.31.146]:32392 "EHLO
+	links.magenta.com") by vger.kernel.org with ESMTP id S264264AbTLUX2D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 18:28:03 -0500
+Date: Sun, 21 Dec 2003 18:27:57 -0500
+From: Raul Miller <moth@magenta.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: user problem with usb duo mouse and keyboard
+Message-ID: <20031221182757.F28449@links.magenta.com>
+References: <20031221154331.Z28449@links.magenta.com> <20031221213950.GA14664@ucw.cz> <20031221170323.D28449@links.magenta.com> <20031221223443.GA15744@ucw.cz> <20031221175121.E28449@links.magenta.com> <20031221230042.GA15960@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031221230042.GA15960@ucw.cz>; from vojtech@suse.cz on Mon, Dec 22, 2003 at 12:00:42AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen C. Tweedie wrote:
+On Mon, Dec 22, 2003 at 12:00:42AM +0100, Vojtech Pavlik wrote:
+> hid-core.c includes hid.h, which in turn, if DEBUG is defined, includes
+> hid-debug.h. That last file defines some functions (hid_dump_input,
+> hid_dump_device), which are called by hid-core.c.
+...
+> This is the problem! Don't ever use usbkbd and usbmouse. Use hid
+> instead.
 
->>>Following is the failed combination:
->>>Redhat9 with 2.4.20-8 ext2 and ext3
->>>Redhat9 with 2.4.20-19.9 ext2 and ext3
->>>Redhat9 with 2.4.20-24.9 ext2
->>>      
->>>
->>I forgot to mention that I had been testing 2.4.20 from kernel.org 
->>also.... And it failed now!
->>    
->>
->
->This looks more and more like either bad hardware, or a specific device
->driver problem.  What storage is being used here?
->
->  
->
-Hi,
+Oh!
 
-Stephen, I don't think it is a hardware problem, since this problem
-happens on
-several different machines, and it happens both on SCSI disk and
-our own iSCSI like device driver. I typically use:
+And, looking at the docs on those modules, I see nice big warnings that
+say something similar...
 
-scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-<Adaptec aic7899 Ultra160 SCSI adapter>
-aic7899: Ultra160 Wide Channel B, SCSI Id=7, 32/253 SCBs
+Looking further, these modules where build and installed by default
+when I installed my system (debian, with the 2.4.18-bf2.4 kernel), and
+I've been carrying forward that configuration on my hand-built kernels,
+and never realized I needed to get rid of those modules.
 
-blk: queue c1671674, I/O limit 4095Mb (mask 0xffffffff)
-Vendor: SEAGATE Model: ST336753LC Rev: DX03
+I see the hid-debug messages in syslog now, but the keyboard and mouse
+are working properly as well.  Do you want to pursue this any further?
+[If so, I can send you the messages.]
 
+[It's perhaps of note that the extra keys on the keyboard are reported
+as scancode 0 by showkey (with other release scan codes) when plugged
+in via usb and which have different keypress scan codss when plugged as
+a ps/2 keyboard.]
 
->It could possibly be a core VFS bug, but the VFS is in general pretty
->reliable under load.  We've had problems under specific edge conditions
->such as races between sync and unmount, but the basic VFS behaviour
->under load generally gets _lots_ of testing, so I'd definitely start by
->looking elsewhere.  
->
->I'd also like to see how your 2.4.23 and 2.6.0-test11 testing is going. 
->That might give some clues, too.  There's a race between clear_inode()
->and read_inode() fixed in those kernels, but that doesn't look relevant
->here; there may be something else changed that's significant, though.
->
->  
->
-EXT3 on 2.4.23 and 2.6.0-test11 both failed. I feel when I make the
-filesystem
-smaller - make the filesystem usage 70% to 80% during the test- ,
-the problem happens easyer.
+[[There's a slight chance that [to avoid confused messages from other
+people in my situation] a warning message from hid about usbkbd and
+usbmouse would be a good idea.]]
 
-Yoshi
---
-Yoshihiro Tsuchiya
+Thank you very much.
 
+Sorry about the confusion,
 
+-- 
+Raul Miller
+moth@magenta.com

@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131424AbRCWU2B>; Fri, 23 Mar 2001 15:28:01 -0500
+	id <S131447AbRCWUjL>; Fri, 23 Mar 2001 15:39:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131419AbRCWU1w>; Fri, 23 Mar 2001 15:27:52 -0500
-Received: from dentin.eaze.net ([216.228.128.151]:30212 "EHLO xirr.com")
-	by vger.kernel.org with ESMTP id <S131446AbRCWU1m>;
-	Fri, 23 Mar 2001 15:27:42 -0500
-Date: Fri, 23 Mar 2001 14:25:56 -0600 (CST)
-From: SodaPop <soda@xirr.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <3ABB992F.D898885C@evision-ventures.com>
-Message-ID: <Pine.LNX.4.30.0103231423310.27259-100000@xirr.com>
+	id <S131446AbRCWUjB>; Fri, 23 Mar 2001 15:39:01 -0500
+Received: from 207-191-209-128.cpe.ats.mcleodusa.net ([207.191.209.128]:11788
+	"EHLO lump.mine.nu") by vger.kernel.org with ESMTP
+	id <S131448AbRCWUis>; Fri, 23 Mar 2001 15:38:48 -0500
+Date: Fri, 23 Mar 2001 14:37:59 -0600 (CST)
+From: icabod <icabod@lump.mine.nu>
+To: linux-kernel@vger.kernel.org
+Subject: Advansys SCSI driver old verson?
+Message-ID: <Pine.LNX.4.21.0103231429540.5238-100000@lump.mine.nu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Mar 2001, Martin Dalecki wrote:
+I've noticed a small problem that hinders me from updatingmy system to the
+new 2.4 kernels. I'm using a PowerMac with a Advansys SCSI 3940UW card in
+it running my drives. I've noticed that since the 2.4 kernel series the
+advanasys driver s version 3.2M and the driver version that works for me
+and came with the 2.2.17+ kernels at least workes fid with my card, that
+version is 3.3D. I was wondering if anyone had noticed this before, or if
+there s a reason the older driver was used. The reason I bring this up is
+tht the driver in the 2.4 kernel series does not drive my particular
+card. I hope that the readers of this list find this helpful, if you have
+any questions please feel free to reply. Thanks. 
 
-> SodaPop wrote:
-> >
-> > Rik, is there any way we could get a /proc entry for this, so that one
-> > could do something like:
->
-> I will respond; NO there is no way for security reasons this is not a
-> good idea.
->
-> > cat /proc/oom-kill-scores | sort +3
+	-Icabod
+	 icabod@lump.mine.nu
 
-Oh, you mean like /proc/kcore is a bad idea for security reasons?
-
-Duh, make its permission bits 400.
-
--dennis T
-
+-- 
+No sooner said than done -- so acts your man of worth.
+		-- Quintus Ennius
 

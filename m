@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289282AbSBDXk0>; Mon, 4 Feb 2002 18:40:26 -0500
+	id <S289288AbSBDXm0>; Mon, 4 Feb 2002 18:42:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289288AbSBDXkQ>; Mon, 4 Feb 2002 18:40:16 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:51384 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S289282AbSBDXkF>;
-	Mon, 4 Feb 2002 18:40:05 -0500
-Date: Tue, 5 Feb 2002 02:37:50 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Jussi Laako <jussi.laako@kolumbus.fi>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] improving O(1)-J9 in heavily threaded situations
-In-Reply-To: <3C5F1B0A.DD38E4D0@kolumbus.fi>
-Message-ID: <Pine.LNX.4.33.0202050235360.21544-100000@localhost.localdomain>
+	id <S289291AbSBDXmR>; Mon, 4 Feb 2002 18:42:17 -0500
+Received: from dsl-213-023-038-180.arcor-ip.net ([213.23.38.180]:48023 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289288AbSBDXmG>;
+	Mon, 4 Feb 2002 18:42:06 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: How to check the kernel compile options ?
+Date: Tue, 5 Feb 2002 00:46:44 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <E16XmqC-0007lb-00@the-village.bc.nu> <E16Xnn7-0004mp-00@starship.berlin> <a3n0ue$gat$1@cesium.transmeta.com>
+In-Reply-To: <a3n0ue$gat$1@cesium.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <E16Xsou-0004o5-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On February 4, 2002 11:11 pm, H. Peter Anvin wrote:
+> By author:    Daniel Phillips <phillips@bonn-fries.net>
+> > Somebody said:
+> > > It's silly to put it permanently in unswappable memory; putting it in 
+> > > /lib/modules/`uname -r/ somewhere does make tons of sense instead.
+> > 
+> > Could you show me where I suggested putting it "permanently in unswappable memory"?
+> 
+> You suggested putting it in the kernel, which is permanently in
+> unswappable memory.  Using a module is, as I pointed out earlier,
+> worse than useless.
 
-On Tue, 5 Feb 2002, Jussi Laako wrote:
+Is this what you you're referring to:
 
-> > Please renice your CPU hog soundcard processes to -11, does that make any
-> > difference? (under -K2)
->
-> I can renice this only for testing purposes. Normally these are not
-> run as root so I can't do negative renice.
+On February 4, 2002 07:22 pm, H. Peter Anvin wrote:
+> Uhm, no.  The problem with it is that you're using kernel memory
+> because you're not willing to manage userspace competently, so modules
+> (in fact, *using modules at all*) would be right out.
 
-but you can run the audio tasks as SCHED_FIFO?
+I don't see your point.
 
-(you do not have to run the tasks as root, you only have to do the renice
-as root.)
+/me points to where he said 'religious issue' above.
 
-> > is it more important to run these CPU hogs than to run interactive tasks?
-> > If yes then renice them to -11.
->
-> Yes and no... :) Interactive tasks get their work from CPU hogs so
-> those are strongly related. If interactive task puts CPU hog to wait
-> it will also lose it's data.
-
-you can tune the actual weight of importance by decrasing the priority of
-the CPU-hog (or increasing the priority of the interactive task) a bit.
-But ideally you'd want to decrease the priority of the CPU hog, because
-that way you protect it not only from your 'own' interactive tasks, but
-from other activities on the system as well.
-
-	Ingo
-
+-- 
+Daniel

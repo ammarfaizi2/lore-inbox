@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267841AbUJGURg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268097AbUJGUZn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267841AbUJGURg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 16:17:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268049AbUJGUPs
+	id S268097AbUJGUZn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 16:25:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268051AbUJGUWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 16:15:48 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:52413 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S267976AbUJGUNu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 16:13:50 -0400
-Message-ID: <4165A379.7030706@nortelnetworks.com>
-Date: Thu, 07 Oct 2004 14:13:45 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: question on update_wall_time_one_tick()
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 7 Oct 2004 16:22:47 -0400
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:36698 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268104AbUJGUUU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 16:20:20 -0400
+Subject: Re: strange AMD x Intel Behaviour in 2.4.26
+From: Fabiano Ramos <ramos_fabiano@yahoo.com.br>
+To: Valdis.Kletnieks@vt.edu
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200410071845.i97Ijcv2025341@turing-police.cc.vt.edu>
+References: <1097172936.3832.1.camel@lfs.barra.bali>
+	 <200410071845.i97Ijcv2025341@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Date: Thu, 07 Oct 2004 17:19:36 -0300
+Message-Id: <1097180376.4161.3.camel@lfs.barra.bali>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-10-07 at 14:45 -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Thu, 07 Oct 2004 15:15:36 -0300, Fabiano Ramos said:
+> 
+> >   The code is producing correct results (same as ptrace, I mean)
+> > but is RUNNING FASTER on a 500Mhz AMD K6-2 than on a 2.6Ghz HT
+> > Pentium 4 !!!!  The monitored code runs faster on P4 if not being
+> > monitored, as expected.
+> 
+> Most likely, the old slow AMD chipset doesn't take a big performance
+> hit for each of the loops into debug-land, and the P4 chipset takes a
+> big hit.  Not sure if it's a pipeline-drain issue, or relative cost
+> of L1/2 cache misses, or what - an architecture expert could probably
+> say more.  Basically, the AMD goes faster because it has less to forget
+> at the end of each counted instruction, while the P4 gains much of its
+> speed via a lot of caching/decoding/pipelining tricks, so it has to throw
+> away more, and then re-establish state when it comes back.
+> 
 
-If we call update_wall_time_one_tick(), with a mode of ADJ_OFFSET_SINGLESHOT, 
-the offset can be up to +/-512000 usec.
+yes, you are probably right. I thought about that, but in no way
+I could imagine such a drastic situation. I was wondering if maybe
+the kernel did different things for AMD and Pentium, but both
+are treated the same, as a i386, RIGHT?????
 
-However, in update_wall_time_one_tick(), the offset adjustment each tick is 
-limited to the range of -tickadj < x < tickadj.  On many current systems, 
-tickadj is 1.  Thus, a large adjustment takes a *long* time.
+I have just tried on another AMD core, a 1Ghz Duron, and it outperforms
+the AMD K6 (as expected) and the 2.6Ghz P4 as well, probably due to the
+same thing.
 
-While we are doing this offset change, if someone else requests another offset, 
-it will totally overwrite any unapplied portion of the offset from the previous 
-call:
 
-	/* Changes by adjtime() do not take effect till next tick. */
-	if (time_next_adjust != 0) {
-		time_adjust = time_next_adjust;
-		time_next_adjust = 0;
-	}
+> Imagine 2 people walking down a hallway - one moves at 1 mile per hour
+> when walking, the other at 5.  However, every third step each of them drops
+> the stack of papers they are carrying - and the slow person drops 5 sheets
+> of paper and the fast one drops 200.  Who reaches the end of the hall first?
+> 
+> It's probably sort of like that....
 
-Thus, doing an offset of +512000, immediately followed by an offset of -512000, 
-will leave you with a significant negative offset.
+:)
 
-Is this the desired behaviour?
+Thanks.
 
-Chris

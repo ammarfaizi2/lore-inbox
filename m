@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267423AbUH1Qvx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267365AbUH1Q5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267423AbUH1Qvx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 12:51:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267460AbUH1Qvx
+	id S267365AbUH1Q5d (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 12:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266717AbUH1Q5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 12:51:53 -0400
-Received: from relay.pair.com ([209.68.1.20]:43790 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S267423AbUH1QuH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 12:50:07 -0400
-X-pair-Authenticated: 66.188.111.210
-Message-ID: <4130B7BD.5070801@cybsft.com>
-Date: Sat, 28 Aug 2004 11:50:05 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Felipe Alfaro Solana <lkml@felipe-alfaro.com>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, Mark_H_Johnson@raytheon.com
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q0
-References: <20040823221816.GA31671@yoda.timesys> <20040824061459.GA29630@elte.hu> <20040828120309.GA17121@elte.hu> <200408281818.28159.lkml@felipe-alfaro.com>
-In-Reply-To: <200408281818.28159.lkml@felipe-alfaro.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 28 Aug 2004 12:57:32 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:59562 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S266683AbUH1Q5T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 12:57:19 -0400
+Subject: Re: reverse engineering pwcx
+From: Albert Cahalan <albert@users.sf.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       clemtaylor@comcast.net, qg@biodome.org, rogers@isi.edu
+In-Reply-To: <1093710358.8611.22.camel@krustophenia.net>
+References: <1093709838.434.6797.camel@cube>
+	 <1093710358.8611.22.camel@krustophenia.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1093712176.431.6806.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 28 Aug 2004 12:56:16 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felipe Alfaro Solana wrote:
-> On Saturday 28 August 2004 14:03, Ingo Molnar wrote:
-> 
-> 
->>Similarly, there are 4 independent options for the .config:
->>CONFIG_PREEMPT, CONFIG_PREEMPT_VOLUNTARY, CONFIG_PREEMPT_SOFTIRQS and
->>CONFIG_PREEMPT_HARDIRQS. (In theory all of these options should compile
->>independently, but i've only tested all-enabled so far.)
-> 
-> 
-> I must be missing something, but after applying diff-bk-040828-2.6.8.1.bz2 and 
-> voluntary-preempt-2.6.9-rc1-bk4-Q1 on top of 2.6.8.1, I'm unable to find 
-> neither CONFIG_PREEMPT_VOLUNTARY, CONFIG_PREEMPT_SOFTIRQS, nor 
-> CONFIG_PREEMPT_HARDIRQS.
-> 
-> Any ideas are welcome.
+On Sat, 2004-08-28 at 12:25, Lee Revell wrote:
+> On Sat, 2004-08-28 at 12:17, Albert Cahalan wrote:
+>> [somebody]
 
-Looks like all of these config options are missing from Q1 also. I was 
-just looking myself.
+> > > The LavaRnd guys examined the pixels on the actual
+> > > CCD chip.  It's 160x120.  The 'decompression' is
+> > > just interpolation.
+> > 
+> > Don't put much faith in the 160x120 number. Suppose
+> > that the chip is in a Bayer pattern, with 160x120
+> > of those. Well, how many pixels is that? Who knows.
+> > You'd sort of have 160x120, but with double the
+> > green data. Since green carries most of the luminance
+> > information, producing a larger image is reasonable.
+> 
+> Right, as someone else pointed out, this is wrong.
+> 
+> How do you account for the Slashdot poster's assertion that it's
+> physically impossible to cram 640 x 480 worth of data down a USB 1.1
+> pipe?
 
-kr
+640x480 uncompressed 24-bit RGB? It doesn't matter.
+
+The suggestion of a 4x4 JPEG-like transform seems
+pretty reasonable. I'd like to see that whitepaper.
+
+

@@ -1,70 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264843AbRGCQlr>; Tue, 3 Jul 2001 12:41:47 -0400
+	id <S264963AbRGCQw7>; Tue, 3 Jul 2001 12:52:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264848AbRGCQlh>; Tue, 3 Jul 2001 12:41:37 -0400
-Received: from father.pmc-sierra.bc.ca ([216.241.224.13]:17055 "HELO
-	father.pmc-sierra.bc.ca") by vger.kernel.org with SMTP
-	id <S264843AbRGCQlX>; Tue, 3 Jul 2001 12:41:23 -0400
-Message-ID: <9DC5E2ABE65BD54CA9088DA3194461D60486C625@BBY1EXM01>
-From: PMC-Sierra Apps Support <Apps@pmc-sierra.com>
-To: "'Green'" <greeen@iii.org.tw>,
-        LinuxEmbeddedMailList <linux-embedded@waste.org>,
-        LinuxKernelMailList <linux-kernel@vger.kernel.org>,
-        MipsMailList <linux-mips@fnet.fr>
-Subject: RE: RF driver!!
-Date: Tue, 3 Jul 2001 09:45:44 -0700 
+	id <S265072AbRGCQwt>; Tue, 3 Jul 2001 12:52:49 -0400
+Received: from mta07-svc.ntlworld.com ([62.253.162.47]:40322 "EHLO
+	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S264963AbRGCQwg>; Tue, 3 Jul 2001 12:52:36 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Gav <gavbaker@ntlworld.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.6-pre9: Failed HPT370 detection
+Date: Tue, 3 Jul 2001 17:44:33 +0000
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <01070317222000.01180@box.penguin.power>
+In-Reply-To: <01070317222000.01180@box.penguin.power>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="big5"
+Message-Id: <01070317423500.01111@box.penguin.power>
+Content-Transfer-Encoding: 7BIT
+Cc: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Green,
-Thank you for your request for support on PMC-Sierra products. In order to serve you better, we require some additional contact information. This information will be used to direct your request to the appropriate factory or field applications engineer, and to help us track your support incident.
+On Tuesday 03 July 2001 17:22, Gav wrote:
 
-Could you please reply to me with the following information:
+> This kernel refuses to detect my HPT370 chipset. (where my root filesystem
+> is, on raid0). It just hangs where the detection usually takes place, so no
+> oops and no meaningfull bugreport :/
+>
+> I have the same options set in my config as I always have, I've never had
+> any problem with this before.
+>
+> CONFIG_BLK_DEV_HPT366=y
+> CONFIG_MD_RAID0=y
+>
+> Anyone else seen this? Maybe its more VIA weirdness.
+>
 
-*	Full Name
-*	Company Name
-*	Company Location (city)
-*	Mailing Address (optional)
-*	Phone Number (optional)
-*	Fax Number (optional)
+Actually its the drives ON the HPT chipset that arent being detected, not the 
+chipset itself.
 
-Thanks, 
+usually:
+HPT370: IDE controller on PCI bus 00 dev 98
+PCI: Found IRQ 11 for device 00:13.0 
+HPT370: chipset revision 3 
+HPT370: not 100%% native mode: will probe irqs later
+    ide2: BM-DMA at 0xe000-0xe007, BIOS settings: hde:DMA, hdf:pio
+    ide3: BM-DMA at 0xe008-0xe00f, BIOS settings: hdg:DMA, hdh:pio
+hda: SAMSUNG SV0322A, ATA DISK drive 
+hdb: Hewlett-Packard CD-Writer Plus 9100b, ATAPI CD/DVD-ROM drive
+hde: IBM-DTLA-305040, ATA DISK drive
+hdg: IBM-DTLA-305040, ATA DISK drive
+<etc>
 
-Applications Assistant 
-PMC-Sierra, Inc. 
-Ph: (604) 415-4533 
-Fax: (604) 415-6206 
-apps@pmc-sierra.com 
-http://www.pmc-sierra.com/ <http://www.pmc-sierra.com/>  
+in 2.4.6-pre9:
+HPT370: IDE controller on PCI bus 00 dev 98
+PCI: Found IRQ 11 for device 00:13.0 
+HPT370: chipset revision 3 
+HPT370: not 100%% native mode: will probe irqs later
+    ide2: BM-DMA at 0xe000-0xe007, BIOS settings: hde:DMA, hdf:pio
+    ide3: BM-DMA at 0xe008-0xe00f, BIOS settings: hdg:DMA, hdh:pio
+hda: SAMSUNG SV0322A, ATA DISK drive 
+hdb: Hewlett-Packard CD-Writer Plus 9100b, ATAPI CD/DVD-ROM drive
+<Hang>
 
------Original Message-----
-From: Green [mailto:greeen@iii.org.tw]
-Sent: Monday, July 02, 2001 11:56 PM
-To: LinuxEmbeddedMailList; LinuxKernelMailList; MipsMailList
-Subject: RF driver!!
+Sorry about that.
 
-
-Hi all,
- 
-I am porting a pcmcia rf driver (which worked on kernel 2.2.12)
-to kernel 2.4.0 on my MIPS machine.
- 
-1. I found there are some diffenence in netdevice.h.
-    The structure device changed to net_device.
- 
-2. And the tbusy, start, interrupt were gone with 
-    the use of the netif_start_queue, netif_stop_queue,
-    netif_wake_queue and related functions.
- 
-How do I use these functions to modify the 2.2.12 rf driver to 2.4.0 ??
- 
-Thanks,
- 
-Green
-
-
+-- Gavin Baker

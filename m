@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317373AbSINQ6A>; Sat, 14 Sep 2002 12:58:00 -0400
+	id <S317392AbSINRsa>; Sat, 14 Sep 2002 13:48:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317385AbSINQ6A>; Sat, 14 Sep 2002 12:58:00 -0400
-Received: from pD9E2308E.dip.t-dialin.net ([217.226.48.142]:42375 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317373AbSINQ57>; Sat, 14 Sep 2002 12:57:59 -0400
-Date: Sat, 14 Sep 2002 11:03:13 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Lightweight Patch Manager <patch@luckynet.dynu.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Martin Brulisauer <martin@uceb.org>,
-       Oliver Pitzeier <o.pitzeier@uptime.at>
-Subject: Re: [ANNOUNCE] Linux 2.5.34-ct1
-In-Reply-To: <20020914164819.9A9717@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.44.0209141102360.10048-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
+	id <S317393AbSINRs3>; Sat, 14 Sep 2002 13:48:29 -0400
+Received: from s2.org ([195.197.64.39]:21670 "EHLO kalahari.s2.org")
+	by vger.kernel.org with ESMTP id <S317392AbSINRs3>;
+	Sat, 14 Sep 2002 13:48:29 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.4.20-pre7] net/ipv4/netfilter/ip_conntrack_ftp and _irc to export objs
+From: Jarno Paananen <jpaana@s2.org>
+Date: 14 Sep 2002 20:53:22 +0300
+Message-ID: <m3vg58qwz1.fsf@kalahari.s2.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Sat, 14 Sep 2002, Lightweight Patch Manager wrote:
-> Thunder from the hill <thunder@lightweight.ods.org>:
->   o list_t removal
+the two modules mentioned export symbols but are not mentioned in
+export-objs in Makefile and thus give errors. Patch attached.
 
-Umm. Sorry, that was Rusty.
+// Jarno
 
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
-
+--- net/ipv4/netfilter/Makefile.bak	2002-09-14 19:50:38.000000000 +0300
++++ net/ipv4/netfilter/Makefile	2002-09-14 19:51:28.000000000 +0300
+@@ -9,7 +9,7 @@
+ 
+ O_TARGET := netfilter.o
+ 
+-export-objs = ip_conntrack_standalone.o ip_fw_compat.o ip_nat_standalone.o ip_tables.o arp_tables.o
++export-objs = ip_conntrack_standalone.o ip_fw_compat.o ip_nat_standalone.o ip_tables.o arp_tables.o ip_conntrack_ftp.o ip_conntrack_irc.o
+ 
+ # Multipart objects.
+ list-multi		:= ip_conntrack.o iptable_nat.o ipfwadm.o ipchains.o

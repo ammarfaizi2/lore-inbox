@@ -1,162 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270027AbUJHPwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270038AbUJHPxB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270027AbUJHPwo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 11:52:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270054AbUJHPwn
+	id S270038AbUJHPxB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 11:53:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270033AbUJHPw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 11:52:43 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:49831 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S270027AbUJHPrW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 11:47:22 -0400
-Message-ID: <4166B569.60408@watson.ibm.com>
-Date: Fri, 08 Oct 2004 11:42:33 -0400
-From: Hubertus Franke <frankeh@watson.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030901 Thunderbird/0.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: ricklind@us.ibm.com, colpatch@us.ibm.com, mbligh@aracnet.com,
-       Simon.Derr@bull.net, pwil3058@bigpond.net.au, dipankar@in.ibm.com,
-       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
-Subject: Re: [PATCH] cpusets - big numa cpu and memory placement
-References: <20041007015107.53d191d4.pj@sgi.com>	<200410071053.i97ArLnQ011548@owlet.beaverton.ibm.com>	<20041007072842.2bafc320.pj@sgi.com>	<4165A31E.4070905@watson.ibm.com> <20041008061426.6a84748c.pj@sgi.com>
-In-Reply-To: <20041008061426.6a84748c.pj@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 8 Oct 2004 11:52:59 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:45250 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S270042AbUJHPr4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 11:47:56 -0400
+Subject: Re: [PATCH] QStor SATA/RAID driver for 2.6.9-rc3
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Mark Lord <lkml@rtr.ca>
+Cc: Christoph Hellwig <hch@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Mark Lord <lsml@rtr.ca>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <4166B48E.3020006@rtr.ca>
+References: <4161A06D.8010601@rtr.ca>	<416547B6.5080505@rtr.ca>	<20041007150709.B12688@i
+	nfradead.org>	<4165624C.5060405@rtr.ca>	<416565DB.4050006@pobox.com>	<4165A4
+	5D.2090200@rtr.ca>	<4165A766.1040104@pobox.com>	<4165A85D.7080704@rtr.ca>	<4
+	165AB1B.8000204@pobox.com>	<4165ACF8.8060208@rtr.ca>
+		<20041007221537.A17712@infradead.org>	<1097241583.2412.15.camel@mulgrave> 
+	<4166AF2F.6070904@rtr.ca> <1097249266.1678.40.camel@mulgrave> 
+	<4166B48E.3020006@rtr.ca>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 08 Oct 2004 10:47:40 -0500
+Message-Id: <1097250465.2412.49.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2004-10-08 at 10:38, Mark Lord wrote:
+> Can deadlock occur here, since qstor.c is already using schedule_work()
+> as part of it's internal bottom-half handling for abnormal conditions?
+> 
+> Eg.  hotplug event -> schedule_work -> mid-layer -> queuecommand
+>        --> sleep  :: interrupt -> schedule_work -> deadlock?
+> 
 
+Since you wouldn't go straight from schedule_work->mid-layer, I assume
+you mean that when the workqueue thread runs the work?
 
-Paul Jackson wrote:
-> First, thank-you, Hubertus, for comparing me to a puppy, rather
-> than a kitten.  I am definitely a dog person, not a cat person,
-> and I appreciate your considerate choice of analog.
+With that assumption, this is legal and won't deadlock.
 
-Heeeh .. where did I compare you to a puppy? I was talking about *MY* 
-puppy. And the moral of the story was that you can teach them new 
-tricks. That's all. So in case you took this in any other way my sincere 
-apologies.
+However, I assume you know you can't sleep in queuecommand since it may
+be run from the scsi tasklet?
 
-> 
-> I gather from the tone of your post yesterday that there is
-> a disconnect between us - you speak with the frustration of
-> someone who has been shouting into the wind and not being
-> heard.
+James
 
-Frustration ... only in the sense that what seems to me to
-be a pretty clear path to melt your functionality into CKRM.
-
-Andrews, intial request was the challenge to see whether CKRM suffice as 
-an API and with an additional controller suffices to provide the 
-functionality.
-
-> 
-> I suspect that the disconnect, if such be, is not where you
-> think it is:
-> 
-> Hubertus wrote:
-> 
->>The disconnect is that you do not want to recognize that CKRM does NOT 
->>have to be systemwide. Once you open your mind to the fact that CKRM can 
->>be deployed with in a subset of disconnected resources (cpu domains)
->>and manages shares independently within that domain, I truely don't see
->>what the problem is.
-> 
-> 
-> I have recognized for months that eventually we'd want to allow
-> for cpuset-relative CKRM domains, and I'm pretty sure I've
-> dropped comments to that affect one time or another here on lkml.
-> 
-> I suspect instead that "CKRM" is one layer more abstract than
-> I am normally comfortable with.
-> 
-> As best as I can tell, CKRM has evolved from its origins as a
-> fair share scheduler, into a framework (*) for things called by
-> such names as classes and controllers.  As you may recall from
-> an inconclusive thread between us on the ckrm-tech email list two
-> months ago, I find those terms uncomfortably vague and abstract.
-> 
-> In general, frameworks are high risk business.  What they
-> gain in generality, covering a wider range of situations in
-> a uniform pattern, they lose in down to earth concreteness,
-> leaving their users less confident of what works, and less able
-> to rely on their intuitions.  The risk of serious design flaws,
-> shrouded for a long time in the fog of abstraction, is higher.
-> 
-> The more successful frameworks, such as vfs for example,
-> typically have deep roots in prior art, and a sizable population
-> of journeyman and master practitioners.
-> 
-> CKRM is young, its roots more shallow, and the population of
-> its practitioners small.
-> 
->  (*) P.S. - It's more like CKRM is now the combination of
->      a virtual resource manager framework and a particular
->      instance of such (the fair shair controllers that have
->      their conceptual origins in IBM's WLM, I suspect).  If
->      numa placement controllers (aka cpusets) are going to
->      exist as well, then CKRM needs to split into (1) a
->      virtual resource manager framework (vrm), and (2) the
->      fair share stuff.  The vrm framework should be neutral
->      of either fair share or numa placement bias.
-
-As indicated in many notes so are the usage of cpusets.
-Very few people have the #cpus to even worry about this.
-As Andrew said, its quite possible that the installations can maintain 
-their own kernel, although
-> 
-> ===
-> 
-> 
-> Putting aside for a moment my personal frustrations (which
-> are after all my problem - and my dogs) I am simply unable to
-> make sense yet of how deep would be the hit on the capabilities
-> of cpusets, if so morphed, and I am painfully aware of the
-> undetermined schedule delays and increased risks to product
-> performance and even ultimate success that attend such a change.
-> 
-> From what my field engineers tell me, whom I've been polling
-> furiously on this matter the last few days, at least in the
-> markets that SGI frequents, there is very little overlap between
-> system configurations which benefit from fair share resource
-> management and those which benefit from numa placement resource
-> management.  So, if that experience is generally applicable, we
-> are at risk of marrying a helicopter and a boat, just because
-> both have a motor and a hull, to the detriment of both.
-
-I learned my lesson, no more analogies with you....
-
-Bottom line I believe the cpusets should be first morphed into
-sched_domains. The problem with large systems is the load balancing
-which is highly unscalable. You can twist an turn but at the end of
-the day you set cpu_affinity masks. The load balancing of the system
-needs to be aware of the structure of the system.
-sched_domains to me are the right approach for that not setting some
-affinity masks underneath.
-
-Assuming that will be resolved at some point and given Andrew's 
-hypothetical assumption that CKRM makes it into his kernel, then
-I don't see the obstacle of adopting an existing API to serve at the
-API for cpusets/sched_domains.
-
-> 
-> Merging projects always has risks.  The payoff for synergies
-> gained is not always greater than the cost of the inefficiencies
-> and compromises introduced, and the less immediate involvement
-> of the participants in the end result.
-> 
-> I cannot in good conscience recommend such a change.
-But by self admission, you are driven by timing constraints as
-your bacon is sizzling.
-> 
-> Keep talking.
-
-To whom ?   :-)
-
--- Hubertus
 

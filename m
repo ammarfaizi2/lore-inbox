@@ -1,38 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265391AbUBPHdR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 02:33:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265400AbUBPHdR
+	id S265390AbUBPHds (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 02:33:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265401AbUBPHds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 02:33:17 -0500
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:37898 "EHLO
-	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S265391AbUBPHdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 02:33:09 -0500
+	Mon, 16 Feb 2004 02:33:48 -0500
+Received: from d64-180-152-77.bchsia.telus.net ([64.180.152.77]:39172 "EHLO
+	antichrist") by vger.kernel.org with ESMTP id S265390AbUBPHdo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 02:33:44 -0500
+Date: Sun, 15 Feb 2004 23:29:29 -0800
+From: carbonated beverage <ramune@net-ronin.org>
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@taverner.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: dm-crypt using kthread (was: Oopsing cryptoapi (or loop
-	device?) on 2.6.*)
-Date: Mon, 16 Feb 2004 07:28:40 +0000 (UTC)
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <c0prf8$m3c$1@abraham.cs.berkeley.edu>
-References: <402A4B52.1080800@centrum.cz> <20040216014433.GA5430@leto.cs.pocnet.net> <20040215175337.5d7a06c9.akpm@osdl.org> <1076900296.5601.41.camel@leto.cs.pocnet.net>
-Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1076916520 22636 128.32.153.228 (16 Feb 2004 07:28:40 GMT)
-X-Complaints-To: usenet@abraham.cs.berkeley.edu
-NNTP-Posting-Date: Mon, 16 Feb 2004 07:28:40 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+Cc: sparclinux@vger.kernel.org
+Subject: 2.4.24 link err for sparc64
+Message-ID: <20040216072928.GA30923@net-ronin.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christophe Saout  wrote:
->At the moment it supports no IC (ECB mode) or [...]
+Hi all,
 
-Probably I'm misunderstanding something, but: Do you really mean that
-you are using ECB mode?  How is that secure?  (Everyone knows why ECB
-mode should almost never be used, right?)
+I ripped out sysctl support from a 2.4.24 kernel (stock
+tarball from ftp.*.*.kernel.org) and the final link failed
+with:
+
+arch/sparc64/kernel/kernel.o(.text+0x19750): In function `sys32_sysctl':
+: undefined reference to `do_sysctl'
+
+I tossed an #ifndef CONFIG_SYSCTL...#else...#endif
+guard around arch/sparc64/kernel/sys_sparc32.c file in the
+sys32_sysctl() function so it returns -ENOTSUPP, but I'm not sure
+that's the right fix.  Should it be in do_sysctl() instead?
+
+Can anyone comment on this?
+
+--- arch/sparc64/kernel/sys_sparc32.c.old	2003-11-28 10:26:19.000000000 -0800
++++ arch/sparc64/kernel/sys_sparc32.c	2004-02-15 23:21:18.304035000 -0800
+@@ -4454,6 +4454,9 @@
+ 
+ extern asmlinkage long sys32_sysctl(struct __sysctl_args32 *args)
+ {
++#ifndef CONFIG_SYSCTL
++	return -ENOTSUPP;
++#else
+ 	struct __sysctl_args32 tmp;
+ 	int error;
+ 	size_t oldlen, *oldlenp = NULL;
+@@ -4488,4 +4491,5 @@
+ 		copy_to_user(args->__unused, tmp.__unused, sizeof(tmp.__unused));
+ 	}
+ 	return error;
++#endif
+ }
+
+-- DN
+Daniel

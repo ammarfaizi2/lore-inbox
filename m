@@ -1,59 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292169AbSCAPWN>; Fri, 1 Mar 2002 10:22:13 -0500
+	id <S293027AbSCAP0x>; Fri, 1 Mar 2002 10:26:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293022AbSCAPVx>; Fri, 1 Mar 2002 10:21:53 -0500
-Received: from sebula.traumatized.org ([193.121.72.130]:35265 "EHLO
-	sebula.traumatized.org") by vger.kernel.org with ESMTP
-	id <S292169AbSCAPVv>; Fri, 1 Mar 2002 10:21:51 -0500
-X-NoSPAM: http://traumatized.org/nospam/
-Message-ID: <3C7F8B80.1010007@pophost.eunet.be>
-Date: Fri, 01 Mar 2002 15:09:04 +0100
-From: Jurgen Philippaerts <jurgen@pophost.eunet.be>
-User-Agent: Mozilla/5.0 (X11; U; Linux sparc64; en-US; rv:0.9.8) Gecko/20020220
-X-Accept-Language: en-us
+	id <S293086AbSCAP0o>; Fri, 1 Mar 2002 10:26:44 -0500
+Received: from paloma15.e0k.nbg-hannover.de ([62.181.130.15]:21648 "HELO
+	paloma15.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S293027AbSCAP0b>; Fri, 1 Mar 2002 10:26:31 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: James Bottomley <James.Bottomley@SteelEye.com>,
+        Chris Mason <mason@suse.com>
+Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3)
+Date: Fri, 1 Mar 2002 16:26:27 +0100
+X-Mailer: KMail [version 1.3.9]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19pre2 - USB - sparc64 compile problem
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200203011626.27719.Dieter.Nuetzel@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+James Bottomley wrote:
+> mason@suse.com said:
+> > So, a little testing with scsi_info shows my scsi drives do have
+> > writeback cache on.  great.  What's interesting is they must be doing
+> > additional work for ordered tags.  If they were treating the block as
+> > written once in cache, using the tags should not change  performance
+> > at all.  But, I can clearly show the tags changing performance, and
+> > hear the drive write pattern change when tags are on. 
 
-i just tried to update my kernel to the latest pre2, but i ran into sone 
-problems regarding USB.
+> I checked all mine and they're write through.  However, I inherited all my 
+> drives from an enterprise vendor so this might not be that surprising.
 
-fyi; 2.4.19pre1 works just nicely.
+How do you checked it?
+Which scsi_info version?
+Mine gave only the below info:
 
-root@sparkie:/usr/src/linux# sparc64-linux-gcc --version
-egcs-2.92.11
+SunWave1 /home/nuetzel# scsi_info /dev/sda
+SCSI_ID="0,0,0"
+MODEL="IBM DDYS-T18350N"
+FW_REV="S96H"
+SunWave1 /home/nuetzel# scsi_info /dev/sdb
+SCSI_ID="0,1,0"
+MODEL="IBM DDRS-34560D"
+FW_REV="DC1B"
+SunWave1 /home/nuetzel# scsi_info /dev/sdc
+SCSI_ID="0,2,0"
+MODEL="IBM DDRS-34560W"
+FW_REV="S71D"
 
-sparc64-linux-gcc -D__KERNEL__ -I/usr/src/linux2419pre2/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -m64 -pipe -mno-fpu -mcpu=ultrasparc 
--mcmodel=medlow -ffixed-g4 -fcall-used-g5 -fcall-used-g7 
--Wno-sign-compare -Wa,--undeclared-regs   -DKBUILD_BASENAME=hcd 
--DEXPORT_SYMTAB -c hcd.c
-hcd.c: In function `usb_hcd_pci_probe':
-hcd.c:627: `irq' undeclared (first use in this function)
-hcd.c:627: (Each undeclared identifier is reported only once
-hcd.c:627: for each function it appears in.)
-make[3]: *** [hcd.o] Error 1
-make[3]: Leaving directory `/usr/src/linux2419pre2/drivers/usb'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux2419pre2/drivers/usb'
-make[1]: *** [_subdir_usb] Error 2
-make[1]: Leaving directory `/usr/src/linux2419pre2/drivers'
-make: *** [_dir_drivers] Error 2
+But when I use "scsi-config" I get under "Cache Control Page":
+Read cache enabled: Yes
+Write cache enabled: No
 
+I've tested it with setting this by hand some months ago, but the speed 
+doesn't change in anyway (ReiserFS).
 
+> I can surmise why ordered tags kill performance on your drive, since an 
+> ordered tag is required to affect the ordering of the write to the medium,
+> not the cache, it is probably implemented with an implicit cache flush.
+>
+> Anyway, the attached patch against 2.4.18 (and I know it's rather gross
+> code)  will probe the cache type and try to set it to write through on boot.
+>  See what this does to your performance ordinarily, and also to your
+> tagged write barrier performance.
 
-ps: i'm not subscribed to the mailing list, but i read the linux.kernel 
-newsgroup on a regular base.
+Will test it over the weekend on 2.4.19-pre1aa1 with all Reiserfs 
+2.4.18.pending patches applied.
 
-
-regards,
-Jurgen.
-
+Regards,
+	Dieter

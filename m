@@ -1,44 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVABXc3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVABXmj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbVABXc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 18:32:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbVABXc3
+	id S261351AbVABXmj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 18:42:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVABXmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 18:32:29 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:39350 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261345AbVABXcV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 18:32:21 -0500
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, davidel@xmailserver.org, mh@codeweavers.com,
-       dan@debian.org, the3dfxdude@gmail.com
-Subject: [PATCH] Fix typo in i386 single step changes
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 03 Jan 2005 00:32:19 +0100
-Message-ID: <m1brc7xv98.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Sun, 2 Jan 2005 18:42:37 -0500
+Received: from gizmo12bw.bigpond.com ([144.140.70.43]:37514 "HELO
+	gizmo12bw.bigpond.com") by vger.kernel.org with SMTP
+	id S261349AbVABXmd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 18:42:33 -0500
+Message-ID: <41D886E2.9070701@bigpond.net.au>
+Date: Mon, 03 Jan 2005 10:42:26 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Michal Kaczmarski <fallow@op.pl>, Shane Shrybman <shrybman@aei.ca>
+Subject: [PATCH] V-6.0 ZAPHOD Single Priority Array O(1) CPU Scheduler
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Version 6.0 of the ZAPHOD single priority array scheduler patches for
+the official 2.6.10 kernel are now available for download and evaluation 
+from:
 
-Fix an obvious typo in the recent i386 single stepping changes.
+<http://prdownloads.sourceforge.net/cpuse/patch-2.6.10-spa_zaphod_FULL-v6.0?download>
 
-I would recommend to redo all the Wine etc. testing that lead to this patch
-since it probably never worked.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-Signed-off-by: Andi Kleen <ak@muc.de>
-
---- linux-2.6.10-bk5/arch/i386/kernel/traps.c-o	Mon Jan  3 01:02:06 2005
-+++ linux-2.6.10-bk5/arch/i386/kernel/traps.c	Mon Jan  3 01:03:05 2005
-@@ -725,7 +725,7 @@
- 		if (tsk->ptrace & PT_DTRACE) {
- 			regs->eflags &= ~TF_MASK;
- 			tsk->ptrace &= ~PT_DTRACE;
--			if (!tsk->ptrace & PT_DTRACE)
-+			if (!(tsk->ptrace & PT_DTRACE))
- 				goto clear_TF;
- 		}
- 	}
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

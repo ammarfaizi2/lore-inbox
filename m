@@ -1,49 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273086AbRIIWaP>; Sun, 9 Sep 2001 18:30:15 -0400
+	id <S273083AbRIIWiR>; Sun, 9 Sep 2001 18:38:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273084AbRIIW34>; Sun, 9 Sep 2001 18:29:56 -0400
-Received: from femail34.sdc1.sfba.home.com ([24.254.60.24]:23697 "EHLO
-	femail34.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S273083AbRIIW3r>; Sun, 9 Sep 2001 18:29:47 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: "J. Dow" <jdow@earthlink.net>, "Carsten Leonhardt" <leo@debian.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Athlon/K7-Opimisation problems
-Date: Sun, 9 Sep 2001 15:29:25 -0700
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <87g09w70o4.fsf@cymoril.oche.de> <01090915115400.00173@c779218-a> <063301c1397e$0efa6d00$1125a8c0@wednesday>
-In-Reply-To: <063301c1397e$0efa6d00$1125a8c0@wednesday>
-MIME-Version: 1.0
-Message-Id: <01090915292502.00173@c779218-a>
-Content-Transfer-Encoding: 7BIT
+	id <S273087AbRIIWiG>; Sun, 9 Sep 2001 18:38:06 -0400
+Received: from hall.mail.mindspring.net ([207.69.200.60]:44556 "EHLO
+	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S273083AbRIIWhy>; Sun, 9 Sep 2001 18:37:54 -0400
+Subject: Re: [PATCH] (Updated) Preemptible Kernel
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13.99+cvs.2001.09.08.07.08 (Preview Release)
+Date: 09 Sep 2001 18:38:39 -0400
+Message-Id: <1000075124.17667.2.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 September 2001 03:23 pm, J. Dow wrote:
-> From: "Nicholas Knight" <tegeran@home.com>
->
-> > > The only difference I can make out between the working and the
-> > > non-working CPU is the internal clockspeed of the CPU and the
-> > > stepping (old: 2, new: 4).
-> >
-> > Heat anyone? stepping 4 hasn't seemed to be the problem, at least not
-> > directly
-> > What's the tempature difference between your 1Ghz and 1.4Ghz? both
-> > CPU and system? What kind of cooling do you have?
->
-> What about the power supply. If it is at all marginal the power
-> consumption boost going to 1.4G is likely a killer.
+Quick update:
 
-Well, he didn't mention the amperage outputs, but he said 431W Enermax, 
-from what I hear Enermax PSU's are good.
-I still have trouble dealing with the idea that the optimizations cause 
-power consumption like this, but then, I have trouble with my own idea 
-that it causes sufficient heat increase in the chipset that soon after 
-boot.
+pre6-preempt patch is up at:
+http://tech9.net/rml/linux/patch-rml-2.4.10-pre6-preempt-kernel-1
 
-Do most people that experience this problem also experience after a 
-cold-boot where the system had been off for at least 10-15 minutes? And 
-has ANYONE sucsesfully cured this problem by changing power supplies?
+pre5 does not diff cleanly against pre6, so use this if you are using
+Linus's tree.  this patch contains the ieee1394 fix, too. highmem
+updates are still pending (see below).
+
+2.4.9-ac10 is still at:
+http://tech9.net/rml/linux/patch-rml-2.4.9-ac10-preempt-kernel-1
+
+note this does not contain the ieee1394 fix or highmem update. as
+always, you can find the newest patches there, fairly quickly.
+
+if you are using 2.4.9-ac10 or earlier or 2.4.10-pre5 or earlier and
+need the ieee1394 patch (fixes compile error) here it is (this is merged
+in 2.4.10-pre6-preempt and will be in the next acXX-preempt:)
+
+diff -urN linux-2.4.9-ac10/drivers/ieee1394/ linux/drivers/ieee1394/csr.c
+--- linux-2.4.9-ac10/drivers/ieee1394/csr.c	Fri Sep  7 23:53:41 2001
++++ linux/drivers/ieee1394/csr.c	Sun Sep  9 00:07:21 2001
+@@ -10,6 +10,7 @@
+  */
+ 
+ #include <linux/string.h>
++#include <linux/sched.h>
+ 
+ #include "ieee1394_types.h"
+ #include "hosts.h"
+
+if you are using any patch, and are using highmem, here is an
+experimental patch that seems to work.  a final version will be in
+future preempt patches:
+
+
+--- linux-corndog/include/linux/highmem.h Sun Sep  9 08:59:04 2001
++++ linux/include/linux/highmem.h Sun Sep  9 09:00:07 2001
+@@ -88,6 +88,7 @@
+        if (page < highmem_start_page)
+                return page_address(page);
+
++       ctx_sw_off();
+        idx = type + KM_TYPE_NR*smp_processor_id();
+        vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
+#if HIGHMEM_DEBUG
+@@ -119,6 +120,7 @@
+        pte_clear(kmap_pte-idx);
+        __flush_tlb_one(vaddr);
+#endif
++       ctx_sw_on();
+}
+
+#endif /* __KERNEL__ */
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266905AbTGOIcr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 04:32:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266907AbTGOIcr
+	id S266907AbTGOIi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 04:38:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266921AbTGOIi5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 04:32:47 -0400
-Received: from griffon.mipsys.com ([217.167.51.129]:14285 "EHLO gaston")
-	by vger.kernel.org with ESMTP id S266905AbTGOIcn (ORCPT
+	Tue, 15 Jul 2003 04:38:57 -0400
+Received: from upco.es ([130.206.70.227]:60005 "EHLO mail1.upco.es")
+	by vger.kernel.org with ESMTP id S266907AbTGOIi4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 04:32:43 -0400
-Subject: Re: radeonfb patch for 2.4.22...
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: ajoshi@kernel.crashing.org
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10307141342420.28472-100000@gate.crashing.org>
-References: <Pine.LNX.4.10.10307141342420.28472-100000@gate.crashing.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1058258835.629.12.camel@gaston>
+	Tue, 15 Jul 2003 04:38:56 -0400
+Date: Tue, 15 Jul 2003 10:53:38 +0200
+From: Romano Giannetti <romano@dea.icai.upco.es>
+To: linux-kernel@vger.kernel.org
+Subject: Re: requirements for installing a 2.6.0-test kernel....
+Message-ID: <20030715085338.GA23789@pern.dea.icai.upco.es>
+Reply-To: romano@dea.icai.upco.es
+Mail-Followup-To: Romano Giannetti <romano@dea.icai.upco.es>,
+	linux-kernel@vger.kernel.org
+References: <200307141659.05451.m.watts@eris.qinetiq.com> <20030714163749.GC2684@wind.cocodriloo.com> <200307141817.07524.m.watts@eris.qinetiq.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 15 Jul 2003 10:47:16 +0200
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <200307141817.07524.m.watts@eris.qinetiq.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 14, 2003 at 06:17:07PM +0100, Mark Watts wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> 
+> Sure - I'm trying it on Mandrake 9.1
+> 
+> I've already had fun with the module_init_tools from 
+> http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
+> 
+> Basically after doing the ./configure --prefix=/ && make moveold, I was left 
+> with a bunch of dangling symlinks in /sbin
+> 
+> I've since grabed the src.rpm from here: 
+> http://people.redhat.com/arjanv/2.5/SRPMS/
+> and that seems to be behaving a bit more (although I haven't rebooted yet :)
+> 
+> Everything else is from a standard Mandrake 9.1 install, so I'm using gcc 
+> 3.2.2 and associated gubbins.
+> 
+
+I'm also interested (I have a mdk 9.1 installed, too), so please keep us
+informed. I would like to test 2.6, but I have to do real work too, so I
+need the ability to switch back safely to a 2.4 kernel... so if you succeed,
+please share! Thanks a lot! 
+
+      Romano
 
 
-> This is not true, see the above.  Also, its hard to "accept patches" from
-> people if you do NOT recieve any patches from them!  Ben's style is to get
-> the maintainers of drivers to go around and search for his personal tree
-> and do their own diffs from that tree, instead of him sending a patch to
-> the maintainer.
-
-Ok, please stop that, I did post patches publically and you were always
-CCed, I have really no time to spend on useless arguments here, the code
-is there, it works, it fixes bugs, you didn't even look at it since you
-claim it's all in your 0.1.8, so please, stop bs'ing us.
-
-I spent a significant amount of time tracking problems that users
-reported after they told me they never got any useful reply from you.
-Some obvious fixes like the VRAM amount fix for LY chips, which is still
-broken in your 0.1.8, have been around -ac etc... for monthes. I DO NOT
-care about beeing "maintainer" just to get my name in there, all I care
-about right now is getting those fixes in so the driver works and
-concentrate on more interesting matters.
-
-I spent several hours redoing most of my patches against 0.1.8, which is
-what Marcelo merged, I won't do it again. If you don't agree with the
-version change (which was here only to avoid confusion when getting user
-reports), then send Marcelo a patch that tells "0.1.9" and be done with
-it.
- 
-Ben.
-
+-- 
+Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
+Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569

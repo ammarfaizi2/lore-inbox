@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267317AbUHDPsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267320AbUHDPub@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267317AbUHDPsn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 11:48:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267316AbUHDPsm
+	id S267320AbUHDPub (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 11:50:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267319AbUHDPua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 11:48:42 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:37799 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S267314AbUHDPsh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 11:48:37 -0400
-Date: Wed, 4 Aug 2004 17:48:24 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: block layer sg, bsg
-Message-ID: <20040804154824.GV10340@suse.de>
-References: <20040804085000.GH10340@suse.de> <20040804075215.155c06ac.davem@redhat.com> <20040804150403.GU10340@suse.de> <20040804084429.7de77cd7.davem@redhat.com>
+	Wed, 4 Aug 2004 11:50:30 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:36429 "EHLO
+	zircon.austin.ibm.com") by vger.kernel.org with ESMTP
+	id S267316AbUHDPuM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 11:50:12 -0400
+Subject: Re: [PATCH] ppc32: fix mktree utility in 64-bit cross-compile
+	environment
+From: Hollis Blanchard <hollisb@us.ibm.com>
+To: "Zink, Dan" <dan.zink@hp.com>
+Cc: akpm@osdl.org, linuxppc-dev@lists.linuxppc.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <8C91B010B3B7994C88A266E1A72184D306BEFD8F@cceexc19.americas.cpqcorp.net>
+References: <8C91B010B3B7994C88A266E1A72184D306BEFD8F@cceexc19.americas.cpqcorp.net>
+Content-Type: text/plain
+Message-Id: <1091634312.24091.11.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040804084429.7de77cd7.davem@redhat.com>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 04 Aug 2004 10:45:13 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 04 2004, David S. Miller wrote:
-> On Wed, 4 Aug 2004 17:04:04 +0200
-> Jens Axboe <axboe@suse.de> wrote:
-> 
-> > On Wed, Aug 04 2004, David S. Miller wrote:
-> > > 
-> > > When you pass data structures in via {read,write}{,v}() system calls,
-> > > you make it next to impossible for the CONFIG_COMPAT layer to cope
-> > > with this.
-> > > 
-> > > Please consider another way to pass in those sg_io_* things.
-> > 
-> > Any suggestions?
-> 
-> ioctl() :-(
+On Tue, 2004-08-03 at 17:01, Zink, Dan wrote:
+> --- arch/ppc/boot/utils/mktree.c.old	2004-08-03 16:31:09.568992888
+> -0500
+> +++ arch/ppc/boot/utils/mktree.c	2004-08-03 16:32:26.773256056
+> -0500
+> @@ -15,19 +15,20 @@
+>  #include <sys/stat.h>
+>  #include <unistd.h>
+>  #include <netinet/in.h>
+> +#include <asm/types.h>
 
-ioctls suck :-)
+You'll notice we don't include any other <asm/*> headers; this tool can
+be built standalone.
 
-> Or use a more portable well-defined type which does not change
-> size nor layout between 32-bit and 64-bit environments.
-
-Yeah that's what I thought you meant... Problem is, to stay compatible
-with sg v3 I cannot do much about the structure. It should have been
-designed with this in mind from the beginning.
-
-But I can certainly draft a new structure that works...
+Is there a reason not to use <stdint.h> and uint32_t?
 
 -- 
-Jens Axboe
+Hollis Blanchard
+IBM Linux Technology Center
 

@@ -1,75 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316305AbSEODER>; Tue, 14 May 2002 23:04:17 -0400
+	id <S316309AbSEODTu>; Tue, 14 May 2002 23:19:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316306AbSEODEQ>; Tue, 14 May 2002 23:04:16 -0400
-Received: from [66.89.142.11] ([66.89.142.11]:38360 "EHLO exalane.intransa.com")
-	by vger.kernel.org with ESMTP id <S316305AbSEODEP>;
-	Tue, 14 May 2002 23:04:15 -0400
-Message-ID: <3CE1D007.6060309@candelatech.com>
-Date: Tue, 14 May 2002 20:03:35 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies Inc
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020314 Netscape6/6.2.2
-X-Accept-Language: en-us
+	id <S316310AbSEODTt>; Tue, 14 May 2002 23:19:49 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:30988 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S316309AbSEODTt>;
+	Tue, 14 May 2002 23:19:49 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200205150318.g4F3IPY103245@saturn.cs.uml.edu>
+Subject: Re: [RFC] FAT extension filters
+To: msmith@operamail.com (Malcolm Smith)
+Date: Tue, 14 May 2002 23:18:25 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org, chaffee@cs.berkeley.edu
+In-Reply-To: <3CE1CA10.F1778F41@operamail.com> from "Malcolm Smith" at May 15, 2002 12:38:08 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: Jennifer Huang <carrothh@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Question about network card.
-In-Reply-To: <20020514215151.54784.qmail@web20102.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 May 2002 03:04:10.0113 (UTC) FILETIME=[2F206F10:01C1FBBD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can look at /proc/net/dev to see the various network driver counters...that should
-tell you something...
+> (Sorry if I'm doing stupid things - I'm a newbie.  Send me a private
+> email and I'll fix them.)
+>
+> This is a patch that adds an extra mount option for msdos/vfat
+> partitions, which allows you to specify a specific umask/uid/gid for
+> files with a particular extension.  Supports multiple filters using
+> linked list.  Note that this does not provide security on an inherently
+> insecure fs.
+>
+> Use -o filter=ext[:[umask][:[uid][:[gid]]]]
 
-Ben
+Some ideas:
 
-Jennifer Huang wrote:
+1. use this to express the existing showexec option
+2. make this work for all non-UNIX filesystems
+3. specify the data some other place
 
-> Hi,
-> 
-> I am not sure if this is the correct place to ask this
-> question.
-> 
-> I wrote a traffic generator and tried to send traffic
-> to a linux box. I found that when I generated more
-> than 100Mbps traffic from multi-senders to the
-> receiver, tcpdump can see nothing at the receiver
-> side. The network card is 100Mbps. 
-> 
-> My questions are:
-> 
-> 1. What will happen if there are more than 100Mbps
-> traffic dumped to a 100Mbps network card? Is it
-> possible that the card drop most of the packets?
-> 
-> 2. Does it look like my traffic generator problem? Do
-> I need to set particular socket options?
-> 
-> Thanks,
-> -Jenny
-> 
-> 
-> 
-> __________________________________________________
-> Do You Yahoo!?
-> LAUNCH - Your Yahoo! Music Experience
-> http://launch.yahoo.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+While you're hacking around FAT stuff, see about
+using the timestamp of the volume name file for
+the root directory. Remember that very old
+filesystems won't have a volume name file, so
+you might need to create one.
 
-
--- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+Also I found a bug in the vfat code. It doesn't
+properly handle old (pre-vfat) files with names
+that start with 0xE5; these are stored on disk
+with 0x05 as the first character.
 

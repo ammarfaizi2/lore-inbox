@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265154AbTBBIkB>; Sun, 2 Feb 2003 03:40:01 -0500
+	id <S265140AbTBBIh2>; Sun, 2 Feb 2003 03:37:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265169AbTBBIkA>; Sun, 2 Feb 2003 03:40:00 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:57998
+	id <S265154AbTBBIh2>; Sun, 2 Feb 2003 03:37:28 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:57230
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265154AbTBBIj5>; Sun, 2 Feb 2003 03:39:57 -0500
-Subject: Re: [PCMCIA] [IDE] [2.5.59-mm7] Badness in  kobject_register call
-	trace
+	id <S265140AbTBBIh1>; Sun, 2 Feb 2003 03:37:27 -0500
+Subject: Re: Defect (Bug) Report
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Charles Baylis <cb-lkml@fish.zetnet.co.uk>
+To: "John W. M. Stevens" <john@betelgeuse.us>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200302012325.07397.cb-lkml@fish.zetnet.co.uk>
-References: <200302012325.07397.cb-lkml@fish.zetnet.co.uk>
+In-Reply-To: <20030202011223.GC5432@morningstar.nowhere.lie>
+References: <20030202011223.GC5432@morningstar.nowhere.lie>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1044179118.16853.12.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1044178961.16853.9.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 02 Feb 2003 09:45:19 +0000
+Date: 02 Feb 2003 09:42:41 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-02-01 at 23:25, Charles Baylis wrote:
-> On inserting a PCMCIA compact flash adapter, I get this backtrace. I presume 
-> this fits in the "yes, 2.5 IDE isn't finished yet" category. Other 
-> information available on request.
+> So, to obtain further information, I would need some kind of ability
+> to force an Oops . . . can this be done with SysReq hot keys?  There
+> doesn't appear to be any indication that this is the case
 
-Badness in kobject_register is something that whoever did kobject stuff for
-IDE broke. Its not a change done by the IDE people. Hopefully whoever did
-the kobject stuff will fix it
+If the system hardware hangs and I can think of at least one reason it 
+might do exactly that then all bets are off
 
-As to the IDE side, idecs is a bit iffy in 2.5. 
+> For starters, I've gone in and activated Magic SysReq key (just in case),
+> spinlock debugging (best guess as to reason of hang), and verbose BUG
+> reporting (for luck!).
+> 
+> Any other suggestions, or recommendations to get more info?
 
-Alan
+Three starting points
+
+1.  Run memtest86 on the box for a bit. I don't think its bad RAM however
+2.  Plug in a PS/2 mouse if the box doesn't have one already. That avoids
+a hardware flaw on the AMD that we don't current work around in software
+3.  Check if 2.4.20 behaves the same way. I think it may fix your short
+pauses but I don't think its going to fix the hang alas. It would be
+useful to know however
+
 

@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbTKIAXG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 19:23:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbTKIAXF
+	id S262094AbTKIA3I (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 19:29:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbTKIA3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 19:23:05 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:19212
+	Sat, 8 Nov 2003 19:29:08 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:24076
 	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S261752AbTKIAXD (ORCPT
+	with ESMTP id S262094AbTKIA3G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 19:23:03 -0500
-Subject: Re: preemption when running in the kernel
+	Sat, 8 Nov 2003 19:29:06 -0500
+Subject: Re: sysfs vs. procfs, devfs vs. ufs ?
 From: Robert Love <rml@tech9.net>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: Frank Cusack <fcusack@fcusack.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200311081402.07345.ioe-lkml@rameria.de>
-References: <20031107040427.A32421@google.com>
-	 <200311081402.07345.ioe-lkml@rameria.de>
+To: Nico Schottelius <nico-mutt@schottelius.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20031107032856.GS25124@schottelius.org>
+References: <20031107032856.GS25124@schottelius.org>
 Content-Type: text/plain
-Message-Id: <1068337385.27320.203.camel@localhost>
+Message-Id: <1068337724.27320.217.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sat, 08 Nov 2003 19:23:05 -0500
+Date: Sat, 08 Nov 2003 19:28:44 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-11-08 at 08:01, Ingo Oeser wrote:
+On Thu, 2003-11-06 at 22:28, Nico Schottelius wrote:
 
-> While having preemption disabled or while actually holding a spinlock,
-> preemption is disabled.
-> 
-> Disabling preemption is modifying a count, which must reach 0 again to
-> have preemption enabled and trigger an reschedule, if needed.
-> 
-> Think of it roughly as a "counter of reasons to not preempt". If there
-> are no reasons anymore, then we preempt.
+> what is the intention of sysfs?
+> is it a replacement/addition to procfs?
 
-Hi, Ingo.
+sysfs is a filesystem used to export the device model (a tree of data
+structures representing the devices in a system) to user-space in a
+clean and efficient way.
 
-This is an accurate description of 2.6, but Frank said for 2.4.
+procfs is a more generic (and less elegant) filesystem for exporting
+anything to user-space.
 
-So, Frank, this is correct for 2.6 or 2.4 with the preempt-kernel patch,
-but not a stock 2.4 kernel.  A stock 2.4 kernel will never preempt a
-task running inside the kernel.
+sysfs only replaces procfs in so far as relevant interfaces, such as
+those related to hardware.  process information should remain in procfs.
+
+/proc is not going anywhere.
 
 	Robert Love
 

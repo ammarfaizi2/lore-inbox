@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317020AbSGZE7y>; Fri, 26 Jul 2002 00:59:54 -0400
+	id <S316827AbSGZFLW>; Fri, 26 Jul 2002 01:11:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317026AbSGZE7C>; Fri, 26 Jul 2002 00:59:02 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:51913 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316889AbSGZE5o>;
-	Fri, 26 Jul 2002 00:57:44 -0400
-Date: Thu, 25 Jul 2002 21:50:00 -0700 (PDT)
-Message-Id: <20020725.215000.18243038.davem@redhat.com>
-To: katta@csee.wvu.edu
-Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Reg. gcc-3.0 for ultrasparc
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1027650595.21198.13.camel@indus>
-References: <1027650595.21198.13.camel@indus>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316847AbSGZFLV>; Fri, 26 Jul 2002 01:11:21 -0400
+Received: from dsl-213-023-043-040.arcor-ip.net ([213.23.43.40]:13276 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S316827AbSGZFLU>;
+	Fri, 26 Jul 2002 01:11:20 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: "jdow" <jdow@earthlink.net>, "Bill Davidsen" <davidsen@tmr.com>
+Subject: Re: [PATCH -ac] Panicking in morse code
+Date: Fri, 26 Jul 2002 07:13:03 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: "Andrew Rodland" <arodland@noln.com>, <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.3.96.1020725084540.11202C-100000@gatekeeper.tmr.com> <E17Xw0V-0004f8-00@starship> <032001c23460$2f59e340$1125a8c0@wednesday>
+In-Reply-To: <032001c23460$2f59e340$1125a8c0@wednesday>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17XxPT-0005N0-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Shanti Katta <katta@csee.wvu.edu>
-   Date: 25 Jul 2002 22:29:55 -0400
+On Friday 26 July 2002 06:52, jdow wrote:
+> From: "Daniel Phillips" <phillips@arcor.de>
+> > On Thursday 25 July 2002 14:51, Bill Davidsen wrote:
+> > > ??? If the length is 1..5 I suspect you could use the top two bits and fit
+> > > the whole thing in a byte. But since bytes work well, use the top three
+> > > bits for length without the one bit offset. Still a big win over strings,
+> > > although a LOT harder to get right by eye.
+> >
+> > Please read back through the thread and see how 255 different 7 bit codes
+> > complete with lengths can be packed into 8 bits.
+> 
+> It appears someone is under the misapprehension that Morse characters are
+> all 5 elements or less. "SK" is an example of a six element meta-character,
+> one of a set that needs caring for, "...-.-".
 
-   While compiling user-mode-linux on ultrasparc(with debian on it), I get
-   the following linker errors with gcc-3.0.
+Need I point out that we are now perfectly positioned to invent the additional
+morse codes needed to represent all the remaining ascii characters?  We could
+call the revised code... err... "remorse" ;-)
 
-You posted this same exact question a few days ago.
-There is no reason to repeat it.  Either people are
-going to give you an answer and help out or they
-aren't.  Posting multiple times is not going to change
-that.
-
+-- 
+Daniel

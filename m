@@ -1,38 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317455AbSF1PWW>; Fri, 28 Jun 2002 11:22:22 -0400
+	id <S317456AbSF1PYN>; Fri, 28 Jun 2002 11:24:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317456AbSF1PWV>; Fri, 28 Jun 2002 11:22:21 -0400
-Received: from insgate.stack.nl ([131.155.140.2]:16655 "EHLO skynet.stack.nl")
-	by vger.kernel.org with ESMTP id <S317455AbSF1PWU>;
-	Fri, 28 Jun 2002 11:22:20 -0400
-Date: Fri, 28 Jun 2002 17:24:41 +0200 (CEST)
-From: Serge van den Boom <svdb@stack.nl>
-To: linux-kernel@vger.kernel.org
-Cc: Jeff Dike <jdike@karaya.com>
-Subject: Re: On the forgotten ptrace EIP bug (patch included) 
-In-Reply-To: <200206241418.g5OEITq04146@karaya.com>
-Message-ID: <20020628144639.I51309-100000@toad.stack.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317457AbSF1PYM>; Fri, 28 Jun 2002 11:24:12 -0400
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:33515 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S317456AbSF1PYK>; Fri, 28 Jun 2002 11:24:10 -0400
+Subject: Re: [PATCH] compile fix for 2.5 kdev_t compatibility macros
+From: Steven Cole <elenstev@mesatop.com>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: Stephen Lord <lord@sgi.com>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1025277008.1643.6.camel@tux>
+References: <1025272233.1168.21.camel@n236> 
+	<1025275076.27133.131.camel@spc9.esa.lanl.gov> 
+	<1025277008.1643.6.camel@tux>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 28 Jun 2002 09:24:18 -0600
+Message-Id: <1025277858.11726.136.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jun 2002, Jeff Dike wrote:
-> svdb@stack.nl said:
-> > The patch below should fix these issues. I have tested it on my
-> > machine, where it appears to work.
-> Make sure UML still runs with your patch.  That was one of the things (and
-> maybe the only thing) that showed the orginal patch was broken.
-I know of two other programs that broke with the original patch,
-ups and ltrace. Both work with the new one.
-As for UML, I don't even see anything go wrong when the original patch is
-applied. I can immagine something in UML changed in the meantime that
-prevents it from triggering the bug, or I might just be looking in the
-wrong place. At any rate, I have successfully booted a UML kernel,
-with either patch applied to the host system kernel.
+On Fri, 2002-06-28 at 09:10, Martin Josefsson wrote:
+[snip]
+> 
+> And here's one more...
+> 
+> --- linux-2.4.19-rc1/include/linux/kdev_t.h.orig	Fri Jun 28 16:59:48 2002
+> +++ linux-2.4.19-rc1/include/linux/kdev_t.h	Fri Jun 28 17:01:12 2002
+> @@ -82,7 +82,7 @@
+>  #define kdev_same(a,b)	((a) == (b))
+>  #define kdev_none(d)	(!(d))
+>  #define kdev_val(d)	((unsigned int)(d))
+> -#define val_to_kdev(d)	((kdev_t(d))
+> +#define val_to_kdev(d)	(kdev_t(d))
+>  
+>  /*
+>  As long as device numbers in the outside world have 16 bits only,
+> 
+> -- 
+> /Martin
+> 
 
-Serge
+Hmm.  It looks like (d) should be cast to (kdev_t).
+Here are both fixes (I hope).
 
+Steven
+
+--- linux-2.4.19-rc1/include/linux/kdev_t.h.orig	Fri Jun 28 08:31:27 2002
++++ linux-2.4.19-rc1/include/linux/kdev_t.h	Fri Jun 28 09:11:39 2002
+@@ -81,8 +81,8 @@
+ #define minor(d)	MINOR(d)
+ #define kdev_same(a,b)	((a) == (b))
+ #define kdev_none(d)	(!(d))
+-#define kdev_val(d)	((unsigned int)(d)
+-#define val_to_kdev(d)	((kdev_t(d))
++#define kdev_val(d)	((unsigned int)(d))
++#define val_to_kdev(d)	((kdev_t)(d))
+ 
+ /*
+ As long as device numbers in the outside world have 16 bits only,
 
 

@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVASPTq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbVASP1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbVASPTq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 10:19:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVASPTq
+	id S261748AbVASP1u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 10:27:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVASP1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 10:19:46 -0500
-Received: from ms001msg.fastwebnet.it ([213.140.2.51]:27117 "EHLO
-	ms001msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S261749AbVASPTo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 10:19:44 -0500
-Date: Wed, 19 Jan 2005 16:22:57 +0100
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Gmail <todor.t@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re:
-Message-Id: <20050119162257.2a4436d2@tux.homenet>
-In-Reply-To: <987426305.20050119162522@gmail.com>
-References: <987426305.20050119162522@gmail.com>
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 19 Jan 2005 10:27:49 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:32651 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261748AbVASP1r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 10:27:47 -0500
+Date: Wed, 19 Jan 2005 16:27:17 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Kumar Gala <kumar.gala@freescale.com>
+cc: Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       David Woodhouse <dwmw2@infradead.org>, "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] raid6: altivec support
+In-Reply-To: <F0F87817-6A2C-11D9-AC28-000393DBC2E8@freescale.com>
+Message-ID: <Pine.GSO.4.61.0501191622060.15516@waterleaf.sonytel.be>
+References: <Pine.GSO.4.61.0501191606260.15516@waterleaf.sonytel.be>
+ <F0F87817-6A2C-11D9-AC28-000393DBC2E8@freescale.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Jan 2005 16:25:22 +0200
-Gmail <todor.t@gmail.com> wrote:
-
-> !!! ERROR: sys-apps/module-init-tools-3.0-r2 failed.
-> !!! Function src_compile, Line 1980, Exitcode 2
-> !!! emake module-init-tools failed
-> !!! If you need support, post the topmost build error, NOT this status
-> message.
+On Wed, 19 Jan 2005, Kumar Gala wrote:
+> On Jan 19, 2005, at 9:08 AM, Geert Uytterhoeven wrote:
+> > On Wed, 19 Jan 2005, David Woodhouse wrote:
+> > > The binary structure which changes every few weeks and which is shared
+> >  > between the bootloader and the kernel? Yeah, "somewhat broken" is one
+> > > way of putting it :)
+> >  >
+> > > The ARM kernel does it a lot better with tag,value pairs.
+> > 
+> > As does m68k... That's why we never got beyond bootinfo major version 2.
 > 
-> phases failed
+> Out of interest, on ARM & m68k I would assume that the list of tag's gets
+> added to over time?
 
-Can you explain me what this has to do with Linux Kernel?
+That's true. But besides the recent conversion of the HP9000/[34]00 code to
+use bootinfo, not much has changed during the last 5 years.
 
-You are using Gentoo and a compilation failed, go here:
+If a tag is not recognized, it's just ignored. That means your new feature
+cannot be used by the kernel, but it doesn't break the bootloader<->kernel
+interface the hard way.
 
-http://bugs.gentoo.org/
+Gr{oetje,eeting}s,
 
-and search for "ALL module-init-tools", if you don't find the solution
-then post a new BUG report.
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
--- 
-	Paolo Ornati
-	Gentoo Linux (kernel 2.6.10-gentoo-r4)
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264633AbSJ3J0K>; Wed, 30 Oct 2002 04:26:10 -0500
+	id <S264643AbSJ3J3T>; Wed, 30 Oct 2002 04:29:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264634AbSJ3J0K>; Wed, 30 Oct 2002 04:26:10 -0500
-Received: from c-66-176-164-150.se.client2.attbi.com ([66.176.164.150]:25500
-	"EHLO schizo.psychosis.com") by vger.kernel.org with ESMTP
-	id <S264633AbSJ3J0I>; Wed, 30 Oct 2002 04:26:08 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Cinege <dcinege@psychosis.com>
-Reply-To: dcinege@psychosis.com
-To: Russell King <rmk@arm.linux.org.uk>
-Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge candidate list.
-Date: Wed, 30 Oct 2002 04:32:23 -0500
-User-Agent: KMail/1.4.2
-Cc: Jeff Garzik <jgarzik@pobox.com>, landley@trommello.org,
-       linux-kernel@vger.kernel.org, reiser@namesys.com,
-       alan@lxorguk.ukuu.org.uk, davem@redhat.com, boissiere@adiglobal.com
-References: <200210272017.56147.landley@trommello.org> <200210300322.17933.dcinege@psychosis.com> <20021030083751.A25178@flint.arm.linux.org.uk>
-In-Reply-To: <20021030083751.A25178@flint.arm.linux.org.uk>
+	id <S264644AbSJ3J3T>; Wed, 30 Oct 2002 04:29:19 -0500
+Received: from packet.digeo.com ([12.110.80.53]:63418 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264643AbSJ3J3S>;
+	Wed, 30 Oct 2002 04:29:18 -0500
+Message-ID: <3DBFA7E3.345690B2@digeo.com>
+Date: Wed, 30 Oct 2002 01:35:31 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210300432.23107.dcinege@psychosis.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Hans Reiser <reiser@namesys.com>, torvalds@transmeta.com,
+       Nikita Danilov <Nikita@namesys.com>, landley@trommello.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5 merge candidate list, final version.  (End of "crunch 
+ time"series.)
+References: <200210280534.16821.landley@trommello.org> <15805.27643.403378.829985@laputa.namesys.com> <3DBF9600.4060208@namesys.com> <3DBF9BA5.6000100@pobox.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Oct 2002 09:35:32.0194 (UTC) FILETIME=[B0EFA420:01C27FF7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 30 October 2002 3:37, Russell King wrote:
-> On Wed, Oct 30, 2002 at 03:22:17AM -0500, Dave Cinege wrote:
-> > Do you have any serious sysadmin, clustering, or emebedded system
-> > IMPLEMENTATION experience?
->
-> Please don't get personal, or you'll end up in peoples kill files.
+Jeff Garzik wrote:
+> 
+> Hans Reiser wrote:
+> 
+> > We are going to submit a patch appropriate for inclusion as an
+> > experimental FS on Halloween.   I hope you will forgive our pushing
+> > the limit timewise, it is not by choice, but the algorithms we used to
+> > more than double reiserfs V3 performance were, quite frankly, hard to
+> > code.
+> 
+> Does your merge change the core code at all?  Does it add new syscalls?
+> 
 
-It's not personal. He made a wild 'No one needs any of this[initrd]' 
-statement. Is he coming from 'this looks like a good idea'(coder) or
-'I can prove this is a good idea through experience examples.'
-(systems engineer)
+Their changes are tiny, and sensible.  See
+http://www.namesys.com/snapshots/2002.10.29/
 
-I can prove to you (for one thing) that when the shit hits the
-fan (disaster recovery) initrd is a good option to have.
+But I'd like to ask about the status of reiser3 support.
 
-> ARM is basically embedded today, and I support initramfs.  I don't
-> believe your "embedded system" argument holds any water.  Yes, it
+Chris had patches *ages* ago to convert it to use direct-to-BIO for
+reads, and writes should be done as well.  reiserfs3 is still using
+buffer-head-based IO for bulk reads and writes.  That's a 25-30% hit
+in CPU cost, and all the old ZONE_NORMAL-full-of-buffer_heads
+problems.
 
-High level embedded systems...low level systems could care less.
-
-> is a different way of doing things, but it can (and does here)
-> support initrd images.
-
-The point to this is:
-
-Linking an image into the kernel LOOKS nice, but I would sure not
-want to deploy it because it becomes an adminstation nightmare. 
-Even with initrd, a single file can be a problem...this is why my
-patch supports extracting multiple tar.gz archives....to maintain
-configuration modularity.
-
-Having an image in the kernel is not a bad thing...making it the
-only option is.
-
-Dave
-
--- 
-The time is now 22:48 (Totalitarian)  -  http://www.ccops.org/
-
-
+Any plans to get that work finished off?

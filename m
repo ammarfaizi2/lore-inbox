@@ -1,39 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265220AbRFUUyc>; Thu, 21 Jun 2001 16:54:32 -0400
+	id <S265218AbRFUUyn>; Thu, 21 Jun 2001 16:54:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265219AbRFUUyW>; Thu, 21 Jun 2001 16:54:22 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:52235 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S265218AbRFUUyO>;
-	Thu, 21 Jun 2001 16:54:14 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200106212053.f5LKrv6469312@saturn.cs.uml.edu>
-Subject: Re: [RFC][PATCH] cutting up struct kernel_stat into cpu_stat
-To: zab@osdlab.org (Zach Brown)
-Date: Thu, 21 Jun 2001 16:53:57 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010621113107.A16934@osdlab.org> from "Zach Brown" at Jun 21, 2001 11:31:07 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S265219AbRFUUyc>; Thu, 21 Jun 2001 16:54:32 -0400
+Received: from chmls06.mediaone.net ([24.147.1.144]:52669 "EHLO
+	chmls06.mediaone.net") by vger.kernel.org with ESMTP
+	id <S265218AbRFUUyZ>; Thu, 21 Jun 2001 16:54:25 -0400
+From: andrew@pimlott.ne.mediaone.net (Andrew Pimlott)
+Date: Thu, 21 Jun 2001 16:46:25 -0400
+To: "Eric S. Raymond" <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Eric S. Raymond" <esr@snark.thyrsus.com>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Controversy over dynamic linking -- how to end the panic
+Message-ID: <20010621164625.E23465@pimlott.ne.mediaone.net>
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Eric S. Raymond" <esr@snark.thyrsus.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200106211814.f5LIEgK04880@snark.thyrsus.com> <E15D9DP-0001sF-00@the-village.bc.nu> <20010621151716.B5662@thyrsus.com> <20010621155103.B23465@pimlott.ne.mediaone.net> <20010621161322.A6873@thyrsus.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010621161322.A6873@thyrsus.com>; from esr@thyrsus.com on Thu, Jun 21, 2001 at 04:13:22PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zach Brown writes:
+On Thu, Jun 21, 2001 at 04:13:22PM -0400, Eric S. Raymond wrote:
+> Andrew Pimlott <andrew@pimlott.ne.mediaone.net>:
+> > On Thu, Jun 21, 2001 at 03:17:16PM -0400, Eric S. Raymond wrote:
+> > > IANAL, but I believe that Linus's position as anthology copyright holder
+> > > makes him privileged in this respect.
+> > 
+> > Regardless of what you find in the books, recall that Linus has
+> > stated that decentralizing the copyright of Linux was a goal, so you
+> > may not find him willing to claim an "anthology copyright" (if such
+> > a thing even applies to the kernel, which in my NAL opinion, it does
+> > not).
+> 
+> Linus *is*, however, implicitly claiming the authority to make license
+> policy on behalf of the other copyright holders in cases where the GPL
+> is unclear.
+> 
+> In COPYING, Linus says that that the version of GPL applying to the
+> kernel is v2 unless explicitly otherwise stated.  He has also already
+> issued the interpretation that normal system calls from userland do
+> not create a derivation relationship.
+> 
+> I consider Linus to have the moral right to make these decisions, whether
+> or not the law gives him a formal legal right to do so.  All I have done
+> is propose that he be more explicit about his policy in order to prevent
+> needless confusion and nervousness.
 
-> The attached patch-in-progress removes the per-cpu statistics from
-> struct kernel_stat and puts them in a cpu_stat structure, one per cpu,
-> cacheline padded.  The data is still coolated and presented through
-> /proc/stat, but another file /proc/cpustat is also added.  The locking
-> is as nonexistant as it was with kernel_stat, but who cares, they're
-> just fuzzy stats to be eyeballed by system tuners :).
+I agree entirely that Linus, as creator of the license, is
+privileged with respect to interpretation of the license.  I
+disagree however with your suggestion that he is privileged with
+respect to the copyright (eg the ability to sue or relicense),
+especially since his own words (cited earlier) read like a
+disclaimer of such privilege.
 
-Hey! The lack of atomicity causes "top" to do one of 3 things
-for the idle time report, depending on the version:
+I basically support your position.
 
-1. negative numbers
-2. wrap-around (42000000.00% idle)
-3. truncate to zero (the numbers don't add up)
-
-This is because top sees the idle time run backwards for a moment.
+Andrew

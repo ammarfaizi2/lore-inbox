@@ -1,29 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264424AbRGCOF2>; Tue, 3 Jul 2001 10:05:28 -0400
+	id <S264407AbRGCN6s>; Tue, 3 Jul 2001 09:58:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264432AbRGCOFS>; Tue, 3 Jul 2001 10:05:18 -0400
-Received: from wh58-709.st.Uni-Magdeburg.DE ([141.44.198.79]:16132 "HELO
-	wh58-709.st.uni-magdeburg.de") by vger.kernel.org with SMTP
-	id <S264424AbRGCOFH>; Tue, 3 Jul 2001 10:05:07 -0400
-Date: Tue, 3 Jul 2001 16:05:21 +0200 (CEST)
-From: Erik Meusel <erik@wh58-709.st.uni-magdeburg.de>
-To: "J . A . Magallon" <jamagallon@able.es>
-cc: Keith Owens <kaos@ocs.com.au>, <linux-kernel@vger.kernel.org>
+	id <S264423AbRGCN62>; Tue, 3 Jul 2001 09:58:28 -0400
+Received: from jalon.able.es ([212.97.163.2]:17331 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S264407AbRGCN6T>;
+	Tue, 3 Jul 2001 09:58:19 -0400
+Date: Tue, 3 Jul 2001 15:58:01 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Erik Meusel <erik@wh58-709.st.uni-magdeburg.de>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
 Subject: Re: include/asm-i386/checksum.h
-In-Reply-To: <20010703155801.A1206@werewolf.able.es>
-Message-ID: <Pine.LNX.4.33.0107031604200.21758-100000@wh58-709.st.uni-magdeburg.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010703155801.A1206@werewolf.able.es>
+In-Reply-To: <2487.994146067@kao2.melbourne.sgi.com> <Pine.LNX.4.33.0107031356200.16796-200000@wh58-709.st.uni-magdeburg.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.33.0107031356200.16796-200000@wh58-709.st.uni-magdeburg.de>; from erik@wh58-709.st.uni-magdeburg.de on Tue, Jul 03, 2001 at 13:58:58 +0200
+X-Mailer: Balsa 1.1.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Jul 2001, J . A . Magallon wrote:
 
-> make a couple symlinks and you will not have to touch kernel makefiles:
-> ln -s /usr/local/include/ncurses /usr/include
-That's the thing I wanted to work around, but ok. It was just a
-suggestion.
+On 20010703 Erik Meusel wrote:
+>On Tue, 3 Jul 2001, Keith Owens wrote:
+>
+>> >P.S.: would it be possible to patch the menuconfig in that way, that it
+>> >does look in the whole include-path for the <ncurses.h> and relating
+>> >files? they aren't in /usr/include/ in my system and I'm tired of patching
+>> >linux/scripts/lxdialog/Makefile all the time. :)
+>> Where is it on your system?  What patch do you apply?
+>It is in /usr/local/include/ since I installed it myself, months ago.
+>The patch is attached. Just made silly to use /usr/local/ instead of /usr/.
+>
 
-mfg, Erik
+make a couple symlinks and you will not have to touch kernel makefiles:
+ln -s /usr/local/include/ncurses /usr/include
 
+
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.1 (Cooker) for i586
+Linux werewolf 2.4.5-ac23 #1 SMP Tue Jul 3 01:58:06 CEST 2001 i686

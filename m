@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267807AbUJNXnc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267170AbUJNWOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267807AbUJNXnc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 19:43:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268076AbUJNXjx
+	id S267170AbUJNWOq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 18:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267934AbUJNWN2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 19:39:53 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20129 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267807AbUJNXgR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 19:36:17 -0400
-Date: Thu, 14 Oct 2004 18:47:11 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: per-process shared information
-Message-ID: <20041014214711.GF6899@logos.cnet>
-References: <20041013231042.GQ17849@dualathlon.random>
+	Thu, 14 Oct 2004 18:13:28 -0400
+Received: from smtp.infolink.com.br ([200.187.64.6]:14853 "EHLO
+	smtp.infolink.com.br") by vger.kernel.org with ESMTP
+	id S267930AbUJNVtZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 17:49:25 -0400
+Subject: Re: [PATCH] smbfs: smbfs do not honor uid, gid, file_mode and
+	dir_mode supplied by user mount
+From: Haroldo Gamal <haroldo.gamal@silexonline.org>
+Reply-To: sileoxnline@silexonline.org
+To: Andrew Morton <akpm@osdl.org>
+Cc: samba@samba.org, linux-fsdevel@vger.kernel.org, urban@teststation.com,
+       rddunlap@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20041014144107.5cf63998.akpm@osdl.org>
+References: <416EA4CD.3080804@silexonline.org>
+	 <20041014144107.5cf63998.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1097790562.24104.0.camel@gamal>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041013231042.GQ17849@dualathlon.random>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 14 Oct 2004 18:49:22 -0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is the same patch. As I do not receive any ack I sent it again...
 
-Hi Andrea!
-
-No useful comments on the statm reporting issue.
-
-> Ps. if somebody like Hugh volunteers implementing it, you're very
-> welcome, just let me know (I'll eventually want to work on the oom
-> handling too, which is pretty screwed right now, 
-
-Yes, we've got reports of bad OOM killing behaviour (is that what you're
-talking about?) 
-
-One thing is the removal of "if (nr_swap_pages > 0) goto out" from oom_kill() 
-causes problems (spurious oom kill). 
-
-We need to throttle more, on page reclaiming progress I think.
-
-Take a look at 
-
-http://marc.theaimsgroup.com/?l=linux-mm&m=109587921204602&w=2
-
-What else you're seeing?
-
-> I've plenty of bugs
-> open on that area and the lowmem zone protection needs a rewrite too to
-> be set to a sane default value no matter the pages_lows etc..).
-
-Nick has been working on that lately I think. What is the problem?
-
-
+On Thu, 2004-10-14 at 18:41, Andrew Morton wrote:
+> Haroldo Gamal <haroldo.gamal@silexonline.org> wrote:
+> >
+> > This patch fixes "Samba Bugzilla Bug 999". The last version (2.6.8.1) of 
+> > smbfs kernel module do not honor uid, gid, file_mode and dir_mode 
+> > supplied by user during mount.
+> 
+> I merged this into -mm when you first sent it.  See
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/broken-out/smbfs-do-not-honor-uid-gid-file_mode-and-dir_mode-supplied.patch.
+> 
+> This latest patch seems to be significantly different from the earlier one.
+> What's up?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,57 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261643AbSJ1Wt1>; Mon, 28 Oct 2002 17:49:27 -0500
+	id <S261657AbSJ1WwE>; Mon, 28 Oct 2002 17:52:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261644AbSJ1Wt1>; Mon, 28 Oct 2002 17:49:27 -0500
-Received: from p50829418.dip.t-dialin.net ([80.130.148.24]:5893 "EHLO
-	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
-	id <S261643AbSJ1WtY>; Mon, 28 Oct 2002 17:49:24 -0500
-Date: Mon, 28 Oct 2002 22:55:52 +0000
-From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
-To: Tom Vier <tmv@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: conflicting types for sys_swap{on,off} Re: Linux 2.5.44-ac5
-Message-ID: <20021028225552.E2396@Marvin.DL8BCU.ampr.org>
-Reply-To: dl8bcu@dl8bcu.de
-Mail-Followup-To: Tom Vier <tmv@comcast.net>, linux-kernel@vger.kernel.org
-References: <200210281452.g9SEqwF17910@devserv.devel.redhat.com> <20021028224651.GA11490@yzero>
+	id <S261659AbSJ1WwE>; Mon, 28 Oct 2002 17:52:04 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:16548 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S261657AbSJ1WwB>;
+	Mon, 28 Oct 2002 17:52:01 -0500
+Date: Mon, 28 Oct 2002 23:58:21 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Hanna Linder <hannal@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-aio@kvack.org, lse-tech@lists.sourceforge.net,
+       torvalds@transmeta.com
+Subject: and nicer too - Re: [PATCH] epoll more scalable than poll
+Message-ID: <20021028225821.GA29868@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Davide Libenzi <davidel@xmailserver.org>,
+	Hanna Linder <hannal@us.ibm.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-aio@kvack.org, lse-tech@lists.sourceforge.net,
+	torvalds@transmeta.com
+References: <20021028220809.GB27798@outpost.ds9a.nl> <Pine.LNX.4.44.0210281420540.966-100000@blue1.dev.mcafeelabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20021028224651.GA11490@yzero>; from tmv@comcast.net on Mon, Oct 28, 2002 at 05:46:51PM -0500
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0210281420540.966-100000@blue1.dev.mcafeelabs.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 28, 2002 at 05:46:51PM -0500, Tom Vier wrote:
-> i'm not sure how to fix this. does anyone have a patch?
-> 
-> make -f kernel/Makefile 
->   gcc -Wp,-MD,kernel/.sys.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mno-fp-regs -ffixed-8 -mcpu=ev56 -Wa,-mev6 -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=sys -DEXPORT_SYMTAB  -c -o kernel/sys.o kernel/sys.c
-> kernel/sys.c:216: conflicting types for `sys_swapon'
-> include/linux/swap.h:212: previous declaration of `sys_swapon'
-> kernel/sys.c:217: conflicting types for `sys_swapoff'
-> include/linux/swap.h:211: previous declaration of `sys_swapoff'
-> make[1]: *** [kernel/sys.o] Error 1
-> make: *** [kernel] Error 2
+On Mon, Oct 28, 2002 at 02:29:37PM -0800, Davide Libenzi wrote:
 
-I just commented out both lines from kernel/sys.c to make it compile.
-Don't know what the proper fix might be.
+> sys_epoll, by plugging directly in the existing kernel architecture,
+> supports sockets and pipes. It does not support and there're not even
+> plans to support other devices like tty, where poll() and select() works
+> flawlessy. Since the sys_epoll ( and /dev/epoll ) fd support standard polling, you
 
-Thorsten
+Ok. I suggest the manpage mention this prominently. 
 
-> 
-> 
-> -- 
-> Tom Vier <tmv@comcast.net>
-> DSA Key ID 0xE6CB97DA
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I tried a somewhat more involved example and it indeed works expected. As an
+application developer, this suits my needs just fine. I really like the
+'edge' nature of it all.
+
+The interface is also lovely:
+
+for(;;) {
+  nfds = sys_epoll_wait(kdpfd, &pfds, -1);	
+  fprintf(stderr,"sys_epoll_wait returned: %d\n",nfds);
+  
+  for(n=0;n<nfds;++n) {
+    if(pfds[n].fd==s) {
+      client=accept(s, (struct sockaddr*)&local, &addrlen);
+
+      if(client<0){
+	perror("accept");
+	continue;
+      }
+      if (sys_epoll_ctl(kdpfd, EP_CTL_ADD, client, POLLIN ) < 0) {
+	fprintf(stderr, "sys_epoll set insertion error: fd=%d\n", client);
+	return -1;
+      }                                        
+    }
+    else
+      printf("something happened on fd %d\n", pfds[n].fd);
+  }
+}
+
+Each time a packet comes in, sys_wait returns just once so I can immediately
+call it again without having to wait for another thread to have actually
+*done* something with that socket.
+
+Righteous stuff, I'll be using this, thanks.
+
+Regards,
+
+bert
 
 -- 
-| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
-| Mobile: ++49 170 1876134       Snail: Niemannsweg 30, 49201 Dissen, Germany |
-| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,76 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265974AbUA1PRe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 10:17:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266018AbUA1PRe
+	id S266061AbUA1PyS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 10:54:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266072AbUA1PyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 10:17:34 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:35497 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S265974AbUA1PRc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 10:17:32 -0500
-Date: Wed, 28 Jan 2004 16:17:27 +0100
-From: David Weinehall <david@southpole.se>
-To: Markus =?iso-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
-Cc: Coywolf Qi Hunt <coywolf@lovecn.org>,
-       Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [2.0.40-rc8] Works well
-Message-ID: <20040128151727.GD16675@khan.acc.umu.se>
-Mail-Followup-To: Markus =?iso-8859-1?Q?H=E4stbacka?= <midian@ihme.org>,
-	Coywolf Qi Hunt <coywolf@lovecn.org>,
-	Kernel Mailinglist <linux-kernel@vger.kernel.org>
-References: <20040128033755.GC16675@khan.acc.umu.se> <Pine.LNX.4.44.0401280809470.20944-100000@midi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0401280809470.20944-100000@midi>
-User-Agent: Mutt/1.4.1i
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+	Wed, 28 Jan 2004 10:54:18 -0500
+Received: from c-24-19-70-33.client.comcast.net ([24.19.70.33]:56706 "EHLO
+	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
+	id S266061AbUA1PxP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 10:53:15 -0500
+Message-ID: <4017DAE3.90803@comcast.net>
+Date: Wed, 28 Jan 2004 07:53:07 -0800
+From: Walt H <waltabbyh@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: maneesh@in.ibm.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.1-mm2: BUG in kswapd? /  Oops in kobject_put during rsync
+References: <40153A6E.5030300@comcast.net> <400762F9.5010908@comcast.net> <20040116094037.GA1276@in.ibm.com> <20040116102211.GC1276@in.ibm.com> <40080A98.4080105@comcast.net> <20040128111333.GA2990@in.ibm.com>
+In-Reply-To: <20040128111333.GA2990@in.ibm.com>
+X-Enigmail-Version: 0.83.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 28, 2004 at 08:13:36AM +0200, Markus Hästbacka wrote:
-> On Wed, 28 Jan 2004, David Weinehall wrote:
+Maneesh Soni wrote:
+> Hi Walt,
 > 
-> > On Wed, Jan 28, 2004 at 03:28:30AM +0000, Coywolf Qi Hunt wrote:
-> > ...
-> > > Recently I just have such an idea that is to port the 2.0.39 to let it
-> > > be compiled with my gcc 2.95.4 or any
-> > > other latest gcc. At the same time,  also make it remain compliant to
-> > > gcc 2.7.2.1. ( I can't find 2.7.2.1, only 2.7.2.3
-> > > on the ftp)  Is this work worth while?
-> >
-> > Well, for sure it's quite a demanding task, since, if I remember
-> > correctly, the module-code uses some nasty internal gcc-knowledge to
-> > generate code, that simply doesn't work with later versions of gcc.
-> > It might be that I remember this incorrectly though.
-> >
-> only the module-code? :)
+> Earlier you had BUG in kswapd while running rsync and reverting this patch 
+> solved the problem.
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1/2.6.1-mm3/broken-out/sysfs_remove_dir-vs-dcache_readdir-race-fix.patch
+> 
+> Did you get the kswapd BUG hit again on 2.6.1-mm3 with the debug patch I sent 
+> you earlier? If you have got any logs with this then please send them to me.
+> 
+> If I am not wrong the kobject_put() oops is the new one you are seeing now
+> and reverting this sysfs-pin-kobjects.patch solves this oops. The call trace
+> for kobject_put oops seems some what surprising to me because on -mm kernels
+> I don't think we can have sysfs dentries on the LRU list, sysfs dentries are 
+> not pruned due to any memory pressure. sysfs dentries are pinned in memory 
+> so there is no question of them being pruned due to memory pressure.
+> 
+> Now this is somewhat different in case of -mjb kernels as it has sysfs backing
+> store patches and with that I can think of sysfs dentires coming to LRU list
+> and getting pruned due to memory pressure. 
+> 
+> Are you using -mjb tree or the sysfs backing store patches? I would like
+> to take a look at the kobject_put() oops you are having. 
+>  
+> Thanks
+> Maneesh
+> 
 
-Well, I do remember that I did spend a few weeks getting the 2.0-tree to
-compile with gcc-3.2, and most problems arose when dealing with the
-module-code.  I think I gave up there.
+Hi Maneesh,
 
-> > It would be interesting, yes, but only if it can be proved to some
-> > degree that no new bugs are introduced.
-> >
-> That would probably be impossible to do without introducing any bugs..
+Good memory. You are correct, this oops is new. Reverting the
+sysfs-pin-kobjects patch fixes it for me. I could reliably (like last
+time that is) trigger an oops during rsync.
 
-Mmmm.
+I'm running 2.6.2-rc1 with the -mm3 patchset and the mppe/mppc patches
+located at: http://www.polbox.com/h/hs001/
+No -mjb patches are used.
 
-> > My aim for 2.0.41 is to make it a cleanup-release; remove warnings, tidy
-> > up a little source-code mess, kill dead code, fix typos etc.
-> >
-> Sounds great, a bit amazing that 2.0 is alive again :)
+I did patch 2.6.1-mm3 with the debug patch you sent earlier, but alas,
+it didn't BUG on me when I did the rsync with it. I don't believe that I
+gave it much opportunity though, because -mm4 was released shortly
+thereafter. Unfortunately, the BUG was nasty, in that it completely
+stopped the system forcing an emergency sync, unmount reboot situation,
+so I was anxious to get away from it ;)
 
-Oh, it's not been dead, as much as laying dormant.
+-Walt
 
-
-Regards: David
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

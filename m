@@ -1,93 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261824AbSI2Vw4>; Sun, 29 Sep 2002 17:52:56 -0400
+	id <S261808AbSI2Vjk>; Sun, 29 Sep 2002 17:39:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261827AbSI2Vw4>; Sun, 29 Sep 2002 17:52:56 -0400
-Received: from host187.south.iit.edu ([216.47.130.187]:30848 "EHLO
-	host187.south.iit.edu") by vger.kernel.org with ESMTP
-	id <S261824AbSI2Vwy>; Sun, 29 Sep 2002 17:52:54 -0400
-Message-ID: <3D97773A.40402@host187.south.iit.edu>
-Date: Sun, 29 Sep 2002 16:57:14 -0500
-From: Stephen Marz <smarz@host187.south.iit.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
+	id <S261810AbSI2Vjk>; Sun, 29 Sep 2002 17:39:40 -0400
+Received: from sbc2.ieshost.com ([64.95.200.13]:43526 "HELO sbc2.ieshost.com")
+	by vger.kernel.org with SMTP id <S261808AbSI2Vjj> convert rfc822-to-8bit;
+	Sun, 29 Sep 2002 17:39:39 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: steve <steve@szmidt.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: v2.6 vs v3.0
+Date: Sun, 29 Sep 2002 17:49:10 -0400
+User-Agent: KMail/1.4.1
+References: <Pine.LNX.4.44.0209281826050.2198-100000@home.transmeta.com> <20020929153817.GC1014@suse.de> <20020929221628.E15924@flint.arm.linux.org.uk>
+In-Reply-To: <20020929221628.E15924@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: kernel BUG in usb-ohci.c:902!
-References: <Pine.LNX.4.44.0209291549390.1911-100000@host187.south.iit.edu> <3D977492.4070604@pacbell.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209291749.10312.steve@szmidt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Its so nice how these things work out :).
-
-Thanks for your time and help,
-
-Stephen Marz
-
-David Brownell wrote:
-
->> code.  Here is my call trace:
->>
->> uhci-irq [uchi-hcd]
->> usb_hcd_irq_Rfba60562 [usbcore]
->> handle_IRQ_event
->> do_IRQ
->> ...
->>
->> I am apparently hitting a different bug, but it inevitably comes from
->> the uhci-hcd driver (according to the panic).
->
->
-> As I said:  you're not seeing "this problem".  And it's not a BUG().
-> So now we agree ... ;-)
->
-> You might try sending the full oops report to the maintainer
-> of that driver, or at least to the linux-usb-devel list.
-> (The 2.5.39 code gives more info than you snipped...)  So far
-> as I know, this problem has not been reported there.
->
-> - Dave
->
->
->
->> Regards,
->>
->> Stephen Marz
->>
->>
->>>> I have noticed this problem in 2.5.39 except it occurs with the module
->>>> uhci-hcd.
->>>
->>>
->>
->>> No you haven't.  It doesn't have a file of that name, so you
->>> didn't see such a BUG().  And I don't know about you, but my
->>> copy of 2.5.39 has no BUG() anywhere in the ohci-hcd driver,
->>> so it'd be hard seeing _any_ BUG() coming from there.
->>
->>
->>
->>> You might be hitting a different BUG(), but in that case you
->>> would need to get your bug reports straight.
->>
->>
->>
->>> - Dave
->>
->>
->>
->>
->>
->>
->>
->>
->
->
->
->
 
 
+We did catch flak on stability issues on 2.4 for whatever the 
+reasons. The way I see it we should not move to 3.0 until it's been 
+running stable under at least 2.6. The less technical the person 
+the more valuable perception becomes. By only moving to 3.0 when 
+2.x is seen as totally stable, more new (corporate) people will 
+consider it as the foundation for their infrastructure. Look at the 
+views of 2.2...
+
+Besides, stability must be more important than features!
+
+-- 
+
+Steve Szmidt
+______________________________________________________
 

@@ -1,107 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267118AbRGKANc>; Tue, 10 Jul 2001 20:13:32 -0400
+	id <S265277AbRGKAaz>; Tue, 10 Jul 2001 20:30:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267134AbRGKANW>; Tue, 10 Jul 2001 20:13:22 -0400
-Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:12531
-	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
-	id <S267118AbRGKAND>; Tue, 10 Jul 2001 20:13:03 -0400
-From: Jesse Pollard <jesse@cats-chateau.net>
-Reply-To: jesse@cats-chateau.net
-To: root@chaos.analogic.com, "Richard B. Johnson" <root@chaos.analogic.com>,
-        Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: What is the truth about Linux 2.4's RAM limitations?
-Date: Tue, 10 Jul 2001 18:56:24 -0500
-X-Mailer: KMail [version 1.0.28]
+	id <S265933AbRGKAaq>; Tue, 10 Jul 2001 20:30:46 -0400
+Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:53960 "HELO
+	tsunami.webofficenow.com") by vger.kernel.org with SMTP
+	id <S265277AbRGKAaf>; Tue, 10 Jul 2001 20:30:35 -0400
 Content-Type: text/plain; charset=US-ASCII
-Cc: Timur Tabi <ttabi@interactivesi.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.95.1010710142459.19170A-100000@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.3.95.1010710142459.19170A-100000@chaos.analogic.com>
+From: Rob Landley <landley@webofficenow.com>
+Reply-To: landley@webofficenow.com
+To: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+Subject: Hardware testing [was Re: VIA Southbridge bug (Was: Crash on boot (2.4.5))]
+Date: Tue, 10 Jul 2001 11:28:25 -0400
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E15JIVD-0000Qc-00@the-village.bc.nu> <01070912485904.00705@localhost.localdomain> <20010710121724.Z1503@niksula.cs.hut.fi>
+In-Reply-To: <20010710121724.Z1503@niksula.cs.hut.fi>
 MIME-Version: 1.0
-Message-Id: <01071019124201.20649@tabby>
+Message-Id: <01071011282504.00634@localhost.localdomain>
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jul 2001, Richard B. Johnson wrote:
->On Tue, 10 Jul 2001, Jonathan Lundell wrote:
+On Tuesday 10 July 2001 05:17, Ville Herva wrote:
+> On Mon, Jul 09, 2001 at 12:48:59PM -0400, you [Rob Landley] claimed:
+> > (P.S. What kind of CPU load is most likely to send a processor into
+> > overheat? (Other than "a tight loop", thanks.  I mean what kind of
+> > instructions?) This is going to be CPU specific, isn't it?  Our would a
+> > general instruction mix that doesn't call halt be enough?  It would need
+> > to keep the FPU busy too, wouldn't it?  And maybe handle interrupts. 
+> > Hmmm...)
 >
->> At 1:35 PM -0400 2001-07-10, Richard B. Johnson wrote:
->> >Unlike some OS (like VMS), a context-switch does not occur
->> >when the kernel provides services for the calling task.
->> >Therefore, it was most reasonable to have the kernel exist within
->> >each tasks address space. With modern processors, it doesn't make
->> >very much difference, you could have user space start at virtual
->> >address 0 and extend to virtual address 0xffffffff. However, this would
->> >not be Unix. It would also force the kernel to use additional
->> >CPU cycles when addressing a tasks virtual address space,
->> >i.e., when data are copied to/from user to kernel space.
->> 
->> Certainly the shared space is convenient, but in what sense would a 
->> separate kernel space "not be Unix"? I'm quite sure that back in the 
+> See Robert Redelmeier's cpuburn:
 >
->I explained why it would not be Unix.
+> http://users.ev1.net/~redelm/
+
+Cool.  If nothing else, this is a much better starting point for further work 
+than starting from scratch...
+
+> It is coded is assembly specificly to heat the CPU as much as possible. See
+> the README for details, but it seems that floating point operations are
+> tougher than integers and MMX can be even harder (depending on CPU model,
+> of course). Not sure what kind of role SSE, SSE2, 3dNow! play these days.
+> Perhaps Alan knows?
+
+There's at least three seperate things that need testing here.  memtest86 
+tests whether your memory is OK.  CPUburn seems to do a good job testing 
+processor heat (not that I'm running it on my laptop, which doesn't seem to 
+have a thermal readout thingy anyway...)
+
+The third thing (which started this thread) was memory bus.  The new 3DNow 
+optimizations drove a memory bus into failure, and that IS processor 
+specific...
+
+> The gcc compile is a good test for many other tests - it uses a lot of
+> memory with complex pointers references (tests memory, and bit errors in
+> pointers are likely to sig11 rather than produce subtle errors in output),
+> stresses chipset somewhat (memory throughput), and cpu somewhat. But to
+> test CPU overheating and nothing else, cpuburn should be a lot better.
+> (Even seti@home is better as it uses FPU). Just run them an observe the
+> sensors readings. Cpuburn gets several degrees higher.
+
+The downside of a test like gcc is that it does test many things, meaning 
+when it fails you still don't know why.
+
+memtest86 is great becuase it ONLY tests memory.  CPUburn is similarly 
+specific.  A memory bus buster would be a good tool to add to the mix.  (DMA 
+is another common problem, but the more I look into it, the more it seems to 
+be dependent on whatever peripheral you're talking to, which is more 
+complication than I'm looking to bite off...)
+
+The downside of memtest86 is that your system can pass it and still have an 
+obvious problem (for example, overclocking stresses both memory bus AND 
+heat...)
+
+It might be possible to put all three testers into a menu where you could 
+switch on and off what you wanted to test, and run them overnight.  That way, 
+if you are testing for three things (perhaps alternating tests every few 
+minutes?), and you get it to fail, you can switch some off to get more 
+specific tests to narrow down the problem...
+
+> > the compile in a loop, add in a processor temperature detector daemon to
+> > kill the test and HLT the system if the temperature went too high...
 >
+> Cpuburn exists when CPU miscalculates something (sign of overheat).
 >
->> AT&T days that there were Unix ports with separate kernel (vs user) 
->> address spaces, as well as processors with special instructions for 
->
->No. The difference between kernel and user address space is protection.
->Let's say that you decided to revamp all the user space to go from
->0 to 2^32-1. You call the kernel with a pointer to a buffer into
->which you need to write kernel data:
->
->You will need to set a selector that will access both user and
->kernel data at the same time. Since the user address space is
->paged, this will not be possible, you get one or the other, but
->not both. Therefore, you need to use two selectors. In the case
->of ix86 stuff, you could set DS = KERNEL_DS and ES = a separately
->calculated selector that represents the base address of the caller's
->virtual address space. Note that you can't just use the caller's
->DS or ES because they can be changed by the caller.
+> I'm not sure if cpuburn is included in cerberus these days (istr it is),
+> but a nice test set for memory, cpu, disk etc to run over night or over
+> weekend to catch most of the hw faults would definetely be nice.
 
-Sure you can - But you do have to modify the page tables for the
-kernel access. You also have to verity that the page is valid
-to the user, that the offset to the location to modify is
-valid from both the users context and the kernel context.
+I've heard of ceberus but thought it was just a disk test suite...  One more 
+thing to download and look into...  (If the tests in it can be switched 
+on/off, maybe this is what I'm looking for...) 
 
->Then you can move data from DS:OFFSET to ES:OFFSET, but not the
->other way. If you need to move data the other way, you need DS: = a
->separately calculated selector that represents the base address of the
->caller's virtual address space, and ES = KERNEL_DS. Then you can copy from
->ES:OFFSET to ES:OFFSET (as before), but the data goes the other way.
-
-See, it can be done, but the changing page tables are a PITA. It's slow.
-
->With the same virtual address space for kernel and user, you
->don't need any of this stuff. The only reason we have special
->functions (macros) for copy to/from, is to protect the kernel
->from crashing when the user-mode caller gives it a bad address.
-
-wrong - In either case, the parameters to the system call (and the
-return values) have to be evaluated for proper usage and security.
-That is NOT unique and can be done in many ways.
-
-They provide the same protection as that provided by
-other hardware. Even using page remapping will work, if implemented
-properly. it just isn't as fast as using a single virtual mapping.
-
-Been there, done that.
-
-Multi-tasking real time systems do this a LOT - and because the
-amount of data passed may be quite small it is frequently
-more efficient. (largest I ever did was about 256 bytes - ocean going
-autopilot/seismic surveys). The determining factor is:
-1. correctness, 2. speed, 3. ease of implementation, 4. hardware
-support.
-
->It all tasks were cooperative, you could use memcpy() perfectly
->fine (or rep movsl ; rep movsw ; rep movsb).
-
-You still must verify that the source/destination are reasonably valid.
-
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: jesse@cats-chateau.net
-
-Any opinions expressed are solely my own.
+Rob

@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129148AbQKBXob>; Thu, 2 Nov 2000 18:44:31 -0500
+	id <S129304AbQKBXrv>; Thu, 2 Nov 2000 18:47:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129304AbQKBXoV>; Thu, 2 Nov 2000 18:44:21 -0500
-Received: from c100.clearway.com ([199.103.231.100]:56586 "EHLO
-	mercury.clearway.com") by vger.kernel.org with ESMTP
-	id <S129148AbQKBXoO>; Thu, 2 Nov 2000 18:44:14 -0500
-From: Paul Marquis <pmarquis@iname.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-ID: <3A01FC44.8A43FE8B@iname.com>
-Date: Thu, 02 Nov 2000 18:44:05 -0500
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.15pre3 ppc)
-X-Accept-Language: en
-MIME-Version: 1.0
-Subject: Re: select() bug
-In-Reply-To: <E13rTfB-00023L-00@the-village.bc.nu>
+	id <S129596AbQKBXrl>; Thu, 2 Nov 2000 18:47:41 -0500
+Received: from [213.237.20.108] ([213.237.20.108]:26920 "EHLO ns.geekboy.dk")
+	by vger.kernel.org with ESMTP id <S129304AbQKBXrb>;
+	Thu, 2 Nov 2000 18:47:31 -0500
+Date: Fri, 3 Nov 2000 00:50:34 +0100
+From: Torben Mathiasen <torben@kernel.dk>
+To: Elizabeth Morris-Baker <eamb@liu.fafner.com>
+Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+        chen xiangping <chen_xiangping@emc.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: scsi init problem in 2.4.0-test10?
+Message-ID: <20001103005034.C1353@torben>
+In-Reply-To: <20001102145320.A27745@one-eyed-alien.net> <200011022245.QAA08323@liu.fafner.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200011022245.QAA08323@liu.fafner.com>; from eamb@liu.fafner.com on Thu, Nov 02, 2000 at 04:45:25PM -0600
+X-OS: Linux 2.4.0-test10 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, I see your point, thanks.  A couple of comments/questions:
+The SCSI spec says that INQUIRY and not
+TUR + INQUIRY is the way to go, but maybe we
+should make it a compile time option for buggy
+drives.
 
-- Does this make sense with devices with small kernel buffers?  From
-my experimentation, pipes on Linux have a 4K buffer and tend to be
-read and written very quickly.
 
-- If I'm correct that pipes have a 4K kernel buffer, then writing 1
-byte shouldn't cause this situation, as the buffer is well more than
-half empty.  Is this still a bug?
-
-Semantic issues aside, since Apache does the test I mentionned earlier
-to determine child status and since it could be misled, should this
-feature be turned off?
-
-Thanks for your input.
-
-Alan Cox wrote:
-> > I'm not exactly sure what you mean by this statement.  Would you mind
-> > explaining further?
+On Thu, Nov 02 2000, Elizabeth Morris-Baker wrote:
+> > 
 > 
-> Well take a socket with 64K of buffering. You don't want to wake processes
-> waiting in select or in write every time you can scribble another 1460 bytes
-> to the buffer. Instead you wait until there is 32K of room then wake the
-> user. That means that there is one wakeup/trip through userspace every 32K
-> rather than potentially every time a byte is read the other end
+> 	You need to send the TUR first, but yes, 
+> 	START_STOP will guarantee that you are
+> 	ready to rock and roll.
+> 	The first fix I wrote did a TUR, then
+> 	3 tries at a START_STOP, till it worked.
+> 	
+> 	cheers, 
+> 
+> 	Elizabeth
+>
+
+[deleted]
 
 -- 
-Paul Marquis
-pmarquis@iname.com
-
-If it's tourist season, why can't we shoot them?
+Torben Mathiasen <tmm@kernel.dk>
+Linux ThunderLAN maintainer 
+http://tlan.kernel.dk
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,106 +1,431 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267409AbUJGSTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267721AbUJGSZV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267409AbUJGSTx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 14:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267540AbUJGSRy
+	id S267721AbUJGSZV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 14:25:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267662AbUJGSWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 14:17:54 -0400
-Received: from jade.aracnet.com ([216.99.193.136]:15337 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S267683AbUJGSPy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 14:15:54 -0400
-Date: Thu, 07 Oct 2004 11:13:27 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Paul Jackson <pj@sgi.com>
-cc: Simon.Derr@bull.net, colpatch@us.ibm.com, pwil3058@bigpond.net.au,
-       frankeh@watson.ibm.com, dipankar@in.ibm.com, akpm@osdl.org,
-       ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-ID: <1344740000.1097172805@[10.10.2.4]>
-In-Reply-To: <20041007105425.02e26dd8.pj@sgi.com>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com><20040806231013.2b6c44df.pj@sgi.com><411685D6.5040405@watson.ibm.com><20041001164118.45b75e17.akpm@osdl.org><20041001230644.39b551af.pj@sgi.com><20041002145521.GA8868@in.ibm.com><415ED3E3.6050008@watson.ibm.com><415F37F9.6060002@bigpond.net.au><821020000.1096814205@[10.10.2.4]><20041003083936.7c844ec3.pj@sgi.com><834330000.1096847619@[10.10.2.4]><835810000.1096848156@[10.10.2.4]><20041003175309.6b02b5c6.pj@sgi.com><838090000.1096862199@[10.10.2.4]><20041003212452.1a15a49a.pj@sgi.com><843670000.1096902220@[10.10.2.4]><Pine.LNX.4.61.0410051111200.19964@openx3.frec.bull.fr><58780000.1097004886@flay><20041005172808.64d3cc2b.pj@sgi.com><1193270000.1097025361@[10.10.2.4]>
- <20041005190852.7b1fd5b5.pj@sgi.com><1097103580.4907.84.camel@arrakis><20041007015107.53d191d4.pj@sgi.com><Pine.LNX.4.61.0410071439070.19964@openx3.frec.bull.fr><1250810000.1097160595@[10.10.2.4]> <20041007105425.02e26dd8.pj@sgi.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 7 Oct 2004 14:22:52 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:59735 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267585AbUJGSTg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 14:19:36 -0400
+Subject: strange AMD x Intel Behaviour in 2.4.26
+From: Fabiano Ramos <ramos_fabiano@yahoo.com.br>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 07 Oct 2004 15:15:36 -0300
+Message-Id: <1097172936.3832.1.camel@lfs.barra.bali>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> So we have the purely exclusive stuff, which needs kernel support in the form
->> of sched_domains alterations. The rest of cpusets is just poking and prodding
->> at cpus_allowed, the membind API, and the irq binding stuff. All of which
->> you could do from userspace, without any further kernel support, right?
->> Or am I missing something?
-> 
-> Well ... we're gaining.  A couple of days ago you were suggesting
-> that cpusets could be replaced with some exclusive domains plus
-> CKRM.
-> 
-> Now it's some exclusive domains plus poking the affinity masks.
-> 
-> Yes - you're still missing something.
-> 
-> But I must keep in mind that I had concluded, perhaps three years ago,
-> just what you conclude now: that cpusets is just poking some affinity
-> masks, and that I could do most of it from user land.  The result ended
-> up missing some important capabilities.  User level code could not
-> manage collections of hardware nodes (sets of CPUs and Memory Nodes) in
-> a co-ordinated and controlled manner.
-> 
-> The users of cpusets need to have system wide names for them, with
-> permissions for viewing, modifying and attaching to them, and with the
-> ability to list both what hardware (CPUs and Memory) in a cpuset, and
-> what tasks are attached to a cpuset.  As is usual in such operating
-> systems, the kernel manages such system wide synchronized controlled
-> access views.
-> 
-> As I quote below, I've been saying this repeatedly.  Could you
-> tell me, Martin, whether the disconnect is:
->  1) that you didn't yet realize that cpusets provided this model (names,
->     permissions, ...) or
->  2) you don't think such a model is useful, or
->  3) you think that such a model can be provided sensibly from user space?
-> 
-> If I knew this, I could focus my response better.
-> 
-> The rest of this message is just quotes from this last week - many
-> can stop reading here.
+Hi All.
 
-My main problem is that I don't think we want lots of overlapping complex 
-interfaces in the kernel. Plus I think some of the stuff proposed is fairly 
-klunky as an interface (physical binding where it's mostly not needed, and
-yes I sort of see your point about keeping jobs on separate CPUs, though I
-still think it's tenuous), and makes heavy use of stuff that doesn't work 
-well (e.g. cpus_allowed). So I'm searching for various ways to address that.
+  I wrote a syscall, similar to ptrace. Its purpose is to
+count the number of user mode instructions and the number of
+syscalls invoked by a program. The reason why I did not use ptrace,
+is that I do not want the overhead of child -> kernel-> tracer on every
+instruction, since I just want to count them.
+  
+  The code is producing correct results (same as ptrace, I mean)
+but is RUNNING FASTER on a 500Mhz AMD K6-2 than on a 2.6Ghz HT
+Pentium 4 !!!!  The monitored code runs faster on P4 if not being
+monitored, as expected.
 
-The purely exclusive parts of cpusets can be implemented in a much nicer
-manner inside the kernel, by messing with sched_domains, instead of just
-using cpus_allowed as a mechanism ... so that seems like much less of a
-problem.
+   Both machines are using a stock Slackware 10 distribution, but
+the kernel modification. I append the patch AND the program using the
+syscall to monitor its child.
 
-The non-exclusive bits seem to overlap heavily with both CKRM and what
-could be done in userspace. I still think the physical stuff is rather
-obscure, and binding stuff to specific CPUs is an ugly way to say "I want
-these two threads to not run on the same CPU". But if we can find some
-other way (eg userspace) to allow you to do that should you utterly insist
-on doing so, that'd be a convenient way out.
+   Any clues?
 
-As for the names and permissions issue, both would be *doable* from 
-userspace, though maybe not as easily as in-kernel. Names would probably 
-be less hassle than permissions, but neither would be impossible, it seems.
+TIA
+Fabiano
 
-It all just seems like a lot of complexity for a fairly obscure set of
-requirements for a very limited group of users, to be honest. Some bits
-(eg partitioning system resources hard in exclusive sets) would seem likely
-to be used by a much broader audience, and thus are rather more attractive.
-But they could probably be done with a much simpler interface than the whole
-cpusets (BTW, did that still sit on top of PAGG as well, or is that long
-gone?)
 
-M.
+diff -ruN linux-2.4.26/Makefile linux-2.4.26-syscounter/Makefile
+--- linux-2.4.26/Makefile 2004-04-14 10:05:41.000000000 -0300
++++ linux-2.4.26-syscounter/Makefile 2004-10-07 10:33:43.000000000 -0300
+@@ -1,7 +1,7 @@
+VERSION = 2
+PATCHLEVEL = 4
+SUBLEVEL = 26
+-EXTRAVERSION =
++EXTRAVERSION =-syscounter
+
+KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
+
+diff -ruN linux-2.4.26/arch/i386/kernel/Makefile linux-2.4.26-
+syscounter/arch/i386/kernel/Makefile
+--- linux-2.4.26/arch/i386/kernel/Makefile 2003-11-28 16:26:19.000000000
+-0200
++++ linux-2.4.26-syscounter/arch/i386/kernel/Makefile 2004-10-07
+10:33:32.000000000 -0300
+@@ -18,7 +18,7 @@
+
+obj-y := process.o semaphore.o signal.o entry.o traps.o irq.o vm86.o \
+ptrace.o i8259.o ioport.o ldt.o setup.o time.o sys_i386.o \
+- pci-dma.o i386_ksyms.o i387.o bluesmoke.o dmi_scan.o
++ pci-dma.o i386_ksyms.o i387.o bluesmoke.o dmi_scan.o syscounter.o
+
+
+ifdef CONFIG_PCI
+diff -ruN linux-2.4.26/arch/i386/kernel/entry.S linux-2.4.26-
+syscounter/arch/i386/kernel/entry.S
+--- linux-2.4.26/arch/i386/kernel/entry.S 2003-06-13 11:51:29.000000000
+-0300
++++ linux-2.4.26-syscounter/arch/i386/kernel/entry.S 2004-10-07
+11:25:37.000000000 -0300
+@@ -69,6 +69,9 @@
+NT_MASK = 0x00004000
+VM_MASK = 0x00020000
+
++PAGE_OFFSET = 0xC0000000
++PID_OFFSET = 0x7C          # pid offset into  task structure
++
+/*
+  * these are offsets into the task-struct.
+  */
+@@ -199,9 +202,20 @@
+  * less clear than it otherwise should be.
+  */
+
+-ENTRY(system_call)
+- pushl %eax # save orig_eax
++ENTRY(system_call) 
++     pushl %eax # save orig_eax
+SAVE_ALL
++ cmp $-1, tracedpid # is someone being traced?
++ je original_syscall
++ GET_CURRENT(%ebx)
++ movl %ebx, taskstruct           # verifying pid
++ movl taskstruct, %ebx  
++ movl PID_OFFSET(%ebx), %ebx
++ cmp %ebx, tracedpid         # is this process being traced ?
++ jne original_syscall # if not, go on!         
++        addl    $1, syscalls # one more monitored syscall
++        adcl    $0, syscalls+4
++original_syscall:
+GET_CURRENT(%ebx)
+testb $0x02,tsk_ptrace(%ebx) # PT_TRACESYS
+jne tracesys
+@@ -325,6 +339,30 @@
+jmp ret_from_exception
+
+ENTRY(debug)
++ pushl %ebx                      
++        # the stack layout is now
++        #   eflags
++        #   cs    <-- 0x08 (%esp)
++        #   eip   <-- 0x04 (%esp)
++        #   ebx   <-- %esp      
++ GET_CURRENT(%ebx)
++ movl %ebx, taskstruct           
++ movl taskstruct, %ebx  
++ movl PID_OFFSET(%ebx), %ebx
++ cmp %ebx, tracedpid         # is this process being traced ?
++        jne original_debug 
++        movl 0x04(%esp), %ebx           # ebx = eip
++        cmp %ebx, PAGE_OFFSET           # was the trap generated in
+userland ? (includes libc code)
++        jl count_user
++        popl %ebx
++        iret # not calling original if monitoring this process
++count_user:
++        addl    $1, userinstrexec
++        adcl    $0, userinstrexec+4
++        popl %ebx
++        iret
++original_debug:                    
++        popl %ebx
+pushl $0
+pushl $ SYMBOL_NAME(do_debug)
+jmp error_code
+@@ -663,6 +701,7 @@
+.long SYMBOL_NAME(sys_ni_syscall) /* sys_epoll_wait */
+  .long SYMBOL_NAME(sys_ni_syscall) /* sys_remap_file_pages */
+  .long SYMBOL_NAME(sys_ni_syscall) /* sys_set_tid_address */
++ .long SYMBOL_NAME(sys_counter) /* 259 */
+
+.rept NR_syscalls-(.-sys_call_table)/4
+.long SYMBOL_NAME(sys_ni_syscall)
+diff -ruN linux-2.4.26/arch/i386/kernel/syscounter.c linux-2.4.26-
+syscounter/arch/i386/kernel/syscounter.c
+--- linux-2.4.26/arch/i386/kernel/syscounter.c 1969-12-31
+21:00:00.000000000 -0300
++++ linux-2.4.26-syscounter/arch/i386/kernel/syscounter.c 2004-10-07
+11:34:30.000000000 -0300
+@@ -0,0 +1,114 @@
++#include <linux/syscounter.h>
++
++volatile long long userinstrexec = 0;
++volatile long long syscalls = 0;
++struct task_struct *taskstruct = NULL;
++pid_t tracedpid = -1;
++
++
++static inline int get_stack_long(struct task_struct *task, int offset)
+{
++
++         unsigned char *stack;
++
++         stack = (unsigned char *)task->thread.esp0;
++         stack += offset;
++         return (*((int *)stack));
++}
++
++static inline int put_stack_long(struct task_struct *task, int offset,
+unsigned long data) {
++
++         unsigned char * stack;
++
++         stack = (unsigned char *) task->thread.esp0;
++         stack += offset;
++         *(unsigned long *) stack = data;
++         return 0;
++
++}
++
++/* syscall that will be used to count instructions */
++asmlinkage int sys_counter(int pid, int action, void* retval) {
++
++ struct task_struct *tsk = NULL; 
++ int ret;       
++
++ lock_kernel();
++        ret = 0;
++
++ if (action == GET_USER) {
++                if (retval ==  NULL) 
++ ret = INVALIDPOINTER; 
++                else {
++                if (copy_to_user(retval, (void *) &userinstrexec,
+sizeof(long long)) != 0)
++                         ret = BADUSERLANDCOPY;
++                }
++ goto out;
++        }
++        else if (action == GET_SYSCALLS) {
++                if (retval ==  NULL) 
++ ret = INVALIDPOINTER;
++                else {
++    if (copy_to_user(retval, (void *) &syscalls, sizeof(long long)) !=
+0)
++                        ret = BADUSERLANDCOPY;
++ } 
++ goto out;
++        }
++ else if (action == STOP) {
++ tracedpid = -1; 
++ goto out; 
++ }
++ else if (action == RESET) {
++ tracedpid = -1;
++ userinstrexec=0;
++                syscalls = 0;
++ goto out;
++ }
++ else if (action == START) {
++
++ if (tracedpid != -1) {
++ ret = TRACEINPROGRESS;
++ }
++ else {
++ long tmp;
++ 
++ read_lock(&tasklist_lock);
++ tsk = find_task_by_pid(pid);
++ read_unlock(&tasklist_lock);
++
++ if (tsk) {
++ 
++ get_task_struct(tsk);
++
++ tracedpid = pid; 
++ userinstrexec = 0;
++ syscalls = 0;
++ 
++ // ok, now we set up the trap bit in child's stack
++ tmp = get_stack_long(tsk, EFL_OFFSET) | TF_FLAG;
++ put_stack_long(tsk, EFL_OFFSET, tmp);
++
++ // and make it runnable
++ wake_up_process(tsk);
++ 
++ free_task_struct(tsk);
++ 
++ 
++ }
++ else { 
++ ret = NOSUCHPROCESS;
++ }
++
++ }
++ goto out;
++
++ }
++ else {
++ ret = UNKNOWNOPERATION;
++ goto out;
++ }
++
++out:
++ unlock_kernel();
++ return ret;
++}
++
+diff -ruN linux-2.4.26/include/asm-i386/unistd.h linux-2.4.26-
+syscounter/include/asm-i386/unistd.h
+--- linux-2.4.26/include/asm-i386/unistd.h 2002-11-28 21:53:15.000000000
+-0200
++++ linux-2.4.26-syscounter/include/asm-i386/unistd.h 2004-10-07
+10:34:22.000000000 -0300
+@@ -257,6 +257,7 @@
+#define __NR_alloc_hugepages 250
+#define __NR_free_hugepages 251
+#define __NR_exit_group 252
++#define __NR_counter            259
+
+/* user-visible error numbers are in the range -1 - -124: see <asm-
+i386/errno.h> */
+
+diff -ruN linux-2.4.26/include/linux/syscounter.h linux-2.4.26-
+syscounter/include/linux/syscounter.h
+--- linux-2.4.26/include/linux/syscounter.h 1969-12-31
+21:00:00.000000000 -0300
++++ linux-2.4.26-syscounter/include/linux/syscounter.h 2004-10-07
+11:32:15.000000000 -0300
+@@ -0,0 +1,42 @@
++#ifndef __SYSCOUNTER_H
++#define __SYSCOUNTER_H
++
++#include <linux/kernel.h>
++#include <linux/mm.h>
++#include <linux/module.h>
++#include <linux/sched.h>
++#include <linux/smp_lock.h>
++#include <asm/uaccess.h>
++
++/* debug (trap) bit in eflags */
++#define TF_FLAG         0x00000100
++/* from ptrace.c */
++#define EFL 14
++#define EFL_OFFSET ((EFL-2)*4-sizeof(struct pt_regs)) 
++
++
++
++/* operations */
++#define START     0
++#define STOP       1
++#define GET_SYS     2
++#define GET_USER     3
++#define RESET     4
++#define GET_SYSCALLS     5
++
++
++/* error codes of new syscalls */
++//#define NOTRACEDPROCESS  -1
++#define NOSUCHPROCESS -2
++#define TRACEINPROGRESS  -3
++#define UNKNOWNOPERATION -4
++#define INVALIDACTION -5
++#define PROCESSTRACED -6 //process already traced
++#define PROCESSNOTTRACED -7
++#define INVALIDPOINTER   -8
++#define BADUSERLANDCOPY -9
++
++
++
++
++#endif
+
+
+
+
+Now the tracer:
+
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <sched.h>
+#include <sys/ptrace.h>
+#include <sys/ipc.h>
+#include <sys/types.h>
+#include <sys/sem.h>
+#include <sys/wait.h>
+#include <assert.h>
+#include "counter.h" 
+
+
+int main(int argc, char **argv){
+
+long long c=0;
+int retval;
+struct sched_param sched_p;
+int child;
+
+       
+
+child = fork();
+
+if (child == 0) {
+
+
+// setting realtime priority
+sched_p.sched_priority = sched_get_priority_max(SCHED_FIFO);
+retval = sched_setscheduler (0, SCHED_RR, &sched_p);
+if (retval < 0){
+printf ("Error setting realtime policy\n");
+}
+
+// so that we gain control back after execv()
+ptrace(PTRACE_TRACEME,0,0,0);
+
+execv(argv[1],&argv[1]);
+
+
+
+}
+else {
+
+waitpid(child,&retval,0);
+
+//ok, execve returned
+                c = 0;
+
+// start our count engine
+counter(child,START,NULL);
+
+// calls ptrace so that we are notified again when the child finishes
+ptrace(PTRACE_CONT,child,0,0);
+waitpid(child,&retval,0);
+
+// ok, child finished. We stop the engine
+                counter(0,STOP, NULL);
+
+counter(0,GET_USER, (void *)&c);
+                printf("\n[PARENT] User instructions = %llu\n",c);
+
+counter(0,GET_SYSCALLS, (void *)&c);
+                printf("\n[PARENT] Syscalls: %llu\n",c);
+
+counter(0,RESET,NULL);
+
+
+
+}
+
+
+return 0;
+
+}
+
+
+
+
+
+
 

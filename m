@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbTEFIsb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 04:48:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbTEFIsb
+	id S262459AbTEFIwb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 04:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262460AbTEFIwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 04:48:31 -0400
-Received: from mail-07.iinet.net.au ([203.59.3.39]:1034 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261174AbTEFIsa
+	Tue, 6 May 2003 04:52:30 -0400
+Received: from boden.synopsys.com ([204.176.20.19]:129 "HELO
+	boden.synopsys.com") by vger.kernel.org with SMTP id S262459AbTEFIw3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 04:48:30 -0400
-Subject: Re: 2.5.68-bk7: Where oh where have my sensors gone? (i2c)
-From: Wade <neroz@ii.net>
-To: Greg KH <greg@kroah.com>
+	Tue, 6 May 2003 04:52:29 -0400
+Date: Tue, 6 May 2003 11:04:50 +0200
+From: Alex Riesen <alexander.riesen@synopsys.COM>
+To: Hans-Georg Thien <1682-600@onlinehome.de>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030505203927.GA2325@kroah.com>
-References: <20030427115644.GA492@zip.com.au>
-	 <20030428205522.GA26160@kroah.com> <20030505083458.GA621@zip.com.au>
-	 <20030505165848.GA1249@kroah.com> <3EB6AA01.30601@wmich.edu>
-	 <20030505182648.GA1826@kroah.com> <3EB6BCDF.2020300@wmich.edu>
-	 <20030505203927.GA2325@kroah.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052211616.654.1.camel@debian>
+Subject: Re: [RFC][PATCH] "Disable Trackpad while typing" on Notebooks withh a  PS/2 Trackpad
+Message-ID: <20030506090450.GG890@riesen-pc.gr05.synopsys.com>
+Reply-To: alexander.riesen@synopsys.COM
+References: <3EB19625.6040904@onlinehome.de.suse.lists.linux.kernel> <3EB6EA2D.9050208@onlinehome.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 06 May 2003 17:00:16 +0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EB6EA2D.9050208@onlinehome.de>
+User-Agent: Mutt/1.4i
+Organization: Synopsys, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-05-06 at 04:39, Greg KH wrote:
-> On Mon, May 05, 2003 at 03:34:55PM -0400, Ed Sweetman wrote:
-> > 
-> > Ok, then the sensors program that is part of the lm_sensors package is 
-> > just not up to date with the drivers since it complains about no 
-> > i2c-proc and has no options for looking at sysfs.
+Hans-Georg Thien, Tue, May 06, 2003 00:48:13 +0200:
+> Hans-Georg Thien <1682-600@onlinehome.de> writes:
 > 
-> Yes, the libsensors code has not been updated yet, sorry.  I'm hoping
-> for some unification with the acpi/power management people too, as they
-> too care about power and temperature and fan settings.
+> >The short story
+> >---------------
+> >Apple MacIntosh iBook Notebooks computers have a nice feature that
+> >prevents unintended trackpad input while typing on the keyboard. There
+> >are no mouse-moves or mouse-taps for a short period of time after each
+> >keystroke. I wanted to have this feature on my i386 notebook ...
 > 
-> > My via686a sensors seem to be working just fine in .69
+> I have eliminated the use of a timer. The patch has been simple before, 
+> and now it is even more simple :)
 > 
-> Glad to hear it.
+> 
+> diff -urN -X /tmp/dontdiff 
+> /usr/src/linux-2.4.20/Documentation/Configure.help 
+> /usr/src/linux/Documentation/Configure.help
+> --- /usr/src/linux-2.4.20/Documentation/Configure.help	Fri Nov 29 
+> 00:53:08 2002
+> +++ /usr/src/linux/Documentation/Configure.help	Thu May  1 02:12:04 
+> 2003
 
-Thats strange. Mine don't, and never have in 2.5 - works in FreeBSD just
-fine though.
+Very needed thing, thanks a lot.
+But could you please be more careful with these line wraps?
+One have to apply your patch per hand.
 

@@ -1,83 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274820AbTHGAzw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 20:55:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274957AbTHGAzv
+	id S275053AbTHGBAY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 21:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275054AbTHGBAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 20:55:51 -0400
-Received: from smtp1.cwidc.net ([154.33.63.111]:15355 "EHLO smtp1.cwidc.net")
-	by vger.kernel.org with ESMTP id S274820AbTHGAzu (ORCPT
+	Wed, 6 Aug 2003 21:00:24 -0400
+Received: from ns.suse.de ([213.95.15.193]:11268 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S275053AbTHGBAU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 20:55:50 -0400
-Message-ID: <3F31A379.2060807@tequila.co.jp>
-Date: Thu, 07 Aug 2003 09:55:21 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5a) Gecko/20030718
-X-Accept-Language: en-us, en, ja
+	Wed, 6 Aug 2003 21:00:20 -0400
+To: Dave Jones <davej@redhat.com>
+Cc: richard.brunner@amd.com, linux-kernel@vger.kernel.org, kwijibo@zianet.com
+Subject: Re: Machine check expection panic
+References: <3F3182B5.3040301@zianet.com.suse.lists.linux.kernel>
+	<20030807002722.GA3579@suse.de.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 07 Aug 2003 03:00:14 +0200
+In-Reply-To: <20030807002722.GA3579@suse.de.suse.lists.linux.kernel>
+Message-ID: <p73ekzynuxt.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: =?ISO-8859-15?Q?Diego_Calleja_Garc=EDa?= <diegocg@teleline.es>
-CC: Mike Fedyk <mfedyk@matchmail.com>, reiser@namesys.com,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: Filesystem Tests
-References: <3F306858.1040202@mrs.umn.edu>	<20030805224152.528f2244.akpm@osdl.org>	<3F310B6D.6010608@namesys.com>	<20030806183410.49edfa89.diegocg@teleline.es>	<20030806180427.GC21290@matchmail.com> <20030806204514.00c783d8.diegocg@teleline.es>
-In-Reply-To: <20030806204514.00c783d8.diegocg@teleline.es>
-X-Enigmail-Version: 0.76.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Dave Jones <davej@redhat.com> writes:
+> #
+> diff -Nru a/arch/i386/kernel/cpu/mcheck/k7.c b/arch/i386/kernel/cpu/mcheck/k7.c
+> --- a/arch/i386/kernel/cpu/mcheck/k7.c	Wed Aug  6 23:33:40 2003
+> +++ b/arch/i386/kernel/cpu/mcheck/k7.c	Wed Aug  6 23:33:40 2003
+> @@ -81,7 +81,7 @@
+>  		wrmsr (MSR_IA32_MCG_CTL, 0xffffffff, 0xffffffff);
+>  	nr_mce_banks = l & 0xff;
+>  
+> -	for (i=0; i<nr_mce_banks; i++) {
+> +	for (i=1; i<nr_mce_banks; i++) {
 
-Diego Calleja García wrote:
+The change looks rather suspicious to me.
 
-> El Wed, 6 Aug 2003 11:04:27 -0700 Mike Fedyk <mfedyk@matchmail.com>
-escribió:
->
->
->>Journaled filesystems have a much smaller chance of having problems
-after a
->>crash.
->
-> I've had (several) filesystem corruption in a desktop system with
-(several)
-> journaled filesystems on several disks. (They seem pretty stable these
-days,
-> though)
+Bank 0 is the data cache unit (DC)
 
-well, I only had one time huge problems with a journaling FS, this was
-when I thought I could use Reise FS Beta on a Production File Server ;)
+Do you have an errata that says that the DC bank is bad on all Athlons?
 
-> However I've not had any fs corrution in ext2; ext2 it's (from my
-experience)
-> rock stable.
+Normally BIOS or microcode are supposed to turn off bad MCEs by 
+masking them in another register. Maybe the person's CPU has a 
+real problem that is just masked now, e.g. it could be overclocked
+and stress the cache too much.
 
-well, ever had a check of several hundrets of Gigabytes in ext2 after a
-poweroutage ... when you had this several times in a row, you even take
-ext3 and thank for its existence ...
+The original MCE was:
 
-> Personally I'd consider twice the really "serious" option for a
-serious server.
+Status: (4) Machine Check in progress.
+Restart IP invalid.
+parsebank(0): f606200000000833 @ 4040
+        External tag parity error
+        Uncorrectable ECC error
+        CPU state corrupt. Restart not possible
+        Address in addr register valid
+        Error enabled in control register
+        Error not corrected.
+        Error overflow
+        Bus and interconnect error
+        Participation: Local processor originated request
+        Timeout: Request did not timeout
+        Request: Generic error
+        Transaction type : Instruction
+        Memory/IO : Other
 
-I'd never use ext2 on a server anymore nowadays. You have so many
-choises of stable journaling filesystems, you don't have to use ext2
-anymore (except perhaps for small partitions like /tmp or /boot ...)
+Tyan 2466 motherboard
+2 Athon MP 1200 processors  (1200?) 
 
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE/MaN5jBz/yQjBxz8RAqEDAJ9MZBTBokLsCxDQga3GVNHKY9q/3ACgpX2S
-nIezpbMMsLb58jTnYnHI53w=
-=fO1v
------END PGP SIGNATURE-----
-
+-Andi

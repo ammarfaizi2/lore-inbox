@@ -1,54 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261876AbSJDUYO>; Fri, 4 Oct 2002 16:24:14 -0400
+	id <S262210AbSJDUkf>; Fri, 4 Oct 2002 16:40:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261914AbSJDUYO>; Fri, 4 Oct 2002 16:24:14 -0400
-Received: from packet.digeo.com ([12.110.80.53]:44255 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261876AbSJDUYN>;
-	Fri, 4 Oct 2002 16:24:13 -0400
-Message-ID: <3D9DFA34.581D9D98@digeo.com>
-Date: Fri, 04 Oct 2002 13:29:40 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Steve Lord <lord@sgi.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 O)DIRECT problem
-References: <1033762674.2457.73.camel@jen.americas.sgi.com>
+	id <S262560AbSJDUkf>; Fri, 4 Oct 2002 16:40:35 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:37059 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262210AbSJDUke>;
+	Fri, 4 Oct 2002 16:40:34 -0400
+Date: Fri, 4 Oct 2002 22:45:47 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: jbradford@dial.pipex.com
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.X breaks PS/2 mouse
+Message-ID: <20021004224547.A49400@ucw.cz>
+References: <20021004221554.A49104@ucw.cz> <200210042052.g94KqQmB008165@darkstar.example.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Oct 2002 20:29:40.0666 (UTC) FILETIME=[C41BB1A0:01C26BE4]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200210042052.g94KqQmB008165@darkstar.example.net>; from jbradford@dial.pipex.com on Fri, Oct 04, 2002 at 09:52:26PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Lord wrote:
+On Fri, Oct 04, 2002 at 09:52:26PM +0100, jbradford@dial.pipex.com wrote:
+> > > Once booted:
+> > > 
+> > > Hot plugging either the dedicated trackball or a PS/2 mouse generates a message on connection:
+> > 
+> > Good, this is expected.
+> > 
+> > > Just to clarify, I am not trying to use them both at the same time.
+> > 
+> > Not sure if that would work, it might - depends on the notebook keyboard
+> > controller hardware.
 > 
-> Hi Andrew,
+> I tried it, and it seems to get really confused - constant stream of seemingly random error messages.
 > 
-> I ran into a problem with 2.5's O_DIRECT read path,
+> > > X also works with the external PS/2 mouse,
+> > 
+> > Good.
+> > 
+> > > but not the dedicated trackball.
+> > 
+> > What are the exact symptoms?
 > 
->         generic_file_direct_IO usually ends up in generic_direct_IO
->         this does bounds checking on the I/O and then flushes any
->         cached data.
+> No data at all from it.
 > 
->         Once we return to generic_file_direct_IO we unconditionally
->         call invalidate_inode_pages2 if there are any cached pages.
+> > Does gpm work?
 > 
-> If we make a non-aligned O_DIRECT read call, the end result is we
-> call invalidate_inode_pages2, but we do not do the filemap_fdatawrite,
-> filemap_fdatawait calls. End result is we throw the buffered data away.
+> No.
+> 
+> > Does cat /dev/psaux work?
+> 
+> It doesn't say No such device, it just hangs, giving no data for the trackball, but works fine for the generic mouse.
+> 
+> > Does cat /dev/input/mice work?
+> 
+> Yes, it does the same as /dev/psaux
+> 
+> > What does cat /proc/bus/input/devices say in the
+> > case it doesn't work? ....
+> 
+> I: Bus=0011 Vendor=0002 Product=0001 Version=0000
+> N: Name="PS/2 Generic Mouse"
+> P: Phys=isa0060/serio1/input0
+> H: Handlers=mouse0
+> B: EV=7
+> B: KEY=70000 0 0 0 0 0 0 0 0
+> B: REL=3
+> 
+> That's for both the generic mouse and the trackball.
 
-Well you could always switch to Linus' current BK tree, in
-which invalidate_inode_pages2() is a no-op (whoops).
+Ok. Can you try the usual #define I8042_DEBUG_IO in
+drivers/input/serio/i8042.h?
 
-> Either the flush needs to happen before the bounds checks, or the
-> invalidate should only be done on a successful write. It looks
-> pretty hard to detect the latter case with the current structure,
-> we can get EINVAL from the bounds check and possibly from an
-> aligned, but invalid memory address being passed in.
-
-Yes I agree; let's just do the sync before any checks.
-
-I think it should be moved into generic_file_direct_IO(),
-because that's the place where the invalidation happens, yes?
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,28 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275326AbRIZQyS>; Wed, 26 Sep 2001 12:54:18 -0400
+	id <S275329AbRIZQyt>; Wed, 26 Sep 2001 12:54:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275319AbRIZQyI>; Wed, 26 Sep 2001 12:54:08 -0400
-Received: from hermes.toad.net ([162.33.130.251]:3793 "EHLO hermes.toad.net")
-	by vger.kernel.org with ESMTP id <S275326AbRIZQx4>;
-	Wed, 26 Sep 2001 12:53:56 -0400
-Message-ID: <3BB20815.C7917715@yahoo.co.uk>
-Date: Wed, 26 Sep 2001 12:53:41 -0400
-From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac13 i686)
-X-Accept-Language: en
+	id <S275325AbRIZQyi>; Wed, 26 Sep 2001 12:54:38 -0400
+Received: from mustard.heime.net ([194.234.65.222]:27578 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S275327AbRIZQy1>; Wed, 26 Sep 2001 12:54:27 -0400
+Date: Wed, 26 Sep 2001 18:54:52 +0200 (CEST)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: <linux-kernel@vger.kernel.org>
+cc: <astor@fast.no>
+Subject: kerneli/crypto?
+Message-ID: <Pine.LNX.4.30.0109261850090.23393-100000@mustard.heime.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Incremental -ac patches
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since no 2.4.9-ac15 incremental patch has appeared at www.bzimage.org
-I went looking for other sources of incremental patches.  You might
-want to check out:
-   ftp://sunsite.icm.edu.pl/pub/Linux/kernel/incr/2.4
+Hi
 
---
-Thomas Hood
+What's happening with the kerneli/crypto patches for linux? I've been
+using them for testing and file system encryption for a while, but now
+they're really old - latest is 2.4.3.1
+
+roy
+

@@ -1,72 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270605AbTGNNAR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 09:00:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270641AbTGNM5r
+	id S270628AbTGNNE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 09:04:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270627AbTGNNEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 08:57:47 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:29860 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S270639AbTGNM5b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 08:57:31 -0400
-Date: Mon, 14 Jul 2003 15:12:06 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Andrea Arcangeli <andrea@suse.de>, Chris Mason <mason@suse.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@digeo.com>, Alexander Viro <viro@math.psu.edu>
-Subject: Re: RFC on io-stalls patch
-Message-ID: <20030714131206.GJ833@suse.de>
-References: <Pine.LNX.4.55L.0307081651390.21817@freak.distro.conectiva> <20030710135747.GT825@suse.de> <1057932804.13313.58.camel@tiny.suse.com> <20030712073710.GK843@suse.de> <1058034751.13318.95.camel@tiny.suse.com> <20030713090116.GU843@suse.de> <20030713191921.GI16313@dualathlon.random> <20030714054918.GD843@suse.de> <Pine.LNX.4.55L.0307140922130.17091@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55L.0307140922130.17091@freak.distro.conectiva>
+	Mon, 14 Jul 2003 09:04:21 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:52402 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S270628AbTGNNCV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 09:02:21 -0400
+To: "Frantisek =?iso-8859-1?q?Rys=E1nek?=" <rysanek@fccps.cz>
+Cc: <marcelo@conectiva.com.br>, "Francois Romieu" <romieu@fr.zoreil.com>,
+       <henrique2.gobbi@cyclades.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Why is generic hldc beig ignored?   RE:Linux 2.4.22-pre4
+References: <20030711212551.A25528@electric-eye.fr.zoreil.com>
+	<002a01c349fc$23a0e8c0$ec00000a@fccps.cz>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 14 Jul 2003 15:16:59 +0200
+In-Reply-To: <002a01c349fc$23a0e8c0$ec00000a@fccps.cz>
+Message-ID: <m3y8z1b644.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 14 2003, Marcelo Tosatti wrote:
-> 
-> 
-> On Mon, 14 Jul 2003, Jens Axboe wrote:
-> 
-> > On Sun, Jul 13 2003, Andrea Arcangeli wrote:
-> > > On Sun, Jul 13, 2003 at 11:01:16AM +0200, Jens Axboe wrote:
-> > > > No I don't have anything specific, it just seems like a bad heuristic to
-> > > > get rid of. I can try and do some testing tomorrow. I do feel strongly
-> > >
-> > > well, it's not an heuristic, it's a simplification and it will certainly
-> > > won't provide any benefit (besides saving some hundred kbytes of ram per
-> > > harddisk that is a minor benefit).
-> >
-> > You are missing my point - I don't care about loosing the extra request
-> > list, I never said anything about that in this thread. I care about
-> > loosing the reserved requests for reads. And we can do that just fine
-> > with just holding back a handful of requests.
-> >
-> > > > that we should at least make sure to reserve a few requests for reads
-> > > > exclusively, even if you don't agree with the oversized check. Anything
-> > > > else really contradicts all the io testing we have done the past years
-> > > > that shows how important it is to get a read in ASAP. And doing that in
-> > >
-> > > Important for latency or throughput? Do you know which is the benchmarks
-> > > that returned better results with the two queues, what's the theory
-> > > behind this?
-> >
-> > Forget the two queues, noone has said anything about that. The reserved
-> > reads are important for latency reasons, not throughput.
-> 
-> So Jens,
-> 
-> Please bench (as you said you would), and send us the results.
-> 
-> Its very important.
+"Frantisek Rysánek" <rysanek@fccps.cz> writes:
 
-Yes of course I'll send the results, at the current rate (they are
-running on the box) it probably wont be before tomorrow though.
+> As for the userspace sethdlc.c by Krzystof Halasa: I was using ver.1.12,
+> modified by Mr. Romieu, who has "cut some non-compiling functionality."
 
+It was a q&d version to support Ethernet emulation and did not compile
+without it. Was in the README in fact.
+
+> The current version from Krzysztof Halasa is 1.15.
+
+This one doesn't have this problem, Ethernet emulation doesn't get
+compiled if the kernel has no support for it.
+
+> Specifically, I was using uniprocessor machines only (no SMP).
+
+This is a common problem. From time to time I perform SMP tests, but they
+are neither extensive or long-term :-(
+
+> I've written a short mini-HOWTO - the chapter on test results in terms of
+> transfer rates and ping round trips is at
+> http://sweb.cz/Frantisek.Rysanek/sync/dscc4+HDLC-Mini-HOWTO.html#Drivers.ope
+> n.tests
+
+Looks nice, that's something I always wanted to have... I'll send you
+an errata.
+Great job.
 -- 
-Jens Axboe
-
+Krzysztof Halasa
+Network Administrator

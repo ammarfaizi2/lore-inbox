@@ -1,248 +1,528 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262347AbUEDUPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263107AbUEDUUo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbUEDUPq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 16:15:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263020AbUEDUPq
+	id S263107AbUEDUUo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 16:20:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263164AbUEDUUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 16:15:46 -0400
-Received: from emess.mscd.edu ([147.153.170.17]:47557 "EHLO emess.mscd.edu")
-	by vger.kernel.org with ESMTP id S262347AbUEDUPi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 16:15:38 -0400
-From: Steve Beaty <beaty@emess.mscd.edu>
-Message-Id: <200405042015.i44KFb0R001900@emess.mscd.edu>
-Subject: sigaction, fork, malloc, and futex
-To: linux-kernel@vger.kernel.org
-Date: Tue, 4 May 2004 14:15:37 -0600 (MDT)
-X-Mailer: ELM [version 2.5 PL6]
+	Tue, 4 May 2004 16:20:44 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3815 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263107AbUEDUTy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 16:19:54 -0400
+Message-ID: <4097FADB.4090105@pobox.com>
+Date: Tue, 04 May 2004 16:19:39 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Netdev <netdev@oss.sgi.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjanv@redhat.com>, Pekka Pietikainen <pp@netppl.fi>,
+       Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] b44 ethtool_ops
+Content-Type: multipart/mixed;
+ boundary="------------060008060903080904020905"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------060008060903080904020905
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-	anyone have a clue on this one?  we set up a signal handler, create
-	a child that sends that signal, and have the signal handler fork
-	another child.  if there is a malloc(), the second child gets stuck
-	in a futex(); without the malloc(), no problem.  2.4.20-30.9
-	kernel.  straces at the end.  any help would be appreciated.
-	thanks!
+Testing requested.
 
-===========================================================================
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <assert.h>
+Should see no ethtool behavior change, positive or negative.
 
-/* comment out the following to show the problem */
-#define WORKS
+--------------060008060903080904020905
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
 
-void sig_handler (int signum)
-{
-	int     child;
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/05/04 16:17:04-04:00 jgarzik@redhat.com 
+#   [netdrvr b44] ethtool_ops support
+# 
+# drivers/net/b44.c
+#   2004/05/04 16:14:38-04:00 jgarzik@redhat.com +195 -210
+#   [netdrvr b44] ethtool_ops support
+# 
+diff -Nru a/drivers/net/b44.c b/drivers/net/b44.c
+--- a/drivers/net/b44.c	Tue May  4 16:18:27 2004
++++ b/drivers/net/b44.c	Tue May  4 16:18:27 2004
+@@ -27,8 +27,8 @@
+ 
+ #define DRV_MODULE_NAME		"b44"
+ #define PFX DRV_MODULE_NAME	": "
+-#define DRV_MODULE_VERSION	"0.93"
+-#define DRV_MODULE_RELDATE	"Mar, 2004"
++#define DRV_MODULE_VERSION	"0.94"
++#define DRV_MODULE_RELDATE	"May 4, 2004"
+ 
+ #define B44_DEF_MSG_ENABLE	  \
+ 	(NETIF_MSG_DRV		| \
+@@ -1382,247 +1382,234 @@
+ 	spin_unlock_irq(&bp->lock);
+ }
+ 
+-static int b44_ethtool_ioctl (struct net_device *dev, void __user *useraddr)
++static u32 b44_get_msglevel(struct net_device *dev)
+ {
+-	struct b44 *bp = dev->priv;
+-	struct pci_dev *pci_dev = bp->pdev;
+-	u32 ethcmd;
++	struct b44 *bp = netdev_priv(dev);
++	return bp->msg_enable;
++}
+ 
+-	if (copy_from_user (&ethcmd, useraddr, sizeof (ethcmd)))
+-		return -EFAULT;
++static void b44_set_msglevel(struct net_device *dev, u32 value)
++{
++	struct b44 *bp = netdev_priv(dev);
++	bp->msg_enable = value;
++}
+ 
+-	switch (ethcmd) {
+-	case ETHTOOL_GDRVINFO:{
+-		struct ethtool_drvinfo info = { ETHTOOL_GDRVINFO };
+-		strcpy (info.driver, DRV_MODULE_NAME);
+-		strcpy (info.version, DRV_MODULE_VERSION);
+-		memset(&info.fw_version, 0, sizeof(info.fw_version));
+-		strcpy (info.bus_info, pci_name(pci_dev));
+-		info.eedump_len = 0;
+-		info.regdump_len = 0;
+-		if (copy_to_user (useraddr, &info, sizeof (info)))
+-			return -EFAULT;
+-		return 0;
+-	}
++static void b44_get_drvinfo (struct net_device *dev, struct ethtool_drvinfo *info)
++{
++	struct b44 *bp = netdev_priv(dev);
++	struct pci_dev *pci_dev = bp->pdev;
+ 
+-	case ETHTOOL_GSET: {
+-		struct ethtool_cmd cmd = { ETHTOOL_GSET };
++	strcpy (info->driver, DRV_MODULE_NAME);
++	strcpy (info->version, DRV_MODULE_VERSION);
++	strcpy (info->bus_info, pci_name(pci_dev));
++}
+ 
+-		if (!(bp->flags & B44_FLAG_INIT_COMPLETE))
+-			return -EAGAIN;
+-		cmd.supported = (SUPPORTED_Autoneg);
+-		cmd.supported |= (SUPPORTED_100baseT_Half |
+-				  SUPPORTED_100baseT_Full |
+-				  SUPPORTED_10baseT_Half |
+-				  SUPPORTED_10baseT_Full |
+-				  SUPPORTED_MII);
++static int b44_nway_reset(struct net_device *dev)
++{
++	struct b44 *bp = netdev_priv(dev);
++	u32 bmcr;
++	int r;
+ 
+-		cmd.advertising = 0;
+-		if (bp->flags & B44_FLAG_ADV_10HALF)
+-			cmd.advertising |= ADVERTISE_10HALF;
+-		if (bp->flags & B44_FLAG_ADV_10FULL)
+-			cmd.advertising |= ADVERTISE_10FULL;
+-		if (bp->flags & B44_FLAG_ADV_100HALF)
+-			cmd.advertising |= ADVERTISE_100HALF;
+-		if (bp->flags & B44_FLAG_ADV_100FULL)
+-			cmd.advertising |= ADVERTISE_100FULL;
+-		cmd.advertising |= ADVERTISE_PAUSE_CAP | ADVERTISE_PAUSE_ASYM;
+-		cmd.speed = (bp->flags & B44_FLAG_100_BASE_T) ?
+-			SPEED_100 : SPEED_10;
+-		cmd.duplex = (bp->flags & B44_FLAG_FULL_DUPLEX) ?
+-			DUPLEX_FULL : DUPLEX_HALF;
+-		cmd.port = 0;
+-		cmd.phy_address = bp->phy_addr;
+-		cmd.transceiver = (bp->flags & B44_FLAG_INTERNAL_PHY) ?
+-			XCVR_INTERNAL : XCVR_EXTERNAL;
+-		cmd.autoneg = (bp->flags & B44_FLAG_FORCE_LINK) ?
+-			AUTONEG_DISABLE : AUTONEG_ENABLE;
+-		cmd.maxtxpkt = 0;
+-		cmd.maxrxpkt = 0;
+-		if (copy_to_user(useraddr, &cmd, sizeof(cmd)))
+-			return -EFAULT;
+-		return 0;
++	spin_lock_irq(&bp->lock);
++	b44_readphy(bp, MII_BMCR, &bmcr);
++	b44_readphy(bp, MII_BMCR, &bmcr);
++	r = -EINVAL;
++	if (bmcr & BMCR_ANENABLE) {
++		b44_writephy(bp, MII_BMCR,
++			     bmcr | BMCR_ANRESTART);
++		r = 0;
+ 	}
+-	case ETHTOOL_SSET: {
+-		struct ethtool_cmd cmd;
++	spin_unlock_irq(&bp->lock);
+ 
+-		if (!(bp->flags & B44_FLAG_INIT_COMPLETE))
+-			return -EAGAIN;
++	return r;
++}
+ 
+-		if (copy_from_user(&cmd, useraddr, sizeof(cmd)))
+-			return -EFAULT;
++static int b44_get_settings(struct net_device *dev, struct ethtool_cmd *cmd)
++{
++	struct b44 *bp = netdev_priv(dev);
+ 
+-		/* We do not support gigabit. */
+-		if (cmd.autoneg == AUTONEG_ENABLE) {
+-			if (cmd.advertising &
+-			    (ADVERTISED_1000baseT_Half |
+-			     ADVERTISED_1000baseT_Full))
+-				return -EINVAL;
+-		} else if ((cmd.speed != SPEED_100 &&
+-			    cmd.speed != SPEED_10) ||
+-			   (cmd.duplex != DUPLEX_HALF &&
+-			    cmd.duplex != DUPLEX_FULL)) {
+-				return -EINVAL;
+-		}
++	if (!(bp->flags & B44_FLAG_INIT_COMPLETE))
++		return -EAGAIN;
++	cmd->supported = (SUPPORTED_Autoneg);
++	cmd->supported |= (SUPPORTED_100baseT_Half |
++			  SUPPORTED_100baseT_Full |
++			  SUPPORTED_10baseT_Half |
++			  SUPPORTED_10baseT_Full |
++			  SUPPORTED_MII);
++
++	cmd->advertising = 0;
++	if (bp->flags & B44_FLAG_ADV_10HALF)
++		cmd->advertising |= ADVERTISE_10HALF;
++	if (bp->flags & B44_FLAG_ADV_10FULL)
++		cmd->advertising |= ADVERTISE_10FULL;
++	if (bp->flags & B44_FLAG_ADV_100HALF)
++		cmd->advertising |= ADVERTISE_100HALF;
++	if (bp->flags & B44_FLAG_ADV_100FULL)
++		cmd->advertising |= ADVERTISE_100FULL;
++	cmd->advertising |= ADVERTISE_PAUSE_CAP | ADVERTISE_PAUSE_ASYM;
++	cmd->speed = (bp->flags & B44_FLAG_100_BASE_T) ?
++		SPEED_100 : SPEED_10;
++	cmd->duplex = (bp->flags & B44_FLAG_FULL_DUPLEX) ?
++		DUPLEX_FULL : DUPLEX_HALF;
++	cmd->port = 0;
++	cmd->phy_address = bp->phy_addr;
++	cmd->transceiver = (bp->flags & B44_FLAG_INTERNAL_PHY) ?
++		XCVR_INTERNAL : XCVR_EXTERNAL;
++	cmd->autoneg = (bp->flags & B44_FLAG_FORCE_LINK) ?
++		AUTONEG_DISABLE : AUTONEG_ENABLE;
++	cmd->maxtxpkt = 0;
++	cmd->maxrxpkt = 0;
++	return 0;
++}
+ 
+-		spin_lock_irq(&bp->lock);
++static int b44_set_settings(struct net_device *dev, struct ethtool_cmd *cmd)
++{
++	struct b44 *bp = netdev_priv(dev);
+ 
+-		if (cmd.autoneg == AUTONEG_ENABLE) {
+-			bp->flags &= ~B44_FLAG_FORCE_LINK;
+-			bp->flags &= ~(B44_FLAG_ADV_10HALF |
+-				       B44_FLAG_ADV_10FULL |
+-				       B44_FLAG_ADV_100HALF |
+-				       B44_FLAG_ADV_100FULL);
+-			if (cmd.advertising & ADVERTISE_10HALF)
+-				bp->flags |= B44_FLAG_ADV_10HALF;
+-			if (cmd.advertising & ADVERTISE_10FULL)
+-				bp->flags |= B44_FLAG_ADV_10FULL;
+-			if (cmd.advertising & ADVERTISE_100HALF)
+-				bp->flags |= B44_FLAG_ADV_100HALF;
+-			if (cmd.advertising & ADVERTISE_100FULL)
+-				bp->flags |= B44_FLAG_ADV_100FULL;
+-		} else {
+-			bp->flags |= B44_FLAG_FORCE_LINK;
+-			if (cmd.speed == SPEED_100)
+-				bp->flags |= B44_FLAG_100_BASE_T;
+-			if (cmd.duplex == DUPLEX_FULL)
+-				bp->flags |= B44_FLAG_FULL_DUPLEX;
+-		}
++	if (!(bp->flags & B44_FLAG_INIT_COMPLETE))
++		return -EAGAIN;
+ 
+-		b44_setup_phy(bp);
++	/* We do not support gigabit. */
++	if (cmd->autoneg == AUTONEG_ENABLE) {
++		if (cmd->advertising &
++		    (ADVERTISED_1000baseT_Half |
++		     ADVERTISED_1000baseT_Full))
++			return -EINVAL;
++	} else if ((cmd->speed != SPEED_100 &&
++		    cmd->speed != SPEED_10) ||
++		   (cmd->duplex != DUPLEX_HALF &&
++		    cmd->duplex != DUPLEX_FULL)) {
++			return -EINVAL;
++	}
+ 
+-		spin_unlock_irq(&bp->lock);
++	spin_lock_irq(&bp->lock);
+ 
+-		return 0;
++	if (cmd->autoneg == AUTONEG_ENABLE) {
++		bp->flags &= ~B44_FLAG_FORCE_LINK;
++		bp->flags &= ~(B44_FLAG_ADV_10HALF |
++			       B44_FLAG_ADV_10FULL |
++			       B44_FLAG_ADV_100HALF |
++			       B44_FLAG_ADV_100FULL);
++		if (cmd->advertising & ADVERTISE_10HALF)
++			bp->flags |= B44_FLAG_ADV_10HALF;
++		if (cmd->advertising & ADVERTISE_10FULL)
++			bp->flags |= B44_FLAG_ADV_10FULL;
++		if (cmd->advertising & ADVERTISE_100HALF)
++			bp->flags |= B44_FLAG_ADV_100HALF;
++		if (cmd->advertising & ADVERTISE_100FULL)
++			bp->flags |= B44_FLAG_ADV_100FULL;
++	} else {
++		bp->flags |= B44_FLAG_FORCE_LINK;
++		if (cmd->speed == SPEED_100)
++			bp->flags |= B44_FLAG_100_BASE_T;
++		if (cmd->duplex == DUPLEX_FULL)
++			bp->flags |= B44_FLAG_FULL_DUPLEX;
+ 	}
+ 
+-	case ETHTOOL_GMSGLVL: {
+-		struct ethtool_value edata = { ETHTOOL_GMSGLVL };
+-		edata.data = bp->msg_enable;
+-		if (copy_to_user(useraddr, &edata, sizeof(edata)))
+-			return -EFAULT;
+-		return 0;
+-	}
+-	case ETHTOOL_SMSGLVL: {
+-		struct ethtool_value edata;
+-		if (copy_from_user(&edata, useraddr, sizeof(edata)))
+-			return -EFAULT;
+-		bp->msg_enable = edata.data;
+-		return 0;
+-	}
+-	case ETHTOOL_NWAY_RST: {
+-		u32 bmcr;
+-		int r;
++	b44_setup_phy(bp);
+ 
+-		spin_lock_irq(&bp->lock);
+-		b44_readphy(bp, MII_BMCR, &bmcr);
+-		b44_readphy(bp, MII_BMCR, &bmcr);
+-		r = -EINVAL;
+-		if (bmcr & BMCR_ANENABLE) {
+-			b44_writephy(bp, MII_BMCR,
+-				     bmcr | BMCR_ANRESTART);
+-			r = 0;
+-		}
+-		spin_unlock_irq(&bp->lock);
++	spin_unlock_irq(&bp->lock);
+ 
+-		return r;
+-	}
+-	case ETHTOOL_GLINK: {
+-		struct ethtool_value edata = { ETHTOOL_GLINK };
+-		edata.data = netif_carrier_ok(bp->dev) ? 1 : 0;
+-		if (copy_to_user(useraddr, &edata, sizeof(edata)))
+-			return -EFAULT;
+-		return 0;
+-	}
+-	case ETHTOOL_GRINGPARAM: {
+-		struct ethtool_ringparam ering = { ETHTOOL_GRINGPARAM };
++	return 0;
++}
+ 
+-		ering.rx_max_pending = B44_RX_RING_SIZE - 1;
+-		ering.rx_pending = bp->rx_pending;
++static void b44_get_ringparam(struct net_device *dev,
++			      struct ethtool_ringparam *ering)
++{
++	struct b44 *bp = netdev_priv(dev);
+ 
+-		/* XXX ethtool lacks a tx_max_pending, oops... */
++	ering->rx_max_pending = B44_RX_RING_SIZE - 1;
++	ering->rx_pending = bp->rx_pending;
+ 
+-		if (copy_to_user(useraddr, &ering, sizeof(ering)))
+-			return -EFAULT;
+-		return 0;
+-	}
+-	case ETHTOOL_SRINGPARAM: {
+-		struct ethtool_ringparam ering;
++	/* XXX ethtool lacks a tx_max_pending, oops... */
++}
+ 
+-		if (copy_from_user(&ering, useraddr, sizeof(ering)))
+-			return -EFAULT;
++static int b44_set_ringparam(struct net_device *dev,
++			     struct ethtool_ringparam *ering)
++{
++	struct b44 *bp = netdev_priv(dev);
+ 
+-		if ((ering.rx_pending > B44_RX_RING_SIZE - 1) ||
+-		    (ering.rx_mini_pending != 0) ||
+-		    (ering.rx_jumbo_pending != 0) ||
+-		    (ering.tx_pending > B44_TX_RING_SIZE - 1))
+-			return -EINVAL;
++	if ((ering->rx_pending > B44_RX_RING_SIZE - 1) ||
++	    (ering->rx_mini_pending != 0) ||
++	    (ering->rx_jumbo_pending != 0) ||
++	    (ering->tx_pending > B44_TX_RING_SIZE - 1))
++		return -EINVAL;
+ 
+-		spin_lock_irq(&bp->lock);
++	spin_lock_irq(&bp->lock);
+ 
+-		bp->rx_pending = ering.rx_pending;
+-		bp->tx_pending = ering.tx_pending;
++	bp->rx_pending = ering->rx_pending;
++	bp->tx_pending = ering->tx_pending;
+ 
+-		b44_halt(bp);
+-		b44_init_rings(bp);
+-		b44_init_hw(bp);
+-		netif_wake_queue(bp->dev);
+-		spin_unlock_irq(&bp->lock);
++	b44_halt(bp);
++	b44_init_rings(bp);
++	b44_init_hw(bp);
++	netif_wake_queue(bp->dev);
++	spin_unlock_irq(&bp->lock);
+ 
+-		b44_enable_ints(bp);
+-		
+-		return 0;
+-	}
+-	case ETHTOOL_GPAUSEPARAM: {
+-		struct ethtool_pauseparam epause = { ETHTOOL_GPAUSEPARAM };
++	b44_enable_ints(bp);
++	
++	return 0;
++}
+ 
+-		epause.autoneg =
+-			(bp->flags & B44_FLAG_PAUSE_AUTO) != 0;
+-		epause.rx_pause =
+-			(bp->flags & B44_FLAG_RX_PAUSE) != 0;
+-		epause.tx_pause =
+-			(bp->flags & B44_FLAG_TX_PAUSE) != 0;
+-		if (copy_to_user(useraddr, &epause, sizeof(epause)))
+-			return -EFAULT;
+-		return 0;
+-	}
+-	case ETHTOOL_SPAUSEPARAM: {
+-		struct ethtool_pauseparam epause;
++static void b44_get_pauseparam(struct net_device *dev,
++				struct ethtool_pauseparam *epause)
++{
++	struct b44 *bp = netdev_priv(dev);
+ 
+-		if (copy_from_user(&epause, useraddr, sizeof(epause)))
+-			return -EFAULT;
++	epause->autoneg =
++		(bp->flags & B44_FLAG_PAUSE_AUTO) != 0;
++	epause->rx_pause =
++		(bp->flags & B44_FLAG_RX_PAUSE) != 0;
++	epause->tx_pause =
++		(bp->flags & B44_FLAG_TX_PAUSE) != 0;
++}
+ 
+-		spin_lock_irq(&bp->lock);
+-		if (epause.autoneg)
+-			bp->flags |= B44_FLAG_PAUSE_AUTO;
+-		else
+-			bp->flags &= ~B44_FLAG_PAUSE_AUTO;
+-		if (epause.rx_pause)
+-			bp->flags |= B44_FLAG_RX_PAUSE;
+-		else
+-			bp->flags &= ~B44_FLAG_RX_PAUSE;
+-		if (epause.tx_pause)
+-			bp->flags |= B44_FLAG_TX_PAUSE;
+-		else
+-			bp->flags &= ~B44_FLAG_TX_PAUSE;
+-		if (bp->flags & B44_FLAG_PAUSE_AUTO) {
+-			b44_halt(bp);
+-			b44_init_rings(bp);
+-			b44_init_hw(bp);
+-		} else {
+-			__b44_set_flow_ctrl(bp, bp->flags);
+-		}
+-		spin_unlock_irq(&bp->lock);
++static int b44_set_pauseparam(struct net_device *dev,
++				struct ethtool_pauseparam *epause)
++{
++	struct b44 *bp = netdev_priv(dev);
+ 
+-		b44_enable_ints(bp);
+-		
+-		return 0;
++	spin_lock_irq(&bp->lock);
++	if (epause->autoneg)
++		bp->flags |= B44_FLAG_PAUSE_AUTO;
++	else
++		bp->flags &= ~B44_FLAG_PAUSE_AUTO;
++	if (epause->rx_pause)
++		bp->flags |= B44_FLAG_RX_PAUSE;
++	else
++		bp->flags &= ~B44_FLAG_RX_PAUSE;
++	if (epause->tx_pause)
++		bp->flags |= B44_FLAG_TX_PAUSE;
++	else
++		bp->flags &= ~B44_FLAG_TX_PAUSE;
++	if (bp->flags & B44_FLAG_PAUSE_AUTO) {
++		b44_halt(bp);
++		b44_init_rings(bp);
++		b44_init_hw(bp);
++	} else {
++		__b44_set_flow_ctrl(bp, bp->flags);
+ 	}
+-	};
++	spin_unlock_irq(&bp->lock);
+ 
+-	return -EOPNOTSUPP;
++	b44_enable_ints(bp);
++	
++	return 0;
+ }
+ 
++static struct ethtool_ops b44_ethtool_ops = {
++	.get_drvinfo		= b44_get_drvinfo,
++	.get_settings		= b44_get_settings,
++	.set_settings		= b44_set_settings,
++	.nway_reset		= b44_nway_reset,
++	.get_link		= ethtool_op_get_link,
++	.get_ringparam		= b44_get_ringparam,
++	.set_ringparam		= b44_set_ringparam,
++	.get_pauseparam		= b44_get_pauseparam,
++	.set_pauseparam		= b44_set_pauseparam,
++	.get_msglevel		= b44_get_msglevel,
++	.set_msglevel		= b44_set_msglevel,
++};
++
+ static int b44_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+ {
+ 	struct mii_ioctl_data __user *data = (struct mii_ioctl_data __user *)&ifr->ifr_data;
+@@ -1630,9 +1617,6 @@
+ 	int err;
+ 
+ 	switch (cmd) {
+-	case SIOCETHTOOL:
+-		return b44_ethtool_ioctl(dev, (void __user*) ifr->ifr_data);
+-
+ 	case SIOCGMIIPHY:
+ 		data->phy_id = bp->phy_addr;
+ 
+@@ -1806,6 +1790,7 @@
+ 	dev->watchdog_timeo = B44_TX_TIMEOUT;
+ 	dev->change_mtu = b44_change_mtu;
+ 	dev->irq = pdev->irq;
++	SET_ETHTOOL_OPS(dev, &b44_ethtool_ops);
+ 
+ 	err = b44_get_invariants(bp);
+ 	if (err) {
 
-	fprintf (stderr, "Process %d received a SIGALRM signal\n", getpid());
-	if ((child = fork ()) == 0)
-	{
-		fprintf (stderr, "%d exiting\n", getpid());
-		exit (0);
-	}
-	fprintf (stderr, "%d waiting for %d\n", getpid(), child);
-	waitpid (child, NULL, 0);
-}
+--------------060008060903080904020905--
 
-int
-main (int argc, char **argv)
-{
-	int parent = getpid();
-	int child;
-
-	struct sigaction action;
-	sigemptyset (&action.sa_mask);
-	action.sa_handler = sig_handler;
-
-#ifndef WORKS
-	malloc (sizeof (int));
-#endif
-
-	assert (sigaction (SIGALRM, &action, NULL) == 0);
-
-	if ((child = fork ()) == 0)
-	{
-		fprintf (stderr, "%d sending SIGALRM to %d\n", getpid(), parent);
-		if (kill (parent, SIGALRM) == -1) perror ("kill 1");
-		fprintf (stderr, "%d exiting\n", getpid());
-		exit (0);
-	}
-	fprintf (stderr, "%d waiting for %d\n", getpid(), child);
-	waitpid (child, NULL, 0);
-}
-
-/*
-** if WORKS defined:
-
-$ ./a.out
-9106 sending SIGALRM to 9105
-9106 exiting
-Process 9105 received a SIGALRM signal
-9107 exiting
-9105 waiting for 9107
-9105 waiting for 9106
-
-** if WORKS undefined:
-
-$ ./a.out
-9095 sending SIGALRM to 9094
-9095 exiting
-Process 9094 received a SIGALRM signal
-
-$ sh /usr/src/linux-2.4.20-30.9/scripts/ver_linux
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
-  
-Linux emess0.mscd.edu 2.4.20-30.9 #1 Wed Feb 4 20:44:26 EST 2004 i686 i686
-i386 GNU/Linux
-  
-Gnu C                  3.2.2
-Gnu make               3.79.1
-util-linux             2.11y
-mount                  2.11y
-modutils               2.4.22
-e2fsprogs              1.32
-jfsutils               1.0.17
-reiserfsprogs          3.6.4
-pcmcia-cs              3.1.31
-PPP                    2.4.1
-isdn4k-utils           3.1pre4
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Procps                 2.0.11
-Net-tools              1.60
-Kbd                    1.08
-Sh-utils               4.5.3
-Modules Loaded         ieee1394 ide-cd cdrom i810_audio ac97_codec
-soundcore mga agpgart binfmt_misc autofs e100 ipchains loop lvm-mod keybdev
-mousedev hid input usb-uhci usbcore ext3 jbd
-
-*/
-
-#if 0
-
-BAD:
----------------------------------------------------------------------------
-$ strace ./a.out
-execve("./a.out", ["./a.out"], [/* 42 vars */]) = 0
-uname({sys="Linux", node="emess.mscd.edu", ...}) = 0
-brk(0)                                  = 0x80499fc
-open("/etc/ld.so.preload", O_RDONLY)    = -1 ENOENT (No such file or
-directory)
-open("/etc/ld.so.cache", O_RDONLY)      = 3
-fstat64(3, {st_mode=S_IFREG|0644, st_size=105716, ...}) = 0
-old_mmap(NULL, 105716, PROT_READ, MAP_PRIVATE, 3, 0) = 0x40016000
-close(3)                                = 0
-open("/lib/tls/libc.so.6", O_RDONLY)    = 3
-read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\360W\1"..., 512) =
-512
-fstat64(3, {st_mode=S_IFREG|0755, st_size=1539996, ...}) = 0
-old_mmap(0x42000000, 1267276, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) =
-0x42000000
-old_mmap(0x42130000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3,
-0x130000) = 0x42130000
-old_mmap(0x42133000, 9804, PROT_READ|PROT_WRITE,
-MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x42133000
-close(3)                                = 0
-old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1,
-0) = 0x40030000
-set_thread_area({entry_number:-1 -> 6, base_addr:0x400304a0, limit:1048575,
-seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1,
-seg_not_present:0, useable:1}) = 0
-munmap(0x40016000, 105716)              = 0
-getpid()                                = 9059
-brk(0)                                  = 0x80499fc
-brk(0x804a9fc)                          = 0x804a9fc
-brk(0)                                  = 0x804a9fc
-brk(0x804b000)                          = 0x804b000
-rt_sigaction(SIGALRM, {0x8048568, [],
-SA_RESTORER|SA_NOMASK|SA_SIGINFO|0x21328d0, 0x420277b0}, NULL, 8) = 0
-clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|0x11,
-<ignored>, <ignored>, 0x400304e8) = 9060
-9060 sending SIGALRM to 9059
-9060 exiting
---- SIGALRM (Alarm clock) @ 0 (0) ---
-getpid()                                = 9059
---- SIGCHLD (Child exited) @ 0 (0) ---
-write(2, "Process 9059 received a SIGALRM "..., 39Process 9059 received a
-SIGALRM signal
-) = 39
-futex(0x421336d0, FUTEX_WAIT, 2, NULL
-[control-c]
----------------------------------------------------------------------------
-
-GOOD
-
----------------------------------------------------------------------------
-$ strace ./a.out
-execve("./a.out", ["./a.out"], [/* 42 vars */]) = 0
-uname({sys="Linux", node="emess.mscd.edu", ...}) = 0
-brk(0)                                  = 0x80499b8
-open("/etc/ld.so.preload", O_RDONLY)    = -1 ENOENT (No such file or
-directory)
-open("/etc/ld.so.cache", O_RDONLY)      = 3
-fstat64(3, {st_mode=S_IFREG|0644, st_size=105716, ...}) = 0
-old_mmap(NULL, 105716, PROT_READ, MAP_PRIVATE, 3, 0) = 0x40016000
-close(3)                                = 0
-open("/lib/tls/libc.so.6", O_RDONLY)    = 3
-read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\360W\1"..., 512) =
-512
-fstat64(3, {st_mode=S_IFREG|0755, st_size=1539996, ...}) = 0
-old_mmap(0x42000000, 1267276, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) =
-0x42000000
-old_mmap(0x42130000, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3,
-0x130000) = 0x42130000
-old_mmap(0x42133000, 9804, PROT_READ|PROT_WRITE,
-MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x42133000
-close(3)                                = 0
-old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1,
-0) = 0x40030000
-set_thread_area({entry_number:-1 -> 6, base_addr:0x400304a0, limit:1048575,
-seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1,
-seg_not_present:0, useable:1}) = 0
-munmap(0x40016000, 105716)              = 0
-getpid()                                = 9087
-rt_sigaction(SIGALRM, {0x8048534, [],
-SA_RESTORER|SA_NOMASK|SA_SIGINFO|0x21328d0, 0x420277b0}, NULL, 8) = 0
-clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|0x11,
-<ignored>, <ignored>, 0x400304e8) = 9088
-9088 sending SIGALRM to 9087
-9088 exiting
---- SIGALRM (Alarm clock) @ 0 (0) ---
-getpid()                                = 9087
---- SIGCHLD (Child exited) @ 0 (0) ---
-write(2, "Process 9087 received a SIGALRM "..., 39Process 9087 received a
-SIGALRM signal
-) = 39
-clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|0x11,
-<ignored>, <ignored>, 0x400304e8) = 9089
-getpid()                                = 9087
-write(2, "9087 waiting for 9089\n", 229087 waiting for 9089
-) = 22
-wait4(9089, 9089 exiting
-NULL, 0, NULL)              = 9089
-rt_sigreturn(0x1200011)                 = 9088
-getpid()                                = 9087
-write(2, "9087 waiting for 9088\n", 229087 waiting for 9088
-) = 22
-wait4(9088, NULL, 0, NULL)              = 9088
-exit_group(0)                           = ?
----------------------------------------------------------------------------
-#endif
-===========================================================================
-
--- 
-Dr. Steve Beaty (B80)                                 Associate Professor
-Metro State College of Denver                        beaty@emess.mscd.edu
-VOX: (303) 556-5321                                 Science Building 134C
-FAX: (303) 556-5381                         http://clem.mscd.edu/~beatys/

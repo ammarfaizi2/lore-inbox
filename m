@@ -1,59 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261847AbSJNHFF>; Mon, 14 Oct 2002 03:05:05 -0400
+	id <S261849AbSJNHNM>; Mon, 14 Oct 2002 03:13:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261849AbSJNHFF>; Mon, 14 Oct 2002 03:05:05 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:60686 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S261847AbSJNHFF>; Mon, 14 Oct 2002 03:05:05 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
+	id <S261854AbSJNHNM>; Mon, 14 Oct 2002 03:13:12 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:38542 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261849AbSJNHNL>;
+	Mon, 14 Oct 2002 03:13:11 -0400
+Date: Mon, 14 Oct 2002 09:18:56 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Ingo Adlung <Ingo.Adlung@t-online.de>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 5.1
+Message-ID: <20021014091855.A4197@ucw.cz>
+References: <3DA4B1EC.781174A6@mvista.com> <Pine.LNX.4.44.0210091613590.9234-100000@home.transmeta.com> <3DA94F07.7070109@t-online.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15786.28159.854350.479513@laputa.namesys.com>
-Date: Mon, 14 Oct 2002 11:10:55 +0400
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Rob Landley <landley@trommello.org>
-Cc: Hans Reiser <reiser@namesys.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 - (NUMA))
-In-Reply-To: <200210132242.g9DMgVng334662@pimout3-ext.prodigy.net>
-References: <Pine.LNX.4.44.0210041610220.2465-100000@home.transmeta.com>
-	<20021012012807.1BB5B635@merlin.webofficenow.com>
-	<3DA7F385.3040409@namesys.com>
-	<200210132242.g9DMgVng334662@pimout3-ext.prodigy.net>
-X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
-X-Drdoom-Fodder: CERT satan root crash passwd drdoom
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3DA94F07.7070109@t-online.de>; from Ingo.Adlung@t-online.de on Sun, Oct 13, 2002 at 12:46:31PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley writes:
- > On Saturday 12 October 2002 06:03 am, Hans Reiser wrote:
- > > Rob Landley wrote:
- > > >I'm also looking for an "unmount --force" option that works on something
- > > >other than NFS.  Close all active filehandles (the programs using it can
- > > > just deal with EBADF or whatever), flush the buffers to disk, and
- > > > unmount.  None of this "oh I can't do that, you have a zombie process
- > > > with an open file...", I want  "guillotine this filesystem pronto,
- > > > capice?" behavior.
- > >
- > > This sounds useful.  It would be nice if umount prompted you rather than
- > > refusing.
- > 
- > The problem here is that umount(2) doesn't take a flag.  I'd be happy to have 
- > it fail unless called with the WITH_EXTREME_PREJUDICE flag or some such, but 
- > that's an API change.
- > 
- > Of course I haven't gotten that far yet, but eventually this will have to be 
- > dealt with...
+On Sun, Oct 13, 2002 at 12:46:31PM +0200, Ingo Adlung wrote:
 
-There were several patches to do this. If I remember correctly Tigran
-Aivazian wrote one, for example.
+> Linus Torvalds wrote:
+> > On Wed, 9 Oct 2002, george anzinger wrote:
+> > 
+> >>This patch, in conjunction with the "core" high-res-timers
+> >>patch implements high resolution timers on the i386
+> >>platforms.
+> > 
+> > 
+> > I really don't get the notion of partial ticks, and quite frankly, this 
+> > isn't going into my tree until some major distribution kicks me in the 
+> > head and explains to me why the hell we have partial ticks instead of just 
+> > making the ticks shorter.
 
- > 
- > Rob
+Not speaking for a major distro, just for me writing HPET (high
+performance event timer ...) support for x86-64 (and it happens to exist
+on ia64 as well, and possibly might be in new Intel P4 chipsets, too).
 
-Nikita.
+It's a very nice piece of hardware that allows very fine granularity
+aperiodic interrupts (in each interrupt you set when the next one will
+happen), without much overhead.
 
+It'd be a shame to just set this timer to 1kHz periodic just use that as
+a base timer, when you can do much better resolution and latency-wise.
+HPET has a base clock > 10 MHz.
+
+> > 		Linus
+> 
+> In any kind of virtual environment you would rather prefer a completely 
+> tickless system alltogether than increased tick rates. In a S/390 
+> virtual machine, running many hundreds of virtual Linux servers the 
+> 100Hz timer pops are already considerably painful, and going to a higher 
+> tick rate achieving higher timer resolution is completely prohibitive. 
+> Similar is true in many embedded systems related to power consumption of 
+> high frequency ticks.
+> 
+> However, George has shown that introducing the notion of a completely 
+> tickless system is expensive on Intel overhead wise, thus partial ticks 
+> seem to be a possibility addressing the needs for embedded and virtual 
+> environments, getting decent timer resolution as needed.
+
+When HPET becomes a standard (yes, it's a MS requirement for new PCs),
+it won't be expensive on i386 anymore.
+
+-- 
+Vojtech Pavlik
+SuSE Labs

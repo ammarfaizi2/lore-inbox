@@ -1,76 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267518AbTALVGp>; Sun, 12 Jan 2003 16:06:45 -0500
+	id <S267528AbTALVRX>; Sun, 12 Jan 2003 16:17:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267520AbTALVGo>; Sun, 12 Jan 2003 16:06:44 -0500
-Received: from mail.zmailer.org ([62.240.94.4]:8646 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S267518AbTALVGn>;
-	Sun, 12 Jan 2003 16:06:43 -0500
-Date: Sun, 12 Jan 2003 23:15:30 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Rob Wilkens <robw@optonline.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: any chance of 2.6.0-test*?
-Message-ID: <20030112211530.GP27709@mea-ext.zmailer.org>
-References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <1042400094.1208.26.camel@RobsPC.RobertWilkens.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1042400094.1208.26.camel@RobsPC.RobertWilkens.com>
+	id <S267532AbTALVRX>; Sun, 12 Jan 2003 16:17:23 -0500
+Received: from xyzzy.bubble.org ([132.238.254.34]:35085 "EHLO xyzzy.bubble.org")
+	by vger.kernel.org with ESMTP id <S267528AbTALVRV>;
+	Sun, 12 Jan 2003 16:17:21 -0500
+Message-ID: <3E21DD72.7080903@xyzzy.bubble.org>
+Date: Sun, 12 Jan 2003 16:26:10 -0500
+From: Jeffrey Ross <jeff@xyzzy.bubble.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: ACPI errors (2.4.21-pre3-ac4)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 12, 2003 at 02:34:54PM -0500, Rob Wilkens wrote:
-> Linus,
-> 
-> I'm REALLY opposed to the use of the word "goto" in any code where it's
-> not needed.  OF course, I'm a linux kernel newbie, so I'm in no position
-> to comment
+This existed with the earlier kernels as well, on boot up I get the 
+following when I enable ACPI:
 
-Bob,
+early in the dmesg output:
 
-At first, read   Documentation/CodingStyle   of the kernel.
-Then have a look into:
+found SMP MP-table at 000ff780
+hm, page 000ff000 reserved twice.
+hm, page 00100000 reserved twice.
+hm, page 000fd000 reserved twice.
+hm, page 000fe000 reserved twice.
+On node 0 totalpages: 63296
+zone(0): 4096 pages.
+zone(1): 59200 pages.
+zone(2): 0 pages.
+Intel MultiProcessor Specification v1.4
+     Virtual Wire compatibility mode.
+OEM ID:  Product ID: BrkdleG-ICH4 APIC at: 0xFEE00000
+Processor #0 Pentium 4(tm) XEON(tm) APIC version 20
+I/O APIC #1 Version 32 at 0xFEC00000.
+Enabling APIC mode: Flat.       Using 1 I/O APICs
+Processors: 1
+Kernel command line: ro root=/dev/hda3 console=tty0 console=ttyS0
+Initializing CPU#0
 
-    fs/open.c  file    do_sys_truncate()  function.
+and then a little further down:
 
-Explain how you can do that cleanly, understandably, and without
-code duplication, or ugly kludges  without using those goto ?
-(And sticking to coding-style.)
+ACPI-0202: *** Warning: Invalid table signature ASF! found
+ACPI-0095: *** Error: Acpi_load_tables: Error getting required tables 
+(DSDT/FADT/FACS): AE_BAD_SIGNATURE
+ACPI-0116: *** Error: Acpi_load_tables: Could not load tables: 
+AE_BAD_SIGNATURE
+ACPI: System description table load failed
 
-Also take into account, that there the most common execution path
-is direct, and exceptions are redirected elsewere.
+Processor is a P-4 2Ghz
+
+/proc/cpuinfo:
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Pentium(R) 4 CPU 2.00GHz
+stepping        : 4
+cpu MHz         : 1999.823
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
+mca cmov
+pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips        : 3984.58
 
 
-Original "gotos are evil" comes from days of FORTRAN (and BASIC)
-coding, where labels were all numeric, and definitely non-descriptive.
-Where nested conditionals didn't exist, etc. Source-code nesting didn't
-exist either...
+The motherboard is an Intel model D845GBV
 
+Jeff
 
-Doing things in moderation will usually produce better code,
-than strict sticking into some paradigm or other.
-
-
-Of course in schools there is definite need for severe whaking of
-sense into heads of the young would-be coders.  Clean reusable
-and maintainable code is _hard_ to produce without any sort of
-role-models and rules, especially when kids teach coding for
-themselves by looking into other kids code of "look how clever
-spaghetti I made" stuff.
-
-When you learn the ropes (rules), and code enough (some years),
-you will finally learn where you can relax the rules a bit.
-Especially where the rules _must_ be altered to allow some
-formerly boo-boo styles.
-
-
-...
-> If I'm misinterpreting the original code, then forgive me..  I just saw
-> a goto and gasped.  There's always a better option than goto.
-
-Yes there are, but we are coding in C, nor C++ or Java...
-
-> -Rob
-
-/Matti Aarnio

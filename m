@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbTEEIuJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 04:50:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbTEEIuJ
+	id S262113AbTEEJGl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 05:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbTEEJGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 04:50:09 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:27309 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S262106AbTEEIuI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 04:50:08 -0400
-Date: Mon, 5 May 2003 19:04:29 +1000
-From: CaT <cat@zip.com.au>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.68-bk7: Where oh where have my sensors gone? (i2c)
-Message-ID: <20030505090429.GA461@zip.com.au>
-References: <20030427115644.GA492@zip.com.au> <20030428205522.GA26160@kroah.com> <20030505083458.GA621@zip.com.au>
+	Mon, 5 May 2003 05:06:41 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:40713 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262113AbTEEJGl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 05:06:41 -0400
+Date: Mon, 5 May 2003 10:19:07 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
+Cc: Terje Eggestad <terje.eggestad@scali.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The disappearing sys_call_table export.
+Message-ID: <20030505101907.A15155@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>,
+	Terje Eggestad <terje.eggestad@scali.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <1052122784.2821.4.camel@pc-16.office.scali.no> <Pine.SGI.4.10.10305051545480.8168393-100000@Sky.inp.nsk.su>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030505083458.GA621@zip.com.au>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.SGI.4.10.10305051545480.8168393-100000@Sky.inp.nsk.su>; from D.A.Fedorov@inp.nsk.su on Mon, May 05, 2003 at 04:01:25PM +0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 05, 2003 at 06:34:58PM +1000, CaT wrote:
-> On Mon, Apr 28, 2003 at 01:55:22PM -0700, Greg KH wrote:
-> > On Sun, Apr 27, 2003 at 09:56:44PM +1000, CaT wrote:
-> > No devices?  Does 2.5.68 work for you?
-> 
-> Does not look like it:
+On Mon, May 05, 2003 at 04:01:25PM +0700, Dmitry A. Fedorov wrote:
+> Almost all of my third-party drivers are broken by this.
+> What is worse, redhat "backported" this "feature" to their 2.4
+> patched kernels and now I should distinguish 2.4 and "redhat 2.4"
+> in my compatibility headers.
 
-*snip*
+What about just fixing your drivers instead of moaning?  If you submit
+a pointer to your driver source and explain what you want to do someone
+might even help you..
 
-Same deal with 2.5.69.
-
--- 
-Martin's distress was in contrast to the bitter satisfaction of some
-of his fellow marines as they surveyed the scene. "The Iraqis are sick
-people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
-starting to hate this country. Wait till I get hold of a friggin' Iraqi.
-No, I won't get hold of one. I'll just kill him."
-	- http://www.informationclearinghouse.info/article2479.htm

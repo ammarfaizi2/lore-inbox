@@ -1,55 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265889AbUAPUtS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 15:49:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265895AbUAPUtS
+	id S265765AbUAPVDY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 16:03:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUAPVDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 15:49:18 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:51952 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S265889AbUAPUtM
+	Fri, 16 Jan 2004 16:03:24 -0500
+Received: from cliff.cse.wustl.edu ([128.252.166.5]:51190 "EHLO
+	cliff.cse.wustl.edu") by vger.kernel.org with ESMTP id S265765AbUAPVCs convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 15:49:12 -0500
-Message-ID: <40084E33.1070003@mvista.com>
-Date: Fri, 16 Jan 2004 12:48:51 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	Fri, 16 Jan 2004 16:02:48 -0500
+From: "Cheng Huang" <cheng@cse.wustl.edu>
+To: "=?utf-8?Q?'Pasi_K=E9=8B=9Ckk=E9=8B=93nen'?=" <pasik@iki.fi>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Hang with Promise Ultra100 TX2 (kernel 2.4.18)
+Date: Fri, 16 Jan 2004 15:02:44 -0600
+Message-ID: <006801c3dc74$16e57780$0400a8c0@ChengDELL>
 MIME-Version: 1.0
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
-       Pavel Machek <pavel@suse.cz>, Matt Mackall <mpm@selenic.com>,
-       discuss@x86-64.org
-Subject: Re: KGDB 2.0.3 with fixes and development in ethernet interface
-References: <200401161759.59098.amitkale@emsyssoft.com>
-In-Reply-To: <200401161759.59098.amitkale@emsyssoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+In-Reply-To: <20040115114922.GI1254@edu.joroinen.fi>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amit S. Kale wrote:
-> Hi,
-> 
-> KGDB 2.0.3 is available at 
-> http://kgdb.sourceforge.net/kgdb-2/linux-2.6.1-kgdb-2.0.3.tar.bz2
-> 
-> Ethernet interface still doesn't work. It responds to gdb for a couple of 
-> packets and then panics. gdb log for ethernet interface is pasted below.
-> 
-> It panics and enter kgdb_handle_exception recursively and silently. To see the 
-> panic on screen make kgdb_handle_exception return immediately if 
-> kgdb_connected is non-zero. 
-> 
-> Panic trace is pasted below. It panics in skb_release_data. Looks like skb 
-> handling will have to changed to be have kgdb specific buffers.
+Thanks for replying. Can you explain a little bit where to get the driver for latest versions? Thanks.
 
-Well, this is one step to independence.  That would imply a small memory 
-allocator in kgdb itself.  A good thing IMHO.
+-- Cheng
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+-----Original Message-----
+From: Pasi K鋜kk鋓nen [mailto:pasik@iki.fi] 
+Sent: Thursday, January 15, 2004 5:49 AM
+To: Cheng Huang
+Cc: linux-kernel@vger.kernel.org; cheng@cse.wustl.edu
+Subject: Re: Hang with Promise Ultra100 TX2 (kernel 2.4.18)
+
+On Thu, Jan 15, 2004 at 03:17:12AM -0600, Cheng Huang wrote:
+> I have to use kernel 2.4.18 because I need to install KURT (realtime
+> linux) with it. However, my system hangs on boot with the following
+> message:
+> 
+> PDC20268: not 100% native mode: will probe irqs later
+> PDC20268: ROM enabled at 0xff900000
+>     ide2: BM-DMA at 0xfcc0-0xfcc7, BIOS settings: hde:pio, hdf:pio
+>     ide3: BM-DMA at 0xfcc8-0xfccf, BIOS settings: hdg:pio, hdh:pio
+> 
+> I have tried tricks I could find in through google, like setting boot
+> parameters "hde=4866,255,63 hde=noprobe hdg=24321,255,163 hdg=noprobe".
+> But it didn't work.
+> 
+> Could anybody provide some clue about how to fix this problem? Thanks
+> very much.
+> 
+
+I think there has been a lot of bug fixes in the latest 2.4 kernels for
+promise cards.
+
+I'm running promise ultra133-tx2 successfully with 2.4.22 kernel.
+
+Merge the promise driver from later 2.4.x kernels to 2.4.18 and recompile? 
+
+-- Pasi Kärkkäinen
+       
+                                   ^
+                                .     .
+                                 Linux
+                              /    -    \
+                             Choice.of.the
+                           .Next.Generation.
 

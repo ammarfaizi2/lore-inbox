@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262484AbSJ2XNy>; Tue, 29 Oct 2002 18:13:54 -0500
+	id <S262479AbSJ2XdW>; Tue, 29 Oct 2002 18:33:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262486AbSJ2XNy>; Tue, 29 Oct 2002 18:13:54 -0500
-Received: from patan.Sun.COM ([192.18.98.43]:38397 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S262484AbSJ2XNx>;
-	Tue, 29 Oct 2002 18:13:53 -0500
-Message-ID: <3DBF17AF.8080205@sun.com>
-Date: Tue, 29 Oct 2002 15:20:15 -0800
-From: Tim Hockin <thockin@sun.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK SUMMARY] fix NGROUPS hard limit (resend)
-References: <200210291932.g9TJWiC30564@scl2.sfbay.sun.com> <1035930763.1332.25.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S262480AbSJ2XdW>; Tue, 29 Oct 2002 18:33:22 -0500
+Received: from NODE1.HOSTING-NETWORK.COM ([66.186.193.1]:57357 "HELO
+	unix113.hosting-network.com") by vger.kernel.org with SMTP
+	id <S262479AbSJ2XdV>; Tue, 29 Oct 2002 18:33:21 -0500
+Subject: Mounting reiserfs with nonstandard journal size fails
+From: Torrey Hoffman <thoffman@arnor.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Reiserfs List <reiserfs-list@namesys.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 29 Oct 2002 15:36:20 -0800
+Message-Id: <1035934581.1487.1409.camel@rivendell.arnor.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Tue, 2002-10-29 at 19:32, Timothy Hockin wrote:
-> 
->>Linus,
->>
->>This patchset removes the hard NGROUPS limit.  It has been in use in a similar
->>form (but with a sysctl-set limit) on our systems for some time.
->>
->>I have a separate patch to convert XFS to the generic qsort(), which I will
->>bounce to SGI if/when this gets pulled.
-> 
-> 
-> What is the worst case stack usage of your qsort ?
+I'm having trouble mounting a reiserfs filesystem created with a
+nonstandard (smaller) journal size.  But if I use the default journal
+size, it works fine.
 
-Unfortunately, I haven't done an analysis of this algorithm, but quick 
-empirical tests for random, reversed, and sorted data show stack usage 
-to be about 50% less than glibc's qsort() for large data sets.  We were 
-using the qsort() as exists in XFS, but when discussing with Cristoph, 
-he asked that we use this qsort() implementation instead.  It seems to 
-perform markedly better for large sets, too.
+The filesystem is on a 64 MB compact flash attached to a USB reader. It
+has a single partition, which appears as /dev/sda1.
+
+I've done a little detective work with strace'ing mount (8). It calls
+mount (2) which fails with EINVAL, which seems to indicate a bad
+superblock in this case.  It appears that the in-kernel superblock
+parsing for reiserfs does not understand non-standard journal sizes.
+
+My kernel is an updated Red Hat 7.3 (2.4.18-10) and my reiserfsprogs are
+3.6.3, downloaded from www.namesys.com and compiled locally.  My mount
+program is version 2.11n, the standard Red Hat version.
+
+Is this fixed in later kernels?
+
+Another strange thing I noticed: if I strace a successful mount of the
+normal reiserfs, I see two calls to mount (2) in the output.  The first
+returns ENOSYS, which is not documented on the mount(2) manpage, but the
+second identical call succeeds.  Weird.  Time to have a look at the
+mount sourcecode I guess...
+
+successful mount strace output:
+...
+mount("/dev/sda1", "/mnt/flash", "reiserfs", 0xc0ed0000, 0) = -1 ENOSYS
+(Function not implemented)
+mount("/dev/sda1", "/mnt/flash", "reiserfs", 0xc0ed0000, 0) = 0
+...
+
+Torrey Hoffman
+thoffman@arnor.net
+torrey.hoffman@myrio.com
 
 
 
 
--- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Linux Kernel Engineering
-thockin@sun.com
 

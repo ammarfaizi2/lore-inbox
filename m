@@ -1,71 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262674AbUKRBKL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262629AbUKRBR7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262674AbUKRBKL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 20:10:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbUKRBJh
+	id S262629AbUKRBR7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 20:17:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbUKRBPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 20:09:37 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:56592 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S262673AbUKRBEh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 20:04:37 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <clemens@endorphin.org>
-Subject: RE: GPL version, "at your option"?
-Date: Wed, 17 Nov 2004 17:04:28 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKEEOHPNAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <1100614115.16127.16.camel@ghanima>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Wed, 17 Nov 2004 16:40:55 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Wed, 17 Nov 2004 16:40:59 -0800
+	Wed, 17 Nov 2004 20:15:45 -0500
+Received: from almesberger.net ([63.105.73.238]:15890 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S262669AbUKRBPS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 20:15:18 -0500
+Date: Wed, 17 Nov 2004 22:14:19 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Chris Ross <chris@tebibyte.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Andrea Arcangeli <andrea@novell.com>,
+       Jesse Barnes <jbarnes@sgi.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
+       LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages / all_unreclaimable braindamage
+Message-ID: <20041117221419.S28844@almesberger.net>
+References: <20041105200118.GA20321@logos.cnet> <200411051532.51150.jbarnes@sgi.com> <20041106012018.GT8229@dualathlon.random> <1099706150.2810.147.camel@thomas> <20041117195417.A3289@almesberger.net> <419BDE53.1030003@tebibyte.org> <20041117210410.R28844@almesberger.net> <419BECB0.70801@tebibyte.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <419BECB0.70801@tebibyte.org>; from chris@tebibyte.org on Thu, Nov 18, 2004 at 01:28:32AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Ross wrote:
+> with the sshd. If the daemon was swapped out you wouldn't be able to log 
+> into the box while it was thrashing, but in practice you can't really 
+> anyway.
 
-> As the text says, the licensee can choose the GPL version at his option,
-> and he is likely to choose the one with better conditions. So, newer
-> version can never limit the licensee's right, because he is always free
-> to choose version 2. Therefore, successor versions can only remove
-> limitations.
+Nor would you want to, in the scenario you're describing, because
+the system is doing housekeeping while you're away/asleep. I
+agree that this makes sense.
 
-	Your logic is totally flawed. Successor versions can certainly add
-limitations.
+The tricky bit is now to identify such part-time interactive tasks,
+i.e. the ones who won't receive a trigger for a while. To make
+things worse, there are those who may be happily doing something,
+like spinning some animated GIF, which would be perfectly fine
+being put to a long sleep. That in turn may make the X server idle,
+etc.
 
-	Consider the following hypothetical, GPL version 3 allows you to relicense
-the code under the FreeBSD license. Someone relicenses Linux (with lots of
-later modification) under the FreeBSD license. Now people who receive the
-binaries from this new stream of Linux are not entitled to the source code.
+Again, if you have such a clearly defined scenario, perhaps the
+cron jobs should just loudly announce that housekeeping is now
+starting and that this changes some of the rules. Or perhaps,
+there could be a SIGSWAP to swap out a process (maybe SIGSUSP it
+first so that it doesn't come back on its own).
 
-	Not that this would ever happen, of course, but if your question is, "what
-possible harm could it do", the answer is that new limitations could be put
-in the newer licenses and newer code could be released with only the new
-license.
+> Well yes, in typical fashion everything depends on everything else. That 
+> in a nutshell is also my argument against the kill-me flag.
 
-	When Linux opted to apply the GPL to early versions of Linux, he wasn't
-concerned only with protecting that code as it existed at that instant. He
-was creating the framework that shapes the future development of Linux into
-the future. The "at your option" clause could be used to transfer that
-contorl to the FSF.
+I think it may be more subtle: everybody seems to have a set of
+scenarios where the best solution is quite obvious and could
+be easily implemented. Also, every once in a while, you find
+that system loads which clearly demand a specific action in
+scenario A need something very different in scenario B.
 
-	Suppose GPL version 3 has no requirement that you make the source
-available. I can then ship Linux without making any source available at all
-by claiming that I'm using that later version at my option.
+E.g. if you go by load spike, you'll be able to contain some
+of the less inspired experiments on that undergrad mainframe,
+but you may end up killing the cron jobs in your housekeeping
+scenario. (And in this case, swapping wouldn't even help.) Or,
+if you never kill anything big with a long run time, you'll
+protect that simulation of an universe that's just on the
+verge of developing intelligent life, but you may completely
+miss the Web browser that's been rotating banner ads for weeks.
+(Here, swapping might help.)
 
-	DS
+So I think that you also need to know what the processes are,
+and not only what they're doing. This should greatly improve
+predictions of what they will do in the future, and why
+they're doing it in the first place.
 
+It's ultimately policy decisions, and that's where I see a place
+for light-weight markup mechanisms like a "kill me first" bit.
 
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

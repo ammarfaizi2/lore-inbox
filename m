@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315416AbSEUScl>; Tue, 21 May 2002 14:32:41 -0400
+	id <S315417AbSEUSfK>; Tue, 21 May 2002 14:35:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315417AbSEUSck>; Tue, 21 May 2002 14:32:40 -0400
-Received: from asie314yy33z9.bc.hsia.telus.net ([216.232.196.3]:7630 "EHLO
-	saurus.asaurus.invalid") by vger.kernel.org with ESMTP
-	id <S315416AbSEUSck>; Tue, 21 May 2002 14:32:40 -0400
-To: "Calin A. Culianu" <calin@ajvar.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Lazy Newbie Question
-In-Reply-To: <fa.lnev59v.el8i1c@ifi.uio.no> <fa.kh0cciv.i5g73p@ifi.uio.no>
-From: Kevin Buhr <buhr@telus.net>
-Date: 21 May 2002 11:32:38 -0700
-Message-ID: <87ptzpwdvd.fsf@saurus.asaurus.invalid>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S315420AbSEUSfJ>; Tue, 21 May 2002 14:35:09 -0400
+Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:15065 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S315417AbSEUSfI>;
+	Tue, 21 May 2002 14:35:08 -0400
+Message-ID: <3CEA935B.2080005@tmsusa.com>
+Date: Tue, 21 May 2002 11:35:07 -0700
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020520
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Bill Davidsen <davidsen@tmr.com>
+CC: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: suid bit on directories
+In-Reply-To: <Pine.LNX.3.96.1020521140333.1427C-100000@gatekeeper.tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Calin A. Culianu" <calin@ajvar.org> writes:
-> 
-> int kcomedilib_main.c: comedi_t * comedi_open(const char *pathname).
+Bill Davidsen wrote:
 
-Which version of Comedi are you using?  In comedi-0.7.64 (the most
-recent that I can find), I see:
+>On Mon, 20 May 2002, Dax Kelson wrote:
+>
+>  
+>
+>>On Mon, 20 May 2002, Dax Kelson wrote:
+>>
+>>    
+>>
+>>>Example 1:
+>>>
+>>>/home/bob/public_html
+>>>
+>>>public_html  is user/group  bob/httpd
+>>>
+>>>the perms are 2770
+>>>      
+>>>
+>>I meant 4770 since we are discussing a hypothetical SUID directory.
+>>    
+>>
+>
+>I would expect public_html to be 4775 or 4771 if it's to be any use at all. Otherwise why have it?
+>  
+>
 
-  comedi-0.7.64/comedi/kcomedilib/kcomedilib_main.c:
-        int comedi_open(unsigned int minor)
+Yes, it would have to have httpd group ownership
+or it would be totally inaccessible - and it would
+be difficult for a non-root user to assign such grp
+ownership....
 
-In comedilib-0.7.18, I see:
+Joe
 
-  comedilib-0.7.18/include/comedilib.h:
-        comedi_t *comedi_open(const char *fn);
 
-but of course that version is meant to be called from user space.
 
-I can't find the string "pathname" in any Comedi code anywhere.
 
-> 'nuff said.
-
-On the contrary...
-
--- 
-Kevin Buhr <buhr@telus.net>

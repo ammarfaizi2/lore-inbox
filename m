@@ -1,60 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279243AbRJWFSi>; Tue, 23 Oct 2001 01:18:38 -0400
+	id <S279244AbRJWFZR>; Tue, 23 Oct 2001 01:25:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279244AbRJWFS1>; Tue, 23 Oct 2001 01:18:27 -0400
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:36234 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S279243AbRJWFSY>;
-	Tue, 23 Oct 2001 01:18:24 -0400
-Message-ID: <3BD4FDBF.7BF7FAEE@pobox.com>
-Date: Mon, 22 Oct 2001 22:18:55 -0700
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: drevil@warpcore.org
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
-In-Reply-To: <20011022172742.B445@virtucon.warpcore.org> <E15vnuN-0003jW-00@the-village.bc.nu> <20011022203159.A20411@virtucon.warpcore.org> <20011022214324.A18888@alcove.wittsend.com> <20011022211622.B20411@virtucon.warpcore.org> <003801c15b7d$6e2e4410$01c510ac@c779218a> <20011023000826.A22123@virtucon.warpcore.org>
+	id <S279245AbRJWFZH>; Tue, 23 Oct 2001 01:25:07 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:59140 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S279244AbRJWFYz>;
+	Tue, 23 Oct 2001 01:24:55 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Larry McVoy <lm@bitmover.com>
+Cc: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org,
+        BitKeeper Development Source <dev@bitmover.com>
+Subject: Re: Kernel Compile in tmpfs crumples in 2.4.12 w/epoll patch 
+In-Reply-To: Your message of "Mon, 22 Oct 2001 10:12:12 MST."
+             <20011022101212.B24778@work.bitmover.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Tue, 23 Oct 2001 15:25:06 +1000
+Message-ID: <1222.1003814706@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drevil@warpcore.org wrote:
+On Mon, 22 Oct 2001 10:12:12 -0700, 
+Larry McVoy <lm@bitmover.com> wrote:
+>The basic idea being that we first of all narrow the race window and
+>second of all detect the race in all cases where the mods to the dir
+>result in either a changed mtime or a changed size.
 
-> I'm not complaining about the NVidia driver here. I'm simply stating that IMHO,
-> I find it odd that for years microsoft has not only retained binary
-> compatability within a release of windows but API compatability.
-
-That's simply note true, as many windows
-users have pointed out to you.
-
-> There should
-> not be a change to the kernel that would require changes in the driver in a
-> "stable development" release tree, it's really that simple in my perhaps
-> somewhat limited view. Admittedly, this breakage (which is still in doubt) that
-> might have happened did happen with a "pre" version, but I feel this response
-> would have been no different even if that was not the case.
-
-nvidia is the party who maintains the nvidia driver -
-and they have stated that they do not support "pre"
-kernel releases. Therefore, you ought to stick with
-official releases.
-
-(Funny, I never have that problem with my voodoo3!)
-
-Also, you mentioned "customers" - most customers
-would take a dim view of a sys admin who reboots
-systems left and right to try various "pre" kernels!
-
-You had best install the distro and leave it at that,
-except of course that you keep up with updates.
-
-cu
-
-jjs
-
-
+Aren't there some file systems where the directory size is always 0?  I
+vaguely remember a change to make mrproper to work round that "feature".
 

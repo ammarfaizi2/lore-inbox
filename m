@@ -1,51 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272322AbRIPOu5>; Sun, 16 Sep 2001 10:50:57 -0400
+	id <S272282AbRIPOnr>; Sun, 16 Sep 2001 10:43:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272324AbRIPOur>; Sun, 16 Sep 2001 10:50:47 -0400
-Received: from mx2.port.ru ([194.67.57.12]:15377 "EHLO smtp2.port.ru")
-	by vger.kernel.org with ESMTP id <S272322AbRIPOud>;
-	Sun, 16 Sep 2001 10:50:33 -0400
-Date: Sun, 16 Sep 2001 18:56:04 +0400
-From: Nick Kurshev <nickols_k@mail.ru>
-To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.9-ac10
-Message-Id: <20010916185604.6d63a1bb.nickols_k@mail.ru>
-In-Reply-To: <3BA48452.653466D4@kolumbus.fi>
-In-Reply-To: <20010908005500.A11127@lightning.swansea.linux.org.uk>
-	<3BA48452.653466D4@kolumbus.fi>
-X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S272322AbRIPOnh>; Sun, 16 Sep 2001 10:43:37 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46854 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272282AbRIPOn2>; Sun, 16 Sep 2001 10:43:28 -0400
+Subject: Re: Athlon: Try this (was: Re: Athlon bug stomping #2)
+To: vojtech@suse.cz (Vojtech Pavlik)
+Date: Sun, 16 Sep 2001 15:47:55 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), vandrove@vc.cvut.cz (Petr Vandrovec),
+        linux-kernel@vger.kernel.org, VDA@port.imtp.ilyichevsk.odessa.ua
+In-Reply-To: <20010916155045.A5671@suse.cz> from "Vojtech Pavlik" at Sep 16, 2001 03:50:45 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15idD9-0005LA-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Jussi!
-On Sun, 16 Sep 2001 13:52:02 +0300, you wrote:
+> > One way to test this hypthesis maybe to run dmidecode on the machines and
+> > see if they report KT133 or KT133A. Its also possible some BIOS code does
+> > blindly program bit 7 even tho its reserved and should have been kept
+> > unchanged.
+> 
+> I think it's possible to decide whether a chipset is KT133 or KT133A
+> based on the hostbridge revision. Mine is KT133 and is rev 03.
 
-> Hello,
-> 
-> Alan Cox wrote:
-> > 
-> > o       Recognize Radeon VE in radeonfb                 (Nick Kurshev)
-> 
-> This doesn't work for me. Now the video signal goes off (and stays) at boot.
-> Kernel continues booting, but I can't see anything.
-> 
-> This is probably the same software reset thing as with XFree86 driver.
-> 
-This driver works in the same way as XFree86 - i.e. through DVI port only.
-CRT port currently is not supported. But its support is already implemented
-in XFree86-CVS and maybe I'll add it to radeonfb (but not soon).
-> Best regards,
-> 
-> 	- Jussi Laako
-> 
-> -- 
-> PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-> Available at PGP keyservers
-> 
-
-
-Best regards! Nick
+That tells you the chipset of the bridge. dmidecode dumps bios strings which
+may tell you the chipset the bios was actually for..

@@ -1,56 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271012AbUJVDd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270977AbUJVDh0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271012AbUJVDd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 23:33:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271011AbUJVDdB
+	id S270977AbUJVDh0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 23:37:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270976AbUJVDdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 23:33:01 -0400
-Received: from main.gmane.org ([80.91.229.2]:28604 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S270994AbUJVDbD (ORCPT
+	Thu, 21 Oct 2004 23:33:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42443 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271198AbUJVD24 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 23:31:03 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jan Rychter <jan@rychter.com>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-Date: Thu, 21 Oct 2004 21:30:06 -0700
-Message-ID: <m2wtxj74tt.fsf@tnuctip.rychter.com>
-References: <4176E08B.2050706@techsource.com>
-	<4177DF15.8010007@techsource.com> <4177E50F.9030702@sover.net>
-	<200410220238.13071.jk-lkml@sci.fi>
+	Thu, 21 Oct 2004 23:28:56 -0400
+Date: Thu, 21 Oct 2004 20:26:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: andrea@novell.com, linux-kernel@vger.kernel.org
+Subject: Re: ZONE_PADDING wastes 4 bytes of the new cacheline
+Message-Id: <20041021202656.08788551.akpm@osdl.org>
+In-Reply-To: <417879FB.5030604@yahoo.com.au>
+References: <20041021011714.GQ24619@dualathlon.random>
+	<417728B0.3070006@yahoo.com.au>
+	<20041020213622.77afdd4a.akpm@osdl.org>
+	<417837A7.8010908@yahoo.com.au>
+	<20041021224533.GB8756@dualathlon.random>
+	<41785585.6030809@yahoo.com.au>
+	<20041022011057.GC14325@dualathlon.random>
+	<20041021182651.082e7f68.akpm@osdl.org>
+	<417879FB.5030604@yahoo.com.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 66-27-68-14.san.rr.com
-X-Spammers-Please: blackholeme@rychter.com
-User-Agent: Gnus/5.110003 (No Gnus v0.3) XEmacs/21.5 (chayote, linux)
-Cancel-Lock: sha1:lw7bM8MufZgOUu3nLglQ094Uako=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jan" == Jan Knutar <jk-lkml@sci.fi> writes:
- Jan> On Thursday 21 October 2004 19:34, Stephen Wille Padnos wrote:
- >> I'm thinking more like microcode.  The functional blocks on the chip
- >> would be capable of being "rewired" by the OS, depending on the
- >> applications being run.  All of the functions would still operate
- >> out of card-local memory.
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+> Andrew Morton wrote:
+> > Andrea Arcangeli <andrea@novell.com> wrote:
+> > 
+> >>I'm still unsure if the 2.6 lower_zone_protection completely mimics the
+> >> 2.4 lowmem_zone_reserve algorithm if tuned by reversing the pages_min
+> >> settings accordingly, but I believe it's easier to drop it and replace
+> >> with a clear understandable API that as well drops the pages_min levels
+> >> that have no reason to exists anymore
+> > 
+> > 
+> > I'd be OK with wapping over to the watermark version, as long as we have
+> > runtime-settable levels.
+> > 
+> 
+> Please no "wapping" over :) This release is the first time the allocator
+> has been anywhere near working properly in this area.
+> 
+> Of course, if Andrea shows that the ->protection racket isn't sufficient,
+> then yeah.
 
- Jan> Are you thinking something along the lines of an
- Jan> optimizing+profiling host-CPU-software-renderer to
- Jan> FPGA-reprogrammed JIT accelerator? :)
+Well yes, I spose the answer as always is "show me a testcase".  But the
+lack of reports from the field has weight.
 
- Jan> The idea of reprogramming the hardware to toss out the line
- Jan> drawing and other things that GTK and friends probably only
- Jan> present to X as pixmaps anyway, and use that 'die space' for
- Jan> something else, is certainly appealing.
+> > But I'd be worried about making the default values anything other than zero
+> > because nobody seems to be hitting the problems.
+> > 
+> > But then again, this get discussed so infrequently that by the time it
+> > comes around again I've forgotten all the previous discussion.  Ho hum.
+> > 
+> 
+> I think they probably should be turned on. A system with a gig of ram
+> shouldn't be able to use up all of ZONE_DMA on pagecache. It seems like
+> a small price to pay... same goes for very big highmem systems and ZONE_NORMAL.
 
- Jan> Of course, for a software -> hardware JITc, I think the budget
- Jan> required would be a few magnitudes more than mentioned here
- Jan> earlier, and half a decade of debugging or more ontop..
+Problem is, how much lower zone memory do you reserve?  If someone is
+really getting hit by this in real life then the answer for their workload
+is probably "lots".  If they are not getting hit then the answer is "none".
 
-This isn't *strictly* related to the main topic of this discussion, but:
-You might want to look at the Stretch CPU (http://www.stretchinc.com/),
-which, incidentally, runs Linux. Or rather the Xtensa part of it does.
-
---J.
+Any halfway setting will screw everyone.
 

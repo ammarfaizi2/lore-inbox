@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318626AbSHGPzB>; Wed, 7 Aug 2002 11:55:01 -0400
+	id <S317829AbSHGQGW>; Wed, 7 Aug 2002 12:06:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318642AbSHGPzB>; Wed, 7 Aug 2002 11:55:01 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:49914 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318626AbSHGPzA>; Wed, 7 Aug 2002 11:55:00 -0400
-Subject: Re: UNIX domain socket hanging around when not closed
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jan Hudec <bulb@vagabond.cybernet.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020807153251.GD27745@vagabond>
-References: <20020807153251.GD27745@vagabond>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 07 Aug 2002 18:18:10 +0100
-Message-Id: <1028740690.18130.310.camel@irongate.swansea.linux.org.uk>
+	id <S318398AbSHGQGW>; Wed, 7 Aug 2002 12:06:22 -0400
+Received: from jalon.able.es ([212.97.163.2]:7552 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S317829AbSHGQGV>;
+	Wed, 7 Aug 2002 12:06:21 -0400
+Date: Wed, 7 Aug 2002 18:08:43 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: AGP aperture for SiS
+Message-ID: <20020807160843.GA2697@werewolf.able.es>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-07 at 16:32, Jan Hudec wrote:
-> What I do is create a unix socket in /tmp and wait for clients to
-> connect in. The program removes the socket dentry when it shuts down,
-> but it sometimes crashes and the socket remains there.
-> 
-> Is there some reason the socket should remain unless explicitely
-> removed?
+Hi all.
 
-Thats what is supposed to happen. If its dead then in your server you
-can remove it and create a new one. 
+I have a laptop with a SiS630 chipset. Its VGA stoles memory from main RAM
+to act as video RAM (that damned shared ram invention...). It is an AGP
+vga, and agpgart always report AGP aperture as 64Mb, independently of how
+much memory I have assigned for VGA in the bios. I always undestood that
+aperture should be about 2x the card memory (even still I have not clear
+what is aperture for...any pointer ?).
 
+How can I tell agpgart that I only want, say, 8Mb for agp aperture ?
+
+TIA
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.0 (Cooker) for i586
+Linux 2.4.20-pre1-jam1 (gcc 3.2 (Mandrake Linux 9.0 3.2-0.2mdk))

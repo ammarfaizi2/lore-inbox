@@ -1,52 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268003AbUIPLrL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268010AbUIPLuR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268003AbUIPLrL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 07:47:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267976AbUIPLqu
+	id S268010AbUIPLuR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 07:50:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267971AbUIPLsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 07:46:50 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:23309 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S268003AbUIPLoz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 07:44:55 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Jens Axboe <axboe@suse.de>, "Bc. Michal Semler" <cijoml@volny.cz>
-Subject: Re: CD-ROM can't be ejected
-Date: Thu, 16 Sep 2004 14:44:30 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <200409160025.35961.cijoml@volny.cz> <200409161113.55719.cijoml@volny.cz> <20040916102236.GB2300@suse.de>
-In-Reply-To: <20040916102236.GB2300@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Thu, 16 Sep 2004 07:48:18 -0400
+Received: from 147.32.220.203.comindico.com.au ([203.220.32.147]:26025 "EHLO
+	relay01.mail-hub.kbs.net.au") by vger.kernel.org with ESMTP
+	id S268028AbUIPLq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 07:46:26 -0400
+Subject: Re: [PATCH] Suspend2 Merge: Driver model patches 0/2
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@digeo.com>, Patrick Mochel <mochel@digitalimplant.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040916113205.GF5467@elf.ucw.cz>
+References: <1095332314.3855.157.camel@laptop.cunninghams>
+	 <20040916111852.GC5467@elf.ucw.cz>
+	 <1095334173.3324.200.camel@laptop.cunninghams>
+	 <20040916113205.GF5467@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1095335274.4932.219.camel@laptop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 16 Sep 2004 21:47:55 +1000
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409161444.30998.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > 2.4.27-mh1
-> > > > notas:~# /home/cijoml/eject
-> > > > ATAPI device hdc:
-> > > >   Error: Not ready -- (Sense key=0x02)
-> > > >   (reserved error code) -- (asc=0x53, ascq=0x02)
-> > > >   The failed "Start/Stop Unit" packet command was:
-> > > >   "1b 00 00 00 02 00 00 00 00 00 00 00 "
-> > > > command failed - sense 2/53/2
-> > >
-> > > Your tray is still locked, are you sure it isn't mounted?
-> >
-> > Yes I am. This is written into console and I am logged only into this
-> > console and I copied whole commands from login to eject... :(
->
-> For the third time, don't trim the cc list! group reply please.
->
-> Something else must be keeping your drive locked. What else do you have
-> running in the system? It's enough if one app is just holding the drive
-> open, the drive wont get unlocked on umount then.
+Hi.
 
-Michal, you can use 'lsof -nP' to check for that
---
-vda
+On Thu, 2004-09-16 at 21:32, Pavel Machek wrote:
+> > Sorry. Perhaps I wasn't clear enough. I do suspend these devices. But I
+> > do it later:
+> > 
+> > Suspend all other drivers.
+> > Write pageset 2 (page cache).
+> > Suspend used drivers.
+> > Make atomic copy.
+> > Resume used drivers.
+> > Write pageset 1 (atomic copy)
+> > Suspend used drivers.
+> > Power down all.
+> 
+> What is problem with:
+> 
+> Write pageset 2
+> Suspend all drivers (avoiding slow operations)
+> Make atomic copy
+> Resume all drivers (avoiding slow operations)
+> Write pageset 1
+> Suspend all drivers
+> Power down all.
+
+It's always interesting trying to remember your logic for doing
+something after the fact :>. If I recall correctly, it goes like this:
+
+Writing two pagesets forces me to account for memory usage much more
+carefully. I need to ensure before I start to write the image that I
+know exactly what the size is and have allocated enough memory to do the
+write. If I get some driver coming along and grabbing memory for who
+knows what (hotplug, anyone? :>), I may get stuck halfway through
+writing the image with no memory to use. I also have to be paranoid
+about how much memory is available because I save that too (some of it
+may have become slab by the time I do the atomic copy).
+
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+Many today claim to be tolerant. True tolerance, however, can cope with others
+being intolerant.
 

@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261218AbSK3W0C>; Sat, 30 Nov 2002 17:26:02 -0500
+	id <S261238AbSK3WmR>; Sat, 30 Nov 2002 17:42:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261238AbSK3W0C>; Sat, 30 Nov 2002 17:26:02 -0500
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:61098 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S261218AbSK3W0B>; Sat, 30 Nov 2002 17:26:01 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Florian Schmitt <florian@galois.de>
-To: Sipos Ferenc <sferi@mail.tvnet.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: module loading 2.5.50 + nvidia patch
-Date: Sun, 1 Dec 2002 08:02:20 +0100
-User-Agent: KMail/1.4.2
-References: <1038665822.1045.3.camel@zeus.city.tvnet.hu>
-In-Reply-To: <1038665822.1045.3.camel@zeus.city.tvnet.hu>
+	id <S261290AbSK3WmR>; Sat, 30 Nov 2002 17:42:17 -0500
+Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:27917 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id <S261238AbSK3WmQ>;
+	Sat, 30 Nov 2002 17:42:16 -0500
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: scx200_gpio.c doesn't compile in 2.5.50
+References: <20021128013527.GU21307@fs.tum.de>
+From: Christer Weinigel <wingel@nano-system.com>
+Organization: Nano Computer Systems AB
+Date: 30 Nov 2002 23:49:39 +0100
+In-Reply-To: <20021128013527.GU21307@fs.tum.de>
+Message-ID: <87of86hdvg.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212010802.36935.florian@galois.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Adrian Bunk <bunk@fs.tum.de> writes:
 
-> With
-> insmod, I can load modules, but I'd like that the kernel do it
-> automatically such as in 2.4. In kernel config, the neccessary options
-> for this are set. What am I missing, or how has the kernel configuration
-> changed? 
+> Compilation of drivers/char/scx200_gpio.c fails in 2.5.50 with the error
+> messages below.
 
-I ran into the same problem yesterday. If I remember correctly (I don't have 
-access to that computer right now), Rusty's new modutils look for 
-/etc/modutils.conf instead of /etc/modules.conf... A softlink to modules.conf 
-fixed that for me.
+Thanks for the report.  Patch follows.
 
-Regards,
-  Flo
+Alan, do you want small fixes like these or should I send them to
+someone else?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+  /Christer
 
-iD8DBQE96bP8H7Gei80C0lQRAsawAJ42wkDOzXZrR/5GqP9sIsVBywQfEgCgk7HD
-f/uLnc0Mgu5btsFEtYY2xWg=
-=JgW1
------END PGP SIGNATURE-----
+diff -ur linux-2.5.50/drivers/char/scx200_gpio.c.orig linux-2.5.50/drivers/char/scx200_gpio.c
+--- linux-2.5.50/drivers/char/scx200_gpio.c.orig	Wed Nov 27 23:35:47 2002
++++ linux-2.5.50/drivers/char/scx200_gpio.c	Sat Nov 30 23:46:43 2002
+@@ -10,6 +10,7 @@
+ #include <linux/errno.h>
+ #include <linux/kernel.h>
+ #include <linux/init.h>
++#include <linux/fs.h>
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
 
+-- 
+"Just how much can I get away with and still go to heaven?"
+
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

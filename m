@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290646AbSA3WKX>; Wed, 30 Jan 2002 17:10:23 -0500
+	id <S290674AbSA3WPK>; Wed, 30 Jan 2002 17:15:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290645AbSA3WJc>; Wed, 30 Jan 2002 17:09:32 -0500
-Received: from h152-148-10-6.outland.lucent.com ([152.148.10.6]:50369 "EHLO
-	alpo.casc.com") by vger.kernel.org with ESMTP id <S290656AbSA3WJS>;
-	Wed, 30 Jan 2002 17:09:18 -0500
-From: John Stoffel <stoffel@casc.com>
+	id <S290656AbSA3WNe>; Wed, 30 Jan 2002 17:13:34 -0500
+Received: from argus.posten.se ([147.14.10.164]:36227 "HELO argus.posten.se")
+	by vger.kernel.org with SMTP id <S290662AbSA3WNE>;
+	Wed, 30 Jan 2002 17:13:04 -0500
+Message-ID: <3C5870E2.7030102@mysun.com>
+Date: Wed, 30 Jan 2002 23:17:06 +0100
+From: Pawel Worach <pawel.worach@mysun.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020130
+X-Accept-Language: en, en-us, en-gb
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.3 won't compile (i810_audio)
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15448.28224.481925.430169@gargle.gargle.HOWL>
-Date: Wed, 30 Jan 2002 17:05:52 -0500
-To: Momchil Velikov <velco@fadata.bg>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Radix-tree pagecache for 2.5
-In-Reply-To: <87d6zrlefa.fsf@fadata.bg>
-In-Reply-To: <Pine.LNX.4.33.0201291515480.1747-100000@penguin.transmeta.com>
-	<87d6zrlefa.fsf@fadata.bg>
-X-Mailer: VM 6.95 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The new i810_audio driver merged into 2.5.3 won't compile.
+Here is the result:
 
-Momchil> Memory overhead due to allocator overhead is of no concern with the
-Momchil> slab allocator. What matters most is probably the overhead of the
-Momchil> radix tree nodes themselves, compared to the two pointers in struct
-Momchil> page with the hash table approach. rat-4 variant ought to have less
-Momchil> overhead compared to rat-7 at the expense of deeper/higher tree. I
-Momchil> have no figures for the actual memory usage though. For small files it
-Momchil> should be negligible, i.e. one radix tree node, 68 or 516 bytes for
-Momchil> rat-4 or rat-7, for a file of size up to 65536 or 524288 bytes.  The
-Momchil> worst case would be very large file with a few cached pages with
-Momchil> offsets uniformly distributed across the whole file, that is having
-Momchil> deep tree with only one page hanging off each leaf node.
+gcc -D__KERNEL__ -I/usr/src/kernel/2.5/linux/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+-march=i686 -DMODULE   -c -o i810_audio.o i810_audio.c
+i810_audio.c: In function `i810_mmap':
+i810_audio.c:1673: warning: passing arg 1 of `remap_page_range' makes 
+pointer from integer without a cast
+i810_audio.c:1673: incompatible type for argument 4 of `remap_page_range'
+i810_audio.c:1673: too few arguments to function `remap_page_range'
+make[2]: *** [i810_audio.o] Error 1
 
-Isn't this a good place to use AVL trees then, since they balance
-automatically?  Admittedly, it may be more overhead than we want in
-the case where the tree is balanced by default anyway.  
-
-Again, benchmarks would be the good thing to see either way.
-
-John
+../Pawel
 

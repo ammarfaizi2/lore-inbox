@@ -1,65 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131806AbRDWUpb>; Mon, 23 Apr 2001 16:45:31 -0400
+	id <S131832AbRDWUvK>; Mon, 23 Apr 2001 16:51:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131809AbRDWUpV>; Mon, 23 Apr 2001 16:45:21 -0400
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:35235 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S131806AbRDWUpI>; Mon, 23 Apr 2001 16:45:08 -0400
-Date: Mon, 23 Apr 2001 22:45:05 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Christoph Rohland <cr@sap.com>, "David L. Parsley" <parsley@linuxjedi.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: hundreds of mount --bind mountpoints?
-Message-ID: <20010423224505.H719@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <20010423172335.G719@nightmaster.csn.tu-chemnitz.de> <Pine.GSO.4.21.0104231133120.3617-100000@weyl.math.psu.edu>
+	id <S131887AbRDWUvB>; Mon, 23 Apr 2001 16:51:01 -0400
+Received: from vger.timpanogas.org ([207.109.151.240]:14096 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S131830AbRDWUur>; Mon, 23 Apr 2001 16:50:47 -0400
+Date: Mon, 23 Apr 2001 14:44:21 -0600
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: filp_open() in 2.2.19 causes memory corruption
+Message-ID: <20010423144421.A32742@vger.timpanogas.org>
+In-Reply-To: <001d01c0cc33$7e62daa0$5517fea9@local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.GSO.4.21.0104231133120.3617-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Mon, Apr 23, 2001 at 11:36:24AM -0400
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <001d01c0cc33$7e62daa0$5517fea9@local>; from manfred@colorfullife.com on Mon, Apr 23, 2001 at 10:24:55PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 23, 2001 at 11:36:24AM -0400, Alexander Viro wrote:
-> > Great idea. We allocate this space anyway. And we don't have to
-> > care about the internals of this union, because never have to use
-> > it outside the kernel ;-)
-> > 
-> > I like it. ext2fs does the same, so there should be no VFS
-> > hassles involved. Al?
+On Mon, Apr 23, 2001 at 10:24:55PM +0200, Manfred Spraul wrote:
+> Are you sure the trace is decoded correctly?
 > 
-> We should get ext2 and friends to move the sucker _out_ of struct inode.
-> As it is, sizeof(struct inode) is way too large. This is 2.5 stuff, but
-> it really has to be done. More filesystems adding stuff into the union
-> is a Bad Thing(tm). If you want to allocates space - allocate if yourself;
-> ->clear_inode() is the right place for freeing it.
+> > CPU:    0 
+> > EIP:    0010:[sys_mremap+31/884] 
+> > EFLAGS: 00010206
+> 
+> > Code: ac ae 75 08 84 c0 75 f8 31 c0 eb 04 19 c0 0c 01 85 c0 75 d9
+> ac ae is
+> lodsb
+> scasb
+> 
+> Could you run
+> #objdump --disassemble-all --reloc linux/mm/mremap.o | less
+> 
+> and check that the code is really at offset 31 of sys_mremap?
+> 
+> And is it correct that only 64 MB memory is installed/enabled?
+> 
+> --
+>     Manfred
 
-You need an inode anyway. So why not using the space in it? tmpfs
-would only use sizeof(*inode.u)-sizeof(struct shmem_inode_info) for
-this kind of symlinks.
 
-Last time we suggested this, people ended up with some OS trying
-it and getting worse performance. 
+Manfred,
 
-Why? You need to allocate the VFS-inode (vnode in other OSs) and
-the on-disk-inode anyway at the same time. You get better
-performance and less fragmentation, if you allocate them both
-together[1].
+This is what's being reported when I produce the oops.  I think we have 
+memory corruption somewhere, which explains the funky code offsets.  It's
+easy to reproduce.  Call filp_open with the handle table I gave you 
+on a single IDE system with **NO** tape drive in the system, and it 
+crashes quite after the module is loaded the fisrt time, then unloaded,
+and reloaded a second time.  The oops happens on the second insmod 
+of the module.  I can provide you the actual module itself built with
+all the code if you want to reproduce it. 
 
-So that struct inode around is ok.
+It's 100% reproduceable.
 
-BTW: Is it still less than one page? Then it doesn't make me
-   nervous. Why? Guess what granularity we allocate at, if we
-   just store pointers instead of the inode.u. Or do you like
-   every FS creating his own slab cache?
+Jeff
 
-Regards
-
-Ingo Oeser
-
-[1] Which is true for other allocations, too.
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>
+> 

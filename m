@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318299AbSHKN3W>; Sun, 11 Aug 2002 09:29:22 -0400
+	id <S318300AbSHKNzv>; Sun, 11 Aug 2002 09:55:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318300AbSHKN3W>; Sun, 11 Aug 2002 09:29:22 -0400
-Received: from romulus.cs.ut.ee ([193.40.5.125]:64929 "EHLO romulus.cs.ut.ee")
-	by vger.kernel.org with ESMTP id <S318299AbSHKN3W>;
-	Sun, 11 Aug 2002 09:29:22 -0400
-Date: Sun, 11 Aug 2002 16:33:07 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19+bk does not compile - partition stuff
-Message-ID: <Pine.GSO.4.43.0208111631230.22083-100000@romulus.cs.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318301AbSHKNzu>; Sun, 11 Aug 2002 09:55:50 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:59399 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S318300AbSHKNzu>; Sun, 11 Aug 2002 09:55:50 -0400
+Date: Sun, 11 Aug 2002 10:59:20 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-atalk@lists.netspace.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.31
+Message-ID: <20020811135920.GA3176@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Adrian Bunk <bunk@fs.tum.de>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-atalk@lists.netspace.org,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.33.0208101854340.2656-100000@penguin.transmeta.com> <Pine.NEB.4.44.0208111337560.3636-100000@mimas.fachschaften.tu-muenchen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.NEB.4.44.0208111337560.3636-100000@mimas.fachschaften.tu-muenchen.de>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make[3]: Entering directory `/home/mroos/compile/linux-2.4/fs/partitions'
-sparc64-linux-gcc -D__KERNEL__ -I/home/mroos/compile/linux-2.4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -m64 -pipe -mno-fpu -mcpu=ultrasparc -mcmodel=medlow -ffixed-g4 -fcall-used-g5 -fcall-used-g7 -Wno-sign-compare -Wa,--undeclared-regs-nostdinc -I /usr/lib/gcc-lib/sparc64-linux/egcs-2.92.11/include -DKBUILD_BASENAME=check  -DEXPORT_SYMTAB -c check.c
-check.c: In function `devfs_register_disc':
-check.c:328: structure has no member named `number'
-check.c:329: structure has no member named `number'
-check.c: In function `devfs_register_partitions':
-check.c:361: structure has no member named `number'
+Em Sun, Aug 11, 2002 at 01:44:15PM +0200, Adrian Bunk escreveu:
+> On Sat, 10 Aug 2002, Linus Torvalds wrote:
+> > Arnaldo Carvalho de Melo <acme@conectiva.com.br>:
+> >   o Appletalk: more cleanups and code reorganization
+ 
+> The s/at_addr/atalk_addr/ in atalk.h broke the compilation of
+> drivers/net/appletalk/*. The patch below fixes it.
 
-current linux-2.4 from BK, sparc64.
+Argh, thanks, I'll merge this in my tree.
 
--- 
-Meelis Roos (mroos@linux.ee)
-
+- Arnaldo

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129045AbQKKVY4>; Sat, 11 Nov 2000 16:24:56 -0500
+	id <S129047AbQKKV06>; Sat, 11 Nov 2000 16:26:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129047AbQKKVYq>; Sat, 11 Nov 2000 16:24:46 -0500
-Received: from tepid.osl.fast.no ([213.188.9.130]:48905 "EHLO
+	id <S129033AbQKKV0s>; Sat, 11 Nov 2000 16:26:48 -0500
+Received: from tepid.osl.fast.no ([213.188.9.130]:50441 "EHLO
 	tepid.osl.fast.no") by vger.kernel.org with ESMTP
-	id <S129045AbQKKVYf>; Sat, 11 Nov 2000 16:24:35 -0500
-Date: Sat, 11 Nov 2000 21:25:32 GMT
-Message-Id: <200011112125.VAA32410@tepid.osl.fast.no>
-Subject: [patch] patch-2.4.0-test10-irda15 (was: Re: The IrDA patches)
+	id <S129047AbQKKV0d>; Sat, 11 Nov 2000 16:26:33 -0500
+Date: Sat, 11 Nov 2000 21:27:31 GMT
+Message-Id: <200011112127.VAA32469@tepid.osl.fast.no>
+Subject: [patch] patch-2.4.0-test10-irda16 (was: Re: The IrDA patches)
 X-Mailer: Pygmy (v0.4.4pre)
-Subject: [patch] patch-2.4.0-test10-irda15 (was: Re: The IrDA patches)
+Subject: [patch] patch-2.4.0-test10-irda16 (was: Re: The IrDA patches)
 Cc: linux-kernel@vger.kernel.org
 From: Dag Brattli <dagb@fast.no>
 To: torvalds@transmeta.com
@@ -24,7 +24,7 @@ your latest 2.4 code. If you decide to apply them, then I suggest you start
 with the first one (irda1.diff) and work your way to the last one 
 (irda24.diff) since most of them are not commutative. 
 
-The name of this patch is irda15.diff. 
+The name of this patch is irda16.diff. 
 
 (Many thanks to Jean Tourrilhes for splitting up the big patch)
 
@@ -33,833 +33,486 @@ The name of this patch is irda15.diff.
 [CRITICA] : Fix potential kernel crash
 [OUPS   ] : Error that will be fixed in a later patch
 
-irda15.diff :
+irda16.diff :
 -----------------
-	o [-OUPS  ] Missing a bit for -> module init change
-	o [CRITICA] IrLAN update (was broken - various things)
+	o [CRITICA] Add hashbin_remove_first for safe linked list removal
+	o [CRITICA] Modify discovery to handle safely duplicate nodes
+	o [CRITICA] Fix infinite loop in discovery_proc_read
+	o [CORRECT] Handle interleaved discovery frames (not complete) 
+	o [FEATURE] Add discovery expiry callback
+	o [FEATURE] Remove cruft in af_irda
 
+diff -urpN old-linux/include/net/irda/irlmp.h linux/include/net/irda/irlmp.h
+--- old-linux/include/net/irda/irlmp.h	Thu Nov  9 14:47:22 2000
++++ linux/include/net/irda/irlmp.h	Thu Nov  9 17:33:48 2000
+@@ -85,8 +85,9 @@ typedef struct {
+ 
+ 	__u16 hint_mask;
+ 
+-	DISCOVERY_CALLBACK1 callback1;
+-	DISCOVERY_CALLBACK2 callback2;
++	DISCOVERY_CALLBACK1 callback1;		/* Selective discovery */
++	DISCOVERY_CALLBACK2 callback2;		/* Whole discovery */
++	DISCOVERY_CALLBACK1 callback3;		/* Selective expiration */
+ 	void *priv;                /* Used to identify client */
+ } irlmp_client_t;
+ 
+@@ -193,10 +194,13 @@ __u16 irlmp_service_to_hint(int service)
+ __u32 irlmp_register_service(__u16 hints);
+ int irlmp_unregister_service(__u32 handle);
+ __u32 irlmp_register_client(__u16 hint_mask, DISCOVERY_CALLBACK1 callback1,
+-			    DISCOVERY_CALLBACK2 callback2, void *priv);
++			    DISCOVERY_CALLBACK2 callback2,
++			    DISCOVERY_CALLBACK1 callback3, void *priv);
+ int irlmp_unregister_client(__u32 handle);
+ int irlmp_update_client(__u32 handle, __u16 hint_mask, 
+-			DISCOVERY_CALLBACK1, DISCOVERY_CALLBACK2, void *priv);
++			DISCOVERY_CALLBACK1 callback1,
++			DISCOVERY_CALLBACK2 callback2,
++			DISCOVERY_CALLBACK1 callback3, void *priv);
+ 
+ void irlmp_register_link(struct irlap_cb *, __u32 saddr, notify_t *);
+ void irlmp_unregister_link(__u32 saddr);
+@@ -218,6 +222,7 @@ void irlmp_discovery_request(int nslots)
+ struct irda_device_info *irlmp_get_discoveries(int *pn, __u16 mask);
+ void irlmp_do_discovery(int nslots);
+ discovery_t *irlmp_get_discovery_response(void);
++void irlmp_discovery_expiry(discovery_t *expiry);
+ 
+ int  irlmp_data_request(struct lsap_cb *, struct sk_buff *);
+ void irlmp_data_indication(struct lsap_cb *, struct sk_buff *);
+diff -urpN old-linux/include/net/irda/irqueue.h linux/include/net/irda/irqueue.h
+--- old-linux/include/net/irda/irqueue.h	Thu Nov  9 14:47:22 2000
++++ linux/include/net/irda/irqueue.h	Thu Nov  9 17:33:48 2000
+@@ -89,6 +89,7 @@ void     hashbin_insert(hashbin_t* hashb
+ void*    hashbin_find(hashbin_t* hashbin, __u32 hashv, char* name);
+ void*    hashbin_remove(hashbin_t* hashbin, __u32 hashv, char* name);
+ void*    hashbin_remove_first(hashbin_t *hashbin);
++void*	 hashbin_remove_this( hashbin_t* hashbin, irda_queue_t* entry);
+ irda_queue_t *hashbin_get_first(hashbin_t *hashbin);
+ irda_queue_t *hashbin_get_next(hashbin_t *hashbin);
+ 
 diff -urpN old-linux/net/irda/af_irda.c linux/net/irda/af_irda.c
---- old-linux/net/irda/af_irda.c	Thu Nov  9 17:11:25 2000
-+++ linux/net/irda/af_irda.c	Thu Nov  9 17:26:46 2000
-@@ -2395,7 +2395,7 @@ module_init(irda_proto_init);
-  *    Remove IrDA protocol layer
-  *
-  */
--void irda_proto_cleanup(void)
-+void __exit irda_proto_cleanup(void)
- {
- 	irda_packet_type.type = htons(ETH_P_IRDA);
- 	dev_remove_pack(&irda_packet_type);
-@@ -2403,6 +2403,5 @@ void irda_proto_cleanup(void)
- 	unregister_netdevice_notifier(&irda_dev_notifier);
- 	
- 	sock_unregister(PF_IRDA);
--	
+--- old-linux/net/irda/af_irda.c	Thu Nov  9 17:32:39 2000
++++ linux/net/irda/af_irda.c	Thu Nov  9 17:33:48 2000
+@@ -366,33 +366,6 @@ static void irda_getvalue_confirm(int re
+ 	wake_up_interruptible(&self->query_wait);
  }
- module_exit(irda_proto_cleanup);
-diff -urpN old-linux/net/irda/irlan/irlan_client.c linux/net/irda/irlan/irlan_client.c
---- old-linux/net/irda/irlan/irlan_client.c	Thu Nov  9 13:27:10 2000
-+++ linux/net/irda/irlan/irlan_client.c	Thu Nov  9 17:20:01 2000
-@@ -104,8 +104,6 @@ void irlan_client_start_kick_timer(struc
-  */
- void irlan_client_wakeup(struct irlan_cb *self, __u32 saddr, __u32 daddr)
- {
--	struct irmanager_event mgr_event;
--
- 	IRDA_DEBUG(1, __FUNCTION__ "()\n");
  
- 	ASSERT(self != NULL, return;);
-@@ -117,41 +115,24 @@ void irlan_client_wakeup(struct irlan_cb
- 	 */
- 	if ((self->client.state != IRLAN_IDLE) || 
- 	    (self->provider.access_type == ACCESS_DIRECT))
--		return;
-+	{
-+			IRDA_DEBUG(0, __FUNCTION__ "(), already awake!\n");
-+			return;
-+	}
- 
--	/* saddr may have changed! */
-+	/* Address may have changed! */
- 	self->saddr = saddr;
--	
--	/* Before we try to connect, we check if network device is up. If it
--	 * is up, that means that the "user" really wants to connect. If not
--	 * we notify the user about the possibility of an IrLAN connection
--	 */
--	if (netif_running(&self->dev)) {
--		/* Open TSAPs */
--		irlan_client_open_ctrl_tsap(self);
-- 		irlan_open_data_tsap(self);
--		
--		irlan_do_client_event(self, IRLAN_DISCOVERY_INDICATION, NULL);
--	} else if (self->notify_irmanager) {
--		/* 
--		 * Tell irmanager that the device can now be 
--		 * configured but only if the device was not taken
--		 * down by the user
--		 */
--		mgr_event.event = EVENT_IRLAN_START;
--		strcpy(mgr_event.devname, self->dev.name);
--		irmanager_notify(&mgr_event);
--		
--		/* 
--		 * We set this so that we only notify once, since if 
--		 * configuration of the network device fails, the user
--		 * will have to sort it out first anyway. No need to 
--		 * try again.
--		 */
--		self->notify_irmanager = FALSE;
-+
-+	if (self->disconnect_reason == LM_USER_REQUEST) {
-+			IRDA_DEBUG(0, __FUNCTION__ "(), still stopped by user\n");
-+			return;
- 	}
--	/* Restart watchdog timer */
--	irlan_start_watchdog_timer(self, IRLAN_TIMEOUT);
-+
-+	/* Open TSAPs */
-+	irlan_client_open_ctrl_tsap(self);
-+	irlan_open_data_tsap(self);
-+
-+	irlan_do_client_event(self, IRLAN_DISCOVERY_INDICATION, NULL);
- 	
- 	/* Start kick timer */
- 	irlan_client_start_kick_timer(self, 2*HZ);
-@@ -176,29 +157,16 @@ void irlan_client_discovery_indication(d
- 	saddr = discovery->saddr;
- 	daddr = discovery->daddr;
- 
--	/* 
--	 *  Check if we already dealing with this provider.
--	 */
--	self = (struct irlan_cb *) hashbin_find(irlan, daddr, NULL);
--      	if (self) {
-+	/* Find instance */
-+	self = (struct irlan_cb *) hashbin_get_first(irlan);
-+    if (self) {
- 		ASSERT(self->magic == IRLAN_MAGIC, return;);
- 
- 		IRDA_DEBUG(1, __FUNCTION__ "(), Found instance (%08x)!\n",
- 		      daddr);
- 		
- 		irlan_client_wakeup(self, saddr, daddr);
--
--		return;
- 	}
--	
--	/* 
--	 * We have no instance for daddr, so start a new one
--	 */
--	IRDA_DEBUG(1, __FUNCTION__ "(), starting new instance!\n");
--	self = irlan_open(saddr, daddr, TRUE);
--
--	/* Restart watchdog timer */
--	irlan_start_watchdog_timer(self, IRLAN_TIMEOUT);
- }
- 	
- /*
-@@ -449,9 +417,7 @@ static void irlan_check_response_param(s
- 	ASSERT(self != NULL, return;);
- 	ASSERT(self->magic == IRLAN_MAGIC, return;);
- 
--	/*
--	 *  Media type
--	 */
-+	/* Media type */
- 	if (strcmp(param, "MEDIA") == 0) {
- 		if (strcmp(value, "802.3") == 0)
- 			self->media = MEDIA_802_3;
-@@ -487,9 +453,7 @@ static void irlan_check_response_param(s
- 			IRDA_DEBUG(2, __FUNCTION__ "(), unknown access type!\n");
- 		}
- 	}
--	/*
--	 *  IRLAN version
--	 */
-+	/* IRLAN version */
- 	if (strcmp(param, "IRLAN_VER") == 0) {
- 		IRDA_DEBUG(4, "IrLAN version %d.%d\n", (__u8) value[0], 
- 		      (__u8) value[1]);
-@@ -498,9 +462,7 @@ static void irlan_check_response_param(s
- 		self->version[1] = value[1];
- 		return;
- 	}
--	/*
--	 *  Which remote TSAP to use for data channel
--	 */
-+	/* Which remote TSAP to use for data channel */
- 	if (strcmp(param, "DATA_CHAN") == 0) {
- 		self->dtsap_sel_data = value[0];
- 		IRDA_DEBUG(4, "Data TSAP = %02x\n", self->dtsap_sel_data);
-@@ -521,9 +483,7 @@ static void irlan_check_response_param(s
- 			   self->client.max_frame);
- 	}
- 	 
--	/*
--	 *  RECONNECT_KEY, in case the link goes down!
--	 */
-+	/* RECONNECT_KEY, in case the link goes down! */
- 	if (strcmp(param, "RECONNECT_KEY") == 0) {
- 		IRDA_DEBUG(4, "Got reconnect key: ");
- 		/* for (i = 0; i < val_len; i++) */
-@@ -532,9 +492,7 @@ static void irlan_check_response_param(s
- 		self->client.key_len = val_len;
- 		IRDA_DEBUG(4, "\n");
- 	}
--	/*
--	 *  FILTER_ENTRY, have we got an ethernet address?
--	 */
-+	/* FILTER_ENTRY, have we got an ethernet address? */
- 	if (strcmp(param, "FILTER_ENTRY") == 0) {
- 		bytes = value;
- 		IRDA_DEBUG(4, "Ethernet address = %02x:%02x:%02x:%02x:%02x:%02x\n",
-diff -urpN old-linux/net/irda/irlan/irlan_common.c linux/net/irda/irlan/irlan_common.c
---- old-linux/net/irda/irlan/irlan_common.c	Thu Nov  9 17:09:30 2000
-+++ linux/net/irda/irlan/irlan_common.c	Thu Nov  9 17:20:01 2000
-@@ -50,6 +50,14 @@
- #include <net/irda/irlan_eth.h>
- #include <net/irda/irlan_filter.h>
- 
-+
-+/* 
-+ * Send gratuitous ARP when connected to a new AP or not. May be a clever
-+ * thing to do, but for some reason the machine crashes if you use DHCP. So
-+ * lets not use it by default.
-+ */
-+#undef CONFIG_IRLAN_SEND_GRATUITOUS_ARP
-+
- /* extern char sysctl_devname[]; */
- 
- /*
-@@ -104,59 +112,6 @@ extern struct proc_dir_entry *proc_irda;
- #endif /* CONFIG_PROC_FS */
- 
- /*
-- * Function irlan_watchdog_timer_expired (data)
+-#if 0
+-/* Obsolete */
+-/*
+- * Function irda_discovery_indication (log)
 - *
-- *    Something has gone wrong during the connection establishment
+- *    Got a discovery log from IrLMP, wake up any process waiting for answer
 - *
 - */
--void irlan_watchdog_timer_expired(void *data)
+-static void irda_discovery_indication(hashbin_t *log, void *priv)
 -{
--	struct irmanager_event mgr_event;
--	struct irlan_cb *self;
+-	struct irda_sock *self;
 -	
--	IRDA_DEBUG(0, __FUNCTION__ "()\n");
+-	IRDA_DEBUG(2, __FUNCTION__ "()\n");
 -
--	self = (struct irlan_cb *) data;
--
--	ASSERT(self != NULL, return;);
--	ASSERT(self->magic == IRLAN_MAGIC, return;);
--
--	/* Check if device still configured */
--	if (netif_running(&self->dev)) {
--		IRDA_DEBUG(0, __FUNCTION__ 
--		      "(), notifying irmanager to stop irlan!\n");
--		mgr_event.event = EVENT_IRLAN_STOP;
--		sprintf(mgr_event.devname, "%s", self->dev.name);
--		irmanager_notify(&mgr_event);
--
--		/*
--		 *  We set this to false, so that irlan_dev_close known that
--		 *  notify_irmanager should actually be set to TRUE again 
--		 *  instead of FALSE, since this close has not been initiated
--		 *  by the user.
--		 */
--		self->notify_irmanager = FALSE;
--	} else {
--		IRDA_DEBUG(0, __FUNCTION__ "(), closing instance!\n");
--		/*irlan_close(self);*/
+-	self = (struct irda_sock *) priv;
+-	if (!self) {
+-		WARNING(__FUNCTION__ "(), lost myself!\n");
+-		return;
 -	}
--}
 -
--/*
-- * Function irlan_start_watchdog_timer (self, timeout)
-- *
-- *    
-- *
-- */
--void irlan_start_watchdog_timer(struct irlan_cb *self, int timeout)
--{
--	IRDA_DEBUG(4, __FUNCTION__ "()\n");
--	
--	irda_start_timer(&self->watchdog_timer, timeout, (void *) self,
--			 irlan_watchdog_timer_expired);
--}
+-	self->cachelog = log;
 -
--/*
-  * Function irlan_init (void)
+-	/* Wake up process if its waiting for device to be discovered */
+-	wake_up_interruptible(&self->query_wait);
+-}
+-#endif
+-
+ /*
+  * Function irda_selective_discovery_indication (discovery)
   *
-  *    Initialize IrLAN layer
-@@ -167,8 +122,6 @@ int __init irlan_init(void)
- 	struct irlan_cb *new;
- 	__u16 hints;
+@@ -1123,7 +1096,7 @@ static int irda_create(struct socket *so
+ 	sk->protocol = protocol;
  
--	IRDA_DEBUG(4, __FUNCTION__"()\n");
--
- 	/* Allocate master structure */
- 	irlan = hashbin_new(HB_LOCAL); 
- 	if (irlan == NULL) {
-@@ -180,7 +133,6 @@ int __init irlan_init(void)
- #endif /* CONFIG_PROC_FS */
+ 	/* Register as a client with IrLMP */
+-	self->ckey = irlmp_register_client(0, NULL, NULL, NULL);
++	self->ckey = irlmp_register_client(0, NULL, NULL, NULL, NULL);
+ 	self->mask = 0xffff;
+ 	self->rx_flow = self->tx_flow = FLOW_START;
+ 	self->nslots = DISCOVERY_DEFAULT_SLOTS;
+@@ -2175,7 +2148,7 @@ static int irda_getsockopt(struct socket
+ 		/* Tell IrLMP we want to be notified */
+ 		irlmp_update_client(self->ckey, self->mask,
+ 				    irda_selective_discovery_indication, NULL,
+-				    (void *) self);
++				    NULL, (void *) self);
+ 		
+ 		/* Do some discovery (and also return cached results) */
+ 		irlmp_discovery_request(self->nslots);
+@@ -2206,7 +2179,8 @@ static int irda_getsockopt(struct socket
+ 				   "(), found immediately !\n");
  
- 	IRDA_DEBUG(4, __FUNCTION__ "()\n");
+ 		/* Tell IrLMP that we have been notified */
+-		irlmp_update_client(self->ckey, self->mask, NULL, NULL, NULL);
++		irlmp_update_client(self->ckey, self->mask, NULL, NULL,
++				    NULL, NULL);
+ 
+ 		/* Check if the we got some results */
+ 		if (!self->cachediscovery)
+diff -urpN old-linux/net/irda/discovery.c linux/net/irda/discovery.c
+--- old-linux/net/irda/discovery.c	Thu Nov  9 14:47:22 2000
++++ linux/net/irda/discovery.c	Thu Nov  9 17:33:48 2000
+@@ -75,14 +75,15 @@ void irlmp_add_discovery(hashbin_t *cach
+ 
+ 		/* Be sure to stay one item ahead */
+ 		discovery = (discovery_t *) hashbin_get_next(cachelog);
+-			
+-		if ((node->daddr == new->daddr) || 
+-		    (strcmp(node->nickname, new->nickname) == 0))
++
++		if ((node->saddr == new->saddr) &&
++		    ((node->daddr == new->daddr) || 
++		     (strcmp(node->nickname, new->nickname) == 0)))
+ 		{
+ 			/* This discovery is a previous discovery 
+ 			 * from the same device, so just remove it
+ 			 */
+-			hashbin_remove(cachelog, node->daddr, NULL);
++			hashbin_remove_this(cachelog, (irda_queue_t *) node);
+ 			/* Check if hints bits have changed */
+ 			if(node->hints.word == new->hints.word)
+ 				/* Set time of first discovery for this node */
+@@ -135,6 +136,8 @@ void irlmp_add_discovery_log(hashbin_t *
+  *
+  *    Go through all discoveries and expire all that has stayed to long
+  *
++ * Note : this assume that IrLAP won't change its saddr, which
++ * currently is a valid assumption...
+  */
+ void irlmp_expire_discoveries(hashbin_t *log, __u32 saddr, int force)
+ {
+@@ -153,10 +156,14 @@ void irlmp_expire_discoveries(hashbin_t 
+ 		discovery = (discovery_t *) hashbin_get_next(log);
+ 
+ 		/* Test if it's time to expire this discovery */
+-		if ((curr->saddr == saddr) && (force ||
+-		    ((jiffies - curr->timestamp) > DISCOVERY_EXPIRE_TIMEOUT)))
++		if ((curr->saddr == saddr) &&
++		    (force ||
++		     ((jiffies - curr->timestamp) > DISCOVERY_EXPIRE_TIMEOUT)))
+ 		{
+-			curr = hashbin_remove(log, curr->daddr, NULL);
++			/* Tell IrLMP and registered clients about it */
++			irlmp_discovery_expiry(curr);
++			/* Remove it from the log */
++			curr = hashbin_remove_this(log, (irda_queue_t *) curr);
+ 			if (curr)
+ 				kfree(curr);
+ 		}
+@@ -298,23 +305,23 @@ __u32 irlmp_find_device(hashbin_t *cache
+  *    Print discovery information in /proc file system
+  *
+  */
+-int discovery_proc_read(char *buf, char **start, off_t offset, int len, 
++int discovery_proc_read(char *buf, char **start, off_t offset, int length, 
+ 			int unused)
+ {
+ 	discovery_t *discovery;
+ 	unsigned long flags;
+ 	hashbin_t *cachelog = irlmp_get_cachelog();
++	int		len = 0;
+ 
+ 	if (!irlmp)
+ 		return len;
+ 
+ 	len = sprintf(buf, "IrLMP: Discovery log:\n\n");	
+ 	
+-	save_flags(flags);
+-	cli();
 -	
- 	hints = irlmp_service_to_hint(S_LAN);
++	spin_lock_irqsave(&irlmp->log_lock, flags);
++
+ 	discovery = (discovery_t *) hashbin_get_first(cachelog);
+-	while ( discovery != NULL) {
++	while (( discovery != NULL) && (len < length)) {
+ 		len += sprintf(buf+len, "nickname: %s,", discovery->nickname);
+ 		
+ 		len += sprintf(buf+len, " hint: 0x%02x%02x", 
+@@ -355,7 +362,7 @@ int discovery_proc_read(char *buf, char 
+ 		
+ 		discovery = (discovery_t *) hashbin_get_next(cachelog);
+ 	}
+-	restore_flags(flags);
++	spin_unlock_irqrestore(&irlmp->log_lock, flags);
+ 
+ 	return len;
+ }
+diff -urpN old-linux/net/irda/ircomm/ircomm_tty_attach.c linux/net/irda/ircomm/ircomm_tty_attach.c
+--- old-linux/net/irda/ircomm/ircomm_tty_attach.c	Thu Nov  9 13:27:10 2000
++++ linux/net/irda/ircomm/ircomm_tty_attach.c	Thu Nov  9 17:33:48 2000
+@@ -236,7 +236,8 @@ static void ircomm_tty_ias_register(stru
+ 	}
+ 	self->skey = irlmp_register_service(hints);
+ 	self->ckey = irlmp_register_client(
+-		hints, ircomm_tty_discovery_indication, NULL, (void *) self);
++		hints, ircomm_tty_discovery_indication, NULL, NULL,
++		(void *) self);
+ }
+ 
+ /*
+diff -urpN old-linux/net/irda/irlan/irlan_common.c linux/net/irda/irlan/irlan_common.c
+--- old-linux/net/irda/irlan/irlan_common.c	Thu Nov  9 17:32:39 2000
++++ linux/net/irda/irlan/irlan_common.c	Thu Nov  9 17:33:48 2000
+@@ -137,7 +137,7 @@ int __init irlan_init(void)
  
  	/* Register with IrLMP as a client */
-@@ -190,12 +142,11 @@ int __init irlan_init(void)
+ 	ckey = irlmp_register_client(hints, irlan_client_discovery_indication,
+-				     NULL, NULL);
++				     NULL, NULL, NULL);
+ 	
  	/* Register with IrLMP as a service */
   	skey = irlmp_register_service(hints);
+diff -urpN old-linux/net/irda/irlap_event.c linux/net/irda/irlap_event.c
+--- old-linux/net/irda/irlap_event.c	Thu Nov  9 17:11:25 2000
++++ linux/net/irda/irlap_event.c	Thu Nov  9 17:33:48 2000
+@@ -492,6 +492,30 @@ static int irlap_state_query(struct irla
+ 		/* irlap_next_state(self, LAP_QUERY);  */
  
--	/* Start the master IrLAN instance */
-- 	new = irlan_open(DEV_ADDR_ANY, DEV_ADDR_ANY, FALSE);
-+	/* Start the master IrLAN instance (the only one for now) */
-+ 	new = irlan_open(DEV_ADDR_ANY, DEV_ADDR_ANY);
- 
- 	/* The master will only open its (listen) control TSAP */
- 	irlan_provider_open_ctrl_tsap(new);
--	new->master = TRUE;
- 
- 	/* Do some fast discovery! */
- 	irlmp_discovery_request(DISCOVERY_DEFAULT_SLOTS);
-@@ -208,7 +159,6 @@ void irlan_cleanup(void) 
- 	IRDA_DEBUG(4, __FUNCTION__ "()\n");
- 
- 	irlmp_unregister_client(ckey);
--
- 	irlmp_unregister_service(skey);
- 
- #ifdef CONFIG_PROC_FS
-@@ -244,8 +194,6 @@ int irlan_register_netdev(struct irlan_c
- 		IRDA_DEBUG(2, __FUNCTION__ "(), register_netdev() failed!\n");
- 		return -1;
- 	}
--	self->netdev_registered = TRUE;
--	
- 	return 0;
- }
- 
-@@ -255,7 +203,7 @@ int irlan_register_netdev(struct irlan_c
-  *    Open new instance of a client/provider, we should only register the 
-  *    network device if this instance is ment for a particular client/provider
-  */
--struct irlan_cb *irlan_open(__u32 saddr, __u32 daddr, int netdev)
-+struct irlan_cb *irlan_open(__u32 saddr, __u32 daddr)
- {
- 	struct irlan_cb *self;
- 
-@@ -289,11 +237,10 @@ struct irlan_cb *irlan_open(__u32 saddr,
- 	/* Provider access can only be PEER, DIRECT, or HOSTED */
- 	self->provider.access_type = access;
- 	self->media = MEDIA_802_3;
--
--	self->notify_irmanager = TRUE;
--
-+	self->disconnect_reason = LM_USER_REQUEST;
- 	init_timer(&self->watchdog_timer);
- 	init_timer(&self->client.kick_timer);
-+	init_waitqueue_head(&self->open_wait);	
- 
- 	hashbin_insert(irlan, (irda_queue_t *) self, daddr, NULL);
- 	
-@@ -302,19 +249,16 @@ struct irlan_cb *irlan_open(__u32 saddr,
- 	irlan_next_client_state(self, IRLAN_IDLE);
- 	irlan_next_provider_state(self, IRLAN_IDLE);
- 
--	/* Register network device now, or wait until some later time? */
--	if (netdev)
--		irlan_register_netdev(self);
-+	irlan_register_netdev(self);
- 
- 	return self;
- }
- /*
-- * Function irlan_close (self)
-+ * Function __irlan_close (self)
-  *
-  *    This function closes and deallocates the IrLAN client instances. Be 
-  *    aware that other functions which calles client_close() must call 
-  *    hashbin_remove() first!!!
-- *
-  */
- static void __irlan_close(struct irlan_cb *self)
- {
-@@ -335,49 +279,13 @@ static void __irlan_close(struct irlan_c
- 		iriap_close(self->client.iriap);
- 
- 	/* Remove frames queued on the control channel */
--	while ((skb = skb_dequeue(&self->client.txq))) {
-+	while ((skb = skb_dequeue(&self->client.txq)))
- 		dev_kfree_skb(skb);
--	}
- 
--	if (self->netdev_registered) {
--		unregister_netdev(&self->dev);
--		self->netdev_registered = FALSE;
--	}
-+	unregister_netdev(&self->dev);
- 	
- 	self->magic = 0;
-- 	kfree(self);
--}
--
--/*
-- * Function irlan_close (self)
-- *
-- *    Close instance
-- *
-- */
--void irlan_close(struct irlan_cb *self)
--{
--	struct irlan_cb *entry;
--
--	IRDA_DEBUG(0, __FUNCTION__ "()\n");
--
--        ASSERT(self != NULL, return;);
--	ASSERT(self->magic == IRLAN_MAGIC, return;);
--
--	/* Check if device is still configured */
--	if (netif_running(&self->dev)) {
--		IRDA_DEBUG(0, __FUNCTION__ 
--		       "(), Device still configured, closing later!\n");
--
--		/* Give it a chance to reconnect */
--		irlan_start_watchdog_timer(self, IRLAN_TIMEOUT);
--		return;
--	}
--	IRDA_DEBUG(2, __FUNCTION__ "(), daddr=%08x\n", self->daddr);
--	entry = hashbin_remove(irlan, self->daddr, NULL);
--
--	ASSERT(entry == self, return;);
--	
--        __irlan_close(self);
-+	kfree(self);
- }
- 
- /*
-@@ -421,7 +329,7 @@ void irlan_connect_indication(void *inst
- 		irlan_open_unicast_addr(self);
- 	}
- 	/* Ready to transfer Ethernet frames (at last) */
--	netif_start_queue(&self->dev);
-+	netif_start_queue(&self->dev); /* Clear reason */
- }
- 
- void irlan_connect_confirm(void *instance, void *sap, struct qos_info *qos, 
-@@ -456,7 +364,11 @@ void irlan_connect_confirm(void *instanc
- 
- 	/* Ready to transfer Ethernet frames */
- 	netif_start_queue(&self->dev);
-+	self->disconnect_reason = 0; /* Clear reason */
-+#ifdef CONFIG_IRLAN_SEND_GRATUITOUS_ARP
- 	irlan_eth_send_gratuitous_arp(&self->dev);
-+#endif
-+	wake_up_interruptible(&self->open_wait);
- }
- 
- /*
-@@ -485,28 +397,34 @@ void irlan_disconnect_indication(void *i
- 
- 	IRDA_DEBUG(2, "IrLAN, data channel disconnected by peer!\n");
- 
--	switch(reason) {
-+	/* Save reason so we know if we should try to reconnect or not */
-+	self->disconnect_reason = reason;
-+	
-+	switch (reason) {
- 	case LM_USER_REQUEST: /* User request */
--		irlan_close(self);
-+		IRDA_DEBUG(2, __FUNCTION__ "(), User requested\n");
  		break;
- 	case LM_LAP_DISCONNECT: /* Unexpected IrLAP disconnect */
--		irlan_start_watchdog_timer(self, IRLAN_TIMEOUT);
-+		IRDA_DEBUG(2, __FUNCTION__ "(), Unexpected IrLAP disconnect\n");
- 		break;
- 	case LM_CONNECT_FAILURE: /* Failed to establish IrLAP connection */
--		IRDA_DEBUG(2, __FUNCTION__ "(), LM_CONNECT_FAILURE not impl\n");
-+		IRDA_DEBUG(2, __FUNCTION__ "(), IrLAP connect failed\n");
- 		break;
- 	case LM_LAP_RESET:  /* IrLAP reset */
--		IRDA_DEBUG(2, __FUNCTION__ "(), LM_CONNECT_FAILURE not impl\n");
-+		IRDA_DEBUG(2, __FUNCTION__ "(), IrLAP reset\n");
- 		break;
- 	case LM_INIT_DISCONNECT:
--		IRDA_DEBUG(2, __FUNCTION__ "(), LM_CONNECT_FAILURE not impl\n");
-+		IRDA_DEBUG(2, __FUNCTION__ "(), IrLMP connect failed\n");
- 		break;
- 	default:
-+		ERROR(__FUNCTION__ "(), Unknown disconnect reason\n");
- 		break;
- 	}
- 	
- 	irlan_do_client_event(self, IRLAN_LMP_DISCONNECT, NULL);
- 	irlan_do_provider_event(self, IRLAN_LMP_DISCONNECT, NULL);
-+	
-+	wake_up_interruptible(&self->open_wait);
- }
- 
- void irlan_open_data_tsap(struct irlan_cb *self)
-@@ -555,9 +473,7 @@ void irlan_close_tsaps(struct irlan_cb *
- 	ASSERT(self != NULL, return;);
- 	ASSERT(self->magic == IRLAN_MAGIC, return;);
- 
--	/* 
--	 *  Disconnect and close all open TSAP connections
--	 */
-+	/* Disconnect and close all open TSAP connections */
- 	if (self->tsap_data) {
- 		irttp_disconnect_request(self->tsap_data, NULL, P_NORMAL);
- 		irttp_close_tsap(self->tsap_data);
-@@ -575,6 +491,7 @@ void irlan_close_tsaps(struct irlan_cb *
- 		irttp_close_tsap(self->provider.tsap_ctrl);
- 		self->provider.tsap_ctrl = NULL;
- 	}
-+	self->disconnect_reason = LM_USER_REQUEST;
- }
- 
- /*
-@@ -641,7 +558,7 @@ int irlan_run_ctrl_tx_queue(struct irlan
- {
- 	struct sk_buff *skb;
- 
--	IRDA_DEBUG(3, __FUNCTION__ "()\n");
-+	IRDA_DEBUG(2, __FUNCTION__ "()\n");
- 
- 	if (irda_lock(&self->client.tx_busy) == FALSE)
- 		return -EBUSY;
-@@ -660,7 +577,7 @@ int irlan_run_ctrl_tx_queue(struct irlan
- 		dev_kfree_skb(skb);
- 		return -1;
- 	}
--	IRDA_DEBUG(3, __FUNCTION__ "(), sending ...\n");
-+	IRDA_DEBUG(2, __FUNCTION__ "(), sending ...\n");
- 
- 	return irttp_data_request(self->client.tsap_ctrl, skb);
- }
-@@ -749,7 +666,6 @@ void irlan_open_data_channel(struct irla
- 
- /* 	self->use_udata = TRUE; */
- 
--	/* irttp_data_request(self->client.tsap_ctrl, skb); */
- 	irlan_ctrl_data_request(self, skb);
- }
- 
-@@ -818,7 +734,6 @@ void irlan_open_unicast_addr(struct irla
-  	irlan_insert_string_param(skb, "FILTER_TYPE", "DIRECTED");
-  	irlan_insert_string_param(skb, "FILTER_MODE", "FILTER"); 
- 	
--	/* irttp_data_request(self->client.tsap_ctrl, skb); */
- 	irlan_ctrl_data_request(self, skb);
- }
- 
-@@ -860,7 +775,6 @@ void irlan_set_broadcast_filter(struct i
- 	else
- 		irlan_insert_string_param(skb, "FILTER_MODE", "NONE"); 
- 
--	/* irttp_data_request(self->client.tsap_ctrl, skb); */
- 	irlan_ctrl_data_request(self, skb);
- }
- 
-@@ -900,7 +814,6 @@ void irlan_set_multicast_filter(struct i
- 	else
- 		irlan_insert_string_param(skb, "FILTER_MODE", "NONE"); 
- 
--	/* irttp_data_request(self->client.tsap_ctrl, skb); */
- 	irlan_ctrl_data_request(self, skb);
- }
- 
-@@ -938,7 +851,6 @@ void irlan_get_unicast_addr(struct irlan
-  	irlan_insert_string_param(skb, "FILTER_TYPE", "DIRECTED");
-  	irlan_insert_string_param(skb, "FILTER_OPERATION", "DYNAMIC"); 
- 	
--	/* irttp_data_request(self->client.tsap_ctrl, skb); */
- 	irlan_ctrl_data_request(self, skb);
- }
- 
-@@ -973,8 +885,6 @@ void irlan_get_media_char(struct irlan_c
- 	frame[1] = 0x01; /* One parameter */
- 	
- 	irlan_insert_string_param(skb, "MEDIA", "802.3");
--	
--	/* irttp_data_request(self->client.tsap_ctrl, skb); */
- 	irlan_ctrl_data_request(self, skb);
- }
- 
-@@ -1177,35 +1087,32 @@ static int irlan_proc_read(char *buf, ch
- 	while (self != NULL) {
- 		ASSERT(self->magic == IRLAN_MAGIC, return len;);
- 		
--		/* Don't display the master server */
--		if (self->master == 0) {
--			len += sprintf(buf+len, "ifname: %s,\n",
--				       self->dev.name);
--			len += sprintf(buf+len, "client state: %s, ",
--				       irlan_state[ self->client.state]);
--			len += sprintf(buf+len, "provider state: %s,\n",
--				       irlan_state[ self->provider.state]);
--			len += sprintf(buf+len, "saddr: %#08x, ",
--				       self->saddr);
--			len += sprintf(buf+len, "daddr: %#08x\n",
--				       self->daddr);
--			len += sprintf(buf+len, "version: %d.%d,\n",
--				       self->version[1], self->version[0]);
--			len += sprintf(buf+len, "access type: %s\n", 
--				       irlan_access[self->client.access_type]);
--			len += sprintf(buf+len, "media: %s\n", 
--				       irlan_media[self->media]);
--			
--			len += sprintf(buf+len, "local filter:\n");
--			len += sprintf(buf+len, "remote filter: ");
--			len += irlan_print_filter(self->client.filter_type, 
--						  buf+len);
-+		len += sprintf(buf+len, "ifname: %s,\n",
-+			       self->dev.name);
-+		len += sprintf(buf+len, "client state: %s, ",
-+			       irlan_state[ self->client.state]);
-+		len += sprintf(buf+len, "provider state: %s,\n",
-+			       irlan_state[ self->provider.state]);
-+		len += sprintf(buf+len, "saddr: %#08x, ",
-+			       self->saddr);
-+		len += sprintf(buf+len, "daddr: %#08x\n",
-+			       self->daddr);
-+		len += sprintf(buf+len, "version: %d.%d,\n",
-+			       self->version[1], self->version[0]);
-+		len += sprintf(buf+len, "access type: %s\n", 
-+			       irlan_access[self->client.access_type]);
-+		len += sprintf(buf+len, "media: %s\n", 
-+			       irlan_media[self->media]);
-+		
-+		len += sprintf(buf+len, "local filter:\n");
-+		len += sprintf(buf+len, "remote filter: ");
-+		len += irlan_print_filter(self->client.filter_type, 
-+					  buf+len);
- 			
--			len += sprintf(buf+len, "tx busy: %s\n", 
--				       netif_queue_stopped(&self->dev) ? "TRUE" : "FALSE");
-+		len += sprintf(buf+len, "tx busy: %s\n", 
-+			       netif_queue_stopped(&self->dev) ? "TRUE" : "FALSE");
- 			
--			len += sprintf(buf+len, "\n");
--		}
-+		len += sprintf(buf+len, "\n");
- 
- 		self = (struct irlan_cb *) hashbin_get_next(irlan);
-  	} 
-diff -urpN old-linux/net/irda/irlan/irlan_eth.c linux/net/irda/irlan/irlan_eth.c
---- old-linux/net/irda/irlan/irlan_eth.c	Tue Jul 11 11:12:24 2000
-+++ linux/net/irda/irlan/irlan_eth.c	Thu Nov  9 17:20:01 2000
-@@ -48,7 +48,6 @@
-  */
- int irlan_eth_init(struct net_device *dev)
- {
--	struct irmanager_event mgr_event;
- 	struct irlan_cb *self;
- 
- 	IRDA_DEBUG(2, __FUNCTION__"()\n");
-@@ -85,22 +84,6 @@ int irlan_eth_init(struct net_device *de
- 		get_random_bytes(dev->dev_addr+5, 1);
- 	}
- 
--	/* 
--	 * Network device has now been registered, so tell irmanager about
--	 * it, so it can be configured with network parameters
--	 */
--	mgr_event.event = EVENT_IRLAN_START;
--	sprintf(mgr_event.devname, "%s", self->dev.name);
--	irmanager_notify(&mgr_event);
--
--	/* 
--	 * We set this so that we only notify once, since if 
--	 * configuration of the network device fails, the user
--	 * will have to sort it out first anyway. No need to 
--	 * try again.
--	 */
--	self->notify_irmanager = FALSE;
--
- 	return 0;
- }
- 
-@@ -123,14 +106,16 @@ int irlan_eth_open(struct net_device *de
- 	ASSERT(self != NULL, return -1;);
- 
- 	/* Ready to play! */
--/* 	netif_start_queue(dev) */ /* Wait until data link is ready */
--
--	self->notify_irmanager = TRUE;
-+ 	netif_stop_queue(dev); /* Wait until data link is ready */
- 
- 	/* We are now open, so time to do some work */
-+	self->disconnect_reason = 0;
- 	irlan_client_wakeup(self, self->saddr, self->daddr);
- 
- 	irlan_mod_inc_use_count();
++	case RECV_DISCOVERY_XID_CMD:
++		/* Yes, it is possible to receive those frames in this mode.
++		 * This would happen is both discoveries are just slightly
++		 * offset (if they are in sync, all packets are lost).
++		 * The big trouble when it happen is that passive discovery
++		 * doesn't happen, because nobody answer the discoveries
++		 * frame of the other guy, so the log shows up empty.
++		 * What should we do ?
++		 * Not much. We are currently performing our own discovery,
++		 * therefore we can't answer those frames. We don't want
++		 * to change state either. We just pass the info to
++		 * IrLMP who will put it in the log (and post an event).
++		 * Jean II
++		 */
 +
-+	/* Make sure we have a hardware address before we return, so DHCP clients gets happy */
-+	interruptible_sleep_on(&self->open_wait);
- 	
- 	return 0;
- }
-@@ -146,7 +131,8 @@ int irlan_eth_open(struct net_device *de
- int irlan_eth_close(struct net_device *dev)
- {
- 	struct irlan_cb *self = (struct irlan_cb *) dev->priv;
--
-+	struct sk_buff *skb;
-+	
- 	IRDA_DEBUG(2, __FUNCTION__ "()\n");
- 	
- 	/* Stop device */
-@@ -155,20 +141,17 @@ int irlan_eth_close(struct net_device *d
- 	irlan_mod_dec_use_count();
- 
- 	irlan_close_data_channel(self);
--
- 	irlan_close_tsaps(self);
- 
- 	irlan_do_client_event(self, IRLAN_LMP_DISCONNECT, NULL);
- 	irlan_do_provider_event(self, IRLAN_LMP_DISCONNECT, NULL);	
- 	
--	irlan_start_watchdog_timer(self, IRLAN_TIMEOUT);
--
--	/* Device closed by user! */
--	if (self->notify_irmanager)
--		self->notify_irmanager = FALSE;
--	else
--		self->notify_irmanager = TRUE;
-+	/* Remove frames queued on the control channel */
-+	while ((skb = skb_dequeue(&self->client.txq)))
-+			dev_kfree_skb(skb);
- 
-+	self->client.tx_busy = 0;
-+	
- 	return 0;
++		ASSERT(info != NULL, return -1;);
++
++		IRDA_DEBUG(1, __FUNCTION__ "(), Receiving event %d, %s\n",
++			   event, irlap_event[event]);
++
++		/* Last discovery frame? */
++		if (info->s == 0xff)
++			irlap_discovery_indication(self, info->discovery); 
++		break;
+ 	case SLOT_TIMER_EXPIRED:
+ 		/*
+ 		 * Wait a little longer if we detect an incomming frame. This
+diff -urpN old-linux/net/irda/irlmp.c linux/net/irda/irlmp.c
+--- old-linux/net/irda/irlmp.c	Thu Nov  9 14:47:22 2000
++++ linux/net/irda/irlmp.c	Thu Nov  9 17:33:48 2000
+@@ -903,9 +903,40 @@ void irlmp_discovery_confirm(hashbin_t *
  }
  
-diff -urpN old-linux/net/irda/irlan/irlan_provider.c linux/net/irda/irlan/irlan_provider.c
---- old-linux/net/irda/irlan/irlan_provider.c	Tue Nov  2 17:07:55 1999
-+++ linux/net/irda/irlan/irlan_provider.c	Thu Nov  9 17:20:01 2000
-@@ -116,16 +116,16 @@ static int irlan_provider_data_indicatio
  /*
-  * Function irlan_provider_connect_indication (handle, skb, priv)
++ * Function irlmp_discovery_expiry (expiry)
++ *
++ *	This device is no longer been discovered, and therefore it is beeing
++ *	purged from the discovery log. Inform all clients who have
++ *	registered for this event...
++ * 
++ *	Note : called exclusively from discovery.c
++ *	Note : as we are currently processing the log, the clients callback
++ *	should *NOT* attempt to touch the log now.
++ */
++void irlmp_discovery_expiry(discovery_t *expiry) 
++{
++	irlmp_client_t *client;
++	
++	IRDA_DEBUG(3, __FUNCTION__ "()\n");
++
++	ASSERT(expiry != NULL, return;);
++	
++	client = (irlmp_client_t *) hashbin_get_first(irlmp->clients);
++	while (client != NULL) {
++		/* Check if we should notify client */
++		if ((client->callback3) &&
++		    (client->hint_mask & expiry->hints.word & 0x7f7f))
++			client->callback3(expiry, client->priv);
++
++		/* Next client */
++		client = (irlmp_client_t *) hashbin_get_next(irlmp->clients);
++	}
++}
++
++/*
+  * Function irlmp_get_discovery_response ()
   *
-- *    Got connection from peer IrLAN layer
-+ *    Got connection from peer IrLAN client
-  *
+- *    Used by IrLAP to get the disocvery info it needs when answering
++ *    Used by IrLAP to get the discovery info it needs when answering
+  *    discovery requests by other devices.
   */
- static void irlan_provider_connect_indication(void *instance, void *sap, 
- 					      struct qos_info *qos,
- 					      __u32 max_sdu_size, 
- 					      __u8 max_header_size,
--					       struct sk_buff *skb)
-+					      struct sk_buff *skb)
+ discovery_t *irlmp_get_discovery_response()
+@@ -1294,11 +1325,15 @@ int irlmp_unregister_service(__u32 handl
+  * Function irlmp_register_client (hint_mask, callback1, callback2)
+  *
+  *    Register a local client with IrLMP
++ *	First callback is selective discovery (based on hints)
++ *	Second callback is for the whole discovery log
++ *	Third callback is for selective discovery expiries
+  *
+  *    Returns: handle > 0 on success, 0 on error
+  */
+ __u32 irlmp_register_client(__u16 hint_mask, DISCOVERY_CALLBACK1 callback1,
+-			    DISCOVERY_CALLBACK2 callback2, void *priv)
++			    DISCOVERY_CALLBACK2 callback2,
++			    DISCOVERY_CALLBACK1 callback3, void *priv)
  {
--	struct irlan_cb *self, *new;
-+	struct irlan_cb *self;
- 	struct tsap_cb *tsap;
- 	__u32 saddr, daddr;
+ 	irlmp_client_t *client;
+ 	__u32 handle;
+@@ -1320,6 +1355,7 @@ __u32 irlmp_register_client(__u16 hint_m
+ 	client->hint_mask = hint_mask;
+ 	client->callback1 = callback1;
+ 	client->callback2 = callback2;
++	client->callback3 = callback3;
+ 	client->priv = priv;
  
-@@ -137,82 +137,24 @@ static void irlan_provider_connect_indic
- 	ASSERT(self != NULL, return;);
- 	ASSERT(self->magic == IRLAN_MAGIC, return;);
+  	hashbin_insert(irlmp->clients, (irda_queue_t *) client, handle, NULL);
+@@ -1337,7 +1373,8 @@ __u32 irlmp_register_client(__u16 hint_m
+  */
+ int irlmp_update_client(__u32 handle, __u16 hint_mask, 
+ 			DISCOVERY_CALLBACK1 callback1, 
+-			DISCOVERY_CALLBACK2 callback2, void *priv)
++			DISCOVERY_CALLBACK2 callback2,
++			DISCOVERY_CALLBACK1 callback3, void *priv)
+ {
+ 	irlmp_client_t *client;
+ 
+@@ -1353,6 +1390,7 @@ int irlmp_update_client(__u32 handle, __
+ 	client->hint_mask = hint_mask;
+ 	client->callback1 = callback1;
+ 	client->callback2 = callback2;
++	client->callback3 = callback3;
+ 	client->priv = priv;
  	
--	self->provider.max_sdu_size = max_sdu_size;
--	self->provider.max_header_size = max_header_size;
--
- 	ASSERT(tsap == self->provider.tsap_ctrl,return;);
- 	ASSERT(self->provider.state == IRLAN_IDLE, return;);
+ 	return 0;
+diff -urpN old-linux/net/irda/irlmp_frame.c linux/net/irda/irlmp_frame.c
+--- old-linux/net/irda/irlmp_frame.c	Thu Nov  9 13:48:34 2000
++++ linux/net/irda/irlmp_frame.c	Thu Nov  9 17:33:48 2000
+@@ -397,7 +397,7 @@ void irlmp_link_discovery_indication(str
+ 	/* If delay was activated, kill it! */
+ 	if(timer_pending(&disco_delay))
+ 		del_timer(&disco_delay);
+-	/* Set delay timer to expire in 0.5s. */
++	/* Set delay timer to expire in 0.25s. */
+ 	disco_delay.expires = jiffies + (DISCO_SMALL_DELAY * HZ/1000);
+ 	disco_delay.function = irlmp_discovery_timeout;
+ 	disco_delay.data = (unsigned long) self;
+@@ -420,8 +420,8 @@ void irlmp_link_discovery_confirm(struct
+ 	ASSERT(self->magic == LMP_LAP_MAGIC, return;);
+ 	
+ 	irlmp_add_discovery_log(irlmp->cachelog, log);
+-      
+-	/* If delay was activated, kill it! */
++
++	/* If discovery delay was activated, kill it! */
+ 	if(timer_pending(&disco_delay))
+ 		del_timer(&disco_delay);
  
- 	daddr = irttp_get_daddr(tsap);
- 	saddr = irttp_get_saddr(tsap);
-+	self->provider.max_sdu_size = max_sdu_size;
-+	self->provider.max_header_size = max_header_size;
+diff -urpN old-linux/net/irda/irmod.c linux/net/irda/irmod.c
+--- old-linux/net/irda/irmod.c	Thu Nov  9 17:09:30 2000
++++ linux/net/irda/irmod.c	Thu Nov  9 17:33:48 2000
+@@ -170,6 +170,7 @@ EXPORT_SYMBOL(hashbin_new);
+ EXPORT_SYMBOL(hashbin_insert);
+ EXPORT_SYMBOL(hashbin_delete);
+ EXPORT_SYMBOL(hashbin_remove);
++EXPORT_SYMBOL(hashbin_remove_this);
+ EXPORT_SYMBOL(hashbin_get_next);
+ EXPORT_SYMBOL(hashbin_get_first);
  
--	/* Check if we already dealing with this client or peer */
--	new = (struct irlan_cb *) hashbin_find(irlan, daddr, NULL);
--      	if (new) {
--		ASSERT(new->magic == IRLAN_MAGIC, return;);
--		IRDA_DEBUG(0, __FUNCTION__ "(), found instance!\n");
--
--		/* Update saddr, since client may have moved to a new link */
--		new->saddr = saddr;
--		IRDA_DEBUG(2, __FUNCTION__ "(), saddr=%08x\n", new->saddr);
--
--		/* Make sure that any old provider control TSAP is removed */
--		if ((new != self) && new->provider.tsap_ctrl) {
--			irttp_disconnect_request(new->provider.tsap_ctrl, 
--						 NULL, P_NORMAL);
--			irttp_close_tsap(new->provider.tsap_ctrl);
--			new->provider.tsap_ctrl = NULL;
--		}
--	} else {
--		/* This must be the master instance, so start a new instance */
--		IRDA_DEBUG(0, __FUNCTION__ "(), starting new provider!\n");
--
--		new = irlan_open(saddr, daddr, TRUE); 
--	}
--
--	/*  
--	 * Check if the connection came in on the master server, or the
--	 * slave server. If it came on the slave, then everything is
--	 * really, OK (reconnect), if not we need to dup the connection and
--	 * hand it over to the slave.  
--	 */
--	if (new != self) {
--				
--		/* Now attach up the new "socket" */
--		new->provider.tsap_ctrl = irttp_dup(self->provider.tsap_ctrl, 
--						    new);
--		if (!new->provider.tsap_ctrl) {
--			IRDA_DEBUG(0, __FUNCTION__ "(), dup failed!\n");
--			return;
--		}
--		
--		/* new->stsap_sel = new->tsap->stsap_sel; */
--		new->dtsap_sel_ctrl = new->provider.tsap_ctrl->dtsap_sel;
--
--		/* Clean up the original one to keep it in listen state */
--		self->provider.tsap_ctrl->dtsap_sel = LSAP_ANY;
--		self->provider.tsap_ctrl->lsap->dlsap_sel = LSAP_ANY;
--		self->provider.tsap_ctrl->lsap->lsap_state = LSAP_DISCONNECTED;
--		
--		/* 
--		 * Use the new instance from here instead of the master
--		 * struct! 
--		 */
--		self = new;
--	}
--	/* Check if network device has been registered */
--	if (!self->netdev_registered)
--		irlan_register_netdev(self);
--	
- 	irlan_do_provider_event(self, IRLAN_CONNECT_INDICATION, NULL);
+diff -urpN old-linux/net/irda/irqueue.c linux/net/irda/irqueue.c
+--- old-linux/net/irda/irqueue.c	Thu Nov  9 14:47:22 2000
++++ linux/net/irda/irqueue.c	Thu Nov  9 17:33:48 2000
+@@ -381,6 +381,7 @@ void* hashbin_remove( hashbin_t* hashbin
+ 		hashv = hash( name );
+ 	bin = GET_HASHBIN( hashv );
  
- 	/*  
- 	 * If we are in peer mode, the client may not have got the discovery
- 	 * indication it needs to make progress. If the client is still in 
--	 * IDLE state, we must kick it to 
-+	 * IDLE state, we must kick it. 
- 	 */
- 	if ((self->provider.access_type == ACCESS_PEER) && 
--	    (self->client.state == IRLAN_IDLE)) {
-+	    (self->client.state == IRLAN_IDLE)) 
-+	{
- 		irlan_client_wakeup(self, self->saddr, self->daddr);
- 	}
++	/* Synchronize */
+ 	if ( hashbin->hb_type & HB_GLOBAL ) {
+ 		spin_lock_irqsave( &hashbin->hb_mutex[ bin ], flags);
+ 
+@@ -448,6 +449,75 @@ void* hashbin_remove( hashbin_t* hashbin
+ 	else
+ 		return NULL;
+ 	
++}
++
++/* 
++ *  Function hashbin_remove (hashbin, hashv, name)
++ *
++ *    Remove entry with the given name
++ *
++ * In some cases, the user of hashbin can't guarantee the unicity
++ * of either the hashv or name.
++ * In those cases, using the above function is guaranteed to cause troubles,
++ * so we use this one instead...
++ * And by the way, it's also faster, because we skip the search phase ;-)
++ */
++void* hashbin_remove_this( hashbin_t* hashbin, irda_queue_t* entry)
++{
++	unsigned long flags = 0;
++	int	bin;
++	__u32	hashv;
++
++	IRDA_DEBUG( 4, __FUNCTION__ "()\n");
++
++	ASSERT( hashbin != NULL, return NULL;);
++	ASSERT( hashbin->magic == HB_MAGIC, return NULL;);
++	ASSERT( entry != NULL, return NULL;);
++	
++	/* Check if valid and not already removed... */
++	if((entry->q_next == NULL) || (entry->q_prev == NULL))
++		return NULL;
++
++	/*
++	 * Locate hashbin
++	 */
++	hashv = entry->q_hash;
++	bin = GET_HASHBIN( hashv );
++
++	/* Synchronize */
++	if ( hashbin->hb_type & HB_GLOBAL ) {
++		spin_lock_irqsave( &hashbin->hb_mutex[ bin ], flags);
++
++	} else if ( hashbin->hb_type & HB_LOCAL ) {
++		save_flags(flags);
++		cli();
++	} /* Default is no-lock  */
++
++	/*
++	 * Dequeue the entry...
++	 */
++	dequeue_general( (irda_queue_t**) &hashbin->hb_queue[ bin ],
++			 (irda_queue_t*) entry );
++	hashbin->hb_size--;
++	entry->q_next = NULL;
++	entry->q_prev = NULL;
++
++	/*
++	 *  Check if this item is the currently selected item, and in
++	 *  that case we must reset hb_current
++	 */
++	if ( entry == hashbin->hb_current)
++		hashbin->hb_current = NULL;
++
++	/* Release lock */
++	if ( hashbin->hb_type & HB_GLOBAL) {
++		spin_unlock_irq( &hashbin->hb_mutex[ bin]);
++
++	} else if ( hashbin->hb_type & HB_LOCAL) {
++		restore_flags( flags);
++	}
++
++	return entry;
  }
-@@ -231,11 +173,6 @@ void irlan_provider_connect_response(str
  
- 	/* Just accept */
- 	irttp_connect_response(tsap, IRLAN_MTU, NULL);
--
--	/* Check if network device has been registered */
--	if (!self->netdev_registered)
--		irlan_register_netdev(self);
--		
- }
- 
- void irlan_provider_disconnect_indication(void *instance, void *sap, 
+ /*
 
 
 -

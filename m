@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265582AbUFDE1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265580AbUFDE1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265582AbUFDE1W (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 00:27:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265580AbUFDE1V
+	id S265580AbUFDE1l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 00:27:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265583AbUFDE1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 00:27:21 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:26664 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S265582AbUFDE04 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 00:26:56 -0400
-Date: Thu, 3 Jun 2004 21:31:19 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
-       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-       mikpe@csd.uu.se, nickpiggin@yahoo.com.au, Simon.Derr@bull.net,
-       wli@holomorphy.com
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
- implementation
-Message-Id: <20040603213119.06d2d97c.pj@sgi.com>
-In-Reply-To: <1086313667.29381.897.camel@bach>
-References: <20040603094339.03ddfd42.pj@sgi.com>
-	<20040603101010.4b15734a.pj@sgi.com>
-	<1086313667.29381.897.camel@bach>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 4 Jun 2004 00:27:40 -0400
+Received: from mail010.syd.optusnet.com.au ([211.29.132.56]:12242 "EHLO
+	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265580AbUFDE1h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 00:27:37 -0400
+From: Stuart Young <cef-lkml@optusnet.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ACPI related hangup during boot, 2.6.6 worked ok, 2.6.7-rc2 freezes
+Date: Fri, 4 Jun 2004 14:28:49 +1000
+User-Agent: KMail/1.6.2
+Cc: Pozsar Balazs <pozsy@uhulinux.hu>, Len Brown <len.brown@intel.com>
+References: <20040603194607.GA26410@unicorn.sch.bme.hu>
+In-Reply-To: <20040603194607.GA26410@unicorn.sch.bme.hu>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200406041428.49811.cef-lkml@optusnet.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty wrote:
-> > +/* No static inline type checking - see Subtlety (1) above. */
-> > +#define cpu_isset(cpu, cpumask) test_bit((cpu), (cpumask).bits)
-> 
-> How about something really grungy like:
-> 
-> #define cpu_isset(cpu, cpumask)			\
-> 	({ __typeof__(cpumask) __cpumask;		\
-> 	   (void)(&__cpumask) == (cpumask_t *)0);	\
-> 	   test_bit((cpu), (cpumask).bits); })
+On Fri, 4 Jun 2004 05:46, Pozsar Balazs wrote:
 
-Well ... we agree on the "grungy" part ... ;).
+> On an Intel D865GRH motherboard kernel 2.6.6 works fine, but 2.6.7-rc2
+> (vanilla, -mm1 and -mm2 too) freezes during boot if acpi is enabled.
+> (using acpi=off, it boots and works)
+>
+> I could not gather any useable call trace or other debug information.
 
-Your flavor has the same problem as I saw with the static inline nested
-inside a #define macro flavor.  On i386, SMP, gcc 3.3.2, when the
-cpu_isset() is part of a for-loop control, both the normal and 'grungy'
-flavors cost one extra jump instruction, whereas the flavor I ended up
-using places one chunk of code more optimally, saving a hard jump
-instruction.
+I think I've hit this bug as well or possibly something related to it, but 
+back in 2.6.7-rc1, however I was not able to recreate the issue. I posted a 
+message about this to lkml on the 28/05/04 with the subject of:
+ [2.6.7-rc1][BUG][ACPI] os_wait_semaphore: Failed to aquire semaphore (loop)
 
-This saves 196 bytes of kernel text space.
+Attached was my config and some debug output, which included a call trace and 
+register dump.
 
-If you can show me a type checked cpu_isset() that generates code
-as tight as what I ended up using, let me know.
+Reason I think it's related to this one is that the problem was a continual 
+loop on os_wait_semaphore. I was running with CONFIG_ACPI_DEBUG=y, otherwise 
+I doubt I would have noticed why it froze.
 
-Or if you would prefer I spend the 196 bytes to get this type checked,
-that's worthy of consideration as well.
+Hope this helps.
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+ Stuart Young (aka Cef)
+ cef-lkml@optusnet.com.au is for LKML and related email only

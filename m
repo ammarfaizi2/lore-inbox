@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262478AbTC0MQx>; Thu, 27 Mar 2003 07:16:53 -0500
+	id <S261947AbTC0MQD>; Thu, 27 Mar 2003 07:16:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262509AbTC0MQx>; Thu, 27 Mar 2003 07:16:53 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:23051 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262478AbTC0MQu>; Thu, 27 Mar 2003 07:16:50 -0500
-Date: Thu, 27 Mar 2003 12:28:02 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Arnd Bergmann <arnd@bergmann-dalldorf.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390 update (1/9): s390 arch fixes.
-Message-ID: <20030327122802.A32040@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Martin Schwidefsky <schwidefsky@de.ibm.com>,
-	Arnd Bergmann <arnd@bergmann-dalldorf.de>,
-	linux-kernel@vger.kernel.org
-References: <OF54A02ABC.0017054F-ONC1256CF6.004232A4@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <OF54A02ABC.0017054F-ONC1256CF6.004232A4@de.ibm.com>; from schwidefsky@de.ibm.com on Thu, Mar 27, 2003 at 01:17:14PM +0100
+	id <S262103AbTC0MQD>; Thu, 27 Mar 2003 07:16:03 -0500
+Received: from a089148.adsl.hansenet.de ([213.191.89.148]:63107 "EHLO
+	ds666.starfleet") by vger.kernel.org with ESMTP id <S261947AbTC0MQC>;
+	Thu, 27 Mar 2003 07:16:02 -0500
+Message-ID: <3E82EE25.3070308@portrix.net>
+Date: Thu, 27 Mar 2003 13:27:17 +0100
+From: Jan Dittmer <j.dittmer@portrix.net>
+Organization: portrix.net GmbH
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030305
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Martin Schlemmer <azarah@gentoo.org>
+CC: Greg KH <greg@kroah.com>, Mark Studebaker <mds@paradyne.com>,
+       KML <linux-kernel@vger.kernel.org>, Dominik Brodowski <linux@brodo.de>,
+       sensors@Stimpy.netroedge.com
+Subject: Re: lm sensors sysfs file structure
+References: <1048582394.4774.7.camel@workshop.saharact.lan>	 <20030325175603.GG15823@kroah.com> <1048705473.7569.10.camel@nosferatu.lan>	 <3E82024A.4000809@portrix.net> <20030326202622.GJ24689@kroah.com>	 <3E82292E.536D9196@paradyne.com> <20030326225234.GA27436@kroah.com>	 <3E82D678.9000807@portrix.net> <1048762244.4773.1258.camel@workshop.saharact.lan>
+In-Reply-To: <1048762244.4773.1258.camel@workshop.saharact.lan>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 27, 2003 at 01:17:14PM +0100, Martin Schwidefsky wrote:
+Martin Schlemmer wrote:
+> On Thu, 2003-03-27 at 12:46, Jan Dittmer wrote:
 > 
-> > Now actually take a look at this diff :)  The biggest part is that the
-> > s390 compat files exist only on s390x and the math-emu dir only exists
-> > on s390, that's just a matter of conditionally compiling the files.
+>>Greg KH wrote:
+>>
+>>>True, but multi-valued files are not allowed in sysfs.  It's especially
+>>>obnoxious that you have 3 value files when you read them, but only
+>>>expect 2 values for writing.  The way I split up the values in the
+>>>lm75.c driver shows a user exactly which values  are writable, and
+>>>enforces this on the file system level.
+>>
 > 
-> I did look at the diff. Did you?
+> Right, can we just get this finalised soon ?  Not much fun in redoing
+> something 2 times already ;)
+> 
 
-Yes.
+Btw., why is temperature conversion done twice? First time in kernel 
+space and then with the help of sensors.conf again in user space?
+Wouldn't it be much nicer to move this to the drivers? So there would be 
+no need anymore to do this in userspace and one could rely on the values
+found in sysfs?!
 
-> The patch is 5600 lines. A
-> small part of this diff can probably be avoided but you end up with
-> 3000-4000 lines of real diff. Because of the size of this a merge of
-> s390 and s390x isn't simple and shouldn't be done in a hurry.
+Thanks,
 
-My guess is that the difference can be a lot smaller if abstracted
-out properly, but that's pretty mood unless someone actually tries it :)
+Jan
 
-So yes, it's certainly not trivial (otherwise someone would have
-already done it), and I didn't say you should hurry to do it.  Also
-note that you don't have to do it all at once, start with #including
-the s390 files on s390x that are exactly the same, and after that
-one file after another can be cleaned up to be s390/s390x clean.
+
 

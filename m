@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129053AbQJ3Xw6>; Mon, 30 Oct 2000 18:52:58 -0500
+	id <S129875AbQJ3Xxs>; Mon, 30 Oct 2000 18:53:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129416AbQJ3Xwt>; Mon, 30 Oct 2000 18:52:49 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:11529 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129053AbQJ3Xwl>; Mon, 30 Oct 2000 18:52:41 -0500
-Date: Mon, 30 Oct 2000 15:51:53 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Christoph Hellwig <hch@ns.caldera.de>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
-        Keith Owens <kaos@ocs.com.au>
-Subject: Re: test10-pre7
-In-Reply-To: <20001031004500.A16524@caldera.de>
-Message-ID: <Pine.LNX.4.10.10010301548150.3595-100000@penguin.transmeta.com>
+	id <S129874AbQJ3Xxj>; Mon, 30 Oct 2000 18:53:39 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:65287 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129416AbQJ3Xx0>; Mon, 30 Oct 2000 18:53:26 -0500
+Message-ID: <39FE090E.A3AC48F3@timpanogas.org>
+Date: Mon, 30 Oct 2000 16:49:34 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Ingo Molnar <mingo@elte.hu>,
+        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18Pre Lan Performance Rocks!
+In-Reply-To: <Pine.LNX.4.21.0010302325240.16101-100000@imladris.demon.co.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+David/Alan,
 
-On Tue, 31 Oct 2000, Christoph Hellwig wrote:
+Andre Hedrick is now the CTO of TRG and Chief Scientist over Linux
+Development.  After talking 
+to him, we are going to do our own ring 0 2.4 and 2.2.x code bases for
+the MANOS merge.  
+the uClinux is interesting, but I agree is limited.  
+
+MANOS schedules should be unaffected.  The current DLL prototype of
+Linux 2.2 is ring 0, but I shudder at trying to merge all the changes
+I've done to it into core 2.2.X as a .config
+option.  There's also the gravity well forces of different views to this
+effort.  With Andre 
+on the job, I am more confident in co-opting the Linux drivers and just
+biting the bullet 
+on the support issues, and doing a full fork of Linux.
+
+Jeff
+
+David Woodhouse wrote:
 > 
-> But when we are changing makefiles everywhere - why not do the proper think
-> and let the new-style makefiles share their code?
+> On Mon, 30 Oct 2000, Ingo Molnar wrote:
 > 
-> (I have a patch ready - it just needs some forward-porting and testing)
-
-I hate your patch.
-
-I'd rather see "Rules.make" just base itself entirely off the new-style
-Makefiles, and have it use "$(obj-y)" instead of O_OBJS etc.
-
-Then, _old_style Makefiles could be fixed up by doing a
-
-	include Compat.make
-
-or preferably by just fixing them. I don't want to have another
-Rules.make. I want to fix the old users.
-
-(Compat.make would then look like
-
-	obj-y = $(OX_OBJS) $(O_OBJS)
-	export-objs = $(OX_OBJS)
-	...
-
-and make _old_ Makefiles look like new ones as far as Rules.make is
-concerned.
-
-See? 
-
-This is the same as with source code. I do NOT want to have backwards
-compatibility in source code - if compatibility is needed, I'd much rather
-have it be _forwards_ compatibility, where the old setup is made to look
-like the new with wrapper functions etc.
-
-		Linus
-
+> > On Mon, 30 Oct 2000, Jeff V. Merkey wrote:
+> >
+> > > Is there an option to map Linux into a flat address space [...]
+> >
+> > nope, Linux is fundamentally multitasked.
+> 
+> uClinux may be able to do this, at the cost of a dramatically reduced
+> userspace functionality.
+> 
+> --
+> dwmw2
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,73 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262930AbTFYANn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 20:13:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262490AbTFYANn
+	id S263298AbTFYAOu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 20:14:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbTFYAOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 20:13:43 -0400
-Received: from tehunlose.com ([68.15.181.213]:14785 "EHLO
-	cerebellum.tehunlose.com") by vger.kernel.org with ESMTP
-	id S262930AbTFYANl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 20:13:41 -0400
-From: Zack Gilburd <zack@tehunlose.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: developers and GPL in products (Was: Re: GPL violations by wireless manufacturers)
-Date: Tue, 24 Jun 2003 17:27:51 -0700
-User-Agent: KMail/1.5.2
-References: <3EF83FAF.24578.38A16F@localhost> <3EF85024.4477.78EB14@localhost> <200306242025.27761.roger.larsson@skelleftea.mail.telia.com>
-In-Reply-To: <200306242025.27761.roger.larsson@skelleftea.mail.telia.com>
-X-OperatingSystem: Gentoo Linux 1.4 :)
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_HyO++2PLeeiOr6Y";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200306241727.51092.zack@tehunlose.com>
+	Tue, 24 Jun 2003 20:14:50 -0400
+Received: from smtp.netcabo.pt ([212.113.174.9]:25725 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id S263298AbTFYAOr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 20:14:47 -0400
+Subject: Re: [ACPI] MS-6368L ACPI IRQ problem still in 2.4.21
+From: =?ISO-8859-1?Q?S=E9rgio?= Monteiro Basto <sergiomb@netcabo.pt>
+To: Marek Michalkiewicz <marekm@amelek.gda.pl>
+Cc: linux-kernel@vger.kernel.org,
+       acpi-devel <acpi-devel@lists.sourceforge.net>
+In-Reply-To: <20030624221809.GA1805@alf.amelek.gda.pl>
+References: <20030623221541.GA8096@alf.amelek.gda.pl>
+	<20030623222311.GD25982@parcelfarce.linux.theplanet.co.uk>
+	<20030624054612.GA20235@alf.amelek.gda.pl>
+	<20030624112630.GB451@parcelfarce.linux.theplanet.co.uk> 
+	<20030624221809.GA1805@alf.amelek.gda.pl>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9.7x.1) 
+Date: 25 Jun 2003 01:28:31 +0100
+Message-Id: <1056500914.2005.47.camel@darkstar.portugal>
+Mime-Version: 1.0
+X-OriginalArrivalTime: 25 Jun 2003 00:25:53.0578 (UTC) FILETIME=[5676B0A0:01C33AB0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi(gh)!
+So, has we can see in your dmesg, you don't test new acpi,
+you are report problems from old acpi.
+Well, can you send the /var/log/dmesg for ACPI: Core Subsystem version
+200306...
+you can try to see if DSDT has problems,without stop your production.
 
---Boundary-02=_HyO++2PLeeiOr6Y
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
+Get last iasl (ACPI CA - Unix Build Environment )in
+http://developer.intel.com/technology/iapc/acpi/downloads.htm
+ cd compiler;make
+after this
+cat /proc/acpi/dsdt > acpi_dsdt.dat
+./iasl  -d acpi_dsdt.dat
+./iasl -tc acpi_dsdt.dsl
 
-On Tuesday 24 June 2003 11:25, Roger Larsson wrote:
-> A customer of a product B that uses GPL project A can
-> require the source for A. But what about the primary developer?
-> Suppose the company charges an obscene amount of money for
-> the product (that might be an enhanced project A, like a patch to allow
-> compilation on Win32) - the primary developer might not afford to buy that
-> product.
+and see your dsdt in bios are ok or not.
 
-Not exactly.  By my understanding of the GPL, if you plan on distributing=20
-binaries outside of your corporation, you MUST make the source available to=
-=20
-any and all third parties.  In adition, you must bundle the source code wit=
-h=20
-the binary.
+On Tue, 2003-06-24 at 23:18, Marek Michalkiewicz wrote:
+> On Tue, Jun 24, 2003 at 12:26:30PM +0100, Matthew Wilcox wrote:
+> > The ACPI code in 2.4.21 is something like 18 months old now.  It's
+> > basically unmaintainable.  Fortunately, 2.4.22 should have an ACPI update.
+> 
 
-That's just what I have read from the GPL -- IANAL.
+> ACPI: Core Subsystem version [20011018]
+			        ^^^^^^^^
+> ACPI: Subsystem enabled
+> ACPI: System firmware supports S0 S1 S4 S5
+> Processor[0]: C0 C1 C2
+> ACPI: Power Button (FF) found
+> ACPI: Multiple power buttons detected, ignoring fixed-feature
+> ACPI: Power Button (CM) found
+> ACPI: Sleep Button (CM) found
+> 
+> 
+> 
+> -------------------------------------------------------
+> This SF.Net email is sponsored by: INetU
+> Attention Web Developers & Consultants: Become An INetU Hosting Partner.
+> Refer Dedicated Servers. We Manage Them. You Get 10% Monthly Commission!
+> INetU Dedicated Managed Hosting http://www.inetu.net/partner/index.php
+> _______________________________________________
+> Acpi-devel mailing list
+> Acpi-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/acpi-devel
+-- 
+SérgioMB
+email: sergiomb@netcabo.pt
 
-=2D-=20
-Zack Gilburd
-http://tehunlose.com
-
---Boundary-02=_HyO++2PLeeiOr6Y
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA++OyHp5pFZoJAq2wRAoulAJkBxNbY0k8GKeUq3MpvegvOJIrE0QCfYueN
-MA+e+YnfBrQZMDEd1WMiNBU=
-=qF5x
------END PGP SIGNATURE-----
-
---Boundary-02=_HyO++2PLeeiOr6Y--
+Who gives me one shell, give me everything.
 

@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262224AbSJQWOA>; Thu, 17 Oct 2002 18:14:00 -0400
+	id <S262215AbSJQWI6>; Thu, 17 Oct 2002 18:08:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262226AbSJQWN7>; Thu, 17 Oct 2002 18:13:59 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:65038 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262224AbSJQWN7>;
-	Thu, 17 Oct 2002 18:13:59 -0400
-Date: Thu, 17 Oct 2002 15:19:38 -0700
-From: Greg KH <greg@kroah.com>
-To: "David S. Miller" <davem@redhat.com>
+	id <S262216AbSJQWI6>; Thu, 17 Oct 2002 18:08:58 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:42943 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262215AbSJQWIz>;
+	Thu, 17 Oct 2002 18:08:55 -0400
+Date: Thu, 17 Oct 2002 15:07:22 -0700 (PDT)
+Message-Id: <20021017.150722.101474043.davem@redhat.com>
+To: greg@kroah.com
 Cc: hch@infradead.org, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
        linux-security-module@wirex.com
 Subject: Re: [PATCH] remove sys_security
-Message-ID: <20021017221938.GA1682@kroah.com>
-References: <20021017205830.GD592@kroah.com> <20021017.135832.54206778.davem@redhat.com> <20021017220956.GC1533@kroah.com> <20021017.150722.101474043.davem@redhat.com>
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021017220956.GC1533@kroah.com>
+References: <20021017205830.GD592@kroah.com>
+	<20021017.135832.54206778.davem@redhat.com>
+	<20021017220956.GC1533@kroah.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021017.150722.101474043.davem@redhat.com>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 17, 2002 at 03:07:22PM -0700, David S. Miller wrote:
->    
->    I would love to implement it in such a manner.  Without using
->    self-modifying code, do you have any ideas of how this could be done?
->    
-> Yes, I agree it's a difficult problem.
-> 
-> My main point is, don't compare the security bloat to USB, because in
-> the USB case if I don't use it I get no space/time consumption even if
-> I have it enabled (as a module).  This is not true for the security
-> bits.
+   From: Greg KH <greg@kroah.com>
+   Date: Thu, 17 Oct 2002 15:09:57 -0700
 
-Agreed, I shouldn't have made that comparison in the first place, sorry.
+   > 2.5.x is busting at the seams currently and CONFIG_SECURITY is part of
+   > the reason why.
+   
+   With the patch I just sent, that size issue should be resolved.
+   
+I really apprecite that you've done this work Greg.
+Thank you.
 
-Even if I do view the USB code as bloat at times... :)
+   > I need to convince you to implement this in a way, so that like
+   > USB, there is zero overhead when I enable it as a module. :-)
+   
+   I would love to implement it in such a manner.  Without using
+   self-modifying code, do you have any ideas of how this could be done?
+   
+Yes, I agree it's a difficult problem.
 
-greg k-h
+My main point is, don't compare the security bloat to USB, because in
+the USB case if I don't use it I get no space/time consumption even if
+I have it enabled (as a module).  This is not true for the security
+bits.

@@ -1,67 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263249AbSKFKII>; Wed, 6 Nov 2002 05:08:08 -0500
+	id <S264648AbSKFKQw>; Wed, 6 Nov 2002 05:16:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263589AbSKFKII>; Wed, 6 Nov 2002 05:08:08 -0500
-Received: from web20502.mail.yahoo.com ([216.136.226.137]:34060 "HELO
-	web20502.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S263249AbSKFKIH>; Wed, 6 Nov 2002 05:08:07 -0500
-Message-ID: <20021106101445.42142.qmail@web20502.mail.yahoo.com>
-Date: Wed, 6 Nov 2002 02:14:45 -0800 (PST)
-From: vasya vasyaev <vasya197@yahoo.com>
-Subject: RE: Machine's high load when HIGHMEM is enabled
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
-In-Reply-To: <F2DBA543B89AD51184B600508B68D4000F2ED497@fmsmsx103.fm.intel.com>
+	id <S264707AbSKFKQw>; Wed, 6 Nov 2002 05:16:52 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:11022 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S264648AbSKFKQv>; Wed, 6 Nov 2002 05:16:51 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15816.60827.825112.148774@laputa.namesys.com>
+Date: Wed, 6 Nov 2002 13:23:23 +0300
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Cliff White <cliffw@osdl.org>
+Cc: reiserfs-dev@Namesys.COM, Reiserfs-List@Namesys.COM,
+       Linux-Kernel@vger.kernel.org
+Subject: Re: build failure: reiser4progs-0.1.0
+In-Reply-To: <200211052145.gA5Ljdr32055@mail.osdl.org>
+References: <200211052145.gA5Ljdr32055@mail.osdl.org>
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+X-Tom-Swifty: "Care for some `suan la chow show'?" Tom asked wantonly.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-It seems "mem=2016M" is what we need, box works
-approximately as fast as without enabled HIGHMEM.
-Thank you!
+Cliff White writes:
+ > 
+ > Attempting to test reiser4, kernel 2.5.46, using the 2002.11.05 snapshot.
 
-BTW, we are using 4x512 Mb ECC Registered memory
-modules, so they seems not to be mixed...
+Can you please try "./configure --enable-Werror=no --without-readline"
+as workaround?
 
+ > --------------------------------------------------
+ > gcc -DHAVE_CONFIG_H -I. -I. -I../.. -I../../include -g -O2 -D_REENTRANT 
+ > -D_FILE_OFFSET_BITS=64 -g -W -Wall -Wno-unused -Werror 
+ > -DPLUGIN_DIR=\"/usr/local/lib/reiser4\" -c alloc40.c -MT alloc40.lo -MD -MP 
+ > -MF .deps/alloc40.TPlo  -fPIC -DPIC -o .libs/alloc40.lo
+ > cc1: warnings being treated as errors
+ > alloc40.c: In function `callback_fetch_bitmap':
+ > alloc40.c:50: warning: signed and unsigned type in conditional expression
+ > alloc40.c: In function `callback_flush_bitmap':
+ > alloc40.c:209: warning: signed and unsigned type in conditional expression
+ > alloc40.c: In function `callback_check_bitmap':
+ > alloc40.c:376: warning: signed and unsigned type in conditional expression
+ > make[3]: *** [alloc40.lo] Error 1
+ > make[3]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0/plugin/all
+ > oc40'
+ > make[2]: *** [all-recursive] Error 1
+ > make[2]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0/plugin'
+ > make[1]: *** [all-recursive] Error 1
+ > make[1]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0'
+ > make: *** [all] Error 2
+ > -------------------------------------
+ > cliffw
 
+Nikita.
 
-As this problem has gone, there is last question (I
-hope ;-):
-How can I control amount of memory used for disk cache
-in recent kernels (2.4.18, 19)?
-("Cached:" field in `cat /proc/meminfo`)
-I have to be sure that free memory is not used for
-caching of disk operations (or how many of it is used
-for caching)
-
-Thanks and please CC.
-
-
-
---- "Nakajima, Jun" <jun.nakajima@intel.com> wrote:
-> To me it looks this MTRR does not cover the memory
-> range reported by E820.
-> 
-> > reg05: base=0x7c000000 (1984MB), size=  32MB:
-> > write-back, count=1
-> 
-> This covers [0x7c000000 - 0x7e000000).
-> 
-> >  BIOS-e820: 0000000000100000 - 000000007f800000
-> > (usable)
-> But it says memory is available up to 0x7f800000. 
-> So try mem=2016M ?  
-> (2048 - 32 = 2016)
-> 
-> I guess you are mixing various memory modules.
-> 
-> Jun
-
-
-__________________________________________________
-Do you Yahoo!?
-HotJobs - Search new jobs daily now
-http://hotjobs.yahoo.com/
+ > 
+ > 

@@ -1,96 +1,121 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273495AbRIYUTN>; Tue, 25 Sep 2001 16:19:13 -0400
+	id <S273507AbRIYUXX>; Tue, 25 Sep 2001 16:23:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273496AbRIYUTE>; Tue, 25 Sep 2001 16:19:04 -0400
-Received: from lion.adeptscience.co.uk ([193.116.153.4]:4358 "EHLO
-	lion.adeptscience.co.uk") by vger.kernel.org with ESMTP
-	id <S273495AbRIYUSw>; Tue, 25 Sep 2001 16:18:52 -0400
-Date: Tue, 25 Sep 2001 21:16:37 +0100 (BST)
-Message-Id: <200109252016.f8PKGbf63761@lion.adeptscience.co.uk>
-To: linux-kernel@vger.kernel.org
-From: cyborg_monkey@slashdot.org
-Subject: Engineeringtalk News Item: C600 Miniature Camlock
+	id <S273506AbRIYUXO>; Tue, 25 Sep 2001 16:23:14 -0400
+Received: from jgateadsl.cais.net ([205.252.5.196]:56870 "EHLO
+	tyan.doghouse.com") by vger.kernel.org with ESMTP
+	id <S273505AbRIYUXC>; Tue, 25 Sep 2001 16:23:02 -0400
+Date: Tue, 25 Sep 2001 16:23:22 -0400 (EDT)
+From: Maxwell Spangler <maxwax@mindspring.com>
+X-X-Sender: <maxwell@tyan.doghouse.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Greg Ward <gward@python.net>, David Grant <davidgrant79@hotmail.com>,
+        <bugs@linux-ide.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: "hde: timeout waiting for DMA": message gone, same behaviour
+In-Reply-To: <E15kpB7-0003XS-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0109251614330.5310-100000@tyan.doghouse.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+[deleted information about ide DMA timeouts and alan writes:]
 
-w00t!
+On Sat, 22 Sep 2001, Alan Cox wrote:
+> The timeout is it issuing DMA requests that failed.
 
-**********
-This article has been sent to you at the request of jimmy saville, who thought you would find it interesting.  It comes from the Engineeringtalk web site <http://www.engineeringtalk.com> which contains thousands of similar announcements from manufacturers.
+> Older trees take one DMA timeout and go PIO. That turns out to be bad
+> because very very occasionally other things (I guess drive calibration etc)
+> will cause the DMA to timeout.
+>
+> With the 2.4.9-ac tree I have two boxes which get DMA timeouts. One of them
+> very very rarely and the retry recovers nicely, the other DMA does not work
+> and after poking around I discovered windows also disables DMA on this
+> mini notebook..
 
+I have an otherwise rock solid system which has been experiencing DMA timeouts
+for some time.  This is a Tyan Tiger100 (Intel BX chipset) with two PII-400Mhz
+processors, 512M Corsair RAM, at least one Promise Ultra66 or Ultra100
+controller, and two IBM Deskstar drives.
 
-++++++++++++++++++++++++++++++++++++++++++++++
-NEWS ARTICLE from Engineeringtalk.com
-++++++++++++++++++++++++++++++++++++++++++++++
-<http://www.engineeringtalk.com/news/sid/sid100.html>
- 
-SECURITY LOCK KEEPS MUSICIANS ON THE MOVE
- 
-Date: 20 February 2000
-News from: Camlock Systems
-Product: C600 Miniature Camlock
- 
-A butterfly catch, fitted with a custom designed flat key camlock
-incorporating a stainless steel cam, has provided a simple, low
-cost solution to the security and on-site location of high value
-musical instruments for the world's top pop and rock musicians,
-including the Lighthouse Family, Dire Straits and Tina Turner.
-Originally designed by Sidlock, the specialist manufacturer and
-distributor of industrial security locking devices, the lock is
-based on the company's C600 Miniature Camlock series,
-re-engineered to fit in a confined space on special flight cases
-used to transport and configure equipment at gigs and recording
-sessions all around the world. Performance demands on these
-cases, and their locks, are formidable. They are in continuous
-use, either in transit or onstage, as they often form the
-housings of equipment and employ the catches and locks to locate
-and secure the cases in special stage racking. Either way the
-cases are opened and locked many thousands of times creating the
-requirement for a catch and lock with ease of use, exceptional
-durability, reliability and a measure of security. Closure and
-security is provided by a 180ø turn/pull-up lever action and the
-camlock prevents this from being deployed. To minimise damage in
-transit the catch is designed to fit into a shallow recess. This
-requires the locking cam to be only 20mm long and 6mm wide,
-'joggled' (offset) and mounted onto a lock body just 8.3mm in
-length. As space is so tight a speed clip is used to retain the
-lock in the catch mounting but this has the added advantage of
-quicker assembly of the parts during production. At product
-development stage engineering evaluations revealed that the
-smaller - 25% on length and 50% on width - cam dimensions
-necessitated a stronger material than the usual carbon steel used
-and so stainless was chosen. Additionally, the confined space
-meant that the usual nut fastener could not be used to retain the
-cam and so it was spin welded onto the lock body. Essential to
-the success of the product was the manufacturer's ability to
-adapt and modify an existing product to provide a fast solution
-and meet stringent cost parameters. The camlock is supplied to
-Penn Fabrication - a specialist manufacturer of case and speaker
-hardware, materials and accessories, lighting, racking systems
-and stage box systems - who adds it to a range of 19mm and 10mm
-butterfly catches. Other suppliers subsequently convert many of
-the company's cases to enclose and transport a variety of
-equipment including control, process and analysis instrumentation
-as well as photographic gear.
- 
-Camlock Systems
-Eastbourne, East Sussex, UK
-Telephone: +44 1323 410996
-Fax: +44 1323 411512
-E-Mail: <mailto:sales@camlock.com>
-Website: <http://www.camlock.com>
- 
-GET THE LATEST ENGINEERING NEWS ON YOUR DESKTOP
- 
-Dozens of new articles like the one above are posted on the
-Engineeringtalk web site every day. A roundup of the most
-interesting appears in the FREE Engineeringtalk email newsletter,
-published every week. Join thousands of other engineers
-on the circulation today! Simply send an email now to
-<mailto:join-eng-talk@news.pro-talk.com>
-(no subject or message is required).
- 
-Or visit <http://www.engineeringtalk.com>
+When it runs, it runs well, but occasionally I'll find this in the logs.  This
+hsould be 2.2.8:
+
+Sep 13 22:19:50 tyan kernel: hde: timeout waiting for DMA
+Sep 13 22:19:52 tyan kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+Sep 13 22:19:52 tyan kernel: hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+Sep 13 22:20:12 tyan kernel: hde: timeout waiting for DMA
+Sep 13 22:20:13 tyan kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+Sep 13 22:20:13 tyan kernel: hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+Sep 13 22:20:34 tyan kernel: hde: timeout waiting for DMA
+Sep 13 22:20:35 tyan kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+Sep 13 22:20:35 tyan kernel: hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+Sep 13 22:20:56 tyan kernel: hde: timeout waiting for DMA
+Sep 13 22:20:56 tyan kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+Sep 13 22:20:56 tyan kernel: hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+Sep 13 22:20:59 tyan kernel: hde: DMA disabled
+Sep 13 22:20:59 tyan kernel: ide2: reset: success
+Sep 14 04:02:19 tyan kernel: hdg: timeout waiting for DMA
+Sep 14 04:02:20 tyan kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+Sep 14 04:02:20 tyan kernel: hdg: irq timeout: status=0x50 { DriveReady SeekComplete }
+Sep 14 04:02:29 tyan kernel: hde: lost interrupt
+Sep 14 04:02:41 tyan kernel: hdg: timeout waiting for DMA
+Sep 14 04:02:42 tyan kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+Sep 14 04:02:42 tyan kernel: hdg: irq timeout: status=0x50 { DriveReady SeekComplete }
+Sep 14 04:03:03 tyan kernel: hdg: timeout waiting for DMA
+Sep 14 04:03:04 tyan kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+Sep 14 04:03:04 tyan kernel: hdg: irq timeout: status=0x50 { DriveReady SeekComplete }
+Sep 14 04:03:13 tyan kernel: hde: lost interrupt
+Sep 14 04:03:25 tyan kernel: hdg: timeout waiting for DMA
+Sep 14 04:03:25 tyan kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+Sep 14 04:03:25 tyan kernel: hdg: irq timeout: status=0x50 { DriveReady SeekComplete }
+Sep 14 04:03:25 tyan kernel: hdg: DMA disabled
+Sep 14 04:03:26 tyan kernel: ide3: reset: success
+Sep 14 04:04:17 tyan kernel: hde: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+Sep 14 04:04:17 tyan kernel: hde: drive not ready for command
+Sep 14 04:04:34 tyan kernel: hde: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+Sep 14 04:04:34 tyan kernel: hde: drive not ready for command
+Sep 14 04:04:42 tyan kernel: hdg: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+Sep 14 04:04:42 tyan kernel: hdg: drive not ready for command
+Sep 14 10:20:33 tyan kernel: hde: irq timeout: status=0xd0 { Busy }
+Sep 14 10:20:34 tyan kernel: ide2: reset: success
+
+I've regularly found this occuring at 4AM.  Anybody have any idea why?
+Perhaps the drive is sleeping due to no other activity and sudenly the cron
+activities attempt to use the drive before it's ready?
+
+A reboot resets my system to happy operation but it happens again some hours
+or days later.
+
+I'm on 2.2.10 now--wondering if the behaviour to retry DMA timeouts more than
+once is in my kernel?
+
+Nice to see someone else is having this problem other than me.
+
+fyi:
+
+[root@tyan /root]# lspci
+00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge (rev
+03)
+00:01.0 PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge (rev
+03)
+00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
+00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)
+00:11.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 20)
+00:12.0 Unknown mass storage controller: Promise Technology, Inc. 20262 (rev
+01)
+00:13.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 02)
+00:14.0 SCSI storage controller: BusLogic BT-946C (BA80C30) [MultiMaster 10]
+(rev 08)
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 82)
+
+-------------------------------------------------------------------------------
+Maxwell Spangler
+Program Writer
+Greenbelt, Maryland, U.S.A.
+Washington D.C. Metropolitan Area
+

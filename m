@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266094AbRF2Olw>; Fri, 29 Jun 2001 10:41:52 -0400
+	id <S266103AbRF2OvE>; Fri, 29 Jun 2001 10:51:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266100AbRF2Oln>; Fri, 29 Jun 2001 10:41:43 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:9224 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S266094AbRF2Ole>;
-	Fri, 29 Jun 2001 10:41:34 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.6-pre6: numerous dep_{bool,tristate} $CONFIG_ARCH_xxx bugs 
-In-Reply-To: Your message of "Fri, 29 Jun 2001 15:30:36 +0100."
-             <20010629153036.A10196@flint.arm.linux.org.uk> 
+	id <S266101AbRF2Ouq>; Fri, 29 Jun 2001 10:50:46 -0400
+Received: from out-mx1.crosswinds.net ([209.208.163.38]:21278 "HELO
+	out-mx1.crosswinds.net") by vger.kernel.org with SMTP
+	id <S266103AbRF2Oue>; Fri, 29 Jun 2001 10:50:34 -0400
+Date: Fri, 29 Jun 2001 16:49:42 +0200
+From: Patrick Mauritz <oxygene2k1@crosswinds.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: A Possible 2.5 Idea, maybe?
+Message-ID: <20010629164942.B21707@crosswinds.net>
+In-Reply-To: <Pine.LNX.4.33.0106290753340.25959-100000@biglinux.tccw.wku.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 30 Jun 2001 00:41:27 +1000
-Message-ID: <27957.993825687@ocs3.ocs-net>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0106290753340.25959-100000@biglinux.tccw.wku.edu>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Jun 2001 15:30:36 +0100, 
-Russell King <rmk@arm.linux.org.uk> wrote:
->On Sat, Jun 30, 2001 at 12:21:09AM +1000, Keith Owens wrote:
->> Create arch/Config.in which contains
->> 
->>   define_bool CONFIG_ARCH_i386 n
->>   define_bool CONFIG_ARCH_ia64 n
->>   define_bool CONFIG_ARCH_sparc n
->> 
->> etc., then change each of the arch/xxx/Config.in files to
->> source arch/Config.in as their first line first.
->
->I'd rather that we fixed dep_* so that undefined symbols were treated as
->'n', just like the makefiles treat undefined symbols.
+On Fri, Jun 29, 2001 at 08:17:25AM -0500, Brent D. Norris wrote:
+> Instead of forking the kernel or catering only to one group, instead why
+> not try this:  Using the new CML2 tools and rulesets, make it possible to
+> have the kernel configured for the type of job it will be doing?  Just
+> like CML2 asks our CPU type (i386, alpha, althon ...) and then goes out
+> and configures options for that, have it ask people "Is your machine a
+> server, workstation, embedded/handheld?" and configure things in the
+> kernel like the VM, bootup and others to optimize it for that job type?
+that could be the "easy == end-user" setup
+why can't there be two (possibly similar but tweaked) VMs (and other stuff as well)
+be in the source so everyone has to choose exactly one for his kernel?
 
-make config and oldconfig are shell scripts.  They are limited to what
-shells can do which includes "undefined variables are null", the
-variable expansion is done before tristate and friends are invoked.
-Of course, you could rewrite bash ...
-
-Just put this down as one of the many "interesting" features of CML1,
-put a band aid on it and move on to CML2.
-
+patrick mauritz
+-- 
+,------------------------------------------------------------------------.
+>            Fighting for peace is like fucking for virginity            <
+|------------------------------------------------------------------------|
+>        The Forthcoming OpenBIOS | www.freiburg.linux.de/openbios       <
+`------------------------------------------------------------------------'
+          because light travels faster than sound, some people
+           appear to be intelligent, until you hear them speak.

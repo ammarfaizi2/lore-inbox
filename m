@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S133053AbQK0AP7>; Sun, 26 Nov 2000 19:15:59 -0500
+        id <S133108AbQK0AR7>; Sun, 26 Nov 2000 19:17:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S133082AbQK0APt>; Sun, 26 Nov 2000 19:15:49 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:38271 "EHLO
-        pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-        id <S133053AbQK0APl>; Sun, 26 Nov 2000 19:15:41 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: initdata for modules? 
-In-Reply-To: Your message of "Sun, 26 Nov 2000 17:01:35 PDT."
-             <20001126170135.A1787@vger.timpanogas.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 27 Nov 2000 10:45:34 +1100
-Message-ID: <1887.975282334@kao2.melbourne.sgi.com>
+        id <S133082AbQK0ARt>; Sun, 26 Nov 2000 19:17:49 -0500
+Received: from freya.yggdrasil.com ([209.249.10.20]:48529 "EHLO
+        freya.yggdrasil.com") by vger.kernel.org with ESMTP
+        id <S135185AbQK0ARg>; Sun, 26 Nov 2000 19:17:36 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sun, 26 Nov 2000 15:47:30 -0800
+Message-Id: <200011262347.PAA11866@baldur.yggdrasil.com>
+To: kaos@ocs.com.au
+Subject: Re: initdata for modules?
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Nov 2000 17:01:35 -0700, 
-"Jeff V. Merkey" <jmerkey@vger.timpanogas.org> wrote:
->insmod ppp_deflate (should trigger load of all these modules).  I 
->know it's works this way if there's a modules.dep file laying 
->around, but it would be nice for it to work this way without 
->needing the external text file.
+Keith Owens <kaos@ocs.com.au> wrote:
+>"Adam J. Richter" <adam@yggdrasil.com> wrote:
+>>	In reading include/linux/init.h, I was surprised to discover
+>>that __init{,data} expands to nothing when compiling a module.
+>>I was wondering if anyone is contemplating adding support for
+>>__init{,data} in module loading, to reduce the memory footprints
+>>of modules after they have been loaded.
 
-There is a clean split between modprobe and insmod, modprobe is the
-high level command that does all the fancy checking for inter module
-dependencies, handling aliases and extracting options from
-modules.conf.  insmod is the low level command that does exactly what
-you tell it to do, no more, no less.  The only smarts that insmod has
-is the ability to take a module name without '/' and find it using the
-patchs in modules.conf.  That split between high and low level commands
-is too useful to contaminate.
+>It has been discussed a few times but nothing was ever done about it.
+>AFAIK the savings were not seen to be that important because modules
+>occupy complete pages.  __init would have to be stored in a separate
+>page which was then discarded. [...]
 
-modules.conf already supports "above" and "below" commands for
-non-standard dependencies.  The problem of not having a module.dep on
-the first boot of a new kernel was addressed in kernel 2.4.0-test5 or
-thereabouts, make modules_install runs depmod to build modules.dep
-ready for the first boot.
+	No, you could just discard the part after the next page
+boundary.  The expected savings would be about the same, since
+the cases where the original code had just creeped over a page
+boundary in many cases would result in dropping more memory savings
+that the actual init size, from dropping those unused bytes
+between the very end of the init section and the end of that page.
+I say "about" the same becuase the distribution of text and data
+sizes is not uniformly random within some fixed interval.
 
+	Since you would not have to bump the start address of a
+section to the next page boundary, I wonder if it would still
+complicate insmod et al.
+
+	In case there is any confusion, I am not suggesting that
+this should go into the stock 2.4.0 releases.
+
+	However, I do find it helpful in allocating my time to
+cosider that saving one page by something like this or by enhancing
+gcc's variable placement saves as much space as 1024 eliminations
+of "= 0" or "= NULL" static variable initializations.
+
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

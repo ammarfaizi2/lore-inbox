@@ -1,66 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129894AbRAKMU3>; Thu, 11 Jan 2001 07:20:29 -0500
+	id <S130636AbRAKMXt>; Thu, 11 Jan 2001 07:23:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130856AbRAKMUU>; Thu, 11 Jan 2001 07:20:20 -0500
-Received: from hercules.telenet-ops.be ([195.130.132.33]:48400 "HELO
-	smtp.pandora.be") by vger.kernel.org with SMTP id <S130217AbRAKMUN>;
-	Thu, 11 Jan 2001 07:20:13 -0500
-Date: Thu, 11 Jan 2001 13:20:17 +0100
-From: mo6 <sjoos@pandora.be>
-To: Robert Kaiser <rob@sysgo.de>
-Cc: Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org
-Subject: Re: Anybody got 2.4.0 running on a 386 ?
-Message-ID: <20010111132017.A27515@pandora.be>
-In-Reply-To: <01010922090000.02630@rob> <3A5B7F76.ABDFED7A@didntduck.org> <01010922264400.02737@rob>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <01010922264400.02737@rob>; from rob@sysgo.de on Tue, Jan 09, 2001 at 10:17:47PM +0100
+	id <S129881AbRAKMXj>; Thu, 11 Jan 2001 07:23:39 -0500
+Received: from colorfullife.com ([216.156.138.34]:38162 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S130234AbRAKMXa>;
+	Thu, 11 Jan 2001 07:23:30 -0500
+From: Manfred <manfred@colorfullife.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: Compatibility issue with 2.2.19pre7
+Message-ID: <979216159.3a5da71fdc35b@colorfullife.com>
+Date: Thu, 11 Jan 2001 07:29:19 -0500 (EST)
+Cc: Manfred <manfred@colorfullife.com>, Russell King <rmk@arm.linux.org.uk>,
+        Andrea Arcangeli <andrea@suse.de>, Hubert Mantel <mantel@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <200101110734.f0B7Y1x01512@flint.arm.linux.org.uk> <979215027.3a5da2b3781d7@localhost> <20010111131005.A23611@gruyere.muc.suse.de>
+In-Reply-To: <20010111131005.A23611@gruyere.muc.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
+X-Originating-IP: 134.96.7.93
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2001 at 10:17:47PM +0100, Robert Kaiser wrote:
-> On Die, 09 Jan 2001 you wrote:
-> > Robert Kaiser wrote:
-> > > if someone had pressed the reset button. The same kernel boots fine on
-> > > 486 and Pentium Systems.
-> > > 
-> > > Any ideas/suggestions ?
+Zitiere Andi Kleen <ak@suse.de>:
+
+> On Thu, Jan 11, 2001 at 07:10:27AM -0500, Manfred wrote:
+> > Zitiere Russell King <rmk@arm.linux.org.uk>:
+> > > The API changed:
+> > >  struct nfs_mount_data {
+> > >         int             version;                /* 1 */
+> > >         int             fd;                     /* 1 */
+> > > -       struct nfs_fh   root;                   /* 1 */
+> > > +       struct nfs2_fh  old_root;               /* 1 */
 > > 
-> > 
-> > is "Checking if this processor honours the WP bit even in supervisor
-> > mode... " the last thing you see before the reset?
-> > 
+> > I don't see an API change:
+> > the 2.2.17 "struct nfs_fs" and the 2.2.18 "struct nfs2_fh" are
+> identical.
 > 
-> No, I don't see _any_ messages from the kernel. The last thing I see is
-> "Uncompressing Linux... Ok, booting the kernel." I have added some
-> quick and dirty debug code that writes messages directly to the VGA
-> screen buffer. According to that, execution seems to get as far as the
-> statement
-> 
->         *pte = mk_pte_phys(__pa(vaddr), PAGE_KERNEL);
+> But it changed in 2.2.19pre, breaking nfs mount on i386. 
 > 
 
-Changing the 
-	if( end && (vaddr >= end))
-		break;
-just before that snippet of yours (I believe it's on lines 379-380) into
-	if (vaddr >= end)
-		break;
-or alternatively adding
-	if (!end)
-		break;
-between if(end &&...) break; and *pte = mk_...; produces a kernel bootable 
-on 386.
+-ECONFUSED.
 
-With kind regards,
+2.2.17 struct nfs_fh is identical to 2.2.18 nfs2_fh and 2.2.19pre7 nfs2_fh
 
-Sven Joos			    
--- 
-If the odds are a million to one against something occurring, chances
-are 50-50 it will.
+2.2.18 struct nfs_fh is a new structure for nfsV3, it doesn't exist in 2.2.17.
+That structure is unusable on ARM.
+
+Russel want's to change the new "struct nfs_fh" (from 2.2.18), and that change
+is included in 2.2.19pre7. But that change breaks i386 nfs mount.
+
+Could someone with an Alpha/Sparc/ARM compiler compile a test program with
+"struct nfs_fh" from 2.2.18 and print the offset of nfs_fh.data?
+
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

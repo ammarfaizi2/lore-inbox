@@ -1,54 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbUKGL2V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261583AbUKGMDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbUKGL2V (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 06:28:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbUKGL2V
+	id S261583AbUKGMDd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 07:03:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbUKGMDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 06:28:21 -0500
-Received: from beholder.inittab.de ([195.226.163.101]:9917 "EHLO
-	mail1.inittab.de") by vger.kernel.org with ESMTP id S261580AbUKGL2R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 06:28:17 -0500
-Date: Sun, 7 Nov 2004 12:28:12 +0100
-From: Norbert Tretkowski <tretkowski@inittab.de>
-To: linux-kernel@vger.kernel.org
-Subject: fix for alpha framebuffer compile
-Message-ID: <20041107112812.GA1443@rollcage.inittab.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="PEIAKu/WMn1b1Hv9"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Sun, 7 Nov 2004 07:03:33 -0500
+Received: from a4.complang.tuwien.ac.at ([128.130.173.65]:23999 "EHLO
+	a4.complang.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S261583AbUKGMDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 07:03:30 -0500
+X-mailer: xrn 9.03-beta-14
+From: anton@mips.complang.tuwien.ac.at (Anton Ertl)
+Subject: memory overcommit (was: [PATCH] Remove OOM killer ...)
+To: Marko Macek <marko.macek@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+X-Newsgroups: linux.kernel
+In-reply-to: <418DEA55.2080202@gmx.net>
+Date: Sun, 07 Nov 2004 11:34:02 GMT
+Message-ID: <2004Nov7.123402@mips.complang.tuwien.ac.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marko Macek <marko.macek@gmx.net> writes:
+>Andries Brouwer wrote:
+>
+>> I have always been surprised that so few people investigated
+>> doing things right, that is, entirely without OOM killer.
 
---PEIAKu/WMn1b1Hv9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I.e., without overcommitment.  That's not necessarily the right thing
+for all processes, because many programs are not written in a way to
+do useful things when a memory allocation or other system call fails.
+For these programs it's better to let the allocation succeed, let it
+use all the unused (but possibly commited) memory and swap space in
+the system, and kill the process if the system runs out of memory
+later.
 
-Hi,
+In a recent posting <2004Oct9.085407@mips.complang.tuwien.ac.at> in
+c.o.l.d.s, I proposed separating the processes in two classes:
 
-attached patch adds a line to include/asm-alpha/io.h which was
-(accidentally?) removed between 2.6.8.1 and 2.6.9, but is required for
-some framebuffer drivers on alpha.
+- a no-overcommit class for which memory commitment is accounted.  It
+may get ENOMEM on allocation, when the system runs out of commitable
+memory, and processes in this class are never OOM killed.
 
-Regards, Norbert
+- an overcommiting class for which memory commitment is not accounted.
+It normally does not get ENOMEM on allocation, but if the system runs
+out of memory (virtual memory, not commitable memory), processes from
+this class are OOM-killed.  Note that these processes can use memory
+that has been commited to, but has not been used by no-overcommit
+class processes.
 
---PEIAKu/WMn1b1Hv9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="alpha-framebuffer.dpatch"
+Ideally, all the important applications would be able to handle failed
+allocations gracefully, and would be marked as no-overcommit, and thus
+would be safe from the OOM killer.
 
---- kernel-source-2.6.9/include/asm-alpha/io.h~ 2004-10-18 23:55:07.000000000 +0200
-+++ kernel-source-2.6.9/include/asm-alpha/io.h  2004-11-07 11:42:24.000000000 +0100
-@@ -150,6 +150,8 @@
-        alpha_mv.mv_##NAME(b, addr);                                    \
- }
+And all the other applications would often continue running long after
+they would have crashed or become otherwise useless from ENOMEM on a
+pure no-overcommitment system.
 
-+# define __ioremap(a,s) alpha_mv.mv_ioremap((unsigned long)(a),(s))
-+
- REMAP1(unsigned int, ioread8, /**/)
- REMAP1(unsigned int, ioread16, /**/)
- REMAP1(unsigned int, ioread32, /**/)
+>> This is not in a state such that I would like to submit it,
+>> but I think it would be good to focus some energy into
+>> offering a Linux that is guaranteed free of OOM surprises.
+>
+>A good thing would be to make the OOM killer only kill
+>processes that actually overcommit (independant of overcommit mode).
 
---PEIAKu/WMn1b1Hv9--
+What does that mean?  Overcommitment is normally a thing that all
+processes do together (each one usually asks for less than the total
+virtual memory).  In my proposal it means that the process would be
+marked as overcommiting or not through something like "nice", maybe
+with a default coming from a flag in the executable.
+
+- anton
+-- 
+M. Anton Ertl                    Some things have to be seen to be believed
+anton@mips.complang.tuwien.ac.at Most things have to be believed to be seen
+http://www.complang.tuwien.ac.at/anton/home.html

@@ -1,86 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318121AbSGRPI3>; Thu, 18 Jul 2002 11:08:29 -0400
+	id <S318112AbSGRPG0>; Thu, 18 Jul 2002 11:06:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318127AbSGRPI3>; Thu, 18 Jul 2002 11:08:29 -0400
-Received: from crisium.vnl.com ([194.46.8.33]:4109 "EHLO crisium.vnl.com")
-	by vger.kernel.org with ESMTP id <S318121AbSGRPIJ>;
-	Thu, 18 Jul 2002 11:08:09 -0400
-Date: Thu, 18 Jul 2002 16:15:16 +0100
-From: Dale Amon <amon@vnl.com>
-To: Frank Davis <fdavis@si.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.24 : BusLogic cleanup - architecture dependencies
-Message-ID: <20020718151516.GF4358@vnl.com>
-Mail-Followup-To: Dale Amon <amon@vnl.com>, Frank Davis <fdavis@si.rr.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0207181458140.29194-100000@linux-box.realnet.co.sz> <3D36CC41.8070409@si.rr.com> <20020718142829.GC4358@vnl.com> <3D36D8F1.2040803@si.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D36D8F1.2040803@si.rr.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux, the choice of a GNU generation
+	id <S318113AbSGRPG0>; Thu, 18 Jul 2002 11:06:26 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:19464 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S318112AbSGRPGZ>; Thu, 18 Jul 2002 11:06:25 -0400
+Date: Thu, 18 Jul 2002 11:04:01 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: stoffel@lucent.com
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Backups done right (was [ANNOUNCE] Ext3 vs Reiserfs benchmarks)
+In-Reply-To: <15668.39927.923118.516621@gargle.gargle.HOWL>
+Message-ID: <Pine.LNX.3.96.1020718105612.7522B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As noted below, Frank Davis suggests I fire this back into the
-list for discussion.
+On Tue, 16 Jul 2002 stoffel@lucent.com wrote:
 
-On Thu, Jul 18, 2002 at 11:04:17AM -0400, Frank Davis wrote:
-> Dale,
->   Here's what I know....
-> not all architectures define an 'address' variable in the struct 
-> scatterlist, so some archs will compile with no problems, others won't. 
-> If you're using a i386, there isn't an address variable. Here's what I 
-> suggest....email linux-kernel with the problem report for 2.5.26, and 
-> explain what I have stated above. I could have a bunch of #ifdef for 
-> each arch, but thats plain crazy. I'd be interested in what some other 
-> developers suggest. Sorry, I couldn't provide you a patch.
-> 
-> Regards,
-> Frank
-> 
+>   3a. lock mirrored volume, flush any outstanding transactions, break
+>       mirror.
+>                 --or--
+>   3b. snapshot filesystem to another volume.
 
-==============================================================================
+Good summary. The problem is that 3a either requires a double morror or
+leaving the f/s un mirrored, and 3b can take a very long time for a big
+f/s.
 
-Zwane Mwaikambo wrote:
->On Thu, 18 Jul 2002, Dale Amon wrote:
->
->
->>On Mon, Jun 24, 2002 at 01:07:18AM -0400, Frank Davis wrote:
->>
->>>Hello all,
->>> The following patch removes some unneccessary (it seems) typedefs, and 
->>>adds in the pci_set_dma_mask() check mentioned in 
->>>Documentation/DMA-mapping.txt . Please review.
->>
->
->The driver needs more than just the dma mask set.
->
->
->>Did your Buslogic patch ever get included? I'm still
->>getting errors compiling 2.5.x as of .26 last night:
->
->
->Probably didn't get in because the driver is still not compliant with the 
->new kernel requirements for PCI/DMA
->
->
->>BusLogic.c:32: #error Please convert me to Documentation/DMA-mapping.txt
->>BusLogic.c: In function `BusLogic_DetectHostAdapter':
->>BusLogic.c:2841: warning: long unsigned int format, BusLogic_IO_Address_T 
->>arg (arg 2)
->>BusLogic.c: In function `BusLogic_QueueCommand':
->>BusLogic.c:3415: structure has no member named `address'
->
->
->That probably wants sg_dma_address()
->
->
->>BusLogic.c: In function `BusLogic_BIOSDiskParameters':
->>BusLogic.c:4141: warning: implicit declaration of function 
->>`scsi_bios_ptable'
->>BusLogic.c:4141: warning: assignment makes pointer from integer without a 
->>cast
->>make[2]: *** [BusLogic.o] Error 1
+In general mauch of this can be addressed by only backing up small f/s and
+using an application backup utility to backup the big stuff. Fortunately
+the most common problem apps are databases and and they include this
+capability. 
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

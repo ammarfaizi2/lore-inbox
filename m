@@ -1,50 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262030AbVBPPQp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbVBPPRQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262030AbVBPPQp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 10:16:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbVBPPQp
+	id S262039AbVBPPRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 10:17:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbVBPPRQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 10:16:45 -0500
-Received: from ptb-relay01.plus.net ([212.159.14.212]:20753 "EHLO
-	ptb-relay01.plus.net") by vger.kernel.org with ESMTP
-	id S262030AbVBPPQo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 10:16:44 -0500
-Message-ID: <421363D4.5050209@dsvr.net>
-Date: Wed, 16 Feb 2005 15:16:36 +0000
-From: Jonathan Sambrook <jonathan@dsvr.net>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Klaus Muth <muth@hagos.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel panic with 2.4.26
-References: <200501210715.03716.muth@hagos.de> <200502111015.54681.muth@hagos.de> <42132B31.7010503@dsvr.net> <200502161402.33666.muth@hagos.de>
-In-Reply-To: <200502161402.33666.muth@hagos.de>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Feb 2005 10:17:16 -0500
+Received: from matheson.swishmail.com ([209.10.110.114]:18903 "EHLO
+	matheson.swishmail.com") by vger.kernel.org with ESMTP
+	id S262039AbVBPPRC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 10:17:02 -0500
+Subject: Re: /proc/*/statm, exactly what does "shared" mean?
+From: "Richard F. Rebel" <rrebel@whenu.com>
+To: Mauricio Lin <mauriciolin@gmail.com>
+Cc: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+In-Reply-To: <3f250c7105021607022362013c@mail.gmail.com>
+References: <1108161173.32711.41.camel@rebel.corp.whenu.com>
+	 <Pine.LNX.4.61.0502121158190.18829@goblin.wat.veritas.com>
+	 <1108219160.12693.184.camel@blue.obulous.org>
+	 <Pine.LNX.4.61.0502121509170.19562@goblin.wat.veritas.com>
+	 <3f250c710502160241222dce47@mail.gmail.com>
+	 <Pine.LNX.4.61.0502161142240.17264@goblin.wat.veritas.com>
+	 <3f250c7105021607022362013c@mail.gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-eU9z0KDtdSJ6+IjhpjRG"
+Organization: Whenu.com
+Date: Wed, 16 Feb 2005 10:17:01 -0500
+Message-Id: <1108567021.32711.529.camel@rebel.corp.whenu.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3-1.1.101mdk 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Klaus Muth wrote:
-> Am Mittwoch, 16. Februar 2005 12:14 schrieb Jonathan Sambrook:
 
-> Server oopsed again 10 minutes ago. Same symptoms. 
-
-<sigh> schade
+--=-eU9z0KDtdSJ6+IjhpjRG
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
 
-> The kernel upgrade did not 
-> help... Would an update to an 2.6 kernel help or should I better turn 
-> hyperthreading off?
+Hello,
 
-My experience is running _modified_ 2.4 kernels. Turning HT off solved 
-the problem here. Of course YMMV if the root cause is different.
+I have heard that this particular information, while very important to
+userland developers like me, is probably too expensive to keep track of
+for most users.
 
-I have no experience of running HT on 2.6. My hunch would be that more 
-HT users run 2.6 than 2.4 nowadays, so the problem would've been raised 
-by now? If so your choice depends on whether the joint benefits of HT 
-and of 2.6 outweigh any effort of moving to 2.6.
+Perhaps a way to enable it for developers, whom are willing to spend the
+cpu cycles, and disable it for regular use would be a solution.
 
-Jonathan
+Would it be possible develop a solution allowing us to enable/disable
+this tracking via a sysctl call?
+
+Richard F. Rebel
+
+On Wed, 2005-02-16 at 11:02 -0400, Mauricio Lin wrote:
+> Hi Hugh,
+>=20
+> Thanks by your suggestion. I did not know that kernel 2.4.29 has
+> changed the statm implementation. As I can see the statm
+> implementation is different between 2.4 and 2.6.
+>=20
+> Let me see if I can use the 2.4.29 statm idea to improve the smaps for
+> kernel 2.6.11-rc.
+>=20
+> BR,
+>=20
+> Mauricio Lin.
+>=20
+> On Wed, 16 Feb 2005 12:00:55 +0000 (GMT), Hugh Dickins <hugh@veritas.com>=
+ wrote:
+> > On Wed, 16 Feb 2005, Mauricio Lin wrote:
+> > > Well, for each vma it is checked how many pages are mapped to rss. So
+> > > I have to check per page if it is allocated in physical memory. I kno=
+w
+> > > that this is a heavy function, but do you have any suggestion to
+> > > improve this?  What do you mean "needs refactoring into pgd_range,
+> > > pud_range, pmd_range, pte_range levels like 2.4's statm"? Could you
+> > > give more details, please?
+> >=20
+> > Just look at, say, linux-2.4.29/fs/proc/array.c proc_pid_statm:
+> > which calls statm_pgd_range which calls statm_pmd_range which
+> > calls statm_pte_range which scans along the array of ptes doing
+> > the pte examination you're doing.  There are plenty of examples
+> > in 2.6.11-rc mm/memory.c of how to do it with pud level too.
+> >=20
+> > Whereas your way starts at the top and descends the tree each time
+> > for every leaf, repeatedly mapping and unmapping the page table if
+> > that pagetable is in highmem.  You took follow_page as your starting
+> > point, which is good for a single pte, but inefficient for many.
+> >=20
+> > Your function(s) will still be heavyweight, but somewhat faster.
+> >=20
+> > Hugh
+> >
+--=20
+Richard F. Rebel
+
+cat /dev/null > `tty`
+
+--=-eU9z0KDtdSJ6+IjhpjRG
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBCE2Ptx1ZaISfnBu0RAqpJAJ49z2xkv5YL3a8O8JrsYAeAQhdDuwCcCtXP
+cff0XwTEfOKXUQGG6V7+2HQ=
+=oDUx
+-----END PGP SIGNATURE-----
+
+--=-eU9z0KDtdSJ6+IjhpjRG--
+

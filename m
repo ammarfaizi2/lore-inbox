@@ -1,55 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262604AbSJIX70>; Wed, 9 Oct 2002 19:59:26 -0400
+	id <S262357AbSJJABB>; Wed, 9 Oct 2002 20:01:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262617AbSJIX70>; Wed, 9 Oct 2002 19:59:26 -0400
-Received: from ams-msg-core-1.cisco.com ([144.254.74.60]:43142 "EHLO
-	ams-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S262604AbSJIX7X>; Wed, 9 Oct 2002 19:59:23 -0400
-Date: Thu, 10 Oct 2002 01:04:39 +0100
-From: Derek Fawcus <dfawcus@cisco.com>
-To: Yuji Sekiya <sekiya@sfc.wide.ad.jp>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Fix Prefix Length of Link-local Addresses
-Message-ID: <20021010010439.C8102@edi-view1.cisco.com>
-References: <20021010002902.A3803@edi-view1.cisco.com> <20021009.162438.82081593.davem@redhat.com> <uu1jv9o3j.wl@sfc.wide.ad.jp> <20021009.164504.28085695.davem@redhat.com> <ur8ez9n8d.wl@sfc.wide.ad.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <ur8ez9n8d.wl@sfc.wide.ad.jp>; from sekiya@sfc.wide.ad.jp on Thu, Oct 10, 2002 at 09:00:34AM +0900
+	id <S262312AbSJJABB>; Wed, 9 Oct 2002 20:01:01 -0400
+Received: from pacific.moreton.com.au ([203.143.238.4]:24288 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S262105AbSJJAAw>; Wed, 9 Oct 2002 20:00:52 -0400
+Message-ID: <3DA4C511.5070905@snapgear.com>
+Date: Thu, 10 Oct 2002 10:08:49 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.5.41uc0 (MMU-less support)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 10, 2002 at 09:00:34AM +0900, Yuji Sekiya wrote:
-> At Wed, 09 Oct 2002 16:45:04 -0700 (PDT),
-> ** David S. Miller <davem@redhat.com> wrote:
-> 
-> >    The reason we change the prefix length  from /10 to /64 is
-> >    following spec and adapting other imprementations.
-> > 
-> > I think Derek's explanation shows that the specification
-> > allows the /10 behavior.
-> 
-> Hmm... we interpret the spec as /64 prefix.
-> 
-> > Also, I suspect that since Derek works for Cisco, some "other
-> > implementations" behave how he describes. :-)
-> 
-> I have cisco box which installed IPv6 IOS.
-> But it defines no prefix length at an interface,
-> 
-> FastEthernet4/1 is up, line protocol is up
->   IPv6 is enabled, link-local address is FE80::201:64FF:FEA3:ED55
-> 
-> and outgoing interface of routing table is NULL ? :-)
-> 
-> L   FE80::/10 [0/0]
->      via ::, Null0, 7w0d
 
-Turn on 'debug ipv6 nd',  'debug ipv6 icmp',  'debug ipv6 pack d'
+Hi All,
 
-Then do 'ping ipv6' specify a link local of say fe80:1910::10 and
-an egress interface,  and watch what happens.
+The latest set of MMU-less support patches are up. You can
+get the all-in-one patch at:
 
-DF
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc0.patch.gz
+
+Change log:
+
+1. patched against 2.5.41
+2. reworked build system (support new kbuild changes)
+3. switch to workqueue's in serial and ethernet drivers
+4. started import Christop Hellwigs MM changes
+     - now CONFIG_MMU and CONFIG_SWAP defines
+     - more patches still to merge
+
+
+You can get smaller patches here:
+
+. FEC (5272) ethernet driver
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc0-fec.patch.gz
+
+. 68k/ColdFire/v850 serial drivers
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc0-serial.patch.gz
+
+. 68328 frame buffer driver
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc0-fb.patch.gz
+
+. FLAT file loader
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc0-binflat.patch.gz
+
+. m68knommu architecture support
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc0-m68knommu.patch.gz
+
+. v850 architecture support
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc0-v850.patch.gz
+
+. no VM memory support
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc0-mmnommu.patch.gz
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+

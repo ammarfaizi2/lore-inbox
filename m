@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261459AbTDBDvL>; Tue, 1 Apr 2003 22:51:11 -0500
+	id <S261454AbTDBDu3>; Tue, 1 Apr 2003 22:50:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261464AbTDBDvL>; Tue, 1 Apr 2003 22:51:11 -0500
-Received: from mail.internetwork-ag.de ([217.6.75.131]:40375 "EHLO
-	mail.internetwork-ag.de") by vger.kernel.org with ESMTP
-	id <S261459AbTDBDvJ>; Tue, 1 Apr 2003 22:51:09 -0500
-Message-ID: <3E8A60B5.E4308534@inw.de>
-Date: Tue, 01 Apr 2003 20:01:57 -0800
-From: Till Immanuel Patzschke <tip@inw.de>
-Organization: interNetwork AG
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-4GB i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [Q] cache/buffers growing constantly (2.4.20aa1)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261459AbTDBDu3>; Tue, 1 Apr 2003 22:50:29 -0500
+Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:20914 "EHLO
+	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id <S261454AbTDBDu2>; Tue, 1 Apr 2003 22:50:28 -0500
+Message-Id: <200304020400.h3240rGi004010@locutus.cmf.nrl.navy.mil>
+To: Till Immanuel Patzschke <tip@inw.de>
+cc: linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-ATM-General] Re: [ATM] second pass at fixing atm spinlock 
+In-reply-to: Your message of "Tue, 01 Apr 2003 16:45:05 PST."
+             <3E8A3291.F8397F43@inw.de> 
+X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
+X-mailer: nmh 1.0
+Date: Tue, 01 Apr 2003 23:00:53 -0500
+From: chas williams <chas@locutus.cmf.nrl.navy.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear list,
+In message <3E8A3291.F8397F43@inw.de>,Till Immanuel Patzschke writes:
+>I've merged your 2.4 patch w/ my changes and check w/ a couple of thousand PPPoA
+>sessions created and destroyed over night (which always triggered the
+>locking/unlocking vcc problems on my SMP box).
 
-I am constantly running a process creating child processes, running them for a
-while, then terminating, restarting and so on...
-The process restarted over and over again is the same (same executable) the
-launching process doesn't stop.
-Running this for a while (or increasing the number of "launchers" but keeping
-the launched process the same all the time lets the buffers/cache constantly
-grow up to the point where all memory is taken and the machine starts
-swapping...
-
-Q:Is there any way to limit the cache/buffe usage? And, if yes, how?
-
-Thanks for the help,
-
-Immanuel
-
+you might still see problem.  i didnt fix the race when opening to
+prevent vpi/vci collisions.  however, i should have a patch tomorrow
+to address this.

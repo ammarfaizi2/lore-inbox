@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132682AbRC2IET>; Thu, 29 Mar 2001 03:04:19 -0500
+	id <S132695AbRC2J2S>; Thu, 29 Mar 2001 04:28:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132683AbRC2IEK>; Thu, 29 Mar 2001 03:04:10 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:18437 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S132682AbRC2IEA>; Thu, 29 Mar 2001 03:04:00 -0500
-Message-ID: <3AC2EC2F.BA7B4868@idb.hist.no>
-Date: Thu, 29 Mar 2001 10:02:55 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: no, da, en
-MIME-Version: 1.0
-To: Ben Ford <ben@kalifornia.com>, linux-kernel@vger.kernel.org
-Subject: Re: Disturbing news..
-In-Reply-To: <01032806093901.11349@tabby> <Pine.GSO.3.96.1010328144551.7198A-100000@laertes> <F6Om1QA+9ew6EwTq@sis-domain.demon.co.uk> <20010328100440.A5941@zalem.puupuu.org> <ZEABaXAGggw6EwTH@sis-domain.demon.co.uk> <3AC1D1B8.9080507@kalifornia.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132694AbRC2J2I>; Thu, 29 Mar 2001 04:28:08 -0500
+Received: from se1.cogenit.fr ([195.68.53.173]:25093 "EHLO se1.cogenit.fr")
+	by vger.kernel.org with ESMTP id <S132688AbRC2J2B>;
+	Thu, 29 Mar 2001 04:28:01 -0500
+Date: Thu, 29 Mar 2001 11:25:47 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Krzysztof Halasa <khc@intrepid.pm.waw.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: configuring net interfaces
+Message-ID: <20010329112547.A23947@se1.cogenit.fr>
+In-Reply-To: <m3itkuq6xt.fsf@intrepid.pm.waw.pl> <20010328182729.A16067@se1.cogenit.fr> <m34rwd8pj2.fsf@intrepid.pm.waw.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m34rwd8pj2.fsf@intrepid.pm.waw.pl>; from khc@intrepid.pm.waw.pl on Thu, Mar 29, 2001 at 01:03:29AM +0200
+X-Organisation: Marie's fan club
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Ford wrote:
+Krzysztof Halasa <khc@intrepid.pm.waw.pl> écrit :
+[...]
+> That's a physical interface like V.35 or RS232.
+
+Ok.
+
+[...]
+> > * n200, t200 ?
 > 
+> What's that?
 
-> There are two problems I see here.  First, there are several known ways
-> to elevate privileges.  
-Fixable, except from guessing the root password which is hard.
+Parameters for retransmission of a trame specified in Q922. t200 is the
+timeout value and n200 the maximal number of retransmissions. They can
+be negocied and default to t200=1,5s, n200=3.
 
-> If a virus can elevate privileges, then it owns
-> you.  Second, this is a multi-OS virus.  If you dual-boot into Windows,
-> any ELF files accessible can be infected.  With this one, that isn't a
-> prob, but when somebody codes in an ext2 driver to their virus, then
-> we've got issues.
+> > Do we put the crc type here ?
+> 
+> I don't think so. Frame Relay uses only standard CRC. Correct me if I'm
+> wrong.
 
-And the only cure then is not make your linux fs accessible from
-windows.  I.e. not on a disk for which windows have a driver
-installed.  Preferably not the same computer.
+Ok.
 
-Or simply "don't run untrusted executables under windows".  Do
-so in linux only, where protection applies.  Do anybody ever
-_need_ to run a program they got in the mail?
+[...]
+> > While we're here, could we agree on the notion of raw hdlc, i.e. :
+> > - no address, no command. crc present (ARPHRD_RAWHDLC ?);
+> > - no address, no command, no crc (ARPHRD_PATHOLOGICHDLC ?).
+> 
+> Do we really need another ARPHRD for that?
+> BTW: What protocol(s) use such CRC-less HDLC?
 
-Helge Hafting
+No protocol I know. Sometime one just want to verify how a driver performs
+when he receives badly fscked data. One can live without it.
+
+-- 
+Ueimor

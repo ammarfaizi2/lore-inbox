@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267957AbUIUSY6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267890AbUIUS2N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267957AbUIUSY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 14:24:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267958AbUIUSY6
+	id S267890AbUIUS2N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 14:28:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267934AbUIUS2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 14:24:58 -0400
-Received: from mail4.utc.com ([192.249.46.193]:54714 "EHLO mail4.utc.com")
-	by vger.kernel.org with ESMTP id S267957AbUIUSY4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 14:24:56 -0400
-Message-ID: <415071D4.9060601@cybsft.com>
-Date: Tue, 21 Sep 2004 13:24:20 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Tue, 21 Sep 2004 14:28:13 -0400
+Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:34058 "EHLO
+	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S267890AbUIUS2I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 14:28:08 -0400
+Date: Tue, 21 Sep 2004 20:28:13 +0200 (CEST)
+From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: RARP support disapeard in kernel 2.6.x ?
+In-Reply-To: <cipqh4$g9d$1@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.60L.0409212019090.15099@rudy.mif.pg.gda.pl>
+References: <Pine.LNX.4.44.0409211359270.5322-100000@localhost.localdomain><Pine.LNX.4.44.0409211359270.5322-100000@localhost.localdomain>
+ <Pine.LNX.4.60L.0409211511290.15099@rudy.mif.pg.gda.pl> <cipqh4$g9d$1@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Mark_H_Johnson@Raytheon.com
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S1
-References: <20040906110626.GA32320@elte.hu> <200409061348.41324.rjw@sisk.pl> <1094473527.13114.4.camel@boxen> <20040906122954.GA7720@elte.hu> <20040907092659.GA17677@elte.hu> <20040907115722.GA10373@elte.hu> <1094597988.16954.212.camel@krustophenia.net> <20040908082050.GA680@elte.hu> <1094683020.1362.219.camel@krustophenia.net> <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu>
-In-Reply-To: <20040919122618.GA24982@elte.hu>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-2020929991-1095791293=:15099"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> i've released the -S1 VP patch:
-> 
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm1-S1
-> 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Two separate oopses this morning running that above patch. One appears 
-to happen in locks_delete_lock. The log output follows. Unfortunately I 
-am not sure what is relevant to the oops and whats not so I am sending 
-it all. Also the trace that was generated when this happened can be 
-found here:
+--8323328-2020929991-1095791293=:15099
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 
-http://www.cybsft.com/testresults/2.6.9-rc2-mm1-VP-S0/lat_trace22.txt
+On Tue, 21 Sep 2004, Bill Davidsen wrote:
+[..]
+>> # rarp -a
+>> This kernel does not support RARP.
+>> 
+>> Maybe I'm wrong but IIRC rarpd as same as arpd was only neccessary for 
+>> large RARP table.
+>
+> Is it possible that you are using an old version of the rarp command which is 
+> trying to use the kernel RARP rather than using the rarpd?
 
-log output:
+Yes.
+rarp from old net-tools still try to open /proc/net/rarp and depending on
+not avalaibability this file prints above message.
 
-http://www.cybsft.com/testresults/2.6.9-rc2-mm1-VP-S0/dump1.txt
+Seem it is undocumented in kernel documentation from where can be 
+downloaded new rarp tool. Anyone know from where it can be downloaded ?
 
-The other appears to happen in __posix_lock_file.
+Previously pointed rarpd also cant be compiled without few changes (last 
+release this package was in 1999).
 
-Trace here:
-
-http://www.cybsft.com/testresults/2.6.9-rc2-mm1-VP-S0/lat_trace23.txt
-
-log output here:
-
-http://www.cybsft.com/testresults/2.6.9-rc2-mm1-VP-S0/dump2.txt
-
-If there is anything else that I can provide on these, or if there is a 
-better way to post this, please let me know.
-
-kr
+kloczek
+-- 
+-----------------------------------------------------------
+*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+-----------------------------------------------------------
+Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+--8323328-2020929991-1095791293=:15099--

@@ -1,69 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262568AbSJTNNb>; Sun, 20 Oct 2002 09:13:31 -0400
+	id <S262646AbSJTN4N>; Sun, 20 Oct 2002 09:56:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262617AbSJTNNb>; Sun, 20 Oct 2002 09:13:31 -0400
-Received: from ns.suse.de ([213.95.15.193]:23050 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S262568AbSJTNNa>;
-	Sun, 20 Oct 2002 09:13:30 -0400
-Mail-Copies-To: never
-To: Andi Kleen <ak@muc.de>
-Cc: Jeff Dike <jdike@karaya.com>, john stultz <johnstul@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>, andrea <andrea@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>,
-       george anzinger <george@mvista.com>,
-       Stephen Hemminger <shemminger@osdl.org>, discuss@x86-64.org
-Subject: Re: [PATCH] linux-2.5.43_vsyscall_A0
-References: <20021019031002.GA16404@averell>
-	<200210190450.XAA06161@ccure.karaya.com>
-	<20021019040238.GA21914@averell>
-From: Andreas Jaeger <aj@suse.de>
-Date: Sun, 20 Oct 2002 15:19:32 +0200
-In-Reply-To: <20021019040238.GA21914@averell> (Andi Kleen's message of "Sat,
- 19 Oct 2002 06:02:38 +0200")
-Message-ID: <u8lm4tcknv.fsf@gromit.moeb>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) XEmacs/21.4 (Artificial
- Intelligence, i386-suse-linux)
+	id <S262648AbSJTN4N>; Sun, 20 Oct 2002 09:56:13 -0400
+Received: from tomts12.bellnexxia.net ([209.226.175.56]:34039 "EHLO
+	tomts12-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S262646AbSJTN4M>; Sun, 20 Oct 2002 09:56:12 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Andries Brouwer <aebr@win.tue.nl>
+Subject: Re: usb storage sddr09
+Date: Sun, 20 Oct 2002 09:52:23 -0400
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+References: <200210172155.49349.tomlins@cam.org> <20021018193523.GA25316@win.tue.nl>
+In-Reply-To: <20021018193523.GA25316@win.tue.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210200952.23430.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@muc.de> writes:
-
-> [full quote for context]
+On October 18, 2002 03:35 pm, Andries Brouwer wrote:
+> On Thu, Oct 17, 2002 at 09:55:49PM -0400, Ed Tomlinson wrote:
+> > In the patch fest in the last couple of days usb storage support for
+> > sddr09 has broken.  I see the following in the log (2.5.43-mm2):
+> >
+> > Oct 17 21:37:07 oscar kernel: sddr09: Found Flash card, ID = 00 00 00 00:
+> > Manuf. unknown, 4096 MB Oct 17 21:37:07 oscar kernel: sda : unsupported
+> > sector size 1.
+> > Oct 17 21:37:07 oscar kernel: SCSI device sda: 0 1-byte hdwr sectors (0
+> > MB)
 >
-> On Sat, Oct 19, 2002 at 06:49:59AM +0200, Jeff Dike wrote:
->> ak@muc.de said:
->> > Guess you'll have some problems then with UML on x86-64, which always
->> > uses vgettimeofday. But it's only used for gettimeofday() currently,
->> > perhaps it's  not that bad when the UML child runs with the host's
->> > time.
->> 
->> It's not horrible, but it's still broken.  There are people who depend
->> on UML being able to keep its own time separately from the host.
->> 
->> > I guess it would be possible to add some support for UML to map own
->> > code over the vsyscall reserved locations. UML would need to use the
->> > syscalls then. But it'll be likely ugly. 
->> 
->> Yeah, it would be.
->> 
->> My preferred solution would be for libc to ask the kernel where the vsyscall
->> area is.  That's reasonably clean and virtualizable.  Andrea doesn't like it
->> because it adds a few instructions to the vsyscall address calculation.
+> Yes. Reverting the 2.5.43 patch on usb/storage fixes this.
 >
-> I would have no problems with adding that to the x86-64 kernel. It could
-> be passed in by the ELF environment vector and added to the ABI. 
-> Overhead should be negligible, it just needs a single table lookup.  
-> Andreas, what do you think ? 
+> > Also attempting to rmmod usb-storage gets:
+> >
+> > Oct 17 21:53:12 oscar kernel: kernel BUG at drivers/base/core.c:269!
+>
+> Yes. I have seen the patch several times on this list.
+> See http://marc.theaimsgroup.com/?l=linux-kernel&m=103479992624108&w=2
 
-Create a new AT_ constant, and pass it via the auxiliary vector and we
-can use it in glibc.
+Both of these are fixed with 2.4.44
 
-Andreas
--- 
- Andreas Jaeger
-  SuSE Labs aj@suse.de
-   private aj@arthur.inka.de
-    http://www.suse.de/~aj
+Thanks
+Ed Tomlinson

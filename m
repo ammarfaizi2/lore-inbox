@@ -1,79 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317581AbSGJTTE>; Wed, 10 Jul 2002 15:19:04 -0400
+	id <S315758AbSGJTQK>; Wed, 10 Jul 2002 15:16:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317582AbSGJTTD>; Wed, 10 Jul 2002 15:19:03 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:35323 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317581AbSGJTTC>; Wed, 10 Jul 2002 15:19:02 -0400
-Message-ID: <3D2C88B2.FF9ECD5C@us.ibm.com>
-Date: Wed, 10 Jul 2002 12:19:14 -0700
-From: Larry Kessler <kessler@us.ibm.com>
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S317329AbSGJTQJ>; Wed, 10 Jul 2002 15:16:09 -0400
+Received: from relay01.valueweb.net ([216.219.253.235]:11539 "EHLO
+	relay01.valueweb.net") by vger.kernel.org with ESMTP
+	id <S315758AbSGJTQI>; Wed, 10 Jul 2002 15:16:08 -0400
+Message-ID: <3D2C88D2.B5FF2DC2@opersys.com>
+Date: Wed, 10 Jul 2002 15:19:46 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
 MIME-Version: 1.0
-To: Kurt Garloff <garloff@suse.de>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Perches, Joe" <joe.perches@spirentcom.com>, thunder@ngforever.de,
-       bunk@fs.tum.de, boissiere@adiglobal.com, linux-kernel@vger.kernel.org,
-       "'Martin.Bligh@us.ibm.com'" <Martin.Bligh@us.ibm.com>,
-       Rusty Russell <rusty@rustcorp.com.au>
+To: John Levon <movement@marcelothewonderpenguin.com>
+CC: Thunder from the hill <thunder@ngforever.de>, Adrian Bunk <bunk@fs.tum.de>,
+       Guillaume Boissiere <boissiere@adiglobal.com>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+       bob <bob@watson.ibm.com>, Richard Moore <richardj_moore@uk.ibm.com>
 Subject: Re: [STATUS 2.5]  July 10, 2002
-References: <629E717C12A8694A88FAA6BEF9FFCD440540BD@brigadoon.spirentcom.com> <E17SMM3-0007Z8-00@the-village.bc.nu> <20020710184922.GN12910@gum01m.etpnet.phys.tue.nl>
+References: <Pine.LNX.4.44.0207101027380.5067-100000@hawkeye.luckynet.adm> <3D2C66D9.AF14035A@opersys.com> <20020710172513.GB49811@compsoc.man.ac.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+John Levon wrote:
+> On Wed, Jul 10, 2002 at 12:54:49PM -0400, Karim Yaghmour wrote:
+> 
+> > In light of the recent discussions, it would be really nice to get a
+> > definitive statement about LTT's inclusion in 2.5.
+> 
+> It has been pointed out to you at least once that it would stand a much
+> better chance if you were to follow the kernel coding style, for one ...
 
-Kurt Garloff wrote:
- 
-> If you want translated kernel messages, use message IDs, that can be parsed
-> and translated in userspace, 
+And if you had actually cared to follow that thread with Roman Zippel to
+its logical conclusion, you would have noticed that patches including an
+update to match the coding style have been made available:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102106555627527&w=2
 
-Agreed.
+> And things like :
+> 
+> +#ifndef CONFIG_SMP /* On an SMP machine NMIs are used to implement a watchdog and will hang
+> +                      the machine if traced. */
+> +        TRACE_TRAP_ENTRY(2, regs->eip);
+> +#endif
+> +
+> 
+> aren't very encouraging.
 
-What's been discussed with Rusty Russell (and I believe he has 
-discussed this with Alan) is not modifying the printks, but providing
-logging macros that keep the format string separate from the vararg list
-(but written to a log file as a single event record).
+Care to comment on why? All what the above says is that this trace point
+shouldn't be active on an SMP box. That's one of the very rare cases
+(if not the only case) where such a build-condition is added. And if this
+really is too much for the kernel crowd's stomach then it is easily remedied.
 
-Then, a user-space utility would read the event record from the log
-and do one of the following:
-1)  printf-style formatting with the original format string, just like
-     printk 
-2a) Use a unique reference code (a hash, generated in the kernel, of 
-    original format string with sourcefile name and function name, for 
-    example) to look-up the non-english format string (similar to the
-    catgets approach).
-or
-2b) Use the format string to look-up its non-english equivalent in
-    a message catalog (similar to the gettext approach).
+I would have thought you had something a little bit more substantial
+to stand against LTT's inclusion.
 
-Rusty's proposal has many other benefits, which I will leave for him
-to describe at the appropriate time, but translation in user-space of
-kernel messages into multiple languages is one of them.
+Karim
 
-In fact, with event logging (not currently part of the base) you can
-"fork" printk() messages both to the current ring buffer (formatted),
-and
-to a separate buffer where the format string and varargs list could
-be kept separate, as described above. 
-
-Existing parsing scripts, sys admins, etc. expect /var/log/messages,
-etc.
-to have pure, unmodified printk messages, so you would not want to touch
-the original printk messages.  However, storing the unformatted event
-data
-separately in its own log file would allow the processing options
-described
-above.  Also, if the variable event data is stored separately from the 
-format string in the event record, parsing of the data by a user-space
-utility is cleaner and more efficient.  
-
-> if somebody really needs it. 
-
-Agreed, again.  If you don't want/need translation, there must be a way
-to
-completely disable it and the extra overhead that makes it possible.
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264877AbUE0Qkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264883AbUE0Que@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264877AbUE0Qkq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 12:40:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264880AbUE0Qkq
+	id S264883AbUE0Que (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 12:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264886AbUE0Que
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 12:40:46 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:30189 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S264877AbUE0Qko convert rfc822-to-8bit (ORCPT
+	Thu, 27 May 2004 12:50:34 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:28064 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264883AbUE0Quc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 12:40:44 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: idebus setup problem (2.6.7-rc1)
-Date: Fri, 28 May 2004 00:38:08 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F842DB1E2@PDSMSX403.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: idebus setup problem (2.6.7-rc1)
-Thread-Index: AcREAkZsEHP8WnQVRZqxb+9Wq1pZ/gAAoQOgAADQHsA=
-From: "Zhu, Yi" <yi.zhu@intel.com>
-To: "Bartlomiej Zolnierkiewicz" <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "Auzanneau Gregory" <mls@reolight.net>,
-       "Jeff Garzik" <jgarzik@pobox.com>
-Cc: <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
-       "Rusty Russell" <rusty@rustcorp.com.au>
-X-OriginalArrivalTime: 27 May 2004 16:38:08.0501 (UTC) FILETIME=[FDFF4A50:01C44408]
+	Thu, 27 May 2004 12:50:32 -0400
+Subject: Re: CONFIG_IRQBALANCE for AMD64?
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Thomas Zehetbauer <thomasz@hostmaster.org>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1085675774.6583.23.camel@hostmaster.org>
+References: <1085629714.6583.12.camel@hostmaster.org>
+	 <40B578F1.3090704@pobox.com>  <1085675774.6583.23.camel@hostmaster.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-lnUY1FiSRF50xb1LoWju"
+Organization: Red Hat UK
+Message-Id: <1085676625.7179.7.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 27 May 2004 18:50:25 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-kernel-owner@vger.kernel.org wrote:
-> Bartlomiej Zolnierkiewicz wrote:
->> 
->> It breaks all "idex=" and "hdx=" options.
->> Please take a look at how ide_setup().
-> 
-> Yes, thanks for pointing out. Maybe we need some wildcard
-> support. If module_param() can do this, that's great.
 
-Does below change acceptable to make module_param support 
-wildcard '?' ?
+--=-lnUY1FiSRF50xb1LoWju
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
---- linux-2.6.6.orig/kernel/params.c        2004-05-28
-00:13:24.931368296 +0800
-+++ linux-2.6.6/kernel/params.c     2004-05-28 00:16:04.406124448 +0800
-@@ -37,7 +37,8 @@ static inline int dash2underscore(char c
- static inline int parameq(const char *input, const char *paramname)
- {
-        unsigned int i;
--       for (i = 0; dash2underscore(input[i]) == paramname[i]; i++)
-+       for (i = 0; paramname[i] == '?' ||
-+            dash2underscore(input[i]) == paramname[i]; i++)
-                if (input[i] == '\0')
-                        return 1;
-        return 0;
 
+> Seems to work, just like the i386 irqbalanced before it has been
+> obsoleted by CONFIG_IRQBALANCE
+
+irqbalanced has NOT been obsoleted by CONFIG_IRQBALANCE.
+
+
+--=-lnUY1FiSRF50xb1LoWju
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAthxRxULwo51rQBIRAo2PAKCHNPyG6t8CbVqadLLCaEKMZDkHbgCgonRu
+ipIX4MLoOqYZKHxhip+PH/A=
+=1E58
+-----END PGP SIGNATURE-----
+
+--=-lnUY1FiSRF50xb1LoWju--
 

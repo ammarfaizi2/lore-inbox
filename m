@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263318AbRF0PQp>; Wed, 27 Jun 2001 11:16:45 -0400
+	id <S263329AbRF0PUz>; Wed, 27 Jun 2001 11:20:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263257AbRF0PQf>; Wed, 27 Jun 2001 11:16:35 -0400
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:23073 "EHLO
-	mailsorter1.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S263318AbRF0PQS>; Wed, 27 Jun 2001 11:16:18 -0400
-Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C9B6C50@nocmail.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'Rik van Riel'" <riel@conectiva.com.br>,
-        "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-Cc: "'esr@thyrsus.com'" <esr@thyrsus.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: RE: Maintainers master list?
-Date: Wed, 27 Jun 2001 11:15:17 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S263334AbRF0PUp>; Wed, 27 Jun 2001 11:20:45 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:23891 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S263329AbRF0PUi>; Wed, 27 Jun 2001 11:20:38 -0400
+Date: Wed, 27 Jun 2001 17:20:34 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Adam <adam@eax.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.x series and mm
+Message-ID: <20010627172034.B16936@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0106271008010.16671-100000@eax.student.umd.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0106271008010.16671-100000@eax.student.umd.edu>; from adam@eax.com on Wed, Jun 27, 2001 at 10:08:15AM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 27, 2001 at 10:08:15AM -0500, Adam wrote:
+> 
+> hello,
+> 	I have question. I have box with kernel 2.2.17pre15
 
->On Tue, 26 Jun 2001, Holzrichter, Bruce wrote:
+upgrade to 2.2.19 or 2.2.20pre
 
->> respect Eric, and all the developers work.  How about starting
->> with a simple MAINTAINERS file maintainer?  Someone to actively
->> follow project developers and contact info?
-
->That's the best idea I've read so far.
-
->Any takers?
-
-Along with some other people that have replied, I would be happy to help out
-any way I can.
-
-Bruce H.
+Andrea

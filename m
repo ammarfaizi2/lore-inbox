@@ -1,35 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbTFFJqO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 05:46:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbTFFJqO
+	id S261422AbTFFJ7n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 05:59:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbTFFJ7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 05:46:14 -0400
-Received: from verein.lst.de ([212.34.189.10]:52178 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S261710AbTFFJqN (ORCPT
+	Fri, 6 Jun 2003 05:59:43 -0400
+Received: from are.twiddle.net ([64.81.246.98]:53384 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id S261422AbTFFJ7m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 05:46:13 -0400
-Date: Fri, 6 Jun 2003 11:59:42 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Kurt.Robideau@comtrol.com
-Cc: linux-kernel@vger.kernel.org
-Subject: rocket driver update backs out fixes
-Message-ID: <20030606095942.GA20568@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch>, Kurt.Robideau@comtrol.com,
-	linux-kernel@vger.kernel.org
+	Fri, 6 Jun 2003 05:59:42 -0400
+Date: Fri, 6 Jun 2003 03:13:13 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Shared Library starter, ld.so
+Message-ID: <20030606101313.GA28939@twiddle.net>
+Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
+	Linux kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.53.0306051045180.6171@chaos>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -2.5 () USER_AGENT_MUTT
+In-Reply-To: <Pine.LNX.4.53.0306051045180.6171@chaos>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why can't you send driver updates to lkml first?  The rocket.c
-update backs out at least the check_region fixes an possibly
-more.  Instead of sending small incremental patches you slap
-in a monster patch that ignores what was there before and does
-silly things like massive cpp abuse.  Also when you change
-the pci probing please make it use a new-style pci driver, etc..
+On Thu, Jun 05, 2003 at 10:46:18AM -0400, Richard B. Johnson wrote:
+> The dynamic linker, provided with RedHat 9 no longer
+> compiles with the de facto standard of having register
+> EDX point to function to be called before exit.
 
-The driver already was a mess and you made it even worse.
+You're wrong.  Indeed, the rh9 crt1.o still expects the value:
+
+
+   8:   50                      push   %eax
+   9:   54                      push   %esp
+   a:   52                      push   %edx		<<==== HERE
+   b:   68 00 00 00 00          push   $0x0
+                        c: R_386_32     __libc_csu_fini
+  10:   68 00 00 00 00          push   $0x0
+                        11: R_386_32    __libc_csu_init
+  15:   51                      push   %ecx
+  16:   56                      push   %esi
+  17:   68 00 00 00 00          push   $0x0
+                        18: R_386_32    main
+  1c:   e8 fc ff ff ff          call   1d <_start+0x1d>
+                        1d: R_386_PC32  __libc_start_main
+
+and ld.so provides the value here:
+
+        # Pass our finalizer function to the user in %edx, as per ELF ABI.\n\
+        leal _dl_fini@GOTOFF(%ebx), %edx\n\
+
+
+
+r~

@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbUEQTo2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262772AbUEQTqo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbUEQTo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 15:44:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbUEQTnB
+	id S262772AbUEQTqo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 15:46:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262897AbUEQTqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 15:43:01 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:37248
+	Mon, 17 May 2004 15:46:34 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:45440
 	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S262468AbUEQTml (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 15:42:41 -0400
+	id S262634AbUEQTq2 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 15:46:28 -0400
 From: Rob Landley <rob@landley.net>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: uspend to Disk - Kernel 2.6.4 vs. r50p
-Date: Tue, 11 May 2004 12:49:24 -0500
+To: =?iso-8859-1?q?J=F6rn=20Engel?= <joern@wohnheim.fh-wedel.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCEMENT PATCH COW] proof of concept impementation of cowlinks
+Date: Wed, 12 May 2004 11:39:58 -0500
 User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <20040429064115.9A8E814D@damned.travellingkiwi.com> <200405082331.30669.rob@landley.net> <20040509214959.GD13603@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20040509214959.GD13603@atrey.karlin.mff.cuni.cz>
+References: <20040506131731.GA7930@wohnheim.fh-wedel.de>
+In-Reply-To: <20040506131731.GA7930@wohnheim.fh-wedel.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200405111249.24492.rob@landley.net>
+Message-Id: <200405121139.58742.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 May 2004 16:49, Pavel Machek wrote:
-> Hi!
->
-> > > If you suspend, mount
-> > > your filesytems, do some work and then resume, you are probably going
-> > > to do some pretty nasty corruption. Just don't do that.
-> > >
-> > > But this problem is shared by swsusp, swsusp2 *and* pmdisk.
-> >
-> > I know.  I also know that ext2 (and derivatives) have both "last mounted"
-> > and "last written to" datestamp fields (other filesystems probably do as
-> > well, but I don't use 'em) and it would be really nice to check those as
-> > matching what they were when you suspended, and abort the resume if they
-> > don't match...
->
-> Well, feel free to code that, that will allow us to kill few
-> warnings... Or rather tone them down. It is still "dont do that"
-> situation.
+On Thursday 06 May 2004 08:17, Jörn Engel wrote:
+> Couldn't sleep last night and finished a first complete version of
+> cowlinks, code-named MAD COW.  It is still based on the stupid old
+> design with a flag to distinguish between regular hard links and
+> cowlinks.  Please don't comment on that design, it's just a proof of
+> concept.
 
-I'll add it to my endless to-do pile, but don't hold your breath.
+Catching up on some really old mail, I thought I'd ask:
 
-> > > > Sigh.  I _really_ don't have time for this right now.  I wonder if it
-> > > > would be possible to just send Patrick some money?
-> > >
-> > > He's out of time, so money is not likely to help. Sending some money
-> > > to Nigel might do the trick ;-).
-> >
-> > His code isn't the one I've gotten to work yet... :)
->
-> 2.4 version should be rather easy to get going...
-> 									Pavel
+For years now I've wanted to use a sendfile variant to tell the system to 
+connect two filehandles from userspace.  Not just web servers want to 
+marshall data from one filehandle into another, things like netcat want to do 
+it between a pipe and a network connection, and I've wrote a couple of data 
+dispatcher daemons that wanted to do it between two network connections.
 
-The last time I booted a 2.4 kernel was 2003.  Every time Nigel's code is 
-mentioned, 2.4 is also mentioned.  I could also downgrade to 2.2 and debug a 
-version written for that, too.  It makes about as much sense to me...
-
-I'll try again when 2.6.6 comes out, as usual...
+Unfortunately, sendfile didn't work generically when I tried it (back under 
+2.4).  Would this infrastructure be a step in the right direction to 
+eliminate gratuitous poll loops (where nobody but me EVER seems to get the 
+"shutdown just one half of the connection" thing right.  My netcat can handle 
+"echo 'GET /' | netcat www.slashdot.org 80".  The standard netcat can't.  
+Yes, I plan to fix the one in busybox eventually...)
 
 Rob
 

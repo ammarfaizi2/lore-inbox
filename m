@@ -1,108 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262776AbTELVRL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 17:17:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262783AbTELVRL
+	id S262731AbTELVOW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 17:14:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbTELVOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 17:17:11 -0400
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:1551 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S262776AbTELVRE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 17:17:04 -0400
-From: "STK" <stk@nerim.net>
-To: "'Jos Hulzink'" <josh@stack.nl>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Cc: "'Zwane Mwaikambo'" <zwane@linuxpower.ca>
-Subject: RE: [RFC] How to fix MPS 1.4 + ACPI behaviour ?
-Date: Mon, 12 May 2003 23:29:35 +0200
-Message-ID: <000b01c318cd$992f92e0$0200a8c0@QUASARLAND>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-In-Reply-To: <200305122250.32897.josh@stack.nl>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2727.1300
-Importance: Normal
+	Mon, 12 May 2003 17:14:21 -0400
+Received: from numenor.qualcomm.com ([129.46.51.58]:955 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id S262731AbTELVOO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 17:14:14 -0400
+Message-Id: <5.1.0.14.2.20030512142208.01bfe4b8@unixmail.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 12 May 2003 14:26:54 -0700
+To: torvalds@transmeta.com
+From: Max Krasnyansky <maxk@qualcomm.com>
+Subject: [BK] Bluetooth fixes for 2.5.bk
+Cc: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus, 
 
-For me the linux kernel should invoke the _PIC method with the right
-parameter.
+I've got a bunch of Bluetooth fixes for you to pull
+       bk://linux-bt.bkbits.net/bt-2.5
 
-Look at the specification Section 
+Mostly module related stuff, plus several small fixes to pass Bluetooth
+qualification tests.
 
-<< ================ Start ================
-5.8.1 _PIC Method
-The \_PIC optional method is to report to the BIOS the current interrupt
-model used by the OS. This
-control method returns nothing. The argument passed into the method
-signifies the interrupt model OSPM
-has chosen, PIC mode, APIC mode, or SAPIC mode. Notice that calling this
-method is optional for OSPM.
-If the method is never called, the BIOS must assume PIC mode. It is
-important that the BIOS save the value
-passed in by OSPM for later use during wake operations.
-_PIC(x):
-_PIC(0) => PIC Mode
-_PIC(1) => APIC Mode
-_PIC(2) => SAPIC Mode
-_PIC(3-n) => Reserved
+This will update the following files:
 
-==================== End ====================>
+ drivers/bluetooth/hci_ldisc.c  |    1 
+ drivers/bluetooth/hci_usb.c    |    6 ++--
+ include/net/bluetooth/l2cap.h  |    8 +++--
+ include/net/bluetooth/rfcomm.h |   10 +++++--
+ net/bluetooth/af_bluetooth.c   |   13 +++++----
+ net/bluetooth/bnep/core.c      |   11 +++++--
+ net/bluetooth/bnep/sock.c      |    7 ----
+ net/bluetooth/l2cap.c          |   53 ++++++++++++++++++++++---------------
+ net/bluetooth/rfcomm/core.c    |   58 ++++++++++++++++++++++++-----------------
+ net/bluetooth/rfcomm/sock.c    |    6 +---
+ net/bluetooth/rfcomm/tty.c     |    9 ++++--
+ net/bluetooth/sco.c            |   10 +------
+ 12 files changed, 111 insertions(+), 81 deletions(-)
 
-==> No MADT table, so ACPI sets up the APIC in PIC mode (which I wonder
-wether correct, but ok)
-For me the kernel should invoke the _PIC method with the right
-parameter, in this case the ACPI module will receive the right table
-during the _PRT
+through these ChangeSets:
 
-Bios ASL code:
-                Method(_PRT)
-                {
-                If(\PICF) <== internal variable set by _PIC
-                {   
-                	==> Returning APIC Mode
-                	Return(APIC)
-                }
-                Else 
-                {
-                	==> Returning PIC Mode
-                	Return(PICM)
-                }
-			}
+<maxk@qualcomm.com> (03/05/09 1.1081.2.5)
+   [Bluetooth] RFCOMM must wait for MSC exchange to complete before sending data.
 
-Regards,
+<maxk@qualcomm.com> (03/05/09 1.1081.2.3)
+   [Bluetooth] Detect and log error condition when first L2CAP fragment is too long.
 
-Yann
+<maxk@qualcomm.com> (03/05/09 1.1081.2.2)
+   [Bluetooth] L2CAP config req/rsp fixes. 
+   We have to set continuation flag in config rsp if it was set in req.
 
+<marcel@holtmann.org> (03/05/09 1.1042.45.5)
+   [Bluetooth] Handle priority bits in parameter negotiation
+   
+   The PN response have to return the same value for the priority
+   bits as in the request. The priority value is now also stored
+   in the rfcomm_dlc structure and the default value is 7.
 
------Original Message-----
-From: Jos Hulzink [mailto:josh@stack.nl] 
-Sent: lundi 12 mai 2003 22:51
-To: STK; 'linux-kernel'
-Cc: 'Zwane Mwaikambo'
-Subject: Re: [RFC] How to fix MPS 1.4 + ACPI behaviour ?
+<marcel@holtmann.org> (03/05/09 1.1042.45.4)
+   [Bluetooth] Send the correct values in RPN response
+   
+   This patch fixes a bug in rfcomm_recv_rpn(), which do not set
+   the correct values for xon_char, xoff_char and flow_ctrl.
 
+<maxk@qualcomm.com> (03/05/08 1.1078.1.5)
+   [Bluetooth] Add required infrastructure for socket module refcounting.
+   Initialize ->owner fields in Bluetooth protocols and drivers.
 
-On Monday 12 May 2003 22:40, STK wrote:
-> Hi,
->
-> If no Multiple APIC Description Table (MADT) is described, in this
-> case the _PIC method can be used to tell the bios to return the right 
-> table (PIC or APIC routing table).
->
-> In this case, if the MPS table describes matches the ACPI APIC table
-> (this is the case, because the ACPI APIC table is built from the MPS 
-> table), you do not need to remap all IRQs.
+<marcel@holtmann.org> (03/05/01 1.1042.45.3)
+   [Bluetooth] Compile fix for URB_ZERO_PACKET
+   
+   This patch fixes the compile problem with URB_ZERO_PACKET.
 
-So, it's more or less a bug in the ACPI code that should do some things
-when 
-no MADT is dectected ? Or do I understand you wrong ?
+Thanks
 
-Jos
+Max
 
+http://bluez.sf.net
+http://vtun.sf.net
 

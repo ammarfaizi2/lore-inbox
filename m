@@ -1,77 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263786AbTFDTWn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 15:22:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263894AbTFDTWn
+	id S263944AbTFDT0H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 15:26:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263943AbTFDT0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 15:22:43 -0400
-Received: from sj-core-3.cisco.com ([171.68.223.137]:46285 "EHLO
-	sj-core-3.cisco.com") by vger.kernel.org with ESMTP id S263786AbTFDTWl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 15:22:41 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Hua Zhong <hzhong@cisco.com>
-Organization: Cisco Systems
-To: torvalds@transmeta.com
-Subject: RE: [PATCH] [2.5] Non-blocking write can block
-Date: Wed, 4 Jun 2003 12:36:08 -0700
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
+	Wed, 4 Jun 2003 15:26:07 -0400
+Received: from mail1.dmailman.com ([64.211.202.75]:28946 "EHLO dmailman.com")
+	by vger.kernel.org with ESMTP id S263928AbTFDT0F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 15:26:05 -0400
+From: "mazi oke" <kaloukk2002@dmailman.com>
+Subject: private
+To: kaloukk2002@dmailman.com
+X-Mailer: CommuniGate Pro Web Mailer v.3.5.7
+Date: Wed, 04 Jun 2003 15:54:04 -0400
+Message-ID: <web-8102589@dmailman.com>
 MIME-Version: 1.0
-Message-Id: <03060412360802.22925@hzhong-lnx.cisco.com>
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Do y ou have that other patch handy? It sounds like that is 
-> the real cause of the problem, and the patch quoted originally 
-> in this thread was a (broken) work-around..
-> 
->                Linus
-> 
+KALOU M OKE 
+Tel 00229-981193 
+fax 00229-323442 
+E-mail:mazioke@caramail.com 
 
-Something like this:
+                   (PRIVATE) 
 
---- n_tty.c.old	2003-06-04 12:28:36.000000000 -0700
-+++ n_tty.c	2003-06-04 12:28:51.000000000 -0700
-@@ -711,6 +711,23 @@
- 	return 0;
- }
- 
-+
-+/*
-+ * Required for the ptys, serial driver etc. since processes
-+ * that attach themselves to the master and rely on ASYNC
-+ * IO must be woken up
-+ */
-+
-+static void n_tty_write_wakeup(struct tty_struct *tty)
-+{
-+	if (tty->fasync)
-+	{
-+ 		set_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
-+		kill_fasync(&tty->fasync, SIGIO, POLL_OUT);
-+	}
-+	return;
-+}
-+
- static void n_tty_receive_buf(struct tty_struct *tty, const unsigned char *cp,
- 			      char *fp, int count)
- {
-@@ -1157,6 +1174,8 @@
- 			while (nr > 0) {
- 				ssize_t num = opost_block(tty, b, nr);
- 				if (num < 0) {
-+					if (num == -EAGAIN)
-+						break;
- 					retval = num;
- 					goto break_out;
- 				}
-@@ -1236,6 +1255,6 @@
- 	normal_poll,		/* poll */
- 	n_tty_receive_buf,	/* receive_buf */
- 	n_tty_receive_room,	/* receive_room */
--	0			/* write_wakeup */
-+ 	n_tty_write_wakeup 	/* write_wakeup */
- };
- 
+Hello Dear, 
+
+I hereby humbly write to solicit for your cooperation and assistance in a mutual beneficial Business transaction that required absolute confidentiality This may come to you as asurprise as we have never meet Before, I got your contact from international Journal which I saw in the office of an International consultant. 
+
+I am the former minister of commerce and industry in Sierra Leone during the regime of the former head of state major Jonny Koromah. The rebel leader who was later forced by the ECOMOG forces and restore the legitimate government of Ahmed Tijan kahba who then ordered for the retirement of all the ministers, top Government officials and some army Generals for alleged corruption and mismanagement of public fund. 
+
+After my retirement, there was civil war in my Country 
+Sierra Leone as a result of that I decided to leave my 
+Country with the help of a friend who is a diplomat in 
+Republic of Benin Embassy in Sierra Leone. 
+
+Now I am in Cotonuo, Republic of Benin, there is available cash of (US18.5 Million Dollars) Eighteen Million Five Hundred Thousand Dollars which has been tactfully secured in a reputable security company, here in Cotonou. This money was then deposited during my tenure as a minister. 
+
+I need your assistant to secure and invest this money in your Country.I don't want to invest this money in this sub region due to poor economic policy, and also for security reasons. 
+
+It is my desire to invest this money in Agriculture 
+Industry or any other business you may suggest. 
+
+Please I need your help, is true we have not meet before but I believe I can trust a person with your kind of reputation with whom I can build a solid bus! iness foundation 
+
+I will compensate you with 15% of the total sum; while the remaining will be for investment according to your valuable advise. If you are interested and ready to assist, contact me immediately on this number: Tel 00229-981193 fax 00229- 
+323442 
+E-mail:mazioke@caramail.com 
+
+Thanks and God bless 
+
+Kalou M. Oke. 
+__________________________________________________________
+Get your Private, Free Email from HTTP://www.DmailMan.Com

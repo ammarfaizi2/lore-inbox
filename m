@@ -1,48 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263591AbTJVMcr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 08:32:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263601AbTJVMcr
+	id S263527AbTJVMcl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 08:32:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263591AbTJVMcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 08:32:47 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:54190 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S263591AbTJVMco (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 08:32:44 -0400
-Message-ID: <3F96793F.7020305@t-online.de>
-Date: Wed, 22 Oct 2003 14:34:07 +0200
-From: Knut Petersen <Knut_Petersen@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031011
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-CC: James Courtier-Dutton <James@superbug.demon.co.uk>
-Subject: Re: VIA IDE performance under 2.6.0-test7/8?
-References: <C0D45ABB3F45D5118BBC00508BC292DB016038F5@imgserv04> <3F957DAC.6080901@superbug.demon.co.uk> <3F9669BF.1040408@t-online.de>
-In-Reply-To: <3F9669BF.1040408@t-online.de>
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Seen: false
-X-ID: ZBRlC-ZFZePWTadPQX753kLvK3KdqPGhJnacjqUP24imo0re7SO6Ej@t-dialin.net
+	Wed, 22 Oct 2003 08:32:41 -0400
+Received: from linuxhacker.ru ([217.76.32.60]:33725 "EHLO shrek.linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S263527AbTJVMch (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 08:32:37 -0400
+Date: Wed, 22 Oct 2003 15:32:09 +0300
+From: Oleg Drokin <green@linuxhacker.ru>
+To: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Badness in as_completed_request at drivers/block/as-iosched.c:919
+Message-ID: <20031022123209.GA2652@linuxhacker.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem solved ...
+Hello!
 
-I wrote that playing around with read ahead settings (hdparm -a ...) did 
-not help.
-In fact I was wrong, I assumed that these had identical meaning in the 
-2.4 and
-2.6 kernel series and tried nothing higher than 255 (2.4.x maximum). 
-With 255
-kernel 2.4.0 performed 50% better than 2.6.0.
+   2.6.0-test8 (current bk), greeted me with "Badness in as_completed_request"
+   message on boot at smartd startup:
+Oct 22 15:19:21 dol-guldur smartd[1225]: Device: /dev/sdb, is SMART capable. Adding to "monitor" list. 
+Oct 22 15:19:21 dol-guldur kernel: Badness in as_completed_request at drivers/block/as-iosched.c:919
+Oct 22 15:19:21 dol-guldur kernel: Call Trace:
+Oct 22 15:19:21 dol-guldur kernel:  [<c01f7660>] as_completed_request+0x1d0/0x210
+Oct 22 15:19:21 dol-guldur kernel:  [<c01efe30>] elv_completed_request+0x20/0x30
+Oct 22 15:19:21 dol-guldur kernel:  [<c01f2246>] __blk_put_request+0x36/0xb0
+Oct 22 15:19:21 dol-guldur smartd[1225]: Started monitoring 1 ATA and 2 SCSI devices 
+Oct 22 15:19:22 dol-guldur kernel:  [<c01f3186>] end_that_request_last+0x56/0xe0
+Oct 22 15:19:22 dol-guldur kernel:  [<c0215a74>] scsi_end_request+0xb4/0xe0
+Oct 22 15:19:22 dol-guldur kernel:  [<c0215e28>] scsi_io_completion+0x1c8/0x4f0
+Oct 22 15:19:22 dol-guldur kernel:  [<c0236149>] sd_rw_intr+0x89/0x270
+Oct 22 15:19:22 dol-guldur kernel:  [<c0211024>] scsi_finish_command+0x84/0xf0
+Oct 22 15:19:22 dol-guldur kernel:  [<c0210e0f>] scsi_softirq+0xdf/0x230
+Oct 22 15:19:22 dol-guldur kernel:  [<c0124feb>] do_softirq+0xcb/0xd0
+Oct 22 15:19:22 dol-guldur kernel:  [<c010bc05>] do_IRQ+0x105/0x130
+Oct 22 15:19:22 dol-guldur kernel:  [<c0105000>] rest_init+0x0/0x60
+Oct 22 15:19:22 dol-guldur kernel:  [<c0109f20>] common_interrupt+0x18/0x20
+Oct 22 15:19:22 dol-guldur kernel:  [<c0107210>] default_idle+0x0/0x40
+Oct 22 15:19:22 dol-guldur kernel:  [<c0105000>] rest_init+0x0/0x60
+Oct 22 15:19:22 dol-guldur kernel:  [<c010723f>] default_idle+0x2f/0x40
+Oct 22 15:19:22 dol-guldur kernel:  [<c01072cb>] cpu_idle+0x3b/0x50
+Oct 22 15:19:22 dol-guldur kernel:  [<c0330947>] start_kernel+0x167/0x180
+Oct 22 15:19:22 dol-guldur kernel:  [<c0330510>] unknown_bootoption+0x0/0x110
+Oct 22 15:19:22 dol-guldur kernel: 
+Oct 22 15:19:22 dol-guldur kernel: Badness in as_completed_request at drivers/block/as-iosched.c:919
+Oct 22 15:19:22 dol-guldur kernel: Call Trace:
+Oct 22 15:19:22 dol-guldur kernel:  [<c01f7660>] as_completed_request+0x1d0/0x210
+Oct 22 15:19:22 dol-guldur kernel:  [<c01efe30>] elv_completed_request+0x20/0x30
+Oct 22 15:19:22 dol-guldur kernel:  [<c01f2246>] __blk_put_request+0x36/0xb0
+Oct 22 15:19:22 dol-guldur smartd[1225]: Device: /dev/sdb, SMART Failure: DATA CHANNEL IMPENDING FAILURE DATA ERROR RATE TOO HIGH 
+Oct 22 15:19:22 dol-guldur kernel:  [<c01f3186>] end_that_request_last+0x56/0xe0
+Oct 22 15:19:22 dol-guldur kernel:  [<c0215a74>] scsi_end_request+0xb4/0xe0
+Oct 22 15:19:22 dol-guldur kernel:  [<c0215e28>] scsi_io_completion+0x1c8/0x4f0
+Oct 22 15:19:22 dol-guldur kernel:  [<c0236149>] sd_rw_intr+0x89/0x270
+Oct 22 15:19:22 dol-guldur kernel:  [<c0211024>] scsi_finish_command+0x84/0xf0
+Oct 22 15:19:22 dol-guldur kernel:  [<c0210e0f>] scsi_softirq+0xdf/0x230
+Oct 22 15:19:22 dol-guldur kernel:  [<c0124feb>] do_softirq+0xcb/0xd0
+Oct 22 15:19:22 dol-guldur kernel:  [<c010bc05>] do_IRQ+0x105/0x130
+Oct 22 15:19:22 dol-guldur kernel:  [<c0105000>] rest_init+0x0/0x60
+Oct 22 15:19:22 dol-guldur kernel:  [<c0109f20>] common_interrupt+0x18/0x20
+Oct 22 15:19:22 dol-guldur kernel:  [<c0107210>] default_idle+0x0/0x40
+Oct 22 15:19:22 dol-guldur kernel:  [<c0105000>] rest_init+0x0/0x60
+Oct 22 15:19:22 dol-guldur kernel:  [<c010723f>] default_idle+0x2f/0x40
+Oct 22 15:19:22 dol-guldur kernel:  [<c01072cb>] cpu_idle+0x3b/0x50
+Oct 22 15:19:22 dol-guldur kernel:  [<c0330947>] start_kernel+0x167/0x180
+Oct 22 15:19:22 dol-guldur kernel:  [<c0330510>] unknown_bootoption+0x0/0x110
+Oct 22 15:19:22 dol-guldur kernel: 
+Oct 22 15:19:23 dol-guldur smartd: smartd startup succeeded
 
-After hdparm -a 8192 /dev/hd?: 2.6.0 performs 10% better than 2.4.0
+/dev/sdb is on aic7xxx-compatible scsi controller.
 
-Shouln´t the default settings be corrected?
+2.6.0-test7 have not shown anything like this.
+Hope that helps
 
-cu,
-Knut Petersen
-
+Bye,
+    Oleg

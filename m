@@ -1,112 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289081AbSBSAf1>; Mon, 18 Feb 2002 19:35:27 -0500
+	id <S289089AbSBSAvB>; Mon, 18 Feb 2002 19:51:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289084AbSBSAfS>; Mon, 18 Feb 2002 19:35:18 -0500
-Received: from holomorphy.com ([216.36.33.161]:16015 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S289081AbSBSAfE>;
-	Mon, 18 Feb 2002 19:35:04 -0500
-Date: Mon, 18 Feb 2002 16:34:50 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: linux-kernel@vger.kernel.org, riel@surriel.com, davem@redhat.com,
-        rwhron@earthlink.net
-Subject: Re: [PATCH] [rmap] operator-sparse Fibonacci hashing of waitqueues
-Message-ID: <20020219003450.GF3511@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	linux-kernel@vger.kernel.org, riel@surriel.com, davem@redhat.com,
-	rwhron@earthlink.net
-In-Reply-To: <20020217090111.GF832@holomorphy.com> <E16cwJZ-0000jZ-00@starship.berlin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <E16cwJZ-0000jZ-00@starship.berlin>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S289096AbSBSAuv>; Mon, 18 Feb 2002 19:50:51 -0500
+Received: from mail.gmx.de ([213.165.64.20]:14561 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S289089AbSBSAum>;
+	Mon, 18 Feb 2002 19:50:42 -0500
+Message-ID: <3C71A149.3030706@GMX.li>
+Date: Tue, 19 Feb 2002 01:50:17 +0100
+From: Jan Schubert <Jan.Schubert@GMX.li>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, boris@kista.gajba.net
+Subject: Re: mdacon driver updates
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 17, 2002 10:01 am, William Lee Irwin III wrote:
->> After distilling with hpa's help the results of some weeks-old
->> numerological experiments^W^Wnumber crunching, I've devised a patch
->> here for -rmap to make the waitqueue hashing somewhat more palatable
->> for SPARC and several others.
->> 
->> This patch uses some operator-sparse Fibonacci hashing primes in order
->> to allow shift/add implementations of the hash function used for hashed
->> waitqueues.
->> 
->> Dan, Dave, could you take a look here and please comment?
+I've posted a small fix to mdacon.c at the end of last year (while 
+Marcello was in vacation). It has'nt made it to the kernel yet, nor was 
+there any feedback. I've thought, thats the way like open source works...
 
-On Mon, Feb 18, 2002 at 11:31:15PM +0100, Daniel Phillips wrote:
-> Could you explain in very simple terms, suitable for Aunt Tillie (ok, not
-> *that* simple) how the continued fraction works, how it's notated, and how
-> the terms of the expansion relate to good performance as a hash?
+So, here we go again (against 2.4.17; my MDA is detected, but not 
+initialized, see my last posting):
 
-Do you want it just in a post or in-line?
+--- drivers/video/mdacon.c.orig    Sun Dec 30 02:44:25 2001
++++ drivers/video/mdacon.c    Sun Dec 30 21:36:50 2001
+@@ -24,6 +24,7 @@
+  *
+  *  Changelog:
+  *  Paul G. (03/2001) Fix mdacon= boot prompt to use __setup().
++ *  20011230 Jan.Schubert@GMX.li - consider non-Hercules MDA compatible
+  */
 
-Here's the posted brief version:
+ #include <linux/types.h>
+@@ -291,6 +292,10 @@
+                                break;
+                }
+        }
++       else {  /* consider non-Hercules as Hercules-compatible */
++               mda_type = TYPE_HERC;
++               mda_type_name = "Hercules compatible (hopefully)";
++       }
 
-Numbers have "integer parts" and "fractional parts", for instance, if
-you have a number such as 10 1/2 (ten and one half) the integer part
-is 10 and the fractional part is 1/2. The fractional part of a number
-x is written {x}.
+        return 1;
+ }
+@@ -342,9 +347,8 @@
+                return NULL;
+        }
 
-Now, there is something called the "spectrum" of a number, which for
-a number x is the set of all the numbers of the form n * x, where n
-is an integer. So we have {1*x}, {2*x}, {3*x}, and so on.
+-       if (mda_type != TYPE_MDA) {
+-               mda_initialize();
+-       }
++       /* at this point, we found an MDA */
++       mda_initialize();
 
-If we want to measure how well a number distributes things we can try
-to see how uniform the spectrum is as a distribution. There is a
-theorem which states the "most uniform" distribution results from the
-number phi = (sqrt(5)-1)/2, which is related to Fibonacci numbers.
+        /* cursor looks ugly during boot-up, so turn it off */
+        mda_set_cursor(mda_vram_len - 1);
 
-The continued fraction of phi is
-
-0 + 1
-   -----
-   1 + 1
-      -----
-      1 + 1
-         -----
-         1 + 1
-            -----
-            1 + 1
-                ...
-
-where it's 1's all the way down. Some additional study also revealed
-that how close the continued fraction of a number is to phi is related
-to how uniform the spectrum is. For brevity, I write continued fractions
-in-line, for instance, 0,1,1,1,1,... for phi, or 0,1,2,3,4,... for
-
-0 + 1
-   -----
-   1 + 2
-      -----
-      1 + 3
-         -----
-         1 + 4
-            ....
-
-One way to evaluate these is to "chop off" the fraction at some point
-(for instance, where I put ...) and then reduce it like an ordinary
-fraction expression.
-
-Fibonacci hashing considers the number p/2^n where n is BITS_PER_LONG
-and p is a prime number, and this is supposed to have a relationship
-to how evenly-distributed all the n-bit numbers multiplied by p in
-n-bit arithmetic are. Which is where the hash functions come in, since
-you want hash functions to evenly distribute things. There are reasons
-why primes are better, too.
-
-And I think that covers most of what you had in mind.
-
-In my own opinion, this stuff borders on numerology, but it seems to be
-a convenient supply of hash functions that pass chi^2 tests on the
-bucket distributions, so I sort of tolerate it. If I'm not using a strict
-enough test then I'm all ears...
-
-Cheers,
-Bill

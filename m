@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131344AbRDYRij>; Wed, 25 Apr 2001 13:38:39 -0400
+	id <S130507AbRDYSGf>; Wed, 25 Apr 2001 14:06:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130900AbRDYRi3>; Wed, 25 Apr 2001 13:38:29 -0400
-Received: from china.patternbook.com ([216.254.75.60]:36345 "EHLO
-	free.transpect.com") by vger.kernel.org with ESMTP
-	id <S130487AbRDYRiN>; Wed, 25 Apr 2001 13:38:13 -0400
-Date: Wed, 25 Apr 2001 13:38:04 -0500
-From: Whit Blauvelt <whit@transpect.com>
-To: Tim Moore <timothymoore@bigfoot.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19 Realaudio masq problem
-Message-ID: <20010425133804.A1094@free.transpect.com>
-In-Reply-To: <20010424201403.A1909@free.transpect.com> <3AE621D1.FE45602B@bigfoot.com>
+	id <S130532AbRDYSGZ>; Wed, 25 Apr 2001 14:06:25 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:37637 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S130507AbRDYSGJ>;
+	Wed, 25 Apr 2001 14:06:09 -0400
+Date: Wed, 25 Apr 2001 14:07:56 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+Subject: CML2 1.2.5 is available
+Message-ID: <20010425140756.A24344@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AE621D1.FE45602B@bigfoot.com>; from timothymoore@bigfoot.com on Tue, Apr 24, 2001 at 06:01:05PM -0700
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 24, 2001 at 06:01:05PM -0700, Tim Moore wrote:
+The latest version is always available at http://www.tuxedo.org/~esr/cml2/
 
-> rtsp://rm.on24.com/media/news/04192001/palumbo_ted6.rm
-> --stop--
-> http://rm.on24.com/media/news/04192001/palumbo_ted6.rm
+Release 1.2.5: Wed Apr 25 13:55:02 EDT 2001
+	* Synchronized with 2.4.4-pre6.
+	* Fixed KEY_HOME bug reported by Alex L. Mauer.
+	* Tom Rini's next round of PPC rules patches.
+	* Reference manual updated to reflect gcml implementation experience.
 
-Hmm, the rtsp: fails while the http: works for that one. But then a tcp
-connection doesn't depend on the realaudio masq module.
+Just another point release.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-> Try '# strace /usr/bin/X11/realplay On24ram.asp > log' and see where the
-> connect fails if you aren't getting specific error messages.
-
-Unfortunately this spits out a bunch of stuff and then totally freezes up my
-KDE 2.1.1 desktop. Probably totally unrelated, but that's what happens - the
-part of the log that ends up in the frozen display doesn't tell me much, and
-have to go to shell and kill strace to unfreeze things.
-
-Could the problem be that I have realplay 8.0.3.412 on the systems here and
-they've introduced some bug or incompatibility?
-
-Whit
-
-
+A human being should be able to change a diaper, plan an invasion,
+butcher a hog, conn a ship, design a building, write a sonnet, balance
+accounts, build a wall, set a bone, comfort the dying, take orders, give
+orders, cooperate, act alone, solve equations, analyze a new problem,
+pitch manure, program a computer, cook a tasty meal, fight efficiently,
+die gallantly. Specialization is for insects.
+	-- Robert A. Heinlein, "Time Enough for Love"

@@ -1,32 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263572AbTCUJy3>; Fri, 21 Mar 2003 04:54:29 -0500
+	id <S263582AbTCUKKJ>; Fri, 21 Mar 2003 05:10:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263574AbTCUJy3>; Fri, 21 Mar 2003 04:54:29 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:772 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263572AbTCUJy2>;
-	Fri, 21 Mar 2003 04:54:28 -0500
-Date: Thu, 20 Mar 2003 21:51:44 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, vojtech@ucw.cz
-Subject: Time problems in 2.5.65
-Message-ID: <20030320205144.GB739@elf.ucw.cz>
+	id <S263585AbTCUKKJ>; Fri, 21 Mar 2003 05:10:09 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:30733 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S263582AbTCUKKI>; Fri, 21 Mar 2003 05:10:08 -0500
+Date: Fri, 21 Mar 2003 11:21:08 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andi Kleen <ak@suse.de>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: Re: share COMPATIBLE_IOCTL()s across architectures
+Message-ID: <20030321102108.GA2458@atrey.karlin.mff.cuni.cz>
+References: <20030319232157.GA13415@elf.ucw.cz> <20030319.160130.112180221.davem@redhat.com> <20030320193212.GA312@elf.ucw.cz> <1048191889.15338.189.camel@averell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <1048191889.15338.189.camel@averell>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-Bad things happen on 2.5.65 (and it was there in 2.5.64, too). Time in
-emacs jumps ~hour forward and then stays there. No ntpd complains in
-syslog and time of all syslog messages is monotically
-increasing. Anyone seen that before? Athlon notebook.
-								Pavel
+> > >    This patche moves common COMPATIBLE_IOCTLs to
+> > >    include/linux/compat_ioctl.h, enabling pretty nice cleanups:
+> > > 
+> > > Please be careful.  For anything non-trivial there can be major
+> > > differences between compat layers.
+> > 
+> > I'm trying to be carefull. How common are ioctls that are
+> > COMPATIBLE_IOCTL(foo) on one arch, but not on another? So far I tried
+> > to decide, and mostly decided that one architecture was simply
+> > missing...
+> 
+> The only issue I'm aware of are structures with long long. IA64 and
+> x86-64 are special in that long long has a different alignmnet in 32bit
+> and 64bit (4 bytes in 32bit, 8 bytes in 64bit). All the other archs with
+> compat code have always 8 byte alignment. This means if sparc64 doesn't
+> do a conversion, but x86-64 does you cannot put it into the COMPAT_IOCTL
+> list. Make sure you only use the common set.
+> 
+> Fortunately long long is not that common and many uses of it are already
+> 8 byte aligned, but not all are.
 
+Okay, I was carefull this time to only include common set. (I still
+think that most differences are simple bugs).
+
+									Pavel
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

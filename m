@@ -1,81 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266149AbUGOCPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266205AbUGOCVA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266149AbUGOCPX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 22:15:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266154AbUGOCPX
+	id S266205AbUGOCVA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 22:21:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266209AbUGOCVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 22:15:23 -0400
-Received: from mailgate2.mysql.com ([213.136.52.47]:14771 "EHLO
-	mailgate.mysql.com") by vger.kernel.org with ESMTP id S266149AbUGOCPN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 22:15:13 -0400
-Subject: Re: VM Problems in 2.6.7 (Too active OOM Killer)
-From: Peter Zaitsev <peter@mysql.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@osdl.org>, andrea@suse.de,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040715015431.GF3411@holomorphy.com>
-References: <1089771823.15336.2461.camel@abyss.home>
-	 <20040714031701.GT974@dualathlon.random>
-	 <1089776640.15336.2557.camel@abyss.home>
-	 <20040713211721.05781fb7.akpm@osdl.org>
-	 <1089848823.15336.3895.camel@abyss.home>
-	 <20040714154427.14234822.akpm@osdl.org>
-	 <1089851451.15336.3962.camel@abyss.home>
-	 <20040715015431.GF3411@holomorphy.com>
-Content-Type: text/plain
-Organization: MySQL
-Message-Id: <1089857602.15336.4120.camel@abyss.home>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 14 Jul 2004 19:13:23 -0700
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Jul 2004 22:21:00 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:25449 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S266205AbUGOCUy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 22:20:54 -0400
+To: long <tlnguyen@snoqualmie.dp.intel.com>
+Cc: ak@muc.de, akpm@osdl.org, greg@kroah.com, jgazik@pobox.com,
+       linux-kernel@vger.kernel.org, tom.l.nguyen@intel.com,
+       zwane@linuxpower.ca
+Subject: Re: [PATCH]2.6.7 MSI-X Update
+X-Message-Flag: Warning: May contain useful information
+References: <200407132202.i6DM2hRa007928@snoqualmie.dp.intel.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Wed, 14 Jul 2004 19:14:22 -0700
+In-Reply-To: <200407132202.i6DM2hRa007928@snoqualmie.dp.intel.com> (long's
+ message of "Tue, 13 Jul 2004 15:02:43 -0700")
+Message-ID: <528ydmqao1.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 15 Jul 2004 02:14:22.0144 (UTC) FILETIME=[71528C00:01C46A11]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-14 at 18:54, William Lee Irwin III wrote:
+Long, welcome back.  I will review your patch as soon as I have a
+little free time.
 
-> The only method the kernel now has to relocate userspace memory is IO.
-> When mlocked, or if anonymous when there's no swap, it's pinned.
+    Roland> 2) removing this overloaded function from free_irq() will
+    Roland> also make driver code clearer and easier to maintain.
 
-OK. So it is practically technical difficulty rather than fundamental
-reason ?   Why "move to other zone" way is not implemented ? It normally
-should be cheaper than IO ?
+    long> I need this overloaded function to keep track of the state
+    long> of each MSI/MSI-X vector. This allows me to generate a
+    long> BUG_ON() if driver calls
+    long> pci_disable_msi()/pci_disable_msix() without calling
+    long> free_irq() for all MSI/MSI-X vector(s).
 
+I think it's OK to keep track of which MSI/MSI-X vectors have ISRs
+attached and which don't.  However I don't think free_irq() should
+return a vector to the free pool (that might be used by other
+devices).  In other words it should be OK for a correct driver to do
 
-> On Wed, Jul 14, 2004 at 05:30:52PM -0700, Peter Zaitsev wrote:
-> > Aha I see. So user level memory allocations can't cause OOM only kernel
-> > level allocations can ?   In this case why do not you have some reserved
-> > amount of space for these types of allocations by default ? 
-> 
-> Userspace allocations can also trigger OOM, it's merely that in this
-> case only allocations restricted to ZONE_NORMAL or below, e.g. kernel
-> allocations, are affected. Your memory pressure is restricted to one zone.
+	pci_enable_msix(pdev...);
+	request_irq(msix_vector1);
+	free_irq(msix_vector1);
+	request_irq(msix_vector1);
+	free_irq(msix_vector1);
+	pci_disable_msix(pdev...);
 
-Right. After being explained what without swap you have all pages pinned
-it makes sense.  On other hand  why user Allocation will trigger OOM if
-there are pages in other zone which still can be used ? Or are there any
-restriction on this ?
+(obviously with some code in between operations).
 
+I think we agree on this and I will read your code to find out what
+you actually do but I just wanted to make my proposed interface clear.
 
-> 
-> In order to relocate a userspace page, the kernel performs IO to write
-> the page to some backing store, then lazily faults it back in later. When
-> the userspace page lacks a backing store, e.g. anonymous pages on
-> swapless systems, Linux does not now understand how to relocate them.
-
-Can't it just be just (theoretically) moved to other zone with
-appropriate system tables modifications ? 
-
-Well anyway it is good to hear "pinned anonymous" is only issue on
-swapless systems.   Together with the fact what 2.6 VM does not seems to
-swap without a good reason as 2.4 one did, I perhaps can just have swap
-file enabled. 
-
-
--- 
-Peter Zaitsev, Senior Support Engineer
-MySQL AB, www.mysql.com
-
-
-
+Thanks,
+  Roland

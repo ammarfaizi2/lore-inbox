@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287254AbSACNGL>; Thu, 3 Jan 2002 08:06:11 -0500
+	id <S287258AbSACNKb>; Thu, 3 Jan 2002 08:10:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287258AbSACNGC>; Thu, 3 Jan 2002 08:06:02 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:11277 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S287254AbSACNFu>; Thu, 3 Jan 2002 08:05:50 -0500
-Message-ID: <3C345493.5040800@evision-ventures.com>
-Date: Thu, 03 Jan 2002 13:54:43 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Nathan Bryant <nbryant@allegientsystems.com>
-CC: linux-kernel@vger.kernel.org, tom@infosys.tuwien.ac.at
-Subject: Re: [Fwd: i810_audio]
-In-Reply-To: <3C3382CA.3000503@allegientsystems.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S287269AbSACNKV>; Thu, 3 Jan 2002 08:10:21 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:56328 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S287258AbSACNKO>; Thu, 3 Jan 2002 08:10:14 -0500
+Message-Id: <200201031310.g03DA8rB021258@pincoya.inf.utfsm.cl>
+To: "Eric S. Raymond" <esr@thyrsus.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems? 
+In-Reply-To: Message from "Eric S. Raymond" <esr@thyrsus.com> 
+   of "Wed, 02 Jan 2002 17:34:19 CDT." <20020102173419.A21165@thyrsus.com> 
+Date: Thu, 03 Jan 2002 10:10:07 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Bryant wrote:
+"Eric S. Raymond" <esr@thyrsus.com> said:
+[...]
 
-> [oops, resending because i used the old lkml address by accident]
->
-> Hi Tom,
->
-> Can you have a look at Doug Ledford's 0.13 driver? this incorporates 
-> most or all of the fixes you mentioned, except for SiS support, and 
-> some other fixes; it hasn't been incorporated into the main kernel 
-> quite yet because it needs more testing. 
+> What?  Perhaps we're talking at cross-prorposes here.  What I'm proposing
+> is that /proc/dmi should be a world-readable /proc file with the property
+> that 
+> 	cat /proc/dmi
+> 
+> gives you a DMI report.  No root privileges or SUID programs needed.
+> Surely that would be an improvement on having to run Arjan's dmidecode as
+> root or requiring it to be SUID.
 
-
-Let me allow for a bit of advertising... Hist SiS changes work fine for 
-me with the exception
-of recording.,
-
-
+You seem to assume that in-kernel code is automatically safe...
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136668AbREARPs>; Tue, 1 May 2001 13:15:48 -0400
+	id <S136671AbREARXS>; Tue, 1 May 2001 13:23:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136666AbREARPn>; Tue, 1 May 2001 13:15:43 -0400
-Received: from bigmama.rhoen.de ([62.67.55.51]:60433 "EHLO rhoen.de")
-	by vger.kernel.org with ESMTP id <S136670AbREARP2>;
-	Tue, 1 May 2001 13:15:28 -0400
-Date: Tue, 1 May 2001 19:12:50 +0200
-To: Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.4-ac2
-Message-ID: <20010501191250.A669@macbeth.rhoen.de>
-In-Reply-To: <20010501170632.A1057@werewolf.able.es> <Pine.LNX.4.21.0105011644170.1399-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <Pine.LNX.4.21.0105011644170.1399-100000@localhost.localdomain>; from hugh@veritas.com on Tue, May 01, 2001 at 04:50:52PM +0100
-From: boris <boris@macbeth.rhoen.de>
+	id <S136672AbREARXI>; Tue, 1 May 2001 13:23:08 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:1035 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S136671AbREARXC>; Tue, 1 May 2001 13:23:02 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: isa_read/write not available on ppc - solution suggestions ??
+Date: 1 May 2001 10:22:39 -0700
+Organization: A poorly-installed InterNetNews site
+Message-ID: <9cmrcv$20e$1@penguin.transmeta.com>
+In-Reply-To: <OF7A9C6B22.E1638E60-ON85256A3F.004EADC7@urscorp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 01, 2001 at 04:50:52PM +0100, Hugh Dickins wrote:
- 
-> Don't ask me why, but I think you may find it's Peter's patch to
-> the women-and-children-first in kernel/fork.c: I'm not yet running
-> -ac2, but I am trying that patch, fine on UP but hanging right there
-> (well, I get a "go go go" message too) on SMP.
-> 
-> Try reversing the:
-> 
-> -	p->counter = current->counter;
-> -	current->counter = 0;
-> +	p->counter = (current->counter + 1) >> 1;
-> +	current->counter >>= 1;
-> +	current->policy |= SCHED_YIELD;
-> 
-> and see if that works for you too.
+In article <OF7A9C6B22.E1638E60-ON85256A3F.004EADC7@urscorp.com>,
+ <mike_phillips@urscorp.com> wrote:
+>>mike_phillips@urscorp.com wrote:
+>>> 
+>>> To get the pcmcia ibmtr driver (ibmtr/ibmtr_cs) working on ppc, all the
+>>> isa_read/write's have to be changed to regular read/write due to the 
+>lack
+>>> of the isa_read/write functions for ppc.
+>
+>> Treat it like a PCI device and use ioremap().  Then change isa_readl()
+>> to readl() etc.
+>
+>Bleurgh, the latest version of the driver (not in the kernel yet) searches 
+>for turbo based cards by checking the isa address space from 0xc0000 - 
+>0xe0000 in 8k chunks. So we'd have to ioremap each 8k section, check it, 
+>find out the adapter isn't there and then iounmap it. 
+>
+>Oh well, if that's what it takes =:0
 
-OK works here ...
+I would suggest the opposite approach instead: make the PPC just support
+isa_readx/isa_writex instead.
 
+Much simpler, and doesn't need changes to (correct) driver sources.
 
-                 boris
- 
+I bet that the patch will be smaller too. It's a simple case of
+ - do the ioremap() _once_ at bootup, save the result in a static
+   variable somewhere.
+ - implement the (one-liner) isa_readx/isa_writex functions.
 
+On many architectures you don't even need to do the ioremap, as it's
+always available (same as on x86).
+
+		Linus

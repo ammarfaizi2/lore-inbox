@@ -1,22 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262094AbULLTqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbULLTus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262094AbULLTqO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 14:46:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbULLTqN
+	id S261889AbULLTus (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 14:50:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbULLTus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 14:46:13 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:44049 "HELO
+	Sun, 12 Dec 2004 14:50:48 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:55569 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262094AbULLTqE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 14:46:04 -0500
-Date: Sun, 12 Dec 2004 20:45:55 +0100
+	id S262096AbULLTtP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 14:49:15 -0500
+Date: Sun, 12 Dec 2004 20:49:03 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: "Petri T. Koistinen" <petri.koistinen@iki.fi>,
-       linux-kernel@vger.kernel.org, vojtech@suse.cz,
-       linux-input@atrey.karlin.mff.cuni.cz
-Subject: [2.6 patch] fm801_gp_probe: fix use after free
-Message-ID: <20041212194555.GE22324@stusta.de>
+To: netdev@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove unused net/sunrpc/svcauth_des.c
+Message-ID: <20041212194903.GG22324@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,22 +22,232 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below by "Petri T. Koistinen" <petri.koistinen@iki.fi> in 
-Rusty's trivial patches is IMHO a candidate for 2.6.10 .
+I wasn't able to find any usage of this file.
+
+
+diffstat output:
+ net/sunrpc/svcauth_des.c |  215 ---------------------------------------
+ 1 files changed, 215 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc3/drivers/input/gameport/fm801-gp.c	2004-10-19 14:34:00.000000000 +1000
-+++ .27568.trivial/drivers/input/gameport/fm801-gp.c	2004-12-05 11:06:01.000000000 +1100
-@@ -98,8 +98,8 @@ static int __devinit fm801_gp_probe(stru
- 	pci_enable_device(pci);
- 	gp->gameport.io = pci_resource_start(pci, 0);
- 	if ((gp->res_port = request_region(gp->gameport.io, 0x10, "FM801 GP")) == NULL) {
--		kfree(gp);
- 		printk("unable to grab region 0x%x-0x%x\n", gp->gameport.io, gp->gameport.io + 0x0f);
-+		kfree(gp);
- 		return -1;
- 	}
- 
+--- linux-2.6.10-rc2-mm4-full/net/sunrpc/svcauth_des.c	2004-10-18 23:54:37.000000000 +0200
++++ /dev/null	2004-11-25 03:16:25.000000000 +0100
+@@ -1,215 +0,0 @@
+-/*
+- * linux/net/sunrpc/svcauth_des.c
+- *
+- * Server-side AUTH_DES handling.
+- * 
+- * Copyright (C) 1996, 1997 Olaf Kirch <okir@monad.swb.de>
+- */
+-
+-#include <linux/types.h>
+-#include <linux/sched.h>
+-#include <linux/sunrpc/types.h>
+-#include <linux/sunrpc/xdr.h>
+-#include <linux/sunrpc/svcauth.h>
+-#include <linux/sunrpc/svcsock.h>
+-
+-#define RPCDBG_FACILITY	RPCDBG_AUTH
+-
+-/*
+- * DES cedential cache.
+- * The cache is indexed by fullname/key to allow for multiple sessions
+- * by the same user from different hosts.
+- * It would be tempting to use the client's IP address rather than the
+- * conversation key as an index, but that could become problematic for
+- * multi-homed hosts that distribute traffic across their interfaces.
+- */
+-struct des_cred {
+-	struct des_cred *	dc_next;
+-	char *			dc_fullname;
+-	u32			dc_nickname;
+-	des_cblock		dc_key;		/* conversation key */
+-	des_cblock		dc_xkey;	/* encrypted conv. key */
+-	des_key_schedule	dc_keysched;
+-};
+-
+-#define ADN_FULLNAME		0
+-#define ADN_NICKNAME		1
+-
+-/*
+- * The default slack allowed when checking for replayed credentials
+- * (in milliseconds).
+- */
+-#define DES_REPLAY_SLACK	2000
+-
+-/*
+- * Make sure we don't place more than one call to the key server at
+- * a time.
+- */
+-static int			in_keycall;
+-
+-#define FAIL(err) \
+-	{ if (data) put_cred(data);			\
+-	  *authp = rpc_autherr_##err;			\
+-	  return;					\
+-	}
+-
+-void
+-svcauth_des(struct svc_rqst *rqstp, u32 *statp, u32 *authp)
+-{
+-	struct svc_buf	*argp = &rqstp->rq_argbuf;
+-	struct svc_buf	*resp = &rqstp->rq_resbuf;
+-	struct svc_cred	*cred = &rqstp->rq_cred;
+-	struct des_cred	*data = NULL;
+-	u32		cryptkey[2];
+-	u32		cryptbuf[4];
+-	u32		*p = argp->buf;
+-	int		len   = argp->len, slen, i;
+-
+-	*authp = rpc_auth_ok;
+-
+-	if ((argp->len -= 3) < 0) {
+-		*statp = rpc_garbage_args;
+-		return;
+-	}
+-
+-	p++;					/* skip length field */
+-	namekind = ntohl(*p++);			/* fullname/nickname */
+-
+-	/* Get the credentials */
+-	if (namekind == ADN_NICKNAME) {
+-		/* If we can't find the cached session key, initiate a
+-		 * new session. */
+-		if (!(data = get_cred_bynick(*p++)))
+-			FAIL(rejectedcred);
+-	} else if (namekind == ADN_FULLNAME) {
+-		p = xdr_decode_string(p, &fullname, &len, RPC_MAXNETNAMELEN);
+-		if (p == NULL)
+-			FAIL(badcred);
+-		cryptkey[0] = *p++;		/* get the encrypted key */
+-		cryptkey[1] = *p++;
+-		cryptbuf[2] = *p++;		/* get the encrypted window */
+-	} else {
+-		FAIL(badcred);
+-	}
+-
+-	/* If we're just updating the key, silently discard the request. */
+-	if (data && data->dc_locked) {
+-		*authp = rpc_autherr_dropit;
+-		_put_cred(data);	/* release but don't unlock */
+-		return;
+-	}
+-
+-	/* Get the verifier flavor and length */
+-	if (ntohl(*p++) != RPC_AUTH_DES && ntohl(*p++) != 12)
+-		FAIL(badverf);
+-
+-	cryptbuf[0] = *p++;			/* encrypted time stamp */
+-	cryptbuf[1] = *p++;
+-	cryptbuf[3] = *p++;			/* 0 or window - 1 */
+-
+-	if (namekind == ADN_NICKNAME) {
+-		status = des_ecb_encrypt((des_block *) cryptbuf,
+-					 (des_block *) cryptbuf,
+-					 data->dc_keysched, DES_DECRYPT);
+-	} else {
+-		/* We first have to decrypt the new session key and
+-		 * fill in the UNIX creds. */
+-		if (!(data = get_cred_byname(rqstp, authp, fullname, cryptkey)))
+-			return;
+-		status = des_cbc_encrypt((des_cblock *) cryptbuf,
+-					 (des_cblock *) cryptbuf, 16,
+-					 data->dc_keysched,
+-					 (des_cblock *) &ivec,
+-					 DES_DECRYPT);
+-	}
+-	if (status) {
+-		printk("svcauth_des: DES decryption failed (status %d)\n",
+-				status);
+-		FAIL(badverf);
+-	}
+-
+-	/* Now check the whole lot */
+-	if (namekind == ADN_FULLNAME) {
+-		unsigned long	winverf;
+-
+-		data->dc_window = ntohl(cryptbuf[2]);
+-		winverf = ntohl(cryptbuf[2]);
+-		if (window != winverf - 1) {
+-			printk("svcauth_des: bad window verifier!\n");
+-			FAIL(badverf);
+-		}
+-	}
+-
+-	/* XDR the decrypted timestamp */
+-	cryptbuf[0] = ntohl(cryptbuf[0]);
+-	cryptbuf[1] = ntohl(cryptbuf[1]);
+-	if (cryptbuf[1] > 1000000) {
+-		dprintk("svcauth_des: bad usec value %u\n", cryptbuf[1]);
+-		if (namekind == ADN_NICKNAME)
+-			FAIL(rejectedverf);
+-		FAIL(badverf);
+-	}
+-	
+-	/*
+-	 * Check for replayed credentials. We must allow for reordering
+-	 * of requests by the network, and the OS scheduler, hence we
+-	 * cannot expect timestamps to be increasing monotonically.
+-	 * This opens a small security hole, therefore the replay_slack
+-	 * value shouldn't be too large.
+-	 */
+-	if ((delta = cryptbuf[0] - data->dc_timestamp[0]) <= 0) {
+-		switch (delta) {
+-		case -1:	
+-			delta = -1000000;
+-		case 0:
+-			delta += cryptbuf[1] - data->dc_timestamp[1];
+-			break;
+-		default:
+-			delta = -1000000;
+-		}
+-		if (delta < DES_REPLAY_SLACK)
+-			FAIL(rejectedverf);
+-#ifdef STRICT_REPLAY_CHECKS
+-		/* TODO: compare time stamp to last five timestamps cached
+-		 * and reject (drop?) request if a match is found. */
+-#endif
+-	}
+-
+-	now = xtime;
+-	now.tv_secs -= data->dc_window;
+-	if (now.tv_secs < cryptbuf[0] ||
+-	    (now.tv_secs == cryptbuf[0] && now.tv_usec < cryptbuf[1]))
+-		FAIL(rejectedverf);
+-
+-	/* Okay, we're done. Update the lot */
+-	if (namekind == ADN_FULLNAME)
+-		data->dc_valid = 1;
+-	data->dc_timestamp[0] = cryptbuf[0];
+-	data->dc_timestamp[1] = cryptbuf[1];
+-
+-	put_cred(data);
+-	return;
+-garbage:
+-	*statp = rpc_garbage_args;
+-	return;
+-}
+-
+-/*
+- * Call the keyserver to obtain the decrypted conversation key and
+- * UNIX creds. We use a Linux-specific keycall extension that does
+- * both things in one go.
+- */
+-static struct des_cred *
+-get_cred_byname(struct svc_rqst *rqstp, u32 *authp, char *fullname, u32 *cryptkey)
+-{
+-	static int	in_keycall;
+-	struct des_cred	*cred;
+-
+-	if (in_keycall) {
+-		*authp = rpc_autherr_dropit;
+-		return NULL;
+-	}
+-	in_keycall = 1;
+-	in_keycall = 0;
+-	return cred;
+-}
 

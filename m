@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268653AbTBZFrO>; Wed, 26 Feb 2003 00:47:14 -0500
+	id <S268658AbTBZFv5>; Wed, 26 Feb 2003 00:51:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268656AbTBZFrO>; Wed, 26 Feb 2003 00:47:14 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:48646 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id <S268653AbTBZFrN>; Wed, 26 Feb 2003 00:47:13 -0500
-Date: Wed, 26 Feb 2003 14:56:59 +0900 (JST)
-Message-Id: <20030226.145659.39100680.yoshfuji@linux-ipv6.org>
-To: davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix for "Too many arguments for pnp_activate_dev()"
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20030226.144806.06041481.yoshfuji@linux-ipv6.org>
-References: <Pine.LNX.4.44.0302261256510.1039-100000@thor.cantech.net.au>
-	<20030226.144806.06041481.yoshfuji@linux-ipv6.org>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-2022-jp
+	id <S268659AbTBZFv5>; Wed, 26 Feb 2003 00:51:57 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:47042 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S268658AbTBZFv4>; Wed, 26 Feb 2003 00:51:56 -0500
+Date: Tue, 25 Feb 2003 22:01:20 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Rik van Riel <riel@imladris.surriel.com>
+cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>,
+       Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sf.et,
+       linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <10220000.1046239279@[10.10.2.4]>
+In-Reply-To: <20030226053805.GK10411@holomorphy.com>
+References: <20030225174359.GA10411@holomorphy.com>
+ <20030225175928.GP29467@dualathlon.random>
+ <20030225185008.GF10396@holomorphy.com>
+ <20030225191817.GT29467@dualathlon.random> <372680000.1046201260@flay>
+ <20030225203001.GV29467@dualathlon.random> <417110000.1046206424@flay>
+ <20030225211718.GY29467@dualathlon.random>
+ <20030225212635.GE10411@holomorphy.com>
+ <Pine.LNX.4.50L.0302260221380.17379-100000@imladris.surriel.com>
+ <20030226053805.GK10411@holomorphy.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030226.144806.06041481.yoshfuji@linux-ipv6.org> (at Wed, 26 Feb 2003 14:48:06 +0900 (JST)), YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org> says:
-
-> > 	The 2.5.63 kernel contains changes to pnp.h that mean the template arg
-> > is nolonger there.  The object compiles with this patch.
+>>> My impression thus far is that the anonymous case has not been pressing
+>>> with respect to space consumption or cpu time once the file-backed code
+>>> is in place, though if it resurfaces as a serious concern the anonymous
+>>> rework can be pursued (along with other things).
 > 
-> Yes, I sent similar patch yesterday.
-> Here's the revised patch for other drivers, too.
+> On Wed, Feb 26, 2003 at 02:24:18AM -0300, Rik van Riel wrote:
+>> ... but making the anonymous pages use an object based
+>> scheme probably will make things too expensive.
+>> IIRC the object based reverse map patches by bcrl and
+>> davem both failed on the complexities needed to deal
+>> with anonymous pages.
+>> My instinct is that a hybrid system will work well in
+>> most cases and the worst case with mapped files won't
+>> be too bad.
+> 
+> The boxen I'm supposed to babysit need a high degree of resource
+> consciousness wrt. lowmem allocations, so there is a clear voice
 
-Ah, ChangeSet 1.1057 has fixed most of this problem.
-http://linux.bkbits.net:8080/linux-2.5/cset@1.1057?nav=index.html
+It seemed, at least on the simple kernel compile tests that I did, that all
+the long chains are not anonymous. It killed 95% of the space issue, which
+given the simplicity of the patch was pretty damned stunning. Yes, there's
+a pointer per page I guess we could kill in the struct page itself, but I
+think you already have a better method for killing mem_map bloat ;-)
 
-Please apply following patch.
-
-Index: sound/oss/ad1848.c
-===================================================================
-RCS file: /cvsroot/usagi/usagi/kernel/linux25/sound/oss/ad1848.c,v
-retrieving revision 1.1.1.9
-diff -u -r1.1.1.9 ad1848.c
---- sound/oss/ad1848.c	16 Feb 2003 04:06:51 -0000	1.1.1.9
-+++ sound/oss/ad1848.c	26 Feb 2003 05:34:51 -0000
-@@ -2987,7 +2987,7 @@
- 	if (err < 0)
- 		return(NULL);
- 
--	if((err = pnp_activate_dev(dev,NULL)) < 0) {
-+	if((err = pnp_activate_dev(dev)) < 0) {
- 		printk(KERN_ERR "ad1848: %s %s config failed (out of resources?)[%d]\n", devname, resname, err);
- 
- 		pnp_device_detach(dev);
-
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+M.

@@ -1,70 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262487AbUJ0Q3P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262512AbUJ0QeR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262487AbUJ0Q3P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 12:29:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbUJ0Q1t
+	id S262512AbUJ0QeR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 12:34:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262532AbUJ0QeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 12:27:49 -0400
-Received: from merkurneu.hrz.uni-giessen.de ([134.176.2.3]:3506 "EHLO
-	merkurneu.hrz.uni-giessen.de") by vger.kernel.org with ESMTP
-	id S262487AbUJ0QRr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 12:17:47 -0400
-Date: Wed, 27 Oct 2004 18:17:13 +0200 (CEST)
-From: Sergei Haller <Sergei.Haller@math.uni-giessen.de>
-X-X-Sender: gc1007@fb07-2go.math.uni-giessen.de
-To: Andreas Klein <Andreas.C.Klein@physik.uni-wuerzburg.de>
-Cc: Andi Kleen <ak@muc.de>, Andrew Walrond <andrew@walrond.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
-Subject: Re: solution Re: lost memory on a 4GB amd64
-In-Reply-To: <Pine.LNX.4.58.0410271751330.3903@pluto.physik.uni-wuerzburg.de>
-Message-Id: <Pine.LNX.4.58.0410271809090.10573@fb07-2go.math.uni-giessen.de>
-References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au>
- <200409241315.42740.andrew@walrond.org> <Pine.LNX.4.58.0410221053390.17491@fb07-2go.math.uni-giessen.de>
- <200410221026.22531.andrew@walrond.org> <20041022182446.GA77384@muc.de>
- <Pine.LNX.4.58.0410231220400.17491@fb07-2go.math.uni-giessen.de>
- <20041023164902.GB52982@muc.de> <Pine.LNX.4.58.0410241133400.17491@fb07-2go.math.uni-giessen.de>
- <Pine.LNX.4.58.0410271704050.3903@pluto.physik.uni-wuerzburg.de>
- <Pine.LNX.4.58.0410271718050.10573@fb07-2go.math.uni-giessen.de>
- <Pine.LNX.4.58.0410271751330.3903@pluto.physik.uni-wuerzburg.de>
-Organization: University of Giessen * Germany
+	Wed, 27 Oct 2004 12:34:11 -0400
+Received: from mail4.speakeasy.net ([216.254.0.204]:51434 "EHLO
+	mail4.speakeasy.net") by vger.kernel.org with ESMTP id S262512AbUJ0Qbz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 12:31:55 -0400
+Message-ID: <417FCD78.6020807@speakeasy.net>
+Date: Wed, 27 Oct 2004 12:31:52 -0400
+From: Andrew <cmkrnl@speakeasy.net>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041020)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-HRZ-JLUG-MailScanner-Information: Passed JLUG virus check
-X-HRZ-JLUG-MailScanner: Found to be clean
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [Patch] 2.6.10.rc1.bk6 /lib/kobject_uevent.c buffer issues
+References: <20041027142925.GA17484@imladris.arnor.me> <20041027152134.GA13991@kroah.com>
+In-Reply-To: <20041027152134.GA13991@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Oct 2004, Andreas Klein (AK) wrote:
 
-AK> > The next difference: 
-AK> > You have the S2885 (thunder K8W) and S2875S (tiger K8W single processor) 
-AK> > boards and I have a S2875 (tiger K8W double processor)
-AK> 
-AK> The boards are nearly identical (on-board lan is different, and your 
-AK> memory-slots are connected to one CPU).
+Greg KH wrote:
+> 
+> 
+> Why not just use the same buffer?  We should be able to do that.
+> 
+> 
+> I'd prefer we use the same buffer.  Care to respin your patch?
+> 
 
-I don't think that LAN is of any importance for our problems. 
+Sure, I can only see two ways of achieving that however.
+1) Change the API of kset_hotplug_ops.hotplug() to return the amount
+    of consumed buffer (and possibly an updated value for i (num_envp)
+    and then changing every real function that implements that interface
+    or
+2) Spin through the envp[] starting at i to NUM_ENVP looking for a NULL
+    pointer dropping back 1 (last_used) then do a
+    scratch += strlen(envp[last_used]) + 1
 
-But I was told (see previous messages) that the fact that all memory slots
-are connedted to one CPU makes a non-NUMA board of it (S2875).
+I don't know if you would rather keep the kset_hotplug_ops.hotplug() API
+unchanged and have a "find the NULL" or vice-versa? -- or are both
+too ugly? Ultimately the first option would generate the "cleanest"
+solution, but I would be wary to change an API (especially one I didn't
+create myself)
 
-AK> If all memory modules are installed for one CPU, I have your problems. 
+I can also see variation of 2), where buffer is prefilled with something
+like '0xff' then the find the null would run in reverse from
+buffer+BUFFER_SIZE-1.  Either way with 2), the reservation in envp[] for
+the seq_num would have to stay, but its locaton in buffer would be at the
+end.  As a bonus of course then the call to send_uevent could see the
+entire buffer.
 
-I see.
+I'm looking now for how many changes would be required to do option 1.
 
-AK> Additionaly there are some other problems that only occur, when the 
-AK> modules are installed one pair for each CPU.
-
-IIRC [I might be wrong], Andrew is running this board (S2885) with exactly
-this memory configuration without problems.
+Andrew
 
 
 
-c ya
-        Sergei
--- 
---------------------------------------------------------------------  -?)
-         eMail:       Sergei.Haller@math.uni-giessen.de               /\\
--------------------------------------------------------------------- _\_V
-Be careful of reading health books, you might die of a misprint.
-                -- Mark Twain
+> thanks,
+> 
+> greg k-h
+> 
+> 

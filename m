@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288769AbSAELeW>; Sat, 5 Jan 2002 06:34:22 -0500
+	id <S288775AbSAELmY>; Sat, 5 Jan 2002 06:42:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288773AbSAELeM>; Sat, 5 Jan 2002 06:34:12 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:62470 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S288769AbSAELeB>;
-	Sat, 5 Jan 2002 06:34:01 -0500
-Date: Sat, 5 Jan 2002 12:33:46 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Peter Osterlund <petero2@telia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.2-pre3] Harddisk Performance
-Message-ID: <20020105123346.X8673@suse.de>
-In-Reply-To: <20011229162930.GA317@elfie.cavy.de> <20011229181717.C1821@suse.de> <m2sn9m5bcv.fsf@pengo.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m2sn9m5bcv.fsf@pengo.localdomain>
+	id <S288776AbSAELmO>; Sat, 5 Jan 2002 06:42:14 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:54285 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S288775AbSAELmC>; Sat, 5 Jan 2002 06:42:02 -0500
+Date: Sat, 5 Jan 2002 12:41:40 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: <puw@cola.teststation.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [FIX] missing piece from fs/super.c in -pre8
+In-Reply-To: <Pine.LNX.4.33.0201042017410.1371-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0201051218560.3900-100000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 04 2002, Peter Osterlund wrote:
-> Jens Axboe <axboe@suse.de> writes:
+On Fri, 4 Jan 2002, Linus Torvalds wrote:
+
 > 
-> > On Sat, Dec 29 2001, Heinz Diehl wrote:
-> > >
-> > > Running 2.5.2-pre3, hdparm shows up very poor harddisk performance
-> > > on my system compared to 2.4.x:
+> On Fri, 4 Jan 2002, Alexander Viro wrote:
 > >
-> > Yes I just noticed that too (someone else reported it) -- seems to be
-> > due to missed merges, I'm investigating.
+> > Linus, I doubt that making the thing inline was a good idea.  Reason: for
+> > filesystems like NFS we almost definitely want something like server name
+> > + root path to identify the superblock.  And that can easily grow past
+> > 32 bytes.
 > 
-> I have found that if the elevator says BACK_MERGE or FRONT_MERGE, but
-> the request queue doesn't allow the merge, the request will be put
-> last in the queue instead of next to the request where the merge would
-> have been done if allowed.
+> Since it is only used for printouts, I'd much rather have simpler code.
 
-Excellent spotting! Applied.
+FWIW, smbfs will want to know the servername + "share" used to mount it.
+It will use that info to get smbconnect to do the proper magic to get a
+new connection. So it doesn't have to be just printouts.
 
--- 
-Jens Axboe
+If this field is meant to be accessed by the fs code then I could put that
+info there. Or someone could set it to dev_name in get_sb_nodev (if that
+string is what I think it is).
+
+Or I can do what I do now and pass it as a separate option and keep it in
+a smbfs private area.
+
+/Urban
 

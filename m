@@ -1,244 +1,234 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbUAXUVs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 15:21:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbUAXUVs
+	id S261298AbUAXUX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 15:23:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbUAXUX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 15:21:48 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23265 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261188AbUAXUVj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 15:21:39 -0500
-Message-ID: <4012D3C6.1050805@pobox.com>
-Date: Sat, 24 Jan 2004 15:21:26 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Sat, 24 Jan 2004 15:23:29 -0500
+Received: from fep21-0.kolumbus.fi ([193.229.0.48]:41895 "EHLO
+	fep21-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S261298AbUAXUXS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 15:23:18 -0500
+Date: Sat, 24 Jan 2004 22:23:12 +0200 (EET)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: makisara@kai.makisara.local
+To: Darren Dupre <darren@dmdtech.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1 Oops when attempting to access /dev/st0 without st module
+ loaded
+In-Reply-To: <002e01c3e2b1$6414f650$1e01a8c0@dmdtech2>
+Message-ID: <Pine.LNX.4.58.0401242210210.9128@kai.makisara.local>
+References: <002e01c3e2b1$6414f650$1e01a8c0@dmdtech2>
 MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>
-CC: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-       linux-kernel@vger.kernel.org, Netdev <netdev@oss.sgi.com>
-Subject: Re: [PATCH] [2.4] forcedeth network driver
-References: <4012BF44.9@colorfullife.com>
-In-Reply-To: <4012BF44.9@colorfullife.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
-> Jeff wrote:
+On Sat, 24 Jan 2004, Darren Dupre wrote:
+
+> I was about to do a tape backup, so I did the following:
 > 
->> * Interrupt handler is SCARY.  You can potentially take and release 
->> the spinlock -many times- during a single interrupt.
->>
-> I think that can happen only in theory: A new packet is completed while 
-> the driver processes rx packets. I all normal cases there should be one 
-> spinlock operation per tx irq, and 0 per rx irq.
-> And error handling IMHO doesn't count: it should be rare.
-> Or do I overlook a common case?
-
-Any amount of load at all will lead to multiple interations of the 
-master loop in the interrupt handler.
-
-
->>> +#define NV_MIIPHY_DELAY    10
->>> +#define NV_MIIPHY_DELAYMAX    10000
->>
->>
->> Style:  it's fairly silly to mix enums and constants.
->>  
->>
-> Right now: enum for the nic registers, #define for the rest. If you 
-> don't like it I can change it.
-
-enums are definitely preferred...  communicates more type/symbol 
-information to the compiler and more symbol info to the debugger.
-
-
->>> +/* General driver defaults */
->>> +#define NV_WATCHDOG_TIMEO    (2*HZ)
->>
->>
->> this seems too short, and might trigger on normal events?
->>  
->>
-> I think I copied it from another driver - which value would you recommend?
-
-5 seconds is the norm, but it also depends on whether your link 
-interrupt is 100% reliable.  If you don't have to synchronize the link 
-watchdog timeout with other driver-private timers, the task is easier.
-
-Tangent -- you may wish to check for link in ->tx_timeout(), before 
-resetting the NIC.  Again, this depends on link interrupt/timer setup as 
-well.  The basic point is that TX timeout -may- occur because link went 
-away.  One way to handle this is to ensure that link-down events are 
-always noticed before the watchdog timer kicks.  Another way to handle 
-this is to simply check for link when ->tx_timeout() is called.
-
-
->>> +static inline struct fe_priv *get_nvpriv(struct net_device *dev)
->>> +{
->>> +    return (struct fe_priv *) dev->priv;
->>> +}
->>
->>
->> What's the point of this wrapper?
->>
->> You don't need to cast from a void pointer, either.
->>  
->>
-> I usually try to write code that compiles as cpp - is that a forbidden 
-> in kernel modules?
-
-It's pointless in C, and so I've been stripping such casts out of all 
-net drivers when I find them.
-
-
->>> +/*
->>> + * alloc_rx: fill rx ring entries.
->>> + * Return 1 if the allocations for the skbs failed and the
->>> + * rx engine is without Available descriptors
->>> + */
->>> +static int alloc_rx(struct net_device *dev)
->>> +{
->>
->>
-> [snip]
+> modprobe advansys (automaticaly loads scsi_mod first)
 > 
->>> +    return 0;
->>> +}
->>
->>
->> skb_reserve() seems to be missing
->>  
->>
-> Do you have specs that show that all nForce versions support unaligned 
-> buffers? skb_reserve is a performance feature, I don't want to add it 
-> yet. Testing that it works is on our TODO list.
+> tar --exclude=/sys --exclude=/proc --exclude=/mnt -cvf /dev/st0 /
+> which results in a segmentation fault as soon as tar is executed.
+> 
+> If I load the st module and try to backup, it says no such device
+> 
+> I believe it did this because I forgot to modprobe st (shouldn't it be done
+> automatically?) which I normally do but forgot to do this time around. I
+> keep all this stuff as modules becuase I like to be able to unhook the tape
+> drive and use it on other machines without having to reboot.
+> 
+Have you loaded and unloaded the module after booting the kernel but 
+before this has happened? If you have, the patch at the end of this 
+message should help. (This is the same patch posted to linux-scsi earlier 
+today).
 
-hmmmm, is nForce ever found on non-x86 boxes?  I would think that 
-skb_reserve might be -required- for some platforms.
+The problem is that st_remove() did not call cdev_umap() before 
+cdev_del(). The device was deleted but it was left in a list where chrdev_open()
+finds this non-existing device.
 
+If you have not loaded and unloaded the st module after reboot, then you 
+have another problem.
 
->> I wonder about calling dev_kfree_skb() from dev->tx_timeout() with 
->> dev->xmit_lock held...
->>  
->>
-> Is that bug in the networking core still not fixed?
+(The patch is against 2.6.2-rc1 but it should apply also to 2.6.1. It also 
+solves the "sleeping function called from invalid context" bug.)
 
-I am not aware of a bug in this area.
-
-
->>> +    /* 2) check that the packets were not sent already: */
->>> +    tx_done(dev);
->>
->>
->> bug:  tx_done unconditionally calls dev_kfree_skb_irq(), but here we 
->> are not in an interrupt.
->>  
->>
-> What is the xxx_kfree_skb_xxx function that just works?
-
-dev_kfree_skb_any
-
-
->>> +        /*
->>> +         * the packet is for us - immediately tear down the pci 
->>> mapping, and
->>> +         * prefetch the first cacheline of the packet.
->>> +         */
->>> +        pci_unmap_single(np->pci_dev, np->rx_dma[i],
->>> +                np->rx_skbuff[i]->len,
->>> +                PCI_DMA_FROMDEVICE);
->>> +        prefetch(np->rx_skbuff[i]->data);
->>
->>
->> is this just guessing?  or has this actually shown some value?
->>
->> I would prefer not to put stuff like this in unless it shows a 
->> measureable CPU usage or cache miss impact.
->>  
->>
-> Just guessing - it shouldn't hurt. CPU usage won't be important until 
-> nForce supports GigE. Should I remove it for now?
-
-I would rather remove it.  "premature optimization" and all that. 
-Otherwise this guess will be cut-n-pasted into other drivers, I 
-guarantee, all without any verification of the guess... :)
-
-
->>> +/*
->>> + * change_mtu: dev->change_mtu function
->>> + * Called with dev_base_lock held for read.
->>> + */
->>> +static int change_mtu(struct net_device *dev, int new_mtu)
->>> +{
->>> +    if (new_mtu > DEFAULT_MTU)
->>> +        return -EINVAL;
->>> +    dev->mtu = new_mtu;
->>> +    return 0;
->>> +}
->>
->>
->> bug #1:  have you tested changing the MTU while the NIC is actually 
->> running?
->>
-> What should the nic do? I'll continue to allocate 1.8 kB buffers because 
-> I don't know how to reconfigure the nic hardware to reject large packets.
-
-Fair enough.  You may wish to (after testing!) increase DEFAULT_MTU by 4 
-bytes, to support VLAN.
-
->> bug #2:  need a minimum bound for the MTU as well
->>  
->>
-> What is the minimum MTU? I remember a flamewar lkml about 200 byte MTU 
-> for noisy radio links.
-
-Usually the ethernet standard 60 is fine.
-
-
->>> +    for (i=0; ; i++) {
->>> +        events = readl(base + NvRegIrqStatus) & NVREG_IRQSTAT_MASK;
->>> +        writel(NVREG_IRQSTAT_MASK, base + NvRegIrqStatus);
->>> +        pci_push(base);
->>> +        dprintk(KERN_DEBUG "%s: irq: %08x\n", dev->name, events);
->>> +        if (!(events & np->irqmask))
->>> +            break;
->>
->>
->> bug:  check for 0xffffffff
->>  
->>
-> What causes 0xfffffff? Hotplug? I think the irq handler could leave 
-> immediately if a reserved bit is set. I'll add that.
-
-Yes, hot unplug or hardware fault.
-
-
->>> +    if (i == 32) {
->>> +        printk(KERN_INFO "%s: open: failing due to lack of suitable 
->>> PHY.\n",
->>> +                dev->name);
->>> +        ret = -EINVAL;
->>> +        goto out_drain;
->>> +    }
->>
->>
->> bug:  check #0 after checking #1, before giving up
->>
->>  
->>
-> MII id 0 a valid mii address? Or is that broadcast to all?
-
-It's usually something akin to an alias of one of the other phy id's, 
-but if you found -no- phys at all, it wouldn't hurt to try zero.
-
-Thanks,
-
-	Jeff
-
-
-
-
+-- 
+Kai
+---------------------------------------8<--------------------------------------
+--- linux-2.6.2-rc1/drivers/scsi/st.c	2004-01-20 20:16:20.000000000 +0200
++++ linux-2.6.2-rc1-k1/drivers/scsi/st.c	2004-01-22 23:16:04.000000000 +0200
+@@ -9,7 +9,7 @@
+    Steve Hirsch, Andreas Koppenh"ofer, Michael Leodolter, Eyal Lebedinsky,
+    Michael Schaefer, J"org Weule, and Eric Youngdale.
+ 
+-   Copyright 1992 - 2003 Kai Makisara
++   Copyright 1992 - 2004 Kai Makisara
+    email Kai.Makisara@kolumbus.fi
+ 
+    Some small formal changes - aeb, 950809
+@@ -17,7 +17,7 @@
+    Last modified: 18-JAN-1998 Richard Gooch <rgooch@atnf.csiro.au> Devfs support
+  */
+ 
+-static char *verstr = "20031228";
++static char *verstr = "20040122";
+ 
+ #include <linux/module.h>
+ 
+@@ -3846,27 +3846,53 @@
+ 		STm->default_compression = ST_DONT_TOUCH;
+ 		STm->default_blksize = (-1);	/* No forced size */
+ 		STm->default_density = (-1);	/* No forced density */
++	}
++
++	for (i = 0; i < ST_NBR_PARTITIONS; i++) {
++		STps = &(tpnt->ps[i]);
++		STps->rw = ST_IDLE;
++		STps->eof = ST_NOEOF;
++		STps->at_sm = 0;
++		STps->last_block_valid = FALSE;
++		STps->drv_block = (-1);
++		STps->drv_file = (-1);
++	}
++
++	tpnt->current_mode = 0;
++	tpnt->modes[0].defined = TRUE;
+ 
++	tpnt->density_changed = tpnt->compression_changed =
++	    tpnt->blksize_changed = FALSE;
++	init_MUTEX(&tpnt->lock);
++
++	st_nr_dev++;
++	write_unlock(&st_dev_arr_lock);
++
++	for (mode = 0; mode < ST_NBR_MODES; ++mode) {
++		STm = &(tpnt->modes[mode]);
+ 		for (j=0; j < 2; j++) {
+ 			cdev = cdev_alloc();
+ 			if (!cdev) {
+ 				printk(KERN_ERR
+-				       "st: out of memory. Device not attached.\n");
+-				goto out_put_disk;
++				       "st%d: out of memory. Device not attached.\n",
++				       dev_num);
++				goto out_free_tape;
+ 			}
+ 			snprintf(cdev->kobj.name, KOBJ_NAME_LEN, "%sm%d%s", disk->disk_name,
+-				 i, j ? "n" : "");
++				 mode, j ? "n" : "");
+ 			cdev->owner = THIS_MODULE;
+ 			cdev->ops = &st_fops;
+-			STm->cdevs[j] = cdev;
+ 
+-			error = cdev_add(STm->cdevs[j],
+-					 MKDEV(SCSI_TAPE_MAJOR, TAPE_MINOR(dev_num, i, j)),
++			error = cdev_add(cdev,
++					 MKDEV(SCSI_TAPE_MAJOR, TAPE_MINOR(dev_num, mode, j)),
+ 					 1);
+ 			if (error) {
+ 				printk(KERN_ERR "st%d: Can't add %s-rewind mode %d\n",
+-				       dev_num, j ? "non" : "auto", i);
++				       dev_num, j ? "non" : "auto", mode);
++				printk(KERN_ERR "st%d: Device not attached.\n", dev_num);
++				goto out_free_tape;
+ 			}
++			STm->cdevs[j] = cdev;
+ 
+ 			error = sysfs_create_link(&STm->cdevs[j]->kobj, &SDp->sdev_gendev.kobj,
+ 						  "device");
+@@ -3884,35 +3910,15 @@
+ 		       dev_num);
+ 	}
+ 
+-	for (i = 0; i < ST_NBR_PARTITIONS; i++) {
+-		STps = &(tpnt->ps[i]);
+-		STps->rw = ST_IDLE;
+-		STps->eof = ST_NOEOF;
+-		STps->at_sm = 0;
+-		STps->last_block_valid = FALSE;
+-		STps->drv_block = (-1);
+-		STps->drv_file = (-1);
+-	}
+-
+-	tpnt->current_mode = 0;
+-	tpnt->modes[0].defined = TRUE;
+-
+-	tpnt->density_changed = tpnt->compression_changed =
+-	    tpnt->blksize_changed = FALSE;
+-	init_MUTEX(&tpnt->lock);
+-
+-	st_nr_dev++;
+-	write_unlock(&st_dev_arr_lock);
+-
+ 	for (mode = 0; mode < ST_NBR_MODES; ++mode) {
+-	    /*  Rewind entry  */
+-	    devfs_mk_cdev(MKDEV(SCSI_TAPE_MAJOR, dev_num + (mode << 5)),
+-				S_IFCHR | S_IRUGO | S_IWUGO,
+-				"%s/mt%s", SDp->devfs_name, st_formats[mode]);
+-	    /*  No-rewind entry  */
+-	    devfs_mk_cdev(MKDEV(SCSI_TAPE_MAJOR, dev_num + (mode << 5) + 128),
+-				S_IFCHR | S_IRUGO | S_IWUGO,
+-				"%s/mt%sn", SDp->devfs_name, st_formats[mode]);
++		/*  Rewind entry  */
++		devfs_mk_cdev(MKDEV(SCSI_TAPE_MAJOR, dev_num + (mode << 5)),
++			      S_IFCHR | S_IRUGO | S_IWUGO,
++			      "%s/mt%s", SDp->devfs_name, st_formats[mode]);
++		/*  No-rewind entry  */
++		devfs_mk_cdev(MKDEV(SCSI_TAPE_MAJOR, dev_num + (mode << 5) + 128),
++			      S_IFCHR | S_IRUGO | S_IWUGO,
++			      "%s/mt%sn", SDp->devfs_name, st_formats[mode]);
+ 	}
+ 	disk->number = devfs_register_tape(SDp->devfs_name);
+ 
+@@ -3924,18 +3930,30 @@
+ 
+ 	return 0;
+ 
++out_free_tape:
++	for (mode=0; mode < ST_NBR_MODES; mode++) {
++		STm = &(tpnt->modes[mode]);
++		for (j=0; j < 2; j++) {
++			if (STm->cdevs[j]) {
++				if (cdev == STm->cdevs[j])
++					cdev = NULL;
++				sysfs_remove_link(&STm->cdevs[j]->kobj, "device");
++				cdev_unmap(MKDEV(SCSI_TAPE_MAJOR,
++						 TAPE_MINOR(dev_num, mode, j)), 1);
++				cdev_del(STm->cdevs[j]);
++			}
++		}
++	}
++	if (cdev)
++		kobject_put(&cdev->kobj);
++	write_lock(&st_dev_arr_lock);
++	scsi_tapes[dev_num] = NULL;
++	st_nr_dev--;
++	write_unlock(&st_dev_arr_lock);
+ out_put_disk:
+ 	put_disk(disk);
+-	if (tpnt) {
+-		for (i=0; i < ST_NBR_MODES; i++) {
+-			STm = &(tpnt->modes[i]);
+-			if (STm->cdevs[0])
+-				kobject_put(&STm->cdevs[0]->kobj);
+-			if (STm->cdevs[1])
+-				kobject_put(&STm->cdevs[1]->kobj);
+-		}
++	if (tpnt)
+ 		kfree(tpnt);
+-	}
+ out_buffer_free:
+ 	kfree(buffer);
+ out:
+@@ -3964,6 +3982,8 @@
+ 				for (j=0; j < 2; j++) {
+ 					sysfs_remove_link(&tpnt->modes[mode].cdevs[j]->kobj,
+ 							  "device");
++					cdev_unmap(MKDEV(SCSI_TAPE_MAJOR,
++							 TAPE_MINOR(i, mode, j)), 1);
+ 					cdev_del(tpnt->modes[mode].cdevs[j]);
+ 					tpnt->modes[mode].cdevs[j] = NULL;
+ 				}

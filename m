@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264862AbUFAClJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbUFADO5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264862AbUFAClJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 22:41:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264174AbUFAClJ
+	id S261576AbUFADO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 23:14:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264870AbUFADO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 22:41:09 -0400
-Received: from mailout.despammed.com ([65.112.71.29]:9096 "EHLO
-	mailout.despammed.com") by vger.kernel.org with ESMTP
-	id S264862AbUFAClG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 22:41:06 -0400
-Date: Mon, 31 May 2004 21:27:52 -0500 (CDT)
-Message-Id: <200406010227.i512Rqk26763@mailout.despammed.com>
-From: ndiamond@despammed.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: How to use floating point in a module?
-X-Mailer: despammed.com
+	Mon, 31 May 2004 23:14:57 -0400
+Received: from handhelds.org ([192.58.209.91]:23005 "EHLO handhelds.org")
+	by vger.kernel.org with ESMTP id S261576AbUFADOz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 23:14:55 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: George France <france@handhelds.org>
+To: Cpqarray-discuss@lists.sourceforge.net
+Subject: [Patch] - 2.6.6 - cpqarray.c - trivial
+Date: Mon, 31 May 2004 23:10:08 -0400
+User-Agent: KMail/1.4.3
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200405312310.08754.france@handhelds.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Johnson makes another enemy:
+Hello,
 
-> Since you are using one of those
-> Windows mailers and didn't enter a
-> single end-of-line character,
+I just upgrade my Compaq Prolient Server to 2.6.x.  This system is mostly
+a http server and does not have a keyboard or mouse attached.  This
+system hangs on reboot, when generating SSL keys due to /dev/random
+having zero entropy.
 
-The web-based mailer that I used for
-submitting these behaves the same for
-all Windows mailers including X11
-Konqueror, X11 whatever Red Hat's
-latest browser is, and XP IE.
+It is my understanding that /dev/random uses the keyboard, mouse and
+block devices to generate entropy.  Since this system does not have a
+keyboard or mouse, I am having to rely upon the cpqarray (block) driver
+for entropy.  It appears that in the 2.4.x kernel somebody added the
+SA_SAMPLE_RANDOM flag to request_irq() in cpqarray.c to fix this
+problem.  Below is a patch against 2.6.6, which corrects this issue.
 
-> I detect that this is probably one
-> of those trolls.
+Best Regards,
 
-Good detective work.  I guess you were
-looking in a mirror.
 
-> Nevertheless, the use of floating-
-> point is forbidden within the kernel.
+--George
 
-That's why my first posting proposed a
-method of getting the necessary results
-without using floating-point hardware,
-and my third posting reminded another
-non-reader that my first posting said
-what it said.
+--- linux-2.6.6/drivers/block/cpqarray.c-orig   2004-05-31 22:54:35.000000000 -0400
++++ linux-2.6.6/drivers/block/cpqarray.c        2004-05-31 22:56:07.000000000 -0400
+@@ -418,7 +418,7 @@
+        }
+        hba[i]->access.set_intr_mask(hba[i], 0);
+        if (request_irq(hba[i]->intr, do_ida_intr,
+-               SA_INTERRUPT|SA_SHIRQ, hba[i]->devname, hba[i]))
++               SA_INTERRUPT|SA_SHIRQ|SA_SAMPLE_RANDOM, hba[i]->devname, hba[i]))
+        {
+                printk(KERN_ERR "cpqarray: Unable to get irq %d for %s\n",
+                                hba[i]->intr, hba[i]->devname);
 
-But then someone named Linus something-
-or-other posted a reply saying that it
-actually is possible to use the
-floating-point hardware, within
-some constraints.  But don't worry about
-that, you didn't read my postings and
-you won't read his.
-
-Now I see why everyone hates you.

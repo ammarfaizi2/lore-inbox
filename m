@@ -1,38 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264119AbUD0Ok6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264117AbUD0Opb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264119AbUD0Ok6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 10:40:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264160AbUD0Ok5
+	id S264117AbUD0Opb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 10:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUD0Opb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 10:40:57 -0400
-Received: from tsukuba.m17n.org ([192.47.44.130]:19077 "EHLO tsukuba.m17n.org")
-	by vger.kernel.org with ESMTP id S264154AbUD0Okv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 10:40:51 -0400
-Date: Tue, 27 Apr 2004 23:40:49 +0900
-From: linux-sh-admin@m17n.org
-Subject: You linux-kernel@vger.kernel.org are not member (linux-sh ML)
-To: linux-kernel@vger.kernel.org
-Message-Id: <200404272340.FMLAAB22186.linux-sh@m17n.org>
-References: <200404271440.i3REed816326@tsukuba.m17n.org>
-X-MLServer: fml [fml 4.0.1]
-X-ML-Info: If you have a question,
-	please contact linux-sh-admin@m17n.org;
-	<mailto:linux-sh-admin@m17n.org>
-List-Subscribe: <mailto:linux-sh-ctl@m17n.org?body=subscribe>
+	Tue, 27 Apr 2004 10:45:31 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:31617 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264117AbUD0Op3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 10:45:29 -0400
+Date: Tue, 27 Apr 2004 10:47:23 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: "Srinivas G." <srinivasg@esntechnologies.co.in>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: How to handle interrupts  on SMP systems
+In-Reply-To: <1118873EE1755348B4812EA29C55A9721D6CC7@esnmail.esntechnologies.co.in>
+Message-ID: <Pine.LNX.4.53.0404271041100.4784@chaos>
+References: <1118873EE1755348B4812EA29C55A9721D6CC7@esnmail.esntechnologies.co.in>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You are not a member of this mailing list <linux-sh@m17n.org>.
+On Tue, 27 Apr 2004, Srinivas G. wrote:
 
-If you know the general guide of this list, please send mail with
-the mail body 
+>
+> Hi,
+>
+> We developed a driver for PCIHOTLINK card under linux kernel 2.4.18-3.
+> It was working fine under it. Now our idea is to port it SMP system with
+> the same kernel. We ported. It was compiled without any problem under
+> SMP system. But it is not generating any interrupts. We have changed the
+> Makefile also. We added -D__SMP__ macro and -DCONFIG_SMP macro in
+> Makefile. No compilation errors. But interrupts are not generating.
+>
+> If anybody will have any idea please let me know.
+>
+> Thanks in advance,
+>
+> Regards,
+>
+> Srinivas G
 
-	guide
+There is no difference between SMP and non-SMP systems as far
+as interrupt generation is concerned. You might have a hardware-
+initialization bug that shows up only when you use some SMP
+macros. Make sure you are using the proper macros to access your
+hardware and not just pretending the return value of ioremap_nocache()
+is a pointer (it's not, it's a cookie).
 
-to the address
+Also SMP adds some additional code. So, it might change the
+degree of optimization that the compiler performs. You need to
+use the 'volatile' key-word in cases where the compiler might
+not otherwise know that something could get changed in an
+interrupt.
 
-	linux-sh-ctl@m17n.org
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-where guide is equal to GUIDE for case insensitive.
 

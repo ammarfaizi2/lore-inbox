@@ -1,115 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUIONZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266034AbUION1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbUIONZg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 09:25:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265999AbUIONZg
+	id S266034AbUION1r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 09:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266149AbUION1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 09:25:36 -0400
-Received: from gandalf.ios.edu.pl ([193.0.91.125]:5049 "EHLO
-	gandalf.ios.edu.pl") by vger.kernel.org with ESMTP id S261375AbUIONZb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 09:25:31 -0400
-Message-ID: <414844C5.6080802@ios.edu.pl>
-Date: Wed, 15 Sep 2004 15:33:57 +0200
-From: =?ISO-8859-2?Q?Marcin_Ro=BFek?= <marcin.rozek@ios.edu.pl>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: pl, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at page_alloc.c
-References: <414834AA.70602@ios.edu.pl> <20040915112102.GA1992@logos.cnet>
-In-Reply-To: <20040915112102.GA1992@logos.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 15 Sep 2004 09:27:47 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:50881 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S266034AbUION1h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 09:27:37 -0400
+Subject: Re: [PATCH] DRM: add missing pci_enable_device()
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Dave Airlie <airlied@linux.ie>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>, Evan Paul Fletcher <evanpaul@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <9e47339104091416416b9ae310@mail.gmail.com>
+References: <200409131651.05059.bjorn.helgaas@hp.com>
+	 <Pine.LNX.4.58.0409140026430.15167@skynet>
+	 <200409140845.59389.bjorn.helgaas@hp.com>
+	 <Pine.LNX.4.58.0409150008130.23838@skynet>
+	 <9e47339104091416416b9ae310@mail.gmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean
-X-MailScanner-From: marcin.rozek@ios.edu.pl
+Message-Id: <1095250966.19930.25.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 15 Sep 2004 13:22:48 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> Its the third or fourth report like this I see, all of them with the 
-> grsecurity patch applied.
-> 
-> Have you tried a stock 2.4.27?
-No.
-Is that bug serious? Should i move to clean 2.4.27?
+On Mer, 2004-09-15 at 00:41, Jon Smirl wrote:
+> pci_enable/disable_device are correct in the dyn-minor patch. They
+> also appear to correct in the currently checked in DRM cvs. If fbdev
+> is loaded DRM does not do pci_enable/disable_device. It is assumed
+> that these calls are handled by the fbdev device.
 
-Strange is that previously i've been running (for quite long time) Mandrake 9.1 
-on the same machine with 2.4.27-grsec (but with enabled 
-CONFIG_GRKERNSEC_PAX_MPROTECT) and i don't remember seeing such BUG...
+If you are calling pci_disable_device at all in the fb driver or DRI
+driver it is wrong, always wrong, always will be wrong for the main
+head. The video device is almost unique in that when you unload all
+the video drivers vgacon still owns and is using it. On some devices
+that needs PCI master enabled because of internal magic (like 
+rendering text modes from the bios via SMM traps)
 
-Here're my grsecurity settings:
-
-CONFIG_GRKERNSEC=y
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_SHA256=y
-# CONFIG_GRKERNSEC_LOW is not set
-# CONFIG_GRKERNSEC_MID is not set
-# CONFIG_GRKERNSEC_HI is not set
-CONFIG_GRKERNSEC_CUSTOM=y
-CONFIG_GRKERNSEC_PAX_EI_PAX=y
-CONFIG_GRKERNSEC_PAX_PT_PAX_FLAGS=y
-CONFIG_GRKERNSEC_PAX_NO_ACL_FLAGS=y
-# CONFIG_GRKERNSEC_PAX_HAVE_ACL_FLAGS is not set
-# CONFIG_GRKERNSEC_PAX_HOOK_ACL_FLAGS is not set
-CONFIG_GRKERNSEC_PAX_NOEXEC=y
-# CONFIG_GRKERNSEC_PAX_PAGEEXEC is not set
-CONFIG_GRKERNSEC_PAX_SEGMEXEC=y
-# CONFIG_GRKERNSEC_PAX_EMUTRAMP is not set
-# CONFIG_GRKERNSEC_PAX_MPROTECT is not set
-CONFIG_GRKERNSEC_PAX_ASLR=y
-# CONFIG_GRKERNSEC_PAX_RANDKSTACK is not set
-CONFIG_GRKERNSEC_PAX_RANDUSTACK=y
-CONFIG_GRKERNSEC_PAX_RANDMMAP=y
-# CONFIG_GRKERNSEC_KMEM is not set
-# CONFIG_GRKERNSEC_IO is not set
-CONFIG_GRKERNSEC_PROC_MEMMAP=y
-CONFIG_GRKERNSEC_BRUTE=y
-CONFIG_GRKERNSEC_HIDESYM=y
-CONFIG_GRKERNSEC_ACL_HIDEKERN=y
-CONFIG_GRKERNSEC_ACL_MAXTRIES=3
-CONFIG_GRKERNSEC_ACL_TIMEOUT=30
-CONFIG_GRKERNSEC_PROC=y
-CONFIG_GRKERNSEC_PROC_USER=y
-CONFIG_GRKERNSEC_PROC_ADD=y
-CONFIG_GRKERNSEC_LINK=y
-CONFIG_GRKERNSEC_FIFO=y
-CONFIG_GRKERNSEC_CHROOT=y
-CONFIG_GRKERNSEC_CHROOT_MOUNT=y
-CONFIG_GRKERNSEC_CHROOT_DOUBLE=y
-CONFIG_GRKERNSEC_CHROOT_PIVOT=y
-CONFIG_GRKERNSEC_CHROOT_CHDIR=y
-CONFIG_GRKERNSEC_CHROOT_CHMOD=y
-CONFIG_GRKERNSEC_CHROOT_FCHDIR=y
-CONFIG_GRKERNSEC_CHROOT_MKNOD=y
-# CONFIG_GRKERNSEC_CHROOT_SHMAT is not set
-CONFIG_GRKERNSEC_CHROOT_UNIX=y
-# CONFIG_GRKERNSEC_CHROOT_FINDTASK is not set
-# CONFIG_GRKERNSEC_CHROOT_NICE is not set
-CONFIG_GRKERNSEC_CHROOT_SYSCTL=y
-# CONFIG_GRKERNSEC_CHROOT_CAPS is not set
-# CONFIG_GRKERNSEC_AUDIT_GROUP is not set
-# CONFIG_GRKERNSEC_EXECLOG is not set
-# CONFIG_GRKERNSEC_RESLOG is not set
-# CONFIG_GRKERNSEC_CHROOT_EXECLOG is not set
-# CONFIG_GRKERNSEC_AUDIT_CHDIR is not set
-# CONFIG_GRKERNSEC_AUDIT_MOUNT is not set
-# CONFIG_GRKERNSEC_AUDIT_IPC is not set
-CONFIG_GRKERNSEC_SIGNAL=y
-CONFIG_GRKERNSEC_FORKFAIL=y
-CONFIG_GRKERNSEC_TIME=y
-# CONFIG_GRKERNSEC_PROC_IPADDR is not set
-CONFIG_GRKERNSEC_EXECVE=y
-CONFIG_GRKERNSEC_DMESG=y
-CONFIG_GRKERNSEC_RANDPID=y
-# CONFIG_GRKERNSEC_TPE is not set
-CONFIG_GRKERNSEC_RANDNET=y
-CONFIG_GRKERNSEC_RANDISN=y
-CONFIG_GRKERNSEC_RANDID=y
-CONFIG_GRKERNSEC_RANDSRC=y
-CONFIG_GRKERNSEC_RANDRPC=y
-# CONFIG_GRKERNSEC_SOCKET is not set
-# CONFIG_GRKERNSEC_SYSCTL is not set
-CONFIG_GRKERNSEC_FLOODTIME=10
-CONFIG_GRKERNSEC_FLOODBURST=4
+Alan
 

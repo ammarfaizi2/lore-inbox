@@ -1,120 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264894AbUAZUip (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 15:38:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265094AbUAZUip
+	id S265094AbUAZUkW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 15:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265111AbUAZUkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 15:38:45 -0500
-Received: from fed1mtao05.cox.net ([68.6.19.126]:31211 "EHLO
-	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S264894AbUAZUim
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 15:38:42 -0500
-Date: Mon, 26 Jan 2004 13:38:30 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.2-rc1-mm3
-Message-ID: <20040126203830.GA32525@stop.crashing.org>
-References: <20040124180022.14fe495e.akpm@osdl.org>
+	Mon, 26 Jan 2004 15:40:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:6624 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265094AbUAZUkS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 15:40:18 -0500
+Date: Mon, 26 Jan 2004 12:41:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: campbell@accelinc.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2 kernel and ext3 filesystems
+Message-Id: <20040126124141.6b6b84ba.akpm@osdl.org>
+In-Reply-To: <20040126145633.GA26983@helium.inexs.com>
+References: <20040124033208.GA4830@helium.inexs.com>
+	<20040123215848.28dac746.akpm@osdl.org>
+	<20040126145633.GA26983@helium.inexs.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040124180022.14fe495e.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 24, 2004 at 06:00:22PM -0800, Andrew Morton wrote:
-
+Chuck Campbell <campbell@accelinc.com> wrote:
+>
+> On Fri, Jan 23, 2004 at 09:58:48PM -0800, Andrew Morton wrote:
+> > Chuck Campbell <campbell@accelinc.com> wrote:
+> > >
+> > > Was the ext3 filesystem ever back ported to the 2.2 kernel series?
+> > 
+> > It was written for 2.2, and then forward-ported.
+> > 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/sct/ext3/v2.2/
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2-rc1/2.6.2-rc1-mm3/
-> 
-> - 2.6.2-rc1-mm3's allyesconfig now successfully builds with current gcc-3.5
->   CVS.  However allyesconfig doesn't link because of symbol clashes in IRDA.
-> 
-> - Various random fixes.
+> Interesting.  I looked at the system running 2.2, and there are no ext3
+> options in the running config file.  It may have been later than 2.2.22...
 
-I sent this against -mm1, and no one commented on it, so I'm resending.
+ext3 was originally written for 2.2 but was never merged into the
+mainstream kernel.   That happened in 2.4.15.
 
->From Tom Rini <trini@kernel.crashing.org>
-
-Switch PPC32 over to drivers/Kconfig
-
- arch/ppc/Kconfig |   41 +----------------------------------------
- 1 files changed, 1 insertion(+), 40 deletions(-)
---- 1.47/arch/ppc/Kconfig	Mon Jan 19 16:38:06 2004
-+++ edited/arch/ppc/Kconfig	Thu Jan 22 13:47:15 2004
-@@ -989,8 +989,6 @@
- 
- source "drivers/pcmcia/Kconfig"
- 
--source "drivers/parport/Kconfig"
--
- endmenu
- 
- menu "Advanced setup"
-@@ -1088,36 +1086,7 @@
- 	depends on ADVANCED_OPTIONS && 8xx
- endmenu
- 
--source "drivers/base/Kconfig"
--
--source "drivers/mtd/Kconfig"
--
--source "drivers/pnp/Kconfig"
--
--source "drivers/block/Kconfig"
--
--source "drivers/md/Kconfig"
--
--source "drivers/ide/Kconfig"
--
--source "drivers/scsi/Kconfig"
--
--source "drivers/message/fusion/Kconfig"
--
--source "drivers/ieee1394/Kconfig"
--
--source "drivers/message/i2o/Kconfig"
--
--source "net/Kconfig"
--
--source "drivers/isdn/Kconfig"
--
--source "drivers/video/Kconfig"
--
--source "drivers/cdrom/Kconfig"
--
--source "drivers/input/Kconfig"
--
-+source "drivers/Kconfig"
- 
- menu "Macintosh device drivers"
- 
-@@ -1253,14 +1222,8 @@
- 
- endmenu
- 
--source "drivers/char/Kconfig"
--
--source "drivers/media/Kconfig"
--
- source "fs/Kconfig"
- 
--source "sound/Kconfig"
--
- source "arch/ppc/8xx_io/Kconfig"
- 
- source "arch/ppc/8260_io/Kconfig"
-@@ -1284,8 +1247,6 @@
- 	default y
- 
- endmenu
--
--source "drivers/usb/Kconfig"
- 
- source "lib/Kconfig"
- 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/

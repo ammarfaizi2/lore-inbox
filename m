@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270205AbTGNN1M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 09:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268527AbTGNNUt
+	id S270436AbTGNNet (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 09:34:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270351AbTGNNdp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 09:20:49 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:450
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S270616AbTGNMfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 08:35:05 -0400
-Subject: Re: Linux v2.6.0-test1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Dave Jones <davej@codemonkey.org.uk>, John Bradford <john@grabjohn.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org
-In-Reply-To: <20030714124721.GI15452@holomorphy.com>
-References: <200307141150.h6EBoe1P000738@81-2-122-30.bradfords.org.uk>
-	 <20030714115313.GA21773@suse.de> <20030714120009.GH15452@holomorphy.com>
-	 <1058186383.606.52.camel@dhcp22.swansea.linux.org.uk>
-	 <20030714124721.GI15452@holomorphy.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058186829.606.57.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 Jul 2003 13:47:15 +0100
+	Mon, 14 Jul 2003 09:33:45 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:58559 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S270150AbTGNNbu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 09:31:50 -0400
+Date: Mon, 14 Jul 2003 10:44:13 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>, Chris Mason <mason@suse.com>,
+       Oleg Drokin <green@namesys.com>
+Subject: Re: PATCH: use the right function in reiserfs (resend #3)
+In-Reply-To: <200307141230.h6ECUvx9030962@hraefn.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.55L.0307141042320.18257@freak.distro.conectiva>
+References: <200307141230.h6ECUvx9030962@hraefn.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-07-14 at 13:47, William Lee Irwin III wrote:
-> Well, that should cover it. Odd that I've not heard of those two.
 
-They've had publically discussed fixes, patch files, CAN vulnerability
-identifiers and mail to bugtraq. The information is out there but the
-2.5 people have been too busy on more fundamental stuff I guess
+Do you reiserfs people have anything pending (so you could merge Alan
+patch) or can I apply ?
 
+On Mon, 14 Jul 2003, Alan Cox wrote:
+
+> #ra1
+> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.22-pre5/fs/reiserfs/prints.c linux.22-pre5-ac1/fs/reiserfs/prints.c
+> --- linux.22-pre5/fs/reiserfs/prints.c	2003-07-14 12:27:42.000000000 +0100
+> +++ linux.22-pre5-ac1/fs/reiserfs/prints.c	2003-07-06 14:06:59.000000000 +0100
+> @@ -159,7 +159,7 @@
+>
+>    *skip = 0;
+>
+> -  while ((k = strstr (k, "%")) != NULL)
+> +  while ((k = strchr (k, '%')) != NULL)
+>    {
+>      if (k[1] == 'k' || k[1] == 'K' || k[1] == 'h' || k[1] == 't' ||
+>  	      k[1] == 'z' || k[1] == 'b' || k[1] == 'y' || k[1] == 'a' ) {
+>

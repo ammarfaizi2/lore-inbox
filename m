@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263219AbUJ2K0i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263225AbUJ2K0l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263219AbUJ2K0i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 06:26:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263226AbUJ2K0i
+	id S263225AbUJ2K0l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 06:26:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263226AbUJ2K0l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 06:26:38 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:33744 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S263219AbUJ2KZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 06:25:17 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-rc1-mm2 (compiler warnings on x86_64)
-Date: Fri, 29 Oct 2004 12:24:22 +0200
-User-Agent: KMail/1.6.2
+	Fri, 29 Oct 2004 06:26:41 -0400
+Received: from fw.osdl.org ([65.172.181.6]:64236 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263225AbUJ2K0Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 06:26:24 -0400
+Date: Fri, 29 Oct 2004 03:24:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jan Kara <jack@suse.cz>
 Cc: linux-kernel@vger.kernel.org
-References: <20041029014930.21ed5b9a.akpm@osdl.org>
-In-Reply-To: <20041029014930.21ed5b9a.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
+Subject: Re: [PATCH] Configurable Magic Sysrq
+Message-Id: <20041029032420.327d65dd.akpm@osdl.org>
+In-Reply-To: <20041029101758.GA7278@atrey.karlin.mff.cuni.cz>
+References: <20041029093941.GA2237@atrey.karlin.mff.cuni.cz>
+	<20041029024651.1ebadf82.akpm@osdl.org>
+	<20041029101758.GA7278@atrey.karlin.mff.cuni.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410291224.22676.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 29 of October 2004 10:49, Andrew Morton wrote:
-> 
-> 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm2/
-> 
+Jan Kara <jack@suse.cz> wrote:
+>
+> > Jan Kara <jack@suse.cz> wrote:
+>  > >
+>  > >    I know about a few people who would like to use some functionality of
+>  > >  the Magic Sysrq but don't want to enable all the functions it provides.
+>  > 
+>  > That's a new one.  Can you tell us more about why people want to do such a
+>  > thing?
+>    For example in a computer lab at the university the admin don't want
+>  to allow users to Umount/Kill (mainly to make it harder for users to
+>  screw up the computer) but wants to allow SAK/Unraw.
+>    Another (actually not so legitimate ;) example is that in e.g. SUSE
+>  kernels sysrq is turned off by default (some people are afraid that it
+>  could be a security issue) so most users have it turned off and hence
+>  when the computer deadlocks, there's no debugging output.
 
-FYI, on x86_64 I've got quite a lot of compiler warnings from this kernel, 
-although it's eventually compiled.
-
-The full compilation log is available at:
-http://www.sisk.pl/kernel/041029/2.6.10-rc1-mm2-compile.log
-The corresponding .config is available at:
-http://www.sisk.pl/kernel/041029/2.6.10-rc1-mm2.config
-
-Greets,
-RJW
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+OK, fair enough.  I'll merge the patch if you talk suse into enabling
+sysrq-T and sysrq-P and sysrq-M by default ;)

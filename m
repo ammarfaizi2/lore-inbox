@@ -1,39 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267367AbTAQBs7>; Thu, 16 Jan 2003 20:48:59 -0500
+	id <S266453AbTAQCAR>; Thu, 16 Jan 2003 21:00:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267365AbTAQBs7>; Thu, 16 Jan 2003 20:48:59 -0500
-Received: from dp.samba.org ([66.70.73.150]:63651 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267353AbTAQBs6>;
-	Thu, 16 Jan 2003 20:48:58 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Richard Henderson <rth@twiddle.net>
+	id <S265633AbTAQCAR>; Thu, 16 Jan 2003 21:00:17 -0500
+Received: from are.twiddle.net ([64.81.246.98]:9355 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S261486AbTAQCAQ>;
+	Thu, 16 Jan 2003 21:00:16 -0500
+Date: Thu, 16 Jan 2003 18:09:13 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: linux-kernel@vger.kernel.org, davem@vger.kernel.org
-Subject: Re: [module-init-tools] fix weak symbol handling 
-In-reply-to: Your message of "Tue, 14 Jan 2003 17:14:57 -0800."
-             <20030114171457.E5751@twiddle.net> 
-Date: Fri, 17 Jan 2003 12:57:03 +1100
-Message-Id: <20030117015756.409DF2C437@lists.samba.org>
+Subject: Re: [module-init-tools] fix weak symbol handling
+Message-ID: <20030116180913.C15981@twiddle.net>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	linux-kernel@vger.kernel.org, davem@vger.kernel.org
+References: <20030114171457.E5751@twiddle.net> <20030117015756.409DF2C437@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030117015756.409DF2C437@lists.samba.org>; from rusty@rustcorp.com.au on Fri, Jan 17, 2003 at 12:57:03PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030114171457.E5751@twiddle.net> you write:
-> On Tue, Jan 14, 2003 at 02:16:57PM +1100, Rusty Russell wrote:
-> > So the semantics you want are that if A declares a weak symbol S, and
-> > B exports a (presumably non-weak) symbol S, then A depends on B?
+On Fri, Jan 17, 2003 at 12:57:03PM +1100, Rusty Russell wrote:
+> > No.  The semantics I need is if A references a weak symbol S 
+> > and *no one* implements it, then S resolves to NULL.
 > 
-> No.  The semantics I need is if A references a weak symbol S 
-> and *no one* implements it, then S resolves to NULL.
+> Sorry, I was unclear.  I want to know the dependency semantics:
+> 
+> If B exports S, should depmod believe A needs B, or not?  Your patch
+> leaves that semantic (all it does is suppress the errors).
 
-Sorry, I was unclear.  I want to know the dependency semantics:
+Well, that depends on whether A defines S or not.  If A does
+define S, then I don't care.  I'd say "no", A does not depend
+on B.  If A does not define S, then most definitely "yes", as
+with any other definition.
 
-If B exports S, should depmod believe A needs B, or not?  Your patch
-leaves that semantic (all it does is suppress the errors).
+> I'm not sure what semantics are "right", since I don't know what
+> you're trying to do, or what is wrong with get_symbol().
 
-I'm not sure what semantics are "right", since I don't know what
-you're trying to do, or what is wrong with get_symbol().
+I just told you.  Quoted again above.  Perhaps the following
+dummy module will make things even clearer.
 
-Hope that clarifies?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+---
+#include <linux/module.h>
+#include <linux/init.h>
+
+extern int not_defined __attribute__((weak));
+
+static int init(void)
+{
+  return &not_defined ? -EINVAL : 0;
+}
+
+static void fini(void)
+{
+}
+
+module_init(init);
+module_exit(fini);
+---
+
+You should be able to load this module.
+
+
+r~

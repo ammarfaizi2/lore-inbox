@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130256AbQKQRGB>; Fri, 17 Nov 2000 12:06:01 -0500
+	id <S129736AbQKQRGW>; Fri, 17 Nov 2000 12:06:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129412AbQKQRFs>; Fri, 17 Nov 2000 12:05:48 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64268 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130251AbQKQRF2>;
-	Fri, 17 Nov 2000 12:05:28 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200011171634.QAA01184@raistlin.arm.linux.org.uk>
-Subject: Re: [PATCH] pcmcia event thread. (fwd)
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Fri, 17 Nov 2000 16:34:47 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        dwmw2@infradead.org (David Woodhouse),
-        dhinds@valinux.com (David Hinds), tytso@valinux.com,
+	id <S129412AbQKQRGF>; Fri, 17 Nov 2000 12:06:05 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:48393 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129736AbQKQRFq>; Fri, 17 Nov 2000 12:05:46 -0500
+Date: Fri, 17 Nov 2000 08:35:29 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Russell King <rmk@arm.linux.org.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        David Hinds <dhinds@valinux.com>, tytso@valinux.com,
         linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10011170819250.2272-100000@penguin.transmeta.com> from "Linus Torvalds" at Nov 17, 2000 08:21:31 AM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL1]
+Subject: Re: [PATCH] pcmcia event thread. (fwd)
+In-Reply-To: <E13woOG-0000qS-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10011170832510.2272-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
-> On Fri, 17 Nov 2000, Alan Cox wrote:
-> Alan, Russell is talking about CardBus controllers (it's also PCMCIA, in
-> fact, these days it's the _only_ pcmcia in any machine made less than five
-> years ago).
 
-Actually, I wasn't.  I was referring to the embedded-type ARM devices of which
-I have two sat in front of me (both are manufactured within the past year so
-are "current") and about half the platforms that "ARM Linux" covers have some
-form of PCMCIA.
 
-Some ARM CPUs even have the PCMCIA controller embedded within them (look at
-arch/arm/tools/mach-types - each entry containing a reference to SA1100 means
-that particular platform has the ability to use PCMCIA).
+On Fri, 17 Nov 2000, Alan Cox wrote:
 
-All of the drivers for these devices were written around the in-kernel PCMCIA
-code.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+> > Alan, Russell is talking about CardBus controllers (it's also PCMCIA, in
+> > fact, these days it's the _only_ pcmcia in any machine made less than five
+> > years ago).
+> 
+> I have at least two machines here that are < 2 years old but disagree
+> with you. Once is only months old. 
+
+Who makes those pieces of crap? And who _buys_ them? I can understand it
+in embedded stuff simply because the chips are simpler and smaller, but in
+a laptop you should definitely try to avoid it.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

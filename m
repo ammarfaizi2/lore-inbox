@@ -1,42 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267952AbTCFPrR>; Thu, 6 Mar 2003 10:47:17 -0500
+	id <S268045AbTCFPsI>; Thu, 6 Mar 2003 10:48:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268045AbTCFPrR>; Thu, 6 Mar 2003 10:47:17 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37036 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267952AbTCFPrR>;
-	Thu, 6 Mar 2003 10:47:17 -0500
-Message-ID: <3E676FE7.4010204@pobox.com>
-Date: Thu, 06 Mar 2003 10:57:27 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	id <S268110AbTCFPsH>; Thu, 6 Mar 2003 10:48:07 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:56454 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S268045AbTCFPsC>;
+	Thu, 6 Mar 2003 10:48:02 -0500
+Date: Thu, 6 Mar 2003 09:34:35 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Rusty Lynch <rusty@linux.co.intel.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]Fix to the new sysfs bin file support
+In-Reply-To: <1046918323.2915.45.camel@vmhack>
+Message-ID: <Pine.LNX.4.33.0303060919520.994-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] work around gcc-3.x inlining bugs
-References: <20030306032208.03f1b5e2.akpm@digeo.com>
-In-Reply-To: <20030306032208.03f1b5e2.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> This patch:
-> 
-> --- 25/include/linux/compiler.h~gcc3-inline-fix	2003-03-06 03:02:43.000000000 -0800
-> +++ 25-akpm/include/linux/compiler.h	2003-03-06 03:11:42.000000000 -0800
-> @@ -1,6 +1,11 @@
->  #ifndef __LINUX_COMPILER_H
->  #define __LINUX_COMPILER_H
->  
-> +#if __GNUC__ >= 3
-> +#define inline __inline__ __attribute__((always_inline))
-> +#define __inline__ __inline__ __attribute__((always_inline))
-> +#endif
 
+On 5 Mar 2003, Rusty Lynch wrote:
 
-I think there is also either __inline or inline__?
+> I happen to notice the new binary file support in sysfs and had to take
+> for a spin.  If I understand this correct my write file will need to
+> allocate the buffer->data, but then I have no way of freeing that memory
+> since I don't get a release callback.
+
+Hm, good point. Perhaps a better way to do it would be:
+
+open()
+	allocate buffer
+	fill buffer
+
+read()
+	copy_to_user()
+
+write()
+	copy_from_user()
+	sync with driver
+
+close()
+	free buffer
+
+Once the buffer is filled, then the user could read()/seek() on it to 
+their hearts' content, without having to call the driver back. 
+
+On a write, the user would end up modifying the desired bits of the
+buffer, then sysfs would call the ->write() method, passing the entire 
+buffer. 
+
+All this assumes that the buffer will not change while the file is open, 
+but for these purposes, I think that's ok to make.
+
+> Here is a patch that:
+> * makes sysfs cleanup the buffer->data allocated by the attribute write
+> functions
+> * fixes a bug that causes the kernel to oops when somebody attempts to
+> write to the file.
+
+Thanks.
+
+> BTW, would you be totally opposed to a patch that added open, release,
+> and ioctl to the list of functions supported by sysfs binary files?
+
+->ioctl() - No. 
+
+Why ->open() and ->release()? If we free the buffer in our release(), then 
+why do you need a notification? 
+
+> Another question... How would a driver know that the various write and
+> read calls are coming from the same open, or would there be a way for a
+> driver to make it so that only one thing can open the sysfs file at a
+> time?
+
+I don't think you could know that a ->read() came from the same process as 
+the previous ->read(). Why would you need to know that?
+
+Thanks,
+
+	-pat
 

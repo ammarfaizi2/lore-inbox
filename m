@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268720AbUILPEb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268726AbUILPKb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268720AbUILPEb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 11:04:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268726AbUILPEb
+	id S268726AbUILPKb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 11:10:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268746AbUILPKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 11:04:31 -0400
-Received: from jade.spiritone.com ([216.99.193.136]:30366 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S268720AbUILPEa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 11:04:30 -0400
-Date: Sun, 12 Sep 2004 08:03:55 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrea Arcangeli <andrea@novell.com>, Arjan van de Ven <arjanv@redhat.com>
-cc: Hugh Dickins <hugh@veritas.com>, Andrea Arcangeli <andrea@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wedgwood <cw@f00f.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-Message-ID: <622230000.1095001434@[10.10.2.4]>
-In-Reply-To: <20040912141701.GA21626@nocona.random>
-References: <593560000.1094826651@[10.10.2.4]> <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain> <20040910151538.GA24434@devserv.devel.redhat.com> <20040910152852.GC15643@x30.random> <20040910153421.GD24434@devserv.devel.redhat.com> <20040912141701.GA21626@nocona.random>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Sun, 12 Sep 2004 11:10:31 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:4538 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S268726AbUILPK2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 11:10:28 -0400
+Date: Sun, 12 Sep 2004 17:10:05 +0200 (MEST)
+Message-Id: <200409121510.i8CFA5Ji015615@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: khali@linux-fr.org
+Subject: Re: [PATCH][2.4.28-pre3] I2C driver core gcc-3.4 fixes
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Andrea Arcangeli <andrea@novell.com> wrote (on Sunday, September 12, 2004 16:17:01 +0200):
+On Sun, 12 Sep 2004 15:44:29 +0200, Jean Delvare <khali@linux-fr.org> wrote:
+>> This patch fixes gcc-3.4 cast-as-lvalue warnings in the 2.4.28-pre3
+>> kernel's I2C driver core. The i2c-core.c change is from the 2.6
+>> kernel, the i2c-proc.c changes are new since the 2.6 code is
+>> different.
+>> (...)
+>> --- linux-2.4.28-pre3/drivers/i2c/i2c-proc.c.~1~	2004-02-18 15:16:22.000000000 +0100
+>> +++ linux-2.4.28-pre3/drivers/i2c/i2c-proc.c	2004-09-12 01:56:20.000000000 +0200
+>> (...)
+>> @@ -287,7 +287,7 @@
+>>  			if(copy_to_user(buffer, BUF, buflen))
+>>  				return -EFAULT;
+>>  			curbufsize += buflen;
+>> -			(char *) buffer += buflen;
+>> +			buffer += buflen;
+>>  		}
+>>  	*lenp = curbufsize;
+>>  	filp->f_pos += curbufsize;
+>
+>Looks like arithmetics on void* to me, so while removing a warning you
+>add a different one. Same for all other "fixes" later in the patch.
+>
+>It doesn't look to me like you are fixing the code, only hiding the
+>warnings. I am not really confident you aren't breaking things while
+>doing this.
 
-> On Fri, Sep 10, 2004 at 05:34:21PM +0200, Arjan van de Ven wrote:
->> disabling is actually not a bad idea; hard irq handlers run for a very short
-> 
-> you mean hard irq handlers "should run" for a very short time. There can
-> be slow hardware that needs a long time, and fast hardware that needs a
-> short time, and in turn it makes perfect sense to allow nesting to give
-> low latency to the "fast" onces, like it has always happened so far (not
-> only in linux AFIK). Disabling nesting completely sounds a very bad
-> idea to me, when "limiting nesting" can be achieved easily as confirmed
-> by Alan too.
+Yes, it results in code doing void* pointer arithmetic, but
+the kernel uses that particular gcc extension in a lot of
+places. It's ugly but known to work exactly like char*.
 
-IIRC, what we did in PTX was have 16 SPL levels, each interrupt was assigned
-a prio, and higher prio interrupts could interrupt lower prio ones (but not
-the same prio or higher). There's some support for that in the APIC, I think,
-something like the high nybble is prio, and the low nybble is just an index.
+However, I'm no fan of void* arithmetic. Would code like
+buffer = (void*)((char*)buffer + buflen); make you happier?
 
-M.
+>After a quick look at the code I'd say that the buffer-like parameters
+>involved should be declared as char* instead of void* in the first
+>place, which would effectively make all further casts unnecessary, and
+>still work exactly as before.
 
+Maybe, but that's potentially a much larger change. I'm just
+looking for the minimal changes to make the 2.4 kernel safe for
+gcc-3.4 and later (cast-as-lvalue is an error in gcc-3.5/4.0).
+
+/Mikael

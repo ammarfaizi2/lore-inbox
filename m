@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262874AbUKTMm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261583AbUKTMuZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262874AbUKTMm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 07:42:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262833AbUKTMm2
+	id S261583AbUKTMuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 07:50:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262876AbUKTMuZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 07:42:28 -0500
-Received: from smtp-106-saturday.noc.nerim.net ([62.4.17.106]:49676 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S262874AbUKTMmG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 07:42:06 -0500
-Date: Sat, 20 Nov 2004 13:42:03 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] I2C updates for 2.4.28 (5/5)
-Message-Id: <20041120134203.0af28c59.khali@linux-fr.org>
-In-Reply-To: <20041120125423.42527051.khali@linux-fr.org>
-References: <20041120125423.42527051.khali@linux-fr.org>
-X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 20 Nov 2004 07:50:25 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:41996 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261583AbUKTMuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 07:50:19 -0500
+Date: Sat, 20 Nov 2004 13:50:17 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] remove obsolete Computone MAINTAINERS entry (fwd)
+Message-ID: <20041120125017.GB2829@stusta.de>
+References: <20041120002559.GB2754@stusta.de> <20041119194735.63d2a257.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041119194735.63d2a257.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Original report and discussion:
-http://archives.andrew.net.au/lm-sensors/msg28295.html
+On Fri, Nov 19, 2004 at 07:47:35PM -0800, Andrew Morton wrote:
+> Adrian Bunk <bunk@stusta.de> wrote:
+> >
+> > I'm not sure whether it makes sense to list the previous maintainers for 
+> >  orphaned code, but if such entries contain buouncing mail addresses it's 
+> >  IMHO time to simply remove them.
+> > 
+> > ...
+> >  -M:	Michael H. Warfield <mhw@wittsend.com>
+> 
+> wittsend.com is still there and Michael still runs it.
 
-Bottom line:
-Some debug messages in the i2c-core lack their trailing newline, which
-breaks the logs.
+At least the listed mailing list is defunct:
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
+<linux-computone@lazuli.wittsend.com>:
+Sorry, I wasn't able to establish an SMTP connection. (#4.4.1)
+I'm not going to try again; this message has been in the queue too long.
 
-diff -ruN linux-2.4.28-rc2/drivers/i2c.orig/i2c-core.c linux-2.4.28-rc2/drivers/i2c/i2c-core.c
---- linux-2.4.28-rc2/drivers/i2c.orig/i2c-core.c	2004-11-09 22:02:16.000000000 +0100
-+++ linux-2.4.28-rc2/drivers/i2c/i2c-core.c	2004-11-09 22:04:41.000000000 +0100
-@@ -901,7 +901,7 @@
- 			if (addr == address_data->normal_i2c[i]) {
- 				found = 1;
- 				DEB2(printk(KERN_DEBUG "i2c-core.o: found normal i2c entry for adapter %d, "
--				            "addr %02x", adap_id,addr));
-+				            "addr %02x\n", adap_id, addr));
- 			}
- 		}
- 
-diff -ruN linux-2.4.28-rc2/drivers/i2c.orig/i2c-proc.c linux-2.4.28-rc2/drivers/i2c/i2c-proc.c
---- linux-2.4.28-rc2/drivers/i2c.orig/i2c-proc.c	2004-11-09 22:02:09.000000000 +0100
-+++ linux-2.4.28-rc2/drivers/i2c/i2c-proc.c	2004-11-09 22:03:59.000000000 +0100
-@@ -762,7 +762,7 @@
- #ifdef DEBUG
- 					printk
- 					    (KERN_DEBUG "i2c-proc.o: found normal isa_range entry for adapter %d, "
--					     "addr %04x", adapter_id, addr);
-+					     "addr %04x\n", adapter_id, addr);
- #endif
- 					found = 1;
- 				}
-@@ -776,7 +776,7 @@
- #ifdef DEBUG
- 					printk
- 					    (KERN_DEBUG "i2c-proc.o: found normal i2c entry for adapter %d, "
--					     "addr %02x", adapter_id, addr);
-+					     "addr %02x\n", adapter_id, addr);
- #endif
- 				}
- 			}
+
+And to be honest, I don't see that much value in shiping entries in 
+MAINTAINERS for people who have reseigned as maintainers.
+
+
+cu
+Adrian
 
 -- 
-Jean Delvare
-http://khali.linux-fr.org/
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

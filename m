@@ -1,52 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262745AbTKEDOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 22:14:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262746AbTKEDOZ
+	id S262729AbTKED5o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 22:57:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbTKED5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 22:14:25 -0500
-Received: from bab72-140.optonline.net ([167.206.72.140]:33416 "EHLO
-	shookay.newview.com") by vger.kernel.org with ESMTP id S262745AbTKEDOX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 22:14:23 -0500
-Date: Tue, 4 Nov 2003 22:14:21 -0500
-From: Mathieu Chouquet-Stringer <mathieu@newview.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test9 and X11: box dies when I switch to VT
-Message-ID: <20031105031421.GA20829@shookay.newview.com>
-Mail-Followup-To: Mathieu Chouquet-Stringer <mathieu@newview.com>,
-	linux-kernel@vger.kernel.org
+	Tue, 4 Nov 2003 22:57:44 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:16112 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S262729AbTKED5m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 22:57:42 -0500
+Date: Tue, 4 Nov 2003 19:57:28 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, jbarnes@sgi.com, steiner@sgi.com
+Subject: [PATCH] > 256 CPU cpumask build fix - const confusion
+Message-Id: <20031104195728.040db07a.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w 3:{EoxBR
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello all,
+Please apply the following patch.  It's needed to build NR_CPUS > 256.
 
-I can't really remember when this happened (probably after test 6 or 7) but
-now, using plain vanilla 2.6.0-test9, I can't switch to the console after
-XFree has been started. If I do, I get a login prompt but all the input
-devices are disabled (keyboard/mouse).
-At this point, the box is frozen and doesn't respond to pings (Magic SysRq
-doesn't work either). Note that switching still works if I reboot and use a
-different kernel.
+Without this fix, you get compile errors:
+    include/linux/cpumask.h: In function `next_online_cpu':
+    include/linux/cpumask.h:56: structure has no member named `val'
 
-I've tried enabling all the debug options to get a call trace using a
-serial console but that was unsucessful. A shutdown/reboot produces the
-same thing, XFree exits, I get the "Switching to runlevel" message and
-that's it...
 
-I'm not running any proprietary binaries and if this helps, thix box runs
-fedora (XFree version 4.3.0-42).
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1357  -> 1.1358 
+#	include/linux/cpumask.h	1.1     -> 1.2    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/11/04	pj@sgi.com	1.1358
+# Fix cpumask const confusion if NR_CPUS > 128 (i386) or > 256 (ia64).
+# --------------------------------------------
+#
+diff -Nru a/include/linux/cpumask.h b/include/linux/cpumask.h
+--- a/include/linux/cpumask.h	Tue Nov  4 19:31:30 2003
++++ b/include/linux/cpumask.h	Tue Nov  4 19:31:30 2003
+@@ -53,18 +53,18 @@
+ static inline int next_online_cpu(int cpu, cpumask_t map)
+ {
+ 	do
+-		cpu = next_cpu_const(cpu, map);
++		cpu = next_cpu_const(cpu, mk_cpumask_const(map));
+ 	while (cpu < NR_CPUS && !cpu_online(cpu));
+ 	return cpu;
+ }
+ 
+ #define for_each_cpu(cpu, map)						\
+-	for (cpu = first_cpu_const(map);				\
++	for (cpu = first_cpu_const(mk_cpumask_const(map));		\
+ 		cpu < NR_CPUS;						\
+-		cpu = next_cpu_const(cpu,map))
++		cpu = next_cpu_const(cpu,mk_cpumask_const(map)))
+ 
+ #define for_each_online_cpu(cpu, map)					\
+-	for (cpu = first_cpu_const(map);				\
++	for (cpu = first_cpu_const(mk_cpumask_const(map));		\
+ 		cpu < NR_CPUS;						\
+ 		cpu = next_online_cpu(cpu,map))
+ 
 
-I would like to know if I'm the only one experiencing this.
 
-Thanks, Mathieu.
 -- 
-Mathieu Chouquet-Stringer              E-Mail : mathieu@newview.com
-       Never attribute to malice that which can be adequately
-                    explained by stupidity.
-                     -- Hanlon's Razor --
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

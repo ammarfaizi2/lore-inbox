@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131025AbQKRUgz>; Sat, 18 Nov 2000 15:36:55 -0500
+	id <S130516AbQKRUna>; Sat, 18 Nov 2000 15:43:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130516AbQKRUgp>; Sat, 18 Nov 2000 15:36:45 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:16380 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131131AbQKRUgb>; Sat, 18 Nov 2000 15:36:31 -0500
-Date: Sat, 18 Nov 2000 18:05:05 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Francois romieu <romieu@ensta.fr>
-cc: Kaj-Michael Lang <milang@tal.org>,
-        Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] swap=<device> kernel commandline
-In-Reply-To: <20001118141524.A15214@nic.fr>
-Message-ID: <Pine.LNX.4.21.0011181804360.9267-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131192AbQKRUnU>; Sat, 18 Nov 2000 15:43:20 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:18190 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S130516AbQKRUnL>;
+	Sat, 18 Nov 2000 15:43:11 -0500
+From: Daniel Phillips <news-innominate.list.linux.kernel@innominate.de>
+Reply-To: Daniel Phillips <phillips@innominate.de>
+X-Newsgroups: innominate.list.linux.kernel
+Subject: Re: Advanced Linux Kernel/Enterprise Linux Kernel
+Date: Sat, 18 Nov 2000 21:13:26 +0100
+Organization: innominate
+Distribution: local
+Message-ID: <news2mail-3A16E2E6.4978A7A4@innominate.de>
+In-Reply-To: <200011141459.IAA413471@tomcat.admin.navo.hpc.mil> <3A117311.8DC02909@holly-springs.nc.us> <news2mail-3A15ACE3.5BED2CA3@innominate.de> <m1u2965c4t.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Trace: mate.bln.innominate.de 974578389 14822 10.0.0.90 (18 Nov 2000 20:13:09 GMT)
+X-Complaints-To: news@innominate.de
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Nov 2000, Francois romieu wrote:
-> The Sat, Nov 18, 2000 at 01:46:40PM +0200, Kaj-Michael Lang wrote :
-> > This patch adds a swap kernel commandline option, so that you can add a
-> > swap partition before init starts running on a low-memory machine. 
-                                                   ^^^^^^^^^^
+"Eric W. Biederman" wrote:
+> 
+> Daniel Phillips <news-innominate.list.linux.kernel@innominate.de> writes:
+> 
+> > Actually, I was planning on doing on putting in a hack to do something
+> > like that: calculate a checksum after every buffer data update and check
+> > it after write completion, to make sure nothing scribbled in the buffer
+> > in the interim.  This would also pick up some bad memory problems.
+> 
+> Be very careful that this just applies to metadata.  For normal data
+> this is a valid case.  Weird but valid.
 
-> Did you try and add swap from an initrd image ? It should work
-> and it's already there.
+I'm not sure what you mean.  With the exception of mmap'd files, the
+filesystem (or VFS) controls every transfer onto a buffer so... what
+does that leave?
 
-Did you try to load an initrd on a low-memory machine?
-It shouldn't work and it probably won't ;)
-
-regards,
-
-Rik
 --
-"What you're running that piece of shit Gnome?!?!"
-       -- Miguel de Icaza, UKUUG 2000
-
-http://www.conectiva.com/		http://www.surriel.com/
-
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

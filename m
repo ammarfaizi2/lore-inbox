@@ -1,79 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbUCSUHH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 15:07:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbUCSUHH
+	id S261924AbUCSUJn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 15:09:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbUCSUJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 15:07:07 -0500
-Received: from mailgate2.mysql.com ([213.136.52.47]:56778 "EHLO
-	mailgate.mysql.com") by vger.kernel.org with ESMTP id S261918AbUCSUHB
+	Fri, 19 Mar 2004 15:09:43 -0500
+Received: from mail.cyclades.com ([64.186.161.6]:61841 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S261924AbUCSUJk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 15:07:01 -0500
-Subject: Re: True  fsync() in Linux (on IDE)
-From: Peter Zaitsev <peter@mysql.com>
-To: reiser@namesys.com
-Cc: Chris Mason <mason@suse.com>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <405B4BA3.2030205@namesys.com>
-References: <1079572101.2748.711.camel@abyss.local>
-	 <20040318064757.GA1072@suse.de> <1079639060.3102.282.camel@abyss.local>
-	 <20040318194745.GA2314@suse.de> <1079640699.11062.1.camel@watt.suse.com>
-	 <1079641026.2447.327.camel@abyss.local>
-	 <1079642001.11057.7.camel@watt.suse.com>
-	 <1079642801.2447.369.camel@abyss.local>
-	 <1079643740.11057.16.camel@watt.suse.com>
-	 <1079644190.2450.405.camel@abyss.local>
-	 <1079644743.11055.26.camel@watt.suse.com>  <405AA9D9.40109@namesys.com>
-	 <1079704347.11057.130.camel@watt.suse.com>  <405B4BA3.2030205@namesys.com>
-Content-Type: text/plain
-Organization: MySQL
-Message-Id: <1079726769.2446.233.camel@abyss.local>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 19 Mar 2004 12:06:11 -0800
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Mar 2004 15:09:40 -0500
+Date: Fri, 19 Mar 2004 16:46:55 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@dmt.cyclades
+To: Matt Bernstein <mb/lkml@dcs.qmul.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.25 oops in do_softirq
+In-Reply-To: <Pine.LNX.4.58.0403190942360.23532@r2-pc.dcs.qmul.ac.uk>
+Message-ID: <Pine.LNX.4.44.0403191644200.1953-100000@dmt.cyclades>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-03-19 at 11:36, Hans Reiser wrote:
-
-> mysql fsync()'s a file, which it thinks guarantees that all of a mysql 
-> transaction has reached disk.  The disk write caches it.  You let fsync 
-> return.  It is not on disk.  mysql performs its mysql commit, and writes 
-> a mysql commit record which reaches disk, but not all of the transaction 
-> is on disk.  The system crashes.  mysql plays the log.  mysql has 
-> internal corruption.  User  calls Peter.  Peter asks, what do you expect 
-> when you use a piece of shit like reiserfs?  User doesn't care about our 
-> internal squabbling and goes back to using windows which does proper 
-> commits.
-
-This is right,
-
-We had some unexplained data corruptions in Innodb which can be
-explained by broken fsync(), but in the most cases the scenario is less
-gloomy.  Users just do not see some of last committed transactions if
-they test durability by shutting off the power, which is however already
-not good enough for critical applications.
-
-However this is due to external pre-caution Innodb does. It uses 
-"double write buffer", which basically means each page is first written
-to some small page based log file, and only afterwards written to the
-proper place on the disk.   We have to do it even with proper fsync()
-implementation as there is still possibility to crash in the middle of
-fsync (or synchronous write) which will result in partial page write. 
-Think for example about the case when page crosses stripe boundary on
-RAID. 
 
 
-If file system would guaranty atomicity of write() calls (synchronous
-would be enough) we could disable it and get good extra performance.
+On Fri, 19 Mar 2004, Matt Bernstein wrote:
 
+> Hi,
+> 
+> Our big student fileserver has crashed two nights in a row (while the
+> dumps were running). I didn't have time to capture the oops the first
+> time; this time I've copied it by hand. The modules having changed are
+> credit to my initrd. The machine is a dual-Athlon running Debian woody.
+> 
+> We've recently changed the gigabit NIC from a 33MHz, 64-bit fibre acenic
+> under 2.4.23 (stable for at least weeks) to a 66MHz, 64-bit copper ns83820
+> under 2.4.25 while changing our switches. It had run fine for a week.
+> 
+> Here's some possibly irrelevant information: I can provide plenty more if
+> need be! (I've tried to run a memtest86+ but had to abort at 9am, as our
+> students have a deadline..)
+> 
+> Cheers,
+> 
+> Matt
+> 
+> Linux version 2.4.25 (mb@absinthe-pc) (gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-118)) #1 SMP Wed Mar 10 11:22:38 GMT 2004
+> 
+> 00:09.0 Ethernet controller: National Semiconductor Corporation DP83820 10/100/1000 Ethernet Controller
+>         Subsystem: Netgear: Unknown device 622a
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap- 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 64 (2750ns min, 13000ns max), cache line size 10
+>         Interrupt: pin A routed to IRQ 17
+>         Region 0: I/O ports at 1000 [size=256]
+>         Region 1: Memory at e8000000 (32-bit, non-prefetchable) [size=4K]
+>         Expansion ROM at <unassigned> [disabled] [size=64K]
+> 
+> Unable to handle kernel NULL pointer dereference at virtual address 
+> 00000000 printing eip:
+> c011e5c0
+> *pde = 00000000
+> Oops: 0002
+> CPU: 0
+> EIP: 0010:[<c011e5c0>]
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010213
+> eax: 00000000 ebx: 00000002 ecx: 00000000 edx: c024d688
+		     ********
 
+Looks like one bit got flipped, causing the crash. 
 
--- 
-Peter Zaitsev, Senior Support Engineer
-MySQL AB, www.mysql.com
+Most probably bad hardware. Try memtest86 for longer periods (the weekend 
+is here :))
 
-Meet the MySQL Team at User Conference 2004! (April 14-16, Orlando,FL)
-  http://www.mysql.com/uc2004/
+> 00000000 <_EIP>:
+> Code;  c011e5c0 <do_softirq+70/e0>   <=====
+>    0:   f7 c3 01 00 00 00         test   $0x1,%ebx   <=====
 

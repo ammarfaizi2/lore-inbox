@@ -1,104 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267354AbTAOW5Z>; Wed, 15 Jan 2003 17:57:25 -0500
+	id <S267375AbTAOXFs>; Wed, 15 Jan 2003 18:05:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267375AbTAOW5Z>; Wed, 15 Jan 2003 17:57:25 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:16908 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267354AbTAOW5Y>;
-	Wed, 15 Jan 2003 17:57:24 -0500
-Date: Wed, 15 Jan 2003 15:05:54 -0800
-From: Greg KH <greg@kroah.com>
-To: Torben Mathiasen <torben.mathiasen@hp.com>
-Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net,
-       stormy_peters@hp.com, john.cagle@hp.com, dan.zink@hp.com
-Subject: Re: [PATCH-2.4.20] PCI-X hotplug support for Compaq driver
-Message-ID: <20030115230554.GC25816@kroah.com>
-References: <20030115095513.GA2761@tmathiasen>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030115095513.GA2761@tmathiasen>
-User-Agent: Mutt/1.4i
+	id <S267377AbTAOXFs>; Wed, 15 Jan 2003 18:05:48 -0500
+Received: from [63.170.40.3] ([63.170.40.3]:51399 "EHLO epexch01.qlogic.org")
+	by vger.kernel.org with ESMTP id <S267375AbTAOXFr>;
+	Wed, 15 Jan 2003 18:05:47 -0500
+Date: Wed, 15 Jan 2003 17:23:24 -0600 (CST)
+From: Bret Indrelee <Bret.Indrelee@qlogic.com>
+X-X-Sender: <breti@localhost.localdomain>
+Reply-To: Bret Indrelee <Bret.Indrelee@qlogic.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Forcing PCI-PCI bridge to have memory resources
+Message-ID: <Pine.LNX.4.33.0301151709360.18997-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 15 Jan 2003 23:15:04.0311 (UTC) FILETIME=[EF9C0070:01C2BCEB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 15, 2003 at 10:55:13AM +0100, Torben Mathiasen wrote:
-> Hi Greg,
-> 
-> Attached is a patch against 2.4.20 (should apply to .21-pre3 and BK-current as
-> well) that adds 66/100/133MHz PCI-X support to the Compaq Hotplug driver.
-> 
-> Please apply.
+I'm working with Linux version 2.4.18-xfs with hotswap support.
 
-Looks almost ready.  Could you make up a 2.5 version first?  I don't
-like to have new features in 2.4 before they go into 2.5.
+I'm trying to make a PCI-PCI bridge always have a minimum of 1MB of
+memory address space allocated to it. I know that the BIOS we are
+using always (correctly, by spec) sets a bridge with no devices behind 
+it to disable the memory window. It does this by setting the 
+MEM_LIMIT < MEM_BASE.
 
->  /* inline functions */
-> -
-> +extern inline struct slot *find_slot (struct controller *ctrl, u8 device);
+I've been going through the sources in drivers/pci, trying to figure
+out how things are set up. At the time of the pci scan, the resources
+are usually initialized (in bci_read_breidge_bases) by doing a read of 
+the bridge registers and setting the resource values appropropriately.
 
-Can you just make this a normal function then, with a more private name?
+For the disabled bridges, the resources are copied from the parent
+which in this case results in 0 being set in flags, start and end.
 
-> +/*
-> + * get_controller_speed - find the current frequency/mode of controller.
-> + *
-> + * @ctrl: controller to get frequency/mode for.
-> + *
-> + * Returns controller speed.
-> + *
-> + */
->  static inline u8 get_controller_speed (struct controller *ctrl)
+It looks like I will want to call pci_assign_resource(dev, 1); in
+order to give it a memory window, but I'm not sure how to initialize
+the resources so they are assigned correctly.
 
-Thanks for documenting this and get_adapter_speed().
+Our situation is similiar to what a hotswap CPCI system should encounter
+when a hotswap device is inserted behind a previously empty PCI-PCI bridge.
 
-> +static char *get_speed_string (int speed)
-> +{
-> +	switch(speed) {
-> +		case(PCI_SPEED_33MHz):
-> +			return "33MHz PCI";
-> +		case(PCI_SPEED_66MHz):
-> +			return "66MHz PCI";
-> +		case(PCI_SPEED_50MHz_PCIX):
-> +			return "50MHz PCI-X";
-> +		case(PCI_SPEED_66MHz_PCIX):
-> +			return "66MHz PCI-X";
-> +		case(PCI_SPEED_100MHz_PCIX):
-> +			return "100MHz PCI-X";
-> +		case(PCI_SPEED_133MHz_PCIX):
-> +			return "133MHz PCI-X";
-> +		default:
-> +			return "UNKNOWN";
-> +	}
-> +}
+Any help people can give would be greatly appreciated.
 
-Ick, why?  Just for a debugging message?  That /proc file is on the
-short list of things to delete :)
+-Bret
 
-> --- linux-2.4.20/drivers/hotplug/pci_hotplug.h	Thu Nov 28 17:53:13 2002
-> +++ linux-2.4.20-pcix/drivers/hotplug/pci_hotplug.h	Mon Jan  6 22:54:47 2003
-> @@ -33,9 +33,10 @@
->  enum pci_bus_speed {
->  	PCI_SPEED_33MHz			= 0x00,
->  	PCI_SPEED_66MHz			= 0x01,
-> -	PCI_SPEED_66MHz_PCIX		= 0x02,
-> -	PCI_SPEED_100MHz_PCIX		= 0x03,
-> -	PCI_SPEED_133MHz_PCIX		= 0x04,
-> +	PCI_SPEED_50MHz_PCIX		= 0x02,
-> +	PCI_SPEED_66MHz_PCIX		= 0x03,
-> +	PCI_SPEED_100MHz_PCIX		= 0x04,
-> +	PCI_SPEED_133MHz_PCIX		= 0x05,
->  	PCI_SPEED_66MHz_PCIX_266	= 0x09,
->  	PCI_SPEED_100MHz_PCIX_266	= 0x0a,
->  	PCI_SPEED_133MHz_PCIX_266	= 0x0b,
-
-Where are you getting the PCI_SPEED_50MHz_PCIX value from?  I took these
-values from the Hotplug PCI draft spec.  Has 02 been reserved for 50MHz
-PCIX and the other values changed?
-
-If it's not in the spec, I'd recommend adding it to the end of the list,
-with a big comment about why it's different from the spec values.
-
-thanks,
-
-greg k-h
+-- 
+Bret Indrelee                 QLogic Corporation
+Bret.Indrelee@qlogic.com      6321 Bury Driver, St 13, Eden Prairie, MN 55346
 

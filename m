@@ -1,34 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271368AbTG2Jtk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 05:49:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271369AbTG2Jtj
+	id S271385AbTG2K0w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 06:26:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271393AbTG2K0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 05:49:39 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:48656 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S271368AbTG2JtD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 05:49:03 -0400
-Date: Tue, 29 Jul 2003 10:49:00 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Sean Estabrooks <seanlkml@rogers.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Bug 999] New: Problem with the /dev/ptmx file
-Message-ID: <20030729104900.A25238@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Sean Estabrooks <seanlkml@rogers.com>, linux-kernel@vger.kernel.org
-References: <3897970000.1059421161@[10.10.2.4]> <20030728205501.A26278@infradead.org> <123101c35544$1b382fb0$7f0a0a0a@lappy7>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <123101c35544$1b382fb0$7f0a0a0a@lappy7>; from seanlkml@rogers.com on Mon, Jul 28, 2003 at 04:09:09PM -0400
+	Tue, 29 Jul 2003 06:26:52 -0400
+Received: from kde.informatik.uni-kl.de ([131.246.103.200]:57502 "EHLO
+	dot.kde.org") by vger.kernel.org with ESMTP id S271385AbTG2K0v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 06:26:51 -0400
+Date: Tue, 29 Jul 2003 12:18:16 +0200 (CEST)
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+X-X-Sender: bero@dot.kde.org
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] [2.6] Make com20020_cs module compile
+Message-ID: <Pine.LNX.4.53.0307291217580.29995@dot.kde.org>
+X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
+X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
+MIME-Version: 1.0
+Content-Type: MULTIPART/Mixed; BOUNDARY="658386544-686579945-1059473856=:29995"
+Content-ID: <Pine.LNX.4.53.0307291217581.29995@dot.kde.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 28, 2003 at 04:09:09PM -0400, Sean Estabrooks wrote:
-> What's your objection to bugzilla?  It's not perfect but it
-> does seem better than the list alone to track a bug.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-I can't use it easily with a mail or news client.
+--658386544-686579945-1059473856=:29995
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.53.0307291217582.29995@dot.kde.org>
 
+com20020_cs was missed out on the hw.open_close_ll -> hw.owner change.
+Patch was diffed against 2.6.0-test2-mm1, but should apply to 
+2.6.0-test2 vanilla as well.
+
+LLaP
+bero
+
+-- 
+Ark Linux - Linux for the masses
+http://www.arklinux.org/
+
+Redistribution and processing of this message is subject to
+http://www.arklinux.org/terms.php
+--658386544-686579945-1059473856=:29995
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="2.6.0-test2-fix-compile.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.53.0307291217360.29995@dot.kde.org>
+Content-Description: fix build
+Content-Disposition: ATTACHMENT; FILENAME="2.6.0-test2-fix-compile.patch"
+
+LS0tIGxpbnV4LTIuNi4wLXRlc3QyL2RyaXZlcnMvbmV0L3BjbWNpYS9jb20y
+MDAyMF9jcy5jLmFyawkyMDAzLTA3LTI5IDEyOjA1OjI1LjAwMDAwMDAwMCAr
+MDIwMA0KKysrIGxpbnV4LTIuNi4wLXRlc3QyL2RyaXZlcnMvbmV0L3BjbWNp
+YS9jb20yMDAyMF9jcy5jCTIwMDMtMDctMjkgMTI6MDU6NDIuMDAwMDAwMDAw
+ICswMjAwDQpAQCAtMjM3LDcgKzIzNyw3IEBADQogICAgIGxwLT5iYWNrcGxh
+bmUgPSBiYWNrcGxhbmU7DQogICAgIGxwLT5jbG9ja3AgPSBjbG9ja3A7DQog
+ICAgIGxwLT5jbG9ja20gPSBjbG9ja20gJiAzOw0KLSAgICBscC0+aHcub3Bl
+bl9jbG9zZV9sbCA9IGNvbTIwMDIwY3Nfb3Blbl9jbG9zZTsNCisgICAgbHAt
+Pmh3Lm93bmVyID0gVEhJU19NT0RVTEU7DQogDQogICAgIGxpbmstPmlycS5J
+bnN0YW5jZSA9IGluZm8tPmRldiA9IGRldjsNCiAgICAgbGluay0+cHJpdiA9
+IGluZm87DQo=
+
+--658386544-686579945-1059473856=:29995--

@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286161AbRLJEZO>; Sun, 9 Dec 2001 23:25:14 -0500
+	id <S280817AbRLJEff>; Sun, 9 Dec 2001 23:35:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286162AbRLJEZF>; Sun, 9 Dec 2001 23:25:05 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:48367 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S286161AbRLJEZA>; Sun, 9 Dec 2001 23:25:00 -0500
-Date: Sun, 9 Dec 2001 20:16:12 -0800
-From: Chris Wright <chris@wirex.com>
-To: Zilvinas Valinskas <zvalinskas@carolina.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.1-pre{7,8} fails to link
-Message-ID: <20011209201612.B27109@figure1.int.wirex.com>
-Mail-Followup-To: Zilvinas Valinskas <zvalinskas@carolina.rr.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011210030320.GA1621@clt88-175-140.carolina.rr.com>
+	id <S281504AbRLJEf0>; Sun, 9 Dec 2001 23:35:26 -0500
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:6158 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S280817AbRLJEfP>; Sun, 9 Dec 2001 23:35:15 -0500
+Subject: 2.5.1-pre8 -- Compile failure in ide-floppy.c
+From: Miles Lane <miles@megapathdsl.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0+cvs.2001.12.04.08.57 (Preview Release)
+Date: 09 Dec 2001 20:37:29 -0800
+Message-Id: <1007959053.29716.0.camel@stomata.megapathdsl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011210030320.GA1621@clt88-175-140.carolina.rr.com>; from zvalinskas@carolina.rr.com on Sun, Dec 09, 2001 at 10:03:20PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Zilvinas Valinskas (zvalinskas@carolina.rr.com) wrote:
-> drivers/net/net.o(.data+0x174): undefined reference to `local symbols in
-> discarded section .text.exit'
-> make[1]: *** [vmlinux] Error 1
-> 
-> $ gcc -v
-> Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.4/specs
-> gcc version 2.95.4 20011006 (Debian prerelease)
-> 
-> $ ld -v
-> GNU ld version 2.11.92.0.12.3 20011121 Debian/GNU Linux
 
-you might want to check the archives, people have been reporting that
-downgrading your debian binutils gets around this problem.
 
-cheers,
--chris
+make[2]: Entering directory `/usr/src/linux/drivers/ide'
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon  -DMODULE   -c -o ide-floppy.o ide-floppy.c
+ide-floppy.c: In function `idefloppy_end_request':
+ide-floppy.c:699: warning: comparison between pointer and integer
+ide-floppy.c:699: warning: comparison between pointer and integer
+ide-floppy.c: In function `idefloppy_queue_pc_head':
+ide-floppy.c:779: incompatible types in assignment
+ide-floppy.c: In function `idefloppy_create_rw_cmd':
+ide-floppy.c:1214: warning: comparison between pointer and integer
+ide-floppy.c: In function `idefloppy_do_request':
+ide-floppy.c:1243: switch quantity not an integer
+ide-floppy.c:1258: warning: unsigned int format, pointer arg (arg 2)
+ide-floppy.c:1246: warning: unreachable code at beginning of switch statement
+ide-floppy.c: In function `idefloppy_queue_pc_tail':
+ide-floppy.c:1276: incompatible types in assignment
+make[2]: *** [ide-floppy.o] Error 1
+
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDEFLOPPY=m
+
+

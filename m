@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267624AbRG3Tpe>; Mon, 30 Jul 2001 15:45:34 -0400
+	id <S267676AbRG3TyO>; Mon, 30 Jul 2001 15:54:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267672AbRG3TpY>; Mon, 30 Jul 2001 15:45:24 -0400
-Received: from seldon.terminus.sk ([195.146.17.130]:11018 "EHLO
-	seldon.terminus.sk") by vger.kernel.org with ESMTP
-	id <S267624AbRG3TpR>; Mon, 30 Jul 2001 15:45:17 -0400
-Date: Mon, 30 Jul 2001 21:49:06 +0200 (CEST)
-From: Milan WWW Pikula <www@terminus.sk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Announce: fs-salvage mailing list (correct version)
-Message-ID: <Pine.LNX.4.20.0107302144350.17482-100000@seldon.terminus.sk>
-X-NCC-RegID: sk.napri
+	id <S267713AbRG3TyE>; Mon, 30 Jul 2001 15:54:04 -0400
+Received: from mta1n.bluewin.ch ([195.186.1.210]:54426 "EHLO mta1n.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S267676AbRG3Txt>;
+	Mon, 30 Jul 2001 15:53:49 -0400
+Message-ID: <3B4B4FC10065D2C3@mta1n.bluewin.ch> (added by postmaster@bluewin.ch)
+From: "Per Jessen" <per@computer.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Mon, 30 Jul 2001 21:59:55 +0200
+Reply-To: "Per Jessen" <per@computer.org>
+X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1111)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Subject: Re: Test mail
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi all,
+>On Mon, 30 Jul 2001 15:19:17 -0400 (EDT), Albert D. Cahalan wrote:
+>
+>Torrey Hoffman writes:
+>
+>> I hate to jump in and extend this mostly off-topic thread, but I would be
+>> a little annoyed if Outlook was banned from LKML.  I've got two machines
+>> on my desk here at work - one is Win2K, and is used almost exclusively for 
+>> Outlook and Word.  It's very difficult to give those up when the rest of
+>> the company uses them extensively.  The automatic meeting scheduling and
+>> other MS Exchange features of Outlook are not available in other clients, 
+>> and why should I switch when Outlook works fine?  
 
-I am very sorry for my second posting, but I gave wrong subscription
-information :((. This one is correct.
+Completely agree. I am in the exact same situation. I need/want to follow
+Linux development, but my corporate desktop is MS, Outlook etc. 
+What's wrong with that ? (my development systems are not connected to 
+anything else but our internal network.)
 
-	I'd like to announce the mailing list, targeted on filesystem repair
-and crash recovery. The mailing list is for discussion of the methods
-for data rescuing, algorithms, hints, existing tools and utilities.
+>> Of course the other computer runs Linux, and is where all my real work
+>> gets done.  It's convenient to have both environments.
+>
+>This does not mean you have to use Outlook to _send_ mail to
+>the linux-kernel mailing list. Do this:
+>
+>1. log into the Linux box you have
+>2. run emacs
+>3. Control-x m
+>4. fill in the header fields and write your message
+>5. Control-c Control-c
 
-	You are invited to join, if you are:
+Bollocks. Look, the main target here is practicality, and what
+you just demonstrated was plainly impractical.
 
-	* interested in the methods of data rescuing
-	* developer of some filesystem repair tools (fsck, ...)
-	* the one who already lost the data and wants it back ;)
-	* (developer of) or (expert on) a particular filesystem
+>If you really must send mail directly from the Windows box,
+>get emacs for Windows and skip step 1 above.
 
-	You can browse the archives of list at
+This is an awful lot of effort just to overcome some peoples
+failure to avoid double-clicking on attachments in Outlook.
 
-		http://list.terminus.sk/fs-salvage
-                                        ~~~~~~~~~~
+>
+>BTW, if you can't log into anything that can open an SMTP connection
+>to the outside world and don't have a relay, then most likely your
+>employer doesn't want you sending stuff to linux-kernel anyway.
 
-	(though they are empty yet:) and you can subscribe by
-sending a message containing
-
-		subscribe fs-salvage
-                          ~~~~~~~~~~
-
-	in the body of message to address list@list.terminus.sk
-
-	Regards,
-
-		Milan Pikula
-
---
-Milan Pikula, WWW. Finger me for Geek Code.
-http://fornax.elf.stuba.sk/~www, www@fornax.elf.stuba.sk
-.. dajte mi pevnu linku a pohnem zemegulou ..
+Disagree. See above and join life in the real world.
 
 
+regards,
+Per Jessen, Zurich.
 
-
-
-
+regards,
+Per Jessen
 
 

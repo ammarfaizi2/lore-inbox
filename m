@@ -1,78 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261211AbSI3P1y>; Mon, 30 Sep 2002 11:27:54 -0400
+	id <S262087AbSI3Opu>; Mon, 30 Sep 2002 10:45:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261666AbSI3P1y>; Mon, 30 Sep 2002 11:27:54 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:44928 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S261211AbSI3P1x>; Mon, 30 Sep 2002 11:27:53 -0400
-Date: Mon, 30 Sep 2002 11:33:19 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: v2.6 vs v3.0
-Message-ID: <20020930153319.GA18695@ravel.coda.cs.cmu.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0209281826050.2198-100000@home.transmeta.com> <200209290716.g8T7GNwf000562@darkstar.example.net> <20020929091229.GA1014@suse.de> <1033311400.13001.5.camel@irongate.swansea.linux.org.uk> <20020929153817.GC1014@suse.de>
+	id <S262872AbSI3Opu>; Mon, 30 Sep 2002 10:45:50 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:12043 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S262087AbSI3Opt>; Mon, 30 Sep 2002 10:45:49 -0400
+Date: Mon, 30 Sep 2002 11:50:46 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dipankar Sarma <dipankar@in.ibm.com>, "David S. Miller" <davem@redhat.com>,
+       mingo@elte.hu, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org, wli@holomorphy.com, kuznet@ms2.inr.ac.ru
+Subject: Re: [patch] smptimers, old BH removal, tq-cleanup, 2.5.39
+Message-ID: <20020930145046.GE11312@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Dipankar Sarma <dipankar@in.ibm.com>,
+	"David S. Miller" <davem@redhat.com>, mingo@elte.hu,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org, wli@holomorphy.com,
+	kuznet@ms2.inr.ac.ru
+References: <Pine.LNX.4.44.0209291927400.15706-100000@localhost.localdomain> <20020930004559.A19071@in.ibm.com> <20020929.172022.23984844.davem@redhat.com> <20020930100317.A21939@in.ibm.com> <20020930043829.GG9920@conectiva.com.br> <1033390556.16266.36.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020929153817.GC1014@suse.de>
+In-Reply-To: <1033390556.16266.36.camel@irongate.swansea.linux.org.uk>
 User-Agent: Mutt/1.4i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 29, 2002 at 05:38:17PM +0200, Jens Axboe wrote:
-> On Sun, Sep 29 2002, Alan Cox wrote:
-> > Most of my boxes won't even run a 2.5 tree yet. I'm sure its hardly
-> > unique. Middle of November we may begin to find out how solid the core
-> > code actually is, as drivers get fixed up and also in the other
-> > direction as we eliminate numerous crashes caused by "fixed in 2.4" bugs
+Em Mon, Sep 30, 2002 at 01:55:56PM +0100, Alan Cox escreveu:
+> On Mon, 2002-09-30 at 05:38, Arnaldo Carvalho de Melo wrote:
+> > I'm working on Appletalk, will be fixed after X.25, humm, in fact Appletalk
+> > only uses SNAP on Ethernet, so it is only broken for ppptalk and ltalk, does
+> > anybody still uses these later two?
 > 
-> Well why don't they run with 2.5?
+> ppptalk is relevant to the modern world, localtalk is basically for
+> talking to old macintoshes many of which don't have any capability for
+> ethernet. I don't think either of them are even going to be performance
+> matters.
+
+OK, but even those will be taken care of, as the changes had to be done anyway
+for SNAP, so I'll just stick the (void*)1 to its packet_types.
+ 
+> > Nobody working on this, as far as I know
+> > >         econet/af_econet.c
 > 
-> Alan, I think you are a pessimist painting a much bleaker picture of 2.5
-> than it deserves. Sure lots of drivers may be broken still, I would be
-> naive if I thought that this is all changed in time for oct 31. Most of
-> these will not be fixed until people actually _use_ 2.5 (or 3.0-pre, or
-> whatever it will be called), and that will not happen until Linus
-> actually releases a -rc or similar. And so the fsck what? Noone expects
-> 2.6-pre/3.0-pre to be perfect.
+> Ancient BBC micro protocol, could probably be done just as well in user
+> space. 
 
-Ok, after losing a disk in the early 2.5 series, and not being able to
-compile pretty much any kernel since 2.5.33, I decided to give 2.5.39 a
-try last weekend.
+As some of the other protocols, but at this point it may well be easier to
+fix it in the kernel where it sits 8)
 
-Built kernel, rebooted, almost seems to get stuch during the ide-probing
-(10 seconds wait is a conservative estimate), but it came up in single
-user. Checking for errors in /proc/kmsg, nothing. Great reboot
-multiuser start X open a window lose all access to my keyboard. Completely
-log in remotely with ssh, hmm kernel errors about unknown scancodes.
+Oh, dang, I forgot that these other protocols can work on fast lines these
+days 8)
 
-Reboot, just don't use X for the moment, maybe I can catch an oops,
-lockup during boot while loading the uhci usb driver. Alt-sysrq works,
-another fsck later (these seem to take a lot longer, but that could be
-subjective). Disable hotplug/usb during startup, reboot, within 2
-minutes orinoco_cs driver locks up and starts throwing debugging goo
-about transmit timeouts and resetting card. Nice, except for the fact
-that interrupts seem to be disabled and this time magic-sysrq doesn't
-work.
-
-Pull the battery out to be able to reboot the laptop, and went back to
-2.4.20-latest for now. 2.5.33 did work mostly (after fixing up a bunch
-of compile fixes and the oss cs4281 driver), but seems to last only
-about 1 hour on battery life vs. the solid 3 1/2 hours with a 2.4 kernel.
-All of this is on a Thinkpad X20, which doesn't have a serial console.
-
-Using APM, not ACPI. But this is not a bugreport, because I haven't even
-got a chance to isolate any single problem in a way that I can create a
-useful report.
-
-> I'm not worried.
-
-I am a bit worried, at least as far as Coda is concerned, there is a lot
-of unmerged stuff, and as long as I can't do any testing of the changes
-it is a bit useless to send them off to Linus. I hope things stabilize
-before the feature freeze.
-
-Jan
-
+- Arnaldo

@@ -1,137 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbULBOtX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbULBPNc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261647AbULBOtX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 09:49:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbULBOtW
+	id S261640AbULBPNc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 10:13:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbULBPNb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 09:49:22 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:35685 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261647AbULBOtF (ORCPT
+	Thu, 2 Dec 2004 10:13:31 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:20140 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261640AbULBPNa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 09:49:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding;
-        b=n76ONe4RUPzswmfNpn4FKwCEBEhe7OLnr2QM/Fxxg1ng+6BzmiKjlp3Ve+RpUE/6LQ0cuj0mr9gkzM8octP+Xs8fDewUv/9NeysIZYtvMnDgcDJxUcUIbR7+98aVWsJZfiwifXAeTMgIyG4Y7eFgxHEnQ4NACKYx7qY6/yjDnqA=
-Message-ID: <3b2b32004120206497a471367@mail.gmail.com>
-Date: Thu, 2 Dec 2004 09:49:04 -0500
-From: Linh Dang <dang.linh@gmail.com>
-Reply-To: Linh Dang <dang.linh@gmail.com>
-To: Paul Mackerras <paulus@samba.org>
-Subject: [PATCH][PPC32] enhancement to virt_to_bus/bus_to_virt (resent with spell-checked subject line)
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Dec 2004 10:13:30 -0500
+To: Jan Kasprzak <kas@fi.muni.cz>
+Cc: Arnd Bergmann <arnd@arndb.de>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cosa.h ioctl numbers
+References: <20041202124456.GF11992@fi.muni.cz>
+	<200412021358.00844.arnd@arndb.de> <20041202131224.GI11992@fi.muni.cz>
+	<jeu0r4ajl4.fsf@sykes.suse.de> <20041202141132.GO11992@fi.muni.cz>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I decided to be JOHN TRAVOLTA instead!!
+Date: Thu, 02 Dec 2004 16:13:28 +0100
+In-Reply-To: <20041202141132.GO11992@fi.muni.cz> (Jan Kasprzak's message of
+ "Thu, 2 Dec 2004 15:11:32 +0100")
+Message-ID: <jellcgag2v.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.6.9 on non-APUS ppc32 platforms, virt_to_bus() will just subtract
-KERNELBASE  from the the virtual address. bus_to_virt() will perform
-the reverse operation.
+Jan Kasprzak <kas@fi.muni.cz> writes:
 
-This patch will make virt_to_bus():
+> Andreas Schwab wrote:
+> : If you want real compatibility you should use size_t, which is what 2.4 is
+> : effectively using.
+> : 
+> 	I assume that sizeof(struct .. *) == sizeof(size_t) on i386.
 
-     - perform the current operation if the virtual address is between
-       KERNELBASE and ioremap_bot.
+This has nothing to do with this, but everything to do with
+sizeof(sizeof(foo)) == sizeof(size_t).  And COSAIODOWNLD does not expect a
+pointer to a pointer but a pointer to struct cosa_download, which means
+that _IOW('C',0xf2,struct cosa_download *) would be completely wrong
+anyway.
 
-     - use iopa() (as on APUS platform) otherwise.
-
-The patch will make bus_to_virt():
-
-     - perform the current operation if the bus address is between
-       PCI_DRAM_OFFSET and (ioremap_bot - KERNELBASE + PCI_DRAM_OFFSET).
-
-     - use mm_ptov() (as on APUS platform) otherwise.
-
-
-The patch also changes virt_to_phys()/phys_to_virt() in a similar way.
+Andreas.
 
 -- 
-Linh Dang
-
---- include/asm-ppc/io.h~2.6.9	2004-11-12 14:24:46.000000000 -0500
-+++ include/asm-ppc/io.h	2004-12-02 09:42:32.000000000 -0500
-@@ -6,10 +6,11 @@
- #include <linux/types.h>
- 
- #include <asm/page.h>
- #include <asm/byteorder.h>
- #include <asm/mmu.h>
-+#include <asm/pgtable.h>
- 
- #define SIO_CONFIG_RA	0x398
- #define SIO_CONFIG_RD	0x399
- 
- #define SLOW_DOWN_IO
-@@ -222,49 +223,60 @@ extern void io_block_mapping(unsigned lo
-  * have to be modified [mapped] appropriately.
-  */
- extern inline unsigned long virt_to_bus(volatile void * address)
- {
- #ifndef CONFIG_APUS
--        if (address == (void *)0)
-+	if (unlikely(address == (void *)0))
- 		return 0;
-+	if (likely((address >= (void*) KERNELBASE) &&
-+		   (address < ((void*) ioremap_bot))))
-         return (unsigned long)address - KERNELBASE + PCI_DRAM_OFFSET;
--#else
--	return iopa ((unsigned long) address);
-+	else
- #endif
-+		return iopa ((unsigned long) address);
- }
- 
- extern inline void * bus_to_virt(unsigned long address)
- {
- #ifndef CONFIG_APUS
--        if (address == 0)
-+	if (unlikely (address == 0))
- 		return NULL;
-+	if (likely((address >= PCI_DRAM_OFFSET) &&
-+		   (address < (ioremap_bot - KERNELBASE + PCI_DRAM_OFFSET))))
-         return (void *)(address - PCI_DRAM_OFFSET + KERNELBASE);
--#else
--	return (void*) mm_ptov (address);
-+	else
- #endif
-+		return (void*) mm_ptov (address);
- }
- 
- /*
-  * Change virtual addresses to physical addresses and vv, for
-  * addresses in the area where the kernel has the RAM mapped.
-  */
- extern inline unsigned long virt_to_phys(volatile void * address)
- {
- #ifndef CONFIG_APUS
-+	if (unlikely(address == (void *)0))
-+		return 0;
-+	if (likely((address >= (void*) KERNELBASE) &&
-+		   (address < ((void*) ioremap_bot))))
- 	return (unsigned long) address - KERNELBASE;
--#else
--	return iopa ((unsigned long) address);
-+	else
- #endif
-+		return iopa ((unsigned long) address);
- }
- 
- extern inline void * phys_to_virt(unsigned long address)
- {
- #ifndef CONFIG_APUS
-+	if (unlikely (address == 0))
-+		return NULL;
-+	if (likely(address < (ioremap_bot - KERNELBASE)))
- 	return (void *) (address + KERNELBASE);
--#else
--	return (void*) mm_ptov (address);
-+	else
- #endif
-+		return (void*) mm_ptov (address);
- }
- 
- /*
-  * Change "struct page" to physical address.
-  */
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

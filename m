@@ -1,108 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132377AbRAQSKt>; Wed, 17 Jan 2001 13:10:49 -0500
+	id <S132202AbRAQSMT>; Wed, 17 Jan 2001 13:12:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135413AbRAQSKj>; Wed, 17 Jan 2001 13:10:39 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:42214 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S135341AbRAQSK3>; Wed, 17 Jan 2001 13:10:29 -0500
-Message-Id: <5.0.2.1.2.20010117180018.00a60da0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Wed, 17 Jan 2001 18:11:06 +0000
-To: linux-kernel@vger.kernel.org
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: [PATCH] 2.4.0-ac9: NTFS cleanup & assorted bugfixes
-Cc: linux-ntfs-dev@lists.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S132274AbRAQSMJ>; Wed, 17 Jan 2001 13:12:09 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:41231
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S132202AbRAQSMC>; Wed, 17 Jan 2001 13:12:02 -0500
+Date: Wed, 17 Jan 2001 10:11:15 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Petr Matula <pem@informatics.muni.cz>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        "Dunlap, Randy" <randy.dunlap@intel.com>,
+        MOLNAR Ingo <mingo@chiara.elte.hu>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: int. assignment on SMP + ServerWorks chipset
+In-Reply-To: <20010117185047.A13171968@aisa.fi.muni.cz>
+Message-ID: <Pine.LNX.4.10.10101171010110.17625-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LK-ML & LND-ML,
 
-I have produced a patch for the NTFS driver as described below which I have 
-sent to Alan Cox for inclusion in the next 2.4.0-acX kernel. Patch is 
-generated against -ac9. The patch is large due to a large K&R-ification of 
-the whole NTFS driver as well as error code conversion to being negative. 
-Due to the size the patch is not attached but can be found on the 
-linux-ntfs project (which I have taken the freedom to register) on 
-sourceforge in the anonymous ftp area as:
+There is a interrupt transaction delay imposed on all interrupts of 600ns
+spacing.  It can be turned on/off but this may not help.
 
-ftp://linux-ntfs.sourceforge.net/pub/linux-ntfs/patch-ntfs-010116-linux-2.4.0-ac9.bz2
+Cheers,
 
-*The patch doesn't touch any code outside the NTFS driver.*
+On Wed, 17 Jan 2001, Petr Matula wrote:
 
-*Patch is tested for compilation both as module and in kernel (both RO and 
-RW)  and for functionality as module RW. - It compiles warning free on two 
-different systems and runs at least as well as the original. My testing of 
-write support didn't trash the partition I was writing to which is a big 
-improvement from before. [Admittedly I used my NtfsFix utility (not yet 
-publicly released but watch this space) before I rebooted into NT so this 
-will have helped.]*
+> On Mon, Jan 15, 2001 at 08:49:56PM -0800, Linus Torvalds wrote:
+> > So what I _think_ is the correct change is to do roughly this in
+> > arch/i386/kernel/pci-irq.c:
+> > 
+> >  - in pcibios_fixup_irqs(), remove the
+> > 
+> > 	#idef CONFIG_X86_IO_APIC
+> > 		...
+> > 	#endif
+> > 
+> >    section entirely.
+> > 
+> >  - in pcibios_enable_irq(), at the _end_ (after having enabled the irq
+> >    with "pcibios_lookup_irq(dev, 1)", do something like
+> > 
+> > 	irq = IO_APIC_get_PCI_irq_vector(dev->bus->number, PCI_SLOT(dev->devfn), pin);
+> > 	if (irq > 0)
+> > 		dev->irq = irq;
+> > 
+> > and add a LOT of debug printk's, and enable DEBUG in pci-i386.h.
+> 
+> I did the changes above to 2.4.0 source. 
+> Kernel with these changes can't detect my SCSI drive. It prints these messages 
+> in cycle:
+> SCSI host 0 abort (pid 0) timed out - resetting
+> SCSI host is being reset for host 0 channel 0
+> SCSI host 0 channel 0 reset (pid 0) timed out - trying harder
+> SCSI host is being reset for host 0 channel 0
+> 
+> Same configuration without changes above detects SCSI drive without problem.
+> For completness, made changes are attached.
+> 
+> Could anybody help?
+> 
+> Petr
+> 
+> ---------------------------------------------------------------
+>  Petr Matula                                    pem@fi.muni.cz
+>                                     http://www.fi.muni.cz/~pem
+> ---------------------------------------------------------------
+> 
 
-Detailed description of patch:
-
-- Fix a *critical* bug in on disk structure laying out which always 
-resulted in some certain attributes being corrupt!
-
-- Convert all error codes to being negative and being returned negative to 
-the VFS. Including modifying all error handling to be consistently using 
-negative numbers. This was suggested by Matthew Wilcox <matthew@wil.cx>.
-
-- Fix some other bugs, not as critical but help to make the driver more 
-generally correct/stable (including on disk structures and in memory 
-layout, such as fixing handling the update sequence number (or fixup as 
-called in the  driver), fixing searching for attributes which had some 
-wrong assumptions, fix for some of the unicode stuff including endianness 
-handling [There was a function half with and half without handling 
-endianness!, and some not doing handling at all], possibly other one liners 
-I can't remember).
-
-- Added several FIXMEs where the fix was not obvious/small.
-
-- Removed non-linux kernel related #ifdef-ed code as the new utilities I 
-have started on will have a separate code base from the kernel mode driver 
-(except for some structural header files perhaps which will be 1-to-1 
-copies of each other).
-
-- Changed NTFS driver version number to 010116.
-
-- Added new sourceforge mailing list for linux-ntfs development to the 
-Maintainers file. List is: linux-ntfs-dev@lists.sourceforge.net It goes 
-together with the linux-ntfs project I registered on sourceforge where I 
-intend to upload my ntfs utilities together with documentation on NTFS as 
-soon as they are enough developed to not have changing 
-structures/functions/APIs on a daily basis...
-
-- Changed NTFS status to "Maintained" rather than "Odd fixes" in 
-Maintainers file. I also added myself to the CREDITS file.
-
-IMO this patch makes the code a lot more readable, more stable according to 
-my testing, (even though it still is not as good as it should be but at 
-least it holds up a lot more then it did before, it managed to sift through 
-more than 10Gb of NTFS disk running md5sum on each file before it 
-collapsed, doing it on two different SCSI disks simultaneously whereas it 
-used to collapse a lot more quickly just using a single disk before), and 
-last but not least gives me a good basis to begin hacking on it more 
-intensely. - The next big step will be to replace the IMHO ugly 
-NTFS_PUT*(ptr + ofs) = value and var = NTFS_GET*(ptr + ofs) to actual use 
-of structures describing the ntfs on-disk structures (the header files and 
-utilities for NTFS access and testing are cooking nicely, if a bit slowly).
-
-Best regards,
-
-         Anton Altaparmakov
-         Linux NTFS Maintainer
-
-
--- 
-      "Education is what remains after one has forgotten everything he 
-learned in school." - Albert Einstein
--- 
-Anton Altaparmakov  Voice: +44-(0)1223-333541(lab) / +44-(0)7712-632205(mobile)
-Christ's College    eMail: AntonA@bigfoot.com / aia21@cam.ac.uk
-Cambridge CB2 3BU    ICQ: 8561279
-United Kingdom       WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+Andre Hedrick
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,63 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268445AbUIWNKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268439AbUIWNNa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268445AbUIWNKa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 09:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268438AbUIWNK3
+	id S268439AbUIWNNa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 09:13:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268440AbUIWNNa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 09:10:29 -0400
-Received: from scanner2.mail.elte.hu ([157.181.151.9]:22694 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S268439AbUIWNJH (ORCPT
+	Thu, 23 Sep 2004 09:13:30 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:17319 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268439AbUIWNN2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 09:09:07 -0400
-Date: Thu, 23 Sep 2004 15:09:49 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S4
-Message-ID: <20040923130949.GB12984@elte.hu>
-References: <20040907115722.GA10373@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <200409230957.29318.norberto+linux-kernel@bensa.ath.cx> <20040923130134.GA12392@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 23 Sep 2004 09:13:28 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [profile] 512x Altix timer interrupt livelock fix vs. 2.6.9-rc2-mm2
+Date: Thu, 23 Sep 2004 09:12:59 -0400
+User-Agent: KMail/1.7
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040923055430.GB9106@holomorphy.com>
+In-Reply-To: <20040923055430.GB9106@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040923130134.GA12392@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200409230912.59647.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday, September 23, 2004 1:54 am, William Lee Irwin III wrote:
+> amortization factor. In fact, only 19 flushes were observed on a 64x
+> Altix over an approximately 10 minute AIM7 run, and 1 flush on a 512x
+> Altix over the course of an entire AIM7 run, for truly vast effective
+> amortization factors.
 
-i've uploaded the correct patch - please download -S4 again.
+Wow!  That's quite an improvement!  Thanks a lot for seeing this through.
 
-	Ingo
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> 
-> * Norberto Bensa <norberto+linux-kernel@bensa.ath.cx> wrote:
-> 
-> > Hello,
-> > 
-> > Ingo Molnar wrote:
-> > > i've released the -S4 VP patch:
-> > >
-> > >   
-> > > http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm2-
-> > >S4
-> > 
-> >   CC      arch/i386/kernel/irq.o
-> > arch/i386/kernel/irq.c: In function `do_IRQ':
-> > arch/i386/kernel/irq.c:287: warning: implicit declaration of function 
-> > `redirect_hardirq'
-> > arch/i386/kernel/irq.c:344: error: `noirqdebug' undeclared (first use in this 
-> 
-> 
-> did you do a 'make oldconfig'? Make sure there's
-> CONFIG_GENERIC_HARDIRQ=y in your .config.
-> 
-> 	Ingo
+Jesse

@@ -1,46 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262503AbUCHPQd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 10:16:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262508AbUCHPQc
+	id S262518AbUCHPRP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 10:17:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbUCHPQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 10:16:32 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:39404 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S262503AbUCHPQb (ORCPT
+	Mon, 8 Mar 2004 10:16:50 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:59087 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262508AbUCHPQo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 10:16:31 -0500
-To: Paul Jackson <pj@sgi.com>
-Cc: kangur@polcom.net, mmazur@kernel.pl, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.3.0
-References: <200402291942.45392.mmazur@kernel.pl>
-	<200403031829.41394.mmazur@kernel.pl>
-	<m3brnc8zun.fsf@defiant.pm.waw.pl>
-	<200403042149.36604.mmazur@kernel.pl>
-	<m3brnb8bxa.fsf@defiant.pm.waw.pl>
-	<Pine.LNX.4.58.0403060022570.5790@alpha.polcom.net>
-	<m38yidk3rg.fsf@defiant.pm.waw.pl>
-	<20040306171535.5cbf2494.pj@sgi.com>
-	<m38yiclby8.fsf@defiant.pm.waw.pl>
-	<20040307172847.46708dcc.pj@sgi.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Mon, 08 Mar 2004 16:03:34 +0100
-In-Reply-To: <20040307172847.46708dcc.pj@sgi.com> (Paul Jackson's message of
- "Sun, 7 Mar 2004 17:28:47 -0800")
-Message-ID: <m3hdwzwfcp.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 8 Mar 2004 10:16:44 -0500
+Date: Mon, 8 Mar 2004 16:16:25 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Andy Isaacson <adi@hexapodia.org>, Pavel Machek <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: Some highmem pages still in use after shrink_all_memory()?
+Message-ID: <20040308151625.GC3999@devserv.devel.redhat.com>
+References: <20040307144921.GA189@elf.ucw.cz> <20040307164052.0c8a212b.akpm@osdl.org> <20040308063639.GA20793@hexapodia.org> <1078738772.4678.5.camel@laptop.fenrus.com> <404C8CBB.1030008@nortelnetworks.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1ccMZA6j1vT5UqiK"
+Content-Disposition: inline
+In-Reply-To: <404C8CBB.1030008@nortelnetworks.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> writes:
 
->> You're talking about the kernel development ...
->
-> No.  I mean that even the C API that the kernel presents to
-> user code will sometimes change or have parts disappear.
+--1ccMZA6j1vT5UqiK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-And it can be caused by changing kernel config?
+On Mon, Mar 08, 2004 at 10:09:47AM -0500, Chris Friesen wrote:
+> Arjan van de Ven wrote:
+> >>Note that there are some applications for which it is a *bug* if an
+> >>mlocked page gets written out to magnetic media.  (gpg, for example.)
+> >>
+> >
+> >mlock() does not guarantee things not hitting magnetic media, just as
+> >mlock() doesn't guarantee that the physical address of a page doesn't
+> >change.
+> 
+> The mlock() man page sure seems to hint that they do, by explicitly 
+> describing its use by high-security data processing as a way to keep the 
+> information from getting to disk.
 
-Care to show an example?
--- 
-Krzysztof Halasa, B*FH
+... and explicitly describing that this is not a 100% thing due to suspend
+etc etc. 
+
+----
+mlock disables paging for the memory in the range starting at addr with
+length len bytes. All pages which contain a part of the specified memory
+range are guaranteed be resident in RAM when the mlock system call returns
+successfully and they are guaranteed to stay in RAM until the pages are
+unlocked by munlock or munlockall, until the pages are unmapped via munmap,
+or until the process terminates or starts another program with exec.  Child
+processes do not inherit page locks across a fork.
+-----
+
+that is what it guarantees. it guarantees that you don't hard-fault.
+The rest of the manpage talks about potential usages but immediatly
+describes the crypto one as non-solid
+
+--1ccMZA6j1vT5UqiK
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFATI5IxULwo51rQBIRAhEQAJ95v3AFBibomdAvQgGJGkrfRDvO3QCcDLWT
+wUX3tFTWdZR0dLVXB41goNg=
+=UTEo
+-----END PGP SIGNATURE-----
+
+--1ccMZA6j1vT5UqiK--

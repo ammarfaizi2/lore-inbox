@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317760AbSGWG0d>; Tue, 23 Jul 2002 02:26:33 -0400
+	id <S317968AbSGWGfH>; Tue, 23 Jul 2002 02:35:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317961AbSGWG0d>; Tue, 23 Jul 2002 02:26:33 -0400
-Received: from spud.dpws.nsw.gov.au ([203.202.119.24]:37115 "EHLO
-	spud.dpws.nsw.gov.au") by vger.kernel.org with ESMTP
-	id <S317760AbSGWG0c>; Tue, 23 Jul 2002 02:26:32 -0400
-Message-Id: <sd3d8473.096@out-gwia.dpws.nsw.gov.au>
-X-Mailer: Novell GroupWise Internet Agent 6.0.1
-Date: Tue, 23 Jul 2002 16:29:24 +1000
-From: "Daniel Lim" <Daniel.Lim@dpws.nsw.gov.au>
-To: <linux-kernel@vger.kernel.org>
-Subject: mkinitrd problem
-Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-X-NAIMIME-Disclaimer: 1
-X-NAIMIME-Modified: 1
+	id <S317970AbSGWGfH>; Tue, 23 Jul 2002 02:35:07 -0400
+Received: from [196.26.86.1] ([196.26.86.1]:48072 "HELO
+	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S317968AbSGWGfG>; Tue, 23 Jul 2002 02:35:06 -0400
+Date: Tue, 23 Jul 2002 08:56:05 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: "Craig I. Hagan" <hagan@cih.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: APIC issues with 2.4.19-rcX-acY
+In-Reply-To: <Pine.LNX.4.44.0207221058320.20806-100000@svr.cih.com>
+Message-ID: <Pine.LNX.4.44.0207230855100.32636-100000@linux-box.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 22 Jul 2002, Craig I. Hagan wrote:
 
+> I've seen the following error when booting a dell 2550 (dual p3, serverworks  
+> CNB20HE chipset):
+> 
+> APIC error on CPU0: 08(08)
+> (repeats until i hard reset the machine)
+> 
+> I've seen this for every combination of 2.4.19-rc/ac patch that i've tried,
+> however the 2.4.19-rc kernels work fine (my test system is currently running
+> 2.4.19-rc3). I'd like to help resolve this issue, but I'm not quite sure as to
+> where to start save rolling back all of the apic deltas in the -ac patch
+> series.
 
-Hello there,
-When I attempted to create the initial ramdisk images it failed with
-loopback devices are in use!
-# mkinitrd /boot/initrd-2.4.9-34.img 2.4.9-34
-All of your loopback devices are in use!
+Alan i might have an idea to other odd breakage, its to do with APIC 
+addressing. Let me gather the info i have and i'll email it to you.
 
-Any idea ?
-Much thanks.
-
-Regards,
-Daniel
-
-
-
- This e-mail message (and attachments) is confidential, and / or privileged and is intended for the use of the addressee only. If you are not the intended recipient of this e-mail you must not copy, distribute, take any action in reliance on it or disclose it to anyone. Any confidentiality or privilege is not waived or lost by reason of mistaken delivery to you. DPWS is not responsible for any information not related to the business of DPWS. If you have received this e-mail in error please destroy the original and notify the sender.
-
-For information on services offered by DPWS, please visit our website at www.dpws.nsw.gov.au
-
-
+Cheers,
+	Zwane
+-- 
+function.linuxpower.ca
 

@@ -1,75 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289918AbSAOPDy>; Tue, 15 Jan 2002 10:03:54 -0500
+	id <S289881AbSAOPDE>; Tue, 15 Jan 2002 10:03:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289908AbSAOPDp>; Tue, 15 Jan 2002 10:03:45 -0500
-Received: from xsmtp.ethz.ch ([129.132.97.6]:31497 "EHLO xfe3.d.ethz.ch")
-	by vger.kernel.org with ESMTP id <S289882AbSAOPDf>;
-	Tue, 15 Jan 2002 10:03:35 -0500
-Message-ID: <3C444441.3080608@debian.org>
-Date: Tue, 15 Jan 2002 16:01:21 +0100
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
-X-Accept-Language: en-us, en
+	id <S289882AbSAOPCy>; Tue, 15 Jan 2002 10:02:54 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:49170 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S289881AbSAOPCr>;
+	Tue, 15 Jan 2002 10:02:47 -0500
+Date: Tue, 15 Jan 2002 16:02:37 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Amit Gupta <amit.gupta@amd.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: arpd not working in 2.4.17 or 2.5.1
+In-Reply-To: <3C4380F2.292475B9@cmdmail.amd.com>
+Message-ID: <Pine.LNX.4.44.0201151555590.24858-100000@Expansa.sns.it>
 MIME-Version: 1.0
-To: Marco Colombo <marco@esi.it>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery --the elegant solution)
-In-Reply-To: <Pine.LNX.4.33.0201151517550.11441-100000@Megathlon.ESI>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Jan 2002 15:03:33.0707 (UTC) FILETIME=[CD1031B0:01C19DD5]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Latest  kernel I saw working with arpd (user space daemon) I am manteining
+is 2.2.16, then from 2.4.4 (for 2.4 series), some changes were done to
+kernel so that the kernel does not talk correctly with the device
+/dev/arpd anymore.
+It is not the first time I write about this on lkml, but it seems none is
+interested in manteining the kernel space component for arpd support.
+I did some investigation, but the code for arpd support itself inside of
+the kernel seems to be ok, something else is wrong with neighour.c.
 
+So at less I can say the user space daemon works well on 2.2.16 I have
+around ;).
 
-Marco Colombo wrote:
+Luigi
 
->>
->>The main discussion was in kbuild-devel list.
->>
-> 
-> Uh, my mailbox hurts just at the thought of even more posting on the suject.
-> 
+On Mon, 14 Jan 2002, Amit Gupta wrote:
 
+>
+> Hi All,
+>
+> I am running 2.5.1 kernel on a 2 AMD processor system and have enable
+> routing messages, netlink and arpd support inside kernel as described in
+> arpd docs.
+>
+> Then after making 36 character devices, when I run arpd, it's starts up
+> but always keeps silent (strace) and the kernel also does not keep it's
+> 256 arp address limit.
+>
+> Pls help fix it, I need linux to be able to talk to more than 1024
+> clients.
+>
+> Thanks in Advance.
+>
+> Amit
+> amit.gupta@amd.com
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-In kbuild: less people, less traffic, more discussion, less flames
-
-> Kernel tarballs are for hackers. Marcelo can't test any configuration
-> the autoconfigurator can produce. So basically it means an untested
-> kernel. Running untested kernel isn't a job for Joe User, and never
-> will be.
-
-
-Also what are the stable series?
-
-But you think your distribution test the kernel in all possible
-use? With all possible hardware configuration?
-Autoconfiguration will configure a compile and booting kernel.
-(but on old machine). Neither vendor can assure you that the kernel
-will work for a particolar permutation of hardware, and mainly
-it is indipendent from configuration.
-
-
-> Vendors and kernel developers have different goals. That horrible hack
-> that fixes some bug or misbehavior fits fine into a vendor kernel, and
-> has no place in Marcelo's tree; the same for that C++ written, cross OS
-> crap driver for hardware XYZ. Users want it, vendors provide it.
-> Different goals, different targets.
-
-
-Change distribution. In Debian/unstable developers and distribution are
-hardly linked!
-Why do you need someone in the 'layer' between developers
-and user?
-
-
-> Autoconfiguration is nice. But please move the topic elsewhere.
-
-
-Right. Let stop it
-
-
-	giacomo
 

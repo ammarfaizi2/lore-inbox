@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266613AbUAWS6m (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 13:58:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266620AbUAWS6l
+	id S262746AbUAWSz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 13:55:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266590AbUAWSz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 13:58:41 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:24238 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S266613AbUAWS6k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 13:58:40 -0500
-Date: Fri, 23 Jan 2004 19:58:35 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Pascal Schmidt <der.eremit@email.de>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make ide-cd handle non-2kB sector sizes
-In-Reply-To: <Pine.LNX.4.44.0401222014390.1296-100000@neptune.local>
-Message-ID: <Pine.LNX.4.55.0401231954430.3223@jurand.ds.pg.gda.pl>
-References: <Pine.LNX.4.44.0401222014390.1296-100000@neptune.local>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 23 Jan 2004 13:55:27 -0500
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:32007 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S262746AbUAWSzW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 13:55:22 -0500
+Subject: Re: gcc 2.95.3
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Karel =?ISO-8859-1?Q?Kulhav=FD?= <clock@twibright.com>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040123151340.B1130@beton.cybernet.src>
+References: <20040123145048.B1082@beton.cybernet.src>
+	 <20040123100035.73bee41f.jeremy@kerneltrap.org>
+	 <20040123151340.B1130@beton.cybernet.src>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1074884119.1544.3.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Fri, 23 Jan 2004 19:55:19 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Jan 2004, Pascal Schmidt wrote:
+On Fri, 2004-01-23 at 16:13, Karel Kulhavý wrote:
+> On Fri, Jan 23, 2004 at 10:00:35AM -0500, Jeremy Andrews wrote:
+> > > Is it correct to issue "make bzImage modules modules_install"
+> > > or do I have to do make bzImage; make modules modules_install?
+> > > 
+> > > Is there any documentation where I can read answer to this question?
+> > 
+> > make help
+> 
+> Cool. I got to README :)
+> 
+> I read here "make sure you have gcc 2.95.3 available" - does it mean
+> my gcc-3.2.3 or gcc-3.2.2 is not suitable for kernel compiling?
 
-> I've tested it with a 230 MB MO disc, which uses 512 byte sectors.
-> I filled the whole disk, then ejected - reinsert - fsck - read and
-> compare. Everything worked without problems. Then I inserted a
-> 640 MB MO disc, which uses 2048 byte sectors, and went through the
-> same procedure. No problems either, so switching between different
-> sector sizes appears to work.
+I've been compiling 2.5 and 2.6 kernels since gcc 3.3 with no problems.
+In fact, there are patches on the -mm tree to help compiling with gcc
+3.4 and 3.5.
 
- Hmm, given MO is a removable direct access device, I'd suppose ide-floppy
-would be used as the handling driver similarly to the Zip drive, wouldn't
-it?
+I think the Documentation is a little bit updated ;-)
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

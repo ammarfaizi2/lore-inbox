@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277124AbRJDEsj>; Thu, 4 Oct 2001 00:48:39 -0400
+	id <S277127AbRJDExJ>; Thu, 4 Oct 2001 00:53:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277125AbRJDEsa>; Thu, 4 Oct 2001 00:48:30 -0400
-Received: from mx2.fuse.net ([216.68.1.120]:49120 "EHLO mta02.fuse.net")
-	by vger.kernel.org with ESMTP id <S277124AbRJDEsQ>;
-	Thu, 4 Oct 2001 00:48:16 -0400
-Message-ID: <3BBBEA1E.8060304@fuse.net>
-Date: Thu, 04 Oct 2001 00:48:30 -0400
-From: Nathan <wfilardo@fuse.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011001
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10 hangs on console switch
-In-Reply-To: <E15oURs-0005XB-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S277126AbRJDExA>; Thu, 4 Oct 2001 00:53:00 -0400
+Received: from 200-221-84-35.dsl-sp.uol.com.br ([200.221.84.35]:64773 "HELO
+	dumont.rtb.ath.cx") by vger.kernel.org with SMTP id <S277127AbRJDEwt>;
+	Thu, 4 Oct 2001 00:52:49 -0400
+Date: Thu, 4 Oct 2001 01:53:16 -0300
+From: =?us-ascii?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+To: Michel =?us-ascii?Q?D=E4nzer?= <daenzer@debian.org>
+Cc: linux-kernel@vger.kernel.org, debian-powerpc@lists.debian.org
+Subject: Re: Panic on PowerPC
+Message-ID: <20011004015316.A1082@iname.com>
+Mail-Followup-To: Michel =?us-ascii?Q?D=E4nzer?= <daenzer@debian.org>,
+	linux-kernel@vger.kernel.org, debian-powerpc@lists.debian.org
+In-Reply-To: <20011003222219.A487@iname.com> <1002159607.2363.16.camel@pismo>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <1002159607.2363.16.camel@pismo>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Oct 04 2001, Michel Dänzer wrote:
+> On Thu, 2001-10-04 at 03:22, =?us-ascii?Q?Rog=E9rio?= Brito wrote:
+> 
+> > >>NIP; c0005d58 <__sti+8/50>   <=====
+> > Trace; c01758c8 <rtc_init+b8/16c>
+> > Trace; c016576c <do_initcalls+30/50>
+> > Trace; c01657b8 <do_basic_setup+2c/3c>
+> > Trace; c00038a4 <init+14/1b0>
+> > Trace; c00062a4 <kernel_thread+34/40>
+> 
+> Disable CONFIG_RTC, only enable CONFIG_PPC_RTC in the kernel config.
 
->>>You are using the Nvidia drivers aren't you. They seem to have timing
->>>dependant screen mode switch problems. The timing has changed in 2.4.10
->>>
->>Not the nvidia supplied drivers. I am using the nvidia driver (nv)  that
->>comes with XFree86 4.1.0. I did not compile in kernel agpgart and driver
->>support.
->>
->
->I'm seeing  reports of this one always with nvidia cards and with both sets
->of Nvidia drivers - I guess they both do the same thing and have the same
->bug, or the user mode XFree bit is in both cases doing it.
->
->Right now thats all I can really point at as a pattern, I dont know why the
->problem should be there
->
->Alan
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
-Don't have that problem here [least, haven't run into it yet].  I'm 
-currently running 2.4.10+RML's preempt and net entropy patches, system 
-is a VIA chipset Athlon 900Mhz with nVidia's proprietary drivers and a 
-GeForce2 GTS 64MB.  Help shed any light on the issue?
+	Thank you very much, Michel.
 
---Nathan
+	That was it. I recompiled the kernel and it worked fine. I
+	guess that that was my first traps of the PPC platform. :-)
+
+	OTOH, just to document this on the archives, now that I can
+	run a 2.4 kernel, the IMS TT card is showing up in lspci.
 
 
+	Thanks you very much, Roger...
 
+-- 
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito/
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

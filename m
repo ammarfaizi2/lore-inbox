@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261886AbVDCUE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261893AbVDCUGH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261886AbVDCUE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 16:04:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVDCUE5
+	id S261893AbVDCUGH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 16:06:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVDCUGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 16:04:57 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:54206 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261886AbVDCUE4 (ORCPT
+	Sun, 3 Apr 2005 16:06:07 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:22450 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S261893AbVDCUF6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 16:04:56 -0400
-Date: Sun, 3 Apr 2005 21:04:43 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: LVM general discussion and development <linux-lvm@redhat.com>,
-       Neil Brown <neilb@cse.unsw.edu.au>, Antti Salmela <asalmela@iki.fi>,
-       linux-kernel@vger.kernel.org, dmo@osdl.org
-Subject: Re: [linux-lvm] Re: 2.6.11ac5 oops while reconstructing md array and moving volumegroup with pvmove
-Message-ID: <20050403200443.GS14307@agk.surrey.redhat.com>
-Mail-Followup-To: LVM general discussion and development <linux-lvm@redhat.com>,
-	Neil Brown <neilb@cse.unsw.edu.au>, Antti Salmela <asalmela@iki.fi>,
-	linux-kernel@vger.kernel.org, dmo@osdl.org
-References: <20050401143853.GA11763@asalmela.iki.fi> <16973.56100.413874.917027@cse.unsw.edu.au> <20050402060937.GA27664@asalmela.iki.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050402060937.GA27664@asalmela.iki.fi>
-User-Agent: Mutt/1.4.1i
+	Sun, 3 Apr 2005 16:05:58 -0400
+Date: Sun, 3 Apr 2005 21:05:57 +0100 (IST)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: AIM9 slowdowns between 2.6.11 and 2.6.12-rc1 (probably false
+ positive)
+In-Reply-To: <1112555170.7189.34.camel@localhost>
+Message-ID: <Pine.LNX.4.58.0504032059520.1402@skynet>
+References: <Pine.LNX.4.58.0504031532570.25594@skynet> <1112555170.7189.34.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 02, 2005 at 09:09:37AM +0300, Antti Salmela wrote:
-> % mdadm --create -l 1 -n 2 /dev/md2 /dev/hde /dev/hdg
-> % pvcreate /dev/md2
-> % vgextend vg1 /dev/md2
-> % pvmove /dev/hdf /dev/md2
- 
-A few similar reports still appearing, possibly still related to 
-the md bio_clone changes that fixed some bugs for md but 
-created new ones for dm...
+On Sun, 3 Apr 2005, Dave Hansen wrote:
 
-Would be good if you could re-test with a current 2.6.12-
-I'll look into later this week if nobody beats me to it - please!
+> On Sun, 2005-04-03 at 15:37 +0100, Mel Gorman wrote:
+> > While testing the page placement policy patches on 2.6.12-rc1, I noticed
+> > that aim9 is showing significant slowdowns on page allocation-related
+> > tests. An excerpt of the results is at the end of this mail but it shows
+> > that page_test is allocating 18000 less pages.
+> >
+> > I did not check who has been recently changing the buddy allocator but
+> > they might want to run a benchmark or two to make sure this is not
+> > something specific to my setup.
+>
+> Can you get some kernel profiles to see what, exactly, is causing the
+> decreased performance?  Also, what kind of system do you have?  Does
+> backing this out help?  If not, can you test some BK snapshots to see
+> when this started occurring?
+>
+> http://linus.bkbits.net:8080/linux-2.5/cset@422de02c1628MP_noKSum9sGlTaC-Q
+>
 
-Alasdair
+The machine is a quad xeon with P III 733 processors. I don't have profile
+information available as I wasn't collecting as I went along. However,
+backing out the patch made little difference
 
+However, I reran the test on 2.6.11 and this time the performance
+difference was a lot less. Something else must have been happening when I
+collected the first set of poor results. I'll revisit this when I'm next
+working on kernel stuff and see can I reproduce it again reliably.
+
+-- 
+Mel Gorman
+Part-time Phd Student                          Java Applications Developer
+University of Limerick                         IBM Dublin Software Lab

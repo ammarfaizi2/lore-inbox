@@ -1,34 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271246AbRHTOh2>; Mon, 20 Aug 2001 10:37:28 -0400
+	id <S271252AbRHTOh6>; Mon, 20 Aug 2001 10:37:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271244AbRHTOhT>; Mon, 20 Aug 2001 10:37:19 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:7657 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S271246AbRHTOhC>; Mon, 20 Aug 2001 10:37:02 -0400
-Date: Mon, 20 Aug 2001 07:37:16 -0700
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: lnz@dandelion.com
-Cc: linux-kernel@vger.kernel.org
-Subject: PATCH: linux-2.4.9/drivers/block/DAC960.c to new module_{init,exit} interface
-Message-ID: <20010820073716.A329@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S271251AbRHTOht>; Mon, 20 Aug 2001 10:37:49 -0400
+Received: from [209.38.98.99] ([209.38.98.99]:21214 "EHLO srvr201.castmark.com")
+	by vger.kernel.org with ESMTP id <S271244AbRHTOhg>;
+	Mon, 20 Aug 2001 10:37:36 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Fred Jackson <fred@arkansaswebs.com>
+To: "WEB MASTER" <WEBADMIN@rect.ernet.in>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.xx won't recompile - fixed!
+Date: Mon, 20 Aug 2001 09:31:24 -0500
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <812915418@rect.ernet.in>
+In-Reply-To: <812915418@rect.ernet.in>
+MIME-Version: 1.0
+Message-Id: <01082009225902.01086@bits.linuxball>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	The following patch moves linux-2.4.9/drivers/block/DAC960.c
-to the new module_{init,exit} interface, simplifying it slightly and
-removing the DAC960_init reference from drivers/block/genhd.c
-(part of my effort to eliminate genhd.c).
+Finally, I fugured it out, and after reading about a host of similiar 
+problems about includeing a '#include <linux/kernel.h>' as a fix, I 
+wonder of some of the compilation issues are related.
 
-	Leonard, does this look OK to you?  If so, do you want to
-submit this to Alan and Linus or do you want me to?
+RedHat 7.1 installs the kernel header files for the default kernel to 
+the path /usr/include/linux/ during a workstation install (for what 
+reason I don't know, either the setup is different for server install 
+vs workstation install or the setup changed as of 7.1). These headers 
+were used in compiling a different kernel, screwing up the whole damn 
+thing- it's a miracle that I was even able to compile 2.4.6, 2.4.8, 
+and 2.4.9 against the headers from 2.4.2-2.....
 
--- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+The error messages I recieved were relavent only in that 'parse 
+error' was reported on lines containing 'FASTCALL('
+
+Thanks 
+Fred
+
+
+_________________________________ 
+On Saturday 18 August 2001 08:57 pm, WEB MASTER wrote:
+> hi can u pls.. tell what the error exactly is ? vl 
+> it seems u missed out the make dep step..
+> check out the readme file..first
+> sarvana.
+> 
+> > Hi ya,
+> > 
+> > I have a Redhat 7.1 system practically out of the box, and though 
+I 
+> > had no problem compiling 2.4.9 the first time around, I can't 
+> > recompile it at all without deleting the directory and untaring 
+the 
+> > distribution again. 
+> > 
+> > any ideas?
+> > 
+> > thanks in advance!
+> > 
+> > Fred
+> > 
+> > I start with the usual 
+> > make mrproper
+> > make xconfig ( I load a kernel config file - originally created 
+with 
+> > 2.4.8) 
+> > make bzImage
+> > make modules
+> > make modules_install
+> > make install
+> > 
+> > (i've already edited lilo.conf and the links in the /boot 
+directory)
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe 
+linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+________________________________________________________________________
+> 
+> Webmaster,REC Trichy               http://www.rect.edu 
+> Computer Support Group             http://rangoli.rect.ernet.in   
+> Tiruchirapalli-620001              webadmin@rect.ernet.in
+> INDIA                              Phone: 91-431-552281
+> 
+========================================================================
+>                               Dare to Dream
+> 
+------------------------------------------------------------------------
+> 

@@ -1,87 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270175AbTGUPBi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 11:01:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270173AbTGUPBh
+	id S269225AbTGUPJL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 11:09:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269559AbTGUPJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 11:01:37 -0400
-Received: from melchior.nerv-un.net ([216.179.91.90]:40453 "EHLO nerv-un.net")
-	by vger.kernel.org with ESMTP id S270151AbTGUPAl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 11:00:41 -0400
-Date: Mon, 21 Jul 2003 11:08:21 -0400
-From: Mike Kershaw <dragorn@melchior.nerv-un.net>
-To: Javier Achirica <achirica@telefonica.net>
-Cc: Christoph Hellwig <hch@infradead.org>, Daniel Ritz <daniel.ritz@gmx.ch>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-net <linux-net@vger.kernel.org>,
-       Jean Tourrilhes <jt@bougret.hpl.hp.com>
-Subject: Re: [PATCH 2.5] fixes for airo.c
-Message-ID: <20030721150821.GA18134@melchior.nerv-un.net>
-References: <20030721133757.A24319@infradead.org> <Pine.SOL.4.30.0307211543010.25549-100000@tudela.mad.ttd.net>
+	Mon, 21 Jul 2003 11:09:11 -0400
+Received: from ldap.somanetworks.com ([216.126.67.42]:15592 "EHLO
+	mail.somanetworks.com") by vger.kernel.org with ESMTP
+	id S269225AbTGUPJI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 11:09:08 -0400
+Date: Mon, 21 Jul 2003 11:24:05 -0400
+From: Georg Nikodym <georgn@somanetworks.com>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@osdl.org
+Subject: [PATCH] compilation failure in kernel/suspend.c
+Message-Id: <20030721112405.6be4f4e3.georgn@somanetworks.com>
+Organization: SOMA Networks
+X-Mailer: Sylpheed version 0.9.3claws (GTK+ 1.2.10; i386-pc-linux-gnu)
+X-Face: #EE>^U0b8z^y>O0BZ>JJMGXyyxSP?<W-(g1&Yh;2p1'N6AeM]{Zfu(v>Uhe8ptGua4P}`QZ
+ m%yb7CYwN^TiGQcP&mncyDrjAtLh7cB|m{$C,ww;yaYi*YvQllxb*vet
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
-Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0307211543010.25549-100000@tudela.mad.ttd.net>
-User-Agent: Mutt/1.4i
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.cyqcWiJuyFNYL?"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=.cyqcWiJuyFNYL?
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Apologies if you've heard this one before.
 
-Grargh.  At work all weekend.  Didn't have time to make a real patch.
+>From the latest 2.5 (2.6.0-test1) bk, I get:
 
-Anyhow - Proposed changes to airo.c for rfmonitor mode.  I've been working
-on making it quiet (not continually probing) and on making it enter "true"
-rfmon mode (right now it doesn't, which is why user-controlled channel
-hopping doesn't work).  Both of these are "special case" stuff that doesn't
-affect normal users, but are near and dear to my own pursuits. :P
+  CC      kernel/suspend.o
+kernel/suspend.c:293: warning: #warning This might be broken. We need to somehow wait for data to reach the disk
+kernel/suspend.c:86: conflicting types for `_text'
+include/asm-generic/sections.h:6: previous declaration of `_text'
+kernel/suspend.c:86: conflicting types for `_etext'
+include/asm-generic/sections.h:6: previous declaration of `_etext'
+kernel/suspend.c:86: conflicting types for `_edata'
+include/asm-generic/sections.h:7: previous declaration of `_edata'
+kernel/suspend.c:86: conflicting types for `__bss_start'
+include/asm-generic/sections.h:8: previous declaration of `__bss_start'
+make[1]: *** [kernel/suspend.o] Error 1
+make: *** [kernel] Error 2
 
-I've succeeded in the first, but not the second, so I hadn't released any
-changed driver code.  The first is actually a very simple change - in the=
-=20
-code block that puts the driver into rfmon mode (around line 2480 on my=20
-code) after setting:
-config.rmode =3D RXMODE_RFMON | RXMODE_DISABLE_802_3_HEADER;
-or=20
-config.rmode =3D RXMODE_RFMON_ANYBSS | RXMODE_DISABLE_802_3_HEADER;
+sections.h defines things like "extern char _text[]" whereas suspend.c
+defines "extern char _text"
 
-it should set:
-config.scanMode =3D SCANMODE_PASSIVE;
+Since the _text, _etext, etc symbols are not even used in suspend.c,
+removing them seems the correct thing to do.
 
-and in the code block exiting rfmon mode, after:
-config.opmode =3D 0;
-it should set:
-config.scanMode =3D SCANMODE_ACTIVE;
+--- 1.42/kernel/suspend.c	Fri May  2 14:16:11 2003
++++ edited/suspend.c	Mon Jul 21 11:20:14 2003
+@@ -83,7 +83,6 @@
+ #define ADDRESS2(x) __ADDRESS(__pa(x))		/* Needed for x86-64 where some pages are in memory twice */
+ 
+ /* References to section boundaries */
+-extern char _text, _etext, _edata, __bss_start, _end;
+ extern char __nosave_begin, __nosave_end;
+ 
+ extern int is_head_of_free_region(struct page *);
 
-With my testing this stops the probing in rfmon (good) and doesn't have any
-negative impacts.  More testing is, of course, a good idea.
-
-I can try to come up with an exact diff but I figured I should get something
-out while everyone is discussing changes, and I don't know how much time I'm
-going to have in the coming weeks.
-
--m
-
---=20
-I like my coffee like I like my friends -- Dark, and bitter.
-
---UugvWAfsgieZRqgk
+--=.cyqcWiJuyFNYL?
 Content-Type: application/pgp-signature
-Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE/HAHk17KIInOLvbERAjUmAKCffVkSErNL0zETLt6W+ER4HeLCggCePZv1
-ud7SL9cS4wujEluogOGrlZI=
-=Y723
+iD8DBQE/HAWWoJNnikTddkMRAmP2AKCLjRh4dUA3YbfJucxrBuRyri2WFgCeMAAi
+WcwVF9Bcyal95QNb+g6Mt/Q=
+=yIP4
 -----END PGP SIGNATURE-----
 
---UugvWAfsgieZRqgk--
+--=.cyqcWiJuyFNYL?--

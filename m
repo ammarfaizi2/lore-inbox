@@ -1,70 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVCYH2m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbVCYHbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261509AbVCYH2m (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 02:28:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVCYH2m
+	id S261511AbVCYHbx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 02:31:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVCYHbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 02:28:42 -0500
-Received: from smtp-out.tiscali.no ([213.142.64.144]:19473 "EHLO
-	smtp-out.tiscali.no") by vger.kernel.org with ESMTP id S261509AbVCYH2c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 02:28:32 -0500
-Subject: Re: fork()
-From: Natanael Copa <mlists@tanael.org>
-To: Triffid Hunter <triffid_hunter@funkmunch.net>
-Cc: redoubtable <redoubtable@netcabo.pt>, linux-kernel@vger.kernel.org
-In-Reply-To: <42430439.6090102@funkmunch.net>
-References: <4242EEC3.2000605@netcabo.pt>  <42430439.6090102@funkmunch.net>
-Content-Type: text/plain
-Date: Fri, 25 Mar 2005 08:28:29 +0100
-Message-Id: <1111735709.14150.12.camel@nc>
+	Fri, 25 Mar 2005 02:31:53 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:60295 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S261510AbVCYHbo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 02:31:44 -0500
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy
+	(2.6.11)
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>,
+       David McCullough <davidm@snapgear.com>, cryptoapi@lists.logix.cz,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>
+In-Reply-To: <4243BB80.1010802@pobox.com>
+References: <42432972.5020906@pobox.com> <1111725282.23532.130.camel@uganda>
+	 <42439839.7060702@pobox.com> <1111728804.23532.137.camel@uganda>
+	 <4243A86D.6000408@pobox.com> <1111731361.20797.5.camel@uganda>
+	 <20050325061311.GA22959@gondor.apana.org.au>
+	 <1111732459.20797.16.camel@uganda>
+	 <20050325063333.GA27939@gondor.apana.org.au>
+	 <1111733958.20797.30.camel@uganda>
+	 <20050325065622.GA31127@gondor.apana.org.au>
+	 <1111735195.20797.42.camel@uganda>  <4243BB80.1010802@pobox.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/rHrJpqVtM8qmX5BevY9"
+Organization: MIPT
+Date: Fri, 25 Mar 2005 10:38:16 +0300
+Message-Id: <1111736296.20797.47.camel@uganda>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.4 (2.0.4-1) 
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Fri, 25 Mar 2005 10:31:02 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-25 at 04:17 +1000, Triffid Hunter wrote:
-> you can limit the max number of processes by putting the following into /etc/security/limits.conf (on my distro, and quite a number of others according to google too)
-> 
-> *	hard	nproc	<max # processes>
-> 
-> you can also limit quite a number of other things in this file, and other files in that directory.
 
-I bet your PAM nonaware daemons started at boot are not affected by
-those settings. The point is that if you gain access through a non-root
-daemon started from boot scripts, you are no longer limited
-by /etc/security/limits.conf.
+--=-/rHrJpqVtM8qmX5BevY9
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Try to set hard nproc limits for user UID and run this from your boot
-script:
+On Fri, 2005-03-25 at 02:19 -0500, Jeff Garzik wrote:
+> Evgeniy Polyakov wrote:
+> > Noone will complain on Linux if NIC is broken and produces wrong
+> > checksum
+> > and HW checksum offloading is enabled using ethtools.
+>=20
+>=20
+> Actually, that is a problem and people have definitely complained about=20
+> it in the past.
 
-#define UID 65534
-#define MAX 65535
+And what they were recommended to do? :)
+I believe not changing drivers and stack, but only disable it using
+ethtool.
 
-int pids[MAX];
-int main() {
-        int count = 0; pid_t pid;
-        if (setuid(UID) < 0) { perror("setuid"); exit(1); }
-        while ((pid = fork()) >= 0 && count < MAX) {
-                if (pid == 0) { sleep(300); exit(); }
-                pids[count++] = pid;
-        }
-        printf("Forked %i new processes\n", count);
-        while (count--) kill(pids[count], SIGTERM);
-}
+And people of course should be able to turn kernlspace <-> kernelspace
+RNG dataflow off if they fill it is insecure.
 
-You will see that even if user UID is limited
-in /etc/security/limits.conf it will be able to fork many more
-processes.
+> 	Jeff
+>=20
+--=20
+        Evgeniy Polyakov
 
-> > It should exist a global limit in case someone could spawn 
-> > a shell without limits through some flawed application.
+Crash is better than data corruption -- Arthur Grabowski
 
-I agree on this one. Or the RLIMIT_NPROC should be set to a lower value
-by default.
+--=-/rHrJpqVtM8qmX5BevY9
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
---
-Natanael Copa
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
+iD8DBQBCQ7/oIKTPhE+8wY0RAn36AJ4r9ENh25czhPWLuL77UeM0HDcBbwCfcyCz
+cl1TqNQL386FAuRBWr2QCuo=
+=7Fyg
+-----END PGP SIGNATURE-----
+
+--=-/rHrJpqVtM8qmX5BevY9--
 

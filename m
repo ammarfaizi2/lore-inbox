@@ -1,59 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132324AbQKKUKG>; Sat, 11 Nov 2000 15:10:06 -0500
+	id <S132359AbQKKURK>; Sat, 11 Nov 2000 15:17:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132370AbQKKUJ5>; Sat, 11 Nov 2000 15:09:57 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:37384 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132368AbQKKUJp>; Sat, 11 Nov 2000 15:09:45 -0500
-Message-ID: <3A0DA785.C69F1EA1@transmeta.com>
-Date: Sat, 11 Nov 2000 12:09:41 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10-pre3 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S132360AbQKKURA>; Sat, 11 Nov 2000 15:17:00 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:40967 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S132359AbQKKUQs>; Sat, 11 Nov 2000 15:16:48 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "Ying Chen/Almaden/IBM" <ying@almaden.ibm.com>
+Date: Sun, 12 Nov 2000 07:16:29 +1100 (EST)
 MIME-Version: 1.0
-To: Tigran Aivazian <tigran@veritas.com>
-CC: Max Inux <maxinux@bigfoot.com>, "H. Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: bzImage ~ 900K with i386 test11-pre2
-In-Reply-To: <Pine.LNX.4.21.0011111133050.1029-100000@saturn.homenet>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14861.43293.117258.571355@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net,
+        nfs-devel@linux.kernel.org
+Subject: Re: [patch] nfsd optimizations for test10
+In-Reply-To: message from Ying Chen/Almaden/IBM on Friday November 10
+In-Reply-To: <OF973C73DE.C4472EDD-ON88256993.0080B320@LocalDomain>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tigran Aivazian wrote:
+On Friday November 10, ying@almaden.ibm.com wrote:
+> Hi,
 > 
-> On Fri, 10 Nov 2000, H. Peter Anvin wrote:
-> > >
-> > > On x86 machines there is a size limitation on booting.  Though I thought
-> > > it was 1024K as the max, 900K should be fine.
-> > >
-> >
-> > No, there isn't.  There used to be, but it has been fixed.
-> >
+> I made some optimizations on racache in nfsd in test10. The idea is to
+> replace with existing fixed length table for readahead cache in NFSD with a
+> hash table.
+> The old racache is essentially ineffective in dealing with large # of
+> files, and yet eats CPU cycles in scanning the table (even though the table
+> is small),
+> the hash table-based is much more effective and fast. I have generated the
+> patch for test10 and tested it.
 > 
-> Are you sure? I thought the fix was to build 2 page tables for 0-8M
-> instead of 1 page table for 0-4M. So, we still cannot boot a bzImage more
-> than 2.5M which roughly corresponds to 8M. Is this incorrect? Are you
-> saying I should be able to boot a bzImage corresponding to an ELF object
-> vmlinux of 4G or more?
+> (See attached file: nfshdiff)(See attached file: nfsdiff)
 > 
-> I tried it and it failed (a few weeks ago) so at least reasonably recently
-> what you are saying was not true. I will now check if it suddenly became
-> true now.
 > 
+> Ying
 
-That wasn't the fix in question (there was a 1 MB *compressed* limit for
-a while), but you're right, for now the limit is 8 MB *uncompressed.*
+Thanks for this.
+A couple of questions and comments:
 
-	-hpa
+ 1/ Do you have any stats showing what sort of speedup this gives -
+    I'm curious.
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+ 2/ Was there a particular reason that you didn't use the
+      include/linux/list.h
+    list structures for the hash and lru chains?  If not, I suggest
+    that doing so would be a good idea.  It should make the code
+    clearer and more in-keeping with other code in the kernel.
+
+ 3/ It is easiest for (many of) us if you just include the patch
+    in-line in your email messages rather than as an attachment.   You
+    can then be sure that EVERY mail reader can display it
+    effectively, and Linus has said a number of times that he doesn't
+    like attachments.
+ 3a/ If you or your mailer insists on using attachments, please make
+    sure that the mime-type of the attachment is correct - text/plain,
+    not applications/x-unknown.  Again, that makes it a lot easier to
+    read your patch.
+
+ 4/ I doubt that this is significant enough to go in before 2.4.0-final now,
+    but it probably has a reasonable chance of getting in shortly
+    afterwards.
+
+NeilBrown
+knfsd maintainer.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

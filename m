@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbUJYP1o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbUJYUKe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261955AbUJYP1o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 11:27:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261933AbUJYPY5
+	id S261259AbUJYUKe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 16:10:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUJYUKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 11:24:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:36011 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261975AbUJYPUM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 11:20:12 -0400
-Date: Mon, 25 Oct 2004 08:14:25 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrea Arcangeli <andrea@novell.com>
-cc: Joe Perches <joe@perches.com>, Larry McVoy <lm@work.bitmover.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-In-Reply-To: <20041025133951.GW14325@dualathlon.random>
-Message-ID: <Pine.LNX.4.58.0410250812300.3016@ppc970.osdl.org>
-References: <20041019213803.GA6994@havoc.gtf.org> <4d8e3fd3041019145469f03527@mail.gmail.com>
- <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org> <20041023161253.GA17537@work.bitmover.com>
- <4d8e3fd304102403241e5a69a5@mail.gmail.com> <20041024144448.GA575@work.bitmover.com>
- <4d8e3fd304102409443c01c5da@mail.gmail.com> <20041024233214.GA9772@work.bitmover.com>
- <20041025114641.GU14325@dualathlon.random> <1098707342.7355.44.camel@localhost.localdomain>
- <20041025133951.GW14325@dualathlon.random>
+	Mon, 25 Oct 2004 16:10:20 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:55568 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261313AbUJYUHu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 16:07:50 -0400
+Date: Mon, 25 Oct 2004 21:07:42 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Corey Minyard <minyard@acm.org>, linux-kernel@vger.kernel.org
+Subject: Re: Race betwen the NMI handler and the RTC clock in practially all
+ kernels
+In-Reply-To: <p73u0sik2fa.fsf@verdi.suse.de>
+Message-ID: <Pine.LNX.4.58L.0410252054370.24374@blysk.ds.pg.gda.pl>
+References: <417D2305.3020209@acm.org.suse.lists.linux.kernel>
+ <p73u0sik2fa.fsf@verdi.suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 25 Oct 2004, Andi Kleen wrote:
 
-
-On Mon, 25 Oct 2004, Andrea Arcangeli wrote:
+> > They traced it down to the following code in arch/kernel/traps.c (now
+> > in include/asm-i386/mach-default/mach_traps.c):
+> > 
+> >     outb(0x8f, 0x70);
+> >     inb(0x71);              /* dummy */
+> >     outb(0x0f, 0x70);
+> >     inb(0x71);              /* dummy */
 > 
-> as a matter of fact nobody can know how the workflow would be if _all_
-> kernel developers would have been able to take advantage of a
-> distributed revision control system in the last ~3 years.
+> Just use a different dummy register, like 0x80 which is normally used
+> for delaying IO (I think that is what the dummy access does) 
 
-.. and nobody knows how the universe would look if the speed of light 
-wasn't constant.
+ It's not the dummy read that causes the problem.  It's the index write
+that does.  It can be solved pretty easily by not changing the index.  It
+may be done if an auxiliary variable is used and other users of the index
+cooperate.  The dummy read isn't really necessary, but of course someone
+broke their RTC access logic, so it was added as a workaround.
 
-Your point is pointless. No such distributed revision control system 
-exists. And without BK, the people who have worked on them wouldn't 
-largely even understand what's wrong with CVS.
+ But then the firmware may screw it up if it changes the index from within 
+the SMM.
 
-In fact, I find that people largely _still_ don't understand what's wrong
-with CVS, and are still trying to just make another CVS thing.
+> But I'm pretty sure this NMI handling is incorrect anyways, its
+> use of bits doesn't match what the datasheets say of modern x86
+> chipsets say. Perhaps it would be best to just get rid of 
+> that legacy register twiddling completely.
 
-So give Larry the credit he deserves, even if you dislike the license.
+ The use is correct.  Bit #7 at I/O port 0x70 controls the NMI line
+pass-through flip-flop.  "0" means "pass-through" and "1" means "force
+inactive."  As the NMI line is level-driven and the NMI input is
+edge-triggered, the sequence is needed to regenerate an edge if another
+NMI arrives via the line (not via the APIC) while the handler is running.
 
-		Linus
+  Maciej

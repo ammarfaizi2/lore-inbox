@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261701AbSL2Vak>; Sun, 29 Dec 2002 16:30:40 -0500
+	id <S261733AbSL2Vi6>; Sun, 29 Dec 2002 16:38:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261732AbSL2Vak>; Sun, 29 Dec 2002 16:30:40 -0500
-Received: from packet.digeo.com ([12.110.80.53]:65269 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261701AbSL2Vak>;
-	Sun, 29 Dec 2002 16:30:40 -0500
-Message-ID: <3E0F6B6B.2FCEC917@digeo.com>
-Date: Sun, 29 Dec 2002 13:38:51 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@lst.de>
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+	id <S261799AbSL2Vi6>; Sun, 29 Dec 2002 16:38:58 -0500
+Received: from verein.lst.de ([212.34.181.86]:32779 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S261733AbSL2Vi5>;
+	Sun, 29 Dec 2002 16:38:57 -0500
+Date: Sun, 29 Dec 2002 22:47:13 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] more deprectation bits
-References: <20021229215554.A11360@lst.de>
+Message-ID: <20021229224713.A12011@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Andrew Morton <akpm@digeo.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+References: <20021229215554.A11360@lst.de> <3E0F6B6B.2FCEC917@digeo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Dec 2002 21:38:55.0158 (UTC) FILETIME=[AFE75D60:01C2AF82]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3E0F6B6B.2FCEC917@digeo.com>; from akpm@digeo.com on Sun, Dec 29, 2002 at 01:38:51PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+On Sun, Dec 29, 2002 at 01:38:51PM -0800, Andrew Morton wrote:
+> Christoph Hellwig wrote:
+> > 
+> > Rename the deprecated attribute to __deprecated to make it obvious
+> > this is something special and to avoid namespace clashes.
+> > 
+> > Mark more functionality deprecated:
+> > 
+> >  - sleep_on & friends
 > 
-> Rename the deprecated attribute to __deprecated to make it obvious
-> this is something special and to avoid namespace clashes.
+> Please do not make sleep_on() generate a warning.  Unless you intend
+> to do the same to lock_kernel().
 > 
-> Mark more functionality deprecated:
-> 
->  - sleep_on & friends
+> ext3 uses sleep_on().  It is perfectly safe.
 
-Please do not make sleep_on() generate a warning.  Unless you intend
-to do the same to lock_kernel().
+Even if it's safe in that particular case, most code in the kernel runs
+without BKL.  This patch just makes the deprication of sleep_on
+explicit.
 
-ext3 uses sleep_on().  It is perfectly safe.   Weaning ext3 off lock_kernel()
-is a large, delicate and thus-far undesigned body of work.  I've been
-working on other stuff and it is quite unlikely that ext3 locking will
-be redesigned in the 2.5 timeframe.
+> Weaning ext3 off lock_kernel()
+> is a large, delicate and thus-far undesigned body of work.  I've been
+> working on other stuff and it is quite unlikely that ext3 locking will
+> be redesigned in the 2.5 timeframe.
 
->  - old module interfaces
-> 
-> This gives quite a lot warnings, I'll start to fix the ones in
-> core code and stuff I maintain now..
+Then ext3 has to live with using depricated interfaces during 2.6,
+what's the point?
 
-Sounds like pointless churn to me.  How about we fix some real stuff and get
-this kernel out the door before we all die?

@@ -1,81 +1,142 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129997AbQKNNrP>; Tue, 14 Nov 2000 08:47:15 -0500
+	id <S131117AbQKNNwR>; Tue, 14 Nov 2000 08:52:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130414AbQKNNrG>; Tue, 14 Nov 2000 08:47:06 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:14084 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S129997AbQKNNqu>; Tue, 14 Nov 2000 08:46:50 -0500
-Message-Id: <200011141314.eAEDEWs01810@wattle.linuxcare.com.au>
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@nl.linux.org>,
-        andrew.grover@intel.com, acpi@phobos.fachschaften.tu-muenchen.de
-Subject: [MINI PATCH] sysctl values for ACPI and APM
+	id <S131118AbQKNNwI>; Tue, 14 Nov 2000 08:52:08 -0500
+Received: from ns.dce.bg ([212.50.14.242]:35083 "HELO home.dce.bg")
+	by vger.kernel.org with SMTP id <S131117AbQKNNwC>;
+	Tue, 14 Nov 2000 08:52:02 -0500
+Message-ID: <3A113C6A.940295C9@dce.bg>
+Date: Tue, 14 Nov 2000 15:21:47 +0200
+From: Petko Manolov <petkan@dce.bg>
+Organization: Deltacom Electronics
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en, bg
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <1807.974207668.1@linuxcare.com.au>
-Date: Wed, 15 Nov 2000 00:14:30 +1100
-From: Stephen Rothwell <sfr@linuxcare.com.au>
+To: Yann Dirson <ydirson@altern.org>
+CC: linux-kernel@vger.kernel.org, petkan@spct.net, mingo@redhat.com
+Subject: Re: Inconsistencies in 3dNOW handling
+In-Reply-To: <20001113234349.A28046@bylbo.nowhere.earth>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+You already have good answer from Arjan van de Ven.
+I'm about to submit a patch for string-486.h where
+3Dnow! support will be removed. It is not needed as
+routines in this file expect 486 or older 586.
 
-Since ACPI is now in the kernel, I figure that its top level
-sysctl tag should be in sysctl.h. Also, this patch claims an
-tag for APM as I want to add some sysctl's for APM soon.
+Anyway, i'm in doubt if this file will be ever used.
 
-By the way, is there a "correct" way to claim sysctl tags?
 
-Cheers,
-Stephen
--- 
-Stephen Rothwell, Open Source Researcher, Linuxcare, Inc.
-+61-2-62628990 tel, +61-2-62628991 fax 
-sfr@linuxcare.com, http://www.linuxcare.com/ 
-Linuxcare. Support for the revolution.
+	Petkan
 
-diff -ruN 2.4.0-test11pre4/Documentation/sysctl/README 2.4.0-test11pre4-APM.2/Documentation/sysctl/README
---- 2.4.0-test11pre4/Documentation/sysctl/README	Tue Jul  6 13:04:47 1999
-+++ 2.4.0-test11pre4-APM.2/Documentation/sysctl/README	Tue Nov 14 23:36:16 2000
-@@ -55,6 +55,8 @@
- by piece basis, or just some 'thematic frobbing'.
- 
- The subdirs are about:
-+acpi/		Advanced Configuration and Power Interface
-+		information and control
- debug/		<empty>
- dev/		device specific information (eg dev/cdrom/info)
- fs/		specific filesystems
-diff -ruN 2.4.0-test11pre4/include/linux/acpi.h 2.4.0-test11pre4-APM.2/include/linux/acpi.h
---- 2.4.0-test11pre4/include/linux/acpi.h	Wed Oct  4 10:36:16 2000
-+++ 2.4.0-test11pre4-APM.2/include/linux/acpi.h	Tue Nov 14 23:27:10 2000
-@@ -208,11 +208,6 @@
- 
- enum
- {
--	CTL_ACPI = 10
--};
--
--enum
--{
- 	ACPI_FACP = 1,
- 	ACPI_DSDT,
- 	ACPI_PM1_ENABLE,
-diff -ruN 2.4.0-test11pre4/include/linux/sysctl.h 2.4.0-test11pre4-APM.2/include/linux/sysctl.h
---- 2.4.0-test11pre4/include/linux/sysctl.h	Tue Nov 14 23:25:43 2000
-+++ 2.4.0-test11pre4-APM.2/include/linux/sysctl.h	Tue Nov 14 23:57:10 2000
-@@ -57,7 +57,9 @@
- 	CTL_FS=5,		/* Filesystems */
- 	CTL_DEBUG=6,		/* Debugging */
- 	CTL_DEV=7,		/* Devices */
--	CTL_BUS=8		/* Buses */
-+	CTL_BUS=8,		/* Buses */
-+	CTL_APM=9,		/* Advanced Power Management */
-+	CTL_ACPI=10,		/* Advanced Configuration and Power Interface */
- };
- 
- /* CTL_BUS names: */
+
+
+
+Yann Dirson wrote:
+> 
+> Looking at what the CONFIG_X86_USE_3DNOW config option in 2.40.-test10
+> enables, I find a couple of strange things.  This led me through a
+> small high-level audit of 3DNOW/MMX stuff.
+> 
+> Hopefully someone will be able to explain or to confirm whether the
+> points I highlight are indeed bugs.  I'd value some comments before
+> starting to change this :}
+> 
+> - CONFIG_MK6 is described as "K6/K6-II/K6-III", and CONFIG_MK7 as
+> "Athlon/K7".  Of these two, only the latter defines
+> CONFIG_X86_USE_3DNOW, although K6-II and K6-III do provide 3DNOW
+> instructions.  We even find in strings-486.h a comment saying:
+> 
+>         This CPU favours 3DNow strongly (eg AMD K6-II, K6-III, Athlon)
+> 
+> OTOH, string.h only says:
+> 
+>  *      This CPU favours 3DNow strongly (eg AMD Athlon)
+> 
+> page.h says:
+> 
+>  *      On older X86 processors its not a win to use MMX here it seems.
+>  *      Maybe the K6-III ?
+> 
+> Gasp.  Would it or not in the end be useful to add a CONFIG_MK6II
+> option that would enable 3DNOW ?
+> 
+> - In all places where 3DNOW is tested (strings-486.h, page.h), only
+> MMX-specific funcs are used (_mmx_memcpy mostly, mmx_{clear,copy}_page)
+> 
+> page.h says:
+> 
+>  *      On older X86 processors its not a win to use MMX here it seems.
+>  *      Maybe the K6-III ?
+> 
+> mmx.[ch] say:
+> 
+>  *      MMX 3Dnow! helper operations
+> 
+> So do they use MMX or 3Dnow after all ?  They are distinct processor
+> features, aren't they ?
+> 
+> If this option is really just meant to enable MMX stuff, let's just
+> call it by its name
+> 
+> Some doc about that should be written - I'll gladly do that once I've
+> gathered the info.  Some Documentation/i386/MMX file maybe, or in
+> mmx.c.  But this info won't be easily found anyway if we keep using
+> 3DNOW as a name for the config option...  Objections ?
+> 
+> - mmx.c says:
+> 
+>         Checksums are not a win with MMX on any CPU
+>         tested so far for any MMX solution figured
+> 
+> This would be better to have the list of tested CPUs here.  Does
+> someone have this list ?
+> 
+> - there is even a CONFIG_X86_USE_3DNOW_AND_WORKS option, that would
+> enable MMX in __generic_copy-{to,from}_user
+> (arch/i386/lib/usercopy.c).  There is no comment about why this code
+> was disabled.
+> 
+> This code uses the following test to trigger MMX use:
+> 
+>                 if(n<512)
+>                         __copy_user(to,from,n);
+>                 else
+>                         mmx_copy_user(to,from,n);
+> 
+> ... whereas string{,-486}.h use the following test to trigger MMX use:
+> 
+>         if(len<512 || in_interrupt())
+>                 return __constant_memcpy(to, from, len);
+>         return _mmx_memcpy(to, from, len);
+> 
+> Could this be the cause of the problem ?
+> 
+> You'll also have noticed the inconsistent naming in 2 highly similar
+> pieces of code.
+> 
+> - BTW, what does this 512 stand for ?  Especially as it's used in
+> several places, a #define would seem nice at first glance.
+> 
+> - In mmx.c, function naming and ordering really seems inconsistent.
+> Or is there a reason for a "zero/clear" duality ?
+> 
+> - drivers/md/xor.c says:
+> 
+>         certain CPU features like MMX can only be detected runtime
+> 
+> I'm not sure how much this relates to the above, but I'd say a MMX
+> config option could be used for this ?  Or a common detection routine
+> that other drivers could use ?
+> 
+> --
+> Yann Dirson    <ydirson@altern.org> |    Why make M$-Bill richer & richer ?
+> debian-email:   <dirson@debian.org> |   Support Debian GNU/Linux:
+>                                     | Cheaper, more Powerful, more Stable !
+> http://ydirson.free.fr/             | Check <http://www.debian.org/>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

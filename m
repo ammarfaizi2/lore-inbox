@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262078AbUBDOpS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 09:45:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbUBDOpS
+	id S261974AbUBDOn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 09:43:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUBDOn1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 09:45:18 -0500
-Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:31910 "EHLO
-	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S262078AbUBDOpN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 09:45:13 -0500
-Message-ID: <40210578.6000504@mrc-bsu.cam.ac.uk>
-Date: Wed, 04 Feb 2004 14:45:12 +0000
-From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
-Organization: MRC Biostatistics Unit
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.6b) Gecko/20031206 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Wed, 4 Feb 2004 09:43:27 -0500
+Received: from rogue.ncsl.nist.gov ([129.6.101.41]:52626 "EHLO
+	rogue.ncsl.nist.gov") by vger.kernel.org with ESMTP id S261974AbUBDOnZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 09:43:25 -0500
 To: linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.6.2 aka "Feisty Dunnart"
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0402032001040.2131@home.osdl.org>
+From: Ian Soboroff <ian.soboroff@nist.gov>
+Date: Wed, 04 Feb 2004 09:43:22 -0500
+In-Reply-To: <Pine.LNX.4.58.0402032001040.2131@home.osdl.org> (Linus
+ Torvalds's message of "Tue, 3 Feb 2004 20:04:44 -0800 (PST)")
+Message-ID: <9cf4qu6nbw5.fsf@rogue.ncsl.nist.gov>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Very nice.  But I see the name thing is really official now:
+Linus Torvalds <torvalds@osdl.org> writes:
 
-   2 alastair@gluck:~/linux-2.6> head Makefile
-   VERSION = 2
-   PATCHLEVEL = 6
-   SUBLEVEL = 2
-   EXTRAVERSION =
-   NAME=Feisty Dunnart
+> I just pushed out the BK trees, and the tar-ball/patches are going out as
+> I write this, for Linux 2.6.2. The honor of naming it goes to Gernot
+> Heiser, for reasons that are largely alcoholic, I suspect. Good job!
 
-Its own line in the Makefile, no less.  So, no doubt you're planning to 
-actually _use_ this in some devious way?  Worrying indeed....
+For the benefit of those of you who, like me, didn't know what a
+dunnart is, from http://library.thinkquest.org/28994/dunnart.html:
 
-BTW, I did my first attempt at an ATAPI CD burn last night, on one of 
-Feisty Dunnart's release candidates, and it was wildly successful.  I'm 
-sure this isn't news, but it was great to see.
+    There are ten species of dunnart. Some of them are the common
+    dunnart, white-footed dunnart, and the Darling Downs
+    dunnart. There is also the fat-tailed dunnart. They are called the
+    marsupial mouse and are usually 10 to 16 cm. long.
 
-2.6 is looking great from here, no visible problems for me.
+    They live in Australia and New Guinea. These marsupial mice live
+    in deserts and rainforests and eat grasshopppers, spiders,
+    lizards, mice and small animals.
 
-Cheers
-Alastair
+    All dunnarts are fearless and will protect themselves if they are
+    scared or threatened. They all have litters of up to 10 babies
+    about 3 to 4 times a year.
 
--- 
-  \\ ........................................   www.mrc-bsu.cam.ac.uk
-   \\  Alastair Stevens, SysAdmin Team       \       01223 330383
-   //  MRC Biostatistics Unit, Cambridge UK   \.......................
-  --
+    The fat-tailed dunnart is the smallest and has soft, fine, gray or
+    black fur. They also have large ears and thick tails with short,
+    stiff hairs. The dunnart stores all its fat in its tail.
+
+According to that third paragraph, we need to up our release schedule
+a bit.
+
+Ian
+

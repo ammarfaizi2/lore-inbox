@@ -1,76 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263830AbTKKXaI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 18:30:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263832AbTKKXaI
+	id S263839AbTKKXk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 18:40:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263840AbTKKXk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 18:30:08 -0500
-Received: from smtp802.mail.ukl.yahoo.com ([217.12.12.139]:47230 "HELO
-	smtp802.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S263830AbTKKXaD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 18:30:03 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: arief_mulya <arief_m_utama@telkomsel.co.id>
-Subject: Re: [PATCH?] psmouse-base.c
-Date: Tue, 11 Nov 2003 18:29:50 -0500
-User-Agent: KMail/1.5.4
-Cc: Andrew Morton <akpm@osdl.org>, vojtech@suse.cz,
-       linux-kernel@vger.kernel.org
-References: <3FAEF7BC.8060503@telkomsel.co.id> <200311110020.07251.dtor_core@ameritech.net> <3FB08798.7050805@telkomsel.co.id>
-In-Reply-To: <3FB08798.7050805@telkomsel.co.id>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 11 Nov 2003 18:40:56 -0500
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:15494 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263839AbTKKXkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 18:40:55 -0500
+Subject: Re: Some thoughts about stable kernel development
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org, marcelo.tosatti@cyclades.com
+In-Reply-To: <20031109112604.613d385d.akpm@osdl.org>
+References: <m3u15de669.fsf@defiant.pm.waw.pl>
+	 <20031109112604.613d385d.akpm@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311111829.50521.dtor_core@ameritech.net>
+Message-Id: <1068410045.29597.1.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sun, 09 Nov 2003 20:34:06 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 November 2003 01:54 am, arief_mulya wrote:
-> Dmitry Torokhov wrote:
+On Sul, 2003-11-09 at 19:26, Andrew Morton wrote:
+> Well yes.  Two days after 2.4.20 was released we discovered a
+> data-corrupting bug in ext3.  I had no means of delivering a fix for that
+> apart from sticking a bunch of patches on my web page and making a lot of
+> noise about it.
+> 
+> So there is a case for a "2.4.20-post1" release to address such things.
 
-> >
-> >Unfortunately I do not suspend my laptop so I did not run it, just
-> >made sure it compiles. Arief? could you give this patch a try?
->
-> I have tested it before.
-> My first attempts looked quite just like that.
->
-> It didn't work quite nicely.
-> Especially with gpm, after resume, you cannot do Tap-to-Click behaviour
-> with that patch. You can still move it, use left and right button, but
-> no tap-to-click. I don't know why. That's why, finally, I use
-> serio_rescan().
->
-> I haven't tested it with X, though, as I use gpm as a repeater, I
-> thought this was unnecessary.
->
-> But I have try Andrew's tree. And it works flawlessly with the patch
-> (case PM_RESUME: serio_reconnect()). I think I'm going to stick with mm
-> tree, and dump my vanilla kernel.
->
-> One more think, I also sets "psmouse_resetafter" to 1 at the
-> declaration. Without that, I get too many ugly message saying
-> "Synaptics lost sync at 1 byte..." or something like that. As it is a
-> module parameter, but on menuconfig synaptics does not available as
-> module, so I set it directly on the source. I don't know if I can set
-> it on boot time, can it?
->
+For 2.2 I kept changelogs and errata patches for any big problem. For
+-ac its always been a bit simpler because -ac1 is in part 2.4.20-post1
+so I had an unfair advantage over people. The other thing -ac did was a
+new patch every 2-3 days. The more you get out the more feedback you get
+back and the faster you take fixes (even small ones) the more
+committment you get from other people in my experience.
 
-Ok, I somewhat confused as the sequence in psmouse_pm_callback is pretty
-much the same as in rescan/reconnect. Wait...
- 
-Does suspend/resume work at all if you don't set psmouse_resetafter to 1??
-The reason I am asking is that we have alot of different PM interfaces and
-this one is marked as deprecated. If it is not called during resume it would
-leave the touchpad in relative mode while kernel expects absolute and spews 
-"lost sync" messages... Until Synaptics decides that it's time to reset 
-after X bad packets. Does it make any sense?
 
-Btw, Synaptics is intergated into psmouse module so you don't really need
-to edit the source to set resetafter parameter. Either pass 
-"psmouse_resetafter=X" to the kernel on boot if psmouse compiled in or
-pass it to modprobe.
-
-Dmitry

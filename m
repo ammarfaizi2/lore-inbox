@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264703AbTFASdj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 14:33:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbTFASdj
+	id S264039AbTFASmX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 14:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbTFASmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 14:33:39 -0400
-Received: from warrior.services.quay.plus.net ([212.159.14.227]:16877 "HELO
-	warrior.services.quay.plus.net") by vger.kernel.org with SMTP
-	id S264703AbTFASdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 14:33:37 -0400
-Date: Sun, 1 Jun 2003 19:43:35 +0100
-From: Stig Brautaset <stig@brautaset.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.70: scripts/Makefile.build fix
-Message-ID: <20030601184335.GA31452@brautaset.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Sun, 1 Jun 2003 14:42:23 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:63370 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264039AbTFASmW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 14:42:22 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 1 Jun 2003 11:53:17 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Gutko <gutko@poczta.onet.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: What is wrong  with modules in 2.5.69-70 ?
+In-Reply-To: <000501c3286e$62d1b510$17010101@hal>
+Message-ID: <Pine.LNX.4.55.0306011151440.25548@bigblue.dev.mcafeelabs.com>
+References: <000501c3286e$62d1b510$17010101@hal>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+On Sun, 1 Jun 2003, Gutko wrote:
 
-This patch seems to fix `make V=0' for me.
+> What is wrong  with modules in 2.5.69-70 generally. Every option I compile
+> as module does not work because modprobe says on boot "couldn't load module
+> xxxxx". If I compile it in (*) then works ok. In 2.4.x modules works ok for
+> me.
+> I've updated all "boot" programs to versions mentioned in
+> /Documentation/Changes
+> Mandrake 9.1
 
-
---- scripts/Makefile.build.orig	2003-06-01 19:35:38.000000000 +0100
-+++ scripts/Makefile.build	2003-06-01 19:38:33.000000000 +0100
-@@ -112,8 +112,7 @@
- 		$(LD) $(LDFLAGS) -r -o $@ $(@D)/.tmp_$(@F) 		      \
- 			-T $(@D)/.tmp_$(@F:.o=.ver);			      \
- 		rm -f $(@D)/.tmp_$(@F) $(@D)/.tmp_$(@F:.o=.ver);	      \
--	fi;			
--					      \
-+	fi;								      \
- 	scripts/fixdep $(depfile) $@ '$(cmd_vcc_o_c)' > $(@D)/.$(@F).tmp;     \
- 	rm -f $(depfile);						      \
- 	mv -f $(@D)/.$(@F).tmp $(@D)/.$(@F).cmd
+http://www.kernel.org/pub/linux/kernel/people/rusty/modules/module-init-tools-0.9.12.tar.gz
 
 
-Stig
--- 
-brautaset.org
+
+- Davide
+

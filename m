@@ -1,23 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280749AbRKOGCK>; Thu, 15 Nov 2001 01:02:10 -0500
+	id <S280737AbRKOF7U>; Thu, 15 Nov 2001 00:59:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280750AbRKOGBw>; Thu, 15 Nov 2001 01:01:52 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:469 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S280749AbRKOGBr>;
-	Thu, 15 Nov 2001 01:01:47 -0500
-Date: Thu, 15 Nov 2001 01:01:45 -0500 (EST)
+	id <S280749AbRKOF7M>; Thu, 15 Nov 2001 00:59:12 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:25297 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S280737AbRKOF7C>;
+	Thu, 15 Nov 2001 00:59:02 -0500
+Date: Thu, 15 Nov 2001 00:59:00 -0500 (EST)
 From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel@vger.kernel.org
-Subject: [CFT][PATCH] pci/proc.c cleanup
-Message-ID: <Pine.GSO.4.21.0111150100500.2244-100000@weyl.math.psu.edu>
+Subject: [CFT][PATCH]
+Message-ID: <Pine.GSO.4.21.0111150047440.2244-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-
-[Grr... Apologies for resend - previous one got subject mangled ;-/]
 
 	Patch below switches both /proc/bus/pci/devices and /proc/pci
 to seq_file (same iterator).  Results:
@@ -381,10 +379,4 @@ diff -urN S15-pre4/drivers/pci/proc.c S15-pre4-pci/drivers/pci/proc.c
  	}
  	return 0;
  }
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318699AbSHAKmM>; Thu, 1 Aug 2002 06:42:12 -0400
+	id <S318702AbSHAK75>; Thu, 1 Aug 2002 06:59:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318700AbSHAKmM>; Thu, 1 Aug 2002 06:42:12 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:10394 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S318699AbSHAKmL>;
-	Thu, 1 Aug 2002 06:42:11 -0400
-Date: Thu, 1 Aug 2002 12:45:30 +0200
-From: Jens Axboe <axboe@suse.de>
-To: martin@dalecki.de
-Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org
-Subject: Re: IDE from current bk tree, UDMA and two channels...
-Message-ID: <20020801104530.GF13494@suse.de>
-References: <9B9F331783@vcnet.vc.cvut.cz> <3D48420F.5050407@evision.ag> <20020801095609.GE1096@suse.de> <3D4905DB.70305@evision.ag> <20020801100553.GA13494@suse.de> <3D490E5D.3070501@evision.ag>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D490E5D.3070501@evision.ag>
+	id <S318703AbSHAK75>; Thu, 1 Aug 2002 06:59:57 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:35290 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S318702AbSHAK74>;
+	Thu, 1 Aug 2002 06:59:56 -0400
+Date: Thu, 1 Aug 2002 13:03:23 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200208011103.NAA01989@harpo.it.uu.se>
+To: neilb@cse.unsw.edu.au
+Subject: NFS ACL compatibility [was: Re: [2.6] The List, pass #2]
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01 2002, Marcin Dalecki wrote:
-> Jens Axboe wrote:
-> 
-> >>>that would work, but I think it would seriously starve the other device
-> >>>on the same channel.
-> >>
-> >>We starve anyway, becouse the kernel isn't real time and we can't
-> >>guarantee "sleeping" for some maximum time and comming back.
-> >>We don't reschedule the kernel during this kind of "sleeping".
-> >>And we can't know that a command on the "mate" will not take 
-> >>extraordinary amounts of time. It's only a problem if mixing travan
-> >>tapes with disks on a channel.
-> >
-> >
-> >I'm thinking about the alternation of the devices so one device can't
-> >starve the other device off the channel.
-> 
-> Ah so you are thinking about two equally powered devices
-> competing for the channel. Something I would call the "sumo fight"
-> situation. Well disks didn't use the "sleeping" mechanism at all anyway
-> and the chances someone would do cp from CD-ROM to CD-ROM are low.
-> 
-> Finally I think that the proper granularity of scheduling requests to
-> the drive is, well, the request layer. The queue processing layer should
-> handle this becouse otherwise we would have two "competing" optimization
-> mechanisms. And there we are indeed able to actually relinquish some CPU 
-> time. If you look at an request processing optimization as a low pass
-> signal filter it's immediately obvious that the effects of chaining them
-> can be, well at least "counter intuitive".
+On Thu, 1 Aug 2002 10:34:23 +1000 (EST), Neil Brown wrote: 
+>Well, given that the protocol specification isn't 100% finalised, it's
+>not clear that pushing for inclusion now is entirely sensible.  We
+>don't want people to be using an NFSv4 on Linux that is incompatible
+>in some subtle way with other vendors.
+>
+>Also, I suspect that NFSv4 will be fairly localised in the changes it
+>makes and could well go in to 2.6.10 of whatever (afterall, reiserfs
+>went in at 2.4.2).
+>
+>There are some changes that NFSv4 would like to make that affect
+>common code, such as making open(,O_EXCL) work for a networked
+>filesystem, but we can live without that (as we do with NFSv3), but
+>hopefully that functionality will get in before halloween anyway. 
 
-Actually, I'm thinking of a much simple scenario: basically any two
-devices on the same channel, both with pending requests on the queue.
-This could be a hard drive and a cd writer, for instance. If you have 60
-requests pending for the hard drive, queue gets unplugged, you start the
-first one. Correct me if I'm wrong, but now you pass back the drive to
-the request handler when the first request completes, and you select a
-new request from that very same drive without considering device
-starvation? Any run of the cd writer queue would do nothing, since it
-would just find the channel busy.
+Speaking of NFS compatibility: can Linux' NFS server implement ACLs
+in a way that's compatible with Solaris NFS clients?
 
-This sort of thing cannot be solved at the block layer. The two queues
-are independent seen from that layer, the channel-busy dependency cannot
-be solved there.
+A sysadmin over here says this isn't the case, because Sun apparently
+stepped outside of the NFSv3 protocol and handles ACLs with a
+separate RPC program.
 
--- 
-Jens Axboe
+The significance of this is that unless Linux' NFS server can be made
+fully compatible with Solaris NFS clients, we can't use Linux for the
+new high-performance NFS servers we need to install this fall, forcing
+us to go with Solaris and fairly expensive Sun HW.
 
+/Mikael

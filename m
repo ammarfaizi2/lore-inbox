@@ -1,79 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314241AbSFEJqE>; Wed, 5 Jun 2002 05:46:04 -0400
+	id <S313867AbSFEJx7>; Wed, 5 Jun 2002 05:53:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314278AbSFEJqD>; Wed, 5 Jun 2002 05:46:03 -0400
-Received: from natwar.webmailer.de ([192.67.198.70]:40590 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S314241AbSFEJqC>; Wed, 5 Jun 2002 05:46:02 -0400
-Subject: SiS 7012 config Patch for 2.4.20-dj2
-From: Carsten Rietzschel <cr@daRav.de>
-To: davej@suse.de
-Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-HwZXd6ClVahHU0Ort8Ho"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 05 Jun 2002 11:45:19 +0200
-Message-Id: <1023270320.1541.12.camel@rav-pc-linux>
-Mime-Version: 1.0
+	id <S314340AbSFEJx6>; Wed, 5 Jun 2002 05:53:58 -0400
+Received: from mail.gmx.net ([213.165.64.20]:42072 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S313867AbSFEJx5>;
+	Wed, 5 Jun 2002 05:53:57 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Hans-Christian Armingeon <linux.johnny@gmx.net>
+To: Andreas Dilger <adilger@clusterfs.com>, Andrew Morton <akpm@zip.com.au>
+Subject: Re: [rfc] "laptop mode"
+Date: Wed, 5 Jun 2002 13:41:28 +0200
+X-Mailer: KMail [version 1.4]
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CFD453A.B6A43522@zip.com.au> <20020604233124.GA18668@turbolinux.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200206051340.47261.root@johnny>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Mittwoch, 5. Juni 2002 01:31 schrieb Andreas Dilger:
+> [...]
+> Just FYI, this is probably an optimally bad choice for the default disk
+> spinup interval, as many laptops spindown timers in the same ballpark.
+> I would say 15-20 minutes or more, unless there is a huge amount of
+> VM pressure or something.  Otherwise, you will quickly have a dead
+> laptop harddrive from the overly-frequent spinup/down cycles.
+>
+What parts of the filesystem needs to be accessed very often? I think, that placing var on a ramdisk, that is mirrored on the hd and is synced every 30 minutes, would be a good solution.
+I think, that we should add a sysrq key to save the ramdisk to the disk. Is there a similar project, that loads an image into a ramdisk at mount, and writes it back at unmount?
 
---=-HwZXd6ClVahHU0Ort8Ho
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> Yes, minutae, I know.  Otherwise a nice idea.
+>
+> Cheers, Andreas
 
-Hi again,
+Johnny
 
-
-this patch changes a few lines in config.in/config.help.
-So it should be easier to find support for SiS7012 onboard sound,
-which is mainly build on SiS735/745 mainboards.
-
-BIG NOTE:
-This patch NEEDS the patch for i8x0 sound chipset driver, which isn't included in the 
-vanilla kernel,
-but it is included in the 2.5.20-dj2 patch set.
-
-
-This patch is against 2.5.20-dj2 
-
-
-Carsten Rietzschel
-
-
-
-
---=-HwZXd6ClVahHU0Ort8Ho
-Content-Disposition: attachment; filename=cr-sis7012-config-patch
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; name=cr-sis7012-config-patch; charset=ISO-8859-15
-
---- sound/pci/Config.in.org	Mon Jun  3 03:44:47 2002
-+++ sound/pci/Config.in	Wed Jun  5 11:04:14 2002
-@@ -25,7 +25,7 @@
- dep_tristate 'ESS Allegro/Maestro3' CONFIG_SND_MAESTRO3 $CONFIG_SND
- dep_tristate 'ForteMedia FM801' CONFIG_SND_FM801 $CONFIG_SND
- dep_tristate 'ICEnsemble ICE1712 (Envy24)' CONFIG_SND_ICE1712 $CONFIG_SND
--dep_tristate 'Intel i810/i820/i830/i840/MX440 integrated audio' CONFIG_SND=
-_INTEL8X0 $CONFIG_SND
-+dep_tristate 'Intel i810/i820/i830/i840/MX440 and SiS 7012 (SiS 735/735) i=
-ntegrated audio' CONFIG_SND_INTEL8X0 $CONFIG_SND
- dep_tristate 'S3 SonicVibes' CONFIG_SND_SONICVIBES $CONFIG_SND
- dep_tristate 'VIA 82C686A/B South Bridge' CONFIG_SND_VIA686 $CONFIG_SND
- dep_tristate 'VIA 8233 South Bridge' CONFIG_SND_VIA8233 $CONFIG_SND
---- sound/pci/Config.help.org	Mon Jun  3 03:44:44 2002
-+++ sound/pci/Config.help	Wed Jun  5 11:03:28 2002
-@@ -67,7 +67,7 @@
-   Say 'Y' or 'M' to include support for ICE1712 (Envy24) based soundcards.
-=20
- CONFIG_SND_INTEL8X0
--  Say 'Y' or 'M' to include support for Intel8x0 based soundcards.
-+  Say 'Y' or 'M' to include support for Intel8x0 and SiS7012 (build often =
-SiS735/745 boards) based soundcards.
-=20
- CONFIG_SND_SONICVIBES
-   Say 'Y' or 'M' to include support for S3 SonicVibes based soundcards.
-
---=-HwZXd6ClVahHU0Ort8Ho--
 

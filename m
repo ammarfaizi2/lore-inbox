@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbVAXX2E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVAXX2D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbVAXX2E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 18:28:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVAXXZJ
+	id S261736AbVAXX2D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 18:28:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVAXXZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 18:25:09 -0500
-Received: from mta03.pge.com ([131.89.129.73]:33730 "EHLO mta03.pge.com")
-	by vger.kernel.org with ESMTP id S261670AbVAXXYf (ORCPT
+	Mon, 24 Jan 2005 18:25:31 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:7601 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S261731AbVAXXX5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 18:24:35 -0500
-Date: Mon, 24 Jan 2005 15:16:36 -0800
-From: Edward Peschko <esp5@pge.com>
-To: Richard Henderson <rth@redhat.com>
-Cc: gcc@gcc.gnu.org, libc-alpha@sources.redhat.com,
-       binutils@sources.redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: forestalling GNU incompatibility - proposal for binary relative dynamic linking
-Message-ID: <20050124231636.GC19422@venus>
-References: <20050124222449.GB16078@venus> <20050124231047.GC29545@redhat.com>
-Mime-Version: 1.0
+	Mon, 24 Jan 2005 18:23:57 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050124231047.GC29545@redhat.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16885.33669.126979.493091@napali.hpl.hp.com>
+Date: Mon, 24 Jan 2005 15:23:49 -0800
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: davidm@hpl.hp.com, Keith Owens <kaos@ocs.com.au>, bgerst@didntduck.org,
+       Terence Ripperda <tripperda@nvidia.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: inter_module_get and __symbol_get
+In-Reply-To: <9e47339105012415196a128899@mail.gmail.com>
+References: <16885.30810.787188.591830@napali.hpl.hp.com>
+	<30494.1106606658@ocs3.ocs.com.au>
+	<16885.31766.730042.408639@napali.hpl.hp.com>
+	<9e47339105012415196a128899@mail.gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 03:10:47PM -0800, Richard Henderson wrote:
-> On Mon, Jan 24, 2005 at 02:24:49PM -0800, Edward Peschko wrote:
-> > What I'd like to do is be able to set up my LD_LIBRARY_PATH 
-> > so that I can reference it from the point of view of the 
-> > *executable*:
-> > 
-> > 	setenv LD_LIBRARY_PATH   "*/../lib:....."
-> > 
-> > Here, read "* == full path of dirname of executable".
-> 
-> See -Wl,-rpath,'$ORIGIN/../lib/'
-> 
-> 
-> r~
+>>>>> On Mon, 24 Jan 2005 18:19:05 -0500, Jon Smirl <jonsmirl@gmail.com> said:
 
-cool.. any chance for some syntactic sugar so me (and other 
-users/vendors) wouldn't need to change any of their build scripts 
-and compilation processes?
+  Jon> On Mon, 24 Jan 2005 14:52:06 -0800, David Mosberger
+  Jon> <davidm@napali.hpl.hp.com> wrote:
+  >> Well, the only place that I know of where I (have to) care about
+  >> inter_module*() is because of the DRM/AGP dependency.  I can't
+  >> imagine
 
-The only thing I would see as a drawback would be backwards compatibility,
-but how often do people have directories named '*'?
+  Jon> The DRM inter_module_XX dependency has been removed in
+  Jon> 2.6.10. AGP still exports inter_module_XX so that things like
+  Jon> Nvidia/ATI drivers will continue to work.
 
-Ed
+Not anymore:
+
+  http://linux.bkbits.net:8080/linux-2.5/cset@41ef3420VDdf4OFNUTaC9jUaz8gR1A
+
+	--david

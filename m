@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbUKHVTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbUKHVVo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbUKHVTz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 16:19:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbUKHVTz
+	id S261220AbUKHVVo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 16:21:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbUKHVVo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 16:19:55 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10506 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261236AbUKHVTw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 16:19:52 -0500
-Date: Mon, 8 Nov 2004 22:19:20 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Corey Minyard <cminyard@mvista.com>
+	Mon, 8 Nov 2004 16:21:44 -0500
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:27295 "EHLO
+	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S261220AbUKHVV0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 16:21:26 -0500
+Date: Mon, 8 Nov 2004 22:21:00 +0100
+From: Michael Gernoth <simigern@stud.uni-erlangen.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] small IPMI cleanup
-Message-ID: <20041108211920.GF15077@stusta.de>
-References: <20041106222839.GS1295@stusta.de> <418FB0EA.90006@mvista.com> <20041108180656.GA15077@stusta.de> <418FB9BF.1000809@mvista.com>
+Subject: Re: Hanging NFS umounts with 2.4.27
+Message-ID: <20041108212059.GA12717@cip.informatik.uni-erlangen.de>
+References: <20041105100237.GA27689@cip.informatik.uni-erlangen.de> <1099684541.19858.1.camel@lade.trondhjem.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <418FB9BF.1000809@mvista.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1099684541.19858.1.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 08, 2004 at 12:23:59PM -0600, Corey Minyard wrote:
-> Adrian Bunk wrote:
+On Fri, Nov 05, 2004 at 11:55:41AM -0800, Trond Myklebust wrote:
+> fr den 05.11.2004 Klokka 11:02 (+0100) skreiv Michael Gernoth:
 > 
-> >>these functions that are perhaps not in the kernel yet (and perhaps 
-> >>never make it into the mainstream kernel).  Some of the statics do need 
-> >>to be cleaned up, though.
-> >>   
-> >>
-> >
-> >Why shouldn't they make it into the mainstream kernel?
-> > 
-> >
-> Sometimes people create specific tools that only support a specific type 
-> of board.  I'm not sure every single thing written to go into the kernel 
+> > Searching through the Changesets I found 1.1402.1.19:
+> > http://linux.bkbits.net:8080/linux-2.4/cset@1.1402.1.19
+> > After reverting this one, we have a stable umount-behaviour again.
+> 
+> Does the attached patch help at all?
+>
+>   NFS: Always wake up tasks that are waiting on the sillyrenamed file to
+>        complete.
 
-Check the MIPS port how many different evaluation boards it supports.
-AFAIK there's not a strict minimum of production units until some code 
-is allowed to enter the kernel.
+This seems to fix it for us. Neither my stress-test during the weekend
+nor the students today were able to reproduce the hanging umounts :-)
 
-> should be included i nthe mainstream kernel.  It's a hard call, but if 
-> it for some very specific thing then the vendor may not be interested in 
-> doing this.
->...
-
-In this case, I don't see a reason for hooks in the main kernel to 
-support such functionality.
-
-> -Corey
-
-cu
-Adrian
+Thanks,
+  Michael
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Michael Gernoth                            Department of Computer Science IV 
+Martensstrasse 1  D-91058 Erlangen Germany  University of Erlangen-Nuremberg
+	         http://wwwcip.informatik.uni-erlangen.de/

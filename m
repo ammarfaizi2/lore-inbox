@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbULLTQ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbULLTRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbULLTQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 14:16:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbULLTQ2
+	id S261894AbULLTRP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 14:17:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbULLTRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 14:16:28 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:8208 "HELO
+	Sun, 12 Dec 2004 14:17:15 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:11792 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261885AbULLTPm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 14:15:42 -0500
-Date: Sun, 12 Dec 2004 20:15:31 +0100
+	id S261894AbULLTRE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 14:17:04 -0500
+Date: Sun, 12 Dec 2004 20:16:54 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: faith@redhat.com
+To: Andrew Main <zefram@fysh.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] kernel/audit.c: make some functions static
-Message-ID: <20041212191531.GU22324@stusta.de>
+Subject: [2.6 patch] kernel/capability.c: make a spinlock static
+Message-ID: <20041212191654.GV22324@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,123 +22,41 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below makes some needlessly global functions static.
+The patch below makes a needlessly global spinlock static.
 
 
 diffstat output:
- include/linux/audit.h |   12 ------------
- kernel/audit.c        |   17 ++++++++++-------
- 2 files changed, 10 insertions(+), 19 deletions(-)
+ include/linux/capability.h |    2 --
+ kernel/capability.c        |    4 ++--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc2-mm4-full/include/linux/audit.h.old	2004-12-12 02:41:04.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/include/linux/audit.h	2004-12-12 02:42:48.000000000 +0100
-@@ -177,16 +177,10 @@
- 					     const char *fmt, ...)
- 			    __attribute__((format(printf,2,3)));
- extern void		    audit_log_end(struct audit_buffer *ab);
--extern void		    audit_log_end_fast(struct audit_buffer *ab);
--extern void		    audit_log_end_irq(struct audit_buffer *ab);
- extern void		    audit_log_d_path(struct audit_buffer *ab,
- 					     const char *prefix,
- 					     struct dentry *dentry,
- 					     struct vfsmount *vfsmnt);
--extern int		    audit_set_rate_limit(int limit);
--extern int		    audit_set_backlog_limit(int limit);
--extern int		    audit_set_enabled(int state);
--extern int		    audit_set_failure(int state);
+--- linux-2.6.10-rc2-mm4-full/include/linux/capability.h.old	2004-12-12 02:43:59.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/include/linux/capability.h	2004-12-12 02:44:05.000000000 +0100
+@@ -44,8 +44,6 @@
  
- 				/* Private API (for auditsc.c only) */
- extern void		    audit_send_reply(int pid, int seq, int type,
-@@ -199,13 +193,7 @@
- #define audit_log_vformat(b,f,a) do { ; } while (0)
- #define audit_log_format(b,f,...) do { ; } while (0)
- #define audit_log_end(b) do { ; } while (0)
--#define audit_log_end_fast(b) do { ; } while (0)
--#define audit_log_end_irq(b) do { ; } while (0)
- #define audit_log_d_path(b,p,d,v) do { ; } while (0)
--#define audit_set_rate_limit(l) do { ; } while (0)
--#define audit_set_backlog_limit(l) do { ; } while (0)
--#define audit_set_enabled(s) do { ; } while (0)
--#define audit_set_failure(s) do { ; } while (0)
- #endif
- #endif
- #endif
---- linux-2.6.10-rc2-mm4-full/kernel/audit.c.old	2004-12-12 02:40:08.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/kernel/audit.c	2004-12-12 02:42:52.000000000 +0100
-@@ -150,6 +150,9 @@
- 	struct audit_rule rule;
- };
+ #include <linux/spinlock.h>
  
-+static void audit_log_end_irq(struct audit_buffer *ab);
-+static void audit_log_end_fast(struct audit_buffer *ab);
-+
- static void audit_panic(const char *message)
- {
- 	switch (audit_failure)
-@@ -231,7 +234,7 @@
+-extern spinlock_t task_capability_lock;
+-
+ /* #define STRICT_CAP_T_TYPECHECKS */
  
- }
+ #ifdef STRICT_CAP_T_TYPECHECKS
+--- linux-2.6.10-rc2-mm4-full/kernel/capability.c.old	2004-12-12 02:43:23.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/kernel/capability.c	2004-12-12 02:43:45.000000000 +0100
+@@ -20,10 +20,10 @@
+ EXPORT_SYMBOL(cap_bset);
  
--int audit_set_rate_limit(int limit)
-+static int audit_set_rate_limit(int limit)
- {
- 	int old		 = audit_rate_limit;
- 	audit_rate_limit = limit;
-@@ -240,7 +243,7 @@
- 	return old;
- }
+ /*
+- * This global lock protects task->cap_* for all tasks including current.
++ * This lock protects task->cap_* for all tasks including current.
+  * Locking rule: acquire this prior to tasklist_lock.
+  */
+-DEFINE_SPINLOCK(task_capability_lock);
++static DEFINE_SPINLOCK(task_capability_lock);
  
--int audit_set_backlog_limit(int limit)
-+static int audit_set_backlog_limit(int limit)
- {
- 	int old		 = audit_backlog_limit;
- 	audit_backlog_limit = limit;
-@@ -249,7 +252,7 @@
- 	return old;
- }
- 
--int audit_set_enabled(int state)
-+static int audit_set_enabled(int state)
- {
- 	int old		 = audit_enabled;
- 	if (state != 0 && state != 1)
-@@ -260,7 +263,7 @@
- 	return old;
- }
- 
--int audit_set_failure(int state)
-+static int audit_set_failure(int state)
- {
- 	int old		 = audit_failure;
- 	if (state != AUDIT_FAIL_SILENT
-@@ -523,7 +526,7 @@
- }
- 
- /* Initialize audit support at boot time. */
--int __init audit_init(void)
-+static int __init audit_init(void)
- {
- 	printk(KERN_INFO "audit: initializing netlink socket (%s)\n",
- 	       audit_default ? "enabled" : "disabled");
-@@ -744,7 +747,7 @@
-  * the audit buffer is places on a queue and a tasklet is scheduled to
-  * remove them from the queue outside the irq context.  May be called in
-  * any context. */
--void audit_log_end_irq(struct audit_buffer *ab)
-+static void audit_log_end_irq(struct audit_buffer *ab)
- {
- 	unsigned long flags;
- 
-@@ -759,7 +762,7 @@
- 
- /* Send the message in the audit buffer directly to user space.  May not
-  * be called in an irq context. */
--void audit_log_end_fast(struct audit_buffer *ab)
-+static void audit_log_end_fast(struct audit_buffer *ab)
- {
- 	unsigned long flags;
- 
+ /*
+  * For sys_getproccap() and sys_setproccap(), any of the three
 

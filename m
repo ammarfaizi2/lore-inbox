@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266006AbSL1X3Q>; Sat, 28 Dec 2002 18:29:16 -0500
+	id <S265656AbSL1Xd1>; Sat, 28 Dec 2002 18:33:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266114AbSL1X3Q>; Sat, 28 Dec 2002 18:29:16 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:128 "EHLO
-	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
-	id <S266006AbSL1X3P>; Sat, 28 Dec 2002 18:29:15 -0500
-From: "Folkert van Heusden" <folkert@vanheusden.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: EINTR
-Date: Sun, 29 Dec 2002 00:37:34 +0100
-Message-ID: <007301c2aeca$193892c0$3640a8c0@boemboem>
+	id <S265700AbSL1Xd1>; Sat, 28 Dec 2002 18:33:27 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:50181 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S265656AbSL1Xd1>;
+	Sat, 28 Dec 2002 18:33:27 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200212282341.gBSNfQnL001869@darkstar.example.net>
+Subject: Re: Want a random entropy source?
+To: list@fluent2.pyramid.net (Stephen Satchell)
+Date: Sat, 28 Dec 2002 23:41:26 +0000 (GMT)
+Cc: folkert@vanheusden.com, linux-kernel@vger.kernel.org
+In-Reply-To: <5.2.0.9.0.20021228151707.01d44ec0@fluent2.pyramid.net> from "Stephen Satchell" at Dec 28, 2002 03:20:21 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Hey, people, it's just a thought.  Turning lemons into lemonade, if you will.
 
-I always thought: you should always check for errno==EINTR when doing
-read/write/recv/recvfrom/sendto.
-But today I heard that when using Linux, EINTR does NEVER occur when
-doing read/etc. on files.
-Is this true?
-And also: is this also true for sockets? and recv & friends?
+Oh, I wasn't suggesting that it wasn't a useful idea, I was just
+curious as to how random the entropy would be compared to other
+sources such as disk and mouse activity.
 
-
-Folkert van Heusden
-www.vanheusden.com/Linux
+John.

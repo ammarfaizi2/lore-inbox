@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276952AbRJJVNf>; Wed, 10 Oct 2001 17:13:35 -0400
+	id <S275061AbRJJVMw>; Wed, 10 Oct 2001 17:12:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276717AbRJJVNX>; Wed, 10 Oct 2001 17:13:23 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11276 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276075AbRJJVNN>; Wed, 10 Oct 2001 17:13:13 -0400
-Subject: Re: Tainted Modules Help Notices
-To: tkhoadfdsaf@hotmail.com (Concerned Programmer)
-Date: Wed, 10 Oct 2001 22:17:22 +0100 (BST)
-Cc: dwmw2@infradead.org (David Woodhouse), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        viro@math.psu.edu (Alexander Viro), kaos@ocs.com.au (Keith Owens),
-        sirmorcant@morcant.org (Morgan Collins [Ax0n]),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <OE64YU5ts1Tjkw1BzCf0000708c@hotmail.com> from "Concerned Programmer" at Oct 10, 2001 04:06:42 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S276075AbRJJVMm>; Wed, 10 Oct 2001 17:12:42 -0400
+Received: from citd-ppp.paderlinx.de ([193.189.252.149]:6675 "EHLO
+	mail.citd.de") by vger.kernel.org with ESMTP id <S275061AbRJJVM3>;
+	Wed, 10 Oct 2001 17:12:29 -0400
+Date: Wed, 10 Oct 2001 23:12:58 +0200 (MEST)
+From: Matthias Schniedermeyer <ms@citd.de>
+To: linux-kernel@vger.kernel.org
+Subject: VM-Problems in 2.4.11
+Message-ID: <Pine.LNX.4.20.0110102302170.15834-100000@citd.owl.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15rQjC-0000m2-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> had read that it was suppose to be for maintainability (.i.e. source
-> available so kernel gods can debug) and not to enforce ideological
-> conformity.  Now I read that anything not licensed under the GPL, including
-> BSD or simply public domain source code, will taint my kernel and modprobe
-> complains about non-GPL stuff including parport_pc which apparently did not
-> have a license.  Should I expect a Linux kernel KGB to show up next?
+#include <hallo.h>
 
-Hardly. Its there to handle maintainability issues. Right now its got some 
-glitches - and the BSD one is a glitch we need to sort out. Clearly BSD
-stuff where the source is in the kernel is not harming anyones ability to
-deubg.
 
->     Furthermore I have to agree with the previous poster.  Any module could
-> easily lie to MODULE_LICENSE about its licensing terms and that would not
-> make it's source automatically "free" and GPLable so I am now wondering if
-> this tainting mechanism is of any use at all.
 
-Well under the DMCA thats probably a criminal offence with five years in
-jail. The truth however is that if you want to lie about licensing or run a
-modutils that doesn't do it nobody stops you. Its there primarily to deal
-with bug filtering from people who don't know better. Folks who know enough
-to subvert the mechanism generally also know better than to post Nvdriver
-bugs to l/k.
+I have a system with 3GB RAM and no Swap at all.
+
+Before the test "free" showed about 2GB for "cached" and about 800MB was
+free. ("Fresh"-System after boot up. Only copied some files before)
+
+Then i wanted to copy about 1.5GB to a "tmpfs" mount.
+
+After about 800MB the copying stopped. On another console, where i wanted
+to run "free" again, i just got a "out of memory"-type of warning.
+(No errors showed up in syslog)
+
+I had to abort the copy and umount the tmpfs-partition.
+
+
+With 2.4.9 this scenario works without problems.
+
+
+If any more informations is needed, i will provide them.
+
+
+
+
+Bis denn
+
+-- 
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
+
 

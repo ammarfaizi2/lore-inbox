@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292779AbSBUV7m>; Thu, 21 Feb 2002 16:59:42 -0500
+	id <S292555AbSBUWNE>; Thu, 21 Feb 2002 17:13:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292773AbSBUV7d>; Thu, 21 Feb 2002 16:59:33 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:7040 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S292544AbSBUV7P>; Thu, 21 Feb 2002 16:59:15 -0500
-Date: Thu, 21 Feb 2002 16:59:25 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Adam <ambx1@netscape.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: driverfs question
-In-Reply-To: <3C756D06.7090901@netscape.net>
-Message-ID: <Pine.LNX.3.95.1020221165804.565A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292552AbSBUWM4>; Thu, 21 Feb 2002 17:12:56 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:25614 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S292555AbSBUWMl>;
+	Thu, 21 Feb 2002 17:12:41 -0500
+Date: Thu, 21 Feb 2002 14:07:14 -0800
+From: Greg KH <greg@kroah.com>
+To: "J.P. Morris" <jpm@it-he.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18-rc2 problem..
+Message-ID: <20020221220714.GI4984@kroah.com>
+In-Reply-To: <20020220185855.2bcecc24.jpm@it-he.org> <20020220190509.GA30784@kroah.com> <20020221200459.642e3bb3.jpm@it-he.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020221200459.642e3bb3.jpm@it-he.org>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Thu, 24 Jan 2002 18:54:56 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Feb 2002, Adam wrote:
-[SNIPPED..]
+On Thu, Feb 21, 2002 at 08:04:59PM +0000, J.P. Morris wrote:
 > 
+> Note that the kernel itself doesn't lock, just the module.
+> That is, the module never completes initialisation and sits there forever.
+> When it was being loaded by script at boot, I had to use Alt-Sys-K to kill
+> the process trying to load the module in order to log in.
 > 
-> You're absolutely right.  What I meant to say is a directory.  It's 
-> simply a bad habit.  In fact, one, of several, reason I became 
-> interested in the Linux kernel project is that I was unhappy with the 
-> Micro$oft licensing policy.  The term folder is used by micro$oft simply 
-> to make it's OS sound more user friendly.
+> I have tried upgrading just the usb-storage module from 2.4.17 to 2.4.18
+> and (unfortunately) it still works.. the cause of the problem is elsewhere.
 > 
+> Any ideas?  Thanks.
 
-Thanks. I needed that. I started to worry that we had started to devolve.
+Enable debugging in the usb-storage driver, and send the kernel debug
+output to the usb-storage author and maintainer :)
 
-Cheers,
-Dick Johnson
+Good luck,
 
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-        111,111,111 * 111,111,111 = 12,345,678,987,654,321
-
+greg k-h

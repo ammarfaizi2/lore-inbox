@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267508AbRGRRqc>; Wed, 18 Jul 2001 13:46:32 -0400
+	id <S267510AbRGRR5q>; Wed, 18 Jul 2001 13:57:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267510AbRGRRqW>; Wed, 18 Jul 2001 13:46:22 -0400
-Received: from web14405.mail.yahoo.com ([216.136.174.62]:10258 "HELO
-	web14405.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S267508AbRGRRqI>; Wed, 18 Jul 2001 13:46:08 -0400
-Message-ID: <20010718174612.48434.qmail@web14405.mail.yahoo.com>
-Date: Wed, 18 Jul 2001 10:46:12 -0700 (PDT)
-From: Rajeev Bector <rajeev_bector@yahoo.com>
-Subject: vmalloc and kiobuf questions ?
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S267867AbRGRR5f>; Wed, 18 Jul 2001 13:57:35 -0400
+Received: from stine.vestdata.no ([195.204.68.10]:62735 "EHLO
+	stine.vestdata.no") by vger.kernel.org with ESMTP
+	id <S267510AbRGRR5V>; Wed, 18 Jul 2001 13:57:21 -0400
+Date: Wed, 18 Jul 2001 19:57:23 +0200
+From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <xfs@ragnark.vestdata.no>
+To: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: kernel deadlock; xfs
+Message-ID: <20010718195723.A24237@vestdata.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-MM Gurus, 
-  In trying to understand how to map driver
-memory into user space memory, I have the following
-questions:
+Hi
 
-1) Is there a limit to how much memory
-   I can allocate using vmalloc() ?
-   (This is regular RAM)
-2) I want to map the vmalloc'ed memory
-   to user space via mmap(). I've read
-   that remap_page_range() will not do it
-   and I have to do it using nopage
-   handlers ? Is that true ? Is there
-   a simple answer to why is that the case ?
+We're experiencing a deadlock on a NFS-server using a XFS filesystem.
+The kernel was originally running SGI XFS 1.0, but we've now tried 1.0.1
+and the CVS-version (as of yesterday) - same problem.
 
-3) I've also read the kiobufs will simplify
-   all this. Is there a documentation on 
-   kiobufs - what they can and cannot do ?
-   Are kiobufs part of the standard kernel
-   now ?
-Thanks in advance for your answers !
+The deadlock appear to be happening when accessing big files over NFS,
+but we're not sure as we have not found a way to reproduce. There are no
+kernel messages written to syslog, and the kernel debugger does not
+start when pressing pause.
 
-Rajeev
+I assume that means the problem is inside an interrupt handler? Does
+that exclude XFS as the potential problem?
+
+The system is using aic7xxx SCSI adapters and hamachi gigabit ethernet
+card.
+
+We're going to try with a different filesystem and a different gigabit
+card next, but if you have other suggestions for how to debug this,
+please let us know.
 
 
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail
-http://personal.mail.yahoo.com/
+
+-- 
+Ragnar Kjorstad
+Big Storage

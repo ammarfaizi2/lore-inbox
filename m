@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262425AbUBHGdg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 01:33:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbUBHGdg
+	id S262153AbUBHG3j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 01:29:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUBHG3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 01:33:36 -0500
-Received: from cm6.gamma186.maxonline.com.sg ([202.156.186.6]:11911 "EHLO
-	garfield.anomalistic.org") by vger.kernel.org with ESMTP
-	id S262425AbUBHGde (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 01:33:34 -0500
-Date: Sun, 8 Feb 2004 14:33:32 +0800
-From: Eugene Teo <eugene.teo@eugeneteo.net>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: M?ns Rullg?rd <mru@kth.se>, linux-kernel@vger.kernel.org
-Subject: Re: Unknown symbol _exit when compiling VMware vmmon.o module
-Message-ID: <20040208063332.GA12490@eugeneteo.net>
-Reply-To: Eugene Teo <eugene.teo@eugeneteo.net>
-References: <1076175615.798.9.camel@teapot.felipe-alfaro.com> <yw1xad3u7oaw.fsf@kth.se> <1076180005.798.16.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1076180005.798.16.camel@teapot.felipe-alfaro.com>
-X-Operating-System: Linux 2.6.3-rc1
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sun, 8 Feb 2004 01:29:39 -0500
+Received: from slask.tomt.net ([217.8.136.223]:21120 "EHLO pelle.tomt.net")
+	by vger.kernel.org with ESMTP id S262153AbUBHG3i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 01:29:38 -0500
+Message-ID: <4025D74F.8020604@tomt.net>
+Date: Sun, 08 Feb 2004 07:29:35 +0100
+From: Andre Tomt <andre@tomt.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: Linux 2.6.3-rc1
+References: <Pine.LNX.4.58.0402061823040.30672@home.osdl.org> <4024BCE4.2060600@tomt.net> <200402071722.10242.bzolnier@elka.pw.edu.pl> <4025D0F2.1020400@tomt.net>
+In-Reply-To: <4025D0F2.1020400@tomt.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<quote sender="Felipe Alfaro Solana">
-> On Sat, 2004-02-07 at 19:11, M??ns Rullg??rd wrote:
-> > Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> writes:
-> > > After installing VMware Workstation 4.5.0-7174 and running
-> > > vmware-config.pl, I get the following error when trying to insert
-> > > vmmon.ko into the kernel:
-> > >
-> > > vmmon: Unknown symbol _exit
-> > 
-> > I've seen it too.  I just removed that call from the source and
-> > rebuilt.  It's not supposed to ever get there anyway.  I still don't
-> > understand what it was doing there in the first place.  Oddly, it
-> > compiled with kernel 2.6.2, but not with some later updates.
+Andre Tomt wrote:
+> Hmm. Netconsole just hangs my kernel, probably due to me mis-merging it 
+> into  2.6.3-rc1. So here it is, the pen and paper version :-)
 > 
-> Yeah! I experienced the same with -mm kernels... It seems the changes
-> that motivated that have been integrated in mainline now. For now, I've
-> removed any reference to _exit from the module sources.
+> It is somewhat shortened, if you need more information from the oops, 
+> ask and I'll see what I can do.
+> 
+> Unable to handle kernel virtual paging request at virtual address 24748b24
+<snip>
 
-reverse this patch: 
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1/2.6.1-mm5/broken-out/gcc-35-exit-fix.patch
+Lets see, had a digital camera lying around, so here goes the complete 
+OOPS in jpeg-format
 
-for more info, see http://www.anomalistic.org/#vmware
-
-Eugene
-
--- 
-Eugene TEO -  <eugeneteo%eugeneteo!net>   <http://www.anomalistic.org/>
-1024D/14A0DDE5 print D851 4574 E357 469C D308  A01E 7321 A38A 14A0 DDE5
-main(i) { putchar(182623909 >> (i-1) * 5&31|!!(i<7)<<6) && main(++i); }
-
+http://www.tomt.net/temp/

@@ -1,73 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319318AbSHVK6a>; Thu, 22 Aug 2002 06:58:30 -0400
+	id <S319323AbSHVL1K>; Thu, 22 Aug 2002 07:27:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319319AbSHVK6a>; Thu, 22 Aug 2002 06:58:30 -0400
-Received: from [217.167.51.129] ([217.167.51.129]:45798 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S319318AbSHVK63>;
-	Thu, 22 Aug 2002 06:58:29 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Gabriel Paubert <paubert@iram.es>,
-       Yoann Vandoorselaere <yoann@prelude-ids.org>
-Cc: <cpufreq@lists.arm.linux.org>, <cpufreq@www.linux.org.uk>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]: fix 32bits integer overflow in loops_per_jiffy
- calculation
-Date: Thu, 22 Aug 2002 15:00:26 +0200
-Message-Id: <20020822130026.20840@192.168.4.1>
-In-Reply-To: <3D64BB45.4020907@iram.es>
-References: <3D64BB45.4020907@iram.es>
-X-Mailer: CTM PowerMail 3.1.2 carbon <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S319324AbSHVL1K>; Thu, 22 Aug 2002 07:27:10 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:26505 "HELO ulima.unil.ch")
+	by vger.kernel.org with SMTP id <S319323AbSHVL1I>;
+	Thu, 22 Aug 2002 07:27:08 -0400
+Date: Thu, 22 Aug 2002 13:31:13 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre2-ac6
+Message-ID: <20020822113112.GB19201@ulima.unil.ch>
+References: <200208212025.g7LKPda15450@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200208212025.g7LKPda15450@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Gabriel !
+Hello,
 
->if(abs(div)<100) div=0;
->
->> +        val = old / div * mult;
->
->Now happily divide by zero.
->
->> +
->> +        carry = old % div;
->
->Again.
->
->> +        carry = carry * mult / div;
->
->Again.
->
->> +                
->> +        return val + carry;
->>  }
+I can't use DMA on ICH4 with it (MB MSI 845E Max2-BLR):
+with PNPBIOS compiled in (no ACPI compiled in):
+(almost full log under
+http://ulima.unil.ch/greg/linux/dmesg-2.4.20-pre2-ac6 )
 
-None of the above can happen in the domain of application of this
-function. It's used to scale up/down the loops_per_jiffy value when
-scaling the CPU frequency. Anyway, the above isn't worse than the
-original function. Ideally, we would want 64 bits arithmetics, but
-we decided long ago not to bring the libcc support routines for that
-in the kernel.
->
->And I can't see how it can be more precise, you divide the numerator and
->denominator of the fraction by 100 and then proceed forgetting 
->everything about the rest. Basically this looses about 7 bits of precision.
+...
+i810_rng: RNG not detected
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha1
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+PCI: Unable to reserve I/O region #1:8@0 for device 00:1f.1
+Trying to free nonexistent resource <00000000-00000007>
+Trying to free nonexistent resource <00000000-00000003>
+Trying to free nonexistent resource <00000000-00000007>
+Trying to free nonexistent resource <00000000-00000003>
+Trying to free nonexistent resource <0000fc00-0000fc0f>
+Trying to free nonexistent resource <20000000-200003ff>
+hda: IC35L120AVVA07-0, ATA DISK drive
+hdc: IOMEGA ZIP 250 ATAPI, ATAPI FLOPPY drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: host protected area => 1
+hda: 241254720 sectors (123522 MB) w/1863KiB Cache, CHS=15017/255/63
+Partition check:
+ /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 p7 p8 p9 >
+Linux agpgart interface v0.99 (c) Jeff Hartmann
+...
 
-Which is mostly ok for what we need. I think Yoann didn't mean it's
-more precise that what it replace, but rather more precise than his
-original implementation that divided by 1000 ;) Anyway, it's not
-significantly worse than what we had and won't overflow as easily
-which is all we want for this routine now.
+And without PNPBIOS (also without ACPI):
+(almost full log under
+http://ulima.unil.ch/greg/linux/dmesg-2.4.20-pre2-ac6-noPNPBIOS )
+...
+i810_rng: RNG not detected
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha1
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+PCI: Unable to reserve I/O region #1:8@0 for device 00:1f.1
+Trying to free nonexistent resource <00000000-00000007>
+Trying to free nonexistent resource <00000000-00000003>
+Trying to free nonexistent resource <00000000-00000007>
+Trying to free nonexistent resource <00000000-00000003>
+Trying to free nonexistent resource <0000fc00-0000fc0f>
+Trying to free nonexistent resource <20000000-200003ff>
+hda: IC35L120AVVA07-0, ATA DISK drive
+hdc: IOMEGA ZIP 250 ATAPI, ATAPI FLOPPY drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: host protected area => 1
+hda: 241254720 sectors (123522 MB) w/1863KiB Cache, CHS=15017/255/63
+Partition check:
+ /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 p7 p8 p9 >
+Linux agpgart interface v0.99 (c) Jeff Hartmann
+...
 
->Now altogether I believe that such a function pertains to a per arch 
->optimized routine.
+That don't seem to change anything... I have reported an oops with
+2.4.20-pre2-ac3 also with IDE:
+http://groups.google.com/groups?hl=fr&lr=&ie=UTF-8&threadm=20020816181957.GA14157%40ulima.unil.ch&rnum=1&prev=/groups%3Fhl%3Dfr%26lr%3D%26ie%3DISO-8859-1%26q%3D2.4.20-pre2-ac3%2Boops%26btnG%3DRecherche%2BGoogle
 
-Maybe... though in the context of cpufreq, it may not make that much
-sense.
+Is there something I could try?
 
-Ben.
+Thank you very much,
 
-
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

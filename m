@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136331AbRAGS0i>; Sun, 7 Jan 2001 13:26:38 -0500
+	id <S136334AbRAGS16>; Sun, 7 Jan 2001 13:27:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136361AbRAGS0c>; Sun, 7 Jan 2001 13:26:32 -0500
-Received: from [156.46.206.66] ([156.46.206.66]:13952 "EHLO eagle.netwrx1.com")
-	by vger.kernel.org with ESMTP id <S136299AbRAGS0T>;
-	Sun, 7 Jan 2001 13:26:19 -0500
-From: "George R. Kasica" <georgek@netwrx1.com>
-To: Alessandro Suardi <alessandro.suardi@oracle.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.0 make bzImage failure - Followup
-Date: Sun, 07 Jan 2001 12:26:17 -0600
-Organization: Netwrx Consulting Inc.
-Reply-To: georgek@netwrx1.com
-Message-ID: <43dh5tsaoer898vt9pra083hpa78uhsr82@4ax.com>
-In-Reply-To: <q11f5tg6b07jatkjona1ah4pbish0s95bd@4ax.com> <3A57D4C6.1507A97D@oracle.com>
-In-Reply-To: <3A57D4C6.1507A97D@oracle.com>
-X-Mailer: Forte Agent 1.8/32.548
+	id <S136376AbRAGS1s>; Sun, 7 Jan 2001 13:27:48 -0500
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:48653 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S136334AbRAGS1d>;
+	Sun, 7 Jan 2001 13:27:33 -0500
+Message-ID: <3A58C3E8.FF5FF68E@candelatech.com>
+Date: Sun, 07 Jan 2001 12:30:48 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+        netdev@oss.sgi.com
+Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission
+In-Reply-To: <E14FKDI-00033e-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->> [root@eagle linux]# ld -v
->> GNU ld version 2.10.1 (with BFD 2.10.1)
->
->Historically kernel is built with hjl's binutils - try 2.10.1.0.4
-> ftp://ftp.valinux.com/pub/support/hjl/binutils 
-THat got it...though the stock 2.4.0 won't find my IDE drives to boot
-from...using Alan Cox's ac3 seems to fly though....now to put the new
-P-III 600MHz chip in and recompile for that....hope it flys.
+Alan Cox wrote:
+> 
+> > Um, what about people running their box as just a VLAN router/firewall?
+> > That seems to be one of the principle uses so far.  Actually, in that case
+> > both VLAN and IP traffic would come through, so it would be a tie if VLAN
+> > came first, but non-vlan traffic would suffer worse.
+> 
+> Why would someone filter between vlans when any node on each vlan can happily
+> ignore the vlan partitioning
 
-George
+Suppose you have a 100bt link upstream, and want to re-sell that as 10 10Mb
+links to all the customers in one building.  With VLANs, you can
+haul all the data over one wire to a Linux box with 11 interfaces: 1 running
+VLAN (100bt), and 10 others running 10bt ethernet.  Now, your uses are
+segregated, and you only have 1 100bt wire running to the basement, instead
+of 10.
 
-George, MR. Tibbs & The Beast Kasica
-Waukesha, WI USA
-georgek@netwrx1.com
-http://www.netwrx1.com
-ICQ #12862186
+Alternately, if you have a VLAN ethernet switch, your linux box just feeds
+100bt into it, and acts as a router with 10 (vlan) interfaces.
 
-      Zz
-       zZ
-    |\ z    _,,,---,,_
-    /,`.-'`'    _   ;-;;,_
-   |,4-  ) )-,_..;\ (  `'_'
-  '---''(_/--'  `-'\_)
+In either of these cases, assuming the etherswitch and/or Linux box is secure,
+the customers will not be able to be on other peoples VLAN.  This enables
+all kinds of routing/billing possibilities...
+
+> > So, how can I make sure that it is second in the list?
+> 
+> Register vlan in the top level protocol hash then have that yank the header
+> and feed the packets through the hash again.
+
+Thats what it already does, if I understand correctly.  Of course, if VLAN
+is loaded as a module, then it will be in the hash before IP, right?
+
+
+-- 
+Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
+Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
+http://scry.wanfear.com               http://scry.wanfear.com/~greear
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

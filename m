@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274862AbRKFU7G>; Tue, 6 Nov 2001 15:59:06 -0500
+	id <S276361AbRKFVAz>; Tue, 6 Nov 2001 16:00:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275734AbRKFU6z>; Tue, 6 Nov 2001 15:58:55 -0500
-Received: from mustard.heime.net ([194.234.65.222]:32681 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S274862AbRKFU6g>; Tue, 6 Nov 2001 15:58:36 -0500
-Date: Tue, 6 Nov 2001 21:58:28 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: <erik@hensema.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
-In-Reply-To: <slrn9ugh1g.dld.spamtrap@dexter.hensema.xs4all.nl>
-Message-ID: <Pine.LNX.4.30.0111062157050.25683-100000@mustard.heime.net>
+	id <S275734AbRKFVAp>; Tue, 6 Nov 2001 16:00:45 -0500
+Received: from uunet-107.finestra.net ([65.193.229.107]:54349 "EHLO
+	bianko.finestra.net") by vger.kernel.org with ESMTP
+	id <S280570AbRKFVA3>; Tue, 6 Nov 2001 16:00:29 -0500
+Date: Tue, 6 Nov 2001 13:00:23 -0800 (PST)
+From: "Ivan F. Poddubny" <ivan@finestra.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: stupid problem with aic-7892b
+Message-ID: <Pine.LNX.4.33.0111061253350.8584-100000@bastardo-asp.finestra.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >1)  IT SHOULD NOT BE PRETTY.  No tabs to line up columns.  No "progress
-> >bars."  No labels except as "proc comments" (see later).  No in-line labelling.
->
-> It should not be pretty TO HUMANS. Slight difference. It should be pretty
-> to shellscripts and other applications though.
->
-> Yes, that means we won't be able to do a 'cat /proc/cpuinfo' anymore in the
-> future. Bummer.
+Hi there,
 
-What about adding a separate choice in the kernel config to allow for
-/hproc (or something) human readable /proc file system?
+I'm running into pretty stupid problem with aic-7892b chipset at my new
+dell system. When I'm trying to install RH 6.2 to this machine (dell
+precision 530/2xP-4-1.5GHz/36GB scsi/512MB RAM) installer goes to south
+with poblem about getting comps file. Unfortunately, this is not problem
+with comps file, the roots of problem located in *probably* bad driver for
+aic-7892b at installation kernel.
 
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+Another problem on this PC with installation of RH 7.0 -- it's installing
+normally, but after reboot it's falling to loop with scsi initialization.
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+Any ideas/suggestions/points?
+
+	--ivan
 

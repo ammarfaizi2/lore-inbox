@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129231AbQKXRhn>; Fri, 24 Nov 2000 12:37:43 -0500
+        id <S129735AbQKXRqe>; Fri, 24 Nov 2000 12:46:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129735AbQKXRhc>; Fri, 24 Nov 2000 12:37:32 -0500
-Received: from waste.org ([209.173.204.2]:22846 "EHLO waste.org")
-        by vger.kernel.org with ESMTP id <S129231AbQKXRh0>;
-        Fri, 24 Nov 2000 12:37:26 -0500
-Date: Fri, 24 Nov 2000 11:06:27 -0600 (CST)
+        id <S129904AbQKXRqY>; Fri, 24 Nov 2000 12:46:24 -0500
+Received: from waste.org ([209.173.204.2]:33344 "EHLO waste.org")
+        by vger.kernel.org with ESMTP id <S129735AbQKXRqO>;
+        Fri, 24 Nov 2000 12:46:14 -0500
+Date: Fri, 24 Nov 2000 11:15:50 -0600 (CST)
 From: Oliver Xymoron <oxymoron@waste.org>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-cc: Tobias Ringstrom <tori@tellus.mine.nu>, dhinds@zen.stanford.edu,
-        torvalds@transmeta.com,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why not PCMCIA built-in and yenta/i82365 as modules
-In-Reply-To: <20001122122543.A28963@mea-ext.zmailer.org>
-Message-ID: <Pine.LNX.4.10.10011241057210.9367-100000@waste.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Igmar Palsenberg <maillist@chello.nl>, Andreas Schwab <schwab@suse.de>,
+        Pauline Middelink <middelink@polyware.nl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: linux-2.2.18-pre19 asm/delay.h problem?
+In-Reply-To: <E13yikV-0006ZQ-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10011241113540.9367-100000@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Nov 2000, Matti Aarnio wrote:
+On Wed, 22 Nov 2000, Alan Cox wrote:
 
-> On Tue, Nov 21, 2000 at 11:34:45PM +0100, Tobias Ringstrom wrote:
-> > The subject says it all. Is there any particular (technical) reason
-> > why I must have both the generic pcmcia code and the controller support
-> > built-in, or build all of them as modules?
+> > > |> > > #define __bad_udelay() panic("Udelay called with too large a constant")
+> > > |> 
+> > > |> Can't we change that to :
+> > > |> #error "Udelay..."
+> > > 
+> > > No.
 > > 
-> > /Tobias
+> > ?? I think I'm missing something here.
 > 
-> Wasn't there some strange laptop model which had PCMCIA floppy/CDROM,
-> which are unavailable to bootstrap process, unless PCMCIA is supported
-> at the booting kernel ?
-> 
-> Or was it about USB floppy at some other laptop?
+> preprocessor stuff is done too early for this
 
-Yes and yes. However, you still would need the controller specific code
-built-in.
-
-The USB floppy situation is uglier still. When I tried to put Debian on my
-VAIO from floppy, I discovered that even with a USB-enabled kernel, the
-floppy wasn't available in time to mount /. 
-
-Approaches that did work, in case anyone is curious, were using loadlin
-with FreeDOS (incredibly slow) to preload the second floppy via BIOS, or
-using syslinux and a custom mini-kernel and initrd image crammed onto a
-single floppy.
+You could still change it to
+__bug__module_is_using_a_delay_thats_too_large__please_report()..
 
 --
  "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
-
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

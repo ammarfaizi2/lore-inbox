@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283657AbRK3NV3>; Fri, 30 Nov 2001 08:21:29 -0500
+	id <S283651AbRK3NZ3>; Fri, 30 Nov 2001 08:25:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283652AbRK3NVJ>; Fri, 30 Nov 2001 08:21:09 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:5651 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S283651AbRK3NVD>; Fri, 30 Nov 2001 08:21:03 -0500
-Message-ID: <3C07878E.2@namesys.com>
-Date: Fri, 30 Nov 2001 16:20:14 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
+	id <S283652AbRK3NZT>; Fri, 30 Nov 2001 08:25:19 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:11717 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S283651AbRK3NZD>; Fri, 30 Nov 2001 08:25:03 -0500
+Date: Fri, 30 Nov 2001 15:30:04 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, <miquels@cistron-office.nl>
+Subject: Re: XT-PIC vs IO-APIC and PCI devices
+In-Reply-To: <Pine.GSO.3.96.1011130140806.15249K-100000@delta.ds2.pg.gda.pl>
+Message-ID: <Pine.LNX.4.33.0111301527010.24304-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: jose@iteso.mx, linux-kernel@vger.kernel.org
-Subject: Re: 32 bit UIDs on 2.4.14
-In-Reply-To: <E169lOX-00035g-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Fri, 30 Nov 2001, Maciej W. Rozycki wrote:
 
->>  What is the trick to get more than 2^16 uids working on all services?=
->>?
->>
->
->2.4.x kernel
->Glibc 2.2
->Up to date pam modules
->ext2/ext3 file system
->
->patches needed for quotas
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
+>  Do you have sources for the driver?  Last time I looked at the driver, it
+> was binary-only (the distribution contained a copy of the GNU GPL, yet the
+> vendor refused to release sources I asked for) and it seemed to be broken
+> horribly.  Be happy at least it works for you with interrupts routed
+> through the 8259A.
 
-reiserfs also works, for 32 bit uids
+Nope they provide some source as "glue" and do the final linking
+against some object files. I've been hacking on the glue code, so far
+i've managed to get multiple card detection working and with some
+help removed some races but who knows what lurks in those .o's.
 
-Hans
+Cheers,
+	Zwane Mwaikambo
+
 

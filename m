@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318770AbSHLRd4>; Mon, 12 Aug 2002 13:33:56 -0400
+	id <S318765AbSHLRbc>; Mon, 12 Aug 2002 13:31:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318771AbSHLRdz>; Mon, 12 Aug 2002 13:33:55 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:9982 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318770AbSHLRcp>; Mon, 12 Aug 2002 13:32:45 -0400
-Subject: Re: via vp3 udma corruption
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ed Sweetman <safemode@speakeasy.net>
-Cc: linux-kernel@vger.kernel.org, David Fries <dfries@mail.win.org>
-In-Reply-To: <1029173401.19308.98.camel@psuedomode>
-References: <20020811210826.GA684@spacedout.fries.net> 
-	<20020812170232.GC15249@kroah.com>  <1029173401.19308.98.camel@psuedomode>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 12 Aug 2002 18:33:39 +0100
-Message-Id: <1029173619.16216.194.camel@irongate.swansea.linux.org.uk>
+	id <S318766AbSHLRag>; Mon, 12 Aug 2002 13:30:36 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:64782 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S318765AbSHLRa1>;
+	Mon, 12 Aug 2002 13:30:27 -0400
+Date: Mon, 12 Aug 2002 10:30:30 -0700
+From: Greg KH <greg@kroah.com>
+To: Julien BLACHE <jb@jblache.org>
+Cc: Brad Hards <bhards@bigpond.net.au>, Adrian Bunk <bunk@fs.tum.de>,
+       linux-kernel@vger.kernel.org, rlievin@free.fr
+Subject: Re: [2.5 patch] tiglusb.c must include version.h
+Message-ID: <20020812173030.GA15652@kroah.com>
+References: <Pine.NEB.4.44.0208111416110.3636-100000@mimas.fachschaften.tu-muenchen.de> <200208121012.59099.bhards@bigpond.net.au> <87znvsmqfx.fsf@frigate.technologeek.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87znvsmqfx.fsf@frigate.technologeek.org>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Mon, 15 Jul 2002 16:28:30 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-12 at 18:30, Ed Sweetman wrote:
-> Perhaps we all see udma corruption due to it detecting an udma speed
-> that's not supported by our chipsets?  I know my manual says UDMA66 is
-> the highest for my board.  
+On Mon, Aug 12, 2002 at 10:28:18AM +0200, Julien BLACHE wrote:
+> Brad Hards <bhards@bigpond.net.au> wrote:
+> 
+> Hi,
+> 
+> >> line 44 is:
+> >>   #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+> >>
+> >>
+> >> The fix is simple:
+> > <snip>
+> >> +#include <linux/version.h>
+> >
+> > Wouldn't it be cleaner to just remove this case? It is in 2.5, after all.
 
-That would suprise me since the link is CRC protected. It is always
-possible if we are accidentally overconfiguring a chip, although I'd
-expect a prompt and total failure.
+I agree.
 
-One for the VIA IDE maintainer
+> But if this should become a hassle for anybody, I'll remove this case
+> ASAP.
 
+Don't worry about it, I just made the change in my tree, and will send
+the change to Linus later today.
+
+thanks,
+
+greg k-h

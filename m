@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265816AbTIERle (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 13:41:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265817AbTIERle
+	id S265845AbTIERpv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 13:45:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbTIERpu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 13:41:34 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14790 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265816AbTIERld (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 13:41:33 -0400
-Date: Fri, 5 Sep 2003 10:47:49 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Rob Landley <rob@landley.net>
-cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Fix up power managment in 2.6
-In-Reply-To: <200309050158.36447.rob@landley.net>
-Message-ID: <Pine.LNX.4.44.0309051044470.17174-100000@cherise>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 5 Sep 2003 13:45:50 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:33475 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S265845AbTIERpt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 13:45:49 -0400
+Date: Fri, 5 Sep 2003 19:45:08 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: insecure <insecure@mail.od.ua>
+Cc: Michael Frank <mhf@linuxmail.org>, Yann Droneaud <yann.droneaud@mbda.fr>,
+       fruhwirth clemens <clemens-dated-1063536166.2852@endorphin.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: nasm over gas?
+Message-ID: <20030905174508.GA24951@wohnheim.fh-wedel.de>
+References: <20030904104245.GA1823@leto2.endorphin.org> <200309050128.47002.insecure@mail.od.ua> <200309052058.11982.mhf@linuxmail.org> <200309052028.37367.insecure@mail.od.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200309052028.37367.insecure@mail.od.ua>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 5 September 2003 20:28:37 +0300, insecure wrote:
+> 
+> What gives you an impression that anyone is going to rewrite linux in asm?
+> I _only_ saying that compiler-generated asm is not 'good'. It's mediocre.
 
-> Is there somewhere we can download your code?  swsusp in -test3 hung my box 
-> immediately without touching the disk, and in -test4 there doesn't seem to be 
-> any way to trigger it under /proc or /sys...
+Depends.  A couple weeks back, I've entered the Linuxtag coding
+contest with a friend.  The objective was to optimize some matrix
+multiplication.  We've produced *much* faster code than anyone who
+tried to do it in assembler and we entered the contest during a slow
+hour, when it was half over.
 
-I posted a URL last Saturday to the patch, and Andrew merged it into 
--test4-mm4. 
+Given infinite developer time, you can create better assembler code
+than the compiler can.  But with limited time, it is a challenge.
+Plus the code isn't automagically updated to new cpus simply by
+recompiling.
 
-If you're interested in testing, please try -test4-mm6, as it has a couple 
-of more fixes. 
+So in the real world, compiler generated assembler is not perfect, but
+it is still faster than what most human would come up with even if
+they had the time.
 
-> APM suspend doesn't work properly on my new thinkpad (suspends but hangs with 
-> the power LED still on and the hibernate light off, and the thing's a brick 
-> at that point; the only thing you can do is hold the power button down for 
-> ten seconds or pop the battery to get it to boot back up from scratch.)  So I 
-> have to shut the sucker down every time I want to move it, which is a pain...
+Jörn
 
-What model is it? It probably doesn't support APM at all. I can't
-guarantee that ACPI suspend/resume will work on it, but I'm interested to 
-see if it does.. 
-
-Thanks,
-
-
-	Pat
-
+-- 
+Public Domain  - Free as in Beer
+General Public - Free as in Speech
+BSD License    - Free as in Enterprise
+Shared Source  - Free as in "Work will make you..."

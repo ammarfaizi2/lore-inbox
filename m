@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262746AbTKEE05 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 23:26:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262777AbTKEE05
+	id S261500AbTKEFHm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 00:07:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTKEFHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 23:26:57 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:12817
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S262746AbTKEE04 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 23:26:56 -0500
-Date: Tue, 4 Nov 2003 20:26:50 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: "Andrew S. Johnson" <andy@asjohnson.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Recurring random freezes with 2.6.0-test9
-Message-ID: <20031105042650.GC32687@matchmail.com>
-Mail-Followup-To: "Andrew S. Johnson" <andy@asjohnson.com>,
-	linux-kernel@vger.kernel.org
-References: <200311042029.38749.andy@asjohnson.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200311042029.38749.andy@asjohnson.com>
-User-Agent: Mutt/1.5.4i
+	Wed, 5 Nov 2003 00:07:42 -0500
+Received: from brains.student.utwente.nl ([130.89.161.140]:47035 "EHLO
+	brains.student.utwente.nl") by vger.kernel.org with ESMTP
+	id S261500AbTKEFHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 00:07:41 -0500
+Message-ID: <3FA885C0.8030906@brains.student.utwente.nl>
+Date: Wed, 05 Nov 2003 06:08:16 +0100
+From: Justin Ossevoort <justin@brains.student.utwente.nl>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: nforce2 stability on 2.6.0-test5 and 2.6.0-test9
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 04, 2003 at 08:29:38PM -0600, Andrew S. Johnson wrote:
-> I have 2.4.22 running fine on this box, before and after
-> trying 2.6.0-test9.  What happens is that I can use the
-> box for a few minutes, then it locks up hard for no apparent
-> reason.  The hard drive light comes on and stays on,
-> sysrq is unresponsive, and no response via ethernet.
-> This has happened everytime I've used -test9 (about
-> 4-6 times).  The kernel is compiled for K7 (Athlon).
+Hello,
 
-I get something similar, but it takes a few days.
+I've got an A7N8X mobo, and the same problems. 'noapic' makes the
+system run much better. You also have a big interrupt count on int21.
+Mine is going beserk. Top shows that almost 30% of my cpu is being
+used up on hi (Hardware Interrupts I guess).
+Watching /proc/interrupts reveals I get tens of thousands of
+interrupts on 21 every second, disabling usb or the soundcard doesn't
+help, disabling both does help. Is interrupt 21 doing something funny?
 
-This is with 2.6.0-test6-mm4 #2 SMP Mon Oct 6 02:32:09 PDT 2003
+Regards,
 
-I've been meaning to update for a while now... :-/
+        justin....
+
+ross.alexander@uk.neceur.com wrote in message news:<Mh8m.BT.7@gated-at.bofh.it>...
+> **** /proc/interrupts ****
+> 
+>            CPU0 
+>   0:   77764351          XT-PIC  timer
+>   1:      35127    IO-APIC-edge  i8042
+>   2:          0          XT-PIC  cascade
+>   8:          1    IO-APIC-edge  rtc
+>   9:          0   IO-APIC-level  acpi
+>  12:     146812    IO-APIC-edge  i8042
+>  14:     105553    IO-APIC-edge  ide0
+>  15:       1371    IO-APIC-edge  ide1
+>  19:    5329271   IO-APIC-level  nvidia
+>  21:   12326898   IO-APIC-level  NVidia nForce2, eth0
+> NMI:          0 
+> LOC:   77761842 
+> ERR:          0
+> MIS:          4
+
+
+

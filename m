@@ -1,53 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311371AbSCMU5d>; Wed, 13 Mar 2002 15:57:33 -0500
+	id <S311376AbSCMVLe>; Wed, 13 Mar 2002 16:11:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311370AbSCMU51>; Wed, 13 Mar 2002 15:57:27 -0500
-Received: from [66.35.146.201] ([66.35.146.201]:64016 "EHLO int1.nea-fast.com")
-	by vger.kernel.org with ESMTP id <S311368AbSCMU5M>;
-	Wed, 13 Mar 2002 15:57:12 -0500
-Message-Id: <200203132056.PAA04508@int1.nea-fast.com>
-Content-Type: text/plain; charset=US-ASCII
-From: walter <walt@nea-fast.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: oracle rmap kernel version
-Date: Wed, 13 Mar 2002 15:56:52 -0500
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <794826DE8867D411BAB8009027AE9EB913D03D23@FMSMSX38> <3C8FAB25.1080706@us.ibm.com>
-In-Reply-To: <3C8FAB25.1080706@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, <davis@jdhouse.org>
+	id <S311375AbSCMVLP>; Wed, 13 Mar 2002 16:11:15 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:8199 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S311376AbSCMVK6>; Wed, 13 Mar 2002 16:10:58 -0500
+Message-ID: <3C8FC054.2000009@lexus.com>
+Date: Wed, 13 Mar 2002 13:10:44 -0800
+From: J Sloan <jjs@lexus.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: David Ford <david+cert@blue-labs.org>
+CC: linux <linux-kernel@vger.kernel.org>
+Subject: Re: uname reports 'unknown'
+In-Reply-To: <1015897420.3054.0.camel@coredump> <3C8D8F35.7090608@tmsusa.com> <3C8FA7FA.1030103@blue-labs.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 March 2002 02:40 pm, you wrote:
-> Chen, Kenneth W wrote:
-> > Depends on your hardware configuration and how you stress your system
-> > with db workload, you should consider some performance patch from the
-> > linux scalability effort project.
-> > http://lse.sourceforge.net
->
-> In particular, take a look at the rollup patches:
-> http://sourceforge.net/project/shownotes.php?release_id=77093
->
-> This one has been tested pretty well.
-> http://prdownloads.sourceforge.net/lse/lse01.patch
->
-> This could use some more testing, but is not bad by any means:
-> http://prdownloads.sourceforge.net/lse/lse02.patch
->
-> BTW, what SCSI controllers are you planning on using?  Some are better
-> than others.
+So it would seem, since the fix is easy...
 
-Not sure right off the top of my head. I'm planning on using 2 controllers, 
-each from a different manufactures. My reasoning behind this is two fold. 
-Number one is in case a "bug" creeps up with one of the drivers I can still 
-string all the drives off the other controller. Performance will decrease, 
-but I'd rather be slow than dead in the water. The second reason is the 
-probability of both controllers failing (hardware) at same time due to a bad 
-chip batch at the manufacture.  Do you have any suggestions on controllers? 
-Adaptec and IBM (not sure which models) ?
+Maybe it's a portability concern...
 
-Thanks for your input!
-walt 
+Joe
+
+
+
+David Ford wrote:
+
+> Seems to me that it is the fault of the original package of 'sh-utils'.
+>
+> -d
+>
+> J Sloan wrote:
+>
+>> Shawn Starr wrote:
+>>
+>>> Linux coredump 2.4.19-pre2-ac4-xfs-shawn10 #2 Mon Mar 11 03:36:35 EST
+>>> 2002 i586 unknown
+>>>
+>>>
+>>> what should 'unknown' really be? I've never seen it different on Intel
+>>> systems.
+>>>
+>>
+>> Many vendors ship a broken sh-utils.
+>>
+>> They don't have to:
+>>
+>> Linux neo.mirai.cx 2.4.19-pre2aa1 #1 Fri Mar 8 19:55:24 PST 2002 i686 
+>> GenuineIntel
+>>
+>> Linux emerald.mirai.cx 2.4.19pre1aa1 #1 Sat Mar 2 20:55:06 PST 2002 
+>> i586 AuthenticAMD
+>>
+>> Cheers,
+>>
+>> Joe
+>
+>
+>
+>
+
+

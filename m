@@ -1,94 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277276AbRJJPe6>; Wed, 10 Oct 2001 11:34:58 -0400
+	id <S277275AbRJJPgS>; Wed, 10 Oct 2001 11:36:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277275AbRJJPes>; Wed, 10 Oct 2001 11:34:48 -0400
-Received: from mail.nep.net ([12.23.44.24]:55556 "HELO nep.net")
-	by vger.kernel.org with SMTP id <S277277AbRJJPei>;
-	Wed, 10 Oct 2001 11:34:38 -0400
-Message-ID: <19AB8F9FA07FB0409732402B4817D75A038B80@FILESERVER.SRF.srfarms.com>
-From: "Ryan C. Bonham" <Ryan@srfarms.com>
-To: jkniiv@hushmail.com
-Cc: "Linux Kernel List (E-mail)" <linux-kernel@vger.kernel.org>,
-        "Deanna Bonds (E-mail)" <Deanna_Bonds@adaptec.com>
-Subject: RE: RE: Dilemma: Replace Escalade with Adaptec 2400A or Promise S
-	uper trak66?
-Date: Wed, 10 Oct 2001 11:36:36 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S277277AbRJJPgK>; Wed, 10 Oct 2001 11:36:10 -0400
+Received: from [208.48.139.185] ([208.48.139.185]:47561 "HELO
+	forty.greenhydrant.com") by vger.kernel.org with SMTP
+	id <S277275AbRJJPf5>; Wed, 10 Oct 2001 11:35:57 -0400
+Date: Wed, 10 Oct 2001 08:36:21 -0700
+From: David Rees <dbr@greenhydrant.com>
+To: "Chad C. Walstrom" <chewie@wookimus.net>
+Cc: linux-kernel@vger.kernel.org, debian-user@lists.debian.org
+Subject: Re: Problems with NFS between IRIX Server and Linux client
+Message-ID: <20011010083621.A12866@greenhydrant.com>
+Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
+	"Chad C. Walstrom" <chewie@wookimus.net>,
+	linux-kernel@vger.kernel.org, debian-user@lists.debian.org
+In-Reply-To: <20011010152602.E11EE184B3@skuld.wk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011010152602.E11EE184B3@skuld.wk>; from chewie@wookimus.net on Wed, Oct 10, 2001 at 10:26:02AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-> Does it run stably? Have you had any issues with drives 
-> failing and going offline without any real reason? Any 
-> compatibility issues with certain makes of drives (mine are 
-> Maxtor DiamondMax Plus 60, configured as 4x60GB in RAID10)? 
-
-I am running IBM Deskstar.. 3X60 Raid 5.. 
-I have had no problems with the card or drives. The Array has been up sence
-July.
-
-> And what about those Adaptec utilities (raidutil), are they 
-> handling the new driver OK?
-
-Hmm Good question, i dont think i am running the Raid Utils, i set up the
-array and sort of forgot about it.. :)
-Deanna do RaidUtils work??
-
-Hope this helps in your decission.. 
-
-Ryan
-
+On Wed, Oct 10, 2001 at 10:26:02AM -0500, Chad C. Walstrom wrote:
+> OK.  Strange problem here with NFS that has been experienced on both
+> Debian machines and Red Hat machines.  I believe the problem ties in
+> to NFS support in the Linux kernel, but I could be entirely wrong.
 > 
-> Oh, I happened to stumble on the Open Source Newsletter at 
-> opensource.adaptec.com and was indeed hinted that the 2400A 
-> is a full member of the Adaptec I2O clan, but it was so 
-> vaguely put I wasn't sure really.
+> Scenario: Serving a filesystem from IRIX 6.5 host.  Accessing it with
+> a Linux 2.4.9 Debian Woody machine.  Directory content listings and
+> directory info are not consistently reported to the client.
 > 
-> Thanks for your input,
-> 
->   // Jarkko
-> 
-> On Wed, 10 Oct 2001 10:25:39 -0400, "Ryan C. Bonham" 
-> <Ryan@srfarms.com> wrote:
-> >All the Adaptec I2O RAID products use the same driver, including the
-> >ATA(Adaptec 2400A) based one.  The ATA drives/arrays will 
-> appear to the OS
-> >as a scsi
-> >device.  The driver was in the last Linus release also (2.4.10). I am
-> >running the adaptec 2400A on a 2.4.6 kernel which i patch 
-> with adaptecs
-> >dirvers, with no problems..
-> >
-> >Ryan
-> >
-> >
-> >
-> >> -----Original Message-----
-> >> From: jkniiv@hushmail.com [mailto:jkniiv@hushmail.com]
-> >> Sent: Wednesday, October 10, 2001 10:08 AM
-> >> To: linux-kernel@vger.kernel.org
-> >> Subject: Dilemma: Replace Escalade with Adaptec 2400A or Promise
-> >> Supertrak66?
-> >>
-> >>
+> Symptoms: For directories with #files approx > 200, filename
+> completion in bash does not work, many applications do not show files
+> in the directory.
 
-> >> The Adaptec 2400A is presumably very much like the 2100S SCSI
-> >> model. Adaptec has released some binary only drivers and
-> >> utilities but none for the 2.4 kernel line. There are however
-> >> some beta stage drivers (dpt_i2o) available as source for the
-> >> SCSI models. Now, I happened to list the symbols of the
-> >> binary only driver for the 2400A (dpt_i2o.o) and came to the
-> >> conclusion that they are the very same as in the SCSI driver
-> >> source! Any differences ought to be small. Now, I'm wondering
-> >> whether anybody has already tested the driver with a 2400A? Alan?
-> >>
-> >> Yours,
-> >>
+Known problem.  See the NFS patches here, specificall the seedir patch.
 
-> 
-> 
+http://www.fys.uio.no/~trondmy/src/
+
+-Dave

@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264345AbTICX5X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 19:57:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264330AbTICX5W
+	id S262518AbTIDAFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 20:05:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264307AbTIDAFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 19:57:22 -0400
-Received: from citrine.spiritone.com ([216.99.193.133]:61352 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S264297AbTICX5U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 19:57:20 -0400
-Date: Wed, 03 Sep 2003 16:55:45 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Larry McVoy <lm@bitmover.com>, William Lee Irwin III <wli@holomorphy.com>,
-       "Brown, Len" <len.brown@intel.com>, Giuliano Pochini <pochini@shiny.it>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Scaling noise
-Message-ID: <3150000.1062633344@[10.10.2.4]>
-In-Reply-To: <20030903234737.GA27096@work.bitmover.com>
-References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com> <20030903173213.GC5769@work.bitmover.com> <20030903180702.GQ4306@holomorphy.com> <20030903180755.GE5769@work.bitmover.com> <20030903182524.GS4306@holomorphy.com> <20030903234737.GA27096@work.bitmover.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Wed, 3 Sep 2003 20:05:25 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:43012 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S262518AbTIDAFU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 20:05:20 -0400
+From: Michael Frank <mhf@linuxmail.org>
+Subject: Fwd: Patch: Netconsole debugging tool for 2.6
+Date: Thu, 4 Sep 2003 07:58:52 +0800
+User-Agent: KMail/1.5.2
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: mpm@selenic.com
+X-OS: KDE 3 on GNU/Linux
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200309040758.52789.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Larry McVoy <lm@bitmover.com> wrote (on Wednesday, September 03, 2003 16:47:37 -0700):
+Dummy me can't find this netconsole daemon....
 
-> On Wed, Sep 03, 2003 at 11:25:24AM -0700, William Lee Irwin III wrote:
->> Restating the above in slow motion:
->> (a) economic arguments make me want to puke in the face of the presenter
-> 
-> That sounds like a self control problem.  Anger management maybe?
+----------  Forwarded Message  ----------
 
-Nah, that'd be if he wanted to punch your lights out. 
-Real-world detatchement issues, or taste overload, maybe .... ;-)
+Subject: Patch: Netconsole debugging tool for 2.6
+Date: Sunday 31 August 2003 11:57
+From: Michael Frank <mhf@linuxmail.org>
+To: mpm@selenic.com
 
-M.
+Hello Matt,
+
+Tried netconsole on -test4.
+
+Patched it, seems to work with nc, but drops messages.
+
+Googled about wo result, Where to find the netconsole daemon?
+
+Thanks & regards
+Michael
+
+-------------------------------------------------------
 

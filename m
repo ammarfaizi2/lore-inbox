@@ -1,35 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263217AbSJHOzp>; Tue, 8 Oct 2002 10:55:45 -0400
+	id <S261314AbSJHPBV>; Tue, 8 Oct 2002 11:01:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263223AbSJHOzp>; Tue, 8 Oct 2002 10:55:45 -0400
-Received: from host194.steeleye.com ([66.206.164.34]:2312 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S263217AbSJHOzn>; Tue, 8 Oct 2002 10:55:43 -0400
-Message-Id: <200210081501.g98F1DR02225@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: Alan Cox <alan@redhat.com>, James.Bottomley@HansenPartnership.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.41-ac1 
-In-Reply-To: Message from Adrian Bunk <bunk@fs.tum.de> 
-   of "Tue, 08 Oct 2002 13:56:00 +0200." <Pine.NEB.4.44.0210081352470.8340-100000@mimas.fachschaften.tu-muenchen.de> 
+	id <S261316AbSJHPBV>; Tue, 8 Oct 2002 11:01:21 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:27408 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261314AbSJHPBU>; Tue, 8 Oct 2002 11:01:20 -0400
+Date: Tue, 8 Oct 2002 17:02:08 +0200
+From: Jurriaan <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Oops when rebooting
+Message-ID: <20021008150208.GA4319@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+References: <3DA2EF5D.4080504@ndmnet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 08 Oct 2002 11:01:13 -0400
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Disposition: inline
+In-Reply-To: <3DA2EF5D.4080504@ndmnet.com>
+User-Agent: Mutt/1.4i
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bunk@fs.tum.de said:
-> make[1]: *** No rule to make target `arch/i386/mach-voyager/
-> trampoline.o', needed by `arch/i386/mach-voyager/built-in.o'.  Stop.
-> make: *** [arch/i386/mach-voyager] Error 2 
+From: Kent Overstreet <kent@ndmnet.com>
+Date: Tue, Oct 08, 2002 at 06:44:45AM -0800
+> Just compiled 2.5.41, everything seems to work fine except it oopses 
+> reliably when rebooting. It's a tyan tiger mpx with a single cpu. Kernel 
+> was configured for smp, preemptible, and acpi. I can send my .config if 
+> it'll help
+> 
+> Oops is in driverfs_remove_file + 0x46/0x60
+> Process reboot
+> Call trace:
+> device_remove_file
+> driverfs_remove_partitions
+> del_gendisk
+> idedisk_cleanup
+> ide_notify_reboot
+> notifier_call_chain
+> sys_reboot
+> __get_page_state
+> sync_inodes_sb
+> backround_writeout
+> sync_inodes
+> syscall_call
+> 
+Me too - Abit VP6, via-694 smp, dual P3/700 cpu's. Not always, but it
+happens sometimes.
 
-That one's pulled in from ../kernel by the vpath in mach-voyager (or should 
-be).  It builds for me, so it could be the version of make you are using?
-
-James
-
-
+Kind regards,
+Jurriaan
+-- 
+#ifdef __LITERAL_BIBLICAL_FUNDAMENTALISM
+#define PI 3.0                          /* 1 Kings 7:23 */
+#endif
+	Peter Seebach - C infrequently asked questions (c) 1995,1996,1997
+GNU/Linux 2.5.41 SMP/ReiserFS 2x1380 bogomips load av: 1.24 0.62 0.24

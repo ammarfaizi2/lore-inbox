@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311839AbSD2OM1>; Mon, 29 Apr 2002 10:12:27 -0400
+	id <S311856AbSD2OPr>; Mon, 29 Apr 2002 10:15:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311856AbSD2OM0>; Mon, 29 Apr 2002 10:12:26 -0400
-Received: from mta01bw.bigpond.com ([139.134.6.78]:8432 "EHLO
-	mta01bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S311839AbSD2OMZ>; Mon, 29 Apr 2002 10:12:25 -0400
-Message-ID: <3CCD54F8.6020704@bigpond.net.au>
-Date: Mon, 29 Apr 2002 22:13:12 +0800
-From: Peter Revill <arevill@bigpond.net.au>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0rc1) Gecko/20020417
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Quick question: can i install diffirent kernel headers to my Kernel
- version?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S312119AbSD2OPq>; Mon, 29 Apr 2002 10:15:46 -0400
+Received: from 213-96-224-204.uc.nombres.ttd.es ([213.96.224.204]:42765 "EHLO
+	manty.net") by vger.kernel.org with ESMTP id <S311856AbSD2OPp>;
+	Mon, 29 Apr 2002 10:15:45 -0400
+Date: Mon, 29 Apr 2002 16:15:43 +0200
+From: Santiago Garcia Mantinan <manty@manty.net>
+To: Anton Blanchard <anton@samba.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pcnet32 on 2.4.18 doesn't init on IBM rs/6000 B50 (powerpc)
+Message-ID: <20020429141543.GA3374@man.beta.es>
+In-Reply-To: <20020425220402.GA3654@man.beta.es> <20020425221519.GA13245@krispykreme> <20020428153253.GA2924@man.beta.es> <20020428230707.GG17500@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-======================================
-PLEASE CC ALL REPLYS TO: arevill@bigpond.net.au
-=======================================
+> Can you send me the version of OF you are using? You should be able to get
+> it off the bootup splash screen or by doing lsprop /proc/device-tree/openprom.
+> Do you get any errors in dmesg when the card stuffs up?
 
-HI, im running an Intel raq, with kernel headers:
-kernel-headers-2.2.14C11-1
-and basically, something has happened to them, because i have NO dir called
-/usr/include/linux like i should (and that i require to recompile PHP)
+Umm, I don't have that lsprop installed, let's see if this is enough:
 
-i cannot find anywhere a replacement for that pacakge, so i thought i 
-could possibly install the 2.2.14 kernel headers and that would be close 
-enough for it not to matter?
+cat /proc/device-tree/openprom/ibm,fw-vernum_encoded
+TCP00032
+cat /proc/device-tree/openprom/ibm,loc-code
+P1
+cat /proc/device-tree/openprom/model
+IBM,TCP00032
+cat /proc/device-tree/openprom/name
+openprom
 
-Can anyone verify that? am i dicing with death by installing kernel 
-headers diffirent from the kernel?
+> One thing to watch out for with the RS/6000 OF is that it wont reply
+> to ARP messages during a TFTP load. If you are trying to load a
+> big image you need to arp -s <hostname> <hw_addr>.
 
-P.s.: I've already tried make dep, no go because i dont even have the 
-kernel-2.2.14C11-1 source.
+Ah, that could be it, yes.
 
-Thanks Gents.
+But this doesn't explain the problem we are having with the card under linux
+once we boot from the net ;-)
 
-Nervy
-======================================
-PLEASE CC ALL REPLYS TO: arevill@bigpond.net.au
-=======================================
+Thanks again!
 
-
+Regards...
+-- 
+Manty/BestiaTester -> http://manty.net

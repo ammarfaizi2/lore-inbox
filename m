@@ -1,32 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135868AbRECRzN>; Thu, 3 May 2001 13:55:13 -0400
+	id <S135856AbRECRzN>; Thu, 3 May 2001 13:55:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135856AbRECRzF>; Thu, 3 May 2001 13:55:05 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:11272 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135871AbRECRy2>; Thu, 3 May 2001 13:54:28 -0400
-Subject: Re: Modules inside modules
-To: juan@ansp.br (Juan Carlos)
-Date: Thu, 3 May 2001 18:58:14 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3AF1998E.B31A6D36@ansp.br> from "Juan Carlos" at May 03, 2001 02:46:54 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135871AbRECRzG>; Thu, 3 May 2001 13:55:06 -0400
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:5895 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S135868AbRECRyQ>; Thu, 3 May 2001 13:54:16 -0400
+From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Message-Id: <200105031754.TAA17827@green.mif.pg.gda.pl>
+Subject: [PATCH] menuconfig
+To: torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Thu, 3 May 2001 19:54:02 +0200 (CEST)
+Cc: linux-kernel@vger.kernel.org (kernel list)
+X-Mailer: ELM [version 2.5 PL0pre8]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14vNMo-0005v6-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I need to work with two modules toghter. Is possible to include in the
-> one driver one call to another driver?
+Hi,
+   The following one-liner patch fixes the problem in menuconfig with
+handling choice lists containing parentheses (in 2.4.4-ac4 and 2.4.5-pre1).
+Please apply...
 
-Yes. A good example of this is to read ne.c and 8390.c. 8390.c is a driver
-for the chipset and ne.c is a driver for one of the boards using this
-chipset.
 
-That driver shows how to use EXPORT_SYMBOL() as well as callbacks and module
-locking
+--- scripts/Menuconfig~	Mon Nov 13 23:14:29 2000
++++ scripts/Menuconfig	Thu May  3 19:45:25 2001
+@@ -347,7 +347,7 @@
+ 
+ 	echo -e "
+ 	function $firstchoice () \
+-		{ l_choice '$title' \"$choices\" $current ;}" >>MCradiolists
++		{ l_choice '$title' \"$choices\" \"$current\" ;}" >>MCradiolists
+ }
+ 
+ } # END load_functions()
 
+
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk

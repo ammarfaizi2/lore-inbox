@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263924AbSIQIuq>; Tue, 17 Sep 2002 04:50:46 -0400
+	id <S263925AbSIQIzD>; Tue, 17 Sep 2002 04:55:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263925AbSIQIuq>; Tue, 17 Sep 2002 04:50:46 -0400
-Received: from 62-190-219-123.pdu.pipex.net ([62.190.219.123]:61700 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S263924AbSIQIuq>; Tue, 17 Sep 2002 04:50:46 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209170903.g8H93PgI001024@darkstar.example.net>
-Subject: Re: Hi is this critical??
-To: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-Date: Tue, 17 Sep 2002 10:03:24 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, xavier.bestel@free.fr, venom@sns.it,
-       louie@chikka.com
-In-Reply-To: <20020917104010.A6175@bitwizard.nl> from "Rogier Wolff" at Sep 17, 2002 10:40:10 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263926AbSIQIzD>; Tue, 17 Sep 2002 04:55:03 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:56074
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S263925AbSIQIzC>; Tue, 17 Sep 2002 04:55:02 -0400
+Subject: Re: [PATCH] BUG(): sched.c: Line 944
+From: Robert Love <rml@tech9.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1032250378.969.112.camel@phantasy>
+References: <Pine.LNX.4.44.0209162250170.3443-100000@home.transmeta.com> 
+	<1032250378.969.112.camel@phantasy>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 17 Sep 2002 04:59:51 -0400
+Message-Id: <1032253191.4592.15.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> MAC and Windows both try to give "simple" error messages. As a 
-> knowledgeable person I then am confronted with:
-> 
-> 	"Something went wrong. Contact your sysadmin if you can't
-> 	fix it yourself". 
-> 
-> Well, I -=AM=- the sysadmin, and would like to know what went wrong. 
-> Otherwise I can't fix it. This is NOT the way to go.
+On Tue, 2002-09-17 at 04:12, Robert Love wrote:
 
-Exactly, because the sysadmin can't learn any more from that error than the user can, and instead he or she just defaults to:
+> I implemented exactly what you detailed, with one change: we need to
+> check kernel_locked() before setting lock_depth because it is valid to
+> exit() while holding the BKL.  Aside from kernel code that does it
+> intentionally, crashed code (e.g. modules) would have the same problem.
 
-"Well, I don't know, why are you asking me?  Reboot it and see what happens.  Good luck."
+fsck, this is non-ending... obviously, this is insufficient:
+preempt_count will equal two if the BKL was previously held and
+in_atomic() will trip.
 
-John.
+This should work:
+
+	if (likely(!kernel_locked())
+		tsk->lock_depth = -2;
+	else {
+		/* compensate for BKL; we still cannot preempt */
+		preempt_enable_no_resched();
+	}
+
+look sane?
+
+Now, remind me why this is all worth it...
+
+	Robert Love
+

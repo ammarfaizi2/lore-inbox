@@ -1,59 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265197AbTANURU>; Tue, 14 Jan 2003 15:17:20 -0500
+	id <S265135AbTANUGu>; Tue, 14 Jan 2003 15:06:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265171AbTANURU>; Tue, 14 Jan 2003 15:17:20 -0500
-Received: from tantale.fifi.org ([216.27.190.146]:14745 "EHLO tantale.fifi.org")
-	by vger.kernel.org with ESMTP id <S265197AbTANURT>;
-	Tue, 14 Jan 2003 15:17:19 -0500
-To: root@chaos.analogic.com
-Cc: DervishD <raul@pleyades.net>, Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Changing argv[0] under Linux.
-References: <Pine.LNX.3.95.1030114140811.13496A-100000@chaos.analogic.com>
-Mail-Copies-To: nobody
-From: Philippe Troin <phil@fifi.org>
-Date: 14 Jan 2003 12:25:54 -0800
-In-Reply-To: <Pine.LNX.3.95.1030114140811.13496A-100000@chaos.analogic.com>
-Message-ID: <87iswrzdf1.fsf@ceramic.fifi.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S265169AbTANUGu>; Tue, 14 Jan 2003 15:06:50 -0500
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:20407 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id <S265135AbTANUGs>; Tue, 14 Jan 2003 15:06:48 -0500
+Date: Tue, 14 Jan 2003 15:15:33 -0500
+From: "Murray J. Root" <murrayr@brain.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.58 - USB-storage
+Message-ID: <20030114201533.GA1172@Master.Wizards>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> writes:
+ASUS P4S533 (SiS645DX)
+P4 2GHz
+1G PC2700
+SanDisk SDDR-77 ImageMate Dual Card Reader
 
-> On Tue, 14 Jan 2003, DervishD wrote:
-> 
-> >     Hi all :))
-> > 
-> >     I'm not sure whether this issue belongs to the kernel or to the
-> > libc, but I think that is more on the kernel side, that's why I ask
-> > here.
-> > 
-> 
-> Last time I checked argv[0] was 512 bytes. Many daemons overwrite
-> it with no problem.
+In 2.5.56 I can read from CF cards, but can't write to them
 
-Last time must have been in an alternate reality.
+In 2.5.58:
+With scsi & usb-storage built in I get unknown errors in the syslog
+and the card won't mount
 
-You just overwrote all your arguments (argv[0] and others) and part of
-the environment.
+with scsi & usb-storage as modules the process trying to mount the
+CF card hangs until I pull the card out and put it back. syslog shows a
+change event and the process trying to do the mount reports no medium found.
+In the syslog are these messages:
 
-Try this for a change:
+Jan 14 14:47:35 Master kernel: usb-storage: Unit Attention: Not ready to ready change, medium may have changed
+Jan 14 14:47:35 Master kernel: usb-storage: scsi cmd done, result=0x2
+Jan 14 14:47:35 Master kernel: usb-storage: *** thread sleeping.
+Jan 14 14:47:35 Master kernel: usb-storage: queuecommand() called
+Jan 14 14:47:35 Master kernel: usb-storage: *** thread awakened.
+Jan 14 14:47:35 Master kernel: usb-storage: Command READ_10 (10 bytes)
+Jan 14 14:47:35 Master kernel: usb-storage:  28 00 00 00 00 00 00 00 08 00
+Jan 14 14:47:35 Master kernel: usb-storage: Bulk command S 0x43425355 T 0x25 Trg 0 LUN 0 L 4096 F 128 CL 10
+Jan 14 14:47:35 Master kernel: usb-storage: usb_stor_bulk_transfer_buf(): xfer 31 bytes
+Jan 14 14:47:35 Master kernel: usb-storage: Status code 0; transferred 31/31
+Jan 14 14:47:35 Master kernel: usb-storage: -- transfer complete
+Jan 14 14:47:35 Master kernel: usb-storage: Bulk command transfer result=0
+Jan 14 14:47:35 Master kernel: usb-storage: usb_stor_bulk_transfer_sglist(): xfer 4096 bytes, 1 entries
+Jan 14 14:47:35 Master kernel: usb-storage: Status code 0; transferred 4096/4096
+Jan 14 14:47:35 Master kernel: usb-storage: -- transfer complete
+Jan 14 14:47:35 Master kernel: usb-storage: Bulk data transfer result 0x0
+Jan 14 14:47:35 Master kernel: usb-storage: Attempting to get CSW...
+Jan 14 14:47:35 Master kernel: usb-storage: usb_stor_bulk_transfer_buf(): xfer 13 bytes
+Jan 14 14:47:35 Master kernel: usb-storage: Status code 0; transferred 13/13
+Jan 14 14:47:35 Master kernel: usb-storage: -- transfer complete
+Jan 14 14:47:35 Master kernel: usb-storage: Bulk status result = 0
+Jan 14 14:47:35 Master kernel: usb-storage: Bulk status Sig 0x53425355 T 0x25 R 0 Stat 0x0
+Jan 14 14:47:35 Master kernel: usb-storage: scsi cmd done, result=0x0
+Jan 14 14:47:35 Master kernel: usb-storage: *** thread sleeping.
+Jan 14 14:47:35 Master kernel: end_request: I/O error, dev sda, sector 0
+Jan 14 14:47:35 Master kernel: Buffer I/O error on device sd(8,0), logical block 0
+Jan 14 14:47:35 Master kernel: Buffer I/O error on device sd(8,0), logical block 0
+Jan 14 14:47:35 Master kernel:  unable to read partition table
 
-#include <stdio.h>
-#include <string.h>
-extern char ** _environ;
-int main(int cnt, char *argv[]) {
-    char **eptr;
-    for ( eptr = _environ; *eptr; ++eptr )
-        printf("ENV before: %s\n", *eptr);
-    strcpy(argv[0], "How-long-do-you-want-this-string-to-be?--is-this-long-enough?");
-    for ( eptr = _environ; *eptr; ++eptr )
-        printf("ENV after: %s\n", *eptr);
-    pause();
-    return 0;
-}
+The same card was readable in 2.5.56 before and after the attempts with 2.5.58
 
-Phil.
+-- 
+Murray J. Root
+

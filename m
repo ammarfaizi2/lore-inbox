@@ -1,64 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262032AbTGCMoo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 08:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbTGCMoo
+	id S262073AbTGCMpw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 08:45:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbTGCMpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 08:44:44 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:43742
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262032AbTGCMol (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 08:44:41 -0400
-Date: Thu, 3 Jul 2003 14:58:39 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Mel Gorman <mel@csn.ul.ie>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What to expect with the 2.6 VM
-Message-ID: <20030703125839.GZ23578@dualathlon.random>
-References: <20030702174700.GJ23578@dualathlon.random> <20030702214032.GH20413@holomorphy.com> <20030702220246.GS23578@dualathlon.random> <20030702221551.GH26348@holomorphy.com> <20030702222641.GU23578@dualathlon.random> <20030702231122.GI26348@holomorphy.com> <20030702233014.GW23578@dualathlon.random> <20030702235540.GK26348@holomorphy.com> <20030703113144.GY23578@dualathlon.random> <20030703114626.GP26348@holomorphy.com>
+	Thu, 3 Jul 2003 08:45:52 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:59690 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S262073AbTGCMot
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 08:44:49 -0400
+Subject: [PATCH] 2.5.73 synclinkmp.c
+From: Paul Fulghum <paulkf@microgate.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "torvalds@osdl.org" <torvalds@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1057237178.2044.2.camel@diemos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030703114626.GP26348@holomorphy.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 03 Jul 2003 07:59:38 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 03, 2003 at 04:46:26AM -0700, William Lee Irwin III wrote:
-> Actually it's not entirely for vma overhead. Compacting the virtual
-> address space allows users to be "friendly" with respect to pagetable
-> space or other kernel metadata space consumption whether on 32-bit or
-> 64-bit. For instance, the "vast and extremely sparsely accessed"
-> mapping on 64-bit machines can have its pagetable space mitigated by
-> userspace using the remap_file_pages() API, where otherwise it would
-> either OOM or incur pagetable reclamation overhead (where pagetable
-> reclamation is not yet implemented).
 
-apps should never try to use remap_file_pages like that in 64bit,
-mangling the ptes, flushing tlb and entering kernel is an huge overhead
-compared to the static pte ram cost that nobody can care about on 64bit
-since as worse you can plug some more giga of ram. If you really have an
-huge chunk that you've to release (and the problem isn't at all the pte,
-the problem if something is the page pointed by the pte that you may
-want to free if you know it'll never be useful again), munmap will work
-fine too and it won't be slower than remap_file_pages and if it's a
-really huge chunk munmap will get rid of the ptes too.
+Fix arbitration between net open and tty open.
 
-btw, for the really huge mappings largepages are always required anyways
-which means the pte cost is zero because there aren't ptes at all.
+Clean up unused locals resulting from latest tty changes.
 
-even if you don't use largepages as you should, the ram cost of the pte
-is nothing on 64bit archs, all you care about is to use all the mhz and
-tlb entries of the cpu.
+Please apply.
 
-remap_file_pages is useful only for VLM in 32bit and theoretically
-emulators (but I didn't hear any emulator developer ask for this feature
-yet, and I doubt it would make a significant performance difference
-anyways since the only thing that saves is the vma cost for the emulator
-since you want to leave rmap behind it)
+-- 
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, http://www.microgate.com
 
-Andrea
+--- linux-2.5.72/drivers/char/synclinkmp.c	2003-06-16 08:42:25.000000000 -0500
++++ linux-2.5.72-mg/drivers/char/synclinkmp.c	2003-06-18 10:31:01.000000000 -0500
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: synclinkmp.c,v 4.8 2003/04/21 17:46:55 paulkf Exp $
++ * $Id: synclinkmp.c,v 4.12 2003/06/18 15:29:33 paulkf Exp $
+  *
+  * Device driver for Microgate SyncLink Multiport
+  * high speed multiprotocol serial adapter.
+@@ -481,7 +481,6 @@
+  * assigned major number. May be forced as module parameter.
+  */
+ static int ttymajor=0;
+-static int cuamajor=0;
+ 
+ /*
+  * Array of user specified options for ISA adapters.
+@@ -492,13 +491,12 @@
+ 
+ MODULE_PARM(break_on_load,"i");
+ MODULE_PARM(ttymajor,"i");
+-MODULE_PARM(cuamajor,"i");
+ MODULE_PARM(debug_level,"i");
+ MODULE_PARM(maxframe,"1-" __MODULE_STRING(MAX_DEVICES) "i");
+ MODULE_PARM(dosyncppp,"1-" __MODULE_STRING(MAX_DEVICES) "i");
+ 
+ static char *driver_name = "SyncLink MultiPort driver";
+-static char *driver_version = "$Revision: 4.8 $";
++static char *driver_version = "$Revision: 4.12 $";
+ 
+ static int synclinkmp_init_one(struct pci_dev *dev,const struct pci_device_id *ent);
+ static void synclinkmp_remove_one(struct pci_dev *dev);
+@@ -739,12 +737,8 @@
+ 	info = synclinkmp_device_list;
+ 	while(info && info->line != line)
+ 		info = info->next_device;
+-	if ( !info ){
+-		printk("%s(%d):%s Can't find specified device on open (line=%d)\n",
+-			__FILE__,__LINE__,info->device_name,line);
++	if (sanity_check(info, tty->name, "open"))
+ 		return -ENODEV;
+-	}
+-
+ 	if ( info->init_error ) {
+ 		printk("%s(%d):%s device is not allocated, init error=%d\n",
+ 			__FILE__,__LINE__,info->device_name,info->init_error);
+@@ -753,8 +747,6 @@
+ 
+ 	tty->driver_data = info;
+ 	info->tty = tty;
+-	if (sanity_check(info, tty->name, "open"))
+-		return -ENODEV;
+ 
+ 	if (debug_level >= DEBUG_LEVEL_INFO)
+ 		printk("%s(%d):%s open(), old ref count = %d\n",
+@@ -802,6 +794,8 @@
+ 
+ cleanup:
+ 	if (retval) {
++		if (tty->count == 1)
++			info->tty = 0; /* tty layer will release tty struct */
+ 		if(info->count)
+ 			info->count--;
+ 	}
+@@ -816,14 +810,17 @@
+ {
+ 	SLMP_INFO * info = (SLMP_INFO *)tty->driver_data;
+ 
+-	if (!info || sanity_check(info, tty->name, "close"))
++	if (sanity_check(info, tty->name, "close"))
+ 		return;
+ 
+ 	if (debug_level >= DEBUG_LEVEL_INFO)
+ 		printk("%s(%d):%s close() entry, count=%d\n",
+ 			 __FILE__,__LINE__, info->device_name, info->count);
+ 
+-	if (!info->count || tty_hung_up_p(filp))
++	if (!info->count)
++		return;
++
++	if (tty_hung_up_p(filp))
+ 		goto cleanup;
+ 
+ 	if ((tty->count == 1) && (info->count != 1)) {
+@@ -3775,8 +3772,6 @@
+ 
+ static int __init synclinkmp_init(void)
+ {
+-	SLMP_INFO *info;
+-
+ 	if (break_on_load) {
+ 	 	synclinkmp_get_text_ptr();
+   		BREAKPOINT();
+
+-- 
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, http://www.microgate.com
+-- 
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, http://www.microgate.com
+
+

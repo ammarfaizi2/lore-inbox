@@ -1,185 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262568AbVAUW2P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbVAUWbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262568AbVAUW2P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 17:28:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbVAUW0F
+	id S262547AbVAUWbo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 17:31:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbVAUV55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 17:26:05 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:9197 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262581AbVAUWXg (ORCPT
+	Fri, 21 Jan 2005 16:57:57 -0500
+Received: from waste.org ([216.27.176.166]:30169 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262533AbVAUVlW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 17:23:36 -0500
-Date: Fri, 21 Jan 2005 23:23:27 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Karim Yaghmour <karim@opersys.com>
-cc: Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
-       Tom Zanussi <zanussi@us.ibm.com>
-Subject: Re: 2.6.11-rc1-mm1
-In-Reply-To: <41F0A0A2.1010109@opersys.com>
-Message-ID: <Pine.LNX.4.61.0501211754110.30794@scrub.home>
-References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de>
- <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de>
- <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home>
- <41E8358A.4030908@opersys.com> <Pine.LNX.4.61.0501150101010.30794@scrub.home>
- <41E899AC.3070705@opersys.com> <Pine.LNX.4.61.0501160245180.30794@scrub.home>
- <41EA0307.6020807@opersys.com> <Pine.LNX.4.61.0501161648310.30794@scrub.home>
- <41EADA11.70403@opersys.com> <Pine.LNX.4.61.0501171403490.30794@scrub.home>
- <41EC2DCA.50904@opersys.com> <Pine.LNX.4.61.0501172323310.30794@scrub.home>
- <41EC8AA2.1030000@opersys.com> <Pine.LNX.4.61.0501181359250.30794@scrub.home>
- <41F0A0A2.1010109@opersys.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 21 Jan 2005 16:41:22 -0500
+Date: Fri, 21 Jan 2005 15:41:08 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>
+X-PatchBomber: http://selenic.com/scripts/mailpatches
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9.314297600@selenic.com>
+Message-Id: <10.314297600@selenic.com>
+Subject: [PATCH 9/12] random pt4: Kill duplicate halfmd4 in ext3 htree
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Replace duplicate halfMD4 code with call to lib/
 
-On Fri, 21 Jan 2005, Karim Yaghmour wrote:
+Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-> I should have avoided earlier confusing the use of a certain type of
-> relayfs channel for a given purpose (i.e. LTT should not necessarily
-> depend on the managed mode.) I believe that there is a need for
-> more than one mode in relayfs independently of LTT. There are users
-> who want to be able to manage the data in a buffer (by manage I mean:
-> receive notification of important buffer events, be able to insert
-> important data at boundaries, etc.), and there are users who just
-> want to dump as much information as possible in as fast a way as
-> possible without having to deal with non-essential codepaths.
-
-Well, let's concentrate for a moment on the last thing and check later 
-if and how they fit into relayfs. Since ltt will be first main user, let's 
-optimize it for this.
-Also since relayfs is intended for large, fast data transfers, per cpu 
-buffers are pretty much always required, so it would make sense to leave 
-this to relayfs (less to get wrong for the client).
-
-> looking at this code:
-
-I have to modify it a little (only the if (!buffer) part is new):
-
-	cpu = get_cpu();
-	buffer = relay_get_buffer(chan, cpu);
-	while(1) {
-		offset = local_add_return(buffer->offset, length);
-		if (likely(offset + length <= buffer->size))
-			break;
-		buffer = relay_switch_buffer(chan, buffer, offset);
-		if (!buffer) {
-			put_cpu();
-			return;
-		}
-	}
-	memcpy(buffer->data + offset, data, length);
-	put_cpu();
-
-This has a very short fast path and I need very good reasons to change/add 
-anything here. OTOH the slow path with relay_switch_buffer() is less 
-critical and still leaves a lot of flexibility.
-
-> 1) get_cpu() and put_cpu() won't do. You need to outright disable
-> interrupts because you may be called from an interrupt handler.
-
-Look closer, it's already interrupt safe, the synchronization for the 
-buffer switch is left to relay_switch_buffer().
-
-> 3) I'm unclear about the need for local_add_return(), why not
-> just:
-> 	if (likely(buffer->offset + length <= buffer->size)
-> In any case, here's what we do in relay_write():
-> 	write_pos = relay_reserve(rchan, count, &reserve_code, &interrupting);
-
-Ok, let's take a closer look at the fast path of relay_write (via 
-relay_managed.c):
-
-> 	rchan_get(rchan);
-
-This is not needed, it's the responsibility of the client to keep a 
-reference to the channel. A synchronize_kernel() is enough to get rid of 
-current users of the channel on other cpus.
-
-> 	relay_lock_channel(rchan, flags);
-
-what becomes:
-
->	FLAGS = 0;
->	if (RCHAN->flags & RELAY_USAGE_SMP) local_irq_save(FLAGS);
->	else spin_lock_irqsave(&(RCHAN)->mode.managed.lock, FLAGS);
-
-This adds a conditional and is not really needed. Above shows how to make 
-it interrupt safe and if the clients wants to reuse the same buffer, leave 
-the locking to the client.
-
-> 	write_pos = relay_reserve(rchan, count, &reserve_code, &interrupting);
-
-what becomes:
-
-> 	if (rchan == NULL) ...
-
-Is this really needed?
-
-> 	if (slot_len >= rchan->buf_size) ...
-
-You can leave it to caller to check for this, a BUG_ON should be enough 
-here.
-
->	if (rchan->initialized == 0) ...
-
-Does this really have to be in the fast path?
-
-> 	if (in_progress_event_size(rchan)) ...
-
-What's the point of this? You already disable interrupts, so how can 
-anything else be in progress?
-
-> 	if (cur_write_pos(rchan) + slot_len > write_limit(rchan)) ...
-
-Ok. This leads to the slow path and not interesting right now.
-
-> 	if (likely(write_pos != NULL)) {
-
-After 7 conditions we finally have a valid write position (and that's 
-without ltt).
-
-> 	relay_write_direct(write_pos, data_ptr, count);
-
-If write_pos is just a normal memory pointer, why not also just use 
-memcpy?
-
-> 	relay_commit(rchan, write_pos, count, reserve_code, interrupting);
-
-what becomes:
-
-> 	if (rchan == NULL)
-> 		return;
-
-Hopefully no comment needed.
-
-> 	if (interrupting) ...
-
-Same comment as above for in_progress_event_size().
-
-> 	if (deliver) ...
-> 	...
-> 	if (deliver &&  waitqueue_active(&rchan->mmap_read_wait))
-
-Why is that hook needed here? Why can't this be done by the client?
-A buffer switch notification can be done somewhere else.
-
-> 	relay_unlock_channel(rchan, flags);
-> 	rchan_put(rchan);
-
-Same comment as above.
-
-That's quite a lot of code with at least 14 conditions (or 13 conditions 
-too much) and this is just relayfs.
-
-> The difference between these modes is akin the
-> difference between GFP_KERNEL, GFP_ATOMIC, GFP_USER, etc.: same API,
-> different underlying functionality.
-
-That's not always true, where perfomance matters we provide different 
-functions (e.g. spinlocks), so having an alternative version of 
-relay_write is a possibility (although I'd like to see the user first).
-
-bye, Roman
+Index: rnd/fs/ext3/hash.c
+===================================================================
+--- rnd.orig/fs/ext3/hash.c	2005-01-12 21:27:14.191356048 -0800
++++ rnd/fs/ext3/hash.c	2005-01-12 21:28:28.916829361 -0800
+@@ -13,6 +13,7 @@
+ #include <linux/jbd.h>
+ #include <linux/sched.h>
+ #include <linux/ext3_fs.h>
++#include <linux/cryptohash.h>
+ 
+ #define DELTA 0x9E3779B9
+ 
+@@ -33,73 +34,6 @@
+ 	buf[1] += b1;
+ }
+ 
+-/* F, G and H are basic MD4 functions: selection, majority, parity */
+-#define F(x, y, z) ((z) ^ ((x) & ((y) ^ (z))))
+-#define G(x, y, z) (((x) & (y)) + (((x) ^ (y)) & (z)))
+-#define H(x, y, z) ((x) ^ (y) ^ (z))
+-
+-/*
+- * The generic round function.  The application is so specific that
+- * we don't bother protecting all the arguments with parens, as is generally
+- * good macro practice, in favor of extra legibility.
+- * Rotation is separate from addition to prevent recomputation
+- */
+-#define ROUND(f, a, b, c, d, x, s)	\
+-	(a += f(b, c, d) + x, a = (a << s) | (a >> (32-s)))
+-#define K1 0
+-#define K2 013240474631UL
+-#define K3 015666365641UL
+-
+-/*
+- * Basic cut-down MD4 transform.  Returns only 32 bits of result.
+- */
+-static void halfMD4Transform (__u32 buf[4], __u32 const in[])
+-{
+-	__u32	a = buf[0], b = buf[1], c = buf[2], d = buf[3];
+-
+-	/* Round 1 */
+-	ROUND(F, a, b, c, d, in[0] + K1,  3);
+-	ROUND(F, d, a, b, c, in[1] + K1,  7);
+-	ROUND(F, c, d, a, b, in[2] + K1, 11);
+-	ROUND(F, b, c, d, a, in[3] + K1, 19);
+-	ROUND(F, a, b, c, d, in[4] + K1,  3);
+-	ROUND(F, d, a, b, c, in[5] + K1,  7);
+-	ROUND(F, c, d, a, b, in[6] + K1, 11);
+-	ROUND(F, b, c, d, a, in[7] + K1, 19);
+-
+-	/* Round 2 */
+-	ROUND(G, a, b, c, d, in[1] + K2,  3);
+-	ROUND(G, d, a, b, c, in[3] + K2,  5);
+-	ROUND(G, c, d, a, b, in[5] + K2,  9);
+-	ROUND(G, b, c, d, a, in[7] + K2, 13);
+-	ROUND(G, a, b, c, d, in[0] + K2,  3);
+-	ROUND(G, d, a, b, c, in[2] + K2,  5);
+-	ROUND(G, c, d, a, b, in[4] + K2,  9);
+-	ROUND(G, b, c, d, a, in[6] + K2, 13);
+-
+-	/* Round 3 */
+-	ROUND(H, a, b, c, d, in[3] + K3,  3);
+-	ROUND(H, d, a, b, c, in[7] + K3,  9);
+-	ROUND(H, c, d, a, b, in[2] + K3, 11);
+-	ROUND(H, b, c, d, a, in[6] + K3, 15);
+-	ROUND(H, a, b, c, d, in[1] + K3,  3);
+-	ROUND(H, d, a, b, c, in[5] + K3,  9);
+-	ROUND(H, c, d, a, b, in[0] + K3, 11);
+-	ROUND(H, b, c, d, a, in[4] + K3, 15);
+-
+-	buf[0] += a;
+-	buf[1] += b;
+-	buf[2] += c;
+-	buf[3] += d;
+-}
+-
+-#undef ROUND
+-#undef F
+-#undef G
+-#undef H
+-#undef K1
+-#undef K2
+-#undef K3
+ 
+ /* The old legacy hash */
+ static __u32 dx_hack_hash (const char *name, int len)
+@@ -187,7 +121,7 @@
+ 		p = name;
+ 		while (len > 0) {
+ 			str2hashbuf(p, len, in, 8);
+-			halfMD4Transform(buf, in);
++			half_md4_transform(buf, in);
+ 			len -= 32;
+ 			p += 32;
+ 		}
+Index: rnd/include/linux/cryptohash.h
+===================================================================
+--- rnd.orig/include/linux/cryptohash.h	2005-01-12 21:28:27.412021208 -0800
++++ rnd/include/linux/cryptohash.h	2005-01-12 21:28:28.917829233 -0800
+@@ -7,6 +7,6 @@
+ void sha_init(__u32 *buf);
+ void sha_transform(__u32 *digest, const char *data, __u32 *W);
+ 
+-__u32 half_md4_transform(__u32 const buf[4], __u32 const in[8]);
++__u32 half_md4_transform(__u32 buf[4], __u32 const in[8]);
+ 
+ #endif
+Index: rnd/lib/halfmd4.c
+===================================================================
+--- rnd.orig/lib/halfmd4.c	2005-01-12 21:28:27.410021462 -0800
++++ rnd/lib/halfmd4.c	2005-01-12 21:28:28.918829106 -0800
+@@ -21,7 +21,7 @@
+ /*
+  * Basic cut-down MD4 transform.  Returns only 32 bits of result.
+  */
+-__u32 half_md4_transform(__u32 const buf[4], __u32 const in[8])
++__u32 half_md4_transform(__u32 buf[4], __u32 const in[8])
+ {
+ 	__u32 a = buf[0], b = buf[1], c = buf[2], d = buf[3];
+ 
+@@ -55,7 +55,11 @@
+ 	ROUND(H, c, d, a, b, in[0] + K3, 11);
+ 	ROUND(H, b, c, d, a, in[4] + K3, 15);
+ 
+-	return buf[1] + b;	/* "most hashed" word */
+-	/* Alternative: return sum of all words? */
++	buf[0] += a;
++	buf[1] += b;
++	buf[2] += c;
++	buf[3] += d;
++
++	return buf[1]; /* "most hashed" word */
+ }
+ 

@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292659AbSBUR24>; Thu, 21 Feb 2002 12:28:56 -0500
+	id <S292660AbSBUR34>; Thu, 21 Feb 2002 12:29:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292660AbSBUR2q>; Thu, 21 Feb 2002 12:28:46 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:37128 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S292659AbSBUR2b>; Thu, 21 Feb 2002 12:28:31 -0500
-Message-ID: <3C752E1D.20606@evision-ventures.com>
-Date: Thu, 21 Feb 2002 18:27:57 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
+	id <S292661AbSBUR3h>; Thu, 21 Feb 2002 12:29:37 -0500
+Received: from otter.mbay.net ([206.40.79.2]:7686 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S292660AbSBUR33> convert rfc822-to-8bit;
+	Thu, 21 Feb 2002 12:29:29 -0500
+From: John Alvord <jalvo@mbay.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Connecting through parallel port
+Date: Thu, 21 Feb 2002 09:16:09 -0800
+Message-ID: <doaa7uct0kmrejghngak1udfsduuqglo22@4ax.com>
+In-Reply-To: <str77ukfcime75ot3akiqb4f60d6t0urc6@4ax.com> <Pine.LNX.3.96.1020221080853.28609A-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1020221080853.28609A-100000@gatekeeper.tmr.com>
+X-Mailer: Forte Agent 1.8/32.553
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.5 IDE cleanup 11
-In-Reply-To: <Pine.LNX.4.33.0202131434350.21395-100000@home.transmeta.com> <3C737F29.7070105@evision-ventures.com> <3C74C03C.4060403@evision-ventures.com> <3C74D18D.FCCFEA83@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> hum, I'm not sure that removing ->driver_init is a good idea.
-> 
-> Seems like a loss of flexibility to me, not a cleanup, and I wonder if
-> you have thought through all the paths that wind up calling
-> ->driver_init.
+On Thu, 21 Feb 2002 08:16:32 -0500 (EST), Bill Davidsen
+<davidsen@tmr.com> wrote:
 
-Yes I have tought it all through!
-Please trust me - I eat at least myself my dog-food.
+>On Wed, 20 Feb 2002, John Alvord wrote:
+>
+>> On Wed, 20 Feb 2002 10:39:36 -0500 (EST), Bill Davidsen
+>> <davidsen@tmr.com> wrote:
+>
+>> >There was a protocol called PLIP which did just what you want. I've used
+>> >it many times for laptop install (Patrick even fixed it in Slackware at my
+>> >request).
+>> >
+>> >Unfortunately, while the feature is still in recent 2.[45] kernels, it
+>> >appears to be broken. The last laptop I installed needed a network card to
+>> >get working.
+>
+>> This was interesting when NIC (network interface cards) cost $100.
+>> Nowadays, they are a lot less costly and interest in the PLIP solution
+>> has evaporated.
+>
+>Unless cards now come with their own slot, this is still very useful. A
+>system without parallel is very unusual, while one without network is far
+>more common, and one without a place to even add a network is not that
+>hard to find. While a home user with only a few systems which he can
+>configure at will has no trouble adding a NIC, business use in many places
+>doesn't work that way, and honestly I have a hard time telling someone to
+>buy NICs, cables, a hub, etc, when a $7 cable will work between systems
+>with a functional PL/IP kernel.
+>
+>Considering the low use things supported in the kernel, I see no reason to
+>think PL/IP is less so. Not a lot of TokenRing out there these days, even
+>in an IBM shop;-)
 
-And the driver_init function is something which where currently
-just the bloody module initialization function get's called
-a seond time - and this is just plain wrong.
+I guess the only remaining problem is finding someone to support the
+code as Linux winds its way onward through the years. Or someone
+paying to do that work.
 
-If I hadn't tought about it I wouldn't be that advantegrous.
-And my testing of it did consist of the following:
-
-1. 2 x IDE drives of one IDE port.
-
-2. 1 x CD-RW on a second port - modularized.
-
-3. 1 x CarBus to CF adapter.
-
-It all worked well after the removal!
-
-
-
+john

@@ -1,43 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262101AbUEFMbi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262063AbUEFMbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbUEFMbi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 08:31:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbUEFMbh
+	id S262063AbUEFMbp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 08:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUEFMbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 08:31:37 -0400
-Received: from ns.suse.de ([195.135.220.2]:11181 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262101AbUEFMbK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 08:31:10 -0400
-Subject: Re: kernel BUG at fs/ext3/balloc.c:942!
-From: Chris Mason <mason@suse.com>
-To: Rob Shakir <rob@rshk.co.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040505222408.GA10030@rshk.co.uk>
-References: <Pine.LNX.4.58.0405051729140.2284@montezuma.fsmlabs.com>
-	 <20040505222408.GA10030@rshk.co.uk>
-Content-Type: text/plain
-Message-Id: <1083846724.11249.16.camel@watt.suse.com>
+	Thu, 6 May 2004 08:31:45 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17307 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262063AbUEFMbc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 08:31:32 -0400
+Date: Thu, 6 May 2004 09:32:22 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>,
+       Andrew Morton <akpm@osdl.org>, Jakub Jelinek <jakub@redhat.com>
+Subject: Re: [PATCH] per-user signal pending and message queue limits
+Message-ID: <20040506123222.GC3133@logos.cnet>
+References: <20040420163443.7347da48.akpm@osdl.org> <20040421203456.GC16891@logos.cnet> <40875944.4060405@colorfullife.com> <20040427145424.GA10530@logos.cnet> <408EA1DF.6050303@colorfullife.com> <20040428170932.GA14993@logos.cnet> <20040428183315.T22989@build.pdx.osdl.net> <20040429121739.GB18352@logos.cnet> <20040429125820.O21045@build.pdx.osdl.net> <20040505170811.W22989@build.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 06 May 2004 08:32:04 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040505170811.W22989@build.pdx.osdl.net>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-05-05 at 18:24, Rob Shakir wrote:
-> I've seen something vaguely similar to this problem, but rather than running 
-> ext3 I'm running ReiserFS. 
+
+> This BUG() is too easy to trigger, e.g. user creates mqueue, logs out,
+> root comes by later and cleans up...BUG().  Simply caching user directly
+> eliminates this altogether.
+
+And with user_struct->__count you deal with that, yes?
+
+Caching the user_struct directly is indeed much nicer.
+
 > 
-> This problem has occured twice, but I've just got the machine back running to
-> report the bug properly.
+> Some inconsistent use of p and current below.
 > 
-There was an additional error message from reiserfs before the bug,
-could you please look for it in your logs?
+> >  	struct msg_msg **msgs = NULL;
+> >  	struct mq_attr attr;
+> >  	int ret;
+> > @@ -553,15 +578,26 @@
+> >  					attr.mq_msgsize > msgsize_max)
+> >  				return ERR_PTR(-EINVAL);
+> >  		}
+> > +	  	if(p->user->msg_queues+ ((attr.mq_maxmsg * sizeof(struct msg_msg *)
+> > +				+ (attr.mq_maxmsg * attr.mq_msgsize)))
+> > +			  >= p->rlim[RLIMIT_MSGQUEUE].rlim_cur)
+> 
+> Hrm, this thing can overflow.  Seems like the hard maxes should be
+> smaller.  As it stands, looks like the hard max mq_msgsize that root
+> could setup is INT_MAX.
 
-Looks like you're on 2.6.5, the reiserfs logging fixes in 2.6.6-rc2 and
-higher fix a few different ways you can oops in search_by_key.
+Eek. Just decreasing max mq_msgsize to something _much_ smaller is ok, isnt it? 
 
--chris
+Like, say, 64MB.
 
+> > +			return ERR_PTR(-ENOMEM);
+> > +
+> >  		msgs = kmalloc(attr.mq_maxmsg * sizeof(*msgs), GFP_KERNEL);
+> >  		if (!msgs)
+> >  			return ERR_PTR(-ENOMEM);
+> > +
+> > +		spin_lock(&mq_lock);
+> > +		current->user->msg_queues += (attr.mq_maxmsg * sizeof(*msgs) +
+> > +					(attr.mq_maxmsg * attr.mq_msgsize));
+> > +		spin_unlock(&mq_lock);
+> 
+> This path means the user is penalized for the mq_attr sized accounting,
+> plus the default sized accounting which happens later in mqueue_get_inode().
+> It is removed below, but as mentioned above, this could incorrectly
+> cause mq_open() to fail.
 
+OK!
+
+> >  	} else {
+> >  		msgs = NULL;
+> >  	}
+> >  
+> >  	ret = vfs_create(dir->d_inode, dentry, mode, NULL);
+> >  	if (ret) {
+> > +		/* kfree(msgs): msgs can be NULL -mt */
+> >  		kfree(msgs);
+> >  		return ERR_PTR(ret);
+> >  	}
+> > @@ -572,8 +608,17 @@
+> >  	if (msgs) {
+> >  		info->attr.mq_maxmsg = attr.mq_maxmsg;
+> >  		info->attr.mq_msgsize = attr.mq_msgsize;
+> > +		spin_lock(&mq_lock);
+> > +		current->user->msg_queues -= (info->attr.mq_maxmsg 
+> > +						* sizeof (struct msg_msg *) +
+> > +						(info->attr.mq_maxmsg * 
+> > +						info->attr.mq_msgsize));
+> > +		if (current->user->msg_queues < 0)
+> > +			current->user->msg_queues = 0;	
+> 
+> Oops, I think the subtraction is slightly wrong here.  Should be before
+> the info->attr is updated, else you are actually carrying accounting for
+> the default size (minus the actually allocated size).  Should be
+> subtracting off the recently added default size.
+> 
+> New patch below (based on 2.6.6-rc3-bk).  Couple known issues are the
+> possible mq_bytes caluclation overflow (not yet fixed in this patch),
+> and setuid issue on signal side.  All other known issues have been
+> addressed.
+
+The setuid issue on signal side is pretty harmless though. It only affects the
+users which are setuid() capable, and which do so with signal pending.
+
+I see no other way to fix it than cache the user struct in "struct sigqueue". 
+Thats not good news for performance (not sure how bad it would matter).
+
+Again, thanks!

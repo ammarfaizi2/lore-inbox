@@ -1,51 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269600AbUJLKf1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269602AbUJLKkw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269600AbUJLKf1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 06:35:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269602AbUJLKf1
+	id S269602AbUJLKkw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 06:40:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268535AbUJLKkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 06:35:27 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:45269 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269600AbUJLKdx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 06:33:53 -0400
-Date: Tue, 12 Oct 2004 12:35:12 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Wen-chien Jesse Sung <jesse@cola.voip.idv.tw>
-Cc: linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>,
-       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com
-Subject: Re: [patch] VP-2.6.9-rc4-mm1-T6
-Message-ID: <20041012103512.GA24836@elte.hu>
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <1097573492.6157.26.camel@libra>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1097573492.6157.26.camel@libra>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 12 Oct 2004 06:40:52 -0400
+Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:24523 "EHLO
+	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S269604AbUJLKkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 06:40:25 -0400
+Message-ID: <416BB494.8040007@kolivas.org>
+Date: Tue, 12 Oct 2004 20:40:20 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ankit Jain <ankitjain1580@yahoo.com>
+Cc: linux <linux-kernel@vger.kernel.org>
+Subject: Re: Difference in priority
+References: <20041012092804.73700.qmail@web52906.mail.yahoo.com>
+In-Reply-To: <20041012092804.73700.qmail@web52906.mail.yahoo.com>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig36776DFAD1BEC5AD63DD8CCF"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig36776DFAD1BEC5AD63DD8CCF
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-* Wen-chien Jesse Sung <jesse@cola.voip.idv.tw> wrote:
+Ankit Jain wrote:
+> Sorry but iu could not get why are you adding and
+> subtracting this 60 in priorities. that corelation i
+> had also got but could not understrand whats this 60?
+> and also what is this dynamic priority? hows different
+> from normal priority
 
-> > this should fix the UP build issues reported by many. -T6 also brings
-> > back the ->break_lock framework and converts a few more locks to raw.
+Dynamic priority is the current priority the scheduler has allocated to 
+a task. It uses it to decide which task to go next; the lower the number 
+the better it's priority so it goes first. The subtracting 100 and 60 is 
+just what the userspace tools do to represent an obviously complicated 
+value.
+
+Please don't top post. It makes it hard to respond appropriately and 
+follow email threads.
+
+Cheers,
+Con
 > 
-> UP build is still failed: 
->  arch/i386/kernel/vm86.c:707: error: `__RAW_SPIN_LOCK_UNLOCKED'
-> undeclared here (not in a function)
+> thanks
+> 
+> ankit
+>  --- Con Kolivas <kernel@kolivas.org> wrote: 
+> 
+>>Con Kolivas wrote:
+>>
+>>>Ankit Jain wrote:
+>>>
+>>>
+>>>>hi
+>>>>
+>>>>if somebody knows the difference b/w /PRI of both
+>>>>these commands because both give different
+>>
+>>results
+>>
+>>>>ps -Al
+>>>>& top
+>>>>
+>>>>as per priority rule we can set priority upto
+>>
+>>0-99
+>>
+>>>>but top never shows this high priority
+>>>
+>>>
+>>>Priority values 0-99 are real time ones and
+>>
+>>100-139 are normal 
+>>
+>>>scheduling ones. RT scheduling does not change
+>>
+>>dynamic priority while 
+>>
+>>>running wheras normal scheduling does (between
+>>
+>>100-139). top shows the 
+>>
+>>>value of the current dynamic priority in the PRI
+>>
+>>column as the current 
+>>
+>>>dynamic priority-100. If you have a real time task
+>>
+>>in top it shows as a 
+>>
+>>>-ve value. ps -Al seems to show the current
+>>
+>>dynamic priority+60.
+>>
+>>That should read dynamic priority-60 in the PRI
+>>column.
 
-ok, fixed this one too and re-uploaded -T6 - please check whether it
-builds for you now.
 
-	Ingo
+
+--------------enig36776DFAD1BEC5AD63DD8CCF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBa7SWZUg7+tp6mRURAjklAJ9jFdjyaqOF2rgMSsFuhrLgxgqu7gCcD6Kd
+a1JnvZSqlvELp9sLkeZQrCo=
+=IoK2
+-----END PGP SIGNATURE-----
+
+--------------enig36776DFAD1BEC5AD63DD8CCF--

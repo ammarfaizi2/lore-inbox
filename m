@@ -1,100 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262066AbVBXHkb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVBXHka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262066AbVBXHkb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 02:40:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbVBXHjB
+	id S262087AbVBXHka (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 02:40:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbVBXHjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 02:39:01 -0500
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:57190 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261900AbVBXHam (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 02:30:42 -0500
-Subject: [PATCH 13/13] basic tuning
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1109230125.5177.91.camel@npiggin-nld.site>
-References: <1109229293.5177.64.camel@npiggin-nld.site>
-	 <1109229362.5177.67.camel@npiggin-nld.site>
-	 <1109229415.5177.68.camel@npiggin-nld.site>
-	 <1109229491.5177.71.camel@npiggin-nld.site>
-	 <1109229542.5177.73.camel@npiggin-nld.site>
-	 <1109229650.5177.78.camel@npiggin-nld.site>
-	 <1109229700.5177.79.camel@npiggin-nld.site>
-	 <1109229760.5177.81.camel@npiggin-nld.site>
-	 <1109229867.5177.84.camel@npiggin-nld.site>
-	 <1109229935.5177.85.camel@npiggin-nld.site>
-	 <1109230031.5177.87.camel@npiggin-nld.site>
-	 <1109230087.5177.89.camel@npiggin-nld.site>
-	 <1109230125.5177.91.camel@npiggin-nld.site>
-Content-Type: multipart/mixed; boundary="=-+yybaCAps4o+FKMDeai8"
-Date: Thu, 24 Feb 2005 18:30:32 +1100
-Message-Id: <1109230233.5177.94.camel@npiggin-nld.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+	Thu, 24 Feb 2005 02:39:16 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35488 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261890AbVBXH3W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 02:29:22 -0500
+Message-ID: <421D8241.9020608@pobox.com>
+Date: Thu, 24 Feb 2005 02:29:05 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dominik Brodowski <linux@dominikbrodowski.net>
+CC: Pavel Roskin <proski@gnu.org>,
+       Orinoco Development List <orinoco-devel@lists.sourceforge.net>,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [8/14] Orinoco driver updates - PCMCIA initialization cleanups
+References: <20050224035355.GA32001@localhost.localdomain> <20050224035445.GB32001@localhost.localdomain> <20050224035524.GC32001@localhost.localdomain> <20050224035650.GD32001@localhost.localdomain> <20050224035718.GE32001@localhost.localdomain> <20050224035804.GF32001@localhost.localdomain> <20050224035957.GH32001@localhost.localdomain> <20050224040024.GI32001@localhost.localdomain> <20050224040052.GJ32001@localhost.localdomain> <20050224065527.GA8931@isilmar.linta.de>
+In-Reply-To: <20050224065527.GA8931@isilmar.linta.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dominik Brodowski wrote:
+>>@@ -184,6 +186,7 @@
+>> 	dev_list = link;
+>> 
+>> 	client_reg.dev_info = &dev_info;
+>>+	client_reg.Attributes = INFO_IO_CLIENT | INFO_CARD_SHARE;
+> 
+> 
+> That's not needed any longer for 2.6.
 
---=-+yybaCAps4o+FKMDeai8
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+So who wants to send the incremental update patch?  :)
 
-13/13
+	Jeff
 
-
---=-+yybaCAps4o+FKMDeai8
-Content-Disposition: attachment; filename=sched-tune.patch
-Content-Type: text/x-patch; name=sched-tune.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-Do some basic initial tuning.
-
-Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
-
-Index: linux-2.6/include/asm-x86_64/topology.h
-===================================================================
---- linux-2.6.orig/include/asm-x86_64/topology.h	2005-02-24 17:39:07.615911131 +1100
-+++ linux-2.6/include/asm-x86_64/topology.h	2005-02-24 17:39:07.990864853 +1100
-@@ -52,12 +52,11 @@
- 	.cache_nice_tries	= 2,			\
- 	.busy_idx		= 3,			\
- 	.idle_idx		= 2,			\
--	.newidle_idx		= 1, 			\
-+	.newidle_idx		= 0, 			\
- 	.wake_idx		= 1,			\
- 	.forkexec_idx		= 1,			\
- 	.per_cpu_gain		= 100,			\
- 	.flags			= SD_LOAD_BALANCE	\
--				| SD_BALANCE_NEWIDLE	\
- 				| SD_BALANCE_FORK	\
- 				| SD_BALANCE_EXEC	\
- 				| SD_WAKE_BALANCE,	\
-Index: linux-2.6/include/linux/topology.h
-===================================================================
---- linux-2.6.orig/include/linux/topology.h	2005-02-24 17:39:07.616911007 +1100
-+++ linux-2.6/include/linux/topology.h	2005-02-24 17:39:07.991864730 +1100
-@@ -118,15 +118,14 @@
- 	.cache_nice_tries	= 1,			\
- 	.per_cpu_gain		= 100,			\
- 	.busy_idx		= 2,			\
--	.idle_idx		= 0,			\
--	.newidle_idx		= 1,			\
-+	.idle_idx		= 1,			\
-+	.newidle_idx		= 2,			\
- 	.wake_idx		= 1,			\
--	.forkexec_idx		= 0,			\
-+	.forkexec_idx		= 1,			\
- 	.flags			= SD_LOAD_BALANCE	\
- 				| SD_BALANCE_NEWIDLE	\
- 				| SD_BALANCE_EXEC	\
--				| SD_WAKE_AFFINE	\
--				| SD_WAKE_BALANCE,	\
-+				| SD_WAKE_AFFINE,	\
- 	.last_balance		= jiffies,		\
- 	.balance_interval	= 1,			\
- 	.nr_balance_failed	= 0,			\
-
---=-+yybaCAps4o+FKMDeai8--
 
 

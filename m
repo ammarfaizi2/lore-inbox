@@ -1,79 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268771AbUJFH1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268889AbUJFH3a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268771AbUJFH1P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 03:27:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268889AbUJFH1P
+	id S268889AbUJFH3a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 03:29:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268900AbUJFH3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 03:27:15 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33290 "EHLO
+	Wed, 6 Oct 2004 03:29:30 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37386 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S268771AbUJFH1J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 03:27:09 -0400
-Date: Wed, 6 Oct 2004 08:26:59 +0100
+	id S268889AbUJFH31 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 03:29:27 -0400
+Date: Wed, 6 Oct 2004 08:29:19 +0100
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [RFC][PATCH] Way for platforms to alter built-in serial ports
-Message-ID: <20041006082658.A18379@flint.arm.linux.org.uk>
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>,
-	linuxppc64-dev <linuxppc64-dev@ozlabs.org>
-References: <1096534248.32721.36.camel@gaston>
+Message-ID: <20041006082919.B18379@flint.arm.linux.org.uk>
+Mail-Followup-To: Bjorn Helgaas <bjorn.helgaas@hp.com>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	linux-kernel@vger.kernel.org
+References: <200409301014.00725.bjorn.helgaas@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1096534248.32721.36.camel@gaston>; from benh@kernel.crashing.org on Thu, Sep 30, 2004 at 06:50:48PM +1000
+In-Reply-To: <200409301014.00725.bjorn.helgaas@hp.com>; from bjorn.helgaas@hp.com on Thu, Sep 30, 2004 at 10:14:00AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 30, 2004 at 06:50:48PM +1000, Benjamin Herrenschmidt wrote:
-> +#ifndef ARCH_HAS_GET_LEGACY_SERIAL_PORTS
->  static struct old_serial_port old_serial_port[] = {
->  	SERIAL_PORT_DFNS /* defined in asm/serial.h */
->  };
-> -
-> +static inline struct old_serial_port *get_legacy_serial_ports(unsigned int *count)
-> +{
-> +	*count = ARRAY_SIZE(old_serial_port);
-> +	return old_serial_port;
-> +}
->  #define UART_NR	(ARRAY_SIZE(old_serial_port) + CONFIG_SERIAL_8250_NR_UARTS)
-> +#endif /* ARCH_HAS_GET_LEGACY_SERIAL_PORTS */
-> +
+On Thu, Sep 30, 2004 at 10:14:00AM -0600, Bjorn Helgaas wrote:
+> > What I propose is a way for the arch to provide it's own table along
+> > with the size of it via a function call. It's optional, based on a
+> > #ifdef defined by the arch in it's asm/serial.h. The only remaining
+> > tricky point is the fact that you used to size your static array of
+> > UART's based on the size of the table. So with my path, an arch
+> > that defines ARCH_HAS_GET_LEGACY_SERIAL_PORTS is supposed to provide
+> > both the new get_legacy_serial_ports() function, but also to define
+> > UART_NR to something sensible. I hope one day, we'll be able to
+> > convert 8250 to more dynamic allocation though.
+> 
+> This looks like a reasonable short-term fix, but I think the whole
+> serial8250_isa_init_ports() should go away.  I like dwmw2's suggestion
+> of an 8250_platform.c that could use register_serial() for each port
+> in some platform-supplied old_serial_port[] table, which is probably
+> what you mean by moving to a more dynamic allocation.
 
-What happens if 8250.c is built as a module and
-ARCH_HAS_GET_LEGACY_SERIAL_PORTS is defined?
+The only reason it exists in its current form is because Alan says
+we can't get rid of the serial port initialisation due to the x86
+requirement for serial console to be initialised reasonably early.
 
-> diff -urN linux-2.5/include/linux/serial.h linux-maple/include/linux/serial.h
-> --- linux-2.5/include/linux/serial.h	2004-09-30 18:31:55.867785437 +1000
-> +++ linux-maple/include/linux/serial.h	2004-09-30 15:36:57.981697919 +1000
-> @@ -14,6 +14,21 @@
->  #include <asm/page.h>
->  
->  /*
-> + * Definition of a legacy serial port
-> + */
-> +struct old_serial_port {
-> +	unsigned int uart;
-> +	unsigned int baud_base;
-> +	unsigned int port;
-> +	unsigned int irq;
-> +	unsigned int flags;
-> +	unsigned char hub6;
-> +	unsigned char io_type;
-> +	unsigned char *iomem_base;
-> +	unsigned short iomem_reg_shift;
-> +};
-> +
-> +/*
->   * Counters of the input lines (CTS, DSR, RI, CD) interrupts
->   */
+Unfortunately the early console stuff (afaik) never made it in to
+the kernel, so we've had to keep this hanging around.
 
-serial.h is used by userspace programs.  We should not expose this
-structure to those programs.  Instead, maybe creating an 8250.h
-header, or even moving the existing 8250.h header ?
+Maybe once this problem is solved we can consider dwmw2's suggestion.
 
 -- 
 Russell King

@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268921AbTBZUoN>; Wed, 26 Feb 2003 15:44:13 -0500
+	id <S268931AbTBZUnc>; Wed, 26 Feb 2003 15:43:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268924AbTBZUoN>; Wed, 26 Feb 2003 15:44:13 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:49813 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id <S268921AbTBZUoL>;
-	Wed, 26 Feb 2003 15:44:11 -0500
-From: Mikael Pettersson <mikpe@user.it.uu.se>
-MIME-Version: 1.0
+	id <S268932AbTBZUnc>; Wed, 26 Feb 2003 15:43:32 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:6859 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S268931AbTBZUnb>;
+	Wed, 26 Feb 2003 15:43:31 -0500
+Date: Wed, 26 Feb 2003 21:46:41 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Scott Lee <scottlee@redhot.rose.hp.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ide write barriers
+Message-ID: <20030226204641.GJ945@suse.de>
+References: <200302262031.MAA18505@redhot.rose.hp.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15965.10615.231875.609023@gargle.gargle.HOWL>
-Date: Wed, 26 Feb 2003 21:54:15 +0100
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: "Rhodes, Tom" <tom.rhodes@hp.com>, jbourne@mtroyal.ab.ca,
-       linux-kernel@vger.kernel.org
-Subject: Re: lockups with 2.4.20 (tg3? net/core/dev.c|deliver_to_old_ones)
-In-Reply-To: <20030226145622.C26604@devserv.devel.redhat.com>
-References: <DC900CF28D03B745B2859A0E084F044D043506DD@cceexc19.americas.cpqcorp.net>
-	<20030226145622.C26604@devserv.devel.redhat.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <200302262031.MAA18505@redhot.rose.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev writes:
- > > Date: Wed, 26 Feb 2003 09:29:56 -0600
- > > From: "Rhodes, Tom" <tom.rhodes@hp.com>
- > 
- > > > there is a deadlock: deliver_to_old_ones()attempts to stop all timers
- > 
- > > Until this is fixed, there are a couple work-arounds:
- > > - Put the system behind a NAT firewall. [...]
- > > - Switch to a non-NAPI driver. [...]
- > 
- > I think you are a little late with these workarounds, tg3 1.4c
- > is available for a week already.
- >  http://people.redhat.com/jgarzik/tg3/tg3-1.4c/
- > 
- > People using ancient non-NAPI kernels better upgrade to 2.4.20.
- > If they really, really, really cannot upgrade (and this only
- > happens when they are stuck with binary module crap), they
- > should say "I will quit this tob tomorrow" three times,
- > then use RH AS2.1 driver, only make sure to get tg3 1.2e3
- > from drivers/addon/tg3 in 2.4.9-e.12.
+On Wed, Feb 26 2003, Scott Lee wrote:
+> > The goal is to make the use of write
+> > back cache enabled ide drives safe with journalled file systems.
+> 
+> Does this mean that having write caching enabled is not safe if you
+> are using ext3 on an IDE drive?  Should "hdparm -W 0 /dev/hda" be used
+> for example.  (I see a 50% performance hit using "-W 0" when my box is
+> under load.)  If this is the case, what is the root cause?  Do IDE
+> drives reorder writes when they are cached?
 
-Which non-AS RH8.0 kernel should one use to not get hangs from tg3?
-I had to downgrade our Dell PE2650 from 2.4.18-24 to 2.4.18-17 since
-2.4.18-24 and -19 caused bi-weekly hangs, while -17 and earlier never
-had any problems. -18 seemed Ok, but the box didn't run it very long.
+As it stands, it's not safe to use write back caching on IDE drives.
+When the write completes as seen from the fs, it's not on the platter
+yet. That's a problem. And as you mention, there's no guarentee that
+writes won't be reordered as well.
 
-This is a compile server with very light network load: a couple of
-ssh sessions, NFS-mounted home dirs, ntpd, nothing else.
+So yes, either use the barrier patch or disable write caching.
 
-/Mikael
+-- 
+Jens Axboe
+

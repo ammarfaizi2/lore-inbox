@@ -1,54 +1,201 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317349AbSHOSXq>; Thu, 15 Aug 2002 14:23:46 -0400
+	id <S315925AbSHOSbw>; Thu, 15 Aug 2002 14:31:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317347AbSHOSXq>; Thu, 15 Aug 2002 14:23:46 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:2042 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S317345AbSHOSXq>; Thu, 15 Aug 2002 14:23:46 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Thu, 15 Aug 2002 12:25:56 -0600
-To: henrique <henrique@cyclades.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with random.c and PPC
-Message-ID: <20020815182556.GV9642@clusterfs.com>
-Mail-Followup-To: henrique <henrique@cyclades.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <200208151514.51462.henrique@cyclades.com>
+	id <S315946AbSHOSbw>; Thu, 15 Aug 2002 14:31:52 -0400
+Received: from mnh-1-06.mv.com ([207.22.10.38]:31749 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S315925AbSHOSbu>;
+	Thu, 15 Aug 2002 14:31:50 -0400
+Message-Id: <200208151938.OAA02692@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Linus Torvalds <torvalds@transmeta.com>, viro@math.psu.edu
+cc: linux-kernel@vger.kernel.org, Jeff Dike <jdike@karaya.com>
+Subject: [PATCH] Eliminate root_dev_names - part 1 of 2
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200208151514.51462.henrique@cyclades.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Date: Thu, 15 Aug 2002 14:38:30 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 15, 2002  15:14 +0000, henrique wrote:
-> Hello !!!
-> 
-> I am trying to use a program (ipsec newhostkey) that uses the random device 
-> provided by the linux-kernel. In a x86 machine the program works fine but 
-> when I tried to run the program in a PPC machine it doesn't work.
-> 
-> Looking carefully I have discovered that the problem is in the driver 
-> random.c. When the program tries to read any amount of data it locks and 
-> never returns. It happens because the variable  "random_state->entropy_count" 
-> is always zero, that is, any random number is generated at all !!!??.
-> 
-> Does anyone know anything about this problem ? Any sort of help is very 
-> welcomed.
+This patch changes all instances of get_gendisk to get_gendisk_by_kdev_t.
 
-Maybe the PPC keyboard/mouse drivers do not add randomness?  You should
-also get randomness from disk I/O.  If your PPC system is diskless,
-mouseless, and keyboardless, there is also a patch for 2.4 which allows
-you to get randomness from network card interrupts, which is good enough
-for all but the most incredibly paranoid people.
+The following patch, which actually removes the root_dev_names array,
+introduces get_gendisk_by_name, so this keeps the naming somewhat consistent.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+				Jeff
+
+diff -Naur um-31/drivers/block/blkpg.c um/drivers/block/blkpg.c
+--- um-31/drivers/block/blkpg.c	Mon Aug 12 22:29:47 2002
++++ um/drivers/block/blkpg.c	Thu Aug 15 11:02:29 2002
+@@ -83,7 +83,7 @@
+ 		return -EINVAL;
+ 
+ 	/* find the drive major */
+-	g = get_gendisk(dev);
++	g = get_gendisk_by_kdev_t(dev);
+ 	if (!g)
+ 		return -ENXIO;
+ 	part = g->part + minor(dev) - g->first_minor;
+@@ -132,7 +132,7 @@
+ 	int holder;
+ 
+ 	/* find the drive major */
+-	g = get_gendisk(dev);
++	g = get_gendisk_by_kdev_t(dev);
+ 	if (!g)
+ 		return -ENXIO;
+ 	part = g->part + minor(dev) - g->first_minor;
+diff -Naur um-31/drivers/block/genhd.c um/drivers/block/genhd.c
+--- um-31/drivers/block/genhd.c	Mon Aug 12 22:29:47 2002
++++ um/drivers/block/genhd.c	Thu Aug 15 11:21:47 2002
+@@ -94,14 +94,14 @@
+ 
+ 
+ /**
+- * get_gendisk - get partitioning information for a given device
++ * get_gendisk_by_kdev_t - get partitioning information for a given device
+  * @dev: device to get partitioning information for
+  *
+  * This function gets the structure containing partitioning
+  * information for the given device @dev.
+  */
+ struct gendisk *
+-get_gendisk(kdev_t dev)
++get_gendisk_by_kdev_t(kdev_t dev)
+ {
+ 	struct gendisk *gp = NULL;
+ 	int major = major(dev);
+@@ -122,7 +122,7 @@
+ 	return NULL;
+ }
+ 
+-EXPORT_SYMBOL(get_gendisk);
++EXPORT_SYMBOL(get_gendisk_by_kdev_t);
+ 
+ #ifdef CONFIG_PROC_FS
+ /* iterator */
+diff -Naur um-31/drivers/ide/hptraid.c um/drivers/ide/hptraid.c
+--- um-31/drivers/ide/hptraid.c	Sat Jul 27 21:52:34 2002
++++ um/drivers/ide/hptraid.c	Thu Aug 15 11:02:29 2002
+@@ -306,7 +306,7 @@
+ 	/* now blank the /proc/partitions table for the wrong partition table,
+ 	   so that scripts don't accidentally mount it and crash the kernel */
+ 	/* XXX: the 0 is an utter hack  --hch */
+-	gd = get_gendisk(mk_kdev(major, 0));
++	gd = get_gendisk_by_kdev_t(mk_kdev(major, 0));
+ 	if (gd != NULL) {
+ 		int j;
+ 		for (j = 1 + (minor << gd->minor_shift);
+diff -Naur um-31/drivers/md/md.c um/drivers/md/md.c
+--- um-31/drivers/md/md.c	Thu Aug  1 20:40:54 2002
++++ um/drivers/md/md.c	Thu Aug 15 11:02:28 2002
+@@ -294,7 +294,7 @@
+ 	/*
+ 	 * ok, add this new device name to the list
+ 	 */
+-	hd = get_gendisk (dev);
++	hd = get_gendisk_by_kdev_t (dev);
+ 	dname->name = NULL;
+ 	if (hd)
+ 		dname->name = disk_name (hd, minor(dev), dname->namebuf);
+diff -Naur um-31/fs/block_dev.c um/fs/block_dev.c
+--- um-31/fs/block_dev.c	Mon Aug 12 22:29:51 2002
++++ um/fs/block_dev.c	Thu Aug 15 11:02:31 2002
+@@ -516,7 +516,7 @@
+ 	if (invalidate_device(dev, 0))
+ 		printk("VFS: busy inodes on changed media.\n");
+ 
+-	disk = get_gendisk(dev);
++	disk = get_gendisk_by_kdev_t(dev);
+ 	part = disk->part + minor(dev) - disk->first_minor;
+ 	if (bdops->revalidate)
+ 		bdops->revalidate(dev);
+@@ -531,7 +531,7 @@
+ 	down(&bdev->bd_sem);
+ 	res = check_disk_change(bdev);
+ 	if (bdev->bd_invalidated && !bdev->bd_part_count) {
+-		struct gendisk *g = get_gendisk(to_kdev_t(bdev->bd_dev));
++		struct gendisk *g = get_gendisk_by_kdev_t(to_kdev_t(bdev->bd_dev));
+ 		struct hd_struct *part;
+ 		part = g->part + MINOR(bdev->bd_dev) - g->first_minor;
+ 		bdev->bd_invalidated = 0;
+@@ -599,7 +599,7 @@
+ 	}
+ 	if (!bdev->bd_contains) {
+ 		unsigned minor = minor(dev);
+-		struct gendisk *g = get_gendisk(dev);
++		struct gendisk *g = get_gendisk_by_kdev_t(dev);
+ 		bdev->bd_contains = bdev;
+ 		if (g) {
+ 			int shift = g->minor_shift;
+@@ -618,7 +618,7 @@
+ 		}
+ 	}
+ 	if (bdev->bd_contains == bdev) {
+-		struct gendisk *g = get_gendisk(dev);
++		struct gendisk *g = get_gendisk_by_kdev_t(dev);
+ 		if (bdev->bd_op->open) {
+ 			ret = bdev->bd_op->open(inode, file);
+ 			if (ret)
+@@ -659,7 +659,7 @@
+ 		down(&bdev->bd_contains->bd_sem);
+ 		bdev->bd_contains->bd_part_count++;
+ 		if (!bdev->bd_openers) {
+-			struct gendisk *g = get_gendisk(dev);
++			struct gendisk *g = get_gendisk_by_kdev_t(dev);
+ 			struct hd_struct *p;
+ 			p = g->part + minor(dev) - g->first_minor;
+ 			inode->i_data.backing_dev_info =
+@@ -788,7 +788,7 @@
+ static int blkdev_reread_part(struct block_device *bdev)
+ {
+ 	kdev_t dev = to_kdev_t(bdev->bd_dev);
+-	struct gendisk *disk = get_gendisk(dev);
++	struct gendisk *disk = get_gendisk_by_kdev_t(dev);
+ 	struct hd_struct *part;
+ 	int res;
+ 
+diff -Naur um-31/fs/partitions/check.c um/fs/partitions/check.c
+--- um-31/fs/partitions/check.c	Mon Aug 12 22:29:52 2002
++++ um/fs/partitions/check.c	Thu Aug 15 11:02:30 2002
+@@ -462,7 +462,7 @@
+ void grok_partitions(kdev_t dev, long size)
+ {
+ 	struct block_device *bdev;
+-	struct gendisk *g = get_gendisk(dev);
++	struct gendisk *g = get_gendisk_by_kdev_t(dev);
+ 	struct hd_struct *p;
+ 
+ 	if (!g)
+@@ -516,7 +516,7 @@
+ 	int p, major, minor, minor0, max_p, res;
+ 	struct hd_struct *part;
+ 
+-	g = get_gendisk(dev);
++	g = get_gendisk_by_kdev_t(dev);
+ 	if (g == NULL)
+ 		return -EINVAL;
+ 
+diff -Naur um-31/include/linux/genhd.h um/include/linux/genhd.h
+--- um-31/include/linux/genhd.h	Thu Aug  1 20:41:00 2002
++++ um/include/linux/genhd.h	Thu Aug 15 11:02:30 2002
+@@ -89,7 +89,7 @@
+ /* drivers/block/genhd.c */
+ extern void add_gendisk(struct gendisk *gp);
+ extern void del_gendisk(struct gendisk *gp);
+-extern struct gendisk *get_gendisk(kdev_t dev);
++extern struct gendisk *get_gendisk_by_kdev_t(kdev_t dev);
+ static inline unsigned long get_start_sect(struct block_device *bdev)
+ {
+ 	return bdev->bd_offset;
+@@ -250,7 +250,7 @@
+ 
+ static inline unsigned int disk_index (kdev_t dev)
+ {
+-	struct gendisk *g = get_gendisk(dev);
++	struct gendisk *g = get_gendisk_by_kdev_t(dev);
+ 	return g ? (minor(dev) >> g->minor_shift) : 0;
+ }
+ 
 

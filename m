@@ -1,78 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265245AbUFWKI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265207AbUFWKfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265245AbUFWKI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 06:08:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbUFWKI0
+	id S265207AbUFWKfU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 06:35:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265247AbUFWKfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 06:08:26 -0400
-Received: from docsis224-219.menta.net ([62.57.224.219]:19377 "EHLO
-	pof.eslack.org.") by vger.kernel.org with ESMTP id S265245AbUFWKIY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 06:08:24 -0400
-Subject: Re: 2.6.7-mm1 PCNet Problems under VMWare 4.5.2
-From: Esteve =?ISO-8859-1?Q?Espu=F1a?= Sargatal <esteve@eslack.org>
-Reply-To: esteve@eslack.org
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <40D94C0F.6050400@exmsft.com>
-References: <40D94C0F.6050400@exmsft.com>
-Content-Type: text/plain
-Message-Id: <1087985288.16504.5.camel@esteve.pofhq.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 23 Jun 2004 12:08:08 +0200
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Jun 2004 06:35:19 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:58893 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S265207AbUFWKfO convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 06:35:14 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Martin Zwickel <martin.zwickel@technotrend.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc2-mm2 udp multicast problem (sendto hangs)
+Date: Wed, 23 Jun 2004 13:34:57 +0300
+X-Mailer: KMail [version 1.4]
+References: <20040622164000.110f2a63@phoebee> <20040623115617.68b93100@phoebee>
+In-Reply-To: <20040623115617.68b93100@phoebee>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200406231334.57816.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aren't bits 31-16 of CSR0 reserved on PCnet-II (79c970A) ?
+On Wednesday 23 June 2004 12:56, Martin Zwickel wrote:
+> if I use MSG_DONTWAIT with sendto, I get temporarily unavailable resources
+> (many!):
+>
+> sendto(sendfd): Resource temporarily unavailable
+>
+> but isn't udp supposed to not block?
 
->From 79c970A Datasheet page 108:
+Think about what will happen if you will try to spew
+udp packets continuously:
 
-CSR0:
-[SNIP] The register is designed so that these indicator bits are cleared
-by writing ONESs to those bit locations. This means that the software
-can read CSR0 and write back the value just read to clear the interrupt
-condition. [SNIP]
+while(1)
+	sendto(...);
 
-bits 31-16 Rserved. Written as ZEROs and read as undefined.
-[SNIP]
-bit 6 is IENA Interrupt Enable.
-
-
-Thanks.
-
-
-On Wed, 2004-06-23 at 11:23, Keith Moore wrote:
-> I'm seeing problems running a 2.6.7-mm1 kernel with Fedora Core 2 
-> running in a VMWare Workstation 4.5.2 VM. The kernel hangs trying to 
-> bring up the (dhcp-enabled) eth0 interface.
-> 
-> I dug through the -mm1 patch, and the problem seems to be the changes at 
-> the end of the pcnet32_interrupt() function (in drivers/net/pcnet32.c). 
-> The relevant patch fragment is:
-> 
-> -    /* Clear any other interrupt, and set interrupt enable. */
-> -    lp->a.write_csr (ioaddr, 0, 0x7940);
-> +    /* Set interrupt enable. */
-> +    lp->a.write_csr (ioaddr, 0, 0x0040);
-> 
-> Reverting this one section of the patch makes eth0 happy again.
-> 
-> I poked around with the values written to the csr register, and it 
-> appears the virtual PCNet-II adapter needs bit 0x0100 (initialzation 
-> done) set. So, writing 0x0140 instead of 0x0040 seems to work well.
-> 
-> I have no idea how accurate VMWare's emulation of this adapter is, or if 
-> this change may cause problems with other (physical) adapters.
-> 
-> 
-> KM
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+They will pile up in queue and eventually it will fill up.
+Then kernel may either drop excess packets silently
+or return you EAGAIN.
+-- 
+vda

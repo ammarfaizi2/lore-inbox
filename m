@@ -1,79 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVA1OKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbVA1OPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261385AbVA1OKi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 09:10:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVA1OK0
+	id S261409AbVA1OPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 09:15:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVA1OPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 09:10:26 -0500
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:16009 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S261408AbVA1OH5 (ORCPT
+	Fri, 28 Jan 2005 09:15:14 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:23223 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261408AbVA1OO6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 09:07:57 -0500
-Date: Fri, 28 Jan 2005 15:07:56 +0100
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>, hugang@soulinfo.com,
-       Pavel Machek <pavel@suse.cz>,
-       Nigel Cunningham <ncunningham@linuxmail.org>
-Subject: Re: [RFC][PATCH] swsusp: do not use higher order memory allocations
- on suspend
-Message-ID: <20050128150756.1d6976cb@phoebee>
-In-Reply-To: <200501281454.23167.rjw@sisk.pl>
-References: <200501281454.23167.rjw@sisk.pl>
-X-Mailer: Sylpheed-Claws 0.9.12cvs53 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
- CPU 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Organization: Technotrend AG
+	Fri, 28 Jan 2005 09:14:58 -0500
+Date: Fri, 28 Jan 2005 06:14:46 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Arjan van de Ven <arjanv@infradead.org>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>, viro@zenII.uk.linux.org,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: make flock_lock_file_wait static
+Message-ID: <20050128141446.GA1868@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <1105345168.4171.11.camel@laptopd505.fenrus.org> <1105346324.4171.16.camel@laptopd505.fenrus.org> <1105367014.11462.13.camel@lade.trondhjem.org> <1105432299.3917.11.camel@laptopd505.fenrus.org> <1105471004.12005.46.camel@lade.trondhjem.org> <1105472182.3917.49.camel@laptopd505.fenrus.org> <20050125185812.GA1499@us.ibm.com> <1106730061.6307.62.camel@laptopd505.fenrus.org> <20050126160715.GB1266@us.ibm.com> <1106765983.6307.134.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
- boundary="Signature_Fri__28_Jan_2005_15_07_56_+0100_ew0MOUA3tasO8Bo/";
- protocol="application/pgp-signature"; micalg=pgp-sha1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1106765983.6307.134.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature_Fri__28_Jan_2005_15_07_56_+0100_ew0MOUA3tasO8Bo/
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On Wed, Jan 26, 2005 at 07:59:42PM +0100, Arjan van de Ven wrote:
+> On Wed, 2005-01-26 at 08:07 -0800, Paul E. McKenney wrote:
+> 
+> > > Another question: is the SDD module even available for mainline kernels,
+> > > or is it only available for distribution kernels ?
+> > 
+> > Distributions only.
+> 
+> don't you think it's a bit weird/offensive to ask for exports in the
+> mainline kernel.org kernel while all you care about is certain vendor
+> kernels and never plan to provide it for mainline????
 
-> @@ -373,15 +377,22 @@
-> =20
->  static int write_pagedir(void)
->  {
-> -	unsigned long addr =3D (unsigned long)pagedir_nosave;
->  	int error =3D 0;
-> -	int n =3D SUSPEND_PD_PAGES(nr_copy_pages);
-> -	int i;
-> +	unsigned n =3D 0;
-> +	struct pbe * pbe;
-> +
-> +	printk( "Writing pagedir ...");
->=20
-> +
-> +	pr_debug("\b\b\bdone (%u pages)\n", n);
+In my experience, the only way to get exports into a major distribution
+is to get them into mainline kernel.org.  If you can get Red Hat to
+change its stance on this, works for me!
 
-Just cosmetic:
-Why do you use pr_debug here instead of printk like you did above?
-
---=20
-MyExcuse:
-the printer thinks its a router.
-
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
-
---Signature_Fri__28_Jan_2005_15_07_56_+0100_ew0MOUA3tasO8Bo/
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFB+kc8mjLYGS7fcG0RAjpNAKCriTipFXLNUg6bWy1oSA8LyDRHqACeOHsP
-9wp4NjBN4vnhiPpzBOCJN9o=
-=5Tq/
------END PGP SIGNATURE-----
-
---Signature_Fri__28_Jan_2005_15_07_56_+0100_ew0MOUA3tasO8Bo/--
+						Thanx, Paul

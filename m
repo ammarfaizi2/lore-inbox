@@ -1,83 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274680AbRIYWz2>; Tue, 25 Sep 2001 18:55:28 -0400
+	id <S274684AbRIYW5I>; Tue, 25 Sep 2001 18:57:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274681AbRIYWzS>; Tue, 25 Sep 2001 18:55:18 -0400
-Received: from hermes.csd.unb.ca ([131.202.3.20]:15581 "EHLO hermes.csd.unb.ca")
-	by vger.kernel.org with ESMTP id <S274680AbRIYWzD>;
-	Tue, 25 Sep 2001 18:55:03 -0400
-X-WebMail-UserID: newton
-Date: Tue, 25 Sep 2001 20:04:54 -0300
-From: Chris Newton <newton@unb.ca>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-X-EXP32-SerialNo: 00003025, 00003442
-Subject: FWD: RE: excessive interrupts on network cards
-Message-ID: <3BB13732@webmail1>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+	id <S274683AbRIYW47>; Tue, 25 Sep 2001 18:56:59 -0400
+Received: from lsmls02.we.mediaone.net ([24.130.1.15]:62669 "EHLO
+	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S274681AbRIYW4l>; Tue, 25 Sep 2001 18:56:41 -0400
+Message-ID: <3BB10BE4.A3ADC84E@kegel.com>
+Date: Tue, 25 Sep 2001 15:57:40 -0700
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: remote core dumping / just in time debugging
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: WebMail (Hydra) SMTP v3.61.08
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu got me to run 'lspci -x', and came to the conclusion that the 
-net card and scsi card are sharing IRQs...
+I am looking at adding a hook to the kernel to allow
+core dumps to go somewhere other than ./core.  
 
-  Someone just told me tha the had had a sound card and a network card sharing 
-IRQs, and that caused the network card to generate 'oodles of interrupts for 
-no apparent reason'.
+Initially, I'm looking into allowing core to be a fifo (yeah, it's a
+hack, but supposedly it worked on solaris in 1998), but later I'll
+want to be able to set a default coredump handler for all processes.
 
-  This on the right track?
+Looking at previous discussion on the topic, e.g. 
+Kenneth Albanowski (kjahds@kjahds.com)'s post "Re: core files" on 1999/01/01
+http://groups.google.com/groups?hl=en&selm=fa.m8ig46v.1b2q89r%40ifi.uio.no ,
+the scheme that comes to mind is:
 
-Thanks
+When the kernel wants to dump core on a process, it opens the fifo
+/dev/coredumper and writes the pid of the process to the fifo, then
+puts the process to sleep.  On error, no fifo, or fifo still full after 
+a couple minutes, it dumps core as before.
 
-Chris
+The process listening to /dev/coredumper reads the pid, then opens a fd
+to where it wants the core to be dumped to, then uses ptrace
+to request a core dump of the given pid to the given fd.
+The fd may be a normal file, or a socket or fifo (in which case the
+kernel uses padding rather than seeking to page boundaries).
 
->===== Original Message From Francois Romieu <romieu@cogenit.fr> =====
-Chris Newton <newton@unb.ca> :
-[...]
-> 00:02.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev
-> 08)
-> 00: 86 80 29 12 17 01 90 02 08 00 00 02 08 20 00 00
-> 10: 00 20 10 fe c1 ec 00 00 00 00 00 fe 00 00 00 00
-> 20: 00 00 00 00 00 00 00 00 00 00 00 00 28 10 9b 00
-> 30: 00 00 00 fd dc 00 00 00 00 00 00 00 0b 01 08 38
-                                           ^
-[...]
-> 01:02.0 SCSI storage controller: Adaptec 7899P (rev 01)
-> 00: 05 90 cf 00 16 01 b0 02 01 00 00 01 08 20 80 80
-> 10: 01 dc 00 00 04 10 00 f9 00 00 00 00 00 00 00 00
-> 20: 00 00 00 00 00 00 00 00 00 00 00 00 28 10 ce 00
-> 30: 00 00 00 f8 dc 00 00 00 00 00 00 00 05 01 28 19
-                                           ^
-[...]
-> 01:02.1 SCSI storage controller: Adaptec 7899P (rev 01)
-> 00: 05 90 cf 00 16 01 b0 02 01 00 00 01 08 20 80 80
-> 10: 01 d8 00 00 04 00 00 f9 00 00 00 00 00 00 00 00
-> 20: 00 00 00 00 00 00 00 00 00 00 00 00 28 10 ce 00
-> 30: 00 00 00 f8 dc 00 00 00 00 00 00 00 0b 02 28 19
-                                           ^
-[...]
-> 01:06.0 Ethernet controller: 3Com Corporation 3c980-TX 10/100baseTX NIC
-> [Python-T] (rev 78)
-> 00: b7 10 05 98 17 01 10 02 78 00 00 02 08 20 00 00
-> 10: 81 d4 00 00 00 24 00 f9 00 00 00 00 00 00 00 00
-> 20: 00 00 00 00 00 00 00 00 00 00 00 00 b7 10 00 10
-> 30: 00 00 00 f8 dc 00 00 00 00 00 00 00 05 01 0a 0a
-                                           ^
-[...]
-> 01:08.0 Ethernet controller: 3Com Corporation 3c980-TX 10/100baseTX NIC
-> [Python-T] (rev 78)
-> 00: b7 10 05 98 17 01 10 02 78 00 00 02 08 20 00 00
-> 10: 01 d4 00 00 00 20 00 f9 00 00 00 00 00 00 00 00
-> 20: 00 00 00 00 00 00 00 00 00 00 00 00 b7 10 00 10
-> 30: 00 00 00 f8 dc 00 00 00 00 00 00 00 0b 01 0a 0a
-                                           ^
-Each of your ethernet adapter shares an irq with a scsi controller.
-I had some results pulling some cards from the PCI slots and moving
-the network adapter around until its irq differs but I won't claim
-it's the cure for your problem (it was on HP Netserver motherboards).
+Security is maintained because /dev/coredumper can be owned by root and chmod 600,
+and because the daemon reading from it must have privs to use ptrace on
+the given process.
 
---
-Ueimor
+This would allow just-in-time debugging as well as remote core dumping.
 
+Comments?
+- Dan

@@ -1,123 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318601AbSHLC0b>; Sun, 11 Aug 2002 22:26:31 -0400
+	id <S318614AbSHLCaI>; Sun, 11 Aug 2002 22:30:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318602AbSHLC0b>; Sun, 11 Aug 2002 22:26:31 -0400
-Received: from morannon.wetafx.co.nz ([203.98.17.18]:25757 "EHLO
-	morannon.wetafx.co.nz") by vger.kernel.org with ESMTP
-	id <S318601AbSHLC0a>; Sun, 11 Aug 2002 22:26:30 -0400
-Subject: Linux Kernel Crash - Vanilla 2.4.18/Redhat 2.4.18-5
-From: Aaron Caskey <filburt@wetafx.co.nz>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-AvhFMD5E0fE9siaUn7Y8"
-X-Mailer: Evolution/1.0.2 
-Date: 12 Aug 2002 14:30:16 +1200
-Message-Id: <1029119416.4054.104.camel@filibert>
-Mime-Version: 1.0
+	id <S318622AbSHLCaI>; Sun, 11 Aug 2002 22:30:08 -0400
+Received: from h-66-134-202-53.SNVACAID.covad.net ([66.134.202.53]:11663 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S318614AbSHLCaH>; Sun, 11 Aug 2002 22:30:07 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sun, 11 Aug 2002 19:33:44 -0700
+Message-Id: <200208120233.TAA16322@adam.yggdrasil.com>
+To: ryan.flanigan@intel.com
+Subject: Re: 2.5.31: modules don't work at all
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ryan Flanigan writes:
+>>>>>> "Andrew" == Andrew Rodland <arodland@noln.com> writes:
+>
+>    Andrew> On Sun, 11 Aug 2002 14:41:36 +0200 "Michel Eyckmans (MCE)"
+>    Andrew> <mce@pi.be> wrote:
+>
+>    >> After upgrading from 2.5.30 to 2.5.31, nothing related to
+>    >> modules works for me. Insmod, rmmod, you name it. They all
+>    >> cause errors along the line of: "QM_SYMBOLS: Bad Address". Any
+>    >> suggestions?
+>
+>    Andrew> Ditto here.  Ryan: Yes, CONFIG_PREEMPT is set.
+>
+>try "unsetting" it.  (same problem on the 2.5.31 kernels where i had it set)
 
---=-AvhFMD5E0fE9siaUn7Y8
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+	I am also experiencing modules not working with CONFIG_PREEMPT
+set, and deactivating CONFIG_PREEMPT works around the problem for me too.
 
-We are having oops crashes on a lot of our renderwall machines running 
-2.4.18 with SGI's xfs 1.0.1 patch (although xfs support is disabled) and
-redhat 2.4.18-5 (our current production Kernel) with a system call
-reporting patch (I'm not sure on the name or version).
+	Ryan, thanks for suggesting that, as it would have taken me a
+long time to narrow it down that far!
 
-I've included 2 oops crash logs from the vanilla 2.4.18 kernel, we get
-identical crashes on the RedHat kernels. I have to hand copy these
-because it kills the machine dead, when I catch a dead redhat machine
-I'll email the oops dump from that too.
+	It would help avoid duplication of effort if you could indicate
+how along you are with this problem.  If you or someone else has nailed
+the problem and is preparing a patch, then there is no point in anyone
+else trying to duplicate that debugging effort.  On the other hand,
+if you just noticed CONFIG_PREEMPT was the difference between your
+configuration and that of someone else who was running 2.5.31 successfully
+and are not actively debugging the problem, then I'll try to poke at it
+some more.
 
-The machines hardware is as follows:
-2 2.2Ghz Xeon Processors
-4G registered ECC DDR RAM
-Tyan e7500 Motherboard
-AMI Bios Rev 1.01
+	I already know that the error that trips insmod occurs at
+in modules.c, line 831, when qm_symbols gets an error from copy_to_user():
 
-ide HDD with ext3 filesystem
+        for (; i < mod->nsyms ; ++i, ++s, vals += 2) {
+                len = strlen(s->name)+1;
+                if (len > bufsize)
+                        goto calc_space_needed;
 
-Any help would be appreciated greatly.
-Thank You.
+here------>     if (copy_to_user(strings, s->name, len)
+                    || __put_user(s->value, vals+0)
+                    || __put_user(space, vals+1))
+                        return -EFAULT;
 
--- 
-Kind Regards
+                strings += len;
+                bufsize -= len;
+                space += len;
+        }
 
-Aaron Caskey
-Wrender Wrangler
------------------
- /---------------------------------------------------------------\
- |Cubeless academia = armageddon and a barren Earth for children.|
- \---\ /---------------------------------------------------------/
-     /
- |\_/|    
- |o o|__  
- --*--__\ 
- C_C_(___)
+	The values of strings and s->name are similar in 2.5.30+preempt
+(works) and 2.5.31+preempt (does not work).  strings is 0x08______, and
+s->name is 0xc0______.
 
---=-AvhFMD5E0fE9siaUn7Y8
-Content-Disposition: inline; filename=crashdump
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=ISO-8859-1
-
-CPU:    0
-EIP:    0010:[<00010202>]   Not tainted
-EFLAGS: 00010246
-eax: 00000000   ebx: d48fbc10   ecx: c02e7f28   edx: 00000001
-esi: 00010202   edi: 00000000   ebp: 00000000   esp: f71f3d64
-ds: 0018   es: 0018   ss: 0018
-Process kjournald (pid: 12, stackpage=3Df71f3000)
-Stack: f88f1953 d48fbc10 d48fbc10 f88f18d0 c01222b7 d48fbc10 00000000 00000=
-001
-       00000000 00000000 c011e3fb c02e8320 c011e2bc 00000000 00000001 c02c1=
-500
-       fffffffe 00000000 c011e03b c02c1500 00000046 0000000e c02bd9c0 00000=
-00e
-Call Trace: [<f88f1953>] [<f88f18d0>] [<c01222b7>] [<c011e3fb>] [<c011e2bc>=
-]
-   [<c011e03b>] [<c0108d1f>] [<c011659a>] [<c013c076>] [<f881095d>] [<f880f=
-b78>]
-
-
-   [<f88127b6>] [<f8812660>] [<c0105876>] [<f8812680>]
-
-
-Code:  Bad EIP value.
- <0>Kernel panic: Aiee, killing interupt handler!
-In interrupt handler - not syncing
-
-
----------------------------------------------------------------------------=
--------
-
-
-CPU:    0
-EIP:    0010:[<e57d6940>]   Not tainted
-EFLAGS: 00010246
-eax: 00000000   ebx: cfc05bc0   ecx: c02e7f28   edx: 00000001
-esi: e57d6940   edi: 00000000   ebp: 00000000   esp: f7ff9ef4
-ds: 0018   es: 0018   ss: 0018
-Process kjournald (pid: 3, stackpage=3Df7ff9000)
-Stack: f890f953 cfc05bc0 cfc05bc0 f890f8d0 c01222b7 cfc05bc0 00000000 00000=
-001
-       00000000 00000000 c011e3fb c02e8320 c011e2bc 00000000 00000007 c02c1=
-500
-       fffffff8 00000000 c011e03b c02c1500 00000046 0000000e c02bd9c0 00000=
-00e
-Call Trace: [<f890f953>] [<f890f8d0>] [<c01222b7>] [<c011e3fb>] [<c011e2bc>=
-]
-   [<c011e03b>] [<c0108d1f>] [<c0116743>] [<c011e5bf>] [<c0105876>] [<c011e=
-500>]
-
-
-
-Code:  c0 42 55 d2 98 e6 ef f5 00 e2 ef f5 00 00 47 f7 01 00 00 00=20
- <0>Kernel panic: Aiee, killing interupt handler!
-In interrupt handler - not syncing
-
-
---=-AvhFMD5E0fE9siaUn7Y8--
-
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

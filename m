@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261911AbSJQSYT>; Thu, 17 Oct 2002 14:24:19 -0400
+	id <S261536AbSJQSnQ>; Thu, 17 Oct 2002 14:43:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261972AbSJQSYT>; Thu, 17 Oct 2002 14:24:19 -0400
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:52469 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S261911AbSJQSYT>; Thu, 17 Oct 2002 14:24:19 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Eric Altendorf <EricAltendorf@orst.edu>
-Reply-To: EricAltendorf@orst.edu
-To: linux-kernel@vger.kernel.org
-Subject: Question: Favorite Linux kernel book?
-Date: Thu, 17 Oct 2002 10:33:06 -0700
-User-Agent: KMail/1.4.1
+	id <S261775AbSJQSnQ>; Thu, 17 Oct 2002 14:43:16 -0400
+Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:9954 "EHLO
+	scaup.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S261536AbSJQSnP>; Thu, 17 Oct 2002 14:43:15 -0400
+Date: Thu, 17 Oct 2002 11:42:27 -0700 (PDT)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: [Linux-fbdev-devel] Re: [ANNOUCE] fbdev changes finished.
+In-Reply-To: <20021017182756.B3326@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.33.0210171141190.7522-100000@maxwell.earthlink.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200210171033.06451.EricAltendorf@orst.edu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi all,
+> > Give it a try. For people who want a diff it is avaiable at
+> >
+> > http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+>
+> ... which is not representative of the changes.
+>
+> Can you _please_ take much more care over patches and such like and take
+> the time to get them correct _please_.
+>
+> I really don't like patches that float around that unintentionally delete
+> other peoples drivers for no reason.
 
-I was just wondering if anyone had any recommendations for reading 
-material to introduce the Linux kernel, design & code.
-
-I haven't found any online documentation that is as complete and 
-introductory as I like (obviously the kernel code itself is complete, 
-but... :-)
-
-I've seen one book: Linux Kernel Programming by Beck (and about 6 
-other authors).  It looks good, but before I shell out $50 I'd like 
-to know if there are any other options.  Any suggestions would be 
-appreciated.
-
-Thanks, Eric
-
--- 
-"First they ignore you.  Then they laugh at you.
- Then they fight you.  And then you win."             -Gandhi
-
+Ugh!! I forgot to do a bk -r co -q on the fbdev BK respoitory before I
+made the diff. I will create a new diff and post it. I apologize for
+that.
 

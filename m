@@ -1,41 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264798AbUGDATX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265125AbUGDA2a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264798AbUGDATX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 20:19:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbUGDATX
+	id S265125AbUGDA2a (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 20:28:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265302AbUGDA2a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 20:19:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23444 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264798AbUGDATW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 20:19:22 -0400
-Date: Sat, 3 Jul 2004 17:18:11 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: =?ISO-8859-1?B?UGF3ZV9f?= Sikora <pluto@pld-linux.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [prefetch.h] warning: pointer of type `void *' used in
- arithmetic'
-Message-Id: <20040703171811.1f10c5df.akpm@osdl.org>
-In-Reply-To: <200407031832.34780.pluto@pld-linux.org>
-References: <200407031832.34780.pluto@pld-linux.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 3 Jul 2004 20:28:30 -0400
+Received: from smtp.netcabo.pt ([212.113.174.9]:26539 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id S265125AbUGDA23 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jul 2004 20:28:29 -0400
+Date: Sat, 3 Jul 2004 02:31:38 +0100
+From: backblue <backblue@netcabo.pt>
+To: linux-kernel@vger.kernel.org
+Subject: gcc 3.4 problem
+Message-Id: <20040703023138.00dc1c81@fork.ketic.com>
+X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Jul 2004 00:28:28.0570 (UTC) FILETIME=[D3C0D7A0:01C4615D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pawe__ Sikora <pluto@pld-linux.org> wrote:
->
-> warning killed.
+Hi,
 
->  --- /var/tmp/linux/include/linux/prefetch.h.orig	2004-06-16 07:20:25.000000000 +0200
->  +++ /var/tmp/linux/include/linux/prefetch.h	2004-07-03 18:28:10.478861720 +0200
->  @@ -59,7 +59,7 @@
->   {
->   #ifdef ARCH_HAS_PREFETCH
->   	char *cp;
->  -	char *end = addr + len;
->  +	char *end = (char *)addr + len;
+I have a problem with gcc 3.4, and kernel 2.6.6, i have every thing compiled and installed, no problems compiling, but when i'm going to load a kernel module, it gives me problems, with all the modules, the problem it's the same, and with gcc 3.3.3 i dont have problems, so it's gcc fault, my question it's, does kernel 2.6.7, have this solved?
 
-What version of the compiler is generating this warning?
+Tks

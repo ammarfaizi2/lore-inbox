@@ -1,63 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263673AbTEEQb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 12:31:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263674AbTEEQbZ
+	id S263658AbTEEQ07 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 12:26:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263660AbTEEQ0i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 12:31:25 -0400
-Received: from popmail.goshen.edu ([199.8.232.22]:47811 "EHLO mail.goshen.edu")
-	by vger.kernel.org with ESMTP id S263673AbTEEQad (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 12:30:33 -0400
-Subject: Re: partitions in meta devices
-From: Ezra Nugroho <ezran@goshen.edu>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3EB693B1.9020505@gmx.net>
-References: <1052153060.29588.196.camel@ezran.goshen.edu> 
-	<3EB693B1.9020505@gmx.net>
-Content-Type: text/plain
+	Mon, 5 May 2003 12:26:38 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:50371 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263658AbTEEQZi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 12:25:38 -0400
+Date: Mon, 05 May 2003 09:37:35 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 658] New: compile failure in drivers/video/aty/mach64_gx.c
+Message-ID: <10680000.1052152655@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9.7x.1) 
-Date: 05 May 2003 11:57:14 -0500
-Message-Id: <1052153834.29676.219.camel@ezran.goshen.edu>
-Mime-Version: 1.0
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+http://bugme.osdl.org/show_bug.cgi?id=658
 
-On Mon, 2003-05-05 at 11:39, Carl-Daniel Hailfinger wrote:
-> Ezra Nugroho wrote:
-> > I am curious if partitioning meta devices is allowed or not.
-> > 
-> > I just created a software raid array, md0 with 240G logical size.
-> > I want to partition that into two, 100G and the rest.
-> > 
-> > I used fdisk to create the partitions, and it worked, result:
-> > 
-> > bangalore exports # fdisk /dev/md0
-> > 
-> > Command (m for help): p
-> > 
-> > Disk /dev/md0: 247.0 GB, 247044636672 bytes
-> > 2 heads, 4 sectors/track, 60313632 cylinders
-> > Units = cylinders of 8 * 512 = 4096 bytes
-> > 
-> >     Device Boot    Start       End    Blocks   Id  System
-> > /dev/md0p1             1  24414064  97656254   83  Linux
-> > /dev/md0p2      24414065  60313632 143598272   83  Linux
-> > 
-> > 
-> > however, I couldn't create any file system for them, or mount them.
-> > /dev/md0px just don't exist.
-> > 
-> > Do I need to partition the drives first before creating the raids?
-> > I use devfs instead of file based /dev
-> 
-> Please reboot after partitioning.
+           Summary: compile failure in drivers/video/aty/mach64_gx.c
+    Kernel Version: 2.5.68-bk11
+            Status: NEW
+          Severity: low
+             Owner: jsimmons@infradead.org
+         Submitter: john@larvalstage.com
 
-I did. Nothing changed. fdisk reported the changes still.
 
+Distribution:  Gentoo 1.4rc4
+Hardware Environment:  Abit KG7-RAID, AMD AthlonXP 2100+ Palomino
+Software Environment:  gcc 3.2.2, glibc 2.3.1, ld 2.13.90.0.18
+Problem Description:
+
+  gcc -Wp,-MD,drivers/video/aty/.mach64_gx.o.d -D__KERNEL__ -Iinclude -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=athlon
+-Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include
+-DKBUILD_BASENAME=mach64_gx
+-DKBUILD_MODNAME=atyfb -c -o drivers/video/aty/.tmp_mach64_gx.o
+drivers/video/aty/mach64_gx.c
+drivers/video/aty/mach64_gx.c:497: redefinition of `vclk_per'
+drivers/video/aty/mach64_gx.c:496: `vclk_per' previously declared here
+drivers/video/aty/mach64_gx.c: In function `aty_var_to_pll_1703':
+drivers/video/aty/mach64_gx.c:496: redeclaration of `vclk_per'
+drivers/video/aty/mach64_gx.c:497: `vclk_per' previously declared here
+drivers/video/aty/mach64_gx.c: At top level:
+drivers/video/aty/mach64_gx.c:602: warning: initialization from incompatible
+pointer type
+drivers/video/aty/mach64_gx.c:613: redefinition of `vclk_per'
+drivers/video/aty/mach64_gx.c:612: `vclk_per' previously declared here
+drivers/video/aty/mach64_gx.c: In function `aty_var_to_pll_8398':
+drivers/video/aty/mach64_gx.c:612: redeclaration of `vclk_per'
+drivers/video/aty/mach64_gx.c:613: `vclk_per' previously declared here
+drivers/video/aty/mach64_gx.c: At top level:
+drivers/video/aty/mach64_gx.c:726: warning: initialization from incompatible
+pointer type
+make[3]: *** [drivers/video/aty/mach64_gx.o] Error 1
+make[2]: *** [drivers/video/aty] Error 2
+make[1]: *** [drivers/video] Error 2
+make: *** [drivers] Error 2
+
+
+Steps to reproduce:
+
+Graphics support  --->
+[*]     Mach64 GX support
+
+CONFIG_FB_ATY_GX=y
 

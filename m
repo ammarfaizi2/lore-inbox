@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129143AbRBCOZS>; Sat, 3 Feb 2001 09:25:18 -0500
+	id <S130000AbRBCOaj>; Sat, 3 Feb 2001 09:30:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129619AbRBCOZJ>; Sat, 3 Feb 2001 09:25:09 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:26351 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129143AbRBCOYw>; Sat, 3 Feb 2001 09:24:52 -0500
-To: "H. Peter Anvin" <hpa@transmeta.com>
-Cc: "J . A . Magallon" <jamagallon@able.es>, "H . Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] tmpfs for 2.4.1
-In-Reply-To: <20010123205315.A4662@werewolf.able.es>
-	<m3lmrqrspv.fsf@linux.local> <95csna$vb6$1@cesium.transmeta.com>
-	<m3puh1que4.fsf@linux.local> <20010202215254.C2498@werewolf.able.es>
-	<3A7B1EDC.DA2588BA@transmeta.com>
-From: Christoph Rohland <cr@sap.com>
-In-Reply-To: <3A7B1EDC.DA2588BA@transmeta.com>
-Message-ID: <m3d7d0pwnr.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
+	id <S129996AbRBCOa3>; Sat, 3 Feb 2001 09:30:29 -0500
+Received: from pcep-jamie.cern.ch ([137.138.38.126]:62732 "EHLO
+	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
+	id <S129997AbRBCOaN>; Sat, 3 Feb 2001 09:30:13 -0500
+Date: Sat, 3 Feb 2001 15:28:56 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Miller, Brendan" <Brendan.Miller@Dialogic.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: bidirectional named pipe?
+Message-ID: <20010203152856.A30376@pcep-jamie.cern.ch>
+In-Reply-To: <EFC879D09684D211B9C20060972035B1D4684F@exchange2ca.sv.dialogic.com> <E14OxTz-0007yS-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: 03 Feb 2001 15:28:50 +0100
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14OxTz-0007yS-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Feb 03, 2001 at 07:51:41AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@transmeta.com> writes:
+Alan Cox wrote:
+> > /dev/spx".  I experiemented with socket-based pipes under Linux, but I
+> > couldn't gain access to them by open()ing the name.  Is there help?  I
+> 
+> AF_UNIX sockets are bidirectional but like all sockets use bind() and
+> connect().
 
-> > Mmmmmm, does this mean that mounting /dev/shm is no more needed ?
-> > One step more towards easy 2.2 <-> 2.4 switching...
+And that's because sockets don't behave like bidirectional fifos.
+Each connection to a socket is a distinct stream.
 
-Yes, it is no longer needed. You will need for POSIX shm, but there
-are not a lot of program out there using it.
-
-> In some ways it's kind of sad.  I found the /dev/shm interface to be
-> rather appealing :)
-
-I totally agree :(
-
-        Christoph
-
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

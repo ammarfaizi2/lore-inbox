@@ -1,46 +1,143 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288058AbSCGA42>; Wed, 6 Mar 2002 19:56:28 -0500
+	id <S289025AbSCGBIo>; Wed, 6 Mar 2002 20:08:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289025AbSCGA4S>; Wed, 6 Mar 2002 19:56:18 -0500
-Received: from lsanca1-ar27-4-63-184-089.lsanca1.vz.dsl.gtei.net ([4.63.184.89]:11904
-	"EHLO barbarella.hawaga.org.uk") by vger.kernel.org with ESMTP
-	id <S288058AbSCGA4A>; Wed, 6 Mar 2002 19:56:00 -0500
-Date: Wed, 6 Mar 2002 16:55:49 -0800 (PST)
-From: Ben Clifford <benc@hawaga.org.uk>
-To: Dave Jones <davej@suse.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: Linux 2.5.5-dj3 - modprobe psmouse
-In-Reply-To: <20020306124741.J6531@suse.de>
-Message-ID: <Pine.LNX.4.33.0203061653060.2886-100000@barbarella.hawaga.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289026AbSCGBIf>; Wed, 6 Mar 2002 20:08:35 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:62731 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S289025AbSCGBIY>; Wed, 6 Mar 2002 20:08:24 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] User per-cpu data in softirq.c
+Date: Thu, 07 Mar 2002 12:11:41 +1100
+Message-Id: <E16imRa-0001kr-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Linus, please apply.
 
+This makes tasklet_vec and tasklet_hi_vec static inside softirq.c (the
+only place they are accessed), and makes them __per_cpu_data.
 
-Another one...
+Thanks,
+Rusty.
 
-modprobe psmouse
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.3-pre6-percpu/include/linux/interrupt.h working-2.5.3-pre6-percpu-tasklet/include/linux/interrupt.h
+--- working-2.5.3-pre6-percpu/include/linux/interrupt.h	Thu Jan 17 16:35:24 2002
++++ working-2.5.3-pre6-percpu-tasklet/include/linux/interrupt.h	Wed Jan 30 12:00:08 2002
+@@ -124,14 +124,6 @@
+ 	TASKLET_STATE_RUN	/* Tasklet is running (SMP only) */
+ };
+ 
+-struct tasklet_head
+-{
+-	struct tasklet_struct *list;
+-} __attribute__ ((__aligned__(SMP_CACHE_BYTES)));
+-
+-extern struct tasklet_head tasklet_vec[NR_CPUS];
+-extern struct tasklet_head tasklet_hi_vec[NR_CPUS];
+-
+ #ifdef CONFIG_SMP
+ static inline int tasklet_trylock(struct tasklet_struct *t)
+ {
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.3-pre6-percpu/kernel/ksyms.c working-2.5.3-pre6-percpu-tasklet/kernel/ksyms.c
+--- working-2.5.3-pre6-percpu/kernel/ksyms.c	Tue Jan 29 09:17:09 2002
++++ working-2.5.3-pre6-percpu-tasklet/kernel/ksyms.c	Wed Jan 30 12:00:16 2002
+@@ -542,8 +542,6 @@
+ EXPORT_SYMBOL(strsep);
+ 
+ /* software interrupts */
+-EXPORT_SYMBOL(tasklet_hi_vec);
+-EXPORT_SYMBOL(tasklet_vec);
+ EXPORT_SYMBOL(bh_task_vec);
+ EXPORT_SYMBOL(init_bh);
+ EXPORT_SYMBOL(remove_bh);
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.3-pre6-percpu/kernel/softirq.c working-2.5.3-pre6-percpu-tasklet/kernel/softirq.c
+--- working-2.5.3-pre6-percpu/kernel/softirq.c	Tue Jan 29 09:17:09 2002
++++ working-2.5.3-pre6-percpu-tasklet/kernel/softirq.c	Wed Jan 30 12:34:12 2002
+@@ -145,9 +145,13 @@
+ 
+ 
+ /* Tasklets */
++struct tasklet_head
++{
++	struct tasklet_struct *list;
++};
+ 
+-struct tasklet_head tasklet_vec[NR_CPUS] __cacheline_aligned_in_smp;
+-struct tasklet_head tasklet_hi_vec[NR_CPUS] __cacheline_aligned_in_smp;
++static struct tasklet_head tasklet_vec __per_cpu_data;
++static struct tasklet_head tasklet_hi_vec __per_cpu_data;
+ 
+ void __tasklet_schedule(struct tasklet_struct *t)
+ {
+@@ -155,8 +159,8 @@
+ 	unsigned long flags;
+ 
+ 	local_irq_save(flags);
+-	t->next = tasklet_vec[cpu].list;
+-	tasklet_vec[cpu].list = t;
++	t->next = per_cpu(tasklet_vec, cpu).list;
++	per_cpu(tasklet_vec, cpu).list = t;
+ 	cpu_raise_softirq(cpu, TASKLET_SOFTIRQ);
+ 	local_irq_restore(flags);
+ }
+@@ -167,8 +171,8 @@
+ 	unsigned long flags;
+ 
+ 	local_irq_save(flags);
+-	t->next = tasklet_hi_vec[cpu].list;
+-	tasklet_hi_vec[cpu].list = t;
++	t->next = per_cpu(tasklet_hi_vec, cpu).list;
++	per_cpu(tasklet_hi_vec, cpu).list = t;
+ 	cpu_raise_softirq(cpu, HI_SOFTIRQ);
+ 	local_irq_restore(flags);
+ }
+@@ -179,8 +183,8 @@
+ 	struct tasklet_struct *list;
+ 
+ 	local_irq_disable();
+-	list = tasklet_vec[cpu].list;
+-	tasklet_vec[cpu].list = NULL;
++	list = per_cpu(tasklet_vec, cpu).list;
++	per_cpu(tasklet_vec, cpu).list = NULL;
+ 	local_irq_enable();
+ 
+ 	while (list) {
+@@ -200,8 +204,8 @@
+ 		}
+ 
+ 		local_irq_disable();
+-		t->next = tasklet_vec[cpu].list;
+-		tasklet_vec[cpu].list = t;
++		t->next = per_cpu(tasklet_vec, cpu).list;
++		per_cpu(tasklet_vec, cpu).list = t;
+ 		__cpu_raise_softirq(cpu, TASKLET_SOFTIRQ);
+ 		local_irq_enable();
+ 	}
+@@ -213,8 +217,8 @@
+ 	struct tasklet_struct *list;
+ 
+ 	local_irq_disable();
+-	list = tasklet_hi_vec[cpu].list;
+-	tasklet_hi_vec[cpu].list = NULL;
++	list = per_cpu(tasklet_hi_vec, cpu).list;
++	per_cpu(tasklet_hi_vec, cpu).list = NULL;
+ 	local_irq_enable();
+ 
+ 	while (list) {
+@@ -234,8 +238,8 @@
+ 		}
+ 
+ 		local_irq_disable();
+-		t->next = tasklet_hi_vec[cpu].list;
+-		tasklet_hi_vec[cpu].list = t;
++		t->next = per_cpu(tasklet_hi_vec, cpu).list;
++		per_cpu(tasklet_hi_vec, cpu).list = t;
+ 		__cpu_raise_softirq(cpu, HI_SOFTIRQ);
+ 		local_irq_enable();
+ 	}
 
-doesn't trigger a modprobe of i8042
-
-I don't know if you think this should happen in kernel code, or if it
-should be in modules.conf...
-
-- -- 
-Ben Clifford     benc@hawaga.org.uk     GPG: 30F06950
-Live Ben-cam: http://barbarella.hawaga.org.uk/benc-cgi/watchers.cgi
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8hrqasYXoezDwaVARAmyHAJ0Q5RExa2EGRWTsHo7mt2ZjMVOGqgCcCfwW
-B+sskq3bq9/Bmp8FhzlvWm4=
-=JAV+
------END PGP SIGNATURE-----
-
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131736AbQKXGaS>; Fri, 24 Nov 2000 01:30:18 -0500
+        id <S131974AbQKXGlQ>; Fri, 24 Nov 2000 01:41:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131991AbQKXGaI>; Fri, 24 Nov 2000 01:30:08 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:57870
-        "EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-        id <S131736AbQKXG37>; Fri, 24 Nov 2000 01:29:59 -0500
-Date: Thu, 23 Nov 2000 21:59:36 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-cc: Guest section DW <dwguest@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
-In-Reply-To: <200011240458.eAO4wdf20288@moisil.dev.hydraweb.com>
-Message-ID: <Pine.LNX.4.10.10011232155540.2957-100000@master.linux-ide.org>
-MIME-Version: 1.0
+        id <S131987AbQKXGlG>; Fri, 24 Nov 2000 01:41:06 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:58378 "EHLO
+        wire.cadcamlab.org") by vger.kernel.org with ESMTP
+        id <S131974AbQKXGkz>; Fri, 24 Nov 2000 01:40:55 -0500
+Date: Fri, 24 Nov 2000 00:10:51 -0600
+To: Chris Wedgwood <cw@f00f.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: gcc 2.95.2 is buggy
+Message-ID: <20001124001051.D8881@wire.cadcamlab.org>
+In-Reply-To: <UTC200011240157.CAA140709.aeb@aak.cwi.nl> <20001124171014.A26050@metastasis.f00f.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001124171014.A26050@metastasis.f00f.org>; from cw@f00f.org on Fri, Nov 24, 2000 at 05:10:14PM +1300
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Nov 2000, Ion Badulescu wrote:
 
-> > Yesterday I had a diff -r showing that the old version
-> > was corrupted and the new was OK. Of course a second
-> > look showed that the old version also was OK, the corruption
-> > must have been in the buffer cache, not on disk.)
-> 
-> Are these disks IDE disks by any chance?
+[Chris Wedgwood]
+> taking away -O2 is a 'fix' for now... not a very good one though.
 
-What the F*** does that have to do with the price of eggs in china, heh?
-Just maybe if you could follow a thread, you would see that that Alex Viro
-has pointed out that changes in the FS layer as dorked things.
+Not if you want function inlining to work.  The kernel *won't compile*
+without optimization.
 
-Since there have been not kernel changes to the driver that effect the
-code since 2.4.0-test5 or test6 and it now randomly shows up after five or
-six revisions out from the change, and the changes were chipset only.
-
-Please make your point.
-
-Andre Hedrick
-Linux ATA Development
-
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

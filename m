@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265736AbUAKDRr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 22:17:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265740AbUAKDRr
+	id S265744AbUAKDdz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 22:33:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265745AbUAKDdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 22:17:47 -0500
-Received: from [130.57.169.10] ([130.57.169.10]:39575 "EHLO peabody.ximian.com")
-	by vger.kernel.org with ESMTP id S265736AbUAKDRp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 22:17:45 -0500
-Subject: Re: Laptops & CPU frequency
-From: Robert Love <rml@ximian.com>
-To: jlnance@unity.ncsu.edu
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040111025623.GA19890@ncsu.edu>
-References: <20040111025623.GA19890@ncsu.edu>
-Content-Type: text/plain
-Message-Id: <1073791061.1663.77.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Sat, 10 Jan 2004 22:17:41 -0500
+	Sat, 10 Jan 2004 22:33:55 -0500
+Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:15280 "HELO
+	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265744AbUAKDdw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 22:33:52 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Peter Berg Larsen <pebl@math.ku.dk>, Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: Synaptics Touchpad workaround for strange behavior after Sync loss (With Patch).
+Date: Sat, 10 Jan 2004 22:33:46 -0500
+User-Agent: KMail/1.5.4
+Cc: Gunter =?iso-8859-1?q?K=F6nigsmann?= <gunter.koenigsmann@gmx.de>,
+       <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.40.0401110335330.588-100000@shannon.math.ku.dk>
+In-Reply-To: <Pine.LNX.4.40.0401110335330.588-100000@shannon.math.ku.dk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401102233.46164.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-01-10 at 21:56, jlnance@unity.ncsu.edu wrote:
+Hi,
 
->     The frequency displayed in /proc/cpuinfo does not change if the AC
-> adapter is toggled on or off after the machine has booted.  It stays
-> in the same mode as it was booted into.  I am curious if this is because
-> the CPU frequency really is not changing, or if it is because the
-> number in /proc/cpuinfo is only calculated at boot.
+It is a good stuff but we probably want not only restore mux mode
+but also do serio_reconnect on all ports to make sure all devices are
+properly configured. But it gets way too big for interrupt handler.
+I am thinking that if mux error is detected the only thing that should
+be done in i8042_interrupt is disabling the controller and then use
+schedule_work to schedule the rest.
 
-The MHz value in /proc/cpuinfo should be updated as the CPU speed
-changes - that is, it is not calculated just at boot, but it is updated
-as the speed actually changes.
+Also, if we get SERIO_REMOVED condition we should just do serio_reconnect
+right away and let it sort through the device state.
 
-You probably have some issue in your power management scripts - Fedora
-should scale the CPU speed back as soon as you remove AC power, not just
-at boot if not on AC.
+What do you think?
 
-	Robert Love
-
-
+Dmitry

@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271698AbTG2MiP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 08:38:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271699AbTG2MiP
+	id S271688AbTG2MkA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 08:40:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271686AbTG2MkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 08:38:15 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:46473
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S271698AbTG2MiL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 08:38:11 -0400
-Date: Tue, 29 Jul 2003 08:53:59 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: matroxfb and 2.6.0-test2
-Message-ID: <20030729085359.A12652@animx.eu.org>
-References: <89B099B2CBF@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <89B099B2CBF@vcnet.vc.cvut.cz>; from Petr Vandrovec on Tue, Jul 29, 2003 at 01:51:28PM +0200
+	Tue, 29 Jul 2003 08:40:00 -0400
+Received: from firewall.mdc-dayton.com ([12.161.103.180]:31714 "EHLO
+	firewall.mdc-dayton.com") by vger.kernel.org with ESMTP
+	id S271688AbTG2Mj5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 08:39:57 -0400
+From: "Kathy Frazier" <kfrazier@mdc-dayton.com>
+To: "Krzysztof Halasa" <khc@pm.waw.pl>
+Cc: <linux-kernel@vger.kernel.org>, <herbert@13thfloor.at>
+Subject: RE: Problems related to DMA or DDR memory on Intel 845 chipset?
+Date: Tue, 29 Jul 2003 08:51:19 -0500
+Message-ID: <PMEMILJKPKGMMELCJCIGKELACDAA.kfrazier@mdc-dayton.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
+In-Reply-To: <m3u1962qir.fsf@defiant.pm.waw.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I have an old matrox millenium 1 card.  does the matrox fb support this
-> > card?  All I got was a blank screen.  fbcon and matroxfb with support for
-> > I/II cards compiled in.  When I had vga16 compiled in as well, I would get the
-> > console if I switched to vt2 and back to vt1.
-> 
-> Yes, it supports Millennium1 too. Are you sure that you built fbcon
-> support into the kernel? And that you have only one fbdev, matroxfb?
+Krzysztof Halasa writes:
 
-Yes.  This caused a permenant black screen.  fbset did not give me anything
-usable.  Monitor did not go into powersave.
+>Are you using some standard PCI bridge by chance? Are you sure it isn't
+>a hardware (design or manufacturing) problem with the device (bridge)?
 
-> >From your description it looks to me like that you are using vesafb
-> together with matroxfb.
+We are using the ASUS P4PE MoBo - Uses Intel 845PE chipset.  The message
+file indicates:
 
-I did, but that caused it to give a blank screen until I changed VTs.
-I removed both vesafb and vga16 and recompiled to achive the result I stated
-above.
+Transparant bridge - Intel Corp. 82801BA/CA/DB PCI bridge
 
-I'll try 2.6.0-test2 later on today.  I did not do a make clean between
-compiles.  When I compile test2, it will be clean, I never patch dirty
-trees.
+>How do you check interrupt request state?
+I assume you are referring to the kernel debug stuff that I added?  The
+routine I added simply read the Interrupt Mask Register (IMR), Interrupt
+Request Register (IRR) and the Interrupt Service Register (ISR).  The IMR
+shows that our IRQ is not masked off.  The IRR shows that there is currently
+no interrupt pending for our IRQ.  The ISR shows that we are not currently
+servicing our IRQ.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Regards,
+Kathy
+
+

@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261769AbSJMXNP>; Sun, 13 Oct 2002 19:13:15 -0400
+	id <S261759AbSJMXKE>; Sun, 13 Oct 2002 19:10:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261770AbSJMXNO>; Sun, 13 Oct 2002 19:13:14 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:23743 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261769AbSJMXNO>;
-	Sun, 13 Oct 2002 19:13:14 -0400
-Date: Sun, 13 Oct 2002 16:17:05 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Wim Van Sebroeck <wim@iguana.be>, Rob Radez <rob@osinvestor.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Watchdog drivers
-In-Reply-To: <20021013234308.P23142@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.33L2.0210131615480.22520-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261769AbSJMXKE>; Sun, 13 Oct 2002 19:10:04 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34311 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261759AbSJMXKD>; Sun, 13 Oct 2002 19:10:03 -0400
+Date: Mon, 14 Oct 2002 00:15:52 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: ebiederm@xmission.com, eblade@blackmagik.dynup.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend devices
+Message-ID: <20021014001552.Q23142@flint.arm.linux.org.uk>
+References: <200210132310.QAA01044@adam.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200210132310.QAA01044@adam.yggdrasil.com>; from adam@yggdrasil.com on Sun, Oct 13, 2002 at 04:10:01PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Oct 2002, Russell King wrote:
+On Sun, Oct 13, 2002 at 04:10:01PM -0700, Adam J. Richter wrote:
+> 	I have no objection to replacing or supplementing the reboot
+> notifier chain with a method in struct device_driver, but let's not
+> overload these methods with ambiguous semantics.  I do not want to
+> call thirty functions that primarily return memory to various memory
+> allocators, mark a bunch of inodes as invalid, and otherwise arrange
+> things so that the kernel can smoothly continue to run user level
+> programs when, in fact, we just want to pull the reset line on the
+> computer.
 
-| On Sun, Oct 13, 2002 at 03:31:12PM -0700, Randy.Dunlap wrote:
-| > Rob has gone off to school and apparently has little time
-| > for such trivial stuff.   :)
-|
-| Ah.
-|
-| > His (2.4.19-preN) patches used to live at http://junker.org/~rradez/wd/
-| > but I can't get to that web server now.
-| > I do have a copy of the patch file that was there if Wim
-| > or anyone needs/wants it.
-|
-| see: http://osinvestor.com/
-|
-| His latest was 2.4.20-pre1-2.diff on 26 September.
+And what about setups where you can't pull the reset line from software.
+I have several machines here like that.  And one of them needs software
+to talk to the cards to put them back into a sane state before rebooting.
 
-Wow!  That was his old web server name, then he moved
-stuff to junker.org, but now it's back at osinvestor.com
-and he has some time to put on it too.  That's good news.
+"rebooting" in this particular case is "turn MMU off, jump to location 0"
 
-Thanks.
+And I never said anything about needing to allocate memory to do this.
+I agree with you that suspending devices on reboot _is_ silly.  However,
+that's not what I was proposing.
 
 -- 
-~Randy
-  "In general, avoiding problems is better than solving them."
-  -- from "#ifdef Considered Harmful", Spencer & Collyer, USENIX 1992.
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

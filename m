@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275552AbRJFTNM>; Sat, 6 Oct 2001 15:13:12 -0400
+	id <S275568AbRJFTNC>; Sat, 6 Oct 2001 15:13:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275527AbRJFTNC>; Sat, 6 Oct 2001 15:13:02 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:8945
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S275567AbRJFTM6>; Sat, 6 Oct 2001 15:12:58 -0400
-Date: Sat, 6 Oct 2001 12:13:22 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: davidge@jazzfree.com
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Some ext2 errors
-Message-ID: <20011006121322.B2625@mikef-linux.matchmail.com>
-Mail-Followup-To: davidge@jazzfree.com,
-	Linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0110061713130.485-100000@fargo>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0110061713130.485-100000@fargo>
-User-Agent: Mutt/1.3.22i
+	id <S275552AbRJFTMw>; Sat, 6 Oct 2001 15:12:52 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:33033 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S275527AbRJFTMj>; Sat, 6 Oct 2001 15:12:39 -0400
+Date: Sat, 6 Oct 2001 21:13:00 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: %u-order allocation failed
+In-Reply-To: <462829506.1002394773@[195.224.237.69]>
+Message-ID: <Pine.LNX.3.96.1011006210743.7808D-100000@artax.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 06, 2001 at 05:15:22PM +0200, davidge@jazzfree.com wrote:
+> --On Saturday, 06 October, 2001 4:44 PM +0200 Mikulas Patocka 
+> <mikulas@artax.karlin.mff.cuni.cz> wrote:
 > 
-> Hi,
+> > Here goes the fix. (note that I didn't try to compile it so there may be
+> > bugs, but you see the point).
 > 
-> First i thought this errors has some relation with kernel 2.4.10 and
-> e2fsprogs, but i switched back to 2.4.9 and again i got this
-> ext2_check_page error.
+> (seems to replace high order allocations by vmalloc)
 > 
-> Oct  6 17:11:08 fargo kernel: EXT2-fs error (device ide0(3,1)):
-> ext2_check_page: bad entry in directory #423505: unaligned directory entry
-> - offset=0, inode=6517874, rec_len=12655, name_len=48
+> & how does vmalloc allocate physically (as opposed to virtually)
+> contiguous memory; can't clearly recall it being IRQ safe either
+> (for GFP_ATOMIC).
 
-This error caused by below error...
+It uses vmalloc only when __GFP_VMALLOC flag is given - and so it is
+expected to not use __GFP_VMALLOC flag in IRQ.
 
-> Oct  6 17:11:08 fargo kernel: hda: status error: status=0x58 { DriveReady
-> SeekComplete DataRequest }
+NOTE: no allocations in IRQ are safe. Not only high-order ones. 
+Allocation in IRQ may fail any time and you must recover without lost of
+functionality (network can lose packets any time, if you are doing some
+general device driver, you must preallocate all buffers in process
+context).
 
-I've only seen this myself when I've been messing with hdparm on a ide drive
-
-> Oct  6 17:11:08 fargo kernel: hda: drive not ready for command
-> Oct  6 17:11:08 fargo kernel: hdb: ATAPI DVD-ROM drive, 512kB Cache
-> Oct  6 17:11:08 fargo kernel: Uniform CD-ROM driver Revision: 3.12
-> Oct  6 17:11:09 fargo kernel: VFS: Disk change detected on device
-> ide0(3,64)
-> 
-> 
-> Any hints are welcome, thanks.
-> 
-
-Yeah.  If you can't figure out hdparm, leave it alone.
-
-> 
-> David G?mez
-> 
-
-Mike
+Mikulas
 

@@ -1,74 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132675AbRC2JCQ>; Thu, 29 Mar 2001 04:02:16 -0500
+	id <S132693AbRC2JLQ>; Thu, 29 Mar 2001 04:11:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132673AbRC2JCG>; Thu, 29 Mar 2001 04:02:06 -0500
-Received: from apollo.nbase.co.il ([194.90.137.2]:2317 "EHLO
-	apollo.nbase.co.il") by vger.kernel.org with ESMTP
-	id <S132670AbRC2JB5>; Thu, 29 Mar 2001 04:01:57 -0500
-Message-ID: <3AC2F567.8EC0F775@nbase.co.il>
-Date: Thu, 29 Mar 2001 10:42:15 +0200
-From: Eran Mann <eran@nbase.co.il>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre8 i686)
-X-Accept-Language: en
+	id <S132692AbRC2JLH>; Thu, 29 Mar 2001 04:11:07 -0500
+Received: from hypnos.cps.intel.com ([192.198.165.17]:33229 "EHLO
+	hypnos.cps.intel.com") by vger.kernel.org with ESMTP
+	id <S132690AbRC2JKz>; Thu, 29 Mar 2001 04:10:55 -0500
+Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B271A4@hasmsx52.iil.intel.com>
+From: "Hen, Shmulik" <shmulik.hen@intel.com>
+To: linux-kernel@vger.kernel.org, "'LNML'" <linux-net@vger.kernel.org>
+Subject: RE: Plans for 2.5
+Date: Thu, 29 Mar 2001 01:10:03 -0800
 MIME-Version: 1.0
-To: Robert-Velisav MICIOVICI <roby@dexter.allieddomecq.ro>
-CC: linux-kernel@vger.kernel.org,
-   Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Subject: [PATCH] Re: [patch] Re: 2.4.3-pre8: IPX not building
-Content-Type: text/plain; charset=x-user-defined
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The improved patch below should fix it. This additional problem only
-showed up when IPX was built into the kernel (non modular).
-If you don't want to revert the previous patch and apply this one you
-can simply change 
-net/ipx/af_ipx line 126 from:
-static int sysctl_ipx_pprop_broadcasting = 1;
+Just some general questions:
 
-to:
-int sysctl_ipx_pprop_broadcasting = 1;
+1) Is there anywhere a list that describes what is intended to be in 2.5.x ?
+2) Are there any early releases of 2.5.x ?
+3) Are the things for 2.5.x being discussed on another mailing list ?
+4) What is the time frame of releasing 2.5.x-final (or 2.6.x) ?
 
-and then make bzImage again.
- 
-Robert-Velisav MICIOVICI <roby@dexter.allieddomecq.ro> wrote:
->
-> Sorry to bother but it seems that the patchlet is still not good
-> enough... problems at linkage or something:
->
-<SNIP>
-> net/network.o(.data+0x5f04): undefined reference to
-> `sysctl_ipx_pprop_broadcasting'
-> make: *** [vmlinux] Error 1
-> [root@bigfoot linux-2.4.3-pre8]#
+Specifically, I'm more interested in the network driver aspect.
+1) Are there any intended changes to the networking layer ?
+2) I over heard something about making the driver reentrant - any news ?
+3) What about support for IPv6 ? (I noticed it was marked as experimental
+until now)
 
---- linux-2.4.3pre8.orig/net/ipx/af_ipx.c	Thu Mar 29 10:27:29 2001
-+++ linux-2.4.3pre8/net/ipx/af_ipx.c	Thu Mar 29 10:22:59 2001
-@@ -123,7 +123,7 @@
- static unsigned char ipxcfg_max_hops = 16;
- static char ipxcfg_auto_select_primary;
- static char ipxcfg_auto_create_interfaces;
--static int sysctl_ipx_pprop_broadcasting = 1;
-+int sysctl_ipx_pprop_broadcasting = 1;
- 
- /* Global Variables */
- static struct datalink_proto *p8022_datalink;
-@@ -1542,7 +1542,7 @@
- 	ipx_offset = intrfc->if_ipx_offset;
- 	size = sizeof(struct ipxhdr) + len + ipx_offset;
- 
--	skb = sock_alloc_send_skb(sk, size, noblock, &err);
-+	skb = sock_alloc_send_skb(sk, size, 0, noblock, &err);
- 	if (!skb)
- 		goto out_put;
- 
-@@ -2531,7 +2531,6 @@
- 	sendmsg:	ipx_sendmsg,
- 	recvmsg:	ipx_recvmsg,
- 	mmap:		sock_no_mmap,
--	sendpage:	sock_no_sendpage,
- };
- 
- #include <linux/smp_lock.h>
+
+	Thanks in advance,
+	Shmulik Hen      
+      Software Engineer
+	Linux Advanced Networking Services
+	Intel Network Communications Group
+	Jerusalem, Israel
+
+
+-----Original Message-----
+From: Bruno Avila [mailto:jisla@elogica.com.br]
+Sent: Thursday, March 29, 2001 12:45 AM
+To: linux-kernel@vger.kernel.org
+Subject: Plans for 2.5
+
+
+Hello people,
+
+	I got some questions. When are we going to develop stuff for 2.5?
+What is
+planed? My opinion for linux 2.5 should be performance. Since linux already
+is stable or well done for nature, we could thing more on performance to be
+a diferencial over others. What do you people thing?
+
+                                              Bruno Avila
+
+PS: Not a good english. I know! :)
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,32 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268941AbRG0Tfs>; Fri, 27 Jul 2001 15:35:48 -0400
+	id <S268945AbRG0TmU>; Fri, 27 Jul 2001 15:42:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268060AbRG0Tfi>; Fri, 27 Jul 2001 15:35:38 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:26886 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S268941AbRG0Tf1>;
-	Fri, 27 Jul 2001 15:35:27 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200107271935.XAA27068@ms2.inr.ac.ru>
-Subject: Re: 2.4.7 softirq incorrectness.
-To: maxk@qualcomm.com (Maksim Krasnyanskiy)
-Date: Fri, 27 Jul 2001 23:35:18 +0400 (MSK DST)
-Cc: andrea@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <4.3.1.0.20010727121014.055d4c90@mail1> from "Maksim Krasnyanskiy" at Jul 27, 1 12:21:46 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S268939AbRG0TmI>; Fri, 27 Jul 2001 15:42:08 -0400
+Received: from postfix2-1.free.fr ([213.228.0.9]:18181 "HELO
+	postfix2-1.free.fr") by vger.kernel.org with SMTP
+	id <S268060AbRG0Tly>; Fri, 27 Jul 2001 15:41:54 -0400
+Message-ID: <3B62186E.B89C29E8@free.fr>
+Date: Fri, 27 Jul 2001 21:42:06 -0400
+From: PEIFFER Pierre <ppeiffer@free.fr>
+X-Mailer: Mozilla 4.77 [fr] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: VIA KT133A / athlon / MMX
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hello!
+Hi !
 
-> Also don't you agree with that it's possible (at least in theory) to hit that trylock/BUG in tasklet_action ?
+	I'm a recent user of the duo VIA KT133A chipset/Athlon CPU and after
+compiling a customized kernel and booting on it, I fall on kernel panic
+at boot time, just little time after starting the init process.
+	After some search and test, it appears that it was the K7 mmx routines
+which cause the crash
+	Using the "default" routines by replacing #ifdef CONFIG_MK7 by #ifdef 0
+solves the problem.
+	I just wanted to mention that, here, this crash is systematic with
+k7-mmx routines.
 
-Alas, I am not an expert in this area after Ingo's patch. Let's learn
-together. At first sight, it must crash at this BUG() instead
-of serialization, indeed. :-)
+	I also just wanted to know the current status of this problem since I
+have not found clear answer on the different threads about this topic.
+As I understand, this problem does not exist on every athlon but only on
+some which work with the VIA KT133 chipset ? Right ?
+	
+	Anyway, feel free to ask me more information if needed and please,
+CC'ed me personally the answers/comments because I'm not subscribed to
+the LKML.
 
-I am still afraid to boot kernels after 2.4.5. Feel discomfort. :-)
+Config.:
+ABIT KT7A (without RAID)
+Athlon 1.2 GHz
+256 Meg RAM
+FSB at 133 MHz
+(Other card description is not imortant I think)
+Running Mandrake 8.0 (*) (at home)
+with kernel 2.4.7 (or 2.4.6) compiled with gcc 3.0 (same pb with gcc
+2.96 (non-official, I know))
 
-Alexey
+(*) In fact, this distribution has a special startup and switch
+immediatly (at startup) in a graphic mode for showing the start of the
+runlevel. And I think/suppose that this definitly causes the crash.
+
+	Thanks,
+
+	Pierre

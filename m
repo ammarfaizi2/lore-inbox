@@ -1,30 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281506AbRKQAVa>; Fri, 16 Nov 2001 19:21:30 -0500
+	id <S281525AbRKQAbD>; Fri, 16 Nov 2001 19:31:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281525AbRKQAVU>; Fri, 16 Nov 2001 19:21:20 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:49164 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S281506AbRKQAVL>;
-	Fri, 16 Nov 2001 19:21:11 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: andrew.grover@intel.com, zippel@linux-m68k.org
-Subject: 2.4.15-pre5 conflict between acpi and a.out, affs is implicated
-Mime-Version: 1.0
+	id <S281537AbRKQAaw>; Fri, 16 Nov 2001 19:30:52 -0500
+Received: from intranet.resilience.com ([209.245.157.33]:5583 "EHLO
+	intranet.resilience.com") by vger.kernel.org with ESMTP
+	id <S281527AbRKQAam>; Fri, 16 Nov 2001 19:30:42 -0500
+Message-ID: <3BF5B05F.9F727DD8@resilience.com>
+Date: Fri, 16 Nov 2001 16:33:35 -0800
+From: Jeff Golds <jgolds@resilience.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.13 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Jones <davej@suse.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] AMD SMP capability sanity checking.
+In-Reply-To: <Pine.LNX.4.30.0111162353140.32578-100000@Appserv.suse.de>
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 17 Nov 2001 11:20:59 +1100
-Message-ID: <8705.1005956459@ocs3.intra.ocs.com.au>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-include/asm-*/a.out.h defines STACK_TOP.  So does
-drivers/acpi/include/acinterp.h, with a different value.  The conflict
-occurs if you compile with acpi and a.out, or with acpi and affs.  For
-reasons that are beyond me, include/linux/affs_fs_i.h contains #include
-<linux/a.out.h>.
+Dave Jones wrote:
+> 
+> Burning out a fuse to make the switch from MP->XP may affect more
+> than just the cpuid capabilities. The fact is _we don't know_
+> 
 
-ACPI needs to use a different name.
+Right, so why assume it doesn't work?
 
-Why does affs_fs_i.h include a.out.h?
+> I've yet to see a socket 370 dual processormotherboard that
+> I'd put faith in for a mission critical environment.
+> "I had no problems" means _nothing_ when theres as few as 1 other
+> user reporting SMP related problems with the same setup.
+> 
 
+People with "true" SMP CPUs can have problems as well.  Does this mean
+SMP CPUs are not SMP capable?  If only one person is having problems,
+chances are there's a problem someplace.  Could it be a faulty
+motherboard?  Mismatched CPUs?  Bad memory?  Bad CPU?  Bad power
+supply?  There's an awful lot of variables here.
+
+-Jeff
+
+-- 
+Jeff Golds
+Sr. Software Engineer
+jgolds@resilience.com

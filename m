@@ -1,48 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129859AbRAERxu>; Fri, 5 Jan 2001 12:53:50 -0500
+	id <S129805AbRAER5a>; Fri, 5 Jan 2001 12:57:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131389AbRAERxd>; Fri, 5 Jan 2001 12:53:33 -0500
-Received: from porgy.srv.nld.sonera.net ([195.66.15.137]:32812 "EHLO
-	porgy.srv.nld.sonera.net") by vger.kernel.org with ESMTP
-	id <S129859AbRAERxV>; Fri, 5 Jan 2001 12:53:21 -0500
-Message-ID: <000d01c07740$516a30e0$fd1942c3@bluescreen>
-From: "-=da TRoXX=-" <TRoXX@LiquidXTC.nl>
-To: <linux-kernel@vger.kernel.org>
-Subject: Framebuffer as a module
-Date: Fri, 5 Jan 2001 18:52:45 +0100
+	id <S130378AbRAER5K>; Fri, 5 Jan 2001 12:57:10 -0500
+Received: from tonib-gw-old.customer.0rbitel.net ([195.24.39.218]:8455 "HELO
+	gateway.izba.bg") by vger.kernel.org with SMTP id <S129805AbRAER5H>;
+	Fri, 5 Jan 2001 12:57:07 -0500
+Date: Fri, 5 Jan 2001 19:57:05 +0200 (EET)
+From: Vasil Kolev <lnxkrnl@mail.ludost.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0: Problems on Alpha with NCR53c810
+Message-ID: <Pine.LNX.4.10.10101051951010.6358-100000@doom.bastun.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-please CC me on any replies to this message since I'm not subscribed to the
-list (just toooo much mail for me)
-
-I have a very simple question:
-I used to compile-in my framebuffer-device in the kernel
-then i just appended "video=tdfxfb:1024x768-32@70" in lilo.conf and it
-worked..
-
-now i compiled it as a module, and want modprobe to start it up for me..
-how can this be done?
-modprobe tdfxfb 1024x768-32@70
-won't work, because there is no '=' sign in it so modprobe doesn't recognize
-it as a parameter, and doesn't pass it.
-
-so what can i do about it?
-
-tnx in advance :)
-
-
+  Hello,
+I tried installing 2.4.0 on my digital alpha server 400 /233 , and with no
+success... First, I tried compiling it with ncr53c7,8xx driver, and it
+failed with signal 1 ( always failed there.... that file never wanted to
+compile, no matter how I tried)  ... I blame the compiler there, but I
+didn't wanted to change the compiler, and I saw there was another driver
+that supports the controler, so I compiled with it, and the machine
+stopped at the detection , just doing resets on the SCSI bus... The same
+driver works with 2.2.18 ( I checked, in 2.4 the driver is older than in
+2.2)... 
+  Any ideas?
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

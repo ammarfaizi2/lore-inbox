@@ -1,108 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271109AbRHYTzB>; Sat, 25 Aug 2001 15:55:01 -0400
+	id <S271060AbRHYTy2>; Sat, 25 Aug 2001 15:54:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271073AbRHYTyt>; Sat, 25 Aug 2001 15:54:49 -0400
-Received: from jakorasia.nic.fi ([212.38.224.80]:19654 "EHLO jakorasia.nic.fi")
-	by vger.kernel.org with ESMTP id <S271054AbRHYTyo>;
-	Sat, 25 Aug 2001 15:54:44 -0400
-Message-ID: <3B87E3D2.C01F301F@pp.nic.fi>
-Date: Sat, 25 Aug 2001 17:43:46 +0000
-From: Fredrik Jansson <fredrikj@pp.nic.fi>
-X-Mailer: Mozilla 4.5 [en] (X11; I; Linux 2.4.9 i686)
-X-Accept-Language: en
+	id <S271054AbRHYTyT>; Sat, 25 Aug 2001 15:54:19 -0400
+Received: from www.wen-online.de ([212.223.88.39]:4871 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S271060AbRHYTyC>;
+	Sat, 25 Aug 2001 15:54:02 -0400
+Date: Sat, 25 Aug 2001 21:53:53 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Roger Larsson <roger.larsson@norran.net>, <linux-kernel@vger.kernel.org>,
+        Stephan von Krawczynski <skraw@ithnet.com>
+Subject: Re: [PATCH][RFC] simpler __alloc_pages{_limit}
+In-Reply-To: <20010825180244Z16204-32383+1340@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.33.0108252029500.5077-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: oops in ide-scsi emulation
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the following oops while trying to burn a CD-RW, using 
-kernel 2.4.9
-cdrecord 1.9
-HP CD-writer plus, 7200i (an IDE unit)
-An intel celeron A 300MHz
+On Sat, 25 Aug 2001, Daniel Phillips wrote:
 
-The ide-interface as reported by lspci:
-00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
+> On August 25, 2001 10:48 am, Mike Galbraith wrote:
+> > I think the easiest way to handle high order allocations is to do _low_
+> > volume background reclamation if high order allocations might fail.  ie
+> > put a little effort into keeping such allocations available, but don't
+> > do massive effort.  Cache tends to lose it's value over time, so dumping
+> > small quantities over time shouldn't hurt.
+>
+> Ah, time.  Please see below for an alternative way of looking at time.
+>
+> > This would also have the
+> > benefit of scanning the inactive lists even when there's little activity
+> > so that list information (page accessed _yesterday_?) won't get stale.
+>
+> It would probably improve the average performance somewhat.  I'm looking at a
 
-CD-burning worked fine under kernel 2.2.14, but has not worked with
-kernel 2.4.x. This time the computer crashed after it had burned approx.
-4 MB.
+It makes the system smoother, but doesn't change throughput much.  The
+biggest effect is felt upon transition from idle launder/reclaim wise
+to busy.  There, it can prevent unpleasant suprises.
 
-I copied the oops from the screen by hand, but I have checked it
-carefully, so I believe it is correct.
-If I need to tell you anything more, please ask.
+> more direct approach: if we have a shortage at order(m) then, then for each
+> (free) member of order(m-1) look in mem_map for its buddy, and if it doesn't
+> look too active, try to free it, thus moving the allocation unit up one
+> order.  Could you examine this idea please and check for obvious holes?
 
+I don't know enough about the guts of the buddy.  Someone with stars and
+moons on his pointy hat suggested checking at reclaim time to see if a
+page would buddy up.. sounds the same to me.
 
-ksymoops 0.7c on i686 2.4.9.  Options used
-     -v /usr/src/linux/vmlinux (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.9/ (default)
-     -m /usr/src/linux/System.map (default)
+> > I think it's ~fine to reclaim for up to say order 2, but beyond that, it
+> > doesn't have any up side that I can see.. only down.
+>
+> Yep.
+>
+> > btw, I wonder why we don't do memory_pressure [+-]= 1 << order.
+>
+> We should, at least the "memory_pressure += 1 << order" flavor.  Patch?
+>
+> IMO the concept of memory pressure is bogus.  Instead we should calculate the
+> number of pages to scan directly from the number of pages consumed by
+> alloc_pages and the probability that deactivated pages will be rescued.  The
+> latter statistic we can measure.  We can control it, too, by controlling the
+> length of the inactive queue.  The shorter the inactive queue, the lower the
+> probability a deactivated page will be rescued.
+>
+> The idea of clocking recalculate_vm_stats by real time is also bogus.  MM
+> activity does not have a linear relationship to real time under most loads
+> (exceptions: those loads clocked by a realtime constraint, such as network
+> bandwidth on a saturated network).  We should be clocking the mm using a time
+> quantum of "one page alloced".  A scan of the literature shows considerable
+> support for this view, and it's also intuitive, don't you think?
+>
+> What this means in practice is, sure we can have kswapd wake once a second or
+> once per 100 ms, but the amount of scanning it does needs to be based on the
+> number of pages actually alloced in that interval.  (Intuitively, this
+> corresponds to the number of free pages needed to replace those alloced.)
+> >From the mm's perspective, kswapd's constant realtime interval is a variable
+> delta-t in terms of mm time, meaning that we need to scale all proportional
+> mm activity by the measured delta.  Hmm, clear as mud?  This is a standard
+> idea from control theory.
 
-Warning (compare_maps): snd symbol pm_register not found in
-/lib/modules/2.4.9/misc/snd.o.  Ignoring /lib/modules/2.4.9/misc/snd.o
-entry
-Warning (compare_maps): snd symbol pm_send not found in
-/lib/modules/2.4.9/misc/snd.o.  Ignoring /lib/modules/2.4.9/misc/snd.o
-entry
-Warning (compare_maps): snd symbol pm_unregister not found in
-/lib/modules/2.4.9/misc/snd.o.  Ignoring /lib/modules/2.4.9/misc/snd.o
-entry
-Unable to handle kernel paging request at virtual address ac958592
-c01af320
-*pde = 00000000
-Oops: 0002
-CPU: 0
-EIP: 0010:[<c01af320>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010002
-eax:  ac9583b1  abx: c026b6c0  ecx: 0000005a  edx: c02ca72c
-esi:  d5ee5ea0  edi: 00000006  ebp: cb0b0000  esp: ceaabee0
-ds: 0018  es:0018  ss: 0018
-Stack: c026b6c0 c02ca704 0000000b 00000000 00000000 d5ee5ea0 c1668ce0
-c02ca704
-       c019adc7 00000000 d7ffe160 c02ca704 00000000 d7ffe160 c01af4f8
-000000d0
-       c019ba10 c02ca704 c022b9e2 000000d0 d7ffe160 00000000 c02ac740
-c019b884
- Call Trace: [<c019adc7>] [<c01af4f8>] [<c019ba10>] [<c019b884>]
-[<c011a90c>]
- [<c011a989>] [<c010ab16>] [c011742e>] [<c0117369>] [<c011715d>]
-[<c0107ec4>]
- [<c0106be0>]
- Code: c7 80 78 01 00 00 00 00 07 00 83 7c 24 10 00 0f 84 6b 01 00
+Oh, it's much clearer than mud.. intuitive.  I did some experiments with
+aging/laundering directly tied to quantity of 'unanswered' allocations
+and it worked pretty well.
 
->>EIP; c01af320 <idescsi_end_request+74/24c>   <=====
-Trace; c019adc7 <ide_error+137/190>
-Trace; c01af4f8 <idescsi_pc_intr+0/24c>
-Trace; c019ba10 <ide_timer_expiry+18c/1dc>
-Trace; c019b884 <ide_timer_expiry+0/1dc>
-Trace; c011a90c <timer_bh+21c/258>
-Trace; c011a989 <do_timer+41/74>
-Trace; c010ab16 <timer_interrupt+76/124>
-Trace; c0106be0 <ret_from_intr+0/7>
-Code;  c01af320 <idescsi_end_request+74/24c>
-00000000 <_EIP>:
-Code;  c01af320 <idescsi_end_request+74/24c>   <=====
-   0:   c7 80 78 01 00 00 00      movl   $0x70000,0x178(%eax)   <=====
-Code;  c01af327 <idescsi_end_request+7b/24c>
-   7:   00 07 00 
-Code;  c01af32a <idescsi_end_request+7e/24c>
-   a:   83 7c 24 10 00            cmpl   $0x0,0x10(%esp,1)
-Code;  c01af32f <idescsi_end_request+83/24c>
-   f:   0f 84 6b 01 00 00         je     180 <_EIP+0x180> c01af4a0
-<idescsi_end_request+1f4/24c>
+> BTW, what the heck is this supposed to do (page_alloc.c):
+>
+> 144         if (memory_pressure > NR_CPUS)
+> 145                 memory_pressure--;
 
- Kernel panic: Aiee, killing interrupt handler!
+Keep it from going negative.
 
-3 warnings issued.  Results may not be reliable.
-
-
-Fredrik Jansson
-
+	-Mike
 

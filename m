@@ -1,63 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbULTVGF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbULTVKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbULTVGF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 16:06:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbULTVGF
+	id S261643AbULTVKK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 16:10:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbULTVKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 16:06:05 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:65430 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261641AbULTVGA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 16:06:00 -0500
-Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
-From: Lee Revell <rlrevell@joe-job.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Arne Caspari <arnem@informatik.uni-bremen.de>, bcollins@debian.org,
-       linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20041220175156.GW21288@stusta.de>
-References: <20041220015320.GO21288@stusta.de>
-	 <41C694E0.8010609@informatik.uni-bremen.de>
-	 <20041220175156.GW21288@stusta.de>
-Content-Type: text/plain
-Date: Mon, 20 Dec 2004 16:05:58 -0500
-Message-Id: <1103576759.1252.93.camel@krustophenia.net>
+	Mon, 20 Dec 2004 16:10:10 -0500
+Received: from king.bitgnome.net ([66.207.162.30]:31203 "EHLO
+	king.bitgnome.net") by vger.kernel.org with ESMTP id S261643AbULTVKB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 16:10:01 -0500
+Date: Mon, 20 Dec 2004 15:09:09 -0600
+From: Mark Nipper <nipsy@bitgnome.net>
+To: Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AMD64: timer is running twice as fast as it should (again??)
+Message-ID: <20041220210909.GA49579@king.bitgnome.net>
+References: <87ekhkhf1j.fsf@londo.ultra.csn.tu-chemnitz.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87ekhkhf1j.fsf@londo.ultra.csn.tu-chemnitz.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-12-20 at 18:51 +0100, Adrian Bunk wrote:
-> > Please please, do not break the kernel API out of the blue. Supporting a 
-> > Linux driver is already very frustrating. Currently it is a lot more 
-> > convenient for our customers to switch to Windows just because the 
-> > installation and use of the software is much easier there - or at least 
-> > it is easy enough there to handle the installation where it is not on Linux.
-> > 
-> > Breaking the API now will most likely stop The Imaging Source from 
-> > supporting open source driver development anymore. We just can not 
-> > effort any unneccessary development anymore. We are already blocked by 
-> > shortcomings in the LDM and bugs in the Linux driver handling ( see my 
-> > posings about a hotplugging issue and about the issue that IEEE-1394 
-> > modules can not be unloaded ).
+On 20 Dec 2004, Enrico Scholz wrote:
+> with 2.6 kernels, the timer on AMD64 runs exactly twice as fast as
+> expected. E.g. 'sleep 10' returns after 5 seconds external time.
 > 
-> the perfect solution would be if you'd simply submit your driver for 
-> inclusion in the main kernel.
+> This behavior was seen with Fedora Core 3 kernel 2.6.9-1.681_FC3 and
+> 2.6.10-rc3-bk13 (both x86_64 mode).
 > 
-> After grepping through your CVS sources, it seems hpsb_read and 
-> hpsb_write are the EXPORT_SYMBOLS affecting you?
-> So keeping them should address your concerns?
+> System information can be found at
+>                 http://www.tu-chemnitz.de/~ensc/hw/amd64
 
-Please, can't you just hold off on breaking the ieee1394 API at all for
-now?  Currently there are no supported IEEE-1394 audio devices.  This is
-a big deal as most new pro audio interfaces are IEEE-1394 devices.
-There are a few under development, see http://freebob.sf.net.  But they
-don't work yet.  If you rip out half the API you will make it that much
-harder for these developers, by requiring them to be kernel hackers as
-well as driver writers.
+	Seem like something specific to Fedora or the bk branch
+then because I'm running 2.6.10-rc3 under x86_64 and it sleeps as
+long as it should.
 
-How about waiting until there is _one_ IEEE-1394 audio driver in the
-tree before breaking the API?
+-- 
+Mark Nipper                                                e-contacts:
+4475 Carter Creek Parkway                           nipsy@bitgnome.net
+Apartment 724                               http://nipsy.bitgnome.net/
+Bryan, Texas, 77802-4481           AIM/Yahoo: texasnipsy ICQ: 66971617
+(979)575-3193                                      MSN: nipsy@tamu.edu
 
-Lee
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1
+GG/IT d- s++:+ a- C++$ UBL++++$ P--->+++ L+++$ !E---
+W++(--) N+ o K++ w(---) O++ M V(--) PS+++(+) PE(--)
+Y+ PGP t+ 5 X R tv b+++@ DI+(++) D+ G e h r++ y+(**)
+------END GEEK CODE BLOCK------
 
+---begin random quote of the moment---
+Whose woods these are I think I know.
+His house is in the village though;
+He will not see me stopping here
+To watch his woods fill up with snow.
+
+My little horse must think it queer
+To stop without a farmhouse near
+Between the woods and frozen lake
+The darkest evening of the year.
+
+He gives his harness bells a shake
+To ask if there is some mistake.
+The only other sound's the sweep
+Of easy wind and downy flake.
+
+The woods are lovely, dark and deep.
+But I have promises to keep,
+And miles to go before I sleep,
+And miles to go before I sleep.
+
+ -- Robert Frost, _New Hampshire: A Poem with Notes and Grace
+    Notes_, 1923
+----end random quote of the moment----

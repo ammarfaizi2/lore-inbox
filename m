@@ -1,61 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbUKKRke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262333AbUKKRnC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262325AbUKKRke (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 12:40:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbUKKRjn
+	id S262333AbUKKRnC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 12:43:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUKKRjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 12:39:43 -0500
-Received: from relay02.pair.com ([209.68.5.16]:12552 "HELO relay02.pair.com")
-	by vger.kernel.org with SMTP id S262323AbUKKRbp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 12:31:45 -0500
-X-pair-Authenticated: 24.241.238.70
-Message-ID: <4193A1EB.4050701@cybsft.com>
-Date: Thu, 11 Nov 2004 11:31:23 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+	Thu, 11 Nov 2004 12:39:10 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:61896 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262325AbUKKRZr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 12:25:47 -0500
+Message-ID: <41BB2D9A.9010703@namesys.com>
+Date: Sat, 11 Dec 2004 09:25:46 -0800
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Mark_H_Johnson@Raytheon.com
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-0
-References: <OF3F836225.78DCFCB0-ON86256F49.005C260B-86256F49.005C2643@raytheon.com>
-In-Reply-To: <OF3F836225.78DCFCB0-ON86256F49.005C260B-86256F49.005C2643@raytheon.com>
-X-Enigmail-Version: 0.86.0.0
+To: Adrian Bunk <bunk@stusta.de>, vs <vs@thebsh.namesys.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc1-mm5: REISER4_LARGE_KEY is still selectable
+References: <20041111012333.1b529478.akpm@osdl.org> <20041111165045.GA2265@stusta.de>
+In-Reply-To: <20041111165045.GA2265@stusta.de>
+X-Enigmail-Version: 0.85.0.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark_H_Johnson@Raytheon.com wrote:
->>i have released the -V0.7.25-0 Real-Time Preemption patch, which can be
->>downloaded from the usual place:
->>
->>   http://redhat.com/~mingo/realtime-preempt/
->>
->>this release includes fixes, new features and latency improvements.
-> 
-> 
-> It may be coincidence, but when I did
->   chrt -p -f 99 2
-> (to set IRQ 0 to max RT priority, like the other IRQ's)
-> 
-> I got the following deadlock.
-> 
+Adrian Bunk wrote:
 
-I tried reproducing this but could not. Of course that doesn't mean
-much. :) Also, is this really they way you typed it in? If so, it is
-very possible that the pid it tried to chrt was 99 not 2.
-
-kr
-
+>REISER4_LARGE_KEY is still selectable in reiser4-include-reiser4.patch 
+>(and we agreed that it shouldn't be).
+>
+>cu
+>Adrian
+>
+>  
+>
+thanks for catching that, vs, please fix and send patch.

@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262674AbREVRSz>; Tue, 22 May 2001 13:18:55 -0400
+	id <S262675AbREVRTp>; Tue, 22 May 2001 13:19:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262675AbREVRSp>; Tue, 22 May 2001 13:18:45 -0400
-Received: from t2.redhat.com ([199.183.24.243]:28659 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S262674AbREVRSb>; Tue, 22 May 2001 13:18:31 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <15114.37415.204391.420484@gargle.gargle.HOWL> 
-In-Reply-To: <15114.37415.204391.420484@gargle.gargle.HOWL>  <15113.31946.548249.53012@gargle.gargle.HOWL> <20010520165952.A9622@devserv.devel.redhat.com> <20010518113726.A29617@devserv.devel.redhat.com> <20010518114922.C14309@thyrsus.com> <8485.990357599@redhat.com> <20010520111856.C3431@thyrsus.com> <15823.990372866@redhat.com> <20010520114411.A3600@thyrsus.com> <16267.990374170@redhat.com> <20010520131457.A3769@thyrsus.com> <18686.990380851@redhat.com> <20010520164700.H4488@thyrsus.com> <25499.990399116@redhat.com> <7938.990539153@redhat.com> 
-To: John Stoffel <stoffel@casc.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Background to the argument about CML2 design philosophy 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: Tue, 22 May 2001 18:17:58 +0100
-Message-ID: <5080.990551878@redhat.com>
+	id <S262678AbREVRTi>; Tue, 22 May 2001 13:19:38 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:24082 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262675AbREVRTa>; Tue, 22 May 2001 13:19:30 -0400
+Date: Tue, 22 May 2001 10:19:02 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Paul Mackerras <paulus@samba.org>
+cc: linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: add page argument to copy/clear_user_page
+In-Reply-To: <15112.22465.860419.234933@tango.paulus.ozlabs.org>
+Message-ID: <Pine.LNX.4.21.0105221012530.19531-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-stoffel@casc.com said:
->  I don't agree with this, since the current CML1 scheme has wierd,
-> unwanted and wrong dependencies already, which can't (or haven't) been
-> found.   Since it would be put in during the 2.5.x branching, it's
-> expected that things will/can/should break, so I don't think there
-> will be any dire consequences.  
+On Mon, 21 May 2001, Paul Mackerras wrote:
+> 
+> As for the `to' argument, yes it is redundant since it is just kmap(page).
 
-OK, I obviously don't expect the behaviour to be _exactly_ identical. If 
-CML2 allows the authors' intent to be more closely adhered to, that's a good 
-thing. But if the CML2 files exhibit behaviour which was clearly _not_ the 
-intention of the original CML1, that is a change which should be made under 
-separate cover.
+And why not let "clear_page()" just do that itself?
 
-> Such as what?  Do you have any examples here?  
+The only place that doesn't already do "kmap(page)" is basically
+get_zeroed_page(), and the only reason it doesn't do that is because the
+whole function is fundamentally not able to handle high memory pages (it
+returns a fixed address, not the "struct page *".
 
-The MAC/SCSI dependencies, which it seems were 'simplified' at the cost of
-preventing certain combinations which were unlikely but valid, and which it
-was possible to select with the original rules.
+But that function is also likely to not care about the extra five cycles
+or so of having to do the kmap() by making clear_page() (and copy_page())
+always use "struct page *" and do kmap() internally. Because most people
+who care about performance are already using other functions (in fact, the
+functions that _can_ allocate high memory).
 
-Also of course the whole class of dependencies which people are talking 
-about introducing for the benefit of the hypothetical Aunt Tillie.
+And I hate redundancy, and having different functions for the same thing.
 
-I don't know how many, if any, of this kind of changes are _actually_ made
-in the current CML2 rules files - what I'm saying is that there _should_ be
-none. Such large changes to the policy are entirely unrelated to CML2 
-itself, and should be discussed separately. 
+> But copy/clear_user_page isn't the interface that gets called from the
+> MM stuff, copy/clear_user_highpage is, defined in include/linux/highmem.h.
+> These are two of a whole series of functions which all do kmap, do
+> something, kunmap.
 
-If your response to this is "But there are no such changes, you
-misunderstood the MAC/SCSI dependency conversation and the Aunt Tillie stuff
-was all hypothetical, what are you talking about?", then good - that's
-precisely the answer I was after.
+The thing is, copy/clear_page shouldn't exist at all (or rather, the
+"highpage" versions should be renamed to the non-highpage names, because
+the non-highmem case simply isn't interesting any more).
 
-All I'm asking for is a clear agreement that within reason, the behaviour 
-of the CML2 rules files immediately after CML2 is merged will match the 
-intended behaviour of the CML1 rules prior to the merge.
+The highmem special casing used to make sense back when highmem was a rare
+special case. These days, we should just get rid of the distinction as
+much as possible,
 
---
-dwmw2
-
+		Linus
 

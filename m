@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbVDFXVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262348AbVDFXWd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262351AbVDFXVX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 19:21:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262348AbVDFXVW
+	id S262348AbVDFXWd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 19:22:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbVDFXWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 19:21:22 -0400
-Received: from outbound04.telus.net ([199.185.220.223]:30102 "EHLO
-	priv-edtnes51.telusplanet.net") by vger.kernel.org with ESMTP
-	id S262351AbVDFXVP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 19:21:15 -0400
-Subject: Re: Linux 2.6.12-rc2
-From: Bob Gill <gillb4@telusplanet.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Wed, 06 Apr 2005 17:20:52 -0600
-Message-Id: <1112829652.8941.9.camel@localhost.localdomain>
+	Wed, 6 Apr 2005 19:22:33 -0400
+Received: from wproxy.gmail.com ([64.233.184.194]:57674 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262348AbVDFXWa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 19:22:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=XJS9fO4kyagOSs43kFxnCuH0T/mRoOyZJhuOFyuQVlTdjqE6fmWJFbLI49YCBWlEICuh2lHFuC39Od0DesMoQAaUfDZjacBp25eootNPKE/tYv42hNm27yx8pYU6RkXYJIKdHPSwO5ncxdC124RM0YIAfekPUx/cskOJF2I498k=
+Message-ID: <35fb2e590504061622364f72a@mail.gmail.com>
+Date: Thu, 7 Apr 2005 00:22:30 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Kernel SCM saga..
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK.  So far so good.  I can get 2.6.12-rc2 to run fine if:
-1. I do not in any way attempt to *ahem* overclock the box.
---if I do, I get really ugly race errors flying around from just about
-everywhere (pick a device at random, have it trip, and the scheduler
-tripping right behind it).
-2. I do not attempt in any way to run any sort of Nvidia (non-GPL)
-driver.  It fights with SBP2 (in a lot of different ways, first the
-drivers want to kill off Firewire drives (one detected, the other not,
-then on next boot, the reverse...), and also, when using GLX apps (and
-trying to write to an SBP2 connected device, they clash (and fight and
-the kernel doesn't die but gets bogged in errors...)
-....and with the notes above, as I say, so far, so good.  I am
-attempting to hammer away at every device I have on the box (scanner,
-printer, video (only GPL Nvidia), audio, cd, dvd, tv tuner etc.) so far,
-so good.
-Bob
--- 
-Bob Gill <gillb4@telusplanet.net>
+On Apr 6, 2005 4:42 PM, Linus Torvalds <torvalds@osdl.org> wrote:
 
+> as a number of people are already aware (and in some
+> cases have been aware over the last several weeks), we've
+> been trying to work out a conflict over BK usage over the last
+> month or two (and it feels like longer ;). That hasn't been
+> working out, and as a result, the kernel team is looking at
+> alternatives.
+
+What about the 64K changeset limitation in current releases?
+
+Did I miss something (like the fixes promised) or is there going to be
+another interim release before the end of support?
+
+Jon.
+
+P.S. Apologies if this already got addressed.

@@ -1,58 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270155AbRIEDap>; Tue, 4 Sep 2001 23:30:45 -0400
+	id <S270174AbRIEDwa>; Tue, 4 Sep 2001 23:52:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270168AbRIEDaf>; Tue, 4 Sep 2001 23:30:35 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:39316 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S270155AbRIEDaX>; Tue, 4 Sep 2001 23:30:23 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Keith Owens" <kaos@ocs.com.au>, "Andrea Arcangeli" <andrea@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Linux 2.4.9-ac6 
-Date: Tue, 4 Sep 2001 20:30:42 -0700
-Message-ID: <NOEJJDACGOHCKNCOGFOMAEAPDLAA.davids@webmaster.com>
+	id <S270199AbRIEDwU>; Tue, 4 Sep 2001 23:52:20 -0400
+Received: from hall.mail.mindspring.net ([207.69.200.60]:22020 "EHLO
+	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S270174AbRIEDwL>; Tue, 4 Sep 2001 23:52:11 -0400
+From: volodya@mindspring.com
+Date: Tue, 4 Sep 2001 23:54:58 -0400 (EDT)
+Reply-To: volodya@mindspring.com
+To: Jeremiah Johnson <miah@netcis.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Re[4]: 2.4.9 UDP broke?
+In-Reply-To: <111202114514.20010904191953@netcis.com>
+Message-ID: <Pine.LNX.4.20.0109042354001.22370-100000@node2.localnet.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <16601.999654671@kao2.melbourne.sgi.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> On Mon, 3 Sep 2001 15:05:29 +0200,
-> Andrea Arcangeli <andrea@suse.de> wrote:
 
-> The next version of insmod will warn about modules with no
-> MODULE_LICENSE at all and inform about modules with proprietary
-> licences.  Both cases will mark the kenrel as tainted which will show
-> up on bug reports.
+On Tue, 4 Sep 2001, Jeremiah Johnson wrote:
 
-	That really doesn't make sense. Nothing changes in the kernel or the module
-based upon whether you have the source or not. What should logically taint
-the kernel are modules that weren't compiled for that exact kernel version
-or are otherwise mismatched.
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: MD5
+> 
+> Hello volodya,
+> 
+> I found the answer to the problem today.  It has to do with a bug in
+> one of these options:
+> 
+> CONFIG_TULIP_MWI
+> CONFIG_TULIP_MMIO
 
-	One can make the argument that the kernel is tainted if a module wasn't
-compiled on that machine with that kernel version. One can make the argument
-that the kernel is tainted if the module was compiled against different
-configuration or header files. Once can make the argument that the kernel is
-tainted if a module is loaded whose source isn't part of the general Linux
-distribution. One can make all sorts of logical arguments about what taints
-the kernel, but how can the license of a module taint the kernel?
+Hmm, interesting. I'll check the latest version of tulip (as well as the
+one on Donald Becker's website). Did you try them out already ?
 
-	You can't even argue that if it's GPL, anyone can get the source to debug
-it. The GPL does not require that the source code be made available to the
-general public. Perhaps the kernel is tainted if that module wasn't built
-from source on that machine?
+                          Vladimir Dergachev
 
-	What's the logic here?!
-
-	DS
+> 
+> Since the system is a older dual p100 I didn't really want to sit
+> through the 2 hours of compilation to "test" which one it is.  I'm
+> willing to bet its CONFIG_TULIP_MWI though since its still marked as
+> experimental.  With both of these options disabled 2.4.9 works fine on
+> that system though as it does on my other boxes.  Whoever maintains
+> the code for those two config options might want to do some testing.
+> I can provide more information about the system if needed.
+> 
+> Sunday, September 02, 2001, 7:25:44 PM, you wrote:
+> 
+> vmc> I had a very similar experience. In my case it turned out that for some
+> vmc> reason no UDP packets above 5524 would come through (try pinging with
+> vmc> larger than default packet sizes). The solution was to restrict NFS to
+> vmc> 5000 (actually 4096) size packets. I have not been able to figure out the
+> vmc> cause of this yet. (and yes, tcpdump was able to see them fine).
+> 
+> vmc>                             Vladimir Dergachev
+> 
+> 
+> - --
+> Best regards,
+>  Jeremiah                            mailto:miah@netcis.com
+> 
+> -----BEGIN PGP SIGNATURE-----
+> Version: 2.6
+> 
+> iQEVAwUAO5WLyZHTj7BlqKb5AQFiIQf8DG8rppS8oNKQvmQts2rFQzx0MVizZZv/
+> p12tm+bcToP8jg6OKL0hzkeL59k3RgJpbjSleHl6VHgGzZ4VfZuvtE7gwA0e/Ch8
+> MQck+diQkDY14qM+qxdIhwjuSyt+qDTlOPge/MZKNvtGckYkQ9qKVHiWbKWuxlYS
+> U4N8knpXHUZ9fM+hPPqi/0yNfwx6g7QbtLycYJzP0GIDSzP4y/P30HMkSJ9EUzP1
+> MQCho4dj2K2WvMyrNVAO70Nj90j1ioU7vJE2LMooKrZmWBpBSMX6MMKr//lJP73H
+> RTQLNZmRGbBtblq4QiXai6OpEYkaaE84iutfs9JbssOJ+S2cxNDM1g==
+> =XNHF
+> -----END PGP SIGNATURE-----
+> 
 

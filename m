@@ -1,75 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266528AbUGPMP3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266531AbUGPMNB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266528AbUGPMP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 08:15:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266532AbUGPMP3
+	id S266531AbUGPMNB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 08:13:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266532AbUGPMNB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 08:15:29 -0400
-Received: from burro.logi-track.com ([213.239.193.212]:6803 "EHLO
-	mail.logi-track.com") by vger.kernel.org with ESMTP id S266528AbUGPMPY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 08:15:24 -0400
-Date: Fri, 16 Jul 2004 14:15:21 +0200
-From: Markus Schaber <schabios@logi-track.com>
-Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
-Subject: Re: New mobo question
-Message-Id: <20040716141521.02c5422f@kingfisher.intern.logi-track.com>
-In-Reply-To: <20040716112007.GA14641@taniwha.stupidest.org>
-References: <200407160552.27074.gene.heskett@verizon.net>
-	<20040716112007.GA14641@taniwha.stupidest.org>
-Organization: logi-track ag, =?ISO-8859-15?Q?z=FCrich?=
-X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
-X-Face: Nx5T&>Nj$VrVPv}sC3IL&)TqHHOKCz/|)R$i"*r@w0{*I6w;UNU_hdl1J4NI_m{IMztq=>cmM}1gCLbAF+9\#CGkG8}Y{x%SuQ>1#t:;Z(|\qdd[i]HStki~#w1$TPF}:0w-7"S\Ev|_a$K<GcL?@F\BY,ut6tC0P<$eV&ypzvlZ~R00!A
-X-PGP-Key: http://schabi.de/pubkey.asc
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-To: unlisted-recipients:; (no To-header on input)
+	Fri, 16 Jul 2004 08:13:01 -0400
+Received: from zero.aec.at ([193.170.194.10]:49674 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S266531AbUGPMM7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 08:12:59 -0400
+To: torvalds@osdl.org
+cc: linux-kernel@vger.kernel.org, gone@us.ibm.com
+Subject: [PATCH] Fix i386 bootup with HIGHMEM+SLAB_DEBUG+NUMA and no real
+ highmem
+From: Andi Kleen <ak@muc.de>
+Date: Fri, 16 Jul 2004 14:11:22 +0200
+Message-ID: <m3fz7s2lud.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Chris,
 
-On Fri, 16 Jul 2004 04:20:07 -0700
-Chris Wedgwood <cw@f00f.org> wrote:
+For some reason I booted a NUMA and SLAB_DEBUG i386 kernel on a non
+NUMA 512MB machine.  This caused an oops at bootup in change_page_attr.
+The reason was that highmem_start_start page ended up zero and 
+that triggered the highmem check in change_page_attr when the 
+slab debug code would unmap a kernel mapping.
 
-> On Fri, Jul 16, 2004 at 05:52:27AM -0400, Gene Heskett wrote:
-> 
-> > I've ordered a new mobo as I'm having what appears to be data bus
-> > problems with this one after a rather spectacular failure of a
-> > gforce2 video card, memtest86 says I have a lot of errors where
-> > 00000020 was written, but 00000000 came back, at semi-random
-> > locations scattered thoughout half a gig of dimms running at half
-> > their rated DDR266 speed.  The last nibble of the address is always
-> > zero, and the next nibble is always even.
-> 
-> Get the board replaced.
+Fix is straightforward: if there is no highmem set highmem_start_page
+to max_low_pfn+1
 
-Read his first sentence and you will see that he has already ordered a
-new board.
+-Andi
 
-> > Is there a way to prebuild a kernel that will run on both boards?,
-> > this older board is a VIA82686/VIA8233 based board, a Biostar M7VIB.
-> 
-> If I read you correctly you're getting random corruptions all over the
-> place so there isn't much you an do.
-
-As far as I read him, he wants to build a kernel that runs on his new
-board as well as on his old board.
-
-Basically, he has to just compile a kernel that includes hardware
-support for both chipsets, and all of the other hardware that is on the
-boards. For processor selection, he should find the best compromise
-between both processors (so try to select one that has all features that
-both real processors have in common), and he might try the generic X86
-optimizations, too.
-
-HTH,
-Markus
+diff -u linux-2.6.8rc1-work/arch/i386/mm/discontig.c-o linux-2.6.8rc1-work/arch/i386/mm/discontig.c
+--- linux-2.6.8rc1-work/arch/i386/mm/discontig.c-o	2004-07-15 08:41:17.000000000 +0200
++++ linux-2.6.8rc1-work/arch/i386/mm/discontig.c	2004-07-16 12:21:37.000000000 +0200
+@@ -448,7 +448,11 @@
+ void __init set_max_mapnr_init(void)
+ {
+ #ifdef CONFIG_HIGHMEM
+-	highmem_start_page = NODE_DATA(0)->node_zones[ZONE_HIGHMEM].zone_mem_map;
++	struct zone *high0 = &NODE_DATA(0)->node_zones[ZONE_HIGHMEM];
++	if (high0->spanned_pages > 0)
++	      	highmem_start_page = high0->zone_mem_map;
++	else
++		highmem_start_page = pfn_to_page(max_low_pfn+1); 
+ 	num_physpages = highend_pfn;
+ #else
+ 	num_physpages = max_low_pfn;
 
 
--- 
-markus schaber | dipl. informatiker
-logi-track ag | rennweg 14-16 | ch 8001 zürich
-phone +41-43-888 62 52 | fax +41-43-888 62 53
-mailto:schabios@logi-track.com | www.logi-track.com

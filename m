@@ -1,72 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264432AbTLCAKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 19:10:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbTLCAKQ
+	id S264437AbTLCANc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 19:13:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264439AbTLCANc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 19:10:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:22941 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264432AbTLCAKL (ORCPT
+	Tue, 2 Dec 2003 19:13:32 -0500
+Received: from dslb138.fsr.net ([12.7.7.138]:30363 "EHLO sandall.us")
+	by vger.kernel.org with ESMTP id S264437AbTLCANa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 19:10:11 -0500
-Date: Tue, 2 Dec 2003 16:03:03 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Vince <fuzzy77@free.fr>
-Cc: mfedyk@matchmail.com, zwane@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [kernel panic @ reboot] 2.6.0-test10-mm1
-Message-Id: <20031202160303.2af39da0.rddunlap@osdl.org>
-In-Reply-To: <3FC53A3B.50601@free.fr>
-References: <3FC4DA17.4000608@free.fr>
-	<Pine.LNX.4.58.0311261213510.1683@montezuma.fsmlabs.com>
-	<3FC4E42A.40906@free.fr>
-	<Pine.LNX.4.58.0311261240210.1683@montezuma.fsmlabs.com>
-	<3FC4E8C8.4070902@free.fr>
-	<Pine.LNX.4.58.0311261305020.1683@montezuma.fsmlabs.com>
-	<20031126233738.GD1566@mis-mike-wstn.matchmail.com>
-	<3FC53A3B.50601@free.fr>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
+	Tue, 2 Dec 2003 19:13:30 -0500
+Message-ID: <1070410409.3fcd2aa9c0d42@horde.sandall.us>
+Date: Tue,  2 Dec 2003 16:13:29 -0800
+From: Eric Sandall <eric@sandall.us>
+To: linux-kernel@vger.kernel.org
+Subject: Re: XFS for 2.4
+References: <2D92FEBFD3BE1346A6C397223A8DD3FC0924C8@THOR.goeci.com> <Pine.LNX.4.44.0312021557500.13692-100000@logos.cnet> <20031202191004.GE28890@louise.pinerecords.com>
+In-Reply-To: <20031202191004.GE28890@louise.pinerecords.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
+X-Originating-IP: 192.168.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Nov 2003 00:41:47 +0100 Vince <fuzzy77@free.fr> wrote:
+Quoting Tomas Szepe <szepe@pinerecords.com>:
+> On Dec-02 2003, Tue, 16:01 -0200
+> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+> 
+> 
+> > Its too late for it to be included in 2.4. Use 2.6 or a modified 2.4 tree.
+> 
+> 
+> A: Looking good, come back later, though.
+> B: Ok.
+> A: Come back later.
+> B: Ok.
+> A: Come back later.
+> B: Ok.
+> A: Come back later.
+> B: Ok.
+> A: Sorry, you're too late.
+> B: W--What?
+> A: You heard me.  (Also I don't like your shoes.)
+> 
+> 
+> (Sounds a bit like Monty Python to me, can't help it.)
 
-| Mike Fedyk wrote:
-| > Interesting.  It would be nice to have a boot option that halts the system
-| > after the first oops, instead of trying to continue.
+You know, that's what I've been thinking this whole time. Almost sounds like
+someone has a grudge against XFS (or something/someone related to XFS).
 
-You mean like the "panic_on_oops" sysctl??  (implemented in i386 & ppc64)
+Just my non-technical opinion.
 
-| > Vince/Randy:
-| > Did you use the 2.5.65 patch at http://w.ods.org/tools/kmsgdump/ or is there
-| > some other place that has newer patches?
-| > 
-| > BTW, http://www.xenotime.net/linux/kmsgdump gives a 404 error.
-| 
-| My version comes from:
-| http://developer.osdl.org/rddunlap/kmsgdump/
+-sandalle
 
-Yes, kmsgdump is now here ^^^^^^^^^^^^^^^^^^.
-Sorry about any confusion there.
+-- 
+PGP Key Fingerprint:  FCFF 26A1 BE21 08F4 BB91  FAED 1D7B 7D74 A8EF DD61
+http://search.keyserver.net:11371/pks/lookup?op=get&search=0xA8EFDD61
 
->From Vince:
-| It worked, but I had -- as expected -- to write the oops by hand.
-| (user request to Randy: would it be possible to have an option in 
-| kmsgdump to only write the first oops on floppy ???)
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCS/E/IT$ d-- s++:+>: a-- C++(+++) BL++++VIS>$ P+(++) L+++ E-(---) W++ N+@ o?
+K? w++++>-- O M-@ V-- PS+(+++) PE(-) Y++(+) PGP++(+) t+() 5++ X(+) R+(++)
+tv(--)b++(+++) DI+@ D++(+++) G>+++ e>+++ h---(++) r++ y+
+------END GEEK CODE BLOCK------
 
-Um, could you elaborate on why you would want that?
-kmsgdump assumes that the entire floppy belongs to it, so there
-should be plenty of room for multiple oopsen (although I don't
-know what it does on disk-full....).
+Eric Sandall                     |  Source Mage GNU/Linux Developer
+eric@sandall.us                  |  http://www.sourcemage.org/
+http://eric.sandall.us/          |  SysAdmin @ Inst. Shock Physics @ WSU
+http://counter.li.org/  #196285  |  http://www.shock.wsu.edu/
 
-I plan to add support for > 32 KB log buf sizes, but that's all I have
-planned for now.
-
---
-~Randy
-MOTD:  Always include version info.
+----------------------------------------------------------------
+This message was sent using IMP, the Internet Messaging Program.

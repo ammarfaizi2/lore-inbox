@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313115AbSDOIsZ>; Mon, 15 Apr 2002 04:48:25 -0400
+	id <S313114AbSDOIsQ>; Mon, 15 Apr 2002 04:48:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313116AbSDOIsZ>; Mon, 15 Apr 2002 04:48:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50948 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313115AbSDOIsX>;
-	Mon, 15 Apr 2002 04:48:23 -0400
-Message-ID: <3CBA93AB.A20F0FF7@zip.com.au>
-Date: Mon, 15 Apr 2002 01:47:39 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S313115AbSDOIsP>; Mon, 15 Apr 2002 04:48:15 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:57349 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S313114AbSDOIsO>; Mon, 15 Apr 2002 04:48:14 -0400
+Message-ID: <3CBA936B.449A183@aitel.hist.no>
+Date: Mon, 15 Apr 2002 10:46:35 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.7-dj3 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [prepatch] address_space-based writeback
-In-Reply-To: <3CB4203D.C3BE7298@zip.com.au>
+To: Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
+Subject: Re: linux as a minicomputer ?
+In-Reply-To: <E16wkJq-0004Jl-00@the-village.bc.nu> <20020415065501.3A687740@merlin.webofficenow.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-An update to these patches is at
+Rob Landley wrote:
 
-	http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.8/
+> The killer is that if one person drives the machine into swap, performance
+> melts down for everybody.  THAT is what makes the idea of a multi-headed
+> linux box as a many-way shared workstation seem a lot less workable to me.
 
-All work at this time is on
+No problem.  This is precisely what "ulimit" is for - prevent single
+users from grabbing too much resources on a multiuser machine.
+Distributions default to not use it because most machines are
+single-user,
+this however is the occation where you need it.  Of course you can
+afford
+more RAM for the 4-user machine, and shared memory for kernel and
+executable
+code helps too...
 
-dallocbase-10-page_alloc_fail.patch
-dallocbase-35-pageprivate_fixes.patch
-dallocbase-55-ext2_dir.patch
-dallocbase-60-page_accounting.patch
-ratcache-pf_memalloc.patch
-mempool-node.patch
-dallocbase-70-writeback.patch
-ttd		(my current 2.5 things-to-do-list, just for fun)
-
-none of the patches beyond these have even been tested in a week..
-
-The new buffer<->page relationship rules seem to be working
-out OK.  In a six-hour stress test on a quad Xeon with
-1k blocksize ext3 in ordered-data mode there was one failure:
-a block in a file which came up with wrong data.  There appears
-to be a race in ext3 or the patch or 2.5 or something somewhere.
-Still hunting this one.
-
-It is all relatively stable now.  ramdisk, loop, reiserfs, ext2,
-ext3-ordered, ext3-journalled, JFS and vfat have been tested.
-
-minixfs and sysvfs are broken with these patches.  They rely
-on preservation of directory data outside i_size.   Will fix.
-
--
+Helge Hafting

@@ -1,88 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263276AbTECIMn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 04:12:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTECIMm
+	id S263275AbTECIrc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 04:47:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTECIrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 04:12:42 -0400
-Received: from a214094.upc-a.chello.nl ([62.163.214.94]:46349 "HELO
-	rediffmail240.com") by vger.kernel.org with SMTP id S263276AbTECIMj
+	Sat, 3 May 2003 04:47:32 -0400
+Received: from dsl-62-3-122-162.zen.co.uk ([62.3.122.162]:52865 "EHLO
+	marx.trudheim.com") by vger.kernel.org with ESMTP id S263275AbTECIra
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 04:12:39 -0400
-From: Godswill Zabina <godswillzab2ng@rediffmail.com>
-To: linux-kernel@vger.kernel.org
-Reply-To: godswillzab1inc@rediffmail.com
-Subject: REQUESTING FOR BUSINESS ASSISTANCE.
-Date: Sat, 03 May 2003 10:25:02 +0200
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="e2bacd95-0d2c-4e2b-8755-772f02378017"
-Message-Id: <S263276AbTECIMj/20030503081239Z+2265@vger.kernel.org>
+	Sat, 3 May 2003 04:47:30 -0400
+Subject: Re: Compile error kernel 2.4.21-rc1
+From: Anders Karlsson <anders@trudheim.com>
+To: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1051946869.3976.32.camel@marx>
+References: <1051938126.3976.11.camel@marx>  <1051946869.3976.32.camel@marx>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/nE8U1kuGS1CkYcc0oEx"
+Organization: Trudheim Technology Limited
+Message-Id: <1051952389.3976.35.camel@marx>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4Rubber Turnip 
+Date: 03 May 2003 09:59:49 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is a multi-part message in MIME format
---e2bacd95-0d2c-4e2b-8755-772f02378017
-Content-Type: text/plain; charset=iso-8859-1
+--=-/nE8U1kuGS1CkYcc0oEx
+Content-Type: multipart/mixed; boundary="=-6PIJEUtRSo7V7U9BWp1D"
+
+
+--=-6PIJEUtRSo7V7U9BWp1D
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-Dear Sir,
+On Sat, 2003-05-03 at 08:27, Anders Karlsson wrote:
+> On Sat, 2003-05-03 at 06:02, Anders Karlsson wrote:
+> > Hi,
+> >=20
+> > Just tried to compile kernel 2.4.21-rc1 and I get the compile error as
+> > per attached file 'compile_error.txt'. The config file used is also
+> > attached. This happened while doing 'make rpm'. This is being compiled
+> > on SuSE Pro 8.2 which is using GCC 3.3.
+> >=20
+> > I'll happily try out patches.
+>=20
+> Found another compile error. Again attached in 'compile_error.txt'.
+>=20
+And another one.
 
-It's my priviledge to briefly introduce myself and the confidential business =
-proposal in concern. I write you this letter of request for partnership which =
-i hope you give your urgent attention as a
-reputable and trustworthy businessman.
+/Anders
 
-I am Mr Godswill Zabina from (Democratic Republic of Congo) a consultant, =
-estate and properties valued visiting holland. I was consulted by Dr. Edoman =
-Zabina (my Uncle) a personal assistance to the Director General of the Banque =
-Du Congo, this is the highest bank in  Congo. The said Dr. Edoman Zabina is a =
-uncle and has ask me to help him to look and arrange with a trustworthy =
-foreign partner who can assist in keeping the sum of US$18.5M (EIGTHTEEN =
-MILLION FIVE HUNDRED THOUSAND UNITED STATES DOLLARS) in his Bank account for =
-further investment.
+--=-6PIJEUtRSo7V7U9BWp1D
+Content-Disposition: attachment; filename=compile_error.txt
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name=compile_error.txt; charset=UTF-8
 
-The said amount US$18.5M was transported through Diplomatic Means in Two =
-treasure boxes and is presently deposited with a security company here in =
-holland since 18th of November 2002 although they do not know the contents =
-and he declared the content of the trunk boxes to the security company as =
-antiquities and personal effect. This was aimed at protecting the money from =
-theft.
+gcc -D__KERNEL__ -I/usr/src/packages/BUILD/kernel-2.4.21rc1/include -Wall -=
+Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fom=
+it-frame-pointer -pipe -mpreferred-stack-boundary=3D2 -march=3Di686 -DMODUL=
+E -DMODVERSIONS -include /usr/src/packages/BUILD/kernel-2.4.21rc1/include/l=
+inux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=3Dolym=
+pic  -c -o olympic.o olympic.c
+olympic.c:658:16: missing terminating " character
+olympic.c:659:7: missing terminating " character
+olympic.c: In function `olympic_rx':
+olympic.c:858: warning: signed and unsigned type in conditional expression
+olympic.c: At top level:
+/usr/src/packages/BUILD/kernel-2.4.21rc1/include/linux/module.h:299: warnin=
+g: `__module_kernel_version' defined but not used
+/usr/src/packages/BUILD/kernel-2.4.21rc1/include/linux/module.h:302: warnin=
+g: `__module_using_checksums' defined but not used
+olympic.c:1805: warning: `__module_license' defined but not used
+make[4]: *** [olympic.o] Error 1
+make[4]: Leaving directory `/usr/src/packages/BUILD/kernel-2.4.21rc1/driver=
+s/net/tokenring'
+make[3]: *** [_modsubdir_tokenring] Error 2
+make[3]: Leaving directory `/usr/src/packages/BUILD/kernel-2.4.21rc1/driver=
+s/net'
+make[2]: *** [_modsubdir_net] Error 2
+make[2]: Leaving directory `/usr/src/packages/BUILD/kernel-2.4.21rc1/driver=
+s'
+make[1]: *** [_mod_drivers] Error 2
+make[1]: Leaving directory `/usr/src/packages/BUILD/kernel-2.4.21rc1'
+Bad exit status from /var/tmp/rpm-tmp.64597 (%build)
+make: *** [rpm] Error 1
 
-Basically, the money was deposited by Uncle Dr. Edoman Zabina before he was =
-arrested by the government of my country and when there was probing to =
-unravel the circumstances leading to the disapperance of some millions of =
-dollars in the country's coffer, my uncle was subsequently arrested along =
-with other high ranking officials of the bank.
 
-We would have been able to claim this trunk boxes out on our own but our =
-problem is  compounded with the fact that my uncle told the security company =
-that the trunk boxes belong to a foreign affiliate who will come forward to =
-claim it when due.
+--=-6PIJEUtRSo7V7U9BWp1D--
 
-However your assistance is seriously needed because as Government official =
-they are not allowed to operate any foreign account due to the D.R.C law, =
-which does not permit government officials to operate foreign accounts. Dr. =
-Edoman  Zabina has decided to compensate you with 25% of the total sum of =
-US$18.5M then 5% will be set aside for expences incurred in the course of =
-this transaction, while 70% will be for him and his partners.
-If you are willing to render him your assistance regarding this transaction =
-and safe keeping of the money, all necessary arrangements required for the =
-speedy conclusion of this within TEN(10) working days has been concluded.
+--=-/nE8U1kuGS1CkYcc0oEx
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-So i desire all information i have provided you to be kept secret to avoid =
-more harm to him, Dr. Edoman Zabina (Personal Assistance to the Director =
-General). I am in a position to provide you with further details immediately =
-i received acknowledgement of this mail from you as soon as possible as you =
-identify positive interest to assist.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
 
-For further informations and clarification on this issue please contact me =
-through my directline +31-622-535-488 OR my email address.
+iD8DBQA+s4UFLYywqksgYBoRAmJzAJ4gpQTN+NTwrwL0bzK6DGlRnSxqwwCffoeJ
+mNGZHX+AVL9W1EKnkiFzhGQ=
+=JiAw
+-----END PGP SIGNATURE-----
 
-Awaiting for your urgent responce.
-
-Best regards,
-
-Mr. Godswill Zabina.  
---e2bacd95-0d2c-4e2b-8755-772f02378017--
+--=-/nE8U1kuGS1CkYcc0oEx--
 

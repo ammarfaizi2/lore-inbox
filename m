@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319001AbSHFFp0>; Tue, 6 Aug 2002 01:45:26 -0400
+	id <S318945AbSHEXvy>; Mon, 5 Aug 2002 19:51:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319002AbSHFFp0>; Tue, 6 Aug 2002 01:45:26 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47634 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S319001AbSHFFpZ>; Tue, 6 Aug 2002 01:45:25 -0400
-Date: Mon, 5 Aug 2002 22:48:38 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <vamsi_krishna@in.ibm.com>
-Subject: Re: [PATCH] kprobes for 2.5.30 
-In-Reply-To: <20020806035803.23FC54B65@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0208052247380.1171-100000@home.transmeta.com>
+	id <S318946AbSHEXvy>; Mon, 5 Aug 2002 19:51:54 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:63961 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318945AbSHEXvx>;
+	Mon, 5 Aug 2002 19:51:53 -0400
+Date: Mon, 05 Aug 2002 16:53:33 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] NUMA-Q xquad_portio declaration
+Message-ID: <349340000.1028591613@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch is from Matt Dobson. It corrects the definition of
+xquad_portio, getting rid of a compile warning.
+Tested on NUMA-Q and std 2-way SMP system through LTP.
 
-On Tue, 6 Aug 2002, Rusty Russell wrote:
-> 
-> I am reading from this that we *should* be explicitly disabling
-> preemption in interrupt handlers if we rely on the cpu number not
-> changing underneath us, even if it's (a) currently unneccessary, and
-> (b) arch-specific code.
+Please apply,
 
-But do_irq() already does that.
+Martin.
 
-You mean _exception_ handlers. It's definitely not unnecessary. Exceptions 
-can very much be preempted.
-
-		Linus
+diff -Nur linux-2.5.25-vanilla/arch/i386/boot/compressed/misc.c linux-2.5.25-patched/arch/i386/boot/compressed/misc.c
+--- linux-2.5.25-vanilla/arch/i386/boot/compressed/misc.c	Fri Jul  5 16:42:31 2002
++++ linux-2.5.25-patched/arch/i386/boot/compressed/misc.c	Thu Jul 11 15:30:03 2002
+@@ -121,7 +121,7 @@
+ static int lines, cols;
+ 
+ #ifdef CONFIG_MULTIQUAD
+-static void * const xquad_portio = NULL;
++static void * xquad_portio = NULL;
+ #endif
+ 
+ #include "../../../../lib/inflate.c"
 

@@ -1,72 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262477AbUBXVdq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 16:33:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbUBXVdp
+	id S262314AbUBXVd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 16:33:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbUBXVd5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 16:33:45 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:19328 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262314AbUBXVdm
+	Tue, 24 Feb 2004 16:33:57 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:3984 "EHLO hermes.jf.intel.com")
+	by vger.kernel.org with ESMTP id S262314AbUBXVdy convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 16:33:42 -0500
-Date: Tue, 24 Feb 2004 16:34:40 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: /proc/mounts "stuff"
-Message-ID: <Pine.LNX.4.53.0402241630500.4054@chaos>
+	Tue, 24 Feb 2004 16:33:54 -0500
+Content-Class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: PATCH - InfiniBand Access Layer (IBAL)
+Date: Tue, 24 Feb 2004 13:33:37 -0800
+Message-ID: <F595A0622682C44DBBE0BBA91E56A5ED1C36C9@orsmsx410.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PATCH - InfiniBand Access Layer (IBAL)
+Thread-Index: AcP7Dqe5sJ8dz4XDSD6nUJf67NQjBgADWu8Q
+From: "Woodruff, Robert J" <woody@co.intel.com>
+To: "Greg KH" <greg@kroah.com>, "Woodruff, Robert J" <woody@jf.intel.com>
+Cc: <linux-kernel@vger.kernel.org>, "Hefty, Sean" <sean.hefty@intel.com>,
+       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
+       "Davis, Arlin R" <arlin.r.davis@intel.com>,
+       <marcelo.tosatti@cyclades.com>, <torvalds@osdl.org>
+X-OriginalArrivalTime: 24 Feb 2004 21:33:37.0909 (UTC) FILETIME=[DD218250:01C3FB1D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 24, 2004 at 11:45:04AM -0800, Greg KH  wrote:
+>The
+http://osdn.dl.sourceforge.net/sourceforge/infiniband/patch-2_6_3-iba.bz
+2
+>patch is corrupted.
+ 
+I may have made a mistake in upload to sourceforge. 
+I tried to upload both a compressed patch file and a compressed 
+tar file for those that do not want to deal with patches. 
+I think it should be Ok now.  
+Jerrie could you download the patch from sourceforge and take a 
+look at it to make sure it is OK. 
 
-Linux version 2.2.24 (actually since pivot-root), have a
-problem with what's in /proc/mounts vs. what's written
-to /etc/mtab when mounting file-systems.
+>Please make those changes and then post the patch here 
+>(not just a link, if it's too big, split it up into 
+>the logical pieces to fit.)  We can go from there.
 
-/etc/mtab
-
-/dev/sda1 / ext2 rw 0 0
-none /proc proc rw 0 0
-none /dev/pts devpts rw,gid=5,mode=620 0 0
-none /dev/shm tmpfs rw 0 0
-/dev/sdb1 /usr/src ext2 rw 0 0
-
-/proc/mounts
-
-rootfs / rootfs rw 0 0
-/dev/root / ext2 rw 0 0
-/proc /proc proc rw 0 0
-none /dev/pts devpts rw 0 0
-none /dev/shm tmpfs rw 0 0
-/dev/sdb1 /usr/src ext2 rw 0 0
-
-/etc/issue
-
-Red Hat Linux release 8.0 (Psyche)
-Kernel 2.4.24 on a i586
-
-On that system /dev/root doesn't even exist!
-Neither does rootfs in any accessible way. Therefore,
-the shutdown routine(s) that read /proc/mounts will
-fail, leaving improperly dismounted volumes.  Basically,
-if I execute `init 0` from the console, everything's
-fine, but executing 'reboot' from a network connection
-will result in a long fsucking startup.
-
-I think the two unusable entries should not show in
-/proc/mounts,
-	rootfs / rootfs rw 0 0
-	/dev/root / ext2 rw 0 0
-That would fix the problem because there is no way to
-umount either of them. Try it, `umount rootfs` returns
-ENOENT as does `umount /dev/root'`.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+Ok, we will do that too. 
 

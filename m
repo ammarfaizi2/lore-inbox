@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293551AbSCEDHV>; Mon, 4 Mar 2002 22:07:21 -0500
+	id <S293514AbSCEDHv>; Mon, 4 Mar 2002 22:07:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293550AbSCEDHM>; Mon, 4 Mar 2002 22:07:12 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:53770 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S293514AbSCEDGy>;
-	Mon, 4 Mar 2002 22:06:54 -0500
-From: Paul Mackerras <paulus@samba.org>
+	id <S293550AbSCEDHg>; Mon, 4 Mar 2002 22:07:36 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:39173 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S293514AbSCEDHP>; Mon, 4 Mar 2002 22:07:15 -0500
+Date: Mon, 4 Mar 2002 22:05:35 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19pre1aa1
+In-Reply-To: <Pine.LNX.4.44L.0203042225340.2181-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.3.96.1020304215448.24212A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15492.13788.572953.6546@argo.ozlabs.ibm.com>
-Date: Tue, 5 Mar 2002 14:05:00 +1100 (EST)
-To: jt@hpl.hp.com
-Cc: linux-ppp@vger.kernel.org,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: PPP feature request (Tx queue len + close)
-In-Reply-To: <20020304144200.A32397@bougret.hpl.hp.com>
-In-Reply-To: <20020304144200.A32397@bougret.hpl.hp.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Tourrilhes writes:
+On Mon, 4 Mar 2002, Rik van Riel wrote:
 
-> 	Problem : IrDA does its buffering (IrTTP is a sliding window
-> protocol). PPP does its buffering (1 packet in ppp_generic +
-> dev->tx_queue_len = 3). End result : a large number of packets queued
-> for transmissions, which result in some network performance issues.
+> On Tue, 5 Mar 2002, Andrea Arcangeli wrote:
+> > On Mon, Mar 04, 2002 at 09:01:31PM -0300, Rik van Riel wrote:
+> > > This could be expressed as:
+> > >
+> > > "node A"  HIGHMEM A -> HIGHMEM B -> NORMAL -> DMA
+> > > "node B"  HIGHMEM B -> HIGHMEM A -> NORMAL -> DMA
+> >
+> > Highmem? Let's assume you speak about "normal" and "dma" only of course.
+> >
+> > And that's not always the right zonelist layout. If an allocation asks for
+> > ram from a certain node, like during the ram bindings, we should use the
+> > current layout of the numa zonelist. If node A is the preferred, than we
+> > should allocate from node A first,
+> 
+> You're forgetting about the fact that this NUMA box only
+> has 1 ZONE_NORMAL and 1 ZONE_DMA while it has multiple
+> HIGHMEM zones...
+> 
+> This makes the fallback pattern somewhat more complex.
 
-How much buffering does IrTTP do?  How large is its window?  It is
-much more critical IMO to reduce the buffering below ppp_generic than
-it is to reduce the buffering above it.  The ppp_generic layer itself
-does as little buffering as possible.
+Both HIMEM (on CPU) and NUMA nodes remind me somewhat of the days when
+"band switched" memory was supposed to be the answer to limited addressing
+space. The trick was to have things in the right place and not eat up the
+capacity with moving data. I think you're right that the problem is not as
+simple several posters have suggested. I'm afraid someone will have to do
+some clever adaptive work here, the speed of the connects to the memory
+will change as both evolve. And it's easier to make a node smaller than
+put them closer together. 
 
-> 	Solution : could we allow the PPP channel to overwrite
-> dev->tx_queue_len ?
-> 	This is similar to the channel beeing able to set the MTUs and
-> other parameters...
+I'm awaiting the IBM paper(s) on this, I don't find my Hypercube and PVM
+experience to fit well anymore :-(
 
-Not really, the channel can't set the bundle MTU, only its own MTU.
-It can set the header length (the desired amount of headroom) but that
-is really only an optimization.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-What would happen in the case where two channels connected to the
-same ppp unit want to set the queue length to two different values?
-
-In general I think it would be better to get pppd to set the transmit
-queue length than to have the channel magically influencing stuff two
-levels above it.
-
-Could you produce some numbers showing better throughput, fewer
-retransmissions, or whatever, with a smaller transmit queue length?
-
-Paul.

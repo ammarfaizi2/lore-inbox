@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131725AbRCOOJ7>; Thu, 15 Mar 2001 09:09:59 -0500
+	id <S131731AbRCOOLK>; Thu, 15 Mar 2001 09:11:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131727AbRCOOJt>; Thu, 15 Mar 2001 09:09:49 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:223 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S131725AbRCOOJf>; Thu, 15 Mar 2001 09:09:35 -0500
-Message-ID: <3AB0CD57.FB97B4C@uow.edu.au>
-Date: Fri, 16 Mar 2001 01:10:31 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3-pre3 i586)
-X-Accept-Language: en
+	id <S131732AbRCOOLA>; Thu, 15 Mar 2001 09:11:00 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:45583 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S131731AbRCOOK4>; Thu, 15 Mar 2001 09:10:56 -0500
+Date: Thu, 15 Mar 2001 10:08:50 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: "Mike A. Harris" <mharris@opensourceadvocate.org>
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Is swap == 2 * RAM a permanent thing?
+In-Reply-To: <Pine.LNX.4.33.0103150720100.757-100000@asdf.capslock.lan>
+Message-ID: <Pine.LNX.4.21.0103151005210.4165-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
-To: Matt Johnston <lkml4@caifex.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: OOPS when switching consoles while closing X.
-In-Reply-To: <01031521172400.04174@box.caifex.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Johnston wrote:
-> 
-> Hi.
-> 
-> I've had a semi-reproducable oops with the kernel. It happens when I'm
-> shutting down X (Xfree86 4.02 cvs), while it is closing all open apps (KDE
-> 2.1.1 cvs). I switch to a text console (ctrl-alt-F2 etc), and it crashes
-> almost as soon as the text console is there.
-> 
+On Thu, 15 Mar 2001, Mike A. Harris wrote:
 
-Someone is calling console functions from interrupt context.
-Unfortunately your backtrace looks wrong.  Could you
-please rerun ksymoops and send me the output?  Make
-sure you're using the correct System.map (ksymoops -m).
+> Is the fact that we're supposed to use double the RAM size as
+> swap a permanent thing or a temporary annoyance that will get
+> tweaked/fixed in the future at some point during 2.4.x perhaps?
+>
+> What are the technical reasons behind this change?
 
-It should be pretty straightforward to fix.  While we're there
-we'll do something about do_SAK(), which is acquiring the
-tasklist_lock from interrupt context.  For heaven's sake.
+The reason is that the Linux 2.4 kernel no longer reclaims swap
+space on swapin (2.2 reclaimed swap space on write access, which
+lead to fragmented swap space in lots of workloads).
 
--
+This means that a lot of memory ends up "duplicated" in RAM and
+in swap.
+
+I plan on doing some code to reclaim swap space when we run out,
+but Linus doesn't seem to like that idea very much. His argument
+(when you're OOM, you should just fail instead of limp along)
+makes a lot of sense, however, and the reclaiming of swap space
+isn't really high on my TODO list ...
+
+OTOH, for people who have swap < RAM and use it just as a small
+overflow area, Linus' argument falls short, so I guess some time
+in the future we will have code to reclaim swap space when needed.
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+

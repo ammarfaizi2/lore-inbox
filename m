@@ -1,215 +1,426 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265423AbSJSAVY>; Fri, 18 Oct 2002 20:21:24 -0400
+	id <S265418AbSJSAWL>; Fri, 18 Oct 2002 20:22:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265426AbSJSAVY>; Fri, 18 Oct 2002 20:21:24 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:36623 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S265422AbSJSAUw>; Fri, 18 Oct 2002 20:20:52 -0400
-Date: Sat, 19 Oct 2002 01:26:45 +0100
-From: John Levon <levon@movementarian.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: weigand@immd1.informatik.uni-erlangen.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [8/7] oprofile - dcookies need to use u32
-Message-ID: <20021019002645.GA16882@compsoc.man.ac.uk>
-References: <20021017005728.GA8267@compsoc.man.ac.uk> <20021016.175515.21904896.davem@redhat.com> <20021017011623.GA9096@compsoc.man.ac.uk> <20021016.181213.35446337.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021016.181213.35446337.davem@redhat.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *182hS1-000C0i-00*pqsqeaCc866* (Manchester Computing, University of Manchester)
+	id <S265422AbSJSAV7>; Fri, 18 Oct 2002 20:21:59 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:38876 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S265418AbSJSAUI>;
+	Fri, 18 Oct 2002 20:20:08 -0400
+To: <linux-kernel@vger.kernel.org>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] 2.5.43 Generic HDLC ioctl interface update
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 19 Oct 2002 01:54:24 +0200
+Message-ID: <m3iszzjob3.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 16, 2002 at 06:12:13PM -0700, David S. Miller wrote:
+--=-=-=
 
-> Right, but you could zero-extend that from u32 if u32
-> were the size appropriate for the current kernel.
-> 
-> I'm trying to decrease the size of your logfile.
+Hi,
 
-OK, I think I've caught on. Please check the below patch.
+The attached patch for Linux 2.5.43 solves problems with generic HDLC ioctl.
 
-Now all we need is for whoever ports oprofiled to a 32-bit on 64-bit
-platform to add some check for finding out the kernel's idea of what
-sizeof(unsigned long) is, and using that to read /dev/oprofile/buffer.
+What it does:
+- uses "size" parameter to tell the kernel the max data size to copy to
+  userland, and thus doesn't overrun userland buffers. It's required as
+  the userland doesn't know the protocol or interface type (nor its config
+  data size) in advance.
+  We do "get interface type" and "get interface "config" in one ioctl to
+  prevent race conditions and avoid additional code complication. In real
+  world, both operations are done together anyway.
 
-Yeah ?
+- simplifies if_settings struct.
+- all drivers using this (c101, n2, dscc4, farsync, hdlc protos) are
+  updated accordingly.
+-- 
+Krzysztof Halasa
+Network Administrator
+If you've sent me email recently and it remains unanswered, please try once
+again. HDD crash might have eaten it :-(
 
-thanks
-john
 
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: attachment; filename=hdlc-2.5.43.patch
 
-diff -X dontdiff -Naur linux-linus/drivers/oprofile/buffer_sync.c linux/drivers/oprofile/buffer_sync.c
---- linux-linus/drivers/oprofile/buffer_sync.c	Wed Oct 16 19:08:46 2002
-+++ linux/drivers/oprofile/buffer_sync.c	Thu Oct 17 01:42:47 2002
-@@ -118,13 +118,13 @@
-  * because we cannot reach this code without at least one
-  * dcookie user still being registered (namely, the reader
-  * of the event buffer). */
--static inline u32 fast_get_dcookie(struct dentry * dentry,
-+static inline unsigned long fast_get_dcookie(struct dentry * dentry,
- 	struct vfsmount * vfsmnt)
+--- linux-2.5.orig/include/linux/if.h	2002-10-01 09:06:58.000000000 +0200
++++ linux-2.5/include/linux/if.h	2002-10-19 00:44:51.000000000 +0200
+@@ -96,16 +96,20 @@
+ struct if_settings
  {
--	u32 cookie;
-+	unsigned long cookie;
-  
- 	if (dentry->d_cookie)
--		return (u32)dentry;
-+		return (unsigned long)dentry;
- 	get_dcookie(dentry, vfsmnt, &cookie);
- 	return cookie;
- }
-@@ -135,9 +135,9 @@
-  * not strictly necessary but allows oprofile to associate
-  * shared-library samples with particular applications
-  */
--static u32 get_exec_dcookie(struct mm_struct * mm)
-+static unsigned long get_exec_dcookie(struct mm_struct * mm)
+ 	unsigned int type;	/* Type of physical device or protocol */
++	unsigned int size;	/* Size of the data allocated by the caller */
+ 	union {
+ 		/* {atm/eth/dsl}_settings anyone ? */
+-		union hdlc_settings ifsu_hdlc;
+-		union line_settings ifsu_line;
++		raw_hdlc_proto		*raw_hdlc;
++		cisco_proto		*cisco;
++		fr_proto		*fr;
++		fr_proto_pvc		*fr_pvc;
++
++		/* interface settings */
++		sync_serial_settings	*sync;
++		te1_settings		*te1;
+ 	} ifs_ifsu;
+ };
+ 
+-#define ifs_hdlc	ifs_ifsu.ifsu_hdlc
+-#define ifs_line	ifs_ifsu.ifsu_line
+-
+ /*
+  * Interface request structure used for socket
+  * ioctl's.  All interface ioctl's must have parameter
+@@ -135,7 +139,7 @@
+ 		char	ifru_slave[IFNAMSIZ];	/* Just fits the size */
+ 		char	ifru_newname[IFNAMSIZ];
+ 		char *	ifru_data;
+-		struct	if_settings *ifru_settings;
++		struct	if_settings ifru_settings;
+ 	} ifr_ifru;
+ };
+ 
+--- linux-2.5.orig/include/linux/hdlc.h	2002-10-01 09:07:50.000000000 +0200
++++ linux-2.5/include/linux/hdlc.h	2002-10-19 01:37:22.000000000 +0200
+@@ -12,7 +12,7 @@
+ #ifndef __HDLC_H
+ #define __HDLC_H
+ 
+-#define GENERIC_HDLC_VERSION 3	/* For synchronization with sethdlc utility */
++#define GENERIC_HDLC_VERSION 4	/* For synchronization with sethdlc utility */
+ 
+ #define CLOCK_DEFAULT   0	/* Default setting */
+ #define CLOCK_EXT	1	/* External TX and RX clock - DTE */
+--- linux-2.5.orig/drivers/net/wan/hdlc_cisco.c	2002-10-01 09:06:28.000000000 +0200
++++ linux-2.5/drivers/net/wan/hdlc_cisco.c	2002-10-19 01:28:41.000000000 +0200
+@@ -247,15 +247,19 @@
+ 
+ int hdlc_cisco_ioctl(hdlc_device *hdlc, struct ifreq *ifr)
  {
--	u32 cookie = 0;
-+	unsigned long cookie = 0;
- 	struct vm_area_struct * vma;
-  
- 	if (!mm)
-@@ -163,9 +163,9 @@
-  * sure to do this lookup before a mm->mmap modification happens so
-  * we don't lose track.
-  */
--static u32 lookup_dcookie(struct mm_struct * mm, unsigned long addr, off_t * offset)
-+static unsigned long lookup_dcookie(struct mm_struct * mm, unsigned long addr, off_t * offset)
+-	cisco_proto *cisco_s = &ifr->ifr_settings->ifs_hdlc.cisco;
++	cisco_proto *cisco_s = ifr->ifr_settings.ifs_ifsu.cisco;
+ 	const size_t size = sizeof(cisco_proto);
+ 	cisco_proto new_settings;
+ 	struct net_device *dev = hdlc_to_dev(hdlc);
+ 	int result;
+ 
+-	switch (ifr->ifr_settings->type) {
++	switch (ifr->ifr_settings.type) {
+ 	case IF_GET_PROTO:
+-		ifr->ifr_settings->type = IF_PROTO_CISCO;
++		ifr->ifr_settings.type = IF_PROTO_CISCO;
++		if (ifr->ifr_settings.size < size) {
++			ifr->ifr_settings.size = size; /* data size wanted */
++			return -ENOBUFS;
++		}
+ 		if (copy_to_user(cisco_s, &hdlc->state.cisco.settings, size))
+ 			return -EFAULT;
+ 		return 0;
+--- linux-2.5.orig/drivers/net/wan/hdlc_fr.c	2002-10-01 09:06:27.000000000 +0200
++++ linux-2.5/drivers/net/wan/hdlc_fr.c	2002-10-19 01:25:32.000000000 +0200
+@@ -778,16 +778,20 @@
+ 
+ int hdlc_fr_ioctl(hdlc_device *hdlc, struct ifreq *ifr)
  {
--	u32 cookie = 0;
-+	unsigned long cookie = 0;
- 	struct vm_area_struct * vma;
+-	fr_proto *fr_s = &ifr->ifr_settings->ifs_hdlc.fr;
++	fr_proto *fr_s = ifr->ifr_settings.ifs_ifsu.fr;
+ 	const size_t size = sizeof(fr_proto);
+ 	fr_proto new_settings;
+ 	struct net_device *dev = hdlc_to_dev(hdlc);
+ 	fr_proto_pvc pvc;
+ 	int result;
  
- 	for (vma = find_vma(mm, addr); vma; vma = vma->vm_next) {
-@@ -188,7 +188,7 @@
- }
+-	switch (ifr->ifr_settings->type) {
++	switch (ifr->ifr_settings.type) {
+ 	case IF_GET_PROTO:
+-		ifr->ifr_settings->type = IF_PROTO_FR;
++		ifr->ifr_settings.type = IF_PROTO_FR;
++		if (ifr->ifr_settings.size < size) {
++			ifr->ifr_settings.size = size; /* data size wanted */
++			return -ENOBUFS;
++		}
+ 		if (copy_to_user(fr_s, &hdlc->state.fr.settings, size))
+ 			return -EFAULT;
+ 		return 0;
+@@ -847,12 +851,12 @@
+ 		if(!capable(CAP_NET_ADMIN))
+ 			return -EPERM;
+ 
+-		if (copy_from_user(&pvc, &ifr->ifr_settings->ifs_hdlc.fr_pvc,
++		if (copy_from_user(&pvc, ifr->ifr_settings.ifs_ifsu.fr_pvc,
+ 				   sizeof(fr_proto_pvc)))
+ 			return -EFAULT;
+ 
+ 		return fr_pvc(hdlc, pvc.dlci,
+-			      ifr->ifr_settings->type == IF_PROTO_FR_ADD_PVC);
++			      ifr->ifr_settings.type == IF_PROTO_FR_ADD_PVC);
+ 	}
+ 
+ 	return -EINVAL;
+--- linux-2.5.orig/drivers/net/wan/hdlc_generic.c	2002-10-01 09:06:17.000000000 +0200
++++ linux-2.5/drivers/net/wan/hdlc_generic.c	2002-10-19 01:37:03.000000000 +0200
+@@ -38,7 +38,7 @@
+ #include <linux/hdlc.h>
  
  
--static u32 last_cookie = ~0UL;
-+static unsigned long last_cookie = ~0UL;
-  
- static void add_cpu_switch(int i)
+-static const char* version = "HDLC support module revision 1.10";
++static const char* version = "HDLC support module revision 1.11";
+ 
+ 
+ static int hdlc_change_mtu(struct net_device *dev, int new_mtu)
+@@ -95,13 +95,13 @@
+ 	if (cmd != SIOCWANDEV)
+ 		return -EINVAL;
+ 
+-	switch(ifr->ifr_settings->type) {
++	switch(ifr->ifr_settings.type) {
+ 	case IF_PROTO_HDLC:
+ 	case IF_PROTO_PPP:
+ 	case IF_PROTO_CISCO:
+ 	case IF_PROTO_FR:
+ 	case IF_PROTO_X25:
+-		proto = ifr->ifr_settings->type;
++		proto = ifr->ifr_settings.type;
+ 		break;
+ 
+ 	default:
+--- linux-2.5.orig/drivers/net/wan/hdlc_ppp.c	2002-10-01 09:06:16.000000000 +0200
++++ linux-2.5/drivers/net/wan/hdlc_ppp.c	2002-10-19 01:25:39.000000000 +0200
+@@ -82,9 +82,9 @@
+ 	struct net_device *dev = hdlc_to_dev(hdlc);
+ 	int result;
+ 
+-	switch (ifr->ifr_settings->type) {
++	switch (ifr->ifr_settings.type) {
+ 	case IF_GET_PROTO:
+-		ifr->ifr_settings->type = IF_PROTO_PPP;
++		ifr->ifr_settings.type = IF_PROTO_PPP;
+ 		return 0; /* return protocol only, no settable parameters */
+ 
+ 	case IF_PROTO_PPP:
+--- linux-2.5.orig/drivers/net/wan/hdlc_raw.c	2002-10-01 09:07:06.000000000 +0200
++++ linux-2.5/drivers/net/wan/hdlc_raw.c	2002-10-19 01:28:59.000000000 +0200
+@@ -37,15 +37,19 @@
+ 
+ int hdlc_raw_ioctl(hdlc_device *hdlc, struct ifreq *ifr)
  {
-@@ -199,7 +199,7 @@
- }
+-	raw_hdlc_proto *raw_s = &ifr->ifr_settings->ifs_hdlc.raw_hdlc;
++	raw_hdlc_proto *raw_s = ifr->ifr_settings.ifs_ifsu.raw_hdlc;
+ 	const size_t size = sizeof(raw_hdlc_proto);
+ 	raw_hdlc_proto new_settings;
+ 	struct net_device *dev = hdlc_to_dev(hdlc);
+ 	int result;
  
-  
--static void add_ctx_switch(pid_t pid, u32 cookie)
-+static void add_ctx_switch(pid_t pid, unsigned long cookie)
+-	switch (ifr->ifr_settings->type) {
++	switch (ifr->ifr_settings.type) {
+ 	case IF_GET_PROTO:
+-		ifr->ifr_settings->type = IF_PROTO_HDLC;
++		ifr->ifr_settings.type = IF_PROTO_HDLC;
++		if (ifr->ifr_settings.size < size) {
++			ifr->ifr_settings.size = size; /* data size wanted */
++			return -ENOBUFS;
++		}
+ 		if (copy_to_user(raw_s, &hdlc->state.raw_hdlc.settings, size))
+ 			return -EFAULT;
+ 		return 0;
+--- linux-2.5.orig/drivers/net/wan/n2.c	2002-10-01 09:06:23.000000000 +0200
++++ linux-2.5/drivers/net/wan/n2.c	2002-10-19 01:24:50.000000000 +0200
+@@ -246,9 +246,8 @@
+ 
+ static int n2_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
  {
- 	add_event_entry(ESCAPE_CODE);
- 	add_event_entry(CTX_SWITCH_CODE); 
-@@ -208,7 +208,7 @@
- }
+-	union line_settings *line = &ifr->ifr_settings->ifs_line;
+ 	const size_t size = sizeof(sync_serial_settings);
+-	sync_serial_settings new_line;
++	sync_serial_settings new_line, *line = ifr->ifr_settings.ifs_ifsu.sync;
+ 	hdlc_device *hdlc = dev_to_hdlc(dev);
+ 	port_t *port = hdlc_to_port(hdlc);
  
-  
--static void add_cookie_switch(u32 cookie)
-+static void add_cookie_switch(unsigned long cookie)
+@@ -261,10 +260,14 @@
+ 	if (cmd != SIOCWANDEV)
+ 		return hdlc_ioctl(dev, ifr, cmd);
+ 
+-	switch(ifr->ifr_settings->type) {
++	switch(ifr->ifr_settings.type) {
+ 	case IF_GET_IFACE:
+-		ifr->ifr_settings->type = IF_IFACE_SYNC_SERIAL;
+-		if (copy_to_user(&line->sync, &port->settings, size))
++		ifr->ifr_settings.type = IF_IFACE_SYNC_SERIAL;
++		if (ifr->ifr_settings.size < size) {
++			ifr->ifr_settings.size = size; /* data size wanted */
++			return -ENOBUFS;
++		}
++		if (copy_to_user(line, &port->settings, size))
+ 			return -EFAULT;
+ 		return 0;
+ 
+@@ -272,7 +275,7 @@
+ 		if(!capable(CAP_NET_ADMIN))
+ 			return -EPERM;
+ 
+-		if (copy_from_user(&new_line, &line->sync, size))
++		if (copy_from_user(&new_line, line, size))
+ 			return -EFAULT;
+ 
+ 		if (new_line.clock_type != CLOCK_EXT &&
+--- linux-2.5.orig/drivers/net/wan/c101.c	2002-10-01 09:06:22.000000000 +0200
++++ linux-2.5/drivers/net/wan/c101.c	2002-10-19 01:24:56.000000000 +0200
+@@ -175,9 +175,8 @@
+ 
+ static int c101_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
  {
- 	add_event_entry(ESCAPE_CODE);
- 	add_event_entry(COOKIE_SWITCH_CODE);
-@@ -225,7 +225,7 @@
+-	union line_settings *line = &ifr->ifr_settings->ifs_line;
+ 	const size_t size = sizeof(sync_serial_settings);
+-	sync_serial_settings new_line;
++	sync_serial_settings new_line, *line = ifr->ifr_settings.ifs_ifsu.sync;
+ 	hdlc_device *hdlc = dev_to_hdlc(dev);
+ 	port_t *port = hdlc_to_port(hdlc);
  
- static void add_us_sample(struct mm_struct * mm, struct op_sample * s)
+@@ -190,10 +189,14 @@
+ 	if (cmd != SIOCWANDEV)
+ 		return hdlc_ioctl(dev, ifr, cmd);
+ 
+-	switch(ifr->ifr_settings->type) {
++	switch(ifr->ifr_settings.type) {
+ 	case IF_GET_IFACE:
+-		ifr->ifr_settings->type = IF_IFACE_SYNC_SERIAL;
+-		if (copy_to_user(&line->sync, &port->settings, size))
++		ifr->ifr_settings.type = IF_IFACE_SYNC_SERIAL;
++		if (ifr->ifr_settings.size < size) {
++			ifr->ifr_settings.size = size; /* data size wanted */
++			return -ENOBUFS;
++		}
++		if (copy_to_user(line, &port->settings, size))
+ 			return -EFAULT;
+ 		return 0;
+ 
+@@ -201,7 +204,7 @@
+ 		if(!capable(CAP_NET_ADMIN))
+ 			return -EPERM;
+ 
+-		if (copy_from_user(&new_line, &line->sync, size))
++		if (copy_from_user(&new_line, line, size))
+ 			return -EFAULT;
+ 
+ 		if (new_line.clock_type != CLOCK_EXT &&
+--- linux-2.5.orig/drivers/net/wan/farsync.c	2002-10-01 09:07:31.000000000 +0200
++++ linux-2.5/drivers/net/wan/farsync.c	2002-10-19 01:29:30.000000000 +0200
+@@ -1010,11 +1010,11 @@
+ fst_set_iface ( struct fst_card_info *card, struct fst_port_info *port,
+                 struct ifreq *ifr )
  {
--	u32 cookie;
-+	unsigned long cookie;
- 	off_t offset;
-  
-  	cookie = lookup_dcookie(mm, s->eip, &offset);
-@@ -317,7 +317,7 @@
+-	union line_settings *line = &ifr->ifr_settings->ifs_line;
+         sync_serial_settings sync;
+         int i;
+ 
+-        if ( copy_from_user ( &sync, &line->sync, sizeof ( sync )))
++        if (copy_from_user (&sync, ifr->ifr_settings.ifs_ifsu.sync,
++			    sizeof (sync)))
+                 return -EFAULT;
+ 
+         if ( sync.loopback )
+@@ -1022,7 +1022,7 @@
+ 
+         i = port->index;
+ 
+-        switch ( ifr->ifr_settings->type )
++        switch (ifr->ifr_settings.type)
+         {
+         case IF_IFACE_V35:
+                 FST_WRW ( card, portConfig[i].lineInterface, V35 );
+@@ -1067,7 +1067,6 @@
+ fst_get_iface ( struct fst_card_info *card, struct fst_port_info *port,
+                 struct ifreq *ifr )
  {
- 	struct mm_struct * mm = 0;
- 	struct task_struct * new;
--	u32 cookie;
-+	unsigned long cookie;
- 	int i;
-  
- 	for (i=0; i < cpu_buf->pos; ++i) {
-diff -X dontdiff -Naur linux-linus/fs/dcookies.c linux/fs/dcookies.c
---- linux-linus/fs/dcookies.c	Wed Oct 16 19:08:50 2002
-+++ linux/fs/dcookies.c	Sat Oct 19 01:08:02 2002
-@@ -8,7 +8,7 @@
-  * non-transitory that can be processed at a later date.
-  * This is done by locking the dentry/vfsmnt pair in the
-  * kernel until released by the tasks needing the persistent
-- * objects. The tag is simply an u32 that refers
-+ * objects. The tag is simply an unsigned long that refers
-  * to the pair and can be looked up from userspace.
-  */
+-	union line_settings *line = &ifr->ifr_settings->ifs_line;
+         sync_serial_settings sync;
+         int i;
  
-@@ -46,19 +46,19 @@
+@@ -1078,24 +1077,30 @@
+         switch ( port->hwif )
+         {
+         case V35:
+-                ifr->ifr_settings->type = IF_IFACE_V35;
++                ifr->ifr_settings.type = IF_IFACE_V35;
+                 break;
+         case V24:
+-                ifr->ifr_settings->type = IF_IFACE_V24;
++                ifr->ifr_settings.type = IF_IFACE_V24;
+                 break;
+         case X21:
+         default:
+-                ifr->ifr_settings->type = IF_IFACE_X21;
++                ifr->ifr_settings.type = IF_IFACE_X21;
+                 break;
+         }
  
++	if (ifr->ifr_settings.size < sizeof(sync)) {
++		ifr->ifr_settings.size = sizeof(sync); /* data size wanted */
++		return -ENOBUFS;
++	}
++
+         i = port->index;
+         sync.clock_rate = FST_RDL ( card, portConfig[i].lineSpeed );
+         /* Lucky card and linux use same encoding here */
+         sync.clock_type = FST_RDB ( card, portConfig[i].internalClock );
+         sync.loopback = 0;
  
- /* The dentry is locked, its address will do for the cookie */
--static inline u32 dcookie_value(struct dcookie_struct * dcs)
-+static inline unsigned long dcookie_value(struct dcookie_struct * dcs)
+-        if ( copy_to_user (&line->sync, &sync, sizeof ( sync )))
++        if (copy_to_user (ifr->ifr_settings.ifs_ifsu.sync, &sync,
++			  sizeof(sync)))
+                 return -EFAULT;
+ 
+         return 0;
+@@ -1221,7 +1226,7 @@
+                 return set_conf_from_info ( card, port, &info );
+ 
+         case SIOCWANDEV:
+-                switch ( ifr->ifr_settings->type )
++                switch (ifr->ifr_settings.type)
+                 {
+                 case IF_GET_IFACE:
+                         return fst_get_iface ( card, port, ifr );
+--- linux-2.5.orig/drivers/net/wan/dscc4.c	2002-10-01 09:06:25.000000000 +0200
++++ linux-2.5/drivers/net/wan/dscc4.c	2002-10-19 01:27:39.000000000 +0200
+@@ -1144,7 +1144,7 @@
+ 
+ static int dscc4_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
  {
--	return (u32)dcs->dentry;
-+	return (unsigned long)dcs->dentry;
- }
+-	union line_settings *line = &ifr->ifr_settings->ifs_line;
++	sync_serial_settings *line = ifr->ifr_settings.ifs_ifsu.sync;
+ 	struct dscc4_dev_priv *dpriv = dscc4_priv(dev);
+ 	const size_t size = sizeof(dpriv->settings);
+ 	int ret = 0;
+@@ -1155,10 +1155,14 @@
+ 	if (cmd != SIOCWANDEV)
+ 		return -EOPNOTSUPP;
  
+-	switch(ifr->ifr_settings->type) {
++	switch(ifr->ifr_settings.type) {
+ 	case IF_GET_IFACE:
+-		ifr->ifr_settings->type = IF_IFACE_SYNC_SERIAL;
+-		if (copy_to_user(&line->sync, &dpriv->settings, size))
++		ifr->ifr_settings.type = IF_IFACE_SYNC_SERIAL;
++		if (ifr->ifr_settings.size < size) {
++			ifr->ifr_settings.size = size; /* data size wanted */
++			return -ENOBUFS;
++		}
++		if (copy_to_user(line, &dpriv->settings, size))
+ 			return -EFAULT;
+ 		break;
  
--static size_t dcookie_hash(u32 dcookie)
-+static size_t dcookie_hash(unsigned long dcookie)
- {
- 	return (dcookie >> 2) & (hash_size - 1);
- }
+@@ -1166,7 +1170,7 @@
+ 		if (!capable(CAP_NET_ADMIN))
+ 			return -EPERM;
  
- 
--static struct dcookie_struct * find_dcookie(u32 dcookie)
-+static struct dcookie_struct * find_dcookie(unsigned long dcookie)
- {
- 	struct dcookie_struct * found = 0;
- 	struct dcookie_struct * dcs;
-@@ -109,7 +109,7 @@
-  * value for a dentry/vfsmnt pair.
-  */
- int get_dcookie(struct dentry * dentry, struct vfsmount * vfsmnt,
--	u32 * cookie)
-+	unsigned long * cookie)
- {
- 	int err = 0;
- 	struct dcookie_struct * dcs;
-@@ -142,11 +142,12 @@
- /* And here is where the userspace process can look up the cookie value
-  * to retrieve the path.
-  */
--asmlinkage int sys_lookup_dcookie(u32 cookie, char * buf, size_t len)
-+asmlinkage int sys_lookup_dcookie(u64 cookie64, char * buf, size_t len)
- {
-+	unsigned long cookie = (unsigned long)cookie64;
-+	int err = -EINVAL;
- 	char * kbuf;
- 	char * path;
--	int err = -EINVAL;
- 	size_t pathlen;
- 	struct dcookie_struct * dcs;
- 
-diff -X dontdiff -Naur linux-linus/include/linux/dcookies.h linux/include/linux/dcookies.h
---- linux-linus/include/linux/dcookies.h	Wed Oct 16 19:08:53 2002
-+++ linux/include/linux/dcookies.h	Thu Oct 17 01:43:03 2002
-@@ -44,7 +44,7 @@
-  * Returns 0 on success, with *cookie filled in
-  */
- int get_dcookie(struct dentry * dentry, struct vfsmount * vfsmnt,
--	u32 * cookie);
-+	unsigned long * cookie);
- 
- #else
- 
-@@ -59,7 +59,7 @@
- }
-  
- static inline int get_dcookie(struct dentry * dentry,
--	struct vfsmount * vfsmnt, u32 * cookie)
-+	struct vfsmount * vfsmnt, unsigned long * cookie)
- {
- 	return -ENOSYS;
- } 
+-		if (copy_from_user(&dpriv->settings, &line->sync, size))
++		if (copy_from_user(&dpriv->settings, line, size))
+ 			return -EFAULT;
+ 		ret = dscc4_set_iface(dpriv, dev);
+ 		break;
+
+--=-=-=--

@@ -1,80 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVBHPXW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVBHPbA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261219AbVBHPXW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 10:23:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVBHPXW
+	id S261399AbVBHPbA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 10:31:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVBHPa7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 10:23:22 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:8662 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S261219AbVBHPXQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 10:23:16 -0500
-Date: Tue, 8 Feb 2005 16:24:53 +0100
-From: Stelian Pop <stelian@popies.net>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050208152452.GG3537@crusoe.alcove-fr>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Roman Zippel <zippel@linux-m68k.org>, Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <20050203202049.GC20389@bitmover.com> <20050203220059.GD5028@deep-space-9.dsnet> <20050203222854.GC20914@bitmover.com> <20050204130127.GA3467@crusoe.alcove-fr> <20050204160631.GB26748@bitmover.com> <Pine.LNX.4.61.0502060025020.6118@scrub.home> <20050206173910.GB24160@bitmover.com> <Pine.LNX.4.61.0502061859000.30794@scrub.home> <20050207021030.GA25673@bitmover.com> <Pine.LNX.4.61.0502071516100.30794@scrub.home>
+	Tue, 8 Feb 2005 10:30:59 -0500
+Received: from adsl-67-64-210-234.dsl.stlsmo.swbell.net ([67.64.210.234]:47028
+	"EHLO SpacedOut.fries.net") by vger.kernel.org with ESMTP
+	id S261399AbVBHPay (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 10:30:54 -0500
+Date: Tue, 8 Feb 2005 09:29:49 -0600
+From: David Fries <dfries@mail.win.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH] Linux joydev joystick disconnect patch 2.6.11-rc2
+Message-ID: <20050208152949.GA4203@spacedout.fries.net>
+References: <20041123212813.GA3196@spacedout.fries.net> <d120d500050201072413193c62@mail.gmail.com> <20050206131241.GA19564@ucw.cz> <200502062021.13726.dtor_core@ameritech.net> <20050207122033.GA16959@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0502071516100.30794@scrub.home>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050207122033.GA16959@ucw.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 08, 2005 at 03:57:14PM +0100, Roman Zippel wrote:
-
-> On Sun, 6 Feb 2005, Larry McVoy wrote:
+On Mon, Feb 07, 2005 at 01:20:33PM +0100, Vojtech Pavlik wrote:
+> On Sun, Feb 06, 2005 at 08:21:13PM -0500, Dmitry Torokhov wrote:
 > 
-> > [Larry continues to pull numbers out of his arse.]
+> This should do it:
 > 
-> Out of sympathy to Al I cut the crap short. If you (or anyone else) really 
-> want to know, contact me privately.
-> The 85% number is of secondary interest only anyway, my (undisputed) 
-> argumentation still stands, why the 44% is more important.
+> ChangeSet@1.2130, 2005-02-07 13:19:59+01:00, vojtech@suse.cz
+>   input: Do a kill_fasync() in input handlers on device disconnect
+>          to notify a client using poll() that the device is gone.
+>   
+>   Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
+...
+> 
+> -- 
+> Vojtech Pavlik
+> SuSE Labs, SuSE CR
 
-Indeed. This number is what started the entire thread (again).
+I just checked it against my joystick_select test program which I
+included in an earlier e-mail and the blocking read, poll, and select
+return when I unplug the joystick.  Thanks for fixing the other
+drivers, I didn't think of looking at them.
 
-> > > Well, I'm not the one who claimed "We don't do lockins.  Period."
-> > > I'm just trying to figure out what that means...
-> > 
-> > Hey, Roman, the statement above stands.  You made the choice that you want
-> > to go write a competing system.  If you hadn't you could just use BK and
-> > stop whining.  Since you have made that choice, which is your right,
-> > how about you produce your competing system?  And stop whining that
-> > we aren't giving you enough help.  What is that you say?  It's hard?
-[...]
-
-> This leaves the other users, which either can't or want to use bk, with 
-> a reduced kernel history (as I have shown in the previous mails). The 
-> practical consequence of this is that a majority of the kernel history is 
-> locked into bk right now, with no way in sight to get it out of there.
-
-Sadly, the BK license does not prohibit only 'writing competing systems',
-but also people who happen to work with people who work on such 
-products. 
-
-Since Red Hat, SuSE, IBM etc do a lot of work on such products, does
-this mean that all the kernel hackers working for those companies have
-a commercial BK license ?
-
-A second point which strikes me is this clause in the new license:
-      (g)  No  reverse  engineering:  You may not yourself and may not
-           permit or enable anyone to: [...]
-           (iii) provide access to
-           the metadata created and managed by BitKeeper to any person
-           or  entity which is not licensed to use the BitKeeper Soft-
-           ware.
-
-Tell me now how it is possible under this license to post patches
-generated by BK on lkml ?
-
-Stelian.
 -- 
-Stelian Pop <stelian@popies.net>
+David Fries <dfries@mail.win.org>
+http://fries.net/~david/pgpkey.txt

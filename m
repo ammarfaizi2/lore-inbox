@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316222AbSEVP5L>; Wed, 22 May 2002 11:57:11 -0400
+	id <S316215AbSEVP7u>; Wed, 22 May 2002 11:59:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316223AbSEVP5K>; Wed, 22 May 2002 11:57:10 -0400
-Received: from mail3.aracnet.com ([216.99.193.38]:11703 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S316221AbSEVP5J>; Wed, 22 May 2002 11:57:09 -0400
-Date: Wed, 22 May 2002 08:56:28 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, bert hubert <ahu@ds9a.nl>
-cc: "M. Edward Borasky" <znmeb@aracnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: Have the 2.4 kernel memory management problems on large machines been fixed?
-Message-ID: <1404136612.1022057787@[10.10.2.3]>
-In-Reply-To: <E17AXWu-0001vL-00@the-village.bc.nu>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S316221AbSEVP7t>; Wed, 22 May 2002 11:59:49 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25615 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316215AbSEVP7s>; Wed, 22 May 2002 11:59:48 -0400
+Date: Wed, 22 May 2002 08:59:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Xavier Bestel <xavier.bestel@free.fr>
+cc: Martin Dalecki <dalecki@evision-ventures.com>, Pavel Machek <pavel@ucw.cz>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        ACPI mailing list <acpi-devel@lists.sourceforge.net>
+Subject: Re: suspend-to-{RAM,disk} for 2.5.17
+In-Reply-To: <1022061793.28881.29.camel@nomade>
+Message-ID: <Pine.LNX.4.44.0205220857030.7580-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 7.3 has some of what is needed but not all. 
 
-Can you outline the changes in this area? I want to make sure we're
-not all fighting the same problems seperately ;-) I know bounce
-buffers is one large element of that, though I believe you still
-only go up to 4Gb, unless I'm mistaken?
 
-> To go past 16Gb you need highmem mapped page tables which I'm 
-> pretty sure did not  make it in.
+On 22 May 2002, Xavier Bestel wrote:
+>
+> Compressing pages will speed up the process, and doing it on the fly
+> will be more IO-bound than CPU-bound. I think trading some CPU power to
+> gain HD time isn't so uninteresting.
 
-You need it earlier than that if you have many large tasks (4Gb
-or so).
+It's been a long time since disks were so slow that compression speeded
+things up.
 
-M.
+_uncompression_ is often faster than disk speeds, but that's a
+fundamentally easier problem to solve. That means that a mostly read-only
+medium tends to work better with compressed contents, but in this case we
+have a write-once, read-once thing where compression is likely to lose.
+
+Yes, laptops have slow disks, but they often have slow memory and seldom
+have the fastest CPU's available.
+
+		Linus
+

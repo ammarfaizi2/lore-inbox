@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318976AbSHFEav>; Tue, 6 Aug 2002 00:30:51 -0400
+	id <S318938AbSHEXjT>; Mon, 5 Aug 2002 19:39:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318983AbSHFEau>; Tue, 6 Aug 2002 00:30:50 -0400
-Received: from flamingo.mail.pas.earthlink.net ([207.217.120.232]:12440 "EHLO
-	flamingo.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S318976AbSHFEau>; Tue, 6 Aug 2002 00:30:50 -0400
-Date: Tue, 6 Aug 2002 00:36:48 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.4.19-rc5
-Message-ID: <20020806043648.GA23256@rushmore>
+	id <S318940AbSHEXjT>; Mon, 5 Aug 2002 19:39:19 -0400
+Received: from mnh-1-20.mv.com ([207.22.10.52]:14342 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S318938AbSHEXjS>;
+	Mon, 5 Aug 2002 19:39:18 -0400
+Message-Id: <200208060042.TAA04321@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+cc: Richard Zidlicky <rz@linux-m68k.org>, alan@redhat.com, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode 
+In-Reply-To: Your message of "Tue, 06 Aug 2002 00:34:19 +0200."
+             <20020806003419.3457fcb9.us15@os.inf.tu-dresden.de> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: rwhron@earthlink.net
+Date: Mon, 05 Aug 2002 19:42:31 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I sort of hoped it would be better in performance, not
-> increasingly worse.
+us15@os.inf.tu-dresden.de said:
+> Task wants to do a syscall (i.e. int 0x30 in Fiasco), the kernel
+> process tracing the task sees the signal in its SIGCHLD handler. It
+> pulls the registers out of the task's address space using
+> PTRACE_GETREGS and sets up an interrupt frame on the kernel stack.
 
-There were a lot of improvements during the 2.4.19-pre series on 
-several I/O benchmarks.  Comparing 2.4.18 to 2.4.19 on a quad xeon. 
-Here are a few of the big changes (average of 5 runs):
+Hmmm, I would have the kernel process let the system call bump it out of
+wait() rather than delivering a SIGCHLD.  And, I'd be inclined to lomgjmp
+over to the kernel stack.
 
-200% improvement on reiserfs for dbench 192
-125% improvement on ext3     for dbench 192
-248% improvement on ext2     for dbench 192
- 40% improvement on reiserfs for dbench  64
- 30% improvement on ext3     for dbench  64
- 67% improvement on ext2     for dbench  64
- 30% improvement on ext2 for tiobench seq reads with threads >= 32
-100% improvement on ext2 and reiserfs for tiobench seq writes with threads >= 32
-300% drop in cpu usage on ext3 for tiobench seq reads
-     (latency and throughput also improved)
+Or, even better, have it already running on the appropriate kernel stack,
+so it can just read the system call from PTRACE_GETREGS and call into the
+main kernel.
 
-In most cases, average and max tiobench latency went down with 2.4.19.
-Max sequential write latency with one thread on ext2 went up 1000% though.
+Similarly, with other signals, like the timer, SIGIO, or page faults, it
+would just annull the signal and call into the IRQ system.  Although page 
+faults will be difficult because of the inability to read err or cr3, as 
+you've pointed out.
 
-imho, it's worthwhile to track and investigate regressions
-and improvements.
-
-More benchmarks and several pre's and rc's in between at:
-http://home.earthlink.net/~rwhron/kernel/bigbox.html
-
-Small boxes are important too:
-http://home.earthlink.net/~rwhron/kernel/k6-2-475.html
--- 
-Randy Hron
+				Jeff
 

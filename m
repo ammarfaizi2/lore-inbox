@@ -1,48 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275743AbRKZEps>; Sun, 25 Nov 2001 23:45:48 -0500
+	id <S280959AbRKZFCd>; Mon, 26 Nov 2001 00:02:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277068AbRKZEpi>; Sun, 25 Nov 2001 23:45:38 -0500
-Received: from gear.torque.net ([204.138.244.1]:8979 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S275743AbRKZEpc>;
-	Sun, 25 Nov 2001 23:45:32 -0500
-Message-ID: <3C01C919.39C732B3@torque.net>
-Date: Sun, 25 Nov 2001 23:46:17 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.15 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marko van Dooren <Marko.vanDooren@cs.kuleuven.ac.be>,
-        linux-kernel@vger.kernel.org
-Subject: Re: philips CDD 3610 cd-writer freezes system with any 2.4 kernel
-Content-Type: text/plain; charset=us-ascii
+	id <S280982AbRKZFCW>; Mon, 26 Nov 2001 00:02:22 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:11648 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S280959AbRKZFCG>;
+	Mon, 26 Nov 2001 00:02:06 -0500
+Date: Sun, 25 Nov 2001 21:02:04 -0800 (PST)
+Message-Id: <20011125.210204.104043236.davem@redhat.com>
+To: hpa@zytor.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.15-final drivers/net/bonding.c includes user space headers
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <9trp1d$ppg$1@cesium.transmeta.com>
+In-Reply-To: <18133.1006497103@kao2.melbourne.sgi.com>
+	<9trp1d$ppg$1@cesium.transmeta.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marko van Dooren wrote:
+   From: "H. Peter Anvin" <hpa@zytor.com>
+   Date: 25 Nov 2001 13:49:33 -0800
+   
+   <limits.h> is one of the compiler-provided headers, i.e. from
+   /usr/lib/gcc-lib/*/*/include -- if your kbuild harness don't
+   allow those headers to be included, it's broken.
 
-> [1.] philips CDD 3610 cd-writer freezes system with any 2.4 kernel
-> [.2] with any 2.4 kernel, writing a cd results in a system freeze. fast 
-> blanking works, but writing locks up everything. With 2.2.x kernels, 
-> everything works fine. I have a dual celeron system (the *ss-sucking Abit BP6 
-> mainboard :( )
-> <snip/>
-
-Marko,
-Some of us were just discussing a Yamaha cdwriter lockup
-on the cdwrite list. In that case stopping magicdev
-(on GNOME) or kscd (on KDE) cured the problem.
-
-If the maintainers of those programs are reading this,
-then some cdwriters take a dim view (i.e. lock up)
-if they are sent a TEST UNIT READY (or some such) SCSI
-command by one of these polling programs _while_ cdrecord
-is trying to do its thing. Please read the "access_count"
-[via sg] and leave the device alone if some other program
-(e.g. cdrecord) has the device open.
-
-Perhaps the SCSI subsystem's access_count could be made
-visible via the cdrom driver's interface.
-
-Doug Gilbert
+Perhaps, but in this case (the bonding driver) the include was
+totally unnecessary.

@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267668AbUBRR4s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 12:56:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267672AbUBRR4s
+	id S268001AbUBRUYO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 15:24:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268054AbUBRUYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 12:56:48 -0500
-Received: from fw.osdl.org ([65.172.181.6]:26247 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267668AbUBRR4q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 12:56:46 -0500
-Date: Wed, 18 Feb 2004 09:56:36 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Raphael Rigo <raphael.rigo@inp-net.eu.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: New do_mremap vulnerabitily.
-In-Reply-To: <4033841A.6020802@inp-net.eu.org>
-Message-ID: <Pine.LNX.4.58.0402180954590.2686@home.osdl.org>
-References: <4033841A.6020802@inp-net.eu.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 18 Feb 2004 15:24:14 -0500
+Received: from fed1mtao07.cox.net ([68.6.19.124]:50392 "EHLO
+	fed1mtao07.cox.net") by vger.kernel.org with ESMTP id S268001AbUBRUYL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 15:24:11 -0500
+Date: Wed, 18 Feb 2004 13:23:57 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][1/6] A different KGDB stub
+Message-ID: <20040218202357.GU16881@smtp.west.cox.net>
+References: <20040217220249.GB16881@smtp.west.cox.net> <20040218193624.GA408@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040218193624.GA408@elf.ucw.cz>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 18, 2004 at 08:36:24PM +0100, Pavel Machek wrote:
 
-
-On Wed, 18 Feb 2004, Raphael Rigo wrote:
->
-> Since it seems nobody posted it yet (at least I hope so) :
+> Hi!
 > 
-> http://www.isec.pl/vulnerabilities/isec-0014-mremap-unmap.txt
+> > The following is the core bits to this KGDB stub.
+> 
+> What are those weak functions good for? Can't we simply assume that
+> any architecture that allows CONFIG_KGDB provides neccessary
+> functions?
 
-Fixed in 2.6.3 and 2.4.25 (and, I think, vendor kernels), please upgrade
-if you allow local shell access to untrusted users.
+Not all arches need all functions, and that's where the weak functions
+come in.  We could remove some of them (the *gdb*regs* type ones) as
+being absolutely required, but not everyone needs kgdb_arch_init.
+Similarly for kgdb_flush_io.
 
-		Linus
+> PS: Also.. how to proceed? Should I split your patches into "normal"
+> and "lite" parts and submit to Amit?
+
+Tomorrow I leave for FOSDEM, and won't have time to pick on KGDB until I
+get back Tuesday.  What I'm going to do then, if no one beats me to it,
+is to merge stuff I've got into Amit's patches (the CVS versions off of
+sourceforge), except for netpoll-specific portions of the kgdboe patch.
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

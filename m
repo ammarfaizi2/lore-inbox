@@ -1,75 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263991AbSKYXh3>; Mon, 25 Nov 2002 18:37:29 -0500
+	id <S262812AbSKYXwb>; Mon, 25 Nov 2002 18:52:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264705AbSKYXh3>; Mon, 25 Nov 2002 18:37:29 -0500
-Received: from dp.samba.org ([66.70.73.150]:4840 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S263991AbSKYXhZ>;
-	Mon, 25 Nov 2002 18:37:25 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>, perex@suse.cz,
-       "Adam J. Richter" <adam@yggdrasil.com>
-Subject: Re: [PATCH] Module alias and table support 
-In-reply-to: Your message of "Mon, 25 Nov 2002 13:36:17 -0800."
-             <20021125213617.GA25269@kroah.com> 
-Date: Tue, 26 Nov 2002 10:42:14 +1100
-Message-Id: <20021125234441.00C332C25F@lists.samba.org>
+	id <S266115AbSKYXwb>; Mon, 25 Nov 2002 18:52:31 -0500
+Received: from sweetums.bluetronic.net ([24.199.150.42]:31397 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id <S262812AbSKYXwa>; Mon, 25 Nov 2002 18:52:30 -0500
+Date: Mon, 25 Nov 2002 18:59:45 -0500 (EST)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: sean darcy <seandarcy@hotmail.com>
+cc: <linux-kernel@vger.kernel.org>, <rusty@rustcorp.com.au>
+Subject: Re: modutils for both  redhat kernels and 2.5.x
+In-Reply-To: <F173CabEMPhzzk3Tco30000ed9f@hotmail.com>
+Message-ID: <Pine.GSO.4.33.0211251830050.6708-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20021125213617.GA25269@kroah.com> you write:
-> On Mon, Nov 25, 2002 at 10:34:16AM +1100, Rusty Russell wrote:
-> > > > +        /* not matched against */
-> > > > +        kernel_long     driver_info;
-> > > 
-> > > Or is it because of "kernel_long"?  I'm pretty sure this field is only
-> > > used within the kernel, and userspace does not care at all about it.
-> > 
-> > It sucks to reproduce this, yes.  But you need to know the size of the
-> > structure to grab it out of the object file.  At least this way it's
-> > in the kernel source where we can change it.
-> 
-> But can't we still just use the structure from the kernel header and not
-> have to retype it here?  If needed, we can change the type of
-> driver_info into something more portable than what it is today.  That
-> would be much easier in the long run.
+On Sun, 24 Nov 2002, sean darcy wrote:
+>I've tried to use modutils-2.4.21-4 - which uses the new module loading in
+>2.5.49 and is backward compatible with 2.4.x. I works fine, except for the
+>redhat kernels.
+>
+>I realize that nobody said it had to work with a particular distro, just
+>like to know if anybody has a work around.
 
-Absolutely.  But I didn't want to mess with your headers.
+No, but then again, the module-init-tools don't come anywhere close to the
+same interface or functionality that exists (and has existed for a good
+long time, btw) with the modutils.
 
-> > 	Which will simply match the alias such as:
-> > 		usb:v0506p4601dl*dh*dc*dsc*dp*ic*isc*ip*
-> 
-> Ah, you never told me about this plan :)
+I would beg and plead with Linus to back that "crap" out of the kernel
+until such time as it has a snowball's chance of actually working ...
+anywhere.  As it stands, 2.5 is now 100% unusable until modules works
+again.
 
-Oh, so I didn't explain the "clever" part of my clever plan?  Oops.
+Kernel symbol versioning no longer exists.  Depmod no longer exists.
+Modprobe blindly loads a string of modules without even looking to see
+if it's already loaded.  The command line args for modprobe are laughingly
+few (and none of the ones a redhat system needs to boot are implemented.)
+We're back to the flat module namespace (that patch of earth is now 100%
+salt...)  And every single object that forms a module will need to be
+retooled to adhere to the new module API -- this is a brick wall no one
+needs right now; there are *still* drivers in the tree that haven't been
+updated to the new DMA interface and that's been pushed for months (years?)
 
-> Yes, that would be very nice to have, pushing the logic out of the
-> /sbin/hotplug code and into modprobe doesn't bother me.  That just saved
-> a _whole_ bunch of space in diethotplug, so you've made up for making
-> the size smaller.
-> 
-> How would modprobe know which driver to load based on the above line?
-> Are you going to scan all module files, or rely on something like the
-> modules.*map files of today?
+Just when things begin to work, Linus puts on his sadist hat and makes
+everything stop working again.  Aren't we in the midst of a feature/code
+freeze so the "ship it" label can be slapped on this thing?
 
-0.7 scans all the files (since it has no modules.dep and needs the
-dependencies anyway).  0.8 reintroduces modules.dep (thanks Adam!)
-which is where the alias info logically belongs ("stuff extracted from
-modules").  Or maybe a separate file (implementation handwave).
+--Ricky
 
-> Just realize that if you pre-process the information like you are
-> proposing to do, you can't get it back later, which changes the way
-> things work.
 
-Well, you could, by sucking out the aliases which start with "usb:"
-(the post-processing just turns the tables into aliases, doesn't
-delete them or anything).  You could also use the old-fashioned way
-and suck it from the tables directly, but then you're back in
-"intimate knowledge of kernel internals" land.
-
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

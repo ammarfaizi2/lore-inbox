@@ -1,37 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261462AbSJ1UsY>; Mon, 28 Oct 2002 15:48:24 -0500
+	id <S261489AbSJ1Uut>; Mon, 28 Oct 2002 15:50:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261486AbSJ1UsY>; Mon, 28 Oct 2002 15:48:24 -0500
-Received: from 3-090.ctame701-1.telepar.net.br ([200.193.161.90]:53167 "EHLO
-	3-090.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S261462AbSJ1UsX>; Mon, 28 Oct 2002 15:48:23 -0500
-Date: Mon, 28 Oct 2002 18:54:36 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Profiler Green <frogslurpy@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: bored of life?
-In-Reply-To: <20021028201847Z261307-32598+2842@vger.kernel.org>
-Message-ID: <Pine.LNX.4.44L.0210281854140.1697-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261493AbSJ1Uut>; Mon, 28 Oct 2002 15:50:49 -0500
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:35222 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261489AbSJ1Uus>; Mon, 28 Oct 2002 15:50:48 -0500
+Date: Mon, 28 Oct 2002 21:56:47 +0100
+From: Martin Waitz <tali@admingilde.org>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] epoll more scalable than poll
+Message-ID: <20021028205647.GC1402@admingilde.org>
+Mail-Followup-To: Hanna Linder <hannal@us.ibm.com>,
+	linux-kernel@vger.kernel.org
+References: <53100000.1035832459@w-hlinder>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="JgQwtEuHJzHdouWu"
+Content-Disposition: inline
+In-Reply-To: <53100000.1035832459@w-hlinder>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Oct 2002, Profiler Green wrote:
 
->  [crap]
+--JgQwtEuHJzHdouWu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Bored of life ?   Spam a bunch of anti-spammers!
+hi :)
 
-*global-plonk*
+On Mon, Oct 28, 2002 at 11:14:19AM -0800, Hanna Linder wrote:
+> 	The results of our testing show not only does the system call=20
+> interface to epoll perform as well as the /dev interface but also that ep=
+oll=20
+> is many times better than standard poll. No other implementations of poll=
+=20
+> have performed as well as epoll in any measure. Testing details and resul=
+ts=20
+> are published here, please take a minute to check it out: http://lse.sour=
+ceforge.net/epoll/index.html
+how does this compare to the kqueue mechanism found in {Free,Net}BSD?
+(see http://people.freebsd.org/~jlemon/papers/kqueue.pdf)
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+i especially like their combined event update/event wait,
+needing only one syscall per poll while building a changelist in
+userspace...
 
+a replacement for poll/select is _really_ needed.
+but i think we should use existing interfaces if possible,
+to reduce the changes needed in userspace.
+
+
+--=20
+CU,		  / Friedrich-Alexander University Erlangen, Germany
+Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
+______________/// - - - - - - - - - - - - - - - - - - - - ///
+dies ist eine manuell generierte mail, sie beinhaltet    //
+tippfehler und ist auch ohne grossbuchstaben gueltig.   /
+			    -
+Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich=20
+kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit=20
+noch Sicherheit verdient.
+			Benjamin Franklin  (1706 - 1790)
+
+--JgQwtEuHJzHdouWu
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE9vaSOj/Eaxd/oD7IRAqWFAJ9f+uJrbT9gZ5/DicWtOnIHUpQe7wCfdzPw
+USjx5AbCT+oQ7V8wAMbX69E=
+=JM/6
+-----END PGP SIGNATURE-----
+
+--JgQwtEuHJzHdouWu--

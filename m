@@ -1,98 +1,195 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293224AbSCUDiw>; Wed, 20 Mar 2002 22:38:52 -0500
+	id <S293245AbSCUESA>; Wed, 20 Mar 2002 23:18:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293237AbSCUDin>; Wed, 20 Mar 2002 22:38:43 -0500
-Received: from adsl-209-233-24-156.dsl.snfc21.pacbell.net ([209.233.24.156]:61192
-	"EHLO mail.muru.com") by vger.kernel.org with ESMTP
-	id <S293224AbSCUDi0>; Wed, 20 Mar 2002 22:38:26 -0500
-Date: Wed, 20 Mar 2002 19:38:24 -0800
+	id <S293276AbSCUERv>; Wed, 20 Mar 2002 23:17:51 -0500
+Received: from mailhost.cs.tamu.edu ([128.194.130.106]:60880 "EHLO cs.tamu.edu")
+	by vger.kernel.org with ESMTP id <S293245AbSCUERo>;
+	Wed, 20 Mar 2002 23:17:44 -0500
+Date: Wed, 20 Mar 2002 22:17:42 -0600 (CST)
+From: Sheetal Reddy Kunta <skunta@cs.tamu.edu>
 To: linux-kernel@vger.kernel.org
-Cc: dhinds@zen.stanford.edu, marcelo@conectiva.com.br
-Subject: [PATCH] Resend: 2.4 PCMCIA linear flash memory card fix
-Message-ID: <20020321033824.GA8852@muru.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="xesSdrSSBC0PokLI"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-URL: http://www.muru.com/ http://www.atomide.com
-X-Accept-Language: fi en
-X-Location: USA, California, San Francisco
-From: Tony Lindgren <tony@atomide.com>
+Subject: Problems with copy_from_user 
+Message-ID: <Pine.SOL.4.10.10203202209190.22696-100000@dogbert>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---xesSdrSSBC0PokLI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I am trying to run the following code 
 
-Hi all,
+#define __KERNEL__         /* We're part of the kernel */
+#define MODULE             /* Not a permanent part, though. */
 
-Here's a resend of the patch to fix the 2.4 PCMCIA linear flash cards.
-Looks like I was using the non-working sourceforge address for David 
-Hinds. CC:ing Marcelo Tosatti too.
+#include <linux/modversions.h>
 
-The patch is against 2.4.17, but works on other recent kernels too. 
-(I just tested it against 2.4.19-pre4)
+#include <linux/param.h>
+#include <asm/system.h>
+#include <linux/errno.h>
+#include <linux/ioctl.h>
+#include <linux/tty.h>
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/wrapper.h>  /* header for unregister */
+#include <linux/fs.h>     /* file types */
+#include <asm/io.h>
+#include <linux/types.h>   /* for ssize_t */
+#include <linux/slab.h>
+#include <asm/uaccess.h>
+#include <linux/init.h>
+#include <linux/sched.h>
+#include <asm/errno.h>
+#include <asm/unistd.h>
+#include <sys/syscall.h>
 
-Linear flash card are rarely used, but are needed to boot some embedded
-systems, like the AMD ELAN. They are also used in some Cisco routers.
 
-Just FYI, here's some Linux related projects where linear flash cards
-may be used:
+#ifndef min
+#define min(a,b)    (((a) <(b)) ? (a) : (b))
+#endif
 
-Wireless access points running Linux:
-http://opensource.instant802.com/
+#define SAMP_LEN 20
 
-Alios boot loader for AMD ELAN:
-http://www.telos.de/linux/alios/default_e.htm
+struct samp2_buf
+{
+        char *buffer;
+        /*
+        char *buffer,*end;
+        int buffersize;
+        char *rp,*wp;
+        */
+};
 
-Read Cisco flash cards from Linux:
-ftp://ftp.bbc.co.uk/pub/ciscoflash/
+static int samp2_open(struct inode *inode, struct file *file)
+{
+        console_print(" Exiting open \n ");
+        return 0;
 
-Here's a short description of the fix:
+}
 
-Basically there were two problems; The RegisterMTD ioctl was
-accidentally dropped at some point, so the flash cards would not
-register. Then the reference to the flash card memory window was
-incorrect, so the cards were not seen, and the flash drivers would
-not unload after use.
 
-Regards,
 
-Tony
+static int samp2_release(struct inode *inode, struct file *file)
+{
 
---xesSdrSSBC0PokLI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="linux-2.4.17-pcmcia-mtd.patch"
+        //MOD_DEC_USE_COUNT;
+        console_print(" Exiting Release \n ");
+        return 0;
 
-diff -urN -X ./dontdiff linux-2.4.17-vanilla/drivers/pcmcia/bulkmem.c linux-2.4.17-tony/drivers/pcmcia/bulkmem.c
---- linux-2.4.17-vanilla/drivers/pcmcia/bulkmem.c	Sun Aug 12 17:37:53 2001
-+++ linux-2.4.17-tony/drivers/pcmcia/bulkmem.c	Sat Jan 26 21:41:49 2002
-@@ -300,7 +300,7 @@
-     {
- 	window_handle_t w;
-         int ret = pcmcia_request_window(a1, a2, &w);
--        (window_handle_t *)a1 = w;
-+        *(window_handle_t *)a1 = w;
- 	return  ret;
-     }
-         break;
-diff -urN -X ./dontdiff linux-2.4.17-vanilla/drivers/pcmcia/cs.c linux-2.4.17-tony/drivers/pcmcia/cs.c
---- linux-2.4.17-vanilla/drivers/pcmcia/cs.c	Fri Dec 21 09:41:55 2001
-+++ linux-2.4.17-tony/drivers/pcmcia/cs.c	Sat Jan 26 21:41:15 2002
-@@ -2283,9 +2283,8 @@
-         *(eraseq_handle_t *)a1 = w;
- 	return  ret;
-     }
--        break;
--/*	return pcmcia_register_erase_queue(a1, a2); break; */
--
-+	break;
-+    case RegisterMTD:
- 	return pcmcia_register_mtd(a1, a2); break;
-     case ReleaseConfiguration:
- 	return pcmcia_release_configuration(a1); break;
+}
 
---xesSdrSSBC0PokLI--
+int samp2_read(struct inode *inode, struct file *fp, char *buff,int count)
+{
+        struct samp2_buf *dev = fp->private_data;
+        char *buf;
+        int len;
+
+        console_print("In read \n ");
+
+
+        if(copy_to_user (buff,dev->buffer,sizeof(dev->buffer)))
+               return -EFAULT;
+
+        //dev->buffer = "\0";
+
+        return sizeof(dev->buffer);
+}
+
+ssize_t samp2_write(struct inode *inode,struct file *fp,char *buf,ssize_t
+count)
+{
+        struct samp2_buf *dev = (struct samp2_buf *)fp ->private_data;
+
+
+
+
+        printk(KERN_CRIT "\n I AM IN WRITE ..............");
+
+        //dev->buffer = (unsigned char *)kmalloc(SAMP_LEN,GFP_KERNEL);
+
+        if(count > SAMP_LEN)
+        {
+                count = SAMP_LEN;
+        }
+
+        if(copy_from_user(dev->buffer,buf,count))
+        {
+                return -EFAULT;
+        }
+
+        dev->buffer[count] = '\0';
+        console_print("In write \n ");
+        printk(KERN_CRIT "\n I AM IN END of WRITE ..............");
+        return count;
+}
+
+static struct file_operations samp2_fops =
+{
+
+        NULL,  /* seek */
+        samp2_read,
+        samp2_write,   /* write*/
+        NULL,   /* readdir */
+        NULL,   /* select */
+        NULL,   /* ioctl */
+        NULL,   /* mmap */
+        samp2_open,       /* open */
+        NULL,
+        samp2_release,    /* release */
+        NULL,
+        NULL,
+};
+
+
+int init_module(void)
+{
+
+        int ret;
+
+        ret = register_chrdev(84,"samp2",&samp2_fops);
+
+
+        if(ret == 0)
+        {
+                console_print("<0> Device registered <0>");
+        }
+        else
+        {
+                console_print(" Device not registered ");
+        }
+
+return 0;
+
+}
+
+
+void cleanup_module(void)
+{
+        if(MOD_IN_USE)
+        {
+                console_print(" Driver in use ");
+                return;
+        }
+        unregister_chrdev(84,"samp2");
+
+        console_print(" <0> Driver Unregistered <0> ");
+
+}
+
+I am compiling this code with 
+
+gcc -D__KERNEL__ -DMODULE -DMODVERSIONS -DLINUX
+-I/usr/src/linux-2.4B/include
+-O6 -Wall -c samp.c
+
+
+But when ever i run a sample test program on this the write and read
+always return a -1.
+
+
+Any help will be appreciated.
+
+Thanks,
+Sheetal.
+
+

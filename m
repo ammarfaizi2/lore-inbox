@@ -1,44 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129704AbQKFNlX>; Mon, 6 Nov 2000 08:41:23 -0500
+	id <S129183AbQKFNzd>; Mon, 6 Nov 2000 08:55:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130022AbQKFNlN>; Mon, 6 Nov 2000 08:41:13 -0500
-Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:23285 "EHLO
-	passion.cygnus") by vger.kernel.org with ESMTP id <S129704AbQKFNlD>;
-	Mon, 6 Nov 2000 08:41:03 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <00110613370501.01541@dax.joh.cam.ac.uk> 
-In-Reply-To: <00110613370501.01541@dax.joh.cam.ac.uk>  <3A0698A8.8D00E9C1@mandrakesoft.com> <28752.973510632@redhat.com> <29788.973511264@redhat.com> 
-To: "James A. Sutherland" <jas88@cam.ac.uk>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Dan Hollis <goemon@anime.net>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Oliver Xymoron <oxymoron@waste.org>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page] 
+	id <S129215AbQKFNzX>; Mon, 6 Nov 2000 08:55:23 -0500
+Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:27912 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S129183AbQKFNzL>; Mon, 6 Nov 2000 08:55:11 -0500
+From: bsuparna@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
+To: "David S. Miller" <davem@redhat.com>
+cc: linux-kernel@vger.kernel.org, kanoj@google.engr.sgi.com,
+        torvalds@transmeta.com
+Message-ID: <CA25698F.004C5DEA.00@d73mta05.au.ibm.com>
+Date: Mon, 6 Nov 2000 19:20:05 +0530
+Subject: Re: Oddness in i_shared_lock and page_table_lock nesting
+	 hierarchies ?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 06 Nov 2000 13:40:03 +0000
-Message-ID: <10109.973518003@redhat.com>
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-jas88@cam.ac.uk said:
->  So autoload the module with a "dont_screw_with_mixer" option. When
-> the kernel first boots, initialise the mixer to suitable settings
-> (load the module with  "do_screw_with_mixer" or whatever); thereafter,
-> the driver shouldn't change the mixer settings on load. 
+ Thanks.
+ That sounds like a reasonable approach to take.
 
-Not reliable. You can't read back the current mixer state from all 
-hardware, even if you _are_ willing to assume that it has remained in a 
-sensible state while the driver has been unloaded. 
+  Regards
+ - Suparna
 
-The driver needs to reset the card to the desired levels. 
+  Suparna Bhattacharya
+  Systems Software Group, IBM Global Services, India
+  E-mail : bsuparna@in.ibm.com
+  Phone : 91-80-5267117, Extn : 2525
 
---
-dwmw2
+
+"David S. Miller" <davem@redhat.com> on 11/06/2000 08:44:29 AM
+
+Please respond to "David S. Miller" <davem@redhat.com>
+
+To:   Suparna Bhattacharya/India/IBM@IBMIN
+cc:   linux-kernel@vger.kernel.org, ak@suse.de, kanoj@google.engr.sgi.com
+Subject:  Re: Oddness in i_shared_lock and page_table_lock nesting
+      hierarchies ?
+
+
+
+
+   From: bsuparna@in.ibm.com
+   Date:  Sun, 5 Nov 2000 11:21:05 +0530
+
+      However, in the vmtruncate code, it looks like the hierarchy is
+      reversed.
+
+It is a well known bug amongst gurus :-) I sent a linux24 bug addition
+to Ted Ty'tso a week or so ago but he dropped it aparently.
+
+Ted, I'm resending this below, please add it to the linux24 list
+thanks.
+
+X-Coding-System: undecided-unix
+Date: Fri, 13 Oct 2000 17:36:04 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: tytso@mit.edu
+Subject: New BUG for todo list
+
+
+This bug will essentially hard-hang an SMP system if triggered.  Linus
+and myself both know about it already for some time now, the fix is
+straight forward, just nobody has coded it up and tested it yet.
+
+The problem basically is that mm/memory.c:vmtruncate() violates the
+lock acquisition ordering rules when both mm->page_table_lock and
+mapping->i_shared_lock must both be acquired.  All other instances (in
+the mmap/munmap syscalls for example) acuire the page_table_lock then
+the i_shared_lock.  vmtruncate() on the other hand acquires the locks
+i_shared_lock first then page_table_lock.
+
+Essentially I would describe this in the TODO list as:
+
+     vmtruncate() violates page_table_lock/i_shared_lock
+     acquisition ordering rules leading to deadlock
+
+The fix is to actually keep vmtruncate() how it is, and change the
+ordering rules for the rest of the kernel to follow vmtruncate()'s
+lock ordering.  Linus agreed with me on this because the more natural
+data inspection flow is to go from the object to mappings of that
+object.
+
+I'm going to try and work on this change this weekend, but I want it
+to be in the bug list so that it _is_ accounted for.
+
+Later,
+David S. Miller
+davem@redhat.com
+
+
+
 
 
 -

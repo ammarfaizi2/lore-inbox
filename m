@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318113AbSHVXXy>; Thu, 22 Aug 2002 19:23:54 -0400
+	id <S318059AbSHVXeS>; Thu, 22 Aug 2002 19:34:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318116AbSHVXXy>; Thu, 22 Aug 2002 19:23:54 -0400
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:10493 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S318113AbSHVXXx>; Thu, 22 Aug 2002 19:23:53 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318062AbSHVXeS>; Thu, 22 Aug 2002 19:34:18 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:63988 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318059AbSHVXeS>; Thu, 22 Aug 2002 19:34:18 -0400
+Subject: Re: 3Ware ok 2.4.19, dies 2.4.19-ac4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: brian@worldcontrol.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020822231034.GA4538@top.worldcontrol.com>
+References: <20020822231034.GA4538@top.worldcontrol.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <15717.29561.439324.940222@wombat.chubb.wattle.id.au>
-Date: Fri, 23 Aug 2002 09:27:53 +1000
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Peter Chubb <peter@chubb.wattle.id.au>, linux-kernel@vger.kernel.org,
-       viro@math.psu.edu
-Subject: Re: New large block-device patch for 2.5.31+bk
-In-Reply-To: <967473057@toto.iv>
-X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 23 Aug 2002 00:39:48 +0100
+Message-Id: <1030059588.3161.103.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Christoph" == Christoph Hellwig <hch@infradead.org> writes:
+On Fri, 2002-08-23 at 00:10, brian@worldcontrol.com wrote:
+> I upgraded a machine with a 3ware RAID controller running 2.2.20 to 
+> 2.4.19-ac1.  The next day it lay dead.  On the screen was a
+> message about 3ware: AEN overflow.
+> 
+> I upgraded to 2.4.19-ac4.  24 hours later the same message was on
+> the screen.
+> 
+> I downgraded to 2.4.19 and have had 7 days of uptime.
+> 
+> The load on the machine is very constant.
+> 
+> I've can't say I've done enough testing to confirm that its an ac
+> issue.  Just something I came across.
 
+Same code in both. Thanks for the report though. 
 
-Christoph> I don't have much comments left :) What about moving the
-Christoph> sector_t typedef completly to <asm/types.h>?  Looks like
-Christoph> the cleanest solution to me.
-
-I'd rather not, because most of the architectures just need the
-generic version.  I *hate* unnecessarily duplicated code.
-
-Christoph> I also wonder whether CONFIG_LBD might want to move to
-Christoph> arch/*/config.
-
-I thought about that, but couldn't work out any way to make it appear
-in the right place in the menus --- it's really a block device
-configuration option that happens to be needed only for a few
-architectures.
-
-Christoph> An a little suggestion: you could feed that patch to Linus
-Christoph> in pieces.  The printk cleanups might be a good start.
-
-Will do...
-
-
---
-Dr Peter Chubb				    peterc@gelato.unsw.edu.au
-You are lost in a maze of BitKeeper repositories, all almost the same.

@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274376AbRITJAC>; Thu, 20 Sep 2001 05:00:02 -0400
+	id <S274375AbRITJFm>; Thu, 20 Sep 2001 05:05:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274386AbRITI7w>; Thu, 20 Sep 2001 04:59:52 -0400
-Received: from lxxxvii.yapay.inka.de ([212.227.14.215]:61189 "EHLO emil.home")
-	by vger.kernel.org with ESMTP id <S274376AbRITI7n>;
-	Thu, 20 Sep 2001 04:59:43 -0400
-Message-ID: <3BA9A0D9.E111CC70@inka.de>
-Date: Thu, 20 Sep 2001 09:55:05 +0200
-From: Markus Kossmann <markus.kossmann@inka.de>
-X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.9-4GB-SMP i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.4.10-pre12 breaks compiling drivers/atm/firestream.c
+	id <S274377AbRITJFc>; Thu, 20 Sep 2001 05:05:32 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:30226 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S274375AbRITJF2>; Thu, 20 Sep 2001 05:05:28 -0400
+Date: Thu, 20 Sep 2001 12:03:35 +0300
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <10214879024.20010920120335@port.imtp.ilyichevsk.odessa.ua>
+To: Arjan van de Ven <arjanv@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
+In-Reply-To: <3BA8EA04.E55BAA02@redhat.com>
+In-Reply-To: <9oafeu$1o0$1@penguin.transmeta.com>
+ <Pine.LNX.4.30.0109191141560.24917-100000@anime.net>
+ <3BA8EA04.E55BAA02@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-patch-2.4.10-pre12 contains the following hunk, which removes the label
-err_out_free_fs_dev without removing the goto jumping to it :
+Hello Arjan,
+Wednesday, September 19, 2001, 9:55:00 PM, you wrote:
+>> AFAIK noone has even tested it yet to see what it does to performance! Eg
+>> it might slow down memory access so that athlon-optimized memcopy is now
+>> slower than non-athlon-optimized memcopy. And if it turns out to be the
+>> case, we might as well just use the non-athlon-optimized memcopy instead
+>> of twiddling undocumented northbridge bits...
 
-@@ -1928,8 +1928,6 @@
- 
-  err_out_free_atm_dev:
-        atm_dev_deregister(atm_dev);
-- err_out_free_fs_dev:
--       kfree(fs_dev);
-  err_out:
-        return -ENODEV;
- }
+AvdV> Ok but that part is simple: run
+AvdV> http://www.fenrus.demon.nl/athlon.c
 
+Well, this tester is really useful.
+Some bugs though:
+* fast_copy_page() does fsave instead of frstor
+* do we need femms before frstor?
+  My PII at work does not even execute femms...
 -- 
-Markus Kossmann                                    
-markus.kossmann@inka.de
+Best regards, VDA
+mailto:VDA@port.imtp.ilyichevsk.odessa.ua
+http://port.imtp.ilyichevsk.odessa.ua/vda/
+
+

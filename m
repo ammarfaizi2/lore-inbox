@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266952AbTBTVUd>; Thu, 20 Feb 2003 16:20:33 -0500
+	id <S266994AbTBTV0j>; Thu, 20 Feb 2003 16:26:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266959AbTBTVUd>; Thu, 20 Feb 2003 16:20:33 -0500
-Received: from smtp.rhein-zeitung.DE ([212.7.160.14]:5792 "EHLO
-	smtp.rhein-zeitung.DE") by vger.kernel.org with ESMTP
-	id <S266952AbTBTVUc>; Thu, 20 Feb 2003 16:20:32 -0500
-Date: Thu, 20 Feb 2003 22:30:37 +0100
-From: Oliver Graf <ograf@rz-online.net>
-To: linux-kernel@vger.kernel.org
-Subject: usb-storage fails to detect all luns after 2.4.19
-Message-ID: <20030220213037.GA5435@rz-online.net>
+	id <S266996AbTBTV0j>; Thu, 20 Feb 2003 16:26:39 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:19077
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266994AbTBTV0i>; Thu, 20 Feb 2003 16:26:38 -0500
+Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jakob Oestergaard <jakob@unthought.net>
+Cc: Rusty Lynch <rusty@linux.co.intel.com>, Pavel Machek <pavel@ucw.cz>,
+       lkml <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>,
+       Dave Jones <davej@codemonkey.org.uk>,
+       Daniel Pittman <daniel@rimspace.net>
+In-Reply-To: <20030220211941.GD13216@unthought.net>
+References: <1045106216.1089.16.camel@vmhack>
+	 <1045160506.1721.22.camel@vmhack> <20030213230408.GA121@elf.ucw.cz>
+	 <1045260726.1854.7.camel@irongate.swansea.linux.org.uk>
+	 <20030214213542.GH23589@atrey.karlin.mff.cuni.cz>
+	 <1045264651.13488.40.camel@vmhack>
+	 <1045274042.2961.4.camel@irongate.swansea.linux.org.uk>
+	 <1045632256.2974.76.camel@vmhack>  <20030220211941.GD13216@unthought.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045780613.3790.52.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-PGP-Key: http://wwwkeys.de.pgp.net:11371/pks/lookup?op=get&search=0x0B17417A
-X-RIPE-Key-Cert: PGPKEY-0B17417A
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 20 Feb 2003 22:36:54 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 2003-02-20 at 21:19, Jakob Oestergaard wrote:
+> I know that there is ioctl support in the existing drivers - but I have
+> not yet seen a driver which needed it.   "needed" in the sense that
+> equivalent functionality could not have been created using dev files
+> alone.
+> 
+> Also, the amount of userspace which will break because of missing ioctl
+> functionality will be absolutely *minimal*.  There's not a lot of
+> watchdog software out there, and porting whatever software uses ioctls
+> to use sane interfaces instead, should be doable.  I don't think anyone
+> would get terribly upset if this change was made as a 2.4->2.6
+> transition thing.
 
-I've already mentioned this some time ago.
+There is a lot of watchdog using stuff, some quite proprietary and 
+embedded into big apps. Even then you have to solve the persistence
+issue.
 
-The problem: a multi device usb card reader is correctly detected with
-its four subdevices with kernel 2.4.19(-acX). But any patch after this
-fails to detect the subdevices.
+Losing the old api is a 2.8/3.0 thing perhaps, even then its a big
+break by Linux standards
 
-Verbose output with 2.4.19-ac4 shows:
-usb-storage: GetMaxLUN command result is 1, data is 3
-
-2.4.21-pre4 gives:
-usb-storage: GetMaxLUN command result is -32, data is 128
-usb-storage: clearing endpoint halt for pipe 0x80000880
-
-I tried to find the parts that changed between the version, but it seems
-not to be rooted in usb-storage.
-
-The call to usb_control_msg seems to timeout with the newer kernel
-(just a wild guess!).
-
-Finally I did a desparate modification: I return 3 from
-usb_stor_Bulk_max_lun just before the endpoint is cleared. This got my
-card reader up and running again, but it's very very dirty und certainly
-breaks other usb storage devices (I don't own).
-
-Anyone out there who knows the usb stuff better?
-
-Regards,
-  Oliver.

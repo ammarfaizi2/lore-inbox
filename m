@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130263AbRBCARp>; Fri, 2 Feb 2001 19:17:45 -0500
+	id <S129111AbRBCAcc>; Fri, 2 Feb 2001 19:32:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130450AbRBCARf>; Fri, 2 Feb 2001 19:17:35 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:19997 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S130263AbRBCARY>; Fri, 2 Feb 2001 19:17:24 -0500
-Date: Fri, 2 Feb 2001 19:17:01 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: Hans Reiser <reiser@namesys.com>, Alan Cox <alan@redhat.com>,
-        Chris Mason <mason@suse.com>, Jan Kasprzak <kas@informatics.muni.cz>,
-        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-        "Yury Yu . Rupasov" <yura@yura.polnet.botik.ru>
-Subject: Re: [reiserfs-list] Re: ReiserFS Oops (2.4.1, deterministic, symlink
-Message-ID: <20010202191701.Y16592@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-In-Reply-To: <200102022213.f12MDCR27812@devserv.devel.redhat.com> <3A7B30FB.C63DBD11@namesys.com> <20010203004003.A2962@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010203004003.A2962@werewolf.able.es>; from jamagallon@able.es on Sat, Feb 03, 2001 at 12:40:03AM +0100
+	id <S130450AbRBCAcW>; Fri, 2 Feb 2001 19:32:22 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:35766 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S129439AbRBCAcH>; Fri, 2 Feb 2001 19:32:07 -0500
+Date: Sat, 3 Feb 2001 00:31:06 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+        Richard Gooch <rgooch@atnf.csiro.au>, linux-kernel@vger.kernel.org
+Subject: Re: CPU capabilities -- an update proposal
+In-Reply-To: <3A7B1B31.1CCED9D9@transmeta.com>
+Message-ID: <Pine.LNX.4.21.0102030007170.7970-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 03, 2001 at 12:40:03AM +0100, J . A . Magallon wrote:
-> Please, do not do so. That depends on the PACKAGE name and version, and there
-> is no standard way of versioning a patched gcc.
-> The -54 is a RH'ism, for example Mandrake Cooker includes patches from
-> different sources, and gcc is versioned like
+On Fri, 2 Feb 2001, H. Peter Anvin wrote:
+> 
+> > diff -up --recursive --new-file linux-2.4.0-ac12.macro/include/asm-i386/bugs.h linux-2.4.0-ac12/include/asm-i386/bugs.h
+> > --- linux-2.4.0-ac12.macro/include/asm-i386/bugs.h      Sun Jan 28 09:41:20 2001
+> > +++ linux-2.4.0-ac12/include/asm-i386/bugs.h    Wed Jan 31 22:18:40 2001
+> > @@ -83,12 +83,12 @@ static void __init check_fpu(void)
+> >                 extern void __buggy_fxsr_alignment(void);
+> >                 __buggy_fxsr_alignment();
+> >         }
+> > -       if (cpu_has_fxsr) {
+> > +       if (boot_has_fxsr) {
+> >                 printk(KERN_INFO "Enabling fast FPU save and restore... ");
+> >                 set_in_cr4(X86_CR4_OSFXSR);
+> >                 printk("done.\n");
+> >         }
+> > -       if (cpu_has_xmm) {
+> > +       if (boot_has_xmm) {
+> >                 printk(KERN_INFO "Enabling unmasked SIMD FPU exception support... ");
+> >                 set_in_cr4(X86_CR4_OSXMMEXCPT);
+> >                 printk("done.\n");
+> 
+> Once you enable OSFXSR (therefore allowing user-space code to issue SSE
+> instructions) you *have* to save using FXSAVE, which you can only do if
+> *all* CPUs support FXSR.  Therefore, I would say this is a buggy
+> change... it is not save to enable OSFXSR unless *all* the CPUs support
+> FXSR (they don't have to all support SSE, however, although since you
+> can't control which CPU you execute on, it's pretty useless if they
+> don't.)
 
-You can do:
-if [ "$CC" = gcc ]; then
-  echo 'inline void f(unsigned int n){int i,j=-1;for(i=0;i<10&&j<0;i++)if((1UL<<i)==n)j=i;if(j<0)exit(0);}main(){f(64);exit(1);}' > test.c
-  gcc -O2 -o test test.c
-  if ./test; then echo "*** Please don't use this compiler to compile kernel"; fi
-  rm -f test.c test
-fi
+That's nothing new: all Maciej has done there is update the names
+of the macros.  Of course you are right, it is in principle unsafe,
+and it would be nice to know about all the CPUs before making such
+decisions; but I think there are many other choices like that (TSC?
+PSE? PGE? PAE?) made on the basis of that first CPU, before the
+others have even been booted, and it's not been a serious problem
+in practice.  I seem to recall that Intel only support mixed CPU
+steppings if the earliest (presumably least capable) is the first
+to boot.  It would be quite easy to add a second bugs.h check,
+this time on common_x86_capability once all CPUs have booted;
+but that may be too late, and I doubt it's worth trying harder.
 
-(the $CC = gcc test is there e.g. so that the test is not done when
-cross-compiling or when there is a separate kernel compiler and userland
-compiler (e.g. on sparc64). This test will barf on gcc-2.96 up to -67 and
-on 2.97 until end of November or so).
-Similarly a testcase for the reload bug which caused in 2.95.2
-miscompilation of some long long stuff in the kernel could be added as well
-if you want to go that way.
+Hugh
 
-	Jakub
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

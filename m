@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129197AbRBMMRu>; Tue, 13 Feb 2001 07:17:50 -0500
+	id <S129417AbRBMMSj>; Tue, 13 Feb 2001 07:18:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129417AbRBMMRk>; Tue, 13 Feb 2001 07:17:40 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:45445 "EHLO
+	id <S131229AbRBMMS3>; Tue, 13 Feb 2001 07:18:29 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:63365 "EHLO
 	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129197AbRBMMRd>; Tue, 13 Feb 2001 07:17:33 -0500
+	id <S129417AbRBMMSK>; Tue, 13 Feb 2001 07:18:10 -0500
 From: Christoph Rohland <cr@sap.com>
-To: Admin Mailing Lists <mlist@intergrafix.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: shared memory problem
-In-Reply-To: <Pine.LNX.4.10.10102121304250.24584-100000@athena.intergrafix.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: cowboy@vnet.ibm.com (Richard A Nelson), linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.19pre10
+In-Reply-To: <E14SNMh-0007fo-00@the-village.bc.nu>
 Organisation: SAP LinuxLab
-In-Reply-To: <Pine.LNX.4.10.10102121304250.24584-100000@athena.intergrafix.net>
-Message-ID: <m3k86vm1lg.fsf@linux.local>
+In-Reply-To: <E14SNMh-0007fo-00@the-village.bc.nu>
+Message-ID: <m3ofw7m240.fsf@linux.local>
 User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: 13 Feb 2001 13:23:01 +0100
+Date: 13 Feb 2001 13:23:00 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Admin,
+Hi Alan,
 
-On Mon, 12 Feb 2001, Admin Mailing Lists wrote:
-> 
-> I've been using the 2.2.x series successfully, latest i used was
-> 2.2.19pre7.  Today i upgraded to 2.4.1-ac9 and noticed that shared
-> memory shows 0.  I searched the list archive briefly and someone
-> said the stats have been broken since sometime in 2.3, 
+On Mon, 12 Feb 2001, Alan Cox wrote:
+>> First, I'm glad I wasn't hallucinating, and that the mail did
+>> indeed get seen by someone.
+>> 
+>> Second, instead of reverting, can't we simply move those two lines
+>> up a bit:
+>
+> Possibly but its a minor item that doesnt really matter anyway so leaving it
+> is fine
 
-Yes, right.
-
-> but my system also shows my swap being used up a great deal (100MB
-> whereas i'm rarely using more than 5MB (and that only at loaded
-> times, which this isn't))
-
-Yes, that's normal for 2.4. As soon as you run into swap it will eat
-more swap space and keep it also if the load is smaller. This makes
-overall swapping faster.
-
-> this server is dedicated for apache web serving, and CONFIG_TMPFS is
-> not configured in/any shm fs mounted. I didn't have this in 2.2
-> either.
-
-Doesn't have anything to do with tmpfs/shm fs.
+No, I do not think that it's minor. We had to bring down running
+application servers to be able to start another one, because the new
+one couldn't create or attach the systemwide os-monitoring
+segment and thus refused to start. That's very bad behaviour.
 
 Greetings
 		Christoph

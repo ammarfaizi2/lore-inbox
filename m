@@ -1,42 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268242AbUHFTb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268237AbUHFTba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268242AbUHFTb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 15:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268244AbUHFT2i
+	id S268237AbUHFTba (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 15:31:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268245AbUHFT27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 15:28:38 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15627 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S268247AbUHFT1v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 15:27:51 -0400
-Date: Fri, 6 Aug 2004 20:27:47 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Hamie <hamish@travellingkiwi.com>
+	Fri, 6 Aug 2004 15:28:59 -0400
+Received: from gprs214-146.eurotel.cz ([160.218.214.146]:41600 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S268246AbUHFT1P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 15:27:15 -0400
+Date: Fri, 6 Aug 2004 21:26:56 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Patrick Mochel <mochel@digitalimplant.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide-cs using 100% CPU
-Message-ID: <20040806202747.H13948@flint.arm.linux.org.uk>
-Mail-Followup-To: Hamie <hamish@travellingkiwi.com>,
-	linux-kernel@vger.kernel.org
-References: <40FA4328.4060304@travellingkiwi.com>
+Subject: Re: [6/25] Merge pmdisk and swsusp
+Message-ID: <20040806192656.GG3048@elf.ucw.cz>
+References: <Pine.LNX.4.50.0407171528280.22290-100000@monsoon.he.net> <20040718220954.GB31958@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.50.0408012018370.30101-100000@monsoon.he.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <40FA4328.4060304@travellingkiwi.com>; from hamish@travellingkiwi.com on Sun, Jul 18, 2004 at 10:30:16AM +0100
+In-Reply-To: <Pine.LNX.4.50.0408012018370.30101-100000@monsoon.he.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 18, 2004 at 10:30:16AM +0100, Hamie wrote:
-> Anyone know why this happens? Something busy waiting? (BUt that should 
-> show as system cpu right?) or something taking out really long locks?
+Hi!
 
-It'll be because IDE is using PIO to access the CF card, which could
-have long access times (so reading a block of sectors could take some
-time _and_ use CPU.)  Obviously, PIO requires the use of the CPU, so
-the CPU can't be handed off to some other task while this is occuring.
+> Sorry about the delay; all the conferences are finally over (for
+> now)
 
+:-). Well, I'm back from canoes for now, so I'm at least able to read
+the mail...
+
+> > > +static void calc_order(void)
+> > > +{
+> > > +	int diff;
+> > > +	int order;
+> > > +
+> > > +	order = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages));
+> > > +	nr_copy_pages += 1 << order;
+> > > +	do {
+> > > +		diff = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages)) - order;
+> > > +		if (diff) {
+> > > +			order += diff;
+> > > +			nr_copy_pages += 1 << diff;
+> > > +		}
+> > > +	} while(diff);
+> > > +	pagedir_order = order;
+> > > +}
+> >
+> > This code is "interesting". Perhaps at least comment would be good
+> > here?
+> 
+> Sure, patch below.
+
+Looks good.
+									Pavel
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,57 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271042AbRHXKcI>; Fri, 24 Aug 2001 06:32:08 -0400
+	id <S271068AbRHXKe2>; Fri, 24 Aug 2001 06:34:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271055AbRHXKb7>; Fri, 24 Aug 2001 06:31:59 -0400
-Received: from postfix1-2.free.fr ([213.228.0.130]:56588 "HELO
-	postfix1-2.free.fr") by vger.kernel.org with SMTP
-	id <S271042AbRHXKbv> convert rfc822-to-8bit; Fri, 24 Aug 2001 06:31:51 -0400
-Date: Fri, 24 Aug 2001 12:29:21 +0200 (CEST)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: source control?
-In-Reply-To: <E15a3tR-0004rN-00@the-village.bc.nu>
-Message-ID: <20010824121239.T1242-100000@gerard>
+	id <S271055AbRHXKeS>; Fri, 24 Aug 2001 06:34:18 -0400
+Received: from mailf.telia.com ([194.22.194.25]:51155 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id <S271068AbRHXKeO>;
+	Fri, 24 Aug 2001 06:34:14 -0400
+Message-Id: <200108241034.f7OAYPA07047@mailf.telia.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Subject: Re: Upd: [PATCH NG] alloc_pages_limit & pages_min
+Date: Fri, 24 Aug 2001 12:28:13 +0200
+X-Mailer: KMail [version 1.3]
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0108231600020.31410-100000@duckman.distro.conectiva> <200108231933.f7NJX8j21551@mailc.telia.com> <20010824112520.5f01626f.skraw@ithnet.com>
+In-Reply-To: <20010824112520.5f01626f.skraw@ithnet.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 24 Aug 2001, Alan Cox wrote:
-
-> > Is Linux development ever going to use source control?
+On Fridayen den 24 August 2001 11:25, Stephan von Krawczynski wrote:
+> On Thu, 23 Aug 2001 21:28:44 +0200
 >
-> It does.
+> Roger Larsson <roger.larsson@norran.net> wrote:
+> > Riel convinced be to back off a part of the patch.
+> > Here comes an updated one.
+>
+> Hello Roger,
+>
+> this does not solve my problem with NFS-copies. Just for information. I
+> tried and did not work. Besides I expected the patch to make the free pages
+> pool somehow bigger during file-copies, but ended up with this situation:
+>
+> [snip]
+>
+> The MemFree isn't really a lot compared to inact_dirty. knfsd fails at
+> least.
 
-Pardon, I missed it. :)
+Wait a minute - knfsd... hmm...
+Suppose knfsd allock without the wait flag - then it could cause this problems
+by itself...
 
-> Or at least many of the development teams do.
+> Aug 21 20:14:51 admin kernel: __alloc_pages: 3-order allocation failed 
+> (gfp=0x20/0).
 
-Multiple source repositories means no-source-control, IMO.
+Who is doing thise allocs?
+Add a printout of current->pid with format %d
+I bet it is knfsd itself (or a driver it uses).
 
-> That doesn't mean a
-> general CVS is a good idea.
+Another thing to try is to run with non kernel nfs...
 
-So this means that most of programmers are probably idiots, given the
-number of projects that use a _single_ source controlled repository. :)
+/RogerL
 
-> CVS make it all to easy for other people to
-> push crap into your tree.
-
-What other people?
-You can only allow trusted people to commit, and backing out crap is quite
-easy.
-
-The only risk, in my opinion, of using a source-control system is that it
-allows easy forking, that is often a bad idea for the long run. On all
-other points, it is better, IMO, to use a source-control system with a
-unique repository, than penguinish :) manual patching.
-
-  Gérard.
-
+-- 
+Roger Larsson
+Skellefteå
+Sweden

@@ -1,29 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUF0IDD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUF0IIk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbUF0IDD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 04:03:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUF0IDD
+	id S261234AbUF0IIk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 04:08:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUF0IIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 04:03:03 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:9454 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S261232AbUF0IDB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 04:03:01 -0400
-Message-Id: <5.1.0.14.2.20040627095715.00adbb28@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 27 Jun 2004 10:02:51 +0200
-To: linux-kernel@vger.kernel.org
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: Assuming someone else called the IRQ
+	Sun, 27 Jun 2004 04:08:39 -0400
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:987 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261234AbUF0IIi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 04:08:38 -0400
+Date: Sun, 27 Jun 2004 01:08:33 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jdike@addtoit.com, blaisorblade_spam@yahoo.it,
+       linux-kernel@vger.kernel.org
+Subject: Re: Inclusion of UML in 2.6.8
+Message-Id: <20040627010833.4019c46a.pj@sgi.com>
+In-Reply-To: <20040626234025.7d69937c.akpm@osdl.org>
+References: <200406261905.22710.blaisorblade_spam@yahoo.it>
+	<20040626130945.190fb199.akpm@osdl.org>
+	<20040627035923.GB8842@ccure.user-mode-linux.org>
+	<20040626233253.06ed314e.pj@sgi.com>
+	<20040626234025.7d69937c.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Seen: false
-X-ID: rSeed8ZH8eAozWF0f3PL0x-Md0SVyLCX+q8iCyP0uger+Ifw6oNkrK
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's fixed in 2.6.7-bk's.
+> patch-scripts has the "patch-bomb" script,
 
-Margit
+Aha - interesting.
 
+Actually, I was asking a loaded question.  I just finished writing my
+own patch bomber.  I see a few details in your patch-bomb worth stealing
+- thanks.  Mine is more driven off of a single text file, that specifies
+what files, with what subjects, to send to whom.  And its in Python.
 
+The big feature (?) mine has is to set the Message-Id, In-Reply-To and
+References fields so that all but the first one in the set appear to be
+followups to the first one, for those using threaded email readers.
+Hard to do that with smtpsend in the shell ;).
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

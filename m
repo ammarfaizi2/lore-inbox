@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130980AbRA2KhF>; Mon, 29 Jan 2001 05:37:05 -0500
+	id <S131786AbRA2Krs>; Mon, 29 Jan 2001 05:47:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131786AbRA2Kg4>; Mon, 29 Jan 2001 05:36:56 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:16649 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S130980AbRA2Kgq>; Mon, 29 Jan 2001 05:36:46 -0500
-Date: Mon, 29 Jan 2001 11:36:42 +0100
-From: Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>
+	id <S133006AbRA2Kri>; Mon, 29 Jan 2001 05:47:38 -0500
+Received: from noose.gt.owl.de ([62.52.19.4]:44302 "HELO noose.gt.owl.de")
+	by vger.kernel.org with SMTP id <S131786AbRA2KrZ>;
+	Mon, 29 Jan 2001 05:47:25 -0500
+Date: Mon, 29 Jan 2001 11:47:52 +0100
+From: Florian Lohoff <flo@rfc822.org>
 To: linux-kernel@vger.kernel.org
-Subject: Can't compile 2.2.18
-Message-ID: <20010129113642.A5234@atrey.karlin.mff.cuni.cz>
+Subject: Serial console != baud 9k6
+Message-ID: <20010129114752.B2062@paradigm.rfc822.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: rfc822 - pure communication
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-clock@ghost:~$ gcc --version
-2.95.2.1
+Hi,
+i am just working on a different arch (mips board) and try to initialize
+the serial console from the arch specific setup with
+setup_console("ttyS0,57600") which doesnt work it seems as
+serial_console_setup is itself "__init" and has a default of 9k6.
 
-libc5 
+So how do i init the serial console from the arch specific stuff with
+something else than the default baud rate ?
 
-make -C  arch/i386/kernel
-make[1]: Entering directory `/usr/src/linux-2.2.18/arch/i386/kernel'
-cc -D__KERNEL__ -I/usr/src/linux-2.2.18/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -fno-strength-reduce -m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2 -DCPU=586   -DEXPORT_SYMTAB -c i386_ksyms.c
-i386_ksyms.c:37: `__ioremap' undeclared here (not in a function)
-i386_ksyms.c:37: initializer element is not constant
-i386_ksyms.c:37: (near initialization for `__ksymtab___ioremap.value')
-i386_ksyms.c:38: `iounmap' undeclared here (not in a function)
-i386_ksyms.c:38: initializer element is not constant
-i386_ksyms.c:38: (near initialization for `__ksymtab_iounmap.value')
-make[1]: *** [i386_ksyms.o] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.2.18/arch/i386/kernel'
-make: *** [_dir_arch/i386/kernel] Error 2
-
-Clock
+Flo
+-- 
+Florian Lohoff                  flo@rfc822.org             +49-5201-669912
+     Why is it called "common sense" when nobody seems to have any?
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

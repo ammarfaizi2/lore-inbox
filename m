@@ -1,79 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291502AbSBMKSC>; Wed, 13 Feb 2002 05:18:02 -0500
+	id <S291509AbSBMKTw>; Wed, 13 Feb 2002 05:19:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291508AbSBMKRo>; Wed, 13 Feb 2002 05:17:44 -0500
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:32214 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S291502AbSBMKR0>; Wed, 13 Feb 2002 05:17:26 -0500
-Message-ID: <3C6A3C26.4050908@drugphish.ch>
-Date: Wed, 13 Feb 2002 11:12:54 +0100
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020126
-X-Accept-Language: en-us
+	id <S291517AbSBMKTm>; Wed, 13 Feb 2002 05:19:42 -0500
+Received: from panoramix.vasoftware.com ([198.186.202.147]:11229 "EHLO
+	mail2.vasoftware.com") by vger.kernel.org with ESMTP
+	id <S291509AbSBMKTX>; Wed, 13 Feb 2002 05:19:23 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Improved ksymoops output
-In-Reply-To: <200202130805.g1D85st16817@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15466.15703.799443.916646@argo.ozlabs.ibm.com>
+Date: Wed, 13 Feb 2002 21:17:59 +1100 (EST)
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] fix sd_find_target (v2.5.4)
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+This patch fixes a compile error on PPC.  It's in sd_find_target, a
+function that returns a kdev_t.  Linus, please apply.
 
-I like the idea very much. As I have to maintain a kernel tree for 
-various customers too, I think this could be a nice addition for the bug 
-reports (seldom luckily) I sometimes get.
+Thanks,
+Paul.
 
-> gen_func2file.map
-> =================
-
-[snipped rest of the bash script]
-
-This can be improved a little bit:
-
-----------------------------------------------------------------
-#!/bin/sh
-# Meant to be run in top lever kernel source dir
-# after kernel has been built
-#
-# Makes list of the form:
-# symbol1 object_file_pathname1
-# symbol2 object_file_pathname2
-# symbol3 object_file_pathname3
-
- > func2file.map
-
-find -name '*.c' | while read a; do
-     #nm: get symbols from .o
-     #grep: discard non-text symbols
-     #awk: remove './', add .o pathname
-     #cut: remove address and symbol type letter
-     b=${a%.*}
-     test -e "${b}.o" && {
-         nm "${b}.o" \
-         | grep '\( T \)\|\( t \)' \
-         | awk "BEGIN { N=\" ${a:2}\" } { print \$0,N }" \
-         | cut -b12- \
-         >> func2file.map
-     }
-done
-----------------------------------------------------------------
-
-This script compared to yours does (it's nitpicking):
-o run faster (5%) ;)
-o should never have problems when one day there will be a lot of *.c
-   files. In your approach LIST could someday not hold all entries
-   anymore.
-o simplifies the bash 'regexp' to snip away the '.c' and print the rest
-
-I'm propably going to rewrite the python script in bash too, since I 
-don't run python on my distro (and I do not intend to use 2.5.x anytime 
-soon).
-
-Best regards,
-Roberto Nibali, ratz
-
+diff -urN linuxppc-2.5/drivers/scsi/sd.c pmac-2.5/drivers/scsi/sd.c
+--- linuxppc-2.5/drivers/scsi/sd.c	Wed Feb  6 02:23:12 2002
++++ pmac-2.5/drivers/scsi/sd.c	Mon Feb 11 16:44:52 2002
+@@ -133,7 +133,7 @@
+         if (dp->device != NULL && dp->device->host == host
+             && dp->device->id == tgt)
+             return MKDEV_SD(i);
+-    return 0;
++    return NODEV;
+ }
+ #endif
+ 

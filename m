@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261492AbSLIBkj>; Sun, 8 Dec 2002 20:40:39 -0500
+	id <S261446AbSLIBdk>; Sun, 8 Dec 2002 20:33:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261723AbSLIBki>; Sun, 8 Dec 2002 20:40:38 -0500
-Received: from holomorphy.com ([66.224.33.161]:41110 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261492AbSLIBki>;
-	Sun, 8 Dec 2002 20:40:38 -0500
-Date: Sun, 8 Dec 2002 17:47:57 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: qlogic isp1020 broken in 2.5.50
-Message-ID: <20021209014757.GA9882@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	linux-kernel@vger.kernel.org
-References: <56340000.1039398073@titus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261492AbSLIBdk>; Sun, 8 Dec 2002 20:33:40 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:56210 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S261446AbSLIBdj>; Sun, 8 Dec 2002 20:33:39 -0500
+Date: Sun, 08 Dec 2002 17:41:13 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel@vger.kernel.org
+Subject: qlogic isp1020 broken in 2.5.50
+Message-ID: <56340000.1039398073@titus>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <56340000.1039398073@titus>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 08, 2002 at 05:41:13PM -0800, Martin J. Bligh wrote:
-> Anyone working on this, or know how to backout whatever broke it?
-> Seem to work fine in 47 (unless just the warning is new, and it's
-> been broken all along).
+Anyone working on this, or know how to backout whatever broke it?
+Seem to work fine in 47 (unless just the warning is new, and it's
+been broken all along).
 
-Hmm? It's oopsing in isp1020_intr_handler() when I try to mount > 1
-filesystem over here. Seems to have gotten rather consistent lately
-(independent of kernel), but / is on the same thing and it does fine.
+---------------
 
+qlogicisp : new isp1020 revision ID (5)
+ERROR: SCSI host `isp1020' has no error handling
+ERROR: This is not a safe way to run your SCSI host
+ERROR: The error handling must be added to this driver
+Call Trace:
+ [<c01a0c4e>] scsi_register+0x7a/0x308
+ [<c01a6734>] isp1020_detect+0x64/0x270
+ [<c01a0f0b>] scsi_register_host+0x2f/0xc8
+ [<c0105098>] init+0x44/0x19c
+ [<c0105054>] init+0x0/0x19c
+ [<c0106e81>] kernel_thread_helper+0x5/0xc
 
-Bill

@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129648AbRBAOdx>; Thu, 1 Feb 2001 09:33:53 -0500
+	id <S129201AbRBAOjC>; Thu, 1 Feb 2001 09:39:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129796AbRBAOdm>; Thu, 1 Feb 2001 09:33:42 -0500
-Received: from mailserver-ng.cs.umbc.edu ([130.85.100.230]:9468 "EHLO
-	mailserver-ng.cs.umbc.edu") by vger.kernel.org with ESMTP
-	id <S129650AbRBAOdk>; Thu, 1 Feb 2001 09:33:40 -0500
-To: linux-kernel@vger.kernel.org
-Subject: ide hotplug and 2.4.1
-From: Ian Soboroff <ian@cs.umbc.edu>
-X-NSA-Fodder: strategic quiche munitions security
-Date: 01 Feb 2001 09:27:02 -0500
-Message-ID: <87hf2eo4w9.fsf@danube.cs.umbc.edu>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
+	id <S129336AbRBAOix>; Thu, 1 Feb 2001 09:38:53 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:49874 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129201AbRBAOio>;
+	Thu, 1 Feb 2001 09:38:44 -0500
+Date: Thu, 1 Feb 2001 14:36:06 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, David Gould <dg@suse.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: [PATCH] vma limited swapin readahead
+Message-ID: <20010201143606.P11607@redhat.com>
+In-Reply-To: <20010201112601.K11607@redhat.com> <Pine.LNX.4.21.0102010824000.17822-100000@freak.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.21.0102010824000.17822-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Thu, Feb 01, 2001 at 08:53:33AM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-i've started playing with 2.4.1 on my Dell Latitude CS and it's pretty
-peppy; my only complaints are PCMCIA-related, which i think i'll solve
-by using the standalone package...
+On Thu, Feb 01, 2001 at 08:53:33AM -0200, Marcelo Tosatti wrote:
+> 
+> On Thu, 1 Feb 2001, Stephen C. Tweedie wrote:
+> 
+> If we're under free memory shortage, "unlucky" readaheads will be harmful.
 
-anyway, my real question is this.  i noticed the new options for
-hotplug, and am wondering if i can use this with my laptop.  the
-Latitude CS has a port on the side, with which you can connect a cable
-that hooks up to either a floppy drive or a CDROM.
+I know, it's a balancing act.  But given that even one successful
+readahead per read will halve the number of swapin seeks, the
+performance loss due to the extra scavenging has got to be bad to
+outweigh the benefit.
 
-if you boot the machine cold with the CDROM attached, linux notices it
-on a second IDE bus (/dev/hdc).  if you boot without it, /dev/hdc
-isn't there.  if you plug in the CDROM while the system is running,
-there is a noticeable pause for a couple seconds, which seems to imply
-some kind of BIOS action or interrupt or something happens which could
-be caught.
-
-back in 2.2.x, i used to build IDE as a module, and after plugging up
-the CDROM do a 'rmmod ide-probe; modprobe ide-probe' which had a
-pretty good success rate.  i'm hoping maybe the 2.4.x hotplug features
-have made this obsolete.
-
-(plugging up the floppy drive always works, because PC floppy
-controllers are too dumb to care if they actually have a drive
-attached).
-
-ian
-
--- 
-----
-Ian Soboroff                                       ian@cs.umbc.edu
-University of MD Baltimore County      http://www.cs.umbc.edu/~ian
+Cheers,
+ Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

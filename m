@@ -1,33 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132819AbRDIS45>; Mon, 9 Apr 2001 14:56:57 -0400
+	id <S132820AbRDITD2>; Mon, 9 Apr 2001 15:03:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132820AbRDIS4s>; Mon, 9 Apr 2001 14:56:48 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3345 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132819AbRDIS4h>; Mon, 9 Apr 2001 14:56:37 -0400
-Subject: Re: Unresolved symbol in 2.4.4p1, ia32
-To: jonathan@daria.co.uk (Jonathan Hudson)
-Date: Mon, 9 Apr 2001 19:58:23 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44f.3acf8044.2edba@trespassersw.daria.co.uk> from "Jonathan Hudson" at Apr 07, 2001 09:01:56 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132821AbRDITDS>; Mon, 9 Apr 2001 15:03:18 -0400
+Received: from echo.sound.net ([205.242.192.21]:12769 "HELO echo.sound.net")
+	by vger.kernel.org with SMTP id <S132820AbRDITDJ>;
+	Mon, 9 Apr 2001 15:03:09 -0400
+Date: Mon, 9 Apr 2001 14:02:40 -0500 (CDT)
+From: Hal Duston <hald@sound.net>
+To: Helge Deller <deller@gmx.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PS/2 ESDI
+Message-ID: <Pine.GSO.4.10.10104091359540.14442-100000@sound.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14mgrp-0002gJ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> depmod: *** Unresolved symbols in 
->         /lib/modules/2.4.4-pre1/kernel/drivers/ide/ide-cd.o
-> depmod: 	strstr
-> 
-> depmod: *** Unresolved symbols in 
->         /lib/modules/2.4.4-pre1/kernel/drivers/parport/parport.o
-> depmod: 	strstr
+All,
 
-That'll be from my patches. Now I am back I'll check over the stuff I sent
-Linus and see what escaped/got dropped/didnt get sent. I suspect its a missing
-EXPORT entry
+OK, Helge is of course correct here.  I will get a new patch out tonight.
+
+Basically, the ending = -1; needs to be preceded by an else.
+(I think so anyway, as I don't have access to that machine right now.)
+
+Hal Duston
+hald@sound.net
+
+On Mon, 9 Apr 2001, Helge Deller wrote:
+
+> Hi Hal,
+> 
+> I don't have any ps2esdi devices, but while I was looking at your patch I 
+> found:
+> 
+>  	case INT_CMD_COMPLETE:
+> @@ -893,13 +879,9 @@
+>  			printk("%s: timeout reading status word\n", DEVICE_NAME);
+>  			outb((int_ret_code & 0xe0) | ATT_EOI, ESDI_ATTN);
+>  			outb(CTRL_ENABLE_INTR, ESDI_CONTROL);
+> -			if ((++CURRENT->errors) < MAX_RETRIES)
+> -				do_ps2esdi_request(NULL);
+> -			else {
+> -				end_request(FAIL);
+> -				if (!QUEUE_EMPTY)
+> -					do_ps2esdi_request(NULL);
+> -			}
+> +			if ((++CURRENT->errors) >= MAX_RETRIES)
+> +				ending = FAIL;
+> +			ending = -1;
+>  			break;
+>  		}
+> 
+> Just a thought:
+> in this if().. clause ending may get the FAIL value, but directly afterwards 
+> it is set to -1 again....
+> You have this two times in your patch.
+> 
+> Greetings,
+> Helge.
+

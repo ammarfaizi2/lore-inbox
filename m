@@ -1,57 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266688AbTAKAMk>; Fri, 10 Jan 2003 19:12:40 -0500
+	id <S266649AbTAKAMH>; Fri, 10 Jan 2003 19:12:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266717AbTAKAMg>; Fri, 10 Jan 2003 19:12:36 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:53683 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S266688AbTAKAMe>; Fri, 10 Jan 2003 19:12:34 -0500
-From: Richard Stallman <rms@gnu.org>
-To: lm@bitmover.com
-CC: billh@gnuppy.monkey.org, mark@mark.mielke.cc, lm@bitmover.com,
-       linux-kernel@vger.kernel.org, paul@clubi.ie, riel@conectiva.com.br
-In-reply-to: <20030109231919.GG15590@work.bitmover.com> (message from Larry
-	McVoy on Thu, 9 Jan 2003 15:19:19 -0800)
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Reply-to: rms@gnu.org
-References: <20030104222330.GA1386@work.bitmover.com> <E18VFaz-0008S0-00@fencepost.gnu.org> <20030105221345.GA31840@mark.mielke.cc> <E18Vao9-0002JZ-00@fencepost.gnu.org> <20030106173949.GA1712@gnuppy.monkey.org> <E18Vtxz-0002cB-00@fencepost.gnu.org> <20030107141758.GA10770@gnuppy.monkey.org> <E18WB8Q-0004k6-00@fencepost.gnu.org> <20030108115327.GA5020@gnuppy.monkey.org> <E18WlrH-0000NO-00@fencepost.gnu.org> <20030109231919.GG15590@work.bitmover.com>
-Message-Id: <E18X9Om-00008V-00@fencepost.gnu.org>
-Date: Fri, 10 Jan 2003 19:21:16 -0500
+	id <S266688AbTAKAMG>; Fri, 10 Jan 2003 19:12:06 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:31362 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S266649AbTAKAMF>; Fri, 10 Jan 2003 19:12:05 -0500
+Message-Id: <200301110020.h0B0KdLK016200@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [patch][2.5] setup default dma_mask for cardbus devices 
+In-Reply-To: Your message of "Fri, 10 Jan 2003 18:48:24 EST."
+             <Pine.LNX.4.50.0301101841210.9169-100000@montezuma.mastecende.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.50.0301101841210.9169-100000@montezuma.mastecende.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1316245180P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 10 Jan 2003 19:20:39 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    > There is no such thing as an open source community.  
+--==_Exmh_-1316245180P
+Content-Type: text/plain; charset=us-ascii
 
-    Poof!  And millions of people disappear at the bidding of the
-    One True God, Richard Stallman.
+On Fri, 10 Jan 2003 18:48:24 EST, Zwane Mwaikambo said:
+> Devices hanging off a cardbus bridge don't get a default dma mask which
+> causes problems later when doing pci_alloc_consistent. Patch has been
+> tested with tulip based ethernet.
 
-These people exist and are part of our community.  (I said that
-before.)  They have the right to their views, and the right to form a
-movement to promote it.  They have the right to call it the open
-source movement.  All that is simply the exercise of political
-freedom.
+> diff -u -r1.1.1.1 cardbus.c
+> --- linux-2.5.56/drivers/pcmcia/cardbus.c	10 Jan 2003 21:22:48 -0000
+	1.1.1.1
+> +++ linux-2.5.56/drivers/pcmcia/cardbus.c	10 Jan 2003 23:38:24 -0000
+> @@ -281,6 +281,8 @@
+>  		dev->vendor = vend;
+>  		pci_readw(dev, PCI_DEVICE_ID, &dev->device);
+>  		dev->hdr_type = hdr & 0x7f;
+> +		dev->dma_mask = 0xffffffff;
+> +		dev->dev.dma_mask = &dev->dma_mask;
+> 
+>  		pci_setup_device(dev);
+>  		if (pci_enable_device(dev))
 
-What they do not have a right to do is rename our community after
-their own movement as if they had built it.  That is Orwellian
-rewriting of history.  People can honorably disagree with our views,
-but they can't honorably deny our achievements.
+And yet, this looks *different* than the bug I've been chasing with the Xircom
+card, not 10 lines away from your patch.  However, it's odd that
+pdev_enable_device() was responsible for both disabling the card ROM *and*
+disabling DMA....
 
-    Please remember that Linux is a trademark of Linus Torvalds and your
-    inclusion of "Linux" in "GNU/Linux" is covered by trademark law.  Have
-    you cleared that use with Linus?
+Things that make you go "Hmmm...."
 
-Linus announced years ago that people can use the term "Linux" any way
-they wish as long as it does not close off the name space.  Legally,
-therefore, this is allowed.  But there is still the issue of what is
-right to do.
-
-It would't be wrong to call the system just "GNU", since it's more GNU
-than anything else, but it seems ungentlemanly to cite only GNU and
-ask people to stop giving Linus a share of the credit.  I'd rather
-call it "GNU/Linux" and cite his contribution also.
-
-However, if he asks us to stop citing Linux in this way, we will heed
-his wishes.
+-- 
+				Valdis Kletnieks
+				Computer Systems Senior Engineer
+				Virginia Tech
 
 
+--==_Exmh_-1316245180P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+H2NXcC3lWbTT17ARAqWLAJwJJgaxU9dUFs9tg7JuDNyZ7XxQewCfas1y
+Rxhz/u2IpvqLUFhIlfT4QA8=
+=+2P+
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1316245180P--

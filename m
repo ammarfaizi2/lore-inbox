@@ -1,61 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264275AbTEaK73 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 06:59:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264276AbTEaK73
+	id S264276AbTEaK7r (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 06:59:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264277AbTEaK7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 06:59:29 -0400
-Received: from imsantv29.netvigator.com ([210.87.253.76]:55266 "EHLO
-	imsantv29.netvigator.com") by vger.kernel.org with ESMTP
-	id S264275AbTEaK72 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 06:59:28 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: Daniel Goller <dgoller@satx.rr.com>, Mike Fedyk <mfedyk@matchmail.com>
-Subject: Re: Linux 2.4.21-rc6
-Date: Sat, 31 May 2003 19:12:29 +0800
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
-References: <1054321731.13265.8.camel@schlaefer> <20030530205223.GB25810@matchmail.com> <1054364771.17718.1.camel@schlaefer>
-In-Reply-To: <1054364771.17718.1.camel@schlaefer>
-X-OS: GNU/Linux 2.4.21-pre5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 31 May 2003 06:59:47 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:62445 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264276AbTEaK7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 06:59:44 -0400
+Date: Sat, 31 May 2003 13:13:01 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: linux-kernel@vger.kernel.org
+Cc: trivial@rustcorp.com.au, Jasper Spaans <jasper@vs19.net>
+Subject: [PATCH] typo fix (fwd)
+Message-ID: <20030531111301.GD2536@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305311912.29558.mflt1@micrologica.com.hk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 31 May 2003 15:06, Daniel Goller wrote:
-> On Fri, 2003-05-30 at 15:52, Mike Fedyk wrote:
-> > On Fri, May 30, 2003 at 02:08:51PM -0500, Daniel Goller 
-wrote:
-> > > i tried 2.4.21-rc6 as i was told it might fix the
-> > > mouse stalling on heavy disk IO problem and i would
-> > > like to report that it DOES fix them for the most
-> > > part, even certain compiles/benchmarks/stress tests
-> > > that could stall my pc for seconds now affect the
-> > > mouse for mere fractions of one second, situations
-> > > that used to cause short stalls are now a thing of
-> > > the past
-> > >
-> > > 2.4.21-rc6 is the best kernel i have tried to date
-> > > and i have tried many on my quest to get a smooth
-> > > mouse
-> >
-> > There are reports that 2.4.18 also "fixed" the problems
-> > with the mouse.  Can you verify?
->
+The trivial typo fix by Jasper Spaans forwarded below still applies 
+against 2.5.70-mm3.
 
-Yes, it performs similar to -rc6 but not nearly as good as 
-2.5.70.
+cu
+Adrian
 
-On 2.5.70 the mouse is really smooth all the time, scrollong 
-of large pages in opera is fairly smooth most the time also 
-with large disk io loads such as the script i posted 
-earlier.
 
-Regards
-Michael
+----- Forwarded message from Jasper Spaans <jasper@vs19.net> -----
+
+Date:	Mon, 26 May 2003 13:26:45 +0200
+From: Jasper Spaans <jasper@vs19.net>
+To: torvalds@transmeta.com,
+    linux-kernel@vger.kernel.org
+Subject: [PATCH] typo fix
+
+A small documentation fix:
+
+Index: kernel/sched.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/kernel/sched.c,v
+retrieving revision 1.175
+diff -u -r1.175 sched.c
+--- l/kernel/sched.c	19 May 2003 17:46:39 -0000	1.175
++++ l/kernel/sched.c	26 May 2003 10:20:14 -0000
+@@ -2051,7 +2051,7 @@
+ }
+ 
+ /**
+- * sys_sched_get_priority_mix - return minimum RT priority.
++ * sys_sched_get_priority_min - return minimum RT priority.
+  * @policy: scheduling class.
+  *
+  * this syscall returns the minimum rt_priority that can be used
+
+
+Bye,
+
+Jasper
+-- 
+Jasper Spaans
+http://jsp.vs19.net/contact/
+
+``Got no clue? Too bad for you.''
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+----- End forwarded message -----
 

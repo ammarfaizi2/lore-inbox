@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272120AbTHFU47 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 16:56:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272302AbTHFU47
+	id S270995AbTHFUx7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 16:53:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271751AbTHFUx7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 16:56:59 -0400
-Received: from dclient217-162-108-200.hispeed.ch ([217.162.108.200]:25094 "EHLO
-	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S272120AbTHFU43
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 16:56:29 -0400
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-To: Russell King <rmk@arm.linux.org.uk>, Pavel Roskin <proski@gnu.org>
-Subject: Re: [PATCH 2.6] ToPIC specific init for yenta_socket
-Date: Wed, 6 Aug 2003 22:50:55 +0200
-User-Agent: KMail/1.5.2
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-pcmcia <linux-pcmcia@lists.infradead.org>
-References: <200308062025.08861.daniel.ritz@gmx.ch> <20030806194430.D16116@flint.arm.linux.org.uk>
-In-Reply-To: <20030806194430.D16116@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Aug 2003 16:53:59 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:42762 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270995AbTHFUx6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 16:53:58 -0400
+Date: Wed, 6 Aug 2003 21:53:54 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Adam Belay <ambx1@neo.rr.com>, torvalds@osdl.org, misha@nasledov.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5/2.6 PCMCIA Issues
+Message-ID: <20030806215354.G16116@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Adam Belay <ambx1@neo.rr.com>, torvalds@osdl.org,
+	misha@nasledov.com, linux-kernel@vger.kernel.org
+References: <20030804232204.GA21763@nasledov.com> <20030805144453.A8914@flint.arm.linux.org.uk> <20030806045627.GA1625@nasledov.com> <200308060559.h765xhI05860@mail.osdl.org> <20030806114225.GI13275@neo.rr.com> <20030806133450.31da90e4.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308062250.55885.daniel.ritz@gmx.ch>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030806133450.31da90e4.akpm@osdl.org>; from akpm@osdl.org on Wed, Aug 06, 2003 at 01:34:50PM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed August 6 2003 20:44, Russell King wrote:
-> On Wed, Aug 06, 2003 at 08:25:08PM +0200, Daniel Ritz wrote:
-> > this patch adds override functions for the ToPIC family of controllers.
-> > also adds the device id for ToPIC100 and (untested) support for zoom
-> > video for ToPIC97/100.
-> > 
-> > tested with start/stop and suspend/resume.
+On Wed, Aug 06, 2003 at 01:34:50PM -0700, Andrew Morton wrote:
+> Adam Belay <ambx1@neo.rr.com> wrote:
+> >
+> > [PCMCIA] Fix PnP Probing in i82365.c
+> >  pnp_x_valid returns 1 if valid.  Therefore we should be using !pnp_port_valid.
+> >  Also cleans up some formatting issues.
 > 
-> We currently have some fairly serious IRQ problems with yenta at the
-> moment.  I'm holding all patches until we get this problem resolved -
-> it seems to be caused by several bad changes over the past couple of
-> years accumulating throughout the 2.5 series.
+> This patch fixes the insertion-time hang on the A21P, with CONFIG_I82365=y
 
-yep, i saw the mails on lkml...
+Ok, I'll merge that now.
 
-> 
-> Therefore, I don't want to add any further changes into the mix just
-> yet.
-
-ok. the topic code is low-prio as these chips works mostly w/o the patch.
-my craptop just fucks up in 1 of 30 boots or so.
-
-> 
-> Also, assigning to socket->socket.ops->init modifies the global
-> yenta_socket_operations structure, which I'm far from happy about.
-
-yes, i saw that too, but copy-pasted from the other overrides to fix up
-in the next patch...i think ->init should always point to yenta_init,
-the additional init function should be called from inside there, before
-activating the interrupts...wanna have a patch?
-
--daniel
-
-
-ps: in a few days, when i get my other laptop back, i have access to one of
-those TI chips with all the nice problems (ie. under FreeBigStinkyDaemon the
-machine dies under an interrupt storm when activating the socket) so i could
-also test the irq routing and other fixes a bit. 
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

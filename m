@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261461AbUBYUnB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 15:43:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbUBYUnA
+	id S261455AbUBYUrv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 15:47:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbUBYUrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 15:43:00 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:43137 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S261444AbUBYUmO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 15:42:14 -0500
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E57033BC3E8@exa-atlanta.se.lsil.com>
-From: "Mukker, Atul" <Atulm@lsil.com>
-To: "'Matt Domsch'" <Matt_Domsch@dell.com>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "Mukker, Atul" <Atulm@lsil.com>,
-       "'Arjan van de Ven'" <arjanv@redhat.com>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'Paul Wagland'" <paul@wagland.net>, Matthew Wilcox <willy@debian.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
-Subject: RE: [SUBJECT CHANGE]: megaraid unified driver version 2.20.0.0-al
-	pha1
-Date: Wed, 25 Feb 2004 15:41:54 -0500
+	Wed, 25 Feb 2004 15:47:45 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:19329 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261436AbUBYUoT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 15:44:19 -0500
+Message-ID: <403D0A3B.9000507@tmr.com>
+Date: Wed, 25 Feb 2004 15:48:59 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Neptune <neptune@nowhere.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Adding a new filesystem
+References: <bv8a7b$ir1$1@reader08.wxs.nl>
+In-Reply-To: <bv8a7b$ir1$1@reader08.wxs.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I agree with Christoph here.  megaraid is the only driver that I've
-> worked with that does this device reordering thing;
-Matt, you imply that driver should not do any device re-ordering? I will be
-releasing a patch for the unified-alpha1 driver with this change shortly.
+Neptune wrote:
+> Hello to all,
+> 
+> I'd like to write a module to allow the mount program to mount a 
+> filesystem that is not in the kernel source tree by now.
+> 
+> Could someone point me to some documentation, quickstart guide or 
+> something?
 
-Thanks
--Atul Mukker
+Start looking for the user filesystem stuff. I have no idea if this will 
+  actually but useful, but have have an old note that I thought you 
+could pretty much roll your own f/s in this framework.

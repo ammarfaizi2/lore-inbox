@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316851AbSGMND3>; Sat, 13 Jul 2002 09:03:29 -0400
+	id <S293680AbSGMNIA>; Sat, 13 Jul 2002 09:08:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316853AbSGMND3>; Sat, 13 Jul 2002 09:03:29 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:15614 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316851AbSGMND2>; Sat, 13 Jul 2002 09:03:28 -0400
-Subject: Re: Q: boot time memory region recognition and clearing.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ishikawa <ishikawa@yk.rim.or.jp>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3D2FFC22.49A057CD@yk.rim.or.jp>
-References: <3D2FFC22.49A057CD@yk.rim.or.jp>
+	id <S311710AbSGMNH7>; Sat, 13 Jul 2002 09:07:59 -0400
+Received: from as3-1-8.ras.s.bonet.se ([217.215.75.181]:20356 "EHLO
+	garbo.kenjo.org") by vger.kernel.org with ESMTP id <S293680AbSGMNH6>;
+	Sat, 13 Jul 2002 09:07:58 -0400
+Subject: Re: PATCH: compile the kernel with -Werror
+From: Kenneth Johansson <ken@kenjo.org>
+To: Muli Ben-Yehuda <mulix@actcom.co.il>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020713102615.H739@alhambra.actcom.co.il>
+References: <20020713102615.H739@alhambra.actcom.co.il>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 13 Jul 2002 15:15:17 +0100
-Message-Id: <1026569717.9958.77.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 13 Jul 2002 15:10:20 +0200
+Message-Id: <1026565820.13069.5.camel@tiger>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-07-13 at 11:08, Ishikawa wrote:
-> I have found that the particular motherboard (and memory sticks)
-> that I use at home tends to generate bogus memory problem 
-> warning messages when I use ecc module.
-> Motherboard is Gigabyte 7XIE4 that uses AMD751.
-> (Yes, AMD has now provides AMD76x series chipset for
-> newer CPUs.)
-> 
-> I say "bogus" because I have tested the hardware
-> many times using memtest86 and found that it doesn't
-> detect any memory errors even 
+On Sat, 2002-07-13 at 09:26, Muli Ben-Yehuda wrote:
+> A full kernel compilation, especially when using the -j switch to
+> make, can cause warnings to "fly off the screen" without the user
+> noticing them. For example, wli's patch lazy_buddy.2.5.25-1 of today
+> had a missing return statement in a function returning non void, which
+> the compiler probably complained about but the warning got lost in the
+> noise (a little birdie told me wli used -j64). 
 
-memtest86 isnt (except on the very very latest versions) aware of ECC.
-It sees the memory after the ECC rescues minor errors so if the RAM has
-errors but ECC just about saves you it will show up clean
+use 
+
+make -j64 KBUILD_VERBOSE=0
+
+This is similar to what kbuils2.5 dose by default but since the in
+kernel version do not have one single makefile the output gets a bit
+reshuffled.
+
+But -j64 dose seem a but hi I usually use the same as numbers of cpu.
+over nfs I go a little higher.
+
+
 

@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272432AbTHOXpm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 19:45:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272453AbTHOXpm
+	id S272427AbTHOXyU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 19:54:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272464AbTHOXyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 19:45:42 -0400
-Received: from out003pub.verizon.net ([206.46.170.103]:39887 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S272432AbTHOXpf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 19:45:35 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: linux-usb-devel@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
-Subject: usblp suddenly has mental problems
-Date: Fri, 15 Aug 2003 19:45:33 -0400
-User-Agent: KMail/1.5.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Aug 2003 19:54:20 -0400
+Received: from mail.kroah.org ([65.200.24.183]:38094 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S272427AbTHOXyN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 19:54:13 -0400
+Date: Fri, 15 Aug 2003 16:54:08 -0700
+From: Greg KH <greg@kroah.com>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Otto Solares <solca@guug.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: FBDEV updates.
+Message-ID: <20030815235408.GB5697@kroah.com>
+References: <20030814231620.GA4632@kroah.com> <Pine.LNX.4.44.0308152337070.30952-100000@phoenix.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308151945.33976.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.12.137] at Fri, 15 Aug 2003 18:45:33 -0500
+In-Reply-To: <Pine.LNX.4.44.0308152337070.30952-100000@phoenix.infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+On Fri, Aug 15, 2003 at 11:37:21PM +0100, James Simmons wrote:
+> 
+> > > Is there an API (or lib) to use framebuffers devices without
+> > > worring about differents visuals?, to quering, setting or
+> > > disabling EDID support? will these drivers export sysfs
+> > > entries instead of control via ioctl's?
+> > 
+> > I have some initial sysfs patches for the fb code that I've been sitting
+> > on in my trees.  I was waiting for these patches to hit the mainline
+> > before bothering James and the rest of the world with them.
+> > 
+> > But they don't export any of the ioctl stuff through the sysfs
+> > interface, but that would not be very hard to do at all if you want to.
+> > They just basically show the major/minor of the fb device, and point
+> > back to the proper place in the device tree where the fb device lives,
+> > which is all udev really needs right now.
+> 
+> Could you send me those patches :-)
 
-This is regardless of the kernel booted to.  I've now tried 
-2.4.22-rc2, 2.4.21, and 2.4.20.  And we all know that 2.6.0-test3-mm2 
-is still broken.
+I'll clean them up, and port all fb drivers to them (I only did the ones
+that I had hardware too), and send them to you next week.  Do not let
+them hold anything up that you can send to Linus though, they are not
+that important at all right now.
 
-Summary:
+thanks,
 
-Cups from mozilla's accessing its web page (localhost:631) can print a 
-test page just fine to either printer.  I've got 2 Epson usb printers 
-plugged in, really I do!
-
-*Any* other attempt to get ink on the paper, regardless of the method, 
-down to and including 'lpr filename', gets me about the right amount 
-of paper spit out for the job, but instead of the text, it is covered 
-from bleed to bleed in all 4 sides with a flat, even medium grey, 
-about twice as bright as a kodak 18% card.  I've now got about 35 
-such sheets in the bin from trying to print a letter, composed 
-originally in kwrite.  The first attempt from the kwrite print menu 
-worked, but even that hasn't worked in about an hour now.  But the 
-cups test page is still fine.
-
-ATM I'm back on a 2.4.2-rc2 boot, the printer has been turned off to 
-recycle it several times without effecting this, and I'm out of hair.  
-Hell, I've even re-installed cups-1.1.19!  I eventually sent the 
-letter off by email, which will not be near as effective as ink.
-
-This lashup has worked flawlessly for several months.
-
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
-
+greg k-h

@@ -1,36 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313264AbSEESZP>; Sun, 5 May 2002 14:25:15 -0400
+	id <S313299AbSEESev>; Sun, 5 May 2002 14:34:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313267AbSEESZO>; Sun, 5 May 2002 14:25:14 -0400
-Received: from pc3-camc5-0-cust13.cam.cable.ntl.com ([80.4.125.13]:15745 "EHLO
-	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S313264AbSEESZN>;
-	Sun, 5 May 2002 14:25:13 -0400
-Date: Sun, 5 May 2002 19:21:49 +0100
-Message-Id: <200205051821.g45ILnX02727@fenrus.demon.nl>
-From: arjan@fenrus.demon.nl
-To: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at page_alloc.c:82
-In-Reply-To: <200205051706.TAA08782@cave.bitwizard.nl>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.9-31 (i586))
+	id <S313300AbSEESeu>; Sun, 5 May 2002 14:34:50 -0400
+Received: from mackman.submm.caltech.edu ([131.215.85.46]:59021 "EHLO
+	mackman.net") by vger.kernel.org with ESMTP id <S313299AbSEESet>;
+	Sun, 5 May 2002 14:34:49 -0400
+Date: Sun, 5 May 2002 11:34:48 -0700 (PDT)
+From: Ryan Mack <rmack@mackman.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] slab cache name changes (trivial, please apply)
+Message-ID: <Pine.LNX.4.44.0205051134310.21031-200000@mackman.net>
+MIME-Version: 1.0
+Content-Type: MULTIPART/Mixed; BOUNDARY="-679268779-166124828-1019070750=:14881"
+Content-ID: <Pine.LNX.4.44.0205051134311.21031@mackman.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200205051706.TAA08782@cave.bitwizard.nl> you wrote:
-> Christian [Borntr_ger] wrote:
->> Fabian Svara wrote:
->> > EIP:        0010:[<c0125183>]    Tainted: P
->> 
->> You have the Binary-NVIDIA Driver loaded, haven't you?
-> 
-> Would it be an idea to print the name of the module that (first)
-> tainted the kernel here? That would eliminate this "guessing".
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-That would mean storing it in kernel memory and then people would object
-to using kernel memory for that....
+---679268779-166124828-1019070750=:14881
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.44.0205051134312.21031@mackman.net>
 
-Anyway in this case there's no need.... this is a classic nvidia report;
-just the same as all the other dozens.... I wonder what bug the latest
-driver has to cause the exact same oops all over ;)
+A few of the slab caches had names containing spaces which breaks a few
+slabinfo parsing scripts I use.  It seems the consensus is to use
+underscores instead of spaces in slab cache names, and this patch corrects
+those names still using spaces.  Applies cleanly against 2.4.18 and with
+offsets on 2.4.19-pre7.
+
+Thanks, Ryan
+
+---679268779-166124828-1019070750=:14881
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="slab_names.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0204171212300.14881@mackman.net>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="slab_names.patch"
+
+ZGlmZiAtYXVyIGxpbnV4LW9yaWcvZnMvZG5vdGlmeS5jIGxpbnV4L2ZzL2Ru
+b3RpZnkuYw0KLS0tIGxpbnV4LW9yaWcvZnMvZG5vdGlmeS5jCVR1ZSBOb3Yg
+IDcgMjM6Mjc6NTcgMjAwMA0KKysrIGxpbnV4L2ZzL2Rub3RpZnkuYwlXZWQg
+QXByIDE3IDEyOjAyOjQ2IDIwMDINCkBAIC0xMzEsNyArMTMxLDcgQEANCiAN
+CiBzdGF0aWMgaW50IF9faW5pdCBkbm90aWZ5X2luaXQodm9pZCkNCiB7DQot
+CWRuX2NhY2hlID0ga21lbV9jYWNoZV9jcmVhdGUoImRub3RpZnkgY2FjaGUi
+LA0KKwlkbl9jYWNoZSA9IGttZW1fY2FjaGVfY3JlYXRlKCJkbm90aWZ5X2Nh
+Y2hlIiwNCiAJCXNpemVvZihzdHJ1Y3QgZG5vdGlmeV9zdHJ1Y3QpLCAwLCAw
+LCBOVUxMLCBOVUxMKTsNCiAJaWYgKCFkbl9jYWNoZSkNCiAJCXBhbmljKCJj
+YW5ub3QgY3JlYXRlIGRub3RpZnkgc2xhYiBjYWNoZSIpOw0KZGlmZiAtYXVy
+IGxpbnV4LW9yaWcvZnMvZmNudGwuYyBsaW51eC9mcy9mY250bC5jDQotLS0g
+bGludXgtb3JpZy9mcy9mY250bC5jCU1vbiBTZXAgMTcgMTM6MTY6MzAgMjAw
+MQ0KKysrIGxpbnV4L2ZzL2ZjbnRsLmMJV2VkIEFwciAxNyAxMjowMzoyOSAy
+MDAyDQpAQCAtNTI1LDcgKzUyNSw3IEBADQogDQogc3RhdGljIGludCBfX2lu
+aXQgZmFzeW5jX2luaXQodm9pZCkNCiB7DQotCWZhc3luY19jYWNoZSA9IGtt
+ZW1fY2FjaGVfY3JlYXRlKCJmYXN5bmMgY2FjaGUiLA0KKwlmYXN5bmNfY2Fj
+aGUgPSBrbWVtX2NhY2hlX2NyZWF0ZSgiZmFzeW5jX2NhY2hlIiwNCiAJCXNp
+emVvZihzdHJ1Y3QgZmFzeW5jX3N0cnVjdCksIDAsIDAsIE5VTEwsIE5VTEwp
+Ow0KIAlpZiAoIWZhc3luY19jYWNoZSkNCiAJCXBhbmljKCJjYW5ub3QgY3Jl
+YXRlIGZhc3luYyBzbGFiIGNhY2hlIik7DQpkaWZmIC1hdXIgbGludXgtb3Jp
+Zy9mcy9sb2Nrcy5jIGxpbnV4L2ZzL2xvY2tzLmMNCi0tLSBsaW51eC1vcmln
+L2ZzL2xvY2tzLmMJVGh1IE9jdCAxMSAwNzo1MjoxOCAyMDAxDQorKysgbGlu
+dXgvZnMvbG9ja3MuYwlXZWQgQXByIDE3IDEyOjAzOjIyIDIwMDINCkBAIC0x
+OTQwLDcgKzE5NDAsNyBAQA0KIA0KIHN0YXRpYyBpbnQgX19pbml0IGZpbGVs
+b2NrX2luaXQodm9pZCkNCiB7DQotCWZpbGVsb2NrX2NhY2hlID0ga21lbV9j
+YWNoZV9jcmVhdGUoImZpbGUgbG9jayBjYWNoZSIsDQorCWZpbGVsb2NrX2Nh
+Y2hlID0ga21lbV9jYWNoZV9jcmVhdGUoImZpbGVfbG9ja19jYWNoZSIsDQog
+CQkJc2l6ZW9mKHN0cnVjdCBmaWxlX2xvY2spLCAwLCAwLCBpbml0X29uY2Us
+IE5VTEwpOw0KIAlpZiAoIWZpbGVsb2NrX2NhY2hlKQ0KIAkJcGFuaWMoImNh
+bm5vdCBjcmVhdGUgZmlsZSBsb2NrIHNsYWIgY2FjaGUiKTsNCg==
+---679268779-166124828-1019070750=:14881--

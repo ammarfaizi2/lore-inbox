@@ -1,79 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266114AbUHFRya@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268206AbUHFRvw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266114AbUHFRya (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 13:54:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266073AbUHFRwe
+	id S268206AbUHFRvw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 13:51:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266114AbUHFRsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 13:52:34 -0400
-Received: from web14926.mail.yahoo.com ([216.136.225.84]:57713 "HELO
-	web14926.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266561AbUHFRsI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 13:48:08 -0400
-Message-ID: <20040806174801.39537.qmail@web14926.mail.yahoo.com>
-Date: Fri, 6 Aug 2004 10:48:01 -0700 (PDT)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Re: DRM function pointer work..
-To: Keith Whitwell <keith@tungstengraphics.com>
-Cc: Ian Romanick <idr@us.ibm.com>, Dave Airlie <airlied@linux.ie>,
-       "DRI developer's list" <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <4113BEC5.6030909@tungstengraphics.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 6 Aug 2004 13:48:17 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:44192 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S266073AbUHFRqS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 13:46:18 -0400
+Subject: Re: [proc.txt] Fix /proc/pid/statm documentation
+From: Albert Cahalan <albert@users.sf.net>
+To: Roger Luethi <rl@hellgate.ch>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+In-Reply-To: <20040806170832.GA898@k3.hellgate.ch>
+References: <1091754711.1231.2388.camel@cube>
+	 <20040806094037.GB11358@k3.hellgate.ch>
+	 <20040806104630.GA17188@holomorphy.com>
+	 <20040806120123.GA23081@k3.hellgate.ch> <1091800948.1231.2454.camel@cube>
+	 <20040806170832.GA898@k3.hellgate.ch>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1091805296.3547.2522.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 06 Aug 2004 11:14:56 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2004-08-06 at 13:08, Roger Luethi wrote:
+> On Fri, 06 Aug 2004 10:02:28 -0400, Albert Cahalan wrote:
 
---- Keith Whitwell <keith@tungstengraphics.com> wrote:
-
+> > > what a good solution would look like. Files like /proc/pid/status
+> > > are human-readable and maintenance-friendly (the parser can recognize
+> > > unknown values and gets a free label along with it; obsolete fields can
+> > > be removed).
+> > 
+> > If you're just spewing the values with a perl script, sure.
+> > I'm not sure this matters.
 > 
-> > The key here is that distributions release new kernels at a rapid
-> pace.
-> > This is not X where we get a new release every five years. The
-> standard
-> > mechanism for upgrading device drivers in Linux is to add them to
-> the
-> > kernel and wait for a release.  
-> 
-> So, people have to reboot to install a new graphics driver?   How
-> very 
-> windows...
+> It matters to me. I like to have tools that don't need updates to
+> cope with new fields. Having to wait for tool authors to catch up with
+> kernels is annoying.
 
-You only have to reboot if you built drm-core into the kernel. If you
-don't want to reboot don't do that.
+Not many people want raw data, so the tool authors
+will need to put out new releases anyway.
+
+It doesn't take more than a week generally.
+
+> > If it's going to be this dynamic, then just give me DWARF2 debug
+> > info and the raw data. Like this:
+> > 
+> > /proc/DWARF2
+> > /proc/1000/mm_struct
+> > /proc/1000/signal_struct
+> > /proc/1000/sighand_struct
+> > /proc/1000/task/1024/thread_info
+> > /proc/1000/task/1024/task_struct
+> > /proc/1000/task/1024/fs_struct
+> 
+> That's different. The overhead would be prohibitive. Also, this exposes
+> internal kernel structures.
+
+The overhead? I'm not seeing much, other than the multiple
+files and the very fact that field locations are movable.
+
+As long as I can fall back to the old /proc files when truly
+radical kernel changes happen, exposure of kernel internals
+isn't a serious problem.
+
+If I had the DWARF2 data alone, /dev/mem might be enough.
+(sadly, "top" would require some major work before I'd trust it)
+
+> > > Or use netlink maybe? It sure would be nice to monitor all processes
+> > > with lower overhead, and to have tools that can deal with new data
+> > > items without an update.
+> > 
+> > I've been thinking netlink might be good.
+> 
+> Alright. Maybe we can move our discussion into this direction?
+
+I'll need to track down some netlink documentation.
+Last time I looked, there wasn't any.
+ 
+> > > - Split proc information by new criteria: Slow, expensive items should
+> > >   not be in the same file as information that tools typically
+> > >   and frequently read. For instance, you could have status_basic,
+> > >   status_exotic, and status_slow. Even status_basic could have a format
+> > >   similar to /proc/pid/status, but would be shorter and contain only
+> > >   the most frequently used values (like statm today -- with all the
+> > >   problems that come with such a pre-made selection).
+> > 
+> > Split by:
+> > 1. locking
+> > 2. security.
+> 
+> Hmmm... How does this translate to a netlink interface? Can you elaborate?
+
+I don't think it does.
+
+For the existing files though:
+
+Some SE Linux policies block all access to /proc. Some security
+feature patches zero out things that would reveal addresses.
+(start_code, end_code, wchan...)
 
 
-> 
-> At least with windows you don't have to re-install the whole OS
-> first...
-> 
-> Keith
-> 
-> 
-> 
-> -------------------------------------------------------
-> This SF.Net email is sponsored by OSTG. Have you noticed the changes
-> on
-> Linux.com, ITManagersJournal and NewsForge in the past few weeks?
-> Now,
-> one more big change to announce. We are now OSTG- Open Source
-> Technology
-> Group. Come see the changes on the new OSTG site. www.ostg.com
-> --
-> _______________________________________________
-> Dri-devel mailing list
-> Dri-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/dri-devel
-> 
-
-
-=====
-Jon Smirl
-jonsmirl@yahoo.com
-
-
-		
-_______________________________
-Do you Yahoo!?
-Express yourself with Y! Messenger! Free. Download now. 
-http://messenger.yahoo.com

@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261433AbSJMGJ5>; Sun, 13 Oct 2002 02:09:57 -0400
+	id <S261436AbSJMG2q>; Sun, 13 Oct 2002 02:28:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261434AbSJMGJ5>; Sun, 13 Oct 2002 02:09:57 -0400
-Received: from fastmail.fm ([209.61.183.86]:50839 "EHLO www.fastmail.fm")
-	by vger.kernel.org with ESMTP id <S261433AbSJMGJ5>;
-	Sun, 13 Oct 2002 02:09:57 -0400
-X-Mail-from: robm@fastmail.fm
-X-Spam-score: -0.1
-X-Epoch: 1034489745
-X-Sasl-enc: ugq1q/XpsVytjnvf6xijEA
-Message-ID: <111e01c2727f$c62239a0$1900a8c0@lifebook>
-From: "Rob Mueller" <robm@fastmail.fm>
-To: "Andrew Morton" <akpm@digeo.com>
-Cc: <linux-kernel@vger.kernel.org>, "Jeremy Howard" <jhoward@fastmail.fm>
-References: <0f3201c2718c$750a13b0$1900a8c0@lifebook> <3DA77A20.2D28DBE7@digeo.com> <0f4301c27196$af8a8880$1900a8c0@lifebook> <3DA791E0.F0A1B11@digeo.com> <0fe701c271b9$e86ea910$1900a8c0@lifebook> <3DA7C4C2.58BCE2BC@digeo.com> <0ff701c271bb$f2e8a0b0$1900a8c0@lifebook> <3DA7C87A.670EDD45@digeo.com>
-Subject: Re: Strange load spikes on 2.4.19 kernel
-Date: Sun, 13 Oct 2002 16:14:18 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S261437AbSJMG2q>; Sun, 13 Oct 2002 02:28:46 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:14220 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261436AbSJMG2p>;
+	Sun, 13 Oct 2002 02:28:45 -0400
+Date: Sat, 12 Oct 2002 23:27:44 -0700 (PDT)
+Message-Id: <20021012.232744.10131509.davem@redhat.com>
+To: rth@twiddle.net
+Cc: anton@samba.org, wli@holomorphy.com, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [lart] /bin/ps output
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021012131501.C25740@twiddle.net>
+References: <20021012040959.GE7050@krispykreme>
+	<20021011.235329.116353173.davem@redhat.com>
+	<20021012131501.C25740@twiddle.net>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Richard Henderson <rth@twiddle.net>
+   Date: Sat, 12 Oct 2002 13:15:01 -0700
 
-> > So you're saying that ext3 is somehow breaking the standard kernel
-writeback
-> > code?
->
-> Possibly.  Please try ordered mode.
+   On Fri, Oct 11, 2002 at 11:53:29PM -0700, David S. Miller wrote:
+   > In fact, thinking about this some more, we should make the ".per_cpu"
+   > bits emit a table entry instead of some dummy object which takes up
+   > space.  The table entry would be in the special .per_cpu
+   > section still but be just a size value.
+   
+   That's more complicated.
 
-Ok, we've now tried ordered mode, and are seeing exactly the same behaviour,
-no change. No processes in a waiting state or blocked state at all, but
-still big load spikes. See my other post for an alternating uptime/ps
-output.
+Hmm, we put arbitrary tables of information into seperate elf sections
+already.  Consider the exception fixup mechanism for example.  That's
+the kind of thing I was thinking about.
 
-> Not yet.  Yours is only the second report.  Possible report.
-> Please try ordered mode.  The below will fix journalled
-> mode, if this is indeed the source of the problem
+Oh I see, you're saying that then getting at the things symbolically
+will be painful.  Yes it needs more thought.
 
-We tried applying this patch, but no change either. Again, we've tried both
-journaled and ordered.
-
-Rob
-
+   If you want to omit the per-cpu area from the kernel image, then
+   arrange for it to be .bss.
+   
+Good idea, well on SMP it can be marked throw-away (ie. __init_data).

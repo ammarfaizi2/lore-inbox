@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262178AbUB2Xlo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 18:41:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbUB2Xlo
+	id S262180AbUB2XmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 18:42:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbUB2XmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 18:41:44 -0500
-Received: from fw.osdl.org ([65.172.181.6]:3715 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262178AbUB2Xlm (ORCPT
+	Sun, 29 Feb 2004 18:42:09 -0500
+Received: from hera.kernel.org ([63.209.29.2]:53672 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S262180AbUB2XmH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 18:41:42 -0500
-Date: Sun, 29 Feb 2004 15:42:43 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Fabio Coatti <cova@ferrara.linux.it>
-Cc: len.brown@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3-mm1 and aic7xxx
-Message-Id: <20040229154243.64d55be9.akpm@osdl.org>
-In-Reply-To: <200403010030.27481.cova@ferrara.linux.it>
-References: <A6974D8E5F98D511BB910002A50A6647615F2BAD@hdsmsx402.hd.intel.com>
-	<1077521296.12675.81.camel@dhcppc4>
-	<200403010030.27481.cova@ferrara.linux.it>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 29 Feb 2004 18:42:07 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: [SELINUX] Handle fuse binary mount data.
+Date: Sun, 29 Feb 2004 23:41:43 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c1ttbn$dd7$1@terminus.zytor.com>
+References: <Xine.LNX.4.44.0402291637360.22151-100000@thoron.boston.redhat.com> <20040229215542.A31786@infradead.org> <20040229150213.3ebd7ef9.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1078098103 13736 63.209.29.3 (29 Feb 2004 23:41:43 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Sun, 29 Feb 2004 23:41:43 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fabio Coatti <cova@ferrara.linux.it> wrote:
->
+Followup to:  <20040229150213.3ebd7ef9.akpm@osdl.org>
+By author:    Andrew Morton <akpm@osdl.org>
+In newsgroup: linux.dev.kernel
 > 
->  >
->  > Fabio,
->  > Any chance you can isolate further where this broke by finding the
->  > latest release where it worked properly?
->  >
->  > ie. does vanilla 2.6.3 work if you back out the mm patch?
+> Yes, it's rather awkward.
 > 
->  I don't know if this come late (I've been quite busy) anyway I've found that 
->  vanilla 2.6.3 and 2.6.2 works just fine; mmX versions hangs (mm1, mm2, etc..)
->  The latest working mm version is 2.6.3-rc3-mm1
->  I've also tried 2.6.4-rc1 and 2.6.4-rc1-mm1: 2.6.4-rc1 boots and works, -mm1 
->  hang at the very same point.
+> Could we do something such as passing a new mount flag in from userspace? 
+> Add a new flag alongside MS_SYNCHRONOUS, MS_REMOUNT and friends?
 > 
->  > If 2.6.3 works, then I'd be interested if the following 2.6.3 patch
->  > breaks it:
->  >http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.3/acpi-20040116-2.6.3.diff.gz
-> 
->  Sorry, but I can't find this patch, maybe it's outdated; if you can give me a 
->  new link, I'll try asap.
 
-If you have the time, please test 2.6.4-rc1 and then test 2.6.4-rc1
-plus
+IMNSHO it should be a flag exported by any registered filesystem.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.4-rc1/2.6.4-rc1-mm1/broken-out/bk-acpi.patch
-
-thanks.
+	-hpa

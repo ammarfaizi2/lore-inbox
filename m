@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317597AbSFNLOl>; Fri, 14 Jun 2002 07:14:41 -0400
+	id <S317576AbSFNLuz>; Fri, 14 Jun 2002 07:50:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317627AbSFNLOl>; Fri, 14 Jun 2002 07:14:41 -0400
-Received: from pop.gmx.net ([213.165.64.20]:20005 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S317597AbSFNLOh>;
-	Fri, 14 Jun 2002 07:14:37 -0400
-Date: Fri, 14 Jun 2002 13:15:05 +0200
-From: Jonas Diemer <diemer@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: insmod stall
-Message-Id: <20020614131505.00004803.diemer@gmx.de>
-X-Mailer: Sylpheed version 0.7.6claws31 Win32 (GTK+ 1.3.0; Win32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S317592AbSFNLuy>; Fri, 14 Jun 2002 07:50:54 -0400
+Received: from 205-158-62-93.outblaze.com ([205.158.62.93]:46469 "HELO
+	ws3-3.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S317576AbSFNLux>; Fri, 14 Jun 2002 07:50:53 -0400
+Message-ID: <20020614115049.16384.qmail@email.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Domcan Sami" <domca_psg@email.com>
+To: linux-mips@oss.sgi.com, linux-kernel@vger.kernel.org,
+        redhat-list@redhat.com
+Date: Fri, 14 Jun 2002 06:50:49 -0500
+Subject: Kernel - arch support(mips)
+X-Originating-Ip: 202.140.142.131
+X-Originating-Server: ws3-3.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi all,
 
-I have a recent debian woody. I want to use the fritz card usb. I
-downloaded and compiled it (its distributed partly binary, part source).
-Usign the debian kernel-image-2.4.18-686, the driver worked. Now I have
-compiled my own kernel (2.4.18 too). Now, the driver doesn't work
-anymore (although I recompiled it against my new kernel sources): when I
-insmod it, I see the messages that appeared with the woody kernel, lsmod
-shows the module, but insmod doesn't exit (i.e. it's listed when i run
-"ps ax" as running (Status R)). when I kill that process, the cpu load
-rises. top shows a process named fcusb_init (if I remember correctly)
-taking 99% of the cpu time.
+I am trying to compile a program using a MIPS-LINUX cross compiler(gcc). I've set up a connection between my i386 Linux machine and a MIPS(RM7000) processor. This is again connected to a WinNT Terminal where there should be an output from the MIPS processor.
 
-What's going wrong here? Have I forgotten something? how come the driver
-worked with the woody kernel and wouldn't work with a self compiled one?
+I have 2 kernels in my Linux machine under the directories:
+1) /usr/src/linux - kernel version 2.2.14
+2) /root/kernels/linux - kernel version 2.4.14
 
-regards
+I am using a boot image generated from the older kernel for booting. The problem is the older kernel doesn't support MIPS architecture. What should I do to upgrade my kernel so that it supports MIPS architecture & that I'll be able to cross-compile my programs properly.
 
-Jonas
+Domcan
+-- 
+__________________________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
 
-PS: Please CC me in your replys, I am not subscribed to the list.
+Save up to $160 by signing up for NetZero Platinum Internet service.
+http://www.netzero.net/?refcd=N2P0602NEP8
+

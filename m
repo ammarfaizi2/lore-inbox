@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265851AbSKOF6K>; Fri, 15 Nov 2002 00:58:10 -0500
+	id <S265854AbSKOG0S>; Fri, 15 Nov 2002 01:26:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265854AbSKOF6K>; Fri, 15 Nov 2002 00:58:10 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:39352 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265851AbSKOF6J>;
-	Fri, 15 Nov 2002 00:58:09 -0500
-Date: Fri, 15 Nov 2002 11:40:12 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: Corey Minyard <cminyard@mvista.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
-       John Levon <levon@movementarian.org>, linux-kernel@vger.kernel.org
-Subject: Re: NMI handling rework for x86
-Message-ID: <20021115114012.A5088@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <3DD47858.3060404@mvista.com> <Pine.LNX.4.44.0211142338230.2750-100000@montezuma.mastecende.com>
-Mime-Version: 1.0
+	id <S265863AbSKOG0S>; Fri, 15 Nov 2002 01:26:18 -0500
+Received: from packet.digeo.com ([12.110.80.53]:63727 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265854AbSKOG0R>;
+	Fri, 15 Nov 2002 01:26:17 -0500
+Message-ID: <3DD49520.7927434C@digeo.com>
+Date: Thu, 14 Nov 2002 22:33:04 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Justin A <ja6447@albany.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.47-ac4 panic on boot.
+References: <200211150059.51743.ja6447@albany.edu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0211142338230.2750-100000@montezuma.mastecende.com>; from zwane@holomorphy.com on Thu, Nov 14, 2002 at 11:40:04PM -0500
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Nov 2002 06:33:06.0062 (UTC) FILETIME=[DB2472E0:01C28C70]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 14, 2002 at 11:40:04PM -0500, Zwane Mwaikambo wrote:
-> What interrupt rate have you tested this at? SMP? Adding handlers at 
-> runtime? I'm still skeptical on how RCU protects you, but i'm RCU clueless...
+Justin A wrote:
+> 
+> My thinkpad 760e starts to boot but panics while running depmod -a:
+> (unfortunately the top is cut off...it doesn't fit:))
+> 
+> ...
+> CPU:    0
+> EIP:    0060:[<c012b914>]       Not tainted
+> EFLAGS: 00010006
+> EIP is at reap_timer_fnc+0x104/0x40c
+> eax: 00000002   ebx: c47ffab4   ecx: c47fe8a0   edx: 00000003
+> esi: 00000002   edi: c4742414   ebp: c47ffa98   esp: c031df8c
+> ds: 0068   es: 0068   ss: 0068
+> Process swapper (pid: 0, threadinfo=c031c000 task=c02da3e0)
+> Stack: same as call trace...
+> 
+> Call trace:
+>  [<c012b810>] reap_timer_fnc+0x0/0x40c
+>  [<c011ae47>] run_timer_tasklet+0xb7/0xe8
+>  [<c0117f39>] tasklet_hi_action+0x3d/0x60
+>  [<c0117d5a>] do_softirq+0x5a/0xac
+>  [<c010a268>] do_IRQ+0xc8/0xd4
+>  [<c0105000>] stext+0x0/0x1c
+>  [<c0108b03>] common_interrupt+0x43/x060
+> 
+> Code: 0f 0b fb 07 a8 fe 21 c0 8d 74 26 00 8b 41 04 8b 11 89 42 04
+> 
+> I tried it a few times...the last few change, but its always in
+> reap_timer_fnc.
+> 
 
-The RCU part is fairly simple - you want to avoid having to acquire
-a lock for every NMI event to walk the handler so you do it
-lockfree. If a process running in a different CPU tries to
-free an nmi handler, it removes it from the list, issues an
-rcu callback (to be invoked after all CPUs have gone through
-a context switch or executed user-level code ensuring that the
-deleted nmi handler can't be running) and waits for completion of
-the callback. The rcu callback handler wakes it up.
-It is all hidden under list_add_rcu()/list_del_rcu() and __list_for_each_rcu().
+This is probably a dodgy device driver doing something bad with
+kmalloced memory.
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+If you have time, please go through and disable various drivers
+in config, see if you can isolate it to a particular one.
+
+Thanks.

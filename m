@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282872AbRLGQ2n>; Fri, 7 Dec 2001 11:28:43 -0500
+	id <S282873AbRLGQ3n>; Fri, 7 Dec 2001 11:29:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282874AbRLGQ2W>; Fri, 7 Dec 2001 11:28:22 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:54021 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S282873AbRLGQ2P>;
-	Fri, 7 Dec 2001 11:28:15 -0500
-Date: Fri, 7 Dec 2001 08:24:06 -0800 (PST)
-From: <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Cory Bell <cory.bell@usa.net>
-cc: <john@deater.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
-In-Reply-To: <1007688442.6675.8.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33L2.0112070822090.25484-100000@dragon.pdx.osdl.net>
+	id <S282874AbRLGQ3e>; Fri, 7 Dec 2001 11:29:34 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:28947 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S282873AbRLGQ3Q>;
+	Fri, 7 Dec 2001 11:29:16 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Date: Fri, 7 Dec 2001 17:28:44 MET-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: spurious interrupt with 2.4.10 and higher ?
+CC: kernel list <linux-kernel@vger.kernel.org>, xsebbi@gmx.de
+X-mailer: Pegasus Mail v3.40
+Message-ID: <B53085D0774@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Dec 2001, Cory Bell wrote:
+On  6 Dec 01 at 15:43, Richard B. Johnson wrote:
+> > For a long time, I receive at boot time (and in /var/log/warn) the following 
+> > message from the kernel:
+> > 
+> > Spurious 8259A interrupt: IRQ7
+> > 
+> > Could you tell me please, what is it? My System works fine but I hate this 
+> > message. :-)
+> 
+> FYI, unless you get a burst of these things, they are harmless.
 
-| On Thu, 2001-12-06 at 17:03, Randy.Dunlap wrote:
-| > Hi-
-| >
-| > Did your search for "$PIR" or "RIP$" ?
-| > It is suppsed to be the latter (little-endian).
-|
-| Tried both. The flash BIOS update might be reading system specific stuff
-| and then appending it to the new update, though. Maybe they have
-| separate "code" and data areas, and the the data part never gets
-| overwritten.
-|
-| Would you happen to have any thoughts or advice WRT the problem we have
-| and the proper method of addressing it? Absent a BIOS fix, of course,
-| which I imagine would be the ultimate solution.
-
-Nothing specific, sorry.
-
-Get SiS, ALI, VIA, and ServerWorks to publish their specs.  :)
-
-Good luck.
--- 
-~Randy
-
+Only problem is that this message is printed only once for each IRQ, so
+you cannot get more than 16 of them... Watch ERR counter in /proc/interrupts,
+it is still increasing, although message is not printed. On my A7V (KT133,
+Thunderbird) there are about 3 spurious IRQ7 per 1000 irqs delivered from
+onboard Promise IDE (and ide driver does not complain about timeouts, so
+I assume that IRQ from IDE is delivered AND spurious IRQ7 is delivered). 
+Unfortunately I do not have anything else in the computer, so I cannot 
+check whether KT133 or Promise is a culprit, but from other messages it 
+looks like that Promise is innocent, and VIA is guilty one.
+                                            Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

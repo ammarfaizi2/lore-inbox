@@ -1,76 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129606AbRBLUkQ>; Mon, 12 Feb 2001 15:40:16 -0500
+	id <S129858AbRBLUyu>; Mon, 12 Feb 2001 15:54:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129688AbRBLUkF>; Mon, 12 Feb 2001 15:40:05 -0500
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:34187 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129606AbRBLUjx>; Mon, 12 Feb 2001 15:39:53 -0500
-Date: Mon, 12 Feb 2001 20:39:19 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: LILO and serial speeds over 9600
-In-Reply-To: <969b4m$sbp$1@cesium.transmeta.com>
-Message-ID: <Pine.SOL.4.21.0102122025320.22949-100000@yellow.csi.cam.ac.uk>
+	id <S130069AbRBLUyj>; Mon, 12 Feb 2001 15:54:39 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:18706 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129858AbRBLUya>; Mon, 12 Feb 2001 15:54:30 -0500
+Message-ID: <3A884D72.E0F3D354@transmeta.com>
+Date: Mon, 12 Feb 2001 12:54:10 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: James Sutherland <jas88@cam.ac.uk>
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: LILO and serial speeds over 9600
+In-Reply-To: <Pine.SOL.4.21.0102122025320.22949-100000@yellow.csi.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Feb 2001, H. Peter Anvin wrote:
-
-> Followup to:  <Pine.LNX.4.10.10102120849580.3761-100000@main.cyclades.com>
-> By author:    Ivan Passos <lists@cyclades.com>
-> In newsgroup: linux.dev.kernel
-> > 
-> > Since I still want to add support for speeds up to 115200, the other two
-> > questions are still up (see below):
-> > 
-> > > - If not, do I need to change just LILO to do that, or do I need to change
-> > >   the kernel as well (I don't think I'd need to do that too, as the serial 
-> > >   console kernel code does support up to 115.2Kbps, but it doesn't hurt to 
-> > >   ask ... ;) ??
-> > > - Does another bootloader (e.g. GRUB) support serial speeds higher than
-> > >   9600bps?? If so, which one(s)??
-> > 
-> > I'd really appreciate any help.
-> > 
+James Sutherland wrote:
 > 
-> SYSLINUX supports up to 57600 (it doesn't support 115200 because it
-> stores the number in a 16-bit register) but seriously... why the heck
-> does this matter?  It isn't booting the kernel off the serial line,
-> you know.  A console at 38400 is really quite sufficient... if you
-> need something more than that, you probably should be logging in via
-> the network.
+> Excellent plan: data centre sysadmins the world over will worship your
+> name if it works...
 > 
-> I have toyed a few times about having a simple Ethernet- or UDP-based
-> console protocol (TCP is too heavyweight, sorry) where a machine would
-> seek out a console server on the network.  Anyone has any ideas about
-> it?
+> What exactly do you have in mind: a bidirectional connection you could
+> use to control everything from LILO/Grub onwards? Should be feasible,
+> anyway.
+> 
+> I'd go with UDP for this, rather than raw Ethernet. Use DHCP to get the IP
+> address(es) to connect to as console hosts? (That or a command line
+> option...)
+> 
 
-Excellent plan: data centre sysadmins the world over will worship your
-name if it works...
+Yes, that's my thinking too.  A DHCP/BOOTP option seems to be the obvious
+way, and I'd hate to use non-obvious ways when there is a perfectly good
+obvious way.
 
-What exactly do you have in mind: a bidirectional connection you could
-use to control everything from LILO/Grub onwards? Should be feasible,
-anyway.
+> The first thing is the kernel: just wrap around printk so as soon as eth0
+> is up, you set up a session and start sending packets.
 
-I'd go with UDP for this, rather than raw Ethernet. Use DHCP to get the IP
-address(es) to connect to as console hosts? (That or a command line
-option...)
+My thinking at the moment is to require kernel IP configuration (either
+ip= or RARP/BOOTP/DHCP).  It seems to be the only practical way;
+otherwise you miss too much at the beginning.  However, that mechanism is
+already in place, and shouldn't be too hard to piggy-back on.
 
-The first thing is the kernel: just wrap around printk so as soon as eth0
-is up, you set up a session and start sending packets.
+> I'll do a server to receive these sessions - simple text (no vt100 etc),
+> one window per session - and work on the protocol spec. Anyone willing
+> to do the client end of things - lilo, grub, kernel, etc??
 
+I'll do PXELINUX, for sure.  I'd prefer to do the protocol spec, if you
+don't mind -- having done PXELINUX I think I know the kinds of pitfalls
+that you run into doing an implementation in firmware or firmware-like
+programming (PXELINUX isn't firmware, but it might as well be.)
 
-I'll do a server to receive these sessions - simple text (no vt100 etc),
-one window per session - and work on the protocol spec. Anyone willing
-to do the client end of things - lilo, grub, kernel, etc??
+Doing it in LILO would be extremely difficult, since LILO has no ability
+to handle networking, and no reasonable way to graft it on (you need a
+driver for networking.)  GRUB I can't really comment on.
 
+I might just decide to do the kernel as well.
 
-James.
+Hmmm... this sounds like it's turning into a group effort.  Would you (or
+someone else) like to set up a sourceforge project for this?  I would
+prefer not to have to deal with that end myself.
 
+	-hpa
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261996AbVDEV3D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVDEV3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261996AbVDEV3D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 17:29:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbVDEV1t
+	id S262048AbVDEV3E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 17:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbVDEV1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 17:27:49 -0400
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:64942
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261996AbVDEU4U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 16:56:20 -0400
-Date: Tue, 5 Apr 2005 13:55:04 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org, akpm@osdl.org
-Subject: [PATCH] Fix linux/atalk.h header
-Message-Id: <20050405135504.6fe8e76e.davem@davemloft.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 5 Apr 2005 17:27:32 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:60649 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S262048AbVDEVSI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 17:18:08 -0400
+Date: Tue, 5 Apr 2005 23:18:04 +0200
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: It's getting worse: 2.6.12-rc2-mm1 and suspend2ram
+Message-ID: <20050405211804.GB16263@gamma.logic.tuwien.ac.at>
+References: <20050405181628.GB6879@gamma.logic.tuwien.ac.at> <20050405204107.GD1380@elf.ucw.cz> <20050405210041.GA16263@gamma.logic.tuwien.ac.at> <20050405211340.GF1380@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050405211340.GF1380@elf.ucw.cz>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Die, 05 Apr 2005, Pavel Machek wrote:
+> Well, I do not have working suspend-to-RAM setup close to me... Could
+> you try 2.6.12-rc1 to see if reboot problem is -mm specific or not?
 
-This recently got changed to include a lot of kernel internal
-stuff in the non-__KERNEL__ area of the header, which isn't
-so kosher and breaks libc builds.
+You mean rc2? with rc1-mm4 it is working.
 
-The fix is pretty simple.
+> input is known for some funky behaviour, especially with
+> synaptics. Disabling cpufreq might be good idea, too...
 
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Hmm, ok, I compile it modular, and also cpufreq, and try again wiht
+init=/bin/bash. But not today, time for going home.
 
-===== include/linux/atalk.h 1.12 vs edited =====
---- 1.12/include/linux/atalk.h	2005-03-07 09:33:17 -08:00
-+++ edited/include/linux/atalk.h	2005-04-02 13:20:13 -08:00
-@@ -1,8 +1,6 @@
- #ifndef __LINUX_ATALK_H__
- #define __LINUX_ATALK_H__
- 
--#include <net/sock.h>
--
- /*
-  * AppleTalk networking structures
-  *
-@@ -39,6 +37,10 @@
- 	__u16	nr_lastnet;
- };
- 
-+#ifdef __KERNEL__
-+
-+#include <net/sock.h>
-+
- struct atalk_route {
- 	struct net_device  *dev;
- 	struct atalk_addr  target;
-@@ -80,8 +82,6 @@
- {
- 	return (struct atalk_sock *)sk;
- }
--
--#ifdef __KERNEL__
- 
- #include <asm/byteorder.h>
- 
+Best wishes
+
+Norbert
+
+-------------------------------------------------------------------------------
+Dr. Norbert Preining <preining AT logic DOT at>             Università di Siena
+sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+CLUNES (pl.n.)
+People who just won't go.
+			--- Douglas Adams, The Meaning of Liff

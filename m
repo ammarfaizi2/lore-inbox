@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314277AbSEUMe2>; Tue, 21 May 2002 08:34:28 -0400
+	id <S314417AbSEUMfl>; Tue, 21 May 2002 08:35:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314417AbSEUMe1>; Tue, 21 May 2002 08:34:27 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:6930 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314277AbSEUMe0>; Tue, 21 May 2002 08:34:26 -0400
-Subject: Re: PROBLEM: memory corruption with i815 chipset variant
-To: alex@alphac.it (Alessandro Morelli)
-Date: Tue, 21 May 2002 13:54:41 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200205211144.g4LBi6dY004917@shiva.lab.novalabs.net> from "Alessandro Morelli" at May 21, 2002 01:44:06 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S314409AbSEUMfk>; Tue, 21 May 2002 08:35:40 -0400
+Received: from kim.it.uu.se ([130.238.12.178]:19587 "EHLO kim.it.uu.se")
+	by vger.kernel.org with ESMTP id <S314422AbSEUMfj>;
+	Tue, 21 May 2002 08:35:39 -0400
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17A9A1-0007hu-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-ID: <15594.16140.857729.697091@kim.it.uu.se>
+Date: Tue, 21 May 2002 14:35:24 +0200
+To: Christoph Hellwig <hch@infradead.org>
+Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] possible fix for broken floppy driver since 2.5.13
+In-Reply-To: <20020521132451.A13419@infradead.org>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 8. Graphic card has 16MB of memory: Region 0 is reported to be 128M
-> (AFAIK, it could be correct).
+Christoph Hellwig writes:
+ > On Mon, May 20, 2002 at 07:01:52PM +0200, Mikael Pettersson wrote:
+ > > Since 2.5.13 I've been unable to use drivers/block/floppy.c.
+ > > There were two symptoms: /dev/fd0 was read-only until after
+ > > the first read, and writes wrote currupt data to the media.
+ > > 
+ > > The patch below against 2.5.16 fixes these problems for me:
+ > > 
+ > > - The read-only problem was caused by a getblk() call in
+ > >   floppy_revalidate() which had been commented out (2.5.13
+ > >   did away with getblk() altogether.) This call is necessary,
+ > >   so the patch reintroduces a private getblk() in floppy.c.
+ > 
+ > Please don't use getblk(), but go directly through the bio interface.
+ > In 2.5 the buffer_heads are just a legacy interface for filesystems and
+ > are not supposed to be used by lowlevel drivers.
 
-Quite probably
+I haven't got a clue on how to program Linux' block I/O interfaces.
+Show me how to do a modern equivalent of getblk(dev,0,1024) + waiting
+for the operation to complete and I'll update the patch ASAP.
 
-> ASUS has used the i815 chipset without the CGC, using a Radeon
-> Mobility M6 LY instead.  All problems seem to stem from the agpgart
-> module: since at least 2.4.9 (after the VM change, IIRC) the kernel
-> has shown fundamental instability on this machine.
-
-That means its actually using the same GART code as the 440BX and friends
-if I remember rightly (the i815 special stuff is for on board video)
-
-> Without agpgart module, kernel seems stable.  A naive (totally naive,
-> I admit it) interpretation suggests a problem in setting the AGP aperture.
-
-Does the ram survive memtest86 overnight with no errors logged if you boot
-memtest86 and just leave it ?
+/Mikael

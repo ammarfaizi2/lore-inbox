@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263313AbUCTKSG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 05:18:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263318AbUCTKSG
+	id S263318AbUCTKTl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 05:19:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263321AbUCTKTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 05:18:06 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:37093 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263313AbUCTKSB (ORCPT
+	Sat, 20 Mar 2004 05:19:41 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:58341 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263318AbUCTKTe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 05:18:01 -0500
-Date: Sat, 20 Mar 2004 11:17:50 +0100
+	Sat, 20 Mar 2004 05:19:34 -0500
+Date: Sat, 20 Mar 2004 11:19:30 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Russell Cattelan <cattelan@xfs.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Small bug in bio_clone?
-Message-ID: <20040320101750.GE2711@suse.de>
-References: <1079734269.3373.42.camel@naboo.americas.sgi.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Chris Mason <mason@suse.com>
+Subject: Re: [PATCH] barrier patch set
+Message-ID: <20040320101929.GF2711@suse.de>
+References: <20040319153554.GC2933@suse.de> <200403200140.59543.bzolnier@elka.pw.edu.pl> <405B936C.50200@pobox.com> <200403200224.14055.bzolnier@elka.pw.edu.pl> <20040320095820.GC2711@suse.de> <405C191F.3020501@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1079734269.3373.42.camel@naboo.americas.sgi.com>
+In-Reply-To: <405C191F.3020501@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 19 2004, Russell Cattelan wrote:
-> Shouldn't __bio_clone be checking the state flags
-> of the src bio?
+On Sat, Mar 20 2004, Jeff Garzik wrote:
+> Jens Axboe wrote:
+> >I agree with Bart, it's usually never that clear. Quit harping the
+> >stupid LG issue, they did something brain dead in the firmware and I
+> >almost have to say that they got what they deserved for doing something
+> >as _stupid_ as that.
 > 
-> --- /usr/tmp/TmpDir.29150-0/fs/bio.c_1.3        2004-03-19
-> 16:07:12.000000000 -0600
-> +++ fs/bio.c    2004-03-19 16:06:24.348491070 -0600
-> @@ -225,7 +225,7 @@
->          */
->         bio->bi_vcnt = bio_src->bi_vcnt;
->         bio->bi_idx = bio_src->bi_idx;
-> -       if (bio_flagged(bio, BIO_SEG_VALID)) {
-> +       if (bio_flagged(bio_src, BIO_SEG_VALID)) {
->                 bio->bi_phys_segments = bio_src->bi_phys_segments;
->                 bio->bi_hw_segments = bio_src->bi_hw_segments;
->                 bio->bi_flags |= (1 << BIO_SEG_VALID);
+> I use it because it's an excellent illustration of what happens when you 
+> ignore the spec.
 
-Yes, in theory. What is done now is for sure a mistake, however I'm
-thinking it's probably safer to just delete the check and setting of
-segments, and do it on-demand the next time (if ever) someone calls
-bio_*_segments(bio). Hmm, should be done every time someone assigns
-->bi_bdev(), maybe it would be a good idea to add something like that.
+Really, I think it's a much better demonstration of exactly how stupid
+hardware developers are at times...
 
-static inline void bio_set_bdev(struct bio *bio, struct block_device *bdev)
-{
-	bio->bi_bdev = bdev;
-	bio->bi_flags &= ~(1 << BIO_SEG_VALID);
-}
+> >Jeff, it's wonderful to think that you can always rely on checking spec
+> >bits, but in reality it never really 'just works out' for any given set
+> >of hardware.
+> 
+> "just issue it and hope" is not a reasonable plan, IMO.
+
+I agree with that as well. I just didn't agree with your rosy idea of
+thinking everything would always work if you just check the bits
+according to spec.
 
 -- 
 Jens Axboe

@@ -1,64 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274249AbRI3XVD>; Sun, 30 Sep 2001 19:21:03 -0400
+	id <S274265AbRI3XaD>; Sun, 30 Sep 2001 19:30:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274250AbRI3XUx>; Sun, 30 Sep 2001 19:20:53 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:41118 "EHLO
+	id <S274262AbRI3X34>; Sun, 30 Sep 2001 19:29:56 -0400
+Received: from mailhost.idcomm.com ([207.40.196.14]:415 "EHLO
 	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S274249AbRI3XUl>; Sun, 30 Sep 2001 19:20:41 -0400
-Message-ID: <3BB7A990.A7269167@idcomm.com>
-Date: Sun, 30 Sep 2001 17:24:00 -0600
+	id <S274260AbRI3X3k>; Sun, 30 Sep 2001 19:29:40 -0400
+Message-ID: <3BB7ABAA.C52373D8@idcomm.com>
+Date: Sun, 30 Sep 2001 17:32:58 -0600
 From: "D. Stimits" <stimits@idcomm.com>
 Reply-To: stimits@idcomm.com
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 CC: linux-kernel@vger.kernel.org
-Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by lifein 
+Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life in 
  prison
-In-Reply-To: <Pine.GSO.4.21.0109301744350.12896-100000@weyl.math.psu.edu>
+In-Reply-To: <HBEHIIBBKKNOBLMPKCBBIENPDNAA.znmeb@aracnet.com> <3BB7A34D.D6279EDA@home.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
+John Gluck wrote:
 > 
-> On Sun, 30 Sep 2001, M. Edward Borasky wrote:
+> Hi
 > 
-> > 1. The losses to businesses from just these two virus attacks are
-> > *significant*, and people are angry about the fact. They're looking for
-> > someone to blame, someone to propose a solution and tools to prevent future
-> > attacks. I personally think stiff fines and long prison sentences for
-> > releasing attack software into the world's business network should have been
-> > instituted a long time ago. Life without parole seems to me quite reasonable
-> > under the circumstances.
+> While I can agree with most of your points, the "life without parole" is
+> extreme.
+> Yes, I agree that loss of money is significant but is is just money. It's
+> similar but not the same as someone digging into a bank vault and availing
+> himself of the contents.
+> The difference is that in the virus case, the perpetrator does not make money (
+> unless of course someone pays him).
 > 
-> Let's start with conslutants who kept pushing crap into said network.
-> And continue with those who had bred tons of worthless "certified"
-> wankers pretending to be sysadmins, driving the wages down and replacing
-> clued people with illiterate trash.  Getting rid of script kiddies is
-> nice, but fsckwits who are directly responsible for current situation
-> should be first against the wall.
+> There is also a marked difference between a script kiddie who may be
+> irresponsible and malicious, and a terrorist bent on causing destruction and
+> bringing the world to its knees.
+> In the same manner that banks have dealt with the problem of robbery by taking
+> stonger security measures. The computer / communication communities need to
+> beef up prevention. Excessive punishment will not solve the problem. It is
+> merely a way of saying "we can't protect ourselves so let's kill the
+> messengers". Yes, the attacks until now have been messages. They say "you are
+> vulnerable fix the vulnerabilities. Instead of being in such a rush to beat
+> your competition to the market with a crappy product, bring out a good
+> product".
 
-Don't forget the management that is interested in paper skills, rather
-than ability to do the job. Unless you can add some things on paper,
-like particular certifications, you can't even get an interview.
+
+Think of it as a test of maturity, whether the government knows the
+difference between justice and revenge. The law hasn't passed yet,
+that's why it's nice to see it scrutinized now. But it won't do any good
+if people act as if it is already law...the fat lady hasn't sung yet.
 
 D. Stimits, stimits@idcomm.com
 
 > 
-> > 2. The Linux community should *not* believe that we are less vulnerable than
-> > Microsoft! We are less vulnerable *now* only because Linux is not as
-> > widespread as Windows. Were Linux, say, half of the market, the
-> > vulnerability would be equal. The difference is strictly the number of
+> I have long felt that most of the products on the market are deliberately
+> released with serious known defects just to bring in revenue. The problem isn't
+> with the developers, in many cases they would love to do a better product. It
+> rests with marketers and ultimately stockholders who often make unrealistic
+> demands for growth and sales.
 > 
-> Like, say it, in case of apache?  It's _more_ widespread than target of
-> Code Red and Nimda.
+> Once some terrorist organisation hacks into the GPS satellites and uses them to
+> misguide planes into a assortment of buildings, oil refineries and such, it
+> will be too late to save those who died. Code Red upsets you, call it a wake up
+> call. These are just kids. It's not a concerted terrorist attack by fanatics.
+> In a sense we should perhaps be thanking these kids. They are saying "Hey, you
+> idoits, wake up. Your systems are incredibly vulnerable. Fix them now before
+> something really serious happens. Up to now you've only lost money."
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> As long as kids can screw up your computers and communication network with
+> relatively simple tools, I submit that the real problem isn't the kids, it's
+> the crap that's being used to run the networks. Fix the real problem before the
+> fact and you won't need to scream about the costs of cleanup after the fact.
+> 
+> OK I've repeated myself quite a few times, I hope it sinks in.
+> 
+> John
+> 
+....

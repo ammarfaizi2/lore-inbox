@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129846AbRAVAz3>; Sun, 21 Jan 2001 19:55:29 -0500
+	id <S131408AbRAVBb1>; Sun, 21 Jan 2001 20:31:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130138AbRAVAzU>; Sun, 21 Jan 2001 19:55:20 -0500
-Received: from nrg.org ([216.101.165.106]:27762 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S129846AbRAVAzC>;
-	Sun, 21 Jan 2001 19:55:02 -0500
-Date: Sun, 21 Jan 2001 16:54:47 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: yodaiken@fsmlabs.com
-cc: Andrew Morton <andrewm@uow.edu.au>, "David S. Miller" <davem@redhat.com>,
-        linux-kernel@vger.kernel.org,
-        linux-audio-dev@ginette.musique.umontreal.ca
-Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
-In-Reply-To: <20010120170527.A15918@hq.fsmlabs.com>
-Message-ID: <Pine.LNX.4.05.10101211652360.509-100000@cosmic.nrg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131533AbRAVBbS>; Sun, 21 Jan 2001 20:31:18 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:16792 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S131408AbRAVBbH>;
+	Sun, 21 Jan 2001 20:31:07 -0500
+Date: Mon, 22 Jan 2001 02:31:04 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200101220131.CAA176461.aeb@vlet.cwi.nl>
+To: aia21@cam.ac.uk
+Subject: Re: Getting the number of 512-byte sectors?
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Jan 2001 yodaiken@fsmlabs.com wrote:
-> Let me just point out that Nigel (I think) has previously stated that
-> the purpose of this approach is to bring the stunning success of 
-> IRIX style "RT" to Linux. Since some of us believe that IRIX is a virtual
-> handbook of OS errors, it really comes down to a design style. I think
-> that simplicity and "does the main job well" wins every time over 
-> "really cool algorithms" and "does everything badly". Others 
-> disagree.
+    From: Anton Altaparmakov <aia21@cam.ac.uk>
+    Subject: Getting the number of 512-byte sectors?
 
-Let me just point out that Victor has his own commercial axe to grind in
-his continual bad-mouthing of IRIX, the internals of which he knows
-nothing about.
+    My question is how to get the _real_ number of sectors of a partition from 
+    within a file system. I.e. we are starting only with the knowledge of the 
+    struct super_block for the partition.
 
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
+As you conjectured already, you find this info in the gendisk->part[] array,
+in the start_sect and nr_sects fields.
 
+    Locate the correct gendisk structure by performing a walk of gendisk_head 
+    as done in drivers/block/blkpg.c::get_gendisk(kdev_t), (Could we make this 
+    function to not be private to blkpg.c?), then get the hd_struct for the 
+    partition and obtain the values from that. In code:
+
+    struct gendisk *g = get_gendisk(my_super_block->s_dev)
+    struct hd_struct *hd = &g->part[MINOR(my_super_block->s_dev)];
+
+    wanted "subtracted" values:
+             hd->start_sect
+             hd->nr_sects
+
+    Am I missing something?
+
+No, I agree completely.
+
+    Note: I know I can normally get the number of sectors from the boot sector 
+    of the partition
+
+Not necessarily. The partition table need not be of DOS type.
+Or, even if it is, the kernel's tables may be set up dynamically.
+
+> Could we make this function to not be private to blkpg.c?
+
+I think this area will change rather drastically in 2.5.*.
+
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265263AbTLZX0q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 18:26:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265260AbTLZXYq
+	id S265259AbTLZXXn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 18:23:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265260AbTLZXXm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 18:24:46 -0500
-Received: from www.gawab.com ([204.97.230.36]:19973 "HELO gawab.com")
-	by vger.kernel.org with SMTP id S265256AbTLZXXv (ORCPT
+	Fri, 26 Dec 2003 18:23:42 -0500
+Received: from gprs214-253.eurotel.cz ([160.218.214.253]:45696 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265259AbTLZXWt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 18:23:51 -0500
-Message-ID: <20031226232652.40543.qmail@gawab.com>
-From: "xander vanwiggen" <xander@alexandria.cc>
-To: linux-kernel@vger.kernel.org
-Subject: atapi cd reported twice in dmesg??
-Date: Fri, 26 Dec 2003 23:26:52 GMT
+	Fri, 26 Dec 2003 18:22:49 -0500
+Date: Fri, 26 Dec 2003 22:19:56 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: niraj gupta <niraj_gupta@qosmetrix.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 0n the heels on 10khz patch for 2.6 here is the patch for 2.4 hot of the press
+Message-ID: <20031226211956.GA197@elf.ucw.cz>
+References: <200312151808.04337.niraj_gupta@qosmetrix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [131.211.234.50]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200312151808.04337.niraj_gupta@qosmetrix.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Hello,
-I'm migrating to 2.6 after having used 2.0,2.2,2.4 for quite
-some years now.
-At a first glance, I read ide-scsi is dropped. Okay, no SCSI
-support at all for me then. I have one CD writer, and now it
-gets reported twice, which I don't understand. I have
-CONFIG_IDE,CONFIG_BLK_DEV_IDE,CONFIG_BLK_DEV_IDEDSK,CONFIG_IDEDISK_MULTIMODE,CONFIG_BLK_DEV_IDECD
-set. dmesg reports: "hdc: PCRW804, ATAPI CD/DVD-ROM drive" first
-(ok), then "hdc: ATAPI 32X CDROM CD-R/RW drive, 2048kB Cache,
-DMA". Prior to the second report, an error is generated:
-"end_request: I/O error, dev hdc, sector 0". Reading works fine,
-haven't tested writing yet (nor installed X, hence the omission
-of blank lines in this mail). Is this a RTFM problem...? Kindest
-regards, Xander.
+> just wanted to thank Jean-Marc Valin for the 10khz patch, 
+> here is the patch for 2.4, it boots for me for 2.4G HT/SMP enabled CPU
+> but YMMV
+> 
+> i am not subscribed to the list so please cc me personally
+> if it were not for kerneltrap i would have never seen the original
+> patch
 
---------------------------------------------------------------------------------
-Get your free 15 Mb POP3 email @alexandria.cc
-Click here -> http://www.alexandria.cc/
+First, it is preferable to inline patches.
+
+> diff -urN linux-2.4.22/arch/i386/kernel/apic.c 10klinux-2.4.22/arch/i386/kernel/apic.c
+> --- linux-2.4.22/arch/i386/kernel/apic.c	2003-06-13 07:51:29.000000000 -0700
+> +++ 10klinux-2.4.22/arch/i386/kernel/apic.c	2003-12-15 17:55:37.000000000 -0800
+> @@ -767,7 +767,7 @@
+>  	 * chipset timer can cause.
+>  	 */
+>  
+> -	} while (delta < 300);
+> +	} while (delta < 30);
+>  }
+>  
+>  /*
+
+
+Second, I'm not sure how good idea this is. Others are bugfixes, but
+this has ability to break stuff.
+
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

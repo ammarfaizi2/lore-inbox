@@ -1,41 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262732AbVAFFY5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262736AbVAFF13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262732AbVAFFY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 00:24:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262733AbVAFFY5
+	id S262736AbVAFF13 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 00:27:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262735AbVAFF12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 00:24:57 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:19781
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262732AbVAFFY4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 00:24:56 -0500
-Date: Thu, 6 Jan 2005 06:25:07 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, riel@redhat.com,
-       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][5/?] count writeback pages in nr_scanned
-Message-ID: <20050106052507.GR4597@dualathlon.random>
-References: <20050105173624.5c3189b9.akpm@osdl.org> <Pine.LNX.4.61.0501052240250.11550@chimarrao.boston.redhat.com> <41DCB577.9000205@yahoo.com.au> <20050105202611.65eb82cf.akpm@osdl.org> <41DCC014.80007@yahoo.com.au> <20050105204706.0781d672.akpm@osdl.org> <20050106045932.GN4597@dualathlon.random> <20050105210539.19807337.akpm@osdl.org> <20050106051707.GP4597@dualathlon.random> <41DCCA68.3020100@yahoo.com.au>
-Mime-Version: 1.0
+	Thu, 6 Jan 2005 00:27:28 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36761 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262734AbVAFF0w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 00:26:52 -0500
+To: Itsuro Oda <oda@valinux.co.jp>
+Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] Yet another crash dump tool
+References: <20041014074718.26E6.ODA@valinux.co.jp>
+	<m1sm5xusxk.fsf@ebiederm.dsl.xmission.com>
+	<20050106093723.6C35.ODA@valinux.co.jp>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 05 Jan 2005 22:25:34 -0700
+In-Reply-To: <20050106093723.6C35.ODA@valinux.co.jp>
+Message-ID: <m1y8f7nn75.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41DCCA68.3020100@yahoo.com.au>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 04:19:36PM +1100, Nick Piggin wrote:
-> This is practically what blk_congestion_wait does when the queue
-> isn't congested though, isn't it?
+Itsuro Oda <oda@valinux.co.jp> writes:
 
-The fundamental difference that makes it reliable is that:
+> Hi,
+> 
+> On 23 Dec 2004 04:59:03 -0700
+> ebiederm@xmission.com (Eric W. Biederman) wrote:
+> 
+> > developed right now.  Would you be willing to work on the kexec system
+> > call so we can get a infrastructure that reliably does what is needed
+> > for everyone? 
+> 
+> We concentrate on the fault analysis. We think the original aim of the
+> kexec (== fastboot) differ from the caputuring dump. However,
+> since we apply the effort of the kexec project to mkdump, we are happy
+> to return something to the kexec project. 
 
-1) only the I/O we're throttling against will be considered for the
-   wakeup event, which means only clearing PG_writeback will be
-   considered eligible for wakeup
-   Currently _all_ unrelated write I/O was considered eligible
-   for wakeup events and that could cause spurious oom kills.
-2) we won't need unreliable anti-deadlock timeouts anymore
+As a whole it has always been a goal.  The functionality was first
+prototyped with kexec predecessor mcore.   At OLS this year there
+appears to have been a lot of discussion the consensus reached was
+that a kexec type mechanism was the way to go.  From comments Andrew
+Morton has made I know it is something he would like to see.
+
+Hariprasad Nellitheertha <hari@in.ibm.com>, and Vivek Goyal
+<vgoyal@in.ibm.com> have recently been working on getting  the crash
+dump case working.
+
+Personally the crash dump case is not a large motivator but at the
+same time I find handling the general case is quite important.
+Currently I am in the process of cleaning things up and simplifying
+them so hopefully we have something interesting.
+
+> > Reading your documentation it seems to indicate that you have
+> > successfully avoid using any memory that the crashing kernel used.
+> > Is that correct?
+> 
+> No. If the code or the data structures running from crash occur to the
+> mini kernel start (although it is very short) is damaged, starting the 
+> mini kernel will fail.
+> What we done (and will do partialy) is that the logical possibility of 
+> the deadlock/hang condition is eliminated from the code running from 
+> crash occur to the mini kernel start.
+
+Let me clarify my question.
+
+One of the problems  Hariprasad and Vivek seem to have been having is
+that the keeping the crash dump kernel from using the first 1M.  You
+have avoided that problem correct?
+
+> > And just for a little active feedback.  While you safely tuck
+> > your kernel away in your reserved area of memory it does not appear
+> > you tuck away the data structures necessary to get there.  Which
+> > makes me just a little nervous.
+> 
+> What do you mean "the data structures necessary to get there" ?
+> The necessary information to run the mini kernel and to caputure dump 
+> is stored in the reserved area at the same time of loading the mini kernel
+> (during the kernel is normal).
+
+As I recall from looking at your patch and it was obviously your last
+version was that you were using kmalloc or get_free_pages for some 
+of your data structures that controlled the loaded of the mini kernel
+instead of allocating those data structures from the reserved area.
+
+I'm not quite there as currently I have one structure still not
+allocated in the reserved area.  But everything else is.
+
+As soon as I can manage to focus I will have a new patch set out.
+
+Eric

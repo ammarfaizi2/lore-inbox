@@ -1,59 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262369AbVAUOEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262365AbVAUOIH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262369AbVAUOEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 09:04:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbVAUOEI
+	id S262365AbVAUOIH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 09:08:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbVAUOIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 09:04:08 -0500
-Received: from [202.125.86.130] ([202.125.86.130]:4826 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S262369AbVAUOEF convert rfc822-to-8bit (ORCPT
+	Fri, 21 Jan 2005 09:08:07 -0500
+Received: from jagor.srce.hr ([161.53.2.130]:10680 "EHLO jagor.srce.hr")
+	by vger.kernel.org with ESMTP id S262365AbVAUOIB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 09:04:05 -0500
-Content-class: urn:content-classes:message
+	Fri, 21 Jan 2005 09:08:01 -0500
+Message-ID: <41F10CBC.5000307@spymac.com>
+Date: Fri, 21 Jan 2005 15:07:56 +0100
+From: zhilla <zhilla@spymac.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Subject: FATAL: Error inserting fm -- invalid module format
-Date: Fri, 21 Jan 2005 19:38:56 +0530
-Message-ID: <4EE0CBA31942E547B99B3D4BFAB348112B93D8@mail.esn.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: FATAL: Error inserting fm -- invalid module format
-Thread-Index: AcT/vyMnpkTUwu5rS9ykubuHa91r6A==
-From: "Srinivas G." <srinivasg@esntechnologies.co.in>
-To: "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Subject: ps/2 mouse going crazy
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear All,
+well, i have this funny problem, googled around a bit, and found a same 
+problem here, on the list, several days ago:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110579505706542&w=2
+so, just to inform you, guy is not imagining things, problem exists and 
+is quite annoying. happends every 2-3 hours?!
 
-We were developed a block device driver on linux-2.6.x kernel. We want
-to distribute our driver as a RPM Binary. We are using the SuSE 9.1 with
-2.6.5-7.71 kernel.
+# dmesg | grep -i mouse
+mice: PS/2 mouse device common for all mice
+input: ImExPS/2 Generic Explorer Mouse on isa0060/serio1
+psmouse.c: bad data from KBC - bad parity
+psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost synchronization, 
+throwing 3 bytes away.
 
-We build the RPM file using the fm.ko file on SuSE 9.1 with 2.6.5-7.71
-kernel where fm.ko indicates our Block Driver module.  When I try to run
-the RPM file on a different kernel version it has given the following
-error message.
+mouse is MS-600, a relatively cheap no name optical mouse. cable is OK.
 
-FATAL: Error inserting fm
-(/lib/modules/2.6.4-52-default/kernel/drivers/block/fm.ko): Invalid
-module format
+my lspci output:
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] 
+(rev 03)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] 
+(rev 40)
+00:07.1 IDE interface: VIA Technologies, Inc. 
+VT82C586A/B/VT82C686/A/B/VT823x/A/C/VT8235 PIPC Bus Master IDE (rev 06)
+00:07.2 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 
+controller] (rev 16)
+00:07.3 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 
+controller] (rev 16)
+00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
+00:09.0 Multimedia video controller: Brooktree Corporation Bt878 Video 
+Capture (rev 11)
+00:09.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture 
+(rev 11)
+00:0a.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] 
+(rev 30)
+00:0b.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
+00:0c.0 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 
+controller] (rev 61)
+00:0c.1 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 
+controller] (rev 61)
+00:0c.2 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 63)
+01:00.0 VGA compatible controller: ATI Technologies Inc Radeon RV250 If 
+[Radeon 9000] (rev 01)
+01:00.1 Display controller: ATI Technologies Inc Radeon RV250 [Radeon 
+9000] (Secondary) (rev 01)
 
-As I know the error message indicates that I compiled the driver under
-2.6.5-7.71 kernel where as I am trying to insert the module in
-2.6.4-52-default kernel.
+kernel version
+Linux 2.6.10-as2 (same in ck4/5)
 
-My question is: Is it possible to compile and build a .ko file with out
-including the version information? (i.e. I want to build a RPM file
-using fm.ko file which was compiled using 2.6.5-7.71 and to run the RPM
-file on a different kernel versions.)
-
-We are not very sure of how to achieve this. 
-Please help us address this issue.
-
-Thanks in advance and regards,
-Srinivas G
+if i can help with more info, please post full instructions since i'm a 
+semi-newbie :)

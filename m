@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266810AbRGFTTV>; Fri, 6 Jul 2001 15:19:21 -0400
+	id <S266812AbRGFTZk>; Fri, 6 Jul 2001 15:25:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266811AbRGFTTK>; Fri, 6 Jul 2001 15:19:10 -0400
-Received: from shell.ca.us.webchat.org ([216.152.64.152]:55518 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S266810AbRGFTTB>; Fri, 6 Jul 2001 15:19:01 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: Linus vs. AC kernels
-Date: Fri, 6 Jul 2001 12:18:59 -0700
-Message-ID: <NOEJJDACGOHCKNCOGFOMIEHACFAA.davids@webmaster.com>
+	id <S266814AbRGFTZa>; Fri, 6 Jul 2001 15:25:30 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:29957 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S266812AbRGFTZK>; Fri, 6 Jul 2001 15:25:10 -0400
+Date: Fri, 6 Jul 2001 16:24:52 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Sasha Pachev <sasha@mysql.com>
+Cc: Mike Kravetz <mkravetz@sequent.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Strange thread behaviour on 8-way x86 machine
+In-Reply-To: <0107061245200U.17811@mysql>
+Message-ID: <Pine.LNX.4.33L.0107061624370.17825-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <3B434D24.9050007@nyc.rr.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 6 Jul 2001, Sasha Pachev wrote:
 
-> Adam wrote:
+> Upon further investigation and testing, it turned out that the kernel was not
+> at fault - the problem was high mutex contention, which caused frequent
+> context switches, and the idle CPU was apparently from the scheduler waiting
+> for the original CPU to become available too often.
 >
-> > yeah, read change logs..
->
->
-> Some samples.
->
-> -pre9:
->   - merge with Alan (including MIPS update)
->
-> -pre6:
->   - Alan Cox: merging, merging, merging
+> On a side note, it would be nice if a process could communicate
+> to the kernel that it would rather run on the first available
+> CPU than wait for the perfect one to become available.
 
-	It might be helpful if these types of notes could indicate the version from
-the other source tree that these changes come from. For example 'merge with
-Alan (patches mostly in his ac13)'. I do realize that you can't draw exact
-parallels.
+The kernel already does this.
 
-	DS
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

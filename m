@@ -1,59 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264877AbUEVBOW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265313AbUEVBSL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264877AbUEVBOW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 21:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264804AbUEVBLi
+	id S265313AbUEVBSL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 21:18:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265146AbUEVBOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 21:11:38 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:33216 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264798AbUEVBJL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 21:09:11 -0400
-Date: Thu, 20 May 2004 11:02:18 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andreas Hartmann <andihartmann@01019freenet.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm4
-Message-ID: <20040520090218.GH24287@fs.tum.de>
-References: <fa.h0r5q8q.k6meb8@ifi.uio.no> <c8hgk0$336$1@p3EE062C3.dip0.t-ipconnect.de>
+	Fri, 21 May 2004 21:14:35 -0400
+Received: from hell.org.pl ([212.244.218.42]:61701 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S264488AbUEVBOD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 21:14:03 -0400
+Date: Fri, 21 May 2004 08:27:30 +0200
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: mru@kth.se, linux-kernel@vger.kernel.org
+Subject: Re: ACPI interrupts on Asus
+Message-ID: <20040521062729.GA7119@hell.org.pl>
+References: <20040521030255.GA16390@mcelrath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <c8hgk0$336$1@p3EE062C3.dip0.t-ipconnect.de>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040521030255.GA16390@mcelrath.org>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 20, 2004 at 07:44:32AM +0200, Andreas Hartmann wrote:
-> Hello!
-> 
-> I got a compile error compiling the following:
-> 
->   LD      .tmp_vmlinux1
-> arch/i386/kernel/built-in.o(.text+0x1247f): In function 
-> `hpet_rtc_interrupt':
-> : undefined reference to `rtc_interrupt'
-> arch/i386/kernel/built-in.o(.text+0x124aa): In function 
-> `hpet_rtc_interrupt':
-> : undefined reference to `rtc_get_rtc_time'
-> make: *** [.tmp_vmlinux1] Error 1
-> 
-> I switched on 'HPET Timer Support' and 'Provide RTC interrupt'
-> It works fine without 'Provide RTC interrupt'.
->...
+Thus wrote Bob McElrath:
+> You both indicated on the LKML list that you have an ASUS laptop and
+> after a suspend, ACPI interrupts are not received.  It seems no
+> resolution to this is posted on the LKML list.  Have either of you
+> figured out how to fix this?
 
-Please send your complete .config .
-
-> Regards,
-> Andreas Hartmann
-
-TIA
-Adrian
+http://bugme.osdl.org/show_bug.cgi?id=2321 has a working solution.
+Best regards,
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

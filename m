@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280583AbRKSSlR>; Mon, 19 Nov 2001 13:41:17 -0500
+	id <S280588AbRKSSlR>; Mon, 19 Nov 2001 13:41:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280588AbRKSSk6>; Mon, 19 Nov 2001 13:40:58 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:11269 "EHLO
-	deathstar.prodigy.com") by vger.kernel.org with ESMTP
-	id <S280570AbRKSSkp>; Mon, 19 Nov 2001 13:40:45 -0500
-Date: Mon, 19 Nov 2001 13:40:45 -0500
-Message-Id: <200111191840.fAJIej230821@deathstar.prodigy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: if (a & X || b & ~Y) in dasd.c
-X-Newsgroups: linux.kernel
-In-Reply-To: <20011108155749.A24023@devserv.devel.redhat.com>
-Organization: TMR Associates, Schenectady NY
-From: davidsen@tmr.com (bill davidsen)
+	id <S280591AbRKSSk6>; Mon, 19 Nov 2001 13:40:58 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:33290 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S280583AbRKSSkw>;
+	Mon, 19 Nov 2001 13:40:52 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200111191840.VAA21046@ms2.inr.ac.ru>
+Subject: Re: VM-related Oops: 2.4.15pre1
+To: torvalds@transmeta.COM (Linus Torvalds)
+Date: Mon, 19 Nov 2001 21:40:41 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0111181820040.7500-100000@penguin.transmeta.com> from "Linus Torvalds" at Nov 19, 1 05:45:00 am
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011108155749.A24023@devserv.devel.redhat.com> zaitcev@redhat.com wrote:
->Carsten and others:
->
->this code in 2.2.14 looks suspicious to me:
->
->./drivers/s390/block/dasd.c:
->        /* first of all lets try to find out the appropriate era_action */
->        if (stat->flag & DEVSTAT_FLAG_SENSE_AVAIL ||
->            stat->dstat & ~(DEV_STAT_CHN_END | DEV_STAT_DEV_END)) {
+Hello!
 
-  If the code does what I think it does, it works as written. However, I
-usually would throw in parenthesis on something like this to be sure
-that the next person reading the code won't waste time thinking about
-it. I always thought that good code was literature, which could be read,
-understood, and enjoyed by many.
+> Oh, and I bet TCP would break horribly if gcc wrote internal temporary
+> values to the socket sequence numbers.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  His first management concern is not solving the problem, but covering
-his ass. If he lived in the middle ages he'd wear his codpiece backward.
+Actually tcp does not depend on gcc idiosyncrasies. It works under
+socket lock.
+
+Well, all these things sort of read-copy updates, relying on memory
+ordering etc. may be very good, but:
+
+- I do not know the rules of the game.
+- Nobody seems to knows them.
+- Anyway, I do not have enough of brain cells to keep this under control.
+
+So, networking relies only on explicit locks and barriers and gcc may do
+everything except for splitting "optimizations" of this kind over barriers.
+
+
+The most dangerous thing, which could harm 2.2 a lot is intuitively
+natural:
+
+static int a;
+auto int b;
+
+b = a;
+do_something_with_b;
+
+Goal of this code is clear, to get snapshot of "a"
+and to do anything with "b", assuming it does not change.
+In 2.2 we rely on this in many places.
+
+I do not see anything which could prohibit gcc to eliminate register
+allocated for "b" while CSE and to use "a" directly f.e. when b does
+not fit to hardware register set in any case. Actually, gcc
+does not make this to our luck, but I suspect it is only because
+it is too stupid.
+
+Alexey

@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269743AbUJMOdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269741AbUJMOhC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269743AbUJMOdi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 10:33:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269742AbUJMOdh
+	id S269741AbUJMOhC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 10:37:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269742AbUJMOeG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 10:33:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:40111 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269731AbUJMOaQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 10:30:16 -0400
-From: Jeff Moyer <jmoyer@redhat.com>
+	Wed, 13 Oct 2004 10:34:06 -0400
+Received: from zamok.crans.org ([138.231.136.6]:53682 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S269727AbUJMOdO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 10:33:14 -0400
+To: "Harald Dunkel" <harald.dunkel@t-online.de>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: udev: what's up with old /dev ?
+References: <1097446129l.5815l.0l@werewolf.able.es>
+	<20041012001901.GA23831@kroah.com> <416B91C4.7050905@t-online.de>
+	<20041012165809.GA11635@kroah.com> <416C26B4.6040408@t-online.de>
+	<20041012185733.GA31222@kroah.com> <416C3BB6.4040200@t-online.de>
+	<20041012203022.GB32139@kroah.com> <416C4E15.9000503@t-online.de>
+	<87vfde3gvs.fsf@barad-dur.crans.org> <416D380E.4080202@t-online.de>
+From: Mathieu Segaud <matt@minas-morgul.org>
+Date: Wed, 13 Oct 2004 16:33:12 +0200
+In-Reply-To: <416D380E.4080202@t-online.de> (Harald Dunkel's message of "Wed,
+	13 Oct 2004 16:13:34 +0200")
+Message-ID: <87fz4i3cyf.fsf@barad-dur.crans.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16749.15265.475571.767534@segfault.boston.redhat.com>
-Date: Wed, 13 Oct 2004 10:28:49 -0400
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, mingo@redhat.com, sct@redhat.com
-Subject: Re: [patch rfc] towards supporting O_NONBLOCK on regular files
-In-Reply-To: <20041003194831.GB3089@openzaurus.ucw.cz>
-References: <16733.50382.569265.183099@segfault.boston.redhat.com>
-	<20041003194831.GB3089@openzaurus.ucw.cz>
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> Regarding Re: [patch rfc] towards supporting O_NONBLOCK on regular files; Pavel Machek <pavel@ucw.cz> adds:
+"Harald Dunkel" <harald.dunkel@t-online.de> disait dernièrement que :
 
-pavel> Hi!
->> This patch makes an attempt at supporting the O_NONBLOCK flag for
->> regular files.  It's pretty straight-forward.  One limitation is that we
->> still call into the readahead code, which I believe can block.  However,
->> if we don't do this, then an application which only uses non-blocking
->> reads may never get it's data.
+>
+> And then?
+>
+> The sources of kinit show that its job is parse the kernel
+> command line arguments, configure the NIC, mount the root
+> filesystem via NFS, etc. Other configurations might require
+> a different init to start hotplug and udev, or to handle the
+> LVM and crypto magic, for example. My point is that if there
+> is no one-for-all init process to handle _every_ possible
+> startup procedure, then it might be necessary to rebuild the
+> initramfs. This would be easier (and easier to test) if
+> initramfs is not compiled into the kernel, but a separate
+> image to be loaded at boot time "somehow".
+>
 
-pavel> This looks very nice. Does it mean that aio and friends are
-pavel> instantly obsolete?
+yep to test it would be helpful. To setup mine, it took not long, but sure
+such a facility could help. But you know, if you do not run make clean, and you
+have edited usr/Makefile to not rebuild initramfs, puting your custom cpio
+archive into usr and typing 'make' won't take long to rebuild the new kernel :)
+I did that to get it working.
 
-I dont' think so.  This only addresses the read() path, for one.  Plus, in
-it's current form, it will not perform any I/O if the data is not present.
-So, you will need another thread/process to do kick off the I/O.
+As to know if having an external archive file loaded by grub or so, I don't
+know much that part of the kernel code... Hum, I really did not try to under-
+stand the code involving initrd's and initramfs in init/do_mounts_initrd.c.
+I wonder whether putting an executable /init in an initrd is sufficient to
+have it recognized as an initramfs and not an initrd....
 
-pavel> Does it have comparable performance to aio?
+The important thing is /init executable script in initramfs, this is what
+tells the kernel to override the "standard" way it boots.
 
-I haven't run any tests.  One advantage this has to current aio is that it
-can operate without O_DIRECT.
+Mathieu
 
--Jeff
+-- 
+The policy is not to have policy. It works as well in kernel design as politics.
+
+	- Alan Cox on linux-kernel
+

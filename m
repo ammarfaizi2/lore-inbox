@@ -1,283 +1,156 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261271AbSJUI0A>; Mon, 21 Oct 2002 04:26:00 -0400
+	id <S261278AbSJUIdN>; Mon, 21 Oct 2002 04:33:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261278AbSJUI0A>; Mon, 21 Oct 2002 04:26:00 -0400
-Received: from [203.238.93.2] ([203.238.93.2]:16141 "EHLO kasumi.idis.co.kr")
-	by vger.kernel.org with ESMTP id <S261271AbSJUIZ5>;
-	Mon, 21 Oct 2002 04:25:57 -0400
-Message-ID: <016501c278dc$17f47470$135deecb@jhheo>
-From: "JunHyeok Heo" <jhheo@idis.co.kr>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Michael Goertz" <goertz@gmx.de>, "Michael Kiefer" <Michael-Kiefer@web.de>
-Subject: Re: Kernel Panic 2.4.19 with Segate 80GB HDD
-Date: Mon, 21 Oct 2002 17:30:20 +0900
+	id <S261282AbSJUIdN>; Mon, 21 Oct 2002 04:33:13 -0400
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:11964 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S261278AbSJUIdL>; Mon, 21 Oct 2002 04:33:11 -0400
+Message-ID: <013901c278dd$43db3460$7609720a@M3104487>
+Reply-To: "Siva Koti Reddy" <siva.kotireddy@wipro.com>
+From: "Siva Koti Reddy" <siva.kotireddy@wipro.com>
+To: "lkml" <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Cc: "Linux Coe" <lin_coe@wipro.com>
+References: <3DB3B858.C7CD5DA1@digeo.com>
+Subject: bonnie++ benchmark results for 2.4.19 and 2.5.43 kernels.
+Date: Mon, 21 Oct 2002 14:08:43 +0530
+Organization: wipro
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="----=_NextPartTM-000-a5be3852-ec5d-4b8a-90c2-c11d25d32d94"
 X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+X-OriginalArrivalTime: 21 Oct 2002 08:39:03.0286 (UTC) FILETIME=[4F459160:01C278DD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I investigated this problem.
-The problem was that Segate 80GB HDD (ST380020ACE) erroneously has 48bit LBA
-turned on,
-but the capacity field for 48Bit LBA has 0.
-So, i modified the "init_idedisk_capacity()" function to forcily use the
-28bit LBA mode
-in this case. I know that the HDD less than 137GB no need to use 48bit LBA.
+This is a multi-part message in MIME format.
 
-If there is someone who suffers from the same symptom,
-try the following patch at your own risk. ^^;;;
+------=_NextPartTM-000-a5be3852-ec5d-4b8a-90c2-c11d25d32d94
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
---------- From Here -----------------
-diff -urN linux-2.4.19-ori/drivers/ide/ide-disk.c
-linux-2.4.19/drivers/ide/ide-disk.c
---- linux-2.4.19-ori/drivers/ide/ide-disk.c Sat Aug  3 09:39:44 2002
-+++ linux-2.4.19/drivers/ide/ide-disk.c Mon Oct 21 17:09:09 2002
-@@ -928,6 +928,13 @@
-  drive->select.b.lba = 0;
+Kernel 2.5.43
+==============
+Using uid:0, gid:0.
+Writing with putc()...done
+Writing intelligently...done
+Rewriting...done
+Reading with getc()...done
+Reading intelligently...done
+start 'em...done...done...done...
+Create files in sequential order...done.
+Stat files in sequential order...done.
+Delete files in sequential order...done.
+Create files in random order...done.
+Stat files in random order...done.
+Delete files in random order...done.
+Version 1.02c       ------Sequential Output------ --Sequential
+Input- --Random-
+                    -Per Chr- --Block-- -Rewrite- -Per
+Chr- --Block-- --Seeks--
+Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec
+%CP
+siva           128M  5267  96  7851  13  4311   8  5004  94 10199  12  44.4
+1
+                    ------Sequential Create------ --------Random
+Create--------
+                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delet
+e--
+              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec
+%CP
+                 16   304  98 18869  98 12866  99   308  98 18951  98  1100
+99
+siva,128M,5267,96,7851,13,4311,8,5004,94,10199,12,44.4,1,16,304,98,18869,98,
+12866,99,308,98,18951,98,1100,99
 
-  if (id->cfs_enable_2 & 0x0400) {
-+  if (id->lba_capacity_2 == (long long) 0) {
-+   id->cfs_enable_2 &= ~0x0400;
-+   printk("%s: not suitable for 48bit LBA, forcily 28bit LBA is
-used\n",drive->name);
-+  }
-+ }
-+
-+ if (id->cfs_enable_2 & 0x0400) {
-   capacity_2 = id->lba_capacity_2;
-   drive->head  = drive->bios_head = 255;
-   drive->sect  = drive->bios_sect = 63;
------ Original Message -----
-From: "JunHyeok Heo" <jhheo@idis.co.kr>
-To: <linux-kernel@vger.kernel.org>
-Sent: Friday, October 18, 2002 10:35 AM
-Subject: Kernel Panic 2.4.19 with Segate 80GB HDD
 
 
->
-> I used kernel 2.4.19 with Segate 80GB HDD (ST380020ACE).
-> The kernel could not recognize the number of sectors correctly, and then
-> result in kernel panic.
-> I tried kernel 2.4.18 with the same HDD, there is no problem.
->
-> Is this a bug in the ide device driver ? or  is there any compatible HDD
-> list for 2.4.19 kernel ?
->
-> The cpu is PentiumIII 700Mhz cpu and
-> The chipset of motherboard is Intel BX.
-> The IDE controller is INTEL82801BA_9
->
-> In case of 2.4.19 kernel, the booting message as follows...
-> --
-> Linux version 2.4.19 (root@i74) (gcc version 2.95.4 (Debian prerelease))
-#2
-> Wed
-> Oct 16 21:27:55 KST 2002
-> BIOS-provided physical RAM map:
->  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
->  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
->  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
->  BIOS-e820: 0000000000100000 - 000000000bfeb000 (usable)
->  BIOS-e820: 000000000bfeb000 - 000000000bfef000 (ACPI data)
->  BIOS-e820: 000000000bfef000 - 000000000bfff000 (reserved)
->  BIOS-e820: 000000000bfff000 - 000000000c000000 (ACPI NVS)
->  BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
-> 191MB LOWMEM available.
-> On node 0 totalpages: 49131
-> zone(0): 4096 pages.
-> zone(1): 45035 pages.
-> zone(2): 0 pages.
-> Kernel command line: BOOT_IMAGE=host19 ro root=301
-> BOOT_FILE=/boot/vmlinuz-2.4.1
-> 9 console=ttyS0,9600 console=ttyS0,9600
-> Initializing CPU#0
-> Detected 706.972 MHz processor.
-> Console: colour VGA+ 80x25
-> Calibrating delay loop... 1412.30 BogoMIPS
-> Memory: 192408k/196524k available (1069k kernel code, 3728k reserved, 260k
-> data,
->  60k init, 0k highmem)
-> Dentry cache hash table entries: 32768 (order: 6, 262144 bytes)
-> Inode cache hash table entries: 16384 (order: 5, 131072 bytes)
-> Mount-cache hash table entries: 4096 (order: 3, 32768 bytes)
-> Buffer-cache hash table entries: 8192 (order: 3, 32768 bytes)
-> Page-cache hash table entries: 65536 (order: 6, 262144 bytes)
-> CPU: L1 I cache: 16K, L1 D cache: 16K
-> CPU: L2 cache: 256K
-> Intel machine check architecture supported.
-> Intel machine check reporting enabled on CPU#0.
-> CPU: Intel Pentium III (Coppermine) stepping 03
-> Enabling fast FPU save and restore... done.
-> Enabling unmasked SIMD FPU exception support... done.
-> Checking 'hlt' instruction... OK.
-> POSIX conformance testing by UNIFIX
-> PCI: PCI BIOS revision 2.10 entry at 0xf0d90, last bus=2
-> PCI: Using configuration type 1
-> PCI: Probing PCI hardware
-> Unknown bridge resource 0: assuming transparent
-> PCI: Using IRQ router PIIX [8086/2440] at 00:1f.0
-> Linux NET4.0 for Linux 2.4
-> Based upon Swansea University Computer Society NET3.039
-> Initializing RT netlink socket
-> Starting kswapd
-> Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
-> pty: 256 Unix98 ptys configured
-> Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ
-> SERIAL_PCI en
-> abled
-> ttyS00 at 0x03f8 (irq = 4) is a 16550A
-> ttyS01 at 0x02f8 (irq = 3) is a 16550A
-> Real Time Clock Driver v1.10e
-> Uniform Multi-Platform E-IDE driver Revision: 6.31
-> ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-> ICH2: IDE controller on PCI bus 00 dev f9
-> ICH2: chipset revision 1
-> ICH2: not 100% native mode: will probe irqs later
->     ide0: BM-DMA at 0xb800-0xb807, BIOS settings: hda:DMA, hdb:pio
->     ide1: BM-DMA at 0xb808-0xb80f, BIOS settings: hdc:pio, hdd:pio
-> hda: ST380020ACE, ATA DISK drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> hda: setmax_ext LBA 1, native  0
-> hda: 0 sectors (0 MB) w/2048KiB Cache, CHS=0/255/63, UDMA(33)
-> PPP generic driver version 2.4.2
-> NET4: Linux TCP/IP 1.0 for NET4.0
-> IP Protocols: ICMP, UDP, TCP
-> IP: routing cache hash table of 1024 buckets, 8Kbytes
-> TCP: Hash tables configured (established 16384 bind 16384)
-> NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-> hda1: bad access: block=2, count=2
-> end_request: I/O error, dev 03:01 (hda), sector 2
-> EXT2-fs: unable to read superblock
-> hda1: bad access: block=0, count=1
-> end_request: I/O error, dev 03:01 (hda), sector 0
-> FAT: unable to read boot sector
-> hda1: bad access: block=128, count=1
-> end_request: I/O error, dev 03:01 (hda), sector 128
-> read_super_block: bread failed (dev 03:01, block 128, size 512)
-> hda1: bad access: block=16, count=1
-> end_request: I/O error, dev 03:01 (hda), sector 16
-> read_super_block: bread failed (dev 03:01, block 16, size 512)
-> Kernel panic: VFS: Unable to mount root fs on 03:01
->
-> --
->
-> In case of 2.4.18 kernel, the booting message as follows...
->
-> Linux version 2.4.18 (root@i076) (gcc version 2.95.4 (Debian prerelease))
-#5
-> Fri Mar 22 19:21:49 KST 2002
-> BIOS-provided physical RAM map:
->  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
->  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
->  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
->  BIOS-e820: 0000000000100000 - 000000000bfeb000 (usable)
->  BIOS-e820: 000000000bfeb000 - 000000000bfef000 (ACPI data)
->  BIOS-e820: 000000000bfef000 - 000000000bfff000 (reserved)
->  BIOS-e820: 000000000bfff000 - 000000000c000000 (ACPI NVS)
->  BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
-> On node 0 totalpages: 49131
-> zone(0): 4096 pages.
-> zone(1): 45035 pages.
-> zone(2): 0 pages.
-> Local APIC disabled by BIOS -- reenabling.
-> Found and enabled local APIC!
-> Kernel command line: BOOT_IMAGE=host18 ro root=301
-> BOOT_FILE=/boot/vmlinuz-2.4.18
-> Initializing CPU#0
-> Detected 706.973 MHz processor.
-> Console: colour VGA+ 80x25
-> Calibrating delay loop... 1412.30 BogoMIPS
-> Memory: 191400k/196524k available (1064k kernel code, 4736k reserved, 287k
-> data, 76k init, 0k highmem)
-> Dentry-cache hash table entries: 32768 (order: 6, 262144 bytes)
-> Inode-cache hash table entries: 16384 (order: 5, 131072 bytes)
-> Mount-cache hash table entries: 4096 (order: 3, 32768 bytes)
-> Buffer-cache hash table entries: 8192 (order: 3, 32768 bytes)
-> Page-cache hash table entries: 65536 (order: 6, 262144 bytes)
-> CPU: Before vendor init, caps: 0383fbff 00000000 00000000, vendor = 0
-> CPU: L1 I cache: 16K, L1 D cache: 16K
-> CPU: L2 cache: 256K
-> CPU: After vendor init, caps: 0383fbff 00000000 00000000 00000000
-> Intel machine check architecture supported.
-> Intel machine check reporting enabled on CPU#0.
-> CPU:     After generic, caps: 0383fbff 00000000 00000000 00000000
-> CPU:             Common caps: 0383fbff 00000000 00000000 00000000
-> CPU: Intel Pentium III (Coppermine) stepping 03
-> Enabling fast FPU save and restore... done.
-> Enabling unmasked SIMD FPU exception support... done.
-> Checking 'hlt' instruction... OK.
-> POSIX conformance testing by UNIFIX
-> enabled ExtINT on CPU#0
-> ESR value before enabling vector: 00000000
-> ESR value after enabling vector: 00000000
-> Using local APIC timer interrupts.
-> calibrating APIC timer ...
-> ..... CPU clock speed is 706.9670 MHz.
-> ..... host bus clock speed is 100.9952 MHz.
-> cpu: 0, clocks: 1009952, slice: 504976
-> CPU0<T0:1009952,T1:504976,D:0,S:504976,C:1009952>
-> mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
-> mtrr: detected mtrr type: Intel
-> PCI: PCI BIOS revision 2.10 entry at 0xf0d90, last bus=2
-> PCI: Using configuration type 1
-> PCI: Probing PCI hardware
-> Unknown bridge resource 0: assuming transparent
-> PCI: Using IRQ router PIIX [8086/2440] at 00:1f.0
-> Linux NET4.0 for Linux 2.4
-> Based upon Swansea University Computer Society NET3.039
-> Initializing RT netlink socket
-> Starting kswapd
-> pty: 256 Unix98 ptys configured
-> Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ
-> SERIAL_PCI enabled
-> ttyS00 at 0x03f8 (irq = 4) is a 16550A
-> ttyS01 at 0x02f8 (irq = 3) is a 16550A
-> request_module[parport_lowlevel]: Root fs not mounted
-> lp: driver loaded but no devices found
-> ppdev: user-space parallel port driver
-> block: 128 slots per queue, batch=32
-> Uniform Multi-Platform E-IDE driver Revision: 6.31
-> ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-> PIIX4: IDE controller on PCI bus 00 dev f9
-> PIIX4: chipset revision 1
-> PIIX4: not 100% native mode: will probe irqs later
->     ide0: BM-DMA at 0xb800-0xb807, BIOS settings: hda:DMA, hdb:pio
->     ide1: BM-DMA at 0xb808-0xb80f, BIOS settings: hdc:pio, hdd:pio
-> hda: ST380020ACE, ATA DISK drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> hda: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=9729/255/63,
-UDMA(33)
-> Partition check:
->  hda: hda1
-> PPP generic driver version 2.4.1
-> NET4: Linux TCP/IP 1.0 for NET4.0
-> IP Protocols: ICMP, UDP, TCP
-> IP: routing cache hash table of 1024 buckets, 8Kbytes
-> TCP: Hash tables configured (established 16384 bind 16384)
-> NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-> FAT: bogus logical sector size 0
-> reiserfs: checking transaction log (device 03:01) ...
-> Using r5 hash to sort names
-> ReiserFS version 3.6.25
-> VFS: Mounted root (reiserfs filesystem) readonly.
-> Freeing unused kernel memory: 76k freed
-> 8139too Fast Ethernet driver 0.9.24
-> PCI: Found IRQ 10 for device 02:0e.0
-> eth0: RealTek RTL8139 Fast Ethernet at 0xcc8b5000, 00:50:fc:3b:2a:76, IRQ
-10
-> eth0:  Identified 8139 chip type 'RTL-8139C'
-> eth0: Setting half-duplex based on auto-negotiated partner ability 0000.
->
 
+Kernel 2.4.19
+==============
+Using uid:0, gid:0.
+Writing with putc()...done
+Writing intelligently...done
+Rewriting...done
+Reading with getc()...done
+Reading intelligently...done
+start 'em...done...done...done...
+Create files in sequential order...done.
+Stat files in sequential order...done.
+Delete files in sequential order...done.
+Create files in random order...done.
+Stat files in random order...done.
+Delete files in random order...done.
+Version 1.02c       ------Sequential Output------ --Sequential
+Input- --Random-
+                    -Per Chr- --Block-- -Rewrite- -Per
+Chr- --Block-- --Seeks--
+Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec
+%CP
+siva           128M  4565  79  9733   8  3709   5  3653  68  9391   6 102.1
+1
+                    ------Sequential Create------ --------Random
+Create--------
+                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delet
+e--
+              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec
+%CP
+                 16   280  83 +++++ +++ +++++ +++   281  83 +++++ +++  1047
+83
+siva,128M,4565,79,9733,8,3709,5,3653,68,9391,6,102.1,1,16,280,83,+++++,+++,+
+++++,+++,281,83,+++++,+++,1047,83
+
+
+
+Details of Test Machine
+========================
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 6
+model name	: Celeron (Mendocino)
+stepping	: 5
+cpu MHz		: 400.921
+cache size	: 128 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat
+pse36 mmx fxsr
+bogomips	: 790.52
+
+
+
+
+Rgds
+Siva
+
+
+
+------=_NextPartTM-000-a5be3852-ec5d-4b8a-90c2-c11d25d32d94
+Content-Type: text/plain;
+	name="Wipro_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Wipro_Disclaimer.txt"
+
+**************************Disclaimer**************************************************    
+ 
+ Information contained in this E-MAIL being proprietary to Wipro Limited is 'privileged' 
+and 'confidential' and intended for use only by the individual or entity to which it is 
+addressed. You are notified that any use, copying or dissemination of the information 
+contained in the E-MAIL in any manner whatsoever is strictly prohibited.
+
+****************************************************************************************
+
+------=_NextPartTM-000-a5be3852-ec5d-4b8a-90c2-c11d25d32d94--

@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264379AbTKMTRP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 14:17:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbTKMTRP
+	id S264392AbTKMTfU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 14:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbTKMTfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 14:17:15 -0500
-Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:64667 "HELO
-	cenedra.office") by vger.kernel.org with SMTP id S264379AbTKMTRO
+	Thu, 13 Nov 2003 14:35:19 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46745 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264392AbTKMTfN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 14:17:14 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel.bkbits.net off the air
-Date: Thu, 13 Nov 2003 19:17:11 +0000
-User-Agent: KMail/1.5.4
-References: <fa.eto0cvm.1v20528@ifi.uio.no> <200311131010.27315.andrew@walrond.org> <20031113162712.GA2462@work.bitmover.com>
-In-Reply-To: <20031113162712.GA2462@work.bitmover.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Nov 2003 14:35:13 -0500
+Date: Thu, 13 Nov 2003 19:35:12 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Jonathan Corbet <corbet@lwn.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] seq_file version of /proc/interrupts
+Message-ID: <20031113193512.GH24159@parcelfarce.linux.theplanet.co.uk>
+References: <20031113173626.12557.qmail@lwn.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311131917.11773.andrew@walrond.org>
+In-Reply-To: <20031113173626.12557.qmail@lwn.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is degenerating, but I don't want anyone mistaking my position, so...
+On Thu, Nov 13, 2003 at 10:36:26AM -0700, Jonathan Corbet wrote:
+> While I was messing with the seq_file document, I went ahead and hacked up
+> an implementation of /proc/interrupts.  This will be a first pass; if
+> nothing else, it breaks every architecture except i386.  Fixing the others
+> should not be hard, though I can't test them.  I've also misplaced my
+> 100-CPU system somewhere, so I can't verify that it solves the initial
+> problem.  But it should.
+> 
+> This version should scale to something over 300 processors, after which it
+> will not be possible to fit even a single line of /proc/interrupts output
+> into one page.  At that point, if this output format is even remotely
+> useful, some sort of iterator which tracks interrupt and CPU numbers will
+> be needed.
 
-For the record and so nobody gets the the wrong end of the stick; I am a bk 
-advocate. I use it for my open source activities, and urge others to do so as 
-well.
+What the hell?  You *do* realize that seq_read() will increase the buffer
+size if it can't fit the single entry into the current buffer, don't you?
 
-But... There are tiny minority of people (who work on other SCM projects) who 
-cannot access my sources because they can't use BK.
+Guys, there is no 4Kb limit.  At all.  You get longer entries - fine, the
+thing will work.  It will grow buffer large enough to hold the longest
+entry, though.
 
-I don't particularly care, and I'm still using bk, but that particular clause 
-of the bk license has caused Larry ridiculous amounts of grief for no 
-discernable return.
+You don't *have* to preallocate buffer - it makes sense to do if you know
+that one page will be too tight anyway, but it's not required.
 
-And I still maintain that a stripped out, redistributable, clone/pull only 
-binary tool without the restrictive license would be a real smart business 
-move.
+You obviously want to keep entries reasonably small - exactly because users
+can open the file and start reading from it.  Which will allocate (besides
+the things normally allocated for any opened file) a buffer for said entries.
 
-But it ain't my business, so I'll leave it there :)
-
-Andrew Walrond
-
+As long as it stays within several pages, there's no problem - after all,
+you can always open a pipe and write to it / open a pair of AF_UNIX sockets
+and send yourself datagrams / etc.  It's not that situation was unusual.
+If you get buffer much bigger than that, you are asking for a DoS, obviously.

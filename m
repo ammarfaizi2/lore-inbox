@@ -1,66 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281163AbRKTXgT>; Tue, 20 Nov 2001 18:36:19 -0500
+	id <S281166AbRKTXg3>; Tue, 20 Nov 2001 18:36:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281162AbRKTXgJ>; Tue, 20 Nov 2001 18:36:09 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:36857 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281163AbRKTXfz>;
-	Tue, 20 Nov 2001 18:35:55 -0500
-Date: Tue, 20 Nov 2001 16:35:23 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Jason Tackaberry <tack@auc.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: File size limit exceeded with mkfs
-Message-ID: <20011120163523.F1308@lynx.no>
-Mail-Followup-To: Jason Tackaberry <tack@auc.ca>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <1006272138.1263.3.camel@somewhere.auc.ca> <20011120113316.R1308@lynx.no> <1006288154.1863.0.camel@somewhere.auc.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <1006288154.1863.0.camel@somewhere.auc.ca>; from tack@auc.ca on Tue, Nov 20, 2001 at 03:29:14PM -0500
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S281162AbRKTXgU>; Tue, 20 Nov 2001 18:36:20 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:40719 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S281166AbRKTXgF>;
+	Tue, 20 Nov 2001 18:36:05 -0500
+Date: Tue, 20 Nov 2001 21:35:40 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: <akpm@zip.com.au>, <dmaas@dcine.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Swap
+In-Reply-To: <20011120.150154.46465259.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33L.0111202134550.4079-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 20, 2001  15:29 -0500, Jason Tackaberry wrote:
-> On Tue, 2001-11-20 at 13:33, Andreas Dilger wrote:
-> > Several people have reported problems like this also.  What happens is
-> > that if you are logged on as a user, then su to root, it will fail.  If
-> > you log in directly as root, it will work.
-> 
-> Yep, this is indeed the case.
-> 
-> > Can you please try some intermediate kernels (2.4.10 would be a good
-> > start, because it had some major changes in this area, and then go
-> > forward and back depending whether it works or not).
-> 
-> 2.4.10 does NOT work.
-> 2.4.9 DOES work.
-> 
-> So clearly something happened in 2.4.10 which broke this.  Please let me
-> know if I can be of any more help.
+On Tue, 20 Nov 2001, David S. Miller wrote:
+>    From: Andrew Morton <akpm@zip.com.au>
+>    Date: Tue, 20 Nov 2001 14:23:38 -0800
+>
+>    Could you please explain further?  What's more expensive
+>    than the copy?
+>
+> TLB misses add to the cost, and this overhead is more than
+> "noise".
 
-That is unfortunate, since a lot of things changed in 2.4.10, so it will
-make tracking the change hard.  Yet, I am running 2.4.13 and have no such
-problems (well, at least I think not).  I don't have a spare partition >
-2GB, but I can do the following without problems, which _should_ be the
-same thing:
+Well, this could have something to do with the fact
+that our page fault handler only maps in _1_ page at
+a time, so we're trapping into the pagefault handler
+every 4kB...
 
-dd if=/dev/vgtest/lv of=/dev/vgtest/lv bs=4k skip=1100k seek=1100k count=1
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
 
-(i.e. it reads a block and writes a block from > 4GB offset in the file,
-and I can do this when logged in as a non-root user, which has write
-access to the disk, and also when su'd to root, just in case).
-
-Can you try the above test, just to confirm that it is equivalent to your
-mkfs test?
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://www.surriel.com/		http://distro.conectiva.com/
 

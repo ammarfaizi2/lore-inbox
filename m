@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265678AbSKAKci>; Fri, 1 Nov 2002 05:32:38 -0500
+	id <S265685AbSKAKfr>; Fri, 1 Nov 2002 05:35:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265681AbSKAKci>; Fri, 1 Nov 2002 05:32:38 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:20939 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265678AbSKAKch>;
-	Fri, 1 Nov 2002 05:32:37 -0500
-Date: Fri, 01 Nov 2002 02:27:43 -0800 (PST)
-Message-Id: <20021101.022743.06339817.davem@redhat.com>
-To: levon@movementarian.org
-Cc: weigand@immd1.informatik.uni-erlangen.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [8/7] oprofile - dcookies need to use u32
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021101043304.GA7421@compsoc.man.ac.uk>
-References: <20021019003415.GA17016@compsoc.man.ac.uk>
-	<20021018.173128.11570989.davem@redhat.com>
-	<20021101043304.GA7421@compsoc.man.ac.uk>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265686AbSKAKfr>; Fri, 1 Nov 2002 05:35:47 -0500
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:65411 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S265685AbSKAKfq>;
+	Fri, 1 Nov 2002 05:35:46 -0500
+Date: Fri, 1 Nov 2002 04:41:30 -0600 (CST)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: Gregoire Favre <greg@ulima.unil.ch>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Logitech wheel and 2.5? (PS/2)
+In-Reply-To: <20021031223401.GB25356@ulima.unil.ch>
+Message-ID: <Pine.LNX.4.44.0211010438550.22868-100000@dad.molina>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: John Levon <levon@movementarian.org>
-   Date: Fri, 1 Nov 2002 04:33:04 +0000
-   
-   The problem is this would trivially break cross-compilation. Would it
-   not be better to stick something in the glibc's bits/types.h
-   per-platform ?
-   
-   Not that I particularly fancy going near glibc...
+On Thu, 31 Oct 2002, Gregoire Favre wrote:
 
-No, becuase this is an attribute of the cpu the binary
-is executing on, not an attribute of the ABI under which
-userland compilation are taking place.
+> Hello,
+> 
+> up to 2.5.45:
+> 
+> ...
+> register interface 'mouse' with class 'input
+> mice: PS/2 mouse device common for all mice
+> input: PC Speaker
+> input: PS2++ Logitech Wheel Mouse on isa0060/serio1
+> ...
+> psmouse.c: Received PS2++ packet #0, but don't know how to handle.
+> psmouse.c: Received PS2++ packet #0, but don't know how to handle.
+> ...
+> 
+> And very regulary my mouse position is lost and reseted???
+> Also the wheel don't work (don't know for the button on the left that I
+> never use: the 3 regulars one and the wheel are enough for me...).
 
-At run time, you probe this /proc/sys/kernel/pointer_size
-value.  In fact, this should have no effect whatsoever on
-cross-compilation.  I thought we were quite clear on this
-solution?
+How is your mouse configured/detected?  If your boot up sequence specifies 
+to gpm that you have a Logitech Wheel Mouse try redoing it for an MS 
+Intellimouse.  I have several Logitech mice which work as imps/2 and don't 
+when configured as a logitech.
+

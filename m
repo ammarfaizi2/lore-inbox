@@ -1,78 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287173AbSAGVhw>; Mon, 7 Jan 2002 16:37:52 -0500
+	id <S287158AbSAGViM>; Mon, 7 Jan 2002 16:38:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287158AbSAGVhd>; Mon, 7 Jan 2002 16:37:33 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45068 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287156AbSAGVhX>;
-	Mon, 7 Jan 2002 16:37:23 -0500
-Message-ID: <3C3A150E.EA2F403F@mandrakesoft.com>
-Date: Mon, 07 Jan 2002 16:37:18 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18pre1 i686)
-X-Accept-Language: en
+	id <S287156AbSAGViD>; Mon, 7 Jan 2002 16:38:03 -0500
+Received: from web14911.mail.yahoo.com ([216.136.225.249]:59659 "HELO
+	web14911.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S287171AbSAGVhu>; Mon, 7 Jan 2002 16:37:50 -0500
+Message-ID: <20020107213749.18573.qmail@web14911.mail.yahoo.com>
+Date: Mon, 7 Jan 2002 16:37:49 -0500 (EST)
+From: Michael Zhu <mylinuxk@yahoo.ca>
+Subject: About the request queue of block device
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Daniel Phillips <phillips@bonn-fries.net>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        ext2-devel@lists.sourceforge.net
-Subject: Re: PATCH 2.5.2.9: ext2 unbork fs.h (part 1/7)
-In-Reply-To: <Pine.GSO.4.21.0201071401450.6842-100000@weyl.math.psu.edu>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> Now, the problems I see with Jeff's variant:
-> 
-> a) if you make struct inode a part of ext2_inode - WTF bother with pointer?
+Hello, everyone, I have a question about the request
+queue of block device.
 
-You mean the typed pointer inside struct inode's union?  Because I
-needed a way to go from struct inode to struct ext2_inode_info,
--without- a nasty cast.  inode->u.ext2_ip maintains the type information
-without resorting to a nastier solution like an OFFSET_OF macro. 
-Suggestions for improvement welcome.
+I intercept the request function of floppy disk device
+by changing the pointer, 
+ "blk_dev[2].request_queue.request_fn", in my kernel
+module. The following is the source code.
 
+original_request_fn_proc =
+blk_dev[2].request_queue.request_fn;
+blk_dev[2].request_queue.request_fn =
+my_request_fn_proc;
 
-> b) ->destroy_inode() / ->clear_inode().  Merge them - that way it's one
-> method.
+In my own my_request_fn_proc() I use the "req =
+blkdev_entry_next_request(&rq->queue_head)" function
+to get the pointer of the request structure. When
+req->cmd is WRITE I encrypt all the b_data buffer of
+the buffer header. Then I call the
+original_request_fn_proc(). And it works. The data on
+the floppy disk is some kind of cipher data. The
+trouble is when the req->cmd is READ. I don't know
+whether the b_data buffer contains the data read from
+the floppy disk after I call the
+original_request_fn_proc() function. When read a block
+from the block device, where is the data is placed?
 
-Agreed.  That would be [not yet written] patch8 in my plan.
+In my module I use the blkdev_next_request() function
+to get the next request. When I want to do the same
+thing to this next request, the Linux kernel
+deadlocked. I must reboot the OS. What is wrong?
 
+Any idea will be appreciated. Thanks in advance.
 
-> c) get_empty_inode() must die.  Make it new_inode() and be done with that.
-> And have socket.c explicitly set ->i_dev to NODEV afterwards.
-
-In my patch get_empty_inode and new_inode are completely identical. 
-This is easy.
-
-
-> d) ext2/balloc.c cleanup probably should be merged before.
-
-I don't have an opinion on this one way or the other...
-
-
-> I can live with "maintain refcounts in common part and leave allocation/freeing
-> to filesystem".  It's definitely better than allocating/freeing opaque objects
-> in VFS using numeric fields in fs_type.
-
-Yes... the opacity factor in the other patch bothers me.
-
-
-> We will need to set very strict rules on passing around/storing pointers to
-> ext2_inode and its ilk, though.  There will be bugs when somebody just decides
-> that keeping such pointers might be a good idea and forgets to be nice with
-> ->i_count.  Or decrement it manually instead of calling iput(), etc.
-
-Not doing so now is a shoot-on-sight offense, I thought...
-
-	Jeff
+Michael
 
 
--- 
-Jeff Garzik      | Alternate titles for LOTR:
-Building 1024    | Fast Times at Uruk-Hai
-MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
-                 | Samwise Gamgee: International Hobbit of Mystery
+______________________________________________________ 
+Send your holiday cheer with http://greetings.yahoo.ca

@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263131AbTFKT3j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 15:29:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263597AbTFKT3i
+	id S263600AbTFKTeS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 15:34:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263628AbTFKTeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 15:29:38 -0400
-Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:27604 "EHLO
-	mx.rackable.com") by vger.kernel.org with ESMTP id S263131AbTFKT3h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 15:29:37 -0400
-Message-ID: <3EE7852C.2050605@rackable.com>
-Date: Wed, 11 Jun 2003 12:38:20 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+	Wed, 11 Jun 2003 15:34:18 -0400
+Received: from d-216-195-190-132.metrocast.net ([216.195.190.132]:5671 "EHLO
+	timemachine.dsbcpas.com") by vger.kernel.org with ESMTP
+	id S263600AbTFKTeR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 15:34:17 -0400
+Message-ID: <3EE78770.2070704@dsbcpas.com>
+Date: Wed, 11 Jun 2003 15:48:00 -0400
+From: scott <scott@dsbcpas.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.3.1) Gecko/20030425
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Artemio <artemio@artemio.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SMP question
-References: <200306112043.11923.artemio@artemio.net>
-In-Reply-To: <200306112043.11923.artemio@artemio.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PATCH: dpt_i2o memory leak comments
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Jun 2003 19:43:21.0301 (UTC) FILETIME=[B6BFC050:01C33051]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Artemio wrote:
+Question/Help:
+Our threading indexer routinely crashes our Adaptec 2400A. How can I 
+duplicate that activity for the Adaptec team as they request below?
+Scott Beane
 
->Hello!
->
->I have the following question.
->
->My system is 2x 2.4Ghz Xeons.
->
->Linux kernel 2.4.18 compiled with SMP support sees it as four processors. 
->
-  This is hyper threading.  This is intel's attempt to cram extra 
-instructions on each cpu cyle.  It may make things faster, or slower.  
-It really depends on what you are doing.  You can shut off hyper 
-threading off in the bios.
-
->SMP-disabled kernel sees one, of course.
->
->I would like to know, how will it influence the system performance, if I run a 
->UP kernel?
->
-  Well if you are generally only running a single program then it will 
-speed things up.  If you run a number of programs all at once it will 
-speed things up.  Hyperthreading tends to be a good thing if you are 
-running 8 or more cpu hungry processes.
-
->
->What does the kernel SMP support add? Just some API for additinal 
->multiprocessor control? 
->
-  For the most part.  It also enables io-apic and other stuff.
+-------- Original Message --------
+Subject: 	RE: [Fwd: Re: dpt_i2o memory leak]
+Date: 	Wed, 11 Jun 2003 13:49:27 -0400
+From: 	Salyzyn, Mark <mark_salyzyn@adaptec.com>
+To: 	'scott' <scott@dsbcpas.com>
+CC: 	'tcallawa@redhat.com' <tcallawa@redhat.com>
 
 
--- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
+
+Thanks, I believe this confirms my understanding at least regarding the
+`leak'. I will try to `make it better' in the future.
+
+The panic you forwarded is a source of consternation. It occurs in the
+scsi_done command which takes it out of the driver making it difficult of
+debug (remote as we are).
+
+Being able to duplicate this problem locally becomes necessary. If you can
+provide to me a simplified set of tools and description on how to duplicate
+this, I will get this sent off to our software test team to bash on.
+
+Sincerely -- Mark Salyzyn
+
 
 

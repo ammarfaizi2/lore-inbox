@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbTELNol (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 09:44:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbTELNol
+	id S262140AbTELNzS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 09:55:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbTELNzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 09:44:41 -0400
-Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:22568 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S261262AbTELNok
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 09:44:40 -0400
-Subject: Re: 2.5.69 Interrupt Latency
-From: Paul Fulghum <paulkf@microgate.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Arnd Bergmann <arnd@arndb.de>, johannes@erdfelt.com
-In-Reply-To: <20030509142828.59552d0a.akpm@digeo.com>
-References: <1052323940.2360.7.camel@diemos>
-	 <1052336482.2020.8.camel@diemos> <20030507152856.2a71601d.akpm@digeo.com>
-	 <1052402187.1995.13.camel@diemos> <20030508122205.7b4b8a02.akpm@digeo.com>
-	 <1052503920.2093.5.camel@diemos> <1052512235.2997.8.camel@diemos>
-	 <20030509142828.59552d0a.akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052747862.1996.9.camel@diemos>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 12 May 2003 08:57:42 -0500
+	Mon, 12 May 2003 09:55:18 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:45023 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262140AbTELNzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 09:55:16 -0400
+Message-ID: <3EBFAA97.6030804@nortelnetworks.com>
+Date: Mon, 12 May 2003 10:07:19 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Doug McNaught <doug@mcnaught.org>
+Cc: Muli Ben-Yehuda <mulix@mulix.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC]  new syscall to allow notification when arbitrary pids die
+References: <3EBC9C62.5010507@nortelnetworks.com>	<20030510073842.GA31003@actcom.co.il>	<3EBF144E.7050608@nortelnetworks.com>	<m3y91cj0vm.fsf@varsoon.wireboard.com>	<3EBF240A.4050706@nortelnetworks.com> <m3smrki9j3.fsf@varsoon.wireboard.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-05-09 at 16:28, Andrew Morton wrote:
+Doug McNaught wrote:
 
-> This code was added to wakeup_hc().  It is called from uhci_irq():
-> 
-> +	/* Global resume for 20ms */
-> +	outw(USBCMD_FGR | USBCMD_EGSM, io_addr + USBCMD);
-> +	wait_ms(20);
-> 
-> The changelog just says "Minor patch for uhci-hcd.c"
-> 
-> Can you delete the wait_ms() and see if that is our culprit?
+> No reason to have one FD per process monitored.  Just a single FD, to
+> which you can write() a control string to to add or remove a process
+> from the list, and for which read() yields a small data record
+> describing the process event that just happened.  It's a bit plan-9ish
+> but there's nothing wrong with that...
 
-This is the culprit.
+Ah, okay.  Interesting idea.  It would get around the limitation of having to 
+use rt signals to get the queueing (though I'm not likely to hit that limit in 
+any case).
 
-Removing this line corrects the latency problems on
-the server. A 20ms delay seems pretty excessive for an
-interrupt handler. I'm not sure what it is supposed to
-accomplish, but this seems like something that should
-be scheduled to run outside of the ISR.
+Have to think about that one...
 
-I must have messed up a test on the laptop that is
-also showing latency problems. On the laptop the
-problem *is* in both 2.5.68/2.5.69 and *is not*
-eliminated by turning off USB. The laptop uses the
-ohci driver anyways which is not effected by this patch.
-The laptop does not show latency problems on 2.4.20.
+Chris
 
-So the patch above is definately a problem,
-but the problem I am seeing on the laptop
-is something unrelated, but part of 2.5.x
-(which I will investigate further).
-
-Thanks,
-Paul
 
 -- 
-Paul Fulghum, paulkf@microgate.com
-Microgate Corporation, http://www.microgate.com
-
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266294AbUFYHrq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266295AbUFYHwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266294AbUFYHrq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 03:47:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266295AbUFYHrq
+	id S266295AbUFYHwO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 03:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266297AbUFYHwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 03:47:46 -0400
-Received: from nacho.alt.net ([207.14.113.18]:37092 "HELO nacho.alt.net")
-	by vger.kernel.org with SMTP id S266294AbUFYHro convert rfc822-to-8bit
+	Fri, 25 Jun 2004 03:52:14 -0400
+Received: from www02.ies.inet6.fr ([62.210.153.202]:27852 "EHLO
+	smtp.ies.inet6.fr") by vger.kernel.org with ESMTP id S266295AbUFYHwL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 03:47:44 -0400
-Date: Fri, 25 Jun 2004 00:47:39 -0700 (PDT)
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: inode_unused list corruption in 2.4.26 - spin_lock problem?
-In-Reply-To: <Pine.LNX.4.44.0406231824350.13351-100000@nacho.alt.net>
-Message-ID: <Pine.LNX.4.44.0406250046110.6668-100000@nacho.alt.net>
+	Fri, 25 Jun 2004 03:52:11 -0400
+Message-ID: <40DBD9AD.8070503@inet6.fr>
+Date: Fri, 25 Jun 2004 09:52:13 +0200
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040519)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Delivery-Agent: TMDA/1.0.2 (Bold Forbes)
-From: Chris Caputo <ccaputo@alt.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: alan <alan@clueserver.org>, "Fao, Sean" <Sean.Fao@dynextechnologies.com>,
+       linux-kernel@vger.kernel.org, Amit Gud <gud@eth.net>
+Subject: Re: Elastic Quota File System (EQFS)
+References: <20040624213041.GA20649@elf.ucw.cz> <Pine.LNX.4.44.0406241347560.18047-100000@www.fnordora.org> <20040624220318.GE20649@elf.ucw.cz>
+In-Reply-To: <20040624220318.GE20649@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Trusted: [ ip=62.210.105.37 rdns=ppp3290-cwdsl.fr.cw.net 
+	helo=proxy.inet6-interne.fr by=smtp.ies.inet6.fr ident= ] [ 
+	ip=192.168.55.3 rdns=192.168.55.3 helo=!192.168.55.3! 
+	by=proxy.inet6-interne.fr ident= ]
+X-Spam-DCC: dcc.uncw.edu: web02.inet6.ies 1201; Body=1 Fuz1=1 Fuz2=1
+X-Spam-Assassin: No hits=0.0 required=4.5
+X-Spam-Untrusted: 
+X-Spam-Pyzor: Reported 0 times.
+X-Spam-Report: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jun 2004, Chris Caputo wrote:
-> On Mon, 21 Jun 2004, Trond Myklebust wrote:
-> > På su , 20/06/2004 klokka 20:45, skreiv Marcelo Tosatti:
-> > > Lets see if I get this right, while we drop the lock in iput to call 
-> > > write_inode_now() an iget happens, possibly from write_inode_now itself 
-> > > (sync_one->__iget) causing the inode->i_list to be added to to inode_in_use. 
-> > > But then the call returns, locks inode_lock, decreases inodes_stat.nr_unused--
-> > > and deletes the inode from the inode_in_use and adds to inode_unused. 
-> > > 
-> > > AFAICS its an inode with i_count==1 in the unused list, which does not
-> > > mean "list corruption", right? Am I missing something here?
-> > 
-> > Yes. Please don't forget that the inode is still hashed and is not yet
-> > marked as FREEING: find_inode() can grab it on behalf of some other
-> > process as soon as we drop that spinlock inside iput(). Then we have the
-> > calls to clear_inode() + destroy_inode() just a few lines further down.
-> > ;-)
-> > 
-> > If the above scenario ever does occur, it will cause random Oopses for
-> > third party processes. Since we do not see this too often, my guess is
-> > that the write_inode_now() path must be very rarely (or never?) called.
-> > 
-> > > If you are indeed right all 2.4.x versions contain this bug.
-> > 
-> > ...and all 2.6.x versions...
-> > 
-> > I'm not saying this is the same problem that Chris is seeing, but I am
-> > failing to see how iput() is safe as it stands right now. Please
-> > enlighten me if I'm missing something.
-> 
-> I think this is a different (albeit apparently valid) problem.  In my case
-> MS_ACTIVE (in iput() below) will be set since I am not unmounting a volume
-> and so I believe iput() will return immediately after adding the inode to
-> the unused list.
-> 
-> That said, I have added your patch to my test setup in case it helps.
+Pavel Machek wrote the following on 06/25/2004 12:03 AM :
 
-I was able to duplicate the problem I am seeing even with Trond's patch
-applied.  So the patch potentially solves a different problem but not the
-one I am seeing.
+>Of course, if mozilla marked them "elastic" it should better be
+>prepared for they disappearance. I'd disappear them with simple
+>unlink(), so they'd physically survive as long as someone held them
+>open.
+>
+>  
+>
 
-Chris
+Doesn't work reliably : the deletion is done in order to reclaim space 
+that is needed now. You may want to retry unlinking files until you 
+reach the free space needed, but this is clearly a receipe for famine : 
+process can wait on writes an unspecified amount of time.
+
+
+-- 
+Lionel Bouton - inet6
+---------------------------------------------------------------------
+   o              Siege social: 51, rue de Verdun - 92158 Suresnes
+  /      _ __ _   Acces Bureaux: 33 rue Benoit Malon - 92150 Suresnes
+ / /\  /_  / /_   France
+ \/  \/_  / /_/   Tel. +33 (0) 1 41 44 85 36
+  Inetsys S.A.    Fax  +33 (0) 1 46 97 20 10
+ 
 

@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269375AbUHZTIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269441AbUHZTUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269375AbUHZTIt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 15:08:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269376AbUHZTED
+	id S269441AbUHZTUE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 15:20:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269472AbUHZTTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 15:04:03 -0400
-Received: from mail.tmr.com ([216.238.38.203]:15113 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S269391AbUHZS7Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 14:59:25 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: bizarre 2.6.8.1 /sys permissions
-Date: Thu, 26 Aug 2004 15:00:01 -0400
-Organization: TMR Associates, Inc
-Message-ID: <cglbia$9o2$1@gatekeeper.tmr.com>
-References: <Pine.LNX.4.44.0408251630380.17580-100000@sasami.anime.net><Pine.LNX.4.44.0408251630380.17580-100000@sasami.anime.net> <20040826004857.GA5583@redhat.com>
+	Thu, 26 Aug 2004 15:19:32 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:61926 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S269441AbUHZTPJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 15:15:09 -0400
+Date: Thu, 26 Aug 2004 21:15:02 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "O.Sezer" <sezeroz@ttnet.net.tr>
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+Subject: Re: Linux 2.4.28-pre2
+Message-ID: <20040826191501.GA12772@fs.tum.de>
+References: <412E012F.4050503@ttnet.net.tr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1093546378 9986 192.168.12.100 (26 Aug 2004 18:52:58 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-In-Reply-To: <20040826004857.GA5583@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <412E012F.4050503@ttnet.net.tr>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Wed, Aug 25, 2004 at 04:31:50PM -0700, Dan Hollis wrote:
->  > >  > $ cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq
->  > >  > cat: /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq: Permission denied
->  > > Reading this file causes reads from hardware on some cpufreq drivers.
->  > > This can be a slow operation, so a user could degrade system performance
->  > > for everyone else by repeatedly cat'ing it.
->  > 
->  > any reason why cpuinfo_cur_freq cant read cpu_khz ?
-> 
-> cpufreq_cur_freq will be one of scaling_available_frequencies.
-> These are usually a value such as 1300MHz, where cpu_mhz is a
-> 'measured' value and will look something like 1303.852
-> 
-> the values cpufreq uses are the values either returned by the
-> hardware as its settable states, or from BIOS tables defining
-> those states.
-> 
->  > or rather, is there any reason why cpuinfo_cur_freq and /proc/cpuinfo 
->  > should legitimately differ?
-> 
-> They aren't identical, and serve different purposes.
+On Thu, Aug 26, 2004 at 06:26:39PM +0300, O.Sezer wrote:
 
-Okay, so cpufreq just gives informational values in a table while 
-/proc/cpuinfo actually reflects the speed of the CPU. Right? That's 
-good, I thought there was an problem if they were different.
+> Hi Marcelo:
+> 
+> > Also a bunch of gcc 3.4 fixes, hopefully we are done
+> > with that now.
+> 
+> Fairly close, but not complete. You need the two patches at:
+>...
+
+I've found six compile errors in -pre2 with gcc 3.4 I'll send patches 
+for.
+
+There are still tons of warnings for lvalues and a few other warnings, 
+but I don't see a pressing need to fix these:
+
+They are not a real problem with gcc 3.4, and whether gcc 3.5 will ever 
+be supported as compiler for kernel 2.4 is a question whose answer lies 
+far in the future.
+
+
+> Regards,
+> Ozkan.
+
+cu
+Adrian
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

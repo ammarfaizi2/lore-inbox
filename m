@@ -1,55 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbTKIRoG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 12:44:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbTKIRoG
+	id S262747AbTKIRux (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 12:50:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbTKIRux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 12:44:06 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:7323 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S262730AbTKIRoC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 12:44:02 -0500
-Date: Sun, 9 Nov 2003 17:39:36 +0000
-From: Dave Jones <davej@redhat.com>
-To: Robert Love <rml@tech9.net>
-Cc: Tomasz Torcz <zdzichu@irc.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       bert hubert <ahu@ds9a.nl>, Maciej Zenczykowski <maze@cela.pl>
-Subject: Re: Syscalls being obsoleted???
-Message-ID: <20031109173936.GE10144@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Robert Love <rml@tech9.net>, Tomasz Torcz <zdzichu@irc.pl>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	bert hubert <ahu@ds9a.nl>, Maciej Zenczykowski <maze@cela.pl>
-References: <Pine.LNX.4.44.0311071236110.26063-100000@gaia.cela.pl> <20031108114909.GA21937@outpost.ds9a.nl> <20031108192112.GA2144@irc.pl> <1068337499.27320.208.camel@localhost>
+	Sun, 9 Nov 2003 12:50:53 -0500
+Received: from draal.physics.wisc.edu ([128.104.222.75]:41150 "EHLO
+	moya.mcelrath.org") by vger.kernel.org with ESMTP id S262747AbTKIRuv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 12:50:51 -0500
+Date: Sun, 9 Nov 2003 09:44:36 -0800
+From: Bob McElrath <bob+linux-kernel@mcelrath.org>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /dev/rtc on alpha
+Message-ID: <20031109174436.GA24812@mcelrath.org>
+Mail-Followup-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	linux-kernel@vger.kernel.org
+References: <20031108213356.GD16295@mcelrath.org> <20031109142435.A4596@jurassic.park.msu.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
 Content-Disposition: inline
-In-Reply-To: <1068337499.27320.208.camel@localhost>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031109142435.A4596@jurassic.park.msu.ru>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 08, 2003 at 07:24:59PM -0500, Robert Love wrote:
- > > I think that he meant this phrase in post-halloween-2.5.txt:
- > > #v+
- > > - Calling syscalls by numeric values is deprecated, and will go away
- > >   in the next development series.
- > > #v-
- > > 
- > > What is new way of calling syscalls?
- > 
- > I think Dave means "sysctl" here, not syscalls.
 
-I did.
+--SUOF0GtieIMvvwua
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- > Dave, this probably needs changing in the post-halloween-2.5.txt
- > document.
+Ivan Kokshaysky [ink@jurassic.park.msu.ru] wrote:
+> On Sat, Nov 08, 2003 at 01:33:57PM -0800, Bob McElrath wrote:
+> > Why is the alpha kernel code grabbing the rtc interrupt?  Is it possible
+> > it share its use with a user program?  Would reprogramming the interrupt
+> > rate by a user program do violence to some internel kernel timing?
+>=20
+> On most Alphas RTC is the system timer (running at 1024 Hz).
+> So changing the interrupt rate from user space wouldn't be a good idea.
 
-I did.
-Yet again, that amusing case appears where a thinko has been there
-for months without anyone noticing, and once I've fixed it everyone
-and his dog spots it 8-)
+Then I propose CONFIG_RTC be set to "n" in the arch/alpha files, and the
+/dev/rtc driver be disabled on alpha.  There seems to be confusion on
+this point in the config files.  CONFIG_RTC is for the /dev/rtc driver.
 
-		Dave
+Since the timer can only be set to powers of 2, it should be possible to
+simulate getting the interrupt by calling the rtc.c interrupt handler
+every 2^n interrupts...that way the user could program the timer for any
+interval less than 1024 Hz.
 
+Cheers,
+Bob McElrath [Univ. of California at Davis, Department of Physics]
+
+--SUOF0GtieIMvvwua
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/rn0EjwioWRGe9K0RAllwAJ9YYERjMwauQOf5QTVWP8ATK3PefQCfWB06
+1WduJOqOUT2vSp0nuvk7XTU=
+=Ov+I
+-----END PGP SIGNATURE-----
+
+--SUOF0GtieIMvvwua--

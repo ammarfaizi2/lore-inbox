@@ -1,46 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262102AbVCIRfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbVCIRfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262102AbVCIRfX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 12:35:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbVCIRfX
+	id S262124AbVCIRfF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 12:35:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbVCIRdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 12:35:23 -0500
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:7842 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S262123AbVCIReM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 12:34:12 -0500
-Date: Wed, 9 Mar 2005 12:33:44 -0500
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Support for GEODE CPUs
-Message-ID: <20050309173344.GD17865@csclub.uwaterloo.ca>
-References: <200503081935.j28JZ433020124@hera.kernel.org> <1110387668.28860.205.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1110387668.28860.205.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+	Wed, 9 Mar 2005 12:33:37 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:40151 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262123AbVCIRcB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 12:32:01 -0500
+Message-ID: <422F330F.9080200@us.ltcfwd.linux.ibm.com>
+Date: Wed, 09 Mar 2005 12:31:59 -0500
+From: Wen Xiong <wendyx@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Scott_Kilau@digi.com, linux-kernel@vger.kernel.org
+Subject: Re: [ patch 6/7] drivers/serial/jsm: new serial device driver
+References: <42225A64.6070904@us.ltcfwd.linux.ibm.com> <20050228065534.GC23595@kroah.com> <4228CE5C.9010207@us.ltcfwd.linux.ibm.com> <20050305064445.GA8447@kroah.com> <422CDA58.5000506@us.ltcfwd.linux.ibm.com> <20050308064211.GE17022@kroah.com> <422DF217.8070401@us.ltcfwd.linux.ibm.com> <20050309060450.GA17560@kroah.com> <422F1B2C.6070405@us.ltcfwd.linux.ibm.com> <20050309163113.GB25079@kroah.com>
+In-Reply-To: <20050309163113.GB25079@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 05:01:09PM +0000, Alan Cox wrote:
-[snip]
-> And I have each time pointed out it is wrong over time because
-> 
-> a) "Geode" (Geode GX) runs -m486 code faster than -m586
-> b) "Geode" as a name also includes AMD Athlon "Geode NX" processors
-> c) Geode GX does not need OOSTORE because the processor manages DMA
-> snooping in hardware.
+Greg KH wrote:
 
-It even looks to me like the Geode GX1 (SCx200 family) is a Cyrix MediaGX
-design, the Geode GX2 (Geode GX 533@1.1W and company) I suspect is an
-AMD k6 based design (given the 400Mhz speed, and the inclusion of 3Dnow
-and MMX), and of course the Geode NX is athlon based.
+>On Wed, Mar 09, 2005 at 10:50:04AM -0500, Wen Xiong wrote:
+>  
+>
+>>+/* Ioctls needed for dpa operation */
+>>+#define DIGI_GETDD	('d'<<8) | 248		/* get driver info      */
+>>+#define DIGI_GETBD	('d'<<8) | 249		/* get board info       */
+>>+#define DIGI_GET_NI_INFO ('d'<<8) | 250		/* nonintelligent state snfo */
+>>    
+>>
+>
+>Hm, new ioctls still?...
+>
+>And the structures you are attempting to access through these ioctls are
+>incorrect, so if you are still insisting you need them, at least make
+>the code work properly :(
+>
+>thanks,
+>
+>greg k-h
+>
+>  
+>
+Hi Scott,
 
-Now if the Geode GX1 in fact runs faster optimized for 486 rather than
-586 (I have been running one as 586tsc since it had mmx and tsc in its
-feature list), then I think I will be recompiling my kernel to see if I
-can't make this 266MHz GX1 run almost as fast as a 400MHz PXA255 (arm).
-Right now it has somewhat lower ethernet bandwidth than the arm.
+The above three ioctls are for dpa/managment. If I removed these ioctls, 
+I have to remove jsm_mgmt.c(patch5.jasmine).
+Do you mind I remove jsm_mgmt.c code now? From my side, I  don't think I 
+need them now.
 
-Len Sorensen
+Maybe we can have a solution in the kernel as Russell and Greg said later.
+
+Thanks,
+wendy
+

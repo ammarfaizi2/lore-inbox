@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282315AbRKXBBe>; Fri, 23 Nov 2001 20:01:34 -0500
+	id <S282320AbRKXBGy>; Fri, 23 Nov 2001 20:06:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282316AbRKXBB1>; Fri, 23 Nov 2001 20:01:27 -0500
-Received: from [195.188.53.98] ([195.188.53.98]:42511 "EHLO blueyonder.co.uk")
-	by vger.kernel.org with ESMTP id <S282315AbRKXBBK>;
-	Fri, 23 Nov 2001 20:01:10 -0500
-Date: Sat, 24 Nov 2001 01:03:13 +0000
-From: Ian Molton <imolton@clara.net>
+	id <S282318AbRKXBGo>; Fri, 23 Nov 2001 20:06:44 -0500
+Received: from relay.planetinternet.be ([194.119.232.24]:6675 "EHLO
+	relay.planetinternet.be") by vger.kernel.org with ESMTP
+	id <S282316AbRKXBG1>; Fri, 23 Nov 2001 20:06:27 -0500
+Date: Sat, 24 Nov 2001 02:06:06 +0100
+From: Kurt Roeckx <Q@ping.be>
 To: linux-kernel@vger.kernel.org
-Subject: DecStation 4000 info wanted
-Message-Id: <20011124010313.53fda57f.imolton@clara.net>
-Reply-To: spyro@armlinux.org
-Organization: The dragon roost
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; )
+Subject: asm/fcntl.h problem on libc5 with -ansi
+Message-ID: <20011124020606.A9466@ping.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there...
+The 2.4.x kernels generate a problem when you try to include
+<fcntl.h> on a libc5 system and use gcc -ansi to compile it.
 
-Im wondering... does anyone have information on the care and feeding of
-Decstation4000s ?
+The problem is that loff_t is not defined in linux/types.h when
+__STRICT_ANSI__ is defined.  struct flock64 is using an loff_t.
 
-I have a DecStation 4000 (mips based, IIRC), which I would LOVE to run
-Linux on.
+Either you should place struct flock64 under ifndef
+__STRICT_ANSI__ too, or loff_t not.  I used the later here.
 
-It has no internal OS AFAICT, although it has a SCSI HDD, and some sort of
-bootloader.
+Maybe there are others places that have the same problem too?
 
-It used to boot over a network.
 
-what do I need to do to make it boot linux?
+Kurt
+

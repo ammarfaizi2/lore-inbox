@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbVAYAeF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261765AbVAYAfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261772AbVAYAeF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 19:34:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVAYAdE
+	id S261765AbVAYAfr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 19:35:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbVAYAeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 19:33:04 -0500
-Received: from nevyn.them.org ([66.93.172.17]:40357 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S261725AbVAYA3z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 19:29:55 -0500
-Date: Mon, 24 Jan 2005 19:29:39 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Edward Peschko <esp5@pge.com>
-Cc: Richard Henderson <rth@redhat.com>, gcc@gcc.gnu.org,
-       libc-alpha@sources.redhat.com, binutils@sources.redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: forestalling GNU incompatibility - proposal for binary relative dynamic linking
-Message-ID: <20050125002939.GA12826@nevyn.them.org>
-Mail-Followup-To: Edward Peschko <esp5@pge.com>,
-	Richard Henderson <rth@redhat.com>, gcc@gcc.gnu.org,
-	libc-alpha@sources.redhat.com, binutils@sources.redhat.com,
-	linux-kernel@vger.kernel.org
-References: <20050124222449.GB16078@venus> <20050124231047.GC29545@redhat.com> <20050124231636.GC19422@venus> <20050124233849.GA29765@redhat.com> <20050124235311.GD19422@venus>
+	Mon, 24 Jan 2005 19:34:13 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:32242 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261779AbVAYAdw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 19:33:52 -0500
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A2)
+From: john stultz <johnstul@us.ibm.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>, Max Asbock <amax@us.ibm.com>,
+       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>
+In-Reply-To: <Pine.LNX.4.58.0501241606240.17986@schroedinger.engr.sgi.com>
+References: <1106607089.30884.10.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0501241513470.17986@schroedinger.engr.sgi.com>
+	 <1106611416.30884.22.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0501241606240.17986@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Date: Mon, 24 Jan 2005 16:33:42 -0800
+Message-Id: <1106613222.30884.34.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050124235311.GD19422@venus>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 03:53:11PM -0800, Edward Peschko wrote:
-> On Mon, Jan 24, 2005 at 03:38:49PM -0800, Richard Henderson wrote:
-> > On Mon, Jan 24, 2005 at 03:16:36PM -0800, Edward Peschko wrote:
-> > > cool.. any chance for some syntactic sugar so me (and other 
-> > > users/vendors) wouldn't need to change any of their build scripts 
-> > > and compilation processes?
-> > 
-> > Uh, like what?  That's about as simple as you can get.
-> > 
-> > 
-> > r~
+On Mon, 2005-01-24 at 16:08 -0800, Christoph Lameter wrote:
+> On Mon, 24 Jan 2005, john stultz wrote:
+> > Yep, performance is a big concern. Re-working ntp_scale() is still on my
+> > TODO list. I just didn't get to it in this release.
 > 
-> I don't understand. 
-> 
-> Which is simpler, changing an environmental variable, or adding extra 
-> CFLAGS to every single compile and recompiling?
-> 
-> In addition, in your --rpath example, the relative pathing is hardcoded
-> into the executable, wheras with "*" you could modify the runtime behavior
-> of the executable at runtime. I suppose you could change this with chrpath,
-> but why bother? What if you want to test out two versions of relative
-> libraries side by side? 
+> This is a hopeless endeavor if you look at the function.
+> Throw ntp_scale out and calculate a scaling factor during the ticks. At
+> tick time then you may forward the clock a few ns in order to correct it
+> otherwise monkey around with the scaling factor.
 
-You might want to take a look at Richard's suggestion again.  The
-string '$ORIGIN' gets hardcoded into the binary and handled by the
-dynamic linker.
+We talked about this last time. I do intend to re-work ntp_scale() so
+its not a function call, much as you describe above.
 
-But really, RPATH is a good solution to almost no problems.
+hopelessly endeavoring,
+-john 
 
--- 
-Daniel Jacobowitz
+

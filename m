@@ -1,41 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310345AbSCBHdL>; Sat, 2 Mar 2002 02:33:11 -0500
+	id <S310346AbSCBHib>; Sat, 2 Mar 2002 02:38:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310346AbSCBHdB>; Sat, 2 Mar 2002 02:33:01 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:24851 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S310345AbSCBHcu>;
-	Sat, 2 Mar 2002 02:32:50 -0500
-Date: Fri, 1 Mar 2002 23:25:49 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrew Park <apark@cdf.toronto.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: booting from disk on key?
-Message-ID: <20020302072549.GC20536@kroah.com>
-In-Reply-To: <Pine.LNX.4.30.0203010003320.21594-100000@penguin.cdf>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0203010003320.21594-100000@penguin.cdf>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Sat, 02 Feb 2002 05:03:18 -0800
+	id <S310347AbSCBHiW>; Sat, 2 Mar 2002 02:38:22 -0500
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:22583 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S310346AbSCBHiL> convert rfc822-to-8bit; Sat, 2 Mar 2002 02:38:11 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+To: Urban Widmark <urban@teststation.com>,
+        Cyrille Chepelov <cyrille@chepelov.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] smbfs codepage fixes for 2.4.18
+Date: Sat, 2 Mar 2002 08:38:06 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Alexander Viro <viro@math.psu.edu>
+In-Reply-To: <Pine.LNX.4.33.0203012220240.22195-200000@cola.teststation.com>
+In-Reply-To: <Pine.LNX.4.33.0203012220240.22195-200000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16h45n-0005bn-00@mrvdomng1.kundenserver.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 01, 2002 at 12:22:43AM -0500, Andrew Park wrote:
-> Has anybody successfully booted from disk on key?
-> 
-> I am trying to see if there is a way to load the whole system, instead
-> of using it merely as a root disk.
-> 
-> My mother board supports booting from USB disks and my IBM disk on key
-> has USB interface, so I thought perhaps there is a way...
+Urban Widmark wrote:
+> Attached is a patch vs 2.4.18 that fixes these issues for me. Please test
+> and let me know.
 
-Yes you can.  See:
-	http://marc.theaimsgroup.com/?t=101500519000001&r=1&w=2
-For a patch that you will need.
+There is no OOPS, which is good.
 
-Good luck,
+> If I select a codepage/charset combination that doesn't match I now get a
+> somewhat cryptic message instead of an oops (just a temporary thing).
+>     "smbfs: filename charset conversion failed"
 
-greg k-h
+I see a lot of them.
+
+my smb.conf:
+character set = ISO8859-1
+client code page = 850
+
+
+But I think, that my local code page is actually 8859-15 (I have euro-support 
+so it has to be 15)
+Is that a problem? AFAIK the only difference between 1 and 15 is the 
+Euro-sign.
+
+
+> The smbfs remote codepage can never be utf8 since there are no smb servers
+> that talk utf8. It can be one of the dos codepages, it can be blank or
+> with additional patches it can be a 2 byte little endian unicode format.
+>
+> Furthermore, the local charset must be one that matches the chars used in
+> the remote set. Otherwise you get conversion errors. A few known good
+> combinations are:
+>
+> cp850 <-> iso8859-1
+> cp866 <-> koi8-r
+> cp932 <-> euc-jp
+> (the right is the local = linux side)
+
+> But even with these it seems to be possible to create chars that do not
+> match, and I think it is caused by windows trying to map unicode to a
+> codepage and not finding a matching char to use.
+
+The computer I mount has samba 2.0.7. But I don't know which code page it is 
+running. If it is of interest I will ask.
+
+
+> Local utf8 always matches the remote and is preferred if your system is
+> setup to handle it.
+
+I will try  that someday. If I had the choice I would introduce 4Byte Unicode 
+for everthing and forbid everything else......
+
+>     smb_proc_readdir_long: name=<directory> result=-2, rcls=1, err=2
+
+If I run a find over all shares I still get some rare:
+
+smb_proc_readdir_long: name=directory\*, result=-13, rcls=1, err=5
+
+and
+
+smb_proc_readdir_long: name=directory\*, result=-2, rcls=1, err=2
+
+messages. 
+These directories are empty, as you posted above.
+
+
+greetings
+
+CHristian

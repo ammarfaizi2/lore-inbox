@@ -1,80 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262508AbTJGQyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 12:54:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262522AbTJGQyJ
+	id S262525AbTJGQy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 12:54:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbTJGQy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 12:54:09 -0400
-Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:29331 "EHLO
-	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S262508AbTJGQyG
+	Tue, 7 Oct 2003 12:54:27 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:14829 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262525AbTJGQyY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 12:54:06 -0400
-Date: Tue, 7 Oct 2003 17:54:04 +0100
-From: Hugo Mills <hugo-lkml@carfax.org.uk>
-To: Andreas Jellinghaus <aj@dungeon.inka.de>
+	Tue, 7 Oct 2003 12:54:24 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: linuxcompilerdd <linuxcompiler@yahoo.es>
+Subject: Re: hello, i need some help
+Date: Tue, 7 Oct 2003 18:57:33 +0200
+User-Agent: KMail/1.5.4
+References: <1065544070.4385.6.camel@skynet.gml>
+In-Reply-To: <1065544070.4385.6.camel@skynet.gml>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: devfs vs. udev
-Message-ID: <20031007165404.GB29870@carfax.org.uk>
-Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
-	Andreas Jellinghaus <aj@dungeon.inka.de>,
-	linux-kernel@vger.kernel.org
-References: <yw1xad8dfcjg.fsf@users.sourceforge.net> <pan.2003.10.07.13.41.23.48967@dungeon.inka.de> <yw1xekxpdtuq.fsf@users.sourceforge.net> <20031007142349.GX1223@rdlg.net> <pan.2003.10.07.16.06.52.842471@dungeon.inka.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3lcZGd9BuhuYXNfi"
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <pan.2003.10.07.16.06.52.842471@dungeon.inka.de>
-X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
-X-GPG-Key: 1C335860
-X-Parrot: It is no more. It has joined the choir invisible.
-X-IRC-Nicks: hugo darksatanic
-User-Agent: Mutt/1.5.4i
+Message-Id: <200310071857.33164.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---3lcZGd9BuhuYXNfi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+2.5.xx is quite old, use 2.6.0-testX (2.6.0-test6 is the latest/greatest).
 
-On Tue, Oct 07, 2003 at 06:06:53PM +0200, Andreas Jellinghaus wrote:
-> On Tue, 07 Oct 2003 14:26:07 +0000, Robert L. Harris wrote:
-> > I just hope udev can give a look/feel similar to devfs as I have quite a
-> > few machines already in production configured for devfs and really like
-> > the manageablility.
+On Tuesday 07 of October 2003 18:36, linuxcompilerdd wrote:
+> Hello,
+>
+> I have a problem booting the kernel.
+> Now i am using kernel 2.4.20 and it is working nice but when I try to boot
+> 2.5.xx I obtain this error:
+> VFS:cannot open root device "hdb5" or hdb5
+>
+> After working on it, now I am sure that the problem is on the hard disk
+> because I have an AWARD 4.51 and my hdb is an 60Gb disk so I use the STROKE
+> from SEAGATE to use it.
+> I don`t have any problem on 2.x.xx but I cannot boot on it now.
+> I have booted the same kernel that displayed the error in other system and
+> it booted perfectly, so the problem resides on the hdb.
+>
+> I wish you could help me resolving it, maybe a patch for the drive...
+>
+> I hope your answer.
+> Thank u
+>
+> Guille
 
-   Seconded.
-
-> I wonder: do you use the /dev/disc/* links, or the /dev/ide/... and
-> /dev/scsi/... constructs? 
-
-   I use /dev/scsi/ and /dev/ide/, because things tend to move around
-less than with /dev/discs/. 
-
-> I'm not sure how udev will be able to support both layouts.
-
-   Surely udev needs the ability to make more than one device node or
-symlink when a device is plugged in anyway, so I just see this as an
-issue of writing the appropriate default configuration files.
-
-   Hugo.
-
--- 
-=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
-  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
-                 --- This year,  I'm giving up Lent. ---                 
-
---3lcZGd9BuhuYXNfi
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/gu+sssJ7whwzWGARAlgBAKCO+z10XHX9VEUVJ+dKTIWJAWwSOgCdFrAP
-D+VTTmLHbK4Pqg7yHfBWd2U=
-=R6eR
------END PGP SIGNATURE-----
-
---3lcZGd9BuhuYXNfi--

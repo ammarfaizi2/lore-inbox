@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262317AbTHTWvb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 18:51:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbTHTWvb
+	id S262296AbTHTWqn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 18:46:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbTHTWqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 18:51:31 -0400
-Received: from h234n2fls24o900.bredband.comhem.se ([217.208.132.234]:41453
-	"EHLO oden.fish.net") by vger.kernel.org with ESMTP id S262293AbTHTWva
+	Wed, 20 Aug 2003 18:46:42 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:33154 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262304AbTHTWql
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 18:51:30 -0400
-Date: Thu, 21 Aug 2003 00:51:39 +0200
-From: Voluspa <lista1@comhem.se>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O17int
-Message-Id: <20030821005139.6997412a.lista1@comhem.se>
-Organization: The Foggy One
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 20 Aug 2003 18:46:41 -0400
+Date: Wed, 20 Aug 2003 23:46:28 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Sergey Spiridonov <spiridonov@gamic.com>, linux-kernel@vger.kernel.org
+Subject: Re: how to turn off, or to clear read cache?
+Message-ID: <20030820224628.GA24639@mail.jlokier.co.uk>
+References: <3F4360F0.209@gamic.com> <200308201311.h7KDBgL20530@Port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200308201311.h7KDBgL20530@Port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Denis Vlasenko wrote:
+> On 20 August 2003 14:52, Sergey Spiridonov wrote:
+> > I need to make some performance tests. I need to switch off or to clear 
+> > read cache, so that consequent reading of the same file will take the 
+> > same amount of time.
+> 
+> umount/mount cycle will do it, as well as intentional OOMing the box
+> (from non-root account please;)
 
-I'm doing a backup now, basically a "cp -a" of all relevant directories
-on the system, and smoothness _has_ taken a penalty by the starvation
-work. Scrolling a picturefilled webpage (eg cnn.com) in Opera 6.12 jerks
-with each disk write, or thereabouts. Load is ca 2.5 to 3. Doing a "dd"
-from /dev/zero to a large file doesn't affect anything since it's a long
-steady write.
+umount/mount is impractical when you're testing performance on a big
+filesystem, which is always being used (e.g. /home).
 
-Ah well :-)
-Mats Johannesson
+I'm fairly sure that -o remount used to have this side effect, in fact
+I used it quite a lot for that purpose, so it should be possible to
+make it work again, or add a -o flushcache option.
+
+-- Jamie
+

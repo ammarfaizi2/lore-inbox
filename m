@@ -1,51 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270518AbTGSIHx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 04:07:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270515AbTGSIHw
+	id S270520AbTGSIMP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 04:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270524AbTGSIMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 04:07:52 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:62472 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S270519AbTGSIHt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 04:07:49 -0400
-Date: Sat, 19 Jul 2003 09:22:46 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.22-pre7
-Message-ID: <20030719092246.B19754@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.55L.0307181649290.29493@freak.distro.conectiva> <1058569601.544.1.camel@teapot.felipe-alfaro.com> <20030719003824.GI2289@matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030719003824.GI2289@matchmail.com>; from mfedyk@matchmail.com on Fri, Jul 18, 2003 at 05:38:24PM -0700
+	Sat, 19 Jul 2003 04:12:14 -0400
+Received: from server.snowfall.se ([213.136.34.4]:56839 "EHLO mail.snowfall.se")
+	by vger.kernel.org with ESMTP id S270520AbTGSIMH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 04:12:07 -0400
+Date: Sat, 19 Jul 2003 10:27:02 +0200 (CEST)
+From: Stefan Cars <stefan@snowfall.se>
+X-X-Sender: stefan@guldivar.globalwire.se
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ICH5 SATA high interrupt/system load again...
+In-Reply-To: <3F187DB1.1040309@pobox.com>
+Message-ID: <20030719102533.B47097@guldivar.globalwire.se>
+References: <20030718233631.F31074@guldivar.globalwire.se> <3F187DB1.1040309@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 18, 2003 at 05:38:24PM -0700, Mike Fedyk wrote:
-> On Sat, Jul 19, 2003 at 01:06:41AM +0200, Felipe Alfaro Solana wrote:
-> > On Fri, 2003-07-18 at 21:53, Marcelo Tosatti wrote:
-> > > Hello,
-> > > 
-> > > Here goes -pre7.
-> > 
-> > Will ACL/xattr support get its way onto mainstream 2.4 soon?
-> 
-> Doubt it.
-> 
-> Unless it gets into -ac or -aa for a long while and a whole bunch of users
-> clamor for it.
+That's the thing! My BIOS (Dell computer) doesn't allow me to change the
+interrupt routing in BIOS... I have contacted them regarding this issue
+but they say that they have removed it becuase most people get confused
+about it, pretty strange since the people that get confused about it
+never enters BIOS.
 
-The VFS infrastructure for ACLs and the XFS ACL code is in -aa for a long
-time.
+On Fri, 18 Jul 2003, Jeff Garzik wrote:
 
-> So, is acl only working with ext[23] & XFS?  What about reiserfs or jfs?
-
-ACLs work with XFS, ext[23] and JFS in 2.4 and 2.4+patches.  In addition
-SuSE ships patches for xattr/ACL on reiserfs but namesys doesn't like them.
-
+> Stefan Cars wrote:
+> > Hi!
+> >
+> > I've seen the discussion regarding high interrupt / system load on the
+> > ICH5 SATA and I'm asking what todo about it if I can't put my BIOS into
+> > "normal" mode. This machine is an Dell Precision 360 and for some stupid
+> > reason they have for this model removed the possibility in the BIOS to
+> > change this sort of things (you can't change much really). I'm using
+> > 2.4.21-ac4. Just to extract a simple tar file brings the system load up
+> > and the computer is slow...
+> >
+> >
+> > Here is some info:
+> > tjatte:/import# cat /proc/interrupts
+> >            CPU0
+> >   0:     557725          XT-PIC  timer
+> >   1:        102          XT-PIC  keyboard
+> >   2:          0          XT-PIC  cascade
+> >   5:          0          XT-PIC  ehci_hcd
+> >   9:   16409116          XT-PIC  libata, usb-uhci, eth0
+>
+>
+> Hum... interesting.  I had seen reports of this before, but they were of
+> the variety "drivers/ide has high load, libata doesn't".  So it seems
+> intrinsic of the hardware, which is a useful data point.
+>
+> Have you tried messing around with interrupt routing in BIOS setup?
+> Since ATA, USB, and eth0 are all on the same interrupt, changing that
+> may affect the situation positively.
+>
+> 	Jeff
+>
+>
+>

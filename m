@@ -1,184 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266064AbTB0ScH>; Thu, 27 Feb 2003 13:32:07 -0500
+	id <S265857AbTB0SpU>; Thu, 27 Feb 2003 13:45:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266069AbTB0ScH>; Thu, 27 Feb 2003 13:32:07 -0500
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:64403 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S266064AbTB0ScC>; Thu, 27 Feb 2003 13:32:02 -0500
-Date: Thu, 27 Feb 2003 19:41:10 +0100
-From: Dominik Brodowski <linux@brodo.de>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] pcmcia: update register_pcmcia_driver users
-Message-ID: <20030227184110.GA22487@brodo.de>
+	id <S265863AbTB0SpU>; Thu, 27 Feb 2003 13:45:20 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:40329 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265857AbTB0SpT>;
+	Thu, 27 Feb 2003 13:45:19 -0500
+Date: Thu, 27 Feb 2003 10:50:56 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: mbligh@aracnet.com, zwane@holomorphy.com, cw@f00f.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous reboots)
+Message-Id: <20030227105056.3fd76ac6.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0302200847060.2493-100000@home.transmeta.com>
+References: <39710000.1045757490@[10.10.2.4]>
+	<Pine.LNX.4.44.0302200847060.2493-100000@home.transmeta.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[depends on the pcmcia: bus_type pcmcia_bus_type, pcmcia-drivers patch 
-sent to you a few minutes ago.]
+On Thu, 20 Feb 2003 08:54:55 -0800 (PST)
+Linus Torvalds <torvalds@transmeta.com> wrote:
 
-register_pcmcia_driver was equivalent to register_pccard_driver. Only leave
-the latter, and convert the users of the former name to use the (advanced)
-registration function pcmcia_register_driver().
+| On Thu, 20 Feb 2003, Martin J. Bligh wrote:
+| > 
+| > There are patches in -mjb from Dave Hansen / Ben LaHaise to detect stack
+| > overflow included with the stuff for the 4K stacks patch (intended for 
+| > scaling to large numbers of tasks). I've split them out attatched, should 
+| > apply to mainline reasonably easily.
+| 
+| Ok, the 4kB stack definitely won't work in real life, but that's because 
+| we have some hopelessly bad stack users in the kernel. But the debugging 
+| part would be good to try (in fact, it might be a good idea to keep the 
+| 8kB stack, but with rather anal debugging. Just the "mcount" part should 
+| do that).
+| 
+| A sorted list of bad stack users (more than 256 bytes) in my default build
+| follows. Anybody can create their own with something like
+| 
+| 	objdump -d linux/vmlinux |
+| 		grep 'sub.*$0x...,.*esp' |
+| 		awk '{ print $9,$1 }' |
+| 		sort > bigstack
+| 
+| and a script to look up the addresses.
+| 
+| That ide_unregister() thing uses up >2kB in just one call! And there are 
+| several in the 1.5kB range too, with a long list of ~500 byte offenders.
+| 
+| Yeah, and this assumes we don't have alloca() users or other dynamic 
+| stack allocators (non-constant-size automatic arrays). I hope we don't 
+| have that kind of crap anywhere..
 
-Please apply,
+I don't get a nice listing from this script like you did.
+Example of mine is below.  Do I just have a tools issue?
 
-	Dominik
+Thanks,
+--
+~Randy
 
-diff -ruN linux-original/drivers/net/wireless/airo_cs.c linux/drivers/net/wireless/airo_cs.c
---- linux-original/drivers/net/wireless/airo_cs.c	2003-02-27 18:55:06.000000000 +0100
-+++ linux/drivers/net/wireless/airo_cs.c	2003-02-27 19:27:52.000000000 +0100
-@@ -628,6 +628,13 @@
- 
- /*====================================================================*/
- 
-+static struct pcmcia_driver airo_driver = {
-+       .drv.name       = "airo_cs",
-+       .attach         = airo_attach,
-+       .detach         = airo_detach,
-+       .owner          = THIS_MODULE,
-+};
-+
- static int airo_cs_init(void)
- {
- 	servinfo_t serv;
-@@ -638,14 +645,14 @@
- 		       "does not match!\n");
- 		return -1;
- 	}
--	register_pcmcia_driver(&dev_info, &airo_attach, &airo_detach);
-+	pcmcia_register_driver(&airo_driver);
- 	return 0;
- }
- 
- static void airo_cs_cleanup(void)
- {
- 	DEBUG(0, "airo_cs: unloading\n");
--	unregister_pcmcia_driver(&dev_info);
-+	pcmcia_unregister_driver(&airo_driver);
- 	while (dev_list != NULL) {
- 		if (dev_list->state & DEV_CONFIG)
- 			airo_release((u_long)dev_list);
-diff -ruN linux-original/drivers/net/wireless/ray_cs.c linux/drivers/net/wireless/ray_cs.c
---- linux-original/drivers/net/wireless/ray_cs.c	2003-02-27 18:55:06.000000000 +0100
-+++ linux/drivers/net/wireless/ray_cs.c	2003-02-27 19:33:06.000000000 +0100
-@@ -2962,13 +2962,20 @@
- }
- #endif
- 
-+static struct pcmcia_driver raylink_driver = {
-+       .drv.name       = "raylink_cs",
-+       .attach         = ray_attach,
-+       .detach         = ray_detach,
-+       .owner          = THIS_MODULE,
-+};
-+
- static int __init init_ray_cs(void)
- {
-     int rc;
-     
-     DEBUG(1, "%s\n", rcsid);
--    rc = register_pcmcia_driver(&dev_info, &ray_attach, &ray_detach);
--    DEBUG(1, "raylink init_module register_pcmcia_driver returns 0x%x\n",rc);
-+    rc = pcmcia_register_driver(&raylink_driver);
-+    DEBUG(1, "raylink init_module pcmcia_register_driver returns 0x%x\n",rc);
- 
- #ifdef CONFIG_PROC_FS
-     proc_mkdir("driver/ray_cs", 0);
-@@ -2993,7 +3000,7 @@
-     remove_proc_entry("ray_cs", proc_root_driver);
- #endif
- 
--    unregister_pcmcia_driver(&dev_info);
-+    pcmcia_unregister_driver(&raylink_driver);
-     while (dev_list != NULL)
-         ray_detach(dev_list);
- 
-diff -ruN linux-original/drivers/scsi/pcmcia/nsp_cs.c linux/drivers/scsi/pcmcia/nsp_cs.c
---- linux-original/drivers/scsi/pcmcia/nsp_cs.c	2003-02-27 19:01:55.000000000 +0100
-+++ linux/drivers/scsi/pcmcia/nsp_cs.c	2003-02-27 19:30:12.000000000 +0100
-@@ -1990,6 +1990,14 @@
- /*======================================================================*
-  *	module entry point
-  *====================================================================*/
-+
-+static struct pcmcia_driver nsp_driver = {
-+       .drv.name       = "nsp_cs",
-+       .attach         = nsp_cs_attach,
-+       .detach         = nsp_cs_detach,
-+       .owner          = THIS_MODULE,
-+};
-+
- static int __init nsp_cs_init(void)
- {
- 	servinfo_t serv;
-@@ -2002,7 +2010,7 @@
- 		       "does not match!\n");
- 		return -1;
- 	}
--	register_pcmcia_driver(&dev_info, &nsp_cs_attach, &nsp_cs_detach);
-+	pcmcia_register_driver(&nsp_driver);
- 
- 	DEBUG(0, "%s: out\n", __FUNCTION__);
- 	return 0;
-@@ -2012,7 +2020,7 @@
- static void __exit nsp_cs_cleanup(void)
- {
- 	DEBUG(0, "%s: unloading\n", __FUNCTION__);
--	unregister_pcmcia_driver(&dev_info);
-+	pcmcia_unregister_driver(&nsp_driver);
- 	while (dev_list != NULL) {
- 		if (dev_list->state & DEV_CONFIG) {
- 			nsp_cs_release((u_long)dev_list);
-diff -ruN linux-original/drivers/telephony/ixj_pcmcia.c linux/drivers/telephony/ixj_pcmcia.c
---- linux-original/drivers/telephony/ixj_pcmcia.c	2003-02-27 18:55:17.000000000 +0100
-+++ linux/drivers/telephony/ixj_pcmcia.c	2003-02-27 19:31:26.000000000 +0100
-@@ -310,6 +310,13 @@
- 	return 0;
- }
- 
-+static struct pcmcia_driver ixj_driver = {
-+       .drv.name       = "ixj_cs",
-+       .attach         = ixj_attach,
-+       .detach         = ixj_detach,
-+       .owner          = THIS_MODULE,
-+};
-+
- int __init ixj_register_pcmcia(void)
- {
- 	servinfo_t serv;
-@@ -319,14 +326,14 @@
- 		printk(KERN_NOTICE "ixj_cs: Card Services release does not match!\n");
- 		return -EINVAL;
- 	}
--	register_pcmcia_driver(&dev_info, &ixj_attach, &ixj_detach);
-+	pcmcia_register_driver(&ixj_driver);
- 	return 0;
- }
- 
- static void ixj_pcmcia_unload(void)
- {
- 	DEBUG(0, "ixj_cs: unloading\n");
--	unregister_pcmcia_driver(&dev_info);
-+	pcmcia_unregister_driver(&ixj_driver);
- 	while (dev_list != NULL)
- 		ixj_detach(dev_list);
- }
-diff -ruN linux-original/include/pcmcia/ds.h linux/include/pcmcia/ds.h
---- linux-original/include/pcmcia/ds.h	2003-02-27 19:36:36.000000000 +0100
-+++ linux/include/pcmcia/ds.h	2003-02-27 19:31:50.000000000 +0100
-@@ -140,9 +140,6 @@
- 
- int unregister_pccard_driver(dev_info_t *dev_info);
- 
--#define register_pcmcia_driver register_pccard_driver
--#define unregister_pcmcia_driver unregister_pccard_driver
--
- #include <linux/device.h>
- 
- extern struct bus_type pcmcia_bus_type;
+
+
+$0x424,%esp c01f6bc0:
+$0x490,%esp c0106010:
+$0x4ac,%esp c016aec3:
+$0x540,%esp c01061a6:
+$0x5ac,%esp c010533e:
+$0x798,%esp c02528b8:
+$0x924,%esp c02484fb:

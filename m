@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136381AbRD2Vkx>; Sun, 29 Apr 2001 17:40:53 -0400
+	id <S132478AbRD2VpD>; Sun, 29 Apr 2001 17:45:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132478AbRD2Vko>; Sun, 29 Apr 2001 17:40:44 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:9223 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136380AbRD2Vkk>; Sun, 29 Apr 2001 17:40:40 -0400
-Message-ID: <3AEC8A46.2BA7BF68@transmeta.com>
-Date: Sun, 29 Apr 2001 14:40:22 -0700
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
-MIME-Version: 1.0
-To: Jim Gettys <jg@pa.dec.com>
-CC: dean gaudet <dean-list-linux-kernel@arctic.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
-In-Reply-To: <200104292116.f3TLGhu07016@pachyderm.pa.dec.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132054AbRD2Voo>; Sun, 29 Apr 2001 17:44:44 -0400
+Received: from zcamail03.zca.compaq.com ([161.114.32.103]:46597 "HELO
+	zcamail03.zca.compaq.com") by vger.kernel.org with SMTP
+	id <S136393AbRD2VoW>; Sun, 29 Apr 2001 17:44:22 -0400
+From: jg@pa.dec.com (Jim Gettys)
+Date: Sun, 29 Apr 2001 14:44:11 -0700 (PDT)
+Message-Id: <200104292144.f3TLiBD03874@pachyderm.pa.dec.com>
+X-Mailer: Pachyderm (client pachyderm.pa-x.dec.com, user jg)
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3AE60A3D.9090103@holly-springs.nc.us>
+Subject: Re: #define HZ 1024 -- negative effects?
+Mime-Version: 1.0
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Gettys wrote:
-> 
-> The "put the time into a magic location in shared memory" goes back...
->
+The biggest single issue in GUI responsiveness on Linux has been caused
+by XFree86's implementation of mouse tracking in user space.
 
-Short summary: depending on how much you were talking general idea versus
-specifics, you can go arbitrarily far back (I wouldn't be surprised if
-shared memory techniques were used regularly before memory protection.)
+On typical UNIX systems, the mouse was often controlled in the kernel
+driver.  Until recently (XFree86 4.0 days), the XFree86 server's reads
+of mouse/keyboard events were not signal driven, so that if the X server
+was loaded, the cursor stopped moving.
 
-Fair?
+On most (but not all) current XFree86 implementations, this is now
+signal drive, and further the internal X schedular has been reworked to
+make it difficult for a single client to monopolize the X server.
 
-Not to pick on you or anyone else, but it is well-known to everyone
-except the U.S. patent office that "there are no new ideas in computer
-science." :)
+So the first thing you should try is to make sure you are using an X server
+with this "silken mouse" enabled; anotherwords, run XFree86 4.0x and make
+sure the implementation has it enabled....
 
-	-hpa
+There may be more to do in Linux thereafter, but until you've done this, you
+don't get to discuss the matter further....
+					- Jim Gettys
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+--
+Jim Gettys
+Technology and Corporate Development
+Compaq Computer Corporation
+jg@pa.dec.com
+

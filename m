@@ -1,71 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267405AbUIKEWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267409AbUIKEh0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267405AbUIKEWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 00:22:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267406AbUIKEWQ
+	id S267409AbUIKEh0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 00:37:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267433AbUIKEh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 00:22:16 -0400
-Received: from web51606.mail.yahoo.com ([206.190.38.211]:16493 "HELO
-	web51606.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267405AbUIKEWN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 00:22:13 -0400
-Message-ID: <20040911042213.8980.qmail@web51606.mail.yahoo.com>
-Date: Fri, 10 Sep 2004 21:22:13 -0700 (PDT)
-From: ngo giang <ngohoanggiang1981dh@yahoo.com>
-Subject: Error with initrd when build kernel
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Sat, 11 Sep 2004 00:37:26 -0400
+Received: from ozlabs.org ([203.10.76.45]:56035 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S267409AbUIKEhZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 00:37:25 -0400
+Date: Sat, 11 Sep 2004 14:33:03 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: paulus@samba.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] [ppc64] Remove -Wno-uninitialized
+Message-ID: <20040911043303.GB6005@krispykreme>
+References: <200409101520.12653.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409101520.12653.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
 
-I’m using Linux RedHat 8 , kernel-2.4.18
-I’m trying to build kernel-2.4.26
-I did following :
-……….
-make xconfig , make dep , make clean , make bzImage
-make modules , make modules_install 
-mkinitrd --omit-scsi-modules /boot/initrd-xxx.img xxx
-cp arch/i386/boot/bzImage /boot/bzImage-xxx
-cp System.map /boot/System.map-xxx
-ln -s /boot/System.map-xxx /boot/System.map
+> Sorry if you already got these fixes, but err may be used uninitialized in 
+> mempolicy.c in both compat_set_mempolicy and compat_mbind.  This patch fixes 
+> that by setting them both to 0.
 
-Every thing fine
+Thanks Jesse, I wonder why I missed this. Yuck, that would explain it.
 
-But when I configured grub.conf  as follow :
+Andrew: A follow up patch fixing a bunch of ppc64 warnings is on the way.
 
-title ( ….) 
-root(hd0,0)
-kernel /bzImage-2.4.26 ro root=LABEL=/
-(  I don’t know where my root is on )
-initrd /initrd-2.4.26.img
+Anton
 
-when reboot 
-I received  the error as follow :
-
-“ VFS : cannot open root device “ label = / “ or 00:00
-Please append a correct “ root = “ boot option 
-Kernel panic : VFS : Unable to mount root fs on 00:00
-“
-
-Can anyone tell me how I can configure the grub.conf
-or 
-how the configuration is ( at stage : make xconfig ) 
-to avoid creating initrd   
-
-Could anyone help me .
-
-Thanks for yours help !
-
-
-
-
-
-	
-		
-__________________________________
-Do you Yahoo!?
-New and Improved Yahoo! Mail - 100MB free storage!
-http://promotions.yahoo.com/new_mail 
+===== arch/ppc64/Makefile 1.47 vs edited =====
+--- 1.47/arch/ppc64/Makefile	Mon Aug 23 06:24:25 2004
++++ edited/arch/ppc64/Makefile	Sat Sep 11 14:30:01 2004
+@@ -26,8 +26,7 @@
+ 
+ LDFLAGS		:= -m elf64ppc
+ LDFLAGS_vmlinux	:= -Bstatic -e $(KERNELLOAD) -Ttext $(KERNELLOAD)
+-CFLAGS		+= -msoft-float -pipe -Wno-uninitialized -mminimal-toc \
+-		   -mtraceback=none
++CFLAGS		+= -msoft-float -pipe -mminimal-toc -mtraceback=none
+ 
+ ifeq ($(CONFIG_POWER4_ONLY),y)
+ 	CFLAGS += $(call cc-option,-mcpu=power4)

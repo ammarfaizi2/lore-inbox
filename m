@@ -1,74 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129633AbQJZXH3>; Thu, 26 Oct 2000 19:07:29 -0400
+	id <S129453AbQJZXH7>; Thu, 26 Oct 2000 19:07:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130370AbQJZXHL>; Thu, 26 Oct 2000 19:07:11 -0400
-Received: from [211.58.56.18] ([211.58.56.18]:48099 "EHLO mo3.hananet.net")
-	by vger.kernel.org with ESMTP id <S129633AbQJZXHE>;
-	Thu, 26 Oct 2000 19:07:04 -0400
-Date: Fri, 27 Oct 2000 08:06:47 +0900 (KST)
-From: Byeong-ryeol Kim <jinbo21@hananet.net>
-Reply-To: Byeong-ryeol Kim <jinbo21@hananet.net>
-To: Klaus Naumann <kernel@mgnet.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: QLOGIC Fibre Channel init
-In-Reply-To: <39F8221E.6FE5F25E@mgnet.de>
-Message-ID: <Pine.LNX.4.21.0010270737160.21026-100000@progress.plw.net>
+	id <S129935AbQJZXHm>; Thu, 26 Oct 2000 19:07:42 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:37394 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129453AbQJZXG5>; Thu, 26 Oct 2000 19:06:57 -0400
+Date: Thu, 26 Oct 2000 21:10:06 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Rik van Riel <riel@conectiva.com.br>, mauelshagen@sistina.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: LVM snapshotting broken?
+In-Reply-To: <20001027004404.A1282@athlon.random>
+Message-ID: <Pine.LNX.4.21.0010262105380.4522-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Oct 2000, Klaus Naumann wrote:
 
-> Byeong-ryeol Kim wrote:
+
+On Fri, 27 Oct 2000, Andrea Arcangeli wrote:
+
+> On Thu, Oct 26, 2000 at 06:34:48PM -0200, Rik van Riel wrote:
+> > On Thu, 26 Oct 2000, Rik van Riel wrote:
 > > 
-> > On Thu, 26 Oct 2000, Klaus Naumann wrote:
+> > > it looks like the LVM snapshotting in 2.4 doesn't allow you
+> > > to create snapshots from anything else than the _first_ LV
+> > > in the VG...
 > > 
-> > > I was having some little trouble with the QLOGIC Fibre Channel SCSI
-> > > cards.
-> > > The issue is, that I have a box with an internal SCSI controller/disk
-> > > and a QLOGIC card which is connected to an external RAID. The probelm
-> > > is, that the internal disk is my root disk but is the second in the
-> > > chain (sdb) after bootup. This gives a lot of problems, because it's
-> > > impossible to get the system to boot (LILO isn't working).
-> > > Since I've modified the hosts.c it's working perfectly (at least the
-> > > order is better now). Patch is attached.
-> > > Can anyone give a comment on that please ?
-> > ....
-> > 
-> > Hello,
-> > Your patch would be good, but there is another simple method.
-> > Did you happen to make the BIOS of Qlogic FC adapter enable to
-> > boot the machine?
-> > If so, while POST, timely hit 'Ctrl + Q', and disable boot
-> > ability in BIOS setting of it.
+> > OK, I reproduced it in 2.2 as well ... ;(
 > 
-> No, I have the bios of the controller disabled.
-> The problem with that is that on boot up (for lilo) the internal disk
-> is disk number one. But when I'm in the system and want to install lilo
-> it's disk number two - that's what lilo is complaining about on boot up.
-> (By spewing out an L and a 01 01 01 01 and so on).
-> Activating the bios of the QLOGIC (to make the internal disk appear
-> to be the 2nd one on bootup) didn't solve the problem too - I simply
-> got a message saying I should insert a system disk ;)
-....
+> Which 2.2.x? LVM isn't supported in 2.2.18pre17 or any other previous version.
+> 
+> For some irrelevant reason I always test snapshotting on a LV with minor
+> number > 1 and the kernel side definitely works with 2.2.18pre17aa1:
+> 
+> laser:/home/andrea # ls -l /dev/vg1/lv*
+> brw-r-----   1 root     root      58,   0 Oct 27  2000 /dev/vg1/lv0
+> brw-r-----   1 root     root      58,   1 Oct 27  2000 /dev/vg1/lv1
+> laser:/home/andrea # lvcreate -s -n lv1-snap /dev/vg1/lv1 -L 400M
+> lvcreate -- INFO: using default snapshot chunk size of 64 KB
+> lvcreate -- doing automatic backup of "vg1"
+> lvcreate -- logical volume "/dev/vg1/lv1-snap" successfully created
+> 
+> laser:/home/andrea # lvremove -f /dev/vg1/lv1-snap 
+> lvremove -- doing automatic backup of volume group "vg1"
+> lvremove -- logical volume "/dev/vg1/lv1-snap" successfully removed
+> 
+> laser:/home/andrea # 
 
-Aha, I forgot to describe about making qlogic drivers as a module.
-While I had been setting and testing SAN switch(Brocade, Gadzoox),
-RAID with Qlogic 2100(or 2200A), I had the same experience that you 
-described in the previous mail, and solved the problem by patching 
-drivers/scsi/hosts.c as you did. It was a good solution.
-But, I became aware of the convenience and flexibility of modular 
-drivers(or initrd) in this case.
-Because, I thought, whenever I do the same test or benchmarking, 
-rebooting the system each is terrible. 
-In that method, I experienced no problem such that you described 
-in the previous E-mail.
+With LVM from 2.2.18aa kernels (I dont exactly remember which one)
 
--- 
- "Where there is a will, there is a way."  jinbo21@hananet.net
-  For the future of you and me!            hitel: jinbo21
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

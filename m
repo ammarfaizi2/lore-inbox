@@ -1,34 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281010AbRKCS5z>; Sat, 3 Nov 2001 13:57:55 -0500
+	id <S281012AbRKCS5p>; Sat, 3 Nov 2001 13:57:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281008AbRKCS5p>; Sat, 3 Nov 2001 13:57:45 -0500
-Received: from ns.suse.de ([213.95.15.193]:54020 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S281010AbRKCS52>;
-	Sat, 3 Nov 2001 13:57:28 -0500
-Date: Sat, 3 Nov 2001 19:57:12 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Jordan Breeding <ledzep37@home.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Support for Matrox G550 framebuffer?
-In-Reply-To: <3BE43C2C.BDAC4C4A@home.com>
-Message-ID: <Pine.LNX.4.30.0111031955040.27631-100000@Appserv.suse.de>
+	id <S281008AbRKCS5Z>; Sat, 3 Nov 2001 13:57:25 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:25793 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S281012AbRKCS5O>;
+	Sat, 3 Nov 2001 13:57:14 -0500
+Date: Sat, 3 Nov 2001 13:57:09 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix for cdput() race
+Message-ID: <Pine.GSO.4.21.0111031348220.18001-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Nov 2001, Jordan Breeding wrote:
+	Resend - that area hadn't changed and bug is still there.
 
-> Is there or will there will be support for the Matrox G550 as a
-> frambuffer in linux?  Thanks.
+Race between cdput() and cdget() - if we have the only reference to
+char_device and call cdput() while somebody else does cdget() on
+another CPU, we are going to hit a race:
 
-Petr Vandrovec posted patches to linuxfb-devel a few weeks ago,
-they seem to be working out fine for me in single and dual head mode.
+cdget:
+	grabs cdev_lock
+	searches the lists
+				cdput:
+					decrements ->count to 0
+					spins on attempt to get cdev_lock
+	find the structure
+	increments ->count
+	drops cdev_lock
+	returns pointer to found	acquires cdev_lock
+					removes the structure from lists
+					frees it
+caller of cdget:
+	dereferences the returned value
+	oops
 
-Dave.
+This is exactly the same scenario as we had in d_lookup()/dput() - one
+that lead to introduction of atomic_dec_and_lock().  Fix is trivial.
+Please, apply.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+--- linux/fs/char_dev.c	Thu May 24 18:26:45 2001
++++ /tmp/char_dev.c	Mon Oct 29 13:43:41 2001
+@@ -104,8 +104,7 @@
+ 
+ void cdput(struct char_device *cdev)
+ {
+-	if (atomic_dec_and_test(&cdev->count)) {
+-		spin_lock(&cdev_lock);
++	if (atomic_dec_and_lock(&cdev->count, &cdev_lock)) {
+ 		list_del(&cdev->hash);
+ 		spin_unlock(&cdev_lock);
+ 		destroy_cdev(cdev);
 

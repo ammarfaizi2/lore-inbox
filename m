@@ -1,67 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315406AbSF3TzY>; Sun, 30 Jun 2002 15:55:24 -0400
+	id <S313419AbSF3Ub2>; Sun, 30 Jun 2002 16:31:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315414AbSF3TzX>; Sun, 30 Jun 2002 15:55:23 -0400
-Received: from ip68-3-14-32.ph.ph.cox.net ([68.3.14.32]:11712 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S315406AbSF3TzW>;
-	Sun, 30 Jun 2002 15:55:22 -0400
-Message-ID: <3D1F62B5.30502@candelatech.com>
-Date: Sun, 30 Jun 2002 12:57:41 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
+	id <S313190AbSF3Ub1>; Sun, 30 Jun 2002 16:31:27 -0400
+Received: from macker.loria.fr ([152.81.1.70]:53975 "EHLO macker.loria.fr")
+	by vger.kernel.org with ESMTP id <S311710AbSF3UbZ>;
+	Sun, 30 Jun 2002 16:31:25 -0400
+X-Amavix: Anti-spam check done by SpamAssassin
+X-Amavix: Anti-virus check done by McAfee
+X-Amavix: Scanned by Amavix
+Date: Sun, 30 Jun 2002 22:33:43 +0200 (CEST)
+From: Samuel Thibault <Samuel.Thibault@ens-lyon.fr>
+X-X-Sender: samy@localhost.localdomain
+Reply-To: Samuel Thibault <samuel.thibault@fnac.net>
+To: zab@zabbo.net, <linux-sound@vger.kernel.org>
+Cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.4.18 drivers/sound/maestro.c
+Message-ID: <Pine.LNX.4.44.0206302209370.470-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Anders Karlsson <anders.karlsson@meansolutions.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Spacewalker SS40
-References: <20020630151510.GA21888@alien.meansolutions.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anders Karlsson wrote:
-> Hello,
-> 
-> I have very recently bought a Shuttle SS40 and I have installed Debian
-> Woody on it. During the install process everything works fine, and the
-> machine installs nicely. Then I started adding a few of the things I
-> like in all systems, like a 2.4 kernel for example. 
-> 
-> Debian Woody have 2.4.16 and 2.4.18 up for grabs, and I have tried
-> both. The problem with the 2.4 kernels seems to be that PCI does not
-> get recognised or enabled. Hence things like networking, USB and
-> IEEE1394 becomes unusable.
-> 
-> I have tried to get 2.4.19-rc1 installed, but as that does not compile
-> for various reasons I have not yet been able to test it.
-> 
-> Please find attached the output from /proc/pci, the output from lspci,
-> lspci -v as well as the output from dmesg when I boot the 2.4.18-k7
-> kernel.
-> 
-> Should any other details be required, let me know. I do not subscribe
-> to the list, so I will look in the archives for responses but would
-> appreciate it if I was CC'd.
-> 
-> Looking forward to hearing what the cause of the problem might be.
 
-I don't know the exact problem, but if you add: pci=bios to
-the kernel boot comand line args, then it seems to work fine,
-at least with RH 7.3.
+Hi !
 
-I'm also running a rc1 kernel w/out problems on it.
+maestro.c:3537 takes care about volume button pressing when requesting irq
+(maestro_probe) :
 
-Ben
+	if((ret=request_irq(card->irq, ess_interrupt, SA_SHIRQ, card_names[card_type], card)))
+	{
+		<snipped>
+	}
 
+	/* Turn on hardware volume control interrupt.
+	   This has to come after we grab the IRQ above,
+	   or a crash will result on installation if a button has been pressed,
+	   because in that case we'll get an immediate interrupt. */
+	n = inw(iobase+0x18);
+	n|=(1<<6);
+	outw(n, iobase+0x18);
 
+but not when unloading module : in fact, this bit is never cleared.
+Indeed, loading the module, unloading it, and pressing a volume button
+immediately crashes.
 
+This cures the problem :
 
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+diff -urN linux-2.4.18/drivers/sound/maestro.c linux-2.4.18-cor/drivers/sound/maestro.c
+--- linux-2.4.18/drivers/sound/maestro.c	Sun Jun 30 22:00:22 2002
++++ linux-2.4.18-cor/drivers/sound/maestro.c	Sun Jun 30 22:02:11 2002
+@@ -3569,9 +3569,18 @@
+ static void maestro_remove(struct pci_dev *pcidev) {
+ 	struct ess_card *card = pci_get_drvdata(pcidev);
+ 	int i;
++	u32 n;
 
+ 	/* XXX maybe should force stop bob, but should be all
+ 		stopped by _release by now */
++
++	/* Turn off hardware volume control interrupt.
++	   This has to come before we leave the IRQ below,
++	   or a crash results if a button is pressed ! */
++	n = inw(card->iobase+0x18);
++	n&=~(1<<6);
++	outw(n, card->iobase+0x18);
++
+ 	free_irq(card->irq, card);
+ 	unregister_sound_mixer(card->dev_mixer);
+ 	for(i=0;i<NR_DSPS;i++)
+
+This patch also apply to 2.5 series (tested on 2.5.24) in linux/sound/oss
+by using -p3.
+
+Best regards,
+
+Samuel Thibault
 

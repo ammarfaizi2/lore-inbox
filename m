@@ -1,62 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130824AbRCTSzx>; Tue, 20 Mar 2001 13:55:53 -0500
+	id <S130619AbRCTTRN>; Tue, 20 Mar 2001 14:17:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130831AbRCTSzn>; Tue, 20 Mar 2001 13:55:43 -0500
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:37067 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S130824AbRCTSze>; Tue, 20 Mar 2001 13:55:34 -0500
-Date: Tue, 20 Mar 2001 13:54:49 -0500
-To: Josh Grebe <squash@primary.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about memory usage in 2.4 vs 2.2
-Message-ID: <20010320135449.A24252@cs.cmu.edu>
-Mail-Followup-To: Josh Grebe <squash@primary.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200103190207.UAA13397@senechalle.net> <Pine.LNX.4.21.0103201038140.2405-100000@scarface.primary.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.LNX.4.21.0103201038140.2405-100000@scarface.primary.net>; from squash@primary.net on Tue, Mar 20, 2001 at 11:01:52AM -0600
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+	id <S130617AbRCTTRD>; Tue, 20 Mar 2001 14:17:03 -0500
+Received: from [213.97.184.209] ([213.97.184.209]:7861 "HELO piraos.com")
+	by vger.kernel.org with SMTP id <S130616AbRCTTQy>;
+	Tue, 20 Mar 2001 14:16:54 -0500
+Message-ID: <20010320191543.23457.qmail@piraos.com>
+Date: Tue, 20 Mar 2001 20:15:43 +0100 (CET)
+From: German Gomez Garcia <german@piraos.com>
+Subject: Matrox framebuffer dualhead and utilities
+To: kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
+X-Mailer: Mahogany, 0.62 'Mars', compiled for Linux 2.4.2 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 20, 2001 at 11:01:52AM -0600, Josh Grebe wrote:
-> Greetings,
-> 
-> I have a server farm made of identical hardware running pop3 and imap mail
-> functions. recently, we upgraded all the machines to kernel 2.4.2, but we
-> noticed that according to free, our memory utilization went way up. Here
-> is the output of free on the 2.4.2 machine:
->              total       used       free     shared    buffers     cached
-> Mem:        513192     492772      20420          0       1684     263188
-> -/+ buffers/cache:     227900     285292
-> Swap:       819304        540     818764
-> 
-> 
-> On the 2.2..18 machine:
->              total       used       free     shared    buffers     cached
-> Mem:        517256     351280     165976      19920      82820     186836
-> -/+ buffers/cache:      81624     435632
-> Swap:       819304          0     819304
-> 
-> 
-> Doing the math, the 2.4 machine is using 44% of available memory, while
-> the 2.2 is using only about 14%.
 
-What does /proc/slabinfo report for the number of pages locked down in
-the inode and dentry caches? My machine has pretty much every inode in
-memory and is using close to 50% of my memory for these (214MB/512MB).
+        Hello,
 
-These caches do not seem to be counted towards 'reclaimable' memory by
-the new VM and are only pruned when _all_ other attempts to free up
-memory have failed.
+        I'm trying to set the Matrox framebuffer to dualhead or TV output,
+but the utilities mentioned in the docs seem to be outdated (ioctl failed
+with incorrect command). Any idea about where to get up to date tools?
+I'm using kernel 2.4.2-ac20 (quite stable 5 days uptime with heavy DRI
+testing and heavy disk working).
 
-This becomes very noticeable on a not very fast, small memory machine
-(i.e. 48MB sparc-IPC), where 2.2 stays relatively snappy, but 2.4
-becomes unusable after an updatedb run.
+        Thanks
 
-Jan
+        - german
+
+
+PS: Please CC to me as I'm not subscribed to the list.
+-------------------------------------------------------------------------
+German Gomez Garcia         | "This isn't right.  This isn't even wrong."
+<german@piraos.com>         |                         -- Wolfgang Pauli
+
 

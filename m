@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262776AbSJWC5u>; Tue, 22 Oct 2002 22:57:50 -0400
+	id <S262791AbSJWDFI>; Tue, 22 Oct 2002 23:05:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262789AbSJWC5t>; Tue, 22 Oct 2002 22:57:49 -0400
-Received: from zero.aec.at ([193.170.194.10]:20236 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id <S262776AbSJWC5t>;
-	Tue, 22 Oct 2002 22:57:49 -0400
-To: Gerrit Huizenga <gh@us.ibm.com>
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
-References: <3DB59DA7.453F89E2@digeo.com> <E1844MH-00027H-00@w-gerrit2>
-From: Andi Kleen <ak@muc.de>
-Date: 23 Oct 2002 05:03:38 +0200
-In-Reply-To: <E1844MH-00027H-00@w-gerrit2>
-Message-ID: <m3fzuxq2k5.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262792AbSJWDFI>; Tue, 22 Oct 2002 23:05:08 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:56016 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S262791AbSJWDFG>;
+	Tue, 22 Oct 2002 23:05:06 -0400
+Subject: [BUG] e100 driver fails to initialize NIC on 2.5.44
+From: Rob Rhoads <errhoads@linux.co.intel.com>
+To: scott.feldman@intel.com
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 22 Oct 2002 20:10:54 -0700
+Message-Id: <1035342654.676.368.camel@beer.co.intel.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerrit Huizenga <gh@us.ibm.com> writes:
+While booting the 2.5.44 kernel & configured with the Intel e100 driver,
+I get the follow error:
 
-> If the shared pte patch had mmap support, then all shared libraries
-> would benefit.  Might need to align them to 4 MB boundaries for best
-> results, which would also be easy for libraries with unspecified
-> attach addresses (e.g. most shared libraries).
+kernel: e100: hw init failed
+kernel: e100: Failed to initialize, instance #0
 
-But only if the shared libraries are a multiple of 2/4MB, otherwise you'll
-waste memory. Or do you propose to link multiple mmap'ed libraries together
-into the same page ? 
+I'm running this on an Intel STL2 server motherboard w/ 2 PIII's and 2.5
+GB RAM. If you need more info I can provide it.
 
-But I agree it would be nice to have a chattr for files that tells
-mmap() to use large pages for them.
+The patch below fixes my problem by increasing the maximum number of
+retries that the SCB command field is checked in the e100_wait_scb()
+function.
 
--Andi
+diff -ruN linux-2.5.44/drivers/net/e100/e100.h linux-2.5.44-new/drivers/net/e100/e100.h
+--- linux-2.5.44/drivers/net/e100/e100.h	2002-10-18 21:01:20.000000000 -0700
++++ linux-2.5.44-new/drivers/net/e100/e100.h	2002-10-22 14:25:24.000000000 -0700
+@@ -100,7 +100,7 @@
+ 
+ #define E100_MAX_NIC 16
+ 
+-#define E100_MAX_SCB_WAIT	100	/* Max udelays in wait_scb */
++#define E100_MAX_SCB_WAIT	2000	/* Max udelays in wait_scb */
+ #define E100_MAX_CU_IDLE_WAIT	50	/* Max udelays in wait_cus_idle */
+ 
+ /* HWI feature related constant */
+
+-- 
+Rob Rhoads                     mailto:errhoads@linux.intel.com
+Telecom Software Platforms
+Intel Communications Group
+
+<disclaimer value="pointless">
+This email message solely contains my own personal views, 
+and not necessarily those of my employer.
+</disclaimer>
+

@@ -1,35 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314048AbSDVDoJ>; Sun, 21 Apr 2002 23:44:09 -0400
+	id <S314051AbSDVExg>; Mon, 22 Apr 2002 00:53:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314051AbSDVDoI>; Sun, 21 Apr 2002 23:44:08 -0400
-Received: from sydney1.au.ibm.com ([202.135.142.193]:23558 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S314048AbSDVDoI>; Sun, 21 Apr 2002 23:44:08 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] TRIVIAL 2.5.8: clean up fs_exec.c
-Date: Mon, 22 Apr 2002 13:47:20 +1000
-Message-Id: <E16zUnQ-00016q-00@wagner.rustcorp.com.au>
+	id <S314052AbSDVExf>; Mon, 22 Apr 2002 00:53:35 -0400
+Received: from mail.bmlv.gv.at ([193.171.152.34]:64425 "EHLO mail.bmlv.gv.at")
+	by vger.kernel.org with ESMTP id <S314051AbSDVExe>;
+	Mon, 22 Apr 2002 00:53:34 -0400
+Message-Id: <3.0.6.32.20020422065639.0090cd10@pop3.bmlv.gv.at>
+X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
+Date: Mon, 22 Apr 2002 06:56:39 +0200
+To: sct@redhat.com, akpm@zip.com.au, adilger@turbolinux.com
+From: "Ph. Marek" <marek@bmlv.gv.at>
+Subject: [PATCH] open files in kjounald
+Cc: linux-kernel@vger.kernel.org, ext3-users@redhat.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Pool <mbp@samba.org>: trivial kernel patch -- clean up fs_exec.c:
+Hello everybody!
 
-(Included in 2.4)
---- trivial-2.5.8/fs/exec.c.orig	Mon Apr 22 13:42:32 2002
-+++ trivial-2.5.8/fs/exec.c	Mon Apr 22 13:42:32 2002
-@@ -978,8 +978,7 @@
- 	if (current->rlim[RLIMIT_CORE].rlim_cur < binfmt->min_coredump)
- 		goto fail;
- 
--	memcpy(corename,"core.", 5);
--	corename[4] = '\0';
-+	memcpy(corename,"core", 5); /* include trailing \0 */
-  	if (core_uses_pid || atomic_read(&current->mm->mm_users) != 1)
-  		sprintf(&corename[4], ".%d", current->pid);
- 	file = filp_open(corename, O_CREAT | 2 | O_NOFOLLOW, 0600);
+As I wrote in my mail the previous week ("BUG: 2.4.19pre1 & journal_thread
+& open filehandles") I followed the problem a little bit further.
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Here's my patch; I beg the ext3-maintainers (Stephen, Andreas, Andrew) to
+have a look at it and submit it to Marcelo and Linux for inclusion.
+(2.4 is for now for me more important than 2.5).
+
+
+Patch
+-----
+
+On every mount of ext3 (and I suppose all journaling filesystems which use
+jbd, although I didn't test this) a new kjournald is created. All kjournald
+share the same file-information.
+
+Before this patch it would accumulativly fetch open files from the calling
+process (normally mount); I verified this via (in bash)
+	exec 30< /etc/services
+	mount <partition> /mnt/tmp
+	ps -aux | grep kjournald
+	ls -la <pid of any kjournald>
+gives, among 0, 1 and 2
+	30 -> /etc/services
+
+This is really awful as you can't umount devfs (normally /dev/console is
+opened as from the start-scripts) and so / can't be umounted.
+
+After applying this patch the open files were gone.
+
+
+Please apply this patch ASAP - thank you very much.
+
+
+Regards,
+
+Phil
+
+
+diff -ru linux/fs/jbd/journal.c linux.ori/fs/jbd/journal.c
+--- linux/fs/jbd/journal.c      Mon Apr 22 06:29:16 2002
++++ linux.ori/fs/jbd/journal.c  Mon Apr 22 06:28:54 2002
+@@ -204,7 +204,6 @@
+
+        lock_kernel();
+        daemonize();
+-       exit_files(current);
+        spin_lock_irq(&current->sigmask_lock);
+        sigfillset(&current->blocked);
+        recalc_sigpending(current);
+

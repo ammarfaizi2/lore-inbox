@@ -1,55 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263205AbTFIL2f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 07:28:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263264AbTFIL2e
+	id S263264AbTFILcd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 07:32:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbTFILcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 07:28:34 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:40201 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S263205AbTFIL2d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 07:28:33 -0400
-Date: Mon, 9 Jun 2003 15:41:42 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Matthew Wilcox <willy@debian.org>
-Cc: linux-kernel@vger.kernel.org, David Mosberger <davidm@hpl.hp.com>
-Subject: Re: [PATCH] [3/3] PCI segment support
-Message-ID: <20030609154142.E15283@jurassic.park.msu.ru>
-References: <20030407234411.GT23430@parcelfarce.linux.theplanet.co.uk> <20030408203824.A27019@jurassic.park.msu.ru> <20030608164351.GI28581@parcelfarce.linux.theplanet.co.uk> <20030609140749.A15138@jurassic.park.msu.ru> <20030609111739.GP28581@parcelfarce.linux.theplanet.co.uk>
+	Mon, 9 Jun 2003 07:32:33 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:34315 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S263264AbTFILcc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 07:32:32 -0400
+Date: Mon, 9 Jun 2003 13:46:06 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Andreas Haumer <andreas@xss.co.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.21-rc7] AP1700-S5 system freeze :-((
+Message-Id: <20030609134606.094d55ae.skraw@ithnet.com>
+In-Reply-To: <3EE45E94.7070209@xss.co.at>
+References: <Pine.LNX.4.55L.0306031353580.3892@freak.distro.conectiva>
+	<3EDF3310.7040501@xss.co.at>
+	<3EE208F1.4000008@xss.co.at>
+	<3EE45E94.7070209@xss.co.at>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030609111739.GP28581@parcelfarce.linux.theplanet.co.uk>; from willy@debian.org on Mon, Jun 09, 2003 at 12:17:39PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BTW, you can include this in the next version of the patch. :-)
+Hello Andreas,
 
-Ivan.
+I am not quite sure if you are experiencing something similar to my problem.
+Fact is this:
 
---- 2.5/include/asm-alpha/pci.h	Tue May 27 05:00:20 2003
-+++ linux/include/asm-alpha/pci.h	Mon Jun  9 15:29:51 2003
-@@ -195,6 +195,9 @@ extern void
- pcibios_resource_to_bus(struct pci_dev *dev, struct pci_bus_region *region,
- 			 struct resource *res);
- 
-+#define pci_domain_nr(pbus) ({ struct pci_controller *_hose_ = pbus->sysdata; \
-+			       _hose_->index; })
-+
- #endif /* __KERNEL__ */
- 
- /* Values for the `which' argument to sys_pciconfig_iobase.  */
---- 2.5/arch/alpha/Kconfig	Mon Jun  9 12:39:39 2003
-+++ linux/arch/alpha/Kconfig	Mon Jun  9 12:43:55 2003
-@@ -295,6 +295,10 @@ config PCI
- 	  information about which PCI hardware does work under Linux and which
- 	  doesn't.
- 
-+config PCI_DOMAINS
-+	bool
-+	default PCI
-+
- config ALPHA_CORE_AGP
- 	bool
- 	depends on ALPHA_GENERIC || ALPHA_TITAN || ALPHA_MARVEL
+I have a serverworks based dual PIII board and I am experiencing freezes just
+about every day. 
+
+Equal setups:
+
+Kernel 2.4.21-rc7
+00:00.0 Host bridge: ServerWorks CNB20HE Host Bridge (me: rev 23 you: rev 31)
+00:00.1 Host bridge: ServerWorks CNB20HE Host Bridge (rev 01)
+
+Lockups during light load
+
+
+Differing:
+
+Just about everything else:
+                       yours:            mine:
+Storage System:        Symbios           AIC
+VGA           :        ATI Rage XL       ATI Radeon RV200
+Network       :        Intel/3com        Intel/Broadcom
+Processor     :        Xeon UP           PIII SMP
+
+
+I could already produce oops-messages on the problem and mine all come up in
+kmem_cache_alloc_batch. It would be interesting where your box freezes. It
+cannot be at this same place, because the code is not there in UP.
+Try this (in case you are not working in front of the box):
+
+Start box and switch to text console, enter "setterm -blank 0" to disable
+screen blanker. Wait for oops. If we are lucky you will see something, get a
+pencil then :-)
+
+-- 
+Regards,
+Stephan

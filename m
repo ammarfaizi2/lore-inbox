@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262196AbTKYKFc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 05:05:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbTKYKFc
+	id S262251AbTKYKOy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 05:14:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbTKYKOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 05:05:32 -0500
-Received: from vega.digitel2002.hu ([213.163.0.181]:44447 "HELO lgb.hu")
-	by vger.kernel.org with SMTP id S262196AbTKYKF3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 05:05:29 -0500
-Date: Tue, 25 Nov 2003 11:05:26 +0100
-From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-To: AlberT@SuperAlberT.it
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: hyperthreading
-Message-ID: <20031125100526.GE339@vega.digitel2002.hu>
-Reply-To: lgb@lgb.hu
-References: <20031125094419.GB339@vega.digitel2002.hu> <200311251048.53046.AlberT_NOSPAM_@SuperAlberT.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200311251048.53046.AlberT_NOSPAM_@SuperAlberT.it>
-X-Operating-System: vega Linux 2.6.0-test9 i686
-User-Agent: Mutt/1.5.4i
+	Tue, 25 Nov 2003 05:14:54 -0500
+Received: from web60204.mail.yahoo.com ([216.109.118.99]:40533 "HELO
+	web60204.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262228AbTKYKOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 05:14:50 -0500
+Message-ID: <20031125101449.48271.qmail@web60204.mail.yahoo.com>
+Date: Tue, 25 Nov 2003 02:14:49 -0800 (PST)
+From: "Mr. Mailing List" <mailinglistaddie@yahoo.com>
+Subject: test10, usb keyboard remains strong as ever!
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 25, 2003 at 10:48:51AM +0100, Emiliano 'AlberT' Gabrielli wrote:
-[...]
-> > flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-> > cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
-> > bogomips        : 3334.14
-> 
-> 
-> P4 does not support HT ... only Xeon and new generation P4-HT does.
+Surprise surprise, it makes it into test10:(
+http://bugzilla.kernel.org/show_bug.cgi?id=1229
 
-OK, but if this CPU does not support HT, then why 'ht' is shown at
-flags in /proc/cpuinfo? It looks like quite illogical for me then ...
+not 5 minutes into X does my keyboard completely turn
+off(no lights, nothing), until I unplug/replug.
 
-- Gábor (larta'H)
+HELP
+:(
+
+__________________________________
+Do you Yahoo!?
+Free Pop-Up Blocker - Get it now
+http://companion.yahoo.com/

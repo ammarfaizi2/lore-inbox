@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318249AbSIIRy1>; Mon, 9 Sep 2002 13:54:27 -0400
+	id <S318327AbSIIRy5>; Mon, 9 Sep 2002 13:54:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318327AbSIIRy0>; Mon, 9 Sep 2002 13:54:26 -0400
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:12481 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S318249AbSIIRyZ>; Mon, 9 Sep 2002 13:54:25 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: [RFC] Multi-path IO in 2.5/2.6 ?
-To: James.Bottomley@steeleye.com, patmans@us.ibm.com
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF7A4E6D15.E02468DA-ONC1256C2F.00615DDD@de.ibm.com>
-From: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
-Date: Mon, 9 Sep 2002 19:58:18 +0200
-X-MIMETrack: Serialize by Router on D12ML028/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 09/09/2002 19:58:21
+	id <S318734AbSIIRy5>; Mon, 9 Sep 2002 13:54:57 -0400
+Received: from keetweej.xs4all.nl ([213.84.46.114]:41733 "EHLO
+	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
+	id <S318722AbSIIRyy>; Mon, 9 Sep 2002 13:54:54 -0400
+From: "Folkert van Heusden" <folkert@vanheusden.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel & entropy: introducing video-entropyd
+Date: Mon, 9 Sep 2002 20:02:16 +0200
+Message-ID: <000901c2582b$09100cc0$3640a8c0@boemboem>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
+Copy & paste from its webpage ( http://www.vanheusden.com/ved/ ):
 
->Answer me this question:
->- In the forseeable future does multi-path have uses other than SCSI?
+video-entropyd
+For security reasons (when doing network traffic or generating secure keys
+for example) one wants as much entropy-data in the kernel random-driver as
+possible. The random-driver takes partially care for this itself. But in
+situations in where there's a lot of demand for entropy-data, it might not
+be able to gather enough entropy-data by itself.
+That's where this program is for: adding entropy-data to the kernel-driver.
+It does that by fetching 2 images from a video4linux-device (with a random
+delay in between), calculating the difference between those two and then
+calculating the number of information-bits in that data. After that, the
+data with the number-of-entropy-bits is submitted to the
+kernel-random-driver.
+After that, the program exits. That is because I am assuming you also want
+to use your video4linux-device for other things. So run this program every
+minute (or so) from crontab.
+I tested this program with a Philips webcam.
+http://www.vanheusden.com/ved/
 
-The S/390 DASD driver could conceivably make use of generic block layer
-(or higher-up) multi-path support.
-
-(We have multi-path support on a lower level, the channel subsystem,
-but this helps only with reliability / failover.  Using multi-path
-support on a higher level for performance reasons would be helpful
-in certain scenarios.)
+You also might want to take a look at audio-entropyd:
+http://www.mindrot.org/audio-entropyd.html
 
 
-Mit freundlichen Gruessen / Best Regards
+Folkert.
 
-Ulrich Weigand
+------------------------------------------------------------
+Folkert van Heusden
+Mobile phone: +31-6-41278122
+Work e-mail address: f.v.heusden@ftr.nl
+ICQ number: 105675015
+PGP-key available on request
+------------------------------------------------------------
 
---
-  Dr. Ulrich Weigand
-  Linux for S/390 Design & Development
-  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
-  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
 

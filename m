@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288830AbSCRQjB>; Mon, 18 Mar 2002 11:39:01 -0500
+	id <S289243AbSCRQlb>; Mon, 18 Mar 2002 11:41:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288748AbSCRQiw>; Mon, 18 Mar 2002 11:38:52 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:20996 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S287204AbSCRQii>; Mon, 18 Mar 2002 11:38:38 -0500
-Message-ID: <3C9617BB.8030205@evision-ventures.com>
-Date: Mon, 18 Mar 2002 17:37:15 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Christian_Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: some ide-scsi commands starve drives on the same cable
-In-Reply-To: <E16mIEq-0006nO-00@the-village.bc.nu> <3C95E7E3.4020300@evision-ventures.com> <E16n022-000880-00@mrvdomng2.kundenserver.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S289272AbSCRQlW>; Mon, 18 Mar 2002 11:41:22 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:3295 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S288748AbSCRQlM>; Mon, 18 Mar 2002 11:41:12 -0500
+Date: Mon, 18 Mar 2002 09:41:01 -0700
+Message-Id: <200203181641.g2IGf1M20210@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: fadvise syscall?
+In-Reply-To: <3C959D55.14768770@zip.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Bornträger wrote:
-> Martin Dalecki wrote:
-> 
->>>There has been some movement forward in the standards on this. You might
->>>want to ask our new 2.5 IDE maintainer if/when it will be implemented - I
->>>suspect you have to wait a while though. There is much IDE to clean up
->>>first
->>
->>Just for the record: I'm aware of it.
-> 
-> 
-> Good to hear that.
-> 
-> But I guess this is future work and will never get into 2.4, right?
+Andrew Morton writes:
+> Note that it applies to a file descriptor.  If
+> posix_fadvise(FADV_DONTNEED) is called against a file descriptor,
+> and someone else has an fd open against the same file, that other
+> user gets their foot shot off.  That's OK.
 
-It is future work yes. I don't intend to care about 2.4. Since the 2.4 is
-leaking the BIO stuff it will be quite hard to backport the IDE stuff if
-someone (not me) attempts to.
+Let me verify that I understand what you're saying. Process A and B
+independently open the file. The file is already in the cache (because
+other processes regularly read this file). Process A is slowly reading
+stuff. Process B does FADV_DONTNEED on the whole file. The pages are
+dropped.
 
-> Bytheway, as you became the IDE maintainer for 2.5, who is the IDE maintainer 
-> for 2.4? Andre?
+You're saying this is OK? How about this DoS attack:
+	int fd = open ("/lib/libc.so", O_RDONLY, 0);
+	while (1) {
+		posix_fadvise (fd, 0, 0, FADVISE_DONTNEED);
+		sleep (1);
+	}
 
-Yes.
+Let me see that disc head move! Wheeee!
 
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

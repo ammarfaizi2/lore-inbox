@@ -1,37 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289296AbSAVUvr>; Tue, 22 Jan 2002 15:51:47 -0500
+	id <S289281AbSAVUvH>; Tue, 22 Jan 2002 15:51:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289293AbSAVUvj>; Tue, 22 Jan 2002 15:51:39 -0500
-Received: from ua18d4hel.dial.kolumbus.fi ([62.248.131.18]:58155 "EHLO
-	porkkala.jlaako.pp.fi") by vger.kernel.org with ESMTP
-	id <S288121AbSAVUvX>; Tue, 22 Jan 2002 15:51:23 -0500
-Message-ID: <3C4DD07B.9C7D4926@kolumbus.fi>
-Date: Tue, 22 Jan 2002 22:50:03 +0200
-From: Jussi Laako <jussi.laako@kolumbus.fi>
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S288121AbSAVUu5>; Tue, 22 Jan 2002 15:50:57 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:1292 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S289281AbSAVUum>;
+	Tue, 22 Jan 2002 15:50:42 -0500
+Date: Tue, 22 Jan 2002 18:50:21 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Andrew Morton <akpm@zip.com.au>, Andreas Dilger <adilger@turbolabs.com>,
+        Chris Mason <mason@suse.com>, Shawn Starr <spstarr@sh0n.net>,
+        <linux-kernel@vger.kernel.org>, <ext2-devel@lists.sourceforge.net>
+Subject: Re: Possible Idea with filesystem buffering.
+In-Reply-To: <3C4DC966.8060004@namesys.com>
+Message-ID: <Pine.LNX.4.33L.0201221830130.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <Pine.LNX.3.96.1020122114508.27258B-100000@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> 
-> OT: has someone gotten 2.4.17 rmap-11c and J4 playing together? I looked
-> at it for about five minutes but had no time last night.
+On Tue, 22 Jan 2002, Hans Reiser wrote:
 
-It's in my -jl13 http://www.pp.song.fi/~visitor/linux/
+> So the problem is that there is no coherently architected VM-to-FS
+> interface that has been articulated, and we need one.
 
+Absolutely agreed.  One of the main design elements for such an
+interface would be doing all filesystem things in the filesystem
+and all VM things in the VM so we don't get frankenstein monsters
+on either side of the fence.
 
- - Jussi Laako
+> So far we can identify that we need something to pressure the FS, and
+> something to ask for a particular page.
+>
+> It might be desirable to pressure the FS more than one page aging at a
+> time for reasons of performance as Rik pointed out.
 
+> Any other design considerations?
+
+One of the things we really want to do in the VM is pre-clean
+data and just reclaim clean pages later on.
+
+This means it would be easiest/best if the filesystem took
+care of _just_ writing out data and if freeing the data later
+on would be left to the VM.
+
+I understand this is not always possible due to stuff like
+metadata repacking, but I guess we can ignore this case for
+now since the metadata is hopefully small and won't unbalance
+the VM.
+
+regards,
+
+Rik
 -- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

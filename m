@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264312AbTDOGbe (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 02:31:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264345AbTDOGbe (for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 02:31:34 -0400
-Received: from [218.27.126.177] ([218.27.126.177]:6546 "EHLO mta2.mail.jl.cn")
-	by vger.kernel.org with ESMTP id S264312AbTDOGbd (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 02:31:33 -0400
-Date: Tue, 15 Apr 2003 14:48:38 +0800
-From: tlsoft <tlsoft@public.bc.jl.cn>
-Subject: Kernel 2.4.20 PCI: Device 00:0f.1 not available because of resource
- collisions
-To: linux-kernel@vger.kernel.org
-Message-id: <005601c3031b$6fc68f70$da03a8c0@xalan>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-Content-type: text/plain; charset=gb2312
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
+	id S264375AbTDOHFk (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 03:05:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264359AbTDOHFk (for <rfc822;linux-kernel-outgoing>);
+	Tue, 15 Apr 2003 03:05:40 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:55814 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S264375AbTDOHFj (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 03:05:39 -0400
+Date: Tue, 15 Apr 2003 09:03:57 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: alan@lxorguk.ukuu.org.uk, rddunlap@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: oops when using hdc=ide-scsi (2.5.66)
+Message-Id: <20030415090357.5d5586b4.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.3.96.1030415002500.22538A-100000@gatekeeper.tmr.com>
+References: <1049740232.2965.80.camel@dhcp22.swansea.linux.org.uk>
+	<Pine.LNX.3.96.1030415002500.22538A-100000@gatekeeper.tmr.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel output:
+On Tue, 15 Apr 2003 00:27:50 -0400 (EDT)
+Bill Davidsen <davidsen@tmr.com> wrote:
 
-SvrWks CSB5: IDE controller on PCI bus 00 dev 79
-PCI: Device 00:0f.1 not available because of resource collisions
-SvrWks CSB5: (ide_setup_pci_device:) Could not enable device.
-hda: IC35L040AVER07-0, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hda: 80418240 sectors (41174 MB) w/1916KiB Cache, CHS=5005/255/63
+> On 7 Apr 2003, Alan Cox wrote:
+> 
+> > On Llu, 2003-04-07 at 20:02, Randy.Dunlap wrote:
+> > > Hi,
+> > > 
+> > > I get this when I boot 2.5.66 and the Linux command line contains
+> > > "hdc=ide-scsi".  Yes, I know that I can remove that option (as in
+> > > "DDT"), but the kernel shouldn't do this, either.
+> > 
+> > ide_scsi is completely broken in 2.5.x. Known problem. If you need it
+> > either use 2.4 or fix it 8)
+> 
+> Is that an official position that it will not be supported? People with MO
+> drives and tape will be supported only on 2.4?
 
-when mount /dev/cdrom /mnt/cdrom   
-system died.
+Don't forget the merely not existing SCSI CD/DVD writers, just about all of
+them are ATAPI. I guess a non-working ide-scsi module won't work out for any of
+the distros...
 
-lspci:
-  00:00.0 Host bridge: ServerWorks CNB20HE Host Bridge (rev 23)
-00:00.1 Host bridge: ServerWorks CNB20HE Host Bridge (rev 01)
-00:00.2 Host bridge: ServerWorks: Unknown device 0006 (rev 01)
-00:00.3 Host bridge: ServerWorks: Unknown device 0006 (rev 01)
-00:01.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-00:02.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
-00:03.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
-00:0f.0 ISA bridge: ServerWorks CSB5 South Bridge (rev 92)
-00:0f.1 IDE interface: ServerWorks CSB5 IDE Controller (rev 92)
-00:0f.2 USB Controller: ServerWorks OSB4/CSB5 USB Controller (rev 05)
-00:0f.3 Host bridge: ServerWorks: Unknown device 0230
-02:0b.0 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
-02:0b.1 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
-
-what is wrong ?
-
+-- 
+Regards,
+Stephan

@@ -1,899 +1,735 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317263AbSHOPwA>; Thu, 15 Aug 2002 11:52:00 -0400
+	id <S317232AbSHOPrB>; Thu, 15 Aug 2002 11:47:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317264AbSHOPv7>; Thu, 15 Aug 2002 11:51:59 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:52883 "HELO atlrel6.hp.com")
-	by vger.kernel.org with SMTP id <S317263AbSHOPvv>;
-	Thu, 15 Aug 2002 11:51:51 -0400
-From: Prasanna Subash <subash@skyline.external.hp.com>
-To: linux-kernel@vger.kernel.org
-Subject: Compile error on 2.5.31 with CONFIG_SOFTWARE_SUSPEND
-Date: Thu, 15 Aug 2002 11:50:41 -0400
-X-Mailer: KMail [version 1.4]
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_HO6WZH3OS1D3Z03AGCDI"
-Message-Id: <200208151150.41389.subash@skyline.external.hp.com>
+	id <S317258AbSHOPrA>; Thu, 15 Aug 2002 11:47:00 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33806 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317232AbSHOPqx>;
+	Thu, 15 Aug 2002 11:46:53 -0400
+Date: Thu, 15 Aug 2002 16:50:48 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] more upward-growing-stack changes
+Message-ID: <20020815165048.C29958@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---------------Boundary-00=_HO6WZH3OS1D3Z03AGCDI
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-all,
-
-=09I get a compile error on 2.5.31 when I enable CONFIG_SOFTWARE_SUSPEND.
-
-This is the error I get.
-
-drivers/built-in.o: In function `acpi_system_suspend':
-drivers/built-in.o(.text+0x39a1e): undefined reference to `save_flags'
-drivers/built-in.o(.text+0x39a4b): undefined reference to `restore_flags'
-
-=09I noticed that the include/asm-i386 did not have the save_flags and=20
-restore_flags macros while every other arch directory seems to have the=20
-#define'd.
-
-=09I have attached my .config.
-
---=20
-------------------------------------------------------------------------=20
-Prasanna Subash            |
-Linux, the choice          | The descent to Hades is the same from every
-of a GNU generation   -o)  | place.   -- Anaxagoras=20
-Kernel 2.5.15          /\  |=20
-on a i686             _\_v |=20
-                           |=20
-------------------------------------------------------------------------=20
-
---------------Boundary-00=_HO6WZH3OS1D3Z03AGCDI
-Content-Type: text/plain;
-  charset="us-ascii";
-  name=".config"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename=".config"
-
-#
-# Automatically generated make config: don't edit
-#
-CONFIG_X86=y
-CONFIG_ISA=y
-# CONFIG_SBUS is not set
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
-
-#
-# General setup
-#
-CONFIG_NET=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-
-#
-# Processor type and features
-#
-# CONFIG_M386 is not set
-# CONFIG_M486 is not set
-# CONFIG_M586 is not set
-# CONFIG_M586TSC is not set
-# CONFIG_M586MMX is not set
-# CONFIG_M686 is not set
-CONFIG_MPENTIUMIII=y
-# CONFIG_MPENTIUM4 is not set
-# CONFIG_MK6 is not set
-# CONFIG_MK7 is not set
-# CONFIG_MELAN is not set
-# CONFIG_MCRUSOE is not set
-# CONFIG_MWINCHIPC6 is not set
-# CONFIG_MWINCHIP2 is not set
-# CONFIG_MWINCHIP3D is not set
-# CONFIG_MCYRIXIII is not set
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-# CONFIG_SMP is not set
-CONFIG_PREEMPT=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-# CONFIG_X86_MCE is not set
-# CONFIG_TOSHIBA is not set
-# CONFIG_I8K is not set
-# CONFIG_MICROCODE is not set
-# CONFIG_X86_MSR is not set
-# CONFIG_X86_CPUID is not set
-CONFIG_NOHIGHMEM=y
-# CONFIG_HIGHMEM4G is not set
-# CONFIG_HIGHMEM64G is not set
-# CONFIG_MATH_EMULATION is not set
-# CONFIG_MTRR is not set
-CONFIG_HAVE_DEC_LOCK=y
-
-#
-# Power management options (ACPI, APM)
-#
-
-#
-# ACPI Support
-#
-CONFIG_ACPI=y
-# CONFIG_ACPI_HT_ONLY is not set
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BATTERY=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-# CONFIG_ACPI_TOSHIBA is not set
-CONFIG_ACPI_DEBUG=y
-CONFIG_PM=y
-# CONFIG_APM is not set
-
-#
-# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
-#
-CONFIG_PCI=y
-# CONFIG_PCI_GOBIOS is not set
-# CONFIG_PCI_GODIRECT is not set
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-# CONFIG_EISA is not set
-# CONFIG_MCA is not set
-CONFIG_HOTPLUG=y
-
-#
-# PCMCIA/CardBus support
-#
-CONFIG_PCMCIA=y
-CONFIG_CARDBUS=y
-# CONFIG_I82092 is not set
-# CONFIG_I82365 is not set
-# CONFIG_TCIC is not set
-
-#
-# PCI Hotplug Support
-#
-# CONFIG_HOTPLUG_PCI is not set
-
-#
-# Executable file formats
-#
-CONFIG_KCORE_ELF=y
-# CONFIG_KCORE_AOUT is not set
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-
-#
-# Memory Technology Devices (MTD)
-#
-# CONFIG_MTD is not set
-
-#
-# Parallel port support
-#
-# CONFIG_PARPORT is not set
-
-#
-# Plug and Play configuration
-#
-# CONFIG_PNP is not set
-
-#
-# Block devices
-#
-CONFIG_BLK_DEV_FD=y
-# CONFIG_BLK_DEV_XD is not set
-# CONFIG_BLK_CPQ_DA is not set
-# CONFIG_BLK_CPQ_CISS_DA is not set
-# CONFIG_BLK_DEV_DAC960 is not set
-# CONFIG_BLK_DEV_UMEM is not set
-CONFIG_BLK_DEV_LOOP=y
-# CONFIG_BLK_DEV_NBD is not set
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_BLK_DEV_INITRD=y
-
-#
-# ATA/ATAPI/MFM/RLL device support
-#
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_BLK_DEV_HD is not set
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-# CONFIG_IDEDISK_STROKE is not set
-# CONFIG_ATAPI is not set
-# CONFIG_BLK_DEV_IDECS is not set
-
-#
-# ATA host controller support
-#
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_BLK_DEV_CMD640=y
-# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
-
-#
-#   PCI host controller support
-#
-# CONFIG_BLK_DEV_OFFBOARD is not set
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_BLK_DEV_IDE_TCQ is not set
-# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD74XX is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-CONFIG_BLK_DEV_PIIX=y
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_PDC202XX is not set
-# CONFIG_BLK_DEV_SVWKS is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-# CONFIG_BLK_DEV_VIA82CXXX is not set
-# CONFIG_BLK_DEV_SL82C105 is not set
-# CONFIG_IDE_CHIPSETS is not set
-# CONFIG_IDEDMA_IVB is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_BLK_DEV_ATARAID is not set
-
-#
-# SCSI device support
-#
-# CONFIG_SCSI is not set
-
-#
-# Old non-SCSI/ATAPI CD-ROM drives
-#
-# CONFIG_CD_NO_IDESCSI is not set
-
-#
-# Multi-device support (RAID and LVM)
-#
-# CONFIG_MD is not set
-
-#
-# Networking options
-#
-CONFIG_PACKET=y
-# CONFIG_PACKET_MMAP is not set
-# CONFIG_NETLINK_DEV is not set
-# CONFIG_NETFILTER is not set
-CONFIG_FILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-# CONFIG_IP_ADVANCED_ROUTER is not set
-# CONFIG_IP_PNP is not set
-# CONFIG_NET_IPIP is not set
-# CONFIG_NET_IPGRE is not set
-# CONFIG_IP_MROUTE is not set
-# CONFIG_ARPD is not set
-CONFIG_INET_ECN=y
-CONFIG_SYN_COOKIES=y
-# CONFIG_IPV6 is not set
-# CONFIG_ATM is not set
-# CONFIG_VLAN_8021Q is not set
-
-#
-#  
-#
-# CONFIG_IPX is not set
-# CONFIG_ATALK is not set
-
-#
-# Appletalk devices
-#
-# CONFIG_DECNET is not set
-# CONFIG_BRIDGE is not set
-# CONFIG_X25 is not set
-# CONFIG_LAPB is not set
-# CONFIG_LLC is not set
-# CONFIG_NET_DIVERT is not set
-# CONFIG_ECONET is not set
-# CONFIG_WAN_ROUTER is not set
-# CONFIG_NET_FASTROUTE is not set
-# CONFIG_NET_HW_FLOWCONTROL is not set
-
-#
-# QoS and/or fair queueing
-#
-# CONFIG_NET_SCHED is not set
-
-#
-# Telephony Support
-#
-# CONFIG_PHONE is not set
-
-#
-# Fusion MPT device support
-#
-# CONFIG_FUSION_BOOT is not set
-# CONFIG_FUSION_ISENSE is not set
-# CONFIG_FUSION_CTL is not set
-# CONFIG_FUSION_LAN is not set
-
-#
-# IEEE 1394 (FireWire) support (EXPERIMENTAL)
-#
-# CONFIG_IEEE1394 is not set
-
-#
-# I2O device support
-#
-# CONFIG_I2O is not set
-
-#
-# Network device support
-#
-CONFIG_NETDEVICES=y
-
-#
-# ARCnet devices
-#
-# CONFIG_ARCNET is not set
-CONFIG_DUMMY=m
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-# CONFIG_TUN is not set
-# CONFIG_ETHERTAP is not set
-
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-# CONFIG_HAPPYMEAL is not set
-# CONFIG_SUNGEM is not set
-CONFIG_NET_VENDOR_3COM=y
-# CONFIG_EL1 is not set
-# CONFIG_EL2 is not set
-# CONFIG_ELPLUS is not set
-# CONFIG_EL16 is not set
-# CONFIG_EL3 is not set
-# CONFIG_3C515 is not set
-CONFIG_VORTEX=y
-# CONFIG_LANCE is not set
-CONFIG_NET_VENDOR_SMC=y
-CONFIG_WD80x3=y
-CONFIG_ULTRA=y
-CONFIG_SMC9194=y
-# CONFIG_NET_VENDOR_RACAL is not set
-# CONFIG_AT1700 is not set
-# CONFIG_DEPCA is not set
-# CONFIG_HP100 is not set
-# CONFIG_NET_ISA is not set
-CONFIG_NET_PCI=y
-# CONFIG_PCNET32 is not set
-# CONFIG_ADAPTEC_STARFIRE is not set
-# CONFIG_AC3200 is not set
-# CONFIG_APRICOT is not set
-# CONFIG_CS89x0 is not set
-# CONFIG_DGRS is not set
-# CONFIG_EEPRO100 is not set
-# CONFIG_E100 is not set
-# CONFIG_FEALNX is not set
-# CONFIG_NATSEMI is not set
-# CONFIG_NE2K_PCI is not set
-CONFIG_8139CP=y
-CONFIG_8139TOO=y
-# CONFIG_8139TOO_PIO is not set
-# CONFIG_8139TOO_TUNE_TWISTER is not set
-# CONFIG_8139TOO_8129 is not set
-# CONFIG_8139_NEW_RX_RESET is not set
-# CONFIG_SIS900 is not set
-CONFIG_EPIC100=y
-# CONFIG_SUNDANCE is not set
-# CONFIG_TLAN is not set
-# CONFIG_VIA_RHINE is not set
-# CONFIG_NET_POCKET is not set
-
-#
-# Ethernet (1000 Mbit)
-#
-# CONFIG_ACENIC is not set
-# CONFIG_DL2K is not set
-# CONFIG_E1000 is not set
-# CONFIG_NS83820 is not set
-# CONFIG_HAMACHI is not set
-# CONFIG_YELLOWFIN is not set
-# CONFIG_SK98LIN is not set
-# CONFIG_TIGON3 is not set
-# CONFIG_FDDI is not set
-# CONFIG_HIPPI is not set
-# CONFIG_PPP is not set
-# CONFIG_SLIP is not set
-
-#
-# Wireless LAN (non-hamradio)
-#
-# CONFIG_NET_RADIO is not set
-
-#
-# Token Ring devices
-#
-# CONFIG_TR is not set
-# CONFIG_NET_FC is not set
-# CONFIG_RCPCI is not set
-# CONFIG_SHAPER is not set
-
-#
-# Wan interfaces
-#
-# CONFIG_WAN is not set
-
-#
-# Tulip family network device support
-#
-# CONFIG_NET_TULIP is not set
-
-#
-# PCMCIA network device support
-#
-CONFIG_NET_PCMCIA=y
-CONFIG_PCMCIA_3C589=m
-CONFIG_PCMCIA_3C574=m
-CONFIG_PCMCIA_FMVJ18X=m
-CONFIG_PCMCIA_PCNET=m
-CONFIG_PCMCIA_NMCLAN=m
-CONFIG_PCMCIA_SMC91C92=m
-CONFIG_PCMCIA_XIRC2PS=m
-CONFIG_PCMCIA_AXNET=m
-# CONFIG_NET_PCMCIA_RADIO is not set
-
-#
-# Amateur Radio support
-#
-# CONFIG_HAMRADIO is not set
-
-#
-# IrDA (infrared) support
-#
-# CONFIG_IRDA is not set
-
-#
-# ISDN subsystem
-#
-# CONFIG_ISDN_BOOL is not set
-
-#
-# Input device support
-#
-# CONFIG_INPUT is not set
-
-#
-# Userland interfaces
-#
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_TSDEV_SCREEN_X=240
-CONFIG_INPUT_TSDEV_SCREEN_Y=320
-
-#
-# Input I/O drivers
-#
-# CONFIG_GAMEPORT is not set
-CONFIG_SOUND_GAMEPORT=y
-# CONFIG_SERIO is not set
-CONFIG_I8042_REG_BASE=60
-CONFIG_I8042_KBD_IRQ=1
-CONFIG_I8042_AUX_IRQ=12
-
-#
-# Input Device Drivers
-#
-
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-# CONFIG_SERIAL_NONSTANDARD is not set
-
-#
-# Serial drivers
-#
-# CONFIG_SERIAL_8250 is not set
-
-#
-# Non-8250 serial port support
-#
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-
-#
-# I2C support
-#
-# CONFIG_I2C is not set
-
-#
-# Mice
-#
-# CONFIG_BUSMOUSE is not set
-CONFIG_PSMOUSE=y
-# CONFIG_QIC02_TAPE is not set
-
-#
-# Watchdog Cards
-#
-# CONFIG_WATCHDOG is not set
-# CONFIG_INTEL_RNG is not set
-# CONFIG_NVRAM is not set
-# CONFIG_RTC is not set
-# CONFIG_DTLK is not set
-# CONFIG_R3964 is not set
-# CONFIG_APPLICOM is not set
-# CONFIG_SONYPI is not set
-
-#
-# Ftape, the floppy tape device driver
-#
-# CONFIG_FTAPE is not set
-CONFIG_AGP=y
-CONFIG_AGP_INTEL=y
-CONFIG_AGP_I810=y
-CONFIG_AGP_VIA=y
-# CONFIG_AGP_AMD is not set
-CONFIG_AGP_SIS=y
-CONFIG_AGP_ALI=y
-# CONFIG_AGP_SWORKS is not set
-CONFIG_DRM=y
-# CONFIG_DRM_TDFX is not set
-# CONFIG_DRM_GAMMA is not set
-# CONFIG_DRM_R128 is not set
-# CONFIG_DRM_RADEON is not set
-CONFIG_DRM_I810=y
-# CONFIG_DRM_I830 is not set
-# CONFIG_DRM_MGA is not set
-
-#
-# PCMCIA character devices
-#
-# CONFIG_SYNCLINK_CS is not set
-# CONFIG_MWAVE is not set
-# CONFIG_RAW_DRIVER is not set
-
-#
-# Multimedia devices
-#
-# CONFIG_VIDEO_DEV is not set
-
-#
-# File systems
-#
-# CONFIG_QUOTA is not set
-CONFIG_AUTOFS_FS=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_REISERFS_FS=y
-CONFIG_REISERFS_CHECK=y
-CONFIG_REISERFS_PROC_INFO=y
-# CONFIG_ADFS_FS is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-# CONFIG_BFS_FS is not set
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_JBD_DEBUG=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-# CONFIG_UMSDOS_FS is not set
-CONFIG_VFAT_FS=y
-# CONFIG_EFS_FS is not set
-# CONFIG_CRAMFS is not set
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-# CONFIG_JOLIET is not set
-# CONFIG_ZISOFS is not set
-# CONFIG_JFS_FS is not set
-# CONFIG_MINIX_FS is not set
-# CONFIG_VXFS_FS is not set
-# CONFIG_NTFS_FS is not set
-# CONFIG_HPFS_FS is not set
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-# CONFIG_DEVFS_MOUNT is not set
-# CONFIG_DEVFS_DEBUG is not set
-CONFIG_DEVPTS_FS=y
-# CONFIG_QNX4FS_FS is not set
-# CONFIG_ROMFS_FS is not set
-CONFIG_EXT2_FS=y
-# CONFIG_SYSV_FS is not set
-# CONFIG_UDF_FS is not set
-# CONFIG_UFS_FS is not set
-
-#
-# Network File Systems
-#
-# CONFIG_CODA_FS is not set
-# CONFIG_INTERMEZZO_FS is not set
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_NFSD=y
-# CONFIG_NFSD_V3 is not set
-# CONFIG_NFSD_TCP is not set
-CONFIG_SUNRPC=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=y
-CONFIG_SMB_FS=y
-# CONFIG_SMB_NLS_DEFAULT is not set
-# CONFIG_NCP_FS is not set
-# CONFIG_ZISOFS_FS is not set
-
-#
-# Partition Types
-#
-# CONFIG_PARTITION_ADVANCED is not set
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-
-#
-# Native Language Support
-#
-CONFIG_NLS_DEFAULT="iso8859-1"
-# CONFIG_NLS_CODEPAGE_437 is not set
-# CONFIG_NLS_CODEPAGE_737 is not set
-# CONFIG_NLS_CODEPAGE_775 is not set
-# CONFIG_NLS_CODEPAGE_850 is not set
-# CONFIG_NLS_CODEPAGE_852 is not set
-# CONFIG_NLS_CODEPAGE_855 is not set
-# CONFIG_NLS_CODEPAGE_857 is not set
-# CONFIG_NLS_CODEPAGE_860 is not set
-# CONFIG_NLS_CODEPAGE_861 is not set
-# CONFIG_NLS_CODEPAGE_862 is not set
-# CONFIG_NLS_CODEPAGE_863 is not set
-# CONFIG_NLS_CODEPAGE_864 is not set
-# CONFIG_NLS_CODEPAGE_865 is not set
-# CONFIG_NLS_CODEPAGE_866 is not set
-# CONFIG_NLS_CODEPAGE_869 is not set
-# CONFIG_NLS_CODEPAGE_936 is not set
-# CONFIG_NLS_CODEPAGE_950 is not set
-# CONFIG_NLS_CODEPAGE_932 is not set
-# CONFIG_NLS_CODEPAGE_949 is not set
-# CONFIG_NLS_CODEPAGE_874 is not set
-# CONFIG_NLS_ISO8859_8 is not set
-# CONFIG_NLS_CODEPAGE_1250 is not set
-# CONFIG_NLS_CODEPAGE_1251 is not set
-# CONFIG_NLS_ISO8859_1 is not set
-# CONFIG_NLS_ISO8859_2 is not set
-# CONFIG_NLS_ISO8859_3 is not set
-# CONFIG_NLS_ISO8859_4 is not set
-# CONFIG_NLS_ISO8859_5 is not set
-# CONFIG_NLS_ISO8859_6 is not set
-# CONFIG_NLS_ISO8859_7 is not set
-# CONFIG_NLS_ISO8859_9 is not set
-# CONFIG_NLS_ISO8859_13 is not set
-# CONFIG_NLS_ISO8859_14 is not set
-# CONFIG_NLS_ISO8859_15 is not set
-# CONFIG_NLS_KOI8_R is not set
-# CONFIG_NLS_KOI8_U is not set
-# CONFIG_NLS_UTF8 is not set
-
-#
-# Console drivers
-#
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-# CONFIG_MDA_CONSOLE is not set
-
-#
-# Frame-buffer support
-#
-# CONFIG_FB is not set
-
-#
-# Sound
-#
-CONFIG_SOUND=y
-
-#
-# Open Sound System
-#
-CONFIG_SOUND_PRIME=y
-# CONFIG_SOUND_BT878 is not set
-# CONFIG_SOUND_CMPCI is not set
-# CONFIG_SOUND_EMU10K1 is not set
-# CONFIG_SOUND_FUSION is not set
-# CONFIG_SOUND_CS4281 is not set
-# CONFIG_SOUND_ES1370 is not set
-# CONFIG_SOUND_ES1371 is not set
-# CONFIG_SOUND_ESSSOLO1 is not set
-# CONFIG_SOUND_MAESTRO is not set
-# CONFIG_SOUND_MAESTRO3 is not set
-CONFIG_SOUND_ICH=y
-# CONFIG_SOUND_RME96XX is not set
-# CONFIG_SOUND_SONICVIBES is not set
-# CONFIG_SOUND_TRIDENT is not set
-# CONFIG_SOUND_MSNDCLAS is not set
-# CONFIG_SOUND_MSNDPIN is not set
-# CONFIG_SOUND_VIA82CXXX is not set
-# CONFIG_SOUND_OSS is not set
-
-#
-# Advanced Linux Sound Architecture
-#
-# CONFIG_SND is not set
-
-#
-# USB support
-#
-CONFIG_USB=m
-# CONFIG_USB_DEBUG is not set
-
-#
-# Miscellaneous USB options
-#
-# CONFIG_USB_DEVICEFS is not set
-# CONFIG_USB_LONG_TIMEOUT is not set
-# CONFIG_USB_BANDWIDTH is not set
-# CONFIG_USB_DYNAMIC_MINORS is not set
-
-#
-# USB Host Controller Drivers
-#
-# CONFIG_USB_EHCI_HCD is not set
-# CONFIG_USB_OHCI_HCD is not set
-# CONFIG_USB_UHCI_HCD_ALT is not set
-
-#
-# USB Device Class drivers
-#
-# CONFIG_USB_AUDIO is not set
-# CONFIG_USB_BLUETOOTH_TTY is not set
-# CONFIG_USB_MIDI is not set
-CONFIG_USB_ACM=m
-CONFIG_USB_PRINTER=m
-
-#
-#   SCSI support is needed for USB Storage
-#
-
-#
-# USB Human Interface Devices (HID)
-#
-CONFIG_USB_HID=m
-
-#
-#     Input core support is needed for USB HID input layer or HIDBP support
-#
-# CONFIG_USB_HIDDEV is not set
-
-#
-# USB Imaging devices
-#
-# CONFIG_USB_MDC800 is not set
-# CONFIG_USB_SCANNER is not set
-
-#
-# USB Multimedia devices
-#
-# CONFIG_USB_DABUSB is not set
-
-#
-#   Video4Linux support is needed for USB Multimedia device support
-#
-
-#
-# USB Network adaptors
-#
-# CONFIG_USB_CATC is not set
-# CONFIG_USB_CDCETHER is not set
-# CONFIG_USB_KAWETH is not set
-# CONFIG_USB_PEGASUS is not set
-# CONFIG_USB_RTL8150 is not set
-# CONFIG_USB_USBNET is not set
-
-#
-# USB port drivers
-#
-
-#
-# USB Serial Converter support
-#
-CONFIG_USB_SERIAL=m
-# CONFIG_USB_SERIAL_GENERIC is not set
-# CONFIG_USB_SERIAL_BELKIN is not set
-# CONFIG_USB_SERIAL_WHITEHEAT is not set
-# CONFIG_USB_SERIAL_DIGI_ACCELEPORT is not set
-# CONFIG_USB_SERIAL_EMPEG is not set
-# CONFIG_USB_SERIAL_FTDI_SIO is not set
-CONFIG_USB_SERIAL_VISOR=m
-CONFIG_USB_SERIAL_IPAQ=m
-# CONFIG_USB_SERIAL_IR is not set
-# CONFIG_USB_SERIAL_EDGEPORT is not set
-# CONFIG_USB_SERIAL_EDGEPORT_TI is not set
-# CONFIG_USB_SERIAL_KEYSPAN_PDA is not set
-# CONFIG_USB_SERIAL_KEYSPAN is not set
-# CONFIG_USB_SERIAL_KLSI is not set
-# CONFIG_USB_SERIAL_MCT_U232 is not set
-# CONFIG_USB_SERIAL_PL2303 is not set
-# CONFIG_USB_SERIAL_SAFE is not set
-# CONFIG_USB_SERIAL_CYBERJACK is not set
-# CONFIG_USB_SERIAL_XIRCOM is not set
-# CONFIG_USB_SERIAL_OMNINET is not set
-
-#
-# USB Miscellaneous drivers
-#
-# CONFIG_USB_TIGL is not set
-# CONFIG_USB_AUERSWALD is not set
-# CONFIG_USB_RIO500 is not set
-# CONFIG_USB_BRLVGER is not set
-
-#
-# Bluetooth support
-#
-# CONFIG_BLUEZ is not set
-
-#
-# Kernel hacking
-#
-CONFIG_SOFTWARE_SUSPEND=y
-CONFIG_DEBUG_KERNEL=y
-# CONFIG_DEBUG_SLAB is not set
-# CONFIG_DEBUG_IOVIRT is not set
-CONFIG_MAGIC_SYSRQ=y
-# CONFIG_DEBUG_SPINLOCK is not set
-
-#
-# Security options
-#
-CONFIG_SECURITY_CAPABILITIES=y
-
-#
-# Library routines
-#
-# CONFIG_CRC32 is not set
-# CONFIG_ZLIB_INFLATE is not set
-# CONFIG_ZLIB_DEFLATE is not set
-
---------------Boundary-00=_HO6WZH3OS1D3Z03AGCDI--
-
+ - remove elf_caddr_t.  It's positively dangerous to #define this since
+   elf_caddr_t foo, bar; creates variables of different types (foo is
+   char *, bar is char).
+ - rewrite large chunks of create_elf_tables(), it needed cleaning anyway.
+ - add upwards-growing stack support to create_elf_tables.
+ - redefine the ARCH_DLINFO stuff on powerpc -- it's tested, works.
+ - add upwards-growing-stack support to exec.c too.
+
+diff -urpNX dontdiff linux-2.5.31/arch/mips/kernel/irixelf.c linux-2.5.31-willy/arch/mips/kernel/irixelf.c
+--- linux-2.5.31/arch/mips/kernel/irixelf.c	2002-08-01 14:16:27.000000000 -0700
++++ linux-2.5.31-willy/arch/mips/kernel/irixelf.c	2002-08-03 18:35:55.000000000 -0700
+@@ -54,7 +54,6 @@ static struct linux_binfmt irix_format =
+ 
+ #ifndef elf_addr_t
+ #define elf_addr_t unsigned long
+-#define elf_caddr_t char *
+ #endif
+ 
+ #ifdef DEBUG_ELF
+@@ -155,8 +154,8 @@ unsigned long * create_irix_tables(char 
+ 				   unsigned int interp_load_addr,
+ 				   struct pt_regs *regs, struct elf_phdr *ephdr)
+ {
+-	elf_caddr_t *argv;
+-	elf_caddr_t *envp;
++	elf_addr_t *argv;
++	elf_addr_t *envp;
+ 	elf_addr_t *sp, *csp;
+ 	
+ #ifdef DEBUG_ELF
+@@ -202,20 +201,20 @@ unsigned long * create_irix_tables(char 
+ #undef NEW_AUX_ENT
+ 
+ 	sp -= envc+1;
+-	envp = (elf_caddr_t *) sp;
++	envp = sp;
+ 	sp -= argc+1;
+-	argv = (elf_caddr_t *) sp;
++	argv = sp;
+ 
+ 	__put_user((elf_addr_t)argc,--sp);
+ 	current->mm->arg_start = (unsigned long) p;
+ 	while (argc-->0) {
+-		__put_user((elf_caddr_t)(unsigned long)p,argv++);
++		__put_user((unsigned long)p,argv++);
+ 		p += strlen_user(p);
+ 	}
+ 	__put_user(NULL, argv);
+ 	current->mm->arg_end = current->mm->env_start = (unsigned long) p;
+ 	while (envc-->0) {
+-		__put_user((elf_caddr_t)(unsigned long)p,envp++);
++		__put_user((unsigned long)p,envp++);
+ 		p += strlen_user(p);
+ 	}
+ 	__put_user(NULL, envp);
+diff -urpNX dontdiff linux-2.5.31/arch/mips64/kernel/binfmt_elf32.c linux-2.5.31-willy/arch/mips64/kernel/binfmt_elf32.c
+--- linux-2.5.31/arch/mips64/kernel/binfmt_elf32.c	2002-08-01 14:16:17.000000000 -0700
++++ linux-2.5.31-willy/arch/mips64/kernel/binfmt_elf32.c	2002-08-03 18:35:55.000000000 -0700
+@@ -80,7 +80,6 @@ struct elf_prpsinfo32
+ };
+ 
+ #define elf_addr_t	u32
+-#define elf_caddr_t	u32
+ #define init_elf_binfmt init_elf32_binfmt
+ #undef CONFIG_BINFMT_ELF
+ #ifdef CONFIG_BINFMT_ELF32
+diff -urpNX dontdiff linux-2.5.31/arch/s390x/kernel/binfmt_elf32.c linux-2.5.31-willy/arch/s390x/kernel/binfmt_elf32.c
+--- linux-2.5.31/arch/s390x/kernel/binfmt_elf32.c	2002-08-01 14:16:25.000000000 -0700
++++ linux-2.5.31-willy/arch/s390x/kernel/binfmt_elf32.c	2002-08-03 18:35:55.000000000 -0700
+@@ -166,7 +166,6 @@ struct elf_prpsinfo32
+ #define NEW_TO_OLD_GID(gid) ((gid) > 65535) ? (u16)overflowgid : (u16)(gid) 
+ 
+ #define elf_addr_t	u32
+-#define elf_caddr_t	u32
+ /*
+ #define init_elf_binfmt init_elf32_binfmt
+ */
+diff -urpNX dontdiff linux-2.5.31/arch/sparc64/kernel/binfmt_elf32.c linux-2.5.31-willy/arch/sparc64/kernel/binfmt_elf32.c
+--- linux-2.5.31/arch/sparc64/kernel/binfmt_elf32.c	2002-08-01 14:16:34.000000000 -0700
++++ linux-2.5.31-willy/arch/sparc64/kernel/binfmt_elf32.c	2002-08-03 18:35:55.000000000 -0700
+@@ -147,7 +147,6 @@ jiffies_to_timeval32(unsigned long jiffi
+ }
+ 
+ #define elf_addr_t	u32
+-#define elf_caddr_t	u32
+ #undef start_thread
+ #define start_thread start_thread32
+ #define init_elf_binfmt init_elf32_binfmt
+diff -urpNX dontdiff linux-2.5.31/arch/x86_64/ia32/ia32_binfmt.c linux-2.5.31-willy/arch/x86_64/ia32/ia32_binfmt.c
+--- linux-2.5.31/arch/x86_64/ia32/ia32_binfmt.c	2002-08-01 14:16:04.000000000 -0700
++++ linux-2.5.31-willy/arch/x86_64/ia32/ia32_binfmt.c	2002-08-03 18:35:55.000000000 -0700
+@@ -186,7 +186,6 @@ MODULE_AUTHOR("Eric Youngdale, Andi Klee
+ #undef MODULE_AUTHOR
+ 
+ #define elf_addr_t __u32
+-#define elf_caddr_t __u32
+ 
+ static void elf32_init(struct pt_regs *);
+ 
+diff -urpNX dontdiff linux-2.5.31/fs/binfmt_elf.c linux-2.5.31-willy/fs/binfmt_elf.c
+--- linux-2.5.31/fs/binfmt_elf.c	2002-08-01 14:16:23.000000000 -0700
++++ linux-2.5.31-willy/fs/binfmt_elf.c	2002-08-03 18:35:55.000000000 -0700
+@@ -39,19 +39,15 @@
+ #include <asm/param.h>
+ #include <asm/pgalloc.h>
+ 
+-#define DLINFO_ITEMS 13
+-
+ #include <linux/elf.h>
+ 
+ static int load_elf_binary(struct linux_binprm * bprm, struct pt_regs * regs);
+ static int load_elf_library(struct file*);
+ static unsigned long elf_map (struct file *, unsigned long, struct elf_phdr *, int, int);
+ extern int dump_fpu (struct pt_regs *, elf_fpregset_t *);
+-extern void dump_thread(struct pt_regs *, struct user *);
+ 
+ #ifndef elf_addr_t
+ #define elf_addr_t unsigned long
+-#define elf_caddr_t char *
+ #endif
+ 
+ /*
+@@ -88,9 +84,9 @@ static void set_brk(unsigned long start,
+ {
+ 	start = ELF_PAGEALIGN(start);
+ 	end = ELF_PAGEALIGN(end);
+-	if (end <= start)
+-		return;
+-	do_brk(start, end - start);
++	if (end > start)
++		do_brk(start, end - start);
++	current->mm->start_brk = current->mm->brk = end;
+ }
+ 
+ 
+@@ -111,134 +107,149 @@ static void padzero(unsigned long elf_bs
+ 	}
+ }
+ 
+-static elf_addr_t * 
+-create_elf_tables(char *p, int argc, int envc,
+-		  struct elfhdr * exec,
+-		  unsigned long load_addr,
+-		  unsigned long load_bias,
+-		  unsigned long interp_load_addr, int ibcs)
++/* Let's use some macros to make this stack manipulation a litle clearer */
++#ifdef ARCH_STACK_GROWSUP
++#define STACK_ADD(sp, items) ((elf_addr_t *)(sp) + (items))
++#define STACK_ROUND(sp, items) \
++	((15 + (unsigned long) ((sp) + (items))) &~ 15UL)
++#define STACK_ALLOC(sp, len) ({ elf_addr_t old_sp = sp; sp += len; old_sp; })
++#else
++#define STACK_ADD(sp, items) ((elf_addr_t *)(sp) - (items))
++#define STACK_ROUND(sp, items) \
++	(((unsigned long) (sp - items)) &~ 15UL)
++#define STACK_ALLOC(sp, len) sp -= len
++#endif
++
++static void
++create_elf_tables(struct linux_binprm *bprm, struct elfhdr * exec,
++		int interp_aout, unsigned long load_addr,
++		unsigned long interp_load_addr)
+ {
+-	elf_caddr_t *argv;
+-	elf_caddr_t *envp;
+-	elf_addr_t *sp, *csp;
+-	char *k_platform, *u_platform;
+-	long hwcap;
+-	size_t platform_len = 0;
+-	size_t len;
++	unsigned long p = bprm->p;
++	int argc = bprm->argc;
++	int envc = bprm->envc;
++	elf_addr_t *argv, *envp;
++	elf_addr_t *sp, u_platform;
++	const char *k_platform = ELF_PLATFORM;
++	int items;
++	elf_addr_t elf_info[30];
++	int ei_index = 0;
+ 
+ 	/*
+-	 * Get hold of platform and hardware capabilities masks for
+-	 * the machine we are running on.  In some cases (Sparc), 
+-	 * this info is impossible to get, in others (i386) it is
++	 * If this architecture has a platform capability string, copy it
++	 * to userspace.  In some cases (Sparc), this info is impossible
++	 * for userspace to get any other way, in others (i386) it is
+ 	 * merely difficult.
+ 	 */
+ 
+-	hwcap = ELF_HWCAP;
+-	k_platform = ELF_PLATFORM;
+-
+ 	if (k_platform) {
+-		platform_len = strlen(k_platform) + 1;
+-		u_platform = p - platform_len;
+-		__copy_to_user(u_platform, k_platform, platform_len);
+-	} else
+-		u_platform = p;
++		size_t len = strlen(k_platform) + 1;
+ 
+ #if defined(__i386__) && defined(CONFIG_SMP)
+-	/*
+-	 * In some cases (e.g. Hyper-Threading), we want to avoid L1 evictions
+-	 * by the processes running on the same package. One thing we can do
+-	 * is to shuffle the initial stack for them.
+-	 *
+-	 * The conditionals here are unneeded, but kept in to make the
+-	 * code behaviour the same as pre change unless we have hyperthreaded
+-	 * processors. This should be cleaned up before 2.6
+-	 */
++		/*
++		 * In some cases (e.g. Hyper-Threading), we want to avoid L1
++		 * evictions by the processes running on the same package. One
++		 * thing we can do is to shuffle the initial stack for them.
++		 *
++		 * The conditionals here are unneeded, but kept in to make the
++		 * code behaviour the same as pre change unless we have
++		 * hyperthreaded processors. This should be cleaned up
++		 * before 2.6
++		 */
+ 	 
+-	if(smp_num_siblings > 1)
+-		u_platform = u_platform - ((current->pid % 64) << 7);
+-#endif	
+-
+-	/*
+-	 * Force 16 byte _final_ alignment here for generality.
+-	 */
+-	sp = (elf_addr_t *)(~15UL & (unsigned long)(u_platform));
+-	csp = sp;
+-	csp -= (1+DLINFO_ITEMS)*2 + (k_platform ? 2 : 0);
+-#ifdef DLINFO_ARCH_ITEMS
+-	csp -= DLINFO_ARCH_ITEMS*2;
++		if (smp_num_siblings > 1)
++			STACK_ALLOC(p, ((current->pid % 64) << 7));
+ #endif
+-	csp -= envc+1;
+-	csp -= argc+1;
+-	csp -= (!ibcs ? 3 : 1);	/* argc itself */
+-	if ((unsigned long)csp & 15UL)
+-		sp -= ((unsigned long)csp & 15UL) / sizeof(*sp);
++		u_platform = STACK_ALLOC(p, len);
++		__copy_to_user((void *)u_platform, k_platform, len);
++	}
+ 
+-	/*
+-	 * Put the ELF interpreter info on the stack
+-	 */
+-#define NEW_AUX_ENT(nr, id, val) \
+-	  __put_user ((id), sp+(nr*2)); \
+-	  __put_user ((val), sp+(nr*2+1)); \
++	/* Create the ELF interpreter info */
++#define NEW_AUX_ENT(id, val) \
++	do { elf_info[ei_index++] = id; elf_info[ei_index++] = val; } while (0)
+ 
+-	sp -= 2;
+-	NEW_AUX_ENT(0, AT_NULL, 0);
+-	if (k_platform) {
+-		sp -= 2;
+-		NEW_AUX_ENT(0, AT_PLATFORM, (elf_addr_t)(unsigned long) u_platform);
+-	}
+-	sp -= DLINFO_ITEMS*2;
+-	NEW_AUX_ENT( 0, AT_HWCAP, hwcap);
+-	NEW_AUX_ENT( 1, AT_PAGESZ, ELF_EXEC_PAGESIZE);
+-	NEW_AUX_ENT( 2, AT_CLKTCK, CLOCKS_PER_SEC);
+-	NEW_AUX_ENT( 3, AT_PHDR, load_addr + exec->e_phoff);
+-	NEW_AUX_ENT( 4, AT_PHENT, sizeof (struct elf_phdr));
+-	NEW_AUX_ENT( 5, AT_PHNUM, exec->e_phnum);
+-	NEW_AUX_ENT( 6, AT_BASE, interp_load_addr);
+-	NEW_AUX_ENT( 7, AT_FLAGS, 0);
+-	NEW_AUX_ENT( 8, AT_ENTRY, load_bias + exec->e_entry);
+-	NEW_AUX_ENT( 9, AT_UID, (elf_addr_t) current->uid);
+-	NEW_AUX_ENT(10, AT_EUID, (elf_addr_t) current->euid);
+-	NEW_AUX_ENT(11, AT_GID, (elf_addr_t) current->gid);
+-	NEW_AUX_ENT(12, AT_EGID, (elf_addr_t) current->egid);
+ #ifdef ARCH_DLINFO
+ 	/* 
+-	 * ARCH_DLINFO must come last so platform specific code can enforce
+-	 * special alignment requirements on the AUXV if necessary (eg. PPC).
++	 * ARCH_DLINFO must come first so PPC can do its special alignment of
++	 * AUXV.
+ 	 */
+ 	ARCH_DLINFO;
+ #endif
++	NEW_AUX_ENT(AT_HWCAP, ELF_HWCAP);
++	NEW_AUX_ENT(AT_PAGESZ, ELF_EXEC_PAGESIZE);
++	NEW_AUX_ENT(AT_CLKTCK, CLOCKS_PER_SEC);
++	NEW_AUX_ENT(AT_PHDR, load_addr + exec->e_phoff);
++	NEW_AUX_ENT(AT_PHENT, sizeof (struct elf_phdr));
++	NEW_AUX_ENT(AT_PHNUM, exec->e_phnum);
++	NEW_AUX_ENT(AT_BASE, interp_load_addr);
++	NEW_AUX_ENT(AT_FLAGS, 0);
++	NEW_AUX_ENT(AT_ENTRY, exec->e_entry);
++	NEW_AUX_ENT(AT_UID, (elf_addr_t) current->uid);
++	NEW_AUX_ENT(AT_EUID, (elf_addr_t) current->euid);
++	NEW_AUX_ENT(AT_GID, (elf_addr_t) current->gid);
++	NEW_AUX_ENT(AT_EGID, (elf_addr_t) current->egid);
++	if (k_platform) {
++		NEW_AUX_ENT(AT_PLATFORM, u_platform);
++	}
++	NEW_AUX_ENT(AT_NULL, 0);
+ #undef NEW_AUX_ENT
+ 
+-	sp -= envc+1;
+-	envp = (elf_caddr_t *) sp;
+-	sp -= argc+1;
+-	argv = (elf_caddr_t *) sp;
+-	if (!ibcs) {
+-		__put_user((elf_addr_t)(unsigned long) envp,--sp);
+-		__put_user((elf_addr_t)(unsigned long) argv,--sp);
++	sp = STACK_ADD(p, ei_index);
++
++	items = (argc + 1) + (envc + 1);
++	if (interp_aout) {
++		items += 3; /* a.out interpreters require argv & envp too */
++	} else {
++		items += 1; /* ELF interpreters only put argc on the stack */
+ 	}
++	bprm->p = STACK_ROUND(sp, items);
++
++	/* Point sp at the lowest address on the stack */
++#ifdef ARCH_STACK_GROWSUP
++	sp = (elf_addr_t *)bprm->p - items - ei_index;
++	bprm->exec = (unsigned long) sp; /* XXX: PARISC HACK */
++#else
++	sp = (elf_addr_t *)bprm->p;
++#endif
+ 
+-	__put_user((elf_addr_t)argc,--sp);
+-	current->mm->arg_start = (unsigned long) p;
+-	while (argc-->0) {
+-		__put_user((elf_caddr_t)(unsigned long)p,argv++);
+-		len = strnlen_user(p, PAGE_SIZE*MAX_ARG_PAGES);
++	/* Now, let's put argc (and argv, envp if appropriate) on the stack */
++	__put_user(argc, sp++);
++	if (interp_aout) {
++		argv = sp + 2;
++		envp = argv + argc + 1;
++		__put_user((elf_addr_t)argv, sp++);
++		__put_user((elf_addr_t)envp, sp++);
++	} else {
++		argv = sp;
++		envp = argv + argc + 1;
++	}
++
++	/* Populate argv and envp */
++	p = current->mm->arg_start;
++	while (argc-- > 0) {
++		size_t len;
++		__put_user((elf_addr_t)p, argv++);
++		len = strnlen_user((void *)p, PAGE_SIZE*MAX_ARG_PAGES);
+ 		if (!len || len > PAGE_SIZE*MAX_ARG_PAGES)
+-			return NULL;
++			return;
+ 		p += len;
+ 	}
+ 	__put_user(NULL, argv);
+-	current->mm->arg_end = current->mm->env_start = (unsigned long) p;
+-	while (envc-->0) {
+-		__put_user((elf_caddr_t)(unsigned long)p,envp++);
+-		len = strnlen_user(p, PAGE_SIZE*MAX_ARG_PAGES);
++	current->mm->arg_end = current->mm->env_start = p;
++	while (envc-- > 0) {
++		size_t len;
++		__put_user((elf_addr_t)p, envp++);
++		len = strnlen_user((void *)p, PAGE_SIZE*MAX_ARG_PAGES);
+ 		if (!len || len > PAGE_SIZE*MAX_ARG_PAGES)
+-			return NULL;
++			return;
+ 		p += len;
+ 	}
+ 	__put_user(NULL, envp);
+-	current->mm->env_end = (unsigned long) p;
+-	return sp;
++	current->mm->env_end = p;
++
++	/* Put the elf_info on the stack in the right place.  */
++	sp = (elf_addr_t *)envp + 1;
++	copy_to_user(sp, elf_info, ei_index * sizeof(elf_addr_t));
+ }
+ 
+ #ifndef elf_map
+@@ -438,7 +449,7 @@ static int load_elf_binary(struct linux_
+ 	unsigned char ibcs2_interpreter = 0;
+ 	unsigned long error;
+ 	struct elf_phdr * elf_ppnt, *elf_phdata;
+-	unsigned long elf_bss, k, elf_brk;
++	unsigned long elf_bss, elf_brk;
+ 	int elf_exec_fileno;
+ 	int retval, i;
+ 	unsigned int size;
+@@ -576,19 +587,15 @@ static int load_elf_binary(struct linux_
+ 	/* OK, we are done with that, now set up the arg stuff,
+ 	   and then start this sucker up */
+ 
+-	if (!bprm->sh_bang) {
+-		char * passed_p;
++	if ((!bprm->sh_bang) && (interpreter_type == INTERPRETER_AOUT)) {
++		char *passed_p = passed_fileno;
++		sprintf(passed_fileno, "%d", elf_exec_fileno);
+ 
+-		if (interpreter_type == INTERPRETER_AOUT) {
+-		  sprintf(passed_fileno, "%d", elf_exec_fileno);
+-		  passed_p = passed_fileno;
+-
+-		  if (elf_interpreter) {
+-		    retval = copy_strings_kernel(1,&passed_p,bprm);
++		if (elf_interpreter) {
++			retval = copy_strings_kernel(1, &passed_p, bprm);
+ 			if (retval)
+ 				goto out_free_dentry; 
+-		    bprm->argc++;
+-		  }
++			bprm->argc++;
+ 		}
+ 	}
+ 
+@@ -603,7 +610,10 @@ static int load_elf_binary(struct linux_
+ 	current->mm->end_code = 0;
+ 	current->mm->mmap = NULL;
+ 	current->flags &= ~PF_FORKNOEXEC;
+-	elf_entry = (unsigned long) elf_ex.e_entry;
++
++	/* Do this immediately, since STACK_TOP as used in setup_arg_pages
++	   may depend on the personality.  */
++	SET_PERSONALITY(elf_ex, ibcs2_interpreter);
+ 
+ 	/* Do this so that we can load the interpreter, if need be.  We will
+ 	   change some of these later */
+@@ -623,7 +633,7 @@ static int load_elf_binary(struct linux_
+ 
+ 	for(i = 0, elf_ppnt = elf_phdata; i < elf_ex.e_phnum; i++, elf_ppnt++) {
+ 		int elf_prot = 0, elf_flags;
+-		unsigned long vaddr;
++		unsigned long k, vaddr;
+ 
+ 		if (elf_ppnt->p_type != PT_LOAD)
+ 			continue;
+@@ -656,7 +666,7 @@ static int load_elf_binary(struct linux_
+ 		} else if (elf_ex.e_type == ET_DYN) {
+ 			/* Try and get dynamic programs out of the way of the default mmap
+ 			   base, as well as whatever program they might try to exec.  This
+-		           is because the brk will follow the loader, and is not movable.  */
++			   is because the brk will follow the loader, and is not movable.  */
+ 			load_bias = ELF_PAGESTART(ELF_ET_DYN_BASE - vaddr);
+ 		}
+ 
+@@ -681,7 +691,7 @@ static int load_elf_binary(struct linux_
+ 
+ 		if (k > elf_bss)
+ 			elf_bss = k;
+-		if ((elf_ppnt->p_flags & PF_X) && end_code <  k)
++		if ((elf_ppnt->p_flags & PF_X) && end_code < k)
+ 			end_code = k;
+ 		if (end_data < k)
+ 			end_data = k;
+@@ -690,7 +700,7 @@ static int load_elf_binary(struct linux_
+ 			elf_brk = k;
+ 	}
+ 
+-	elf_entry += load_bias;
++	elf_ex.e_entry += load_bias;
+ 	elf_bss += load_bias;
+ 	elf_brk += load_bias;
+ 	start_code += load_bias;
+@@ -717,6 +727,8 @@ static int load_elf_binary(struct linux_
+ 			send_sig(SIGSEGV, current, 0);
+ 			return 0;
+ 		}
++	} else {
++		elf_entry = elf_ex.e_entry;
+ 	}
+ 
+ 	kfree(elf_phdata);
+@@ -728,18 +740,11 @@ static int load_elf_binary(struct linux_
+ 
+ 	compute_creds(bprm);
+ 	current->flags &= ~PF_FORKNOEXEC;
+-	bprm->p = (unsigned long)
+-	  create_elf_tables((char *)bprm->p,
+-			bprm->argc,
+-			bprm->envc,
+-			&elf_ex,
+-			load_addr, load_bias,
+-			interp_load_addr,
+-			(interpreter_type == INTERPRETER_AOUT ? 0 : 1));
++	create_elf_tables(bprm, &elf_ex, (interpreter_type == INTERPRETER_AOUT),
++			load_addr, interp_load_addr);
+ 	/* N.B. passed_fileno might not be initialized? */
+ 	if (interpreter_type == INTERPRETER_AOUT)
+ 		current->mm->arg_start += strlen(passed_fileno) + 1;
+-	current->mm->start_brk = current->mm->brk = elf_brk;
+ 	current->mm->end_code = end_code;
+ 	current->mm->start_code = start_code;
+ 	current->mm->start_data = start_data;
+diff -urpNX dontdiff linux-2.5.31/fs/exec.c linux-2.5.31-willy/fs/exec.c
+--- linux-2.5.31/fs/exec.c	2002-08-13 19:54:01.000000000 -0700
++++ linux-2.5.31-willy/fs/exec.c	2002-08-14 06:46:59.000000000 -0700
+@@ -328,9 +328,50 @@ int setup_arg_pages(struct linux_binprm 
+ {
+ 	unsigned long stack_base;
+ 	struct vm_area_struct *mpnt;
++	struct mm_struct *mm = current->mm;
+ 	int i;
+ 
+-	stack_base = STACK_TOP - MAX_ARG_PAGES*PAGE_SIZE;
++#ifdef ARCH_STACK_GROWSUP
++	/* Move the argument and environment strings to the bottom of the
++	 * stack space.
++	 */
++	int offset, j;
++	char *to, *from;
++
++	/* Start by shifting all the pages down */
++	i = 0;
++	for (j = 0; j < MAX_ARG_PAGES; j++) {
++		struct page *page = bprm->page[j];
++		if (!page)
++			continue;
++		bprm->page[i++] = page;
++	}
++
++	/* Now move them within their pages */
++	offset = bprm->p % PAGE_SIZE;
++	to = kmap(bprm->page[0]);
++	for (j = 1; j < i; j++) {
++		memmove(to, to + offset, PAGE_SIZE - offset);
++		from = kmap(bprm->page[j]);
++		memcpy(to + PAGE_SIZE - offset, from, offset);
++		kunmap(bprm[j - 1]);
++		to = from;
++	}
++	memmove(to, to + offset, PAGE_SIZE - offset);
++	kunmap(bprm[j - 1]);
++
++	/* Adjust bprm->p to point to the end of the strings. */
++	bprm->p = PAGE_SIZE * i - offset;
++	stack_base = STACK_TOP - current->rlim[RLIMIT_STACK].rlim_max;
++	mm->arg_start = stack_base;
++
++	/* zero pages that were copied above */
++	while (i < MAX_ARG_PAGES)
++		bprm->page[i++] = NULL;
++#else
++	stack_base = STACK_TOP - MAX_ARG_PAGES * PAGE_SIZE;
++	mm->arg_start = bprm->p + stack_base;
++#endif
+ 
+ 	bprm->p += stack_base;
+ 	if (bprm->loader)
+@@ -338,7 +379,7 @@ int setup_arg_pages(struct linux_binprm 
+ 	bprm->exec += stack_base;
+ 
+ 	mpnt = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
+-	if (!mpnt) 
++	if (!mpnt)
+ 		return -ENOMEM;
+ 
+ 	if (!vm_enough_memory((STACK_TOP - (PAGE_MASK & (unsigned long) bprm->p))>>PAGE_SHIFT)) {
+@@ -346,19 +387,25 @@ int setup_arg_pages(struct linux_binprm 
+ 		return -ENOMEM;
+ 	}
+ 
+-	down_write(&current->mm->mmap_sem);
++	down_write(&mm->mmap_sem);
+ 	{
+-		mpnt->vm_mm = current->mm;
++		mpnt->vm_mm = mm;
++#ifdef ARCH_STACK_GROWSUP
++		mpnt->vm_start = stack_base;
++		mpnt->vm_end = PAGE_MASK &
++			(PAGE_SIZE - 1 + (unsigned long) bprm->p);
++#else
+ 		mpnt->vm_start = PAGE_MASK & (unsigned long) bprm->p;
+ 		mpnt->vm_end = STACK_TOP;
++#endif
+ 		mpnt->vm_page_prot = PAGE_COPY;
+ 		mpnt->vm_flags = VM_STACK_FLAGS;
+ 		mpnt->vm_ops = NULL;
+ 		mpnt->vm_pgoff = 0;
+ 		mpnt->vm_file = NULL;
+ 		mpnt->vm_private_data = (void *) 0;
+-		insert_vm_struct(current->mm, mpnt);
+-		current->mm->total_vm = (mpnt->vm_end - mpnt->vm_start) >> PAGE_SHIFT;
++		insert_vm_struct(mm, mpnt);
++		mm->total_vm = (mpnt->vm_end - mpnt->vm_start) >> PAGE_SHIFT;
+ 	} 
+ 
+ 	for (i = 0 ; i < MAX_ARG_PAGES ; i++) {
+@@ -369,7 +416,7 @@ int setup_arg_pages(struct linux_binprm 
+ 		}
+ 		stack_base += PAGE_SIZE;
+ 	}
+-	up_write(&current->mm->mmap_sem);
++	up_write(&mm->mmap_sem);
+ 	
+ 	return 0;
+ }
+@@ -737,7 +784,6 @@ void compute_creds(struct linux_binprm *
+ 	security_ops->bprm_compute_creds(bprm);
+ }
+ 
+-
+ void remove_arg_zero(struct linux_binprm *bprm)
+ {
+ 	if (bprm->argc) {
+@@ -859,7 +905,6 @@ int search_binary_handler(struct linux_b
+ 	return retval;
+ }
+ 
+-
+ /*
+  * sys_execve() executes a new program.
+  */
+diff -urpNX dontdiff linux-2.5.31/include/asm-ia64/ia32.h linux-2.5.31-willy/include/asm-ia64/ia32.h
+--- linux-2.5.31/include/asm-ia64/ia32.h	2002-08-01 14:16:45.000000000 -0700
++++ linux-2.5.31-willy/include/asm-ia64/ia32.h	2002-08-03 18:35:55.000000000 -0700
+@@ -334,7 +334,6 @@ void ia64_elf32_init(struct pt_regs *reg
+ #define ELF_PLAT_INIT(_r)	ia64_elf32_init(_r)
+ 
+ #define elf_addr_t	u32
+-#define elf_caddr_t	u32
+ 
+ /* ELF register definitions.  This is needed for core dump support.  */
+ 
+diff -urpNX dontdiff linux-2.5.31/include/asm-mips64/elf.h linux-2.5.31-willy/include/asm-mips64/elf.h
+--- linux-2.5.31/include/asm-mips64/elf.h	2002-08-01 14:16:03.000000000 -0700
++++ linux-2.5.31-willy/include/asm-mips64/elf.h	2002-08-03 18:35:55.000000000 -0700
+@@ -31,7 +31,7 @@ typedef elf_fpreg_t elf_fpregset_t[ELF_N
+ 									\
+ 	if (__h->e_machine != EM_MIPS)					\
+ 		__res = 0;						\
+-	if (sizeof(elf_caddr_t) == 8 &&					\
++	if (sizeof(elf_addr_t) == 8 &&					\
+ 	    __h->e_ident[EI_CLASS] == ELFCLASS32)			\
+ 	        __res = 0;						\
+ 									\
+diff -urpNX dontdiff linux-2.5.31/include/asm-ppc/elf.h linux-2.5.31-willy/include/asm-ppc/elf.h
+--- linux-2.5.31/include/asm-ppc/elf.h	2002-08-01 14:16:01.000000000 -0700
++++ linux-2.5.31-willy/include/asm-ppc/elf.h	2002-08-03 18:35:55.000000000 -0700
+@@ -98,19 +98,14 @@ extern int ucache_bsize;
+  * - for compatibility with glibc ARCH_DLINFO must always be defined on PPC,
+  *   even if DLINFO_ARCH_ITEMS goes to zero or is undefined.
+  */
+-#define DLINFO_ARCH_ITEMS	3
+ #define ARCH_DLINFO							\
+ do {									\
+-	sp -= DLINFO_ARCH_ITEMS * 2;					\
+-	NEW_AUX_ENT(0, AT_DCACHEBSIZE, dcache_bsize);			\
+-	NEW_AUX_ENT(1, AT_ICACHEBSIZE, icache_bsize);			\
+-	NEW_AUX_ENT(2, AT_UCACHEBSIZE, ucache_bsize);			\
+-	/*								\
+-	 * Now handle glibc compatibility.				\
+-	 */								\
+-	sp -= 2*2;							\
+-	NEW_AUX_ENT(0, AT_IGNOREPPC, AT_IGNOREPPC);			\
+-	NEW_AUX_ENT(1, AT_IGNOREPPC, AT_IGNOREPPC);			\
++	NEW_AUX_ENT(AT_DCACHEBSIZE, dcache_bsize);			\
++	NEW_AUX_ENT(AT_ICACHEBSIZE, icache_bsize);			\
++	NEW_AUX_ENT(AT_UCACHEBSIZE, ucache_bsize);			\
++	/* Now handle glibc compatibility. */				\
++	NEW_AUX_ENT(AT_IGNOREPPC, AT_IGNOREPPC);			\
++	NEW_AUX_ENT(AT_IGNOREPPC, AT_IGNOREPPC);			\
+  } while (0)
+ 
+ #endif /* __KERNEL__ */
+diff -urpNX dontdiff linux-2.5.31/include/asm-ppc64/elf.h linux-2.5.31-willy/include/asm-ppc64/elf.h
+--- linux-2.5.31/include/asm-ppc64/elf.h	2002-08-01 14:16:32.000000000 -0700
++++ linux-2.5.31-willy/include/asm-ppc64/elf.h	2002-08-03 18:35:55.000000000 -0700
+@@ -31,13 +31,11 @@ typedef elf_greg_t32 elf_gregset_t32[ELF
+   typedef elf_greg_t64 elf_greg_t;
+   typedef elf_gregset_t64 elf_gregset_t;
+ # define elf_addr_t unsigned long
+-# define elf_caddr_t char *
+ #else
+   /* Assumption: ELF_ARCH == EM_PPC and ELF_CLASS == ELFCLASS32 */
+   typedef elf_greg_t32 elf_greg_t;
+   typedef elf_gregset_t32 elf_gregset_t;
+ # define elf_addr_t u32
+-# define elf_caddr_t u32
+ #endif
+ 
+ typedef double elf_fpreg_t;
+@@ -122,19 +120,14 @@ extern int ucache_bsize;
+  * - for compatibility with glibc ARCH_DLINFO must always be defined on PPC,
+  *   even if DLINFO_ARCH_ITEMS goes to zero or is undefined.
+  */
+-#define DLINFO_ARCH_ITEMS	3
+ #define ARCH_DLINFO							\
+ do {									\
+-	sp -= DLINFO_ARCH_ITEMS * 2;					\
+-	NEW_AUX_ENT(0, AT_DCACHEBSIZE, dcache_bsize);			\
+-	NEW_AUX_ENT(1, AT_ICACHEBSIZE, icache_bsize);			\
+-	NEW_AUX_ENT(2, AT_UCACHEBSIZE, ucache_bsize);			\
+-	/*								\
+-	 * Now handle glibc compatibility.				\
+-	 */								\
+-	sp -= 2*2;							\
+-	NEW_AUX_ENT(0, AT_IGNOREPPC, AT_IGNOREPPC);			\
+-	NEW_AUX_ENT(1, AT_IGNOREPPC, AT_IGNOREPPC);			\
++	NEW_AUX_ENT(AT_DCACHEBSIZE, dcache_bsize);			\
++	NEW_AUX_ENT(AT_ICACHEBSIZE, icache_bsize);			\
++	NEW_AUX_ENT(AT_UCACHEBSIZE, ucache_bsize);			\
++	/* Now handle glibc compatibility. */				\
++	NEW_AUX_ENT(AT_IGNOREPPC, AT_IGNOREPPC);			\
++	NEW_AUX_ENT(AT_IGNOREPPC, AT_IGNOREPPC);			\
+  } while (0)
+ 
+ #endif /* __PPC64_ELF_H */
+
+-- 
+Revolutions do not require corporate support.

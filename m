@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129874AbQKPQ4M>; Thu, 16 Nov 2000 11:56:12 -0500
+	id <S130454AbQKPQ7M>; Thu, 16 Nov 2000 11:59:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130112AbQKPQ4C>; Thu, 16 Nov 2000 11:56:02 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:24851 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129874AbQKPQzy>; Thu, 16 Nov 2000 11:55:54 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S130497AbQKPQ6w>; Thu, 16 Nov 2000 11:58:52 -0500
+Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:56836 "EHLO
+	tellus.mine.nu") by vger.kernel.org with ESMTP id <S130454AbQKPQ6q>;
+	Thu, 16 Nov 2000 11:58:46 -0500
+Date: Thu, 16 Nov 2000 17:28:15 +0100 (CET)
+From: Tobias Ringstrom <tori@tellus.mine.nu>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, torvalds@transmeta.com,
+        dhinds@valinux.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pcmcia event thread. (fwd) 
+In-Reply-To: <12129.974384071@redhat.com>
+Message-ID: <Pine.LNX.4.21.0011161719180.23397-100000@svea.tellus>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14868.2681.414826.48776@wire.cadcamlab.org>
-Date: Thu, 16 Nov 2000 10:25:29 -0600 (CST)
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: PCI configuration changes
-In-Reply-To: <200011161605.RAA23133@green.mif.pg.gda.pl>
-	<3A140752.68E11210@mandrakesoft.com>
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 16 Nov 2000, David Woodhouse wrote:
+> 
+> alan@lxorguk.ukuu.org.uk said:
+> >  Umm..  Linus drivers dont appear to be SMP safe on unload 
+> 
+> AFAIK, no kernel threads are currently SMP safe on unload. However, 
+> the PCMCIA thread would be safe with the patch below, and we could fairly 
+> easily convert the others to use up_and_exit() once it's available.
+> 
+> Anyone using PCMCIA or CardBus with 2.4, even if you have a non-CardBus
+> i82365 or TCIC controller for which the driver was disabled in test11-pre5,
+> please could you test this? Especially if you have TCIC, in fact, because
+> it's already been tested successfully on yenta and i82365. 
+> 
+> (pcmcia-dif-7). Linus, this is the full patch against pre5, including the 
+> incremental part I sent this morning.
 
-[Jeff Garzik <jgarzik@mandrakesoft.com>]
-> For drivers that are 100% MCA, they do not need to test MCA_bus,
-> because that test can be done in Config.in.
+I have finally managed to find time to test it, and after five minutes, I
+must say that it looks very good. I was able to both plug and unplug
+cards, and cardmgr did what it was supposed to do. If something bad turns
+up, I will let you know.
 
-I think Andrzej was concerned with a driver assuming that just because
-CONFIG_MCA is defined, there *is* an MCA bus on the machine.  This is
-of course an invalid assumption.  I will try to make sure that the
-driver init in each case has something like
+I vote for inclusion! :-)
 
-	if (!MCA_bus)
-		return -ENODEV;
+/Tobias
 
-Peter
+
+dmesg info:
+
+Linux PCMCIA Card Services 3.1.22
+  options:  [pci] [cardbus] [pm]
+Intel PCIC probe: 
+  Vadem VG-469 ISA-to-PCMCIA at port 0x3e0 ofs 0x00, 2 sockets
+    host opts [0]: none
+    host opts [1]: none
+    ISA irqs (scanned) = 3,4,5,7 polling interval = 1000 ms
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275798AbRJBEqr>; Tue, 2 Oct 2001 00:46:47 -0400
+	id <S275805AbRJBEzh>; Tue, 2 Oct 2001 00:55:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275806AbRJBEqi>; Tue, 2 Oct 2001 00:46:38 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:39440 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S275798AbRJBEqV>; Tue, 2 Oct 2001 00:46:21 -0400
-Message-ID: <3BB946B4.C7479C16@zip.com.au>
-Date: Mon, 01 Oct 2001 21:46:44 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: sct@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: ext3 0.9.10 for Alan's tree
-In-Reply-To: <1001989916.2780.61.camel@phantasy>
-Content-Type: text/plain; charset=us-ascii
+	id <S275806AbRJBEz2>; Tue, 2 Oct 2001 00:55:28 -0400
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:23563 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S275805AbRJBEzO>; Tue, 2 Oct 2001 00:55:14 -0400
+Subject: Re: 2.4.11-pre1 -- Building aedsp16.o -- No rule to make target
+	`/etc/sound/dsp001.ld', needed by `pss_boot.h'
+From: Miles Lane <miles@megapathdsl.net>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <635.1001930646@ocs3.intra.ocs.com.au>
+In-Reply-To: <635.1001930646@ocs3.intra.ocs.com.au>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.14.99+cvs.2001.09.25.20.14 (Preview Release)
+Date: 01 Oct 2001 22:06:06 -0700
+Message-Id: <1001999167.916.14.camel@agate>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
+On Mon, 2001-10-01 at 03:04, Keith Owens wrote:
+> On 01 Oct 2001 02:34:23 -0700, 
+> Miles Lane <miles@megapathdsl.net> wrote:
+> >gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon  -DMODULE   -c -o aedsp16.o aedsp16.c
+> >make[2]: *** No rule to make target `/etc/sound/dsp001.ld', needed by `pss_boot.h'.  Stop.
 > 
-> Stephen, Andrew:
+> >gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon  -DMODULE   -c -o cpqfcTSinit.o cpqfcTSinit.c
+> >cpqfcTSinit.c: In function `cpqfcTS_ioctl':
+> >cpqfcTSinit.c:662: `SCSI_IOCTL_FC_TARGET_ADDRESS' undeclared (first use in this function)
 > 
-> Alan has said recently that he would merge a newer ext3 soon as the
-> maintainer sends him such a patch, but no sooner.  That was in response
-> to a few users asking why ext3 was "outdated" in his tree.
+> You really need to search the archives better.  Both have already been
+> covered.
+> 
+Perhaps you have a better way of searching the archive than I do.
+What interface do you use for querying the list?  I am attempting
+to do so through http://marc.theaimsgroup.com.  When I try searching
+for the undefined symbol "acpi_debug_print_raw", the query returns
+that it searched for "acpi debug print raw".  This gives me a lot of
+false positives.  It would be great if there were an exact string match.
+It would be even better if there were a more advance search that would 
+accept multiple search strings and allow AND, OR and logical grouping 
+with parentheses.
 
-Yes, sorry.  It's turning out to be a lot of work keeping the master
-ext3 tree in sync with two (rather different) kernels, and running around
-after all the changes which are happening in (ahem) one of them.
+Regardless, I will try to do better.
 
-We prefer to test a lot before releasing, and the one time I skipped
-that step was for 2.4.10, and it was the one which is broken. Sigh.
+	Miles
 
-> Attached is a patch against 2.4.10-ac3 of ext-0.9.9 + Ted's directory
-> speedup.  Bringing 0.9.10 inline with Alan will take some VM work, but
-> this is a start.
-
-Rob, I've added this patch to the download site for interested parties
-to use.  http://www.uow.edu.au/~andrewm/linux/ext3/
-
-But for a merge with Alan we do have a few more changes backed up,
-and some more testing must be done.  I'll try to prepare 0.9.11
-for -ac this week.  I'm inclined to down-tools on Linus kernels
-for a while, wait for things to settle down there.
-
-Thanks!
-
--

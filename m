@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267906AbTB1SEa>; Fri, 28 Feb 2003 13:04:30 -0500
+	id <S267921AbTB1SFK>; Fri, 28 Feb 2003 13:05:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267921AbTB1SEa>; Fri, 28 Feb 2003 13:04:30 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:49335 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267906AbTB1SE3>;
-	Fri, 28 Feb 2003 13:04:29 -0500
-Message-ID: <3E5FA6DF.8070909@us.ibm.com>
-Date: Fri, 28 Feb 2003 10:13:51 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
-       cliffw@osdl.org, akpm@zip.com.au, slpratt@austin.ibm.com,
-       levon@movementarian.org
-Subject: Re: [PATCH] documentation for basic guide to profiling
-References: <8550000.1046419962@[10.10.2.4]> <20030228093632.7bf053ed.rddunlap@osdl.org> <28510000.1046455878@[10.10.2.4]>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267951AbTB1SFK>; Fri, 28 Feb 2003 13:05:10 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:22416 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S267921AbTB1SFG>;
+	Fri, 28 Feb 2003 13:05:06 -0500
+Message-Id: <200302281814.h1SIEB42005202@eeyore.valparaiso.cl>
+To: Kevin Corry <corryk@us.ibm.com>
+cc: Joe Perches <joe@perches.com>, "LKML" <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Subject: Re: [PATCH 3/8] dm: prevent possible buffer overflow in ioctl interface 
+In-Reply-To: Your message of "Fri, 28 Feb 2003 08:59:25 MDT."
+             <03022808592509.05199@boiler> 
+Date: Fri, 28 Feb 2003 15:14:11 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
->>These:          ^------------v  should be the same value (as you have it).
->>                             v
->>| +clear		echo 2 > /proc/profile
->>man page says to use "readprofile -r".  Doesn't that still work?
+Kevin Corry <corryk@us.ibm.com> said:
+> On Friday 28 February 2003 08:32, you wrote:
+> > On Thu, 2003-02-27 at 14:05, Kevin Corry wrote:
+> > > Unfortunately, Linus seems to have committed that patch already. So here
+> > > is a patch to fix just that line.
+> > >
+> > > Thanks for catching that.
+> >
+> > Third time, strlen isn't necessary, it can be done at compile time.
+> >
+> > --- a/drivers/md/dm-ioctl.c     2003/02/27 16:29:58
+> > +++ b/drivers/md/dm-ioctl.c     2003/02/27 17:21:54
+> > @@ -174,7 +174,7 @@
+> >  static int register_with_devfs(struct hash_cell *hc)
+> >  {
+> >         struct gendisk *disk = dm_disk(hc->md);
+> > -       char *name = kmalloc(DM_NAME_LEN + strlen(DM_DIR) + 1);
+> > +       char *name = kmalloc(DM_NAME_LEN + sizeof(DM_DIR));
+> >         if (!name) {
+> >                 return -ENOMEM;
+> >         }
 > 
-> Dunno. I always have done the above ... have you been using -r with
-> success? If so, I'll change it.
+> Sorry, I sent the last patch before I got your email.
+> 
+> Also, the "+1" is still necessary, even if we switch to sizeof. The sprintf 
+> call that follows copies DM_DIR, followed by a slash, followed by the name 
+> from the hash table into the allocated string. The "+1" is for the slash in 
+> the middle. The terminating NULL character is accounted for in
+> DM_NAME_LEN.
 
-It's what I've always used.
+Then it was broken before.
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
-
+sizeof("1234") == strlen("1234") + 1 == 5

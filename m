@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263766AbUEXAZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263770AbUEXA1x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263766AbUEXAZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 20:25:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbUEXAZ3
+	id S263770AbUEXA1x (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 20:27:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbUEXA1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 20:25:29 -0400
-Received: from CPE-203-51-26-94.nsw.bigpond.net.au ([203.51.26.94]:1778 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP id S263766AbUEXAZ1
+	Sun, 23 May 2004 20:27:53 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:64143 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263770AbUEXA1w
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 20:25:27 -0400
-Message-ID: <40B140DF.2070300@eyal.emu.id.au>
-Date: Mon, 24 May 2004 10:25:03 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Sun, 23 May 2004 20:27:52 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 23 May 2004 17:27:17 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: scheduler: IRQs disabled over context switches
+In-Reply-To: <20040524003308.B4818@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.58.0405231635300.512@bigblue.dev.mdolabs.com>
+References: <20040523174359.A21153@flint.arm.linux.org.uk>
+ <Pine.LNX.4.58.0405231125420.512@bigblue.dev.mdolabs.com>
+ <20040523203814.C21153@flint.arm.linux.org.uk>
+ <Pine.LNX.4.58.0405231241450.512@bigblue.dev.mdolabs.com>
+ <20040524003308.B4818@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.7-rc1 - drivers/scsi/ipr.h too smart for me...
-References: <Pine.LNX.4.58.0405222331200.18534@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0405222331200.18534@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Hmm.. This is stuff all over the map, but most interesting (or at least
-> most "core") is probably the merging of the NUMA scheduler and the anonvma
-> rmap code. The latter gets rid of the expensive pte chains, and instead
-> allows reverse page mapping by keeping track of which vma (and offset)  
-> each page is associated with. Special kudos to Andrea Arcangeli and Hugh
-> Dickins.
+On Mon, 24 May 2004, Russell King wrote:
 
-I see many anonymous unions used in drivers/scsi/ipr.h:
+> On Sun, May 23, 2004 at 04:04:39PM -0700, Davide Libenzi wrote:
+> > On Sun, 23 May 2004, Russell King wrote:
+> > > Not quite - look harder.  They use spin_unlock_irq in finish_arch_switch
+> > > rather than prepare_arch_switch.
+> > 
+> > Hmm, they do indeed. Hmm, if we release the rq lock before the ctx switch, 
+> > "prev" (the real one) will result not running since we already set 
+> > "rq->curr" to "next" (and we do not hold "prev->switch_lock").
+> 
+> We do hold prev->switch_lock - we hold it all the time that the thread
+> is running.  Consider what prepare_arch_switch() is doing - it's taking
+> the next threads switch_lock.  It only gets released _after_ we've
+> switched away from that thread.
 
-drivers/scsi/ipr.h:460: warning: unnamed struct/union that defines no instances
-drivers/scsi/ipr.h:620: warning: unnamed struct/union that defines no instances
-drivers/scsi/ipr.h:665: warning: unnamed struct/union that defines no instances
-drivers/scsi/ipr.h:788: warning: unnamed struct/union that defines no instances
-drivers/scsi/ipr.h:942: warning: unnamed struct/union that defines no instances
+It is flawed indeed :) (/me looking at it after ages). Even looking at the 
+scheduler tick code, it does not play with mm fields, so it should be fine 
+after the rq lock (and IRQ) release. Preempt is fine due to the preempt_disable()
+(plus switch_lock held), tasks result running (due switch_lock held) so 
+remote CPUs won't touch them, and scheduler_tick() looking innocuous with 
+respect to the fields that matters for switch. Is it blowing up on ARM?
 
-that my Debian stable (gcc 2.95.4) does not understand. Changes still says:
 
-o  Gnu C                  2.95.3
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+- Davide
+

@@ -1,64 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317541AbSG2Rz0>; Mon, 29 Jul 2002 13:55:26 -0400
+	id <S317552AbSG2SF7>; Mon, 29 Jul 2002 14:05:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317591AbSG2Rz0>; Mon, 29 Jul 2002 13:55:26 -0400
-Received: from fed1mtao01.cox.net ([68.6.19.244]:42928 "EHLO
-	fed1mtao01.cox.net") by vger.kernel.org with ESMTP
-	id <S317541AbSG2RzZ>; Mon, 29 Jul 2002 13:55:25 -0400
-Date: Mon, 29 Jul 2002 11:15:37 -0700
-From: Matt Porter <porter@cox.net>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@lists.linuxppc.org
-Subject: Re: 3 Serial issues up for discussion (was: Re: Serial core problems on embedded PPC)
-Message-ID: <20020729111537.A1420@home.com>
-References: <20020729181702.E25451@flint.arm.linux.org.uk> <20020729174341.GA12964@opus.bloom.county>
+	id <S317561AbSG2SF7>; Mon, 29 Jul 2002 14:05:59 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:46689 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S317552AbSG2SF6>; Mon, 29 Jul 2002 14:05:58 -0400
+Date: Mon, 29 Jul 2002 20:10:20 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: oopsen with rc3-aa3
+Message-ID: <20020729181020.GU1201@dualathlon.random>
+References: <20020729174238.GA1919@714-cm.cps.unizar.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020729174341.GA12964@opus.bloom.county>; from trini@kernel.crashing.org on Mon, Jul 29, 2002 at 10:43:41AM -0700
+In-Reply-To: <20020729174238.GA1919@714-cm.cps.unizar.es>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 29, 2002 at 10:43:41AM -0700, Tom Rini wrote:
+On Mon, Jul 29, 2002 at 07:42:38PM +0200, J.A. Magallon wrote:
+> Hi.
 > 
-> On Mon, Jul 29, 2002 at 06:17:02PM +0100, Russell King wrote:
-> 
-> 
-> > 1. Serial port initialisation
-> > -----------------------------
-> >
-> > Firstly, one thing to bear in mind here is that, as Alan says "be nice
-> > to make sure it was much earlier".  I guess Alan's right, so we can get
-> > oopsen out of the the kernel relatively easily, even when we're using
-> > framebuffer consoles.
-> >
-> > I'm sure Alan will enlighten us with his specific reasons if required.
-> >
-> > There have been several suggestions around on how to fix this table:
-> >
-> > a. architectures provide a sub-module to 8250.c which contains the
-> >    per-port details, rather than a table in serial.h.  This would
-> >    ideally mean removing serial.h completely.  The relevant object
-> >    would be linked into 8250.c when 8250.c is built as a module.
-> 
-> I think this would work best.  On PPC this would allow us to change the
-> mess of include/asm-ppc/serial.h into a slightly cleaner Makefile
-> (especially if we do the automagic <platforms/platform.h> or
-> <asm/platform.h> bit that's been talked about in the past) magic and we
-> could use that object file as well in the bootwrapper as well.
+> The new code in rc3aa3 makes a dual Xeon box hang on boot just
+> when stating migration threads. I get two simultaneous oops, one
+> for migration_thread=1 and =2. Decoded oops for one of them:
 
-I think this would be the cleanest method as well.  Especially when we
-recognize that the asm-ppc/serial.h situation will only get worse
-over time.  Every embedded PPC board designer has a unique location
-for his 16550 UART(s) and we just keep adding more preprocessor
-cruft for each port.  This should let us keep this board-specific
-info in our board port files...more abstraction=good.
+can you find out the exact line of C code that oopses (i.e. what it is
+supposed to be edx)? If you can't find it please send me the disassembly
+of the function load_balance, thanks.
 
-Regards,
--- 
-Matt Porter
-porter@cox.net
-This is Linux Country. On a quiet night, you can hear Windows reboot.
+Also please try to reproduce with Ingo's latest, I merged a few fixes
+for the migration thread startup from his latest update.
+
+> 
+> *pde = 00000000
+> CPU: 1
+> EIP: 0010:[<80119f9d>] Not tainted
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010006
+> eax: 00002700 ebx: 000000ff ecx: 00000004 edx: 00000000
+> esi: 00000000 edi: 00000004 ebp: bffe7f80 esp: bffe7f40
+> ds: 0018 es: 0018 ss: 0018
+> Process migration_CPU1 (pid: 3, stackpage=bffe7000)
+> Stack: 00000000 00000004 0000000a bffe7fc8 ffffffff 00000001
+>        bffe634b ffffffff 00000001 00000000 0000000a 00000001
+>            802fe240 00000000 bffe6000 802fe240 bffe7fc0 8011a7e7
+>            802fe240 00000001 802fe240 8025c116 bffe633e bffe6000
+> Call Trace: [<8011a7e7>] [<8025c116>] [<8025c134>] [<8011c009>]
+>         [<80105000>] [<80105000>] [<80107256>] [<8011bec0>]
+> Code: 8b 42 14 c7 42 14 01 00 00 00 85 c0 0f 85 88 03 00 00 8b 52
+> 
+> >>EIP; 80119f9c <load_balance+ec/490>   <=====
+> Trace; 8011a7e6 <schedule+126/3a0>
+> Trace; 8025c116 <vsprintf+16/20>
+> Trace; 8025c134 <sprintf+14/20>
+> Trace; 8011c008 <migration_thread+148/320>
+> Trace; 80105000 <_stext+0/0>
+> Trace; 80105000 <_stext+0/0>
+> Trace; 80107256 <kernel_thread+26/30>
+> Trace; 8011bec0 <migration_thread+0/320>
+> Code;  80119f9c <load_balance+ec/490>
+> 00000000 <_EIP>:
+> Code;  80119f9c <load_balance+ec/490>   <=====
+>    0:   8b 42 14                  mov    0x14(%edx),%eax   <=====
+> Code;  80119f9e <load_balance+ee/490>
+>    3:   c7 42 14 01 00 00 00      movl   $0x1,0x14(%edx)
+> Code;  80119fa6 <load_balance+f6/490>
+>    a:   85 c0                     test   %eax,%eax
+> Code;  80119fa8 <load_balance+f8/490>
+>    c:   0f 85 88 03 00 00         jne    39a <_EIP+0x39a> 8011a336 <load_balance+486/490>
+> Code;  80119fae <load_balance+fe/490>
+>   12:   8b 52 00                  mov    0x0(%edx),%edx
+
+
+Andrea

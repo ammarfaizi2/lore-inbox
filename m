@@ -1,33 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268904AbUJKNNw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268916AbUJKNQZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268904AbUJKNNw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 09:13:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268915AbUJKNNw
+	id S268916AbUJKNQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 09:16:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268915AbUJKNQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 09:13:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48774 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268904AbUJKNNv
+	Mon, 11 Oct 2004 09:16:24 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40583 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268916AbUJKNQF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 09:13:51 -0400
-Date: Mon, 11 Oct 2004 14:13:50 +0100
+	Mon, 11 Oct 2004 09:16:05 -0400
+Date: Mon, 11 Oct 2004 14:16:03 +0100
 From: viro@parcelfarce.linux.theplanet.co.uk
-To: Ricky lloyd <ricky.lloyd@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]:2.6.9-rc4: Fixes a bunch of compiler warnings
-Message-ID: <20041011131350.GT23987@parcelfarce.linux.theplanet.co.uk>
-References: <1a50bd370410110405253e915c@mail.gmail.com>
+To: Cal Peake <cp@absolutedigital.net>
+Cc: Jan Dittmer <j.dittmer@portrix.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       NetDev Mailing List <netdev@oss.sgi.com>, proski@gnu.org,
+       hermes@gibson.dropbear.id.au
+Subject: Re: [PATCH] Fix readw/writew warnings in drivers/net/wireless/hermes.h
+Message-ID: <20041011131603.GU23987@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.61.0410110702590.7899@linaeum.absolutedigital.net> <416A7484.1030703@portrix.net> <Pine.LNX.4.61.0410110819370.8480@linaeum.absolutedigital.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1a50bd370410110405253e915c@mail.gmail.com>
+In-Reply-To: <Pine.LNX.4.61.0410110819370.8480@linaeum.absolutedigital.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 11, 2004 at 04:35:49PM +0530, Ricky lloyd wrote:
-> attaching a patch diff'ed against 2.6.9-rc4. Fixes a whole bunch of
-> compiler warnings of the
-> kind, "warning: passing arg 1 of `readl' makes pointer from integer
-> without a cast"
+On Mon, Oct 11, 2004 at 08:23:35AM -0400, Cal Peake wrote:
+> On Mon, 11 Oct 2004, Jan Dittmer wrote:
+> 
+> > Cal Peake wrote:
+> > 
+> > >  	inw((hw)->iobase + ( (off) << (hw)->reg_spacing )) : \
+> > > -	readw((hw)->iobase + ( (off) << (hw)->reg_spacing )))
+> > > +	readw((void __iomem *)(hw)->iobase + ( (off) << (hw)->reg_spacing )))
+> > >  #define hermes_write_reg(hw, off, val) do { \
+> > 
+> > Isn't the correct fix to declare iobase as (void __iomem *) ?
+> 
+> iobase is an unsigned long, declaring it as a void pointer is prolly not 
+> what we want to do here. The typecast seems proper. A lot of other drivers 
+> do this as well thus it must be proper ;-)
 
-Don't.  You are just hiding the real problems that way.
+Typecast is not a proper solution here.   Folks, there are cleanups underway
+for all that mess, but it's not _that_ simple.
+
+And adding casts to shut the warnings up is wrong in 99% of cases.

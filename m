@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265065AbTAJN6J>; Fri, 10 Jan 2003 08:58:09 -0500
+	id <S265382AbTAJOIs>; Fri, 10 Jan 2003 09:08:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265092AbTAJN6J>; Fri, 10 Jan 2003 08:58:09 -0500
-Received: from gherkin.frus.com ([192.158.254.49]:12160 "EHLO gherkin.frus.com")
-	by vger.kernel.org with ESMTP id <S265065AbTAJN6I>;
-	Fri, 10 Jan 2003 08:58:08 -0500
-Subject: Re: XFree86 vs. 2.5.54 - reboot
-In-Reply-To: <3E1C9D9A.FD5CA1F6@digeo.com> "from Andrew Morton at Jan 8, 2003
- 01:52:26 pm"
-To: Andrew Morton <akpm@digeo.com>
-Date: Fri, 10 Jan 2003 08:06:51 -0600 (CST)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20030110140651.E13A04EE7@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob_Tracy(0000))
+	id <S265385AbTAJOIs>; Fri, 10 Jan 2003 09:08:48 -0500
+Received: from hauptpostamt.charite.de ([193.175.66.220]:21688 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id <S265382AbTAJOIr>; Fri, 10 Jan 2003 09:08:47 -0500
+Date: Fri, 10 Jan 2003 15:17:29 +0100
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21pre3-ac2
+Message-ID: <20030110141729.GA31123@charite.de>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200301090139.h091d9G26412@devserv.devel.redhat.com> <20030110094504.GM25979@charite.de> <1042200029.28469.55.camel@irongate.swansea.linux.org.uk> <20030110111547.GB18007@charite.de> <20030110133028.GB12071@charite.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030110133028.GB12071@charite.de>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> > > "Bob_Tracy(0000)" wrote:
-> > > > AMD K6-III 450 running a 2.4.19 kernel with vesafb, XFree86 4.1.0, and
-> > > > a USB mouse works fine.  Same setup with a 2.5.54 kernel does a cold
-> > > > reboot when I type "startx".
-> 
-> Yup.  It must be something else then.  Perhaps you should try disabling
-> various DRM/AGP type things in config, see if that helps.
+* Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>:
 
-2.5.55 appears to work fine with CONFIG_AGP and CONFIG_DRM undefined.
-I'll retry with CONFIG_AGP_MODULE next...
+> Backing out of mm/shmem.c makess thee bug disappear.
+
+Not really. I rebooted and then the ac2 crashed DURING a fsck that was
+caused by reaching the maximum mount count.
+I'm outta here and back to 2.4.21pre3 :)
 
 -- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
+Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
+
+

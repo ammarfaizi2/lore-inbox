@@ -1,48 +1,30 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314446AbSFBVnH>; Sun, 2 Jun 2002 17:43:07 -0400
+	id <S314459AbSFBVut>; Sun, 2 Jun 2002 17:50:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314459AbSFBVnG>; Sun, 2 Jun 2002 17:43:06 -0400
-Received: from holomorphy.com ([66.224.33.161]:21410 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S314446AbSFBVnG>;
-	Sun, 2 Jun 2002 17:43:06 -0400
-Date: Sun, 2 Jun 2002 14:42:43 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Cc: trivial@rustcorp.com.au
-Subject: duplicate declaration of rq in sched_init()
-Message-ID: <20020602214243.GH14918@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S314553AbSFBVus>; Sun, 2 Jun 2002 17:50:48 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:21932 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S314459AbSFBVus>; Sun, 2 Jun 2002 17:50:48 -0400
+Date: Sun, 2 Jun 2002 23:50:30 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: FUD or FACTS ?? but a new FLAME!
+In-Reply-To: <Pine.LNX.4.10.10206021330120.5846-100000@master.linux-ide.org>
+Message-ID: <Pine.SOL.4.30.0206022343500.8028-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found this one while trying to straighten out bootstrap ordering
-issues elsewhere.
 
-There appears to be a duplicate declaration of rq in sched_init().
-This removes the nested declaration and otherwise leaves things alone.
+I apology for flames Andre, after some thinking I came to
+conclusion that if speaking hardware you are generally right.
 
-Cheers,
-Bill
+I hope we can together resolve transport layer issues in 2.5.
 
-===== kernel/sched.c 1.79 vs edited =====
---- 1.79/kernel/sched.c	Wed May 29 08:26:26 2002
-+++ edited/kernel/sched.c	Sun Jun  2 14:38:24 2002
-@@ -1591,9 +1591,9 @@
- 	int i, j, k;
- 
- 	for (i = 0; i < NR_CPUS; i++) {
--		runqueue_t *rq = cpu_rq(i);
- 		prio_array_t *array;
- 
-+		rq = cpu_rq(i);
- 		rq->active = rq->arrays;
- 		rq->expired = rq->arrays + 1;
- 		spin_lock_init(&rq->lock);
+Regards
+--
+Bartlomiej
+

@@ -1,30 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131791AbRCUVMf>; Wed, 21 Mar 2001 16:12:35 -0500
+	id <S131786AbRCUVY4>; Wed, 21 Mar 2001 16:24:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131793AbRCUVMZ>; Wed, 21 Mar 2001 16:12:25 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:47376 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131791AbRCUVMW>; Wed, 21 Mar 2001 16:12:22 -0500
-Subject: Re: Q: "kapm-idled" and CPU usage
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Wed, 21 Mar 2001 21:14:28 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
-        gc@mandrakesoft.com (Guillaume Cottenceau)
-In-Reply-To: <3AB50177.47489C00@mandrakesoft.com> from "Jeff Garzik" at Mar 18, 2001 01:41:59 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131806AbRCUVYq>; Wed, 21 Mar 2001 16:24:46 -0500
+Received: from adsl-216-102-91-127.dsl.snfc21.pacbell.net ([216.102.91.127]:62214
+	"EHLO ns1.serialhacker.net") by vger.kernel.org with ESMTP
+	id <S131786AbRCUVYg>; Wed, 21 Mar 2001 16:24:36 -0500
+From: Drew Bertola <drew@drewb.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14fpw7-00012U-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-ID: <15033.7145.547612.90560@champ.serialhacker.net>
+Date: Wed, 21 Mar 2001 21:23:53 +0000 ()
+To: linux-kernel@vger.kernel.org
+Subject: IGNORE - test
+X-Mailer: VM 6.75 under Emacs 19.34.1
+Reply-To: drew@drewb.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Several months ago, kapmd was renamed to kapm-idled in an attempt to
-> signal users that it was a special process, and that its CPU time wasn't
-> "real CPU time."  This hasn't silenced the bug reports and confusion.
+Boy, do I hate doing this.  Haven't gotten a post in several days,
+haven't seen any updates on kernel.org since 3/12.  What's up?
 
-And instrumenting the number of calls to the apm idle function I am
-not convinced that apm idle is working for all laptops as other people have
-claimed.
+-- 
+Drew Bertola  | Send a text message to my pager or cell ... 
+              |   http://jpager.com/Drew
+

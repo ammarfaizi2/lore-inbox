@@ -1,44 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262190AbTAaUKl>; Fri, 31 Jan 2003 15:10:41 -0500
+	id <S262224AbTAaULt>; Fri, 31 Jan 2003 15:11:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262208AbTAaUKl>; Fri, 31 Jan 2003 15:10:41 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:7839 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262190AbTAaUKl>;
-	Fri, 31 Jan 2003 15:10:41 -0500
-Subject: Re: [RFC][PATCH] linux-2.4.21-pre4_tsc-lost-tick_A0
-From: john stultz <johnstul@us.ibm.com>
-To: george anzinger <george@mvista.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E39D44A.95862534@mvista.com>
-References: <1043972238.19049.27.camel@w-jstultz2.beaverton.ibm.com>
-	 <3E39CC85.D9A339D0@mvista.com>
-	 <1043976173.19558.12.camel@w-jstultz2.beaverton.ibm.com>
-	 <3E39D44A.95862534@mvista.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1044044383.19552.31.camel@w-jstultz2.beaverton.ibm.com>
+	id <S262289AbTAaULs>; Fri, 31 Jan 2003 15:11:48 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:62963 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262224AbTAaULq>; Fri, 31 Jan 2003 15:11:46 -0500
+Date: Fri, 31 Jan 2003 21:21:06 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21pre4-ac1
+Message-ID: <20030131202105.GF21599@fs.tum.de>
+References: <200301311430.h0VEUKr31316@devserv.devel.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 31 Jan 2003 12:19:43 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200301311430.h0VEUKr31316@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-01-30 at 17:41, george anzinger wrote:
-> know if he is finished as yet, but...  The jiffies update
-> was part of the core patch to do the high res timers which
-> he said he would not take.  I would like to try parting it
-> out and pushing in some stuff, such as scmath.h which makes
-> things like fast_gettimeoffset_quotient not only
-> understandable but easy.  Folks in the cpu frequency area
-> would like that.  Still, my boss has other plans...
+On Fri, Jan 31, 2003 at 09:30:20AM -0500, Alan Cox wrote:
 
-Yea, I believe I commented a while back that there are some really good
-generic cleanups in the high-res code. Add me to the list of folks who
-would still like to see those broken out and submitted. :)
+>...
+> Linux 2.4.21pre4-ac1
+>...
+> o	Clean up radio_cadet locking and other bugs	(me)
+>...
 
-thanks
--john
+This causes the following compile error:
 
+<--  snip  -->
+
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.20-ac/include 
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc 
+-iwithprefix include -DKBUILD_BASENAME=radio_cadet  -c -o radio-cadet.o 
+radio-cadet.c
+radio-cadet.c: In function `cadet_init':
+radio-cadet.c:561: `cadet_lock' undeclared (first use in this function)
+radio-cadet.c:561: (Each undeclared identifier is reported only once
+radio-cadet.c:561: for each function it appears in.)
+make[4]: *** [radio-cadet.o] Error 1
+make[4]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.20-ac/drivers/media/radio'
+
+<--  snip  -->
+
+It seems the following was intended?
+
+--- linux-2.4.20-ac/drivers/media/radio/radio-cadet.c.old	2003-01-31 21:04:17.000000000 +0100
++++ linux-2.4.20-ac/drivers/media/radio/radio-cadet.c	2003-01-31 21:04:34.000000000 +0100
+@@ -558,7 +558,7 @@
+ static int __init cadet_init(void)
+ {
+ 
+-	spin_lock_init(&cadet_lock);
++	spin_lock_init(&cadet_io_lock);
+ 	
+ 	/*
+ 	 *	If a probe was requested then probe ISAPnP first (safest)
+
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

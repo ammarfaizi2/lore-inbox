@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266259AbTAOL7B>; Wed, 15 Jan 2003 06:59:01 -0500
+	id <S266271AbTAOML5>; Wed, 15 Jan 2003 07:11:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266271AbTAOL7B>; Wed, 15 Jan 2003 06:59:01 -0500
-Received: from mailsrv.otenet.gr ([195.170.0.5]:9660 "EHLO mailsrv.otenet.gr")
-	by vger.kernel.org with ESMTP id <S266259AbTAOL7A> convert rfc822-to-8bit;
-	Wed, 15 Jan 2003 06:59:00 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: =?iso-8859-7?b?tuPj5evv8iDP6erv7e/s/PDv9evv8g==?= 
-	<aoiko@cc.ece.ntua.gr>
-Reply-To: aoiko@cc.ece.ntua.gr
-To: Ian Wienand <ianw@gelato.unsw.edu.au>, Con Kolivas <conman@kolivas.net>
-Subject: Re: [ANNOUNCE] contest benchmark v0.60
-Date: Wed, 15 Jan 2003 14:08:13 +0200
-User-Agent: KMail/1.4.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Cliff White <cliffw@osdl.org>
-References: <1042500483.3e234b8335def@kolivas.net> <200301151416.54557.conman@kolivas.net> <20030115041524.GE21742@cse.unsw.edu.au>
-In-Reply-To: <20030115041524.GE21742@cse.unsw.edu.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301151351.05419.aoiko@cc.ece.ntua.gr>
+	id <S266274AbTAOML5>; Wed, 15 Jan 2003 07:11:57 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:62613 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S266271AbTAOML4>;
+	Wed, 15 Jan 2003 07:11:56 -0500
+Date: Wed, 15 Jan 2003 12:18:15 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: "James H. Cloos Jr." <cloos@jhcloos.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, davej@suse.de
+Subject: Re: new CPUID bit
+Message-ID: <20030115121815.GB32694@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Mikael Pettersson <mikpe@csd.uu.se>,
+	"James H. Cloos Jr." <cloos@jhcloos.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, davej@suse.de
+References: <3E23E04B.2050802@redhat.com> <m38yxn377m.fsf@lugabout.jhcloos.org> <15909.7444.490945.972037@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15909.7444.490945.972037@harpo.it.uu.se>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 January 2003 06:15, Ian Wienand wrote:
-> On Wed, Jan 15, 2003 at 02:16:48PM +1100, Con Kolivas wrote:
-> > Ok some mildly annoying bugs have already shown up in this release.
-> >
-> > I've put up a contest-0.61pre on the contest website that addresses the
-> > one which ruins the results and has some of the changes going into 0.61
->
-> Con/Aggelos,
->
-> What was the motivation for re-writing in C?
+On Wed, Jan 15, 2003 at 09:34:28AM +0100, Mikael Pettersson wrote:
 
-I gave up trying to make the script work in my desktop, which runs freebsd 
-(too many little differences in the utilities used).
+ > A better reference for this stuff is (IMHO) AP-485, the "Intel Processor
+ > Identification and the CPUID Instruction" application note. It's regularly
+ > updated, and in this particular case, its description of CPUID with EAX=1
+ > differs from the IA32 Volume 2 manual (245471xx) in two ways:
+ > 
+ > - EBX bit 31 is called "SBF", Signal Break on FERR.
+ > - ECX is defined to contain additional feature flags. Currently only one
+ >   is defined: ECX bit 10 is the "Context ID" feature for putting the L1
+ >   D-cache in adaptive or shared mode, which matters for hyper-threaded CPUs.
+ > 
+ > Supporting the new ECX feature flags in the kernel will require some surgery,
+ > since the current code assumes x86_capability[0] is Intel, [1] is AMD,
+ > [2] is Transmeta, and [3] is for conflicting or synthesized feature flags.
+ > We either shift AMD etc down one index and put ECX in [1], or add a new index
+ > [4] for ECX, or kludge the few ECX-defined features in [3].
 
-> I've done some hacking on the old version here, and so I realise that
-> such a big shell script was getting a little out of hand, but surely
-> perl or python is a better option for this application?
+Or we change it so we end up with something like..
 
-The script also had a few bugs that were actually artifacts of using bash 
-(e.g. you had to use killall instead of just killing your children).
+x86_capability[0].standard and x86_capability[0].extended
 
-> If it's going to stay in C maybe we could integrate profiling support
-> from /proc/profile, bypassing readprofile?  One of the guys here
-> recently wanted to get profiling information from his program, and it
-> would have been really good to have a library that could reset, start,
-> pause and return in some format the profiling data.  If you think your
-> users might be interested in profile outputs I can write something
-> maybe we can both use.
-
-Feel free to do so. I won't be able to help because
-a) I'm not interested the feature :)
-b) I don't have the time, I'm just helping Con squash most of the bugs in my 
-code.
+		Dave
 
 -- 
-Follow each decision as closely as possible with its associated action.
-            - The Elements of Programming Style (Kernighan & Plaugher)
-
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,51 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266677AbUGVCDp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266786AbUGVCIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266677AbUGVCDp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 22:03:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266669AbUGVCDp
+	id S266786AbUGVCIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 22:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266789AbUGVCIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 22:03:45 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:28593 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266677AbUGVCDi (ORCPT
+	Wed, 21 Jul 2004 22:08:16 -0400
+Received: from hqemgate02.nvidia.com ([216.228.112.145]:28429 "EHLO
+	hqemgate02.nvidia.com") by vger.kernel.org with ESMTP
+	id S266786AbUGVCIH convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 22:03:38 -0400
-Date: Wed, 21 Jul 2004 17:44:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-       linux-audio-dev@music.columbia.edu, arjanv@redhat.com,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "La Monte H.P. Yarroll" <piggy@timesys.com>
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040721154428.GA24374@elte.hu>
-References: <1089677823.10777.64.camel@mindpipe> <20040712174639.38c7cf48.akpm@osdl.org> <20040719102954.GA5491@elte.hu> <1090380467.1212.3.camel@mindpipe> <20040721000348.39dd3716.akpm@osdl.org> <20040721053007.GA8376@elte.hu> <1090389791.901.31.camel@mindpipe> <20040721082218.GA19013@elte.hu> <20040721085246.GA19393@elte.hu> <40FE545E.3050300@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40FE545E.3050300@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 21 Jul 2004 22:08:07 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: [PATCH 2.6.8-rc2] intel8x0.c to include CK804 audio support
+Date: Wed, 21 Jul 2004 19:08:07 -0700
+Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B03F95DD@hqemmail02.nvidia.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.6.8-rc2] intel8x0.c to include CK804 audio support
+Thread-Index: AcRvkLLe+nZ+1ZCLQj2yasNYAT8fdQ==
+From: "Andrew Chew" <achew@nvidia.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <jgarzik@pobox.com>
+X-OriginalArrivalTime: 22 Jul 2004 02:08:06.0891 (UTC) FILETIME=[BA8BBBB0:01C46F90]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch updates include/linux/pci_ids.h with the CK804 audio
+controller ID, and adds the CK804 audio controller to the
+sound/pci/intel8x0.c audio driver.
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-
-> What do you think about deferring softirqs just while in critical
-> sections?
-> 
-> I'm not sure how well this works, and it is CONFIG_PREEMPT only but in
-> theory it should prevent unbounded softirqs while under locks without
-> taking the performance hit of doing the context switch.
-
-i dont think this is sufficient. A high-prio RT task might be performing
-something that is important to it but isnt in any critical section. This
-includes userspace processing. We dont want to delay it with softirqs.
-
-	Ingo
+--- linux-2.6.8-rc2/include/linux/pci_ids.h	2004-07-21
+15:22:57.000000000 -0700
++++ linux/include/linux/pci_ids.h	2004-07-20 18:49:22.000000000
+-0700
+@@ -1071,6 +1071,7 @@
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA2	0x0055
+ #define PCI_DEVICE_ID_NVIDIA_NVENET_8		0x0056
+ #define PCI_DEVICE_ID_NVIDIA_NVENET_9		0x0057
++#define PCI_DEVICE_ID_NVIDIA_CK804_AUDIO	0x0059
+ #define PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE	0x0065
+ #define PCI_DEVICE_ID_NVIDIA_NVENET_2		0x0066
+ #define PCI_DEVICE_ID_NVIDIA_MCP2_AUDIO		0x006a
+--- linux-2.6.8-rc2/sound/pci/intel8x0.c	2004-07-21
+15:22:59.000000000 -0700
++++ linux/sound/pci/intel8x0.c	2004-07-20 18:52:07.000000000 -0700
+@@ -155,6 +155,9 @@
+ #ifndef PCI_DEVICE_ID_NVIDIA_CK8S_AUDIO
+ #define PCI_DEVICE_ID_NVIDIA_CK8S_AUDIO	0x00ea
+ #endif
++#ifndef PCI_DEVICE_ID_NVIDIA_CK804_AUDIO
++#define PCI_DEVICE_ID_NVIDIA_CK804_AUDIO 0x0059
++#endif
+ 
+ enum { DEVICE_INTEL, DEVICE_INTEL_ICH4, DEVICE_SIS, DEVICE_ALI,
+DEVICE_NFORCE };
+ 
+@@ -465,6 +468,7 @@
+ 	{ 0x10de, 0x006a, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DEVICE_NFORCE },
+/* NFORCE2 */
+ 	{ 0x10de, 0x00da, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DEVICE_NFORCE },
+/* NFORCE3 */
+ 	{ 0x10de, 0x00ea, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DEVICE_NFORCE },
+/* CK8S */
++	{ 0x10de, 0x0059, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DEVICE_NFORCE },
+/* CK804 */
+ 	{ 0x1022, 0x746d, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DEVICE_INTEL },
+/* AMD8111 */
+ 	{ 0x1022, 0x7445, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DEVICE_INTEL },
+/* AMD768 */
+ 	{ 0x10b9, 0x5455, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DEVICE_ALI },
+/* Ali5455 */
+@@ -2614,6 +2618,7 @@
+ 	{ PCI_DEVICE_ID_NVIDIA_MCP2_AUDIO, "NVidia nForce2" },
+ 	{ PCI_DEVICE_ID_NVIDIA_MCP3_AUDIO, "NVidia nForce3" },
+ 	{ PCI_DEVICE_ID_NVIDIA_CK8S_AUDIO, "NVidia CK8S" },
++	{ PCI_DEVICE_ID_NVIDIA_CK804_AUDIO, "NVidia CK804" },
+ 	{ 0x746d, "AMD AMD8111" },
+ 	{ 0x7445, "AMD AMD768" },
+ 	{ 0x5455, "ALi M5455" },

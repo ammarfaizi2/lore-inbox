@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276261AbRI1Tm7>; Fri, 28 Sep 2001 15:42:59 -0400
+	id <S276264AbRI1Tn7>; Fri, 28 Sep 2001 15:43:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276263AbRI1Tmt>; Fri, 28 Sep 2001 15:42:49 -0400
-Received: from relay-1v.club-internet.fr ([194.158.96.112]:17033 "HELO
-	relay-1v.club-internet.fr") by vger.kernel.org with SMTP
-	id <S276261AbRI1Tme>; Fri, 28 Sep 2001 15:42:34 -0400
-Message-ID: <3BB4D327.61902593@club-internet.fr>
-Date: Fri, 28 Sep 2001 21:44:39 +0200
-From: Daniel Caujolle-Bert <segfault@club-internet.fr>
-Reply-To: segfault@club-internet.fr
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
+	id <S276267AbRI1Tnz>; Fri, 28 Sep 2001 15:43:55 -0400
+Received: from elin.scali.no ([62.70.89.10]:15378 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S276264AbRI1Tnf>;
+	Fri, 28 Sep 2001 15:43:35 -0400
+Message-ID: <3BB4D202.314C98E6@scali.no>
+Date: Fri, 28 Sep 2001 21:39:46 +0200
+From: Steffen Persvold <sp@scali.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Binary only module overview
-In-Reply-To: <E15myqL-0007E8-00@the-village.bc.nu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: mm: critical shortage of bounce buffers
+In-Reply-To: <E15n2Rf-0007xv-00@the-village.bc.nu> <3BB4D072.4D3EE56B@scali.no>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Steffen Persvold wrote:
 > 
-> > That I would call an obvious GPL violation... no discussion
-> > about vague "interfaces", if you directly link serial.c
-> > (even modified) into a non-GPL .o file that's obvious....
+> Alan Cox wrote:
+> >
+> > > I've recently encountered the following message on a machine running RedHat's
+> > > 2.4.3-12 kernel :
+> > >
+> > > "mm: critical shortage of bounce buffers"
+> > >
+> > > I've searched through the kernel sources, but my 'find' just can't locate this
+> > > string anywhere.
+> >
+> > Its in the high mem handling routines. It means the machine stalled for
+> > a moment doing I/O because it had no memory below 1Gb to use.
 > 
-> I raised this one with Ted T'so (who wrote the serial.c they use) a long
-> time ago. Ted seemed happy for this to occur - and its kind of his code,
-> his business.
+> But why does it need to have memory below 1Gb ?? Normally, 32bit PCI DMA
+> controllers (such as network cards and disk controllers) can access up to 4GB of
+> physical memory within the machine, so unless you are using the CONFIG_HIGHMEM4G
+> option it shouldn't need bounce buffers.
 
-	I don't understand you here, sorry, complicated sentence are
-hard for me :<. Anyway, i am one of the one who hacked and old version
-of this driver for 2.4.7+, of course i can understand it's a GPL
-violation,
-but like another guy wrote (sorry, i haven't his name liying around),
-binary only module is *almost* better than no support.
-	
-Cheers.
+Sorry  that should have been the CONFIG_HIGHMEM64G option. I think the
+CONFIG_HIGHMEM4G option could manage without bounce buffers.
+
+Regards,
 -- 
-73's de Daniel, F1RMB.
-
-              -=- Daniel Caujolle-Bert -=- segfault@club-internet.fr -=-
-                        -=- f1rmb@f1rmb.ampr.org (AMPR NET) -=-
+  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best   
+ mailto:sp@scali.no  |  http://www.scali.com  | performing MPI implementation:
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.12.2 -         
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >300MBytes/s and <4uS latency

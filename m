@@ -1,66 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272115AbTGYOGN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 10:06:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272116AbTGYOGN
+	id S272118AbTGYOJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 10:09:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272119AbTGYOJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 10:06:13 -0400
-Received: from D71aa.pppool.de ([80.184.113.170]:11180 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id S272115AbTGYOGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 10:06:12 -0400
-Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-From: Daniel Egger <degger@fhm.edu>
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: Hans Reiser <reiser@namesys.com>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       reiserfs mailing list <reiserfs-list@namesys.com>
-In-Reply-To: <16161.10863.793737.229170@laputa.namesys.com>
-References: <3F1EF7DB.2010805@namesys.com>
-	 <1059062380.29238.260.camel@sonja>
-	 <16160.4704.102110.352311@laputa.namesys.com>
-	 <1059093594.29239.314.camel@sonja>
-	 <16161.10863.793737.229170@laputa.namesys.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-zZxwTz4+4qIfWF1DwMQj"
-Message-Id: <1059142851.6962.18.camel@sonja>
+	Fri, 25 Jul 2003 10:09:27 -0400
+Received: from 24-216-225-11.charter.com ([24.216.225.11]:9390 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id S272118AbTGYOJ0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 10:09:26 -0400
+Date: Fri, 25 Jul 2003 10:24:34 -0400
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4 -> 2.2 differences?
+Message-ID: <20030725142434.GS32585@rdlg.net>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 25 Jul 2003 16:20:52 +0200
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+hz2tM55CCA8Ej21"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-zZxwTz4+4qIfWF1DwMQj
-Content-Type: text/plain
+--+hz2tM55CCA8Ej21
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Am Fre, 2003-07-25 um 15.02 schrieb Nikita Danilov:
 
-> No special measures are taken to level block allocation. Wandered blocks
-> are allocated to improve packing i.e., place blocks of the same file
-> close to each other. Actually, it tries to place tree nodes in the
-> parent-first order.
 
-So the new blocks are created as close as possible to the old blocks
-instead of say spreading them as far as possible. This is pretty bad for
-usage in the embedded world but I guess this is not the market you're
-aiming at. :(
+With all the SCO fun going on I have people asking me what functionality
+we would loose if we rolled from 2.4.21 kernel to the last known stable
+2.2 kernel.
 
---=20
-Servus,
-       Daniel
+Yes, weathering the lawsuit mess and all is a good plan but I'm still
+being asked for this information.  Does anyone have a link listing what
+ kind of functionality would be lost, performance impact (p3 and athalon
+machines), etc?
 
---=-zZxwTz4+4qIfWF1DwMQj
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
+Robert
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu=20
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+Diagnosis: witzelsucht  =09
+
+IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
+IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
+
+--+hz2tM55CCA8Ej21
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQA/ITzDchlzsq9KoIYRAjCkAJ9NgpQRLL498Zy+8OW4MSxcmwNIbwCglW/L
-8aA88cOOibNYjlaCVcGV2Ic=
-=oIIy
+iD8DBQE/IT2i8+1vMONE2jsRAu08AJ4yGKAanogRU2ewcUA/Ed7lqnnRiACgkEyW
+wGdPi5esThkc0U0Ib5K91bg=
+=e4zw
 -----END PGP SIGNATURE-----
 
---=-zZxwTz4+4qIfWF1DwMQj--
-
+--+hz2tM55CCA8Ej21--

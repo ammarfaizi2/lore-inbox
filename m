@@ -1,27 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270020AbUJVH5k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270371AbUJVIBR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270020AbUJVH5k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 03:57:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269704AbUJVH4b
+	id S270371AbUJVIBR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 04:01:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269848AbUJVH4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 03:56:31 -0400
-Received: from gprs214-34.eurotel.cz ([160.218.214.34]:35204 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S269830AbUJVHyG (ORCPT
+	Fri, 22 Oct 2004 03:56:09 -0400
+Received: from gprs214-34.eurotel.cz ([160.218.214.34]:36996 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S270020AbUJVHzI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 03:54:06 -0400
-Date: Fri, 22 Oct 2004 09:53:43 +0200
+	Fri, 22 Oct 2004 03:55:08 -0400
+Date: Fri, 22 Oct 2004 09:54:54 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Li Shaohua <shaohua.li@intel.com>
-Cc: Nate Lawson <nate@root.org>, Nigel Cunningham <ncunningham@linuxmail.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>
-Subject: Re: [ACPI] Machines self-power-up with 2.6.9-rc3 (evo N620c, ASUS, ...)
-Message-ID: <20041022075343.GC8376@elf.ucw.cz>
-References: <4176FCB8.3060103@root.org> <1098323602.6132.51.camel@sli10-desk.sh.intel.com> <20041021103729.GA1088@elf.ucw.cz> <1098405352.28250.2.camel@sli10-desk.sh.intel.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: __init & __initdata during resume
+Message-ID: <20041022075454.GD8376@elf.ucw.cz>
+References: <41788761.8020508@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1098405352.28250.2.camel@sli10-desk.sh.intel.com>
+In-Reply-To: <41788761.8020508@osdl.org>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -29,26 +27,30 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > > > :-). Well for some other people it powers up when they unplug AC
-> > > > > power, and *that* is nasty. I'd like my machine to stay powered down
-> > > > > when I tell it so.
-> > > > 
-> > > > This is likely a similar GPE problem.  The GPE for the EC fires even
-> > > > in 
-> > > > S5.  I think the EC GPE should be disabled in the suspend method.
-> > > It could be the wakeup GPE issue, but must note Pavel's system suffer
-> > > the problem even with acpi=off. Could you please try boot your system
-> > > with acpi=off, and then reboot with acpi=off, what's the result? I
-> > > expected the wakeup GPE is disabled by the BIOS in this case.
-> > > Anyway, the DSDT can tell us the wakeup GPE info.
-> > 
-> > You want me to boot with acpi=off twice and see if machine powers down
-> > okay in second case?
-> Yes, indeed.
+> 'make buildcheck' reports:
+> Error: ./arch/x86_64/ia32/syscall32.o .text refers to 0000000000000002
+> R_X86_64_PC32     .init.data+0x000000000000152b
+> Error: ./arch/x86_64/ia32/syscall32.o .text refers to 0000000000000017
+> R_X86_64_PC32     .init.data+0x000000000000152c
+> 
+> 
+> I'm looking at a recent (2 weeks) changeset:
+> [PATCH] Fix random crashes in x86-64 swsusp
+> 
+> http://linux.bkbits.net:8080/linux-2.5/cset@4166a52aYzzfOE3F63Kkb966K2Qz3g?nav=index.html|src/|src/arch|src/arch/x86_64|src/arch/x86_64/ia32|related/arch/x86_64/ia32/syscall32.c
+> 
+> in which this change was made:
+> 
+> -void __init syscall32_cpu_init(void)
+> +/* May not be __init: called during resume */
+> +void syscall32_cpu_init(void)
+> 
+> but syscall32_cpu_init() uses <use_sysenter>, which is:
+> static int use_sysenter __initdata = -1;
+> 
+> so the question is:  does that "__initdata" need to removed also?
 
-Okay, I did poweron, boot with acpi=off, reboot (again with acpi=off),
-then shutdown -h now. I got the same strange lightshow at the leds and
-reboot instead of powerdown.
+Yes, I'm afraid that I overlooked that one.
 								Pavel
 -- 
 People were complaining that M$ turns users into beta-testers...

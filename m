@@ -1,59 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267977AbRG3VFr>; Mon, 30 Jul 2001 17:05:47 -0400
+	id <S267995AbRG3VJr>; Mon, 30 Jul 2001 17:09:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267885AbRG3VFh>; Mon, 30 Jul 2001 17:05:37 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:38149 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S267977AbRG3VFR>; Mon, 30 Jul 2001 17:05:17 -0400
-Message-ID: <3B65CC07.24E3EF4C@namesys.com>
-Date: Tue, 31 Jul 2001 01:05:11 +0400
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, ru
+	id <S267993AbRG3VJh>; Mon, 30 Jul 2001 17:09:37 -0400
+Received: from out4.prserv.net ([32.97.166.34]:63739 "EHLO prserv.net")
+	by vger.kernel.org with ESMTP id <S267885AbRG3VJX>;
+	Mon, 30 Jul 2001 17:09:23 -0400
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@caldera.de>
-CC: linux-kernel@vger.kernel.org, Vitaly Fertman <vitaly@namesys.com>
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-In-Reply-To: <200107281645.f6SGjA620666@ns.caldera.de> <3B653211.FD28320@namesys.com> <20010730210644.A5488@caldera.de> <3B65C3D4.FF8EB12D@namesys.com> <20010730224930.A18311@caldera.de>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Message-Id: <3B65CD09.000001.33392@be1.prserv.net>
+Date: Mon, 30 Jul 2001 21:09:29 +0000 (CUT)
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_TF1BQL80000000000000"
+From: isnkrnl@attglobal.net
+To: linux-kernel@vger.kernel.org
+Subject: Bizarre multithread open/close problem
+X-Mailer: Web Mail v2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Christoph Hellwig wrote:
-> 
-> On Tue, Jul 31, 2001 at 12:30:12AM +0400, Hans Reiser wrote:
-> > But there is not one where they recover from invalid arguments without a panic
-> > (unless I failed to notice something),
-> 
-> Right.
-> 
-> > so it gets you nothing except a message
-> > that we the developers will find more informative when trying to find what made
-> > it crash.
-> 
-> Nope.  It does a reiserfs_panic instead of letting the wrong arguments
-> slipping into lower layers and possibly on disk and thus corrupting data.
-> 
-> And in my opinion correct data is much more worth than one crash more or
-> less (especially with a journaling filesystem).
-> 
->         Christoph
-> 
-> --
-> Whip me.  Beat me.  Make me maintain AIX.
+
+--------------Boundary-00=_TF1BQL80000000000000
+Content-Type: Text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+
+I'm not sure if this is a bug or not but my
+coworker has a wierd one.
+
+He has 2 threads, main and helper.
+
+main:
+f=open(/dev/brcmrec) does some work and then 
+
+spawns helper:
+
+helper spins forever doing various ioctls, read
+and writes on f which was opened in main. Every
+time through it looks at a "amIDone" flag which is
+set by main.  pthreads are the threads.
+
+Then at some point main wants to end helper and
+close f.  Main sets "amIDone" which tells helper
+to terminate and then successfully closes f.  
+
+Now here is the problem, our brcmrec driver has a
+close() function which isn't getting called when
+main does the close, at least not all of the
+time.  	  
+We're beginning to think that if the helper thread
+is in the middle of an ioctl or something then the
+close works but it doesn't call the close on the
+driver.  
 
 
-There is nothing like a distro maintainer overriding the design decisions made
-by the lead architect of a package, not believing that said architect knows what
-the fuck he is doing.
+I don't even know what kind of help to ask for
+here, so feel free to poke at this any ways you
+like.  I guess the bothersome part is that we have
+a thread that doesn an open (did I mention it was
+an exclusive open?) and then spawns a thread and
+then does a close and we can't reopen the device
+and the close part of our driver is never called.
 
-We will make this unusable by you from this point onwards.  Vitaly, I told you
-what to do weeks ago in this regard, do it today.
+Any ideas or hints?
 
-Does it get worse than shovelware?  I suppose it does....
-
-Hans
+thanks,
+Ian Nelson
+--------------Boundary-00=_TF1BQL80000000000000--

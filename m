@@ -1,7 +1,7 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S289978AbSA3QVJ>; Wed, 30 Jan 2002 11:21:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S289963AbSA3QTf>; Wed, 30 Jan 2002 11:19:35 -0500
-Received: from [216.247.238.190] ([216.247.238.190]:56845 "HELO pakistanmail.com") by vger.kernel.org with SMTP id <S289941AbSA3QSv>; Wed, 30 Jan 2002 11:18:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S289974AbSA3QWQ>; Wed, 30 Jan 2002 11:22:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S289997AbSA3QVT>; Wed, 30 Jan 2002 11:21:19 -0500
+Received: from [216.247.238.190] ([216.247.238.190]:60685 "HELO pakistanmail.com") by vger.kernel.org with SMTP id <S289928AbSA3QTv>; Wed, 30 Jan 2002 11:19:51 -0500
 From: grumph@pakistanmail.com
 Reply-to: grumph@pakistanmail.com
 To: linux-kernel@vger.kernel.org
@@ -9,7 +9,7 @@ Cc: torvalds@transmeta.com, hpa@zytor.com
 X-CC-Sender: grumph@pakistanmail.com
 Date: Wed, 30 Jan 2002 18:14:45 +0100
 Subject: Re: Wanted: Volunteer to code a Patchbot
-Message-id: <3c580c59.4093.0@pakistanmail.com>
+Message-id: <3c580c78.40f4.0@pakistanmail.com>
 X-User-Info: 217.70.229.45
 MIME-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"

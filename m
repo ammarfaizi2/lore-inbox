@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289362AbSBEJQa>; Tue, 5 Feb 2002 04:16:30 -0500
+	id <S289364AbSBEKMd>; Tue, 5 Feb 2002 05:12:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289357AbSBEJQW>; Tue, 5 Feb 2002 04:16:22 -0500
-Received: from codepoet.org ([166.70.14.212]:43740 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S289362AbSBEJQJ>;
-	Tue, 5 Feb 2002 04:16:09 -0500
-Date: Tue, 5 Feb 2002 02:16:08 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH *] rmap based VM, 12c
-Message-ID: <20020205091607.GA11426@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Rik van Riel <riel@conectiva.com.br>, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0202032348500.17850-100000@imladris.surriel.com>
+	id <S289369AbSBEKMV>; Tue, 5 Feb 2002 05:12:21 -0500
+Received: from picton-ext.nt.tas.gov.au ([202.7.15.63]:37286 "EHLO
+	picton-ext.nt.tas.gov.au") by vger.kernel.org with ESMTP
+	id <S289364AbSBEKML>; Tue, 5 Feb 2002 05:12:11 -0500
+Date: Tue, 5 Feb 2002 21:12:01 +1100 (EST)
+Message-Id: <200202051012.g15AC1n24106@picton-ext.nt.tas.gov.au>
+From: "Andrew Griffiths" <andrewg@tasmail.com>
+To: "Daniel Jacobowitz" <dan@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Importance: Normal
+X-Mailer: VisualMail 3.0 ( http://www.minter.com.ar/visualmail )
+Subject: Re: ptrace allows you to read -r files
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0202032348500.17850-100000@imladris.surriel.com>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun Feb 03, 2002 at 11:50:09PM -0200, Rik van Riel wrote:
-> Due to field circus duty I forgot to announce 12b ... so here is 12c
+G'day,
+
+After talking to some people, they confirm it is known, but what is the point of -r'ing binaries it if it can be read?
+
+While it may not be a direct security threat, being able to look inside an otherwise unreadable binary can be a problem, for example, seeing if it is working or not, or possibly got entries for format strings.
+
+Also some programs have a secret value inside them they use for authenication with remote clients. (Possibly Q by mixter @ mixter.warrior2k.com rings a bell).
+
+While I guess there is no standard for ptrace, what do the other operating systems do? I've been told freebsd won't allow you to ptrace() a non-readable binary, but unable to confirm it myself.
+
+On Monday, February 04, 2002 at 10:06:28 PM, Daniel Jacobowitz wrote:
+
+> On Tue, Feb 05, 2002 at 11:33:32AM +1100, Andrew Griffiths wrote:
+> > For those who want some demo code, you can find it at http://203.39.161.186/readbin.tgz.
+>>
+> I think this is just 'known'.  Note that it isn't a security problem
+> otherwise; you'll find that the setuid application does not setuid if
+> it is ptraced.  On 2.4.17 at least.
+> 
 > 
 
-FYI, rmap 12c claims to be rmap 12b in the EXTRAVERSION...
-
- -Erik
-
 --
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+www.tasmail.com
+
+

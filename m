@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262511AbRENVow>; Mon, 14 May 2001 17:44:52 -0400
+	id <S262519AbRENVvM>; Mon, 14 May 2001 17:51:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262513AbRENVoc>; Mon, 14 May 2001 17:44:32 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:64708 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262511AbRENVoU>;
-	Mon, 14 May 2001 17:44:20 -0400
-Date: Mon, 14 May 2001 17:44:19 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-cc: Andreas Dilger <adilger@turbolinux.com>, "H. Peter Anvin" <hpa@zytor.com>,
+	id <S262516AbRENVvD>; Mon, 14 May 2001 17:51:03 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:2156 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S262513AbRENVuz>; Mon, 14 May 2001 17:50:55 -0400
+Date: Mon, 14 May 2001 17:50:47 -0400
+From: Bill Nottingham <notting@redhat.com>
+To: Jesper Juhl <juhl@eisenstein.dk>
+Cc: linux-serial@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
         linux-kernel@vger.kernel.org
-Subject: Re: [Re: Inodes]
-In-Reply-To: <3B004B90.5B2BD131@transmeta.com>
-Message-ID: <Pine.GSO.4.21.0105141735001.19333-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH] missing return value from pci_xircom_fn() in drivers/char/serial.c
+Message-ID: <20010514175047.A19221@devserv.devel.redhat.com>
+Mail-Followup-To: Jesper Juhl <juhl@eisenstein.dk>,
+	linux-serial@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3AFEFD06.9010500@eisenstein.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AFEFD06.9010500@eisenstein.dk>; from juhl@eisenstein.dk on Sun, May 13, 2001 at 11:30:46PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jesper Juhl (juhl@eisenstein.dk) said: 
+> I have made a patch against 2.4.4-ac8 that makes the change, it is 
+> below. I guess someone more knowledgeable than me can probably see if 
+> this is correct. If this is completely bogus, then please just disregard 
+> this email.
 
+Yup, it's right. My bad. :)
 
-On Mon, 14 May 2001, H. Peter Anvin wrote:
-
-> Correct.  At least at one time it used the offset of the directory entry
-> when that particular inode was last "seen" by the kernel... meaning that
-> when it finally dropped out of the inode cache, it would change inode
-> numbers.  I thought that was a reasonable (by no means perfect, though)
-> solution to a very sticky problem.
-
-Unfortunately it wasn't a solution. Look: you open a file and rename it
-away. Now you want to create something in the old directory. Woops - can't
-use the old entry of our file, since we'll get icache conflict that way.
-So we get this lovely notion of reserved entries and there lies the
-madness. It gets especially nasty when you consider rmdir of something
-that used to be non-empty, but everything had been renamed away from it.
-And stayes open. Moreover, at every moment you need both the "original"
-location (inumber) and current one (for write_inode()). Better yet, you
-get to deal with opened files that are not renamed, but removed. Yes,
-all of that can be dealt with. The old driver didn't.
-
+Bill

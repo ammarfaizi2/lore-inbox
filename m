@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311302AbSCLSGU>; Tue, 12 Mar 2002 13:06:20 -0500
+	id <S311305AbSCLSJL>; Tue, 12 Mar 2002 13:09:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311303AbSCLSGB>; Tue, 12 Mar 2002 13:06:01 -0500
-Received: from grace.speakeasy.org ([216.254.0.2]:29962 "HELO
-	grace.speakeasy.org") by vger.kernel.org with SMTP
-	id <S311302AbSCLSF7>; Tue, 12 Mar 2002 13:05:59 -0500
-Date: Tue, 12 Mar 2002 10:05:58 -0800 (PST)
-From: John Schmerge <schmerge@speakeasy.net>
-To: Andrew Morton <akpm@zip.com.au>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Oops/Crash with 2.4.17 and 2.4.18 kernels
-In-Reply-To: <3C8D25A8.52F46BA4@zip.com.au>
-Message-ID: <Pine.LNX.4.44.0203121005060.13438-100000@grace.speakeasy.net>
+	id <S311304AbSCLSJC>; Tue, 12 Mar 2002 13:09:02 -0500
+Received: from moutvdomng1.kundenserver.de ([212.227.126.181]:2047 "EHLO
+	moutvdomng1.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S311308AbSCLSIv>; Tue, 12 Mar 2002 13:08:51 -0500
+Message-ID: <3C8E442A.A52CF408@ngforever.de>
+Date: Tue, 12 Mar 2002 11:08:42 -0700
+From: Thunder from the hill <thunder@ngforever.de>
+Organization: The LuckyNet Administration
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.8-26mdk i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: Hans Reiser <reiser@namesys.com>, James Antill <james@and.org>,
+        Tom Lord <lord@regexps.com>, jaharkes@cs.cmu.edu
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the insight... It turns out that you're conjecture seems to be
-correct. Boy, I feel like a n00b... I had run memtest86 after first noticing
-these problems and everything seemed ok, but after a good long run last night,
-I started to see the failures. Sigh. Looks like i have either a bad mobo or a
-bad processor.
+Hans Reiser wrote about versioning to be just fine if you remember to
+handle it.
+I'd suggest setting the number of versions to one by default, else we
+might run into the same trouble as they did with VMS...
 
-Thanks again,
-John
+Thunder
 
-On Mon, 11 Mar 2002, Andrew Morton wrote:
-
-> John Schmerge wrote:
-> > 
-> > ...
-> >   Asus CUV4X-D motherboard
-> >   2 x Pentium III 1.0 ghz processors
-> >   1024 Mb ram (4x256mb)
-> >   IBM Deskstar 40gb ata100 disk
-> >   Radeon QD AGP card
-> >   Realtek 8139 pci NIC
-> > 
-> > ...
-> > Mar  9 03:46:07 voltaire kernel: Unable to handle kernel paging request at virtual address 04000004
-> 
-> Single-bit error.  Kernel expected either a valid address or a null
-> pointer, but bit 26 was set.
-> 
-> You should run memtest86 for 24 hours, and be suspicious of your
-> shiny new hardware :(
-> 
-> -
-> 
-
+-- 
+begin-base64 755 -
+IyEgL3Vzci9iaW4vcGVybApteSAgICAgJHNheWluZyA9CSMgVGhlIHNjcmlw
+dCBvbiB0aGUgbGVmdCBpcyB0aGUgcHJvb2YKIk5lbmEgaXN0IGVpbiIgLgkj
+IHRoYXQgaXQgaXNuJ3QgYWxsIHRoZSB3YXkgaXQgc2VlbXMKIiB2ZXJhbHRl
+dGVyICIgLgkjIHRvIGJlIChlc3BlY2lhbGx5IG5vdCB3aXRoIG1lKQoiTkRX
+LVN0YXIuXG4iICA7CiRzYXlpbmcgPX4Kcy9ORFctU3Rhci9rYW5uXAogdW5z
+IHJldHRlbi9nICA7CiRzYXlpbmcgICAgICAgPX4Kcy92ZXJhbHRldGVyL2Rp
+XAplIExpZWJlL2c7CiRzYXlpbmcgPX5zL2Vpbi8KbnVyL2c7JHNheWluZyA9
+fgpzL2lzdC9zYWd0LC9nICA7CiRzYXlpbmc9fnMvXG4vL2cKO3ByaW50Zigk
+c2F5aW5nKQo7cHJpbnRmKCJcbiIpOwo=
+====
+Extract this and see what will happen if you execute my
+signature. Just save it to file and do a
+> uudecode $file | perl

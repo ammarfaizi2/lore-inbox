@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267480AbUIBF6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267558AbUIBF6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267480AbUIBF6P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 01:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267558AbUIBF6P
+	id S267558AbUIBF6x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 01:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267596AbUIBF6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 01:58:15 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:28130 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267480AbUIBF6L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 01:58:11 -0400
-Date: Thu, 2 Sep 2004 07:40:08 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org, Mark_H_Johnson@raytheon.com,
-       Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q7
-Message-ID: <20040902054008.GA12755@elte.hu>
-References: <20040828211334.GA32009@elte.hu> <1093727817.860.1.camel@krustophenia.net> <1093737080.1385.2.camel@krustophenia.net> <1093746912.1312.4.camel@krustophenia.net> <20040829054339.GA16673@elte.hu> <20040830090608.GA25443@elte.hu> <20040901082958.GA22920@elte.hu> <20040901135122.GA18708@elte.hu> <41367E5D.3040605@cybsft.com> <20040902053719.GA12684@elte.hu>
+	Thu, 2 Sep 2004 01:58:49 -0400
+Received: from mail.shareable.org ([81.29.64.88]:38602 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S267558AbUIBF6l
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 01:58:41 -0400
+Date: Thu, 2 Sep 2004 06:57:43 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+Cc: Tonnerre <tonnerre@thundrix.ch>,
+       "Alexander G. M. Smith" <agmsmith@rogers.com>, spam@tnonline.net,
+       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
+       Linus Torvalds <torvalds@osdl.org>, reiser@namesys.com,
+       Christoph Hellwig <hch@lst.de>, fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, flx@namesys.com,
+       reiserfs-list@namesys.com, vonbrand@inf.utfsm.cl
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040902055743.GA14177@mail.shareable.org>
+References: <20040829191044.GA10090@thundrix.ch> <3247172997-BeMail@cr593174-a> <20040831081528.GA14371@thundrix.ch> <20040901201608.GD31934@mail.shareable.org> <1094070506.28509.24.camel@shaggy.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040902053719.GA12684@elte.hu>
+In-Reply-To: <1094070506.28509.24.camel@shaggy.austin.ibm.com>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tonnerre wrote:
+> > > I'll write you a small daemon based on libmagic which stores the
+> > > file attributes in xattrs, or if they're not supported, in some
+> > > MacOS/Xish per-directory files. Even a file manager ("finder") can
+> > > do that, there's not even the need for a daemon.
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+Jamie Lokier wrote:
+> > (For example, if I edit an HTML file which is encoded in iso-8859-1,
+> > change it to utf-8 and indicate that in a META element, and save it
+> > under the same name, the full content-type should change from
+> > "text/html; charset=iso-8859-1" to "text/html; charset=utf-8".)
+> > 
+> > I don't see how you can do that without kernel support.
 
-> > 00000001 0.000ms (+0.000ms): n_tty_receive_buf (pty_write)
-> > 00010001 3.992ms (+3.992ms): do_IRQ (n_tty_receive_buf)
-> 
-> the overhead is always relative to the previous entry [...]
+Dave Kleikamp wrote:
+> Your html editor should do that.
 
-i've changed the /proc/latency_trace output in my tree to print the
-latency of this entry relative to the next entry, not the previous
-entry. This should be more intuitive than using the previous entry.
+My html editor is "vi".  If I am supposed to manually set the
+content-type attribute after exiting vi, doesn't that rather
+invalidate the idea of a "small daemon based on libmagic" which sets
+it for me?
 
-	Ingo
+That was the sole point of my statement.
+
+-- Jamie

@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288531AbSAQLgJ>; Thu, 17 Jan 2002 06:36:09 -0500
+	id <S288548AbSAQLqK>; Thu, 17 Jan 2002 06:46:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288534AbSAQLf7>; Thu, 17 Jan 2002 06:35:59 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61964 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288531AbSAQLfy>;
-	Thu, 17 Jan 2002 06:35:54 -0500
-Message-ID: <3C46B718.26F52BD5@mandrakesoft.com>
-Date: Thu, 17 Jan 2002 06:35:52 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.2-pre9fs7 i686)
-X-Accept-Language: en
+	id <S288547AbSAQLqB>; Thu, 17 Jan 2002 06:46:01 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:64529 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S288548AbSAQLpq>;
+	Thu, 17 Jan 2002 06:45:46 -0500
+Date: Thu, 17 Jan 2002 09:45:24 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Nicolas Pitre <nico@cam.org>
+Cc: Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Rik spreading bullshit about VM
+In-Reply-To: <Pine.LNX.4.44.0201162044510.14097-100000@xanadu.home>
+Message-ID: <Pine.LNX.4.33L.0201170944010.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: "Eric S. Raymond" <esr@thyrsus.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Calling EISA experts
-In-Reply-To: <20020117015456.A628@thyrsus.com> <20020117121723.B22171@suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> 
-> On Thu, Jan 17, 2002 at 01:54:56AM -0500, Eric S. Raymond wrote:
->  > Does anything in /proc or elswhere reliably register the presence of EISA?
-> 
->  Not afaik. I'm tempted to hack support for it into driverfs.
+On Wed, 16 Jan 2002, Nicolas Pitre wrote:
 
-The EISA_bus global variable indicates presence...
+> Then...
+>
+> What did you want to say exactly?
+>
+> Why aren't you rushing out to provide corrections?
+>
+> What are you waiting for?
 
+It's just an article, it's just this week.
+
+Next week people will be all upset about the next
+block io layer flamewar or maybe the politicians
+will have time again for the next round of DMCA.
+
+I'm not a good writer, by the time I'd have written
+any correction or follow-up people would have mostly
+forgotten this thing anyway.
+
+regards,
+
+Rik
 -- 
-Jeff Garzik      | Alternate titles for LOTR:
-Building 1024    | Fast Times at Uruk-Hai
-MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
-                 | Samwise Gamgee: International Hobbit of Mystery
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

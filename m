@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133019AbRDUXJR>; Sat, 21 Apr 2001 19:09:17 -0400
+	id <S133027AbRDUXL5>; Sat, 21 Apr 2001 19:11:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133021AbRDUXJJ>; Sat, 21 Apr 2001 19:09:09 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34573 "EHLO
+	id <S133025AbRDUXLs>; Sat, 21 Apr 2001 19:11:48 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:37133 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S133019AbRDUXIt>; Sat, 21 Apr 2001 19:08:49 -0400
-Subject: Re: a way to restore my hd ?
-To: ville.holma@pp.htv.fi (Ville Holma)
-Date: Sun, 22 Apr 2001 00:10:40 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, ville.holma@pp.htv.fi
-In-Reply-To: <000701c0ca7b$051934a0$6786f3d5@pp.htv.fi> from "Ville Holma" at Apr 21, 2001 06:52:01 PM
+	id <S133027AbRDUXLm>; Sat, 21 Apr 2001 19:11:42 -0400
+Subject: Re: APIC-Errors+Crashes on GA 586DX, 2.2.17/2.4.3
+To: kkeil@suse.de (Karsten Keil)
+Date: Sun, 22 Apr 2001 00:13:34 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010421180435.A22420@pingi.muc.suse.de> from "Karsten Keil" at Apr 21, 2001 06:04:35 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14r6WZ-0004XM-00@the-village.bc.nu>
+Message-Id: <E14r6ZO-0004Xf-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The memory I had was however somehow corrupt and after I got my new system
-> booted up and used it a little it became shaky and then locked hard and I
-> could do nothing but reset it. I suppose this was caused by the
-> malfunctioning memory but I can't be sure, I know there has been problems
-> with the via chipset also.
+> here. These errors itself are not a problem since the APIC bus detect
+> it and recover, but if here are double errors in a way that the checksum
+> is OK, the APIC may run in trouble.
 
-Nod
+Also nothing but recent -ac kernels in the 2.4 range handle the replay of
+IPI's sometimes caused by this. That patch is a post 2.4.4 thing to sort out.
 
-> debian:~# e2fsck /dev/hdb7
-> e2fsck 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
-> Corruption found in superblock.  (frags_per_group = 2147516416).
+> I don't know all kinds of events the APIC bus is used for, it is not only
+> for the IRQs.
 
-Try e2fsck -b 8193 /dev/hdb7
+Interrupts from I/O devices and interrupts sent between processors. The latter
+are used to tell the other cpus to do things like flush TLB entries, change
+an MTRR value etc
 
-(and 16384, 32768)
-
-This is a backup copy of the superblock.
+Alan
 

@@ -1,70 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130697AbQLIXNU>; Sat, 9 Dec 2000 18:13:20 -0500
+	id <S130389AbQLIXRA>; Sat, 9 Dec 2000 18:17:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130389AbQLIXNB>; Sat, 9 Dec 2000 18:13:01 -0500
-Received: from james.kalifornia.com ([208.179.0.2]:30281 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S130697AbQLIXM2>; Sat, 9 Dec 2000 18:12:28 -0500
-Message-ID: <3A32B528.8747332C@linux.com>
-Date: Sat, 09 Dec 2000 14:41:44 -0800
-From: David Ford <david@linux.com>
-Organization: Blue Labs
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Rik van Riel <riel@conectiva.com.br>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: swapoff weird
-In-Reply-To: <20001209222427.A1542@bug.ucw.cz> <Pine.LNX.4.21.0012091941170.19389-100000@duckman.distro.conectiva> <20001209230615.C5542@atrey.karlin.mff.cuni.cz>
-Content-Type: multipart/mixed;
- boundary="------------0BF75B9DB646FDF9C6DCD837"
+	id <S131805AbQLIXQv>; Sat, 9 Dec 2000 18:16:51 -0500
+Received: from altrade.nijmegen.inter.nl.net ([193.67.237.6]:47763 "EHLO
+	altrade.nijmegen.inter.nl.net") by vger.kernel.org with ESMTP
+	id <S130389AbQLIXQj>; Sat, 9 Dec 2000 18:16:39 -0500
+Date: Sat, 9 Dec 2000 23:46:09 +0100
+From: Dick Streefland <Dick.Streefland@inter.NL.net>
+To: linux-kernel@vger.kernel.org
+Subject: [2.4.0-test12-pre7] kernel BUG at buffer.c:827!
+Message-ID: <20001209234609.A29924@two.de.bilt>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------0BF75B9DB646FDF9C6DCD837
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+This message showed up when running lilo on an ext2 image, mounted via
+a loopback mount. Line 827 in fs/buffer.c is a call to UnlockPage().
+The complete message from /var/log/messages:
 
-> I can't swapoff.  Therefore filesystem is busy (it must be -- kernel
-> might be writing to file on it!). And no way to get out of that.
+Dec  9 18:24:51 tampere kernel: kernel BUG at buffer.c:827! 
+Dec  9 18:24:51 tampere kernel: invalid operand: 0000 
+Dec  9 18:24:51 tampere kernel: CPU:    0 
+Dec  9 18:24:51 tampere kernel: EIP:    0010:[end_buffer_io_async+195/240] 
+Dec  9 18:24:51 tampere kernel: EFLAGS: 00010086 
+Dec  9 18:24:51 tampere kernel: eax: 0000001c   ebx: c00142bc   ecx: 00000000   edx: 00000006 
+Dec  9 18:24:51 tampere kernel: esi: c0597c20   edi: 00000002   ebp: c0597c68   esp: c0499da0 
+Dec  9 18:24:51 tampere kernel: ds: 0018   es: 0018   ss: 0018 
+Dec  9 18:24:51 tampere kernel: Process lilo (pid: 3676, stackpage=c0499000) 
+Dec  9 18:24:51 tampere kernel: Stack: c0230d89 c023105a 0000033b c0597c20 c0089620 00000002 00000001 c018b115  
+Dec  9 18:24:51 tampere kernel:        c0597c20 00000001 c0089620 c0088260 c0089620 c0089620 c018c1c1 c0089620  
+Dec  9 18:24:51 tampere kernel:        00000001 c024710b c0089620 00000007 c0089620 c02b99d8 00000000 00000700  
+Dec  9 18:24:52 tampere kernel: Call Trace: [tvecs+12861/115968] [tvecs+13582/115968] [end_that_request_first+101/192] [do_lo_request+993/1072] [tvecs+103871/115968] [__make_request+1597/1712] [generic_make_request+188/288]  
+Dec  9 18:24:52 tampere kernel:        [ll_rw_block+371/496] [block_read_full_page+541/656] [ext2_readpage+15/32] [ext2_get_block+0/1344] [do_generic_file_read+931/1504] [generic_file_read+99/128] [file_read_actor+0/112] [sys_read+142/208]  
+Dec  9 18:24:52 tampere kernel:        [system_call+51/64]  
+Dec  9 18:24:52 tampere kernel: Code: 0f 0b 83 c4 0c 8d 73 28 8d 43 2c 39 43 2c 74 15 b9 01 00 00  
 
-It's busy because some portion of memory is in use.  manually kill things as
-best you can.  this will clean out the swap.  once you've gotten all
-applications killed cleanly you can forcibly reboot with little damage.  this
-is pretty much the only way out.  we don't have any method (currently) to
-turn off a swap file if it's deleted.
+I cannot reproduce it reliably, but after a few retries, it occured again.
 
-Some ideas for the future, /var/run/swap.inode files, some form of sysctl.
-
--d
-
-
---------------0BF75B9DB646FDF9C6DCD837
-Content-Type: text/x-vcard; charset=us-ascii;
- name="david.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for David Ford
-Content-Disposition: attachment;
- filename="david.vcf"
-
-begin:vcard 
-n:Ford;David
-x-mozilla-html:TRUE
-url:www.blue-labs.org
-adr:;;;;;;
-version:2.1
-email;internet:david@blue-labs.org
-title:Blue Labs Developer
-note;quoted-printable:GPG key: http://www.blue-labs.org/david@nifty.key=0D=0A
-x-mozilla-cpt:;9952
-fn:David Ford
-end:vcard
-
---------------0BF75B9DB646FDF9C6DCD837--
-
+-- 
+Dick Streefland                    ////               De Bilt
+dick.streefland@inter.nl.net      (@ @)       The Netherlands
+------------------------------oOO--(_)--OOo------------------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

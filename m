@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262881AbTI2I14 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 04:27:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbTI2I14
+	id S262901AbTI2Ilb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 04:41:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262898AbTI2IkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 04:27:56 -0400
-Received: from pat.uio.no ([129.240.130.16]:27809 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262881AbTI2I1z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 04:27:55 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16247.60679.415937.295532@charged.uio.no>
-Date: Mon, 29 Sep 2003 01:27:51 -0700
-To: Frank Cusack <fcusack@fcusack.com>
-Cc: torvalds@osld.org, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: effect of nfs blocksize on I/O ?
-In-Reply-To: <20030929005250.A9110@google.com>
-References: <20030928234236.A16924@google.com>
-	<16247.56578.861224.328086@charged.uio.no>
-	<20030929005250.A9110@google.com>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+	Mon, 29 Sep 2003 04:40:10 -0400
+Received: from amsfep13-int.chello.nl ([213.46.243.24]:53271 "EHLO
+	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262902AbTI2Ihz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 04:37:55 -0400
+Date: Mon, 29 Sep 2003 10:39:12 +0200
+Message-Id: <200309290839.h8T8dCJd003706@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 335] M68k sched_clock()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Frank Cusack <fcusack@fcusack.com> writes:
+M68k: Add sched_clock() (introduced in 2.6.0-test6)
 
-    >> OTOH, bsize is of informational interest to programs that wish
-    >> to optimize I/O throughput by grouping their data into
-    >> appropriately sized records.
+--- linux-2.6.0-test6/arch/m68k/kernel/time.c	Mon Jul 14 13:15:58 2003
++++ linux-m68k-2.6.0-test6/arch/m68k/kernel/time.c	Sun Sep 28 10:50:36 2003
+@@ -171,3 +171,12 @@
+ 	write_sequnlock_irq(&xtime_lock);
+ 	return 0;
+ }
++
++/*
++ * Scheduler clock - returns current time in ns units.
++ */
++unsigned long long sched_clock(void)
++{
++       return (unsigned long long)jiffies*(1000000000/HZ);
++}
++
 
-     > So then isn't the optimal record size 8192 for r/wsize=8192?
-     > Since the data is going to be grouped into 8192-byte reads and
-     > writes over the wire, shouldn't bsize match that?  Why should I
-     > make 16x 512-byte write() syscalls (if "optimal" I/O size is
-     > bsize=512) instead of 1x 8192-byte syscall?
+Gr{oetje,eeting}s,
 
-Yes. It is already on my list of bugs.
+						Geert
 
-We basically need to feed 'wtpref' (a.k.a. 'wsize') into the f_bsize,
-and 'wtmult' into f_frsize.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-OTOH, the s_blocksize (and inode->i_blkbits) might well want to stay
-with wtmult.
-
-Cheers,
-  Trond
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,105 +1,128 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281222AbRKEQlJ>; Mon, 5 Nov 2001 11:41:09 -0500
+	id <S281233AbRKEQsA>; Mon, 5 Nov 2001 11:48:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281223AbRKEQlB>; Mon, 5 Nov 2001 11:41:01 -0500
-Received: from [194.51.220.145] ([194.51.220.145]:40916 "EHLO emeraude")
-	by vger.kernel.org with ESMTP id <S281222AbRKEQkt>;
-	Mon, 5 Nov 2001 11:40:49 -0500
-Date: Mon, 5 Nov 2001 17:35:43 +0100
-From: Stephane Jourdois <stephane@tuxfinder.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Massimo Dal Zotto <dz@debian.org>, LKLM <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] SMM BIOS on Dell i8100
-Message-ID: <20011105173543.A17203@emeraude.kwisatz.net>
-Reply-To: stephane@tuxfinder.org
-In-Reply-To: <20011105100346.A1511@emeraude.kwisatz.net> <3BE6B869.D79E93B1@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
-Content-Disposition: inline
-In-Reply-To: <3BE6B869.D79E93B1@mandrakesoft.com>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.4.14-pre8
-X-Send-From: emeraude
+	id <S281226AbRKEQru>; Mon, 5 Nov 2001 11:47:50 -0500
+Received: from mustard.heime.net ([194.234.65.222]:56465 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S281227AbRKEQrd>; Mon, 5 Nov 2001 11:47:33 -0500
+Date: Mon, 5 Nov 2001 17:47:29 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+cc: <linux-kernel@vger.kernel.org>, Tux mailing list <tux-list@redhat.com>
+Subject: Re: Lots of questions about tux and kernel setup
+In-Reply-To: <Pine.LNX.4.10.10111051119360.13543-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <Pine.LNX.4.30.0111051734490.19897-100000@mustard.heime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> ~220 MB/s.  I'm not sure why you expect this to be a problem.
 
---3V7upXqbjpZ4EhLz
-Content-Type: text/plain; charset=unknown-8bit
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+because of the pci busses, memory etc. it's got to be read and
+transmitted. I'll be glad if i don't need to worry
 
-On Mon, Nov 05, 2001 at 11:03:53AM -0500, Jeff Garzik wrote:
-> Stephane Jourdois wrote:
-> > I've got a Dell Inspiron 8100, which seems to differ slightly from
-> > i8000. Here is a patch that fixes that. Please do not hesitate to ask me
-> > to test some new code or anything on my laptop.
-> Has this been tested in I8000?  You are changing a lot of magic numbers
-> in the code, and noone but you/Massimo know whether that is ok or not...
+> why?  VM in general is designed to have swap.  why would it hurt?
 
-I presume it works.
-Let me explain why while looking at parts of my patch :
+well... i thought of potential dropouts... i don't know why... forget it
 
--#define I8K_FN_NONE		0x08
--#define I8K_FN_UP		0x09
--#define I8K_FN_DOWN		0x0a
--#define I8K_FN_MUTE		0x0c
-+#define I8K_FN_NONE		0x00
-+#define I8K_FN_UP		0x01
-+#define I8K_FN_DOWN		0x02
-+#define I8K_FN_MUTE		0x04
+> neither tux nor sendfile have anything to do with the caching,
+> which is done by the kernel (VM and FS readahead, if any).
+>
+> > sendfile read the file into the cache buffer before sending it? I mean - I
+> > can't keep the files in memory, so how much would do?
+>
+> VM works by scavenging not recently or frequently-used pages.
 
-In fact, i8100 returns respectively 1, 2 and 4.
-i8100 returns 0x09, 0x0a, and 0x0c (see Massimo's code).
+Does this mean the system could run smoothly on very low memory - say -
+128MB RAM?
 
-Then we can take the 4 lighter bits, and test them without testing
-the 4 greater bits which value are 0x08 on i8000 and 0x00 on i8100.
+> > Q: If using the bandwidth control in Tux, how much CPU overhead may I
+> > expect per stream (sizes as mentioned above)?
+>
+> trivial, I expect.  after all, each stream has a trivial bandwidth,
+> and bandwidth-control just needs to take a few looks at some timer.
+> as I recall, tux uses rdtsc in a smart way to avoid gettimeofday
+> syscalls.
 
-hence :
--    switch ((regs.eax & 0xff00) >> 8) {
-+    switch ((regs.eax & 0x0700) >> 8) {
+Good...
 
-a different version (which I didn't choose), would be to keep Massimo's
-defines, and test (((regs.eax | 0x0800 ) & 0xff00) >> 8). But that's
-more operations, then not the better solution :-)
+> > Q: Do anyone know what SCSI and NIC (1 or 10Gb-Ethernet) that have low or
+> > high CPU overhead? I have the impression that there are quite some
+> > variations between different drivers. Is this true?
+>
+> the bsd-ported scsi driver seems to have some religious friction
+> with linux, not surprisingly.  afaik, all the usual gigE cards are
+> roughly equivalent.
 
-As the drivers disks provided by Dell (windows drivers of course) are
-the same which works on i8000 and i8100, I suppose that they test only
-the 4 lighter bits here
+Does this mean I can choose whatever gigE card I want?
+How about SCSI drivers?
 
+> > Q: Tux has some way of linking IRQs directly to a specific CPU/thread
+> > (don't really remember what this was...). What should/could be used of
+> > these, or other tuning factors to speed up the server?
+>
+> depends on the hardware and IO rates.  why are you expecting difficulty?
+> 220 MB/s is pretty modest.
 
-Of course, as Massismo's told me a few hours ago, this is a beta version
-of this code, and it supports at least Massimo's i8000 and now my i8100.
-We should wait a few days for feed-back from lklm readers, then
-Massimo's intents are to implement a more modular code. That's a good
-intent, isn't it ? :-)
+ok
 
+> > Q: Are there ways to strip down the kernel, as to get rid of everything I
+> > don't want or don't need? Could I gain speed on this, or is it just a
+> > waste?
+>
+> silly.
 
-Anyway, you'll agree with me that 2 laptops is better than one :-)
+Not silly. I'm not a kernel hacker. I ask naiive questions due to the fact
+that I find it better to ask and get to know something, than staying
+unknowable of some fact. But thanks for telling me it's of no problem.
 
+> > Q: What file system would be best suitable for this? Ext[23]? ReiserFS?
+> > Xfs? FAT? :-)
+>
+> couldn't possibly make any difference.  journalling FS's are only
+> valuable because of their crash-robustness in the presence of writes.
+> reiserfs is only faster if you have bizzarely skewed file and dir sizes
+> (billions of <1K files, billions of dir entries).  FAT would be very cool,
+> in a retro kind of way, but you'd probably hit file-length limits.
 
-Thanks for your answer.
-St=E9phane.
+How about XFS? I've heard it's better pushing large files...
 
---=20
- ///  Stephane Jourdois        	/"\  ASCII RIBBON CAMPAIGN \\\
-(((    Ing=E9nieur d=E9veloppement 	\ /    AGAINST HTML MAIL    )))
- \\\   6, av. de la Belle Image	 X                         ///
-  \\\  94440 Marolles en Brie  	/ \    +33 6 8643 3085    ///
+> > Q: If using iptables to block any unwanted traffic - that is - anything
+> > that's not TCP/80, how much CPU overhead could this generate? Could use of
+>
+> how much unwanted traffic?  why would there be any nontrivial amount?
 
---3V7upXqbjpZ4EhLz
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+I thought more about security. I don't want anyone exploiting potential
+security holes.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+>
+> > tcpwrappers or similar systems work better? (I need ssh, snmp and a some
+>
+> security in depth: use iptables, tcpwrappers, *and* app-based controls.
+>
+> obviously, iptables discarding any snmp packet from !my.workstation
+> is a lot faster than receiving the packet, doing the handshake,
+> waking up inetd, firing up tcpd, checking the incoming IP, including
+> rev DNS lookups, then passing the socket off to snmp...  but it's also
+> true that any large amount of bogus packets would be a problem you
+> should handle elsehow (ie, DOS attack or serious misconfiguration.)
 
-iEYEARECAAYFAjvmv98ACgkQk2dpMN4A2NMqHgCfafvIsNpUSrMWg7YfDJiwq7n2
-u/0An1dZIfEz6Ds1TpIFaWN5/0R6TEE5
-=z6Yr
------END PGP SIGNATURE-----
+How about cpu overhead in iptables/kernel when it processes packets that
+are allowed? How about connection tracking? Is the rule order in iptables
+important when it comes to speed?
 
---3V7upXqbjpZ4EhLz--
+I apologize if some of these questions may seem a little stupid. Please do
+not flame
+
+Regards
+
+roy
+
+---
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

@@ -1,38 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312277AbSDXOsy>; Wed, 24 Apr 2002 10:48:54 -0400
+	id <S312256AbSDXOmQ>; Wed, 24 Apr 2002 10:42:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312279AbSDXOsx>; Wed, 24 Apr 2002 10:48:53 -0400
-Received: from c17736.belrs2.nsw.optusnet.com.au ([211.28.31.90]:25760 "EHLO
-	bozar") by vger.kernel.org with ESMTP id <S312277AbSDXOsw>;
-	Wed, 24 Apr 2002 10:48:52 -0400
-Date: Thu, 25 Apr 2002 00:48:21 +1000
-From: Andre Pang <ozone@algorithm.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Implementation of FreeBSD's KSEs on Linux?
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Message-Id: <1019659701.449462.23147.nullmailer@bozar.algorithm.com.au>
+	id <S312261AbSDXOmP>; Wed, 24 Apr 2002 10:42:15 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:45070 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S312256AbSDXOmP>; Wed, 24 Apr 2002 10:42:15 -0400
+Message-ID: <3CC6B5A4.2050807@evision-ventures.com>
+Date: Wed, 24 Apr 2002 15:39:48 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: rwhron@earthlink.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.9 -- OOPS in IDE code (symbolic dump and boot log included)
+In-Reply-To: <20020424093021.A21652@rushmore> <20020424133329.GA8988@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+Uz.ytkownik Jens Axboe napisa?:
+> On Wed, Apr 24 2002, rwhron@earthlink.net wrote:
+> 
+>>>>Oops on 2.5.9 at boot time.
+>>>
+>>>Could you please introduce two printk("BANG\n") printk("BOOM\n")
+>>>aroung the ata_ar_get() in ide-cd? Just to see whatever the
+>>>command queue is already up and initialized.
+>>
+>>This may not be what you wanted:
+>>
+>>	printk("BANG\n");
+>>        ar = ata_ar_get(drive);
+>>        printk("BOOM\n");
+>>
+>>If it is, neither BANG nor BOOM printed before oops.
+> 
+> 
+> Look, the problem is easy. Backout the changes to ide_cdrom_do_request()
+> and cdrom_start_read(), then re-add the
+> 
+> 	HWGROUP(drive)->rq->special = NULL;
+> 
+> in cdrom_end_request() before calling ide_end_request()
+> 
+> Something ala, completely untested (not even compiled). See the thread
+> about the ide-cd changes being broken.
+> 
 
-Are there any current projects to implement kernel-scheduled
-entities (KSEs) on Linux?  They currently exist on FreeBSD, and
-seem like a really neat idea.  I
+Jens - this is *not going to work* becouse the DMA methods are
+expecting an full ata_request right now.
 
-The KSE research paper can be found at:
-
-    http://people.freebsd.org/~jasone/kse/
-
-I think that KSEs are very similar to Scheduler Activations,
-although they added support for threads which can be scheduled in
-kernel-space as well as user-space.
+Uunfortunately pulling the whole ata_ar_get() stuff one
+level up to the ide.c file where ->do_request get's called
+doesn't work right now.
 
 
--- 
-#ozone/algorithm <ozone@algorithm.com.au>          - trust.in.love.to.save

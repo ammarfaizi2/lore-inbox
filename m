@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbUEWPpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263095AbUEWPtX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263093AbUEWPpw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 11:45:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUEWPpv
+	id S263095AbUEWPtX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 11:49:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263121AbUEWPtX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 11:45:51 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:31122 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263093AbUEWPpe (ORCPT
+	Sun, 23 May 2004 11:49:23 -0400
+Received: from fdd.com ([64.81.147.80]:14387 "EHLO FDD.COM")
+	by vger.kernel.org with ESMTP id S263095AbUEWPtE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 11:45:34 -0400
-Date: Sun, 23 May 2004 17:45:24 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Lorenzo Allegrucci <l_allegrucci@despammed.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm5 oops mounting ext3 or reiserfs with -o barrier
-Message-ID: <20040523154524.GR1952@suse.de>
-References: <200405222107.55505.l_allegrucci@despammed.com> <20040523091137.GB5415@suse.de> <20040523100348.GJ1952@suse.de> <200405231732.15600.l_allegrucci@despammed.com>
+	Sun, 23 May 2004 11:49:04 -0400
+Date: Sun, 23 May 2004 10:48:59 -0500
+From: Billy Biggs <vektor@dumbterm.net>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: tvtime and the Linux 2.6 scheduler
+Message-ID: <20040523154859.GC22399@dumbterm.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200405231732.15600.l_allegrucci@despammed.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 23 2004, Lorenzo Allegrucci wrote:
-> On Sunday 23 May 2004 12:03, Jens Axboe wrote:
-> 
-> > Here's a rolled up updated version that tries to get async notification
-> > of missing barrier support working as well. reiser currently doesn't
-> > cope with that correctly (fails mount), ext3 seems to but gets stuck.
-> > Andrew has that fixed already, I think :-)
-> >
-> > Lorenzo, can you test this on top of 2.6.6-mm5?
-> 
-> Problem fixed, but there is some performance regression
-> 
-> ext3 (default)
-> untar		read		copy		remove
-> 0m53.861s	0m24.942s	1m30.164s	0m20.664s
-> 0m7.132s	0m1.191s	0m0.766s	0m0.076s
-> 0m5.807s	0m3.345s	0m9.996s	0m1.719s
-> 
-> ext3 (-o barrier=1)
-> untar		read		copy		remove
-> 0m52.117s	0m28.502s	1m51.153s	0m25.561s
-> 0m7.231s	0m1.209s	0m0.738s	0m0.071s
-> 0m6.117s	0m3.191s	0m9.347s	0m1.635s
+  I am the author of tvtime, a TV application with advanced image
+processing algorithms.  Some users are complaining about poor
+performance under Linux 2.6, and I would like more information about how
+tvtime will be treated by the scheduler.  Here is an example of the
+intended usage:
 
-Not sure what you mean here, but yes of course -o barrier=1 is going to
-be slower than default + write back caching. What you should compare is
-without barrier support and hdparm -W0 /dev/hdX, if -o barrier=1 with
-caching on is slower then that's a regression :-)
+  - Program running as root and SCHED_FIFO
+  - NTSC, input ~30 fps, each field processed for an output of ~60 fps
+  - CPU intensive processing, say 9 ms per field on my P3-733
+  - with a typical AGP card, the X driver takes 4 ms to draw
+  - Wait using /dev/rtc set to 1024 Hz
 
--- 
-Jens Axboe
+  for(;;)
+      9 ms : process frame
+      4 ms : draw frame
+      3 ms : wait until next field time using /dev/rtc
+      9 ms : process frame
+      4 ms : draw frame
+      3 ms : block on /dev/video0 for next frame
+     -----
+     33 ms : time per NTSC frame
+
+  The theory is that Linux classifies this as a CPU hog regardless of
+its priority, and preempts tvtime with other processes.  Oswald
+Buddenhagen describes the effect as this:
+
+  "[...] it starts up fine, but after a few seconds (when the scheduler
+gathered some stats) ... well, it looks funny: the scene goes roughly
+exponentially into slow motion, then there is a frame drop and the
+process starts over.  this behaviour can be observed at any priority,
+which is clearly against the claim "no normally priorized interactive
+process will preempt a highly priorized cpu-hog" that i've read
+somewhere.  the xserver priority does not change anything, either;"
+
+  Avoiding root/SCHED_FIFO and using usleep() instead of /dev/rtc seems
+to exhibit the same behavior.
+
+  Thoughts?
+
+  -Billy
 

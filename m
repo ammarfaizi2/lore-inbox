@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132776AbRDQRVI>; Tue, 17 Apr 2001 13:21:08 -0400
+	id <S132785AbRDQRor>; Tue, 17 Apr 2001 13:44:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132784AbRDQRU6>; Tue, 17 Apr 2001 13:20:58 -0400
-Received: from pa147.bialystok.sdi.tpnet.pl ([213.25.59.147]:1540 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S132776AbRDQRUq>; Tue, 17 Apr 2001 13:20:46 -0400
-Date: Tue, 17 Apr 2001 19:19:22 +0200
-From: Jacek =?iso-8859-2?Q?Pop=B3awski?= <jp@ulgo.koti.com.pl>
-To: linux-kernel@vger.kernel.org
-Subject: video performance short raport
-Message-ID: <20010417191922.A624@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+	id <S132796AbRDQRoh>; Tue, 17 Apr 2001 13:44:37 -0400
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:25854 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S132785AbRDQRoZ>; Tue, 17 Apr 2001 13:44:25 -0400
+Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE848@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Martin Hamilton'" <martin@net.lut.ac.uk>, linux-kernel@vger.kernel.org
+Subject: RE: Linux 2.4.3-ac7 
+Date: Tue, 17 Apr 2001 10:41:37 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-just downloaded 2.4.3-ac7 to test...
+> From: Martin Hamilton [mailto:martin@net.lut.ac.uk]
+> Pardon me for butting in, but perhaps this is relevant...
+> 
+> I've seen the odd program which manipulates the ACPI tables/registers
+> directly rather than through an ASL compiler then an AML interpreter.
+> These appear to use the "magic numbers" which the interpreter would
+> eventually spit out.
+> 
+> Being a newbie on ACPI internals (still ploughing through the 400 page
+> 'specification' document), I'm not sure whether there would be nasty
+> implications from doing this on a larger scale - e.g. needing to tweak
+> those magic numbers for each and every ACPI BIOS implementation.
 
-hardware: Voodoo3, VIA MVP3
+(BTW, read the ACPI 2.0 spec - it's a lot better)
 
-benchmark: x11perf -putimage100
+ACPI is meant to abstract the OS from all the "magic numbers". It's very
+possible to do things in a platform-specific way, but if you want to handle
+all platforms, you'd end up with something ACPI-like.
 
-results:
+> Back in the real world, some people using ACPI BIOSes (e.g. owners of
+> recent Sony Vaio boxes like my C1VE) are finding that the legacy APM
+> support is losing when they try to do things like suspend to disk.  A
+> minimalist ACPI implementation could be just the ticket...
 
-2.2.19
-8000 reps @   0.7785 msec (  1280.0/sec): PutImage 100x100 square
+We're working on this. The major issue now is device power management. 
 
-2.4.2-ac20
-8000 reps @   0.7736 msec (  1290.0/sec): PutImage 100x100 square
+Regards -- Andy
 
-2.4.2-ac27
-3600 reps @   1.3980 msec (   715.0/sec): PutImage 100x100 square
-
-2.4.3-ac7
-3600 reps @   1.3912 msec (   719.0/sec): PutImage 100x100 square

@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267909AbUGaImk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267783AbUGaIlp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267909AbUGaImk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 04:42:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267638AbUGaImk
+	id S267783AbUGaIlp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 04:41:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267876AbUGaIlp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 04:42:40 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:55000 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S267914AbUGaImf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 04:42:35 -0400
-Date: Sat, 31 Jul 2004 10:41:53 +0200 (MEST)
-Message-Id: <200407310841.i6V8frSq021638@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: jon@oberheide.org, soete.joel@tiscali.be
-Subject: Re: Some cleanup patches for: '...lvalues is deprecated'
-Cc: dan@debian.org, linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com,
-       vojtech@suse.cz
+	Sat, 31 Jul 2004 04:41:45 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:42503 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S267783AbUGaIkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 04:40:52 -0400
+Date: Sat, 31 Jul 2004 10:33:08 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: greearb@candelatech.com, akpm@osdl.org, alan@redhat.com,
+       jgarzik@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: VLAN support for 3c59x/3c90x
+Message-ID: <20040731083308.GA24496@alpha.home.local>
+References: <20040730121004.GA21305@alpha.home.local> <E1BqkzY-0003mK-00@gondolin.me.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1BqkzY-0003mK-00@gondolin.me.apana.org.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Jul 2004 11:11:32 +0200, Joel Soete wrote:
->> FYI, lvalue casts are treated as errors in gcc 3.5.
->> 
->According to this kind remark, I think so that following attachement patc=
->hes
->would be interesting.
+Hi Herbert,
 
-(cast-as-lvalue elimination patches omitted)
+On Sat, Jul 31, 2004 at 01:57:04PM +1000, Herbert Xu wrote:
+> Willy Tarreau <willy@w.ods.org> wrote:
+> > no, because the driver has no change_mtu() function, so it uses the generic
+> > one, eth_change_mtu(), which is bound to 1500.
+> 
+> What is preventing you from implementing a change_mtu() function?
 
-Did you know that there is a larger gcc-3.4 fixes patch:
-<http://www.csd.uu.se/~mikpe/linux/patches/2.4/patch-gcc340-fixes-v4-2.4.27-rc3>
-?
+well, now I see where you want to bring me :-)
 
-This patch handles all issues when using gcc-3.4 to compile
-the current 2.4 kernel, of which cast-as-lvalue is just one.
-The only difference, AFAIK, is that gcc-3.4 "merely" warns
-about cast-as-lvalue while gcc-3.5 errors out on them.
+So several reasons :
+  - the change_mtu() function might be called at any time after driver
+    initialization. I don't know at all if there are things to do to
+    "lock" the hardware during such changes, as well as I don't know
+    what parts of the code I will need to extract to change the hard
+    MTU. The initial MTU is really different since it's used to
+    initialize hardware registers. The generic change_mtu() function
+    only plays with dev->mtu and not hardware since it never goes
+    above standard size. I could try, but if it works I would offer
+    no warranties for other hardware.
 
-All changes in the gcc-3.4 fixes patch are backports from
-the 2.6 kernel, except in very few cases when 2.4 and 2.6
-have diverged making slightly different fixes more appropriate
-for 2.4.
+  - I really, really, really... lack time. I would do this during
+    my few hours nighty sleep and I wouldn't want to use the resulting
+    code :-)
 
-The patch handles i386, x86-64, and ppc architecture code,
-plus whatever drivers etc I've ever needed, plus drivers
-etc other people have contributed or requested fixes for.
-The only code I'm not considering is architecture code for
-other architectures than i386/x86-64/ppc, since those are
-the only ones I can compile and test.
+  - many (all ?) other drivers already have an MTU parameter, and many
+    of them don't have a problem with using generic change_mtu(). So why
+    would this one in particular need such a change ? (and please don't
+    tell me that *I* will have to do this for all others :-))
 
-/Mikael
+As previously said, I can take a few minutes to add the 'MODULE_PARM'
+line, it's not much more than replying to this mail. At least it will
+be a good start.
+
+Cheers,
+Willy
+

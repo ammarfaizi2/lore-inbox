@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262587AbTJNQjr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 12:39:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbTJNQjr
+	id S262573AbTJNQuy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 12:50:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbTJNQuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 12:39:47 -0400
-Received: from [80.88.36.193] ([80.88.36.193]:24040 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262587AbTJNQjp (ORCPT
+	Tue, 14 Oct 2003 12:50:54 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:8092 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262573AbTJNQuw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 12:39:45 -0400
-Date: Tue, 14 Oct 2003 18:39:40 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Thomas Winischhofer <thomas@winischhofer.net>
-cc: Meelis Roos <mroos@linux.ee>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: gcc -msoft-float [Was: Linux 2.6.0-test7 - stability freeze]
-In-Reply-To: <3F8BF859.2050806@winischhofer.net>
-Message-ID: <Pine.GSO.4.21.0310141839130.15051-100000@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 14 Oct 2003 12:50:52 -0400
+Date: Tue, 14 Oct 2003 09:44:24 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Richard J Moore <rasman@uk.ibm.com>
+Cc: karim@opersys.com, jmorris@redhat.com, zanussi@us.ibm.com,
+       linux-kernel@vger.kernel.org, bob@watson.ibm.com
+Subject: Re: [PATCH][RFC] relayfs (1/4) (Documentation)
+Message-Id: <20031014094424.6cff5697.davem@redhat.com>
+In-Reply-To: <200310141132.28339.rasman@uk.ibm.com>
+References: <Pine.LNX.4.44.0310091311440.14415-100000@thoron.boston.redhat.com>
+	<200310122323.48885.rasman@uk.ibm.com>
+	<20031013102520.0671a69d.davem@redhat.com>
+	<200310141132.28339.rasman@uk.ibm.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Oct 2003, Thomas Winischhofer wrote:
-> Meelis Roos wrote:
-> > TW> This is a framebuffer driver and like all fbdev-related stuff it is 
-> > TW> properly maintained in the fbdev-tree, waiting to merged into mainline.
-> > 
-> > Since James seems busy, someone should step up, split these changes into
-> > patches, test (or let people test) them separately and submit to kernel.
-> > Of course in coordination with James, he knows hat should be stable and
-> > what not. I would take this myself by have not enough time.
-> 
-> That sounds a little like "Linus is busy, let someone else quickly hop 
-> in"... :)
-> 
-> The fbdev tree is quite well tested AFAIK, and I am sure James will 
-> respond soon. He can't be too busy, as he was working on the tree yesterday.
+On Tue, 14 Oct 2003 11:32:28 +0000
+Richard J Moore <rasman@uk.ibm.com> wrote:
 
-Indeed. James said he was going to submit the patches after he has fixed a
-critical problem with the soft cursor code.
+> Interesting, that assumes sequential processing, if not semi-synchronous 
+> processing of events on the receiver side, which is far from guaranteed when 
+> considering low-level tracing especially for flight-recorder applications.  
 
-Gr{oetje,eeting}s,
+With netlink you may receive the data asynchronously however you
+wish after you've requested a dump.
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+I would like to ask that you go study how netlink works and is used
+by things like routing daemons before we discuss this further as
+it looks to me like half the conversation is going to be showing
+you how netlink works.  And hey there's even an RFC on netlink :)

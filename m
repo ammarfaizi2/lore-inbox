@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVBHAvj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVBHAyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbVBHAvj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 19:51:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVBHAvi
+	id S261363AbVBHAyq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 19:54:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVBHAyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 19:51:38 -0500
-Received: from outbound01.telus.net ([199.185.220.220]:51878 "EHLO
-	priv-edtnes56.telusplanet.net") by vger.kernel.org with ESMTP
-	id S261363AbVBHAvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 19:51:14 -0500
-Message-ID: <1107823873.42080d01c42df@webmail.telus.net>
-Date: Mon,  7 Feb 2005 16:51:13 -0800
-From: gl34@telus.net
-To: linux-kernel@vger.kernel.org
-Subject: kernel 2.6.9 failure
+	Mon, 7 Feb 2005 19:54:46 -0500
+Received: from h151_115.u.wavenet.pl ([217.79.151.115]:7850 "EHLO
+	alpha.polcom.net") by vger.kernel.org with ESMTP id S261363AbVBHAyn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 19:54:43 -0500
+Date: Tue, 8 Feb 2005 01:56:30 +0100 (CET)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Daniel Drake <dsd@gentoo.org>, pavel@ucw.cz, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc3: Kylix application no longer works?
+In-Reply-To: <20050207161810.23fcc4f1.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0502080154200.31698@alpha.polcom.net>
+References: <20050207221107.GA1369@elf.ucw.cz> <20050207145100.6208b8b9.akpm@osdl.org>
+ <420801D7.3020405@gentoo.org> <20050207161810.23fcc4f1.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1-cvs
-X-Originating-IP: 209.52.208.124
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 7 Feb 2005, Andrew Morton wrote:
 
-Hi all,
- 
-On a K6-2 box the 2.6.9 kernel starts to load : "Loading...." then the PC 
-resets. 
-The kernel compiled and everything installed OK. Lilo is OK.  I've tried four 
-times different configs with the same result. Box resets. My 2.4.28 kernel 
-works OK. 
-I've tried rm'ing and re-unpacking the 2.6.9 source and starting afresh.  Box 
-resets.
- 
-The only clue, if that's what it is, is when I tried to upgrade module-init-
-tools 
-and quota-tools I got an error, can't find ../asm-generic/errno.h. True 
-enough, 
-there's no ../asm-generic dir in the includes. The closest is  ../mach-
-generic. 
-And there *is* a errno.h in the include files. So I just made an ../asm-
-generic dir 
-and put a copy of errno.h in it. No luck.
- 
--Gil
+> Daniel Drake <dsd@gentoo.org> wrote:
+>>
+>>> # fs/binfmt_elf.c
+>>> #   2005/01/17 13:37:56-08:00 ecd@skynet.be +43 -19
+>>> #   [SPARC64]: Missing user access return value checks in fs/binfmt_elf.c and fs/compat.c
+>>> #
+>>
+>> I think so. For a short period we applied this patch to the Gentoo 2.6.10
+>> kernel...
+>>
+>> http://dev.gentoo.org/~dsd/gentoo-dev-sources/release-10.01/dist/1900_umem_catch.patch
+>>
+>> ...but removed it once users complained it stopped kylix binaries from running.
+>
+> Bah.  That's what happens when you fix stuff.
+>
+> What's kylix?  The Borland C++ builder thing?
 
+Rather Delphi (== Object Pascal) thing.
 
 
+> How should one set about reproducing this problem?
+
+IIRC, Some minimal "personal" version can be downloaded from borland.com.
 
 
+
+Grzegorz Kulewski

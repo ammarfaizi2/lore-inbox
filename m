@@ -1,68 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267195AbUJNUXR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267540AbUJNUn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267195AbUJNUXR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 16:23:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267254AbUJNTp7
+	id S267540AbUJNUn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 16:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267401AbUJNUlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 15:45:59 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:13216 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267431AbUJNTmp (ORCPT
+	Thu, 14 Oct 2004 16:41:18 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:64897 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S267507AbUJNUVq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 15:42:45 -0400
-Date: Thu, 14 Oct 2004 12:39:56 -0700
-From: Paul Jackson <pj@sgi.com>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: mbligh@aracnet.com, Simon.Derr@bull.net, colpatch@us.ibm.com,
-       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
-       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-Id: <20041014123956.518074f9.pj@sgi.com>
-In-Reply-To: <m1ekk1egdx.fsf@ebiederm.dsl.xmission.com>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
-	<20041002145521.GA8868@in.ibm.com>
-	<415ED3E3.6050008@watson.ibm.com>
-	<415F37F9.6060002@bigpond.net.au>
-	<821020000.1096814205@[10.10.2.4]>
-	<20041003083936.7c844ec3.pj@sgi.com>
-	<834330000.1096847619@[10.10.2.4]>
-	<835810000.1096848156@[10.10.2.4]>
-	<20041003175309.6b02b5c6.pj@sgi.com>
-	<838090000.1096862199@[10.10.2.4]>
-	<20041003212452.1a15a49a.pj@sgi.com>
-	<843670000.1096902220@[10.10.2.4]>
-	<Pine.LNX.4.61.0410051111200.19964@openx3.frec.bull.fr>
-	<58780000.1097004886@flay>
-	<20041005172808.64d3cc2b.pj@sgi.com>
-	<1193270000.1097025361@[10.10.2.4]>
-	<20041005190852.7b1fd5b5.pj@sgi.com>
-	<1097103580.4907.84.camel@arrakis>
-	<20041007015107.53d191d4.pj@sgi.com>
-	<Pine.LNX.4.61.0410071439070.19964@openx3.frec.bull.fr>
-	<1250810000.1097160595@[10.10.2.4]>
-	<20041007105425.02e26dd8.pj@sgi.com>
-	<1344740000.1097172805@[10.10.2.4]>
-	<m1ekk1egdx.fsf@ebiederm.dsl.xmission.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 14 Oct 2004 16:21:46 -0400
+Date: Thu, 14 Oct 2004 22:23:04 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U0
+Message-ID: <20041014202304.GA32026@elte.hu>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <1097784144.5310.13.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1097784144.5310.13.camel@dhcp153.mvista.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kevin McMahon <n6965@sgi.com> pointed out to me a link to an interesting
-article on gang scheduling:
 
-  http://www.linuxjournal.com/article.php?sid=7690
-  Issue 127: Improving Application Performance on HPC Systems with Process Synchronization
-  Posted on Monday, November 01, 2004 by Paul Terry Amar Shan Pentti Huttunen
+* Daniel Walker <dwalker@mvista.com> wrote:
 
-It's amazingly current - won't even be posted for another couple of weeks ;).
+> I'm not sure about this one ..
+> 
+> ------------[ cut here ]------------
+> kernel BUG at fs/buffer.c:1360!
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+> EIP is at __find_get_block+0xe1/0x100
+
+> Call Trace:
+>  [<c01619fe>] __getblk+0x1e/0x60
+>  [<c0161a99>] __bread+0x19/0x40
+>  [<c019aff0>] ext3_get_branch+0x70/0x100
+>  [<c019b61a>] ext3_get_block_handle+0x7a/0x2e0
+>  [<c026b1ee>] as_choose_req+0xe/0x1e0
+>  [<c026bc5f>] as_update_arq+0x1f/0x60
+>  [<c019b8c3>] ext3_get_block+0x43/0x80
+>  [<c0163735>] generic_block_bmap+0x35/0x40
+>  [<c0134c73>] __mcount+0x13/0x20
+>  [<c019c26d>] ext3_bmap+0xd/0xa0
+>  [<c01797c5>] bmap+0x45/0x60
+>  [<c019c2dc>] ext3_bmap+0x7c/0xa0
+>  [<c019b880>] ext3_get_block+0x0/0x80
+>  [<c01797c5>] bmap+0x45/0x60
+>  [<c01af8c2>] journal_bmap+0x42/0xa0
+>  [<c0134c73>] __mcount+0x13/0x20
+>  [<c0134249>] _mutex_unlock+0x9/0x60
+>  [<c01af827>] journal_next_log_block+0x47/0xa0
+>  [<c0113d30>] mcount+0x14/0x18
+>  [<c01af832>] journal_next_log_block+0x52/0xa0
+>  [<c01af939>] journal_get_descriptor_buffer+0x19/0xc0
+>  [<c01ac4ec>] journal_commit_transaction+0xf6c/0x13e0
+>  [<c01aedee>] kjournald+0xce/0x260
+>  [<c013555c>] sub_preempt_count+0x7c/0xa0
+>  [<c0133d00>] autoremove_wake_function+0x0/0x60
+>  [<c03b2a33>] _spin_unlock_irq+0x13/0x40
+>  [<c0133d00>] autoremove_wake_function+0x0/0x60
+>  [<c0119459>] schedule_tail+0x19/0x60
+>  [<c01aece0>] commit_timeout+0x0/0x20
+>  [<c01aed20>] kjournald+0x0/0x260
+>  [<c0103339>] kernel_thread_helper+0x5/0xc
+
+this is a weird one. This is the first message, right? I've reviewed
+bh_lru_lock/unlock and cannot spot anything that could be wrong there.
+
+	Ingo

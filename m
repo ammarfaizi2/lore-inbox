@@ -1,89 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbULOGjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbULOGxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261906AbULOGjp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 01:39:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbULOGjp
+	id S261907AbULOGxV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 01:53:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbULOGxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 01:39:45 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:28051 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261906AbULOGjl (ORCPT
+	Wed, 15 Dec 2004 01:53:21 -0500
+Received: from null.rsn.bth.se ([194.47.142.3]:9407 "EHLO null.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S261907AbULOGxJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 01:39:41 -0500
-Date: Wed, 15 Dec 2004 07:36:28 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Time sliced cfq with basic io priorities
-Message-ID: <20041215063628.GL3157@suse.de>
-References: <20041213125046.GG3033@suse.de> <20041213130926.GH3033@suse.de> <20041213175721.GA2721@suse.de> <20041214133725.GG3157@suse.de> <20041214213155.GA2057@us.ibm.com>
+	Wed, 15 Dec 2004 01:53:09 -0500
+Subject: Re: 2.6.9 NAT problem
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Giuliano Pochini <pochini@denise.shiny.it>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0412142222240.10830@denise.shiny.it>
+References: <20041213212603.4e698de6.pochini@shiny.it>
+	 <Pine.LNX.4.58.0412141025040.23132@tux.rsn.bth.se>
+	 <Pine.LNX.4.58.0412142222240.10830@denise.shiny.it>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6GDNMm8mGlxNUn9c/RSD"
+Message-Id: <1103093585.12078.55.camel@tux.rsn.bth.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041214213155.GA2057@us.ibm.com>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 15 Dec 2004 07:53:06 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 14 2004, Paul E. McKenney wrote:
-> On Tue, Dec 14, 2004 at 02:37:25PM +0100, Jens Axboe wrote:
-> > Hi,
-> > 
-> > Version -12 has been uploaded. Changes:
-> > 
-> > - Small optimization to choose next request logic
-> > 
-> > - An idle queue that exited would waste time for the next process
-> > 
-> > - Request allocation changes. Should get a smooth stream for writes now,
-> >   not as bursty as before. Also simplified the may_queue/check_waiters
-> >   logic, rely more on the regular block rq allocation congestion and
-> >   don't waste sys time doing multiple wakeups.
-> > 
-> > - Fix compilation on x86_64
-> > 
-> > No io priority specific fixes, the above are all to improve the cfq time
-> > slicing.
-> > 
-> > For 2.6.10-rc3-mm1:
-> > 
-> > http://www.kernel.org/pub/linux/kernel/people/axboe/patches/v2.6/2.6.10-rc3-mm1/cfq-time-slices-12-2.6.10-rc3-mm1.gz
-> > 
-> > For 2.6-BK:
-> > 
-> > http://www.kernel.org/pub/linux/kernel/people/axboe/patches/v2.6/2.6.10-rc3/cfq-time-slices-12.gz
-> 
-> OK...  I confess, I am confused...
-> 
-> I see the comment stating that only one thread updates, hence no need
-> for locking.  But I can't find the readers!  There is a section of
-> code under rcu_read_lock(), but this same function updates the list
-> as well.  If there really is only one updater, then the rcu_read_lock()
-> is not needed, because rcu_read_lock() is only required to protect against
-> concurrent deletion.
-> 
-> Either way, in cfq_exit_io_context(), the list_for_each_safe_rcu() should
-> be able to be simply list_for_each_safe(), since this is apparently the
-> sole updater thread, so no concurrent updates are possible.
-> 
-> If only one task is referencing the list at all, no need for RCU or for
-> any other synchronization mechanism.  If multiple threads are referencing
-> the list, I cannot find any pure readers.  If multiple threads are updating
-> the list, I don't see how they are excluding each other.
-> 
-> Any enlightenment available?  I most definitely need a clue here...
 
-No, you are about right :-)
+--=-6GDNMm8mGlxNUn9c/RSD
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The RCU stuff can go again, because I moved everything to happen under
-the same task. The section under rcu_read_lock() is the reader, it just
-later on moved the hot entry to the front as well which does indeed mean
-it's buggy if there were concurrent updaters. So that's why it's in a
-state of being a little messy right now.
+On Tue, 2004-12-14 at 22:26, Giuliano Pochini wrote:
 
-A note on the list itself - a task has a cfq_io_context per queue it's
-doing io against and it needs to be looked up when we this process
-queues io. The task sets this up itself on first io and tears this down
-on exit. So only the task itself ever updates or searches this list.
+> > 2.6.9 contains a large update to the connectiontracking code. One thing
+> > that was changed is that it now verifies the checksum of tcp and udp
+> > packets. I know of at least one user who has been bitten by this and wh=
+at
+> > looks like a broken sungem NIC.
+> >
+> > Could you please try this:
+> >
+> > modprobe ipt_LOG
+> > echo 255 > /proc/sys/net/ipv4/netfilter/ip_conntrack_log_invalid
+> >
+> > Then try again and then check the kernellog by executing 'dmesg', see i=
+f
+> > it complains about bad checksums.
+>=20
+> Yes :(
 
--- 
-Jens Axboe
+:( It seems there are silicon revisions of the apple sungem that produce
+broken checksums. This is what we were worried about, we'll probably
+submit a patch soon that removes the checksum checking,  then it'll
+behave more like < 2.6.9-pre1
 
+In the meantime you can use the patch below that simply comments that
+code out. It's not diffed against 2.6.9 but should apply anyway.
+
+Would be great if you could report a 'Yay' or 'Nay' on your success with
+this patch.
+
+--- linux-2.6.10-rc1-ck1/net/ipv4/netfilter/ip_conntrack_proto_tcp.c.orig	2=
+004-12-15 07:46:30.000000000 +0100
++++ linux-2.6.10-rc1-ck1/net/ipv4/netfilter/ip_conntrack_proto_tcp.c	2004-1=
+2-15 07:47:34.000000000 +0100
+@@ -800,7 +800,7 @@ static int tcp_error(struct sk_buff *skb
+ 	 * and moreover root might send raw packets.
+ 	 */
+ 	/* FIXME: Source route IP option packets --RR */
+-	if (hooknum =3D=3D NF_IP_PRE_ROUTING
++/*	if (hooknum =3D=3D NF_IP_PRE_ROUTING
+ 	    && csum_tcpudp_magic(iph->saddr, iph->daddr, tcplen, IPPROTO_TCP,
+ 			         skb->ip_summed =3D=3D CHECKSUM_HW ? skb->csum
+ 			      	 : skb_checksum(skb, iph->ihl*4, tcplen, 0))) {
+@@ -808,7 +808,7 @@ static int tcp_error(struct sk_buff *skb
+ 			nf_log_packet(PF_INET, 0, skb, NULL, NULL,=20
+ 				  "ip_ct_tcp: bad TCP checksum ");
+ 		return -NF_ACCEPT;
+-	}
++	} */
+=20
+ 	/* Check TCP flags. */
+ 	tcpflags =3D (((u_int8_t *)th)[13] & ~(TH_ECE|TH_CWR));
+--- linux-2.6.10-rc1-ck1/net/ipv4/netfilter/ip_conntrack_proto_udp.c.orig	2=
+004-12-15 07:46:37.000000000 +0100
++++ linux-2.6.10-rc1-ck1/net/ipv4/netfilter/ip_conntrack_proto_udp.c	2004-1=
+2-15 07:47:59.000000000 +0100
+@@ -119,7 +119,7 @@ static int udp_error(struct sk_buff *skb
+ 	 * because the semantic of CHECKSUM_HW is different there=20
+ 	 * and moreover root might send raw packets.
+ 	 * FIXME: Source route IP option packets --RR */
+-	if (hooknum =3D=3D NF_IP_PRE_ROUTING
++/*	if (hooknum =3D=3D NF_IP_PRE_ROUTING
+ 	    && csum_tcpudp_magic(iph->saddr, iph->daddr, udplen, IPPROTO_UDP,
+ 			         skb->ip_summed =3D=3D CHECKSUM_HW ? skb->csum
+ 			      	 : skb_checksum(skb, iph->ihl*4, udplen, 0))) {
+@@ -127,7 +127,7 @@ static int udp_error(struct sk_buff *skb
+ 			nf_log_packet(PF_INET, 0, skb, NULL, NULL,=20
+ 				  "ip_ct_udp: bad UDP checksum ");
+ 		return -NF_ACCEPT;
+-	}
++	} */
+ =09
+ 	return NF_ACCEPT;
+ }
+--- linux-2.6.10-rc1-ck1/net/ipv4/netfilter/ip_conntrack_proto_icmp.c.orig	=
+2004-12-15 07:46:43.000000000 +0100
++++ linux-2.6.10-rc1-ck1/net/ipv4/netfilter/ip_conntrack_proto_icmp.c	2004-=
+12-15 07:48:57.000000000 +0100
+@@ -218,7 +218,7 @@ icmp_error(struct sk_buff *skb, enum ip_
+ 	}
+=20
+ 	/* See ip_conntrack_proto_tcp.c */
+-	if (hooknum !=3D NF_IP_PRE_ROUTING)
++/*	if (hooknum !=3D NF_IP_PRE_ROUTING)
+ 		goto checksum_skipped;
+=20
+ 	switch (skb->ip_summed) {
+@@ -238,7 +238,7 @@ icmp_error(struct sk_buff *skb, enum ip_
+ 		}
+ 	default:
+ 		break;
+-	}
++	} */
+=20
+ checksum_skipped:
+ 	/*
+
+--=20
+/Martin
+
+--=-6GDNMm8mGlxNUn9c/RSD
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBv99RWm2vlfa207ERAgPjAJ0ah4wNuPxeb0huf5FLXTUzGTzuDgCdH93x
+zDyrn15Ih1xTA7H60ud2Svs=
+=mfTn
+-----END PGP SIGNATURE-----
+
+--=-6GDNMm8mGlxNUn9c/RSD--

@@ -1,129 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319231AbSH2P20>; Thu, 29 Aug 2002 11:28:26 -0400
+	id <S319243AbSH2Pfj>; Thu, 29 Aug 2002 11:35:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319233AbSH2P20>; Thu, 29 Aug 2002 11:28:26 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:55303
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S319231AbSH2P2O>; Thu, 29 Aug 2002 11:28:14 -0400
-Subject: [PATCH] make raid5 checksums preempt-safe, take two
-From: Robert Love <rml@tech9.net>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 29 Aug 2002 11:32:31 -0400
-Message-Id: <1030635151.939.2555.camel@phantasy>
-Mime-Version: 1.0
+	id <S319249AbSH2Pfi>; Thu, 29 Aug 2002 11:35:38 -0400
+Received: from pD9E2399E.dip.t-dialin.net ([217.226.57.158]:49095 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S319243AbSH2Pfi>; Thu, 29 Aug 2002 11:35:38 -0400
+Date: Thu, 29 Aug 2002 09:39:14 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: junio@siamese.dyndns.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [TRIVIAL] strlen("literal string") -> (sizeof("literal string")-1)
+In-Reply-To: <20020828221716.1A73C2C09E@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0208290938180.3234-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+Hi,
 
-The raid5 xor checksums use MMX/SSE state and are not preempt-safe.
+On Thu, 29 Aug 2002, Rusty Russell wrote:
+> If you really care about that, try:
+> 
+> 	/* Be paranoid in case someone uses strlen(&("FOO"[0])) */
+> 	#define strlen(x) \
+> 		(__builtin_constant_p(x) && sizeof(x) != sizeof(char *)
+> 		? (sizeof(x) - 1) : __strlen(x))
 
-Attached patch disables preemption in FPU_SAVE and XMMS_SAVE and
-restores it in FPU_RESTORE and XMMS_RESTORE - preventing preemption
-while in fp mode.
+I must say that doesn't make the code any cleaner, which leads to it being 
+not as clean as Keith suggested. It was a code cleanup, not a code messup.
 
-I fixed the silly errors in the previous patch; this ought to be right.
-
-Patch is against 2.5.32-bk.  Please, apply.
-
-        Robert Love
-
-diff -urN linux-2.5.32/include/asm-i386/xor.h linux/include/asm-i386/xor.h
---- linux-2.5.32/include/asm-i386/xor.h	Tue Aug 27 15:26:34 2002
-+++ linux/include/asm-i386/xor.h	Wed Aug 28 17:17:51 2002
-@@ -20,6 +20,7 @@
- 
- #define FPU_SAVE							\
-   do {									\
-+	preempt_disable();						\
- 	if (!test_thread_flag(TIF_USEDFPU))				\
- 		__asm__ __volatile__ (" clts;\n");			\
- 	__asm__ __volatile__ ("fsave %0; fwait": "=m"(fpu_save[0]));	\
-@@ -30,6 +31,7 @@
- 	__asm__ __volatile__ ("frstor %0": : "m"(fpu_save[0]));		\
- 	if (!test_thread_flag(TIF_USEDFPU))				\
- 		stts();							\
-+	preempt_enable();						\
-   } while (0)
- 
- #define LD(x,y)		"       movq   8*("#x")(%1), %%mm"#y"   ;\n"
-@@ -542,7 +544,8 @@
-  * Copyright (C) 1999 Zach Brown (with obvious credit due Ingo)
-  */
- 
--#define XMMS_SAVE				\
-+#define XMMS_SAVE do {				\
-+	preempt_disable();			\
- 	__asm__ __volatile__ ( 			\
- 		"movl %%cr0,%0		;\n\t"	\
- 		"clts			;\n\t"	\
-@@ -552,9 +555,10 @@
- 		"movups %%xmm3,0x30(%1)	;\n\t"	\
- 		: "=&r" (cr0)			\
- 		: "r" (xmm_save) 		\
--		: "memory")
-+		: "memory");			\
-+} while(0)
- 
--#define XMMS_RESTORE				\
-+#define XMMS_RESTORE do {			\
- 	__asm__ __volatile__ ( 			\
- 		"sfence			;\n\t"	\
- 		"movups (%1),%%xmm0	;\n\t"	\
-@@ -564,7 +568,9 @@
- 		"movl 	%0,%%cr0	;\n\t"	\
- 		:				\
- 		: "r" (cr0), "r" (xmm_save)	\
--		: "memory")
-+		: "memory");			\
-+	preempt_enable();			\
-+} while(0)
- 
- #define ALIGN16 __attribute__((aligned(16)))
- 
-diff -urN linux-2.5.32/include/asm-x86_64/xor.h linux/include/asm-x86_64/xor.h
---- linux-2.5.32/include/asm-x86_64/xor.h	Tue Aug 27 15:26:36 2002
-+++ linux/include/asm-x86_64/xor.h	Wed Aug 28 17:19:07 2002
-@@ -37,8 +37,9 @@
- 
- /* Doesn't use gcc to save the XMM registers, because there is no easy way to 
-    tell it to do a clts before the register saving. */
--#define XMMS_SAVE				\
--	asm volatile ( 			\
-+#define XMMS_SAVE do {				\
-+	preempt_disable();			\
-+	asm volatile (				\
- 		"movq %%cr0,%0		;\n\t"	\
- 		"clts			;\n\t"	\
- 		"movups %%xmm0,(%1)	;\n\t"	\
-@@ -47,10 +48,11 @@
- 		"movups %%xmm3,0x30(%1)	;\n\t"	\
- 		: "=r" (cr0)			\
- 		: "r" (xmm_save) 		\
--		: "memory")
-+		: "memory");			\
-+} while(0)
- 
- #define XMMS_RESTORE				\
--	asm volatile ( 			\
-+	asm volatile (				\
- 		"sfence			;\n\t"	\
- 		"movups (%1),%%xmm0	;\n\t"	\
- 		"movups 0x10(%1),%%xmm1	;\n\t"	\
-@@ -59,7 +61,9 @@
- 		"movq 	%0,%%cr0	;\n\t"	\
- 		:				\
- 		: "r" (cr0), "r" (xmm_save)	\
--		: "memory")
-+		: "memory");			\
-+	preempt_enable();			\
-+} while(0)
- 
- #define OFFS(x)		"16*("#x")"
- #define PF_OFFS(x)	"256+16*("#x")"
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

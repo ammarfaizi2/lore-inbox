@@ -1,61 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263227AbTCUEdE>; Thu, 20 Mar 2003 23:33:04 -0500
+	id <S263085AbTCUEZg>; Thu, 20 Mar 2003 23:25:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263235AbTCUEdD>; Thu, 20 Mar 2003 23:33:03 -0500
-Received: from 12-211-138-234.client.attbi.com ([12.211.138.234]:19292 "EHLO
-	vlad.geekizoid.com") by vger.kernel.org with ESMTP
-	id <S263227AbTCUEdC>; Thu, 20 Mar 2003 23:33:02 -0500
-Reply-To: <vlad@geekizoid.com>
-From: "Vlad@geekizoid.com" <vlad@geekizoid.com>
-To: "'Eric Sandall'" <eric@sandall.us>, <linux-kernel@vger.kernel.org>
-Subject: RE: Deprecating .gz format on kernel.org
-Date: Thu, 20 Mar 2003 22:42:51 -0600
-Message-ID: <036d01c2ef64$557b7ec0$0200a8c0@wsl3>
+	id <S263209AbTCUEZg>; Thu, 20 Mar 2003 23:25:36 -0500
+Received: from chii.cinet.co.jp ([61.197.228.217]:13185 "EHLO
+	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S263085AbTCUEZf>; Thu, 20 Mar 2003 23:25:35 -0500
+Message-ID: <3E7A96A0.E1EC02B2@cinet.co.jp>
+Date: Fri, 21 Mar 2003 13:35:44 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.65-ac1-pc98smp i686)
+X-Accept-Language: ja
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 2.5.65-ac1] Support PC-9800 subarchitecture (9/14) NIC
+References: <20030321022850.GA1767@yuzuki.cinet.co.jp> <20030321025132.GI1847@yuzuki.cinet.co.jp> <3E7A910B.7070806@pobox.com>
+Content-Type: text/plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <1795.192.168.0.2.1048205382.squirrel@mail.sandall.us>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Eric Sandall
-> Sent: Thursday, March 20, 2003 6:10 PM
-> To: linux-kernel@vger.kernel.org
-> Subject: RE: Deprecating .gz format on kernel.org
-> LA Walsh said:
-> > ----
-> > 	I asked WinZip for plugin support so users could add
-> > arbitrary compressions formats (I specifically mentioned 'bz2').
-> > I even offered to do it myself if they wanted to give me 
-> NDA access to
-> > the code....  and was told that they have thought about
-> > extensibility but had no plans to support  it in the forseeable
-> > future.  Consider it a benefit of a closed source product.
-> > They control your file format, they control your business 
-> and personal
-> > decisions...nice.
-> > 	Anyone up for writing a Free version of Winzip to replace
-> > the "cooperative" Winzip authors' version (was was up for making
-> > minor mod's, but not starting from scratch).
-> > -linda
-> FYI, WinRAR (http://www.rarsoft.com) supports BZ2 files.  ;)
-> -Sandalle
+Jeff Garzik wrote:
+> 
+> Thank you for your patience and tenacity, and for listening to comments
+> from Linux kernel developers.
+> 
+> Looks good, patch applied.
+Thank you very much.
+We are happy. I've been receiving many cheering mail from
+PC-98 peoples.
 
-But, WinRAR doesn't handle symlinks.
-
---
-
- /"\                         / For information and quotes, email us at
- \ /  ASCII RIBBON CAMPAIGN / info@lrsehosting.com
-  X   AGAINST HTML MAIL    / http://www.lrsehosting.com/
- / \  AND POSTINGS        / vlad@lrsehosting.com
--------------------------------------------------------------------------
+-- 
+Osamu tomita

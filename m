@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266063AbRGGIGX>; Sat, 7 Jul 2001 04:06:23 -0400
+	id <S266058AbRGGICX>; Sat, 7 Jul 2001 04:02:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266066AbRGGIGN>; Sat, 7 Jul 2001 04:06:13 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:47312 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S266063AbRGGIGH>; Sat, 7 Jul 2001 04:06:07 -0400
-Message-ID: <3B46C342.A27D6C50@uow.edu.au>
-Date: Sat, 07 Jul 2001 18:07:30 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
+	id <S266063AbRGGICO>; Sat, 7 Jul 2001 04:02:14 -0400
+Received: from mackman.submm.caltech.edu ([131.215.85.46]:46466 "EHLO
+	mackman.net") by vger.kernel.org with ESMTP id <S266058AbRGGICC>;
+	Sat, 7 Jul 2001 04:02:02 -0400
+Date: Sat, 7 Jul 2001 01:02:01 -0700 (PDT)
+From: Ryan Mack <rmack@mackman.net>
+To: <max_mk@yahoo.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [BUG?] vtund broken by tun driver changes in 2.4.6
+Message-ID: <Pine.LNX.4.33.0107070058350.29490-100000@mackman.net>
 MIME-Version: 1.0
-To: Henry <henry@borg.metroweb.co.za>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: OOPS (kswapd) in 2.4.5 and 2.4.6
-In-Reply-To: <01070516412506.06182@borg> <3B457835.F06E49CF@uow.edu.au>,
-		<3B457835.F06E49CF@uow.edu.au> <01070708085101.00793@borg>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Henry wrote:
-> 
-> ...
-> So far, so good.  There has not been a single oops on the two principle
-> servers I patched.
-> 
-> uptime1:                8:04am  up 18:22,  1 user,  load average: 0.09, 0.15, 0.11
-> uptime2:                8:04am  up 18:25,  1 user,  load average: 0.15, 0.20, 0.15
+I recently upgraded a server running vtund 2.4 (4/18/01) to stock 2.4.6
+kernel.  It seems the changes to the tun driver have broken vtund.  Now my
+syslog gets filled with the following messages when a client attempts to
+connect:
 
-OK, that looks good.
+Jul  5 10:15:53 mackman vtund[4011]: Session
+mackman-vpn[64.169.117.25:2359] opened
+Jul  5 10:15:53 mackman vtund[4011]: Can't allocate tun device. File
+descriptor in bad state(77)
+Jul  5 10:15:53 mackman vtund[4011]: Session mackman-vpn closed
+Jul  5 10:16:04 mackman vtund[4014]: Session
+mackman-vpn[64.169.117.25:2360] opened
+Jul  5 10:16:04 mackman vtund[4014]: Can't allocate tun device. File
+descriptor in bad state(77)
+Jul  5 10:16:04 mackman vtund[4014]: Session mackman-vpn closed
 
-> Andrew my china, you are the _MAN_!
+Eventually the client gives up.  Do you have any suggestions or know of
+any fixes?
 
-Not only that - I have great legs!
+Thanks, Ryan Mack
 
->  We should know by monday afternoon
-> (the monday morning/midday crunch should provide some valuable
-> feedback).
-
-I wonder why it only affects you.  Is the drive which holds
-your swap partition running in PIO mode?  `hdparm' will tell
-you.  If it is, then that could easily cause the page to come
-unlocked before brw_page() has finished touching the buffer
-ring.  Then all it takes is a parallel try_to_free_buffers
-on the other CPU.
-
-There's a similar bug in __block_write_full_page().  I'll
-send a patch...
-
--

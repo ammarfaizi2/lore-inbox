@@ -1,85 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbTFFOoE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 10:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTFFOoE
+	id S261564AbTFFOvf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 10:51:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbTFFOvf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 10:44:04 -0400
-Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:44649 "EHLO
-	mx.rackable.com") by vger.kernel.org with ESMTP id S261548AbTFFOoD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 10:44:03 -0400
-Message-ID: <3EE0AAC3.4090506@rackable.com>
-Date: Fri, 06 Jun 2003 07:52:51 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
+	Fri, 6 Jun 2003 10:51:35 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:15364 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id S261564AbTFFOum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 10:50:42 -0400
+Date: Fri, 6 Jun 2003 17:04:11 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: John Kim <john@larvalstage.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: make allyesconfig broken in 2.5.70-bk10 and -bk11
+In-Reply-To: <Pine.LNX.4.53.0306061009530.28886@jake.larvalstage.com>
+Message-ID: <Pine.LNX.4.44.0306061658050.12110-100000@serv>
+References: <Pine.LNX.4.53.0306061009530.28886@jake.larvalstage.com>
 MIME-Version: 1.0
-To: Daniel Sheltraw <sheltraw@unm.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: recompiling RH9 with SCSI driver
-References: <1054859772.3edfe1fcaaa6e@webdjn.unm.edu>
-In-Reply-To: <1054859772.3edfe1fcaaa6e@webdjn.unm.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Jun 2003 14:57:36.0289 (UTC) FILETIME=[F775C910:01C32C3B]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Sheltraw wrote:
+Hi,
 
->Hello kernel list
->
->I knowm this is not really a kernel problem but I have been unable
->to get this problem solved on other lists. I am having trouble
->building a new 2.4.20 kernel on a machine running RedHat9 and
->it appears that the problem has something to do with the mptbase
->module (scsi module?).
->
->The machine is a Dell Precision 350 machine and lspci tells me this
->about my SCSI controller:
->
->02:07.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 (rev 07)
->02:07.1 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 (rev 07)
->
->
->I am trying to recompile my kernel but after when doing a "make install"
->I get the folloeing error message:
->
->sh -x ./install.sh 2.4.20-rthal5 bzImage /usr/src/linux-2.4.20/System.map ""
->+ '[' -x /root/bin/installkernel ']'
->+ '[' -x /sbin/installkernel ']'
->+ exec /sbin/installkernel 2.4.20-rthal5 bzImage
->/usr/src/linux-2.4.20/System.map ''
->No module mptbase found for kernel 2.4.20-rthal5
->mkinitrd failed
->make[1]: *** [install] Error 1
->make[1]: Leaving directory `/usr/src/linux-2.4.20/arch/i386/boot'
->make: *** [install] Error 2
->
->There does not exist a /lib/modules directory for my new modules
->and it looks like "make install" can't find the mptbase driver.
->Does any one know how to fix this?
->  
->
+On Fri, 6 Jun 2003, John Kim wrote:
 
-   You likely have the mpt module referenced in your /etc/modules.conf.  
-Likely this is something like a scsi_hostadapter alias.  When the 
-install script attempts to create an initrd it fails as it can't find 
-the module in question.  This could be caused by one of several things.
+>   Root Plug Support (SECURITY_ROOTPLUG) [N/m/y/?] (NEW) y
+> *
+> * Cryptographic options
+> *
+> -----
+> make allyesconfig works just fine for -bk9.
 
-1)You didn't compile support for the mpt driver at all.
-2)You compiled the driver into the kernel instead of as a module.
+Hmm, it seems I missed a problem with the new select keyword.
+This patch prevents any attempt to change any symbol which isn't changable 
+anyway (e.g. force to 'y' via select).
 
-  In the case of #2 commenting out the alias in modules.conf should 
-"fix" your issue.  (Of course new kernel's from your vendor won't know 
-to load the driver.)  Or you could just manually install the kernel.  In 
-the case of #2 you really need to compile the mpt driver.
+bye, Roman
 
--- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
-
+diff -pur linux-2.5.70-bk10.org/scripts/kconfig/conf.c linux-2.5.70-bk10/scripts/kconfig/conf.c
+--- linux-2.5.70-bk10.org/scripts/kconfig/conf.c	2003-06-06 10:57:49.000000000 +0200
++++ linux-2.5.70-bk10/scripts/kconfig/conf.c	2003-06-06 16:51:38.000000000 +0200
+@@ -73,6 +73,13 @@ static void conf_askvalue(struct symbol 
+ 	line[0] = '\n';
+ 	line[1] = 0;
+ 
++	if (!sym_is_changable(sym)) {
++		printf("%s\n", def);
++		line[0] = '\n';
++		line[1] = 0;
++		return;
++	}
++
+ 	switch (input_mode) {
+ 	case ask_new:
+ 	case ask_silent:
+@@ -82,12 +89,6 @@ static void conf_askvalue(struct symbol 
+ 		}
+ 		check_stdin();
+ 	case ask_all:
+-		if (!sym_is_changable(sym)) {
+-			printf("%s\n", def);
+-			line[0] = '\n';
+-			line[1] = 0;
+-			return;
+-		}
+ 		fflush(stdout);
+ 		fgets(line, 128, stdin);
+ 		return;
 

@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262082AbVCRXiS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262111AbVCRXpB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262082AbVCRXiS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 18:38:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbVCRXiS
+	id S262111AbVCRXpB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 18:45:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbVCRXpB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 18:38:18 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:42380 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S262082AbVCRXhu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 18:37:50 -0500
-Date: Sat, 19 Mar 2005 00:34:29 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Jonas Oreland <jonas.oreland@mysql.com>
-Cc: daniel.ritz@gmx.ch, linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-pcmcia <linux-pcmcia@lists.infradead.org>
-Subject: Re: yenta_socket "nobody cared - Disabling IRQ #4"
-Message-ID: <20050318233429.GA24460@electric-eye.fr.zoreil.com>
-References: <200503182243.24174.daniel.ritz@gmx.ch> <423B5D7A.1060304@mysql.com>
+	Fri, 18 Mar 2005 18:45:01 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11924 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262118AbVCRXox (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 18:44:53 -0500
+Date: Sat, 19 Mar 2005 00:44:40 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Greg KH <gregkh@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: fix-u32-vs-pm_message_t-in-usb
+Message-ID: <20050318234440.GF24449@elf.ucw.cz>
+References: <20050310223353.47601d54.akpm@osdl.org> <20050311130831.GC1379@elf.ucw.cz> <20050318214335.GA17813@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <423B5D7A.1060304@mysql.com>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050318214335.GA17813@kroah.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonas Oreland <jonas.oreland@mysql.com> :
-[...]
-> Report:
-> 1) It works somewhat better. irq doesn't get disabled.
-> 2) however wlan card get disfunctional. I haven't been able to contact my 
-> wap
->   even if i'm standing on it...
-> 3) unplug has resulted in kernel panic (twice)
->   (btw: how do I do to capture and report those)
-> 4) when unlug don't produce kernel panic, then there is no way of 
-> power-oning that card again.
-> 5) booting with the card inserted makes it not power on when yenta_socket 
-> is loaded (module)
+On Pá 18-03-05 13:43:36, Greg KH wrote:
+> On Fri, Mar 11, 2005 at 02:08:31PM +0100, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > This patch has been spitting warnings:
+> > > 
+> > > drivers/usb/host/uhci-hcd.c:838: warning: initialization from incompatible pointer type
+> > > drivers/usb/host/ohci-pci.c:191: warning: initialization from incompatible pointer type
+> > > 
+> > > Because hc_driver.suspend() takes a u32 as its second arg.  Changing that
+> > > to pci_power_t causes build failures and including pci.h in usb.h seems
+> > > wrong.
+> > > 
+> > > Wanna fix it sometime?
+> > 
+> > Yep. Here it is.
+> > 
+> > This fixes remaining confusion. Part of my old patch was merged, I
+> > later decided passing pci_power_t down to drivers is bad idea; this
+> > passes them pm_message_t which contains more info (and actually works
+> > :-). Please apply,
 > 
-> comment: the card being disfunction could have something to with the driver.
-> but before it worked sometimes...
+> Argh, this one is already partially in, and another one you just sent me
+> has half of it in the tree too...
+> 
+> Care to just rediff off of 2.6.12-rc1?  Then we can hopefully get these
+> changes in :)
 
-static int
-ath_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
-[...]
-        if (request_irq(dev->irq, ath_intr, SA_SHIRQ, dev->name, dev)) {
-                printk(KERN_WARNING "%s: request_irq failed\n", dev->name);
-                goto bad3;
-        }
-[...]
-        athname = ath_hal_probe(id->vendor, id->device);
-        printk(KERN_INFO "%s: %s: mem=0x%lx, irq=%d\n",
-                dev->name, athname ? athname : "Atheros ???", phymem, dev->irq);
-
-        /* ready to process interrupts */
-        sc->aps_sc.sc_invalid = 0;
-
-No sources for ath_hal_probe, too bad.
-
-However, even without any sources, a driver which includes an "I am not ready
-to process interrupts" flag and issue request_irq() without having disabled
-the device first makes me a bit nervous.
-
---
-Ueimor
+I can do the rediff tommorow. I just hope there are not some other
+changis waiting in -mm to spoil this ;-).
+							Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

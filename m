@@ -1,177 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264769AbUDWKr4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264048AbUDWLEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264769AbUDWKr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 06:47:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264780AbUDWKr4
+	id S264048AbUDWLEo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 07:04:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264780AbUDWLEn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 06:47:56 -0400
-Received: from holomorphy.com ([207.189.100.168]:29352 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264769AbUDWKrt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 06:47:49 -0400
-Date: Fri, 23 Apr 2004 03:47:44 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: david@gibson.dropbear.id.au, linux-kernel@vger.kernel.org,
-       linuxppc64-dev@lists.linuxppc.org
-Subject: Re: put_page() tries to handle hugepages but fails
-Message-ID: <20040423104744.GG743@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, david@gibson.dropbear.id.au,
-	linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
-References: <20040423081856.GJ9243@zax> <20040423013437.1f2b8fc6.akpm@osdl.org> <20040423102824.GF743@holomorphy.com> <20040423033522.03ab14fc.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040423033522.03ab14fc.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 23 Apr 2004 07:04:43 -0400
+Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:9883 "EHLO
+	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S264048AbUDWLEl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 07:04:41 -0400
+Date: Fri, 23 Apr 2004 12:04:37 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+cc: Dave Jones <davej@redhat.com>, linux-ntfs-dev@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: NTFS null dereference x2
+In-Reply-To: <Pine.LNX.4.21.0404171505580.30107-100000@mlf.linux.rulez.org>
+Message-ID: <Pine.SOL.4.58.0404231202310.3112@yellow.csi.cam.ac.uk>
+References: <Pine.LNX.4.21.0404171505580.30107-100000@mlf.linux.rulez.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 23, 2004 at 03:35:22AM -0700, Andrew Morton wrote:
-> Sure.
-> This of course duplicates huge_page_release(), which can be killed off.
+On Sat, 17 Apr 2004, Szakacsits Szabolcs wrote:
+> Dave Jones <davej@redhat.com> wrote:
+> > if vol is NULL, everything falls apart..
+>
+> AFAIS, neither vol nor vol->sb can be NULL below. The !vol check, that
+> fooled you or an automatic checker, is bogus and probably it slipped
+> through the user space library, thanks.
+>
+> Please note, by the patch you would introduce a real bug when you
+> dereference the now uninitialized sb to assign a value to block_size.
 
-Ah, but mm/hugetlb.c is putting the destructor in head->lru.prev not
-head[1].mapping; fix below along with nuking  huge_page_release().
+Thanks.  While at present vol nor vol->sb can be NULL, I have changed the
+code in my tree to do the assignments after the checks for completeness
+sake.  I of course also moved the assignment that the patch ignored as
+well, otherwise as Szaka said, it would all go horribly wrong...
 
+Best regards,
 
--- wli
+	Anton
 
+> > --- linux-2.6.5/fs/ntfs/attrib.c~     2004-04-16 22:45:53.000000000 +0100
+> > +++ linux-2.6.5/fs/ntfs/attrib.c      2004-04-16 22:46:47.000000000 +0100
+> > @@ -1235,16 +1235,19 @@
+> >       u8 *al_end = al + initialized_size;
+> >       run_list_element *rl;
+> >       struct buffer_head *bh;
+> > -     struct super_block *sb = vol->sb;
+> > +     struct super_block *sb;
+> >       unsigned long block_size = sb->s_blocksize;
+> >       unsigned long block, max_block;
+> >       int err = 0;
+> > -     unsigned char block_size_bits = sb->s_blocksize_bits;
+> > +     unsigned char block_size_bits;
+> >
+> >       ntfs_debug("Entering.");
+> >       if (!vol || !run_list || !al || size <= 0 || initialized_size < 0 ||
+> >                       initialized_size > size)
+> >               return -EINVAL;
+> > +     sb = vol->sb;
+> > +     block_size_bits = sb->s_blocksize_bits;
+> > +
+> >       if (!initialized_size) {
+> >               memset(al, 0, size);
+> >               return 0;
 
-Index: wli-2.6.6-rc2-mm1/include/linux/hugetlb.h
-===================================================================
---- wli-2.6.6-rc2-mm1.orig/include/linux/hugetlb.h	2004-04-21 05:20:33.000000000 -0700
-+++ wli-2.6.6-rc2-mm1/include/linux/hugetlb.h	2004-04-23 03:40:24.000000000 -0700
-@@ -18,7 +18,6 @@
- void zap_hugepage_range(struct vm_area_struct *, unsigned long, unsigned long);
- void unmap_hugepage_range(struct vm_area_struct *, unsigned long, unsigned long);
- int hugetlb_prefault(struct address_space *, struct vm_area_struct *);
--void huge_page_release(struct page *);
- int hugetlb_report_meminfo(char *);
- int is_hugepage_mem_enough(size_t);
- unsigned long hugetlb_total_pages(void);
-@@ -70,7 +69,6 @@
- #define hugetlb_prefault(mapping, vma)		({ BUG(); 0; })
- #define zap_hugepage_range(vma, start, len)	BUG()
- #define unmap_hugepage_range(vma, start, end)	BUG()
--#define huge_page_release(page)			BUG()
- #define is_hugepage_mem_enough(size)		0
- #define hugetlb_report_meminfo(buf)		0
- #define mark_mm_hugetlb(mm, vma)		do { } while (0)
-Index: wli-2.6.6-rc2-mm1/mm/swap.c
-===================================================================
---- wli-2.6.6-rc2-mm1.orig/mm/swap.c	2004-04-21 05:19:58.000000000 -0700
-+++ wli-2.6.6-rc2-mm1/mm/swap.c	2004-04-23 03:21:22.000000000 -0700
-@@ -41,15 +41,12 @@
- 	if (unlikely(PageCompound(page))) {
- 		page = (struct page *)page->private;
- 		if (put_page_testzero(page)) {
--			if (page[1].mapping) {	/* destructor? */
--				(*(void (*)(struct page *))page[1].mapping)(page);
--			} else {
--				__page_cache_release(page);
--			}
-+			void (*destructor)(struct page *);
-+			destructor = (void (*)(struct page *))page[1].mapping;
-+			BUG_ON(!destructor);
-+			(*destructor)(page);
- 		}
--		return;
--	}
--	if (!PageReserved(page) && put_page_testzero(page))
-+	} else if (!PageReserved(page) && put_page_testzero(page))
- 		__page_cache_release(page);
- }
- EXPORT_SYMBOL(put_page);
-Index: wli-2.6.6-rc2-mm1/mm/hugetlb.c
-===================================================================
---- wli-2.6.6-rc2-mm1.orig/mm/hugetlb.c	2004-04-21 05:19:58.000000000 -0700
-+++ wli-2.6.6-rc2-mm1/mm/hugetlb.c	2004-04-23 03:45:41.000000000 -0700
-@@ -78,20 +78,12 @@
- 	free_huge_pages--;
- 	spin_unlock(&hugetlb_lock);
- 	set_page_count(page, 1);
--	page->lru.prev = (void *)free_huge_page;
-+	page[1].mapping = (void *)free_huge_page;
- 	for (i = 0; i < (HPAGE_SIZE/PAGE_SIZE); ++i)
- 		clear_highpage(&page[i]);
- 	return page;
- }
- 
--void huge_page_release(struct page *page)
--{
--	if (!put_page_testzero(page))
--		return;
--
--	free_huge_page(page);
--}
--
- static int __init hugetlb_init(void)
- {
- 	unsigned long i;
-Index: wli-2.6.6-rc2-mm1/arch/i386/mm/hugetlbpage.c
-===================================================================
---- wli-2.6.6-rc2-mm1.orig/arch/i386/mm/hugetlbpage.c	2004-04-21 05:20:29.000000000 -0700
-+++ wli-2.6.6-rc2-mm1/arch/i386/mm/hugetlbpage.c	2004-04-23 03:40:04.000000000 -0700
-@@ -220,7 +220,7 @@
- 		if (pte_none(pte))
- 			continue;
- 		page = pte_page(pte);
--		huge_page_release(page);
-+		put_page(page);
- 	}
- 	mm->rss -= (end - start) >> PAGE_SHIFT;
- 	flush_tlb_range(vma, start, end);
-Index: wli-2.6.6-rc2-mm1/arch/ia64/mm/hugetlbpage.c
-===================================================================
---- wli-2.6.6-rc2-mm1.orig/arch/ia64/mm/hugetlbpage.c	2004-04-21 05:19:41.000000000 -0700
-+++ wli-2.6.6-rc2-mm1/arch/ia64/mm/hugetlbpage.c	2004-04-23 03:40:07.000000000 -0700
-@@ -249,7 +249,7 @@
- 		if (pte_none(*pte))
- 			continue;
- 		page = pte_page(*pte);
--		huge_page_release(page);
-+		put_page(page);
- 		pte_clear(pte);
- 	}
- 	mm->rss -= (end - start) >> PAGE_SHIFT;
-Index: wli-2.6.6-rc2-mm1/arch/ppc64/mm/hugetlbpage.c
-===================================================================
---- wli-2.6.6-rc2-mm1.orig/arch/ppc64/mm/hugetlbpage.c	2004-04-21 05:20:29.000000000 -0700
-+++ wli-2.6.6-rc2-mm1/arch/ppc64/mm/hugetlbpage.c	2004-04-23 03:40:10.000000000 -0700
-@@ -394,7 +394,7 @@
- 			flush_hash_hugepage(mm->context, addr,
- 					    pte, local);
- 
--		huge_page_release(page);
-+		put_page(page);
- 	}
- 
- 	mm->rss -= (end - start) >> PAGE_SHIFT;
-Index: wli-2.6.6-rc2-mm1/arch/sh/mm/hugetlbpage.c
-===================================================================
---- wli-2.6.6-rc2-mm1.orig/arch/sh/mm/hugetlbpage.c	2004-04-21 05:19:43.000000000 -0700
-+++ wli-2.6.6-rc2-mm1/arch/sh/mm/hugetlbpage.c	2004-04-23 03:40:14.000000000 -0700
-@@ -200,7 +200,7 @@
- 		if (pte_none(*pte))
- 			continue;
- 		page = pte_page(*pte);
--		huge_page_release(page);
-+		put_page(page);
- 		for (i = 0; i < (1 << HUGETLB_PAGE_ORDER); i++) {
- 			pte_clear(pte);
- 			pte++;
-Index: wli-2.6.6-rc2-mm1/arch/sparc64/mm/hugetlbpage.c
-===================================================================
---- wli-2.6.6-rc2-mm1.orig/arch/sparc64/mm/hugetlbpage.c	2004-04-21 05:19:43.000000000 -0700
-+++ wli-2.6.6-rc2-mm1/arch/sparc64/mm/hugetlbpage.c	2004-04-23 03:40:17.000000000 -0700
-@@ -198,7 +198,7 @@
- 		if (pte_none(*pte))
- 			continue;
- 		page = pte_page(*pte);
--		huge_page_release(page);
-+		put_page(page);
- 		for (i = 0; i < (1 << HUGETLB_PAGE_ORDER); i++) {
- 			pte_clear(pte);
- 			pte++;
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

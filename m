@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261531AbREOVAS>; Tue, 15 May 2001 17:00:18 -0400
+	id <S261504AbREOU6t>; Tue, 15 May 2001 16:58:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261512AbREOVAL>; Tue, 15 May 2001 17:00:11 -0400
-Received: from www.topmail.de ([212.255.16.226]:57995 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S261516AbREOU70>;
-	Tue, 15 May 2001 16:59:26 -0400
-From: mirabilos <eccesys@topmail.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: gcc3 fixed?, sb/ess1869 freeze
-Message-Id: <20010515205300.53325A5A948@www.topmail.de>
-Date: Tue, 15 May 2001 22:53:00 +0200 (MET DST)
+	id <S261503AbREOU6j>; Tue, 15 May 2001 16:58:39 -0400
+Received: from pine.parrswood.manchester.sch.uk ([213.205.138.155]:50110 "EHLO
+	parrswood.manchester.sch.uk") by vger.kernel.org with ESMTP
+	id <S261504AbREOU6b>; Tue, 15 May 2001 16:58:31 -0400
+Date: Tue, 15 May 2001 21:58:28 +0100 (BST)
+From: Tim Fletcher <tim@parrswood.manchester.sch.uk>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Device Numbers, LILO
+In-Reply-To: <9drk37$51s$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0105152156200.4099-100000@redwood.parrswood.manchester.sch.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I found a CONFIG_RWSEM_GENERIC_SPINLOCK
-(I give in that I really do not have any
-clue about it) which is defined in
-arch/i386/config.in to be the opposite of
-CONFIG_RWSEM_XCHGADD_ALGORITHM.
-It is defined n/y for i386 and y/n for others.
+> It's in, but for some strange reason you have to ask for it explicitly
+> with the "lba32" option.
 
-Because I even was unable to compile with Petr
-Vandrovec's suggested patch I simply added the
-patch below, set the config option to n/y and
-recompiled.
-This is written in telnet under that kernel ;-)
+Because the 32bit bios calls lilo uses in lba32 mode can cause problems
+with broken or old bios's hence is defaults to a safe option, and if you
+can't boot without it (over 1023 cylinders) then you turn it on at your
+own risk.
 
-gcc-3.0: snapshot 20010514
+I know this from the experiance of breaking lilo on my workstation :)
 
-kernel: 2.4.4-ac9
-
-uptime:   8:56pm  up 39 min,  2 users,  load average: 0.08, 0.02, 0.01
-(not much, but working)
-
-If I am wrong to do this please correct me (no
-need to Cc: as I am on the list).
-
-SECOND, I have a Siemens Mobile 510 with ESS1869 onboard,
-configured to soundblaster 220/5/1 (recording 0).
-I can record and playback .au with dd and cat respectively
-with no problems (I didn't simultaneously yet), but when
-I press a key during playback it freezes nearly instantly
-(there is a hardly noticable delay, 0.05 sec or so).
-I have no clue why.
-Information on request, again, no need to Cc: me.
-
-Thanks to you gurus,
-and everything else (including reiser) works very fine.
-
--mirabilos
 -- 
-by telnet
+   Tim Fletcher - Network manager   .~.
+                                    /V\      L   I   N   U   X
+     tim@night-shade.org.uk        // \\  >Don't fear the penguin<
+ tim@parrswood.manchester.sch.uk  /(   )\
+irc: Night-Shade on openprojects   ^^-^^
+
+Justice is incidental to law and order.
+                -- J. Edgar Hoover
+

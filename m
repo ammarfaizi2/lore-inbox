@@ -1,207 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261369AbRFNHdx>; Thu, 14 Jun 2001 03:33:53 -0400
+	id <S261336AbRFNHhx>; Thu, 14 Jun 2001 03:37:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261336AbRFNHdd>; Thu, 14 Jun 2001 03:33:33 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:10427 "EHLO
+	id <S261390AbRFNHhn>; Thu, 14 Jun 2001 03:37:43 -0400
+Received: from mailhost.idcomm.com ([207.40.196.14]:20667 "EHLO
 	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S261296AbRFNHd0>; Thu, 14 Jun 2001 03:33:26 -0400
-Message-ID: <3B286904.9C17F8D9@idcomm.com>
-Date: Thu, 14 Jun 2001 01:34:28 -0600
+	id <S261336AbRFNHh2>; Thu, 14 Jun 2001 03:37:28 -0400
+Message-ID: <3B2869F9.D0AE17CB@idcomm.com>
+Date: Thu, 14 Jun 2001 01:38:33 -0600
 From: "D. Stimits" <stimits@idcomm.com>
 Reply-To: stimits@idcomm.com
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: kernel-list <linux-kernel@vger.kernel.org>
-Subject: Re: initial ramdisk failure
-In-Reply-To: <3B28391B.60536489@idcomm.com>
+CC: kernel-list <linux-kernel@vger.kernel.org>
+Subject: Re: bzDisk compression Q; boot debug Q
+In-Reply-To: <6B1DF6EEBA51D31182F200902740436802678F59@mail-in.comverse-in.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To punish myself for this silly problem, I'll be giving Bill Gates a
-compliment, and pulling my toe nails out with pliers. Everything was set
-up right, but the one thing I always config, "initial ramdisk", was not
-set. Sorry.
+"Khachaturov, Vassilii" wrote:
+> 
+> > Question 2, apparently ramdisk uses gzip compression; the name of the
+> > kernel from make bzImage seems to maybe refer to bzip2 compression. Is
+> > the kernel image using gzip or bzip2 compression for bzImage? Would
+> bzImage stands for "big zImage" - this is a format invented for kernels that
+> don't fit into zImage. bzip2 has nothing to do with it :)
+
+Compression is one of those areas someone is always claiming to own a
+part of, so it is a pain to deal with. But I still curious, how
+effective is the compression that "big zImage" uses, compared to
+something like bzip2? If the algorithm is the same as what gzip uses,
+I'd imagine that some of my current 1.6 MB boot images could be brought
+down to 1.44 MB. But then it would also have to be self-extracting,
+which complicates it, so I'm wondering how effective this current
+compression is, and if a more bzip2-like system would be beneficial as
+kernels get larger?
 
 D. Stimits, stimits@idcomm.com
-
-
-"D. Stimits" wrote:
-> 
-> I have been trying for a while now, without luck, to get a kernel with
-> the SGI XFS system to boot as modules. I do fine if I make all scsi and
-> XFS as non-modules, but modules fail for both scsi and XFS (I can make
-> one or the other modular at a time, or both, it fails). According to
-> what I see, this should not be happening, but it is. All messages
-> indicate it was successful. I can also take the initial ramdisk image
-> and gzip, and create a file that I mount via loopback to actually view
-> the items it contains...no surprises, it has what it should have. But
-> lilo is not using it (the messages from lilo claim to, but proof is in
-> the failure). I'm going to list my output below, but the question will
-> be, for an SMP scsi aic7xxx system, noapic, with ext2 compiled in, and
-> /boot on its own ext2 partition (root is XFS), how is it possible that
-> this output lies and does not install scsi or XFS modules? Big note:
-> label with -2 is successful and has no modules; label with -3 fails, if
-> any part of filesystem XFS or scsi is modular, and otherwise, there are
-> no kernel configuration differences. Also, the "ramdisk_size" argument
-> of the relevant kernel is due to the size of XFS, just to be sure. The
-> output:
-> 
-> lilo.conf:
-> boot=/dev/sda
-> map=/boot/map
-> install=/boot/boot.b
-> prompt
-> timeout=50
-> message=/boot/message
-> linear
-> vga=0x030c
-> default=2.4.6-p1-xfs-2
-> backup=boot.backup.when-2.4.6-pre1-xfs-3
-> 
-> # FAILS, modular.
-> image=/boot/vmlinuz-2.4.6-pre1-xfs-3
->         label=2.4.6-p1-xfs-3
->         initrd=/boot/ir-2.4.6-p1-xfs-3.img
->         read-only
->         root=/dev/sda6
->         append="noapic ramdisk_size=16000"
-> 
-> # WORKS, no relevant modules, despite a ramdisk.
-> image=/boot/vmlinuz-2.4.6-pre1-xfs-2
->         label=2.4.6-p1-xfs-2
->         initrd=/boot/initrd-2.4.6-pre1-xfs-2.img
->         read-only
->         root=/dev/sda6
->         append="noapic"
-> 
-> Creating the ramdisk (tried both with SGI's mkinitrd.xfs, as well as
-> regular mkinitrd):
-> mkinitrd \
->  -v \
->  -f \
->  --preload pagebuf \
->  --preload xfs_support \
->  --preload xfs \
->  --with=scsi_mod \
->  --with=sd_mod \
->  --with=aic7xxx \
->  /boot/ir-2.4.6-p1-xfs-3.img \
->  2.4.6-pre1-xfs-3
-> 
-> The output of mkinitrd:
-> Using modules:  ./kernel/fs/pagebuf/pagebuf.o
-> ./kernel/fs/xfs_support/xfs_support.o ./kernel/fs/xfs/xfs.o
-> ./kernel/drivers/scsi/scsi_mod.o ./kernel/drivers/scsi/sd_mod.o
-> ./kernel/drivers/scsi/aic7xxx/aic7xxx.o
-> Using loopback device /dev/loop0
-> /sbin/nash -> /tmp/initrd.sXOMy4/bin/nash
-> /sbin/insmod.static -> /tmp/initrd.sXOMy4/bin/insmod
-> `/lib/modules/2.4.6-pre1-xfs-3/./kernel/fs/pagebuf/pagebuf.o' ->
-> `/tmp/initrd.sXOMy4/lib/pagebuf.o'
-> `/lib/modules/2.4.6-pre1-xfs-3/./kernel/fs/xfs_support/xfs_support.o' ->
-> `/tmp/initrd.sXOMy4/lib/xfs_support.o'
-> `/lib/modules/2.4.6-pre1-xfs-3/./kernel/fs/xfs/xfs.o' ->
-> `/tmp/initrd.sXOMy4/lib/xfs.o'
-> `/lib/modules/2.4.6-pre1-xfs-3/./kernel/drivers/scsi/scsi_mod.o' ->
-> `/tmp/initrd.sXOMy4/lib/scsi_mod.o'
-> `/lib/modules/2.4.6-pre1-xfs-3/./kernel/drivers/scsi/sd_mod.o' ->
-> `/tmp/initrd.sXOMy4/lib/sd_mod.o'
-> `/lib/modules/2.4.6-pre1-xfs-3/./kernel/drivers/scsi/aic7xxx/aic7xxx.o'
-> -> `/tmp/initrd.sXOMy4/lib/aic7xxx.o'
-> Loading module pagebuf with options
-> Loading module xfs_support with options
-> Loading module xfs with options
-> Loading module scsi_mod with options
-> Loading module sd_mod with options
-> Loading module aic7xxx with options
-> 
-> The output of lilo -v -v:
-> # lilo -v -v
-> LILO version 21.4-4, Copyright (C) 1992-1998 Werner Almesberger
-> 'lba32' extensions Copyright (C) 1999,2000 John Coffman
-> 
-> Reading boot sector from /dev/sda
-> Merging with /boot/boot.b
-> Secondary loader: 11 sectors.
-> Mapping message file /boot/message
-> Message: 46 sectors.
-> Boot image: /boot/vmlinuz-2.4.6-pre1-xfs-3
-> Setup length is 9 sectors.
-> Mapped 1607 sectors.
-> Mapping RAM disk /boot/ir-2.4.6-p1-xfs-3.img
-> RAM disk: 1304 sectors.
-> Added 2.4.6-p1-xfs-3
-> Boot image: /boot/vmlinuz-2.4.6-pre1-xfs-2
-> Setup length is 9 sectors.
-> Mapped 2274 sectors.
-> Mapping RAM disk /boot/initrd-2.4.6-pre1-xfs-2.img
-> RAM disk: 500 sectors.
-> Added 2.4.6-p1-xfs-2 *
-> boot.backup.when-2.4.6-pre1-xfs-3 exists - no backup copy made.
-> Map file size: 34304 bytes.
-> Writing boot sector.
-> 
-> NOTE: It explicitly states "Mapping RAM disk
-> /boot/ir-2.4.6-p1-xfs-3.img", the relevant ramdisk. It lied. How can it
-> be? I've been going at this for a couple of weeks now with no success.
-> 
-> After using gzip -dc on the .img, and mounting it via loopback, here is
-> the content of linuxrc:
-> #!/bin/nash
-> 
-> echo "Loading pagebuf module"
-> insmod /lib/pagebuf.o
-> echo "Loading xfs_support module"
-> insmod /lib/xfs_support.o
-> echo "Loading xfs module"
-> insmod /lib/xfs.o
-> echo "Loading scsi_mod module"
-> insmod /lib/scsi_mod.o
-> echo "Loading sd_mod module"
-> insmod /lib/sd_mod.o
-> echo "Loading aic7xxx module"
-> insmod /lib/aic7xxx.o
-> 
-> Here is the tree of the whole initial ramdisk from loopback mount:
-> .
-> |-- bin
-> |   |-- insmod
-> |   `-- nash
-> |-- dev
-> |   |-- console
-> |   |-- null
-> |   |-- ram
-> |   |-- systty
-> |   |-- tty1
-> |   |-- tty2
-> |   |-- tty3
-> |   `-- tty4
-> |-- etc
-> |-- lib
-> |   |-- aic7xxx.o
-> |   |-- pagebuf.o
-> |   |-- scsi_mod.o
-> |   |-- sd_mod.o
-> |   |-- xfs.o
-> |   `-- xfs_support.o
-> |-- linuxrc
-> |-- loopfs
-> `-- sbin
->     |-- bin -> bin
->     `-- modprobe -> /bin/nash
-> 
-> Something is wrong, it lacks scsi support if I make scsi a module, it
-> lacks XFS support if I make that a module. For all intents and purposes,
-> lilo totally ignored the ramdisk. Any possible clues at all how this
-> could be?
-> 
-> D. Stimits, stimits@idcomm.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

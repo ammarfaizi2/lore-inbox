@@ -1,38 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135265AbRDLTPm>; Thu, 12 Apr 2001 15:15:42 -0400
+	id <S135267AbRDLTUC>; Thu, 12 Apr 2001 15:20:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135266AbRDLTPW>; Thu, 12 Apr 2001 15:15:22 -0400
-Received: from runyon.cygnus.com ([205.180.230.5]:30672 "EHLO cygnus.com")
-	by vger.kernel.org with ESMTP id <S135265AbRDLTPL>;
-	Thu, 12 Apr 2001 15:15:11 -0400
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: johan.adolfsson@axis.com, linux-kernel@vger.kernel.org
-Subject: Re: List of all-zero .data variables in linux-2.4.3 available
-In-Reply-To: <200104121901.MAA04011@adam.yggdrasil.com>
-Reply-To: drepper@cygnus.com (Ulrich Drepper)
-X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
-X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
-From: Ulrich Drepper <drepper@redhat.com>
-Date: 12 Apr 2001 12:14:56 -0700
-In-Reply-To: "Adam J. Richter"'s message of "Thu, 12 Apr 2001 12:01:55 -0700"
-Message-ID: <m38zl6rkun.fsf@otr.mynet.cygnus.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
+	id <S135269AbRDLTTx>; Thu, 12 Apr 2001 15:19:53 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:59664 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S135267AbRDLTTk>; Thu, 12 Apr 2001 15:19:40 -0400
+Date: Thu, 12 Apr 2001 14:37:20 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: generic_osync_inode() broken?
+Message-ID: <Pine.LNX.4.21.0104121412150.2892-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Adam J. Richter" <adam@yggdrasil.com> writes:
 
-> >Shouldn't a compiler be able to deal with this instead?
-> 
-> 	Yes.
+Hi, 
 
-No.  gcc must not do this.  There are situations where you must place
-a zero-initialized variable in .data.  It is a programmer problem.
+generic_osync_inode() (called by generic_file_write()) is not checking if
+the inode being synced has the I_LOCK bit set before checking the I_DIRTY
+bit.
 
--- 
----------------.                          ,-.   1325 Chesapeake Terrace
-Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
-Red Hat          `--' drepper at redhat.com   `------------------------
+AFAICS, the following problem can happen:
+
+sync()
+...
+sync_one()
+reset I_DIRTY, set I_LOCK
+filemap_fdatasync() <-- #window 
+write_inode()  <-- #window	
+filemap_fdatawait() <-- #window
+unset I_LOCK
+
+There is no guarantee that the inode is fully synced until sync_one()
+cleans the inode I_LOCK bit. 
+
+If generic_osync_inode() checks the I_DIRTY bit (and sees it clean) during
+"#window", an "O_SYNC write()" call may return to userspace without having
+all the data actually synced.
+
+If I'm not missing something here this patch should the problem. 
+
+Comments? 
+
+--- fs/inode.c~	Thu Mar 22 16:04:13 2001
++++ fs/inode.c	Thu Apr 12 15:18:22 2001
+@@ -347,6 +347,11 @@
+ #endif
+ 
+ 	spin_lock(&inode_lock);
++	while (inode->i_state & I_LOCK) {
++		spin_unlock(&inode_lock);
++		__wait_on_inode(inode);
++		spin_lock(&inode_lock);
++	}
+ 	if (!(inode->i_state & I_DIRTY))
+ 		goto out;
+ 	if (datasync && !(inode->i_state & I_DIRTY_DATASYNC))
+

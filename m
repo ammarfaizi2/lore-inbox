@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263561AbUBHMOr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 07:14:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263564AbUBHMOr
+	id S263537AbUBHMQA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 07:16:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263564AbUBHMQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 07:14:47 -0500
-Received: from dp.samba.org ([66.70.73.150]:11401 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263561AbUBHMOq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 07:14:46 -0500
-Date: Sun, 8 Feb 2004 23:14:05 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Rick Lindsley <ricklind@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, dvhltc@us.ibm.com
-Subject: Re: [PATCH] Load balancing problem in 2.6.2-mm1
-Message-ID: <20040208121404.GC19011@krispykreme>
-References: <20040207095057.GS19011@krispykreme> <200402080040.i180eY811893@owlet.beaverton.ibm.com> <20040208011221.GV19011@krispykreme> <40258F21.30209@cyberone.com.au> <20040208014141.GX19011@krispykreme> <4025AB00.3030601@cyberone.com.au> <20040208035721.GY19011@krispykreme> <4025B572.9040904@cyberone.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4025B572.9040904@cyberone.com.au>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sun, 8 Feb 2004 07:16:00 -0500
+Received: from mailgate01.ctimail.com ([203.186.94.111]:61092 "EHLO
+	mailgate01.ctimail.com") by vger.kernel.org with ESMTP
+	id S263537AbUBHMPx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 07:15:53 -0500
+Message-Id: <200402081214.i18CEWe00689@mailgate01.ctimail.com>
+From: "Francis, Chong Chan Fai" <francis.ccf@polyu.edu.hk>
+To: "=?iso-8859-1?Q?'M=E5ns_Rullg=E5rd'?=" <mru@kth.se>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: USB 2.0 mass storage problem
+Date: Sun, 8 Feb 2004 20:15:40 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcPuNmXLEhJ0uuyPS4aq7qfAeBRXpgABq3Wg
+In-Reply-To: <yw1xr7x5u84v.fsf@kth.se>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
+> This looks like the drive is using a buggy Genesys USB-to-IDE bridge.
+> Run lsusb and check.  There was a workaround kernel patch floating
+> around here about a month ago.
 
-> Can you try this patch instead pretty please ;)
+Thank you for your help, 
+but could you please provide some more key words so that I can find those
+messages? Thanks.
 
-Still had the active rebalance problem. Martin suggested I try just the
-first junk of his patch:
-
-@@ -1442,8 +1442,8 @@ nextgroup:
-        if ((long)*imbalance < 0)
-                *imbalance = 0;
-  
--       /* Get rid of the scaling factor now, rounding *up* as we divide */
--       *imbalance = (*imbalance + SCHED_LOAD_SCALE - 1) >> SCHED_LOAD_SHIFT;
-+       /* Get rid of the scaling factor now */
-+       *imbalance = *imbalance >> SCHED_LOAD_SHIFT;
-
-This fixed the active rebalance issue, however now it doesnt want to
-rebalance out of the node. Ive got one completely empty node and one full
-one (all primary and secondary threads are busy).
-
-Anton

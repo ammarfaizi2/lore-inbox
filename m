@@ -1,378 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265311AbUATItt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 03:49:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265314AbUATItt
+	id S265350AbUATI6M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 03:58:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265354AbUATI6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 03:49:49 -0500
-Received: from [213.133.118.5] ([213.133.118.5]:8834 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S265311AbUATItX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 03:49:23 -0500
-Message-ID: <400CE9B7.5060700@shadowconnect.com>
-Date: Tue, 20 Jan 2004 09:41:27 +0100
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-Organization: Shadow Connect GmbH
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2o_core.c, i2o_scsi.c minor bugfixes
-References: <400BF755.6070201@shadowconnect.com> <20040119200747.6e8d63d0.akpm@osdl.org>
-In-Reply-To: <20040119200747.6e8d63d0.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------010608030606050504060004"
+	Tue, 20 Jan 2004 03:58:11 -0500
+Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:24971 "EHLO
+	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S265350AbUATI6F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 03:58:05 -0500
+Date: Tue, 20 Jan 2004 08:58:00 +0000
+From: Hugo Mills <hugo-lkml@carfax.org.uk>
+To: manu <hislen@mindspring.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SiI2112 + Seagate + nFroce2: no DMA!
+Message-ID: <20040120085800.GB31330@carfax.org.uk>
+Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+	manu <hislen@mindspring.com>, linux-kernel@vger.kernel.org
+References: <3E1282EF.30300@mindspring.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0eh6TmSyL6TZE2Uz"
+Content-Disposition: inline
+In-Reply-To: <3E1282EF.30300@mindspring.com>
+X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
+X-GPG-Key: 1C335860
+X-Parrot: It is no more. It has joined the choir invisible.
+X-IRC-Nicks: hugo darksatanic
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010608030606050504060004
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hello,
+--0eh6TmSyL6TZE2Uz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Andrew Morton wrote:
->>i2o-cleanup.patch:
-> I get 100% rejects applying this.  Could you resend it as an attachment?
+On Tue, Dec 31, 2002 at 09:55:59PM -0800, manu wrote:
 
-Okey, another try, this time as attachment.
+   Incidentally, did you know that the date on your computer is very,
+very wrong?
 
->>--- drivers/message/i2o.old/i2o_core.c	2004-01-17 22:47:00.000000000 +0100
->>+++ drivers/message/i2o/i2o_core.c	2004-01-17 23:34:43.866973586 +0100
-> Also, this renaming arrangement breaks my scripts (at least).  Preferable
-> would be:
-> --- a/drivers/message/i2o/i2o_core.c
-> +++ b/drivers/message/i2o/i2o_core.c
+> I'm about to give up on my SATA drive as I can't get it to work properly.
+> So I thought I may try asking the experts before falling back to PATA.
+> 
+> I have seen many mails reporting the same issue, some of them 6-month old:
+> 
+> - SATA drive comes up in pio mode, not in dma
+> - trying to turn on dma with hdparm is a nightmare: I/O errors, crash 
+> with data corruption... I tried both:
+> 
+>  hddarm -d1 /dev/hde
+> 
+> and:
+> 
+>  hdparm -u1 -c3 -d1 -X66 /dev/hde
+> 
+> crash in both cases :-((
+> 
+> 
+> Here's my equipment:
+> 
+> 
+> ABIT AN7 motherboard (nForce2 chipset, SiI3112 SATA controller)
+> AMD Athlon XP 2600+ (+ 512 DDR / 400 MHz)
+> SATA HD Seagate Barracuda 160 Gb
+> 
+> The SATA HD is my only drive. The only thing connected to my IDE 
+> controllers is a DVD/CD combo.
+> 
+> Running Linux Redhat 9.0
+> kernel 2.4.20-28.9
+  ^^^^^^^^^^^^^^^^^^
+   This is your problem. There have been a number of bug-fixes to the
+SiI drivers since 2.4.20. Try it again with a newer kernel -- such as
+2.4.24.
 
-Good to know, i hopefully fixed that, too.
+> I've been googling for days now and could not come accross a solution, 
+> on the contrary I came under the impression that the combination of 
+> SiI3112 +and Seagate was doomed.
 
->>maintainer for those module, i wrote to the kernel mailing list.  Can
->>anybody tell me, who i can contact to verify if my changes are of any
->>value?  I want to contribute some more code, because on my system the
->>i2o_block doesn't work too.  But before, i want to be sure that my code is
->>needed and also is good enough to be included into the kernel.
-> I think that would be Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Not so. I have a SiI3112 controller and a 120GiB Seagate drive, and
+they work very well together. I'm using 2.6.1, although 2.4.23 also
+worked well for me.
 
-Thank you very much for your help!
+[snip]
+> Isn't there a solution??
+> 
+> I am willing to try patches of experimental code. At this point I am 
+> looking at reinstalling everything on a PATA drive anyway, so  I have 
+> nothing to loose.
 
+   Try using 2.4.24 or 2.6.1.
 
-Best regards,
+   Hugo.
 
+-- 
+=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
+  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
+           --- All hope abandon,  Ye who press Enter here. ---           
 
+--0eh6TmSyL6TZE2Uz
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Markus Lidel
-------------------------------------------
-Markus Lidel (Senior IT Consultant)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Shadow Connect GmbH
-Carl-Reisch-Weg 12
-D-86381 Krumbach
-Germany
+iD8DBQFADO2YssJ7whwzWGARAiQCAKCaT/ksPx23udVjqxhiTkAWKA+4ewCgrx2M
+PiO6Mr8k/JK4QoB6mrnv0R4=
+=G+SO
+-----END PGP SIGNATURE-----
 
-Phone:  +49 82 82/99 51-0
-Fax:    +49 82 82/99 51-11
-
-E-Mail: Markus.Lidel@shadowconnect.com
-URL:    http://www.shadowconnect.com
-
---------------010608030606050504060004
-Content-Type: text/plain;
- name="i2o-cleanup.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="i2o-cleanup.patch"
-
-diff -ur drivers/message/i2o.old/i2o_core.c drivers/message/i2o/i2o_core.c
---- a/drivers/message/i2o/i2o_core.c	2004-01-17 22:47:00.000000000 +0100
-+++ b/drivers/message/i2o/i2o_core.c	2004-01-17 23:34:43.866973586 +0100
-@@ -502,6 +502,7 @@
- 			c->unit = i;
- 			c->page_frame = NULL;
- 			c->hrt = NULL;
-+			c->hrt_len = 0;
- 			c->lct = NULL;
- 			c->status_block = NULL;
- 			sprintf(c->name, "i2o/iop%d", i);
-@@ -885,7 +885,7 @@
- 	unsigned long flags;
- 
- 	daemonize("i2oevtd");
--	allow_signal(SIGKILL);
-+	allow_signal(SIGTERM);
- 
- 	evt_running = 1;
- 
-@@ -1052,7 +1052,7 @@
- 	void *tmp;
- 
- 	daemonize("iop%d_lctd", c->unit);
--	allow_signal(SIGKILL);
-+	allow_signal(SIGTERM);
- 
- 	c->lct_running = 1;
- 
-@@ -1861,31 +1862,39 @@
- {
- 	u32 msg[6];
- 	int ret, size = sizeof(i2o_hrt);
-+	int loops = 3;	/* we only try 3 times to get the HRT, this should be
-+			   more then enough. Worst case should be 2 times.*/
- 
- 	/* First read just the header to figure out the real size */
- 
-	do  {
-+		/* first we allocate the memory for the HRT */
- 		if (c->hrt == NULL) {
- 			c->hrt=pci_alloc_consistent(c->pdev, size, &c->hrt_phys);
- 			if (c->hrt == NULL) {
- 				printk(KERN_CRIT "%s: Hrt Get failed; Out of memory.\n", c->name);
- 				return -ENOMEM;
- 			}
-+			c->hrt_len = size;
- 		}
-
- 		msg[0]= SIX_WORD_MSG_SIZE| SGL_OFFSET_4;
- 		msg[1]= I2O_CMD_HRT_GET<<24 | HOST_TID<<12 | ADAPTER_TID;
- 		msg[3]= 0;
--		msg[4]= (0xD0000000 | size);	/* Simple transaction */
-+		msg[4]= (0xD0000000 | c->hrt_len);	/* Simple transaction */
- 		msg[5]= c->hrt_phys;		/* Dump it here */
- 
--		ret = i2o_post_wait_mem(c, msg, sizeof(msg), 20, c->hrt, NULL, c->hrt_phys, 0, size, 0);
-+		ret = i2o_post_wait_mem(c, msg, sizeof(msg), 20, c->hrt, NULL, c->hrt_phys, 0, c->hrt_len, 0);
- 		
- 		if(ret == -ETIMEDOUT)
- 		{
--			/* The HRT block we used is in limbo somewhere. When the iop wakes up
--			   we will recover it */
-+			/* The HRT block we used is in limbo somewhere. When the
-+			   iop wakes up we will recover it */
-+			/* FIX: shouldn't we cleanup the memory?
-+			pci_free_consistent(c->pdev, c->hrt_len, c->hrt, c->hrt_phys);
-+			*/
- 			c->hrt = NULL;
-+			c->hrt_len = 0;
- 			return ret;
- 		}
- 		
-@@ -1896,13 +1905,20 @@
- 			return ret;
- 		}
- 
--		if (c->hrt->num_entries * c->hrt->entry_len << 2 > size) {
--			int new_size = c->hrt->num_entries * c->hrt->entry_len << 2;
--			pci_free_consistent(c->pdev, size, c->hrt, c->hrt_phys);
--			size = new_size;
-+		if (c->hrt->num_entries * c->hrt->entry_len << 2 > c->hrt_len) {
-+			size = c->hrt->num_entries * c->hrt->entry_len << 2;
-+			pci_free_consistent(c->pdev, c->hrt_len, c->hrt, c->hrt_phys);
-+			c->hrt_len = 0;
- 			c->hrt = NULL;
- 		}
--	} while (c->hrt == NULL);
-+		loops --;
-+	} while (c->hrt == NULL && loops > 0);
-+
-+	if(c->hrt == NULL)
-+	{
-+		printk(KERN_ERR "%s: Unable to get HRT after three tries, giving up\n", c->name);
-+		return -1;
-+	}
- 
- 	i2o_parse_hrt(c); // just for debugging
- 
-@@ -3737,13 +3737,12 @@
- 		printk("Terminating i2o threads...");
- 		stat = kill_proc(evt_pid, SIGTERM, 1);
- 		if(!stat) {
--			printk("waiting...");
-+			printk("waiting...\n");
- 			wait_for_completion(&evt_dead);
- 		}
- 		printk("done.\n");
- 	}
- 	i2o_remove_handler(&i2o_core_handler);
--	unregister_reboot_notifier(&i2o_reboot_notifier);
- }
- 
- module_init(i2o_core_init);
-diff -ur drivers/message/i2o.old/i2o_scsi.c drivers/message/i2o/i2o_scsi.c
---- a/drivers/message/i2o/i2o_scsi.c	2004-01-17 22:47:00.000000000 +0100
-+++ b/drivers/message/i2o/i2o_scsi.c	2004-01-17 23:33:25.323830216 +0100
-@@ -66,7 +66,13 @@
- 
- #define VERSION_STRING        "Version 0.1.2"
- 
--#define dprintk(x)
-+//#define DRIVERDEBUG
-+
-+#ifdef DRIVERDEBUG
-+#define dprintk(s, args...) printk(s, ## args)
-+#else
-+#define dprintk(s, args...)
-+#endif
- 
- #define I2O_SCSI_CAN_QUEUE	4
- #define MAXHOSTS		32
-@@ -252,15 +259,15 @@
- 	as=(u8)le32_to_cpu(m[4]>>8);
- 	st=(u8)le32_to_cpu(m[4]>>24);
- 	
--	dprintk(("i2o got a scsi reply %08X: ", m[0]));
--	dprintk(("m[2]=%08X: ", m[2]));
--	dprintk(("m[4]=%08X\n", m[4]));
-+	dprintk(KERN_INFO "i2o got a scsi reply %08X: ", m[0]);
-+	dprintk(KERN_INFO "m[2]=%08X: ", m[2]);
-+	dprintk(KERN_INFO "m[4]=%08X\n", m[4]);
-  
- 	if(m[2]&0x80000000)
- 	{
- 		if(m[2]&0x40000000)
- 		{
--			dprintk(("Event.\n"));
-+			dprintk(KERN_INFO "Event.\n");
- 			lun_done=1;
- 			return;
- 		}
-@@ -280,12 +287,12 @@
- 	if(current_command==NULL)
- 	{
- 		if(st)
--			dprintk(("SCSI abort: %08X", m[4]));
--		dprintk(("SCSI abort completed.\n"));
-+			dprintk(KERN_WARNING "SCSI abort: %08X", m[4]);
-+		dprintk(KERN_INFO "SCSI abort completed.\n");
- 		return;
- 	}
- 	
--	dprintk(("Completed %ld\n", current_command->serial_number));
-+	dprintk(KERN_INFO "Completed %ld\n", current_command->serial_number);
- 	
- 	atomic_dec(&queue_depth);
- 	
-@@ -308,7 +315,7 @@
- 	{
- 		/* An error has occurred */
- 
--		dprintk((KERN_DEBUG "SCSI error %08X", m[4]));
-+		dprintk(KERN_WARNING "SCSI error %08X", m[4]);
- 			
- 		if (as == 0x0E) 
- 			/* SCSI Reset */
-@@ -368,7 +375,7 @@
- 
- 	*lun=reply[1];
- 
--	dprintk(("SCSI (%d,%d)\n", *target, *lun));
-+	dprintk(KERN_INFO "SCSI (%d,%d)\n", *target, *lun);
- 	return 0;
- }
- 
-@@ -401,8 +408,8 @@
- 			
- 	for(unit=c->devices;unit!=NULL;unit=unit->next)
- 	{
--		dprintk(("Class %03X, parent %d, want %d.\n",
--			unit->lct_data.class_id, unit->lct_data.parent_tid, d->lct_data.tid));
-+		dprintk(KERN_INFO "Class %03X, parent %d, want %d.\n",
-+			unit->lct_data.class_id, unit->lct_data.parent_tid, d->lct_data.tid);
- 			
- 		/* Only look at scsi and fc devices */
- 		if (    (unit->lct_data.class_id != I2O_CLASS_SCSI_PERIPHERAL)
-@@ -411,19 +418,19 @@
- 			continue;
- 
- 		/* On our bus ? */
--		dprintk(("Found a disk (%d).\n", unit->lct_data.tid));
-+		dprintk(KERN_INFO "Found a disk (%d).\n", unit->lct_data.tid);
- 		if ((unit->lct_data.parent_tid == d->lct_data.tid)
- 		     || (unit->lct_data.parent_tid == d->lct_data.parent_tid)
- 		   )
- 		{
- 			u16 limit;
--			dprintk(("Its ours.\n"));
-+			dprintk(KERN_INFO "Its ours.\n");
- 			if(i2o_find_lun(c, unit, &target, &lun)==-1)
- 			{
- 				printk(KERN_ERR "i2o_scsi: Unable to get lun for tid %d.\n", unit->lct_data.tid);
- 				continue;
- 			}
--			dprintk(("Found disk %d %d.\n", target, lun));
-+			dprintk(KERN_INFO "Found disk %d %d.\n", target, lun);
- 			h->task[target][lun]=unit->lct_data.tid;
- 			h->tagclock[target][lun]=jiffies;
- 
-@@ -439,8 +446,8 @@
- 			
- 			shpnt->sg_tablesize = limit;
- 
--			dprintk(("i2o_scsi: set scatter-gather to %d.\n", 
--				shpnt->sg_tablesize));
-+			dprintk(KERN_INFO "i2o_scsi: set scatter-gather to %d.\n", 
-+				shpnt->sg_tablesize);
- 		}
- 	}		
- }
-@@ -558,6 +565,9 @@
- 		del_timer(&retry_timer);
- 		i2o_remove_handler(&i2o_scsi_handler);
- 	}
-+
-+	scsi_unregister(host);
-+
- 	return 0;
- }
- 
-@@ -624,7 +634,7 @@
- 	
- 	tid = hostdata->task[SCpnt->device->id][SCpnt->device->lun];
- 	
--	dprintk(("qcmd: Tid = %d\n", tid));
-+	dprintk(KERN_INFO "qcmd: Tid = %d\n", tid);
- 	
- 	current_command = SCpnt;		/* set current command                */
- 	current_command->scsi_done = done;	/* set ptr to done function           */
-@@ -641,7 +651,7 @@
- 		return 0;
- 	}
- 	
--	dprintk(("Real scsi messages.\n"));
-+	dprintk(KERN_INFO "Real scsi messages.\n");
- 
- 	/*
- 	 *	Obtain an I2O message. If there are none free then 
-@@ -821,8 +831,8 @@
- 	}
- 	else
- 	{
--		dprintk(("non sg for %p, %d\n", SCpnt->request_buffer,
--				SCpnt->request_bufflen));
-+		dprintk(KERN_INFO "non sg for %p, %d\n", SCpnt->request_buffer,
-+				SCpnt->request_bufflen);
- 		i2o_raw_writel(len = SCpnt->request_bufflen, lenptr);
- 		if(len == 0)
- 		{
-@@ -861,7 +871,7 @@
- 	}
- 	
- 	mb();
--	dprintk(("Issued %ld\n", current_command->serial_number));
-+	dprintk(KERN_INFO "Issued %ld\n", current_command->serial_number);
- 	
- 	return 0;
- }
---- a/include/linux/i2o-dev.h	2004-01-17 23:36:50.000000000 +0100
-+++ b/include/linux/i2o-dev.h	2004-01-17 23:37:29.591626358 +0100
-@@ -182,7 +182,7 @@
- {
- 	u32	adapter_id;
- 	u32	parent_tid:12;
--	u32 	tate:4;
-+	u32 	state:4;
- 	u32	bus_num:8;
- 	u32	bus_type:8;
- 	union
-
---------------010608030606050504060004--
+--0eh6TmSyL6TZE2Uz--

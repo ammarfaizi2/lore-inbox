@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264953AbTIDMuW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 08:50:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264956AbTIDMuW
+	id S263514AbTIDM5O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 08:57:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264974AbTIDM5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 08:50:22 -0400
-Received: from GOL139579-1.gw.connect.com.au ([203.63.118.157]:3257 "EHLO
-	goldweb.com.au") by vger.kernel.org with ESMTP id S264953AbTIDMuS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 08:50:18 -0400
-Date: Thu, 4 Sep 2003 22:50:32 +1000 (EST)
-From: Michael Still <mikal@stillhq.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: carbonated beverage <ramune@net-ronin.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: minor TMPDIR fix
-In-Reply-To: <20030903200736.GA12723@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.44.0309042248330.12720-100000@diskbox.stillhq.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Sep 2003 08:57:13 -0400
+Received: from pentafluge.infradead.org ([213.86.99.235]:1943 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263514AbTIDM5E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 08:57:04 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Patrick Mochel <mochel@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1062605483.1780.30.camel@gaston>
+References: <1062605483.1780.30.camel@gaston>
+Message-Id: <1062680175.1780.85.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 04 Sep 2003 14:56:15 +0200
+X-SA-Exim-Mail-From: benh@kernel.crashing.org
+Subject: Re: [PATCH] IDE: fix Power Management
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
+X-SA-Exim-Scanned: Yes
+X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Sep 2003, Sam Ravnborg wrote:
+On Wed, 2003-09-03 at 18:11, Benjamin Herrenschmidt wrote:
+> This is the "final" one hopefully, Bart, check out it's correct,
+> Andrew that I did no typo this time ;)
+> 
+> Spacing is a bit fucked up in setup_driver_defaults due to the
+> field name beeing too long (gah !) but that isn't too bad...
 
-Sam, Mr Beverage (or can I just call you Carbonated?)
+And it's even better with the proper return type... go figure
+why I didn't see the gcc warning yesterday...
 
-> On Wed, Sep 03, 2003 at 12:27:26PM -0700, carbonated beverage wrote:
-> > Hi,
-> > 
-> > 	Just a small fix to make the makeman script use $TMPDIR from the
-> > environment if it's set.
+===== drivers/ide/ide.c 1.94 vs edited =====
+--- 1.94/drivers/ide/ide.c	Tue Sep  2 16:18:29 2003
++++ edited/drivers/ide/ide.c	Thu Sep  4 14:54:13 2003
+@@ -2406,6 +2406,12 @@
+ 	return ide_abort(drive, msg);
+ }
+ 
++static ide_startstop_t default_start_power_step(ide_drive_t *drive, struct request *rq)
++{
++	rq->pm->pm_step = ide_pm_state_completed;
++	return ide_stopped;
++}
++
+ static void setup_driver_defaults (ide_driver_t *d)
+ {
+ 	if (d->cleanup == NULL)		d->cleanup = default_cleanup;
+@@ -2420,6 +2426,7 @@
+ 	if (d->capacity == NULL)	d->capacity = default_capacity;
+ 	if (d->special == NULL)		d->special = default_special;
+ 	if (d->attach == NULL)		d->attach = default_attach;
++	if (d->start_power_step == NULL)d->start_power_step = default_start_power_step;
+ }
+ 
+ int ide_register_subdriver (ide_drive_t *drive, ide_driver_t *driver, int version)
 
-> Michael Still contributed this script - I have added him in to:
-
-Thanks for the patch... I'm playing with that script at the moment, so the 
-timing was really good from my perspective. I'll be sending an update to 
-LKML in the next few days, and I'll include this.
-
-Thanks,
-Mikal
-
--- 
-
-Michael Still (mikal@stillhq.com) | "All my life I've had one dream,
-http://www.stillhq.com            |  to achieve my many goals"
-UTC + 10                          |    -- Homer Simpson
 

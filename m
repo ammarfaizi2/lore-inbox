@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262187AbTCMHTP>; Thu, 13 Mar 2003 02:19:15 -0500
+	id <S262190AbTCMHs6>; Thu, 13 Mar 2003 02:48:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262190AbTCMHTP>; Thu, 13 Mar 2003 02:19:15 -0500
-Received: from pop.gmx.de ([213.165.64.20]:28111 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S262187AbTCMHTO> convert rfc822-to-8bit;
-	Thu, 13 Mar 2003 02:19:14 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Torsten Foertsch <torsten.foertsch@gmx.net>
-To: "Jeremy Booker" <JerMe@nc.rr.com>
-Subject: Re: initrd / pivot_root + boot problems
-Date: Thu, 13 Mar 2003 08:29:26 +0100
-User-Agent: KMail/1.4.3
-References: <002801c2e8ea$46aadfb0$6401a8c0@jeremy>
-In-Reply-To: <002801c2e8ea$46aadfb0$6401a8c0@jeremy>
-Cc: <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200303130829.29989.torsten.foertsch@gmx.net>
+	id <S262194AbTCMHs6>; Thu, 13 Mar 2003 02:48:58 -0500
+Received: from thunk.org ([140.239.227.29]:12474 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S262190AbTCMHs5>;
+	Thu, 13 Mar 2003 02:48:57 -0500
+Date: Thu, 13 Mar 2003 02:59:15 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Larry McVoy <lm@work.bitmover.com>, John Bradford <john@grabjohn.com>,
+       "H. Peter Anvin" <hpa@zytor.com>, dana.lacoste@peregrine.com,
+       linux-kernel@vger.kernel.org, lm@bitmover.com
+Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
+Message-ID: <20030313075915.GB1736@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Larry McVoy <lm@work.bitmover.com>,
+	John Bradford <john@grabjohn.com>, "H. Peter Anvin" <hpa@zytor.com>,
+	dana.lacoste@peregrine.com, linux-kernel@vger.kernel.org,
+	lm@bitmover.com
+References: <3E6F6E84.1010601@zytor.com> <200303121757.h2CHveVF001517@81-2-122-30.bradfords.org.uk> <20030312180304.GA30788@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030312180304.GA30788@work.bitmover.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Mar 12, 2003 at 10:03:04AM -0800, Larry McVoy wrote:
+> > I thought that BK has been able to export everything to a text file
+> > since the first version.
+> 
+> bk export -tpatch -r1.900 > patch.1.900
+> bk changes -v -r1.900 > comments.1.900
+> 
+> Been there forever.
 
-On Wednesday 12 March 2003 23:54, Jeremy Booker wrote:
-> kernel /boot/vmlinuz-2.4.7-10 ro root=/dev/sda1
+More importantly, even if someone isn't allowed to use the BK command
+line tool because once upon time, a long time ago, they submitted a
+patch to arch or subversion, they can still find someone is allowed to
+set up a bk daemon under the terms of the FUL, connect to the BK
+daemon using a http client, and extract the full diff of any changeset
+that way.  This doesn't have to be the bkd on bkbits.net; anyone who
+is authorized to use BK under the terms of the FUL can set up a bk
+daemon to be listening on a port of any machine for which they have
+shell access (it doesn't even require root privs).  And every last
+changeset can always be made available using this path.
 
-append to that line "init=/bin/bash" then boot. You will see a bash prompt.
-Now mount whatever is necessary, change your passwd and reboot. Maybe, you 
-need a "mount -o remount,rw /" prior to changing pw.
+So to the people are complaining that they won't be able to get out
+their data if a future version of BK uses a more powerful
+representation than SCCS files ---- would you like some more whine
+with your cheese?
 
-
-Torsten
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE+cDNZwicyCTir8T4RAoNmAKCR2BQI0NulQ8vNebNJGHKYu2xuPwCcDiCu
-HMkno8ozAKjKk8Xll/WRqBM=
-=puKa
------END PGP SIGNATURE-----
+						- Ted

@@ -1,30 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312560AbSDXUGZ>; Wed, 24 Apr 2002 16:06:25 -0400
+	id <S293457AbSDXURF>; Wed, 24 Apr 2002 16:17:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312588AbSDXUGY>; Wed, 24 Apr 2002 16:06:24 -0400
-Received: from ep09.kernel.pl ([212.87.11.162]:49672 "EHLO ep09.kernel.pl")
-	by vger.kernel.org with ESMTP id <S312560AbSDXUGX>;
-	Wed, 24 Apr 2002 16:06:23 -0400
-Date: Wed, 24 Apr 2002 22:06:17 +0200 (CEST)
-From: Witek Krecicki <adasi@kernel.pl>
-To: linux-kernel@vger.kernel.org
-Subject: initrd bug
-Message-ID: <Pine.LNX.4.44.0204242202100.22488-100000@ep09.kernel.pl>
+	id <S311917AbSDXURE>; Wed, 24 Apr 2002 16:17:04 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:58636 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S293457AbSDXURD>;
+	Wed, 24 Apr 2002 16:17:03 -0400
+Date: Wed, 24 Apr 2002 17:16:35 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] page->flags cleanup
+In-Reply-To: <3CC6720F.BD1367B9@zip.com.au>
+Message-ID: <Pine.LNX.4.44L.0204241710590.1960-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had the same problem on 2.5.7, and now when I'm trying to boot off 2.5.9 
-with initrd it is going wrong. Last messages issued are (not exactly)
-RAMDISK compressed image found at block 0
-Freeing unused initrd memory (96k)
-cramfs: bad magic
-PANIC cannot mount root
-It looks like it's freeing initrd memory before running it. initrd fs is 
-cramfs, but using romfs i had exactly the same thing (it was also cramfs: 
-bad magic)
-WK
+On Wed, 24 Apr 2002, Andrew Morton wrote:
+
+> Moves the definitions of the page->flags bits and all the PageFoo
+> macros into linux/page-flags.h.  That file is currently included from
+> mm.h, but the stage is set to remove that and include page-flags.h
+> direct in all .c files which require that.  (120 of them).
+
+I like this patch a lot.  It's definately the right time to
+clean up some of the years old cruft.
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
 

@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310789AbSCLMUl>; Tue, 12 Mar 2002 07:20:41 -0500
+	id <S310829AbSCLM1c>; Tue, 12 Mar 2002 07:27:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310788AbSCLMUb>; Tue, 12 Mar 2002 07:20:31 -0500
-Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:52912 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S310789AbSCLMUR>; Tue, 12 Mar 2002 07:20:17 -0500
-Date: Tue, 12 Mar 2002 12:19:37 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Oskar Liljeblad <oskar@osk.mine.nu>, linux-kernel@vger.kernel.org
-Subject: Re: directory notifications lost after fork?
-Message-ID: <20020312121937.A4281@kushida.apsleyroad.org>
-In-Reply-To: <20020310210802.GA1695@oskar> <20020311084154.C4573@riesen-pc.gr05.synopsys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020311084154.C4573@riesen-pc.gr05.synopsys.com>; from Alexander.Riesen@synopsys.com on Mon, Mar 11, 2002 at 08:41:54AM +0100
+	id <S310868AbSCLM1W>; Tue, 12 Mar 2002 07:27:22 -0500
+Received: from dsl-213-023-043-170.arcor-ip.net ([213.23.43.170]:41109 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S310829AbSCLM1J>;
+	Tue, 12 Mar 2002 07:27:09 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: 2.4.19pre2aa1
+Date: Tue, 12 Mar 2002 13:21:35 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: wli@parcelfarce.linux.theplanet.co.uk,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel@vger.kernel.org, hch@infradead.org,
+        phillips@bonn-fries.net
+In-Reply-To: <20020312070645.X10413@dualathlon.random> <Pine.LNX.4.44L.0203120746000.2181-100000@imladris.surriel.com> <20020312124728.L25226@dualathlon.random>
+In-Reply-To: <20020312124728.L25226@dualathlon.random>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16klHb-0001up-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Riesen wrote:
-> Just a "me too".
-> I have tried also to use the default (SIGIO) by setting owner pid (just
-> in case). It is all the same.
-> Does someone use the notifications, btw?
-> The whole thing seems somewhat untested.
+On March 12, 2002 12:47 pm, Andrea Arcangeli wrote:
+> If it's pure random mul will make no difference to
+> the distribution. And the closer we're to pure random like in the
+> wait_table hash, the less mul will help and the more important will be
+> to just get right the two contigous pages in the same cacheline and
+> nothing else.
 
-I don't yet, but I am planning to use them for an ultra-high-performance
-dynamic web server and make-like tool.
+You're ignoring the possibility (probability) of corner cases.  I'm not
+sure why you're beating away on this, Bill has done a fine job of coming
+up with hashes that are both satisfactory for the common case and have
+sound reasons for being resistant to corner cases.
 
-The idea is that a dynamic page's cache validity (or the validity of a
-subrequest) may depend on a large number of stat() results.
-
-Dnotify can be used, as I understand it, to avoid having to actually do
-the stat() calls on each request.
-
-In this way, cached dynamic pages can be served as quickly as static
-pages, right down to using the minimum set of system calls.
-
-At the same time, dynamic pages are served perfectly _as if_ they are
-recalculated every time from their prerequisite files, including: script
-code (Perl, PHP etc.), included files, templates, images, database
-files.  So with things like setting the width and height of each IMG tag
-from scanning the image files, and complex templates such as navigation
-bars that you currently remake by hand using "make" -- these things
-immediately update as you modify the site's source files.
-
-It makes a pretty nice document editing environment too -- save file
-from Emacs, immediately view formatted file in web browser :-)
-
-I can do this at the moment, but with a number of stat() calls on each
-request.  With dnotify I think I can eliminate those but I haven't got
-that far yet.
-
-If dnotify is too buggy as stands then for this project I'd very much
-like it to be fixed.  Loss of notifications after fork() sounds like a
-rather serious bug :-/
-
-cheers,
--- Jamie
-
+-- 
+Daniel

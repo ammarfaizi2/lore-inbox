@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263762AbTCVT0e>; Sat, 22 Mar 2003 14:26:34 -0500
+	id <S263853AbTCVT3y>; Sat, 22 Mar 2003 14:29:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263776AbTCVT0e>; Sat, 22 Mar 2003 14:26:34 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:26011
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263762AbTCVT0d>; Sat, 22 Mar 2003 14:26:33 -0500
-Subject: Re: [CHECKER] potential dereference of user pointer errors
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Chris Wright <chris@wirex.com>
-Cc: Junfeng Yang <yjf@stanford.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       mc@cs.stanford.edu
-In-Reply-To: <20030321141507.B646@figure1.int.wirex.com>
-References: <200303041112.h24BCRW22235@csl.stanford.edu>
-	 <Pine.GSO.4.44.0303202226230.24869-100000@elaine24.Stanford.EDU>
-	 <20030321141507.B646@figure1.int.wirex.com>
-Content-Type: text/plain
+	id <S263871AbTCVT3x>; Sat, 22 Mar 2003 14:29:53 -0500
+Received: from csl.Stanford.EDU ([171.64.73.43]:42689 "EHLO csl.stanford.edu")
+	by vger.kernel.org with ESMTP id <S263853AbTCVT3p>;
+	Sat, 22 Mar 2003 14:29:45 -0500
+From: Dawson Engler <engler@csl.stanford.edu>
+Message-Id: <200303221940.h2MJeml23812@csl.stanford.edu>
+Subject: [CHECKER] race in 2.5.62/fs/exec.c?
+To: linux-kernel@vger.kernel.org
+Date: Sat, 22 Mar 2003 11:40:48 -0800 (PST)
+Cc: engler@csl.stanford.edu (Dawson Engler)
+X-Mailer: ELM [version 2.5 PL0pre8]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048366179.9219.38.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 22 Mar 2003 20:49:39 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-03-21 at 22:15, Chris Wright wrote:
-> on first pass of the cmd.  However, this is inconsistent with the rest
-> of the file, so here is a patch to use kcmd.resbuf.  I also added a NULL
-> check, as done in similar funcitons in this file.  Alan, this look ok?
+I'm not sure if I'm missing something --- is the following a race?
 
-Looks slightly wrong to me
+           2.5.62/fs/exec.c:1013:search_binary_handler:
+                        read_unlock(&binfmt_lock);
+                        retval = fn(bprm, regs);
+                        if (retval >= 0) {
+                                put_binfmt(fmt);
 
-#1 ->resbuf = NULL is a completely acceptable if odd user choice. If invalid
-its covered
+binfmt_lock is released and then put_binfmt is called.  put_binfmt
+seems to need locking:
 
-#2 - We copy to the users nominated cmd->resbuf. You are correct there, 
-that we should be using the kernel side copy. Fixed in my tree.
+    fs/exec.c:1022:search_binary_handle
 
+                        read_lock(&binfmt_lock);
+                        put_binfmt(fmt);
+                        if (retval != -ENOEXEC)
+                                break;
+                        if (!bprm->file) {
+                                read_unlock(&binfmt_lock);
+                                return retval;
+                        }
+
+
+   2.5.62/fs/exec.c:151:sys_uselib:
+
+                     error = fmt->load_shlib(file);
+                        read_lock(&binfmt_lock);
+                        put_binfmt(fmt);
+                        if (error != -ENOEXEC)
+                                break;
+                }
+
+Are these other locks redundant?  Or does put_binfmt need protection?

@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265082AbTFMA3z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 20:29:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265083AbTFMA3z
+	id S265083AbTFMAaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 20:30:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265084AbTFMAaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 20:29:55 -0400
-Received: from main.gmane.org ([80.91.224.249]:183 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265082AbTFMA3y (ORCPT
+	Thu, 12 Jun 2003 20:30:09 -0400
+Received: from quechua.inka.de ([193.197.184.2]:208 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S265083AbTFMAaG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 20:29:54 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Thu, 12 Jun 2003 20:30:06 -0400
+From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
 To: linux-kernel@vger.kernel.org
-From: John Goerzen <jgoerzen@complete.org>
-Subject: Re: Pentium M (Centrino) cpufreq device driver (please test me)
-Date: Thu, 12 Jun 2003 19:42:49 -0500
-Organization: Complete.Org
-Message-ID: <877k7qq03a.fsf@complete.org>
-References: <1055371846.4071.52.camel@localhost.localdomain> <1055406614.2551.6.camel@tor.trudheim.com>
- <20030612144521.A19228@devserv.devel.redhat.com>
- <20030612161107.C13241@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@complete.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
-Cancel-Lock: sha1:mVAu0Q1KB0B43nWrDWndhq5LFsk=
+Subject: Re: Real multi-user linux
+In-Reply-To: <20030612231942.78086.qmail@web12905.mail.yahoo.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.17-20030301 ("Bubbles") (UNIX) (Linux/2.4.20-xfs (i686))
+Message-Id: <E19QcfW-0003ce-00@calista.inka.de>
+Date: Fri, 13 Jun 2003 02:43:50 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Nottingham <notting@redhat.com> writes:
+In article <20030612231942.78086.qmail@web12905.mail.yahoo.com> you wrote:
+> is it possible to use several logical terminals
+> (=tupels of monitor, keyboard and mouse) directly
+> connected to _one_ system?
 
->> > Can this be rebased against 2.4.21 and be included in 2.4.22-pre please?
->> > :-)
->> 
->> http://people.redhat.com/notting/cpufreq-centrino.patch
->> 
->> Rebased against something vaguely 2.4.21-pre-ish.
->
-> ... which happens to have updated cpufreq already in it, and
-> therefore requires it. Oops.
+Yes sure.
 
-Umm, no it doesn't.  Perhaps you're using an ac kernel?
+> But is there a possibility to group these to allow two
+> users work simultanously on the same machine without
+> having to go via serial console or network?
 
-I'd be happy to test this against vanilla 2.4.21-rc8, but it has no
-cpufreq at all, so neither of these patches are going to work.
+the main problem is the hardware. It is most often easier to have a diskless
+terminal connected via network, than to have a VGA cable to two workplaces.
 
--- John
+Linux supports multiple XServers (on multiple cards or cards with multiple
+ports), can you can configure them for multiple serial ports or usb ports
+for the mouse. For the keyboard you can have one ps2 and multiple usb ports
+(under x). I am not sure how the console handles multiple usb keyboards.
 
->
-> http://people.redhat.com/notting/linux-2.4.20-cpufreq.patch
->
-> Bill
-
+Greetings
+Bernd
+-- 
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

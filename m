@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261741AbUB0JA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 04:00:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbUB0JA5
+	id S261742AbUB0JGF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 04:06:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbUB0JGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 04:00:57 -0500
-Received: from mail.gmx.de ([213.165.64.20]:32711 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261741AbUB0JAz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 04:00:55 -0500
-X-Authenticated: #4512188
-Message-ID: <403F0743.3060808@gmx.de>
-Date: Fri, 27 Feb 2004 10:00:51 +0100
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040216)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "J.A. Magallon" <jamagallon@able.es>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.3-mm4
-References: <20040225185536.57b56716.akpm@osdl.org> <20040227001115.GA2627@werewolf.able.es>
-In-Reply-To: <20040227001115.GA2627@werewolf.able.es>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Feb 2004 04:06:05 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34569 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261742AbUB0JGA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 04:06:00 -0500
+Date: Fri, 27 Feb 2004 09:05:48 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Michael Frank <mhf@linuxmail.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "Grover, Andrew" <andrew.grover@intel.com>,
+       Mark Gross <mgross@linux.co.intel.com>, arjanv@redhat.com,
+       Tim Bird <tim.bird@am.sony.com>, root@chaos.analogic.com,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Why no interrupt priorities?
+Message-ID: <20040227090548.A15644@flint.arm.linux.org.uk>
+Mail-Followup-To: Michael Frank <mhf@linuxmail.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	"Grover, Andrew" <andrew.grover@intel.com>,
+	Mark Gross <mgross@linux.co.intel.com>, arjanv@redhat.com,
+	Tim Bird <tim.bird@am.sony.com>, root@chaos.analogic.com,
+	Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <F760B14C9561B941B89469F59BA3A84702C932F2@orsmsx401.jf.intel.com> <1077859968.22213.163.camel@gaston> <opr30muhyf4evsfm@smtp.pacific.net.th>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <opr30muhyf4evsfm@smtp.pacific.net.th>; from mhf@linuxmail.org on Fri, Feb 27, 2004 at 02:26:31PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A. Magallon wrote:
-> On 02.26, Andrew Morton wrote:
-> 
->>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3/2.6.3-mm4/
->>
->>- Big knfsd update.  Mainly for nfsv4
->>
->>- DVB udpate
->>
->>- Various fixes
->>
-> 
-> 
-> As somebody also stated, there are problems with sensors:
-> 
-> werewolf:~# service lm_sensors start
-> Loading sensors modules: 
-> w83781d-isa-0290: Can't access procfs/sysfs file for writing;
-> Run as root?
-> Starting sensord:                                               [  OK  ]
-> 
-> I _was_ root. And initscripts are run as root ?
-> 
-> Perhaps this is a more generic problem with sysfs :(.
+On Fri, Feb 27, 2004 at 02:26:31PM +0800, Michael Frank wrote:
+> Is this to imply that edge triggered shared interrupts are used anywhere?
 
-Oh, yes I have noticed the same: "sensors -s" complained about some 
-writeing issue. As I son't know what it is good for, I didn't care. 
-Backing out bk-i2c.patch, above command works again, and even before 
-doing that comand my sensors all worked as they should.
+It is (or used to be) rather common with serial ports.  Remember that
+COM1 and COM3 were both defined to use IRQ4 and COM2 and COM4 to use
+IRQ3.
 
-Prakash
+> Never occured to me to use shared IRQ's edge triggered as this mode
+> _cannot_ work reliably for HW limitations.
+
+The serial driver takes great care with this - when we service such an
+interrupt, we keep going until we have scanned all the devices until
+such time that we can say "all devices are no longer signalling an
+interrupt".
+
+This is something it has always done - it's nothing new.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

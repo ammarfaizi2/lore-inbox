@@ -1,51 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbTEHPPU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 11:15:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbTEHPPU
+	id S261727AbTEHPYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 11:24:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbTEHPYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 11:15:20 -0400
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:687 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S261624AbTEHPPT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 11:15:19 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: "David S. Miller" <davem@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, Gerd Knorr <kraxel@bytesex.org>
-Subject: Re: ioctl cleanups: enable sg_io and serial stuff to be shared
-Date: Thu, 8 May 2003 17:23:19 +0200
-User-Agent: KMail/1.5.1
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-References: <20030507104008$12ba@gated-at.bofh.it> <20030507135600.A22642@infradead.org> <1052318339.9817.8.camel@rth.ninka.net>
-In-Reply-To: <1052318339.9817.8.camel@rth.ninka.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="euc-jp"
+	Thu, 8 May 2003 11:24:25 -0400
+Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:54326 "EHLO
+	lucifer.gotontheinter.net") by vger.kernel.org with ESMTP
+	id S261727AbTEHPYX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 11:24:23 -0400
+Subject: Re: Dell Inspiron 8200, 2.5.69, ACPI problems
+From: Disconnect <lkml@sigkill.net>
+To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3EB9D625.1060704@blue-labs.org>
+References: <3EB9D625.1060704@blue-labs.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052408205.1531.27.camel@slappy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 08 May 2003 11:36:45 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305081723.19285.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr wrote:
+As a 'me too' the same is true on inspiron 8500, under 2.4 and 2.5. 
+I've got a fixed-up DSDT installed (see the guide at
+http://www.cpqlinux.com/acpi-howto.html and
+http://developer.intel.com/technology/iapc/acpi/bios_override.htm ..)
+and that drops some of the noise (and fixes some of the missing bits)
+but acpid and others (basically any acpi call) results in similar
+messages.
 
-> ioctl struct size and the ioctl number (which has the size encoded)
-> should end up being different too.  Anyone aware of corner cases where
-> this isn't going to work?
+Its not a kernel issue (well, its a warning from the kernel.. but the
+kernel can't fix this directly.)  Turning off ACPI debugging will
+probably make it stop, but the underlying issue is Dell (and many other
+vendors) don't test their ACPI firmware under anything except windows.
 
-About half of the ioctls that need special care have fixed numbers 
-instead of using _IOR() etc, see e.g. include/linux/sockios.h,
-or they get the definition wrong in some way.
+>From Intel's ACPI site (and this applies to many acpi issues):
+Q16. What is the "implicit return" issue, and why hasn't it been fixed?
+A16. {cut} Due to an errata, this bug does not manifest itself on
+Windows' ACPI implementations, and therefore was not detected when OEMs
+tested their systems using that OS.
+ 
+ We've made the decision for now to not be bug-for-bug compatible with
+existing ACPI OS implementations. We are implementing according to the
+ACPI specification's requirements, and hopefully this may drive better
+compliance on all operating systems. 
 
-The way you do it in your patch could work for many cases, but it
-won't be enough to eliminate HANDLE_IOCTL(), if that is desired.
+On Wed, 2003-05-07 at 23:59, David Ford wrote:
+> ACPI: AC Adapter [AC] (on-line)
+>     ACPI-0207: *** Warning: Buffer created with zero length in AML
+>     ACPI-0207: *** Warning: Buffer created with zero length in AML
+>     ACPI-0207: *** Warning: Buffer created with zero length in AML
+>     ACPI-0207: *** Warning: Buffer created with zero length in AML
+> ACPI: Battery Slot [BAT0] (battery present)
+>     ACPI-0207: *** Warning: Buffer created with zero length in AML
+>         -0091: *** Error: ut_allocate: Attempt to allocate zero bytes
+>     ACPI-0207: *** Warning: Buffer created with zero length in AML
+>         -0091: *** Error: ut_allocate: Attempt to allocate zero bytes
+>     ACPI-0207: *** Warning: Buffer created with zero length in AML
+>         -0091: *** Error: ut_allocate: Attempt to allocate zero bytes
+>     ACPI-0207: *** Warning: Buffer created with zero length in AML
+>         -0091: *** Error: ut_allocate: Attempt to allocate zero bytes
+> ACPI: Battery Slot [BAT1] (battery present)
+> ACPI: Lid Switch [LID]
+> ACPI: Power Button (CM) [PBTN]
+> ACPI: Sleep Button (CM) [SBTN]
+> ACPI: Processor [CPU0] (supports C1 C2, 8 throttling states)
+> ACPI: Thermal Zone [THM] (25 C)
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Disconnect <lkml@sigkill.net>
 
-Adding fops->compat_ioctl() makes it possible to eventually replace 
-all HANDLE_IOCTL() and keep only COMPATIBLE_IOCTL(), which in turn
-would become simpler to deal with.
-If we don't add fops->compat_ioctl(), the ioctl handlers could
-however look at (current_thread_info()->flags & _TIF_32BIT) to find
-out if which user data structure they should expect. Is that reliable?
-Do we already have a macro to do it?
-
-	Arnd <><

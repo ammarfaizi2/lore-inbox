@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265030AbTLWH5n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 02:57:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265045AbTLWH5n
+	id S265060AbTLWIV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 03:21:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265061AbTLWIV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 02:57:43 -0500
-Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:26073 "HELO
-	cenedra.office") by vger.kernel.org with SMTP id S265030AbTLWH5m
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 02:57:42 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-mm1
-Date: Tue, 23 Dec 2003 07:57:40 +0000
-User-Agent: KMail/1.5.4
-References: <20031222211131.70a963fb.akpm@osdl.org> <20031222212838.28c2ef8d.akpm@osdl.org> <1072158058.2947.29.camel@duergar>
-In-Reply-To: <1072158058.2947.29.camel@duergar>
+	Tue, 23 Dec 2003 03:21:56 -0500
+Received: from [193.138.115.2] ([193.138.115.2]:52998 "HELO
+	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
+	id S265060AbTLWIVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 03:21:55 -0500
+Date: Tue, 23 Dec 2003 09:19:22 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Stan Bubrouski <stan@ccs.neu.edu>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Badness in pci_find_subsys & sleeping function called from
+ invalid context
+In-Reply-To: <1072141605.2947.18.camel@duergar>
+Message-ID: <Pine.LNX.4.56.0312230916400.28119@jju_lnx.backbone.dif.dk>
+References: <Pine.LNX.4.56.0312221959460.27724@jju_lnx.backbone.dif.dk> 
+ <Pine.LNX.4.56.0312222016530.27724@jju_lnx.backbone.dif.dk>
+ <1072141605.2947.18.camel@duergar>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312230757.40960.andrew@walrond.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 23 Dec 2003 5:40 am, Stan Bubrouski wrote:
->
-> Why do I not see the original message Subject: 2.6.0-mm1
-> ???
->
-> Was there ever an original message to this thread?
->
 
-FYI I recieved the original ok.
+
+On Mon, 22 Dec 2003, Stan Bubrouski wrote:
+
+> On Mon, 2003-12-22 at 14:18, Jesper Juhl wrote:
+> > Forgot to include the "Badness in pci_find_subsys" bits of the log - here
+> > you are.
+> > Original message below.
+>
+> Have you tried reporting this to the minion guy(s)? I'm sure if its in
+> the open source part of the driver it can be fixed by them.  It's in all
+> of our interest (especially us nvidia users *sigh*) to report these
+> problems to people who can fix them.
+>
+I have not reported it there yet, but I'll drop them a line.
+
+
+/Jesper Juhl
 

@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291148AbSBSKyE>; Tue, 19 Feb 2002 05:54:04 -0500
+	id <S291151AbSBSKzE>; Tue, 19 Feb 2002 05:55:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291144AbSBSKxy>; Tue, 19 Feb 2002 05:53:54 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:63172 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S291126AbSBSKxo>; Tue, 19 Feb 2002 05:53:44 -0500
-Date: Tue, 19 Feb 2002 12:43:25 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Jan Schubert <Jan.Schubert@GMX.li>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: mdacon driver updates
-In-Reply-To: <3C71A149.3030706@GMX.li>
-Message-ID: <Pine.LNX.4.44.0202191242060.29620-100000@netfinity.realnet.co.sz>
+	id <S291144AbSBSKy4>; Tue, 19 Feb 2002 05:54:56 -0500
+Received: from E0-IBE.r.miee.ru ([194.226.0.89]:64272 "EHLO ibe.miee.ru")
+	by vger.kernel.org with ESMTP id <S291126AbSBSKyo>;
+	Tue, 19 Feb 2002 05:54:44 -0500
+From: Samium Gromoff <root@ibe.miee.ru>
+Message-Id: <200202191344.g1JDiUP12170@ibe.miee.ru>
+Subject: Re: Ess Solo-1 interrupt behaviour
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Tue, 19 Feb 2002 16:44:28 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16d81Q-00008y-00@the-village.bc.nu> from "Alan Cox" at Feb 19, 2002 11:01:20 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Feb 2002, Jan Schubert wrote:
-
-> I've posted a small fix to mdacon.c at the end of last year (while 
-> Marcello was in vacation). It has'nt made it to the kernel yet, nor was 
-> there any feedback. I've thought, thats the way like open source works...
-
-James Simmons <jsimmons@transvirtual.com> volunteered to take in patches.
-
-Regards,
-	Zwane Mwaikambo
-
-
-
+"  Alan Cox wrote:"
+> 
+> >         I`ve recently spotted that a solo1 pci soundcard generates
+> > 16000+ interrupts/second with esd started idling.
+> 
+> Thats an esd bug. ESD tries to use ridiculously small fragment sizes
+> 
+  Wait, wait, but my ISA Vibra 16 generates 20+ times less interrupts, with the
+  _same_ esd! 

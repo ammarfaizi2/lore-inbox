@@ -1,76 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267825AbTBJMCz>; Mon, 10 Feb 2003 07:02:55 -0500
+	id <S264838AbTBJMKv>; Mon, 10 Feb 2003 07:10:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267826AbTBJMCz>; Mon, 10 Feb 2003 07:02:55 -0500
-Received: from packet.digeo.com ([12.110.80.53]:51678 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267825AbTBJMCw>;
-	Mon, 10 Feb 2003 07:02:52 -0500
-Date: Mon, 10 Feb 2003 04:12:45 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: andrea@suse.de, reiser@namesys.com, jakob@unthought.net,
-       david.lang@digitalinsight.com, riel@conectiva.com.br,
-       ckolivas@yahoo.com.au, linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK]
- 2.4.20-ck3 / aa / rmap with contest]
-Message-Id: <20030210041245.68665ff6.akpm@digeo.com>
-In-Reply-To: <3E4792B7.5030108@cyberone.com.au>
-References: <3E47579A.4000700@cyberone.com.au>
-	<20030210080858.GM31401@dualathlon.random>
-	<20030210001921.3a0a5247.akpm@digeo.com>
-	<20030210085649.GO31401@dualathlon.random>
-	<20030210010937.57607249.akpm@digeo.com>
-	<3E4779DD.7080402@namesys.com>
-	<20030210101539.GS31401@dualathlon.random>
-	<3E4781A2.8070608@cyberone.com.au>
-	<20030210111017.GV31401@dualathlon.random>
-	<3E478C09.6060508@cyberone.com.au>
-	<20030210113923.GY31401@dualathlon.random>
-	<20030210034808.7441d611.akpm@digeo.com>
-	<3E4792B7.5030108@cyberone.com.au>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
+	id <S267788AbTBJMKv>; Mon, 10 Feb 2003 07:10:51 -0500
+Received: from web41405.mail.yahoo.com ([66.218.93.71]:185 "HELO
+	web41405.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S264838AbTBJMKt>; Mon, 10 Feb 2003 07:10:49 -0500
+Message-ID: <20030210122030.89851.qmail@web41405.mail.yahoo.com>
+Date: Mon, 10 Feb 2003 23:20:30 +1100 (EST)
+From: =?iso-8859-1?q?Con=20Kolivas?= <ckolivas@yahoo.com.au>
+Subject: oops with 2.5.59-mm10
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@digeo.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Feb 2003 12:12:31.0078 (UTC) FILETIME=[AF938860:01C2D0FD]
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <piggin@cyberone.com.au> wrote:
->
-> Andrew Morton wrote:
-> 
-> >Andrea Arcangeli <andrea@suse.de> wrote:
-> >
-> >>It's the readahead in my tree that allows the reads to use the max scsi
-> >>command size. It has nothing to do with the max scsi command size
-> >>itself.
-> >>
-> >
-> >Oh bah.
-> >
-> >-               *max_ra++ = vm_max_readahead;
-> >+               *max_ra = ((128*4) >> (PAGE_SHIFT - 10)) - 1;
-> >
-> >
-> >Well of course that will get bigger bonnie numbers, for exactly the reasons
-> >I've explained.  It will seek between files after every 512k rather than
-> >after every 128k.
-> >
-> Though Andrea did say it is a "single threaded" streaming read.
+After doing a contest benchmark had this show up on
+the serial console when I sent the machine a reboot
+command. This is with mm10 minus the smalldevfs patch.
+It still proceeded as expected:
 
-Oh sorry, I missed that.
+Unable to handle kernel paging request at virtual
+address 8efe26fc
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0060:[<c01673da>]    Not tainted
+EFLAGS: 00010246
+EIP is at ext3_readdir+0x92/0x468
+eax: c78a02a0   ebx: c78a02a0   ecx: cfdd9000   edx:
+c5086000
+esi: c78a030c   edi: cfb1c760   ebp: 00000000   esp:
+c5087eec
+ds: 007b   es: 007b   ss: 0068
+Process dbench (pid: 7267, threadinfo=c5086000
+task=cee55300)
+Stack: c78a02a0 c78a030c cfb1c760 00000000 c5087f80
+c78a02a0 cfdd9000 c5086000
+       c5087f10 00000302 00000000 00000000 00023a48
+000041c0 0000000b 00000000
+       00000000 00000000 00000000 00000000 00001000
+00000000 00001000 00000008
+Call Trace:
+ [<c014a4ac>] vfs_readdir+0x4c/0x60
+ [<c014a75c>] filldir64+0x0/0x104
+ [<c014a8c7>] sys_getdents64+0x67/0xb2
+ [<c014a75c>] filldir64+0x0/0x104
+ [<c0149c5d>] sys_fcntl64+0x5d/0x70
+ [<c0149c69>] sys_fcntl64+0x69/0x70
+ [<c0108a43>] syscall_call+0x7/0xb
 
-> That is what I can't understand. Movement of the disk head should
-> be exactly the same in either situation and 128K is not exactly
-> a pitiful request size - so it suggests a quirk somewhere. It
-> is not as if the disk has to be particularly smart or know a
-> lot about the data in order to optimise the head movement for
-> a load like this.
+Code: 18 8b 5c 24 74 c7 44 24 20 00 00 00 00 8b 50 0c
+8b 4b 20 4a
+ <7>serio: kseriod exiting
 
-Yes, that's a bit odd.  Some reduction in CPU cost and bus
-traffic, etc would be expected.   Could be that sending out a
-request which is larger than a track is saving a rev of the disk
-for some reason.
 
+http://greetings.yahoo.com.au - Yahoo! Greetings
+- Send your seasons greetings online this year!

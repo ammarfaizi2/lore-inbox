@@ -1,67 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317194AbSIEHWJ>; Thu, 5 Sep 2002 03:22:09 -0400
+	id <S317017AbSIEH2x>; Thu, 5 Sep 2002 03:28:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317215AbSIEHWJ>; Thu, 5 Sep 2002 03:22:09 -0400
-Received: from dsl-213-023-038-092.arcor-ip.net ([213.23.38.92]:45989 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317194AbSIEHWI>;
-	Thu, 5 Sep 2002 03:22:08 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: Race in shrink_cache
-Date: Thu, 5 Sep 2002 09:28:48 +0200
-X-Mailer: KMail [version 1.3.2]
+	id <S317215AbSIEH2x>; Thu, 5 Sep 2002 03:28:53 -0400
+Received: from relay.muni.cz ([147.251.4.35]:18377 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id <S317017AbSIEH2w>;
+	Thu, 5 Sep 2002 03:28:52 -0400
+Date: Thu, 5 Sep 2002 09:33:19 +0200
+From: Jan Kasprzak <kas@informatics.muni.cz>
+To: Andrew D Kirch <trelane@trelane.net>
 Cc: linux-kernel@vger.kernel.org
-References: <E17mooe-00064m-00@starship> <E17mqFV-00065Y-00@starship> <3D7702BE.85A5D11D@zip.com.au>
-In-Reply-To: <3D7702BE.85A5D11D@zip.com.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17mr4K-000660-00@starship>
+Subject: Re: IDE write speed (Promise versus AMD)
+Message-ID: <20020905093319.C3985@fi.muni.cz>
+References: <20020904195729.A3985@fi.muni.cz> <001501c2546e$7e303720$6400a8c0@athlon2000>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <001501c2546e$7e303720$6400a8c0@athlon2000>; from trelane@trelane.net on Wed, Sep 04, 2002 at 06:55:05PM -0500
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 September 2002 09:07, Andrew Morton wrote:
-> Daniel Phillips wrote:
-> > 
-> > ...
-> > /*
-> >  * We must not allow an anon page
-> >  * with no buffers to be visible on
-> >  * the LRU, so we unlock the page after
-> >  * taking the lru lock
-> >  */
-> > 
-> > That is, what's scary about an anon page without buffers?
-> 
-> ooop.  That's an akpm comment.  umm, err..
-> 
-> It solves this BUG:
-> 
-> http://www.cs.helsinki.fi/linux/linux-kernel/2001-37/0594.html
-> 
-> Around the 2.4.10 timeframe, Andrea started putting anon pages
-> on the LRU.  Then he backed that out, then put it in again.  I
-> think this comment dates from the time when anon pages were
-> not on the LRU.  So there's a little window there where the
-> page is unlocked, we've just dropped its swapdev buffers, the page is
-> on the LRU and pagemap_lru_lock is not held.
-> 
-> So another CPU came in, found the page on the LRU, saw that it had
-> no ->mapping and no ->buffers and went BUG.
-> 
-> The fix was to take pagemap_lru_lock before unlocking the page.
-> 
-> The comment is stale.
+Andrew D Kirch wrote:
+: excuse the mailer, but I've been having similar issues with my promise
+: controller... interesting huh?  give me a little more info on the board and
+: make sure to target a reply to trelane@trelane.net, I'll keep you posted on
+: anything I find to fix it... right now my speed difference isn't THAT
+: dramatic... Going to a beta mandrake install from 8.2 I've lost 40% of my
+: software raid-0 performance (from a hdparm of 80MB/s to 56MB/s. :(
+: 
+: I'm going to play with jumpers later, so I'll let you know what I find.
 
-With the atomic_dec_and_lock strategy, the page would be freed immediately on 
-the buffers being released, and with the lru=1 strategy it doesn't matter 
-in terms of correctness whether the page ends up on the lru or not, so I was 
-inclined not to worry about this anyway, still, when you a dire-looking 
-comment like that...
+	Mainboard is MSI K7D-Master (AMD 760 MPX chipset),
+the Promise controller is PDC 20269 with the following lspci
+output:
 
-You said something about your lru locking strategy in 2.5.33-mm2.  I have not
-reverse engineered it yet, would you care to wax poetic?
+02:04.0 Unknown mass storage controller: Promise Technology, Inc. 20269 (rev 02) (prog-if 85)
+	Subsystem: Promise Technology, Inc.: Unknown device 4d68
+	Flags: bus master, 66Mhz, slow devsel, latency 32, IRQ 16
+	I/O ports at 9000 [size=8]
+	I/O ports at 9400 [size=4]
+	I/O ports at 9800 [size=8]
+	I/O ports at 9c00 [size=4]
+	I/O ports at a000 [size=16]
+	Memory at f8000000 (32-bit, non-prefetchable) [size=16K]
+	Expansion ROM at <unassigned> [disabled] [size=16K]
+	Capabilities: [60] Power Management version 1
+
+-Yenya
 
 -- 
-Daniel
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
+       Pruning my incoming mailbox after being 10 days off-line,
+       sorry for the delayed reply.

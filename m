@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262135AbTEHVc1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 17:32:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbTEHVc1
+	id S262139AbTEHVjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 17:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262140AbTEHVjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 17:32:27 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:62942 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262135AbTEHVbu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 17:31:50 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780CCAFDA9@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Daniele Pala'" <dandario@libero.it>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Weird errors for loading modules 
-Date: Thu, 8 May 2003 14:43:32 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Thu, 8 May 2003 17:39:25 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:46759 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262139AbTEHVjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 17:39:24 -0400
+Date: Thu, 8 May 2003 14:48:08 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove devfs_register
+Message-Id: <20030508144808.745328f5.akpm@digeo.com>
+In-Reply-To: <20030508223449.A29413@lst.de>
+References: <20030508223449.A29413@lst.de>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 May 2003 21:51:56.0481 (UTC) FILETIME=[0B4F4B10:01C315AC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Daniele Pala [mailto:dandario@libero.it]
+Christoph Hellwig <hch@lst.de> wrote:
 >
-> i recently comiled 2.5.69 kernel and all goes fine, 
-> except that i'm not able to load modules at
-> startup. The error
-> it gives is like: "modprobe: ERROR module xyz doesn't 
->  exist in /proc/modules". The same error comes
-> out when i try to
+> Whee! devfs_register isn't used anymore in the whole tree
 
-Can you actually see the modules in /proc/modules if
-you cat it from the shell?
+devfs_register appears to still be used in
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
+./arch/ia64/sn/io/sn2/xbow.c
+./arch/ia64/sn/io/hcl.c
+./arch/ia64/sn/io/pciba.c

@@ -1,71 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263039AbSKDXxU>; Mon, 4 Nov 2002 18:53:20 -0500
+	id <S263276AbSKEAI4>; Mon, 4 Nov 2002 19:08:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263077AbSKDXxU>; Mon, 4 Nov 2002 18:53:20 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:40848 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S263039AbSKDXxP>;
-	Mon, 4 Nov 2002 18:53:15 -0500
-Date: Mon, 04 Nov 2002 15:54:29 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Wierd error messages from starfire driver 
-Message-ID: <1040010000.1036454069@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S263270AbSKEAIX>; Mon, 4 Nov 2002 19:08:23 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:41456 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S263208AbSKEAHf>; Mon, 4 Nov 2002 19:07:35 -0500
+Message-ID: <012601c28460$3ee6b8b0$7fd40a0a@amr.corp.intel.com>
+From: "Geoff Gustafson" <geoff@linux.co.intel.com>
+To: "Jim Freeman" <jfree@sovereign.org>, <linux-kernel@vger.kernel.org>
+References: <000a01c28454$56a94b90$7fd40a0a@amr.corp.intel.com> <3DC6FF60.2000100@pobox.com> <20021104163113.B13741@munet-d.enel.ucalgary.ca> <20021104235149.GB4258@lux.homenet>
+Subject: Re: RFC: A POSIX Linux project?
+Date: Mon, 4 Nov 2002 16:14:02 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been getting these for ever, and they don't seem to
-do any harm ... but they're rather worrying, and I'm curious
-as to whath they are.
+Jim Freeman wrote:
+> Howzabout the NIST one ?
+>
+> http://www.itl.nist.gov/div897/ctg/posix_form.htm
 
-I suspect the "Increasing Tx FIFO threshold" is just being
-unnecessarily verbose ... but the "Something Wicked happened!"
-error doesn't look too happy ... any clues as to what this is?
+I think this is based on the 1990 POSIX spec. The things the new suite is
+starting with have been added since then, up to and including the 2001 spec.
 
-Thanks,
+It is public domain I believe, so I would like to merge that in at some point,
+but I would want to review the test cases individually to make sure they still
+apply to the latest spec, etc. A lot of the work is just checking things in the
+latest specification and adding/updating references in the code.
 
-Martin.
+-- Geoff Gustafson
 
-Increasing Tx FIFO threshold to 80 bytes
-eth0: Increasing Tx FIFO threshold to 96 bytes
-eth0: Something Wicked happened! 2049101.
-eth0: Increasing Tx FIFO threshold to 112 bytes
-eth0: Increasing Tx FIFO threshold to 128 bytes
-eth0: Something Wicked happened! 204b101.
-eth0: Increasing Tx FIFO threshold to 144 bytes
-eth0: Increasing Tx FIFO threshold to 160 bytes
-eth0: Something Wicked happened! 2049001.
-eth0: Increasing Tx FIFO threshold to 176 bytes
-eth0: Increasing Tx FIFO threshold to 192 bytes
-eth0: Increasing Tx FIFO threshold to 208 bytes
-eth0: Something Wicked happened! 2049101.
-eth0: Increasing Tx FIFO threshold to 224 bytes
-eth0: Increasing Tx FIFO threshold to 240 bytes
-eth0: Something Wicked happened! 2049101.
-eth0: Increasing Tx FIFO threshold to 256 bytes
-eth0: Increasing Tx FIFO threshold to 272 bytes
-eth0: Something Wicked happened! 2049101.
-eth0: Increasing Tx FIFO threshold to 288 bytes
-eth0: Increasing Tx FIFO threshold to 304 bytes
-eth0: Something Wicked happened! 2049101.
-eth0: Increasing Tx FIFO threshold to 320 bytes
-eth0: Increasing Tx FIFO threshold to 336 bytes
-eth0: Increasing Tx FIFO threshold to 352 bytes
-eth0: Something Wicked happened! 2049101.
-eth0: Increasing Tx FIFO threshold to 368 bytes
-eth0: Increasing Tx FIFO threshold to 384 bytes
-eth0: Increasing Tx FIFO threshold to 400 bytes
-eth0: Something Wicked happened! 2049101.
-eth0: Increasing Tx FIFO threshold to 416 bytes
-eth0: Increasing Tx FIFO threshold to 432 bytes
-eth0: Increasing Tx FIFO threshold to 448 bytes
-eth0: Increasing Tx FIFO threshold to 464 bytes
-eth0: Something Wicked happened! 2049101.
-eth0: Increasing Tx FIFO threshold to 480 bytes
-eth0: Increasing Tx FIFO threshold to 496 bytes
+These are my views and not necessarily those of my employer.
 

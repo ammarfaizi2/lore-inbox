@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262572AbTJTOak (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 10:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262575AbTJTOaj
+	id S262591AbTJTOs0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 10:48:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbTJTOs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 10:30:39 -0400
-Received: from citrine.spiritone.com ([216.99.193.133]:40928 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S262572AbTJTOai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 10:30:38 -0400
-Date: Mon, 20 Oct 2003 07:27:18 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: bunk@fs.tum.de, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] add a config option for -Os compilation
-Message-ID: <764430000.1066660038@[10.10.2.4]>
-In-Reply-To: <20031019113248.17eb0a5c.akpm@osdl.org>
-References: <20031015225055.GS17986@fs.tum.de><20031015161251.7de440ab.akpm@osdl.org><20031015232440.GU17986@fs.tum.de><20031015165205.0cc40606.akpm@osdl.org><20031018102127.GE12423@fs.tum.de><649730000.1066491920@[10.10.2.4]><20031018102402.3576af6c.akpm@osdl.org><20031018174434.GJ12423@fs.tum.de><20031018105733.380ea8d2.akpm@osdl.org><668910000.1066578207@[10.10.2.4]> <20031019113248.17eb0a5c.akpm@osdl.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Mon, 20 Oct 2003 10:48:26 -0400
+Received: from [62.67.222.139] ([62.67.222.139]:47562 "EHLO mail.ku-gbr.de")
+	by vger.kernel.org with ESMTP id S262591AbTJTOsY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 10:48:24 -0400
+Date: Mon, 20 Oct 2003 16:48:22 +0200
+From: Konstantin Kletschke <konsti@ludenkalle.de>
+To: Lionel Bouton <Lionel.Bouton@inet6.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Uncorrectable Error on IDE, significant accumulation
+Message-ID: <20031020144822.GA593@synertronixx3>
+Reply-To: konsti@ludenkalle.de
+References: <20031020132705.GA1171@synertronixx3> <3F93E728.5050908@inet6.fr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <3F93E728.5050908@inet6.fr>
+X-PGP-Key: http://www.ludenkalle.de/konsti/pubkey.asc
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> "Martin J. Bligh" <mbligh@aracnet.com> wrote:
->> 
->>  > It would take a quite a lot of work to measure this properly.  A simple A/B
->>  > comparison doesn't cut it.
->> 
->>  So why are we changing it then? ;-)
+On Mon, Oct 20, 2003 at 03:46:16PM +0200, Lionel Bouton wrote:
 > 
-> It is very easy to demonstrate that it saves 300 kilobytes of memory.
+> When did you purchase it ? Better : can you find the revision (black on 
 
-OK, fair enough - so can we either do:
+IIRC it is revision 3 or older. IIRC I downloaded BIOS files for
+revision 3.x or older, 1.3?
 
-1) a config option
+> There were electrical defects with the earliest K7S5A revisions (I 
+> returned one myself). Rev 0, 1, 2 and 3 are affected, I don't remember 
+> for 4-6 but IIRC rev 7 and above aren't affected : I have a rev 5 or 7 
+> at home (don't remember which one it is) and it works perfectly.
 
-or 
+Hm, I have the Board Revision whih also remembers its BIOS Settings once
+after a while (once per month or so). Does that also belong to
+"electrical defects"?
 
-2) if you hate that, at least switch it to -O2 on CONFIG_SMP, on the grounds
-that such systems generally have larger caches, and plenty of RAM.
+So should I buy a K7S5A Pro now. It eats my old school SDRAM, thats
+why...
 
-M.
+Konsti
 
+-- 
+2.6.0-test1-mm2
+Konstantin Kletschke <konsti@ludenkalle.de>, <konsti@ku-gbr.de>
+GPG KeyID EF62FCEF
+Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
+keulator.homelinux.org up 27 min, 

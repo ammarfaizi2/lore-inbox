@@ -1,62 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135717AbRDSVRF>; Thu, 19 Apr 2001 17:17:05 -0400
+	id <S131275AbRDSVcf>; Thu, 19 Apr 2001 17:32:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135719AbRDSVQz>; Thu, 19 Apr 2001 17:16:55 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:25048 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S135716AbRDSVQl>; Thu, 19 Apr 2001 17:16:41 -0400
-From: tom_gall@vnet.ibm.com
-Message-ID: <3ADF5555.3877759A@vnet.ibm.com>
-Date: Thu, 19 Apr 2001 21:15:01 +0000
-Reply-To: tom_gall@vnet.ibm.com
-Organization: IBM
-X-Mailer: Mozilla 4.61 [en] (X11; U; Linux 2.2.10 i686)
-X-Accept-Language: en
+	id <S135716AbRDSVcZ>; Thu, 19 Apr 2001 17:32:25 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:10761 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S131275AbRDSVcJ> convert rfc822-to-8bit; Thu, 19 Apr 2001 17:32:09 -0400
+From: s-jaschke@t-online.de (Stefan Jaschke)
+Reply-To: stefan@jaschke-net.de
+Organization: jaschke-net.de
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: Problems with Toshiba SD-W2002 DVD-RAM drive (IDE)
+Date: Thu, 19 Apr 2001 23:11:31 +0200
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01041714250400.01376@antares> <01041914440701.01232@antares> <20010419150332.B22159@suse.de>
+In-Reply-To: <20010419150332.B22159@suse.de>
 MIME-Version: 1.0
-To: Jeff Galloway <jeff.galloway@rundog.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: FW: Linux 2.4.3 Compile Errors - Power Mac
-In-Reply-To: <B704C0AA.4239%jeff.galloway@rundog.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01041923113102.01232@antares>
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Galloway wrote:
-> 
-> I sent this report to the people indicated below, whose names I got from the
-> MAINTAINERS file in the 2.4.3 distribution, but the email address for Mr.
-> MacKerras is no longer good and Mr. Chastain wrote me back that he is not
-> following 2.4 issues.
+On Thursday 19 April 2001 15:03, Jens Axboe wrote:
+> On Thu, Apr 19 2001, Stefan Jaschke wrote:
+> > OK. I'll check again with 2.4.4-pre4+patches:
+> > (1) Mounting the SuSE DVD-ROM (-t iso9660) from /dev/hdc on /dvd and
+> >     reading from /dvd works. Same for CD-ROMs. I don't have a formatted
+> >     DVD-RAM.
+> > (2) Reading with "dd if=/dev/hdc ..."
+> >    (2.1) works with CD-ROM inserted
+> >    (2.2) fails with DVD-ROM inserted
+>
+> dd fails with DVD-ROM inserted??? In the same way? Is this the SuSE DVD,
+> and not a movie DVD? Also, check dmesg for errors.
+> >    (2.3) fails with DVD-RAM inserted
 
-Hi Jeff,
+"dd if=/dev/hdc of=/dev/null bs=2k count=3" produces the same strace, whether
+the DVD-RAM or the SuSE DVD-ROM is inserted. I interpret the fact that the
+first read() returns 0 as some lower layer coming to the conclusion that
+"/dev/hdc" has length 0. 
+The only line that appears in the system logs is
+  "VFS: Disk change detected on device ide1(22,0)"
+when I change the disks.
 
-  Hmm.... Paul is around his email just changed and the pmac maintainer is now
-Ben, but that issue aside where did you get your 2.4.3 sources from that you are
-trying to build?
+> > (3) Writing with "dd of=/dev/hdc ..." works (with DVD-RAM inserted).
+> > (4) "mke2fs -b 2048 /dev/hdc" fails (with DVD-RAM inserted).
+I took a closer look at the strace of the "mke2fs ...". The first system call
+that fails is
+old_mmap(NULL, 504938496, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, 
+-1, 0) = -1 ENOMEM
+It asks for 481MB, which I simply don't have. (128MB RAM,  256MB swap).
+So, this may be unrelated to the kernel, just a quirk of mke2fs to ask for
+that much memory.
 
-  http://www.fsmlabs.com/linuxppcbk.html is the location you want to pull stuff
-from.
+> Could be, try
+> cat /proc/ide/hdc/capacity
+0                  (with empty tray)
+8946816       (with single-sided 4.7GB DVD-RAM)
+4875840       (with single-sided 2.6GB DVD-RAM)
+9106700       (with SuSE DVD-ROM)
+1325240       (with SuSE CD-ROM)
 
-> I have not yet heard from Mr. Owens.
-> 
-> Any suggestions on the solution to my problem?
+Seem to be 512 Byte blocks. Looks OK.
 
-  Well suggestion one is DON'T GIVE US A WORD DOCUMENT! Plain text please, then
-we can actually read what's wrong.
+> And lets stick to hardware for now, ok? :-)
+This means "There is hope to get the drive working under Linux"?
 
-  Best to post to linuxppc-dev@lists.linuxppc.org. That's one of the lists that
-the PPC Linux watches.
- 
-Regards,
+Correct me if I am wrong in my interpretations.
 
-Tom
+There are two mysteries (for me at least) left:
+(1) Why does mke2fs need 481MB memory?
+(2) Why does the very first read() on /dev/hdc return EOF?
 
--- 
-Tom Gall - PowerPC Linux Team    "Where's the ka-boom? There was
-Linux Technology Center           supposed to be an earth
-(w) tom_gall@vnet.ibm.com         shattering ka-boom!"
-(w) 507-253-4558                 -- Marvin Martian
-(h) tgall@rochcivictheatre.org
-http://oss.software.ibm.com/developerworks/opensource/linux
+What would you suggest to try next?
+
+Stefan
+

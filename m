@@ -1,47 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261264AbSJLWK7>; Sat, 12 Oct 2002 18:10:59 -0400
+	id <S261287AbSJLWNy>; Sat, 12 Oct 2002 18:13:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261287AbSJLWK6>; Sat, 12 Oct 2002 18:10:58 -0400
-Received: from paloma14.e0k.nbg-hannover.de ([62.181.130.14]:61371 "HELO
-	paloma14.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S261264AbSJLWK6> convert rfc822-to-8bit; Sat, 12 Oct 2002 18:10:58 -0400
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: 2.5.42 (-mm): IDE as modules NO go
-Date: Sun, 13 Oct 2002 00:16:41 +0200
-User-Agent: KMail/1.4.7
+	id <S261291AbSJLWNx>; Sat, 12 Oct 2002 18:13:53 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:15110 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S261287AbSJLWNx>; Sat, 12 Oct 2002 18:13:53 -0400
+Message-ID: <3DA89FFD.6010803@namesys.com>
+Date: Sun, 13 Oct 2002 02:19:41 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200210130016.41348.Dieter.Nuetzel@hamburg.de>
+To: =?ISO-8859-15?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: Linux v2.5.42
+References: <200210122220.29381.Dieter.Nuetzel@hamburg.de>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make -f drivers/ide/Makefile
-  gcc -Wp,-MD,drivers/ide/.ide.o.d -D__KERNEL__ -Iinclude -Wall 
--Wstrict-prototypes -Wno-trigraphs -O -fno-strict-aliasing -fno-common -pipe 
--mpreferred-stack-boundary=2 -mcpu=k6 -march=i686 -malign-functions=4 
--fschedule-insns2 -fexpensive-optimizations  -Iarch/i386/mach-generic 
--fomit-frame-pointer -nostdinc -iwithprefix include -DMODULE -include 
-include/linux/modversions.h   -DKBUILD_BASENAME=ide -DEXPORT_SYMTAB  -c -o 
-drivers/ide/ide.o drivers/ide/ide.c
-drivers/ide/ide.c: In function `ide_register_driver_Rsmp_968faa65':
-drivers/ide/ide.c:3459: warning: assignment discards qualifiers from pointer 
-target type
-drivers/ide/ide.c: At top level:
-drivers/ide/ide.c:3563: redefinition of `init_module'
-drivers/ide/ide.c:3541: `init_module' previously defined here
-drivers/ide/ide.c: In function `cleanup_module':
-drivers/ide/ide.c:3585: warning: implicit declaration of function 
-`bus_unregister'
-{standard input}: Assembler messages:
-{standard input}:9110: Error: symbol `init_module' is already defined
-make[2]: *** [drivers/ide/ide.o] Error 1
-make[1]: *** [drivers/ide] Error 2
-make: *** [drivers] Error 2
+Dieter Nützel wrote:
 
-Thanks,
-	Dieter
+>>>>Should EVMS be included, the team will make it our top priority to
+>>>>resolve the disputed design issues. If the ruling should be that some of
+>>>>our design decisions must change, so be it, we will comply. Certainly
+>>>>some changes can not be done by the 20th or 31st, however I feel
+>>>>the team can handle most changes before 2.6 ships.
+>>>>        
+>>>>
+>>>Thats good to hear. Right now the debate appears to be - "users: please
+>>>add EVMS" "hackers: oh my god no" - so you got the feature set right it
+>>>seems
+>>>      
+>>>
+>>Obvious point:
+>>
+>>* Linus can always thaw the tree after 31st just for one addition, if
+>>something _really_ needs to be added for 2.6
+>>    
+>>
+>
+>Beside EVMS there is another one: Reiser4
+>Getting such an FS "for free" is worth it.
+>http://www.namesys.com/v4/v4.html
+>
+>Hans, can you please send a summary of the "new" FS limits?
+>PB/EB, etc.? ;-)
+>
+>Regards,
+>	Dieter
+>
+>  
+>
+The new size limits are those of the Linux VFS layer (we use 64 bit 
+numbers most places so that if we port to another architecture, or ia64 
+becomes viable....).   I don't think anyone will find them motivating.  
+
+Dramatic performance gains while offering transactional FS operations 
+(wandering logs work, woohoo!), plugins, scalability due to per node 
+locking, obsoleting a whole slew of traditional database tree algorithms 
+for better performance, those are motivating.  Wait for Linux Journal to 
+come out, it will have the benchmarks, and you'll see what I mean by 
+dramatic.   It will be good enough that we can focus mostly on getting 
+the semantics in place for the competition with OFS.
+
+Hans
+
+

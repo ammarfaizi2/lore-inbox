@@ -1,66 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262423AbTCROMw>; Tue, 18 Mar 2003 09:12:52 -0500
+	id <S262404AbTCROPT>; Tue, 18 Mar 2003 09:15:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262426AbTCROMw>; Tue, 18 Mar 2003 09:12:52 -0500
-Received: from smtp09.wxs.nl ([195.121.6.38]:38647 "EHLO smtp09.wxs.nl")
-	by vger.kernel.org with ESMTP id <S262423AbTCROMv> convert rfc822-to-8bit;
-	Tue, 18 Mar 2003 09:12:51 -0500
-Date: Tue, 18 Mar 2003 15:25:24 +0100
-From: Maarten Ghijsen <maarten.ghijsen@planet.nl>
-Subject: system hangs on wake_up call from IRQ handler
+	id <S262417AbTCROPT>; Tue, 18 Mar 2003 09:15:19 -0500
+Received: from bestroot.de ([217.160.170.131]:35039 "EHLO
+	p15112267.pureserver.de") by vger.kernel.org with ESMTP
+	id <S262404AbTCROPS>; Tue, 18 Mar 2003 09:15:18 -0500
+Message-ID: <3E772DA1.5080504@elitedvb.net>
+Date: Tue, 18 Mar 2003 15:30:57 +0100
+From: Felix Domke <tmbinc@elitedvb.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20021216
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Message-id: <001301c2ed5a$37133380$0400000a@mdomain.local>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
-Importance: Normal
-X-Priority: 3 (Normal)
-X-MSMail-priority: Normal
+Subject: IDE 48 bit addressing causes data corruption
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-I am busy on writing a driver for a PCI Card. Amongst others my driver
-includes an IOCTL command for starting a DMA transfer (user-->PCI card or
-PCI card-->user). In my handler for this command I instruct the PciCard to
-start a DMA transfer and than wait (sleep) for the DMA to complete. I wait
-using the wait_event function, which waits for an event that is 'fired'
-(wake_up) from the DMA done interrupt handler. As soon as I make the call to
-wake_up, from the DMA done interrupt handler, my system hangs completely. 
+i'm having linuxppc-embedded based system (2.4.21-pre, but 2.4.20 shows 
+same results) with a normal ATAPI-5-styled IDE controller.
 
-Does anyone have any idea why the system hangs on the wake-up from the
-interrupt handler?
+When using a 200GB Maxtor HDD, there are strange effects. When writing 
+just the sector number to every sector (or every 100MB is enough), and 
+reading back, data from incorrect sectors is read. The upper 24bit of 
+the LBA seem to be invalid, shows like the upper 24bit aren't updated in 
+the 2 cycle LBA-write in the ide-disk.c. For example, reading from 
+0x946000000 (LBA 0x4A30000) will read from 0x2f46000000 (LBA 0x17A30000).
+note that i lineary fill the disk, and 0x17xxxxxx is the highest 
+possible LBA, so the last upper bit from the write won't be actualized 
+any more when reading back from lower addresses.
 
-Below you will find some pseudo code for with the wait_event and the
-wake_up:
+However, reading them back (using the HOB-bit) will work and give 
+correct results. I don't really know whats going wrong, except that 
+there are addressing-faults.
 
-// wait from DMA IOCTL handler
-void Dta1xxTxIoCtlDma()
-{
-	startdma();
+Is this a known bug of the Maxtor 6Y200L maybe? the 160GB version showed 
+the same effect.
 
-	wait_event(my_wait_queue, ( 1==dma_done_flag) );
+Is it possible that the IDE-Controller causes the fault? normal 28bit 
+HDDs work just fine.
 
-	return;
-}
 
-// wake_up from interrupt handler
-void Dta1xxIRQ()
-{
-	if ( IsDmaDoneInterruptSet() ) {
-		dma_done_flag = 1;
-		wake_up(&my_wait_queue);
-	}
-}
+Can somebody please confirm again that i don't need an atapi-6 (ATA133) 
+controller to use LBA48 ?
 
-I am using linux kernel version 2.4.18.
+Regulary some people are stating this, and regulary some people tell 
+that these people are wrong.
 
-Regards,
- 
-Maarten
+
+felix
 
 

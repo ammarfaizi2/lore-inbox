@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135892AbRASAwy>; Thu, 18 Jan 2001 19:52:54 -0500
+	id <S136208AbRASA74>; Thu, 18 Jan 2001 19:59:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136133AbRASAwo>; Thu, 18 Jan 2001 19:52:44 -0500
-Received: from gateway.sequent.com ([192.148.1.10]:61350 "EHLO
-	gateway.sequent.com") by vger.kernel.org with ESMTP
-	id <S135892AbRASAwe>; Thu, 18 Jan 2001 19:52:34 -0500
-Date: Thu, 18 Jan 2001 16:52:25 -0800
-From: Mike Kravetz <mkravetz@sequent.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: multi-queue scheduler update
-Message-ID: <20010118165225.E8637@w-mikek.des.sequent.com>
-In-Reply-To: <20010118155311.B8637@w-mikek.des.sequent.com> <20010119012616.D32087@athlon.random>
-Mime-Version: 1.0
+	id <S136255AbRASA7r>; Thu, 18 Jan 2001 19:59:47 -0500
+Received: from palrel3.hp.com ([156.153.255.226]:50960 "HELO palrel3.hp.com")
+	by vger.kernel.org with SMTP id <S136208AbRASA72>;
+	Thu, 18 Jan 2001 19:59:28 -0500
+Message-ID: <3A67916E.4D41444E@cup.hp.com>
+Date: Thu, 18 Jan 2001 16:59:26 -0800
+From: Rick Jones <raj@cup.hp.com>
+Organization: the Unofficial HP
+X-Mailer: Mozilla 4.75 [en] (X11; U; HP-UX B.11.00 9000/785)
+X-Accept-Language: en
+MIME-Version: 1.0
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+In-Reply-To: <20010118212441.E28276@athlon.random> <200101182037.XAA08671@ms2.inr.ac.ru> <20010118220428.G28276@athlon.random> <20010118192758.A2656@zalem.puupuu.org>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010119012616.D32087@athlon.random>; from andrea@suse.de on Fri, Jan 19, 2001 at 01:26:16AM +0100
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 19, 2001 at 01:26:16AM +0100, Andrea Arcangeli wrote:
-> On Thu, Jan 18, 2001 at 03:53:11PM -0800, Mike Kravetz wrote:
-> > Here are some very preliminary numbers from sched_test_yield
-> > (which was previously posted to this (lse-tech) list by Bill
-> > Hartner).  Tests were run on a system with 8 700 MHz Pentium
-> > III processors.
-> > 
-> >                            microseconds/yield
-> > # threads      2.2.16-22           2.4        2.4-multi-queue
-> > ------------   ---------         --------     ---------------
-> > 16               18.740            4.603         1.455
+Olivier Galibert wrote:
 > 
-> I remeber the O(1) scheduler from Davide Libenzi was beating the mainline O(N)
-> scheduler with over 7 tasks in the runqueue (actually I'm not sure if the
-> number was 7 but certainly it was under 10). So if you also use a O(1)
-> scheduler too as I guess (since you have a chance to run fast on the lots of
-> tasks running case) the most interesting thing is how you score with 2/4/8
-> tasks in the runqueue (I think the tests on the O(1) scheduler patch was done
-> at max on a 2-way SMP btw). (the argument for which Davide's patch wasn't
-> included is that most machines have less than 4/5 tasks in the runqueue at the
-> same time)
+> On Thu, Jan 18, 2001 at 10:04:28PM +0100, Andrea Arcangeli wrote:
+> > NAGLE algorithm is only one, CORK algorithm is another different algorithm. So
+> > probably it would be not appropriate to mix CORK and NAGLE under the name
+> > "CONTROL_NAGLING", but certainly I agree they could stay together under another
+> > name ;).
 > 
-> Andrea
+> TCP_FLOW_CONTROL ?
 
-Thanks for the suggestion.  The only reason I hesitated to test with
-a small number of threads is because I was under the assumption that
-this particular benchmark may have problems if the number of threads
-was less than the number of processors.  I'll give the tests a try
-with a smaller number of threads.  I'm also open to suggestions for
-what benchmarks/test methods I could use for scheduler testing.  If
-you remember what people have used in the past, please let me know.
+then folks would think you were controlling the congestion or "classic"
+windows. what alal these things do is affect segmentation, so perhaps
+TCP_SEGMENT_CONTROL or something to that effect, if anything.
 
+rickjones
 -- 
-Mike Kravetz                                 mkravetz@sequent.com
-IBM Linux Technology Center
+ftp://ftp.cup.hp.com/dist/networking/misc/rachel/
+these opinions are mine, all mine; HP might not want them anyway... :)
+feel free to email, OR post, but please do NOT do BOTH...
+my email address is raj in the cup.hp.com domain...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

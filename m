@@ -1,32 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282967AbRLRN4V>; Tue, 18 Dec 2001 08:56:21 -0500
+	id <S283266AbRLROAW>; Tue, 18 Dec 2001 09:00:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282981AbRLRN4L>; Tue, 18 Dec 2001 08:56:11 -0500
-Received: from fe010.worldonline.dk ([212.54.64.195]:16908 "HELO
-	fe010.worldonline.dk") by vger.kernel.org with SMTP
-	id <S282967AbRLRNz6>; Tue, 18 Dec 2001 08:55:58 -0500
-Date: Tue, 18 Dec 2001 15:02:11 +0100
-From: Torben Mathiasen <torben@kernel.dk>
-To: linux-kernel@vger.kernel.org
-Cc: jeff.garzik@mandrakesoft.com
-Subject: New TLAN maintainer needed
-Message-ID: <20011218150211.D812@fry>
-Mime-Version: 1.0
+	id <S282981AbRLROAM>; Tue, 18 Dec 2001 09:00:12 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37389 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S283916AbRLROAA>; Tue, 18 Dec 2001 09:00:00 -0500
+Subject: Re: Scheduler ( was: Just a second ) ...
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Tue, 18 Dec 2001 14:09:16 +0000 (GMT)
+Cc: riel@conectiva.com.br (Rik van Riel),
+        davidel@xmailserver.org (Davide Libenzi),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <Pine.LNX.4.33.0112171825460.2108-100000@penguin.transmeta.com> from "Linus Torvalds" at Dec 17, 2001 06:35:54 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-X-OS: Linux 2.4.7-pre3 
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16GKvk-0007Sc-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> to CD-RW disks without having to know about things like "ide-scsi" etc,
+> and do it sanely over different bus architectures etc.
+> 
+> The scheduler simply isn't that important.
 
-Since I've been way too busy during the last few months, it seems better if
-someone with a little more time than myself could take over the maintainership
-of the TLAN network driver.
-
-If you're interested please drop me a mail, and we can discuss it further.
-
-Thanks,
-Torben Mathiasen
+The scheduler is eating 40-60% of the machine on real world 8 cpu workloads.
+That isn't going to go away by sticking heads in sand.

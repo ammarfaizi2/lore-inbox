@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271761AbRICSIu>; Mon, 3 Sep 2001 14:08:50 -0400
+	id <S271638AbRICSOx>; Mon, 3 Sep 2001 14:14:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271760AbRICSIk>; Mon, 3 Sep 2001 14:08:40 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:26127 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S271638AbRICSI2>;
-	Mon, 3 Sep 2001 14:08:28 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200109031807.WAA24987@ms2.inr.ac.ru>
-Subject: Re: Excessive TCP retransmits over lossless, high latency link
-To: lk@tantalophile.demon.co.uk (Jamie Lokier)
-Date: Mon, 3 Sep 2001 22:07:46 +0400 (MSK DST)
-Cc: davem@redhat.com, ak@muc.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20010903185700.A12529@thefinal.cern.ch> from "Jamie Lokier" at Sep 3, 1 06:57:00 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S271764AbRICSOm>; Mon, 3 Sep 2001 14:14:42 -0400
+Received: from u-150-20.karlsruhe.ipdial.viaginterkom.de ([62.180.20.150]:9601
+	"EHLO dea.linux-mips.net") by vger.kernel.org with ESMTP
+	id <S271638AbRICSOc>; Mon, 3 Sep 2001 14:14:32 -0400
+Date: Mon, 3 Sep 2001 15:14:21 +0200
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
+Cc: "David S. Miller" <davem@redhat.com>,
+        Richard.Zidlicky@stud.informatik.uni-erlangen.de, thunder7@xs4all.nl,
+        parisc-linux@lists.parisc-linux.org, linux-kernel@vger.kernel.org
+Subject: Re: [SOLVED + PATCH]: documented Oops running big-endian reiserfs on parisc architecture
+Message-ID: <20010903151421.A3078@dea.linux-mips.net>
+In-Reply-To: <OF9A995335.07A81CF5-ONC1256ABC.00422A7B@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <OF9A995335.07A81CF5-ONC1256ABC.00422A7B@de.ibm.com>; from Ulrich.Weigand@de.ibm.com on Mon, Sep 03, 2001 at 02:08:43PM +0200
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, Sep 03, 2001 at 02:08:43PM +0200, Ulrich Weigand wrote:
 
-> Do you mean that you want to see the Linux -> Linux connection, with
-> tcpdumps at both ends?
+> >From what I recall when we were looking into reiserfs on S/390,
+> the core problem was that reiserfs tried to do *atomic* operations
+> on non-aligned words.  This isn't supported by the hardware on
+> S/390 (normal non-aligned accesses just work).
+> 
+> I don't really see how this can be fixed in a trap handler; how
+> would the handler guarantee atomicity?
 
-At the end of sender. Receiver side is not so interesting.
+Spinlocks.  Now that'd so infinitly ugly that I'd rather fix Reiserfs.
+It's another proof that reiserfs design was done without too much
+consideration of portability so I speculate we'll continue to see such
+bugs.
 
-Well, if you were able to make it with solaris this would be also interesting.
-It would be clear how exactly it miscalculates rtt at least. :-)
-But Linux is interesting too. Theoretically it should show better times
-even with so short transfer. cwnd stays at 1 and this is very strange.
-
-Alexey
+  Ralf

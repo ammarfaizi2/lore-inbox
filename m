@@ -1,272 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278296AbRJSEFZ>; Fri, 19 Oct 2001 00:05:25 -0400
+	id <S278295AbRJSES4>; Fri, 19 Oct 2001 00:18:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278297AbRJSEFR>; Fri, 19 Oct 2001 00:05:17 -0400
-Received: from toad.com ([140.174.2.1]:47621 "EHLO toad.com")
-	by vger.kernel.org with ESMTP id <S278296AbRJSEFG>;
-	Fri, 19 Oct 2001 00:05:06 -0400
-Message-ID: <3BCFA6AB.4EAD4161@mandrakesoft.com>
-Date: Fri, 19 Oct 2001 00:06:03 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tim Hockin <thockin@sun.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        manfred@colorfullife.com, alan@redhat.com
-Subject: Re: Another Natsemi patch
-In-Reply-To: <3BCF7A4D.B6060973@sun.com>
+	id <S278297AbRJSESr>; Fri, 19 Oct 2001 00:18:47 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:20008 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S278295AbRJSESi>; Fri, 19 Oct 2001 00:18:38 -0400
+Date: Fri, 19 Oct 2001 06:19:14 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.13pre5aa1
+Message-ID: <20011019061914.A1568@athlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Hockin wrote:
-> 
-> Hey guys,
-> 
-> Ttime for my monthly natsemi patch :)  I have a couple issues still pending
-> with NSC, but I wanted to get this patch out ASAP.
-> 
-> * increase RX ring
+The vm part in particular is right now getting stressed on a 16G box kindly
+provided by osdlab.org and it didn't exibith any problem yet. This is a trace
+of the workload that is running on the machine overnight.
 
-You just doubled the Rx memory usage... why?
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 0  3  2 7055840   5592    196   4208 681 903   687   904   56    87   0   5  95
+ 0  3  0 7055332   4956    184   4196 5892 4820  5892  4832  418   547   0   3  97
+ 0  3  0 7056004   5816    176   4184 6172 6400  6172  6400  418   579   0   4  96
+ 0  3  0 7055912   5688    192   4184 4720 4096  4736  4112  355   456   0   2  98
+ 0  3  1 7055852   5300    180   4220 5624 5068  5720  5072  408   526   0   2  98
+ 0  3  0 7055992   5228    176   4220 6384 5744  6384  5744  427   586   0   1  99
+ 0  3  0 7055900   5232    176   4220 6016 5676  6016  5676  417   545   0   2  98
+ 0  3  0 7056396   5844    180   4220 5644 5656  5656  5660  402   560   0   1  99
+ 0  3  1 7056476   6012    176   4216 6104 6144  6104  6144  411   582   0   1  99
+ 0  3  0 7056084   5592    176   4220 5540 4452  5540  4452  386   525   0   1  98
+ 0  3  0 7055948   5400    176   4220 5184 4724  5184  4724  355   519   0   2  98
+ 0  3  0 7056676   6136    176   4232 7360 7592  7360  7592  519   720   0   1  98
+ 0  4  0 7056264   5572    176   4240 5888 5112  5908  5112  411   535   0   1  99
+ 0  3  1 7055948   5444    180   4240 5632 4912  5656  4932  402   605   0   1  99
+ 0  3  0 7055780   5088    176   4240 4932 4276  4932  4276  350   432   0   1  99
+ 0  3  0 7055612   5128    176   4240 4564 4252  4564  4252  340   434   0   0 100
 
-> * DP83816 strings
+             total       used       free     shared    buffers     cached
+Mem:      16493180   16488716       4464          0        184       4260
+-/+ buffers/cache:   16484272       8908
+Swap:     36941584    7054904   29886680
 
-I prefer "DP83815/16" not the longer version
+It seems still very responsive despite of the load (and also despite being at
+the other side of the Atlantic :).
 
-> * try to wait for AnegDone bit
-> * Magic registers have constant values
+URL:
 
-cool.  can I request further cleanup?  there are still many "magic
-numbers" that should be defined as constants.  Mask values like "foo &
-0x3ff", or chip revision ids, or media selection, etc.  Make sure there
-is usage of linux/mii.h constants where possible.
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.13pre5aa1.bz2
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.13pre5aa1/
 
-> * Catch nasty PHY resets that happen periodically
-> * some formatting
-> * SOPASS only on revD and higher
-> 
-> Pretty heavily tested.  Issues still pending:
-> 
-> * Some report of "Something Wicked" happening to the point of no network
-> traffic at all - investigating
-> * A report of "Something Wicked" under heavy load - can't repro here, but
-> can on reporting machine - may need to grow RX ring by a lot.
-> * Report of slowdown since EEPROM reload added - can't repro.
-> * Perhaps teh WoL config register should be saved/restored across calls to
-> natsemi_reset?  Comments?
-> 
-> Please apply for next 2.4.x.
-> 
-> Tim
-> --
-> Tim Hockin
-> Systems Software Engineer
-> Sun Microsystems, Cobalt Server Appliances
-> thockin@sun.com
-> 
->   ------------------------------------------------------------------------
-> diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/net/natsemi.c
-> --- dist-2.4.12+patches/drivers/net/natsemi.c   Mon Oct 15 10:22:07 2001
-> +++ cvs-2.4.12+patches/drivers/net/natsemi.c    Mon Oct 15 10:22:08 2001
-> @@ -85,6 +85,10 @@
->                 * use long for ee_addr (various)
->                 * print pointers properly (DaveM)
->                 * include asm/irq.h (?)
-> +
-> +       version 1.0.11:
-> +               * check and reset if PHY errors appear (Adrian Sun)
-> +               * WoL cleanup (Tim Hockin)
-> 
->         TODO:
->         * big endian support with CFG:BEM instead of cpu_to_le32
-> @@ -96,7 +100,6 @@
->  #define DRV_VERSION    "1.07+LK1.0.10"
->  #define DRV_RELDATE    "Oct 09, 2001"
+If it swaps too much please try:
 
-whoops :)  s/10/11/
+	echo 6 > /proc/sys/vm/vm_scan_ratio
+	echo 2 > /proc/sys/vm/vm_mapped_ratio
+	echo 4 > /proc/sys/vm/vm_balance_ratio
 
-> -c-help: including the 83815 chip.
-> +c-help: including the 83815/83816 chips.
+Thanks!
 
-shorten (as noted above) as it's always possible to have yet another
-chip version
+--
+Only in 2.4.13pre5aa1: 00_alpha-rest-pci-1
+Only in 2.4.13pre5aa1: 00_alpha-tsunami-1
 
+	iommu alpha fixes from Jay Estabrook, Ivan Kokshaysky and Richard
+	Henderson.
 
-> +#ifndef PCI_DEVICE_ID_NS_83815
-> +#define PCI_DEVICE_ID_NS_83815 0x0020
-> +#endif
+Only in 2.4.13pre3aa1: 00_files_struct_rcu-2.4.10-04-1
+Only in 2.4.13pre5aa1: 00_files_struct_rcu-2.4.10-04-2
 
-if your patch to pci_ids.h goes in (it will), then don't add this at all
+	Latest uptdate from Maneesh Soni including the memalloc faliure bugfix
+	Chip Salzenberg.
 
+Only in 2.4.13pre3aa1: 00_highmem-deadlock-1
+Only in 2.4.13pre5aa1: 00_highmem-deadlock-2
 
-> @@ -516,9 +536,9 @@
->          * to be brought to D0 in this manner.
->          */
->         pci_read_config_dword(pdev, PCIPM, &tmp);
-> -       if (tmp & (0x03|0x100)) {
-> +       if (tmp & 0x03) {
->                 /* D0 state, disable PME assertion */
-> -               u32 newtmp = tmp & ~(0x03|0x100);
-> +               u32 newtmp = tmp & ~0x03;
+	Rediffed so that it's self contained (previously it wasn't very
+	readable).
 
-magic numbers
+Only in 2.4.13pre3aa1: 00_lowlatency-fixes-1
+Only in 2.4.13pre5aa1: 00_lowlatency-fixes-2
 
-> @@ -790,7 +810,7 @@
->         init_timer(&np->timer);
->         np->timer.expires = jiffies + 3*HZ;
->         np->timer.data = (unsigned long)dev;
-> -       np->timer.function = &netdev_timer;                             /* timer handler */
-> +       np->timer.function = &netdev_timer; /* timer handler */
+	Added a reschedule point, mainly for madvise but it's in the ->nopage
+	way too.
 
-make 3*HZ a constant
+Only in 2.4.13pre3aa1: 00_seg-reload-1
 
-> @@ -907,23 +944,36 @@
->          * nothing will be written to memory. */
->         np->SavedClkRun = readl(ioaddr + ClkRun);
->         writel(np->SavedClkRun & ~0x100, ioaddr + ClkRun);
-> +       if (np->SavedClkRun & 0x8000) {
-> +               printk(KERN_NOTICE "%s: Wake-up event %8.8x\n",
-> +                       dev->name, readl(ioaddr + WOLCmd));
-> +       }
+	Dropped, the common case is user<->kernel, and it have to be very fast
+	too since it's more important. (idling routers would better not use
+	irq at all but to dedicate a cpu to the polling work)
 
-magic num
+Only in 2.4.13pre3aa1: 00_vm-3
+Only in 2.4.13pre3aa1: 00_vm-3.2
+Only in 2.4.13pre5aa1: 10_vm-4
 
->         writel(RxOn | TxOn, ioaddr + ChipCmd);
->         writel(4, ioaddr + StatsCtrl); /* Clear Stats */
+	Further vm work. Not sure if this is better than the previous one, but
+	now the few magic numbers are sysctl configurable. Included many fixes
+	from Linus (that are also in pre5 of course) and one fix from Manfred
+	to avoid interrupt to eat the pfmemalloc reserved pool.
 
-magic num
+Only in 2.4.13pre3aa1: 10_highmem-debug-5
+Only in 2.4.13pre5aa1: 20_highmem-debug-6
 
-> +       /* check for a nasty random phy-reset - use dspcfg as a flag */
-> +       writew(1, ioaddr+PGSEL);
-> +       dspcfg = readw(ioaddr+DSPCFG);
-> +       writew(0, ioaddr+PGSEL);
+	Fixed zone alignment to avoid crashes when highmem emulation is enabled.
 
-I wonder if you want a readw(ioaddr+PGSEL) after the first writew, to
-flush it to hardware?
+Only in 2.4.13pre5aa1: 10_lvm-deadlock-fix-1
 
-> @@ -1219,7 +1291,7 @@
->                 }
->         } while (1);
-> 
-> -       if (debug > 3)
-> +       if (debug > 4)
->                 printk(KERN_DEBUG "%s: exiting interrupt.\n",
->                            dev->name);
->  }
+	Dropped sync_dev from blkdev ->close to avoid a deadlock on lvm close(2),
+	fix from Alexander Viro.
 
-Check out the netif_msg_xxx stuff in include/linux/netdevice.h in
-2.4.13-preXX...
+Only in 2.4.13pre3aa1: 60_tux-2.4.10-ac12-H1.bz2
+Only in 2.4.13pre5aa1: 60_tux-2.4.10-ac12-H8.bz2
 
+	Latest update from Ingo Molnar at www.redhat.com/~mingo/ .
+--
 
-> @@ -1553,24 +1625,33 @@
->         u32 data = readl(dev->base_addr + WOLCmd) & ~WakeOptsSummary;
-> 
->         /* translate to bitmasks this chip understands */
-> -       if (newval & WAKE_PHY)
-> +       if (newval & WAKE_PHY) {
->                 data |= WakePhy;
-> -       if (newval & WAKE_UCAST)
-> +       }
-> +       if (newval & WAKE_UCAST) {
->                 data |= WakeUnicast;
-> -       if (newval & WAKE_MCAST)
-> +       }
-> +       if (newval & WAKE_MCAST) {
->                 data |= WakeMulticast;
-> -       if (newval & WAKE_BCAST)
-> +       }
-> +       if (newval & WAKE_BCAST) {
->                 data |= WakeBroadcast;
-> -       if (newval & WAKE_ARP)
-> +       }
-> +       if (newval & WAKE_ARP) {
->                 data |= WakeArp;
-> -       if (newval & WAKE_MAGIC)
-> +       }
-> +       if (newval & WAKE_MAGIC) {
->                 data |= WakeMagic;
-> -       if (newval & WAKE_MAGICSECURE)
-> -               data |= WakeMagicSecure;
-> +       }
-
-why are you adding all these braces?  ug.
-
-> -       /* should we burn these into the EEPROM? */
-> +       /* FIXME: should we burn these into the EEPROM? */
-
-If you want to update the EEPROM, do it from userspace...
-
->         /* translate from chip bitmasks */
-> -       if (regval & 0x1)
-> +       if (regval & WakePhy) {
->                 *cur |= WAKE_PHY;
-> -       if (regval & 0x2)
-> +       }
-> +       if (regval & WakeUnicast) {
->                 *cur |= WAKE_UCAST;
-> -       if (regval & 0x4)
-> +       }
-> +       if (regval & WakeMulticast) {
->                 *cur |= WAKE_MCAST;
-> -       if (regval & 0x8)
-> +       }
-> +       if (regval & WakeBroadcast) {
->                 *cur |= WAKE_BCAST;
-> -       if (regval & 0x10)
-> +       }
-> +       if (regval & WakeArp) {
->                 *cur |= WAKE_ARP;
-> -       if (regval & 0x200)
-> +       }
-> +       if (regval & WakeMagic) {
->                 *cur |= WAKE_MAGIC;
-> -       if (regval & 0x400)
-> +       }
-> +       if (regval & WakeMagicSecure) {
-> +               /* this can be on in revC, but it's broken */
->                 *cur |= WAKE_MAGICSECURE;
-> +       }
-
-less magic numbers <cheer> but more extra braces.  The extra braces here
-just serve to spread out the code and make it less readable (eyes travel
-more, for same [small] amount of information).
-
-
->         /* enable writing to these registers by disabling the RX filter */
-> +       addr = readl(dev->base_addr + RxFilterAddr) & ~0x3ff;
->         addr &= ~0x80000000;
->         writel(addr, dev->base_addr + RxFilterAddr);
-
-yay, magic numbers :)
-
-> @@ -1631,9 +1731,16 @@
->  static int netdev_get_sopass(struct net_device *dev, u8 *data)
->  {
->         u16 *sval = (u16 *)data;
-> -       u32 addr = readl(dev->base_addr + RxFilterAddr) & ~0x3ff;
-> +       u32 addr;
-> +
-> +       if (readl(dev->base_addr + SiliconRev) < 0x403) {
-> +               sval[0] = sval[1] = sval[2] = 0;
-> +               return 0;
-> +       }
-
-you add --how-- many of these SiliconRev checks?  dude, read it once and
-set a flag
-
-
-> +       /* PME on, clear status */
-> +       writel(np->SavedClkRun | 0x8100, ioaddr + ClkRun);
-
-magic
-
-
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+Andrea

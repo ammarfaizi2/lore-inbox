@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262398AbUDUWei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262431AbUDUWik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262398AbUDUWei (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 18:34:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbUDUWei
+	id S262431AbUDUWik (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 18:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbUDUWik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 18:34:38 -0400
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:23894 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262398AbUDUWeh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 18:34:37 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: "E.Rodichev" <er@sai.msu.su>
-Subject: Re: [PATCH] Direct /dev/psaux driver and relevant Kconfig changes
-Date: Wed, 21 Apr 2004 17:27:04 -0500
-User-Agent: KMail/1.6.1
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.GSO.4.58.0404212031450.2778@ra.sai.msu.su>
-In-Reply-To: <Pine.GSO.4.58.0404212031450.2778@ra.sai.msu.su>
+	Wed, 21 Apr 2004 18:38:40 -0400
+Received: from zero.aec.at ([193.170.194.10]:52235 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S262431AbUDUWii (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 18:38:38 -0400
+To: dipankar@in.ibm.com
+cc: hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390 (9/9): no timer interrupts in idle.
+References: <1Nt5d-84u-3@gated-at.bofh.it> <1NwPD-2RW-37@gated-at.bofh.it>
+	<1NwPE-2RW-39@gated-at.bofh.it> <1Nx8Y-3ev-15@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 22 Apr 2004 00:38:34 +0200
+In-Reply-To: <1Nx8Y-3ev-15@gated-at.bofh.it> (Dipankar Sarma's message of
+ "Wed, 21 Apr 2004 23:10:16 +0200")
+Message-ID: <m3r7uhardh.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404211727.05491.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 21 April 2004 11:32 am, E.Rodichev wrote:
-> 
-> This patch incorporates:
-> 
-> - direct /dev/psaux driver  written by Lee Sau Dan nad fixed by
->   Tuukka Toivonen;
-> - drivers/input/Kconfig patch by Dmitry Torokhov (which allows
->   disabling legacy psaux device)
-> - appropriate changes for help section for CONFIG_INPUT_PSAUX
-> 
-> Touchpad at my IBM A21m ThinkPad works fine with tp4d daemon -
-> kernel 2.6.5 whith this patch applyed, either with driver compiled
-> as a module or directly.
-> 
+Dipankar Sarma <dipankar@in.ibm.com> writes:
 
-The driver is not ready for kernel proper - it will not work for machines
-with active multiplexing controllers (4 AUX + KBD port) and these are quite
-common.
+> On Wed, Apr 21, 2004 at 09:46:05PM +0100, Christoph Hellwig wrote:
+>> On Thu, Apr 22, 2004 at 02:13:04AM +0530, Dipankar Sarma wrote:
+>> > I think CPU_MASK_NONE can be used only for assignments. You need
+>> > to actually declare a generic idle_cpu_mask and set it to CPU_MASK_NONE
+>> > for all other archs. Of course, then the compiler will not be able
+>> > to optimize it out :)
+>> 
+>> Well, there's a const keyword in C these days, no?
 
--- 
-Dmitry
+It is not strong enough in C unfortunately. It is still legal 
+to change const variables, so the compiler has to take that into
+account and it is hard for global variables. C++ is better here.
+
+> OK, then I missed what optimization you were talking about or underestimated
+> gcc. Can gcc do inter-procedural constant propagation ?
+
+Only when the functions are inlined
+(but it is much better at that than it used to be, gcc 3.4 can even
+inline across multiple files and order doesn't matter anymore) 
+
+-Andi
+

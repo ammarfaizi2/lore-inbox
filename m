@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263868AbUD0HEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263876AbUD0HJR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263868AbUD0HEN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 03:04:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263870AbUD0HEN
+	id S263876AbUD0HJR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 03:09:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263827AbUD0HJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 03:04:13 -0400
-Received: from [81.219.144.6] ([81.219.144.6]:18437 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S263868AbUD0HEI (ORCPT
+	Tue, 27 Apr 2004 03:09:17 -0400
+Received: from MailBox.iNES.RO ([80.86.96.21]:49158 "EHLO MailBox.iNES.RO")
+	by vger.kernel.org with ESMTP id S263888AbUD0HJL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 03:04:08 -0400
-Message-ID: <408E05DD.2080705@pointblue.com.pl>
-Date: Tue, 27 Apr 2004 08:03:57 +0100
-From: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-References: <408DC0E0.7090500@gmx.net> <20040427052655.GQ596@alpha.home.local>
-In-Reply-To: <20040427052655.GQ596@alpha.home.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Apr 2004 03:09:11 -0400
+Subject: Re: User space programs on swsusp
+From: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
+To: rajsekar@peacock.iitm.ernet.in
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <y49ad0yng3b.fsf@sahana.cs.iitm.ernet.in>
+References: <y49ad0yng3b.fsf@sahana.cs.iitm.ernet.in>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-84IkWT61HsBvDv9anKuo"
+Organization: iNES Group
+Message-Id: <1083049629.1553.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.5.7 
+Date: Tue, 27 Apr 2004 10:07:09 +0300
+X-RAVMilter-Version: 8.4.1(snapshot 20020919) (MailBox.iNES.RO)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
 
->What would be smarter would be to try to understand why they do this. At
->the moment, it seems to me that their only problem is to taint the kernel.
->Why ? I don't this that any old modutils/module-utils found in any distros
->don't load properly such modules. So perhaps they only want not to taint
->the kernel because it appears dirty to their customers who will not receive
->any more support from LKML. So perhaps what we really need is to add a new
->MODULE_SUPPORT field stating where to get support from in case of bugs,
->oopses or panics on a tainted kernel. Thus, the module author would be able
->to insert something such as "support_XXX@author.com" which will be displayed
->on each oops/panic/etc... Even if this is a long list because the customer
->uses connexant, nvidia, checkpoint and I don't know what, at least he will
->get 3 email addresses for his support. And it might reassure these authors
->to know that the customer will ask them before asking us with our automatic
->replies "unload your binary modules...".
->
->Anyway it now seems like strings will have to be matched on their lenghts...
->  
->
-And they will put linux-kernek@vger.kernel(.org) there :-)
-You never know...
+--=-84IkWT61HsBvDv9anKuo
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
---
-GJ
+On Tue, 2004-04-27 at 10:59 +0530, rajsekar@peacock.iitm.ernet.in wrote:
+> Is there a way to run some user space program / script after resuming fro=
+m
+> software suspend ?
+
+
+Call suspend from an script.
+Anything after this call will execute at resume.
+
+
+--=20
+Cioby
+
+
+--=-84IkWT61HsBvDv9anKuo
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAjgacQisRnSkd59cRAt1lAJ96TkXFoFvPs+N3nUBeoZ9vsWGVAACeM6yM
+cW9h/0pS8w5s7Ax4Zd/BWWE=
+=5hk6
+-----END PGP SIGNATURE-----
+
+--=-84IkWT61HsBvDv9anKuo--
 

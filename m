@@ -1,20 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263210AbUDAVYy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 16:24:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263203AbUDAVYc
+	id S263166AbUDAV31 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 16:29:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263173AbUDAV2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 16:24:32 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:52533 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263202AbUDAVOP (ORCPT
+	Thu, 1 Apr 2004 16:28:47 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:19762 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263166AbUDAVMT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 16:14:15 -0500
-Date: Thu, 1 Apr 2004 13:12:19 -0800
+	Thu, 1 Apr 2004 16:12:19 -0500
+Date: Thu, 1 Apr 2004 13:10:13 -0800
 From: Paul Jackson <pj@sgi.com>
 To: Paul Jackson <pj@sgi.com>
-Cc: colpatch@us.ibm.com, wli@holomorphy.com, linux-kernel@vger.kernel.org
-Subject: [Patch 13/23] mask v2 - [2/7] nodemask_t core changes
-Message-Id: <20040401131219.6e34cea0.pj@sgi.com>
+Cc: Matthew Dobson <colpatch@us.ibm.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+Subject: [Patch 1/23] mask v2 - Document bitmap.c bit model
+Message-Id: <20040401131013.08929f6d.pj@sgi.com>
 In-Reply-To: <20040401122802.23521599.pj@sgi.com>
 References: <20040401122802.23521599.pj@sgi.com>
 Organization: SGI
@@ -25,136 +27,62 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch_13_of_23 - Matthew Dobson's [PATCH] nodemask_t core changes [2/7]
-	nodemask_t-02-core.patch - Changes to arch-independent code.
-	Surprisingly few references to numnodes, open-coded node loops,
-	etc. in generic code.  Most important result of this patch is
-	that no generic code assumes anything about node numbering.
-	This allows individual arches to use sparse numbering if they
-	care to.
+Patch_1_of_23 - Document bitmap.c bit model.
+	Document the bitmap bit model, including handling of unused bits,
+	and operation preconditions and postconditions.
 
-Diffstat Patch_13_of_23:
- Documentation/vm/numa          |    2 +-
- include/linux/gfp.h            |    2 +-
- include/linux/topology.h       |   19 ++++++++++++-------
- kernel/sched.c                 |    2 +-
- mm/page_alloc.c                |   16 ++++++++++------
- 5 files changed, 25 insertions(+), 16 deletions(-)
+Diffstat Patch_1_of_23:
+ bitmap.c                       |   38 ++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 38 insertions(+)
 
-
-diff -Nru a/Documentation/vm/numa b/Documentation/vm/numa
---- a/Documentation/vm/numa	Mon Mar 29 01:03:46 2004
-+++ b/Documentation/vm/numa	Mon Mar 29 01:03:46 2004
-@@ -29,7 +29,7 @@
- into a pg_data_t. The bootmem_data_t is just one part of this. To 
- make the code look uniform between NUMA and regular UMA platforms, 
- UMA platforms have a statically allocated pg_data_t too (contig_page_data).
--For the sake of uniformity, the variable "numnodes" is also defined
-+For the sake of uniformity, the variable "node_online_map" is also defined
- for all platforms. As we run benchmarks, we might decide to NUMAize 
- more variables like low_on_memory, nr_free_pages etc into the pg_data_t.
+===================================================================
+--- 2.6.4.orig/lib/bitmap.c	2004-03-31 20:47:58.000000000 -0800
++++ 2.6.4/lib/bitmap.c	2004-03-31 21:20:02.000000000 -0800
+@@ -12,6 +12,44 @@
+ #include <asm/bitops.h>
+ #include <asm/uaccess.h>
  
-diff -Nru a/include/linux/gfp.h b/include/linux/gfp.h
---- a/include/linux/gfp.h	Mon Mar 29 01:03:46 2004
-+++ b/include/linux/gfp.h	Mon Mar 29 01:03:46 2004
-@@ -58,7 +58,7 @@
- 
- /*
-  * We get the zone list from the current node and the gfp_mask.
-- * This zone list contains a maximum of MAXNODES*MAX_NR_ZONES zones.
-+ * This zone list contains a maximum of MAX_NUMNODES*MAX_NR_ZONES zones.
-  *
-  * For the normal case of non-DISCONTIGMEM systems the NODE_DATA() gets
-  * optimized to &contig_page_data at compile-time.
-diff -Nru a/include/linux/topology.h b/include/linux/topology.h
---- a/include/linux/topology.h	Mon Mar 29 01:03:46 2004
-+++ b/include/linux/topology.h	Mon Mar 29 01:03:46 2004
-@@ -43,15 +43,20 @@
- 	})
- #endif
- 
--static inline int __next_node_with_cpus(int node)
-+static inline int __next_node_with_cpus(int last_node)
- {
--	do
--		++node;
--	while (node < numnodes && !nr_cpus_node(node));
--	return node;
-+	int nid;
-+	for_each_online_node(nid)
-+		if (nr_cpus_node(nid) && nid > last_node)
-+			return nid;
++/*
++ * The bitmap bit model:
++ *
++ * The operations in this lib/bitmap.c, and the associated
++ * files include/linux/bitmap.h, include/linux/bitops.h,
++ * and include/asm-*/bitops.h, and in the *_BITMAP macros in
++ * include/linux/types.h, support a model of a set of bits, in
++ * positions 0 .. nbits-1, for some nbits size between 1 and some
++ * modest size.  There is no specific limit on the size, but the
++ * internal representation, as an array of unsigned longs, would
++ * not be efficient for very large or sparse sets.
++ *
++ * If the number of valid bits in a particular bitmap is not
++ * an exact multiple of the number of bits in an unsigned long
++ * (BITS_PER_LONG), then there will be some unused bits, in a
++ * so called "tail", that is physically present in the internal
++ * representation, but will appear as if always zero to callers.
++ *
++ * To a first approximation, the "tail" bits are don't care bits.
++ * That is, regardless of their internal state, zero (0) or one
++ * (1), any of these functions will behave as if they were zero.
++ * In particular, all the bitmap functions returning a Boolean
++ * (e.g. bitmap_empty) or scalar (e.g. bitmap_weight) value are
++ * implemented so as to filter out or avoid being affected by
++ * possible one bits in the tail.
++ *
++ * Bitmaps are declared using the DECLARE_BITMAP() macro in
++ * include/linux/types.h.  Subsequent operations on a bitmap that
++ * take a bit position, such as set_bit(), must only be provided
++ * positions between 0 and the bitmap size, as first provided
++ * in the DECLARE_BITMAP() invocation.  Bitmap operations, such
++ * as bitmap_empty(), that take an argument specifying how many
++ * bits are in the bitmap, must be provided the same number as
++ * first provided to DECLARE_BITMAP().  Bitmap operations such as
++ * bitmap_or() that take two bitmaps as input must be passed two
++ * bitmaps of the same size.
++ */
 +
-+	return MAX_NUMNODES;
- }
+ #define MAX_BITMAP_BITS	512U	/* for ia64 NR_CPUS maximum */
  
--#define for_each_node_with_cpus(node) \
--	for (node = 0; node < numnodes; node = __next_node_with_cpus(node))
-+/* Assumes first_node(node_online_map) will have CPUs */
-+#define for_each_node_with_cpus(node)			\
-+	for(node = first_node(node_online_map);		\
-+		node < MAX_NUMNODES;			\
-+		node = __next_node_with_cpus(node))
- 
- #endif /* _LINUX_TOPOLOGY_H */
-diff -Nru a/kernel/sched.c b/kernel/sched.c
---- a/kernel/sched.c	Mon Mar 29 01:03:46 2004
-+++ b/kernel/sched.c	Mon Mar 29 01:03:46 2004
-@@ -1088,7 +1088,7 @@
- {
- 	int new_cpu;
- 
--	if (numnodes > 1) {
-+	if (num_online_nodes() > 1) {
- 		new_cpu = sched_best_cpu(current);
- 		if (new_cpu != smp_processor_id())
- 			sched_migrate_task(current, new_cpu);
-diff -Nru a/mm/page_alloc.c b/mm/page_alloc.c
---- a/mm/page_alloc.c	Mon Mar 29 01:03:46 2004
-+++ b/mm/page_alloc.c	Mon Mar 29 01:03:46 2004
-@@ -34,12 +34,12 @@
- 
- #include <asm/tlbflush.h>
- 
--DECLARE_BITMAP(node_online_map, MAX_NUMNODES);
-+nodemask_t node_online_map = NODE_MASK_NONE;
-+nodemask_t node_possible_map = NODE_MASK_ALL;
- struct pglist_data *pgdat_list;
- unsigned long totalram_pages;
- unsigned long totalhigh_pages;
- int nr_swap_pages;
--int numnodes = 1;
- int sysctl_lower_zone_protection = 0;
- 
- EXPORT_SYMBOL(totalram_pages);
-@@ -1115,9 +1115,13 @@
-  		 * zones coming right after the local ones are those from
-  		 * node N+1 (modulo N)
-  		 */
-- 		for (node = local_node + 1; node < numnodes; node++)
-+ 		for (node = next_node(local_node, node_online_map);
-+		     node < MAX_NUMNODES;
-+		     node = next_node(node, node_online_map))
-  			j = build_zonelists_node(NODE_DATA(node), zonelist, j, k);
-- 		for (node = 0; node < local_node; node++)
-+ 		for (node = first_node(node_online_map);
-+		     node < local_node;
-+		     node = next_node(node, node_online_map))
-  			j = build_zonelists_node(NODE_DATA(node), zonelist, j, k);
-  
- 		zonelist->zones[j++] = NULL;
-@@ -1128,9 +1132,9 @@
- {
- 	int i;
- 
--	for(i = 0 ; i < numnodes ; i++)
-+	for_each_online_node(i)
- 		build_zonelists(NODE_DATA(i));
--	printk("Built %i zonelists\n", numnodes);
-+	printk("Built %i zonelists\n", num_online_nodes());
- }
- 
- /*
+ int bitmap_empty(const unsigned long *bitmap, int bits)
 
 
 -- 

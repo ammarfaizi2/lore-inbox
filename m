@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268232AbUJORuJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266879AbUJORy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268232AbUJORuJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 13:50:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267404AbUJORuJ
+	id S266879AbUJORy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 13:54:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268236AbUJORy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 13:50:09 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:24760 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268232AbUJORrU (ORCPT
+	Fri, 15 Oct 2004 13:54:58 -0400
+Received: from mail3.utc.com ([192.249.46.192]:63963 "EHLO mail3.utc.com")
+	by vger.kernel.org with ESMTP id S266879AbUJORy4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 13:47:20 -0400
-Subject: Re: Fw: signed kernel modules?
-From: Josh Boyer <jdub@us.ibm.com>
-To: root@chaos.analogic.com
-Cc: gene.heskett@verizon.net, linux-kernel@vger.kernel.org,
-       Roman Zippel <zippel@linux-m68k.org>,
-       David Howells <dhowells@redhat.com>,
-       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>, Greg KH <greg@kroah.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>
-In-Reply-To: <Pine.LNX.4.61.0410151237360.6239@chaos.analogic.com>
-References: <27277.1097702318@redhat.com>
-	 <Pine.LNX.4.61.0410150723180.8573@chaos.analogic.com>
-	 <1097843492.29988.6.camel@weaponx.rchland.ibm.com>
-	 <200410151153.08527.gene.heskett@verizon.net>
-	 <1097857049.29988.29.camel@weaponx.rchland.ibm.com>
-	 <Pine.LNX.4.61.0410151237360.6239@chaos.analogic.com>
-Content-Type: text/plain
-Message-Id: <1097862366.29988.51.camel@weaponx.rchland.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 15 Oct 2004 12:46:06 -0500
+	Fri, 15 Oct 2004 13:54:56 -0400
+Message-ID: <41700EDF.7010904@cybsft.com>
+Date: Fri, 15 Oct 2004 12:54:39 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Daniel Walker <dwalker@mvista.com>, Bill Huey <bhuey@lnxw.com>,
+       Andrew Morton <akpm@osdl.org>, Adam Heath <doogie@debian.org>,
+       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
+       Andrew Rodland <arodland@entermail.net>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu>
+In-Reply-To: <20041015102633.GA20132@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-15 at 11:59, Richard B. Johnson wrote:
+Ingo Molnar wrote:
+> i have released the -U3 PREEMPT_REALTIME patch:
 > 
-> The technical details are that "signed", "sealed", "certified",
-> relate to policy. For years policy was not allowed to be included in
-> the kernel. In recent times, the kernel has become filthy with
-> policy.
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U3
+> 
 
-I'd disagree.  Do you consider SELinux to be policy as well just because
-it's in the kernel?
+Overall, for me, this just seems to be getting better and better with 
+each iteration. I have posted a few traces that I have captured during 
+some of my testing on my SMP system at home. Only the last four are from 
+U3 (9-12). The others are from previous versions and in some cases 
+probably aren't relevant any more. No. 9 which is the worst I've seen 
+with U3 very well may have happened before the system was up completely.
 
-As David said in his response, it's a mechanism.  Whether _you_ choose
-to use it or not decides the "policy".  That's why I said put a config
-option around it.  You would still have _choice_.
+Traces:
+http://www.cybsft.com/testresults/2.6.9-rc4-mm1-VP/
 
-> it right. What's right for you is wrong for another.
-
-Absolutely.  So why are you trying to prevent people that want to use
-module signing from doing so?
-
-josh
-
+kr

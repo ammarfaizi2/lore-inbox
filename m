@@ -1,67 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVALWuD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVALWvf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbVALWuD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 17:50:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVALWsV
+	id S261532AbVALWvf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 17:51:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVALWub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 17:48:21 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:37343 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261522AbVALWoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 17:44:16 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: 2.6.10-mm2: swsusp regression [update]
-Date: Wed, 12 Jan 2005 23:44:20 +0100
-User-Agent: KMail/1.7.1
-Cc: Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ncunningham@linuxmail.org
-References: <20050106002240.00ac4611.akpm@osdl.org> <200501121951.48102.rjw@sisk.pl> <20050112210147.GJ1408@elf.ucw.cz>
-In-Reply-To: <20050112210147.GJ1408@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Jan 2005 17:50:31 -0500
+Received: from 10fwd.cistron-office.nl ([62.216.29.197]:33497 "EHLO
+	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
+	id S261524AbVALWsS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 17:48:18 -0500
+Date: Wed, 12 Jan 2005 23:48:09 +0100
+From: Miquel van Smoorenburg <miquels@cistron.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.11-rc1: mark-page-accessed in filemap.c not quite right
+Message-ID: <20050112224807.GA24154@cistron.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501122344.20589.rjw@sisk.pl>
+X-NCC-RegID: nl.cistron
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 12 of January 2005 22:01, Pavel Machek wrote:
-> Hi!
-> 
-> > [-- snip --]
-> > > > > > The regression is caused by the timer driver.  Obviously, turning 
-> > > > > > timer_resume() in arch/x86_64/kernel/time.c into a NOOP makes it 
-go
-> > > > > > away. 
-> > [-- snip --]
-> > > > > 
-> > > > > ..you might want to look at i386 time code, they have common
-> > > > > ancestor, and i386 one seems to work.
-> > 
-> > Well, I've changed timer_resume() in arch/x86_64/kernel/time.c into the 
-> > following function:
-> 
-> Ugh, looking at arch/i386/kernel/time.c... "This could have never
-> worked".
-> 
-> It does something like get_cmos_time() - get_cmos_time()*HZ. It looks
-> seriously wrong.
-> 
-> > (for example - the second number is always negative and huge).  Would it 
-mean 
-> > that get_cmos_time() needs fixing?
-> 
-> get_cmos_time() looks okay, but timer){suspend,resume} looks
-> hopelessly broken.
+I just discovered there's a thinko in the mark-page-accessed
+change in do_generic_mapping_read() in 2.6.11-rc1. ra.prev_page
+is compared to index to see if we read from this page before -
+except that prev_page is actually set to the recent page or
+even a page in front of the current page.
 
-Well, why don't we convert them to noops, then, at least temporarily?
+So we should store ra.prev_page in a seperate variable at the
+start of do_generic_mapping_read().
 
-RJW
+This patch does just that:
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+--- linux-2.6.11-rc1/mm/filemap.c.ORIG	2005-01-12 05:02:10.000000000 +0100
++++ linux-2.6.11-rc1/mm/filemap.c	2005-01-12 23:06:23.643039416 +0100
+@@ -693,6 +693,7 @@
+ 	unsigned long offset;
+ 	unsigned long req_size;
+ 	unsigned long next_index;
++	unsigned long prev_index;
+ 	loff_t isize;
+ 	struct page *cached_page;
+ 	int error;
+@@ -701,6 +702,7 @@
+ 	cached_page = NULL;
+ 	index = *ppos >> PAGE_CACHE_SHIFT;
+ 	next_index = index;
++	prev_index = ra.prev_page;
+ 	req_size = (desc->count + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
+ 	offset = *ppos & ~PAGE_CACHE_MASK;
+ 
+@@ -754,8 +756,9 @@
+ 		 * When (part of) the same page is read multiple times
+ 		 * in succession, only mark it as accessed the first time.
+ 		 */
+-		if (ra.prev_page != index)
++		if (prev_index != index)
+ 			mark_page_accessed(page);
++		prev_index = index;
+ 
+ 		/*
+ 		 * Ok, we have the page, and it's up-to-date, so
+

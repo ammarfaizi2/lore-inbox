@@ -1,69 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268577AbUHLO2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268578AbUHLOcb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268577AbUHLO2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 10:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268578AbUHLO2Y
+	id S268578AbUHLOcb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 10:32:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268579AbUHLOcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 10:28:24 -0400
-Received: from fmr99.intel.com ([192.55.52.32]:42710 "EHLO
-	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
-	id S268577AbUHLO2W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 10:28:22 -0400
-Subject: Re: Allow userspace do something special on overtemp
-From: Len Brown <len.brown@intel.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Dax Kelson <dax@gurulabs.com>, trenn@suse.de, seife@suse.de,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040812074002.GC29466@elf.ucw.cz>
-References: <20040811085326.GA11765@elf.ucw.cz>
-	 <1092269309.3948.57.camel@mentorng.gurulabs.com>
-	 <1092281393.7765.141.camel@dhcppc4>  <20040812074002.GC29466@elf.ucw.cz>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1092320883.5021.173.camel@dhcppc4>
+	Thu, 12 Aug 2004 10:32:31 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15770 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268578AbUHLOc2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 10:32:28 -0400
+Date: Wed, 11 Aug 2004 22:28:43 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Greg KH <greg@kroah.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+Message-ID: <20040812012843.GA2122@dmt.cyclades>
+References: <20040806211413.77833.qmail@web14926.mail.yahoo.com> <200408111004.02995.jbarnes@engr.sgi.com> <20040811172800.GB14979@kroah.com> <200408111102.10689.jbarnes@engr.sgi.com> <20040811181236.GD14979@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 12 Aug 2004 10:28:03 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040811181236.GD14979@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-12 at 03:40, Pavel Machek wrote:
-> Hi!
+On Wed, Aug 11, 2004 at 11:12:36AM -0700, Greg KH wrote:
+> On Wed, Aug 11, 2004 at 11:02:10AM -0700, Jesse Barnes wrote:
+> > On Wednesday, August 11, 2004 10:28 am, Greg KH wrote:
+> > > On Wed, Aug 11, 2004 at 10:04:02AM -0700, Jesse Barnes wrote:
+> > > > On Friday, August 6, 2004 2:14 pm, Jon Smirl wrote:
+> > > > > Please check the code out and give it some testing. It will probably
+> > > > > needs some adjustment for other platforms.
+> > > >
+> > > > Jon, this works on my machine too.  Greg, if it looks ok can you pull it
+> > > > in? And can you add:
+> > > >
+> > > >  * (C) Copyright 2004 Silicon Graphics, Inc.
+> > > >  *       Jesse Barnes <jbarnes@sgi.com>
+> > > >
+> > > > to pci-sysfs.c if you do?
+> > >
+> > > Care to send me a new patch?  Oh, and that copyright line needs to look
+> > > like:
+> > > * Copyright (c) 2004 Silicon Graphics, Inc. Jesse Barnes <jbarnes@sgi.com>
+> > >
+> > > to make it legal, or so my lawyers say :)
+> > 
+> > But I'm not the copyright holder, Silicon Graphics is, I just wanted people to 
+> > know who to harass if something breaks :).
 > 
-> > I think I'd rather see the calls to usermode deleted
-> > instead of extended -- unless there is a reason that
-> > the general event -> acpid method can't work.
-> 
-> See above, switching to acpid would break all the existing
-> setups... in stable series.
+> That's fine.  It's the "Copyright (c) 2004" order and exact "(c)" that
+> really matters, from what I have been told to do.
 
-ah, the price of progress.
+Greg,
 
-I'm confident that the distros can figure out how to
-update the (neglected) acpid scripts at the same time as
-(or before) the kernel update.
+That made me curious, what is the rationale behind 
 
-If they can't, then ACPI critical shutdown will fail
-(maybe on some systems not such a bad thing;-)
-and TM1 will kick in, and if that doesn't work, TM2
-will kick in, and if that doesn't work the processor
-will disable itself.
+(C) Copyright 2004 Silicon Graphics, Inc. Jesse Barnes <jbarnes@sgi.com> 
 
-In practice, the only time this will happen is due to
-an erroneous thermal sensor reading, or when somebody
-loses their CPU fan; and it is the exact same path
-that the system would take if somebody booted with acpi=off.
+works and the previous suggested
 
-> Also notice that thermal.c is so "interestingly" written that my patch
-> does not actually make it longer by deleting useless defines etc...
+(C) Copyright 2004 Silicon Graphics, Inc. 
+	Jesse Barnes <jbarnes@sgi.com> 
 
-Conserving syntax is certainly laudable,
-but conserving semantics is even more valuable.
+doesnt? 
 
-I do thank you for identifying this issue and
-proposing change.
+I know its a bit offtopic, but still, if you know the reason, would be
+great to hear :) Bet others will also like to hear that. 
 
--Len
+Thanks!
+
+
 
 

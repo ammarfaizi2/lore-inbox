@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288662AbSANCTg>; Sun, 13 Jan 2002 21:19:36 -0500
+	id <S288667AbSANCTy>; Sun, 13 Jan 2002 21:19:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288668AbSANCTR>; Sun, 13 Jan 2002 21:19:17 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:52498 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S288662AbSANCTC>; Sun, 13 Jan 2002 21:19:02 -0500
-Message-ID: <3C423EB9.1E7A933E@zip.com.au>
-Date: Sun, 13 Jan 2002 18:13:13 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Patrick Burns <patrickb@vrlaw.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Oops in kswapd (Kernel 2.4.17)
-In-Reply-To: <3C423A90.2E34D426@vrlaw.com.au>
-Content-Type: text/plain; charset=us-ascii
+	id <S288668AbSANCTj>; Sun, 13 Jan 2002 21:19:39 -0500
+Received: from [202.135.142.194] ([202.135.142.194]:34062 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S288667AbSANCTQ>; Sun, 13 Jan 2002 21:19:16 -0500
+Date: Mon, 14 Jan 2002 13:19:25 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: cross-cpu balancing with the new scheduler
+Message-Id: <20020114131925.4fcbd127.rusty@rustcorp.com.au>
+In-Reply-To: <3C41BD74.28F6707A@colorfullife.com>
+In-Reply-To: <3C41BD74.28F6707A@colorfullife.com>
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Burns wrote:
-> 
-> Is there some kind of memory problem with kernel 2.4.17? I noticed in an
-> article at:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=101096234600708&w=2
-> 
-> and another at:
-> 
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0201.1/0809.html
-> 
-> that people were getting oopses in kswapd.
+On Sun, 13 Jan 2002 18:01:40 +0100
+Manfred Spraul <manfred@colorfullife.com> wrote:
 
-One does begin to think that there may be a problem.  The inode,
-dentry and buffer caches do involve a lot of pointer chasing,
-and do tend to expose hardware problems (memory), and we've tended
-to assume that's the reason for all the reports.
+> Is it possible that the inter-cpu balancing is broken in 2.5.2-pre11?
+> 
+> eatcpu is a simple cpu hog ("for(;;);"). Dual CPU i386.
+> 
+> $nice -19 ./eatcpu&;
+>  <wait>
+> $nice -19 ./eatcpu&;
+>  <wait>
+> $./eatcpu&.
+> 
+> IMHO it should be
+> * both niced process run on one cpu.
+> * the non-niced process runs with a 100% timeslice.
+> 
+> But it's the other way around:
+> One niced process runs with 100%. The non-niced process with 50%, and
+> the second niced process with 50%.
 
-But there are a *lot* of reports, and the same argument applies:
-the long pointer chases will expose random memory corruption caused
-by a kernel bug.
+This could be fixed by making "nr_running" closer to a "priority sum".
 
-It's starting to look fishy.
+Ingo?
 
--
+Rusty.
+-- 
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,176 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261336AbSIZPyf>; Thu, 26 Sep 2002 11:54:35 -0400
+	id <S261325AbSIZP52>; Thu, 26 Sep 2002 11:57:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261339AbSIZPyf>; Thu, 26 Sep 2002 11:54:35 -0400
-Received: from pD9E23892.dip.t-dialin.net ([217.226.56.146]:7911 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S261336AbSIZPya>; Thu, 26 Sep 2002 11:54:30 -0400
-From: Lightweight Patch Manager <patch@luckynet.dynu.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Rik van Riel <riel@connectiva.com.br>
-Subject: [PATCH][2.5] Single linked lists for Linux, overly complicated but working
-X-Mailer: Lightweight Patch Manager
-Message-ID: <20020926160028.C221C3@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-User-Agent: Lightweight Patch Manager/1.04
-Date: Thu, 26 Sep 2002 16:00:28 +0000
-X-Priority: I really don't care.
-Content-Type: text/plain; charset=US-ASCII
-Organization: Lightweight Networking
-Content-Transfer-Encoding: 7BIT
+	id <S261327AbSIZP52>; Thu, 26 Sep 2002 11:57:28 -0400
+Received: from linux3.contactor.se ([193.15.23.23]:53969 "EHLO
+	linux3.contactor.se") by vger.kernel.org with ESMTP
+	id <S261325AbSIZP51>; Thu, 26 Sep 2002 11:57:27 -0400
+Date: Thu, 26 Sep 2002 17:59:09 +0200
+From: =?iso-8859-1?Q?Bj=F6rn_Stenberg?= <bjorn@haxx.se>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: PPC: unresolved module symbols in 2.4.20-pre7+bk
+Message-ID: <20020926175909.E11535@linux3.contactor.se>
+References: <20020924234815.GE788@opus.bloom.county> <Pine.GSO.4.44.0209261127110.27736-100000@rubiin.physic.ut.ee> <20020926142927.GE5746@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="qjNfmADvan18RZcF"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020926142927.GE5746@opus.bloom.county>; from trini@kernel.crashing.org on Thu, Sep 26, 2002 at 07:29:27AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an overly complicated version,  I guess I'll have a better one
-once I've got my noodles in. Wait an hour, I'll be back.
 
-And BTW, I got the luckynet address fixed, you can send me again...
+--qjNfmADvan18RZcF
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
---- /dev/null	Wed Dec 31 17:00:00 1969
-+++ slist-2.5/include/linux/slist.h	Thu Sep 26 09:57:25 2002
-@@ -0,0 +1,139 @@
-+#ifdef __KERNEL__
-+#ifndef _LINUX_SLIST_H
-+#define _LINUX_SLIST_H
-+
-+#include <asm/processor.h>
-+
-+/*
-+ * Type-safe single linked list helper-functions.
-+ * (originally taken from list.h)
-+ *
-+ * Thomas 'Dent' Mirlacher, Daniel Phillips,
-+ * Andreas Bogk, Thunder from the hill
-+ */
-+
-+#define INIT_SLIST_HEAD(name)			\
-+	(name->next = name)
-+
-+#define SLIST_HEAD_INIT(name)			\
-+	name
-+
-+#define SLIST_HEAD(type,name)			\
-+	typeof(type) name = INIT_SLIST_HEAD(name)
-+
-+/**
-+ * slist_add_front - add a new entry at the first slot, moving the old head
-+ *		     to the second slot
-+ * @new:	new entry to be added
-+ * @head:	head of the single linked list
-+ *
-+ * Insert a new entry before the specified head.
-+ * This is good for implementing stacks.
-+ */
-+
-+#define slist_add_front(_new, _head)		\
-+do {						\
-+	(_new)->next = (_head);			\
-+	(_head) = (_new);			\
-+} while (0)
-+
-+/**
-+ * slist_add - add a new entry
-+ * @new:       new entry to be added
-+ * @head:      head of the single linked list
-+ *
-+ * Insert a new entry before the specified head.
-+ * This is good for implementing stacks.
-+ *
-+ * Careful: if you do this concurrently, _head
-+ * might get into nirvana...
-+ */
-+#define slist_add(_new, _head)			\
-+do {						\
-+	(_new)->next = (_head)->next;		\
-+	(_head)->next = (_new);			\
-+	(_new) = (_head);			\
-+} while (0)
-+
-+/**
-+ * slist_del -	remove an entry from list
-+ * @head:	head to remove it from
-+ * @entry:	entry to be removed
-+ */
-+#define slist_del(_entry)				\
-+({							\
-+	typeof(_entry) _head =				\
-+	    kmalloc(sizeof(_entry), GFP_KERNEL), _free;	\
-+	if (_head) {					\
-+	    memcpy(_head, (_entry), sizeof(_entry));	\
-+	    _free = (_entry);				\
-+	    (_entry) = (_entry)->next;			\
-+	    kfree(_free);				\
-+	    _head->next = NULL;				\
-+	    _head;					\
-+	} else						\
-+	    NULL;					\
-+})
-+
-+/**
-+ * slist_del_init -	remove an entry from list and initialize it
-+ * @head:	head to remove it from
-+ * @entry:	entry to be removed
-+ */
-+#define slist_del_init(_entry)				\
-+({							\
-+	typeof(_entry) _head =				\
-+	    kmalloc(sizeof(_entry), GFP_KERNEL), _free;	\
-+	if (_head) {					\
-+	    memcpy(_head, (_entry), sizeof(_entry));	\
-+	    _free = (_entry);				\
-+	    (_entry) = (_entry)->next;			\
-+	    kfree(_free);				\
-+	    _head->next = _head;			\
-+	    _head;					\
-+	} else						\
-+	    NULL;					\
-+})
-+
-+/**
-+ * slist_del_single -	untag a list from an entry
-+ * @list:	list entry to be untagged
-+ */
-+#define slist_del_single(_list)			\
-+	((_list)->next = NULL)
-+
-+/**
-+ * slist_pop	-	pop out list entry
-+ * @list:	entry to be popped out
-+ *
-+ * Pop out an entry from a list.
-+ */
-+#define slist_pop(_list) ({			\
-+	typeof(_list) _NODE_ = _list;		\
-+	if (_list) {				\
-+	    (_list) = (_list)->next;		\
-+	    _NODE_->next = NULL;		\
-+	}					\
-+	_NODE_; })
-+
-+/**
-+ * slist_for_each	-	iterate over a list
-+ * @pos:	the pointer to use as a loop counter.
-+ * @head:	the head for your list (this is also the first entry).
-+ */
-+#define slist_for_each(pos, head)				\
-+	for (pos = head; pos && ({ prefetch(pos->next); 1; });	\
-+	    pos = pos->next)
-+
-+/**
-+ * slist_for_each_del	-	iterate over a list, popping off entries
-+ * @pos:       the pointer to use as a loop counter.
-+ * @head:      the head for your list (this is also the first entry).
-+ */
-+#define slist_for_each_del(pos, head)			\
-+	for (pos = slist_pop(head); pos &&		\
-+    	    ({ prefetch(pos->next); 1; });		\
-+	    pos = slist_pop(head))
-+
-+#endif /* _LINUX_SLIST_H */
-+#endif /* __KERNEL__ */
+Tom Rini wrote:
+> > > > depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre7/kernel/drivers/usb/storage/usb-storage.o
+> > > > depmod: 	ppc_generic_ide_fix_driveid
+> 
+> Configuration issue.  CONFIG_USB_STORAGE_ISD200 needs to depend on
+> CONFIG_IDE, since it calls ide_fixup_driveid().  Greg? Björn?
+
+This is only an issue for PPC and SPARC64. Other targets have an empty macro for ide_fix_driveid().
+
+I don't know how this kind of "target-dependent dependency" is normally handled. The attached patch is one way.
 
 -- 
-Lightweight Patch Manager, without pine.
-If you have any objections (apart from who I am), tell me
+Björn
 
+--qjNfmADvan18RZcF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="Config.in-isd200.patch"
+
+--- linux-2.4.20-pre7/drivers/usb/Config.in~	2002-09-26 17:04:18.000000000 +0200
++++ linux-2.4.20-pre7/drivers/usb/Config.in	2002-09-26 17:41:06.000000000 +0200
+@@ -41,7 +41,11 @@
+       dep_mbool '    USB Mass Storage verbose debug' CONFIG_USB_STORAGE_DEBUG $CONFIG_USB_STORAGE
+       dep_mbool '    Datafab MDCFE-B Compact Flash Reader support' CONFIG_USB_STORAGE_DATAFAB $CONFIG_USB_STORAGE $CONFIG_EXPERIMENTAL
+       dep_mbool '    Freecom USB/ATAPI Bridge support' CONFIG_USB_STORAGE_FREECOM  $CONFIG_USB_STORAGE
+-      dep_mbool '    ISD-200 USB/ATA Bridge support' CONFIG_USB_STORAGE_ISD200 $CONFIG_USB_STORAGE
++      if [ "$CONFIG_PPC" = "y" -o "$CONFIG_SPARC64" = "y" ]; then
++         dep_mbool '    ISD-200 USB/ATA Bridge support' CONFIG_USB_STORAGE_ISD200 $CONFIG_USB_STORAGE $CONFIG_IDE
++      else
++         dep_mbool '    ISD-200 USB/ATA Bridge support' CONFIG_USB_STORAGE_ISD200 $CONFIG_USB_STORAGE
++      fi
+       dep_mbool '    Microtech CompactFlash/SmartMedia support' CONFIG_USB_STORAGE_DPCM $CONFIG_USB_STORAGE
+       dep_mbool '    HP CD-Writer 82xx support' CONFIG_USB_STORAGE_HP8200e $CONFIG_USB_STORAGE $CONFIG_EXPERIMENTAL
+       dep_mbool '    SanDisk SDDR-09 (and other SmartMedia) support' CONFIG_USB_STORAGE_SDDR09 $CONFIG_USB_STORAGE $CONFIG_EXPERIMENTAL
+
+--qjNfmADvan18RZcF--

@@ -1,61 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265800AbUJHSrt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265910AbUJHStC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265800AbUJHSrt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 14:47:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUJHSqD
+	id S265910AbUJHStC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 14:49:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266069AbUJHSsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 14:46:03 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:59863 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S265768AbUJHSlY (ORCPT
+	Fri, 8 Oct 2004 14:48:20 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:767 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265910AbUJHSrV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 14:41:24 -0400
-Date: Fri, 8 Oct 2004 20:42:51 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
-Message-ID: <20041008184251.GA28790@elte.hu>
-References: <35fb2e590410011509712b7d1@mail.gmail.com> <415DD1ED.6030101@drdos.com> <1096738439.25290.13.camel@localhost.localdomain> <41659748.9090906@drdos.com> <8B592DC4-18A9-11D9-ABEB-000393ACC76E@mac.com> <4165B265.2050506@drdos.com> <8550FDB8-18AC-11D9-ABEB-000393ACC76E@mac.com> <4165B53F.2060707@drdos.com> <20041008122703.GA15604@elte.hu> <Pine.GSO.4.61.0410082019100.12999@waterleaf.sonytel.be>
+	Fri, 8 Oct 2004 14:47:21 -0400
+Subject: Re: [Lse-tech] [RFC PATCH] scheduler: Dynamic sched_domains
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: Erich Focht <efocht@hpce.nec.com>
+Cc: LSE Tech <lse-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       ckrm-tech@lists.sourceforge.net, Nick Piggin <nickpiggin@yahoo.com.au>,
+       LKML <linux-kernel@vger.kernel.org>, simon.derr@bull.net,
+       frankeh@watson.ibm.com
+In-Reply-To: <200410081214.20907.efocht@hpce.nec.com>
+References: <1097110266.4907.187.camel@arrakis>
+	 <200410081214.20907.efocht@hpce.nec.com>
+Content-Type: text/plain
+Organization: IBM LTC
+Message-Id: <1097261158.5650.13.camel@arrakis>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.61.0410082019100.12999@waterleaf.sonytel.be>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.201, required 5.9,
-	BAYES_00 -4.90, US_DOLLARS_3 0.70
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 08 Oct 2004 11:45:58 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2004-10-08 at 03:14, Erich Focht wrote:
+> Hi Matthew,
 
-* Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+Hi Erich!
 
-> > all the politics aside, the Linux 2.6 kernel, if developed from scratch
-> > as commercial software, takes at least this much effort under the
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
-> > default COCOMO model:
 
-> >  Total Estimated Cost to Develop                           = $ 175,974,824
+> On Thursday 07 October 2004 02:51, Matthew Dobson wrote:
+> > 1) Rip out sched_groups and move them into the sched_domains.
+> > 2) Add some reference counting, and eventually locking, to
+> > sched_domains.
+> > 3) Rewrite & simplify the way sched_domains are built and linked into a
+> > cohesive tree.
+> > 
+> > This should allow us to support hotplug more easily, simply removing the
+> > domain belonging to the going-away CPU, rather than throwing away the
+> > whole domain tree and rebuilding from scratch.  This should also allow
+> > us to support multiple, independent (ie: no shared root) domain trees
+> > which will facilitate isolated CPU groups and exclusive domains.  I also
+> > hope this will allow us to leverage the existing topology infrastructure
+> > to build domains that closely resemble the physical structure of the
+> > machine automagically, thus making supporting interesting NUMA machines
+> > and SMT machines easier.
+> 
+> more flexibility in building the sched_domains is badly needed, so
+> your effort towards providing this is the right step. I'm not sure
+> yet whether your big change is really (and already) a simplification,
+> but what you described sounded for me like getting the chance to
+> configure the sched_domains at runtime, dynamically, from user
+> space. I didn't notice any user interface in your patch, or overlooked
+> it. Could you please describe the API you had in mind for that?
 
-> The biggest problem I have with counting `code size' (yes, we use
-> sloccount at work), is that given more time and resources than needed
-> to implement the required functionality, code size usually shrinks due
-> to clean ups. So it costs _more_ money to decrease the #loc. Software
-> is just like protocols design:
+You are correct in your assumption that you didn't notice any user API
+in the patch because it wasn't there.  The idea I had for the API would
+be along the lines of the current cpusets/CKRM interface.  A
+hierarchical filesystem where you can do operations to
+create/modify/remove sched_domains.  Along the lines of:
 
-nowhere do i mean to imply that this figure represents the true value of
-Linux, or that it even comes close. It is just a minimum lower bound i
-cited.
+cd /dev/sched_domains/sys_domain
+mkdir node0
+mkdir node1
+mkdir node2
+mkdir node3
+cd node0
+echo 0-3 > cpus
+cd ../node1
+echo 4-7 > cpus
+cd ../node2
+echo 8-11 > cpus
+cd ../node3
+echo 12-15 > cpus
 
-I believe the true market value of Linux (the kernel alone) is probably
-in the billions of dollars range and that there's one rather big and
-agressive company on this planet that would be happy to pay even more
-just to make it go away. (But for many of us Linux is like freedom (or
-fresh air), with no particular dollar amount attached to it.)
+To create a simple 4 node each w/ 4 cpus setup.  This is a trivial
+example, because this is the kind of thing that would be setup by
+default at boot time.  I really like the interface that Paul came up
+with for cpusets, and I think that the interface we eventually settle on
+should be along those lines.  Hopefully it can be shared with the
+interface CKRM uses to avoid too much interface bloat.  I think that we
+can probably get the two mechanisms to share a common interface.
 
-	Ingo
+-Matt
+
+
+

@@ -1,68 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262171AbTIMTQD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 15:16:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbTIMTQD
+	id S262175AbTIMTKb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 15:10:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTIMTKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 15:16:03 -0400
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:6408 "EHLO
-	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
-	id S262171AbTIMTQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 15:16:00 -0400
-Date: Sat, 13 Sep 2003 16:16:41 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-X-X-Sender: marcelo@logos.cnet
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       =?ISO-8859-15?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.23-pre4: failed at atyfb_base.c
-In-Reply-To: <Pine.GSO.4.21.0309131622000.2634-100000@vervain.sonytel.be>
-Message-ID: <Pine.LNX.4.44.0309131616300.20382-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sat, 13 Sep 2003 15:10:31 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:54162 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262175AbTIMTK2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 15:10:28 -0400
+Date: Sat, 13 Sep 2003 20:10:20 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: "Kevin P. Fleming" <kpfleming@cox.net>
+Cc: Arnd Bergmann <arnd@arndb.de>, Andreas Schwab <schwab@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] new ioctl type checking causes gcc warning
+Message-ID: <20030913191020.GD7404@mail.jlokier.co.uk>
+References: <3F621AC4.4070507@cox.net> <je65jx3hdk.fsf@sykes.suse.de> <200309121453.07111.arnd@arndb.de> <3F625A26.7050305@cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F625A26.7050305@cox.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 13 Sep 2003, Geert Uytterhoeven wrote:
-
-> On Sat, 13 Sep 2003, Eyal Lebedinsky wrote:
-> > Marcelo Tosatti wrote:
-> > > Here goes -pre4, which contains networking update, IA64 update, PPC
-> > > update, USB update, bunch of knfsd fixes, amongst others.
-> > gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
-> > -Wstrict-pro
-> > totypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
-> > -fomit-frame-pointer
-> >  -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
-> > -DMODULE -DM
-> > ODVERSIONS -include
-> > /data2/usr/local/src/linux-2.4-pre/include/linux/modversions
-> > .h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=atyfb_base 
-> > -DEXPORT_SYMTAB
-> >  -c atyfb_base.c
-> > atyfb_base.c: In function `aty_set_crtc':
-> > atyfb_base.c:501: warning: passing arg 2 of `aty_st_lcd' makes integer
-> > from pointer without a cast
-> > atyfb_base.c:501: too few arguments to function `aty_st_lcd'
-> > atyfb_base.c:504: warning: passing arg 2 of `aty_st_lcd' makes integer
-> > from pointer without a cast
-> > atyfb_base.c:504: too few arguments to function `aty_st_lcd'
-> > make[3]: *** [atyfb_base.o] Error 1
-> > make[3]: Leaving directory
-> > `/data2/usr/local/src/linux-2.4-pre/drivers/video/aty'
-> > 
-> > I now disabled CONFIG_FB_ATY_GENERIC_LCD and it builds.
+Kevin P. Fleming wrote:
+> >I had tried that first, but found that there are places that
+> >use asm/ioctl.h without including asm/posix_types.h first, so 
+> >size_t might not be declared. unsigned int (or unsigned long)
+> >is the better alternative here. Does this look ok to everyone?
 > 
-> Apparently Daniël didn't sent the latest version to Marcelo?
+> After working on this some more this afternoon, I realize now that 
+> it's much better to have the typechecking in place than not, even for 
+> userspace. Maybe the best solution is to still leave the typechecking 
+> (don't wrap it in #ifdef __KERNEL__), and just
 > 
-> Here are some fixes:
+> #ifdef size_t
+> extern size_t __invalid_size_argument_for_IOC;
+> #else
+> extern unsigned int __invalid_size_argument_for_IOC;
+> #endif
 
-Applied, 
+What's wrong with __typeof__(sizeof(0))?
 
-Thanks.
-
+-- Jamie

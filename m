@@ -1,81 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263549AbTI2PU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 11:20:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263553AbTI2PU6
+	id S263545AbTI2PSL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 11:18:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263546AbTI2PSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 11:20:58 -0400
-Received: from buerotecgmbh.de ([217.160.181.99]:13545 "EHLO buerotecgmbh.de")
-	by vger.kernel.org with ESMTP id S263549AbTI2PT7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 11:19:59 -0400
-Date: Mon, 29 Sep 2003 17:19:57 +0200
-From: Kay Sievers <lkml001@vrfy.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6-test6-mm1 zombie hotplug/event processes
-Message-ID: <20030929151957.GA8260@vrfy.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Mon, 29 Sep 2003 11:18:11 -0400
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:51698 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263545AbTI2PSG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 11:18:06 -0400
+Message-ID: <3F784CFC.30103@nortelnetworks.com>
+Date: Mon, 29 Sep 2003 11:17:16 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Michal Kochanowicz <michal@michal.waw.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What to use with 2.6.x instead of iproute2?
+References: <20030927151935.GD5956@wieszak.lan>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-the hotplug/event processes are hanging in my task list.
-Everything if working, but as a example: USB-mouse disconnect/connect gets 6 more
-zombies.
+Michal Kochanowicz wrote:
+> Hi!
+> 
+> It seems that iproute2 is not maintained any more and it doesn't build
+> with kernel 2.6.0-test5.
 
-2.4 is okay. System is debian sid with hotplug package 20030924.
+Is Alexey still the iproute2 maintainer?  Has anyone sent him a patch 
+for 2.6?
 
-Any idea, why this happens?
-
-Thanks
-Kay
+Chris
 
 
-pim:~# ps afx
-  PID TTY      STAT   TIME COMMAND
-    1 ?        S      0:03 init [2]  
-    2 ?        SWN    0:00 [ksoftirqd/0]
-    3 ?        SW<    0:00 [events/0]
-   41 ?        Z<     0:00  \_ [events/0] <defunct>
-   58 ?        Z<     0:00  \_ [hotplug] <defunct>
-   68 ?        Z<     0:00  \_ [hotplug] <defunct>
-   79 ?        Z<     0:00  \_ [hotplug] <defunct>
-  123 ?        Z<     0:00  \_ [hotplug] <defunct>
-  128 ?        Z<     0:00  \_ [hotplug] <defunct>
-  134 ?        Z<     0:00  \_ [hotplug] <defunct>
-  140 ?        Z<     0:00  \_ [hotplug] <defunct>
-  145 ?        Z<     0:00  \_ [hotplug] <defunct>
-  151 ?        Z<     0:00  \_ [hotplug] <defunct>
-  157 ?        Z<     0:00  \_ [hotplug] <defunct>
-  162 ?        Z<     0:00  \_ [hotplug] <defunct>
-  168 ?        Z<     0:00  \_ [hotplug] <defunct>
-  186 ?        Z<     0:00  \_ [events/0] <defunct>
-  188 ?        Z<     0:00  \_ [events/0] <defunct>
-  190 ?        Z<     0:00  \_ [hotplug] <defunct>
-  196 ?        Z<     0:00  \_ [hotplug] <defunct>
-  221 ?        Z<     0:00  \_ [events/0] <defunct>
-  462 ?        Z<     0:00  \_ [events/0] <defunct>
-  464 ?        Z<     0:00  \_ [events/0] <defunct>
-  466 ?        Z<     0:00  \_ [events/0] <defunct>
-  488 ?        Z<     0:00  \_ [hotplug] <defunct>
-  497 ?        Z<     0:00  \_ [events/0] <defunct>
-  499 ?        Z<     0:00  \_ [events/0] <defunct>
-  501 ?        Z<     0:00  \_ [events/0] <defunct>
-  503 ?        Z<     0:00  \_ [events/0] <defunct>
-  505 ?        Z<     0:00  \_ [events/0] <defunct>
-  507 ?        Z<     0:00  \_ [events/0] <defunct>
-  551 ?        Z<     0:00  \_ [hotplug] <defunct>
-  557 ?        Z<     0:00  \_ [hotplug] <defunct>
-  669 ?        Z<     0:00  \_ [events/0] <defunct>
-    4 ?        SW<    0:00 [kblockd/0]
-    5 ?        SW     0:00 [pdflush]
-    6 ?        SW     0:00 [pdflush]
-    7 ?        SW     0:00 [kswapd0]
-    8 ?        SW<    0:00 [aio/0]
-    9 ?        SW<    0:00 [aio_fput/0]
-   10 ?        SW     0:00 [kseriod]
-...
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

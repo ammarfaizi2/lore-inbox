@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290708AbSBGRoF>; Thu, 7 Feb 2002 12:44:05 -0500
+	id <S290729AbSBGRp1>; Thu, 7 Feb 2002 12:45:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290738AbSBGRnz>; Thu, 7 Feb 2002 12:43:55 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:22451 "EHLO segfault.osdlab.org")
-	by vger.kernel.org with ESMTP id <S290708AbSBGRno>;
-	Thu, 7 Feb 2002 12:43:44 -0500
-Date: Thu, 7 Feb 2002 09:43:53 -0800 (PST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@segfault.osdlab.org>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] read() from driverfs files can read more bytes 
-In-Reply-To: <11240BA04440@vcnet.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.33.0202070940450.25114-100000@segfault.osdlab.org>
+	id <S290742AbSBGRpY>; Thu, 7 Feb 2002 12:45:24 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:59912 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S290729AbSBGRoZ>; Thu, 7 Feb 2002 12:44:25 -0500
+Date: Thu, 7 Feb 2002 14:34:20 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@zip.com.au>, Manfred Spraul <manfred@colorfullife.com>,
+        Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] VM_IO fixes
+In-Reply-To: <Pine.LNX.4.33.0202071259510.5900-100000@serv>
+Message-ID: <Pine.LNX.4.21.0202071433480.17162-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Can you also check for size >= PAGE_SIZE on enter to entry->show()
-> procedure? It looks ugly to me that each driver has to check for this
-> constant unless it wants to smash some innocent kernel memory.
 
-Done. Thanks.
+On Thu, 7 Feb 2002, Roman Zippel wrote:
 
-> And neither of driverfs_read_file nor driverfs_write_file supports
-> semantic we use with other filesystems: If at least one byte was 
-> read/written, return byte count (even if error happens). Only if zero 
-> bytes was written, return error code.
+> Hi,
+> 
+> On Wed, 6 Feb 2002, Andrew Morton wrote:
+> 
+> > Any filesystem which implements its own mmap() method, and which
+> > does not call generic_file_mmap() needs to be changed to clear
+> > VM_IO inside its mmap function.  All in-kernel filesystems are
+> > OK, as is XFS.  And the only breakage this can cause to out-of-kernel
+> > filesystems is failure to include mappings in core files, and
+> > inability to use PEEKUSR.
+> 
+> You forgot shared memory via mm/shmem.c and ipc/shm.c.
 
-I would think that you would want to return the error code. Say you did:
+Andrew, could you please send me an uptodated patch to fix that ? 
 
-echo "action parameter" > file
+> Another possibility is to test whether the driver provides a nopage
+> function, as i/o areas are usually mapped with io_remap_page_range. 
 
-and 'parameter' is an invalid parameter, as determined by the driver. It 
-would require another arbitrary check to determine if the command 
-succeeded or not if it returned the number of bytes written. Returning 
--EINVAL lets userspace know that it made a boo-boo. Is that not good?
-
-	-pat
+Eek, thats too kludgy. ;) 
 

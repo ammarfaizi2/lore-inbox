@@ -1,81 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129068AbQJaI0t>; Tue, 31 Oct 2000 03:26:49 -0500
+	id <S129103AbQJaI1T>; Tue, 31 Oct 2000 03:27:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129103AbQJaI0j>; Tue, 31 Oct 2000 03:26:39 -0500
-Received: from oe8.law11.hotmail.com ([64.4.16.112]:38666 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S129068AbQJaI02>;
-	Tue, 31 Oct 2000 03:26:28 -0500
+	id <S129353AbQJaI1L>; Tue, 31 Oct 2000 03:27:11 -0500
+Received: from oe71.law11.hotmail.com ([64.4.16.206]:56846 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S129103AbQJaI07>;
+	Tue, 31 Oct 2000 03:26:59 -0500
 X-Originating-IP: [24.164.154.68]
 From: "Linux Kernel Developer" <linux_developer@hotmail.com>
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <OE58erOc0Ne0PaLI9mK000004a6@hotmail.com> <20001030130006.B1555@werewolf.cps.unizar.es>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <E13qEbg-0006rE-00@the-village.bc.nu>
 Subject: Re: Need info on the use of certain datastructures and the first C++ keyword patch for 2.2.17
-Date: Tue, 31 Oct 2000 03:13:21 -0500
+Date: Tue, 31 Oct 2000 03:13:54 -0500
 X-Priority: 3
 X-MSMail-Priority: Normal
 X-Mailer: Microsoft Outlook Express 5.50.4133.2400
 X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Message-ID: <OE8NY1SWoBDyseVwrbl00001203@hotmail.com>
-X-OriginalArrivalTime: 31 Oct 2000 08:26:22.0404 (UTC) FILETIME=[40543040:01C04314]
+Message-ID: <OE71gE8Peski0RKGhXc000008a7@hotmail.com>
+X-OriginalArrivalTime: 31 Oct 2000 08:26:54.0062 (UTC) FILETIME=[5332D0E0:01C04314]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+----- Original Message -----
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+To: "Linux Kernel Developer" <linux_developer@hotmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Monday, October 30, 2000 8:04 AM
+Subject: Re: Need info on the use of certain datastructures and the first
+C++ keyword patch for 2.2.17
+
+
+> > js_dev::new.  My questions are basically this.  If I update these data
+> > structure members' names along with the references to them in various C
 > > files in the kernel will all be happy in Linuxland.  Can any external
 >
-> Why do you need to touch any existing kernel .c source file ? If you make
-> that patch, this breaks "situation 1" above.
-
-    It doesn't break situation 1 as the minor changes I've made to those 2 C
-files should not have changed any outputted code.  The change was only in
-the offending parameter names.
-
-> AFAIK, ANSI C does not require that prototype (declaration) parameter
-names and
-> definition parameter names match, only types. So, this snippet is correct:
+> That may well be a problem. Also the use of private.
 >
-> int f(int onename);
+> You may find that creating your own wrappers for these files that do
 >
-> int f(int othername)
-> {
+> extern "C" {
+> #define new new_
+> #define private private_
+> #include <linux/foo.h>
+> #undef new
+> #undef private
 > }
-
-    I think good style requires that the parameter names match in the
-function prototype and its declaration.  Besides which if I remember
-correctly the latest C++ standard does require that the parameter names
-match and the next C standard might follow suit.  But I think that is a
-minor issue, I only updated the C files (minimally at that) to keep
-consistency.
-
-> The "klass" example is directly taken from XFree header files, look at
-> vi +239 /usr/X11R6/include/X11/Xlib.h
-> vi +898 /usr/X11R6/include/X11/Xlib.h
 >
-> So the core X internals, written in C, use the "class" field, but anyone
-using
-> X in C++ programs has to use the field as "klass" or "c_class".
+> safer, since you won't break anything
 
-    I bought up a solution like this before and it was mostly argued
-against.
+    That was one of the two possible solutions I was looking at initially.
+Having for example a module.hpp header file alongside module.h which did the
+extern "C" {} wrapper along with the #define new lk_new, etc.  Actually that
+would be an easier task for me as I could easily write a Perl script which
+automatically built that for any kernel.  However from the responses I
+gathered at the time it was mostly recommended against.  I am also leary at
+that option as some variable (and function?) names would differ when used in
+either a C or C++ program and also after having seeing the horror Palm did
+with defines in their SDK.
 
->
-> I think X is a good example to provide C++ friendlyness with the minimal
-> internal
-> change. Perhaps this is a way to make kernel programmers-mantainers to
-accept
-> the
-> headers patch, they can continue working the same...
-
-    The kernel gods will have to give their opinion on this.  Should a
-"proper" fix be implemented for the offending variable names or should a
-workaround be implemented.  Or perhaps a combination depending on whether
-the change breaks any external utilities and how bad a break that is (I say
-external utilities as I can update all the files in the kernel itself).  I
-am inclined to think that the proper fix should be done unless something
-important break in which case the ugly workaround can be used in those
-limited cases.  However my mind is open to be changed.  After all the ugly
-workaround would actually be easier for me, one Perl script.
+    Perhaps this is what I should do.  Continue making the straitforward
+fixes that will not break anything and incorporate that into my main patch.
+Fixes for situations such as the one I encountered in those 3 data
+structures I will put into a separate patch for testing to see if the change
+affects anybody.  If those modifications happen prove unwise then for those
+rare cases do the .hpp option on those header files.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

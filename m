@@ -1,85 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262679AbTIENhv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 09:37:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbTIENhv
+	id S262512AbTIENsk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 09:48:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbTIENsj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 09:37:51 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:24010
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262679AbTIENht (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 09:37:49 -0400
-Date: Fri, 5 Sep 2003 15:37:54 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, marcelo@conectiva.com.br,
-       mason@suse.com, green@namesys.com, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, tejun@aratech.co.kr, chris@memtest86.com
-Subject: Re: 2.4.22-pre lockups (case closed)
-Message-ID: <20030905133754.GW1611@dualathlon.random>
-References: <20030814084518.GA5454@namesys.com> <Pine.LNX.4.44.0308141425460.3360-100000@localhost.localdomain> <20030814194226.2346dc14.skraw@ithnet.com> <1060913337.1493.29.camel@tiny.suse.com> <20030815122827.067bd429.skraw@ithnet.com> <1060952100.5046.2.camel@tiny.suse.com> <20030905112400.087e3fb6.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030905112400.087e3fb6.skraw@ithnet.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Fri, 5 Sep 2003 09:48:39 -0400
+Received: from smtp1.att.ne.jp ([165.76.15.137]:26499 "EHLO smtp1.att.ne.jp")
+	by vger.kernel.org with ESMTP id S262512AbTIENsi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 09:48:38 -0400
+Message-ID: <403e01c373b4$59817630$24ee4ca5@DIAMONDLX60>
+From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: keyboard - was: Re: Linux 2.6.0-test4
+Date: Fri, 5 Sep 2003 22:46:26 +0900
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 05, 2003 at 11:24:00AM +0200, Stephan von Krawczynski wrote:
-> Hello all,
-> 
-> I would like to give you the last update on the story:
-> 
-> short: hardware problem
-> 
-> long:
-> The box had two different types of RAM (both registered ECC) in it. Two were 1
-> GByte, four were 256 MByte to a total of 3 GByte. I had to find out that the
-> box runs flawlessly when using only the GByte modules _or_ only the 256 MByte
-> modules, but not the mix. All modules are from same vendor. The problem in
-> mixed setup does not show up in UP mode (memtest works!). It does not even show
-> up straight away, it takes days, but it is always there.
-> In fact - even though having sunk weeks of work - I am pretty happy that it
-> turned out not to be a kernel problem.
+Although I don't have time to keep up with the list, I saw this posting from
+"Chris Heath" <chris@heathens.co.nz>.  Reordered by importance:
 
-thanks for demonstrating this.
+> At this late stage, I don't think it is a good idea to completely
+> rewrite the untranslate algorithm.  So we continue to hack it and hack
+> it until it works.  :-/
 
-> For the other setups that showed SMP-specific weirdness TeJun may have found
-> interesting explanations. I updated them all to 2.4.22 and have not seen any
-> problem yet.
-> For me it was really interesting to see that reiserfs setups obviously have a
-> completely different memory footprint than ext3, and altogether there seems a
-> remarkable difference between later kernels and former. The problem showed up
-> very seldom on 2.4.21 and below but within 2 days with 2.4.22.
+Surely not.  Some keyboards which worked since 2.0 and probably 1.something
+are broken in 2.6.  Other keyboards which worked before 2.2.something
+(without USB drivers but with BIOS emulation) and resumed working since
+2.4.something (with fixed USB dirvers) are broken in 2.6.  Haven't some
+lessons been learned from a 2.4.something-dontuse and a few other
+2.4.somethings which also should have been -dontuse?  If 2.6.0-dontuse gets
+released, Linux will really be as bad as some other famous operating
+systems.  Surely it is better to rewrite the untranslate algorithm.
 
-normally that indicates the kernel is somehow using the resources more
-efficiently, it's usually a good sign from a kernel standpoint, I heard
-of things like this happening also during major upgrades like from 2.2
-to 2.4.
+Of course there's some power management and other problems which are in the
+same situation.  The keyboard is not the only reason why it would be foolish
+to release 2.6.0 before it starts working.
 
-> Thanks to all who lend me their ears on the topic and sorry for wasting the
-> time.
+> However, the bytes that come from the i8042 are a mixture of Set 1 and
+> Set 2.  Set 1 because the key releases have their 8th bits set, and Set
+> 2 because we get the non-XT keys escaped with E0.
 
-you're very welcome.
+I wonder if it's really that simple.  Though today I experimented on a
+desktop machine which might have a real i8042 maybe.  Under a combination of
+2.6.0-test4 and X11, showkey -s produced the same results which showkey -s
+used to produce under 2.4.something on a plain text console.  Maybe this
+proves that X11 still accesses the keyboard at a sufficiently low level that
+it doesn't suffer from the breakage that was added in 2.6.0-test4 keyboard
+drivers.
 
-> PS: Obviously there are seldom cases where SMP support in memtest _could_ make
-> a difference ;-)
+> I guess the keyboard is sending Set 2 and the BIOS is translating the set
+> 2 codes to set 1 for "compatibility with XT software".
 
-;)
+I'm pretty sure that this isn't that simple.  The BIOS fails to translate
+some keys.  I hacked grub enough to make it possible to type from a Japanese
+ keyboard into grub.  Fortunately grub doesn't use every key that the BIOS
+understands, so I was able to swap some scan codes in grub's interrupt
+handler, let the BIOS translate the ones it likes, and then translate the
+results again in grub's higher-level translator.
 
-Andrea
+(Now why does such ugly stuff make people want to puke on their keyboards
+when it's really the BIOS's fault  :-?)
 
-/*
- * If you refuse to depend on closed software for a critical
- * part of your business, these links may be useful:
- *
- * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.5/
- * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.4/
- * http://www.cobite.com/cvsps/
- *
- * svn://svn.kernel.org/linux-2.6/trunk
- * svn://svn.kernel.org/linux-2.4/trunk
- */

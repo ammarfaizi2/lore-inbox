@@ -1,67 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291084AbSCDDKS>; Sun, 3 Mar 2002 22:10:18 -0500
+	id <S291086AbSCDDLB>; Sun, 3 Mar 2002 22:11:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291086AbSCDDKJ>; Sun, 3 Mar 2002 22:10:09 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12806 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291084AbSCDDKF>;
-	Sun, 3 Mar 2002 22:10:05 -0500
-Message-ID: <3C82E5A1.714081EA@mandrakesoft.com>
-Date: Sun, 03 Mar 2002 22:10:25 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>,
-        Steve Lord <lord@sgi.com>
-Subject: Re: [patch] delayed disk block allocation
-In-Reply-To: <3C7F3B4A.41DB7754@zip.com.au> <E16hhuI-0000S6-00@starship.berlin>
+	id <S291088AbSCDDKk>; Sun, 3 Mar 2002 22:10:40 -0500
+Received: from tapu.f00f.org ([66.60.186.129]:49805 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S291086AbSCDDK3>;
+	Sun, 3 Mar 2002 22:10:29 -0500
+Date: Sun, 3 Mar 2002 19:10:23 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [bkpatch] add sys_sendfile64
+Message-ID: <20020304031023.GA14757@tapu.f00f.org>
+In-Reply-To: <20020303161818.A18187@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020303161818.A18187@redhat.com>
+User-Agent: Mutt/1.3.27i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> On March 1, 2002 09:26 am, Andrew Morton wrote:
-> > A bunch of patches which implement allocate-on-flush for 2.5.6-pre1 are
-> > available at http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.6-pre1/dalloc-10-core.patch
-> >   - Core functions
-> > and
-> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.6-pre1/dalloc-20-ext2.patch
-> >   - delalloc implementation for ext2.
+On Sun, Mar 03, 2002 at 04:18:18PM -0500, Benjamin LaHaise wrote:
 
-> Wow, this is massive.  Why did you write [patch] instead of [PATCH]? ;-) I'm
-> surprised there aren't any comments on this patch so far, that should teach
-> you to post on a Friday afternoon.
+    The below bitkeeper patch can be pulled from
+    	bk://bcrlbits.bkbits.net/linux-2.5
 
-My only comment is: how fast can we get delalloc into 2.5.x for further
-testing and development?
+    and adds a sys_sendfile64 call.  Arch maintainers should 
+    probably add the entry to their syscall tables if it is 
+    appropriate.
 
-IMNSHO there are few comments because I believe that few people actually
-realize the benefits of delalloc.  My ext2 filesystem with --10--
-percent fragmentation could sure use code like this, though.
+Neat.  I made something similar last night but messed it up originally
+so never sent it.
+
+    +
+    +asmlinkage ssize_t sys_sendfile(int out_fd, int in_fd, off_t *offset, size_t count)
+    +{
+    +	loff_t pos, *ppos = NULL;
+    +	ssize_t ret;
+    +	if (offset) {
+    +		off_t off;
+    +		if (unlikely(get_user(off, offset)))
+    +			return -EFAULT;
+    +		pos = off;
+    +		ppos = &pos;
+
+We have a problem if off + count >= 2^32 here.
+
+Ideally i think we need to check for 32-bit (31-bit?) overflow here
+and return -EOVERFLOW.  I made a similar patch last night for
+sendfile64 which included this check (although I was tired and the
+patch was slightly wrong).  Actually, I think wew are missing
+EOVERFLOW checks in a number of paths, ideally I'd like to make one
+function to check and have all other functions reference that if
+people agree that makes sense.
+
+    +	}
+    +	ret = common_sendfile(out_fd, in_fd, ppos, count);
+    +	if (offset)
+    +		put_user((off_t)pos, offset);
+    +	return ret;
+
+What is another thread unmapped 'offset' during the system call?  Do
+we want to check the result of put_user here and return -EFAULT?
+(If so, there are other system calls to consider such as select).
 
 
-> >   But it may come unstuck when applied to swapcache.
-> 
-> You're not even trying to apply this to swap cache right now are you?
-
-This is a disagreement akpm and I have, actually :)
-
-I actually would rather that it was made a requirement that all
-swapfiles are "dense", so that new block allocation NEVER must be
-performed when swapping.
 
 
-> There is also my nefarious plan to make
-> struct pages refer to variable-binary-sized objects, including smaller than
-> 4K PAGE_SIZE.
-
-sigh...
-
--- 
-Jeff Garzik      |
-Building 1024    |
-MandrakeSoft     | Choose life.
+  --cw

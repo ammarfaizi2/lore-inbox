@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262172AbVBJQnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262160AbVBJQqK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262172AbVBJQnj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 11:43:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262173AbVBJQnj
+	id S262160AbVBJQqK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 11:46:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbVBJQqK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 11:43:39 -0500
-Received: from dspnet.fr.eu.org ([62.73.5.179]:260 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S262172AbVBJQni (ORCPT
+	Thu, 10 Feb 2005 11:46:10 -0500
+Received: from www.ssc.unict.it ([151.97.230.9]:12558 "HELO ssc.unict.it")
+	by vger.kernel.org with SMTP id S262160AbVBJQqD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 11:43:38 -0500
-Date: Thu, 10 Feb 2005 17:43:28 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: "Hack inc." <linux-kernel@vger.kernel.org>, nfs@lists.sourceforge.net
-Subject: Re: [NFS] Re: Irix NFS server usual problem [patch, fc3 2.6.10-1,760_FC3]
-Message-ID: <20050210164328.GA5267@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	"Hack inc." <linux-kernel@vger.kernel.org>, nfs@lists.sourceforge.net
-References: <20050207221638.GA18723@dspnet.fr.eu.org> <1107816524.9970.8.camel@lade.trondhjem.org> <20050210124832.GA23320@dspnet.fr.eu.org> <1108048844.9840.55.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1108048844.9840.55.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 10 Feb 2005 11:46:03 -0500
+Subject: [patch 1/1] Uml: fix makefile typo [before 2.6.11]
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, jdike@addtoit.com,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
+From: blaisorblade@yahoo.it
+Date: Thu, 10 Feb 2005 17:40:37 +0100
+Message-Id: <20050210164037.E43784B51@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 10, 2005 at 10:20:44AM -0500, Trond Myklebust wrote:
-> A permanent fix probably ought to involve removing our current
-> dependency on using the server-generated readdir cookies as
-> telldir/seekdir offsets.
 
-Remplacing it by?  As in, I'm ready to do and test the code if I have
-a decent idea of what would be acceptable.
+From: Jeff Dike <jdike@addtoit.com>
 
-  OG.
+Fix a typo in the Makefile cleanup merged earlier, which causes compile
+failures in some edge cases.
+
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
+
+ linux-2.6.11-paolo/arch/um/Makefile |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -puN arch/um/Makefile~uml-fix-mode-makefile arch/um/Makefile
+--- linux-2.6.11/arch/um/Makefile~uml-fix-mode-makefile	2005-02-10 17:38:46.273481568 +0100
++++ linux-2.6.11-paolo/arch/um/Makefile	2005-02-10 17:38:46.276481112 +0100
+@@ -39,8 +39,8 @@ MODE_INCLUDE	+= $(foreach mode,$(um-mode
+ MAKEFILES-INCL	+= $(foreach mode,$(um-modes-y),\
+ 		   $(srctree)/$(ARCH_DIR)/Makefile-$(mode))
+ 
+-ifneq ($(MAKEFILE-INCL),)
+-  include $(MAKEFILE-INCL)
++ifneq ($(MAKEFILES-INCL),)
++  include $(MAKEFILES-INCL)
+ endif
+ 
+ ARCH_INCLUDE	:= -I$(ARCH_DIR)/include
+_

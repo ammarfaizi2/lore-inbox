@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289101AbSA1OR7>; Mon, 28 Jan 2002 09:17:59 -0500
+	id <S289124AbSA1ObF>; Mon, 28 Jan 2002 09:31:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289124AbSA1ORs>; Mon, 28 Jan 2002 09:17:48 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:18873 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S289101AbSA1ORf>; Mon, 28 Jan 2002 09:17:35 -0500
-Date: Mon, 28 Jan 2002 16:12:34 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Mark Zealey <mark@itsolve.co.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, <grundig@teleline.es>
-Subject: Re: fonts corruption with 3dfx drm module
-In-Reply-To: <Pine.LNX.4.44.0201281604220.18070-100000@netfinity.realnet.co.sz>
-Message-ID: <Pine.LNX.4.44.0201281612030.18070-100000@netfinity.realnet.co.sz>
+	id <S289171AbSA1Oa4>; Mon, 28 Jan 2002 09:30:56 -0500
+Received: from web9205.mail.yahoo.com ([216.136.129.38]:45329 "HELO
+	web9205.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S289124AbSA1Oao>; Mon, 28 Jan 2002 09:30:44 -0500
+Message-ID: <20020128143044.8871.qmail@web9205.mail.yahoo.com>
+Date: Mon, 28 Jan 2002 06:30:44 -0800 (PST)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Re: I've stopped the 'Spurious interrupts on IRQ7'
+To: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
+In-Reply-To: <200201280846.g0S8k1E22015@Port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jan 2002, Zwane Mwaikambo wrote:
 
-> Do you guys have CONFIG_MTRR and/or CONFIG_FB_VESA enabled? Also which 
-> motherboard chipset?
+--- Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
+> On 28 January 2002 06:37, Alex Davis wrote:
+> > I added the following line to /etc/lilo.conf
+> >
+> > append = "parport=0x378,7"
+> >
+> > and re-ran lilo. I also noticed that the 'ERR' field in
+> > /proc/interrupts stays at 0, whereas before the mod it
+> > was increasing.
+> 
+> Do you have a printer?
+Yes.
+> Try to boot while it is powered off.
+Spurious ints. occur whether the printer is on of off.
 
-Forgot to mention, which XFree86 version?
 
-Cheers,
-	Zwane Mwaikambo
-
+__________________________________________________
+Do You Yahoo!?
+Send your FREE holiday greetings online!
+http://greetings.yahoo.com

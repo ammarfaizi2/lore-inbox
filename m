@@ -1,80 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266638AbSL2OiT>; Sun, 29 Dec 2002 09:38:19 -0500
+	id <S266359AbSL2PFN>; Sun, 29 Dec 2002 10:05:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266640AbSL2OiT>; Sun, 29 Dec 2002 09:38:19 -0500
-Received: from alpham.uni-mb.si ([164.8.1.101]:2047 "EHLO alpham.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S266638AbSL2OiS>;
-	Sun, 29 Dec 2002 09:38:18 -0500
-Date: Sun, 29 Dec 2002 15:46:57 +0100
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: [PATCH] Workaround for AMD762MPX "mouse" bug
-To: ak@muc.de, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-id: <3E0F0AE1.EB2C5DAA@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en
+	id <S266367AbSL2PFN>; Sun, 29 Dec 2002 10:05:13 -0500
+Received: from willow.compass.com.ph ([202.70.96.38]:24073 "EHLO
+	willow.compass.com.ph") by vger.kernel.org with ESMTP
+	id <S266359AbSL2PFL>; Sun, 29 Dec 2002 10:05:11 -0500
+Subject: Re: [Linux-fbdev-devel] [FB PATCH] cfbimgblt isn't 64-bit clean
+From: Antonino Daplas <adaplas@pol.net>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Richard Henderson <rth@twiddle.net>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0212290027590.14098-100000@phoenix.infradead.org>
+References: <Pine.LNX.4.44.0212290027590.14098-100000@phoenix.infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1041173861.1013.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 29 Dec 2002 22:58:43 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen (ak@muc.de) wrote :
+On Sun, 2002-12-29 at 09:16, James Simmons wrote:
+> 
+> > The text is written as if it's thinking about handling 64-bit
+> > unsigned long, but it doesn't.  The tables that map bits to
+> > pixels are completely unprepared for this.
+> > 
+> > I thought about widening the tables, but I thought they'd get
+> > unreasonably large.  There's no reason not to go ahead and 
+> > handle this 32-bits at a time.
+> 
+> I thought the tables would come back to haunt us. The only reason the 
+> tables where introduced was for speed enhancements. I reason the code is 
+> extra complex was so you could pass 64 bits of data across the bus. I 
+> still like to see that happen still. What do you think?
+> 
 
-> AMD has published a new errata sheet for the AMD762, which describes 
-> the root cause of the infamous "AMD 762 unstable when no PS/2 mouse 
-> connected" bug. The reason is that without a PS/2 mouse the BIOS doesn't 
-> put a data page in front of the VGA buffer at 640K. When the kernel 
-> puts a page cache page there and does busmaster IO with it then the automatic 
-> PCI prefetch from the chipset can hit the VGA buffer and that may cause a hang. 
-> 
-> 
-> The workaround is to reserve the page directly before 640K if it wasn't 
-> already reserved by the BIOS. 
-> 
-> 
-> The bug only occurs in newer revisions (B0,B1) 
-> 
-> 
-> The workaround here is somewhat hackish. We can only reserve the page 
-> in early boot, but at that time there is no easy way to check for the 
-> AMD762's PCI-ID because the PCI subsystem hasn't been initialized yet. 
-> 
-> 
-> This patch checks later during the pci quirks pass instead 
-> and then tells the user to pass a kernel option - "vgaguard" - in 
-> case of instability. This is not ideal, but probably preferable than 
-> to connect PS/2 mouses to all boxes in a colocated rack. Another 
-> way would be to always reserve that page, but I didn't feel like 
-> punishing everybody just for a hardware bug in a single chipset. 
-> 
-> 
-> Patch for 2.5.53. Please consider applying. 
+Only fast_imageblit() should be affected.  color_imageblit() and
+slow_imageblit() will not be affected.  
 
-Some suggestions :
+fast_imageblit() is used only for 8, 16 and 32 bpp.  We can remove
+fast_imageblit() and just use slow_imageblit() for all color depths, but
+it will suffer a significant slowdown. 
 
- - do not tell the user to use the "vgaguard" option if he is already
-using it
- - change to more informative text :
-old :
-I/O APIC: AMD762 Errata #56 may be present.
-In case of instability boot with "vgaguard" or connect a PS/2 mouse.
-new:
-I/O APIC: AMD762 Errata #56 may be present.
-In case of instability boot with the "vgaguard" kernel boot option or
-connect a PS/2 mouse and reboot.
+Or we can change fast_imageblit() to always access the framebuffer
+memory 32-bits at a time. The attached patch should fix this.
 
-Just connecting a PS/2 mouse on a running system does not help, right ?
-:-)
+Tony
 
- - maybe rename the option to "amd762vgaguard" ?
- - also write some docs and put a link to it in the kernel message ?
-For now this would be enough :
-I/O APIC: AMD762 Errata #56 may be present.
-In case of instability boot with the "vgaguard" kernel boot option or
-connect a PS/2 mouse and reboot.
-See http://www.uwsg.indiana.edu/hypermail/linux/kernel/0212.3/0043.html
+diff -Naur linux-2.5.42/drivers/video/cfbimgblt.c linux/drivers/video/cfbimgblt.c
+--- linux-2.5.42/drivers/video/cfbimgblt.c	2002-12-29 14:44:04.000000000 +0000
++++ linux/drivers/video/cfbimgblt.c	2002-12-29 14:44:23.000000000 +0000
+@@ -88,11 +88,13 @@
+ 
+ #if defined (__BIG_ENDIAN)
+ #define LEFT_POS(bpp)          (BITS_PER_LONG - bpp)
++#define LEFT_POS32(bpp)        (32 - bpp)
+ #define NEXT_POS(pos, bpp)     ((pos) -= (bpp))
+ #define SHIFT_HIGH(val, bits)  ((val) >> (bits))
+ #define SHIFT_LOW(val, bits)   ((val) << (bits))
+ #else
+ #define LEFT_POS(bpp)          (0)
++#define LEFT_POS32(bpp)        (0)
+ #define NEXT_POS(pos, bpp)     ((pos) += (bpp))
+ #define SHIFT_HIGH(val, bits)  ((val) << (bits))
+ #define SHIFT_LOW(val, bits)   ((val) >> (bits))
+@@ -223,25 +225,25 @@
+ }
+ 
+ static inline void fast_imageblit(struct fb_image *image, struct fb_info *p, u8 *dst1, 
+-				  unsigned long fgcolor, unsigned long bgcolor) 
++				  u32 fgcolor, u32 bgcolor) 
+ {
+ 	int i, j, k, l = 8, n;
+-	unsigned long bit_mask, end_mask, eorx; 
+-	unsigned long fgx = fgcolor, bgx = bgcolor, pad, bpp = p->var.bits_per_pixel;
+-	unsigned long tmp = (1 << bpp) - 1;
+-	unsigned long ppw = BITS_PER_LONG/bpp, ppos;
+-	unsigned long *dst;
++	u32 bit_mask, end_mask, eorx; 
++	u32 fgx = fgcolor, bgx = bgcolor, pad, bpp = p->var.bits_per_pixel;
++	u32 tmp = (1 << bpp) - 1;
++	u32 ppw = 32/bpp, ppos;
++	u32 *dst;
+ 	u32 *tab = NULL;
+ 	char *src = image->data;
+ 		
+-	switch (ppw) {
+-	case 4:
++	switch (bpp) {
++	case 8:
+ 		tab = cfb_tab8;
+ 		break;
+-	case 2:
++	case 16:
+ 		tab = cfb_tab16;
+ 		break;
+-	case 1:
++	case 32:
+ 		tab = cfb_tab32;
+ 		break;
+ 	}
+@@ -263,17 +265,17 @@
+ 	k = image->width/ppw;
+ 
+ 	for (i = image->height; i--; ) {
+-		dst = (unsigned long *) dst1;
++		dst = (u32 *) dst1;
+ 		
+ 		for (j = k; j--; ) {
+ 			l -= ppw;
+ 			end_mask = tab[(*src >> l) & bit_mask]; 
+-			FB_WRITEL((end_mask & eorx)^bgx, dst++);
++			fb_writel((end_mask & eorx)^bgx, dst++);
+ 			if (!l) { l = 8; src++; }
+ 		}
+ 		if (n) {
+ 			end_mask = 0;	
+-			ppos = LEFT_POS(bpp);
++			ppos = LEFT_POS32(bpp);
+ 			for (j = n; j > 0; j--) {
+ 				l--;
+ 				if (*src & (1 << l))
+@@ -281,7 +283,7 @@
+ 				NEXT_POS(ppos, bpp);
+ 				if (!l) { l = 8; src++; }
+ 			}
+-			FB_WRITEL((end_mask & eorx)^bgx, dst++);
++			fb_writel((end_mask & eorx)^bgx, dst++);
+ 		}
+ 		l -= pad;		
+ 		dst1 += p->fix.line_length;	
+@@ -337,7 +339,7 @@
+ 		
+ 		if (BITS_PER_LONG % bpp == 0 && !start_index && !pitch_index && 
+ 		    bpp >= 8 && bpp <= 32 && (image->width & 7) == 0) 
+-			fast_imageblit(image, p, dst1, fgcolor, bgcolor);
++			fast_imageblit(image, p, dst1, (u32) fgcolor, (u32) bgcolor);
+ 		else 
+ 			slow_imageblit(image, p, dst1, fgcolor, bgcolor, start_index, pitch_index);
+ 	}
 
-
-Regards,
-David Balazic

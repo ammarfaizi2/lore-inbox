@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268257AbUHKWC6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268259AbUHKWDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268257AbUHKWC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 18:02:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268262AbUHKWC5
+	id S268259AbUHKWDi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 18:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268262AbUHKWDh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 18:02:57 -0400
-Received: from gprs214-50.eurotel.cz ([160.218.214.50]:3458 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S268257AbUHKWCq (ORCPT
+	Wed, 11 Aug 2004 18:03:37 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:55989 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S268259AbUHKWDY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 18:02:46 -0400
-Date: Wed, 11 Aug 2004 23:59:15 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Matt Mackall <mpm@selenic.com>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH][2.6] Completely out of line spinlocks / i386
-Message-ID: <20040811215915.GA21812@elf.ucw.cz>
-References: <Pine.LNX.4.58.0408072123590.19619@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408072123590.19619@montezuma.fsmlabs.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 11 Aug 2004 18:03:24 -0400
+Message-Id: <200408102258.i7AMwBsP006326@localhost.localdomain>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+cc: vonbrand@inf.utfsm.cl, axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel bug report (includes fix) 
+In-Reply-To: Message from Joerg Schilling <schilling@fokus.fraunhofer.de> 
+   of "Mon, 09 Aug 2004 14:03:41 +0200." <200408091203.i79C3fYh009639@burner.fokus.fraunhofer.de> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Tue, 10 Aug 2004 18:58:11 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Joerg Schilling <schilling@fokus.fraunhofer.de> said:
+> >From vonbrand@inf.utfsm.cl  Sun Aug  8 05:59:28 2004
+> >Joerg Schilling <schilling@fokus.fraunhofer.de> said:
+> >> -	Linux Kernel include files (starting with Linux-2.5) are buggy and 
+> >> 	prevent compilation.
 
-> Pulled from the -tiny tree, the focus of this patch is for reduced kernel
-> image size but in the process we benefit from improved cache performance
-> since it's possible for the common text to be present in cache. This is
-> probably more of a win on shared cache multiprocessor systems like
-> P4/Xeon HT. It's been benchmarked with bonnie++ on 2x and 4x PIII (my
-> ideal target would be a 4x+ logical cpu Xeon).
-> 
-> The bonnie++ results are here, the hostnames are of the form stpN-000 with
-> N denoting how many processors in the system. In a nutshell there doesn't
-> appear to be any performance regressions.
+> >They do not, the kernel compiles just fine. They are _not_ to be used for
+> >random userspace programs.
 
-Fine, so perhaps we do not want config option?
-									Pavel
+> As you don't know how kernel/user interfaces are handled,
 
+Funny... How would you know what I do or don't know?
+
+>                                                           it would be
+> wise for you to keep quiet.....
+
+I _do_ know about kernel/user interfaces (in Linux); you clearly haven't
+got a clue. Please keep quiet.
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

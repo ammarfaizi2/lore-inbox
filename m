@@ -1,59 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262414AbULORqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbULORsb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262414AbULORqL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 12:46:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbULORqL
+	id S262425AbULORsb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 12:48:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbULORsb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 12:46:11 -0500
-Received: from [194.90.79.130] ([194.90.79.130]:25867 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S262414AbULORqB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 12:46:01 -0500
-Message-ID: <41C07854.7000603@argo.co.il>
-Date: Wed, 15 Dec 2004 19:45:56 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041208)
-X-Accept-Language: en-us, en
+	Wed, 15 Dec 2004 12:48:31 -0500
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:44931 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S262418AbULORsY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 12:48:24 -0500
+Date: Wed, 15 Dec 2004 18:48:18 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Gene Heskett <gene.heskett@verizon.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: USB making time drift [was Re: dynamic-hz]
+In-Reply-To: <200412151203.44679.gene.heskett@verizon.net>
+Message-ID: <Pine.LNX.4.53.0412151846370.27011@gockel.physik3.uni-rostock.de>
+References: <20041213002751.GP16322@dualathlon.random>
+ <200412142159.23488.gene.heskett@verizon.net> <20041215091741.GA16322@dualathlon.random>
+ <200412151203.44679.gene.heskett@verizon.net>
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@istop.com>
-CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com> <E1CZFJP-0004uZ-00@dorka.pomaz.szeredi.hu> <41ACE816.50104@argo.co.il> <200412031707.46114.phillips@istop.com>
-In-Reply-To: <200412031707.46114.phillips@istop.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Dec 2004 17:45:59.0104 (UTC) FILETIME=[EFB58400:01C4E2CD]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+> Ok, I was going to do that, but forgive me, its not in the .config
+> file as a setting.  So where do edit what to revert to 100hz's.
 
->Hi Avi,
->
->On Tuesday 30 November 2004 16:37, Avi Kivity wrote:
->  
->
->>The situation with userspace filesystems is:
->>
->>  some process allocates memory, blocking on kswapd as memory is full
->>  kswapd calls userspace filesystem to free memory
->>  userspace filesystem calls kernel, which allocates memory and blocks
->>on kswapd
->>  eventually all processes in the system block on kswapd
->>
->>I have observed (and fixed) this on a real system.
->>    
->>
->
->What was your fix?
->
->  
->
-(with apologies for the long delay)
+It's in line 5 of include/asm-i386/param.h:
+# define HZ             1000            /* Internal kernel timer frequency */
 
-See the thread at http://lkml.org/lkml/2004/7/26/68. basically allow the 
-userspace filesystem process to access behave like kswapd allocation-wise.
+(if you are on an i386 system). Just change that back to 100.
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+Tim

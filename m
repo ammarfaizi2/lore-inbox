@@ -1,84 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267324AbUI0Un5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267391AbUI0VYY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267324AbUI0Un5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 16:43:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267344AbUI0Umv
+	id S267391AbUI0VYY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 17:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267301AbUI0Um2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 16:42:51 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:61607 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S267324AbUI0Ukw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 16:40:52 -0400
-Subject: [patch] inotify: don't check private_data
-From: Robert Love <rml@ximian.com>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <1096250524.18505.2.camel@vertex>
-References: <1096250524.18505.2.camel@vertex>
-Content-Type: multipart/mixed; boundary="=-5BXWzNMvSGyFQUw8CUE8"
-Date: Mon, 27 Sep 2004 16:39:30 -0400
-Message-Id: <1096317570.30503.131.camel@betsy.boston.ximian.com>
+	Mon, 27 Sep 2004 16:42:28 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56839 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S267323AbUI0Ufm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 16:35:42 -0400
+Date: Mon, 27 Sep 2004 21:35:32 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC] ARM binutils feature churn causing kernel problems
+Message-ID: <20040927213532.C26680@flint.arm.linux.org.uk>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Rusty Russell <rusty@rustcorp.com.au>
+References: <20040927210305.A26680@flint.arm.linux.org.uk> <20040927211750.A27684@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040927211750.A27684@infradead.org>; from hch@infradead.org on Mon, Sep 27, 2004 at 09:17:50PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 27, 2004 at 09:17:50PM +0100, Christoph Hellwig wrote:
+> >From loooking at the gcc and binutils lists it seems codesourcery is pushing
+> through all the ARM EABI bullshit.  Maybe we can persuade hjl to keep it
+> out of his bintuils release?  So far we've been served far better with them
+> on Linux anyway..
 
---=-5BXWzNMvSGyFQUw8CUE8
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Maybe... though I'd like to get some sort of concensus on the specific
+issue I mentioned so I can provide an adequate response back to the
+folk involved in this specific issue - both the users _and_ the
+developers of the toolchain.
 
-On Sun, 2004-09-26 at 22:02 -0400, John McCutchan wrote:
-
-> Announcing the release of inotify 0.10.0. 
-> Attached is a patch to 2.6.8.1.
-
-Hey, John.
-
-Any reason we check file->private_data in inotify_release()?
-
-I don't think there is.  Following patch removes the check.
-
-	Robert Love
-
-
---=-5BXWzNMvSGyFQUw8CUE8
-Content-Disposition: attachment; filename=inotify-rml-file_private-1.patch
-Content-Type: text/x-patch; name=inotify-rml-file_private-1.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-No need to check file->private_data
-
-Signed-Off-By: Robert Love <rml@novell.com>
-
- drivers/char/inotify.c |   14 ++++++--------
- 1 files changed, 6 insertions(+), 8 deletions(-)
-
-diff -urN linux-inotify/drivers/char/inotify.c linux/drivers/char/inotify.c
---- linux-inotify/drivers/char/inotify.c	2004-09-27 16:28:27.989505320 -0400
-+++ linux/drivers/char/inotify.c	2004-09-27 16:34:58.269173792 -0400
-@@ -822,15 +822,13 @@
- 
- static int inotify_release(struct inode *inode, struct file *file)
- {
--	if (file->private_data) {
--		struct inotify_device *dev;
-+	struct inotify_device *dev;
- 
--		dev = file->private_data;
--		del_timer_sync(&dev->timer);
--		inotify_release_all_watchers(dev);
--		inotify_release_all_events(dev);
--		kfree(dev);
--	}
-+	dev = file->private_data;
-+	del_timer_sync(&dev->timer);
-+	inotify_release_all_watchers(dev);
-+	inotify_release_all_events(dev);
-+	kfree(dev);
- 
- 	printk(KERN_ALERT "inotify device released\n");
- 
-
---=-5BXWzNMvSGyFQUw8CUE8--
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

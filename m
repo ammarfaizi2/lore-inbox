@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262685AbSJHCbl>; Mon, 7 Oct 2002 22:31:41 -0400
+	id <S262674AbSJHC3u>; Mon, 7 Oct 2002 22:29:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262713AbSJHCbl>; Mon, 7 Oct 2002 22:31:41 -0400
-Received: from h24-87-160-169.vn.shawcable.net ([24.87.160.169]:53890 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S262685AbSJHCbk>;
-	Mon, 7 Oct 2002 22:31:40 -0400
-Date: Mon, 7 Oct 2002 19:36:54 -0700
-From: Simon Kirby <sim@netnation.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Daniel Phillips <phillips@arcor.de>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Oliver Neukum <oliver@neukum.name>, Rob Landley <landley@trommello.org>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 -  (NUMA))
-Message-ID: <20021008023654.GA29076@netnation.com>
-References: <m17yCIx-006hSwC@Mail.ZEDAT.FU-Berlin.DE> <1281002684.1033892373@[10.10.2.3]> <E17ybuZ-0003tz-00@starship> <3DA1D30E.B3255E7D@digeo.com> <3DA1D969.8050005@nortelnetworks.com> <3DA1E250.1C5F7220@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DA1E250.1C5F7220@digeo.com>
-User-Agent: Mutt/1.4i
+	id <S262683AbSJHC3u>; Mon, 7 Oct 2002 22:29:50 -0400
+Received: from pc132.utati.net ([216.143.22.132]:53921 "HELO
+	merlin.webofficenow.com") by vger.kernel.org with SMTP
+	id <S262674AbSJHC3t>; Mon, 7 Oct 2002 22:29:49 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Matt Porter <porter@cox.net>
+Subject: Re: The end of embedded Linux?
+Date: Mon, 7 Oct 2002 15:50:43 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: "David S. Miller" <davem@redhat.com>, giduru@yahoo.com,
+       andre@linux-ide.org, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.10.10210051252130.21833-100000@master.linux-ide.org> <20021007214053.36F16622@merlin.webofficenow.com> <20021007162048.A19216@home.com>
+In-Reply-To: <20021007162048.A19216@home.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20021008005030.C0DDF630@merlin.webofficenow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 07, 2002 at 12:36:48PM -0700, Andrew Morton wrote:
+On Monday 07 October 2002 07:20 pm, Matt Porter wrote:
+>
+> > Or they could play in the source code if their needs are sufficiently
+> > unusual, which more or less by definition they will be in this case.  No
+> > matter how thorough you are here, there will be things they want to tweak
+> > (or would if they knew about them) that there is no config option for. 
+> > "make menuconfig" is not a complete replacement for knowing C in all
+> > cases.
+>
+> True, but there are a number of people out there who want to do say
+> a kernel port to XYZ custom board.  They learn some basic kernel
+> knowledge, but we can't expect them to be a guru of everything to
+> get some work done.
 
-> Block allocators are fertile grounds for academic papers.  It's
-> complex.  There is a risk that you can do something which is
-> cool in testing, but ends up exploding horridly after a year's
-> use.  By which time we have ten million deployed systems running like
-> dogs, damn all we can do about it.
-> 
-> The best solution is to use first-fit and online defrag to fix the
-> long-term fragmentation.  It really is.  There has been no appreciable
-> progress on this.
-> 
-> A *practical* solution is to keep a spare partition empty and do
-> a `cp -a' from one partition onto another once per week and
-> swizzle the mountpoints.  Because the big copy will unfragment
-> everything.
+Another very real option here is Documentation/tinykernel.txt.  (Possibly 
+even going so far as a brief mention of uclibc and busybox/tinylogin, but 
+mostly just about choping down the kernel for embedding in nosehair trimmers 
+and electric toothbrushes and such.)
 
-Having seen fragmentation issues build up on (mbox) mail spools over
-several years first hand, I can say that mail spools definitely show the
-need for a defragmentation tool.  I remember actually doing the "cp -a"
-trick just to restore the mail server to decent performance (which
-worked amazingly well, for another few months).  (This was before we
-switched to hashed directories and a POP3 server which caches mbox
-messages offsets/UIDLs/states.)
-
-Being able to defragment online would be very useful.  I've seen some
-people talk about this every so often.  How far away is it?
-
-Simon-
-
-[        Simon Kirby        ][        Network Operations        ]
-[     sim@netnation.com     ][     NetNation Communications     ]
-[  Opinions expressed are not necessarily those of my employer. ]
+Rob "waiting for the linux i-button" Landley.

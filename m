@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262293AbVCRWXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262086AbVCRW0d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262293AbVCRWXy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 17:23:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbVCRWWp
+	id S262086AbVCRW0d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 17:26:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262302AbVCRWQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 17:22:45 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:22494 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262293AbVCRWQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 17:16:40 -0500
-Date: Fri, 18 Mar 2005 14:16:30 -0800
-From: Rajesh Shah <rajesh.shah@intel.com>
-To: gregkh@suse.de, tony.luck@intel.com, len.brown@intel.com
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       pcihpd-discuss@lists.sourceforge.net, linux-ia64@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: [patch 09/12] Read bridge resources when fixing up the bus
-Message-ID: <20050318141630.I1145@unix-os.sc.intel.com>
-Reply-To: Rajesh Shah <rajesh.shah@intel.com>
-References: <20050318133856.A878@unix-os.sc.intel.com>
+	Fri, 18 Mar 2005 17:16:33 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:33541 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S262087AbVCRWJZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 17:09:25 -0500
+Date: Fri, 18 Mar 2005 23:09:21 +0100
+From: Stelian Pop <stelian@popies.net>
+To: Hong Kong Phoey <hongkongphoey@gmail.com>
+Cc: lm@bitmover.com, andersen@codepoet.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: BKCVS broken ?
+Message-ID: <20050318220920.GB5402@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Hong Kong Phoey <hongkongphoey@gmail.com>, lm@bitmover.com,
+	andersen@codepoet.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050317144522.GK22936@hottah.alcove-fr> <20050318001053.GA23358@bitmover.com> <20050318055040.GA16780@codepoet.org> <20050318063853.GA30603@bitmover.com> <20050318090047.GA12314@sd291.sivit.org> <20050318141345.GA2227@bitmover.com> <20050318142124.GA3333@crusoe.alcove-fr> <4f6c1bdf05031807086e5e92f7@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050318133856.A878@unix-os.sc.intel.com>; from rajesh.shah@intel.com on Fri, Mar 18, 2005 at 01:38:57PM -0800
+In-Reply-To: <4f6c1bdf05031807086e5e92f7@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Read bridge io/mem/pfmem ranges when fixing up the bus so that 
-bus resources are tracked. This is required to properly support
-pci end device and bridge hotplug.
+On Fri, Mar 18, 2005 at 08:38:51PM +0530, Hong Kong Phoey wrote:
 
-Signed-off-by: Rajesh Shah <rajesh.shah@intel.com>
----
+> IMHO, BKCVS is just fine, what's broken is your head.
 
- linux-2.6.11-mm4-iohp-rshah1/arch/ia64/pci/pci.c |    4 ++++
- 1 files changed, 4 insertions(+)
+Yup, that's what I said, that cvs HEAD is broken...
 
-diff -puN arch/ia64/pci/pci.c~ia64-read_bridge_bases arch/ia64/pci/pci.c
---- linux-2.6.11-mm4-iohp/arch/ia64/pci/pci.c~ia64-read_bridge_bases	2005-03-16 13:07:30.503257168 -0800
-+++ linux-2.6.11-mm4-iohp-rshah1/arch/ia64/pci/pci.c	2005-03-16 13:07:30.612632167 -0800
-@@ -436,6 +436,10 @@ pcibios_fixup_bus (struct pci_bus *b)
- {
- 	struct pci_dev *dev;
- 
-+	if (b->self) {
-+		pci_read_bridge_bases(b);
-+		pcibios_fixup_device_resources(b->self);
-+	}
- 	list_for_each_entry(dev, &b->devices, bus_list)
- 		pcibios_fixup_device_resources(dev);
- 
-_
+:)
+
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>

@@ -1,68 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbVCUJpv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261715AbVCUJtF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261709AbVCUJpv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 04:45:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbVCUJpu
+	id S261715AbVCUJtF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 04:49:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVCUJtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 04:45:50 -0500
-Received: from wproxy.gmail.com ([64.233.184.201]:12560 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261709AbVCUJpm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 04:45:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Sl0Hbshr2mtOd4ddU2Y1Y5MRXDFWNojl8LCVWyc2bqD7xUH9jrEzsMebshLe9Fd+GF+bM/0Z4pEe5lK5FrBhscMWLzFUpmSzjyENnSu6+qnQ4AvZx1qJPdo+HzNYnnDXnC5TqHmL9rfMbOQ60dSUh9eOIoXHvIFINb3ltg8UYpI=
-Message-ID: <58cb370e0503210145375f5092@mail.gmail.com>
-Date: Mon, 21 Mar 2005 10:45:40 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Subject: Re: [PATCH] alpha build fixes
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
-       chas williams - CONTRACTOR <chas@cmf.nrl.navy.mil>,
-       Leendert van Doorn <leendert@watson.ibm.com>,
-       Reiner Sailer <sailer@watson.ibm.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-In-Reply-To: <20050321121616.A24129@jurassic.park.msu.ru>
+	Mon, 21 Mar 2005 04:49:05 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:50957 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261715AbVCUJsd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 04:48:33 -0500
+Date: Mon, 21 Mar 2005 20:48:07 +1100
+To: Fruhwirth Clemens <clemens@endorphin.org>
+Cc: James Morris <jmorris@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       cryptoapi@lists.logix.cz
+Subject: [1/5] [CRYPTO] Do scatterwalk_whichbuf inline
+Message-ID: <20050321094807.GA23235@gondor.apana.org.au>
+References: <20050321094047.GA23084@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <423BABBF.6030103@pobox.com> <20050319231116.GA4114@twiddle.net>
-	 <20050319231641.GA28070@havoc.gtf.org>
-	 <58cb370e0503210005358cf200@mail.gmail.com>
-	 <20050321121616.A24129@jurassic.park.msu.ru>
+Content-Type: multipart/mixed; boundary="wac7ysb48OaltWcw"
+Content-Disposition: inline
+In-Reply-To: <20050321094047.GA23084@gondor.apana.org.au>
+User-Agent: Mutt/1.5.6+20040907i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Mar 2005 12:16:16 +0300, Ivan Kokshaysky
-<ink@jurassic.park.msu.ru> wrote:
-> On Mon, Mar 21, 2005 at 09:05:39AM +0100, Bartlomiej Zolnierkiewicz wrote:
-> > On Sat, 19 Mar 2005 18:16:41 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
-> > > On Sat, Mar 19, 2005 at 03:11:16PM -0800, Richard Henderson wrote:
-> > > > On Fri, Mar 18, 2005 at 11:34:07PM -0500, Jeff Garzik wrote:
-> > > > > +/* TODO: integrate with include/asm-generic/pci.h ? */
-> > > > > +static inline int pci_get_legacy_ide_irq(struct pci_dev *dev, int channel)
-> > > > > +{
-> > > > > +   return channel ? 15 : 14;
-> > > > > +}
-> > > >
-> > > > Am I missing something, or is this *only* used by drivers/ide/pci/amd74xx.c?
-> > > > Why in the world would we have this much infrastructure for one driver?  And
-> > > > why not just not compile that one for Alpha, since it'll never be used.
-> > >
-> > > My presumption is that it will be used in other IDE drivers in the
-> > > future.  Bart?
-> >
-> > This code is meant to be used by other IDE/libata drivers.
-> 
-> Then isn't linux/ide.h the proper place for default pci_get_legacy_ide_irq()
 
-ide.h is not shared between IDE and libata drivers (but ata.h is)
+--wac7ysb48OaltWcw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> implementation instead of asm-generic/pci.h? The latter is only used by
-> 7 out of 23 architectures, so not only alpha gets broken.
+Hi:
 
-I'm cc:ing Ben as it was his idea
+scatterwalk_whichbuf is called once for each block which could be as
+small as 8/16 bytes.  So it makes sense to do that work inline.
+
+It's also a bit inflexible since we may want to use the temporary buffer
+even if the block doesn't cross page boundaries.  In particular, we want
+to do that when the source and destination are the same.
+
+So let's replace it with scatterwalk_across_pages.
+
+I've also simplified the check in scatterwalk_across_pages.  It is
+sufficient to only check len_this_page.
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--wac7ysb48OaltWcw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=sg-1
+
+diff -Nru a/crypto/cipher.c b/crypto/cipher.c
+--- a/crypto/cipher.c	2005-03-21 18:43:36 +11:00
++++ b/crypto/cipher.c	2005-03-21 18:43:36 +11:00
+@@ -11,6 +11,7 @@
+  * any later version.
+  *
+  */
++#include <linux/compiler.h>
+ #include <linux/kernel.h>
+ #include <linux/crypto.h>
+ #include <linux/errno.h>
+@@ -72,8 +73,15 @@
+ 
+ 		scatterwalk_map(&walk_in, 0);
+ 		scatterwalk_map(&walk_out, 1);
+-		src_p = scatterwalk_whichbuf(&walk_in, bsize, tmp_src);
+-		dst_p = scatterwalk_whichbuf(&walk_out, bsize, tmp_dst);
++
++		src_p = walk_in.data;
++		if (unlikely(scatterwalk_across_pages(&walk_in, bsize)))
++			src_p = tmp_src;
++
++		dst_p = walk_out.data;
++		if (unlikely(scatterwalk_across_pages(&walk_out, bsize)))
++			dst_p = tmp_dst;
++
+ 		in_place = scatterwalk_samebuf(&walk_in, &walk_out,
+ 					       src_p, dst_p);
+ 
+diff -Nru a/crypto/scatterwalk.c b/crypto/scatterwalk.c
+--- a/crypto/scatterwalk.c	2005-03-21 18:43:36 +11:00
++++ b/crypto/scatterwalk.c	2005-03-21 18:43:36 +11:00
+@@ -28,16 +28,6 @@
+ 	KM_SOFTIRQ1,
+ };
+ 
+-void *scatterwalk_whichbuf(struct scatter_walk *walk, unsigned int nbytes, void *scratch)
+-{
+-	if (nbytes <= walk->len_this_page &&
+-	    (((unsigned long)walk->data) & (PAGE_CACHE_SIZE - 1)) + nbytes <=
+-	    PAGE_CACHE_SIZE)
+-		return walk->data;
+-	else
+-		return scratch;
+-}
+-
+ static void memcpy_dir(void *buf, void *sgdata, size_t nbytes, int out)
+ {
+ 	if (out)
+diff -Nru a/crypto/scatterwalk.h b/crypto/scatterwalk.h
+--- a/crypto/scatterwalk.h	2005-03-21 18:43:36 +11:00
++++ b/crypto/scatterwalk.h	2005-03-21 18:43:36 +11:00
+@@ -42,7 +42,12 @@
+ 	       walk_in->data == src_p && walk_out->data == dst_p;
+ }
+ 
+-void *scatterwalk_whichbuf(struct scatter_walk *walk, unsigned int nbytes, void *scratch);
++static inline int scatterwalk_across_pages(struct scatter_walk *walk,
++					   unsigned int nbytes)
++{
++	return nbytes > walk->len_this_page;
++}
++
+ void scatterwalk_start(struct scatter_walk *walk, struct scatterlist *sg);
+ int scatterwalk_copychunks(void *buf, struct scatter_walk *walk, size_t nbytes, int out);
+ void scatterwalk_map(struct scatter_walk *walk, int out);
+
+--wac7ysb48OaltWcw--

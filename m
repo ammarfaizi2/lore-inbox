@@ -1,27 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278829AbRJZSlB>; Fri, 26 Oct 2001 14:41:01 -0400
+	id <S278832AbRJZSob>; Fri, 26 Oct 2001 14:44:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278831AbRJZSkn>; Fri, 26 Oct 2001 14:40:43 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16141 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S278829AbRJZSkh>; Fri, 26 Oct 2001 14:40:37 -0400
-Subject: Re: [PATCH] sparc64 fix for 2.4.13-ac2
-To: MikeW@rren.org (Mike Warren)
-Date: Fri, 26 Oct 2001 19:47:10 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <200110261835.MAA14684@infomesa.com> from "Mike Warren" at Oct 26, 2001 12:35:43 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S278833AbRJZSoL>; Fri, 26 Oct 2001 14:44:11 -0400
+Received: from vger.timpanogas.org ([207.109.151.240]:36365 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S278832AbRJZSoJ>; Fri, 26 Oct 2001 14:44:09 -0400
+Date: Fri, 26 Oct 2001 12:47:16 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Rob Turk <r.turk@chello.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SCSI Tape Device FATAL error on 2.4.10
+Message-ID: <20011026124716.B18026@vger.timpanogas.org>
+In-Reply-To: <20011025124036.A11885@vger.timpanogas.org> <9rbj9p$8tr$1@ncc1701.cistron.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15xC0c-00010d-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <9rbj9p$8tr$1@ncc1701.cistron.net>; from r.turk@chello.nl on Fri, Oct 26, 2001 at 02:00:56PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> sparc64 compiles of recent ac kernels are failing due to a missing
-> #define of INIT_MMAP.  This code was removed in patch-2.4.10, but was
-> also erroneously removed from the ac branch where it is still required.
+On Fri, Oct 26, 2001 at 02:00:56PM +0200, Rob Turk wrote:
+> "Jeff V. Merkey" <jmerkey@vger.timpanogas.org> wrote in message
+> news:cistron.20011025124036.A11885@vger.timpanogas.org...
+> >
+> >
+> > On a ServerWorks HE Chipset system with an Exabyte EXB-480
+> > Robotics Tape library we are seeing a fatal SCSI IO problem
+> > that results in a SCSI bus hang on the system.  This error
+> > is very fatal, and requires that the machine be rebooted
+> > to recover.   Following this error, the Linux
+> > Operating System is still running OK, but the affected
+> > SCSI bus does not respond to any commands nor do any
+> > devices attached to this bus.
+> >
+> > The Tape Drive is an Exabyte SCSI Tape.  The error occurs when
+> > the device reaches end of tape (EOT) during a write operation
+> > while writing to the tape.
+> >
+> > With tape programming, there really is no good way to know where
+> > the end of tape is while archiving data real time, so this error
+> > is pretty much fatal.  We are using tape partitioning, which we
+> > have noticed not many applications in Linux use at present, so
+> > these code paths may be related to the problem.  I have reviewed
+> > st.c but it is not readily apparent where the problem may be
+> > in this code, which is leading me to suspect it's related to
+> > some interaction between st.c and the drivers with regard to
+> > multiple seeks and writes between tape partitions.
+> >
+> 
+> Jeff,
+> 
+> Logical end-of-tape handling is clearly defined in Exabyte's SCSI reference
+> manual which you can download from their web page. There's nothing fatal
+> about it, your application should handle it. The SCSI Write command that
+> reaches logical end-of-tape (or end-of-partition) will end with a Check
+> condition, Sense key 0h, ASC=00h, ASCQ=00h, EOM bit = 1. Your data will be
+> written to tape just fine. There is plenty of tape left so you can
+> gracefully write a delimiting filemark or whatever you need to close the
+> current data set. All write commands after reaching LEOT will also result in
+> a Check Condition with the above sense information (until you really run out
+> of tape). It's a Logical end-of-tape you deal with, not a Physical one.
+> 
+> As a side note, make sure you have the latest firmware loaded in your M2
+> drives.
+> 
+> Rob
+> 
 
-Thanks I'll fold that into -ac
+I am using st.o and it is not handling this condition correctly under
+Linux.  It has nothing to do with your firmware.  I am programming 
+the robot directly over SCSI, but I am going through the Linux tape support 
+module st.c for tape drive support.  When this error occurs, the 
+entire SCSI bus gets hosed in some of the failure cases.   Sounds like 
+I need to submit a patch to st.c
+
+:-)
+
+Jeff
+
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

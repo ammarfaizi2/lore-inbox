@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262645AbSIPQWt>; Mon, 16 Sep 2002 12:22:49 -0400
+	id <S262608AbSIPQcb>; Mon, 16 Sep 2002 12:32:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262626AbSIPQWt>; Mon, 16 Sep 2002 12:22:49 -0400
-Received: from ns.suse.de ([213.95.15.193]:13834 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S262658AbSIPQWs>;
-	Mon, 16 Sep 2002 12:22:48 -0400
-Date: Mon, 16 Sep 2002 18:27:45 +0200
-From: Dave Jones <davej@suse.de>
-To: Alan Cox <alan@redhat.com>
-Cc: James Cleverdon <jamesclv@us.ibm.com>, linux-kernel@vger.kernel.org,
-       James.Bottomley@steeleye.com, torvalds@transmeta.com, mingo@redhat.com
-Subject: Re: [PATCH] Summit patch for 2.5.34
-Message-ID: <20020916182745.A14132@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Alan Cox <alan@redhat.com>, James Cleverdon <jamesclv@us.ibm.com>,
-	linux-kernel@vger.kernel.org, James.Bottomley@steeleye.com,
-	torvalds@transmeta.com, mingo@redhat.com
-References: <20020916175545.A21875@suse.de> <200209161615.g8GGFqx10004@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200209161615.g8GGFqx10004@devserv.devel.redhat.com>; from alan@redhat.com on Mon, Sep 16, 2002 at 12:15:52PM -0400
+	id <S262613AbSIPQcb>; Mon, 16 Sep 2002 12:32:31 -0400
+Received: from h-64-105-136-15.SNVACAID.covad.net ([64.105.136.15]:10114 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S262608AbSIPQc3>; Mon, 16 Sep 2002 12:32:29 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Mon, 16 Sep 2002 09:36:15 -0700
+Message-Id: <200209161636.JAA02714@adam.yggdrasil.com>
+To: linux-kernel@vger.kernel.org, spstarr@sh0n.net, venom@sns.it
+Subject: Re: BUG(): sched.c: Line 944 - 2.5.35
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 16, 2002 at 12:15:52PM -0400, Alan Cox wrote:
- > > - I believe the way forward here is to work with James Bottomley,
- > For 2.5 maybe not for 2.4.
+Shawn Starr wrote:
 
-Oh, absolutely. subarch support is way too intrusive a change for 2.4.
+>Kernel 2.5.35:
+>
+>code resides in main schedule() function:
+>
+>if (unlikely(in_atomic()))
+>   BUG();
 
- > Until Linus takes the subarch stuff the 
- > if if if bits will just get uglier. As well as voyager there are at least
- > two more pending NUMA x86 platforms other than IBM summit
 
-Indeed. And who knows how many more to come...
+	That line prevously checked in_interrupt (in 2.5.34) instead of
+in_atomic.  If you have CONFIG_PREEMPT defined, the definition of in_atomic
+in linux-2.5.35/include/asm-i386/hardirq.h is:
 
-        Dave
+# define in_atomic()    (preempt_count() != kernel_locked())
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+	When I see this problem at boot, preempt_count() returns 0x4000000
+(PREEMPT_ACTIVE) and kernel_locked() returns 0.
+
+	I don't understand the semantics of PREEMPT_ACTIVE to know
+whether to
+
+	(1) change the test back to using in_interrupt instead of in_atomic, or
+	(2) change the definition of in_atomic(), or
+	(3) look for a bug somewhere else.
+
+	However, I know experimentally that changing the test back to
+using in_interrupt() results in a possibly unrelated BUG() at line 279
+of rmap.c:
+
+void page_remove_rmap(struct page * page, pte_t * ptep)
+{
+        pte_addr_t pte_paddr = ptep_to_paddr(ptep);
+        struct pte_chain *pc;
+
+        if (!page || !ptep)
+                BUG();
+        if (!pfn_valid(page_to_pfn(page)) || PageReserved(page))
+                return;
+
+        pte_chain_lock(page);
+
+        BUG_ON(page->pte.direct == 0);
+
+
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

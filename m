@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261260AbTIYPBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 11:01:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbTIYPBQ
+	id S261282AbTIYO7c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 10:59:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbTIYO7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 11:01:16 -0400
-Received: from [203.145.184.221] ([203.145.184.221]:30214 "EHLO naturesoft.net")
-	by vger.kernel.org with ESMTP id S261260AbTIYPBP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 11:01:15 -0400
-From: Shine Mohamed <shinemohamed_j@naturesoft.net>
-Organization: Naturesoft
-To: linux-kernel@vger.kernel.org
-Subject: [TRIVIAL] Patch to for Cyclades ISA serial board under 2.6
-Date: Thu, 25 Sep 2003 20:32:57 +0530
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Disposition: inline
-Cc: krishnakumar@naturesoft.net
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 25 Sep 2003 10:59:32 -0400
+Received: from h80ad26dc.async.vt.edu ([128.173.38.220]:31617 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261282AbTIYO7b (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 10:59:31 -0400
+Message-Id: <200309251459.h8PExJ6q027275@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: "Johnson, Richard" <rjohnson@analogic.com>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Horiffic SPAM 
+In-Reply-To: Your message of "Thu, 25 Sep 2003 10:21:49 +0200."
+             <3F72A59D.4000407@aitel.hist.no> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.53.0309231408260.28457@quark.analogic.com> <20030923183648.GE1269@velociraptor.random> <Pine.LNX.4.53.0309241006500.30216@quark.analogic.com>
+            <3F72A59D.4000407@aitel.hist.no>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1131873296P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200309252032.57513.shinemohamed_j@naturesoft.net>
+Date: Thu, 25 Sep 2003 10:59:19 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quick patch to remove unused variables in Cyclades.c
-This patch was sent earlier but the patching was done in wrong way 
-.... So submitting a correctly patched one.
+--==_Exmh_-1131873296P
+Content-Type: text/plain; charset=us-ascii
 
---- drivers/char/cyclades.c.orig        2003-09-25 19:04:22.000000000 +0530
-+++ drivers/char/cyclades.c     2003-09-25 19:07:45.000000000 +0530
-@@ -5665,8 +5665,7 @@
- cy_cleanup_module(void)
- {
-     int i;
--    int e1, e2;
--    unsigned long flags;
-+    int e1;
+On Thu, 25 Sep 2003 10:21:49 +0200, Helge Hafting said:
 
- #ifndef CONFIG_CYZ_INTR
-     if (cyz_timeron){
+> According to standards they will give up after 5 days or so.
 
+Methinks you forgot the smiley on here.
 
+--==_Exmh_-1131873296P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/cwLHcC3lWbTT17ARAoWQAKCsgxFYlesF+88+h8SQsCSrak/u/wCfcKir
+37icxBDJZQTfjGckDOEHnKw=
+=8NaI
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1131873296P--

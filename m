@@ -1,86 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266730AbTADFAc>; Sat, 4 Jan 2003 00:00:32 -0500
+	id <S266718AbTADE61>; Fri, 3 Jan 2003 23:58:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266731AbTADFAc>; Sat, 4 Jan 2003 00:00:32 -0500
-Received: from samael.donpac.ru ([195.161.172.239]:9478 "EHLO samael.donpac.ru")
-	by vger.kernel.org with ESMTP id <S266730AbTADFAa> convert rfc822-to-8bit;
-	Sat, 4 Jan 2003 00:00:30 -0500
-From: "Andrey Panin" <pazke@orbita1.ru>
-Date: Sat, 4 Jan 2003 08:03:56 +0300
-To: davidm@hpl.hp.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] irq handling code consolidation (common part)
-Message-ID: <20030104050356.GA10477@pazke>
-Mail-Followup-To: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
-References: <20021224060331.GA1090@pazke> <15892.34096.565694.402521@napali.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <15892.34096.565694.402521@napali.hpl.hp.com>
-User-Agent: Mutt/1.3.28i
-X-Uname: Linux 2.4.20aa1 i686 unknown
+	id <S266721AbTADE61>; Fri, 3 Jan 2003 23:58:27 -0500
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:45334 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S266718AbTADE60>;
+	Fri, 3 Jan 2003 23:58:26 -0500
+From: <Hell.Surfers@cwctv.net>
+To: rms@gnu.org, mark@mark.mielke.cc, billh@gnuppy.monkey.org, paul@clubi.ie,
+       riel@conectiva.com.br, linux-kernel@vger.kernel.org
+Date: Sat, 4 Jan 2003 05:05:28 +0000
+Subject: RE:Re: Why is Nvidia given GPL'd code to use in non-free drivers?
+MIME-Version: 1.0
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1041656728267"
+Message-ID: <01cd25003050413DTVMAIL11@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 02, 2003 at 10:30:08AM -0800, David Mosberger wrote:
-> >>>>> On Tue, 24 Dec 2002 09:03:31 +0300, "Andrey Panin" <pazke@orbita1.ru> said:
-> 
->   Andrey> Hi all, this patch moves some common parts of irq handling
->   Andrey> code to one place.  Arch specific patches will follow. Patch
->   Andrey> for i386 is tested and performed well, but other arch
->   Andrey> specific patched are not. Please take a look.
-> 
->   Andrey> Please CC me answering this letter, I'm not subscribed to
->   Andrey> lkml currently.
-> 
-> +/*
-> + * Controller mappings for all interrupt sources:
-> + */
-> +irq_desc_t irq_desc[NR_IRQS] __cacheline_aligned = {
-> +	[0 ... NR_IRQS - 1] = {
-> +		.handler =	&no_irq_type,
-> +		.lock =		SPIN_LOCK_UNLOCKED,
-> +	}
-> +};
-> 
-> This isn't good.  For example, NUMA platforms with per-CPU irqs want
-> to allocate the irq descriptors in local memory.  On ia64, we
-> introduced a minimal irq-descriptor API for this purpose:
 
-I noticed this already, in the new patch which I want to post today
-irq_desc declaration is guarded by #ifndef HAVE_ARCH_IRQ_DESC.
+--1041656728267
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> 
-> 	/* Return a pointer to the irq descriptor for IRQ.  */
-> 	static inline struct irq_desc * irq_desc (int irq);
-> 
-> 	/* Extract the IA-64 vector that corresponds to IRQ.  */
-> 	static inline ia64_vector irq_to_vector (int irq);
-> 
-> 	/*
-> 	 * Convert the local IA-64 vector to the corresponding irq number.
-> 	 * This translation is done in the context of the interrupt domain
-> 	 * that the currently executing CPU belongs to.
-> 	 */
-> 	static inline unsigned int local_vector_to_irq (ia64_vector vec);
-> 
-> I think the platform-independent part of the code really would only
-> need the first routine irq_desc().  The other two are ia64-specific.
->
-> BTW: if you haven't done so already, I'd suggest to take a look at
-> arch/ia64/kernel/irq.c.  I tried to keep this code as close as
-> possible to the x86 version.  There shouldn't be anything in there
-> that isn't wanted for a good reason.
+Linus didnt write all of the files they use, so he has no right to give permission.
 
-Already done.
+Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
 
-BTW: what is the state of ia64 port in stock 2.5 ? 
-It looks horribly borken :(
+On Fri, 03 Jan 2003 15:30:32 -0500 Richard Stallman <rms@gnu.org> wrote:
 
-Best regards.
+--1041656728267
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
--- 
-Andrey Panin		| Embedded systems software developer
-pazke@orbita1.ru	| PGP key: wwwkeys.pgp.net
+Received: from fencepost.gnu.org ([199.232.76.164]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Fri, 3 Jan 2003 20:27:22 +0000
+Received: from rms by fencepost.gnu.org with local (Exim 4.10)
+	id 18UYSe-0004v1-00; Fri, 03 Jan 2003 15:30:32 -0500
+From: Richard Stallman <rms@gnu.org>
+To: mark@mark.mielke.cc
+CC: billh@gnuppy.monkey.org, paul@clubi.ie, riel@conectiva.com.br,
+	Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
+In-reply-to: <20030103075134.GA31357@mark.mielke.cc> (message from Mark Mielke
+	on Fri, 3 Jan 2003 02:51:34 -0500)
+Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
+Reply-to: rms@gnu.org
+References: <20030102013736.GA2708@gnuppy.monkey.org> <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org> <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc> <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103075134.GA31357@mark.mielke.cc>
+Message-Id: <E18UYSe-0004v1-00@fencepost.gnu.org>
+Date: Fri, 03 Jan 2003 15:30:32 -0500
+Return-Path: rms@gnu.org
+
+    You don't seem to mind the fact that my freedom to use Linux would be
+    hampered if you successfully prove that [non-free] modules for
+    Linux are illegal.
+
+I'm not trying to prove this--as I see it, Linus gave permission for
+them, which means they are legal.  I regret his decision to do this,
+but I cannot change it.
+
+But let's suppose that that were changed.  It would not affect your
+"freedom" to use Linux (and GNU/Linux), only whether it runs on a
+certain computer.  It is true that this might mean a practical
+sacrifice--you might have to get a different kind of computer, for
+instance.  I don't see that as a horrible thing.  We look for
+computers that work with free drivers; you can too.
+
+You don't really have freedom now, if you need a non-free module.  In
+the long run, your best chance of being able to use a fully free
+GNU/Linux system on the hardware you use is if we stand firm together
+for the freedom of the system.
+
+    If open source is so good, companies with closed source products will
+    change.
+
+I don't support the open source movement, but I know what they say
+about this.  They say that open source usually leads to more powerful
+and reliable software.  Nothing assures us that will persuade all
+companies to adopt the practice.  You have simplified their position
+to a point where they would not recognize it.
+
+You seem to be saying that we should sit back and let these inevitable
+forces either convince all companies to make software free--or not.
+If we had such a passive attitude, no free system would exist.
+GNU/Linux exists because of people who were willing to work to have
+freedom.  Freedom does not yet prevail, and we have plenty more work
+to do to make that happen.  And after we fully have freedom, we will
+still have to work, to make sure we don't lose it.
+
+
+
+
+--1041656728267--
+
+

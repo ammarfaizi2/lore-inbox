@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318202AbSGWUKX>; Tue, 23 Jul 2002 16:10:23 -0400
+	id <S318223AbSGWUZB>; Tue, 23 Jul 2002 16:25:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318203AbSGWUKW>; Tue, 23 Jul 2002 16:10:22 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:53512
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S318202AbSGWUKW>; Tue, 23 Jul 2002 16:10:22 -0400
-Date: Tue, 23 Jul 2002 13:08:35 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: please DON'T run 2.5.27 with IDE!
-In-Reply-To: <20020723195231.GA14288@ravel.coda.cs.cmu.edu>
-Message-ID: <Pine.LNX.4.10.10207231304530.29975-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318227AbSGWUZB>; Tue, 23 Jul 2002 16:25:01 -0400
+Received: from mail16.speakeasy.net ([216.254.0.216]:11214 "EHLO
+	mail.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S318223AbSGWUZA>; Tue, 23 Jul 2002 16:25:00 -0400
+Subject: non-critical ext3-fs errors?
+From: Ed Sweetman <safemode@speakeasy.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 23 Jul 2002 16:28:10 -0400
+Message-Id: <1027456090.1982.28.camel@psuedomode>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Jul 2002, Jan Harkes wrote:
+I notice these errors every now and then on my 100GB WD drive
+(partitioned into bits) and particularly on this partition that I
+compile everything on.   
 
-> On Tue, Jul 23, 2002 at 03:58:58PM +0200, Marcin Dalecki wrote:
-> > That's actually not true... At least the setting of the
-> > request rq->flags is significantly different here and there.
-> > However I think but I'm not sure that the fact aht we have rq->special 
-> > != NULL here has the hidded side effect that we indeed accomplish the
-> > same semantics.
-> > 
-> > >And yes it will be useful to move it to block layer.
-> > 
-> > Done. Just needs testing. I have at least an ZIP parport drive, which
-> > allows me to do some basic checks.
-> 
-> Ehh, you are testing all those IDE changes with a ZIP drive connected to
-> the parallel port? Don't you have any real IDE devices?? I'm sure we can
-> all chip in and buy you a drive if you need one.
+EXT3-fs error (device ide0(3,7)): ext3_readdir: bad entry in directory
+#17821: directory entry across blocks - offset=24, inode=17822,
+rec_len=4076, name_len=3 
 
-Would be faster to get a real maintainer, but nobody cares about actually
-finishing 2.5 or they would find one that could actually make it work
-proper.
+Now these errors dont cause the system to panic like other ext3 errors
+do, so i'm wondering what the significance of these errors are.   I'm
+running 2.4.19-rc3   and the drive is on VIA vt82c686b (rev 40) IDE
+UDMA100 controller with dma enabled. 
 
-Andre Hedrick
-LAD Storage Consulting Group
-
--------------------------------------------------------
-2.4, has crappy code, an arse-hole maintainer, and a working safe driver.
-2.5, erm "Two of Three, ain't BAD"
 

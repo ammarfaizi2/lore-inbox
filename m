@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262532AbUCWMlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 07:41:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbUCWMlQ
+	id S262527AbUCWMqO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 07:46:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262522AbUCWMqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 07:41:16 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:30639 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262532AbUCWMlL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 07:41:11 -0500
-Date: Tue, 23 Mar 2004 13:40:32 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: dipankar@in.ibm.com, tiwai@suse.de, Robert Love <rml@ximian.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+	Tue, 23 Mar 2004 07:46:13 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:27083
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262527AbUCWMp7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 07:45:59 -0500
+Date: Tue, 23 Mar 2004 13:46:51 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: tiwai@suse.de, Robert Love <rml@ximian.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] RCU for low latency (experimental)
-Message-ID: <20040323124032.GF13666@devserv.devel.redhat.com>
-References: <20040323101755.GC3676@in.ibm.com> <1080038105.5296.8.camel@laptop.fenrus.com> <20040323123105.GI22639@dualathlon.random>
+Message-ID: <20040323124651.GK22639@dualathlon.random>
+References: <20040323101755.GC3676@in.ibm.com> <20040323122925.GH22639@dualathlon.random> <20040323123426.GG3676@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Y1L3PTX8QE8cb2T+"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040323123105.GI22639@dualathlon.random>
+In-Reply-To: <20040323123426.GG3676@in.ibm.com>
 User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 23, 2004 at 06:04:26PM +0530, Dipankar Sarma wrote:
+> I have a patch for that too which I have been testing for DoS in
+> route cache, not latency. It is worth testing it here, however 
+> I think re-arming tasklets is not as friendly to latency as
+> executing the rcu callbacks from process context. One thing
+> I have noticed is that more softirqs worsen latency irrespective
+> of the worst-case softirq length.
 
---Y1L3PTX8QE8cb2T+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+if we keep getting new interrupts in a flood, we'll also execute those
+callbacks in a flood, that's why the number of callbacks executed must
+be very small for every tasklet, the cost of the tasklet should be small
+compared to the whole cost of the irq taking to hardware too, so I don't
+see much problems with softirqs, if you don't get a flood of hw-irqs,
+the callback load will be offloaded to ksoftirqd etc... softirqs are
+also guaranteed to make progress despite not running  RT.  That's the
+best for you.  eventd must run RT. And if you don't make your userspace
+krcud RT you can run a box out of memory with a RT application, while if
+you make it RT you'll again generate the latencies making krcud useless.
 
-On Tue, Mar 23, 2004 at 01:31:05PM +0100, Andrea Arcangeli wrote:
-> On Tue, Mar 23, 2004 at 11:35:06AM +0100, Arjan van de Ven wrote:
-> > 
-> > > Reduce bh processing time of rcu callbacks by using tunable per-cpu
-> > > krcud daemeons.
-> > 
-> > why not just use work queues ?
-> 
-> I don't know if work queues are scheduler friendly, but definitely the
-> rearming tasklets are. Running a dozen callbacks per pass and queueing
-> any remining work to a rearming tasklet should fix it.
-
-yeah ksoftirqd will work too indeed.
-
---Y1L3PTX8QE8cb2T+
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAYDA/xULwo51rQBIRAil5AJ9okPTYwXsHFTcaBBvQUcRB9LpDaACdHDlr
-Q+7lrX32vbTBZ7txCnCR+2I=
-=xiKz
------END PGP SIGNATURE-----
-
---Y1L3PTX8QE8cb2T+--
+this is btw, why I implemented rcu_poll using softirqs, problem is that
+softirqs are so low latency that we couldn't coalesce many callbacks
+together to maximze icache and so we've to reach less quiescient points
+per second to do the same work etc... so we delay it at the next irq,
+that's fine, but if there's too much work to do, going back to the
+softirq model like in rcu_poll sounds the natural way to go.

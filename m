@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265423AbTFMQOW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 12:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265424AbTFMQOW
+	id S265419AbTFMQKg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 12:10:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265423AbTFMQKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 12:14:22 -0400
-Received: from filesrv1.system-techniques.com ([199.33.245.55]:194 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id S265423AbTFMQOS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 12:14:18 -0400
-Date: Fri, 13 Jun 2003 12:28:04 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Riley Williams <Riley@Williams.Name>
-cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/bus/pci
-In-Reply-To: <BKEGKPICNAKILKJKMHCAAEAKEFAA.Riley@Williams.Name>
-Message-ID: <Pine.LNX.4.56.0306131226130.3625@filesrv1.baby-dragons.com>
-References: <BKEGKPICNAKILKJKMHCAAEAKEFAA.Riley@Williams.Name>
+	Fri, 13 Jun 2003 12:10:36 -0400
+Received: from origo.imsb.au.dk ([192.38.35.2]:37560 "EHLO origo.imsb.au.dk")
+	by vger.kernel.org with ESMTP id S265419AbTFMQJS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 12:09:18 -0400
+Date: Fri, 13 Jun 2003 19:22:56 +0200 (CEST)
+From: Morten Kjeldgaard <mok@imsb.au.dk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: fatal error with nForce2 system
+In-Reply-To: <1055493950.5169.15.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0306131919370.12961-100000@origo.imsb.au.dk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello Riley ,
+Dear Alan,
 
-On Fri, 13 Jun 2003, Riley Williams wrote:
-> Hi Andre.
-...snip...
-> All forms of hard disk interface - that I do know.
->
-> ST-506 = Seagate Technology model 506 hard drive
->          (which set the MFM and RLL standards)
-	st506 was ONLY mfm .  There were no st506 drive that had RLL
-	encodings .
+> The hang and the Nvidia driver crash may be unrelated problems
+> unfortunately. The first candidate is probably to run memtest86 on
+> the system, and then to check the usual suspects (fan, psu voltage). 
 
-> ---
->  * Nothing as pretty as a smile, nothing as ugly as a frown.
-	;-) ,  Twyl ,  JimL
+I'll go over the system with a fine comb, to make sure it is not hardware 
+related. Then I'll see if I can reproduce the crashes without the nVidia 
+drivers ever having been loaded.
+
+Morten
+
 -- 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+Morten Kjeldgaard <mok@imsb.au.dk>
+Department of Molecular Biology, Aarhus University
+Gustav Wieds Vej 10 C, DK-8000 Aarhus C, Denmark
+Lab +45 89425026 * Mobile +45 89428063 * Fax +45 86123178
+Home +45 86188180 * ICQ 27224900 * http://imsb.au.dk/~mok
+

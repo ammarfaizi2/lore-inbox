@@ -1,90 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291545AbSBMK4x>; Wed, 13 Feb 2002 05:56:53 -0500
+	id <S291555AbSBMK6d>; Wed, 13 Feb 2002 05:58:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291555AbSBMK4o>; Wed, 13 Feb 2002 05:56:44 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:16138
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S291545AbSBMK4i>; Wed, 13 Feb 2002 05:56:38 -0500
-Date: Wed, 13 Feb 2002 02:46:12 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Pavel Machek <pavel@suse.cz>, Jens Axboe <axboe@suse.de>,
-        kernel list <linux-kernel@vger.kernel.org>
+	id <S291562AbSBMK6U>; Wed, 13 Feb 2002 05:58:20 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:10503 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S291555AbSBMK5D>; Wed, 13 Feb 2002 05:57:03 -0500
+Date: Wed, 13 Feb 2002 11:56:25 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andre Hedrick <andre@linuxdiskcert.org>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Vojtech Pavlik <vojtech@suse.cz>, Pavel Machek <pavel@suse.cz>,
+        Jens Axboe <axboe@suse.de>, kernel list <linux-kernel@vger.kernel.org>
 Subject: Re: another IDE cleanup: kill duplicated code
-In-Reply-To: <20020213113928.A31254@suse.cz>
-Message-ID: <Pine.LNX.4.10.10202130240540.1479-100000@master.linux-ide.org>
-MIME-Version: 1.0
+Message-ID: <20020213105625.GI32687@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <3C6A418A.8040105@evision-ventures.com> <Pine.LNX.4.10.10202130228180.1479-100000@master.linux-ide.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10202130228180.1479-100000@master.linux-ide.org>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Feb 2002, Vojtech Pavlik wrote:
+Hi!
 
-> On Tue, Feb 12, 2002 at 11:27:42PM -0800, Andre Hedrick wrote:
-> > On Wed, 13 Feb 2002, Vojtech Pavlik wrote:
-> > 
-> > > On Tue, Feb 12, 2002 at 09:52:07PM -0800, Andre Hedrick wrote:
-> > > 
-> > > > HELL NO!
-> > > 
-> > > Hell why?
-> > 
-> > Does Virtual DMA mean anything?
+> > Well, after looking at yours code close engough I have one advice for 
+> > you as well: LEARN C.
 > 
-> Sure. Virtual-Direct-Marketing-Association, then there is the VDS,
-> Vitrual-DMA-Services, which is a DOS DMA access specification, then
-> there is the VDMA on PCI - this is a term used for normal PCI BM DMA
-> passing through an IOMMU-capable bridge. Then there is Virtual-DMA on
-> floppy controllers and NE*000's - which allows feeding the data to the
-> card via PIO when there is no ISA DMA controller available in the
-> system.
-> 
-> None of this is relevant to IDE on Linux.
+> I specialize in storage, and C is self taught.
 
-Well not yet but here is a hint, all future hardware will be MMIO.
-Meaning all IO is performed under DMA over the ATA-Bridge.
-Specifically PIO operations are transacted over VDMA to the Bridge and
-executed as PIO by the Bridge.
+Okay, few things to keep in mind:
 
-> Perhaps you mean PIO using SG-lists to put the data into the right
-> places. But I still don't see a problem with this and the proposed patch.
-> 
-> > Does a function struct for handling IO and MMIO help?
-> 
-> Ugh? What is "function struct"?
+*) cut-copy-paste is bad. If you fix error in one copy, it is _very_
+easy not to fix it in other copies.
 
-Since the future will be a mess, and it is possible to have IO/MMIO on the
-same HOST it will be come more fun than you can imagine.
+*) void *'s and casts are bad. They hide real errors. If you have 
 
-> > All you two are doing is causing more work for me to build a working
-> > model.
-> 
-> It's possible - but then that is because we have different development
-> strategies. Ours is to start with minimum code and if something needs to
-> be made different, then duplicate and edit that. But only when needed.
-> Yours seems to be to duplicate everything first, make the changes and
-> then look at what can be merged.
+struct foo {} bar;
 
-Mine is knowing the future of hardware and preparing for it to come.
-Why else would I packetize the ATA-Command Block?
+and want 
 
-> In theory they both give the same results.
-> 
-> I don't think that happen's in reality. Duplicating first never gets
-> merged together later, as many tiny differences emerge. Believe me, I
-> know this - this already happened many times in the kernel and is a huge
-> amount of work to undo - keep shared code shared.
-> 
-> > But it is clear you must poke and screw things up, so I will continue to
-> > undo it in my trees until I have it working.
-> 
-> If you think so, sure, you're free to do that.
+bar * baz;
 
-Well give you can not have access to hardware which doesn't exist ...
+later;
 
-Cheers,
+You can write it as struct foo * baz. That will make type checks
+actually work and save you lot of casts. 
 
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
+*) hungarian notation is considered evil in kernel.
 
+struct bla_s {} bla_t;
+
+*is* evil -- why have two types when one is enough? In kernel land,
+right way is to do 
+
+struct bla {};
+
+and then use "struct bla" everywhere you'd use bla_t. It might be
+slightly longer, but it helps you with casts (above) and everyone can
+see what is going on.
+
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

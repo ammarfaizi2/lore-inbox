@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278383AbRJWXfT>; Tue, 23 Oct 2001 19:35:19 -0400
+	id <S278385AbRJWXiS>; Tue, 23 Oct 2001 19:38:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278384AbRJWXfI>; Tue, 23 Oct 2001 19:35:08 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:12039 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S278383AbRJWXe4>;
-	Tue, 23 Oct 2001 19:34:56 -0400
-Date: Tue, 23 Oct 2001 21:35:04 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Dan Kegel <dank@kegel.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Issue with max_threads (and other resources) and highmem
-In-Reply-To: <3BD5FD98.1AACC12D@kegel.com>
-Message-ID: <Pine.LNX.4.33L.0110232134470.3690-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S278387AbRJWXiI>; Tue, 23 Oct 2001 19:38:08 -0400
+Received: from freeside.toyota.com ([63.87.74.7]:32274 "EHLO toyota.com")
+	by vger.kernel.org with ESMTP id <S278385AbRJWXiA>;
+	Tue, 23 Oct 2001 19:38:00 -0400
+Message-ID: <3BD5FF73.167A969C@lexus.com>
+Date: Tue, 23 Oct 2001 16:38:27 -0700
+From: J Sloan <jjs@lexus.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: John Gluck <jgluckca@home.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: OT: Problem compiling read_cdda-2.05
+In-Reply-To: <3BD5FD1E.D4EB7649@home.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Oct 2001, Dan Kegel wrote:
-> Rik wrote:
-> > ... A sane upper limit for
-> > max_threads would be 10000, this also keeps in mind the
-> > fact that we only have 32000 possible PIDs, some of which
-> > could be taken by task groups, etc...
+John Gluck wrote:
+
+> Hi
 >
-> ?  I thought the 2.4 kernel had switched to 32 bit pid's long ago.
-> Where does the limit of 32000 possible PIDs come from?
+> Sorry for posting this here. I tried e-mailing the authir but the mail
+> got bounced.
+>
+> I am trying to get this to compile.
+> I get the following errors:
+>
+> In file included from read_cdda.c:71:
+> read_cdda.h:45: sys/cdio.h: No such file or directory
+> In file included from read_cdda.c:71:
+> read_cdda.h:50: sys/scsi/impl/uscsi.h: No such file or directory
 
-Please take a look at kernel/fork.c::get_pid() ...
+Do you have kernel headers installed?
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+cu
 
-http://www.surriel.com/		http://distro.conectiva.com/
+jjs
+
 

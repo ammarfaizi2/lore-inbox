@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318764AbSHLR3Y>; Mon, 12 Aug 2002 13:29:24 -0400
+	id <S318762AbSHLR2Z>; Mon, 12 Aug 2002 13:28:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318760AbSHLR21>; Mon, 12 Aug 2002 13:28:27 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:11025 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S318758AbSHLR1q>; Mon, 12 Aug 2002 13:27:46 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] add sendfile() support to fatfs (3/3)
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Tue, 13 Aug 2002 02:31:24 +0900
-Message-ID: <87znvs7zmb.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S318760AbSHLR13>; Mon, 12 Aug 2002 13:27:29 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:63246 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S318758AbSHLR1K>;
+	Mon, 12 Aug 2002 13:27:10 -0400
+Date: Mon, 12 Aug 2002 10:27:14 -0700
+From: Greg KH <greg@kroah.com>
+To: Scott Murray <scottm@somanetworks.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: pcihpfs problems in 2.4.19
+Message-ID: <20020812172713.GE15249@kroah.com>
+References: <Pine.LNX.4.33.0208091547280.32159-100000@rancor.yyz.somanetworks.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0208091547280.32159-100000@rancor.yyz.somanetworks.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Mon, 15 Jul 2002 14:49:22 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Aug 09, 2002 at 04:18:02PM -0400, Scott Murray wrote:
+> I just started testing the cPCI hotplug driver I'm working on against
+> 2.4.19 after upgrading the kernel in SOMA's in-house distribution,
+> and I'm now getting the attached oops code when trying to access the
+> pcihpfs (e.g. with ls) after mounting it.  I backed out the couple of
+> changes I made last night that might have been remotely connected
+> (added hardware_test and get_power_status hotplug ops in my driver),
+> and I'm still getting it in the same place, so it looks like maybe a
+> VFS change somewhere in 2.4.19 broke pcihpfs.  Any ideas?
 
-This patch adds sendfile() support to fatfs.
+Hm, I just verified this on one of my machines, but a different one
+(ia64 box) works just fine.  I'll dig and try to find the problem later
+on today.  As a side note, someone who based their code off of pcihpfs
+also has the same problem, so I think it's some vfs change that I didn't
+catch.
 
-Please apply.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+thanks,
 
---- linux-2.5/fs/fat/file.c.orig	2002-08-11 17:16:26.000000000 +0900
-+++ linux-2.5/fs/fat/file.c	2002-08-11 16:53:49.000000000 +0900
-@@ -23,6 +23,7 @@
- 	write:		fat_file_write,
- 	mmap:		generic_file_mmap,
- 	fsync:		file_fsync,
-+	sendfile:	generic_file_sendfile,
- };
- 
- struct inode_operations fat_file_inode_operations = {
+greg k-h

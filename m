@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268060AbUJSJA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268083AbUJSJDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268060AbUJSJA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 05:00:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268080AbUJSJA0
+	id S268083AbUJSJDM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 05:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268086AbUJSJDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 05:00:26 -0400
-Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:3771 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S268060AbUJSJAY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 05:00:24 -0400
-Date: Tue, 19 Oct 2004 11:00:19 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Matthias Andree <matthias.andree@gmx.de>,
-       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9 BK build broken
-Message-ID: <20041019090019.GA6020@merlin.emma.line.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20041019021719.GA22924@merlin.emma.line.org> <41747CA6.7030400@pobox.com> <41748ADE.70403@pobox.com> <Pine.LNX.4.58.0410182208020.2287@ppc970.osdl.org>
+	Tue, 19 Oct 2004 05:03:12 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:20620 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S268083AbUJSJDJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 05:03:09 -0400
+Date: Tue, 19 Oct 2004 11:04:28 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
+Message-ID: <20041019090428.GA17204@elte.hu>
+References: <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <1098173546.12223.737.camel@thomas>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410182208020.2287@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1098173546.12223.737.camel@thomas>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Oct 2004, Linus Torvalds wrote:
 
-> > > I get an ICE here in -BK-latest, which the attached patch fixes (backs 
-> > > out Linus's change).
+* Thomas Gleixner <tglx@linutronix.de> wrote:
+
+> On Mon, 2004-10-18 at 16:50, Ingo Molnar wrote:
+> > i have released the -U5 Real-Time Preemption patch:
 > 
-> Heh. Clearly there's a gcc bug.. What compiler version?
-> 
-> I've got gcc-3.2 and gcc-3.3, and neither seems to have any trouble, but 
-> hey, I'm cursed by having fairly up-to-date systems.
+> All sleep_on variants trigger the irqs_disabled() check in schedule(). 
+> tglx
 
-Linus,
+ah, forgot that the waitqueue lock is a raw lock. Is there _any_
+scenario where sleep_on() is actually correct kernel code?
 
-I'd tried SuSE's gcc-3.3.3-41 (as shipped with SuSE Linux 9.1 Pro),
-pristine gcc 3.3.4, pristine gcc 3.4.2, each of the three failed - and I
-therefore claim "having really up-to-date compilers" for my system.
-
--- 
-Matthias Andree
+	Ingo

@@ -1,69 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbUCKQhS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 11:37:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbUCKQhS
+	id S261397AbUCKQhm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 11:37:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbUCKQhm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 11:37:18 -0500
-Received: from ccs.covici.com ([209.249.181.196]:30630 "EHLO ccs.covici.com")
-	by vger.kernel.org with ESMTP id S261183AbUCKQhM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 11:37:12 -0500
+	Thu, 11 Mar 2004 11:37:42 -0500
+Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:32347 "HELO
+	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261397AbUCKQhb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 11:37:31 -0500
+Subject: Weirdness with romfs automatic filesystem detection
+From: Jonathan Bastien-Filiatrault <lintuxicated@yahoo.ca>
 To: linux-kernel@vger.kernel.org
-Subject: Re: shuttle an50r Motherboard and Linux
-References: <m3wu5w8aex.fsf@ccs.covici.com>
-	<200403080151.28816.bzolnier@elka.pw.edu.pl>
-	<16460.36222.191866.759421@ccs.covici.com>
-	<200403081633.38437.bzolnier@elka.pw.edu.pl>
-	<16460.37707.806668.409270@ccs.covici.com>
-From: John Covici <covici@ccs.covici.com>
-Date: Thu, 11 Mar 2004 11:37:06 -0500
-In-Reply-To: <16460.37707.806668.409270@ccs.covici.com> (John covici's
- message of "Mon, 8 Mar 2004 10:37:47 -0500")
-Message-ID: <m3smgf8hn1.fsf@ccs.covici.com>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Cc: viro@math.psu.edu
+Content-Type: text/plain
+Message-Id: <1079023053.887.3.camel@6-allhosts>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 11 Mar 2004 11:37:34 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, I have just tried 2.6.2 and although it recognizes the chip, it
-sets all the disks to udma33 whereas I know at least two of them will
-work at 133.
+(SRY for the double post, the yahoo web interface is borked)
+Hi to you all,
+	Recently(yesterday), I had trouble getting the kernel(2.6.3) to mount
+my romfs initrd. After hours of tinkering, I found out that I HAD to
+specify rootfstype in order to make it work(ext2 worked w/o rootfstype).
+	So, I did a little investigating(see patch below), I found out that
+when the romfs driver is the first to try to mount the initrd, it does
+allright, but when it tries after all the other drivers, it fails with
+code -22(EINVAL I think)
 
-Any ideas?
+Conclusions:
+-This is expected behaviour (hope not).
+-The filesystem drivers modify the initrd or its state.
+-The romfs driver has something nasty in it.
+-Im only a n00b and I dont know what im talking about.
 
-on Mon, 8 Mar 2004 10:37:47 -0500 John covici <covici@ccs.covici.com> wrote:
+It would be great if I could get help solving this mistery, as my
+hacking skills are lacking...
 
-> Sorry, here it is.
->
-> 00:08.0 IDE interface: nVidia Corporation nForce3 IDE (rev a5) (prog-if 8a [Master SecP PriP])
-> 	Subsystem: Holco Enterprise Co, Ltd/Shuttle Computer: Unknown device a550
-> 	Flags: bus master, 66Mhz, fast devsel, latency 0
-> 	I/O ports at f000 [size=16]
-> 	Capabilities: [44] Power Management version 2
->
-> on Monday 03/08/2004 Bartlomiej Zolnierkiewicz(B.Zolnierkiewicz@elka.pw.edu.pl) wrote
->  > On Monday 08 of March 2004 16:13, John covici wrote:
->  > > OK, here are the relevant parts of the lspci -v -- I have been using
->  > 
->  > IDE interface is missed.
->  > 
->  > > 2.4.22, but if it will make a difference I will try newer ones.
->  > 
->  > 2.4.x needs update of amd74xx.c driver.  2.6.x should be okay.
->  > 
->  > Bartlomiej
->
-> -- 
->          John Covici
->          covici@ccs.covici.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Sincerly, Joe
 
--- 
-         John Covici
-         covici@ccs.covici.com
+Below is my kernel output:
+
+By leaving the kernel determine the filesystem type (copied by hand):
+
+(next line when using compressed ramdisk)
+RAMDISK: Compressed image found at block 0
+(next two lines w/o compression)
+RAMDISK: romfs filesystem found at block 0
+RAMDISK: Loading 1093 blocks [1 disk] into ram disk... done.
+Trying to mount root as type reiserfs: got -22
+Trying to mount root as type minix: got -22
+Trying to mount root as type vfat: got -22
+Trying to mount root as type iso9660: got -22
+Trying to mount root as type ntfs: got -22
+Trying to mount root as type romfs: VFS: Can't find a romfs filesystem
+on dev ram0.
+got -22
+...
+Panic, could not mount root fs, etc
+
+
+By specifiyng rootfstype=romfs:
+
+(next line when using compressed ramdisk)
+RAMDISK: Compressed image found at block 0
+(next two lines w/o compression)
+RAMDISK: romfs filesystem found at block 0
+RAMDISK: Loading 1093 blocks [1 disk] into ram disk... done.
+Trying to mount root as type romfs: VFS: Mounted root (romfs filesystem)
+readonly.
+got 0
+...
+success, initrd mounts system, etc...
+
+This patch show the code returned by the different fs drivers.
+
+diff -uprN linux-2.6.3/fs/romfs/inode.c linux-modded/fs/romfs/inode.c
+--- linux-2.6.3/fs/romfs/inode.c	2004-02-17 22:58:40.000000000 -0500
++++ linux-modded/fs/romfs/inode.c	2004-03-10 21:54:41.000000000 -0500
+@@ -116,6 +116,7 @@ static int romfs_fill_super(struct super
+ 	struct buffer_head *bh;
+ 	struct romfs_super_block *rsb;
+ 	int sz;
++	silent = 0;
+ 
+ 	/* I would parse the options here, but there are none.. :) */
+ 
+diff -uprN linux-2.6.3/init/do_mounts.c linux-modded/init/do_mounts.c
+--- linux-2.6.3/init/do_mounts.c	2004-02-17 22:57:28.000000000 -0500
++++ linux-modded/init/do_mounts.c	2004-03-10 21:44:32.000000000 -0500
+@@ -274,7 +274,10 @@ void __init mount_block_root(char *name,
+ 	get_fs_names(fs_names);
+ retry:
+ 	for (p = fs_names; *p; p += strlen(p)+1) {
+-		int err = do_mount_root(name, p, flags, root_mount_data);
++		int err;
++		printk("Trying to mount root as type %s: ", p);
++		err = do_mount_root(name, p, flags, root_mount_data);
++		printk("got %d\n", err);
+ 		switch (err) {
+ 			case 0:
+ 				goto out;
+
+

@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbVC1U7u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262082AbVC1VJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbVC1U7u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 15:59:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbVC1U4d
+	id S262082AbVC1VJS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 16:09:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262083AbVC1VJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 15:56:33 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:56384 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262082AbVC1Uzh (ORCPT
+	Mon, 28 Mar 2005 16:09:18 -0500
+Received: from smtp05.auna.com ([62.81.186.15]:49033 "EHLO smtp05.retemail.es")
+	by vger.kernel.org with ESMTP id S262082AbVC1VJP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 15:55:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=QcHxcCDMaDzIBM+vrW7+iOi2XpcHUORtvtanP9UdU6FDkaZfdBPgS5tVkmi59MSAi/PjM1cC/784pPwvzcsEkV4ufOL/WlhGMEKYOVwiZsZrHk5hh4wNGCaMagV/FW+6iZrdEFOZIn5GjeQ3Oc9LVA9wXuSzyFPK0g9bmjR3BhI=
-Message-ID: <40f323d00503281255124bd0c8@mail.gmail.com>
-Date: Mon, 28 Mar 2005 15:55:36 -0500
-From: Benoit Boissinot <bboissin@gmail.com>
-Reply-To: Benoit Boissinot <bboissin@gmail.com>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [2.6 patch] sound/oss/: cleanups
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050306220747.GP5070@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 28 Mar 2005 16:09:15 -0500
+From: "Fabio Valpondi" <fvalpondi@salleurl.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Override 802.11 MAC functions in Linux Kernel
+Date: Mon, 28 Mar 2005 23:08:48 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-References: <20050306220747.GP5070@stusta.de>
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcUz2lWbXwmKuXC+RzuDprkncIJLSw==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+Message-Id: <20050328210908.IMON1111.smtp05.retemail.es@LupoLaptop>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Mar 2005 23:07:47 +0100, Adrian Bunk <bunk@stusta.de> wrote:
-> This patch contains cleanups including the following:
-> - make needlessly global code static
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6.11-mm1-full/sound/oss/nm256_audio.c.old   2005-03-06 22:14:42.000000000 +0100
-> +++ linux-2.6.11-mm1-full/sound/oss/nm256_audio.c       2005-03-06 22:22:52.000000000 +0100
-> @@ -31,7 +31,7 @@
->  #include "nm256.h"
->  #include "nm256_coeff.h"
-> 
-> -int nm256_debug;
-> +static int nm256_debug;
->  static int force_load;
-> 
->  /*
+Hi,
 
-nm256_debug is used in functions declared in nm256.h (those functions
-are used in nm256_coeff.h and nm256_audio.c).
-This part of the patch should be dropped (it doesn't build on gcc-4.0).
+I am trying to implement the EDCF described in new standard 802.11e (This
+standard -well, actually it's a draft- tries to define QoS for 802.11
+networks).
+I would like to implement it with a module over the 2.6.11.5 kernel.
+My idea is to override the regular 802.11 MAC operation and redirect it to
+the module so that I can treat it like 802.11e MAC specifies.
+I have browsed a lot of pages, but none of them explains how to override the
+functions. Do you know how can I redirect all the functions to the modules?
+Is it possible to do it with a module? Or maybe should I work directly over
+the kernel code?
+If I had to work over the kernel code, which are the files directly involved
+with the 802.11 MAC?
 
-regards,
+Thank you very much!
 
-Benoit
+Fabio Valpondi
+fvalpondi@salleurl.edu
+Ingenieria La Salle - Barcelona (Spain)
+
+
+

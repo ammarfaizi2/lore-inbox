@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281638AbRKUHE2>; Wed, 21 Nov 2001 02:04:28 -0500
+	id <S281640AbRKUHG6>; Wed, 21 Nov 2001 02:06:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281641AbRKUHES>; Wed, 21 Nov 2001 02:04:18 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:20096 "EHLO
+	id <S281641AbRKUHGs>; Wed, 21 Nov 2001 02:06:48 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:21888 "EHLO
 	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S281638AbRKUHEG>; Wed, 21 Nov 2001 02:04:06 -0500
-Message-ID: <003401c1725a$975ad4e0$f5976dcf@nwfs>
+	id <S281640AbRKUHGc>; Wed, 21 Nov 2001 02:06:32 -0500
+Message-ID: <004301c1725a$ec5f3490$f5976dcf@nwfs>
 From: "Jeff Merkey" <jmerkey@timpanogas.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: <jmerkey@vger.timpanogas.org>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011121003304.A683@vger.timpanogas.org><20011120.224723.35806752.davem@redhat.com><000601c17259$59316630$f5976dcf@nwfs> <20011120.225655.85404918.davem@redhat.com>
+To: "Chris Abbey" <linux@cabbey.net>,
+        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0111210046440.3730-100000@tweedle.cabbey.net>
 Subject: Re: [VM/MEMORY-SICKNESS] 2.4.15-pre7 kmem_cache_create invalid opcode
-Date: Wed, 21 Nov 2001 00:03:15 -0700
+Date: Wed, 21 Nov 2001 00:05:38 -0700
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -25,41 +26,39 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+This happens as well with the SCI drivers, which are not dependant on any
+patches.
+
+Jeff
+
 ----- Original Message -----
-From: "David S. Miller" <davem@redhat.com>
-To: <jmerkey@timpanogas.org>
-Cc: <jmerkey@vger.timpanogas.org>; <linux-kernel@vger.kernel.org>
-Sent: Tuesday, November 20, 2001 11:56 PM
+From: "Chris Abbey" <linux@cabbey.net>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Tuesday, November 20, 2001 11:54 PM
 Subject: Re: [VM/MEMORY-SICKNESS] 2.4.15-pre7 kmem_cache_create invalid
 opcode
 
 
->    From: "Jeff Merkey" <jmerkey@timpanogas.org>
->    Date: Tue, 20 Nov 2001 23:54:21 -0700
+> Today, Jeff V. Merkey wrote:
+> > [...] I went back
+> > over how I did the build, and this is the result of the build
+> > if you have unpacked, patched, then run "make oldconfig."  If I
+> > do a "make dep" then this problem does not occur, [....]
 >
->    I am building an NWFS module external of the kernel tree, and unless
-make
->    dep
->    has been run, the default behavior of the includes causes me to drop
-into
->    the
->    BUG() trap.
+> umm... lemme see if I understand you correctly, you patched the
+> kernel and soemthing breaks if you don't run make dep after
+> patching? Unless you can prove 100% that nothing in that
+> patch affects the dependency structure of the code, nor any of
+> the other things that are generated during the make dep stage,
+> then what we have here is user error. The directions say, quite
+> clearly, make oldconfig, make dep, make vmlinux, etc. Unless my
+> memory is totally shot tonight the last thing make oldconfig
+> spits out is in fact the direction to run make dep.
 >
-> When you change configuration options, you have to run make
-> dep again, that is a known requirement of the 2.4.x build system
-
-OK.  Cool.  Now we are making progress.  I think this is a nasty problem.
-There
-are numerous RPMs that will build against the kernel tree and be busted.  I
-would
-expect an rpm -ba on your DEFAULT kernel in Redhat with the sources
-contained
-in the kernel.rpm files to also be broken unless someone has done this.  You
-probably should have someone check this out.  I just built the SCI drivers
-against
-2.4.15-pre7 and they blow up as well.
-
-Jeff
-
-> like it or not :-)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

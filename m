@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277089AbRJKX41>; Thu, 11 Oct 2001 19:56:27 -0400
+	id <S277094AbRJKX4V>; Thu, 11 Oct 2001 19:56:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277093AbRJKX4X>; Thu, 11 Oct 2001 19:56:23 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:27147 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S277089AbRJKX4M>;
-	Thu, 11 Oct 2001 19:56:12 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unconditional include of <linux/module.h> in aic7xxx driver 
-In-Reply-To: Your message of "Thu, 11 Oct 2001 13:40:08 CST."
-             <200110111940.f9BJe8Y97938@aslan.scsiguy.com> 
+	id <S277093AbRJKX4K>; Thu, 11 Oct 2001 19:56:10 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:25354 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S277089AbRJKXzx>;
+	Thu, 11 Oct 2001 19:55:53 -0400
+Date: Thu, 11 Oct 2001 20:56:01 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Oden Eriksson <oden.eriksson@kvikkjokk.net>
+Cc: Tim Moore <timothymoore@bigfoot.com>, linux-kernel@vger.kernel.org
+Subject: Re: Which kernel (Linus or ac)?
+Message-ID: <20011011205601.C7285@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Oden Eriksson <oden.eriksson@kvikkjokk.net>,
+	Tim Moore <timothymoore@bigfoot.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org> <3BC5E3AF.588D0A55@lexus.com> <3BC5EB56.21B4EF88@bigfoot.com> <20011011235033Z277082-760+24288@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 12 Oct 2001 09:56:34 +1000
-Message-ID: <32281.1002844594@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+In-Reply-To: <20011011235033Z277082-760+24288@vger.kernel.org>
+User-Agent: Mutt/1.3.23i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Oct 2001 13:40:08 -0600, 
-"Justin T. Gibbs" <gibbs@scsiguy.com> wrote:
->Can anyone comment on why the include of <linux/module.h> is now
->unconditional in the aic7xxx driver?  Assuming MODULE_LICENSE is
->properly qualified by an #ifdef MODULE, the driver appears to compile
->and function correctly without this include.  Are MODULE attributes
->(MODULE_VERSION/AUTHOR/DESCRIPTION/etc.) now supposed to be included in
->static configurations?
+Em Fri, Oct 12, 2001 at 01:50:58AM +0200, Oden Eriksson escreveu:
+> On Thursdayen den 11 October 2001 20.56, Tim Moore wrote:
+> > Observations based on Roswell 2 and identical Abit BP6's: faster disk
+> > I/O and kernel builds (same options), smoother X11 performance (SVGA),
+> > higher LAN network I/O (switched LNE100TX) under heavy loads, and, none
+> > of the recent latency or VM issues.  As for features, I don't need any
+> > new feature specific to 2.4.
+> 
+> Hi, sorry for intruding, but what is Roswell2?
 
-Absolutely.  module.h detects how the code is being compiled and most
-of the macros become noops.  In 2.5 MODULE_PARM will have meaning even
-for code built into the kernel, so we get a consistent method of
-setting parameters without adding boot line parsing code to every
-object.
+The code name of a Red Hat devel distro, IIRC
 
-Always include module.h, never condition MODULE_xxx on CONFIG_MODULES,
-init and exit functions should be defined as __init and __exit and
-referenced via module_init() and module_exit().  init.h and module.h
-will do whatever is necessary, depending on how the code is compiled.
+- Arnaldo
 
+``"90% of everything is crap", Its called Sturgeon's law 8)
+One of the problems is indeed finding the good bits''
+    - Alan Cox

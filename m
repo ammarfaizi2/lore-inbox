@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263573AbUC3JdS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 04:33:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbUC3JdS
+	id S263574AbUC3Jgt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 04:36:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbUC3Jgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 04:33:18 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:47065 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S263573AbUC3JdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 04:33:13 -0500
-From: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Organization: SiSK
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.5-rc2-mm5
-Date: Tue, 30 Mar 2004 11:40:19 +0200
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <20040329014525.29a09cc6.akpm@osdl.org> <200403301127.35263.rjwysocki@sisk.pl> <20040330012404.34012b35.akpm@osdl.org>
-In-Reply-To: <20040330012404.34012b35.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Tue, 30 Mar 2004 04:36:49 -0500
+Received: from ns.suse.de ([195.135.220.2]:3470 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263574AbUC3Jg0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 04:36:26 -0500
+Date: Tue, 30 Mar 2004 11:36:18 +0200
+From: Andi Kleen <ak@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: nickpiggin@yahoo.com.au, jun.nakajima@intel.com, ricklind@us.ibm.com,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
+       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net,
+       mbligh@aracnet.com
+Subject: Re: [Lse-tech] [patch] sched-domain cleanups,
+ sched-2.6.5-rc2-mm2-A3
+Message-Id: <20040330113618.42869473.ak@suse.de>
+In-Reply-To: <20040330081840.GA22733@elte.hu>
+References: <4068066C.507@yahoo.com.au>
+	<20040329080150.4b8fd8ef.ak@suse.de>
+	<20040329114635.GA30093@elte.hu>
+	<20040329221434.4602e062.ak@suse.de>
+	<4068B692.9020307@yahoo.com.au>
+	<20040330083450.368eafc6.ak@suse.de>
+	<20040330064015.GA19036@elte.hu>
+	<20040330090716.67d2a493.ak@suse.de>
+	<20040330071519.GA20227@elte.hu>
+	<20040330094811.622af0f4.ak@suse.de>
+	<20040330081840.GA22733@elte.hu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403301140.19083.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 30 of March 2004 11:24, Andrew Morton wrote:
-> "R. J. Wysocki" <rjwysocki@sisk.pl> wrote:
-> > On Monday 29 of March 2004 11:45, Andrew Morton wrote:
-> > > +remove-down_tty_sem.patch
-> > > +tty-locking-again.patch
-> >
-> > These two patches break things quite a bit for me.  With them, the kernel
-> > is unable to open any tty (virtual console, pts, whatever), it seems (my
-> > system is a dual AMD64 w/ NUMA w/o kernel preemption).
->
-> yup.  Please revert tty-locking-again.patch.  Or just do
-> rm drivers/char/tty* and start again.
+On Tue, 30 Mar 2004 10:18:40 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
 
-I've already done it.  I mean, I've reverted both patches and now it's OK (I 
-was not quite sure if there's any point in reverting only one of them).
+> 
+> * Andi Kleen <ak@suse.de> wrote:
+> 
+> > > ok, could you try min_interval,max_interval and busy_factor all with a
+> > > value as 4, in sched.h's SD_NODE_INIT template? (again, only for testing
+> > > purposes.)
+> > 
+> > I kept the old patch and made these changes. The results are much more
+> > consistent now 3+x CPU. I still get varyations of ~2GB/s, but I had
+> > this with older kernels too.
+> 
+> great.
+> 
+> now, could you try the following patch, against vanilla -mm5:
+> 
+> 	redhat.com/~mingo/scheduler-patches/sched2.patch
+> 
+> this includes 'context balancing' and doesnt touch the NUMA async
+> balancing tunables. Do you get better performance than with stock -mm5?
 
--- 
-Rafael J. Wysocki,
-SiSK
-[tel. (+48) 605 053 693]
-----------------------------
-For a successful technology, reality must take precedence over public 
-relations, for nature cannot be fooled.
-					-- Richard P. Feynman
+I get better performance (roughly 2.1x CPU), but only about half the optimum.
+
+-Andi
+

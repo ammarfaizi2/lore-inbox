@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262127AbUKQA1b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262129AbUKQA3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262127AbUKQA1b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 19:27:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbUKQAG1
+	id S262129AbUKQA3D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 19:29:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbUKQA1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 19:06:27 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:58297 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262134AbUKPXu2 (ORCPT
+	Tue, 16 Nov 2004 19:27:47 -0500
+Received: from fire.osdl.org ([65.172.181.4]:33939 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S262126AbUKQAZu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 18:50:28 -0500
-Date: Tue, 16 Nov 2004 18:50:09 -0500
-From: Dave Jones <davej@redhat.com>
-To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: acpi_power_off issue in 2.6.10-rc2-mm1
-Message-ID: <20041116235009.GG8674@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0411162301460.5829@student.dei.uc.pt>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0411162301460.5829@student.dei.uc.pt>
-User-Agent: Mutt/1.4.1i
+	Tue, 16 Nov 2004 19:25:50 -0500
+Message-ID: <419A978C.2010102@osdl.org>
+Date: Tue, 16 Nov 2004 16:13:00 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andries Brouwer <aebr@win.tue.nl>
+CC: akpm <akpm@osdl.org>, ak@suse.de, lkml <linux-kernel@vger.kernel.org>,
+       greg@kroah.com
+Subject: Re: [PATCH] PCI: fix build errors with CONFIG_PCI=n
+References: <419A8088.3010205@osdl.org> <20041116232600.GB2868@pclin040.win.tue.nl> <419A8EFE.8060508@osdl.org> <20041117001650.GC2868@pclin040.win.tue.nl>
+In-Reply-To: <20041117001650.GC2868@pclin040.win.tue.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 16, 2004 at 11:10:03PM +0000, Marcos D. Marado Torres wrote:
+Andries Brouwer wrote:
+> On Tue, Nov 16, 2004 at 03:36:30PM -0800, Randy.Dunlap wrote:
+> 
+> 
+>>> static int __init parport_init_mode_setup(char *str) {
+>>
+>>Yes, I'm familiar with that, but I made a patch against current
+>>top of tree.
+> 
+> 
+> I don't understand. Will you send another patch to fix the prototype?
 
- > In 2.6.10-rc2 and previous kernels acpi_power_off allways worked fine, but 
- > in
- > 2.6.10-rc2-mm1 when I do 'halt' all runs fine, the last message 
- > "acpi_power_off
- > called. System is going to power off" (something like this, I don't recall
- > ^-^;) appears, but then the machine just doesn't power off.
- > 
- > This is happening with an ASUS M3N laptop, I guess that it's a problem
- > somewhere in
- > http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm1/broken-out/bk-acpi.patch
- > When I get some time I'll take a deeper look into it...
+Sorry, I did that yesterday:
+http://lkml.org/lkml/2004/11/15/133
 
-This one has been around for a while. It's been plagueing me since 2.6.8,
-though its interesting that you only see it happening recently.
+It didn't show up in today's patch because Andrew's "the
+perfect patch" says:
+(http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt)
 
-My attempts to debug it led to the bug disappearing when I added
-instrumentation to the kernel.  On my Compaq Evo, it does power off
-eventually, though it takes about a minute after that last
-acpi_power_off message.
+b) Make sure that your patches apply to the latest version of the
+    kernel tree.  Either straight from bitkeeper or from
+    ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/
 
-There are bugs open on this in bugme.osdl.org, and bugzilla.redhat.com
-
-http://bugme.osdl.org/show_bug.cgi?id=3642
-https://bugzilla.redhat.com/beta2/show_bug.cgi?id=acpi_power_off
-
-		Dave
-
+-- 
+~Randy

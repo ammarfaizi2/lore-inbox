@@ -1,63 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270528AbTGSU13 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 16:27:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270530AbTGSU13
+	id S266118AbTGSUjp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 16:39:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270535AbTGSUjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 16:27:29 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:40144 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S270528AbTGSU12 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 16:27:28 -0400
-Date: Sat, 19 Jul 2003 22:42:19 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Larry McVoy <lm@work.bitmover.com>, David Schwartz <davids@webmaster.com>,
-       Larry McVoy <lm@bitmover.com>, Richard Stallman <rms@gnu.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Bitkeeper
-Message-ID: <20030719204219.GG7977@fs.tum.de>
-References: <20030718204405.GA658@work.bitmover.com> <MDEHLPKNGKAHNMBLJOLKOEIFEHAA.davids@webmaster.com> <20030718222702.GC658@work.bitmover.com>
+	Sat, 19 Jul 2003 16:39:45 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:46861 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S266118AbTGSUjo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 16:39:44 -0400
+Date: Sat, 19 Jul 2003 22:54:42 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Walter Harms <WHarms@bfs.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: alpha; gas & linux 2.6.0-test1
+Message-ID: <20030719205442.GB12080@mars.ravnborg.org>
+Mail-Followup-To: Walter Harms <WHarms@bfs.de>,
+	linux-kernel@vger.kernel.org
+References: <vines.sxdD+TnO4zA@SZKOM.BFS.DE>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030718222702.GC658@work.bitmover.com>
+In-Reply-To: <vines.sxdD+TnO4zA@SZKOM.BFS.DE>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 18, 2003 at 03:27:02PM -0700, Larry McVoy wrote:
-> On Fri, Jul 18, 2003 at 02:08:32PM -0700, David Schwartz wrote:
-> > 	My understanding of the relevant case law in the United States is that
-> > these types of restrictions are not allowed under copyright law itself.
+On Sat, Jul 19, 2003 at 10:41:03PM +0200, Walter Harms wrote:
 > 
-> On Fri, Jul 18, 2003 at 10:23:30PM +0100, Alan Cox wrote:
-> > Actually your license is simply irrelevant in most of thre world. You
-> > aren't allowed to forbid reverse engineering for interoperability.
-> 
->     "Judge, I want to violate this license on this product that I got
->     for free because it's not free enough".
-> 
->     "Judge, we give it out for free and we also developed technology
->     to transfer the data out of our product and into a GPLed product,
->     we do that at our expense and even host the competing GPLed repos
->     for free and they still want to violate the license"
-> 
-> Who do you think is going to win that one?
->...
+> hi list,
+> i tried to compile linux 2.6.0 unfortunaly the
+> GNU assembler version 2.11.90.0.8 (alpha-redhat-linux) using BFD version 2.11.90.0.8
 
-"Judge, our current German copyright law explicitely states that such a
- clause is void."
+Support for .incbin were introduced in binutils 2.11.90.0.23 - so no
+need to check for newer version with respect to this.
 
-
-> Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+	Sam

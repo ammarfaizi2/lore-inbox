@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267464AbTHKQiu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 12:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272824AbTHKQg1
+	id S267952AbTHKQj1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 12:39:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272752AbTHKQj1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 12:36:27 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:37347 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S272816AbTHKQfn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 12:35:43 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 11 Aug 2003 18:39:14 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Flameeyes <dgp85@users.sourceforge.net>
-Cc: Pavel Machek <pavel@suse.cz>,
-       Christoph Bartelmus <columbus@hit.handshake.de>,
-       LIRC list <lirc-list@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802
-Message-ID: <20030811163913.GA16568@bytesex.org>
-References: <1059820741.3116.24.camel@laurelin> <20030807214311.GC211@elf.ucw.cz> <1060334463.5037.13.camel@defiant.flameeyes> <20030808231733.GF389@elf.ucw.cz> <8rZ2nqa1z9B@hit-columbus.hit.handshake.de> <20030811124744.GB1733@elf.ucw.cz> <1060607466.5035.8.camel@defiant.flameeyes> <20030811153821.GC2627@elf.ucw.cz> <1060616931.8472.22.camel@defiant.flameeyes>
+	Mon, 11 Aug 2003 12:39:27 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:1617 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S267952AbTHKQjL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 12:39:11 -0400
+Date: Mon, 11 Aug 2003 17:38:34 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: torvalds@transmeta.com, fxkuehl@gmx.de, linux-kernel@vger.kernel.org,
+       willy@w.ods.org, marcelo@conectiva.com.br
+Subject: Re: [PATCH] Disable APIC on reboot.
+Message-ID: <20030811163834.GA21568@redhat.com>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Mikael Pettersson <mikpe@csd.uu.se>, torvalds@transmeta.com,
+	fxkuehl@gmx.de, linux-kernel@vger.kernel.org, willy@w.ods.org,
+	marcelo@conectiva.com.br
+References: <E19mCuO-0003dI-00@tetrachloride> <16183.50273.723650.136532@gargle.gargle.HOWL>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1060616931.8472.22.camel@defiant.flameeyes>
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <16183.50273.723650.136532@gargle.gargle.HOWL>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gna, why the heck the lirc-list archive on sf.net is broken *right
-now*?  Subscribed for now ...
+On Mon, Aug 11, 2003 at 06:29:21PM +0200, Mikael Pettersson wrote:
+ > I agree we should probably disable the local APIC at reboot if we
+ > enabled it previously, but this patch is broken. CONFIG_X86_LOCAL_APIC
+ > doesn't imply that the CPU actually has one, and even if it does, the
+ > access method may be different (e.g. P5 vs P6/K7/P4, and who knows how
+ > the future C3 with local APIC will do it).
 
-> We can drop /dev/lirc*, and use input events with received codes, but I
-> think that lircd is still needed to translate them into userland
-> commands...
+Ok. The original poster mentioned that disable_local_apic() didn't
+do the right thing there, hence the duplication, so making that DTRT
+may make sense ?
 
-That translation isn't done by lircd, but by the lirc_client library.
-This is no reason for keeping lircd as event dispatcher, the input layer
-would do equally well (with liblirc_client picking up events from
-/dev/input/event<x> instead of lircd).
+ > Was the original bug report posted to LKML? I don't remember seeing it.
 
-  Gerd
+Yes. I'll bounce it to you.
+
+		Dave
 
 -- 
-sigfault
+ Dave Jones     http://www.codemonkey.org.uk

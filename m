@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314393AbSEBNBk>; Thu, 2 May 2002 09:01:40 -0400
+	id <S314394AbSEBNGv>; Thu, 2 May 2002 09:06:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314394AbSEBNBj>; Thu, 2 May 2002 09:01:39 -0400
-Received: from melancholia.rimspace.net ([210.23.138.19]:8975 "EHLO
-	melancholia.danann.net") by vger.kernel.org with ESMTP
-	id <S314393AbSEBNBj>; Thu, 2 May 2002 09:01:39 -0400
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.12 severe ext3 filesystem corruption warning!
-From: Daniel Pittman <daniel@rimspace.net>
-Organization: Not today, thank you, Mother.
-Date: Thu, 02 May 2002 23:01:34 +1000
-Message-ID: <87u1pqln4h.fsf@enki.rimspace.net>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.5 (bamboo,
- i686-pc-linux)
+	id <S314396AbSEBNGu>; Thu, 2 May 2002 09:06:50 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:2983 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S314394AbSEBNGt>; Thu, 2 May 2002 09:06:49 -0400
+Date: Thu, 2 May 2002 14:08:50 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+cc: Andrew Morton <akpm@zip.com.au>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        linux-kernel@vger.kernel.org, marcelo@brutus.conectiva.com.br,
+        linux-mm@kvack.org
+Subject: Re: [PATCH]Fix: Init page count for all pages during higher order
+ allocs
+In-Reply-To: <20020502142441.A1668@in.ibm.com>
+Message-ID: <Pine.LNX.4.21.0205021312370.999-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I gave the 2.5.12 kernel a shot on my workstation tonight and found an
-*extremely* serious ext3 filesystem corrupting behavior.
+On Thu, 2 May 2002, Suparna Bhattacharya wrote:
+[ discussion of PG_inuse / PG_partial / PG_large snipped ]
 
-The only files that were mangled were files that had been modified while
-running, so it looks like this is an issue with finding the contents of
-modified files to write, not with random data dropping onto the disk.
+Any of those can handle that job (distinguishing non0orders),
+but I do believe you want a further PG_ flag for crash dumps.
 
-That said, however, the contents were rather random -- blocks from
-.overview were placed into a number of other files, chunks of
-.newsrc.eld written to the gkrellm configuration file and the like.
+The pages allocated GFP_HIGHUSER are about as uninteresting
+as the free pages: the cases where they're interesting (for
+analyzing a kernel crash, as opposed to snooping on a crashed
+customer's personal data!) are _very_ rare, but the waste of
+space and time putting them in a crash dump is very often
+abominable, and of course worse on larger machines.
 
-Unmodified files, however, don't seem to have been touched. This can't
-be perfect, of course, as something I never look at may have been
-destroyed, but it seems to be reliably.
+As someone else noted in this thread, the kernel tries to keep
+pages in use anyway, so omitting free pages won't buy you a great
+deal on its own.  And I think it's to omit free pages that you want
+to distinguish the count 0 continuations from the count 0 frees?
 
-The system is a mobile P4, 512MB RAM, IDE disk. Only one filesystem
-seems badly effected, my home directory, which is ext3 and fully
-data-journaled.
+PG_highuser? PG_data?  Or inverses: PG_internal? PG_dumpable?
+I think not PG_highuser, because it's too specific to what just
+happens to be the best, but inadequate, test I've found so far.
 
-I couldn't find corruption on the root filesystem[1] but there isn't
-much of that which is actively written at runtime. Nothing notable in
-/var seems broken, thankfully, so no panic. :)
+A first guess is that pages allocated with __GFP_HIGHMEM can be
+omitted from a dump, but that works out wrong on vmalloced space
+and on highmem pagetables, both of which are important in a dump.
+GFP_HIGHUSER test dumps vmalloced pages, and both Andrea's 2.4 or
+Ingo's 2.5 highmem pagetables.  But (notably in reboot after crash:
+dump copied from swap) memory can be full of GFP_USER blockdev pages.
 
-Anyway, I don't know if anyone else is seeing the problems but this is a
-first worrying datapoint with the kernel...
+Hugh
 
-        Daniel
-
-Footnotes: 
-[1]  Contains everything else, including /usr and /var
-
--- 
-20+ years as a vegetarian and the guy who steals my credit card
-orders $6,000 worth of chicken parts: proof that the most powerful
-force in the universe is Irony.
-        -- David Weinberger, _JOHO_ (2000-03-20)

@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266243AbUIMHUm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266250AbUIMHXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266243AbUIMHUm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 03:20:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266250AbUIMHUm
+	id S266250AbUIMHXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 03:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266257AbUIMHXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 03:20:42 -0400
-Received: from relaismsg.minefi.gouv.fr ([194.250.149.46]:41703 "EHLO
-	relaismsg.minefi.gouv.fr") by vger.kernel.org with ESMTP
-	id S266243AbUIMHUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 03:20:37 -0400
-From: postmaster@cp.finances.gouv.fr
-To: <linux-kernel@vger.kernel.org>
-Subject: Notification e-manager Av1-bercy (Attachment Removal)
-Date: Mon, 13 Sep 2004 09:17:57 +0200
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_1095059877_B78506032.R82506026"
-Message-Id: <20040913071801.93FDF13AC88@av2-acct.cp.finances.gouv.fr>
+	Mon, 13 Sep 2004 03:23:16 -0400
+Received: from cantor.suse.de ([195.135.220.2]:34529 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266250AbUIMHXJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 03:23:09 -0400
+Date: Mon, 13 Sep 2004 09:23:08 +0200
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, pj@sgi.com, bcasavan@sgi.com, anton@samba.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: more numa maxnode confusions
+Message-ID: <20040913072308.GB32259@wotan.suse.de>
+References: <20040912200253.3d7a6ff5.pj@sgi.com> <20040913065621.GB12185@wotan.suse.de> <20040913001548.278bf672.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040913001548.278bf672.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Mon, Sep 13, 2004 at 12:15:48AM -0700, Andrew Morton wrote:
+> Andi Kleen <ak@suse.de> wrote:
+> >
+> > On Sun, Sep 12, 2004 at 08:02:53PM -0700, Paul Jackson wrote:
+> > >  2) About Aug 9, Brent Casavant sent in a patch changing the set (not get)
+> > >     side calls, sys_mbind and sys_set_mempolicy, to N64.  This patch
+> > >     removed the following line from the implementation of get_nodes() in
+> > >     mm/mempolicy.c:
+> > > 
+> > > 	--maxnode;
+> > 
+> > Ah, I wasn't aware that this patch got merged into mainline. 
+> > That was a bad thing, because it broke the ABI used by libnuma
+> > subtly.
+> > 
+> > Please whoever merged it revert it.
+> 
+> Revert what?
 
-------=_NextPart_000_1095059877_B78506032.R82506026
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
 
-**************** eManager Notification *****************
+http://linux.bkbits.net:8080/linux-2.6/cset@412b8943seoOgs2sAUXJeG1qynkYHQ?nav=index.html|src/|src/mm|related/mm/mempolicy.c
 
-The following mail was blocked since it contains sensitive content.
+> 
+> > ...
+> >
+> > Yes. I appended a patch. Linus or Andrew, please apply it.
+> > 
+> 
+> Does this patch perform the above reversion, or is something additional
+> needed?
 
-Source mailbox: <linux-kernel@vger.kernel.org>
-Destination mailbox(es): helene.chaskiel@cp.finances.gouv.fr
-Policy: Attachment Removal
-Attachment file name: story_unfolds.com - application/octet-stream
-Action: Replaced with text
+It does it, and nothing else is needed.
 
-La pièce jointe a été suprimée. Elle est interdite en raison de sa non-conformité avec les règles d'utilisation de la messagerie en usage à la DGCP
+-Andi
 
-******************* End of message *********************
-
-------=_NextPart_000_1095059877_B78506032.R82506026
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-
-Received: from relaismsg 
-	with id i8D7Hsm28797
-	for <helene.chaskiel@cp.finances.gouv.fr>; Mon, 13 Sep 2004 09:17:56 +0200 (MEST)
-Received: from relaismsg 
-	by relaismsg.minefi.gouv.fr with id i8D7Hnw03885
-	for <helene.chaskiel@cp.finances.gouv.fr>; Mon, 13 Sep 2004 09:17:49 +0200 (MEST)
-Message-Id: <200409130717.i8D7Hnw03885@relaismsg.minefi.gouv.fr>
-From: linux-kernel@vger.kernel.org
-To: helene.chaskiel@cp.finances.gouv.fr
-Subject: moin
-Date: Mon, 13 Sep 2004 09:17:51 +0200
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0011_000013C4.00007CC8"
-X-Priority: 3
-X-MSMail-Priority: Normal
-
-------=_NextPart_000_1095059877_B78506032.R82506026--

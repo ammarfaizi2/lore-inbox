@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266517AbUHOHPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266521AbUHOHXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266517AbUHOHPm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 03:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266519AbUHOHPm
+	id S266521AbUHOHXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 03:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266525AbUHOHXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 03:15:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:35790 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266517AbUHOHPi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 03:15:38 -0400
-Date: Sun, 15 Aug 2004 00:14:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: rddunlap@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kconfig.debug for 2.6.8
-Message-Id: <20040815001402.0b9699d7.akpm@osdl.org>
-In-Reply-To: <20040815071304.GA7182@mars.ravnborg.org>
-References: <20040814110522.4879ddd4.rddunlap@osdl.org>
-	<20040815071304.GA7182@mars.ravnborg.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 15 Aug 2004 03:23:16 -0400
+Received: from puzzle.sasl.smtp.pobox.com ([207.8.226.4]:23276 "EHLO
+	puzzle.pobox.com") by vger.kernel.org with ESMTP id S266521AbUHOHXP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 03:23:15 -0400
+Date: Sun, 15 Aug 2004 00:23:11 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: xerces8 <xerces8@butn.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New versioning scheme ? ( 2.6.8.1 )
+Message-ID: <20040815072311.GA3343@ip68-4-98-123.oc.oc.cox.net>
+References: <WorldClient-F200408150404.AA04094351@butn.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <WorldClient-F200408150404.AA04094351@butn.net>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg <sam@ravnborg.org> wrote:
->
-> On Sat, Aug 14, 2004 at 11:05:22AM -0700, Randy.Dunlap wrote:
->  > 
->  > Here's the Kconfig.debug patch updated for 2.6.8:
->  > 
->  >   http://developer.osdl.org/rddunlap/kconfig/kconfig-debug-268.patch
+On Sun, Aug 15, 2004 at 04:04:09AM +0200, xerces8 wrote:
+> Hi!
 > 
->  Hi Andrew.
-> 
->  Any good way we can bring this patch forward?
->  Currently it causes 9 rejects in -mm, and I understand why you are not
->  inclined to fix that up.
+> Can someone tell me why the ages old, established versioning scheme of
+> x.y.z was "abolished" and x.y.z.w was introduced ?
 
-Yeah, it's painful.  I'd be inclined to base it against -linus and then fix
-up the individual -mm patches.  It's a matter of finding a suitable time
-window in which to do that.   I'll take a shot at it tomorrow.
+Explanation in general:
+http://kerneltrap.org/node/view/3522
+(you may want to search within that page for "2.6.20.1" to jump to the
+meat of the explanation)
+
+Explanation of why 2.6.8.1 and not 2.6.9 in this particular case:
+http://article.gmane.org/gmane.linux.kernel/225784
+
+-Barry K. Nathan <barryn@pobox.com>
+

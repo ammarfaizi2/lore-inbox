@@ -1,84 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261853AbSJVAcO>; Mon, 21 Oct 2002 20:32:14 -0400
+	id <S261842AbSJVAaV>; Mon, 21 Oct 2002 20:30:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261850AbSJVAbK>; Mon, 21 Oct 2002 20:31:10 -0400
-Received: from nwkea-mail-1.sun.com ([192.18.42.13]:17399 "EHLO
-	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
-	id <S261845AbSJVAa2>; Mon, 21 Oct 2002 20:30:28 -0400
-From: Timothy Hockin <th122948@scl2.sfbay.sun.com>
-Message-Id: <200210220036.g9M0aOo31343@scl2.sfbay.sun.com>
-Subject: [BK SUMMARY] fix NGROUPS hard limit (resend)
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Mon, 21 Oct 2002 17:36:24 -0700 (PDT)
-Reply-To: thockin@sun.com
-X-Mailer: ELM [version 2.5 PL6]
+	id <S261845AbSJVAaV>; Mon, 21 Oct 2002 20:30:21 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:56049 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261842AbSJVAaR>; Mon, 21 Oct 2002 20:30:17 -0400
+Date: Mon, 21 Oct 2002 17:31:33 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>, Rik van Riel <riel@conectiva.com.br>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm mailing list <linux-mm@kvack.org>
+Subject: Re: ZONE_NORMAL exhaustion (dcache slab)
+Message-ID: <326730000.1035246693@flay>
+In-Reply-To: <3DB4855F.D5DA002E@digeo.com>
+References: <309670000.1035236015@flay> <Pine.LNX.4.44L.0210212028100.22993-100000@imladris.surriel.com> <3DB4855F.D5DA002E@digeo.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+>> On Mon, 21 Oct 2002, Martin J. Bligh wrote:
+>> 
+>> > > Blockdevices only use ZONE_NORMAL for their pagecache.  That cat will
+>> > > selectively put pressure on the normal zone (and DMA zone, of course).
+>> > 
+>> > Ah, I recall that now. That's fundamentally screwed.
+>> 
+>> It's not too bad since the data can be reclaimed easily.
+>> 
+>> The problem in your case is that the dentry and inode cache
+>> didn't get reclaimed. Maybe there is a leak so they can't get
+>> reclaimed at all or maybe they just don't get reclaimed fast
+>> enough.
 
-This patchset removes the hard NGROUPS limit.  It has been in use in a similar
-form (but with a sysctl-set limit) on our systems for some time.
+OK, well "find / | xargs ls -l" results in:
 
-The last changeset is of questionable value - nfsiod is not included by or
-referenced by anything.  Perhaps it should just be removed?
+dentry_cache      1125216 1125216    160 46884 46884    1 :  248  124
 
-I have a separate patch to convert XFS to the generic qsort(), which I will
-bounce to SGI if/when this gets pulled.
+repeating it gives
 
-There is a small change needed for glibc, and I will send that patch to the
-glibc people if/when this gets pulled.
+dentry_cache      969475 1140960    160 47538 47540    1 :  248  124
 
-Lastly, this does not fixup all the architectures.  I have other patchsets for
-that, which need to be reviewed by arch maintainers.
+Which is only a third of what I eventually ended up with over the weekend,
+so presumably that means you're correct and there is a leak.
 
-Tim
+Hmmm .... but why did it shrink ... I didn't expect mem pressure just
+doing a find ....
 
+MemTotal:     16077728 kB
+MemFree:      15070304 kB
+MemShared:           0 kB
+Buffers:         92400 kB
+Cached:         266052 kB
+SwapCached:          0 kB
+Active:         351896 kB
+Inactive:         9080 kB
+HighTotal:    15335424 kB
+HighFree:     15066160 kB
+LowTotal:       742304 kB
+LowFree:          4144 kB
+SwapTotal:           0 kB
+SwapFree:            0 kB
+Dirty:           32624 kB
+Writeback:           0 kB
+Mapped:           4956 kB
+Slab:           630216 kB
+Reserved:       570464 kB
+Committed_AS:     6476 kB
+PageTables:        236 kB
+ReverseMaps:      3562
 
-Please do a
+Pretty much all in slab ...
 
-	bk pull http://suncobalt.bkbits.net/ngroups-2.5
+ext2_inode_cache  921200 938547    416 104283 104283    1 :  120   60
+dentry_cache      1068133 1131096    160 47129 47129    1 :  248  124
 
-This will update the following files:
+So it looks as though it's actually ext2_inode cache that's first against the wall.
+For comparison, over the weekend I ended up with:
 
- include/linux/nfsiod.h         |   52 -----------
- fs/nfsd/auth.c                 |   11 +-
- fs/proc/array.c                |    2 
- include/asm-i386/param.h       |    4 
- include/linux/init_task.h      |    1 
- include/linux/kernel.h         |    5 +
- include/linux/limits.h         |    3 
- include/linux/sched.h          |    3 
- include/linux/sunrpc/svcauth.h |    3 
- kernel/exit.c                  |    6 +
- kernel/fork.c                  |    4 
- kernel/sys.c                   |   88 +++++++++++++++-----
- kernel/uid16.c                 |   63 ++++++++++----
- lib/Makefile                   |    5 -
- lib/bsearch.c                  |   49 +++++++++++
- lib/qsort.c                    |  180 +++++++++++++++++++++++++++++++++++++++++
- net/sunrpc/svcauth_unix.c      |    4 
- 17 files changed, 380 insertions(+), 103 deletions(-)
+ext2_inode_cache  554556 554598    416 61622 61622    1 :  120   60
+dentry_cache      2791320 2791320    160 116305 116305    1 :  248  124
 
-through these ChangeSets (diffs in separate email):
+did a cat of /dev/sda2 > /dev/null ..... after that:
 
-<thockin@freakshow.cobalt.com> (02/10/21 1.812)
-   no one references nfsiod.h anymore - nix it.
+larry:~# egrep '(dentry|inode)' /proc/slabinfo
+isofs_inode_cache      0      0    320    0    0    1 :  120   60
+ext2_inode_cache  667345 809181    416 89909 89909    1 :  120   60
+shmem_inode_cache      3      9    416    1    1    1 :  120   60
+sock_inode_cache      16     22    352    2    2    1 :  120   60
+proc_inode_cache      12     12    320    1    1    1 :  120   60
+inode_cache          385    396    320   33   33    1 :  120   60
+dentry_cache      1068289 1131096    160 47129 47129    1 :  248  124
 
-<thockin@freakshow.cobalt.com> (02/10/21 1.811)
-   fix usage of NGROUPS in nfsd and svcauth
+larry:~# cat /proc/meminfo
+MemTotal:     16077728 kB
+MemFree:      15068684 kB
+MemShared:           0 kB
+Buffers:        165552 kB
+Cached:         266052 kB
+SwapCached:          0 kB
+Active:         266620 kB
+Inactive:       167524 kB
+HighTotal:    15335424 kB
+HighFree:     15066160 kB
+LowTotal:       742304 kB
+LowFree:          2524 kB
+SwapTotal:           0 kB
+SwapFree:            0 kB
+Dirty:               8 kB
+Writeback:           0 kB
+Mapped:           4956 kB
+Slab:           558684 kB
+Reserved:       570464 kB
+Committed_AS:     6476 kB
+PageTables:        236 kB
+ReverseMaps:      3563
 
-<thockin@freakshow.cobalt.com> (02/10/21 1.810)
-   Remove the limit of 32 groups.  We now have a per-task, dynamic array of
-   groups, which is kept sorted and refcounted.
-   
-   This ChangeSet incorporates all the core functionality. but does not fixup
-   all the incorrect usages of groups.  That is in a seperate ChangeSet.
+So it doesn't seem to shrink under mem pressure, but I can't reproduce 
+the OOM at the moment either ;-(
 
-<thockin@freakshow.cobalt.com> (02/10/21 1.809)
-   Add generic qsort() and bsearch(): qsort() from BSD, bsearch() from glibc
+M.
 

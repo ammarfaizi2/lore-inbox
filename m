@@ -1,36 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265424AbTFZIo3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 04:44:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265435AbTFZIo3
+	id S265483AbTFZI72 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 04:59:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265487AbTFZI72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 04:44:29 -0400
-Received: from [62.12.131.37] ([62.12.131.37]:29085 "HELO debian")
-	by vger.kernel.org with SMTP id S265424AbTFZIo2 (ORCPT
+	Thu, 26 Jun 2003 04:59:28 -0400
+Received: from [203.124.166.107] ([203.124.166.107]:17931 "EHLO
+	mail.pune.nevisnetworks.com") by vger.kernel.org with ESMTP
+	id S265483AbTFZI70 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 04:44:28 -0400
-Date: Thu, 26 Jun 2003 10:58:17 +0200
-From: "Zeno R.R. Davatz" <zdavatz@ywesee.com>
-To: linux-kernel@vger.kernel.org
-Subject: INIT:ld"2" respawning too fast:disabled for 5 minutes
-Message-Id: <20030626105817.17c1323c.zdavatz@ywesee.com>
-Organization: ywesee - intellectual capital connected
-X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Jun 2003 04:59:26 -0400
+content-class: urn:content-classes:message
+Subject: RE: INIT:ld"2" respawning too fast:disabled for 5 minutes
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Thu, 26 Jun 2003 14:44:34 +0530
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Message-ID: <36993D449C7FA647BF43568E0793AB3E061D2C@nevis_pune_xchg.pune.nevisnetworks.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: INIT:ld"2" respawning too fast:disabled for 5 minutes
+Thread-Index: AcM7wYkkVFzhkHRJQYS11Q1eDcN3vwAASSbw
+From: "Girish Kale" <girish.kale@nevisnetworks.com>
+To: "Zeno R.R. Davatz" <zdavatz@ywesee.com>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+
+What this message means is that :
+
+"if you make a mistake that prevents a particular program from starting,
+and the action is respawned, init might get caught in a loop. That is,
+init tries to start the program, cannot, for whatever reason and then
+tries to start it again. If init finds that it is starting the program
+more than 10 times within 2 minutes, it will treat this as an error and
+stops trying. Typically you will get messages in the system log that the
+process is "respawning too rapidly"." Please read :
+
+http://www.linux-tutorial.info/cgi-bin/display.pl?65&0&64&0&3
+
+I also faced a similar problem - it gave me INIT:ID"1" respawning too
+fast" , when I tried to login to my machine. This got resolved when I
+reconfigured the kernel. But yet to figure out the "exact" change which
+causes my problem.
+
+Regards,
+Girish
+
+-----Original Message-----
+From: Zeno R.R. Davatz [mailto:zdavatz@ywesee.com] 
+Sent: Thursday, June 26, 2003 2:28 PM
+To: linux-kernel@vger.kernel.org
+Subject: INIT:ld"2" respawning too fast:disabled for 5 minutes
+
 Hi List
 
-I succeded twice in making a kernel_image with the Debian kernel-package and installaing the .deb file (2.4.18, 2.4.20).
+I succeded twice in making a kernel_image with the Debian kernel-package
+and installaing the .deb file (2.4.18, 2.4.20).
 
 My Installation where I boot from is bf24-2.4.20 (floppies).
 
-I download the kernel sources to /usr/src/linux-2.4.21 I do make clean, make menuconfig and then make-kpkg -rev ywesee.1 kernel_image. 
+I download the kernel sources to /usr/src/linux-2.4.21 I do make clean,
+make menuconfig and then make-kpkg -rev ywesee.1 kernel_image. 
 
-The maschine ends the compilation just fine and I do dpkg -i kernel_image-2.4.21-ywesee.1-i386.deb.
+The maschine ends the compilation just fine and I do dpkg -i
+kernel_image-2.4.21-ywesee.1-i386.deb.
 
 Then I reboot, everythings starts fine _without a kernel panic.
 
@@ -39,10 +77,18 @@ INIT:ld"2" respawning too fast:disabled for 5 minutes
 
 I get this several times...
 
-Why do I get this message and how can I get rid of it so my 2.4.21 boots nicely.
+Why do I get this message and how can I get rid of it so my 2.4.21 boots
+nicely.
 
-(I need to start my installation again from the beginning as I can not boot into the old system).
+(I need to start my installation again from the beginning as I can not
+boot into the old system).
 
 Many thanks in advance for any help and hints.
 
 Zeno
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

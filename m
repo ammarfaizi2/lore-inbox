@@ -1,90 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbUGIAkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbUGIA5O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbUGIAkO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 20:40:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUGIAkO
+	id S262080AbUGIA5O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 20:57:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUGIA5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 20:40:14 -0400
-Received: from mail012.syd.optusnet.com.au ([211.29.132.66]:51941 "EHLO
-	mail012.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262006AbUGIAkG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 20:40:06 -0400
-Message-ID: <40EDE956.80705@kolivas.org>
-Date: Fri, 09 Jul 2004 10:39:50 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Thu, 8 Jul 2004 20:57:13 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:56667 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262080AbUGIA5M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 20:57:12 -0400
+Message-ID: <40EDED5D.80605@yahoo.com.au>
+Date: Fri, 09 Jul 2004 10:57:01 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: ck@vds.kolivas.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Autotune swappiness
-References: <40EC13C5.2000101@kolivas.org>	<40EC1930.7010805@comcast.net>	<40EC1B0A.8090802@kolivas.org>	<20040707213822.2682790b.akpm@osdl.org>	<cone.1089268800.781084.4554.502@pc.kolivas.org>	<20040708001027.7fed0bc4.akpm@osdl.org>	<cone.1089273505.418287.4554.502@pc.kolivas.org>	<20040708010842.2064a706.akpm@osdl.org>	<40ED7534.4010409@kolivas.org> <20040708094406.2b0293ea.akpm@osdl.org>
-In-Reply-To: <20040708094406.2b0293ea.akpm@osdl.org>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigCD83EF73F5047581B5D24776"
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Peter Osterlund <petero2@telia.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Can't make use of swap memory in 2.6.7-bk19
+References: <m2brir9t6d.fsf@telia.com> <40ECADF8.7010207@yahoo.com.au> <20040708023001.GN21066@holomorphy.com> <m2briq7izk.fsf@telia.com> <20040708193956.GO21066@holomorphy.com>
+In-Reply-To: <20040708193956.GO21066@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigCD83EF73F5047581B5D24776
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Andrew Morton wrote:
-> Con Kolivas <kernel@kolivas.org> wrote:
+William Lee Irwin III wrote:
+> William Lee Irwin III <wli@holomorphy.com> writes:
 > 
->>Here is another try at providing feedback to tune the vm_swappiness.
+>>>Heh, one goes in while I'm not looking, and look what happens.
 > 
 > 
-> I spent some time yesterday trying to demonstrate performance improvements
-> from those two patches.  Using
+> On Thu, Jul 08, 2004 at 02:59:11PM +0200, Peter Osterlund wrote:
 > 
-> 	make -j4 vmlinux with mem=64m
+>>Actually, the failure is caused by this change:
+>>http://linux.bkbits.net:8080/linux-2.5/cset@40db004cKFYB35xMHcRXNijl81BLag?nav=index.html|ChangeSet@-3w
+>>It only fails when /proc/sys/vm/laptop_mode is 1.
 > 
-> and
 > 
-> 	qsbench -p 4 -m 96 with mem=256m
+> Oh, then I'm stuck in the GFP_WIRED quagmire after all. I guess since
+> fixing it involves adding lines I'm in deep trouble.
 > 
-> and was not able to do so, which is what I expected.
-> 
-> We do need more quantitative testing on this work.
 
-Sure thing.
-
-I need to point out a few things:
-The point of this patch was to improve the swap behaviour on desktop 
-like loads.
-The fact that it improved the "when swap is thrashing" scenario (in my 
-testing) was an unintentional bonus.
-I dont think your load of j4 will induce quite the same swap thrash as 
-what I was testing. I actually suspect the faster cpu & more jobs over 
-fixed memory shows it more.
-I need someone with more varied hardware to test it for me. I can 
-recreate equivalent results on my current machine which has similar 
-hardware, but I think results showing improvement on different machines 
-  and different loads is what you're looking for... and since I'm 
-currently quite low on hardware I can only offer results from this one 
-(and my wife is hating it being offline o_0)
-
-Anyone willing to offer to do some tests?
-
-Con
-
---------------enigCD83EF73F5047581B5D24776
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFA7elZZUg7+tp6mRURAlIyAJ0TkZtxQh7upF4azvbNLvwQ6iOUbgCdFCM8
-OnxyqkYUebMVWHGYJehwPdc=
-=VrTn
------END PGP SIGNATURE-----
-
---------------enigCD83EF73F5047581B5D24776--
+Or just see if you can tighten up the conditions for OOM to
+start with?

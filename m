@@ -1,254 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270187AbTGUPrI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 11:47:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270484AbTGUPp5
+	id S270449AbTGUPpK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 11:45:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270434AbTGUPn4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 11:45:57 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:23561 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S270187AbTGUPnp
+	Mon, 21 Jul 2003 11:43:56 -0400
+Received: from postfix4-1.free.fr ([213.228.0.62]:4293 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S270442AbTGUPmG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 11:43:45 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] ->cluster_size cleanup (11/11)
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Tue, 22 Jul 2003 00:58:42 +0900
-Message-ID: <87fzkzvpl9.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Mon, 21 Jul 2003 11:42:06 -0400
+Message-ID: <3F1C0DEE.8040509@free.fr>
+Date: Mon, 21 Jul 2003 17:59:42 +0200
+From: Eric Valette <eric.valette@free.fr>
+Reply-To: eric.valette@free.fr
+Organization: HOME
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: eric.valette@free.fr
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, akpm@osdl.org,
+       andrew.grover@intel.com, sziwan@hell.org.pl,
+       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] Re: [PATCH] Linux 2.6-pre-mm2 Fix crash on boot on ASUS
+ L3800C if enabing APIC => add this machine to DMI black list
+References: <200307210114.h6L1El7M018996@harpo.it.uu.se> <3F1B9F37.509@free.fr>
+In-Reply-To: <3F1B9F37.509@free.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This renames ->cluster_size to ->sec_per_clus. Old ->cluster_size was
-"sectors per cluster". And adds really ->cluster_size.
+
+>>The following patch integrated in 2.5.74,
+>>
+>><http://lists.insecure.org/lists/linux-kernel/2003/Jun/5840.html>
+>>
+>>really enables the APIC even if BIOS disabled it. Unfortunately,
+>>enabling APIC really does not seem to work on this ASUS laptop and ACPI
+>>(which is mandatory) crash the kernel in ACPI code at boot time while
+>>"Executing all Devices _STA and_INIT methods"
+>>
+>>Unless someones find a bug in ACPI code related to APIC management, It
+>>is safer to add this machine in the DMI black list (along with DELL,
+>>IBM, ...).
+>>
+>>So, as suggested by the author of the problematic change, I added and
+>>entry in the DMI black list. But my guess is that most laptop will soon
+>>be present in this list....
+> 
+> At least two P4 laptops are known to require the 2.5.74 patch, and
+> they do work with the local APIC.
+
+After a second though I think this kind of justification is not 
+appropriate :
+	- If we play this game of counting the machines that works with your 
+patch and the machines that breaks, we may end up removing this patch as 
+I have seen other with other laptop model also failing while executing 
+the _STA and _INI initialization...
+	- Anyway, there are already 3 machines in the black list includings two 
+very popular old dells...
+
+> - in what way is ACPI mandatory? does it fail to boot, or does it
+>   just lose some specific feature? If you just want suspend support,
+>   try APM if the machine has it
+
+Come on, APM is a thing from the past and any recent laptop does not 
+even care of supporting it now that Windows XP is  bundled... And in any 
+case it is not supported by this particular machine...
+
+> A question for the ACPI people:
+> - Does the Linux kernel ACPI code ever transfer control to BIOS,
+>   explicitly or implicitly via SMIs triggered by the interpreter?
+>   If you do transfer control, do you disable interrupts and/or
+>   the interrupt controllers before transferring control?
+
+While I tried to read the ACPI specs for the fisrt time this morning 
+searching for the meaning of _STA and _INI (and found the section 
+related to INI rather unclear) I suspect the _INI is just dedicated to 
+that purpose for escaping from legacy mode. But frankly, I got lost in 
+the code trying to see when and how the function is really called... I 
+would really like to have some help from ACPI development team on this 
+one...
+
+But if a BIOS function is called and the BIOS expects the APIC disabled, 
+I would not blame BIOS writer if calling the function fails... So either 
+the APIC should be disabled again or the ACPI initialisation should be 
+done before turning the APIC on. But I have no idea about feasability...
 
 
- fs/fat/cache.c              |    6 +++---
- fs/fat/file.c               |   11 +++++++----
- fs/fat/inode.c              |   29 +++++++++++++++--------------
- fs/fat/misc.c               |   12 ++++++------
- include/linux/msdos_fs.h    |    2 +-
- include/linux/msdos_fs_sb.h |    5 +++--
- 6 files changed, 35 insertions(+), 30 deletions(-)
+>   Entering BIOS with the local APIC live, in particular the timer,
+>   is a known hang-generator with APM.
 
-diff -puN fs/fat/cache.c~fat_cluster_size-cleanup fs/fat/cache.c
---- linux-2.6.0-test1/fs/fat/cache.c~fat_cluster_size-cleanup	2003-07-21 02:48:35.000000000 +0900
-+++ linux-2.6.0-test1-hirofumi/fs/fat/cache.c	2003-07-21 02:48:35.000000000 +0900
-@@ -371,12 +371,12 @@ int fat_bmap(struct inode *inode, sector
- 		return 0;
- 
- 	cluster = sector >> (sbi->cluster_bits - sb->s_blocksize_bits);
--	offset  = sector & (sbi->cluster_size - 1);
-+	offset  = sector & (sbi->sec_per_clus - 1);
- 	cluster = fat_bmap_cluster(inode, cluster);
- 	if (cluster < 0)
- 		return cluster;
- 	else if (cluster) {
--		*phys = ((sector_t)cluster - 2) * sbi->cluster_size
-+		*phys = ((sector_t)cluster - 2) * sbi->sec_per_clus
- 			+ sbi->data_start + offset;
- 	}
- 	return 0;
-@@ -434,7 +434,7 @@ int fat_free(struct inode *inode, int sk
- 		}
- 		if (MSDOS_SB(sb)->free_clusters != -1)
- 			MSDOS_SB(sb)->free_clusters++;
--		inode->i_blocks -= (1 << MSDOS_SB(sb)->cluster_bits) >> 9;
-+		inode->i_blocks -= MSDOS_SB(sb)->cluster_size >> 9;
- 	} while (nr != FAT_ENT_EOF);
- 	fat_clusters_flush(sb);
- 	nr = 0;
-diff -puN fs/fat/file.c~fat_cluster_size-cleanup fs/fat/file.c
---- linux-2.6.0-test1/fs/fat/file.c~fat_cluster_size-cleanup	2003-07-21 02:48:35.000000000 +0900
-+++ linux-2.6.0-test1-hirofumi/fs/fat/file.c	2003-07-21 02:48:35.000000000 +0900
-@@ -48,7 +48,7 @@ int fat_get_block(struct inode *inode, s
- 		BUG();
- 		return -EIO;
- 	}
--	if (!((unsigned long)iblock % MSDOS_SB(sb)->cluster_size)) {
-+	if (!((unsigned long)iblock % MSDOS_SB(sb)->sec_per_clus)) {
- 		int error;
- 
- 		error = fat_add_cluster(inode);
-@@ -84,14 +84,15 @@ static ssize_t fat_file_write(struct fil
- void fat_truncate(struct inode *inode)
- {
- 	struct msdos_sb_info *sbi = MSDOS_SB(inode->i_sb);
--	int cluster;
-+	const unsigned int cluster_size = sbi->cluster_size;
-+	int nr_clusters;
- 
- 	/* Why no return value?  Surely the disk could fail... */
- 	if (IS_RDONLY (inode))
- 		return /* -EPERM */;
- 	if (IS_IMMUTABLE(inode))
- 		return /* -EPERM */;
--	cluster = 1 << sbi->cluster_bits;
-+
- 	/* 
- 	 * This protects against truncating a file bigger than it was then
- 	 * trying to write into the hole.
-@@ -99,8 +100,10 @@ void fat_truncate(struct inode *inode)
- 	if (MSDOS_I(inode)->mmu_private > inode->i_size)
- 		MSDOS_I(inode)->mmu_private = inode->i_size;
- 
-+	nr_clusters = (inode->i_size + (cluster_size - 1)) >> sbi->cluster_bits;
-+
- 	lock_kernel();
--	fat_free(inode, (inode->i_size + (cluster - 1)) >> sbi->cluster_bits);
-+	fat_free(inode, nr_clusters);
- 	MSDOS_I(inode)->i_attrs |= ATTR_ARCH;
- 	unlock_kernel();
- 	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
-diff -puN fs/fat/inode.c~fat_cluster_size-cleanup fs/fat/inode.c
---- linux-2.6.0-test1/fs/fat/inode.c~fat_cluster_size-cleanup	2003-07-21 02:48:35.000000000 +0900
-+++ linux-2.6.0-test1-hirofumi/fs/fat/inode.c	2003-07-21 02:48:35.000000000 +0900
-@@ -504,9 +504,9 @@ static int fat_read_root(struct inode *i
- 		MSDOS_I(inode)->i_start = 0;
- 		inode->i_size = sbi->dir_entries * sizeof(struct msdos_dir_entry);
- 	}
--	inode->i_blksize = 1 << sbi->cluster_bits;
--	inode->i_blocks = ((inode->i_size + inode->i_blksize - 1)
--			   & ~((loff_t)inode->i_blksize - 1)) >> 9;
-+	inode->i_blksize = sbi->cluster_size;
-+	inode->i_blocks = ((inode->i_size + (sbi->cluster_size - 1))
-+			   & ~((loff_t)sbi->cluster_size - 1)) >> 9;
- 	MSDOS_I(inode)->i_logstart = 0;
- 	MSDOS_I(inode)->mmu_private = inode->i_size;
- 
-@@ -810,12 +810,12 @@ int fat_fill_super(struct super_block *s
- 		brelse(bh);
- 		goto out_invalid;
- 	}
--	sbi->cluster_size = b->cluster_size;
--	if (!sbi->cluster_size
--	    || (sbi->cluster_size & (sbi->cluster_size - 1))) {
-+	sbi->sec_per_clus = b->sec_per_clus;
-+	if (!sbi->sec_per_clus
-+	    || (sbi->sec_per_clus & (sbi->sec_per_clus - 1))) {
- 		if (!silent)
--			printk(KERN_ERR "FAT: bogus cluster size %d\n",
--			       sbi->cluster_size);
-+			printk(KERN_ERR "FAT: bogus sectors per cluster %d\n",
-+			       sbi->sec_per_clus);
- 		brelse(bh);
- 		goto out_invalid;
- 	}
-@@ -844,7 +844,8 @@ int fat_fill_super(struct super_block *s
- 		b = (struct fat_boot_sector *) bh->b_data;
- 	}
- 
--	sbi->cluster_bits = ffs(sb->s_blocksize * sbi->cluster_size) - 1;
-+	sbi->cluster_size = sb->s_blocksize * sbi->sec_per_clus;
-+	sbi->cluster_bits = ffs(sbi->cluster_size) - 1;
- 	sbi->fats = b->fats;
- 	sbi->fat_bits = 0;		/* Don't know yet */
- 	sbi->fat_start = CF_LE_W(b->reserved);
-@@ -912,7 +913,7 @@ int fat_fill_super(struct super_block *s
- 	total_sectors = CF_LE_W(get_unaligned((unsigned short *)&b->sectors));
- 	if (total_sectors == 0)
- 		total_sectors = CF_LE_L(b->total_sect);
--	sbi->clusters = (total_sectors - sbi->data_start) / sbi->cluster_size;
-+	sbi->clusters = (total_sectors - sbi->data_start) / sbi->sec_per_clus;
- 
- 	if (sbi->fat_bits != 32)
- 		sbi->fat_bits = (sbi->clusters > MSDOS_FAT12) ? 16 : 12;
-@@ -1028,7 +1029,7 @@ int fat_statfs(struct super_block *sb, s
- 	}
- 
- 	buf->f_type = sb->s_magic;
--	buf->f_bsize = 1 << MSDOS_SB(sb)->cluster_bits;
-+	buf->f_bsize = MSDOS_SB(sb)->cluster_size;
- 	buf->f_blocks = MSDOS_SB(sb)->clusters;
- 	buf->f_bfree = free;
- 	buf->f_bavail = free;
-@@ -1141,9 +1142,9 @@ static int fat_fill_inode(struct inode *
- 			inode->i_flags |= S_IMMUTABLE;
- 	MSDOS_I(inode)->i_attrs = de->attr & ATTR_UNUSED;
- 	/* this is as close to the truth as we can get ... */
--	inode->i_blksize = 1 << sbi->cluster_bits;
--	inode->i_blocks = ((inode->i_size + inode->i_blksize - 1)
--			   & ~((loff_t)inode->i_blksize - 1)) >> 9;
-+	inode->i_blksize = sbi->cluster_size;
-+	inode->i_blocks = ((inode->i_size + (sbi->cluster_size - 1))
-+			   & ~((loff_t)sbi->cluster_size - 1)) >> 9;
- 	inode->i_mtime.tv_sec = inode->i_atime.tv_sec =
- 		date_dos2unix(CF_LE_W(de->time),CF_LE_W(de->date));
- 	inode->i_mtime.tv_nsec = inode->i_atime.tv_nsec = 0;
-diff -puN fs/fat/misc.c~fat_cluster_size-cleanup fs/fat/misc.c
---- linux-2.6.0-test1/fs/fat/misc.c~fat_cluster_size-cleanup	2003-07-21 02:48:35.000000000 +0900
-+++ linux-2.6.0-test1-hirofumi/fs/fat/misc.c	2003-07-21 02:48:35.000000000 +0900
-@@ -154,7 +154,7 @@ int fat_add_cluster(struct inode *inode)
- 			new_fclus, inode->i_blocks >> (cluster_bits - 9));
- 		fat_cache_inval_inode(inode);
- 	}
--	inode->i_blocks += (1 << cluster_bits) >> 9;
-+	inode->i_blocks += MSDOS_SB(sb)->cluster_size >> 9;
- 
- 	return new_dclus;
- }
-@@ -163,7 +163,7 @@ struct buffer_head *fat_extend_dir(struc
- {
- 	struct super_block *sb = inode->i_sb;
- 	struct buffer_head *bh, *res = NULL;
--	int nr, cluster_size = MSDOS_SB(sb)->cluster_size;
-+	int nr, sec_per_clus = MSDOS_SB(sb)->sec_per_clus;
- 	sector_t sector, last_sector;
- 
- 	if (MSDOS_SB(sb)->fat_bits != 32) {
-@@ -175,8 +175,8 @@ struct buffer_head *fat_extend_dir(struc
- 	if (nr < 0)
- 		return ERR_PTR(nr);
- 	
--	sector = ((sector_t)nr - 2) * cluster_size + MSDOS_SB(sb)->data_start;
--	last_sector = sector + cluster_size;
-+	sector = ((sector_t)nr - 2) * sec_per_clus + MSDOS_SB(sb)->data_start;
-+	last_sector = sector + sec_per_clus;
- 	for ( ; sector < last_sector; sector++) {
- 		if ((bh = sb_getblk(sb, sector))) {
- 			memset(bh->b_data, 0, sb->s_blocksize);
-@@ -195,8 +195,8 @@ struct buffer_head *fat_extend_dir(struc
- 		inode->i_size = (inode->i_size + sb->s_blocksize)
- 			& ~(sb->s_blocksize - 1);
- 	}
--	inode->i_size += 1 << MSDOS_SB(sb)->cluster_bits;
--	MSDOS_I(inode)->mmu_private += 1 << MSDOS_SB(sb)->cluster_bits;
-+	inode->i_size += MSDOS_SB(sb)->cluster_size;
-+	MSDOS_I(inode)->mmu_private += MSDOS_SB(sb)->cluster_size;
- 
- 	return res;
- }
-diff -puN include/linux/msdos_fs.h~fat_cluster_size-cleanup include/linux/msdos_fs.h
---- linux-2.6.0-test1/include/linux/msdos_fs.h~fat_cluster_size-cleanup	2003-07-21 02:48:35.000000000 +0900
-+++ linux-2.6.0-test1-hirofumi/include/linux/msdos_fs.h	2003-07-21 02:48:35.000000000 +0900
-@@ -117,7 +117,7 @@ struct fat_boot_sector {
- 	__u8	system_id[8];	/* Name - can be used to special case
- 				   partition manager volumes */
- 	__u8	sector_size[2];	/* bytes per logical sector */
--	__u8	cluster_size;	/* sectors/cluster */
-+	__u8	sec_per_clus;	/* sectors/cluster */
- 	__u16	reserved;	/* reserved sectors */
- 	__u8	fats;		/* number of FATs */
- 	__u8	dir_entries[2];	/* root directory entries */
-diff -puN include/linux/msdos_fs_sb.h~fat_cluster_size-cleanup include/linux/msdos_fs_sb.h
---- linux-2.6.0-test1/include/linux/msdos_fs_sb.h~fat_cluster_size-cleanup	2003-07-21 02:48:35.000000000 +0900
-+++ linux-2.6.0-test1-hirofumi/include/linux/msdos_fs_sb.h	2003-07-21 02:48:35.000000000 +0900
-@@ -36,8 +36,9 @@ struct fat_cache {
- };
- 
- struct msdos_sb_info {
--	unsigned short cluster_size; /* sectors/cluster */
--	unsigned short cluster_bits; /* sectors/cluster */
-+	unsigned short sec_per_clus; /* sectors/cluster */
-+	unsigned short cluster_bits; /* log2(cluster_size) */
-+	unsigned int cluster_size;   /* cluster size */
- 	unsigned char fats,fat_bits; /* number of FATs, FAT bits (12 or 16) */
- 	unsigned short fat_start;
- 	unsigned long fat_length;    /* FAT start & length (sec.) */
+My experienec 6 years ago writing a floppy network boot loader (in 32 
+bit mode with a BIOS trampoline) is that this is not sufficient : before 
+calling the BIOS, you should also restore the interrupt controller 
+status in the legacy mode you got when entering (e.g 8259 programmation 
+and especially PIC masks or any other legacy emultation). While this is 
+not required on many machines, on some machines others, the bootloader 
+just do not work without...
 
-_
+
 
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+    __
+   /  `                   	Eric Valette
+  /--   __  o _.          	6 rue Paul Le Flem
+(___, / (_(_(__         	35740 Pace
+
+Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
+E-mail: eric.valette@free.fr
+

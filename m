@@ -1,1061 +1,819 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265675AbSLPIKV>; Mon, 16 Dec 2002 03:10:21 -0500
+	id <S265677AbSLPIPP>; Mon, 16 Dec 2002 03:15:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265677AbSLPIKV>; Mon, 16 Dec 2002 03:10:21 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:24120
+	id <S265681AbSLPIPP>; Mon, 16 Dec 2002 03:15:15 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:34872
 	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S265675AbSLPIKI>; Mon, 16 Dec 2002 03:10:08 -0500
-Date: Mon, 16 Dec 2002 03:18:14 -0500 (EST)
+	id <S265677AbSLPIPE>; Mon, 16 Dec 2002 03:15:04 -0500
+Date: Mon, 16 Dec 2002 03:23:15 -0500 (EST)
 From: Zwane Mwaikambo <zwane@holomorphy.com>
 X-X-Sender: zwane@montezuma.mastecende.com
 To: Linux Kernel <linux-kernel@vger.kernel.org>
 cc: Linus Torvalds <torvalds@transmeta.com>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [patch][2.5] ad1848 pnp conversion + fixes
-Message-ID: <Pine.LNX.4.50.0212160314020.12535-100000@montezuma.mastecende.com>
+Subject: [patch][2.5] OSS opl3sa2 pnp conversion
+Message-ID: <Pine.LNX.4.50.0212160319080.12535-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch converts ad1848 to the new PnP layer and has been tested on an
-opl3sa2 here, without it it's non function in pnp mode. I'm willing to
-field bug reports, (problems might occur for the modular case later on).
-
-The patch also fixes a number of deadlocks from the cli/sti conversions
+This patch converts OSS opl3sa2 over to the new PnP layer as well as
+merging the changes in the 2.4 tree. The driver has been tested on an
+opl3sa3. The driver currently doesn't work in pnp mode.
 
 Please apply
 
-Index: linux-2.5.52/sound/oss/ad1848.c
+Index: linux-2.5.52/sound/oss/opl3sa2.c
 ===================================================================
-RCS file: /build/cvsroot/linux-2.5.52/sound/oss/ad1848.c,v
+RCS file: /build/cvsroot/linux-2.5.52/sound/oss/opl3sa2.c,v
 retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 ad1848.c
---- linux-2.5.52/sound/oss/ad1848.c	16 Dec 2002 05:17:07 -0000	1.1.1.1
-+++ linux-2.5.52/sound/oss/ad1848.c	16 Dec 2002 07:10:16 -0000
-@@ -33,6 +33,7 @@
-  * Alan Cox		: Added CS4236->4239 identification
-  * Daniel T. Cobra	: Alernate config/mixer for later chips
-  * Alan Cox		: Merged chip idents and config code
-+ * Zwane Mwaikambo	: Converted to 2.5 PnP API
-  *
-  * TODO
-  *		APM save restore assist code on IBM thinkpad
-@@ -47,7 +48,6 @@
+diff -u -r1.1.1.1 opl3sa2.c
+--- linux-2.5.52/sound/oss/opl3sa2.c	16 Dec 2002 05:17:04 -0000	1.1.1.1
++++ linux-2.5.52/sound/oss/opl3sa2.c	16 Dec 2002 07:38:44 -0000
+@@ -56,7 +56,9 @@
+  * Scott Murray            Some small cleanups to the init code output.
+  *                         (Jan 7, 2001)
+  * Zwane Mwaikambo	   Added PM support. (Dec 4 2001)
+- *
++ * Zwane Mwaikambo	   Code, data structure cleanups. (Feb 15 2002)
++ * Zwane Mwaikambo	   Free resources during auxiliary device probe
++ * 			   failures (Apr 29 2002)
+  * Adam Belay              Converted driver to new PnP Layer (Oct 12, 2002)
+  */
+
+@@ -66,11 +68,15 @@
  #include <linux/module.h>
- #include <linux/stddef.h>
+ #include <linux/delay.h>
  #include <linux/pm.h>
--#include <linux/isapnp.h>
- #include <linux/pnp.h>
- #include <linux/spinlock.h>
++#include <linux/delay.h>
+ #include "sound_config.h"
 
-@@ -107,6 +107,9 @@
+ #include "ad1848.h"
+ #include "mpu401.h"
 
- 	/* Power management */
- 	struct		pm_dev *pmdev;
-+#ifdef CONFIG_PNP
-+	struct pnp_dev	*pnp_dev;
-+#endif
- } ad1848_info;
++#define OPL3SA2_MODULE_NAME	"opl3sa2"
++#define PFX			OPL3SA2_MODULE_NAME ": "
++
+ /* Useful control port indexes: */
+ #define OPL3SA2_PM	     0x01
+ #define OPL3SA2_SYS_CTRL     0x02
+@@ -91,9 +97,10 @@
+ #define DEFAULT_TIMBRE 0
 
- typedef struct ad1848_port_info
-@@ -180,16 +183,11 @@
+ /* Power saving modes */
+-#define OPL3SA2_PM_MODE1	0x05
+-#define OPL3SA2_PM_MODE2	0x04
+-#define OPL3SA2_PM_MODE3	0x03
++#define OPL3SA2_PM_MODE0	0x00
++#define OPL3SA2_PM_MODE1	0x04	/* PSV */
++#define OPL3SA2_PM_MODE2	0x05	/* PSV | PDX */
++#define OPL3SA2_PM_MODE3	0x27	/* ADOWN | PSV | PDN | PDX */
+
+ /* For checking against what the card returns: */
+ #define VERSION_UNKNOWN 0
+@@ -107,6 +114,7 @@
+ #define CHIPSET_UNKNOWN -1
+ #define CHIPSET_OPL3SA2 0
+ #define CHIPSET_OPL3SA3 1
++static const char *CHIPSET_TABLE[] = {"OPL3-SA2", "OPL3-SA3"};
 
  #ifdef CONFIG_PNP
- static int isapnp	= 1;
--static int isapnpjump	= 0;
--static int reverse	= 0;
+ #define OPL3SA2_CARDS_MAX 4
+@@ -117,40 +125,42 @@
+ /* This should be pretty obvious */
+ static int opl3sa2_cards_num; /* = 0 */
+
+-/* What's my version(s)? */
+-static int chipset[OPL3SA2_CARDS_MAX] = { CHIPSET_UNKNOWN };
 -
- static int audio_activated = 0;
- #else
- static int isapnp	= 0;
- #endif
+-/* Oh well, let's just cache the name(s) */
+-static char chipset_name[OPL3SA2_CARDS_MAX][12];
++typedef struct {
++	/* device resources */
++	unsigned short cfg_port;
++	struct address_info cfg;
++	struct address_info cfg_mss;
++	struct address_info cfg_mpu;
 
+-/* Where's my mixer(s)? */
+-static int opl3sa2_mixer[OPL3SA2_CARDS_MAX] = { -1 };
++#ifdef CONFIG_PNP
++	/* PnP Stuff */
++	struct pnp_dev* pdev;
++	int activated;			/* Whether said devices have been activated */
++#endif
+
+-/* Bag o' mixer data */
+-typedef struct opl3sa2_mixerdata_tag {
+-	unsigned short cfg_port;
+-	unsigned short padding;
+-	unsigned char  reg;
+-	unsigned int   in_suspend;
+-	struct pm_dev  *pmdev;
+-	unsigned int   card;
+-	unsigned int   volume_l;
+-	unsigned int   volume_r;
+-	unsigned int   mic;
+-	unsigned int   bass_l;
+-	unsigned int   bass_r;
+-	unsigned int   treble_l;
+-	unsigned int   treble_r;
+-	unsigned int   wide_l;
+-	unsigned int   wide_r;
+-} opl3sa2_mixerdata;
+-static opl3sa2_mixerdata opl3sa2_data[OPL3SA2_CARDS_MAX];
 -
--
- static int      ad1848_open(int dev, int mode);
- static void     ad1848_close(int dev);
- static void     ad1848_output_block(int dev, unsigned long buf, int count, int intrflag);
-@@ -207,17 +205,15 @@
- static void ad1848_tmr_reprogram(int dev);
- #endif
-
-+/* has to be called with devc->lock held */
- static int ad_read(ad1848_info * devc, int reg)
- {
--	unsigned long flags;
- 	int x;
- 	int timeout = 900000;
-
- 	while (timeout > 0 && inb(devc->base) == 0x80)	/*Are we initializing */
- 		timeout--;
-
--	spin_lock_irqsave(&devc->lock,flags);
--
- 	if(reg < 32)
- 	{
- 		outb(((unsigned char) (reg & 0xff) | devc->MCE_bit), io_Index_Addr(devc));
-@@ -233,21 +229,18 @@
- 		outb(((unsigned char) (xra & 0xff)), io_Indexed_Data(devc));
- 		x = inb(io_Indexed_Data(devc));
- 	}
--	spin_unlock_irqrestore(&devc->lock,flags);
-
- 	return x;
- }
-
-+/* has to be called with the devc->lock held */
- static void ad_write(ad1848_info * devc, int reg, int data)
- {
--	unsigned long flags;
- 	int timeout = 900000;
-
- 	while (timeout > 0 && inb(devc->base) == 0x80)	/* Are we initializing */
- 		timeout--;
-
--	spin_lock_irqsave(&devc->lock,flags);
--
- 	if(reg < 32)
- 	{
- 		outb(((unsigned char) (reg & 0xff) | devc->MCE_bit), io_Index_Addr(devc));
-@@ -263,7 +256,6 @@
- 		outb(((unsigned char) (xra & 0xff)), io_Indexed_Data(devc));
- 		outb((unsigned char) (data & 0xff), io_Indexed_Data(devc));
- 	}
--	spin_unlock_irqrestore(&devc->lock,flags);
- }
-
- static void wait_for_calibration(ad1848_info * devc)
-@@ -307,10 +299,7 @@
- 	 */
-
- 	for (i = 6; i < 8; i++)
--	{
- 		prev = devc->saved_regs[i] = ad_read(devc, i);
--	}
--
- }
-
- static void ad_unmute(ad1848_info * devc)
-@@ -319,37 +308,28 @@
-
- static void ad_enter_MCE(ad1848_info * devc)
- {
--	unsigned long flags;
- 	int timeout = 1000;
- 	unsigned short prev;
-
- 	while (timeout > 0 && inb(devc->base) == 0x80)	/*Are we initializing */
- 		timeout--;
-
--	spin_lock_irqsave(&devc->lock,flags);
--
- 	devc->MCE_bit = 0x40;
- 	prev = inb(io_Index_Addr(devc));
- 	if (prev & 0x40)
--	{
--		spin_unlock_irqrestore(&devc->lock,flags);
- 		return;
--	}
+-static struct address_info cfg[OPL3SA2_CARDS_MAX];
+-static struct address_info cfg_mss[OPL3SA2_CARDS_MAX];
+-static struct address_info cfg_mpu[OPL3SA2_CARDS_MAX];
++#ifdef CONFIG_PM
++	unsigned int	in_suspend;
++	struct pm_dev	*pmdev;
++#endif
++	unsigned int	card;
++	int		chipset;	/* What's my version(s)? */
++	char		*chipset_name;
 +
- 	outb((devc->MCE_bit), io_Index_Addr(devc));
--	spin_unlock_irqrestore(&devc->lock,flags);
++	/* mixer data */
++	int		mixer;
++	unsigned int	volume_l;
++	unsigned int	volume_r;
++	unsigned int	mic;
++	unsigned int	bass_l;
++	unsigned int	bass_r;
++	unsigned int	treble_l;
++	unsigned int	treble_r;
++	unsigned int	wide_l;
++	unsigned int	wide_r;
++} opl3sa2_state_t;
++static opl3sa2_state_t opl3sa2_state[OPL3SA2_CARDS_MAX];
+
+-static spinlock_t	lock=SPIN_LOCK_UNLOCKED;
++static spinlock_t opl3sa2_lock = SPIN_LOCK_UNLOCKED;
+
+ /* Our parameters */
+ static int __initdata io	= -1;
+@@ -236,12 +246,11 @@
+ 	*data = inb(port + 1);
  }
 
- static void ad_leave_MCE(ad1848_info * devc)
- {
--	unsigned long flags;
- 	unsigned char prev, acal;
- 	int timeout = 1000;
-
- 	while (timeout > 0 && inb(devc->base) == 0x80)	/*Are we initializing */
- 		timeout--;
-
--	spin_lock_irqsave(&devc->lock,flags);
 -
- 	acal = ad_read(devc, 9);
-
- 	devc->MCE_bit = 0x00;
-@@ -357,14 +337,11 @@
- 	outb((0x00), io_Index_Addr(devc));	/* Clear the MCE bit */
-
- 	if ((prev & 0x40) == 0)	/* Not in MCE mode */
--	{
--		spin_unlock_irqrestore(&devc->lock,flags);
- 		return;
--	}
-+
- 	outb((0x00), io_Index_Addr(devc));	/* Clear the MCE bit */
- 	if (acal & 0x08)	/* Auto calibration is enabled */
- 		wait_for_calibration(devc);
--	spin_unlock_irqrestore(&devc->lock,flags);
- }
-
- static int ad1848_set_recmask(ad1848_info * devc, int mask)
-@@ -375,12 +352,9 @@
- 	mask &= devc->supported_rec_devices;
-
- 	/* Rename the mixer bits if necessary */
--	for (i = 0; i < 32; i++)
--	{
--		if (devc->mixer_reroute[i] != i)
--		{
--			if (mask & (1 << i))
--			{
-+	for (i = 0; i < 32; i++) {
-+		if (devc->mixer_reroute[i] != i) {
-+			if (mask & (1 << i)) {
- 				mask &= ~(1 << i);
- 				mask |= (1 << devc->mixer_reroute[i]);
- 			}
-@@ -462,12 +436,9 @@
- 	}
-
- 	/* Rename the mixer bits back if necessary */
--	for (i = 0; i < 32; i++)
--	{
--		if (devc->mixer_reroute[i] != i)
--		{
--			if (mask & (1 << devc->mixer_reroute[i]))
--			{
-+	for (i = 0; i < 32; i++) {
-+		if (devc->mixer_reroute[i] != i) {
-+			if (mask & (1 << devc->mixer_reroute[i])) {
- 				mask &= ~(1 << devc->mixer_reroute[i]);
- 				mask |= (1 << i);
- 			}
-@@ -494,13 +465,11 @@
- 	mask = (1 << devc->mix_devices[dev][chn].nbits) - 1;
- 	shift = devc->mix_devices[dev][chn].bitpos;
-
--	if (devc->mix_devices[dev][chn].mutepos == 8)
--	{			/* if there is no mute bit */
-+	if (devc->mix_devices[dev][chn].mutepos == 8) {
-+		/* if there is no mute bit */
- 		mute = 0;	/* No mute bit; do nothing special */
- 		mutemask = ~0;	/* No mute bit; do nothing special */
--	}
--	else
--	{
-+	} else {
- 		mute = (set_mute_bit << devc->mix_devices[dev][chn].mutepos);
- 		mutemask = ~(1 << devc->mix_devices[dev][chn].mutepos);
- 	}
-@@ -600,9 +569,10 @@
- {
- 	int i;
- 	char name[32];
-+	unsigned long flags;
-
-+	spin_lock_irqsave(&devc->lock, flags);
- 	devc->mix_devices = &(ad1848_mix_devices[0]);
--
- 	sprintf(name, "%s_%d", devc->chip_name, nr_ad1848_devs);
-
- 	for (i = 0; i < 32; i++)
-@@ -656,12 +626,11 @@
-
- 	devc->levels = load_mixer_volumes(name, default_mixer_levels, 1);
-
--	for (i = 0; i < SOUND_MIXER_NRDEVICES; i++)
--	{
-+	for (i = 0; i < SOUND_MIXER_NRDEVICES; i++) {
- 		if (devc->supported_devices & (1 << i))
- 			ad1848_mixer_set(devc, i, devc->levels[i]);
- 	}
--
-+
- 	ad1848_set_recmask(devc, SOUND_MASK_MIC);
-
- 	devc->mixer_output_port = devc->levels[31] | AUDIO_HEADPHONE | AUDIO_LINE_OUT;
-@@ -679,13 +648,15 @@
- 		/* Enable surround mode and SB16 mixer */
- 		ad_write(devc, 16, 0x60);
- 	}
-+	spin_unlock_irqrestore(&devc->lock, flags);
- }
-
- static int ad1848_mixer_ioctl(int dev, unsigned int cmd, caddr_t arg)
- {
- 	ad1848_info *devc = mixer_devs[dev]->devc;
-+	unsigned long flags;
- 	int val;
--
-+
- 	if (cmd == SOUND_MIXER_PRIVATE1)
- 	{
- 		if (get_user(val, (int *)arg))
-@@ -697,10 +668,12 @@
- 			devc->mixer_output_port = val;
- 			val |= AUDIO_HEADPHONE | AUDIO_LINE_OUT;	/* Always on */
- 			devc->mixer_output_port = val;
-+			spin_lock_irqsave(&devc->lock, flags);
- 			if (val & AUDIO_SPEAKER)
- 				ad_write(devc, 26, ad_read(devc, 26) & ~0x40);	/* Unmute mono out */
- 			else
- 				ad_write(devc, 26, ad_read(devc, 26) | 0x40);		/* Mute mono out */
-+			spin_unlock_irqrestore(&devc->lock, flags);
- 		}
- 		val = devc->mixer_output_port;
- 		return put_user(val, (int *)arg);
-@@ -720,13 +693,17 @@
- 				case SOUND_MIXER_RECSRC:
- 					if (get_user(val, (int *)arg))
- 						return -EFAULT;
-+					spin_lock_irqsave(&devc->lock, flags);
- 					val = ad1848_set_recmask(devc, val);
-+					spin_unlock_irqrestore(&devc->lock, flags);
- 					break;
-
- 				default:
- 					if (get_user(val, (int *)arg))
- 					return -EFAULT;
-+					spin_lock_irqsave(&devc->lock, flags);
- 					val = ad1848_mixer_set(devc, cmd & 0xff, val);
-+					spin_unlock_irqrestore(&devc->lock, flags);
- 					break;
- 			}
- 			return put_user(val, (int *)arg);
-@@ -977,7 +954,7 @@
- {
- 	ad1848_info    *devc;
- 	ad1848_port_info *portc;
--	unsigned long   flags;
-+	unsigned long flags;
-
- 	if (dev < 0 || dev >= num_audiodevs)
- 		return -ENXIO;
-@@ -985,18 +962,16 @@
- 	devc = (ad1848_info *) audio_devs[dev]->devc;
- 	portc = (ad1848_port_info *) audio_devs[dev]->portc;
-
--	spin_lock_irqsave(&devc->lock,flags);
--	if (portc->open_mode || (devc->open_mode & mode))
--	{
--		spin_unlock_irqrestore(&devc->lock,flags);
-+	spin_lock_irqsave(&devc->lock, flags);
-+	if (portc->open_mode || (devc->open_mode & mode)) {
-+		spin_unlock_irqrestore(&devc->lock, flags);
- 		return -EBUSY;
- 	}
- 	devc->dual_dma = 0;
-
- 	if (audio_devs[dev]->flags & DMA_DUPLEX)
--	{
- 		devc->dual_dma = 1;
--	}
-+
- 	devc->intr_active = 0;
- 	devc->audio_mode = 0;
- 	devc->open_mode |= mode;
-@@ -1007,10 +982,10 @@
- 		devc->record_dev = dev;
- 	if (mode & OPEN_WRITE)
- 		devc->playback_dev = dev;
--	spin_unlock_irqrestore(&devc->lock,flags);
  /*
-  * Mute output until the playback really starts. This decreases clicking (hope so).
+  * All of the mixer functions...
   */
-+	spin_unlock_irqrestore(&devc->lock, flags);
- 	ad_mute(devc);
 
- 	return 0;
-@@ -1018,23 +993,24 @@
-
- static void ad1848_close(int dev)
+-static void opl3sa2_set_volume(opl3sa2_mixerdata* devc, int left, int right)
++static void opl3sa2_set_volume(opl3sa2_state_t* devc, int left, int right)
  {
--	unsigned long   flags;
- 	ad1848_info    *devc = (ad1848_info *) audio_devs[dev]->devc;
- 	ad1848_port_info *portc = (ad1848_port_info *) audio_devs[dev]->portc;
-+	unsigned long flags;
-
- 	DEB(printk("ad1848_close(void)\n"));
--
--	spin_lock_irqsave(&devc->lock,flags);
--
-+
-+	spin_lock_irqsave(&devc->lock, flags);
- 	devc->intr_active = 0;
-+	spin_unlock_irqrestore(&devc->lock, flags);
-+
- 	ad1848_halt(dev);
-
-+	spin_lock_irqsave(&devc->lock, flags);
- 	devc->audio_mode = 0;
- 	devc->open_mode &= ~portc->open_mode;
- 	portc->open_mode = 0;
--
-+	spin_unlock_irqrestore(&devc->lock, flags);
- 	ad_unmute(devc);
--	spin_unlock_irqrestore(&devc->lock,flags);
+ 	static unsigned char scale[101] = {
+ 		0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0e, 0x0e, 0x0e,
+@@ -276,7 +285,7 @@
  }
 
- static void ad1848_output_block(int dev, unsigned long buf, int count, int intrflag)
-@@ -1111,13 +1087,10 @@
- 	}
- 	spin_lock_irqsave(&devc->lock,flags);
 
--	if (devc->model == MD_1848)
--	{
-+	if (devc->model == MD_1848) {
- 		  ad_write(devc, 15, (unsigned char) (cnt & 0xff));
- 		  ad_write(devc, 14, (unsigned char) ((cnt >> 8) & 0xff));
--	}
--	else
--	{
-+	} else {
- 		  ad_write(devc, 31, (unsigned char) (cnt & 0xff));
- 		  ad_write(devc, 30, (unsigned char) ((cnt >> 8) & 0xff));
- 	}
-@@ -1184,15 +1157,13 @@
- 	ad_leave_MCE(devc);	/*
- 				 * Starts the calibration process.
- 				 */
--	spin_unlock_irqrestore(&devc->lock,flags);
- 	devc->xfer_count = 0;
-+	spin_unlock_irqrestore(&devc->lock,flags);
-
- #ifndef EXCLUDE_TIMERS
- 	if (dev == timer_installed && devc->timer_running)
- 		if ((fs & 0x01) != (old_fs & 0x01))
--		{
- 			ad1848_tmr_reprogram(dev);
--		}
- #endif
- 	ad1848_halt_output(dev);
- 	return 0;
-@@ -1336,9 +1307,8 @@
- 	if (!(ad_read(devc, 9) & 0x02))
- 		return;		/* Capture not enabled */
-
--	spin_lock_irqsave(&devc->lock,flags);
--
- 	ad_mute(devc);
-+	spin_lock_irqsave(&devc->lock,flags);
-
- 	{
- 		int             tmout;
-@@ -1372,9 +1342,9 @@
- 	if (!(ad_read(devc, 9) & 0x01))
- 		return;		/* Playback not enabled */
-
-+	ad_mute(devc);
- 	spin_lock_irqsave(&devc->lock,flags);
-
--	ad_mute(devc);
- 	{
- 		int             tmout;
-
-@@ -1404,35 +1374,28 @@
+-static void opl3sa2_set_mic(opl3sa2_mixerdata* devc, int level)
++static void opl3sa2_set_mic(opl3sa2_state_t* devc, int level)
  {
- 	ad1848_info    *devc = (ad1848_info *) audio_devs[dev]->devc;
- 	ad1848_port_info *portc = (ad1848_port_info *) audio_devs[dev]->portc;
--	unsigned long   flags;
- 	unsigned char   tmp, old;
+ 	unsigned char vol = 0x1F;
 
--	spin_lock_irqsave(&devc->lock,flags);
- 	state &= devc->audio_mode;
--
- 	tmp = old = ad_read(devc, 9);
-
--	if (portc->open_mode & OPEN_READ)
--	{
-+	if (portc->open_mode & OPEN_READ) {
- 		  if (state & PCM_ENABLE_INPUT)
- 			  tmp |= 0x02;
- 		  else
- 			  tmp &= ~0x02;
- 	}
--	if (portc->open_mode & OPEN_WRITE)
--	{
-+	if (portc->open_mode & OPEN_WRITE) {
- 		if (state & PCM_ENABLE_OUTPUT)
- 			tmp |= 0x01;
- 		else
- 			tmp &= ~0x01;
- 	}
- 	/* ad_mute(devc); */
--	if (tmp != old)
--	{
-+	if (tmp != old) {
- 		  ad_write(devc, 9, tmp);
- 		  ad_unmute(devc);
- 	}
--	spin_unlock_irqrestore(&devc->lock,flags);
+@@ -291,7 +300,7 @@
  }
 
- static void ad1848_init_hw(ad1848_info * devc)
-@@ -1580,11 +1543,7 @@
- 		printk(KERN_ERR "ad1848 - Too many audio devices\n");
- 		return 0;
- 	}
--	if (check_region(io_base, 4))
--	{
--		printk(KERN_ERR "ad1848.c: Port %x not free.\n", io_base);
--		return 0;
--	}
-+
- 	devc->base = io_base;
- 	devc->irq_ok = 0;
- 	devc->timer_running = 0;
-@@ -1736,15 +1695,13 @@
- 		*ad_flags = 0;
 
- 	tmp1 = ad_read(devc, 12);
--	if (tmp1 & 0x80)
--	{
-+	if (tmp1 & 0x80) {
- 		if (ad_flags)
- 			*ad_flags |= AD_F_CS4248;
+-static void opl3sa3_set_bass(opl3sa2_mixerdata* devc, int left, int right)
++static void opl3sa3_set_bass(opl3sa2_state_t* devc, int left, int right)
+ {
+ 	unsigned char bass;
 
- 		devc->chip_name = "CS4248";	/* Our best knowledge just now */
- 	}
--	if (optiC930 || (tmp1 & 0xc0) == (0x80 | 0x40))
--	{
-+	if (optiC930 || (tmp1 & 0xc0) == (0x80 | 0x40)) {
- 		/*
- 		 *      CS4231 detected - is it?
- 		 *
-@@ -1935,8 +1892,7 @@
- 	}
+@@ -302,7 +311,7 @@
+ }
 
- 	DDB(printk("ad1848_detect() - step L\n"));
--	if (ad_flags)
--	{
-+	if (ad_flags) {
- 		  if (devc->model != MD_1848)
- 			  *ad_flags |= AD_F_CS4231;
- 	}
-@@ -1945,7 +1901,6 @@
- 	if (devc->model == MD_1848 && ad1847_flag)
- 		devc->chip_name = "AD1847";
 
--
- 	if (sscape_flag == 1)
- 		devc->model = MD_1845_SSCAPE;
+-static void opl3sa3_set_treble(opl3sa2_mixerdata* devc, int left, int right)
++static void opl3sa3_set_treble(opl3sa2_state_t* devc, int left, int right)
+ {
+ 	unsigned char treble;
 
-@@ -1969,7 +1924,6 @@
+@@ -313,7 +322,7 @@
+ }
 
- 	ad1848_port_info *portc = NULL;
 
--	spin_lock_init(&devc->lock);
- 	devc->irq = (irq > 0) ? irq : 0;
- 	devc->open_mode = 0;
- 	devc->timer_ticks = 0;
-@@ -2039,17 +1993,14 @@
+-static void opl3sa3_set_wide(opl3sa2_mixerdata* devc, int left, int right)
++static void opl3sa3_set_wide(opl3sa2_state_t* devc, int left, int right)
+ {
+ 	unsigned char wide;
 
- 	ad1848_init_hw(devc);
+@@ -324,16 +333,16 @@
+ }
 
--	if (irq > 0)
--	{
-+	if (irq > 0) {
- 		devc->dev_no = my_dev;
--		if (request_irq(devc->irq, adintr, 0, devc->name, (void *)my_dev) < 0)
--		{
-+		if (request_irq(devc->irq, adintr, 0, devc->name, (void *)my_dev) < 0) {
- 			printk(KERN_WARNING "ad1848: Unable to allocate IRQ\n");
- 			/* Don't free it either then.. */
- 			devc->irq = 0;
+
+-static void opl3sa2_mixer_reset(opl3sa2_mixerdata* devc, int card)
++static void opl3sa2_mixer_reset(opl3sa2_state_t* devc)
+ {
+-	if(devc) {
++	if (devc) {
+ 		opl3sa2_set_volume(devc, DEFAULT_VOLUME, DEFAULT_VOLUME);
+ 		devc->volume_l = devc->volume_r = DEFAULT_VOLUME;
+
+ 		opl3sa2_set_mic(devc, DEFAULT_MIC);
+ 		devc->mic = DEFAULT_MIC;
+
+-		if(chipset[card] == CHIPSET_OPL3SA3) {
++		if (devc->chipset == CHIPSET_OPL3SA3) {
+ 			opl3sa3_set_bass(devc, DEFAULT_TIMBRE, DEFAULT_TIMBRE);
+ 			devc->bass_l = devc->bass_r = DEFAULT_TIMBRE;
+ 			opl3sa3_set_treble(devc, DEFAULT_TIMBRE, DEFAULT_TIMBRE);
+@@ -343,13 +352,13 @@
+ }
+
+
+-static void opl3sa2_mixer_restore(opl3sa2_mixerdata* devc, int card)
++static void opl3sa2_mixer_restore(opl3sa2_state_t* devc)
+ {
+ 	if (devc) {
+ 		opl3sa2_set_volume(devc, devc->volume_l, devc->volume_r);
+ 		opl3sa2_set_mic(devc, devc->mic);
+
+-		if (chipset[card] == CHIPSET_OPL3SA3) {
++		if (devc->chipset == CHIPSET_OPL3SA3) {
+ 			opl3sa3_set_bass(devc, devc->bass_l, devc->bass_r);
+ 			opl3sa3_set_treble(devc, devc->treble_l, devc->treble_r);
  		}
--		if (capabilities[devc->model].flags & CAP_F_TIMER)
--		{
-+		if (capabilities[devc->model].flags & CAP_F_TIMER) {
- #ifndef CONFIG_SMP
- 			int x;
- 			unsigned char tmp = ad_read(devc, 16);
-@@ -2066,8 +2017,7 @@
-
- 			if (devc->timer_ticks == 0)
- 				printk(KERN_WARNING "ad1848: Interrupt test failed (IRQ%d)\n", irq);
--			else
--			{
-+			else {
- 				DDB(printk("Interrupt test OK\n"));
- 				devc->irq_ok = 1;
- 			}
-@@ -2086,8 +2036,7 @@
- 		ad1848_tmr_install(my_dev);
- #endif
-
--	if (!share_dma)
--	{
-+	if (!share_dma) {
- 		if (sound_alloc_dma(dma_playback, devc->name))
- 			printk(KERN_WARNING "ad1848.c: Can't allocate DMA%d\n", dma_playback);
-
-@@ -2100,8 +2049,7 @@
- 				     dev_name,
- 				     &ad1848_mixer_operations,
- 				     sizeof(struct mixer_operations),
--				     devc)) >= 0)
--	{
-+				     devc)) >= 0) {
- 		audio_devs[my_dev]->mixer_dev = e;
- 		if (owner)
- 			mixer_devs[e]->owner = owner;
-@@ -2112,6 +2060,7 @@
- int ad1848_control(int cmd, int arg)
+@@ -391,7 +400,7 @@
  {
- 	ad1848_info *devc;
-+	unsigned long flags;
+ 	int cmdf = cmd & 0xff;
 
- 	if (nr_ad1848_devs < 1)
- 		return -ENODEV;
-@@ -2123,9 +2072,11 @@
- 		case AD1848_SET_XTAL:	/* Change clock frequency of AD1845 (only ) */
- 			if (devc->model != MD_1845 || devc->model != MD_1845_SSCAPE)
- 				return -EINVAL;
-+			spin_lock_irqsave(&devc->lock, flags);
- 			ad_enter_MCE(devc);
- 			ad_write(devc, 29, (ad_read(devc, 29) & 0x1f) | (arg << 5));
- 			ad_leave_MCE(devc);
-+			spin_unlock_irqrestore(&devc->lock, flags);
+-	opl3sa2_mixerdata* devc = (opl3sa2_mixerdata*) mixer_devs[dev]->devc;
++	opl3sa2_state_t* devc = &opl3sa2_state[dev];
+
+ 	switch(cmdf) {
+ 		case SOUND_MIXER_VOLUME:
+@@ -474,7 +483,7 @@
+ {
+ 	int cmdf = cmd & 0xff;
+
+-	opl3sa2_mixerdata* devc = (opl3sa2_mixerdata*) mixer_devs[dev]->devc;
++	opl3sa2_state_t* devc = &opl3sa2_state[dev];
+
+ 	switch(cmdf) {
+ 		case SOUND_MIXER_BASS:
+@@ -584,9 +593,9 @@
+ }
+
+
+-static inline void __init attach_opl3sa2_mpu(struct address_info* hw_config)
++static inline int __init attach_opl3sa2_mpu(struct address_info* hw_config)
+ {
+-	attach_mpu401(hw_config, THIS_MODULE);
++	return attach_mpu401(hw_config, THIS_MODULE);
+ }
+
+
+@@ -617,7 +626,7 @@
+ 			AD1848_REROUTE(SOUND_MIXER_LINE3, SOUND_MIXER_LINE);
+ 		}
+ 		else {
+-			printk(KERN_ERR "opl3sa2: MSS mixer not installed?\n");
++			printk(KERN_ERR PFX "MSS mixer not installed?\n");
+ 		}
+ 	}
+ }
+@@ -634,15 +643,14 @@
+ 	unsigned char misc;
+ 	unsigned char tmp;
+ 	unsigned char version;
+-	char tag;
+
+ 	/*
+-	 * Verify that the I/O port range is free.
++	 * Try and allocate our I/O port range.
+ 	 */
+-	if(check_region(hw_config->io_base, 2)) {
+-		printk(KERN_ERR "opl3sa2: Control I/O port %#x not free\n",
++	if(!request_region(hw_config->io_base, 2, OPL3SA2_MODULE_NAME)) {
++		printk(KERN_ERR PFX "Control I/O port %#x not free\n",
+ 		       hw_config->io_base);
+-		return 0;
++		goto out_nodev;
+ 	}
+
+ 	/*
+@@ -653,9 +661,9 @@
+ 	opl3sa2_write(hw_config->io_base, OPL3SA2_MISC, misc ^ 0x07);
+ 	opl3sa2_read(hw_config->io_base, OPL3SA2_MISC, &tmp);
+ 	if(tmp != misc) {
+-		printk(KERN_ERR "opl3sa2: Control I/O port %#x is not a YMF7xx chipset!\n",
++		printk(KERN_ERR PFX "Control I/O port %#x is not a YMF7xx chipset!\n",
+ 		       hw_config->io_base);
+-		return 0;
++		goto out_region;
+ 	}
+
+ 	/*
+@@ -666,9 +674,9 @@
+ 	opl3sa2_read(hw_config->io_base, OPL3SA2_MIC, &tmp);
+ 	if((tmp & 0x9f) != 0x8a) {
+ 		printk(KERN_ERR
+-		       "opl3sa2: Control I/O port %#x is not a YMF7xx chipset!\n",
++		       PFX "Control I/O port %#x is not a YMF7xx chipset!\n",
+ 		       hw_config->io_base);
+-		return 0;
++		goto out_region;
+ 	}
+ 	opl3sa2_write(hw_config->io_base, OPL3SA2_MIC, tmp);
+
+@@ -679,56 +687,54 @@
+ 	 * of the miscellaneous register.
+ 	 */
+ 	version = misc & 0x07;
+-	printk(KERN_DEBUG "opl3sa2: chipset version = %#x\n", version);
++	printk(KERN_DEBUG PFX "chipset version = %#x\n", version);
+ 	switch(version) {
+ 		case 0:
+-			chipset[card] = CHIPSET_UNKNOWN;
+-			tag = '?'; /* silence compiler warning */
++			opl3sa2_state[card].chipset = CHIPSET_UNKNOWN;
+ 			printk(KERN_ERR
+-			       "opl3sa2: Unknown Yamaha audio controller version\n");
++			       PFX "Unknown Yamaha audio controller version\n");
  			break;
 
- 		case AD1848_MIXER_REROUTE:
-@@ -2140,11 +2091,13 @@
- 			    !(devc->supported_rec_devices & (1 << o)))
- 				return -EINVAL;
+ 		case VERSION_YMF711:
+-			chipset[card] = CHIPSET_OPL3SA2;
+-			tag = '2';
+-			printk(KERN_INFO "opl3sa2: Found OPL3-SA2 (YMF711)\n");
++			opl3sa2_state[card].chipset = CHIPSET_OPL3SA2;
++			printk(KERN_INFO PFX "Found OPL3-SA2 (YMF711)\n");
+ 			break;
 
--			if (n == SOUND_MIXER_NONE)
--			{	/* Just hide this control */
-+			if (n == SOUND_MIXER_NONE) {
-+				/* Just hide this control */
-+				spin_lock_irqsave(&devc->lock, flags);
- 				ad1848_mixer_set(devc, o, 0);	/* Shut up it */
- 				devc->supported_devices &= ~(1 << o);
- 				devc->supported_rec_devices &= ~(1 << o);
-+				spin_unlock_irqrestore(&devc->lock, flags);
- 				break;
- 			}
+ 		case VERSION_YMF715:
+-			chipset[card] = CHIPSET_OPL3SA3;
+-			tag = '3';
++			opl3sa2_state[card].chipset = CHIPSET_OPL3SA3;
+ 			printk(KERN_INFO
+-			       "opl3sa2: Found OPL3-SA3 (YMF715 or YMF719)\n");
++			       PFX "Found OPL3-SA3 (YMF715 or YMF719)\n");
+ 			break;
 
-@@ -2171,23 +2124,19 @@
- 	int i, mixer, dev = 0;
- 	ad1848_info *devc = NULL;
+ 		case VERSION_YMF715B:
+-			chipset[card] = CHIPSET_OPL3SA3;
+-			tag = '3';
++			opl3sa2_state[card].chipset = CHIPSET_OPL3SA3;
+ 			printk(KERN_INFO
+-			       "opl3sa2: Found OPL3-SA3 (YMF715B or YMF719B)\n");
++			       PFX "Found OPL3-SA3 (YMF715B or YMF719B)\n");
+ 			break;
 
--	for (i = 0; devc == NULL && i < nr_ad1848_devs; i++)
--	{
--		if (adev_info[i].base == io_base)
--		{
-+	for (i = 0; devc == NULL && i < nr_ad1848_devs; i++) {
-+		if (adev_info[i].base == io_base) {
- 			devc = &adev_info[i];
- 			dev = devc->dev_no;
- 		}
+ 		case VERSION_YMF715E:
+ 		default:
+-			chipset[card] = CHIPSET_OPL3SA3;
+-			tag = '3';
++			opl3sa2_state[card].chipset = CHIPSET_OPL3SA3;
+ 			printk(KERN_INFO
+-			       "opl3sa2: Found OPL3-SA3 (YMF715E or YMF719E)\n");
++			       PFX "Found OPL3-SA3 (YMF715E or YMF719E)\n");
+ 			break;
  	}
 
--	if (devc != NULL)
--	{
-+	if (devc != NULL) {
- 		if(audio_devs[dev]->portc!=NULL)
- 			kfree(audio_devs[dev]->portc);
- 		release_region(devc->base, 4);
-
--		if (!share_dma)
--		{
-+		if (!share_dma) {
- 			if (devc->irq > 0) /* There is no point in freeing irq, if it wasn't allocated */
- 				free_irq(devc->irq, (void *)devc->dev_no);
-
-@@ -2198,12 +2147,14 @@
-
- 		}
- 		mixer = audio_devs[devc->dev_no]->mixer_dev;
--		if(mixer>=0)
-+		if (mixer>=0)
- 			sound_unload_mixerdev(mixer);
-
- 		if (devc->pmdev)
- 			pm_unregister(devc->pmdev);
--
-+#ifdef CONFIG_PNP
-+		put_device(&devc->pnp_dev->dev);
-+#endif
- 		nr_ad1848_devs--;
- 		for ( ; i < nr_ad1848_devs ; i++)
- 			adev_info[i] = adev_info[i+1];
-@@ -2223,6 +2174,7 @@
-
- 	dev = (int)dev_id;
- 	devc = (ad1848_info *) audio_devs[dev]->devc;
-+	spin_lock(&devc->lock);
-
- interrupt_again:		/* Jump back here if int status doesn't reset */
-
-@@ -2237,18 +2189,12 @@
- 	{
- 		if (devc->model == MD_C930)
- 		{		/* 82C930 has interrupt status register in MAD16 register MC11 */
--
--			spin_lock(&devc->lock);
--
- 			/* 0xe0e is C930 address port
- 			 * 0xe0f is C930 data port
- 			 */
- 			outb(11, 0xe0e);
- 			c930_stat = inb(0xe0f);
- 			outb((~c930_stat), 0xe0f);
--
--			spin_unlock(&devc->lock);
--
- 			alt_stat = (c930_stat << 2) & 0x30;
- 		}
- 		else if (devc->model != MD_1848)
-@@ -2285,6 +2231,7 @@
- 	{
- 		  goto interrupt_again;
+-	if(chipset[card] != CHIPSET_UNKNOWN) {
++	if(opl3sa2_state[card].chipset != CHIPSET_UNKNOWN) {
+ 		/* Generate a pretty name */
+-		sprintf(chipset_name[card], "OPL3-SA%c", tag);
+-		return 1;
++		opl3sa2_state[card].chipset_name = (char *)CHIPSET_TABLE[opl3sa2_state[card].chipset];
++		return 0;
  	}
-+	spin_unlock(&devc->lock);
+-	return 0;
++
++out_region:
++	release_region(hw_config->io_base, 2);
++out_nodev:
++	return -ENODEV;
  }
 
- /*
-@@ -2524,11 +2471,6 @@
 
- 	DDB(printk("Entered probe_ms_sound(%x, %d)\n", hw_config->io_base, hw_config->card_subtype));
-
--	if (check_region(hw_config->io_base, 8))
--	{
--		printk(KERN_ERR "MSS: I/O port conflict\n");
--		return 0;
--	}
- 	if (hw_config->card_subtype == 1)	/* Has no IRQ/DMA registers */
- 	{
- 		/* check_opl3(0x388, hw_config); */
-@@ -2723,8 +2665,6 @@
- 	unsigned long   xtal_nsecs;	/* nanoseconds per xtal oscillator tick */
- 	unsigned long   divider;
-
--	spin_lock_irqsave(&devc->lock,flags);
--
- 	/*
- 	 * Length of the timer interval (in nanoseconds) depends on the
- 	 * selected crystal oscillator. Check this from bit 0x01 of I8.
-@@ -2751,6 +2691,7 @@
- 	if (divider > 65535)	/* Overflow check */
- 		divider = 65535;
-
-+	spin_lock_irqsave(&devc->lock,flags);
- 	ad_write(devc, 21, (divider >> 8) & 0xff);	/* Set upper bits */
- 	ad_write(devc, 20, divider & 0xff);	/* Set lower bits */
- 	ad_write(devc, 16, ad_read(devc, 16) | 0x40);	/* Start the timer */
-@@ -2819,13 +2760,8 @@
-
- static int ad1848_suspend(ad1848_info *devc)
+ static void __init attach_opl3sa2(struct address_info* hw_config, int card)
  {
--	unsigned long flags;
--
--	spin_lock_irqsave(&devc->lock,flags);
--
- 	ad_mute(devc);
+-   	request_region(hw_config->io_base, 2, chipset_name[card]);
 
--	spin_unlock_irqrestore(&devc->lock,flags);
- 	return 0;
+ 	/* Initialize IRQ configuration to IRQ-B: -, IRQ-A: WSS+MPU+OPL3 */
+ 	opl3sa2_write(hw_config->io_base, OPL3SA2_IRQ_CONFIG, 0x0d);
+@@ -748,30 +754,28 @@
+ static void __init attach_opl3sa2_mixer(struct address_info *hw_config, int card)
+ {
+ 	struct mixer_operations* mixer_operations;
+-	opl3sa2_mixerdata* devc;
++	opl3sa2_state_t* devc = &opl3sa2_state[card];
+
+ 	/* Install master mixer */
+-	if(chipset[card] == CHIPSET_OPL3SA3) {
++	if(devc->chipset == CHIPSET_OPL3SA3) {
+ 		mixer_operations = &opl3sa3_mixer_operations;
+ 	}
+ 	else {
+ 		mixer_operations = &opl3sa2_mixer_operations;
+ 	}
+
+-	if((devc = &opl3sa2_data[card])) {
+-		devc->cfg_port = hw_config->io_base;
+-
+-		opl3sa2_mixer[card] = sound_install_mixer(MIXER_DRIVER_VERSION,
+-							  mixer_operations->name,
+-							  mixer_operations,
+-							  sizeof(struct mixer_operations),
+-							  devc);
+-		if(opl3sa2_mixer[card] < 0) {
+-			printk(KERN_ERR "opl3sa2: Could not install %s master mixer\n",
+-				 mixer_operations->name);
+-		}
+-		else
+-			opl3sa2_mixer_reset(devc, card);
++	devc->cfg_port = hw_config->io_base;
++	devc->mixer = sound_install_mixer(MIXER_DRIVER_VERSION,
++					  mixer_operations->name,
++					  mixer_operations,
++					  sizeof(struct mixer_operations),
++					  devc);
++	if(devc->mixer < 0) {
++		printk(KERN_ERR PFX "Could not install %s master mixer\n",
++			 mixer_operations->name);
++	}
++	else {
++			opl3sa2_mixer_reset(devc);
+ 	}
  }
 
-@@ -2833,9 +2769,8 @@
+@@ -799,13 +803,12 @@
+ 	 */
+ 	if(ymode >= 0 && ymode <= 3) {
+ 		unsigned char sys_ctrl;
+-
+ 		opl3sa2_read(hw_config->io_base, OPL3SA2_SYS_CTRL, &sys_ctrl);
+ 		sys_ctrl = (sys_ctrl & 0xcf) | ((ymode & 3) << 4);
+ 		opl3sa2_write(hw_config->io_base, OPL3SA2_SYS_CTRL, sys_ctrl);
+ 	}
+ 	else {
+-		printk(KERN_ERR "opl3sa2: not setting ymode, it must be one of 0,1,2,3\n");
++		printk(KERN_ERR PFX "not setting ymode, it must be one of 0,1,2,3\n");
+ 	}
+ }
+
+@@ -820,7 +823,7 @@
+ 		opl3sa2_write(hw_config->io_base, OPL3SA2_MISC, misc);
+ 	}
+ 	else {
+-		printk(KERN_ERR "opl3sa2: not setting loopback, it must be either 0 or 1\n");
++		printk(KERN_ERR PFX "not setting loopback, it must be either 0 or 1\n");
+ 	}
+ }
+
+@@ -831,50 +834,54 @@
+ 	release_region(hw_config->io_base, 2);
+
+ 	/* Unload mixer */
+-	if(opl3sa2_mixer[card] >= 0)
+-		sound_unload_mixerdev(opl3sa2_mixer[card]);
++	if(opl3sa2_state[card].mixer >= 0)
++		sound_unload_mixerdev(opl3sa2_state[card].mixer);
+ }
+
+ #ifdef CONFIG_PNP
+-struct pnp_id pnp_opl3sa2_list[] = {
++struct pnp_device_id pnp_opl3sa2_list[] = {
+ 	{.id = "YMH0021", .driver_data = 0},
+ 	{.id = ""}
+ };
+
+ MODULE_DEVICE_TABLE(pnp, pnp_opl3sa2_list);
+
+-static int opl3sa2_pnp_probe(struct pnp_dev *dev, const struct pnp_id *dev_id)
++static int opl3sa2_pnp_probe(struct pnp_dev *dev, const struct pnp_device_id *dev_id)
+ {
+ 	int card = opl3sa2_cards_num;
++
++	/* we don't actually want to return an error as the user may have specified
++	   no multiple card search
++	*/
+ 	if (opl3sa2_cards_num == OPL3SA2_CARDS_MAX)
+ 		return 0;
+ 	opl3sa2_activated[card] = 1;
+
+ 	/* Our own config: */
+-	cfg[card].io_base = dev->resource[4].start;
+-	cfg[card].irq     = dev->irq_resource[0].start;
+-	cfg[card].dma     = dev->dma_resource[0].start;
+-	cfg[card].dma2    = dev->dma_resource[1].start;
++	opl3sa2_state[card].cfg.io_base = dev->resource[4].start;
++	opl3sa2_state[card].cfg.irq     = dev->irq_resource[0].start;
++	opl3sa2_state[card].cfg.dma     = dev->dma_resource[0].start;
++	opl3sa2_state[card].cfg.dma2    = dev->dma_resource[1].start;
+
+ 	/* The MSS config: */
+-	cfg_mss[card].io_base      = dev->resource[1].start;
+-	cfg_mss[card].irq          = dev->irq_resource[0].start;
+-	cfg_mss[card].dma          = dev->dma_resource[0].start;
+-	cfg_mss[card].dma2         = dev->dma_resource[1].start;
+-	cfg_mss[card].card_subtype = 1; /* No IRQ or DMA setup */
+-
+-	cfg_mpu[card].io_base       = dev->resource[3].start;
+-	cfg_mpu[card].irq           = dev->irq_resource[0].start;
+-	cfg_mpu[card].dma           = -1;
+-	cfg_mpu[card].dma2          = -1;
+-	cfg_mpu[card].always_detect = 1; /* It's there, so use shared IRQs */
++	opl3sa2_state[card].cfg_mss.io_base      = dev->resource[1].start;
++	opl3sa2_state[card].cfg_mss.irq          = dev->irq_resource[0].start;
++	opl3sa2_state[card].cfg_mss.dma          = dev->dma_resource[0].start;
++	opl3sa2_state[card].cfg_mss.dma2         = dev->dma_resource[1].start;
++	opl3sa2_state[card].cfg_mss.card_subtype = 1; /* No IRQ or DMA setup */
++
++	opl3sa2_state[card].cfg_mpu.io_base       = dev->resource[3].start;
++	opl3sa2_state[card].cfg_mpu.irq           = dev->irq_resource[0].start;
++	opl3sa2_state[card].cfg_mpu.dma           = -1;
++	opl3sa2_state[card].cfg_mpu.dma2          = -1;
++	opl3sa2_state[card].cfg_mpu.always_detect = 1; /* It's there, so use shared IRQs */
+
+ 	/* Call me paranoid: */
+-	opl3sa2_clear_slots(&cfg[card]);
+-	opl3sa2_clear_slots(&cfg_mss[card]);
+-	opl3sa2_clear_slots(&cfg_mpu[card]);
++	opl3sa2_clear_slots(&opl3sa2_state[card].cfg);
++	opl3sa2_clear_slots(&opl3sa2_state[card].cfg_mss);
++	opl3sa2_clear_slots(&opl3sa2_state[card].cfg_mpu);
+
+-	opl3sa2_dev[card] = dev;
++	opl3sa2_state[card].pdev = dev;
+ 	opl3sa2_cards_num++;
+
+ 	return 0;
+@@ -890,19 +897,20 @@
+
+ /* End of component functions */
+
++#ifdef CONFIG_PM
+ /* Power Management support functions */
+-static int opl3sa2_suspend(struct pm_dev *pdev, unsigned char pm_mode)
++static int opl3sa2_suspend(struct pm_dev *pdev, unsigned int pm_mode)
  {
  	unsigned long flags;
- 	int mixer_levels[32], i;
--
--	spin_lock_irqsave(&devc->lock,flags);
+-	opl3sa2_mixerdata *p;
++	opl3sa2_state_t *p;
 
-+	local_irq_save(flags);
- 	/* Thinkpad is a bit more of PITA than normal. The BIOS tends to
- 	   restore it in a different config to the one we use.  Need to
- 	   fix this somehow */
-@@ -2860,7 +2795,7 @@
- 		bits = interrupt_bits[devc->irq];
- 		if (bits == -1) {
- 			printk(KERN_ERR "MSS: Bad IRQ %d\n", devc->irq);
--			spin_unlock_irqrestore(&devc->lock,flags);
-+			local_irq_restore(flags);
- 			return -1;
+ 	if (!pdev)
+ 		return -EINVAL;
+
+-	spin_lock_irqsave(&lock,flags);
++	spin_lock_irqsave(&opl3sa2_lock,flags);
++
++	p = (opl3sa2_state_t *) pdev->data;
+
+-	p = (opl3sa2_mixerdata *) pdev->data;
+-	p->in_suspend = 1;
+ 	switch (pm_mode) {
+ 	case 1:
+ 		pm_mode = OPL3SA2_PM_MODE1;
+@@ -914,35 +922,38 @@
+ 		pm_mode = OPL3SA2_PM_MODE3;
+ 		break;
+ 	default:
+-		pm_mode = OPL3SA2_PM_MODE3;
+-		break;
++		/* we don't know howto handle this... */
++		spin_unlock_irqrestore(&opl3sa2_lock, flags);
++		return -EBUSY;
+ 	}
+
++	p->in_suspend = 1;
+ 	/* its supposed to automute before suspending, so we wont bother */
+-	opl3sa2_read(p->cfg_port, OPL3SA2_PM, &p->reg);
+-	opl3sa2_write(p->cfg_port, OPL3SA2_PM, p->reg | pm_mode);
++	opl3sa2_write(p->cfg_port, OPL3SA2_PM, pm_mode);
++	/* wait a while for the clock oscillator to stabilise */
++	mdelay(10);
+
+-	spin_unlock_irqrestore(&lock,flags);
++	spin_unlock_irqrestore(&opl3sa2_lock,flags);
+ 	return 0;
+ }
+
+ static int opl3sa2_resume(struct pm_dev *pdev)
+ {
+ 	unsigned long flags;
+-	opl3sa2_mixerdata *p;
++	opl3sa2_state_t *p;
+
+ 	if (!pdev)
+ 		return -EINVAL;
+
+-	p = (opl3sa2_mixerdata *) pdev->data;
+-	spin_lock_irqsave(&lock,flags);
++	p = (opl3sa2_state_t *) pdev->data;
++	spin_lock_irqsave(&opl3sa2_lock,flags);
+
+ 	/* I don't think this is necessary */
+-	opl3sa2_write(p->cfg_port, OPL3SA2_PM, p->reg);
+-	opl3sa2_mixer_restore(p, p->card);
++	opl3sa2_write(p->cfg_port, OPL3SA2_PM, OPL3SA2_PM_MODE0);
++	opl3sa2_mixer_restore(p);
+ 	p->in_suspend = 0;
+
+-	spin_unlock_irqrestore(&lock,flags);
++	spin_unlock_irqrestore(&opl3sa2_lock,flags);
+ 	return 0;
+ }
+
+@@ -959,6 +970,7 @@
+ 	}
+ 	return 0;
+ }
++#endif
+
+ /*
+  * Install OPL3-SA2 based card(s).
+@@ -967,8 +979,7 @@
+  */
+ static int __init init_opl3sa2(void)
+ {
+-        int card;
+-	int max;
++        int card, max;
+
+ 	/* Sanitize isapnp and multiple settings */
+ 	isapnp = isapnp != 0 ? 1 : 0;
+@@ -993,51 +1004,55 @@
+ 		if(!isapnp) {
+ 			if(io == -1 || irq == -1 || dma == -1 ||
+ 			   dma2 == -1 || mss_io == -1) {
+-				printk(KERN_ERR
+-				       "opl3sa2: io, mss_io, irq, dma, and dma2 must be set\n");
++				printk(KERN_ERR PFX
++					"io, mss_io, irq, dma, and dma2 must be set\n");
+ 				return -EINVAL;
+-				opl3sa2_cards_num++;
+ 			}
+-
++
++			opl3sa2_cards_num++;
+ 			/*
+ 			 * Our own config:
+ 			 * (NOTE: IRQ and DMA aren't used, so they're set to
+ 			 *  give pretty output from conf_printf. :)
+ 			 */
+-			cfg[card].io_base = io;
+-			cfg[card].irq     = irq;
+-			cfg[card].dma     = dma;
+-			cfg[card].dma2    = dma2;
++			opl3sa2_state[card].cfg.io_base = io;
++			opl3sa2_state[card].cfg.irq     = irq;
++			opl3sa2_state[card].cfg.dma     = dma;
++			opl3sa2_state[card].cfg.dma2    = dma2;
+
+ 			/* The MSS config: */
+-			cfg_mss[card].io_base      = mss_io;
+-			cfg_mss[card].irq          = irq;
+-			cfg_mss[card].dma          = dma;
+-			cfg_mss[card].dma2         = dma2;
+-			cfg_mss[card].card_subtype = 1; /* No IRQ or DMA setup */
+-
+-			cfg_mpu[card].io_base       = mpu_io;
+-			cfg_mpu[card].irq           = irq;
+-			cfg_mpu[card].dma           = -1;
+-			cfg_mpu[card].always_detect = 1; /* Use shared IRQs */
++			opl3sa2_state[card].cfg_mss.io_base      = mss_io;
++			opl3sa2_state[card].cfg_mss.irq          = irq;
++			opl3sa2_state[card].cfg_mss.dma          = dma;
++			opl3sa2_state[card].cfg_mss.dma2         = dma2;
++			opl3sa2_state[card].cfg_mss.card_subtype = 1; /* No IRQ or DMA setup */
++
++			opl3sa2_state[card].cfg_mpu.io_base       = mpu_io;
++			opl3sa2_state[card].cfg_mpu.irq           = irq;
++			opl3sa2_state[card].cfg_mpu.dma           = -1;
++			opl3sa2_state[card].cfg_mpu.always_detect = 1; /* Use shared IRQs */
+
+ 			/* Call me paranoid: */
+-			opl3sa2_clear_slots(&cfg[card]);
+-			opl3sa2_clear_slots(&cfg_mss[card]);
+-			opl3sa2_clear_slots(&cfg_mpu[card]);
++			opl3sa2_clear_slots(&opl3sa2_state[card].cfg);
++			opl3sa2_clear_slots(&opl3sa2_state[card].cfg_mss);
++			opl3sa2_clear_slots(&opl3sa2_state[card].cfg_mpu);
+ 		}
++
++		if (probe_opl3sa2(&opl3sa2_state[card].cfg, card))
++			return -ENODEV;
+
+-		if(!probe_opl3sa2(&cfg[card], card) ||
+-		   !probe_opl3sa2_mss(&cfg_mss[card])) {
++		if(!probe_opl3sa2_mss(&opl3sa2_state[card].cfg_mss)) {
+ 			/*
+ 			 * If one or more cards are already registered, don't
+ 			 * return an error but print a warning.  Note, this
+ 			 * should never really happen unless the hardware or
+ 			 * ISA PnP screwed up.
+ 			 */
++			release_region(opl3sa2_state[card].cfg.io_base, 2);
++
+ 			if(opl3sa2_cards_num) {
+ 				printk(KERN_WARNING
+-				       "opl3sa2: There was a problem probing one "
++				       PFX "There was a problem probing one "
+ 				       " of the ISA PNP cards, continuing\n");
+ 				opl3sa2_cards_num--;
+ 				continue;
+@@ -1045,47 +1060,54 @@
+ 				return -ENODEV;
  		}
 
-@@ -2875,7 +2810,7 @@
- 		outb((bits | dma_bits[devc->dma1] | dma2_bit), config_port);
+-		attach_opl3sa2(&cfg[card], card);
+-		conf_printf(chipset_name[card], &cfg[card]);
+-		attach_opl3sa2_mss(&cfg_mss[card]);
+-		attach_opl3sa2_mixer(&cfg[card], card);
++		attach_opl3sa2(&opl3sa2_state[card].cfg, card);
++		conf_printf(opl3sa2_state[card].chipset_name, &opl3sa2_state[card].cfg);
++		attach_opl3sa2_mixer(&opl3sa2_state[card].cfg, card);
++		attach_opl3sa2_mss(&opl3sa2_state[card].cfg_mss);
++
++		/* ewww =) */
++		opl3sa2_state[card].card = card;
+
+-		opl3sa2_data[card].card = card;
++#ifdef CONFIG_PM
+ 		/* register our power management capabilities */
+-		opl3sa2_data[card].pmdev = pm_register(PM_ISA_DEV, card, opl3sa2_pm_callback);
+-		if (opl3sa2_data[card].pmdev)
+-			opl3sa2_data[card].pmdev->data = &opl3sa2_data[card];
++		opl3sa2_state[card].pmdev = pm_register(PM_ISA_DEV, card, opl3sa2_pm_callback);
++		if (opl3sa2_state[card].pmdev)
++			opl3sa2_state[card].pmdev->data = &opl3sa2_state[card];
++#endif
+
+ 		/*
+ 		 * Set the Yamaha 3D enhancement mode (aka Ymersion) if asked to and
+ 		 * it's supported.
+ 		 */
+ 		if(ymode != -1) {
+-			if(chipset[card] == CHIPSET_OPL3SA2) {
++			if(opl3sa2_state[card].chipset == CHIPSET_OPL3SA2) {
+ 				printk(KERN_ERR
+-				       "opl3sa2: ymode not supported on OPL3-SA2\n");
++				       PFX "ymode not supported on OPL3-SA2\n");
+ 			}
+ 			else {
+-				opl3sa2_set_ymode(&cfg[card], ymode);
++				opl3sa2_set_ymode(&opl3sa2_state[card].cfg, ymode);
+ 			}
+ 		}
+
+
+ 		/* Set A/D input to Mono loopback if asked to. */
+ 		if(loopback != -1) {
+-			opl3sa2_set_loopback(&cfg[card], loopback);
++			opl3sa2_set_loopback(&opl3sa2_state[card].cfg, loopback);
+ 		}
+
+-		/* Attach MPU if we've been asked to do so */
+-		if(cfg_mpu[card].io_base != -1) {
+-			if(probe_opl3sa2_mpu(&cfg_mpu[card])) {
+-				attach_opl3sa2_mpu(&cfg_mpu[card]);
++		/* Attach MPU if we've been asked to do so, failure isn't fatal */
++		if(opl3sa2_state[card].cfg_mpu.io_base != -1) {
++			if(probe_opl3sa2_mpu(&opl3sa2_state[card].cfg_mpu)) {
++				if (attach_opl3sa2_mpu(&opl3sa2_state[card].cfg_mpu)) {
++					printk(KERN_ERR PFX "failed to attach MPU401\n");
++					opl3sa2_state[card].cfg_mpu.slots[1] = -1;
++				}
+ 			}
+ 		}
  	}
 
--	spin_unlock_irqrestore(&devc->lock,flags);
-+	local_irq_restore(flags);
- 	return 0;
- }
-
-@@ -2924,13 +2859,7 @@
-
- #ifdef CONFIG_PNP
- MODULE_PARM(isapnp,	"i");
--MODULE_PARM(isapnpjump,	"i");
--MODULE_PARM(reverse,	"i");
- MODULE_PARM_DESC(isapnp,	"When set to 0, Plug & Play support will be disabled");
--MODULE_PARM_DESC(isapnpjump,	"Jumps to a specific slot in the driver's PnP table. Use the source, Luke.");
--MODULE_PARM_DESC(reverse,	"When set to 1, will reverse ISAPnP search order");
--
--struct pnp_dev	*ad1848_dev  = NULL;
-
- /* Please add new entries at the end of the table */
- static struct {
-@@ -2952,10 +2881,12 @@
-                 ISAPNP_ANY_ID, ISAPNP_ANY_ID,
- 		ISAPNP_VENDOR('C','S','C'), ISAPNP_FUNCTION(0x0100),
- 		0, 0, 0, 1, 0},
--        {"OPL3-SA2 WSS mode",
-+        /* This is handled by the opl3sa2 driver
-+	{"OPL3-SA2 WSS mode",
-         	ISAPNP_ANY_ID, ISAPNP_ANY_ID,
- 		ISAPNP_VENDOR('Y','M','H'), ISAPNP_FUNCTION(0x0021),
-                 1, 0, 0, 1, 1},
-+	*/
- 	{"Advanced Gravis InterWave Audio",
- 		ISAPNP_VENDOR('G','R','V'), ISAPNP_DEVICE(0x0001),
- 		ISAPNP_VENDOR('G','R','V'), ISAPNP_FUNCTION(0x0000),
-@@ -2963,137 +2894,90 @@
- 	{0}
- };
-
--static struct isapnp_device_id id_table[] __devinitdata = {
--	{	ISAPNP_VENDOR('C','M','I'), ISAPNP_DEVICE(0x0001),
--		ISAPNP_VENDOR('@','@','@'), ISAPNP_FUNCTION(0x0001), 0 },
--        {       ISAPNP_ANY_ID, ISAPNP_ANY_ID,
--		ISAPNP_VENDOR('C','S','C'), ISAPNP_FUNCTION(0x0000), 0 },
--        {       ISAPNP_ANY_ID, ISAPNP_ANY_ID,
--		ISAPNP_VENDOR('C','S','C'), ISAPNP_FUNCTION(0x0100), 0 },
--        {       ISAPNP_ANY_ID, ISAPNP_ANY_ID,
--		ISAPNP_VENDOR('Y','M','H'), ISAPNP_FUNCTION(0x0021), 0 },
--	{	ISAPNP_VENDOR('G','R','V'), ISAPNP_DEVICE(0x0001),
--		ISAPNP_VENDOR('G','R','V'), ISAPNP_FUNCTION(0x0000), 0 },
--	{0}
-+static const struct pnp_device_id ad1848_id_table[] __devinitdata = {
-+	{.id = "CMI0001" },
-+	{.id = "@@@0001" },
-+	{.id = "CSC0000" },
-+	{.id = "CSC0100" },
-+	/* {.id = "YMH0021" }, */
-+	{.id = "GRV0001" },
-+	{.id = "GRV0000" },
-+	{.id = ""}
- };
-
--MODULE_DEVICE_TABLE(isapnp, id_table);
-+MODULE_DEVICE_TABLE(pnp, ad1848_id_table);
-
--static struct pnp_dev *activate_dev(char *devname, char *resname, struct pnp_dev *dev)
-+static int ad1848_isapnp_probe(struct pnp_dev *pnp_dev, const struct pnp_device_id *dev_id)
- {
--	int err;
-+	ad1848_info *priv;
-+	int mss_io_index, irq_index, dma_index, dma2_index;
-
--	/* Device already active? Let's use it */
--	if(dev->active)
--		return(dev);
-+	if (nr_ad1848_devs >= MAX_AUDIO_DEV)
-+		return -ENOSPC;
-
--	if((err = pnp_activate_dev(dev)) < 0) {
--		printk(KERN_ERR "ad1848: %s %s config failed (out of resources?)[%d]\n", devname, resname, err);
-+	priv = &adev_info[nr_ad1848_devs];
-+	priv->pnp_dev = pnp_dev;
-+	pnp_set_drvdata(pnp_dev, priv);
-+	get_device(&pnp_dev->dev);
-+
-+	mss_io_index = ad1848_isapnp_list[nr_ad1848_devs].mss_io;
-+	irq_index = ad1848_isapnp_list[nr_ad1848_devs].irq;
-+	dma_index = ad1848_isapnp_list[nr_ad1848_devs].dma;
-+	dma2_index = ad1848_isapnp_list[nr_ad1848_devs].dma2;
-+
-+	cfg.io_base = pnp_dev->resource[mss_io_index].start;
-+	cfg.irq = pnp_dev->irq_resource[irq_index].start;
-+	cfg.dma = pnp_dev->dma_resource[dma_index].start;
-
--		pnp_disable_dev(dev);
-+	if (dma2_index != -1)
-+		cfg.dma2 = pnp_dev->dma_resource[dma2_index].start;
-+	else
-+		cfg.dma2 = -1;
-
--		return(NULL);
--	}
-+	printk(KERN_NOTICE "ad1848: ISAPnP reports '%s' at i/o %#x, irq %d, dma %d, %d\n",
-+		pnp_dev->name, cfg.io_base, cfg.irq, cfg.dma, cfg.dma2);
- 	audio_activated = 1;
--	return(dev);
--}
--
--static struct pnp_dev *ad1848_init_generic(struct pnp_card *bus, struct address_info *hw_config, int slot)
--{
--
--	/* Configure Audio device */
--	if((ad1848_dev = pnp_find_dev(bus, ad1848_isapnp_list[slot].vendor, ad1848_isapnp_list[slot].function, NULL)))
--	{
--		if((ad1848_dev = activate_dev(ad1848_isapnp_list[slot].name, "ad1848", ad1848_dev)))
--		{
--			get_device(&ad1848_dev->dev);
--			hw_config->io_base 	= ad1848_dev->resource[ad1848_isapnp_list[slot].mss_io].start;
--			hw_config->irq 		= ad1848_dev->irq_resource[ad1848_isapnp_list[slot].irq].start;
--			hw_config->dma 		= ad1848_dev->dma_resource[ad1848_isapnp_list[slot].dma].start;
--			if(ad1848_isapnp_list[slot].dma2 != -1)
--				hw_config->dma2 = ad1848_dev->dma_resource[ad1848_isapnp_list[slot].dma2].start;
--			else
--				hw_config->dma2 = -1;
--                        hw_config->card_subtype = ad1848_isapnp_list[slot].type;
--		} else
--			return(NULL);
--	} else
--		return(NULL);
--
--	return(ad1848_dev);
--}
-
--static int __init ad1848_isapnp_init(struct address_info *hw_config, struct pnp_card *bus, int slot)
--{
--	char *busname = bus->name[0] ? bus->name : ad1848_isapnp_list[slot].name;
--
--	/* Initialize this baby. */
--
--	if(ad1848_init_generic(bus, hw_config, slot)) {
--		/* We got it. */
--
--		printk(KERN_NOTICE "ad1848: ISAPnP reports '%s' at i/o %#x, irq %d, dma %d, %d\n",
--		       busname,
--		       hw_config->io_base, hw_config->irq, hw_config->dma,
--		       hw_config->dma2);
--		return 1;
--	}
- 	return 0;
- }
-
--static int __init ad1848_isapnp_probe(struct address_info *hw_config)
-+static void ad1848_isapnp_remove(struct pnp_dev *pnp_dev)
- {
--	static int first = 1;
--	int i;
--
--	/* Count entries in sb_isapnp_list */
--	for (i = 0; ad1848_isapnp_list[i].card_vendor != 0; i++);
--	i--;
--
--	/* Check and adjust isapnpjump */
--	if( isapnpjump < 0 || isapnpjump > i) {
--		isapnpjump = reverse ? i : 0;
--		printk(KERN_ERR "ad1848: Valid range for isapnpjump is 0-%d. Adjusted to %d.\n", i, isapnpjump);
--	}
--
--	if(!first || !reverse)
--		i = isapnpjump;
--	first = 0;
--	while(ad1848_isapnp_list[i].card_vendor != 0) {
--		static struct pnp_card *bus = NULL;
--
--		while ((bus = pnp_find_card(
--				ad1848_isapnp_list[i].card_vendor,
--				ad1848_isapnp_list[i].card_device,
--				bus))) {
--
--			if(ad1848_isapnp_init(hw_config, bus, i)) {
--				isapnpjump = i; /* start next search from here */
--				return 0;
--			}
--		}
--		i += reverse ? -1 : 1;
--	}
--
--	return -ENODEV;
-+	put_device(&pnp_dev->dev);
-+	/* pnp_disable_dev(pnp_dev); does this belong here? -Zwane */
-+	nr_ad1848_devs--;
- }
-+
-+static struct pnp_driver ad1848_driver = {
-+	.name		= "ad1848",
-+	.id_table	= ad1848_id_table,
-+	.probe		= ad1848_isapnp_probe,
-+	.remove		= ad1848_isapnp_remove,
-+};
- #endif
-
-
- static int __init init_ad1848(void)
- {
-+	int i;
- 	printk(KERN_INFO "ad1848/cs4248 codec driver Copyright (C) by Hannu Savolainen 1993-1996\n");
-
-+	for (i = 0; i < MAX_AUDIO_DEV; i++)
-+		spin_lock_init(&adev_info[i].lock);
-+
- #ifdef CONFIG_PNP
--	if(isapnp && (ad1848_isapnp_probe(&cfg) < 0) ) {
--		printk(KERN_NOTICE "ad1848: No ISAPnP cards found, trying standard ones...\n");
--		isapnp = 0;
-+	if (isapnp) {	/* FIXME I don't think this override can work anymore... -Zwane */
-+		/* On return our settings are in cfg */
-+		pnp_register_driver(&ad1848_driver);
-+		if (audio_activated == 0) {
-+			printk(KERN_NOTICE "ad1848: No ISAPnP cards found, trying standard ones...\n");
-+			isapnp = 0;
-+		}
+ 	if(isapnp) {
+-		printk(KERN_NOTICE "opl3sa2: %d PnP card(s) found.\n", opl3sa2_cards_num);
++		printk(KERN_NOTICE PFX "%d PnP card(s) found.\n", opl3sa2_cards_num);
  	}
- #endif
 
--	if(io != -1) {
--	        if( isapnp == 0 )
--	        {
-+	if (io != -1) {
-+	        if ( isapnp == 0 ) {
- 			if(irq == -1 || dma == -1) {
- 				printk(KERN_WARNING "ad1848: must give I/O , IRQ and DMA.\n");
- 				return -EINVAL;
-@@ -3106,7 +2990,7 @@
- 			cfg.card_subtype = type;
- 	        }
+ 	return 0;
+@@ -1100,14 +1122,14 @@
+ 	int card;
 
--		if(!probe_ms_sound(&cfg))
-+		if (!probe_ms_sound(&cfg))
- 			return -ENODEV;
- 		attach_ms_sound(&cfg, THIS_MODULE);
- 		loaded = 1;
-@@ -3116,15 +3000,11 @@
+ 	for(card = 0; card < opl3sa2_cards_num; card++) {
+-		if (opl3sa2_data[card].pmdev)
+-			pm_unregister(opl3sa2_data[card].pmdev);
++		if (opl3sa2_state[card].pmdev)
++			pm_unregister(opl3sa2_state[card].pmdev);
 
- static void __exit cleanup_ad1848(void)
- {
--	if(loaded)
-+	if (loaded)
- 		unload_ms_sound(&cfg);
+-	        if(cfg_mpu[card].slots[1] != -1) {
+-			unload_opl3sa2_mpu(&cfg_mpu[card]);
++	        if(opl3sa2_state[card].cfg_mpu.slots[1] != -1) {
++			unload_opl3sa2_mpu(&opl3sa2_state[card].cfg_mpu);
+ 		}
+-		unload_opl3sa2_mss(&cfg_mss[card]);
+-		unload_opl3sa2(&cfg[card], card);
++		unload_opl3sa2_mss(&opl3sa2_state[card].cfg_mss);
++		unload_opl3sa2(&opl3sa2_state[card].cfg, card);
 
  #ifdef CONFIG_PNP
--	if(ad1848_dev){
--		if(audio_activated)
--			pnp_disable_dev(ad1848_dev);
--		put_device(&ad1848_dev->dev);
--	}
-+	pnp_unregister_driver(&ad1848_driver);
- #endif
- }
-
-Index: linux-2.5.52/sound/oss/Makefile
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.52/sound/oss/Makefile,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 Makefile
---- linux-2.5.52/sound/oss/Makefile	16 Dec 2002 05:17:05 -0000	1.1.1.1
-+++ linux-2.5.52/sound/oss/Makefile	16 Dec 2002 05:52:23 -0000
-@@ -13,6 +13,7 @@
- # Each configuration option enables a list of files.
-
- obj-$(CONFIG_SOUND_OSS)		+= sound.o
-+obj-$(CONFIG_SOUND_MSS)         += ad1848.o
- obj-$(CONFIG_SOUND_CS4232)	+= cs4232.o ad1848.o
-
- # Please leave it as is, cause the link order is significant !
-@@ -24,7 +25,6 @@
- obj-$(CONFIG_SOUND_SSCAPE)	+= sscape.o ad1848.o mpu401.o
- obj-$(CONFIG_SOUND_MAD16)	+= mad16.o ad1848.o sb_lib.o uart401.o
- obj-$(CONFIG_SOUND_CS4232)	+= cs4232.o uart401.o
--obj-$(CONFIG_SOUND_MSS)		+= ad1848.o
- obj-$(CONFIG_SOUND_OPL3SA2)	+= opl3sa2.o ad1848.o mpu401.o
- obj-$(CONFIG_SOUND_PAS)		+= pas2.o sb.o sb_lib.o uart401.o
- obj-$(CONFIG_SOUND_SB)		+= sb.o sb_lib.o uart401.o
+ 		pnp_unregister_driver(&opl3sa2_driver);
 
 -- 
 function.linuxpower.ca

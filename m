@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312526AbSEPMmH>; Thu, 16 May 2002 08:42:07 -0400
+	id <S312529AbSEPMpK>; Thu, 16 May 2002 08:45:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312529AbSEPMmG>; Thu, 16 May 2002 08:42:06 -0400
-Received: from mailx.cdacindia.com ([202.54.40.35]:52140 "EHLO
-	falcon.cdac.ernet.in") by vger.kernel.org with ESMTP
-	id <S312526AbSEPMmF>; Thu, 16 May 2002 08:42:05 -0400
-Date: Thu, 16 May 2002 18:10:05 +0530 (IST)
-From: Sanket Rathi <sanket.rathi@cdac.ernet.in>
-To: linux-kernel@vger.kernel.org
-Message-ID: <Pine.GSO.4.10.10205161809140.1835-100000@mailhub.cdac.ernet.in>
+	id <S312576AbSEPMpJ>; Thu, 16 May 2002 08:45:09 -0400
+Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:60039 "EHLO
+	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
+	id <S312529AbSEPMpI>; Thu, 16 May 2002 08:45:08 -0400
+Message-ID: <180577A42806D61189D30008C7E632E87938EA@boca213a.boca.ssc.siemens.com>
+From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: FW: Device driver question
+Date: Thu, 16 May 2002 08:45:08 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I now have a solution to the question below. Thanks for all of the help.
 
+Jack Bloch
+Siemens Carrier Networks
+e-mail    : jack.bloch@icn.siemens.com
+phone     : (561) 923-6550
 
-I just want to know how can we restrict the maximum virtual memory and
-maximum physical memory on ia64 platform.
-Is there any settings in kernel so that we can change that and recompile
-kernel. Actually we have a device which can only access 44 bits so we cant
-I just want to know how can we restrict the maximum virtual memory and
-maximum physical memory on ia64 platform.
-Is there any settings in kernel so that we can change that and recompile
-kernel. Actually we have a device which can only access 44 bits so we cant
-have 64 bit address. I mean is it possible to discard some bits which are
-not significant.
-
-Tell me something related to this or any link which i can refer
-
-Thanks in advance
-
---- Sanket Rathi
-
---------------------------
-
-
+>  -----Original Message-----
+> From: 	Bloch, Jack  
+> Sent:	Wednesday, May 15, 2002 9:17 AM
+> To:	'linux-kernel@vger.kernel.org.'
+> Subject:	Device driver question
+> 
+> I am relatively new to Linux (< 6 months). We have designed an embedded
+> system (on compact PCI) running on a Pentium III 700Mhz cPCI machine. This
+> machine supports upt to 6 cPCI boards for specific functions (this is our
+> own HW). I have already written the device drivers for these boards and
+> the system is running. I have a specific case where our HW can generate a
+> special interrupt. In this case I simply want the ISR to halt the system
+> (i.e. take the same action as if I typed halt from the command line). How
+> can I from within my device driver cause a halt? Please CC me specifically
+> on any replies.
+> 
+> Thanks in advance. 
+> 
+> Jack Bloch
+> Siemens Carrier Networks
+> e-mail    : jack.bloch@icn.siemens.com
+> phone     : (561) 923-6550
+> 

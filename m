@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262386AbVCVLoi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262646AbVCVLuH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262386AbVCVLoi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 06:44:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbVCVLoh
+	id S262646AbVCVLuH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 06:50:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbVCVLuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 06:44:37 -0500
-Received: from fire.osdl.org ([65.172.181.4]:21975 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262386AbVCVLoZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 06:44:25 -0500
-Date: Tue, 22 Mar 2005 03:43:32 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Norbert Preining <preining@logic.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: S2R gone with 2.6.12-rc1-mm1
-Message-Id: <20050322034332.4e1814d1.akpm@osdl.org>
-In-Reply-To: <20050322110610.GB1940@gamma.logic.tuwien.ac.at>
-References: <20050321210411.GB29072@gamma.logic.tuwien.ac.at>
-	<20050321132106.3cb48d38.akpm@osdl.org>
-	<20050322110610.GB1940@gamma.logic.tuwien.ac.at>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 22 Mar 2005 06:50:07 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:59832 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262646AbVCVLuC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 06:50:02 -0500
+Date: Tue, 22 Mar 2005 12:49:58 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Hikaru1@verizon.net
+cc: linux-kernel@vger.kernel.org
+Subject: Re: forkbombing Linux distributions
+In-Reply-To: <20050322112628.GA18256@roll>
+Message-ID: <Pine.LNX.4.61.0503221247450.5858@yvahk01.tjqt.qr>
+References: <e0716e9f05032019064c7b1cec@mail.gmail.com> <20050322112628.GA18256@roll>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Norbert Preining <preining@logic.at> wrote:
 >
-> On Mon, 21 Mär 2005, Andrew Morton wrote:
-> > > Sorry to bother you again, but I found that S2R does not work anymore
-> > > with 2.6.12-rc1-mm1, while it works with the exact same software setup
-> > > with 2.6.11-mm4.
-> > 
-> > Oh.  suspend-to-RAM.
-> > 
-> > Would this be an ACPI regression?
-> 
-> Sorry for the S2R. I guess that it is related to the new ACPI stuff
-> introduced in bk-acpi lately. What would you suggest:
+>This will prevent it from exceeding the procs limits, but it will *not*
+>completely stop it.
 
-Well if you could test 2.6.12-rc1 plus rc1-mm1's bk-apci.patch, that would
-confirm your theory.
+What if the few procs that he may spawn also grab so much memory so your 
+machine disappears in swap-t(h)rashing?
 
-Apart from that - please raise a bugzilla entry for the acpi guys.
+>The only way to kill it off successfully is to killall
+>-9 the script name repeatedly.
 
+As said earlier, killall -STOP first
+=> keeps the number of processes constant (so he can't spawn any new ones)
+
+>Of course, you should always use a bat on the user if nothing else works. ;)
+
+Use a keylogger if you distrust, and after a bombing,
+look who set us up the bomb.
+
+
+
+Jan Engelhardt
+-- 

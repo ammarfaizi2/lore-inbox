@@ -1,72 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130497AbRC0EAw>; Mon, 26 Mar 2001 23:00:52 -0500
+	id <S130487AbRC0EUY>; Mon, 26 Mar 2001 23:20:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130493AbRC0EAn>; Mon, 26 Mar 2001 23:00:43 -0500
-Received: from dial-09-109-apx-01.btvt.together.net ([209.91.2.109]:5767 "EHLO
-	sparrow.websense.net") by vger.kernel.org with ESMTP
-	id <S130457AbRC0EAd>; Mon, 26 Mar 2001 23:00:33 -0500
-Date: Mon, 26 Mar 2001 22:59:20 -0500 (EST)
-From: William Stearns <wstearns@pobox.com>
-Reply-To: William Stearns <wstearns@pobox.com>
-To: Jason Madden <jmadden@spock.shacknet.nu>,
-        "David E. Weekly" <dweekly@legato.com>
-cc: ML-linux-kernel <linux-kernel@vger.kernel.org>,
-        William Stearns <wstearns@ists.dartmouth.edu>,
-        Jens Axboe <axboe@suse.de>
-Subject: Re: "mount -o loop" lockup issue
-In-Reply-To: <Pine.LNX.4.21.0103262125400.8769-100000@spock.shacknet.nu>
-Message-ID: <Pine.LNX.4.30.0103262254500.13254-100000@sparrow.websense.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130493AbRC0EUP>; Mon, 26 Mar 2001 23:20:15 -0500
+Received: from ns0.petreley.net ([64.170.109.178]:3975 "EHLO petreley.com")
+	by vger.kernel.org with ESMTP id <S130487AbRC0EUF>;
+	Mon, 26 Mar 2001 23:20:05 -0500
+Date: Mon, 26 Mar 2001 20:19:23 -0800
+From: Nicholas Petreley <nicholas@petreley.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andre Hedrick <andre@linux-ide.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: VIA686b chipset and dma_intr errors, and 3c905B errors
+Message-ID: <20010326201923.C609@petreley.com>
+In-Reply-To: <Pine.LNX.4.10.10103161041040.14210-100000@master.linux-ide.org> <3AB93A75.D18A78EE@student.luth.se> <20010326142858.A664@petreley.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <20010326142858.A664@petreley.com>; from nicholas@petreley.com on Mon, Mar 26, 2001 at 02:28:58PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day, all,
+Update: 
 
-On Mon, 26 Mar 2001, Jason Madden wrote:
+Thanks to some advice and help from Mark Hahn, I downloaded
+the DFT utility from IBM that checks and fixes their
+drives.  A low-level format fixed the problems (the utility
+calls it "erase disk".  That seems odd to me, since I
+thought that IDE drives automatically took care of bad
+blocks, but apparently this needed the low-level format. 
+I'll keep an eye on that drive, though...
 
-> On Mon, 26 Mar 2001, David E. Weekly wrote:
->
-> > On Linux 2.4.2, running a "mount -o loop" on a file properly created with
-> > "dd if=/dev/zero of=/path/to/my/file.img count=1024" seems to decide to
-> > freeze up my shell (not my system). An strace showed the lockup happening at
-> > the actual system "mount()" call, which never returns.
-> >
-> > Since mount() is in glibc, it might be relevant to note that I'm running
-> > Mandrake's glibc 2.1.3-16mdk. I compiled the kernel with a gcc of 2.95.3
-> > [1991030] (although oddly enough this binary seems to have come with the
-> > gcc-2.95.2 RPM and installed itself as /usr/bin/gcc-2.95.2) and binutils
-> > 2.10.0.24-4mdk.
-> I also experience this problem (using a floppy disk image created by
-> dd if=/dev/fd0 of=floppy.img bs=1024, and then mount -o loop
-> floppy.img /mnt/floppy ) with a different version
-> of glibc (RedHat's 2.1.92-5 rpm) and binutils (binutils-2.10.0.18-1). Loop
-> is compiled into the kernel.
->
-> Once the mount command was executed, my load average shot up to a steady
-> 1.0 on an idle system, and remained there until I rebooted. top
-> et. al. showed no cpu utilization by the frozen mount.
+As for the 3C905B, I've already replaced it with an
+eepro100, but as Mark suggested in an email, I will turn
+off the "optimal" performance setting in the BIOS and see
+if that gets rid of all the bizarre behavior.  Apparently
+that's not a kernel problem but a bios problem.  
 
-	Jens Axboe, along with a number of other people, has put in a lot
-of time coming up with a fix for the loop mount lockups.  You can either
-get his patch directly from
-ftp://ftp.kernel.org/pub/linux/kernel/people/axboe/patches/
-	or simply use the most recent 2.4.2-ac patch (from
-ftp://ftp.kernel.org/pub/linux/kernel/people/alan/
-	) to get this updated loop device code.  I'm certain Jens would
-like to hear from you if you find any problems with the updated code.
-	Cheers,
-	- Bill
+-Nick
 
----------------------------------------------------------------------------
-	The day Microsoft makes something that doesn't suck is
-probably the day they start making vacuum cleaners.
-	--  Ernst Jan Plugge
-(Courtesy of Christian Vogel <chris-inet@obelix.bene.baynet.de>)
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts,
-and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
-LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
---------------------------------------------------------------------------
-
+-- 
+**********************************************************
+Nicholas Petreley   Caldera Systems - LinuxWorld/InfoWorld
+nicholas@petreley.com - http://www.petreley.com - Eph 6:12
+**********************************************************
+.

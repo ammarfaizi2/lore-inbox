@@ -1,187 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263519AbUDBBaB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 20:30:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263502AbUDBBaA
+	id S263502AbUDBBfn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 20:35:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbUDBBfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 20:30:00 -0500
-Received: from fw.osdl.org ([65.172.181.6]:51078 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263519AbUDBB3e (ORCPT
+	Thu, 1 Apr 2004 20:35:43 -0500
+Received: from main.gmane.org ([80.91.224.249]:31695 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263502AbUDBBfg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 20:29:34 -0500
-Date: Thu, 1 Apr 2004 17:26:17 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: kjo <kernel-janitors@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [announce] 2.6.5-rc3-kj1 patchset
-Message-Id: <20040401172617.09e52deb.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Thu, 1 Apr 2004 20:35:36 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Joshua Kwan <joshk@triplehelix.org>
+Subject: Re: 2.6.5-rc3-mm4
+Date: Thu, 01 Apr 2004 20:35:32 -0500
+Message-ID: <pan.2004.04.02.01.35.32.434379@triplehelix.org>
+References: <20040401020512.0db54102.akpm@osdl.org> <200404011112.21212.norberto+linux-kernel@bensa.ath.cx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: three-cambridge-center-one-nineteen.mit.edu
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(pinging Sam Ravnborg)
 
-patch is at:
-http://developer.osdl.org/rddunlap/kj-patches/2.6.5-rc3/2.6.5-rc3-kj1.patch.bz2  [2004-04-01]
+On Thu, 01 Apr 2004 11:12:20 -0300, Norberto Bensa wrote:
+> 	make: LANG: Command not found
+> 	make: *** [all] Error 127
+> 
+> Workaround is:
+> 
+> 	LC_ALL= sudo make
 
-M: merged at kernel.org;   mm: in -mm;   tx: sent;   mntr: maintainer merged;
+This is not right. If you look in the Makefile for LC_ALL, you'll note
+that the assignments are made having an indent in front of them (meaning:
+execute as shell command.)
 
-This patch applies to linux-2.6.5-rc3.
-new (for 2.6.5-rc3):  [2004-04-01]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-add/	extraver.patch
-	rddunlap%osdl!org
+Convert those indents to spaces, and you're good to go. I'm not going to
+bother submitting a patch because pan is surely going to munge it again.
 
-add/	floppy_audit_v2.patch
-	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+-- 
+Joshua Kwan
 
-add/	eth1394_kmemcc.patch
-	From: <WHarms@bfs.de>(Walter Harms)
-
-add/	pcmcia_cs_class_reg.patch
-	From: <WHarms@bfs.de>(Walter Harms)
-
-add/	jfs_metapage_kmemcc.patch
-	From: <WHarms@bfs.de>(Walter Harms)
-
-add/	mandocs_params-001.patch
-	mandocs_params-002.patch
-	mandocs_params-003.patch
-	mandocs_params-004.patch
-	mandocs_params-005.patch
-	mandocs_params-006.patch
-	mandocs_params-007.patch
-	From: mikal@stillhq.com
-
-This patch applies to linux-2.6.5-rc1.
-previous (for 2.6.5-rc1):  [2004-03-16]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-tx/	nfs_parse.patch
-	From: Fabian_LoneStar_Frederick <fabian.frederick@gmx.fr>
-	sent to mntr: 2004.0319; he acked it & will merge it;
-
-add/	floppy_deugli_00.patch
-	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
-
-add/	floppy_deugli_01.patch
-	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
-
-add/	floppy_deugli_02.patch
-	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
-
-add/	floppy_deugli_03.patch
-	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
-
-
-This patch applies to linux-2.6.4-rc2.
-previous (for 2.6.4-rc2):  [2004-03-09]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-add/	kswapd_init_fail.patch
-	From: Eugene Teo <eugene.teo@eugeneteo.net>
-
-tx/	lmc_proto_raw_h_rm.patch
-	From: Domen Puncer <domen@coderock.org>
-	sent to netdev/jgarzik: 2004.0229;
-
-add/	ipv4_fib_hash_check.patch
-	From: Francois Romieu <romieu@fr.zoreil.com>
-	original From: <WHarms@bfs.de>(Walter Harms)
-
-tx/	file2alias_signcomp.patch
-fxd	From: Ron Gage <ron@rongage.org>
-	sent to mntrs: 2004.0316;
-
-tx/	fixdep_signcomp.patch
-fxd	From: Ron Gage <ron@rongage.org>
-	sent to mntrs: 2004.0316;
-
-tx/	modpost_signcomp.patch
-	From: Ron Gage <ron@rongage.org>
-	sent to mntrs: 2004.0316;
-
-tx/	errno_numbers_assembly.patch
-	From: Danilo Piazzalunga <danilopiazza@libero.it>
-	to akpm: 2004.0126;
-	to akpm: 2004.0316;
-	must go thru arch maintainers;
-
-tx/	dgrs_iounmap.patch
-	From: Leann Ogasawara <ogasawara@osdl.org>
-	sent to jgarzik/netdev: 2004.0124;
-
-tx/	drivers_ide_minmax.patch
-	From: Michael Veeck <michael.veeck@gmx.net>
-	sent to mntr/linux-ide: 2004.0316;
-
-tx/	drivers_ide_minmax2.patch
-	From: Michael Veeck <michael.veeck@gmx.net>
-	sent to mntr/linux-ide: 2004.0316;
-
-add/	keyboard_ptr_to_string.patch
-	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
-
-add/	string_form_drivers.patch
-	From: maximilian attems <janitor@sternwelten.at>
-
-###
-
-Merged (hence dropped from here):
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-M/	atm_nicstar_minmax.patch
-	From: Michael Veeck <michael.veeck@gmx.net>
-
-M/	doc_var_updates.patch
-	From: Alexey Dobriyan <adobriyan@mail.ru>
-
-M/	fs_proc_minmax.patch
-	From: Michael Veeck <michael.veeck@gmx.net>
-	sent to akpm/viro: 2004.0316;
-
-M/	mm_slab_init.patch
-	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
-	sent to akpm: 2004.0316;
-
-M/	reiserfs_minmax.patch
-	From: Michael Veeck <michael.veeck@gmx.net>
-	sent to akpm/mntr: 2004.0316;
-
-M/	serial_8250_pnp_init.patch
-	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
-	sent to akpm/rmk: 2004.0316;
-
-M/	sound_oss_minmax.patch
-	From: Michael Veeck <michael.veeck@gmx.net>
-	sent to akpm/mntr: 2004.0316;
-
-M/	zlib_deflate_minmax.patch
-	From: Michael Veeck <michael.veeck@gmx.net>
-	sent to akpm: 2004.0316;
-
-M/	char_ip2_double_op.patch
-	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
-	sent to akpm/mntr: 2004.0316;
-
-mm/	cpufreq_longhaul_section.patch
-	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
-	sent to mntr: 2004.0319; for review, but looks incorrect to me;
-
-mm/	cpufreq_longrun_section.patch
-	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
-	sent to mntr: 2004.0319;
-
-backlog:
-- check kernel_thread() results (Walter);
-- list_for_each() usage (max attems);
-- 81 patches for strings (Carlo);
-- remove sleep_on() (Domen);
-
-###
-
---
-~Randy
-(Again.  Sometimes I think ln -s /usr/src/linux/.config .signature)

@@ -1,62 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318514AbSHAA5u>; Wed, 31 Jul 2002 20:57:50 -0400
+	id <S318569AbSHABal>; Wed, 31 Jul 2002 21:30:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318563AbSHAA5u>; Wed, 31 Jul 2002 20:57:50 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:24014 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S318514AbSHAA5u>;
-	Wed, 31 Jul 2002 20:57:50 -0400
-Date: Thu, 1 Aug 2002 03:01:08 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200208010101.DAA00248@harpo.it.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.29: bug in ide and hd kernel option handling
-Cc: gerald@io.com, martin@dalecki.de
+	id <S318572AbSHABal>; Wed, 31 Jul 2002 21:30:41 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:50193 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S318569AbSHABak>;
+	Wed, 31 Jul 2002 21:30:40 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200208010133.g711Xq7338295@saturn.cs.uml.edu>
+Subject: Re: Linux 2.4.19ac3rc3 on IBM x330/x340 SMP - "ps" time skew
+To: ltd@cisco.com (Lincoln Dale)
+Date: Wed, 31 Jul 2002 21:33:52 -0400 (EDT)
+Cc: david_luyer@pacific.net.au (David Luyer),
+       alan@lxorguk.ukuu.org.uk ('Alan Cox'), linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20020801094111.02776df0@mira-sjcm-3.cisco.com> from "Lincoln Dale" at Aug 01, 2002 09:42:15 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Jul 2002, I wrote:
-> On my 486 test box (ISA/VLB only, CONFIG_PCI=n), passing any
-> any ide or hd kernel option (like idebus=33) to 2.5.29 results
-> in a kernel hang at boot: I get the initial "Uncompressing ..
-> booting .." and then nothing.
+Lincoln Dale writes:
+> At 10:59 PM 31/07/2002 +1000, David Luyer wrote:
+> >Alan Cox wrote:
 
-Problem partially identified.
+>>> HZ on x86 for user space is defined as 100. Its a procps problem
+>>
+>> Slight error in my initial diagnosis of why procps is getting Hertz
+>> wrong tho.  It's not because timer interrupts are only happening
+>> on one CPU.  It's because it thinks I have 4 CPUs per system, when
+>> really I only have 2 CPUs per system.
+>
+> procps is still wrong.
+>
+> HZ on x86 is 100 by default.
+> that isn't 100 per CPU, but 100 per second, regardless of whether the timer 
+> interrupt is distributed between CPUs or serviced on a single CPU.
 
-With CONFIG_PCI=n, include/asm-i386/ide.h:ide_init_default_hwifs()
-is defined to ide_register_hw() the PC's standard IDE ports, but
-with CONFIG_PCI=y, it's empty.
+No shit. Now, how do you create a ps executable that handles
+a 2.4.xx kernel with a modified HZ value? People did this all
+the time. I got many bug reports from these people, so don't
+go saying they don't exist. Remember: one executable, running
+on both of the these:
 
-When drivers/ide/main.c:ide_setup() is called for some "ide..."
-kernel option, it starts by calling init_global_data(), which
-in turn calls ide_init_default_hwifs(). When CONFIG_PCI=n so
-ide_init_default_hwifs() isn't empty, the kernel either hangs
-or reboots at that point.
+2.2.xx i386 as shipped by Linus
+2.4.xx i386 with HZ modified
 
-init_global_data() and ide_init_default_hwifs() can also be called
-much later from 'module_init(init_ata)'. In that case there is no
-hang or reboot -- so my guess is that the initialisation does something
-which normally works but is illegal and causes a fault when done
-at __setup()-time.
+Come on, write the code if you think it's so easy.
+You get bonus points for supporting 2.0.xx kernels
+and the IA-64 kernel with that same executable.
 
-I tested every kernel from 2.5.29 and back, and the problem started
-with 2.5.5.
+Maybe you think I should tell these people to go to Hell?
+In that case, what about the Alpha systems that ran HZ at
+1200 instead of 1024?
 
-As a workaround I applied the patch below to unconditionally
-make ide_init_default_hwifs() do nothing. This solved my problem
-and doesn't seem to have had any bad side-effects: the kernel still
-finds all standard IDE ports on my 486.
-
-/Mikael
-
---- linux-2.5.29/include/asm-i386/ide.h.~1~	Sat Jul 20 23:49:45 2002
-+++ linux-2.5.29/include/asm-i386/ide.h	Thu Aug  1 02:20:31 2002
-@@ -65,7 +65,7 @@
- 
- static __inline__ void ide_init_default_hwifs(void)
- {
--#ifndef CONFIG_PCI
-+#if 0 && !defined(CONFIG_PCI)
- 	hw_regs_t hw;
- 	int index;
- 
+I really wonder why people love to torment me for having the
+decency to support systems that aren't 100% Linus-compliant.
+Do you people burn idols for Linus, or only kiss his butt?

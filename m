@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272003AbTG2TER (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 15:04:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272006AbTG2TEQ
+	id S272044AbTG2TOE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 15:14:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272045AbTG2TOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 15:04:16 -0400
-Received: from fed1mtao08.cox.net ([68.6.19.123]:4781 "EHLO fed1mtao08.cox.net")
-	by vger.kernel.org with ESMTP id S272003AbTG2TEN (ORCPT
+	Tue, 29 Jul 2003 15:14:04 -0400
+Received: from fep04-mail.bloor.is.net.cable.rogers.com ([66.185.86.74]:59927
+	"EHLO fep04-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S272044AbTG2TN5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 15:04:13 -0400
-Date: Tue, 29 Jul 2003 12:04:11 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Miles Lane <miles.lane@comcast.net>
-Cc: paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2 (Linus tree ppc32 build) -- drivers/built-in.o(.init.text+0x5e64): In function `init_control': undefined reference to `nvram_read_byte'
-Message-ID: <20030729190411.GJ16051@ip68-0-152-218.tc.ph.cox.net>
-References: <200307271801.44966.miles.lane@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307271801.44966.miles.lane@comcast.net>
-User-Agent: Mutt/1.5.4i
+	Tue, 29 Jul 2003 15:13:57 -0400
+Message-ID: <18fc01c35605$ccad23b0$7f0a0a0a@lappy7>
+Reply-To: "Sean Estabrooks" <seanlkml@rogers.com>
+From: "Sean Estabrooks" <seanlkml@rogers.com>
+To: "Mikael Pettersson" <mikpe@csd.uu.se>
+Cc: <linux-kernel@vger.kernel.org>
+References: <200307291734.h6THYhmp012585@harpo.it.uu.se>
+Subject: Re: [BUG] 2.6.0-test2 loses time on 486
+Date: Tue, 29 Jul 2003 15:15:40 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep04-mail.bloor.is.net.cable.rogers.com from [24.102.213.108] using ID <seanlkml@rogers.com> at Tue, 29 Jul 2003 15:13:13 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 27, 2003 at 06:01:44PM -0700, Miles Lane wrote:
+> My old 486 test box is losing time at an alarming rate
 
->   LD      .tmp_vmlinux1
-> drivers/built-in.o(.init.text+0x5e64): In function `init_control':
-> : undefined reference to `nvram_read_byte'
-> drivers/built-in.o(.init.text+0x5e64): In function `init_control':
-> : relocation truncated to fit: R_PPC_REL24 nvram_read_byte
-> drivers/built-in.o(.init.text+0x5ef0): In function `init_control':
-> : undefined reference to `nvram_read_byte'
-> drivers/built-in.o(.init.text+0x5ef0): In function `init_control':
-> : relocation truncated to fit: R_PPC_REL24 nvram_read_byte
-> drivers/built-in.o(.init.text+0x67cc): In function `init_platinum':
-> : undefined reference to `nvram_read_byte'
-> drivers/built-in.o(.init.text+0x67cc): In function `init_platinum':
-> : relocation truncated to fit: R_PPC_REL24 nvram_read_byte
-> drivers/built-in.o(.init.text+0x67ec): In function `init_platinum':
-> : undefined reference to `nvram_read_byte'
-> drivers/built-in.o(.init.text+0x67ec): In function `init_platinum':
-> : relocation truncated to fit: R_PPC_REL24 nvram_read_byte
-> drivers/built-in.o(.init.text+0x7c08): In function `init_imstt':
-> : undefined reference to `nvram_read_byte'
-> drivers/built-in.o(.init.text+0x7c08): In function `init_imstt':
-> : relocation truncated to fit: R_PPC_REL24 nvram_read_byte
-> drivers/built-in.o(.init.text+0x7c24): more undefined references to 
-> `nvram_read_byte' follow
-> drivers/built-in.o(.init.text+0x7c24): In function `init_imstt':
-> : relocation truncated to fit: R_PPC_REL24 nvram_read_byte
+try changing the line in  "include/asm-i386/param.h":
 
-The problem is that arch/ppc/platforms/pmac_nvram.c needs to be compiled
-on CONFIG_PPC_PMAC, not on CONFIG_NVRAM (so edit
-arch/ppc/platforms/Makefile).
+# define HZ             1000  
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+to
+
+# define HZ             100
+
+and see if the problem remains after recompiling.
+
+Regards,
+Sean
+

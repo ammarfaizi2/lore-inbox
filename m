@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263486AbTK1VRa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 16:17:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263513AbTK1VRa
+	id S263478AbTK1VNV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 16:13:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbTK1VNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 16:17:30 -0500
-Received: from holomorphy.com ([199.26.172.102]:64707 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263486AbTK1VR3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 16:17:29 -0500
-Date: Fri, 28 Nov 2003 13:16:55 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Breno <brenosp@brasilsec.com.br>
-Cc: linux-kernel@vger.kernel.org, M?ns Rullg?rd <mru@kth.se>
-Subject: Re: Question - non-exec stack
-Message-ID: <20031128211655.GA8039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Breno <brenosp@brasilsec.com.br>, linux-kernel@vger.kernel.org,
-	M?ns Rullg?rd <mru@kth.se>
-References: <000701c3b5b3$addfbac0$34dfa7c8@bsb.virtua.com.br> <yw1xu14o1ub0.fsf@kth.se> <001501c3b5b7$84c5bd20$34dfa7c8@bsb.virtua.com.br>
-Mime-Version: 1.0
+	Fri, 28 Nov 2003 16:13:21 -0500
+Received: from mail.gmx.de ([213.165.64.20]:27868 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263478AbTK1VNU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Nov 2003 16:13:20 -0500
+X-Authenticated: #11949556
+From: Michael Schierl <schierlm-usenet@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: APM Suspend Problem
+Date: Fri, 28 Nov 2003 22:12:57 +0100
+Reply-To: schierlm@gmx.de
+References: <WnPi.57n.5@gated-at.bofh.it> <WsPg.Xi.35@gated-at.bofh.it> <WAWd.BP.7@gated-at.bofh.it>
+In-Reply-To: <WAWd.BP.7@gated-at.bofh.it>
+X-Mailer: Forte Agent 1.93/32.576 English (American)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <001501c3b5b7$84c5bd20$34dfa7c8@bsb.virtua.com.br>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 8BIT
+Message-Id: <S263478AbTK1VNU/20031128211320Z+12850@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 28, 2003 at 11:57:09AM -0200, Breno wrote:
-> Yes , 32 bit Intel processors
+On Thu, 27 Nov 2003 21:30:18 +0100, in linux.kernel you wrote:
 
-Due to the really hard drugs the processor designers must have been
-on, the only way to implement this is via the particularly nasty flavor
-of segmentation on Intel processors (sane forms just use bits in pointers).
+>No luck; my ThinkPad still does not go into the proper power-saving mode. The LCD
+>blanks out and the HD spins down, but it is not a real sleep mode.
 
-c.f. pax and exec-shield for examples of how to do it in Linux (please
-do not start that debate; the only relevant point here is they use the
-segmentation stuff). I suspect OpenBSD might also implement it.
+Nearly the same on my Acer 210TEV. The LCD does not go blank, but the
+HD spins down.
 
+Worked on -test3, but not on later kernels (with or without that
+patch). 
 
--- wli
+Michael
+-- 
+"New" PGP Key! User ID: Michael Schierl <schierlm@gmx.de>
+Key ID: 0x58B48CDD    Size: 2048    Created: 26.03.2002
+Fingerprint:  68CE B807 E315 D14B  7461 5539 C90F 7CC8
+http://home.arcor.de/mschierlm/mschierlm.asc

@@ -1,53 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266918AbUBEWCe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 17:02:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266921AbUBEWCd
+	id S266907AbUBEV6T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 16:58:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266915AbUBEV6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 17:02:33 -0500
-Received: from gw0.infiniconsys.com ([65.219.193.226]:24860 "EHLO
-	mail.infiniconsys.com") by vger.kernel.org with ESMTP
-	id S266918AbUBEWCb convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 17:02:31 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
+	Thu, 5 Feb 2004 16:58:19 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:61899 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S266907AbUBEV6K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 16:58:10 -0500
+Message-ID: <4022BC22.9000803@nortelnetworks.com>
+Date: Thu, 05 Feb 2004 16:56:50 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
-Date: Thu, 5 Feb 2004 17:02:30 -0500
-Message-ID: <08628CA53C6CBA4ABAFB9E808A5214CB01DB96F2@mercury.infiniconsys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
-Thread-Index: AcPsMxphEQMKMmftR6GsZzH4qeaXoQAABmWw
-From: "Tillier, Fabian" <ftillier@infiniconsys.com>
-To: "Chris Friesen" <cfriesen@nortelnetworks.com>, "Greg KH" <greg@kroah.com>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, <sean.hefty@intel.com>,
-       <linux-kernel@vger.kernel.org>, <hozer@hozed.org>, <woody@co.intel.com>,
-       <bill.magro@intel.com>, <woody@jf.intel.com>,
-       <infiniband-general@lists.sourceforge.net>
+To: Greg KH <greg@kroah.com>
+Cc: "Tillier, Fabian" <ftillier@infiniconsys.com>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, sean.hefty@intel.com,
+       linux-kernel@vger.kernel.org, hozer@hozed.org, woody@co.intel.com,
+       bill.magro@intel.com, woody@jf.intel.com,
+       infiniband-general@lists.sourceforge.net
+Subject: Re: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+References: <08628CA53C6CBA4ABAFB9E808A5214CB01DB96CF@mercury.infiniconsys.com> <20040205212703.GA15718@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-
-That is absolutely correct.  In addition to portability between kernel
-versions and operating systems, there is also portability between
-user-mode and kernel-mode within a single release.
-
-- Fab
-
------Original Message-----
-From: Chris Friesen [mailto:cfriesen@nortelnetworks.com] 
-Sent: Thursday, February 05, 2004 1:57 PM
-To: Greg KH
-Cc: Tillier, Fabian; Randy.Dunlap; sean.hefty@intel.com;
-linux-kernel@vger.kernel.org; hozer@hozed.org; woody@co.intel.com;
-bill.magro@intel.com; woody@jf.intel.com;
-infiniband-general@lists.sourceforge.net
-Subject: Re: [Infiniband-general] Getting an Infiniband access layer in
-theLinux kernel
 
 Greg KH wrote:
 

@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133013AbRDUXHy>; Sat, 21 Apr 2001 19:07:54 -0400
+	id <S133014AbRDUXIE>; Sat, 21 Apr 2001 19:08:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133019AbRDUXHf>; Sat, 21 Apr 2001 19:07:35 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32781 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S133013AbRDUXH3>; Sat, 21 Apr 2001 19:07:29 -0400
-Subject: Re: Request for comment -- a better attribution system
-To: esr@thyrsus.com
-Date: Sun, 22 Apr 2001 00:09:05 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (CML2), kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010421114942.A26415@thyrsus.com> from "Eric S. Raymond" at Apr 21, 2001 11:49:42 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S133019AbRDUXHy>; Sat, 21 Apr 2001 19:07:54 -0400
+Received: from huizehofstee.xs4all.nl ([194.109.241.183]:51461 "EHLO
+	server.hofstee") by vger.kernel.org with ESMTP id <S133014AbRDUXHe>;
+	Sat, 21 Apr 2001 19:07:34 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Victor Julien <v.p.p.julien@let.rug.nl>
+Organization: Huize Hofstee
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.3-pre3+ sound distortion
+Date: Sun, 22 Apr 2001 01:05:44 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <Pine.LNX.4.05.10104211159030.5218-100000@cosmic.nrg.org> <01042121403000.00436@victor> <20010421225205.B2615@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010421225205.B2615@arthur.ubicom.tudelft.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14r6V4-0004XB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <01042201054400.00463@victor>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> any given piece of code to identify the responsible maintainer.  The motivation
-> for this proposal is that the present system, a single top-level MAINTAINERS
-> file, doesn't seem to be scaling well.
 
-It scales perfectly. Most of the people you annoyed are _in_ the maintainers
-and credits file. The fundamental problem is identical regardless of what
-you change - people forget to update things unless there is motivation [1]
+I've done some further testing and i discoverd that the problem was 
+introduced in 2.4.3-pre3. Pre1 en pre2 are fine. I've tried disabling the 
+via-ide-driver, i386 instead of athlon as build architecture with no effect. 
+I've tried disabling my network-card with no effect. Ik tried reproducing the 
+problem in the console using setiathome and mpg123 and i was succesfull.
 
-Alan
-[1] as proof of this claim count the number of CREDIT file updates made shortly
-after the RH share offering..
+So, i guess the problem is in 2.4.3-pre3 and later. I'm not a coder so there 
+is not much i can do i think. If you need any information please let me know.
 
+Victor Julien
+
+
+
+Please put my email adress in the CC when you reply.

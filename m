@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265494AbUBFPBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 10:01:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265501AbUBFPBQ
+	id S265478AbUBFOyu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 09:54:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265479AbUBFOyu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 10:01:16 -0500
-Received: from q.bofh.de ([212.126.220.202]:20998 "EHLO q.bofh.de")
-	by vger.kernel.org with ESMTP id S265494AbUBFPBP (ORCPT
+	Fri, 6 Feb 2004 09:54:50 -0500
+Received: from ns.suse.de ([195.135.220.2]:27362 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265478AbUBFOyr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 10:01:15 -0500
-To: marcelo.tosatti@cyclades.com
-Cc: linux-kernel@vger.kernel.org, perex@suse.cz
-Subject: [patch] Fix for minor error in 2.4 /proc/isapnp output
-Mail-Copies-To: nobody
-From: Hilko Bengen <bengen@hilluzination.de>
-Date: Fri, 06 Feb 2004 15:57:33 +0100
-Message-ID: <87llngs1b6.fsf@hilluzination.de>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Reasonable Discussion,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 6 Feb 2004 09:54:47 -0500
+Subject: Re: Bug in "select" dependency checking?
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: "kbuild-devel@lists.sourceforge.net" 
+	<kbuild-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0402061448500.7851@serv>
+References: <1076027838.2223.95.camel@nb.suse.de>
+	 <Pine.LNX.4.58.0402061448500.7851@serv>
+Content-Type: text/plain
+Organization: SUSE Labs, SUSE LINUX AG
+Message-Id: <1076078947.19043.27.camel@E136.suse.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 06 Feb 2004 15:49:07 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In isapnp_proc.c, the wrong registers from the PnP device are read to
-determine the iomem area the device is configured to use. According to
-the "Plug and Play ISA Specification Version 1.0a", only bits 23
-through 8 of the start address can be retrieved from two one-byte
-registers.
+On Fri, 2004-02-06 at 15:00, Roman Zippel wrote:
+> Hi,
+> 
+> On Fri, 6 Feb 2004, Andreas Gruenbacher wrote:
+> 
+> > With this configuration, menuconf gives me this message (among others):
+> >
+> >   Warning! Found recursive dependency: NFSD_V3 NFSD_ACL NFSD NFSD_V3
+> 
+> This is indeed a wrong positive, the patch below fixes this, but you if
+> change your config into e.g.:
+> 
+> config NFSD_ACL
+> 	bool "..."
+> 	depends on NFSD_V3
+> 	select NFS_ACL_SUPPORT if NFSD
+>
+> you avoid the warning and it does the same.
 
-The attached patch makes isapnp_proc.c read the right registers.q
-Please apply it to the 2.4 tree.
+Does it? I would assume this to limit NFS_ACL_SUPPORT to y or n
+depending on the value of NFSD_ACL. If should be y, m or n depending on
+the value of NFSD.
 
-Greetings,
--Hilko
+> Or you could also write this simpler as:
+> 
+> config NFS_ACL_SUPPORT
+> 	tristate
+> 	default (NFSD && NFSD_ACL) || (NFS_FS && NFS_ACL)
 
-diff -uir orig/linux-2.4.24/drivers/pnp/isapnp_proc.c linux-2.4.24/drivers/pnp/isapnp_proc.c
---- orig/linux-2.4.24/drivers/pnp/isapnp_proc.c	2002-11-29 00:53:14.000000000 +0100
-+++ linux-2.4.24/drivers/pnp/isapnp_proc.c	2004-02-06 14:56:45.000000000 +0100
-@@ -649,7 +649,7 @@
- 	if (next)
- 		isapnp_printf(buffer, "\n");
- 	for (i = next = 0; i < 4; i++) {
--		tmp = isapnp_read_dword(ISAPNP_CFG_MEM + (i << 3));
-+		tmp = isapnp_read_word(ISAPNP_CFG_MEM + (i << 3)) << 8;
- 		if (!tmp)
- 			continue;
- 		if (!next) {
+That's much more elegant than my "handwired" version. But I prefer
+select: NFSD_ACL and NFS_ACL are in different patches; with select, the
+patches don't conflict with each other.
+
+
+Thanks,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX AG
 

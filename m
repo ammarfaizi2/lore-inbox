@@ -1,32 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129137AbRBVWYF>; Thu, 22 Feb 2001 17:24:05 -0500
+	id <S129554AbRBVW0f>; Thu, 22 Feb 2001 17:26:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129554AbRBVWXz>; Thu, 22 Feb 2001 17:23:55 -0500
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:54799 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S129137AbRBVWXq>; Thu, 22 Feb 2001 17:23:46 -0500
-Date: Thu, 22 Feb 2001 22:23:25 +0000 (GMT)
-From: Matthew Kirkwood <matthew@hairy.beasts.org>
-To: Robert Read <rread@datarithm.net>
-cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+	id <S131173AbRBVW0Z>; Thu, 22 Feb 2001 17:26:25 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4102 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129554AbRBVW0U>; Thu, 22 Feb 2001 17:26:20 -0500
 Subject: Re: [PATCH] use correct include dir for build tools
-In-Reply-To: <20010222123940.A20319@tenchi.datarithm.net>
-Message-ID: <Pine.LNX.4.10.10102222222180.5716-100000@sphinx.mythic-beasts.com>
+To: rread@datarithm.net (Robert Read)
+Date: Thu, 22 Feb 2001 22:28:58 +0000 (GMT)
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20010222123940.A20319@tenchi.datarithm.net> from "Robert Read" at Feb 22, 2001 12:39:40 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14W4EP-00055G-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Feb 2001, Robert Read wrote:
+>  FINDHPATH      = $(HPATH)/asm $(HPATH)/linux $(HPATH)/scsi $(HPATH)/net
+>  
+>  HOSTCC         = gcc
+> -HOSTCFLAGS     = -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
+> +HOSTCFLAGS     = -I$(HPATH) -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
 
-> Please apply one line patch to the top level Makefile.  This points
-> the build tools at the correct linux include dir.
-
-Or please don't, it's incorrect.
-
-It breaks cross-compiling, and just generally wrong.  If your
-system won't build without this, it's broken.
-
-Matthew.
-
+That seems odd. Which build tools need to find kernel includes for this kernel
+not the standard C includes

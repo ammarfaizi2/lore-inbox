@@ -1,28 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262089AbSLTOQw>; Fri, 20 Dec 2002 09:16:52 -0500
+	id <S262303AbSLTOWr>; Fri, 20 Dec 2002 09:22:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262215AbSLTOQv>; Fri, 20 Dec 2002 09:16:51 -0500
-Received: from dhcp024-210-222-139.woh.rr.com ([24.210.222.139]:35960 "EHLO
-	mail.tacomeat.net") by vger.kernel.org with ESMTP
-	id <S262089AbSLTOQv>; Fri, 20 Dec 2002 09:16:51 -0500
-Date: Fri, 20 Dec 2002 09:28:18 -0500 (EST)
-Message-Id: <20021220.092818.74750920.hoho@tacomeat.net>
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-Subject: Re: BUG: 2.5.52-bk4
-CC: linux-kernel@vger.kernel.org
-From: Colin Slater <hoho@tacomeat.net>
-X-Mailer: Mew version 2.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262317AbSLTOWr>; Fri, 20 Dec 2002 09:22:47 -0500
+Received: from mailb.telia.com ([194.22.194.6]:193 "EHLO mailb.telia.com")
+	by vger.kernel.org with ESMTP id <S262303AbSLTOWq> convert rfc822-to-8bit;
+	Fri, 20 Dec 2002 09:22:46 -0500
+X-Original-Recipient: linux-kernel@vger.kernel.org
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+To: Torben Frey <kernel@mailsammler.de>
+Subject: Re: Horrible drive performance under concurrent i/o jobs (dlh problem?)
+Date: Fri, 20 Dec 2002 15:27:16 +0100
+User-Agent: KMail/1.5
+References: <3E01D7D7.2070201@mailsammler.de>
+In-Reply-To: <3E01D7D7.2070201@mailsammler.de>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200212201527.16812.roger.larsson@skelleftea.mail.telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 19 December 2002 15:29, Torben Frey wrote:
+> 2 0 4 25292 2292 72056 759548 0 0 30404 20084 820 1149 4 85 11
+> 0 1 3 25292 2828 72048 759012 0 0 40716 23772 845 1307 2 62 36
+> 0 1 2 25292 3208 72280 758372 0 0 0 16532 573 231 6 13 81
+> 1 0 2 25292 3216 72276 758404 0 0 4880 23800 530 264 2 10 88
+> 
 
-> solved that problem. Now it works ok for me.
+Hmm... No process running but still lots of CPU used.
+Are you sure that you run the disks with DMA?
 
-Do you mean the patch compiles now or that it fixes the problem you
-were having?
+You should also try to take a profile of a run.
+(see
+ man readprofile
+and
+ linux/Documentation/kernel-parameters.txt
+ profile=2 as a boot option should do)
 
-Colin
+/RogerL
+
+-- 
+Roger Larsson
+Skellefteå
+Sweden
+

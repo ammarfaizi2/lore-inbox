@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269241AbUIHTTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269313AbUIHTWY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269241AbUIHTTL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 15:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269277AbUIHTTL
+	id S269313AbUIHTWY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 15:22:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269277AbUIHTWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 15:19:11 -0400
-Received: from mailbox.surfeu.se ([213.173.154.11]:55946 "EHLO surfeu.fi")
-	by vger.kernel.org with ESMTP id S269241AbUIHTTG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 15:19:06 -0400
-Message-ID: <413F5B89.4AF97168@users.sourceforge.net>
-Date: Wed, 08 Sep 2004 22:20:41 +0300
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-crypto@nl.linux.org
-CC: linux-kernel@vger.kernel.org
-Subject: Announce loop-AES-v2.2a file/swap crypto package
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Sep 2004 15:22:24 -0400
+Received: from serwer.tvgawex.pl ([212.122.214.2]:53454 "HELO
+	mother.localdomain") by vger.kernel.org with SMTP id S269315AbUIHTWW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 15:22:22 -0400
+Date: Wed, 8 Sep 2004 21:21:18 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux Routing Performance inferior?
+Message-ID: <20040908192118.GH7736@irc.pl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200409071000.58455.rchandar-knl@qz.port5.com> <Pine.LNX.4.58.0409081354470.2985@sparrow> <413F525E.3010408@optonline.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <413F525E.3010408@optonline.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-loop-AES changes since previous release:
-- Fixed multi-key ioctl incompatibility with sparc64 boxes running 64 bit
-  kernel and 32 bit userland. Fix enabled for 2.4.26 and later 2.4 kernels.
-  2.6 kernels were not affected.
-- Added key scrubbing support for AES loop cipher. This feature is not
-  enabled by default because it doubles storage space requirement for loop
-  encryption keys. To enable, add KEYSCRUB=y parameter to loop module make
-  command. (2.4 and 2.6 kernels only).
-- Added multi-key compatibility to losetup and mount -p option handling.
-- Fixed incompatibility with 2.6.8.1 kernel struct bio handling.
-- Small optimization to bio I/O barrier support. Also added support for
-  queue->issue_flush_fn() I/O barrier calls. (2.6 kernels only).
-- Added workaround for kernel bug that causes I/O errors on -EWOULDBLOCK I/O
-  elevator failures (2.6 kernels only).
+On Wed, Sep 08, 2004 at 02:41:34PM -0400, Nathan Bryant wrote:
+> >>"FreeBSD (5.x) can route 1Mpps on a 2.8G Xeon while
+> >>Linux can't do much more than 100kpps"
+> 
+> Nonetheless, FreeBSD has some advantages. They achieved their results 
+> using a fast forwarding path (enabled via sysctl) that processes 
+> forwarded packets to completion entirely within the interrupt handler.
 
-bzip2 compressed tarball is here:
+ I've already posted presentation about those features (*) to netdev.
+Some ideas looks interesting enough to be implemented in Linux.
 
-    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v2.2a.tar.bz2
-    md5sum ab10564704317b38b5c7f24e382acae3
-
-    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v2.2a.tar.bz2.sign
+* http://people.freebsd.org/~andre/FreeBSD-5.3-Networking.pdf
 
 -- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+Tomasz Torcz                        To co nierealne - tutaj jest normalne.
+zdzichu@irc.-nie.spam-.pl          Ziomale na ¿ycie maj± tu patenty specjalne.
+

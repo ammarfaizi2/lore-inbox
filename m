@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291027AbSAaLbZ>; Thu, 31 Jan 2002 06:31:25 -0500
+	id <S291022AbSAaLlf>; Thu, 31 Jan 2002 06:41:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291026AbSAaLbQ>; Thu, 31 Jan 2002 06:31:16 -0500
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:26267 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S291024AbSAaLa4>; Thu, 31 Jan 2002 06:30:56 -0500
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] accessfs v0.3 - 2.5.3
-From: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
-Date: 31 Jan 2002 12:30:36 +0100
-Message-ID: <87vgdihi5f.fsf@tigram.bogus.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
+	id <S291024AbSAaLlZ>; Thu, 31 Jan 2002 06:41:25 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36108 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291022AbSAaLlV>; Thu, 31 Jan 2002 06:41:21 -0500
+Subject: Re: A modest proposal -- We need a patch penguin
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Thu, 31 Jan 2002 11:53:48 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), hch@ns.caldera.de (Christoph Hellwig),
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com, axboe@suse.de
+In-Reply-To: <3C59297C.20607@evision-ventures.com> from "Martin Dalecki" at Jan 31, 2002 12:24:44 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16WFmm-0001wT-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> No you are wrong. This array is supposed to provide a readahead setting 
+> on the driver level, which is bogous, since
+> it's something that *should* not be exposed to the upper layers at all. 
 
-accessfs is a new file system to control access to system resources.
-Currently it controls access to inet_bind() with ports < 1024 and raw
-sockets only.
+Right.
 
-With this patch, there's no need anymore to run internet daemons as
-root. You can individually configure which user/program can bind to
-ports below 1024.
+>  we have already max_readahead in struut block_device as well. Please 
+> note that this array only has
 
-Changes:
-- diff against linux 2.5.3
+Ok. Now I look at it again yes - the array is completely surplus to current
+requirements. 2.5 nicely sorts out the queues 
 
-The patch is available at:
-<http://home.t-online.de/home/olaf.dietsche/linux/accessfs-2.5.3-0.3.diff.gz>
 
-Regards, Olaf.

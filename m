@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272650AbTG3Bz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 21:55:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272615AbTG3Bz0
+	id S272630AbTG3B6J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 21:58:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272647AbTG3B6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 21:55:26 -0400
-Received: from mail.kroah.org ([65.200.24.183]:22229 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S272650AbTG3BzZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 21:55:25 -0400
-Date: Tue, 29 Jul 2003 18:55:23 -0700
-From: Greg KH <greg@kroah.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, notting@redhat.com, arjanv@redhat.com,
-       torvalds@osdl.org, shemminger@osdl.org, davem@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove module reference counting.
-Message-ID: <20030730015523.GB5228@kroah.com>
-References: <Pine.LNX.4.44.0307261230110.1841-100000@home.osdl.org> <20030727193919.832302C450@lists.samba.org> <20030727214701.A23137@devserv.devel.redhat.com> <20030727201242.A29448@devserv.devel.redhat.com> <1059392321.15458.23.camel@dhcp22.swansea.linux.org.uk> <20030730063310.70b5c794.rusty@rustcorp.com.au>
+	Tue, 29 Jul 2003 21:58:09 -0400
+Received: from niobium.golden.net ([199.166.210.90]:31964 "EHLO
+	niobium.golden.net") by vger.kernel.org with ESMTP id S272630AbTG3B6H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 21:58:07 -0400
+Date: Tue, 29 Jul 2003 21:57:56 -0400
+From: Paul Mundt <lethal@linux-sh.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: NFS weirdness in 2.6.0-test1
+Message-ID: <20030730015756.GA2137@linux-sh.org>
+Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20030725151127.GA2947@linux-sh.org> <16161.25923.623651.618044@charged.uio.no> <20030726015007.GA18944@linux-sh.org> <16166.46256.737464.27553@charged.uio.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
 Content-Disposition: inline
-In-Reply-To: <20030730063310.70b5c794.rusty@rustcorp.com.au>
+In-Reply-To: <16166.46256.737464.27553@charged.uio.no>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 30, 2003 at 06:33:10AM +1000, Rusty Russell wrote:
-> Agreed that'd be kinda silly.  But I was "educated" earlier that driver
-> loading shouldn't fail just because hardware is missing, due to hotplug.
-> 
-> Is this wrong?
 
-No, this is not wrong.  Older pci drivers would refuse to load if they
-didn't find their pci device in the system at that moment in time.  All
-pci drivers converted to the "new" api (new is a very relative term,
-some 3 years old now...) will load just fine even if their devices are
-not present.
+--LZvS9be/3tNcYl/X
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hope this helps,
+On Tue, Jul 29, 2003 at 07:53:52PM +0200, Trond Myklebust wrote:
+> > NFS: server cheating in read reply: count 1526 > recvd 1000
+> > NFS: server cheating in read reply: count 4096 > recvd 1000
+> > NFS: server cheating in read reply: count 1583 > recvd 1000
+>=20
+> Does the following patch fix it?
+>=20
+Yes, this seems to work fine. I've been running this for awhile now
+under relative load, and haven't seen any data corruption.
 
-greg k-h
+Thanks!
+
+
+--LZvS9be/3tNcYl/X
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE/JyYj1K+teJFxZ9wRAiAmAJ4gCe973AjdFnr64AeERqxjV2g//QCdF4PO
+6O/ZayTaMSHXR/yYLNOi7Fw=
+=v2Mq
+-----END PGP SIGNATURE-----
+
+--LZvS9be/3tNcYl/X--

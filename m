@@ -1,76 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbTDEQfx (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 11:35:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbTDEQfx (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 11:35:53 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:41845 "EHLO
-	dickson.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S261706AbTDEQfw (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 5 Apr 2003 11:35:52 -0500
-Date: Sat, 5 Apr 2003 11:47:41 -0500
-From: Steve Dickson <SteveD@RedHat.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: nfs@lists.sourceforge.net, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [NFS] [PATCH] mmap corruption
-Message-ID: <20030405164741.GA6450@RedHat.com>
-Reply-To: SteveD@RedHat.com
-References: <3E8DDB13.9020009@RedHat.com> <shsistt7wip.fsf@charged.uio.no>
-Mime-Version: 1.0
+	id S261707AbTDERBU (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 12:01:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262536AbTDERBT (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 12:01:19 -0500
+Received: from opersys.com ([64.40.108.71]:15368 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261707AbTDERBS (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Apr 2003 12:01:18 -0500
+Message-ID: <3E8F0DEF.C50FB29C@opersys.com>
+Date: Sat, 05 Apr 2003 12:10:07 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Werner Almesberger <wa@almesberger.net>
+CC: linux-kernel@vger.kernel.org, LTT-Dev <ltt-dev@shafik.org>
+Subject: Re: [RFC/FYI] reliable markers (hooks/probes/taps/...)
+References: <20030403070758.A18709@almesberger.net> <20030404224652.A19288@almesberger.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <shsistt7wip.fsf@charged.uio.no>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Trond,
 
-On Sat, Apr 05, 2003 at 12:01:02AM +0200, Trond Myklebust wrote:
-> >>>>> " " == Steve Dickson <SteveD@redhat.com> writes:
+Werner Almesberger wrote:
 > 
-> That simply doesn't ring true. The nfs_wb_all() immediately after the
-> call to filemap_fdatasync() should ensure that *all* scheduled writes
-> will flushed out.
+> I wrote:
+> > Here's a pretty light-weight approach I call "reliable markers":
 > 
-Here is my evidence your honor... :-)
+> Turns out that the memory clobber didn't make them particularly
+> reliable. Here's a better version. Usage:
+> 
+> MARKER(label_name,var...);
+> 
+> Where var... is an optional comma-separated list of arguments or
+> variables that may be accessed (read or modified) while at this
+> breakpoint.
+> 
+> (This is just for demonstration. For serious use, one would generate
+> a markers.h that can handle more than just four arguments.)
 
-1)  Through my debugging I was able to show when (and only when)
-the following if statement is true, there would be corruption:
+Very interesting.
 
-nfs_notify_change(struct dentry *dentry, struct iattr *attr)
-{
-	/*
-	 * beginning code skipped
-	 */
+We've already got a small program that does this for LTT statements
+which we plan to use in the future: genevent.
+http://www.listserv.shafik.org/pipermail/ltt-dev/2003-January/000408.html
 
-	filemap_fdatasync(inode->i_mapping);
-	error = nfs_wb_all(inode);
-	filemap_fdatawait(inode->i_mapping);
-	if (error)
-		goto out;
+genevent is pretty much straight forward. You type:
+$ ./genevent default.event
+$ ls default*
+-rw-rw-r--    1 karim    karim         392 Apr  5 11:58 default.c
+-rw-rw-r--    1 karim    karim        6892 Apr  5 11:56 default.event
+-rw-rw-r--    1 karim    karim       18328 Apr  5 11:58 default.h
 
-	/*
-	 * Every time either npages or ncommit had a value and the file size is
-	 * immediately changed (with in a microsecond or two) by another 
-	 * truncation, followed by a mmap read, the file would be corrupted.
-	 */
-	if (NFS_I(inode)->npages || NFS_I(inode)->ncommit || NFS_I(inode)->ndirty) {
-		printk("nfs_notify_change: fid %Ld npages %d ncommit %d ndirty %d\n",
-		NFS_FILEID(inode), NFS_I(inode)->npages, 
-		NFS_I(inode)->ncommit, NFS_I(inode)->ndirty);
-	}
-}
+The default.event file contains declarations about each event. Here's
+an example:
+//TRACE_EV_SYSCALL_ENTRY
+event(TRACE_EV_SYSCALL_ENTRY, "Entry in a given system call",
+      field(syscall_id, "Syscall entry number in entry.S", uint(1)),
+      field(address, "Address from which call was made", uint(4))
+     );
 
-I was also able to log the fact that the page was being written out (and committed)
-by kupdated was after second truncation finished. At first, I was thinking 
-there was a problem with the nfs_fattr_obsolete() code (and still might be) 
-since this late write/commit is *truly* obsolete. But I just could not figure 
-out how to detect this event so I went with avoidance approach. Now, if the 
-server supplied the client with valid pre and post attrs, I believe this condition 
-could be detected. But I didn't have a server that did that so I could 
-not test out my theroy...
+And genevent creates the following entries in the default.h for it:
+/****  structure and trace function for event: TRACE_EV_SYSCALL_ENTRY  ****/
 
-2) Without this patch my script that startups 300 process fails within
-minutes. With this patch the script runs to completion constistanly...
+__attribute__((packed)) struct TRACE_EV_SYSCALL_ENTRY_default_1{
+  uint8_t syscall_id; /* Syscall entry number in entry.S */
+  uint32_t address; /* Address from which call was made */
+};
 
-I rest my case... and the verdict is?
+static inline void trace_default_TRACE_EV_SYSCALL_ENTRY(uint8_t syscall_id, uint32_t address){
+  int bufLength = sizeof(struct TRACE_EV_SYSCALL_ENTRY_default_1);
+  char buff[bufLength];
+  struct TRACE_EV_SYSCALL_ENTRY_default_1 * __1 = (struct TRACE_EV_SYSCALL_ENTRY_default_1 *)buff;
 
-SteveD.
+  //initialize structs
+  __1->syscall_id =  syscall_id;
+  __1->address =  address;
+
+
+  //call trace function
+  trace_new(facility_default, TRACE_EV_SYSCALL_ENTRY, bufLength, buff);
+};
+
+Also, genevent automatically generates an enum for all the events
+described in the .event file:
+enum default_event {
+  TRACE_EV_START,
+  TRACE_EV_SYSCALL_ENTRY,
+  TRACE_EV_SYSCALL_EXIT,
+  TRACE_EV_TRAP_ENTRY,
+...
+
+Obviously the word "trace" is used throughout, but it can easily be
+replaced by "marker" if this mechanism were generalized.
+
+The intent is to have a .event file in every directory where there are
+traced events in files (which are the equivalent of "markers" in your
+scheme). During the build, the various headers would be created and
+all the code would be generated on the fly.
+
+Of course this is just a begining. We're open to suggestions and
+contributions.
+
+Cheers,
+
+Karim
+
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

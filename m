@@ -1,74 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131324AbRAANSY>; Mon, 1 Jan 2001 08:18:24 -0500
+	id <S131406AbRAAN0Q>; Mon, 1 Jan 2001 08:26:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131515AbRAANSF>; Mon, 1 Jan 2001 08:18:05 -0500
-Received: from shiva.jussieu.fr ([134.157.0.129]:9734 "EHLO shiva.jussieu.fr")
-	by vger.kernel.org with ESMTP id <S131324AbRAANRz>;
-	Mon, 1 Jan 2001 08:17:55 -0500
-From: Roberto Di Cosmo <Roberto.Di-Cosmo@pps.jussieu.fr>
+	id <S131515AbRAAN0G>; Mon, 1 Jan 2001 08:26:06 -0500
+Received: from baldur.fh-brandenburg.de ([195.37.0.5]:10392 "HELO
+	baldur.fh-brandenburg.de") by vger.kernel.org with SMTP
+	id <S131406AbRAANZ4>; Mon, 1 Jan 2001 08:25:56 -0500
+Date: Mon, 1 Jan 2001 13:44:09 +0100 (MET)
+From: Roman Zippel <zippel@fh-brandenburg.de>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Generic deferred file writing
+In-Reply-To: <Pine.GSO.4.21.0012312220290.7648-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.10.10101011119240.10093-100000@zeus.fh-brandenburg.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14928.35348.19827.848973@localhost.localdomain>
-Date: Mon, 1 Jan 2001 14:45:56 +0100 (CET)
-To: linux-kernel@vger.kernel.org
-Subject: [e2compr PATCH]: announcing beta port to kernel 2.2.18
-X-Mailer: VM 6.72 under 21.1 (patch 9) "Canyonlands" XEmacs Lucid
-Reply-To: Roberto Di Cosmo <roberto@dicosmo.org>
-Cc: demolinux@demolinux.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear mailing list members,
-     I am unable to join the maintainers/developers of the extended 2 
-compressed filesystem patch at e2compr-announce@opensource.captech.com,
-so I think you are the best available audience for this announce, and
-I hope some of the developers/maintainers of e2compr will be listening
-too.
+Hi,
 
-I have uploaded at
-http://www.pps.jussieu.fr/~dicosmo/Linux/e2compr/e2compr-0.4.39-patch-2.2.18.bz2
-a minor modification of the e2compr-0.4.38 kernel patch, adapted to compile
-versus the latest 2.2.18 stable kernel. This was needed to allow us to upgrade
-to a more recent kernel version in the next DemoLinux (see www.demolinux.org).
- 
-It seems to properly operate under reasonable charge for me,
-even if once in a while I get a sequence of errors
- 
-       Whoops: end_buffer_io_async: async io complete on unlocked page
- 
-not necessarily when using ext2 compressed filesystems.
- 
-Please feel free to use it (at your own risk), test it and report bugs
-to dicosmo@pps.jussieu.fr
+On Sun, 31 Dec 2000, Alexander Viro wrote:
 
-Notice, though, that I am not applying to become an official maintainer
-of the package: I just needed to spend some time to get it almost working
-and I wanted to give back the contribution to the community.
+> Reread the original thread. GFP_BUFFER protects us from buffer cache
+> allocations triggering pageouts. It has nothing to the deadlock scenario
+> that would come from grabbing ->i_sem on pageout.
 
-Also, I am not currently subscribed to the kernel mailing list, so
-please contact me directly by e-mail, for any comments.
+I don't want to grab i_sem. It was a very, very early idea... :)
 
-Sincerely yours
- 
---Roberto Di Cosmo
- 
-------------------------------------------------------------------
-Professeur
-PPS                      E-mail: dicosmo@pps.jussieu.fr
-Universite Paris VII     WWW  : http://www.pps.jussieu.fr/~dicosmo
-Case 7014                Tel  : ++33-(1)-44 27 86 55
-2, place Jussieu         Fax  : ++33-(1)-44 27 68 49
-F-75251 Paris Cedex 05
-FRANCE.                  MIME/NextMail accepted
-------------------------------------------------------------------
-Office location:
- 
-Bureau 6C14 (6th floor)
-175, rue du Chevaleret, XIII
-Metro Chevaleret, ligne 6
-------------------------------------------------------------------                                 
+> Sheesh... "Complexity" of ext2_get_block() (down to the ext2_new_block()
+> calls) is really, really not a problem. Normally it just gives you the
+> straightforward path. All unrolls are for contention cases and they
+> are precisely what we have to do there.
+
+Maybe complexity is the wrong word, of course the logic in there is
+straight forward (once one understood it :) ).
+Let me ask it differently and it's now only about indirect block handling.
+Is it possible to use a per-inode-indirect-block-semaphore?
+The reason for the question is, that I maybe see a different sort of
+contention here - live locks. I don't mind that getting of resources and
+rechecking if everything went well. The problem is how much resources you
+need to get (and to release, if something failed). Somewhere is always a
+point, where two threads can't make any progress or one thread can stall
+the progress of a second.
+To get back to ext2_get_block: IMO such a scenario could happen in the
+double or triple indirect block case, when two or more threads try to
+allocate/truncate a block here. Maybe my concerns are baseless, but I'd
+just like to know, that there isn't a possibility for a DOS attack here.
+(BTW that's what I mean with complexity, it's less the logical complexity,
+it's more the "runtime complexity").
+
+The other reason for the question is that I'm currently overwork the block
+handling in affs, especially the extended block handling, where I'm
+implementing a new extended block cache, where I would pretty much prefer
+to use a semaphore to protect it. Although I could do it probably without
+the semaphore and use a spinlock+rechecking, but it would keep it so much
+simpler. (I can post more details about this part on fsdevel if needed /
+wanted.)
+
+bye, Roman
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

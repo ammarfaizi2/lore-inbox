@@ -1,35 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261317AbTHXVAw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 17:00:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbTHXVAw
+	id S261316AbTHXVBY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 17:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTHXVBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 17:00:52 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:35028 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S261317AbTHXU7q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 16:59:46 -0400
-Date: Sun, 24 Aug 2003 22:59:38 +0200 (MEST)
-Message-Id: <200308242059.h7OKxcCD028193@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: smiler@lanil.mine.nu, zwane@linuxpower.ca
-Subject: Re: Pentium-M?
-Cc: barryn@pobox.com, linux-kernel@vger.kernel.org, lkml@kcore.org
+	Sun, 24 Aug 2003 17:01:24 -0400
+Received: from tudela.mad.ttd.net ([194.179.1.233]:40908 "EHLO
+	tudela.mad.ttd.net") by vger.kernel.org with ESMTP id S261316AbTHXVBO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 17:01:14 -0400
+Date: Sun, 24 Aug 2003 23:00:51 +0200 (MEST)
+From: Javier Achirica <achirica@telefonica.net>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] airo (was: Re: Linux 2.6.0-test4)
+In-Reply-To: <Pine.GSO.4.21.0308241249210.14076-100000@waterleaf.sonytel.be>
+Message-ID: <Pine.SOL.4.30.0308242300100.9561-100000@tudela.mad.ttd.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Aug 2003 22:20:13 +0200, Christian Axelsson <smiler@lanil.mine.nu> wrote:
->Hmm.. I have compiled my whole system with -march=pentium4 and yet not 
->had a single breakage. Are you sure that this is p3?
 
-Oh yes. The core is most definitely P6+tweaks and not NetBurst.
-This can be deduced from facts like:
-- CPUID family is 6 not 15
-- performance counter architecture is like PIII with some minor
-  tweaks but definitely nothing like P4
-- treated separately from NetBurst in code optimization manual
+Thank you. There's also another small PCI bug. I'll submit a patch to
+Jeff.
 
-The reason compiling with -march=pentium4 doesn't break is that
-the differences ISA-wise are almost nil.
+Javier Achirica
 
-/Mikael
+On Sun, 24 Aug 2003, Geert Uytterhoeven wrote:
+
+> On Fri, 22 Aug 2003, Linus Torvalds wrote:
+> > Javier Achirica:
+> >   o [wireless airo] Fix PCI unregister code
+>
+> This patch causes a regression: if CONFIG_PCI is not set, it doesn't compile
+> anymore. Here's a fix. I also killed a dead variable and its corresponding
+> warning:
+>
+> --- linux-2.6.0-test4/drivers/net/wireless/airo.c	Sun Aug 24 09:49:30 2003
+> +++ linux-m68k-2.6.0-test4/drivers/net/wireless/airo.c	Sun Aug 24 13:03:56 2003
+> @@ -4156,7 +4156,7 @@
+>
+>  static int __init airo_init_module( void )
+>  {
+> -	int i, rc = 0, have_isa_dev = 0;
+> +	int i, have_isa_dev = 0;
+>
+>  	airo_entry = create_proc_entry("aironet",
+>  				       S_IFDIR | airo_perm,
+> @@ -4174,7 +4174,7 @@
+>
+>  #ifdef CONFIG_PCI
+>  	printk( KERN_INFO "airo:  Probing for PCI adapters\n" );
+> -	rc = pci_module_init(&airo_driver);
+> +	pci_module_init(&airo_driver);
+>  	printk( KERN_INFO "airo:  Finished probing for PCI adapters\n" );
+>  #endif
+>
+> @@ -4197,8 +4197,11 @@
+>  	}
+>  	remove_proc_entry("aironet", proc_root_driver);
+>
+> -	if (is_pci)
+> +	if (is_pci) {
+> +#ifdef CONFIG_PCI
+>  		pci_unregister_driver(&airo_driver);
+> +#endif
+> +	}
+>  }
+>
+>  #ifdef WIRELESS_EXT
+>
+> Gr{oetje,eeting}s,
+>
+> 						Geert
+>
+> --
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+>
+> In personal conversations with technical people, I call myself a hacker. But
+> when I'm talking to journalists I just say "programmer" or something like that.
+> 							    -- Linus Torvalds
+>
+>
+>
+>
+

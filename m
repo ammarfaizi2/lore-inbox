@@ -1,72 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281166AbRKEOeK>; Mon, 5 Nov 2001 09:34:10 -0500
+	id <S281169AbRKEOvP>; Mon, 5 Nov 2001 09:51:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281167AbRKEOeB>; Mon, 5 Nov 2001 09:34:01 -0500
-Received: from lightning.hereintown.net ([207.196.96.3]:53893 "EHLO
-	lightning.hereintown.net") by vger.kernel.org with ESMTP
-	id <S281166AbRKEOd4>; Mon, 5 Nov 2001 09:33:56 -0500
-Date: Mon, 5 Nov 2001 09:49:45 -0500 (EST)
-From: Chris Meadors <clubneon@hereintown.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Oops about once a day with 2.4.13-ac5
-Message-ID: <Pine.LNX.4.40.0111050942360.91-100000@rc.priv.hereintown.net>
+	id <S281172AbRKEOvG>; Mon, 5 Nov 2001 09:51:06 -0500
+Received: from smtp2.us.dell.com ([143.166.82.242]:38617 "EHLO
+	smtp2.us.dell.com") by vger.kernel.org with ESMTP
+	id <S281168AbRKEOu5>; Mon, 5 Nov 2001 09:50:57 -0500
+Date: Mon, 5 Nov 2001 08:50:55 -0600 (CST)
+From: Michael E Brown <michael_e_brown@dell.com>
+X-X-Sender: <mebrown@blap.linuxdev.us.dell.com>
+Reply-To: Michael E Brown <michael_e_brown@dell.com>
+To: Tux mailing list <tux-list@redhat.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Lots of questions about tux and kernel setup
+In-Reply-To: <Pine.LNX.4.30.0111051429040.18879-100000@mustard.heime.net>
+Message-ID: <Pine.LNX.4.33.0111050849090.2102-100000@blap.linuxdev.us.dell.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ever since upgrading to the 2.4.13-ac5 release I've been seeing my machine
-totally lock up about once a day.  Magic SysRq-B won't even reboot it,
-although it reports Restarting...  So it is the big red button.
+On Mon, 5 Nov 2001, Roy Sigurd Karlsbakk wrote:
 
-The oops below did make it to the syslog.  Was paritally decoded by
-syslog, so I'm not totally sure it is correct, but I use pretty much a
-standard layout with my System.map, so I think it got the right one.
+> Just one thing...
+> 
+> I need redundancy, so I can't go with RAID 0. I thought I'd go with RAID
+> 4, to avoid reading the parity info (and thereby wasting time), and still
+> have some quite good redundancy.
+> 
+> Q: Should I use hardware RAID or software RAID here? I can see they've
+> been using a rather large stripe (or chunk) size on the RAID (2MB). The
+> RAID controller I planned to use only supports up to 512kB stripes. As I
+> said, the files I'm reading are rather large - up to 10GB each, or at
+> least 1GB. I'm reading 4-7Mbps (500-900kB) per connection and each
+> connection reads only one file. Will a large stripe size help me here?
 
-Anyway oops follows:
+If you spec your boxes such that you have extra CPU cycles around after
+TUX is done, consider software raid. Software raid is faster than hardware
+raid in almost every circumstance I have seen, with the caveat that it
+uses slightly more CPU resources (RAID 5 has worst CPU performance because
+of parity calculations, RAID 1 is better)
 
-Nov  5 09:12:37 lightning kernel: invalid operand: 0000
-Nov  5 09:12:37 lightning kernel: CPU:    1
-Nov  5 09:12:37 lightning kernel: EIP:    0010:[__kmem_cache_shrink+48/136]    Not tainted
-Nov  5 09:12:37 lightning kernel: EFLAGS: 00010082
-Nov  5 09:12:37 lightning kernel: eax: 00000000   ebx: c1eed288   ecx: e8a56040   edx: 00000020
-Nov  5 09:12:37 lightning kernel: esi: c1eed298   edi: f7dfa331   ebp: 0008e000   esp: f7dfbf90
-Nov  5 09:12:37 lightning kernel: ds: 0018   es: 0018   ss: 0018
-Nov  5 09:12:37 lightning kernel: Process kswapd (pid: 5, stackpage=f7dfb000)
-Nov  5 09:12:37 lightning kernel: Stack: 000055fa 000000c0 c012a68d c1eed288 c014b7db c1eed288 0000007b c012ce5b
-Nov  5 09:12:37 lightning kernel:        00000006 000000c0 00000000 000000c0 00000000 000000c0 00000080 00000000
-Nov  5 09:12:37 lightning kernel:        f7dfa000 c023ee17 c012cedf 000000c0 00000000 00010f00 c1ef1fb8 00000000
-Nov  5 09:12:37 lightning kernel: Call Trace: [kmem_cache_shrink+45/52] [shrink_dqcache_memory+35/40] [do_try_to_free_pages+43/80] [kswapd+95/200] [kernel_thread+40/56]
-Nov  5 09:12:37 lightning kernel: Code: 0f 0b 8b 51 04 8b 01 89 50 04 89 02 c6 43 24 01 fb 51 53 e8
-Using defaults from ksymoops -t elf32-i386 -a i386
-
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   0f 0b                     ud2a
-Code;  00000002 Before first symbol
-   2:   8b 51 04                  mov    0x4(%ecx),%edx
-Code;  00000004 Before first symbol
-   5:   8b 01                     mov    (%ecx),%eax
-Code;  00000006 Before first symbol
-   7:   89 50 04                  mov    %edx,0x4(%eax)
-Code;  0000000a Before first symbol
-   a:   89 02                     mov    %eax,(%edx)
-Code;  0000000c Before first symbol
-   c:   c6 43 24 01               movb   $0x1,0x24(%ebx)
-Code;  00000010 Before first symbol
-  10:   fb                        sti
-Code;  00000010 Before first symbol
-  11:   51                        push   %ecx
-Code;  00000012 Before first symbol
-  12:   53                        push   %ebx
-Code;  00000012 Before first symbol
-  13:   e8 00 00 00 00            call   18 <_EIP+0x18> 00000018 Before first symbol
-
--Chris
 -- 
-Two penguins were walking on an iceberg.  The first penguin said to the
-second, "you look like you are wearing a tuxedo."  The second penguin
-said, "I might be..."                         --David Lynch, Twin Peaks
+Michael E. Brown, RHCE, MCSE+I, CNA
+Dell Linux Solutions
+http://www.dell.com/linux
+
+  If each of us have one object, and we exchange them,
+     then each of us still has one object.
+  If each of us have one idea,   and we exchange them,
+     then each of us now has two ideas.
+
 

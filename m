@@ -1,72 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265007AbTIIXKB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 19:10:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265019AbTIIXKA
+	id S265028AbTIIXBk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 19:01:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265035AbTIIXBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 19:10:00 -0400
-Received: from fw.osdl.org ([65.172.181.6]:11946 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265007AbTIIXJ4 (ORCPT
+	Tue, 9 Sep 2003 19:01:39 -0400
+Received: from 62-43-29-174.user.ono.com ([62.43.29.174]:12676 "EHLO wanda")
+	by vger.kernel.org with ESMTP id S265028AbTIIXAr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 19:09:56 -0400
-Date: Tue, 9 Sep 2003 16:09:26 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Philip.Blundell@pobox.com, Frodo Looijaard <frodol@dds.nl>,
-       Philip Edelbrock <phil@netroedge.com>, Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] video/saa5249.c, video/tuner-3036.c get rid of MOD_INC/DEC
-Message-Id: <20030909160926.09c5fa69.shemminger@osdl.org>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.4claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 9 Sep 2003 19:00:47 -0400
+From: Paco Ros <switch@tiscali.es>
+Reply-To: switch@tiscali.es
+To: linux-kernel@vger.kernel.org
+Subject: [Oops] 2.4.22-ac1 XFS access error?
+Date: Wed, 10 Sep 2003 01:00:44 +0200
+User-Agent: KMail/1.5.3
+Don't-Read-With: Microsoft Outlook, Microsoft Outlook Express
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309100100.44522.switch@tiscali.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Get rid of MOD_INC/DEC since ref count comes from owner field on I2C
-for these drivers.
+Hi!
 
-Not sure who is maintaining these, maybe no one because they haven't been
-purged of MOD stuff  yet.
+I'm using 2.4.22-ac1 on a XFS partition and, some minutes ago, I haven't been able to login as regular user neither using Konsole, neither using a tty.
+I've reastarded any services running with unsuccesfully and, finally, rebooted.
 
-diff -Nru a/drivers/media/video/saa5249.c b/drivers/media/video/saa5249.c
---- a/drivers/media/video/saa5249.c	Tue Sep  9 16:04:52 2003
-+++ b/drivers/media/video/saa5249.c	Tue Sep  9 16:04:52 2003
-@@ -214,7 +214,6 @@
- 	}
- 	t->client = client;
- 	i2c_attach_client(client);
--	MOD_INC_USE_COUNT;
- 	return 0;
- }
- 
-@@ -237,7 +236,6 @@
- 	kfree(vd->priv);
- 	kfree(vd);
- 	kfree(client);
--	MOD_DEC_USE_COUNT;
- 	return 0;
- }
- 
-diff -Nru a/drivers/media/video/tuner-3036.c b/drivers/media/video/tuner-3036.c
---- a/drivers/media/video/tuner-3036.c	Tue Sep  9 16:04:52 2003
-+++ b/drivers/media/video/tuner-3036.c	Tue Sep  9 16:04:52 2003
-@@ -135,7 +135,6 @@
- 	printk("tuner: SAB3036 found, status %02x\n", tuner_getstatus(client));
- 
-         i2c_attach_client(client);
--	MOD_INC_USE_COUNT;
- 
- 	if (i2c_master_send(client, buffer, 2) != 2)
- 		printk("tuner: i2c i/o error 1\n");
-@@ -149,7 +148,6 @@
- static int 
- tuner_detach(struct i2c_client *c)
- {
--	MOD_DEC_USE_COUNT;
- 	return 0;
- }
- 
+Here is the log at syslog:
+Sep  9 23:55:19 wanda kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+Sep  9 23:55:19 wanda kernel:  printing eip:
+Sep  9 23:55:19 wanda kernel: c02ffc32
+Sep  9 23:55:19 wanda kernel: *pde = 00000000
+Sep  9 23:55:19 wanda kernel: Oops: 0002
+Sep  9 23:55:19 wanda kernel: CPU:    0
+Sep  9 23:55:19 wanda kernel: EIP:    0010:[rwsem_down_failed_common+50/112]    Tainted: PF
+Sep  9 23:55:19 wanda kernel: EFLAGS: 00010286
+Sep  9 23:55:19 wanda kernel: eax: ffffffff   ebx: d07d5658   ecx: 00000000   edx: ffffffff
+Sep  9 23:55:19 wanda kernel: esi: c39ee000   edi: c39efed4   ebp: d55b6ec0   esp: c39efeb4
+Sep  9 23:55:19 wanda kernel: ds: 0018   es: 0018   ss: 0018
+Sep  9 23:55:19 wanda kernel: Process bash (pid: 32026, stackpage=c39ef000)
+Sep  9 23:55:19 wanda kernel: Stack: d44fe00d d07d5658 d07d5658 d07d55dc c02ffb29 d07d5658 c39efed4 ffffffff
+Sep  9 23:55:19 wanda kernel:        d07d565c 00000000 c39ee000 00000002 00000000 c0139d4f 00000000 d44fe01a
+Sep  9 23:55:19 wanda kernel:        c0144925 00000000 00000000 00008202 db5f3370 00000000 c021697d dfdcd800
+Sep  9 23:55:19 wanda kernel: Call Trace:    [rwsem_down_write_failed+41/64] [.text.lock.open+6/55] [link_path_walk+1333/1664] [xfs_access+77/96] [linvfs_permission+41/48]
+Sep  9 23:55:19 wanda kernel:   [open_namei+548/1456] [filp_open+62/112] [sys_open+83/160] [system_call+51/56]
+Sep  9 23:55:19 wanda kernel:
+Sep  9 23:55:19 wanda kernel: Code: 89 39 0f c1 03 01 d0 66 85 c0 74 25 89 f6 8b 47 0c 85 c0 74
+
+Please, could anybody give me a brief explanation about what has hapenned?
+
+Thanks in advance.
+Cheers.
+-- 
+Vayase usted a la puta mierda joder, por dios, venir a una lista
+de linux y decirnos "gracias por todo, pero reiniciando mi
+hasefroch lo hice funcionar..."
+                               .: Bulmailing :.
+

@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262626AbRFRT3B>; Mon, 18 Jun 2001 15:29:01 -0400
+	id <S262649AbRFRTcl>; Mon, 18 Jun 2001 15:32:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262649AbRFRT2v>; Mon, 18 Jun 2001 15:28:51 -0400
-Received: from SSH.ChaoticDreams.ORG ([64.162.95.164]:8580 "EHLO
-	ssh.chaoticdreams.org") by vger.kernel.org with ESMTP
-	id <S262626AbRFRT2c>; Mon, 18 Jun 2001 15:28:32 -0400
-Date: Mon, 18 Jun 2001 12:28:00 -0700
-From: Paul Mundt <lethal@ChaoticDreams.ORG>
-To: =?iso-8859-1?Q?Ren=E9?= Rebe <rene.rebe@gmx.net>
-Cc: James Simmons <jsimmons@transvirtual.com>, linux-kernel@vger.kernel.org,
-        ademar@conectiva.com.br, rolf@sir-wum.de,
-        linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: sis630 - help needed debugging in the kernel
-Message-ID: <20010618122800.A10027@ChaoticDreams.ORG>
-In-Reply-To: <20010616232740.092475e2.rene.rebe@gmx.net> <Pine.LNX.4.10.10106170652280.17509-100000@transvirtual.com> <20010618203203.35390ca8.rene.rebe@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.13i
-In-Reply-To: <20010618203203.35390ca8.rene.rebe@gmx.net>; from rene.rebe@gmx.net on Mon, Jun 18, 2001 at 08:32:03PM +0200
-Organization: Chaotic Dreams Development Team
+	id <S262653AbRFRTcb>; Mon, 18 Jun 2001 15:32:31 -0400
+Received: from [213.97.184.209] ([213.97.184.209]:1408 "HELO piraos.com")
+	by vger.kernel.org with SMTP id <S262649AbRFRTcW>;
+	Mon, 18 Jun 2001 15:32:22 -0400
+Date: Mon, 18 Jun 2001 21:32:24 +0200 (CEST)
+From: German Gomez Garcia <german@piraos.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Strange behaviour of swap under 2.4.5-ac15
+In-Reply-To: <20010618174445.F1317@athlon.random>
+Message-ID: <Pine.LNX.4.33.0106182130050.266-100000@hal9000.piraos.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 18, 2001 at 08:32:03PM +0200, René Rebe wrote:
-> > Try booting at 640x480 with a color depth of 32. Then
-> > try booting at a different resolution (1024x768) at the default color
-> > depth. I want to see if its a error with the resolution setting or if it
-> > is a error with setting up the data relating to the color depth handling. 
-> > The results should give me some clue.
-> 
-> I can't set the videomode for the driver ...? I tried:
-> 
-> video=sis:vesa:0x112
-> video=sis:xres:640,yres:480,depth:32
-> video=sis,xres:640,yres:480,depth:32
-> 
-> Is there another way to tell the fb driver what mode to use??
-> 
-Yep, in fbmem.c the name entry is "sisfb" as opposed to just "sis". Also, the
-driver requires that the mode is passed video a "mode:" argument as is
-outlined in the sisfb_setup(). Take a look at drivers/video/sis/sis_main.h,
-specifically sisbios_mode[] for a list of supported modes.
+On Mon, 18 Jun 2001, Andrea Arcangeli wrote:
 
-Something like:
+> On Mon, Jun 18, 2001 at 05:35:54PM +0200, German Gomez Garcia wrote:
+> > On Mon, 18 Jun 2001, Andrea Arcangeli wrote:
+> >
+> > > On Mon, Jun 18, 2001 at 04:41:02PM +0200, German Gomez Garcia wrote:
+> > > > so, if there is another way to get that info (maybe some file in /proc?)
+> > >
+> > > did you compiled with highmem?
+> >
+> > 	No,
+>
+> ok then with 512mbyte on an x86 my patch couldn't help. I thought it was
+> it because the sympthom was the same (constant kswapd activity and
+> constant swap grow) but it obviously is something else. Then try
+> 2.4.6pre3aa1 (it is certainly stable).
 
-video=sisfb:mode:640x480x32
+	You were right, with 2.4.6pre3aa1 it works in the expected way (at
+least the way it was expected before :-). I'm now at home so if you need
+more info on it, I'll do my best.
 
-should do the job.
+	Regards,
 
-Regards,
+	- german
 
--- 
-Paul Mundt <lethal@chaoticdreams.org>
+-------------------------------------------------------------------------
+German Gomez Garcia         | "This isn't right.  This isn't even wrong."
+<german@piraos.com>         |                         -- Wolfgang Pauli
 

@@ -1,45 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVBTD2n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVBTDjB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261444AbVBTD2n (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 22:28:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVBTD2m
+	id S261503AbVBTDjB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 22:39:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVBTDjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 22:28:42 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:31892 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261444AbVBTD2a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 22:28:30 -0500
-To: Scott Bronson <bronson@rinspin.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Getting the page size of currently running kernel
-X-Message-Flag: Warning: May contain useful information
-References: <200502191901.57425.bronson@rinspin.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Sat, 19 Feb 2005 19:28:27 -0800
-In-Reply-To: <200502191901.57425.bronson@rinspin.com> (Scott Bronson's
- message of "Sat, 19 Feb 2005 19:01:57 -0800")
-Message-ID: <521xbbucys.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 20 Feb 2005 03:28:27.0885 (UTC) FILETIME=[3E11C9D0:01C516FC]
+	Sat, 19 Feb 2005 22:39:00 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:34236 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261503AbVBTDi6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 22:38:58 -0500
+Subject: Re: IBM Thinkpad G41 PCMCIA problems [Was: Yenta TI: ... no PCI
+	interrupts. Fish. Please report.]
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>
+In-Reply-To: <Pine.LNX.4.58.0502191757170.14706@ppc970.osdl.org>
+References: <1108858971.8413.147.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0502191648110.14176@ppc970.osdl.org>
+	 <1108863372.8413.158.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0502191757170.14706@ppc970.osdl.org>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Sat, 19 Feb 2005 22:38:51 -0500
+Message-Id: <1108870731.8413.163.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Scott> Is there any way to get a running kernel to tell you the
-    Scott> size of its pages?  Why: I'm writing a quick Perl hack to
-    Scott> monitor the memory usage of the TCP stack over time.  Easy
-    Scott> enough: /proc/net/sockstat gives the current value of
-    Scott> tcp_memory_allocated.  But how do I convert this into
-    Scott> bytes?  I don't want to hard code PAGE_SIZE into my Perl
-    Scott> script, complete with a lookup table for 4K vs. 8K
-    Scott> architectures!  Am I missing something obvious here?
+On Sat, 2005-02-19 at 18:10 -0800, Linus Torvalds wrote:
 
-I'm not sure exactly how to call it from perl, but from C one can use
-sysconf(3) like:
+> I _think_ it's the code in arch/i386/pci/fixup.c that does this. See the
+> 
+> 	static void __devinit pci_fixup_transparent_bridge(struct pci_dev *dev)
+> 
+> thing, and try to disable it. Maybe that rule is wrong, and triggers much 
+> too often?
+> 
 
-	page_size = sysconf(_SC_PAGESIZE);
+Linus,
 
-(one can also use getpagesize(2) to do exactly the same thing)
+Thank you very much! That was it.  The following patch made everything
+look good.
 
- - R.
+--- arch/i386/pci/fixup.c.orig	2005-02-19 22:22:29.622416639 -0500
++++ arch/i386/pci/fixup.c	2005-02-19 22:20:39.562713691 -0500
+@@ -208,7 +208,9 @@
+ static void __devinit pci_fixup_transparent_bridge(struct pci_dev *dev)
+ {
+ 	if ((dev->class >> 8) == PCI_CLASS_BRIDGE_PCI &&
+-	    (dev->device & 0xff00) == 0x2400)
++	    (dev->device & 0xff00) == 0x2400 &&
++	    /* the 2448 bridge is not transparent */
++	    dev->device != 0x2448)
+ 		dev->transparent = 1;
+ }
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, PCI_ANY_ID, pci_fixup_transparent_bridge);
+
+
+
+PCMCIA cards now show up. Although I still have yet to get one of mine
+working, but that's because of the card and not the bridge. Now I need
+to start downloading drivers for my card. But at least the kernel now
+sees them!
+
+Thanks again,
+
+-- Steve
+
+

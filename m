@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbVANXaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbVANXex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261791AbVANXaj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 18:30:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbVANXai
+	id S262016AbVANXex (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 18:34:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262021AbVANXex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 18:30:38 -0500
-Received: from dhcp93115068.columbus.rr.com ([24.93.115.68]:47634 "EHLO
-	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
-	id S261791AbVANXaZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 18:30:25 -0500
-Date: Fri, 14 Jan 2005 18:30:20 -0500
-From: Joseph Fannin <jhf@rivenstone.net>
-To: Daniel Kirsten <Daniel.Kirsten@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc1-mm1  waiting-10s-before-mounting-root-....
-Message-ID: <20050114233020.GA2181@samarkand.rivenstone.net>
-Mail-Followup-To: Daniel Kirsten <Daniel.Kirsten@gmx.net>,
-	linux-kernel@vger.kernel.org
-References: <572.1105705748@www33.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <572.1105705748@www33.gmx.net>
-User-Agent: Mutt/1.4i
+	Fri, 14 Jan 2005 18:34:53 -0500
+Received: from fsmlabs.com ([168.103.115.128]:7619 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S262016AbVANXeu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 18:34:50 -0500
+Date: Fri, 14 Jan 2005 16:34:45 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Rudolf Usselmann <rudi@asics.ws>
+cc: "Frank Denis (Jedi/Sector One)" <j@pureftpd.org>,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: kernel (64bit) 4GB memory support
+In-Reply-To: <1105637178.5491.167.camel@cpu10>
+Message-ID: <Pine.LNX.4.61.0501140751520.4941@montezuma.fsmlabs.com>
+References: <41BAC68D.6050303@pobox.com> <1102760002.10824.170.camel@cpu0> 
+ <41BB32A4.2090301@pobox.com> <1102824735.17081.187.camel@cpu0> 
+ <Pine.LNX.4.61.0412112141180.7847@montezuma.fsmlabs.com> 
+ <1102828235.17081.189.camel@cpu0>  <Pine.LNX.4.61.0412120131570.7847@montezuma.fsmlabs.com>
+  <1102842902.10322.200.camel@cpu0>  <Pine.LNX.4.61.0412120934160.14734@montezuma.fsmlabs.com>
+  <1103027130.3650.73.camel@cpu0>  <20041216074905.GA2417@c9x.org> 
+ <1103213359.31392.71.camel@cpu0>  <Pine.LNX.4.61.0412201246180.12334@montezuma.fsmlabs.com>
+  <1103646195.3652.196.camel@cpu0>  <Pine.LNX.4.61.0412210930280.28648@montezuma.fsmlabs.com>
+ <1105637178.5491.167.camel@cpu10>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 14, 2005 at 01:29:08PM +0100, Daniel Kirsten wrote:
-> Hallo,
-> 
-> I have to unpatch waiting-10s-before-mounting-root-filesystem.patch, 
-> otherwise I cannot mount the root file system when booting. 
-> 
+On Fri, 14 Jan 2005, Rudolf Usselmann wrote:
 
-    Are you using an initrd?
+> > Ok don't worry about trying to isolate it, there should be a fix for it by 
+> > 2.6.10.
+> 
+> just wondering if there where any fixes submitted with 2.6.10
+> final release for the memory problem. I did not see anything
+> from bugzilla ....
 
-(Just another user trying to work out what's going on.) 
--- 
-Joseph Fannin
-jhf@rivenstone.net
+Hi Rudolf,
+	I've replied on bugzilla.
+
+Thanks,
+	Zwane
+

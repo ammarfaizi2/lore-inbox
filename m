@@ -1,40 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263227AbUE1Okn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263079AbUE1OnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263227AbUE1Okn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 10:40:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUE1Okn
+	id S263079AbUE1OnL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 10:43:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263231AbUE1OnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 10:40:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:48537 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263227AbUE1OkW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 10:40:22 -0400
-Date: Fri, 28 May 2004 10:39:57 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Andi Kleen <ak@muc.de>
-cc: Andrey Panin <pazke@donpac.ru>, Andrew Morton <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/13] 2.6.7-rc1-mm1, Simplify DMI matching data
-In-Reply-To: <m3zn7su4lv.fsf@averell.firstfloor.org>
-Message-ID: <Pine.LNX.4.44.0405281039230.13499-100000@chimarrao.boston.redhat.com>
+	Fri, 28 May 2004 10:43:11 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:11955 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S263079AbUE1OnH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 10:43:07 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: scsihosts kernel param broken?
+Date: Fri, 28 May 2004 22:42:55 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F842DB1E7@PDSMSX403.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: scsihosts kernel param broken?
+Thread-Index: AcREcZblQqMp3OzKTMe2NnKg2bzSHwAUCmjA
+From: "Zhu, Yi" <yi.zhu@intel.com>
+To: "Robin H. Johnson" <robbat2@orbis-terrarum.net>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 28 May 2004 14:42:56.0175 (UTC) FILETIME=[1057CBF0:01C444C2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 May 2004, Andi Kleen wrote:
+Robin H. Johnson wrote:
+> Hi,
+> 
+> After tweaking my kernel today and moving my SCSI controller
+> drivers into the kernel instead of using them as modules, I
+> wanted to use the scsihosts kernel parameter as described in
+> filesystems/devfs/README, to tweak the order of my 3ware
+> (3w-xxxx) and Adaptec (aic79xx) [two controllers] drives.
+> 
+> I'd like:
+> scsihosts=aic79xx:3w-xxxx:aic79xx
+> But the aic79xx code is running first, and leaving all my 3ware stuff
+> to last. 
+> 
+> What's broken here?
 
-> There are large third party patchkits for DMI
+Which kernel? I think it should be removed since 2.5.73
 
-I think you just identified the problem...
+ChangeSet@1.1046.234.10, 2003-06-06 09:01:05-04:00, hch@lst.de
+  [PATCH] kill scsihosts= boot parameter
 
-> and "cleaning up"  the format will just cause lots of rejects and pain.
+  This feature is seriously racy, and doesn't work under many
+  circumstances.  As we have proper ways to find devices by their
+  their locical naming (UUID, fs label) or physical connectivity
+  (scsidev, sysfs) it shouldn't be nessecary anymore.
+ 
+> Please CC me with responses, as I usually just lurk via the
+> mail archives.
 
-And this isn't it. ;)
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
 

@@ -1,76 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317222AbSEXShu>; Fri, 24 May 2002 14:37:50 -0400
+	id <S317244AbSEXSm0>; Fri, 24 May 2002 14:42:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317243AbSEXSht>; Fri, 24 May 2002 14:37:49 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:39631 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317222AbSEXShs>;
-	Fri, 24 May 2002 14:37:48 -0400
-Subject: [ANNOUNCE]  Journaled File System (JFS)  release 1.0.18
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OFD7E93986.34A72BB5-ON85256BC3.00661BF9@pok.ibm.com>
-From: "Steve Best" <sbest@us.ibm.com>
-Date: Fri, 24 May 2002 13:37:36 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.10 |March 28, 2002) at
- 05/24/2002 02:37:40 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S317245AbSEXSmZ>; Fri, 24 May 2002 14:42:25 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:12805 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S317244AbSEXSmX>;
+	Fri, 24 May 2002 14:42:23 -0400
+Date: Fri, 24 May 2002 14:36:25 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: negative dentries wasting ram
+Message-ID: <20020524143625.A25016@mark.mielke.cc>
+In-Reply-To: <Pine.LNX.4.44.0205240927580.11495-100000@home.transmeta.com> <Pine.GSO.4.21.0205241259230.9792-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 1.0.18 of JFS was made available today.
+On Fri, May 24, 2002 at 01:00:14PM -0400, Alexander Viro wrote:
+> > The only think we save is a dentry kfree/kmalloc in this case, nbot a FS
+> > downcall. And I think Andrea is right that it can waste memory for the
+> > likely much more common case where the file just stays removed.
+> ???
+> It's lookup + unlink + lookup + create vs. lookup + unlink + create.
 
-Drop 56 on May 24, 2002 (jfs-2.4-1.0.18.tar.gz
-and jfsutils-1.0.18.tar.gz) includes fixes to the file
-system and utilities.
+I would rather use kernel memory for far more useful things, such as
+more room for actual dentries/inodes, or negative dentries found from
+failed lookup() calls (i.e. proven useful).
 
-The new feature in this release is the capability to have the
-log on and external device. The -j journal device option in
-mkfs.jfs allows you to specify the external log device. The
-utilities now require libuuid and this is packaged with
-e2fsprogs-devel that ships with most distros.
+The overhead of unlink()/create() probably swamps the rather minimal
+gain from a saved lookup() in this not very common situation.
 
-Utilities changes
+Just the opinion of somebody that doesn't matter... :-)
+mark
 
-- add support for external log
-- endian code cleanup
-- fix typo in fsck.jfs help
-- fix fsck.jfs bug on big endian machines
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-File System changes
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-- File truncate was not always enough space from the block map.
-- Bring 2.4 code in line with 2.5 and various cleanups (Christoph Hellwig)
-- JFS metapage changes (Christoph Hellwig)
-   use the bdev mapping instead of JFS-private device mapping/inode
-   add metapages to -> mp_list of the inode passed to __get_metpage
-- Reduce number of return paths in dbAlloc to two. This is in preparation
-  for quota support. (Christoph Hellwig)
-- External journal support
-    Add uuid to file system and journal
-- Add additional debug code to help debug mysterious uncommitted anonymous
-  txns
-- Add xtAppend
-- Add lmLogFromat which is used to format the file system log
-- Add extern for diExtendFS
-- Increase number of transaction locks in JFS txnmgr
-- Make license boilerplate uniform, update copyright dates
-- No need to handle regular files in jfs_mknod (Christoph Hellwig)
-- Remove register keyword (Christoph Hellwig)
-- Simplify sync_metapage (Christoph Hellwig)
-
-For more details about JFS, please see the patch instructions or
-changelog.jfs
-files.
-
-
-Steve Best
-Linux Technology Center
-JFS for Linux http://oss.software.ibm.com/jfs
-
-
-
-
-
+                           http://mark.mielke.cc/
 

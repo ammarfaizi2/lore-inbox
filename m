@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262190AbSLFL3L>; Fri, 6 Dec 2002 06:29:11 -0500
+	id <S262326AbSLFLhz>; Fri, 6 Dec 2002 06:37:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262214AbSLFL3L>; Fri, 6 Dec 2002 06:29:11 -0500
-Received: from packet.digeo.com ([12.110.80.53]:60336 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262190AbSLFL3K>;
-	Fri, 6 Dec 2002 06:29:10 -0500
-Message-ID: <3DF08BC7.62436532@digeo.com>
-Date: Fri, 06 Dec 2002 03:36:39 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S262387AbSLFLhz>; Fri, 6 Dec 2002 06:37:55 -0500
+Received: from pop.gmx.de ([213.165.64.20]:30430 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262326AbSLFLhy>;
+	Fri, 6 Dec 2002 06:37:54 -0500
+Message-ID: <3DF08DD0.BA70DA62@gmx.de>
+Date: Fri, 06 Dec 2002 12:45:20 +0100
+From: Edgar Toernig <froese@gmx.de>
 MIME-Version: 1.0
-To: Con Kolivas <conman@kolivas.net>
-CC: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [PATCH 2.4.20-aa1] Readlatency-2
-References: <200212061038.27387.m.c.p@wolk-project.de> <200212062045.25377.conman@kolivas.net>
+To: DervishD <raul@pleyades.net>
+CC: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Unable to boot a raw kernel image :??
+References: <20021129132126.GA102@DervishD>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Dec 2002 11:36:39.0619 (UTC) FILETIME=[BDF17130:01C29D1B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
+DervishD wrote:
 > 
-> io_load:
-> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-> 2.4.20 [5]              203.4   33      40      15      3.07
-> 2.4.20aa1 [3]           238.3   27      46      15      3.60
-> 2.4.20aa1rl2 [3]        302.5   22      63      16      4.57
+>     Hi all :))
+> 
+>     A time ago I was able to generate bootable Linux CD's just by
+> dd'ing a floppy containing a raw kernel image:
+> 
+>     dd if=/dev/fd0 of=eltorito
+> 
+>     After that, mkisofsing, toasting and booting. But now, depending
+> on the machine, I have 'invalid compressed format' errors, or even
+> ye olde register dump when the image was damaged :(
+> 
+>     Booting directly from the floppy works, but booting with that
+> same image from a CD does not :(( I now I can use LILO, or better
+> yet, Syslinux or isolinux, but I'm just curious why I cannot boot raw
+> image-based CD's anymore.
+> 
+>     Anyone knows what's happenning here?
 
-Something must have gone wrong here.  rl2 cannot be worse than
-2.4.20 in this test.
+I had this problem a while ago.  It turned out to be a (widespread)
+BIOS bug triggered be the disk-size probe of the kernel's boot loader.
 
-Umm, quick sanity check:
+The crude fix which worked for me: disable the probing for 2.88MB disks
+by changing the first byte of the disksizes table at the end of bootsect.S
+from 36 to 18.
 
-2.4.20-rl2      321.44  147%    96      24%
-2.4.20          361.70  130%    108     24%
+The long explanation: The BIOS allows bigger-than-track-size reads
+in El-Torito mode which confuses the probe routine which then assumes
+a 2.88MB disk when the BIOS is actually emulating a 1.44MB disk.
+In LBA mode that would be no problem but in CHS mode (which is used
+by the loader) it does not work.
 
-So only a 10% speedup, but certainly not a 50% slowdown.  (That is
-on scsi).
-
-Maybe a patch preparation problem?
+Ciao, ET.

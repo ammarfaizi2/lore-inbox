@@ -1,54 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267866AbTBRQzF>; Tue, 18 Feb 2003 11:55:05 -0500
+	id <S267876AbTBRQ5g>; Tue, 18 Feb 2003 11:57:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267867AbTBRQzF>; Tue, 18 Feb 2003 11:55:05 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:23702 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267866AbTBRQzE>; Tue, 18 Feb 2003 11:55:04 -0500
-Date: Tue, 18 Feb 2003 09:04:57 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 375] New: M5451 (OSS trident.c) did not come out of reset 
-Message-ID: <5790000.1045587897@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S267877AbTBRQ5g>; Tue, 18 Feb 2003 11:57:36 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:42001 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
+	id <S267876AbTBRQ5e>; Tue, 18 Feb 2003 11:57:34 -0500
+Date: Tue, 18 Feb 2003 18:07:34 +0100 (CET)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Subject: [TRIVIAL][PATCH][RESEND]
+Message-ID: <Pine.LNX.4.51.0302181806080.19871@dns.toxicfilms.tv>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=375
+Hi,
 
-           Summary: M5451 (OSS trident.c) did not come out of reset
-    Kernel Version: 2.5.62
-            Status: NEW
-          Severity: low
-             Owner: mulix@mulix.org
-         Submitter: mulix@mulix.org
+two typo patches:
+
+Regards,
+Maciej Soltysiak
+
+*** linux-2.5.60/drivers/atm/firestream.c~	Mon Feb 10 19:37:59 2003
+--- linux-2.5.60/drivers/atm/firestream.c	Mon Feb 17 20:49:32 2003
+***************
+*** 1792,1798 ****
+  		write_fs (dev, RAC, 0);
+
+  		/* Manual (AN9, page 6) says ASF1=0 means compare Utopia address
+! 		 * too.  I can't find ASF1 anywhere. Anyway, we AND with just hte
+  		 * other bits, then compare with 0, which is exactly what we
+  		 * want. */
+  		write_fs (dev, RAM, (1 << (28 - FS155_VPI_BITS - FS155_VCI_BITS)) - 1);
+--- 1792,1798 ----
+  		write_fs (dev, RAC, 0);
+
+  		/* Manual (AN9, page 6) says ASF1=0 means compare Utopia address
+! 		 * too.  I can't find ASF1 anywhere. Anyway, we AND with just the
+  		 * other bits, then compare with 0, which is exactly what we
+  		 * want. */
+  		write_fs (dev, RAM, (1 << (28 - FS155_VPI_BITS - FS155_VCI_BITS)) - 1);
 
 
-Last time I booted 2.5, I noticed that my sound card no longer
-works. The card is:
-
-00:06.0 Multimedia audio controller: Acer Laboratories Inc. [ALi]
-M5451 PCI AC-Link Controller Audio Device (rev 01)
-
-And the computer is a thinkpad R30. It turns out that this patch, from
-Alan Cox on 01/11/2002, broke it for me, by failing ali_reset_5451 if
-the card doesn't come out of reset:
-
-# --------------------------------------------
-# 02/11/01      alan@lxorguk.ukuu.org.uk        1.786.161.45
-# [PATCH] some trident needs longer delays to power up codecs
-# --------------------------------------------
-
-The 2.4 behaviour is to continue as usual even if the card doesn't
-come out of reset, because it's a non fatal error on at least some
-cards. This patch reverts the behaviour to the 2.4 behaviour, which
-works for me. If anyone knows how to tell for a given card whether
-this is a fatal error or not, please let me know and I'll update the
-patch.
-
+*** drivers/s390/block/dasd_3990_erp.c~	Mon Feb 25 20:38:03 2002
+--- drivers/s390/block/dasd_3990_erp.c	Sat Feb 15 21:10:56 2003
+***************
+*** 2809,2815 ****
+   *     - exit with permanent error
+   *
+   * PARAMETER
+!  *   erp                ERP which is in progress wiht no retry left
+   *
+   * RETURN VALUES
+   *   erp                modified/additional ERP
+--- 2809,2815 ----
+   *     - exit with permanent error
+   *
+   * PARAMETER
+!  *   erp                ERP which is in progress with no retry left
+   *
+   * RETURN VALUES
+   *   erp                modified/additional ERP
 

@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbUJYTqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbUJYTsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261271AbUJYTqq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 15:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbUJYTqe
+	id S261255AbUJYTsl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 15:48:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbUJYTsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 15:46:34 -0400
-Received: from cantor.suse.de ([195.135.220.2]:33723 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261259AbUJYTpA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 15:45:00 -0400
-To: Corey Minyard <minyard@acm.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Race betwen the NMI handler and the RTC clock in practially all kernels
-References: <417D2305.3020209@acm.org.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 25 Oct 2004 21:44:57 +0200
-In-Reply-To: <417D2305.3020209@acm.org.suse.lists.linux.kernel>
-Message-ID: <p73u0sik2fa.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Mon, 25 Oct 2004 15:48:20 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:37523 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S261255AbUJYTru (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 15:47:50 -0400
+Date: Mon, 25 Oct 2004 21:48:13 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] statm: shared = rss - anon_rss
+Message-ID: <20041025194813.GK14325@dualathlon.random>
+References: <Pine.LNX.4.44.0410241644000.12023-100000@localhost.localdomain> <Pine.LNX.4.44.0410241647080.12023-100000@localhost.localdomain> <20041025193016.GX17038@holomorphy.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041025193016.GX17038@holomorphy.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Corey Minyard <minyard@acm.org> writes:
+On Mon, Oct 25, 2004 at 12:30:16PM -0700, William Lee Irwin III wrote:
+> The group maintaining the tools relying upon the properties of the
+> shared field of statm at Oracle has gone beyond code inspection of the
+> patches, and as of today has carried out runtime testing of your
+> patches and verified that it resolves the issue to their full
+> satisfaction during runtime operation of the tools.
 
-> I had a customer on x86 notice that sometimes offset 0xf in the CMOS
-> RAM was getting set to invalid values.  Their BIOS used this for
-> information about how to boot, and this caused the BIOS to lock up.
-> 
-> They traced it down to the following code in arch/kernel/traps.c (now
-> in include/asm-i386/mach-default/mach_traps.c):
-> 
->     outb(0x8f, 0x70);
->     inb(0x71);              /* dummy */
->     outb(0x0f, 0x70);
->     inb(0x71);              /* dummy */
-
-Just use a different dummy register, like 0x80 which is normally used
-for delaying IO (I think that is what the dummy access does) 
-
-But I'm pretty sure this NMI handling is incorrect anyways, its
-use of bits doesn't match what the datasheets say of modern x86
-chipsets say. Perhaps it would be best to just get rid of 
-that legacy register twiddling completely.
-
-I will also remove it from x86-64.
-
--Andi
+ok cool, thanks for the info.

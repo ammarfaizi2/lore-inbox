@@ -1,80 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315754AbSGAQKl>; Mon, 1 Jul 2002 12:10:41 -0400
+	id <S315779AbSGAQO7>; Mon, 1 Jul 2002 12:14:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315758AbSGAQKl>; Mon, 1 Jul 2002 12:10:41 -0400
-Received: from h-64-105-34-244.SNVACAID.covad.net ([64.105.34.244]:12161 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S315754AbSGAQKi>; Mon, 1 Jul 2002 12:10:38 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 1 Jul 2002 09:12:56 -0700
-Message-Id: <200207011612.JAA01302@adam.yggdrasil.com>
-To: kaos@ocs.com.au
-Subject: Re: Rusty's module talk at the Kernel Summit
-Cc: linux-kernel@vger.kernel.org
+	id <S315784AbSGAQO6>; Mon, 1 Jul 2002 12:14:58 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35087 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315779AbSGAQOy>;
+	Mon, 1 Jul 2002 12:14:54 -0400
+Message-ID: <3D208086.7070603@mandrakesoft.com>
+Date: Mon, 01 Jul 2002 12:17:10 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/00200205
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kurt Garloff <garloff@suse.de>
+CC: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-rc1 broke OSF binaries on alpha
+References: <Pine.LNX.4.44.0206281730160.12542-100000@freak.distro.conectiva> <E17O7yk-0007w5-00@the-village.bc.nu> <20020630035058.A884@localhost.park.msu.ru> <20020701075418.GA13908@gum01m.etpnet.phys.tue.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
->Since modules are always allocated on page boundaries, discarding init
->sections is only a win if it reduces the final size of the module from
->m to m-n pages.  So far the pain of loading in multiple areas and
->adjusting the associated arch dependent tables after discard has
->outweighed any gain from discarding the init sections from modules.
-
-	That would average out for modules larger than a page if the
-distribution of the non-init sections modulo 4096 (or whatever
-PAGE_CACHE_SIZE is on your architecture) is basically uniform.
-You would be just as likely to free more bytes than the size of the .init
-sections as a result of page granularity than to free fewer bytes.
-
-	As an extereme illustration, imagine a module with 4095 bytes
-of non-init data and 2 bytes of init data.  With the .init section loaded,
-the module will occupy two pages.  Freeing the .init section will free
-an entire page, making 4096 bytes available to the system, even though
-only two bytes were in the .init section.
-
-	On the linux-2.5.24 x86 machine on which I am composing this
-email, 654 out of 983 modules (two thirds) have text+data+bss larger than
-4096 bytes.  The byte count of these modules modulo 4096 is actually a bit
-heavier on the low end, which bodes well for saving space by releasing .init
-sections:
-
-Module text+data+bss
-size modulo 4096	 # of modules
-
-0000...0511              102
-0512...1023              108
-1024...1535               81
-1536...2047               76
-2048...2559               71
-2560...3071               90
-3072...3583               69
-3584...4095               57
+Kurt Garloff wrote:
+> Hi Ivan, Alan, Marcelo,
+> 
+> On Sun, Jun 30, 2002 at 03:50:58AM +0400, Ivan Kokshaysky wrote:
+> 
+>>On Sat, Jun 29, 2002 at 03:28:50AM +0100, Alan Cox wrote:
+>>
+>>>Please back it back in. The bug is the Alpha port. Alpha needs its own OSF
+>>>readv/writev entry point which masks the top bits.
+>>
+>>Ouch. The new entry point just because of this?!
+>>Marcelo, if you're going to back in that patch, please apply
+>>the following on the top of it.
+> 
+> 
+> This patch indeed makes acroread & netscape work again on my alpha. Nice
+> spotting.
+> Don't we know about the type of binary? (Like personality ...)
+> So we could use something like
+>    ssize_t len
+>  #ifdef __alpha__
+>    if (current->personality == DEC_OSF_OLD)
+>      len = (int) iov[i].iov_len;
+>    else
+>      len = (ssize_t) iov[i].iov_len;
+>  #else
+>    len = (ssize_t) iov[i].iov_len;
+>  #endif
+> 
+> Not really beautiful, but working for all cases.
 
 
-	It would also be possible to achieve space savings for modules
-with non-init text+data+bss sizes smaller than a page by allocating
-their space with kmalloc(...,__GFP_HIGHMEM) instead of vmalloc.  This
-would require loading the init and non-init parts as separate modules,
-which would happen if this were implemented in what I regard as the
-"easy" way, a way that would only delete lines from the current kernel
-(but add code to insmod).
+That's a good point.
 
-	Here is what I have in mind.  I believe that removal of .init
-sections could be implemented entirely in user land (aside from
-removing the include/inux/init.h code that disables init sections for
-modules).  Insmod would allocate two kernel modules, one for the init
-sections and the other for the regular sections.  Insmod would resolve
-references between the two sections.  The temporary module for the
-init sections would be loaded first, with no initialization routine.
-The module with the real data would be loaded second, and would run
-the initialization routine (even if the initialization routine were in
-the temporary init module).  When the initialization routine
-completed, regardless of sucess or failure, the temporary init module
-would be unloaded.
+FWIW we have Mozilla 1.0.x working just fine on Alpha, so I don't mind 
+second-classing, or making optional, OSF/1 binary support.
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+It _should_ be possible to correctly support SuSv3 and OSF/1 binaries 
+simultaneously.
+
+	Jeff
+
+
+

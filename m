@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129777AbQKWJW6>; Thu, 23 Nov 2000 04:22:58 -0500
+        id <S129859AbQKWJrZ>; Thu, 23 Nov 2000 04:47:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129859AbQKWJWt>; Thu, 23 Nov 2000 04:22:49 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:28679 "EHLO
-        wire.cadcamlab.org") by vger.kernel.org with ESMTP
-        id <S129777AbQKWJWf>; Thu, 23 Nov 2000 04:22:35 -0500
-Date: Thu, 23 Nov 2000 02:52:31 -0600
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch(?): linux-2.4.0-test11/drivers/char pci_device_id tables
-Message-ID: <20001123025231.P2918@wire.cadcamlab.org>
-In-Reply-To: <20001122184022.A5804@baldur.yggdrasil.com>
+        id <S129975AbQKWJrG>; Thu, 23 Nov 2000 04:47:06 -0500
+Received: from styx.suse.cz ([195.70.145.226]:56311 "EHLO kerberos.suse.cz")
+        by vger.kernel.org with ESMTP id <S129859AbQKWJrF>;
+        Thu, 23 Nov 2000 04:47:05 -0500
+Date: Thu, 23 Nov 2000 09:52:23 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: macro@ds2.pg.gda.pl, "H. Peter Anvin" <hpa@zytor.com>,
+        Ingo Molnar <mingo@chiara.elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.0test11-ac1
+Message-ID: <20001123095223.A185@suse.cz>
+In-Reply-To: <Pine.GSO.3.96.1001122175514.29041A-100000@delta.ds2.pg.gda.pl> <E13ye9w-0006FS-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001122184022.A5804@baldur.yggdrasil.com>; from adam@yggdrasil.com on Wed, Nov 22, 2000 at 06:40:22PM -0800
-From: Peter Samuelson <peter@cadcamlab.org>
+In-Reply-To: <E13ye9w-0006FS-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Nov 22, 2000 at 05:58:14PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 22, 2000 at 05:58:14PM +0000, Alan Cox wrote:
 
-[Adam J. Richter]
-> +static struct pci_device_id isicom_pci_tbl[] __initdata = {
-> +	{ VENDOR_ID, 0x2028, PCI_ANY_ID, PCI_ANY_ID },
-> +	{ VENDOR_ID, 0x2051, PCI_ANY_ID, PCI_ANY_ID },
-> +	{ VENDOR_ID, 0x2052, PCI_ANY_ID, PCI_ANY_ID },
-> +	{ VENDOR_ID, 0x2053, PCI_ANY_ID, PCI_ANY_ID },
-> +	{ VENDOR_ID, 0x2054, PCI_ANY_ID, PCI_ANY_ID },
-> +	{ VENDOR_ID, 0x2055, PCI_ANY_ID, PCI_ANY_ID },
-> +	{ VENDOR_ID, 0x2056, PCI_ANY_ID, PCI_ANY_ID },
-> +	{ VENDOR_ID, 0x2057, PCI_ANY_ID, PCI_ANY_ID },
-> +	{ VENDOR_ID, 0x2058, PCI_ANY_ID, PCI_ANY_ID },
+> > > 	if(vendor!=INTEL && !has_apic)
+> > > 		/* No SMP */
+> > 
+> >  And suddenly certain i486 systems do not work anymore?  Well, I haven't
+> 
+> i486 is an intel processor
 
-Eh.  Once again the numbers are ugly.  Unfortunately the ISICom
-situation is non-obvious.  Multi-Tech is using the same PCI ID (10b5)
-as PLX, even though according to pci.ids they have their own (1122).
-Furthermore, the driver source does not indicate which of the five
-supported models is which.  Oh well, maybe this one *isn't* worth
-trying to clean up..
+... but is there a reason why for example AMD 486's couldn't work in a
+82489DX-based SMP board?
 
-Peter
+-- 
+Vojtech Pavlik
+SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

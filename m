@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262404AbVCIXQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbVCIX03@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262404AbVCIXQt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 18:16:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262527AbVCIXP7
+	id S262138AbVCIX03 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 18:26:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbVCIXY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 18:15:59 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:4748 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262404AbVCIWmw
+	Wed, 9 Mar 2005 18:24:59 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:43175 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S262259AbVCIXXK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 17:42:52 -0500
-Subject: Re: [Linux-fbdev-devel] [announce 0/7] fbsplash - The Framebuffer
-	Splash
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: James Simmons <jsimmons@pentafluge.infradead.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Michal Januszewski <spock@gentoo.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       "Antonino A. Daplas" <adaplas@hotpop.com>
-In-Reply-To: <Pine.LNX.4.56.0503092043380.7510@pentafluge.infradead.org>
-References: <20050308015731.GA26249@spock.one.pl>
-	 <200503091301.15832.adaplas@hotpop.com>
-	 <9e473391050308220218cc26a3@mail.gmail.com>
-	 <Pine.LNX.4.62.0503091033400.22598@numbat.sonytel.be>
-	 <1110392212.3116.215.camel@localhost.localdomain>
-	 <Pine.LNX.4.56.0503092043380.7510@pentafluge.infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1110408049.9942.275.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 09 Mar 2005 22:40:50 +0000
+	Wed, 9 Mar 2005 18:23:10 -0500
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: <linux-kernel@vger.kernel.org>, <axboe@suse.de>
+Subject: Re: Direct io on block device has performance regression on 2.6.x
+ kernel
+References: <200503092218.j29MICg26503@unix-os.sc.intel.com>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 10 Mar 2005 00:23:09 +0100
+In-Reply-To: <200503092218.j29MICg26503@unix-os.sc.intel.com> (Kenneth W.
+ Chen's message of "Wed, 9 Mar 2005 14:18:12 -0800")
+Message-ID: <m1r7iov1ya.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-03-09 at 20:45, James Simmons wrote:
-> Thank you. We need some kind of basic console in the kernel. I'm not the 
-> biggest fan of eye candy. So moving the console to userspace for eye candy 
-> is a dumb idea.
+"Chen, Kenneth W" <kenneth.w.chen@intel.com> writes:
+>
+> Just to clarify here, these data need to be taken at grain of salt. A
+> high count in _spin_unlock_* functions do not automatically points to
+> lock contention.  It's one of the blind spot syndrome with timer based
+> profile on ia64.  There are some lock contentions in 2.6 kernel that
+> we are staring at.  Please do not misinterpret the number here.
 
-Thats why moving the eye candy console into user space is such a good
-idea. You don't have to run it 8) It also means that the console
-development is accessible to all the crazy rasterman types.
+Why don't you use oprofileÂ>? It uses NMIs and can profile "inside" 
+interrupt disabled sections.
 
+-Andi

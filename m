@@ -1,71 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262078AbUKKBps@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262158AbUKKBwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262078AbUKKBps (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 20:45:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbUKKBps
+	id S262158AbUKKBwR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 20:52:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbUKKBwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 20:45:48 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:64964 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262078AbUKKBpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 20:45:41 -0500
-Subject: Re: Broken kunmap calls in rc4-mm1.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041111012919.GD3217@holomorphy.com>
-References: <1100135825.7402.32.camel@desktop.cunninghams>
-	 <20041111012919.GD3217@holomorphy.com>
-Content-Type: text/plain
-Message-Id: <1100137328.7402.45.camel@desktop.cunninghams>
+	Wed, 10 Nov 2004 20:52:17 -0500
+Received: from hera.kernel.org ([63.209.29.2]:14765 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S262158AbUKKBwO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 20:52:14 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: 2.6.10-rc1-mm3
+Date: Thu, 11 Nov 2004 01:52:08 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <cmugk8$r4v$1@terminus.zytor.com>
+References: <9dda349204110611043e093bca@mail.gmail.com> <20041108224259.GA14506@kroah.com> <20041108212747.33b6e14a.akpm@osdl.org> <20041109103354.GA14497@apps.cwi.nl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 11 Nov 2004 12:42:08 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1100137928 27808 127.0.0.1 (11 Nov 2004 01:52:08 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Thu, 11 Nov 2004 01:52:08 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Thu, 2004-11-11 at 12:29, William Lee Irwin III wrote:
-> On Thu, Nov 11, 2004 at 12:17:05PM +1100, Nigel Cunningham wrote:
-> > That oops in kunmap got me thinking of my recent DEBUG_HIGHMEM
-> > additions, so I want for a walk through the -mm4 patch, and found plenty
-> > of instances of people making the same mistake I did... using the struct
-> > page * in the call to kunmap, rather than the virtual address.
-> > I guess the best way to handle it is find/notify the respective authors
-> > of patches in the tree? The problems are in:
-> > Reiser4 (lots)
-> > CacheFS (lots)
-> > afs
-> > binfmt_elf
-> > libata_core
-> > (I'm hoping some of the above people will see this message and save me
-> > some effort :>)
+Followup to:  <20041109103354.GA14497@apps.cwi.nl>
+By author:    Andries Brouwer <Andries.Brouwer@cwi.nl>
+In newsgroup: linux.dev.kernel
 > 
-> That only applies to kunmap_atomic(); kunmap()'s argument should be a page.
+> I would be inclined to remove the variable CONFIG_LEGACY_PTY_COUNT,
+> using 256. If one really wants to use CONFIG_LEGACY_PTYS, that is
+> the right number. So, in include/linux/tty.h:
+> 
+> - #define NR_PTYS CONFIG_LEGACY_PTY_COUNT
+> + #define NR_PTYS 256
+> 
 
-Ah. My bad. That cuts it down by quite a few. I should have stuck to
-looking for kmap_atomic :>
+Embedded people want to be able to set it to fewer.  Not all of them
+can dispose of them entirely, but may not need 256.
 
-Humble apologies to those wrongly maligned!
-
-Remaining culprits are....
-
-Reiser4:
-- do_readpage_tail
- -reiser4_status_init
- -reiser4_status_write
-
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
-
+	-hpa

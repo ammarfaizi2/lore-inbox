@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263909AbTDVVIk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 17:08:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263910AbTDVVIk
+	id S263875AbTDVVSq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 17:18:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263878AbTDVVSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 17:08:40 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:20186 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263909AbTDVVIj (ORCPT
+	Tue, 22 Apr 2003 17:18:46 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:1242 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263875AbTDVVSp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 17:08:39 -0400
-Date: Tue, 22 Apr 2003 14:19:30 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: miller@techsource.com, linux-kernel@vger.kernel.org
-Subject: Re: Can one build 2.5.68 with allyesconfig?
-Message-Id: <20030422141930.60961941.rddunlap@osdl.org>
-In-Reply-To: <20030422210834.GA935@mars.ravnborg.org>
-References: <3EA5AABF.4090303@techsource.com>
-	<20030422210834.GA935@mars.ravnborg.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 22 Apr 2003 17:18:45 -0400
+Date: Tue, 22 Apr 2003 14:32:47 -0700
+From: Greg KH <greg@kroah.com>
+To: Hanno =?iso-8859-1?Q?B=F6ck?= <hanno@gmx.de>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       Linux-usb-users@lists.sourceforge.net
+Subject: Re: PATCH: some additional unusual_devs-entries for usb-storage-driver, kernel 2.5.68
+Message-ID: <20030422213247.GA5076@kroah.com>
+References: <20030421214805.7de5e4f3.hanno@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030421214805.7de5e4f3.hanno@gmx.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Apr 2003 23:08:34 +0200 Sam Ravnborg <sam@ravnborg.org> wrote:
+On Mon, Apr 21, 2003 at 09:48:05PM +0200, Hanno Böck wrote:
+> This patch against 2.5.68 adds support for some digital cameras.
+> Same patch is already applied to the 2.4-ac-series.
+> It is taken from the lycoris kernel-source.
 
-| On Tue, Apr 22, 2003 at 04:49:03PM -0400, Timothy Miller wrote:
-| > Is anyone else able to build 2.5.68 with allyesconfig?
-| 
-| John Cherry has a nice set of pages covering the compile status,
-| including allyesconfig IIRC.
-| 
-| See http://www.osdl.org/archieve/cherry/stability
-| Hmmm, result in 404 right now???
+Ok, in talking with the usb-storage author, I'll be accepting all
+unushal_devs.h patches now, as long as they contain the following:
+	- a comment above the entry with a email address of someone who
+	  has this device that this entry fixes the driver for them.
+	  This is to allow us to possibly remove entries at a later time
+	  if the core changes, and get a verification that it's ok to do
+	  so.
+	- a copy of the /proc/bus/usb/devices device entry with the
+	  device plugged in and the driver loaded (this should not be in
+	  the patch, but in the body of the email.)
+	  
+So, if there are any outstanding drivers/usb/storage/unusual_devs.h
+entries that people have floating around, sent them on!
 
-Use "archive" and I think it will work for you.
+thanks,
 
---
-~Randy
+greg k-h
+

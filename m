@@ -1,62 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286401AbRL0SBJ>; Thu, 27 Dec 2001 13:01:09 -0500
+	id <S286407AbRL0SEI>; Thu, 27 Dec 2001 13:04:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286407AbRL0SAt>; Thu, 27 Dec 2001 13:00:49 -0500
-Received: from [206.98.161.198] ([206.98.161.198]:7440 "EHLO
-	bart.learningpatterns.com") by vger.kernel.org with ESMTP
-	id <S286401AbRL0SAp>; Thu, 27 Dec 2001 13:00:45 -0500
-Subject: Problems booting 2.4.17
-From: Edward Muller <emuller@learningpatterns.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 27 Dec 2001 12:58:06 -0500
-Message-Id: <1009475886.16791.0.camel@akira.learningpatterns.com>
-Mime-Version: 1.0
+	id <S286411AbRL0SEB>; Thu, 27 Dec 2001 13:04:01 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:9414 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S286407AbRL0SDq>; Thu, 27 Dec 2001 13:03:46 -0500
+Date: Thu, 27 Dec 2001 11:04:01 -0700
+Message-Id: <200112271804.fBRI41m31583@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Dave Jones <davej@suse.de>
+Cc: Russell King <rmk@arm.linux.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Dana Lacoste <dana.lacoste@peregrine.com>,
+        "'Eyal Sohya'" <linuz_kernel_q@hotmail.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: The direction linux is taking
+In-Reply-To: <Pine.LNX.4.33.0112271850570.15706-100000@Appserv.suse.de>
+In-Reply-To: <200112271738.fBRHcSd30844@vindaloo.ras.ucalgary.ca>
+	<Pine.LNX.4.33.0112271850570.15706-100000@Appserv.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all.
+Dave Jones writes:
+> On Thu, 27 Dec 2001, Richard Gooch wrote:
+> 
+> > So you just do what Linus does: delete those questions without
+> > replying. No matter what system you use, if you want to avoid an
+> > overflowing mailbox, you either have to silently drop patches, and/or
+> > silently drop questions/requests/begging letters. There isn't really
+> > much difference between the two.
+> 
+> just a sidenote:
+> Patches cc'd to linux-kernel instead of just to Alan/Marcelo/Linus are
+> also far more likely to be 'rediscovered' sometime, bringing up
+> "why wasn't this merged?" mails when perhaps the time is better for
+> $maintainer to merge.
 
-I'm having problems booting 2.4.17 on a Mandrake 8.1 system (with all
-current updates).
+Sure, although I post to l-k a URL and ChangeLog, and separately send
+to Linus/Marcelo the actual patch. People grumble when I send kiB's
+(or even kB's :-) to the list.
 
-When I boot 2.4.17 (with an initrd image) I get the following...
+				Regards,
 
-kernel boots ...
-Creating root device
-mkrootdev: mknod failed: 17
-Mounting root filesyste with flags data=ordered
-Mount: error 16 mounting ext3 flags data=ordered
-...Tried to remount without flags and fails with the same error...
-Kernel Panic: No initrd found ...
-
-I am using ext3 / /boot /usr /var & /home filesystems
-
-2.4.8-34.1mdk boots fine however.
-
-I'm about to go try 2.4.16 (it was working with reiserfs partitions
-before).
-
-The machine is an AMD Athalon 1.3 Ghz on an EPOC board with a 3ware 7800
-series RAID card, with three 75/80 GB drives in a RAID 5 array.
-
-Anyone else run into something like this? 
-
-I'll report back about 2.4.16 and if anyone would like more info, just
-shout.
-
-
--- 
--------------------------------
-Edward Muller
-Director of IS
-
-973-715-0230 (cell)
-212-487-9064 x115 (NYC)
-
-http://www.learningpatterns.com
--------------------------------
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

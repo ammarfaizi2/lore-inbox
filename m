@@ -1,192 +1,124 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267685AbRGPTdk>; Mon, 16 Jul 2001 15:33:40 -0400
+	id <S267693AbRGPTgA>; Mon, 16 Jul 2001 15:36:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267687AbRGPTdc>; Mon, 16 Jul 2001 15:33:32 -0400
-Received: from altrade.nijmegen.inter.nl.net ([193.67.237.6]:42207 "EHLO
-	altrade.nijmegen.inter.nl.net") by vger.kernel.org with ESMTP
-	id <S267690AbRGPTdV>; Mon, 16 Jul 2001 15:33:21 -0400
-From: "Bas Rijniersce" <bas@brijn.nu>
-To: <linux-kernel@vger.kernel.org>
-Subject: Linux 2.2.19 /  2.4.6(ac5) , Tyan Trinity KT-a, Duron 800, IBM IDE disk not usable
-Date: Mon, 16 Jul 2001 21:33:14 +0200
-Message-ID: <AOEPLKHIHCMMODPHFHEAAEDICBAA.bas@brijn.nu>
+	id <S267691AbRGPTfv>; Mon, 16 Jul 2001 15:35:51 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:55340 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S267686AbRGPTfj>; Mon, 16 Jul 2001 15:35:39 -0400
+Message-ID: <3B5341E0.7010006@blue-labs.org>
+Date: Mon, 16 Jul 2001 15:34:56 -0400
+From: David Ford <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010716
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Josh Logan <josh@wcug.wwu.edu>
+CC: Andrea Arcangeli <andrea@suse.de>,
+        Trond Myklebust <trond.myklebust@fys.uio.no>,
+        Andrew Morton <andrewm@uow.edu.au>,
+        Klaus Dittrich <kladit@t-online.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.7p6 hang
+In-Reply-To: <Pine.BSO.4.21.0107161214160.11198-100000@sloth.wcug.wwu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Chances are that you have TEQL as one of your packet schedulers?
 
-I recently bought a Tyan Trinity KTa motherboard, a 800 Mhz AMD Duron, 128Mb
-memory, IBM IC35L040AVER07-0 IDE HD and LiteON CDROM. BIOS of mobo is the
-lastest available.
->From the current server a Tekram DC390 adapter with two SCSI disks was used.
-After placing the SCSI disks in the system and setting the SCSI adapter as
-boot device the system works fine.
+Try the patch Dave M posted this morning, let me fetch it...
 
-With one big exeption, the IDE disk (last time the cable was plugged in
-wrong, that's why it's at hdc, tried hda as well) refuses to work. The
-standard kernel on the system is 2.2.19, while booting:
+--- net/core/dev.c.~1~	Mon Jul  9 22:19:33 2001
++++ net/core/dev.c	Sat Jul 14 17:25:51 2001
+@@ -2654,10 +2654,6 @@
+ 	if (!dev_boot_phase)
+ 		return 0;
+ 
+-#ifdef CONFIG_NET_SCHED
+-	pktsched_init();
+-#endif
+-
+ #ifdef CONFIG_NET_DIVERT
+ 	dv_init();
+ #endif /* CONFIG_NET_DIVERT */
+@@ -2771,6 +2767,10 @@
+ 
+ 	dst_init();
+ 	dev_mcast_init();
++
++#ifdef CONFIG_NET_SCHED
++	pktsched_init();
++#endif
+ 
+ 	/*
+ 	 *	Initialise network devices
 
-Jul 14 00:28:18 brijn kernel: Linux version 2.2.19 (root@brijn.nu) (gcc
-version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #3 Fri Jul 13
-13:44:50 CEST 2001
-..
-Jul 14 00:28:19 brijn kernel: CPU: L1 I Cache: 64K  L1 D Cache: 64K
-Jul 14 00:28:19 brijn kernel: CPU: L2 Cache: 64K
-Jul 14 00:28:19 brijn kernel: CPU: AMD Duron(tm) Processor stepping 01
-..
-Jul 14 00:28:19 brijn kernel: VP_IDE: IDE controller on PCI bus 00 dev 39
-Jul 14 00:28:19 brijn kernel: VP_IDE: not 100%% native mode: will probe irqs
-later
-Jul 14 00:28:19 brijn kernel: hdb: LTN526S, ATAPI CDROM drive
-Jul 14 00:28:19 brijn kernel: hdc: IC35L040AVER07-0, ATA DISK drive
-Jul 14 00:28:19 brijn kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-..
-Jul 14 00:28:20 brijn kernel: Partition check:
-Jul 14 00:28:20 brijn kernel:  sda: sda1 sda2 sda3 sda4
-Jul 14 00:28:20 brijn kernel:  sdb: sdb1 sdb2 sdb3
-Jul 14 00:28:20 brijn kernel:  hdc: hdc1 hdc2 < hdc5hdc: read_intr:
-status=0x59 { DriveReady SeekComplete DataRequest Error }
-Jul 14 00:28:20 brijn kernel: hdc: read_intr: error=0x04
-{ DriveStatusError }
-Jul 14 00:28:20 brijn kernel: hdc: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jul 14 00:28:20 brijn kernel: hdc: read_intr: error=0x04
-{ DriveStatusError }
-Jul 14 00:28:20 brijn kernel: hdc: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jul 14 00:28:20 brijn kernel: hdc: read_intr: error=0x04
-{ DriveStatusError }
-Jul 14 00:28:20 brijn kernel: hdc: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jul 14 00:28:20 brijn kernel: hdc: read_intr: error=0x04
-{ DriveStatusError }
-Jul 14 00:28:20 brijn kernel: ide1: reset: success
-Jul 14 00:28:20 brijn kernel: hdc: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jul 14 00:28:20 brijn kernel: hdc: read_intr: error=0x04
-{ DriveStatusError }
-Jul 14 00:28:20 brijn kernel: hdc: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jul 14 00:28:20 brijn kernel: hdc: read_intr: error=0x04
-{ DriveStatusError }
-Jul 14 00:28:20 brijn kernel: hdc: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jul 14 00:28:20 brijn kernel: hdc: read_intr: error=0x04
-{ DriveStatusError }
-Jul 14 00:28:20 brijn kernel: hdc: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jul 14 00:28:20 brijn kernel: hdc: read_intr: error=0x04
-{ DriveStatusError }
-Jul 14 00:28:20 brijn kernel: ide1: reset: success
-Jul 14 00:28:20 brijn kernel: hdc: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jul 14 00:28:20 brijn kernel: hdc: read_intr: error=0x04
-{ DriveStatusError }
-Jul 14 00:28:20 brijn kernel: end_request: I/O error, dev 16:06 (hdc),
-sector 0
-Jul 14 00:28:20 brijn kernel:  >
 
-Having seen a lot of problems with the Duron/VIA combination I installed
-2.4.6 to make sure I have the latest updates for this:
+David
 
-Jul 14 00:01:19 brijn kernel: Linux version 2.4.6 (root@brijn.nu) (gcc
-version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #1 Sat Jul 14
-00:11:54 CEST 2001
-..
-Jul 14 00:01:33 brijn kernel: Uniform Multi-Platform E-IDE driver Revision:
-6.31
-Jul 14 00:01:33 brijn kernel: ide: Assuming 33MHz system bus speed for PIO
-modes; override with idebus=xx
-Jul 14 00:01:33 brijn kernel: hdb: LTN526S, ATAPI CD/DVD-ROM drive
-Jul 14 00:01:33 brijn kernel: hdc: IC35L040AVER07-0, ATA DISK drive
-Jul 14 00:01:33 brijn kernel: ide0: unexpected interrupt, status=0x7f,
-count=1
-Jul 14 00:01:33 brijn kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Jul 14 00:01:33 brijn kernel: ide1 at 0x170-0x177,0x376 on irq 15
-Jul 14 00:01:33 brijn kernel: hdc: 80418240 sectors (41174 MB) w/1916KiB
-Cache, CHS=79780/16/63
-Jul 14 00:01:33 brijn kernel: hdb: ATAPI 52X CD-ROM drive, 120kB Cache
-..
-Jul 14 00:01:33 brijn kernel: Partition check:
-Jul 14 00:01:33 brijn kernel:  hdc: [PTBL] [5005/255/63] hdc1 hdc2 <
-hdc5hdc: read_intr: status=0x59 { DriveReady SeekComplete DataRequest
-Error }
-Jul 14 00:01:33 brijn kernel: hdc: read_intr: error=0x04
-{ DriveStatusError }
-Jul 14 00:01:33 brijn kernel: hdc: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jul 14 00:01:33 brijn kernel: hdc: read_intr: error=0x04
-{ DriveStatusError }
-Jul 14 00:01:33 brijn kernel: hdc: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jul 14 00:01:33 brijn kernel: hdc: read_intr: error=0x04
-{ DriveStatusError }
-Jul 14 00:01:33 brijn kernel: hdc: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jul 14 00:01:33 brijn kernel: hdc: read_intr: error=0x04
-{ DriveStatusError }
-Jul 14 00:01:33 brijn kernel: ide1: reset: success
-Jul 14 00:01:33 brijn kernel: hdc: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jul 14 00:01:33 brijn kernel: hdc: read_intr: error=0x04
-{ DriveStatusError }
-Jul 14 00:01:33 brijn kernel: hdc: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jul 14 00:01:33 brijn kernel: hdc: read_intr: error=0x04
-{ DriveStatusError }
-Jul 14 00:01:33 brijn kernel: hdc: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jul 14 00:01:33 brijn kernel: hdc: read_intr: error=0x04
-{ DriveStatusError }
-Jul 14 00:01:33 brijn kernel: hdc: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jul 14 00:01:34 brijn kernel: hdc: read_intr: error=0x04
-{ DriveStatusError }
-Jul 14 00:01:34 brijn kernel: ide1: reset: success
-Jul 14 00:01:34 brijn kernel: hdc: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jul 14 00:01:34 brijn kernel: hdc: read_intr: error=0x04
-{ DriveStatusError }
-Jul 14 00:01:34 brijn kernel: end_request: I/O error, dev 16:06 (hdc),
-sector 0
-Jul 14 00:01:34 brijn kernel:  >
+Josh Logan wrote:
 
-The error is somewhat like the one that Google suggested was solved by "use
-multi-mode by default". Didn't help. Saw messages about VIA problems with
-IDA DMA enabled, tried those setting, didn't help. Enable the VIA specific
-driver, tried the ide0/1 ata66 settings, didn't help. Tried several APIC
-options, didn't help.
+>I just tried 2.4.6-ac5 and I had the same problem.  I'll go try 2.4.7-pre4
+>next.
+>
+>							Later, JOSH
+>
+>
+>On Wed, 11 Jul 2001, Josh Logan wrote:
+>
+>>
+>>On Wed, 11 Jul 2001, Andrea Arcangeli wrote:
+>>
+>>>On Wed, Jul 11, 2001 at 11:33:40AM -0700, Josh Logan wrote:
+>>>
+>>>>I'm having a hang right after the floppy is initialised with pre5 and pre6
+>>>>(2.4.3 works fine)  I tried this patch, but it did not make any
+>>>>
+>>>is the problem introduced in pre5? Can you reproduce under 2.4.7pre4?
+>>>
+>>I'll have to go try it...
+>>
+>>>>improvments.  The machine still has SysRq commands available.  Please let
+>>>>me know what other information you would like to debug this problem.
+>>>>
+>>>SYSRQ+T
+>>>
+>>Floppy Drives(s): fd0 is 1.44M
+>>FDC 0 is a post-1991 82077
+>>SysRq: Show State
+>>
+>>  task		     PC    stack    pid father child younger older
+>>swapper		D C03EDEC0  4980      1      0     7               (L-TLB)
+>>keventd		S C1234560  6624      2      1             3       (L-TLB)
+>>ksoftirqd_CPU   S C1232000  6468      3      1             4     2 (L-TLB)
+>>kswapd		S C1231FA8  6588      4      1             5     3 (L-TLB)
+>>kreclaimd	S 00000286  6656      5      1             6     4 (L-TLB)
+>>bdflush		S 00000286  6652      6      1             7     5 (L-TLB)
+>>kupdated	S C7F9BFC8  6620      7      1                   6 (L-TLB)
+>>
+>>I can add Call Traces if needed, this is done by hand.
+>>
+>>>>BTW, I also tried to disable the floppy in the BIOS and got:
+>>>>...
+>>>>Floppy OK
+>>>>task queue still active
+>>>><HANG>
+>>>>
+>>>I'll soon have a look at this message.
+>>>
+>>>Andrea
+>>>
+>>							Later, JOSH
+>>
+>>
+>>
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-This is all with CPU set to 486, Duron setting makes the system Oops all
-over the place (several different ones didn't write them down since someone
-else was reading them to me over a phone :), but AIEE killing interrupt
-handler and another one with fill_inactive pages were two. I'll be happy to
-try ta catch them if there is interrest. But since this is a production
-server I would like to get the disk running first :-)
-
-Saw the ac4 CHANGELOG contained some VIA stuff, went to download it and saw
-ac5 so tried that kernel as well, didn't help.
-
-I'm unable to use this disk, Windows was installed on the system as a test,
-it worked fine. The disk is tested by IBM software for testing HD's.
-
-What goes wrong? I'm happy to run any test that is needed..
-
-TIA,
-Bas Rijniersce
-
-----
-Bas Rijniersce               T: +31 30 6993131
-Laan van Vollenhove 514      M: +31 6 53356831
-3706 AA  Zeist               E: bas@brijn.nu
 

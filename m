@@ -1,35 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUGRT7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUGRUC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbUGRT7c (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 15:59:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUGRT7c
+	id S262380AbUGRUC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 16:02:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbUGRUCz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 15:59:32 -0400
-Received: from web53805.mail.yahoo.com ([206.190.36.200]:15442 "HELO
-	web53805.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261875AbUGRT7b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 15:59:31 -0400
-Message-ID: <20040718195931.8189.qmail@web53805.mail.yahoo.com>
-Date: Sun, 18 Jul 2004 12:59:31 -0700 (PDT)
+	Sun, 18 Jul 2004 16:02:55 -0400
+Received: from web53806.mail.yahoo.com ([206.190.36.201]:36481 "HELO
+	web53806.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262380AbUGRUCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 16:02:54 -0400
+Message-ID: <20040718200254.95356.qmail@web53806.mail.yahoo.com>
+Date: Sun, 18 Jul 2004 13:02:54 -0700 (PDT)
 From: Carl Spalletta <cspalletta@yahoo.com>
-Subject: [PATCH] Remove prototypes of nonexistent functions from arch/i386 files
+Subject: [PATCH] Remove prototypes of nonexistent funcs in i386 FPU emulator files
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: rgooch@atnf.csiro.au
+Cc: billm@suburbia.net
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -ru linux-2.6.7-orig/arch/i386/kernel/cpu/mtrr/mtrr.h
-linux-2.6.7-new/arch/i386/kernel/cpu/mtrr/mtrr.h
---- linux-2.6.7-orig/arch/i386/kernel/cpu/mtrr/mtrr.h   2004-06-15 22:19:01.000000000 -0700
-+++ linux-2.6.7-new/arch/i386/kernel/cpu/mtrr/mtrr.h    2004-07-18 08:54:52.000000000 -0700
-@@ -52,7 +52,6 @@
- };
-
- extern int generic_get_free_region(unsigned long base, unsigned long size);
--extern void generic_init_secondary(void);
- extern int generic_validate_add_page(unsigned long base, unsigned long size,
-                                     unsigned int type);
-
+diff -ru linux-2.6.7-orig/arch/i386/math-emu/fpu_proto.h
+linux-2.6.7-new/arch/i386/math-emu/fpu_proto.h
+--- linux-2.6.7-orig/arch/i386/math-emu/fpu_proto.h     2004-06-15 22:20:03.000000000 -0700
++++ linux-2.6.7-new/arch/i386/math-emu/fpu_proto.h      2004-07-18 08:54:29.000000000 -0700
+@@ -69,7 +69,6 @@
+ extern void FPU_pop(void);
+ extern int FPU_empty_i(int stnr);
+ extern int FPU_stackoverflow(FPU_REG **st_new_ptr);
+-extern void FPU_sync_tags(void);
+ extern void FPU_copy_to_regi(FPU_REG const *r, u_char tag, int stnr);
+ extern void FPU_copy_to_reg1(FPU_REG const *r, u_char tag);
+ extern void FPU_copy_to_reg0(FPU_REG const *r, u_char tag);
 

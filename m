@@ -1,90 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269611AbUHZUxv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269561AbUHZU24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269611AbUHZUxv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 16:53:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269640AbUHZUuy
+	id S269561AbUHZU24 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 16:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269518AbUHZUMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 16:50:54 -0400
-Received: from mx3.sover.net ([209.198.87.173]:39119 "EHLO mx3.sover.net")
-	by vger.kernel.org with ESMTP id S269556AbUHZUjQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:39:16 -0400
-Message-ID: <412E4999.1050504@sover.net>
-Date: Thu, 26 Aug 2004 16:35:37 -0400
-From: Stephen Wille Padnos <spadnos@sover.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Diego Calleja <diegocg@teleline.es>,
-       jamie@shareable.org, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
-       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-References: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Aug 2004 16:12:13 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:43748 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S269520AbUHZTzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 15:55:05 -0400
+Date: Thu, 26 Aug 2004 21:54:55 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, gregkh@us.ibm.com
+Subject: Re: [2.4 patch][1/6] ibmphp_res.c: fix gcc 3.4 compilation
+Message-ID: <20040826195455.GC12772@fs.tum.de>
+References: <20040826195133.GB12772@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040826195133.GB12772@fs.tum.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
+I got the following compile error when trying to build 2.4.28-pre2 using 
+gcc 3.4:
 
->On Thu, 26 Aug 2004, Linus Torvalds wrote:
->  
->
->>So "/tmp/bash" is _not_ two different things. It is _one_ entity, that
->>contains both a standard data stream (the "file" part) _and_ pointers to
->>other named streams (the "directory" part).
->>    
->>
->Thinking about it some more, how would file managers and
->file chosers handle this situation ?
->
->Currently the user browses the directory tree and when
->the user clicks on something, one of the following 
->happens:
->
->1) if it is a directory, the file manager/choser changes
->   into that directory
->  
->
-How does the file manager / chooser decide whether you're trying to move 
-into a directory, or the meta-data-directory for a directory?
-It's not just files that should have metadata - directories need* them 
-too.  Making it possible to see attributes as a directory under a file 
-is great, but you'd still need an O_META flag for accessing directory 
-metadata (since there are already files under a directory).
+<--  snip  -->
 
->2) if it is a file, the file is opened
->
->Now how do we present things to users ?
->
->How will users know when an object can only be chdired
->into, or only be opened ?
->
->For objects that do both, how does the user choose ?
->
->Do we really want to have a file paradigm that's different
->from the other OSes out there ?
->  
->
-MacOS does, Be did (sort of).  I'm not sure it would be the end of the 
-world, as long as the data can be extracted.
+...
+gcc-3.4 -D__KERNEL__ 
+-I/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon 
+-fno-unit-at-a-time  -D_LINUX 
+-I/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/drivers/acpi  
+-nostdinc -iwithprefix include -DKBUILD_BASENAME=ibmphp_res  -c -o 
+ibmphp_res.o ibmphp_res.c
+ibmphp_res.c: In function `ibmphp_rsrc_init':
+ibmphp_res.c:45: sorry, unimplemented: inlining failed in call to 
+'find_bus_wprev': function body not available
+ibmphp_res.c:237: sorry, unimplemented: called from here
+ibmphp_res.c:45: sorry, unimplemented: inlining failed in call to 
+'find_bus_wprev': function body not available
+ibmphp_res.c:261: sorry, unimplemented: called from here
+ibmphp_res.c:45: sorry, unimplemented: inlining failed in call to 
+'find_bus_wprev': function body not available
+ibmphp_res.c:284: sorry, unimplemented: called from here
+make[3]: *** [ibmphp_res.o] Error 1
+make[3]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/drivers/hotplug'
 
->What happens when users want to transfer data from Linux
->to another system ?
->  
->
-That would depend on the other system.  Data is easy, metadata is hard.
-It would be possible to create an XML schema for metadata, and if 
-requested (O_EVERYTHING?), the file data is returned with all metadata 
-in XML tags.  (not advocating this, just an idea :)
-- Steve
+<--  snip  -->
 
-* I say need in the same way as one *needs* to upgrade their 2GHz 
-computer - it would be nice :)
 
+The patch below fixes this issue by uninlining find_bus_wprev (as done 
+in 2.6).
+
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.4.28-pre2-full/drivers/hotplug/ibmphp_res.c.old	2004-08-26 17:09:38.000000000 +0200
++++ linux-2.4.28-pre2-full/drivers/hotplug/ibmphp_res.c	2004-08-26 17:10:16.000000000 +0200
+@@ -42,7 +42,7 @@
+ static int update_bridge_ranges (struct bus_node **);
+ static int add_range (int type, struct range_node *, struct bus_node *);
+ static void fix_resources (struct bus_node *);
+-static inline struct bus_node *find_bus_wprev (u8, struct bus_node **, u8);
++static struct bus_node *find_bus_wprev (u8, struct bus_node **, u8);
+ 
+ static LIST_HEAD(gbuses);
+ LIST_HEAD(ibmphp_res_head);
+@@ -1757,7 +1757,7 @@
+ 	return find_bus_wprev (bus_number, NULL, 0);
+ }
+ 
+-static inline struct bus_node *find_bus_wprev (u8 bus_number, struct bus_node **prev, u8 flag)
++static struct bus_node *find_bus_wprev (u8 bus_number, struct bus_node **prev, u8 flag)
+ {
+ 	struct bus_node *bus_cur;
+ 	struct list_head *tmp;

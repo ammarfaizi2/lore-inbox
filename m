@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265841AbSKBAys>; Fri, 1 Nov 2002 19:54:48 -0500
+	id <S265843AbSKBAtE>; Fri, 1 Nov 2002 19:49:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265844AbSKBAyr>; Fri, 1 Nov 2002 19:54:47 -0500
-Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:25507
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S265841AbSKBAyr>; Fri, 1 Nov 2002 19:54:47 -0500
-Date: Fri, 1 Nov 2002 20:01:09 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [announce] swap mini-howto
-In-Reply-To: <Pine.LNX.4.33L2.0211011540140.28320-100000@dragon.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.44.0211011958210.3978-100000@xanadu.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265844AbSKBAtD>; Fri, 1 Nov 2002 19:49:03 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:3978 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265843AbSKBAtC>; Fri, 1 Nov 2002 19:49:02 -0500
+Subject: Re: [PATCH] ide-scsi driver starts DMA too soon
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Khalid Aziz <khalid@fc.hp.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Andre Hedrick <andre@linux-ide.org>
+In-Reply-To: <E187lOK-0003Jd-00@lyra.fc.hp.com>
+References: <E187lOK-0003Jd-00@lyra.fc.hp.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 02 Nov 2002 01:13:53 +0000
+Message-Id: <1036199633.14825.2.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Nov 2002, Randy.Dunlap wrote:
-
+On Fri, 2002-11-01 at 23:39, Khalid Aziz wrote:
+> ide-scsi driver starts DMA as soon as it writes the ATAPI PACKET command
+> in command register and before sending the ATAPI command. This will
+> cause problems on many drives. Right way to do it is to start DMA after
+> sending the ATAPI command. I am attaching a patch that fixes this. This
+> patch will allow many more CD-RW drives to work reliably in DMA mode 
+> than do today.
 > 
-> Anyone have suggestions for where this should/could live,
-> like tldp.org or kernelnewbies.org etc.?
-> (other than where it is :)
+> Marcelo, please apply.
 
-The Linux Documentation Project (www.linuxdoc.org) is probably one of the 
-best places.  They gather all howto/mini-howto they can find.
-
-
-Nicolas
+Marcelo this is in 2.5, and 2.4-ac. Khalid is certainly correct although
+making such a change in -rc rather than a pre does mean it wants extra
+thought
 

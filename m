@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262433AbVCDFDV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262686AbVCDFBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262433AbVCDFDV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 00:03:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVCDFDO
+	id S262686AbVCDFBG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 00:01:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbVCDE6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 00:03:14 -0500
-Received: from nabe.tequila.jp ([211.14.136.221]:40870 "HELO nabe.tequila.jp")
-	by vger.kernel.org with SMTP id S262433AbVCDEg0 (ORCPT
+	Thu, 3 Mar 2005 23:58:13 -0500
+Received: from fire.osdl.org ([65.172.181.4]:55687 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261479AbVCCTjy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 23:36:26 -0500
-Message-ID: <4227E5B9.1090303@tequila.co.jp>
-Date: Fri, 04 Mar 2005 13:36:09 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: TEQUILA\Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041220 Thunderbird/1.0 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Thu, 3 Mar 2005 14:39:54 -0500
+Date: Thu, 3 Mar 2005 11:37:35 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Adrian Bunk <bunk@stusta.de>, Jeff Garzik <jgarzik@pobox.com>,
+       Greg KH <greg@kroah.com>, "David S. Miller" <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
 Subject: Re: RFD: Kernel release numbering
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <1109877336.4032.47.camel@tglx.tec.linutronix.de>
+Message-ID: <Pine.LNX.4.58.0503031135190.25732@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org> 
+ <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net>
+  <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com> 
+ <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com>
+  <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com> 
+ <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>  <20050303170808.GG4608@stusta.de>
+ <1109877336.4032.47.camel@tglx.tec.linutronix.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On 03/03/2005 07:21 AM, Linus Torvalds wrote:
 
-> Comments?
+On Thu, 3 Mar 2005, Thomas Gleixner wrote:
+> 
+> It still does not solve the problem of "untested" releases. Users will
+> still ignore the linus-tree-rcX kernels. 
 
-before you do this, we have to make -rc's real rc's. Seriously how can
-it be that there is a diff between the last rc and the "vanilla"
-release. Thats a no-goer in my opinion. Even if it is small things,
-there is a chance that it breaks. If there patches that have to be
-applied, because they are bugfixes, then make another rc before going live.
+.. and maybe that problem is unsolvable. People certainly argued 
+vehemently that anything we do to try to make test releases (renaming etc) 
+won't help.
 
-And odd/even sub number won't help here anyway. People who get the
-kernel won't know it, there will be confusion, etc.
+So what do you do if you find an unsolvable problem? You don't solve it: 
+you make sure it's not a show-stopper.
 
-I would stick with the current scheme, I see no big advantage in a
-special odd/even numbering. If there is a bugfix release, call it
-X.Y.Z.1 like for 2.6.8, rest of the bugfixing can be found in -ac/-as
-patchsets anyway.
+So part of the idea of having the "other tree" is that it ends up solving 
+the "hmm, we missed that detail" problem. And by _not_ giving it release 
+numbers or any schedule at all, people can't _wait_ for it. 
 
-The time of using vanilla kernels is long over. Nowadays its more like,
-something, where you wait that a vendor gives you a kernel, or else you
-will shot your own foot off ...
+Sneaky. That's my middle name.
 
-- --
-[ Clemens Schwaighofer                      -----=====:::::~ ]
-[ TBWA\ && TEQUILA\ Japan IT Group                           ]
-[                6-17-2 Ginza Chuo-ku, Tokyo 104-0061, JAPAN ]
-[ Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343 ]
-[ http://www.tequila.co.jp        http://www.tbwajapan.co.jp ]
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCJ+W4jBz/yQjBxz8RAgnoAKCKGVcIujulCLyk8p3ole80RhhcOwCgyHSM
-tD2sZv+sCz7oG5MfokKh05c=
-=lnqT
------END PGP SIGNATURE-----
+		Linus

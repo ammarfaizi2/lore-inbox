@@ -1,46 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262962AbUKRXKP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbUKRXKP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262962AbUKRXKP (ORCPT <rfc822;willy@w.ods.org>);
+	id S261179AbUKRXKP (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 18 Nov 2004 18:10:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUKRXHB
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262981AbUKRXGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 18:07:01 -0500
-Received: from smtp-out.hotpop.com ([38.113.3.61]:18081 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S261166AbUKRXGe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 18:06:34 -0500
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: linux-fbdev-devel@lists.sourceforge.net,
-       Andrew Walrond <andrew@walrond.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH: 2.6.10-rc2] fbdev: Fix rivafb breakage (typo introduced by cset 1.2563)
-Date: Fri, 19 Nov 2004 07:06:15 +0800
-User-Agent: KMail/1.5.4
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-References: <200411181239.18093.andrew@walrond.org> <200411181255.50965.andrew@walrond.org>
-In-Reply-To: <200411181255.50965.andrew@walrond.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Nov 2004 18:06:48 -0500
+Received: from HELIOUS.MIT.EDU ([18.238.1.151]:1462 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S261184AbUKRXFi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 18:05:38 -0500
+Date: Thu, 18 Nov 2004 18:02:51 -0500
+To: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
+Cc: matthieu castet <castet.matthieu@free.fr>, jt@hpl.hp.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] smsc-ircc2: Add PnP support.
+Message-ID: <20041118230251.GK29574@neo.rr.com>
+Mail-Followup-To: ambx1@neo.rr.com,
+	Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>,
+	matthieu castet <castet.matthieu@free.fr>, jt@hpl.hp.com,
+	linux-kernel@vger.kernel.org
+References: <419CECFF.2090608@free.fr> <20041118185503.GA5584@bougret.hpl.hp.com> <419CFCDE.6090400@free.fr> <20041118204145.GA21873@sci.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200411190706.16991.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041118204145.GA21873@sci.fi>
+User-Agent: Mutt/1.5.6+20040722i
+From: ambx1@neo.rr.com (Adam Belay)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 18 November 2004 20:55, Andrew Walrond wrote:
-> Fixing this typo cures the screen corruption I was seeing on both 32 and
-> 64bit x86_64 kernels.
->
-> Thanks for the help tracking this down. Please apply!
->
+On Thu, Nov 18, 2004 at 10:41:45PM +0200, Ville Syrjälä wrote:
+> On Thu, Nov 18, 2004 at 08:49:50PM +0100, matthieu castet wrote:
+> > Jean Tourrilhes wrote:
+> > >On Thu, Nov 18, 2004 at 07:42:07PM +0100, matthieu castet wrote:
+> > >>>>On3) If the ressources are markes as disabled, you just quit
+> > >>>>with an error. Compouded with (2), this makes me doubly
+> > >>>>nervous. Wouldn't it be possible to forcefully enable those 
+> > >>
+> > >>ressources ?
+> > >>pnp should call automatiquely pnp_activate_dev() before probing the 
+> > >>driver, so the resource should be activated. Have you got an example 
+> > >>where the resource wheren't activated ?
+> > >
+> > >
+> > >	No, it was more that I don't understand what PnP does for
+> > >us. I don't have a SMS chipset to test on. Also, I would like to know
+> > >if it remove the need of smcinit.
+> > >
+> > PnP is easy to understand ;)
+> > When you probe a device, it will activate a device with the best 
+> > configuration available.
+> 
+> So can we just remove the IORESOURCE_DISABLED tests?
+> 
+> And what about the pnp_*_valid() tests?
+> 
+> parport_pc (which I used as a guide) does both tests but 8250_pnp doesn't 
+> do either.
 
-No, thank _you_ for the help tracking this down :-)
+Parport_pc uses them because resources could potentially be disabled, but the
+parport could still be functional.  Therefore, it must check.  It is probably
+ok to not check on most hardware.  Nonetheless, it's best to play it safe, and
+always verify the resource configuration.
 
-Tony
-
-
+Thanks,
+Adam

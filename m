@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262274AbSJNXZq>; Mon, 14 Oct 2002 19:25:46 -0400
+	id <S262266AbSJNXZ0>; Mon, 14 Oct 2002 19:25:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262276AbSJNXZq>; Mon, 14 Oct 2002 19:25:46 -0400
-Received: from mail1.panix.com ([166.84.1.72]:44507 "EHLO mail1.panix.com")
-	by vger.kernel.org with ESMTP id <S262274AbSJNXZo>;
-	Mon, 14 Oct 2002 19:25:44 -0400
-Date: Mon, 14 Oct 2002 16:31:39 -0700
-From: Jeff Lightfoot <jeffml@pobox.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: nfs-server slowdown in 2.4.20-pre10 with client 2.2.19
-Message-Id: <20021014163139.6d9a6744.jeffml@pobox.com>
-In-Reply-To: <20021014163651.6277986c.skraw@ithnet.com>
-References: <15786.15416.668502.225074@notabene.cse.unsw.edu.au>
-	<20021013172138.0e394d96.skraw@ithnet.com>
-	<15785.64463.490494.526616@notabene.cse.unsw.edu.au>
-	<20021014045410.4721c209.skraw@ithnet.com>
-	<15786.15416.668502.225074@notabene.cse.unsw.edu.au>
-	<20021014163651.6277986c.skraw@ithnet.com>
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i386-debian-linux-gnu)
-X-Operating-System: Debian GNU/Linux 3.0;kernel 2.4.17
-X-Face: 'u<#Qt^/)qW:&(>J[MA.~}578d+Wz3jc?f>yFwasPspU]Aq]z>~^7mt+~<Qi.>\+mlk.)8F LB,8#1B.a@vkU-P>GO7Jv'!a~5<!1TB{ba1P]/wSF+D2O.slxdmvp\6
-Mime-Version: 1.0
+	id <S262274AbSJNXZ0>; Mon, 14 Oct 2002 19:25:26 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:43214 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262266AbSJNXZZ> convert rfc822-to-8bit; Mon, 14 Oct 2002 19:25:25 -0400
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Oliver Neukum <oliver@neukum.name>
+To: Alexander Viro <viro@math.psu.edu>
+Subject: Re: [Evms-devel] Re: Linux v2.5.42
+Date: Tue, 15 Oct 2002 01:30:21 +0200
+User-Agent: KMail/1.4.3
+Cc: Shawn <core@enodev.com>, Christoph Hellwig <hch@infradead.org>,
+       Michael Clark <michael@metaparadigm.com>,
+       Mark Peloquin <markpeloquin@hotmail.com>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com, evms-devel@lists.sourceforge.net
+References: <Pine.GSO.4.21.0210141907190.6505-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0210141907190.6505-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210150130.21628.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Oct 2002 16:36:51 +0200
-Stephan von Krawczynski <skraw@ithnet.com> wrote:
+Am Dienstag, 15. Oktober 2002 01:16 schrieb Alexander Viro:
+> On Tue, 15 Oct 2002, Oliver Neukum wrote:
+> > > Also, let me define the phrase "better off" to mean "better off W.R.T.
+> > > design, architecture, overall code quality, abstractions in the right
+> > > place, etc etc", and not to mean politically, as in, more users.
+> >
+> > While these are important choices, Linux is an OS for practical use
+> > and needs to meet some minimum of necessary features.
+>
+> Come back when you are in position to make demands.  Until then, feel
+> free to bugger off.
 
-> my second try shows all the same result. The exact same setup as
-> yesterday night and a second try results again in very low
-> performance. To name it: about 11 GB of data took an incredible 13,5
-> hours to write to the server over a 100 MBit FDX switch.
-> This night I will try to reduce rsize/wsize from the current 8192
-> down to 1024 as suggested by Jeff.
+Demands? That was an oppinion, not a demand. And a little civility would
+suit you just fine.
 
-Small mistake, reads improved with 1024 but writes dropped
-dramatically.  The set of options that work are rsize=1024,wsize=8192
+> Arrogant demands are _not_ going to impress anybody - $DEITY witness,
+> arrogance is not in short supply around here and with waay better
+> credentials to back it up.
+>
+> If you are willing to help EVMS folks - go ahead and offer them your help
+> in cleaning the codebase up.  _That_ can change situation.  Public
+> wankathlon will earn you a warm spot in killfiles and fail to affect any
+> merges in any direction.
 
-Try those and see how it works.
+I did improvements to it to the best of my abilities, which as I freely admit
+lesser than yours.
+If a short civilised discussion earns me a place in your killfiles I'll happily
+reside there.
 
-I'm wondering what changed although I do remember my nfs* packages
-changing in Debian (Sid) recently (async, sync now having to be
-specified).  Hmmm.
+	Oliver
 
--- 
-Jeff Lightfoot    --    jeffml@pobox.com    --    http://thefoots.com/
-    "so impressed with all you do ... tried so hard to be like you ...
-    flew too high and burnt the wing ... lost my faith in everything"
-    -- NIN

@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262304AbREVCjr>; Mon, 21 May 2001 22:39:47 -0400
+	id <S262355AbREVCkr>; Mon, 21 May 2001 22:40:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262358AbREVCjh>; Mon, 21 May 2001 22:39:37 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:4872 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S262304AbREVCjZ>;
-	Mon, 21 May 2001 22:39:25 -0400
-Date: Mon, 21 May 2001 22:42:13 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Urban Widmark <urban@teststation.com>
-Cc: Wayne.Brown@altec.com, David Woodhouse <dwmw2@infradead.org>,
-        Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Background to the argument about CML2 design philosophy
-Message-ID: <20010521224213.I21408@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Urban Widmark <urban@teststation.com>, Wayne.Brown@altec.com,
-	David Woodhouse <dwmw2@infradead.org>,
-	Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010521135857.B11361@thyrsus.com> <Pine.LNX.4.30.0105212052290.13267-100000@cola.teststation.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0105212052290.13267-100000@cola.teststation.com>; from urban@teststation.com on Mon, May 21, 2001 at 10:00:07PM +0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S262358AbREVCkh>; Mon, 21 May 2001 22:40:37 -0400
+Received: from atlante.atlas-iap.es ([194.224.1.3]:8211 "EHLO
+	atlante.atlas-iap.es") by vger.kernel.org with ESMTP
+	id <S262427AbREVCkY>; Mon, 21 May 2001 22:40:24 -0400
+From: "Ricardo Galli" <gallir@uib.es>
+To: <linux-kernel@vger.kernel.org>
+Cc: <timothy@monkey.org>, <reiser@namesys.com>,
+        "Guillem Cantallops Ramis" <guillem@cantallops.net>
+Subject: New XFS, ReiserFS and Ext2 benchmarks
+Date: Tue, 22 May 2001 04:41:06 +0200
+Message-ID: <LOEGIBFACGNBNCDJMJMOKEADCJAA.gallir@uib.es>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Urban Widmark <urban@teststation.com>:
-> What happened with the discussion on configurable colors in make
-> menuconfig? Darkblue on black as frozen options get isn't exactly optimal
-> ... at least not for my eyes. Being next to a bold, white text doesn't
-> help either.
+Hi,
+	you can find at http://bulma.lug.net/static/ a few new benchmarks among
+Reiser, XFS and Ext2 (also one with JFS).
 
-Nobody could come up with a way to support configurable colors that didn't seem
-like way more trouble than it was worth.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+This time there is a comprehensive Hans' Mongo benchmarks
+(http://bulma.lug.net/static/mongo/ )and a couple of kernel compilations and
+read/write/fsync operations tests (I was very careful of populating the
+cache before the measures for the last two cases).
 
-  "...quemadmodum gladius neminem occidit, occidentis telum est."
-[...a sword never kills anybody; it's a tool in the killer's hand.]
-        -- (Lucius Annaeus) Seneca "the Younger" (ca. 4 BC-65 AD),
+Regards,
+
+--ricardo
+http://m3d.uib.es/~gallir/
+

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265688AbTFNQ0p (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 12:26:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265689AbTFNQ0p
+	id S265662AbTFNQ4P (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 12:56:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265689AbTFNQ4P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 12:26:45 -0400
-Received: from pa186.opole.sdi.tpnet.pl ([213.76.204.186]:58360 "EHLO
-	uran.deimos.one.pl") by vger.kernel.org with ESMTP id S265688AbTFNQ0p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 12:26:45 -0400
-Date: Sat, 14 Jun 2003 18:16:24 +0200
-From: Damian =?iso-8859-2?Q?Ko=B3kowski?= <deimos@deimos.one.pl>
-To: Krzysiek Taraszka <dzimi@pld.org.pl>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>, stefan@stefan-foerster.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.21 released
-Message-ID: <20030614161624.GB865@deimos.one.pl>
-References: <200306131453.h5DErX47015940@hera.kernel.org> <20030613165628.GE28609@in-ws-001.cid-net.de> <20030613165625.GA573@deimos.one.pl> <20030613193709.49f22332.skraw@ithnet.com> <20030613171903.GA797@deimos.one.pl> <Pine.LNX.4.50L.0306141753020.20957-100000@ep09.kernel.pl>
+	Sat, 14 Jun 2003 12:56:15 -0400
+Received: from granite.he.net ([216.218.226.66]:17674 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S265662AbTFNQ4G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jun 2003 12:56:06 -0400
+Date: Sat, 14 Jun 2003 10:08:49 -0700
+From: Greg KH <greg@kroah.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: ltd@cisco.com, anton@samba.org, haveblue@us.ibm.com, hdierks@us.ibm.com,
+       scott.feldman@intel.com, dwg@au1.ibm.com, linux-kernel@vger.kernel.org,
+       milliner@us.ibm.com, ricardoz@us.ibm.com, twichell@us.ibm.com,
+       netdev@oss.sgi.com
+Subject: Re: e1000 performance hack for ppc64 (Power4)
+Message-ID: <20030614170848.GA3324@kroah.com>
+References: <20030613.224122.104034261.davem@redhat.com> <5.1.0.14.2.20030614154954.026b4768@mira-sjcm-3.cisco.com> <20030613.230850.85410095.davem@redhat.com> <20030613.231418.39160686.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.50L.0306141753020.20957-100000@ep09.kernel.pl>
+In-Reply-To: <20030613.231418.39160686.davem@redhat.com>
 User-Agent: Mutt/1.4.1i
-X-Age: 23 (1980.09.27 - libra)
-X-Girl: one will be enough!
-X-IM: JID:dEiMoS_DK@jabber.org ICQ:59367544 GG:88988
-X-Operating-System: Slackware GNU/Linux, kernel 2.4.21, up 1 min
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 14, 2003 at 05:59:38PM +0200, Krzysiek Taraszka wrote:
-> I have got the same problem few days ago. Quick fix was: append="noapic 
-> acpi=off"
-> I did not check new apci stuff, maybe acpi maintainers fixed that bug ? If 
-> they are changes should go as soon as possible into Marcelo bk tree :)
+On Fri, Jun 13, 2003 at 11:14:18PM -0700, David S. Miller wrote:
+> 
+> Folks, can we remove whatever member of this CC: list creates
+> bounces that say:
+> 
+> Your message to Linux_news awaits moderator approval
 
-I discover that the simple way will be not to use the CONFIG_X86_UP_IOAPIC.
-But I don't know if it is the good solution.
+It's someone subscribed to linux-kernel@vger.kernel.org that causes
+this.
 
-For me, the simple way is too use the GOOD WORKING APM :-)
+I've complained to the admin of that mail-news gateway that is barfing
+on too many CC: members in the past to not do this, but it doesn't seem
+like they are listening...
 
--- 
-# Damian *dEiMoS* Ko³kowski # http://deimos.one.pl/ #
+greg k-h

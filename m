@@ -1,36 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269430AbUJFT7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269432AbUJFUDD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269430AbUJFT7j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 15:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269409AbUJFT71
+	id S269432AbUJFUDD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 16:03:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269435AbUJFUAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 15:59:27 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44218 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269430AbUJFT7E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 15:59:04 -0400
-Message-ID: <41644E6B.5070607@pobox.com>
-Date: Wed, 06 Oct 2004 15:58:35 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Wed, 6 Oct 2004 16:00:09 -0400
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:1101 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S269419AbUJFT7f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 15:59:35 -0400
+Reply-To: <hzhong@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: "'Chris Friesen'" <cfriesen@nortelnetworks.com>
+Cc: "'Andries Brouwer'" <aebr@win.tue.nl>,
+       "'Joris van Rantwijk'" <joris@eljakim.nl>,
+       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: UDP recvmsg blocks after select(), 2.6 bug?
+Date: Wed, 6 Oct 2004 12:59:25 -0700
+Organization: Cisco Systems
+Message-ID: <003701c4abde$fb251f60$b83147ab@amer.cisco.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, mingo@redhat.com
-CC: nickpiggin@yahoo.com.au, kenneth.w.chen@intel.com,
-       linux-kernel@vger.kernel.org, judith@osdl.org
-Subject: Re: new dev model (was Re: Default cache_hot_time value back to 10ms)
-References: <200410060042.i960gn631637@unix-os.sc.intel.com>	<20041005205511.7746625f.akpm@osdl.org>	<416374D5.50200@yahoo.com.au>	<20041005215116.3b0bd028.akpm@osdl.org>	<41637BD5.7090001@yahoo.com.au>	<20041005220954.0602fba8.akpm@osdl.org>	<416380D7.9020306@yahoo.com.au>	<20041005223307.375597ee.akpm@osdl.org>	<41638E61.9000004@pobox.com> <20041005233958.522972a9.akpm@osdl.org> <41644A3D.4050100@pobox.com> <41644BF1.7030904@pobox.com>
-In-Reply-To: <41644BF1.7030904@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <41644D86.4010500@nortelnetworks.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4939.300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+> Hua Zhong wrote:
 > 
-> So my own suggestions for increasing 2.6.x stability are:
+> > How hard is it to treat the next read to the fd as 
+> NON_BLOCKING, even if
+> > it's not set?
+> 
+> Userspace likely would not properly handle EAGAIN on a 
+> nonblocking socket.
 
-And one more, that I meant to include in the last email,
+But it's better than blocking the call, isn't it?
 
-3) Release early, release often (official -rc releases, not just snapshots)
+If the caller is using NON_BLOCKING already, no change in behavior,
+otherwise it returns an error which the app may or may not handle, instead
+of blocking it (which is usually fatal). Plus it hopefully gives Posix
+compliance.
+
+I can see there could be remote DoS attacks by just sending malformed UDP
+packets.
+ 
+> As far as I can tell, either you block, or you have to scan 
+> the checksum before 
+> select() returns.
+> 
+> Would it be so bad to do the checksum before marking the 
+> socket readable? 
+> Chances are we're going to receive the message "soon" 
+> anyways, so there is at 
+> least a chance it will stay hot in the cache, no?
+> 
+> Chris
+> 
 

@@ -1,54 +1,139 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313495AbSC3QXi>; Sat, 30 Mar 2002 11:23:38 -0500
+	id <S313500AbSC3QbK>; Sat, 30 Mar 2002 11:31:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313493AbSC3QX2>; Sat, 30 Mar 2002 11:23:28 -0500
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:7181 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S313495AbSC3QXN>;
-	Sat, 30 Mar 2002 11:23:13 -0500
-Date: Sat, 30 Mar 2002 08:22:43 -0800
-From: Greg KH <greg@kroah.com>
-To: Ashok Raj <ashokr2@attbi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux PCI hotplug
-Message-ID: <20020330162243.GA17719@kroah.com>
-In-Reply-To: <20020325.234400.03241011.davem@redhat.com> <PPENJLMFIMGBGDDHEPBBAEGGCMAA.ashokr2@attbi.com>
-Mime-Version: 1.0
+	id <S313501AbSC3QbB>; Sat, 30 Mar 2002 11:31:01 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50219 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S313500AbSC3Qan>; Sat, 30 Mar 2002 11:30:43 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: [CFT][RFC] Linux/i386 boot protocol version 2.04
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 30 Mar 2002 09:24:28 -0700
+Message-ID: <m1d6xmuipv.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Sat, 02 Mar 2002 14:11:22 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 30, 2002 at 06:09:56AM -0800, Ashok Raj wrote:
-> Hello.
-> 
-> I have a question on pci hotplug capability.
-> 
-> when a new device is inserted, the hotplug driver enumerates pci, and if the
-> driver is already loaded....
-> 
-> for each new device
-> 	pci_insert->pci_announce->pci_probe
-> 
-> if i need to remove a device, the pci_remove would be called, but it does
-> not call to check if the device is ready for removal. If there are other
-> apps working on this device, how would the hotplug removal be authenticated
-> before removal?
+I have been doing some very weird things with booting the Linux kernel
+for a long time.  
+  - Entering the kernel in 32bit mode to avoid 16bit BIOS calls.  
+  - Converting bzImage into static ELF executables.  
+  - Hard coding a kernel command-line
+  - Going back to 16bit mode to make BIOS calls if necessary.
 
-What function can the pci_hotplug core call to "check"?
+This version of the boot protocol should be fully backwards compatible
+but has new capabilities so I can do all of the above cleanly.
 
-> pci_remove() has no return value, means it cannot fail....
+The current plan is to send this to Linus in the next couple of days
+as soon as he gets back.
 
-This is correct.  If the user asks for the device to be powered down, it
-will be powered down, even if the driver attached to that device is busy
-doing something.
 
-For 2.5, this will probably change, as we will have the option to ask
-the driver if it's ok to shutdown (better power management hooks.)
+The patch series is at:
+ftp://download.lnxi.com/pub/src/linux-kernel-patches/boot/
 
-thanks,
+The overall patch is:
+ftp://download.lnxi.com/pub/src/linux-kernel-patches/boot/linux-2.5.7.boot.diff
 
-greg k-h
+Anyway please tell me what you think.
+
+Eric
+
+
+This is a log of a series of patches that cleans up and enhances the
+x86 boot process.
+
+2.5.7.boot.linuxbios 8
+============================================================
+Support for reading information from the linuxbios table.
+For now I just get the memory size more to come as things
+evolve.
+
+2.5.7.boot.proto 7
+============================================================
+Update the boot protocol to include:
+   - A compiled in command line
+   - A 32bit entry point
+   - File and memory usage information enabling a 1 to 1 
+     conversion between the bzImage format and the static ELF
+     executable file format.
+
+   - In setup.c split the parameters between those that
+     are compiled in and those that are
+
+2.5.7.boot.build 6
+============================================================
+Rework the actual build/link step for kernel images.  
+- remove the need for objcopy
+- Kill the ROOT_DEV Makefile variable, the implementation
+  was only half correct and there are much better ways
+  to specify your root device than modifying the kernel.
+- Don't loose information when the executable is built
+
+Except for a few extra fields in setup.S the binary image
+is unchanged.
+
+2.5.7.boot.heap 5
+============================================================
+Modify video.S so that mode_list is also allocated from
+the boot time heap.  This probably saves a little memory,
+and makes a compiled in command line a sane thing to implement.
+
+- Made certain we don't overwrite code with the E820_MAP
+
+- Changed the lables around the setup.S to _setup && _esetup
+
+
+2.5.7.boot.pic16 4
+============================================================
+  All changes are syntactic the generate code should not
+  be affected at all.
+
+- Modify the 16 bit code files bootsect.S video.S setup.S so they may
+  linked with any virtual address, not just 0.  The code is already
+  PIC this just makes the build process the same.
+
+- e820.h Add define E820ENTRY_SIZE
+
+- Add define KERNEL_START in setup.S so if I need this
+  value more than once it is easy to get at.
+
+2.5.7.boot.32bit_entry 3
+============================================================
+- trampoline.S fix comments, and enter the kernel at
+  secondary_startup_32 instead of startup_32
+- trampoline.S fix gdt_48 to have the correct gdt limit
+- Save all of the registers we get from any 32bit entry point,
+  and don't assume they have any particular value.
+- head.S split up startup_32
+  - secondary_startup_32 handles the SMP case
+  - move finding the command line to startup.c
+  - Don't copy the kernel parameters to the initial_zero_page,
+    instead just pass setup.c where they are located.
+  All of these are what it takes to remove the assumptions
+  of what register values we get on entry.  And let's us
+  handle those assumptions up in C code.
+- Seperate the segments used by setup.S from the rest of the kernel.
+  This way bootloader can continue to make assumptions about
+  which segments setup.S uses while the rest of the kernel
+  can do whatever is convinient.
+- Move boot specific defines into boot.h
+
+2.5.7.boot.vmlinuxlds 2
+============================================================
+- i386/Makefile remove bogus linker command line of -e stext
+- Fix vmlinux.lds so vmlinux knows it loads at 0x100000 (1MB)
+- Fix vmlinux.lds so we correctly use startup_32 for our entry point
+
+2.5.7.boot.boot_params 1
+============================================================
+- Introduce asm-i386/boot_param.h and struct boot_params
+- Implement struct boot_params in misc.c & setup.c
+
+This removes a lot of magic macros and by keeping all of the
+boot parameters in a structure it becomes much easier to track
+which boot_paramters we have and where they live.  Additionally
+this keeps the names more uniform making grepping easier.
+

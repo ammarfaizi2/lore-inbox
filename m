@@ -1,162 +1,164 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262292AbUCXX54 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 18:57:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262490AbUCXX54
+	id S262370AbUCXX5i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 18:57:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262465AbUCXX5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 18:57:56 -0500
-Received: from gprs214-165.eurotel.cz ([160.218.214.165]:644 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262292AbUCXX50 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 18:57:26 -0500
-Date: Thu, 25 Mar 2004 00:57:02 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Cc: seife@suse.de
-Subject: swsusp with highmem, testing wanted
-Message-ID: <20040324235702.GA497@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Wed, 24 Mar 2004 18:57:38 -0500
+Received: from fed1mtao04.cox.net ([68.6.19.241]:21246 "EHLO
+	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S262370AbUCXX5W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 18:57:22 -0500
+Subject: [patch 1/22] Add __early_param for all arches
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+From: trini@kernel.crashing.org
+Message-Id: <20040324235722.QDLK23486.fed1mtao04.cox.net@localhost.localdomain>
+Date: Wed, 24 Mar 2004 18:57:22 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-If you have machine with >=1GB of RAM, do you think you could test
-this patch? [I'd like to hear about successes, too; perhaps send it
-privately].
+CC: Russell King <rmk@arm.linux.org.uk>, Paul Mackerras <paulus@samba.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Andi Kleen <ak@suse.de>, davidm@hpl.hp.com, ralf@linux-mips.org, matthew@wil.cx, grundler@parisc-linux.org
+[ CC'ing of arch maintainers where I've made non-trivial changes ]
+Hello.  The following is outcome of talking with David Woodhouse about
+the need in various parts of the kernel to parse the command line very
+early and set some options based on what we read.  The result is
+__early_param("arg", fn) based very heavily on the macro of the same name
+in the arm kernel.  The following is the core of these changes, adding the
+macro, struct and externs to <linux/init.h>, the parser to init/main.c
+and converting console= to this format.  As a follow on to this thread are
+patches against all arches (vs 2.6.5-rc2) to use the global define of
+saved_command_line, add the appropriate bits to
+arch/$(ARCH)/kernel/vmlinux.lds.S and in some cases, convert params
+from the old arch-specific variant to the new __early_param way.
 
-							Pavel
 
---- clean.2.5/kernel/power/swsusp.c	2004-03-11 18:11:26.000000000 +0100
-+++ linux-himem-swsusp/kernel/power/swsusp.c	2004-03-25 00:53:56.000000000 +0100
-@@ -61,6 +61,7 @@
- #include <linux/bootmem.h>
- #include <linux/syscalls.h>
- #include <linux/console.h>
-+#include <linux/highmem.h>
+---
+
+ linux-2.6-early_setup-trini/include/linux/init.h |   14 ++++++
+ linux-2.6-early_setup-trini/init/main.c          |   53 ++++++++++++++++++++++-
+ linux-2.6-early_setup-trini/kernel/printk.c      |    2 
+ 3 files changed, 67 insertions(+), 2 deletions(-)
+
+diff -puN include/linux/init.h~core include/linux/init.h
+--- linux-2.6-early_setup/include/linux/init.h~core	2004-03-24 16:15:04.645141825 -0700
++++ linux-2.6-early_setup-trini/include/linux/init.h	2004-03-24 16:15:04.651140474 -0700
+@@ -66,6 +66,20 @@ typedef void (*exitcall_t)(void);
  
- #include <asm/uaccess.h>
- #include <asm/mmu_context.h>
-@@ -362,7 +363,69 @@
- 	return 0;
- }
- 
-+struct highmem_page {
-+	char *data;
-+	struct page *page;
-+	struct highmem_page *next;
+ extern initcall_t __con_initcall_start, __con_initcall_end;
+ extern initcall_t __security_initcall_start, __security_initcall_end;
++
++/*
++ * Early command line parameters.
++ */
++struct early_params {
++	const char *arg;
++	int (*fn)(char *p);
 +};
++extern struct early_params __early_begin, __early_end;
++extern void parse_early_options(char **cmdline_p);
 +
-+struct highmem_page *highmem_copy = NULL;
-+
- /* if pagedir_p != NULL it also copies the counted pages */
-+static int save_highmem(void)
-+{
-+	int pfn;
-+	struct page *page;
-+	int chunk_size;
-+
-+	for (pfn = 0; pfn < max_pfn; pfn++) {
-+		struct highmem_page *save;
-+		void *kaddr;
-+
-+		page = pfn_to_page(pfn);
-+
-+		if (!PageHighMem(page))
-+			continue;
-+		if (PageReserved(page)) {
-+			printk("highmem reserved page?!\n");
-+			BUG();
-+		}
-+		if ((chunk_size=is_head_of_free_region(page))!=0) {
-+			pfn += chunk_size - 1;
-+			continue;
-+		}
-+		save = kmalloc(sizeof(struct highmem_page), GFP_ATOMIC);
-+		if (!save)
-+			panic("Not enough memory");
-+		save->next = highmem_copy;
-+		save->page = page;
-+		save->data = get_zeroed_page(GFP_ATOMIC);
-+		if (!save->data)
-+			panic("Not enough memory");
-+		kaddr = kmap_atomic(page, KM_USER0);
-+		memcpy(save->data, kaddr, PAGE_SIZE);
-+		kunmap_atomic(kaddr, KM_USER0);
-+		highmem_copy = save;
-+	}
-+	return 0;
-+}
-+
-+static int restore_highmem(void)
-+{
-+	while (highmem_copy) {
-+		struct highmem_page *save = highmem_copy;
-+		void *kaddr;
-+		highmem_copy = save->next;
-+		
-+		kaddr = kmap_atomic(save->page, KM_USER0);
-+		memcpy(kaddr, save->data, PAGE_SIZE);
-+		kunmap_atomic(kaddr, KM_USER0);
-+		free_page(save->data);
-+		kfree(save);
-+	}
-+	return 0;
-+}
-+
- static int count_and_copy_data_pages(struct pbe *pagedir_p)
- {
- 	int chunk_size;
-@@ -378,7 +441,7 @@
- 	for (pfn = 0; pfn < max_pfn; pfn++) {
- 		page = pfn_to_page(pfn);
- 		if (PageHighMem(page))
--			panic("Swsusp not supported on highmem boxes. Send 1GB of RAM to <pavel@ucw.cz> and try again ;-).");
-+			continue;
++#define __early_param(name,fn)					\
++static struct early_params __early_##fn __attribute_used__	\
++__attribute__((__section__("__early_param"))) = { name, fn }
+ #endif
+   
+ #ifndef MODULE
+diff -puN init/main.c~core init/main.c
+--- linux-2.6-early_setup/init/main.c~core	2004-03-24 16:15:04.647141375 -0700
++++ linux-2.6-early_setup-trini/init/main.c	2004-03-24 16:15:04.652140249 -0700
+@@ -43,6 +43,7 @@
+ #include <linux/efi.h>
+ #include <linux/unistd.h>
  
- 		if (!PageReserved(page)) {
- 			if (PageNosave(page))
-@@ -413,6 +476,7 @@
- 	return nr_copy_pages;
++#include <asm/setup.h>
+ #include <asm/io.h>
+ #include <asm/bugs.h>
+ 
+@@ -111,6 +112,10 @@ extern void time_init(void);
+ void (*late_time_init)(void);
+ extern void softirq_init(void);
+ 
++/* Stuff for the command line. */
++char saved_command_line[COMMAND_LINE_SIZE];		/* For /proc */
++static char tmp_command_line[COMMAND_LINE_SIZE];	/* Parsed. */
++
+ static char *execute_command;
+ 
+ /* Setup configured maximum number of CPUs to activate */
+@@ -396,13 +401,59 @@ static void noinline rest_init(void)
+ } 
+ 
+ /*
++ * Initial parsing of the command line.  We destructivly
++ * scan the pointer, and take out any params for which we have
++ * an early handler for.
++ */
++void __init parse_early_options(char **cmdline_p)
++{
++	char *from = *cmdline_p;	/* Original. */
++	char c = ' ', *to = tmp_command_line;	/* Parsed. */
++	int len = 0;
++
++	/* Save it, if we need to. */
++	if (*cmdline_p != saved_command_line)
++		memcpy(saved_command_line, *cmdline_p, COMMAND_LINE_SIZE);
++	saved_command_line[COMMAND_LINE_SIZE - 1] = '\0';
++
++	for (;;) {
++		if (c == ' ') {
++			struct early_params *p;
++
++			for (p = &__early_begin; p < &__early_end; p++) {
++				int len = strlen(p->arg);
++
++				if (memcmp(from, p->arg, len) == 0) {
++					if (to != *cmdline_p)
++						to -= 1;
++					from += len;
++					p->fn(from);
++
++					while (*from != ' ' && *from != '\0')
++						from++;
++					break;
++				}
++			}
++		}
++		c = *from++;
++		if (!c)
++			break;
++		if (COMMAND_LINE_SIZE <= ++len)
++			break;
++		*to++ = c;
++	}
++
++	*to = '\0';
++	*cmdline_p = tmp_command_line;
++}
++
++/*
+  *	Activate the first processor.
+  */
+ 
+ asmlinkage void __init start_kernel(void)
+ {
+ 	char * command_line;
+-	extern char saved_command_line[];
+ 	extern struct kernel_param __start___param[], __stop___param[];
+ /*
+  * Interrupts are still disabled. Do necessary setups, then
+diff -puN kernel/printk.c~core kernel/printk.c
+--- linux-2.6-early_setup/kernel/printk.c~core	2004-03-24 16:15:04.649140924 -0700
++++ linux-2.6-early_setup-trini/kernel/printk.c	2004-03-24 16:15:04.653140024 -0700
+@@ -149,7 +149,7 @@ static int __init console_setup(char *st
+ 	return 1;
  }
  
-+
- static void free_suspend_pagedir(unsigned long this_pagedir)
- {
- 	struct page *page;
-@@ -492,10 +556,12 @@
- 	struct sysinfo i;
- 	unsigned int nr_needed_pages = 0;
+-__setup("console=", console_setup);
++__early_param("console=", console_setup);
  
--	drain_local_pages();
--
- 	pagedir_nosave = NULL;
--	printk( "/critical section: Counting pages to copy" );
-+	printk( "/critical section: Handling highmem" );
-+	save_highmem();
-+
-+	printk(", counting pages to copy" );
-+	drain_local_pages();
- 	nr_copy_pages = count_and_copy_data_pages(NULL);
- 	nr_needed_pages = nr_copy_pages + PAGES_FOR_IO;
- 	
-@@ -603,6 +669,11 @@
- 
- 	PRINTK( "Freeing prev allocated pagedir\n" );
- 	free_suspend_pagedir((unsigned long) pagedir_save);
-+
-+	printk( "Restoring highmem\n" );
-+	restore_highmem();
-+	printk("done, devices\n");
-+
- 	device_power_up();
- 	spin_unlock_irq(&suspend_pagedir_lock);
- 	device_resume();
+ /**
+  * add_preferred_console - add a device to the list of preferred consoles.
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+_

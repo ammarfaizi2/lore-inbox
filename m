@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311287AbSCLQwS>; Tue, 12 Mar 2002 11:52:18 -0500
+	id <S311286AbSCLQ5S>; Tue, 12 Mar 2002 11:57:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311290AbSCLQwJ>; Tue, 12 Mar 2002 11:52:09 -0500
-Received: from web12704.mail.yahoo.com ([216.136.173.241]:10511 "HELO
-	web12704.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S311286AbSCLQvz>; Tue, 12 Mar 2002 11:51:55 -0500
-Message-ID: <20020312165154.82548.qmail@web12704.mail.yahoo.com>
-Date: Tue, 12 Mar 2002 08:51:54 -0800 (PST)
-From: =?ISO-8859-1?Q? "Jo=E3o" ?= Bonina <bonina_2001@yahoo.com>
-Subject: Networking problem with Realtek RTL8139
+	id <S311289AbSCLQ5I>; Tue, 12 Mar 2002 11:57:08 -0500
+Received: from r220-1.rz.RWTH-Aachen.DE ([134.130.3.31]:30681 "EHLO
+	r220-1.rz.RWTH-Aachen.DE") by vger.kernel.org with ESMTP
+	id <S311286AbSCLQ4v>; Tue, 12 Mar 2002 11:56:51 -0500
+From: jarausch@igpm.rwth-aachen.de
+Message-Id: <200203121656.RAA43598@numa1.igpm.rwth-aachen.de>
+Date: Tue, 12 Mar 2002 17:56:40 +0100
+Reply-To: jarausch@igpm.rwth-aachen.de
+Subject: 2.4.19-pre3 IDE-problem
 To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all!
+Hi all
 
-I'm having some networking problems with my Realtek
-RTL8139 network card (I'm using Suse 7.2 which
-installs Kernel 2.4.4, I guess).
+on my Supermicro Serverworks board
+with ide-scsi emulation 2.4.19-pre3 hangs
+when accessing the IDE-ZIP drive (at Serverworks IDE)
+(2.4.18 with the IDE is OK)
 
-The host hangs and the card's led starts flashing when
-I do the following:
-- access the X server remotely
-- in a FTP session during file transfer
-- in a TELNET session, sometimes.
+Although I configured DMA for disks only
+I get
+ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
+hdd: lost interrupt  (that is a new ATA 133 Maxtor disk at a Promise IDE
+controler)
 
-After that all network access is dead.
+Serverworks OSB4 in impossible state
+Disable UDMA ....
 
-The 8139too module is the one installed for the card.
+(I have already applied the bluesmoke patch posted)
 
-How do I solve this problem?
+Thanks for looking into it
 
-JB
+Helmut Jarausch
 
-__________________________________________________
-Do You Yahoo!?
-Try FREE Yahoo! Mail - the world's greatest free email!
-http://mail.yahoo.com/
+Lehrstuhl fuer Numerische Mathematik
+Institute of Technology, RWTH Aachen
+D 52056 Aachen, Germany
+

@@ -1,59 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262117AbTJNAjP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 20:39:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbTJNAjP
+	id S262126AbTJNBGW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 21:06:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbTJNBGW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 20:39:15 -0400
-Received: from mail.kroah.org ([65.200.24.183]:31134 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262117AbTJNAjM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 20:39:12 -0400
-Date: Mon, 13 Oct 2003 16:56:23 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] input hotplug support
-Message-ID: <20031013235623.GA12898@kroah.com>
-References: <200308020139.37446.arvidjaar@mail.ru> <20030801235748.GC321@kroah.com> <200308021253.03005.arvidjaar@mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200308021253.03005.arvidjaar@mail.ru>
-User-Agent: Mutt/1.4.1i
+	Mon, 13 Oct 2003 21:06:22 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:53495 "EHLO
+	pasta.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S262126AbTJNBGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 21:06:19 -0400
+Message-Id: <200310140111.h9E1BR6a015812@pasta.boston.redhat.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Dave Kleikamp <shaggy@austin.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.4.23-pre7] alternate fix for BUG() in exec_mmap()
+In-Reply-To: Your message of "Mon, 13 Oct 2003 14:09:36 +0200."
+Date: Mon, 13 Oct 2003 21:11:27 -0400
+From: Ernie Petrides <petrides@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 02, 2003 at 12:53:02PM +0400, Andrey Borzenkov wrote:
-> On Saturday 02 August 2003 03:57, Greg KH wrote:
-> > On Sat, Aug 02, 2003 at 01:39:37AM +0400, Andrey Borzenkov wrote:
-> > > this adds input agent and coldplug rc script. It relies on patch for
-> > > module-init-tools that gnerates input handlers map table being posted to
-> > > lkml as well.
-> > >
-> > > input agent loads input handler in respond to input subsystem request. It
-> > > is currently purely table-driven, no attempt to provide for any static
-> > > list or like was done, it needs some operational experience.
-> > >
-> > > static coldplug rc script is intended to load input handlers for any
-> > > built-in input drivers, like e.g. psmouse (if you built it in). Currently
-> > > it does it by parsing /proc/bus/input/devices, I'd like to use sysfs but
-> > > apparently support for it in input susbsystem is incomplete at best.
-> > >
-> > > It also modifies usb.agent to not consult usb.handmap on 2.6, as it is
-> > > not needed anymore.
-> > >
-> > > Patch is against 2003_05_01 version of hotplug. Comments appreciated.
-> >
-> > Can you send it not compressed so we have a chance to read it?
-> 
-> sorry.
-> 
-> plain text attached.
+On Monday, 13-Oct-2003 at 14:9 +0200, Andrea Arcangeli wrote:
 
-Thanks, I've applied this patch.  Did your module-init-tools patch make
-it into that package too?
+> On Mon, Oct 13, 2003 at 02:52:44AM -0400, Ernie Petrides wrote:
+>
+> > --- linux-2.4.21/fs/exec.c.orig
+> > +++ linux-2.4.21/fs/exec.c
+> > @@ -452,9 +452,11 @@ static int exec_mmap(void)
+> > 
+> >  	old_mm = current->mm;
+> >  	if (old_mm && atomic_read(&old_mm->mm_users) == 1) {
+> > +		down_write(&old_mm->mmap_sem);
+> >  		mm_release();
+> >  		exit_aio(old_mm);
+> >  		exit_mmap(old_mm);
+> > +		up_write(&old_mm->mmap_sem);
+> >  		return 0;
+> >  	}
+>
+> Is there any special reason you take it around mm_release and exit_aio
+> too? I don't feel this is needed. exit_aio btw still assumes nobody can
+> race, so it doesn't take any spinlock (brlocks actually) to guard
+> against other aio threads, I believe that's ok since as worse the other
+> tasks can mangle the vm with ptrace, they'll never get to mess with aio,
+> only the current task can and the mm_user == 1 check guarantees we've no
+> sibiling threads. the mmap_sem shouldn't help exit_aio anyways, if
+> something it'll make it deadlock if there's any access to the VM that
+> generates a page fault in the cancel() callback.
+>
+> So I suggest this sequence should be safe:
+>
+> 	mm_release();
+> 	exit_aio(old_mm);
+>
+> 	down_write(&old_mm->mmap_sem);
+> 	exit_mmap(old_mm);
+> 	up_write(&old_mm->mmap_sem);
+>
+> Please double check ;)
 
-thanks,
+Yes, this in fact necessary.  I have retested with the locking sequence
+shown above and verified that the problem is still fixed.
 
-greg k-h
+Further, I've discovered that in my original version, with the mmap_sem
+held across mm_release() and exit_aio(), there are potential deadlocks
+in at least the following hypothetical calling trees:
+
+	mm_release()
+	  put_user()
+	    direct_put_user()
+	      __put_user_check()
+	        __put_user_size()
+	          __put_user_asm()
+	            [page fault]
+	                do_page_fault()
+	                  down_read(&mm->mmap_sem)
+
+	exit_aio()
+	  aio_cancel_all()
+	    async_poll_cancel()
+	      aio_put_req()
+	        put_ioctx()
+	          __put_ioctx()
+	            aio_free_ring()
+	              down_write(&ctx->mm->mmap_sem)
+
+The corrected patch against 2.4.23-pre7, which restores the fast path in
+exec_mmap() and adds the holding of "mmap_sem" across only the exit_mmap()
+call, is attached below.  Since "mmap_sem" locking is conceptually higher
+than file system locks in the locking hierarchy, the whole calling tree
+from exit_mmap() on down (including potential fput() calls) should be
+safe to run with "mmap_sem" owned.
+
+Thanks for the help.
+
+Cheers.  -ernie
+
+
+
+--- linux-2.4.23-pre7/fs/exec.c.orig
++++ linux-2.4.23-pre7/fs/exec.c
+@@ -426,6 +426,13 @@ static int exec_mmap(void)
+ 	struct mm_struct * mm, * old_mm;
+ 
+ 	old_mm = current->mm;
++	if (old_mm && atomic_read(&old_mm->mm_users) == 1) {
++		mm_release();
++		down_write(&old_mm->mmap_sem);
++		exit_mmap(old_mm);
++		up_write(&old_mm->mmap_sem);
++		return 0;
++	}
+ 
+ 	mm = mm_alloc();
+ 	if (mm) {

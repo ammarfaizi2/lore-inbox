@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265632AbUBJUsV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 15:48:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265955AbUBJUsV
+	id S266175AbUBJUog (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 15:44:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266184AbUBJUog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 15:48:21 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:58885 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S265632AbUBJUsS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 15:48:18 -0500
-Message-ID: <40294472.3010203@tmr.com>
-Date: Tue, 10 Feb 2004 15:52:02 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Very preliminary dynamic pty patch
-References: <1nK1K-78K-21@gated-at.bofh.it> <1nKEy-7RS-33@gated-at.bofh.it> <1nKY0-8jZ-31@gated-at.bofh.it>
-In-Reply-To: <1nKY0-8jZ-31@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 10 Feb 2004 15:44:36 -0500
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:53123 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S266175AbUBJUod (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 15:44:33 -0500
+Message-Id: <200402102044.i1AKiDjR016511@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Mike Bell <kernel@mikebell.org>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: devfs vs udev, thoughts from a devfs user 
+In-Reply-To: Your message of "Tue, 10 Feb 2004 11:24:57 PST."
+             <20040210192456.GB4814@tinyvaio.nome.ca> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040210113417.GD4421@tinyvaio.nome.ca> <20040210170157.GA27421@kroah.com> <20040210171337.GK4421@tinyvaio.nome.ca> <40291A73.7050503@nortelnetworks.com>
+            <20040210192456.GB4814@tinyvaio.nome.ca>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-971329618P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 10 Feb 2004 15:44:13 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Valdis.Kletnieks@vt.edu wrote:
-> 
->> On Tue, 10 Feb 2004 17:25:36 GMT, hpa@zytor.com (H. Peter Anvin)  said:
->>
->>> Try it out and send me the oopsen :)
->>>
->>> ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/dynpty-test-1.patch
->>
->>
->> Eyeball checked only, 2 comments:
->>
->> 1) Will the embedded crew object to the removal of CONFIG_UNIX98_PTYS?
->> I can see some systems that don't want either SysV or BSD pty's, unless
->> they're deeply ingrained in some way I don't understand so you can't have
->> a system with exactly one tty on a DB-9 serial port for a console 
->> without having them present too.
->>
->> 2) How much extra code to axe the BSD-style PTYs?
-> 
-> 
-> Actually it looks like it wouldn't be too much code either way.  I'll 
-> probably make them both config options (with removal of the entire pty 
-> subsystem if one chooses no on both.)
+--==_Exmh_-971329618P
+Content-Type: text/plain; charset=us-ascii
 
-Thank you, this keeps everyone happy I would think.
+On Tue, 10 Feb 2004 11:24:57 PST, Mike Bell said:
+
+> I think the space savings are a pretty good reason alone. Add to that
+> the fact I think devfs would be a good idea even if it cost MORE
+> memory... You can mount a devfs on your RO root instead of needing to
+> mount a tmpfs on /dev and then run udev on that.
+
+(As an aside, the original reason I started using devfs was because it created
+a separate /dev filesystem, and / can be mounted 'nodev'.  But I don't have any
+religious preference for mounting devfs-by-kernel or tmpfs-from-initrd).
+
+On the flip side, udev gives me something that devfs *cant* without major
+hacking - the ability to attach extended attributes/labels to the device when
+it gets created, so things like SELinux can deal with them. (OK, so I admit I'm
+still sorting out how to use the SElinux transition SID support for tmpfs ;)
+
+
+
+--==_Exmh_-971329618P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAKUKccC3lWbTT17ARAtruAJwI4B0I1lpqdy+vV4EgJnGXckGQKACgv64T
+dC74fpThPWEi0aQJB1ylkDg=
+=47Tp
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-971329618P--

@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131814AbQLVKcA>; Fri, 22 Dec 2000 05:32:00 -0500
+	id <S131775AbQLVKgA>; Fri, 22 Dec 2000 05:36:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131925AbQLVKbu>; Fri, 22 Dec 2000 05:31:50 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:3588 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S131814AbQLVKbh>;
-	Fri, 22 Dec 2000 05:31:37 -0500
-Message-ID: <20001221210637.C1545@bug.ucw.cz>
-Date: Thu, 21 Dec 2000 21:06:37 +0100
+	id <S131919AbQLVKfv>; Fri, 22 Dec 2000 05:35:51 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:4356 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S131775AbQLVKfh>;
+	Fri, 22 Dec 2000 05:35:37 -0500
+Message-ID: <20001222110241.B244@bug.ucw.cz>
+Date: Fri, 22 Dec 2000 11:02:41 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>, Steve Grubb <ddata@gate.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] performance enhancement for simple_strtoul
-In-Reply-To: <000e01c06a8e$6945db60$bc1a24cf@master> <20001220100446.A1249@inetnebr.com> <001401c06ab4$ac8615e0$7d1a24cf@master> <20001221010935.A22817@pcep-jamie.cern.ch>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: Igmar Palsenberg <maillist@chello.nl>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: kapm-idled : is this a bug?
+In-Reply-To: <20001221132800.A1398@bug.ucw.cz> <200012211927.eBLJROd347633@saturn.cs.uml.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
-In-Reply-To: <20001221010935.A22817@pcep-jamie.cern.ch>; from Jamie Lokier on Thu, Dec 21, 2000 at 01:09:35AM +0100
+In-Reply-To: <200012211927.eBLJROd347633@saturn.cs.uml.edu>; from Albert D. Cahalan on Thu, Dec 21, 2000 at 02:27:24PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > It seems gcc creates much better code with the variables set to register
-> > types.
+> >> Agree that it is different. But it confuses people to have two
+> >> idle-tasks. I suggest that we throw it one big pile, unless having a
+> >> separate apm idle task has a purpose. 
+> >
+> > You can't do that.
 > 
-> Curious.  GCC should be generating the same code regardless; ah well.
-> 
-> Is strtoul actually used in the kernel other than for the occasional
-> (rare) write to /proc/sys and parsing boot options?
-> 
-> > But this is the kernel and there are people that would reject my patch
-> > purely on the basis that it adds precious bytes to the kernel.
-> 
-> Perhaps I am mistaken but I'd expect it to be called what, ten times at
-> boot time, and a couple of times when X loads the MTRRs?
+> Sure you can, and it makes perfect sense.
 
-On second thought, ps -auxl maybe stresses simple_strtoul a little
-bit. Not sure.
+No. You lost the way to distinguish between real "idle" spend, and
+kapm-idle spend -- they are different, in kapm-idle cpu is slowed down.
 
-> Sounds like the neatest trick would be reducing bytes used here...
+> > Doing it this way is _way_ better for system
+> > stability, because kidle-apmd sometimes dies due to APM
+> > bug. kidle-apmd dying is recoverable error; swapper dieing is as fatal
+> > as it can be.
+> 
+> Good. Maybe the bugs will get fixed then. If the bugs are in
+> the BIOS or motherboard hardware, we can have a blacklist.
 
+Ha ha. It was that way. Linus saw it was bad so he fixed it. Bugs are
+discovered/fixed anyway, because you get ugly oops. But ugly oops is
+better than even uglier oops that does not go to syslog and that kills
+you machine hard, you see?
 								Pavel
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."

@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285161AbRLMUjO>; Thu, 13 Dec 2001 15:39:14 -0500
+	id <S285170AbRLMUmo>; Thu, 13 Dec 2001 15:42:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285165AbRLMUjE>; Thu, 13 Dec 2001 15:39:04 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2579 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S285161AbRLMUiw>; Thu, 13 Dec 2001 15:38:52 -0500
+	id <S285168AbRLMUme>; Thu, 13 Dec 2001 15:42:34 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:38020 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S285166AbRLMUmQ>;
+	Thu, 13 Dec 2001 15:42:16 -0500
+Date: Thu, 13 Dec 2001 12:42:05 -0800 (PST)
+Message-Id: <20011213.124205.38323630.davem@redhat.com>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Mounting a in-ROM filesystem efficiently
-Date: 13 Dec 2001 12:38:28 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9vb3k4$9kj$1@cesium.transmeta.com>
-In-Reply-To: <20011213160007.D998D23CCB@persephone.dmz.logatique.fr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+CC: axboe@suse.de
+Subject: that stupid aic7xxx AHC_NSEGS bug
+From: "David S. Miller" <davem@redhat.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20011213160007.D998D23CCB@persephone.dmz.logatique.fr>
-By author:    Thomas Capricelli <orzel@kde.org>
-In newsgroup: linux.dev.kernel
-> 
-> Hello,
-> 
-> I'm looking for a way to put a filesystem into ROM.
-> Seems pretty trivial, isn't it ?
-> 
-> My understanding is (the way initrd does, and the way I do as of today)
-> * create a RAMDISK
-> * loads the data into ramdisk
-> * mount the ramdisk
-> 
-> problem is that I don't want to waste the RAM as the data in the ROM is 
-> already in the address space. (it's an embedded system, btw)
-> 
-> Speed is not an issue here. ROM access might be slower than RAM, it will 
-> always be so much quicker than a disk access. (wrong?)
-> 
 
-Frequently wrong.  Depending on the interface, ROM can be just
-unbelievably slow.
+We simply forget to initialize scb->sg_count in the non use_sg
+case, so if the previous usage of that scb has sg_count==AHC_NSEGS
+then we'd hit that panic erroneously.  Here is the fix below.
 
-> Ideally, i would give address/length of the fs in ROM to a function, and I 
-> would get a ramdisk configured to read its data exactly there, and not in 
-> ram.
+"It can't possibly be my driver, something broke in some Linux
+subsystem which is making my driver break", sheesh get over it
+Justin...
 
-The right thing for you to do is to write a block device driver, and
-then mount that block device like any order device.  Your in-use data
-will be copied to RAM (i.e. cached), but it can be dropped and
-re-fetched as necessary.  This should be the desired behaviour.
-
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+--- drivers/scsi/aic7xxx/aic7xxx_linux.c.~1~	Fri Dec  7 22:54:31 2001
++++ drivers/scsi/aic7xxx/aic7xxx_linux.c	Thu Dec 13 12:38:30 2001
+@@ -1699,6 +1699,7 @@
+ 			       cmd->request_buffer,
+ 			       cmd->request_bufflen,
+ 			       scsi_to_pci_dma_dir(cmd->sc_data_direction));
++			scb->sg_count = 0;
+ 			scb->sg_count = ahc_linux_map_seg(ahc, scb,
+ 							  sg, addr,
+ 							  cmd->request_bufflen);

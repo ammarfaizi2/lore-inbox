@@ -1,34 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318866AbSIIUVQ>; Mon, 9 Sep 2002 16:21:16 -0400
+	id <S318876AbSIIUZP>; Mon, 9 Sep 2002 16:25:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318868AbSIIUVQ>; Mon, 9 Sep 2002 16:21:16 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:46575
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318866AbSIIUVP>; Mon, 9 Sep 2002 16:21:15 -0400
-Subject: Re: oops on 2.4.20-pre5-ac2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dan Eaton <dan.eaton@rlx.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1031596139.25426.184.camel@dan>
-References: <1031596139.25426.184.camel@dan>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 09 Sep 2002 21:28:14 +0100
-Message-Id: <1031603294.29715.20.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318877AbSIIUZP>; Mon, 9 Sep 2002 16:25:15 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:38042 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S318876AbSIIUZO>;
+	Mon, 9 Sep 2002 16:25:14 -0400
+Date: Mon, 9 Sep 2002 22:33:17 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Daniel Jacobowitz <dan@debian.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: do_syslog/__down_trylock lockup in current BK
+In-Reply-To: <20020909201516.GA7465@nevyn.them.org>
+Message-ID: <Pine.LNX.4.44.0209092230550.16779-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thats a very very strange machine 8). Your diagnosis is correct. We are
-assuming conventional PC north bridge behaviour. I take it this is your
-blade systems. 
 
-As far as I can make out from the ALi docs you can't get an ALi north
-bridge at anywhere but 0:0.0 in which case making the check
+the attached patch fixes one bug in the way we did zap_thread() - but this
+alone does not fix the lockup.
 
-       if(north && north->vendor == ...)
+the bug was that list_for_each_safe() is not 'safe enough' - zap_thread()  
+drops the tasklist lock at which point anything might happen to the child
+list.
 
-should do the trick.
+the lockup is likely in the while loop - ie. zap_thread() not actually
+reparenting a thread and thus causing an infinite loop - is that possible?
+
+	Ingo
+
+--- linux/kernel/exit.c.orig	Mon Sep  9 21:59:24 2002
++++ linux/kernel/exit.c	Mon Sep  9 22:24:41 2002
+@@ -493,7 +493,6 @@
+ static void exit_notify(void)
+ {
+ 	struct task_struct *t;
+-	struct list_head *_p, *_n;
+ 
+ 	forget_original_parent(current);
+ 	/*
+@@ -554,17 +553,16 @@
+ 		do_notify_parent(current, current->exit_signal);
+ 
+ zap_again:
+-	list_for_each_safe(_p, _n, &current->children)
+-		zap_thread(list_entry(_p,struct task_struct,sibling), current, 0);
+-	list_for_each_safe(_p, _n, &current->ptrace_children)
+-		zap_thread(list_entry(_p,struct task_struct,ptrace_list), current, 1);
++	while (!list_empty(&current->children))
++		zap_thread(list_entry(current->children.next,struct task_struct,sibling), current, 0);
++	while (!list_empty(&current->ptrace_children))
++		zap_thread(list_entry(current->ptrace_children.next,struct task_struct,sibling), current, 0);
+ 	/*
+ 	 * zap_thread might drop the tasklist lock, thus we could
+ 	 * have new children queued back from the ptrace list into the
+ 	 * child list:
+ 	 */
+-	if (unlikely(!list_empty(&current->children) ||
+-			!list_empty(&current->ptrace_children)))
++	if (unlikely(!list_empty(&current->children)))
+ 		goto zap_again;
+ 	/*
+ 	 * No need to unlock IRQs, we'll schedule() immediately
 

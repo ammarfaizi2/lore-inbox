@@ -1,44 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270090AbRHWTKF>; Thu, 23 Aug 2001 15:10:05 -0400
+	id <S270135AbRHWTNf>; Thu, 23 Aug 2001 15:13:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270135AbRHWTJz>; Thu, 23 Aug 2001 15:09:55 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:36613 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S270090AbRHWTJm>; Thu, 23 Aug 2001 15:09:42 -0400
-Date: Thu, 23 Aug 2001 16:09:46 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Disconnect <lkml@sigkill.net>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
-In-Reply-To: <20010823144406.G25051@sigkill.net>
-Message-ID: <Pine.LNX.4.33L.0108231608520.31410-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270131AbRHWTNZ>; Thu, 23 Aug 2001 15:13:25 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:40100 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S270102AbRHWTNP>; Thu, 23 Aug 2001 15:13:15 -0400
+Date: Thu, 23 Aug 2001 13:06:06 -0600
+Message-Id: <200108231906.f7NJ66M14854@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: [PATCH] devfs v190 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Aug 2001, Disconnect wrote:
+  Hi, all. Version 190 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
-> ONLY task that they will use python for.  And everyone who builds a kernel
-> will have gcc, so thats the 'ideal' dependency.  Second and third most
-> likely, a C++ compiler or perl (depending on what you figure the
-> installbase of each one is).  Forth, some form of java runtime.  And after
-> that is python.
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
 
-Sounds like you'd just might be fanatical enough to implement
-CML2 in C or Perl, then ;)
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
 
-Personally, I'd welcome such a thing...
+REMINDER: this patch and earlier patches include support for >2000
+SCSI discs. Complete ChangeLog against 2.4.9 is appended.
 
-cheers,
+This is against 2.4.9. Highlights of this release:
 
-Rik
---
-IA64: a worthy successor to the i860.
+- Updated README from master HTML file
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+- Replaced BKL with global rwsem to protect symlink data (quick and
+  dirty hack)
 
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca
+===============================================================================
+- Fixed bug in <devfs_setup> which could hang boot process
+
+- Support large numbers of SCSI discs (~2080)
+
+- Documentation typo fix for fs/devfs/util.c
+
+- Added DEVFSD_NOTIFY_DELETE event
+
+- Removed #include <asm/segment.h> from fs/devfs/base.c
+
+- Made <block_semaphore> and <char_semaphore> in fs/devfs/util.c
+  private
+
+- Fixed inode table races by removing it and using inode->u.generic_ip
+  instead
+
+- Moved <devfs_read_inode> into <get_vfs_inode>
+
+- Moved <devfs_write_inode> into <devfs_notify_change>
+
+- Fixed race in <devfs_do_symlink> for uni-processor
+
+- Fixed drivers/char/stallion.c for devfs
+
+- Fixed drivers/char/rocket.c for devfs
+
+- Fixed bug in <devfs_alloc_unique_number>: limited to 128 numbers
+
+- Updated major masks in fs/devfs/util.c up to Linus' "no new majors"
+  proclamation. Block: were 126 now 122 free, char: were 26 now 19 free
+
+- Removed remnant of multi-mount support in <devfs_mknod>
+
+- Removed unused DEVFS_FL_SHOW_UNREG flag
+
+- Removed nlink field from struct devfs_inode
+
+- Removed auto-ownership for /dev/pty/* (BSD ptys) and used
+  DEVFS_FL_CURRENT_OWNER|DEVFS_FL_NO_PERSISTENCE for /dev/pty/s* (just
+  like Unix98 pty slaves) and made /dev/pty/m* rw-rw-rw- access
+
+- Updated README from master HTML file
+
+- Replaced BKL with global rwsem to protect symlink data (quick and
+  dirty hack)

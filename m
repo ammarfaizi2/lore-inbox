@@ -1,90 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262037AbTD2Qg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 12:36:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbTD2Qg4
+	id S262038AbTD2QmL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 12:42:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbTD2QmL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 12:36:56 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:5250 "EHLO ulima.unil.ch")
-	by vger.kernel.org with ESMTP id S262037AbTD2Qgy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 12:36:54 -0400
-Date: Tue, 29 Apr 2003 18:49:13 +0200
-From: Gregoire Favre <greg@ulima.unil.ch>
+	Tue, 29 Apr 2003 12:42:11 -0400
+Received: from newman.cs.purdue.edu ([128.10.2.6]:44199 "EHLO
+	newman.cs.purdue.edu") by vger.kernel.org with ESMTP
+	id S262038AbTD2QmK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 12:42:10 -0400
+Date: Tue, 29 Apr 2003 11:54:27 -0500
+From: Jae-Young Kim <jaykim@cs.purdue.edu>
 To: linux-kernel@vger.kernel.org
-Subject: no ZIP (250) with 2.4.21-rc1-ac3...
-Message-ID: <20030429164913.GA10060@ulima.unil.ch>
+Subject: kernel timer accuracy
+Message-ID: <20030429165427.GA5923@punch.cs.purdue.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I have first tried to boot it with the ZIP in the drive, but without
-sucess :-(
-Now, I have booted without a disk in the drive, and only got those
-errors:
 
-Uniform Multi-Platform E-IDE driver Revision: 7.00beta3-.2.4
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-ICH4: IDE controller at PCI slot 00:1f.1
-ICH4: chipset revision 1
-ICH4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:DMA, hdd:pio
-hda: IC35L120AVVA07-0, ATA DISK drive
-hdb: IOMEGA ZIP 250 ATAPI, ATAPI FLOPPY drive
-blk: queue c03d3760, I/O limit 4095Mb (mask 0xffffffff)
-hdc: SONY DVD RW DRU-500A, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: attached ide-disk driver.
-hda: host protected area => 1
-hda: 241254720 sectors (123522 MB) w/1863KiB Cache, CHS=15017/255/63, UDMA(100)
-hdb: attached ide-scsi driver.
-hdc: attached ide-scsi driver.
-Partition check:
- /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 >
- hdb:<3>ide-scsi: hdb: unsupported command in request queue (0)
-end_request: I/O error, dev 03:40 (hdb), sector 0
-ide-scsi: hdb: unsupported command in request queue (0)
-end_request: I/O error, dev 03:40 (hdb), sector 2
-ide-scsi: hdb: unsupported command in request queue (0)
-end_request: I/O error, dev 03:40 (hdb), sector 4
-ide-scsi: hdb: unsupported command in request queue (0)
-end_request: I/O error, dev 03:40 (hdb), sector 6
-ide-scsi: hdb: unsupported command in request queue (0)
-end_request: I/O error, dev 03:40 (hdb), sector 0
-ide-scsi: hdb: unsupported command in request queue (0)
-end_request: I/O error, dev 03:40 (hdb), sector 2
-ide-scsi: hdb: unsupported command in request queue (0)
-end_request: I/O error, dev 03:40 (hdb), sector 4
-ide-scsi: hdb: unsupported command in request queue (0)
-end_request: I/O error, dev 03:40 (hdb), sector 6
- unable to read partition table
-SCSI subsystem driver Revision: 1.00
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.28
-...
-SCSI device sdb: 71687370 512-byte hdwr sectors (36704 MB)
- /dev/scsi/host0/bus0/target15/lun0: p1 p2
-sdc : READ CAPACITY failed.
-sdc : status = 0, message = 00, host = 0, driver = 28 
-Current sd00:00: sns = 70  2
-ASC=3a ASCQ= 0
-Raw sense data:0x70 0x00 0x02 0x00 0x00 0x00 0x00 0x12 0x00 0x00 0x00 0x00 0x3a 0x00 0x00 0x00 0x00 0x00 0xff 0xfe 0x01 0x03 0x31 0x01 0xce 0x5a 
-sdc : block size assumed to be 512 bytes, disk size 1GB.  
- /dev/scsi/host2/bus0/target0/lun0: I/O error: dev 08:20, sector 0
- I/O error: dev 08:20, sector 0
- unable to read partition table
+Hi, I'm developing a kernel module that enforces filtered packets to
+get delayed for a given short time. I'm using netfilter for packet
+filtering and using mod_timer() for packet delay.
 
-I have an MSI Max2-BLR.
+The kernel module holds packet buffer (skb) in a linked list and
+waits until the timer expires. If the timer expires, the module
+releases the packets.
 
-I don't know which other info I should send for this problem?
+What I'm struggling is about the accuracy of timer function. Since
+default Linux timer interrupt frequency is set to 100 HZ, I know
+the smallest timer interval is 10 msec. and the one jiffy tick is
+also 10 msec. However, it looks like that there's a small amount of
+error between real-time clock and jiffy tick.
 
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+In my experiment, (I set the 50msec timer for each packet and I sent
+one packet in every second), if I set 5 jiffies (= 50 msec) for my
+packet delay, the timer correctly executes the callback function
+after 5 jiffy ticks, however, the actual real-time measurment shows the
+packet delay varies between 40msec and 50msec. Even worse, the actual
+delay time variation has a trend. Please see the following data.
+
+pkt no.       jiffy      actual delay
+----------------------------------------
+1               5            50.2msec
+...            ...             ...
+300             5            45.1msec
+...            ...             ...
+500             5            41.6msec
+...            ...             ...
+566             5            40.6msec
+567             5            40.4msec
+568             5            50.3msec
+569             5            50.3msec
+...            ...             ...
+
+Here, the packet delay starts from around 50msec, but gradually decreased
+to 40msec, and then abruptly adjusted to 50msec. The same decrese-and-abruptly-
+adjusted trend was repeated.
+
+Is there any person have experienced the same problem? 
+It looks like that the accuray below 10msec is not guaranteed, but I'd like to
+know why this kind of trend happens (I initially thought the error should be 
+randomly distributed between 40msec to 60msec) and how the kernel adjust 
+the timer when the error term becomes over 10msec.
+
+
+- Jay

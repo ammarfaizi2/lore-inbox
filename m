@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVA0Vp1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVA0Vxg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbVA0Vp1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 16:45:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVA0Vp0
+	id S261211AbVA0Vxg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 16:53:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVA0Vxf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 16:45:26 -0500
-Received: from hsp-51.hspserver.com ([193.254.213.110]:2459 "HELO
-	hsp-51.hspserver.com") by vger.kernel.org with SMTP id S261203AbVA0VpU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 16:45:20 -0500
-Message-ID: <41F9610E.1000406@kamph.org>
-Date: Thu, 27 Jan 2005 22:45:50 +0100
-From: Timo Kamph <timo@kamph.org>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Viktor Horvath <ViktorHorvath@gmx.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: patches to 2.6.9 and 2.6.10 - make menuconfig shows "v2.6.8.1"
-References: <1106851254.720.4.camel@Charon>
-In-Reply-To: <1106851254.720.4.camel@Charon>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 27 Jan 2005 16:53:35 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:63249 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261211AbVA0Vx2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 16:53:28 -0500
+Subject: Re: Patch 4/6  randomize the stack pointer
+From: Arjan van de Ven <arjan@infradead.org>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <41F95F79.6080904@comcast.net>
+References: <20050127101117.GA9760@infradead.org>
+	 <20050127101322.GE9760@infradead.org>  <41F92721.1030903@comcast.net>
+	 <1106848051.5624.110.camel@laptopd505.fenrus.org>
+	 <41F92D2B.4090302@comcast.net>
+	 <Pine.LNX.4.58.0501271010130.2362@ppc970.osdl.org>
+	 <41F95F79.6080904@comcast.net>
+Content-Type: text/plain
+Date: Thu, 27 Jan 2005 22:53:21 +0100
+Message-Id: <1106862801.5624.145.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Viktor Horvath wrote:
-> Hello everybody,
+
+> I feel the need to point something out here.
 > 
-> today I patched myself up from 2.6.7 vanilla to 2.6.10 vanilla, but
-> after all patches succeeded, "make menuconfig" shows "v2.6.8.1
-> Configuration". Even worse, a compiled kernel calls in his bootlog
-> himself "2.6.8.1". 
+> [TEXT][BRK][MMAP---------------][STACK]
+> 
+> Here's a normal layout.
+> 
+> [TEXT][BRK][MMAP-------][STACK][MMAP--]
+> 
+> Is this one any worse?
 
-I guess you did somthing like this:
+yes.
 
-2.6.7 -patch-> 2.6.8 -patch-> 2.6.8.1 -patch-> 2.6.9 -patch-> 2.6.10.
-
-And you didn't noticed that the 2.6.9 patch failed, because it is diffed 
-against 2.6.8 and not 2.6.8.1!
-
-If you do the patching without the 2.6.8.1 patch everything should be fine.
+oracle, db2 and similar like to mmap 2Gb or more *in one chunk*.
+moving the stack in the middle means the biggest chunk they can mmap
+shrinks. 
 
 
-Timo

@@ -1,27 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282129AbRLHQ2d>; Sat, 8 Dec 2001 11:28:33 -0500
+	id <S282213AbRLHQcX>; Sat, 8 Dec 2001 11:32:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282149AbRLHQ2X>; Sat, 8 Dec 2001 11:28:23 -0500
-Received: from yuha.menta.net ([212.78.128.42]:4093 "EHLO yuha.menta.net")
-	by vger.kernel.org with ESMTP id <S282129AbRLHQ2O>;
-	Sat, 8 Dec 2001 11:28:14 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ivanovich <ivanovich@menta.net>
-To: "Pantelis Proios" <pproios@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Memory Interleave + kernel + VIA chipsets == possible ?
-Date: Sat, 8 Dec 2001 17:27:42 +0100
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <F760JPzw2O8Z9B5un770001e64e@hotmail.com> <01120816555700.01330@localhost.localdomain>
-In-Reply-To: <01120816555700.01330@localhost.localdomain>
-MIME-Version: 1.0
-Message-Id: <01120817274200.01202@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S282222AbRLHQcN>; Sat, 8 Dec 2001 11:32:13 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:40424 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S282213AbRLHQcH>; Sat, 8 Dec 2001 11:32:07 -0500
+Date: Sat, 8 Dec 2001 11:32:00 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Eric Lammerts <eric@lammerts.org>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Would the father of init_mem_lth please stand up
+Message-ID: <20011208113200.A7913@devserv.devel.redhat.com>
+In-Reply-To: <20011207234048.A31442@devserv.devel.redhat.com> <Pine.LNX.4.43.0112081240080.7546-100000@ally.lammerts.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.43.0112081240080.7546-100000@ally.lammerts.org>; from eric@lammerts.org on Sat, Dec 08, 2001 at 12:47:05PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-here is the url where these tweaks are:
-http://viahardware.com/memtweakguide1.shtm
+On Sat, Dec 08, 2001 at 12:47:05PM +0100, Eric Lammerts wrote:
 
-basically to enable em registers (offsets) 50 & 51 should go to FF hex, regs 
-64 to 67 should go to 12 hex and reg 68 should go to 43 hex
+> I agree it's ugly, but why would kfree be called on dangling pointers?
+> All those pointers are initialized again on every sd_init() call. And
+> there are no "goto cleanup_mem"s between the kmallocs.
+> 
+> Eric
+
+I was too rush - indeed there are no gotos between kmallocs.
+So the scenario that I presented cannot happen.
+
+-- Pete

@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264994AbUEYRzK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265010AbUEYSDu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264994AbUEYRzK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 13:55:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265010AbUEYRxg
+	id S265010AbUEYSDu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 14:03:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265016AbUEYSDt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 13:53:36 -0400
-Received: from fw.osdl.org ([65.172.181.6]:38841 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264994AbUEYRxA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 13:53:00 -0400
-Date: Tue, 25 May 2004 10:52:55 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Valdis.Kletnieks@vt.edu
-cc: "La Monte H.P. Yarroll" <piggy@timesys.com>,
+	Tue, 25 May 2004 14:03:49 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:1671 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S265010AbUEYSDr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 14:03:47 -0400
+Date: Tue, 25 May 2004 19:02:25 +0100
+From: Dave Jones <davej@redhat.com>
+To: Ben Collins <bcollins@debian.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFD] Explicitly documenting patch submission 
-In-Reply-To: <200405251740.i4PHeQJY014847@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.58.0405251049520.9951@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org>           
- <40B369D5.7070805@timesys.com> <200405251740.i4PHeQJY014847@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [RFD] Explicitly documenting patch submission
+Message-ID: <20040525180225.GA2668@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Ben Collins <bcollins@debian.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org> <20040525131139.GW1286@phunnypharm.org> <Pine.LNX.4.58.0405251012260.9951@ppc970.osdl.org> <20040525171805.GG1286@phunnypharm.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040525171805.GG1286@phunnypharm.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 25, 2004 at 01:18:05PM -0400, Ben Collins wrote:
 
+ > I know you want this simple, but should we keep the paper-trail momentum
+ > going by adding a "Submitted-by"? Like if I get a one-liner fix, which
+ > is obviously not adding new code, rather than go through the whole
+ > process of asking for them to agree to the signoff deal, could I do:
+ > 
+ > Submitted-by: Jimmy Janitor <jimmy@janitor.blah>
+ > Signed-off-by: Ben Collins <bcollins@debian.org>
+ > 
+ > ? I like the idea of knowing where a patch came from and via who. This
+ > would make it easier to analyze that info, but keep it simple for
+ > trivial patches that so many of us get (in the (b) case).
 
-On Tue, 25 May 2004 Valdis.Kletnieks@vt.edu wrote:
-> 
-> It's unclear (at least to me) whether your issue is:
-> 
-> a) You're submitting patches that consist of GPL'able code that you don't have
-> the company-internal paperwork in place to authorize the release; or
+For trivial one liners, it's usually quicker for me to
+just hack the file myself than to save the diff, run it through
+patch, delete the diff when I'm done etc.  When I do this
+I usually put in the changelog "pointed out by Joe Hacker".
+My reasoning behind this is that all typos are then mine 8-)
+whilst still crediting the person who did the original.
 
-No, if I understood correctly he _does_ have all the rights internally,
-and it's just that he didn't write it, so (a) doesn't apply, and because
-the people who _did_ write it are all internal and don't themselves have
-the right to release it as GPL, (b) doesn't apply either (the "preexisting
-work" wasn't GPL'd, but it will be once he follows the rules).
+Likewise if I fix something in a slightly different way
+to how the patch that was submitted did it, as the person
+reporting still did some work which they should be credited for,
+even if ultimately their solution wasn't used, but was used
+as a basis for the real fix.
 
-Technically, I do believe (b) applies just because if he has the right to 
-make it GPL'd, then he can (and should) just exercise that right _before_ 
-he agrees to sign it off as per (b).
+In these cases, I think it'd be reasonable to have..
 
-So I think the current DCO thing should be ok.
+Signed-off-by: Dave Jones <davej@redhat.com>
+Spotted-by: Joe Hacker <joe@scoblows.com>
 
-I really didn't want this to degrade into some lawyerese, and I _really_
-don't want the "certificate of origin" to become some horrible thing that 
-only a lawyer could love.
+As asking submitters to sign off on modified versions
+of their patch would be silly overhead IMO.
 
-		Linus
+Linus?
+
+		Dave
+

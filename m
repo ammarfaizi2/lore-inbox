@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264091AbTFPSxx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 14:53:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264151AbTFPSxx
+	id S264151AbTFPS4r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 14:56:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264156AbTFPS4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 14:53:53 -0400
-Received: from nix.ll.pl ([212.14.58.10]:24193 "HELO nix.ll.pl")
-	by vger.kernel.org with SMTP id S264091AbTFPSxv (ORCPT
+	Mon, 16 Jun 2003 14:56:46 -0400
+Received: from pat.uio.no ([129.240.130.16]:29903 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S264151AbTFPS4p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 14:53:51 -0400
-Message-ID: <00d801c3343a$9452aea0$083a0ed4@deltav>
-From: "Robert Grzelak" <rg@nix.ll.pl>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.21 oops second time
-Date: Mon, 16 Jun 2003 21:07:49 +0200
+	Mon, 16 Jun 2003 14:56:45 -0400
+To: Ole Marggraf <marggraf@astro.uni-bonn.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.4.21: NFS copy produces I/O errors
+References: <Pine.LNX.4.55.0306162047140.6775@aibn99.astro.uni-bonn.de>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 16 Jun 2003 12:10:26 -0700
+In-Reply-To: <Pine.LNX.4.55.0306162047140.6775@aibn99.astro.uni-bonn.de>
+Message-ID: <shsllw1u9ct.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-X-AntiVirus: scanned for viruses by MKS_vir
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Welcome!
-My colege Andrzej Sosnowski  in post "2.4.21 oops"
-has write about error in kernel 2.4.21 in time of using this script
-"#!/bin/sh
-for IP in `/usr/bin/seq 3 500`; do
-  ip addr add 3ffe:80ee:c1d::$IP/48 dev eth0
-  ip addr add 3ffe:80ee:c1d::a:$IP/48 dev eth0
-done"
+>>>>> " " == Ole Marggraf <marggraf@astro.uni-bonn.de> writes:
 
-I've made tests on clear kernel 2.4.21 in distributions:
-debian 3.0r1 woody & Red Hat Linux release 8.0 (Psyche)
-error kernel BUG sched.c 564! -  is showing while making this script.
-
-At the latest version of kernel 2.4.20 this error does'nt exists.
-
-I have been tested this kernel (2.4.21) also with patch 
-grsecurity-1.9.10-2.4.21.patch.
-
-It makes no difference - error shows again.
-
-With best regards!
-Robert Grzelak
+     > Hello all.  As it seems (to me), there is some serious problem
+     > in the NFS code of
+     > 2.4.21 (and also of 2.4.20), causing I/O errors quite
+     >        immediately.
 
 
+This is a FAQ, has been discussed to death several times on this list,
+and is all over the place in the archives.... 'man 5 nfs' and read
+carefully the section on soft mounts.
+
+
+Trond (I'm really sick of this question) Myklebust

@@ -1,59 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262796AbTB0Jsq>; Thu, 27 Feb 2003 04:48:46 -0500
+	id <S262806AbTB0Jvr>; Thu, 27 Feb 2003 04:51:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262806AbTB0Jsq>; Thu, 27 Feb 2003 04:48:46 -0500
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:17404 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S262796AbTB0Jsp>; Thu, 27 Feb 2003 04:48:45 -0500
-To: Kasper Dupont <kasperd@daimi.au.dk>
-Cc: DervishD <raul@pleyades.net>, Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: About /etc/mtab and /proc/mounts
-References: <20030219112111.GD130@DervishD> <3E5C8682.F5929A04@daimi.au.dk>
-	<buoy942s6lt.fsf@mcspd15.ucom.lsi.nec.co.jp>
-	<3E5DB2CA.32539D41@daimi.au.dk>
-	<buon0kirym1.fsf@mcspd15.ucom.lsi.nec.co.jp>
-	<3E5DCB89.9086582F@daimi.au.dk>
-	<buo65r6ru6h.fsf@mcspd15.ucom.lsi.nec.co.jp>
-	<3E5DDE5A.1BCD0747@daimi.au.dk>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 27 Feb 2003 18:58:59 +0900
-In-Reply-To: <3E5DDE5A.1BCD0747@daimi.au.dk>
-Message-ID: <buor89uqc2k.fsf@mcspd15.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
+	id <S262812AbTB0Jvr>; Thu, 27 Feb 2003 04:51:47 -0500
+Received: from cmailg1.svr.pol.co.uk ([195.92.195.171]:23817 "EHLO
+	cmailg1.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S262806AbTB0Jvr>; Thu, 27 Feb 2003 04:51:47 -0500
+Date: Thu, 27 Feb 2003 10:01:44 +0000
+To: Jakob Oestergaard <jakob@unthought.net>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 7/8] dm: __LOW macro fix no. 2
+Message-ID: <20030227100144.GA6387@fib011235813.fsnet.co.uk>
+References: <20030226170537.GA8289@fib011235813.fsnet.co.uk> <20030226171249.GG8369@fib011235813.fsnet.co.uk> <20030227093442.GC4239@unthought.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030227093442.GC4239@unthought.net>
+User-Agent: Mutt/1.5.3i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kasper Dupont <kasperd@daimi.au.dk> writes:
-> > > But AFAIK fsck uses mtab.
-> > 
-> > It uses /etc/fstab.
-> 
-> [kasperd:pts/0:~] grep /etc/mtab /sbin/fsck*
-> Binary file /sbin/fsck.ext2 matches
-> Binary file /sbin/fsck.ext3 matches
-> Binary file /sbin/fsck.minix matches
-> [kasperd:pts/0:~] 
+On Thu, Feb 27, 2003 at 10:34:42AM +0100, Jakob Oestergaard wrote:
+> If you want a magic "usually_min_but_sometimes_max()" macro, then make
+> it's *name* reflect it's voodoo propeties.
 
-God know why; the versions (e2fsprogs 1.32) on my system don't, so it's
-probably not something very important.  fsck should still work fine.
+See the patch I just posted in response to Greg.
 
-> > Unless you use the `-n' flag, which an init-script should do if it
-> > knows there's something wierd required to get /var mounted or something.
-> 
-> Of course the -n flag can be used to some extent, but that doesn't
-> solve all our problems.  Current rc.sysinit implementations does use
-> -n to mount a few filesystems, and later uses -f to initialize the
-> mtab.  But all that happens before running fsck, so if /var is mounted
-> that early, we are going to fsck it mounted.
-
-So the init scripts are badly written, what can I say?  `Don't do that.'
-
--Miles
--- 
-"Most attacks seem to take place at night, during a rainstorm, uphill,
- where four map sheets join."   -- Anon. British Officer in WW I
+- Joe

@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261589AbSI0Awv>; Thu, 26 Sep 2002 20:52:51 -0400
+	id <S261593AbSI0AzN>; Thu, 26 Sep 2002 20:55:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261590AbSI0Awv>; Thu, 26 Sep 2002 20:52:51 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:56816 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S261589AbSI0Awu>; Thu, 26 Sep 2002 20:52:50 -0400
-Date: Thu, 26 Sep 2002 20:58:08 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: george anzinger <george@mvista.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       high-res-timers-discourse@lists.sourceforge.net
-Subject: Re: [PATCH] High-res-timers part 1 (core)
-Message-ID: <20020926205808.A15402@redhat.com>
-References: <3D93A363.ACA56815@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261594AbSI0AzN>; Thu, 26 Sep 2002 20:55:13 -0400
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:24705 "EHLO
+	completely") by vger.kernel.org with ESMTP id <S261593AbSI0AzM>;
+	Thu, 26 Sep 2002 20:55:12 -0400
+From: Ryan Cumming <ryan@completely.kicks-ass.org>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
+Date: Thu, 26 Sep 2002 18:00:23 -0700
+User-Agent: KMail/1.4.7-cool
+Cc: linux-kernel@vger.kernel.org
+References: <E17uINs-0003bG-00@think.thunk.org> <200209261553.07593.ryan@completely.kicks-ass.org> <20020926235741.GC10551@think.thunk.org>
+In-Reply-To: <20020926235741.GC10551@think.thunk.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="big5"
+Content-Transfer-Encoding: 8bit
+Content-Description: clearsigned data
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D93A363.ACA56815@mvista.com>; from george@mvista.com on Thu, Sep 26, 2002 at 05:16:35PM -0700
+Message-Id: <200209261800.27582.ryan@completely.kicks-ass.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26, 2002 at 05:16:35PM -0700, george anzinger wrote:
-> hash list.  This change makes it easy to configure the list
-> size for those who are concerned with performance.  It also
-> eliminates the "time out" for the cascade operation every
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Could you make the list size configurable at boot time or by sysctl?  
-It's almost impossible for distro vendors to get these kinds of tunables 
-right for everyone, so making them dynamic is preferred.
+On September 26, 2002 16:57, Theodore Ts'o wrote:
+> Wait a second.  These messages would occur only if you had done a
+> read-only mount at 11:49:06.  Did you do a manual mount at that time?
+> Do you have one or more filesystems in your /etc/fstab (in particular
+> /dev/hda2) that are set to be mounted read-only? 
+Only /dev/cdrom...
 
-		-ben
+> That's the only
+> thing that would explain the "write access enabled during recovery of
+> readonly filesystem" warning message.  That message means that
+> /dev/hda2 was readonly because the mount command *requested* that it
+> be mounted read-only, not because of some error.
+Would init remounting the filesystem read-only before a reboot explain that? 
+11:49 is around the time I came to check my mail.
+
+> How is your system configured vis-a-vis the /etc/fstab entry for
+> /dev/hda2?
+/dev/hda2       /               ext3            defaults,errors=remount-ro      
+0       1
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE9k62rLGMzRzbJfbQRAlcSAKCMNMTRNN0D/T3GA7eM3HnzM9MVMgCfT1w6
+V6JU4fqtHDN8pzsLSdo0mzw=
+=kt7X
+-----END PGP SIGNATURE-----

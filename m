@@ -1,91 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317763AbSGZPLO>; Fri, 26 Jul 2002 11:11:14 -0400
+	id <S317768AbSGZPVP>; Fri, 26 Jul 2002 11:21:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317765AbSGZPLO>; Fri, 26 Jul 2002 11:11:14 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:2827 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S317763AbSGZPLN>;
-	Fri, 26 Jul 2002 11:11:13 -0400
-Message-ID: <3D416625.4050205@evision.ag>
-Date: Fri, 26 Jul 2002 17:09:25 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
+	id <S317771AbSGZPVP>; Fri, 26 Jul 2002 11:21:15 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:39625 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S317768AbSGZPVO>;
+	Fri, 26 Jul 2002 11:21:14 -0400
+Date: Fri, 26 Jul 2002 10:18:48 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: linux-kernel@vger.kernel.org
+Subject: 2.5 Problem Report Status 
+Message-ID: <Pine.LNX.4.44.0207261001420.1036-100000@dad.molina>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: martin@dalecki.de, Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.28 small REQ_SPECIAL abstraction
-References: <Pine.LNX.4.33.0207241410040.3542-100000@penguin.transmeta.com> <3D40E62B.9070202@evision.ag> <20020726143840.GC8761@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Fri, Jul 26 2002, Marcin Dalecki wrote:
-> 
->>The attached patch does the following:
-> 
-> 
-> Looks fine to me. One thing sticks out though:
+I've updated the status report on the web page at 
 
-Hey it was *literal* cut and paste from SCSI code after all ;-)
+http://members.cox.net/tmolina/kernprobs/status.html
 
->>+	rq->flags &= REQ_QUEUED;
-> 
-> 
-> this can't be right. Either it's a bug for REQ_QUEUED to be set here, or
-> it needs to end the tag properly.
-> 
-> 
->>+	rq->flags |= REQ_SPECIAL | REQ_BARRIER;
->>+
->>+	rq->special = data;
->>+
->>+	spin_lock_irqsave(q->queue_lock, flags);
->>+	/* If command is tagged, release the tag */
->>+	if(blk_rq_tagged(rq))
->>+		blk_queue_end_tag(q, rq);
-> 
-> 
-> woops, you just possible leaked a tag. I really don't think you should
-> mix inserting a special and ending a tag into the same function, makes
-> no sense. If a driver wants that it should do:
-> 
-> 	if (blk_rq_tagged(rq))
-> 		blk_queue_end_tag(q, rq);
+- Items marked closed are based on Linux releasing 2.5.28 as well as lkml 
+messages.  Those items will be deleted after the next Linus release.
 
-Yes.
+- Links to discussion about the problem reports are available on the page.  
+Dates under the discussion column are the date of last modification.  
+Those items marked with a kernel version rather than a date are items I 
+believe may be specific kernel version.  Those items will be deleted after 
+the next Linus release unless further discussion is noted.
 
-> 	blk_insert_request(q, rq, bla bla);
-> 
-> Also, please use the right spacing, if(bla :-)
+- Discussions are only lightly edited to delete headers, trailers, and 
+unneeded contextual quotes.  Flamage will not be included.  I will, of 
+course, delete any person's contribution at his/her request.
 
-Cut and paste damage from SCSI code.... no argument here.
+- Comments, criticisms, pointers to relevant material needing to be 
+included are gratefully accepted.
 
-> So kill any reference to tagging (and REQ_QUEUED)i in
-> blk_insert_request, and I'm ok with it.
 
-Ah, yes I'm pretty sure now. I looked up how blk_queue_end_tag()
-works and it's indeed the case -> setting the flag
-and undoing it immediately doesn't make sense anyway.
-(Even the collateral damage to tag allocation aside...)
-This was perhaps "defensive coding" by the SCSI people?
+               Kernel Problem Reports as of 26 Jul
+   Problem Title                       Status       Discussion
+   Software Suspend Failure            proposed fix 26 Jul 2002
+   big IRQ lock removal                closed       24 Jul 2002
+   Time jump/kernel freeze             open         2.5.27
+   IDE problem                         open         26 Jul 2002
+   RAID initialization                 open         24 Jul 2002
+   free_pages_ok problem               proposed fix 25 Jul 2002
+   console lockup                      open         2.5.27
+   slab page problem                   closed       24 Jul 2002
+   tcp_v6_get_port oops                closed       24 Jul 2002
+   RAID shutdown                       open         24 Jul 2002
+   Broken flock                        proposed fix 25 Jul 2002
+   odd memory corruption               closed       24 Jul 2002
+   Broken Floppy                       proposed fix 24 Jul 2002
+   OOPS with date                      open         25 Jul 2002
+   cpqarray broken since 2.5.19        open         25 Jul 2002
+   Oops w/PCMCIA modem & 8250_cs       open         25 Jul 2002
+   bad: schedule() with irqs disabled! open         26 Jul 2002
+   ISDN broken?                        open         26 Jul 2002
 
-You are right the
-
-rq->flags &= REQ_QUEUED;
-
-and the
-
-  	if (blk_rq_tagged(rq))
-  		blk_queue_end_tag(q, rq);
-
-should be just removed and things are fine.
-They only survive becouse they don't provide a tag for the request in
-first place.
-
-Thanks for pointing it out.
 

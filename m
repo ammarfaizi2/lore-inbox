@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290519AbSBGR0O>; Thu, 7 Feb 2002 12:26:14 -0500
+	id <S290639AbSBGR2h>; Thu, 7 Feb 2002 12:28:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290490AbSBGR0E>; Thu, 7 Feb 2002 12:26:04 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:21939 "EHLO segfault.osdlab.org")
-	by vger.kernel.org with ESMTP id <S289829AbSBGRZ6>;
-	Thu, 7 Feb 2002 12:25:58 -0500
-Date: Thu, 7 Feb 2002 09:26:01 -0800 (PST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@segfault.osdlab.org>
-To: Dave Jones <davej@suse.de>
-cc: Pavel Machek <pavel@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Andre Hedrick <andre@linuxdiskcert.org>,
-        Russell King <rmk@arm.linux.org.uk>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: driverfs support for motherboard devices
-In-Reply-To: <20020207142333.A22451@suse.de>
-Message-ID: <Pine.LNX.4.33.0202070922460.25114-100000@segfault.osdlab.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290615AbSBGR1Z>; Thu, 7 Feb 2002 12:27:25 -0500
+Received: from zero.tech9.net ([209.61.188.187]:41230 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S290490AbSBGR1N>;
+	Thu, 7 Feb 2002 12:27:13 -0500
+Subject: [PATCH] 2.5: bluetooth compile fix
+From: Robert Love <rml@tech9.net>
+To: torvalds@transmeta.com
+Cc: viro@math.psu.edu, greg@kroah.com, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 07 Feb 2002 12:27:09 -0500
+Message-Id: <1013102830.9535.14.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus,
 
-On Thu, 7 Feb 2002, Dave Jones wrote:
+The llseek cleanup contained a typo in bluetooth/hci_vhci.c that
+prevents compile.  Thankfully it seems to be the only of this type.
 
-> On Thu, Feb 07, 2002 at 01:31:25PM +0100, Pavel Machek wrote:
->  > > I suspect PnPBIOS knows for the 486. There is PnPbios code in 2.4-ac 
->  > > perfectly ready for a 2.5 merger
->  > PnPBIOS is nasty, and I suspect it is not present/working on all
->  > models, right?
-> 
->  For the most part it's fine, it just needs the floppy driver / ps2
->  driver (and maybe some others) fixed up to not allocate regions
->  that pnpbios already reserved. Other than these issues, it seems
->  to be working well. It's certainly handled itself ok on all my
->  test boxes (Even the weird compaq with the fscked up pnpbios --
->  it claims to have pnpbios, yet when you call it, you get feature
->  not supported return codes. cute.)
+Patch against 2.5.4-pre2.  Please, apply.
 
-Hey, speaking of PnPBios, is there a spec somewhere?
+	Robert Love
 
-Speaking of specs, does anyone know of some sort of list of specs of 
-things kernel related - platforms, hardware and firmware? sandpile.org is 
-good for most x86 things, though they are merely document names. 
+diff -urN linux-2.5.4-pre2/drivers/bluetooth/hci_vhci.c linux/drivers/bluetooth/hci_vhci.c
+--- linux-2.5.4-pre2/drivers/bluetooth/hci_vhci.c	Thu Feb  7 12:04:48 2002
++++ linux/drivers/bluetooth/hci_vhci.c	Thu Feb  7 12:24:00 2002
+@@ -291,7 +291,7 @@
+ 
+ static struct file_operations hci_vhci_fops = {
+ 	owner:	THIS_MODULE,	
+-	llseek:	no_lseek,
++	llseek:	no_llseek,
+ 	read:	hci_vhci_chr_read,
+ 	write:	hci_vhci_chr_write,
+ 	poll:	hci_vhci_chr_poll,
 
-	-pat
 

@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262794AbUJ0XWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262925AbUJ0Vml@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262794AbUJ0XWW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 19:22:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262777AbUJ0XTb
+	id S262925AbUJ0Vml (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 17:42:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262924AbUJ0VjD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 19:19:31 -0400
-Received: from gandalf.tausq.org ([64.81.244.94]:48612 "EHLO pippin.tausq.org")
-	by vger.kernel.org with ESMTP id S262754AbUJ0XSL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 19:18:11 -0400
-Date: Wed, 27 Oct 2004 16:18:14 -0700
-From: Randolph Chung <randolph@tausq.org>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch/Makefile] Fix cc-option call for xcompiles
-Message-ID: <20041027231814.GF12356@tausq.org>
-Reply-To: Randolph Chung <randolph@tausq.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GPG: for GPG key, see http://www.tausq.org/gpg.txt
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 27 Oct 2004 17:39:03 -0400
+Received: from dfw-gate3.raytheon.com ([199.46.199.232]:33133 "EHLO
+	dfw-gate3.raytheon.com") by vger.kernel.org with ESMTP
+	id S262900AbUJ0Vcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 17:32:31 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF45330B99.149A2C07-ON86256F3A.00757C16@raytheon.com>
+From: Mark_H_Johnson@Raytheon.com
+Date: Wed, 27 Oct 2004 16:30:44 -0500
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 10/27/2004 04:30:47 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If an arch Makefile overrides CROSS_COMPILE (e.g. parisc, mips, ...)
-then the cc-option call in the main Makefile uses the wrong compiler 
-to check for options.
+>the network one could perhaps be related to the network deadlocks
+>reported by others. Would be nice to turn on RWSEM_DETECT_DEADLOCKS and
+>to use a serial logging if possible.
+Would be nice but I don't have serial logging available at this point.
+I may be able to set it up in a couple of days though.
 
-Signed-off-by: Randolph Chung <tausq@debian.org>
+>does the audio test use alot of CPU time? In that case it would be
+>normal for the RT task to 'lock' the system up. In any case it would be
+>nice to try 0.4.2 because it has more check-preemption fixes affecting
+>both UP and SMP systems.
+I am aware of slow responses normally during tests. However the audio
+test should only use one CPU out of two. The other CPU is busy as well
+with a cpu burner (nice 10) but that should leave me CPU cycles
+to move the mouse, swap windows, etc.  The "lock up" I saw this time
+was a lot more severe (no mouse motion for several minutes at a time).
+I knew the system was still running since the audio continued to play.
 
-Index: Makefile
-===================================================================
-RCS file: /var/cvs/linux-2.6/Makefile,v
-retrieving revision 1.281
-diff -u -p -r1.281 Makefile
---- Makefile	27 Oct 2004 21:23:19 -0000	1.281
-+++ Makefile	27 Oct 2004 23:16:30 -0000
-@@ -494,10 +494,10 @@ ifdef CONFIG_DEBUG_INFO
- CFLAGS		+= -g
- endif
- 
-+include $(srctree)/arch/$(ARCH)/Makefile
-+
- # warn about C99 declaration after statement
- CFLAGS += $(call cc-option,-Wdeclaration-after-statement,)
--
--include $(srctree)/arch/$(ARCH)/Makefile
- 
- # Default kernel image to build when no specific target is given.
- # KBUILD_IMAGE may be overruled on the commandline or
+I'll try another build in the morning with whatever your latest is.
 
--- 
-Randolph Chung
-Debian GNU/Linux Developer, hppa/ia64 ports
-http://www.tausq.org/
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
+

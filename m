@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289643AbSA2OuM>; Tue, 29 Jan 2002 09:50:12 -0500
+	id <S289680AbSA2Oue>; Tue, 29 Jan 2002 09:50:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289645AbSA2OuC>; Tue, 29 Jan 2002 09:50:02 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:57303 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S289643AbSA2Otw>;
-	Tue, 29 Jan 2002 09:49:52 -0500
-Date: Tue, 29 Jan 2002 17:47:27 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Dave Jones <davej@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Jens Axboe <axboe@suse.de>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <Pine.LNX.4.33.0201291733500.11959-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0201291745480.12766-100000@localhost.localdomain>
+	id <S289667AbSA2OuX>; Tue, 29 Jan 2002 09:50:23 -0500
+Received: from sun.fadata.bg ([80.72.64.67]:58631 "HELO fadata.bg")
+	by vger.kernel.org with SMTP id <S289645AbSA2OuP>;
+	Tue, 29 Jan 2002 09:50:15 -0500
+To: "Cabaniols, Sebastien" <Sebastien.Cabaniols@Compaq.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: pagecoloring: kernel 2.2 mm question: what is happening during fork ?
+In-Reply-To: <11EB52F86530894F98FFB1E21F9972540C239A@aeoexc01.emea.cpqcorp.net>
+X-No-CC: Reply to lists, not to me.
+From: Momchil Velikov <velco@fadata.bg>
+Date: 29 Jan 2002 16:43:19 +0200
+In-Reply-To: <11EB52F86530894F98FFB1E21F9972540C239A@aeoexc01.emea.cpqcorp.net>
+Message-ID: <87ofjdi5fc.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Cabaniols" == Cabaniols, Sebastien <Sebastien.Cabaniols@Compaq.com> writes:
 
-Patrick Mauritz noticed that this one is actually a typo in the
-MAINTAINERS file:
+Cabaniols> When I do a fork, which part of the kernel is allocating the memory for
+Cabaniols> the childs, where and when the memory copy takes place ?
 
-> -M:	p2@ace.ulyssis.sutdent.kuleuven.ac.be
+mm/memory.c:copy_page_range()
 
-so the correct (and existing) email address is:
+It copies page tables and marks the ptes copy-on-write.
 
--M:	p2@ace.ulyssis.sutdent.kuleuven.ac.be
-+M:	p2@ace.ulyssis.student.ac.be
+Cabaniols> I know that
+Cabaniols> linux is doing copy on write but I don't know which part of the kernel
+Cabaniols> is really doing the page allocation when the copy on write understands
+Cabaniols> that the process really wants to write now. Then the second question is
+Cabaniols> how is the memory copy done ?
 
-	Ingo
+mm/memory.c: handle_mm_fault()/handle_pte_fault() and do_wp_page()
+
+Cabaniols> The third and last question is what is the role of the slab allocator ?
+Cabaniols> When does a process asks for memory from a slab ? Is it used to build
+Cabaniols> the stack the heap ? 
+
+Slab allocator is a memory allocation and caching mechanism for
+(small) kernel objects. It is described in, e.g., 
+
+    http://nondot.org/sabre/os/files/MemManagement/SlabAllocator.pdf
+
+Regards,
+-velco
+
+PS. You may also find help on irc.openprojects.net, #kernelnewbies
 

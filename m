@@ -1,67 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263763AbUFBSeo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263804AbUFBShv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263763AbUFBSeo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 14:34:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbUFBSeo
+	id S263804AbUFBShv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 14:37:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263709AbUFBShv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 14:34:44 -0400
-Received: from h001061b078fa.ne.client2.attbi.com ([24.91.86.110]:16266 "EHLO
-	linuxfarms.com") by vger.kernel.org with ESMTP id S263763AbUFBSem
+	Wed, 2 Jun 2004 14:37:51 -0400
+Received: from h001061b078fa.ne.client2.attbi.com ([24.91.86.110]:18058 "EHLO
+	linuxfarms.com") by vger.kernel.org with ESMTP id S263804AbUFBShq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 14:34:42 -0400
-Date: Wed, 2 Jun 2004 14:35:33 -0400 (EDT)
+	Wed, 2 Jun 2004 14:37:46 -0400
+Date: Wed, 2 Jun 2004 14:39:02 -0400 (EDT)
 From: Arthur Perry <kernel@linuxfarms.com>
 X-X-Sender: kernel@tiamat.perryconsulting.net
-To: Andi Kleen <ak@muc.de>
-cc: linux-kernel@vger.kernel.org
+To: Saurabh Barve <sa@atmos.colostate.edu>
+cc: Red Hat AMD64 Mailing List <amd64-list@redhat.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: GART Error 11
-In-Reply-To: <m3vfi96drx.fsf@averell.firstfloor.org>
-Message-ID: <Pine.LNX.4.58.0406021421490.14423@tiamat.perryconsulting.net>
-References: <22qyw-6e7-29@gated-at.bofh.it> <22ELe-oP-47@gated-at.bofh.it>
- <m3vfi96drx.fsf@averell.firstfloor.org>
+In-Reply-To: <Pine.LNX.4.44.0406021115390.8192-100000@eliassen.atmos.colostate.edu>
+Message-ID: <Pine.LNX.4.58.0406021355210.14337@tiamat.perryconsulting.net>
+References: <Pine.LNX.4.44.0406021115390.8192-100000@eliassen.atmos.colostate.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Andi!
-I did not realize there were quirks associated with reading this right from pci config space.
+Hi Saurabh,
 
-Perhaps someone can tell me this:
-Does anybody know if there is any documented information about the differences between agp driver version 0.99 and 0.100?
-I know I can just read the source, but there must be list of known bugs and what has been addressed by the newer version, right?
+Thanks. It looks like you also have true GART errors as reported by hardware, on CPU0.
+So our common failure mode here is actual GART errors and not something else being reported as a GART error because of erroneous kernel translation.
 
-The reason why I ask is that both RedHat and SuSE are using 0.99 agp driver still..
-RedHat Enterprise 3.0 's 2.4.21-9.0.1EL kernel and SuSE's 2.4.19 kernel have this in common, and I am seeing such gart errors only with their kernels.
-The mainline kernel 2.4.27-pre4 using gart 0.100 does not produce this failure condition.
+It's possible that we are using a device driver somewhere that is misbehaving, which is using the GART or IOMMU improperly somehow, or my guess is that is may be the actual AGP device driver used by RedHat.
+ie, they may have not patched in the most recent version that may contain a lot of fixes.
 
-Please let me know if I am going in the wrong direction, but I am going to patch RedHat's kernel with the agp 0.100 driver and see if the problem does indeed go away.
-I'll do the same with SuSE.
-If this is the case, then I have found root cause of this particular problem, and I can then address it to the specific distributors.
+Thanks for your feedback.
 
-Thanks!
-Best Regards,
-Arthur Perry
+As of making your messages go away, I would tell you to disable the GartTableWalk in MCE, but that does not seem to work on my machine.
+I'll let you know what does work without turning off Northbridge MC* entirely once I discover it.
+
+-Arthur Perry
 
 
-On Wed, 2 Jun 2004, Andi Kleen wrote:
 
-> Arthur Perry <kernel@linuxfarms.com> writes:
+On Wed, 2 Jun 2004, Saurabh Barve wrote:
+
+> Sorry about the delay in my reply. Just got in to work!
+> Here is the output:
 >
-> > Hello,
+> > pcitweak -r 0:18:3 0x48
+>
+> 0x0005001B
+>
+> > and
+> > pcitweak -r 0:19:3 0x48
+>
+> 0x00000000
+>
+> > While you are at it, can you send us status high as well?
 > >
-> > Oops. Sorry I have made a mistake in all of my statements below.
-> > It was after 5pm yesterday, and it was a long day...
-> > It's not offset 0x44 that we are interested in.
-> > My listings were at offset 0x48, which is MCA NB Status Low Register.
-> > Sorry, did not mean to confuse anybody.
+> > pcitweak -r 0:18:3 0x4c
 >
-> I would recommend to just read the MC* MSRs via /dev/msr.
-> Accessing the northbridge directly for MCE information has various
-> quirks and i removed that completely in the 2.6 driver.
-> They contain the same information.
+> 0xA4000000
 >
-> -Andi
+> > and
+> > pcitweak -r 0:19:3 0x4c
+>
+> 0x00000000
+>
+> I don't know if this would help, but below is a part of my cronwatch log:
+>
+> --------------------- Init Begin ------------------------
+>
+> **Unmatched Entries**
+> Trying to re-exec init
+> Trying to re-exec init
+>
+>  ---------------------- Init End -------------------------
+>
+>
+>  --------------------- Kernel Begin ------------------------
+>
+>
+> WARNING:  Kernel Errors Present
+>      uteval-0098: *** Error: Method executio...:  4Time(s)
+>     psparse-1121: *** Error: Method executio...:  8Time(s)
+>    Error uncorrected...:  538Time(s)
+>    GART error 11...:  538Time(s)
+>    Lost an northbridge error...:  538Time(s)
+>    NB error address 00000000...:  538Time(s)
+>
+>  ---------------------- Kernel End -------------------------
+>
+>
+>  --------------------- ModProbe Begin ------------------------
+>
+>
+> Can't locate these modules:
+>    char-major-10-134: 4 Time(s)
+>    sound-service-0-3: 6 Time(s)
+>    xp0: 3 Time(s)
+>    sound-slot-0: 6 Time(s)
+>    char-major-188: 15 Time(s)
+>
+>  ---------------------- ModProbe End -------------------------
+>
+>
+> Thanks,
+> Saurabh.
+>
+> --
+> ===============================================================================
+> Saurabh Barve                                        Phone:
+> System Administrator/Data Specialist                 970-491-7714 (voice)
+> Montgomery Research Group,                           970-491-8449 (Fax)
+> Atmospheric Sciences Department,
+> Fort Collins, Colorado
+> Colorado State University
+>
+> Mail : sa@atmos.colostate.edu
+> Web  : http://fjortoft.atmos.colostate.edu/~sa
 >
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

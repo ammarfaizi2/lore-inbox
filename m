@@ -1,57 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263101AbTLLXgi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 18:36:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263102AbTLLXgi
+	id S262719AbTLLXcy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 18:32:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbTLLXcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 18:36:38 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:55733 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S263101AbTLLXgh (ORCPT
+	Fri, 12 Dec 2003 18:32:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:27881 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262719AbTLLXcv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 18:36:37 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
-Date: Sat, 13 Dec 2003 00:36:28 +0100
-User-Agent: KMail/1.5.1
-Cc: David Brownell <david-b@pacbell.net>, Duncan Sands <baldrick@free.fr>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44L0.0312121623260.677-100000@ida.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0312121623260.677-100000@ida.rowland.org>
+	Fri, 12 Dec 2003 18:32:51 -0500
+Message-Id: <200312122332.hBCNWWZ08245@mail.osdl.org>
+Date: Fri, 12 Dec 2003 15:32:29 -0800 (PST)
+From: markw@osdl.org
+Subject: Re: more dbt-2 results hyperthreading on linux-2.6.0-test11
+To: jun.nakajima@intel.com
+cc: piggin@cyberone.com.au, mingo@redhat.com, linux-kernel@vger.kernel.org,
+       pgsql-hackers@postgresql.org
+In-Reply-To: <7F740D512C7C1046AB53446D372001736187A9@scsmsx402.sc.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312130036.29053.oliver@neukum.org>
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 12. Dezember 2003 22:27 schrieb Alan Stern:
-> On Fri, 12 Dec 2003, Oliver Neukum wrote:
+Hi Jun,
+
+DBT-2 is a fair use implementation of the TPC-C (OLTP), if you're
+familiar with that.
+
+I have 14 drives attached through 1 megaraid raid controller, and 52
+drives connected through 4 channels on 2 mylex raid controllers, all in
+a raid-0 configuration.  I am using LVM2 on both sets of drives.
+
+iostat tells me that each of the 14 drives attached through the raid
+controller are utilized < 2%, while each of the other 52 drives seem to
+peak at about 48% in one of the hyperthreaded cases (274).  I'm not too
+familiar with the umpteen other columns that iostat reports, but that
+suggests to me I have a fair amount of i/o headroom. Unfortunitely, I
+don't believe I can get my hands on any addition drives or
+controllers...
+
+Mark
+
+
+On 12 Dec, Nakajima, Jun wrote:
+> I'm not familiar with this particular workload, but noticed higher idle
+> and wait time with HT enabled, compared to HT-disabled case. This kind
+> of symptom often indicated insufficient I/O bandwidth from my
+> experience, and faster systems (with more threads) tend to show lower
+> throughput because you end up measuring disk seek time of more I/O
+> requests. Can you add more disk controller(s) and disks?
 > 
-> > Not so simple. Khubd goes down a list. If the first item on its list
-> > is not your failed reset, a deadlock will occur.
-> > 
-> > After you have submitted the URB that really does the reset, you
-> > are commited. You must either set a valid address or disable the port.
-> > You can rely on nobody else to do that.
-> 
-> I think we agree on that.  It was never my intention that fixing up a 
-> failure between the port reset and setting the device address should be 
-> put off for later handling by khubd.  That would be done immediately.
-
-OK.
-
-> Hoever the consequent changes to the device structure (i.e., everything
-> needed to reflect the fact that it is disconnected) could be done in
-> another thread.
-
-Please clarify. You have to disconnect() before you do the physical reset.
-IMHO you should do the code paths for late errors and the device morphed
-case in another thread, but what's the benefit for success?
-
-	Regards
-		Oliver
+> Jun
+>> -----Original Message-----
+>> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
+>> owner@vger.kernel.org] On Behalf Of markw@osdl.org
+>> Sent: Friday, December 12, 2003 2:28 PM
+>> To: piggin@cyberone.com.au
+>> Cc: mingo@redhat.com; linux-kernel@vger.kernel.org; pgsql-
+>> hackers@postgresql.org
+>> Subject: more dbt-2 results hyperthreading on linux-2.6.0-test11
+>> 
+>> Hi Nick,
+>> 
+>> Here are the results of the comparisons I said I would do.
+>> 
+>> no-hyperthreading:
+>> 	http://developer.osdl.org/markw/dbt2-pgsql/282/
+>> 	- metric 2288.43
+>> 	- baseline
+>> 
+>> hyperthreading:
+>> 	http://developer.osdl.org/markw/dbt2-pgsql/278/
+>> 	- metric 1944.42
+>> 	- 15% throughput decrease
+>> 
+>> hyperthreading w/ Ingo's C1 patch:
+>> 	http://developer.osdl.org/markw/dbt2-pgsql/277/
+>> 	- metric 1978.39
+>> 	- 13.5% throughput decrease
+>> 
+>> hyperthreading w/ Nick's w26 patch:
+>> 	http://developer.osdl.org/markw/dbt2-pgsql/274/
+>> 	- metric 1955.91
+>> 	- 14.5% throughput decrease
+>> 
+>> It looks like there is some marginal benefit to your or Ingo's patches
+>> with a workload like DBT-2.  I probably don't understand enough about
+>> hyperthreading, but I wonder if there's something PostgreSQL can do to
+>> take advantage of hyperthreading
+>> 
+>> Anyway, each link has pointers to readprofile and annotated oprofile
+>> assembly output (if you find that useful.)  I haven't done enough
+> tests
+>> to have an idea of the error margin, but I wouldn't be surprised if
+> it's
+>> at least 1%.
+>> 
+>> Let me know if there's anything else you'd like me to try.
+>> 
+>> Thanks,
+>> Mark
 

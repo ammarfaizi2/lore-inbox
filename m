@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318809AbSHBL4u>; Fri, 2 Aug 2002 07:56:50 -0400
+	id <S318794AbSHBLt6>; Fri, 2 Aug 2002 07:49:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318810AbSHBL4u>; Fri, 2 Aug 2002 07:56:50 -0400
-Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:2729 "EHLO
-	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S318809AbSHBL4s>; Fri, 2 Aug 2002 07:56:48 -0400
-Date: Fri, 2 Aug 2002 13:34:44 +0200
-From: Richard Zidlicky <rz@linux-m68k.org>
-To: Jeff Dike <jdike@karaya.com>
-Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Accelerating user mode linux
-Message-ID: <20020802133444.E1948@linux-m68k.org>
-References: <200208012016.g71KGwK27981@devserv.devel.redhat.com> <200208020440.XAA04793@ccure.karaya.com>
+	id <S318795AbSHBLt6>; Fri, 2 Aug 2002 07:49:58 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:40584 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S318794AbSHBLt4>;
+	Fri, 2 Aug 2002 07:49:56 -0400
+Date: Fri, 2 Aug 2002 13:53:21 +0200
+From: Jens Axboe <axboe@suse.de>
+To: martin@dalecki.de
+Cc: Stephen Lord <lord@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: A new ide warning message
+Message-ID: <20020802115321.GE1055@suse.de>
+References: <1028288066.1123.5.camel@laptop.americas.sgi.com> <3D4A6F43.4010908@evision.ag>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200208020440.XAA04793@ccure.karaya.com>; from jdike@karaya.com on Thu, Aug 01, 2002 at 11:40:28PM -0500
+In-Reply-To: <3D4A6F43.4010908@evision.ag>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01, 2002 at 11:40:28PM -0500, Jeff Dike wrote:
+On Fri, Aug 02 2002, Marcin Dalecki wrote:
+> U?ytkownik Stephen Lord napisa?:
+> >In 2.5.30 I started getting these warning messages out ide during
+> >the mount of an XFS filesystem:
+> >
+> >ide-dma: received 1 phys segments, build 2
+> >
+> >Can anyone translate that into English please.
 > 
-> Your objection to returning through sigreturn was performance.  Is performance
-> a veto of adding an mm switch to sigreturn, or it is possible to make it
-> acceptible?
+> It can be found in pcidma.c.
+> It is repoting that we have one physical segment needed by
+> the request in question but the sctter gather list allocation
+> needed to break it up for mapping in two.
 
-I have once ported Basilisk to work native on linux-m68k. It works
-*slow* so I looked what the problem is - the signal delivery in
-Linux is exorbitantly slow. Eg an SIGILL delivery costs ~ 1650 cycles 
-on a 68060, compared to that sigreturn and getpid are 200-250 and 
-sched_yield with context switch around 400.
+You don't seem to realise that this is a BUG (somewhere, could even be
+in the generic mapping functions)! blk_rq_map_sg() must never map a
+request to more entries that rq->nr_segments, that's just very wrong.
 
-So sigreturn is not the place I would be looking for the biggest
-speedups.
+That's why I'm suspecting the recent pcidma changes. Just a feeling, I
+have not looked at them.
 
-Richard
+-- 
+Jens Axboe
 

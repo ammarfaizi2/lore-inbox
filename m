@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261855AbTAaRqn>; Fri, 31 Jan 2003 12:46:43 -0500
+	id <S261868AbTAaRuN>; Fri, 31 Jan 2003 12:50:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261868AbTAaRqn>; Fri, 31 Jan 2003 12:46:43 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:58824 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261855AbTAaRqn>;
-	Fri, 31 Jan 2003 12:46:43 -0500
-Date: Fri, 31 Jan 2003 18:55:58 +0100
+	id <S261872AbTAaRuN>; Fri, 31 Jan 2003 12:50:13 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:65224 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261868AbTAaRuM>;
+	Fri, 31 Jan 2003 12:50:12 -0500
+Date: Fri, 31 Jan 2003 18:59:27 +0100
 From: Vojtech Pavlik <vojtech@suse.cz>
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: drivers/char/keyboard.c now unused?
-Message-ID: <20030131185558.A25927@ucw.cz>
-References: <1043894474.1623.6.camel@laptop-linux.cunninghams>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dave Jones <davej@codemonkey.org.uk>, Tomas Szepe <szepe@pinerecords.com>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Rodland <arodland@noln.com>,
+       john@grabjohn.com
+Subject: Re: [PATCH] 2.5.59 morse code panics
+Message-ID: <20030131185927.B25927@ucw.cz>
+References: <20030130150709.GC701@louise.pinerecords.com> <20030130173642.GB25824@codemonkey.org.uk> <1043952334.31674.20.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <1043894474.1623.6.camel@laptop-linux.cunninghams>; from ncunningham@clear.net.nz on Thu, Jan 30, 2003 at 03:41:15PM +1300
+In-Reply-To: <1043952334.31674.20.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Thu, Jan 30, 2003 at 06:45:34PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 30, 2003 at 03:41:15PM +1300, Nigel Cunningham wrote:
-> Hi all.
-> 
-> I've been doing some work on porting my patches to the 2.4 version of
-> software suspend to 2.5. Under 2.4, I use the shift_state variable from
-> drivers/char/keyboard.c to provide interactive, step-by-step progression
-> through the process. That is, there is an option for you to be able to
-> press and release shift before the next stage starts. With the new input
-> layer, drivers/char/keyboard.c still exists, but seems to be unused. Can
-> I get confirmation that my understand is correct, and (if possible) a
-> pointer to information on how I can reimplement the functionality under
-> 2.5?
+On Thu, Jan 30, 2003 at 06:45:34PM +0000, Alan Cox wrote:
 
-Your understanding is not correct, and drivers/char/keyboard.c is very
-much used for all keyboard input in 2.5.
+> On Thu, 2003-01-30 at 17:36, Dave Jones wrote:
+> > As this patch further builds upon the previous one,
+> > It'd take a complete change of mind on his part to take
+> > this as it is.
+> 
+> If its attached to atkbd then its not a PCism and its now
+> nicely modularised in the atkbd driver. Providing we have
+> a clear split between the core "morse sender" and the
+> platform specific morse output device (do we want 
+> morse_ops 8)) it should be clean and you can write morse
+> drivers for pc speaker, for non pc keyboard and even for
+> soundblaster 8)
 
-> Oh and before anyone has a hernia, I'm not intending to leave this
-> functionality in the final version - its just for debugging purposes.
-> 
-> Thanks in advance,
-> 
-> Nigel
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+It should be in the keyboard.c file, using input_event() to blink the
+LEDs. This way it'll work on all archs in 2.5.
+
+I will not accept it as a patch for atkbd.c, unless there is a strong
+reason to do it there.
 
 -- 
 Vojtech Pavlik

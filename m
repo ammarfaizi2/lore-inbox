@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263761AbTIBRt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 13:49:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263913AbTIBRtZ
+	id S261501AbTIBMtL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 08:49:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbTIBMou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 13:49:25 -0400
-Received: from mail.kroah.org ([65.200.24.183]:9661 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263883AbTIBRlo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 13:41:44 -0400
-Date: Tue, 2 Sep 2003 10:38:46 -0700
-From: Greg KH <greg@kroah.com>
-To: Felipe W Damasio <felipewd@terra.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Needed include in usb/gadget/net2280
-Message-ID: <20030902173846.GA17995@kroah.com>
-References: <3F514CDC.9060203@terra.com.br>
+	Tue, 2 Sep 2003 08:44:50 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:53983 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261501AbTIBMn4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 08:43:56 -0400
+Date: Mon, 1 Sep 2003 22:09:42 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Ducrot Bruno <ducrot@poupinou.org>
+Cc: davej@codemonkey.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       cpufreq@www.linux.org.uk
+Subject: Re: Athlon XP-M and cpufreq freezing Asus laptop to death
+Message-ID: <20030901200941.GF1358@openzaurus.ucw.cz>
+References: <20030824164828.GA922@renditai.milesteg.arr> <20030825071009.GH19292@poupinou.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F514CDC.9060203@terra.com.br>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030825071009.GH19292@poupinou.org>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 30, 2003 at 10:18:20PM -0300, Felipe W Damasio wrote:
-> 	Hi Greg,
-> 
-> 	Attached is a trivial patch which includes the needed 
-> 	linux/version.h header file.
-> 
-> 	This is based on Randy's checkversion.pl script.
-> 
-> 	Please consider applying.
+Hi!
 
-Thanks, but I already have this change in my USB tree.  I'll push them
-all to Linus later today.
+> This is a known issue (at least for me :).  When the difference
+> between 2 vid and/or 2 fid are too big, that hang.
+> 
+> For now, as a quick (and mostly dirty though) solution is to go
+> with the userspace governor only and to go to the lowest frequency with
+> one or two step in-between.
+> 
+> I'm also wondering if those athlons have the same kind of stuff than
+> the opteron (Dave)?
 
-greg k-h
+k8 has similar restriction to small steps, only.
+				Pavel
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/
-On Sat, Aug 30, 2003 at 10:18:20PM -0300, Felipe W Damasio wrote:
-> 	Hi Greg,
-> 
-> 	Attached is a trivial patch which includes the needed 
-> 	linux/version.h header file.
-> 
-> 	This is based on Randy's checkversion.pl script.
-> 
-> 	Please consider applying.
+Hi!
 
-Thanks, but I already have this change in my USB tree.  I'll push them
-all to Linus later today.
+> This is a known issue (at least for me :).  When the difference
+> between 2 vid and/or 2 fid are too big, that hang.
+> 
+> For now, as a quick (and mostly dirty though) solution is to go
+> with the userspace governor only and to go to the lowest frequency with
+> one or two step in-between.
+> 
+> I'm also wondering if those athlons have the same kind of stuff than
+> the opteron (Dave)?
 
-greg k-h
+k8 has similar restriction to small steps, only.
+				Pavel
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+

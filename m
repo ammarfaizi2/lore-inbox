@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264286AbUANWX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 17:23:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264351AbUANWX6
+	id S264322AbUANWYK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 17:24:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264398AbUANWYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 17:23:58 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:43737 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S264286AbUANWXf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 17:23:35 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Wed, 14 Jan 2004 17:24:09 -0500
+Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:63360
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S264322AbUANWX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 17:23:56 -0500
+Date: Wed, 14 Jan 2004 17:22:37 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: James Cleverdon <jamesclv@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Chris McDermott <lcm@us.ibm.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [PATCH] 2.6.1-mm2: Get irq_vector size right for generic subarch
+ UP installer kernels
+In-Reply-To: <200401141159.03248.jamesclv@us.ibm.com>
+Message-ID: <Pine.LNX.4.58.0401141720590.9824@montezuma.fsmlabs.com>
+References: <200401131627.02138.jamesclv@us.ibm.com>
+ <Pine.LNX.4.58.0401131957420.18388@montezuma.fsmlabs.com>
+ <200401141159.03248.jamesclv@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16389.49505.481834.12558@napali.hpl.hp.com>
-Date: Wed, 14 Jan 2004 14:23:29 -0800
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] 2.6 && module + -g && kernel w/o -g
-In-Reply-To: <20040114210937.GA983@stop.crashing.org>
-References: <20040108003040.GA18481@stop.crashing.org>
-	<20040114210937.GA983@stop.crashing.org>
-X-Mailer: VM 7.17 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 14 Jan 2004 14:09:37 -0700, Tom Rini <trini@kernel.crashing.org> said:
+On Wed, 14 Jan 2004, James Cleverdon wrote:
 
-  Tom> The following patch fixes the problem for me on PPC32:
+> On Tuesday 13 January 2004 5:00 pm, Zwane Mwaikambo wrote:
+> > On Tue, 13 Jan 2004, James Cleverdon wrote:
+> > > Problem:  Earlier I didn't consider the case of the generic sub-arch and
+> > > uni-proc installer kernels used by a number of distros.  It currently is
+> > > scaled by NR_CPUS.  The correct values should be big for summit and
+> > > generic, and can stay the same for all others.
+> >
+> > This all looks strange, especially in assign_irq_vector() does this
+> > mean that you'll try and allocate up to 1024 vectors?
+>
+> The irq_vector array name is a bit misleading.  It contains the vectors for
+> each potential I/O APIC RTE.  The array needs to be at least the sum of all
+> the RTEs in the system.  Summit PCI bridge chips have large I/O APICs (50
+> RTEs), and a large system has up to 16 of them.  16*50 = 800.  Allocating 1k
+> entries provides a pad for the future, and u8 doesn't cost much.
 
-  Tom> --- 1.96/kernel/module.c	Wed Jan  7 22:46:59 2004
-  Tom> +++ edited/kernel/module.c	Wed Jan 14 14:05:12 2004
-  Tom> @@ -1439,6 +1439,13 @@
-  Tom> strindex = sechdrs[i].sh_link;
-  Tom> strtab = (char *)hdr + sechdrs[strindex].sh_offset;
-  Tom> }
-  Tom> +
-  Tom> +		/* If we find any debug RELAs, frob these away now. */
-  Tom> +		if (sechdrs[i].sh_type == SHT_RELA &&
-  Tom> +				(strstr(secstrings+sechdrs[i].sh_name, ".debug")
-  Tom> +				 != 0))
-  Tom> +			sechdrs[i].sh_type = SHT_NULL;
-  Tom> +
-  Tom> #ifndef CONFIG_MODULE_UNLOAD
-  Tom> /* Don't load .exit sections */
-  Tom> if (strncmp(secstrings+sechdrs[i].sh_name, ".exit", 5) == 0)
+Ok i understand the need to accomodate all the RTEs, but what i was
+considering was what happens when assign_irq_vector runs out of vectors to
+allocate and ends up "wrapping". I just sent an email to Jun Nakajima with
+a bit more detail.
 
-  Tom> IMHO, this shouldn't be covered under a PPC32 test since at
-  Tom> least PPC32, PPC64 and Alpha have this issue, and I suspect
-  Tom> that ia64, parisc, s390 and v850 have the problem as well
-  Tom> (based on what their module_arch_frob bits look to be doing).
+Thanks,
+	Zwane
 
-As far as ia64 is concerned, adding a check for .debug should be OK,
-but since the debug sections do not have any relocs anyhow, it
-shouldn't make much of a difference one way or another (addresses in
-the debug section a segment-relative).
-
-	--david

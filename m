@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129733AbRAHUuP>; Mon, 8 Jan 2001 15:50:15 -0500
+	id <S129226AbRAHUy0>; Mon, 8 Jan 2001 15:54:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129595AbRAHUuF>; Mon, 8 Jan 2001 15:50:05 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27399 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129226AbRAHUt4>; Mon, 8 Jan 2001 15:49:56 -0500
-Subject: Re: Ext2 (dma ?) error
-To: m.duelli@web.de (Michael Duelli)
-Date: Mon, 8 Jan 2001 20:51:44 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), m.duelli@web.de (Michael Duelli),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20010108214933.A483@Unimatrix01.surf-callino.de> from "Michael Duelli" at Jan 08, 2001 09:49:33 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129387AbRAHUyP>; Mon, 8 Jan 2001 15:54:15 -0500
+Received: from lairdtest1.internap.com ([206.253.215.67]:17931 "EHLO
+	lairdtest1.internap.com") by vger.kernel.org with ESMTP
+	id <S129226AbRAHUyL>; Mon, 8 Jan 2001 15:54:11 -0500
+Date: Mon, 8 Jan 2001 12:54:04 -0800 (PST)
+From: Scott Laird <laird@internap.com>
+To: Chris Meadors <clubneon@hereintown.net>
+cc: Igmar Palsenberg <maillist@chello.nl>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Delay in authentication.
+In-Reply-To: <Pine.LNX.4.31.0101081043160.17858-100000@rc.priv.hereintown.net>
+Message-ID: <Pine.LNX.4.21.0101081253110.13252-100000@lairdtest1.internap.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14FjGd-0005K1-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Nevertheless I checked the partition with my old SuSE 2.2.16 kernel
-> and it gave a different error message:
+
+Is syslog running correctly?  When syslog screws up, it very frequently
+results in this sort of problem.
+
+
+Scott
+
+On Mon, 8 Jan 2001, Chris Meadors wrote:
+
+> On Mon, 8 Jan 2001, Igmar Palsenberg wrote:
 > 
-> hda: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-> hda: read_intr: error=0x40 { UncorrectableError } LBAsect = 2421754, sector
-> 210048
-> end_request: I/O error, dev 03:03 (hda), sector 2100448
+> > check /etc/pam.d/login
 > 
-> no more dma but read.
-
-Different mode, same error
-
-> Fortunately it is still under warranty.
-
-One to return. If a disk starts to go bad under warranty return and replace it
-if you can. It maybe a one off but its often the sign of a disk about to go
-completely kerblam
+> No pam.
+> 
+> > Could be kerberos that is biting you, althrough that doesn't explain the
+> > portmap story.
+> 
+> So no kerberos.
+> 
+> I just rebuilt the shadow suite (where my login comes from) to be on the
+> safe side.  But the problem is still there.
+> 
+> ldd login shows:
+>         libshadow.so.0 => /lib/libshadow.so.0 (0x4001a000)
+>         libcrypt.so.1 => /lib/libcrypt.so.1 (0x40033000)
+>         libc.so.6 => /lib/libc.so.6 (0x40060000)
+>         /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x40000000)
+> 
+> I'm running glibc-2.2, but this problem also existed in 2.1.x (which I had
+> installed when I went to the 2.3 kernels that exposed this problem).
+> 
+> -Chris
+> -- 
+> Two penguins were walking on an iceberg.  The first penguin said to the
+> second, "you look like you are wearing a tuxedo."  The second penguin
+> said, "I might be..."                         --David Lynch, Twin Peaks
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
+> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,33 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272534AbTGaPlZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 11:41:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272529AbTGaPkF
+	id S270169AbTGaPsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 11:48:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274804AbTGaPqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 11:40:05 -0400
-Received: from mx1.aruba.it ([62.149.128.130]:10412 "HELO mx1.aruba.it")
-	by vger.kernel.org with SMTP id S272527AbTGaPjf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 11:39:35 -0400
-Date: Thu, 31 Jul 2003 17:37:23 +0200
-From: paolo taraboi <paolo.taraboi@aruba.it>
-To: linux-kernel@vger.kernel.org
-Subject: kernel 2.6.0 test1 and test2
-Message-Id: <20030731173723.62865405.paolo.taraboi@aruba.it>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	Thu, 31 Jul 2003 11:46:37 -0400
+Received: from tomts24-srv.bellnexxia.net ([209.226.175.187]:12534 "EHLO
+	tomts24-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S272946AbTGaPpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 11:45:07 -0400
+Date: Thu, 31 Jul 2003 11:45:04 -0400
+From: Marc Heckmann <mh@nadir.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: UP IO-APIC fix in 2.4.22-pre?
+Message-ID: <20030731154503.GA1399@nadir.org>
+References: <20030731002847.GA3549@nadir.org> <200307310821.27648.m.c.p@wolk-project.de> <Pine.LNX.4.55L.0307311225350.4226@freak.distro.conectiva>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Rating: mx1.aruba.it 1.6.2 0/1000/N
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55L.0307311225350.4226@freak.distro.conectiva>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1) The tarfile did not include "linux/include/iobuf.h"  (this causes a
-problem in drivers/mtd/devices/blkmtd.c) 2) Copying iobuf.h  from 2.4.20
-sources generates an error in function brw_kiosvec due to diffs in param
-btw ver 2.4.20 and 2.6.0 (err = brw_kiovec(READ, 1, &iobuf,
-rawdevice->binding, blocks, rawdevice->sector_size) => solved changing
-the 4th param of  brw_kiovec (in 2.4.20 iobuf.h) to type struct pointer
-3) At line 1199 of drivers/mtd/devices/blkmtd.c change "module" with
-"owner" regards
-Paolo
+hi,
+
+On Thu, Jul 31, 2003 at 12:26:58PM -0300, Marcelo Tosatti wrote:
+> 
+> Marc,
+> 
+> I just applied that patch in the 2.4 BK tree.
+> 
+> -pre10 will be release today with it included.
+> 
+
+ok, I'll give it a spin and let you know.
+
+Cheers,
+
+-m
+
+
+> On Thu, 31 Jul 2003, Marc-Christian Petersen wrote:
+> 
+> > On Thursday 31 July 2003 02:28, Marc Heckmann wrote:
+> >
+> > Hi Marc,
+> >
+> > > I was just wondering about the bugfix for UP IO-APIC that is in 2.4-ac
+> > > and that went into 2.5:
+> > > http://linux.bkbits.net:8080/linux-2.5/cset@1.1455.1.9
+> > > Will it make it into 2.4.22? From what I understand this fixes the
+> > > following problem that many of us are seeing:
+> > > hda: dma_timer_expiry: dma status == 0x24
+> > > hda: lost interrupt
+> > > hda: dma_intr: bad DMA status (dma_stat=30)
+> > > hda: dma_intr: status=0x50 { DriveReady SeekComplete }
+> >
+> > I sent it to Marcelo yesterday. In the meantime you might want to try out the
+> > attached patch ontop of 2.4.22-pre9 and see if it fixes the problems for you.
+> >
+> > ciao, Marc
+> >

@@ -1,47 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266565AbUHTLq1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266347AbUHTLqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266565AbUHTLq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 07:46:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266569AbUHTLq1
+	id S266347AbUHTLqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 07:46:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266569AbUHTLqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 07:46:27 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11783 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266565AbUHTLqX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 07:46:23 -0400
-Date: Fri, 20 Aug 2004 12:46:19 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1-mm3
-Message-ID: <20040820124619.B27849@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20040820031919.413d0a95.akpm@osdl.org>
+	Fri, 20 Aug 2004 07:46:24 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:45480 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S266347AbUHTLpt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 07:45:49 -0400
+Date: Fri, 20 Aug 2004 13:45:31 +0200
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       EdHamrick@aol.com
+Subject: Consistent complete lock up with 2.6.8.1-mm2 and vuescan, no serial console output
+Message-ID: <20040820114531.GA11463@gamma.logic.tuwien.ac.at>
+References: <20040809185018.GA26084@gamma.logic.tuwien.ac.at> <20040812204756.GA12117@gamma.logic.tuwien.ac.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040820031919.413d0a95.akpm@osdl.org>; from akpm@osdl.org on Fri, Aug 20, 2004 at 03:19:19AM -0700
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040812204756.GA12117@gamma.logic.tuwien.ac.at>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 20, 2004 at 03:19:19AM -0700, Andrew Morton wrote:
-> - Added three more bk trees:
+Hi Andrew, hi Ed, hi list!
+
+The problem persisted with 2.6.8.1-mm2, but this time a collected the
+syslog via a usb serial console on my Palm T|C.
+
+The funny thing is, only the normal syslog shows up, but there is no
+error spewed out when X freezes.
+
+Is there any chance to get *more* information via the serial console
+(without usb)? If yes, I will search and hopefully can set up an old
+TRGpro for receiving this stuff via teh serial port.
+
+Anyway it would be nice to hear at least a comment from one of you on
+how to proceed with this. Since it is 100% repeatable here, it would be
+nice if it can be fixed. It suprises me that the whole kernel just
+completely freezes, while only disk io and cpu is used, there is no
+usage of usb stuff (besides the usb serial console, but also wihtout
+it), vuescan is scanning from raw files, so not contacting any `outside'
+world besides the hard drives.
+
+Best wishes
+
+Norbert
+
+On Don, 12 Aug 2004, preining wrote:
+> The problem persisted with 2.6.8-rc4-mm1, always (repeatable 100%) after
+> around 30 scans the computer freezes completely. Not even sysrq works.
 > 
-> 	bk-fb:		Some ARM framebuffer driver (rmk)
-> 	bk-mmc:		ARM-specific media drivers(?)
+> But at least what I could check was that it is not a memory problem,
+> there is still enough swap free (close to 1G).
+> 
+> So what can I do, any ideas?
+> 
+> On Mon, 09 Aug 2004, preining wrote:
+> > I have a bit of a problem here: I am scanning with vuescan (latest
+> > version) on linux-2.6.8-rc3-mm1 a lot of images from raw files, i.e.
+> > only data io from the hard disk, no usb etc interferes, and always after
+> > 20/30 something images the computer freezes completely. Not even Sysrq
+> > works. Only reset button. Of course, the syslog shows up nothing.
+> > 
+> > Is there anything you two can think of what could be the reason?
+> > 
+> > (and no, I have no chance to use serial console, but I doubt it would be
+> > useful)
+> 
+> Best wishes
+> 
+> Norbert
+> 
+> -------------------------------------------------------------------------------
+> Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
+> gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+> -------------------------------------------------------------------------------
+> CORSTORPHINE (n.)
+> A very short peremptory service held in monasteries prior to teatime
+> to offer thanks for the benediction of digestive biscuits.
+> 			--- Douglas Adams, The Meaning of Liff
 
-Not really ARM-specific; it's the Multimedia card subsystem core with
-a multimedia block device driver, and a couple of drivers for ARM
-multimedia card interfaces.
-
-There has been some interest on this list surrounding the core and
-whether it can be used to drive some of these MMC interfaces found on
-x86.  I guess it's now watch and see what happens in this space.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+STURRY (n.,vb.)
+A token run. Pedestrians who have chosen to cross a road immediately
+in front of an approaching vehicle generally give a little wave and
+break into a sturry. This gives the impression of hurrying without
+having any practical effect on their speed whatsoever.
+			--- Douglas Adams, The Meaning of Liff

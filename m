@@ -1,67 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266275AbUIEG1m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266274AbUIEG2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266275AbUIEG1m (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 02:27:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266274AbUIEG1m
+	id S266274AbUIEG2i (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 02:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266287AbUIEG2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 02:27:42 -0400
-Received: from smtp-out1.blueyonder.co.uk ([195.188.213.4]:64634 "EHLO
-	smtp-out1.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S266275AbUIEG10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 02:27:26 -0400
-Message-ID: <413AB1CC.7090008@blueyonder.co.uk>
-Date: Sun, 05 Sep 2004 07:27:24 +0100
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-Reply-To: sboyce@blueyonder.co.uk
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paul Jakma <paul@clubi.ie>
-CC: Lee Revell <rlrevell@joe-job.com>, Tim Fairchild <tim@bcs4me.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NVIDIA Driver 1.0-6111 fix
-References: <41390988.2010503@blueyonder.co.uk>  <20040904103601.D13149@infradead.org>  <200409041954.05272.tim@bcs4me.com> <1094327788.6575.209.camel@krustophenia.net> <Pine.LNX.4.61.0409050041500.23011@fogarty.jakma.org>
-In-Reply-To: <Pine.LNX.4.61.0409050041500.23011@fogarty.jakma.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Sep 2004 06:27:49.0015 (UTC) FILETIME=[76CDEA70:01C49311]
+	Sun, 5 Sep 2004 02:28:38 -0400
+Received: from ozlabs.org ([203.10.76.45]:45002 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S266274AbUIEG2f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 02:28:35 -0400
+Date: Sun, 5 Sep 2004 16:27:43 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, torvalds@osdl.org,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/3] beat kswapd with the proverbial clue-bat
+Message-ID: <20040905062743.GG7716@krispykreme>
+References: <413AA7B2.4000907@yahoo.com.au> <20040904230939.03da8d2d.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040904230939.03da8d2d.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jakma wrote:
 
-> On Sat, 4 Sep 2004, Lee Revell wrote:
->
->> I bet 99.9% of the people who signed that stupid petition already own
->> freaking ATI hardware.  The people yelling the loudest seem to be those
->> who didn't realize the hardware wasn't Linux compatible when they bought
->> it, when it would have taken 10 seconds to find out.
->
->
-In this game, I tend to leave it up to the individual and groups to 
-fight for whatever they want as it's sometimes a bit of concerted action 
-that yields results. It can be a protracted exercise, but nothing 
-ventured, nothing gained. The situation has improved as far as vendor 
-support is concerned, it started at zero, but still not all we would 
-like and may never be, so it's a case of eating what you have on your 
-plate and asking for more - no bones broken.
+> There have been few reports, and I believe that networking is getting
+> changed to reduce the amount of GFP_ATOMIC higher-order allocation
+> attempts.
 
-> Urm... the ATi R1xx and R2xx cards *are* open-source supported (thanks 
-> weather channel!). The R2xx ATi FireGL is the fastest open-driver DRI 
-> card..
->
-> regards,
+FYI I seem to remember issues on loopback due to its large MTU. Also the
+printk_ratelimit stuff first appeared because the e1000 was spewing so
+many higher order page allocation failures on some boxes.
 
-It's users of that calibre and vendors with the clout of IBM, Dell, HP 
-etc. that can help and the fact that Linux will rapidly be a good 
-revenue stream for the most open of manufacturers. Today in Linux we are 
-not where we were 10 years ago and 10 years from now we won't be where 
-we are today and the signs are good.
-Regards
-Sid.
+But yes, the e1000 guys were going to look into multiple buffer mode so
+they dont need a high order allocation.
 
--- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-=====LINUX ONLY USED HERE=====
-
+Anton

@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130311AbQLTWde>; Wed, 20 Dec 2000 17:33:34 -0500
+	id <S130022AbQLTWiE>; Wed, 20 Dec 2000 17:38:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130144AbQLTWdY>; Wed, 20 Dec 2000 17:33:24 -0500
-Received: from mail.inconnect.com ([209.140.64.7]:64448 "HELO
-	mail.inconnect.com") by vger.kernel.org with SMTP
-	id <S130022AbQLTWdQ>; Wed, 20 Dec 2000 17:33:16 -0500
-Date: Wed, 20 Dec 2000 15:02:47 -0700 (MST)
-From: Dax Kelson <dax@gurulabs.com>
-To: Michael Rothwell <rothwell@holly-springs.nc.us>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: iptables: "stateful inspection?"
-In-Reply-To: <3A411BC2.1E302455@holly-springs.nc.us>
-Message-ID: <Pine.SOL.4.30.0012201455190.20709-100000@ultra1.inconnect.com>
+	id <S130144AbQLTWhy>; Wed, 20 Dec 2000 17:37:54 -0500
+Received: from mail3.teleport.com ([192.108.254.31]:45002 "HELO
+	mail3.teleport.com") by vger.kernel.org with SMTP
+	id <S130022AbQLTWhu>; Wed, 20 Dec 2000 17:37:50 -0500
+Message-ID: <3A412C8D.59DDD9F2@BitWagon.com>
+Date: Wed, 20 Dec 2000 14:02:53 -0800
+From: John Reiser <jreiser@BitWagon.com>
+Organization: -
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.5-15 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: tighter compression for x86 kernels
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Rothwell said once upon a time (Wed, 20 Dec 2000):
+Beta release v1.11 of the UPX executable compressor http://upx.tsx.org
+offers new, tighter re-compression of compressed Linux kernels for x86.
+Additional space savings of about 15% have been seen using
+"upx --best vmlinuz" (example: 617431 ==> 525099, saving 92332 bytes).
+Both source (GPLv2) and pre-compiled binary for x86 are available.
+[I'm not subscribed to this mailing list, so CC: or mail me if appropriate.]
 
-> Alan Cox wrote:
->
-> > It does SYN checking. If you are running 'serious' security you wouldnt be
-> > allowing outgoing connections anyway. One windows christmascard.exe virus that
-> > connects back to an irc server to take input and you are hosed.
->
-> Thankfully, pine and mutt are, to date, immune to that kind of thing. :)
-
-Try again.  Pine less than 4.30 has a buffer overflow builtin.  A properly
-formated "From" header (or something) can hose you.  No need for any
-attachment.
-
-Dax
-
+-- 
+John Reiser, jreiser@BitWagon.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

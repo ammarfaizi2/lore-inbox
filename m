@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264025AbUDGSIj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 14:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264079AbUDGSIi
+	id S264079AbUDGSJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 14:09:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264086AbUDGSJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 14:08:38 -0400
-Received: from colin2.muc.de ([193.149.48.15]:18194 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S264025AbUDGSIh (ORCPT
+	Wed, 7 Apr 2004 14:09:29 -0400
+Received: from holomorphy.com ([207.189.100.168]:34438 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264079AbUDGSJU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 14:08:37 -0400
-Date: 7 Apr 2004 20:08:35 +0200
-Date: Wed, 7 Apr 2004 20:08:35 +0200
-From: Andi Kleen <ak@muc.de>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Andi Kleen <ak@muc.de>, Paul Wagland <paul@wagland.net>,
-       linux-kernel@vger.kernel.org, gktnews@gktech.net
-Subject: Re: amd64 questions
-Message-ID: <20040407180835.GA52759@colin2.muc.de>
-References: <1Ijzw-4ff-5@gated-at.bofh.it> <1Ijzv-4ff-3@gated-at.bofh.it> <1IntE-7wn-39@gated-at.bofh.it> <m3isgb69xx.fsf@averell.firstfloor.org> <40743110.8000306@nortelnetworks.com>
+	Wed, 7 Apr 2004 14:09:20 -0400
+Date: Wed, 7 Apr 2004 11:09:19 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-mc2
+Message-ID: <20040407180919.GB30117@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040406221744.2bd7c7e4.akpm@osdl.org> <20040407180430.GA30117@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40743110.8000306@nortelnetworks.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040407180430.GA30117@holomorphy.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 07, 2004 at 12:49:20PM -0400, Chris Friesen wrote:
-> Andi Kleen wrote:
-> 
-> >The problem is always the long long alignment. AMD64/IA64 have different
-> >alignment for long long than i386. The emulation was originally tested
-> >on some RISC port, where the alignment is the same.
-> 
-> What about a compiler flag to emit i386 code with the more strenuous 
-> long long alignment?
+On Wed, Apr 07, 2004 at 11:04:30AM -0700, William Lee Irwin III wrote:
+> +	if (sizeof(unsigned long) == 8)
 
-That would break other things, glibc uses long long heavily too. 
-The only simple way would be to add the necessary alignment by hand and 
-create a special 32bit on 64bit kernel iptables or ipsec.
+Ugh.
 
--Andi
+
+Index: wli-2.6.5-3/fs/open.c
+===================================================================
+--- wli-2.6.5-3.orig/fs/open.c	2004-04-07 07:18:19.000000000 -0700
++++ wli-2.6.5-3/fs/open.c	2004-04-07 11:06:49.000000000 -0700
+@@ -44,6 +44,13 @@
+ 
+ EXPORT_SYMBOL(vfs_statfs);
+ 
++static inline int vfs_statfs_overflow(unsigned long x)
++{
++	if (sizeof(unsigned long) == 4)
++		return 0;
++	return x != ~0UL && x > ((1UL << (BITS_PER_LONG/2)) - 1);
++}
++
+ static int vfs_statfs_native(struct super_block *sb, struct statfs *buf)
+ {
+ 	struct kstatfs st;
+@@ -64,11 +71,9 @@
+ 			 * f_files and f_ffree may be -1; it's okay to stuff
+ 			 * that into 32 bits
+ 			 */
+-			if (st.f_files != 0xffffffffffffffffULL &&
+-			    (st.f_files & 0xffffffff00000000ULL))
++			if (vfs_statfs_overflow(st.f_files))
+ 				return -EOVERFLOW;
+-			if (st.f_ffree != 0xffffffffffffffffULL &&
+-			    (st.f_ffree & 0xffffffff00000000ULL))
++			if (vfs_statfs_overflow(st.f_ffree))
+ 				return -EOVERFLOW;
+ 		}
+ 

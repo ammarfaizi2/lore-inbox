@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261599AbTAaQlM>; Fri, 31 Jan 2003 11:41:12 -0500
+	id <S261463AbTAaQ6W>; Fri, 31 Jan 2003 11:58:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261600AbTAaQlM>; Fri, 31 Jan 2003 11:41:12 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:34011 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261599AbTAaQlL>;
-	Fri, 31 Jan 2003 11:41:11 -0500
-Date: Fri, 31 Jan 2003 16:47:11 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Con Kolivas <conman@kolivas.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] ext3, reiser, jfs, xfs effect on contest
-Message-ID: <20030131164711.GA18147@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Hans Reiser <reiser@namesys.com>, Con Kolivas <conman@kolivas.net>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200302010020.34119.conman@kolivas.net> <3E3A7C22.1080709@namesys.com> <200302010040.49141.conman@kolivas.net> <3E3A8077.9050409@namesys.com> <20030131152156.GA15977@codemonkey.org.uk> <3E3AA6F6.3090504@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E3AA6F6.3090504@namesys.com>
-User-Agent: Mutt/1.4i
+	id <S261495AbTAaQ6W>; Fri, 31 Jan 2003 11:58:22 -0500
+Received: from soul.helsinki.fi ([128.214.3.1]:26899 "EHLO soul.helsinki.fi")
+	by vger.kernel.org with ESMTP id <S261463AbTAaQ6W>;
+	Fri, 31 Jan 2003 11:58:22 -0500
+Date: Fri, 31 Jan 2003 19:07:45 +0200 (EET)
+From: Mikael Johansson <mpjohans@pcu.helsinki.fi>
+X-X-Sender: mpjohans@soul.helsinki.fi
+To: Alan Cox <alan@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: sched_runqueue.h missing: 2.4.21pre4-ac1 
+In-Reply-To: <200301311430.h0VEUKr31316@devserv.devel.redhat.com>
+Message-ID: <Pine.OSF.4.51.0301311900460.83374@soul.helsinki.fi>
+References: <200301311430.h0VEUKr31316@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 31, 2003 at 07:40:22PM +0300, Hans Reiser wrote:
 
- > >> Try running with the -E option for gcc, it might be less CPU intensive, 
- > >> and thus a better FS benchmark.
- > >> What do you think?
- > >It's hardly a realistic real-world benchmark if you start nobbling
- > >bits of it though.  Not reading the preprocessed output is sure
- > >to bump the benchmark points on an fs optimised for lots of small
- > >writes.
- > Sigh.  The alternative is to strace the compile, write a perl scipt or 
- > something to get just the FS related calls out of it, and then create a 
- > program with just the FS related calls. gcc -E sounds easier to me.;-)
+Hello Alan and All!
 
-It still seems like perverting a benchmark to turn it into dbench to me.
+Tried to compile 2.4.21-pre4-ac1, got the following error message:
+process.c:33: linux/sched_runqueue.h: No such file or directory
+make[1]: *** [process.o] Error 1
+make: *** [_dir_arch/alpha/kernel] Error 2
 
-		Dave
+So the file sched_runqueue.h requested by */arch/alpha/kernel/process.c is
+missing on the system (checked it). Where might I find it?
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+Machine: Alpha DP264/Tsunami with 2*EV67 SMP, running Debian 3.0r1
+
+Have a nice weekend,
+    Mikael J.
+    http://www.helsinki.fi/~mpjohans/

@@ -1,38 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265177AbTGKTYe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 15:24:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265136AbTGKTXF
+	id S265163AbTGKS53 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 14:57:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbTGKS4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 15:23:05 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:60404 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265110AbTGKTWj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 15:22:39 -0400
-From: Andrew Theurer <habanero@us.ibm.com>
-To: Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 'what to expect'
-Date: Fri, 11 Jul 2003 14:37:12 -0500
-User-Agent: KMail/1.5
-References: <20030711140219.GB16433@suse.de>
-In-Reply-To: <20030711140219.GB16433@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307111437.12648.habanero@us.ibm.com>
+	Fri, 11 Jul 2003 14:56:40 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:25988
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264825AbTGKSHG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 14:07:06 -0400
+Date: Fri, 11 Jul 2003 19:20:54 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200307111820.h6BIKssN017422@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: -- END AUDIO BLOK --
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 11 July 2003 09:02, Dave Jones wrote:
-> Process scheduler improvements.
-> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> - Scheduler is now Hyperthreading SMP aware and will disperse processes
->   over physically different CPUs, instead of just over logical CPUs.
 
-I'm pretty sure this is not in 2.5 (unless it's in bk after 2.5.75)
+This leaves me holding
 
--Andrew Theurer
+a97_plugin_wm97xx	-	waiting final device assignment
+hal2			-	For SGI. Not sure if its needed
+				as there is good ALSA support
+harmony			-	For PARISC. Same comment as hal2
 
+and the config fixes which depend on the hal2/harmony decision. What
+would the maintainers prefer - merge them or rely on the ALSA ones ?
+
+It also leaves cs4281 differently broken to before. That needs a lot
+more work but I'm digging into it currently

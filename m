@@ -1,85 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284122AbRLKVl2>; Tue, 11 Dec 2001 16:41:28 -0500
+	id <S284009AbRLKVm6>; Tue, 11 Dec 2001 16:42:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284175AbRLKVlI>; Tue, 11 Dec 2001 16:41:08 -0500
-Received: from quattro-eth.sventech.com ([205.252.89.20]:52498 "EHLO
-	quattro.sventech.com") by vger.kernel.org with ESMTP
-	id <S284163AbRLKVlA>; Tue, 11 Dec 2001 16:41:00 -0500
-Date: Tue, 11 Dec 2001 16:40:59 -0500
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Jan Kasprzak <kas@informatics.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB mouse disconnect/reconnect
-Message-ID: <20011211164059.C8227@sventech.com>
-In-Reply-To: <20011211222014.A13443@informatics.muni.cz>
-Mime-Version: 1.0
+	id <S284088AbRLKVms>; Tue, 11 Dec 2001 16:42:48 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:15610 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S284079AbRLKVmo>; Tue, 11 Dec 2001 16:42:44 -0500
+Message-ID: <3C167D98.90651C10@mvista.com>
+Date: Tue, 11 Dec 2001 13:41:44 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Brian Horton <go_gators@mail.com>
+CC: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: how to debug a deadlock'ed kernel?
+In-Reply-To: <3C166540.DC0BDBEE@mail.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011211222014.A13443@informatics.muni.cz>; from kas@informatics.muni.cz on Tue, Dec 11, 2001 at 10:20:14PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 11, 2001, Jan Kasprzak <kas@informatics.muni.cz> wrote:
-> 	I have (maybe HW) problem w/ my USB mouse. From time to time,
-> the kernel thinks it was disconnected and then reconnected again,
-> altough nobody touched the cables.
+Brian Horton wrote:
 > 
-> It would be OK, but there is a problem: after the reconnect, it become
-> active as /dev/input/mouse1 instead of /dev/input/mouse0, and my
-> X server cannot (of course) find it.
+> Anyone got any good tips on how to debug a SMP system that is locked up
+> in a deadlock situation in the kernel? I'm working on a kernel module,
+> and after some number of hours of stress testing, the box locks up. None
+> of the sysrq options show anything on the display, though the reBoot
+> option does reboot the system. RedHat 6.2 and its 2.2.14 kernel. Doesn't
+> hang for me on 2.4, so I need to debug it here...
 > 
-> 	The system is RH7.2, kernel 2.4.16, Athlon 850 (ABIT KT7).
-> Here is the dmesg output of the USB after boot:
-> 
-> usb.c: registered new driver usbdevfs
-> usb.c: registered new driver hub
-> usb-uhci.c: $Revision: 1.268 $ time 19:53:08 Dec  5 2001
-> usb-uhci.c: High bandwidth mode enabled
-> PCI: Found IRQ 10 for device 00:07.2
-> PCI: Sharing IRQ 10 with 00:07.3
-> PCI: Sharing IRQ 10 with 00:0b.0
-> usb-uhci.c: USB UHCI at I/O 0xd400, IRQ 10
-> usb-uhci.c: Detected 2 ports
-> usb.c: new USB bus registered, assigned bus number 1
-> hub.c: USB hub found
-> hub.c: 2 ports detected
-> PCI: Found IRQ 10 for device 00:07.3
-> PCI: Sharing IRQ 10 with 00:07.2
-> PCI: Sharing IRQ 10 with 00:0b.0
-> usb-uhci.c: USB UHCI at I/O 0xd800, IRQ 10
-> usb-uhci.c: Detected 2 ports
-> usb.c: new USB bus registered, assigned bus number 2
-> hub.c: USB hub found
-> hub.c: 2 ports detected
-> usb-uhci.c: v1.268:USB Universal Host Controller Interface driver
-> usb.c: registered new driver hid
-> hid-core.c: v1.8 Andreas Gal, Vojtech Pavlik <vojtech@suse.cz>
-> hid-core.c: USB HID support drivers
-> mice: PS/2 mouse device common for all mice
-> hub.c: USB new device connect on bus2/1, assigned device number 2
-> input0: USB HID v1.00 Mouse [KYE Systems Genius USB Wheel Mouse   ] on usb2:2.0
-> hub.c: USB new device connect on bus2/2, assigned device number 3
-> input1: USB HID v1.10 Keyboard [Chicony USB Keyboard] on usb2:3.0
-> 
-> 	And the disconnect/reconnect looks like this:
-> 
-> usb.c: USB disconnect on device 2
-> hub.c: USB new device connect on bus2/1, assigned device number 4
-> input0: USB HID v1.00 Mouse [KYE Systems Genius USB Wheel Mouse   ] on usb2:4.0
-> 
-> 	Where the disconnect/reconnect come from, and why the mouse
-> changes its device number?
+> Any hints?
 
-It may be because of a flaky cable. Are there any messages above that?
+First read about the NMI boot option in Documentation/nmi_watchdog.txt. 
+If you have this turned on and are not oopsing, then the timer (at
+least) is interrupting.  The next step I would take would be to used
+either kdb (no experience) or kgdb.  I have my own version of this if
+you are interested.  It does, however, require an RS232 (serial)
+connection to a host machine.
 
-The device number changes because some process still has the first mouse
-open, so it assigns it the next available unused device.
-
-There's a shared mouse device as well you might find more to your
-liking.
-
-JE
-
+I don't know about kdb, but kgdb (my version) uses the NMI to trap the
+other cpus and also traps NMIs on the way to oopsing.
+-- 
+George           george@mvista.com
+High-res-timers: http://sourceforge.net/projects/high-res-timers/
+Real time sched: http://sourceforge.net/projects/rtsched/

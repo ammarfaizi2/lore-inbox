@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263723AbUA0O6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 09:58:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263796AbUA0O6Q
+	id S263836AbUA0PDe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 10:03:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263946AbUA0PDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 09:58:16 -0500
-Received: from ns.suse.de ([195.135.220.2]:60887 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263723AbUA0O6O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 09:58:14 -0500
-Date: Tue, 27 Jan 2004 15:56:19 +0100
-From: Andi Kleen <ak@suse.de>
-To: jim.houston@comcast.net
-Cc: akpm@osdl.org, george@mvista.com, amitkale@emsyssoft.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kgdb-x86_64-support.patch for 2.6.2-rc1-mm3
-Message-Id: <20040127155619.7efec284.ak@suse.de>
-In-Reply-To: <20040127030529.8F860C60FC@h00e098094f32.ne.client2.attbi.com>
-References: <20040127030529.8F860C60FC@h00e098094f32.ne.client2.attbi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 27 Jan 2004 10:03:34 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:9942 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S263836AbUA0PDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 10:03:33 -0500
+Message-ID: <40167DCA.7040006@myrealbox.com>
+Date: Tue, 27 Jan 2004 07:03:38 -0800
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040125
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: ACPI versus VIA IDE controller?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Jan 2004 22:05:29 -0500 (EST)
-Jim Houston <jim.houston@comcast.net> wrote:
+I know there has been a problem getting the VIA ide controller
+to cooperate with ACPI, but I saw a bunch of acpi changes coming
+from Linus today so I reenabled acpi in my 2.6.2-rc2 again just
+out of curiosity.
 
-> 
-> Hi Andrew,
-> 
-> The attached patch updates my kgdb-x86_64-support.patch to work
-> with linux-2.6.2-rc1-mm3.
+I still see the message about the VIA ide controller:
+ACPI: No IRQ known for interrupt pin A of device 0000:00:11.1 -
+using IRQ 255
 
-Hi,
+I haven't exercised the machine much, but it all seems to be
+working just fine so far.
 
-I already did this merge yesterday. Didn't you get mail? 
-
-
-> 
-> The conflicts seen with the old patch are the result of Andi Kleen
-> pushing a portion of the patch to Linus.  In particular my 
-> addition of .cfi directives to the x86_64 assembly files is
-> now in Linus's tree.
-> 
-> This version has also been tested (and now works) with Matt Mackall's
-> kgdb over ethernet.
-
-Hmm, It didn't work for me.
-
--Andi
-
+Are there any known risks to running the machine in this mode?

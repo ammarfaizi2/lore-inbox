@@ -1,38 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264971AbUBILhH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 06:37:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264974AbUBILhH
+	id S264981AbUBILiN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 06:38:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265056AbUBILiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 06:37:07 -0500
-Received: from mailgate01.ctimail.com ([203.186.94.111]:65217 "EHLO
-	mailgate01.ctimail.com") by vger.kernel.org with ESMTP
-	id S264971AbUBILhF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 06:37:05 -0500
-Message-Id: <200402091135.i19BZqU28165@mailgate01.ctimail.com>
-From: "Francis, Chong Chan Fai" <francis.ccf@polyu.edu.hk>
-To: "=?ISO-8859-1?Q?'M=E5ns_Rullg=E5rd'?=" <mru@kth.se>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: USB 2.0 mass storage problem
-Date: Mon, 9 Feb 2004 19:37:02 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <yw1xfzdlu3cl.fsf@kth.se>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcPuRNjcwLiNNppvTQKnu9iFNW3xhQAu5qqg
+	Mon, 9 Feb 2004 06:38:13 -0500
+Received: from pong.topalis.com ([195.243.109.5]:31921 "EHLO pong.topalis.com")
+	by vger.kernel.org with ESMTP id S264981AbUBILiD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 06:38:03 -0500
+Subject: Re: PATCH - NGROUPS 2.6.2rc2 + fixups
+From: Stefan Voelkel <Stefan.Voelkel@millenux.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linus Torvalds <torvalds@osdl.org>, Tim Hockin <thockin@sun.com>,
+       Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+       akpm@osld.org.sun.com, Daniel Riek <riek@redhat.com>
+In-Reply-To: <20040130021802.AA5BC2C0BF@lists.samba.org>
+References: <20040130021802.AA5BC2C0BF@lists.samba.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YQnxIzVnR+/uGjLrbvQ3"
+Organization: Millenux GmbH
+Message-Id: <1076326687.15404.72.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 09 Feb 2004 12:38:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It was one of the attached patches.  I don't remember which one.
-Thanks a lot for your help!
 
-By apply the patch mentioned in
-http://www.mail-archive.com/linux-usb-devel@lists.sourceforge.net/msg18528.h
-tml
-The stupid device works!
+--=-YQnxIzVnR+/uGjLrbvQ3
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
+Hi,
 
+anything new about this patch?
+
+I'd like to see this problem solved too, also because of a samba, mad
+integration with the need of > 256 groups per user.
+
+regards
+	Stefan
+--=20
+--------------------------------------------------------------------
+Stefan V=F6lkel                            stefan.voelkel@millenux.com
+Millenux GmbH                              mobile: +49.170.79177.17
+Lilienthalstra=DFe 2                          phone: +49.711.88770.300
+70825 Stuttgart-Korntal                       fax: +49.711.88770.349
+     -=3D linux without limits -=3D- http://linux.zSeries.org/ =3D-
+
+--=-YQnxIzVnR+/uGjLrbvQ3
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAJ3EftWF28C4HGsQRAnzVAKCs+J5NqMVY8sfNUAp31ZF+Fp2G+QCguh5b
+qGKezBbG6jeSpU+QibPg87w=
+=NvCb
+-----END PGP SIGNATURE-----
+
+--=-YQnxIzVnR+/uGjLrbvQ3--
 

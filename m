@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262437AbUKQQ7w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262431AbUKQQ7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262437AbUKQQ7w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 11:59:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262438AbUKQQ6i
+	id S262431AbUKQQ7x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 11:59:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbUKQQ6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 11:58:38 -0500
-Received: from zamok.crans.org ([138.231.136.6]:41916 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id S262405AbUKQQzy convert rfc822-to-8bit
+	Wed, 17 Nov 2004 11:58:12 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:29118 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S262431AbUKQQ5R
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 11:55:54 -0500
-To: Vladimir Saveliev <vs@namesys.com>
-Cc: reiserfs-list@namesys.com,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-rc2-mm1: oops when accessing reiser4 fs's (maybe fix provided)
-References: <874qjptyl1.fsf@barad-dur.crans.org>
-	<1100675389.1399.27.camel@tribesman.namesys.com>
-From: Mathieu Segaud <matt@minas-morgul.org>
-Date: Wed, 17 Nov 2004 17:55:51 +0100
-In-Reply-To: <1100675389.1399.27.camel@tribesman.namesys.com> (Vladimir
-	Saveliev's message of "Wed, 17 Nov 2004 10:09:49 +0300")
-Message-ID: <87d5ycza7c.fsf@barad-dur.crans.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+	Wed, 17 Nov 2004 11:57:17 -0500
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16795.33515.187015.492860@thebsh.namesys.com>
+Date: Wed, 17 Nov 2004 19:57:15 +0300
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+In-Reply-To: <E1CURx6-0005Qf-00@dorka.pomaz.szeredi.hu>
+References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu>
+	<Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org>
+	<E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu>
+	<84144f0204111602136a9bbded@mail.gmail.com>
+	<E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu>
+	<20041116120226.A27354@pauline.vellum.cz>
+	<E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu>
+	<20041116163314.GA6264@kroah.com>
+	<E1CURx6-0005Qf-00@dorka.pomaz.szeredi.hu>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladimir Saveliev <vs@namesys.com> disait dernièrement que :
+Miklos Szeredi writes:
+ > > No.  Actually, put it in sysfs, and then udev will create your /dev node
+ > > for you automatically.  And in sysfs you can put your other stuff
+ > > (version, etc.) which is the proper place for it.
+ > 
+ > Next question: _where_ to put other stuff?  In /proc this has a
+ > logical place for filesystems: /proc/fs/fsname/other_stuff.  But
+ > there's no filesystem section in sysfs.
 
-> Hello
->
-> On Tue, 2004-11-16 at 21:53, Mathieu Segaud wrote:
->> I tried 2.6.10-rc2-mm1 and the last reiser4 updates gave some (many many)
->> oopses flooding my screen :).
->> I tried reverting reiser4-fix-deadlock.patch and oopses are gone.
->> 
-> Would you please instead try the attached patch? 
+/sys/fs used to exist for for some. Moreover, /sys/fs/foofs/ was added
+automagically when foofs file system type was registered. But it was
+ultimately removed, because nobody took the time to fix all races
+between accessing /sys/fs/foofs/gadget and
+umount/filesystem-module-unloading. 
 
-yep.
-indeed it worked
-anyway, for the quick answer
+Another way is to implement special "control" file-system type (using
+fs/libfs.c functions), to be used like
 
->
->> I tried this one because thru the quick traces on my screen, I saw a reference
->> to get_current_context.
->> The speed of the traces and the unasibility of the box prevented me from
->> making differences between "real" oopses and BUG_ON(), sorry for that...
->> 
->> If you want some traces I can provide them ASAP (e.g. tomorrow)
->
->
->
->
+mount -tfoofs /device /mnt/point
+mount -tfoo_ctrlfs -o host=/mnt/point /mnt/control-point
 
--- 
-Carrots work on rabbits, they don't work on hungry weasels.
+Again, nobody took the time to actually do this for any real
+file-system, as far as I know.
 
-	- Alan Cox on linux-kernel
+ > 
+ > So?
 
+Go ahead bravely. :)
+
+ > 
+ > Thanks,
+ > Miklos
+
+Nikita.

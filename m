@@ -1,98 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277117AbRJRBW3>; Wed, 17 Oct 2001 21:22:29 -0400
+	id <S277294AbRJRBaa>; Wed, 17 Oct 2001 21:30:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277253AbRJRBWU>; Wed, 17 Oct 2001 21:22:20 -0400
-Received: from cs.wustl.edu ([128.252.165.15]:48639 "EHLO
-	taumsauk.cs.wustl.edu") by vger.kernel.org with ESMTP
-	id <S277117AbRJRBWO>; Wed, 17 Oct 2001 21:22:14 -0400
+	id <S277295AbRJRBaU>; Wed, 17 Oct 2001 21:30:20 -0400
+Received: from tartarus.telenet-ops.be ([195.130.132.34]:7650 "EHLO
+	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S277294AbRJRBaL>; Wed, 17 Oct 2001 21:30:11 -0400
+Message-ID: <3BCE2E26.EB0EDEFF@pandora.be>
+Date: Thu, 18 Oct 2001 03:19:34 +0200
+From: johan verrept <johan.verrept@pandora.be>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15310.11944.631551.254427@samba.doc.wustl.edu>
-Date: Wed, 17 Oct 2001 20:21:44 -0500
-From: Krishnakumar B <kitty@cs.wustl.edu>
-To: linux-kernel@vger.kernel.org
-Subject: kswapd becomes a zombie with 2.4.10-ac12
-X-Mailer: VM 6.96 under 21.4 (patch 4) "Artificial Intelligence" XEmacs Lucid
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>, alan cox <alan@redhat.com>
+Subject: Re: [PATCH] (Minor) Bugfixes to vsprintf.c, vsscanf().
+In-Reply-To: <3BCE1E54.D14794A5@pandora.be>
+Content-Type: multipart/mixed;
+ boundary="------------DDE38193B6E74523C9854D5E"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------DDE38193B6E74523C9854D5E
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 
-I just saw this in my logs. I also noticed that kswapd has become a zombie.
-The machine itself seems ok though I have 512MB RAM.
+johan verrept wrote:
+> 
+> hello,
+> 
+> minor bugfix for vsprintf.c, vsscanf did not discard whitespace in input:
+> - when encoutering whitespace in fmt not followed by '%'
+> - in conversion where result is ignored with '*'
+> 
+> There is another bugfix in this, don't know from who. (picked it up with uml)
+> (vsscanf used to skip two characters in the fmt for a single char in the input if not in
+> conversion.)
+> 
+> Patch against 2.4.12, I am afraid.
 
-Please CC me on any replies.
+Attached patch is beter. Both bugs are fixed and it adds fieldwidth support for conversions with
+ignored results.
+Again against 2.4.12.
 
--kitty.
+	J.
+--------------DDE38193B6E74523C9854D5E
+Content-Type: text/plain; charset=iso-8859-15;
+ name="vsprintf.c.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="vsprintf.c.diff"
 
+--- linux-2.4.12-clean/lib/vsprintf.c	Sun Sep 16 20:26:10 2001
++++ linux-2.4.12-devel/lib/vsprintf.c	Thu Oct 18 03:06:47 2001
+@@ -525,12 +525,15 @@
+ 	for (; *fmt; fmt++) {
+ 		/* skip any white space in format */
+ 		if (isspace(*fmt)) {
++			/* space in fmt skips all space in input */
++			while (isspace(*str)) str++;
+ 			continue;
+ 		}
+ 
+ 		/* anything that is not a conversion must match exactly */
+ 		if (*fmt != '%') {
+-			if (*fmt++ != *str++)
++			/* Don't bump fmt because the for header will do it */
++			if (*fmt != *str++)
+ 				return num;
+ 			continue;
+ 		}
+@@ -540,10 +543,25 @@
+ 		 * advance both strings to next white space
+ 		 */
+ 		if (*fmt == '*') {
+-			while (!isspace(*fmt))
++			fmt++;
++			/* get fieldwidth */
++			field_width = 0xffffffffUL;
++			if (isdigit(*fmt))
++				field_width = skip_atoi(&fmt);
++
++			/* skip possible conversion qualifier */
++			if (*fmt == 'h' || *fmt == 'l' || *fmt == 'L' || *fmt == 'Z')
+ 				fmt++;
+-			while(!isspace(*str))
++
++			/* do not skip conversion char, the for loop will do this */
++
++			/* eat all whitespace before conversion! */
++			while(isspace(*str))
++				str++;
++			while(!isspace(*str) && field_width) {
++				field_width--;
+ 				str++;
++			}
+ 			continue;
+ 		}
+ 
 
-samba> ksymoops -v /u/scratch/downloads/kernel/linux-2.4.10-ac12/vmlinux -m /boo
-t/System.map ~/oops.txt 
-ksymoops 2.4.3 on i686 2.4.10-ac12.  Options used
-     -v /u/scratch/downloads/kernel/linux-2.4.10-ac12/vmlinux (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.10-ac12/ (default)
-     -m /boot/System.map (specified)
+--------------DDE38193B6E74523C9854D5E--
 
- WARNING: unexpected IO-APIC, please mail
-cpu: 0, clocks: 1329902, slice: 443300
-cpu: 1, clocks: 1329902, slice: 443300
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-ac97_codec: AC97  codec, id: 0x5452:0x4123 (TriTech TR?????)
-Unable to handle kernel paging request at virtual address 36282062
-c014d806
-*pde = 00000000
-Oops: 0000
-CPU:    1
-EIP:    0010:[<c014d806>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00013202
-eax: 36282052   ebx: d5a41200   ecx: d5a41210   edx: db9f9e40
-esi: 36282052   edi: d5a41200   ebp: fffffd4d   esp: dfe6ff60
-ds: 0018   es: 0018   ss: 0018
-Process kswapd (pid: 6, stackpage=dfe6f000)
-Stack: db9f9e58 db9f9e40 c014b254 d5a41200 d5a41200 c013be2d 00000000 c19f1000 
-       c102afc4 000000c0 c0130207 c102afe0 c102afc4 00000000 00000007 c0130738 
-       c102afc4 0000c03f 000000c0 000000c0 0008e000 c014b601 00000000 c0130f0b 
-Call Trace: [<c014b254>] [<c013be2d>] [<c0130207>] [<c0130738>] [<c014b601>] 
-   [<c0130f0b>] [<c0130f95>] [<c0105000>] [<c0105676>] [<c0130f40>] 
-Code: 8b 46 10 85 c0 74 04 53 ff d0 58 68 20 cb 23 c0 8d 43 24 50 
-
->>EIP; c014d806 <iput+26/220>   <=====
-Trace; c014b254 <prune_dcache+f4/170>
-Trace; c013be2c <try_to_free_buffers+14c/190>
-Trace; c0130206 <try_to_release_page+26/50>
-Trace; c0130738 <page_launder+508/950>
-Trace; c014b600 <shrink_dcache_memory+20/40>
-Trace; c0130f0a <do_try_to_free_pages+1a/50>
-Trace; c0130f94 <kswapd+54/d0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0105676 <kernel_thread+26/30>
-Trace; c0130f40 <kswapd+0/d0>
-Code;  c014d806 <iput+26/220>
-00000000 <_EIP>:
-Code;  c014d806 <iput+26/220>   <=====
-   0:   8b 46 10                  mov    0x10(%esi),%eax   <=====
-Code;  c014d808 <iput+28/220>
-   3:   85 c0                     test   %eax,%eax
-Code;  c014d80a <iput+2a/220>
-   5:   74 04                     je     b <_EIP+0xb> c014d810 <iput+30/220>
-Code;  c014d80c <iput+2c/220>
-   7:   53                        push   %ebx
-Code;  c014d80e <iput+2e/220>
-   8:   ff d0                     call   *%eax
-Code;  c014d810 <iput+30/220>
-   a:   58                        pop    %eax
-Code;  c014d810 <iput+30/220>
-   b:   68 20 cb 23 c0            push   $0xc023cb20
-Code;  c014d816 <iput+36/220>
-  10:   8d 43 24                  lea    0x24(%ebx),%eax
-Code;  c014d818 <iput+38/220>
-  13:   50                        push   %eax
-
--- 
-Krishnakumar B <kitty at cs dot wustl dot edu>
-Distributed Object Computing Laboratory, Washington University in St.Louis

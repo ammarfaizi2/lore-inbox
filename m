@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264874AbTIDJXA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 05:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbTIDJXA
+	id S264881AbTIDJbj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 05:31:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264900AbTIDJbj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 05:23:00 -0400
-Received: from ozlabs.org ([203.10.76.45]:50067 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S264874AbTIDJVu (ORCPT
+	Thu, 4 Sep 2003 05:31:39 -0400
+Received: from hell.org.pl ([212.244.218.42]:43268 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S264881AbTIDJbh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 05:21:50 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16215.1054.262782.866063@nanango.paulus.ozlabs.org>
-Date: Thu, 4 Sep 2003 19:21:34 +1000 (EST)
-From: Paul Mackerras <paulus@samba.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix ppc ioremap prototype
-In-Reply-To: <20030904083007.B2473@flint.arm.linux.org.uk>
-References: <20030903203231.GA8772@lst.de>
-	<16214.34933.827653.37614@nanango.paulus.ozlabs.org>
-	<20030904071334.GA14426@lst.de>
-	<20030904083007.B2473@flint.arm.linux.org.uk>
-X-Mailer: VM 6.75 under Emacs 20.7.2
+	Thu, 4 Sep 2003 05:31:37 -0400
+Date: Thu, 4 Sep 2003 11:33:46 +0200
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: Nils Faerber <nils@kernelconcepts.de>
+Cc: "Brown, Len" <len.brown@intel.com>,
+       Martin Mokrejs <mmokrejs@natur.cuni.cz>, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] RE: ACPI kernel crash with 2.4.22-pre7 on ASUS L3800C
+Message-ID: <20030904093346.GA14506@hell.org.pl>
+Mail-Followup-To: Nils Faerber <nils@kernelconcepts.de>,
+	"Brown, Len" <len.brown@intel.com>,
+	Martin Mokrejs <mmokrejs@natur.cuni.cz>,
+	linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCFB@hdsmsx402.hd.intel.com> <20030904085315.GA29773@hell.org.pl> <1062667556.13465.37.camel@idoru.kc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+In-Reply-To: <1062667556.13465.37.camel@idoru.kc.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King writes:
+Thus wrote Nils Faerber:
+> Just FYI...
+> I have kernel 2.4.22 + swsusp 1.1-rc7 running without problems on the
+> very same machine (Asus L3800C, BIOS 121a).
+[...]
+> One point that proofs to be a good idea is to remove any unnecessary
+> drivers before suspending, like USB, Firewire and ethernet and to
+> re-insert them afterwards. The attached script does this.
 
-> But phys_addr_t in struct resource and being passed into ioremap is
-> confusing.  Apparantly, it isn't a physical address, but a platform
-> defined cookie which just happens to look like a physical address.
+Actually, most modules do not need to be unloaded. I don't know about
+firewire (I don't use it), but certainly 8139too contains proper
+suspend/resume support, I even had no problems suspending with yenta_socket
+and orinoco_cs card. As of now: no modules unloading at all. Anyway, the
+crash is not swsusp related.
+Best regards,
 
-It happens to be a physical address on PPC.  So I don't see why so
-much fuss is being made over the PPC declaration of ioremap using
-phys_addr_t for it.  Other architectures might well do something
-different.
-
-> (or are we finally going to admit that it is a physical address?)
-
-Well, it has to be globally unique across all resources of all devices
-in the system.  If you can have multiple PCI domains, that means you
-can't just use the PCI bus address, for instance.  And it is
-preferably something that you can easily translate into a physical
-address.
-
-What I would prefer is if we passed a struct device pointer, a
-resource pointer and an offset to ioremap.  Then we could just have
-bus addresses in PCI device resources instead of having to translate
-them into physical addresses.
-
-Paul.
-
+-- 
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274024AbRISJJC>; Wed, 19 Sep 2001 05:09:02 -0400
+	id <S274027AbRISJ0o>; Wed, 19 Sep 2001 05:26:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274025AbRISJIv>; Wed, 19 Sep 2001 05:08:51 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:21767 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S274024AbRISJIj>; Wed, 19 Sep 2001 05:08:39 -0400
-Message-ID: <3BA86087.A0A371E0@idb.hist.no>
-Date: Wed, 19 Sep 2001 11:08:23 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.10-pre10 i686)
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.10-pre12 compile error, IO_APIC_init_uniprocessor undefined
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S274028AbRISJ0e>; Wed, 19 Sep 2001 05:26:34 -0400
+Received: from unthought.net ([212.97.129.24]:29409 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S274027AbRISJ0Z>;
+	Wed, 19 Sep 2001 05:26:25 -0400
+Date: Wed, 19 Sep 2001 11:26:49 +0200
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: David Rees <dbr@greenhydrant.com>, linux-kernel@vger.kernel.org
+Subject: Re: bdflush and postgres stuck in D state
+Message-ID: <20010919112649.B7537@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	David Rees <dbr@greenhydrant.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010918125605.F29908@unthought.net>, <20010918125605.F29908@unthought.net>; <20010918193023.P29908@unthought.net> <3BA78916.2984B011@zip.com.au> <20010918140820.A17263@greenhydrant.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010918140820.A17263@greenhydrant.com>; from dbr@greenhydrant.com on Tue, Sep 18, 2001 at 02:08:20PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-init/main.c refers to an IO_APIC_init_uniprocessor() that doesn't exist 
-anywhere.  The function exists in 2.4.9 but is removed by the patch to 
-pre12.
+On Tue, Sep 18, 2001 at 02:08:20PM -0700, David Rees wrote:
+> On Tue, Sep 18, 2001 at 10:49:10AM -0700, Andrew Morton wrote:
+> > Jakob Østergaard wrote:
+> > > 
+> > > Sorry for following up on my own post, I have a little extra
+> > > information.
+> > > 
+> > > I started a g++ job to try to force the machine to write out some dirty
+> > > buffers before I reboot.   g++ now hangs along with two sync's, bdflush
+> > > and the postgres process.
+> > > 
+> > 
+> > Since 2.4.7 several bugs have been fixed in RAID1 which would
+> > cause this, including a missing blockdevice unplug and failure
+> > to hang onto the supposedly-reserved RAID1 buffer-heads.
+> 
+> Even kernels as recent as 2.4.9 have this bug.  See this thread for more
+> info and a patch which fixes this bug.
+> 
+> The thread:
+> http://marc.theaimsgroup.com/?t=99911655500004&w=2&r=1
+> 
+> The patch:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=99913223508789&w=2
 
-Turning off "APIC and IO-APIC support on uniprocessors" lets the
-kernel compile.
 
+Thanks a lot !
 
-gcc [snip several lines of the usual options] init/main.c
-init/main.c: In function `smp_init':
-init/main.c:486: warning: implicit declaration of function 
-`IO_APIC_init_uniprocessor'
-1234567890121234567890123456789012345678901234567890123456789034567890
-and later
+Somehow I seem not have lost "most" linux-raid mails, dunno why...  I hadn't
+seen that thread before, but it was indeed the problem I saw here too.
 
-ld [snip several lines of options] -o vmlinux
-init/main.o: In function `smp_init':
-init/main.o(.text.init+0x74d): undefined reference to
-`IO_APIC_init_uniprocessor'
-make: *** [vmlinux] Error 1
+I didn't lose any data on the 2.4.7 that did this, but it seems the situation
+is more severe in 2.4.9, leading potentially to significant data loss.
 
-Helge Hafting
+/me prepares another boot (and a spare 32MB stick) for the raid-1 box
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

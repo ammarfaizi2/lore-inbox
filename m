@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264739AbSLaUsg>; Tue, 31 Dec 2002 15:48:36 -0500
+	id <S264743AbSLaVDK>; Tue, 31 Dec 2002 16:03:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264743AbSLaUsg>; Tue, 31 Dec 2002 15:48:36 -0500
-Received: from mx2.mail.ru ([194.67.57.12]:35589 "EHLO mx2.mail.ru")
-	by vger.kernel.org with ESMTP id <S264739AbSLaUsf>;
-	Tue, 31 Dec 2002 15:48:35 -0500
-Date: Tue, 31 Dec 2002 21:51:39 +0100 (CET)
-From: Guennadi Liakhovetski <lyakh@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: ide-scsi CD-recorder error reading burned disks
-Message-ID: <Pine.LNX.4.44.0212312145020.3542-100000@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264745AbSLaVDK>; Tue, 31 Dec 2002 16:03:10 -0500
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:11480 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S264743AbSLaVDJ>; Tue, 31 Dec 2002 16:03:09 -0500
+Date: Tue, 31 Dec 2002 13:17:47 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [PATCH] generic device DMA (dma_pool update)
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <3E12097B.9010202@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+References: <200212311950.gBVJos202971@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After burning a CD, when trying to read I am getting the following
-behaviour:
+James Bottomley wrote:
+> david-b@pacbell.net said:
+> 
+>>You didn't make anything store or return the dma_addr_t ... that was
+>>the issue I was referring to, it's got to be either (a) passed up from
+>>the very lowest level, like the pci_*() calls assume, or else (b)
+>>cheaply derived from the virtual address.  My patch added slab support
+>>in common cases where (b) applies. 
+> 
+> 
+> That's fairly simply done as part of the wrappers: The allocator stores the 
+> vaddr, paddr and size in a hash table.  Thus, the paddr can be deduced when 
+> kmem_cache_alloc is called by the allocation wrapper using the linearity 
+> property.
 
-~> dd if=/dev/cdr of=/dev/null bs=2048
-dd: reading `/dev/cdr': Input/output error
-176996+0 records in
-176996+0 records out
+However it'd be done, it'd be an essential part, and it was missing.  In fact,
+your getpages() didn't have a way to return the dma_addr_t values, and your
+freepages() didn't provide it as an input.  (But it did pass mem_flags in, as
+I had at some point suggested should be done with dma_alloc_coherent.)
 
-Whereas, the same disk read on the same drive under the normal ide-driver
-works ok:
 
-~> dd if=/dev/hdc of=/dev/null bs=2048
-177039+0 records in
-177039+0 records out
+> I've got to say though that the most sensible course of action is still to 
+> generalise pci_pool, which can be done easily and safely.  I think replacing 
+> it with a slab based scheme is probably a 2.7 thing.
 
-Other disks can be read on this drive also under ide-scsi ok, as well as
-this disk can be read on a SCSI DVD-drive fine. Is it a known behaviour,
-or a problem in the drive / driver?
+I think the patch I posted "easily and safely" does that, appropriate for 2.5,
+even though some platforms can't yet collect that win.
 
-2.4.20, drive is Benq CRW 4012A
+I'd agree that morphing drivers/pci/pool.c into drivers/base/pool.c (or whatever)
+would be appropriate, but I haven't heard any arguments to justify using that
+allocator on systems where the the slab code can be used (more cheaply).
 
-Thanks
-Guennadi
+- Dave
+
 
 
 

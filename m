@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292777AbSBUVeU>; Thu, 21 Feb 2002 16:34:20 -0500
+	id <S292768AbSBUVha>; Thu, 21 Feb 2002 16:37:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292774AbSBUVeK>; Thu, 21 Feb 2002 16:34:10 -0500
-Received: from codepoet.org ([166.70.14.212]:3800 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S292773AbSBUVd6>;
-	Thu, 21 Feb 2002 16:33:58 -0500
-Date: Thu, 21 Feb 2002 14:33:59 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18-rc2-ac2
-Message-ID: <20020221213358.GA10259@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200202212020.g1LKK2209402@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	id <S292759AbSBUVhU>; Thu, 21 Feb 2002 16:37:20 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:25362
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S292768AbSBUVhH>; Thu, 21 Feb 2002 16:37:07 -0500
+Date: Thu, 21 Feb 2002 13:24:53 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.5 IDE cleanup 11
+In-Reply-To: <E16dtkW-0006yW-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10202211323170.31576-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200202212020.g1LKK2209402@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.4.17-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu Feb 21, 2002 at 03:20:02PM -0500, Alan Cox wrote:
-> [+ indicates stuff that went to Marcelo, o stuff that has not,
->  * indicates stuff that is merged in mainstream now, X stuff that proved
->    bad and was dropped out]
+On Thu, 21 Feb 2002, Alan Cox wrote:
+
+> > This is the next round of IDE driver cleanups.
 > 
-> Linux 2.4.18rc2-ac2
+> How about fixing the stuff you've already messed up (like putting the
+> drive present flags and the probe return back) ? The changes you made
+> to the init code also broke the framework so that 2.5 would eventually
+> let you do
+> 
+> 	open("/dev/cdrom")
+> 	read/write
+> 	close("/dev/cdrom")
+> 	open("/dev/sda")		/* Same device */
+> 	burn a cd
+> 
+> without loading/unloading modules
+> 
+> I'm also confused how you plan to fix the hot swap case after your changes
+> because you've not allowed for the fact drives might be hot swapped while
+> you are suspended. The old code was careful to keep the hooks for that
+> ready.
+>
+> Finally you forgot to update the MAINTAINER entry since you've now clearly
+> decided to walk over Andre and become the IDE maintainer
+> 
+> Alan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Tried it.  Doesn't apply at all to linux-2.4.17.tar.bz2
-plus patch-2.4.18-rc2.bz2 -- perhaps you diffed against
-something else?
+Alan,
 
- -Erik
+Please let me correct this issue as now I am going to start new driver
+since this one is now beyond repair for me.
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+Regards,
+
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
+

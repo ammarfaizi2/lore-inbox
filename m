@@ -1,65 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261974AbVC1Rq5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVC1Rq6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261974AbVC1Rq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 12:46:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbVC1RqU
+	id S261973AbVC1Rq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 12:46:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVC1RqI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 12:46:20 -0500
-Received: from webmail.topspin.com ([12.162.17.3]:28019 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S261974AbVC1RmM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 12:42:12 -0500
-To: gregkh@suse.de
+	Mon, 28 Mar 2005 12:46:08 -0500
+Received: from fep19.inet.fi ([194.251.242.244]:15263 "EHLO fep19.inet.fi")
+	by vger.kernel.org with ESMTP id S261973AbVC1RmF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 12:42:05 -0500
+Subject: [PATCH 6/9] isofs: convert macro to function in rock.c
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Reduce <linux/debugfs.h> dependencies
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 28 Mar 2005 09:16:58 -0800
-Message-ID: <52ll87y9kl.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 28 Mar 2005 17:16:58.0289 (UTC) FILETIME=[F2A67A10:01C533B9]
+Content-Type: text/plain
+Message-Id: <ie2p50.yci66q.aqv0asoicoaoehr579419heqb.refire@cs.helsinki.fi>
+In-Reply-To: <ie2p4s.1rtfc3.1osta177x31dpyo6jw6k30rf8.refire@cs.helsinki.fi>
+Date: Mon, 28 Mar 2005 20:42:04 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current <linux/debugfs.h> include file is a little fragile in that
-it is not self-contained and hence may cause compile warnings or
-errors depending on the files included before it, the kernel config
-and the architecture.  This patch makes things a little more robust by:
+This patch converts the CHECK_SP macro to a proper function in
+fs/isofs/rock.c. 
 
- - including <linux/types.h> to get definitions of u32, mode_t, and so on.
- - forward declaring struct file_operations.
- - including <linux/err.h> when CONFIG_DEBUG_FS is not set
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
 
-The last change is particularly useful, as a kernel developer is
-likely to build with debugfs always enabled and never see the build
-breakage cased if debugfs is disabled.
+ rock.c |   25 +++++++++++++------------
+ 1 files changed, 13 insertions(+), 12 deletions(-)
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
-
-Index: linux-export/include/linux/debugfs.h
+Index: 2.6/fs/isofs/rock.c
 ===================================================================
---- linux-export.orig/include/linux/debugfs.h	2005-01-10 11:48:00.000000000 -0800
-+++ linux-export/include/linux/debugfs.h	2005-03-28 09:08:40.982161696 -0800
-@@ -15,6 +15,10 @@
- #ifndef _DEBUGFS_H_
- #define _DEBUGFS_H_
+--- 2.6.orig/fs/isofs/rock.c	2005-03-28 16:32:13.000000000 +0300
++++ 2.6/fs/isofs/rock.c	2005-03-28 16:32:16.000000000 +0300
+@@ -28,15 +28,13 @@
  
-+#include <linux/types.h>
-+
-+struct file_operations;
-+
- #if defined(CONFIG_DEBUG_FS)
- struct dentry *debugfs_create_file(const char *name, mode_t mode,
- 				   struct dentry *parent, void *data,
-@@ -34,6 +38,9 @@
- 				  struct dentry *parent, u32 *value);
+ #define SIG(A,B) ((A) | ((B) << 8))	/* isonum_721() */
  
- #else
-+
-+#include <linux/err.h>
-+
- /* 
-  * We do not return NULL from these functions if CONFIG_DEBUG_FS is not enabled
-  * so users have a chance to detect if there was a real error or not.  We don't
+-/* This is a way of ensuring that we have something in the system
+-   use fields that is compatible with Rock Ridge */
+-#define CHECK_SP(FAIL)	       			\
+-      if(rr->u.SP.magic[0] != 0xbe) FAIL;	\
+-      if(rr->u.SP.magic[1] != 0xef) FAIL;       \
+-      ISOFS_SB(inode->i_sb)->s_rock_offset=rr->u.SP.skip;
+-/* We define a series of macros because each function must do exactly the
+-   same thing in certain places.  We use the macros to ensure that everything
+-   is done correctly */
++static inline int rock_set_offset(struct inode *inode, struct rock_ridge * rr)
++{
++      if (rr->u.SP.magic[0] != 0xbe || rr->u.SP.magic[1] != 0xef)
++	      return 0;
++      ISOFS_SB(inode->i_sb)->s_rock_offset = rr->u.SP.skip;
++      return 1;
++}
+ 
+ static int setup_rock_ridge(struct iso_directory_record *de, struct inode *inode, unsigned char ** chr)
+ {
+@@ -92,7 +90,8 @@
+ 					goto out;
+ 				break;
+ 			case SIG('S', 'P'):
+-				CHECK_SP(goto out);
++				if (!rock_set_offset(inode, rr))
++					goto out;
+ 				break;
+ 			case SIG('C', 'E'):
+ 				{
+@@ -225,7 +224,8 @@
+ 				break;
+ #endif
+ 			case SIG('S', 'P'):
+-				CHECK_SP(goto out);
++				if (!rock_set_offset(inode, rr))
++					goto out;
+ 				break;
+ 			case SIG('C', 'E'):
+ 				{
+@@ -612,7 +612,8 @@
+ 				goto out;
+ 			break;
+ 		case SIG('S', 'P'):
+-			CHECK_SP(goto out);
++			if (!rock_set_offset(inode, rr))
++				goto out;
+ 			break;
+ 		case SIG('S', 'L'):
+ 			rpnt = get_symlink_chunk(rpnt, rr,

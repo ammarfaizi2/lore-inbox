@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266481AbUHIL0K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266485AbUHIL11@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266481AbUHIL0K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 07:26:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266485AbUHIL0K
+	id S266485AbUHIL11 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 07:27:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266487AbUHIL10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 07:26:10 -0400
-Received: from colin2.muc.de ([193.149.48.15]:16657 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S266481AbUHIL0E (ORCPT
+	Mon, 9 Aug 2004 07:27:26 -0400
+Received: from gprs214-243.eurotel.cz ([160.218.214.243]:21376 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S266485AbUHIL1F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 07:26:04 -0400
-Date: 9 Aug 2004 13:26:03 +0200
-Date: Mon, 9 Aug 2004 13:26:03 +0200
-From: Andi Kleen <ak@muc.de>
-To: S Vamsikrishna <vamsi_krishna@in.ibm.com>
-Cc: prasanna@in.ibm.com, linux-kernel@vger.kernel.org, shemminger@osdl.org,
-       suparna@in.ibm.com
-Subject: Re: [0/3]kprobes-base-268-rc3.patch
-Message-ID: <20040809112603.GA25663@muc.de>
-References: <OF3CCCD7A9.BF71DED2-ON85256EEB.0006D48C-85256EEB.000CA600@in.ibm.com>
+	Mon, 9 Aug 2004 07:27:05 -0400
+Date: Mon, 9 Aug 2004 13:26:50 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Sven-Haegar Koch <haegar@sdinet.de>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       Linux-Kernel-Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend/Resume support for ati-agp
+Message-ID: <20040809112649.GA9793@elf.ucw.cz>
+References: <Pine.LNX.4.58.0408080331490.15568@mercury.sdinet.de> <20040808195021.GB7765@elf.ucw.cz> <Pine.LNX.4.58.0408091203310.12175@mercury.sdinet.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <OF3CCCD7A9.BF71DED2-ON85256EEB.0006D48C-85256EEB.000CA600@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.58.0408091203310.12175@mercury.sdinet.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 08, 2004 at 10:23:15PM -0400, S Vamsikrishna wrote:
-> Hi,
+Hi!
+
+> > > while trying to debug a strange resume problem with 2.6.8-rc3-mm1 and
+> > > software suspend 2 I suspeced ati-agp, and created the following attached
+> > > patch to add powermanagement support for it.
+> > >
+> > > I don't know if it's the completely right thing to do, I just copied the
+> > > way via-agp and intel-agp do it - but perhaps you like it and want to send
+> > > it upstream.
+> >
+> > Looks good to me.
+> >
+> > > ps:
+> > > this did not fix the strange "weird vertical bars instead of movie in
+> > > mplayer after resume" I have, but does not do any bad things either
+> > > ;)
+> >
+> > Hmm, and does it fix anything?
 > 
-> A few comments/questions on this patch:
+> Nothing I could find.
 > 
-> - An unconditional call is added in the do_page_fault hot path. Is this 
-> ok? 
->   The version of kprobes that hooks directly into the do_page_fault is 
-> better
->   in the common case of page fault occuring outside of the kprobe handler,
->   the overhead is only a global variable load and compare. 
+> suspend to disk with swsusp in 2.6.8-rc3-mm1 does not work at all for me,
+> I just get a oops longer than screen height after resume, which I can't
+> capture because my thinkpad r40e does not have a serial port.
+> sorry, but I didnt test with it after creating this patch.
 
-If this should be a problem the notifier can be changed again to do
-a quick check inline if the notifier list is empty or not.
-
-The old notifiers were fully inline, but that was changed later.
-
-> 
-> - Would the absence of any locking on the read-side of the notifier chains
->   cause any problems, especially when it is in a frequently hit place
->   like the do_page_fault?
-
-The notifiers were intended to not be unloaded originally. But with RCU
-you could unload them anyways
-
-(ok would probably need some depends memory barriers in the notifier
-walk on Alpha, should work everywhere else) 
-
--Andi
+Can you try "echo shutdown > /sys/power/disk"? Probably with
+snd_ali5154 unloaded.
+									Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

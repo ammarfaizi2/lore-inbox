@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318772AbSHTOF0>; Tue, 20 Aug 2002 10:05:26 -0400
+	id <S318253AbSHTOOe>; Tue, 20 Aug 2002 10:14:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318842AbSHTOF0>; Tue, 20 Aug 2002 10:05:26 -0400
-Received: from mail3.alphalink.com.au ([202.161.124.59]:19233 "EHLO
-	mail3.alphalink.com.au") by vger.kernel.org with ESMTP
-	id <S318772AbSHTOF0>; Tue, 20 Aug 2002 10:05:26 -0400
-Message-ID: <3D624DB8.1EA1840E@alphalink.com.au>
-Date: Wed, 21 Aug 2002 00:10:00 +1000
-From: Greg Banks <gnb@alphalink.com.au>
-Organization: Corpus Canem Pty Ltd.
-X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdkfb i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Peter Samuelson <peter@cadcamlab.org>,
-       Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-       linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: [patch] config language dep_* enhancements
-References: <Pine.LNX.4.44.0208191157000.8911-100000@serv>
+	id <S318862AbSHTOOd>; Tue, 20 Aug 2002 10:14:33 -0400
+Received: from popelka.ms.mff.cuni.cz ([195.113.16.198]:29203 "EHLO
+	popelka.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S318253AbSHTOOd>; Tue, 20 Aug 2002 10:14:33 -0400
+Date: Tue, 20 Aug 2002 16:26:20 +0200
+From: jack@suse.cz
+To: "Dmitry N. Hramtsov" <hdn@nsu.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vfsv0 quota patch
+Message-ID: <20020820162620.G21149@popelka.ms.mff.cuni.cz>
+References: <Pine.LNX.4.44.0208191220390.28677-100000@aurora.nsu.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0208191220390.28677-100000@aurora.nsu.ru>; from hdn@nsu.ru on Mon, Aug 19, 2002 at 12:26:31PM +0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
+On Mon, Aug 19, 2002 at 12:26:31PM +0700, Dmitry N. Hramtsov wrote:
 > 
-> I looked through the list and except from real syntax errors nothing
-> prevents an automatic conversion.
-> I have to manually fix things like CONFIG_ALPHA_NONAME, which is first set
-> by a choice statement and later redefined. My new parser can't deal with
-> this, because user input is given the highest priority.
+> Hello All,
+> 
+> Could you tell me where can I get vfsv0 quota patch for 2.4.19 or
+> 2.4.20-preX?  Unfortunately, link
+> 
+> ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/v2.4/
+> 
+> does not work cause host atrey.karlin.mff.cuni.cz inaccessible.
+  The computer will be probably offline for a while (as far as I know
+  there are problems with electricity etc...). But you can also
+  use -ac versions of kernel which should contain latest quota patches
+  (actually more recent that on my ftp site...).
 
-Well then, there's something we need to look at fixing in the CML1
-corpus.
-
-Greg.
--- 
-the price of civilisation today is a courageous willingness to prevail,
-with force, if necessary, against whatever vicious and uncomprehending
-enemies try to strike it down.     - Roger Sandall, The Age, 28Sep2001.
+  								Honza

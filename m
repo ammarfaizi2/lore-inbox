@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315374AbSEaPHq>; Fri, 31 May 2002 11:07:46 -0400
+	id <S315375AbSEaPVR>; Fri, 31 May 2002 11:21:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315375AbSEaPHp>; Fri, 31 May 2002 11:07:45 -0400
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:54422 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S315374AbSEaPHp>; Fri, 31 May 2002 11:07:45 -0400
-Date: Fri, 31 May 2002 17:07:40 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: USB host drivers test results (2.5.19) and problem.
-Message-ID: <20020531150740.GG8310@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020531133429.GF8310@come.alcove-fr> <21481.1022856842@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+	id <S315379AbSEaPVQ>; Fri, 31 May 2002 11:21:16 -0400
+Received: from pD9E23CC6.dip.t-dialin.net ([217.226.60.198]:62605 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315375AbSEaPVQ>; Fri, 31 May 2002 11:21:16 -0400
+Date: Fri, 31 May 2002 09:21:06 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Nicolas Pitre <nico@cam.org>
+cc: Tomas Szepe <szepe@pinerecords.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Skip Ford <skip.ford@verizon.net>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: KBuild 2.5 Impressions
+In-Reply-To: <Pine.LNX.4.44.0205310958510.23147-100000@xanadu.home>
+Message-ID: <Pine.LNX.4.44.0205310918320.29405-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 31, 2002 at 03:54:02PM +0100, David Woodhouse wrote:
+Hi,
 
-> >  1. Shouldn't the ehci/ohci drivers give some error on loading, since
-> > I obviously don't have the hardware ? 
-> 
-> How do they know that? You could have it in your hand and be just about to
-> insert it.
+On Fri, 31 May 2002, Nicolas Pitre wrote:
+> One thing obvious so far is that there were a lot of positive comments
+> (which is good).  However no one actually tried to produce multiple logical
+> patches for kbuild25 yet and send them to Linus.  Whether you agree with the
+> procedure or not is somewhat irrelevant for the final result.  And Daniel
+> Philips nicely demonstrated how it could be done.
 
-PCI hotplug ? I fergot about that one...
+Stingr did that for 2.4, and I'm currently working on the 2.5 version. I'm 
+just suffering incredible headaches for days now, so it takes some time 
+since I can't work very continuously.
 
-However, maybe even a hotplug aware driver should print out a message
-upon initialization telling 'no hardware found'... It could be useful
-when you want to know the difference between: 
-	* bad driver, use another one
-	* good driver, but doesn't recognize/init the hardware because it's buggy.
+Please be patient. It's all on its way. See 
+<URL:ftp://luckynet.dynu.com/pub/linux/kbuild-2.5/> for details!
 
-Stelian.
+Regards,
+Thunder
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+ship is leaving right on time	|	Thunder from the hill at ngforever
+empty harbour, wave goodbye	|
+evacuation of the isle		|	free inhabitant not directly
+caveman's paintings drowning	|	belonging anywhere
+

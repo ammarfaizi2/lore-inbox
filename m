@@ -1,130 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129729AbRAOQPm>; Mon, 15 Jan 2001 11:15:42 -0500
+	id <S129744AbRAOQ3z>; Mon, 15 Jan 2001 11:29:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129744AbRAOQPd>; Mon, 15 Jan 2001 11:15:33 -0500
-Received: from aragorn.ics.muni.cz ([147.251.4.33]:64648 "EHLO
-	aragorn.ics.muni.cz") by vger.kernel.org with ESMTP
-	id <S129729AbRAOQP0>; Mon, 15 Jan 2001 11:15:26 -0500
-Newsgroups: cz.muni.redir.linux-kernel
-Path: news
-From: Zdenek Kabelac <kabi@fi.muni.cz>
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware
-Message-ID: <3A632215.981FAE01@fi.muni.cz>
-Date: Mon, 15 Jan 2001 16:15:17 GMT
-To: Linus Torvalds <torvalds@transmeta.com>
-X-Nntp-Posting-Host: dual.fi.muni.cz
-Content-Transfer-Encoding: 7bit
-X-Accept-Language: Czech, en
-Content-Type: text/plain; charset=iso-8859-2
-In-Reply-To: <Pine.LNX.4.10.10101121652160.8097-100000@penguin.transmeta.com>
+	id <S129774AbRAOQ3p>; Mon, 15 Jan 2001 11:29:45 -0500
+Received: from ns.lin-gen.com ([195.64.80.163]:4736 "EHLO server")
+	by vger.kernel.org with ESMTP id <S129744AbRAOQ3a>;
+	Mon, 15 Jan 2001 11:29:30 -0500
+Date: Mon, 15 Jan 2001 17:29:07 +0100
+To: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Hans Grobler <grobh@sun.ac.za>, linux-kernel@vger.kernel.org
+Subject: Re: PRoblem with pcnet32 under 2.4.0 , was :Drivers under 2.4
+Message-ID: <20010115172907.A1708@lin-gen.com>
+Reply-To: dth@lin-gen.com
+In-Reply-To: <93kn8a$itt$1@voyager.cistron.net> <Pine.LNX.4.30.0101111836460.30013-100000@prime.sun.ac.za> <20010112125010.A6371@lin-gen.com> <20010112233332.C2501@alpha.franken.de>
 Mime-Version: 1.0
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test1-RTL3.0pre10 i686)
-Organization: unknown
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010112233332.C2501@alpha.franken.de>; from tsbogend@alpha.franken.de on Fri, Jan 12, 2001 at 11:33:32PM +0100
+X-NCC-RegID: com.lin-gen
+From: Danny ter Haar <dth@lin-gen.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Sat, 13 Jan 2001, Frank de Lange wrote:
-> 
-> IDE is not my favourite example of a "known stable driver". Also, in many
-> cases IDE is for historical reasons connected to an EDGE io-apic pin (ie
-> it's still considered an ISA interrupt). Which probably wouldn't show this
-> problem anyway.
+I experimented some further today.
 
-I've been having similar problem with my network card 3c59x. My BP6 was
-hanging with 
-50% probablity while running netscape from nfs mounted /usr partition).
+using some printk i found out is was setting Fullduplex,
+hardcoded that to half-duplex (mine is connected to a hub
+and not a switch) , and it's configuration was 100Mbit
+as it was supposed to.
 
-For 2.2 kernel I've created this patch which has solved this problem
-(so I don't have any problems until recentely I've started to use UDMA4
-with ATA66
-- but this seems to be related to BX chipset problem and as far as I
-know Andre
-is working on this issue)
+Then i started looking at the start_xmit code and got
+lost :-)))
 
-While using this patch - I've got many messages about irq_enter in my
-kernel log,
-but the system was stable and running quite happy.
+Hope this helpes to pin-point the problem.
 
-With the latest 2.4 kernels I do not have same problems (at least it
-looks so far)
-(So I assume the problem was hidden somewhere inside NFS).
-However with 2.4.0 & ac patches I'm seeing some problem when one CPU is
-locked
-and the computer becomes unusable without any reason - there is no
-network trafick
-no ide intensive actions - all I can do is to move mouse within Xfree
-(so maybe
-its xfree bug - but its hard to recognize this - all I could say is that
-I'm not seeing
-such problems with -test12 kernels)
-
-
-Here the patch for 2.2 I've been using:
-
-
---- linux.orig/arch/i386/kernel/irq.h   Wed May 31 11:21:04
-2000                
-+++ linux/arch/i386/kernel/irq.h        Wed May 31 11:21:47
-2000                
-@@ -138,8 +138,22
-@@                                                            
- static inline void irq_enter(int cpu, unsigned int
-irq)                        
-
-{                                                                              
-       
-hardirq_enter(cpu);                                                     
--       while (test_bit(0,&global_irq_lock))
-{                                  
--               /* nothing
-*/;                                                  
-+       if (global_irq_holder == cpu && test_bit(0, &global_irq_lock))
-{        
-+                printk(KERN_WARNING "irq_enter - CPU:%d already holder
-(count:%
-+                       cpu, global_irq_count,
-local_irq_count[cpu]);           
-+                /* avoid deadlock bellow
-*/                                    
-+               
-clear_bit(0,&global_irq_lock);                                 
-+        } else
-{                                                               
-+            unsigned long i =
-1000000;                                         
-+            while (test_bit(0,&global_irq_lock) && i)
-{                        
-+               
-i--;                                                           
-+                /* nothing
-*/;                                                 
-+           
-}                                                                  
-+            if (!i)
-{                                                          
-+               
-clear_bit(0,&global_irq_lock);                                 
-+                printk(KERN_WARNING "irq_enter - loop timeout CPU:%d 
-Holder:%d!
-+                       cpu,
-global_irq_holder);                                
-+           
-}                                                                  
-       
-}                                                                       
-
-}                                                                              
-               printk(KERN_WARNING "irq_enter - loop timeout CPU:%d 
-Holder:%d!
-
--- 
-             There are three types of people in the world:
-               those who can count, and those who can't.
-  Zdenek Kabelac  http://i.am/kabi/ kabi@i.am {debian.org; fi.muni.cz}
-
+Danny
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311288AbSCQERY>; Sat, 16 Mar 2002 23:17:24 -0500
+	id <S311287AbSCQEXE>; Sat, 16 Mar 2002 23:23:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311287AbSCQERO>; Sat, 16 Mar 2002 23:17:14 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59406 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S311290AbSCQERC>; Sat, 16 Mar 2002 23:17:02 -0500
-Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-To: cw@f00f.org (Chris Wedgwood)
-Date: Sun, 17 Mar 2002 04:31:25 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), ak@suse.de (Andi Kleen),
-        yodaiken@fsmlabs.com, paulus@samba.org (Paul Mackerras),
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-In-Reply-To: <20020317041219.GB14116@tapu.f00f.org> from "Chris Wedgwood" at Mar 16, 2002 08:12:19 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S311289AbSCQEWy>; Sat, 16 Mar 2002 23:22:54 -0500
+Received: from web10504.mail.yahoo.com ([216.136.130.154]:35087 "HELO
+	web10504.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S311287AbSCQEWl>; Sat, 16 Mar 2002 23:22:41 -0500
+Message-ID: <20020317042241.70303.qmail@web10504.mail.yahoo.com>
+Date: Sat, 16 Mar 2002 20:22:41 -0800 (PST)
+From: S W <egberts@yahoo.com>
+Subject: Re: 2.4.19-pre2 CentaurHauls VIA Samuel 2 stepping 2 SEGFAULT (RESOLVED)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@suse.de>
+Cc: S W <egberts@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <E16mLIY-00079l-00@the-village.bc.nu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16mSKM-0001oa-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Either way, we have tens of MB of ram where we either put textures,
-> options or whatever --- the CPU has to meddle with it one way or
-> another.
+I pulled the chipset datasheet for CentaurHauls VIA
+Samuel 2 stepping 2.
 
-The disk DMA's it to RAM, the graphics card fetches it via the GART
-mappings. We shouldn't be touching a lot of it. 
+Two seperate i386/kernel/setup.c fixes things seems to
+fix this chipset.
 
+1.  Disabled the Branch Predictor in MSR_VIA_FCR
+2.  cachesize=0
+
+Other attempts to fix this were:
+3.  Disabling L2 Cache OOP'd so that's not an option.
+4.  Disables I-Cache (too slow)
+5.  Disables D-Cache OOP'd
+6.  Disables Page Directory Cache is a NOP.
+
+I've settled for cachesize=0.
+
+Hope this is not a trend here.
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Sports - live college hoops coverage
+http://sports.yahoo.com/

@@ -1,21 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267346AbTBIQ7I>; Sun, 9 Feb 2003 11:59:08 -0500
+	id <S267367AbTBIQzG>; Sun, 9 Feb 2003 11:55:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267371AbTBIQ4B>; Sun, 9 Feb 2003 11:56:01 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:38796 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S267346AbTBIQxW>;
-	Sun, 9 Feb 2003 11:53:22 -0500
-Date: Sun, 9 Feb 2003 12:03:06 +0000
+	id <S267371AbTBIQzG>; Sun, 9 Feb 2003 11:55:06 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:38284 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S267342AbTBIQxR>;
+	Sun, 9 Feb 2003 11:53:17 -0500
+Date: Sun, 9 Feb 2003 12:03:48 +0000
 From: Adam Belay <ambx1@neo.rr.com>
 To: Linus Torvalds <torvalds@transmeta.com>, Greg KH <greg@kroah.com>
-Cc: perex@perex.cz, "Grover, Andrew" <andrew.grover@intel.com>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] pnp - Resource Management Changes (2/12) 2.5.59-bk3
-Message-ID: <20030209120306.GA19988@neo.rr.com>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] pnp - Interface Improvements (4/12) 2.5.59-bk3
+Message-ID: <20030209120347.GA20005@neo.rr.com>
 Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
 	Linus Torvalds <torvalds@transmeta.com>, Greg KH <greg@kroah.com>,
-	perex@perex.cz, "Grover, Andrew" <andrew.grover@intel.com>,
+	"Grover, Andrew" <andrew.grover@intel.com>,
 	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,714 +23,417 @@ User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains a new algorithm that can resolve nearly any io resource
-conflict.  It also contains many bug fixes and better error detection for device
-activation.
+This patch will allow the user to see exactly where a resource conflict is
+occuring.  It also adds a manual set resource capability but I recommend only
+advanced users use it at this point.  These interface changes will be documented
+in pnp.txt soon.
 
 Please apply,
 Adam
 
-diff -urN a/drivers/pnp/manager.c b/drivers/pnp/manager.c
---- a/drivers/pnp/manager.c	Thu Jan  1 00:00:00 1970
-+++ b/drivers/pnp/manager.c	Sun Feb  9 09:48:20 2003
-@@ -0,0 +1,700 @@
-+/*
-+ * manager.c - Resource Management, Conflict Resolution, Activation and Disabling of Devices
-+ *
-+ * Copyright 2002 Adam Belay <ambx1@neo.rr.com>
-+ *
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/errno.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+
-+#ifdef CONFIG_PNP_DEBUG
-+	#define DEBUG
-+#else
-+	#undef DEBUG
-+#endif
-+
-+#include <linux/pnp.h>
-+#include "base.h"
-+
-+
-+int pnp_max_moves = 4;
-+
-+
-+static int pnp_next_port(struct pnp_dev * dev, int idx)
+
+diff -urN a/drivers/pnp/interface.c b/drivers/pnp/interface.c
+--- a/drivers/pnp/interface.c	Tue Jan 14 05:58:11 2003
++++ b/drivers/pnp/interface.c	Sun Feb  9 09:21:36 2003
+@@ -1,7 +1,7 @@
+ /*
+  * interface.c - contains everything related to the user interface
+  *
+- * Some code is based on isapnp_proc.c (c) Jaroslav Kysela <perex@suse.cz>
++ * Some code, especially possible resource dumping is based on isapnp_proc.c (c) Jaroslav Kysela <perex@suse.cz>
+  * Copyright 2002 Adam Belay <ambx1@neo.rr.com>
+  *
+  */
+@@ -12,6 +12,8 @@
+ #include <linux/list.h>
+ #include <linux/types.h>
+ #include <linux/stat.h>
++#include <linux/ctype.h>
++#include <asm/uaccess.h>
+ 
+ #include "base.h"
+ 
+@@ -158,27 +160,15 @@
+ 	case IORESOURCE_MEM_8AND16BIT:
+ 		s = "8-bit&16-bit";
+ 		break;
++	case IORESOURCE_MEM_32BIT:
++		s = "32-bit";
++		break;
+ 	default:
+ 		s = "16-bit";
+ 	}
+ 	pnp_printf(buffer, ", %s\n", s);
+ }
+ 
+-static void pnp_print_mem32(pnp_info_buffer_t *buffer, char *space, struct pnp_mem32 *mem32)
+-{
+-	int first = 1, i;
+-
+-	pnp_printf(buffer, "%s32-bit memory ", space);
+-	for (i = 0; i < 17; i++) {
+-		if (first) {
+-			first = 0;
+-		} else {
+-			pnp_printf(buffer, ":");
+-		}
+-		pnp_printf(buffer, "%02x", mem32->data[i]);
+-	}
+-}
+-
+ static void pnp_print_resources(pnp_info_buffer_t *buffer, char *space, struct pnp_resources *res, int dep)
+ {
+ 	char *s;
+@@ -186,7 +176,6 @@
+ 	struct pnp_irq *irq;
+ 	struct pnp_dma *dma;
+ 	struct pnp_mem *mem;
+-	struct pnp_mem32 *mem32;
+ 
+ 	switch (res->priority) {
+ 	case PNP_RES_PRIORITY_PREFERRED:
+@@ -211,18 +200,15 @@
+ 		pnp_print_dma(buffer, space, dma);
+ 	for (mem = res->mem; mem; mem = mem->next)
+ 		pnp_print_mem(buffer, space, mem);
+-	for (mem32 = res->mem32; mem32; mem32 = mem32->next)
+-		pnp_print_mem32(buffer, space, mem32);
+ }
+ 
+ static ssize_t pnp_show_possible_resources(struct device *dmdev, char *buf)
+ {
+ 	struct pnp_dev *dev = to_pnp_dev(dmdev);
+-	struct pnp_resources * res = dev->res;
+-	int dep = 0;
+-	pnp_info_buffer_t *buffer;
+-
+-	buffer = (pnp_info_buffer_t *) pnp_alloc(sizeof(pnp_info_buffer_t));
++	struct pnp_resources * res = dev->possible;
++	int ret, dep = 0;
++	pnp_info_buffer_t *buffer = (pnp_info_buffer_t *)
++				 pnp_alloc(sizeof(pnp_info_buffer_t));
+ 	if (!buffer)
+ 		return -ENOMEM;
+ 	buffer->len = PAGE_SIZE;
+@@ -236,97 +222,272 @@
+ 		res = res->dep;
+ 		dep++;
+ 	}
+-	return (buffer->curr - buf);
++	ret = (buffer->curr - buf);
++	kfree(buffer);
++	return ret;
+ }
+ 
+ static DEVICE_ATTR(possible,S_IRUGO,pnp_show_possible_resources,NULL);
+ 
++static void pnp_print_conflict_desc(pnp_info_buffer_t *buffer, int conflict)
 +{
-+	struct pnp_port *port;
-+	unsigned long *value1, *value2, *value3;
-+	if (!dev || idx < 0 || idx >= PNP_MAX_PORT)
-+		return 0;
-+	port = dev->rule->port[idx];
-+	if (!port)
-+		return 1;
-+
-+	value1 = &dev->res.port_resource[idx].start;
-+	value2 = &dev->res.port_resource[idx].end;
-+	value3 = &dev->res.port_resource[idx].flags;
-+
-+	/* set the initial values if this is the first time */
-+	if (*value1 == 0) {
-+		*value1 = port->min;
-+		*value2 = *value1 + port->size -1;
-+		*value3 = port->flags | IORESOURCE_IO;
-+		if (!pnp_check_port(dev, idx))
-+			return 1;
-+	}
-+
-+	/* run through until pnp_check_port is happy */
-+	do {
-+		*value1 += port->align;
-+		*value2 = *value1 + port->size - 1;
-+		if (*value1 > port->max || !port->align)
-+			return 0;
-+	} while (pnp_check_port(dev, idx));
-+	return 1;
-+}
-+
-+static int pnp_next_mem(struct pnp_dev * dev, int idx)
-+{
-+	struct pnp_mem *mem;
-+	unsigned long *value1, *value2, *value3;
-+	if (!dev || idx < 0 || idx >= PNP_MAX_MEM)
-+		return 0;
-+	mem = dev->rule->mem[idx];
-+	if (!mem)
-+		return 1;
-+
-+	value1 = &dev->res.mem_resource[idx].start;
-+	value2 = &dev->res.mem_resource[idx].end;
-+	value3 = &dev->res.mem_resource[idx].flags;
-+
-+	/* set the initial values if this is the first time */
-+	if (*value1 == 0) {
-+		*value1 = mem->min;
-+		*value2 = *value1 + mem->size -1;
-+		*value3 = mem->flags | IORESOURCE_MEM;
-+		if (!(mem->flags & IORESOURCE_MEM_WRITEABLE))
-+			*value3 |= IORESOURCE_READONLY;
-+		if (mem->flags & IORESOURCE_MEM_CACHEABLE)
-+			*value3 |= IORESOURCE_CACHEABLE;
-+		if (mem->flags & IORESOURCE_MEM_RANGELENGTH)
-+			*value3 |= IORESOURCE_RANGELENGTH;
-+		if (mem->flags & IORESOURCE_MEM_SHADOWABLE)
-+			*value3 |= IORESOURCE_SHADOWABLE;
-+		if (!pnp_check_mem(dev, idx))
-+			return 1;
-+	}
-+
-+	/* run through until pnp_check_mem is happy */
-+	do {
-+		*value1 += mem->align;
-+		*value2 = *value1 + mem->size - 1;
-+		if (*value1 > mem->max || !mem->align)
-+			return 0;
-+	} while (pnp_check_mem(dev, idx));
-+	return 1;
-+}
-+
-+static int pnp_next_irq(struct pnp_dev * dev, int idx)
-+{
-+	struct pnp_irq *irq;
-+	unsigned long *value1, *value2, *value3;
-+	int i, mask;
-+	if (!dev || idx < 0 || idx >= PNP_MAX_IRQ)
-+		return 0;
-+	irq = dev->rule->irq[idx];
-+	if (!irq)
-+		return 1;
-+
-+	value1 = &dev->res.irq_resource[idx].start;
-+	value2 = &dev->res.irq_resource[idx].end;
-+	value3 = &dev->res.irq_resource[idx].flags;
-+
-+	/* set the initial values if this is the first time */
-+	if (*value1 == -1) {
-+		*value1 = *value2 = 0;
-+		*value3 = irq->flags | IORESOURCE_IRQ;
-+		if (!pnp_check_irq(dev, idx))
-+			return 1;
-+	}
-+
-+	mask = irq->map;
-+	for (i = *value1 + 1; i < 16; i++)
-+	{
-+		if(mask>>i & 0x01) {
-+			*value1 = *value2 = i;
-+			if(!pnp_check_irq(dev, idx))
-+				return 1;
-+		}
-+	}
-+	return 0;
-+}
-+
-+static int pnp_next_dma(struct pnp_dev * dev, int idx)
-+{
-+	struct pnp_dma *dma;
-+	struct resource backup;
-+	unsigned long *value1, *value2, *value3;
-+	int i, mask;
-+	if (!dev || idx < 0 || idx >= PNP_MAX_DMA)
-+		return -EINVAL;
-+	dma = dev->rule->dma[idx];
-+	if (!dma)
-+		return 1;
-+
-+	value1 = &dev->res.dma_resource[idx].start;
-+	value2 = &dev->res.dma_resource[idx].end;
-+	value3 = &dev->res.dma_resource[idx].flags;
-+	*value3 = dma->flags | IORESOURCE_DMA;
-+	backup = dev->res.dma_resource[idx];
-+
-+	/* set the initial values if this is the first time */
-+	if (*value1 == -1) {
-+		*value1 = *value2 = 0;
-+		*value3 = dma->flags | IORESOURCE_DMA;
-+		if (!pnp_check_dma(dev, idx))
-+			return 1;
-+	}
-+
-+	mask = dma->map;
-+	for (i = *value1 + 1; i < 8; i++)
-+	{
-+		if(mask>>i & 0x01) {
-+			*value1 = *value2 = i;
-+			if(!pnp_check_dma(dev, idx))
-+				return 1;
-+		}
-+	}
-+	dev->res.dma_resource[idx] = backup;
-+	return 0;
-+}
-+
-+
-+static int pnp_next_rule(struct pnp_dev *dev)
-+{
-+	int depnum = dev->rule->depnum;
-+        int max = pnp_get_max_depnum(dev);
-+	int priority = PNP_RES_PRIORITY_PREFERRED;
-+
-+	if(depnum > 0) {
-+		struct pnp_resources * res = pnp_find_resources(dev, depnum);
-+		priority = res->priority;
-+	}
-+
-+	for (; priority <= PNP_RES_PRIORITY_FUNCTIONAL; priority++, depnum=0) {
-+		depnum += 1;
-+		for (; depnum <= max; depnum++) {
-+			struct pnp_resources * res = pnp_find_resources(dev, depnum);
-+			if (res->priority == priority) {
-+				if(pnp_generate_rule(dev, depnum, dev->rule)) {
-+					dev->rule->depnum = depnum;
-+					return 1;
-+				}
-+			}
-+		}
-+	}
-+	return 0;
-+}
-+
-+struct pnp_change {
-+	struct list_head change_list;
-+	struct list_head changes;
-+	struct pnp_resource_table res_bak;
-+	struct pnp_rule_table rule_bak;
-+	struct pnp_dev * dev;
-+};
-+
-+static void pnp_free_changes(struct pnp_change * parent)
-+{
-+	struct list_head * pos, * temp;
-+	list_for_each_safe(pos, temp, &parent->changes) {
-+		struct pnp_change * change = list_entry(pos, struct pnp_change, change_list);
-+		list_del(&change->change_list);
-+		kfree(change);
-+	}
-+}
-+
-+static void pnp_undo_changes(struct pnp_change * parent)
-+{
-+	struct list_head * pos, * temp;
-+	list_for_each_safe(pos, temp, &parent->changes) {
-+		struct pnp_change * change = list_entry(pos, struct pnp_change, change_list);
-+		*change->dev->rule = change->rule_bak;
-+		change->dev->res = change->res_bak;
-+		list_del(&change->change_list);
-+		kfree(change);
-+	}
-+}
-+
-+static struct pnp_change * pnp_add_change(struct pnp_change * parent, struct pnp_dev * dev)
-+{
-+	struct pnp_change * change = pnp_alloc(sizeof(struct pnp_change));
-+	if (!change)
-+		return NULL;
-+	change->res_bak = dev->res;
-+	change->rule_bak = *dev->rule;
-+	change->dev = dev;
-+	INIT_LIST_HEAD(&change->changes);
-+	if (parent)
-+		list_add(&change->change_list, &parent->changes);
-+	return change;
-+}
-+
-+static void pnp_commit_changes(struct pnp_change * parent, struct pnp_change * change)
-+{
-+	/* check if it's the root change */
-+	if (!parent)
++	if (!conflict)
 +		return;
-+	if (!list_empty(&change->changes))
-+		list_splice_init(&change->changes, &parent->changes);
-+}
-+static int pnp_next_config(struct pnp_dev * dev, int move, struct pnp_change * parent);
++	pnp_printf(buffer, "  Conflict Detected: %2x - ", conflict);
++	switch (conflict) {
++	case CONFLICT_TYPE_RESERVED:
++		pnp_printf(buffer, "This resource was manually reserved.\n");
++		break;
 +
-+static int pnp_next_request(struct pnp_dev * dev, int move, struct pnp_change * parent, struct pnp_change * change)
-+{
-+	int i;
-+	struct pnp_dev * cdev;
++	case CONFLICT_TYPE_IN_USE:
++		pnp_printf(buffer, "This resource resource is currently in use.\n");
++		break;
 +
-+	for (i = 0; i < PNP_MAX_PORT; i++) {
-+		if (dev->res.port_resource[i].start == 0 || pnp_check_port_conflicts(dev,i,SEARCH_WARM)) {
-+			if (!pnp_next_port(dev,i))
-+				return 0;
-+		}
-+		do {
-+			cdev = pnp_check_port_conflicts(dev,i,SEARCH_COLD);
-+			if (cdev && (!move || !pnp_next_config(cdev,move,change))) {
-+				pnp_undo_changes(change);
-+				if (!pnp_next_port(dev,i))
-+					return 0;
-+			}
-+		} while (cdev);
-+		pnp_commit_changes(parent, change);
++	case CONFLICT_TYPE_PCI:
++		pnp_printf(buffer, "This resource conflicts with a PCI device.\n");
++		break;
++
++	case CONFLICT_TYPE_INVALID:
++		pnp_printf(buffer, "This resource is invalid.\n");
++		break;
++
++	case CONFLICT_TYPE_INTERNAL:
++		pnp_printf(buffer, "This resource conflicts with another resource on this device.\n");
++		break;
++
++	case CONFLICT_TYPE_PNP_WARM:
++		pnp_printf(buffer, "This resource conflicts with the active PnP device ");
++		break;
++
++	case CONFLICT_TYPE_PNP_COLD:
++		pnp_printf(buffer, "This resource conflicts with the resources that PnP plans to assign to the device ");
++		break;
++	default:
++		pnp_printf(buffer, "Unknown conflict.\n");
++		break;
 +	}
-+	for (i = 0; i < PNP_MAX_MEM; i++) {
-+		if (dev->res.mem_resource[i].start == 0 || pnp_check_mem_conflicts(dev,i,SEARCH_WARM)) {
-+			if (!pnp_next_mem(dev,i))
-+				return 0;
-+		}
-+		do {
-+			cdev = pnp_check_mem_conflicts(dev,i,SEARCH_COLD);
-+			if (cdev && (!move || !pnp_next_config(cdev,move,change))) {
-+				pnp_undo_changes(change);
-+				if (!pnp_next_mem(dev,i))
-+					return 0;
-+			}
-+		} while (cdev);
-+		pnp_commit_changes(parent, change);
-+	}
-+	for (i = 0; i < PNP_MAX_IRQ; i++) {
-+		if (dev->res.irq_resource[i].start == -1 || pnp_check_irq_conflicts(dev,i,SEARCH_WARM)) {
-+			if (!pnp_next_irq(dev,i))
-+				return 0;
-+		}
-+		do {
-+			cdev = pnp_check_irq_conflicts(dev,i,SEARCH_COLD);
-+			if (cdev && (!move || !pnp_next_config(cdev,move,change))) {
-+				pnp_undo_changes(change);
-+				if (!pnp_next_irq(dev,i))
-+					return 0;
-+			}
-+		} while (cdev);
-+		pnp_commit_changes(parent, change);
-+	}
-+	for (i = 0; i < PNP_MAX_DMA; i++) {
-+		if (dev->res.dma_resource[i].start == -1 || pnp_check_dma_conflicts(dev,i,SEARCH_WARM)) {
-+			if (!pnp_next_dma(dev,i))
-+				return 0;
-+		}
-+		do {
-+			cdev = pnp_check_dma_conflicts(dev,i,SEARCH_COLD);
-+			if (cdev && (!move || !pnp_next_config(cdev,move,change))) {
-+				pnp_undo_changes(change);
-+				if (!pnp_next_dma(dev,i))
-+					return 0;
-+			}
-+		} while (cdev);
-+		pnp_commit_changes(parent, change);
-+	}
-+	return 1;
 +}
 +
-+static int pnp_next_config(struct pnp_dev * dev, int move, struct pnp_change * parent)
-+{
-+	struct pnp_change * change = pnp_add_change(parent,dev);
-+	move--;
-+	if (!change)
-+		return 0;
-+	if (!dev->rule)
-+		goto fail;
-+	if (!pnp_can_configure(dev))
-+		goto fail;
-+	if (!dev->rule->depnum) {
-+		if (!pnp_next_rule(dev))
-+			goto fail;
-+	}
-+	while (!pnp_next_request(dev, move, parent, change)) {
-+		if(!pnp_next_rule(dev))
-+			goto fail;
-+		pnp_init_resource_table(&dev->res);
-+	}
-+	if (!parent) {
-+		pnp_free_changes(change);
-+		kfree(change);
-+	}
-+	return 1;
-+
-+fail:
-+	if (!parent)
-+		kfree(change);
-+	return 0;
-+}
-+
-+/* this advanced algorithm will shuffle other configs to make room and ensure that the most possible devices have configs */
-+static int pnp_advanced_config(struct pnp_dev * dev)
-+{
-+	int move;
-+	/* if the device cannot be configured skip it */
-+	if (!pnp_can_configure(dev))
-+		return 1;
-+	if (!dev->rule) {
-+		dev->rule = pnp_alloc(sizeof(struct pnp_rule_table));
-+		if (!dev->rule)
-+			return -ENOMEM;
-+	}
-+
-+	spin_lock(&pnp_lock);
-+	for (move = 1; move <= pnp_max_moves; move++) {
-+		dev->rule->depnum = 0;
-+		pnp_init_resource_table(&dev->res);
-+		if (pnp_next_config(dev,move,NULL)) {
-+			spin_unlock(&pnp_lock);
-+			return 1;
-+		}
-+	}
-+
-+	pnp_init_resource_table(&dev->res);
-+	dev->rule->depnum = 0;
-+	spin_unlock(&pnp_lock);
-+	pnp_err("res: Unable to resolve resource conflicts for the device '%s', some devices may not be usable.", dev->dev.bus_id);
-+	return 0;
-+}
-+
-+int pnp_resolve_conflicts(struct pnp_dev *dev)
-+{
-+	int i;
-+	struct pnp_dev * cdev;
-+
-+	for (i = 0; i < PNP_MAX_PORT; i++)
-+	{
-+		do {
-+			cdev = pnp_check_port_conflicts(dev,i,SEARCH_COLD);
-+			if (cdev)
-+				pnp_advanced_config(cdev);
-+		} while (cdev);
-+	}
-+	for (i = 0; i < PNP_MAX_MEM; i++)
-+	{
-+		do {
-+			cdev = pnp_check_mem_conflicts(dev,i,SEARCH_COLD);
-+			if (cdev)
-+				pnp_advanced_config(cdev);
-+		} while (cdev);
-+	}
-+	for (i = 0; i < PNP_MAX_IRQ; i++)
-+	{
-+		do {
-+			cdev = pnp_check_irq_conflicts(dev,i,SEARCH_COLD);
-+			if (cdev)
-+				pnp_advanced_config(cdev);
-+		} while (cdev);
-+	}
-+	for (i = 0; i < PNP_MAX_DMA; i++)
-+	{
-+		do {
-+			cdev = pnp_check_dma_conflicts(dev,i,SEARCH_COLD);
-+			if (cdev)
-+				pnp_advanced_config(cdev);
-+		} while (cdev);
-+	}
-+	return 1;
-+}
-+
-+/* this is a much faster algorithm but it may not leave resources for other devices to use */
-+static int pnp_simple_config(struct pnp_dev * dev)
-+{
-+	int i;
-+	spin_lock(&pnp_lock);
-+	if (dev->active) {
-+		spin_unlock(&pnp_lock);
-+		return 1;
-+	}
-+	dev->rule->depnum = 0;
-+	pnp_init_resource_table(&dev->res);
-+	if (!dev->rule) {
-+		dev->rule = pnp_alloc(sizeof(struct pnp_rule_table));
-+		if (!dev->rule) {
-+			spin_unlock(&pnp_lock);
-+			return -ENOMEM;
-+		}
-+	}
-+	while (pnp_next_rule(dev)) {
-+		for (i = 0; i < PNP_MAX_PORT; i++) {
-+			if (!pnp_next_port(dev,i))
-+				continue;
-+		}
-+		for (i = 0; i < PNP_MAX_MEM; i++) {
-+			if (!pnp_next_mem(dev,i))
-+				continue;
-+		}
-+		for (i = 0; i < PNP_MAX_IRQ; i++) {
-+			if (!pnp_next_irq(dev,i))
-+				continue;
-+		}
-+		for (i = 0; i < PNP_MAX_DMA; i++) {
-+			if (!pnp_next_dma(dev,i))
-+				continue;
-+		}
-+		goto done;
-+	}
-+	pnp_init_resource_table(&dev->res);
-+	dev->rule->depnum = 0;
-+	spin_unlock(&pnp_lock);
-+	return 0;
-+
-+done:
-+	pnp_resolve_conflicts(dev);	/* this is required or we will break the advanced configs */
-+	return 1;
-+}
-+
-+static int pnp_compare_resources(struct pnp_resource_table * resa, struct pnp_resource_table * resb)
-+{
-+	int idx;
-+	for (idx = 0; idx < PNP_MAX_IRQ; idx++) {
-+		if (resa->irq_resource[idx].start != resb->irq_resource[idx].start)
-+			return 1;
-+	}
-+	for (idx = 0; idx < PNP_MAX_DMA; idx++) {
-+		if (resa->dma_resource[idx].start != resb->dma_resource[idx].start)
-+			return 1;
-+	}
-+	for (idx = 0; idx < PNP_MAX_PORT; idx++) {
-+		if (resa->port_resource[idx].start != resb->port_resource[idx].start)
-+			return 1;
-+		if (resa->port_resource[idx].end != resb->port_resource[idx].end)
-+			return 1;
-+	}
-+	for (idx = 0; idx < PNP_MAX_MEM; idx++) {
-+		if (resa->mem_resource[idx].start != resb->mem_resource[idx].start)
-+			return 1;
-+		if (resa->mem_resource[idx].end != resb->mem_resource[idx].end)
-+			return 1;
-+	}
-+	return 0;
-+}
-+
-+
-+/*
-+ * PnP Device Resource Management
-+ */
-+
-+/**
-+ * pnp_auto_config_dev - determines the best possible resource configuration based on available information
-+ * @dev: pointer to the desired device
-+ *
-+ */
-+
-+int pnp_auto_config_dev(struct pnp_dev *dev)
-+{
-+	int error;
-+	if(!dev)
-+		return -EINVAL;
-+
-+	dev->config_mode = PNP_CONFIG_AUTO;
-+
-+	if(dev->active)
-+		error = pnp_resolve_conflicts(dev);
-+	else
-+		error = pnp_advanced_config(dev);
-+	return error;
-+}
-+
-+/**
-+ * pnp_manual_config_dev - Disables Auto Config and Manually sets the resource table
-+ * @dev: pointer to the desired device
-+ * @res: pointer to the new resource config
-+ *
-+ * This function can be used by drivers that want to manually set thier resources.
-+ */
-+
-+int pnp_manual_config_dev(struct pnp_dev *dev, struct pnp_resource_table * res, int mode)
-+{
-+	int i;
-+	struct pnp_resource_table bak = dev->res;
-+	if (!dev || !res)
-+		return -EINVAL;
-+	if (dev->active)
-+		return -EBUSY;
-+	spin_lock(&pnp_lock);
-+	dev->res = *res;
-+
-+	if (!(mode & PNP_CONFIG_FORCE)) {
-+		for (i = 0; i < PNP_MAX_PORT; i++) {
-+			if(pnp_check_port(dev,i))
-+				goto fail;
-+		}
-+		for (i = 0; i < PNP_MAX_MEM; i++) {
-+			if(pnp_check_mem(dev,i))
-+				goto fail;
-+		}
-+		for (i = 0; i < PNP_MAX_IRQ; i++) {
-+			if(pnp_check_irq(dev,i))
-+				goto fail;
-+		}
-+		for (i = 0; i < PNP_MAX_DMA; i++) {
-+			if(pnp_check_dma(dev,i))
-+				goto fail;
-+		}
-+	}
-+	spin_unlock(&pnp_lock);
-+
-+	pnp_resolve_conflicts(dev);
-+	dev->config_mode = PNP_CONFIG_MANUAL;
-+	return 0;
-+
-+fail:
-+	dev->res = bak;
-+	spin_unlock(&pnp_lock);
-+	return -EINVAL;
-+}
-+
-+/**
-+ * pnp_activate_dev - activates a PnP device for use
-+ * @dev: pointer to the desired device
-+ *
-+ * finds the best resource configuration and then informs the correct pnp protocol
-+ */
-+
-+int pnp_activate_dev(struct pnp_dev *dev)
++static void pnp_print_conflict_node(pnp_info_buffer_t *buffer, struct pnp_dev * dev)
 +{
 +	if (!dev)
-+		return -EINVAL;
-+	if (dev->active) {
-+		pnp_info("res: The PnP device '%s' is already active.", dev->dev.bus_id);
-+		return -EBUSY;
-+	}
-+	spin_lock(&pnp_lock);	/* we lock just in case the device is being configured during this call */
-+	dev->active = 1;
-+	spin_unlock(&pnp_lock); /* once the device is claimed active we know it won't be configured so we can unlock */
-+
-+	/* If this condition is true, advanced configuration failed, we need to get this device up and running
-+	 * so we use the simple config engine which ignores cold conflicts, this of course may lead to new failures */
-+	if (!pnp_is_active(dev)) {
-+		if (!pnp_simple_config(dev)) {
-+			pnp_err("res: Unable to resolve resource conflicts for the device '%s'.", dev->dev.bus_id);
-+			goto fail;
-+		}
-+	}
-+	if (dev->config_mode & PNP_CONFIG_INVALID) {
-+		pnp_info("res: Unable to activate the PnP device '%s' because its resource configuration is invalid.", dev->dev.bus_id);
-+		goto fail;
-+	}
-+	if (dev->status != PNP_READY && dev->status != PNP_ATTACHED){
-+		pnp_err("res: Activation failed because the PnP device '%s' is busy.", dev->dev.bus_id);
-+		goto fail;
-+	}
-+	if (!pnp_can_write(dev)) {
-+		pnp_info("res: Unable to activate the PnP device '%s' because this feature is not supported.", dev->dev.bus_id);
-+		goto fail;
-+	}
-+	if (dev->protocol->set(dev, &dev->res)<0) {
-+		pnp_err("res: The protocol '%s' reports that activating the PnP device '%s' has failed.", dev->protocol->name, dev->dev.bus_id);
-+		goto fail;
-+	}
-+	if (pnp_can_read(dev)) {
-+		struct pnp_resource_table res;
-+		dev->protocol->get(dev, &res);
-+		if (pnp_compare_resources(&dev->res, &res)) /* if this happens we may be in big trouble but it's best just to continue */
-+			pnp_err("res: The resources requested do not match those set for the PnP device '%s'.", dev->dev.bus_id);
-+	} else
-+		dev->active = pnp_is_active(dev);
-+	pnp_dbg("res: the device '%s' has been activated.", dev->dev.bus_id);
-+	if (dev->rule) {
-+		kfree(dev->rule);
-+		dev->rule = NULL;
-+	}
-+	return 0;
-+
-+fail:
-+	dev->active = 0; /* fixes incorrect active state */
-+	return -EINVAL;
-+}
-+
-+/**
-+ * pnp_disable_dev - disables device
-+ * @dev: pointer to the desired device
-+ *
-+ * inform the correct pnp protocol so that resources can be used by other devices
-+ */
-+
-+int pnp_disable_dev(struct pnp_dev *dev)
-+{
-+        if (!dev)
-+                return -EINVAL;
-+	if (!dev->active) {
-+		pnp_info("res: The PnP device '%s' is already disabled.", dev->dev.bus_id);
-+		return -EINVAL;
-+	}
-+	if (dev->status != PNP_READY){
-+		pnp_info("res: Disable failed becuase the PnP device '%s' is busy.", dev->dev.bus_id);
-+		return -EINVAL;
-+	}
-+	if (!pnp_can_disable(dev)) {
-+		pnp_info("res: Unable to disable the PnP device '%s' because this feature is not supported.", dev->dev.bus_id);
-+		return -EINVAL;
-+	}
-+	if (dev->protocol->disable(dev)<0) {
-+		pnp_err("res: The protocol '%s' reports that disabling the PnP device '%s' has failed.", dev->protocol->name, dev->dev.bus_id);
-+		return -1;
-+	}
-+	dev->active = 0; /* just in case the protocol doesn't do this */
-+	pnp_dbg("the device '%s' has been disabled.", dev->dev.bus_id);
-+	return 0;
-+}
-+
-+/**
-+ * pnp_resource_change - change one resource
-+ * @resource: pointer to resource to be changed
-+ * @start: start of region
-+ * @size: size of region
-+ *
-+ */
-+
-+void pnp_resource_change(struct resource *resource, unsigned long start, unsigned long size)
-+{
-+	if (resource == NULL)
 +		return;
-+	resource->flags &= ~IORESOURCE_AUTO;
-+	resource->start = start;
-+	resource->end = start + size - 1;
++	pnp_printf(buffer, "%s.\n", dev->dev.bus_id);
 +}
 +
-+
-+EXPORT_SYMBOL(pnp_auto_config_dev);
-+EXPORT_SYMBOL(pnp_manual_config_dev);
-+EXPORT_SYMBOL(pnp_activate_dev);
-+EXPORT_SYMBOL(pnp_disable_dev);
-+EXPORT_SYMBOL(pnp_resource_change);
-+
-+
-+/* format is: pnp_max_moves=num */
-+
-+static int __init pnp_setup_max_moves(char *str)
++static void pnp_print_conflict(pnp_info_buffer_t *buffer, struct pnp_dev * dev, int idx, int type)
 +{
-+	get_option(&str,&pnp_max_moves);
-+	return 1;
++	struct pnp_dev * cdev, * wdev;
++	int conflict;
++	switch (type) {
++	case IORESOURCE_IO:
++		conflict = pnp_check_port(dev, idx);
++		if (conflict == CONFLICT_TYPE_PNP_WARM)
++			wdev = pnp_check_port_conflicts(dev, idx, SEARCH_WARM);
++		cdev = pnp_check_port_conflicts(dev, idx, SEARCH_COLD);
++		break;
++	case IORESOURCE_MEM:
++		conflict = pnp_check_mem(dev, idx);
++		if (conflict == CONFLICT_TYPE_PNP_WARM)
++			wdev = pnp_check_mem_conflicts(dev, idx, SEARCH_WARM);
++		cdev = pnp_check_mem_conflicts(dev, idx, SEARCH_COLD);
++		break;
++	case IORESOURCE_IRQ:
++		conflict = pnp_check_irq(dev, idx);
++		if (conflict == CONFLICT_TYPE_PNP_WARM)
++			wdev = pnp_check_irq_conflicts(dev, idx, SEARCH_WARM);
++		cdev = pnp_check_irq_conflicts(dev, idx, SEARCH_COLD);
++		break;
++	case IORESOURCE_DMA:
++		conflict = pnp_check_dma(dev, idx);
++		if (conflict == CONFLICT_TYPE_PNP_WARM)
++			wdev = pnp_check_dma_conflicts(dev, idx, SEARCH_WARM);
++		cdev = pnp_check_dma_conflicts(dev, idx, SEARCH_COLD);
++		break;
++	default:
++		return;
++	}
++
++	pnp_print_conflict_desc(buffer, conflict);
++
++
++	if (cdev) {
++		pnp_print_conflict_desc(buffer, CONFLICT_TYPE_PNP_COLD);
++		pnp_print_conflict_node(buffer, cdev);
++	}
 +}
 +
-+__setup("pnp_max_moves=", pnp_setup_max_moves);
+ static ssize_t pnp_show_current_resources(struct device *dmdev, char *buf)
+ {
+ 	struct pnp_dev *dev = to_pnp_dev(dmdev);
+-	char *str = buf;
+-	int i;
++	int i, ret;
++	pnp_info_buffer_t *buffer = (pnp_info_buffer_t *)
++				pnp_alloc(sizeof(pnp_info_buffer_t));
++	if (!buffer)
++		return -ENOMEM;
++	if (!dev)
++		return -EINVAL;
++	buffer->len = PAGE_SIZE;
++	buffer->buffer = buf;
++	buffer->curr = buffer->buffer;
+ 
+-	if (!dev->active){
+-		str += sprintf(str,"DISABLED\n");
+-		goto done;
+-	}
+-	for (i = 0; i < DEVICE_COUNT_IO; i++) {
++	pnp_printf(buffer,"state = ");
++	if (dev->active)
++		pnp_printf(buffer,"active\n");
++	else
++		pnp_printf(buffer,"disabled\n");
++	for (i = 0; i < PNP_MAX_PORT; i++) {
+ 		if (pnp_port_valid(dev, i)) {
+-			str += sprintf(str,"io");
+-			str += sprintf(str," 0x%lx-0x%lx \n",
++			pnp_printf(buffer,"io");
++			pnp_printf(buffer," 0x%lx-0x%lx \n",
+ 						pnp_port_start(dev, i),
+ 						pnp_port_end(dev, i));
++			pnp_print_conflict(buffer, dev, i, IORESOURCE_IO);
+ 		}
+ 	}
+-	for (i = 0; i < DEVICE_COUNT_MEM; i++) {
++	for (i = 0; i < PNP_MAX_MEM; i++) {
+ 		if (pnp_mem_valid(dev, i)) {
+-			str += sprintf(str,"mem");
+-			str += sprintf(str," 0x%lx-0x%lx \n",
++			pnp_printf(buffer,"mem");
++			pnp_printf(buffer," 0x%lx-0x%lx \n",
+ 						pnp_mem_start(dev, i),
+ 						pnp_mem_end(dev, i));
++			pnp_print_conflict(buffer, dev, i, IORESOURCE_MEM);
+ 		}
+ 	}
+-	for (i = 0; i < DEVICE_COUNT_IRQ; i++) {
++	for (i = 0; i < PNP_MAX_IRQ; i++) {
+ 		if (pnp_irq_valid(dev, i)) {
+-			str += sprintf(str,"irq");
+-			str += sprintf(str," %ld \n", pnp_irq(dev, i));
++			pnp_printf(buffer,"irq");
++			pnp_printf(buffer," %ld \n", pnp_irq(dev, i));
++			pnp_print_conflict(buffer, dev, i, IORESOURCE_IRQ);
+ 		}
+ 	}
+-	for (i = 0; i < DEVICE_COUNT_DMA; i++) {
++	for (i = 0; i < PNP_MAX_DMA; i++) {
+ 		if (pnp_dma_valid(dev, i)) {
+-			str += sprintf(str,"dma");
+-			str += sprintf(str," %ld \n", pnp_dma(dev, i));
++			pnp_printf(buffer,"dma");
++			pnp_printf(buffer," %ld \n", pnp_dma(dev, i));
++			pnp_print_conflict(buffer, dev, i, IORESOURCE_DMA);
+ 		}
+ 	}
+-	done:
+-	return (str - buf);
++	ret = (buffer->curr - buf);
++	kfree(buffer);
++	return ret;
+ }
+ 
++extern int pnp_resolve_conflicts(struct pnp_dev *dev);
++
+ static ssize_t
+-pnp_set_current_resources(struct device * dmdev, const char * buf, size_t count)
++pnp_set_current_resources(struct device * dmdev, const char * ubuf, size_t count)
+ {
+ 	struct pnp_dev *dev = to_pnp_dev(dmdev);
+-	char	command[20];
+-	int	num_args;
+-	int	error = 0;
+-	int	depnum;
++	char	*buf = (void *)ubuf;
++	int	retval = 0;
+ 
+-	num_args = sscanf(buf,"%10s %i",command,&depnum);
+-	if (!num_args)
+-		goto done;
+-	if (!strnicmp(command,"lock",4)) {
+-		if (dev->active) {
+-			dev->lock_resources = 1;
+-		} else {
+-			error = -EINVAL;
+-		}
++	while (isspace(*buf))
++		++buf;
++	if (!strnicmp(buf,"disable",7)) {
++		retval = pnp_disable_dev(dev);
+ 		goto done;
+ 	}
+-	if (!strnicmp(command,"unlock",6)) {
+-		if (dev->lock_resources) {
+-			dev->lock_resources = 0;
+-		} else {
+-			error = -EINVAL;
+-		}
++	if (!strnicmp(buf,"activate",8)) {
++		retval = pnp_activate_dev(dev);
+ 		goto done;
+ 	}
+-	if (!strnicmp(command,"disable",7)) {
+-		error = pnp_disable_dev(dev);
++	if (!strnicmp(buf,"auto-config",11)) {
++		if (dev->active)
++			goto done;
++		retval = pnp_auto_config_dev(dev);
+ 		goto done;
+ 	}
+-	if (!strnicmp(command,"auto",4)) {
+-		error = pnp_activate_dev(dev,NULL);
++	if (!strnicmp(buf,"resolve",7)) {
++		retval = pnp_resolve_conflicts(dev);
+ 		goto done;
+ 	}
+-	if (!strnicmp(command,"manual",6)) {
+-		if (num_args != 2)
++	if (!strnicmp(buf,"set",3)) {
++		if (dev->active)
+ 			goto done;
+-		error = pnp_raw_set_dev(dev,depnum,NULL);
++		buf += 3;
++		struct pnp_resource_table res;
++		int nport = 0, nmem = 0, nirq = 0, ndma = 0;
++		pnp_init_resource_table(&res);
++		while (1) {
++			while (isspace(*buf))
++				++buf;
++			if (!strnicmp(buf,"io",2)) {
++				buf += 2;
++				while (isspace(*buf))
++					++buf;
++				res.port_resource[nport].start = simple_strtoul(buf,&buf,0);
++				while (isspace(*buf))
++					++buf;
++				if(*buf == '-') {
++					buf += 1;
++					while (isspace(*buf))
++						++buf;
++					res.port_resource[nport].end = simple_strtoul(buf,&buf,0);
++				} else
++					res.port_resource[nport].end = res.port_resource[nport].start;
++				res.port_resource[nport].flags = IORESOURCE_IO;
++				nport++;
++				if (nport >= PNP_MAX_PORT)
++					break;
++				continue;
++			}
++			if (!strnicmp(buf,"mem",3)) {
++				buf += 3;
++				while (isspace(*buf))
++					++buf;
++				res.mem_resource[nmem].start = simple_strtoul(buf,&buf,0);
++				while (isspace(*buf))
++					++buf;
++				if(*buf == '-') {
++					buf += 1;
++					while (isspace(*buf))
++						++buf;
++					res.mem_resource[nmem].end = simple_strtoul(buf,&buf,0);
++				} else
++					res.mem_resource[nmem].end = res.mem_resource[nmem].start;
++				res.mem_resource[nmem].flags = IORESOURCE_MEM;
++				nmem++;
++				if (nmem >= PNP_MAX_MEM)
++					break;
++				continue;
++			}
++			if (!strnicmp(buf,"irq",3)) {
++				buf += 3;
++				while (isspace(*buf))
++					++buf;
++				res.irq_resource[nirq].start =
++				res.irq_resource[nirq].end = simple_strtoul(buf,&buf,0);
++				res.irq_resource[nirq].flags = IORESOURCE_IRQ;
++				nirq++;
++				if (nirq >= PNP_MAX_IRQ)
++					break;
++				continue;
++			}
++			if (!strnicmp(buf,"dma",3)) {
++				buf += 3;
++				while (isspace(*buf))
++					++buf;
++				res.dma_resource[ndma].start =
++				res.dma_resource[ndma].end = simple_strtoul(buf,&buf,0);
++				res.dma_resource[ndma].flags = IORESOURCE_DMA;
++				ndma++;
++				if (ndma >= PNP_MAX_DMA)
++					break;
++				continue;
++			}
++			break;
++		}
++		spin_lock(&pnp_lock);
++		dev->config_mode = PNP_CONFIG_MANUAL;
++		dev->res = res;
++		spin_unlock(&pnp_lock);
+ 		goto done;
+ 	}
+  done:
+-	return error < 0 ? error : count;
++	if (retval)
++		return retval;
++	return count;
+ }
+
+ static DEVICE_ATTR(resources,S_IRUGO | S_IWUSR,

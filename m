@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264158AbTEWTsB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 15:48:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264161AbTEWTsB
+	id S264161AbTEWTwX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 15:52:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264162AbTEWTwX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 15:48:01 -0400
-Received: from [212.6.122.211] ([212.6.122.211]:57995 "EHLO mail3.ewetel.de")
-	by vger.kernel.org with ESMTP id S264158AbTEWTsA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 15:48:00 -0400
+	Fri, 23 May 2003 15:52:23 -0400
+Received: from frontier.tky.hut.fi ([130.233.20.137]:65416 "EHLO
+	frontier.tky.hut.fi") by vger.kernel.org with ESMTP id S264161AbTEWTwW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 15:52:22 -0400
+Date: Fri, 23 May 2003 23:03:14 +0300
+From: Kari Kallioinen <karbas-lkml@frontier.tky.hut.fi>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-rc3 link error: wolfson_init
-In-Reply-To: <20030523194008$6156@gated-at.bofh.it>
-References: <20030523194008$6156@gated-at.bofh.it>
-Date: Fri, 23 May 2003 22:01:05 +0200
-Message-Id: <E19JIiv-00022A-00@neptune.local>
-From: Pascal Schmidt <der.eremit@email.de>
-X-CheckCompat: OK
+Subject: Tigon3 auto-negotiation and force media
+Message-ID: <20030523200314.GA25173@frontier.tky.hut.fi>
+Reply-To: karbas-lkml@frontier.tky.hut.fi
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 May 2003 21:40:08 +0200, you wrote in linux.kernel:
+Hi,
 
-> Got the following link error with a config that worked just fine
-> for 2.4.21-rc2:
+I have a problem with broadcomm 5700 based card.
+It's autonegotiating a wrong media and I can't change the parameters of another
+end of link. So how I can force specified media technology with tg3-driver?
+Mii-tool doesn't seem to work and I didn't find any option for tg3-module.
 
-Spoke too soon, the BK->CVS gateway wasn't quite at rc3 yet when
-I rsync'd it.
+I have version 1.5 of tg3.c and Linux version 2.4.21-rc2.
 
 -- 
-Ciao,
-Pascal
+Kari Kallioinen

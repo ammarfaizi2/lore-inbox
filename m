@@ -1,78 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265654AbVBEAUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263912AbVBDXTc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265654AbVBEAUR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 19:20:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264641AbVBEAUQ
+	id S263912AbVBDXTc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 18:19:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266035AbVBDWwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 19:20:16 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:38309 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S264285AbVBEAT2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 19:19:28 -0500
-Subject: Re: Patch to add usbmon
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050202105454.3f85dbdf@localhost.localdomain>
-References: <20050131212903.6e3a35e5@localhost.localdomain>
-	 <20050201071000.GF20783@kroah.com>
-	 <20050201003218.478f031e@localhost.localdomain>
-	 <1107256383.9652.26.camel@pegasus>
-	 <20050201095526.0ee2e0f4@localhost.localdomain>
-	 <1107293870.9652.76.camel@pegasus>
-	 <20050201215936.029be631@localhost.localdomain>
-	 <1107362417.11944.7.camel@pegasus>
-	 <20050202105454.3f85dbdf@localhost.localdomain>
-Content-Type: text/plain
-Date: Sat, 05 Feb 2005 01:19:15 +0100
-Message-Id: <1107562755.6921.123.camel@pegasus>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Feb 2005 17:52:08 -0500
+Received: from gannet.scg.man.ac.uk ([130.88.94.110]:7943 "EHLO
+	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
+	id S264479AbVBDWNJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 17:13:09 -0500
+Message-ID: <4203F43A.1010504@gentoo.org>
+Date: Fri, 04 Feb 2005 22:16:26 +0000
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-pm@osdl.org
+Subject: [-mm PATCH] driver model: PM type conversions in drivers/pcmcia
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------070301000400000203090001"
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CxBhH-000MbF-Nd*TU2GtztTm5U*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pete,
+This is a multi-part message in MIME format.
+--------------070301000400000203090001
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> > While I am really thinking about starting usbdump, I may ask why you
-> > have choosen to use debugfs as interface. This will not be available in
-> > normal distribution kernels and I think a general USB monitoring ability
-> > would be great. For example like we have it for Ethernet, Bluetooth and
-> > IrDA. So my idea is to create some /dev/usbmonX (for each bus one) where
-> > usbdump can read its information from. What do you think?
-> 
-> The debugfs will be available in distributions. And it's no different from
-> having SOCK_PACKET enabled before tcpdump can work. There's no practical
-> disadvantage, unless we consider a backport of usbmon into a legacy distribution
-> such as RHEL 4 or SuSE 9.1.
+This fixes PM driver model type checking for drivers/pcmcia.
+Acked by Pavel Machek.
 
-I am not interested in a backport.
+Signed-off-by: Daniel Drake <dsd@gentoo.org>
 
-> Since usbmon rides raw file_operations, it can use a chardev interface with
-> a minimal change. The advantage of debugfs is only not needing to allocate
-> a major and dealing with minor partitioning. I also thought it would help
-> to shut up the namespace pollution whiners (the debate of /dbg versus
-> /sys/kernel/debug was rather mild by comparison).
+--------------070301000400000203090001
+Content-Type: text/x-patch;
+ name="pcmcia-pm-type-safety.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pcmcia-pm-type-safety.patch"
 
-Getting a major number should be no problem and the minor partitioning
-is also easy, because the root hubs are already numbered by USB.
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/pcmcia/au1000_generic.c linux-dsd/drivers/pcmcia/au1000_generic.c
+--- linux-2.6.11-rc2-mm2/drivers/pcmcia/au1000_generic.c	2005-02-02 21:55:26.000000000 +0000
++++ linux-dsd/drivers/pcmcia/au1000_generic.c	2005-02-02 20:43:45.000000000 +0000
+@@ -521,7 +521,7 @@ static int au1x00_drv_pcmcia_probe(struc
+ }
+ 
+ 
+-static int au1x00_drv_pcmcia_suspend(struct device *dev, u32 state, u32 level)
++static int au1x00_drv_pcmcia_suspend(struct device *dev, pm_message_t state, u32 level)
+ {
+ 	int ret = 0;
+ 	if (level == SUSPEND_SAVE_STATE)
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/pcmcia/hd64465_ss.c linux-dsd/drivers/pcmcia/hd64465_ss.c
+--- linux-2.6.11-rc2-mm2/drivers/pcmcia/hd64465_ss.c	2005-02-02 21:55:26.000000000 +0000
++++ linux-dsd/drivers/pcmcia/hd64465_ss.c	2005-02-02 20:44:51.000000000 +0000
+@@ -860,7 +860,7 @@ static void hs_exit_socket(hs_socket_t *
+ 	local_irq_restore(flags);
+ }
+ 
+-static int hd64465_suspend(struct device *dev, u32 state, u32 level)
++static int hd64465_suspend(struct device *dev, pm_message_t state, u32 level)
+ {
+ 	int ret = 0;
+ 	if (level == SUSPEND_SAVE_STATE)
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/pcmcia/m32r_cfc.c linux-dsd/drivers/pcmcia/m32r_cfc.c
+--- linux-2.6.11-rc2-mm2/drivers/pcmcia/m32r_cfc.c	2005-02-02 21:55:26.789107320 +0000
++++ linux-dsd/drivers/pcmcia/m32r_cfc.c	2005-02-02 20:46:32.000000000 +0000
+@@ -749,7 +749,7 @@ static struct pccard_operations pcc_oper
+ 
+ /*====================================================================*/
+ 
+-static int m32r_pcc_suspend(struct device *dev, u32 state, u32 level)
++static int m32r_pcc_suspend(struct device *dev, pm_message_t state, u32 level)
+ {
+ 	int ret = 0;
+ 	if (level == SUSPEND_SAVE_STATE)
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/pcmcia/m32r_pcc.c linux-dsd/drivers/pcmcia/m32r_pcc.c
+--- linux-2.6.11-rc2-mm2/drivers/pcmcia/m32r_pcc.c	2005-02-02 21:55:26.790107168 +0000
++++ linux-dsd/drivers/pcmcia/m32r_pcc.c	2005-02-02 20:47:01.000000000 +0000
+@@ -701,7 +701,7 @@ static struct pccard_operations pcc_oper
+ 
+ /*====================================================================*/
+ 
+-static int m32r_pcc_suspend(struct device *dev, u32 state, u32 level)
++static int m32r_pcc_suspend(struct device *dev, pm_message_t state, u32 level)
+ {
+ 	int ret = 0;
+ 	if (level == SUSPEND_SAVE_STATE)
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/pcmcia/pxa2xx_base.c linux-dsd/drivers/pcmcia/pxa2xx_base.c
+--- linux-2.6.11-rc2-mm2/drivers/pcmcia/pxa2xx_base.c	2004-12-24 21:36:02.000000000 +0000
++++ linux-dsd/drivers/pcmcia/pxa2xx_base.c	2005-02-02 20:47:27.000000000 +0000
+@@ -205,7 +205,7 @@ int pxa2xx_drv_pcmcia_probe(struct devic
+ }
+ EXPORT_SYMBOL(pxa2xx_drv_pcmcia_probe);
+ 
+-static int pxa2xx_drv_pcmcia_suspend(struct device *dev, u32 state, u32 level)
++static int pxa2xx_drv_pcmcia_suspend(struct device *dev, pm_message_t state, u32 level)
+ {
+ 	int ret = 0;
+ 	if (level == SUSPEND_SAVE_STATE)
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/pcmcia/sa1100_generic.c linux-dsd/drivers/pcmcia/sa1100_generic.c
+--- linux-2.6.11-rc2-mm2/drivers/pcmcia/sa1100_generic.c	2004-12-24 21:35:00.000000000 +0000
++++ linux-dsd/drivers/pcmcia/sa1100_generic.c	2005-02-02 20:47:56.000000000 +0000
+@@ -75,7 +75,7 @@ static int sa11x0_drv_pcmcia_probe(struc
+ 	return ret;
+ }
+ 
+-static int sa11x0_drv_pcmcia_suspend(struct device *dev, u32 state, u32 level)
++static int sa11x0_drv_pcmcia_suspend(struct device *dev, pm_message_t state, u32 level)
+ {
+ 	int ret = 0;
+ 	if (level == SUSPEND_SAVE_STATE)
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/pcmcia/sa1111_generic.c linux-dsd/drivers/pcmcia/sa1111_generic.c
+--- linux-2.6.11-rc2-mm2/drivers/pcmcia/sa1111_generic.c	2004-12-24 21:34:29.000000000 +0000
++++ linux-dsd/drivers/pcmcia/sa1111_generic.c	2005-02-02 20:48:21.000000000 +0000
+@@ -158,7 +158,7 @@ static int __devexit pcmcia_remove(struc
+ 	return 0;
+ }
+ 
+-static int pcmcia_suspend(struct sa1111_dev *dev, u32 state)
++static int pcmcia_suspend(struct sa1111_dev *dev, pm_message_t state)
+ {
+ 	return pcmcia_socket_dev_suspend(&dev->dev, state);
+ }
+diff -urNpX dontdiff linux-2.6.11-rc2-mm2/drivers/pcmcia/yenta_socket.c linux-dsd/drivers/pcmcia/yenta_socket.c
+--- linux-2.6.11-rc2-mm2/drivers/pcmcia/yenta_socket.c	2005-02-02 21:55:26.797106104 +0000
++++ linux-dsd/drivers/pcmcia/yenta_socket.c	2005-02-02 20:49:58.000000000 +0000
+@@ -873,7 +873,7 @@ static void yenta_config_init(struct yen
+ 	u16 bridge;
+ 	struct pci_dev *dev = socket->dev;
+ 
+-	pci_set_power_state(socket->dev, 0);
++	pci_set_power_state(socket->dev, PCI_D0);
+ 
+ 	config_writel(socket, CB_LEGACY_MODE_BASE, 0);
+ 	config_writel(socket, PCI_BASE_ADDRESS_0, dev->resource[0].start);
+@@ -1052,7 +1052,7 @@ static int yenta_dev_resume (struct pci_
+ 	struct yenta_socket *socket = pci_get_drvdata(dev);
+ 
+ 	if (socket) {
+-		pci_set_power_state(dev, 0);
++		pci_set_power_state(dev, PCI_D0);
+ 		/* FIXME: pci_restore_state needs to have a better interface */
+ 		pci_restore_state(dev);
+ 		pci_write_config_dword(dev, 16*4, socket->saved_state[0]);
 
-> It should make little difference for the tool anyway, the base path ought to
-> be configurable. The biggest difference would be to scripts which launch the
-> tool: in one case they need to mount debugfs if not mounted (if initscripts
-> haven't), in other case they mknod if necessary (if hal hasn't done it).
-
-The mknod reason is no reason for, because we have udev (not hal btw)
-and this working perfect.
-
-> It is too early to care about this anyway.
-
-Since I am really thinking of writing usbdump, it is not to early. What
-stuff is missing in your usbmon patch?
-
-Regards
-
-Marcel
-
-
+--------------070301000400000203090001--

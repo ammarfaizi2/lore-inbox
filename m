@@ -1,33 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262617AbUBZDF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 22:05:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262615AbUBZDF1
+	id S262615AbUBZDFm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 22:05:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262618AbUBZDFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 22:05:27 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14290 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262617AbUBZDFZ
+	Wed, 25 Feb 2004 22:05:42 -0500
+Received: from mail-09.iinet.net.au ([203.59.3.41]:39321 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S262615AbUBZDFd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 22:05:25 -0500
-Date: Thu, 26 Feb 2004 03:05:23 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Clean up sys_ioperm stubs
-Message-ID: <20040226030523.GE31035@parcelfarce.linux.theplanet.co.uk>
-References: <403D5F32.4080805@quark.didntduck.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <403D5F32.4080805@quark.didntduck.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 25 Feb 2004 22:05:33 -0500
+Message-ID: <403D6278.5010206@cyberone.com.au>
+Date: Thu, 26 Feb 2004 14:05:28 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3-mm3
+References: <20040222172200.1d6bdfae.akpm@osdl.org>	<403BCE9E.7080607@matchmail.com> <20040224143025.36395730.akpm@osdl.org> <403D1347.8090801@matchmail.com> <403D468D.2090901@cyberone.com.au> <403D4CBE.9080805@matchmail.com> <403D5174.6050302@cyberone.com.au> <403D5B4C.3020309@matchmail.com> <403D5CB1.50409@cyberone.com.au> <403D5E79.5040508@matchmail.com>
+In-Reply-To: <403D5E79.5040508@matchmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 25, 2004 at 09:51:30PM -0500, Brian Gerst wrote:
-> Remove stubs for sys_ioperm for non-x86 arches, using sys_ni_syscall 
-> instead where applicable.
 
-I have better suggestion: make sys_ioperm() a cond_syscall().  Then kill
-its implementation on all platforms where it just returns -ENOSYS.
+
+Mike Fedyk wrote:
+
+> Nick Piggin wrote:
+>
+>>
+>>
+>> Mike Fedyk wrote:
+>>
+>>>
+>>> OK, I'll give that a try.
+>>>
+>>> Is the attached patch the latest version of your alternative patch 
+>>> instead of shrink_slab-for-all-zones.patch?
+>>>
+>>
+>> Yes that looks like it. I am actually starting to like this patch
+>> again 
+>
+>
+> Didn't you like what you wrote in the first place ;)
+>
+
+Hmm well no, it still reclaims slab too hard. I just forgot
+why I didn't like it :P
+
+>> now that lowmem is being properly scanned as a result of
+>> highmem scanning.
+>
+>
+> That's what zone-balancing-fix.patch does, right?
+>
+
+Yes... but actually the kswapd path needs something similar.
+That would be the batching patch, but with a scanning value
+derived from the current size of the zone's lrus.
+
+I'd just stick with 2.6.3 for now :)
+

@@ -1,46 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261724AbTBSVjD>; Wed, 19 Feb 2003 16:39:03 -0500
+	id <S261599AbTBSVgZ>; Wed, 19 Feb 2003 16:36:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261874AbTBSVjC>; Wed, 19 Feb 2003 16:39:02 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:16794 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261724AbTBSVjA>;
-	Wed, 19 Feb 2003 16:39:00 -0500
-Subject: Re: [PATCH] IPSec protocol application order
-To: "David S. Miller" <davem@redhat.com>
-Cc: "Alexey N. Kuznetsov" <kuznet@ms2.inr.ac.ru>, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
-Message-ID: <OF8FC87DCF.42F7A5C1-ON86256CD2.007686FA-86256CD2.0077C5EA@pok.ibm.com>
-From: "Tom Lendacky" <toml@us.ibm.com>
-Date: Wed, 19 Feb 2003 15:48:14 -0600
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
- and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 02/19/2003 04:48:16 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S261724AbTBSVgZ>; Wed, 19 Feb 2003 16:36:25 -0500
+Received: from pipgate.pipsworld.sara.nl ([145.100.9.18]:32640 "EHLO
+	dinkie.pipsworld.sara.nl") by vger.kernel.org with ESMTP
+	id <S261599AbTBSVgZ>; Wed, 19 Feb 2003 16:36:25 -0500
+Date: Wed, 19 Feb 2003 22:46:27 +0100
+From: Remco Post <r.post@sara.nl>
+To: linux-kernel@vger.kernel.org
+Cc: linuxppc-dev <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: Linux v2.5.62
+Message-Id: <20030219224627.71a85963.r.post@sara.nl>
+In-Reply-To: <20030219185017.GA6091@gemtek.lt>
+References: <Pine.LNX.4.44.0302171515110.1150-100000@penguin.transmeta.com>
+	<3E536237.8010502@blue-labs.org>
+	<20030219185017.GA6091@gemtek.lt>
+X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
->> The IPSec RFC (2401) and IPComp RFC (3173) specify the order in which
->> the COMP, ESP and AH protocols must be applied when being applied in
->> transport mode.  Specifically, COMP must be applied first, then ESP
->> and then AH.  Also, transport mode protocols must be applied before
->> tunnel mode protocols.
+just to let you all know, The linus 2.5.62 (plain as can be) just booted
+on my motorola powerstack II system. No modules, but also, no oops on
+boot, like 2.5.59 and allmost every other 2.5 before that....
 
-> Did you even read the email from Alexey yesterday that described
-> why none of this is a kernel issue and we merely do exactly what
-> the user application tells us to do when it uploads key configuration?
-
-> Just like you aparently ignored his email, I will ignore your patch.
-
-Yes, I read Alexey's email.  He said that it is not a kernel or a setkey
-issue.  One of them is responsible for making sure the proper order is set
-in order to insure RFC conformance and interoperability.  You are saying
-that it is up to the user application, which would be setkey.  So if you
-would prefer to not do this in the kernel you can ignore the patch, but
-then the setkey application needs to be fixed.
-
-Tom
-
-
-
+-- Remco

@@ -1,78 +1,139 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271367AbRHPOgt>; Thu, 16 Aug 2001 10:36:49 -0400
+	id <S271368AbRHPOm3>; Thu, 16 Aug 2001 10:42:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271348AbRHPOgk>; Thu, 16 Aug 2001 10:36:40 -0400
-Received: from proton.llumc.edu ([143.197.200.1]:8625 "EHLO proton.llumc.edu")
-	by vger.kernel.org with ESMTP id <S271367AbRHPOga>;
-	Thu, 16 Aug 2001 10:36:30 -0400
-From: "Don Krause" <dkrause@optivus.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: Camino 2 (82815/82820) v2.4.x eth/sound related lockups
-Date: Tue, 14 Aug 2001 09:07:08 -0700
-Message-ID: <005c01c124db$2bf30870$6cc8c58f@satoy>
+	id <S271370AbRHPOmU>; Thu, 16 Aug 2001 10:42:20 -0400
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:52380 "EHLO
+	alloc.wat.veritas.com") by vger.kernel.org with ESMTP
+	id <S271368AbRHPOmK>; Thu, 16 Aug 2001 10:42:10 -0400
+Date: Thu, 16 Aug 2001 15:45:37 +0100 (BST)
+From: Mark Hemment <markhe@veritas.com>
+X-X-Sender: <markhe@alloc.wat.veritas.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] mm/highmem.c
+Message-ID: <Pine.LNX.4.33.0108161530290.3340-100000@alloc.wat.veritas.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
-In-Reply-To: <E15WcZ9-0000zr-00@the-village.bc.nu>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have 2 new systems with eepro 100's on the MB, and each one has that
-problem with the eepro100 driver. Switching to the e100 module has solved
-all issues with that card.
+Hi,
 
-Both of these machines are Pogo linux rack mount units, and Pogo's default
-RH 7.1 install is using the e100 driver also. For grins, I swithed those
-boxes to the eepro100, and both lost their network connections within a few
-hours if lightly loaded, and they lost it just a few minutes into large
-(>100 meg) file transfers. Ftp or NFS, it didn't matter. (The kernel kept
-running, the console was usable. Unloading the eepro100 didn't work,
-however, the machine needed a power off reboot to get the net back)
+mm/highmem.c code tweaks against 2.4.9-pre4;
 
-After reinstalling RH 7.1 on both machines, and changing the detected
-eepro100 driver back to the e100, the machines have not crashed since they
-were put into service, some 20 days ago.
+    o In flush_all_zero_pkmaps(), the atomic fetch-and-clear pte op;
+      ptep_get_and_clear(), is overkill - the holding of the
+      kmap_lock is sufficient.  Use a lighter pte_clear().
 
-FWIW, one Pogo box has an Intel i810 MB, with onboard eepro100 eth, and an
-additional pci intel nic, the other is a Tyan Thunder LE S2510, with a pair
-of onboard nics.
+    o In kunmap_high(), the common case is for the count to be 1 which
+      causes a call to wake_up().  It is possible to be lighter, as
+      the kmap_lock is already held and additions to the wait-queue occur
+      under this lock.  Simply test for an "active" wait-queue under
+      the kmap_lock, and call wake_up() after dropping the lock.
 
---
-Don Krause                                       ph: 909.799.8327
-Systems Administrator                          page: 909.512.0174
-Optivus Technology, Inc               e-mail: dkrause@optivus.com
-"Splitting Atoms.. Saving Lives"           http://www.optivus.com
+    o As I've previously pointed out, copy_from_high_bh() cannot
+      be called from an interrupt context, so doesn't need to mask
+      interrupts.
+
+Thanks,
+Mark
 
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Alan Cox
-> Sent: Tuesday, August 14, 2001 4:41 AM
-> To: Ime Smits
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: Camino 2 (82815/82820) v2.4.x eth/sound related lockups
->
->
-> > Funny things in syslog include:
-> > kernel: mtrr: base(0xe8000000) is not aligned on a
-> > size(0x4b0000) boundary
->
-> Thats
-> ok
->
-> > kernel: eepro100: wait_for_cmd_done timeout!
->
-> Those are not so good. I was having similar problems on an
-> i810 box with
-> onboard eepro100 until I disabled the pm stuff in 2.4.8ac2, but you
-> seem to be running that one
->
-> Alan
+diff -ur -X dontdiff linux-2.4.9-pre4/mm/highmem.c high-2.4.9-pre4/mm/highmem.c
+--- linux-2.4.9-pre4/mm/highmem.c	Tue Aug  7 08:18:00 2001
++++ high-2.4.9-pre4/mm/highmem.c	Thu Aug 16 16:21:55 2001
+@@ -46,7 +46,7 @@
+
+ 	for (i = 0; i < LAST_PKMAP; i++) {
+ 		struct page *page;
+-		pte_t pte;
++
+ 		/*
+ 		 * zero means we don't have anything to do,
+ 		 * >1 means that it is still in use. Only
+@@ -56,10 +56,21 @@
+ 		if (pkmap_count[i] != 1)
+ 			continue;
+ 		pkmap_count[i] = 0;
+-		pte = ptep_get_and_clear(pkmap_page_table+i);
+-		if (pte_none(pte))
++
++		/* sanity check */
++		if (pte_none(pkmap_page_table[i]))
+ 			BUG();
+-		page = pte_page(pte);
++
++		/*
++		 * Don't need an atomic fetch-and-clear op here;
++		 * no-one has the page mapped, and cannot get at
++		 * its virtual address (and hence PTE) without first
++		 * getting the kmap_lock (which is held here).
++		 * So no dangers, even with speculative execution.
++		 */
++		page = pte_page(pkmap_page_table[i]);
++		pte_clear(&pkmap_page_table[i]);
++
+ 		page->virtual = NULL;
+ 	}
+ 	flush_tlb_all();
+@@ -139,6 +150,7 @@
+ {
+ 	unsigned long vaddr;
+ 	unsigned long nr;
++	int need_wakeup;
+
+ 	spin_lock(&kmap_lock);
+ 	vaddr = (unsigned long) page->virtual;
+@@ -150,13 +162,28 @@
+ 	 * A count must never go down to zero
+ 	 * without a TLB flush!
+ 	 */
++	need_wakeup = 0;
+ 	switch (--pkmap_count[nr]) {
+ 	case 0:
+ 		BUG();
+ 	case 1:
+-		wake_up(&pkmap_map_wait);
++		/*
++		 * Avoid an unnecessary wake_up() function call.
++		 * The common case is pkmap_count[] == 1, but
++		 * no waiters.
++		 * The tasks queued in the wait-queue are guarded
++		 * by both the lock in the wait-queue-head and by
++		 * the kmap_lock.  As the kmap_lock is held here,
++		 * no need for the wait-queue-head's lock.  Simply
++		 * test if the queue is empty.
++		 */
++		need_wakeup = waitqueue_active(&pkmap_map_wait);
+ 	}
+ 	spin_unlock(&kmap_lock);
++
++	/* do wake-up, if needed, race-free outside of the spin lock */
++	if (need_wakeup)
++		wake_up(&pkmap_map_wait);
+ }
+
+ #define POOL_SIZE 32
+@@ -182,20 +209,12 @@
+ {
+ 	struct page *p_from;
+ 	char *vfrom;
+-	unsigned long flags;
+
+ 	p_from = from->b_page;
+
+-	/*
+-	 * Since this can be executed from IRQ context, reentrance
+-	 * on the same CPU must be avoided:
+-	 */
+-	__save_flags(flags);
+-	__cli();
+ 	vfrom = kmap_atomic(p_from, KM_BOUNCE_WRITE);
+ 	memcpy(to->b_data, vfrom + bh_offset(from), to->b_size);
+ 	kunmap_atomic(vfrom, KM_BOUNCE_WRITE);
+-	__restore_flags(flags);
+ }
+
+ static inline void copy_to_high_bh_irq (struct buffer_head *to,
 

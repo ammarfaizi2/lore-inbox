@@ -1,42 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVADJsy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVADJwC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261591AbVADJsy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 04:48:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbVADJsy
+	id S261594AbVADJwC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 04:52:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVADJwC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 04:48:54 -0500
-Received: from mproxy.gmail.com ([216.239.56.240]:11672 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261591AbVADJsw (ORCPT
+	Tue, 4 Jan 2005 04:52:02 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:8867 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261594AbVADJv4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 04:48:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=fL5BaSwXnwvisJZIrg/GbXcJdXIwXzj8poGakmu1qqm7OZqEO3aymqbBZ0G11DF8p4qLsGeQjghmoLMw1jcDdzyYd82LUcdqWQTkPc9mvowCw1PG+B3SRXIPiNH3PvkiHQ4ksI9MFPQIEYduIuZ1dlF26rOTtti6uAyLjpEtwHM=
-Message-ID: <21d7e99705010401482669e789@mail.gmail.com>
-Date: Tue, 4 Jan 2005 20:48:52 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Miles Bader <miles@gnu.org>
-Subject: Re: [patch] maintainers: remove moderated arm list
-Cc: Adrian Bunk <bunk@stusta.de>, Domen Puncer <domen@coderock.org>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <buosm5hwn5u.fsf@mctpc71.ucom.lsi.nec.co.jp>
+	Tue, 4 Jan 2005 04:51:56 -0500
+Date: Tue, 4 Jan 2005 10:51:47 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
+       kernel@kolivas.org, rncbc@rncbc.org, paul@linuxaudiosystems.com
+Subject: Re: Latency results with 2.6.10 - looks good
+Message-ID: <20050104095147.GA14787@elte.hu>
+References: <1104348820.5218.42.camel@krustophenia.net> <1104549524.3803.28.camel@krustophenia.net> <20050101012252.7b4645b7.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041225170825.GA31577@nd47.coderock.org>
-	 <20041225172155.A26504@flint.arm.linux.org.uk>
-	 <20050103175438.GL2980@stusta.de>
-	 <buosm5hwn5u.fsf@mctpc71.ucom.lsi.nec.co.jp>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050101012252.7b4645b7.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+* Andrew Morton <akpm@osdl.org> wrote:
+
+> Lee Revell <rlrevell@joe-job.com> wrote:
+> >
+> > Followup: other audio users have confirmed that 2.6.10 is the best
+> >  release yet latency-wise.  It works most of the time at 64 frames
+> >  (~1.33ms latency).
+> > 
+> >  Now, the bad news: there are still enough xruns to make it not quite
+> >  good enough for, say, a recording studio; as we all know with realtime
+> >  constraints the worst case scenario is important.
 > 
-> Are there actually any lists out there where this mechanism works properly?
+> The kernel which you should be testing is most-recent -mm.  The -mm
+> kernels have had a bunch of latency improvements which are queued for
+> 2.6.11.  We need to know how that stuff performs - 2.6.10 is largely
+> uninteresting from a development POV.
 
-the dri-devel list moderators seem to get it right, I haven't put my
-address in the moderator e-mail, and we still get things like Adrians
-patches through to the list....
+i think Lee is well aware of that - nevertheless his data point shows
+that even the relatively low number of latency fixes that went into
+2.6.10 (compared to what is pending in -mm and in -RT) are a step in the
+right direction. I'd guess the biggest win was the ACPI related latency
+fix, and maybe the softirq fixes.
 
-Dave.
+	Ingo

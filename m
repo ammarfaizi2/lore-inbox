@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271156AbTG1XBL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 19:01:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271159AbTG1XBL
+	id S271185AbTG1W6F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 18:58:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271189AbTG1W6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 19:01:11 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:55020 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S271156AbTG1XBI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 19:01:08 -0400
-content-class: urn:content-classes:message
+	Mon, 28 Jul 2003 18:58:05 -0400
+Received: from oak.sktc.net ([64.71.97.14]:48038 "EHLO oak.sktc.net")
+	by vger.kernel.org with ESMTP id S271185AbTG1W6D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 18:58:03 -0400
+Message-ID: <3F25AA78.6020808@sktc.net>
+Date: Mon, 28 Jul 2003 17:58:00 -0500
+From: "David D. Hagood" <wowbagger@sktc.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030507
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: ACPI failure (2.6.0-test<x> and 2.4.22-pre<x>)
-Date: Mon, 28 Jul 2003 16:01:05 -0700
-Message-ID: <F760B14C9561B941B89469F59BA3A8470255EEB2@orsmsx401.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ACPI failure (2.6.0-test<x> and 2.4.22-pre<x>)
-Thread-Index: AcNVNDko5D9xiU1yR1+tz71VN9+WwAAJlf0g
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "Richard A Nelson" <cowboy@vnet.ibm.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 28 Jul 2003 23:01:05.0940 (UTC) FILETIME=[200A3D40:01C3555C]
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org, linux-assembly@vger.kernel.org
+Subject: Re: The Well-Factored 386
+References: <fc.0010c7b2009ebbbf0010c7b2009ebbbf.9ebbc6@capaccess.org>	<20030728070658.343ed2b0.davem@redhat.com>	<fc.0010c7b2009ecdef0010c7b2009ebbbf.9ecdfd@capaccess.org>	<20030728133300.2ef96cf4.davem@redhat.com>	<20030729002737.111bc3ad.skraw@ithnet.com> <20030728153055.006aa3f0.davem@redhat.com>
+In-Reply-To: <20030728153055.006aa3f0.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Richard A Nelson [mailto:cowboy@vnet.ibm.com] 
-> On either 2.6, or 2.4, booting with ACPI enabled gets as far as
-> parsing the ACPI EC table - at which point it oops with bad pointer
-> and halts the system.  Sorry at this point I don't have the register
-> contents; it took a while to narrow it this far - and have the
-> screen in such a state that I can see any relevant information other
-> than the the trying to kill init message :)
+David S. Miller wrote:
+> And I don't care if you don't like my attitude, my job as
+> list manager is not to be liked by people or to have them
+> like my attitude.  My job is to keep the lists clean.
 
-Could you try, say, 2.5.70? That would help me understand if it's a
-regression or not.
+I'd just like to say "BRAVO SIR!" I am glad to see you doing this, and I 
+support your actions 100%.
 
-If that also fails, then I think determining exactly where it is oopsing
-(probably via printks) would be the next best way to go.
+Anybody's right of freedom of speech ends when they force the unwilling 
+to listen - this troll was -10, Offtopic. He was not talking about the 
+kernel, any development of interest to the kernel, and I for one am glad 
+he is getting bounced.
 
-Regards -- Andy
+Let him post his drivel-scribblings on Slashdot, along with goatse.cx, 
+the porn trolls, and the *BSD is dead trolls.
+
+

@@ -1,53 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRAEVpY>; Fri, 5 Jan 2001 16:45:24 -0500
+	id <S129267AbRAEVqo>; Fri, 5 Jan 2001 16:46:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129267AbRAEVpO>; Fri, 5 Jan 2001 16:45:14 -0500
-Received: from 209.102.21.2 ([209.102.21.2]:41992 "EHLO dragnet.seagull.net")
-	by vger.kernel.org with ESMTP id <S129183AbRAEVpB>;
-	Fri, 5 Jan 2001 16:45:01 -0500
-Message-ID: <3A560FDA.ABB3EF08@goingware.com>
-Date: Fri, 05 Jan 2001 18:18:02 +0000
-From: "Michael D. Crawford" <crawford@goingware.com>
-Organization: GoingWare Inc. - Expert Software Development and Consulting
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.0-prerelease-ac5 i686)
-X-Accept-Language: en
+	id <S132109AbRAEVqe>; Fri, 5 Jan 2001 16:46:34 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24328 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129267AbRAEVq1>; Fri, 5 Jan 2001 16:46:27 -0500
+Subject: Re: [PATCH] VESA framebuffer w/ MTRR locks 2.4.0 on init
+To: bmayland@leoninedev.com (Bryan Mayland)
+Date: Fri, 5 Jan 2001 21:48:05 +0000 (GMT)
+Cc: kraxel@bytesex.org (Gerd Knorr), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3A563F5A.9B50B2B3@leoninedev.com> from "Bryan Mayland" at Jan 05, 2001 04:40:42 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: How to Power off with ACPI/APM?
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14EeiW-0008VW-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Silly question, but have you realized that you don't have to enable 
-> SMP in kernel to do multithreading ? 
+>     So what do you say.  Can we use my patch to allow the user to override the VESA
+> detected memory size... or does anyone else have a better plan?
 
-Lest anyone think me completely clueless, yes, I'm well aware of that.  It's
-just that I wanted to have that warm fuzzy feeling the comes from pretending I
-had the cash to buy a dual processor machine when I bought this PC.
+It seems a passable solution. The mtrr bug is real either way and wants a fix.
+If the 2Mb reporting is wrong perhaps they will fix the bios ;)
 
-I had planned too, but my laptop died and I needed a new box in a hurry so I had
-to get what I could get.  It's a decent motherboard though, for being single
-processor.
-
-On the other hand, I did identify that you can't power off with smp enabled
-unless (as someone helpfully posted) you give this parameter in lilo or grub:
-
-apm=power-off
-
-While the SMP config option says APM doesn't work if you have SMP enabled (so I
-should have known), it would be helpful to mention that you can still power off
-this way.
-
-Mike
--- 
-Michael D. Crawford
-GoingWare Inc. - Expert Software Development and Consulting
-http://www.goingware.com/
-crawford@goingware.com
-
-   Tilting at Windmills for a Better Tomorrow.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

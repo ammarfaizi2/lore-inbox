@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291193AbSBGSZI>; Thu, 7 Feb 2002 13:25:08 -0500
+	id <S291212AbSBGS12>; Thu, 7 Feb 2002 13:27:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291194AbSBGSYv>; Thu, 7 Feb 2002 13:24:51 -0500
-Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:5900 "HELO
-	yucs.org") by vger.kernel.org with SMTP id <S291198AbSBGSYf>;
-	Thu, 7 Feb 2002 13:24:35 -0500
-Subject: Re: Intel Speedstep bug in 2.4.17?
-From: Shaya Potter <spotter@cs.columbia.edu>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1020206112505.7298E-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1020206112505.7298E-100000@gatekeeper.tmr.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 07 Feb 2002 13:24:10 -0500
-Message-Id: <1013106251.18673.292.camel@zaphod>
+	id <S291197AbSBGS1X>; Thu, 7 Feb 2002 13:27:23 -0500
+Received: from barbados.bluemug.com ([63.195.182.101]:46344 "EHLO
+	barbados.bluemug.com") by vger.kernel.org with ESMTP
+	id <S291194AbSBGS1E>; Thu, 7 Feb 2002 13:27:04 -0500
+Date: Thu, 7 Feb 2002 10:26:53 -0800
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: "H. Peter Anvin" <hpa@zytor.com>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: How to check the kernel compile options ?
+Message-ID: <20020207182653.GA26664@bluemug.com>
+Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <a3mjhc$qba$1@cesium.transmeta.com> <E16YOBB-0002Mx-00@starship.berlin> <20020207041356.GA21694@bluemug.com> <E16YoRQ-0000aS-00@starship.berlin>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16YoRQ-0000aS-00@starship.berlin>
+X-PGP-ID: 5C09BB33
+X-PGP-Fingerprint: C518 67A5 F5C5 C784 A196  B480 5C97 3BBD 5C09 BB33
+From: Mike Touloumtzis <miket@bluemug.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-didn't change a thing on my t21
-
-On Wed, 2002-02-06 at 11:26, Bill Davidsen wrote:
-> On 5 Feb 2002, Doug Alcorn wrote:
-> 
-> > Here are my APM configuration variables for my kernel:
+On Thu, Feb 07, 2002 at 02:18:20PM +0100, Daniel Phillips wrote:
+> On February 7, 2002 05:13 am, Mike Touloumtzis wrote:
 > > 
-> > CONFIG_APM=y
-> > # CONFIG_APM_IGNORE_USER_SUSPEND is not set
-> > # CONFIG_APM_DO_ENABLE is not set
-> > CONFIG_APM_CPU_IDLE=y
-> > CONFIG_APM_DISPLAY_BLANK=y
-> > CONFIG_APM_RTC_IS_GMT=y
-> > CONFIG_APM_ALLOW_INTS=y
-> > # CONFIG_APM_REAL_MODE_POWER_OFF is not set
-> > # CONFIG_ACPI is not set
+> > The kernel is just a program, and this is a tools problem.  You don't
+> > see people arguing that cat's documentation should be moved into /bin/cat
+> > in case administrators misplace "cat.1.gz".
 > 
->   I think the the CPU_IDLE is the problem.
-> 
-> -- 
-> bill davidsen <davidsen@tmr.com>
->   CTO, TMR Associates, Inc
-> Doing interesting things with little computers since 1979.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Cat is standard, kernels aren't.  When was the last time you installed a
+> custom cat?
 
+I installed a custom rsync just the other day, and I did it by downloading
+the Debian rsync source, patching it, and building a Debian package.
+I would certainly do the same for cat if I needed to.
 
+Sorry, I still don't see any fundamental difference.
+
+miket

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267494AbTACLVW>; Fri, 3 Jan 2003 06:21:22 -0500
+	id <S267504AbTACL17>; Fri, 3 Jan 2003 06:27:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267495AbTACLVW>; Fri, 3 Jan 2003 06:21:22 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:15878 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267494AbTACLVV>; Fri, 3 Jan 2003 06:21:21 -0500
-Date: Fri, 3 Jan 2003 11:29:39 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Richard Stallman <rms@gnu.org>, mark@mark.mielke.cc,
-       billh@gnuppy.monkey.org, paul@clubi.ie, Hell.Surfers@cwctv.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Message-ID: <20030103112939.B26746@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Rik van Riel <riel@conectiva.com.br>,
-	Richard Stallman <rms@gnu.org>, mark@mark.mielke.cc,
-	billh@gnuppy.monkey.org, paul@clubi.ie, Hell.Surfers@cwctv.net,
-	linux-kernel@vger.kernel.org
-References: <20030102013736.GA2708@gnuppy.monkey.org> <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org> <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc> <E18UIZS-0006Cr-00@fencepost.gnu.org> <Pine.LNX.4.50L.0301030838270.2429-100000@imladris.surriel.com>
+	id <S267505AbTACL17>; Fri, 3 Jan 2003 06:27:59 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:12173
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267504AbTACL16>; Fri, 3 Jan 2003 06:27:58 -0500
+Subject: Re: Linux v2.5.54
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: SZALAY Attila <sasa@pheniscidae.tvnetwork.hu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030103110418.GD7661@sasa.home>
+References: <20030102103422.GB24116@sasa.home>
+	<Pine.LNX.4.33L2.0301020745260.22868-100000@dragon.pdx.osdl.net>
+	<20030103093250.GC7661@sasa.home>  <20030103110418.GD7661@sasa.home>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Jan 2003 12:19:08 +0000
+Message-Id: <1041596348.27024.16.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.50L.0301030838270.2429-100000@imladris.surriel.com>; from riel@conectiva.com.br on Fri, Jan 03, 2003 at 08:39:55AM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 03, 2003 at 08:39:55AM -0200, Rik van Riel wrote:
-> IMHO such freedom should leave the option of not having free
-> drivers to companies like Nvidia.
+On Fri, 2003-01-03 at 11:04, SZALAY Attila wrote:
+> Now I unset I2O completely to try compile new kernel.
 > 
-> Mind you that their freedom is more than compensated for by
-> our freedom to decide to not buy their hardware and use hardware
-> which does have free drivers instead.
+> But I have another problem.
 > 
-> Have some faith in freedom, Richard...
+> make -f scripts/Makefile.build obj=drivers/scsi/pcmcia
+>   gcc -Wp,-MD,drivers/scsi/pcmcia/.aha152x_stub.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=aha152x_stub -DKBUILD_MODNAME=aha152x_cs   -c -o drivers/scsi/pcmcia/aha152x_stub.o drivers/scsi/pcmcia/aha152x_stub.c
+> make[4]: *** No rule to make target `drivers/scsi/pcmcia/aha152x.s', needed by `drivers/scsi/pcmcia/aha152x.o'.  Stop.
+>
+The pcmcia scsi makefiles are broken. Its been reported repeatedly to
+the folks who broke the makefiles but nobody has fixed it. I have a hack
+for this but its versus 2.5.49/2.5.50
 
-The real issue about freedom is that people should be able to use
-parts of the GNU systems without having to add a GNU/ prefix to all
-their naming schemes.. :)
-
+Alan

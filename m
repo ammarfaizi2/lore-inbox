@@ -1,52 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284933AbRLUQup>; Fri, 21 Dec 2001 11:50:45 -0500
+	id <S284765AbRLUQt7>; Fri, 21 Dec 2001 11:49:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284780AbRLUQua>; Fri, 21 Dec 2001 11:50:30 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:23050 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S284778AbRLUQuT>;
-	Fri, 21 Dec 2001 11:50:19 -0500
-Date: Fri, 21 Dec 2001 08:47:04 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Andreas Bombe <bombe@informatik.tu-muenchen.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.1 API change summary
-In-Reply-To: <20011221030218.GA3893@storm.local>
-Message-ID: <Pine.LNX.4.33L2.0112210837300.2896-100000@dragon.pdx.osdl.net>
+	id <S284778AbRLUQtt>; Fri, 21 Dec 2001 11:49:49 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7955 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S284765AbRLUQtf>; Fri, 21 Dec 2001 11:49:35 -0500
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
+To: mharrold@cas.org (Mike Harrold)
+Date: Fri, 21 Dec 2001 16:59:39 +0000 (GMT)
+Cc: nknight@pocketinet.com, linux-kernel@vger.kernel.org
+In-Reply-To: <200112201941.OAA24855@mah21awu.cas.org> from "Mike Harrold" at Dec 20, 2001 02:41:53 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16HT1H-0000o0-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Dec 2001, Andreas Bombe wrote:
+> Yeah, no shit? The first time I buy 512MB of RAM and get 512000 KB
+> (aka 512000000 bytes) I am gonna be *PISSED*
 
-| On Tue, Dec 18, 2001 at 11:28:02AM -0800, Randy.Dunlap wrote:
-| > On Tue, 18 Dec 2001, Andreas Bombe wrote:
-| >
-| > http://www.osdl.org/archive/rddunlap/linux-port-25x.html .
-|
-| Nice.  I wasn't aware of that page.  So basically you attack the same
-| problem I do (that it's not obvious that a thread on linux-kernel or
-| other lists have interesting information deeply embedded).  You point to
-
-Right. and most people don't want to dig for the info. :)
-
-| the archived discussions and documentation whereas I just want to list
-| the changes that did actually make it into a certain revision, without
-| documenting much.
-
-Your method catches more of the detailed changes -- I had missed
-a few.
-Mine captures discussion and decision-making.
-Both have merits and are useful.
-
-| We could probably combine our efforts, but I can't think of a way how
-| (apart from just pointing to each other).
-
-I've updated mine to do that.  It will appear soon.
-
-Thanks,
--- 
-~Randy
-
+Have a work with your hard disk manufacturer then

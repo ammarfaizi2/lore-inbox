@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265029AbUJRJBM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265051AbUJRJWY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265029AbUJRJBM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 05:01:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUJRJBM
+	id S265051AbUJRJWY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 05:22:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbUJRJWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 05:01:12 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:27274 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S265029AbUJRJAL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 05:00:11 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 18 Oct 2004 10:36:32 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: linux-fbdev-devel@lists.sourceforge.net,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       penguinppc-team@lists.penguinppc.org
-Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video card BOOT?
-Message-ID: <20041018083632.GE3065@bytesex>
-References: <416E6ADC.3007.294DF20D@localhost> <87d5zkqj8h.fsf@bytesex.org> <Pine.GSO.4.61.0410151437050.10040@waterleaf.sonytel.be> <87y8i8p1jq.fsf@bytesex.org> <20041017120728.GC10532@admingilde.org>
+	Mon, 18 Oct 2004 05:22:23 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:41668 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S265051AbUJRJWW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 05:22:22 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: prasanna@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       Andrew Morton <akpm@osdl.org>, ak@muc.de, suparna@in.ibm.com
+Subject: Re: [1/2] PATCH Kernel watchpoint interface-2.6.9-rc4-mm1 
+In-reply-to: Your message of "Mon, 18 Oct 2004 14:15:25 +0530."
+             <20041018084525.GA27936@in.ibm.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041017120728.GC10532@admingilde.org>
-User-Agent: Mutt/1.5.6i
+Date: Mon, 18 Oct 2004 19:22:08 +1000
+Message-ID: <5418.1098091328@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 17, 2004 at 02:07:28PM +0200, Martin Waitz wrote:
-> hi :)
-> 
-> On Fri, Oct 15, 2004 at 03:13:13PM +0200, Gerd Knorr wrote:
-> > You have a application running which uses the framebuffer device, then
-> > suspend with that app running.  You'll have to restore the state of
-> > the device _before_ restarting all the userspace proccesses, otherwise
-> > the app will not be very happy.
-> 
-> As long as the app only interfaces with the framebuffer device and not
-> directly with the hardware it won't notice.
+On Mon, 18 Oct 2004 14:15:25 +0530, 
+Prasanna S Panchamukhi <prasanna@in.ibm.com> wrote:
+>This patch provides global debug register settings.
+>Used by kernel watchpoint interface patch.
 
-Well, mmap("/dev/fb") will just map the gfx cards memory into
-the applications address space, so they _will_ interface with
-the hardware.
+>+config DEBUGREG
+>+	bool "Global Debug Registers"
+>+	depends on DEBUG_KERNEL
+>+	help
+>+	  Global debug register settings will be honoured if this is turned on.
+>+	  If in doubt, say "N".
+>+
 
-> The apps data will simply not show up on the screen until the
-> usermode helper finishes.
+I like most of the patch, but Kconfig is wrong.  This option should not
+be exposed to end users, instead CONFIG_DEBUGREG should be selected by
+the debug code that calls debugreg.  IOW, kgdb, kdb or kwatch select
+debugreg, not the other way around.
 
-Whenever writing to the gfx memory before finishing the initialization
-is harmless or not probably depends on the hardware, I'd better not
-count on it ...
-
-  Gerd
-
--- 
-return -ENOSIG;

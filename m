@@ -1,102 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265135AbSJPQHi>; Wed, 16 Oct 2002 12:07:38 -0400
+	id <S265145AbSJPQDY>; Wed, 16 Oct 2002 12:03:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265144AbSJPQHi>; Wed, 16 Oct 2002 12:07:38 -0400
-Received: from pina.terra.com.br ([200.176.3.17]:64389 "EHLO pina.terra.com.br")
-	by vger.kernel.org with ESMTP id <S265135AbSJPQHf>;
-	Wed, 16 Oct 2002 12:07:35 -0400
-Subject: [TRIVIAL PATCH - 2.5.43] brokem module compile
-From: Lucio Maciel <abslucio@terra.com.br>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-To+Uqh4W9E4p8BeYgMp7"
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 16 Oct 2002 13:13:30 -0300
-Message-Id: <1034784811.5354.3.camel@walker>
-Mime-Version: 1.0
+	id <S265148AbSJPQDY>; Wed, 16 Oct 2002 12:03:24 -0400
+Received: from ns.suse.de ([213.95.15.193]:10770 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S265145AbSJPQDV> convert rfc822-to-8bit;
+	Wed, 16 Oct 2002 12:03:21 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SuSE Linux AG
+To: "Theodore Ts'o" <tytso@mit.edu>, Christoph Hellwig <hch@infradead.org>,
+       torvalds@transmeta.com, Andrew Morton <akpm@digeo.com>
+Subject: Re: [PATCH 1/5] Add POSIX Access Control Lists to ext2/3
+Date: Wed, 16 Oct 2002 18:09:16 +0200
+User-Agent: KMail/1.4.3
+References: <E181a3b-0006Nu-00@snap.thunk.org> <20021016141103.A8393@infradead.org> <20021016155012.GA8210@think.thunk.org>
+In-Reply-To: <20021016155012.GA8210@think.thunk.org>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210161809.17015.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 16 October 2002 17:50, Theodore Ts'o wrote:
+> On Wed, Oct 16, 2002 at 02:11:04PM +0100, Christoph Hellwig wrote:
+> > Ted, please either go _always_ through the {get,set}_posix_acl methods
+> > or never.  Currently XFS doesn't know and doesn't want to know
+> > about the so called "egenric ACL representation" used by ext2/ext3.  With
+> > theses methods we'd have to add it to XFS which is fine for me as long as
+> > it the representation generally used for working with ACLs.  That would
+> > mean we'd have to add new syscall or at least VFS-level hooks to the
+> > xattr code.
+>
+> Fine.  I'll just yank the {get,set}_posix_acl methods for now.  The
+> inode methods were only needed for the NFS code (see Andreas' comments
+> about the xattr interfaces being problematical for VFS support).
+>
+> However, the reality is that at this point, we probably won't have
+> time to get support in for the NFS server ACL before feature freeze,
+> and changing the interface to ACL's (never mind the headaches of
+> trying to agree to a new syscall interface at this late date), given
+> the deployed userspace tools, just doesn't seem to be realistic.
 
---=-To+Uqh4W9E4p8BeYgMp7
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+The pain of not having the NFS ACL hack is only moderate; it only affects 
+interoperability of older systems with a feature that wasn't there before, 
+and even then the effects aren't dramatic. We could live without it for a 
+while, but I'll see if I code that up in time too.
 
-Hi all..
-
-This patch export some symbols to compile nfs, nfsd, ext3 and ext2 (and
-possible others ??) as modules in 2.5.43.
-
-best regards
--- 
-::: Lucio F. Maciel
-::: abslucio@terra.com.br
-::: icq 93065464
-::: Absoluta.net
-
---=-To+Uqh4W9E4p8BeYgMp7
-Content-Disposition: attachment; filename=export_symbols.diff
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/x-patch; name=export_symbols.diff; charset=ANSI_X3.4-1968
-
-diff --exclude=3Darch --exclude=3Ddrivers --exclude=3Dinclude --exclude=3Di=
-nit --exclude=3Dipc --exclude=3Dkernel --exclude=3Dlib --exclude=3Dscripts =
---exclude=3Dsecurity --exclude=3Dsound --exclude=3D'*.diff' -uNr ../linux-2=
-.5.42/mm/filemap.c ./mm/filemap.c
---- ../linux-2.5.43-old/mm/filemap.c	2002-10-16 10:37:14.000000000 -0300
-+++ ./mm/filemap.c	2002-10-16 10:19:26.000000000 -0300
-@@ -891,6 +891,7 @@
- 	BUG_ON(iocb->ki_pos !=3D pos);
- 	return __generic_file_aio_read(iocb, &local_iov, 1, &iocb->ki_pos);
- }
-+EXPORT_SYMBOL(generic_file_aio_read);
-=20
- ssize_t
- generic_file_read(struct file *filp, char *buf, size_t count, loff_t *ppos=
-)
-@@ -1650,6 +1651,7 @@
- {
- 	return generic_file_write(iocb->ki_filp, buf, count, &iocb->ki_pos);
- }
-+EXPORT_SYMBOL(generic_file_aio_write);
-=20
- ssize_t generic_file_write(struct file *file, const char *buf,
- 			   size_t count, loff_t *ppos)
-diff --exclude=3Darch --exclude=3Ddrivers --exclude=3Dinclude --exclude=3Di=
-nit --exclude=3Dipc --exclude=3Dkernel --exclude=3Dlib --exclude=3Dscripts =
---exclude=3Dsecurity --exclude=3Dsound --exclude=3D'*.diff' -uNr ../linux-2=
-.5.42/net/sunrpc/sunrpc_syms.c ./net/sunrpc/sunrpc_syms.c
---- ../linux-2.5.43-old/net/sunrpc/sunrpc_syms.c	2002-10-12 00:22:18.000000=
-000 -0400
-+++ ./net/sunrpc/sunrpc_syms.c	2002-10-16 10:34:06.000000000 -0300
-@@ -23,6 +23,26 @@
- #include <linux/sunrpc/svcsock.h>
- #include <linux/sunrpc/auth.h>
-=20
-+/* CACHE FUNCTIONS for nfsd */
-+EXPORT_SYMBOL(cache_fresh);
-+EXPORT_SYMBOL(cache_check);
-+EXPORT_SYMBOL(cache_flush);
-+EXPORT_SYMBOL(cache_unregister);
-+EXPORT_SYMBOL(cache_clean);
-+EXPORT_SYMBOL(cache_register);
-+EXPORT_SYMBOL(cache_init);
-+
-+EXPORT_SYMBOL(auth_domain_find);
-+EXPORT_SYMBOL(auth_unix_lookup);
-+EXPORT_SYMBOL(auth_unix_add_addr);
-+EXPORT_SYMBOL(auth_unix_forget_old);
-+EXPORT_SYMBOL(auth_domain_put);
-+EXPORT_SYMBOL(svcauth_unix_purge);
-+
-+EXPORT_SYMBOL(unix_domain_find);
-+EXPORT_SYMBOL(add_hex);
-+EXPORT_SYMBOL(get_word);
-+EXPORT_SYMBOL(add_word);
-=20
- /* RPC scheduler */
- EXPORT_SYMBOL(rpc_allocate);
-
-
---=-To+Uqh4W9E4p8BeYgMp7--
-
+--Andreas.

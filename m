@@ -1,37 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261382AbREMGyF>; Sun, 13 May 2001 02:54:05 -0400
+	id <S261384AbREMHkD>; Sun, 13 May 2001 03:40:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261383AbREMGxz>; Sun, 13 May 2001 02:53:55 -0400
-Received: from [203.36.158.121] ([203.36.158.121]:4229 "EHLO
-	piro.kabuki.openfridge.net") by vger.kernel.org with ESMTP
-	id <S261382AbREMGxn>; Sun, 13 May 2001 02:53:43 -0400
-Date: Sun, 13 May 2001 16:53:23 +1000
-From: Daniel Stone <daniel@kabuki.openfridge.net>
+	id <S261385AbREMHjx>; Sun, 13 May 2001 03:39:53 -0400
+Received: from cc53440-a.catv1.md.home.com ([24.18.90.197]:47249 "EHLO
+	dandelion.darkorb.net") by vger.kernel.org with ESMTP
+	id <S261384AbREMHjr>; Sun, 13 May 2001 03:39:47 -0400
+Date: Sun, 13 May 2001 03:39:46 -0400
+From: Gabriel Rocha <grocha@geeksimplex.org>
 To: linux-kernel@vger.kernel.org
-Subject: [BUG] Vibra16XS and OSS/Free - static
-Message-ID: <20010513165323.A13013@kabuki.openfridge.net>
+Subject: undeleting files with from reiserfs
+Message-ID: <20010513033946.A32539@dandelion.darkorb.net>
 Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.17i
-Organisation: Sadly lacking
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I have a Vibra16XS (yes, I know it sucks, but I can't afford better right
-now), and, after about 15 minutes of mpg123 playing, it will suddenly go to
-complete static. This can only be fixed by something closing the channel,
-and then reopening it. I've also tried with large waves, only to get the
-same result.
-
-This is using 2.4.4-ac6, with only Netfilter hacks.
-
-d
+ok, i screwed up and there went my 2 gigs of mp3's...i feel stupid, i
+figure, what the heck, i can take this as the perfect oportunity to
+leanr how to undelete stuff...lo and behold, i find tons of info on how
+to undelete from a ext2 filesystem...nothing on reiser...pointers on
+docs would be really appreciated, as would any help anyone  can give me.
+thanks. --gabe
 
 -- 
-Daniel Stone
-daniel@kabuki.openfridge.net
+
+"It's not brave if you're not scared."

@@ -1,157 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266206AbUFPHYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266208AbUFPHZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266206AbUFPHYH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 03:24:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266207AbUFPHYH
+	id S266208AbUFPHZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 03:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbUFPHZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 03:24:07 -0400
-Received: from p213.54.91.16.tisdip.tiscali.de ([213.54.91.16]:42369 "EHLO
-	stralsunder-10.homelinux.org") by vger.kernel.org with ESMTP
-	id S266206AbUFPHXd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 03:23:33 -0400
-Date: Wed, 16 Jun 2004 09:23:44 +0200
-From: Andreas Schmidt <andy@space.wh1.tu-dresden.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Frequent system freezes after kernel bug
-Message-ID: <20040616072344.GC28402@rocket>
-References: <20040612183742.GE1733@rocket>
+	Wed, 16 Jun 2004 03:25:56 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:49959 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S266207AbUFPHZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 03:25:38 -0400
+Subject: Re: PROBLEM: Heavy iowait on 2.6 kernels
+From: Guy Van Sanden <n.b@myrealbox.com>
+To: Clint Byrum <cbyrum@spamaps.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1087366549.1190.6.camel@lancelot>
+References: <1086942905.10540.69.camel@cronos.home.vsb>
+	 <1087366549.1190.6.camel@lancelot>
+Content-Type: text/plain
+Message-Id: <1087369893.11205.36.camel@cronos.home.vsb>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	Format=Flowed	DelSp=Yes
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20040612183742.GE1733@rocket> (from andy@space.wh1.tu-dresden.de on Sat, Jun 12, 2004 at 20:37:42 +0200)
-X-Mailer: Balsa 2.0.17
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 16 Jun 2004 09:25:31 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004.06.12 20:37, Andreas Schmidt wrote:
-> Hi,
+My machine is heavily used for all kinds of file serving (mainly nfs),
+but also samba.
+Next to that, it is my home-server, so it runs apache2 (tuned to server
+only few clients), imap (cyrus), postfix, bugzilla (mysql) and distcc
+(used only a few times a week).
+It replaces a FreeBSD system (PII-333) running the same except distcc.
+Under 
+
+The disk system is just a regular IDE disk (udma5) (60GB) and one
+external drive over USB2 (160 GB).  The external drive is rather slow
+(20-30 MB/sec), so I disabled it during the tests.
+
+The weird thing is that I see this problem too when only running bonnie.
+A friend of mine tried that too under 2.6.6, his iowait went up to
+0.15%, mine to 99%.
+
+
+
+
+On Wed, 2004-06-16 at 08:15, Clint Byrum wrote:
+> On Fri, 2004-06-11 at 01:35, Guy Van Sanden wrote:
+> > I recently discovered why my new Gentoo server slows to a crawl on a
+> > intermediate load on the 2.6 kernel series.  The reason seems to be an
+> > unusual amount of iowait.
 > 
-> in the last few days I have experienced frequent system freezes
-> apparently related to kernel bugs on one box here. Unfortunately,
-> that's just the same system serving as router and local fileserver  
-> for
-I have removed the tainted fcdsl-module and tried to crash the machine  
-by generating a steady harddisk activity. Writing to a partition with  
-EXT2 resulted in two non-fatal bugs in buffer.c after several hours:
+> This appears similar to the problem both myself and Phy Prahbab reported
+> about 2.6 and hitting the disks too often. 
+> 
+> I'm wondering, what kind of workload does your machine see, and what
+> sort of disk system is in it?
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+______________________________________________________________________  
 
-19:09:32
-kernel:  kernel BUG at buffer.c:575!
-kernel: invalid operand: 0000
-kernel: CPU:    0
-kernel: EIP:    0010:[__insert_into_lru_list+28/112]    Not tainted
-kernel: EFLAGS: 00010206
-kernel: eax: 00000000   ebx: 00000002   ecx: d2e980c0   edx: c02ad6cc
-kernel: esi: d2e980c0   edi: d2e980c0   ebp: 00000001   esp: c4677ebc
-kernel: ds: 0018   es: 0018   ss: 0018
-kernel: Process cp (pid: 4081, stackpage=c4677000)
-kernel: Stack: 00000002 c0135a36 d2e980c0 00000002 d2e980c0 00001000  
-c0135a4a d2e980c0
-kernel:        c0136443 d2e980c0 00001000 dc1bc0c0 06261000 00000000  
-00001000 00000000
-kernel:        c0136ab4 dc1bc0c0 c130e514 00000000 00001000 c130e514  
-bffff404 d1c7b000
-kernel: Call Trace:    [__refile_buffer+86/96] [refile_buffer+10/16]  
-[__block_commit_write+131/208] [generic_commit_write+52/96]  
-[do_generic_file_write+654/976]
-kernel:   [generic_file_write+259/288] [sys_write+150/240] [system_call 
-+51/56]
-kernel:
-kernel: Code: 0f 0b 3f 02 e5 57 21 c0 83 3a 00 75 05 89 0a 89 49 24 8b  
-02
+  Guy Van Sanden 
+  http://unixmafia.port5.com  
 
-04:47:01
-kernel:  kernel BUG at buffer.c:575!
-kernel: invalid operand: 0000
-kernel: CPU:    0
-kernel: EIP:
-0010:[__insert_into_lru_list+28/112]    Not tainted
-kernel: EFLAGS: 00010206
-kernel: eax: 00000000   ebx: 00000002   ecx: d07e80c0   edx: c02ad6cc
-kernel: esi: d07e80c0   edi: d07e80c0   ebp: 00000001   esp: c2d85ebc
-kernel: ds: 0018   es: 0018   ss: 0018
-kernel: Process cp (pid: 760, stackpage=c2d85000)
-kernel: Stack: 00000002 c0135a36 d07e80c0 00000002 d07e80c0 00001000  
-c0135a4a d07e80c0
-kernel:        c0136443 d07e80c0 00001000 cee62ac0 0c7b4000 00000000  
-00001000 00000000
-kernel:        c0136ab4 cee62ac0 c14be3d4 00000000 00001000 c14be3d4  
-bffff3d4 db98b000
-kernel: Call Trace:    [__refile_buffer+86/96] [refile_buffer+10/16]  
-[__block_commit_write+131/208] [generic_commit_write+52/96]  
-[do_generic_file_write+654/976]
-kernel:   [generic_file_write+259/288] [sys_write+150/240] [system_call 
-+51/56]
-kernel:
-kernel: Code: 0f 0b 3f 02 e5 57 21 c0 83 3a 00 75 05 89 0a 89 49 24 8b  
-02
+  Registered Linux user #249404 - September 1997
+______________________________________________________________________
 
-
-Thereafter, I tried to continuously writing to an EXT3 partition, which  
-after just about half an hour resulted in bugs in buffer.c and   
-transaction.c. This time, the system froze again. "init 6" stopped  
-after sending the KILL signal because the processes with IDs "ca" and   
-"1" to "6" were hanging. Here's the output:
-
-kernel:  kernel BUG at buffer.c:575!
-kernel: invalid operand: 0000
-kernel: CPU:    0
-kernel: EIP:    0010:[__insert_into_lru_list+28/112]    Not tainted
-kernel: EFLAGS: 00010206
-kernel: eax: 00000000   ebx: 00000002   ecx: d07b80c0   edx: c02ad6cc
-kernel: esi: d07b80c0   edi: d07b80c0   ebp: 00000001   esp: c6195e6c
-kernel: ds: 0018   es: 0018   ss: 0018
-kernel: Process cp (pid: 3627, stackpage=c6195000)
-kernel: Stack: 00000002 c0135a36 d07b80c0 00000002 d07b80c0 00001000  
-c0135a4a d07b80c0
-kernel:        c0136443 d07b80c0 00001000 c648bc80 07df7000 00000000  
-00001000 00000000
-kernel:        c0136ab4 c648bc80 c105c770 00000000 00001000 c105c770  
-bffff3e4 c648bc80
-kernel: Call Trace:    [__refile_buffer+86/96] [refile_buffer+10/16]  
-[__block_commit_write+131/208] [generic_commit_write+52/96]  
-[ext3_commit_write+305/448]
-kernel:   [do_generic_file_write+654/976] [generic_file_write+259/288]  
-[ext3_file_write+35/192] [sys_write+150/240] [system_call+51/56]
-kernel:
-kernel: Code: 0f 0b 3f 02 e5 57 21 c0 83 3a 00 75 05 89 0a 89 49 24 8b  
-02
-kernel:  <0>Assertion failure in journal_start() at transaction.c:251:  
-"handle->h_transaction->t_journal == journal"
-kernel: kernel BUG at transaction.c:251!
-kernel: invalid operand: 0000
-kernel: CPU:    0
-kernel: EIP:    0010:[journal_start+74/192]   Not tainted
-kernel: EFLAGS: 00010282
-kernel: eax: 0000006c   ebx: d3ea6600   ecx: df37e000   edx: 00000001
-kernel: esi: dfe49800   edi: c6194000   ebp: 00000040   esp: c6195c10
-kernel: ds: 0018   es: 0018   ss: 0018
-kernel: Process cp (pid: 3627, stackpage=c6195000)
-kernel: Stack: c021b240 c021b46c c021b220 000000fb c021b440 d3ea6600  
-dfae0c00 c419d6c0
-kernel:        c015ea38 dfe49800 00000002 c419d6c0 dfae0c00 00000001  
-c014642e c419d6c0
-kernel:        c419d6c0 c419d72c d163cec0 c0128c93 c419d6c0 00000001  
-c419d6c0 c419d72c
-kernel: Call Trace:    [ext3_dirty_inode+88/256] [__mark_inode_dirty 
-+46/144] [do_generic_file_write+211/976] [ide_start_request+382/432]  
-[generic_file_write+259/288]
-kernel:   [ext3_file_write+35/192] [do_acct_process+571/592]  
-[acct_process+25/39] [do_exit+105/592] [do_invalid_op+0/160] [die 
-+86/96]
-kernel:   [do_invalid_op+140/160] [__insert_into_lru_list+28/112]  
-[ext3_get_block_handle+426/640] [ext3_get_block_handle+242/640]  
-[error_code+52/60] [__insert_into_lru_list+28/112]
-kernel:   [__refile_buffer+86/96] [refile_buffer+10/16]  
-[__block_commit_write+131/208] [generic_commit_write+52/96]  
-[ext3_commit_write+305/448] [do_generic_file_write+654/976]
-kernel:   [generic_file_write+259/288] [ext3_file_write+35/192]  
-[sys_write+150/240] [system_call+51/56]
-kernel:
-kernel: Code: 0f 0b fb 00 20 b2 21 c0 83 c4 14 ff 43 08 89 d8 eb 59 8d  
-74
-
-Best regards,
-
-Andreas

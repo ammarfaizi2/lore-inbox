@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbVAMOHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbVAMONz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261626AbVAMOHe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 09:07:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVAMOHe
+	id S261629AbVAMONz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 09:13:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbVAMONz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 09:07:34 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:1039 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261626AbVAMOHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 09:07:30 -0500
-Subject: Re: propolice support for linux
-From: Arjan van de Ven <arjan@infradead.org>
-To: Han Boetes <han@mijncomputer.nl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050113134620.GA14127@boetes.org>
-References: <20050113134620.GA14127@boetes.org>
-Content-Type: text/plain
-Date: Thu, 13 Jan 2005 15:07:22 +0100
-Message-Id: <1105625242.6031.21.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Thu, 13 Jan 2005 09:13:55 -0500
+Received: from news.suse.de ([195.135.220.2]:44167 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261629AbVAMONy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 09:13:54 -0500
+Message-ID: <41E68215.8060004@suse.de>
+Date: Thu, 13 Jan 2005 15:13:41 +0100
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.8a6) Gecko/20041202
+X-Accept-Language: de-de, en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       magnus.damm@gmail.com, DHollenbeck <dick@softplc.com>
+Subject: Re: yenta_socket rapid fires interrupts
+References: <41E2BC77.2090509@softplc.com> <Pine.LNX.4.58.0501101857330.2373@ppc970.osdl.org> <41E42691.3060102@softplc.com> <Pine.LNX.4.58.0501111143370.2373@ppc970.osdl.org> <41E44248.2000500@softplc.com> <Pine.LNX.4.58.0501111322060.2373@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0501111322060.2373@ppc970.osdl.org>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-01-13 at 14:45 +0059, Han Boetes wrote:
+Linus Torvalds wrote:
 
-> And since most of the security-flaws in linux are buffer-overflows
-> I would like to request that a patch based on this one is applied
-> to the kernel so people can use this extension by default.
+> What I don't see is why the port changes state, then. Since the yenta 
+> driver doesn't care for the interrupt anyway, it shouldn't be touching the 
+> hardware, and if it doesn't touch the hardware, then the pcmcia thing 
+> should eventually just calm down, even if it were to de-bounce a few 
+> times.
 > 
+> The above is what you'd likely see if somebody was forcing a reset on the
+> card or a card voltage re-interrogation all the time, which I don't see
+> why it would happen.
 
-I'm sorry but I disagree with this. Most of the security flaws in the
-kernel are NOT buffer overflows. Almost none are! (and that is because
-in the linux kernel you are very much stack constrained and can't put
-large-ish buffers on the stack).
+i have a "feeling" that a weak power supply or a little bit too high 
+current draw from the card may cause something like this. But this is 
+just what i wrote: a feeling from my stomach ;-)
 
-Userland.. that's a different matter.
-Propolice is one of the options there, there are others too. But for the
-kernel, buffer overflows are really rare (esp ones that propolice and
-other tools can catch).
-
-
+Stefan

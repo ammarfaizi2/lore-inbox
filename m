@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132870AbRDEMKP>; Thu, 5 Apr 2001 08:10:15 -0400
+	id <S132871AbRDEMOF>; Thu, 5 Apr 2001 08:14:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132871AbRDEMJz>; Thu, 5 Apr 2001 08:09:55 -0400
-Received: from cr502987-a.rchrd1.on.wave.home.com ([24.42.47.5]:38921 "EHLO
-	the.jukie.net") by vger.kernel.org with ESMTP id <S132870AbRDEMJq>;
-	Thu, 5 Apr 2001 08:09:46 -0400
-Date: Thu, 5 Apr 2001 08:08:51 -0400 (EDT)
-From: Bart Trojanowski <bart@jukie.net>
-To: Ryan Mack <rmack@mackman.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [QUESTION] 2.4.3: hotplug_path unresolved in usbcore?
-In-Reply-To: <Pine.LNX.4.30.0104042333500.2076-100000@mackman.net>
-Message-ID: <Pine.LNX.4.30.0104050806010.13357-100000@localhost>
+	id <S132872AbRDEMNz>; Thu, 5 Apr 2001 08:13:55 -0400
+Received: from aeon.tvd.be ([195.162.196.20]:11857 "EHLO aeon.tvd.be")
+	by vger.kernel.org with ESMTP id <S132871AbRDEMNf>;
+	Thu, 5 Apr 2001 08:13:35 -0400
+Date: Thu, 5 Apr 2001 14:12:09 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: James Simmons <jsimmons@linux-fbdev.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: fbcon slowness [was NTP on 2.4.2?]
+In-Reply-To: <m1bsqbwo3u.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.05.10104051410440.25540-100000@callisto.of.borg>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Apr 2001, Ryan Mack wrote:
+On 5 Apr 2001, Eric W. Biederman wrote:
+> 32bit writes on a bus with a word size of 64 or more bits.  By the way
+> does anyone know who didn't implement MTRR's or the equivalent on
+> alpha so we can shoot them?
 
-> Sorry for such a stupid question, but I'm stumped (it doesn't take much).
-> modprobe reports that hotplug_path is unresolved when it processes
-> usbcore. CONFIG_HOTPLUG is defined, so it seems that hotplug_path is
-> defined and EXPORTed in kernel/kmod.c, so I'm unsure what the problem is.
+People never get shot in Open Source projects. Not when they write buggy code,
+not when they don't implement some features.
 
-I have noticed that sometimes when I change my .config doing a make dep,
-make bzImage, make modules, is not enough.  So, I back up my .config, run
-make mrproper, copy the .config back, and then make dep, etc.  The option
-I know causes this is netfilter under 2.4.2.
+Gr{oetje,eeting}s,
 
-> Thanks, Ryan
+						Geert
 
-Hope this helps.
-Bart.
+P.S. Perhaps ESR tends to disagree? ;-)
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
--- 
-	WebSig: http://www.jukie.net/~bart/sig/
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

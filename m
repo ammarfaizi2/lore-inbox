@@ -1,71 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292728AbSCDSxR>; Mon, 4 Mar 2002 13:53:17 -0500
+	id <S292701AbSCDS4k>; Mon, 4 Mar 2002 13:56:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292714AbSCDSxO>; Mon, 4 Mar 2002 13:53:14 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39691 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292701AbSCDSvv>;
-	Mon, 4 Mar 2002 13:51:51 -0500
-Message-ID: <3C83C258.FCF57746@mandrakesoft.com>
-Date: Mon, 04 Mar 2002 13:52:08 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Dillow <dillowd@y12.doe.gov>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IBM Lanstreamer bugfixes (round 3)
-In-Reply-To: <Pine.LNX.4.33.0203041023580.11065-100000@janetreno.austin.ibm.com>
-		 <3C83A925.F93BF448@mandrakesoft.com> <3C83AE6B.9B5DE85F@y12.doe.gov> <3C83B2E7.B5EB0FB5@mandrakesoft.com> <3C83C0B8.659F1AE@y12.doe.gov>
-Content-Type: text/plain; charset=us-ascii
+	id <S292770AbSCDS40>; Mon, 4 Mar 2002 13:56:26 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:30725 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S292701AbSCDSzb>;
+	Mon, 4 Mar 2002 13:55:31 -0500
+Date: Mon, 4 Mar 2002 19:41:47 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Martin.Bligh@us.ibm.com, riel@conectiva.com.br, andrea@suse.de,
+        phillips@bonn-fries.net, davidsen@tmr.com, mfedyk@matchmail.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre1aa1
+Message-Id: <20020304194147.7bca4201.skraw@ithnet.com>
+In-Reply-To: <20020304191804.2e58761c.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.44L.0203041116120.2181-100000@imladris.surriel.com>
+	<190330000.1015261149@flay>
+	<20020304191804.2e58761c.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.7.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Dillow wrote:
-> 
-> Jeff Garzik wrote:
-> >
-> > David Dillow wrote:
-> > >
-> > > Jeff Garzik wrote:
-> > > > Set cache line size just like drivers/net/acenic.c does, and enable
-> > > > memory-write-invalidate...
-> > >
-> > > Does this mean the setup pci_enable_device() does on the cache line size
-> > > is not sufficient?
-> >
-> > pci_enable_device doesn't touch the PCI_COMMAND_INVALIDATE bit at all...
-> 
-> Right, I was talking more about the cache line size... is it sufficient
-> for that?
+On Mon, 4 Mar 2002 19:18:04 +0100
+Stephan von Krawczynski <skraw@ithnet.com> wrote:
 
-pci_enable_device doesn't touch PCI_COMMAND_INVALIDATE either, on most
-platforms (particularly ia32, i.e. the popular one :))
+> As stated above: try to bring in per-node zones that are preferred by their cpu. This can work equally well for UP,SMP and NUMA (maybe even for cluster).
+> UP=every zone is one or more preferred zone(s)
+correct: UP=all zones are preferred zones for the single CPU
 
+> SMP=every zone is one or more preferred zone(s)
+correct: SMP=all zones are preferred zones for all CPUs
 
-> As for PCI_COMMAND_INVALIDATE, what does that do for me; my PCI spec
-> isn't handy....
+Regards,
+Stephan
 
-Enables Memory-Write-Invalidate (MWI).
-
-
-> > > I ask, because I've been relying on it for a driver I'm working on;
-> > > should I be setting this as acenic does? It would seem that this is
-> > > something many drivers would need to do...
-> >
-> > Yes, acenic is the code to copy, for setting that up.
-> 
-> INVALIDATE, or cache line size?
-
-both.
-
-	Jeff
-
-
-
--- 
-Jeff Garzik      |
-Building 1024    |
-MandrakeSoft     | Choose life.

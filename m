@@ -1,75 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264019AbUD0Lx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264026AbUD0MAN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264019AbUD0Lx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 07:53:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264021AbUD0Lx7
+	id S264026AbUD0MAN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 08:00:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264027AbUD0MAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 07:53:59 -0400
-Received: from mail.turbolinux.co.jp ([210.171.55.67]:37892 "EHLO
-	mail.turbolinux.co.jp") by vger.kernel.org with ESMTP
-	id S264022AbUD0Lxw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 07:53:52 -0400
-Message-ID: <408E49B9.3090302@turbolinux.co.jp>
-Date: Tue, 27 Apr 2004 20:53:29 +0900
-From: Go Taniguchi <go@turbolinux.co.jp>
-Organization: Turbolinx Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ja-JP; rv:1.2.1) Gecko/20030105
-X-Accept-Language: ja, en-us, en
+	Tue, 27 Apr 2004 08:00:12 -0400
+Received: from cpe.atm2-0-52195.0x50c6d58a.slnxx1.customer.tele.dk ([80.198.213.138]:41451
+	"EHLO ntserver.MINISOFT") by vger.kernel.org with ESMTP
+	id S264026AbUD0MAA convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 08:00:00 -0400
+content-class: urn:content-classes:message
+Subject: Unable to handle kernel paging request at virtual address f899b000
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org
-CC: Clemens Schwaighofer <cs@tequila.co.jp>, dlang@digitalinsight.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc2-mm2 + Adaptec I2O
-References: <408DE95F.5010201@tequila.co.jp>	<20040426221814.490a0cfd.akpm@osdl.org>	<Pine.LNX.4.58.0404262223260.17702@dlang.diginsite.com>	<408DF117.4060309@tequila.co.jp>	<20040426230455.53406d74.akpm@osdl.org>	<408DFBEE.3080803@tequila.co.jp> <20040426232522.253594a2.akpm@osdl.org>
-In-Reply-To: <20040426232522.253594a2.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Date: Tue, 27 Apr 2004 13:59:51 +0200
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Message-ID: <CC9C3DBEFF34584690F2695172DEDC221DDD04@mmarsh.ca.caldera.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Unable to handle kernel paging request at virtual address f899b000
+Thread-Index: AcQsTv955xo2BewET8aP4/YWIts4gg==
+From: =?iso-8859-1?Q?Jesper_Langkj=E6r?= <jl@MINISOFT.DK>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi..
 
-Andrew Morton wrote:
-> Clemens Schwaighofer <cs@tequila.co.jp> wrote:
-> 
->>Andrew Morton wrote:
->> | Clemens Schwaighofer <cs@tequila.co.jp> wrote:
->> |
->> |> on this URL [http://www.smartcgi.com/?action=docs,kernel26-adaptec] you
->> |> can find a patch that I could successfully path again 2.6.5 (vanilla)
->> |> and compile successfully.
->> |
->> |
->> | hm.  Against 2.6.0.  Go, would you have time to send that patch in to the
->> | scsi team at linux-scsi@vger.kernel.org?
->>
->> yes,
->>
->> remark:
->>
->> ~ Originally this patch has been released by Go Taniguchi at
->> http://pkgcvs.turbolinux.co.jp/~go/patch-2.6/dpt_i2o.patch
->>
->> patch attached
-> 
-> 
-> Sorry, my question was directed to Go Taniguchi <go@turbolinux.co.jp> - Go
-> should submit the patch.
+Hope that somone can help us..
 
-Yea, I sent an mail to LKML in the end of last year regarding this issue.
-http://marc.theaimsgroup.com/?l=linux-kernel&m=107275564119915&w=2
+One of our customer has an RedHat 7.2 with a stock 2.4.7-10SMP kernel, and every now an then it starts to throw of all of the users on that assigned CPU.
+It has 4 CPU and 1 Gb of ram
 
-However, I think that Adaptec probably just re-make a new version of dpt_i2o.
-My patch may differ from the Adaptec policy.
+In the messages log we can read the following
 
-I thought that it may be good for someone need the driver before Adaptec 
-completed the driver. What's why I uploaded my patch onto web.
+Apr 23 16:10:57 desyv kernel: Unable to handle kernel paging request at virtual
+address f899b000
+Apr 23 16:10:57 desyv kernel:  printing eip:
+Apr 23 16:10:57 desyv kernel: 00113102
+Apr 23 16:10:57 desyv kernel: *pde = 021d2067
+Apr 23 16:10:57 desyv kernel: *pte = 00000000
+Apr 23 16:10:57 desyv kernel: Oops: 0000
+Apr 23 16:10:57 desyv kernel: CPU:    0
+Apr 23 16:10:57 desyv kernel: EIP:    0023:[exit_devpts_fs+1126546/-1072693360]
+Apr 23 16:10:57 desyv kernel: EIP:    0023:[<00113102>]
+Apr 23 16:10:57 desyv kernel: EFLAGS: 00010217
+Apr 23 16:10:57 desyv kernel: eax: 00000030   ebx: 0000066f   ecx: 00000002   ed
+x: 0010ecb0
+Apr 23 16:10:57 desyv kernel: esi: 00000001   edi: 0040703c   ebp: bfffe8d0   es
+p: bfffe8c0
+Apr 23 16:10:57 desyv kernel: ds: 002b   es: 002b   ss: 002b
+Apr 23 16:10:57 desyv login(pam_unix)[19909]: session closed for user frh
+Apr 23 16:10:57 desyv kernel: Process todayx (pid: 19910, stackpage=f6bf1000)
+Apr 23 16:10:57 desyv kernel:  <1>Unable to handle kernel paging request at virt
+ual address f899b000
+Apr 23 16:10:57 desyv kernel:  printing eip:
+Apr 23 16:10:57 desyv kernel: 0011305c
+Apr 23 16:10:57 desyv kernel: *pde = 021d2067
+Apr 23 16:10:57 desyv kernel: *pte = 00000000
+Apr 23 16:10:57 desyv kernel: Oops: 0000
+Apr 23 16:10:57 desyv login(pam_unix)[2044]: session closed for user ka3
+Apr 23 16:10:57 desyv kernel: CPU:    0
+Apr 23 16:10:57 desyv kernel: EIP:    0023:[exit_devpts_fs+1126380/-1072693360]
+Apr 23 16:10:57 desyv kernel: EIP:    0023:[<0011305c>]
+Apr 23 16:10:57 desyv kernel: EFLAGS: 00010246
+Apr 23 16:10:57 desyv kernel: eax: 00000004   ebx: bffff710   ecx: 0040aabc   ed
+x: 00000001
+Apr 23 16:10:57 desyv kernel: esi: 0049807c   edi: 0049dd94   ebp: bffff604   es
+p: bffff5f4
+Apr 23 16:10:57 desyv kernel: ds: 002b   es: 002b   ss: 002b
+Apr 23 16:10:57 desyv kernel: Process todayx (pid: 2045, stackpage=eb9ef000)
+Apr 23 16:10:57 desyv kernel:  <1>Unable to handle kernel paging request at virt
+ual address f899b000
+Apr 23 16:10:57 desyv kernel:  printing eip:
+Apr 23 16:10:57 desyv kernel: 0011305c
+Apr 23 16:10:57 desyv kernel: *pde = 021d2067
+Apr 23 16:10:57 desyv kernel: *pte = 00000000
+Apr 23 16:10:57 desyv kernel: Oops: 0000
+Apr 23 16:10:57 desyv kernel: CPU:    0
+Apr 23 16:10:57 desyv login(pam_unix)[23195]: session closed for user kv2
+Apr 23 16:10:57 desyv kernel: EIP:    0023:[exit_devpts_fs+1126380/-1072693360]
+Apr 23 16:10:57 desyv kernel: EIP:    0023:[<0011305c>]
+Apr 23 16:10:57 desyv kernel: EFLAGS: 00010246
+Apr 23 16:10:57 desyv kernel: eax: 00000004   ebx: bffff80d   ecx: 0042a111   ed
+x: 00000001
+Apr 23 16:10:57 desyv kernel: esi: 00000001   edi: 00473448   ebp: bffff758   es
+p: bffff748
+Apr 23 16:10:57 desyv kernel: ds: 002b   es: 002b   ss: 002b
+Apr 23 16:10:58 desyv kernel: Process todayx (pid: 23196, stackpage=f6bbb000)
+Apr 23 16:10:58 desyv kernel:  <1>Unable to handle kernel paging request at virt
+ual address f899b000
+Apr 23 16:10:58 desyv kernel:  printing eip:
+Apr 23 16:10:58 desyv kernel: 0011305c
+Apr 23 16:10:58 desyv kernel: *pde = 021d2067
+Apr 23 16:10:58 desyv kernel: *pte = 00000000
+Apr 23 16:10:58 desyv kernel: Oops: 0000
+Apr 23 16:10:58 desyv kernel: CPU:    0
+Apr 23 16:10:58 desyv kernel: EIP:    0023:[exit_devpts_fs+1126380/-1072693360]
+Apr 23 16:10:58 desyv kernel: EIP:    0023:[<0011305c>]
+Apr 23 16:10:58 desyv kernel: EFLAGS: 00010246
+Apr 23 16:10:58 desyv kernel: eax: 00000004   ebx: bffff60d   ecx: 0042a111   ed
+x: 00000001
+Apr 23 16:10:58 desyv kernel: esi: 00000001   edi: 004b8118   ebp: bffff5f4   es
+p: bffff5e4
+Apr 23 16:10:58 desyv kernel: ds: 002b   es: 002b   ss: 002b
+Apr 23 16:10:58 desyv login(pam_unix)[18459]: session closed for user nas
+Apr 23 16:10:58 desyv kernel: Process todayx (pid: 18460, stackpage=d41e5000)
+Apr 23 16:10:58 desyv kernel:  <1>Unable to handle kernel paging request at virt
+ual address f899b000
 
-The number of the access is over 1000 now after I counted it.
+Kind regards
 
-Please merge to Andrew's tree if Adaptec does not mind.
+Jesper Langkjær
 
-This is my patch same as send from Clemens.
-http://pkgcvs.turbolinux.co.jp/~go/patch-2.6/dpt_i2o.patch
+----------------------------
+
+MINISOFT A/S
+Ørstedevej 13, 8600 Silkeborg
+Tlf: 86813488
+Fax: 86801397
+E-mail: jl@minisoft.dk
+General E-mail: info@minisoft.dk
 
 

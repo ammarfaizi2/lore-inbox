@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130696AbRANJTD>; Sun, 14 Jan 2001 04:19:03 -0500
+	id <S130336AbRANJUn>; Sun, 14 Jan 2001 04:20:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131598AbRANJSy>; Sun, 14 Jan 2001 04:18:54 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:8346 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130696AbRANJSh>;
-	Sun, 14 Jan 2001 04:18:37 -0500
+	id <S131598AbRANJUd>; Sun, 14 Jan 2001 04:20:33 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:10138 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S131338AbRANJUX>;
+	Sun, 14 Jan 2001 04:20:23 -0500
 From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14945.28354.209720.579437@pizda.ninka.net>
-Date: Sun, 14 Jan 2001 01:17:54 -0800 (PST)
-To: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
-Cc: Harald Welte <laforge@gnumonks.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0 + iproute2
-In-Reply-To: <Pine.LNX.4.30.0101141013080.16469-100000@jdi.jdimedia.nl>
-In-Reply-To: <14945.26991.35849.95234@pizda.ninka.net>
-	<Pine.LNX.4.30.0101141013080.16469-100000@jdi.jdimedia.nl>
+Message-ID: <14945.28453.291879.887740@pizda.ninka.net>
+Date: Sun, 14 Jan 2001 01:19:33 -0800 (PST)
+To: Petru Paler <ppetru@ppetru.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sparc64 compile fix
+In-Reply-To: <20010114010125.M2734@ppetru.net>
+In-Reply-To: <20010113152104.B2734@ppetru.net>
+	<14944.56558.198555.536993@pizda.ninka.net>
+	<20010114010125.M2734@ppetru.net>
 X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Igmar Palsenberg writes:
+Petru Paler writes:
+ > Trying to compile 2.4.0-ac8 resulted in an error about
+ > storage size of variable d not being known (I don't have the
+ > exact error at hand, the network connectivity to that server
+ > is down right now). Changing it to dqblk32 got it to compile.
+ > 
+ > Am I doing something else wrong ?
 
- > we might want to consider changing the error the call gives in case
- > MULTIPLE_TABLES isn't set. -EINVAL is ugly, -ENOSYS should make the error
- > more clear..
+If the quota interfaces have changed, then all of the translation code
+support for them in sys_sparc32.c/systbls.S/etc. need to change to
+accomodate.
 
-How do I tell the difference between using the wrong system call
-number to invoke an ioctl or socket option change, and making a
-call for a feature I haven't configured into my kernel?
-
-I think ENOSYS is just a bad a choice.
+Stick with non-AC kernels for no on sparc64, thanks. (But feel free to
+use the zerocopy patches :-)
 
 Later,
 David S. Miller

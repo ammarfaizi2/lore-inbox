@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264025AbRFFS4E>; Wed, 6 Jun 2001 14:56:04 -0400
+	id <S264062AbRFFTBE>; Wed, 6 Jun 2001 15:01:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264048AbRFFSzy>; Wed, 6 Jun 2001 14:55:54 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7724 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S264025AbRFFSzs>; Wed, 6 Jun 2001 14:55:48 -0400
-To: Derek Glidden <dglidden@illusionary.com>
-Cc: linux-kernel@vger.kernel.org, <linux-mm@kvack.org>
-Subject: Re: Break 2.4 VM in five easy steps
-In-Reply-To: <3B1E4CD0.D16F58A8@illusionary.com>
-	<3b204fe5.4014698@mail.mbay.net> <3B1E5316.F4B10172@illusionary.com>
-	<m1wv6p5uqp.fsf@frodo.biederman.org>
-	<3B1E7ABA.EECCBFE0@illusionary.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 06 Jun 2001 12:52:07 -0600
-In-Reply-To: <3B1E7ABA.EECCBFE0@illusionary.com>
-Message-ID: <m1ofs15tm0.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
-MIME-Version: 1.0
+	id <S264096AbRFFTAy>; Wed, 6 Jun 2001 15:00:54 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:45328 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S264093AbRFFTAk>; Wed, 6 Jun 2001 15:00:40 -0400
+Date: Wed, 6 Jun 2001 20:59:51 +0200
+From: Tomas Telensky <ttel5535@artax.karlin.mff.cuni.cz>
+To: Harald Welte <laforge@gnumonks.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to know HZ from userspace?
+Message-ID: <20010606205951.A21519@artax.karlin.mff.cuni.cz>
+In-Reply-To: <20010530203725.H27719@corellia.laforge.distro.conectiva> <20010606200933.B16802@artax.karlin.mff.cuni.cz> <20010606152245.F14579@corellia.laforge.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010606152245.F14579@corellia.laforge.distro.conectiva>; from laforge@gnumonks.org on Wed, Jun 06, 2001 at 03:22:45PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Derek Glidden <dglidden@illusionary.com> writes:
-
-
-> The problem I reported is not that 2.4 uses huge amounts of swap but
-> that trying to recover that swap off of disk under 2.4 can leave the
-> machine in an entirely unresponsive state, while 2.2 handles identical
-> situations gracefully.  
+> On Wed, Jun 06, 2001 at 08:09:33PM +0200, Tomas Telensky wrote:
+> > > Hi!
+> > > 
+> > > Is there any way to read out the compile-time HZ value of the kernel?
+> > 
+> > Why simply #include <asm/param.h>?
 > 
+> because the include file doesn't say anything about the HZ value of 
+> the currently running kernel, but only about some kernel source somewhere
+> on your harddrive?
 
-The interesting thing from other reports is that it appears to be kswapd
-using up CPU resources.  Not the swapout code at all.  So it appears
-to be a fundamental VM issue.  And calling swapoff is just a good way
-to trigger it. 
+This _SHOULD_ correspond on each linux instalation. But if you would
+distribute a binary to other people it's a problem.
 
-If you could confirm this by calling swapoff sometime other than at
-reboot time.  That might help.  Say by running top on the console.
+(note that I'm running an rc script, which sets the symlink /usr/src/linux
+properly at boottime ... this should be everywhere)
 
-Eric
+There is also one way how to guess HZ - calibrate :-)))
+Recently I've done more difficult thing - I not only guess the HZ value, I
+also guess the time when the tick comes. But it uses a bit of statistics and 
+may be inaccurate on loaded systems. And you need TSC :-)
 
-
+	Tomas
 

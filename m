@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262094AbSJTV7N>; Sun, 20 Oct 2002 17:59:13 -0400
+	id <S262194AbSJTV7p>; Sun, 20 Oct 2002 17:59:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262141AbSJTV7N>; Sun, 20 Oct 2002 17:59:13 -0400
-Received: from 213-97-199-90.uc.nombres.ttd.es ([213.97.199.90]:26789 "HELO
-	fargo") by vger.kernel.org with SMTP id <S262094AbSJTV7M>;
-	Sun, 20 Oct 2002 17:59:12 -0400
-From: "David =?ISO-8859-1?Q?G=F3mez=22?= <david@pleyades.net>"@vax.home.local
-Date: Mon, 21 Oct 2002 00:04:10 +0200
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pre-decoded wchan output
-Message-ID: <20021020220410.GA32034@fargo>
-Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <1034882043.1072.589.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1034882043.1072.589.camel@phantasy>
-User-Agent: Mutt/1.3.28i
+	id <S262779AbSJTV7n>; Sun, 20 Oct 2002 17:59:43 -0400
+Received: from dsl-65-188-232-225.telocity.com ([65.188.232.225]:25817 "EHLO
+	area51.underboost.net") by vger.kernel.org with ESMTP
+	id <S262194AbSJTV7k> convert rfc822-to-8bit; Sun, 20 Oct 2002 17:59:40 -0400
+Date: Sat, 19 Oct 2002 18:02:56 -0400 (AST)
+From: dijital1 <dijital1@underboost.net>
+To: david@pleyades.net
+cc: Eric Altendorf <EricAltendorf@orst.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: Question: Favorite Linux kernel book?
+In-Reply-To: <20021020214227.GA31718@fargo>
+Message-ID: <Pine.LNX.4.44.0210191800130.20361-100000@area51.underboost.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 17 at 03:14:02, Robert Love wrote:
-> Which is damn cool to me and will let ps(1) grab wchan information
-> without having to parse System.map.  It also means procps will not need
-> System.map.
+I'd also recommend "Unix Internals: The New Frontiers". The sections on
+memory management, particularly the slab allocator is worth understand
+seeing as how the linux's current slab allocator is based on the concepts
+discussed in that book.
 
-Hope this patch gets included in kernel 2.5 ;). I think is very nice to make
-ps not to depend on System.map for resolving wchan. I'll give a try to your
-patch right now.
+Ron Henry
 
--- 
-David Gómez
+"the illiterate of the future are not those who can neither read
+or write; but those who cannot learn, unlearn, and relearn..."
 
-"The question of whether computers can think is just like the question of
- whether submarines can swim." -- Edsger W. Dijkstra
+On Sun, 20 Oct 2002, it was written:
+
+> Hi Eric,
+>
+> > I was just wondering if anyone had any recommendations for reading
+> > material to introduce the Linux kernel, design & code.
+>
+> I recommend you the book 'Understanding the Linux kernel' from O'Reilly,
+> though it's mainly based in 2.2 kernel, with some comments on new features
+> in 2.4, still contains a lot o good information about how the kernel 'guts' ;)
+> work. A book that you shouldn't miss.
+>
+> --
+> David Gómez
+>
+> "The question of whether computers can think is just like the question of
+>  whether submarines can swim." -- Edsger W. Dijkstra
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

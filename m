@@ -1,42 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278088AbRJVIG5>; Mon, 22 Oct 2001 04:06:57 -0400
+	id <S278091AbRJVIJq>; Mon, 22 Oct 2001 04:09:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278080AbRJVIGI>; Mon, 22 Oct 2001 04:06:08 -0400
-Received: from zok.sgi.com ([204.94.215.101]:12980 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S278089AbRJVIFV>;
-	Mon, 22 Oct 2001 04:05:21 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "Dwayne C. Litzenberger" <dlitz@dlitz.net>
-Cc: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.12-ac5 
-In-Reply-To: Your message of "Sun, 21 Oct 2001 23:41:10 CST."
-             <20011021234110.A4193@zed.dlitz.net> 
-Mime-Version: 1.0
+	id <S278313AbRJVIIq>; Mon, 22 Oct 2001 04:08:46 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54791 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S278275AbRJVIIR>; Mon, 22 Oct 2001 04:08:17 -0400
+Subject: Re: Linux 2.4.12-ac5
+To: rml@tech9.net (Robert Love)
+Date: Mon, 22 Oct 2001 09:15:13 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        reality@delusion.de (Udo A. Steinberg), davej@suse.de (Dave Jones),
+        linux-kernel@vger.kernel.org (Linux Kernel),
+        laughing@shared-source.org
+In-Reply-To: <1003737827.1712.39.camel@phantasy> from "Robert Love" at Oct 22, 2001 04:03:47 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 22 Oct 2001 18:05:46 +1000
-Message-ID: <23534.1003737946@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15vaEr-00019X-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Oct 2001 23:41:10 -0600, 
-"Dwayne C. Litzenberger" <dlitz@dlitz.net> wrote:
->Alan, is this normal?
->
->zed:~# cat /proc/sys/kernel/tainted
->1
->zed:~# echo "0" >/proc/sys/kernel/tainted
->zed:~# cat /proc/sys/kernel/tainted
->0
+> Can it be made a config setting? "Use ACPI to determine irq routing or
+> whatever" ... it can even default to on.  One good thing to note is that
+> it is all init/initdata, but its still a bloat of the kernel image.
 
-I decided against adding special code to sysctl for the taint flag so
-yes, you can clear it.  There is no point in adding special code for
-the taint sysctl, it is even easier to remove the taint message from
-the log before submitting.
-
-As AC has said (several times) tainting is not foolproof, it is to help
-triage bug reports from people who don't submit complete information.
-Those users who know enough to lie are also unlikely to submit bug
-reports.  Tainting is to help beginners.
-
+In time probably - for now it is best set up with an option.

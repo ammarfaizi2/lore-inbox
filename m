@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317544AbSHOWTW>; Thu, 15 Aug 2002 18:19:22 -0400
+	id <S316070AbSHOWSQ>; Thu, 15 Aug 2002 18:18:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317587AbSHOWTV>; Thu, 15 Aug 2002 18:19:21 -0400
-Received: from gadolinium.btinternet.com ([194.73.73.111]:2225 "EHLO
-	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
-	id <S317544AbSHOWTU>; Thu, 15 Aug 2002 18:19:20 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Benjamin Geer <ben@beroul.uklinux.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19 ATAPI cdrom I/O errors when reading CD-R
-Date: Thu, 15 Aug 2002 23:17:29 +0100
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17fT1P-0004tk-00@gadolinium.btinternet.com>
+	id <S317544AbSHOWSQ>; Thu, 15 Aug 2002 18:18:16 -0400
+Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:23248 "EHLO
+	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S316070AbSHOWSP>; Thu, 15 Aug 2002 18:18:15 -0400
+Date: Thu, 15 Aug 2002 12:13:34 +0200
+From: Richard Zidlicky <rz@linux-m68k.org>
+To: Scorpion <scorpionlab@ieg.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Flush issues in boot phase
+Message-ID: <20020815121334.A1940@linux-m68k.org>
+References: <200208131425.19328.scorpionlab@ieg.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200208131425.19328.scorpionlab@ieg.com.br>; from scorpionlab@ieg.com.br on Tue, Aug 13, 2002 at 02:25:19PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting errors with kernel 2.4.19 when reading a data CD-R burnt 
-under Windows (using Adaptec DirectCD).  Kernel 2.2.20 reads the same CD 
-with no problems, as does Windows XP.
+On Tue, Aug 13, 2002 at 02:25:19PM -0300, Scorpion wrote:
+> 
+> Hi fellows,
+> I'm still trying to boot my dual AMD 1800XP machines (not MP).
+> I got one more step disabling MP 1.4 support on BIOS setup, but now
+> (using 2.4.19 kernel) I have a more general question.
+> The boot phase stop exactly with the message:
+> 
+> Partition check:
+> hda:
+> 
+> Should I consider that the kernel stop exactly in this point 
 
-With kernel 2.4.19, the CD mounts, and ls works, but when I try to copy a 
-file from it, the copy is incomplete, and I get a lot of errors like this:
+it stops exactly between this printk and the next (unreached) one.
 
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x54
-end_request: I/O error, dev 16:00 (hdc), sector 999504
+See fs/partitions, probably read_dev_sector hangs so put printk's
+around that.
 
-I've tried turning off DMA for the drive (hdparm -d0 /dev/hdc), but this 
-has no effect.
-
-I've had no problems reading CD-ROMs (including copies of CD-ROMs on CD-R 
-media) under kernel 2.4.19.
-
-Here's the drive information as reported by the kernel when it boots:
-
-hdc: HL-DT-STCD-RW/DVD-ROM GCC-4240N, ATAPI CD/DVD-ROM drive
-hdc: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
-
-The drive is in a Dell Inspiron 4150 laptop.
-
-Benjamin
-
+Richard

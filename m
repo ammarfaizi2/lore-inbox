@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271597AbRIFSGt>; Thu, 6 Sep 2001 14:06:49 -0400
+	id <S271651AbRIFSF2>; Thu, 6 Sep 2001 14:05:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272080AbRIFSGb>; Thu, 6 Sep 2001 14:06:31 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:30473 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S271597AbRIFSGL>;
-	Thu, 6 Sep 2001 14:06:11 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200109061806.WAA12629@ms2.inr.ac.ru>
-Subject: Re: [PATCH] ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
-To: matthias.andree@gmx.de (Matthias Andree)
-Date: Thu, 6 Sep 2001 22:06:24 +0400 (MSK DST)
-Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-        linux-net@vger.kernel.org, netdev@oss.sgi.com, wietse@porcupine.org,
-        alan@lxorguk.ukuu.org.uk
-In-Reply-To: <20010906194846.A743@maggie.dt.e-technik.uni-dortmund.de> from "Matthias Andree" at Sep 6, 1 07:48:46 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S271597AbRIFSFU>; Thu, 6 Sep 2001 14:05:20 -0400
+Received: from web20004.mail.yahoo.com ([216.136.225.49]:64521 "HELO
+	web20004.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S271592AbRIFSFB>; Thu, 6 Sep 2001 14:05:01 -0400
+Message-ID: <20010906180518.55018.qmail@web20004.mail.yahoo.com>
+Date: Thu, 6 Sep 2001 11:05:18 -0700 (PDT)
+From: Raghava Raju <vraghava_raju@yahoo.com>
+Subject: create_proc_entry....
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-
-> Sure, because the interface is broken.
-
-It is __legacy__ interface.
 
 
-> Solaris 8 does not fail, 
+Hi
 
-That's all, the issue is closed.
+    I want to know about the the call
+"create_proc_entry". What exactly it does.
+Once created how does user make use of it. What are
+the interfaces to it for user to communicate with it.
+Any documents related to above things will be
+helpful.
 
-Alexey
+    Kindly mail to me, I did't subscribe to this
+group.
+
+   Thank You.
+   Raj.
+
+__________________________________________________
+Do You Yahoo!?
+Get email alerts & NEW webcam video instant messaging with Yahoo! Messenger
+http://im.yahoo.com

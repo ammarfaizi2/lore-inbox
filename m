@@ -1,28 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280774AbRKBSlG>; Fri, 2 Nov 2001 13:41:06 -0500
+	id <S280780AbRKBSm0>; Fri, 2 Nov 2001 13:42:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280775AbRKBSk4>; Fri, 2 Nov 2001 13:40:56 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:6664 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280774AbRKBSkt>; Fri, 2 Nov 2001 13:40:49 -0500
-Subject: Re: Quick offtopic RH kernel question
-To: smiddle@twp.ypsilanti.mi.us (Sean Middleditch)
-Date: Fri, 2 Nov 2001 18:47:46 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1004726162.4921.39.camel@smiddle> from "Sean Middleditch" at Nov 02, 2001 01:36:02 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S280778AbRKBSmS>; Fri, 2 Nov 2001 13:42:18 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:33798 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S280777AbRKBSly>;
+	Fri, 2 Nov 2001 13:41:54 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Keith Owens <kaos@ocs.com.au>
+Date: Fri, 2 Nov 2001 19:41:20 MET-1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15zjM2-0003Ek-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Oops on 2.4.13 
+CC: LKML <linux-kernel@vger.kernel.org>
+X-mailer: Pegasus Mail v3.40
+Message-ID: <80D353813B1@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Do the RedHat kerneles compiled for "athlon" also work on the Duron?  If
-> not, the 686 kernels should work?  I have a crappy connection here at
-> work, and only want to download a kernel that works, and I'm curious if
-> they would offer advantages over the boring 386 kernel.  ~,^
+On  2 Nov 01 at 13:02, Keith Owens wrote:
 
-Athlon and Duron are the same instruction set. 
+> drivers/video/matrox/matroxfb_crtc2.o - no license, needs patch
+> drivers/video/matrox/matroxfb_g450.o - no license, needs patch
+> drivers/video/matrox/matroxfb_maven.o - no license, needs patch
+> drivers/video/matrox/matroxfb_misc.o - no license, needs patch
+
+They are all GPL-ed. Does it mean that I have to fix that someone
+else changed kernel API during stable serie?
+                                            Thanks,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                
+P.S.: I still do not understand this MODULE_LICENSE() thing. VMware
+modules will probably contain GPL tag in next release, but kernel 
+hackers refuse to look at these reports anyway (I'm not complaining,
+this is their right to ignore these reports; but if they say that they 
+are doing that due to non-GPL, they lie). So I think it should be changed 
+from MODULE_LICENSE() to 
+MODULE_CERTIFIED_BY_LINUX_KERNEL_WORKING_GROUP("xxx says it works"). 
+It would match real meaning much better.

@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310159AbSCAB0p>; Thu, 28 Feb 2002 20:26:45 -0500
+	id <S293163AbSCABHS>; Thu, 28 Feb 2002 20:07:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293447AbSCABYH>; Thu, 28 Feb 2002 20:24:07 -0500
-Received: from h24-71-223-10.cg.shawcable.net ([24.71.223.10]:48007 "EHLO
-	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id <S310291AbSCABU1>; Thu, 28 Feb 2002 20:20:27 -0500
-Date: Thu, 28 Feb 2002 17:20:58 -0800 (PST)
-From: Daniel Bertrand <d.bertrand@ieee.org>
-Subject: Re: [Emu10k1-devel] Re: Emu10k1 SPDIF passthru doesn't work if
-In-Reply-To: <20020228.170317.70477069.davem@redhat.com>
-X-X-Sender: d_bertra@kilrogg
-To: "David S. Miller" <davem@redhat.com>
-Cc: alan@lxorguk.ukuu.org.uk, Rui Sousa <rui.p.m.sousa@clix.pt>,
-        german@piraos.com, jcm@netcabo.pt, linux-kernel@vger.kernel.org,
-        emu10k1-devel <emu10k1-devel@lists.sourceforge.net>,
-        steve@math.upatras.gr, d.bertrand@ieee.org, dledford@redhat.com
-Message-id: <Pine.LNX.4.44.0202281710290.3717-100000@kilrogg>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+	id <S310271AbSCABD6>; Thu, 28 Feb 2002 20:03:58 -0500
+Received: from mx2out.umbc.edu ([130.85.253.52]:43725 "EHLO mx2out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S310289AbSCABBZ>;
+	Thu, 28 Feb 2002 20:01:25 -0500
+Date: Thu, 28 Feb 2002 20:01:13 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: Peter Hutnick <peter@fpcc.net>
+cc: Jason Cook <jasonc@reinit.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: wvlan_cs in limbo?
+In-Reply-To: <200202282343.QAA15734@perth.fpcc.net>
+Message-ID: <Pine.SGI.4.31L.02.0202281958550.5604431-100000@irix2.gl.umbc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 28 Feb 2002, Peter Hutnick wrote:
 
-Looks like the bug is from pushing the 64bit dma_handle on a 32bit va_arg 
-list. Its fixed in CVS, and at least one person has reported success.
+> > pcmcia-cs does not build modules if, by fading memory, the kernel has
+> > pcmcia and cardbus support enabled.
+>
+> RIght.  Turned it off.  It built a bunch of /other/ modules.
 
+Try rebuilding the kernel without wireless support, then rebuilding
+pcmcia-cs?
 
-On Thu, 28 Feb 2002, David S. Miller wrote:
+I built pcmcia-cs 3.1.31 against 2.4.17, and I have wvlan_cs in
+/lib/modules/`uname -r`/pcmcia.
 
->    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
->    Date: Fri, 1 Mar 2002 01:07:27 +0000 (GMT)
->    
->    The cast befor ethe cpu_to_ is safe if its 32bit I/O only. Maybe we should
->    have cpu_to_le_dma_addr_t 8)
-> 
-> Actually, the cast to 32-bit is safe if you've set your DMA mask
-> properly :-)
-> 
+Email me offlist, and I'll send you configs and whatever else I can do to
+help.
 
--- 
-Daniel Bertrand
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
 

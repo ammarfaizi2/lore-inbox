@@ -1,119 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273254AbRINCAw>; Thu, 13 Sep 2001 22:00:52 -0400
+	id <S273256AbRINCNF>; Thu, 13 Sep 2001 22:13:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273255AbRINCAo>; Thu, 13 Sep 2001 22:00:44 -0400
-Received: from mailhost.nmt.edu ([129.138.4.52]:29964 "EHLO mailhost.nmt.edu")
-	by vger.kernel.org with ESMTP id <S273254AbRINCAb>;
-	Thu, 13 Sep 2001 22:00:31 -0400
-Date: Thu, 13 Sep 2001 19:51:41 -0600
-From: Val Henson <val@nmt.edu>
-To: jgarzik@mandrakesoft.com, becker@scyld.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Endian-ness bugs in yellowfin.c
-Message-ID: <20010913195141.B799@boardwalk>
+	id <S273257AbRINCMz>; Thu, 13 Sep 2001 22:12:55 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:54004
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S273256AbRINCMj>; Thu, 13 Sep 2001 22:12:39 -0400
+Date: Thu, 13 Sep 2001 19:12:56 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Comparing release times between 2.2 and 2.4
+Message-ID: <20010913191256.A2535@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Favorite-Color: Polka dot
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch applies to the 2.4.10-pre8 yellowfin driver.  What it does:
+A while back I read a message about the overall development of linux
+kernels, and there was one question that interested me.
 
-* Fixes three bugs on big-endian architecture
-* Changes flags to support at least one SYM53C885E card
-* Replaces ncr885e driver with yellowfin
+The poster thought that it seemed that the 2.4 kernels were being released
+faster than their 2.2 cousins at the same time period.
 
-I ran into a couple of design decisions people won't like:
+Well, I took a look, based on timestamps on kernel.org:
+2.2:
+Jan 26  1999 linux-2.2.0.tar.bz2.sign
+Jan 28  1999 linux-2.2.1.tar.bz2.sign
+Feb 23  1999 linux-2.2.2.tar.bz2.sign
+Mar  9  1999 linux-2.2.3.tar.bz2.sign
+Mar 23  1999 linux-2.2.4.tar.bz2.sign
+Mar 29  1999 linux-2.2.5.tar.bz2.sign
+Apr 16  1999 linux-2.2.6.tar.bz2.sign
+Apr 28  1999 linux-2.2.7.tar.bz2.sign
+May 11  1999 linux-2.2.8.tar.bz2.sign
+May 13  1999 linux-2.2.9.tar.bz2.sign
+Jun 14  1999 linux-2.2.10.tar.bz2.sign
+Aug  9  1999 linux-2.2.11.tar.bz2.sign
+Aug 26  1999 linux-2.2.12.tar.bz2.sign
+Oct 20  1999 linux-2.2.13.tar.bz2.sign
+Jan  4  2000 linux-2.2.14.tar.bz2.sign
+May  4  2000 linux-2.2.15.tar.bz2.sign
+Jun  7  2000 linux-2.2.16.tar.bz2.sign
+Sep  4  2000 linux-2.2.17.tar.bz2.sign
+Dec 11  2000 linux-2.2.18.tar.bz2.sign
+Mar 25 19:26 linux-2.2.19.tar.bz2.sign
 
-This driver is both a 1000 Mbit driver and 100 Mbit driver.  My
-solution was to list the driver once under each category with the
-appropriate name.
+There were 5 months with multiple kernel releases, and 11 kernels released in
+those months which were all before 2.2.13 was released. Four of those months
+were before 2.2.9, counting May, with a corresponding 8 kernels released.
 
-The flag IsGigabit seems misnamed, since it doesn't seem to control
-anything related to gigabit-ness.  I turned it on for the SYMBIOS card
-since, at least on my card, it uses the correct code.
+2.4:
+Jan  4  2001 linux-2.4.0.tar.bz2.sign
+Jan 30  2001 linux-2.4.1.tar.bz2.sign
+Feb 22  2001 linux-2.4.2.tar.bz2.sign
+Mar 30 05:03 linux-2.4.3.tar.bz2.sign
+Apr 28 01:43 linux-2.4.4.tar.bz2.sign
+May 26 01:26 linux-2.4.5.tar.bz2.sign
+Jul  4 00:07 linux-2.4.6.tar.bz2.sign
+Jul 20 21:25 linux-2.4.7.tar.bz2.sign
+Aug 11 04:13 linux-2.4.8.tar.bz2.sign
+Aug 16 18:32 linux-2.4.9.tar.bz2.sign
 
-#ifdef __powerpc__ probably should be changed to some form of #ifdef
-BIG_ENDIAN but I didn't include that in this patch.
+There have been 3 months with multiple kernel releases, and 6 kernels
+released in those months.
 
-And finally, I'd like to remove ncr885e.c entirely since it's
-redundant and extremely buggy.  Any objections?
+Also, 2.2.9 was released in May, while 2.4.9 was released in August.
 
--VAL
+Another interesting note, 2.3.0 was released in May when 2.2.8 was current,
+but 2.2 releases didn't slow until 2.2.{12,13} was released.
 
-diff -Nru a/Documentation/Configure.help b/Documentation/Configure.help
---- a/Documentation/Configure.help	Thu Sep 13 19:20:29 2001
-+++ b/Documentation/Configure.help	Thu Sep 13 19:20:29 2001
-@@ -8824,10 +8824,10 @@
- Packet Engines Yellowfin Gigabit-NIC support
- CONFIG_YELLOWFIN
-   Say Y here if you have a Packet Engines G-NIC PCI Gigabit Ethernet
--  adapter. This adapter is used by the Beowulf Linux cluster project.
--  See http://cesdis.gsfc.nasa.gov/linux/drivers/yellowfin.html for
--  more information about this driver in particular and Beowulf in
--  general.
-+  adapter or the SYM53C885 Ethernet controller. The Gigabit adapter is
-+  used by the Beowulf Linux cluster project.  See
-+  http://cesdis.gsfc.nasa.gov/linux/drivers/yellowfin.html for more
-+  information about this driver in particular and Beowulf in general.
- 
-   If you want to compile this driver as a module ( = code which can be
-   inserted in and removed from the running kernel whenever you want),
-diff -Nru a/drivers/net/Config.in b/drivers/net/Config.in
---- a/drivers/net/Config.in	Thu Sep 13 19:20:29 2001
-+++ b/drivers/net/Config.in	Thu Sep 13 19:20:29 2001
-@@ -39,7 +39,7 @@
-       fi
-       dep_tristate '  BMAC (G3 ethernet) support' CONFIG_BMAC $CONFIG_ALL_PPC
-       dep_tristate '  GMAC (G4/iBook ethernet) support' CONFIG_GMAC $CONFIG_ALL_PPC
--      tristate '  Symbios 53c885 (Synergy ethernet) support' CONFIG_NCR885E
-+      tristate '  Symbios 53c885 (Synergy ethernet) support' CONFIG_YELLOWFIN
-       tristate '  National DP83902AV (Oak ethernet) support' CONFIG_OAKNET
-       dep_bool '  PowerPC 405 on-chip ethernet' CONFIG_PPC405_ENET $CONFIG_405GP
-       if [ "$CONFIG_PPC405_ENET" = "y" ]; then
-diff -Nru a/drivers/net/yellowfin.c b/drivers/net/yellowfin.c
---- a/drivers/net/yellowfin.c	Thu Sep 13 19:20:29 2001
-+++ b/drivers/net/yellowfin.c	Thu Sep 13 19:20:29 2001
-@@ -276,7 +276,7 @@
- 	 PCI_IOTYPE, YELLOWFIN_SIZE,
- 	 FullTxStatus | IsGigabit | HasMulticastBug | HasMACAddrBug},
- 	{"Symbios SYM83C885", { 0x07011000, 0xffffffff},
--	 PCI_IOTYPE, YELLOWFIN_SIZE, HasMII },
-+	 PCI_IOTYPE, YELLOWFIN_SIZE, HasMII | IsGigabit | FullTxStatus },
- 	{0,},
- };
- 
-@@ -785,8 +785,8 @@
- 			break;
- 		skb->dev = dev;		/* Mark as being used by this device. */
- 		skb_reserve(skb, 2);	/* 16 byte align the IP header. */
--		yp->rx_ring[i].addr = pci_map_single(yp->pci_dev, skb->tail,
--			yp->rx_buf_sz, PCI_DMA_FROMDEVICE);
-+		yp->rx_ring[i].addr = cpu_to_le32(pci_map_single(yp->pci_dev,
-+			skb->tail, yp->rx_buf_sz, PCI_DMA_FROMDEVICE));
- 	}
- 	yp->rx_ring[i-1].dbdma_cmd = cpu_to_le32(CMD_STOP);
- 	yp->dirty_rx = (unsigned int)(i - RX_RING_SIZE);
-@@ -1109,7 +1109,7 @@
- 		buf_addr = rx_skb->tail;
- 		data_size = (le32_to_cpu(desc->dbdma_cmd) - 
- 			le32_to_cpu(desc->result_status)) & 0xffff;
--		frame_status = get_unaligned((s16*)&(buf_addr[data_size - 2]));
-+		frame_status = le16_to_cpu(get_unaligned((s16*)&(buf_addr[data_size - 2])));
- 		if (yellowfin_debug > 4)
- 			printk(KERN_DEBUG "  yellowfin_rx() status was %4.4x.\n",
- 				   frame_status);
-@@ -1206,8 +1206,8 @@
- 			yp->rx_skbuff[entry] = skb;
- 			skb->dev = dev;	/* Mark as being used by this device. */
- 			skb_reserve(skb, 2);	/* Align IP on 16 byte boundaries */
--			yp->rx_ring[entry].addr = pci_map_single(yp->pci_dev,
--				skb->tail, yp->rx_buf_sz, PCI_DMA_FROMDEVICE);
-+			yp->rx_ring[entry].addr = cpu_to_le32(pci_map_single(yp->pci_dev,
-+				skb->tail, yp->rx_buf_sz, PCI_DMA_FROMDEVICE));
- 		}
- 		yp->rx_ring[entry].dbdma_cmd = cpu_to_le32(CMD_STOP);
- 		yp->rx_ring[entry].result_status = 0;	/* Clear complete bit. */
+These numbers in no way try to determine how much actual development was done
+on each series in a time period.  I also didn't factor in lkml email traffic
+in those time periods, but that doesn't really tell how much work was done
+either.
+
+Some interesting numbers may come from listing the number of patches
+submitted during each time period.  Anyone interested?
+
+Mike

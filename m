@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbULTLXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbULTL2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261475AbULTLXr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 06:23:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbULTLXr
+	id S261474AbULTL2R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 06:28:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbULTL2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 06:23:47 -0500
-Received: from smtprelay03.ispgateway.de ([80.67.18.15]:5510 "EHLO
+	Mon, 20 Dec 2004 06:28:17 -0500
+Received: from smtprelay03.ispgateway.de ([80.67.18.15]:44167 "EHLO
 	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
-	id S261475AbULTLR7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 06:17:59 -0500
-Message-ID: <41C6B45F.9050403@einar-lueck.de>
-Date: Mon, 20 Dec 2004 12:15:43 +0100
+	id S261474AbULTLUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 06:20:55 -0500
+Message-ID: <41C6B54F.2020604@einar-lueck.de>
+Date: Mon, 20 Dec 2004 12:19:43 +0100
 From: =?ISO-8859-1?Q?Einar_L=FCck?= <lkml@einar-lueck.de>
 User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
 Subject: [PATCH 2/2] ipv4 routing: multipath with cache support, 2.6.10-rc3
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
@@ -29,39 +29,39 @@ From: Einar Lueck <lkml@einar-lueck.de>
 This patch is an approach towards solving some problems with the 
 current multipath implementation:
 * routing cache allows only one route to be cached for a certain 
-  search key
+ search key
 * a mulitpath/load balancing decision is only made in case a 
-  corresponding route is not yet cached
+ corresponding route is not yet cached
 In the scenarios, that are relevant to us (high amount of outgoing 
 connection requests), this is a serious problem.
 
 Our approach:
 * a new flag at the "struct dst_entry" flags field to indicate that 
-  further routes having the same key follow in the routing cache chain
+ further routes having the same key follow in the routing cache chain
 * at cache lookup time: we recognize this flag and may apply different 
-  load balancing policies to the available routes having the same key. 
+ load balancing policies to the available routes having the same key. 
 * Garbage Collection: modified in a way that ensures that all routes 
-  having the same target  are removed together from the cache.
+ having the same target  are removed together from the cache.
 
 Motivation for the approach:
 * keep the overall routing cache entry size constant
 * separate load balancing state from the overall routing cache state 
-  as good as possible keeping all routes inthe same place
+ as good as possible keeping all routes inthe same place
 * keep changes to the overall routing code/behaviour at a minimum.
 
 We implemented the following routing policies:
 * _weighted_ random routing policiy utilizing the weights
-  configurable via "ip route" that allows to approximate many other policies
-  (e.g. round robin)
+ configurable via "ip route" that allows to approximate many other policies
+ (e.g. round robin)
 * random
 * round-robin 
 * interface round robin policy that selects among relevant routes
-  in a way that tries to ensure an overall round robin among the
-  available _interfaces_ is achieved.
+ in a way that tries to ensure an overall round robin among the
+ available _interfaces_ is achieved.
 
 Applied tests:
 * all policies functionally tested with up to 3 NICs
-  (scripted iperf and ifconfig)
+ (scripted iperf and ifconfig)
 * garbage collection within the routing cache functionally tested
 * reference counting on devices functionally tested
 * Platforms: s390, x86
@@ -77,42 +77,42 @@ diff -ruN linux-2.6.9.split/include/net/dst.h linux-2.6.9.nicbalancing/include/n
 --- linux-2.6.9.split/include/net/dst.h	2004-12-15 12:04:25.000000000 +0100
 +++ linux-2.6.9.nicbalancing/include/net/dst.h	2004-12-15 12:07:15.000000000 +0100
 @@ -48,6 +48,7 @@
- #define DST_NOXFRM		2
- #define DST_NOPOLICY		4
- #define DST_NOHASH		8
+#define DST_NOXFRM		2
+#define DST_NOPOLICY		4
+#define DST_NOHASH		8
 +#define DST_BALANCED            0x10
- 	unsigned long		lastuse;
- 	unsigned long		expires;
- 
+	unsigned long		lastuse;
+	unsigned long		expires;
+
 diff -ruN linux-2.6.9.split/include/net/flow.h linux-2.6.9.nicbalancing/include/net/flow.h
 --- linux-2.6.9.split/include/net/flow.h	2004-12-15 12:04:25.000000000 +0100
 +++ linux-2.6.9.nicbalancing/include/net/flow.h	2004-12-15 12:07:15.000000000 +0100
 @@ -51,6 +51,7 @@
- 
- 	__u8	proto;
- 	__u8	flags;
+
+	__u8	proto;
+	__u8	flags;
 +#define FLOWI_FLAG_MULTIPATHOLDROUTE 0x01
- 	union {
- 		struct {
- 			__u16	sport;
+	union {
+		struct {
+			__u16	sport;
 diff -ruN linux-2.6.9.split/include/net/ip_fib.h linux-2.6.9.nicbalancing/include/net/ip_fib.h
 --- linux-2.6.9.split/include/net/ip_fib.h	2004-12-15 12:04:25.000000000 +0100
 +++ linux-2.6.9.nicbalancing/include/net/ip_fib.h	2004-12-15 12:07:15.000000000 +0100
 @@ -95,6 +95,10 @@
- 	unsigned char	nh_sel;
- 	unsigned char	type;
- 	unsigned char	scope;
+	unsigned char	nh_sel;
+	unsigned char	type;
+	unsigned char	scope;
 +#ifdef CONFIG_IP_ROUTE_MULTIPATH_WRANDOM
 +	__u32           network;
 +	__u32           netmask;
 +#endif
- 	struct fib_info *fi;
- #ifdef CONFIG_IP_MULTIPLE_TABLES
- 	struct fib_rule	*r;
+	struct fib_info *fi;
+#ifdef CONFIG_IP_MULTIPLE_TABLES
+	struct fib_rule	*r;
 @@ -119,6 +123,14 @@
- #define FIB_RES_DEV(res)		(FIB_RES_NH(res).nh_dev)
- #define FIB_RES_OIF(res)		(FIB_RES_NH(res).nh_oif)
- 
+#define FIB_RES_DEV(res)		(FIB_RES_NH(res).nh_dev)
+#define FIB_RES_OIF(res)		(FIB_RES_NH(res).nh_oif)
+
 +#ifdef CONFIG_IP_ROUTE_MULTIPATH_WRANDOM
 +#define FIB_RES_NETWORK(res)		((res).network)
 +#define FIB_RES_NETMASK(res)	        ((res).netmask)
@@ -121,34 +121,34 @@ diff -ruN linux-2.6.9.split/include/net/ip_fib.h linux-2.6.9.nicbalancing/includ
 +#define FIB_RES_NETMASK(res)	        (0)
 +#endif /* CONFIG_IP_ROUTE_MULTIPATH_WRANDOM */
 +
- struct fib_table {
- 	unsigned char	tb_id;
- 	unsigned	tb_stamp;
+struct fib_table {
+	unsigned char	tb_id;
+	unsigned	tb_stamp;
 diff -ruN linux-2.6.9.split/include/net/route.h linux-2.6.9.nicbalancing/include/net/route.h
 --- linux-2.6.9.split/include/net/route.h	2004-12-15 12:04:24.000000000 +0100
 +++ linux-2.6.9.nicbalancing/include/net/route.h	2004-12-15 12:07:15.000000000 +0100
 @@ -46,6 +46,7 @@
- 
- #define RT_CONN_FLAGS(sk)   (RT_TOS(inet_sk(sk)->tos) | sk->sk_localroute)
- 
+
+#define RT_CONN_FLAGS(sk)   (RT_TOS(inet_sk(sk)->tos) | sk->sk_localroute)
+
 +struct fib_nh;
- struct inet_peer;
- struct rtable
- {
+struct inet_peer;
+struct rtable
+{
 @@ -179,6 +180,9 @@
- 		memcpy(&fl, &(*rp)->fl, sizeof(fl));
- 		fl.fl_ip_sport = sport;
- 		fl.fl_ip_dport = dport;
+		memcpy(&fl, &(*rp)->fl, sizeof(fl));
+		fl.fl_ip_sport = sport;
+		fl.fl_ip_dport = dport;
 +#if defined(CONFIG_IP_ROUTE_MULTIPATH_CACHED)
 +		fl.flags |= FLOWI_FLAG_MULTIPATHOLDROUTE;
 +#endif
- 		ip_rt_put(*rp);
- 		*rp = NULL;
- 		return ip_route_output_flow(rp, &fl, sk, 0);
+		ip_rt_put(*rp);
+		*rp = NULL;
+		return ip_route_output_flow(rp, &fl, sk, 0);
 @@ -197,4 +201,69 @@
- 	return rt->peer;
- }
- 
+	return rt->peer;
+}
+
 +#ifdef CONFIG_IP_ROUTE_MULTIPATH_WRANDOM
 +extern void __multipath_flush(void);
 +static inline void multipath_flush(void) {
@@ -214,14 +214,14 @@ diff -ruN linux-2.6.9.split/include/net/route.h linux-2.6.9.nicbalancing/include
 +}
 +#endif /* CONFIG_IP_ROUTE_MULTIPATH_CACHED */
 +
- #endif	/* _ROUTE_H */
+#endif	/* _ROUTE_H */
 diff -ruN linux-2.6.9.split/net/ipv4/Kconfig linux-2.6.9.nicbalancing/net/ipv4/Kconfig
 --- linux-2.6.9.split/net/ipv4/Kconfig	2004-12-15 12:04:32.000000000 +0100
 +++ linux-2.6.9.nicbalancing/net/ipv4/Kconfig	2004-12-15 12:07:15.000000000 +0100
 @@ -90,6 +90,54 @@
- 	  equal "cost" and chooses one of them in a non-deterministic fashion
- 	  if a matching packet arrives.
- 
+	  equal "cost" and chooses one of them in a non-deterministic fashion
+	  if a matching packet arrives.
+
 +config IP_ROUTE_MULTIPATH_CACHED
 +	bool "IP: equal cost multipath with caching support (EXPERIMENTAL)"
 +	depends on: IP_ROUTE_MULTIPATH
@@ -270,72 +270,72 @@ diff -ruN linux-2.6.9.split/net/ipv4/Kconfig linux-2.6.9.nicbalancing/net/ipv4/K
 +# END OF multipath policy configuration
 +#
 +
- config IP_ROUTE_VERBOSE
- 	bool "IP: verbose route monitoring"
- 	depends on IP_ADVANCED_ROUTER
+config IP_ROUTE_VERBOSE
+	bool "IP: verbose route monitoring"
+	depends on IP_ADVANCED_ROUTER
 diff -ruN linux-2.6.9.split/net/ipv4/Makefile linux-2.6.9.nicbalancing/net/ipv4/Makefile
 --- linux-2.6.9.split/net/ipv4/Makefile	2004-12-15 12:04:31.000000000 +0100
 +++ linux-2.6.9.nicbalancing/net/ipv4/Makefile	2004-12-15 12:07:15.000000000 +0100
 @@ -20,6 +20,10 @@
- obj-$(CONFIG_INET_IPCOMP) += ipcomp.o
- obj-$(CONFIG_INET_TUNNEL) += xfrm4_tunnel.o 
- obj-$(CONFIG_IP_PNP) += ipconfig.o
+obj-$(CONFIG_INET_IPCOMP) += ipcomp.o
+obj-$(CONFIG_INET_TUNNEL) += xfrm4_tunnel.o 
+obj-$(CONFIG_IP_PNP) += ipconfig.o
 +obj-$(CONFIG_IP_ROUTE_MULTIPATH_RR) += multipath_rr.o
 +obj-$(CONFIG_IP_ROUTE_MULTIPATH_RANDOM) += multipath_random.o
 +obj-$(CONFIG_IP_ROUTE_MULTIPATH_WRANDOM) += multipath_wrandom.o
 +obj-$(CONFIG_IP_ROUTE_MULTIPATH_DRR) += multipath_drr.o
- obj-$(CONFIG_NETFILTER)	+= netfilter/
- obj-$(CONFIG_IP_VS) += ipvs/
- obj-$(CONFIG_IP_TCPDIAG) += tcp_diag.o 
+obj-$(CONFIG_NETFILTER)	+= netfilter/
+obj-$(CONFIG_IP_VS) += ipvs/
+obj-$(CONFIG_IP_TCPDIAG) += tcp_diag.o 
 diff -ruN linux-2.6.9.split/net/ipv4/fib_hash.c linux-2.6.9.nicbalancing/net/ipv4/fib_hash.c
 --- linux-2.6.9.split/net/ipv4/fib_hash.c	2004-12-15 12:04:31.000000000 +0100
 +++ linux-2.6.9.nicbalancing/net/ipv4/fib_hash.c	2004-12-15 12:07:15.000000000 +0100
 @@ -261,6 +261,7 @@
- 
- 			err = fib_semantic_match(&f->fn_alias,
- 						 flp, res,
+
+			err = fib_semantic_match(&f->fn_alias,
+						 flp, res,
 +						 f->fn_key, fz->fz_mask,
- 						 fz->fz_order);
- 			if (err <= 0)
- 				goto out;
+						 fz->fz_order);
+			if (err <= 0)
+				goto out;
 diff -ruN linux-2.6.9.split/net/ipv4/fib_lookup.h linux-2.6.9.nicbalancing/net/ipv4/fib_lookup.h
 --- linux-2.6.9.split/net/ipv4/fib_lookup.h	2004-12-15 12:04:31.000000000 +0100
 +++ linux-2.6.9.nicbalancing/net/ipv4/fib_lookup.h	2004-12-15 12:07:15.000000000 +0100
 @@ -19,7 +19,8 @@
- /* Exported by fib_semantics.c */
- extern int fib_semantic_match(struct list_head *head,
- 			      const struct flowi *flp,
+/* Exported by fib_semantics.c */
+extern int fib_semantic_match(struct list_head *head,
+			      const struct flowi *flp,
 -			      struct fib_result *res, int prefixlen);
 +			      struct fib_result *res, __u32 zone, __u32 mask,
 +				int prefixlen);
- extern void fib_release_info(struct fib_info *);
- extern struct fib_info *fib_create_info(const struct rtmsg *r,
- 					struct kern_rta *rta,
+extern void fib_release_info(struct fib_info *);
+extern struct fib_info *fib_create_info(const struct rtmsg *r,
+					struct kern_rta *rta,
 diff -ruN linux-2.6.9.split/net/ipv4/fib_semantics.c linux-2.6.9.nicbalancing/net/ipv4/fib_semantics.c
 --- linux-2.6.9.split/net/ipv4/fib_semantics.c	2004-12-15 12:04:31.000000000 +0100
 +++ linux-2.6.9.nicbalancing/net/ipv4/fib_semantics.c	2004-12-15 12:07:15.000000000 +0100
 @@ -763,7 +763,8 @@
- }
- 
- int fib_semantic_match(struct list_head *head, const struct flowi *flp,
+}
+
+int fib_semantic_match(struct list_head *head, const struct flowi *flp,
 -		       struct fib_result *res, int prefixlen)
 +		       struct fib_result *res, __u32 zone, __u32 mask, 
 +			int prefixlen)
- {
- 	struct fib_alias *fa;
- 	int nh_sel = 0;
+{
+	struct fib_alias *fa;
+	int nh_sel = 0;
 @@ -827,6 +828,11 @@
- 	res->type = fa->fa_type;
- 	res->scope = fa->fa_scope;
- 	res->fi = fa->fa_info;
+	res->type = fa->fa_type;
+	res->scope = fa->fa_scope;
+	res->fi = fa->fa_info;
 +#ifdef CONFIG_IP_ROUTE_MULTIPATH_WRANDOM
 +	res->netmask = mask;
 +	res->network = zone &
 +		(0xFFFFFFFF >> (32 - prefixlen));
 +#endif
- 	atomic_inc(&res->fi->fib_clntref);
- 	return 0;
- }
+	atomic_inc(&res->fi->fib_clntref);
+	return 0;
+}
 diff -ruN linux-2.6.9.split/net/ipv4/multipath_drr.c linux-2.6.9.nicbalancing/net/ipv4/multipath_drr.c
 --- linux-2.6.9.split/net/ipv4/multipath_drr.c	1970-01-01 01:00:00.000000000 +0100
 +++ linux-2.6.9.nicbalancing/net/ipv4/multipath_drr.c	2004-12-15 12:07:15.000000000 +0100
@@ -1264,32 +1264,32 @@ diff -ruN linux-2.6.9.split/net/ipv4/route.c linux-2.6.9.nicbalancing/net/ipv4/r
 --- linux-2.6.9.split/net/ipv4/route.c	2004-12-15 12:05:32.000000000 +0100
 +++ linux-2.6.9.nicbalancing/net/ipv4/route.c	2004-12-15 12:07:15.000000000 +0100
 @@ -129,7 +129,7 @@
- int ip_rt_secret_interval	= 10 * 60 * HZ;
- static unsigned long rt_deadline;
- 
+int ip_rt_secret_interval	= 10 * 60 * HZ;
+static unsigned long rt_deadline;
+
 -#define RTprint(a...)	printk(KERN_DEBUG a)
 +#define RTprint(a...)	// printk(KERN_DEBUG a)
- 
- static struct timer_list rt_flush_timer;
- static struct timer_list rt_periodic_timer;
+
+static struct timer_list rt_flush_timer;
+static struct timer_list rt_periodic_timer;
 @@ -450,11 +450,13 @@
-   
- static __inline__ void rt_free(struct rtable *rt)
- {
+  
+static __inline__ void rt_free(struct rtable *rt)
+{
 +	multipath_remove( rt );
- 	call_rcu_bh(&rt->u.dst.rcu_head, dst_rcu_free);
- }
- 
- static __inline__ void rt_drop(struct rtable *rt)
- {
+	call_rcu_bh(&rt->u.dst.rcu_head, dst_rcu_free);
+}
+
+static __inline__ void rt_drop(struct rtable *rt)
+{
 +	multipath_remove( rt );
- 	ip_rt_put(rt);
- 	call_rcu_bh(&rt->u.dst.rcu_head, dst_rcu_free);
- }
+	ip_rt_put(rt);
+	call_rcu_bh(&rt->u.dst.rcu_head, dst_rcu_free);
+}
 @@ -516,6 +518,54 @@
- 	return score;
- }
- 
+	return score;
+}
+
 +#ifdef CONFIG_IP_ROUTE_MULTIPATH_CACHED
 +static struct rtable **rt_remove_balanced_route(struct rtable **chain_head,
 +						struct rtable *expentry,
@@ -1338,13 +1338,13 @@ diff -ruN linux-2.6.9.split/net/ipv4/route.c linux-2.6.9.nicbalancing/net/ipv4/r
 +#endif
 +
 +
- /* This runs via a timer and thus is always in BH context. */
- static void rt_check_expire(unsigned long dummy)
- {
+/* This runs via a timer and thus is always in BH context. */
+static void rt_check_expire(unsigned long dummy)
+{
 @@ -547,8 +597,24 @@
- 			}
- 
- 			/* Cleanup aged off entries. */
+			}
+
+			/* Cleanup aged off entries. */
 -			*rthp = rth->u.rt_next;
 -			rt_free(rth);
 +#ifdef CONFIG_IP_ROUTE_MULTIPATH_CACHED
@@ -1365,23 +1365,23 @@ diff -ruN linux-2.6.9.split/net/ipv4/route.c linux-2.6.9.nicbalancing/net/ipv4/r
 + 			*rthp = rth->u.rt_next;
 + 			rt_free(rth);
 +#endif /* CONFIG_IP_ROUTE_MULTIPATH_CACHED */
- 		}
- 		spin_unlock(&rt_hash_table[i].lock);
- 
+		}
+		spin_unlock(&rt_hash_table[i].lock);
+
 @@ -596,6 +662,9 @@
- 	if (delay < 0)
- 		delay = ip_rt_min_delay;
- 
+	if (delay < 0)
+		delay = ip_rt_min_delay;
+
 +	/* flush existing multipath state*/
 +	multipath_flush();
 +
- 	spin_lock_bh(&rt_flush_lock);
- 
- 	if (del_timer(&rt_flush_timer) && delay > 0 && rt_deadline) {
+	spin_lock_bh(&rt_flush_lock);
+
+	if (del_timer(&rt_flush_timer) && delay > 0 && rt_deadline) {
 @@ -714,9 +783,29 @@
- 					rthp = &rth->u.rt_next;
- 					continue;
- 				}
+					rthp = &rth->u.rt_next;
+					continue;
+				}
 +#ifdef CONFIG_IP_ROUTE_MULTIPATH_CACHED
 +				/* remove all related balanced entries if necessary */
 +				if ( rth->u.dst.flags & DST_BALANCED ) {
@@ -1401,50 +1401,50 @@ diff -ruN linux-2.6.9.split/net/ipv4/route.c linux-2.6.9.nicbalancing/net/ipv4/r
 +					goal--;
 +				}
 +#else /* CONFIG_IP_ROUTE_MULTIPATH_CACHED */
- 				*rthp = rth->u.rt_next;
- 				rt_free(rth);
- 				goal--;
+				*rthp = rth->u.rt_next;
+				rt_free(rth);
+				goal--;
 +#endif /* CONFIG_IP_ROUTE_MULTIPATH_CACHED */
- 			}
- 			spin_unlock_bh(&rt_hash_table[k].lock);
- 			if (goal <= 0)
+			}
+			spin_unlock_bh(&rt_hash_table[k].lock);
+			if (goal <= 0)
 @@ -797,7 +886,12 @@
- 
- 	spin_lock_bh(&rt_hash_table[hash].lock);
- 	while ((rth = *rthp) != NULL) {
+
+	spin_lock_bh(&rt_hash_table[hash].lock);
+	while ((rth = *rthp) != NULL) {
 +#ifdef CONFIG_IP_ROUTE_MULTIPATH_CACHED
 +		if (!(rth->u.dst.flags & DST_BALANCED) &&
 +		    compare_keys(&rth->fl, &rt->fl)) {
 +#else
- 		if (compare_keys(&rth->fl, &rt->fl)) {
+		if (compare_keys(&rth->fl, &rt->fl)) {
 +#endif
- 			/* Put it first */
- 			*rthp = rth->u.rt_next;
- 			/*
+			/* Put it first */
+			*rthp = rth->u.rt_next;
+			/*
 @@ -1628,6 +1722,10 @@
- 	}
- 
- 	rth->u.dst.flags= DST_HOST;
+	}
+
+	rth->u.dst.flags= DST_HOST;
 +#ifdef CONFIG_IP_ROUTE_MULTIPATH_CACHED
 +	if ( res->fi->fib_nhs > 1 )
 +		rth->u.dst.flags |= DST_BALANCED;
 +#endif
- 	if (in_dev->cnf.no_policy)
- 		rth->u.dst.flags |= DST_NOPOLICY;
- 	if (in_dev->cnf.no_xfrm)
+	if (in_dev->cnf.no_policy)
+		rth->u.dst.flags |= DST_NOPOLICY;
+	if (in_dev->cnf.no_xfrm)
 @@ -1675,7 +1773,7 @@
- 	unsigned hash;
- 
- #ifdef CONFIG_IP_ROUTE_MULTIPATH
+	unsigned hash;
+
+#ifdef CONFIG_IP_ROUTE_MULTIPATH
 -	if (res->fi->fib_nhs > 1 && fl->oif == 0)
 +	if (res->fi && res->fi->fib_nhs > 1 && fl->oif == 0)
- 		fib_select_multipath(fl, res);
- #endif
- 
+		fib_select_multipath(fl, res);
+#endif
+
 @@ -1696,7 +1794,65 @@
- 				   struct in_device *in_dev,
- 				   u32 daddr, u32 saddr, u32 tos)
- {
+				   struct in_device *in_dev,
+				   u32 daddr, u32 saddr, u32 tos)
+{
 +#ifdef CONFIG_IP_ROUTE_MULTIPATH_CACHED 
 +	struct rtable* rth;
 +	unsigned char hop, hopcount, lasthop;
@@ -1502,26 +1502,26 @@ diff -ruN linux-2.6.9.split/net/ipv4/route.c linux-2.6.9.nicbalancing/net/ipv4/r
 +	}
 +	return err;
 +#else /* CONFIG_IP_ROUTE_MULTIPATH_CACHED  */ 
- 	return ip_mkroute_input_def(skb, res, fl, in_dev, daddr, saddr, tos);
+	return ip_mkroute_input_def(skb, res, fl, in_dev, daddr, saddr, tos);
 +#endif /* CONFIG_IP_ROUTE_MULTIPATH_CACHED  */ 
- }
- 
- 
+}
+
+
 @@ -2017,6 +2173,10 @@
- 	}		
- 
- 	rth->u.dst.flags= DST_HOST;
+	}		
+
+	rth->u.dst.flags= DST_HOST;
 +#ifdef CONFIG_IP_ROUTE_MULTIPATH_CACHED
 +	if (res->fi && res->fi->fib_nhs > 1)
 +		rth->u.dst.flags |= DST_BALANCED;
 +#endif
- 	if (in_dev->cnf.no_xfrm)
- 		rth->u.dst.flags |= DST_NOXFRM;
- 	if (in_dev->cnf.no_policy)
+	if (in_dev->cnf.no_xfrm)
+		rth->u.dst.flags |= DST_NOXFRM;
+	if (in_dev->cnf.no_policy)
 @@ -2108,7 +2268,77 @@
- 				    struct net_device *dev_out,
- 				    unsigned flags)
- {
+				    struct net_device *dev_out,
+				    unsigned flags)
+{
 +#ifdef CONFIG_IP_ROUTE_MULTIPATH_CACHED
 +	u32 tos = RT_FL_TOS(oldflp);
 +	unsigned char hop;
@@ -1591,44 +1591,44 @@ diff -ruN linux-2.6.9.split/net/ipv4/route.c linux-2.6.9.nicbalancing/net/ipv4/r
 +					     flags);
 +	}
 +#else /* CONFIG_IP_ROUTE_MULTIPATH_CACHED */
- 	return ip_mkroute_output_def(rp, res, fl, oldflp, dev_out, flags);
+	return ip_mkroute_output_def(rp, res, fl, oldflp, dev_out, flags);
 +#endif
- }
- 
- /*
+}
+
+/*
 @@ -2137,6 +2367,7 @@
- 	int free_res = 0;
- 	int err;
- 
+	int free_res = 0;
+	int err;
+
 +
- 	res.fi		= NULL;
- #ifdef CONFIG_IP_MULTIPLE_TABLES
- 	res.r		= NULL;
+	res.fi		= NULL;
+#ifdef CONFIG_IP_MULTIPLE_TABLES
+	res.r		= NULL;
 @@ -2186,6 +2417,8 @@
- 			dev_put(dev_out);
- 		dev_out = NULL;
- 	}
+			dev_put(dev_out);
+		dev_out = NULL;
+	}
 +
 +
- 	if (oldflp->oif) {
- 		dev_out = dev_get_by_index(oldflp->oif);
- 		err = -ENODEV;
+	if (oldflp->oif) {
+		dev_out = dev_get_by_index(oldflp->oif);
+		err = -ENODEV;
 @@ -2292,9 +2525,11 @@
- 	dev_hold(dev_out);
- 	fl.oif = dev_out->ifindex;
- 
+	dev_hold(dev_out);
+	fl.oif = dev_out->ifindex;
+
 +
- make_route:
- 	err = ip_mkroute_output(rp, &res, &fl, oldflp, dev_out, flags);
- 
+make_route:
+	err = ip_mkroute_output(rp, &res, &fl, oldflp, dev_out, flags);
+
 +
- 	if (free_res)
- 		fib_res_put(&res);
- 	if (dev_out)
+	if (free_res)
+		fib_res_put(&res);
+	if (dev_out)
 @@ -2321,6 +2556,15 @@
- #endif
- 		    !((rth->fl.fl4_tos ^ flp->fl4_tos) &
- 			    (IPTOS_RT_MASK | RTO_ONLINK))) {
+#endif
+		    !((rth->fl.fl4_tos ^ flp->fl4_tos) &
+			    (IPTOS_RT_MASK | RTO_ONLINK))) {
 +			/* check for multipath routes and choose one if
 +			   necessary */
 +			if (multipath_selectroute(flp, rth, rp)) {
@@ -1638,7 +1638,8 @@ diff -ruN linux-2.6.9.split/net/ipv4/route.c linux-2.6.9.nicbalancing/net/ipv4/r
 +				return 0;
 +			}
 +
- 			rth->u.dst.lastuse = jiffies;
- 			dst_hold(&rth->u.dst);
- 			rth->u.dst.__use++;
+			rth->u.dst.lastuse = jiffies;
+			dst_hold(&rth->u.dst);
+			rth->u.dst.__use++;
+
 

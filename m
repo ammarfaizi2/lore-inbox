@@ -1,183 +1,308 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261820AbTEEXt3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 19:49:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbTEEXt2
+	id S262109AbTEEXvS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 19:51:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbTEEXvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 19:49:28 -0400
-Received: from pointblue.com.pl ([62.89.73.6]:5392 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S261820AbTEEXtZ (ORCPT
+	Mon, 5 May 2003 19:51:18 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:58599 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262109AbTEEXvJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 19:49:25 -0400
-Subject: Re: 2.5.69 - atempt to run on sony vaio picture book
-From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+	Mon, 5 May 2003 19:51:09 -0400
+Subject: [RFC][PATCH] fix for clusterd io_apics
+From: Keith Mannthey <kmannth@us.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: Greg KH <greg@kroah.com>
-In-Reply-To: <1052177865.1536.2.camel@nalesnik>
-References: <1052177865.1536.2.camel@nalesnik>
-Content-Type: multipart/mixed; boundary="=-vY/zU4bMnIMVkiCqIKTd"
-Organization: K4 labs
-Message-Id: <1052178957.1666.4.camel@nalesnik>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>,
+       James Cleverdon <cleverdj@us.ibm.com>
+In-Reply-To: <20030430192205.13491d61.akpm@digeo.com>
+References: <1051744032.16886.80.camel@dyn9-47-17-180.beaverton.ibm.com>
+	<20030430163637.04f06ba6.akpm@digeo.com>
+	<1051751157.16886.91.camel@dyn9-47-17-180.beaverton.ibm.com> 
+	<20030430192205.13491d61.akpm@digeo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 05 May 2003 17:04:08 -0700
+Message-Id: <1052179450.16886.224.camel@dyn9-47-17-180.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 06 May 2003 00:55:58 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello all,
+  The following is a patch to fix inconsistent use of the function
+set_ioapic_affinity. In the current kernel it is unclear as to weather
+the value being passed to the function is a cpu mask or valid apic id. 
+In irq_affinity_write_proc the kernel passes on a cpu mask but the kirqd
+thread passes on logical apic ids.  In flat apic mode this is not an
+issue because a cpu mask represents the apic value.  However in
+clustered apic mode the cpu mask is very different from the logical apic
+id.  
+  This is an attempt to do the right thing for clustered apics.  I
+clarify that the value being passed to set_ioapic_affinity is a cpu mask
+not a apicid.  Set_ioapic_affinity will do the conversion to logical
+apic ids.  Since many cpu masks don't map to valid apicids in clustered
+apic mode TARGET_CPUS is used as a default value when such a situation
+occurs.  I think this is a good step in making irq_affinity clustered
+apic safe.
+  
+Keith 
 
---=-vY/zU4bMnIMVkiCqIKTd
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Tue, 2003-05-06 at 00:41, Grzegorz Jaskiewicz wrote:
-> whole bzipped syslog should be best descryption on how many things have
-> failed/not working/hanging computer.
-> it is 73 kB long, so i will not attach it. Please download it from:
-> 
-> http://gj.pointblue.com.pl/syslog.log.bz2
-it is 17k now, there was binary rubish in middle of it - reiserfs..
-
-when card is in pcmcia port (yenta) kernel freezes on boot. This card is
-dlink something - tulip.ko.
-
-using cisco airo_cs - kernel hangs when enabling key for wifi interface:
-
-iwconfig eth0 key s:jakisklucz
-
-
-so it is completly useless on my laptop at the moment :/
+diff -urN linux-2.5.68/arch/i386/kernel/io_apic.c linux-2.5.68-fix_irq_affinity/arch/i386/kernel/io_apic.c
+--- linux-2.5.68/arch/i386/kernel/io_apic.c	Sat Apr 19 19:49:09 2003
++++ linux-2.5.68-fix_irq_affinity/arch/i386/kernel/io_apic.c	Tue May  6 23:10:18 2003
+@@ -240,22 +240,22 @@
+ 			clear_IO_APIC_pin(apic, pin);
+ }
  
-lspci -vvv is attached, tell me if you need more information.
-
-Cheers.
+-static void set_ioapic_affinity (unsigned int irq, unsigned long mask)
++static void set_ioapic_affinity (unsigned int irq, unsigned long cpu_mask)
+ {
+ 	unsigned long flags;
+ 	int pin;
+ 	struct irq_pin_list *entry = irq_2_pin + irq;
+-
+-	/*
+-	 * Only the first 8 bits are valid.
+-	 */
+-	mask = mask << 24;
++	unsigned int apicid_value;
++	
++	apicid_value = cpu_mask_to_apicid(cpu_mask);
++	/* Prepare to do the io_apic_write */
++	apicid_value = apicid_value << 24;
+ 	spin_lock_irqsave(&ioapic_lock, flags);
+ 	for (;;) {
+ 		pin = entry->pin;
+ 		if (pin == -1)
+ 			break;
+-		io_apic_write(entry->apic, 0x10 + 1 + pin*2, mask);
++		io_apic_write(entry->apic, 0x10 + 1 + pin*2, apicid_value);
+ 		if (!entry->next)
+ 			break;
+ 		entry = irq_2_pin + entry->next;
+@@ -279,7 +279,7 @@
  
--- 
-Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-K4 labs
+ extern unsigned long irq_affinity[NR_IRQS];
+ 
+-static int __cacheline_aligned pending_irq_balance_apicid[NR_IRQS];
++static int __cacheline_aligned pending_irq_balance_cpumask[NR_IRQS];
+ static int irqbalance_disabled = NO_BALANCE_IRQ;
+ static int physical_balance = 0;
+ 
+@@ -352,7 +352,7 @@
+ 		unsigned long flags;
+ 
+ 		spin_lock_irqsave(&desc->lock, flags);
+-		pending_irq_balance_apicid[irq]=cpu_to_logical_apicid(new_cpu);
++		pending_irq_balance_cpumask[irq] = 1 << new_cpu;
+ 		spin_unlock_irqrestore(&desc->lock, flags);
+ 	}
+ }
+@@ -549,8 +549,7 @@
+ 				selected_irq, min_loaded);
+ 		/* mark for change destination */
+ 		spin_lock_irqsave(&desc->lock, flags);
+-		pending_irq_balance_apicid[selected_irq] =
+-				cpu_to_logical_apicid(min_loaded);
++		pending_irq_balance_cpumask[selected_irq] = 1 << min_loaded;
+ 		spin_unlock_irqrestore(&desc->lock, flags);
+ 		/* Since we made a change, come back sooner to 
+ 		 * check for more variation.
+@@ -582,7 +581,7 @@
+ 	
+ 	/* push everything to CPU 0 to give us a starting point.  */
+ 	for (i = 0 ; i < NR_IRQS ; i++)
+-		pending_irq_balance_apicid[i] = cpu_to_logical_apicid(0);
++		pending_irq_balance_cpumask[i] = 1;
+ 
+ repeat:
+ 	set_current_state(TASK_INTERRUPTIBLE);
+@@ -659,9 +658,9 @@
+ static inline void move_irq(int irq)
+ {
+ 	/* note - we hold the desc->lock */
+-	if (unlikely(pending_irq_balance_apicid[irq])) {
+-		set_ioapic_affinity(irq, pending_irq_balance_apicid[irq]);
+-		pending_irq_balance_apicid[irq] = 0;
++	if (unlikely(pending_irq_balance_cpumask[irq])) {
++		set_ioapic_affinity(irq, pending_irq_balance_cpumask[irq]);
++		pending_irq_balance_cpumask[irq] = 0;
+ 	}
+ }
+ 
+diff -urN linux-2.5.68/include/asm-i386/mach-bigsmp/mach_apic.h linux-2.5.68-fix_irq_affinity/include/asm-i386/mach-bigsmp/mach_apic.h
+--- linux-2.5.68/include/asm-i386/mach-bigsmp/mach_apic.h	Sat Apr 19 19:51:08 2003
++++ linux-2.5.68-fix_irq_affinity/include/asm-i386/mach-bigsmp/mach_apic.h	Tue May  6 22:28:37 2003
+@@ -27,7 +27,7 @@
+ #define APIC_BROADCAST_ID     (0x0f)
+ #define check_apicid_used(bitmap, apicid) (0)
+ #define check_apicid_present(bit) (phys_cpu_present_map & (1 << bit))
+-
++#define apicid_cluster(apicid) (apicid & 0xF0)
+ static inline unsigned long calculate_ldr(unsigned long old)
+ {
+ 	unsigned long id;
+@@ -115,4 +115,37 @@
+ 	return (1);
+ }
+ 
++static inline unsigned int cpu_mask_to_apicid (unsigned long cpumask)
++{
++	int num_bits_set;
++	int cpus_found = 0;
++	int cpu;
++	int apicid;	
++
++	num_bits_set = hweight32(cpumask); 
++	/* Return id to all */
++	if (num_bits_set == 32)
++		return (int) 0xFF;
++	/* 
++	 * The cpus in the mask must all be on the apic cluster.  If are not 
++	 * on the same apicid cluster return default value of TARGET_CPUS. 
++	 */
++	cpu = ffs(cpumask)-1;
++	apicid = cpu_to_logical_apicid(cpu);
++	while (cpus_found < num_bits_set) {
++		if (cpumask & (1 << cpu)) {
++			int new_apicid = cpu_to_logical_apicid(cpu);
++			if (apicid_cluster(apicid) != 
++					apicid_cluster(new_apicid)){
++				printk ("%s: Not a valid mask!\n",__FUNCTION__);
++				return TARGET_CPUS;
++			}
++			apicid = apicid | new_apicid;
++			cpus_found++;
++		}
++		cpu++;
++	}
++	return apicid;
++}
++
+ #endif /* __ASM_MACH_APIC_H */
+diff -urN linux-2.5.68/include/asm-i386/mach-default/mach_apic.h linux-2.5.68-fix_irq_affinity/include/asm-i386/mach-default/mach_apic.h
+--- linux-2.5.68/include/asm-i386/mach-default/mach_apic.h	Sat Apr 19 19:51:19 2003
++++ linux-2.5.68-fix_irq_affinity/include/asm-i386/mach-default/mach_apic.h	Tue May  6 22:14:57 2003
+@@ -99,4 +99,9 @@
+ 	return test_bit(boot_cpu_physical_apicid, &phys_cpu_present_map);
+ }
+ 
++static inline unsigned int cpu_mask_to_apicid (unsigned long cpumask)
++{
++	return cpumask;
++}
++
+ #endif /* __ASM_MACH_APIC_H */
+diff -urN linux-2.5.68/include/asm-i386/mach-numaq/mach_apic.h linux-2.5.68-fix_irq_affinity/include/asm-i386/mach-numaq/mach_apic.h
+--- linux-2.5.68/include/asm-i386/mach-numaq/mach_apic.h	Sat Apr 19 19:49:17 2003
++++ linux-2.5.68-fix_irq_affinity/include/asm-i386/mach-numaq/mach_apic.h	Tue May  6 22:51:02 2003
+@@ -14,6 +14,7 @@
+ #define APIC_BROADCAST_ID      0x0F
+ #define check_apicid_used(bitmap, apicid) ((bitmap) & (1 << (apicid)))
+ #define check_apicid_present(bit) (phys_cpu_present_map & (1 << bit))
++#define apicid_cluster(apicid) (apicid & 0xF0)
+ 
+ static inline int apic_id_registered(void)
+ {
+@@ -103,4 +104,37 @@
+ 	return (1);
+ }
+ 
++static inline unsigned int cpu_mask_to_apicid (unsigned long cpumask)
++{
++	int num_bits_set;
++	int cpus_found = 0;
++	int cpu;
++	int apicid;	
++
++	num_bits_set = hweight32(cpumask); 
++	/* Return id to all */
++	if (num_bits_set == 32)
++		return (int) 0xFF;
++	/* 
++	 * The cpus in the mask must all be on the apic cluster.  If are not 
++	 * on the same apicid cluster return default value of TARGET_CPUS. 
++	 */
++	cpu = ffs(cpumask)-1;
++	apicid = cpu_to_logical_apicid(cpu);
++	while (cpus_found < num_bits_set) {
++		if (cpumask & (1 << cpu)) {
++			int new_apicid = cpu_to_logical_apicid(cpu);
++			if (apicid_cluster(apicid) != 
++					apicid_cluster(new_apicid)){
++				printk ("%s: Not a valid mask!\n",__FUNCTION__);
++				return TARGET_CPUS;
++			}
++			apicid = apicid | new_apicid;
++			cpus_found++;
++		}
++		cpu++;
++	}
++	return apicid;
++}
++
+ #endif /* __ASM_MACH_APIC_H */
+diff -urN linux-2.5.68/include/asm-i386/mach-summit/mach_apic.h linux-2.5.68-fix_irq_affinity/include/asm-i386/mach-summit/mach_apic.h
+--- linux-2.5.68/include/asm-i386/mach-summit/mach_apic.h	Sat Apr 19 19:50:06 2003
++++ linux-2.5.68-fix_irq_affinity/include/asm-i386/mach-summit/mach_apic.h	Tue May  6 22:12:04 2003
+@@ -23,7 +23,7 @@
+ 
+ /* we don't use the phys_cpu_present_map to indicate apicid presence */
+ #define check_apicid_present(bit) (x86_summit ? 1 : (phys_cpu_present_map & (1 << bit))) 
+-
++#define apicid_cluster(apicid) (apicid & 0xF0)
+ extern u8 bios_cpu_apicid[];
+ 
+ static inline void init_apic_ldr(void)
+@@ -113,4 +113,37 @@
+ 		return test_bit(boot_cpu_physical_apicid, &phys_cpu_present_map);
+ }
+ 
++static inline unsigned int cpu_mask_to_apicid (unsigned long cpumask)
++{
++	int num_bits_set;
++	int cpus_found = 0;
++	int cpu;
++	int apicid;	
++
++	num_bits_set = hweight32(cpumask); 
++	/* Return id to all */
++	if (num_bits_set == 32)
++		return (int) 0xFF;
++	/* 
++	 * The cpus in the mask must all be on the apic cluster.  If are not 
++	 * on the same apicid cluster return default value of TARGET_CPUS. 
++	 */
++	cpu = ffs(cpumask)-1;
++	apicid = cpu_to_logical_apicid(cpu);
++	while (cpus_found < num_bits_set) {
++		if (cpumask & (1 << cpu)) {
++			int new_apicid = cpu_to_logical_apicid(cpu);
++			if (apicid_cluster(apicid) != 
++					apicid_cluster(new_apicid)){
++				printk ("%s: Not a valid mask!\n",__FUNCTION__);
++				return TARGET_CPUS;
++			}
++			apicid = apicid | new_apicid;
++			cpus_found++;
++		}
++		cpu++;
++	}
++	return apicid;
++}
++
+ #endif /* __ASM_MACH_APIC_H */
+diff -urN linux-2.5.68/include/asm-i386/mach-visws/mach_apic.h linux-2.5.68-fix_irq_affinity/include/asm-i386/mach-visws/mach_apic.h
+--- linux-2.5.68/include/asm-i386/mach-visws/mach_apic.h	Sat Apr 19 19:48:49 2003
++++ linux-2.5.68-fix_irq_affinity/include/asm-i386/mach-visws/mach_apic.h	Tue May  6 22:16:52 2003
+@@ -77,4 +77,8 @@
+ 	return test_bit(boot_cpu_physical_apicid, &phys_cpu_present_map);
+ }
+ 
++static inline unsigned int cpu_mask_to_apicid (unsigned long cpumask)
++{
++	return cpumask;
++}
+ #endif /* __ASM_MACH_APIC_H */
 
---=-vY/zU4bMnIMVkiCqIKTd
-Content-Description: 
-Content-Disposition: inline; filename=vaio.lspci
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 7bit
-
-00:00.0 Host bridge: Transmeta Corporation LongRun Northbridge
-	Subsystem: Transmeta Corporation: Unknown device 0295
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-	Latency: 0
-	Region 0: Memory at fc100000 (32-bit, non-prefetchable) [size=1M]
-
-00:00.1 RAM memory: Transmeta Corporation SDRAM controller
-	Subsystem: Transmeta Corporation: Unknown device 0295
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-
-00:00.2 RAM memory: Transmeta Corporation BIOS scratchpad
-	Subsystem: Transmeta Corporation: Unknown device 0295
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-
-00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-
-00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01) (prog-if 80 [Master])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64
-	Region 4: I/O ports at 1090 [size=16]
-
-00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64
-	Interrupt: pin D routed to IRQ 9
-	Region 4: I/O ports at 1060 [size=32]
-
-00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 03)
-	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin ? routed to IRQ 9
-
-00:08.0 FireWire (IEEE 1394): Texas Instruments TSB43AA22 IEEE-1394 Controller (PHY/Link Integrated) (rev 02) (prog-if 10 [OHCI])
-	Subsystem: Sony Corporation: Unknown device 80b2
-	Control: I/O- Mem+ BusMaster- SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin A routed to IRQ 9
-	Region 0: Memory at fc00d000 (32-bit, non-prefetchable) [size=2K]
-	Region 1: Memory at fc008000 (32-bit, non-prefetchable) [size=16K]
-	Capabilities: [44] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2+ AuxCurrent=0mA PME(D0-,D1-,D2+,D3hot+,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:09.0 Multimedia audio controller: Yamaha Corporation YMF-754 [DS-1E Audio Controller]
-	Subsystem: Sony Corporation: Unknown device 80b0
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-	Latency: 64 (1250ns min, 6250ns max)
-	Interrupt: pin A routed to IRQ 9
-	Region 0: Memory at fc000000 (32-bit, non-prefetchable) [size=32K]
-	Region 1: I/O ports at 1000 [size=64]
-	Region 2: I/O ports at 1080 [size=4]
-	Capabilities: [50] Power Management version 1
-		Flags: PMEClk- DSI- D1- D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0b.0 Multimedia controller: Kawasaki Steel Corporation: Unknown device ff01 (rev 01)
-	Subsystem: Sony Corporation: Unknown device 80b4
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 (750ns min, 1500ns max), cache line size 08
-	Interrupt: pin A routed to IRQ 9
-	Region 0: Memory at fc00d800 (32-bit, non-prefetchable) [size=512]
-	Capabilities: [50] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0c.0 CardBus bridge: Ricoh Co Ltd RL5c475 (rev 80)
-	Subsystem: Sony Corporation: Unknown device 80b1
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 168
-	Interrupt: pin A routed to IRQ 9
-	Region 0: Memory at 10000000 (32-bit, non-prefetchable) [size=4K]
-	Bus: primary=00, secondary=01, subordinate=04, sec-latency=176
-	Memory window 0: 10400000-107ff000 (prefetchable)
-	Memory window 1: 10800000-10bff000
-	I/O window 0: 00004000-000040ff
-	I/O window 1: 00004400-000044ff
-	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt- PostWrite+
-	16-bit legacy interface ports at 0001
-
-00:0d.0 VGA compatible controller: ATI Technologies Inc Rage Mobility P/M (rev 64) (prog-if 00 [VGA])
-	Subsystem: Sony Corporation: Unknown device 80af
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 66 (2000ns min), cache line size 08
-	Interrupt: pin A routed to IRQ 9
-	Region 0: Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
-	Region 1: I/O ports at 1400 [size=256]
-	Region 2: Memory at fc00c000 (32-bit, non-prefetchable) [size=4K]
-	Expansion ROM at <unassigned> [disabled] [size=128K]
-	Capabilities: [5c] Power Management version 1
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-01:00.0 Ethernet controller: Abocom Systems Inc ADMtek Centaur-C rev 17 [D-Link DFE-680TX] CardBus Fast Ethernet Adapter (rev 11)
-	Subsystem: D-Link System Inc: Unknown device 1541
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 (63750ns min, 63750ns max)
-	Interrupt: pin A routed to IRQ 9
-	Region 0: I/O ports at 4000 [size=256]
-	Region 1: Memory at 10800000 (32-bit, non-prefetchable) [size=1K]
-	Expansion ROM at 10400000 [size=128K]
-	Capabilities: [c0] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-
---=-vY/zU4bMnIMVkiCqIKTd--
 

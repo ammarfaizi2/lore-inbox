@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129352AbRBOUKj>; Thu, 15 Feb 2001 15:10:39 -0500
+	id <S129138AbRBOUPj>; Thu, 15 Feb 2001 15:15:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129377AbRBOUK3>; Thu, 15 Feb 2001 15:10:29 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:37636 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129352AbRBOUKR>;
-	Thu, 15 Feb 2001 15:10:17 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200102152009.XAA20777@ms2.inr.ac.ru>
-Subject: Re: strange tcp errors
-To: charta@gaumina.lt (Andrius Adomaitis)
-Date: Thu, 15 Feb 2001 23:09:59 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <0102152021370F.00312@castle.gaumina.lt> from "Andrius Adomaitis" at Feb 15, 1 09:45:07 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S129276AbRBOUPa>; Thu, 15 Feb 2001 15:15:30 -0500
+Received: from datafoundation.com ([209.150.125.194]:16900 "EHLO
+	datafoundation.com") by vger.kernel.org with ESMTP
+	id <S129138AbRBOUPT>; Thu, 15 Feb 2001 15:15:19 -0500
+Date: Thu, 15 Feb 2001 15:15:01 -0500 (EST)
+From: John Jasen <jjasen@datafoundation.com>
+To: Michal Jaegermann <michal@ellpspace.math.ualberta.ca>
+cc: Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>,
+        <axp-list@redhat.com>
+Subject: Re: 2.4.x/alpha/ALI chipset/IDE problems summary Re: 2.4.1 not fully
+ sane on Alpha - file systems
+In-Reply-To: <20010215124837.B13755@ellpspace.math.ualberta.ca>
+Message-ID: <Pine.LNX.4.30.0102151513170.4654-100000@flash.datafoundation.com>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, 15 Feb 2001, Michal Jaegermann wrote:
 
-> Maybe someone want to say me what does it mean and how serious it is?
+> > Well, the situation is improving, I suppose ...
+> >
+> > Under kernel 2.4.0 and 2.4.1, a dd of about 10000 4k blocks would cause
+> > the system to go technicolor and lock up.
+>
+> On UP1100 which I have here somehow this looks a bit different _after_
+> I put on it the latest SRM and used this "magic incantation" from
+> Hyung Min SEO ('d -l 801fe0000ac d' at SRM prompt to modify firmware).
+> I copied from disk to disk directory tries with some 150 MB of data
+> in these and no ill effects.
 
-It means that debugging messages are still not disabled in 2.4.x 8)
+I retried the mysticism and incantations (d -l 801fe0000ac d) at the srm
+prompt, and the machine locked on fsck, under kernel 2.4.1-ac13.
 
+I don't care about X on this system, all that much, honestly.
 
-> Any fixes?
+-- John
 
-These ones can be ignored.
-
-Alexey

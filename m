@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311132AbSCHVRq>; Fri, 8 Mar 2002 16:17:46 -0500
+	id <S311140AbSCHVXR>; Fri, 8 Mar 2002 16:23:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311134AbSCHVRg>; Fri, 8 Mar 2002 16:17:36 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:21398 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S311132AbSCHVRR>; Fri, 8 Mar 2002 16:17:17 -0500
-Date: Fri, 08 Mar 2002 13:16:48 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Samuel Ortiz <sortiz@dbear.engr.sgi.com>
-cc: Andrea Arcangeli <andrea@suse.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] stop null ptr deference in __alloc_pages
-Message-ID: <18990000.1015622208@flay>
-In-Reply-To: <12160000.1015620577@flay>
-In-Reply-To: <Pine.LNX.4.33.0203081207360.18968-100000@dbear.engr.sgi.com> <12160000.1015620577@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S311135AbSCHVW4>; Fri, 8 Mar 2002 16:22:56 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:17393 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S311133AbSCHVWv>; Fri, 8 Mar 2002 16:22:51 -0500
+Date: Fri, 8 Mar 2002 16:22:49 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Jeff Dike <jdike@karaya.com>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        "H. Peter Anvin" <hpa@zytor.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+Message-ID: <20020308162249.C12425@redhat.com>
+In-Reply-To: <20020306205229.A15048@redhat.com> <200203081917.OAA03071@ccure.karaya.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200203081917.OAA03071@ccure.karaya.com>; from jdike@karaya.com on Fri, Mar 08, 2002 at 02:17:53PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> If you applied an SGI patch that makes the zonelist contain all the zones
->> of your machine, then the zonelist should not be NULL.
->> If you allocate memory with gfp_mask & GFP_ZONEMASK == GFP_NORMAL from a
->> HIGHMEM only node, then the first entry on the corresponding zonelist
->> should be the first NORMAL zone on some other node.
->> Am I missing something here ?
-> 
-> You're missing the fact that I'm missing the SGI patch ;-)
+On Fri, Mar 08, 2002 at 02:17:53PM -0500, Jeff Dike wrote:
+> OK, the patch below (against UML 2.4.18-2) implements reliable overcommit 
+> for UML.
 
-I should have also mentioned that:
+Well, I still dislike it, but I guess it'll have to do.  The only nits I see 
+about the patch are: could you make the inline function a #define for the 
+no-arch_validate case?  Also, the format of if statements is a bit abnormal: 
+please add line breaks as appropriate.  Aside from that, go ahead.
 
-1) I shouldn't need the SGI patch, though it might help performance.
-2) The kernel panics without my fix, and runs fine with it.
-
-M.
-
+		-ben

@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262486AbTFBPoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 11:44:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262530AbTFBPoZ
+	id S262497AbTFBPyE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 11:54:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262530AbTFBPyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 11:44:25 -0400
-Received: from inetc.connecttech.com ([64.7.140.42]:53003 "EHLO
-	inetc.connecttech.com") by vger.kernel.org with ESMTP
-	id S262486AbTFBPoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 11:44:23 -0400
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "'Brian Gerst'" <bgerst@didntduck.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Redundant code?
-Date: Mon, 2 Jun 2003 11:58:23 -0400
-Organization: Connect Tech Inc.
-Message-ID: <00ef01c3291f$cb9cc600$294b82ce@stuartm>
+	Mon, 2 Jun 2003 11:54:04 -0400
+Received: from dns01.mail.yahoo.co.jp ([211.14.15.204]:16461 "HELO
+	dns01.mail.yahoo.co.jp") by vger.kernel.org with SMTP
+	id S262497AbTFBPyD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 11:54:03 -0400
+Message-ID: <006001c32921$0be01400$570486da@w0a3t0>
+From: "matsunaga" <matsunaga_kazuhisa@yahoo.co.jp>
+To: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+Cc: <linux-mtd@lists.infradead.org>, "David Woodhouse" <dwmw2@infradead.org>,
+       <linux-kernel@vger.kernel.org>
+References: <20030530144959.GA4736@wohnheim.fh-wedel.de><002901c32919$ddc37000$570486da@w0a3t0> <20030602153656.GA679@wohnheim.fh-wedel.de>
+Subject: Re: [PATCH RFC] 1/2 central workspace for zlib
+Date: Tue, 3 Jun 2003 01:07:20 +0900
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
+X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-In-Reply-To: <3EDB7053.3040707@didntduck.org>
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: linux-kernel-owner@vger.kernel.org 
-> Stuart MacDonald wrote:
-> > --- linux-2.5.70/fs/select.c	2003-05-26 
-> 21:00:21.000000000 -0400
-> > +++ linux-2.5.70-new/fs/select.c	2003-06-02 
-> 11:40:24.000000000 -0400
-> > @@ -344,9 +344,6 @@
-> >  	    (ret = get_fd_set(n, outp, fds.out)) ||
-> >  	    (ret = get_fd_set(n, exp, fds.ex)))
-> >  		goto out;
-> > -	zero_fd_set(n, fds.res_in);
-> > -	zero_fd_set(n, fds.res_out);
-> > -	zero_fd_set(n, fds.res_ex);
-> >  
-> >  	ret = do_select(n, &fds, &timeout);
+> Not bad.  We can even do a little better.  Since only one workspace is
+> really absolutely necessary (ignoring the siftirq case), there is no
+> need to fail anymore.  If we don't get enough memory for all
+> workspaces, initialize the semaphore to be a little lower and live
+> with fewer workspaces.
 > 
-> fds.in != fds.res_in
+> I like your ideas, really! :)
 
-<smacks forehead> You are correct.
+Thanks.
+ 
+> ...that is not trivial to get rid of.  Image the case where two
+> processes are writing to two devices.  With two buffers, we do rmew
+> whenever switching blocks for one device.  With one buffer, we have to
+> do it for every context switch between those two processes, which will
+> wear down the flash a lot faster.
+> 
+> Considering that mtdblock should not be performance critical in
+> production use anyway, this is a very hard problem.  What do you
+> think?
 
-..Stu
+I understand the difficulty. It is difficult to be hard coded for multi devices.
+There maybe other things to be modified to improve perforamance.
+
+BR.
+Matsunaga
 

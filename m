@@ -1,90 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267265AbSKPLGo>; Sat, 16 Nov 2002 06:06:44 -0500
+	id <S267264AbSKPLG7>; Sat, 16 Nov 2002 06:06:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267264AbSKPLGo>; Sat, 16 Nov 2002 06:06:44 -0500
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:1664 "EHLO
-	laptop.localdomain") by vger.kernel.org with ESMTP
-	id <S267265AbSKPLGn> convert rfc822-to-8bit; Sat, 16 Nov 2002 06:06:43 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Con Kolivas <conman@kolivas.net>
-To: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@digeo.com>
-Subject: Re: [BENCHMARK] 2.5.47-mm3 with contest
-Date: Sat, 16 Nov 2002 22:13:28 +1100
-User-Agent: KMail/1.4.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>
-References: <200211161422.17438.conman@kolivas.net> <3DD5BBD9.7DA70FFF@digeo.com> <3DD5C86C.70903@cyberone.com.au>
-In-Reply-To: <3DD5C86C.70903@cyberone.com.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211162213.30307.conman@kolivas.net>
+	id <S267266AbSKPLG7>; Sat, 16 Nov 2002 06:06:59 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:39944 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S267264AbSKPLGz>; Sat, 16 Nov 2002 06:06:55 -0500
+Date: Sat, 16 Nov 2002 09:13:44 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] tr: make CONFIG_TR depend on CONFIG_LLC=y
+Message-ID: <20021116111344.GD24641@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"David S. Miller" <davem@redhat.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+David,
+
+	Please pull from:
+
+master.kernel.org:/home/acme/BK/net-2.5
+
+	It was recently synced with Linus, but I saw with bk cmdlog
+that you also pulled the same tree, so...
+
+- Arnaldo
+
+You can import this changeset into BK by piping this whole message to:
+'| bk receive [path to repository]' or apply the patch as usual.
+
+===================================================================
 
 
->Andrew Morton wrote:
->>Con Kolivas wrote:
->>>Note the significant discrepancy between mm1 and mm3. This reminds me of
->>> what happened last time I enabled shared 3rd level pagetables - Andrew do
->>> you want me to do a set of numbers with this disabled?
->>
->>That certainly couldn't hurt.  But your tests are, in general, tesging
->>the IO scheduler.  And the IO scheduler has changed radically in each
->>of the recent -mm's.
->>
->>So testing with rbtree-iosched reverted would really be the only way
->>to draw comparisons on how the rest of the code is behaving.
->>-
->>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>the body of a message to majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
->
->Andrew there is, in fact a problem with the io scheduler in mm3 as far
->as I can see. Jens is away 'till Monday so he hasn't confirmed this yet.
->Basically if the device can't get through the entire queue within the
->read|write_expire timeout, they will start being submitted in fifo order
->slowing down the device more (probably) and contributing to the problem.
->It may be causing the bad numbers in contest. Here is a patch which
->relieves the problem for loads I am testing (bench.c, tiobench).
->
->Con, it would be nice if you could try this, if you value your disk,
->maybe you could wait for Jens to get back!
+ChangeSet@1.811, 2002-11-16 08:57:33-02:00, acme@conectiva.com.br
+  o tr: make CONFIG_TR depend on CONFIG_LLC=y
+  
+  Also update help, clarifying that LLC is needed for Token Ring
+  Support.
+  
+  Fixes one of the make allmodconfig undefined symbols report on lkml.
 
-I gave it a quick run (with expire batch set to 16 to emulate fifo batch=16) 
-and found only these different:
 
-2.5.47-mm3ns is no shared 3rd level pagetables
-2.5.47-mm3u is the same as 2.5.47-mm3ns but with your update
+ drivers/net/tokenring/Kconfig |    4 ++--
+ net/Kconfig                   |   14 +++++++-------
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
-io_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.47-mm3ns [1]        121.8   60      5       7       1.71
-2.5.47-mm3u [1]         161.1   47      9       9       2.26
 
-read_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.47-mm3ns [2]        257.9   29      11      2       3.61
-2.5.47-mm3u [1]         283.4   27      12      2       3.97
+diff -Nru a/drivers/net/tokenring/Kconfig b/drivers/net/tokenring/Kconfig
+--- a/drivers/net/tokenring/Kconfig	Sat Nov 16 09:10:41 2002
++++ b/drivers/net/tokenring/Kconfig	Sat Nov 16 09:10:41 2002
+@@ -2,13 +2,13 @@
+ # Token Ring driver configuration
+ #
+ 
+-menu "Token Ring devices"
++menu "Token Ring devices (depends on LLC=y)"
+ 	depends on NETDEVICES
+ 
+ # So far, we only have PCI, ISA, and MCA token ring devices
+ config TR
+ 	bool "Token Ring driver support"
+-	depends on PCI || ISA || MCA
++	depends on (PCI || ISA || MCA) && LLC=y
+ 	help
+ 	  Token Ring is IBM's way of communication on a local network; the
+ 	  rest of the world uses Ethernet. To participate on a Token Ring
+diff -Nru a/net/Kconfig b/net/Kconfig
+--- a/net/Kconfig	Sat Nov 16 09:10:41 2002
++++ b/net/Kconfig	Sat Nov 16 09:10:41 2002
+@@ -266,14 +266,14 @@
+ 	tristate "802.1Q VLAN Support"
+ 
+ config LLC
+-	tristate "ANSI/IEEE 802.2 Data link layer protocol (IPX, Appletalk)"
++	tristate "ANSI/IEEE 802.2 - aka LLC (IPX, Appletalk, Token Ring)"
+ 	help
+-	  This is a Logical Link Layer protocol used for Appletalk, IPX and in
+-	  the future by NetBEUI and by the linux-sna project. It originally
+-	  came from Procom Inc. that released the code for 2.0.36 and was
+-	  ported to 2.{4,5}. Select this if you want to have support for
+-	  those protocols or if you want to have the sockets interface for
+-	  LLC.
++	  This is a Logical Link Layer protocol used for Appletalk, IPX,
++	  Token Ring devices, the linux-sna.org project and in the future by
++	  NetBEUI. It originally came from Procom Inc. that released the code
++	  for 2.0.36 and was heavily modified to work with 2.{4,5}.
++	  Select this if you want to have support for those protocols or if
++	  you want to have the sockets interface for LLC.
+ 	  
+ 
+ config LLC_UI
 
-mem_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.47-mm3ns [1]        237.5   32      41      1       3.33
-2.5.47-mm3u [1]         218.8   34      39      1       3.06
+===================================================================
 
-To me it does not appear to be the cause of the prolongation of kernel 
-compilation time under io load in 2.5.47-mm3
 
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+This BitKeeper patch contains the following changesets:
+1.811
+## Wrapped with gzip_uu ##
 
-iD8DBQE91ihYF6dfvkL3i1gRAqsnAKCAd0DkP1MDFe8DkNuTc/nl4XfYwQCgh4pR
-FqhMIpEdOEFhQOnWx+wQNgE=
-=shmO
------END PGP SIGNATURE-----
 
+begin 664 bkpatch18980
+M'XL(`+$GUCT``^U6;6_;-A#^;/V*0PH4*1;+)/5J`Q[B.&EK)$N-O``#AF%@
+M)-K2+)$"13GUIO[W'N4UR9(T2XIBGVH+DB'>/;Q[[GD(OX++6NA1CR>E<%[!
+M>U6;42]14B0F7W,W4:5[I7'A3"E<&&2J%(.#XX$4IL_<P,&5.3=)!FNAZU&/
+MNM[-&[.IQ*AW=O3N\F1RYCCC,4PS+I?B7!@8CQVC])H7:;W/358HZ1K-95T*
+MT^W9WH2VC!"&WX!&'@G"EH;$C]J$II1RGXJ4,#\.?6>=:[5?(I1;U8TKTN8>
+M`J4TH$/J,]J&!*&<0Z!N3"D0-J!T0$,@\2B(1I[7)VQ$"%@^]N_S`#\QZ!/G
+M`+YO\5,G`05&CZ#D*P'3#Z=O9^_^N#B#5%1"IJ#DEW<G)]/Q!J/QFA2U@J9*
+MN1&0B:+:@Z3@.E]L<KD$DW$#&`QY#5*(5*2P4!HNU$I(.,,(!#AOJDIIXV[A
+MWN8?18T["5`+3!?;4GA1E"I%&A;Y$AJ9BD4N$:O>E%>JJ$$+BV#K*U9EX3K'
+M$,1A$#OSVU$[_1=^'(=PXOP,?^55)8K](I?-QWX9QBM7Z>5O7XC_O4UU;C5G
+ME3@PMB^-;0V.M[5N9TX\0GR/>5[KL8A%K>_'<>(M8LHX"?'GXT-^#C*E(26!
+M'T1MP*)A\(QR+=BCQ<58W#`>MI2%D4"!,,$\.DS]KQ3W`.>V%!9X7MP9[<D.
+MK/G^!W*_YQY^&Y#0"SK3LG];UD?7_J=EV0_+/F'93L$?H*^ONPLM.']:0=_@
+MZ<,`J#.SMU+(!G9NVT+&UGF"C>QNJ;,=04?:FQWG$$]HS.ONO3OKN_/I#-H6
+M9N<3^_AE.GD#KU]OTSH'W+')<_3^8G<Z5QSGD`JW3K)F(_1^Q66J-'>OQ",6
+M)1$9TB`8MHSY$>UD'+Q4QA'THQ\R_KJ,MZ??/1G?&<6WB):%0RN_[:-G=%X;
+MV_3.Y/1\-I@='1U!3!B>2'W@*]YUO3N;_[H'DZHJ<"3%:N].XU;.+*(0(F`4
+MXJ,'<)$A37AALEKF"2_@))<K..$H*:BT,BI1!33U/RS>P;7[=`@/C+37D;B5
+M>BVY5;J%^A/U!"A2R&47L&A,HP5<;2S*J3`'1Y<S%V;(J<Z7N43^-Y#P$@.U
+M*F&NL9(29C)QMR/6HA#<UF6Q$I4*"V-K9"YQO;#;Z9K7*!"^SA$*AYDO<ANO
+MX%KI%5SG)L/@O_V]X)-KD\\1$4LT'24+V*@&`:2Q"1E?"ZBWJNDV,9FJQ0U!
+MJ!Z-*1;D098MKU;)2AA$E4;H!4]$AX'C<F__OR:92%9U4XY33M+`H[[S&?FG
+&J9,:"P``
+`
+end

@@ -1,88 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266514AbSLWPLU>; Mon, 23 Dec 2002 10:11:20 -0500
+	id <S266540AbSLWPWb>; Mon, 23 Dec 2002 10:22:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266520AbSLWPLU>; Mon, 23 Dec 2002 10:11:20 -0500
-Received: from c-24-99-36-145.atl.client2.attbi.com ([24.99.36.145]:3082 "HELO
-	babylon.d2dc.net") by vger.kernel.org with SMTP id <S266514AbSLWPLT>;
-	Mon, 23 Dec 2002 10:11:19 -0500
-Date: Mon, 23 Dec 2002 10:19:24 -0500
-From: "Zephaniah E\. Hull" <warp@babylon.d2dc.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.5.x console keyboard problem.
-Message-ID: <20021223151924.GA5970@babylon.d2dc.net>
-Mail-Followup-To: Vojtech Pavlik <vojtech@suse.cz>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
+	id <S266717AbSLWPWb>; Mon, 23 Dec 2002 10:22:31 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:40628 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S266540AbSLWPWa>; Mon, 23 Dec 2002 10:22:30 -0500
+Date: Mon, 23 Dec 2002 07:30:12 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+cc: "Kamble, Nitin A" <nitin.a.kamble@intel.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       James Cleverdon <jamesclv@us.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       John Stultz <johnstul@us.ibm.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       "Van Maren, Kevin" <kevin.vanmaren@UNISYS.com>, Andi Kleen <ak@suse.de>,
+       Hubert Mantel <mantel@suse.de>
+Subject: RE: [PATCH][2.4]  generic cluster APIC support for systems with m ore than 8 CPUs
+Message-ID: <441480000.1040657410@titus>
+In-Reply-To: <Pine.LNX.4.50.0212230424340.1942-100000@montezuma.mastecende.com>
+References: <E88224AA79D2744187E7854CA8D9131DA5CE37@fmsmsx407.fm.intel.com><83950000.1040629933@titus> <Pine.LNX.4.50.0212230424340.1942-100000@montezuma.mastecende.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
-X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
-X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
-X-Notice-4: policy and agree to the fee.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> How about using logical destination mode when programming the IOAPIC?
+> Currently we do physical in io_apic.c (the reason why it breaks on NUMAQ)
+> This way we can get node affinity just by setting the Destination Field
+> for an IOREDTBL to APIC_BROADCAST_ID and also targetting single cpus on a
+> node becomes node generic.
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yup, that'll work fine once we have balance_IRQ set up with node affinity.
+Using phys is just a cheapo lazy hacker's way to steal node affinity for
+free from the mouths of babes.
 
-It took me a while to track this down, with a few false paths.
+M.
 
-I have verified this is kernel side, so..
-
-The basic problem goes like this, start X, switch away from X with
-ctrl-alt-Fn, then switch back to X, this is where the fun starts.
-
-Sometimes (this seems to be a race condition, but I have no idea what it
-depends on) things go, interestingly wrong, X gets the message that it
-has the VC, it takes control of the screen, and the kernel grabs the
-ctrl-alt-Fn used to switch away from X, and does not tell X that it no
-longer actually HAS the console.
-
-Resulting in keyboard input going to the VC you switched out from X to,
-and the kernel believing that it can print to the screen, but with X also
-still trying to control the screen.
-
-If you switch back to the VC X is on then things work from there,
-however this is quite obviously quite broken.
-
-Verification that this was kernel side was not too hard, removing the
-console binds for ctrl-alt-Fn makes the problem go away.
-
-This happens for 2.5.x, but not 2.4.20, I don't know where in 2.5.x it
-started.
-
-Thanks.
-
-Zephaniah E. Hull.
-
---=20
-	1024D/E65A7801 Zephaniah E. Hull <warp@babylon.d2dc.net>
-	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
-	    CCs of replies from mailing lists are requested.
-
-[1] Yes, we ARE rather dull people.  We appreciate being dull people.
-Exciting is only good when it happens to someone else ... as in "an
-exciting wreck", "an exciting plane crash", "an exciting install of
-Windows XP", et al.
-  -- Ralph Wade Phillips in the Scary Devil Monastery.
-
---/04w6evG8XlLl3ft
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+Byl8RFMAi+ZaeAERAmq0AJ49NSG5rVC7PJOUy09Hnmz3SzNkCACeOCeX
-HulV3rsZgveOXvH7LabSNPw=
-=eQjN
------END PGP SIGNATURE-----
-
---/04w6evG8XlLl3ft--

@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281669AbRKUIJl>; Wed, 21 Nov 2001 03:09:41 -0500
+	id <S281670AbRKUINv>; Wed, 21 Nov 2001 03:13:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281670AbRKUIJb>; Wed, 21 Nov 2001 03:09:31 -0500
-Received: from gate.mesa.nl ([194.151.5.70]:24585 "EHLO joshua.mesa.nl")
-	by vger.kernel.org with ESMTP id <S281669AbRKUIJO>;
-	Wed, 21 Nov 2001 03:09:14 -0500
-Date: Wed, 21 Nov 2001 09:08:54 +0100
-From: "Marcel J.E. Mol" <marcel@mesa.nl>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: make modules_install fails with latest fileutils
-Message-ID: <20011121090854.A15851@joshua.mesa.nl>
-Reply-To: marcel@mesa.nl
-In-Reply-To: <20011120193820.A14068@joshua.mesa.nl> <1128.1006303946@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1128.1006303946@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Wed, Nov 21, 2001 at 11:52:26AM +1100
+	id <S281671AbRKUINl>; Wed, 21 Nov 2001 03:13:41 -0500
+Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:6061 "EHLO
+	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S281670AbRKUINe>;
+	Wed, 21 Nov 2001 03:13:34 -0500
+Message-ID: <3BFB625B.3000709@stesmi.com>
+Date: Wed, 21 Nov 2001 09:14:19 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Brian <hiryuu@envisiongames.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Mixing 32- and 64-bit cards
+In-Reply-To: <200111210600.fAL60kE11763@demai05.mw.mediaone.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 21, 2001 at 11:52:26AM +1100, Keith Owens wrote:
-> On Tue, 20 Nov 2001 19:38:20 +0100, 
-> "Marcel J.E. Mol" <marcel@mesa.nl> wrote:
-> >Just had some problems doing a modules_install with
-> >fileutils-1.1.1-1 (redhat rawhide). The cp command
-> >in there gives a non-zero return value when it is asked
-> >to copy the same file in the argument list:
-> >
-> >--- Rules.make.org	Tue Nov 20 19:36:16 2001
-> >+++ Rules.make	Mon Nov 19 23:48:03 2001
-> >@@ -173,7 +173,7 @@
-> > _modinst__: dummy
-> > ifneq "$(strip $(ALL_MOBJS))" ""
-> > 	mkdir -p $(MODLIB)/kernel/$(MOD_DESTDIR)
-> >-	cp -f $(ALL_MOBJS) $(MODLIB)/kernel/$(MOD_DESTDIR)$(MOD_TARGET)
-> >+	-cp -f $(ALL_MOBJS) $(MODLIB)/kernel/$(MOD_DESTDIR)$(MOD_TARGET)
-> > endif
+Hi.
+
+> As mentioned in another thread, we are building a file server with 3ware 
+
+> IDE RAID.
 > 
-> (1) Complain to the fileutils maintainer for introducing incompatible
->     behaviour.
+> At the moment, we plan to get a 6800 (32-bit PCI).  If we add 7800's 
+> (64-bit PCI) or some other 3ware card later, will the driver correctly 
+> configure them all?  IOW, if I have
 
-Or to RedHat who introduced this fileutils in their tree (but then again,
-it is Rawhide so I have nothing to complain about :-)
 
-> (2) The correct workaround is
->      cp -f $(sort $(ALL_MOBJS)) $(MODLIB)/kernel/$(MOD_DESTDIR)$(MOD_TARGET)
+Sorry, I'm not answering your question but I do have a comment.
 
-shouldn't this then be 'sort -u'.
+A month or so back 3ware discontinued _ALL_ their 3ware Escalades, the 
+6xxx and the 7xxx, they have since then recieved so many mails that 
+they've restarted development, support and production of them.
 
--Marcel
--- 
-     ======--------         Marcel J.E. Mol                MESA Consulting B.V.
-    =======---------        ph. +31-(0)6-54724868          P.O. Box 112
-    =======---------        marcel@mesa.nl                 2630 AC  Nootdorp
-__==== www.mesa.nl ---____U_n_i_x______I_n_t_e_r_n_e_t____ The Netherlands ____
- They couldn't think of a number,           Linux user 1148  --  counter.li.org
-    so they gave me a name!  -- Rupert Hine  --  www.ruperthine.com
+With one 'minor' issue, they're discontinuing their 6xxx (32bit) series 
+of cards. So I would recommend getting the 64bit 7xxx series directly 
+instead.
+
+// Stefan
+
+

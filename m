@@ -1,68 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265197AbUEUXiJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264828AbUEUXCj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265197AbUEUXiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 19:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265195AbUEUXgv
+	id S264828AbUEUXCj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 19:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265242AbUEUWll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 19:36:51 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:55731 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S265060AbUEUXTc (ORCPT
+	Fri, 21 May 2004 18:41:41 -0400
+Received: from zero.aec.at ([193.170.194.10]:5 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S265828AbUEUWdB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 19:19:32 -0400
-Date: Thu, 20 May 2004 20:02:55 -0700
-From: Bob McElrath <bob@mcelrath.org>
-To: sziwan@hell.org.pl, mru@kth.se, linux-kernel@vger.kernel.org
-Subject: ACPI interrupts on Asus
-Message-ID: <20040521030255.GA16390@mcelrath.org>
-Mail-Followup-To: sziwan@hell.org.pl, mru@kth.se,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 21 May 2004 18:33:01 -0400
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: brettspamacct@fastclick.com, linux-kernel@vger.kernel.org
+Subject: Re: How can I optimize a process on a NUMA architecture(x86-64
+ specifically)?
+References: <1Y6yr-eM-11@gated-at.bofh.it> <1YbRm-4iF-11@gated-at.bofh.it>
+	<1Yma3-4cF-3@gated-at.bofh.it> <1YmjP-4jX-37@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Fri, 21 May 2004 21:17:11 +0200
+In-Reply-To: <1YmjP-4jX-37@gated-at.bofh.it> (Martin J. Bligh's message of
+ "Fri, 21 May 2004 19:50:13 +0200")
+Message-ID: <m3pt8xd1zc.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Martin J. Bligh" <mbligh@aracnet.com> writes:
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> There is no such thing as a homenode. What you describe is more or less why
+> we ditched that concept.
 
-You both indicated on the LKML list that you have an ASUS laptop and
-after a suspend, ACPI interrupts are not received.  It seems no
-resolution to this is posted on the LKML list.  Have either of you
-figured out how to fix this?
+numa api has a "prefered node", which is a bit similar to the old
+home node. The main difference is that it does not affect the scheduler,
+only the memory allocation. You can of course affect the scheduler too,
+but that's a separate option now and more strict.
 
-I have an L3800C and have gotten S1 and S3 sleep working, but for both
-after resuming, acpi interrupts are no longer processed.  (no more
-interrupts in /proc/interrupts)  I have tried various combinations of:
-    acpi=3Dnoirq
-    pci=3Dnoacpi
-    acpi_irq_balance
-    pci=3Dusepirqmask
-and this always happens, regardless of whether the acpi interrupt is
-shared.
+For historical reasons numactl still has a --homenode= alias for --prefered,
+although it is undocumented and discouraged now.
 
-Thanks,
-Bob McElrath [Univ. of California at Davis, Department of Physics]
-   =20
-    "A great many people think they are thinking when they are merely
-    rearranging their prejudices." -- William James
+-Andi
 
-
---LZvS9be/3tNcYl/X
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFArXFfjwioWRGe9K0RArUXAJwIi2a3Pzi3gx22ii+eLGf7QC99owCg2UFI
-ejtkdHC1POsu2fNtXqPw3fM=
-=8sV5
------END PGP SIGNATURE-----
-
---LZvS9be/3tNcYl/X--

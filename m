@@ -1,96 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263966AbTICQPr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 12:15:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263829AbTICQPg
+	id S263923AbTICQO3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 12:14:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263829AbTICQO3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 12:15:36 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:10892 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263965AbTICQPG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 12:15:06 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Jens Axboe <axboe@suse.de>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Message-Id: <1062605698.1780.33.camel@gaston>
+	Wed, 3 Sep 2003 12:14:29 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:32720 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263963AbTICQMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 12:12:45 -0400
+Date: Wed, 3 Sep 2003 18:12:00 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>, davem@redhat.com
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: 2.6.0-test4-mm5
+Message-ID: <20030903161200.GC23729@fs.tum.de>
+References: <20030902231812.03fae13f.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 03 Sep 2003 18:14:58 +0200
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-Subject: [PATCH] IDE: Enable LED support for PowerMac
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030902231812.03fae13f.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Bart !
+I got the following compile error (using gcc 2.95) in 2.6.0-test4-mm5
+(but it seems to come from Linus' tree):
 
-Please submit that to Linus. It adds the Kconfig option for the
-PowerMac IDE driver "LED" feature (using the laptop's front LED
-as a disk activity indicator). It also adds a small bit to ide-probe.c
-that was missing from Jens patch when he added the activity function
-infrastructure. He did add the hwif field, but not the code to actually
-enable it.
+<--  snip  -->
 
-Ben.
+...
+  CC [M]  drivers/net/sungem.o
+drivers/net/sungem.c:2444: duplicate initializer
+drivers/net/sungem.c:2444: (near initialization for `gem_ethtool_ops.get_link')
+make[2]: *** [drivers/net/sungem.o] Error 1
+
+<--  snip  -->
 
 
-diff -urN for-linus-ppc/drivers/ide/Kconfig
-linuxppc-2.5-benh/drivers/ide/Kconfig
---- for-linus-ppc/drivers/ide/Kconfig	2003-09-03 18:07:14.000000000
-+0200
-+++ linuxppc-2.5-benh/drivers/ide/Kconfig	2003-08-25 22:04:14.000000000
-+0200
-@@ -835,6 +835,13 @@
- 	  to transfer data to and from memory.  Saying Y is safe and improves
- 	  performance.
- 
-+config BLK_DEV_IDE_PMAC_BLINK
-+	bool "Blink laptop LED on drive activity"
-+	depends on BLK_DEV_IDE_PMAC && ADB_PMU
-+	help
-+	  This option enables the use of the sleep LED as a hard drive
-+	  activity LED.
-+
- config BLK_DEV_IDEDMA_PMAC_AUTO
- 	bool "Use DMA by default"
- 	depends on BLK_DEV_IDEDMA_PMAC
-@@ -993,6 +1000,15 @@
- 
- endchoice
- 
-+config BLK_DEV_IDE_STB04xxx
-+	bool "STB04xxx (Redwood-5) IDE support"
-+	depends on BLK_DEV_IDE && REDWOOD_5
-+	help
-+	  This option provides support for IDE on IBM STB04xxx Redwood-5
-+	  systems.
-+
-+	  If unsure, say N.
-+
- # no isa -> no vlb
- config IDE_CHIPSETS
- 	bool "Other IDE chipset support"
-diff -urN for-linus-ppc/drivers/ide/ide-probe.c
-linuxppc-2.5-benh/drivers/ide/ide-probe.c
---- for-linus-ppc/drivers/ide/ide-probe.c	2003-09-03 18:07:14.000000000
-+0200
-+++ linuxppc-2.5-benh/drivers/ide/ide-probe.c	2003-09-03
-18:05:12.000000000 +0200
-@@ -958,6 +958,10 @@
- 	/* needs drive->queue to be set */
- 	ide_toggle_bounce(drive, 1);
- 
-+	/* enable led activity for disk drives only */
-+	if (drive->media == ide_disk && hwif->led_act)
-+		blk_queue_activity_fn(q, hwif->led_act, drive);
-+
- 	return 0;
- }
- 
+It seems gcc is right, there are two .get_link members in this struct:
 
+
+<--  snip  -->
+
+...
+static struct ethtool_ops gem_ethtool_ops = {
+        .get_drvinfo            = gem_get_drvinfo,
+        .get_link               = ethtool_op_get_link,
+        .get_settings           = gem_get_settings,
+        .set_settings           = gem_set_settings,
+        .nway_reset             = gem_nway_reset,
+        .get_link               = gem_get_link,
+        .get_msglevel           = gem_get_msglevel,
+        .set_msglevel           = gem_set_msglevel,
+};
+...
+
+<--  snip  -->
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

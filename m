@@ -1,102 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbULBJNe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbULBJ3P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261571AbULBJNe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 04:13:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbULBJNe
+	id S261230AbULBJ3P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 04:29:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbULBJ3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 04:13:34 -0500
-Received: from smtp4.netcabo.pt ([212.113.174.31]:29213 "EHLO
-	exch01smtp10.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S261571AbULBJNX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 04:13:23 -0500
-Message-ID: <47441.195.245.190.94.1101978748.squirrel@195.245.190.94>
-In-Reply-To: <32786.192.168.1.5.1101940309.squirrel@192.168.1.5>
-References: <17532.195.245.190.94.1101829198.squirrel@195.245.190.94>   
-    <20041201103251.GA18838@elte.hu>   
-    <32831.192.168.1.5.1101905229.squirrel@192.168.1.5>   
-    <20041201154046.GA15244@elte.hu> <20041201160632.GA3018@elte.hu>   
-    <20041201162034.GA8098@elte.hu>   
-    <33059.192.168.1.5.1101927565.squirrel@192.168.1.5>   
-    <20041201212925.GA23410@elte.hu> <20041201213023.GA23470@elte.hu>   
-    <32788.192.168.1.8.1101938057.squirrel@192.168.1.8>   
-    <20041201220916.GA24992@elte.hu>
-    <32786.192.168.1.5.1101940309.squirrel@192.168.1.5>
-Date: Thu, 2 Dec 2004 09:12:28 -0000 (WET)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-19
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
-       "Florian Schmidt" <mista.tapas@gmx.net>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
-       "Karsten Wiese" <annabellesgarden@yahoo.de>,
-       "Gunther Persoons" <gunther_persoons@spymac.com>, emann@mrv.com,
-       "Shane Shrybman" <shrybman@aei.ca>, "Amit Shah" <amit.shah@codito.com>,
-       "Esben Nielsen" <simlo@phys.au.dk>, "Andrew Morton" <akpm@osdl.org>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
+	Thu, 2 Dec 2004 04:29:15 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:29050 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261230AbULBJ3J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 04:29:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=aleZnl1w5uJ3HRamuymrmrvr1uoVC5Uf4/o0qU+kDbtlQJW6oZAlha+MQ8eanqB9FAiVG0gG+bnRXzmxd6X+xAMbSRIxTfqWB5UYXQ/Bw3mbODfzl2fpPbyHn5K5GsDHCKCLtvok52iZ1l+z//2GUjgUfydMksHD298+P+Q4Vns=
+Message-ID: <84144f020412020129e5d0566@mail.gmail.com>
+Date: Thu, 2 Dec 2004 11:29:08 +0200
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+Cc: Alexandre Oliva <aoliva@redhat.com>, Paul Mackerras <paulus@samba.org>,
+       Greg KH <greg@kroah.com>, David Woodhouse <dwmw2@infradead.org>,
+       Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
+       hch@infradead.org, linux-kernel@vger.kernel.org,
+       libc-hacker@sources.redhat.com, penberg@cs.helsinki.fi
+In-Reply-To: <Pine.LNX.4.58.0412011948450.22796@ppc970.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 02 Dec 2004 09:13:22.0366 (UTC) FILETIME=[2BE4FDE0:01C4D84F]
+Content-Transfer-Encoding: 7bit
+References: <19865.1101395592@redhat.com>
+	 <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org>
+	 <oract0thnj.fsf@livre.redhat.lsd.ic.unicamp.br>
+	 <Pine.LNX.4.58.0411291458040.22796@ppc970.osdl.org>
+	 <oris7nrq0h.fsf@livre.redhat.lsd.ic.unicamp.br>
+	 <Pine.LNX.4.58.0411301413260.22796@ppc970.osdl.org>
+	 <or4qj7rllv.fsf@livre.redhat.lsd.ic.unicamp.br>
+	 <Pine.LNX.4.58.0411301505580.22796@ppc970.osdl.org>
+	 <orvfbllsbe.fsf@livre.redhat.lsd.ic.unicamp.br>
+	 <Pine.LNX.4.58.0412011948450.22796@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> ... I'll have to rebuild a new RT-V0.7.31-19 kernel without latency
-> timing stuff, just to make sure we'll compare apples to apples ;)
->
+Hi Linus,
 
-Oh, and running also an jackd 0.99.17cvs _without_ the xrun trace
-auto-trigger patch, so to end up with a production-like system.
+[I am getting off-topic but...]
 
-And that was it. After a total of 4 hours running free, the jack_test3
-suite spitted out these results, which speak from themselves:
+On Wed, 1 Dec 2004, Alexandre Oliva wrote:
+> > Most of that is covered by the software engineering term `contract'.
 
-    *********** CONSOLIDATED RESULTS ************
-    Total seconds ran . . . . . . : 14400
-    Number of clients . . . . . . :    16
-    Ports per client  . . . . . . :     4
-    *********************************************
-    Summary Result Count  . . . . :     4 /     4
-    *********************************************
-    Timeout Rate  . . . . . . . . :(    0.0)/hour
-    XRUN Rate . . . . . . . . . . :     0.0 /hour
-    Delay Rate (>spare time)  . . :     0.0 /hour
-    Delay Rate (>1000 usecs)  . . :     0.0 /hour
-    Delay Maximum . . . . . . . . :    77   usecs
-    Cycle Maximum . . . . . . . . :  1029   usecs
-    Average DSP Load. . . . . . . :    60.0 %
-    Average CPU System Load . . . :    19.6 %
-    Average CPU User Load . . . . :    47.7 %
-    Average CPU Nice Load . . . . :     0.0 %
-    Average CPU I/O Wait Load . . :     0.0 %
-    Average CPU IRQ Load  . . . . :     0.0 %
-    Average CPU Soft-IRQ Load . . :     0.0 %
-    Average Interrupt Rate  . . . :  1689.1 /sec
-    Average Context-Switch Rate . : 19781.4 /sec
-    *********************************************
+On Wed, Linus Torvalds wrote:
+> I think you're making that up. Maybe there's some sw cult that swears by
+> "contract programming", the same way there are the "extreme programming"
+> cults etc.  For example, I find this "Design by Contract" cult for object-
+> oriented programming, but it has _zero_ to do with external API's, and is
+> all about the interfaces for object-oriented components.
 
-This is frankly the best performance EVER on this laptop machine, given
-these jackd parameters (-R -P60 -dalsa -dhw:0 -r44100 -p64 -n2 -S -P).
+How is a class interface different from an external API? Sure, you
+don't want to change a _published_ API too often but I fail to see how
+internal and external APIs are fundamentally different.
 
-Next step is really trying to increase the stress and look after when it
-will break apart. It will not take too long...
+I think Alexandre's definition has in fact originated from the "Design
+by Contract" cult. And it's all pretty simple stuff:
 
-First attempts, by just increasing the client count from 16 to 20, are
-leading to what will be the next "horror show" :) CPU tops above 90%, and
-after a couple of minutes running steadly it enters into some kind of
-turbulence and hangs. Yeah, it just freezes completely.
+  - You need to call a function in a certain way (precondition). The
+caller fills this part
+    of the contract. Now the caller can _expect_ something from the
+function (see below).
+  - The function does what it has promised to do and optionally
+returns some values
+    (postcondition). The callee fills this part of the contract.
+  - The function expects some parts of the system state to remain stable during
+    execution (invariants). In the kernel, you use BUG_ON for these btw.
 
-So I guess we're having a lot more food to mangle ;)
+So there's nothing new here really. However, if your _tools_ support
+Design by Contract, you can be explicit about this and enforce the
+'contract' during compile-time or run-time.
 
-Stay tuned.
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+And I think you're already doing this with your "require spinlock to
+be taken" sparse thingy...
 
+On Wed, Linus Torvalds wrote:
+> IOW, I don't find your arguments or your language usage in the least
+> convincing. But hey, I did all my CS stuff outside of the US, whatever.
+
+I don't think it's an US thing. At the university you did your CS
+stuff, we (well at least I) use the term 'contract' pretty much the
+same way Alexandre does...
+
+                              Pekka

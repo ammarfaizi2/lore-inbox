@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263733AbUGYGcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263736AbUGYICk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263733AbUGYGcz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 02:32:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263731AbUGYGcz
+	id S263736AbUGYICk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 04:02:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbUGYICk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 02:32:55 -0400
-Received: from ns1.landhost.net ([66.98.188.87]:27586 "EHLO
-	secure.landhost.net") by vger.kernel.org with ESMTP id S263733AbUGYGcx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 02:32:53 -0400
-Message-ID: <41035410.2020606@marcansoft.com>
-Date: Sun, 25 Jul 2004 08:32:48 +0200
-From: =?ISO-8859-1?Q?H=E9ctor_Mart=EDn?= <hector@marcansoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; es-ES; rv:1.6) Gecko/20040409
-X-Accept-Language: es-es, es, en-us, en
+	Sun, 25 Jul 2004 04:02:40 -0400
+Received: from smtpout3.compass.net.nz ([203.97.97.135]:65504 "EHLO
+	smtpout1.compass.net.nz") by vger.kernel.org with ESMTP
+	id S263736AbUGYICi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 04:02:38 -0400
+Date: Sun, 25 Jul 2004 20:03:10 +0000 (UTC)
+From: haiquy@yahoo.com
+X-X-Sender: sk@linuxcd
+Reply-To: haiquy@yahoo.com
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.27-rc3 with gcc-3.4.0 compile error (even with the fix patch)
+Message-ID: <Pine.LNX.4.53.0407251959350.12579@linuxcd>
 MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic
-References: <4102CF17.2010207@marcansoft.com> <20040725012712.A15785@electric-eye.fr.zoreil.com>
-In-Reply-To: <20040725012712.A15785@electric-eye.fr.zoreil.com>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - secure.landhost.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - marcansoft.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->>Interrupt 9 is surely busy, no USB hardware plugged in just in case you're
->>wondering, and normally (while not using eth2) interrupt 9 is rock solid
->>(i.e. I doubt ACPI interrupts at all during normal use unless e.g. the power
->>button is pressed.)
->>
->
->At 60 kirq/s without any network traffic, you may disable acpi then usb
->and eventually poke your nose in the bios setup first. No joke.
->
-That's WITH network traffic, and I get 60k packets/s so it makes sense, 
-but then once ksoftirqd starts using up all available cpu, I might be 
-able to stop it by stoping the network traffic, but then any traffic 
-makes it go nuts anyway. The problem is that after some minutes under 
-this high-udp-packet-traffic it starts going nuts, with no prior 
-warning. The mouse cursor just gets jerky--nothing gradual here, it just 
-starts and then won't stop.
+Hi, I got the error when compiling ...
 
-I was talking about IRQ9 because at 60k/s it's understandable that ACPI 
-takes some CPU trying to see if it's the intended receiver, but 
-ksoftirqd's behaviour is obviously not normal, besides the point that it 
-works perfectly por 10-20 minutes at least.
+The kernel has the gcc-3.4 fix patch
 
-I'll be out for a week at least and I doublt I will be able to answer 
-back, sorry for the inconvenience, I should've posted this after acoming 
-back. Thanks for the answer though ;)
+make[3]: Entering directory `/home/linux-2.4.27-rc3/drivers/usb/gadget'
+gcc-4 -D__KERNEL__ -I/home/linux-2.4.27-rc3/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fno-strength-reduce -ffast-math -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon -fno-unit-at-a-time   -nostdinc -iwithprefix include -DKBUILD_BASENAME=net2280  -DEXPORT_SYMTAB -c net2280.c
+net2280.c: In function `write_fifo':
+net2280.c:540: error: `typeof' applied to a bit-field
+net2280.c: In function `handle_ep_small':
+net2280.c:2194: error: `typeof' applied to a bit-field
+make[3]: *** [net2280.o] Error 1
+make[3]: Leaving directory `/home/linux-2.4.27-rc3/drivers/usb/gadget'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/home/linux-2.4.27-rc3/drivers/usb/gadget'
+make[1]: *** [_subdir_usb/gadget] Error 2
+make[1]: Leaving directory `/home/linux-2.4.27-rc3/drivers'
+make: *** [_dir_drivers] Error 2
+
+with gcc-3.3.3 all were okay.
+
+Best regards,
+
+Steve Kieu

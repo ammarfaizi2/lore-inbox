@@ -1,81 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268496AbTBWPRL>; Sun, 23 Feb 2003 10:17:11 -0500
+	id <S268486AbTBWPOf>; Sun, 23 Feb 2003 10:14:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268491AbTBWPPP>; Sun, 23 Feb 2003 10:15:15 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:60660 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S268490AbTBWPOl>;
-	Sun, 23 Feb 2003 10:14:41 -0500
-Subject: Re: 2.4.21-pre4: PDC ide driver problems with shared interrupts
-From: Arjan van de Ven <arjan@fenrus.demon.nl>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030223153316.262a201e.skraw@ithnet.com>
-References: <20030202153009$2e0d@gated-at.bofh.it>
-	 <20030205181006$107c@gated-at.bofh.it>
-	 <20030205181006$7bb8@gated-at.bofh.it>
-	 <20030205181006$455c@gated-at.bofh.it>
-	 <20030205181006$5dba@gated-at.bofh.it>
-	 <20030205181006$3358@gated-at.bofh.it>
-	 <200302061451.h16Epl0Z001134@pc.skynet.be>
-	 <20030223153316.262a201e.skraw@ithnet.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-xIUTfJQ0boLCSZTU2r+E"
-Organization: 
-Message-Id: <1046012671.1964.2.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 23 Feb 2003 16:04:31 +0100
+	id <S268490AbTBWPMa>; Sun, 23 Feb 2003 10:12:30 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:10001 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268486AbTBWPKR>; Sun, 23 Feb 2003 10:10:17 -0500
+To: LKML <linux-kernel@vger.kernel.org>
+CC: Linus Torvalds <torvalds@transmeta.com>
+From: Russell King <rmk@arm.linux.org.uk>
+Subject: [PATCH] [4/6] Remove pci_{read,write}[bwl]
+Message-Id: <20020223151804@raistlin.arm.linux.org.uk>
+References: <20020223151803@raistlin.arm.linux.org.uk>
+In-Reply-To: <20020223151803@raistlin.arm.linux.org.uk>
+Date: Sun, 23 Feb 2003 15:20:25 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch appears not to be in 2.5.62, but applies cleanly.
 
---=-xIUTfJQ0boLCSZTU2r+E
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Subject: [4/6] Remove pci_{read,write}[bwl]
+cardbus.c uses its own names for our PCI config space functions.
+Make it use our names.
 
-On Sun, 2003-02-23 at 15:33, Stephan von Krawczynski wrote:
-> On Thu, 06 Feb 2003 15:51:47 +0100
-> Hans Lambrechts <hans.lambrechts@skynet.be> wrote:
->=20
-> > Stephan von Krawczynski wrote:
-> >=20
-> > <---snip--->
-> >=20
-> > >=20
-> > >            CPU0       CPU1
-> > >   0:      71158          0    IO-APIC-edge  timer
-> > >   1:        941          0    IO-APIC-edge  keyboard
-> > >   2:          0          0          XT-PIC  cascade
-> > >  12:      33166          0    IO-APIC-edge  PS/2 Mouse
-> > >  15:          4          0    IO-APIC-edge  ide1
+ drivers/pcmcia/cardbus.c |   34 +++++++++++++++-------------------
+ 1 files changed, 15 insertions, 19 deletions
 
-<snip>
-
-> I am sorry, but this patch is:
-> a) already included in 2.4.21-pre4 (which I run)
-> b) does therefore obviously not help
->=20
-> Any other suggestions?=20
-
-could you give the irqbalance daemon from
-
-http://people.redhat.com/arjanv/irqbalance/irqbalance-0.06.tar.gz
-
-a try ?
-
-Greetings,
-   Arjan van de Ven
-
---=-xIUTfJQ0boLCSZTU2r+E
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+WOL/xULwo51rQBIRAkrLAKCpWVAi0BHMAuoP6fFHApUl3znC8gCfdyqx
-QWoaXL5DifVImKvpM7BXIE8=
-=5fdY
------END PGP SIGNATURE-----
-
---=-xIUTfJQ0boLCSZTU2r+E--
+diff -ur -x sa11* -x Kconfig -x Makefile orig/drivers/pcmcia/cardbus.c linux/drivers/pcmcia/cardbus.c
+--- orig/drivers/pcmcia/cardbus.c	Sun Feb 23 12:47:15 2003
++++ linux/drivers/pcmcia/cardbus.c	Sun Feb 23 12:43:55 2003
+@@ -75,13 +75,6 @@
+ 
+ #define FIND_FIRST_BIT(n)	((n) - ((n) & ((n)-1)))
+ 
+-#define pci_readb		pci_read_config_byte
+-#define pci_writeb		pci_write_config_byte
+-#define pci_readw		pci_read_config_word
+-#define pci_writew		pci_write_config_word
+-#define pci_readl		pci_read_config_dword
+-#define pci_writel		pci_write_config_dword
+-
+ /* Offsets in the Expansion ROM Image Header */
+ #define ROM_SIGNATURE		0x0000	/* 2 bytes */
+ #define ROM_DATA_PTR		0x0018	/* 2 bytes */
+@@ -192,7 +185,7 @@
+ 		if (addr + len > 0x100)
+ 			goto fail;
+ 		for (; len; addr++, ptr++, len--)
+-			pci_readb(dev, addr, (u_char *) ptr);
++			pci_read_config_byte(dev, addr, ptr);
+ 		return 0;
+ 	}
+ 
+@@ -243,17 +236,18 @@
+ 	tmp.sysdata = bus->sysdata;
+ 	tmp.devfn = 0;
+ 
+-	pci_readw(&tmp, PCI_VENDOR_ID, &vend);
+-	pci_readw(&tmp, PCI_DEVICE_ID, &dev);
++	pci_read_config_word(&tmp, PCI_VENDOR_ID, &vend);
++	pci_read_config_word(&tmp, PCI_DEVICE_ID, &dev);
+ 	printk(KERN_INFO "cs: cb_alloc(bus %d): vendor 0x%04x, "
+ 	       "device 0x%04x\n", bus->number, vend, dev);
+ 
+-	pci_readb(&tmp, PCI_HEADER_TYPE, &hdr);
++	pci_read_config_byte(&tmp, PCI_HEADER_TYPE, &hdr);
+ 	fn = 1;
+ 	if (hdr & 0x80) {
+ 		do {
+ 			tmp.devfn = fn;
+-			if (pci_readw(&tmp, PCI_VENDOR_ID, &v) || !v || v == 0xffff)
++			if (pci_read_config_word(&tmp, PCI_VENDOR_ID, &v) ||
++			    !v || v == 0xffff)
+ 				break;
+ 			fn++;
+ 		} while (fn < 8);
+@@ -278,7 +272,7 @@
+ 
+ 		dev->devfn = i;
+ 		dev->vendor = vend;
+-		pci_readw(dev, PCI_DEVICE_ID, &dev->device);
++		pci_read_config_word(dev, PCI_DEVICE_ID, &dev->device);
+ 		dev->hdr_type = hdr & 0x7f;
+ 		dev->dma_mask = 0xffffffff;
+ 		dev->dev.dma_mask = &dev->dma_mask;
+@@ -295,7 +289,7 @@
+ 		}
+ 
+ 		/* Does this function have an interrupt at all? */
+-		pci_readb(dev, PCI_INTERRUPT_PIN, &irq_pin);
++		pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &irq_pin);
+ 		if (irq_pin)
+ 			dev->irq = irq;
+ 		
+@@ -305,7 +299,7 @@
+ 			continue;
+ 
+ 		if (irq_pin)
+-			pci_writeb(dev, PCI_INTERRUPT_LINE, irq);
++			pci_write_config_byte(dev, PCI_INTERRUPT_LINE, irq);
+ 		
+ 		device_register(&dev->dev);
+ 		pci_insert_device(dev, bus);
+@@ -360,15 +354,17 @@
+ 	/* Set up PCI interrupt and command registers */
+ 	for (i = 0; i < s->functions; i++) {
+ 		dev = &s->cb_config[i].dev;
+-		pci_writeb(dev, PCI_COMMAND, PCI_COMMAND_MASTER |
+-			   PCI_COMMAND_IO | PCI_COMMAND_MEMORY);
+-		pci_writeb(dev, PCI_CACHE_LINE_SIZE, L1_CACHE_BYTES / 4);
++		pci_write_config_byte(dev, PCI_COMMAND, PCI_COMMAND_MASTER |
++				      PCI_COMMAND_IO | PCI_COMMAND_MEMORY);
++		pci_write_config_byte(dev, PCI_CACHE_LINE_SIZE,
++				      L1_CACHE_BYTES / 4);
+ 	}
+ 
+ 	if (s->irq.AssignedIRQ) {
+ 		for (i = 0; i < s->functions; i++) {
+ 			dev = &s->cb_config[i].dev;
+-			pci_writeb(dev, PCI_INTERRUPT_LINE, s->irq.AssignedIRQ);
++			pci_write_config_byte(dev, PCI_INTERRUPT_LINE,
++					      s->irq.AssignedIRQ);
+ 		}
+ 		s->socket.io_irq = s->irq.AssignedIRQ;
+ 		s->ss_entry->set_socket(s->sock, &s->socket);

@@ -1,61 +1,81 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316464AbSEOSVN>; Wed, 15 May 2002 14:21:13 -0400
+	id <S316465AbSEOS0G>; Wed, 15 May 2002 14:26:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316465AbSEOSVM>; Wed, 15 May 2002 14:21:12 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:11013 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316464AbSEOSVL>; Wed, 15 May 2002 14:21:11 -0400
-Date: Wed, 15 May 2002 14:16:33 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC][PATCH] iowait statistics
-In-Reply-To: <20020515170025.GF27957@holomorphy.com>
-Message-ID: <Pine.LNX.3.96.1020515141208.5811B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316466AbSEOS0F>; Wed, 15 May 2002 14:26:05 -0400
+Received: from relay1.EECS.Berkeley.EDU ([169.229.60.163]:41674 "EHLO
+	relay1.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
+	id <S316465AbSEOS0E>; Wed, 15 May 2002 14:26:04 -0400
+Subject: Bug in 2.4.19-pre8 drivers/input/joydev.c
+From: "Robert T. Johnson" <rtjohnso@cs.berkeley.edu>
+To: linux-kernel@vger.kernel.org
+Cc: Sailesh Krishnamurthy <sailesh@EECS.Berkeley.EDU>, vojtech@suse.cz
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 15 May 2002 11:26:02 -0700
+Message-Id: <1021487163.12915.37.camel@dooby.cs.berkeley.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 May 2002, William Lee Irwin III wrote:
+Sailesh Krishmurthy and I have found what we believe is an exploitable
+bug in drivers/input/joydev.c:joydev_ioctl().  It looks like the
+JSIOCSAXMAP and JSIOCSBTNMAP cases accidentally reverse the arguments to
+copy_from_user().  A user program could call these ioctls with a
+maliciously chosen arg to crash the system or gain root access.  A patch
+is attached to this message (though my mailer will probably mangle it --
+sorry).  We apologize if we have misunderstood the behavior of this
+function.
 
-> Boots compiles and runs on an 4-way physical HT box. I didn't wake
-> the evil twins to cut down on the number of variables so it stayed
-> 4-way despite the ability to go 8-way.
-> 
-> Sliding window of 120 seconds, sampled every 15 seconds, under a
-> repetitive kernel compile load:
-> 
-> Wed May 15 09:56:37 PDT 2002
-> cpu  60701 0 5137 203545 9327
-> cpu0 15048 0 1566 50868 2298
-> cpu1 15257 0 1176 50818 2392
-> cpu2 15248 0 1346 50802 2247
-> cpu3 15148 0 1049 51057 2390
-	[... snip ...]
-> Wed May 15 09:58:22 PDT 2002
-> cpu  98583 0 8082 204779 9328
-> cpu0 24538 0 2254 51205 2298
-> cpu1 24521 0 2065 51180 2393
-> cpu2 24704 0 1978 51230 2247
-> cpu3 24820 0 1785 51164 2390
-> 
-> 
-> It looks very constant, not sure if it should be otherwise.
+We found this bug using the static analysis tool cqual,
+http://www.cs.berkeley.edu/~jfoster/cqual/, developed at UC Berkeley by
+Jeff Foster, John Kodumal, and many others.
 
-You show-offs with your big memory and everything in it... Okay, boot that
-puppy with mem=256m and try that again, particularly with -j4 (or -j8 with
-HT on). I bet THAT will give you some IOwait!
+Please CC us in any replies.
 
-I think you do want to try HT after you find out the memory is small
-enough. Pure curiousity on my part, I assume it will work, although the
-results might not be what I expect.
+Thanks for all your great work on the kernel.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Best,
+Rob Johnson (rtjohnso@cs.berkeley.edu)
+Sailesh Krishnamurthy (sailesh@cs.berkeley.edu)
+
+
+
+--- joydev.c    Wed May 15 10:25:26 2002
++++ joydev_fixed.c      Wed May 15 10:37:36 2002
+@@ -363,7 +363,7 @@
+                        return copy_to_user((struct js_corr *) arg,
+joydev->corr,
+                                                sizeof(struct js_corr) *
+joydev->nabs) ? -EFAULT : 0;
+                case JSIOCSAXMAP:
+-                       if (copy_from_user((__u8 *) arg, joydev->abspam,
+sizeof(__u8) *
+ABS_MAX))
++                       if (copy_from_user(joydev->abspam, (__u8 *) arg,
+sizeof(__u8) *
+ABS_MAX))
+                                return -EFAULT;
+                        for (i = 0; i < ABS_MAX; i++) {
+                                if (joydev->abspam[i] > ABS_MAX) return
+-EINVAL;
+@@ -374,7 +374,7 @@
+                        return copy_to_user((__u8 *) arg,
+joydev->abspam,
+                                                sizeof(__u8) * ABS_MAX)
+? -EFAULT : 0;
+                case JSIOCSBTNMAP:
+-                       if (copy_from_user((__u16 *) arg,
+joydev->absmap, sizeof(__u16) *
+(KEY_MAX - BTN_MISC)))
++                       if (copy_from_user(joydev->absmap, (__u16 *)
+arg, sizeof(__u16) *
+(KEY_MAX - BTN_MISC)))
+                                return -EFAULT;
+                        for (i = 0; i < KEY_MAX - BTN_MISC; i++); {
+                                if (joydev->keypam[i] > KEY_MAX ||
+joydev->keypam[i] < BTN_MISC)
+return -EINVAL;
+
 

@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262514AbUKQU6c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262540AbUKQUzc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262514AbUKQU6c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 15:58:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262545AbUKQU6X
+	id S262540AbUKQUzc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 15:55:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbUKQUxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 15:58:23 -0500
-Received: from smtp3.akamai.com ([63.116.109.25]:18591 "EHLO smtp3.akamai.com")
-	by vger.kernel.org with ESMTP id S262531AbUKQUyL (ORCPT
+	Wed, 17 Nov 2004 15:53:32 -0500
+Received: from fw.osdl.org ([65.172.181.6]:10383 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262514AbUKQUvi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 15:54:11 -0500
-Message-ID: <419BC8CF.424232E6@akamai.com>
-Date: Wed, 17 Nov 2004 13:55:27 -0800
-From: Prasanna Meda <pmeda@akamai.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: One more get_task_comm()
-Content-Type: text/plain; charset=us-ascii
+	Wed, 17 Nov 2004 15:51:38 -0500
+Date: Wed, 17 Nov 2004 12:51:14 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Corey Minyard <cminyard@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH} Network interface for IPMI
+Message-Id: <20041117125114.0c8fdf62.akpm@osdl.org>
+In-Reply-To: <419BB646.3070805@mvista.com>
+References: <419BB646.3070805@mvista.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Corey Minyard <cminyard@mvista.com> wrote:
+>
+> IPMI is a manage standard that allows intelligent management controllers 
+> to monitor things about the system (temperature, fan speed, etc.).  The 
+> management controllers sit on a bus, and have addresses, and such.  
+> After seeing the ugliness required for the 32-bit ioctl compatability 
+> layers for 64-bit kernels, I have decided that the network interface for 
+> IPMI is a good thing, as the IPMI device ioctls have pointers and 
+> require ugly hacks.  None should be needed for the network interface.
+> 
+> This patch adds that layer.
+> 
+> -#define NPROTO		32		/* should be enough for now..	*/
+> +#define NPROTO		64		/* should be enough for now..	*/
 
-Looking at  get_task_comm patch:
-http://linus.bkbits.net:8080/linux-2.5/patch@1.1803.144.3
+Boy, that was a big bump.  Was this intentional?
 
-There is one other place where task->comm is accessed
-outside current.  There are two issues.  The code is
-trying to copy to temp space without task_lock. It is not
-using temp space for actual user copy.
+> +static struct ipmi_sock *ipmi_socket_create1(struct socket *sock)
+> +{
+> +	struct ipmi_sock *i;
+> +
+> +	if (atomic_read(&ipmi_nr_socks) >= 2*files_stat.max_files)
+> +		return NULL;
 
---- arch/mips/kernel/sysirix.c.saved    Wed Nov 17 13:18:50 2004
-+++ arch/mips/kernel/sysirix.c  Wed Nov 17 13:29:11 2004
-@@ -282,7 +282,7 @@
-                int pid = (int) regs->regs[base + 5];
-                char *buf = (char *) regs->regs[base + 6];
-                struct task_struct *p;
--               char comm[16];
-+               char  comm[sizeof(current->comm)];
+Why this test?
 
-                retval = verify_area(VERIFY_WRITE, buf, 16);
-                if (retval)
-@@ -294,11 +294,11 @@
-                        retval = -ESRCH;
-                        break;
-                }
--               memcpy(comm, p->comm, 16);
-+               get_task_comm(comm, p);
-                read_unlock(&tasklist_lock);
+> +config IPMI_SOCKET
+> +	tristate "IPMI sockets"
+> +	depends on IPMI_HANDLER
+> +	---help---
+> +	  If you say Y here, you will include support for IPMI sockets;
+> +	  This way you don't have to use devices to access IPMI.  You
+> +	  must also enable the IPMI message handler and a low-level
+> +	  driver in the Character Drivers if you enable this.
+> +	  
+> +	  If unsure, say N.
 
-                /* XXX Need to check sizes. */
--               copy_to_user(buf, p->comm, 16);
-+               copy_to_user(buf, comm, 16);
-                retval = 0;
-                break;
-        }
-
-Related questions:
-
+Is this new kernel interface documented somewhere?

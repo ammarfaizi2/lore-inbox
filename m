@@ -1,86 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268317AbTAMUSl>; Mon, 13 Jan 2003 15:18:41 -0500
+	id <S268313AbTAMURE>; Mon, 13 Jan 2003 15:17:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268320AbTAMUSk>; Mon, 13 Jan 2003 15:18:40 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:38277 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S268317AbTAMURl>; Mon, 13 Jan 2003 15:17:41 -0500
-Date: Mon, 13 Jan 2003 15:28:45 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Kai Henningsen <kaih@khms.westfalen.de>
-cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make `obsolete params' work correctly if MODULE_SYMBOL_PRE
-In-Reply-To: <8do$n39mw-B@khms.westfalen.de>
-Message-ID: <Pine.LNX.3.95.1030113152122.30378A-100000@chaos.analogic.com>
+	id <S268317AbTAMURE>; Mon, 13 Jan 2003 15:17:04 -0500
+Received: from eamail1-out.unisys.com ([192.61.61.99]:10681 "EHLO
+	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
+	id <S268313AbTAMUQb>; Mon, 13 Jan 2003 15:16:31 -0500
+Message-ID: <3FAD1088D4556046AEC48D80B47B478C022BD8E9@usslc-exch-4.slc.unisys.com>
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "'Nakajima, Jun'" <jun.nakajima@intel.com>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       James Cleverdon <jamesclv@us.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: RE: APIC version
+Date: Mon, 13 Jan 2003 14:21:54 -0600
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Jan 2003, Kai Henningsen wrote:
+Wow, this is pretty brilliant, Jun! In cases like this one always thinks
+"Why this didn't occur to me, this is so obvious..." 
+(Sadly I noticed that I tend to go "round and about" sometimes instead of
+direct :(
+I hope this will get incorporated in the source tree.
 
-> rusty@rustcorp.com.au (Rusty Russell)  wrote on 11.01.03 in <20030111224007$7807@gated-at.bofh.it>:
-> 
-> > In message <Pine.LNX.4.44.0301102134150.9532-100000@home.transmeta.com> you
-> > wri te:
-> > >
-> > > On Sat, 11 Jan 2003, Rusty Russell wrote:
-> > > >
-> > > > Just in case someone names a variable over 2000 chars, and uses it as
-> > > > an old-style module parameter?
-> > >
-> > > No. Just because variable-sized arrays aren't C, and generate crappy code.
-> > >
-> > > >  	for (i = 0; i < num; i++) {
-> > > > +		char sym_name[strlen(obsparm[i].name)
-> > > > +			     + sizeof(MODULE_SYMBOL_PREFIX)];
-> > >
-> > > It's still there.
-> >
-> > OK, *please* explain to me in little words so I can understand.
-> 
-> Do "char sym_name[CONSTANT];". What's so hard to understand about that?
-> 
-> > Variable-sized arrays are C, as of C99.  They've been a GNU extension
-> > forever.
-> 
-> Actually, the gcc thing and the C99 thing are significantly different, and  
-> neither is a sub- or superset of the other. In fact, gcc's C99-conformance  
-> page (http://gcc.gnu.org/c99status.html) still lists VLAs as "broken".
-> 
-> See here for at least some explanation:
->         http://gcc.gnu.org/ml/gcc/2002-10/msg00470.html
-> 
-> > While gcc 2.95.4 generates fairly horrible code, gcc 3.0 does better
-> > (the two compilers I have on my laptop).
-> >
-> > Both generate correct code.
-> 
-> For the GNU extension, maybe.
-> 
-> MfG Kai
+Thanks,
 
-In principle, the idea of variable-length arrays should cause
-the compiler to generate very reasonable code because the
-length is only a value to subtract from ESP.
-
-void foo(int len)
-{
-   char use[0x100];
-   char bar[len];
-}
-
-In the case of 'use', the compiler subtracts (0x100 * sizeof(char))
-from the current stack value and uses that as the location for 'use'.
-In the case of 'bar' the compiler subtracts (len * sizeof(char))
-from the current stack value and uses that as the location for 'bar'.
+--Natalie 
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+-----Original Message-----
+From: Nakajima, Jun [mailto:jun.nakajima@intel.com]
+Sent: Monday, January 13, 2003 1:13 PM
+To: Protasevich, Natalie; Martin J. Bligh; Pallipadi, Venkatesh
+Cc: William Lee Irwin III; Christoph Hellwig; James Cleverdon; Linux
+Kernel
+Subject: RE: APIC version
 
 
+The only thing you need to do is 
+	processor.mpc_type = MP_PROCESSOR;
+ 	processor.mpc_apicid = id;
+-	processor.mpc_apicver = 0x10; /* TBD: lapic version */
++	processor.mpc_apicver = GET_APIC_VERSION(apic_read(APIC_LVR));
+ 	processor.mpc_cpuflag = (enabled ? CPU_ENABLED : 0);
+ 	processor.mpc_cpuflag |= (boot_cpu ? CPU_BOOTPROCESSOR : 0);
+ 	processor.mpc_cpufeature = (boot_cpu_data.x86 << 8) |
+
+Jun
+
+>

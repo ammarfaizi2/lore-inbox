@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261351AbTIZC0r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 22:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbTIZC0r
+	id S261438AbTIZDOU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 23:14:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbTIZDOU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 22:26:47 -0400
-Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:21150 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S261351AbTIZC0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 22:26:46 -0400
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: Linus Torvalds <torvalds@osdl.org>, andrea@kernel.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Matthew Wilcox <willy@debian.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       Larry McVoy <lm@bitmover.com>
-Subject: Re: log-buf-len dynamic
-References: <Pine.LNX.4.44.0309231924540.27467-100000@home.osdl.org>
-	<m1n0csiybu.fsf@ebiederm.dsl.xmission.com>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 26 Sep 2003 11:25:07 +0900
-In-Reply-To: <m1n0csiybu.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <buooex8477g.fsf@mcspd15.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
+	Thu, 25 Sep 2003 23:14:20 -0400
+Received: from washoe.rutgers.edu ([165.230.95.67]:39042 "EHLO
+	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S261438AbTIZDOT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 23:14:19 -0400
+Date: Thu, 25 Sep 2003 23:14:14 -0400
+From: Yaroslav Halchenko <yoh@onerussian.com>
+To: Milton Miller <miltonm@bga.com>, Greg KH <greg@kroah.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: USB problem. 'irq 9: nobody cared!'
+Message-ID: <20030926031414.GA26790@washoe.rutgers.edu>
+Mail-Followup-To: Milton Miller <miltonm@bga.com>, Greg KH <greg@kroah.com>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200309242257.h8OMvR5d090443@sullivan.realtime.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309242257.h8OMvR5d090443@sullivan.realtime.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederm@xmission.com (Eric W. Biederman) writes:
-> ARCH is barely distributed and architecturally it makes distributed
-> merging hard.
+I've tried again with recent bk12 kernel and this patch worked... 
 
-Are you are kidding?  Arch is _insanely_ good at handling both
-distributed repositories and merging -- those are if anything its
-greatest strengths.  Everyday development of tla (the latest/greatest
-arch implementation) involves many people with their own repositories,
-merging back and forth.
+May be I was too tired and actually didn't patch the first time I
+tried, and then reported to you that it didn't help - I'm sorry. Will
+check later if it is the case.
 
-Really, if you have explicit complaints/observations about arch's
-handling of these things, please share them, because on the surface
-that statement just seems kind of bizarre.
+Thanx for your help
 
--Miles
--- 
-`The suburb is an obsolete and contradictory form of human settlement'
+Sincerely 
+Yarik
+
+On Wed, Sep 24, 2003 at 05:57:27PM -0500, Milton Miller wrote:
+> 
+> Yaroslav Halchenko wrote:
+> > Greg KH wrote:
+> > > Did you try David Brownell's patch for this issue?
+> > Can you please point which one exactly? I've tried to locate patch you
+> > meant but it is too much of USB staff is happening now seems to me.
+> 
+> 
+> I'm guessing this one: Re: irq 11: nobody cared! is back
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=106399942523614&w=2
+> 
+> 
+> milton
+                                  .-.
+=------------------------------   /v\  ----------------------------=
+Keep in touch                    // \\     (yoh@|www.)onerussian.com
+Yaroslav Halchenko              /(   )\               ICQ#: 60653192
+                   Linux User    ^^-^^    [175555]

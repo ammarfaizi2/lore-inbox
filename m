@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261640AbTBNRBM>; Fri, 14 Feb 2003 12:01:12 -0500
+	id <S262838AbTBNRCf>; Fri, 14 Feb 2003 12:02:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261530AbTBNRBL>; Fri, 14 Feb 2003 12:01:11 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:19041
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S261640AbTBNRBG>; Fri, 14 Feb 2003 12:01:06 -0500
-Date: Fri, 14 Feb 2003 12:09:19 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Andi Kleen <ak@suse.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH][2.5][14/14] smp_call_function_on_cpu - x86_64
-In-Reply-To: <20030214144723.GA25691@wotan.suse.de>
-Message-ID: <Pine.LNX.4.50.0302141208040.3518-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0302140412190.3518-100000@montezuma.mastecende.com>
- <Pine.LNX.4.50.0302140751530.3518-100000@montezuma.mastecende.com>
- <20030214144723.GA25691@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262089AbTBNRCe>; Fri, 14 Feb 2003 12:02:34 -0500
+Received: from bitmover.com ([192.132.92.2]:683 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S261721AbTBNRCc>;
+	Fri, 14 Feb 2003 12:02:32 -0500
+Date: Fri, 14 Feb 2003 09:12:19 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       David Dillow <dillowd@y12.doe.gov>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: 3Com 3cr990 driver release
+Message-ID: <20030214171219.GB6564@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Tomas Szepe <szepe@pinerecords.com>, Larry McVoy <lm@bitmover.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	David Dillow <dillowd@y12.doe.gov>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-net@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+References: <3E4C9FAA.FC8A2DC7@y12.doe.gov> <1045233209.7958.11.camel@irongate.swansea.linux.org.uk> <20030214151920.GA3188@work.bitmover.com> <1045241640.1353.13.camel@irongate.swansea.linux.org.uk> <20030214160915.GC3188@work.bitmover.com> <1045243414.1353.28.camel@irongate.swansea.linux.org.uk> <20030214163611.GD3188@work.bitmover.com> <20030214170420.GD200@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030214170420.GD200@louise.pinerecords.com>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Feb 2003, Andi Kleen wrote:
-
-> On Fri, Feb 14, 2003 at 07:52:15AM -0500, Zwane Mwaikambo wrote:
-> > One liner to fix num_cpus == 0 on SMP kernel w/ UP box
+On Fri, Feb 14, 2003 at 06:04:20PM +0100, Tomas Szepe wrote:
+> > [lm@bitmover.com]
+> > 
+> > No, I'm countering a pile of pathetic FUD from someone who has no
+> > business spreading it.  I've taken a lot of crap in return for helping
+> > the kernel effort and I'm sick of it.
 > 
-> Shouldn't num_cpus be 1 in that case ?
+> Look, I don't want this to sound harsh, but what did you expect?
 
-We mask out current cpu first like so;
+I had the naive expectation that having been around in the kernel
+community for a long time, and having never done anything except attempt
+to continue to help, that maybe people would wait until some wrong took
+place before starting with the mud slinging.
 
-mask &= ~(1UL << smp_processor_id());
-num_cpus = hweight(mask);
-if (num_cpus == )
-	return 0;
-
-So really it's number of eligible IPI cpus
-
-	Zwane
+Silly me, what was I thinking?
 -- 
-function.linuxpower.ca
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

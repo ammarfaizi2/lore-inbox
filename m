@@ -1,92 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbVCZIIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262022AbVCZIKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261647AbVCZIIT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 03:08:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbVCZIIS
+	id S262022AbVCZIKo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 03:10:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbVCZIKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 03:08:18 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:45869 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261647AbVCZIIL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 03:08:11 -0500
-Date: Sat, 26 Mar 2005 09:09:18 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Alexey Dobriyan <adobriyan@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc1-bk1: Inconsistent kallsyms data
-Message-ID: <20050326080918.GA16087@mars.ravnborg.org>
-References: <200503260343.03342.adobriyan@mail.ru>
+	Sat, 26 Mar 2005 03:10:43 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:51619 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262017AbVCZIKg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 03:10:36 -0500
+Subject: Re: 2.6.12-rc1 breaks dosemu
+From: Arjan van de Ven <arjan@infradead.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       linux-msdos@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <200503252354.53154.arnd@arndb.de>
+References: <20050320021141.GA4449@stusta.de>
+	 <200503251952.33558.arnd@arndb.de>
+	 <1111778074.6312.87.camel@laptopd505.fenrus.org>
+	 <200503252354.53154.arnd@arndb.de>
+Content-Type: text/plain; charset=UTF-8
+Date: Sat, 26 Mar 2005 09:10:29 +0100
+Message-Id: <1111824629.6293.19.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503260343.03342.adobriyan@mail.ru>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 26, 2005 at 03:43:03AM +0300, Alexey Dobriyan wrote:
-> While building 2.6.12-rc1-bk1 with attached config I get "Inconsistent
-> kallsyms data".
+On Fri, 2005-03-25 at 23:54 +0100, Arnd Bergmann wrote:
+> On Freedag 25 März 2005 20:14, Arjan van de Ven wrote:
 > 
-> Setting CONFIG_KALLSYMS_EXTRA_PASS or CONFIG_KALLSYMS_ALL fixes the problem.
+> > the randomisation patches came in a series of 8 patches (where several
+> > were general infrastructure); could you try to disable the individual
+> > randomisations one at a time to see which one causes this effect?
+> 
+> It's caused by top-of-stack-randomization.patch.
 
-Please try attached patch. What you see may be the linker deciding to
-re-shuffle some sections a bit more than usual.
-Patch has been in -mm for a while.
+> eip: 0x000069ee  esp: 0xbfdbffcc  eflags: 0x00010246
 
-	Sam
+hmm interesting. Can you check if at the time of the crash, the esp is
+actually inside the stack vma? If it's not, I wonder what dosemu does to
+get its stack pointer outside the vma... (and on which side of the vma
+it is)
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2005/03/14 20:56:01+01:00 sam@mars.ravnborg.org 
-#   kbuild: Avoid inconsistent kallsyms data
-#   
-#   Several reports on inconsistent kallsyms data has been caused by the aliased symbols
-#   __sched_text_start and __down to shift places in the output of nm.
-#   The root cause was that on second pass ld aligned __sched_text_start to a 4 byte boundary
-#   which is the function alignment on i386.
-#   sched.text and spinlock.text is now aligned to an 8 byte boundary to make sure they
-#   are aligned to a function alignemnt on most (all?) archs.
-#   
-#   Tested by: Paulo Marques <pmarques@grupopie.com>
-#   Tested by: Alexander Stohr <Alexander.Stohr@gmx.de>
-#   
-#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-# 
-# include/asm-generic/vmlinux.lds.h
-#   2005/03/14 20:55:39+01:00 sam@mars.ravnborg.org +9 -0
-#   Align sched.text and spinlock.text to an 8 byte boundary
-# 
-diff -Nru a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
---- a/include/asm-generic/vmlinux.lds.h	2005-03-26 09:07:42 +01:00
-+++ b/include/asm-generic/vmlinux.lds.h	2005-03-26 09:07:42 +01:00
-@@ -6,6 +6,9 @@
- #define VMLINUX_SYMBOL(_sym_) _sym_
- #endif
- 
-+/* Align . to a 8 byte boundary equals to maximum function alignment. */
-+#define ALIGN_FUNCTION()  . = ALIGN(8)
-+
- #define RODATA								\
- 	.rodata           : AT(ADDR(.rodata) - LOAD_OFFSET) {		\
- 		*(.rodata) *(.rodata.*)					\
-@@ -79,12 +82,18 @@
- 		VMLINUX_SYMBOL(__security_initcall_end) = .;		\
- 	}
- 
-+/* sched.text is aling to function alignment to secure we have same
-+ * address even at second ld pass when generating System.map */
- #define SCHED_TEXT							\
-+		ALIGN_FUNCTION();					\
- 		VMLINUX_SYMBOL(__sched_text_start) = .;			\
- 		*(.sched.text)						\
- 		VMLINUX_SYMBOL(__sched_text_end) = .;
- 
-+/* spinlock.text is aling to function alignment to secure we have same
-+ * address even at second ld pass when generating System.map */
- #define LOCK_TEXT							\
-+		ALIGN_FUNCTION();					\
- 		VMLINUX_SYMBOL(__lock_text_start) = .;			\
- 		*(.spinlock.text)					\
- 		VMLINUX_SYMBOL(__lock_text_end) = .;

@@ -1,57 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319753AbSIMTCU>; Fri, 13 Sep 2002 15:02:20 -0400
+	id <S319741AbSIMTDV>; Fri, 13 Sep 2002 15:03:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319754AbSIMTCU>; Fri, 13 Sep 2002 15:02:20 -0400
-Received: from smtp.comcast.net ([24.153.64.2]:29695 "EHLO smtp.comcast.net")
-	by vger.kernel.org with ESMTP id <S319753AbSIMTCT>;
-	Fri, 13 Sep 2002 15:02:19 -0400
-Date: Fri, 13 Sep 2002 15:02:18 -0400
-From: Adam Jaskiewicz <adamjaskie@comcast.net>
-Subject: Re: Configuring kernel
-In-reply-to: <20020913184715.62063.qmail@web13205.mail.yahoo.com>
-To: Srinivas Chavva <chavvasrini@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Reply-to: adamjaskie@comcast.net
-Message-id: <02091315021800.01433@aragorn>
-MIME-version: 1.0
-X-Mailer: KMail [version 1.2]
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-References: <20020913184715.62063.qmail@web13205.mail.yahoo.com>
+	id <S319749AbSIMTDV>; Fri, 13 Sep 2002 15:03:21 -0400
+Received: from gw-ipex.infonet.cz ([212.71.128.102]:41973 "EHLO
+	cimice.maxinet.cz") by vger.kernel.org with ESMTP
+	id <S319741AbSIMTDT>; Fri, 13 Sep 2002 15:03:19 -0400
+Message-ID: <001101c25b58$e2b09c30$4500a8c0@cybernet.cz>
+From: "=?iso-8859-2?B?VmxhZGlt7XIgVPhlYmlja/0=?=" <druid@mail.cz>
+To: <linux-kernel@vger.kernel.org>
+Subject: Problem with swap
+Date: Fri, 13 Sep 2002 21:08:03 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I downloaded the sofware and opened it in the /usr/src
-> directory. I did the following
-> 1. unzipped the tar file
-> 2. mv linux linux-2.4.16
-> 3 ln -s linux-2.4.16 linux
-> 4. changed to linux directory and issued the command
-> make mproper.
-> Then when I issued the command make xconfig I was
-> getting errors. I got similar errors when I tried to
-> use the following commands make menuconfig, make
-> config.
+linux-2.4.20-pre5-ac4
 
-What errors did you get? We need to know what the errors are to help you.
+Every access to swap causes:
 
-> When I used the command uname -i I still was getting
-> the kernel version as 2.4.2.
-> I do not know why this error is coming.
+Sep 13 19:50:34 shunka kernel: kernel BUG at page_alloc.c:117!
+Sep 13 19:50:34 shunka kernel: invalid operand: 0000
+Sep 13 19:50:34 shunka kernel: CPU:    0
+Sep 13 19:50:34 shunka kernel: EIP:    0010:[<c012ab39>]    Not tainted
+Sep 13 19:50:34 shunka kernel: EFLAGS: 00010282
+Sep 13 19:50:34 shunka kernel: eax: 01000010   ebx: c10b8504   ecx: c028a39c
+edx: c1237088
+Sep 13 19:50:34 shunka kernel: esi: 00000000   edi: 00040000   ebp: 085e5000
+esp: c48f7e30
+Sep 13 19:50:34 shunka kernel: ds: 0018   es: 0018   ss: 0018
+Sep 13 19:50:34 shunka kernel: Process cc1 (pid: 12341, stackpage=c48f7000)
+Sep 13 19:50:34 shunka kernel: Stack: c10b8504 00173000 00040000 085e5000
+0000b000 c100000c c10f8b44 c028a39c
+Sep 13 19:50:34 shunka kernel:        c103400c c028a3d8 00000217 ffffffff
+00004f3c c012b389 c012b807 c10b8504
+Sep 13 19:50:34 shunka kernel:        c011f5f9 c10b8504 c1f20894 c011fa2b
+038b6067 cbb02f20 ca2a30a0 00173000
+Sep 13 19:50:34 shunka kernel: Call Trace:    [<c012b389>] [<c012b807>]
+[<c011f5f9>] [<c011fa2b>] [<c0122192>]
+Sep 13 19:50:34 shunka kernel:   [<c0112212>] [<c0116265>] [<c011b21a>]
+[<c01085cf>] [<c010fd34>] [<c0117696>]
+Sep 13 19:50:34 shunka kernel:   [<c01175d6>] [<c01173ea>] [<c0109c0d>]
+[<c0108844>] [<c0108774>]
+Sep 13 19:50:34 shunka kernel:
+Sep 13 19:50:34 shunka kernel: Code: 0f 0b 75 00 cc 3d 24 c0 8b 43 18 24 eb
+89 43 18 c6 43 24 05
 
-This is not an error. If you did not install a new kernel and reboot your 
-computer with the new kernel, uname will still have the same kernel version. 
-Once you have properly configured, compiled and installed the kernel and its 
-modules, you reboot the computer to apply the new kernel. Then uname will 
-give you the new version.
+There is also some warning on console. Something like "trying to access
+place outside partition".
 
--- 
-Adam Jaskiewicz
-adamjaskie@comcast.net
-http://middlearth.d2g.com:31415
-GPG Public Key at http://middlearth.d2g.com:31415/public_key.asc
 --
-Ehrman's Commentary:
-	(1) Things will get worse before they get better.
-	(2) Who said things would get better?
+Vladimir Trebicky
+druid@mail.cz
+

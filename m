@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267413AbUIJPNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267452AbUIJPOG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267413AbUIJPNm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 11:13:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267452AbUIJPNm
+	id S267452AbUIJPOG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 11:14:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267460AbUIJPOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 11:13:42 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:50851 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S267413AbUIJPNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 11:13:40 -0400
-Message-ID: <4141C49E.3070509@nortelnetworks.com>
-Date: Fri, 10 Sep 2004 09:13:34 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: having problems with remap_page_range() and virt_to_phys()
-References: <Pine.LNX.4.44.0409101501530.16728-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0409101501530.16728-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 10 Sep 2004 11:14:04 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:63387
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S267452AbUIJPN5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 11:13:57 -0400
+Subject: Re: [PATCH] sis5513 fix for SiS962 chipset
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Lionel Bouton <Lionel.Bouton@inet6.fr>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux-IDE <linux-ide@vger.kernel.org>
+In-Reply-To: <4141BFDF.1050200@inet6.fr>
+References: <1094826555.7868.186.camel@thomas.tec.linutronix.de>
+	 <4141BFDF.1050200@inet6.fr>
+Content-Type: text/plain
+Organization: linutronix
+Message-Id: <1094828803.13450.4.camel@thomas.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 10 Sep 2004 17:06:43 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> On Thu, 9 Sep 2004, Chris Friesen wrote:
+On Fri, 2004-09-10 at 16:53, Lionel Bouton wrote:
+> Thomas Gleixner wrote the following on 09/10/2004 04:29 PM :
+> 
+> >Hi,
+> >
+> >1. If the fake 5513 id bit is not set by the BIOS we must have the 5518
+> >id in the device table.
+> >
+> >2. If the register remapping is not set by the BIOS then the enable bit
+> >check in ide_pci_setup_ports will fail. It's safe to switch to the
+> >remapping mode here. Keeping the not remapped mode would need quite big
+> >changes AFAICS.
+>
+> I was worried about these when 5518 was introduced but couldn't test on 
+> the hardware I had at hand and nobody reported hitting this so it went 
+> under the carpet. What hardware did you use to test ?
 
-> You will need to SetPageReserved(pg) for remap_page_range to map it.
-> And no, remembering your earlier pleas, the MM system doesn't clean
-> up for you, you'll need to ClearPageReserved and free the page when
-> it's all done with (if ever).
+Compact PCI ICP-P4 from Inova Computers.
 
-Right.  I actually did call SetPageReserved(pg), I just forgot to include it in 
-the code snippet--my test machine is on the other side of the country and I 
-managed to hose it nicely last night.
+They have not set the 5513 fake id bit and the remapping bit isn't set
+either. I did thorough testing both on 2.4 and 2.6 and encountered no
+problems yet. I suspect there are more boards around with similar
+settings.
 
-> virt_to_phys applies to the kernel virtual address (what you name "virt"
-> above), it won't work on a user virtual address, that's something else.
+tglx
 
-Aha.  That may be part of my problem, at least on the verification side.
 
-> But there are plenty
-> of examples of using remap_page_range in the kernel source tree, maybe
-> not all of them quite correct, but I'd have thought you could work out
-> what you need from those examples.
-
-So did I...the code finishes without errors, but the assembly language part 
-doesn't work properly.  (And it does work with another method of getting memory, 
-but that method breaks as soon as you go highmem...)
-
-Chris

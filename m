@@ -1,81 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131979AbQLHPFA>; Fri, 8 Dec 2000 10:05:00 -0500
+	id <S132044AbQLHPFa>; Fri, 8 Dec 2000 10:05:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129841AbQLHPEu>; Fri, 8 Dec 2000 10:04:50 -0500
-Received: from air.lug-owl.de ([62.52.24.190]:9232 "HELO air.lug-owl.de")
-	by vger.kernel.org with SMTP id <S131979AbQLHPEh>;
-	Fri, 8 Dec 2000 10:04:37 -0500
-Date: Fri, 8 Dec 2000 15:34:09 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+	id <S129841AbQLHPFM>; Fri, 8 Dec 2000 10:05:12 -0500
+Received: from tiku.hut.fi ([130.233.228.86]:14855 "EHLO tiku.hut.fi")
+	by vger.kernel.org with ESMTP id <S131878AbQLHPFA>;
+	Fri, 8 Dec 2000 10:05:00 -0500
+Date: Fri, 8 Dec 2000 16:34:32 +0200 (EET)
+From: Janne Pänkälä <epankala@cc.hut.fi>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: NTFS repair tools]
-Message-ID: <20001208153408.A19802@lug-owl.de>
-Reply-To: jbglaw@lug-owl.de
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3A30552D.A6BE248C@timpanogas.org> <20001207221347.R6567@cadcamlab.org> <3A3066EC.3B657570@timpanogas.org> <20001208005337.A26577@alcove.wittsend.com> <3A306994.63DB8208@timpanogas.org> <4.3.2.7.2.20001208081657.00b15220@mail.osagesoftware.com> <20001208144342.B25391@khan.acc.umu.se>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZGiS0Q5IWpPtfppv"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001208144342.B25391@khan.acc.umu.se>; from tao@acc.umu.se on Fri, Dec 08, 2000 at 02:43:42PM +0100
-X-Operating-System: Linux air 2.4.0-test8-pre1
+Subject: K6-2+ and MSR registers (PowerNOW)
+Message-ID: <Pine.OSF.4.10.10012081613060.10426-100000@alpha.hut.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bought myself this new CPU that is mainly available for laptops.
 
---ZGiS0Q5IWpPtfppv
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I have Tyan S1590 board which BIOS won't POST if I set cpu speed (it's
+500Mhz chip) >300Mhz. This won't matter much in windows since I can there
+use graphical utility which allows one to set whe CPU clock multiplier in
+flight as 2.0 - 6.0. But since my machine is Linux like 98% of the time
+I'd like to do same in linux.
 
-On Fri, Dec 08, 2000 at 02:43:42PM +0100, David Weinehall wrote:
-> On Fri, Dec 08, 2000 at 08:19:46AM -0500, David Relson wrote:
-> > At 11:54 PM 12/7/00, Jeff V. Merkey wrote:
+Things I have considered are. Do I need to recalculate BoGos? Do I need to
+reserve the IO space to access it from user space.
 
-> No amount of warnings can prevent morons from f**king up. Unix gives
-> you enough rope et al. I'm not arguing for removal of any warning, but
-> seriously, if we have a loud (DANGEROUS) warning in the config-system
-> aaaaaand a warning in the help-text that the write-support probably will
-> mess up your fs, how much more can you do? I bet that if we remove the
+what I have tried basically (in user space and kernel space) is
 
-Well, simply insert sth. like this into ./fs/ntfs/fs.c:parse_options()
+mov ecx, 0c0000086h
+mov edx, 0
+mov eax, 0fff1h
+wrmsr
 
-printk(KERN_EMERG "You're likely to crash your NTFS if you do any "
-	"write attempts to it. NTFS write support is broken and for "
-	"developers *only*. Do only use this if you're debugging it, "
-	"never ever use this on data you'd like to see tomorrow "
-	"again!!! Please remount in read-only mode *now* or don't "
-	"complain afterwards!");
+which is supposed to turn on the powernow feature and set the I/O access
+region to 0xfff0 (and 16 bytes upwards actual 4 byte informational block
+being at +8 offset) where one can change clock multiplier and do other
+stuff.
 
-Maybe that can prevent pupils^H^H^H^H^Heople from shooting their
-foots...
+however access to io region 0xfff0-0xffff remains denied for me in
+userspace. In kernel I read it with inw(addr) and there I just get data
+that cannot be correct. (it returns ffff)
 
-MfG, JBG
+If someone knows how to read / write MSR registers and high IO ports in
+userlevel I'd be thankful for a hint. also RTFM or RTFC pointers are
+appreciated.
 
---=20
-Fehler eingestehen, Gr=F6=DFe zeigen: Nehmt die Rechtschreibreform zur=FCck=
-!!!
-/* Jan-Benedict Glaw <jbglaw@lug-owl.de> -- +49-177-5601720 */
-keyID=3D0x8399E1BB fingerprint=3D250D 3BCF 7127 0D8C A444 A961 1DBD 5E75 83=
-99 E1BB
-     "insmod vi.o and there we go..." (Alexander Viro on linux-kernel)
+I have read IO howto and iopl() doesn't work.
 
---ZGiS0Q5IWpPtfppv
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+In the end it would be nice to do proc entry or user space program that
+allows one to [sg]et cpu speed and other PowerNOW properties.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.2 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+PS.
+   references: mobile amd-k6-2+ processor datasheet 23446.pdf by AMD
 
-iEYEARECAAYFAjow8WAACgkQHb1edYOZ4bs7/ACgiHIz9n2tMYGp7O9DVxp/ys9r
-/0gAnRb7Dd7A9g0STZBvx14to7rQY3sY
-=Ru7K
------END PGP SIGNATURE-----
+PPS.
+   I'd appriciate if possible answers could be also CC'd to me.
 
---ZGiS0Q5IWpPtfppv--
+
+Janne Pänkälä
+
+-- 
+Janne
+echo peufiuhu@tt.lac.nk | tr acefhiklnptu utpnlkihfeca
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbTIYLin (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 07:38:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbTIYLin
+	id S261809AbTIYLe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 07:34:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbTIYLe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 07:38:43 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:61710 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261807AbTIYLil (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 07:38:41 -0400
-Date: Thu, 25 Sep 2003 12:38:31 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Armin Schindler <armin@melware.de>
-Cc: Adrian Bunk <bunk@fs.tum.de>, isdn4linux@listserv.isdn4linux.de,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: 2.6 eicon/ and hardware/eicon/ drivers using the same symbols
-Message-ID: <20030925123831.A10840@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Armin Schindler <armin@melware.de>, Adrian Bunk <bunk@fs.tum.de>,
-	isdn4linux@listserv.isdn4linux.de,
-	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-References: <20030925101541.GH15696@fs.tum.de> <Pine.LNX.4.31.0309251331150.21651-100000@phoenix.one.melware.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.31.0309251331150.21651-100000@phoenix.one.melware.de>; from armin@melware.de on Thu, Sep 25, 2003 at 01:33:53PM +0200
+	Thu, 25 Sep 2003 07:34:26 -0400
+Received: from h139-142-214-162.gtcust.grouptelecom.net ([139.142.214.162]:33034
+	"EHLO smtp.atrium.ca") by vger.kernel.org with ESMTP
+	id S261809AbTIYLeY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 07:34:24 -0400
+Message-id: <fc.0086957300614ebd008695730061456b.614ebe@atrium.ca>
+Date: Thu, 25 Sep 2003 06:36:09 -0500
+Subject: Re: 2.6.0-test5-mm3 Promise SuperTrak SX6000 unrecognized
+To: Juergen Sawinski <george@mpimf-heidelberg.mpg.de>
+Cc: linux-kernel@vger.kernel.org
+From: "Dave Poirier" <dave.poirier@atrium.ca>
+References: <fc.008695730061456b008695730061456b.6145b2@atrium.ca>
+ <1064474599.11158.3.camel@voyager.earth.ufp>
+In-Reply-To: <1064474599.11158.3.camel@voyager.earth.ufp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 25, 2003 at 01:33:53PM +0200, Armin Schindler wrote:
-> The legacy eicon driver in drivers/isdn/eicon is the old one and will be
-> removed as soon as all features went to the new driver.
-> Anyway this old driver was never meant to be non-module.
+Juergen Sawinski <george@mpimf-heidelberg.mpg.de> writes:
+>http://lkml.org/lkml/2003/2/4/138
+>(and other threads)
+>
+>--> 2) In the BIOS of the card, set it to "Other OS', not Linux
+>--> 3) Disable support for Promise cards in Linux
+>
+>George
 
-What about just killing it off?  If users really want the old one
-on 2.6 you can put up a tarball for them somewhere.
+I've done that already.
 
-The driver is so horrinly ugly that it better goes away sooner than
-later..
+-Dave
+
 

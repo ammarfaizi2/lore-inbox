@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261935AbSJISUJ>; Wed, 9 Oct 2002 14:20:09 -0400
+	id <S262203AbSJISXb>; Wed, 9 Oct 2002 14:23:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261941AbSJISUJ>; Wed, 9 Oct 2002 14:20:09 -0400
-Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:22687
-	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
-	id <S261935AbSJISTH>; Wed, 9 Oct 2002 14:19:07 -0400
-From: Tim Hockin <thockin@hockin.org>
-Message-Id: <200210091824.g99IOkI18617@www.hockin.org>
-Subject: Re: [PATCH] 2.5.41 s390 (8/8): 16 bit uid/gids.
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Wed, 9 Oct 2002 11:24:46 -0700 (PDT)
-Cc: thockin@hockin.org (Tim Hockin),
-       schwidefsky@de.ibm.com (Martin Schwidefsky),
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0210091046170.7355-100000@home.transmeta.com> from "Linus Torvalds" at Oct 09, 2002 10:47:36 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S262204AbSJISXb>; Wed, 9 Oct 2002 14:23:31 -0400
+Received: from relay.muni.cz ([147.251.4.35]:8886 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id <S262203AbSJISX3>;
+	Wed, 9 Oct 2002 14:23:29 -0400
+Newsgroups: cz.muni.redir.linux-kernel
+Path: news
+From: Petr Konecny <pekon@fi.muni.cz>
+Subject: Re: 2.5.41-ac1: Debug: sleeping function called from illegal context at include/asm/semaphore.h:145
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+Message-ID: <qwwzntnxy8b.fsf@decibel.fi.muni.cz>
+Cc: akpm@digeo.com, rml@tech9.net
+Date: Wed, 9 Oct 2002 18:29:08 GMT
+X-Nntp-Posting-Host: decibel.fi.muni.cz
+X-Url: http://www.fi.muni.cz/~pekon/
+Content-Type: text/plain; charset=us-ascii
+References: <20021008031136.GA1887@izno.net>
+Mime-Version: 1.0
+Organization: unknown
+X-Muni-Virus-Test: Clean
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 9 Oct 2002, Tim Hockin wrote:
-> > Linus, This is actually something I sent to Martin (and DaveM).  The __UID16
-> > crap is because s390x and Sparc64 (and others?) do not want the highuid
-> > stuff except in very specific places - namely compat code.  Just using
-> > CONFIG_UID16_SYSCALLS has the same bad side-effect as CONFIG_UID16 - all or
-> > nothing.  In short, we want to build uid16.o with highuid translations, and
-> > a few other compat objects, but not everything.  Ugly.
-> 
-> So why don't we just split it up into all the sub-options? So that you 
-> have a smørgåsbord of real options to select from..
-> 
-> In other words, that __UID16 thing should be a real CONFIG_XXX option.
+>>>>> Martin Dahl (Martin) said:
 
-Because Sparc64/s390x/? still need to tell highuid.h to do macro magic for
-NEW_TO_OLD_UID() and friends in some places and not others.  A CONFIG_XXX
-applies all the time to all files.
+ Martin> On my thinkpad a20m i get the following debug messages during boot:
+ Martin> At IDE initialization:
 
-We can make the few sparc64/s390x sections just redefine the macros they
-want in the files in question, if you prefer, but uid16.c is still a user of
-highuid.h and needs to define __UID16.  If you prefer, __UID16 can be called
-DO_HIGHUID_CONVERSIONS.
+ Martin> Debug: sleeping function called from illegal context at mm/slab.c:1374
+ Martin> Call Trace:
+ Martin> [__kmem_cache_alloc+202/208] __kmem_cache_alloc+0xca/0xd0
+ Martin> [blk_init_free_list+101/224] blk_init_free_list+0x65/0xe0
+ Martin> [blk_init_queue+23/256] blk_init_queue+0x17/0x100
+ Martin> [ide_init_queue+57/160] ide_init_queue+0x39/0xa0
+ Martin> [do_ide_request+0/48] do_ide_request+0x0/0x30
+ Martin> [init_irq+462/912] init_irq+0x1ce/0x390
+ Martin> [ide_intr+0/384] ide_intr+0x0/0x180
+ Martin> [hwif_init+216/608] hwif_init+0xd8/0x260
+ Martin> [probe_hwif_init+36/112] probe_hwif_init+0x24/0x70
+ Martin> [ide_setup_pci_device+80/128] ide_setup_pci_device+0x50/0x80
+ Martin> [piix_init_one+54/64] piix_init_one+0x36/0x40
+ Martin> [init+53/352] init+0x35/0x160
+ Martin> [init+0/352] init+0x0/0x160
+ Martin> [kernel_thread_helper+5/16] kernel_thread_helper+0x5/0x10
+Same here on Dell Inspiron 5000.
 
-#define DO_HIGHUID_CONVERSIONS
-#include <linux/uid16.h>
+Happens with CONFIG_PREEMPT=y. Disappears with CONFIG_PREEMPT=n.
 
-Or have a new uid16.h that unconditionally defines the macros.  Then
-highuid.h can include uid16.h IFF CONFIG_UID16, and uid16.c can include
-uid16.h.  I see this as MORE problematic, because someone, somewhere will
-include uid16.h when they meant highuid.h.  Forcing a non CONFIG_UID16 arch
-to explicity call out "I want uid16 macro conversion for THIS FILE" seems
-safe.  Ugly, but safe.
+                                                Petr
 

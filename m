@@ -1,71 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267480AbUG2Ptw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267790AbUG2PyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267480AbUG2Ptw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 11:49:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265962AbUG2PhS
+	id S267790AbUG2PyM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 11:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264929AbUG2Pwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 11:37:18 -0400
-Received: from pop.gmx.net ([213.165.64.20]:64473 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S268035AbUG2PN0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 11:13:26 -0400
-Date: Thu, 29 Jul 2004 17:13:24 +0200 (MEST)
-From: "Daniel Blueman" <daniel.blueman@gmx.net>
-To: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
+	Thu, 29 Jul 2004 11:52:50 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:19643 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S268213AbUG2PsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 11:48:14 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com, fastboot@osdl.org,
+       mbligh@aracnet.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jesse Barnes <jbarnes@engr.sgi.com>
+Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
+References: <16734.1090513167@ocs3.ocs.com.au>
+	<200407280903.37860.jbarnes@engr.sgi.com>
+	<m1bri06mgw.fsf@ebiederm.dsl.xmission.com>
+	<200407281106.17626.jbarnes@engr.sgi.com>
+	<20040728124405.1a934bec.akpm@osdl.org>
+	<m1pt6f681y.fsf@ebiederm.dsl.xmission.com>
+	<1091055192.31923.1.camel@localhost.localdomain>
+	<m14qnr62hd.fsf@ebiederm.dsl.xmission.com>
+	<1091109602.851.4.camel@localhost.localdomain>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 29 Jul 2004 09:47:01 -0600
+In-Reply-To: <1091109602.851.4.camel@localhost.localdomain>
+Message-ID: <m1zn5ike8a.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-Subject: [2.6.7, ia64] sleeping while atomically allocating...
-X-Priority: 3 (Normal)
-X-Authenticated: #8973862
-Message-ID: <15341.1091114004@www4.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I saw this warning [1] while a process was dumping core. Hardware is a
-generic ia64 4-way Itanium 2 Intel tiger 4 system.
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
---- [1]
+> On Iau, 2004-07-29 at 02:12, Eric W. Biederman wrote:
+> > Or those devices that hang the machine when you clear it.
+> 
+> There are none. Its required by the PCI spec and used by BIOS vendors
+> during the boot sequence. So its a *tested* approach.
 
-Debug: sleeping function called from invalid context at
-include/linux/rwsem.h:43
-in_atomic():1, irqs_disabled():0
+Enabling is required.  Clearing is not.  The particular instance I was
+thinking of was disabling memory access and leaving I/O enabled.  
+ 
+> > And there is the fact that the pci configuration access methods
+> > are frequently BIOS calls.
+> 
+> You will be running bios code on some systems every time you read
+> the cmos clock, every time you touch pci config space, every time
+> you hit a key, even in your new kernel boot up path - whats your
+> point
 
-Call Trace:
- [<a00000010001b6e0>] show_stack+0x80/0xa0
-                                sp=e0000000369ef8b0 bsp=e0000000369e9460
- [<a00000010009bf30>] __might_sleep+0x1b0/0x220
-                                sp=e0000000369efa80 bsp=e0000000369e9438
- [<a0000001000bb690>] access_process_vm+0x150/0x540
-                                sp=e0000000369efa90 bsp=e0000000369e9380
- [<a0000001000381a0>] ia64_sync_user_rbs+0xa0/0xe0
-                                sp=e0000000369efab0 bsp=e0000000369e9350
- [<a00000010001ceb0>] do_copy_task_regs+0xd0/0x3e0
-                                sp=e0000000369efac0 bsp=e0000000369e92e8
- [<a00000010001d3b0>] dump_task_regs+0x70/0xc0
-                                sp=e0000000369efae0 bsp=e0000000369e92c8
- [<a0000001001d7130>] elf_dump_thread_status+0xd0/0x240
-                                sp=e0000000369efcb0 bsp=e0000000369e9258
- [<a0000001001d86b0>] elf_core_dump+0x1410/0x1540
-                                sp=e0000000369efcb0 bsp=e0000000369e9160
- [<a000000100180770>] do_coredump+0x590/0x620
-                                sp=e0000000369efd50 bsp=e0000000369e9108
- [<a0000001000c94e0>] get_signal_to_deliver+0x700/0xcc0
-                                sp=e0000000369efda0 bsp=e0000000369e9098
- [<a0000001000425d0>] ia64_do_signal+0xb0/0x420
-                                sp=e0000000369efda0 bsp=e0000000369e9000
- [<a00000010001c0f0>] do_notify_resume_user+0x110/0x120
-                                sp=e0000000369efe20 bsp=e0000000369e8fd0
- [<a0000001000129c0>] notify_resume_user+0x40/0x60
-                                sp=e0000000369efe20 bsp=e0000000369e8f80
- [<a0000001000128f0>] skip_rbs_switch+0xd0/0xe0
-                                sp=e0000000369efe30 bsp=e0000000369e8f68
+Only that in many instances BIOS code can do things we don't expect.
+And when we start out with the machine in an unknown state the
+risk is worse.
 
--- 
-Daniel J Blueman
+> > So I do see just clearing the master bit on each PCI devices to
+> > as dangerous as calling the shutdown methods.
+> 
+> Then we violently disagree
 
-NEU: WLAN-Router für 0,- EUR* - auch für DSL-Wechsler!
-GMX DSL = supergünstig & kabellos http://www.gmx.net/de/go/dsl
+yes.
 
+Eric

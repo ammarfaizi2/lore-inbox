@@ -1,94 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262108AbTEEIrG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 04:47:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbTEEIrG
+	id S262106AbTEEIuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 04:50:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbTEEIuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 04:47:06 -0400
-Received: from [12.47.58.20] ([12.47.58.20]:33913 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S262105AbTEEIrD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 04:47:03 -0400
-Date: Mon, 5 May 2003 02:01:04 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: dougg@torque.net
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: illegal context for sleeping ... rmmod ide-cd + ide-scsi
-Message-Id: <20030505020104.0abc66ba.akpm@digeo.com>
-In-Reply-To: <3EB62347.8020109@torque.net>
-References: <3EB62347.8020109@torque.net>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 5 May 2003 04:50:09 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:27309 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S262106AbTEEIuI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 04:50:08 -0400
+Date: Mon, 5 May 2003 19:04:29 +1000
+From: CaT <cat@zip.com.au>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.68-bk7: Where oh where have my sensors gone? (i2c)
+Message-ID: <20030505090429.GA461@zip.com.au>
+References: <20030427115644.GA492@zip.com.au> <20030428205522.GA26160@kroah.com> <20030505083458.GA621@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 May 2003 08:59:27.0780 (UTC) FILETIME=[A2178640:01C312E4]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030505083458.GA621@zip.com.au>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Douglas Gilbert <dougg@torque.net> wrote:
->
-> In lk 2.5.69 (and in 68) both the ide-cd and ide-scsi
-> modules generate a "sleeping function called from illegal
-> context" stack trace when removed.
+On Mon, May 05, 2003 at 06:34:58PM +1000, CaT wrote:
+> On Mon, Apr 28, 2003 at 01:55:22PM -0700, Greg KH wrote:
+> > On Sun, Apr 27, 2003 at 09:56:44PM +1000, CaT wrote:
+> > No devices?  Does 2.5.68 work for you?
 > 
-> After "rmmod ide-cd" this appears:
->   Debug: sleeping function called from illegal context
->          at include/asm/semaphore.h:119
->   Call Trace:
->    [<c011dcec>] __might_sleep+0x5c/0x70
+> Does not look like it:
 
-ide_unregister_subdriver() does spin_lock_irqsave(&ide_lock), then
-calls auto_remove_settings(), which does down(&ide_setting_sem);
+*snip*
 
-A simple fix might be:
+Same deal with 2.5.69.
 
-diff -puN drivers/ide/ide.c~ide_setting_sem-fix drivers/ide/ide.c
---- 25/drivers/ide/ide.c~ide_setting_sem-fix	2003-05-05 01:59:01.000000000 -0700
-+++ 25-akpm/drivers/ide/ide.c	2003-05-05 02:00:21.000000000 -0700
-@@ -1131,13 +1131,12 @@ ide_settings_t *ide_find_setting_by_name
-  *
-  *	Automatically remove all the driver specific settings for this
-  *	drive. This function may sleep and must not be called from IRQ
-- *	context. Takes the settings_lock
-+ *	context. The caller must hold ide_setting_sem.
-  */
-  
- static void auto_remove_settings (ide_drive_t *drive)
- {
- 	ide_settings_t *setting;
--	down(&ide_setting_sem);
- repeat:
- 	setting = drive->settings;
- 	while (setting) {
-@@ -1147,7 +1146,6 @@ repeat:
- 		}
- 		setting = setting->next;
- 	}
--	up(&ide_setting_sem);
- }
- 
- /**
-@@ -2350,9 +2348,11 @@ int ide_unregister_subdriver (ide_drive_
- {
- 	unsigned long flags;
- 	
-+	down(&ide_setting_sem);
- 	spin_lock_irqsave(&ide_lock, flags);
- 	if (drive->usage || drive->driver == &idedefault_driver || DRIVER(drive)->busy) {
- 		spin_unlock_irqrestore(&ide_lock, flags);
-+		up(&ide_setting_sem);
- 		return 1;
- 	}
- #if defined(CONFIG_BLK_DEV_IDEPNP) && defined(CONFIG_PNP) && defined(MODULE)
-@@ -2363,6 +2363,7 @@ int ide_unregister_subdriver (ide_drive_
- 	ide_remove_proc_entries(drive->proc, generic_subdriver_entries);
- #endif
- 	auto_remove_settings(drive);
-+	up(&ide_setting_sem);
- 	drive->driver = &idedefault_driver;
- 	setup_driver_defaults(drive);
- 	spin_unlock_irqrestore(&ide_lock, flags);
-
-_
-
+-- 
+Martin's distress was in contrast to the bitter satisfaction of some
+of his fellow marines as they surveyed the scene. "The Iraqis are sick
+people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
+starting to hate this country. Wait till I get hold of a friggin' Iraqi.
+No, I won't get hold of one. I'll just kill him."
+	- http://www.informationclearinghouse.info/article2479.htm

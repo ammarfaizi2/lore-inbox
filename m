@@ -1,54 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263970AbUEHAhJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263923AbUEHAl0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263970AbUEHAhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 20:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263944AbUEHAhJ
+	id S263923AbUEHAl0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 20:41:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263953AbUEHAlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 20:37:09 -0400
-Received: from 201-003-031-011.pvoce7005.dsl.brasiltelecom.net.br ([201.3.31.11]:13326
-	"HELO TmpStr") by vger.kernel.org with SMTP id S263943AbUEHAgx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 20:36:53 -0400
-Reply-To: "joel mills" <admin@usmex.com>
-From: "joel mills" <admin@usmex.com>
-To: "" <linux-kernel@vger.kernel.org>
-Organization: 
-X-Priority: 1
-X-MSMail-Priority: High
-Subject: ATT: New Universal Payment Processor Launched!! 
+	Fri, 7 May 2004 20:41:25 -0400
+Received: from madrid10.amenworld.com ([62.193.203.32]:29964 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S263923AbUEHAlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 20:41:22 -0400
+Date: Fri, 7 May 2004 20:21:49 +0200
+From: DervishD <raul@pleyades.net>
+To: Timothy Miller <miller@techsource.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Oliver Pitzeier <oliver@linux-kernel.at>, linux-kernel@vger.kernel.org
+Subject: Re: Strange Linux behaviour!?
+Message-ID: <20040507182149.GC380@DervishD>
+Mail-Followup-To: Timothy Miller <miller@techsource.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Oliver Pitzeier <oliver@linux-kernel.at>,
+	linux-kernel@vger.kernel.org
+References: <409B4494.5253316B@melbourne.sgi.com> <013001c4340d$e9860470$d50110ac@sbp.uptime.at> <20040507093455.A27829@infradead.org> <409BC67F.4030701@techsource.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Date: Fri, 7 May 2004 21:37:11 -0300
-Message-Id: <S263943AbUEHAgx/20040508003653Z+1990@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <409BC67F.4030701@techsource.com>
+User-Agent: Mutt/1.4.2.1i
+Organization: Pleyades
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Welcome To USMex.Com - Your Online Universal Payment System!!
+    Hi Timothy :)
 
-Send or Receive Money Via E-Mail Anywhere In The World!
+ * Timothy Miller <miller@techsource.com> dixit:
+> >?Have you checked whether you're out of inodes?
+> What happens when Linux runs out of inodes?
 
-http://www.usmex.com/?r=110
+    It returns ENOSPC on write operations on the filesystem.
 
+> Why would it?
 
-• Start Accepting Online Payments Instantly: No paperwork, no approval 
-process! You can register for a USMex.com account and begin 
-accepting payments on your website in just minutes! 
+    Because you created lots of dirs and files ;)
 
-• Free Referral Program: Open a free to join USMex.com account today 
-and be automatically enrolled in our free affiliate program that pays you for 
-your referrals 6 levels deep. Open your USMex.com Account today! 
+> Doesn't it create more?
 
-• Instant Payment Notifications: You are notified instantly via e-mail when 
-someone sends funds to your account. 
+    EXT2 and EXT3 doesn't, the number of inodes is specified when doing
+mke2fs and it's fixed. Don't know what happens under other
+filesystems, but for me doesn't make much sense to create more
+inodes: inodes themselves occupy disk space, and if you've run out of
+inodes, you probable are near to run out of disk space too. Moreover,
+disk structures are a bit complex and adding inodes is not an easy
+task in most filesystems :?
 
-• Variety of Funding Options: USMex.com offers a variety of funding 
-options, such as, by credit card, E-check, and U.S. mail 
+    I've been seeing this problem lately on myself. I have a disk to
+store temporarily backups and large files in general, so I formatted
+it with ext2 using one inode per megabyte of data. This filesystem
+usually have 10-50 files, no more, and even with 1/1MB inode ratio,
+there were more than 10000 inodes. But when I accidentally
+uncompressed one of the backups in the disk, I run out of inodes
+*FAST*. I mean, the disk was 80% empty and I didn't have free inodes,
+but this is not the common case, since usually you will have an inode
+per 4kB of data, so if you don't have free inodes it will usually
+mean that your disk space will exhaust soon, too. This is the common
+case, I think, so it doesn't worth the effort of adding a few more
+inodes just for making the agony longer ;)
 
-http://www.usmex.com/?r=110
+    Raúl Núñez de Arenas Coronado
 
-
-Accept online payments Immediately with USMex.com's Merchant Tools!
-
-ALL THE WORLD PAYS WITH USMex!!
-
-We are here for Your success!!
+-- 
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

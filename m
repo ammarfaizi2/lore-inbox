@@ -1,116 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbUKIL7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261526AbUKIMHq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261512AbUKIL7k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 06:59:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261520AbUKIL7k
+	id S261526AbUKIMHq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 07:07:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbUKIMHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 06:59:40 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:9165 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261512AbUKIL7d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 06:59:33 -0500
-Subject: Linux 2.6.9-ac7
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, editor@lwn.net
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1099997789.15470.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 09 Nov 2004 10:56:30 +0000
+	Tue, 9 Nov 2004 07:07:46 -0500
+Received: from rt.gnu.org ([199.232.76.167]:64131 "EHLO rt.gnu.org")
+	by vger.kernel.org with ESMTP id S261526AbUKIMHm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 07:07:42 -0500
+Subject: Re: [gnu.org #214016] GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox + code
+From: "Alan Cox via RT" <license-violation@fsf.org>
+Reply-To: license-violation@fsf.org
+In-Reply-To: <rt-214016@gnu.org>
+Message-ID: <rt-3.0.8-214016-682805.9.72099995582191@rt.gnu.org>
+X-RT-Loop-Prevention: gnu.org
+RT-Ticket: gnu.org #214016
+Managed-by: RT 3.0.8 (http://www.bestpractical.com/rt/)
+RT-Originator: alan@lxorguk.ukuu.org.uk
+To: shawn.starr@rogers.com
+Cc: license-violation@gnu.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+X-RT-Original-Encoding: utf-8
+Date: Tue, 09 Nov 2004 07:07:48 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Various chunks of new IDE stuff and related cleanups. Most users probably
-don't want to upgrade to this kernel
+On Maw, 2004-11-09 at 00:11, novalis@fsf.org via RT wrote:
+> But if you distribute binaries, you must either include or offer source
+> code.  Do they do this?  What software do they include that FSF holds
+> copyright on?   Where can I check this?
+> 
+> Do they include a copy of the GPL with the software?
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.6/2.6.9/
+They include the GPL, they include the source nothing I can find they do
+violates the GPL.  They do appear to annoy a few people because their
+policy is that while you may join their early access process and get
+source if you redistribute that source then you get kicked off their
+program, but you are still allowed to distribute that source.
 
-2.6.9-ac7
-o	Redo the fixups in siimage/it8212 so they	(Alan Cox)
-	always actually work
-o	Fix up both drives on an IT8212 raid		(Alan Cox)
-o	Remove a debug printk/2 sec wait from CS5520	(Alan Cox)
-o	Move partial decode test to ide-cs/delkin only	(Alan Cox)
-o	Fix partial decode test for no serial number	(Alan Cox)
-o	Add support for disks on early rev IT821x	(Alan Cox)
-o	Allow ide-disk to be modular again		(Tomas Szepe)
-o	Further fixup fixes			(Bartlomiej Zolnierkiewicz)
-o	Apple Ipod-mini size reporting fix		(Avi Kivity)
-o	Initial (non SMP) cdu31a driver rescue		(Ondrej Zary)
-o	Allow READ_BUFFER_CAPACITY to SG_IO users	(Daniel Drake)
-
-2.6.9-ac6
-o	Fix problem with -ac5 msdos changes		(Vojtech Pavlik)
-
-2.6.9-ac5
-o	Fix oops in and enable IT8212 driver		(Alan Cox)
-o	Minor delkin driver fix				(Mark Lord)
-o	Fix NFS mount hangs with long FQDN		(Jan Kasprzak)
-	| I've used this version as its clearly correct for 2.6.9 
-	| although it might not be the right future solution
-o	Fix overstrict FAT checks stopping reading of	(Vojtech Pavlik)
-	some devices like Nokia phones
-o	Fix misdetection of some drives as MRW capable	(Peter Osterlund)
-o	Fix promise 20267 hang with very long I/O's	(Krzysztof Chmielewski)
-o	Fix a case where serial break was not sent for	(Paul Fulghum)
-	the right time.
-o	Fix S/390 specific SACF hole			(Martin Schwidefsky)
-o	NVidia ACPI timer override			(Andi Kleen)
-o	Correct VIA PT880 PCI ident (and AGP ident)	(Dave Jones)
-o	Fix EDID/E820 corruption 			(Venkatesh Pallipadi)
-o	Tighten security on TIOCCONS			(od@suse.de)
-o	Fix incorrect __init s that could cause crash	(Randy Dunlap)
-
-2.6.9-ac4
-o	Fix minor DoS bug in visor USB driver		(Greg Kroah-Hartmann)
-o	Delkin cardbus IDE support			(Mark Lord)
-o	Fix SMP hang with IDE unregister		(Mark Lord)
-o	Fix proc file removal with IDE unregister	(Mark Lord)
-o	Fix aic7xxx sleep with locks held and debug	(Luben Tuikov)
-	spew
-o	First take at HPT372N problem fixing		(Alan Cox)
-
-2.6.9-ac3
-o	Fix syncppp/async ppp problems with new hangup	(Paul Fulghum)
-o	Fix broken parport_pc unload			(Andrea Arcangeli)
-o	Security fix for smbfs leak/overrun		(Urban Widmark)
-o	Stop i8xx_tco making some boxes reboot on load	(wim@iguana)
-o	Fix cpia/module tools deadlock			(Peter Pregler)
-o	Fix missing suid_dumpable export		(Alan Cox)
-
-2.6.9-ac2
-o	Fix invalid kernel version stupidity		(Adrian Bunk)
-o	Compiler ICE workaround/fixup			(Linus Torvalds)
-o	Fix network DoS bug in 2.6.9			(Herbert Xu)
-	| Suggested by Sami Farin
-o	Flash lights on panic as in 2.4			(Andi Kleen)
-
-2.6.9-ac1
-
-Security Fixes
-o	Set VM_IO on areas that are temporarily		(Alan Cox)
-	marked PageReserved (Serious bug)
-o	Lock ide-proc against driver unload		(Alan Cox)
-	(very low severity)
-
-Bug Fixes
-o	Working IDE locking				(Alan Cox)
-	| And a great deal of review by Bartlomiej
-o	Handle E7xxx boxes with USB legacy flaws	(Alan Cox)
-	
-Functionality
-o	Allow booting with "irqpoll" or "irqfixup"	(Alan Cox)
-	on systems with broken IRQ tables.
-o	Support for setuid core dumping in some		(Alan Cox)
-	environments (off by default)
-o	Support for drives that don't report geometry
-o	IT8212 support (raid and passthrough)		(Alan Cox)
-o	Allow IDE to grab all unknown generic IDE	(Alan Cox)
-	devices (boot with "all-generic-ide")
-o	Restore PWC driver				(Luc Saillard)
-
-Other
-o	Small pending tty clean-up to moxa		(Alan Cox)
-o	Put VIA Velocity (tm) adapters under gigabit	(VIA)
 

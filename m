@@ -1,65 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317298AbSHAWfE>; Thu, 1 Aug 2002 18:35:04 -0400
+	id <S317300AbSHAWjw>; Thu, 1 Aug 2002 18:39:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317287AbSHAWfE>; Thu, 1 Aug 2002 18:35:04 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:14464 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S317283AbSHAWfD>;
-	Thu, 1 Aug 2002 18:35:03 -0400
-Date: Fri, 2 Aug 2002 00:38:27 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] es1371 synchronize_irq()
-Message-ID: <20020801223827.GA11949@vana.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S317302AbSHAWjw>; Thu, 1 Aug 2002 18:39:52 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:9732 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S317300AbSHAWjv>;
+	Thu, 1 Aug 2002 18:39:51 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Alexander Viro <viro@math.psu.edu>
+Date: Fri, 2 Aug 2002 00:42:49 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: IDE from current bk tree, UDMA and two channels...
+CC: martin@dalecki.de, linux-kernel@vger.kernel.org, mingo@elte.hu
+X-mailer: Pegasus Mail v3.50
+Message-ID: <CEE6114682@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linus,
-   nobody else is apparently using OSS's es1371...
+On  1 Aug 02 at 18:39, Alexander Viro wrote:
+> On Fri, 2 Aug 2002, Marcin Dalecki wrote:
+> 
+> > > I'd like to apologize to Ingo, his changes were completely innocent.
+> > > Problem was triggered by Al's 'block device size cleanups' (currently
+> > > cset 1.403.160.5 on bkbits).
+> > > 
+> > > Before this change, my system was using 4KB block size when reading
+> > > from /dev/hdc1, because of blk_size[][] (which is in 1kB units) of this 
+> > > partition was multiple of 2, and so i_size % 4096 was 0.  But after
+> > > Al's change partition size is read from gendisk, and not from blk_size,
+> > > and gendisk partition size is in 512 bytes units: and, as you can
+> > > probably guess, now my partition had i_size % 4096 == 512, and so only
+> > > 512 byte block size was choosen. And with 512 bytes block size my
+> > > harddisk refuses to cooperate.
+> 
+> Uh-oh...
+> 
+> Let me see if I got it straight:
+> 
+> a) your disk doesn't work with half-Kb requests
+> b) you have a partition with odd number of sectors
+> c) hardsect_size is set to half-Kb
+> d) old code worked since it rounded size to multiple of kilobyte.
+> 
+> Correct?
 
-Patch below converts synchronize_irq() calls in es1371 to the new
-format.
-					Petr Vandrovec
-					vandrove@vc.cvut.cz
-
-diff -urdN linux/sound/oss/es1371.c linux/sound/oss/es1371.c
---- linux/sound/oss/es1371.c	2002-07-31 10:48:09.000000000 +0000
-+++ linux/sound/oss/es1371.c	2002-07-31 10:54:57.000000000 +0000
-@@ -1597,12 +1597,12 @@
-         case SNDCTL_DSP_RESET:
- 		if (file->f_mode & FMODE_WRITE) {
- 			stop_dac2(s);
--			synchronize_irq();
-+			synchronize_irq(s->irq);
- 			s->dma_dac2.swptr = s->dma_dac2.hwptr = s->dma_dac2.count = s->dma_dac2.total_bytes = 0;
- 		}
- 		if (file->f_mode & FMODE_READ) {
- 			stop_adc(s);
--			synchronize_irq();
-+			synchronize_irq(s->irq);
- 			s->dma_adc.swptr = s->dma_adc.hwptr = s->dma_adc.count = s->dma_adc.total_bytes = 0;
- 		}
- 		return 0;
-@@ -2162,7 +2162,7 @@
- 		
-         case SNDCTL_DSP_RESET:
- 		stop_dac1(s);
--		synchronize_irq();
-+		synchronize_irq(s->irq);
- 		s->dma_dac1.swptr = s->dma_dac1.hwptr = s->dma_dac1.count = s->dma_dac1.total_bytes = 0;
- 		return 0;
- 
-@@ -3001,7 +3001,7 @@
- #endif /* ES1371_DEBUG */
- 	outl(0, s->io+ES1371_REG_CONTROL); /* switch everything off */
- 	outl(0, s->io+ES1371_REG_SERIAL_CONTROL); /* clear serial interrupts */
--	synchronize_irq();
-+	synchronize_irq(s->irq);
- 	free_irq(s->irq, s);
- 	if (s->gameport.io) {
- 		gameport_unregister_port(&s->gameport);
+Yes, exactly. Replacing disk is not an option...
+                                            Petr Vandrovec
+                                            

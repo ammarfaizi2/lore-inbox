@@ -1,76 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263206AbSJCIsV>; Thu, 3 Oct 2002 04:48:21 -0400
+	id <S263207AbSJCI5D>; Thu, 3 Oct 2002 04:57:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263213AbSJCIsV>; Thu, 3 Oct 2002 04:48:21 -0400
-Received: from kim.it.uu.se ([130.238.12.178]:33717 "EHLO kim.it.uu.se")
-	by vger.kernel.org with ESMTP id <S263206AbSJCIsT>;
-	Thu, 3 Oct 2002 04:48:19 -0400
-From: Mikael Pettersson <mikpe@csd.uu.se>
+	id <S263210AbSJCI5D>; Thu, 3 Oct 2002 04:57:03 -0400
+Received: from mta06bw.bigpond.com ([139.134.6.96]:15845 "EHLO
+	mta06bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S263207AbSJCI5C>; Thu, 3 Oct 2002 04:57:02 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: "David S. Miller" <davem@redhat.com>, yoshfuji@linux-ipv6.org
+Subject: Re: [PATCH] IPv6: Allow Both IPv6 and IPv4 Sockets on the Same Port Number (IPV6_V6ONLY Support)
+Date: Thu, 3 Oct 2002 18:55:11 +1000
+User-Agent: KMail/1.4.5
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, usagi@linux-ipv6.org
+References: <20021003.121350.119660876.yoshfuji@linux-ipv6.org> <20021003.012904.75241727.davem@redhat.com>
+In-Reply-To: <20021003.012904.75241727.davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15772.1423.291413.372141@kim.it.uu.se>
-Date: Thu, 3 Oct 2002 10:53:35 +0200
-To: perex@suse.cz
-Subject: possible bug in 2.5.39 ISA PnP patch
-Cc: Jens.Toerring@physik.fu-berlin.de, linux-kernel@vger.kernel.org
+Content-Type: Text/Plain;
+  charset="iso-2022-jp"
+Content-Transfer-Encoding: 8bit
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200210031855.12148.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-09-27 11:16:04, Jaroslav Kysela wrote:
->	the read port (RDP) of ISA PnP cards must be set only when card is 
->in the isolation phase. Bellow is a patch to follow the ISA PnP 
->specification. Please, apply.
->...
->diff -Nru a/drivers/pnp/isapnp.c b/drivers/pnp/isapnp.c
->--- a/drivers/pnp/isapnp.c	Fri Sep 27 13:13:51 2002
->+++ b/drivers/pnp/isapnp.c	Fri Sep 27 13:13:51 2002
->@@ -1048,11 +1048,19 @@
-> 	isapnp_wait();
-> 	isapnp_key();
-> 	isapnp_wake(csn);
->-#if 1	/* to avoid malfunction when the isapnptools package is used */
->-	isapnp_set_rdp();
->-	udelay(1000);	/* delay 1000us */
->-	write_address(0x01);
->-	udelay(1000);	/* delay 1000us */
->+#if 1
->+	/* to avoid malfunction when the isapnptools package is used */
->+	/* we must set RDP to our value again */
->+	/* it is possible to set RDP only in the isolation phase */ 
->+	/*   Jens Thoms Toerring <Jens.Toerring@physik.fu-berlin.de> */
->+	isapnp_write_byte(0x02, 0x04);	/* clear CSN of card */
->+	mdelay(2);			/* is this necessary? */
->+	isapnp_wake(csn);		/* bring card into sleep state */
->+	isapnp_wake(0);			/* bring card into isolation state */
->+	isapnp_set_rdp();		/* reset the RDP port */
->+	udelay(1000);			/* delay 1000us */
->+	isapnp_write_byte(0x06, csn);	/* reset CSN to previous value */
->+	udelay(250);			/* is this necessary? */
-> #endif
-> 	if (logdev >= 0)
-> 		isapnp_device(logdev);
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Linus included this patch in 2.5.39. Unfortunately, it causes
-my ISA PnP cards to malfunction:
-- My 3c509(b?) combo TP/BNC Ethernet card stops working completely.
-  The kernel thinks the NIC is up, but the leds on its segment aren't
-  lit and no traffic can be generated.
-  Backing out this patch, or disabling ISAPNP, makes it work again.
-- My ESS sound card is a multi-function device. With this patch, some
-  sub-devices get bogus resources listed in /proc/isapnp, as if the
-  data is all-bits-one. Backing out this patch solves the problem.
+On Thu, 3 Oct 2002 18:29, David S. Miller wrote:
+> For example, this IPV6_V6ONLY socket option is flawed.  What we
+> really need is a generic socket option which says "my family only"
+>
+> There is nothing ipv6 specific about such a socket attribute.
+>
+> So please, create instead "SO_ONEFAMILY" or similar generic
+> socket option.
+>
+> I still need to review the rest of the patch for functional
+> correctness.  This is probably the most complex area of the
+> socket identity code in TCP/UDP :-)
+While you are grotting aroung in this area - a thought / request.
 
-I have several other ISA PnP card at another location, but I won't be
-able to test them until Saturday.
+When we get IPv4 link-local autoconf addressing in widespread use, there is a 
+problem on multi-homed machines.
 
-I can't comment on whether the new code in the patch correctly implements
-the specification or not, but something's definitely wrong here. Do you
-have any evidence of cards that malfunctioned with the old code?
+Assume B has two network interfaces (B1 and B2) on seperate IPv4 links (net1 
+and net2). Host A is on net1 and Host C is on net2. Assume that both Host A 
+and Host C have the same autoconf address. So IP address is not enough 
+information for Host B to use to determine which interface to use in order to 
+contact Host A (instead of Host C).
 
-Also, the comment "to avoid malfunction when the isapnptools package is used"
-strikes me a bit strange. Why use isapnptools if the kernel has ISAPNP=y ?
-Is that actually supposed to work?
+If host B has socket binding on IP+port+local interface, it all works out.
 
-/Mikael
+Is this going to work?
+
+Brad
+
+- -- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Aust. Tickets booked.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9nAXwW6pHgIdAuOMRAscOAKC/TyYdV1IOjDMlYZghhLf1mYtrKgCfbDEh
+VJAdPL1Rc1Z2uM6RCIgSYOE=
+=JZGw
+-----END PGP SIGNATURE-----
+

@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264391AbUBKOIN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 09:08:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264433AbUBKOIM
+	id S264383AbUBKOP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 09:15:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265264AbUBKOP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 09:08:12 -0500
-Received: from sea2-f29.sea2.hotmail.com ([207.68.165.29]:5394 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S264391AbUBKOIJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 09:08:09 -0500
-X-Originating-IP: [212.143.127.195]
-X-Originating-Email: [zstingx@hotmail.com]
-From: "sting sting" <zstingx@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re : Re: printk and long long
-Date: Wed, 11 Feb 2004 16:08:08 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Sea2-F294mt5UJoched000331f3@hotmail.com>
-X-OriginalArrivalTime: 11 Feb 2004 14:08:08.0505 (UTC) FILETIME=[79CB6290:01C3F0A8]
+	Wed, 11 Feb 2004 09:15:27 -0500
+Received: from kamikaze.scarlet-internet.nl ([213.204.195.165]:36799 "EHLO
+	kamikaze.scarlet-internet.nl") by vger.kernel.org with ESMTP
+	id S264383AbUBKOPX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 09:15:23 -0500
+Message-ID: <1076508920.402a38f8ee106@webmail.dds.nl>
+Date: Wed, 11 Feb 2004 15:15:20 +0100
+From: wdebruij@dds.nl
+To: =?iso-8859-1?b?TeVucyA=?= =?iso-8859-1?b?UnVsbGflcmQ=?= 
+	<mru@kth.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: printk and long long
+References: <Sea2-F7mFkwDjKqc3eQ0001c385@hotmail.com> <1076506513.402a2f9120fb8@webmail.dds.nl> <yw1xy8r9iuha.fsf@kth.se>
+In-Reply-To: <yw1xy8r9iuha.fsf@kth.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+User-Agent: Internet Messaging Program (IMP) 3.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-Thnks
+Quoting Måns Rullgård <mru@kth.se>:
 
->printk("%ld%ld",loff_t >> (sizeof(long) * 8), loff_t << sizeof(long) * 8 >>
->sizeof(long) * 8);
+> 
+> And how do you plan to make sense of the printed value?
+> 
 
-Well I had tried it but I got
-the follwing compilation errors while trying to add that code:
-invalid operands to binary >>
-invalid operands to binary <<
+perhaps I was a bit quick with replying. As others have pointed out, you should
+specify the precision to be able to glue the two parts together. Ideally, this
+should be done using a "%.8lx%.8lx", since the length of the variable in hex is
+static. Unfortunately, it seems %ld is requested, in which case "%ld*(2^32)+%ld"
+works (for humans), but is obviously not great.
 
-I assume maybe it is a problems with the flags I use:
-I use gcc 3.2.2 and the flags are:
-O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
--DMODULE -D__KERNEL__ -DNOKERNEL
+I guess you'll need a number of extra tests (if lower 32bits > 1 billion ..) and
+specific printk statements if the output should be shown as a correct 10-base
+number. 
 
-regards,
-sting
-
-_________________________________________________________________
-The new MSN 8: smart spam protection and 2 months FREE*  
-http://join.msn.com/?page=features/junkmail
-
+I don't know, it depends on the specific use-case, really. If at all possible, I
+would stick to the hex-representation.

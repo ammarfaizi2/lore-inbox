@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbTJRTmj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 15:42:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbTJRTmj
+	id S261801AbTJRTmt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 15:42:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbTJRTmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 15:42:39 -0400
-Received: from h80ad2667.async.vt.edu ([128.173.38.103]:6806 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261799AbTJRTm2 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 15:42:28 -0400
-Message-Id: <200310181941.h9IJfhLW030128@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Witold Krecicki <adasi@kernel.pl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: initrd and 2.6.0-test8 
-In-Reply-To: Your message of "Sat, 18 Oct 2003 20:02:15 +0200."
-             <200310182002.15787.adasi@kernel.pl> 
-From: Valdis.Kletnieks@vt.edu
-References: <200310182002.15787.adasi@kernel.pl>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1824489159P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Sat, 18 Oct 2003 15:42:49 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:21461 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261801AbTJRTmp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 15:42:45 -0400
+Message-ID: <3F919763.1000901@colorfullife.com>
+Date: Sat, 18 Oct 2003 21:41:23 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: John Mock <kd6pag@qsl.net>
+CC: linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: PPC: slab error in cache_free_debugcheck() from sd_revalidate_disk
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Sat, 18 Oct 2003 15:41:43 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1824489159P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+John wrote:
 
-On Sat, 18 Oct 2003 20:02:15 +0200, Witold Krecicki <adasi@kernel.pl>  sa=
-id:
+>Hardware: PowerMac 8500 (see attached 'lspci' and 'dmesg' for details), 
+>	  ADB keyboard/mouse, USB mouse, Sony 100ES monitor
+>Software: Debian 'Testing' branch
+>
+>Sorry, this may not be a very helpful bug report.  Let me know what additional
+>information might be helpful and perhaps i can rig up a serial console for
+>this beast.
+>  
+>
+[snip]
 
-> But do you have HDD-controller parts as modules or built-in? According =
-to the
-> changelog message, if initrd is detected as 'usual initrd' (e.g. not
-> initramfs), then it's copied to /dev/initrd on rootfs. But as I underst=
-and,
-> there is no such thing as rootfs as long as it isn't mounted (ide/scsi
-> modules are not loaded
+>Oct 14 15:47:34 penngrove kernel: cddeec88: redzone 1: 0x0, redzone 2: 0x170fc2a5.
+>O
+>
+That looks like a bug Ben reported some time ago: The dma controller 
+trashes the whole cacheline when it transfers data from disk to memory.
+I think the only solution is to disable redzoning for the kmalloc 
+caches, or to use get_free_pages instead of kmalloc for the disk buffers,.
 
-What happens in the case of a devfs-based system where the real rootfs
-can't be mounted till after the initrd is loaded, because / is on an LVM
-volume?  I know my laptop crashed-and-burned on this, even though the IDE=
+--
+    Manfred
 
-and LVM modules were built into the kernel....
-
---==_Exmh_-1824489159P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/kZd3cC3lWbTT17ARAgv+AJ9AV18SMb5+nXkbr3+esZ3+lQjpywCffDRQ
-GTKBnNqcCq24qpiAy2rq63w=
-=p5eo
------END PGP SIGNATURE-----
-
---==_Exmh_-1824489159P--

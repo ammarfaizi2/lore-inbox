@@ -1,99 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288930AbSANOup>; Mon, 14 Jan 2002 09:50:45 -0500
+	id <S289255AbSANO5r>; Mon, 14 Jan 2002 09:57:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289255AbSANOu0>; Mon, 14 Jan 2002 09:50:26 -0500
-Received: from ns1.yggdrasil.com ([209.249.10.20]:59024 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S289252AbSANOuO>; Mon, 14 Jan 2002 09:50:14 -0500
-Date: Mon, 14 Jan 2002 06:50:13 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: PATCH: linux-2.5.2-pre11/drivers/block/loop.c -- garbage reads
-Message-ID: <20020114065013.A8790@adam.yggdrasil.com>
+	id <S289260AbSANO5b>; Mon, 14 Jan 2002 09:57:31 -0500
+Received: from jalon.able.es ([212.97.163.2]:52733 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S289255AbSANO5X>;
+	Mon, 14 Jan 2002 09:57:23 -0500
+Date: Mon, 14 Jan 2002 16:02:56 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, zippel@linux-m68k.org, rml@tech9.net,
+        ken@canit.se, arjan@fenrus.demon.nl, landley@trommello.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020114160256.A2922@werewolf.able.es>
+In-Reply-To: <200201140033.BAA04292@webserver.ithnet.com> <E16PvKx-00005L-00@the-village.bc.nu> <20020114104532.59950d86.skraw@ithnet.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="y0ulUmNC+osPPQO6"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20020114104532.59950d86.skraw@ithnet.com>; from skraw@ithnet.com on lun, ene 14, 2002 at 10:45:32 +0100
+X-Mailer: Balsa 1.3.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---y0ulUmNC+osPPQO6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On 20020114 Stephan von Krawczynski wrote:
+>
+>Hm, obviously the ll-patches look simple, but their pure required number makes
+>me think they are as well stupid as simple. This whole story looks like making
+>an old mac do real multitasking, just spread around scheduling points
 
-	linux-2.5.2-pre11/drivers/block/loop.c returned incorrect data
-for reads from any loop device that was mounted on a block device,
-such as a disk partition.  The bug is the problem that I asked about
-yesterday where do_bio_blockbacked in loop.c would transfer no data
-because bio->bi_idx was nonzero (or, more precisely, always equal to
-bio->bi_vcnt).  Here is a test case that reproduces the problem:
-
-
-
-#!/bin/sh
-# testdev can be any existant device that has a first sector
-# that is not all zeroes.  We only need read access to it for this test.
-testdev=/dev/discs/disc0/part1
-set -e
-dd count=1 if=$testdev of=/tmp/first_sector
-losetup /dev/loop/0 $testdev
-dd count=1 if=/dev/loop/0 of=/tmp/first_sector.loop
-losetup -d /dev/loop/0
-cmp /tmp/first_sector /tmp/first_sector.loop
-
-
-
-	It turns out that the value of bio->bi_idx is correct.
-The "bio" variable in that routine refers to the I/O operation
-on the underlying device (not the loop device), and the I/O
-operation has completed when do_bio_blockbacked has been
-called for a READ.  do_bio_blockbacked should be looking at
-rbh->bi_idx instead (rbh is the operation on /dev/loop/nnn,
-which has not yet completed).  I have attached a patch below
-which does this, and I have verified that it fixes the test
-case and have used it in mounting a filesystem as well.
-
-	By the way, there are plenty of other problems with
-loop.c, such as the fact that it hangs my note book computer
-in "disk I/O" (presumably to /dev/loop/0) every time it boots,
-whereas I don't think I've seen that happen at all under 2.5.1-pre1
-(although I have generally seen hangs about once every three weeks
-since I went to an encrypted root).
+Yup. That remind me of...
+Would there be any kernel call every driver is doing just to hide there
+a conditional_schedule() so everyone does it even without knowledge of it ?
+Just like Apple put the SystemTask() inside GetNextEvent()...
 
 -- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
-
---y0ulUmNC+osPPQO6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="loop.diff"
-
---- linux-2.5.2-pre11/drivers/block/loop.c	Mon Jan 14 05:48:01 2002
-+++ linux/drivers/block/loop.c	Mon Jan 14 06:13:33 2002
-@@ -488,15 +488,15 @@
- 			      struct bio *rbh)
- {
- 	unsigned long IV = loop_get_iv(lo, rbh->bi_sector);
--	struct bio_vec *to;
-+	struct bio_vec *from;
- 	char *vto, *vfrom;
- 	int ret = 0, i;
- 
--	bio_for_each_segment(to, bio, i) {
--		vfrom = page_address(rbh->bi_io_vec[i].bv_page) + rbh->bi_io_vec[i].bv_offset;
--		vto = page_address(to->bv_page) + to->bv_offset;
-+	bio_for_each_segment(from, rbh, i) {
-+		vfrom = page_address(from->bv_page) + from->bv_offset;
-+		vto = page_address(bio->bi_io_vec[i].bv_page) + bio->bi_io_vec[i].bv_offset;
- 		ret |= lo_do_transfer(lo, bio_data_dir(bio), vto, vfrom,
--					to->bv_len, IV);
-+					from->bv_len, IV);
- 	}
- 
- 	return ret;
-
---y0ulUmNC+osPPQO6--
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.18-pre3-beo #5 SMP Sun Jan 13 02:14:04 CET 2002 i686

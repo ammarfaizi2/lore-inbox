@@ -1,153 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289328AbSAOAsv>; Mon, 14 Jan 2002 19:48:51 -0500
+	id <S289339AbSAOAvV>; Mon, 14 Jan 2002 19:51:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289334AbSAOAsn>; Mon, 14 Jan 2002 19:48:43 -0500
-Received: from pc-62-31-78-67-ed.blueyonder.co.uk ([62.31.78.67]:26752 "EHLO
-	linux.local") by vger.kernel.org with ESMTP id <S289328AbSAOAsh>;
-	Mon, 14 Jan 2002 19:48:37 -0500
-Date: Tue, 15 Jan 2002 00:47:12 +0000
-From: rob@mur.org.uk
-To: linux-kernel@vger.kernel.org
-Subject: oops in 2.4.17
-Message-ID: <20020115004712.GA695@scot-mur.demon.co.uk>
-Mail-Followup-To: rob@mur.org.uk, linux-kernel@vger.kernel.org
+	id <S289100AbSAOAvM>; Mon, 14 Jan 2002 19:51:12 -0500
+Received: from think.faceprint.com ([166.90.149.11]:38787 "EHLO
+	think.faceprint.com") by vger.kernel.org with ESMTP
+	id <S289336AbSAOAvC>; Mon, 14 Jan 2002 19:51:02 -0500
+Date: Mon, 14 Jan 2002 19:50:53 -0500
+To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org
+Subject: Re: Penelope builds a kernel
+Message-ID: <20020115005053.GA16892@faceprint.com>
+In-Reply-To: <20020114165909.A20808@thyrsus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
 Content-Disposition: inline
+In-Reply-To: <20020114165909.A20808@thyrsus.com>
 User-Agent: Mutt/1.3.25i
+From: faceprint@faceprint.com (Nathan Walp)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
 
-The ksymoops output is below
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This happened when I started screen after logging in just after
-booting. I'm not able to reproduce it. I've had a few hangs recently
-on this machine so I'm trying to find out if it's software or
-hardware.
+On Mon, Jan 14, 2002 at 04:59:09PM -0500, Eric S. Raymond wrote:
+<snip of over-many-people's-heads description of advanced biology stuff>
+> Penelope needs to build a kernel to support her exotic driver, but she
+> hasn't got more than the vaguest idea how to go about it.  The
+> instructions with the driver source patch tell her to apply it at the
+> top level of a current Linux source tree and then just say "build the
+> kernel" before getting off into technicalia about the user-space
+> tools.
+>=20
+> She could ask that guy who's been eyeing her over at the computer lab
+> for help; Penelope knows what a penguin T-shirt means, and he's not
+> too bad-looking, if a bit on the skinny side.  On the other hand, she
+> knows that guys like that tend to take over the whole process when
+> they're trying to be helpful; they can't help displaying their prowess
+> and doing more than you asked for, it's biologically wired in.  And
+> she's learned that letting someone else take over maintaining your
+> equipment properly in a way you don't understand is a good way to have
+> it flake out on you just short of a deadline.
+>=20
+> On the third hand, she really *doesn't* want to spend her think time
+> absorbing a bunch of irrelevant hardware details just to get the one
+> driver she needs up and running.  What she needs is some fast,
+> hassle-free technological empowerment, not Yet Another Learning
+> Experience. (And a boyfriend would be nice too, while she's wishing.)
 
-config at http://mur.org.uk/~robbie/config-2.4.17
+So can we assume that our dear sweet Penelope has spent a bit of time
+reading l-k and finding out about <insert your favorite brown-paper-bag
+release here>?  We wouldn't want her to destroy her newly-created data.
+Also, since she has a laptop (which comes with all that finicky laptop
+hardware), does the release of the kernel she grabbed have that nasty
+tweak that fries the board in her laptop?  (I've heard some rather nasty
+horror stories, that's why I ask)
 
-Script started on Tue Jan 15 00:29:48 2002
-linux:~#uname -a
-Linux linux 2.4.17 #1 SMP Mon Dec 31 00:09:27 GMT 2001 i686 unknown
-linux:~#cat /proc/cpuinfo
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 5
-model name	: Pentium II (Deschutes)
-stepping	: 2
-cpu MHz		: 451.028
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
-bogomips	: 897.84
+She can't very well patch her vendor kernel, because I sincerely doubt
+the patch will apply cleanly, if this driver is such that it needs a
+patch as opposed to just a module.
 
-processor	: 1
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 5
-model name	: Pentium II (Deschutes)
-stepping	: 2
-cpu MHz		: 451.028
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
-bogomips	: 901.12
+Also, what do we tell Penelope when her other piece of exotic hardware
+that *was* supported in the vendor kernel, but isn't supported in the
+vanilla kernel, stops working.  Suddenly she can do her advanced biology
+stuff, but can't print, or dial up w/ her winmodem, or whatever.
 
-linux:~#lspci
-00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge (rev 03)
-00:01.0 PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge (rev 03)
-00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
-00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)
-00:0b.0 SCSI storage controller: Adaptec AIC-7880U
-00:11.0 Unknown mass storage controller: Promise Technology, Inc. 20267 (rev 02)
-00:12.0 Unknown mass storage controller: Promise Technology, Inc. 20267 (rev 02)
-00:13.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 08)
-00:14.0 Unknown mass storage controller: Promise Technology, Inc. 20267 (rev 02)
-linux:~#cat oops2.txt
-ksymoops 2.4.3 on i686 2.4.17.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.17/ (default)
-     -m /boot/System.map-2.4.17 (default)
+> If Penelope learns from the README file that all *she* has to do is
+> type "configure; make" to build a kernel that supports her hardware,
+> she can apply that MEMS card patch and build with confidence that the
+> effort is unlikely to turn into an infinite time sink.
+>=20
+> Autoconfigure saves the day again.  That guy in the penguin T-shirt
+> might even be impressed...
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+If Penelope is even a remote candidate for this scenario, I think
+penguin-boy is already impressed ;-)
 
-Warning (compare_maps): mismatch on symbol partition_name  , ksyms_base says c01f3160, System.map says c01530b0.  Ignoring ksyms_base entry
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c0145df1>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010202
-eax: 5a5a5a00   ebx: dc418c40   ecx: dc454d60   edx: dc418c70
-esi: dcbf2d40   edi: c1941f20   ebp: dc418c40   esp: dc45feb8
-ds: 0018   es: 0018   ss: 0018
-Process screen (pid: 716, stackpage=dc45f000)
-Stack: dc454d60 c016bd29 dc418c40 dc454d60 fffffff4 df32fb80 dc45e000 dc418c40 
-       c1941f28 c02abba0 de3a7001 0023ee05 df6dbf40 c180ae20 c0145549 00000246 
-       00000000 df32fb80 df32fbe8 df330b40 00000246 c0145c83 c1806288 000001f0 
-Call Trace: [<c016bd29>] [<c0145549>] [<c0145c83>] [<c013d67e>] [<c013ddb7>] 
-   [<c013e01a>] [<c013e491>] [<c013b0cd>] [<c0141626>] [<c0106d7b>] 
-Code: 0f 0b f0 fe 0d a0 e6 2f c0 0f 88 bb bc 10 00 85 c9 74 12 8b 
-
->>EIP; c0145df0 <d_instantiate+10/44>   <=====
-Trace; c016bd28 <devfs_lookup+1c0/20c>
-Trace; c0145548 <dput+18/144>
-Trace; c0145c82 <d_alloc+1a/178>
-Trace; c013d67e <real_lookup+7a/108>
-Trace; c013ddb6 <link_path_walk+596/7e0>
-Trace; c013e01a <path_walk+1a/1c>
-Trace; c013e490 <__user_walk+34/50>
-Trace; c013b0cc <sys_stat64+18/70>
-Trace; c0141626 <sys_ioctl+1ea/1f4>
-Trace; c0106d7a <system_call+32/38>
-Code;  c0145df0 <d_instantiate+10/44>
-00000000 <_EIP>:
-Code;  c0145df0 <d_instantiate+10/44>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c0145df2 <d_instantiate+12/44>
-   2:   f0 fe 0d a0 e6 2f c0      lock decb 0xc02fe6a0
-Code;  c0145df8 <d_instantiate+18/44>
-   9:   0f 88 bb bc 10 00         js     10bcca <_EIP+0x10bcca> c0251aba <stext_lock+2cf2/8d98>
-Code;  c0145dfe <d_instantiate+1e/44>
-   f:   85 c9                     test   %ecx,%ecx
-Code;  c0145e00 <d_instantiate+20/44>
-  11:   74 12                     je     25 <_EIP+0x25> c0145e14 <d_instantiate+34/44>
-Code;  c0145e02 <d_instantiate+22/44>
-  13:   8b 00                     mov    (%eax),%eax
+--=20
+Nathan Walp             || faceprint@faceprint.com
+GPG Fingerprint:        ||   http://faceprint.com/
+5509 6EF3 928B 2363 9B2B  DA17 3E46 2CDC 492D DB7E
 
 
-2 warnings issued.  Results may not be reliable.
-linux:~#exit
+--C7zPtVaVf+AK4Oqc
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Script done on Tue Jan 15 00:38:14 2002
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE8Q3ztPkYs3Ekt234RAqIoAJ9yKXRAcLcopnS1mSbk3yUAtCtwSACeIDRZ
+iYY1sRV8UHm2vLq6ysHXWXM=
+=/MAG
+-----END PGP SIGNATURE-----
 
--- 
-Rob Murray
+--C7zPtVaVf+AK4Oqc--

@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262115AbVAYUal@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbVAYUda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262115AbVAYUal (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 15:30:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVAYUaE
+	id S262123AbVAYUda (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 15:33:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbVAYUbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 15:30:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:59042 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262115AbVAYU3m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 15:29:42 -0500
-Date: Tue, 25 Jan 2005 15:29:37 -0500
-From: Dave Jones <davej@redhat.com>
-To: Brice.Goglin@ens-lyon.org
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1
-Message-ID: <20050125202937.GD9267@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Brice.Goglin@ens-lyon.org,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050124021516.5d1ee686.akpm@osdl.org> <41F4E28A.3090305@ens-lyon.fr> <20050124185258.GB27570@redhat.com> <20050124204458.GD27570@redhat.com> <41F56949.3010505@ens-lyon.fr> <20050125193822.GC9267@redhat.com> <41F6A4E7.6090105@ens-lyon.fr>
+	Tue, 25 Jan 2005 15:31:10 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:30618
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S262117AbVAYUa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 15:30:28 -0500
+Subject: Re: wait_for_completion API extension addition
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Mike Waychison <Michael.Waychison@Sun.COM>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <41F6AA83.20306@sun.com>
+References: <41F6AA83.20306@sun.com>
+Content-Type: text/plain
+Date: Tue, 25 Jan 2005 21:30:22 +0100
+Message-Id: <1106685023.4538.18.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <41F6A4E7.6090105@ens-lyon.fr>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.3 (2.0.3-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25, 2005 at 08:58:31PM +0100, Brice Goglin wrote:
- > Dave Jones a écrit :
- > >This is needed too on top of -mm1.
- > >
- > >diff -Nru a/drivers/char/agp/generic.c b/drivers/char/agp/generic.c
- > >--- a/drivers/char/agp/generic.c	2005-01-25 14:34:24 -05:00
- > >+++ b/drivers/char/agp/generic.c	2005-01-25 14:34:24 -05:00
- > >@@ -324,9 +324,9 @@
- > > 	info->chipset = agp_bridge->type;
- > > 	info->device = agp_bridge->dev;
- > > 	if (check_bridge_mode(agp_bridge->dev))
- > >-		info->mode = agp_bridge->mode & AGP3_RESERVED_MASK;
- > >+		info->mode = agp_bridge->mode & ~AGP3_RESERVED_MASK;
- > > 	else
- > >-		info->mode = agp_bridge->mode & AGP2_RESERVED_MASK;
- > >+		info->mode = agp_bridge->mode & ~AGP2_RESERVED_MASK;
- > > 	info->aper_base = agp_bridge->gart_bus_addr;
- > > 	info->aper_size = agp_return_size();
- > > 	info->max_memory = agp_bridge->max_memory_agp;
- > >
- > 
- > Maybe that's not important, but on top of my -rc2-mm1, your patch looks 
- > like the one I attached to this mail.
+On Tue, 2005-01-25 at 15:22 -0500, Mike Waychison wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Hi Ingo,
+> 
+> I noticed that the wait_for_completion API extensions made it into mainline.
+> 
+> However, I posted that the patch in question is broken a while back:
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=110131832828126&w=2
+> 
+> Can we fix this?
 
-Doh, yes. Your variant is needed with the multi-gart patches that
-are in -mm. The one I posted is what I just committed to agpgart-bk
+We reposted a fixed version. It should not be the one from October which
+made it upstream.
 
-		Dave
- 
+tglx
+
+

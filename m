@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291707AbSBHSih>; Fri, 8 Feb 2002 13:38:37 -0500
+	id <S291716AbSBHSje>; Fri, 8 Feb 2002 13:39:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291716AbSBHSiY>; Fri, 8 Feb 2002 13:38:24 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:7779 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S291707AbSBHSiK>; Fri, 8 Feb 2002 13:38:10 -0500
-Date: Fri, 8 Feb 2002 13:38:06 -0500
-From: Arjan van de Ven <arjanv@redhat.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Tigran Aivazian <tigran@veritas.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] larger kernel stack (8k->16k) per task
-Message-ID: <20020208133806.B23001@devserv.devel.redhat.com>
-In-Reply-To: <3C640994.F3528E74@redhat.com> <Pine.LNX.3.95.1020208123843.1974A-100000@chaos.analogic.com>
+	id <S291712AbSBHSjZ>; Fri, 8 Feb 2002 13:39:25 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:53123 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S291715AbSBHSjO>; Fri, 8 Feb 2002 13:39:14 -0500
+Message-Id: <5.1.0.14.2.20020208183821.0386a7d0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 08 Feb 2002 18:40:00 +0000
+To: Gunther Mayer <gunther.mayer@gmx.net>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Guest section DW: "Re: [PATCH] Fix floppy io
+  portsreservation
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C64196F.CBA321AE@gmx.net>
+In-Reply-To: <5.1.0.14.2.20020208160020.027998a0@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.3.95.1020208123843.1974A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Fri, Feb 08, 2002 at 01:29:16PM -0500
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 08, 2002 at 01:29:16PM -0500, Richard B. Johnson wrote:
-> I think it is entirely inefficient to call an external procedure
-> for temporary variable space when the actual math is done by the
-> compiler at compile time, and the code is a simple subtraction, then
-> later-on a simple addition to a single register!
+At 18:31 08/02/02, Gunther Mayer wrote:
+>Anton Altaparmakov wrote:
+>
+> > Even if yours are affected you are unlikely to be wanting to enable PNPBIOS
+> > support in the kernel for them. And as long as you don't do that everything
+> > will continue to work as before my patch. The work around for this would be
+> > for the PNPBIOS driver in the kernel not to reserve ports 0x3f0 and 0x3f1
+> > on systems without a PNPBIOS. Thus on all recent systems PNPBIOS would take
+> > over 0x3f0 and 0x3f1
+>
+>This is a misunderstanding.
+>
+>Compiling PNPBIOS into the kernel does _not_ mean 0x3f0 will be reserved.
+>
+>So the legacy floppy ports are not a PNPBIOS issue on any machine.
 
-Depends. If you need a few bytes (and upto 1Kb I'd call a few bytes if
-you're careful), then stack usage is fine. If you need more, well, kmalloc
-is some 100 cycles...
+Excellent, in this case were my patch will always work and we are debating 
+a non-issue and can stop here (unless I have broken any of the other 
+architectures but I don't think I have). (-:
 
-> If the kernel does not provide sufficient stack-space for small
-> buffers and structures, it is a kernel problem,
+Anton
 
-notice the *small*
 
-The alternative is to double the amount of PER PROCESS overhead in terms of
-unswappable memory... Even 1 disk IO will hurt more than your kmalloc of 4Kb
-of "small buffers and structures" will in a year.
-
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

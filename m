@@ -1,80 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131287AbQKKQqG>; Sat, 11 Nov 2000 11:46:06 -0500
+	id <S131423AbQKKQtG>; Sat, 11 Nov 2000 11:49:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131293AbQKKQp4>; Sat, 11 Nov 2000 11:45:56 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:11987 "EHLO saturn.homenet")
-	by vger.kernel.org with ESMTP id <S131287AbQKKQpp>;
-	Sat, 11 Nov 2000 11:45:45 -0500
-Date: Sat, 11 Nov 2000 16:46:09 +0000 (GMT)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Tigran Aivazian <tigran@veritas.com>, "H. Peter Anvin" <hpa@transmeta.com>,
-        Max Inux <maxinux@bigfoot.com>, "H. Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: bzImage ~ 900K with i386 test11-pre2
-In-Reply-To: <20001111172610.A9140@inspiron.suse.de>
-Message-ID: <Pine.LNX.4.21.0011111644110.1036-100000@saturn.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131293AbQKKQs4>; Sat, 11 Nov 2000 11:48:56 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:42171 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S131245AbQKKQsl>;
+	Sat, 11 Nov 2000 11:48:41 -0500
+Date: Sat, 11 Nov 2000 17:48:38 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200011111648.RAA27710@harpo.it.uu.se>
+To: torvalds@transmeta.com
+Subject: 2.4.0-test11pre2: one more Pentium IV CPU naming fix
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Nov 2000, Andrea Arcangeli wrote:
+Linus,
 
-> On Sat, Nov 11, 2000 at 02:51:21PM +0000, Tigran Aivazian wrote:
-> > Yes, Andrea, I know that paging is disabled at the point of loading the
-> > image but I was talking about the inability to boot (boot == complete
-> > booting, i.e. at least reach start_kernel()) a kernel with very large
-> > .data or .bss segments because of various reasons -- one of which,
-> > probably,is the inadequacy of those pg0 and pg1 page tables set up in
-> > head.S
-> 
-> Ah ok, I thought you were talking about bootloader.
-> 
-> About the initial pagetable setup on i386 port there's certainly a 3M limit on
-> the size of the kernel image, but it's trivial to enlarge it.  BTW, exactly for
-> that kernel size limit reasons in x86-64 I defined a 40Mbyte mapping where we
-> currently have a 4M mapping and that's even simpler to enlarge since they're 2M
-> PAE like pagetables.
-> 
-> Basically as far as the kernel can get loaded in memory correctly we have
-> no problem :)
-> 
-> > (which Peter says is infinite?) or the ones on .text/.data/.bss (and what
-> > exactly are they?)? See my question now?
-> 
-> We sure hit the 3M limit on the .bss clearing right now.
-> 
+The patch below (for 2.4.0-test11pre2) makes include/asm-i386/elf.h's
+ELF_PLATFORM be an alias for system_utsname.machine. bugs.h (which
+initialises system_utsname.machine) and elf.h use the same algorithm
+to map boot_cpu_data.x86 to a name, so it makes sense to share the
+name between them, especially if we ever come up with a better naming
+scheme (just one place to fix, not two).
 
-I understand and agree with what you say except the number 4M. It is not
-4M but 8M, imho. See arch/i386/kernel/head.S
+This doesn't change any current 2.4 behaviour wrt to the Pentium IV.
+However, 2.2.18pre's version of elf.h is currently broken for
+the Pentium IV, and I want the same "nice" fix in both kernels.
+(I'm sending an equivalent patch to Alan for 2.2.18pre.)
 
-/*
- * The page tables are initialized to only 8MB here - the final page
- * tables are set up later depending on memory size.
- */
-.org 0x2000
-ENTRY(pg0)
+/Mikael
 
-.org 0x3000
-ENTRY(pg1)
-
-/*
- * empty_zero_page must immediately follow the page tables ! (The
- * initialization loop counts until empty_zero_page)
- */
-
-.org 0x4000
-ENTRY(empty_zero_page)
-
-(the comment next to pg0 in asm/pgtable.h is misleading, whilst the
-comment above paging_init() is plain wrong -- I sent a patch to Linus
-yesterday but perhaps "wrong comment" is not a critical 2.4 issue :)
-
-Regards,
-Tigran
-
+--- linux-2.4.0-test11pre2/include/asm-i386/elf.h.~1~	Tue Oct 31 23:34:20 2000
++++ linux-2.4.0-test11pre2/include/asm-i386/elf.h	Fri Nov 10 16:37:12 2000
+@@ -7,6 +7,7 @@
+ 
+ #include <asm/ptrace.h>
+ #include <asm/user.h>
++#include <linux/utsname.h>
+ 
+ typedef unsigned long elf_greg_t;
+ 
+@@ -93,7 +94,7 @@
+    For the moment, we have only optimizations for the Intel generations,
+    but that could change... */
+ 
+-#define ELF_PLATFORM  ("i386\0i486\0i586\0i686"+(((boot_cpu_data.x86>6?6:boot_cpu_data.x86)-3)*5))
++#define ELF_PLATFORM (system_utsname.machine)
+ 
+ #ifdef __KERNEL__
+ #define SET_PERSONALITY(ex, ibcs2) set_personality((ibcs2)?PER_SVR4:PER_LINUX)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

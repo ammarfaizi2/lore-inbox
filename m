@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313312AbSDMMcr>; Sat, 13 Apr 2002 08:32:47 -0400
+	id <S313138AbSDMMpY>; Sat, 13 Apr 2002 08:45:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313334AbSDMMcr>; Sat, 13 Apr 2002 08:32:47 -0400
-Received: from samar.sasken.com ([164.164.56.2]:28909 "EHLO samar.sasken.com")
-	by vger.kernel.org with ESMTP id <S313312AbSDMMcq>;
-	Sat, 13 Apr 2002 08:32:46 -0400
-Date: Sat, 13 Apr 2002 18:02:03 +0530 (IST)
-From: K Shyam <kshyam@sasken.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: symlink support for sambafs.
-Message-ID: <Pine.LNX.4.33L2.0204131751530.2303-100000@pcz-kshyam.sasken.com>
+	id <S313334AbSDMMpX>; Sat, 13 Apr 2002 08:45:23 -0400
+Received: from nydalah028.sn.umu.se ([130.239.118.227]:11691 "EHLO
+	x-files.giron.wox.org") by vger.kernel.org with ESMTP
+	id <S313138AbSDMMpX>; Sat, 13 Apr 2002 08:45:23 -0400
+Message-ID: <00b801c1e2e9$125e6cc0$0201a8c0@homer>
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: "Urban Widmark" <urban@teststation.com>,
+        "Shing Chuang" <ShingChuang@via.com.tw>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0204131246420.5127-100000@cola.teststation.com>
+Subject: Re: [PATCH 2.4.19-pre6] via-rhine.c to support new VIA's nic chip VT6105, V6105M (correct).
+Date: Sat, 13 Apr 2002 14:45:20 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello;
-Does linux kernel have symlink support for sambfs ? I tried doing a
-search on the internet and i obtained a site that gives patches till
-version 2.4.0.The address is :
-http://131.130.199.155/~aoe/mystuff/smb.symlinks/
-Do the latest versions of the kernel have support for symlinks in smbfs ?
-I would like to know whether anyone has experiemented with it before i
-jump into putting my own effort into porting the code that is already present
-to the current kernel.
-Finally is symlinks in sambafs a security hazard and hence it is not
-implemented ?
-Thanks
-K.Shyam
+----- Original Message -----
+From: "Urban Widmark" <urban@teststation.com>
+> On Fri, 12 Apr 2002, Shing Chuang wrote:
+>
+> >       This patch applied to linux kernel 2.4.19-per6 to support VIA's
+new
+> > NIC chip.
+> >       However, VIA don't have any nic chip with pci device id 0x6100 so
+far,
+> > so this patch also remove the device ID 0x6100.
+>
+> You are removing the entry for 0x3043, not 0x6100 ... Did you mean to also
+> change "0x1106, 0x6100" to "0x1106, 0x3043" ?
+>
+> Older revision D-Link DFE530-TX NICs use a chip that identifies itself as
+> 0x3043. This patch will break those.
 
--- 
-Unix is a simple Operating System.It needs a genius to understand the simplicity.
-                                                    --Brian W.Kernighan
-                        \\\|///
-                      \\  ~ ~  //
-                       (  @ @  )
----------------------oOOo-(_)-oOOo-------------------------
-|K.Shyam (kshyam@sasken.com ) Sasken Comm Tech Ltd,       |
-|Internet Access Solutions (http://shyamk.freeservers.com)|
-|Amar Jyothi Layout,Ring Road,Domlur,Bangalore 560071     |
-|Phone : +91-80-5355501,5355503 extn : 3076.ask for me!!  |
------------------------------------------------------------
+Yuck... yes. It will totally break my two DFE530-TX'es... I wonder what
+these guys are up to.
+
+/Martin
+
 

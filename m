@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289005AbSA3JWG>; Wed, 30 Jan 2002 04:22:06 -0500
+	id <S289009AbSA3J1Q>; Wed, 30 Jan 2002 04:27:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289007AbSA3JV5>; Wed, 30 Jan 2002 04:21:57 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46090 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289005AbSA3JVx>; Wed, 30 Jan 2002 04:21:53 -0500
-Date: Wed, 30 Jan 2002 01:21:09 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Daniel Phillips <phillips@bonn-fries.net>, <mingo@elte.hu>,
-        Rob Landley <landley@trommello.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <Pine.GSO.4.21.0201300310330.11157-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33.0201300110420.1542-100000@penguin.transmeta.com>
+	id <S289010AbSA3J1G>; Wed, 30 Jan 2002 04:27:06 -0500
+Received: from mx1.sac.fedex.com ([199.81.208.10]:46853 "EHLO
+	mx1.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S289009AbSA3J04>; Wed, 30 Jan 2002 04:26:56 -0500
+Date: Wed, 30 Jan 2002 17:22:47 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Thomas Hood <jdthood@yahoo.co.uk>
+cc: Jeff Chua <jeffchua@silk.corp.fedex.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: 2.4.18-pre7 slow ... apm problem
+In-Reply-To: <1012353152.4807.146.camel@thanatos>
+Message-ID: <Pine.LNX.4.44.0201301721180.3268-100000@boston.corp.fedex.com>
 MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/30/2002
+ 05:26:52 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/30/2002
+ 05:26:54 PM,
+	Serialize complete at 01/30/2002 05:26:54 PM
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 30 Jan 2002, Alexander Viro wrote:
+On 29 Jan 2002, Thomas Hood wrote:
+
+> On Tue, 2002-01-29 at 07:36, Jeff Chua wrote:
+> > Ok got it. But still have to reboot machine as the apm is loaded and can't
+> > "rmmod apm". Complained that it's in use ([kapmd] even after stopping
+> > apmd.
 >
-> 	Frankly, the only real issue in that thread was that we _do_ need
-> a tree specifically for small fixes.  Preferably - quickly getting merged
-> into the main tree.
+> That's a bug, I think.  You should be able to rmmod the apm module.
 
-A "small stuff" maintainer may indeed be a good idea. The maintainer could
-be the same as somebody who does bigger stuff too, but they should be
-clearly different things - trivial one-liners that do not add anything
-new, only fix obvious stuff (to the point where nobody even needs to think
-about it - if I'd start getting any even halfway questionable patches from
-the "small stuff" maintainer, it wouldn't work).
+found the reason why I can't rmmod apm ... xfree is using it. If I start
+Xfree first, then modprobe apm, then I can rmmod apm.
 
-		Linus
+Jeff.
+
 

@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284160AbRLTLL0>; Thu, 20 Dec 2001 06:11:26 -0500
+	id <S284088AbRLTLKf>; Thu, 20 Dec 2001 06:10:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284153AbRLTLLR>; Thu, 20 Dec 2001 06:11:17 -0500
-Received: from pat.uio.no ([129.240.130.16]:49568 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S284144AbRLTLLH>;
-	Thu, 20 Dec 2001 06:11:07 -0500
+	id <S284153AbRLTLK0>; Thu, 20 Dec 2001 06:10:26 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:20638 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S284144AbRLTLKL>;
+	Thu, 20 Dec 2001 06:10:11 -0500
+Date: Thu, 20 Dec 2001 14:07:29 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: James Cleverdon <jamesclv@us.ibm.com>, <linux-kernel@vger.kernel.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] MAX_MP_BUSSES increase
+In-Reply-To: <Pine.LNX.4.33.0112192154190.19321-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0112201405550.6212-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15393.51009.856041.463215@charged.uio.no>
-Date: Thu, 20 Dec 2001 12:10:57 +0100
-To: Steffen Persvold <sp@scali.no>
-Cc: lkml <linux-kernel@vger.kernel.org>, nfs list <nfs@lists.sourceforge.net>,
-        Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: 2.4.8 NFS Problems
-In-Reply-To: <3C21B30D.871B6BE4@scali.no>
-In-Reply-To: <3C21B30D.871B6BE4@scali.no>
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Steffen Persvold <sp@scali.no> writes:
 
-    >> I've been getting random NFS EIO errors for a few months but
-    >> now it's repeatable. Trying to copy a large file from one 2.4.8
-    >> SMP box to another is consistently failing (at different
-    >> offsets >each time).
+On Wed, 19 Dec 2001, Linus Torvalds wrote:
 
-Please try the patch on
+> > Marcello and Linus, please apply.
+>
+> Can you give a rough description of what kinds of arrays this will
+> impact, just out of curiosity. Ie do we talk about "5kB more memory in
+> order to avoid problems", or are we talking about something
+> noticeable..
+>
+> 		Linus "too lazy to grep" Torvalds
 
-  http://www.fys.uio.no/~trondmy/src/2.4.17/linux-2.4.17-fattr.dif
+the change is OK, it's about +3K RAM used, on SMP kernels.
 
-that fixes at least 1 such EIO error which was discovered using fsx.
+	Ingo
 
-Cheers,
-   Trond

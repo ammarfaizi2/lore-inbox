@@ -1,28 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267196AbRGPCiZ>; Sun, 15 Jul 2001 22:38:25 -0400
+	id <S267188AbRGPChZ>; Sun, 15 Jul 2001 22:37:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267195AbRGPCiP>; Sun, 15 Jul 2001 22:38:15 -0400
-Received: from flodhest.stud.ntnu.no ([129.241.56.24]:35013 "EHLO
-	flodhest.stud.ntnu.no") by vger.kernel.org with ESMTP
-	id <S267194AbRGPCiD>; Sun, 15 Jul 2001 22:38:03 -0400
-Date: Mon, 16 Jul 2001 04:38:05 +0200
-From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
-To: linux-kernel@vger.kernel.org
-Subject: Test, sorry to bother you all
-Message-ID: <20010716043805.A29860@flodhest.stud.ntnu.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S267194AbRGPChP>; Sun, 15 Jul 2001 22:37:15 -0400
+Received: from mail008.mail.bellsouth.net ([205.152.58.28]:34046 "EHLO
+	imf08bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S267188AbRGPCg7>; Sun, 15 Jul 2001 22:36:59 -0400
+Date: Sun, 15 Jul 2001 22:38:31 -0400 (EDT)
+From: volodya@mindspring.com
+Reply-To: volodya@mindspring.com
+To: Aaron Smith <yoda_2002@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: "oversized" files
+In-Reply-To: <20010715212006.A408@jacana.dyn.dhs.org>
+Message-ID: <Pine.LNX.4.20.0107152228060.1650-100000@node2.localnet.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't seem to get any posts anymore (not even those I sent earlier, which
-I've gotten replies too...) I'm just checking to see if thise one comes
-through too me.
 
-Again, sorry to bother you with such a test.
 
--- 
--Thomas
+On Sun, 15 Jul 2001, Aaron Smith wrote:
+
+> I'm really not sure if this is pertinent to Linux Kernel, but I'm asking here anyway, 0 in advance if it's not.
+> 
+> I have a file that is approximately 3.25GB and my system keeps bitching about "Value too large for defined data type."  Is there any way to stop this?  Since I'm sure you're wondering why I have a file that large, I'm using it via loopback as my MP3 partition, so I can remove it fairly quick if the need should ever arise.
+
+As was explained to me (just today ;) ) this is an issue of 32bit versus
+64bit file sizes (and not filesystem returning junk values as I thought),
+so to get this working you need a version of fileutils and C library that
+supports this.
+
+I still don't know how to upgrade by compiling the source code, but
+installation of latest (8.0) Slackware packages for C library and
+fileutils fixed things for me. Be careful while upgrading your C library -
+things might break.
+
+                           Vladimir Dergachev
+
+> -- 
+> -Aaron
+> 
+> Don't hate yourself in the morning, sleep till noon
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+

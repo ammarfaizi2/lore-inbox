@@ -1,69 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269560AbTGJSqk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 14:46:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269563AbTGJSqf
+	id S269598AbTGJSts (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 14:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269600AbTGJStr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 14:46:35 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:32014 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S269560AbTGJSpu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 14:45:50 -0400
-Date: Thu, 10 Jul 2003 21:00:30 +0200
-From: Jan Kara <jack@suse.cz>
-To: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: RFC:  what's in a stable series?
-Message-ID: <20030710190030.GC8678@atrey.karlin.mff.cuni.cz>
-References: <3F0CBC08.1060201@pobox.com> <Pine.LNX.4.55L.0307100040271.6629@freak.distro.conectiva> <20030710085338.C28672@infradead.org> <1057835998.8028.6.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.55L.0307100910550.7857@freak.distro.conectiva> <1057840919.8027.19.camel@dhcp22.swansea.linux.org.uk> <20030710161553.C22512@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030710161553.C22512@infradead.org>
-User-Agent: Mutt/1.3.28i
+	Thu, 10 Jul 2003 14:49:47 -0400
+Received: from ns1.cypress.com ([157.95.67.4]:63116 "EHLO ns1.cypress.com")
+	by vger.kernel.org with ESMTP id S269598AbTGJStj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 14:49:39 -0400
+Message-ID: <3F0DB8A6.8070702@cypress.com>
+Date: Thu, 10 Jul 2003 14:04:06 -0500
+From: Thomas Dodd <ted@cypress.com>
+Reply-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Dell vs. GPL
+References: <Pine.LNX.4.10.10306292353190.5840-100000@master.linux-ide.org> <buo4r1vdrl3.fsf@mcspd15.ucom.lsi.nec.co.jp> <3F0D7B0F.8090506@cypress.com> <200307101105.08279.gene.heskett@verizon.net>
+In-Reply-To: <200307101105.08279.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, Jul 10, 2003 at 01:42:00PM +0100, Alan Cox wrote:
-> > On Iau, 2003-07-10 at 13:13, Marcelo Tosatti wrote:
-> > > So Christoph's quota patch does not support vendors "v1" files?
-> > > 
-> > > I must be misunderstanding someone.
-> > 
-> > There are three species of quota in Linux
-> > 
-> > v0	(official old Linux)
-> > v1	(most 2.4 vendor trees)
-> > v2	(the 2.5 format)
-> 
-> Umm, no.  You misunderstood.
-> 
-> There's two quota _ondisk_ formats:
-> 
-> v1 old 16bit quota.
-> v2 new 32bit quota.
-> 
-> 2.4 previously only supported v1, 2.5 and 2.4.22-pre4 also support v2.
-  Exactly.
 
-> There's three sys_quotactl ABIs
+
+Gene Heskett wrote:
+> On Thursday 10 July 2003 10:41, Thomas Dodd wrote:
 > 
-> 1) original 16 bit one, supported by all kernels <= 2.4
-> 2) first 32bit one, supported by 2.4-ac any many vendor trees, but never
->    in mainline
-  Actually at least later SuSE kernels and -ac kernels support 3)...
+>>Miles Bader wrote:
+>>
+>>>Thomas Dodd <ted@cypress.com> writes:
+>>>
+>>>>Either license would still reguire registration for enforcement.
+>>>>But the _new_ license, like OSL, would "will have teeth to
+>>>>defend", and stand up in court since the GPL didn't.
+>>>
+>>>Why?  If the court loss was due to a lack of registration, the
+>>>content of the license has no relevance -- _any_ license would
+>>>lose in that situation.
+> 
+> 
+> What court loss?
 
-> 3) new 32bit one, supported by 2.4.x (x >= 22-pre4) and 2.5
-  Right.
+The hypothetical one that Andre was talking about. See below.
 
-> Unfortunately the second one uses the same constants as the old 16bit one
-> but different structures so there is no way to support both in a single
-> kernel.
+>>Where did you get that the "loss was due to a lack of registration"
+>>?
+>>
+>>From Andre's 6/29 message:
+>>
+>>>I am in the process of getting the formal registered copyright.
+>>>
+>>>I will take GPL to court and will not settle out of court.
+>>>GPL will live or die in this case, I do not give a damn which way
+>>>it falls.
+>>>
+>>>GPL wins great.
+>>>GPL loses, maybe better so it can be replaced with OSL and then
+>>>it gets serious because we will have teeth to defend the ideas
+>>>of open source.
 
-								Honza
+Here Andre was discussing his current case. He is in the process of
+registering his copyright. Once that done he plans to go to court. He
+says he will not settle out of court, so the GPL _WILL BE_ tested in
+this case.
 
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+The next 2 lines should have started with "If" to be correct, but it was
+clear from context. He was discussing the 2 possible outcomes.
+1) The GPL is enforcable, and he wins.
+2) The GPL is not enforcable, he looses, and the GPL _will need to be_
+replaced. He then suggests the OSL as a more enforcable license.
+
+> And where can a person view this 'replacement' GPL, called OSL?
+
+Already answered, but here http://www.opensource.org/licenses/osl.php
+
+	-Thomas
+
+

@@ -1,65 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130545AbQKGAYg>; Mon, 6 Nov 2000 19:24:36 -0500
+	id <S130618AbQKGA1Q>; Mon, 6 Nov 2000 19:27:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129236AbQKGAY0>; Mon, 6 Nov 2000 19:24:26 -0500
-Received: from mailer3.bham.ac.uk ([147.188.128.54]:49592 "EHLO
-	mailer3.bham.ac.uk") by vger.kernel.org with ESMTP
-	id <S130577AbQKGAYO>; Mon, 6 Nov 2000 19:24:14 -0500
-Date: Tue, 7 Nov 2000 00:24:06 +0000 (GMT)
-From: Mark Cooke <mpc@star.sr.bham.ac.uk>
-To: Tomasz Motylewski <motyl@stan.chemie.unibas.ch>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ide-probe.c:400: `rtc_lock' undeclared and /lib/modules/..../build
-In-Reply-To: <Pine.LNX.4.21.0011070059120.24007-100000@crds.chemie.unibas.ch>
-Message-ID: <Pine.LNX.4.21.0011070022440.2301-200000@pc24.sr.bham.ac.uk>
+	id <S130617AbQKGA1G>; Mon, 6 Nov 2000 19:27:06 -0500
+Received: from puce.csi.cam.ac.uk ([131.111.8.40]:34239 "EHLO
+	puce.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129236AbQKGA04>; Mon, 6 Nov 2000 19:26:56 -0500
+From: "James A. Sutherland" <jas88@cam.ac.uk>
+To: Evan Jeffrey <hobbes@utrek.dhs.org>
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+Date: Tue, 7 Nov 2000 00:23:06 +0000
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org, hobbes@utrek.dhs.org
+In-Reply-To: <200011062046.OAA10302@utrek.dhs.org>
+In-Reply-To: <200011062046.OAA10302@utrek.dhs.org>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1131172320-365402259-973556646=:2301"
+Message-Id: <00110700263301.00940@dax.joh.cam.ac.uk>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Mon, 06 Nov 2000, Evan Jeffrey wrote:
+> > On Mon, 06 Nov 2000, David Woodhouse wrote:
+> > > 
+> > > No. You have to reset the hardware fully each time you load the module. 
+> > > Although you _expect_ it to be in the state in which you left it, you can't
+> >  
+> > > be sure of that. 
+> > 
+> > If a reset is needed, I think it should come explicitly from userspace.
+>  
+> Take Alan's example of a USB device, say USB audio.  If it is disconnected
+> and reconnected to add a hub, or anything else, the device may shut itself
+> down, go to an undefined state, or even power cycle (if it draws power from 
+> the USB +5V).  Same with hot-swap PCI cards.  The driver *MUST* reset the 
+> device on load.  If saving mixer levels through this kind of transition is 
+> desired (which it evidentally is), the module load/unload code must save and 
+> restore the settings.
 
----1131172320-365402259-973556646=:2301
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+I'm not convinced.
 
-On Tue, 7 Nov 2000, Tomasz Motylewski wrote:
+> This is exactly equivelent to reseting hardware after a warm boot. 
 
-> 2.2.18pre19:
-> ide-probe.c:400: `rtc_lock' undeclared (first use this function)
-> ide-probe.c:400: (Each undeclared identifier is reported only once
-> ide-probe.c:400: for each function it appears in.)
+Interesting. If that were done, my last sound card wouldn't have worked at all
+under Linux: it had to be initialised under DOS before loading Linux. Had Linux
+then reset everything, I'd have been soundless!
 
-See the attached patch.  Just declares it as an extern spinlock_t, as
-per a boatload of other places in the kernel.
+> Who knows
+> what the Windows driver did to your card in the mean time. 
 
-Mark
+Either it initialises it (as it does, in this case), and I want (even NEED) it
+to STAY initialised (i.e. if your driver does an unnecessary reset, your driver
+is broken), or it doesn't, and I'll reset the card with an ioctl.
 
--- 
-+-------------------------------------------------------------------------+
-Mark Cooke                  The views expressed above are mine and are not
-Systems Programmer          necessarily representative of university policy
-University Of Birmingham    URL: http://www.sr.bham.ac.uk/~mpc/
-+-------------------------------------------------------------------------+
+> A device driver
+> can only guarantee that nobody horkes with its hardware while it is loaded--
+> In the interim, the driver may have been connected to another computer,
+> accessed by another driver, or accessed from userspace (say, VMWare doing
+> a pass through driver).
 
----1131172320-365402259-973556646=:2301
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="rtc_lock.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.21.0011070024060.2301@pc24.sr.bham.ac.uk>
-Content-Description: 
-Content-Disposition: attachment; filename="rtc_lock.diff"
+So provide the FACILITY to reset the card, IFF it is needed. There are cases
+where resetting the card is just stupid: don't force stupidity by design into
+the kernel.
 
-LS0tIGxpbnV4L2RyaXZlcnMvYmxvY2svaWRlLXByb2JlLmMub3JpZwlTYXQg
-Tm92ICA0IDA2OjMyOjQzIDIwMDANCisrKyBsaW51eC9kcml2ZXJzL2Jsb2Nr
-L2lkZS1wcm9iZS5jCVNhdCBOb3YgIDQgMDY6MzI6NTIgMjAwMA0KQEAgLTQz
-LDYgKzQzLDggQEANCiAjaW5jbHVkZSA8YXNtL3VhY2Nlc3MuaD4NCiAjaW5j
-bHVkZSA8YXNtL2lvLmg+DQogDQorZXh0ZXJuIHNwaW5sb2NrX3QgcnRjX2xv
-Y2s7DQorDQogI2luY2x1ZGUgImlkZS5oIg0KIA0KIHN0YXRpYyBpbmxpbmUg
-dm9pZCBkb19pZGVudGlmeSAoaWRlX2RyaXZlX3QgKmRyaXZlLCBieXRlIGNt
-ZCkNCg==
----1131172320-365402259-973556646=:2301--
+> I personally like the idea of having insmod/rmmod do copy-out/copy-in from
+> a cache file in userspace.  That way, if we need large data sets (a ROM
+> image for something.)  they don't take up kernel space when not in use.
+> Also, it allows people to have persistant settings across reboot through
+> the same mechanism--avoiding duplicating information in shutdown/startup 
+> scripts.
+
+I prefer the idea of the drivers which need this coming with a suitable
+interface (/dev or /proc item) and a script to do this when needed.
+
+
+James.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

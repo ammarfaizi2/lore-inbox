@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269592AbUINXSV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267921AbUINXTC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269592AbUINXSV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 19:18:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268001AbUINXP6
+	id S267921AbUINXTC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 19:19:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266304AbUINXS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 19:15:58 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:11976 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267921AbUINXPJ (ORCPT
+	Tue, 14 Sep 2004 19:18:56 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:60382 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S268051AbUINXMF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 19:15:09 -0400
-Date: Tue, 14 Sep 2004 16:11:42 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: Judith Lebzelter <judith@osdl.org>, linux-kernel@vger.kernel.org
-cc: hannal@us.ibm.com, greg@kroah.com, wli@holomorphy.com
-Subject: Re: [RFT 2.6.9-rc1 alpha sys_sio.c] [2/2] convert pci_find_device to pci_get_device
-Message-ID: <18720000.1095203502@w-hlinder.beaverton.ibm.com>
-In-Reply-To: <Pine.LNX.4.33.0409141539200.22202-100000@osdlab.pdx.osdl.net>
-References: <Pine.LNX.4.33.0409141539200.22202-100000@osdlab.pdx.osdl.net>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Tue, 14 Sep 2004 19:12:05 -0400
+Date: Wed, 15 Sep 2004 00:12:01 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: dri-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+       Evan Paul Fletcher <evanpaul@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] DRM: add missing pci_enable_device()
+In-Reply-To: <200409140845.59389.bjorn.helgaas@hp.com>
+Message-ID: <Pine.LNX.4.58.0409150008130.23838@skynet>
+References: <200409131651.05059.bjorn.helgaas@hp.com> <Pine.LNX.4.58.0409140026430.15167@skynet>
+ <200409140845.59389.bjorn.helgaas@hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Tuesday, September 14, 2004 03:56:54 PM -0700 Judith Lebzelter <judith@osdl.org> wrote:
+>
+> OK, I'll assume you understand the issue and will resolve it.  In the
+> meantime, users of DRM will have to supply "pci=routeirq".
+>
 
-> The alpha filter does a 'defconfig' build, and it had 2 warnings, 0
-> errors.
-> 
-> Unfortunately, the 2.6.9-rc1 has a few errors for the 'defconfig' build,
-> which is why I did not apply it there.
-> 
-> Judith Lebzelter
-> OSDL
+is this -mm only or is it mainline kernel stuff now?
 
+I'll throw an enable in to the bk tree later on....
 
-Thanks Judith,
+Dave.
 
-That is awesome. I see the warnings were for different .c files than the ones my patches touched.
-Warning List:
-
-drivers/serial/8250_pnp.c:421: warning: cast to pointer from integer of different size
-drivers/serial/8250_pnp.c:428: warning: cast from pointer to integer of different size
-
-RESULT: PASS
-RESULT-DETAIL: 2 warnings, 0 errors
-
-So it appears all is good with my patches. Thanks a lot!
-
-Hanna
-
-
-
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
 

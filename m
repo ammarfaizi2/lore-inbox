@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269006AbUHMFyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269007AbUHMF4u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269006AbUHMFyY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 01:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269007AbUHMFyY
+	id S269007AbUHMF4u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 01:56:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbUHMF4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 01:54:24 -0400
-Received: from mail.tpgi.com.au ([203.12.160.103]:65495 "EHLO mail.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S269006AbUHMFyX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 01:54:23 -0400
-Subject: Re: is_head_of_free_region slowing down swsusp
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@suse.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040812232242.GI15138@elf.ucw.cz>
-References: <20040812222348.GA10791@elf.ucw.cz>
-	 <1092350569.24776.22.camel@laptop.cunninghams>
-	 <20040812232242.GI15138@elf.ucw.cz>
+	Fri, 13 Aug 2004 01:56:50 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:40858 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S269007AbUHMF4V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 01:56:21 -0400
+Subject: acpi shutdown problem on SMP (tyan tiger mp, athlon)
+From: Alexander Rauth <Alexander.Rauth@promotion-ie.de>
+Reply-To: Alexander.Rauth@promotion-ie.de
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Message-Id: <1092376269.24776.48.camel@laptop.cunninghams>
+Organization: Pro/Motion Industrie-Elektronik GmbH
+Message-Id: <1092376617.8529.13.camel@pro30.local.promotion-ie.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 13 Aug 2004 15:51:09 +1000
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 13 Aug 2004 07:56:57 +0200
 Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+this problem first appeared in vanilla-2.6.2 and is still present in
+vanilla-2.6.8-rc4 (vanilla-2.6.1 worked fine)
 
-On Fri, 2004-08-13 at 09:22, Pavel Machek wrote:
-> > Take a look at my implementation. I do a one-time pass through the slow
-> > path, building a bitmap of free pages. is_head_of_free_region is then
-> > simply a O(1) loop through the bitmap.
-> 
-> I've seen that solution (thanks)... I'd like to do something simpler.
+on shutdown the disks spin down, the VGA switches to powersave, but the
+cpu-fans and the power-supply won't power down.
 
-Umm. Okay. I didn't think it was complicated.
+Anyone has a hint for me?
 
-Nigel
--- 
-Nigel Cunningham
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+Thanks,
+Alexander
 
-Many today claim to be tolerant. But true tolerance can cope with others
-being intolerant.
+hardware: Tyan Tiger MP (s2460) BIOS v1.05
+lspci
+0000:00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 MP
+[IGD4-2P] System Controller (rev 11)
+0000:00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP
+[IGD4-2P] AGP Bridge
+0000:00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-766
+[ViperPlus] ISA (rev 02)
+0000:00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-766
+[ViperPlus] IDE (rev 01)
+0000:00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-766 [ViperPlus]
+ACPI (rev 01)
+0000:00:07.4 USB Controller: Advanced Micro Devices [AMD] AMD-766
+[ViperPlus] USB (rev 07)
+0000:00:08.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1
+(rev 07)
+0000:00:08.1 Input device controller: Creative Labs SB Live! MIDI/Game
+Port (rev 07)
+0000:00:0c.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M
+[Tornado] (rev 74)
+0000:01:05.0 VGA compatible controller: ATI Technologies Inc Radeon
+RV100 QY [Radeon 7000/VE]
+
 

@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262090AbUKPSxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262092AbUKPSzD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262090AbUKPSxd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 13:53:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbUKPSxd
+	id S262092AbUKPSzD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 13:55:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbUKPSzD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 13:53:33 -0500
-Received: from zamok.crans.org ([138.231.136.6]:16056 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id S262090AbUKPSxb (ORCPT
+	Tue, 16 Nov 2004 13:55:03 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:60061 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262092AbUKPSyy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 13:53:31 -0500
-To: reiserfs-list@namesys.com
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: 2.6.10-rc2-mm1: oops when accessing reiser4 fs's (maybe fix provided)
-From: Mathieu Segaud <matt@minas-morgul.org>
-Date: Tue, 16 Nov 2004 19:53:30 +0100
-Message-ID: <874qjptyl1.fsf@barad-dur.crans.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 16 Nov 2004 13:54:54 -0500
+Date: Tue, 16 Nov 2004 20:53:32 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.27-3
+Message-ID: <20041116195332.GA10604@elte.hu>
+References: <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu> <Pine.LNX.4.61.0411161843120.27976@student.dei.uc.pt>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0411161843120.27976@student.dei.uc.pt>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I tried 2.6.10-rc2-mm1 and the last reiser4 updates gave some (many many)
-oopses flooding my screen :).
-I tried reverting reiser4-fix-deadlock.patch and oopses are gone.
+* Marcos D. Marado Torres <marado@student.dei.uc.pt> wrote:
 
-I tried this one because thru the quick traces on my screen, I saw a reference
-to get_current_context.
-The speed of the traces and the unasibility of the box prevented me from
-making differences between "real" oopses and BUG_ON(), sorry for that...
+> root@Atlantis:/usr/src# wget 
+> http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.10-rc2-mm1-V0.7.27-3
 
-If you want some traces I can provide them ASAP (e.g. tomorrow)
+> 18:43:12 ERROR 404: Not Found.
 
-Best,
+yes. If you get a 404 then a newer patch has been uploaded - check the
+home directory for the latest patch. Old patches are in the older/
+subdirectory.
 
--- 
-"I am getting pretty good at running diff and patch now."
-
-	- Jeff Merkey
-
+	Ingo

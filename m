@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264977AbUDUGG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265011AbUDUGJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264977AbUDUGG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 02:06:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265023AbUDUGG4
+	id S265011AbUDUGJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 02:09:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265009AbUDUGJi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 02:06:56 -0400
-Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:34988 "HELO
+	Wed, 21 Apr 2004 02:09:38 -0400
+Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:40876 "HELO
 	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264977AbUDUGFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 02:05:41 -0400
+	id S264990AbUDUGFr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 02:05:47 -0400
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/15] New set of input patches: synaptics cleanup
-Date: Wed, 21 Apr 2004 00:50:00 -0500
+Subject: [PATCH 11/15] New set of input patches: psmouse reconnect after error
+Date: Wed, 21 Apr 2004 01:01:08 -0500
 User-Agent: KMail/1.6.1
 Cc: Vojtech Pavlik <vojtech@suse.cz>
 References: <200404210049.17139.dtor_core@ameritech.net>
@@ -22,7 +22,7 @@ Content-Disposition: inline
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404210050.02396.dtor_core@ameritech.net>
+Message-Id: <200404210101.09809.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -30,285 +30,256 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 ===================================================================
 
 
-ChangeSet@1.1902, 2004-04-20 22:22:49-05:00, dtor_core@ameritech.net
-  Input: synaptics driver cleanup
-         - pack all button data in 2 bytes instead of 48
-         - adjust the way we extract button data
-         - query extended capabilities if SYN_EXT_CAP_REQUESTS >= 1
-           (was == 1) according to Synaptics' addendum to the interfacing
-           guide
-         - do not announce or report BTN_BACK/BTN_FORWARD unless touchpad
-           has SYN_CAP_FOUR_BUTTON in its capability flags
+ChangeSet@1.1912, 2004-04-20 22:40:09-05:00, dtor_core@ameritech.net
+  Input: move "reconnect after so many errors" handling from synaptics driver
+         to psmouse so it can be used by other PS/2 protcol drivers (but so far
+         only synaptics knows how to validate incoming data)
 
 
- synaptics.c |  137 +++++++++++++++++++++++++-----------------------------------
- synaptics.h |   19 ++------
- 2 files changed, 65 insertions(+), 91 deletions(-)
+ Documentation/kernel-parameters.txt |    4 +-
+ drivers/input/mouse/psmouse-base.c  |   61 +++++++++++++++++++++++++-----------
+ drivers/input/mouse/psmouse.h       |    9 ++++-
+ drivers/input/mouse/synaptics.c     |   24 ++++----------
+ drivers/input/mouse/synaptics.h     |    3 -
+ 5 files changed, 62 insertions(+), 39 deletions(-)
 
 
 ===================================================================
 
 
 
-diff -Nru a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
---- a/drivers/input/mouse/synaptics.c	Tue Apr 20 22:55:50 2004
-+++ b/drivers/input/mouse/synaptics.c	Tue Apr 20 22:55:50 2004
-@@ -118,17 +118,31 @@
+diff -Nru a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
+--- a/Documentation/kernel-parameters.txt	Tue Apr 20 23:11:25 2004
++++ b/Documentation/kernel-parameters.txt	Tue Apr 20 23:11:25 2004
+@@ -879,8 +879,8 @@
+ 	psmouse.rate=	[HW,MOUSE] Set desired mouse report rate, in reports
+ 			per second.
+ 	psmouse.resetafter=
+-			[HW,MOUSE] Try to reset Synaptics Touchpad after so many
+-			bad packets (0 = never).
++			[HW,MOUSE] Try to reset the device after so many bad packets
++			(0 = never).
+ 	psmouse.resolution=
+ 			[HW,MOUSE] Set desired mouse resolution, in dpi.
+ 	psmouse.smartscroll=
+diff -Nru a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+--- a/drivers/input/mouse/psmouse-base.c	Tue Apr 20 23:11:25 2004
++++ b/drivers/input/mouse/psmouse-base.c	Tue Apr 20 23:11:25 2004
+@@ -43,9 +43,9 @@
+ module_param_named(smartscroll, psmouse_smartscroll, bool, 0);
+ MODULE_PARM_DESC(smartscroll, "Logitech Smartscroll autorepeat, 1 = enabled (default), 0 = disabled.");
  
- 	if (synaptics_send_cmd(psmouse, SYN_QUE_CAPABILITIES, cap))
- 		return -1;
--	priv->capabilities = (cap[0]<<16) | (cap[1]<<8) | cap[2];
-+	priv->capabilities = (cap[0] << 16) | (cap[1] << 8) | cap[2];
- 	priv->ext_cap = 0;
- 	if (!SYN_CAP_VALID(priv->capabilities))
- 		return -1;
+-unsigned int psmouse_resetafter;
++static unsigned int psmouse_resetafter;
+ module_param_named(resetafter, psmouse_resetafter, uint, 0);
+-MODULE_PARM_DESC(resetafter, "Reset Synaptics Touchpad after so many bad packets (0 = never).");
++MODULE_PARM_DESC(resetafter, "Reset device after so many bad packets (0 = never).");
  
--	if (SYN_EXT_CAP_REQUESTS(priv->capabilities)) {
-+	/*
-+	 * Unless capExtended is set the rest of the flags should be ignored
-+	 */
-+	if (!SYN_CAP_EXTENDED(priv->capabilities))
-+		priv->capabilities = 0;
-+
-+	if (SYN_EXT_CAP_REQUESTS(priv->capabilities) >= 1) {
- 		if (synaptics_send_cmd(psmouse, SYN_QUE_EXT_CAPAB, cap)) {
- 			printk(KERN_ERR "Synaptics claims to have extended capabilities,"
- 			       " but I'm not able to read them.");
--		} else
--			priv->ext_cap = (cap[0]<<16) | (cap[1]<<8) | cap[2];
-+		} else {
-+			priv->ext_cap = (cap[0] << 16) | (cap[1] << 8) | cap[2];
-+
-+			/*
-+			 * if nExtBtn is greater than 8 it should be considered
-+			 * invalid and treated as 0
-+			 */
-+			if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) > 8)
-+				priv->ext_cap &= 0xff0fff;
-+		}
- 	}
- 	return 0;
- }
-@@ -167,11 +181,10 @@
+ __obsolete_setup("psmouse_noext");
+ __obsolete_setup("psmouse_resolution=");
+@@ -56,15 +56,22 @@
+ static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/2", "ImPS/2", "ImExPS/2", "SynPS/2"};
  
- 	if (SYN_CAP_EXTENDED(priv->capabilities)) {
- 		printk(KERN_INFO " Touchpad has extended capability bits\n");
--		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) &&
--		    SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) <= 8)
-+		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap))
- 			printk(KERN_INFO " -> %d multi-buttons, i.e. besides standard buttons\n",
- 			       (int)(SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap)));
--		else if (SYN_CAP_FOUR_BUTTON(priv->capabilities))
-+		if (SYN_CAP_FOUR_BUTTON(priv->capabilities))
- 			printk(KERN_INFO " -> four buttons\n");
- 		if (SYN_CAP_MULTIFINGER(priv->capabilities))
- 			printk(KERN_INFO " -> multifinger detection\n");
-@@ -312,6 +325,8 @@
+ /*
+- * psmouse_process_packet() analyzes the PS/2 mouse packet contents and
+- * reports relevant events to the input module.
++ * psmouse_process_byte() analyzes the PS/2 data stream and reports
++ * relevant events to the input module once full packet has arrived.
+  */
  
- static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
+-static void psmouse_process_packet(struct psmouse *psmouse, struct pt_regs *regs)
++static psmouse_ret_t psmouse_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
  {
-+	int i;
+ 	struct input_dev *dev = &psmouse->dev;
+ 	unsigned char *packet = psmouse->packet;
+ 
++	if (psmouse->pktcnt < 3 + (psmouse->type >= PSMOUSE_GENPS))
++		return PSMOUSE_GOOD_DATA;
 +
- 	set_bit(EV_ABS, dev->evbit);
- 	set_abs_params(dev, ABS_X, XMIN_NOMINAL, XMAX_NOMINAL, 0, 0);
- 	set_abs_params(dev, ABS_Y, YMIN_NOMINAL, YMAX_NOMINAL, 0, 0);
-@@ -326,32 +341,15 @@
- 
- 	set_bit(BTN_LEFT, dev->keybit);
- 	set_bit(BTN_RIGHT, dev->keybit);
--	set_bit(BTN_FORWARD, dev->keybit);
--	set_bit(BTN_BACK, dev->keybit);
--	if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap)) {
--		switch (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) & ~0x01) {
--		default:
--			/*
--			 * if nExtBtn is greater than 8 it should be considered
--			 * invalid and treated as 0
--			 */
--			break;
--		case 8:
--			set_bit(BTN_7, dev->keybit);
--			set_bit(BTN_6, dev->keybit);
--		case 6:
--			set_bit(BTN_5, dev->keybit);
--			set_bit(BTN_4, dev->keybit);
--		case 4:
--			set_bit(BTN_3, dev->keybit);
--			set_bit(BTN_2, dev->keybit);
--		case 2:
--			set_bit(BTN_1, dev->keybit);
--			set_bit(BTN_0, dev->keybit);
--			break;
--		}
++/*
++ * Full packet accumulated, process it
++ */
 +
-+	if (SYN_CAP_FOUR_BUTTON(priv->capabilities)) {
-+		set_bit(BTN_FORWARD, dev->keybit);
-+		set_bit(BTN_BACK, dev->keybit);
- 	}
+ 	input_regs(dev, regs);
  
-+	for (i = 0; i < SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap); i++)
-+		set_bit(BTN_0 + i, dev->keybit);
-+
- 	clear_bit(EV_REL, dev->evbit);
- 	clear_bit(REL_X, dev->relbit);
- 	clear_bit(REL_Y, dev->relbit);
-@@ -385,8 +383,8 @@
- 	if (old_priv.identity != priv->identity ||
- 	    old_priv.model_id != priv->model_id ||
- 	    old_priv.capabilities != priv->capabilities ||
--    	    old_priv.ext_cap != priv->ext_cap)
--    		return -1;
-+	    old_priv.ext_cap != priv->ext_cap)
-+		return -1;
+ /*
+@@ -112,6 +119,8 @@
+ 	input_report_rel(dev, REL_Y, packet[2] ? (int) ((packet[0] << 3) & 0x100) - (int) packet[2] : 0);
  
- 	if (synaptics_set_mode(psmouse, 0)) {
- 		printk(KERN_ERR "Unable to initialize Synaptics hardware.\n");
-@@ -432,8 +430,8 @@
- 
- 	priv->pkt_type = SYN_MODEL_NEWABS(priv->model_id) ? SYN_NEWABS : SYN_OLDABS;
- 
--	if (SYN_CAP_EXTENDED(priv->capabilities) && SYN_CAP_PASS_THROUGH(priv->capabilities))
--       		synaptics_pt_create(psmouse);
-+	if (SYN_CAP_PASS_THROUGH(priv->capabilities))
-+		synaptics_pt_create(psmouse);
- 
- 	print_ident(priv);
- 	set_input_params(&psmouse->dev, priv);
-@@ -471,17 +469,14 @@
- 
- 		hw->left  = (buf[0] & 0x01) ? 1 : 0;
- 		hw->right = (buf[0] & 0x02) ? 1 : 0;
--		if (SYN_CAP_EXTENDED(priv->capabilities) &&
--		    (SYN_CAP_FOUR_BUTTON(priv->capabilities))) {
--			hw->up = ((buf[3] & 0x01)) ? 1 : 0;
--			if (hw->left)
--				hw->up = !hw->up;
--			hw->down = ((buf[3] & 0x02)) ? 1 : 0;
--			if (hw->right)
--				hw->down = !hw->down;
-+
-+		if (SYN_CAP_FOUR_BUTTON(priv->capabilities)) {
-+			hw->up   = ((buf[0] ^ buf[3]) & 0x01) ? 1 : 0;
-+			hw->down = ((buf[0] ^ buf[3]) & 0x02) ? 1 : 0;
- 		}
-+
- 		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) &&
--		    ((buf[3] & 2) ? !hw->right : hw->right)) {
-+		    ((buf[0] ^ buf[3]) & 0x02)) {
- 			switch (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) & ~0x01) {
- 			default:
- 				/*
-@@ -490,17 +485,17 @@
- 				 */
- 				break;
- 			case 8:
--				hw->b7 = ((buf[5] & 0x08)) ? 1 : 0;
--				hw->b6 = ((buf[4] & 0x08)) ? 1 : 0;
-+				hw->ext_buttons |= ((buf[5] & 0x08)) ? 0x80 : 0;
-+				hw->ext_buttons |= ((buf[4] & 0x08)) ? 0x40 : 0;
- 			case 6:
--				hw->b5 = ((buf[5] & 0x04)) ? 1 : 0;
--				hw->b4 = ((buf[4] & 0x04)) ? 1 : 0;
-+				hw->ext_buttons |= ((buf[5] & 0x04)) ? 0x20 : 0;
-+				hw->ext_buttons |= ((buf[4] & 0x04)) ? 0x10 : 0;
- 			case 4:
--				hw->b3 = ((buf[5] & 0x02)) ? 1 : 0;
--				hw->b2 = ((buf[4] & 0x02)) ? 1 : 0;
-+				hw->ext_buttons |= ((buf[5] & 0x02)) ? 0x08 : 0;
-+				hw->ext_buttons |= ((buf[4] & 0x02)) ? 0x04 : 0;
- 			case 2:
--				hw->b1 = ((buf[5] & 0x01)) ? 1 : 0;
--				hw->b0 = ((buf[4] & 0x01)) ? 1 : 0;
-+				hw->ext_buttons |= ((buf[5] & 0x01)) ? 0x02 : 0;
-+				hw->ext_buttons |= ((buf[4] & 0x01)) ? 0x01 : 0;
- 			}
- 		}
- 	} else {
-@@ -525,6 +520,7 @@
- 	struct synaptics_hw_state hw;
- 	int num_fingers;
- 	int finger_width;
-+	int i;
- 
- 	synaptics_parse_hw_state(psmouse->packet, priv, &hw);
- 
-@@ -570,32 +566,17 @@
- 	input_report_key(dev, BTN_TOOL_DOUBLETAP, num_fingers == 2);
- 	input_report_key(dev, BTN_TOOL_TRIPLETAP, num_fingers == 3);
- 
--	input_report_key(dev, BTN_LEFT,    hw.left);
--	input_report_key(dev, BTN_RIGHT,   hw.right);
--	input_report_key(dev, BTN_FORWARD, hw.up);
--	input_report_key(dev, BTN_BACK,    hw.down);
--	if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap))
--		switch(SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) & ~0x01) {
--		default:
--			/*
--			 * if nExtBtn is greater than 8 it should be considered
--			 * invalid and treated as 0
--			 */
--			break;
--		case 8:
--			input_report_key(dev, BTN_7,       hw.b7);
--			input_report_key(dev, BTN_6,       hw.b6);
--		case 6:
--			input_report_key(dev, BTN_5,       hw.b5);
--			input_report_key(dev, BTN_4,       hw.b4);
--		case 4:
--			input_report_key(dev, BTN_3,       hw.b3);
--			input_report_key(dev, BTN_2,       hw.b2);
--		case 2:
--			input_report_key(dev, BTN_1,       hw.b1);
--			input_report_key(dev, BTN_0,       hw.b0);
--			break;
--		}
-+	input_report_key(dev, BTN_LEFT, hw.left);
-+	input_report_key(dev, BTN_RIGHT, hw.right);
-+
-+	if (SYN_CAP_FOUR_BUTTON(priv->capabilities)) {
-+		input_report_key(dev, BTN_FORWARD, hw.up);
-+		input_report_key(dev, BTN_BACK, hw.down);
-+	}
-+
-+	for (i = 0; i < SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap); i++)
-+		input_report_key(dev, BTN_0 + i, hw.ext_buttons & (1 << i));
-+
  	input_sync(dev);
++
++	return PSMOUSE_FULL_PACKET;
  }
  
+ /*
+@@ -123,6 +132,7 @@
+ 		unsigned char data, unsigned int flags, struct pt_regs *regs)
+ {
+ 	struct psmouse *psmouse = serio->private;
++	psmouse_ret_t rc;
+ 
+ 	if (psmouse->state == PSMOUSE_IGNORE)
+ 		goto out;
+@@ -193,19 +203,33 @@
+ 		}
+ 	}
+ 
+-	if (psmouse->type == PSMOUSE_SYNAPTICS) {
+-		/*
+-		 * The synaptics driver has its own resync logic,
+-		 * so it needs to receive all bytes one at a time.
+-		 */
+-		synaptics_process_byte(psmouse, regs);
+-		goto out;
+-	}
++	rc = psmouse->type == PSMOUSE_SYNAPTICS ?
++		synaptics_process_byte(psmouse, regs) : psmouse_process_byte(psmouse, regs);
+ 
+-	if (psmouse->pktcnt == 3 + (psmouse->type >= PSMOUSE_GENPS)) {
+-		psmouse_process_packet(psmouse, regs);
+-		psmouse->pktcnt = 0;
+-		goto out;
++	switch (rc) {
++		case PSMOUSE_BAD_DATA:
++			printk(KERN_WARNING "psmouse.c: %s at %s lost sync at byte %d\n",
++				psmouse->name, psmouse->phys, psmouse->pktcnt);
++			psmouse->pktcnt = 0;
++
++			if (++psmouse->out_of_sync == psmouse_resetafter) {
++				psmouse->state = PSMOUSE_IGNORE;
++				printk(KERN_NOTICE "psmouse.c: issuing reconnect request\n");
++				serio_reconnect(psmouse->serio);
++			}
++			break;
++
++		case PSMOUSE_FULL_PACKET:
++			psmouse->pktcnt = 0;
++			if (psmouse->out_of_sync) {
++				psmouse->out_of_sync = 0;
++				printk(KERN_NOTICE "psmouse.c: %s at %s - driver resynched.\n",
++					psmouse->name, psmouse->phys);
++			}
++			break;
++
++		case PSMOUSE_GOOD_DATA:
++			break;
+ 	}
+ out:
+ 	return IRQ_HANDLED;
+@@ -677,7 +701,8 @@
+ 	old_type = psmouse->type;
+ 
+ 	psmouse->state = PSMOUSE_CMD_MODE;
+-	psmouse->type = psmouse->acking = psmouse->cmdcnt = psmouse->pktcnt = 0;
++	psmouse->type = psmouse->acking = 0;
++	psmouse->cmdcnt = psmouse->pktcnt = psmouse->out_of_sync = 0;
+ 	if (psmouse->reconnect) {
+ 	       if (psmouse->reconnect(psmouse))
+ 			return -1;
+diff -Nru a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
+--- a/drivers/input/mouse/psmouse.h	Tue Apr 20 23:11:25 2004
++++ b/drivers/input/mouse/psmouse.h	Tue Apr 20 23:11:25 2004
+@@ -22,6 +22,13 @@
+ #define PSMOUSE_ACTIVATED	1
+ #define PSMOUSE_IGNORE		2
+ 
++/* psmouse protocol handler return codes */
++typedef enum {
++	PSMOUSE_BAD_DATA,
++	PSMOUSE_GOOD_DATA,
++	PSMOUSE_FULL_PACKET
++} psmouse_ret_t;
++
+ struct psmouse;
+ 
+ struct psmouse_ptport {
+@@ -45,6 +52,7 @@
+ 	unsigned char type;
+ 	unsigned char model;
+ 	unsigned long last;
++	unsigned long out_of_sync;
+ 	unsigned char state;
+ 	char acking;
+ 	volatile char ack;
+@@ -69,6 +77,5 @@
+ 
+ extern int psmouse_smartscroll;
+ extern unsigned int psmouse_rate;
+-extern unsigned int psmouse_resetafter;
+ 
+ #endif /* _PSMOUSE_H */
+diff -Nru a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+--- a/drivers/input/mouse/synaptics.c	Tue Apr 20 23:11:25 2004
++++ b/drivers/input/mouse/synaptics.c	Tue Apr 20 23:11:25 2004
+@@ -599,6 +599,9 @@
+ 	static unsigned char oldabs_mask[]	= { 0xC0, 0x60, 0x00, 0xC0, 0x60 };
+ 	static unsigned char oldabs_rslt[]	= { 0xC0, 0x00, 0x00, 0x80, 0x00 };
+ 
++	if (idx < 0 || idx > 4)
++		return 0;
++
+ 	switch (pkt_type) {
+ 		case SYN_NEWABS:
+ 		case SYN_NEWABS_RELAXED:
+@@ -629,7 +632,7 @@
+ 	return SYN_NEWABS_STRICT;
+ }
+ 
+-void synaptics_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
++psmouse_ret_t synaptics_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
+ {
+ 	struct input_dev *dev = &psmouse->dev;
+ 	struct synaptics_data *priv = psmouse->private;
+@@ -637,11 +640,6 @@
+ 	input_regs(dev, regs);
+ 
+ 	if (psmouse->pktcnt >= 6) { /* Full packet received */
+-		if (priv->out_of_sync) {
+-			priv->out_of_sync = 0;
+-			printk(KERN_NOTICE "Synaptics driver resynced.\n");
+-		}
+-
+ 		if (unlikely(priv->pkt_type == SYN_NEWABS))
+ 			priv->pkt_type = synaptics_detect_pkt_type(psmouse);
+ 
+@@ -649,16 +647,10 @@
+ 			synaptics_pass_pt_packet(&psmouse->ptport->serio, psmouse->packet);
+ 		else
+ 			synaptics_process_packet(psmouse);
+-		psmouse->pktcnt = 0;
+ 
+-	} else if (psmouse->pktcnt &&
+-		   !synaptics_validate_byte(psmouse->packet, psmouse->pktcnt - 1, priv->pkt_type)) {
+-		printk(KERN_WARNING "Synaptics driver lost sync at byte %d\n", psmouse->pktcnt);
+-		psmouse->pktcnt = 0;
+-		if (++priv->out_of_sync == psmouse_resetafter) {
+-			psmouse->state = PSMOUSE_IGNORE;
+-			printk(KERN_NOTICE "synaptics: issuing reconnect request\n");
+-			serio_reconnect(psmouse->serio);
+-		}
++		return PSMOUSE_FULL_PACKET;
+ 	}
++
++	return synaptics_validate_byte(psmouse->packet, psmouse->pktcnt - 1, priv->pkt_type) ?
++		PSMOUSE_GOOD_DATA : PSMOUSE_BAD_DATA;
+ }
 diff -Nru a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
---- a/drivers/input/mouse/synaptics.h	Tue Apr 20 22:55:50 2004
-+++ b/drivers/input/mouse/synaptics.h	Tue Apr 20 22:55:50 2004
-@@ -50,7 +50,7 @@
- #define SYN_CAP_MULTIFINGER(c)		((c) & (1 << 1))
- #define SYN_CAP_PALMDETECT(c)		((c) & (1 << 0))
- #define SYN_CAP_VALID(c)		((((c) & 0x00ff00) >> 8) == 0x47)
--#define SYN_EXT_CAP_REQUESTS(c)		((((c) & 0x700000) >> 20) == 1)
-+#define SYN_EXT_CAP_REQUESTS(c)		(((c) & 0x700000) >> 20)
- #define SYN_CAP_MULTI_BUTTON_NO(ec)	(((ec) & 0x00f000) >> 12)
+--- a/drivers/input/mouse/synaptics.h	Tue Apr 20 23:11:25 2004
++++ b/drivers/input/mouse/synaptics.h	Tue Apr 20 23:11:25 2004
+@@ -9,7 +9,7 @@
+ #ifndef _SYNAPTICS_H
+ #define _SYNAPTICS_H
  
- /* synaptics modes query bits */
-@@ -86,18 +86,11 @@
- 	int y;
- 	int z;
- 	int w;
--	int left;
--	int right;
--	int up;
--	int down;
--	int b0;
--	int b1;
--	int b2;
--	int b3;
--	int b4;
--	int b5;
--	int b6;
--	int b7;
-+	unsigned int left:1;
-+	unsigned int right:1;
-+	unsigned int up:1;
-+	unsigned int down:1;
-+	unsigned char ext_buttons;
+-extern void synaptics_process_byte(struct psmouse *psmouse, struct pt_regs *regs);
++extern psmouse_ret_t synaptics_process_byte(struct psmouse *psmouse, struct pt_regs *regs);
+ extern int synaptics_detect(struct psmouse *psmouse);
+ extern int synaptics_init(struct psmouse *psmouse);
+ extern void synaptics_reset(struct psmouse *psmouse);
+@@ -103,7 +103,6 @@
+ 	unsigned long int identity;		/* Identification */
+ 
+ 	/* Data for normal processing */
+-	unsigned int out_of_sync;		/* # of packets out of sync */
+ 	int old_w;				/* Previous w value */
+ 	unsigned char pkt_type;			/* packet type - old, new, etc */
  };
- 
- struct synaptics_data {

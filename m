@@ -1,64 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275085AbTHSQaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 12:30:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S276357AbTHSQaH
+	id S276357AbTHSQaR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 12:30:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275272AbTHSQTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 12:30:07 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:386 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S276348AbTHSQ3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 12:29:21 -0400
-Date: Tue, 19 Aug 2003 09:28:47 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: iansu@optushome.com.au
-Subject: [Bug 1126] New: tgafb.c doesn't compile on alpha 
-Message-ID: <15870000.1061310527@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Tue, 19 Aug 2003 12:19:05 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:53499 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S272324AbTHSQQe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 12:16:34 -0400
+Message-ID: <3F4227E9.9000900@us.ibm.com>
+Date: Tue, 19 Aug 2003 09:36:41 -0400
+From: Stacy Woods <stacyw@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-2 i686; en-US; 0.7) Gecko/20010316
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Bugs sitting in the RESOLVED state for more than 28 days
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1126
+These bugs have been sitting in RESOLVED state for more than 28 days,
+ie, they have fixes, but aren't back in the mainline tree (when they
+should move to CLOSED state). If the fixes are back in mainline
+already, could the owner close them out? Otherwise, perhaps we
+can get those fixes back in?
 
-           Summary: tgafb.c doesn't compile on alpha
-    Kernel Version: 2.5.75
-            Status: NEW
-          Severity: normal
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: iansu@optushome.com.au
+Kernel Bug Tracker: http://bugme.osdl.org
+
+  24  File Sys   NFS        khoa@us.ibm.com
+statfs returns incorrect  number fo blocks
+
+  85  Drivers    Network    jgarzik@pobox.com
+ham radio stuff still using cli etc
+
+150  Drivers    PNP        ambx1@neo.rr.com
+[PNP][2.5] IDE Detection problems (wrong IRQ and wrong IDE device number)
+
+206  Drivers    Console/   jsimmons@infradead.org
+broken colors on framebuffer console
+
+257  Drivers    Network    jgarzik@pobox.com
+Broadcom b44 driver won't work
+
+367  Platform   Alpha      rth@twiddle.net
+modules fail to resolve illegal Unhandled relocation of type 10 for .text
+
+372  Platform   UML        jdike@karaya.com
+uml doesn't not compile
+
+493  Drivers    USB        mdharm-usb@one-eyed-alien.net
+Support for Sony DSC-P72 not available
+
+590  File Sys   VFS        zwane@holomorphy.com
+Cannot boot: get VFS cannot mount root on XFS and EXT2 partitions
+
+719  Process    Schedule   rml@tech9.net
+[perf][kernbench] lower performance with HT enabled on low loads
+
+737  Platform   SPARC64    bugme-janitors@lists.osdl.org
+compiler version requirements mismatch/uncertainty for sparc
+
+796  File Sys   JFS        shaggy@austin.ibm.com
+Kernel Oops with nfsd.
+
+807  Drivers    PCMCIA     bugme-janitors@lists.osdl.org
+gprs pcmcia card not works in linux
+
+817  Drivers    Network    jgarzik@pobox.com
+Receiving "Bus master arbitration failure, status ffff" error
+
+820  Drivers    Sound      bugme-janitors@lists.osdl.org
+ALSA emu10k doesn't load in 2.5.7[12]
+
+907  File Sys   NFS        neilb@cse.unsw.edu.au
+Kernel oops with nfs3svc_decode_symlinkargs
+
+911  Drivers    PCI        ak@suse.de
+[x86_64] Badness in pci_find_subsys at drivers/pci/search.c:132
+
+915 Drivers USB greg@kroah.com
+Slab corruption
+
+927 Drivers Video(AG davej@codemonkey.org.uk
+nvidia_agp module has unresolved symbols (includes fix)
+
+954 Platform PPC-32 bugme-janitors@lists.osdl.org
+link failure for arch/ppc/mm/built-in.o, function mem_pieces_find
 
 
-Distribution: debian
-Hardware Environment: alpha multia (noname)
-Problem Description: 
 
-tgafb.c required these changes to compile for me, when not compiling as a module.
-
-*** tgafb.c.bak Wed Aug 20 01:56:56 2003
---- tgafb.c     Wed Aug 20 01:43:09 2003
-***************
-*** 23,28 ****
---- 23,29 ----
-  #include <linux/init.h>
-  #include <linux/fb.h>
-  #include <linux/pci.h>
-+ #include <linux/selection.h>
-  #include <asm/io.h>
-  #include <video/tgafb.h>
-  
-***************
-*** 80,86 ****
---- 81,89 ----
-        .name                   = "tgafb",
-        .id_table               = tgafb_pci_table,
-        .probe                  = tgafb_pci_register,
-+ #ifdef MODULE
-        .remove                 = __devexit_p(tgafb_pci_unregister),
-+ #endif
-  };
 

@@ -1,42 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264411AbUESQSl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264335AbUESQWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264411AbUESQSl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 12:18:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264414AbUESQSl
+	id S264335AbUESQWx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 12:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbUESQWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 12:18:41 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:53741 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264411AbUESQSi (ORCPT
+	Wed, 19 May 2004 12:22:53 -0400
+Received: from fire.osdl.org ([65.172.181.4]:53475 "EHLO fire-2.osdl.org")
+	by vger.kernel.org with ESMTP id S264335AbUESQWt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 12:18:38 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] implement TIOCGSERIAL in sn_serial.c
-Date: Wed, 19 May 2004 12:17:13 -0400
-User-Agent: KMail/1.6.2
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, pfg@sgi.com,
-       Erik Jacobson <erikj@sgi.com>
-References: <200405191109.51751.jbarnes@engr.sgi.com> <200405191150.08967.jbarnes@engr.sgi.com> <20040519165618.A28238@infradead.org>
-In-Reply-To: <20040519165618.A28238@infradead.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 19 May 2004 12:22:49 -0400
+Subject: Re: 2.6.6-mm4 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040519040421.61263a43.akpm@osdl.org>
+References: <20040519040421.61263a43.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1084983767.12134.1.camel@cherrybomb.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 19 May 2004 09:22:47 -0700
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405191217.13635.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, May 19, 2004 11:56 am, Christoph Hellwig wrote:
-> > Umm... I described the patch in the last mail.  I don't know when Pat
-> > will have the conversion to the serial core interface done, but I have a
-> > need for this ioctl now.  If you want to wait for the full blown version,
-> > then so be it, I just hope it comes soon.
->
-> And the point of an ioctl copying two values that are compltely irrelevant
-> for userspace with your driver are? [please fill in here]
+Sorry about the timeliness of the compile stats over the last week 
+or so.  Here are compile stats for the 2.6.6* drops for both 
+Linus' kernel and Andrew's kernel patches.  The links at the 
+bottom point to the full details for the compiles (defconfig,
+allnoconfig, allyesconfig, allmodconfig).
 
-What, you think userland isn't interested in the FIFO depth?  Or are you 
-suggesting that we fill in all the values?  Pat?
+Linux 2.6 Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
 
-Jesse
+Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
+             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
+-----------  -----------  -------- -------- -------- -------- ---------
+2.6.6          0w/0e       0w/0e   123w/ 0e   7w/0e   4w/0e    121w/0e
+2.6.6-rc3      0w/0e       0w/0e   124w/ 0e   7w/0e   5w/0e    121w/0e
+2.6.6-rc2      0w/0e       0w/0e   122w/ 0e   7w/0e   4w/0e    121w/0e
+2.6.6-rc1      0w/0e       0w/0e   125w/ 0e   7w/0e   4w/0e    123w/0e
+
+
+Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
+                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
+--------------- ---------- -------- -------- -------- -------- --------
+2.6.6-mm3         0w/0e     0w/0e   112w/9w    5w/0e   2w/5e    106w/1e
+2.6.6-mm3         3w/9e     0w/0e   120w/26w   5w/0e   2w/0e    114w/10e
+2.6.6-mm2         4w/11e    0w/0e   120w/24w   6w/0e   2w/0e    118w/9e
+2.6.6-mm1         1w/0e     0w/0e   118w/25w   6w/0e   2w/0e    114w/10e
+2.6.6-rc3-mm2     0w/0e     0w/0e   117w/ 0e   8w/0e   2w/0e    116w/0e
+2.6.6-rc3-mm1     0w/0e     0w/0e   120w/10e   8w/0e   2w/0e    152w/2e
+2.6.6-rc2-mm2     0w/0e     1w/5e   118w/ 0e   8w/0e   3w/0e    118w/0e
+2.6.6-rc2-mm1     0w/0e     0w/0e   115w/ 0e   7w/0e   3w/0e    116w/0e
+2.6.6-rc1-mm1     0w/0e     0w/7e   122w/ 0e   7w/0e   4w/0e    122w/0e
+
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
+Latest changes in Linus' bitkeeper tree:
+   http://linux.bkbits.net:8080/linux-2.5
+
+John
+
+

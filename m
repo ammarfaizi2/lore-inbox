@@ -1,98 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265424AbTBCKmr>; Mon, 3 Feb 2003 05:42:47 -0500
+	id <S265587AbTBCKoL>; Mon, 3 Feb 2003 05:44:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265587AbTBCKmr>; Mon, 3 Feb 2003 05:42:47 -0500
-Received: from pop.gmx.net ([213.165.64.20]:26102 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S265424AbTBCKmp>;
-	Mon, 3 Feb 2003 05:42:45 -0500
-Date: Mon, 3 Feb 2003 11:52:12 +0100
-From: Marc Giger <gigerstyle@gmx.ch>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: oops: 2.4.20 aironet driver
-Message-Id: <20030203115212.16afe00a.gigerstyle@gmx.ch>
-X-Mailer: Sylpheed version 0.8.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S265754AbTBCKoL>; Mon, 3 Feb 2003 05:44:11 -0500
+Received: from dp.samba.org ([66.70.73.150]:46472 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265587AbTBCKoK>;
+	Mon, 3 Feb 2003 05:44:10 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: John Levon <levon@movementarian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Module alias and device table support. 
+In-reply-to: Your message of "Mon, 03 Feb 2003 02:49:46 -0000."
+             <20030203024946.GA90036@compsoc.man.ac.uk> 
+Date: Mon, 03 Feb 2003 21:34:08 +1100
+Message-Id: <20030203105342.0CE3B2C003@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
+In message <20030203024946.GA90036@compsoc.man.ac.uk> you write:
+> On Mon, Feb 03, 2003 at 11:52:57AM +1100, Rusty Russell wrote:
+> 
+> > Well, "modprobe foo" will only give you the "new_foo" driver if (1) the
+> > foo driver isn't found, and (2) the new driver author decides that
+> > it's a valid replacement.
+> 
+> It's not the driver author's decision as to which module an admin would
+> like to use. This just seems to make things a lot more awkward.
 
-Next oops happened with the aironet module...(already reported)
+I disagree.
 
-Is somewhere a bugfix?
+"insmod foo" will *always* get foo.  The only exception is when "foo"
+doesn't exist, in which case modprobe looks for another module which
+explicitly says it can serve in the place of foo.
 
-Last time it happened in a scp session and today with a mounted samba share...
+This allows smooth transition when a driver is superceded, *if* the
+new author wants it.
 
-More infos needed?
+> > going to do this, I'd rather they did it in the kernel, rather than
+> > some random userspace program.
+> 
+> Can you explain why please ?
 
-greets
+Sure, but you cut the vital bit of my mail.  Currently we have (1)
+request_module() which is used in various cases to request a service,
+and (2) aliases like "char-major-36", which modprobe.conf (or the old
+modutils' builtin) says is "netlink".  If you introduce a new char
+major (or, say a new cypher, or new network family, etc), you currenly
+have to get everyone to include it in their configuration file.
 
-Marc
+Now, the netlink module *knows* it provides char-major-36: with
+MODULE_ALIAS() it can say so.
 
-ksymoops -m /boot/System.map oops3.txt
-ksymoops 2.4.8 on i686 2.4.20.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.20/ (default)
-     -m /boot/System.map (specified)
+Obviously, there is a place for aliases which are configured by the
+user: they are definitely not going away.  But many are simple
+enumerations, which are currently duplicated external to the kernel
+sources.
 
-Feb  3 11:24:55 vaio kernel: Warning: kfree_skb passed an skb still on a list (from c0121fca).
-Feb  3 11:24:55 vaio kernel: kernel BUG at skbuff.c:315!
-Feb  3 11:24:55 vaio kernel: invalid operand: 0000
-Feb  3 11:24:55 vaio kernel: CPU:    0
-Feb  3 11:24:55 vaio kernel: EIP:    0010:[__kfree_skb+324/352]    Not tainted
-Feb  3 11:24:55 vaio kernel: EIP:    0010:[<c026cd54>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-Feb  3 11:24:55 vaio kernel: EFLAGS: 00010286
-Feb  3 11:24:55 vaio kernel: eax: 00000045   ebx: cb41fbe0   ecx: cba0e000   edx: cba0ff7c
-Feb  3 11:24:55 vaio kernel: esi: c1339f84   edi: 00000000   ebp: c1338000   esp: c1339f6c
-Feb  3 11:24:55 vaio kernel: ds: 0018   es: 0018   ss: 0018
-Feb  3 11:24:55 vaio kernel: Process keventd (pid: 2, stackpage=c1339000)
-Feb  3 11:24:55 vaio kernel: Stack: c0314840 c0121fca 00000000 c1339f84 c0121fca cb41fbe0 cb5142e4 cb5142e4
-Feb  3 11:24:55 vaio kernel:        00000000 00000000 c012ac83 c032abd0 c1339fb0 00000000 c1338560 c1338570
-Feb  3 11:24:55 vaio kernel:        c1338000 00000001 00000000 cffe5f90 00010000 00000000 00000700 c012ab50
-Feb  3 11:24:55 vaio kernel: Call Trace:    [__run_task_queue+90/112] [__run_task_queue+90/112] [context_thread+307/448] [context_thread+0/448] [rest_init+0/64]
-Feb  3 11:24:55 vaio kernel: Call Trace:    [<c0121fca>] [<c0121fca>] [<c012ac83>] [<c012ab50>] [<c0105000>]
-Feb  3 11:24:55 vaio kernel:   [<c010749e>] [<c012ab50>]
-Feb  3 11:24:55 vaio kernel: Code: 0f 0b 3b 01 cf 2d 31 c0 8b 5c 24 14 e9 be fe ff ff 90 8d 76
+So I think it's a good idea, even if using it to replace drivers is
+insane...
 
-
->>EIP; c026cd54 <__kfree_skb+144/160>   <=====
-
->>ebx; cb41fbe0 <_end+b073014/10826494>
->>ecx; cba0e000 <_end+b661434/10826494>
->>edx; cba0ff7c <_end+b6633b0/10826494>
->>esi; c1339f84 <_end+f8d3b8/10826494>
->>ebp; c1338000 <_end+f8b434/10826494>
->>esp; c1339f6c <_end+f8d3a0/10826494>
-
-Trace; c0121fca <__run_task_queue+5a/70>
-Trace; c0121fca <__run_task_queue+5a/70>
-Trace; c012ac83 <context_thread+133/1c0>
-Trace; c012ab50 <context_thread+0/1c0>
-Trace; c0105000 <_stext+0/0>
-Trace; c010749e <kernel_thread+2e/40>
-Trace; c012ab50 <context_thread+0/1c0>
-
-Code;  c026cd54 <__kfree_skb+144/160>
-00000000 <_EIP>:
-Code;  c026cd54 <__kfree_skb+144/160>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c026cd56 <__kfree_skb+146/160>
-   2:   3b 01                     cmp    (%ecx),%eax
-Code;  c026cd58 <__kfree_skb+148/160>
-   4:   cf                        iret
-Code;  c026cd59 <__kfree_skb+149/160>
-   5:   2d 31 c0 8b 5c            sub    $0x5c8bc031,%eax
-Code;  c026cd5e <__kfree_skb+14e/160>
-   a:   24 14                     and    $0x14,%al
-Code;  c026cd60 <__kfree_skb+150/160>
-   c:   e9 be fe ff ff            jmp    fffffecf <_EIP+0xfffffecf>
-Code;  c026cd65 <__kfree_skb+155/160>
-  11:   90                        nop
-Code;  c026cd66 <__kfree_skb+156/160>
-  12:   8d 76 00                  lea    0x0(%esi),%esi
+Does that clarify?
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

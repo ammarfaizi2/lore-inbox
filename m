@@ -1,81 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262919AbUDAOZH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 09:25:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262923AbUDAOZH
+	id S262215AbUDAOma (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 09:42:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262235AbUDAOma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 09:25:07 -0500
-Received: from perninha.conectiva.com.br ([200.140.247.100]:2690 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S262919AbUDAOZA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 09:25:00 -0500
-Date: Thu, 1 Apr 2004 11:24:58 -0300
-From: Flavio Bruno Leitner <fbl@conectiva.com.br>
-To: "Craig, Dave" <dwcraig@qualcomm.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Rafael D'Halleweyn (List)" <list@noduck.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at kernel/timer.c:370!
-Message-ID: <20040401142458.GB2132@conectiva.com.br>
-References: <0320111483D8B84AAAB437215BBDA526847F70@NAEX01.na.qualcomm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <0320111483D8B84AAAB437215BBDA526847F70@NAEX01.na.qualcomm.com>
-User-Agent: Mutt/1.5.5.1i
-X-Bogosity: No, tests=bogofilter, spamicity=0.486275, version=0.16.3
+	Thu, 1 Apr 2004 09:42:30 -0500
+Received: from imap.gmx.net ([213.165.64.20]:18091 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262215AbUDAOm1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 09:42:27 -0500
+X-Authenticated: #21910825
+Message-ID: <406C2AFB.1030101@gmx.net>
+Date: Thu, 01 Apr 2004 16:45:15 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030821
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6 kernels misdetect harddisk geometry, 2.4 kernels are fine
+X-Enigmail-Version: 0.76.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 31, 2004 at 09:16:52AM -0800, Craig, Dave wrote:
-> cascade: c1a1d5e0 != c1a0d5e0
-> hander=c028ee8d (igmp_ifc_timer_expire+0x0/0x3e)
-> Call Trace:
->  [<c012ca73>] cascade+0x79/0xa1
->  [<c028ee8d>] igmp_ifc_timer_expire+0x0/0x3e
->  [<c012d0b3>] run_timer_softirq+0x159/0x1c9
->  [<c012899d>] do_softirq+0xc9/0xcb
->  [<c0119c46>] smp_apic_timer_interrupt+0xd8/0x140
->  [<c0108c09>] default_idle+0x0/0x32
->  [<c010bab2>] apic_timer_interrupt+0x1a/0x20
->  [<c0108c09>] default_idle+0x0/0x32
->  [<c0108c36>] default_idle+0x2d/0x32
->  [<c0108cb4>] cpu_idle+0x3a/0x43
->  [<c0105000>] rest_init+0x0/0x68
->  [<c039c89f>] start_kernel+0x1b7/0x209
->  [<c039c427>] unknown_bootoption+0x0/0x124
-> 
-> Here is the result.  I am doing a lot of IPv4 multicast.
+Hi,
 
-Applied the patch, here is the result.
-cascade: c040b170 != c040ab00           
-handler=c040b168 (0xc040b168)
-Call Trace:                  
- [<c012741f>] cascade+0x7f/0xb0
- [<c0127a3e>] run_timer_softirq+0xee/0x170
- [<c0123b15>] do_softirq+0xa5/0xb0        
- [<c010b625>] do_IRQ+0xe5/0x120   
- [<c0109a94>] common_interrupt+0x18/0x20
- [<c0107066>] default_idle+0x26/0x40    
- [<c01070f4>] cpu_idle+0x34/0x40    
- [<c03b0829>] start_kernel+0x189/0x1e0
- [<c03b0540>] unknown_bootoption+0x0/0x120
-                                          
-cascade: c040ab20 != c040ab00
-handler=c040ab18 (0xc040ab18)
-Call Trace:                  
- [<c012741f>] cascade+0x7f/0xb0
- [<c0127a3e>] run_timer_softirq+0xee/0x170
- [<c0123b15>] do_softirq+0xa5/0xb0        
- [<c010b625>] do_IRQ+0xe5/0x120   
- [<c0109a94>] common_interrupt+0x18/0x20
- [<c0107066>] default_idle+0x26/0x40    
- [<c01070f4>] cpu_idle+0x34/0x40    
- [<c03b0829>] start_kernel+0x189/0x1e0
- [<c03b0540>] unknown_bootoption+0x0/0x120
+the harddisk geometry recognized by 2.6 kernels differs from the geometry
+recognized by 2.4 kernels. The 2.4 kernel version agrees with the BIOS and
+fdisk/parted. The 2.6 kernel version seems senseless to me. Here is a diff
+between bootup messages: (more info available if you need it)
+
+--- /var/log/boot.msg24 2004-04-01 10:33:23.000000000 +0200
++++ /var/log/boot.msg26 2004-04-01 10:34:48.751069936 +0200
+ Floppy drive(s): fd0 is 1.44M
+ FDC 0 is a post-1991 82077
+ RAMDISK driver initialized: 16 RAM disks of 64000K size 1024 blocksize
+ loop: loaded (max 16 devices)
+-Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
++Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+-VP_IDE: IDE controller at PCI slot 00:07.1
++VP_IDE: IDE controller at PCI slot 0000:00:07.1
+ VP_IDE: chipset revision 6
+ VP_IDE: not 100%% native mode: will probe irqs later
+-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+-VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
++VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci0000:00:07.1
+     ide0: BM-DMA at 0xa400-0xa407, BIOS settings: hda:DMA, hdb:pio
+     ide1: BM-DMA at 0xa408-0xa40f, BIOS settings: hdc:DMA, hdd:pio
+ hda: IBM-DTLA-307030, ATA DISK drive
+-blk: queue c03e66c0, I/O limit 4095Mb (mask 0xffffffff)
+-hdc: TOSHIBA DVD-ROM SD-M1402, ATAPI CD/DVD-ROM drive
+ ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
++hdc: TOSHIBA DVD-ROM SD-M1402, ATAPI CD/DVD-ROM drive
+ ide1 at 0x170-0x177,0x376 on irq 15
+-hda: attached ide-disk driver.
+-hda: host protected area => 1
+-hda: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=3737/255/63, UDMA(100)
+-ide-floppy driver 0.99.newide
+-Partition check:
++hda: max request size: 128KiB
++hda: 60036480 sectors (30738 MB) w/1916KiB Cache, CHS=59560/16/63, UDMA(100)
+  hda: hda1 hda2 hda3
+ ide-floppy driver 0.99.newide
 
 
+Especially interesting are the lines:
+-hda: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=3737/255/63, UDMA(100)
++hda: 60036480 sectors (30738 MB) w/1916KiB Cache, CHS=59560/16/63, UDMA(100)
+
+You can see that both share the same sector count, but differing Megabytes
+and differing CHS. This breaks nearly every partitioning program I know
+and it makes supporting old ATARAID configurations a nightmare. (Some of
+the RAID superblock locations depend on the BIOS idea of CHS.)
+
+Is this change intentional or a bug?
+
+
+Regards,
+Carl-Daniel
 -- 
-Flávio Bruno Leitner <fbl@conectiva.com.br>
-[ E74B 0BD0 5E05 C385 239E  531C BC17 D670 7FF0 A9E0 ]
+http://www.hailfinger.org/
+

@@ -1,68 +1,145 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263364AbTLXBvd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 20:51:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263402AbTLXBvd
+	id S263088AbTLXBpB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 20:45:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262913AbTLXBoy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 20:51:33 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:29929 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S263364AbTLXBtW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 20:49:22 -0500
-Date: Tue, 23 Dec 2003 17:49:19 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC - tarball/patch server in BitKeeper
-Message-ID: <20031224014918.GA25527@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Pavel Machek <pavel@ucw.cz>, Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <20031214172156.GA16554@work.bitmover.com> <20031221200257.GA15772@elf.ucw.cz>
+	Tue, 23 Dec 2003 20:44:54 -0500
+Received: from zero.voxel.net ([209.123.232.253]:42175 "EHLO zero.voxel.net")
+	by vger.kernel.org with ESMTP id S263460AbTLXBn0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 20:43:26 -0500
+Subject: [PATCH 3/7] more CardServices() removals (drivers/net/wireless)
+From: Andres Salomon <dilinger@voxel.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-fgo0HtpnVDt0ShhvdbPk"
+Message-Id: <1072226843.5300.16.camel@spiral.internal>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031221200257.GA15772@elf.ucw.cz>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 23 Dec 2003 20:43:17 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey, Pavel, do me a favor and take me off the cc list.  I've unsubscribed
-from the Linux kernel list, this is a good example of why.  No sense of
-humor on your part, and you are whining about a license on a 200 line
-chunk of code.  Any decent programmer could have reimplemented it in
-less time than it took you to complain.
 
-On Sun, Dec 21, 2003 at 09:02:57PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > and patches.  The idea is to make it possible for all trees hosted by
-> > bkbits.net provide access to the data with a free client (included
-> 					       ~~~~
-> > below
-> > in prototype form).
-> 
-> Unfortunately that is not free client for any reasonable definition of
-> "free"; which matters, because it means that tarball.c is not getting
-> into any distribution in any form. Someone will simply have to
-> reimplement it.
-> 								Pavel
-> 
-> > /*
-> >  * tarball.c copyright (c) 2003 BitMover, Inc.
-> >  *
-> >  * Licensed under the NWL - No Whining License.
-> >  *
-> >  * You may use this, modify this, redistribute this provided you agree:
-> >  * - not to whine about this product or any other products from BitMover, Inc.
-> >  * - that there is no warranty of any kind.
-> >  * - retain this copyright in full.
-> >  */
-> 
-> -- 
-> When do you have a heart between your knees?
-> [Johanka's followup: and *two* hearts?]
+--=-fgo0HtpnVDt0ShhvdbPk
+Content-Type: multipart/mixed; boundary="=-G4dnPTt1kzAbqwBqKLvj"
 
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+
+--=-G4dnPTt1kzAbqwBqKLvj
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Part 3 of 7.
+
+--=-G4dnPTt1kzAbqwBqKLvj
+Content-Disposition: attachment; filename=103-cs_remove.patch
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=103-cs_remove.patch; charset=us-ascii
+
+UmV2aXNpb246IGxpbnV4LS1tYWlubGluZS0tMi42LS1wYXRjaC0zMg0KQXJjaGl2ZTogZGlsaW5n
+ZXJAdm94ZWwubmV0LS0yMDAzLXNwaXJhbA0KQ3JlYXRvcjogQW5kcmVzIFNhbG9tb24gPGRpbGlu
+Z2VyQHZveGVsLm5ldD4NCkRhdGU6IFR1ZSBEZWMgMjMgMTg6NDg6NDYgRVNUIDIwMDMNClN0YW5k
+YXJkLWRhdGU6IDIwMDMtMTItMjMgMjM6NDg6NDYgR01UDQpNb2RpZmllZC1maWxlczogZHJpdmVy
+cy9uZXQvd2lyZWxlc3MvbmV0d2F2ZV9jcy5jDQpOZXctcGF0Y2hlczogZGlsaW5nZXJAdm94ZWwu
+bmV0LS0yMDAzLXNwaXJhbC9saW51eC0tbWFpbmxpbmUtLTIuNi0tcGF0Y2gtMzINClN1bW1hcnk6
+IENhcmRTZXJ2aWNlcygpIHJlbW92YWwsIGFjdCAyLCBwdC4gMy4NCktleXdvcmRzOiANCg0KUmVt
+b3ZlIGNhbGxzIHRvIENhcmRTZXJ2aWNlcygpLCBhY3QgMiwgcGFydCAzOyBuZXR3YXZlX2NzLmMu
+DQoNCiogYWRkZWQgZmlsZXMNCg0KICAgIHthcmNofS9saW51eC9saW51eC0tbWFpbmxpbmUvbGlu
+dXgtLW1haW5saW5lLS0yLjYvZGlsaW5nZXJAdm94ZWwubmV0LS0yMDAzLXNwaXJhbC9wYXRjaC1s
+b2cvcGF0Y2gtMzINCg0KKiBtb2RpZmllZCBmaWxlcw0KDQotLS0gb3JpZy9kcml2ZXJzL25ldC93
+aXJlbGVzcy9uZXR3YXZlX2NzLmMNCisrKyBtb2QvZHJpdmVycy9uZXQvd2lyZWxlc3MvbmV0d2F2
+ZV9jcy5jDQpAQCAtNTEzLDcgKzUxMyw3IEBADQogICAgIGNsaWVudF9yZWcuZXZlbnRfaGFuZGxl
+ciA9ICZuZXR3YXZlX2V2ZW50Ow0KICAgICBjbGllbnRfcmVnLlZlcnNpb24gPSAweDAyMTA7DQog
+ICAgIGNsaWVudF9yZWcuZXZlbnRfY2FsbGJhY2tfYXJncy5jbGllbnRfZGF0YSA9IGxpbms7DQot
+ICAgIHJldCA9IENhcmRTZXJ2aWNlcyhSZWdpc3RlckNsaWVudCwgJmxpbmstPmhhbmRsZSwgJmNs
+aWVudF9yZWcpOw0KKyAgICByZXQgPSBwY21jaWFfcmVnaXN0ZXJfY2xpZW50KCZsaW5rLT5oYW5k
+bGUsICZjbGllbnRfcmVnKTsNCiAgICAgaWYgKHJldCAhPSAwKSB7DQogCWNzX2Vycm9yKGxpbmst
+PmhhbmRsZSwgUmVnaXN0ZXJDbGllbnQsIHJldCk7DQogCW5ldHdhdmVfZGV0YWNoKGxpbmspOw0K
+QEAgLTU1NSw3ICs1NTUsNyBAQA0KIAkNCiAgICAgLyogQnJlYWsgdGhlIGxpbmsgd2l0aCBDYXJk
+IFNlcnZpY2VzICovDQogICAgIGlmIChsaW5rLT5oYW5kbGUpDQotCUNhcmRTZXJ2aWNlcyhEZXJl
+Z2lzdGVyQ2xpZW50LCBsaW5rLT5oYW5kbGUpOw0KKwlwY21jaWFfZGVyZWdpc3Rlcl9jbGllbnQo
+bGluay0+aGFuZGxlKTsNCiAgICAgDQogICAgIC8qIExvY2F0ZSBkZXZpY2Ugc3RydWN0dXJlICov
+DQogICAgIGZvciAobGlua3AgPSAmZGV2X2xpc3Q7ICpsaW5rcDsgbGlua3AgPSAmKCpsaW5rcCkt
+Pm5leHQpDQpAQCAtOTk4LDggKzk5OCw4IEBADQogICoNCiAgKi8NCiANCi0jZGVmaW5lIENTX0NI
+RUNLKGZuLCBhcmdzLi4uKSBcDQotd2hpbGUgKChsYXN0X3JldD1DYXJkU2VydmljZXMobGFzdF9m
+bj0oZm4pLCBhcmdzKSkhPTApIGdvdG8gY3NfZmFpbGVkDQorI2RlZmluZSBDU19DSEVDSyhmbiwg
+cmV0KSBcDQorZG8geyBsYXN0X2ZuID0gKGZuKTsgaWYgKChsYXN0X3JldCA9IChyZXQpKSAhPSAw
+KSBnb3RvIGNzX2ZhaWxlZDsgfSB3aGlsZSAoMCkNCiANCiBzdGF0aWMgdm9pZCBuZXR3YXZlX3Bj
+bWNpYV9jb25maWcoZGV2X2xpbmtfdCAqbGluaykgew0KICAgICBjbGllbnRfaGFuZGxlX3QgaGFu
+ZGxlID0gbGluay0+aGFuZGxlOw0KQEAgLTEwMjQsOSArMTAyNCw5IEBADQogICAgIHR1cGxlLlR1
+cGxlRGF0YU1heCA9IDY0Ow0KICAgICB0dXBsZS5UdXBsZU9mZnNldCA9IDA7DQogICAgIHR1cGxl
+LkRlc2lyZWRUdXBsZSA9IENJU1RQTF9DT05GSUc7DQotICAgIENTX0NIRUNLKEdldEZpcnN0VHVw
+bGUsIGhhbmRsZSwgJnR1cGxlKTsNCi0gICAgQ1NfQ0hFQ0soR2V0VHVwbGVEYXRhLCBoYW5kbGUs
+ICZ0dXBsZSk7DQotICAgIENTX0NIRUNLKFBhcnNlVHVwbGUsIGhhbmRsZSwgJnR1cGxlLCAmcGFy
+c2UpOw0KKyAgICBDU19DSEVDSyhHZXRGaXJzdFR1cGxlLCBwY21jaWFfZ2V0X2ZpcnN0X3R1cGxl
+KGhhbmRsZSwgJnR1cGxlKSk7DQorICAgIENTX0NIRUNLKEdldFR1cGxlRGF0YSwgcGNtY2lhX2dl
+dF90dXBsZV9kYXRhKGhhbmRsZSwgJnR1cGxlKSk7DQorICAgIENTX0NIRUNLKFBhcnNlVHVwbGUs
+IHBjbWNpYV9wYXJzZV90dXBsZShoYW5kbGUsICZ0dXBsZSwgJnBhcnNlKSk7DQogICAgIGxpbmst
+PmNvbmYuQ29uZmlnQmFzZSA9IHBhcnNlLmNvbmZpZy5iYXNlOw0KICAgICBsaW5rLT5jb25mLlBy
+ZXNlbnQgPSBwYXJzZS5jb25maWcucm1hc2tbMF07DQogDQpAQCAtMTA0MCw3ICsxMDQwLDcgQEAN
+CiAgICAgICovDQogICAgIGZvciAoaSA9IGogPSAweDA7IGogPCAweDQwMDsgaiArPSAweDIwKSB7
+DQogCWxpbmstPmlvLkJhc2VQb3J0MSA9IGogXiAweDMwMDsNCi0JaSA9IENhcmRTZXJ2aWNlcyhS
+ZXF1ZXN0SU8sIGxpbmstPmhhbmRsZSwgJmxpbmstPmlvKTsNCisJaSA9IHBjbWNpYV9yZXF1ZXN0
+X2lvKGxpbmstPmhhbmRsZSwgJmxpbmstPmlvKTsNCiAJaWYgKGkgPT0gQ1NfU1VDQ0VTUykgYnJl
+YWs7DQogICAgIH0NCiAgICAgaWYgKGkgIT0gQ1NfU1VDQ0VTUykgew0KQEAgLTEwNTIsMTMgKzEw
+NTIsMTMgQEANCiAgICAgICogIE5vdyBhbGxvY2F0ZSBhbiBpbnRlcnJ1cHQgbGluZS4gIE5vdGUg
+dGhhdCB0aGlzIGRvZXMgbm90DQogICAgICAqICBhY3R1YWxseSBhc3NpZ24gYSBoYW5kbGVyIHRv
+IHRoZSBpbnRlcnJ1cHQuDQogICAgICAqLw0KLSAgICBDU19DSEVDSyhSZXF1ZXN0SVJRLCBoYW5k
+bGUsICZsaW5rLT5pcnEpOw0KKyAgICBDU19DSEVDSyhSZXF1ZXN0SVJRLCBwY21jaWFfcmVxdWVz
+dF9pcnEoaGFuZGxlLCAmbGluay0+aXJxKSk7DQogDQogICAgIC8qDQogICAgICAqICBUaGlzIGFj
+dHVhbGx5IGNvbmZpZ3VyZXMgdGhlIFBDTUNJQSBzb2NrZXQgLS0gc2V0dGluZyB1cA0KICAgICAg
+KiAgdGhlIEkvTyB3aW5kb3dzIGFuZCB0aGUgaW50ZXJydXB0IG1hcHBpbmcuDQogICAgICAqLw0K
+LSAgICBDU19DSEVDSyhSZXF1ZXN0Q29uZmlndXJhdGlvbiwgaGFuZGxlLCAmbGluay0+Y29uZik7
+DQorICAgIENTX0NIRUNLKFJlcXVlc3RDb25maWd1cmF0aW9uLCBwY21jaWFfcmVxdWVzdF9jb25m
+aWd1cmF0aW9uKGhhbmRsZSwgJmxpbmstPmNvbmYpKTsNCiANCiAgICAgLyoNCiAgICAgICogIEFs
+bG9jYXRlIGEgMzJLIG1lbW9yeSB3aW5kb3cuICBOb3RlIHRoYXQgdGhlIGRldl9saW5rX3QNCkBA
+IC0xMDcxLDEwICsxMDcxLDkgQEANCiAgICAgcmVxLkF0dHJpYnV0ZXMgPSBXSU5fREFUQV9XSURU
+SF84fFdJTl9NRU1PUllfVFlQRV9DTXxXSU5fRU5BQkxFOw0KICAgICByZXEuQmFzZSA9IDA7IHJl
+cS5TaXplID0gMHg4MDAwOw0KICAgICByZXEuQWNjZXNzU3BlZWQgPSBtZW1fc3BlZWQ7DQotICAg
+IGxpbmstPndpbiA9ICh3aW5kb3dfaGFuZGxlX3QpbGluay0+aGFuZGxlOw0KLSAgICBDU19DSEVD
+SyhSZXF1ZXN0V2luZG93LCAmbGluay0+d2luLCAmcmVxKTsNCisgICAgQ1NfQ0hFQ0soUmVxdWVz
+dFdpbmRvdywgcGNtY2lhX3JlcXVlc3Rfd2luZG93KCZsaW5rLT5oYW5kbGUsICZyZXEsICZsaW5r
+LT53aW4pKTsNCiAgICAgbWVtLkNhcmRPZmZzZXQgPSAweDIwMDAwOyBtZW0uUGFnZSA9IDA7IA0K
+LSAgICBDU19DSEVDSyhNYXBNZW1QYWdlLCBsaW5rLT53aW4sICZtZW0pOw0KKyAgICBDU19DSEVD
+SyhNYXBNZW1QYWdlLCBwY21jaWFfbWFwX21lbV9wYWdlKGxpbmstPndpbiwgJm1lbSkpOw0KIA0K
+ICAgICAvKiBTdG9yZSBiYXNlIGFkZHJlc3Mgb2YgdGhlIGNvbW1vbiB3aW5kb3cgZnJhbWUgKi8N
+CiAgICAgcmFtQmFzZSA9IGlvcmVtYXAocmVxLkJhc2UsIDB4ODAwMCk7DQpAQCAtMTE0NSwxMSAr
+MTE0NCwxMSBAQA0KICAgICAvKiBEb24ndCBib3RoZXIgY2hlY2tpbmcgdG8gc2VlIGlmIHRoZXNl
+IHN1Y2NlZWQgb3Igbm90ICovDQogICAgIGlmIChsaW5rLT53aW4pIHsNCiAJaW91bm1hcChwcml2
+LT5yYW1CYXNlKTsNCi0JQ2FyZFNlcnZpY2VzKFJlbGVhc2VXaW5kb3csIGxpbmstPndpbik7DQor
+CXBjbWNpYV9yZWxlYXNlX3dpbmRvdyhsaW5rLT53aW4pOw0KICAgICB9DQotICAgIENhcmRTZXJ2
+aWNlcyhSZWxlYXNlQ29uZmlndXJhdGlvbiwgbGluay0+aGFuZGxlKTsNCi0gICAgQ2FyZFNlcnZp
+Y2VzKFJlbGVhc2VJTywgbGluay0+aGFuZGxlLCAmbGluay0+aW8pOw0KLSAgICBDYXJkU2Vydmlj
+ZXMoUmVsZWFzZUlSUSwgbGluay0+aGFuZGxlLCAmbGluay0+aXJxKTsNCisgICAgcGNtY2lhX3Jl
+bGVhc2VfY29uZmlndXJhdGlvbihsaW5rLT5oYW5kbGUpOw0KKyAgICBwY21jaWFfcmVsZWFzZV9p
+byhsaW5rLT5oYW5kbGUsICZsaW5rLT5pbyk7DQorICAgIHBjbWNpYV9yZWxlYXNlX2lycShsaW5r
+LT5oYW5kbGUsICZsaW5rLT5pcnEpOw0KIA0KICAgICBsaW5rLT5zdGF0ZSAmPSB+REVWX0NPTkZJ
+RzsNCiANCkBAIC0xMjAxLDcgKzEyMDAsNyBAQA0KIAlpZiAobGluay0+c3RhdGUgJiBERVZfQ09O
+RklHKSB7DQogCSAgICBpZiAobGluay0+b3BlbikNCiAJCW5ldGlmX2RldmljZV9kZXRhY2goZGV2
+KTsNCi0JICAgIENhcmRTZXJ2aWNlcyhSZWxlYXNlQ29uZmlndXJhdGlvbiwgbGluay0+aGFuZGxl
+KTsNCisJICAgIHBjbWNpYV9yZWxlYXNlX2NvbmZpZ3VyYXRpb24obGluay0+aGFuZGxlKTsNCiAJ
+fQ0KIAlicmVhazsNCiAgICAgY2FzZSBDU19FVkVOVF9QTV9SRVNVTUU6DQpAQCAtMTIwOSw3ICsx
+MjA4LDcgQEANCiAJLyogRmFsbCB0aHJvdWdoLi4uICovDQogICAgIGNhc2UgQ1NfRVZFTlRfQ0FS
+RF9SRVNFVDoNCiAJaWYgKGxpbmstPnN0YXRlICYgREVWX0NPTkZJRykgew0KLQkgICAgQ2FyZFNl
+cnZpY2VzKFJlcXVlc3RDb25maWd1cmF0aW9uLCBsaW5rLT5oYW5kbGUsICZsaW5rLT5jb25mKTsN
+CisJICAgIHBjbWNpYV9yZXF1ZXN0X2NvbmZpZ3VyYXRpb24obGluay0+aGFuZGxlLCAmbGluay0+
+Y29uZik7DQogCSAgICBpZiAobGluay0+b3Blbikgew0KIAkJbmV0d2F2ZV9yZXNldChkZXYpOw0K
+IAkJbmV0aWZfZGV2aWNlX2F0dGFjaChkZXYpOw0KDQoNCg0K
+
+--=-G4dnPTt1kzAbqwBqKLvj--
+
+--=-fgo0HtpnVDt0ShhvdbPk
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/6OIb78o9R9NraMQRAnBxAKC7d5y/uDADBoJ5uKZhR65y0mCz+gCdFG66
+1WrV7VeRPiqYqCcpPl6N7ZU=
+=4ENM
+-----END PGP SIGNATURE-----
+
+--=-fgo0HtpnVDt0ShhvdbPk--
+

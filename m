@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267839AbUIUQw0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267840AbUIUQwe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267839AbUIUQw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 12:52:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267850AbUIUQw0
+	id S267840AbUIUQwe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 12:52:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267850AbUIUQwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 12:52:26 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:32731 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267839AbUIUQwY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 12:52:24 -0400
-Subject: Re: journalling filesystems, linux 2.4.22, SATA drives
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: axboe@suse.de, Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       jgarzik@pobox.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4150485E.6000501@nortelnetworks.com>
-References: <4150485E.6000501@nortelnetworks.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1095781763.31269.9.camel@localhost.localdomain>
+	Tue, 21 Sep 2004 12:52:34 -0400
+Received: from zcamail05.zca.compaq.com ([161.114.32.105]:51216 "EHLO
+	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
+	id S267840AbUIUQwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 12:52:30 -0400
+Date: Tue, 21 Sep 2004 18:49:38 +0200
+From: Torben Mathiasen <torben.mathiasen@hp.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Torben Mathiasen <torben.mathiasen@hp.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       "Cagle, John" <john.cagle@hp.com>,
+       Christian Borntraeger <linux-kernel@borntraeger.net>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Torben Mathiasen <device@lanana.org>, linux-mtd@lists.infradead.org
+Subject: Re: [Patch][RFC] conflicting device major numbers in devices.txt
+Message-ID: <20040921164938.GQ4055@linux>
+References: <C50AB9511EE59B49B2A503CB7AE1ABD108F82153@cceexc19.americas.cpqcorp.net> <1095580254.5065.172.camel@localhost.localdomain> <20040921092356.GD4055@linux> <200409211703.47188.arnd@arndb.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 21 Sep 2004 16:49:43 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409211703.47188.arnd@arndb.de>
+X-OS: Linux 2.6.5-7.108-default
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-09-21 at 16:27, Chris Friesen wrote:
-> use a journalled filesystem.  However the hardware guy says that turning off the 
-> write cache also turns off the automatic error correction on writes, so the 
-> write may return an error rather than being remapped silently.
+On Tue, Sep 21 2004, Arnd Bergmann wrote:
+> On Dienstag, 21. September 2004 11:23, Torben Mathiasen wrote:
+> > s/390 dasd moved to major 94.
+> > s/390 VM/ESA moved to major 95.
+> > INFTL moved to major 96.
+> 
+> Actually, major 95 has never been used for VM minidisks or any other
+> s390 block device in any 2.4 or 2.6 based distribution, because that
+> driver was integrated into the dasd driver (it just uses a different
+> access method on the same devices). You might want to document that
+> this number is currently unused, even if it doesn't get assigned to
+> any other driver.
+>
 
-I don't know how vendors handle this however he may be right, or it
-may be vendor dependant. Have you asked which vendors do this and which
-don't. Maybe you just need the right drive vendor. 
+So, what you're saying is that Major 95 is not used at all in real life? Then
+I'll remove it from from the list completely during the my next push. Let me
+know if there's a point in keeping it assigned even if its obsolete.
 
-The Linux IDE layer will retry a failed write not sure about the 2.4.22
-SATA code although the early versions probably were not business ready
-anyway.
-
-> What's the best way for me to deal with this?
-
-For IDE you either
-
-1. turn off write caching
-2. buy a hardware raid card (which will turn off write caching or
-   have battery backup or both 8))
-3. accept that its unlikely to get burned in normal usage especially 
-   with a UPS.
-
-Alan
-
+Torben

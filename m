@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262174AbREQCUV>; Wed, 16 May 2001 22:20:21 -0400
+	id <S261363AbREQC2A>; Wed, 16 May 2001 22:28:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262175AbREQCUK>; Wed, 16 May 2001 22:20:10 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:4874 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262174AbREQCUC>; Wed, 16 May 2001 22:20:02 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: vfat large file support
-Date: 16 May 2001 19:19:38 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9dvcfq$o3g$1@cesium.transmeta.com>
-In-Reply-To: <20010517040000.A22911@convergence.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S262175AbREQC1v>; Wed, 16 May 2001 22:27:51 -0400
+Received: from a1a90191.sympatico.bconnected.net ([209.53.18.14]:18817 "EHLO
+	a1a90191.sympatico.bconnected.net") by vger.kernel.org with ESMTP
+	id <S261363AbREQC1q>; Wed, 16 May 2001 22:27:46 -0400
+Date: Wed, 16 May 2001 19:27:36 -0700
+From: Shane Wegner <shane@cm.nu>
+To: Johannes Erdfelt <jerdfelt@valinux.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.20pre1: Problems with SMP
+Message-ID: <20010516192736.A6060@cm.nu>
+In-Reply-To: <20010506175050.A1968@cm.nu> <E14wiNn-0003JF-00@the-village.bc.nu> <20010507102053.A2276@cm.nu> <20010507110250.H903@valinux.com> <20010507111436.A17314@cm.nu> <20010516125655.S906@valinux.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010516125655.S906@valinux.com>; from jerdfelt@valinux.com on Wed, May 16, 2001 at 12:56:55PM -0700
+Organization: Continuum Systems, Vancouver, Canada
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20010517040000.A22911@convergence.de>
-By author:    Felix von Leitner <leitner@convergence.de>
-In newsgroup: linux.dev.kernel
->
-> I can't copy a file larger than 2 gigs to my vfat partition.
-> What gives?  2.4.4-ac5 kernel.  My cp copies 2 gigs and then aborts.
+On Wed, May 16, 2001 at 12:56:55PM -0700, Johannes Erdfelt wrote:
 > 
->   $ echo foo >> file_on_vfat_partition
+> Could you try this patch? It applies on top of 2.2.20pre1
 > 
-> causes the shell to become unresponsive and consume lots of CPU time.
-> 
+> It also cleans up a couple of comments
 
-VFAT doesn't support files larger than 2 GB.
+That fixes it alright.
 
-	-hpa
+Shane
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Shane Wegner: shane@cm.nu
+              http://www.cm.nu/~shane/
+PGP:          1024D/FFE3035D
+              A0ED DAC4 77EC D674 5487
+              5B5C 4F89 9A4E FFE3 035D

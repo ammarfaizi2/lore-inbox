@@ -1,53 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290736AbSBFS2V>; Wed, 6 Feb 2002 13:28:21 -0500
+	id <S290731AbSBFScn>; Wed, 6 Feb 2002 13:32:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290731AbSBFS2M>; Wed, 6 Feb 2002 13:28:12 -0500
-Received: from [208.29.163.248] ([208.29.163.248]:41674 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S290739AbSBFS2A>; Wed, 6 Feb 2002 13:28:00 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: "Kopp, Jeffery" <Jeffery.Kopp@COMPAQ.com>, linux-kernel@vger.kernel.org
-Date: Wed, 6 Feb 2002 10:26:48 -0800 (PST)
-Subject: Re: Please add me to the kernel change distribution list
-In-Reply-To: <20020206184532.C20396@mea-ext.zmailer.org>
-Message-ID: <Pine.LNX.4.44.0202061025110.26707-100000@dlang.diginsite.com>
+	id <S290733AbSBFScX>; Wed, 6 Feb 2002 13:32:23 -0500
+Received: from exchange.macrolink.com ([64.173.88.99]:58127 "EHLO
+	exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S290731AbSBFScN>; Wed, 6 Feb 2002 13:32:13 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D13A768A@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'Russell King'" <linux@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: what serial driver restructure is planned?
+Date: Wed, 6 Feb 2002 10:32:11 -0800 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 6 Feb 2002, Matti Aarnio wrote:
+> o Beta       Serial driver restructure              (Russell King)
 
-> On Wed, Feb 06, 2002 at 10:29:53AM -0600, Kopp, Jeffery wrote:
->   Can't.  COMPAQ is one of those companies which have covered their
-> incoming email systems with firewalls rejecting connections with IP-
-> header option bits that were "reserved, set to zero when sending" for
-> first about 20 years, but which now got other specification.
-> (The firewall makers made an error and tought it to mean: "reserved,
->  must forever be zero".)
+Regarding the above line from the 2.5 STATUS report, what is the nature of
+the planned restructuring?  I have a CompactPCI hot swap serial mux card
+that I need to support with hot swap functionality on Linux.  Has anybody
+already worked on issues like locking port names to physical slots, etc.?
+Any basic advice?
 
-to me more precise, the new specification is now an official draft, still
-subject to possible revision, but the folks running vger have decided they
-want to force the internet to accept it in it's current form so enabled
-this feature.
-
-David Lang
-
-> See:   http://vger.kernel.org/   for pointers to info.
->
-> You can initiate a connection towards vger, but vger can't initiate
-> a connection towards you!
->
-> I repeat:  At present you CAN NOT receive email from vger.kernel.org.
->
->
-> /Matti Aarnio
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Thanks in
+Ed Vance
+ 
+Ed Vance              edv@macrolink.com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807

@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264303AbRGGAhf>; Fri, 6 Jul 2001 20:37:35 -0400
+	id <S264375AbRGGAtH>; Fri, 6 Jul 2001 20:49:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264361AbRGGAhO>; Fri, 6 Jul 2001 20:37:14 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:52456 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264303AbRGGAhK>;
-	Fri, 6 Jul 2001 20:37:10 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15174.22965.347920.402183@pizda.ninka.net>
-Date: Fri, 6 Jul 2001 17:37:09 -0700 (PDT)
-To: "H. Peter Anvin" <hpa@zytor.com>
+	id <S264381AbRGGAs5>; Fri, 6 Jul 2001 20:48:57 -0400
+Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:53434 "EHLO
+	falcon.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S264375AbRGGAsj>; Fri, 6 Jul 2001 20:48:39 -0400
+Date: Fri, 6 Jul 2001 17:48:38 -0700
+From: "Daniel A. Nobuto" <ramune@bigfoot.com>
+To: Manfred Spraul <manfred@colorfullife.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why Plan 9 C compilers don't have asm("")
-In-Reply-To: <9i5kdp$qvs$1@cesium.transmeta.com>
-In-Reply-To: <200107061724.NAA14777@smarty.smart.net>
-	<15174.20383.84051.790269@pizda.ninka.net>
-	<9i5kdp$qvs$1@cesium.transmeta.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Subject: Re: natsemi.c failure in 2.4.6
+Message-ID: <20010706174838.A477@bigfoot.com>
+In-Reply-To: <3B459958.F25665A8@stud.uni-saarland.de> <20010706044046.A864@bigfoot.com> <3B45F966.351D1C44@colorfullife.com> <3B463C71.B217B275@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3B463C71.B217B275@colorfullife.com>; from manfred@colorfullife.com on Sat, Jul 07, 2001 at 12:32:17AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-H. Peter Anvin writes:
- > Believe it or not, that's actually a fairly simple part of the whole
- > machinery.  All you need for that is to maintain a call/return stack
- > in the front end of the pipe.
+On Sat, Jul 07, 2001 at 12:32:17AM +0200, Manfred Spraul wrote:
+> Perhaps powermanagement causes your receive problems? You wrote you have
+> a FA312. I've tested my FA311 (without mii-diag) and I didn't have any
+> problems with transmit or receive.
 
-I understand how RAS stacks work, I even mentioned them in another
-posting of this thread :-)  It's the CALL _itself_ that I'm talking
-about.
+Found out what was wrong.  It was hardware-related after all.  Sorry for
+the confusion.  Turns out my cat chewed on my cables -- replacing them
+fixed it.
 
-Later,
-David S. Miller
-davem@redhat.com
+Thanks for the help!
+
+-- DN
+Daniel

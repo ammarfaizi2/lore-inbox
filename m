@@ -1,62 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263393AbUJ2PiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263392AbUJ2PiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263393AbUJ2PiM (ORCPT <rfc822;willy@w.ods.org>);
+	id S263392AbUJ2PiM (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 29 Oct 2004 11:38:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263395AbUJ2PhS
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbUJ2PhK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 11:37:18 -0400
-Received: from fire.osdl.org ([65.172.181.4]:49841 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S263344AbUJ2PQQ (ORCPT
+	Fri, 29 Oct 2004 11:37:10 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:17798 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S263414AbUJ2PC7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 11:16:16 -0400
-Subject: Re: [patch] 2.6.10-rc1: SCSI aacraid warning
-From: Mark Haverkamp <markh@osdl.org>
+	Fri, 29 Oct 2004 11:02:59 -0400
+Date: Fri, 29 Oct 2004 16:54:42 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Adrian Bunk <bunk@stusta.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-scsi <linux-scsi@vger.kernel.org>
-In-Reply-To: <1099061134.13961.2.camel@markh1.pdx.osdl.net>
-References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org>
-	 <20041029143712.GM6677@stusta.de>
-	 <1099061134.13961.2.camel@markh1.pdx.osdl.net>
-Content-Type: text/plain
-Date: Fri, 29 Oct 2004 08:13:02 -0700
-Message-Id: <1099062782.13961.5.camel@markh1.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+cc: Bill Davidsen <davidsen@tmr.com>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       "H. Peter Anvin" <hpa@zytor.com>, Tonnerre <tonnerre@thundrix.ch>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Erik Andersen <andersen@codepoet.org>, uclibc@uclibc.org
+Subject: Re: The naming wars continue...
+In-Reply-To: <20041029145111.GO6677@stusta.de>
+Message-ID: <Pine.GSO.4.61.0410291653170.23014@waterleaf.sonytel.be>
+References: <200410271133.25701.vda@port.imtp.ilyichevsk.odessa.ua>
+ <417FF43C.5050208@tmr.com> <20041029145111.GO6677@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-29 at 07:45 -0700, Mark Haverkamp wrote:
-> On Fri, 2004-10-29 at 16:37 +0200, Adrian Bunk wrote:
-> > On Fri, Oct 22, 2004 at 03:05:13PM -0700, Linus Torvalds wrote:
-> > >...
-> > > Summary of changes from v2.6.9 to v2.6.10-rc1
-> > > ============================================
-> > >...
-> > > Mark Haverkamp:
-> > >...
-> > >   o aacraid: dynamic dev update
-> > >...
+On Fri, 29 Oct 2004, Adrian Bunk wrote:
+> On Wed, Oct 27, 2004 at 03:17:16PM -0400, Bill Davidsen wrote:
+> > Denis Vlasenko wrote:
+> > >Why there is any distinction between, say, gcc and X?
+> > >KDE and Midnight Commander? etc... Why some of them go
+> > >to /opt while others are spread across dozen of dirs?
+> > >This seems to be inconsistent to me.
 > > 
+> > At one time Sun had the convention that things in /usr could be mounted 
+> > ro on multiple machines. That worked, it predates Linux so Linux was the 
+> > o/s which chose to go another way, and it covered the base things in a 
+> > system.
 > > 
-> > This causes the following warning with a recent gcc:
+> > That actually seems like a good way to split a networked environment, 
+> > with /bin and /sbin having just enough to get the system up and mount 
+> > /usr. I can't speak to why that is being done differently now.
 > > 
-[ ... ]
-> Sorry about that, I have it fixed in my working version.  I must have
-> forgotten to add it to the patch.
+> > I guess someone was nervous about mounting a local /usr/local on a 
+> > (possibly) network mounted /usr and theu /opt, but that's a guess on my 
+> > part as well.
+> 
+> Read-only /usr is required according to the FHS, and at least on Debian 
+> a read-only /usr works without problems.
 
+Indeed. And that's what I use. In /etc/apt/apt.conf I have:
 
-Actually looking back,  I did fix this in a recent patch that 
-I sent to James titled
+    DPkg {
+        // Auto re-mounting of a readonly /usr
+	Pre-Invoke {"mount -o remount,rw /usr";};
+	Post-Invoke {"mount -o remount,ro /usr";};
+    }
 
-"[PATCH] 2.6.9 aacraid: Support ROMB RAID/SCSI mode" on October 21.
+> A bigger problem might be to properly support it in the package manager.
 
-Mark.
+Yep. Apt knows about it, but dpkg doesn't. And remounting /usr read-only
+fails if files are in use.
 
+Gr{oetje,eeting}s,
 
--- 
-Mark Haverkamp <markh@osdl.org>
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

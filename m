@@ -1,281 +1,254 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265587AbSLPIwp>; Mon, 16 Dec 2002 03:52:45 -0500
+	id <S265708AbSLPI6U>; Mon, 16 Dec 2002 03:58:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265657AbSLPIwp>; Mon, 16 Dec 2002 03:52:45 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:18233
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S265587AbSLPIwm>; Mon, 16 Dec 2002 03:52:42 -0500
-Date: Mon, 16 Dec 2002 04:01:03 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [patch][2.5] idepnp pnp conversion
-Message-ID: <Pine.LNX.4.50.0212160344250.12535-100000@montezuma.mastecende.com>
+	id <S265711AbSLPI6U>; Mon, 16 Dec 2002 03:58:20 -0500
+Received: from wiprom2mx2.wipro.com ([203.197.164.42]:29137 "EHLO
+	wiprom2mx2.wipro.com") by vger.kernel.org with ESMTP
+	id <S265708AbSLPI6R>; Mon, 16 Dec 2002 03:58:17 -0500
+From: "Sowmya Adiga" <sowmya.adiga@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [BENCHMARK]AIM benchmark result for kernel 2.5.52
+Date: Mon, 16 Dec 2002 14:35:47 +0530
+Organization: Wipro Technologies
+Message-ID: <000501c2a4e2$529ed3e0$6009720a@wipro.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+x-mimeole: Produced By Microsoft MimeOLE V6.00.2462.0000
+Importance: Normal
+X-OriginalArrivalTime: 16 Dec 2002 09:05:47.0573 (UTC) FILETIME=[52A25650:01C2A4E2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch converts idepnp to the new PnP layer and makes the driver
-useable. there is only one issue pending, although that affects 2.4 as
-well but that requires a bit more thinking in order to be Andre approved.
+Hi,
 
-Patch has been tested with disks and cdroms.
+Here are AIM benchmark result for Kernel 2.5.52.When compared with
+Kernel 2.5.51 there was a drop in performance in following tests:-
+________________________________________________________________________
+__
 
-Please apply,
+Dynamic Memory Operations/second
+mem_rtns_1 [2.5.51]    60.00    1640   27.33333     820000.00 
+mem_rtns_1 [2.5.52]    60.01    1617   26.94551     808365.27 
 
-Index: linux-2.5.52/drivers/ide/ide-pnp.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.52/drivers/ide/ide-pnp.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 ide-pnp.c
---- linux-2.5.52/drivers/ide/ide-pnp.c	16 Dec 2002 05:16:23 -0000	1.1.1.1
-+++ linux-2.5.52/drivers/ide/ide-pnp.c	16 Dec 2002 08:30:39 -0000
-@@ -18,13 +18,11 @@
+UDP/IP DataGrams/second
+udp_test   [2.5.51]    60.00    49319  821.98333    82198.33 
+udp_test   [2.5.52]    60.00    46763  779.38333    77938.33 
+________________________________________________________________________
+__
 
- #include <linux/ide.h>
- #include <linux/init.h>
--
--#include <linux/isapnp.h>
-+#include <linux/pnp.h>
+All other test results were consistent
 
- #define DEV_IO(dev, index) (dev->resource[index].start)
- #define DEV_IRQ(dev, index) (dev->irq_resource[index].start)
--
--#define DEV_NAME(dev) (dev->bus->name ? dev->bus->name : "ISA PnP")
-+#define DEV_NAME(dev) (dev->protocol->name ? dev->protocol->name : "ISA PnP")
+------------------------------------------------------------------------
+----
+                       AIM result for kernel 2.5.52
+------------------------------------------------------------------------
+----                        
+Machine's name                                    :access1
+Machine's configuration                           :PIII/868MHZ/128MB
+Number of seconds to run each test [2 to 1000]    :60
+Path to disk files                                :/tmp
 
- #define GENERIC_HD_DATA		0
- #define GENERIC_HD_ERROR	1
-@@ -35,125 +33,125 @@
- #define GENERIC_HD_SELECT	6
- #define GENERIC_HD_STATUS	7
+------------------------------------------------------------------------
+----
+ Test Test        Elapsed     Iteration  Iteration    Operation
+NumberName        Time (sec)   Count     Rate (loops/sec)Rate (ops/sec)
+------------------------------------------------------------------------
+----
+Thousand Double Precision Additions/second
+1 add_double       60.02        716     11.92936      214728.42 
 
--static int generic_ide_offsets[IDE_NR_PORTS] __initdata = {
-+static int generic_ide_offsets[IDE_NR_PORTS] = {
- 	GENERIC_HD_DATA, GENERIC_HD_ERROR, GENERIC_HD_NSECTOR,
- 	GENERIC_HD_SECTOR, GENERIC_HD_LCYL, GENERIC_HD_HCYL,
- 	GENERIC_HD_SELECT, GENERIC_HD_STATUS, -1, -1
- };
+Thousand Single Precision Additions/second
+2 add_float        60.05        1075    17.90175      214820.98 
 
- /* ISA PnP device table entry */
--struct pnp_dev_t {
--	unsigned short card_vendor, card_device, vendor, device;
--	int (*init_fn)(struct pci_dev *dev, int enable);
-+struct idepnp_private {
-+	struct pnp_dev *dev;
-+	struct pci_dev pci_dev; /* we need this for the upper layers */
-+	int (*init_fn)(struct idepnp_private *device, int enable);
- };
+Thousand Long Integer Additions/second
+3 add_long         60.03        1768    29.45194      1767116.44 
 
--/* Generic initialisation function for ISA PnP IDE interface */
-+/* Barf bags at the ready! Enough to satisfy IDE core */
-+static void pnp_to_pci(struct pnp_dev *pnp_dev, struct pci_dev *pci_dev)
-+{
-+	pci_dev->dev = pnp_dev->dev;
-+	pci_set_drvdata(pci_dev, pnp_get_drvdata(pnp_dev));
-+	pci_dev->irq = DEV_IRQ(pnp_dev, 0);
-+	pci_set_dma_mask(pci_dev, 0x00ffffff);
-+}
+Thousand Integer Additions/second
+4 add_int          60.01        1768    29.46176      1767705.38 
 
--static int __init pnpide_generic_init(struct pci_dev *dev, int enable)
-+/* Generic initialisation function for ISA PnP IDE interface */
-+static int pnpide_generic_init(struct idepnp_private *device, int enable)
- {
- 	hw_regs_t hw;
- 	ide_hwif_t *hwif;
- 	int index;
-+	struct pnp_dev *dev = device->dev;
+Thousand Short Integer Additions/second
+5 add_short        60.01        4419    73.63773      1767305.45 
 
--	if (!enable)
-+	if (!enable) {
-+		/* nothing to do for now */
- 		return 0;
-+	}
+File Creations and Closes/second
+6 creat-clo        60.01        2131    35.51075      35510.75 
 
- 	if (!(DEV_IO(dev, 0) && DEV_IO(dev, 1) && DEV_IRQ(dev, 0)))
--		return 1;
-+		return -EINVAL;
+System Allocations & Pages/second
+7 page_test        60.00        8843    147.38333     250551.67
+ 
+System Memory Allocations/second
+8 brk_test         60.00        3365    56.08333      953416.67 
 
- 	ide_setup_ports(&hw, (ide_ioreg_t) DEV_IO(dev, 0),
- 			generic_ide_offsets,
- 			(ide_ioreg_t) DEV_IO(dev, 1),
- 			0, NULL,
--//			generic_pnp_ide_iops,
-+			/* generic_pnp_ide_iops, */
- 			DEV_IRQ(dev, 0));
+Non-local gotos/second
+9 jmp_test         60.00        318129  5302.15000    5302150.00
+ 
+Signal Traps/second
+10 signal_test     60.01        9734    162.20630     162206.30 
 
- 	index = ide_register_hw(&hw, &hwif);
+Program Loads/second
+11 exec_test       60.02        2063    34.37188      171.86 
 
- 	if (index != -1) {
- 	    	printk(KERN_INFO "ide%d: %s IDE interface\n", index, DEV_NAME(dev));
--		hwif->pci_dev = dev;
-+		hwif->pci_dev = &device->pci_dev;
- 		return 0;
- 	}
+Task Creations/second
+12 fork_test       60.03        1035    17.24138      1724.14 
 
--	return 1;
-+	return -ENODEV;
- }
+Link/Unlink Pairs/second
+13 link_test       60.00        10219   170.31667     10729.95 
 
- /* Add your devices here :)) */
--struct pnp_dev_t idepnp_devices[] __initdata = {
--  	/* Generic ESDI/IDE/ATA compatible hard disk controller */
--	{	ISAPNP_ANY_ID, ISAPNP_ANY_ID,
--		ISAPNP_VENDOR('P', 'N', 'P'), ISAPNP_DEVICE(0x0600),
--		pnpide_generic_init },
--	{	0 }
-+#define IDEPNP_GENERIC_INIT	0
-+static const struct pnp_device_id pnp_ide_devs[] = {
-+	/* Generic ESDI/IDE/ATA compatible hard disk controller */
-+	{"PNP0600", IDEPNP_GENERIC_INIT},
-+	{"", 0}
- };
+Random Disk Reads (K)/second
+14 disk_rr         60.09        501     8.33749       42687.97 
 
- #define NR_PNP_DEVICES 8
--struct pnp_dev_inst {
--	struct pci_dev *dev;
--	struct pnp_dev_t *dev_type;
--};
--static struct pnp_dev_inst devices[NR_PNP_DEVICES];
--static int pnp_ide_dev_idx = 0;
-+/* Nb. pnpide_generic_init is indexed as IDEPNP_GENERIC_INIT */
-+static int (*init_functions[])(struct idepnp_private *device, int enable) = {pnpide_generic_init};
-+static struct idepnp_private devices[NR_PNP_DEVICES];
-+static int pnp_ide_dev_idx;
+Random Disk Writes (K)/second
+15 disk_rw         60.06        396     6.59341       33758.24 
 
- /*
-  * Probe for ISA PnP IDE interfaces.
-  */
--
--void __init pnpide_init(int enable)
-+static int pnp_ide_probe(struct pnp_dev *pdev, const struct pnp_device_id *dev_id)
- {
--	struct pci_dev *dev = NULL;
--	struct pnp_dev_t *dev_type;
-+	int ret;
-+	struct idepnp_private *p;
+Sequential Disk Reads (K)/second
+16 disk_rd         60.01        2785    46.40893      237613.73 
 
--	if (!isapnp_present())
--		return;
-+	/*
-+	 * Register device in the array to
-+	 * deactivate it on a module unload.
-+	 */
-+	if (pnp_ide_dev_idx >= NR_PNP_DEVICES)
-+		return -ENOSPC;
-+
-+	p = &devices[pnp_ide_dev_idx];
-+	p->init_fn = init_functions[dev_id->driver_data];
-+	p->dev = pdev;
-+	pnp_set_drvdata(pdev, p);
-+	pnp_to_pci(p->dev, &p->pci_dev);
-+	ret = p->init_fn(p, 1);
-+	if (!ret)
-+		pnp_ide_dev_idx++;
-+
-+	return ret;
-+}
+Sequential Disk Writes (K)/second
+17 disk_wrt        60.03        648     10.79460      55268.37 
 
--	/* Module unload, deactivate all registered devices. */
--	if (!enable) {
--		int i;
--		for (i = 0; i < pnp_ide_dev_idx; i++) {
--			dev = devices[i].dev;
--			devices[i].dev_type->init_fn(dev, 0);
--			if (dev->deactivate)
--				dev->deactivate(dev);
--		}
--		return;
--	}
-+static void pnp_ide_remove(struct pnp_dev *dev)
-+{
-+	struct idepnp_private *p = pnp_get_drvdata(dev);
-+
-+	/* if p is null you have a bug elsewhere */
-+	p->init_fn(p, 0);
-+	pnp_ide_dev_idx--;
-+	return;
-+}
+Disk Copies (K)/second
+18 disk_cp         60.09        517     8.60376       44051.26 
 
--	for (dev_type = idepnp_devices; dev_type->vendor; dev_type++) {
--		while ((dev = isapnp_find_dev(NULL, dev_type->vendor,
--			dev_type->device, dev))) {
--
--			if (dev->active)
--				continue;
--
--       			if (dev->prepare && dev->prepare(dev) < 0) {
--				printk(KERN_ERR"ide-pnp: %s prepare failed\n", DEV_NAME(dev));
--				continue;
--			}
--
--			if (dev->activate && dev->activate(dev) < 0) {
--				printk(KERN_ERR"ide: %s activate failed\n", DEV_NAME(dev));
--				continue;
--			}
--
--			/* Call device initialization function */
--			if (dev_type->init_fn(dev, 1)) {
--				if (dev->deactivate(dev))
--					dev->deactivate(dev);
--			} else {
--#ifdef MODULE
--				/*
--				 * Register device in the array to
--				 * deactivate it on a module unload.
--				 */
--				if (pnp_ide_dev_idx >= NR_PNP_DEVICES)
--					return;
--				devices[pnp_ide_dev_idx].dev = dev;
--				devices[pnp_ide_dev_idx].dev_type = dev_type;
--				pnp_ide_dev_idx++;
--#endif
--			}
--		}
--	}
-+static struct pnp_driver idepnp_driver = {
-+	.name		= "ide-pnp",
-+	.id_table	= pnp_ide_devs,
-+	.probe		= pnp_ide_probe,
-+	.remove		= pnp_ide_remove
-+};
-+
-+void pnpide_init(int enable)
-+{
-+	if (enable)
-+		pnp_register_driver(&idepnp_driver);
-+	else
-+		pnp_unregister_driver(&idepnp_driver);
- }
-+
-Index: linux-2.5.52/drivers/ide/ide.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.52/drivers/ide/ide.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 ide.c
---- linux-2.5.52/drivers/ide/ide.c	16 Dec 2002 05:16:22 -0000	1.1.1.1
-+++ linux-2.5.52/drivers/ide/ide.c	16 Dec 2002 08:52:17 -0000
-@@ -2080,7 +2080,7 @@
- 		buddha_init();
- 	}
- #endif /* CONFIG_BLK_DEV_BUDDHA */
--#if defined(CONFIG_BLK_DEV_ISAPNP) && defined(CONFIG_ISAPNP)
-+#if defined(CONFIG_BLK_DEV_ISAPNP) && defined(CONFIG_PNP)
- 	{
- 		extern void pnpide_init(int enable);
- 		pnpide_init(1);
-@@ -2256,7 +2256,7 @@
- 		spin_unlock_irqrestore(&ide_lock, flags);
- 		return 1;
- 	}
--#if defined(CONFIG_BLK_DEV_ISAPNP) && defined(CONFIG_ISAPNP) && defined(MODULE)
-+#if defined(CONFIG_BLK_DEV_ISAPNP) && defined(CONFIG_PNP) && defined(MODULE)
- 	pnpide_init(0);
- #endif /* CONFIG_BLK_DEV_ISAPNP */
- #ifdef CONFIG_PROC_FS
--- 
-function.linuxpower.ca
+Sync Random Disk Writes (K)/second
+19 sync_disk_rw    60.47        1       0.01654       42.34 
+
+Sync Sequential Disk Writes (K)/second
+20 sync_disk_wrt   76.75        2       0.02606       66.71 
+
+Sync Disk Copies (K)/second
+21 sync_disk_cp    77.60        2       0.02577       65.98 
+
+Directory Searches/second
+22 disk_src        60.01       10595    176.55391     13241.54 
+
+Thousand Double Precision Divides/second
+23 div_double      60.03       1322     22.02232      66066.97 
+
+Thousand Single Precision Divides/second
+24 div_float       60.00       1322     22.03333      66100.00 
+
+Thousand Long Integer Divides/second
+25 div_long        60.03       1592     26.52007      23868.07 
+
+Thousand Integer Divides/second
+26 div_int         60.03       1592     26.52007      23868.07 
+
+Thousand Short Integer Divides/second
+27 div_short       60.03       1592     26.52007      23868.07 
+
+Function Calls (no arguments)/second
+28 fun_cal         60.01       4362     72.68789      37216197.30 
+
+Function Calls (1 argument)/second
+29 fun_cal1        60.00      10231     170.51667     87304533.33 
+
+Function Calls (2 arguments)/second
+30 fun_cal2        60.01       7971     132.82786     68007865.36 
+
+Function Calls (15 arguments)/second
+31 fun_cal15       60.02       2455     40.90303      20942352.55 
+
+Integer Sieves/second
+32 sieve           60.50       41       0.67769       3.39 
+
+  Thousand Double Precision Multiplies/second 
+33 mul_double      60.01       836      13.93101      167172.14 
+
+Thousand Single Precision Multiplies/second
+34 mul_float       60.02       836      13.92869      167144.29 
+
+Thousand Long Integer Multiplies/second
+35 mul_long        60.00       75690    1261.50000    302760.00 
+
+Thousand Integer Multiplies/second
+36 mul_int         60.00       76003    1266.71667    304012.00 
+
+Thousand Short Integer Multiplies/second
+37 mul_short       60.00       60554    1009.23333    302770.00 
+
+ Numeric Functions/second 
+38 num_rtns_1      60.00       32595    543.25000     54325.00 
+
+Zeros Found/second
+39 new_raph        60.00       79896    1331.60000    266320.00 
+
+Trigonometric Functions/second
+40 trig_rtns       60.00       2161     36.01667      360166.67 
+
+Point Transformations/second
+41 matrix_rtns     60.00       349526   5825.43333    582543.33 
+
+Linear Systems Solved/second
+42 array_rtns      60.03       960      15.99200      319.84 
+
+String Manipulations/second
+43 string_rtns     60.03       851      14.17625      1417.62 
+
+Dynamic Memory Operations/second
+44 mem_rtns_1      60.01       1617     26.94551      808365.27 
+
+Block Memory Operations/second
+45 mem_rtns_2      60.00       131046   2184.10000    218410.00 
+
+Sort Operations/second
+46 sort_rtns_1     60.00       2426     40.43333      404.33 
+
+Auxiliary Loops/second
+47 misc_rtns_1     60.00       31441    524.01667     5240.17 
+
+Directory Operations/second
+48 dir_rtns_1      60.01       13183    219.68005     2196800.53
+
+Shell Scripts/second
+49 shell_rtns_1    60.02       2413     40.20327      40.20 
+
+Shell Scripts/second
+50 shell_rtns_2    60.01       2412     40.19330      40.19 
+
+Shell Scripts/second
+51 shell_rtns_3    60.01       2411     40.17664      40.18 
+
+Series Evaluations/second
+52 series_1        60.00       1464135  24402.25000   2440225.00 
+
+Shared Memory Operations/second
+53 shared_memory   60.00       163231   2720.51667    272051.67 
+
+TCP/IP Messages/second
+54 tcp_test        60.00       11039    183.98333     16558.50 
+
+UDP/IP DataGrams/second
+55 udp_test        60.00       46763    779.38333     77938.33 
+
+FIFO Messages/second
+56 fifo_test       60.00       87136    1452.26667    145226.67 
+
+Stream Pipe Messages/second
+57 stream_pipe     60.00       70184    1169.73333    116973.33 
+
+DataGram Pipe Messages/second
+58 dgram_pipe      60.00       68071    1134.51667    113451.67 
+
+Pipe Messages/second
+59 pipe_cpy        60.00       254506   4241.76667    424176.67 
+
+Memory to Memory Copy/second
+60 ram_copy        60.00       1495693  24928.21667   623703981.00 
+------------------------------------------------------------------------
+----
+Regards
+ 
+Sowmya Adiga
+Project Engineer
+Wipro Technologies
+53/1,Hosur Road,Madivala
+Bangalore-560 068,INDIA
+Tel: +91-80-5502001 Extn.5086
+sowmya.adiga@wipro.com
+ 
+

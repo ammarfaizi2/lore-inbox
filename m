@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264379AbTKURZp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 12:25:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbTKURZp
+	id S264371AbTKURYN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 12:24:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264376AbTKURYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 12:25:45 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:17574 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S264379AbTKURZn (ORCPT
+	Fri, 21 Nov 2003 12:24:13 -0500
+Received: from fw.osdl.org ([65.172.181.6]:63421 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264371AbTKURYM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 12:25:43 -0500
-Date: Fri, 21 Nov 2003 09:25:41 -0800
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Announce: ndiswrapper
-Message-ID: <20031121172541.GB25453@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20031120031137.GA8465@bougret.hpl.hp.com> <3FBC3483.4060706@pobox.com> <20031120033422.GA8674@bougret.hpl.hp.com> <20031121120534.GA20822@ucw.cz>
+	Fri, 21 Nov 2003 12:24:12 -0500
+Date: Fri, 21 Nov 2003 09:24:11 -0800
+From: cliff white <cliffw@osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: [OSDL] Graphical reaim comparisons
+Message-Id: <20031121092411.5d1093fc.cliffw@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031121120534.GA20822@ucw.cz>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 21, 2003 at 01:05:34PM +0100, Vojtech Pavlik wrote:
-> On Wed, Nov 19, 2003 at 07:34:22PM -0800, Jean Tourrilhes wrote:
-> 
-> > 	Excuse me ? Have you looked at the Howto lately ? There is
-> > only Broadcom and Intel which are not supported, which leaves plenty
-> > of choice (including many 802.11g and 802.11a cards).
-> 
-> And Realtek (I own one such card) and ADMtek (I bought one by accident
-> in Canada) and Atheros and ... basically anything CardBus doesn't work.
 
-	Wrong. There are wireless drivers for RealTek, ADMtek and
-Atheros.
-	I may repeat myself like a parrot, but "Have you looked at the
-Howto lately ?". I think you exactly prove my point ;-)
+For those who like data visual, i've created some graphs
+comparing various STP test runs. I'm using 2.6.0-test9 and 2.4.22/23-rc1 as
+comparison targets. Data updated as new tests run on STP.
 
-	Jean
+Graphs here:
+http://developer.osdl.org/cliffw/reaim/compares/index.html
+
+Other test runs here:
+
+http://developer.osdl.org/cliffw/reaim/index.html
+
+Reaim test code here:
+http://sourceforge.net/project/showfiles.php?group_id=71019
+
+cliffw
+OSDL

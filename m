@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311818AbSCNWAb>; Thu, 14 Mar 2002 17:00:31 -0500
+	id <S311806AbSCNWGC>; Thu, 14 Mar 2002 17:06:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311821AbSCNWAV>; Thu, 14 Mar 2002 17:00:21 -0500
-Received: from [24.67.14.151] ([24.67.14.151]:42488 "EHLO webber.adilger.int")
-	by vger.kernel.org with ESMTP id <S311818AbSCNWAJ>;
-	Thu, 14 Mar 2002 17:00:09 -0500
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Thu, 14 Mar 2002 14:59:29 -0700
-To: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.2.21 pre3, pre4 and rc1 problems.
-Message-ID: <20020314215929.GN429@turbolinux.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <E16lcxr-0001wc-00@the-village.bc.nu> <1016142855.14838.5.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1016142855.14838.5.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.27i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S311817AbSCNWFx>; Thu, 14 Mar 2002 17:05:53 -0500
+Received: from mail3.svr.pol.co.uk ([195.92.193.19]:4152 "EHLO
+	mail3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S311806AbSCNWFg>; Thu, 14 Mar 2002 17:05:36 -0500
+Posted-Date: Thu, 14 Mar 2002 22:05:30 GMT
+Date: Thu, 14 Mar 2002 22:05:29 +0000 (GMT)
+From: Riley Williams <rhw@MemAlpha.cx>
+Reply-To: Riley Williams <rhw@MemAlpha.cx>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Linux Kernel Archive CD-ROM's
+Message-ID: <Pine.LNX.4.21.0203142201580.2550-100000@Consulate.UFP.CX>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 14, 2002  23:53 +0200, Bongani wrote:
-> ...I just vompiled 2.4.19...
+Hi all.
 
-Is this what you do when the code is so bad it makes you sick ;-)
+After far too many months without the facilities to produce them I can
+finally report that the Linux Kernel Archive CD-ROM's are now available
+again. Details can be found at http://www.memalpha.cx/Linux/Kernel/ as
+usual.
 
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+I have had several enquiries regarding these CD-ROM's over the months
+I've been unable to produce them, and have to apologise for this to all
+concerned.
+
+Best wishes from Riley.
 

@@ -1,67 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274846AbTGaRIC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 13:08:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274852AbTGaRIC
+	id S274858AbTGaRO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 13:14:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274822AbTGaRNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 13:08:02 -0400
-Received: from [200.199.201.158] ([200.199.201.158]:7562 "EHLO
-	smtp2.brturbo.com") by vger.kernel.org with ESMTP id S274846AbTGaRH7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 13:07:59 -0400
-From: Marcelo Penna Guerra <eu@marcelopenna.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: [PATCH] Merge the changes from siimage 2.4.22-pre9 to 2.6.0-test2
-Date: Thu, 31 Jul 2003 16:32:56 -0300
-User-Agent: KMail/1.5.9
-Cc: Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
-References: <Pine.SOL.4.30.0307311710440.8394-100000@mion.elka.pw.edu.pl>
-In-Reply-To: <Pine.SOL.4.30.0307311710440.8394-100000@mion.elka.pw.edu.pl>
+	Thu, 31 Jul 2003 13:13:18 -0400
+Received: from mtaw4.prodigy.net ([64.164.98.52]:18845 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S274825AbTGaRM4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 13:12:56 -0400
+Message-ID: <3F294E9B.4020102@pacbell.net>
+Date: Thu, 31 Jul 2003 10:15:07 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200307311632.56813.eu@marcelopenna.org>
+To: "Trever L. Adams" <tadams-lists@myrealbox.com>
+CC: Greg KH <greg@kroah.com>, arjanv@redhat.com,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [More Info] Re: 2.6.0test 1 fails on eth0 up (arjanv RPM's -
+ all needed rpms installed)
+References: <1058196612.3353.2.camel@aurora.localdomain>	 <3F12FF53.7060708@pobox.com> <1058210139.5981.6.camel@laptop.fenrus.com>	 <1058217601.4441.1.camel@aurora.localdomain>	 <1058299838.3358.4.camel@aurora.localdomain>	 <20030715210240.GA5345@kroah.com>  <3F21C5FA.5020507@pacbell.net> <1059633777.4720.7.camel@aurora.localdomain>
+In-Reply-To: <1059633777.4720.7.camel@aurora.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 31 July 2003 12:25, Bartlomiej Zolnierkiewicz wrote:
-> What do you mean by "a lot more stable than before"?
+Trever L. Adams wrote:
+> On Fri, 2003-07-25 at 20:06, David Brownell wrote:
+> 
+> 
+>>See if this patch resolves it.
+>>
+>>The patch adds an explicit reset to HCD initialization, and then makes
+>>EHCI use it.  (OHCI could do so even more easily ... but nobody's reported
+>>firmware acting that type of strange with OHCI.)   It should prevent IRQs
+>>being enabled while the HC is still in an indeterminate state.
+>>
+>>This also fixes a missing local_irq_restore() that was generating some
+>>annoying might_sleep() messages, and a missing readb() that affects some
+>>ARM (and other) PCI systems.
+>>
+>>- Dave
+> 
+> 
+> Applied it against test2.  I think the problem is indeed ACPI handling
+> PCI irqs.  This is an nVidia nForce2 board, I should check to see if the
+> patch someone posted fixes this (Did it get folded into test2?).
 
-I mean it doesn't crash the system during intensive read/write operations. It 
-has something to do with limiting the max bk per request to 7.5 (hwif-
->rqsize=15).
+I think it got posted after test2 finalized; and the patches I
+saw were line-wrapped so I couldn't even read them.
 
-> Can you separate your changes from forward-port?
 
-They are really small changes. It's the one I mentioned on the first e-mail 
-and this one, that was suggested by Andre Hedrick on another post:
+> Anyway, the first oops only happens if I have the mouse plugged in as
+> USB (Intellimouse USB... I usually use the dumb little PS/2 adapter). 
+> The second happens now, but didn't before.  It is 1394 related. 
+> Interrupts are at 100k+ on both usb and 1394 ohci almost instantly with
+> ACPI on.
 
-	if(is_sata(hwif))
-	{
-+		drive->id->hw_config |= 0x6000;
-		if(strstr(drive->id->model, "Maxtor"))
-			return 3;
-		return 4;
- 	}
+That's the symptom I saw when I tried ACPI + NForce2 (by accident)
+a while back ... except that in your case it happens for IRQs
+below 16 (which might be just an accident).  "pci=noacpi" was a
+workaround.
 
-> Are you aware of side effect?
-> [ Disabling DMA on ATAPI devices on SiI680. ]
->
-> Please consult this change with Alan :-).
+If this appears with that patch of mine applied, then I'd certainly
+agree with you that this is something other than a USB problem.
 
-No, I'm not. Sorry. I'm look for more information. But dma is working with my 
-SiI3112A, everything is stable, so maybe it should be enabled by default for 
-this chipset.
+- Dave
 
-Also, there's a change missing in this patch. The PCI id for SiI1210SA is 
-missing in 2.6.x.
 
-#define PCI_DEVICE_ID_SII_680      0x0680 
-+#define PCI_DEVICE_ID_SII_1210SA   0x0240 
-#define PCI_DEVICE_ID_SII_3112      0x3112
+> irq 11: nobody cared!
+> Call Trace:
+> [<c010c12a>] __report_bad_irq+0x2a/0x90
+> [<c010c21c>] note_interrupt+0x6c/0xb0
+> ...
+> [<c010a839>] sysenter_past_esp+0x52/0x71
+> 
+> handlers:
+> [<e087f350>] (usb_hcd_irq+0x0/0x60 [usbcore])
+> Disabling IRQ #11
+> ehci_hcd 0000:00:02.2: irq 11, pci mem e0815000
+> ehci_hcd 0000:00:02.2: new USB bus registered, assigned bus number 1
+> 
+> 
+> irq 4: nobody cared!
+> Call Trace:
+> [<c010c12a>] __report_bad_irq+0x2a/0x90
+> [<c010c21c>] note_interrupt+0x6c/0xb0
+> ...
+> [<c010a839>] sysenter_past_esp+0x52/0x71
+> 
+> handlers:
+> [<e08536d0>] (ohci_irq_handler+0x0/0x720 [ohci1394])
+> Disabling IRQ #4
+> 
+> Anyway, so either it is ACPI and fixable, or I just forget pci routing
+> with ACPI.
+> 
+> Trever Adams
 
-Anyway, thank you for taking a look at this.
-
-Marcelo Penna Guerra

@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318223AbSIEVyS>; Thu, 5 Sep 2002 17:54:18 -0400
+	id <S318263AbSIEV7Y>; Thu, 5 Sep 2002 17:59:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318213AbSIEVxs>; Thu, 5 Sep 2002 17:53:48 -0400
-Received: from postal2.lbl.gov ([131.243.248.26]:48313 "EHLO postal2.lbl.gov")
-	by vger.kernel.org with ESMTP id <S318169AbSIEVv6>;
-	Thu, 5 Sep 2002 17:51:58 -0400
-Message-ID: <3D77D311.BC1D94EC@lbl.gov>
-Date: Thu, 05 Sep 2002 14:56:33 -0700
-From: Thomas Davis <tadavis@lbl.gov>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-10smp i686)
-X-Accept-Language: en
+	id <S318253AbSIEV7I>; Thu, 5 Sep 2002 17:59:08 -0400
+Received: from citi.umich.edu ([141.211.92.141]:3864 "HELO citi.umich.edu")
+	by vger.kernel.org with SMTP id <S318242AbSIEV5L>;
+	Thu, 5 Sep 2002 17:57:11 -0400
+Message-ID: <3D77D44C.8060109@citi.umich.edu>
+Date: Thu, 05 Sep 2002 18:01:48 -0400
+From: Chuck Lever <cel@citi.umich.edu>
+Organization: Center for Info Tech Integration, U-Michigan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre5-ac3
-References: <200209051544.g85Fi6i09215@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@zip.com.au>
+Cc: trond.myklebust@fys.uio.no,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+References: <3D77C0A7.F74A89D0@zip.com.au> <15735.50124.304510.10612@charged.uio.no> <3D77C8B7.1534A2DB@zip.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having problems with ide_cs..
+Andrew Morton wrote:
 
-The system locks, with no oops or anything a pcmcia CDROM drive is
-inserted
-
-Sep  5 12:10:40 localhost kernel: Linux Kernel Card Services 3.1.22
-Sep  5 12:10:40 localhost kernel:   options:  [pci] [cardbus] [pm]
-Sep  5 12:10:40 localhost kernel: Intel PCIC probe: not found.
-Sep  5 12:10:40 localhost kernel: yenta 01:02.0: no resource of type 100
-available, trying to continue...
-Sep  5 12:10:40 localhost kernel: yenta 01:02.0: no resource of type 100
-available, trying to continue...
-Sep  5 12:10:40 localhost kernel: Yenta IRQ list 0cb8, PCI irq9
-Sep  5 12:10:40 localhost kernel: Socket status: 30000006
-Sep  5 12:10:40 localhost kernel: cs: IO port probe 0x0c00-0x0cff:
-clean.
-Sep  5 12:10:40 localhost kernel: cs: IO port probe 0x0100-0x04ff:
-excluding 0x170-0x177 0x370-0x37f 0x4d0-0x4d7
-Sep  5 12:10:40 localhost kernel: cs: IO port probe 0x0a00-0x0aff:
-clean.
-
-Sep  5 12:11:17 localhost cardmgr[854]: socket 0: Ninja ATA
-Sep  5 12:11:17 localhost kernel: cs: memory probe
-0xa0000000-0xa0ffffff: clean.
-Sep  5 12:11:17 localhost cardmgr[854]: executing: 'modprobe ide-cs'
-Sep  5 12:11:21 localhost kernel: hde: TOSHIBA CD-ROM XM-7002Bc, ATAPI
-CD/DVD-ROM drive
-Sep  5 12:11:21 localhost kernel: ide2 at 0x180-0x187,0x386 on irq 3
-Sep  5 12:11:21 localhost kernel: ide_cs: hde: Vcc = 5.0, Vpp = 0.0
-Sep  5 12:11:21 localhost cardmgr[854]: executing: './ide start hde'
-Sep  5 12:11:21 localhost kernel: hde: bad special flag: 0x03
-
-[locked tight]
-
-Sep  5 12:44:35 localhost syslogd 1.4.1: restart.
+> Trond, there are very good reasons why it broke.  Those pages are
+> visible to the whole world via global data structures - both the 
+> page LRUs and via the superblocks->inodes walk.  Those things exist
+> for legitimate purposes, and it is legitimate for async threads
+> of control to take a reference on those pages while playing with them.
+> 
+> It just "happened to work" in earlier kernels.
+> 
+> I suspect we can just remove the page_count() test from invalidate
+> and that will fix everything up.  That will give stronger invalidate
+> and anything which doesn't like that is probably buggy wrt truncate anyway.
+> 
+> Could you test that?
 
 
-this is a on a laptop, running kernel pcmcia, patched with iee1394-567,
-and acpi-20020829.
+removing that test from invalidate_inode_pages allows test6 to run to
 
-there's no oops, I've got morse turned on .  :)
+completion.
 
-suggestions?
+however, i don't see why the reference counts should be higher in
+
+2.5.32 than they were in 2.5.31.  is there a good way to test that
+these pages do not become orphaned?
+
+-- 
+
+corporate: 
+<cel at netapp dot com>
+personal: 
+<chucklever at bigfoot dot com>
+

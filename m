@@ -1,34 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbUBDSAu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 13:00:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263513AbUBDSAt
+	id S261774AbUBDR6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 12:58:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbUBDR6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 13:00:49 -0500
-Received: from mail.kroah.org ([65.200.24.183]:44943 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261827AbUBDSAt (ORCPT
+	Wed, 4 Feb 2004 12:58:24 -0500
+Received: from odpn1.odpn.net ([212.40.96.53]:10903 "EHLO odpn1.odpn.net")
+	by vger.kernel.org with ESMTP id S261774AbUBDR6O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 13:00:49 -0500
-Date: Wed, 4 Feb 2004 09:59:53 -0800
-From: Greg KH <greg@kroah.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, kronos@kronoz.cjb.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Compile Regression in 2.4.25-pre8][PATCH 19/42]
-Message-ID: <20040204175953.GA11614@kroah.com>
-References: <Pine.LNX.4.58L.0402041516350.1299@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 Feb 2004 12:58:14 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "Gabor Z. Papp" <gzp@papp.hu>
+Subject: Re: Linux 2.4.25-pre7 - no DRQ after issuing WRITE
+Date: Wed, 4 Feb 2004 16:52:58 +0100
+User-Agent: KMail/1.5.3
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+References: <Pine.LNX.4.58L.0401231652020.19820@logos.cnet> <200402021700.50301.bzolnier@elka.pw.edu.pl>
+ <x68yjiq2vr@gzp>
+In-Reply-To: <x68yjiq2vr@gzp>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58L.0402041516350.1299@logos.cnet>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200402041652.58980.bzolnier@elka.pw.edu.pl>
+X-Authenticated: odpn1 gzp1.gzp.hu e31ad0d0a9cedc9f056b4904cfffac56
+X-Spam-Checked-By: gzp1.gzp.hu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> hid-core.c:879: warning: implicit declaration of function `hiddev_report_event'
-> 
-> Add missing prototype in include/linux/hiddev.h
+On Wednesday 04 of February 2004 16:29, Gabor Z. Papp wrote:
+> * Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>:
+> | Dunno :-).  I use smartmontools and non-Linux vendor tools
+> | (ie. from www.seagate.com) to make sure that drive is okay.
+> | If these tests pass and drive works with other OS-es then
+> | I suspect bug in IDE core or in specific IDE chipset driver.
+>
+> Downloaded the seagate seatools, and ran the full tests.
+>
+> The diagnostic tool told me I have to send back the disk...
+>
+> DST - Errors - Status: 07
+> Short Test Failed: [date]
+>
+> BAD Sector LBA: 125249531
+> Unable to resolve sector usage.
+>
+> [lot of such errors for various sectors]
+>
+> Scan Completed... PROBLEMS FOUND.
+>
+> So, "no DRQ after issuing WRITE" is due these drive errors?
 
-Thanks, I've added this to my 2.4 usb tree and will send to Marcelo
-after 2.4.25 is out.
+Yes, when DMA write fails (ie. because of a bad sector), driver disables
+DMA and tries to retry transfer in PIO mode but obviously that fails too
+(drive doesn't "ack" PIO write command and thus this message).
 
-greg k-h
+
+

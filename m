@@ -1,70 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbUKUXoy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbUKUXrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261864AbUKUXoy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 18:44:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbUKUXoy
+	id S261849AbUKUXrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 18:47:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbUKUXrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 18:44:54 -0500
-Received: from dp.samba.org ([66.70.73.150]:60085 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261847AbUKUXof (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 18:44:35 -0500
+	Sun, 21 Nov 2004 18:47:09 -0500
+Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:39074 "HELO
+	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261869AbUKUXqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 18:46:21 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: help: sysrq and X
+Date: Sun, 21 Nov 2004 18:46:17 -0500
+User-Agent: KMail/1.6.2
+Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+References: <41A122E0.8070307@eyal.emu.id.au>
+In-Reply-To: <41A122E0.8070307@eyal.emu.id.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16801.10284.732681.619976@samba.org>
-Date: Mon, 22 Nov 2004 10:43:40 +1100
-To: Nathan Scott <nathans@sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: performance of filesystem xattrs with Samba4
-In-Reply-To: <20041121222123.GB704@frodo>
-References: <1098383538.987.359.camel@new.localdomain>
-	<16797.41728.984065.479474@samba.org>
-	<20041121222123.GB704@frodo>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-Reply-To: tridge@samba.org
-From: tridge@samba.org
+Message-Id: <200411211846.17628.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan,
+On Sunday 21 November 2004 06:21 pm, Eyal Lebedinsky wrote:
+> I am trying to diagnose a hard lockup. The only way I can reproduce it is
+> with mythtv. When the system locks up (no mouse, no activity in X, no message
+> logged) I can use magic sysrq, but I cannot see the output.
+> 
+> Using 'r' does not enable console switching. However 'b' will boot the
+> system, and I hope 's' and 'u' did something blindly.
+> 
+> I there a way to regain a text console in order to inspect the kernel?
+> 
 
- > I'm curious why you went to 2K inodes instead of 512 - I guess
- > because thats the largest inode size with a 4K blocksize?  If
- > the defaults were changed, I expect it would be to switch over
- > to 512 byte inodes - do you have numbers for that?
+Try use SysRQ+K (SAK) - 95% when my X server locks up I can use SAK and then
+killall -9 X and everythig is fine.  
 
-It was a fairly arbitrary choice. For the test I was running the
-xattrs were small (44 bytes), so 512 would have been fine, but some
-other tests I run use larger xattrs (for NT ACLs, streams, DOS EAs
-etc). 
-
- > Ah great, thanks, I'll be keen to try that when its available.
-
-It's now released. You can grab it at:
-
-  http://samba.org/ftp/tridge/dbench/dbench-3.0.tar.gz
-
-It should produce much more consistent results than previous versions
-of dbench, plus it has a -x option to enable xattr support. Other
-changes include:
-
- - the runs are now time limited, rather than being a fixed number of
-   operations. This gives much more consisten results, especially for
-   fast machines.
-
- - I've changed the mapping of the filesystem operations to be much
-   closer to what Samba4 does, including the directory scans for case
-   insensitivity, the stat() calls in name resolution and things like
-   statfs() calls. The modelling could still be improved, but its
-   much better than it was.
-
- - the load file is now compatible with the smbtorture NBENCH test
-   again (the two diverged a while back).
-
- - the default load file has been updated to be based on NetBench
-   7.0.3, running a enterprise disk mix.
-
- - the warmup/execute/cleanup phases are now better separated
-
-Cheers, Tridge
+-- 
+Dmitry

@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289887AbSAPGth>; Wed, 16 Jan 2002 01:49:37 -0500
+	id <S290376AbSAPHD6>; Wed, 16 Jan 2002 02:03:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290375AbSAPGt1>; Wed, 16 Jan 2002 01:49:27 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:38528
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S289887AbSAPGtP>; Wed, 16 Jan 2002 01:49:15 -0500
-Date: Wed, 16 Jan 2002 01:32:50 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: Rob Landley <landley@trommello.org>, Nicolas Pitre <nico@cam.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2-2.1.3 is available
-Message-ID: <20020116013250.A3880@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Peter Samuelson <peter@cadcamlab.org>,
-	Rob Landley <landley@trommello.org>, Nicolas Pitre <nico@cam.org>,
-	lkml <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.33.0201151538340.5892-100000@xanadu.home> <20020116034137.CRFB26021.femail12.sdc1.sfba.home.com@there> <20020115224821.A4658@thyrsus.com> <20020116062942.GC2067@cadcamlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020116062942.GC2067@cadcamlab.org>; from peter@cadcamlab.org on Wed, Jan 16, 2002 at 12:29:42AM -0600
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S290375AbSAPHDr>; Wed, 16 Jan 2002 02:03:47 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:42432 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S290376AbSAPHDf>; Wed, 16 Jan 2002 02:03:35 -0500
+Date: Wed, 16 Jan 2002 00:03:28 -0700
+Message-Id: <200201160703.g0G73Sr27779@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: nahshon@actcom.co.il
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: SCSI host numbers?
+In-Reply-To: <200201151219.g0FCJUD15091@lmail.actcom.co.il>
+In-Reply-To: <E16LjdE-0003m4-00@the-village.bc.nu>
+	<200201132041.g0DKfeg30866@lmail.actcom.co.il>
+	<200201140636.g0E6a4b16527@vindaloo.ras.ucalgary.ca>
+	<200201151219.g0FCJUD15091@lmail.actcom.co.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Samuelson <peter@cadcamlab.org>:
-> > The version I just released does exactly that.  Well, not exactly; it
-> > actually looks at fstab -- /proc/mounts gives you '/dev/root' rather
-> > than a physical device name in the root entry.
+Itai Nahshon writes:
+> On Monday 14 January 2002 08:36 am, Richard Gooch wrote:
+> > So how about in scsi_host_no_init() we call alloc_unique_number() N
+> > times until we've allocated the required number of host numbers for
+> > manual control. These will never be freed. Then all other host
+> > allocations can be done dynamically. We would just need a flag in the
+> > host structure to disable deallocation of the number if it's one of
+> > the reserved numbers.
 > 
-> /etc/fstab is hardly guaranteed to be accurate either.  The kernel
-> mounts the root device based on its command line and any pivot_root()
-> calls you make, not based on /etc/fstab.
+> See that dynamic hosts are also added to the list and *never* removed
+> from it (even when the host is unregistered). With that behaviour your
+> unique number functions would be an overkill because we must never
+> free host nubers.
 > 
-> [In practice, I imagine most people don't lie to fstab.  The fsck init
-> script would get annoyed.]
+> I suggest these changes:
+>     max_scsi_host initialized in scsi_host_no_init.
+>     max_scsi_host never decremented.
+> That would fix the problem that I reported.
 
-Agreed.  The root device getting overridden by either of these means 
-is well into the territory an autoconfigurator cannot be reasonably
-expected to cover.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+But if you load, unload and reload a host driver, and it's not listed
+in scsihosts=, then won't it get a different host number each time?
 
-Faith may be defined briefly as an illogical belief in the occurrence
-of the improbable...A man full of faith is simply one who has lost (or
-never had) the capacity for clear and realistic thought. He is not a
-mere ass: he is actually ill.	-- H. L. Mencken 
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

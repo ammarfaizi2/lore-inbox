@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262162AbTD3Mpi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 08:45:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbTD3Mph
+	id S262166AbTD3MrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 08:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbTD3MrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 08:45:37 -0400
-Received: from mx01.arcor-online.net ([151.189.8.96]:27090 "EHLO mx01.nexgo.de")
-	by vger.kernel.org with ESMTP id S262162AbTD3Mpf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 08:45:35 -0400
-From: Daniel Phillips <dphillips@sistina.com>
-Reply-To: dphillips@sistina.com
-Organization: Sistina
-To: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
-Subject: Re: [RFC][PATCH] Faster generic_fls
-Date: Wed, 30 Apr 2003 15:03:38 +0200
-User-Agent: KMail/1.5.1
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-References: <200304300446.24330.dphillips@sistina.com> <87isswxmn0.fsf@student.uni-tuebingen.de>
-In-Reply-To: <87isswxmn0.fsf@student.uni-tuebingen.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Apr 2003 08:47:09 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:43159 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262157AbTD3MrH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 08:47:07 -0400
+Date: Wed, 30 Apr 2003 14:59:13 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: rmoser <mlmoser@comcast.net>, John Bradford <john@grabjohn.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Swap Compression
+Message-ID: <20030430125913.GA21016@wohnheim.fh-wedel.de>
+References: <200304292114.h3TLEHBu003733@81-2-122-30.bradfords.org.uk> <200304292059150060.002E747A@smtp.comcast.net> <200304301248.07777.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200304301503.38650.dphillips@sistina.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200304301248.07777.kernel@kolivas.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 30 April 2003 13:14, Falk Hueffner wrote:
-> gcc 3.4 will have a __builtin_ctz function which can be used for this.
-> It will emit special instructions on CPUs that support it (i386, Alpha
-> EV67), and use a lookup table on others, which is very boring, but
-> also faster.
+On Wed, 30 April 2003 12:48:07 +1000, Con Kolivas wrote:
+> 
+> I don't think a parallel project is a bad idea either. I was just suggesting 
+> adding the minilzo algorithm from the linuxcompressed project as one of the 
+> compression algorithms available.
 
-Actually, __builtin_clz:
+Actually, I'd like a central compression library with a large
+assortment of algorithms. That way the really common code is shared
+between both (or more) projects is shared.
 
-  http://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html
+Also, yet another unused compression algorithm hurts about as bad, as
+yet another unused device driver. It just grows the kernel .tar.bz2.
 
-Not having a gcc 2.4 handy, I couldn't test it, but I did notice that the 
-built-in ffs is very fast.  Perhaps all such standard functions will end up 
-as built-ins instead of kernel library functions, some very long time in the 
-future.  If old compilers ever do finally fade away, that is.
+Jörn
 
-It's somewhat annoying that __builtin_clz leaves the all-ones case dangling 
-instead of returning -1.
-
-Regards,
-
-Daniel
-
-
-
+-- 
+Time? What's that? Time is only worth what you do with it.
+-- Theo de Raadt

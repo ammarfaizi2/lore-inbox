@@ -1,106 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288974AbSBMVid>; Wed, 13 Feb 2002 16:38:33 -0500
+	id <S288980AbSBMVwk>; Wed, 13 Feb 2002 16:52:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288973AbSBMViY>; Wed, 13 Feb 2002 16:38:24 -0500
-Received: from [208.179.59.195] ([208.179.59.195]:636 "EHLO
-	Booterz.killerlabs.com") by vger.kernel.org with ESMTP
-	id <S288969AbSBMViG>; Wed, 13 Feb 2002 16:38:06 -0500
-Message-ID: <3C6ADCAA.6080600@blue-labs.org>
-Date: Wed, 13 Feb 2002 16:37:46 -0500
-From: David Ford <david+cert@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020212
-X-Accept-Language: en-us
+	id <S288969AbSBMVwa>; Wed, 13 Feb 2002 16:52:30 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:50951 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S288980AbSBMVwM>; Wed, 13 Feb 2002 16:52:12 -0500
+Date: Wed, 13 Feb 2002 16:51:07 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: How to check the kernel compile options ? 
+In-Reply-To: <Pine.LNX.3.95.1020213111701.17207A-101000@chaos.analogic.com>
+Message-ID: <Pine.LNX.3.96.1020213163646.12448B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: ver_linux script updates
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms080504000602020301010400"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+On Wed, 13 Feb 2002, Richard B. Johnson wrote:
 
---------------ms080504000602020301010400
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+> The advantage, of course is that if you are executing the kernel,
+> it can give you all the information necessary to recreate a
+> new one from the sources because its .config is embeded into
+> itself. Once you have the ".config" file, you just do `make oldconfig`
+> and you are home free.
 
-I've been working on an update to the ver_linux script and I'm looking 
-for comment and help in improving the accuracy of reported information.
+But it does no such thing! You not only need the config file, you need the
+source. So you now need to add to the kernel the entire source tree from
+which it was built, or perhaps just a diff file from a kernel.org source,
+which you will suitably compress, of course.
 
-The script is at http://stuph.org/ver_linux
+And without all that information you can't be sure of being able to build
+a working kernel, only of knowing what options you selected, but not what
+they (exactly) meant. Don't forget to save the C compiler and any
+libraries and system include files inn the kernel as well, can't be half
+safe.
 
-Please provide feedback on it.
+This feature just isn't all that useful, I use an install script which
+does copy the config file, compresses it into a zip with a file comment of
+the MD5 of the kernel image, and adds the Makefile as well. I build
+kernels almost every week, I support a whole raft of machines, and after I
+got this whole nice script running I have used about twice a year.
 
-Thanks,
--d
+I don't want anything added to my boot kernel image which isn't absolutely
+needed to get the machine up, not documentation, not digitized cartoons,
+not comments, etc. This is not an issue if you boot from a fat multi-GB
+hard drive, it is if you boot from ROM, Compact flash pretending to be a
+tiny IDE disk, need to be able to recovery boot from floppy, etc.
 
+The feature would be nice, but "I can't manage to keep my kernel and
+modules together" is not reason to oppose putting config in a module, or a
+text file, or anywhere better organized people WOULD be able to find it.
+If you want an option to put all that stuff you don't need into the boot
+image, go to it, just don't make it useless to other people.
 
---------------ms080504000602020301010400
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-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
-ARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMDA4MzAwMDAwMDBaFw0wMjA4
-MjkyMzU5NTlaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRIwEAYD
-VQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNhdGUg
-U2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzAwgZ8w
-DQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAN4zMqZjxwklRT7SbngnZ4HF2ogZgpcO40QpimM1
-Km1wPPrcrvfudG8wvDOQf/k0caCjbZjxw0+iZdsN+kvx1t1hpfmFzVWaNRqdknWoJ67Ycvm6
-AvbXsJHeHOmr4BgDqHxDQlBRh4M88Dm0m1SKE4f/s5udSWYALQmJ7JRr6aFpAgMBAAGjTjBM
-MCkGA1UdEQQiMCCkHjAcMRowGAYDVQQDExFQcml2YXRlTGFiZWwxLTI5NzASBgNVHRMBAf8E
-CDAGAQH/AgEAMAsGA1UdDwQEAwIBBjANBgkqhkiG9w0BAQQFAAOBgQBzG28mZYv/FTRLWWKK
-7US+ScfoDbuPuQ1qJipihB+4h2N0HG23zxpTkUvhzeY42e1Q9DpsNJKs5pKcbsEjAcIJp+9L
-rnLdBmf1UG8uWLi2C8FQV7XsHNfvF7bViJu3ooga7TlbOX00/LaWGCVNavSdxcORL6mWuAU8
-Uvzd6WIDSDGCAycwggMjAgEBMIGaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVy
-biBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMU
-Q2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAy
-MDAwLjguMzACAwZepDAJBgUrDgMCGgUAoIIBYTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcB
-MBwGCSqGSIb3DQEJBTEPFw0wMjAyMTMyMTM3NDZaMCMGCSqGSIb3DQEJBDEWBBQk/u1ZLlaT
-QhKZ50tzMm04d3CfJzBSBgkqhkiG9w0BCQ8xRTBDMAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMC
-AgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0DAgIBKDCBrQYLKoZIhvcN
-AQkQAgsxgZ2ggZowgZIxCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQ
-BgNVBAcTCUNhcGUgVG93bjEPMA0GA1UEChMGVGhhd3RlMR0wGwYDVQQLExRDZXJ0aWZpY2F0
-ZSBTZXJ2aWNlczEoMCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwgUlNBIDIwMDAuOC4zMAID
-Bl6kMA0GCSqGSIb3DQEBAQUABIIBACo6cIVm8kaQ8flGYI5vPPFItXjP7PkU+c2M9a673YPf
-lhZam4P4vlTQKOChHlxMVgopRX2nRdKVV9Ay6w5F+uBlpTr8oiih9TdfkTQpvdUOH1l4xjOs
-LWbE/SeyxN7VUyupmHi5UiBrk+oEI5Mq7tSa1KMHSwSEQZ8tfZI0y6Ok4xGYfZDu42eBWg19
-v8k1hrcwAlkA983xyBDULNJxuAq7vOAsfJ7bMxfkAqzz8EuOMeoq2r4E/JJAKLG3NZ2lPbs+
-RB/35Uac+ySRwB+DjE8mfn0bB+UvXAZ4+CakORco4/g984byNLm3ud2b7DAXy4zGw7vpwpFO
-0VDBUNbWnMsAAAAAAAA=
---------------ms080504000602020301010400--
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265270AbTCEVLi>; Wed, 5 Mar 2003 16:11:38 -0500
+	id <S264705AbTCEVJV>; Wed, 5 Mar 2003 16:09:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265135AbTCEVLi>; Wed, 5 Mar 2003 16:11:38 -0500
-Received: from blowme.phunnypharm.org ([65.207.35.140]:19209 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S264867AbTCEVLf>; Wed, 5 Mar 2003 16:11:35 -0500
-Date: Wed, 5 Mar 2003 16:21:48 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Sebastian Zimmermann <sebastian@expires1203.datenknoten.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ieee1394: sbp2: sbp2util_allocate_request_packet
-Message-ID: <20030305212148.GB552@phunnypharm.org>
-References: <1046898487.3493.24.camel@coruscant.datenknoten.de>
+	id <S264706AbTCEVJV>; Wed, 5 Mar 2003 16:09:21 -0500
+Received: from ns.suse.de ([213.95.15.193]:32012 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S264705AbTCEVJU>;
+	Wed, 5 Mar 2003 16:09:20 -0500
+Date: Wed, 5 Mar 2003 22:19:49 +0100
+From: Andi Kleen <ak@suse.de>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Better CLONE_SETTLS support for Hammer
+Message-ID: <20030305211949.GA7961@wotan.suse.de>
+References: <3E664836.7040405@redhat.com> <20030305190622.GA5400@wotan.suse.de> <3E664F26.7000602@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1046898487.3493.24.camel@coruscant.datenknoten.de>
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <3E664F26.7000602@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 05, 2003 at 10:08:08PM +0100, Sebastian Zimmermann wrote:
-> Hello,
+On Wed, Mar 05, 2003 at 11:25:26AM -0800, Ulrich Drepper wrote:
+> > The problem is that the context switch is much more expensive with that
+> > (wrmsr is quite expensive compared to the memcpy or index reload). The kernel 
+> > optimizes it away when not needed, but with glibc using them 
+> > for everything all processes will switch slower.
 > 
-> I have a problem using an external firewire harddrive. When writing to
-> the disk (badblocks -w) I get an error message about every minute:
-> 
-> kernel: ieee1394: sbp2: sbp2util_allocate_request_packet - no packets
-> available!
-> kernel: ieee1394: sbp2: sbp2util_allocate_write_request_packet failed
-> kernel: ieee1394: sbp2: aborting sbp2 command
-> kernel: Write (10) 00 09 51 b4 4a 00 00 fe 00
-> 
-> This by itself is - except for small pauses once and then - no problem.
-> But when writing much data (dd for 40 GB), it gets worse after some
-> time:
+> And the loadsegment() call with all the preparations if faster?  And
 
-This is fixed the patch I send against -pre5. You can use the
-branches/linux-2.4 directory in the repo as a direct replacement for
-drivers/ieee1394 in fact (www.linux1394.org).
+loadsegment and preparation has to be done anyways for compatibility
+(we tried to do that lazy too, but failed) 
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+The 64bit base switch is additional cost.
+
+> 
+> >  but is it that big a problem to split the
+> > index table for thread local data and the stack? 
+> 
+> Yes, it it.  It would basically double thread create-destroy costs.
+> double the internal administrative overhead (and time and memory), would
+> add more dcache pressure, and so on.  It is simply stupid.  We don't
+> have to do it for any other architecture, so don't force such hacks on
+> us for an architecture whose lifespan just starts.
+
+I would definitely prefer double thread-create/delete costs over even
+slightly higher context switch costs. Compared to a context switch a 
+thread creation or deletion is a once-in-a-millenium event.
+
+-Andi

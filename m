@@ -1,44 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261486AbSKGTAH>; Thu, 7 Nov 2002 14:00:07 -0500
+	id <S261529AbSKGSzR>; Thu, 7 Nov 2002 13:55:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261478AbSKGTAG>; Thu, 7 Nov 2002 14:00:06 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:35596 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261486AbSKGTAD>; Thu, 7 Nov 2002 14:00:03 -0500
-Date: Thu, 7 Nov 2002 14:05:59 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-Subject: Re: 2.5.46-mm1
-In-Reply-To: <4051130868.1036659083@[10.10.2.3]>
-Message-ID: <Pine.LNX.3.96.1021107134549.31227A-100000@gatekeeper.tmr.com>
+	id <S261540AbSKGSzR>; Thu, 7 Nov 2002 13:55:17 -0500
+Received: from [64.76.155.18] ([64.76.155.18]:46244 "EHLO alumno.inacap.cl")
+	by vger.kernel.org with ESMTP id <S261529AbSKGSzP>;
+	Thu, 7 Nov 2002 13:55:15 -0500
+Date: Thu, 7 Nov 2002 16:01:42 -0300 (CLST)
+From: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>
+To: Jens Axboe <axboe@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.46: ide-cd cdrecord success report
+In-Reply-To: <20021107180347.GI32005@suse.de>
+Message-ID: <Pine.LNX.4.44.0211071545450.12033-100000@alumno.inacap.cl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Nov 2002, Martin J. Bligh wrote:
+On Thu, 7 Nov 2002, Jens Axboe wrote:
 
-> > For what it's worth, the last mm kernel which booted on my old P-II IDE
-> > test machine was 44-mm2. With 44-mm6 and this one I get an oops on boot.
-> > Unfortunately it isn't written to disk, scrolls off the console, and
-> > leaves the machine totally dead to anything less than a reset. I will try
+> Thanks for the raport. I'd also like raports such as this one (which I
+> really do appreciate) to contain an oppinion of how well cd recording
+> works on your system now as compared to before. Anything from "didn't
+> notice any difference" to "it's much faster, I noticed that because" and
+> "bah it sucks right now, ..." would be fine :)
 > 
-> Any chance of setting up a serial console? They're very handy for 
-> things like this ...
 
-Certainly not with a real serial terminal ;-) As far as going through a
-crossover cable to another system, it's doable, but finding the time, the
-cable, etc... maybe next week. I just wanted to get the base report out in
-case someone had more info, or if it was a known problem. 
+OK, this is what I've done. 
+for i in `seq 100`; do tar jxf linux-2.5.41.tar.bz2 ; rm -fr linux-2.5.41 
+; done 
 
-I will try to capture it, but I'll try any new versions which come out
-before then as well.
+and started copying a 571MB ISO image at 10x, then I've started mozilla, 
+opened some pages with flash and java, xmms came next, I'm listening to 
+mp3 (not a single skip, it used to skip in the "Fixating" part with 
+ide-scsi)... ah, and I'm reading email using Evolution. Everything under 
+Gnome 2.0 (RH 8.0)
 
+Track 01:  571 of  571 MB written (fifo 100%) [buf  99%]  10.6x.
+Track 01: Total bytes read/written: 599654400/599654400 (292800 sectors).
+Writing  time:  400.083s
+Average write speed   9.9x.
+Min drive buffer fill was 73%
+Fixating...
+Fixating time:   27.454s
+cdrecord: fifo had 9446 puts and 9446 gets.
+cdrecord: fifo was 0 times empty and 8430 times full, min fill was 76%.
+
+This is a lot better than with ide-scsi, system felt smoother also.
+
+Specs:
+Celeron 600Mhz
+256MB RAM
+cheap mobo, cheap disks UDMA66 and UDMA33 
+hdb: Hewlett-Packard CD-Writer Plus 9300, ATAPI CD/DVD-ROM drive
+
+tar was done in the same disk in which ISO image is. I'm using ext3 
+data=ordered
+
+The only annoying thing is that if I left the drive without a disc my 
+syslog get flooded with end_request: I/O error, dev hdb, sector 0 
+messages, but I guess this is somewhat related to nautilus.
+
+
+Best regards
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Robinson Maureira Castillo
+Asesor DAI
+INACAP
 

@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262996AbTC0PrI>; Thu, 27 Mar 2003 10:47:08 -0500
+	id <S263028AbTC0PvR>; Thu, 27 Mar 2003 10:51:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263025AbTC0PrI>; Thu, 27 Mar 2003 10:47:08 -0500
-Received: from ip68-13-105-80.om.om.cox.net ([68.13.105.80]:3968 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S262996AbTC0PrH>; Thu, 27 Mar 2003 10:47:07 -0500
-Date: Thu, 27 Mar 2003 09:58:12 -0600 (CST)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@localhost.localdomain
-To: Helge Hafting <helgehaf@aitel.hist.no>
-cc: James Simmons <jsimmons@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: Much better framebuffer fixes.
-In-Reply-To: <3E82CB28.8020001@aitel.hist.no>
-Message-ID: <Pine.LNX.4.44.0303270949210.947-100000@localhost.localdomain>
+	id <S263044AbTC0PvR>; Thu, 27 Mar 2003 10:51:17 -0500
+Received: from mail.scsiguy.com ([63.229.232.106]:16395 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S263028AbTC0PvQ>; Thu, 27 Mar 2003 10:51:16 -0500
+Date: Thu, 27 Mar 2003 09:01:38 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: "Anthony R. Mattke" <tonhe@adelphia.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Adaptect 2940u2 w/ 2.4.20 or 2.5.59
+Message-ID: <7930000.1048780898@aslan.scsiguy.com>
+In-Reply-To: <1048727751.1225.10.camel@hiku.iphere.com>
+References: <1048727751.1225.10.camel@hiku.iphere.com>
+X-Mailer: Mulberry/3.0.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Mar 2003, Helge Hafting wrote:
+> I have a current linux desktop curring 2.4.19 that has been running fine
+> for ever. Altho, when I atempted to do an update to 2.4.20, I was rather
+> surprised to see that my machine kernel panics on boot, just as it would
+> normally init the scsi bus.
 
-> James Simmons wrote:
-> > Okay. Here are more framebuffer fixes. Please try these fixes and let me 
-> > know how they work out for you.
-> > 
-> 
-> The cursor line on radeonfb now is solid, instead of the broken line
-> in 2.5.66.  It is still impossible to set the resolution.
-> 
-> The lilo approach:
-> append="video=radeonfb:1280x1024-24@60"
-> This seems to do nothing.  I get the same low resolution as
-> plain 2.5.66, which looks bad as it don't match the flat screen resolution.
+What is the panic?
 
-The framebuffer behaviour is back to "normal".  I'm not having the 
-resolution problems, but I'm not using the same parameters.  My append 
-line simply says vga=792.
-
-Any idea of what will go to Linus and when it might make it into mainline?
+--
+Justin
 

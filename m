@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263761AbTFCT07 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 15:26:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263777AbTFCT07
+	id S263632AbTFCTZW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 15:25:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTFCTZV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 15:26:59 -0400
-Received: from windsormachine.com ([206.48.122.28]:5641 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id S263761AbTFCT06 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 15:26:58 -0400
-Date: Tue, 3 Jun 2003 15:40:25 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux and IBM : "unauthorized" mini-PCI : TCPA updates
-In-Reply-To: <Pine.BSO.4.44.0306031532490.954-100000@kwalitee.nolab.conman.org>
-Message-ID: <Pine.LNX.4.33.0306031538590.10095-100000@router.windsormachine.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 3 Jun 2003 15:25:21 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:47633 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263632AbTFCTZV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 15:25:21 -0400
+Date: Tue, 3 Jun 2003 20:38:44 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: Margit Schubert-While <margitsw@t-online.de>, linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: Linux 2.4.21-rc7
+Message-ID: <20030603203844.A25771@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Marc-Christian Petersen <m.c.p@wolk-project.de>,
+	Margit Schubert-While <margitsw@t-online.de>,
+	linux-kernel@vger.kernel.org,
+	Marcelo Tosatti <marcelo@conectiva.com.br>
+References: <5.1.0.14.2.20030603204118.00a04728@pop.t-online.de> <200306032049.18987.m.c.p@wolk-project.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200306032049.18987.m.c.p@wolk-project.de>; from m.c.p@wolk-project.de on Tue, Jun 03, 2003 at 08:50:00PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Jun 2003, Mark Grosberg wrote:
+On Tue, Jun 03, 2003 at 08:50:00PM +0200, Marc-Christian Petersen wrote:
+> On Tuesday 03 June 2003 20:45, Margit Schubert-While wrote:
+> 
+> > if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.21-rc7; fi
+> > depmod: *** Unresolved symbols in
+> > /lib/modules/2.4.21-rc7/kernel/drivers/net/wan/comx.o
+> > depmod:         proc_get_inode
+> 
+> attached.
+> 
+> hch: I know what you'll say, so don't reply ;-))
 
-> Maybe there is a less evil explanation for this?
->
-> This is hypothetical, but before people go off and do something rash,
-> perhaps IBM prevents the card from booting for a technical reason. Maybe
-> it works electrically but in late testing they found it caused thermal or
-> electrical problems.
+So add the message yourself if you don't want me to reply.
 
-There was a thread here(i think) recently about wirless causing problems
-with other frequencies, and that you could only broadcast in a specific
-set of frequencies.  I assume this is related to what IBM has done.
-
-Mike
+For those who haven't heard before:  this is _not_ a correct
+fix.  proc_get_inode is not exported for a reason and the whole
+procfs mess in comx needs a rewrite.  Given that no one looked
+into this over the last three years I guess we should rather
+remove the driver..
 

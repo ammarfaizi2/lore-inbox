@@ -1,67 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318100AbSG2XHO>; Mon, 29 Jul 2002 19:07:14 -0400
+	id <S318112AbSG2XMq>; Mon, 29 Jul 2002 19:12:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318112AbSG2XHO>; Mon, 29 Jul 2002 19:07:14 -0400
-Received: from sproxy.gmx.de ([213.165.64.20]:29349 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S318100AbSG2XHO>;
-	Mon, 29 Jul 2002 19:07:14 -0400
-Message-ID: <3D45CB61.8060708@gmx.net>
-Date: Tue, 30 Jul 2002 01:10:25 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2002-07@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020701
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix some MODULE_LICENSE tags in 2.4.19-rc3
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------060508020904070501030801"
+	id <S318116AbSG2XMq>; Mon, 29 Jul 2002 19:12:46 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:25298 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S318112AbSG2XMp>; Mon, 29 Jul 2002 19:12:45 -0400
+Date: Mon, 29 Jul 2002 19:15:54 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Greg Banks <gnb@alphalink.com.au>
+Cc: Pete Zaitcev <zaitcev@redhat.com>,
+       Michael Elizabeth Chastain <mec@shout.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Patch for xconfig
+Message-ID: <20020729191554.A17617@devserv.devel.redhat.com>
+References: <3D43E623.B8496CB5@alphalink.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D43E623.B8496CB5@alphalink.com.au>; from gnb@alphalink.com.au on Sun, Jul 28, 2002 at 10:40:03PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060508020904070501030801
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+> Date: Sun, 28 Jul 2002 22:40:03 +1000
+> From: Greg Banks <gnb@alphalink.com.au>
 
-Currently two files in the kernel have MODULE_LICENSE tags which result in a 
-tainted kernel. According to include/linux/module.h, BSD licensed code 
-becomes also GPL when linked into the kernel.
-Offending files: fs/nls/nls_cp1250.c and net/ipv4/netfilter/ipchains_core.c
+> I don't claim to be knowledgeable, but I can confirm that this is a
+> real bug and the patch fixes it.  Here is the patch re-jigged to apply
+> cleanly to 2.5.29.
+>[...]
 
-Comments/Suggestions welcome.
+BTW, what I sent was a low hanged fruit that I picked.
+The main bug is worse, and I have no idea how to fix it.
+This is what we have in configuration:
 
-Regards,
-   Carl-Daniel
+tristate 'ISO ...' CONFIG_ISO9660_FS
+dep_bool ' Tranparent ...' CONFIG_ZISOFS $CONFIG_ISO9660_FS
+if [ "$CONFIG_ZISOFS" = "y" ]; then
+   define_tristate CONFIG_ZISOFS_FS $CONFIG_ISO9660_FS
+else
+   define_tristate CONFIG_ZISOFS_FS n
+fi
 
---------------060508020904070501030801
-Content-Type: text/plain;
- name="license.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="license.diff"
+if [ "$CONFIG_CRAMFS" = "y" -o \
+     "$CONFIG_PPP_DEFLATE" = "y" -o \
+     "$CONFIG_JFFS2_FS" = "y" -o \
+     "$CONFIG_ZISOFS_FS" = "y" ]; then
+   define_tristate CONFIG_ZLIB_INFLATE y
+else
+  if [ "$CONFIG_CRAMFS" = "m" -o \
+       "$CONFIG_PPP_DEFLATE" = "m" -o \
+       "$CONFIG_JFFS2_FS" = "m" -o \
+       "$CONFIG_ZISOFS_FS" = "m" ]; then
+     define_tristate CONFIG_ZLIB_INFLATE m
+  else
+     tristate 'zlib decompression support' CONFIG_ZLIB_INFLATE
+  fi
+fi
 
---- linux-2.4/fs/nls/nls_cp1250.c~	Sat Jul 27 00:57:10 2002
-+++ linux-2.4/fs/nls/nls_cp1250.c	Sat Jul 27 00:58:41 2002
-@@ -344,7 +344,7 @@
- module_init(init_nls_cp1250)
- module_exit(exit_nls_cp1250)
- 
--MODULE_LICENSE("BSD without advertising clause");
-+MODULE_LICENSE("Dual BSD/GPL");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
---- linux-2.4/net/ipv4/netfilter/ipchains_core.c~	Sat Jul 27 01:01:26 2002
-+++ linux-2.4/net/ipv4/netfilter/ipchains_core.c	Sat Jul 27 01:03:55 2002
-@@ -1779,4 +1779,4 @@
- #endif
- 	return ret;
- }
--MODULE_LICENSE("BSD without advertisement clause");
-+MODULE_LICENSE("Dual BSD/GPL");
+As far as I can tell, tkgen.c does an acceptable job on the
+second part; though it refuses to generate "else" and uses
+de Morgan transformation instead. However, it seems that tkparse
+chokes on the very innocently looking first part. The result
+is that xconfig insist on zlib to be a module when it should
+be compiled into the kernel; it all ends with undefined symbols.
+Naturally, "make oldconfig" works correctly.
 
---------------060508020904070501030801--
+The code in the menu part of kconfig.tk fixes the problem.
+In other words, the bug is only visible if someone does "make xconfig",
+loads a canned configuration which we ship, then does "save
+and exit" immediately. If he visits any menus, everything is ok.
 
+-- Pete

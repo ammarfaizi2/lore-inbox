@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265725AbSKOEH7>; Thu, 14 Nov 2002 23:07:59 -0500
+	id <S265791AbSKOEMk>; Thu, 14 Nov 2002 23:12:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265727AbSKOEH7>; Thu, 14 Nov 2002 23:07:59 -0500
-Received: from landfill.ihatent.com ([217.13.24.22]:34209 "EHLO
-	mail.ihatent.com") by vger.kernel.org with ESMTP id <S265725AbSKOEH6>;
-	Thu, 14 Nov 2002 23:07:58 -0500
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.27-ac[1234] compile error
-From: alexh@ihatent.com
-Date: 15 Nov 2002 05:14:48 +0100
-Message-ID: <87d6p7piyv.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S265797AbSKOEMk>; Thu, 14 Nov 2002 23:12:40 -0500
+Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:14858
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S265791AbSKOEMk>; Thu, 14 Nov 2002 23:12:40 -0500
+Date: Thu, 14 Nov 2002 23:12:39 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Corey Minyard <cminyard@mvista.com>
+cc: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: NMI handling rework
+In-Reply-To: <3DD46DF1.50500@mvista.com>
+Message-ID: <Pine.LNX.4.44.0211142311160.2750-100000@montezuma.mastecende.com>
+X-Operating-System: Linux 2.4.19-pre5-ac3-zm4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  	ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/built-in.o
---start-group usr/built-in.o arch/i386/kernel/built-in.o
-arch/i386/mm/built-in.o arch/i386/mach-generic/built-in.o
-kernel/built-in.o mm/built-in.o fs/built-in.o ipc/built-in.o
-security/built-in.o crypto/built-in.o drivers/built-in.o
-sound/built-in.o arch/i386/pci/built-in.o net/built-in.o lib/lib.a
-arch/i386/lib/lib.a --end-group -o .tmp_vmlinux1
-drivers/built-in.o: In function `pcmcia_get_first_tuple':
-drivers/built-in.o(.text+0x7c488): undefined reference to`pcibios_read_config_dword'
-make[1]: *** [.tmp_vmlinux1] Error 1
-make: *** [vmlinux] Error 2
-alexh@lapper ~/src/linux/linux-2.5-test $
+On Thu, 14 Nov 2002, Corey Minyard wrote:
 
-mvh,
-A
+> I haven't received much feedback on getting this included into the 
+> kernel.  I think it's a good idea since the nmi handler was starting to 
+> get messy, especially when you add kdb, NMI watchdogs, etc.
+
+What protects the handler list from traversal in NMI context whilst we 
+update the list?
+
+	Zwane
 -- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
+function.linuxpower.ca
+

@@ -1,66 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265120AbTFRJRA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 05:17:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265122AbTFRJRA
+	id S265122AbTFRJ3K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 05:29:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265127AbTFRJ3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 05:17:00 -0400
-Received: from [213.24.247.63] ([213.24.247.63]:44207 "EHLO
-	mail.techsupp.relex.ru") by vger.kernel.org with ESMTP
-	id S265120AbTFRJQ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 05:16:59 -0400
-From: Yaroslav Rastrigin <yarick@relex.ru>
-Organization: RELEX Inc.
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Subject: Re: How do I make this thing stop laging?  Reboot?  Sounds like  Windows!
-Date: Wed, 18 Jun 2003 13:30:48 +0400
-User-Agent: KMail/1.5.1
-References: <200306172030230870.01C9900F@smtp.comcast.net> <3EF0214A.3000103@aitel.hist.no>
-In-Reply-To: <3EF0214A.3000103@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org
+	Wed, 18 Jun 2003 05:29:10 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:51441 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S265122AbTFRJ3H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 05:29:07 -0400
+Message-ID: <3EF02D07.6000108@mvista.com>
+Date: Wed, 18 Jun 2003 02:12:39 -0700
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200306181330.48072.yarick@relex.ru>
+To: "B. D. Elliott" <bde@nwlink.com>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
+Subject: Re: Sparc64-2.5.72: A Serious Time Problem
+References: <20030618073556.94E966A4FC@smtp4.pacifier.net>
+In-Reply-To: <20030618073556.94E966A4FC@smtp4.pacifier.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
->
-> Because the problem _is_ unsolvable.  You want the kernel
-> to go "oh, lots of free memory showed up, lets pull
-> everything in from swap just in case someone might need it."
-> ...
->
-> It is simply impossible to know "what" the
-> next thing we will need from swap will be, and what
-> stuff won't ever be needed from swap.  The memory
-> might be putr to better uses, such as:
-> 1. New programs/allocations can start without
->     having to push something out first
-> 2. file cache for io-intensive apps.
-> ...
-> Note that reading from swap is very much like reading
-> from executable files - it is done when needed.
-> We donæ't normally pre-read every executable
-> on the system when there is free memory just
-> in case someone might want to run a program,
-> the same applies to swap.
-Well, the problem is probably unsolvable on kernel level (kernel is unaware of 
-user's habits in app/mem usage), but I think it's pretty solvable on user 
-level - give us a knob to tune VM's behavior. We mere mortals often know 
-better how we will use our system's memory, and which apps we will be 
-running. I, for myself, like laptop-mode patch (basically, it groups disk 
-writes to do them once in 5-10 minutes, thus allowing hdd to sleep a lot) 
-very much - when I'm on AC, most probably I'm in office , and turning it off 
-is reasonable. When I'm on battery, though, chances are I won't be compiling 
-the kernel and/or do other heavy disk IO, instead, I most likely will be 
-coding, so echo 1 >/proc/sys/vm/laptop_mode seems appropriate, reasonable and 
-useful. 
-Could something like this be done with VM/swap policy ? 
+B. D. Elliott wrote:
+> There is a serious bug in setting time on 64-bit sparcs (and probably other
+> 64-bit systems).  The symptom is that ntpdate or date set the time back to
+> 1969 or 1970.  The underlying problems are that stime is broken, and any
+> settimeofday call fails with a bad fractional value.  Ntpdate falls back to
+> stime when settimeofday fails.
+> 
+> The settimeofday problem is that the timeval and timespec structures are not
+> the same size.  In particular, the fractional part is an int in timeval, and
+> a long in timespec.  The stime problem is that the argument is not an int,
+> but a time_t, which is long on at least some 64-bit systems.
+> 
+> The following patch appears to fix this on my sparc64.
+
+Looks reasonable.  The stime problem must have been there for some 
+time but I just introduced the timespec/ timeval thing.  Someday soon 
+I will get this 64-bit long/int thing down.  I promise :)
+
+-g
+> 
+> ===================================================================
+> --- ./kernel/time.c.orig	2003-06-16 22:36:04.000000000 -0700
+> +++ ./kernel/time.c	2003-06-18 00:00:43.000000000 -0700
+> @@ -66,7 +66,7 @@
+>   * architectures that need it).
+>   */
+>   
+> -asmlinkage long sys_stime(int * tptr)
+> +asmlinkage long sys_stime(time_t * tptr)
+>  {
+>  	struct timespec tv;
+>  
+> @@ -162,13 +162,15 @@
+>  
+>  asmlinkage long sys_settimeofday(struct timeval __user *tv, struct timezone __user *tz)
+>  {
+> +	struct timeval user_tv;
+>  	struct timespec	new_tv;
+>  	struct timezone new_tz;
+>  
+>  	if (tv) {
+> -		if (copy_from_user(&new_tv, tv, sizeof(*tv)))
+> +		if (copy_from_user(&user_tv, tv, sizeof(*tv)))
+>  			return -EFAULT;
+> -		new_tv.tv_nsec *= NSEC_PER_USEC;
+> +		new_tv.tv_sec = user_tv.tv_sec;
+> +		new_tv.tv_nsec = user_tv.tv_usec * NSEC_PER_USEC;
+>  	}
+>  	if (tz) {
+>  		if (copy_from_user(&new_tz, tz, sizeof(*tz)))
+> ===================================================================
+> 
 
 -- 
-With all the best, yarick at relex dot ru.
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

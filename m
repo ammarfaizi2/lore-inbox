@@ -1,106 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264446AbTK0IPY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 03:15:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264447AbTK0IPY
+	id S264449AbTK0IaW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 03:30:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264450AbTK0IaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 03:15:24 -0500
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:40452 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S264446AbTK0IPM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 03:15:12 -0500
-Subject: [PATCH 2.6]: IPv6: strcpy -> strlcpy
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: davem@redhat.com
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-Esdrj25KrevGQqGJ5Eas"
-Message-Id: <1069920883.2476.1.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Thu, 27 Nov 2003 09:14:44 +0100
+	Thu, 27 Nov 2003 03:30:22 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:57489 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S264449AbTK0IaR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 03:30:17 -0500
+Date: Thu, 27 Nov 2003 17:28:02 +0900
+From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Subject: [RFC] How drivers notice a HW error?
+To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Message-id: <023401c3b4c0$5fb40660$a8647c0a@seto>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+Content-type: text/plain;	charset="iso-2022-jp"
+Content-transfer-encoding: 7bit
+X-Priority: 3
+X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
---=-Esdrj25KrevGQqGJ5Eas
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+This is a request for comments, especially comments from driver developers.
 
-Hi!
+On some platform, for example IA64, the chipset detects an error caused by
+driver's operation such as I/O read, and reports it to kernel. Linux kernel
+analyzes the error and decides to kill the driver or reboot at worst.
+I want to convey the error information to the offending driver, and want to
+enable the driver to recover the failed operation.
 
-Attached is a patch against 2.6.0-test11 to convert all strcpy() calls
-to their corresponding strlcpy() for IPv6. Compiled and tested.
+So, just a plan, I think about a readb_check function that has checking ability
+enable it to return error value if error is occurred on read. Drivers could use
+readb_check instead of usual readb, and could diagnosis whether a retry be
+required or not, by the return value of readb_check.
 
-Thanks!
+To realize this, I consider following two images:
 
---=-Esdrj25KrevGQqGJ5Eas
-Content-Disposition: attachment; filename=strlcpy-ipv6.patch
-Content-Type: text/x-patch; name=strlcpy-ipv6.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
++ readb_check on driver (with Notifier)
+  [Outline]:
+    - Hardware error handler (for example in IA64, MCA handler) has a Notifier
+      as hook point.
+    - Driver may register a hook function to the Notifier.
+    - Notifier calls over registered functions when error is occurred.
+    - Called hook function checks address of error, and if the error seems
+      to be concerned with the parent driver, ups internal error flag and
+      stops Notifier by returning OK.
+    - Hardware error handler regards state of Notifier, and decides the system
+      to resume or not.
+    - Restarted driver may refer the error flag after read, and may retry the
+      read if flag is up.
+  [Issue]:
+    - Some interfaces such as register hooks would be required.
+    - Coding a hook function would be a bother of developers.
 
-diff -uNr linux-2.6.0-test11.orig/net/ipv6/ip6_tunnel.c linux-2.6.0-test11/net/ipv6/ip6_tunnel.c
---- linux-2.6.0-test11.orig/net/ipv6/ip6_tunnel.c	2003-11-26 21:42:56.000000000 +0100
-+++ linux-2.6.0-test11/net/ipv6/ip6_tunnel.c	2003-11-27 00:27:09.000000000 +0100
-@@ -1056,7 +1056,7 @@
- 	struct ip6_tnl *t = (struct ip6_tnl *) dev->priv;
- 	t->fl.proto = IPPROTO_IPV6;
- 	t->dev = dev;
--	strcpy(t->parms.name, dev->name);
-+	strlcpy(t->parms.name, dev->name, IFNAMSIZ);
- }
- 
- /**
-diff -uNr linux-2.6.0-test11.orig/net/ipv6/netfilter/ip6_queue.c linux-2.6.0-test11/net/ipv6/netfilter/ip6_queue.c
---- linux-2.6.0-test11.orig/net/ipv6/netfilter/ip6_queue.c	2003-11-26 21:43:27.000000000 +0100
-+++ linux-2.6.0-test11/net/ipv6/netfilter/ip6_queue.c	2003-11-27 00:26:47.000000000 +0100
-@@ -240,12 +240,12 @@
- 	pmsg->hw_protocol     = entry->skb->protocol;
- 	
- 	if (entry->info->indev)
--		strcpy(pmsg->indev_name, entry->info->indev->name);
-+		strlcpy(pmsg->indev_name, entry->info->indev->name, IFNAMSIZ);
- 	else
- 		pmsg->indev_name[0] = '\0';
- 	
- 	if (entry->info->outdev)
--		strcpy(pmsg->outdev_name, entry->info->outdev->name);
-+		strlcpy(pmsg->outdev_name, entry->info->outdev->name, IFNAMSIZ);
- 	else
- 		pmsg->outdev_name[0] = '\0';
- 	
-diff -uNr linux-2.6.0-test11.orig/net/ipv6/netfilter/ip6_tables.c linux-2.6.0-test11/net/ipv6/netfilter/ip6_tables.c
---- linux-2.6.0-test11.orig/net/ipv6/netfilter/ip6_tables.c	2003-11-26 21:45:30.000000000 +0100
-+++ linux-2.6.0-test11/net/ipv6/netfilter/ip6_tables.c	2003-11-27 00:24:07.000000000 +0100
-@@ -1357,7 +1357,7 @@
- 			       sizeof(info.underflow));
- 			info.num_entries = t->private->number;
- 			info.size = t->private->size;
--			strcpy(info.name, name);
-+			strlcpy(info.name, name, IP6T_TABLE_MAXNAMELEN);
- 
- 			if (copy_to_user(user, &info, *len) != 0)
- 				ret = -EFAULT;
-diff -uNr linux-2.6.0-test11.orig/net/ipv6/sit.c linux-2.6.0-test11/net/ipv6/sit.c
---- linux-2.6.0-test11.orig/net/ipv6/sit.c	2003-11-26 21:45:36.000000000 +0100
-+++ linux-2.6.0-test11/net/ipv6/sit.c	2003-11-27 00:27:01.000000000 +0100
-@@ -747,7 +747,7 @@
- 	iph = &tunnel->parms.iph;
- 
- 	tunnel->dev = dev;
--	strcpy(tunnel->parms.name, dev->name);
-+	strlcpy(tunnel->parms.name, dev->name, IFNAMSIZ);
- 
- 	memcpy(dev->dev_addr, &tunnel->parms.iph.saddr, 4);
- 	memcpy(dev->broadcast, &tunnel->parms.iph.daddr, 4);
-@@ -786,7 +786,7 @@
- 	struct iphdr *iph = &tunnel->parms.iph;
- 
- 	tunnel->dev = dev;
--	strcpy(tunnel->parms.name, dev->name);
-+	strlcpy(tunnel->parms.name, dev->name, IFNAMSIZ);
- 
- 	iph->version		= 4;
- 	iph->protocol		= IPPROTO_IPV6;
++ readb_check on kernel
+  [Outline]:
+    - Kernel has readb_check function.
+    - Drivers may use readb_check instead of usual readb.
+    - Hardware error handler checks address of error, and if it occurs in
+      readb_check, changes return value of readb_check and resumes
+      interrupted context.
+    - Driver may refer the return value to notice an error in last read
+      procedure.
+  [Issue]:
+    - Overhead would be involved. (Possibly, it could say negligible since
+      I/O reads are already horribly slow.)
 
---=-Esdrj25KrevGQqGJ5Eas--
+IMO, this is a general-purpose function that should be available on many
+platforms. I also hear that Solaris has some similar implementations like this.
+
+If you have any comment about this feature or any idea different from this,
+please tell me.
+
+
+Best regards,
+
+------
+
+H.Seto <seto.hidetoshi@jp.fujitsu.com>
 

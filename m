@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbULCETt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261944AbULCEUJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261941AbULCETt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 23:19:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbULCETt
+	id S261944AbULCEUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 23:20:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbULCEUJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 23:19:49 -0500
-Received: from mail5.speakeasy.net ([216.254.0.205]:10461 "EHLO
-	mail5.speakeasy.net") by vger.kernel.org with ESMTP id S261941AbULCETr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 23:19:47 -0500
-Date: Thu, 2 Dec 2004 22:19:43 -0600
-From: John Lash <jlash@speakeasy.net>
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: dma errors with sata_sil and Seagate disk
-Message-ID: <20041202221943.3d19590d@tux>
-In-Reply-To: <yw1xvfbkrxn0.fsf@ford.inprovide.com>
-References: <20041201115045.3ab20e03@homer.sarvega.com>
-	<1101944482.30990.74.camel@localhost.localdomain>
-	<yw1xpt1tuihe.fsf@ford.inprovide.com>
-	<1102030431.7175.9.camel@localhost.localdomain>
-	<yw1xvfbkrxn0.fsf@ford.inprovide.com>
-X-Mailer: Sylpheed-Claws 0.9.12cvs126 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 2 Dec 2004 23:20:09 -0500
+Received: from web90007.mail.scd.yahoo.com ([66.218.94.65]:5219 "HELO
+	web90007.mail.scd.yahoo.com") by vger.kernel.org with SMTP
+	id S261944AbULCEUE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 23:20:04 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=M/RLn+DdTgj7Y7ThSpSbUFVJzZMTXtirqUAqPU+ieQsdUHJFvvp+aS1nexGbd3p2KZ5YZhz7e/vmFSClspA0HraBwEk0h+RX7Dg0pOjP+6v/oFZMphmKVcWn6WfXPlR2vUS1pOwYrWXM6o57PlWHbGbwt2h32jqcy3CFZoui10g=  ;
+Message-ID: <20041203042003.57961.qmail@web90007.mail.scd.yahoo.com>
+Date: Thu, 2 Dec 2004 20:20:03 -0800 (PST)
+From: ram mohan <madhaviram123@yahoo.com>
+Subject: Contribute - How to 
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 03 Dec 2004 02:14:27 +0100
-Måns Rullgård <mru@inprovide.com> wrote:
+Hi,
+I am willing to contribute to the development of Linux
+kernel. I googled a bit and found that I should join
+the list and then I can go ahead.
+I would like to know.
+1. What are the features currently being worked upon?
+2. Are there any things-to-do lists maintained?
+3. How are new features selected?
+4. Can I suggest new features?
 
-> Alan Cox <alan@lxorguk.ukuu.org.ak> writes:
-> 
-> > On Iau, 2004-12-02 at 10:01, Måns Rullgård wrote:
+Thanks.
 
-> Does this mean it is the drives which are faulty, not the controller?
-> These drives are both new, so I suppose known problems might have been
-> fixed.  FWIW, they are reported by the kernel thusly:
-> 
->   Vendor: ATA       Model: ST3160827AS       Rev: 3.03
->   Type:   Direct-Access                      ANSI SCSI revision: 05
->   Vendor: ATA       Model: ST3160827AS       Rev: 3.00
->   Type:   Direct-Access                      ANSI SCSI revision: 05
-> 
 
-I know that the disk that I'm using has been sitting on a shelf since about last June. It still
-seems to be a shipping model though. It's showing itself as model: ST380013AS, rev: 3.18. 
 
-It would be nice if the problem gets fixed someday. Be even nicer if there was a firmware update
-that could be applied to the older drives.....
-
---john
+		
+__________________________________ 
+Do you Yahoo!? 
+Read only the mail you want - Yahoo! Mail SpamGuard. 
+http://promotions.yahoo.com/new_mail 

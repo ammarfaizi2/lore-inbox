@@ -1,69 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284621AbRLETrg>; Wed, 5 Dec 2001 14:47:36 -0500
+	id <S280980AbRLETtq>; Wed, 5 Dec 2001 14:49:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284616AbRLETrR>; Wed, 5 Dec 2001 14:47:17 -0500
-Received: from [209.249.147.248] ([209.249.147.248]:55057 "EHLO
-	proxy1.addr.com") by vger.kernel.org with ESMTP id <S284614AbRLETrE>;
-	Wed, 5 Dec 2001 14:47:04 -0500
-Date: Wed, 5 Dec 2001 14:43:40 -0500
-From: Daniel Gryniewicz <dang@fprintf.net>
-To: James Cassidy <jcassidy@nova.qfire.net>
-Cc: john@deater.net, cory.bell@usa.net, linux-kernel@vger.kernel.org
-Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
-Message-Id: <20011205144340.4d32ab64.dang@fprintf.net>
-In-Reply-To: <20011205134827.A10335@qfire.net>
-In-Reply-To: <1007541620.2340.2.camel@localhost.localdomain>
-	<Pine.LNX.4.33.0112051127390.27471-100000@pianoman.cluster.toy>
-	<20011205115450.6c66664d.dang@fprintf.net>
-	<20011205134827.A10335@qfire.net>
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S284614AbRLETtg>; Wed, 5 Dec 2001 14:49:36 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:13325 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S280980AbRLETtQ>; Wed, 5 Dec 2001 14:49:16 -0500
+Date: Wed, 5 Dec 2001 16:32:25 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Paul Larson <plars@austin.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: compile fails on 2.4.17-pre3
+In-Reply-To: <3C0E7534.3EC4B202@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.21.0112051632080.20575-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yeah, it was.  After I sent that mail, I saw something by Alan saying APIC and
-PM don't work together well, so I turned off APIC, and it no longer hangs.  
 
-Daniel
 
-On Wed, 5 Dec 2001 13:48:27 -0500
-James Cassidy <jcassidy@nova.qfire.net> wrote:
+I'm going to release -pre4 with tcp_diag.c and tcp_diag.h now. 
 
-> 
-> 	When ACPI hung on boot did you have APIC/IO-APIC compiled into
-> your kernel? I found when I compiled in APIC/IO-APIC on my Compaq presario
-> laptop it would hang on bootup also. Appears to get stuck when writing
-> out to a IO-Port.
-> 
-> 						-- James (QFire)
-> 
-> > I have an N5415, and am using your k7 patch (thanks much!).  I don't use
-USB,
-> > so I didn't try or comment on your patch.  However, I was never able to
-get
-> > ACPI to work.  If I compiled it in without APM compiled in, it always hung
-on
-> > boot.  So, I have only APM, which doesn't even show the battery life
-> > correctly.  Whether or not I can suspend, knowing battery life would be an
-> > improvement.  Is there something special I have to do to get ACPI to work?
+On Wed, 5 Dec 2001, Jeff Garzik wrote:
 
-> > (I'm currently using 2.4.13-ac7-preempt-k7, but I've tried 2.4.1[56] also,
-as
-> > well as many earlier kernels.)
+> Paul Larson wrote:
 > > 
-> > Daniel
-> > --- 
-> > Recursion n.:
-> >         See Recursion.
-> >                         -- Random Shack Data Processing Dictionary
-
-
-
---- 
-Recursion n.:
-        See Recursion.
-                        -- Random Shack Data Processing Dictionary
+> > Is everybody seeing this and it's obvious, or do I need to send my
+> > .config?
+> > 
+> > ld -m elf_i386  -r -o ipv4.o utils.o route.o inetpeer.o proc.o
+> > protocol.o ip_input.o ip_fragment.o ip_forward.o ip_options.o
+> > ip_output.o ip_sockglue.o tcp.o tcp_input.o tcp_output.o tcp_timer.o
+> > tcp_ipv4.o tcp_minisocks.o tcp_diag.o raw.o udp.o arp.o icmp.o devinet.o
+> > af_inet.o igmp.o sysctl_net_ipv4.o fib_frontend.o fib_semantics.o
+> > fib_hash.o
+> > ld: cannot open tcp_diag.o: No such file or directory
+> > make[3]: *** [ipv4.o] Error 1
+> > make[3]: Leaving directory `/usr/src/linux/net/ipv4'
+> > make[2]: *** [first_rule] Error 2
+> > make[2]: Leaving directory `/usr/src/linux/net/ipv4'
+> > make[1]: *** [_subdir_ipv4] Error 2
+> > make[1]: Leaving directory `/usr/src/linux/net'
+> > make: *** [_dir_net] Error 2
+> 
+> fix:
+> 
+> 1) remove "tcp_diag.o" from net/ipv4/Makefile
+> 2) remove two lines from net/ipv4/tcp.c which reference tcpdiag_init
+> 
+> The file is in vger so I assume it's easily fixed by adding that file as
+> well.  http://vger.kernel.org/
+> 
+> 	Jeff
+> 
+> -- 
+> Jeff Garzik      | Only so many songs can be sung
+> Building 1024    | with two lips, two lungs, and one tongue.
+> MandrakeSoft     |         - nomeansno
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131509AbRC3Qhl>; Fri, 30 Mar 2001 11:37:41 -0500
+	id <S131573AbRC3Rbj>; Fri, 30 Mar 2001 12:31:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131530AbRC3Qhb>; Fri, 30 Mar 2001 11:37:31 -0500
-Received: from e56090.upc-e.chello.nl ([213.93.56.90]:36878 "EHLO unternet.org")
-	by vger.kernel.org with ESMTP id <S131509AbRC3QhY>;
-	Fri, 30 Mar 2001 11:37:24 -0500
-Date: Fri, 30 Mar 2001 18:36:22 +0200
-From: Frank de Lange <frank@unternet.org>
-To: idalton@ferret.phonewave.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.3: still experiencing APIC-related hangs
-Message-ID: <20010330183622.F30956@unternet.org>
-In-Reply-To: <20010330143224.A23427@unternet.org> <20010330083239.A3410@ferret.phonewave.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010330083239.A3410@ferret.phonewave.net>; from idalton@ferret.phonewave.net on Fri, Mar 30, 2001 at 08:32:39AM -0800
+	id <S131578AbRC3Rb3>; Fri, 30 Mar 2001 12:31:29 -0500
+Received: from bacchus.veritas.com ([204.177.156.37]:19907 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S131573AbRC3RbS>; Fri, 30 Mar 2001 12:31:18 -0500
+Message-ID: <3AC4C26E.7050406@muppetlabs.com>
+Date: Fri, 30 Mar 2001 09:29:18 -0800
+From: Amit D Chaudhary <amit@muppetlabs.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; 0.7) Gecko/20010105
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Memory leak in the ramfs file system
+In-Reply-To: <Pine.LNX.3.96.1010330034506.8826F-100000@mandrakesoft.mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 30, 2001 at 08:32:39AM -0800, idalton@ferret.phonewave.net wrote:
-> On Fri, Mar 30, 2001 at 02:32:24PM +0200, Frank de Lange wrote:
-> > 
-> > Maciej, did you submit the patch to Linus? It really seems to solve the
-> > (occurence of the) problems with these boards...
+Hi,
+
+Thanks for the reply.
+
+So the question next would be whether ramfs will include features to make it 
+viable or stay with less features with the aim of keeping it simple.
+
+Today, plan to check the 2-4.2-ac2x series to see if they fix this.
+
+Regards
+Amit
+
+Jeff Garzik wrote:
+
+> On Thu, 29 Mar 2001, Amit D Chaudhary wrote:
 > 
-> Where is this patch found? I am not seeing it so far on kernel.org.
+>>  >(none):/mnt/ramfs/root# df -h /mnt/ramfs/
+>>  >Filesystem            Size  Used Avail Use% Mounted on
+>>  >ramfs                    0     0     0   -  /mnt/ramfs
+>> I am not sure, how related this is, but we have / on ramfs and using rpm 
+>> to install(-iUvh) fails with the mesages, need 12K on /
+> 
+> 
+> This is normal -- ramfs doesn't do filesystem accounting needed for 'df'.
 
-It is allmost ancient history, from days long gone when men were men, women
-were women and Linux had only reached 2.4.1...
-
-I can send you a copy, if you need it...
-
-Cheers//Frank
--- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \    frank@unternet.org    /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]

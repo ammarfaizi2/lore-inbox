@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264637AbUESWJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264641AbUESWNf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264637AbUESWJk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 18:09:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264638AbUESWJk
+	id S264641AbUESWNf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 18:13:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264585AbUESWNf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 18:09:40 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:29970 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264637AbUESWJh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 18:09:37 -0400
-Date: Wed, 19 May 2004 23:09:07 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: VANDROVE@vc.cvut.cz, <vince@kyllikki.org>,
-       <linux-fbdev-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: vga16fb broke
-In-Reply-To: <20040518173845.1e03288c.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0405192307240.28783-100000@phoenix.infradead.org>
+	Wed, 19 May 2004 18:13:35 -0400
+Received: from mail.kssb.net ([198.248.45.1]:30690 "EHLO california.campus")
+	by vger.kernel.org with ESMTP id S264641AbUESWNd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 18:13:33 -0400
+Message-ID: <40ABDC0F.8020207@kssb.net>
+Date: Wed, 19 May 2004 17:13:35 -0500
+From: Bradley Hook <bhook@kssb.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: System-call auditing
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 May 2004 22:13:29.0563 (UTC) FILETIME=[83C7B2B0:01C43DEE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > >  	/* XXX share VGA_FB_PHYS and I/O region with vgacon and others */
-> > >  
-> > > -	vga16fb.screen_base = ioremap(VGA_MAP_MEM(VGA_FB_PHYS), VGA_FB_PHYS_LEN);
-> > > +	vga16fb.screen_base = VGA_MAP_MEM(VGA_FB_PHYS);
-> > >  	if (!vga16fb.screen_base) {
-> > >  		printk(KERN_ERR "vga16fb: unable to map device\n");
-> > >  		ret = -ENOMEM;
-> > 
-> > This will make the driver on all platforms. 
-> 
-> There's a missing word in that sentence.  Was it "work" or "crash"?  This
-> matters ;)
+I'm trying to put this system-call auditing to use, and I'm running into 
+some trouble figuring it out. I've been studying the sources for the 
+auditd example app and the audit.c/auditsc.c kernel files, and have yet 
+to figure out how to accomplish my goal.
 
-works :-)
+What I am trying to do is detect when a modified file is closed. I 
+figured auditing __NR_open, __NR_write, and __NR_close would be the way 
+to do this (perhaps I am wrong here?). My problem is that I haven't 
+found a way to tie the open/write/close calls together with the info 
+that the auditing code provides.
 
-> > > and that ARM and others need to teach their VGA_MAP_MEM() to do an internal
-> > > ioremap().
-> > > 
-> > > Or do you mean something else?  Please be more clear?
-> > 
-> > I like to see the VGA_MAP_MEM hack go away and be replaced with ioremap.
-> 
-> If you can cut a patch we can ask arch maintainers to review and test it.
+The audit info for __NR_open provides the filename (which I would need 
+when my app goes to work) but doesn't provide any unique identifier that 
+I can use to tie it to audits on __NR_write or __NR_close.
 
-I could but that would take some time. For now apply your fix.
-Actually Ihave a newer vga16 driver for you I can push you.
+If anyone can give me some pointers on how to use this auditing code I 
+would greatly appreciate it.
 
-
+~Brad

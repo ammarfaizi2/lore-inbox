@@ -1,55 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266131AbUGJEFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266127AbUGJEOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266131AbUGJEFt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 00:05:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266128AbUGJEFt
+	id S266127AbUGJEOk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 00:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266128AbUGJEOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 00:05:49 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:29852 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S266127AbUGJEFq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 00:05:46 -0400
-To: ultralinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: arch/sparc64/Kconfig
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <roland@topspin.com>
-Date: Fri, 09 Jul 2004 21:05:45 -0700
-Message-ID: <52brio8q1y.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Sat, 10 Jul 2004 00:14:40 -0400
+Received: from vivaldi.madbase.net ([81.173.6.10]:13266 "HELO
+	vivaldi.madbase.net") by vger.kernel.org with SMTP id S266127AbUGJEOj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 00:14:39 -0400
+Date: Sat, 10 Jul 2004 00:14:35 -0400 (EDT)
+From: Eric Lammerts <eric@lammerts.org>
+X-X-Sender: eric@vivaldi.madbase.net
+To: Martin Ziegler <mz@newyorkcity.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS no longer working ?
+In-Reply-To: <8232A615C6D0B05C09DBF242@soho>
+Message-ID: <Pine.LNX.4.58.0407100008020.19087@vivaldi.madbase.net>
+References: <8232A615C6D0B05C09DBF242@soho>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 10 Jul 2004 04:05:45.0673 (UTC) FILETIME=[2CF36390:01C46633]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently tested building the OpenIB InfiniBand drivers for sparc64.
-These drivers add a new drivers/infiniband directory and hook into the
-kernel config system by adding a 'source "drivers/infiniband/Kconfig"'
-to the drivers/Kconfig file.
 
-However, I discovered that arch/sparc64/Kconfig includes individual
-drivers/xxx/Kconfig files rather than the main drivers/Kconfig.  This
-means that hooking in the infiniband Kconfig requires changing the
-sparc64 Kconfig.
+On Fri, 9 Jul 2004, Martin Ziegler wrote:
+> just installed kernel version 2.6.7 on RedHat 8.0. Unfortunately i'm no
+> longer able to use NFS. Are there any recent issues ? For a detailed
+> problem description please see below. Any help is appreciated.
 
-I looked at arch/sparc64/Kconfig and found that the only files it does
-not include that are included by drivers/Kconfig are
+I also had problems with NFS on 2.6.x (not the same as yours, though).
+The solution was to do "mount -t nfsd none /proc/fs/nfsd" on the
+server. You might wanna give that a try, maybe it'll help.
 
-    drivers/cdrom/Kconfig
-    drivers/char/Kconfig
-    drivers/macintosh/Kconfig
-    drivers/message/i2o/Kconfig
-    drivers/misc/Kconfig
-
-cdrom is safe because the whole thing depends on ISA.  macintosh is
-safe because it depends on PPC || MAC.  misc is safe because it only
-includes one entry that depends on X86.
-
-So I guess my questions are, first, is there any reason why the
-message/i2o and especially the char Kconfigs are left out of the
-sparc64 Kconfig, and second, would a patch changing sparc64 to use the
-main drivers/Kconfig be accepted?
-
-Thanks,
-  Roland
+Eric

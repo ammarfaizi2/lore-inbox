@@ -1,70 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261394AbTCGGn6>; Fri, 7 Mar 2003 01:43:58 -0500
+	id <S261390AbTCGGmf>; Fri, 7 Mar 2003 01:42:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261396AbTCGGn6>; Fri, 7 Mar 2003 01:43:58 -0500
-Received: from mail.eskimo.com ([204.122.16.4]:60687 "EHLO mail.eskimo.com")
-	by vger.kernel.org with ESMTP id <S261394AbTCGGnz>;
-	Fri, 7 Mar 2003 01:43:55 -0500
-Date: Thu, 6 Mar 2003 22:54:15 -0800
-To: "Guangyu Kang (Shanghai)" <GuangyuKang@viatech.com.cn>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Help please: DVD ROM read difficulty
-Message-ID: <20030307065415.GA7379@eskimo.com>
-References: <C373923C3B6ED611874200010250D52E155E1A@exchsh01.viatech.com.cn>
+	id <S261386AbTCGGmf>; Fri, 7 Mar 2003 01:42:35 -0500
+Received: from angband.namesys.com ([212.16.7.85]:29570 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S261390AbTCGGmd>; Fri, 7 Mar 2003 01:42:33 -0500
+Date: Fri, 7 Mar 2003 09:53:07 +0300
+From: Oleg Drokin <green@namesys.com>
+To: dan carpenter <error27@email.com>
+Cc: linux-kernel@vger.kernel.org, smatch-discuss@lists.sf.net
+Subject: Re: smatch update / 2.5.64 / kbugs.org
+Message-ID: <20030307095307.E4600@namesys.com>
+References: <20030307064535.20769.qmail@email.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <C373923C3B6ED611874200010250D52E155E1A@exchsh01.viatech.com.cn>
-User-Agent: Mutt/1.5.3i
-From: Elladan <elladan@eskimo.com>
+In-Reply-To: <20030307064535.20769.qmail@email.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 07, 2003 at 10:14:59AM +0800, Guangyu Kang (Shanghai) wrote:
-> Hi:
->         Currently I'm working on a DVD player fo LINUX project.
->         My player use libc read() function on /dev/hdc, i.e. dvd rom in my
-> system, to read data.
->         The last issue I encountered is difficulties during reading
-> scratched discs.
->         Such disc will cause the dvd rom drive get ECC error (code = 0x40)
-> when perorming the read action.
->         And the kernel will keep retrying to get the correct data from the
-> disc.
+Hello!
 
-A related problem in this case is that the reader thread will be stuck
-in uninterruptible sleep, probably for several minutes.  Meaning, the
-process can't even be stopped or killed.
+On Fri, Mar 07, 2003 at 01:45:35AM -0500, dan carpenter wrote:
+> > > The smatch bugs for kernel 2.5.64 are up.  The 
+> > > new url for the smatch bug database is http://kbugs.org.  
+> > Unfortunatelly the bug database does not work. I mean I cannot connect to it.
+> Crap...  sorry about that, I screwed up.
 
-Since the read tends to just return short, without raising an error at
-all, the process will often immediately go back into uninterruptible
-sleep if it does wake up, too, since it's spinning on the system call.
-Signal delivery seems to be pretty flaky in this case too - you'd expect
-a signal 9 to be delivered as soon as the process tries to wake up, but
-it tends to not.  I've had to try junk like:
+> > This script can produce a lot less false positives with even more custom merge rules.
+> > Here's the diff that if run on fs/ext3/super.c from current bk tree, produces
+> > only one true bug. (your version from cvs produces one real bug and two false positives)
+> > (8 less hits on my default build).
+> I have uploaded your modifications to CVS.  I'll use it 
+> on the next kernel release.  The unfree.pl was just a few
+> modifications to the deference_check.pl so your patch
+> will cut down on the false positives with that also.
 
-	while true ; do kill -9 $stupid_process ; done
+Actually I think these free() checks can be extended a lot, it can detect memory leaks and so on.
 
-.. just to get something to die when it's reading bad media.
+I have preliminary working version here, but it was only barely tested (And not tested on real kernel at all).
+I will spend more time on it today and then send it in.
+Incidentally this new version should also work on non-kernel code too, I think ;)
+I think that tracking only negative/NULL returns is not the best way.
+My current approach is to add several more states like "exported" which means that this value was added
+to externally visible variable. Then upon reaching return/end of function we can see if all the
+allocated stuff was freed or exported. Tricky part seems to correctly merge all these states
+from different branches of if steatements.
 
-A quick way around this tends to be to hit the eject button on the CD
-drive itself - it will cause the driver to abort the read quickly when
-it sees that the drive is empty.  However, if the tray is locked, this
-is impossible (and sometimes, the driver will get into a bad state and
-won't let you unlock the tray, either).
+Also is anybody working on "redundant assignments" stuff as described in Standford guys papers?
 
-All around, error handling on CD's and DVD's is extremely flaky.
-
-
-At the very least, if the driver is going to be in some sort of long
-term wait, it needs to put the process in an interruptible sleep and
-have some capability of aborting the request.
-
-Of course, it gets worse in kernels where ide-scsi is in use, since in
-that case error messages are often not even delivered.  Do I cdrom read
-audio ioctl, watch it go to sleep *forever* after the IDE layer gets
-reset underneath it and the request gets lost completely.  I loved
-trying to debug that one at the application level. :-)
-
--J
+Bye,
+    Oleg

@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315485AbSG3Rt1>; Tue, 30 Jul 2002 13:49:27 -0400
+	id <S316585AbSG3R4r>; Tue, 30 Jul 2002 13:56:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315779AbSG3Rt1>; Tue, 30 Jul 2002 13:49:27 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:42900 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S315485AbSG3Rt0>;
-	Tue, 30 Jul 2002 13:49:26 -0400
-Message-Id: <200207301752.g6UHqjo32751@mail.osdl.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Axel Siebenwirth <axel@hh59.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Testing of filesystems 
-In-Reply-To: Your message of "Tue, 30 Jul 2002 11:49:02 +0200."
-             <20020730094902.GA257@prester.freenet.de> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 30 Jul 2002 10:52:45 -0700
-From: Cliff White <cliffw@osdl.org>
+	id <S315971AbSG3R4r>; Tue, 30 Jul 2002 13:56:47 -0400
+Received: from imo-r04.mx.aol.com ([152.163.225.100]:7107 "EHLO
+	imo-r04.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S316585AbSG3R4p>; Tue, 30 Jul 2002 13:56:45 -0400
+Message-ID: <3D469C86.3010305@netscape.net>
+Date: Tue, 30 Jul 2002 14:02:46 +0000
+From: Adam Belay <ambx1@netscape.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: mochel@osdl.org
+CC: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] integrate driverfs and devfs (2.5.28)
+References: <Pine.LNX.4.44.0207300902280.22697-100000@cherise.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Mailer: Unknown (No Version)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi,
-> 
-> I wonder what a good way is to stress test my JFS filesystem. Is there a tool
-> that does something like that maybe? Dont't want performance testing, just
-> all kinds of stress testing to see how the filesystem "is" and to check
-> integrity and functionality.
-> What are you filesystem developers use to do something like that?
-> 
+The problem is that a device without a mapping to a driver is a valid
+> state.
 
-You can use the Scalable  Test Platform at the OSDL. 
-We currently have iozone and tiobench test which support JFS, and
-we're looking to add other tests.  For details, see 
-http://www.osdl.org/stp/
-cliffw
-
-> Thanks,
-> Axel
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+Ok here's a new less devfs dependent idea.  Its sole goal is to 
+acomplish the above.  Why not add a list to device like I did before 
+only instead of using devfs handles to discover major and minor numbers 
+I can store the major and minor numbers directly.  I could even use 
+kdev_t.  This way it is not dependent on devfs and does not enforce any 
+of its policies.  Then I'll create a quick interface for driverfs as 
+well as a simple register and unregister function.  I'll name it dev 
+like before and it can display information in the following format: 
+ MAJOR, MINOR.  It will print one line per dev.  Finally I can use one 
+of devfs's find functions to generate the path although I may just 
+forget devfs entirely.  This interface is necessary because user level 
+programs can determine which driverfs entries correspond to which 
+entries in their dev directory.  I think this will be useful for hotplug 
+as well as some of my own projects.  If you support this I'll get to 
+work on a patch.  Also I had a driver model related question.  Should a 
+driver be able to belong to more than one bus?  Also are you going to 
+create an interface that exports drivers directly instead of only 
+through bus and device class?
+Thanks,
+Adam
 

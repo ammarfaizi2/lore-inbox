@@ -1,67 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262309AbUCTQ4z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 11:56:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbUCTQ4y
+	id S263475AbUCTRFS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 12:05:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbUCTRFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 11:56:54 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:35493 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262309AbUCTQ4w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 11:56:52 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Chris Mason <mason@suse.com>
-Subject: Re: [PATCH] barrier patch set
-Date: Sat, 20 Mar 2004 18:05:26 +0100
-User-Agent: KMail/1.5.3
-Cc: Jens Axboe <axboe@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20040319153554.GC2933@suse.de> <200403201723.11906.bzolnier@elka.pw.edu.pl> <1079800362.11062.280.camel@watt.suse.com>
-In-Reply-To: <1079800362.11062.280.camel@watt.suse.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403201805.26211.bzolnier@elka.pw.edu.pl>
+	Sat, 20 Mar 2004 12:05:18 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:7644 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S263475AbUCTRFJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 12:05:09 -0500
+Date: Sat, 20 Mar 2004 18:04:55 +0100 (MET)
+Message-Id: <200403201704.i2KH4tTS008272@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: akpm@osdl.org
+Subject: Re: [2.6.4-rc2] bogus semicolon behind if()
+Cc: linux-kernel@vger.kernel.org, macro@ds2.pg.gda.pl, phil.el@wanadoo.fr,
+       schwab@suse.de, thomas.schlichter@web.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 of March 2004 17:32, Chris Mason wrote:
-> On Sat, 2004-03-20 at 11:23, Bartlomiej Zolnierkiewicz wrote:
-> > > > - why are we doing pre-flush?
-> > >
-> > > To ensure previously written data is on platter first.
-> >
-> > I know this, I want to know what for you are doing this?
-> >
-> > Previously written data is already acknowledgment to the upper layers so
-> > you can't do much even if you hit error on flush cache.  IMO if error
-> > happens we should just check if failed sector is of our ordered write if
-> > not well report it and continue.  It's cleaner and can give some (small?)
-> > performance gain.
+On Thu, 18 Mar 2004 01:52:36 -0800, Andrew Morton wrote:
+>Mikael Pettersson <mikpe@csd.uu.se> wrote:
+>>
+>> Maciej W. Rozycki writes:
+>>  > On Wed, 17 Mar 2004, Andrew Morton wrote:
+>>  > 
+>>  > > I still have a couple of NMI patches in -mm:
+>>  > > 
+>>  > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5-rc1/2.6.5-rc1-mm1/broken-out/nmi_watchdog-local-apic-fix.patch
+>>  > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5-rc1/2.6.5-rc1-mm1/broken-out/nmi-1-hz.patch
+>>  > > 
+>>  > > What should we do with these?
+>>  > 
+>>  >  I think we should ask Mikael Pettersson as he is the local APIC watchdog 
+>>  > expert.  Mikael?
+>> 
+>> Will do. Is there a problem with them, or do you just want them
+>> reviewed for merging into 2.6.5-rc?
+>> 
 >
-> The journaled filesystems need this.  We need to make sure that before
-> we write the commit block for a transaction, all the previous log blocks
-> we're written are safely on media.  Then we also need to make sure the
-> commit block is on media.
+>They seem to work OK - I did a batch of testing with various setups.  But a
+>retest wouldn't hurt.
+>
+>We mainly need a review and general finish-it-off-and-bless-it please.
 
-For low-level driver it shouldn't really matter whether sectors to be
-written are the commit block for a transaction or the previous log blocks
-and in the current implementation it does matter.
+'nmi_watchdog-local-apic-fix.patch' looks Ok, although I
+would prefer if it didn't put a 'static' on nmi_perfctr_msr:
+the perfctr driver needs access to it.
 
-> We end up with a log blocks, pre-flush, commit block, post-flush cycle,
-> which is what gives the proper transaction ordering on disk.
+I'm not happy with 'nmi-1-hz.patch'. The real problem is that
+SMP with nmi_watchdog=2 initialises the lapic NMI watchdog but
+doesn't check it and therefore doesn't reduce nmi_hz.
+This is an SMP bug, but instead of fixing it the patch removes
+the check from UP and changes nmi.c to compensate.
 
-Jens, can you explain how this translates to the block layer?
-If "log blocks" is a separate request from "commit block",
-we can just do: log blocks, flush, commit block, flush cycle.
+This would be Ok if check_nmi_watchdog() with nmi_watchdog=2
+was redundant, but I don't believe it is. It has exposed bugs
+and unexpected hardware changes before, and so should remain.
 
-> For data blocks we only need the post flush, which is why Jens made
-> blkdev_issue_flush skip the pre-flush.
+I propose the patch below instead. It changes smpboot.c to do a
+check_nmi_watchdog() at the appropriate place, which fixes the
+high NMI frequency problem w/o changing anything else.
+I've verified that it solves the problem on my MP-capable UP box.
 
-Yes.
+/Mikael
 
-Thanks,
-Bartlomiej
-
+diff -ruN linux-2.6.5-rc2/arch/i386/kernel/smpboot.c linux-2.6.5-rc2.smpboot-lapic-watchdog-fix/arch/i386/kernel/smpboot.c
+--- linux-2.6.5-rc2/arch/i386/kernel/smpboot.c	2004-03-11 14:01:25.000000000 +0100
++++ linux-2.6.5-rc2.smpboot-lapic-watchdog-fix/arch/i386/kernel/smpboot.c	2004-03-20 17:21:30.113862000 +0100
+@@ -1107,6 +1107,9 @@
+ 		}
+ 	}
+ 
++	if (nmi_watchdog == NMI_LOCAL_APIC)
++		check_nmi_watchdog();
++
+ 	smpboot_setup_io_apic();
+ 
+ 	setup_boot_APIC_clock();

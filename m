@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263587AbTIHU1w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 16:27:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263593AbTIHU1v
+	id S263583AbTIHU1F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 16:27:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbTIHU1F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 16:27:51 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:58907 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S263587AbTIHU1p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 16:27:45 -0400
-Date: Mon, 8 Sep 2003 21:26:35 +0100
-From: Dave Jones <davej@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Andries Brouwer <aebr@win.tue.nl>, willy@debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use size_t for the broken ioctl numbers
-Message-ID: <20030908202635.GB681@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-	"Randy.Dunlap" <rddunlap@osdl.org>,
-	Andries Brouwer <aebr@win.tue.nl>, willy@debian.org,
-	linux-kernel@vger.kernel.org
-References: <20030908195329.GA5720@gtf.org> <Pine.LNX.4.44.0309081313260.1666-100000@home.osdl.org>
+	Mon, 8 Sep 2003 16:27:05 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:11687 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263583AbTIHU1C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 16:27:02 -0400
+Subject: Re: I/O degredation with AS on 2.6.0-test3
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Mike Sullivan <mksully@us.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <OF0770DEDD.BEBEF8A2-ON85256D9B.00659B11@us.ibm.com>
+References: <OF0770DEDD.BEBEF8A2-ON85256D9B.00659B11@us.ibm.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1063052763.29025.100.camel@nighthawk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309081313260.1666-100000@home.osdl.org>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 08 Sep 2003 13:26:04 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 08, 2003 at 01:15:26PM -0700, Linus Torvalds wrote:
- > On Mon, 8 Sep 2003, Jeff Garzik wrote:
- > > I should send Linus my snapshot script ;-)
- > Oh, please don't. I wouldn't use it anyway.
- > 
- > I'm a big believer in avoiding unnecessary work - especially stuff I'm not
- > good at. And maintaining automated scripts falls under that description. 
- > I'm a total disaster when it comes to MIS-like things.
- 
-Then the snapshot robot will continue to make them available for
-non-bk users at http://www.codemonkey.org.uk/projects/sparse
+You might want to try Martin Bligh's diffprofile utility.  It's a bit
+hard to compare 2 500-line profiles without it.
 
-Right now, it deletes snapshots after a week. I figure anyone who wanted
-to find regressions, or step back through the history could extract it
-from the bk web frontend (or use bk).  If anyone would prefer me to keep
-them there longer, shout and I'll change the script.
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/tools/
 
-		Dave
-
+Also, there have evidently been a few I/O scheduler fixes since -test3. 
+Please retry with -test5.
 -- 
- Dave Jones     http://www.codemonkey.org.uk
+Dave Hansen
+haveblue@us.ibm.com
+

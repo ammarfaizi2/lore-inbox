@@ -1,57 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314553AbSGUNOK>; Sun, 21 Jul 2002 09:14:10 -0400
+	id <S315419AbSGUNT5>; Sun, 21 Jul 2002 09:19:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315413AbSGUNOK>; Sun, 21 Jul 2002 09:14:10 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:15490 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S314553AbSGUNOJ>; Sun, 21 Jul 2002 09:14:09 -0400
-Date: Sun, 21 Jul 2002 16:16:58 +0300
-From: Ville Herva <vherva@niksula.hut.fi>
+	id <S315779AbSGUNT5>; Sun, 21 Jul 2002 09:19:57 -0400
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:29919 "EHLO
+	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S315419AbSGUNT4>; Sun, 21 Jul 2002 09:19:56 -0400
+Date: Sun, 21 Jul 2002 09:21:54 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.26 buffer layer error at page-writeback.c:420
-Message-ID: <20020721131658.GK1548@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	linux-kernel@vger.kernel.org
-References: <20020721120837.GJ1548@niksula.cs.hut.fi>
+Subject: [lmbench] tcp bandwidth on athlon
+Message-ID: <20020721132154.GA28089@rushmore>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020721120837.GJ1548@niksula.cs.hut.fi>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 21, 2002 at 03:08:37PM +0300, you [Ville Herva] wrote:
-> I just booted 2.5.26 to textmode, logged in as root and left it there. After
-> a while I got this. After that, floppy access etc fails.
+I ran oprofile with bw_tcp and retired instructions on athlon showed:
 
-Sorry, forgot to mention this is under vmware. It can of course have huge
-influence, although 2.4 runs solid under it.
+samples       %-age  symbol name
+903640      75.4825  csum_partial_copy_generic
 
-root = hdc = cdrom ext2,
-/tmp = ramdisk
+In Carl Staelin and Larry McVoy's 98 Usenix paper they wrote:
 
-ATA/ATAPI device driver v7.0.0
-ATA: PCI bus speed 33.3MHz
-ATA: Intel Corp. 82371AB PIIX4 IDE, PCI slot 00:07.1
-ATA: chipset rev.: 1
-ATA: non-legacy mode: IRQ probe delayed
-PIIX: Intel Corp. 82371AB PIIX4 IDE UDMA33 controller on pci00:07.1
-    ide0: BM-DMA at 0x1020-0x1027, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0x1028-0x102f, BIOS settings: hdc:DMA, hdd:pio
-hda: VMware Virtual IDE Hard Drive, DISK drive
-hdb: VMware Virtual IDE CDROM Drive, ATAPI CD/DVD-ROM drive
-hdc: VMware Virtual IDE CDROM Drive, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
- hda: 81648 sectors w/32KiB Cache, CHS=81/16/63, UDMA(33)
- hda: unknown partition table
-hdb: ATAPI 1X CD-ROM drive, 32kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-hdc: ATAPI 1X CD-ROM drive, 32kB Cache, UDMA(33)
+"It is interesting to compare pipes with TCP because the TCP  benchmark  is
+identical to the pipe benchmark except for the transport mechanism.  Ideally,
+the TCP bandwidth would be as good as the pipe bandwidth.  It is  not  widely
+known  that  the  majority of the TCP cost is in the bcopy, the checksum, and
+the network interface driver.  The checksum and  the  driver  may  be  safely
+eliminated  in  the loopback case and if the costs have been eliminated, then
+TCP should be just as fast as pipes.  From the pipe and TCP results [...]
+it is easy to see that Solaris and HP-UX have done this optimization."
 
+Here are some recent Linux kernels:
 
--- v --
+Processor                Pipe        TCP
+Athlon/1330             840.66      73.75 (or 150 MB/sec - see below)
+k6-2/475                 65.15      52.45
+PIII * 1/700 Xeon       539.73     446.16 
 
-v@iki.fi
+I tried compiling the athlon kernel without X86_USE_PPRO_CHECKSUM
+but that didn't really change tcp bandwidth.
+
+kernel                   Pipe      TCP  
+2.4.19rc2aa1            860.97    74.27
+2.4.19rc2aa1-nocsum     853.18    74.16
+
+[topic shift]
+
+There was a change in bw_tcp.c that has a 2x impact on
+the computed bandwidth.  I have two versions:
+
+ls -gl LM*/src/bw_tcp.c
+-r--r--r--    1 rwhron     3553 Jul 23  2001 LMbench.old/src/bw_tcp.c
+-r--r--r--    1 rwhron     3799 Sep 27  2001 LMbench2/src/bw_tcp.c
+
+Both LMbench trees have the same version:
+
+#define MAJOR   2
+#define MINOR   -13     /* negative is alpha, it "increases" */
+
+ident doesn't specify a version in tcp_bw.c, but diff shows
+a difference.
+
+This is the newer bw_tcp on an Athlon 1330.
+
+/bw_tcp localhost
+server: nbytes=10485760
+initial bandwidth measurement: move=10485760, usecs=117291: 89.40 MB/sec
+move=693633024, XFERSIZE=65536
+server: nbytes=693633024
+Socket bandwidth using localhost: 75.85 MB/sec
+
+And the older bw_tcp compiled with same gcc same kernel on athlon:
+
+/bw_tcp localhost
+Socket bandwidth using localhost: 150.21 MB/sec
+
+-- 
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
+

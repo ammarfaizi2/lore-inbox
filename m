@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266236AbUHVGGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266242AbUHVGG0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266236AbUHVGGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 02:06:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266242AbUHVGGQ
+	id S266242AbUHVGG0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 02:06:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266250AbUHVGG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 02:06:16 -0400
-Received: from qfep05.superonline.com ([212.252.122.162]:48108 "EHLO
-	qfep05.superonline.com") by vger.kernel.org with ESMTP
-	id S266236AbUHVGGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 02:06:14 -0400
-From: "Josan Kadett" <corporate@superonline.com>
-To: "'Brad Campbell'" <brad@wasp.net.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Entirely ignoring TCP and UDP checksum in kernel level
-Date: Sun, 22 Aug 2004 09:06:16 +0200
+	Sun, 22 Aug 2004 02:06:26 -0400
+Received: from S010600105aa6e9d5.gv.shawcable.net ([24.68.24.66]:44160 "EHLO
+	spitfire.gotdns.org") by vger.kernel.org with ESMTP id S266242AbUHVGGV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 02:06:21 -0400
+From: Ryan Cumming <ryan@spitfire.gotdns.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [patch] context-switching overhead in X, ioport(), 2.6.8.1
+Date: Sat, 21 Aug 2004 23:06:12 -0700
+User-Agent: KMail/1.7
+Cc: "David S. Miller" <davem@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <20040821135516.GA3872@elte.hu> <200408212242.33562.ryan@spitfire.gotdns.org> <1093154401.817.43.camel@krustophenia.net>
+In-Reply-To: <1093154401.817.43.camel@krustophenia.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+Content-Type: multipart/signed;
+  boundary="nextPart1329955.9gS4bAM6yN";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <412836B0.4010309@wasp.net.au>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Thread-Index: AcSIDWHNwdALHdU5TWCW0923TNdewQACHx1w
-Message-Id: <S266236AbUHVGGO/20040822060614Z+1719@vger.kernel.org>
+Message-Id: <200408212306.15012.ryan@spitfire.gotdns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart1329955.9gS4bAM6yN
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-That is certainly what I require but I need some guidelines; I investigated
-into the issue and fount out that;
+On Saturday 21 August 2004 23:00, Lee Revell wrote:
+> On Sun, 2004-08-22 at 01:42, Ryan Cumming wrote:
+> > On Saturday 21 August 2004 21:46, David S. Miller wrote:
+> > > FWIW, I would recommend a sparse bitmap implementation for the
+> > > ioport stuff.
+> >
+> > The problem is that the sparse bitmap would have to be unpacked to the
+> > "dense" bitmap that lives in the TSS on context switch.
+>
+> Can someone supply a link to the original LKML post with the ioport
+> change?  I was not able to find it in my mailbox nor in the archives.
 
-- By only changing the source address coded in the IP header
-- And by just applying checksum to IP header [Not TCP or UDP]
+Here's what I could dig up:
 
-The problem would be gone since when the source IP in the IP address field
-is validated, the checksum in the underlying protocol is automatically
-validated (because the sender system had already computed this CRC using the
-IP address which we want to write onto the packet)
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-m=
+m2/broken-out/larger-io-bitmap.patch
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0211.0/0477.html
+http://www.uwsg.iu.edu/hypermail/linux/kernel/9807.1/1079.html
 
-I do not have much time to build a code just for this purpose and thus I am
-looking for a simple app. or some other way...
+Looks like x86-64 does in fact need a similar change to the x86 one. It's l=
+ate=20
+here, but it should be pretty trivial to port over.
 
+=2DRyan
 
------Original Message-----
-From: Brad Campbell [mailto:brad@wasp.net.au] 
-Sent: Sunday, August 22, 2004 8:01 AM
-To: Josan Kadett
-Cc: 'Chris Siebenmann'; linux-kernel@vger.kernel.org
-Subject: Re: Entirely ignoring TCP and UDP checksum in kernel level
+--nextPart1329955.9gS4bAM6yN
+Content-Type: application/pgp-signature
 
-Just a completely random thought. What about re-calculating the checksum and
-correcting it when the 
-packet hits the IP layer prior to it being passed out to the relevant
-protocol handlers?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Regards,
-Brad
+iD8DBQBBKDfWW4yVCW5p+qYRAuCLAJkB7syFWCvbzADiW4TgQQE2fE/gXQCfW6r1
+7kNF3F8QGpkZ7V8pqEaCtv4=
+=X6qd
+-----END PGP SIGNATURE-----
 
-
+--nextPart1329955.9gS4bAM6yN--

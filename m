@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282939AbRK0Uni>; Tue, 27 Nov 2001 15:43:38 -0500
+	id <S282938AbRK0Uos>; Tue, 27 Nov 2001 15:44:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282938AbRK0Un2>; Tue, 27 Nov 2001 15:43:28 -0500
-Received: from chmls06.mediaone.net ([24.147.1.144]:11137 "EHLO
-	chmls06.mediaone.net") by vger.kernel.org with ESMTP
-	id <S282939AbRK0UnO>; Tue, 27 Nov 2001 15:43:14 -0500
-From: andrew@pimlott.ne.mediaone.net (Andrew Pimlott)
-Date: Tue, 27 Nov 2001 15:31:19 -0500
-To: arjan@fenrus.demon.nl
-Cc: Heikki Levanto <heikki@indexdata.dk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.16: "Address family not supported" on RH IBM T23
-Message-ID: <20011127153119.A25554@pimlott.ne.mediaone.net>
-Mail-Followup-To: arjan@fenrus.demon.nl,
-	Heikki Levanto <heikki@indexdata.dk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011127200522.B27480@indexdata.dk> <m168nl3-000OVrC@amadeus.home.nl>
+	id <S282941AbRK0Uoj>; Tue, 27 Nov 2001 15:44:39 -0500
+Received: from zero.tech9.net ([209.61.188.187]:59657 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S282938AbRK0UoZ>;
+	Tue, 27 Nov 2001 15:44:25 -0500
+Subject: Re: [PATCH] proc-based cpu affinity user interface
+From: Robert Love <rml@tech9.net>
+To: mingo@elte.hu
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0111271247120.9992-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.33.0111271247120.9992-100000@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
+Date: 27 Nov 2001 15:44:53 -0500
+Message-Id: <1006893895.815.0.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m168nl3-000OVrC@amadeus.home.nl>
-User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 27, 2001 at 07:19:05PM +0000, arjan@fenrus.demon.nl wrote:
-> You need to enable the netlink config options
-> 
-> your problem; it's even mentioned in the releasenotes..
+On Tue, 2001-11-27 at 06:52, Ingo Molnar wrote:
+> two comments. First, this has already been done - Andrew Morton has
+> written such a patch.
 
-It would be even better to mention it in the kernel documentation,
-since iproute2 is fairly standard now.  I'm really not enough of a
-kernel hacker to change it, but the current Configure.help entry for
-CONFIG_NETLINK suggests that it is useful only for relatively
-obscure applications.
+I didn't know this until after I started, but it is irrelevant.  Use
+Andrew's if you want.  However, I have incorporated some useful bits
+from your patch and such that I think are superior.
 
-    You need to say Y here to use the tools in the iproute2 package
-    (<ftp://ftp.inr.ac.ru>).
+> Second, as i've repeatedly said it, it's a failure to do this over /proc.
+> What if /proc is not mounted? What if the process is in a chroot()
+> environment, should it not be able to set its own affinity? This is a
+> fundamental limitation of your approach, and *if* we want to export the
+> cpus_allowed affinity to user-space (which is up to discussion), then the
+> right way (TM) to do it is via a syscall.
 
-And is CONFIG_RTNETLINK also necessary for ip?
+OK OK OK ... we can argue all day over syscall vs. proc.  Personally, I
+don't find any of the arguments fruitful -- we make all sorts of
+restrictions and "Don't do thats" in the kernel.  Requiring procfs isn't
+the end of the world.
 
-Andrew
+When you posted your initial patch, I commented I liked it but was
+interested in a proc variant.  Some people were interested.  Even you
+said it wasn't a huge deal.
+
+It doesn't matter to me, let's just expose _some_ interface to
+userspace.  Personally, I prefer procfs, but both implementations are
+nicely done.  I respect you too much to argue religion like this.  I'll
+push for either variant.
+
+	Robert Love
+

@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129163AbQKMISr>; Mon, 13 Nov 2000 03:18:47 -0500
+	id <S129061AbQKMIdA>; Mon, 13 Nov 2000 03:33:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129152AbQKMISi>; Mon, 13 Nov 2000 03:18:38 -0500
-Received: from thalia.fm.intel.com ([132.233.247.11]:39951 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S129112AbQKMISY>; Mon, 13 Nov 2000 03:18:24 -0500
-Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B27092@hasmsx52.iil.intel.com>
-From: "Hen, Shmulik" <shmulik.hen@intel.com>
-To: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>
-Cc: "'LNML'" <linux-net@vger.kernel.org>,
-        "'LKML'" <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
-Subject: RE: catch 22 - porting net driver from 2.2 to 2.4
-Date: Mon, 13 Nov 2000 00:18:06 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	id <S129135AbQKMIcu>; Mon, 13 Nov 2000 03:32:50 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:48905 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S129061AbQKMIci>;
+	Mon, 13 Nov 2000 03:32:38 -0500
+Date: Mon, 13 Nov 2000 10:32:31 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: david+validemail@kalifornia.com
+Cc: tytso@mit.edu, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4 Status/TODO page (test11-pre3)
+Message-ID: <20001113103231.B28963@mea-ext.zmailer.org>
+In-Reply-To: <200011121939.eACJd9D01319@trampoline.thunk.org> <3A0F5F6D.F8B26CDF@linux.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3A0F5F6D.F8B26CDF@linux.com>; from david@linux.com on Sun, Nov 12, 2000 at 07:26:37PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Where can I find info about that ?
-My first idea was to fire a timer and let the callback routine do the work,
-but I worry about synchronization and about passing the list of items for it
-to handle.
-What is the accepted way of starting a kernel thread and how do I handle
-parameters and sync. ?
+On Sun, Nov 12, 2000 at 07:26:37PM -0800, David Ford wrote:
+> tytso@mit.edu wrote:
+> > Fixed
+> >      * Incredibly slow loopback tcp bug (believed fixed about 2.3.48)
+> 
+> Note; if I set up ESD to listen on a tcp port, connecting locally sounds
+> horrible.  I haven't looked to see who's fault it really is.
 
+	FTP-transfer of large file over loopback gives me about 80 MB/sec
+	speeds at 2.4.0-test8 -- nor is the ESD bad sounding.
 
-	Thanks,
-	Shmulik.
+	However my Alpha has the SB support very bad sounding..
+	It sounds like spectrum reversal, in fact -- first noticed
+	when playing stereophonic MP3 with xmms, but when same file
+	was played to .WAV file at an intel box (where it sounds quite
+	ok), and that wav is play(1)ed at the alpha -- same bad sound.
 
------Original Message-----
-From: Jeff Garzik [mailto:jgarzik@mandrakesoft.com]
-Sent: Thursday, November 09, 2000 7:37 PM
-To: Hen, Shmulik
-Cc: 'LNML'; 'LKML'; netdev@oss.sgi.com
-Subject: Re: catch 22 - porting net driver from 2.2 to 2.4
+> -d
 
-
-do_ioctl is inside rtnl_lock...
-
-Remember if you need to alter the rules, you can always queue work in
-the current context, and have a kernel thread handle the work.  The nice
-thing about a kernel thread is that you start with a [almost] clean
-state, when it comes to locks.
-
-	Jeff
-
-
--- 
-Jeff Garzik             |
-Building 1024           | Would you like a Twinkie?
-MandrakeSoft            |
--
-To unsubscribe from this list: send the line "unsubscribe linux-net" in
-the body of a message to majordomo@vger.kernel.org
-
+/Matti Aarnio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

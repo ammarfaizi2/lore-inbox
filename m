@@ -1,59 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262267AbVCBLc7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbVCBLfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262267AbVCBLc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 06:32:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbVCBLc7
+	id S262272AbVCBLfN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 06:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbVCBLfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 06:32:59 -0500
-Received: from webapps.arcom.com ([194.200.159.168]:781 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S262267AbVCBLc4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 06:32:56 -0500
-Message-ID: <4225A466.7030301@arcom.com>
-Date: Wed, 02 Mar 2005 11:32:54 +0000
-From: David Vrabel <dvrabel@arcom.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
+	Wed, 2 Mar 2005 06:35:13 -0500
+Received: from smtp08.web.de ([217.72.192.226]:10166 "EHLO smtp08.web.de")
+	by vger.kernel.org with ESMTP id S262272AbVCBLer (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 06:34:47 -0500
+From: Bernd Schubert <bernd-schubert@web.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: x86_64: 32bit emulation problems
+Date: Wed, 2 Mar 2005 12:33:56 +0100
+User-Agent: KMail/1.7.2
+Cc: Andi Kleen <ak@muc.de>, Andreas Schwab <schwab@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200502282154.08009.bernd.schubert@pci.uni-heidelberg.de> <20050302081858.GA7672@muc.de> <1109754818.10407.48.camel@lade.trondhjem.org>
+In-Reply-To: <1109754818.10407.48.camel@lade.trondhjem.org>
 MIME-Version: 1.0
-To: linux-fbdev-devel@lists.sourceforge.net
-CC: adaplas@pol.net, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-fbdev-devel] RFC: disallow modular framebuffers
-References: <20050301024118.GF4021@stusta.de>
-In-Reply-To: <20050301024118.GF4021@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Mar 2005 11:38:25.0515 (UTC) FILETIME=[588DA3B0:01C51F1C]
+Content-Disposition: inline
+Message-Id: <200503021233.57341.bernd-schubert@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> 
-> Do modular framebuffers really make sense?
+On Wednesday 02 March 2005 10:13, Trond Myklebust wrote:
+> on den 02.03.2005 Klokka 09:18 (+0100) skreiv Andi Kleen:
+> > On Wed, Mar 02, 2005 at 12:46:23AM +0100, Andreas Schwab wrote:
+> > > Bernd Schubert <bernd-schubert@web.de> writes:
+> > > > Hmm, after compiling with -D_FILE_OFFSET_BITS=64 it works fine. But
+> > > > why does it work without this option on a 32bit kernel, but not on a
+> > > > 64bit kernel?
+> > >
+> > > See nfs_fileid_to_ino_t for why the inode number is different between
+> > > 32bit and 64bit kernels.
+> >
+> > Ok that explains it. Thanks.
 
-Yes.  e.g., on embedded systems you may not use the display hardware
-(and would therefore like to save a bit of memory) but it's convenient
-to have only one build of the kernel/modules.
+Many thanks also from me!
 
-> OK, distributions like to make everything modular, but all the 
-> framebuffer drivers I've looked at parse driver specific options in 
-> their *_setup function only in the non-modular case.
+> >
+> > Best would be probably to just do the shift unconditionally on 64bit
+> > kernels too.
+> >
+> > Trond, what do you think?
+>
+> Why would this be more appropriate than defining __kernel_ino_t on the
+> x86_64 platform to be of the size that you actually want the kernel to
+> support?
+>
+> I can see no good reason for truncating inode number values on platforms
+> that actually do support 64-bit inode numbers, but I can see several
 
-Not the (new) Geode framebuffer driver -- it uses regular module
-parameters for this very reason.
+Well, at least we would have a reason ;)
 
-> And most framebuffer drivers contain a module_exit function.
-> Is there really any case where this is both reasonable and working?
+> reasons why you might want not to (utilities that need to detect hard
+> linked files for instance).
 
-It's useful for testing if nothing else.  True, the Geode framebuffer
-driver won't restore the mode on unload but since the software VGA
-emulation on a Geode is less than perfect[*] I would expect people to
-not use vgacon and thus there's nothing really to restore.
+Anyway, glibc already seems to have a condition for that, so IMHO glibc also 
+could truncate the inode numbers if needed. And finally glibc probably knows 
+best if its compiled as 32bit or 64bit. Will take a look into the glibc 
+sources.
 
-David Vrabel
+Many, many thanks to all for their help!
 
-[*] I never did work out what happened to the cursor...
--- 
-David Vrabel, Design Engineer
-
-Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
-Cambridge CB1 7EA, UK         Web: http://www.arcom.com/
+Best wishes,
+ Bernd

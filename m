@@ -1,66 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262701AbVCWCLL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262702AbVCWCK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262701AbVCWCLL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 21:11:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262703AbVCWCLL
+	id S262702AbVCWCK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 21:10:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262701AbVCWCK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 21:11:11 -0500
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:49575 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262701AbVCWCLE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 21:11:04 -0500
-Message-ID: <4240D022.1020202@yahoo.com.au>
-Date: Wed, 23 Mar 2005 13:10:42 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: Andrew Morton <akpm@osdl.org>, hugh@veritas.com, tony.luck@intel.com,
+	Tue, 22 Mar 2005 21:10:58 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:14037
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262702AbVCWCKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 21:10:52 -0500
+Date: Tue, 22 Mar 2005 18:09:13 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: akpm@osdl.org, nickpiggin@yahoo.com.au, tony.luck@intel.com,
        benh@kernel.crashing.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
-References: <B8E391BBE9FE384DAA4C5C003888BE6F03211851@scsmsx401.amr.corp.intel.com>	<Pine.LNX.4.61.0503230052500.10858@goblin.wat.veritas.com>	<20050322171013.5c52dd18.akpm@osdl.org> <20050322180020.7ce75c30.davem@davemloft.net>
-In-Reply-To: <20050322180020.7ce75c30.davem@davemloft.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <20050322180913.06910ce0.davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.61.0503230040210.10858@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com>
+	<20050322034053.311b10e6.akpm@osdl.org>
+	<Pine.LNX.4.61.0503221617440.8666@goblin.wat.veritas.com>
+	<20050322110144.3a3002d9.davem@davemloft.net>
+	<20050322112125.0330c4ee.davem@davemloft.net>
+	<20050322112329.70bde057.davem@davemloft.net>
+	<Pine.LNX.4.61.0503221931150.9348@goblin.wat.veritas.com>
+	<20050322123301.090cbfa6.davem@davemloft.net>
+	<Pine.LNX.4.61.0503222142280.9761@goblin.wat.veritas.com>
+	<20050322144151.5b08b047.davem@davemloft.net>
+	<Pine.LNX.4.61.0503230040210.10858@goblin.wat.veritas.com>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
+On Wed, 23 Mar 2005 00:51:02 +0000 (GMT)
+Hugh Dickins <hugh@veritas.com> wrote:
 
->On Tue, 22 Mar 2005 17:10:13 -0800
->Andrew Morton <akpm@osdl.org> wrote:
->
->
->>Hugh Dickins <hugh@veritas.com> wrote:
->>
->>>On Tue, 22 Mar 2005, Luck, Tony wrote:
->>> > 
->>> > But I'm still confused by all the math on addr/end at each
->>> > level.
->>>
->>> You think the rest of us are not ;-?
->>>
->>umm, given the difficulty which you guys are having with this, I get a bit
->>worried about clarity, simplicity and maintainability of the end result.
->>
->
->We're working on it, trust me :-)
->
->I have a simplification in mind that should take care of the issue
->that led us to these problems.  We should simply pass in "ceiling"
->as "-1" instead of "0".  Every single test against ceiling is
->really done against "ceiling - 1".
->
->Therefore, passing ceiling in as "top - 1" and then adjusting the
->tests will clean this up substantially and make is much simpler.
->
->
+> This actual example helped to focus my mind a lot, thank you.
 
-The ugly thing you get with an inclusive ceiling is that your masking
-becomes more difficult I think.
+No problem, I needed to work through specific examples
+to see things clearly too.
 
-I might try to attack this from another angle and see if I can come up
-with something.
+> > and things seem to behave.  I'll try to analyze things
+> > further and test this out on a real kernel, but all of
+> > these adjustments at the top of free_pgd_range() really
+> > start to look like pure spaghetti. :-)
+> 
+> Well, it's trying to decide in reasonably few steps that it's not
+> worth wasting time going down to the deeper levels.  Lots of
+> "return"s as it eliminates cases, yes.
 
+Yes, I understand.
 
+But let's recognize (as I mention in another email) that all of
+the tests against ceiling are against "ceiling - 1".  If we pass
+-1 instead of 0 (and "foo - 1" instead of "foo") as the ceiling
+arg, then adjust the tests to be against plain "ceiling", so much
+of the special casing disappears.
+
+There are probably other simplifications.
+
+This is kind of what I was hinting at when I said it looks like
+spaghetti.  :-)

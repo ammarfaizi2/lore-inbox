@@ -1,47 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbUDJTkf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Apr 2004 15:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbUDJTkf
+	id S261717AbUDJTqL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Apr 2004 15:46:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbUDJTqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Apr 2004 15:40:35 -0400
-Received: from [202.28.93.1] ([202.28.93.1]:54290 "EHLO gear.kku.ac.th")
-	by vger.kernel.org with ESMTP id S261682AbUDJTke (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Apr 2004 15:40:34 -0400
-Date: Sun, 11 Apr 2004 02:40:38 +0700
-From: Kitt Tientanopajai <kitt@gear.kku.ac.th>
-To: daniel.ritz@gmx.ch
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5 yenta_socket irq 10: nobody cared!
-Message-Id: <20040411024038.409791d7.kitt@gear.kku.ac.th>
-In-Reply-To: <200404101814.41955.daniel.ritz@gmx.ch>
-References: <200404060227.58325.daniel.ritz@gmx.ch>
-	<200404091941.20444.daniel.ritz@gmx.ch>
-	<20040410101825.59158e43.kitt@gear.kku.ac.th>
-	<200404101814.41955.daniel.ritz@gmx.ch>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 10 Apr 2004 15:46:11 -0400
+Received: from pra68-d198.gd.dial-up.cz ([193.85.68.198]:52866 "EHLO
+	penguin.localdomain") by vger.kernel.org with ESMTP id S261717AbUDJTqE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Apr 2004 15:46:04 -0400
+Date: Sat, 10 Apr 2004 21:46:01 +0200
+To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, tim@cyberelk.net
+Subject: Re: [PATCH 2.6] Class support for ppdev.c
+Message-ID: <20040410194601.GC3612@penguin.localdomain>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	linux-kernel@vger.kernel.org, tim@cyberelk.net
+References: <20040410135115.GA3612@penguin.localdomain> <20040410170148.GI1317@kroah.com> <20040410180636.GB3612@penguin.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040410180636.GB3612@penguin.localdomain>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: sebek64@post.cz (Marcel Sebek)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-
-> so you say with my first patch both USB ports are working then? so clie sync only
-> works on one of the ports but the mouse on both?
-
-I've just tested the usb ports with your first patch again. Now both ports are working, at least for usb mouse, clie sync, and usb storage. So, I think your first patch is okay. Sorry that I did not test them thoroughly at the first time.
-
-> ok, it's the interrupt routing, not the chip config. i think the first patch that
-> adds the tm361 to the dmi_scan problem table is correct then. real good
-> QA from acer: hack the BIOS, boot it with windows and if it works, ship it...
-> it works with windows because it assigned all the devices to the same irq
+On Sat, Apr 10, 2004 at 08:06:36PM +0200, Marcel Sebek wrote:
+> On Sat, Apr 10, 2004 at 10:01:48AM -0700, Greg KH wrote:
+> > On Sat, Apr 10, 2004 at 03:51:15PM +0200, Marcel Sebek wrote:
+> > > This patch adds class support to ppdev.c.
+> > > 
+> > > The module compiles and loads ok.
+> > 
+> > Looks good, but we really shoulnd't be duplicating the devfs
+> > functionality here.  We should only show the devices that the system
+> > really has present, instead of always showing all of the devices.  Care
+> > to fix your patch up to implement this instead?
+> > 
 > 
-> i'll submit it later to andrew morton.
+> Ok. Here is an updated patch.
 
-Please do so. I hope the patch will be included in 2.6.6. Anyway, thanks again for your help.
+And new updated patch. partport_find_number() needs to decrement refcount
+by parport_put_port().
 
-rgds,
-kitt
+
+diff -urN linux-2.6/drivers/char/ppdev.c linux-2.6-new/drivers/char/ppdev.c
+--- linux-2.6/drivers/char/ppdev.c	2004-04-10 21:38:17.000000000 +0200
++++ linux-2.6-new/drivers/char/ppdev.c	2004-04-10 21:40:31.000000000 +0200
+@@ -59,6 +59,7 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/sched.h>
++#include <linux/device.h>
+ #include <linux/devfs_fs_kernel.h>
+ #include <linux/ioctl.h>
+ #include <linux/parport.h>
+@@ -750,31 +751,58 @@
+ 	.release	= pp_release,
+ };
+ 
++static struct class_simple *ppdev_class;
++
+ static int __init ppdev_init (void)
+ {
+-	int i;
++	int i, err = 0;
++	struct parport *port;
+ 
+ 	if (register_chrdev (PP_MAJOR, CHRDEV, &pp_fops)) {
+ 		printk (KERN_WARNING CHRDEV ": unable to get major %d\n",
+ 			PP_MAJOR);
+ 		return -EIO;
+ 	}
++	ppdev_class = class_simple_create(THIS_MODULE, CHRDEV);
++	if (IS_ERR(ppdev_class)) {
++		err = PTR_ERR(ppdev_class);
++		goto out_chrdev;
++	}
+ 	devfs_mk_dir("parports");
+ 	for (i = 0; i < PARPORT_MAX; i++) {
+-		devfs_mk_cdev(MKDEV(PP_MAJOR, i),
++		if ((port = parport_find_number(i))) {
++			class_simple_device_add(ppdev_class, MKDEV(PP_MAJOR, i),
++				NULL, "parport%d", i);
++			parport_put_port(port);
++		}
++		err = devfs_mk_cdev(MKDEV(PP_MAJOR, i),
+ 				S_IFCHR | S_IRUGO | S_IWUGO, "parports/%d", i);
++		if (err)
++			goto out_class;
+ 	}
+ 
+ 	printk (KERN_INFO PP_VERSION "\n");
+-	return 0;
++	goto out;
++
++out_class:
++	for (i = 0; i < PARPORT_MAX; i++)
++		class_simple_device_remove(MKDEV(PP_MAJOR, i));
++	class_simple_destroy(ppdev_class);
++out_chrdev:
++	unregister_chrdev(PP_MAJOR, CHRDEV);
++out:
++	return err;
+ }
+ 
+ static void __exit ppdev_cleanup (void)
+ {
+ 	int i;
+ 	/* Clean up all parport stuff */
+-	for (i = 0; i < PARPORT_MAX; i++)
++	for (i = 0; i < PARPORT_MAX; i++) {
++		class_simple_device_remove(MKDEV(PP_MAJOR, i));
+ 		devfs_remove("parports/%d", i);
++	}
++	class_simple_destroy(ppdev_class);
+ 	devfs_remove("parports");
+ 	unregister_chrdev (PP_MAJOR, CHRDEV);
+ }
+
+-- 
+Marcel Sebek
+jabber: sebek@jabber.cz                     ICQ: 279852819
+linux user number: 307850                 GPG ID: 5F88735E
+GPG FP: 0F01 BAB8 3148 94DB B95D  1FCA 8B63 CA06 5F88 735E
+

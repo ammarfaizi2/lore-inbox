@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319106AbSHFMr3>; Tue, 6 Aug 2002 08:47:29 -0400
+	id <S319113AbSHFMtk>; Tue, 6 Aug 2002 08:49:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319108AbSHFMr3>; Tue, 6 Aug 2002 08:47:29 -0400
-Received: from jdike.solana.com ([198.99.130.100]:14208 "EHLO karaya.com")
-	by vger.kernel.org with ESMTP id <S319106AbSHFMr2>;
-	Tue, 6 Aug 2002 08:47:28 -0400
-Message-Id: <200208061253.g76CrOT05986@karaya.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode 
-In-Reply-To: Your message of "Tue, 06 Aug 2002 13:13:56 +0200."
-             <20020806131356.61ece6ca.us15@os.inf.tu-dresden.de> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 06 Aug 2002 08:53:24 -0400
-From: Jeff Dike <jdike@karaya.com>
+	id <S319110AbSHFMs3>; Tue, 6 Aug 2002 08:48:29 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:17672 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S319112AbSHFMr6>; Tue, 6 Aug 2002 08:47:58 -0400
+Message-ID: <3D4C23E6.8020503@evision.ag>
+Date: Sat, 03 Aug 2002 20:41:42 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Jens Axboe <axboe@suse.de>, martin@dalecki.de, Stephen Lord <lord@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: A new ide warning message
+References: <Pine.SOL.4.30.0208021513490.3612-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-us15@os.inf.tu-dresden.de said:
-> It will let the incoming process take over ownership of the socket,
-> which is probably what you mean and what you currently use. 
+Uz.ytkownik Bartlomiej Zolnierkiewicz napisa?:
 
-Yup.
+> Look again Jens. Adam's changes made IDE queue handling inconsistent.
+> hint: 2 * 127 != 255
+> 
+> But noticed warning deals with design of ll_rw_blk.c. ;-)
+> (right now max_segment_size have to be max bv->bv_len aligned)
+> 
+> Jens, please look at segment checking/counting code, it does it on
+> bv->bv_len (4kb most likely) not sector granuality...
+> 
+> So for not 4kb aligned max_segment_size we will get new segment...
+> 
+> Best fix will be to make block layer count sectors not bv->bv_len...
+> 
+> 
+> btw. I like Adam's patch but it was draft not to include in mainline (?).
 
-> On iret it would have to change ownership of the socket to another
-> task, i.e. process with kernel_pid wants to set task_pid as the owner
-> of the socket. The above code fragment doesn't permit this, as far as
-> I can see.
+One never ever get's anything then drafts from Adam ;-) And since
+I can't reproducde the breakage myself on any system I test
+and since the patch looked really smooth...
+Ej ej...
 
-Why not?  There is nothing there that prevents that.
-
-				Jeff
 

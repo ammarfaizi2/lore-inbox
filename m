@@ -1,66 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269285AbUIYIWO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269286AbUIYIv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269285AbUIYIWO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 04:22:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269284AbUIYIWO
+	id S269286AbUIYIv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 04:51:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269287AbUIYIv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 04:22:14 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:27787 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269283AbUIYIWI (ORCPT
+	Sat, 25 Sep 2004 04:51:57 -0400
+Received: from colin2.muc.de ([193.149.48.15]:61702 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S269286AbUIYIv4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 04:22:08 -0400
-Subject: Re: [RFC] put symbolic links between drivers and modules in the
-	sysfs tree
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, James.Bottomley@steeleye.com,
-       greg@kroah.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <E1CB7YE-0004cA-00@gondolin.me.apana.org.au>
-References: <E1CB7YE-0004cA-00@gondolin.me.apana.org.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-iBxiXwrs1lVnFT8XtWjP"
-Organization: Red Hat UK
-Message-Id: <1096100492.17155.3.camel@laptop.fenrus.com>
+	Sat, 25 Sep 2004 04:51:56 -0400
+Date: 25 Sep 2004 10:51:55 +0200
+Date: Sat, 25 Sep 2004 10:51:55 +0200
+From: Andi Kleen <ak@muc.de>
+To: Suresh Siddha <suresh.b.siddha@intel.com>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: [Patch] no exec: i386 and x86_64 fixes
+Message-ID: <20040925085155.GA97641@muc.de>
+References: <20040924154644.B25742@unix-os.sc.intel.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 25 Sep 2004 10:21:33 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040924154644.B25742@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 24, 2004 at 03:46:44PM -0700, Suresh Siddha wrote:
+> Appended patch fixes
+> 
+> a) a bug in i386 which has to do with a typo
+> (change elf_read_implies_exec_binary to elf_read_implies_exec)
+> 
+> b) sync x86_64 noexec behaviour with i386. And remove all the confusing
+> noexec related boot parameters.
 
---=-iBxiXwrs1lVnFT8XtWjP
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Sat, 2004-09-25 at 10:05, Herbert Xu wrote:
-
-> BTW, I'm very glad that this is being worked on and that table in Debian'=
-s
-> mkinitrd can finally die.
-
-btw does that mkinitrd already use=20
-readlink /sys/block/sda/device/block/device
-
-(which gives
-../../devices/pci0000:00/0000:00:06.0/0000:03:0b.0/host1/1:0:0:0
-as output)
-
-the pci path that gives can easily be matched to modules.pcimap to find
-the information in case of a PCI device, so at least the table in your
-mkinitrd doesn't need to contain PCI devices.....
-
---=-iBxiXwrs1lVnFT8XtWjP
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBVSqMxULwo51rQBIRAm1qAJ9ohY+2Vr7pGxNLH8AEwX6WZqJK3QCeLTgk
-UiAR1b61gZQBgVlpHVWbdU4=
-=89pR
------END PGP SIGNATURE-----
-
---=-iBxiXwrs1lVnFT8XtWjP--
-
+Thanks, x86-64 part looks good.
+-Andi

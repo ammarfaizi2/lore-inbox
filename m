@@ -1,101 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVA1RZc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVA1RY7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbVA1RZc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 12:25:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbVA1RZc
+	id S261171AbVA1RY7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 12:24:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbVA1RY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 12:25:32 -0500
-Received: from gprs213-105.eurotel.cz ([160.218.213.105]:3714 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261192AbVA1RZN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 12:25:13 -0500
-Date: Fri, 28 Jan 2005 18:24:51 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>, hugang@soulinfo.com,
-       Nigel Cunningham <ncunningham@linuxmail.org>
-Subject: Re: [RFC][PATCH] swsusp: do not use higher order memory allocations on suspend
-Message-ID: <20050128172451.GD7551@elf.ucw.cz>
-References: <200501281454.23167.rjw@sisk.pl>
+	Fri, 28 Jan 2005 12:24:59 -0500
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:1728 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S261171AbVA1RYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 12:24:54 -0500
+Date: Fri, 28 Jan 2005 18:24:48 +0100
+From: Kronos <kronos@kronoz.cjb.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.4][RESEND] Fix MSF overflow in ide-cd with multisession DVDs
+Message-ID: <20050128172448.GA4243@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200501281454.23167.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Marcelo,
+this a backport of my patch that went into 2.6.10.
 
-> The following patch is (yet) an(other) attempt to eliminate the need for using higher
-> order memory allocations on suspend.  It accomplishes this by replacing the array
-> of page backup entries with a list, so it is only necessary to allocate individual
-> memory pages.
-> 
-> I have noticed that the suspend code in swsusp is actually independent of the
-> resume code and vice versa, so it is not necessary to change them
-> both at once.
+---
+cdrom_read_toc (ide-cd.c) always reads the TOC using MSF format. If the
+last session of the disk starts beyond block 1152000 (LBA) there's an
+overflow in the MSF format and kernel complains:
 
-:-) Heh, nice idea, but it is going to be really confusing to anyone
-reading the code in between.
+Unable to identify CD-ROM format.
 
-> Therefore I have decided, for now, to only modify the suspend part which is more
-> straightforward.  The resume code is almost unaffected by this patch (the only
-> thing changed in this code is a BUG_ON() that is removed).
-> 
-> The patch is against 2.6.11-rc2.  It has been tested and quite thoroughly debugged
-> on x86-64.  Still, if anyone could test it on another architecture, I'd be grateful.
-> Of course comments, suggestions etc. are welcome.
+So read the multi-session TOC in LBA format in order to avoid an
+overflow in MSF format with multisession DVDs.
 
-I'll do some testing later.
+Signed-off-by: Luca Tettamanti <kronos@kronoz.cjb.net>
 
-> diff -Nru linux-2.6.11-rc2-orig/include/linux/suspend.h linux-2.6.11-rc2/include/linux/suspend.h
-> --- linux-2.6.11-rc2-orig/include/linux/suspend.h	2005-01-28 14:23:42.000000000 +0100
-> +++ linux-2.6.11-rc2/include/linux/suspend.h	2005-01-28 13:53:36.000000000 +0100
-> @@ -16,11 +16,20 @@
->  	unsigned long address;		/* address of the copy */
->  	unsigned long orig_address;	/* original address of page */
->  	swp_entry_t swap_address;	
-> -	swp_entry_t dummy;		/* we need scratch space at 
-> -					 * end of page (see link, diskpage)
-> -					 */
-> +
-> +	struct pbe *next;
+--- a/drivers/ide/ide-cd.c	2005-01-08 21:53:03.000000000 +0100
++++ b/drivers/ide/ide-cd.c	2005-01-08 21:53:08.000000000 +0100
+@@ -2206,25 +2206,31 @@
+ 	/* Read the multisession information. */
+ 	if (toc->hdr.first_track != CDROM_LEADOUT) {
+ 		/* Read the multisession information. */
+-		stat = cdrom_read_tocentry(drive, 0, 1, 1, (char *)&ms_tmp,
++		stat = cdrom_read_tocentry(drive, 0, 0, 1, (char *)&ms_tmp,
+ 					   sizeof(ms_tmp), sense);
+ 		if (stat) return stat;
++	
++		toc->last_session_lba = be32_to_cpu(ms_tmp.ent.addr.lba);
+ 	} else {
+-		ms_tmp.ent.addr.msf.minute = 0;
+-		ms_tmp.ent.addr.msf.second = 2;
+-		ms_tmp.ent.addr.msf.frame  = 0;
+ 		ms_tmp.hdr.first_track = ms_tmp.hdr.last_track = CDROM_LEADOUT;
++		toc->last_session_lba = msf_to_lba(0, 2, 0); /* 0m 2s 0f */
+ 	}
+ 
+ #if ! STANDARD_ATAPI
+-	if (CDROM_CONFIG_FLAGS(drive)->tocaddr_as_bcd)
++	if (CDROM_CONFIG_FLAGS(drive)->tocaddr_as_bcd) {
++		/* Re-read multisession information using MSF format */
++		stat = cdrom_read_tocentry(drive, 0, 1, 1, (char *)&ms_tmp,
++					   sizeof(ms_tmp), sense);
++		if (stat)
++			return stat;
++
+ 		msf_from_bcd (&ms_tmp.ent.addr.msf);
++		toc->last_session_lba = msf_to_lba(ms_tmp.ent.addr.msf.minute,
++					  	   ms_tmp.ent.addr.msf.second,
++						   ms_tmp.ent.addr.msf.frame);
++	}
+ #endif  /* not STANDARD_ATAPI */
+ 
+-	toc->last_session_lba = msf_to_lba (ms_tmp.ent.addr.msf.minute,
+-					    ms_tmp.ent.addr.msf.second,
+-					    ms_tmp.ent.addr.msf.frame);
+-
+ 	toc->xa_flag = (ms_tmp.hdr.first_track != ms_tmp.hdr.last_track);
+ 
+ 	/* Now try to get the total cdrom capacity. */
 
-It is still used as a scratch space at end of page, please leave the
-comment.
 
->  	printk( "Writing data to swap (%d pages)...     ", nr_copy_pages );
-> -	for (i = 0; i < nr_copy_pages && !error; i++) {
-> +	for_each_pbe(p, pagedir_nosave) {
->  		if (!(i%mod))
->  			printk( "\b\b\b\b%3d%%", i / mod );
-> -		error = write_page((pagedir_nosave+i)->address,
-> -					  &((pagedir_nosave+i)->swap_address));
-> +		error = write_page(p->address, &(p->swap_address));
-> +		if (error)
-> +			goto Exit;
 
-Can you do return error instead? Goto is ugly. Or just break. Same in
-next chunks.
-
->  
-> -
-> -static void calc_order(void)
-> +static int calc_nr(int nr_copy)
->  {
-> -	int diff = 0;
-> -	int order = 0;
-> +	int extra = 0;
-> +	int mod = (nr_copy % PBES_PER_PAGE) ? 1 : 0;
-
-!!( ) is usually used for this.
-
-> +	int diff = (nr_copy / PBES_PER_PAGE) + mod;
-
-								Pavel
-
+Luca
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Home: http://kronoz.cjb.net
+Collect some stars to shine for you
+And start today 'cause there's only a few
+A sign of times my friend

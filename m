@@ -1,99 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267908AbUGWTH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267909AbUGWTKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267908AbUGWTH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 15:07:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267909AbUGWTH3
+	id S267909AbUGWTKj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 15:10:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267910AbUGWTKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 15:07:29 -0400
-Received: from [192.48.179.6] ([192.48.179.6]:30120 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S267908AbUGWTHV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 15:07:21 -0400
-Date: Fri, 23 Jul 2004 14:05:55 -0500
-From: Dimitri Sivanich <sivanich@sgi.com>
-To: Manfred Spraul <manfred@colorfullife.com>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       lse-tech@lists.sourceforge.net
-Subject: [PATCH] Locking optimization for cache_reap
-Message-ID: <20040723190555.GB16956@sgi.com>
+	Fri, 23 Jul 2004 15:10:39 -0400
+Received: from main.gmane.org ([80.91.224.249]:48032 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S267909AbUGWTKT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 15:10:19 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Domen Puncer <domen@coderock.org>
+Subject: Re: [patch-kj] use list_for_each() in fs/jffs/intrep.c
+Date: Fri, 23 Jul 2004 21:02:00 +0200
+Message-ID: <pan.2004.07.23.19.02.00.666530@coderock.org>
+References: <20040723155528.GQ1795@stro.at> <20040723161724.GA31884@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: coderock.org
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+Cc: jffs-dev@axis.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is another cache_reap optimization that reduces latency when
-applied after the 'Move cache_reap out of timer context' patch I
-submitted on 7/14 (for inclusion in -mm next week).
+Hi.
 
-This applies to 2.6.8-rc2 + the above mentioned patch.
+On Fri, 23 Jul 2004 17:17:24 +0100, Christoph Hellwig wrote:
 
-Signed-off-by: Dimitri Sivanich <sivanich@sgi.com>
+> On Fri, Jul 23, 2004 at 05:55:28PM +0200, maximilian attems wrote:
+>> 
+>> Use list_for_each() where applicable
+>> - for (list = ymf_devs.next; list != &ymf_devs; list = list->next) {
+>> + list_for_each(list, &ymf_devs) {
+>> pure cosmetic change, defined as a preprocessor macro in:
+>> include/linux/list.h
+>> 
+>> applies cleanly to 2.6.8-rc2
+>> 
+>> From: Domen Puncer <domen@coderock.org>
+>> Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+> 
+> Please switch to list_for_each_entry while you're at it.
+
+Jup, list_for_each_entry is nicer.
+(first time posting trough gmane, hope it works)
+
+Compile tested
 
 
-Index: linux/mm/slab.c
-===================================================================
---- linux.orig/mm/slab.c
-+++ linux/mm/slab.c
-@@ -2619,27 +2619,6 @@ static void enable_cpucache (kmem_cache_
- 					cachep->name, -err);
- }
- 
--static void drain_array(kmem_cache_t *cachep, struct array_cache *ac)
--{
--	int tofree;
--
--	check_irq_off();
--	if (ac->touched) {
--		ac->touched = 0;
--	} else if (ac->avail) {
--		tofree = (ac->limit+4)/5;
--		if (tofree > ac->avail) {
--			tofree = (ac->avail+1)/2;
--		}
--		spin_lock(&cachep->spinlock);
--		free_block(cachep, ac_entry(ac), tofree);
--		spin_unlock(&cachep->spinlock);
--		ac->avail -= tofree;
--		memmove(&ac_entry(ac)[0], &ac_entry(ac)[tofree],
--					sizeof(void*)*ac->avail);
--	}
--}
--
- static void drain_array_locked(kmem_cache_t *cachep,
- 				struct array_cache *ac, int force)
+Signed-off-by: Domen Puncer <domen@coderock.org>
+
+--- c/fs/jffs/intrep.c	Wed Jul 14 19:15:11 2004
++++ a/fs/jffs/intrep.c	Fri Jul 23 20:08:55 2004
+@@ -1619,12 +1619,10 @@
  {
-@@ -2697,16 +2676,14 @@ static void cache_reap (void *unused)
- 			goto next;
+ 	struct jffs_file *f;
+ 	int i = ino % c->hash_len;
+-	struct list_head *tmp;
  
- 		check_irq_on();
--		local_irq_disable();
--		drain_array(searchp, ac_data(searchp));
+ 	D3(printk("jffs_find_file(): ino: %u\n", ino));
  
--		if(time_after(searchp->lists.next_reap, jiffies))
--			goto next_irqon;
-+		spin_lock_irq(&searchp->spinlock);
+-	for (tmp = c->hash[i].next; tmp != &c->hash[i]; tmp = tmp->next) {
+-		f = list_entry(tmp, struct jffs_file, hash);
++	list_for_each_entry(f, c->hash[i].next, hash) {
+ 		if (ino != f->ino)
+ 			continue;
+ 		D3(printk("jffs_find_file(): Found file with ino "
+@@ -2020,13 +2018,12 @@
+ 	int result = 0;
+ 
+ 	for (pos = 0; pos < c->hash_len; pos++) {
+-		struct list_head *p, *next;
+-		for (p = c->hash[pos].next; p != &c->hash[pos]; p = next) {
+-			/* We need a reference to the next file in the
+-			   list because `func' might remove the current
+-			   file `f'.  */
+-			next = p->next;
+-			r = func(list_entry(p, struct jffs_file, hash));
++		struct jffs_file *f, *next;
 +
-+		drain_array_locked(searchp, ac_data(searchp), 0);
++		/* We must do _safe, because 'func' might remove the
++		   current file 'f' from the list.  */
++		list_for_each_entry_safe(f, next, &c->hash[pos], hash) {
++			r = func(f);
+ 			if (r < 0)
+ 				return r;
+ 			result += r;
+@@ -2589,9 +2586,8 @@
  
--		spin_lock(&searchp->spinlock);
--		if(time_after(searchp->lists.next_reap, jiffies)) {
-+		if(time_after(searchp->lists.next_reap, jiffies))
- 			goto next_unlock;
--		}
-+
- 		searchp->lists.next_reap = jiffies + REAPTIMEOUT_LIST3;
- 
- 		if (searchp->lists.shared)
-@@ -2739,9 +2716,7 @@ static void cache_reap (void *unused)
- 			spin_lock_irq(&searchp->spinlock);
- 		} while(--tofree > 0);
- next_unlock:
--		spin_unlock(&searchp->spinlock);
--next_irqon:
--		local_irq_enable();
-+		spin_unlock_irq(&searchp->spinlock);
- next:
- 		;
- 	}
+ 	printk("JFFS: Dumping the file system's hash table...\n");
+ 	for (i = 0; i < c->hash_len; i++) {
+-		struct list_head *p;
+-		for (p = c->hash[i].next; p != &c->hash[i]; p = p->next) {
+-			struct jffs_file *f=list_entry(p,struct jffs_file,hash);
++		struct jffs_file *f;
++		list_for_each_entry(f, &c->hash[i], hash) {
+ 			printk("*** c->hash[%u]: \"%s\" "
+ 			       "(ino: %u, pino: %u)\n",
+ 			       i, (f->name ? f->name : ""),
+
+

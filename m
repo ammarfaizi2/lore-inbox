@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313293AbSEAQpB>; Wed, 1 May 2002 12:45:01 -0400
+	id <S313568AbSEARBa>; Wed, 1 May 2002 13:01:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313314AbSEAQpA>; Wed, 1 May 2002 12:45:00 -0400
-Received: from vir2.relay.fluke.com ([129.196.184.26]:34064 "EHLO
-	vir2.relay.fluke.com") by vger.kernel.org with ESMTP
-	id <S313293AbSEAQpA>; Wed, 1 May 2002 12:45:00 -0400
-Date: Wed, 1 May 2002 09:45:01 -0700 (PDT)
-From: David Dyck <dcd@tc.fluke.com>
-To: Stuart MacDonald <stuartm@connecttech.com>
-cc: Alan Modra <alan@linuxcare.com>, Kiyokazu SUTO <suto@ks-and-ks.ne.jp>,
-        Andrew Morton <andrewm@uow.edu.au>,
-        Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        Kanoj Sarcar <kanoj@sgi.com>,
-        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
-        Robert Schwebel <robert@schwebel.de>,
-        Juergen Beisert <jbeisert@eurodsn.de>, "Theodore Ts'o" <tytso@mit.edu>,
-        Sapan Bhatia <sapan@corewars.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: changes between 2.2.20 and 2.4.x 'broke' select() from detecting
- input characters in my serial /dev/ttyS0 program
-In-Reply-To: <00f501c1f121$6b7614c0$294b82ce@connecttech.com>
-Message-ID: <Pine.LNX.4.33.0205010940370.3792-100000@dd.tc.fluke.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 01 May 2002 16:49:21.0561 (UTC) FILETIME=[24775890:01C1F130]
+	id <S313571AbSEARB3>; Wed, 1 May 2002 13:01:29 -0400
+Received: from borg.org ([208.218.135.231]:29484 "HELO borg.org")
+	by vger.kernel.org with SMTP id <S313568AbSEARB3>;
+	Wed, 1 May 2002 13:01:29 -0400
+Date: Wed, 1 May 2002 13:01:27 -0400
+From: Kent Borg <kentborg@borg.org>
+To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+        Arjan van de Ven <arjanv@redhat.com>,
+        Jaime Medrano <overflow@eurielec.etsit.upm.es>,
+        linux-kernel@vger.kernel.org
+Subject: Re: raid1 performance
+Message-ID: <20020501130127.A10936@borg.org>
+In-Reply-To: <Pine.LNX.4.33.0204301411210.4658-100000@cuatro.eurielec.etsit.upm.es> <3CCE9038.F4C830B4@redhat.com> <20020430102148.D4470@borg.org> <20020501183553.D31556@unthought.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 May 2002 at 11:03 -0400, Stuart MacDonald <stuartm@connecttech.co...:
+On Wed, May 01, 2002 at 06:35:53PM +0200, Jakob Østergaard wrote:
+> This is *not* as simple as it sounds.  Believe me, I spent a week trying...
+> 
+> However, with ext2 (and other filesystems as well), a large sequential file
+> read is *not* sequential on the disk.  You should actually see better performance
+> on RAID-1 than on a single disk for very large reads, becuase some of the lookups
+> needed (block indirection or whatever) will be run by the "best" disk in the given
+> situation.
 
-> CREAD handling was changed to be correct; recently, but I don't know
-> exactly when. The 2.4 vs 2.2 difference sounds about right though.
-> Previously CREAD had been incorrectly handled by the driver and hadn't
-> been changed because some apps would break. Now data is correctly
-> ignored on receive when CREAD is off.
->
-> When you talk about the "O_WRONLY channel" and the "O_RDONLY channel"
-> you're not actually referring to separate things. Each serial port is
-> represented in the kernel as one entity that may be opened different
-> ways, possibly multiple times.
->
-> When you turn off CREAD in your write side, you turn off CREAD for the
-> whole port, including the read only side. This is not a bug in the
-> driver.
+Lemme see if I am getting closer.  
 
-Thanks for your response.  (thanks also the the other
-folks that responded). It makes sense to me that 2 open calls
-to the same "/dev/ttyS0" should map to the same driver and kernel
-structure, so there is only one place that CREAD effects.
+When reading the disk there will be head seeks necessary.  When there
+are two disks, each with its own complete copy of all the data, there
+is no reason to keep the two disks' heads in the same place.  If their
+heads are in different places, a read can be issued to the disk whose
+heads are closer to the desired location.
 
-To bad that the 2.2 code was in error, but I can work around with that.
+This then brings up two more questions:
 
- David
+  1. Does the OS even know where the heads are in a modern IDE disk?
 
+  2. Is "closer" any more finely grained than a binary
+     positioned/not-positioned?
+
+And I guess another question: How much does RAID 1 help and under what
+kinds of usage?
+
+
+Thanks,
+
+-kb, the Kent who is getting smarter.

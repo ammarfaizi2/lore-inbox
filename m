@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129703AbQL1ORy>; Thu, 28 Dec 2000 09:17:54 -0500
+	id <S130072AbQL1OTY>; Thu, 28 Dec 2000 09:19:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129881AbQL1ORn>; Thu, 28 Dec 2000 09:17:43 -0500
-Received: from host0.the-party.cybercity.dk ([62.66.128.2]:13322 "HELO
-	fw.theparty.dk") by vger.kernel.org with SMTP id <S129703AbQL1ORe>;
-	Thu, 28 Dec 2000 09:17:34 -0500
-Date: Thu, 28 Dec 2000 14:47:59 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: plug problem in linux-2.4.0-test11
-Message-ID: <20001228144759.C386@suse.de>
-In-Reply-To: <C12569A6.00425037.00@d12mta07.de.ibm.com> <20001227210426.B10446@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001227210426.B10446@athlon.random>; from andrea@suse.de on Wed, Dec 27, 2000 at 09:04:26PM +0100
+	id <S130063AbQL1OTE>; Thu, 28 Dec 2000 09:19:04 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:64272 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130061AbQL1OS4>; Thu, 28 Dec 2000 09:18:56 -0500
+Date: Thu, 28 Dec 2000 09:56:06 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: chris@freedom2surf.net
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Repeatable Oops in 2.4t13p4ac2
+In-Reply-To: <978009656.3a4b3e38c7455@www.freedom2surf.net>
+Message-ID: <Pine.LNX.4.21.0012280955310.11471-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 27 2000, Andrea Arcangeli wrote:
-> I think right behaviour of the blkdev layer is to BUG() if the driver eats
-> requests while the device is plugged.
 
-The device is supposed to know what it's doing. Sure it defeats the
-elevators work a bit, but again the driver should know best. Besides, it
-doesn't seem worthwhile to go to any lengths detecting this.
+On Thu, 28 Dec 2000 chris@freedom2surf.net wrote:
 
-But in general I agree, device request_fn should never touch a plugged
-queue.
+> Hi - we are seeing the following repeatable Oops in 2.4t13p4ac2 compiled using 
+> gcc 2.95.2 for PIII running on IDE disks. Occurs whilst copying lots of files 
+> to/from remote filesystems.
+> 
+> Thank you
+> 
+> Chris
+> 
+> Unable to handle kernel paging request at virtual address 00040000
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+Just to confirm: it always oopses on virtual address 00040000 ? 
+
+Thanks
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

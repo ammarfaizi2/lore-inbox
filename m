@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263626AbUGABsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263784AbUGADf0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263626AbUGABsc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 21:48:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263665AbUGABsc
+	id S263784AbUGADf0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 23:35:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263802AbUGADf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 21:48:32 -0400
-Received: from mail.shareable.org ([81.29.64.88]:36781 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S263626AbUGABsa
+	Wed, 30 Jun 2004 23:35:26 -0400
+Received: from vivaldi.madbase.net ([81.173.6.10]:59854 "HELO
+	vivaldi.madbase.net") by vger.kernel.org with SMTP id S263784AbUGADfU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 21:48:30 -0400
-Date: Thu, 1 Jul 2004 02:48:18 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-Subject: Re: Do x86 NX and AMD prefetch check cause page fault infinite loop?
-Message-ID: <20040701014818.GE32560@mail.shareable.org>
-References: <20040630013824.GA24665@mail.shareable.org> <20040630055041.GA16320@elte.hu> <20040630143850.GF29285@mail.shareable.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040630143850.GF29285@mail.shareable.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 30 Jun 2004 23:35:20 -0400
+Message-ID: <52921.67.8.218.172.1088652919.squirrel@webmail.krabbendam.net>
+In-Reply-To: <1088652347.6630.26.camel@timescape.home.snewbury.org.uk>
+References: <1088647102.6630.15.camel@timescape.home.snewbury.org.uk>
+    <Pine.LNX.4.58.0406302211490.21486@vivaldi.madbase.net>
+    <1088649927.6630.21.camel@timescape.home.snewbury.org.uk>
+    <1088652347.6630.26.camel@timescape.home.snewbury.org.uk>
+Date: Wed, 30 Jun 2004 23:35:19 -0400 (EDT)
+Subject: Re: Trouble with the filesize limit
+From: "Eric Lammerts" <eric@lammerts.org>
+To: "Steven Newbury" <steven.newbury1@ntlworld.com>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo, I think I now know what must be added to your 32-bit NX patch to
-prevent the "infinite loop without a signal" problem.
 
-It appears the correct way to prevent that one possibility I thought
-of, with no side effects, is to add this test in
-i386/mm/fault.c:is_prefetch():
+> On Thu, 2004-07-01 at 03:45, Steven Newbury wrote:
+>> Okay I've recompiled wget with -D_FILE_OFFSET_BITS=64.  Now I've got:
+>> get: progress.c:706: create_image: Assertion `insz <= dlsz' failed.
+>> when I try to continue the download...
+> This, I guess, is a bug in wget.  Are the various types like size_t set
+> correctly for FILE_OFFSET_BITS=64, or should special care be taken
+> within each app to ensure types of sufficient size are used?
 
-        /* Catch an obscure case of prefetch inside an NX page. */
-        if (error_code & 16)
-                return 0;
+I'm seeing the use of 'long' throughout the wget source... I guess you're
+out of luck regarding wget... And it looks like it won't be fixed anytime
+soon:
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=181634
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=240281
 
-That means that it doesn't count as a prefetch fault if it's an
-_instruction_ fault.  I.e. an instruction fault will always raise a
-signal.  Bit 4 of error_code was kindly added alongside the NX feature
-by AMD.
+Eric
 
-(Tweak: Because early Intel 64-bit chips don't have NX, perhaps it
-should say "if ((error_code & 16) && boot_cpu_has(X86_FEATURE_NX))"
-instead -- if we find the bit isn't architecturally set to 0 for those
-chips).
-
-This test isn't needed in the plain, non-NX i386 kernel, because the
-condition can never occur.  (Actually it can once, a really obscure
-condition due to separate ITLB and DTLB loading and page table races
-with other CPUs, but it's transient so won't loop infinitely).
-
-Enjoy,
--- Jamie

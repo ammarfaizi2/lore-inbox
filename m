@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129915AbRCDApn>; Sat, 3 Mar 2001 19:45:43 -0500
+	id <S129932AbRCDBH1>; Sat, 3 Mar 2001 20:07:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129932AbRCDApc>; Sat, 3 Mar 2001 19:45:32 -0500
-Received: from runyon.cygnus.com ([205.180.230.5]:26620 "EHLO cygnus.com")
-	by vger.kernel.org with ESMTP id <S129915AbRCDAp2>;
-	Sat, 3 Mar 2001 19:45:28 -0500
-To: buhr@stat.wisc.edu (Kevin Buhr)
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: changing precision control setting in initial FPU context
-In-Reply-To: <E14ZLat-0004Js-00@the-village.bc.nu>
-	<vban1b2ped5.fsf@mozart.stat.wisc.edu>
-Reply-To: drepper@cygnus.com (Ulrich Drepper)
-X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
-X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
-From: Ulrich Drepper <drepper@redhat.com>
-Date: 03 Mar 2001 16:45:44 -0800
-In-Reply-To: buhr@stat.wisc.edu's message of "03 Mar 2001 18:27:50 -0600"
-Message-ID: <m3d7byjr9j.fsf@otr.mynet.cygnus.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Capitol Reef)
+	id <S129948AbRCDBHS>; Sat, 3 Mar 2001 20:07:18 -0500
+Received: from cvsftp.cotw.com ([208.242.241.39]:24840 "EHLO cvsftp.cotw.com")
+	by vger.kernel.org with ESMTP id <S129932AbRCDBG7>;
+	Sat, 3 Mar 2001 20:06:59 -0500
+Message-ID: <3AA19820.6A33E871@cotw.com>
+Date: Sat, 03 Mar 2001 19:19:28 -0600
+From: "Steven J. Hill" <sjhill@cotw.com>
+Reply-To: sjhill@cotw.com
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.4.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: LILO error with 2.4.3-pre1...
+In-Reply-To: <3A9842DC.B42ECD7A@mandrakesoft.com> <oupsnl3k5gs.fsf@pigdrop.muc.suse.de> <3A984BDA.190B4D8E@mandrakesoft.com> <20010225011211.A23853@gruyere.muc.suse.de> <20000101001915.A40@(none)>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-buhr@stat.wisc.edu (Kevin Buhr) writes:
+Hmm, needed 2.4.3-pre1 and went to install with LILO using
+'lilo -v' and got this:
 
-> > You want peoples existing applications to suddenely and magically change
-> > their results. Umm problem.
-> 
-> So, how would you feel about a mechanism whereby the kernel could be
-> passed a default FPU control word by the binary (with old binaries, by
-> default,
+   LILO version 21.4-4, Copyright (C) 1992-1998 Werner Almesberger
+   'lba32' extensions Copyright (C) 1999,2000 John Coffman
 
-There will be no change whatsoever with me.  The existing ABI is
-fixed.  If you want your programs to behave different set the mode
-appropriately.  I have not the slightest interest in seeing
-applications (including the libc) being broken just because of this
-stupid idea.  No kernel and no libc modifications necessary.  This is
-the end of the story as far as I'm concerned.
+   Reading boot sector from /dev/hda
+   Merging with /boot/boot.b
+   Boot image: /boot/vmlinuz-2.4.2
+   Added linux *
+   Boot image: /boot/vmlinuz-2.4.3-pre1
+   Fatal: geo_comp_addr: Cylinder number is too big (1274 > 1023)
+
+Neato. I don't have time to dig through LILO source code right
+now, so here are my system specs:
+
+	Linux Distribution: RedHat 6.2 with all latest updates
+        Hard Disk: Maxtor 52049H3 (20GB) IDE
+        CPU: Dual PII-266MHz
+        RAM: 256MB PC100
+        Result of 'fdisk /dev/hda -l':
+
+           Disk /dev/hda: 255 heads, 63 sectors, 2491 cylinders
+           Units = cylinders of 16065 * 512 bytes
+
+             Device Boot    Start       End    Blocks   Id  System
+          /dev/hda1   *         1      1513  12153141   83  Linux
+          /dev/hda2          1514      1530    136552+  82  Linux swap
+          /dev/hda3          1531      2491   7719232+  83  Linux
+
+I have no idea why the 1023 limit is coming up considering 2.4.2 and
+LILO were working just fine together and I have a newer BIOS that has
+not problems detecting the driver properly. Go ahead, call me idiot :).
+
+-Steve
 
 -- 
----------------.                          ,-.   1325 Chesapeake Terrace
-Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
-Red Hat          `--' drepper at redhat.com   `------------------------
+ Steven J. Hill - Embedded SW Engineer
+ Public Key: 'http://www.cotw.com/pubkey.txt'
+ FPR1: E124 6E1C AF8E 7802 A815
+ FPR2: 7D72 829C 3386 4C4A E17D

@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262483AbVAKMoj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262531AbVAKNAy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262483AbVAKMoj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 07:44:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbVAKMoi
+	id S262531AbVAKNAy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 08:00:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbVAKNAy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 07:44:38 -0500
-Received: from host234-143.pool8250.interbusiness.it ([82.50.143.234]:39297
-	"EHLO zeus.abinetworks.biz") by vger.kernel.org with ESMTP
-	id S262483AbVAKMog (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 07:44:36 -0500
-Message-ID: <41E3C90A.2010703@abinetworks.biz>
-Date: Tue, 11 Jan 2005 13:39:38 +0100
-From: "Ing. Gianluca Alberici" <alberici@abinetworks.biz>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Bad disks or bug ?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jan 2005 08:00:54 -0500
+Received: from king.bitgnome.net ([66.207.162.30]:24819 "EHLO
+	king.bitgnome.net") by vger.kernel.org with ESMTP id S262531AbVAKNAt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 08:00:49 -0500
+Date: Tue, 11 Jan 2005 07:00:05 -0600
+From: Mark Nipper <nipsy@bitgnome.net>
+To: "Ing. Gianluca Alberici" <alberici@abinetworks.biz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bad disks or bug ?
+Message-ID: <20050111130005.GB87982@king.bitgnome.net>
+References: <41E3C90A.2010703@abinetworks.biz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41E3C90A.2010703@abinetworks.biz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On 11 Jan 2005, Ing. Gianluca Alberici wrote:
+> How do you explain that ? Overload on hdb due to mirroring and surface
+> degradation ?
+> OR a kind of vodoo on my hdbs ?
 
-i have a little doubt on the following....
+	Is it possible that hdb is closer to a high heat source
+or is not being cooled as hda if all these machines are the same
+case design?
 
-/> Sep 10 12:50:30 abivrs0 kernel: hdb: dma_intr: status=0x51 { DriveReady /
-/> SeekComplete Error } /
-/> Sep 10 12:50:30 abivrs0 kernel: hdb: dma_intr: error=0x40 /
-////
+-- 
+Mark Nipper                                                e-contacts:
+4475 Carter Creek Parkway                           nipsy@bitgnome.net
+Apartment 724                               http://nipsy.bitgnome.net/
+Bryan, Texas, 77802-4481           AIM/Yahoo: texasnipsy ICQ: 66971617
+(979)575-3193                                      MSN: nipsy@tamu.edu
 
-...Of course the explanation of such an error is that drive has bad
-sectors and i'd better change it BUT:
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1
+GG/IT d- s++:+ a- C++$ UBL++++$ P--->+++ L+++$ !E---
+W++(--) N+ o K++ w(---) O++ M V(--) PS+++(+) PE(--)
+Y+ PGP t+ 5 X R tv b+++@ DI+(++) D+ G e h r++ y+(**)
+------END GEEK CODE BLOCK------
 
-I have many production servers running 2.4.27, everything seems OK while
-they're new.
-After about an year of production many of them (5 of them at present)
-begin to show the problem BUT:
-
-1) All of them show the problem on hdb (ALL OF THEM)
-2) Never had problems on hda on ANY server, disks are the same, same
-size, same partitioning
-3) Typically hdb is used as a disk mirror
-4) Many times a mkfs.ext3 -c -c solves the problem bringing bad sectors
-to a new life !
-
-How do you explain that ? Overload on hdb due to mirroring and surface
-degradation ?
-OR a kind of vodoo on my hdbs ?
-
-NOTE: Over the internet, when i searched for such errors on disks (not
-ramdisks or loop devs) i ALWAYS found problems on hdb !!!
-
-Could it be depending on master-slave configuration ? Kernel bug ? Other ?
-
-What do you say ?
-
-thanks for your time,
-
-Gianluca Alberici
-
-
+---begin random quote of the moment---
+"That we are not much sicker and much madder than we are is
+due exclusively to that most blessed and blessing of all
+natural graces, sleep."
+ -- Aldous Huxley
+----end random quote of the moment----

@@ -1,19 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263823AbTDIVAW (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 17:00:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263825AbTDIVAW (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 17:00:22 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:64780 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id S263823AbTDIVAO (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 17:00:14 -0400
-Date: Wed, 9 Apr 2003 23:11:51 +0200 (CEST)
+	id S263818AbTDIVNW (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 17:13:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263821AbTDIVNW (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 17:13:22 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:19985 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id S263818AbTDIVNV (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 17:13:21 -0400
+Date: Wed, 9 Apr 2003 23:24:36 +0200 (CEST)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@serv
-To: Andries.Brouwer@cwi.nl
-cc: hpa@zytor.com, <linux-kernel@vger.kernel.org>
-Subject: Re: 64-bit kdev_t - just for playing
-In-Reply-To: <UTC200304091836.h39IaWE29913.aeb@smtp.cwi.nl>
-Message-ID: <Pine.LNX.4.44.0304092256440.5042-100000@serv>
-References: <UTC200304091836.h39IaWE29913.aeb@smtp.cwi.nl>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: CONFIG_INPUT problems
+In-Reply-To: <85360000.1049918540@flay>
+Message-ID: <Pine.LNX.4.44.0304092316080.5042-100000@serv>
+References: <193480000.1049909378@[10.10.2.4]> <Pine.LNX.4.44.0304092154320.5042-100000@serv>
+ <85360000.1049918540@flay>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,38 +22,18 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Wed, 9 Apr 2003 Andries.Brouwer@cwi.nl wrote:
+On Wed, 9 Apr 2003, Martin J. Bligh wrote:
 
-> Your questions are about the meaning of this number,
-> that is, about the third part. What I am doing is only
-> removing certain restrictions on the size of the number.
-
-If your patches would just removes these restriction, I wouldn't mind at 
-all, but your patches do more than that. Why?
-
-> Your letters carry the tone of "it is forbidden to work on the
-> old scheme before you have shown how to solve all device naming
-> problems". But I am not going to.
+> > config INPUT
+> > 	default y if !HEADLESS
 > 
-> You have opinions and questions about future schemes.
-> And so do I. But since time is limited I wrote you
-> already a handful of times: "Later".
-> 
-> This number stuff is simple and straightforward, we know precisely
-> what has to be done, but of course it needs to be done.
+> I don't see how that'll work ... we already have it defaulting to y,
+> but there's a previous setting that's 'n' from the 2.4 config file
+> they're upgrading from ... and that overrides the default, right?
 
-I don't want to forbid you anything, I want that you explain what you do, 
-as your patches do more than simply enlarging dev_t. You still avoid any 
-clear answer about this.
-
-> Naming on the other hand is intricate, lots of complications.
-> Device naming - but what is a device? Already that is complicated.
-> These are good discussions, and maybe sysfs will provide the answer
-> in certain cases, but these discussions are independent of dev_t.
-
-They are not independent. You want to have a larger dev_t so it can be 
-used for 2.6, but this also requires an answer to the question "How will 
-it be used during 2.6?".
+A default without a visible prompt works like derived variable.
+If there is prompt, the .config value and the default value is used as 
+default input for the prompt.
 
 bye, Roman
 

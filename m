@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277714AbRJLOfT>; Fri, 12 Oct 2001 10:35:19 -0400
+	id <S277717AbRJLOk7>; Fri, 12 Oct 2001 10:40:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277716AbRJLOfJ>; Fri, 12 Oct 2001 10:35:09 -0400
-Received: from borg.org ([208.218.135.231]:44294 "HELO borg.org")
-	by vger.kernel.org with SMTP id <S277714AbRJLOev>;
-	Fri, 12 Oct 2001 10:34:51 -0400
-Date: Fri, 12 Oct 2001 10:35:22 -0400
-From: Kent Borg <kentborg@borg.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kapm-idled Funny in 2.4.10-ac12?
-Message-ID: <20011012103522.D19336@borg.org>
-In-Reply-To: <20011012101242.C19336@borg.org> <E15s3CH-0007LG-00@the-village.bc.nu>
+	id <S277718AbRJLOku>; Fri, 12 Oct 2001 10:40:50 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:1806 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S277717AbRJLOkm>;
+	Fri, 12 Oct 2001 10:40:42 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Modutils 2.5 change, start running this command now 
+In-Reply-To: Your message of "Fri, 12 Oct 2001 13:14:41 +0100."
+             <20283.1002888881@redhat.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15s3CH-0007LG-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Oct 12, 2001 at 03:21:57PM +0100
+Date: Sat, 13 Oct 2001 00:40:47 +1000
+Message-ID: <7892.1002897647@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 12, 2001 at 03:21:57PM +0100, Alan Cox wrote:
-> Is your laptop logging messages in the process ? (dmesg)
+On Fri, 12 Oct 2001 13:14:41 +0100, 
+David Woodhouse <dwmw2@infradead.org> wrote:
+>kaos@ocs.com.au said:
+>>  I was going to do it that way.  The problem is that it gives no
+>> indication if the module has been checked or not.  Adding
+>> EXPORT_NO_SYMBOLS says that somebody has reviewed the module and
+>> decided that exporting no symbols is the correct behaviour.  It is the
+>> difference between no maintainer and a maintained module. 
+>
+>Just change the default to no exported symbols, and a single depmod pass
+>will tell you what broke because it's no longer exporting symbols which are
+>required by something else. There's no need to add the EXPORT_NO_SYMBOLS
+>cruft all over the place.
 
-No.  I don't see any ongoing logging from apm.  Looking at dmesg I see
-boot stuff about battery minutes having swapped bytes, some version
-and flag printk's, but no current logging.
-
-In /var/spool/messages I also see mention of the times I have
-suspended and awakened my laptop, but no other ongoing loggin there
-either.
-
-> One thing I changed in -ac was to do sane things when the apm idle request
-> comes back with "no" from the BIOS
-
-I had noticed that comment, which made me think it might be of
-specific interest.
-
-
-Thanks,
-
--kb
+Your approach is "make an incompatible change and see what breaks, then
+scramble to fix it".  My approach is "get ready for this change so we
+can have a clean cutover".  Also EXPORT_NO_SYMBOLS is the only way to
+clean up 2.4 and 2.2 kernels, there is no option to make an
+incompatible change to modutils there.
 

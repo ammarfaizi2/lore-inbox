@@ -1,363 +1,238 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S261222AbVCEXtr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S261262AbVCEXok@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbVCEXtr (ORCPT <rfc822;akpm@zip.com.au>);
-	Sat, 5 Mar 2005 18:49:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVCEXrn
+	id S261262AbVCEXok (ORCPT <rfc822;akpm@zip.com.au>);
+	Sat, 5 Mar 2005 18:44:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVCEXmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 18:47:43 -0500
-Received: from vms042pub.verizon.net ([206.46.252.42]:18668 "EHLO
+	Sat, 5 Mar 2005 18:42:07 -0500
+Received: from vms042pub.verizon.net ([206.46.252.42]:62956 "EHLO
 	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261232AbVCEXh1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 18:37:27 -0500
-Date: Sat, 05 Mar 2005 17:37:26 -0600 (CST)
+	id S261246AbVCEXiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 18:38:03 -0500
+Date: Sat, 05 Mar 2005 17:38:02 -0600 (CST)
 Date-warning: Date header was inserted by vms042.mailsrvcs.net
 From: James Nelson <james4765@cwazy.co.uk>
-Subject: [PATCH 3/13] usb: Clean up printk()'s in drivers/usb/gadget/ether.c
+Subject: [PATCH 9/13] vicam: Clean up printk()'s in drivers/usb/media/vicam.c
 In-reply-to: <20050305233712.7648.24364.93822@localhost.localdomain>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, James Nelson <james4765@cwazy.co.uk>
-Message-id: <20050305233725.7648.82168.21460@localhost.localdomain>
+Message-id: <20050305233801.7648.9150.63219@localhost.localdomain>
 References: <20050305233712.7648.24364.93822@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clean up debugging printk() macros in drivers/usb/gadget/ether.c
+Fix confusing debugging macro and add KERN_ constants, nwelines, and driver prefixes
+where needed in drivers/usb/media/vicam.c
 
 Signed-off-by: James Nelson <james4765@gmail.com>
 
-diff -Nurp -x dontdiff-osdl --exclude='*~' linux-2.6.11-mm1-original/drivers/usb/gadget/ether.c linux-2.6.11-mm1/drivers/usb/gadget/ether.c
---- linux-2.6.11-mm1-original/drivers/usb/gadget/ether.c	2005-03-05 13:29:48.000000000 -0500
-+++ linux-2.6.11-mm1/drivers/usb/gadget/ether.c	2005-03-05 14:57:41.000000000 -0500
-@@ -20,8 +20,8 @@
+diff -Nurp -x dontdiff-osdl --exclude='*~' linux-2.6.11-mm1-original/drivers/usb/media/vicam.c linux-2.6.11-mm1/drivers/usb/media/vicam.c
+--- linux-2.6.11-mm1-original/drivers/usb/media/vicam.c	2005-03-05 13:29:48.000000000 -0500
++++ linux-2.6.11-mm1/drivers/usb/media/vicam.c	2005-03-05 15:56:17.000000000 -0500
+@@ -34,6 +34,11 @@
+  *    camera controls and wrote the first generation driver.
   */
  
- 
--// #define DEBUG 1
--// #define VERBOSE
-+#undef DEBUG
-+#undef VERBOSE
- 
- #include <linux/config.h>
++#define PFX "vicam: "
++#ifdef CONFIG_USB_DEBUG
++#define DEBUG
++#endif /*CONFIG_USB_DEBUG*/
++
+ #include <linux/kernel.h>
  #include <linux/module.h>
-@@ -296,20 +296,19 @@ module_param (qmult, uint, S_IRUGO|S_IWU
- 	printk(level "%s: " fmt , (d)->net->name , ## args)
+ #include <linux/init.h>
+@@ -44,14 +49,7 @@
+ #include <linux/proc_fs.h>
+ #include "usbvideo.h"
  
- #ifdef DEBUG
--#undef DEBUG
--#define DEBUG(dev,fmt,args...) \
--	xprintk(dev , KERN_DEBUG , fmt , ## args)
-+#define DPRINTK(dev,fmt,args...) \
-+	xprintk(dev , KERN_DEBUG , "%s(): ",fmt , __FUNCTION__, ## args)
- #else
--#define DEBUG(dev,fmt,args...) \
-+#define DPRINTK(dev,fmt,args...) \
- 	do { } while (0)
- #endif /* DEBUG */
+-// #define VICAM_DEBUG
+-
+-#ifdef VICAM_DEBUG
+-#define ADBG(lineno,fmt,args...) printk(fmt, jiffies, __FUNCTION__, lineno, ##args)
+-#define DBG(fmt,args...) ADBG((__LINE__),KERN_DEBUG __FILE__"(%ld):%s (%d):"fmt,##args)
+-#else
+-#define DBG(fmn,args...) do {} while(0)
+-#endif
++#define DBG(fmt,args...) pr_debug(PFX "(%ld):%s (%d):" fmt, jiffies, __FUNCTION__, __LINE__, ##args )
  
- #ifdef VERBOSE
--#define VDEBUG	DEBUG
-+#define VDEBUG	DPRINTK
- #else
- #define VDEBUG(dev,fmt,args...) \
- 	do { } while (0)
--#endif /* DEBUG */
-+#endif /* VERBOSE */
+ #define DRIVER_AUTHOR           "Joe Burks, jburks@wavicle.org"
+ #define DRIVER_DESC             "ViCam WebCam Driver"
+@@ -446,7 +444,7 @@ static int __send_control_msg(struct vic
+ 	status = min(status, 0);
  
- #define ERROR(dev,fmt,args...) \
- 	xprintk(dev , KERN_ERR , fmt , ## args)
-@@ -1068,7 +1067,7 @@ set_ether_config (struct eth_dev *dev, i
- #endif
- 
- 	if (result == 0)
--		DEBUG (dev, "qlen %d\n", qlen (gadget));
-+		DPRINTK (dev, "qlen %d\n", qlen (gadget));
- 
- 	/* caller is responsible for cleanup on error */
- 	return result;
-@@ -1081,7 +1080,7 @@ static void eth_reset_config (struct eth
- 	if (dev->config == 0)
- 		return;
- 
--	DEBUG (dev, "%s\n", __FUNCTION__);
-+	DPRINTK (dev, "start\n");
- 
- 	netif_stop_queue (dev->net);
- 	netif_carrier_off (dev->net);
-@@ -1220,11 +1219,11 @@ static void eth_status_complete (struct 
- 
- 		req->length = 16;
- 		value = usb_ep_queue (ep, req, GFP_ATOMIC);
--		DEBUG (dev, "send SPEED_CHANGE --> %d\n", value);
-+		DPRINTK (dev, "send SPEED_CHANGE --> %d\n", value);
- 		if (value == 0)
- 			return;
- 	} else
--		DEBUG (dev, "event %02x --> %d\n",
-+		DPRINTK (dev, "event %02x --> %d\n",
- 			event->bNotificationType, value);
- 
- 	/* free when done */
-@@ -1238,7 +1237,7 @@ static void issue_start_status (struct e
- 	struct usb_cdc_notification	*event;
- 	int				value;
-  
--	DEBUG (dev, "%s, flush old status first\n", __FUNCTION__);
-+	DPRINTK (dev, "flush old status first\n");
- 
- 	/* flush old status
- 	 *
-@@ -1253,13 +1252,13 @@ static void issue_start_status (struct e
- 	/* FIXME make these allocations static like dev->req */
- 	req = usb_ep_alloc_request (dev->status_ep, GFP_ATOMIC);
- 	if (req == 0) {
--		DEBUG (dev, "status ENOMEM\n");
-+		DPRINTK (dev, "status ENOMEM\n");
- 		return;
+ 	if (status < 0) {
+-		printk(KERN_INFO "Failed sending control message, error %d.\n",
++		printk(KERN_INFO PFX "failed sending control message, error %d\n",
+ 		       status);
  	}
- 	req->buf = usb_ep_alloc_buffer (dev->status_ep, 16,
- 				&dev->req->dma, GFP_ATOMIC);
- 	if (req->buf == 0) {
--		DEBUG (dev, "status buf ENOMEM\n");
-+		DPRINTK (dev, "status buf ENOMEM\n");
- free_req:
- 		usb_ep_free_request (dev->status_ep, req);
- 		return;
-@@ -1279,7 +1278,7 @@ free_req:
- 	req->complete = eth_status_complete;
- 	value = usb_ep_queue (dev->status_ep, req, GFP_ATOMIC);
- 	if (value < 0) {
--		DEBUG (dev, "status buf queue --> %d\n", value);
-+		DPRINTK (dev, "status buf queue --> %d\n", value);
- 		usb_ep_free_buffer (dev->status_ep,
- 				req->buf, dev->req->dma, 16);
- 		goto free_req;
-@@ -1293,7 +1292,7 @@ free_req:
- static void eth_setup_complete (struct usb_ep *ep, struct usb_request *req)
+ 
+@@ -691,7 +689,8 @@ vicam_ioctl(struct inode *inode, struct 
+ 				break;
+ 			}
+ 
+-			DBG("VIDIOCMCAPTURE frame=%d, height=%d, width=%d, format=%d.\n",vm.frame,vm.width,vm.height,vm.format);
++			DBG("VIDIOCMCAPTURE frame=%d, height=%d, width=%d, format=%d\n",
++				vm.frame,vm.width,vm.height,vm.format);
+ 
+ 			if ( vm.frame >= VICAM_FRAMES || vm.format != VIDEO_PALETTE_RGB24 )
+ 				retval = -EINVAL;
+@@ -761,8 +760,7 @@ vicam_open(struct inode *inode, struct f
+ 	DBG("open\n");
+ 
+ 	if (!cam) {
+-		printk(KERN_ERR
+-		       "vicam video_device improperly initialized");
++		printk(KERN_ERR PFX "device improperly initialized\n");
+ 	}
+ 
+ 	/* the videodev_lock held above us protects us from
+@@ -771,8 +769,8 @@ vicam_open(struct inode *inode, struct f
+ 	 */
+ 
+ 	if (cam->open_count > 0) {
+-		printk(KERN_INFO
+-		       "vicam_open called on already opened camera");
++		printk(KERN_INFO PFX "%s(): called on already opened camera\n",
++			__FUNCTION__);
+ 		return -EBUSY;
+ 	}
+ 
+@@ -969,8 +967,7 @@ read_frame(struct vicam_camera *cam, int
+ 	n = __send_control_msg(cam, 0x51, 0x80, 0, request, 16);
+ 
+ 	if (n < 0) {
+-		printk(KERN_ERR
+-		       " Problem sending frame capture control message");
++		printk(KERN_ERR PFX "problem sending frame capture control message\n");
+ 		goto done;
+ 	}
+ 
+@@ -980,7 +977,7 @@ read_frame(struct vicam_camera *cam, int
+ 			 512 * 242 + 128, &actual_length, 10000);
+ 
+ 	if (n < 0) {
+-		printk(KERN_ERR "Problem during bulk read of frame data: %d\n",
++		printk(KERN_ERR PFX "problem during bulk read of frame data: %d\n",
+ 		       n);
+ 	}
+ 
+@@ -993,7 +990,7 @@ vicam_read( struct file *file, char __us
  {
- 	if (req->status || req->actual != req->length)
--		DEBUG ((struct eth_dev *) ep->driver_data,
-+		DPRINTK ((struct eth_dev *) ep->driver_data,
- 				"setup complete --> %d, %d/%d\n",
- 				req->status, req->actual, req->length);
- }
-@@ -1303,7 +1302,7 @@ static void eth_setup_complete (struct u
- static void rndis_response_complete (struct usb_ep *ep, struct usb_request *req)
- {
- 	if (req->status || req->actual != req->length)
--		DEBUG ((struct eth_dev *) ep->driver_data,
-+		DPRINTK ((struct eth_dev *) ep->driver_data,
- 			"rndis response complete --> %d, %d/%d\n",
- 			req->status, req->actual, req->length);
+ 	struct vicam_camera *cam = file->private_data;
  
-@@ -1394,9 +1393,9 @@ eth_setup (struct usb_gadget *gadget, co
- 		if (ctrl->bRequestType != 0)
- 			break;
- 		if (gadget->a_hnp_support)
--			DEBUG (dev, "HNP available\n");
-+			DPRINTK (dev, "HNP available\n");
- 		else if (gadget->a_alt_hnp_support)
--			DEBUG (dev, "HNP needs a different root port\n");
-+			DPRINTK (dev, "HNP needs a different root port\n");
- 		spin_lock (&dev->lock);
- 		value = eth_set_config (dev, wValue, GFP_ATOMIC);
- 		spin_unlock (&dev->lock);
-@@ -1502,7 +1501,7 @@ done_set_intf:
- 				|| wLength != 0
- 				|| wIndex > 1)
- 			break;
--		DEBUG (dev, "NOP packet filter %04x\n", wValue);
-+		DPRINTK (dev, "NOP packet filter %04x\n", wValue);
- 		/* NOTE: table 62 has 5 filter bits to reduce traffic,
- 		 * and we "must" support multicast and promiscuous.
- 		 * this NOP implements a bad filter (always promisc)
-@@ -1567,7 +1566,7 @@ done_set_intf:
- 				&& (value % gadget->ep0->maxpacket) == 0;
- 		value = usb_ep_queue (gadget->ep0, req, GFP_ATOMIC);
- 		if (value < 0) {
--			DEBUG (dev, "ep_queue --> %d\n", value);
-+			DPRINTK (dev, "ep_queue --> %d\n", value);
- 			req->status = 0;
- 			eth_setup_complete (gadget->ep0, req);
- 		}
-@@ -1647,7 +1646,7 @@ static void defer_kevent (struct eth_dev
- 	if (!schedule_work (&dev->work))
- 		ERROR (dev, "kevent %d may have been dropped\n", flag);
- 	else
--		DEBUG (dev, "kevent %d scheduled\n", flag);
-+		DPRINTK (dev, "kevent %d scheduled\n", flag);
- }
+-	DBG("read %d bytes.\n", (int) count);
++	DBG("read %d bytes\n", (int) count);
  
- static void rx_complete (struct usb_ep *ep, struct usb_request *req);
-@@ -1679,7 +1678,7 @@ rx_submit (struct eth_dev *dev, struct u
- 	size -= size % dev->out_ep->maxpacket;
- 
- 	if ((skb = alloc_skb (size + NET_IP_ALIGN, gfp_flags)) == 0) {
--		DEBUG (dev, "no rx skb\n");
-+		DPRINTK (dev, "no rx skb\n");
- 		goto enomem;
- 	}
- 	
-@@ -1699,7 +1698,7 @@ rx_submit (struct eth_dev *dev, struct u
- enomem:
- 		defer_kevent (dev, WORK_RX_MEMORY);
- 	if (retval) {
--		DEBUG (dev, "rx submit --> %d\n", retval);
-+		DPRINTK (dev, "rx submit --> %d\n", retval);
- 		dev_kfree_skb_any (skb);
- 		spin_lock (&dev->lock);
- 		list_add (&req->list, &dev->rx_reqs);
-@@ -1727,7 +1726,7 @@ static void rx_complete (struct usb_ep *
- 		if (ETH_HLEN > skb->len || skb->len > ETH_FRAME_LEN) {
- 			dev->stats.rx_errors++;
- 			dev->stats.rx_length_errors++;
--			DEBUG (dev, "rx length %d\n", skb->len);
-+			DPRINTK (dev, "rx length %d\n", skb->len);
- 			break;
- 		}
- 
-@@ -1751,7 +1750,7 @@ static void rx_complete (struct usb_ep *
- 
- 	/* for hardware automagic (such as pxa) */
- 	case -ECONNABORTED:		// endpoint reset
--		DEBUG (dev, "rx %s reset\n", ep->name);
-+		DPRINTK (dev, "rx %s reset\n", ep->name);
- 		defer_kevent (dev, WORK_RX_MEMORY);
- quiesce:
- 		dev_kfree_skb_any (skb);
-@@ -1764,7 +1763,7 @@ quiesce:
- 	    
- 	default:
- 		dev->stats.rx_errors++;
--		DEBUG (dev, "rx status %d\n", status);
-+		DPRINTK (dev, "rx status %d\n", status);
- 		break;
- 	}
- 
-@@ -1832,7 +1831,7 @@ static int alloc_requests (struct eth_de
- 		goto fail;
- 	return 0;
- fail:
--	DEBUG (dev, "can't alloc requests\n");
-+	DPRINTK (dev, "can't alloc requests\n");
- 	return status;
- }
- 
-@@ -1873,7 +1872,7 @@ static void eth_work (void *_dev)
- 	}
- 
- 	if (dev->todo)
--		DEBUG (dev, "work done, flags = 0x%lx\n", dev->todo);
-+		DPRINTK (dev, "work done, flags = 0x%lx\n", dev->todo);
- }
- 
- static void tx_complete (struct usb_ep *ep, struct usb_request *req)
-@@ -1967,7 +1966,7 @@ static int eth_start_xmit (struct sk_buf
- 	retval = usb_ep_queue (dev->in_ep, req, GFP_ATOMIC);
- 	switch (retval) {
- 	default:
--		DEBUG (dev, "tx queue err %d\n", retval);
-+		DPRINTK (dev, "tx queue err %d\n", retval);
- 		break;
- 	case 0:
- 		net->trans_start = jiffies;
-@@ -2011,7 +2010,7 @@ static void
- rndis_control_ack_complete (struct usb_ep *ep, struct usb_request *req)
- {
- 	if (req->status || req->actual != req->length)
--		DEBUG ((struct eth_dev *) ep->driver_data,
-+		DPRINTK ((struct eth_dev *) ep->driver_data,
- 			"rndis control ack complete --> %d, %d/%d\n",
- 			req->status, req->actual, req->length);
- 
-@@ -2027,21 +2026,21 @@ static int rndis_control_ack (struct net
- 	
- 	/* in case RNDIS calls this after disconnect */
- 	if (!dev->status_ep) {
--		DEBUG (dev, "status ENODEV\n");
-+		DPRINTK (dev, "status ENODEV\n");
+ 	if (*ppos >= VICAM_MAX_FRAME_SIZE) {
+ 		*ppos = 0;
+@@ -1035,7 +1032,7 @@ vicam_mmap(struct file *file, struct vm_
+ 	if (!cam)
  		return -ENODEV;
- 	}
  
- 	/* Allocate memory for notification ie. ACK */
- 	resp = usb_ep_alloc_request (dev->status_ep, GFP_ATOMIC);
- 	if (!resp) {
--		DEBUG (dev, "status ENOMEM\n");
-+		DPRINTK (dev, "status ENOMEM\n");
- 		return -ENOMEM;
+-	DBG("vicam_mmap: %ld\n", size);
++	DBG("size = %ld\n", size);
+ 
+ 	/* We let mmap allocate as much as it wants because Linux was adding 2048 bytes
+ 	 * to the size the application requested for mmap and it was screwing apps up.
+@@ -1153,8 +1150,7 @@ vicam_create_proc_root(void)
+ 	if (vicam_proc_root)
+ 		vicam_proc_root->owner = THIS_MODULE;
+ 	else
+-		printk(KERN_ERR
+-		       "could not create /proc entry for vicam!");
++		printk(KERN_ERR PFX "could not create /proc entry for vicam\n");
+ }
+ 
+ static void
+@@ -1170,11 +1166,10 @@ vicam_create_proc_entry(struct vicam_cam
+ 	char name[64];
+ 	struct proc_dir_entry *ent;
+ 
+-	DBG(KERN_INFO "vicam: creating proc entry\n");
++	DBG("creating proc entry\n");
+ 
+ 	if (!vicam_proc_root || !cam) {
+-		printk(KERN_INFO
+-		       "vicam: could not create proc entry, %s pointer is null.\n",
++		printk(KERN_INFO PFX "could not create proc entry, %s pointer is null.\n",
+ 		       (!cam ? "camera" : "root"));
+ 		return;
  	}
+@@ -1281,11 +1276,11 @@ vicam_probe( struct usb_interface *intf,
+ 	const struct usb_endpoint_descriptor *endpoint;
+ 	struct vicam_camera *cam;
  	
- 	resp->buf = usb_ep_alloc_buffer (dev->status_ep, 8,
- 					 &resp->dma, GFP_ATOMIC);
- 	if (!resp->buf) {
--		DEBUG (dev, "status buf ENOMEM\n");
-+		DPRINTK (dev, "status buf ENOMEM\n");
- 		usb_ep_free_request (dev->status_ep, resp);
+-	printk(KERN_INFO "ViCam based webcam connected\n");
++	printk(KERN_INFO PFX "webcam connected\n");
+ 
+ 	interface = intf->cur_altsetting;
+ 
+-	DBG(KERN_DEBUG "Interface %d. has %u. endpoints!\n",
++	DBG("interface %d has %u endpoints\n",
+ 	       interface->desc.bInterfaceNumber, (unsigned) (interface->desc.bNumEndpoints));
+ 	endpoint = &interface->endpoint[0].desc;
+ 
+@@ -1294,13 +1289,12 @@ vicam_probe( struct usb_interface *intf,
+ 		/* we found a bulk in endpoint */
+ 		bulkEndpoint = endpoint->bEndpointAddress;
+ 	} else {
+-		printk(KERN_ERR
+-		       "No bulk in endpoint was found ?! (this is bad)\n");
++		printk(KERN_ERR PFX "no bulk in endpoint was found\n");
+ 	}
+ 
+ 	if ((cam =
+ 	     kmalloc(sizeof (struct vicam_camera), GFP_KERNEL)) == NULL) {
+-		printk(KERN_WARNING
++		printk(KERN_WARNING PFX
+ 		       "could not allocate kernel memory for vicam_camera struct\n");
  		return -ENOMEM;
  	}
-@@ -2068,7 +2067,7 @@ static int rndis_control_ack (struct net
+@@ -1320,13 +1314,13 @@ vicam_probe( struct usb_interface *intf,
  
- static void eth_start (struct eth_dev *dev, int gfp_flags)
- {
--	DEBUG (dev, "%s\n", __FUNCTION__);
-+	DPRINTK (dev, "start\n");
+ 	if (video_register_device(&cam->vdev, VFL_TYPE_GRABBER, -1) == -1) {
+ 		kfree(cam);
+-		printk(KERN_WARNING "video_register_device failed\n");
++		printk(KERN_WARNING PFX "video_register_device failed\n");
+ 		return -EIO;
+ 	}
  
- 	/* fill the rx queue */
- 	rx_fill (dev, gfp_flags);
-@@ -2090,7 +2089,7 @@ static int eth_open (struct net_device *
- {
- 	struct eth_dev		*dev = netdev_priv(net);
+ 	vicam_create_proc_entry(cam);
  
--	DEBUG (dev, "%s\n", __FUNCTION__);
-+	DPRINTK (dev, "start\n");
- 	if (netif_carrier_ok (dev->net))
- 		eth_start (dev, GFP_KERNEL);
- 	return 0;
-@@ -2100,10 +2099,10 @@ static int eth_stop (struct net_device *
- {
- 	struct eth_dev		*dev = netdev_priv(net);
+-	printk(KERN_INFO "ViCam webcam driver now controlling video device %d\n",cam->vdev.minor);
++	printk(KERN_INFO PFX "now controlling video device %d\n",cam->vdev.minor);
  
--	VDEBUG (dev, "%s\n", __FUNCTION__);
-+	VDEBUG (dev, "start\n");
- 	netif_stop_queue (net);
+ 	usb_set_intfdata (intf, cam);
+ 	
+@@ -1374,7 +1368,7 @@ vicam_disconnect(struct usb_interface *i
+ 		kfree(cam);
+ 	}
  
--	DEBUG (dev, "stop stats: rx/tx %ld/%ld, errs %ld/%ld\n",
-+	DPRINTK (dev, "stop stats: rx/tx %ld/%ld, errs %ld/%ld\n",
- 		dev->stats.rx_packets, dev->stats.tx_packets, 
- 		dev->stats.rx_errors, dev->stats.tx_errors
- 		);
-@@ -2113,7 +2112,7 @@ static int eth_stop (struct net_device *
- 		usb_ep_disable (dev->in_ep);
- 		usb_ep_disable (dev->out_ep);
- 		if (netif_carrier_ok (dev->net)) {
--			DEBUG (dev, "host still using in/out endpoints\n");
-+			DPRINTK (dev, "host still using in/out endpoints\n");
- 			// FIXME idiom may leave toggle wrong here
- 			usb_ep_enable (dev->in_ep, dev->in);
- 			usb_ep_enable (dev->out_ep, dev->out);
-@@ -2142,7 +2141,7 @@ eth_unbind (struct usb_gadget *gadget)
- {
- 	struct eth_dev		*dev = get_gadget_data (gadget);
- 
--	DEBUG (dev, "unbind\n");
-+	DPRINTK (dev, "unbind\n");
- #ifdef CONFIG_USB_ETH_RNDIS
- 	rndis_deregister (dev->rndis_config);
- 	rndis_exit ();
-@@ -2534,7 +2533,7 @@ eth_suspend (struct usb_gadget *gadget)
- {
- 	struct eth_dev		*dev = get_gadget_data (gadget);
- 
--	DEBUG (dev, "suspend\n");
-+	DPRINTK (dev, "suspend\n");
- 	dev->suspended = 1;
+-	printk(KERN_DEBUG "ViCam-based WebCam disconnected\n");
++	printk(KERN_DEBUG PFX "webcam disconnected\n");
  }
  
-@@ -2543,7 +2542,7 @@ eth_resume (struct usb_gadget *gadget)
+ /*
+@@ -1383,19 +1377,18 @@ static int __init
+ usb_vicam_init(void)
  {
- 	struct eth_dev		*dev = get_gadget_data (gadget);
- 
--	DEBUG (dev, "resume\n");
-+	DPRINTK (dev, "resume\n");
- 	dev->suspended = 0;
+ 	int retval;
+-	DBG(KERN_INFO "ViCam-based WebCam driver startup\n");
++	DBG("driver startup\n");
+ 	vicam_create_proc_root();
+ 	retval = usb_register(&vicam_driver);
+ 	if (retval)
+-		printk(KERN_WARNING "usb_register failed!\n");
++		printk(KERN_WARNING PFX "usb_register failed!\n");
+ 	return retval;
  }
  
+ static void __exit
+ usb_vicam_exit(void)
+ {
+-	DBG(KERN_INFO
+-	       "ViCam-based WebCam driver shutdown\n");
++	DBG("driver shutdown\n");
+ 
+ 	usb_deregister(&vicam_driver);
+ 	vicam_destroy_proc_root();

@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268915AbSIRVmY>; Wed, 18 Sep 2002 17:42:24 -0400
+	id <S268926AbSIRVmk>; Wed, 18 Sep 2002 17:42:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268926AbSIRVmY>; Wed, 18 Sep 2002 17:42:24 -0400
-Received: from users.linvision.com ([62.58.92.114]:21623 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S268915AbSIRVmX>; Wed, 18 Sep 2002 17:42:23 -0400
-Date: Wed, 18 Sep 2002 23:46:37 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, Andries Brouwer <aebr@win.tue.nl>,
-       Ingo Molnar <mingo@elte.hu>, William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] lockless, scalable get_pid(), for_each_process() elimination, 2.5.35-BK
-Message-ID: <20020918234637.A29270@bitwizard.nl>
-References: <Pine.LNX.4.44L.0209181330580.1519-100000@duckman.distro.conectiva> <Pine.LNX.4.44.0209180938590.1913-100000@home.transmeta.com>
+	id <S269043AbSIRVmk>; Wed, 18 Sep 2002 17:42:40 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:1800 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S268926AbSIRVmj>;
+	Wed, 18 Sep 2002 17:42:39 -0400
+Date: Wed, 18 Sep 2002 14:47:41 -0700
+From: Greg KH <greg@kroah.com>
+To: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux hot swap support
+Message-ID: <20020918214741.GI10970@kroah.com>
+References: <180577A42806D61189D30008C7E632E8793A6B@boca213a.boca.ssc.siemens.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209180938590.1913-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+In-Reply-To: <180577A42806D61189D30008C7E632E8793A6B@boca213a.boca.ssc.siemens.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 18, 2002 at 09:48:24AM -0700, Linus Torvalds wrote:
+On Wed, Sep 18, 2002 at 05:37:50PM -0400, Bloch, Jack wrote:
+> At the moment, I only support removal. The way it works is as follows.
 > 
-> > On Wed, 18 Sep 2002, Linus Torvalds wrote:
-> > 
-> > > I would suggest something like this:
-> > >  - make pid_max start out at 32k or whatever, to make "ps" look nice if
-> > >    nothing else.
-> > >  - every time we have _any_ trouble at all with looking up a new pid, we
-> > >    double pid_max.
-> > 
-> > > +		if (nr_threads > pid_max >> 4)
+> Upon system start up my device driver detects all of the boards which are
+> present (I support up to six). For each board it allocates the necessary I/O
+> lists memory needed for operation. All addresses are then mapped to user
+> space with a mmap interface. Now, all HW is accessible from user space. For
+> each device, an ISR is installed. As soon as the ejector handle for a
+> particular device is opened, the board (which is a Motorola 68060 based
+> board) issues an interrupt to me. I will shut this board down and
+> de-allocate any of the previously reserved resources. What is not so easy is
+> to perform the insert. I thought about allocating memory becessary for a
+> maximum configuration, but I would still need to get the insertion event.
+> But anyway  since our device (even though it has multiple boards internally)
+> is seen as a monolithic device from the main controlling host, the loss of a
+> single board causes it to be taken out of service.
 
-> The people who care about ps being pretty will probably never see more 
-> than 5 digits.
+Hm, you might want to take a look at the cPCI patches from Scott Murray,
+he has a solution for the resource and insertion problem that will
+probably work for you.  You can find the patches on the pcihpd-discuss
+mailing list, and I think they were also posted to lkml in the past too.
+He's working on cleaning them up a bit for inclusion in the main kernel
+tree.
 
-Agreed. While on the topic of number of digits: If this is in place
-we could easily start out pid_max at say 9999, fitting the pids in
-one less digit than we normally do now. 
+Hope this helps,
 
-(I've always thought we should have sticked with pid_max at the
-traditional Unix value of 32000, and not 32767).
-
-			Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* The Worlds Ecosystem is a stable system. Stable systems may experience *
-* excursions from the stable situation. We are currenly in such an       * 
-* excursion: The stable situation does not include humans. ***************
+greg k-h

@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282128AbRKWMrh>; Fri, 23 Nov 2001 07:47:37 -0500
+	id <S282138AbRKWMvr>; Fri, 23 Nov 2001 07:51:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282136AbRKWMr2>; Fri, 23 Nov 2001 07:47:28 -0500
-Received: from ns.krot.org ([193.212.103.165]:36115 "HELO ns.krot.org")
-	by vger.kernel.org with SMTP id <S282128AbRKWMrX> convert rfc822-to-8bit;
-	Fri, 23 Nov 2001 07:47:23 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: Pronto TV AS
-To: linux-kernel@vger.kernel.org
-Subject: /proc/sys/vm/(max|min)-readahead question
-Date: Fri, 23 Nov 2001 13:49:03 +0100
-X-Mailer: KMail [version 1.3.1]
+	id <S282135AbRKWMv3>; Fri, 23 Nov 2001 07:51:29 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:27083 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S282133AbRKWMvP>;
+	Fri, 23 Nov 2001 07:51:15 -0500
+Date: Fri, 23 Nov 2001 15:48:59 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: <linux-kernel@vger.kernel.org>
+Subject: [bug] broken loopback fs in 2.4.15-ish kernels?
+Message-ID: <Pine.LNX.4.33.0111231546190.18284-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011123124724Z282128-17408+17814@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
 
-I'm currently using 2.4.13-ac5+tux with the /proc/sys/vm/(max|min)-readahead 
-extension. Are there any plans to include this in the linus tree on 2.4, or 
-should I just modify include/linux/blkdev.h and recompile?
+just noticed that rpm -i kernel-2.4.9-13.i386.rpm does not work anymore
+because a corrupted initrd gets created by mkinitrd. It smelled like
+pagecache corruption so i did not experiment much. This was with
+2.4.15-pre9. Once i booted back into a 2.4.13-based kernel and re-did the
+rpm -i, the initrd was created correctly.
 
-roy
--- 
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+things are pretty recent:
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+ [root@mars root]# rpm -q mkinitrd
+ mkinitrd-3.2.6-1
+ [root@mars root]# rpm -q rpm
+ rpm-4.0.3-1.03
+
+anyone seeing anything similar?
+
+	Ingo
+

@@ -1,81 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312419AbSDXRbe>; Wed, 24 Apr 2002 13:31:34 -0400
+	id <S312426AbSDXRe7>; Wed, 24 Apr 2002 13:34:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312426AbSDXRbd>; Wed, 24 Apr 2002 13:31:33 -0400
-Received: from ip68-3-16-134.ph.ph.cox.net ([68.3.16.134]:61320 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S312419AbSDXRbc>;
-	Wed, 24 Apr 2002 13:31:32 -0400
-Message-ID: <3CC6EBF1.9060902@candelatech.com>
-Date: Wed, 24 Apr 2002 10:31:29 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: jd@epcnet.de, linux-kernel@vger.kernel.org
+	id <S312427AbSDXRe6>; Wed, 24 Apr 2002 13:34:58 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:3461 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S312426AbSDXRe6>;
+	Wed, 24 Apr 2002 13:34:58 -0400
+Date: Wed, 24 Apr 2002 10:25:28 -0700 (PDT)
+Message-Id: <20020424.102528.98393867.davem@redhat.com>
+To: greearb@candelatech.com
+Cc: jd@epcnet.de, linux-kernel@vger.kernel.org
 Subject: Re: AW: Re: AW: Re: VLAN and Network Drivers 2.4.x
-In-Reply-To: <20020424.093515.82125943.davem@redhat.com>	<721506265.avixxmail@nexxnet.epcnet.de> <20020424.095951.43413800.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3CC6EBF1.9060902@candelatech.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Ben Greear <greearb@candelatech.com>
+   Date: Wed, 24 Apr 2002 10:31:29 -0700
+   
+   Maybe it could just WARN and still bring it up, if it's just
+   an MTU issue?  (Or is this a total failure of VLAN support you
+   are talking about?)
+   
+This creates a support issue.  It's almost impossible to field
+bug reports effectively once you start letting users do stuff
+like this.
 
+   Also, is there any good reason that we can't get at least a compile
+   time change into some of the drivers like tulip where we know we can
+   get at least MOST of the cards supported with a small change?
+   
+   I know the driver writers hate cruft in the drivers, but we have had
+   ppl using the patches in production machines for months, if not years,
+   with no ill effects.
+   
+But the changes are wrong, just because they work for some people
+doesn't make the change mergeable into the main tree.
 
-David S. Miller wrote:
+   The same argument applies to the EEPRO driver (we know a cure, but it's
+   a magic register number, and no one will accept the patch).
 
->    From: jd@epcnet.de
->    Date: Wed, 24 Apr 2002 19:03:19 +0200
-> 
->    Oh. Even in 2.4 ?
-> 
-> Yes, the "cannot do VLAN" flag is there in 2.4.x
->     
->    That's a good idea. So vconfig could check, if its possible to
->    create a VLAN on top of such a driver - and issue a message if
->    not.
->    
-> VLAN layer checks this and fails to bring up VLAN if
-> flag is set for the device being configured.  I'm way
-> ahead of you.
+Intel is making strides with their e1000 and e100 drivers, just give
+them some time.
 
+Also Jeff is in a rut right and busy with some things, once he gets
+back up to speed you can expect a lot of these issues to be dealt
+with.
 
-Maybe it could just WARN and still bring it up, if it's just
-an MTU issue?  (Or is this a total failure of VLAN support you
-are talking about?)
-
-Also, is there any good reason that we can't get at least a compile
-time change into some of the drivers like tulip where we know we can
-get at least MOST of the cards supported with a small change?
-
-I know the driver writers hate cruft in the drivers, but we have had
-ppl using the patches in production machines for months, if not years,
-with no ill effects.
-
-The same argument applies to the EEPRO driver (we know a cure, but it's
-a magic register number, and no one will accept the patch).
-
-Ben
-
-
-> 
-> Franks a lot,
-> David S. Miller
-> davem@redhat.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+Franks a lot,
+David S. Miller
+davem@redhat.com

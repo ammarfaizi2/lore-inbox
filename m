@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266642AbTGOHhO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 03:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266798AbTGOHhO
+	id S266798AbTGOHhS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 03:37:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266799AbTGOHhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 03:37:14 -0400
-Received: from rth.ninka.net ([216.101.162.244]:25484 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S266642AbTGOHhN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 03:37:13 -0400
-Date: Tue, 15 Jul 2003 00:52:00 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: "B. D. Elliott" <bde@nwlink.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Stime/Settimeofday are still broken
-Message-Id: <20030715005200.63a151f4.davem@redhat.com>
-In-Reply-To: <20030715071826.A891F6AB63@smtp4.pacifier.net>
-References: <20030715071826.A891F6AB63@smtp4.pacifier.net>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 15 Jul 2003 03:37:18 -0400
+Received: from verdi.lfpt.RWTH-Aachen.DE ([134.130.124.224]:23946 "EHLO
+	verdi.aixcape.org") by vger.kernel.org with ESMTP id S266798AbTGOHhR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 03:37:17 -0400
+Subject: Re: Linux v2.6.0-test1
+From: Dirk Meul <meul@aixcape.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: AixCAPE
+Message-Id: <1058255524.2454.13.camel@verdi.aixcape.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 15 Jul 2003 09:52:04 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Jul 2003 00:40:49 -0700
-"B. D. Elliott" <bde@nwlink.com> wrote:
+Hello!
 
-> The problems described below still exist in -2.6.0-test1.
+Using devfs, there are neither device-nodes for the ZIP-drive using
+ide-floppy nor for cpuid or msr. Are there any patches i can try (i
+didn't find patches for ide-floppy).
 
-Not surprising, since you didn't even CC: the sparc
-development list :-)
+Best regards,
+-- 
+                                  /"\
+Dirk Meul                         \ /    ASCII Ribbon Campaign
+meul@aixcape.org                   X     Against HTML Mail
+                                  / \
+

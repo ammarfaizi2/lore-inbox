@@ -1,71 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263300AbUKZXHu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263309AbUKZXG7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263300AbUKZXHu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 18:07:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbUKZTsz
+	id S263309AbUKZXG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 18:06:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263308AbUKZTtC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:48:55 -0500
+	Fri, 26 Nov 2004 14:49:02 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:4291 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262402AbUKZT3Q (ORCPT
+	by vger.kernel.org with ESMTP id S262394AbUKZT3P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:29:16 -0500
-MIME-Version: 1.0
+	Fri, 26 Nov 2004 14:29:15 -0500
+Date: Thu, 25 Nov 2004 18:45:53 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, hch@infradead.org, matthew@wil.cx, dwmw2@infradead.org,
+       aoliva@redhat.com, linux-kernel@vger.kernel.org,
+       libc-alpha@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+Message-ID: <20041125184553.GB2849@parcelfarce.linux.theplanet.co.uk>
+References: <19865.1101395592@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16806.21992.295157.530799@cargo.ozlabs.ibm.com>
-Date: Fri, 26 Nov 2004 09:00:08 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, brking@us.ibm.com,
-       Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] pci: Block config access during BIST
-In-Reply-To: <1100954543.11822.8.camel@localhost.localdomain>
-References: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com>
-	<1100917635.9398.12.camel@localhost.localdomain>
-	<1100934567.3669.12.camel@gaston>
-	<1100954543.11822.8.camel@localhost.localdomain>
-X-Mailer: VM 7.19 under Emacs 21.3.1
+Content-Disposition: inline
+In-Reply-To: <19865.1101395592@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-
-> That doesn't mean it is the right implementation. Most devices don't
-> need
-> this check so might as well have a fast path. You can at least reduce
-> the cost by setting a flag on devices that potentially have this problem
-
-But that's exactly what Brian's later patch does!  Did you actually
-read the patch?  All that we are doing is testing one bit in the
-struct pci_dev to see whether to do the actual access or not.  Or do
-you want one bit to tell us whether to go and look at another bit to
-see whether to do the access? :)
-
-> (or a PCI_ANY PCI_ANY quirk for platforms with it globally)
-
-How would you use a quirk to block config space accesses?  The two are
-unrelated.
-
-> >  - The device he's working on, which sometimes need to trigger a BIST
-> > (built-in self test). During this operation, the device stops responding
-> > on the PCI bus, which can be sort-of fatal if anything (userland playing
-> > with /sys/bus/pci/* for example) touches the config space.
+On Thu, Nov 25, 2004 at 03:13:12PM +0000, David Howells wrote:
+>  (2) Take each file from the shadowed directory. If it has any userspace
+>      relevant stuff, then:
 > 
-> That will be fun given some laptop SMM touches config space.
+>      (b) Make kernel file #include the user file. So:
+> 
+> 		[include/asm-i386/unistd.h]
+> 		...
+> 		#include <user-i386/unistd.h>
+> 		...
 
-Well, I can see that that would limit your power management options,
-but fortunately we don't have SMM on the machines where we need this
-config access blocking.
+We may also want a user-asm symlink pointing to user-$ARCH.
+If <linux/foo.h> wants a definition from <user-$ARCH/foo.h> then it has
+to include <asm/foo.h> which includes <user-$ARCH/foo.h>.  If asm/foo.h
+is empty other than the include, then it'd be nice to delete it and have
+<linux/foo.h> include <user-asm/foo.h> directly.
 
-> Some of the Intel CPU's are very bad at lock handling so it is an issue.
+>      (c) Where a user header file requires something from another header file
+> 	 (such as a type), that file should include a suitable user header file
+> 	 directly:
+> 
+> 		[include/user-i386/termio.h]
+> 		...
+> 		#include <user/types.h>
+> 		...
 
-There is no extra locking introduced by Brian's patch.  Config
-accesses were already taking the pci_lock and that hasn't changed.
+It's occasionally been on my mind that the transition from linux -> asm
+should be one way and that asm files should not include linux files.
+I'm not sure this is necessarily a worthy goal, but it seems worth
+mentioning.
 
-> I dislike the "Hey it sucks, lets make it suck more" approach when it
-> seems easy to do the job well.
-
-Perhaps you could expand on what you mean by "do the job well"?
-
-Paul.
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

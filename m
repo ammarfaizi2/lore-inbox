@@ -1,92 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266331AbTGEK54 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 06:57:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266315AbTGEK5z
+	id S266315AbTGELC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 07:02:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266319AbTGELC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 06:57:55 -0400
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:30215 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266331AbTGEK50 convert rfc822-to-8bit (ORCPT
+	Sat, 5 Jul 2003 07:02:58 -0400
+Received: from holomorphy.com ([66.224.33.161]:23689 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S266315AbTGELCz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 06:57:26 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>, alan@lxorguk.ukuu.org.uk
-Subject: [PATCH 2.5.74, 2.5.74-mjb1] i2o compile fix
-Date: Sat, 5 Jul 2003 13:11:08 +0200
-User-Agent: KMail/1.5.2
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+	Sat, 5 Jul 2003 07:02:55 -0400
+Date: Sat, 5 Jul 2003 04:18:44 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.74-mm1
+Message-ID: <20030705111844.GL955@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Anton Blanchard <anton@samba.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20030703023714.55d13934.akpm@osdl.org> <20030704210737.GI955@holomorphy.com> <20030704181539.2be0762a.akpm@osdl.org> <20030705052102.GB13308@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307051311.19491.fsdeveloper@yahoo.de>
+In-Reply-To: <20030705052102.GB13308@krispykreme>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+At some point in the past, akpm wrote:
+>> Look at select_bad_process(), and the ->mm test in badness().  pdflush
+>> can never be chosen.
+>> Nevertheless, there have been several report where kernel threads _are_ 
+>> being hit my the oom killer.  Any idea why that is?
 
-Hi Martin, Alan,
-lk-list.
+On Sat, Jul 05, 2003 at 03:21:02PM +1000, Anton Blanchard wrote:
+> Milton and I were just looking at this and it seems there is no locking
+> to prevent p->mm ending up NULL due to exit. And if p->mm does end up
+> NULL, you go off and kill all your kernel threads :)
 
-I need this patch to compile i2o support. Otherwise I get this error:
-
-mb@lfs:~/linux-2.5/linux-2.5.74-mjb1> make bzImage
-make[1]: »arch/i386/kernel/asm-offsets.s« ist bereits aktualisiert.
-  CHK     include/linux/compile.h
-  CC      drivers/message/i2o/i2o_scsi.o
-i2o_scsi.c: In function `i2o_scsi_reply':
-i2o_scsi.c:328: Warnung: implicit declaration of function `pci_unmap_sg'
-i2o_scsi.c:330: Warnung: implicit declaration of function `pci_unmap_single'
-i2o_scsi.c: In function `i2o_scsi_queuecommand':
-i2o_scsi.c:764: Warnung: implicit declaration of function `pci_map_sg'
-i2o_scsi.c:834: Warnung: implicit declaration of function `pci_map_single'
-  LD      drivers/message/i2o/built-in.o
-  LD      drivers/message/built-in.o
-  LD      drivers/built-in.o
-  GEN     .version
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.text+0xcb8a8): In function `i2o_scsi_reply':
-: undefined reference to `pci_unmap_single'
-drivers/built-in.o(.text+0xcb8d5): In function `i2o_scsi_reply':
-: undefined reference to `pci_unmap_sg'
-drivers/built-in.o(.text+0xcc1b3): In function `i2o_scsi_queuecommand':
-: undefined reference to `pci_map_single'
-drivers/built-in.o(.text+0xcc212): In function `i2o_scsi_queuecommand':
-: undefined reference to `pci_map_sg'
-make: *** [.tmp_vmlinux1] Fehler 1
+How about this, then? I think it's still racy against something doing
+daemonize(), though (i.e. if q does daemonize() it shoots it regardless).
 
 
-This patch is tested to apply to 2.5.74 and 2.5.74-mjb1
-
-- --- drivers/message/i2o/i2o_scsi.c.orig	2003-07-05 13:00:07.000000000 +0200
-+++ drivers/message/i2o/i2o_scsi.c	2003-07-05 13:02:59.000000000 +0200
-@@ -53,6 +53,7 @@
- #include <asm/system.h>
- #include <asm/io.h>
- #include <asm/atomic.h>
-+#include <linux/pci.h>
- #include <linux/blk.h>
- #include <linux/i2o.h>
- #include "../../scsi/scsi.h"
-
-- -- 
-Regards Michael Buesch
-http://www.8ung.at/tuxsoft
- 13:03:37 up  1:43,  3 users,  load average: 1.84, 2.19, 1.85
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/BrJXoxoigfggmSgRAingAJ9x0WNlzzi70kclnbMr15DxuaIqvwCfaGeK
-7ONfRL6a9w0FTJeJmtu4Btg=
-=bj3c
------END PGP SIGNATURE-----
-
+===== mm/oom_kill.c 1.23 vs edited =====
+--- 1.23/mm/oom_kill.c	Wed Apr 23 03:15:53 2003
++++ edited/mm/oom_kill.c	Sat Jul  5 04:15:25 2003
+@@ -123,7 +123,7 @@
+ 	struct task_struct *chosen = NULL;
+ 
+ 	do_each_thread(g, p)
+-		if (p->pid) {
++		if (p->pid && p->mm) {
+ 			int points = badness(p);
+ 			if (points > maxpoints) {
+ 				chosen = p;
+@@ -141,7 +141,7 @@
+  * CAP_SYS_RAW_IO set, send SIGTERM instead (but it's unlikely that
+  * we select a process with CAP_SYS_RAW_IO set).
+  */
+-void oom_kill_task(struct task_struct *p)
++static void __oom_kill_task(task_t *p)
+ {
+ 	printk(KERN_ERR "Out of Memory: Killed process %d (%s).\n", p->pid, p->comm);
+ 
+@@ -161,6 +161,15 @@
+ 	}
+ }
+ 
++static struct mm_struct *oom_kill_task(task_t *p)
++{
++	struct mm_struct *mm = get_task_mm(p);
++	if (!mm || mm == &init_mm)
++		return NULL;
++	__oom_kill_task(p);
++}
++
++
+ /**
+  * oom_kill - kill the "best" process when we run out of memory
+  *
+@@ -171,9 +180,11 @@
+  */
+ static void oom_kill(void)
+ {
++	struct mm_struct *mm;
+ 	struct task_struct *g, *p, *q;
+ 	
+ 	read_lock(&tasklist_lock);
++retry:
+ 	p = select_bad_process();
+ 
+ 	/* Found nothing?!?! Either we hang forever, or we panic. */
+@@ -182,17 +193,20 @@
+ 		panic("Out of memory and no killable processes...\n");
+ 	}
+ 
+-	oom_kill_task(p);
++	mm = oom_kill_task(p);
++	if (!mm)
++		goto retry;
+ 	/*
+ 	 * kill all processes that share the ->mm (i.e. all threads),
+ 	 * but are in a different thread group
+ 	 */
+ 	do_each_thread(g, q)
+-		if (q->mm == p->mm && q->tgid != p->tgid)
+-			oom_kill_task(q);
++		if (q->mm == mm && q->tgid != p->tgid)
++			__oom_kill_task(q);
+ 	while_each_thread(g, q);
+ 
+ 	read_unlock(&tasklist_lock);
++	mmput(mm);
+ 
+ 	/*
+ 	 * Make kswapd go out of the way, so "p" has a good chance of

@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284144AbRLAQ1y>; Sat, 1 Dec 2001 11:27:54 -0500
+	id <S284156AbRLARPC>; Sat, 1 Dec 2001 12:15:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284145AbRLAQ1o>; Sat, 1 Dec 2001 11:27:44 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:5137 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S284144AbRLAQ1j>;
-	Sat, 1 Dec 2001 11:27:39 -0500
-Date: Sat, 1 Dec 2001 14:27:17 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: Mike Castle <dalgoda@ix.netcom.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Coding style - a non-issue
-In-Reply-To: <20011201160541.A11325@kushida.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.33L.0112011426510.4079-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S284157AbRLAROw>; Sat, 1 Dec 2001 12:14:52 -0500
+Received: from mail.parknet.co.jp ([210.134.213.6]:45074 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S284156AbRLAROs>; Sat, 1 Dec 2001 12:14:48 -0500
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, <sct@redhat.com>
+Subject: Re: [PATCH] if (foo) kfree(foo) /fs cleanup + reverted JBD code path changes
+In-Reply-To: <Pine.LNX.4.33.0112011830550.14290-100000@netfinity.realnet.co.sz>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 02 Dec 2001 02:14:15 +0900
+In-Reply-To: <Pine.LNX.4.33.0112011830550.14290-100000@netfinity.realnet.co.sz>
+Message-ID: <87667qrhg8.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 Dec 2001, Jamie Lokier wrote:
-> Mike Castle wrote:
-> > Linux is one big genetic algorithms project?
->
-> No but I'm sure the VM layer is :-)
+Zwane Mwaikambo <zwane@linux.realnet.co.sz> writes:
 
-I guess we now know the reason Linus purposefully
-makes sure no comment ever matches the code ;/
+>  out_fail:
+> -	if (opts.iocharset) {
+> -		printk("FAT: freeing iocharset=%s\n", opts.iocharset);
+> -		kfree(opts.iocharset);
+> -	}
+> -	if(sbi->private_data)
+> -		kfree(sbi->private_data);
+> +	printk("FAT: freeing iocharset=%s\n", opts.iocharset);
 
-Rik
+In all failed cases, this message will be outputted. I think I shouldn't do
+so. (or remove this message.)
+
+> +	kfree(opts.iocharset);
+> +
+> +	kfree(sbi->private_data);
+>  	sbi->private_data = NULL;
 -- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,78 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261368AbTAMHqc>; Mon, 13 Jan 2003 02:46:32 -0500
+	id <S267083AbTAMHtp>; Mon, 13 Jan 2003 02:49:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267153AbTAMHqc>; Mon, 13 Jan 2003 02:46:32 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:59584 "EHLO
-	pd5mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id <S261368AbTAMHqb>; Mon, 13 Jan 2003 02:46:31 -0500
-Date: Sun, 12 Jan 2003 23:55:17 -0800
-From: Jack Bowling <jbinpg@shaw.ca>
-Subject: Re: initio driver needs updating
-In-reply-to: <200210071110.g97BA1J18387@gum09.etpnet.phys.tue.nl>
-To: bart@etpmod.phys.tue.nl
-Cc: linux-kernel@vger.kernel.org
-Reply-to: Jack Bowling <jbinpg@shaw.ca>
-Message-id: <0H8N008A67C84E@l-daemon>
-MIME-version: 1.0
-X-Mailer: The Polarbar Mailer; version=1.24c; build=1746
-Content-type: TEXT/PLAIN
-Content-transfer-encoding: 7BIT
-References: <0H3L00G5B1LBJ1@l-daemon>
- <200210071110.g97BA1J18387@gum09.etpnet.phys.tue.nl>
+	id <S261836AbTAMHtp>; Mon, 13 Jan 2003 02:49:45 -0500
+Received: from anor.ics.muni.cz ([147.251.4.35]:59055 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id <S261523AbTAMHtn>;
+	Mon, 13 Jan 2003 02:49:43 -0500
+Date: Mon, 13 Jan 2003 08:55:18 +0100
+From: Jan Yenya Kasprzak <kas@informatics.muni.cz>
+To: Adrian Bunk <bunk@fs.tum.de>, torvalds@transmeta.com
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.56: Two global symbols "io"
+Message-ID: <20030113085518.D3702@fi.muni.cz>
+References: <20030112131244.GW21826@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030112131244.GW21826@fs.tum.de>; from bunk@fs.tum.de on Sun, Jan 12, 2003 at 02:12:44PM +0100
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-** Reply to message from bart@etpmod.phys.tue.nl on Mon, 07 Oct 2002 13:09:58 +0200 (CEST)
+Adrian Bunk wrote:
+: I got the following compile error in 2.5.56:
+: 
+[...]
+: sound/built-in.o(.data+0x7b30): multiple definition of `io'
+: drivers/built-in.o(.data+0x738a0):
+: ...
+: ld: Warning: size of symbol `io' changed from 68 to 4 in sound/built-in.o
+: ...
+: make: *** [.tmp_vmlinux1] Error 1
+[...]
+: The offending files are:
+:   sound/oss/awe_wave.c
+:   drivers/net/wan/cosa.c
 
+	Just change it to "static". This has been reported before
+by Arnd Bergmann from the Kernel Janitors Project. However: cosa.c
+can be built as a module only. Linus, please apply this.
 
-> On  6 Oct, Jack Bowling wrote:
-> > Hi, folks. I would love to bang on the latest 2.5.x revs but unfortunately I
-> > need an updated initio driver. My attempts at a compile all bomb with the
-> > current initio code. Since the freeze is coming up, could somebody please find
-> > whomever is responsible for this driver and ask them to write it to the new
-> > specs? I would do it myself but I can't code!!
-> > 
-> 
-> Yeah, found the same problem. I am not the maintainer, but more than
-> willing to take a shot at it. It has been a while since I rooted around
-> in the kernel source, and, more importantly, I would like to use my
-> CD-burner with 2.5 :-).
+From:  Arnd Bergmann <arnd@bergmann-dalldorf.de>
+--- trivial-2.5-bk/drivers/net/wan/cosa.c.orig	2003-01-06 14:08:20.000000000 +1100
++++ trivial-2.5-bk/drivers/net/wan/cosa.c	2003-01-06 14:08:20.000000000 +1100
+@@ -227,8 +227,8 @@
+ /* NOTE: DMA is not autoprobed!!! */
+ static int dma[MAX_CARDS+1] = { 1, 7, 1, 7, 1, 7, 1, 7, 0, };
+ #else
+-int io[MAX_CARDS+1]  = { 0, };
+-int dma[MAX_CARDS+1] = { 0, };
++static int io[MAX_CARDS+1];
++static int dma[MAX_CARDS+1];
+ #endif
+ /* IRQ can be safely autoprobed */
+ static int irq[MAX_CARDS+1] = { -1, -1, -1, -1, -1, -1, 0, };
 
-Just an update. Here is the output from an attempted compile of 2.5.56 on the same box. Same hardware as before.
-
-===========begin make output==========
-
-gcc -Wp,-MD,drivers/scsi/.ini9100u.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-p
-rototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-
-stack-boundary=2 -march=pentium3 -Iinclude/asm-i386/mach-default -fomit-frame-po
-inter -nostdinc -iwithprefix include    -DKBUILD_BASENAME=ini9100u -DKBUILD_MODN
-AME=initio   -c -o drivers/scsi/ini9100u.o drivers/scsi/ini9100u.c
-drivers/scsi/ini9100u.c:111:2: #error Please convert me to Documentation/DMA-map
-ping.txt
-drivers/scsi/ini9100u.c:144: unknown field `next' specified in initializer
-drivers/scsi/ini9100u.c:144: warning: initialization from incompatible pointer t
-ype
-drivers/scsi/ini9100u.c:144: warning: initialization from incompatible pointer t
-ype
-drivers/scsi/ini9100u.c: In function `i91uBuildSCB':
-drivers/scsi/ini9100u.c:492: structure has no member named `address'
-drivers/scsi/ini9100u.c:501: structure has no member named `address'
-drivers/scsi/hosts.h: At top level:
-drivers/scsi/scsi.h:505: warning: `scsi_proc_host_add' declared `static' but nev
-er defined
-drivers/scsi/scsi.h:506: warning: `scsi_proc_host_rm' declared `static' but neve
-r defined
-make[2]: *** [drivers/scsi/ini9100u.o] Error 1
-make[1]: *** [drivers/scsi] Error 2
-make: *** [drivers] Error 2
-
-========end make output========
-
-Unsure if it is bombing due to the usual ini9100u problems or changes to the base scsi code.
-
-jb
+-Yenya
 
 -- 
-Jack Bowling
-mailto: jbinpg@shaw.ca
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
+|-- If you start doing things because you hate others and want to screw  --|
+|-- them over the end result is bad.   --Linus Torvalds to the BBC News  --|

@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315458AbSFTUUI>; Thu, 20 Jun 2002 16:20:08 -0400
+	id <S315456AbSFTUTx>; Thu, 20 Jun 2002 16:19:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315449AbSFTUUH>; Thu, 20 Jun 2002 16:20:07 -0400
-Received: from ajax.rutgers.edu ([128.6.10.9]:38590 "EHLO ajax.rutgers.edu")
-	by vger.kernel.org with ESMTP id <S315442AbSFTUUF>;
-	Thu, 20 Jun 2002 16:20:05 -0400
-Date: Thu, 20 Jun 2002 16:19:59 -0400 (EDT)
-From: zaimi@pegasus.rutgers.edu
-To: linux-kernel@vger.kernel.org, Rob Landley <landley@trommello.org>
-Subject: Re: kernel upgrade on the fly
-Message-ID: <Pine.GSO.4.44.0206201600470.9816-100000@pegasus.rutgers.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315449AbSFTUTw>; Thu, 20 Jun 2002 16:19:52 -0400
+Received: from mta02-svc.ntlworld.com ([62.253.162.42]:8175 "EHLO
+	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S315442AbSFTUTw>; Thu, 20 Jun 2002 16:19:52 -0400
+Date: Thu, 20 Jun 2002 21:19:51 +0100
+From: Edmund GRIMLEY EVANS <edmundo@rano.org>
+To: linux-kernel@vger.kernel.org
+Subject: lutime() for changing times of a symbolic link
+Message-ID: <20020620201951.GA3853@rano.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the responses especially Rob. I was trying to find previous
-threads about this and could not find them. Agreed, swsusp is a step
-further to that goal; the way that memory is saved though may not make it
-necessarily easier, at least in the current state of swsusp.
+With linux-2.4.18 it seems to be impossible to change the access and
+modification times of a symbolic link because utime() follows links.
+Is there any reason not to add an lutime() system call, analogously
+with chown and lchown?
 
-As you were mentioning, the processes information needs
-to be summarised and saved in such a way that the new kernel can pick up
-and construct its own queues of processes independent on the differences
-between the kernels being swapped.
+Obviously it's not a burning issue, but it would enable tar xf to do
+its job properly and remove what looks like an anomaly.
 
-Well, this does touch the idea of having migrating processes from one
-machine to others in a network. In fact, I dont understand why is it so
-hard to reparent a process. If it can be reparented within a machine, then
-it can migrate to other machines as well, no?
-
-Rob, I am going to the Newark campus FYI, and have interests in some AI
-stuff.
-Thanks again,
-
-Adi
-
+Edmund

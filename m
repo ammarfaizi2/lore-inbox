@@ -1,91 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262604AbUKEFIE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUKEFQn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262604AbUKEFIE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 00:08:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbUKEFIE
+	id S262605AbUKEFQn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 00:16:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262607AbUKEFQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 00:08:04 -0500
-Received: from ozlabs.org ([203.10.76.45]:9376 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262605AbUKEFGW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 00:06:22 -0500
-Date: Fri, 5 Nov 2004 16:04:09 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org, pj@sgi.com, colpatch@us.ibm.com,
-       akpm@osdl.org
-Subject: [PATCH] reset cache_hot_time
-Message-ID: <20041105050409.GB8470@krispykreme.ozlabs.ibm.com>
-References: <20041104210425.GC1268@krispykreme.ozlabs.ibm.com> <418AD7EC.8020300@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <418AD7EC.8020300@yahoo.com.au>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 5 Nov 2004 00:16:43 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:58637 "EHLO
+	bne.snapgear.com") by vger.kernel.org with ESMTP id S262605AbUKEFQk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 00:16:40 -0500
+Message-ID: <418B0C82.6060107@snapgear.com>
+Date: Fri, 05 Nov 2004 15:15:46 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: uClinux development list <uclinux-dev@uclinux.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [uClinux-dev] bug in order>0 page allocations with !CONFIG_MMU
+References: <19972.1099578526@redhat.com>
+In-Reply-To: <19972.1099578526@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> Don't think so. They should be all in units of sched_clock()
-> (ie. ns), so 10ms and 2.5ms are surely the intended values here.
+Hi David,
 
-OK how does this look?
+David Howells wrote:
+> I've found that this:
+> 
+> 	[mm/page_alloc.c]
+> 	static inline void set_page_refs(struct page *page, int order)
+> 	{
+> 	#ifdef CONFIG_MMU
+> 		set_page_count(page, 1);
+> 	#else
+> 		int i;
+> 
+> 		/*
+> 		 * We need to reference all the pages for this order, otherwise if
+> 		 * anyone accesses one of the pages with (get/put) it will be freed.
+> 		 */
+> 		for (i = 0; i < (1 << order); i++)
+> 			set_page_count(page+i, 1);
+> 	#endif /* CONFIG_MMU */
+> 	}
+> 
+> Causes problems if !CONFIG_MMU because __free_pages_ok()/free_pages_check()
+> reports a bad page on the second page when it comes time to free it:
+> 
+> 	Bad page state at __free_pages_ok (in process 'events/0', page c08132e0)
+> 	flags:0x20000000 mapping:00000000 mapcount:0 count:1
 
-Anton
+That itself can be fixed by not checking the page_counts in
+__free_pages_ok():
 
---
+@@ -219,7 +219,9 @@
+  {
+         if (    page_mapped(page) ||
+                 page->mapping != NULL ||
++#ifdef CONFIG_MMU
+                 page_count(page) != 0 ||
++#endif
+                 (page->flags & (
+                         1 << PG_lru     |
+                         1 << PG_private |
 
-Reset cache_hot_time to sane values (in the ms range). Some recent
-changes resulted in values in the us range.
 
-Signed-off-by: Anton Blanchard <anton@samba.org>
 
-===== include/asm-i386/topology.h 1.12 vs edited =====
---- 1.12/include/asm-i386/topology.h	2004-10-19 15:26:52 +10:00
-+++ edited/include/asm-i386/topology.h	2004-11-05 15:50:13 +11:00
-@@ -78,7 +78,7 @@
- 	.max_interval		= 32,			\
- 	.busy_factor		= 32,			\
- 	.imbalance_pct		= 125,			\
--	.cache_hot_time		= (10*1000),		\
-+	.cache_hot_time		= (10*1000000),		\
- 	.cache_nice_tries	= 1,			\
- 	.per_cpu_gain		= 100,			\
- 	.flags			= SD_LOAD_BALANCE	\
-===== include/asm-ppc64/topology.h 1.13 vs edited =====
---- 1.13/include/asm-ppc64/topology.h	2004-10-19 15:26:52 +10:00
-+++ edited/include/asm-ppc64/topology.h	2004-11-05 15:49:52 +11:00
-@@ -46,7 +46,7 @@
- 	.max_interval		= 32,			\
- 	.busy_factor		= 32,			\
- 	.imbalance_pct		= 125,			\
--	.cache_hot_time		= (10*1000),		\
-+	.cache_hot_time		= (10*1000000),		\
- 	.cache_nice_tries	= 1,			\
- 	.per_cpu_gain		= 100,			\
- 	.flags			= SD_LOAD_BALANCE	\
-===== include/asm-x86_64/topology.h 1.13 vs edited =====
---- 1.13/include/asm-x86_64/topology.h	2004-10-19 15:26:52 +10:00
-+++ edited/include/asm-x86_64/topology.h	2004-11-05 15:49:37 +11:00
-@@ -42,7 +42,7 @@
- 	.max_interval		= 32,			\
- 	.busy_factor		= 32,			\
- 	.imbalance_pct		= 125,			\
--	.cache_hot_time		= (10*1000),		\
-+	.cache_hot_time		= (10*1000000),		\
- 	.cache_nice_tries	= 1,			\
- 	.per_cpu_gain		= 100,			\
- 	.flags			= SD_LOAD_BALANCE	\
-===== include/linux/topology.h 1.6 vs edited =====
---- 1.6/include/linux/topology.h	2004-10-19 15:26:51 +10:00
-+++ edited/include/linux/topology.h	2004-11-05 15:48:15 +11:00
-@@ -113,7 +113,7 @@
- 	.max_interval		= 4,			\
- 	.busy_factor		= 64,			\
- 	.imbalance_pct		= 125,			\
--	.cache_hot_time		= (5*1000/2),		\
-+	.cache_hot_time		= (5*1000000/2),	\
- 	.cache_nice_tries	= 1,			\
- 	.per_cpu_gain		= 100,			\
- 	.flags			= SD_LOAD_BALANCE	\
+> Why is doing this necessary at all? No one should be touching the individual
+> pages of a block allocation. The kernel should defend itself against
+> userspace trying to munmap part of a multipage mmap.
 
+I don't recall right now why we had to do this originally.
+It was absolutely neccessary once, but I don't think we need
+this anymore. At least it runs fine on m68knommu targets now
+without this.
+
+Regards
+Greg
+
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com

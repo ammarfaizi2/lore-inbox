@@ -1,92 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272680AbTHKPo7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 11:44:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272729AbTHKPo7
+	id S272697AbTHKPhV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 11:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272686AbTHKPhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 11:44:59 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:63247 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S272680AbTHKPo4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 11:44:56 -0400
-Date: Mon, 11 Aug 2003 17:44:44 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, andrew.grover@intel.com
-Subject: Re: Linux 2.4.22-rc2 : ACPI warning ?
-Message-ID: <20030811154444.GA2868@alpha.home.local>
-References: <Pine.LNX.4.44.0308081751390.10734-100000@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308081751390.10734-100000@logos.cnet>
-User-Agent: Mutt/1.4i
+	Mon, 11 Aug 2003 11:37:21 -0400
+Received: from fw.osdl.org ([65.172.181.6]:56806 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272697AbTHKPhS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 11:37:18 -0400
+Message-Id: <200308111537.h7BFbGA00557@mail.osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: [OSDL] linux-2.6.0-test2 reaim results (flat text)
+Date: Mon, 11 Aug 2003 08:37:16 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 08, 2003 at 05:53:24PM -0300, Marcelo Tosatti wrote:
-> 
-> Hi, 
-> 
-> Here goes release candidate 2. 
-> 
-> It contains yet another bunch of important fixes, detailed below.
 
-Hi Marcelo,
+Sorry, pervious had a messed up attachment. 
+ -mm5 4/8 cpu runs are with AS and Nick Piggin patch.
 
--rc2 seems really fine to me.
+Host: STP 1-CPU
 
-But I noticed a strange message at boot time during the PCI IRQ routing through
-ACPI, and I'm not sure whether it's an info, a warning or an error :
+Reaim test results
 
-ACPI: Interpreter enabled
-ACPI: Using PIC for interrupt routing
-ACPI: System [ACPI] (supports S0 S3 S4 S5)
-ACPI: PCI Root Bridge [PCI0] (00:00)
-PCI: Probing PCI hardware (bus 00)
-Disabling VIA memory write queue (PCI ID 0305, rev 03): [55] 8d & 1f -> 0d
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 7 *9 10 11 12)
-ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 7 9 *10 11 12)
-ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 *5 7 9 10 11 12)
-ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 7 *9 10 11 12)
-ACPI: Embedded Controller [EC0] (gpe 1)
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PPB_._PRT]
-ACPI: Power Resource [PCR0] (off)
-ACPI: Power Resource [PCR1] (off)
-schedule_task(): keventd has not started
-^^^^^^^^^^^^^^^^
-=> this one  !!
+#  STP id PLM#  Kernel Name               Workfile  MaxJPM MaxUser Host PCT
+ 1 277453 2049 linux-2.6.0-test3         new_dbase  1020.72     17 stp1-001 0.00
+ 2 277302 2043 2.6.0-test2-mm5           new_dbase  983.73     17 stp1-001 -3.62
+ 6 276782 2020 linux-2.6.0-test2         new_dbase  1008.42     17 stp1-001 -1.21
+Host: STP 2-CPU
 
-PCI: Probing PCI hardware
-PCI: Using ACPI for IRQ routing
+Reaim test results
 
-And here is the portion of .config related to ACPI. I can send the whole
-config too, but that doesn't seem useful to me to pollute LKML for the rest...
+#  STP id PLM#  Kernel Name               Workfile  MaxJPM MaxUser Host PCT
+ 1 277454 2049 linux-2.6.0-test3         new_dbase  1337.64     22 stp2-001 0.00
+ 2 277303 2043 2.6.0-test2-mm5           new_dbase  1333.34     22 stp2-002 -0.32
+14 276572 2020 linux-2.6.0-test2         new_dbase  1320.68     22 stp2-000 -1.27
+Host: STP 4-CPU
 
-# CONFIG_HOTPLUG_PCI_ACPI is not set
-# ACPI Support
-CONFIG_ACPI=y
-# CONFIG_ACPI_HT_ONLY is not set
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_ACPI_AC=m
-CONFIG_ACPI_BATTERY=m
-CONFIG_ACPI_BUTTON=m
-CONFIG_ACPI_FAN=m
-CONFIG_ACPI_PROCESSOR=m
-CONFIG_ACPI_THERMAL=m
-# CONFIG_ACPI_ASUS is not set
-# CONFIG_ACPI_TOSHIBA is not set
-# CONFIG_ACPI_DEBUG is not set
-CONFIG_ACPI_RELAXED_AML=y
+Reaim test results
 
-Cheers,
-Willy
+#  STP id PLM#  Kernel Name               Workfile  MaxJPM MaxUser Host PCT
+ 1 277455 2049 linux-2.6.0-test3         new_dbase  5324.95     92 stp4-000 0.00
+1 277315 2047 as-mm5-fix2               new_dbase  5138.56     68 stp4-003 -3.50
+10 277206 2020 linux-2.6.0-test2         new_dbase  5430.43     92 stp4-000 1.98
+Host: STP 8-CPU
+
+Reaim test results
+
+#  STP id PLM#  Kernel Name               Workfile  MaxJPM MaxUser Host PCT
+ 1 277456 2049 linux-2.6.0-test3         new_dbase  8954.12    144 stp8-002 0.00
+ 1 277446 2047 as-mm5-fix2               new_dbase  8244.85    104 stp8-002 -7.90
+ 3 276570 2020 linux-2.6.0-test2         new_dbase  8938.54    144 stp8-002 -0.17
+
+
+---------------
+Detail on any run:
+http://khack.osdl.org/stp/<STP id> 
+Hardware details:
+http://khack.osdl.org/stp/<STP id>/environment/machine_info
+More results:
+http://developer.osdl.org/cliffw/reaim/index.html
+---------------
+
+Code location:
+bk://developer.osdl.org/osdl-aim-7
+tarball:
+http://sourceforge.net/projects/re-aim-7
+
+Run parameters:
+
+./reaim -s$CPU_COUNT -x -t -i$CPU_COUNT -f workfile.new_dbase -r3 -b -l./stp.config
+./reaim -s$CPU_COUNT -q -t -i$CPU_COUNT -f workfile.new_dbase -r3 -b -l./stp.config
+(3 runs each, average of all 6 reported) 
+
+cliffw
 

@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272531AbTGZOlJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 10:41:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272525AbTGZOkB
+	id S272526AbTGZOlM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 10:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272502AbTGZOeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 10:40:01 -0400
-Received: from amsfep12-int.chello.nl ([213.46.243.18]:39249 "EHLO
-	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S272526AbTGZOcu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 10:32:50 -0400
-Date: Sat, 26 Jul 2003 16:51:57 +0200
-Message-Id: <200307261451.h6QEpvTQ002454@callisto.of.borg>
+	Sat, 26 Jul 2003 10:34:22 -0400
+Received: from amsfep15-int.chello.nl ([213.46.243.28]:38951 "EHLO
+	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id S272503AbTGZOcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 10:32:31 -0400
+Date: Sat, 26 Jul 2003 16:51:39 +0200
+Message-Id: <200307261451.h6QEpd48002304@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@transmeta.com>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] M68k inline
+Subject: [PATCH] Atari pamsnet
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k: Kill erroneous `inline' (found by gcc 3.2)
+Atari pamsnet: Fix typo
 
---- linux-2.6.x/include/asm-m68k/motorola_pgtable.h	Thu Mar 27 10:58:42 2003
-+++ linux-m68k-2.6.x/include/asm-m68k/motorola_pgtable.h	Fri Jul 11 16:03:17 2003
-@@ -264,7 +264,7 @@
- 	return pte.pte >> 4;
- }
+--- linux-2.6.x/drivers/net/atari_pamsnet.c	Fri May  9 10:21:32 2003
++++ linux-m68k-2.6.x/drivers/net/atari_pamsnet.c	Sat Jun  7 19:59:37 2003
+@@ -169,7 +169,7 @@
  
--static inline pte_t pgoff_to_pte(inline unsigned off)
-+static inline pte_t pgoff_to_pte(unsigned off)
- {
- 	pte_t pte = { (off << 4) + _PAGE_FILE };
- 	return pte;
+ static irqreturn_t pamsnet_intr(int irq, void *data, struct pt_regs *fp);
+ 
+-static struct timer_list pamsnet_timer = TIMER_INITIALIZER(amsnet_tick, 0, 0);
++static struct timer_list pamsnet_timer = TIMER_INITIALIZER(pamsnet_tick, 0, 0);
+ 
+ #define STRAM_ADDR(a)	(((a) & 0xff000000) == 0)
+ 
 
 Gr{oetje,eeting}s,
 

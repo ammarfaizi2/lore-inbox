@@ -1,65 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265548AbTFRVhY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 17:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265552AbTFRVhX
+	id S265551AbTFRViG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 17:38:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265554AbTFRViF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 17:37:23 -0400
-Received: from auemail1.lucent.com ([192.11.223.161]:43258 "EHLO
-	auemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S265548AbTFRVhS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 17:37:18 -0400
-Message-ID: <16112.57021.420450.341367@gargle.gargle.HOWL>
-Date: Wed, 18 Jun 2003 17:50:53 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: "John Stoffel" <stoffel@lucent.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH CYCLADES 2/2] update drivers/char/Kconfig cyclades entry
+	Wed, 18 Jun 2003 17:38:05 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:7884 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S265552AbTFRVh0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 17:37:26 -0400
+Date: Wed, 18 Jun 2003 14:51:22 -0700
+From: David Mosberger <davidm@napali.hpl.hp.com>
+Message-Id: <200306182151.h5ILpMcx022062@napali.hpl.hp.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: add /proc/sys/kernel/cache_decay_ticks
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Reply-To: davidm@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+/proc/sys/kernel/cache_decay_ticks allows runtime tuning of the
+scheduler.  The earlier patch collided with the C99-ification of the
+file, so here is a retransmit.
 
-Hi Linus,
+	--david
 
-I've cleaned up the Kconfig entry for the cyclades serial boards, this
-makes it more obvious what the entry refers to in my mind.  
-
-I'd also ask you to remove drivers/char/README.cyclomY since it's
-*way* out of date and refers to an ancient version of the driver and
-MAKEDEV scripts.
-
-Thanks,
-John
-john@stoffel.org
-
-diff -ur l-2.5.72/drivers/char/Kconfig l-2.5.72-cyclades/drivers/char/Kconfig
---- l-2.5.72/drivers/char/Kconfig	Wed Jun 18 10:26:21 2003
-+++ l-2.5.72-cyclades/drivers/char/Kconfig	Wed Jun 18 17:37:42 2003
-@@ -110,17 +110,19 @@
-           you don't have a Comtrol RocketPort/RocketModem card installed, say N.
+diff -Nru a/include/linux/sysctl.h b/include/linux/sysctl.h
+--- a/include/linux/sysctl.h	Wed Jun 18 13:32:49 2003
++++ b/include/linux/sysctl.h	Wed Jun 18 13:32:49 2003
+@@ -130,6 +130,7 @@
+ 	KERN_PIDMAX=55,		/* int: PID # limit */
+   	KERN_CORE_PATTERN=56,	/* string: pattern for core-file names */
+ 	KERN_PANIC_ON_OOPS=57,  /* int: whether we will panic on an oops */
++	KERN_CACHEDECAYTICKS=58, /* ulong: value for cache_decay_ticks (EXPERIMENTAL!) */
+ };
  
- config CYCLADES
--	tristate "Cyclades async mux support"
-+	tristate "Cyclades Multiport Serial Board support"
- 	depends on SERIAL_NONSTANDARD
- 	---help---
- 	  This is a driver for a card that gives you many serial ports. You
- 	  would need something like this to connect more than two modems to
- 	  your Linux box, for instance in order to become a dial-in server.
--	  For information about the Cyclades-Z card, read
--	  <file:drivers/char/README.cycladesZ>.
-+          This driver supports the following boards:
-+
-+             Cyclom-Y (ISA or PCI)
-+             Cyclades-Z (PCI)
  
--	  As of 1.3.9x kernels, this driver's minor numbers start at 0 instead
--	  of 32.
-+          For information about the Cyclades-Z card, read
-+	  <file:drivers/char/README.cycladesZ>.
+diff -Nru a/kernel/sysctl.c b/kernel/sysctl.c
+--- a/kernel/sysctl.c	Wed Jun 18 13:32:49 2003
++++ b/kernel/sysctl.c	Wed Jun 18 13:32:49 2003
+@@ -551,6 +551,16 @@
+ 		.mode		= 0644,
+ 		.proc_handler	= &proc_dointvec,
+ 	},
++#ifdef CONFIG_SMP
++	{
++		.ctl_name	= KERN_CACHEDECAYTICKS,
++		.procname	= "cache_decay_ticks",
++		.data		= &cache_decay_ticks,
++		.maxlen		= sizeof(cache_decay_ticks),
++		.mode		= 0644,
++		.proc_handler	= &proc_doulongvec_minmax,
++	},
++#endif
+ 	{ .ctl_name = 0 }
+ };
  
- 	  If you want to compile this as a module ( = code which can be
- 	  inserted in and removed from the running kernel whenever you want),

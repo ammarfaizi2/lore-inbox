@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263084AbTEVS0c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 14:26:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263103AbTEVS0b
+	id S263062AbTEVS06 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 14:26:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263077AbTEVS06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 14:26:31 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:57017 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S263084AbTEVS03 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 14:26:29 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Thu, 22 May 2003 14:26:58 -0400
+Received: from hqemgate00.nvidia.com ([216.228.112.144]:17938 "EHLO
+	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
+	id S263062AbTEVS04 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 14:26:56 -0400
+From: Terence Ripperda <tripperda@nvidia.com>
+Reply-To: Terence Ripperda <tripperda@nvidia.com>
+To: linux-kernel@vger.kernel.org
+Date: Thu, 22 May 2003 13:39:56 -0500
+From: <tripperda@nvidia.com>
+Subject: standby failures and ignoring return values
+Message-ID: <20030522183956.GD532@hygelac>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16077.6500.502815.97688@napali.hpl.hp.com>
-Date: Thu, 22 May 2003 11:39:32 -0700
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrew Morton <akpm@digeo.com>, Ravikiran G Thirumalai <kiran@in.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>, linux-kernel@vger.kernel.org,
-       David Mosberger-Tang <davidm@hpl.hp.com>
-Subject: Re: [PATCH] per-cpu support inside modules (minimal)
-In-Reply-To: <20030522100511.751E02C0F1@lists.samba.org>
-References: <20030522100511.751E02C0F1@lists.samba.org>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Accept-Language: en
+X-Operating-System: Linux hrothgar 2.4.19 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm working on some of the power management support for our driver and ran into a problem with 2.4 kernels.
 
-  Rusty> OK, this does the *minimum* required to support
-  Rusty> DEFINE_PER_CPU inside modules.  If we decide to change
-  Rusty> kmalloc_percpu later, great, we can turf this out.
+I'm currently working with Dell Inspiron systems using APM (I think these bioses can do either APM or ACPI). When APM is enabled, the bios is only capable of suspend & resume, not standby.
 
-  Rusty> Basically, overallocates the amount of per-cpu data at boot
-  Rusty> to at least PERCPU_ENOUGH_ROOM if CONFIG_MODULES=y
-  Rusty> (arch-specific by default 16k: I have only 5700 bytes of
-  Rusty> percpu data in my kernel here, so makes sense), and a special
-  Rusty> allocator in module.c dishes it out.
+If I try to enter standby with "apm -S" (on a red hat 7.3 system), the screen goes blank and the system appears to hang.
 
-  Rusty> Comments welcome!
+What's actually happening is that the bios call is failing (set_power_state w/ APM_STATE_STANDBY) and the kernel prints out the message "apm: standby: Parameter out of range". 
 
-Looks good to me.  For ia64, I guess I'll want to add a
+The system is still alive: I can break into the kernel and if I happened to vt switch out of X to the console before doing this the console works fine. But both X and apmd got a standby event and ran their standby scripts, so X is down and apmd has disabled networking, etc..
 
-	#define PERCPU_ENOUGH_ROOM	PERCPU_PAGE_SIZE
+Looking closer, the function standby() in arch/i386/kernel/apm.c sees the error and prints the warning message, but doesn't do anything about it. It seems that when this error happens, this function should either queue a APM_STANDBY_RESUME event or return an error code so the caller can handle the failure. That would allow X and apmd to realize they need to restore the services they shut down.
 
-somewhere, but that doesn't sound so hard. ;-)
+I can put together and test a simple patch for this, but I was wondering if this wasn't done for a reason. perhaps other people had a bios fail this call and trying to recover was worse than doing nothing at all.
 
-Thanks!
-
-	--david
+Thanks,
+Terence

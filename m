@@ -1,67 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129618AbQKBV7b>; Thu, 2 Nov 2000 16:59:31 -0500
+	id <S129676AbQKBWAV>; Thu, 2 Nov 2000 17:00:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129676AbQKBV7L>; Thu, 2 Nov 2000 16:59:11 -0500
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:58841 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129618AbQKBV7C>; Thu, 2 Nov 2000 16:59:02 -0500
-Message-Id: <5.0.0.25.2.20001102215455.03ddabf0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0
-Date: Thu, 02 Nov 2000 21:58:55 +0000
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A0052D3.32326393@timpanogas.org>
-In-Reply-To: <39FF49C8.475C2EA7@timpanogas.org>
- <E13qj56-0003h9-00@pmenage-dt.ensim.com>
- <39FF3D53.C46EB1A8@timpanogas.org>
- <20001031140534.A22819@work.bitmover.com>
- <39FF4488.83B6C1CE@timpanogas.org>
- <20001031142733.A23516@work.bitmover.com>
- <39FF49C8.475C2EA7@timpanogas.org>
- <5.0.0.25.2.20001101094152.03caed30@pop.cus.cam.ac.uk>
+	id <S129780AbQKBWAO>; Thu, 2 Nov 2000 17:00:14 -0500
+Received: from valbert.esscom.com ([199.89.135.168]:62468 "EHLO esscom.com")
+	by vger.kernel.org with ESMTP id <S129676AbQKBV74>;
+	Thu, 2 Nov 2000 16:59:56 -0500
+Date: Thu, 2 Nov 2000 14:59:12 -0700
+From: Val Henson <vhenson@esscom.com>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] /proc/<pid>/stat access stalls badly for swapping process, 2.4.0-test10
+Message-ID: <20001102145912.B8472@esscom.com>
+In-Reply-To: <Pine.LNX.4.21.0011011643050.6740-100000@duckman.distro.conectiva> <Pine.Linu.4.10.10011020800010.1299-100000@mikeg.weiden.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.1.11i
+In-Reply-To: <Pine.Linu.4.10.10011020800010.1299-100000@mikeg.weiden.de>; from mikeg@wen-online.de on Thu, Nov 02, 2000 at 08:19:06AM +0100
+Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[recipients list shortened]
-At 17:28 01/11/2000, Jeff V. Merkey wrote:
->Anton Altaparmakov wrote:
-> > IMHO stability is more important than anything else. - I prefer to run 20
-> > Linux servers which will result in no phonecalls at midnight calling me
-> > into College to reboot them compared to a Netware server which runs as fast
-> > as the 20 Linux servers but disturbs my out-of-working-hours time!
-> >
-> > I agree that having ring 0 OS will improve performance, no doubt about
-> > that, but at what price?
->
->It depends on how well we do out job.  I guess that's the real debate.
+On Thu, Nov 02, 2000 at 08:19:06AM +0100, Mike Galbraith wrote:
+> On Wed, 1 Nov 2000, Rik van Riel wrote:
+> 
+> > I have one possible reason for this ....
+> > 
+> > 1) the procfs process does (in fs/proc/array.c::proc_pid_stat)
+> > 	down(&mm->mmap_sem);
+> > 
+> > 2) but, in order to do that, it has to wait until the process
+> >    it is trying to stat has /finished/ its page fault, and is
+> >    not into its next one ...
+> > 
+> > 3) combine this with the elevator starvation stuff (ask Jens
+> >    Axboe for blk-7 to alleviate this issue) and you have a
+> >    scenario where processes using /proc/<pid>/stat have the
+> >    possibility to block on multiple processes that are in the
+> >    process of handling a page fault (but are being starved)
+> 
+> I'm experimenting with blk.[67] in test10 right now.  The stalls
+> are not helped at all.  It doesn't seem to become request bound
+> (haven't instrumented that yet to be sure) but the stalls persist.
+> 
+> 	-Mike
 
-That's very true. (-:
+This is not an elevator starvation problem.
 
-I was just assuming that we live in an imperfect world and hence have 
-imperfect programs no matter how hard we try to keep them perfect. /-: But 
-that argument belongs to alt.philosophy.life or something like that... (-;
+I also experienced these stalls with my IDE-only system.  Unless I'm
+badly mistaken, the elevator is only used on SCSI disks, therefore
+elevator starvation cannot be blamed for this problem.  These stalls
+are particularly annoying since I want to find the pid of the process
+hogging memory in order to kill it, but the read from /proc stalls for
+45 seconds or more.
 
->Welcome back, how's things.
-
-Fine. Thanks. Just very busy with other things so haven't gotten any coding 
-done in already a few weeks now. )-:
-
-Anton
-
--- 
-      "Education is what remains after one has forgotten everything he 
-learned in school." - Albert Einstein
--- 
-Anton Altaparmakov  Voice: +44-(0)1223-333541(lab) / +44-(0)7712-632205(mobile)
-Christ's College    eMail: AntonA@bigfoot.com / aia21@cam.ac.uk
-Cambridge CB2 3BU    ICQ: 8561279
-United Kingdom       WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+-VAL
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

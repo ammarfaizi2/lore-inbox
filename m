@@ -1,51 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264581AbSIQU3s>; Tue, 17 Sep 2002 16:29:48 -0400
+	id <S264513AbSIQUpE>; Tue, 17 Sep 2002 16:45:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264596AbSIQU3s>; Tue, 17 Sep 2002 16:29:48 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:28091 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S264581AbSIQU3p>; Tue, 17 Sep 2002 16:29:45 -0400
-Subject: Re: Fwd: do_gettimeofday vs. rdtsc in the scheduler
-From: john stultz <johnstul@us.ibm.com>
-To: anton wilson <anton.wilson@camotion.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200209172020.g8HKKPF13227@eng2.beaverton.ibm.com>
-References: <200209172020.g8HKKPF13227@eng2.beaverton.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 17 Sep 2002 13:29:18 -0700
-Message-Id: <1032294559.22815.180.camel@cog>
-Mime-Version: 1.0
+	id <S264520AbSIQUpE>; Tue, 17 Sep 2002 16:45:04 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:41093 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264513AbSIQUpC>;
+	Tue, 17 Sep 2002 16:45:02 -0400
+Importance: Normal
+Sensitivity: 
+Subject: Re: [Lse-tech] Hyperthreading performance on 2.4.19 and 2.5.32
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OFC9812D06.E7590486-ON85256C37.00713B16@pok.ibm.com>
+From: "Duc Vianney" <dvianney@us.ibm.com>
+Date: Tue, 17 Sep 2002 15:49:45 -0500
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11  |July 29, 2002) at
+ 09/17/2002 04:49:47 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  I'm writing a patch for the scheduler that allows normal processes to run 
->  occasionally even though real-time processes completely dominate the CPU. 
-> In 
->  order to do this the way I want to for a specific real-time application, I 
->  need to keep track of the times that the schedule(void) function gets 
-> called. 
->  This time is then used to calculate the time difference between when a 
-> normal 
->  process was run last and the current time. I was trying to avoid 
->  do_gettimeofday because of the overhead, but now I'm wondering if rdtsc on 
-> an 
->  SMP machine may mess up my readings because the TSC from two different 
->  processors may be read. Am I right in assuming this? Secondly, any good 
->  suggestions on how to proceed with my patch? 
 
-Tread with caution. Some NUMA boxes do not have synced TSC, so on those
-systems your code won't work. Additionally, you code would need to take
-other technologies like speedstep into account as well  Alternatively,
-you might want to try using get_cycles, or some other semi-abstracted
-interface, so alternative time sources could be used in the future
-without having to re-write your code. I'm working on somewhat
-abstracting out time sources with my timer-changes patch, so take a peek
-at it and let me know if you have any suggestions. 
 
-thanks
--john
+>What happened to the -38% degradation you found? That seems to have
+>fallen off the results list for some reason ... did you fix it, or is it
+still >there?
+
+Martin ... Thanks for pointing it out.
+The -38% degradation was seen on Sync Random Disk Writes, Sync
+Sequential Disk Writes, and Sync Disk Copies observed from the
+AIM9 bencmark running in Single User test mode. The degradation
+is still there and I will investigate it later when we have the
+hardware resource back.
+
+Thanks ... Duc.
+
+
+
+"Martin J. Bligh" <mbligh@aracnet.com>@lists.sourceforge.net on 09/17/2002
+03:05:35 PM
+
+Sent by:    lse-tech-admin@lists.sourceforge.net
+
+
+To:    Duc Vianney/Austin/IBM@IBMUS, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+cc:
+Subject:    Re: [Lse-tech] Hyperthreading performance on 2.4.19 and 2.5.32
+
+
+
+> Benchmarks. For multithreaded benchmarks: chat, dbench and tbench.
+> Summary of results. The results on Linux kernel 2.4.19 show HT might
+> improve multithreaded application by as much as 30%. On kernel 2.5.32,
+> HT may provide speed-up as high as 60%.
+
+What happened to the -38% degradation you found? That seems to have
+fallen off the results list for some reason ... did you fix it, or is it
+still there?
+
+M.
+
+
+
+
+-------------------------------------------------------
+This SF.NET email is sponsored by: AMD - Your access to the experts
+on Hammer Technology! Open Source & Linux Developers, register now
+for the AMD Developer Symposium. Code: EX8664
+http://www.developwithamd.com/developerlab
+_______________________________________________
+Lse-tech mailing list
+Lse-tech@lists.sourceforge.net
+ https://lists.sourceforge.net/lists/listinfo/lse-tech
+
+
 
 

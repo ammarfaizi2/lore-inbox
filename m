@@ -1,81 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267324AbUBSQEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 11:04:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267321AbUBSQEZ
+	id S267344AbUBSQHE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 11:07:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267327AbUBSQGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 11:04:25 -0500
-Received: from fw.osdl.org ([65.172.181.6]:56285 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267325AbUBSQEV (ORCPT
+	Thu, 19 Feb 2004 11:06:51 -0500
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:14365 "EHLO linux.local")
+	by vger.kernel.org with ESMTP id S267321AbUBSQGp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 11:04:21 -0500
-Date: Thu, 19 Feb 2004 08:09:07 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jamie Lokier <jamie@shareable.org>
-cc: tridge@samba.org, "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: UTF-8 and case-insensitivity
-In-Reply-To: <20040219081027.GB4113@mail.shareable.org>
-Message-ID: <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0402171859570.2686@home.osdl.org> <4032D893.9050508@zytor.com>
- <Pine.LNX.4.58.0402171919240.2686@home.osdl.org> <16435.55700.600584.756009@samba.org>
- <Pine.LNX.4.58.0402181422180.2686@home.osdl.org> <Pine.LNX.4.58.0402181427230.2686@home.osdl.org>
- <16435.60448.70856.791580@samba.org> <Pine.LNX.4.58.0402181457470.18038@home.osdl.org>
- <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org>
- <20040219081027.GB4113@mail.shareable.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 19 Feb 2004 11:06:45 -0500
+Date: Thu, 19 Feb 2004 01:00:45 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       arjanv@redhat.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Non-GPL export of invalidate_mmap_range
+Message-ID: <20040219090045.GC1269@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20040217073522.A25921@infradead.org> <20040217124001.GA1267@us.ibm.com> <20040217161929.7e6b2a61.akpm@osdl.org> <1077108694.4479.4.camel@laptop.fenrus.com> <20040218140021.GB1269@us.ibm.com> <20040218211035.A13866@infradead.org> <20040218150607.GE1269@us.ibm.com> <20040218222138.A14585@infradead.org> <20040218145132.460214b5.akpm@osdl.org> <20040219102900.GC14000@marowsky-bree.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040219102900.GC14000@marowsky-bree.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 19 Feb 2004, Jamie Lokier wrote:
+On Thu, Feb 19, 2004 at 11:29:00AM +0100, Lars Marowsky-Bree wrote:
+> On 2004-02-18T14:51:32,
+>    Andrew Morton <akpm@osdl.org> said:
 > 
-> Linus, while I agree with you wholeheartedly on everything else in
-> this thread - how can Samba only do that lookup ONCE per name if a
-> client is issuing many requests for non-existent opens or stats?
-
-While I'm not willing to push case insensitivity deep into the
-filesystems, I _am_ willing to entertain the notion of an extra flag to a
-dcache entry that the regular VFS operations ignore (apart from clearing
-it when they change anything and having to flush them under some
-circumstances), which would basically be "this dentry has been judged
-unique in a case-insensitive environment".
-
-So assuming nobody else is touching the directory, the case-insensitive 
-special module could create these kinds of dentries to its hearts content 
-when it does a lookup.
-
-> Example: A client has a search path for executables or libraries.
+> > a) Does the export make technical sense?  Do filesystems have
+> >    legitimate need for access to this symbol?
+> > 
+> > (really, a) is sufficient grounds, but for real-world reasons:)
 > 
-> Each time SomeThing.DLL is looked up by the client, it will issue an
-> open() for each entry in the path, until it finds the file it wants.
+> Technically, I assume both OCFS, Lustre, (OpenGFS), PolyServe and
+> basically /everyone/ doing a cluster file system, proprietary or not,
+> will eventually need this capability. Vendors have included hooks for
+> this in 2.4 already anyway.
 > 
-> For each request, Samba must readdir() every directory in the path
-> until the file is found.
+> So on technical grounds, I'm strongly inclined to support it, but I
+> would like to suggest that it is ensured that the hook is sufficient for
+> all of the named CFS.
 > 
-> If a directory doesn't change between requests, Samba can use dnotify
-> to cache the negative lookups.
+> Paul, have you spoken with them?
+
+Lustre, yes.  At OLS last summer, Peter Braam said that it was useful.
+The others, no, but they are certainly free to chime in.
+
+> > b) Does the IBM filsystem meet the kernel's licensing requirements?
 > 
-> However, if any change occurs in a directory, or if the directory is
-> not dnotify-capable, Samba is not allowed to cache these negative
-> results: It has to do the readdir() for _every_ request.
+> If you are worried about this one, you can export it GPL-only, which as
+> an Open Source developer I'd appreciate, but from a real-world business
+> perspective would be unhappy about ;-)
 
-But this is exactly what I _am_ willing to entertain: have some limited 
-special logic inside the kernel (but outside the VFS layer proper), that 
-allows samba to use special interfaces that avoids this.
+Been there, done that.  ;-)
 
-For example, the rule can be that _any_ regular dentry create will 
-invalidate all the "case-insensitive" dentries. Just to be simple about 
-it. But if samba is the only thing that accesses a certain directory (or 
-the directory is not written to, like / and /usr etc usually behave), the 
-"windows hack" interface will be able to populate it with its fake 
-dentries all it wants.
+						Thanx, Paul
 
-Or something like this. Basically, I'm convinced that the problem _can_ be 
-solved without going deep into the VFS layer. Maybe I'm wrong. But I'd 
-better not be, because we're definitely not going to screw up the VFS 
-layer for Windows.
-
-			Linus
+> Sincerely,
+>     Lars Marowsky-Brée <lmb@suse.de>
+> 
+> -- 
+> High Availability & Clustering	      \ ever tried. ever failed. no matter.
+> SUSE Labs			      | try again. fail again. fail better.
+> Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
+> 
+> 

@@ -1,28 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265787AbTBGPkg>; Fri, 7 Feb 2003 10:40:36 -0500
+	id <S265885AbTBGPxl>; Fri, 7 Feb 2003 10:53:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265880AbTBGPkf>; Fri, 7 Feb 2003 10:40:35 -0500
-Received: from node181b.a2000.nl ([62.108.24.27]:52619 "EHLO ddx.a2000.nu")
-	by vger.kernel.org with ESMTP id <S265786AbTBGPke>;
-	Fri, 7 Feb 2003 10:40:34 -0500
-Date: Fri, 7 Feb 2003 16:50:28 +0100 (CET)
-From: kernel@ddx.a2000.nu
-To: Wim Vinckier <wim-raid@tisnix.be>
-cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: fsck out of memory
-In-Reply-To: <Pine.LNX.4.33.0302071637050.11484-100000@nooks.wimpunk.com>
-Message-ID: <Pine.LNX.4.53.0302071648250.1703@ddx.a2000.nu>
-References: <Pine.LNX.4.33.0302071637050.11484-100000@nooks.wimpunk.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265894AbTBGPxl>; Fri, 7 Feb 2003 10:53:41 -0500
+Received: from main.gmane.org ([80.91.224.249]:50619 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S265885AbTBGPxk>;
+	Fri, 7 Feb 2003 10:53:40 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andrew Rodland <arodland@noln.com>
+Subject: Re: acpi + keyboard/mouse problems [was Re: acpi + synaptics trackpad in 2.5]
+Date: Fri, 07 Feb 2003 10:57:30 -0500
+Organization: Dis Organization
+Message-ID: <b20ktt$4lb$1@main.gmane.org>
+References: <20030203210258.GA17499@triplehelix.org> <20030204233301.GF128@elf.ucw.cz> <20030205150331.GA8582@triplehelix.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Feb 2003, Wim Vinckier wrote:
+Joshua Kwan wrote:
 
-> I've got an equivalent problem with my server.  After a long search, it
-> seemed to be a heating problem.  The ventilation wasn't good enough to
+> On Wed, Feb 05, 2003 at 12:33:02AM +0100, Pavel Machek wrote:
+>> Hi!
+>> 
+>> > Whenever I run a ACPI battery monitor in X, my mouse goes completely
+>> > insane - goes around everywhere, and clicks randomly. the second i
+>> > close it, everything returns to normal.
+>> 
+>> What machine?
+> 
+> This is a Dell SmartStep 200N. I have no other working laptops using
+> ACPI so I can't know for sure how big a problem this is :)
 
-disks are not warm at all
-there are 3 6000rpms fans blowing air over them
+Alright...
+I know that some Dells (although I can't say whether yours is one) do their
+ACPI by calling back into Dell SMM calls -- which takes the processor away
+from linux for a significant amount of time; enough to cause clock
+slippage, and loss of mouse data. And I'm guessing an ACPI battery monitor
+polls at a fairly short interval, so, it could be related.
+
+Cheers
+--hobbs
+
+

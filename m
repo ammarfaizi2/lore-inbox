@@ -1,51 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261542AbSJILqH>; Wed, 9 Oct 2002 07:46:07 -0400
+	id <S261556AbSJIL4Y>; Wed, 9 Oct 2002 07:56:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261555AbSJILqH>; Wed, 9 Oct 2002 07:46:07 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:61572 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S261542AbSJILqG>; Wed, 9 Oct 2002 07:46:06 -0400
-Date: Wed, 9 Oct 2002 07:53:19 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Alexander Kellett <lypanov@kde.org>, jw schultz <jw@pegasys.ws>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The end of embedded Linux?
-In-Reply-To: <1034164188.1253.5.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.3.95.1021009074742.27056A-100000@chaos.analogic.com>
+	id <S261560AbSJIL4Y>; Wed, 9 Oct 2002 07:56:24 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:49425 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261556AbSJIL4X>; Wed, 9 Oct 2002 07:56:23 -0400
+Date: Wed, 9 Oct 2002 14:01:50 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+Subject: Re: linux kernel conf 0.8
+In-Reply-To: <Pine.LNX.4.44.0210081830350.4396-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0210091243240.338-100000@serv>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Oct 2002, Alan Cox wrote:
+Hi,
 
-> On Wed, 2002-10-09 at 08:37, Alexander Kellett wrote: 
-> > This talk of adeos reminds me of something that i'd
-> > "dreamed" of a while back. Whats the feasability of
-> > having a 70kb kernel that barely even provides support 
-> > for user space apps and is basically just an hardware 
-> > abstraction layer for "applications" that can be 
-> > written as kernel modules?
-> 
-> Its called FreeDOS,
-> 
+On Tue, 8 Oct 2002, Linus Torvalds wrote:
 
--emm. Maybe he needs just a bit more. There's s book by Richard A.
-Burgess, "Developing your own 32-bit Operating System". Howard W Sams.
-ISBN 0-672-30655-7. It comes with a CDROM and a small OS that works.
+> I'm not super-excited about this, partly because of the brouhaha last time
+> around on this issue.
+>
+> This has reasonably distributed config files, and puts the help with the
+> config entry where it belongs. Good. It also makes do with just standard
+> unix tools, which is going to avoid one particular rat-hole, and which
+> makes me at least understand the code. Also good.
 
-In fact, it seems that a well-known, expensive 32-bit OS used by a
-lot of the embedded companies is is DIRECT COPY of this! In many
-procedures they didn't even change the variable names. The only thing
-they did was... oh well I don't want to get sued ... 
+Thanks. :)
 
+> But the fact that xconfig depends on QT is going to make some people hate
+> it.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
+This should be rather easily fixable, but it has to be done by someone who
+is more familiar with whatever prefered toolkit. I'm familiar with QT and
+it's absolutely great to get quickly reasonable results, if someone wants
+something else I gladly will help, but I can't do it myself.
+The interface to the back end is quite simple so it should be no real
+problem to add a different user interface.
+
+> And I haven't actually heard much _about_ this all, because
+> (apparently as usual), all the discussion is held in a small world of its
+> own.
+
+Well, it happened mostly in my own world, so you didn't miss much. People
+seemed to be scared because of the last discussion and are afraid to
+invest some time into it. So far I had only some feedback from a few
+people (for which I'm already thankful) and it where mostly interface
+issues. All the coding work and major design decissions so far are my own.
+So what you've seen so far on lkml is pretty much almost all the feedback
+I got. It seems unless you state that you're not completely opposed to it,
+I'm afraid it won't get better.
+
+> In other words, I really think this needs to pass the linux-kernel stink
+> test. Will Al Viro rip your throat out? Will it generate more positive
+> feedback than death threats?
+>
+> Some things made me go eww (but on the whole details):
+>
+>  - I'd prefer the Config.in name, since this has nothing to do with
+>    building, and everything to do with configuration.
+
+Fine with me.
+(jgarzik, I think you're overruled now. :) )
+
+>  - I assume that the scripts are generated from the current Config.in
+>    and Config.help files, and it would make me slightly happier to see the
+>    diff as a "automatic script" + "diff to fix it up", just for doc
+>    purposes.
+
+All this is in the archive.
+
+>  - that "lkc" name has got to go. Three-letter acronyms are not good. Of
+>    course it's "linux kernel", the whole tree it sits in is "linux
+>    kernel". Call it "config" or something obvious, please..
+
+Fine with me too. I don't care much about names (as long as they make
+sense) and I thought about a cool name, but I couldn't come up with
+something, so if anyone has other suggestions...
+
+>  - Quick testing showed that the first thing I tried didn't work: giving a
+>    "?" as answer to the first question did _not_ result in help. "make
+>    oldconfig" seemed to do the right thing, though.
+
+Oops,that must have got lost somehow, it's fixed here.
+
+> Let the flames begin.
+
+Thanks, I hope this will help.
+(Hmm, I hope your mail still makes it to lkml, in the meantime I left a
+few more quotes than I usually would do.)
+
+bye, Roman
 

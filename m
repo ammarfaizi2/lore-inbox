@@ -1,68 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261380AbREQJTN>; Thu, 17 May 2001 05:19:13 -0400
+	id <S261379AbREQJSb>; Thu, 17 May 2001 05:18:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261381AbREQJTE>; Thu, 17 May 2001 05:19:04 -0400
-Received: from mail.sai.co.za ([196.33.40.8]:18693 "EHLO mail.sai.co.za")
-	by vger.kernel.org with ESMTP id <S261380AbREQJSt>;
-	Thu, 17 May 2001 05:18:49 -0400
-From: "David Wilson" <davew@sai.co.za>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: FW: I think I've found a serious bug in AMD Athlon page_alloc.c routines, where do I mail the developer(s) ?
-Date: Thu, 17 May 2001 11:20:08 +0200
-Message-ID: <NEBBJFIIGKGLPEBIJACLIEJNDMAA.davew@sai.co.za>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
-In-Reply-To: <E15080y-0004AI-00@the-village.bc.nu>
+	id <S261380AbREQJSW>; Thu, 17 May 2001 05:18:22 -0400
+Received: from ns.suse.de ([213.95.15.193]:6666 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S261379AbREQJSI>;
+	Thu, 17 May 2001 05:18:08 -0400
+Date: Thu, 17 May 2001 11:17:45 +0200
+From: Karsten Keil <kkeil@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: patch-2.2.19.gz
+Message-ID: <20010517111745.A11559@pingi.muc.suse.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3B032598.79716F72@mindspring.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3B032598.79716F72@mindspring.com>; from joeja@mindspring.com on Wed, May 16, 2001 at 09:12:56PM -0400
+Organization: SuSE Muenchen GmbH
+X-Operating-System: Linux 2.2.18-SMP i586
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+On Wed, May 16, 2001 at 09:12:56PM -0400, Joe wrote:
+> I just patched my 2.2.18 kernel.  After I did a make dep I got the
+> following message.  Any ideas what does this mean?
+> 
+> md5sum: WARNING: 11 of 12 computed checksums did NOT match
+> 
+ignore.
+It's simple that one file with md5sums was not updated in the isdn driver.
 
-Mmm no luck so far ;(
-I've checked that the bios is the latest available and there doesn't seem to
-be any type of chipset software patch or upgrade.
-What I have done is tried compiling the kernel for AMD K6/2, K6/3, .....this
-seems to work nicely and it's stable.
-It seems that I'll have to give the "Athlon" support a miss for now. ;(
-
-How does one go about obtaining a Transmeta chip ? I'm really keen to try it
-;-) ...anyways probably just a fantasy for now.
-
-Thanks for the help anyways and keep up the fantastic work !
-
-Regards
-David Wilson
-Technical Support Centre
-The S.A Internet
-0860 100 869
-http://www.sai.co.za
-
-
-
------Original Message-----
-From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-Sent: 16 May 2001 10:35
-To: David Wilson
-Cc: Alan Cox; linux-kernel@vger.kernel.org
-Subject: Re: FW: I think I've found a serious bug in AMD Athlon
-page_alloc.c routines, where do I mail the developer(s) ?
-
-
-> I wonder if DFI has a bios or chipset patch available and whether that
-would
-> help ?
-> Maybe disabling the VIA chipset support in the kernel and running generic
-> drivers would help ?
-
-Play with ideas see what you find out. You might strike lucky. So far nobody
-else has
-
+-- 
+Karsten Keil
+SuSE Labs
+ISDN development

@@ -1,85 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284726AbRLPRBH>; Sun, 16 Dec 2001 12:01:07 -0500
+	id <S284710AbRLPROK>; Sun, 16 Dec 2001 12:14:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284728AbRLPRA5>; Sun, 16 Dec 2001 12:00:57 -0500
-Received: from [202.108.44.206] ([202.108.44.206]:6792 "HELO sm4.163.com")
-	by vger.kernel.org with SMTP id <S284727AbRLPRAn>;
-	Sun, 16 Dec 2001 12:00:43 -0500
-From: <abcd@163.com>
-To: linux-kernel@vger.kernel.org
-Subject: =?ISO-8859-1?Q?21=CA=C0=BC=CD=B5=C4=CC=D8=B4=F3=C9=CC=BB=FA?=  =?ISO-8859-1?Q?=C9=CC=D2=B5=D0=C5=CF=A2=B7=A2=B2=BC=B5=C4=C0=FB=C8=D0?= Time:2:47:45
-Date: Sun, 16 Dec 2001 02:47:45
+	id <S284727AbRLPROA>; Sun, 16 Dec 2001 12:14:00 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:35693 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S284710AbRLPRNp>; Sun, 16 Dec 2001 12:13:45 -0500
+Date: Sun, 16 Dec 2001 19:13:25 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: andrea@suse.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: malloc 1GB on a 2GB ia64 box fails - 17rc1 woes w/ qla1280 and reiserfs
+Message-ID: <20011216191325.K12063@niksula.cs.hut.fi>
+In-Reply-To: <20011216124328.E21566@niksula.cs.hut.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="DEFAULT_CHARSET"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
-Message-Id: <20011215184608.45EC81D7B4953@sm4.163.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011216124328.E21566@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Sun, Dec 16, 2001 at 12:43:28PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-     如果这封信影响到您的工作，或占用了您的时间，就请您立即删除。如果您能抽出一点时间来了解21世纪的特大商机，可使您和您的企业达到成功的顶峰，一切生命的健康可持续发展都不能离开的事业。武汉振业（EVERPURE）饮水设备开发有限公司向全国各地诚招代理、经销商。各地区限报一名，零投入，零风险，无限回报！
-    我们永远承诺，如果你能在地球上找到净水能力超过振业公司EVERPURE生饮机的同类产品，振业公司将给你100万元人民币！
+I spent a good while trying to reproduce this on 17rc1 (never got as far as
+to try -aa), but I never got it booting.
 
-一、申请代理条件：
-●申请人或企业法人代表必须具备良好的综合素质。
-●自觉、自愿接受水文化教育，提高水知识。
-●在所代理地区有固定的居住地、固定电话。
+I did get the rejects weeded (-rc1 and ia64-011214 didn't go together
+cleanly), although there were some stuff in ptrace.c which I'm really no too
+sure of.
 
-二、振业EVERPURE全球知名用户：
-●全球波音747、DC客机等100家以上航空公司及数千架民航机上都有这种设备； 
-●全球麦当劳、肯德基、可口可乐、百事可乐这些著名的餐饮业和饮料行业； 
-●还有全世界知名大企业如美国杜邦公司、迪斯尼乐园、花花公子俱乐部等； 
-●全球便利商店、食品工业钜擎及90%以上自动贩卖机业也都是EVERPURE忠实的用户； 
-●美国陆、海、空三军和美国海上服役的每艘舰艇上，甚至在美国总统的座机空军一号上都配备了EVERPURE生饮机。 
-●无数领导性工商企业以及欧美日千万个家庭用户也都广泛使用EVERPURE生饮机。
+It didn't boot, though. qla1280 just hung after "verifying chip" phase.
+Strangely, I don't see any changes to qla1280.c in -rc1.
 
-三、产品特色：
-    引进美国EVERPURE公司高技术终端水处理技术，荣获美国国家最高卫生标准和最高饮水标准。 EVERPURE生饮机同时也被美国国家卫生基金会评定第一级超精密生饮用水设备。
+Also, the 2.4.16 kernel I'm using now has gone through a lot of unclean
+reboots (usb shutdown used to hang hard until I just disabled the whole
+thing.) It had been mostly ok, but after one unclean boot reiserfs got into
+state where attempt to mount it crashed it in the next boot. reiserfsck -x
+-o -i fixed it, but I think it's still nasty. This was with 2.4.16 (17rc1
+never booted thus far).
 
-    振业公司已经造就了十几位百万富翁，下一个就等你了。
-                                              
-                                           此致
-敬礼
+I hope you can reproduce it on a never kernel (17rc1 or -aa) - it should be
+easy, just fill the cache (find / -type f -exec cat {} \; > /dev/null) and
+run the test prog.
 
-                                           振业EVERPURE电子商务部
-                                           网站： http://www.china-everpure.com
-                                           电子信箱： zhenye@yongjie-zy.com
-                                           电话：027-86796627
-                                           传真：027-86775406
 
-同时，振业.电子商务部首批特别推出：
+-- v --
 
-1、各行业邮件地址列表（10,000万的邮件地址数据库）＋高速邮件群发软件套餐，并能根据您的需要提供各种不同的邮件地址列表。
-2、为您提供宽带（10M）商务信息代理发布服务。我们的高速群发服务器可以按您的需要将指定的内容发布到各企业、个人邮箱。
-   使您足不出户，即可将信息传播至千家万户。我们保证，哪里有网络，您的信息就可以传播到那里。
-3、提供"一次购买，终生升级"服务，不断为您购买的邮件地址提供升级、更新。
-4、另提供世界范围内各行各业邮件地址列表，详情请与我们联系！zhenye@yongjie-zy.com
-
-   我们拥有10,000万的邮件地址数据库，我们将为您提供最优质的服务!我们将是您--21世纪成功人士的首选!
-
-行业分类附表：
-一、国家机关（332万）
-1、人大委员会  2、人民政府  3、法院   4、检察院  5、消防  6、公安  7、工商
-8、税务  9、国土局  10、城建  11、规划局  12、环卫  13、检疫  14、邮政  15、电信  16、铁道  17、财政局  18、人事局  19、劳动局  20、水利  21、审计  22、部队  23、海关
-
-二、政党机关（1万）
-1、中国共产党  2、民主党派  3、政协
-
-三、社会团体（311万）
-1、工会  2、共青团、青联、学联  3、妇联  4、文联  5、残联  6、工商联  7、协会  8、学会  9、红十字会  10、基金会  11、关心下一代协会  12、老龄委员会  13、宗教团体  14、社会团体
-
-四、事业性单位（874万）
-1、学校  2、医院  3、事务所  4、外贸  5、技术监督局  6、资产评估  7、教委
-8、保安  9、科研所  10、园艺  11、电台  12、电视台  13、出版局  14、报社
-15、制片厂  16、中介  17、公证
-
-五、企业（公司）（3464万）
-1、机械 设备  2、建筑 建材 装饰  3、五金  4、电子  5、计算机 6、互联网 7、纺织  8、化工  9、家电  10、服装  11、房地产  12、物业  13、印刷  14、进出口  15、食品  16、饮料  17、材料 18、通信 19、商场  超市 20、办公设备  文具  21、包装  22、宾馆  饭店  酒店  23、出版  24、勘探 测绘  25、餐饮  26、鞋 帽  27、航天 航空  28、工业用品  29、会议 展览  30、家具  31、交通 运输  32、矿产 冶金 金属加工  33、旅行社 旅游  34、农 林 牧 鱼  35、汽车 摩托车  36、轻工 手工  37、清洁  38、社会服务  39、水电 供热  40、书店  41、烟  42、酒  43、医药 保健  44、仪器 仪表  45、音响  46、音像  47、造纸 纸制品  48、生物技术 生物工程  49、石油 天然气  50、电子商务  51、娱乐  52、日用品 生活用品  53、制造  54、塑料 塑胶
-
-六、金融（1018万）
-1、银行  2、证券  3、投资公司  3、拍卖  4、信托  5、保险  7、房地产  8、企业管理  9、广告  10、人才 招聘 猎头  11、代理
-
-七、各大门户网站免费信箱，新新人类消费群体的代表，蕴涵无限商机的源泉。（4000万约数）
+v@iki.fi

@@ -1,48 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262695AbUJ0U7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbUJ0Uh0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262695AbUJ0U7V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 16:59:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262626AbUJ0U6l
+	id S262730AbUJ0Uh0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 16:37:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262628AbUJ0UdC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 16:58:41 -0400
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:31497 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S262695AbUJ0UzO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 16:55:14 -0400
-Date: Wed, 27 Oct 2004 13:54:45 -0700
-To: Bill Huey <bhuey@lnxw.com>
-Cc: Ingo Molnar <mingo@elte.hu>, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
-Message-ID: <20041027205445.GB24732@nietzsche.lynx.com>
-References: <20041025104023.GA1960@elte.hu> <417D4B5E.4010509@cybsft.com> <20041025203807.GB27865@elte.hu> <417E2CB7.4090608@cybsft.com> <20041027002455.GC31852@elte.hu> <417F16BB.3030300@cybsft.com> <20041027132926.GA7171@elte.hu> <417FB7F0.4070300@cybsft.com> <20041027150548.GA11233@elte.hu> <20041027204935.GA24732@nietzsche.lynx.com>
+	Wed, 27 Oct 2004 16:33:02 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:24781 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S262671AbUJ0U3s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 16:29:48 -0400
+Date: Wed, 27 Oct 2004 13:29:24 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Jens Axboe <axboe@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Subject: Re: [PATCH] Rename SECTOR_SIZE to BIO_SECTOR_SIZE
+Message-ID: <20041027202924.GA20572@taniwha.stupidest.org>
+References: <20041027060828.GA32396@taniwha.stupidest.org> <417F4497.3020205@pobox.com> <20041027065524.GA1524@taniwha.stupidest.org> <20041027072212.GN15910@suse.de> <20041027190523.GA19330@taniwha.stupidest.org> <20041027202733.GG28904@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041027204935.GA24732@nietzsche.lynx.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+In-Reply-To: <20041027202733.GG28904@waste.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 27, 2004 at 01:49:35PM -0700, Bill Huey wrote:
-> I've got a latency/histogram patch here, but I've been having problems
-> trying to integrate it into Ingo's irq-threads and getting that simple
-> subtraction returning something sensible. The basic logic works otherwise.
-> 
-> Maybe another pair of eyes can figure this out, since I could have missed
-> something pretty simple...
+On Wed, Oct 27, 2004 at 03:27:33PM -0500, Matt Mackall wrote:
 
-It was originally mean to go in between the irq-thread wake attempt and
-the actual running of the thread body itself. Somehow this is breaking
-in my effort to integrate this logic into Ingo's (your) stuff. Brain
-farting severely right now.
+> So shouldn't this be in bio.h now?
 
-bill
-
+in a sense, nobody else but IDE uses it, and i just noticed
+SECTOR_WORDS is pretty much pointless so i can rediff fixing that
+too...

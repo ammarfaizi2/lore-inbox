@@ -1,31 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292104AbSBTRfe>; Wed, 20 Feb 2002 12:35:34 -0500
+	id <S292107AbSBTRiE>; Wed, 20 Feb 2002 12:38:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292107AbSBTRf1>; Wed, 20 Feb 2002 12:35:27 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46090 "EHLO
+	id <S292124AbSBTRh5>; Wed, 20 Feb 2002 12:37:57 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47114 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292104AbSBTRfM>; Wed, 20 Feb 2002 12:35:12 -0500
-Subject: Re: 2.5.4 PNPBIOS fault
-To: rddunlap@osdl.org (Randy.Dunlap)
-Date: Wed, 20 Feb 2002 17:49:21 +0000 (GMT)
-Cc: jdthood@mail.com (Thomas Hood), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L2.0202200906431.3312-100000@dragon.pdx.osdl.net> from "Randy.Dunlap" at Feb 20, 2002 09:22:25 AM
+	id <S292107AbSBTRhB>; Wed, 20 Feb 2002 12:37:01 -0500
+Subject: Re: Please help me with newer 2.4.xx
+To: riot777@skrzynka.pl (Riot777)
+Date: Wed, 20 Feb 2002 17:51:04 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <000401c1ba31$082104b0$d8644cd5@krios> from "Riot777" at Feb 20, 2002 06:04:51 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16darp-0004Da-00@the-village.bc.nu>
+Message-Id: <E16datU-0004Dq-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> | PnPBIOS: Found PnP BIOS installation structure at 0xc00f6010.
-> | PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0xb4a6, dseg 0x400.
-> | Unable to handle kernel paging request at virtual address 0000de3a
-> |  printing eip:
-> |  00004298
+> Driver is a closed source drv in program which is making a module cold
+> sm56.o after typed command.
+> Motorola says the driver is fully functional and they can't help me becouse
+> company discounted from softmodem buisness. And the driver only works on
+> kernels 2.4.xx .
 
-That looks like it choked from the pnpbios yes. Is this an intel bios ?
+Now you know why you should never buy a product with a binary only driver.
+The only thing you can do is probably to reverse engineer and reimplement
+the entire product, or convince motorola that since they are out
+of the market they might care to put out the docs about it now
 
-Send me some DMI strings
+Alan

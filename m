@@ -1,30 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264709AbRFSS45>; Tue, 19 Jun 2001 14:56:57 -0400
+	id <S264719AbRFSS4Q>; Tue, 19 Jun 2001 14:56:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264716AbRFSS4q>; Tue, 19 Jun 2001 14:56:46 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:19097 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S264709AbRFSS4f>;
-	Tue, 19 Jun 2001 14:56:35 -0400
-Date: Tue, 19 Jun 2001 20:55:44 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200106191855.UAA310765.aeb@vlet.cwi.nl>
-To: linux-kernel@vger.kernel.org, tpepper@vato.org
-Subject: Re: b_dev vs. b_rdev confusion
+	id <S264702AbRFSS4G>; Tue, 19 Jun 2001 14:56:06 -0400
+Received: from msgbas1x.cos.agilent.com ([192.6.9.33]:25841 "HELO
+	msgbas1.cos.agilent.com") by vger.kernel.org with SMTP
+	id <S264709AbRFSSzs>; Tue, 19 Jun 2001 14:55:48 -0400
+Message-ID: <FEEBE78C8360D411ACFD00D0B7477971880AB2@xsj02.sjs.agilent.com>
+From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: how to get DMA'able memory within 4GB on 64-bit machine
+Date: Tue, 19 Jun 2001 12:55:30 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> how do the inode->i_dev, i_rdev fit into this?
+Hi List,
 
-These are what you see with stat(2).
-i_dev gives the device the file is on
-i_rdev is usually undefined, but for device special files
-it gives the real device.
+Is there a way for a driver to ask kernel to
+give DMA'able memory within 4GB ? I read about
+pci_alloc_consistent(). But I could not find out
+whether that guarantees the DMA'able memory to be
+within 4GB or not. Is there any other kernel routine
+that I should call from Driver to get such a memory ?
 
-> Is there a set rule on when/where one should use a buffer head's
-> b_dev and when/where one should use b_rdev?
-
-b_dev gives the device the user was thinking about
-b_rdev is the actual underlying device
-
-Andries
+Regards,
+-hiren
+hiren_mehta@agilent.com

@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264423AbUADVkj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 16:40:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264467AbUADVki
+	id S265116AbUADVvs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 16:51:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbUADVvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 16:40:38 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:55763 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S264423AbUADVkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 16:40:36 -0500
-To: erik@hensema.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0: something is leaking memory
-References: <slrnbvgohn.1pb.erik@dexter.hensema.net>
-	<Pine.LNX.4.58.0401041257290.2162@home.osdl.org>
-	<slrnbvh1hd.jl6.erik@dexter.hensema.net>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 04 Jan 2004 13:39:22 -0800
-In-Reply-To: <slrnbvh1hd.jl6.erik@dexter.hensema.net>
-Message-ID: <52wu87wfzp.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
+	Sun, 4 Jan 2004 16:51:48 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:6632 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265116AbUADVvr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 16:51:47 -0500
+Date: Sun, 4 Jan 2004 22:51:28 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dave Jones <davej@redhat.com>, Rob Love <rml@ximian.com>,
+       Mikael Pettersson <mikpe@csd.uu.se>, szepe@pinerecords.com,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Pentium M config option for 2.6
+Message-ID: <20040104215128.GA14982@ucw.cz>
+References: <200401041227.i04CReNI004912@harpo.it.uu.se> <1073228608.2717.39.camel@fur> <20040104162516.GB31585@redhat.com> <1073233988.5225.9.camel@fur> <20040104165028.GC31585@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 04 Jan 2004 21:39:23.0384 (UTC) FILETIME=[37FB8F80:01C3D30B]
+Content-Disposition: inline
+In-Reply-To: <20040104165028.GC31585@redhat.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yup, looks like IPv6 is leaking memory (since your netstat shows
-nowhere near 19K sockets):
+On Sun, Jan 04, 2004 at 04:50:28PM +0000, Dave Jones wrote:
+> On Sun, Jan 04, 2004 at 11:33:08AM -0500, Rob Love wrote:
+> 
+>  > Yah.  I was just answering in the abstract to the "does cache line
+>  > matter on non-SMP" question.
+>  > 
+>  > I actually like this patch (perhaps since I have a P-M :) and think it
+>  > ought to go in, although I agree with others that the P-M is more of a
+>  > super-P3 than a scaled down P4.
+> 
+> FWIW, I agree with it too on the grounds that its non obvious the optimal
+> setting is CONFIG_MPENTIUMIII. This seems cleaner IMO than changing the
+> helptext to read...
+> 
+>  "Pentium II"
+>  "Pentium III / Pentium 4M"
+>  "Pentium 4"
+> 
+> My other mail may have sounded like I objected to the patch per se, I don't.
 
- > tcp6_sock          19729  19732   1024    4    1 : tunables   54   27    0 : slabdata   4933   4933      0
+Pentium M and Pentium 4M are two different beasts, by the way.
 
-Now to figure out why...
-
- - R.
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

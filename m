@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVACRac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261515AbVACR32@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261518AbVACRac (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 12:30:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVACR3j
+	id S261515AbVACR32 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 12:29:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVACR1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 12:29:39 -0500
-Received: from holomorphy.com ([207.189.100.168]:37020 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261533AbVACR2l (ORCPT
+	Mon, 3 Jan 2005 12:27:08 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:32746 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261518AbVACR0N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 12:28:41 -0500
-Date: Mon, 3 Jan 2005 09:28:39 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: [3/8] kill gen_init_cpio.c printk() of size_t warning
-Message-ID: <20050103172839.GE29332@holomorphy.com>
-References: <20050103172013.GA29332@holomorphy.com> <20050103172303.GB29332@holomorphy.com> <20050103172615.GD29332@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050103172615.GD29332@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Mon, 3 Jan 2005 12:26:13 -0500
+Date: Mon, 3 Jan 2005 12:25:53 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: [PATCH][5/?] count writeback pages in nr_scanned
+Message-ID: <Pine.LNX.4.61.0501031224400.25392@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The rest of gen_init_cpio.c seems to cast the result of strlen() to
-handle this situation, so this patch follows suit while killing off
-size_t -related printk() warnings.
+Still untested, but posting the concept here anyway, since this
+could explain a lot...
 
-Signed-off-by: William Irwin <wli@holomorphy.com>
+OOM kills have been observed with 70% of the pages in lowmem being
+in the writeback state.  If we count those pages in sc->nr_scanned,
+the VM should throttle and wait for IO completion, instead of OOM
+killing.
 
-Index: mm1-2.6.10/usr/gen_init_cpio.c
-===================================================================
---- mm1-2.6.10.orig/usr/gen_init_cpio.c	2005-01-03 06:45:53.000000000 -0800
-+++ mm1-2.6.10/usr/gen_init_cpio.c	2005-01-03 08:11:18.000000000 -0800
-@@ -86,7 +86,7 @@
- 		0,			/* minor */
- 		0,			/* rmajor */
- 		0,			/* rminor */
--		(unsigned)strlen(name) + 1, /* namesize */
-+		(unsigned)strlen(name)+1, /* namesize */
- 		0);			/* chksum */
- 	push_hdr(s);
- 	push_rest(name);
-@@ -112,7 +112,7 @@
- 		(long) gid,		/* gid */
- 		1,			/* nlink */
- 		(long) mtime,		/* mtime */
--		strlen(target) + 1,	/* filesize */
-+		(unsigned)strlen(target)+1, /* filesize */
- 		3,			/* major */
- 		1,			/* minor */
- 		0,			/* rmajor */
+Signed-off-by: Rik van Riel <riel@redhat.com>
+
+--- linux-2.6.9/mm/vmscan.c.screclaim	2005-01-03 12:17:56.547148905 -0500
++++ linux-2.6.9/mm/vmscan.c	2005-01-03 12:18:16.855965416 -0500
+@@ -376,10 +376,10 @@
+
+  		BUG_ON(PageActive(page));
+
++		sc->nr_scanned++;
+  		if (PageWriteback(page))
+  			goto keep_locked;
+
+-		sc->nr_scanned++;
+  		/* Double the slab pressure for mapped and swapcache pages */
+  		if (page_mapped(page) || PageSwapCache(page))
+  			sc->nr_scanned++;

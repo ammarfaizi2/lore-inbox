@@ -1,67 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261702AbSJJRe1>; Thu, 10 Oct 2002 13:34:27 -0400
+	id <S261819AbSJJRmg>; Thu, 10 Oct 2002 13:42:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261744AbSJJRe1>; Thu, 10 Oct 2002 13:34:27 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18959 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261702AbSJJRe0>; Thu, 10 Oct 2002 13:34:26 -0400
-Date: Thu, 10 Oct 2002 13:32:20 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: Con Kolivas <conman@kolivas.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] 2.5.40-mm2 with contest
-In-Reply-To: <3DA233EC.1119CD7B@digeo.com>
-Message-ID: <Pine.LNX.3.96.1021010131852.17862A-100000@gatekeeper.tmr.com>
+	id <S261826AbSJJRmg>; Thu, 10 Oct 2002 13:42:36 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:26107 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S261819AbSJJRme>;
+	Thu, 10 Oct 2002 13:42:34 -0400
+Message-ID: <3DA5BD47.FC7CDAC3@mvista.com>
+Date: Thu, 10 Oct 2002 10:47:51 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Oliver Xymoron <oxymoron@waste.org>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 5.1
+References: <Pine.LNX.4.44.0210091613590.9234-100000@home.transmeta.com> <3DA4BECB.9C7D6119@mvista.com> <20021010155424.GN21400@waste.org> <3DA5A9D6.D72A8E00@mvista.com> <20021010170416.GP21400@waste.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Oct 2002, Andrew Morton wrote:
-
-> Problem is, users have said they don't want that.  They say that they
-> want to copy ISO images about all day and not swap.  I think.
+Oliver Xymoron wrote:
 > 
-> It worries me.  It means that we'll be really slow to react to sudden
-> load swings, and it increases the complexity of the analysis and
-> testing.  And I really do want to give the user a single knob,
-> which has understandable semantics and for which I can feasibly test
-> all operating regions.
+> On Thu, Oct 10, 2002 at 09:24:54AM -0700, george anzinger wrote:
+> > Oliver Xymoron wrote:
+> > >
+> > > On Wed, Oct 09, 2002 at 04:42:03PM -0700, george anzinger wrote:
+> > > > Linus Torvalds wrote:
+> > > > >
+> > > > > On Wed, 9 Oct 2002, george anzinger wrote:
+> > > > > >
+> > > > > > This patch, in conjunction with the "core" high-res-timers
+> > > > > > patch implements high resolution timers on the i386
+> > > > > > platforms.
+> > > > >
+> > > > > I really don't get the notion of partial ticks, and quite frankly, this
+> > > > > isn't going into my tree until some major distribution kicks me in the
+> > > > > head and explains to me why the hell we have partial ticks instead of just
+> > > > > making the ticks shorter.
+> > > > >
+> > > > Well, the notion is to provide timers that have resolution
+> > > > down into the micro seconds.  Since this take a bit more
+> > > > overhead, we just set up an interrupt on an as needed
+> > > > basis.  This is why we define both a high res and a low res
+> > > > clock.  Timers on the low res clock will always use the 1/HZ
+> > > > tick to drive them and thus do not introduce any additional
+> > > > overhead.  If this is all that is needed the configure
+> > > > option can be left off and only these timers will be
+> > > > available.
+> > > >
+> > > > On the other hand, if a user requires better resolution,
+> > > > s/he just turns on the high-res option and incures the
+> > > > overhead only when it is used and then only at timer expire
+> > > > time.  Note that the only way to access a high-res timer is
+> > > > via the POSIX clocks and timers API.  They are not available
+> > > > to select or any other system call.
+> > > >
+> > > > Making ticks shorter causes extra overhead ALL the time,
+> > > > even when it is not needed.  Higher resolution is not free
+> > > > in any case, but it is much closer to free with this patch
+> > > > than by increasing HZ (which, of course, can still be
+> > > > done).  Overhead wise and resolution wise, for timers, we
+> > > > would be better off with a 1/HZ tick and the "on demand"
+> > > > high-res interrupts this patch introduces.
+> > >
+> > > I think what Linus is getting at is: why not make the units of jiffies
+> > > microseconds and give it larger increments on clock ticks? Now you
+> > > don't need any special logic to go to better than HZ resolution.
+> > > Unfortunately, this means identifying all the things that use HZ as a
+> > > measure of how often we check for rescheduling.
+> >
+> > Well then you are still dealing with two measures, the HZ
+> > and the tick rate.
 > 
-> I really, really, really, really don't want to get too fancy in there.
+> Yep, and separating the two breaks a few things. Granted.
+> 
+> > One might also argue that the subjiffie
+> > should be some "normal" thing like nanosecond or micro
+> > second.  I went round and round with this in the beginning.
+> > What it comes down to it the conversion back and forth is
+> > much easier and faster (less overhead) when using the
+> > natural units of the underlying clock.  This way the
+> > interrupt code, for example, does not have to even do a
+> > conversion.
+> 
+> Then the argument becomes move jiffies to the most convenient unit
+> that encompasses what you want to do with subjiffies. Microseconds was
+> just an example. Most code doesn't really care when ticks happen,
+> except to the extent that they currently trigger timers, so
+> jiffies=tick HZ stops being a meaningful measure once timers are
+> untied from ticks, see?
 
-It is really desirable to improve write intense performance in 2.5. My
-response benchmark shows that 2.5.xx is seriously worse under heavy write
-load than 2.4. And in 2.4 it is desirable to do tuning of bdflush for
-write loads, to keep performance up in -aa kernels. Andrea was kind enough
-to provide me some general hints in this area.
+Hm?  Not really sure what this leads to.  Right now the
+timers are organized by "tick".  I think this is VERY
+useful.  It makes the timer insert VERY fast and the tick
+processing equally fast.  A regular "tick" also makes the
+accounting overhead flat WRT load, also a GOOD thing.  
 
-Here's what I think is happening.
+One thought I had was to separate out the sub tick events
+into a different list and come up with a different interrupt
+source for them.  Problem is they MUST stay in sync.  This
+is most easily done when they are in the same list.
 
-1 - the kernel is buffering too much data in the hope that it will
-possibly be reread. This is fine, but it results in swapping a lot of
-programs to make room, and finally a big cleanup to disk, which
-triggers...
+What you haven't touched on, is the separation of the "tick"
+from the clock or time.  The patch implements, a separation
+here.  Time is taken from a reliable source (in this patch
+either TSC or the ACPI pm timer, but others are possible)
+and the "tick" is just a reminder to look at the clock and
+update accordingly.  This eliminates the issue of choosing a
+HZ value that is so many PPM close to real time and the NTP
+issues that causes, such as the current early expiration of
+timers.  Try this:
 
-2 - without the io scheduler having a bunch of writes has a very bad
-effect on read performance, including swap-in. While it's hard to be sure,
-I think I see a program getting a fault to page in a data page (while
-massive write load is present) and while blocked some of the code pages
-are released.
+time sleep 60
 
-I think there's room for improving the performance, as the "swappiness"
-patch shows. I played with trying to block a process after it had a
-certain amount of data buffered for write, but it didn't do what I wanted.
-I think the total buffered data in the system needs to be considered as
-well.
-
-I believe one of the people who actually works on this stuff regularly has
-mentioned this, I don't find the post quickly.
+on a 2.5.40 system.  It will come back with 59.xxx seconds. 
+Clearly the sleep was for less than 60.
+  
+> 
+> > > I don't think he can seriously mean cranking HZ up to match whatever
+> > > timing requirements we might have - that obviously doesn't scale.
+> >
+> > This is at least the third "take" on what he means, each of
+> > which sends me in a very different direction.  Sure would
+> > like to know what he really means.
+> 
+> Perhaps if you pose it as a multiple-choice question? I suppose he's
+> almost sure to answer with "none of the above".
+> 
+> --
+>  "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

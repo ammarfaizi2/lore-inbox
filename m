@@ -1,58 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262212AbREQW56>; Thu, 17 May 2001 18:57:58 -0400
+	id <S262206AbREQW4i>; Thu, 17 May 2001 18:56:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262210AbREQW5s>; Thu, 17 May 2001 18:57:48 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:25559 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S262208AbREQW5j>; Thu, 17 May 2001 18:57:39 -0400
-Date: Thu, 17 May 2001 23:57:37 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.xx ? messages related to parport printer ?
-Message-ID: <20010517235737.I11263@redhat.com>
-In-Reply-To: <3AFAAFE1.DEA0DA6D@wanadoo.fr>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="Pgaa2uWPnPrfixyx"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AFAAFE1.DEA0DA6D@wanadoo.fr>; from jean-luc.coulon@wanadoo.fr on Thu, May 10, 2001 at 05:12:33PM +0200
+	id <S262207AbREQW42>; Thu, 17 May 2001 18:56:28 -0400
+Received: from [24.219.123.215] ([24.219.123.215]:4079 "EHLO
+	p6dnf.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S262206AbREQW4U>; Thu, 17 May 2001 18:56:20 -0400
+Date: Thu, 17 May 2001 15:56:15 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux-Kernel Archive: ide-floppy
+Message-ID: <Pine.LNX.4.21.0105171553200.923-100000@p6dnf.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Pgaa2uWPnPrfixyx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0105.2/0082.html
 
-On Thu, May 10, 2001 at 05:12:33PM +0200, Jean-Luc Coulon wrote:
+> Whenever I boot (2.4.4-ac6) I get this error message if there is a zip
+> disk in the drive.
+> 
+> hdb: 98288kB, 196576 blocks, 512 sector size, hdb: 98304kB, 96/64/32 CHS,
+> 4096 kBps, 512 sector size, 2941 rpm ide-floppy: hdb: I/O error, pc = 5a,
+> key = 5, asc = 24, ascq = 0
+> 
+> The drive seems to work fine for everything except writing large files
+> (>500k) - umount hangs indefinitely. This has been a problem for all the
+> kernels I've used since I got the drive (2.2.18, 2.2.20, 2.4.0->2.4.4-ac6
+> series). The ide-floppy support is compiled into the kernel but I've had
+> similar problems when using it as a module. The disks work perfectly on a
+> windows box and even worked fine when I was using the drive with windows.
+> 
+> Can anyone shed any light on this for me?
 
-> >Huh.  Does it do the same thing every time you load parport_probe?
-> >Does it always get truncated in the same place?
->=20
-> Yes ! :-/
+Linux p6dnf 2.4.5-pre2 #1 SMP Thu May 17 14:46:10 PDT 2001 i686 unknown
 
-Nothing really uses that information in 2.2 anyway, so it's harmless
-at least.  It's probably a timing thing; take a look at the
-differences between the 2.2 and 2.4 code for that.
+Well I dusted of the device an chucked it into a box via handy-dandy
+hotswap shuttle and..........
 
-Tim.
-*/
+May 17 15:29:59
+ p6dnf kernel: hdl: 98304kB, 196608 blocks, 512 sector size,
+May 17 15:29:59
+ p6dnf kernel: hdl: 98304kB, 32/64/96 CHS, 4096 kBps, 512 sector size, 2941 rpm
 
---Pgaa2uWPnPrfixyx
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Pop the module out and back in and ...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+May 17 15:46:58
+ p6dnf kernel: hdl: 98304kB, 32/64/96 CHS, 4096 kBps, 512 sector size, 2941 rpm
 
-iD8DBQE7BFdgONXnILZ4yVIRAgvhAJ90zdfOWII3eC7wNEoLb09Uu5rsfQCghTwy
-dm4lrJuyed+4G8s76QnFzWM=
-=gKNg
------END PGP SIGNATURE-----
+As for AC patches have not gotten around to messing with, but I have a few
+reported cases where stock or pre-patched linus-trees work and
+pre-patched ac-trees fail...
 
---Pgaa2uWPnPrfixyx--
+So you got me on that one.
+
+--
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
+
+
+
+
+
+

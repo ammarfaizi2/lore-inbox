@@ -1,193 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292797AbSB0SYo>; Wed, 27 Feb 2002 13:24:44 -0500
+	id <S292870AbSB0SVF>; Wed, 27 Feb 2002 13:21:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292871AbSB0SYW>; Wed, 27 Feb 2002 13:24:22 -0500
-Received: from sproxy.gmx.net ([213.165.64.20]:60939 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S292874AbSB0SYE>;
-	Wed, 27 Feb 2002 13:24:04 -0500
-Message-ID: <3C7D2432.3A5DA1D7@gmx.net>
-Date: Wed, 27 Feb 2002 19:23:46 +0100
-From: Gunther Mayer <gunther.mayer@gmx.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre9 i686)
-X-Accept-Language: en
+	id <S292866AbSB0STU>; Wed, 27 Feb 2002 13:19:20 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:22477 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S292865AbSB0SSz>;
+	Wed, 27 Feb 2002 13:18:55 -0500
+Date: Wed, 27 Feb 2002 10:19:39 -0800
+From: Hanna Linder <hannal@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+cc: lse-tech@lists.sourceforge.net, viro@math.psu.edu
+Subject: lockmeter results comparing 2.4.17, 2.5.3, and 2.5.5
+Message-ID: <10460000.1014833979@w-hlinder.des>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-To: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: pcmcia problems with IDE & cardbus
-In-Reply-To: <200202270026.g1R0QOa14113@wildsau.idv-edu.uni-linz.ac.at>
-Content-Type: multipart/mixed;
- boundary="------------9EAD9A941EC2446EACB5EE51"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------9EAD9A941EC2446EACB5EE51
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-Herbert Rosmanith wrote:
+	Congratulations to everyone working to reduce contention of the
+Big Kernel Lock. According to this benchmark your work has paid off!
+John Hawkes of SGI asked me to Beta test his 2.5.5 version of lockmeter 
+last night (that's what I get for asking when it would be out). The results 
+were interesting enough to post. 
+	All three runs were on an 8-way SMP system running dbench with 
+up to 16 clients 10 times each. The results are at http://lse.sf.net/locking . 
+Throughput numbers are not included yet, I need to rerun dbench without 
+lockmeter to get accurate throughput results.
+	
+(Read down the Con(tention) column)
+TOTAL is for the whole system
+kernel_flag is for every function holding BKL combined.
 
-> hi,
->
-> I've been trying to get a CompactFlash act as an IDE-drive, 2nd or 3rd
-> ide-channel, that is, IDE1 or IDE2 resp. Didn't work. Seems to be driver
-> related.
->
-> I downloaded 2.4.18 and pcmcia-3.1.31, from the later I got "ide_cs.o"
->
-> The hardware I am using a a two socket PCI to PCMCIA bridge:
->
-> hale-bopp:~ # cat /proc/interrupts
-> [...]
->  10:          1          XT-PIC  Texas Instruments PCI1221, Texas Instruments PCI1221 (#2)
-> ...
->    : hde: SanDisk SDCFB-16, ATA DISK drive
->    : ide2: Disabled unable to get IRQ 10.
->   ...
->    : ide_cs: ide_register() at 0x100 & 0x10e, irq 10 failed
->    : Trying to free nonexistent resource <00000100-0000010f>
->
-> "unable to get IRQ 10" is somewhat funny, since IRQ-10 is used by
-> the cardbus device. what I don't understand is if the IDE-drive
-> sould get its own interrupt or not.
 
-With PCI-PCMCIA bridges you only have _one_ PCI irq, but linux
-falsely fails to share irq in this case.
+SPINLOCKS         HOLD            WAIT
+  UTIL  CON    MEAN(  MAX )   MEAN(  MAX )(% CPU)     TOTAL NOWAIT SPIN RJECT  NAME
 
-This patch exists since 6 months but due to communiation problems
-between Linux and IDE maintainer nobody cared to include it.
+2.4.17:
 
-Find my patch for 2.4.15 appended.
--
-Gunther
+       13.7%  2.2us(  43ms)   31us(  43ms)(20.0%) 232292367 86.3% 13.7% 0.00%  *TOTAL*
+
+ 33.9% 40.3%   11us(  43ms)   51us(  43ms)( 8.2%)  19725127 59.7% 40.3%    0%  kernel_flag
+
+
+2.5.3:
+       11.1%  1.0us(  21ms)  8.2us(  18ms)( 3.8%) 738953957 88.9% 11.1% 0.00%  *TOTAL*
+
+ 10.4% 22.6%  8.3us(  21ms)   23us(  18ms)(0.81%)  27982565 77.4% 22.6%    0%  kernel_flag
+
+
+2.5.5: 
+
+       8.6%  1.6us( 100ms)   30us(  86ms)( 9.4%) 783373441 91.4%  8.6% 0.00%  *TOTAL*
+
+ 1.2% 0.33%  2.5us(  50ms) 1167us(  43ms)(0.23%)  12793605 99.7% 0.33%    0%  kernel_flag
 
 
 
---------------9EAD9A941EC2446EACB5EE51
-Content-Type: text/plain; charset=us-ascii;
- name="gmdiff-lx2415-compactflash+pcmcia+PCI"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="gmdiff-lx2415-compactflash+pcmcia+PCI"
-
-diff -ur linux-2.4.15.orig/drivers/ide/ide-cs.c linux/drivers/ide/ide-cs.c
---- linux-2.4.15.orig/drivers/ide/ide-cs.c	Sun Sep 30 21:26:05 2001
-+++ linux/drivers/ide/ide-cs.c	Sun Nov 25 13:11:36 2001
-@@ -42,6 +42,7 @@
- #include <linux/ioport.h>
- #include <linux/hdreg.h>
- #include <linux/major.h>
-+#include <linux/ide.h>
- 
- #include <asm/io.h>
- #include <asm/system.h>
-@@ -226,6 +227,16 @@
- #define CFG_CHECK(fn, args...) \
- if (CardServices(fn, args) != 0) goto next_entry
- 
-+int idecs_register (int io_base, int ctl_base, int irq)
-+{
-+        hw_regs_t hw;
-+        ide_init_hwif_ports(&hw, (ide_ioreg_t) io_base, (ide_ioreg_t) ctl_base, NULL);
-+        hw.irq = irq;
-+        hw.chipset = ide_pci; // this enables IRQ sharing w/ PCI irqs
-+        return ide_register_hw(&hw, NULL);
-+}
-+
-+
- void ide_config(dev_link_t *link)
- {
-     client_handle_t handle = link->handle;
-@@ -327,12 +338,16 @@
-     if (link->io.NumPorts2)
- 	release_region(link->io.BasePort2, link->io.NumPorts2);
- 
-+    /* disable drive interrupts during IDE probe */
-+    if(ctl_base)
-+    	outb(0x02, ctl_base);
-+
-     /* retry registration in case device is still spinning up */
-     for (i = 0; i < 10; i++) {
--	hd = ide_register(io_base, ctl_base, link->irq.AssignedIRQ);
-+	hd = idecs_register(io_base, ctl_base, link->irq.AssignedIRQ);
- 	if (hd >= 0) break;
- 	if (link->io.NumPorts1 == 0x20) {
--	    hd = ide_register(io_base+0x10, ctl_base+0x10,
-+	    hd = idecs_register(io_base+0x10, ctl_base+0x10,
- 			      link->irq.AssignedIRQ);
- 	    if (hd >= 0) {
- 		io_base += 0x10; ctl_base += 0x10;
-Only in linux/drivers/ide: ide-cs.c-2415
-diff -ur linux-2.4.15.orig/drivers/ide/ide.c linux/drivers/ide/ide.c
---- linux-2.4.15.orig/drivers/ide/ide.c	Thu Oct 25 22:58:35 2001
-+++ linux/drivers/ide/ide.c	Sun Nov 25 13:02:34 2001
-@@ -2293,6 +2293,7 @@
- 	memcpy(hwif->io_ports, hwif->hw.io_ports, sizeof(hwif->hw.io_ports));
- 	hwif->irq = hw->irq;
- 	hwif->noprobe = 0;
-+	hwif->chipset = hw->chipset;
- 
- 	if (!initializing) {
- 		ide_probe_module();
-diff -ur linux-2.4.15.orig/include/linux/ide.h linux/include/linux/ide.h
---- linux-2.4.15.orig/include/linux/ide.h	Thu Nov 22 20:48:07 2001
-+++ linux/include/linux/ide.h	Sun Nov 25 13:05:57 2001
-@@ -223,6 +223,23 @@
- #endif
- 
- /*
-+ * hwif_chipset_t is used to keep track of the specific hardware
-+ * chipset used by each IDE interface, if known.
-+ */
-+typedef enum {  ide_unknown,    ide_generic,    ide_pci,
-+                ide_cmd640,     ide_dtc2278,    ide_ali14xx,
-+                ide_qd65xx,     ide_umc8672,    ide_ht6560b,
-+                ide_pdc4030,    ide_rz1000,     ide_trm290,
-+                ide_cmd646,     ide_cy82c693,   ide_4drives,
-+                ide_pmac,       ide_etrax100
-+} hwif_chipset_t;
-+
-+#define IDE_CHIPSET_PCI_MASK    \
-+    ((1<<ide_pci)|(1<<ide_cmd646)|(1<<ide_ali14xx))
-+#define IDE_CHIPSET_IS_PCI(c)   ((IDE_CHIPSET_PCI_MASK >> (c)) & 1)
-+
-+
-+/*
-  * Structure to hold all information about the location of this port
-  */
- typedef struct hw_regs_s {
-@@ -231,6 +248,7 @@
- 	int		dma;			/* our dma entry */
- 	ide_ack_intr_t	*ack_intr;		/* acknowledge interrupt */
- 	void		*priv;			/* interface specific data */
-+	hwif_chipset_t  chipset;
- } hw_regs_t;
- 
- /*
-@@ -439,22 +457,6 @@
-  * ide soft-power support
-  */
- typedef int (ide_busproc_t) (struct hwif_s *, int);
--
--/*
-- * hwif_chipset_t is used to keep track of the specific hardware
-- * chipset used by each IDE interface, if known.
-- */
--typedef enum {	ide_unknown,	ide_generic,	ide_pci,
--		ide_cmd640,	ide_dtc2278,	ide_ali14xx,
--		ide_qd65xx,	ide_umc8672,	ide_ht6560b,
--		ide_pdc4030,	ide_rz1000,	ide_trm290,
--		ide_cmd646,	ide_cy82c693,	ide_4drives,
--		ide_pmac,       ide_etrax100
--} hwif_chipset_t;
--
--#define IDE_CHIPSET_PCI_MASK	\
--    ((1<<ide_pci)|(1<<ide_cmd646)|(1<<ide_ali14xx))
--#define IDE_CHIPSET_IS_PCI(c)	((IDE_CHIPSET_PCI_MASK >> (c)) & 1)
- 
- #ifdef CONFIG_BLK_DEV_IDEPCI
- typedef struct ide_pci_devid_s {
-
---------------9EAD9A941EC2446EACB5EE51--
+Hanna Linder
+IBM Linux Technology Center
+hannal@us.ibm.com
 

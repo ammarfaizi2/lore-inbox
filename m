@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVAMUHH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbVAMUDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261630AbVAMUHH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 15:07:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbVAMUGs
+	id S261671AbVAMUDL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 15:03:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVAMUCg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 15:06:48 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:384 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261554AbVAMUDn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 15:03:43 -0500
-Date: Thu, 13 Jan 2005 21:02:27 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: George Anzinger <george@mvista.com>
-Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: VST patches ported to 2.6.11-rc1
-Message-ID: <20050113200227.GE2599@openzaurus.ucw.cz>
-References: <20050113132641.GA4380@elf.ucw.cz> <41E6CAAA.4040804@mvista.com>
+	Thu, 13 Jan 2005 15:02:36 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:13541 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261494AbVAMUBJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 15:01:09 -0500
+Subject: Re: thoughts on kernel security issues
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Dave Jones <davej@redhat.com>, grendel@caudium.net,
+       Linus Torvalds <torvalds@osdl.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050113193524.GA27785@infradead.org>
+References: <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
+	 <20050112161227.GF32024@logos.cnet>
+	 <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
+	 <20050112205350.GM24518@redhat.com>
+	 <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org>
+	 <20050113032506.GB1212@redhat.com>
+	 <20050113035331.GC9176@beowulf.thanes.org>
+	 <1105627951.4664.32.camel@localhost.localdomain>
+	 <20050113192512.GA27607@infradead.org> <20050113193356.GA3555@redhat.com>
+	 <20050113193524.GA27785@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1105642542.5193.79.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41E6CAAA.4040804@mvista.com>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 13 Jan 2005 18:55:42 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Iau, 2005-01-13 at 19:35, Christoph Hellwig wrote:
+> freudian typo, should have been smbfs as it should be obvious for the
+> context I replied to.
 
-> >I really hate sf download system... Here are those patches (only
-> >common+i386) ported to 2.6.11-rc1.
-> >
-> >BTW why is linux-net@vger listed as maintainer of HRT?
-> 
-> Oops, should be linux-kernel...
-> 
-> If you could send these as seperate attachments (4 different patches, 
-> me thinks), I will put them in the CVS system and on the site.
-> 
-
-
-Merging was quite easy and I'm not 100% sure I did it right;
-I do not think it would be suitable for cvs.
-
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+It works in some situations but not others. Chuck Ebbert fixed this but
+its never gotten upstream, although I think Andrew was now looking at
+it.
 

@@ -1,136 +1,132 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264345AbRFNBLs>; Wed, 13 Jun 2001 21:11:48 -0400
+	id <S264371AbRFNBLs>; Wed, 13 Jun 2001 21:11:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264359AbRFNBLi>; Wed, 13 Jun 2001 21:11:38 -0400
-Received: from jcwren-1.dsl.speakeasy.net ([216.254.53.52]:60412 "EHLO
-	jcwren.com") by vger.kernel.org with ESMTP id <S264345AbRFNBLX>;
-	Wed, 13 Jun 2001 21:11:23 -0400
-Reply-To: <jcwren@jcwren.com>
-From: "John Chris Wren" <jcwren@jcwren.com>
-To: "Daniel" <ddickman@nyc.rr.com>,
-        "Linux kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: obsolete code must die
-Date: Wed, 13 Jun 2001 21:11:12 -0400
-Message-ID: <NDBBKBJHGFJMEMHPOPEGEEJHCJAA.jcwren@jcwren.com>
+	id <S264345AbRFNBLj>; Wed, 13 Jun 2001 21:11:39 -0400
+Received: from oe32.law3.hotmail.com ([209.185.240.25]:2323 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S264371AbRFNBL1>;
+	Wed, 13 Jun 2001 21:11:27 -0400
+X-Originating-IP: [63.169.2.184]
+Reply-To: "William Scott Lockwood III" <scottlockwood@hotmail.com>
+From: "William Scott Lockwood III" <thatlinuxguy@hotmail.com>
+To: "'Andre Hedrick'" <andre@linux-ide.org>, <craigl@promise.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <00d301c0f463$de9dd840$bd01a8c0@promise.com>
+Subject: Re: Eye2Eye a hope for Promise to Join Linux
+Date: Wed, 13 Jun 2001 20:09:11 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain;	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
+X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <01a401c0f46b$20b932e0$480e6c42@almlba4sy7xn6x>
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Importance: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+Message-ID: <OE327xg8BPq2qJ5hSTG00007f77@hotmail.com>
+X-OriginalArrivalTime: 14 Jun 2001 01:11:20.0610 (UTC) FILETIME=[EBCE0020:01C0F46E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	As an end user who uses cheap laptops for firewalls, I'm pretty much
-against this.  I've got 2.2.18, 2.4.4-ac8, and 2.4.4-ac12 installed as
-firewall machines on 486 laptops.  Why should we (the collective Linux
-world, not me personnally, since I'm not a kernel developer) limit the class
-of machines people can run?
+Dear Mr. Lyons,
+  I think it's very exciting to see someone from promise talking to the
+community.  I think the most important thing to remember is that even if the
+company does not release source, people will reverse engineer the cards
+anyway - possibly not giving the best support to the hardware that could be
+given with GPL'd source.  How does that make the product look?  If I can buy
+a controller that is very well documented (like my Adaptec 2940) and will
+serve my needs, and has source, I (personally) will pick that card over a
+closed source product where I cannot update the binary only driver provided
+by the manufacturer.  While I recognize that sometimes it's hard to get
+"suits" to understand this, I encourage you to try.  :-)
+  Along these lines, I'm wondering what your interest, and Promise's policy
+is about Interviews?  I'm curious to get your companies views on Linux, and
+also yours - I run a small (VERY loose, VERY non-serious) website called
+http://www.geekizoid.com/ and while we mostly cover troll related net humor,
+we also are trying to branch out and do more serious stuff.  The Interview
+(if you would agree to it) would be "Slashdot style" - we'd let the
+readership know you were willing to answer questions, and we'd then forward
+them to you - you would then answer the ones you wanted, and those answers,
+verbatim with no editing, would appear with the questions as asked.
 
-	In fact, this seems to be one of the appealing features of Linux, that it
-runs on any x86 hardware class with a MMU.  It allows people to get involved
-in Linux without making a committment to buying a new PC until they know
-they like it, or buying a new HD to do a dual boot install to experiment.
-Laptops are a particular issue here, because many of the laptops people can
-obtain inexpensively ARE 386/486 class machines.
+William Scott Lockwood III
+Geekizoid Webmaster
 
-	I'm all for cleaning up the kernel code, but I think it would be better
-served by documentation, not by limiting the hardware that can be run.
+----- Original Message -----
+From: "Craig Lyons" <craigl@promise.com>
+To: "'Andre Hedrick'" <andre@linux-ide.org>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Wednesday, June 13, 2001 6:52 PM
+Subject: RE: Eye2Eye a hope for Promise to Join Linux
 
-	I can't speak authoritively on how much of the kernel code is processor
-specific, since GCC takes care of most of that.  I do know there are
-sections that are affected by the processor selection, but I can't believe
-that it's a significantly large enough portion to justify ripping it out in
-the name of cleaning it up.
 
-	I do agree with deleting obsolete code, but not obsoleting hardware so we
-CAN delete code.
-
-	--John
-
+> Hi,
+>
+> Andre and I did indeed have a nice conversation on the phone. Thank you
+> again for taking the time to talk with me and offering your assistance. As
+I
+> stated on the phone, we are making a large commitment of resources to
+> supporting Linux by releasing drivers and utilities for our products,
+> including the FastTrak. I know we have plans to release source for our
+Ultra
+> and SuperTrak series cards, but at this point I'm not sure that the way we
+> are going to be supporting FastTrak is what you would like to see. As I
+> said, while I cannot guarantee anything that I don't have the authority to
+> deliver, I will pass on your requests. I will try to be an advocate for
+> Promise in the Linux community, and an advocate for the Linux community to
+> Promise. If the company has concerns, I will let you know what they are,
+and
+> then maybe you can tell us if we are off-base with those concerns or not.
+>
+> I would invite anybody to contact me if you have any suggestions, any
+> requests, whatever. As I told Andre, I won't promise something I can't
+> personally deliver, but I will do whatever I can to help out. I'm also
+> trying to get a technical point of contact so that you don't have to deal
+> with a marketing weenie who doesn't understand half of what you're saying
+> ;).
+>
+> Regards,
+>
+> Craig
+>
+>
 > -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Daniel
-> Sent: Wednesday, June 13, 2001 20:44 PM
-> To: Linux kernel
-> Subject: obsolete code must die
+> From: Andre Hedrick [mailto:andre@linux-ide.org]
+> Sent: Wednesday, June 13, 2001 2:43 PM
+> To: Craig Lyons
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Eye2Eye a hope for Promise to Join Linux
 >
 >
-> Anyone concerned about the current size of the kernel source
-> code? I am, and
-> I propose to start cleaning house on the x86 platform. I mean
-> it's all very
-> well and good to keep adding features, but stuff needs to go if kernel
-> development is to move forward. Before listing the gunk I want to get rid
-> of, here's my justification for doing so:
-> -- Getting rid of old code can help simplify the kernel. This means less
-> chance of bugs.
-> -- Simplifying the kernel means that it will be easier for newbies to
-> understand and perhaps contribute.
-> -- a simpler, cleaner kernel will also be of more use in an academic
-> environment.
-> -- a smaller kernel is easier to maintain and is easier to re-architect
-> should the need arise.
-> -- If someone really needs support for this junk, they will
-> always have the
-> option of using the 2.0.x, 2.2.x or 2.4.x series.
 >
-> So without further ado here're the features I want to get rid of:
+> Greetings Craig,
 >
-> i386, i486
-> The Pentium processor has been around since 1995. Support for these older
-> processors should go so we can focus on optimizations for the pentium and
-> better processors.
+> I would like to publicly thank you for coming to the table of GNU/GPL with
+> an open perspective.  After 90 minutes on the phone, of which 45 minutes
+> were me pointing out issues promblems and complaints w/ 20 minutes on ways
+> to work on solutions in the near and distant future and the listening to
+> your concerns and questions between my moments of interruption.
 >
-> math-emu
-> If support for i386 and i486 is going away, then so should math emulation.
-> Every intel processor since the 486DX has an FPU unit built in. In fact
-> shouldn't FPU support be a userspace responsibility anyway?
+> The next conversion will not have the burst-in moments because it will be
+> in person or my cell battery will be fully charged.
 >
-> ISA bus, MCA bus, EISA bus
-> PCI is the defacto standard. Get rid of CONFIG_BLK_DEV_ISAPNP,
-> CONFIG_ISAPNP, etc
+> Since you have stated "I will not make promise, I can not keep" this is a
+> good thing and it will go a fair way to clean up messes from the past on
+> both sides.
 >
-> ISA, MCA, EISA device drivers
-> If support for the buses is gone, there's no point in supporting
-> devices for
-> these buses.
+> I look forward to Promise working with Linux in meaningful and productive
+> ways.
 >
-> all code marked as CONFIG_OBSOLETE
-> Since we're cleaning house we may as well get rid of this stuff.
+> Please reply and correct anything that is mistated by me or verify the
+> correctness.  This will show an action of good-faith before all those
+> watching here.
 >
-> MFM/RLL/XT/ESDI hard drive support
-> Does anyone still *have* an RLL drive that works? At the very
-> least get rid
-> of the old driver (eg CONFIG_BLK_DEV_HD_ONLY, CONFIG_BLK_DEV_HD_IDE,
-> CONFIG_BLK_DEV_XD, CONFIG_BLK_DEV_PS2)
+> Respectfully,
 >
-> parallel/serial/game ports
-> More controversial to remove this, since they are *still* in pretty wide
-> use -- but USB and IEEE 1394 are the way to go. No ifs ands or buts.
->
-> a.out
-> Who needs it anymore. I love ELF.
->
-> I really think doing a clean up is worthwhile. Maybe while
-> looking for stuff
-> to clean up we'll even be able to better comment the existing code. Any
-> other features people would like to get rid of? Any comments or
-> suggestions?
-> I'd love to start a good discussion about this going so please
-> send me your
-> 2 cents.
->
-> Daniel
+> Andre Hedrick
+> Linux ATA Development
 >
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
-
+>

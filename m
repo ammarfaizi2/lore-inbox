@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261369AbSKGSSh>; Thu, 7 Nov 2002 13:18:37 -0500
+	id <S261370AbSKGSZ3>; Thu, 7 Nov 2002 13:25:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261374AbSKGSSh>; Thu, 7 Nov 2002 13:18:37 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36104 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261369AbSKGSSg>;
-	Thu, 7 Nov 2002 13:18:36 -0500
-Message-ID: <3DCAB001.7020400@pobox.com>
-Date: Thu, 07 Nov 2002 13:25:05 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jochen Friedrich <jochen@scram.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, phillim2@comcast.net
-Subject: Re: [PATCH] Update of tms380tr / tmsisa for 2.5.45
-References: <Pine.LNX.4.44.0211011511200.14458-100000@gfrw1044.bocc.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S261374AbSKGSZ2>; Thu, 7 Nov 2002 13:25:28 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:35085
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S261370AbSKGSZ2>; Thu, 7 Nov 2002 13:25:28 -0500
+Subject: Re: yet another update to the post-halloween doc.
+From: Robert Love <rml@tech9.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1021107112618.30525B-100000@gatekeeper.tmr.com>
+References: <Pine.LNX.3.96.1021107112618.30525B-100000@gatekeeper.tmr.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 07 Nov 2002 13:18:54 -0500
+Message-Id: <1036693135.765.1372.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jochen Friedrich wrote:
-> -			if (tms_isa_probe(dev))
-> +			if (!tms_isa_probe(dev))
->  			{
-> -				unregister_netdev(dev);
-> -				kfree(dev);
-> -			}
-> -			else
->  				num++;
-> +				dev = init_trdev(NULL, 0);
-> +				if (!dev)
-> +					return (0);
+On Thu, 2002-11-07 at 11:33, Bill Davidsen wrote:
 
+>   I don't want to get into politics on this, but wasn't Albert the
+> maintainer of procps? I think I saw him state that you guys started
+> releasing your own versions instead of sending him patches,
 
+I want to avoid the politics, but real quick...
 
-you still haven't address my comments from the last time you posted 
-this:  twice you add code like the above that bails out, without 
-cleaning up any prior instances of this network card.  For example if 
-card #2 fails to register but cards #0 and #1 are registered and probed 
-successfully, you have problems...
+Michael K. Johnson (yes, that mkj) wrote the current procps package
+sometime ago.  With version 2.0.7, development pretty much stopped.
+
+Albert had patches for procps that were not being accepted, so he forked
+and put a new tree on SourceForge to continue development.  This is a
+good thing, and I do not fault him for it.  But none-the-less it is a
+fork.
+
+Rik and I came along, get CVS access to the original tree at Red Hat,
+and started development of that.  This tree is what most distributors
+include.  So Rik and I are currently maintaining mkj's official tree.
+
+Other than that, I do not care.  Use Albert's tree or ours.  All I care
+about is having someone not post to every procps-related email "your
+package sucks, use 3.0".
+
+	Robert Love
 

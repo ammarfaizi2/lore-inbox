@@ -1,76 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261438AbTD2QTM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 12:19:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbTD2QTM
+	id S261989AbTD2Q2E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 12:28:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbTD2Q2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 12:19:12 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:39100 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261438AbTD2QTL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 12:19:11 -0400
-Date: Tue, 29 Apr 2003 09:28:57 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Christian =?ISO-8859-1?Q?Borntr=E4ger?= <linux@borntraeger.net>
-Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [BUG 2.5.67 (and probably earlier)] /proc/dev/net doesnt show
- all net devices
-Message-Id: <20030429092857.4ebffcc9.rddunlap@osdl.org>
-In-Reply-To: <200304291434.18272.linux@borntraeger.net>
-References: <200304291434.18272.linux@borntraeger.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 29 Apr 2003 12:28:04 -0400
+Received: from relay02.valueweb.net ([216.219.253.236]:1774 "EHLO
+	relay02.valueweb.net") by vger.kernel.org with ESMTP
+	id S261989AbTD2Q2D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 12:28:03 -0400
+Message-ID: <3EAEAADC.9030903@coyotegulch.com>
+Date: Tue, 29 Apr 2003 12:39:56 -0400
+From: Scott Robert Ladd <coyote@coyotegulch.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Timothy Miller <miller@techsource.com>
+CC: James Bottomley <James.Bottomley@hansenpartnership.com>,
+       Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+References: <1051466395.2427.62.camel@fuzzy> <3EAE85CB.9070000@techsource.com>
+In-Reply-To: <3EAE85CB.9070000@techsource.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Apr 2003 14:34:18 +0200 Christian Bornträger <linux@borntraeger.net> wrote:
+Timothy Miller wrote:
+> I believe that it's very important that an author have rights to
+> profit exclusively from their creations.  It gives them incentive to
+> create.  I mean, if every time you developed some cool new
+> technology, some foreign company took it, made huge profits from it,
+> and left you with out a dime for all of your effort, wouldn't that
+> put a huge kink in your desire to expend that sort of effort?
+> 
+> On the other hand, I don't believe people should rest on their
+> laurels. Limited rights is an incentive to get off one's behind and
+> create another thing.
+> 
+> I think patent periods should be very strongly enforced and SHORT.
+> Like most of these patents that we think of as frivolous should be
+> allowed, but the time limit should be at most a year or two.  Many of
+> these 'defensive' patents that companies like Amazon have are
+> actually good things because they ensure that these ideas go into the
+> public domain. If some patent is deemed particularly clever, then the
+> limit should be more like five years.
+> 
+> I have mixed feelings on defensive patents.  "Since I know that
+> you're going to patent what I'm already doing and then sue me over
+> it, I'm going to beat you to the punch and patent it to protect
+> myself."  It makes sense in a very sad sort of way.
 
-| Summary: /proc/net/devices doesnt show all devices using cat. With dd all are 
-| available.
-| 
-| I tested a kernels prior to 
-| http://linus.bkbits.net:8080/linux-2.5/cset@1.797.156.3
-| and it doesnt seem to have this problem.
+I just want to "second" your excellent thoughts. Well said.
 
+..Scott
 
-I haven't tried to make that many net devices.
-Acme, does this look helpful?
-Christian, can you test this patch?
+-- 
+Scott Robert Ladd
+Coyote Gulch Productions (http://www.coyotegulch.com)
 
---
-~Randy
-
-
-patch_name:	proc_net_dev_seq.patch
-patch_version:	2003-04-29.09:10:38
-author:		Randy.Dunlap <rddunlap@osdl.org>
-description:	fix /proc/net/dev to include entire file for output
-product:	Linux
-product_versions: linux-2568-428
-changelog:	seq_start() needs to increment i;
-URL:		_
-requires:	_
-conflicts:	_
-maintainer:	davem@redhat.com
-diffstat:	=
- net/core/dev.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
-diff -Naur ./net/core/dev.c%SEQ ./net/core/dev.c
---- ./net/core/dev.c%SEQ	2003-04-28 15:07:01.000000000 -0700
-+++ ./net/core/dev.c	2003-04-29 09:06:18.000000000 -0700
-@@ -1789,7 +1789,7 @@
- 	struct net_device *dev;
- 	loff_t i;
- 
--	for (i = 0, dev = dev_base; dev && i < pos; dev = dev->next);
-+	for (i = 0, dev = dev_base; dev && i < pos; dev = dev->next, i++);
- 
- 	return i == pos ? dev : NULL;
- }

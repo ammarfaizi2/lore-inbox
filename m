@@ -1,55 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUH0Oyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266073AbUH0PPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265805AbUH0Oyl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 10:54:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265808AbUH0Oyk
+	id S266073AbUH0PPO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 11:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265996AbUH0POr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 10:54:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:1152 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265805AbUH0Oyh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 10:54:37 -0400
-Date: Fri, 27 Aug 2004 10:50:23 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Roger Luethi <rl@hellgate.ch>
-cc: linux-kernel@vger.kernel.org,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>,
-       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: [0/2][ANNOUNCE] nproc: netlink access to /proc information
-In-Reply-To: <20040827122412.GA20052@k3.hellgate.ch>
-Message-ID: <Xine.LNX.4.44.0408271043130.7393-100000@thoron.boston.redhat.com>
+	Fri, 27 Aug 2004 11:14:47 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:37854 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S266117AbUH0POL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 11:14:11 -0400
+Message-ID: <412F4FCF.6010507@sgi.com>
+Date: Fri, 27 Aug 2004 10:14:23 -0500
+From: Patrick Gefre <pfg@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Patrick Gefre <pfg@sgi.com>
+CC: Christoph Hellwig <hch@infradead.org>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Latest Altix I/O code reorganization code
+References: <200408042014.i74KE8fD141211@fsgi900.americas.sgi.com> <20040806141836.A9854@infradead.org> <411AAABB.8070707@sgi.com> <412F4EC9.7050003@sgi.com>
+In-Reply-To: <412F4EC9.7050003@sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Aug 2004, Roger Luethi wrote:
 
-> At the moment, the kernel sends a separate netlink message for every
-> process.
+Patch 1 of 26
 
-You should look at the way rtnetlink dumps large amounts of data to  
-userspace.
+This patch is too large for email see:
 
-> I haven't implemented any form of access control. One possibility is
-> to use some of the reserved bits in the ID field to indicate access
-> restrictions to both kernel and user space (e.g. everyone, process owner,
-> root) 
-
-So, user tools would all need to be privileged?  That sounds problematic.
-
-> and add some LSM hook for those needing fine-grained control.
-
-Control over the user request, or what the kernel returns?  If the latter, 
-LSM is not really a filtering API.
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+ftp://oss.sgi.com/projects/sn2/sn2-update/001-kill-files

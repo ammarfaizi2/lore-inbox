@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbUKBNxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbUKBN5A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbUKBNxd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 08:53:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbUKBNxd
+	id S261351AbUKBN5A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 08:57:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbUKBNyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 08:53:33 -0500
-Received: from [212.209.10.221] ([212.209.10.221]:28372 "EHLO
-	krynn.se.axis.com") by vger.kernel.org with ESMTP id S262923AbUKBNFB
+	Tue, 2 Nov 2004 08:54:24 -0500
+Received: from [212.209.10.221] ([212.209.10.221]:27348 "EHLO
+	krynn.se.axis.com") by vger.kernel.org with ESMTP id S262913AbUKBNE6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 08:05:01 -0500
+	Tue, 2 Nov 2004 08:04:58 -0500
 From: "Mikael Starvik" <mikael.starvik@axis.com>
 To: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
-Subject: [PATCH 1/10] CRIS architecture update - Configuration and build
-Date: Tue, 2 Nov 2004 14:04:30 +0100
-Message-ID: <BFECAF9E178F144FAEF2BF4CE739C668014C7485@exmail1.se.axis.com>
+Subject: [PATCH 4/10] CRIS architecture update - IDE
+Date: Tue, 2 Nov 2004 14:04:39 +0100
+Message-ID: <BFECAF9E178F144FAEF2BF4CE739C668014C7488@exmail1.se.axis.com>
 MIME-Version: 1.0
 Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_01CB_01C4C0E4.DFDD8650"
+	boundary="----=_NextPart_000_01D4_01C4C0E4.E514F950"
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
 X-Mailer: Microsoft Outlook, Build 10.0.6626
@@ -27,182 +27,152 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_01CB_01C4C0E4.DFDD8650
+------=_NextPart_000_01D4_01C4C0E4.E514F950
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 
-This patch contains changes to configuration and build system to make CRIS
-up to date with 2.6.9. 
+Update CRIS IDE driver for 2.6.9.
 
 Signed-Off-By: starvik@axis.com
 
 /Mikael
 
-------=_NextPart_000_01CB_01C4C0E4.DFDD8650
+------=_NextPart_000_01D4_01C4C0E4.E514F950
 Content-Type: application/octet-stream;
-	name="cris269_1.patch"
+	name="cris269_4.patch"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: attachment;
-	filename="cris269_1.patch"
+	filename="cris269_4.patch"
 
-diff -urNP --exclude=3D'*.cvsignore' ../linux/arch/cris/Kconfig.debug =
-lx25/arch/cris/Kconfig.debug=0A=
---- ../linux/arch/cris/Kconfig.debug	Mon Oct 18 23:55:36 2004=0A=
-+++ lx25/arch/cris/Kconfig.debug	Tue Oct 19 15:07:34 2004=0A=
-@@ -1,15 +1,11 @@=0A=
- menu "Kernel hacking"=0A=
- =0A=
--source "lib/Kconfig.debug"=0A=
--=0A=
- #bool 'Debug kmalloc/kfree' CONFIG_DEBUG_MALLOC=0A=
--config PROFILE=0A=
-+config PROFILING=0A=
- 	bool "Kernel profiling support"=0A=
- =0A=
--config PROFILE_SHIFT=0A=
--	int "Profile shift count"=0A=
--	depends on PROFILE=0A=
--	default "2"=0A=
-+config SYSTEM_PROFILER=0A=
-+        bool "System profiling support"=0A=
- =0A=
- config ETRAX_KGDB=0A=
- 	bool "Use kernel GDB debugger"=0A=
-@@ -25,4 +21,21 @@=0A=
- 	  didn't before).  The kernel halts when it boots, waiting for gdb if=0A=
- 	  this option is turned on!=0A=
- =0A=
-+=0A=
-+config DEBUG_INFO=0A=
-+        bool "Compile the kernel with debug info"=0A=
-+        help=0A=
-+          If you say Y here the resulting kernel image will include=0A=
-+          debugging info resulting in a larger kernel image.=0A=
-+          Say Y here only if you plan to use gdb to debug the kernel.=0A=
-+          If you don't debug the kernel, you can say N.=0A=
-+=0A=
-+config FRAME_POINTER=0A=
-+        bool "Compile the kernel with frame pointers"=0A=
-+        help=0A=
-+          If you say Y here the resulting kernel image will be slightly =
-larger=0A=
-+          and slower, but it will give very useful debugging =
-information.=0A=
-+          If you don't debug the kernel, you can say N, but we may not =
-be able=0A=
-+          to solve problems without frame pointers.=0A=
-+=0A=
- endmenu=0A=
-diff -urNP --exclude=3D'*.cvsignore' ../linux/arch/cris/Makefile =
-lx25/arch/cris/Makefile=0A=
---- ../linux/arch/cris/Makefile	Mon Oct 18 23:54:07 2004=0A=
-+++ lx25/arch/cris/Makefile	Tue Oct 19 15:07:34 2004=0A=
+diff -urNP --exclude=3D'*.cvsignore' =
+../linux/arch/cris/arch-v10/drivers/ide.c =
+lx25/arch/cris/arch-v10/drivers/ide.c=0A=
+--- ../linux/arch/cris/arch-v10/drivers/ide.c	Mon Oct 18 23:54:08 2004=0A=
++++ lx25/arch/cris/arch-v10/drivers/ide.c	Tue Oct 12 09:55:48 2004=0A=
 @@ -1,4 +1,4 @@=0A=
--# $Id: Makefile,v 1.20 2004/05/14 14:35:58 orjanf Exp $=0A=
-+# $Id: Makefile,v 1.23 2004/10/19 13:07:34 starvik Exp $=0A=
- # cris/Makefile=0A=
- #=0A=
- # This file is included by the global makefile so that you can add your =
-own=0A=
-@@ -80,7 +81,7 @@=0A=
- archmrproper:=0A=
- archclean:=0A=
- 	$(Q)$(MAKE) $(clean)=3Darch/$(ARCH)/boot=0A=
--	rm -f timage vmlinux.bin cramfs.img=0A=
-+	rm -f timage vmlinux.bin decompress.bin rescue.bin cramfs.img=0A=
- 	rm -rf $(LD_SCRIPT).tmp=0A=
+-/* $Id: ide.c,v 1.1 2004/01/22 08:22:58 starvik Exp $=0A=
++/* $Id: ide.c,v 1.4 2004/10/12 07:55:48 starvik Exp $=0A=
+  *=0A=
+  * Etrax specific IDE functions, like init and PIO-mode setting etc.=0A=
+  * Almost the entire ide.c is used for the rest of the Etrax ATA driver.=0A=
+@@ -45,18 +45,13 @@=0A=
  =0A=
- prepare: arch/$(ARCH)/.links include/asm-$(ARCH)/.arch \=0A=
-diff -urNP --exclude=3D'*.cvsignore' =
-../linux/arch/cris/arch-v10/drivers/Kconfig =
-lx25/arch/cris/arch-v10/drivers/Kconfig=0A=
---- ../linux/arch/cris/arch-v10/drivers/Kconfig	Mon Oct 18 23:53:43 2004=0A=
-+++ lx25/arch/cris/arch-v10/drivers/Kconfig	Tue Oct 12 09:55:08 2004=0A=
-@@ -549,44 +549,17 @@=0A=
+ #define IDE_REGISTER_TIMEOUT 300=0A=
  =0A=
- config ETRAX_IDE=0A=
- 	bool "ATA/IDE support"=0A=
--	help=0A=
-+	select IDE=0A=
-+	select BLK_DEV_IDE=0A=
-+	select BLK_DEV_IDEDISK=0A=
-+	select BLK_DEV_IDECD=0A=
-+	select BLK_DEV_IDEDMA=0A=
-+	select DMA_NONPCI=0A=
-+	help =0A=
- 	  Enable this to get support for ATA/IDE.=0A=
- 	  You can't use parallell ports or SCSI ports=0A=
- 	  at the same time.=0A=
- =0A=
--# here we should add the CONFIG_'s necessary to enable the basic=0A=
--# general ide drivers so the common case does not need to go=0A=
--# into that config submenu. enable disk and CD support. others=0A=
--# need to go fiddle in the submenu..=0A=
--config IDE=0A=
--	tristate=0A=
--	depends on ETRAX_IDE=0A=
--	default y=0A=
+-#ifdef CONFIG_ETRAX_IDE_CSE1_16_RESET=0A=
+-/* address where the memory-mapped IDE reset bit lives, if used */=0A=
+-static volatile unsigned long *reset_addr;=0A=
+-#endif=0A=
 -=0A=
--config BLK_DEV_IDE=0A=
--	tristate=0A=
--	depends on ETRAX_IDE=0A=
--	default y=0A=
--=0A=
--config BLK_DEV_IDEDISK=0A=
--	tristate=0A=
--	depends on ETRAX_IDE=0A=
--	default y=0A=
--=0A=
--config BLK_DEV_IDECD=0A=
--	tristate=0A=
--	depends on ETRAX_IDE=0A=
--	default y=0A=
--=0A=
--config BLK_DEV_IDEDMA=0A=
--	bool=0A=
--	depends on ETRAX_IDE=0A=
--	default y=0A=
--=0A=
--config DMA_NONPCI=0A=
--	bool=0A=
--	depends on ETRAX_IDE=0A=
--	default y=0A=
+ static int e100_read_command =3D 0;=0A=
  =0A=
- config ETRAX_IDE_DELAY=0A=
- 	int "Delay for drives to regain consciousness"=0A=
-diff -urNP --exclude=3D'*.cvsignore' =
-../linux/arch/cris/arch-v10/kernel/Makefile =
-lx25/arch/cris/arch-v10/kernel/Makefile=0A=
---- ../linux/arch/cris/arch-v10/kernel/Makefile	Mon Oct 18 23:53:05 2004=0A=
-+++ lx25/arch/cris/arch-v10/kernel/Makefile	Wed Jun  2 10:24:38 2004=0A=
-@@ -1,4 +1,4 @@=0A=
--# $Id: Makefile,v 1.4 2003/07/04 12:57:13 tobiasa Exp $=0A=
-+# $Id: Makefile,v 1.5 2004/06/02 08:24:38 starvik Exp $=0A=
- #=0A=
- # Makefile for the linux kernel.=0A=
- #=0A=
-@@ -11,6 +11,7 @@=0A=
+ #define LOWDB(x)=0A=
+ #define D(x)=0A=
  =0A=
- obj-$(CONFIG_ETRAX_KGDB) +=3D kgdb.o=0A=
- obj-$(CONFIG_ETRAX_FAST_TIMER) +=3D fasttimer.o=0A=
-+obj-$(CONFIG_MODULES)    +=3D crisksyms.o=0A=
+ void=0A=
+-etrax100_ide_outw(unsigned short data, ide_ioreg_t reg) {=0A=
++etrax100_ide_outw(unsigned short data, unsigned long reg) {=0A=
+ 	int timeleft;=0A=
+ 	LOWDB(printk("ow: data 0x%x, reg 0x%x\n", data, reg));=0A=
  =0A=
- clean:=0A=
+@@ -89,7 +84,7 @@=0A=
+ }=0A=
  =0A=
-diff -urNP --exclude=3D'*.cvsignore' =
-../linux/arch/cris/arch-v10/vmlinux.lds.S =
-lx25/arch/cris/arch-v10/vmlinux.lds.S=0A=
---- ../linux/arch/cris/arch-v10/vmlinux.lds.S	Mon Oct 18 23:53:51 2004=0A=
-+++ lx25/arch/cris/arch-v10/vmlinux.lds.S	Tue Oct 19 15:07:36 2004=0A=
-@@ -26,6 +26,7 @@=0A=
- 	.text : {=0A=
- 		*(.text)=0A=
- 		SCHED_TEXT=0A=
-+		LOCK_TEXT=0A=
- 		*(.fixup)=0A=
- 		*(.text.__*)=0A=
- 	}=0A=
+ void=0A=
+-etrax100_ide_outb(unsigned char data, ide_ioreg_t reg)=0A=
++etrax100_ide_outb(unsigned char data, unsigned long reg)=0A=
+ {=0A=
+ 	etrax100_ide_outw(data, reg);=0A=
+ }=0A=
+@@ -101,7 +96,7 @@=0A=
+ }=0A=
+ =0A=
+ unsigned short=0A=
+-etrax100_ide_inw(ide_ioreg_t reg) {=0A=
++etrax100_ide_inw(unsigned long reg) {=0A=
+ 	int status;=0A=
+ 	int timeleft;=0A=
+ =0A=
+@@ -149,7 +144,7 @@=0A=
+ }=0A=
+ =0A=
+ unsigned char=0A=
+-etrax100_ide_inb(ide_ioreg_t reg)=0A=
++etrax100_ide_inb(unsigned long reg)=0A=
+ {=0A=
+ 	return (unsigned char)etrax100_ide_inw(reg);=0A=
+ }=0A=
+@@ -336,14 +331,14 @@=0A=
+ =0A=
+ #ifdef CONFIG_ETRAX_IDE_G27_RESET=0A=
+         REG_SHADOW_SET(R_PORT_G_DATA, port_g_data_shadow, 27, 0);=0A=
+-#endif=0A=
++#endif =0A=
+ #ifdef CONFIG_ETRAX_IDE_CSE1_16_RESET=0A=
+         REG_SHADOW_SET(port_cse1_addr, port_cse1_shadow, 16, 0);=0A=
+ #endif=0A=
+ #ifdef CONFIG_ETRAX_IDE_CSP0_8_RESET=0A=
+         REG_SHADOW_SET(port_csp0_addr, port_csp0_shadow, 8, 0);=0A=
+ #endif=0A=
+-#ifdef CONFIG_ETRAX_IDE_PB7_RESET=0A=
++#ifdef CONFIG_ETRAX_IDE_PB7_RESET =0A=
+ 	port_pb_dir_shadow =3D port_pb_dir_shadow |=0A=
+ 		IO_STATE(R_PORT_PB_DIR, dir7, output);=0A=
+ 	*R_PORT_PB_DIR =3D port_pb_dir_shadow;=0A=
+@@ -424,7 +419,7 @@=0A=
+ static void=0A=
+ e100_atapi_input_bytes (ide_drive_t *drive, void *buffer, unsigned int =
+bytecount)=0A=
+ {=0A=
+-	ide_ioreg_t data_reg =3D IDE_DATA_REG;=0A=
++	unsigned long data_reg =3D IDE_DATA_REG;=0A=
+ =0A=
+ 	D(printk("atapi_input_bytes, dreg 0x%x, buffer 0x%x, count %d\n",=0A=
+ 		 data_reg, buffer, bytecount));=0A=
+@@ -503,7 +498,7 @@=0A=
+ static void=0A=
+ e100_atapi_output_bytes (ide_drive_t *drive, void *buffer, unsigned int =
+bytecount)=0A=
+ {=0A=
+-	ide_ioreg_t data_reg =3D IDE_DATA_REG;=0A=
++	unsigned long data_reg =3D IDE_DATA_REG;=0A=
+ =0A=
+ 	D(printk("atapi_output_bytes, dreg 0x%x, buffer 0x%x, count %d\n",=0A=
+ 		 data_reg, buffer, bytecount));=0A=
+@@ -563,7 +558,7 @@=0A=
+                 IO_STATE(R_ATA_CTRL_DATA, dma_size, word);=0A=
+ =0A=
+         LED_DISK_WRITE(1);=0A=
+-=0A=
++ =0A=
+         /* Etrax will set busy =3D 1 until the multi pio transfer has =
+finished=0A=
+          * and tr_rdy =3D 1 after each successful word transfer.=0A=
+          * When the last byte has been transferred Etrax will first set =
+tr_tdy =3D 1=0A=
+@@ -811,7 +806,7 @@=0A=
+ 			ide_set_handler(drive, &etrax_dma_intr, WAIT_CMD, NULL);=0A=
+ =0A=
+ 			/* issue cmd to drive */=0A=
+-                        if ((HWGROUP(drive)->rq->cmd =3D=3D =
+IDE_DRIVE_TASKFILE) &&=0A=
++                        if ((HWGROUP(drive)->rq->flags & =
+REQ_DRIVE_TASKFILE) &&=0A=
+ 			    (drive->addressing =3D=3D 1)) {=0A=
+ 				ide_task_t *args =3D HWGROUP(drive)->rq->special;=0A=
+ 				etrax100_ide_outb(args->tfRegister[IDE_COMMAND_OFFSET], =
+IDE_COMMAND_REG);=0A=
+@@ -869,7 +864,7 @@=0A=
+ 			ide_set_handler(drive, &etrax_dma_intr, WAIT_CMD, NULL);=0A=
+ =0A=
+ 			/* issue cmd to drive */=0A=
+-			if ((HWGROUP(drive)->rq->cmd =3D=3D IDE_DRIVE_TASKFILE) &&=0A=
++			if ((HWGROUP(drive)->rq->flags & REQ_DRIVE_TASKFILE) &&=0A=
+ 			    (drive->addressing =3D=3D 1)) {=0A=
+ 				ide_task_t *args =3D HWGROUP(drive)->rq->special;=0A=
+ 				etrax100_ide_outb(args->tfRegister[IDE_COMMAND_OFFSET], =
+IDE_COMMAND_REG);=0A=
 
-------=_NextPart_000_01CB_01C4C0E4.DFDD8650--
+------=_NextPart_000_01D4_01C4C0E4.E514F950--
 

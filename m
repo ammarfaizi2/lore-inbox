@@ -1,82 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266203AbSLSUQh>; Thu, 19 Dec 2002 15:16:37 -0500
+	id <S266108AbSLSUZS>; Thu, 19 Dec 2002 15:25:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266210AbSLSUQh>; Thu, 19 Dec 2002 15:16:37 -0500
-Received: from zeke.inet.com ([199.171.211.198]:12204 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S266203AbSLSUQd>;
-	Thu, 19 Dec 2002 15:16:33 -0500
-Message-ID: <3E022B01.2030205@inet.com>
-Date: Thu, 19 Dec 2002 14:24:33 -0600
-From: Eli Carter <eli.carter@inet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Bradford <john@grabjohn.com>
-CC: linux-kernel@vger.kernel.org
+	id <S266112AbSLSUZS>; Thu, 19 Dec 2002 15:25:18 -0500
+Received: from gbmail.gettysburg.edu ([138.234.4.100]:21735 "EHLO
+	gettysburg.edu") by vger.kernel.org with ESMTP id <S266108AbSLSUZR>;
+	Thu, 19 Dec 2002 15:25:17 -0500
+Date: Thu, 19 Dec 2002 15:33:04 -0500
+To: linux-kernel@vger.kernel.org
 Subject: Re: Dedicated kernel bug database
-References: <200212192012.gBJKCGsV002580@darkstar.example.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20021219203304.GA9135@perseus.homeunix.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <2CC936747EA1284DA378A18D730697420158A50E@exchacad.ms.gettysburg.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2CC936747EA1284DA378A18D730697420158A50E@exchacad.ms.gettysburg.edu>
+User-Agent: Mutt/1.4i
+From: Justin Pryzby <justinpryzby@users.sourceforge.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
-> [CC list trimmed]
+On Thu, Dec 19, 2002 at 01:53:29PM -0500, Dave Jones wrote:
+> On Thu, Dec 19, 2002 at 11:48:16AM -0600, Eli Carter wrote:
+>  > >Also, we could have a non-web interface, (telnet or gopher to the bug
+>  > >DB, or control it by E-Mail).
 > 
+> It's an annoyance to me that the current bugzilla we use can only
 > 
->>> > >It could warn the user if they attach an un-decoded oops that their
->>> > >bug report isn't as useful as it could be, and if they mention a
->>> > >distribution kernel version, that it's not a tree that the developers
->>> > >will necessarily be familiar with
->>> > Perhaps a more generalized hook into bugzilla for 'validating' a bug 
->>> > report, then code specific validators for kernel work?
->>>
->>>Its a nice idea, but I think it's a lot of effort to get it right,
->>>when a human can look at the dump, realise its not decoded, and
->>>send a request back in hardly any time at all.
->>>I also don't trust things like this where if something goes wrong,
->>>we could lose the bug report. People are also more likely to ping-pong
->>>,argue or "how do I..." with a human than they are with an automated robot.
->>
->>Either way, it isn't kernel specific.... which is what I was trying to 
->>address.  If it is valuable (which as you demonstrate is debatable,) 
->>then it is valuable in bugzilla baseline, not just kernel-bugzilla.
-> 
-> 
-> What!?  Parsing an oops isn't kernel specific?
+> Its a nice idea, but I think it's a lot of effort to get it right,
+> when a human can look at the dump, realise its not decoded, and
 
-No, no, you mis-understand.  A bug report going through some sort of 
-validation filter is applicable to any project.  A validation script 
-that checks for a very close match to existing bugs for instance, and 
-asks the submitter about it, would be widely applicable.
+I can't say I'm partial to bugzilla either; the reasons above are valid.
+I think it could be very useful to have a bugtracking system written by
+someone@kernel.org (or at least have someone@kernel.org who is intimitely
+familiar with the bugtracking code).  The above dislikes of bugzilla are
+all fixable, and it may be easier for someone to do it from scratch than
+to try to decode someone else's messy code (I wonder if there is a
+bugzilla for bugzilla bugs).
 
-Parsing an oops would be a kernel-specific validation filter.
+Many of the complaints about current postings, however, could possibly
+be fixed by nicifying the kernel webpages (many people don't know much
+about ``distribution kernels,'' and might happily try other kernels if
+they knew how).
 
- >  Version tracking over
-> multiple separate trees as diverse as 2.4 and 2.5 isn't pretty kernel
-> specific? 
+Another part of the problem is that there is no _official_ way of
+submitting bugs.  Were someone official to say ``all bugs go to bugzilla,''
+(or kzilla, as the case may be), there would certainly be a better
+response.  Whatever the current official bugtracking mechanism is, it
+should appear on the lkml webpage (atm, it does not).
 
-No, it isn't.  There are a lot of projects out there that use a 
-'development' and 'stable' tree, and some that use more.  bugzilla 
-itself does this.  Trolltech's Qt has several version branches.
-We do have more development branches than most, but we are not unique.
-My point is that this is functionality that makes sense for the base 
-version of the bug tracking software, not just for the kernel version.
-
- > In any case, people could take the kernel bug database, and
-> genericify it, much more easily than somebody could tailor an existing
-> bug tracking application to the needs of the kernel, (which is
-> demonstrated by the fact that the developers are not getting Bugzilla
-> reports).
-
-Perhaps, but I'm not convinced that it would be easier to write a kernel 
-bug database from scratch than it would be to improve an existing 
-project to address the kernel's needs.  And _that_ is what we were 
-discussing.
-
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
-
+Justin

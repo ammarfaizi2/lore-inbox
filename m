@@ -1,76 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264441AbTLZBpd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 20:45:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264444AbTLZBpd
+	id S264445AbTLZCEe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 21:04:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264450AbTLZCEe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 20:45:33 -0500
-Received: from adsl-67-121-154-253.dsl.pltn13.pacbell.net ([67.121.154.253]:21206
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S264441AbTLZBpb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 20:45:31 -0500
-Date: Thu, 25 Dec 2003 17:45:27 -0800
-To: linux-kernel@vger.kernel.org
-Cc: Dale Amon <amon@vnl.com>
-Subject: Re: 2.6.0 compile failure
-Message-ID: <20031226014527.GA12871@triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org,
-	linux-kernel@vger.kernel.org, Dale Amon <amon@vnl.com>
-References: <20031226010204.GM4987@vnl.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
-Content-Disposition: inline
-In-Reply-To: <20031226010204.GM4987@vnl.com>
-User-Agent: Mutt/1.5.4i
-From: joshk@triplehelix.org (Joshua Kwan)
+	Thu, 25 Dec 2003 21:04:34 -0500
+Received: from smithers.nildram.co.uk ([195.112.4.54]:45324 "EHLO
+	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
+	id S264445AbTLZCEa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 21:04:30 -0500
+Message-ID: <3FEB972B.4010406@amberdata.demon.co.uk>
+Date: Fri, 26 Dec 2003 02:04:27 +0000
+From: David Monro <davidm@amberdata.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: John Bradford <john@grabjohn.com>
+Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org,
+       vojtech@suse.cz
+Subject: Re: handling an oddball PS/2 keyboard (w/ patch)
+References: <3FEA5044.5090106@amberdata.demon.co.uk> <20031225063936.GA15560@win.tue.nl> <200312251316.hBPDG7LT000163@81-2-122-30.bradfords.org.uk> <3FEAFDF3.80008@amberdata.demon.co.uk>
+In-Reply-To: <3FEAFDF3.80008@amberdata.demon.co.uk>
+Content-Type: multipart/mixed;
+ boundary="------------010202080508060400060004"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------010202080508060400060004
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---DocE+STaALJfprDB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+David Monro wrote:
+> John Bradford wrote:
+> 
+[..]
+>> There might be no need for such a workaround - a lot of PS/2 
+>> devices which were not intended for PCs work fine in set 3, 
+>> particularly if
+[..]
 
-On Fri, Dec 26, 2003 at 01:02:04AM +0000, Dale Amon wrote:
-> {standard input}:12164: Error: invalid character '_' in mnemonic
-> Internal error: Terminated (program cc1)
-> Please submit a full bug report.
-> See <URL:http://gcc.gnu.org/bugs.html> for instructions.
-> For Debian GNU/Linux specific bugs,
-> please see /usr/share/doc/debian/bug-reporting.txt.
+Ok I've turned my brain on and looked at the difference between set2 and
+set3... and its trivial! The NCD N-97 returns set3 keycodes even when
+its told to be in set2. Thanks very much for making me look at that!
 
-This is obviously a compiler bug. Myself, I've not been able to hit it.
-What GCC version are you using? I also use Debian:
+So my first thought was to just pass the atkbd_set=3 option to the
+kernel. Which doesn't work - I still get set2. Looking at atkbd.c it
+really doesn't handle _translated_ set3 at all - for one thing
+atkbd_set_3() forces set2 if we have a translating i8042 (ie normality),
+and for another it still does e0/e1 translation for set3 - which imho is 
+wrong.
 
-$ gcc -v
-[...]
-gcc version 3.3.3 20031206 (prerelease) (Debian)
+Both of these can be avoided by passing the i8042_direct option to the
+i8042 module however, since that puts the i8042 into non-translating 
+mode. However this can have undesirable side effects - for example my 
+bios appears to re-enable translating mode if I suspend/resume.
 
---=20
-Joshua Kwan
+So. Short term solution is just to pass atkbd_set=3 and i8042_direct=1 
+to the kernel, and live without suspend/resume (and that should work for 
+John as well).
 
---DocE+STaALJfprDB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Longer term: fix atkbd.c to handle translated set3 correctly, and then 
+just use atkbd_set=3. Vojtech: I've included a patch which I think does 
+this, and works for me; do you think it looks reasonable? I've just done 
+a couple of quick hacks to make this work (basically assume anyone who 
+sets atkbd_set= knows what they are doing, and don't special-case e0/e1 
+in set3) - but is that all there is to it? I've assumed that all other 
+codes are still valid in set3. I also haven't done it very prettily :)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Even the above won't fix things for anyone who has a keyboard which a) 
+needs set3 handling b) generates codes above 0x7F c) has a broken i8042 
+translation implementation which mangles the codes above 0x7F and d) has 
+a problem using the i8042 in raw mode because of suspend/resume... in 
+which case, I think that will have to be fixed by getting the i8042 code 
+to reset raw mode on resume.. if thats even possible. Fortunately I 
+think this should be a very rare case :)
 
-iQIVAwUBP+uStaOILr94RG8mAQIsnA/+KKKwd26I/U1YGZHSeUmQlo45vdLJlVZz
-Jk20dEmbwHDXFRVETFnSZlS3HbWAcb3GsBAn7j8aG5Eq1CbMgsfIFV4dL6vLY+Bh
-2eYn7BHpI4p3P3jJ0LiwgEpwrPABYTlgu+lBnnGh2Yp5nfMCMs+vIPlJLqWTgXr0
-10TQi5P4k+k6z8cobhAH5wEgPihzouIjLkS4ngwEJeP39rZGATN/fG1QH4ukX25m
-/cxXzhHbrZzc10bNcuJGrzBj5o0E5Z/y3zM9P3/vPTjV/9EpjUzAojCvvFbxSX5f
-ZB84Cz3bZCHxguI181IJKOIxGXVnDSPSxoM0DXtHbj9dScNZ6hb3Um+1/j3gxMx7
-SmRCZVR3BkK4E4m/FtbAYJ9TfJe0+hx1vvWzWxhLvcvEneJvnulrbzxUP3trg7QI
-+SVmIwmN3QHde4wuhIutm1L03+H/Pjnv2QRUnB5rPV23OFjLwlOqxytHYpZtXqDN
-ZaNiUONSrJNNRNGGeY64KyohBtDrVQoULAp6r5xD7oT1JB7HghMLltalzsEdtGUw
-M96tVRL8+hXq1LfxoYJ0/fRjXz/Zjg+0eR4sDxPtptpRG3XgmADVaip0C6Pat4oe
-7OdrtsS3lPPfKgwC5sHWlwYlT8qmvL0YQoxKC76rDXsYRDV2z4wgyIH9xo1Lsxdq
-Z9gmQngS4hA=
-=qqqI
------END PGP SIGNATURE-----
+Cheers,
 
---DocE+STaALJfprDB--
+	David
+
+--------------010202080508060400060004
+Content-Type: text/plain;
+ name="atkbd.c.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="atkbd.c.diff"
+
+--- atkbd.c.ORIG	Thu Dec 25 02:19:28 2003
++++ atkbd.c	Fri Dec 26 01:40:47 2003
+@@ -196,8 +196,10 @@
+ 	if (atkbd->translated) do {
+ 
+ 		if (atkbd->emul != 1) {
+-			if (code == ATKBD_RET_EMUL0 || code == ATKBD_RET_EMUL1)
+-				break;
++			if (atkbd->set != 3) {
++				if (code == ATKBD_RET_EMUL0 || code == ATKBD_RET_EMUL1)
++					break;
++			}
+ 			if (code == ATKBD_RET_BAT) {
+ 				if (!atkbd->bat_xl)
+ 					break;
+@@ -230,11 +232,19 @@
+ 			serio_rescan(atkbd->serio);
+ 			goto out;
+ 		case ATKBD_RET_EMUL0:
+-			atkbd->emul = 1;
+-			goto out;
++			if (atkbd->set != 3) {
++				atkbd->emul = 1;
++				goto out;
++			} else {
++				break;
++			}
+ 		case ATKBD_RET_EMUL1:
+-			atkbd->emul = 2;
+-			goto out;
++			if (atkbd->set != 3) {
++				atkbd->emul = 2;
++				goto out;
++			} else {
++				break;
++			}
+ 		case ATKBD_RET_RELEASE:
+ 			atkbd->release = 1;
+ 			goto out;
+@@ -482,7 +492,7 @@
+  * IBM RapidAccess / IBM EzButton / Chicony KBP-8993 keyboards.
+  */
+ 
+-	if (atkbd->translated)
++	if ((atkbd->translated) && (atkbd_set == 2))
+ 		return 2;
+ 
+ 	if (atkbd->id == 0xaca1) {
+
+--------------010202080508060400060004--
+

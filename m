@@ -1,39 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277715AbRJIEYW>; Tue, 9 Oct 2001 00:24:22 -0400
+	id <S277716AbRJIEzQ>; Tue, 9 Oct 2001 00:55:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277716AbRJIEYM>; Tue, 9 Oct 2001 00:24:12 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:32963 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S277715AbRJIEX5>;
-	Tue, 9 Oct 2001 00:23:57 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Todd Roy <todd_m_roy@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-        Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: jbd_preclean_buffer_check. 
-In-Reply-To: Your message of "Mon, 08 Oct 2001 21:05:51 MST."
-             <20011009040551.34486.qmail@web13606.mail.yahoo.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 09 Oct 2001 14:24:18 +1000
-Message-ID: <27179.1002601458@kao2.melbourne.sgi.com>
+	id <S277718AbRJIEzG>; Tue, 9 Oct 2001 00:55:06 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:20624 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S277716AbRJIEy6>; Tue, 9 Oct 2001 00:54:58 -0400
+Date: Mon, 8 Oct 2001 22:55:23 -0600
+Message-Id: <200110090455.f994tNB22322@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: "David S. Miller" <davem@redhat.com>
+Cc: arjan@fenrus.demon.nl, kravetz@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: Context switch times
+In-Reply-To: <20011004.145239.62666846.davem@redhat.com>
+In-Reply-To: <E15pFor-0004sC-00@fenrus.demon.nl>
+	<20011004.142523.54186018.davem@redhat.com>
+	<200110042139.f94Ld5r09675@vindaloo.ras.ucalgary.ca>
+	<20011004.145239.62666846.davem@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Oct 2001 21:05:51 -0700 (PDT), 
-Todd Roy <todd_m_roy@yahoo.com> wrote:
->Sorry if this is old guys, but I just noticed
->that modules loop.o and md.o are broken in at least
->2.4.10-ac9
->and ac10, if  CONFIG_EXT3_FS=Y, JBD_CONFIG=Y and
->CONFIG_JBD_DEBUG=Y:
->
->typical modprobe output:
->/lib/modules/2.4.10-ac10/kernel/drivers/md/md.o:
->unresolved symbol jbd_preclean_buffer_check
+David S. Miller writes:
+>    From: Richard Gooch <rgooch@ras.ucalgary.ca>
+>    Date: Thu, 4 Oct 2001 15:39:05 -0600
+> 
+>    David S. Miller writes:
+>    > lat_ctx doesn't execute any FPU ops.  So at worst this happens once
+>    > on GLIBC program startup, but then never again.
+>    
+>    Has something changed? Last I looked, the whole lmbench timing harness
+>    was based on using the FPU.
+> 
+> Oops, that's entirely possible...
+> 
+> But things are usually layed out like this:
+> 
+> 	capture_start_time();
+> 	context_switch_N_times();
+> 	capture_end_time();
+> 
+> So the FPU hit is only before/after the runs, not during each and
+> every iteration.
 
-Work for me.  Did you get bitten by http://www.tux.org/lkml/#s8-8?  If
-that does not fix it, I need your complete .config plus your
-/proc/ksyms.
+Hm. Perhaps when I did my tests (where I noticed a penalty), we didn't
+have lazy FPU saving. Now we disable the FPU, and restore state when
+we trap, right?
 
+I do note this comment in arch/i386/kernel/process.c:
+ * We fsave/fwait so that an exception goes off at the right time
+ * (as a call from the fsave or fwait in effect) rather than to
+ * the wrong process. Lazy FP saving no longer makes any sense
+ * with modern CPU's, and this simplifies a lot of things (SMP
+ * and UP become the same).
+
+So what exactly is the difference between our "delayed FPU restore
+upon trap" (which I think of as lazy FPU saving), and the "lazy FP"
+saving in the comments?
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,63 +1,90 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315558AbSERFTg>; Sat, 18 May 2002 01:19:36 -0400
+	id <S316670AbSERF0b>; Sat, 18 May 2002 01:26:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316670AbSERFTf>; Sat, 18 May 2002 01:19:35 -0400
-Received: from ucsu.Colorado.EDU ([128.138.129.83]:22930 "EHLO
-	ucsu.colorado.edu") by vger.kernel.org with ESMTP
-	id <S315558AbSERFTe>; Sat, 18 May 2002 01:19:34 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: "Ivan G." <ivangurdiev@linuxfreemail.com>
-Reply-To: ivangurdiev@linuxfreemail.com
-Organization: ( )
-To: "'Roger Luethi'" <rl@hellgate.ch>
-Subject: Re: [PATCH] #2 VIA Rhine stalls: TxAbort handling
-Date: Fri, 17 May 2002 17:13:33 -0600
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <369B0912E1F5D511ACA5003048222B75A3C06E@EXCHANGE2> <20020518040143.GA9318@k3.hellgate.ch>
-Cc: LKML <linux-kernel@vger.kernel.org>
+	id <S316744AbSERF0a>; Sat, 18 May 2002 01:26:30 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:52728 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S316670AbSERF0a>; Sat, 18 May 2002 01:26:30 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Wayne.Brown@altec.com
+Cc: linux-kernel@vger.kernel.org
+Date: Fri, 17 May 2002 22:23:10 -0700 (PDT)
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
+In-Reply-To: <86256BBD.001C64E2.00@smtpnotes.altec.com>
+Message-ID: <Pine.LNX.4.44.0205172220400.32688-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-Message-Id: <02051717133300.00656@cobra.linux>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Wayne, the only change (other then better, faster functions) is the
+elimination of steps.
 
-> [1] "aborted due to excessive collisions" according to the doc, but it also
->     mentions that for "excessive collisions", bit 13 would have to be set.
->     It isn't.
->     (I have seen it on my VT6102, though, with interrupt status of 0x2008
->     for instance)
+if it will satisfy you you can continue to do a make mproper and make dep
+and just ignore the 'no target found' messages.
 
-bit 13 = IntrTxAborted
-I don't see it below.
+David Lang
 
-/* Enable interrupts by setting the interrupt mask. */
-writew(IntrRxDone | IntrRxErr | IntrRxEmpty| IntrRxOverflow| IntrRxDropped|
-   IntrTxDone | IntrTxAbort | IntrTxUnderrun | IntrPCIErr | IntrStatsMax | 
-IntrLinkChange | IntrMIIChange, ioaddr + IntrEnable);
+On Sat, 18 May 2002 Wayne.Brown@altec.com wrote:
 
-Interrupts referenced in the driver and not listed here are: IntrRxNoBuf,
-IntrRxWakeUp, IntrTxAborted
-
-Interrupts included here but not used in the driver are:
-IntrRxOverflow, IntrRxDropped.
-
-I've known about this for a while but I wasn't sure how to fix everything...
-I wasn't sure if every interrupt was handled correctly.
-For example what exactly is the difference between IntrTxAbort and 
-IntrTxAborted. 
-
-I was also puzzled as to why the docs say:
-Transmit Descriptor Underflow for IntrMIIChange
-
-I am talking about the newest VT86C100A docs.
-I believe Urban Widmark had a patch that redefined that interrupt but it was 
-never included.
-
-
-
-
-
-
-
+> Date: Sat, 18 May 2002 00:09:19 -0500
+> From: Wayne.Brown@altec.com
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
+>
+>
+>
+> Gee, what a tolerant attitude.  I state my preference -- not a demand, just a
+> preference -- that the old interfaces be retained IN ADDITION to whatever new
+> features are added, and you say "Bah go away."  I'm sorry, I must have missed
+> the rule that says only people who agree with you are allowed to post their
+> opinions on lkml.
+>
+> The current system works just fine for my needs.  I've never seen the point of
+> trying to "improve" things that are already good enough.  But now that you've
+> explained it to me so politely, I understand.  My top priority is supposed to be
+> what YOU want, even though you don't care anything at all about what I want.
+>
+> So, in the spirit of your oh-so-helpful message, let me say this:  Get stuffed,
+> jerk.
+>
+>
+>
+>
+>
+> Robert Love <rml@tech9.net> on 05/17/2002 06:14:45 PM
+>
+> To:   Wayne Brown/Corporate/Altec@Altec
+> cc:   linux-kernel@vger.kernel.org
+>
+> Subject:  Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
+>
+>
+>
+>
+> So we should curb progress in the name of you not spending 2 minutes
+> rewriting your bash scripts or repopulating your bash history with new
+> commands?
+>
+> Bah go away.  I and most other people here are the exact opposite - give
+> us new features, less bugs, or innovation and we will surely change.
+> Otherwise we would still be in the stone age.
+>
+>      Robert Love
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

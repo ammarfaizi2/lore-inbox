@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266511AbUBESa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 13:30:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266512AbUBESa2
+	id S266020AbUBESgh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 13:36:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266374AbUBESgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 13:30:28 -0500
-Received: from bristol.phunnypharm.org ([65.207.35.130]:31967 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S266511AbUBESaT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 13:30:19 -0500
-Date: Thu, 5 Feb 2004 13:29:28 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Greg KH <greg@kroah.com>
-Cc: Robert Gadsdon <robert@gadsdon.giointernet.co.uk>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat"
-Message-ID: <20040205182928.GA1042@phunnypharm.org>
-References: <fa.h1qu7q8.n6mopi@ifi.uio.no> <402240F9.3050607@gadsdon.giointernet.co.uk> <20040205182614.GG13075@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040205182614.GG13075@kroah.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 5 Feb 2004 13:36:37 -0500
+Received: from fmr09.intel.com ([192.52.57.35]:62081 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S266020AbUBESgf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 13:36:35 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [Infiniband-general] Getting an Infiniband access layer in the linux kernel
+Date: Thu, 5 Feb 2004 10:34:50 -0800
+Message-ID: <A28EFEDC5416054BA1026D892753E9AF042735CE@orsmsx404.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Infiniband-general] Getting an Infiniband access layer in the linux kernel
+Thread-Index: AcPsE8LblUrWmG9cSsedE+ln5UZhbgAAmEpQ
+From: "Raj, Ashok" <ashok.raj@intel.com>
+To: "Greg KH" <greg@kroah.com>, "Hefty, Sean" <sean.hefty@intel.com>,
+       <linux-kernel@vger.kernel.org>
+Cc: "Troy Benjegerdes" <hozer@hozed.org>,
+       "Woodruff, Robert J" <woody@co.intel.com>,
+       "Magro, Bill" <bill.magro@intel.com>,
+       "Woodruff, Robert J" <woody@jf.intel.com>,
+       <infiniband-general@lists.sourceforge.net>
+X-OriginalArrivalTime: 05 Feb 2004 18:35:47.0640 (UTC) FILETIME=[DF4E6B80:01C3EC16]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 05, 2004 at 10:26:14AM -0800, Greg KH wrote:
-> On Thu, Feb 05, 2004 at 01:11:21PM +0000, Robert Gadsdon wrote:
-> > 2.6.2-mm1 tombstone "Badness in kobject_get....." when booting:
-> 
-> Oooh, not nice.  That means a kobject is being used before it has been
-> initialized.  Glad to see that check finally helps out...
-> 
-> > ieee1394: Host added: ID:BUS[0-00:1023]  GUID[090050c50000046f]
-> > Badness in kobject_get at lib/kobject.c:431
-> > Call Trace:
-> >  [<c0239966>] kobject_get+0x36/0x40
-> >  [<c027cc73>] get_device+0x13/0x20
-> >  [<c027d899>] bus_for_each_dev+0x59/0xc0
-> >  [<d0939355>] nodemgr_node_probe+0x55/0x120 [ieee1394]
-> >  [<d0939200>] nodemgr_probe_ne_cb+0x0/0x90 [ieee1394]
-> >  [<d0939748>] nodemgr_host_thread+0x168/0x190 [ieee1394]
-> >  [<d09395e0>] nodemgr_host_thread+0x0/0x190 [ieee1394]
-> >  [<c010ac15>] kernel_thread_helper+0x5/0x10
-> 
-> Looks like one of the ieee1394 patches causes this.  Ben?
+Hi Greg
 
-Andrew, does 2.6.2-mm1 have that big ieee1394 patch, or is this the same
-as stock 2.6.2?
+I don't think re-implementing was the idea, but the motivation was that
+this code was origininally developed for multiple operating environments
+such as EFI for preboot, and also some embedded environment. This was
+designed to just ease effort in porting.
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+Iam not sure what you point out that is not done correctly, please help
+us understand.
+
+Thanks
+ashok
+
+>On Thu, Feb 05, 2004 at 10:01:13AM -0800, Hefty, Sean wrote:
+>> As an FYI, the code is available for download on bitkeeper at
+>> http://infiniband.bkbits.net/iba.  We're still working on providing a
+>> tarball and patch for 2.6, but if you would like to see the code now,
+it
+>> is available.
+>
+>Oh, I've seen that code, and still feel ill after looking at some of
+>it...
+>
+>Come on, implementing your own spinlocks (and getting it wrong) and
+>atomit_t?  Why in the world would you _ever_ want to do that.
+>
+
+
+
+>That code needs a _lot_ of cleanup to make it into the kernel tree.
+>
+>Good luck,
+>
+>greg k-h
+>

@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263425AbTJ0QDy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 11:03:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263420AbTJ0QDy
+	id S263315AbTJ0QCl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 11:02:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263347AbTJ0QCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 11:03:54 -0500
-Received: from pushme.nist.gov ([129.6.16.92]:37370 "EHLO postmark.nist.gov")
-	by vger.kernel.org with ESMTP id S263425AbTJ0QDw (ORCPT
+	Mon, 27 Oct 2003 11:02:41 -0500
+Received: from fw.osdl.org ([65.172.181.6]:9403 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263315AbTJ0QCj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 11:03:52 -0500
-To: linux-kernel@vger.kernel.org
-Subject: APM suspend still broken in -test9
-References: <9cfbrs7d695.fsf@rogue.ncsl.nist.gov>
-From: Ian Soboroff <ian.soboroff@nist.gov>
-Date: Mon, 27 Oct 2003 11:03:30 -0500
-Message-ID: <9cfekwy8y7h.fsf@rogue.ncsl.nist.gov>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 27 Oct 2003 11:02:39 -0500
+Subject: Re: Linux 2.6.0-test9 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0310251152410.5764-100000@home.osdl.org>
+References: <Pine.LNX.4.44.0310251152410.5764-100000@home.osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1067270553.23133.1.camel@cherrytest.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 27 Oct 2003 08:02:33 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linux 2.6 Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
 
-I reported this also on -test8:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=106694328730337&w=2
+Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
+             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
+-----------  -----------  -------- -------- -------- -------- ---------
+2.6.0-test9    0w/0e       0w/0e   174w/ 0e  12w/0e   3w/0e    217w/0e
+2.6.0-test8    0w/0e       0w/0e   178w/ 0e  12w/0e   3w/0e    219w/0e
+2.6.0-test7    0w/0e       0w/0e   173w/ 1e   8w/0e   3w/0e    226w/0e
+2.6.0-test6    0w/0e       1w/0e   188w/ 1e  12w/0e   3w/0e    260w/2e
+2.6.0-test5    0w/0e       2w/0e   205w/ 9e  15w/1e   0w/0e    305w/5e
+2.6.0-test4    0w/0e       2w/0e   797w/55e  68w/1e   3w/0e   1016w/34e
+2.6.0-test3    0w/0e       2w/0e   755w/66e  62w/1e   7w/9e    984w/42e
+2.6.0-test2    0w/0e       1w/0e   952w/65e  63w/2e   7w/9e   1201w/43e
+2.6.0-test1    0w/0e       1w/0e  1016w/60e  75w/1e   8w/9e   1319w/38e
 
-and it was confirmed by two other people in that thread.  I just
-tested it again with -test9.  Putting my laptop to sleep while X is
-running, then resuming, locks the machine hard.  Suspend works fine
-without X (plain old console mode).
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
+Daily compiles (ia32): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
+Daily compiles (ia64): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
+Latest changes in Linus' bitkeeper tree:
+   http://linux.bkbits.net:8080/linux-2.5
 
-The three machines reported so far:
+John
 
- - Fujitsu P-2120 (me)
- - Gericom        ( Oliver Bohlen <oliver.bohlen () t-online ! de> )
- - Thinkpad R40   ( Ruben Puettmann <ruben () puettmann ! net> )
 
-Both Ruben and I have agp configured; he has a Radeon while I have a
-r128 (Rage Mobility M).  I don't know more about Oliver's config.
 
-Can anyone else verify this?  Everything worked fine in -test7; things
-broke in -test8 and are still broken in -test9.  Nothing appears in
-the logs (which is to be expected if we crash while resuming... where
-would it get logged?).
-
-Ian
 

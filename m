@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266941AbRGOUMK>; Sun, 15 Jul 2001 16:12:10 -0400
+	id <S266921AbRGOULA>; Sun, 15 Jul 2001 16:11:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266945AbRGOUMB>; Sun, 15 Jul 2001 16:12:01 -0400
-Received: from mta7-svc.virgin.net ([62.253.164.47]:18375 "EHLO
-	mta7-svc.virgin.net") by vger.kernel.org with ESMTP
-	id <S266911AbRGOULr>; Sun, 15 Jul 2001 16:11:47 -0400
-From: Glynn Clements <glynn.clements@virgin.net>
-MIME-Version: 1.0
+	id <S266911AbRGOUKu>; Sun, 15 Jul 2001 16:10:50 -0400
+Received: from ns.suse.de ([213.95.15.193]:31495 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S266921AbRGOUKh>;
+	Sun, 15 Jul 2001 16:10:37 -0400
+Date: Sun, 15 Jul 2001 22:10:38 +0200
+From: Andi Kleen <ak@suse.de>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Mike Kravetz <mkravetz@sequent.com>, linux-kernel@vger.kernel.org,
+        Andi Kleen <ak@suse.de>, lse-tech@lists.sourceforge.net,
+        Larry McVoy <lm@bitmover.com>,
+        David Lang <david.lang@digitalinsight.com>
+Subject: Re: [Lse-tech] Re: CPU affinity & IPI latency
+Message-ID: <20010715221038.A14480@gruyere.muc.suse.de>
+In-Reply-To: <20010713154305.G1137@w-mikek2.des.beaverton.ibm.com> <XFMail.20010715130221.davidel@xmailserver.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15185.63418.900607.685042@cerise.nosuchdomain.co.uk>
-Date: Sun, 15 Jul 2001 21:06:18 +0100
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: mhw@wittsend.com (Michael H. Warfield), kaos@ocs.com.au (Keith Owens),
-        matti.aarnio@zmailer.org (Matti Aarnio), linux-kernel@vger.kernel.org,
-        linux-admin@vger.kernel.org
-Subject: Re: ORBS blacklist is BROKEN (deliberately)...
-In-Reply-To: <E15Lrp1-0004O9-00@the-village.bc.nu>
-In-Reply-To: <15185.60966.754883.694830@cerise.nosuchdomain.co.uk>
-	<E15Lrp1-0004O9-00@the-village.bc.nu>
-X-Mailer: VM 6.92 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <XFMail.20010715130221.davidel@xmailserver.org>; from davidel@xmailserver.org on Sun, Jul 15, 2001 at 01:02:21PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Alan Cox wrote:
-
-> > Maybe you misunderstood who "he" refers to?
-> > 
-> > I took it as referring to the Alan Brown (the ORBS maintainer), rather
-> > than to to Ron Guilmette (who doesn't want his DNS server to be used). 
+On Sun, Jul 15, 2001 at 01:02:21PM -0700, Davide Libenzi wrote:
+> The problem of the current scheduler is that it acts like an infinite feedback
+> system.
+> When we're going to decide if we've to move a task we analyze the status at the
+> current time without taking in account the system status at previous time
+> values.
+> But the feedback we send ( IPI to move the task ) take a finite time to hit the
+> target CPU and, meanwhile, the system status changes.
+> So we're going to apply a feedback calculated in time T0 to a time Tn, and this
+> will result in system auto-oscillation that we perceive as tasks bouncing
+> between CPUs.
+> This is kind of electronic example but it applies to all feedback systems.
+> The solution to this problem, given that we can't have a zero feedback delivery
+> time, is :
 > 
-> Then you took it wrongly
+> 1) lower the feedback amount, that means, try to minimize task movements
+> 
+> 2) a low pass filter, that means, when we're going to decide the sort ( move )
+>         of a task, we've to weight the system status with the one that it had
+>         at previous time values
 
-OK; In which case, it might help to provide some explanation as to why
-you think that Ron Guilmette is "committing an act of criminal fraud,
-computer misuse and a few other violations".
+Nice analysis. I think Mike's proposal of the 'saved_cpus_allowed' field
+to temporarily bind the task to the target would just act as such an low 
+pass filter.
 
-The existence of Michael Warfield's message suggests that I wasn't the
-only one who felt that it seemed to be the other way around. For
-anyone whose knowledge of this issue is limited to what has appeared
-in this thread, all we have to go in is Ron's email, as posted by
-Keith Owens.
-
--- 
-Glynn Clements <glynn.clements@virgin.net>
+-Andi

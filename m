@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282289AbRKWXz4>; Fri, 23 Nov 2001 18:55:56 -0500
+	id <S282302AbRKWX4q>; Fri, 23 Nov 2001 18:56:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282295AbRKWXy4>; Fri, 23 Nov 2001 18:54:56 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:44817 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S282289AbRKWXyv>;
-	Fri, 23 Nov 2001 18:54:51 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: viro@math.psu.edu
-Date: Sat, 24 Nov 2001 00:54:10 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: 2.5.0 breakage even with fix?
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <A0A71547524@vcnet.vc.cvut.cz>
+	id <S282294AbRKWX4k>; Fri, 23 Nov 2001 18:56:40 -0500
+Received: from [212.18.232.186] ([212.18.232.186]:56837 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S282305AbRKWX42>; Fri, 23 Nov 2001 18:56:28 -0500
+Date: Fri, 23 Nov 2001 23:56:11 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Jahn Veach <V64@Galaxy42.com>
+Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: Re: 2.4.15 + fs corruption.
+Message-ID: <20011123235611.E3141@flint.arm.linux.org.uk>
+In-Reply-To: <013601c17479$933f0450$2b910404@Molybdenum>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <013601c17479$933f0450$2b910404@Molybdenum>; from V64@Galaxy42.com on Fri, Nov 23, 2001 at 05:50:03PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Al,
-  I'm now running 2.5.0 with fix you posted - and now during dselect
-run I received:
+On Fri, Nov 23, 2001 at 05:50:03PM -0600, Jahn Veach wrote:
+> What kind of breakage are we looking at here? I had a system that ran 2.4.15
+> and got shut down without a sync. What kind of corruption will occur and is
+> it something a simple fsck will fix?
 
-Unpacking replacement manpages ...
-EXT2-fs error (device ide0(3,3)): ext2_check_page: bad entry in directory
-  #3801539: unaligned directory entry - offset=0, inode=1801675088,
-  rec_len=26465, name_len=101
-Remounting filesystem read-only
-rm: cannot remove directory `/var/lib/dpkg/tmp.ci': Read-only file system
-...
+fsck does seem to fix it, but it won't automatically detect the problem
+(since the filesystem is marked clean).
 
-and system is obviously unusable. I'll probably reboot and run fsck again.
-If someone can show me how I can dump contents of some inode by number
-(and not by name) in debugfs, I can look into inode itself... I found
-only 'ncheck', to convert number to name, and this is running and running...
+It basically removes the inodes from the disk, but leaves the names in
+the directory.  On the next boot, init scripts which clear out certain
+directories fail, and various daemons fail to start because of it.
 
-System was running 2.5.0 without patch for some time, but I followed
-your guidelines for rebooting:
+It seems that the only solution is to force a fsck at boot:
 
-fuser -k /
-sync
-mount -o remount,ro /
-sync
-reboot
+	shutdown -F -r now
 
-After reboot fsck was NOT run, so it is possible that there
-might be some corruption - but I ran fsck on my non-root partition
-after boot, and it did not show any problems.
-                                        Thanks,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                    
-                                                    
+should do the trick.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313467AbSDGURl>; Sun, 7 Apr 2002 16:17:41 -0400
+	id <S313468AbSDGUTV>; Sun, 7 Apr 2002 16:19:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313468AbSDGURk>; Sun, 7 Apr 2002 16:17:40 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:31036 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S313467AbSDGURi>; Sun, 7 Apr 2002 16:17:38 -0400
-To: John Levon <movement@marcelothewonderpenguin.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Steven N. Hirsch" <shirsch@adelphia.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Two fixes for 2.4.19-pre5-ac3
-In-Reply-To: <20020407173343.GA18940@compsoc.man.ac.uk>
-	<E16uIf7-0006Zw-00@the-village.bc.nu>
-	<20020407194114.GA21800@compsoc.man.ac.uk>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 07 Apr 2002 14:10:42 -0600
-Message-ID: <m1y9fzmfr1.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S313469AbSDGUTU>; Sun, 7 Apr 2002 16:19:20 -0400
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:17352 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S313468AbSDGUTT>;
+	Sun, 7 Apr 2002 16:19:19 -0400
+Message-ID: <3CB0A9B9.8050309@acm.org>
+Date: Sun, 07 Apr 2002 15:19:05 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How to open files a process has mmapped
+In-Reply-To: <E16tuKm-0002Kp-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Levon <movement@marcelothewonderpenguin.com> writes:
+Alan Cox wrote:
 
-> On Sun, Apr 07, 2002 at 08:49:17PM +0100, Alan Cox wrote:
-> 
-> > Removing it in the -ac tree is a good way to stimulate discussion
-> 
-> OK
-> 
-> > fixing the code that relies on it (except for the 99% of code relying on it
-> > which is cracker authored trojans)
-> 
-> No doubt, but it's not much harder to look at nm vmlinux or System.map,
-> so I don't see the security angle...
-> 
-> I'd be happy to bear the brunt of users moaning at me because they now
-> have to apply a kernel patch (and I have to maintain it ...), iff there
-> was some strongly technical reason the code has to change.
+>>a file a process has mmap-ed.  The trouble is that the file might be 
+>>deleted (this is actually likely in this scenario) so I can't just open 
+>>the file listed in /proc/<pid>/maps
+>>
+>Well perhaps they should not have deleted it
+>
+>>I have looked some at this, and I haven't come up with a good solution 
+>>for this.  I have come up with the following solutions:
+>>
+>You forgot fix the program to do sensible things. You can pass file handles
+>over AF_UNIX sockets for example, or you could rename the file so you can
+>find it then delete it later
+>
+The customer is used to doing this on another operating system, and they 
+have a system already designed that works this way.  I agree that there 
+are more sensible solutions, but I have to think about this from my 
+customer's point of view.  If a simple way to do this existed, it would 
+save them time.
 
-Deep technical reason there are architectures where patching the
-system call table does not work.
+>>The last solution I could think of was to provide a way to open a file 
+>>with using the major/minor/inode (since these are listed for the mapped 
+>>files in the /proc/<pid>/maps file).  This is kind of ugly, but it's 
+>>probably the best one I've thought of.
+>>
+>Nice way to do security holes
+>
+Obviously, this would be a root-only thing.  I don't think it opens up 
+anything more than root already has, does it?  Or am I missing something?
 
-Eric
+-Corey
+

@@ -1,55 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265473AbVBDUEV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263291AbVBDUol@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265473AbVBDUEV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 15:04:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266669AbVBDUDW
+	id S263291AbVBDUol (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 15:44:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264408AbVBDUf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 15:03:22 -0500
-Received: from www.ssc.unict.it ([151.97.230.9]:18180 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S264284AbVBDUAh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 15:00:37 -0500
-Subject: [patch 3/8] uml: Fix SKAS sig-handler reentrancy [before 2.6.11]
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, jdike@addtoit.com,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
-From: blaisorblade@yahoo.it
-Date: Fri, 04 Feb 2005 19:35:46 +0100
-Message-Id: <20050204183546.4980F310B8@zion>
+	Fri, 4 Feb 2005 15:35:26 -0500
+Received: from alog0095.analogic.com ([208.224.220.110]:1408 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264629AbVBDUWY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 15:22:24 -0500
+Date: Fri, 4 Feb 2005 15:22:25 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Rahul Jain <rbj2@oak.njit.edu>
+cc: Kernel Traffic Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: How to add source files in kernel
+In-Reply-To: <Pine.GSO.4.58.0502041408540.12006@chrome.njit.edu>
+Message-ID: <Pine.LNX.4.61.0502041519220.5805@chaos.analogic.com>
+References: <Pine.GSO.4.58.0502041408540.12006@chrome.njit.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 4 Feb 2005, Rahul Jain wrote:
 
-From: Jeff Dike <jdike@addtoit.com>, Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-CC: uml-devel <user-mode-linux-devel@lists.sourceforge.net>
+> Hi All,
+>
+> I am trying to add 2 new files (a .h and a .c) in the kernel. I copied my
+> .h file in /include/linux and .c in /net/core. I then made the
+> following change to the Makefile in /net/core.
+>
+> obj-y := sock.o skbuff.o iovec.o datagram.o scm.o split_helper.o
+>
+> where split_helper.o is for the .c file that I am adding.
+>
+> The kernel recompilation went without any problems. I wrote loadable
+> module programs that can access the functions defined in .c. When I try to
+> install these modules, they came back with the following error
+>
+> /sbin/insmod x.o
+> x.o: unresolved symbol enqueue_sfi
+> x.o: unresolved symbol init_skbuff_list
+> x.o: unresolved symbol get_head_sfi
+> x.o: unresolved symbol search_sfi
+> x.o: unresolved symbol enqueue_skbuff_list
+> x.o: unresolved symbol init_head_sfi
+> x.o:
+> Hint: You are trying to load a module without a GPL compatible license
+>      and it has unresolved symbols.  Contact the module supplier for
+>      assistance, only they can help you.
+>
+> make: *** [install] Error 1
+>
+> These functions are defined in the .c file and declared with the extern
+> keyword in the .h file. In my modules I am including the .h file.
+>
+> Any suggestions on what I might be missing here ?
+>
+> Thanks,
+> Rahul.
 
-This adds code which enables SIGSEGV reception to the SKAS sig_handler_common,
-which matches the tt code.
+MODULE_LICENSE("GPL");
 
-I still need to figure out why the SA_NODEFER flag was backed out in favor of this.
+Needs to be in one of your files. This is part of the
+"New World Order".
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- linux-2.6.11-paolo/arch/um/kernel/skas/trap_user.c |    8 ++++++++
- 1 files changed, 8 insertions(+)
-
-diff -puN arch/um/kernel/skas/trap_user.c~uml-no-defer arch/um/kernel/skas/trap_user.c
---- linux-2.6.11/arch/um/kernel/skas/trap_user.c~uml-no-defer	2005-02-04 06:14:11.966064760 +0100
-+++ linux-2.6.11-paolo/arch/um/kernel/skas/trap_user.c	2005-02-04 06:14:11.969064304 +0100
-@@ -20,6 +20,14 @@ void sig_handler_common_skas(int sig, vo
- 	int save_errno = errno;
- 	int save_user;
- 
-+	/* This is done because to allow SIGSEGV to be delivered inside a SEGV
-+	 * handler.  This can happen in copy_user, and if SEGV is disabled,
-+	 * the process will die.
-+	 * XXX Figure out why this is better than SA_NODEFER
-+	 */
-+	if(sig == SIGSEGV)
-+		change_sig(SIGSEGV, 1);
-+
- 	r = &TASK_REGS(get_current())->skas;
- 	save_user = r->is_user;
- 	r->is_user = 0;
-_
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,77 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272493AbTHOX6z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 19:58:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272502AbTHOX6y
+	id S272426AbTHOXyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 19:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272464AbTHOXyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 19:58:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:6097 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272493AbTHOX5s (ORCPT
+	Fri, 15 Aug 2003 19:54:16 -0400
+Received: from mail.kroah.org ([65.200.24.183]:36814 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S272426AbTHOXyL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 19:57:48 -0400
-Date: Fri, 15 Aug 2003 16:43:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Yaoping Ruan <yruan@cs.princeton.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel hangs up - possible sendfile() epoll() bug?
-Message-Id: <20030815164334.1e37b5b8.akpm@osdl.org>
-In-Reply-To: <3F3D672D.1AF660B6@cs.princeton.edu>
-References: <3F3D672D.1AF660B6@cs.princeton.edu>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 15 Aug 2003 19:54:11 -0400
+Date: Fri, 15 Aug 2003 16:51:29 -0700
+From: Greg KH <greg@kroah.com>
+To: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
+Cc: linux-kernel@vger.kernel.org, Jean Delvare <khali@linux-fr.org>,
+       sensors@Stimpy.netroedge.com, vsu@altlinux.ru
+Subject: Re: [PATCH 2.4] i2c-dev user/kernel bug and mem leak
+Message-ID: <20030815235127.GA5697@kroah.com>
+References: <20030803192312.68762d3c.khali@linux-fr.org> <20030804193212.11786d06.vsu@altlinux.ru> <20030805103240.02221bed.khali@linux-fr.org> <20030805210704.GA5452@kroah.com> <20030806100702.78298ffe.khali@linux-fr.org> <1060886657.1006.7121.camel@dooby.cs.berkeley.edu> <20030814190954.GA2492@kroah.com> <1060912895.1006.7160.camel@dooby.cs.berkeley.edu> <20030815211329.GB4920@kroah.com> <1060985846.302.17.camel@dooby.cs.berkeley.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1060985846.302.17.camel@dooby.cs.berkeley.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yaoping Ruan <yruan@cs.princeton.edu> wrote:
->
-> Hi,
+On Fri, Aug 15, 2003 at 03:17:25PM -0700, Robert T. Johnson wrote:
+> On Fri, 2003-08-15 at 14:13, Greg KH wrote:
+> > i2c-dev.c is annotated in 2.6.  Did I miss anything that needs to be
+> > marked as such?
 > 
-> Recently we updated a user space web server to use the sendfile() and
-> epoll() interface, and tried to measure the performance with SpecWeb99
-> benchmark. As the load increases, e.g a SpecWeb99's target score of 600
-> connection, the kernel sometimes hangs up without any logging
-> information, and the only way left is to push the reset button to
-> reboot.
+> For this particular bug (before all the patches started flying around),
+> you'd have to add a kernel annotation to the "struct i2c_msg" field
+> buf.
+
+Look at 2.6, that annotatation is already there.
+
+> But you still have the problem that sparse silently ignores
+> missing annotations, so you can never tell if you've missed something
+> important.  Cqual infers the annotations on its own, so you never have
+> to worry that some might be missing or wrong.
+
+Nice, is cqual released somewhere so that we can compare it and start
+using it, like we already use sparse?
+
+> > Hm, how about just fixing the tty core to always pass in kernel buffers?
+> > That would fix the "problem" in one place :)
 > 
-> We also made similar updates to use sendfile() and kevent() on FreeBSD
-> and achieved a score of 1000 connections. Thus the possibility of
-> application bug is low (also it is a user space server). Before the
-> sendfile() and epoll() change, it was also fine but only could get a
-> SpecWeb99 score of 500.
-> 
-> The kernel we were using was 2.4.21 with the epoll patch applied. Since
-> the epoll man pages mention the interface is stabilized in 2.5.66, we
-> also tried 2.5.66 but didn't see anything better. The machine is a PIII
-> Xeon processor-based Intel server motherboard, with 2 CPU support but
-> only 1 is used, Maxtor Diamond IDE disk, Promise Ultra DMA 66
-> controller, and a single Netgear GA621 gigabit ethernet network adapter.
-> 
+> That's a good idea, but is that possible?  In other words, can the tty
+> core always tell how much to copy into kernel space?
 
-Definitely a kernel bug.
+Yes it is, one of the paramaters in those functions is the size of the
+buffer :)
 
-Could you please test 2.6.0-test3?  If that has the same problem then
-some initial steps would be:
+> The solution I propose is a very simple change that fits easily into
+> the current architecture.
 
+Not really, you still are saying that all tty drivers need to be
+changed, and new logic added to handle the additional paramater.  With
+my proposed change, all drivers also have to be changed, but logic and
+paramaters gets to be removed, making it harder for tty driver authors
+to get things wrong.
 
-- Boot the kernel with the "nmi_watchdog=1" option on the kernel boot
-  command line.  (It needs to be an SMP-compiled kernel for this to work. 
-  Or one which has the local APIC enabled in config)
+thanks,
 
-- Make sure that /proc/sys/kernel/sysrq was set to `1' after booting.
-
-- Can you still ping the machine after it hangs up?
-
-- Type ALT-SYSRQ-T and/pr ALT-SYSRQ-P on the keyboard, see if you get a trace.
-
-- ALT-SYSRQ-M may be interesting too (memory stats)
-
-If the nmi watchdog doesn't generate a trace then the sysrq keys should do
-so.
-
-If the above does not provide us with enough information to solve the bug
-then the next step would be for you to provide sufficient material for a
-kernel developer to reproduce the problem.
-
-Thanks.
+greg k-h

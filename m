@@ -1,119 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbVASXKp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVASXN3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261960AbVASXKp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 18:10:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbVASXKp
+	id S261970AbVASXN3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 18:13:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbVASXMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 18:10:45 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:23690 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261960AbVASXK0 (ORCPT
+	Wed, 19 Jan 2005 18:12:40 -0500
+Received: from acomp.externet.hu ([212.40.96.68]:63925 "HELO www.acomp.hu")
+	by vger.kernel.org with SMTP id S261966AbVASXMY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 18:10:26 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20050119213834.GC8471@dominikbrodowski.de> 
-References: <20050119213834.GC8471@dominikbrodowski.de> 
-To: Dominik Brodowski <linux@dominikbrodowski.de>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 2/4] interruptible rwsem operations (i386, core) 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Wed, 19 Jan 2005 23:10:20 +0000
-Message-ID: <24595.1106176220@redhat.com>
+	Wed, 19 Jan 2005 18:12:24 -0500
+Date: Thu, 20 Jan 2005 00:13:22 +0100
+From: Janos Farkas <jf-ml-k1-1087813225@lk8rp.mail.xeon.eu.org>
+To: linux-kernel@vger.kernel.org
+Cc: Andi Kleen <ak@suse.de>, Chris Bruner <cryst@golden.net>
+Subject: COMMAND_LINE_SIZE increasing in 2.6.11-rc1-bk6
+Message-ID: <20050119231322.GA2287@lk8rp.mail.xeon.eu.org>
+Mail-Followup-To: Janos Farkas <jf-ml-k1-1087813225@lk8rp.mail.xeon.eu.org>,
+	linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+	Chris Bruner <cryst@golden.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andi!
 
-Dominik Brodowski <linux@dominikbrodowski.de> wrote:
+I had difficulties booting recent rc1-bkN kernels on at least two
+Athlon machines (but somehow, on an *old* Pentium laptop booted with the
+a very similar system just fine).
 
-> Add functions down_read_interruptible, and down_write_interruptible to rw
-> semaphores. Implement these for i386.
-> ...
+The kernel just hung very early, just after displaying "BIOS data check
+successful" by lilo (22.6.1).  Ctrl-Alt-Del worked to reboot, but
+nothing else was shown.
 
-> +static inline int
-> +rwsem_down_interruptible_failed_common(struct rw_semaphore *sem,
-> +			struct rwsem_waiter *waiter, signed long adjustment)
-> +{
-> ...
+It is a similar experience to Chris Bruner's post here:
+> http://article.gmane.org/gmane.linux.kernel/271352
 
-I wonder if you should check to see if there are any readers that can be woken
-up if a sleeping writer is interrupted, but I can't think of a simple way to
-do it.
+I also recall someone having similar problem with Opterons too, but
+can't find just now..
 
-> -struct rw_semaphore fastcall __sched *
-> -rwsem_down_read_failed(struct rw_semaphore *sem)
-> +void fastcall __sched rwsem_down_read_failed(struct rw_semaphore *sem)
+rc1-bk6 didn't boot, and thus I started checking revisions:
+rc1-bk3 did boot (as well as plain rc1)
+rc1-bk4 didn't boot
+rc1-bk7 booted *after* reverting the patch below:
 
-Please don't.
+> 4 days ak 1.2329.1.38 [PATCH] x86_64/i386: increase command line size
+> Enlarge i386/x86-64 kernel command line to 2k
+> This is useful when the kernel command line is used to pass other
+> information to initrds or installers.
+> On i386 it was duplicated for unknown reasons.
+> Signed-off-by: Andi Kleen
+> Signed-off-by: Andrew Morton
+> Signed-off-by: Linus Torvalds
 
-> @@ -199,14 +253,33 @@ rwsem_down_read_failed(struct rw_semapho
->  				RWSEM_WAITING_BIAS - RWSEM_ACTIVE_BIAS);
->  
->  	rwsemtrace(sem, "Leaving rwsem_down_read_failed");
-> -	return sem;
+While arguably it's not a completely scientific approach (no plain bk7,
+and no bk6 reverted was tested), I'm inclined to say this was my
+problem...
 
-Ditto.
+Isn't this define a lilo dependence?
 
-> -struct rw_semaphore fastcall __sched *
-> -rwsem_down_write_failed(struct rw_semaphore *sem)
-> +void fastcall __sched rwsem_down_write_failed(struct rw_semaphore *sem)
-
-Ditto.
-
-> @@ -216,10 +289,31 @@ rwsem_down_write_failed(struct rw_semaph
->  	rwsem_down_failed_common(sem, &waiter, -RWSEM_ACTIVE_BIAS);
->  
->  	rwsemtrace(sem, "Leaving rwsem_down_write_failed");
-> -	return sem;
-
-Ditto.
-
-> @@ -99,11 +103,12 @@ static inline void __down_read(struct rw
->  {
->  	__asm__ __volatile__(
->  		"# beginning down_read\n\t"
-> -LOCK_PREFIX	"  incl      (%%eax)\n\t" /* adds 0x00000001, returns the old value */
-> +LOCK_PREFIX	"  incl      %0\n\t" /* adds 0x00000001, returns the old value */
-
-Ditto.
-
->  		"  js        2f\n\t" /* jump if we weren't granted the lock */
->  		"1:\n\t"
->  		LOCK_SECTION_START("")
->  		"2:\n\t"
-> +		"  movl      %2,%%eax\n\t"
-
-Splat.
-
->  		"  pushl     %%ecx\n\t"
->  		"  pushl     %%edx\n\t"
->  		"  call      rwsem_down_read_failed\n\t"
-
-Splat.
-
-> @@ -113,11 +118,41 @@ LOCK_PREFIX	"  incl      (%%eax)\n\t" /*
->  		LOCK_SECTION_END
->  		"# ending down_read\n\t"
->  		: "=m"(sem->count)
-> -		: "a"(sem), "m"(sem->count)
-> +		: "m"(sem->count), "m"(sem)
->  		: "memory", "cc");
->  }
-
-You appear to be corrupting EAX.
-
-> +static inline int __down_read_interruptible(struct rw_semaphore *sem)
-
-Will corrupt EAX.
-
->  		"# beginning down_write\n\t"
-> -LOCK_PREFIX	"  xadd      %%edx,(%%eax)\n\t" /* subtract 0x0000ffff, returns the old value */
-> +LOCK_PREFIX	"  xadd      %%edx,%0\n\t" /* subtract 0x0000ffff, returns the old value */
-
-Again, please don't. It's a lot more readable when it mentions EAX directly,
-plus it's also independent of constraint reordering.
-
-> +static inline int __down_write_interruptible(struct rw_semaphore *sem)
-
-Will corrupt EAX and EDX.
-
-David
+-- 
+Janos | romfs is at http://romfs.sourceforge.net/ | Don't talk about silence.

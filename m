@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131329AbRABUtl>; Tue, 2 Jan 2001 15:49:41 -0500
+	id <S131386AbRABU4m>; Tue, 2 Jan 2001 15:56:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131386AbRABUtf>; Tue, 2 Jan 2001 15:49:35 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25604 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131329AbRABUtJ>; Tue, 2 Jan 2001 15:49:09 -0500
-Subject: Re: Error compiling 2.4 with CVS gcc on Athlon
-To: ghad@triad.rr.com (Ghadi Shayban)
-Date: Tue, 2 Jan 2001 20:20:50 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A523635.8080003@triad.rr.com> from "Ghadi Shayban" at Jan 02, 2001 03:12:37 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S131801AbRABU4b>; Tue, 2 Jan 2001 15:56:31 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:47109 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131386AbRABU4P>;
+	Tue, 2 Jan 2001 15:56:15 -0500
+Date: Tue, 2 Jan 2001 15:37:34 -0500 (EST)
+From: Chris Meadors <clubneon@hereintown.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Where to get quota.
+Message-ID: <Pine.LNX.4.31.0101021533200.9214-100000@rc.priv.hereintown.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14DXvQ-0002pz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have no idea, but I'm guessing this isn't a gcc bug.  Here's where my 
-> build fails:
-> {standard input}: Assembler messages:
-> {standard input}:139: Error: bad register name `%%mm0'
+Perhaps the help text for disk quotas needs to be updated, or at least the
+howto for quotas.
 
-Your compiler/binutils are too old
+The help text for disk quotas says to see the Quota mini-HOWTO.  The howto
+says to get the quota source from:
+
+ftp://ftp.funet.fi/pub/Linux/PEOPLE/Linus/subsystems/quota/all.tar.gz
+
+That doesn't exist anymore.
+
+I'm just looking for a quick pointer to the quota source, but also
+suggesting that maybe the help text should be updated.  Or if someone
+points me in the right direction, I'll write to the author of the howto.
+
+-Chris
+-- 
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,81 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271090AbTHQUM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 16:12:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271091AbTHQUM2
+	id S271080AbTHQUQm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 16:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271091AbTHQUQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 16:12:28 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:39373
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S271090AbTHQUMV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 16:12:21 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Coen Rosdorff <coen@rosdorff.dyndns.org>, Hugh Dickins <hugh@veritas.com>
-Subject: Re: VM: killing process amavis
-Date: Sun, 17 Aug 2003 05:48:16 -0400
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0308132119140.4138-100000@rosdorff.dyndns.org>
-In-Reply-To: <Pine.LNX.4.44.0308132119140.4138-100000@rosdorff.dyndns.org>
+	Sun, 17 Aug 2003 16:16:42 -0400
+Received: from paiol.terra.com.br ([200.176.3.18]:24783 "EHLO
+	paiol.terra.com.br") by vger.kernel.org with ESMTP id S271080AbTHQUQi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 16:16:38 -0400
+Message-ID: <3F3FE375.7060309@terra.com.br>
+Date: Sun, 17 Aug 2003 17:20:05 -0300
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Lucas Correia Villa Real <lucasvr@gobolinux.org>
+Cc: Gobo-l <gobo-l@cscience.org>, linux-kernel@vger.kernel.org
+Subject: Re: [gobo-l]Re: [PATCH] gobohide: avoid null pointer accesses
+References: <200308140053.14005.lucasvr@gobolinux.org> <3F3D94DA.90805@terra.com.br> <200308170210.49719.lucasvr@gobolinux.org>
+In-Reply-To: <200308170210.49719.lucasvr@gobolinux.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308170548.16094.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 August 2003 15:40, Coen Rosdorff wrote:
-> On Wed, 13 Aug 2003, Hugh Dickins wrote:
-> > It really would be worth giving memtest86 a good long run.
-> >
-> > 02000000 looks very much like a single-bit memory error,
-> > and swap_free is exactly where such errors often show up.
->
-> I had the same problem before on the previous server. Running memtest for
-> 19 days didn't showed any memory problems.
->
-> After replacing the motherboard cpu and ram, now I have the same problem.
+	Greetings,
 
-I had a system once that looked very much like it had bad ram, but it turned 
-out to have a bad hard drive controller, which showed up paging stuff into 
-memory from disk (ala exec, sometimes), and in bringing stuff back in from 
-swap.  (The kernel almost never went bye-bye, because it never swapped out, 
-you see...)
+Lucas Correia Villa Real wrote:
+> Oops, sorry. 2.4.20 and/or 2.4.21.
 
-Caused the weirdest problems in Myth II, among other things...
+	Ok, things are much clearer now :)
 
-> So the problem moved from 00000100 to 02000000
->
-> The networkcards and the 3ware raid controler moved form the old to the
-> new box. Could one of them be the problem?
->
-> I am running out of options.
+	But I still have some doubts..CC'ing LKML to see if any of those 
+hackers can help us.
 
-Check the raid controller.  Especially if you're swapping through the raid 
-controller.  I found out what was wrong with the other system by copying big 
-tarballs through the network and verifying them.
+> int vfs_unlink(struct inode *dir, struct dentry *dentry)
+> {
+> 	...
+> 	down(&dir->i_zombie);
+> 	error = may_delete(dir, dentry, 0);
+> 	if (!error) {
+> 		...
+> 		if (!error) {
+> 			if (dentry->d_inode && S_ISLNK (dentry->d_inode->i_mode))
+> 				if (gobolinux_hide(dentry->d_inode->i_ino) > 0)
+> 					gobolinux_inode_del(dentry->d_inode->i_ino)
 
-Try this:
 
-1) Copy a tarball to the remote system and confirm that it came out OK just 
-coming across the network.
+	Yeah, ok...but I still don't get when a dentry doesn't have a valid 
+d_inode why we don't return ENOENT like in sys_unlink:
 
-  cat enormous.tgz | ssh othersystem "tar tvz"
 
-2) Now copy the tarball to the remote machine's disk, and test that the copy 
-on disk is good.
+slashes:
+         error = !dentry->d_inode ? -ENOENT :
+                 S_ISDIR(dentry->d_inode->i_mode) ? -EISDIR : -ENOTDIR;
 
-  cat enormous.tgz | ssh othersystem "cat > temp.tgz; tar tvzf temp.tgz"
 
-Of course using a tarball that's bigger than your ram, so it actually does 
-have to write it out to disk and read it back in again.  Using ssh provides a 
-little bit of a CPU load, and of course the network is providing a competing 
-source of interrupts.  (You could also run contest in the background or some 
-such to really beat the system to death...)
+	Which, by the way, would be called _instead_ of calling vfs_unlink...so 
+should we assume that the dentry _should_ have a valid dinode?
 
-Rob
+	You said that the kernel oops'ed when unlinking a symlink in a NFS 
+partition, right?
 
+	Does anybody know if, in this case (a symlink inside a NFS partition), 
+the dentry really doesn't have a valid d_inode entry?
+
+	Thanks,
+
+Felipe
+-- 
+It's most certainly GNU/Linux, not Linux. Read more at
+http://www.gnu.org/gnu/why-gnu-linux.html
 

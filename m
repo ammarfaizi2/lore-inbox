@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290237AbSAXUnM>; Thu, 24 Jan 2002 15:43:12 -0500
+	id <S290424AbSAXWix>; Thu, 24 Jan 2002 17:38:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290247AbSAXUnC>; Thu, 24 Jan 2002 15:43:02 -0500
-Received: from smtp2.vol.cz ([195.250.128.42]:58120 "EHLO smtp2.vol.cz")
-	by vger.kernel.org with ESMTP id <S290237AbSAXUmp>;
-	Thu, 24 Jan 2002 15:42:45 -0500
-Date: Thu, 24 Jan 2002 10:55:05 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Daniel Nofftz <nofftz@castor.uni-trier.de>
-Cc: Timothy Covell <timothy.covell@ashavan.org>,
-        Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        Dave Jones <davej@suse.de>, Andreas Jaeger <aj@suse.de>,
-        Martin Peters <mpet@bigfoot.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
-Message-ID: <20020124095504.GA297@elf.ucw.cz>
-In-Reply-To: <200201231813.g0NID5r15047@home.ashavan.org.> <Pine.LNX.4.40.0201232021440.2202-100000@infcip10.uni-trier.de>
+	id <S290425AbSAXWiq>; Thu, 24 Jan 2002 17:38:46 -0500
+Received: from CPE-203-51-24-223.nsw.bigpond.net.au ([203.51.24.223]:46853
+	"EHLO front.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S290424AbSAXWif>; Thu, 24 Jan 2002 17:38:35 -0500
+Date: Thu, 24 Jan 2002 18:02:41 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: maneesh@in.ibm.com
+Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        dipankar@in.ibm.com, Paul.McKenney@us.ibm.com, viro@math.psu.edu,
+        anton@samba.org, andrea@suse.dec, tytso@mit.edu
+Subject: Re: [RFC] Peeling off dcache_lock
+Message-Id: <20020124180241.4d266b3e.rusty@rustcorp.com.au>
+In-Reply-To: <20020121174039.D8289@in.ibm.com>
+In-Reply-To: <20020121174039.D8289@in.ibm.com>
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.40.0201232021440.2202-100000@infcip10.uni-trier.de>
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 21 Jan 2002 17:40:39 +0530
+Maneesh Soni <maneesh@in.ibm.com> wrote:
 
-> > Hey, don't get me wrong.  I'm all for power-saving.  That's
-> > why I own a Via C3 based system.   The Via C3 works
-> > great as an NFS server and draws 12 Watts max (avg.
-> > is 6 watts).   For just email and web browsing, I'd definitely
-> > recommend it.   I'd also recommend it for a small firewall/router
-> > system.   However, for A/V apps and heavy compiling, it's
-> > definitely not the way to go [BeOS C3 can handle one
-> > A/V app at a time, but not several].
-> >
-> >
-> > If the patch is really the way to go, then we should get it
-> > put into the main distribution.  But if it is going to hurt
-> > my performance, then I'd be happy to stick with vanilla
-> > kapmd (hlt based) power saving.
+> Hi All,
 > 
-> eenabling the discconect function causes a performance drop of about 2-3 %
-> as far as i heared ... but this patch is only for athlon processors
-> on an
+> We have been doing experiments with dcache_lock to provide some relief from it.
+> Though dcache_lock is not a very hot lock in comparision to BKL but on higher
+> end machines it becomes quite contentious. We would like to have feedbacks,
+> comments about the approach taken and guidance on how to improve this further.
 
-You could look for how long CPU was idle, and only if it was mostly
-idle in last 10 seconds enable the bit ;-).
-									Pavel
+Hi Maneesh!
+
+	Fantastic work!  A couple of questions, and a trivial patch:
+
+ o Would DCACHE_DEFERRED_FREE be better called DCACHE_UNLINKED?  If I
+   understand correctly, it's only and always set when someone has deleted
+   (unhashed) the dentry.
+
+ o Am I correct in asserting that you could change all the
+   "list_empty(dentry->dhash)" tests to
+   "dentry->d_vfs_flags & DCACHE_DEFERRED_FREE" tests, and hence change the
+   list_del_init() to list_del() in unhash, and thus remove the d_nexthash
+   field altogether?
+
+ o d_lookup looks like it can return an DCACHE_DEFERRED_FREE dentry: this
+   seems wrong: shouldn't it loop here?
+
+ o Were you planning on changing d_count to a non-atomic?  It seems overkill
+   to have it protected by the lock, but ALSO atomic for other places.
+   Could be a performance loss as well.
+
+ o Minor nitpick: unhash() in dcache.h is plainer implemented in terms of
+   __unhash().
+
+Any chance of you making it to http://linux.conf.au next month BTW?
+
+Thanks for the cool patch!
+Rusty.
 -- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

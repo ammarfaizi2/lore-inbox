@@ -1,81 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264915AbTAWT2X>; Thu, 23 Jan 2003 14:28:23 -0500
+	id <S266627AbTAWTct>; Thu, 23 Jan 2003 14:32:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265243AbTAWT2X>; Thu, 23 Jan 2003 14:28:23 -0500
-Received: from beta.bandnet.com.br ([200.195.133.131]:62480 "EHLO
-	beta.bandnet.com.br") by vger.kernel.org with ESMTP
-	id <S264915AbTAWT2V>; Thu, 23 Jan 2003 14:28:21 -0500
-From: "User &" <breno_silva@beta.bandnet.com.br>
-To: Valdis.Kletnieks@vt.edu, User & <breno_silva@beta.bandnet.com.br>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Expand VM 
-Date: Thu, 23 Jan 2003 16:40:14 -0300
-Message-Id: <20030123194014.M374@beta.bandnet.com.br>
-In-Reply-To: <200301231655.h0NGtc75010414@turing-police.cc.vt.edu>
-References: <20030123155627.M95099@beta.bandnet.com.br> <200301231655.h0NGtc75010414@turing-police.cc.vt.edu>
-X-Mailer: Open WebMail 1.81 20021127
-X-OriginatingIP: 200.215.42.52 (breno_silva)
+	id <S266731AbTAWTct>; Thu, 23 Jan 2003 14:32:49 -0500
+Received: from fed1mtao08.cox.net ([68.6.19.123]:36091 "EHLO
+	fed1mtao08.cox.net") by vger.kernel.org with ESMTP
+	id <S266627AbTAWTcs>; Thu, 23 Jan 2003 14:32:48 -0500
+Message-ID: <3E304581.2010302@cox.net>
+Date: Thu, 23 Jan 2003 12:41:53 -0700
+From: "Kevin P. Fleming" <kpfleming@cox.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.3b) Gecko/20030106
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: is it possible to bridge virtual devices (ie. a GRE tunnel)?
+References: <3E3040B7.6040001@nortelnetworks.com>
+In-Reply-To: <3E3040B7.6040001@nortelnetworks.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Valdis
-
-Create a new VMA on Linux B for Linux A is easy , but i have a problem , the 
-address of VMA is returned on Linux B , so the VMA created on Linux B can not 
-be used for process of linux A.
-The problem is "how can i return address of VMA created on LINUX B to Linux 
-A , and use this space ?".
-
-Thanks
-Breno
-
-On Thu, 23 Jan 2003 11:55:38 -0500, Valdis.Kletnieks wrote
-> On Thu, 23 Jan 2003 12:56:27 -0300, User & 
-> <breno_silva@beta.bandnet.com.br>  said:
+Chris Friesen wrote:
 > 
-> > I have one idea , and this is about expand virtual memory on linux boxes 
-> > connected in LAN.
-> > Example: Linux A is processing come information , and need more memory , 
-so 
-> > with this source , Linux A could access virtual memory on Linux B in LAN.
+> I want to set up two physically separate LANs with the same network 
+> address and logically bridge them using some kind of tunnel over an IP 
+> network.
 > 
-> We've seen *this* done before (remember diskless Sun3-50's?) - the /dev/swap
-> file would be a large file on an NFS mount from a server.  At the 
-> time, this actually made performance sense, because the old 
-> 'Shoebox' drives the -50 came with were incredibly slow, and you 
-> could actually do an NFS operation to a larger server (a -280 with 
-> Fujitsu SuperEagle disks, for instance) faster than talking to the 
-> local disk.
+> I was hoping to somehow combine bridging with GRE tunnels in the kernel 
+> to accomplish this, but I haven't been able to find out for sure if the 
+> current kernel bridging code can handle a tunnel device as one of the 
+> bridge elements.
 > 
-> These days, it's probably easier and cheaper to just buy more RAM 
-> and/or disk for Linux A.
+> Can anyone give the definitive answer for this?
 > 
-> > But i don´t know how translate the virtual address between Linux A and 
-B , to 
-> > have success in acess VM, or how to send all the process for Linux B to 
-be 
-> > processed.
+> Thanks,
 > 
-> Sending the whole process to Linux B to be processed is called "process
-> migration", and is a difficult problem.  Moving the memory image of the
-> process is usually pretty easy.  What is difficult is moving things like
-> references to open files, file locks, and so on (what if the process 
-> is actively writing to block 739 of /usr/foo/some.file, and the 
-> LinuxB machine doesn't have a /usr/foo, or the permissions on 
-> some.file don't match, or another process has it locked, or... ) 
-> There be nasty dragons in this.
+> Chris
 > 
-> You're probably better off buying more RAM and disk for your A machine.
-> -- 
-> 				Valdis Kletnieks
-> 				Computer Systems Senior Engineer
-> 				Virginia Tech
 
+I don't believe you'd be able to use GRE tunnels, as they are not an "Ethernet" 
+type of tunnel.
 
+However, I run a network with three physical locations, bridged over TAP-type 
+tunnels using VTUN (vtun.sourceforge.net). These are Ethernet-type tunnel 
+devices, so the bridge code just sees them as if it was any other Ethernet 
+network interface.
 
-----------------------
-WebMail Bandnet.com.br
+In addition, I use ebtables to control what traffic gets bridged across the 
+tunnels, so extraneous broadcast/multicast traffic stays where it is supposed to.
 

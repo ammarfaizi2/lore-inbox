@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271298AbTHMAEW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 20:04:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271289AbTHMAEW
+	id S271240AbTHLX7f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 19:59:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271239AbTHLX7f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 20:04:22 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:22265 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S271298AbTHMAEU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 20:04:20 -0400
-Subject: [PATCH 2.6.0-test3]bugfix for initialization bug in adm1021 driver
-From: Rusty Lynch <rusty@linux.co.intel.com>
-To: LM Sensors <sensors@stimpy.netroedge.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 12 Aug 2003 16:38:13 -0700
-Message-Id: <1060731495.11264.8.camel@vmhack>
+	Tue, 12 Aug 2003 19:59:35 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:41862 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S271245AbTHLX7d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 19:59:33 -0400
+Date: Wed, 13 Aug 2003 01:58:54 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Add hint on sysrq on some keyboards
+Message-ID: <20030812235848.GD306@elf.ucw.cz>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While initializing the adm1021 device, the driver is performing a conversion
-from fixed point to Celcius on values that were declaired as Celcius.  On
-my Dell Precision 220 this results in a shutdown after a couple of minutes
-running.
+Hi!
 
-This is a very simple patch against the 2.6.0-test3 tree that just removes the
-conversion.
+This trick is maybe nontrivial... and it is needed on many
+machines. Please apply,
+							Pavel
 
-    --rustyl
+--- /usr/src/tmp/linux/Documentation/sysrq.txt	2003-03-27 10:39:46.000000000 +0100
++++ /usr/src/linux/Documentation/sysrq.txt	2003-08-13 00:55:53.000000000 +0200
+@@ -22,7 +22,10 @@
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ On x86   - You press the key combo 'ALT-SysRq-<command key>'. Note - Some
+            keyboards may not have a key labeled 'SysRq'. The 'SysRq' key is
+-           also known as the 'Print Screen' key.
++           also known as the 'Print Screen' key. Also some keyboards can not
++	   handle so many keys being pressed at the same time, so you might
++	   have better luck with "press Alt", "press SysRq", "release Alt",
++	   "press <command key>", release everything.
+ 
+ On SPARC - You press 'ALT-STOP-<command key>', I believe.
+ 
 
-
-diff -urN linux-2.6.0-test3/drivers/i2c/chips/adm1021.c linux-2.6.0-test3-patched/drivers/i2c/chips/adm1021.c
---- linux-2.6.0-test3/drivers/i2c/chips/adm1021.c	2003-08-08 21:31:16.000000000 -0700
-+++ linux-2.6.0-test3-patched/drivers/i2c/chips/adm1021.c	2003-08-12 16:54:25.000000000 -0700
-@@ -356,13 +356,13 @@
- {
- 	/* Initialize the adm1021 chip */
- 	adm1021_write_value(client, ADM1021_REG_TOS_W,
--			    TEMP_TO_REG(adm1021_INIT_TOS));
-+			    adm1021_INIT_TOS);
- 	adm1021_write_value(client, ADM1021_REG_THYST_W,
--			    TEMP_TO_REG(adm1021_INIT_THYST));
-+			    adm1021_INIT_THYST);
- 	adm1021_write_value(client, ADM1021_REG_REMOTE_TOS_W,
--			    TEMP_TO_REG(adm1021_INIT_REMOTE_TOS));
-+			    adm1021_INIT_REMOTE_TOS);
- 	adm1021_write_value(client, ADM1021_REG_REMOTE_THYST_W,
--			    TEMP_TO_REG(adm1021_INIT_REMOTE_THYST));
-+			    adm1021_INIT_REMOTE_THYST);
- 	/* Enable ADC and disable suspend mode */
- 	adm1021_write_value(client, ADM1021_REG_CONFIG_W, 0);
- 	/* Set Conversion rate to 1/sec (this can be tinkered with) */
-
-
-
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

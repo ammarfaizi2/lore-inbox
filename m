@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129465AbRBMKwv>; Tue, 13 Feb 2001 05:52:51 -0500
+	id <S130385AbRBMK4V>; Tue, 13 Feb 2001 05:56:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130113AbRBMKwm>; Tue, 13 Feb 2001 05:52:42 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:20488 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129465AbRBMKwe>; Tue, 13 Feb 2001 05:52:34 -0500
-Subject: Re: LILO and serial speeds over 9600
-To: hpa@transmeta.com (H. Peter Anvin)
-Date: Tue, 13 Feb 2001 10:51:56 +0000 (GMT)
-Cc: timw@splhi.com, alan@lxorguk.ukuu.org.uk (Alan Cox),
-        Werner.Almesberger@epfl.ch (Werner Almesberger),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3A887E68.CFBF6FC5@transmeta.com> from "H. Peter Anvin" at Feb 12, 2001 04:23:04 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S130443AbRBMK4L>; Tue, 13 Feb 2001 05:56:11 -0500
+Received: from xylopia.mathematik.uni-ulm.de ([134.60.166.3]:2433 "HELO
+	xylopia.mathematik.uni-ulm.de") by vger.kernel.org with SMTP
+	id <S130385AbRBMK4E>; Tue, 13 Feb 2001 05:56:04 -0500
+Message-ID: <20010213105554.6178.qmail@xylopia.mathematik.uni-ulm.de>
+From: ehrhardt@mathematik.uni-ulm.de
+Date: Tue, 13 Feb 2001 11:55:54 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Serial Console and plam (was: Where are you going with 2.4.x?)
+In-Reply-To: <E14S07t-0004Ty-00@the-village.bc.nu> <14711049588.20010211200148@polynet.lviv.ua> <20010211191329.C20267@khan.acc.umu.se> <20010212163239.17155.qmail@theseus.mathematik.uni-ulm.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Sd3v-0001OF-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010212163239.17155.qmail@theseus.mathematik.uni-ulm.de>; from ehrhardt@mathematik.uni-ulm.de on Mon, Feb 12, 2001 at 05:32:39PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That's the whole crux of the matter.  For something like this, you *will*
-> drop data under certain circumstances.  I suspect it's better to have
-> this done in a controlled manner, rather than stop completely, which is
-> what TCP would do.
+On Mon, Feb 12, 2001 at 05:32:39PM +0100, I wrote:
+> I wrote a little palm app some time ago that can capture serial
+> console output. If anyone is interested I'll build a tar ball with
+> sources and binary.
 
-Why do you plan to drop data ? That seems unneccessary.
+It is now availiable at http://www.mathematik.uni-ulm.de/~ehrhardt/serial/
 
+Sorry for the slightly off topic post but I think enough people
+showed interest to justify this.
+
+     regards    Christian Ehrhardt
+
+-- 
+THAT'S ALL FOLKS!

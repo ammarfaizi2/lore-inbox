@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314380AbSDRPzD>; Thu, 18 Apr 2002 11:55:03 -0400
+	id <S314382AbSDRP7p>; Thu, 18 Apr 2002 11:59:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314381AbSDRPzC>; Thu, 18 Apr 2002 11:55:02 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:48393 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S314380AbSDRPzB>; Thu, 18 Apr 2002 11:55:01 -0400
-Date: Thu, 18 Apr 2002 11:51:48 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: nick@snowman.net
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE/raid performance
-In-Reply-To: <Pine.LNX.4.21.0204171108480.3300-100000@ns>
-Message-ID: <Pine.LNX.3.96.1020418114238.5375A-100000@gatekeeper.tmr.com>
+	id <S314383AbSDRP7o>; Thu, 18 Apr 2002 11:59:44 -0400
+Received: from web11802.mail.yahoo.com ([216.136.172.156]:48680 "HELO
+	web11802.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S314382AbSDRP7o>; Thu, 18 Apr 2002 11:59:44 -0400
+Message-ID: <20020418155943.93909.qmail@web11802.mail.yahoo.com>
+Date: Thu, 18 Apr 2002 17:59:43 +0200 (CEST)
+From: =?iso-8859-1?q?Etienne=20Lorrain?= <etienne_lorrain@yahoo.fr>
+Subject: Re: HPT372 on KR7A-133R (ATA133) on production server
+To: linux-kernel@vger.kernel.org
+Cc: vasja@nuedi.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Apr 2002 nick@snowman.net wrote:
+  I have this exact motherboard, with CRUCIAL 256MB 184DIMM PC2100 NP CL2.5
+ memory.
+ You first have to patch your kernel like Andy Jeffries said to activate
+ the RAID controller. Most of the distribution still did not do it,
+ you probably have to compile your own kernel.
 
-> to be about 25-30watts.  Each 1800+ MP puts out 66w of heat, meaning it
-> uses more than 66w
+ For a long time, I have only been able to run it 100% CPU for one hour,
+ no disk access, if I set the memory clock to 100/200 MHZ.
 
-  Unless they changed the laws of physics, the power in is the same as the
-power out, and the temp will rise to increase power out (or limit power in
-by melting). The power of the output driver lines is really too small to
-consider.
+ I am currently experimenting running at 133/266 MHz with the two
+ parameters "DDR DQS Input Delay" and "DDR DQS Output Delay" changed
+ to manual and increased by 2.
+ Their autodetection does not seem to work, I am not sure.
+ It seems stable - no error noticed for the last few weeks.
+ Note that 100/200 to 133/266 did not seem to increase the CPU speed
+ a lot, my usual task takes 39 minutes 100% CPU in 133/266 and
+ 40 min in 100/200 mode.
+ I am not on a production server, so your millage may vary.
 
->                         Morale of this message:  Don't be a dipshit and
-> put 12 IDE disks on a single power supply.
+  Just my €0.02,
+  Etienne.
 
-1. learn physics
-2. learn vocabulary
-3. learn diplomacy
-
-  Since he has problems running, when there's no question of power being
-adequate, rather than while booting, I think looking for the real problem
-is now in order. There have been several constructive suggestions on this,
-which address the problem. 
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

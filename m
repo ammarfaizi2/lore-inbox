@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262992AbTCLAUm>; Tue, 11 Mar 2003 19:20:42 -0500
+	id <S262971AbTCLAO2>; Tue, 11 Mar 2003 19:14:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262993AbTCLAUW>; Tue, 11 Mar 2003 19:20:22 -0500
-Received: from packet.digeo.com ([12.110.80.53]:34963 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262992AbTCLAUJ>;
-	Tue, 11 Mar 2003 19:20:09 -0500
-Date: Tue, 11 Mar 2003 16:25:52 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: Free pages leaking in 2.5.64?
-Message-Id: <20030311162552.7f78e764.akpm@digeo.com>
-In-Reply-To: <1047376995.1692.23.camel@laptop-linux.cunninghams>
-References: <1047376995.1692.23.camel@laptop-linux.cunninghams>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S261730AbTCLAMt>; Tue, 11 Mar 2003 19:12:49 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:31681
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261729AbTCLAMb>; Tue, 11 Mar 2003 19:12:31 -0500
+Subject: Re: Warning: dev (pts(136,0)) tty->count(5) != #fd's(4) in tty_open
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <45750000.1047426594@flay>
+References: <45750000.1047426594@flay>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Mar 2003 00:30:45.0406 (UTC) FILETIME=[9F085BE0:01C2E82E]
+Organization: 
+Message-Id: <1047432641.20681.20.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 12 Mar 2003 01:30:42 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham <ncunningham@clear.net.nz> wrote:
->
-> Hi all.
+On Tue, 2003-03-11 at 23:49, Martin J. Bligh wrote:
+> I'm getting lots of these messages whilst running big SDET runs on
+> an 16-way machine ... anyone recognize them?
+> (64-bk3 + a few patches).
 > 
-> I've come across the following problem in 2.5.64. Here's example output.
-> The header is one page - all messages only have a single call to
-> get_zeroed_page between the printings and the same code works as
+> dev (pts(136,0)) tty->count(4) != #fd's(3) in release_dev
+> Warning: dev (pts(136,0)) tty->count(4) != #fd's(3) in tty_open
+> Warning: dev (pts(136,0)) tty->count(5) != #fd's(4) in tty_open
+> Warning: dev (pts(136,0)) tty->count(5) != #fd's(4) in release_dev
 
-nr_free_pages() does not account for the pages in the per-cpu head arrays. 
-
-You can make the numbers look right via drain_local_pages(), but that is only
-100% reliable on uniprocessor with interrupts disabled.
+These are some of the things I saw when reporting the tty races and
+doing zillions of open/closes on pty/tty pairs. The tty layer has
+some fun code dealing with open v close v hangup v vhangup
 

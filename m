@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261508AbSIXBCy>; Mon, 23 Sep 2002 21:02:54 -0400
+	id <S261504AbSIXA6e>; Mon, 23 Sep 2002 20:58:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261512AbSIXBCy>; Mon, 23 Sep 2002 21:02:54 -0400
-Received: from packet.digeo.com ([12.110.80.53]:14486 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261508AbSIXBCx>;
-	Mon, 23 Sep 2002 21:02:53 -0400
-Message-ID: <3D8FBAEF.3D8BDF6F@digeo.com>
-Date: Mon, 23 Sep 2002 18:07:59 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Bjoern A. Zeeb" <bzeeb-lists@lists.zabbadoz.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5-bk oops in vsnprintf/scsi_mod
-References: <Pine.BSF.4.44.0209240140020.13460-100000@e0-0.zab2.int.zabbadoz.net>
+	id <S261508AbSIXA6e>; Mon, 23 Sep 2002 20:58:34 -0400
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:31497 "EHLO
+	ns.higherplane.net") by vger.kernel.org with ESMTP
+	id <S261504AbSIXA6d>; Mon, 23 Sep 2002 20:58:33 -0400
+Date: Tue, 24 Sep 2002 11:07:59 +1000
+From: john slee <indigoid@higherplane.net>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
+Message-ID: <20020924010758.GB6675@higherplane.net>
+References: <Pine.LNX.4.44.0209221830400.8911-100000@serv.suse.lists.linux.kernel> <Pine.LNX.4.44.0209221130060.1455-100000@home.transmeta.com.suse.lists.linux.kernel> <p734rchu8ny.fsf@oldwotan.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Sep 2002 01:08:00.0150 (UTC) FILETIME=[D33B7B60:01C26366]
+Content-Disposition: inline
+In-Reply-To: <p734rchu8ny.fsf@oldwotan.suse.de>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Bjoern A. Zeeb" wrote:
-> 
-> Hi,
-> 
-> got this one :(
-> 
-> bk pull from linux-20020923-211332 UTC
-> 
-> Linux megablast 2.5.38 #52 SMP Mon Sep 23 21:52:55 UTC 2002 i686 unknown
-> gcc version 3.2
-> binutils-2.13.90.0.4
-> 
-> could be related to sym53c416 module re-loading (after cli() removal; see
-> diff I posted some minutes ago). Seems the driver needs more cleanup ...
-> 
+On Sun, Sep 22, 2002 at 09:27:29PM +0200, Andi Kleen wrote:
+> There is an old patch around from SGI that does exactly this. It is a
+> very lightweight binary value tracer that has per CPU buffers. It
+> traces using macros that you can easily add. It's called ktrace (not
+> to be confused with Ingo's ktrace). I've been porting it for some time
 
-Well that driver seems to do a request_irq() with no corresponding
-free_irq().  If that's the case (ie: if the free_irq isn't performed
-in some driver support code) then yup, it will cause an oops in
-show_interrupts() after module unload.
+and different again from *bsd ktrace?
+
+The Ravenous Bugblatter Beast of Traal hits! -- More -- 
+You hear the wailing of the Banshee... -- More --
+The Christmas Tree hits! -- More --
+You die...
+
+(guessing here, i've not seen ingo's ktrace)
+
+j.
+
+-- 
+toyota power: http://indigoid.net/

@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131252AbRAKFnP>; Thu, 11 Jan 2001 00:43:15 -0500
+	id <S132173AbRAKFnp>; Thu, 11 Jan 2001 00:43:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131201AbRAKFnF>; Thu, 11 Jan 2001 00:43:05 -0500
-Received: from mail006.syd.optusnet.com.au ([203.2.75.230]:56769 "EHLO
-	mail006.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S130436AbRAKFmq>; Thu, 11 Jan 2001 00:42:46 -0500
-Message-ID: <3A5D46EA.280692B2@mira.net>
-Date: Thu, 11 Jan 2001 16:38:50 +1100
-From: Antony Suter <antony@mira.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0a19-ac4 i686)
-X-Accept-Language: en, fr, de, sv
+	id <S132167AbRAKFnj>; Thu, 11 Jan 2001 00:43:39 -0500
+Received: from www.wen-online.de ([212.223.88.39]:8710 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S130436AbRAKFnO>;
+	Thu, 11 Jan 2001 00:43:14 -0500
+Date: Thu, 11 Jan 2001 06:43:07 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Jonathan Earle <jearle@nortelnetworks.com>,
+        "'Linux Kernel List'" <linux-kernel@vger.kernel.org>,
+        "'Linux Network List'" <linux-net@vger.kernel.org>
+Subject: Re: Porting network driver to 2.4.0
+In-Reply-To: <Pine.LNX.3.95.1010110155123.14197A-100000@chaos.analogic.com>
+Message-ID: <Pine.Linu.4.10.10101110625540.1827-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-To: List Linux-Kernel <linux-kernel@vger.kernel.org>
-CC: Allen Unueco <allen@premierweb.com>
-Subject: Re: Where did vm_operations_struct->unmap in 2.4.0 go?
-In-Reply-To: <3A5BD69C.1B2602C6@premierweb.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allen Unueco wrote:
-> 
-> Sometime around test10 or test11 unmap left vm_operations_struct.  The
-> comment implies its there but it's gone.  Where did it go?
-> 
-> How do I get a call back for a page unmap?
-> 
-> I ran into this while hacking the Nvidia kernel driver to work with
-> 2.4.0.  I got the driver working but it's not 100%
-> 
-> Also where did get_module_symbol() and put_module_symbol() go?
-> 
-> -Allen
+On Wed, 10 Jan 2001, Richard B. Johnson wrote:
 
-Patches for the NVIDIA binary X drivers following all these kernel
-changes can be gotten from IRC server irc.openprojects.net, channel
-#nvidia. Or from http://ex.shafted.com.au/nvidia/
+> On Wed, 10 Jan 2001, Jonathan Earle wrote:
+> 
+> > Hey all,
+> > 
+> > Still working with kernel 2.4.0-test9 (other things we use require it for
+> > now), and I was looking at a driver for a Znyx zx346q network card that I
+> > grabbed from the znyx.com website.  The driver is for a 2.2.x kernel, but
+> > figuring I'd try it anyway, downloaded and tried to build it.  It choked on
+> > three struct net_device entries which are no longer present:
+> >                                                   
+> > zxe.c:1200: structure has no member named `tbusy'
+> > zxe.c:1201: structure has no member named `interrupt'
+> > zxe.c:1202: structure has no member named `start'
+> > ...
+> > make[2]: *** [zxe.o] Error 1                              
+> > 
+> > Where do I go from here?  Is there info somewhere to help with this?  Is
+> > this a bigger job than it looks on the surface?
+> > 
+> > Cheers!
+> > Jon
+> 
+> You may be lucky. Comment out all references to those structure members
+> and see if it works!
 
---
-- Antony Suter  (antony@mira.net)  "ExWired"  openpgp:71ADFC87
-- "...to condense fact from the vapor of nuance."
+I doubt it's possible to get _that_ lucky ;-)
+
+IIRC, this was the conversion from struct device -> struct net_device.
+(Also IIRC, interrupt was a 'toss it' item.. grep patches to be sure)
+
+	-Mike
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

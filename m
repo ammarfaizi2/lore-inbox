@@ -1,80 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266009AbUIPCP1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266263AbUIPCV0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266009AbUIPCP1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 22:15:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266116AbUIPCOb
+	id S266263AbUIPCV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 22:21:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266116AbUIPCV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 22:14:31 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:18834 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S266009AbUIPCNv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 22:13:51 -0400
-Subject: Re: get_current is __pure__, maybe __const__ even
-From: Albert Cahalan <albert@users.sf.net>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Jakub Jelinek <jakub@redhat.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>, ak@muc.de
-In-Reply-To: <20040915232956.GE9106@holomorphy.com>
-References: <1095288600.1174.5968.camel@cube>
-	 <20040915231518.GB31909@devserv.devel.redhat.com>
-	 <20040915232956.GE9106@holomorphy.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1095300619.2191.6392.camel@cube>
+	Wed, 15 Sep 2004 22:21:26 -0400
+Received: from mail.renesas.com ([202.234.163.13]:47289 "EHLO
+	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S266263AbUIPCVM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 22:21:12 -0400
+Date: Thu, 16 Sep 2004 11:20:44 +0900 (JST)
+Message-Id: <20040916.112044.576045064.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: [PATCH 2.6.9-rc1-mm5 1/3] [m32r] Remove network drivers under
+ arch/m32r/drivers/ (was Re: 2.6.9-rc1-mm3)
+From: Hirokazu Takata <takata@linux-m32r.org>
+Cc: linux-kernel@vger.kernel.org, fujiwara@linux-m32r.org,
+       takata@linux-m32r.org
+In-Reply-To: <20040916.110622.640922499.takata.hirokazu@renesas.com>
+References: <20040916.110622.640922499.takata.hirokazu@renesas.com>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 15 Sep 2004 22:10:20 -0400
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-15 at 19:29, William Lee Irwin III wrote:
-> On Wed, Sep 15, 2004 at 06:50:00PM -0400, Albert Cahalan wrote:
-> >> This looks fixable.
-> >> At the very least, __attribute__((__pure__))
-> >> will apply to your get_current function.
-> >> I think __attribute__((__const__)) will too,
-> >> even though it's technically against the
-> >> documentation. While you do indeed read from
-> >> memory, you don't read from memory that could
-> >> be seen as changing. Nothing done during the
-> >> lifetime of a task will change "current" as
-> >> viewed from within that task.
+Hello,
+
+This patch is huge, but some files are just deleted.
+So I attatched patches for just modifications.
+Should I send complete patch, again?
+
+Sorry, for my late reply to the following comments:
+
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: 2.6.9-rc1-mm3
+Date: Fri, 3 Sep 2004 10:42:39 +0100
+> Just from looking at the diffstat and not actual code:
 > 
-> On Wed, Sep 15, 2004 at 07:15:18PM -0400, Jakub Jelinek wrote:
-> > current will certainly change in schedule (),
+>  - it adds new drivers under arch/m32r instead of drivers/
 
-Not really!
+Date: Mon, 6 Sep 2004 14:02:09 -0700
+> Were you planning to address Christoph's earlier review comments?  One of
+> which was that the m32r-specific drivers are in the wrong directory? 
+> Please do.
 
->From the viewpoint of a single task looking
-at current, it does not change. The task is
-paused, and may well start up again on a
-different CPU, but current doesn't change.
+>From: Zwane Mwaikambo <zwane@linuxpower.ca>
+>Subject: Re: 2.6.9-rc1-mm3
+>Date: Fri, 3 Sep 2004 08:48:27 -0400 (EDT)
+>> - There appears to be yet another smc 91C111 driver in there, Takata,
+>>   there should be a unified one in drivers/net/smc91x.c.
+>Yes.  I would like to use drivers/net/smc91x.c.  Now investigating it...
 
-Any state gcc might keep would be stored on
-the kernel stack or in a register, which will
-be preserved because tasks don't share these.
+Thank you, again.
 
-AFAIK, gcc generates thread-safe code. It won't
-convert code to something like this:
+--
+[PATCH 2.6.9-rc1-mm5 1/3] [m32r] Remove network drivers under 
+arch/m32r/drivers/
+  This patch removes local network drivers under arch/m32r/drivers/
+  as follows:
+     arch/m32r/drivers/8390.c
+     arch/m32r/drivers/8390.h
+     arch/m32r/drivers/smc91111.c
+     arch/m32r/drivers/smc91111.copying
+     arch/m32r/drivers/smc91111.h
+     arch/m32r/drivers/smc91111.readme.txt
+     arch/m32r/drivers/mappi_ne.c
 
-int foo(int bar){
-static task_struct *__L131241 = get_current();
-// blah, blah...
-}
+  Instead of smc91111.c and mappi_ne.c, we use drivers/net/smc91x.c and
+  drivers/net/ne.c, respectively.
 
-> > so either you'd need to avoid using current
-> > in schedule() and use some other accessor
-> > for the same without such attribute, or
-> > #ifdef the attribute out when compiling sched.c.
-> 
-> Why would barrier() not suffice?
+ arch/m32r/drivers/8390.c              |    1 
+ arch/m32r/drivers/8390.h              |    1 
+ arch/m32r/drivers/Kconfig             |    8 
+ arch/m32r/drivers/Makefile            |    2 
+ arch/m32r/drivers/mappi_ne.c          |  861 -------
+ arch/m32r/drivers/smc91111.c          | 3894 ----------------------------------
+ arch/m32r/drivers/smc91111.copying    |  352 ---
+ arch/m32r/drivers/smc91111.h          |  570 ----
+ arch/m32r/drivers/smc91111.readme.txt |  561 ----
+ 9 files changed, 6250 deletions(-)
 
-I don't think even barrier() is needed.
-Suppose gcc were to cache the value of
-current over a schedule. Who cares? It'll
-be the same after schedule() as it was
-before.
+Signed-off-by: Hayato Fujiwara <fujiwara@linux-m32r.org>
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
 
 
+diff -ruNp linux-2.6.9-rc1-mm5.orig/arch/m32r/drivers/8390.c linux-2.6.9-rc1-mm5/arch/m32r/drivers/8390.c
+--- linux-2.6.9-rc1-mm5.orig/arch/m32r/drivers/8390.c	2004-09-13 21:44:05.000000000 +0900
++++ linux-2.6.9-rc1-mm5/arch/m32r/drivers/8390.c	1970-01-01 09:00:00.000000000 +0900
+@@ -1 +0,0 @@
+-#include "../../../drivers/net/8390.c"
+diff -ruNp linux-2.6.9-rc1-mm5.orig/arch/m32r/drivers/8390.h linux-2.6.9-rc1-mm5/arch/m32r/drivers/8390.h
+--- linux-2.6.9-rc1-mm5.orig/arch/m32r/drivers/8390.h	2004-09-13 21:44:05.000000000 +0900
++++ linux-2.6.9-rc1-mm5/arch/m32r/drivers/8390.h	1970-01-01 09:00:00.000000000 +0900
+@@ -1 +0,0 @@
+-#include "../../../drivers/net/8390.h"
+diff -ruNp linux-2.6.9-rc1-mm5.orig/arch/m32r/drivers/Kconfig linux-2.6.9-rc1-mm5/arch/m32r/drivers/Kconfig
+--- linux-2.6.9-rc1-mm5.orig/arch/m32r/drivers/Kconfig	2004-09-13 21:44:05.000000000 +0900
++++ linux-2.6.9-rc1-mm5/arch/m32r/drivers/Kconfig	2004-09-14 16:24:28.000000000 +0900
+@@ -9,10 +9,6 @@ config M32RPCC
+ 	bool "M32R PCMCIA I/F"
+ 	depends on CHIP_M32700
+ 
+-config M32R_NE2000
+-	bool "On board NE2000 Network Interface Chip"
+-	depends on PLAT_MAPPI || PLAT_OAKS32R
+-
+ config M32R_CFC
+ 	bool "CF I/F Controller"
+ 	depends on PLAT_USRV || PLAT_M32700UT || PLAT_MAPPI2 || PLAT_OPSPUT
+@@ -31,10 +27,6 @@ config MTD_M32R
+ 	bool "Flash device mapped on M32R"
+ 	depends on PLAT_USRV || PLAT_M32700UT || PLAT_MAPPI2
+ 
+-config M32R_SMC91111
+-	bool "On board SMC91111 Network Interface Chip"
+-	depends on PLAT_M32700UT || PLAT_MAPPI2 || PLAT_OPSPUT
+-
+ config M32700UT_DS1302
+ 	bool "DS1302 Real Time Clock support"
+ 	depends on PLAT_M32700UT || PLAT_OPSPUT
+diff -ruNp linux-2.6.9-rc1-mm5.orig/arch/m32r/drivers/Makefile linux-2.6.9-rc1-mm5/arch/m32r/drivers/Makefile
+--- linux-2.6.9-rc1-mm5.orig/arch/m32r/drivers/Makefile	2004-09-13 21:44:05.000000000 +0900
++++ linux-2.6.9-rc1-mm5/arch/m32r/drivers/Makefile	2004-09-14 16:24:28.000000000 +0900
+@@ -2,8 +2,6 @@
+ # Makefile for the Linux/M32R driver
+ #
+ 
+-obj-$(CONFIG_M32R_SMC91111)	+= smc91111.o
+-obj-$(CONFIG_M32R_NE2000)	+= mappi_ne.o 8390.o
+ obj-$(CONFIG_M32RPCC)		+= m32r_pcc.o
+ obj-$(CONFIG_M32R_CFC)		+= m32r_cfc.o
+ obj-$(CONFIG_M32700UT_DS1302)	+= ds1302.o
+
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/

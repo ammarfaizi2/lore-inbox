@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263021AbVCQJU0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263025AbVCQJVe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263021AbVCQJU0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 04:20:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbVCQJUZ
+	id S263025AbVCQJVe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 04:21:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbVCQJUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 04:20:25 -0500
-Received: from mailout1.samsung.com ([203.254.224.24]:42630 "EHLO
-	mailout1.samsung.com") by vger.kernel.org with ESMTP
-	id S263021AbVCQJTr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 04:19:47 -0500
-Date: Thu, 17 Mar 2005 14:42:45 +0530
-From: mohanlal jangir <mohanlal@samsung.com>
-Subject: why CURRENT->sector is zero??
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Newbies <kernelnewbies@nl.linux.org>
-Cc: rubini@gnu.org, rubini@fsfeurope.org, rubini@prosa.it, rubini@gnudd.com,
-       rubini@linux.it
-Message-id: <01ae01c52ad1$83e79190$3d476c6b@sisodomain.com>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-Content-type: text/plain; reply-type=original; charset=iso-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
+	Thu, 17 Mar 2005 04:20:36 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:58278 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S263026AbVCQJUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 04:20:19 -0500
+Subject: [PATCH]fix oops when inserting ipmi_si module
+From: Li Shaohua <shaohua.li@intel.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1111051119.18616.7.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 17 Mar 2005 17:18:39 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+In one of machines in our lab, spmi->addr.register_bit_width is 0 (so
+the returned address is invalid). Ignoring the check will cause
+inserting the module oops.
 
-I downloaded sbull.c (for LDD 2nd Edition) from 
-http://examples.oreilly.com/linuxdrive/. After compiling and inserting 
-(registering as block device), I tried to mount different file systems 
-(Although there is no valid file system there; my goal is to observe value 
-of req->sector in sbull_transfer function). The observations are as follows:
-File System  req->sector
-msdos          0
-vfat              0
-ext2             2
-ext3             2
-iso9000       72
+Thanks,
+Shaohua
 
-I don't know about other file systems, but I believe the value of 
-req->sector for msdos/vfat is wrong. Because when I mount a CF card having 
-FAT file system on my Linux box (using USB mass storage driver), the first 
-read request contains sector 0x20.
-Does someone have any clue, why sbull gets this value as 0 rather then 0x20? 
-Basically this means why CURRENT->sector is 0?
-I am working on 2.4.18; a little old :(
+Signed-off-by: Li Shaohua<shaohua.li@intel.com>
 
-Regards
-Mohanlal 
+--- a/drivers/char/ipmi/ipmi_si_intf.c	2005-03-03 10:56:51.000000000 +0800
++++ b/drivers/char/ipmi/ipmi_si_intf.c	2005-03-17 16:34:32.478606080 +0800
+@@ -1466,6 +1466,11 @@ static int try_init_acpi(int intf_num, s
+ 	if (!is_new_interface(-1, addr_space, spmi->addr.address))
+ 		return -ENODEV;
+ 
++	if (!spmi->addr.register_bit_width) {
++		acpi_failure = 1;
++		return -ENODEV;
++	}
++
+ 	/* Figure out the interface type. */
+ 	switch (spmi->InterfaceType)
+ 	{
+
 

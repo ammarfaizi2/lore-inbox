@@ -1,41 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280638AbRLSR5m>; Wed, 19 Dec 2001 12:57:42 -0500
+	id <S280426AbRLSR4m>; Wed, 19 Dec 2001 12:56:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280686AbRLSR5Y>; Wed, 19 Dec 2001 12:57:24 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:29457 "EHLO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S280638AbRLSR5M>; Wed, 19 Dec 2001 12:57:12 -0500
-Date: Wed, 19 Dec 2001 18:57:09 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.17-rc2: highmem breaks loop, affs
-Message-ID: <20011219185708.A31166@maggie.dt.e-technik.uni-dortmund.de>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0112181824020.4821-100000@freak.distro.conectiva>
+	id <S280638AbRLSR4d>; Wed, 19 Dec 2001 12:56:33 -0500
+Received: from adsl-64-109-202-217.dsl.milwwi.ameritech.net ([64.109.202.217]:8184
+	"EHLO alphaflight.d6.dnsalias.org") by vger.kernel.org with ESMTP
+	id <S280426AbRLSR4S>; Wed, 19 Dec 2001 12:56:18 -0500
+Date: Wed, 19 Dec 2001 11:56:16 -0600
+From: "M. R. Brown" <mrbrown@0xd6.org>
+To: Benoit Poulot-Cazajous <poulot@ifrance.com>
+Cc: nbecker@fred.net, linux-kernel@vger.kernel.org
+Subject: Re: On K7, -march=k6 is good (Was Re: Why no -march=athlon?)
+Message-ID: <20011219175616.GD19236@0xd6.org>
+In-Reply-To: <x88r8ptki37.fsf@rpppc1.hns.com> <20011217174020.GA24772@0xd6.org> <lnitb3drx6.fsf_-_@walhalla.agaha>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="OBd5C1Lgu00Gd/Tn"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0112181824020.4821-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.3.22.1i
+In-Reply-To: <lnitb3drx6.fsf_-_@walhalla.agaha>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Dec 2001, Marcelo Tosatti wrote:
 
-> So here it goes 2.4.17-rc2... as expected, bugfixes only.
+--OBd5C1Lgu00Gd/Tn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-A Highmem (4G) enabled kernel breaks loop and affs, without Highmem, it
-is ok (SMP enabled kernel, 1 GB RAM):
+* Benoit Poulot-Cazajous <poulot@ifrance.com> on Wed, Dec 19, 2001:
 
-depmod: *** Unresolved symbols in /lib/modules/2.4.17-rc2/kernel/drivers/block/loop.o
-depmod: 	kunmap_high
-depmod: 	create_bounce
-depmod: 	highmem_start_page
-depmod: 	kmap_high
-depmod: *** Unresolved symbols in /lib/modules/2.4.17-rc2/kernel/fs/affs/affs.o
-depmod: 	kunmap_high
-depmod: 	highmem_start_page
-depmod: 	kmap_high
+>=20
+> But gcc-2.95,x _supports_ "-march=3Dk6", and we should use that instead of
+> "-march-i686".
+>=20
 
-I can provide a .config if needed.
+No, k6 !=3D athlon.  IIRC, the i686 optimization is closer to the Athlon th=
+an
+the k6 opt.
+
+>=20
+> before the patch :
+> 1017.92user 261.80system 24:39.89elapsed 86%CPU
+> 706.33user 160.79system 16:23.61elapsed 88%CPU
+> 1787.38user 418.76system 43:35.97elapsed 84%CPU
+>=20
+> after the patch :
+> 1018.42user 253.85system 24:44.68elapsed 85%CPU
+> 704.89user 151.76system 16:16.14elapsed 87%CPU
+> 1786.96user 410.76system 43:05.32elapsed 85%CPU
+>=20
+> The improvement in system time is nice.
+>=20
+
+Er, there's not much difference...
+
+Curious, what happens when you compile using gcc 3.0.1 against
+-march=3Dathlon?
+
+M. R.
+
+--OBd5C1Lgu00Gd/Tn
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iD8DBQE8INTAaK6pP/GNw0URAqrLAJ4h/KAqf1MzdXNnAHOikrQkWsqOSwCfSEGB
+j65gJwFKLdnnUya2s4uFnkM=
+=Aq3h
+-----END PGP SIGNATURE-----
+
+--OBd5C1Lgu00Gd/Tn--

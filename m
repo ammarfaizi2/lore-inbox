@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261780AbTEHQAa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 12:00:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTEHQA3
+	id S261562AbTEHQFE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 12:05:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbTEHQFE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 12:00:29 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:52685 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261780AbTEHQA3 (ORCPT
+	Thu, 8 May 2003 12:05:04 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:43411 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S261562AbTEHQFC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 12:00:29 -0400
-Message-Id: <200305081612.h48GCUW25789@mail.osdl.org>
-Date: Thu, 8 May 2003 09:12:27 -0700 (PDT)
-From: markw@osdl.org
-Subject: Re: OSDL DBT-2 AS vs. Deadline 2.5.68-mm2
-To: piggin@cyberone.com.au
-cc: akpm@digeo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <3EB9B5BA.4080607@cyberone.com.au>
+	Thu, 8 May 2003 12:05:02 -0400
+From: Mikael Pettersson <mikpe@user.it.uu.se>
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16058.33567.241210.235419@gargle.gargle.HOWL>
+Date: Thu, 8 May 2003 18:17:35 +0200
+To: perfctr-devel@lists.sourceforge.net
+Subject: perfctr progress on x86_64 / Opteron
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  8 May, Nick Piggin wrote:
-> markw@osdl.org wrote:
-> 
->>I've collected some data from STP to see if it's useful or if there's
->>anything else that would be useful to collect. I've got some tests
->>queued up for the newer patches, but I wanted to put out what I had so
->>far.
->>
-> Thanks. It looks like AS isn't doing too badly here. Newer mm kernels
-> have some more AS changes, and the dynamic struct request patch which
-> would be good to test.
-> 
-> Are you using TCQ on your disks?
-> 
+Just a status update...
 
-There's a queue depth being set.  Is that a good indicator that TCQ is
-being used?  If not, I'd be happy to verify it.
+The perfctr x86 performance monitoring counters driver now
+runs on an actual AMD Opteron CPU in 64-bit mode. The kernel
+is Rawhide's 2.4.20-9.2 in SMP mode.
 
-Mark
+The driver appears to be fully functional. Test cases
+where processes set up their own perfctrs, including
+interrupt-on-overflow-turned-into-signal counters, work
+as expected. (examples/self/ and examples/signal/.)
+
+The perfex user-space program doesn't work yet. It uses file
+descriptor passing in a control message over a unix datagram
+socket, but I get unexpected 'Bad file descriptor' errors
+from sendmsg(). I'm currently investigating this problem.
+
+/Mikael
+
+PERFCTR INIT: vendor 2, family 15, model 5, stepping 0, clock 1381091 kHz
+PERFCTR INIT: NITER == 64
+PERFCTR INIT: loop overhead is 80 cycles
+PERFCTR INIT: rdtsc cost is 6.1 cycles (474 total)
+PERFCTR INIT: rdpmc cost is 14.1 cycles (983 total)
+PERFCTR INIT: rdmsr (counter) cost is 50.9 cycles (3343 total)
+PERFCTR INIT: rdmsr (evntsel) cost is 57.6 cycles (3769 total)
+PERFCTR INIT: wrmsr (counter) cost is 68.9 cycles (4495 total)
+PERFCTR INIT: wrmsr (evntsel) cost is 320.6 cycles (20602 total)
+PERFCTR INIT: read cr4 cost is 6.9 cycles (526 total)
+PERFCTR INIT: write cr4 cost is 66.0 cycles (4307 total)
+perfctr: disabled lapic_nmi_watchdog
+perfctr: driver 2.5.2 DEBUG, cpu type AMD K8 at 1381091 kHz

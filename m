@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316794AbSGVXVl>; Mon, 22 Jul 2002 19:21:41 -0400
+	id <S317842AbSGVXdU>; Mon, 22 Jul 2002 19:33:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317791AbSGVXVl>; Mon, 22 Jul 2002 19:21:41 -0400
-Received: from 213-96-124-18.uc.nombres.ttd.es ([213.96.124.18]:34549 "HELO
-	dardhal.mired.net") by vger.kernel.org with SMTP id <S316794AbSGVXVk>;
-	Mon, 22 Jul 2002 19:21:40 -0400
-Date: Tue, 23 Jul 2002 01:24:42 +0200
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.org>
+	id <S317828AbSGVXdU>; Mon, 22 Jul 2002 19:33:20 -0400
+Received: from ce06d.unt0.torres.ka0.zugschlus.de ([212.126.206.6]:13835 "EHLO
+	torres.ka0.zugschlus.de") by vger.kernel.org with ESMTP
+	id <S317842AbSGVXdT>; Mon, 22 Jul 2002 19:33:19 -0400
+Date: Tue, 23 Jul 2002 01:36:28 +0200
+From: Marc Haber <mh+linux-kernel@zugschlus.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Compile error 2.5.27: [ad1848_lib.o] Error 1
-Message-ID: <20020722232442.GA1178@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20020722233021.4713583a.diegocg@teleline.es>
+Subject: Re: When does PF_PACKET, SOCK_DGRAM lose packets, and how do I notice that?
+Message-ID: <20020723013628.A22160@torres.ka0.zugschlus.de>
+References: <20020722110356.A16287@torres.ka0.zugschlus.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20020722233021.4713583a.diegocg@teleline.es>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020722110356.A16287@torres.ka0.zugschlus.de>; from mh+linux-kernel@zugschlus.de on Mon, Jul 22, 2002 at 11:03:56AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 22 July 2002, at 23:30:21 +0200,
-Diego Calleja wrote:
-
-> ad1848_lib.c: At top level:
-> ad1848_lib.c:1181: parse error before `module_exit'
-> ad1848_lib.c:1182: parse error at end of input
-> make[3]: *** [ad1848_lib.o] Error 1
-> make[3]: Leaving directory `/usr/src/unstable/sound/isa/ad1848'
-> make[2]: *** [ad1848] Error 2
-> make[2]: Leaving directory `/usr/src/unstable/sound/isa'
-> make[1]: *** [isa] Error 2
-> make[1]: Leaving directory `/usr/src/unstable/sound'
-> make: *** [sound] Error 2
-> root@diego:/usr/src/unstable#
+On Mon, Jul 22, 2002 at 11:03:56AM +0200, Marc Haber wrote:
+> While testing in a lab setup, this works fine, and the data accounted
+> for is accurate. However, when I put the program on a loaded system,
+> it seems to lose data. Here is a description of my tests:
 > 
-WORKAROUND/PATCH: see lkml "Subject: PATCH: 2.5.27 Fix dump non compile in ad1848 audio"
+> Diesen Code haben wir in eine Veränderung des netacctd eingebracht,
+> und das hat im Labor und im Feldtest auch problemlos funktioniert.
+> Seit einigen Tagen läuft der modifizierte netacct auf einem Router,
+> der unsere gesamte Netzlast abbekommt, und in diesem Kontext verliert
+> diese Konstruktion leider Daten:
+
+The german paragraph mistakenly stayed in from a draft of this
+article. Non-German speakers don't need to read it, as it is the
+german version of the quoted english paragraph.
+
+Greetings
+Marc
 
 -- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Woody (Linux 2.4.19-pre6aa1)
+-----------------------------------------------------------------------------
+Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
+Karlsruhe, Germany |  lose things."    Winona Ryder | Fon: *49 721 966 32 15
+Nordisch by Nature |  How to make an American Quilt | Fax: *49 721 966 31 29

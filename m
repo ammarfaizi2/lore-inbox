@@ -1,105 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269442AbUINWi3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267283AbUINV6h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269442AbUINWi3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 18:38:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266189AbUINWeQ
+	id S267283AbUINV6h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 17:58:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269587AbUINRJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 18:34:16 -0400
-Received: from av1-1-sn1.fre.skanova.net ([81.228.11.107]:52953 "EHLO
-	av1-1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S266200AbUINWan (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 18:30:43 -0400
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.9-rc2
-References: <Pine.LNX.4.58.0409130937050.4094@ppc970.osdl.org>
-	<m3ekl5de7b.fsf@telia.com> <20040914094928.GF27258@bytesex>
-From: Peter Osterlund <petero2@telia.com>
-Date: 15 Sep 2004 00:30:44 +0200
-In-Reply-To: <20040914094928.GF27258@bytesex>
-Message-ID: <m33c1kxz3f.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 14 Sep 2004 13:09:47 -0400
+Received: from host-81-191-110-70.bluecom.no ([81.191.110.70]:31116 "EHLO
+	mail.blenning.no") by vger.kernel.org with ESMTP id S269454AbUINQkg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 12:40:36 -0400
+Subject: Re: [PATCH] Spelling errors
+From: Tom Fredrik Blenning Klaussen <bfg-kernel@blenning.no>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0409140930160.2378@ppc970.osdl.org>
+References: <1095178918.11939.9.camel@host-81-191-110-70.bluecom.no>
+	 <Pine.LNX.4.58.0409140930160.2378@ppc970.osdl.org>
+Content-Type: multipart/mixed; boundary="=-ySEXJ+CXN08aKu4lwflP"
+Message-Id: <1095179960.11946.25.camel@host-81-191-110-70.bluecom.no>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 14 Sep 2004 18:39:20 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr <kraxel@bytesex.org> writes:
 
-> On Mon, Sep 13, 2004 at 11:57:44PM +0200, Peter Osterlund wrote:
-> > Linus Torvalds <torvalds@osdl.org> writes:
-> > 
-> > > Gerd Knorr:
-> > >   o v4l: bttv driver update
-> > 
-> > This patch,
-> > 
-> > Output from dmesg with a working kernel: (-rc2 with the above patch reverted)
+--=-ySEXJ+CXN08aKu4lwflP
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Tue, 2004-09-14 at 18:30, Linus Torvalds wrote:
+> On Tue, 14 Sep 2004, Tom Fredrik Blenning Klaussen wrote:
+> >
+> > Just a few spelling errors in comments and conf-help.
+> > The word firmware was written wrong as firware several places.
 > 
-> > [ ... ]
+> Your patch is seriously whitespace-damaged, though.
 > 
-> > When running the crashing kernel, the last line in /var/log/messages
-> > after the crash is:
-> > 
-> >     bttv0: pinnacle/mt: id=2 info="PAL+SECAM / stereo" radio=yes
-> > 
-> > Maybe there is more data that doesn't make it to the disk. I can try
-> > again with a serial console if you think that would help.
-> 
-> That certainly is incomplete, at least the insmod messages should be
-> there if mencoder triggeres the crash.  A serial console log would be
-> helpful.
+Tried the one from the mail myself, and you're right.
+Theres something going wrong during pasting.
 
-I got this with a serial console:
-
-    ...
-    bttv0: ioctl 0xc02c5638 (v4l2, VIDIOC_G_FREQUENCY)
-    bttv0: ioctl 0xc02c5638 (v4l2, VIDIOC_G_FREQUENCY)
-    bttv0: ioctl 0xc0cc5604 (v4l2, VIDIOC_G_FMT)
-    bttv0: ioctl 0xc0cc5604 (v4l2, VIDIOC_G_FMT)
-    bttv0: ioctl 0xc0cc5604 (v4l2, VIDIOC_G_FMT)
-    bttv0: ioctl 0xc0145608 (v4l2, VIDIOC_REQBUFS)
-    bttv0: ioctl 0xc0445609 (v4l2, VIDIOC_QUERYBUF)
-    bttv0: mmap type=video-cap 0xb791f000+663552
-    bttv0: ioctl 0xc044560f (v4l2, VIDIOC_QBUF)
-    Unable to handle kernel NULL pointer dereference at virtual a
-
-The computer rebooted while printing the "Unable to handle..."
-message. DMA engine gone wild?
-
-> You can also try to reverse only parts of the patch, only the
-> changes in bttv-driver.c and/or in bttv-risc.c and see what happens.
-
-I found the change that crashes my computer. This patch is enough to
-fix it for me:
-
-diff -puN drivers/media/video/bttv-risc.c~v3_revert drivers/media/video/bttv-risc.c
---- linux/drivers/media/video/bttv-risc.c~v3_revert	2004-09-15 00:18:21.280831360 +0200
-+++ linux-petero/drivers/media/video/bttv-risc.c	2004-09-15 00:18:21.283830904 +0200
-@@ -153,16 +153,10 @@ bttv_risc_planar(struct bttv *btv, struc
- 			chroma = 1;
- 			break;
- 		case 1:
--			if (!yoffset)
--				chroma = (line & 1) == 0;
--			else
--				chroma = (line & 1) == 1;
-+			chroma = !(line & 1);
- 			break;
- 		case 2:
--			if (!yoffset)
--				chroma = (line & 3) == 0;
--			else
--				chroma = (line & 3) == 2;
-+			chroma = !(line & 3);
- 			break;
- 		default:
- 			chroma = 0;
-
-> Which format+size you are capturing with mencoder?
-
-mencoder tv:// -tv driver=v4l2:device=/dev/video0:width=768:height=576:chanlist=europe-west:norm=PAL:channel=$channel -ovc lavc -lavcopts vcodec=mpeg4:vbitrate=$vbitrate -oac mp3lame -lameopts cbr:br=$abitrate -vf pp=lb -endpos $time -o $outfile >$outfile.log 2>&1
-
+Is this one better?
 -- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+BFG
+
+--=-ySEXJ+CXN08aKu4lwflP
+Content-Disposition: attachment; filename=linux-2.6.8.1-spelling_errors.diff
+Content-Type: text/x-patch; name=linux-2.6.8.1-spelling_errors.diff; charset=iso-8859-1
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtcnVOIC91c3Ivc3JjL2xpbnV4LTIuNi44LjEvZHJpdmVycy9hdG0vZm9yZTIwMGUuaCAu
+L2RyaXZlcnMvYXRtL2ZvcmUyMDBlLmgNCi0tLSAvdXNyL3NyYy9saW51eC0yLjYuOC4xL2RyaXZl
+cnMvYXRtL2ZvcmUyMDBlLmgJMjAwNC0wOC0zMSAxMzoxMTo0NS4wMDAwMDAwMDAgKzAyMDANCisr
+KyAuL2RyaXZlcnMvYXRtL2ZvcmUyMDBlLmgJMjAwNC0wOS0xMiAxOTo0NzozMC4wMDAwMDAwMDAg
+KzAyMDANCkBAIC02NDUsNyArNjQ1LDcgQEANCiANCiB0eXBlZGVmIHN0cnVjdCBmd19oZWFkZXIg
+ew0KICAgICB1MzIgbWFnaWM7ICAgICAgICAgICAvKiBtYWdpYyBudW1iZXIgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgKi8NCi0gICAgdTMyIHZlcnNpb247ICAgICAgICAgLyogZmlyd2Fy
+ZSB2ZXJzaW9uIGlkICAgICAgICAgICAgICAgICAgICAgICAgICovDQorICAgIHUzMiB2ZXJzaW9u
+OyAgICAgICAgIC8qIGZpcm13YXJlIHZlcnNpb24gaWQgICAgICAgICAgICAgICAgICAgICAgICAq
+Lw0KICAgICB1MzIgbG9hZF9vZmZzZXQ7ICAgICAvKiBmdyBsb2FkIG9mZnNldCBpbiBib2FyZCBt
+ZW1vcnkgICAgICAgICAgICAgKi8NCiAgICAgdTMyIHN0YXJ0X29mZnNldDsgICAgLyogZncgZXhl
+Y3V0aW9uIHN0YXJ0IGFkZHJlc3MgaW4gYm9hcmQgbWVtb3J5ICovDQogfSBmd19oZWFkZXJfdDsN
+CmRpZmYgLXJ1TiAvdXNyL3NyYy9saW51eC0yLjYuOC4xL2RyaXZlcnMvYmFzZS9LY29uZmlnIC4v
+ZHJpdmVycy9iYXNlL0tjb25maWcNCi0tLSAvdXNyL3NyYy9saW51eC0yLjYuOC4xL2RyaXZlcnMv
+YmFzZS9LY29uZmlnCTIwMDQtMDgtMzEgMTM6MTE6NDUuMDAwMDAwMDAwICswMjAwDQorKysgLi9k
+cml2ZXJzL2Jhc2UvS2NvbmZpZwkyMDA0LTA5LTEyIDE5OjQ3OjMwLjAwMDAwMDAwMCArMDIwMA0K
+QEAgLTE0LDcgKzE0LDcgQEANCiAJZGVmYXVsdCB5DQogCWhlbHANCiAJICBTYXkgeWVzIHRvIGF2
+b2lkIGJ1aWxkaW5nIGZpcm13YXJlLiBGaXJtd2FyZSBpcyB1c3VhbGx5IHNoaXBwZWQNCi0JICB3
+aXRoIHRoZSBkcml2ZXIsIGFuZCBvbmx5IHdoZW4gdXBkYXRpbmcgdGhlIGZpcndhcmUgYSByZWJ1
+aWxkDQorCSAgd2l0aCB0aGUgZHJpdmVyLCBhbmQgb25seSB3aGVuIHVwZGF0aW5nIHRoZSBmaXJt
+d2FyZSBhIHJlYnVpbGQNCiAJICBzaG91bGQgYmUgbWFkZS4NCiAJICBJZiB1bnN1cmUgc2F5IFkg
+aGVyZS4NCiANCmRpZmYgLXJ1TiAvdXNyL3NyYy9saW51eC0yLjYuOC4xL2RyaXZlcnMvbmV0L3dh
+bi9jb3NhLmMgLi9kcml2ZXJzL25ldC93YW4vY29zYS5jDQotLS0gL3Vzci9zcmMvbGludXgtMi42
+LjguMS9kcml2ZXJzL25ldC93YW4vY29zYS5jCTIwMDQtMDgtMzEgMTM6MTE6NDUuMDAwMDAwMDAw
+ICswMjAwDQorKysgLi9kcml2ZXJzL25ldC93YW4vY29zYS5jCTIwMDQtMDktMTIgMTk6NDc6MzAu
+MDAwMDAwMDAwICswMjAwDQpAQCAtMTU2LDcgKzE1Niw3IEBADQogCXVuc2lnbmVkIHNob3J0IHN0
+YXJ0YWRkcjsJLyogRmlybXdhcmUgc3RhcnQgYWRkcmVzcyAqLw0KIAl1bnNpZ25lZCBzaG9ydCBi
+dXNtYXN0ZXI7CS8qIFVzZSBidXNtYXN0ZXJpbmc/ICovDQogCWludCBuY2hhbm5lbHM7CQkJLyog
+IyBvZiBjaGFubmVscyBvbiB0aGlzIGNhcmQgKi8NCi0JaW50IGRyaXZlcl9zdGF0dXM7CQkvKiBG
+b3IgY29tbXVuaWNhdGluZyB3aXRoIGZpcndhcmUgKi8NCisJaW50IGRyaXZlcl9zdGF0dXM7CQkv
+KiBGb3IgY29tbXVuaWNhdGluZyB3aXRoIGZpcm13YXJlICovDQogCWludCBmaXJtd2FyZV9zdGF0
+dXM7CQkvKiBEb3dubG9hZGVkLCByZXNldGVkLCBldGMuICovDQogCWxvbmcgaW50IHJ4Yml0bWFw
+LCB0eGJpdG1hcDsJLyogQml0bWFwIG9mIGNoYW5uZWxzIHdobyBhcmUgd2lsbGluZyB0byBzZW5k
+L3JlY2VpdmUgZGF0YSAqLw0KIAlsb25nIGludCByeHR4OwkJCS8qIFJYIG9yIFRYIGluIHByb2dy
+ZXNzPyAqLw0KZGlmZiAtcnVOIC91c3Ivc3JjL2xpbnV4LTIuNi44LjEvZHJpdmVycy9zY3NpL21l
+Z2FyYWlkLmMgLi9kcml2ZXJzL3Njc2kvbWVnYXJhaWQuYw0KLS0tIC91c3Ivc3JjL2xpbnV4LTIu
+Ni44LjEvZHJpdmVycy9zY3NpL21lZ2FyYWlkLmMJMjAwNC0wOC0zMSAxMzoxMTo0NS4wMDAwMDAw
+MDAgKzAyMDANCisrKyAuL2RyaXZlcnMvc2NzaS9tZWdhcmFpZC5jCTIwMDQtMDktMTIgMTk6NDc6
+MzAuMDAwMDAwMDAwICswMjAwDQpAQCAtNDAwNiw3ICs0MDA2LDcgQEANCiAJbWJveC0+bV9vdXQu
+eGZlcmFkZHIgPSAodTMyKWFkYXB0ZXItPmJ1Zl9kbWFfaGFuZGxlOw0KIA0KIAkvKg0KLQkgKiBO
+b24tUk9NQiBmaXJ3YXJlIGZhaWwgdGhpcyBjb21tYW5kLCBzbyBhbGwgY2hhbm5lbHMNCisJICog
+Tm9uLVJPTUIgZmlybXdhcmUgZmFpbCB0aGlzIGNvbW1hbmQsIHNvIGFsbCBjaGFubmVscw0KIAkg
+KiBtdXN0IGJlIHNob3duIFJBSUQNCiAJICovDQogCWFkYXB0ZXItPm1lZ2FfY2hfY2xhc3MgPSAw
+eEZGOw0K
+
+--=-ySEXJ+CXN08aKu4lwflP--

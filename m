@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbUKIPX7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbUKIP2H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261559AbUKIPX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 10:23:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbUKIPX7
+	id S261555AbUKIP2H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 10:28:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbUKIP2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 10:23:59 -0500
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:26125 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S261557AbUKIPWu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 10:22:50 -0500
-Date: Tue, 9 Nov 2004 15:22:46 +0000
-From: John Levon <levon@movementarian.org>
-To: Greg Banks <gnb@melbourne.sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       OProfile List <oprofile-list@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/11] oprofile: arch-independent code for stack trace sampling
-Message-ID: <20041109152246.GD43366@compsoc.man.ac.uk>
-References: <1099996668.1985.783.camel@hole.melbourne.sgi.com> <20041109030557.1de3f96a.akpm@osdl.org> <1100000147.1985.839.camel@hole.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1100000147.1985.839.camel@hole.melbourne.sgi.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Graham Coxon - Happiness in Magazines
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CRXpX-000CGx-5a*DDJajprgYLQ*
+	Tue, 9 Nov 2004 10:28:07 -0500
+Received: from rt.gnu.org ([199.232.76.167]:16004 "EHLO rt.gnu.org")
+	by vger.kernel.org with ESMTP id S261557AbUKIP1z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 10:27:55 -0500
+Subject: Re: [gnu.org #214016] GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox + code
+From: "Shawn Starr via RT" <license-violation@fsf.org>
+Reply-To: license-violation@fsf.org
+In-Reply-To: <rt-214016@gnu.org>
+Message-ID: <rt-3.0.8-214016-682850.19.5906060506515@rt.gnu.org>
+X-RT-Loop-Prevention: gnu.org
+RT-Ticket: gnu.org #214016
+Managed-by: RT 3.0.8 (http://www.bestpractical.com/rt/)
+RT-Originator: shawn.starr@rogers.com
+Cc: license-violation@gnu.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+X-RT-Original-Encoding: utf-8
+Date: Tue, 09 Nov 2004 10:28:01 -0500
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 09, 2004 at 10:35:48PM +1100, Greg Banks wrote:
+They won't be distributing the source because of their new 
+anti-distribution methods, they aren't providing the source because they 
+don't want people to distribute the binaries any more either or know now the 
+anti-distribution mechanism will work (which requires the user to enter a 
+value to unlock the binary firmware and send a request to their servers).
 
-> > oprofile is currently doing suspicious things with smp_processor_id() in
-> > premptible reasons.  Is this patch compounding things?
-> 
-> It's not changing the contexts where smp_processor_id() is called,
-> just pushing it down one level from a bunch of interrupt handlers
-> to the 2 oprofile sampling functions they call.  If it was busted
-> before it's no more nor less busted now.
-> 
-> I presume the perceived problem is that with CONFIG_PREEMPT=y the
-> thread can be pre-empted onto another CPU?  If it makes everyone
-> happier I can sprinkle a few preempt_disable()s around, but I'd
-> prefer to do it in a subsequent patch rather than respin this.
+It is this action that they are violating the GPL and that needs to be 
+enforced. 
 
-Andrew: basically the warning is false, there is no bug in this code.
+If they want to relicense their changes they need to not use GPL existing code 
+which they are not doing. They have not added written any of this code from 
+scratch and thus must distribute the source on request to those who get the 
+binaries which they are not doing anymore.
 
-we don't want to use preempt_disable(). Instead we want some way to get
-a CPU ID and then carry on in pre-emptible fashion. It's only used to
-index into an array, and if we get pre-empted onto another CPU it's not
-a major deal.
+What was true before of redistribution and being kicked out of the program is 
+now not happening anymore as there is no code to distribute of the resulting 
+binaries.
 
-(Yes, this breaks with CPU hotplug, but so does the rest of OProfile and
-I've yet to see a sensible API for handling this, that is a ctor/dtor
-style API)
+Shawn.
 
-regards
-john
+On November 9, 2004 07:07, Alan Cox via RT wrote:
+> On Maw, 2004-11-09 at 00:11, novalis@fsf.org via RT wrote:
+> > But if you distribute binaries, you must either include or offer source
+> > code.  Do they do this?  What software do they include that FSF holds
+> > copyright on?   Where can I check this?
+> >
+> > Do they include a copy of the GPL with the software?
+>
+> They include the GPL, they include the source nothing I can find they do
+> violates the GPL.  They do appear to annoy a few people because their
+> policy is that while you may join their early access process and get
+> source if you redistribute that source then you get kicked off their
+> program, but you are still allowed to distribute that source.
+
+

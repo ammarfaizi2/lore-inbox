@@ -1,42 +1,120 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316210AbSFDDyw>; Mon, 3 Jun 2002 23:54:52 -0400
+	id <S316195AbSFDD6l>; Mon, 3 Jun 2002 23:58:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316213AbSFDDyv>; Mon, 3 Jun 2002 23:54:51 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:55032 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S316210AbSFDDyv>; Mon, 3 Jun 2002 23:54:51 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Mon, 3 Jun 2002 21:53:17 -0600
-To: Austin Gonyou <austin@coremetrics.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Max groups at 32?
-Message-ID: <20020604035317.GL18668@turbolinux.com>
-Mail-Followup-To: Austin Gonyou <austin@coremetrics.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1023161504.4595.5.camel@UberGeek>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S316213AbSFDD6k>; Mon, 3 Jun 2002 23:58:40 -0400
+Received: from pD9E23D09.dip.t-dialin.net ([217.226.61.9]:1682 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316195AbSFDD6i>; Mon, 3 Jun 2002 23:58:38 -0400
+Date: Mon, 3 Jun 2002 21:58:32 -0600 (MDT)
+From: Lightweight patch manager <patch@luckynet.dynu.com>
+X-X-Sender: patch@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Subject: linux-2.5.20-ct1
+Message-ID: <Pine.LNX.4.44.0206032154470.17873-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 03, 2002  22:31 -0500, Austin Gonyou wrote:
-> I'm not sure if this is a Linux capabilities problem, a PAM problem, or
-> what, but I've noticed that If I add a user to > 32 groups...that user
-> cannot access anything in a directory owned by a group > the 32nd group.
+Hi,
 
-This is a kernel/glibc limit.  If you need complicated permissions like
-this, you may want to consider using ACLs (see http://acl.bestbits.at/
-for ext2/ext3/XFS ACL patches, I don't think Reiserfs has any ACL
-support).
+I picked up some trivial patches and fixed some stuff here and there...
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+The result is available at
+<URL:ftp://luckynet.dynu.com/pub/linux/2.5.20-ct1/linux-2.5.20-ct1.patch.bz2>
+
+The full ChangeLog is available at
+<URL:ftp://luckynet.dynu.com/pub/linux/2.5.20-ct1/ChangeLog-2.5.20-ct1>
+
+The single patches are available at 
+<URL:ftp://luckynet.dynu.com/pub/linux/2.5.20-ct1/single-patches/>
+
+Here is the ChangeLog:
+
+Summary of changes from v2.5.20 to v2.5.20-ct1
+==============================================
+
+<dank@kegel.com>:
+  o Trivial: must be __KERNEL__ for byteorder/generic.h
+
+<rweight@us.ibm.com>:
+  o Scalable CPU bitmasks
+  o Scalable phys_cpu_present_map
+
+<wli@holomorphy.com>:
+  o remove mixture of non-atomic operations with page->flags which requires atomic operations to access
+  o repetitive reinitialization of active_list and inactive_list in free_area_init_core()
+  o make balance_classzone() use list.h
+  o complete comment regarding inner workings of buddy system
+  o duplicate declaration of rq in sched_init()
+  o Re: forget_pte()
+  o remove antiquated comment from page_alloc.c
+  o convert page_alloc.c bugchecks to BUG_ON()
+  o remove MARK_USED() macros
+  o remove memlist_* macros from page_alloc.c
+  o correct inaccurate comment regarding zone_table's usage
+
+<zwane@linux.realnet.co.sz>:
+  o bluesmoke merge
+
+Adam J. Richter <adam@yggdrasil.com>:
+  o Trivial patch: linux-2.5.20/Rules.make cleanup
+
+Andreas Dilger <adilger@clusterfs.com>:
+  o Re: another -pre
+
+Andrew Morton <akpm@zip.com.au>:
+  o PCI device matching fix
+
+Anton Blanchard <anton@samba.org>:
+  o Fix for recent swap changes on 64 bit archs
+
+Arnaldo Carvalho de Melo <acme@conectiva.com.br>:
+  o more copy_{to,from}_user fixes
+
+Brad Hards <bhards@bigpond.net.au>:
+  o General options - begone
+
+cr@darav.de <cr@daRav.de>:
+  o agppart SiS 745 Patch - did it wrong before
+
+James Simmons <jsimmons@transvirtual.com>:
+  o Fbdev updates and fixes
+
+Keith Owens <kaos@ocs.com.au>:
+  o kbuild-2.5 (slightly older version (didn't have a certain bug))
+
+Maksim Krasnyanskiy <maxk@qualcomm.com>:
+  o Fix non-modular Bluetooth compilation
+  o Bluetooth PCMCIA drivers update
+
+Martin Dalecki <dalecki@evision-ventures.com>:
+  o airo wireless -  "I can't get no, compilation..."
+  o 2.5.20 IDE 83
+
+Pavel Machek <pavel@ucw.cz>:
+  o Cleanup swsusp in 2.5.20
+  o Fix suspend-to-RAM in 2.5.20
+  o Re: Fix suspend-to-RAM in 2.5.20
+
+Randy Hron <rwhron@earthlink.net>:
+  o remove space in cache names
+
+Russell King <rmk@arm.linux.org.uk>:
+  o fix 2.5.20 ramdisk
+
+Rusty Russell <rusty@rustcorp.com.au>:
+  o TRIVIAL: TAGS creation should go into arch dirs
+
+Thunder from the hill <patch@hawkeye.luckynet.adm>:
+  o Remove the special handling for hidden files in fs/isofs/namei.c and fs/isofs/dir.c
+  o Make mount_block_root() wait up to 60 seconds before panic() in case we don't find root fs.
+
+Trond Myklebust <trond.myklebust@fys.uio.no>:
+  o Re: [2.5.20-BUG] 3c59x + highmem + acpi + nfs -> kernel panic
+-- 
+Lightweight patch manager using pine. If you have any objections, tell me.
 

@@ -1,60 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264535AbTE1Fnr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 01:43:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264537AbTE1Fnr
+	id S264537AbTE1FuP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 01:50:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbTE1FuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 01:43:47 -0400
-Received: from opus.cs.columbia.edu ([128.59.20.100]:39391 "EHLO
-	opus.cs.columbia.edu") by vger.kernel.org with ESMTP
-	id S264535AbTE1Fnq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 01:43:46 -0400
-Subject: Re: permission() operating on inode instead of dentry?
-From: Shaya Potter <spotter@cs.columbia.edu>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030528054804.GF27916@parcelfarce.linux.theplanet.co.uk>
-References: <1054099180.6942.71.camel@zaphod>
-	 <20030528054804.GF27916@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054101380.7005.113.camel@zaphod>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 28 May 2003 01:56:20 -0400
+	Wed, 28 May 2003 01:50:15 -0400
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:1012 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP id S264537AbTE1FuO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 01:50:14 -0400
+Message-ID: <3ED45130.3080304@attbi.com>
+Date: Tue, 27 May 2003 23:03:28 -0700
+From: Miles Lane <miles.lane@attbi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.3.1) Gecko/20030428
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.70 -- drivers/net/irda/w83977af_ir.ko needs unknown symbol setup_dma
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm going to assume this mean "it's a reasonable idea, all that matters
-is the execution"
+WARNING: /lib/modules/2.5.70/kernel/drivers/net/irda/w83977af_ir.ko 
+needs unknown symbol setup_dma
+WARNING: /lib/modules/2.5.70/kernel/drivers/net/irda/ali-ircc.ko needs 
+unknown symbol setup_dma
+WARNING: /lib/modules/2.5.70/kernel/drivers/net/irda/nsc-ircc.ko needs 
+unknown symbol setup_dma
+WARNING: /lib/modules/2.5.70/kernel/drivers/net/irda/smsc-ircc2.ko needs 
+unknown symbol setup_dma
 
-On Wed, 2003-05-28 at 01:48, viro@parcelfarce.linux.theplanet.co.uk
-wrote:
-> On Wed, May 28, 2003 at 01:19:40AM -0400, Shaya Potter wrote:
-> > [please cc: responses to me, have 10k message backlog in l-k folder)
-> > 
-> > Is there a good reason why the fs permission function operates on the
-> > inode instead of the dentry? It would seem if the dentry was passed into
-> > the function instead of the inode, one would have a better structure to
-> > play with, such as being able to use d_put() to get the real path name. 
-> > The inode is still readily accessible from the dentry.
-> 
-> man grep.
-> 
-> Then use the resulting knowledge to find the callers of said function in
-> the tree.
-> 
-> Then think where you would get dentry (and vfsmount, since you want path)
-> for each of these.  Exclude ones that have them available.  See which
-> functions contain the rest of calls.
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+# CONFIG_MODULE_FORCE_UNLOAD is not set
+CONFIG_OBSOLETE_MODPARM=y
+# CONFIG_MODVERSIONS is not set
+CONFIG_KMOD=y
 
-Why would the calling process not be the right place?  Everything should
-have a calling process, or am I missing something?
+#
+# Platform support
+#
+CONFIG_PPC=y
+CONFIG_PPC32=y
+CONFIG_6xx=y
 
-<snipped how to get it done>
+CONFIG_IRDA=m
 
-thanks,
+#
+# IrDA protocols
+#
+CONFIG_IRLAN=m
+CONFIG_IRNET=m
+CONFIG_IRCOMM=m
+CONFIG_IRDA_ULTRA=y
 
-shaya
+CONFIG_IRPORT_SIR=m
+
+#
+# Old Serial dongle support
+#
+# CONFIG_DONGLE_OLD is not set
+
+#
+# FIR device drivers
+#
+CONFIG_USB_IRDA=m
+CONFIG_NSC_FIR=m
+CONFIG_WINBOND_FIR=m
+# CONFIG_TOSHIBA_OLD is not set
+CONFIG_TOSHIBA_FIR=m
+# CONFIG_SMC_IRCC_OLD is not set
+CONFIG_SMC_IRCC_FIR=m
+CONFIG_ALI_FIR=m
+CONFIG_VLSI_FIR=m
 

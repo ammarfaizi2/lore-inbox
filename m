@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274636AbRJAGxz>; Mon, 1 Oct 2001 02:53:55 -0400
+	id <S274653AbRJAHCF>; Mon, 1 Oct 2001 03:02:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274638AbRJAGxf>; Mon, 1 Oct 2001 02:53:35 -0400
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:16621 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S274636AbRJAGxd>; Mon, 1 Oct 2001 02:53:33 -0400
-Date: Mon, 1 Oct 2001 07:54:01 +0100 (BST)
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-Reply-To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-To: Alexander Viro <viro@math.psu.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [CFT][PATCH] cleanup of partition code
-In-Reply-To: <Pine.GSO.4.21.0109302152260.13829-100000@weyl.math.psu.edu>
-Message-ID: <Pine.SOL.3.96.1011001075038.29567C-100000@libra.cus.cam.ac.uk>
+	id <S274656AbRJAHB5>; Mon, 1 Oct 2001 03:01:57 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:38641 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S274653AbRJAHBm>; Mon, 1 Oct 2001 03:01:42 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>
+Subject: Re: 4GB MemShared, Cached bigger (and growing) than MemTotal (64MB) on 2.4.9-ac18
+In-Reply-To: <20010930224453.C25387@mikef-linux.matchmail.com>
+Organisation: SAP LinuxLab
+Date: 01 Oct 2001 08:40:53 +0200
+Message-ID: <m34rpj3lsa.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al,
+Hi Mike,
 
-On Sun, 30 Sep 2001, Alexander Viro wrote:
-> Update:  fixed a double-free bug in amiga_partition().  After that thing
-> seems to be working on Amiga disk sent by Jes (as in, "right amount
-> of partitions and reasonably looking boundaries").
+On Sun, 30 Sep 2001, Mike Fedyk wrote:
+> Hi,
 > 
-> Patch is on ftp.math.psu.edu/pub/viro/partition-b-S11-pre1.
+> I took 64MB out of my 128MB system at home today just to see how
+> 2.4.9-ac18 would work on it, and did some tests...
+> 
+> I ran apt-get update && apt-get upgrade, and after that finished,
+> swapoff -a.
+> 
+> While looking at vmstat, the swap went down from 24000 to 16000 and
+> slowed considerably (sorry didn't save the vmstat output) with the
+> page cache getting smaller and smaller, while disk reads were
+> constantly at about 2000.
+> 
+> After a while it got past 16000 swap, and down to zero and swapoff
+> exited.
+> 
+> After this happened, I saw MemShared go up to about 4GB, and Cached
+> started growing, getting even bigger than ram!
 
-Just a random data point: your patch works fine here both with
-msdos+extended partitions and with an LDM disk. 
+Apparently the shmem accounting is screwed. (Hugh does something ring
+at your side?) 
 
-I haven't tried the updated patch but as I don't have an amiga it
-shouldn't make a difference on my systems anyway...
+This should be totally cosmetic. Simply add the MemShared to the
+Cached field and you get the real cached (including shmem) pages.
 
-Best regards,
-
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+Greetings
+		Christoph
 
 

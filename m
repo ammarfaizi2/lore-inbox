@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284283AbRLRRJK>; Tue, 18 Dec 2001 12:09:10 -0500
+	id <S284304AbRLRRQv>; Tue, 18 Dec 2001 12:16:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284289AbRLRRJA>; Tue, 18 Dec 2001 12:09:00 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17422 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S284283AbRLRRIt>; Tue, 18 Dec 2001 12:08:49 -0500
-Date: Tue, 18 Dec 2001 09:07:25 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
+	id <S284302AbRLRRQk>; Tue, 18 Dec 2001 12:16:40 -0500
+Received: from [206.40.202.198] ([206.40.202.198]:5988 "EHLO
+	scsoftware.sc-software.com") by vger.kernel.org with ESMTP
+	id <S284289AbRLRRQb>; Tue, 18 Dec 2001 12:16:31 -0500
+Date: Tue, 18 Dec 2001 09:12:43 +0000 (   )
+From: John Heil <kerndev@sc-software.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: William Lee Irwin III <wli@holomorphy.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Scheduler ( was: Just a second ) ...
-In-Reply-To: <200112181429.fBIETsf15577@pinkpanther.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0112180901250.2867-100000@penguin.transmeta.com>
+In-Reply-To: <E16GKvk-0007Sc-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.95.1011218091159.581e-100000@scsoftware.sc-software.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 On Tue, 18 Dec 2001, Alan Cox wrote:
->
-> > at 2*2 bytes per sample and 44kHz would mean that a 1kB DMA buffer empties
-> > in less than 1/100th of a second, but at least it should be < 200 irqs/sec
-> > rather than >400).
->
-> With a few exceptions the applications tend to use 4K or larger DMA chunks
-> anyway. Very few need tiny chunks.
 
-Doing another grep seems to imply that none of the other drivers even
-allow as small chunks as the sb driver does, 32 byte "events" is just
-ridiculous. At simple 2-channel, 16-bits, CD-quality sound, that's a DMA
-event every 0.18 msec (5500 times a second, 181 _micro_seconds appart).
+> Date: Tue, 18 Dec 2001 14:09:16 +0000 (GMT)
+> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> To: Linus Torvalds <torvalds@transmeta.com>
+> Cc: Rik van Riel <riel@conectiva.com.br>,
+>     Davide Libenzi <davidel@xmailserver.org>,
+>     Kernel Mailing List <linux-kernel@vger.kernel.org>
+> Subject: Re: Scheduler ( was: Just a second ) ...
+> 
+> > to CD-RW disks without having to know about things like "ide-scsi" etc,
+> > and do it sanely over different bus architectures etc.
+> > 
+> > The scheduler simply isn't that important.
+> 
+> The scheduler is eating 40-60% of the machine on real world 8 cpu workloads.
+> That isn't going to go away by sticking heads in sand.
 
-I obviously agree that the app shouldn't even ask for small chunks:
-whether a mp3 player reacts within 1/10th or 1/1000th of a second of the
-user asking it to switch tracks, nobody can even tell. So an mp3 player
-should probably use a big fragment size on the order of 4kB or similar
-(that still gives max fragment latency of 0.022 seconds, faster than
-humans can react).
+What % of a std 2 cpu, do you think it eats?
 
-So it sounds like a player sillyness, but I don't think the driver should
-even allow such waste of resources, considering that no other driver
-allows it either..
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-			Linus
+-
+-----------------------------------------------------------------
+John Heil
+South Coast Software
+Custom systems software for UNIX and IBM MVS mainframes
+1-714-774-6952
+johnhscs@sc-software.com
+http://www.sc-software.com
+-----------------------------------------------------------------
 

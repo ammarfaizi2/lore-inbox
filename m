@@ -1,59 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265367AbSJXJsi>; Thu, 24 Oct 2002 05:48:38 -0400
+	id <S265373AbSJXJy5>; Thu, 24 Oct 2002 05:54:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265368AbSJXJsi>; Thu, 24 Oct 2002 05:48:38 -0400
-Received: from mail.hometree.net ([212.34.181.120]:5316 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S265367AbSJXJsi>; Thu, 24 Oct 2002 05:48:38 -0400
+	id <S265374AbSJXJy5>; Thu, 24 Oct 2002 05:54:57 -0400
+Received: from relay.dera.gov.uk ([192.5.29.49]:19127 "HELO relay.dstl.gov.uk")
+	by vger.kernel.org with SMTP id <S265373AbSJXJyz>;
+	Thu, 24 Oct 2002 05:54:55 -0400
+Subject: Re: One for the Security Guru's
+From: Tony Gale <gale@syntax.dstl.gov.uk>
 To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: 2.5.44-[mm3, ac2] time to tar zxf kernel tarball compared forvarious
-Date: Thu, 24 Oct 2002 09:54:49 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <ap8g19$8k4$1@forge.intermeta.de>
-References: <1035402133.13140.251.camel@spc9.esa.lanl.gov> 	<3DB6FF24.9B50A7C0@digeo.com> <1035405140.13083.268.camel@spc9.esa.lanl.gov> <3DB764B0.3010204@namesys.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1035453289 15610 212.34.181.4 (24 Oct 2002 09:54:49 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Thu, 24 Oct 2002 09:54:49 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+In-Reply-To: <ap8f36$8ge$1@dstl.gov.uk>
+References: <Pine.LNX.3.95.1021023105535.13301A-100000@dstl.gov.uk>
+	<Pine.LNX.4.44.0210231346500.26808-100000@innerfire.net> 
+	<ap8f36$8ge$1@forge.intermeta.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-sm/k8ySWntfSdaeozWto"
+X-Mailer: Ximian Evolution 1.0.8.99 
+Date: 24 Oct 2002 11:01:04 +0100
+Message-Id: <1035453664.1035.11.camel@syntax.dstl.gov.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser <reiser@namesys.com> writes:
 
->simple tests like this.  We recently ran into one with tar recognizing 
->that it was writing to /dev/null, and optimizing for it.
+--=-sm/k8ySWntfSdaeozWto
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-As stated in the info document. It is there for a reason (Amanda).
+On Thu, 2002-10-24 at 10:38, Henning P. Schmiedehausen wrote:
+> Gerhard Mack <gmack@innerfire.net> writes:
+>=20
+> >Actually at the place that just went bankrupt on me I had a Security
+> >consultant complain that 2 of my servers were outside the firewall.  He
+> >recommended that I get a firewall just for those 2 servers but backed of=
+f
+> >when I pointed out that I would need to open all of the same ports that
+> >are open on the server anyways so the vulnerability isn't any less with
+> >the firewall.
+>=20
+> So you should've bought a more expensive firewall that offers protocol
+> based forwarding instead of being a simple packet filter.
+>=20
+> packet filter !=3D firewall. That's the main lie behind most of the
+> "Linux based" firewalls.
+>=20
+> Get the real thing. Checkpoint. PIX. But that's a little
+> more expensive than "xxx firewall based on Linux".
+>=20
 
---- cut ---
-   When the archive is being created to `/dev/null', GNU `tar' tries to
-minimize input and output operations.  The Amanda backup system, when
-used with GNU `tar', has an initial sizing pass which uses this feature.
---- cut ---
+Thats not entirely accurate, or fair. A packet filter is a type of
+Firewall (or can be). A Firewall is a means to implement a security
+policy, usually specifically a network access policy. A Packet Filter,
+including a ""Linux based" firewall" is a perfectly acceptable means of
+achieving that goal, if it meets the policy requirements.
 
-	Regards
-		Henning
+Ref. http://csrc.nist.gov/publications/nistpubs/800-10/ (over 7 years
+old, but still highly relevant).
+
+Most commercial firewalls are very bad at protecting servers offering
+Internet services, they aren't designed to do it.
+
+-tony
 
 
->Hans
+--=-sm/k8ySWntfSdaeozWto
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+iQCVAwUAPbfE4B/0GZs/Z0FlAQIwsQP/cgsyryYs31o6/jxA+/mbpYutZ9Ya8ijA
+RxWN7qlBuICaRGqhnuw8QNEfXHAjNiQ7RwgguhrcsSQsu5ZOKAB6v1g23BdCOr04
+Z/hQXNoo/vyiQ0jPeAxQ/9K+7dUPBhL6bWWOkGtc5TMoODHS2dJXn0rHFBMh9sFD
+3jtHg9FTih4=
+=LsCB
+-----END PGP SIGNATURE-----
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+--=-sm/k8ySWntfSdaeozWto--
+

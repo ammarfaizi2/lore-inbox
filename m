@@ -1,89 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266192AbUAUXNY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 18:13:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266195AbUAUXNY
+	id S264265AbUAUXM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 18:12:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266188AbUAUXM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 18:13:24 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:28405 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S266192AbUAUXMu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 18:12:50 -0500
-Message-ID: <400F0759.5070309@mvista.com>
-Date: Wed, 21 Jan 2004 15:12:25 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	Wed, 21 Jan 2004 18:12:26 -0500
+Received: from mail007.syd.optusnet.com.au ([211.29.132.55]:19143 "EHLO
+	mail007.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264265AbUAUXMY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 18:12:24 -0500
+From: Christian Unger <chakkerz@optusnet.com.au>
+Reply-To: chakkerz@optusnet.com.au
+Organization: naiv.sourceforge.net
+To: linux-kernel@vger.kernel.org
+Subject: Nvidia drivers and 2.6.x kernel
+Date: Thu, 22 Jan 2004 10:12:17 +1100
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-To: Tom Rini <trini@kernel.crashing.org>
-CC: "Amit S. Kale" <amitkale@emsyssoft.com>,
-       Powerpc Linux <linuxppc-dev@lists.linuxppc.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>
-Subject: Re: PPC KGDB changes and some help?
-References: <20040120172708.GN13454@stop.crashing.org> <200401211946.17969.amitkale@emsyssoft.com> <20040121153019.GR13454@stop.crashing.org> <200401212223.13347.amitkale@emsyssoft.com> <20040121184217.GU13454@stop.crashing.org> <20040121192128.GV13454@stop.crashing.org>
-In-Reply-To: <20040121192128.GV13454@stop.crashing.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200401221012.17121.chakkerz@optusnet.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini wrote:
-> On Wed, Jan 21, 2004 at 11:42:17AM -0700, Tom Rini wrote:
-> 
->>On Wed, Jan 21, 2004 at 10:23:12PM +0530, Amit S. Kale wrote:
->>
->>
->>>Hi,
->>>
->>>Here it is: ppc kgdb from timesys kernel is available at
->>>http://kgdb.sourceforge.net/kgdb-2/linux-2.6.1-kgdb-2.1.0.tar.bz2
->>>
->>>This is my attempt at extracting kgdb from TimeSys kernel. It works well in 
->>>TimeSys kernel, so blame me if above patch doesn't work.
->>
->>Okay, here's my first patch against this.
-> 
-> 
-> And dependant upon this is a patch to fixup the rest of the common PPC
-> code, as follows:
-> - Add FRAME_POINTER
-> - Put the bits of kgdbppc_init into ppc_kgdb_init.
-> - None of the gen550 stuffs depend on CONFIG_8250_SERIAL directly,
->   remove that constraint.
-> - Add missing bits like debuggerinfo, BREAKPOINT, etc.
-> - Add a kgdb_map_scc machdep pointer.
-> 
-> --- 1.48/arch/ppc/Kconfig	Wed Jan 21 10:13:13 2004
-> +++ edited/arch/ppc/Kconfig	Wed Jan 21 12:18:32 2004
-> @@ -1405,6 +1405,14 @@
->  	  Say Y here only if you plan to use some sort of debugger to
->  	  debug the kernel.
->  	  If you don't debug the kernel, you can say N.
-> +
-> +config FRAME_POINTER
-> +	bool "Compile the kernel with frame pointers"
-> +	help
-> +	  If you say Y here the resulting kernel image will be slightly larger
-> +	  and slower, but it will give very useful debugging information.
-> +	  If you don't debug the kernel, you can say N, but we may not be able
-> +	  to solve problems without frame pointers.
+Hi Everyone
 
-This is fast becoming old hat.  If you compile with dwarf debug info, you not 
-only get more reliable frame info, but you do not need frame pointers.  Gdb is 
-almost there.  The languages have already arrived.
+I'm not sure if this has been done to death or not, but i can not get the 4496 
+and 5328 versions of the NVidia kernel to work on the 2.6.1 version of (you 
+guessed it) Linux.
 
-A question I have been meaning to ask:  Why is the arch/common connection via a 
-structure of addresses instead of just calls?  I seems to me that just calling 
-is a far cleaner way to do things here.  All the struct seems to offer is a way 
-to change the backend on the fly.  I don't thing we ever want to do that.  Am I 
-missing something?
+I've googled about but not really found any great stuff. I did find this:
 
--g
+http://www.kerneltrap.org/node/view/1804
+and from there the link to http://minion.de
 
+I've tried it with both versions of the driver, with both versions of the 
+drivers Makefile (Makefile.nvidia and Makefile.kbuild). 
+
+With the installer and with just make install (make kernel_module_install).
+The message i get is that the module is the wrong format.
+The files that i can get to appear in:
+/lib/modules/2.6.1/kernel/drivers/video are nvidia.ko & nvidia.o
+Originally i thought they were the same file, but they have different sizes 
+(afterall)
+chakkerz@stormcrow:/lib/modules/2.6.1/kernel/drivers/video$ ls -l
+total 4648
+-rw-rw-r--    1 root     root      2376880 Jan 21 12:14 nvidia.ko
+-rw-rw-r--    1 root     root      2376702 Jan 21 12:15 nvidia.o
+
+so: i've tried unpatched, patched, old and new drivers, installer and make, 
+make in the installers root, and it's sub director usr/src/nv ... oh yes, and 
+different versions of the patch.
+
+could someone please tell me where to find out how to make this work, because 
+linux without GUI is little use to me.
+
+In case it matters:
+This is an AMD Athlon XP 2800+ on a Gigabyte GA-7N400 Pro2 MoBo (nforce2). The 
+FFX is an Abit Siluro GeForce 4 Ti4200 OTES. 2 sticks of 256 Corsair DDR in 
+dual channel. The kernel compiles i tried were with AGPGART integrated (and 
+the nforce/nforce2 also integrated) as well as AGPGART as a module. Most of 
+the stuff i tried with AGPGART as a module.
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+with kind regards,
+  Christian Unger
+
+"You don't need eyes to see, you need vision" (Faithless - Reverence)
+
+  Mobile:            0402 268904
+  Internet:          http://naiv.sourceforge.net
+  NAIV Status:
+     Stable       Testing       Development
+      0.2.3r2      0.3.0         0.3.1 - File Handling
+
+"May there be mercy on man and machine for their sins" (Animatrix)
 

@@ -1,54 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281818AbRLGPZt>; Fri, 7 Dec 2001 10:25:49 -0500
+	id <S281895AbRLGPc3>; Fri, 7 Dec 2001 10:32:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281836AbRLGPZj>; Fri, 7 Dec 2001 10:25:39 -0500
-Received: from dsl-213-023-043-071.arcor-ip.net ([213.23.43.71]:29705 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S281818AbRLGPZ0>;
-	Fri, 7 Dec 2001 10:25:26 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrew Morton <akpm@zip.com.au>, Yusuf Goolamabbas <yusufg@outblaze.com>
-Subject: Re: 2.4.17-pre2+ext3-0.9.16+anton's cache aligned smp
-Date: Fri, 7 Dec 2001 16:27:27 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: ext3-users@redhat.com, linux-kernel@vger.kernel.org, anton@samba.org,
-        axboe@suse.de
-In-Reply-To: <3C0B12C5.F8F05016@zip.com.au> <20011206163056.A15550@outblaze.com> <3C0F301D.3368595@zip.com.au>
-In-Reply-To: <3C0F301D.3368595@zip.com.au>
+	id <S282062AbRLGPcJ>; Fri, 7 Dec 2001 10:32:09 -0500
+Received: from office.mandrakesoft.com ([195.68.114.34]:42482 "HELO
+	giants.mandrakesoft.com") by vger.kernel.org with SMTP
+	id <S281895AbRLGPcE>; Fri, 7 Dec 2001 10:32:04 -0500
+To: devnull@geisel.info
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17-pre5 "make bzImage" fails
+In-Reply-To: <20011206195025.GA9599@geisel.info>
+	<3C0FCCAC.CE6905D5@mandrakesoft.com>
+	<20011206195702.GA12755@geisel.info>
+From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Date: 07 Dec 2001 16:29:39 +0100
+In-Reply-To: <20011206195702.GA12755@geisel.info> (devnull@geisel.info's message of "Thu, 6 Dec 2001 20:57:02 +0100")
+Message-ID: <m33d2nm4kc.fsf@giants.mandrakesoft.com>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16CMuT-0000tz-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 6, 2001 09:45 am, Andrew Morton wrote:
-> Yusuf Goolamabbas wrote:
-> > 
-> > Running 2.4.17-pre2 + ext3-0.9.16 + Anton Blanchards
-> > cacheline_aligned_smp patch available at
-> > 
-> > http://samba.org/~anton/linux/cacheline_aligned/
-> 
-> omigod look at that graph.
-> 
-> Excuse me while I get frustrated.  Will someone *please* send that
-> damn patch to marcelo@conectiva.com.br?
-> 
-> (It can be improved further by putting padding *behind* the lock
-> but hey).
-> 
-> > ...
-> > 
-> > With Anton's patch, the number of ctx-swtch/sec drops by around 3000
-> > from avg of 9000 (for 17-pre2+ext3) to avg of 6000 (with anton) as seen
-> > by vmstat 1
-> 
-> Really?  The spinlock cacheline alignment alone made that
-> difference?  I wonder why.
+devnull@geisel.info writes:
 
-Before getting *too* excited, remember, it's dbench, so effects could easily 
-be magnified.  Maybe test with something better behaved?
+> On Thu, Dec 06, 2001 at 02:53:16PM -0500, Jeff Garzik wrote:
+> > did you upgrade your binutils recently?
+> 
+> Yes, I upgraded to binutils-2.11.92.0.7-3mdk from Mandrake cooker today.
 
---
-Daniel
+get 4mdk it should be fixed there. (please: discus mdk problems on mdk ml's).

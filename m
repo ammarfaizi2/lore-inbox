@@ -1,76 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVDEQor@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261804AbVDEQrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261466AbVDEQor (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 12:44:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbVDEQor
+	id S261804AbVDEQrR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 12:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbVDEQrQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 12:44:47 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:21182 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261466AbVDEQon (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 12:44:43 -0400
-Subject: Re: OOM problems on 2.6.12-rc1 with many fsx tests
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mingming Cao <cmm@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
-       mjbligh@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20050403183544.7c31f85c.akpm@osdl.org>
-References: <20050315204413.GF20253@csail.mit.edu>
-	 <20050316003134.GY7699@opteron.random>
-	 <20050316040435.39533675.akpm@osdl.org>
-	 <20050316183701.GB21597@opteron.random>
-	 <1111607584.5786.55.camel@localhost.localdomain>
-	 <20050403183544.7c31f85c.akpm@osdl.org>
+	Tue, 5 Apr 2005 12:47:16 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:14995 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S261804AbVDEQqq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 12:46:46 -0400
+Subject: Re: [PATCH 00/04] Load keyspan firmware with hotplug
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, Greg KH <greg@kroah.com>,
+       Sven Luther <sven.luther@wanadoo.fr>,
+       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
+       debian-kernel@lists.debian.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050405153104.GB31572@delft.aura.cs.cmu.edu>
+References: <20050404100929.GA23921@pegasos>
+	 <20050404191745.GB12141@kroah.com>
+	 <20050405042329.GA10171@delft.aura.cs.cmu.edu>
+	 <200504042351.22099.dtor_core@ameritech.net>
+	 <1112692926.8263.125.camel@pegasus>
+	 <20050405114543.GG10171@delft.aura.cs.cmu.edu>
+	 <1112711791.12406.26.camel@notepaq>
+	 <20050405153104.GB31572@delft.aura.cs.cmu.edu>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1112719458.4148.106.camel@sisko.sctweedie.blueyonder.co.uk>
+Date: Tue, 05 Apr 2005 18:46:42 +0200
+Message-Id: <1112719602.12406.71.camel@notepaq>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Tue, 05 Apr 2005 17:44:19 +0100
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Jan,
 
-On Mon, 2005-04-04 at 02:35, Andrew Morton wrote:
+> > > > I agree with Dmitry on this point. The IHEX parser should not be inside
+> > > > firmware_class.c. What about using keyspan_ihex.[ch] for it?
+> > > 
+> > > That's what I had originally, actually called firmware_ihex.ko, since
+> > > the IHEX format parser is not in any way keyspan specific and there are
+> > > several usb-serial converters that seem to use the same IHEX->.h trick
+> > > which could trivially be modified to use this loader.
+> > > 
+> > > But the compiled parser fairly small (< 2KB) and adding it to the
+> > > existing module didn't effectively add any size to the firmware_class
+> > > module since things are rounded to a page boundary anyways.
+> > 
+> > so it seems that this is usb-serial specific at the moment. Then I would
+> 
+> I really don't see the point you are trying to argue. I said, sure it is
+> possible to make it a separate module, that is what my initial
+> implementation was. Why do you want to pigeon-hole it with anything but
+> the existing firmware loading code?
 
-> Without the below patch it's possible to make ext3 leak at around a
-> megabyte per minute by arranging for the fs to run a commit every 50
-> milliseconds, btw.
+the existing request_firmware() has nothing in common with IHEX parser
+and such a parser should not belong there. So either make it a separate
+module or add it to the module that is using it. In this case this is
+the keyspan module or the usb-serial core.
 
-Ouch! 
-> (Stephen, please review...)
+> It is _not_ usb-serial specific, in fact once the device is initialized
+> this isn't even needed. And the initialization as far as I can see uses
+> little or no usb-serial code.
+> 
+> It happens that many usb-serial devices are built around the ezusb
+> chipset, which in turn seems to be a 8051-based microcontroller. The
+> compilers for such microcontrollers seem to generate IHEX formatted
+> output possibly because eprom burners generally support the format.
 
-Doing so now. 
+Then make it at separate module.
 
-> The patch teaches journal_unmap_buffer() about buffers which are on the
-> committing transaction's t_locked_list.  These buffers have been written and
-> I/O has completed.  
+> > it up at the moment. People are also working on a replacement for the
+> > current request_firmware(), because the needs are changing. Try to keep
+> > it close with the usb-serial for now.
+> 
+> What? I find the existing request_firmware fairly simple and
+> straightforward, it has a very KISS-like quality to it, it is nice and
+> small and even the userspace support is trivial. I only saw a mention
+> about 'replacing' it in the current thread which mostly involved
+> complaints but didn't actually see anyone volunteering to start working
+> on such a replacement.
+> 
+> If a driver wants to load 5 different chunks, just call request_firmware
+> 5 times (i.e. drivers/bluetooth/bcm203x.c). If the data is a single
+> binary blob, just ask for the single binary blob. In this case there
+> seems to be some structure to the blob that I wanted to preserve, and
+> that would either be some custom binary format that contains
+> [<address><length><data>]... tuples, which ofcourse causes problems for
+> our big-endian brothers, or a similar ascii format, where the IHEX is
+> not only pretty much standardized, it is trivial to parse and even adds
+> checksum information.
 
-Agreed.  The key here is that the buffer is locked before
-journal_unmap_buffer() is called, so we can indeed rely on it being
-safely on disk.  
+I am not going to repeat the current arguments and it is not about
+loading multiple firmware files (btw I wrote the bcm203x). Check the
+mailing list archives for the details. I still need to catch up with the
+discussion, but there is some ongoing work.
 
-> We can take them off the transaction and undirty them
-> within the context of journal_invalidatepage()->journal_unmap_buffer().
+> The only thing that I see missing right now is a change to the makefiles
+> to have in-tree firmware files get installed in /lib/modules/`uname
+> -r`/firmware or some similar place. Ideally people would add a line
+> like,
+> 
+>     fw-$(CONFIG_FOO) = foo-firmware-blob.fw
+> 
+> And make install could drop it a place where hotplug can find it.
 
-Right - the committing transaction can't be doing any more writes, and
-the current transaction has explicitly told us to throw away its own
-writes if we get here.  Unfiling the buffer should be safe.
+This is another approach and if you want something like that, then send
+a patch for it and let Sam and others comment on it.
 
-> +		if (jh->b_jlist == BJ_Locked) {
-> +			/*
-> +			 * The buffer is on the committing transaction's locked
-> +			 * list.  We have the buffer locked, so I/O has
-> +			 * completed.  So we can nail the buffer now.
-> +			 */
-> +			may_free = __dispose_buffer(jh, transaction);
-> +			goto zap_buffer;
-> +		}
+Regards
 
-ACK.
+Marcel
 
---Stephen
 

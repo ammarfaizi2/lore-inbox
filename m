@@ -1,103 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271515AbRIBBuR>; Sat, 1 Sep 2001 21:50:17 -0400
+	id <S271518AbRIBCEv>; Sat, 1 Sep 2001 22:04:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271518AbRIBBuI>; Sat, 1 Sep 2001 21:50:08 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:6664 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S271515AbRIBBuE>; Sat, 1 Sep 2001 21:50:04 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Stephan von Krawczynski <skraw@ithnet.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Memory Problem in 2.4.10-pre2 / __alloc_pages failed
-Date: Sun, 2 Sep 2001 03:57:10 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <20010901202823.303eb0eb.skraw@ithnet.com>
-In-Reply-To: <20010901202823.303eb0eb.skraw@ithnet.com>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010902015023Z16303-32383+2910@humbolt.nl.linux.org>
+	id <S271522AbRIBCEn>; Sat, 1 Sep 2001 22:04:43 -0400
+Received: from dsl027-137-030.nyc1.dsl.speakeasy.net ([216.27.137.30]:43081
+	"EHLO perl") by vger.kernel.org with ESMTP id <S271518AbRIBCE0>;
+	Sat, 1 Sep 2001 22:04:26 -0400
+Date: Sun, 2 Sep 2001 02:04:43 +0000
+To: linux-kernel@vger.kernel.org
+Subject: Re: PPC kernel compiles fail (2.4.5 to 2.4.9 inclusive) due to ide problems/vt problems
+Message-ID: <20010902020443.A19838@216.254.117.126>
+In-Reply-To: <20010901125539.A17935@216.254.117.126> <20010901120900.N27811@cpe-24-221-152-185.az.sprintbbd.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010901120900.N27811@cpe-24-221-152-185.az.sprintbbd.net>; from trini@kernel.crashing.org on Sat, Sep 01, 2001 at 12:09:00PM -0700
+From: xsdg <xsdg@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 1, 2001 08:28 pm, Stephan von Krawczynski wrote:
-> On Fri, 31 Aug 2001 21:03:22 +0200
-> Daniel Phillips <phillips@bonn-fries.net> wrote:
+On Sat, Sep 01, 2001 at 12:09:00PM -0700, Tom Rini wrote:
+> On Sat, Sep 01, 2001 at 12:55:39PM +0000, xsdg wrote:
 > 
-> > > >  		/* XXX: is pages_min/4 a good amount to reserve for this? */
-> > > > +		if (z->free_pages < z->pages_min / 3 && (gfp_mask & __GFP_WAIT) &&
-> > > > +				!(current->flags & PF_MEMALLOC))
-> > > > +			continue;
-> > > Hello Daniel,
-> > > 
-> > > I tried this patch and it makes _no_ difference. Failures show up in same 
-> > > situation and amount. Do you need traces? They look the same
-> > 
-> > OK, first would you confirm that the frequency of 0 order failures has
-> > stayed the same?
+> > Please CC me as I am not subscribed to the list.  My only goal now is to get
+> > a kernel running (2.4 is necessary for Airport support).  The computer is a
+> > brand-new Apple TiBook.
 > 
-> Hello Daniel (and the rest),
-> 
-> I redid the test and have the following results, based on a 2.4.10-pre2 with
-> above patch:
-> [...]
->
-> And the traces:
-> 83 mostly identical errors showed up, all looking like
-> 
-> Sep  1 15:17:53 admin kernel: cdda2wav: __alloc_pages: 3-order allocation
-> failed (gfp=0x20/0).
-> [...]
-> Trace; fdcf80f5 <[sg]sg_build_reserve+25/48>
-> Trace; fdcf6589 <[sg]sg_ioctl+6c5/ae4>
-> Trace; fdcf76bd <[sg]sg_build_indi+55/1a8>
-> 
-> So, there are no 0-order allocs failing in this setup.
-> 
-> Are you content with having no 0-order failures?
+> Try 2.4.8.  I'd point you at a URL for the PPC trees, but the machine is
+> moving right now.
 
-It's a start.  The important thing is to have supported my theory of what is
-going on here.  What I did there is probably a good thing, it seems quite
-effective for combatting 0 order atomic failures.  In this case you have a
-driver that uses a fallback allocation strategy, starting with a 3 order
-allocation attempt and dropping down top the next lower size on failure.  If
-0 order allocation fails the whole operation fails, and maybe you will lose
-a packet.  So 0 order allocations are important, we really want them to
-succeed.
+I tried 2.4.8, which didn't work.  I did compile the airport module, but it had
+unresolved symbols...  I ended up trying 2.4.9-ac1, which was the first kernel
+to actually compile.  I then compiled -ac2, which did let the airport work :o)
+Finally, I got a benh kernel off someone on #debianppc (openprojects), which
+compiled, but which I haven't tried yet.
 
-The next part of the theory says that the higher order allocations are
-failing because of fragmentation.  I put considerable thought into this
-today while wandering around in a dungeon in Berlin watching bats (really)
-and I will post an article to lkml tomorrow with my findings.  To summarize
-briefly here: a Linux system in steady state operation *is* going to show
-physical fragmentation so that the chance of a higher order allocation
-succeeding becomes very small.  The chance of failure increases
-exponentially (or worse) with a) the allocation order and b) the ratio of
-allocated to free memory.  The second of these you can control: the higher
-you set zone->pages_min the better chance your higher order allocations
-will have to succeed.  Do you want a patch for that, to see if this works
-in practice?
+> -- 
+> Tom Rini (TR1265)
+> http://gate.crashing.org/~trini/
 
-Of course it would be much better if we had some positive mechanism for
-defragging physical memory instead of just relying on chance and hoping
-for the best the way we do now.  IMHO, such a mechanism can be built
-practically and I'm willing to give it a try.  Basically, kswapd would try
-to restore a depleted zone order list by scanning mem_map to find buddy
-partners for free blocks of the next lower order.  This strategy, together
-with the one used in the patch above, could largly eliminate atomic
-allocation failures.  (Although as I mentioned some time ago, getting rid
-of them entirely is an impossible problem.)
-
-The question remains why we suddenly started seeing more atomic allocation
-failures in the recent Linus trees.  I'll guess that the changes in
-scanning strategy have caused the system to spend more time close to the
-zone->pages_min amount of free memory.  This idea seems to be supported by
-your memstat listings.  In some sense, it's been good to have the issue
-forced so that we must come up with ways to make atomic and higher order
-allocations less fragile.
-
---
-Daniel
+-- 
+|---------------------------------------------------|
+|             Hit any user to continue.             |
+|---------------------------------------------------|
+| http://xsdg.hypermart.net       xsdg@softhome.net |
+|---------------------------------------------------|

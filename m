@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132775AbRC2QZf>; Thu, 29 Mar 2001 11:25:35 -0500
+	id <S132788AbRC2QmX>; Thu, 29 Mar 2001 11:42:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132770AbRC2QXf>; Thu, 29 Mar 2001 11:23:35 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:4695 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S132771AbRC2QXP>; Thu, 29 Mar 2001 11:23:15 -0500
-Date: Thu, 29 Mar 2001 10:22:33 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200103291622.KAA67155@tomcat.admin.navo.hpc.mil>
-To: dwguest@win.tue.nl, Sean Hunter <sean-lk@dev.sportingbet.com>,
-   linux-kernel@vger.kernel.org
+	id <S132787AbRC2QmN>; Thu, 29 Mar 2001 11:42:13 -0500
+Received: from dfmail.f-secure.com ([194.252.6.39]:57095 "HELO
+	dfmail.f-secure.com") by vger.kernel.org with SMTP
+	id <S132788AbRC2Ql7>; Thu, 29 Mar 2001 11:41:59 -0500
+Date: Thu, 29 Mar 2001 18:51:03 +0200 (MET DST)
+From: Szabolcs Szakacsits <szaka@f-secure.com>
+To: "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>
+cc: Andreas Dilger <adilger@turbolinux.com>,
+   Martin Dalecki <dalecki@evision-ventures.com>,
+   Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+   Jonathan Morton <chromi@cyberspace.org>,
+   Rogier Wolff <R.E.Wolff@bitwizard.nl>, <linux-kernel@vger.kernel.org>
 Subject: Re: OOM killer???
-X-Mailer: [XMailTool v3.1.2b]
+In-Reply-To: <Pine.A32.3.95.1010329160740.63156B-100000@werner.exp-math.uni-essen.de>
+Message-ID: <Pine.LNX.4.30.0103291844530.21682-100000@fs131-224.f-secure.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guest section DW <dwguest@win.tue.nl>:
-> 
-> On Thu, Mar 29, 2001 at 01:02:38PM +0100, Sean Hunter wrote:
-> 
-> > The reason the aero engineers don't need to select a passanger to throw out
-> > when the plane is overloaded is simply that the plane operators do not allow
-> > the plane to become overloaded.
-> 
-> Yes. But today Linux willing overcommits. It would be better if
-> the default was not to.
 
-Preferably, the default should be a configure option, with runtime
-alterations.
+On Thu, 29 Mar 2001, Dr. Michael Weller wrote:
 
-> > Furthermore, why do you suppose an aeroplane has more than one altimeter,
-> > artifical horizon and compass?  Do you think it's because they are unable to
-> > make one of each that is reliable?  Or do you think its because they are
-> > concerned about what happens if one fails _however unlikely that is_.
-> 
-> Unix V6 did not overcommit, and panicked if is was out of swap
-> because that was a cannot happen situation.
+> Applications forking and then dirtying their shared data pages
+> madly? OOps.. nothing.. Why? It cannot be done!
 
-Ummm... no. The user got "ENOMEM" or "insufficient memory for fork", or
-"swap error". The system didn't panic unless there was an I/O error on
-the swap device.
+In eager mode Solaris, Tru64, Irix, non-overcommit patch for Linux by
+Eduardo Horvath from last year can do (you get ENOMEM at fork).
 
-> If you argue that we must design things so that there is no overcommit
-> and still have an OOM killer just in case, I have no objections at all.
+	Szaka
 
-good.
-
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.

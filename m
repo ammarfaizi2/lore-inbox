@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbVBBHu1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbVBBHwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261946AbVBBHu1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 02:50:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262082AbVBBHu1
+	id S261976AbVBBHwb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 02:52:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262082AbVBBHwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 02:50:27 -0500
-Received: from ns.intellilink.co.jp ([61.115.5.249]:53210 "HELO
-	ns.intellilink.co.jp") by vger.kernel.org with SMTP id S261946AbVBBHuV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 02:50:21 -0500
-Message-ID: <4200861B.7040807@intellilink.co.jp>
-Date: Wed, 02 Feb 2005 16:49:47 +0900
-From: Koichi Suzuki <koichi@intellilink.co.jp>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: Itsuro Oda <oda@valinux.co.jp>
-Cc: ebiederm@xmission.com, Vivek Goyal <vgoyal@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, fastboot <fastboot@lists.osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, Maneesh Soni <maneesh@in.ibm.com>,
-       Hariprasad Nellitheertha <hari@in.ibm.com>,
-       suparna bhattacharya <suparna@in.ibm.com>
-Subject: Re: [Fastboot] [PATCH] Reserving backup region for kexec based crashdumps.
-References: <1107271039.15652.839.camel@2fwv946.in.ibm.com> <m13bwgb8tb.fsf@ebiederm.dsl.xmission.com> <20050202154926.18D4.ODA@valinux.co.jp>
-In-Reply-To: <20050202154926.18D4.ODA@valinux.co.jp>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 2 Feb 2005 02:52:31 -0500
+Received: from wproxy.gmail.com ([64.233.184.205]:41612 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261976AbVBBHwV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 02:52:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=suru5A6SS/uwhBMoZUpLp6BfvHtQBi14d5uyUEuuj65tPiyl2JppTBJPRNlJ2y9+P1CS6Zbe4AQohBm4gCA9zTV9UpSeHkDnJRrXM+WSbSM0nyyGTswQ8UM/QADk6Xd2Xqp3ERMWsKbh4VYoOk9z0/iL+AKDkgt/VXxUTenJVao=
+Message-ID: <84144f02050201235257d0ec1c@mail.gmail.com>
+Date: Wed, 2 Feb 2005 09:52:18 +0200
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: "pmarques@grupopie.com" <pmarques@grupopie.com>
+Subject: Re: [PATCH 2.6] 4/7 replace uml_strdup by kstrdup
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, penberg@cs.helsinki.fi
+In-Reply-To: <1107228511.41fef75f4a296@webmail.grupopie.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <1107228511.41fef75f4a296@webmail.grupopie.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Itsuro Oda wrote:
-> Hi,
-> 
-> I can't understand why ELF format is necessary.
-> 
-> I think the only necessary information is "what physical address 
-> regions are valid to read". This information is necessary for any
-> sort of dump tools. (and must get it while the system is normal.)
-> The Eric's /proc/cpumem idea sounds nice to me. 
-> 
+On Tue,  1 Feb 2005 03:28:31 +0000, pmarques@grupopie.com
+<pmarques@grupopie.com> wrote:
+> diff -buprN -X dontdiff vanilla-2.6.11-rc2-bk9/arch/um/os-Linux/drivers/tuntap_user.c linux-2.6.11-rc2-bk9/arch/um/os-Linux/drivers/tuntap_user.c
+> --- vanilla-2.6.11-rc2-bk9/arch/um/os-Linux/drivers/tuntap_user.c       2004-12-24 21:35:40.000000000 +0000
+> +++ linux-2.6.11-rc2-bk9/arch/um/os-Linux/drivers/tuntap_user.c 2005-01-31 20:39:08.591154025 +0000
 
-I agree.  Format conversion should be done in healthy system separately 
-and we should restrict what to do while taking the dump as few as 
-possible.  Conversion from just memory image to crash/lcrash format will 
-be very useful to use existing tools and experiences.   I already have 
-such tool and (if my administration allows) I can make such tool open. 
-Let me do some paperwork.
+[snip]
 
-Koichi Suzuki
-NTT DATA Intellilink
+> -               pri->dev_name = uml_strdup(buffer);
+> +               pri->dev_name = kstrdup(buffer);
+
+Please compile-test before submitting.
+
+                           Pekka

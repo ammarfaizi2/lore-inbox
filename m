@@ -1,62 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132220AbRDNQfh>; Sat, 14 Apr 2001 12:35:37 -0400
+	id <S132482AbRDNRZq>; Sat, 14 Apr 2001 13:25:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132482AbRDNQfR>; Sat, 14 Apr 2001 12:35:17 -0400
-Received: from proxyd.rim.net ([206.51.26.194]:64420 "HELO mhs99ykf.rim.net")
-	by vger.kernel.org with SMTP id <S132220AbRDNQfE>;
-	Sat, 14 Apr 2001 12:35:04 -0400
-Message-ID: <A9FD1B186B99D4119BCC00D0B75B4D8107F45B05@xch01ykf.rim.net>
-From: Aaron Lunansky <alunansky@rim.net>
-To: "'arthur-p@home.com'" <arthur-p@home.com>,
-        "'axboe@suse.de'" <axboe@suse.de>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'jgarzik@mandrakesoft.com'" <jgarzik@mandrakesoft.com>
-Subject: Re: loop problems continue in 2.4.3
-Date: Sat, 14 Apr 2001 12:31:49 -0400
+	id <S132483AbRDNRZg>; Sat, 14 Apr 2001 13:25:36 -0400
+Received: from d215.as5200.mesatop.com ([208.164.122.215]:24456 "HELO
+	gopnik.dom-duraki") by vger.kernel.org with SMTP id <S132482AbRDNRZ1>;
+	Sat, 14 Apr 2001 13:25:27 -0400
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+Date: Sat, 14 Apr 2001 11:24:54 -0600
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.3-ac6 config options with no Configure.help text.
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Message-Id: <01041411245400.00878@gopnik.dom-duraki>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you're intent on making it oops why not write a script to mount/unmount
-it repeatedly?
+As of kernel 2.4.3-ac6, there are 575 config options which have no help text in Configure.help.
 
+Here is a list of these items which have been introduced recently, after 2.4.3-ac1.
 
-Regards,
-Aaron
+Each group is incremental, versus 2.4.3-ac[n-1].
 
+If you see one of your options here, please consider generating a patch for Configure.help,
+or send me the information and I'll do the rest.
 
------Original Message-----
-From: Arthur Pedyczak <arthur-p@home.com>
-To: Jens Axboe <axboe@suse.de>
-CC: Linux kernel list <linux-kernel@vger.kernel.org>; Jeff Garzik
-<jgarzik@mandrakesoft.com>
-Sent: Sat Apr 14 08:46:49 2001
-Subject: Re: loop problems continue in 2.4.3
+A status of "acknowledged" means that the item is being worked on by the person named or
+their designate or the patch has been submitted but hasn't yet appeared in an -ac release.  
 
-On Sat, 14 Apr 2001, Jens Axboe wrote:
+Thank you to the maintainers who have responded.
 
-[ SNIP..................]
-> > =====================
-> > Apr 13 20:50:03 cs865114-a kernel: Unable to handle kernel paging
-request at virtual address 7e92bfd7
->
-> Please disable syslog decoding (it sucks) and feed it through ksymoops
-> instead.
->
-> In other words, reproduce and dmesg | ksymoops instead.
->
->
-I tried to reproduce the error this morning and couldn't. Same kernel
-(2.4.3), same setup, same iso file. It mounted/unmounted 10 times with no
-problem. DOn't know what to think.
+Thanks in advance,
+Steven
 
-Arthur
+2.4.3-ac6
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+        CONFIG_AIC7XXX_BUILD_FIRMWARE
+
+2.4.3-ac5
+
+        CONFIG_IA64_EFIVARS                             acknowledged    Matt Domsch
+        CONFIG_ITANIUM
+        CONFIG_MCKINLEY
+        CONFIG_MCKINLEY_A0_SPECIFIC
+        CONFIG_MCKINLEY_ASTEP_SPECIFIC
+
+2.4.3-ac4
+
+        CONFIG_ARCH_CLPS711X
+        CONFIG_ARCH_P720T
+        CONFIG_ARM_THUMB
+        CONFIG_CPU_ARM1020
+        CONFIG_CPU_ARM610                               acknowledged    Russell King
+        CONFIG_CPU_ARM710                               acknowledged    Russell King
+        CONFIG_CPU_ARM720T                              acknowledged    Russell King
+        CONFIG_CPU_ARM920T                              acknowledged    Russell King
+        CONFIG_CPU_SA110                                acknowledged    Russell King
+        CONFIG_DASD_DIAG
+        CONFIG_DEBUG_CLPS711X_UART2
+        CONFIG_DEBUGSYM
+        CONFIG_GCOV
+        CONFIG_GPROF
+        CONFIG_HOSTFS
+        CONFIG_NET_UM_ETH
+        CONFIG_NET_UMN
+        CONFIG_SA1100_PANGOLIN
+        CONFIG_SA1100_SHERMAN
+        CONFIG_SSL
+
+2.4.3-ac3
+
+        none
+
+2.4.3-ac2
+
+        CONFIG_GEMINI

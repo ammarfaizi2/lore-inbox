@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263646AbTJaV7c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 16:59:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263647AbTJaV7c
+	id S263638AbTJaVwc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 16:52:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263642AbTJaVwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 16:59:32 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32779 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263646AbTJaV7b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 16:59:31 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@transmeta.com (H. Peter Anvin)
-Subject: Re: initrd help -- umounts root after pivot_root
-Date: 31 Oct 2003 13:59:09 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <bnulvd$fps$1@cesium.transmeta.com>
-References: <1067604362.5526.15.camel@tweedy.ksc.nasa.gov>
+	Fri, 31 Oct 2003 16:52:32 -0500
+Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:46857 "EHLO
+	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id S263638AbTJaVwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 16:52:31 -0500
+From: Chris Vine <chris@cvine.freeserve.co.uk>
+To: Rik van Riel <riel@redhat.com>
+Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
+Date: Fri, 31 Oct 2003 21:52:17 +0000
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>
+References: <Pine.LNX.4.44.0310302256110.22312-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0310302256110.22312-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310312152.17834.chris@cvine.freeserve.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	From: H. Peter Anvin <hpa@zytor.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-X-Comment-To: Bob Chiodini <robert.chiodini-1@ksc.nasa.gov>
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+On Friday 31 October 2003 3:57 am, Rik van Riel wrote:
+> On Wed, 29 Oct 2003, Chris Vine wrote:
+> > However, on a low end machine (200MHz Pentium MMX uniprocessor with only
+> > 32MB of RAM and 70MB of swap) I get poor performance once extensive use
+> > is made of the swap space.
+>
+> Could you try the patch Con Kolivas posted on the 25th ?
+>
+> Subject: [PATCH] Autoregulate vm swappiness cleanup
 
-Followup to:  <1067604362.5526.15.camel@tweedy.ksc.nasa.gov>
-By author:    Bob Chiodini <robert.chiodini-1@ksc.nasa.gov>
-In newsgroup: linux.dev.kernel
-> 
-> John,
-> 
-> It does not appear that the kernel(s) will support the root fs on
-> tmpfs.  Looking through the init kernel code:  It boils down to a block
-> device with real major and minor number or NFS.
-> 
+I will do that over the weekend and report back.
 
-Baloney.  See the SuperRescue CD, for example, for a distro which uses
-exactly this.
+Chris.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-If you send me mail in HTML format I will assume it's spam.
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

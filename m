@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264537AbTFTTnH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 15:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbTFTTnH
+	id S264538AbTFTTsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 15:48:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264539AbTFTTsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 15:43:07 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:29648 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S264537AbTFTTnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 15:43:04 -0400
-Date: Fri, 20 Jun 2003 21:56:58 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, jmorris@intercode.com.au,
-       dwmw2@infradead.org
-Subject: Re: [RFC] Breaking data compatibility with userspace bzlib
-Message-ID: <20030620195658.GB22732@wohnheim.fh-wedel.de>
-References: <20030620185915.GD28711@wohnheim.fh-wedel.de> <20030620.124510.28800472.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030620.124510.28800472.davem@redhat.com>
-User-Agent: Mutt/1.3.28i
+	Fri, 20 Jun 2003 15:48:25 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:13262 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S264538AbTFTTsY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 15:48:24 -0400
+Date: Fri, 20 Jun 2003 16:59:58 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: stoffel@lucent.com, gibbs@scsiguy.com, linux-kernel@vger.kernel.org,
+       willy@w.ods.org, green@namesys.com
+Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
+In-Reply-To: <20030618130533.1f2d7205.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.55L.0306201658210.2607@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
+ <2804790000.1052441142@aslan.scsiguy.com> <20030509120648.1e0af0c8.skraw@ithnet.com>
+ <20030509120659.GA15754@alpha.home.local> <20030509150207.3ff9cd64.skraw@ithnet.com>
+ <41560000.1055306361@caspian.scsiguy.com> <20030611222346.0a26729e.skraw@ithnet.com>
+ <16103.39056.810025.975744@gargle.gargle.HOWL> <20030613114531.2b7235e7.skraw@ithnet.com>
+ <Pine.LNX.4.55L.0306171744280.10802@freak.distro.conectiva>
+ <20030618130533.1f2d7205.skraw@ithnet.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 June 2003 12:45:10 -0700, David S. Miller wrote:
->    From: Jörn Engel <joern@wohnheim.fh-wedel.de>
->    Date: Fri, 20 Jun 2003 20:59:15 +0200
->    
->    The whole interface of the bzlib was modelled after the zlib
->    interface.
-> 
-> The zlib interface is actually problematic, it doesn't allow
-> handling of scatter-gather lists on input or output for example.
-> 
-> Therefore we couldn't make the compress cryptolib interface
-> take scatterlists elements either, which is a huge problem.
 
-Is there a reason to use the zlib and nothing but the zlib for the
-cryptolib?  RFCs 1950 - 1952?  Or would any form of compression do, in
-principle at least?
 
-In the worst case, I consider it not too hard to add a wrapper
-interface to the zlib to do the scatter-gather handling.  Actually
-going deeply into the guts of the zlib is not good for a kernel
-hackers sanity though.  The massive use of macros with magic knowledge
-of the surrounding functions is - well - interesting.
+On Wed, 18 Jun 2003, Stephan von Krawczynski wrote:
 
-Jörn
+> On Tue, 17 Jun 2003 17:47:02 -0300 (BRT)
+> Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+>
+> >
+> >
+> > On Fri, 13 Jun 2003, Stephan von Krawczynski wrote:
+> >
+> > > Hello all,
+> > >
+> > > this is the second day of stress-testing pure rc8 in SMP, apic mode. Today
+> > > everything is fine, no freeze, no data corruption.
+> > >
+> > > current standings:
+> > >
+> > > 2 days continuous test, one file data corruption on day 1
+> >
+> >
+> > What kind of data corruption and what tests are you doing ? (sorry if you
+> > already mentionad that on the list)
+>
+> Todays score:
+>
+> 7 days continuous test
+> one file data corruption on day 1
+> one file data corruption on day 4
+> two file data corruptions on day 6
+>
+> Test is performed as follows:
+>
+> around 70-100 GB of data is transferred to a nfs-server with rc8 onto a
+> RAID5 on 3ware-controller. The data is then copied via tar onto a SDLT
+> drive connected to an aic controller. Afterwards the data is verified by
+> tar.
 
--- 
-If you're willing to restrict the flexibility of your approach,
-you can almost always do something better.
--- John Carmack
+So the data is intact when it arrives on the 3ware and gets corrupted
+on the write to the tape?
+

@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265789AbUGTLSx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265792AbUGTLVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265789AbUGTLSx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 07:18:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265792AbUGTLSx
+	id S265792AbUGTLVX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 07:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUGTLVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 07:18:53 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:28152 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S265789AbUGTLSu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 07:18:50 -0400
-Date: Tue, 20 Jul 2004 13:18:38 +0200 (MEST)
-Message-Id: <200407201118.i6KBIc1w021602@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: akpm@osdl.org
-Subject: [PATCH][2.6.8-rc1-mm1] perfctr x86 init bug
-Cc: linux-kernel@vger.kernel.org
+	Tue, 20 Jul 2004 07:21:22 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:60059 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S265792AbUGTLVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 07:21:19 -0400
+MIME-Version: 1.0
+Date: Tue, 20 Jul 2004 20:21:14 +0900
+Subject: [PATCH] ia64 memory hotplug for hugetlbpages [3/4]
+From: Nobuhiko Yoshida <n-yoshida@pst.fujitsu.com>
+To: linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
+Message-ID: <JJ2004072020211410.33403984@pst.fujitsu.com>
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
+X-Mailer: JsvMail 5.5 (Shuriken Pro3)
+X-Priority: 3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+I'm sorry. There is no [4/4] patch.
+This is a last of patches.
 
-This patch fixes a bug in perfctr's x86 driver, which
-can cause it to clear one of the counter control registers
-at driver initialisation time. At this point the HW is
-either free or owned by the lapic NMI watchdog. In the
-former case the bug is harmless, but in the latter case
-the effect on P6 and AMD is that the watchdog stops ticking.
 
-Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
 
- drivers/perfctr/x86.c      |    2 +-
- include/asm-i386/perfctr.h |    9 ++++++++-
- 2 files changed, 9 insertions(+), 2 deletions(-)
-
-diff -ruN linux-2.6.8-rc1-mm1/drivers/perfctr/x86.c linux-2.6.8-rc1-mm1.stray-wrmsr-fix/drivers/perfctr/x86.c
---- linux-2.6.8-rc1-mm1/drivers/perfctr/x86.c	2004-07-19 18:26:57.000000000 +0200
-+++ linux-2.6.8-rc1-mm1.stray-wrmsr-fix/drivers/perfctr/x86.c	2004-07-19 18:39:08.792750000 +0200
-@@ -1142,7 +1142,7 @@
- 	memset(&state, 0, sizeof state);
- 	state.cstatus =
- 		(perfctr_info.cpu_features & PERFCTR_FEATURE_PCINT)
--		? perfctr_mk_cstatus(0, 0, 1)
-+		? __perfctr_mk_cstatus(0, 1, 0, 0)
- 		: 0;
- 	perfctr_cpu_sample(&state);
- 	perfctr_cpu_resume(&state);
-diff -ruN linux-2.6.8-rc1-mm1/include/asm-i386/perfctr.h linux-2.6.8-rc1-mm1.stray-wrmsr-fix/include/asm-i386/perfctr.h
---- linux-2.6.8-rc1-mm1/include/asm-i386/perfctr.h	2004-07-19 18:26:57.000000000 +0200
-+++ linux-2.6.8-rc1-mm1.stray-wrmsr-fix/include/asm-i386/perfctr.h	2004-07-19 18:39:08.802750000 +0200
-@@ -73,10 +73,17 @@
-    which should have less overhead in most cases */
- 
- static inline
-+unsigned int __perfctr_mk_cstatus(unsigned int tsc_on, unsigned int have_ictrs,
-+				  unsigned int nrictrs, unsigned int nractrs)
-+{
-+	return (tsc_on<<31) | (have_ictrs<<16) | ((nractrs+nrictrs)<<8) | nractrs;
-+}
+diff -dupr linux-2.6.7/arch/ia64/mm/hugetlbpage.c linux-2.6.7-REMAP/arch/ia64/mm/hugetlbpage.c
+--- linux-2.6.7/arch/ia64/mm/hugetlbpage.c  2004-07-09 16:37:31.000000000 +0900
++++ linux-2.6.7-REMAP/arch/ia64/mm/hugetlbpage.c    2004-07-09 16:49:34.000000000 +0900
+@@ -372,6 +372,15 @@ again:
+            goto again;
+        }
+    }
 +
-+static inline
- unsigned int perfctr_mk_cstatus(unsigned int tsc_on, unsigned int nractrs,
- 				unsigned int nrictrs)
- {
--	return (tsc_on<<31) | (nrictrs<<16) | ((nractrs+nrictrs)<<8) | nractrs;
-+	return __perfctr_mk_cstatus(tsc_on, nrictrs, nrictrs, nractrs);
- }
- 
- static inline unsigned int perfctr_cstatus_enabled(unsigned int cstatus)
++   if (page->mapping == NULL) {
++       BUG_ON(! PageAgain(page));
++       /* This page will go back to freelists[] */
++       put_page(page); /* XXX */
++       unlock_page(page);
++       goto again;
++   }
++
+    if (pte_none(*pte)) {
+        set_huge_pte(mm, vma, page, pte, vma->vm_flags & VM_WRITE);
+        page_add_file_rmap(page);

@@ -1,88 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136571AbREAFGR>; Tue, 1 May 2001 01:06:17 -0400
+	id <S136576AbREAFUD>; Tue, 1 May 2001 01:20:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136575AbREAFGI>; Tue, 1 May 2001 01:06:08 -0400
-Received: from pc-62-30-76-3-az.blueyonder.co.uk ([62.30.76.3]:12804 "EHLO
-	mnemosyne.j-harris.dircon.co.uk") by vger.kernel.org with ESMTP
-	id <S135903AbREAFF7>; Tue, 1 May 2001 01:05:59 -0400
-Date: Tue, 1 May 2001 06:06:07 +0100 (GMT Daylight Time)
-From: Jamie Harris <jamie.harris@uwe.ac.uk>
-To: <linux-kernel@vger.kernel.org>, Bristol LUG <bristol@lists.lug.org.uk>,
-        <linux-admin@vger.kernel.org>
-Subject: More!! Kernel NULL pointer, over my head...
-In-Reply-To: <Pine.WNT.4.33.0105010538140.-1864577-100000@proteus.j-harris.dircon.co.uk>
-Message-ID: <Pine.WNT.4.33.0105010601460.-1864577-100000@proteus.j-harris.dircon.co.uk>
-X-X-Sender: j-harris@mercury.uwe.ac.uk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136577AbREAFTx>; Tue, 1 May 2001 01:19:53 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:40566 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S136576AbREAFTp>; Tue, 1 May 2001 01:19:45 -0400
+Date: Tue, 1 May 2001 07:18:49 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Peter Osterlund <peter.osterlund@mailbox.swipnet.se>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
+        "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.4 sluggish under fork load
+Message-ID: <20010501071849.A16474@athlon.random>
+In-Reply-To: <20010430195149.F19620@athlon.random> <Pine.LNX.4.21.0104302335490.19012-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0104302335490.19012-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Mon, Apr 30, 2001 at 11:38:23PM -0300
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK...
+On Mon, Apr 30, 2001 at 11:38:23PM -0300, Rik van Riel wrote:
+> On Mon, 30 Apr 2001, Andrea Arcangeli wrote:
+> > On Sun, Apr 29, 2001 at 10:26:57AM +0200, Peter Osterlund wrote:
+> 
+> > > -	p->counter = current->counter;
+> > > -	current->counter = 0;
+> > > +	p->counter = (current->counter + 1) >> 1;
+> > > +	current->counter >>= 1;
+> > > +	current->policy |= SCHED_YIELD;
+> > >  	current->need_resched = 1;
+> > 
+> > please try to reproduce the bad behaviour with 2.4.4aa2. There's a bug
+> > in the parent-timeslice patch in 2.4 that I fixed while backporting it
+> > to 2.2aa and that I now forward ported the fix to 2.4aa. The fact
+> > 2.4.4 gives the whole timeslice to the child just gives more light to
+> > such bug.
+> 
+> The fact that 2.4.4 gives the whole timeslice to the child
+> is just bogus to begin with.
+> 
+> The problem people tried to solve was "make sure the kernel
+> runs the child first after a fork", this has just about
+> NOTHING to do with how the timeslice is distributed.
+> 
+> Now, since we are in a supposedly stable branch of the kernel,
+> why mess with the timeslice distribution between parent and
+> child?  The timeslice distribution that has worked very well
+> for the last YEARS...
 
-a 'tar xvfz myFile.tar.gz' results in the following in /var/log/syslog
+I'm running with this below patch applied since a some time (I didn't
+submitted it because for some reason unless I do p->policy &=
+~SCHED_YIELD ksoftirqd deadlocks at boot and I didn't yet investigated
+why, and I'd like to have the whole picture on it first):
 
-May  1 05:58:11 mnemosyne kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000000
-May  1 05:58:11 mnemosyne kernel: current->tss.cr3 = 01e55000, %cr3 =
-01e55000
-May  1 05:58:11 mnemosyne kernel: *pde = 00000000
+diff -urN z/include/linux/sched.h z1/include/linux/sched.h
+--- z/include/linux/sched.h	Mon Apr 30 04:22:25 2001
++++ z1/include/linux/sched.h	Mon Apr 30 02:45:07 2001
+@@ -301,7 +301,7 @@
+  * all fields in a single cacheline that are needed for
+  * the goodness() loop in schedule().
+  */
+-	int counter;
++	volatile int counter;
+ 	int nice;
+ 	unsigned int policy;
+ 	struct mm_struct *mm;
+diff -urN z/kernel/fork.c z1/kernel/fork.c
+--- z/kernel/fork.c	Mon Apr 30 04:22:25 2001
++++ z1/kernel/fork.c	Mon Apr 30 03:49:26 2001
+@@ -666,17 +666,17 @@
+ 	p->pdeath_signal = 0;
+ 
+ 	/*
+-	 * Give the parent's dynamic priority entirely to the child.  The
+-	 * total amount of dynamic priorities in the system doesn't change
+-	 * (more scheduling fairness), but the child will run first, which
+-	 * is especially useful in avoiding a lot of copy-on-write faults
+-	 * if the child for a fork() just wants to do a few simple things
+-	 * and then exec(). This is only important in the first timeslice.
+-	 * In the long run, the scheduling behavior is unchanged.
++	 * Scheduling the child first is especially useful in avoiding a
++	 * lot of copy-on-write faults if the child for a fork() just wants
++	 * to do a few simple things and then exec().
+ 	 */
+-	p->counter = current->counter;
+-	current->counter = 0;
+-	current->need_resched = 1;
++	{
++		int counter = current->counter >> 1;
++		current->counter = p->counter = counter;
++		p->policy &= ~SCHED_YIELD;
++		current->policy |= SCHED_YIELD;
++		current->need_resched = 1;
++	}
+ 	/* Tell the parent if it can get back its timeslice when child exits */
+ 	p->get_child_timeslice = 1;
+ 
 
-however this time I'm using a different file.  I can however sucessfully
-do the following
-	gzip -d ; tar xvf myFile.tar.gz
+The only point of my previous email is that if a fork loop has very
+invasive effect on the rest of the system that more probably indicates
+people got bitten by the bug in the parent-timeslice logic, furthmore I
+never noticed any sluggish behaviour on my systems and before posting my
+previous email I had 1 definitive feedback that the bad beahviour
+observed on vanilla 2.4.4 with parallel compiles in the background got
+cured *completly* by my tree (that in the tested revision didn't
+included the above inlined change yet). So I thought it was worth
+mentioning about the effect of the parent-timeslice bugfix here too.
+This doesn't mean I don't want something like the above inlined patch
+integrated.
 
-Don't know if that gives anyone any hints...  I haven't changed any
-software on the system recently so I don't think it can be a bad tar or
-gzip binary.  I get the same for root and non-privileged users.
-
-thanks again.
-
-Jamie...
-
-On Tue, 1 May 2001, Jamie Harris wrote:
-
-> Morning all,
->
-> Sorry for the big cross post but I don't have the first clue about where
-> to send this one.  I get this from my stock 2.2.18 kernel in
-> /var/log/syslog:
->
-> May  1 05:27:36 mnemosyne kernel: Unable to handle kernel NULL pointer
-> dereference at virtual address 00000000
-> May  1 05:27:36 mnemosyne kernel: current->tss.cr3 = 00362000, %cr3 =
-> 00362000
-> May  1 05:27:36 mnemosyne kernel: *pde = 00000000
-> May  1 05:29:36 mnemosyne kernel: Unable to handle kernel NULL pointer
-> dereference at virtual address 00000000
-> May  1 05:29:36 mnemosyne kernel: current->tss.cr3 = 036dc000, %cr3 =
-> 036dc000
-> May  1 05:29:36 mnemosyne kernel: *pde = 00000000
-> May  1 05:30:28 mnemosyne kernel: Unable to handle kernel NULL pointer
-> dereference at virtual address 00000000
-> May  1 05:30:28 mnemosyne kernel: current->tss.cr3 = 00ca7000, %cr3 =
-> 00ca7000
-> May  1 05:30:28 mnemosyne kernel: *pde = 00000000
->
->
-> This time it seemed to be caused by running tar on a file, but I've
-> noticed a similar error in the past but they've never made anything fall
-> over.  The tar process appeared to die but then again so did the telnet
-> session so I don't know in what order they went down.  I tried 3 times
-> just to check it wasn't a fluke...  What other details would be useful??
->
-> Cheers Jamie...
->
-> PS I'm not on the linux-kernel list so please post to me directly...
-
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
- ***    Slowly and surely the UNIX crept up on the Nintendo user...    ***
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1
-GCS/ED d-(++) s:+ a- C+++>++++$ U+++>$ P++++ L+++>+++++ E+(---) W++ N o?
-K? w(++++) O- M V? PS PE? Y PGP- t+ 5 X- R- tv- b++ DI++ D+++ G e++ h*
-r++>+++ y+++
-------END GEEK CODE BLOCK------
-
+Andrea

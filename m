@@ -1,68 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289384AbSAODVl>; Mon, 14 Jan 2002 22:21:41 -0500
+	id <S289386AbSAODWW>; Mon, 14 Jan 2002 22:22:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289385AbSAODVb>; Mon, 14 Jan 2002 22:21:31 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2574 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289384AbSAODV1>;
-	Mon, 14 Jan 2002 22:21:27 -0500
-Date: Tue, 15 Jan 2002 03:21:26 +0000
-From: Joel Becker <jlbec@evilplan.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Joel Becker <jlbec@evilplan.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] O_DIRECT with hardware blocksize alignment
-Message-ID: <20020115032126.F1929@parcelfarce.linux.theplanet.co.uk>
-Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
-	Andrea Arcangeli <andrea@suse.de>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020109195606.A16884@parcelfarce.linux.theplanet.co.uk> <20020112133122.I1482@inspiron.school.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020112133122.I1482@inspiron.school.suse.de>; from andrea@suse.de on Sat, Jan 12, 2002 at 01:31:22PM +0100
-X-Burt-Line: Trees are cool.
+	id <S289388AbSAODWM>; Mon, 14 Jan 2002 22:22:12 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:55301 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S289386AbSAODV5>; Mon, 14 Jan 2002 22:21:57 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 14 Jan 2002 19:27:44 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Ed Tomlinson <tomlins@cam.org>
+cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
+        Dave Jones <davej@suse.de>
+Subject: Re: [patch] O(1) scheduler-H6/H7 and nice +19
+In-Reply-To: <20020115031905.01B0624AC1@oscar.casa.dyndns.org>
+Message-ID: <Pine.LNX.4.40.0201141927090.934-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 12, 2002 at 01:31:22PM +0100, Andrea Arcangeli wrote:
-> On Wed, Jan 09, 2002 at 07:56:07PM +0000, Joel Becker wrote:
-> > min(I/O alignment, s_blocksize) is used as the effective
-> > blocksize.  eg:
-> > 
-> > I/O alignment	s_blocksize	final blocksize
-> > 8192		4096		4096
-> > 4096		4096		4096
-> > 512		4096		512
-> 
-> this falls in the same risky category of the vary-I/O patch from Badari
-> (check the discussion on l-k) for rawio, so to make it safe it also will
+On Mon, 14 Jan 2002, Ed Tomlinson wrote:
 
-	How so?  All I/O is at the computed blocksize.  In every
-request, the size of each I/O in the kiovec is the same.  The
-computation is done upon entrance to generic_file_direct_IO, and it is
-kept that way.  You don't have bh[0]->b_size = 512; bh[1]->b_size =
-4096;
-	Hmm, maybe you mean things like that rumoured 3-ware issue.  I
-dunno.  I do know that this code seems to work just fine with ide,
-aha7xxx, and the qlogic driver.  Certain software really wants to use
-O_DIRECT, and they align I/O on 512byte boundaries.  So any scheme that
-fails this when it doesn't have to is a problem.
+> On January 14, 2002 09:33 pm, Davide Libenzi wrote:
+> > try to replace :
+> >
+> > PRIO_TO_TIMESLICE() and RT_PRIO_TO_TIMESLICE() with :
+> >
+> > #define NICE_TO_TIMESLICE(n)    (MIN_TIMESLICE + ((MAX_TIMESLICE - \
+> > 	MIN_TIMESLICE) * ((n) + 20)) / 39)
+> >
+> >
+> > NICE_TO_TIMESLICE(p->__nice)
+>
+> Not sure about this change.  gkrellm shows the compile getting about 40%
+> cpu.  Best result here seems to be with a larger range of timeslices.  ie
+> 1-15 ((10*HZ)/1000...) instead lets the compile get 80% of the cpu.  wonder
+> if this might be the way to go?
 
-> aligned I/O, but still large I/O) So I suggest you to check Badari's
-> stuff and the thread on l-k and to make a new patch incremental with his
+What's the MIN/MAX_TIMESLICE range that you used to get 80% of cpu ?
 
-	I've added myself to that thread as well.
 
-Joel
 
--- 
 
-"Vote early and vote often." 
-        - Al Capone
+- Davide
 
-			http://www.jlbec.org/
-			jlbec@evilplan.org
+

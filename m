@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263141AbSJFAr4>; Sat, 5 Oct 2002 20:47:56 -0400
+	id <S263136AbSJFArG>; Sat, 5 Oct 2002 20:47:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263155AbSJFArz>; Sat, 5 Oct 2002 20:47:55 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:215 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S263141AbSJFArx>; Sat, 5 Oct 2002 20:47:53 -0400
-Date: Sat, 5 Oct 2002 21:53:17 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Ben Collins <bcollins@debian.org>
-cc: Larry McVoy <lm@work.bitmover.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: New BK License Problem?
-In-Reply-To: <20021006003217.GD585@phunnypharm.org>
-Message-ID: <Pine.LNX.4.44L.0210052152390.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263141AbSJFArG>; Sat, 5 Oct 2002 20:47:06 -0400
+Received: from holomorphy.com ([66.224.33.161]:6100 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S263136AbSJFArF>;
+	Sat, 5 Oct 2002 20:47:05 -0400
+Date: Sat, 5 Oct 2002 17:50:48 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Gigi Duru <giduru@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: The end of embedded Linux?
+Message-ID: <20021006005048.GH10722@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Zwane Mwaikambo <zwane@linuxpower.ca>, Gigi Duru <giduru@yahoo.com>,
+	linux-kernel@vger.kernel.org
+References: <20021005193650.17795.qmail@web13202.mail.yahoo.com> <Pine.LNX.4.44.0210052039480.20917-100000@montezuma.mastecende.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0210052039480.20917-100000@montezuma.mastecende.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Oct 2002, Ben Collins wrote:
+On Sat, 5 Oct 2002, Gigi Duru wrote:
+>> Trivial experiment: configure out _ALL_ the options on
+>> 2.5.38 and build bzImage. My result? A totally useless
+>> 270KB kernel (compressed). 
 
-> > ftp://nl.linux.org/pub/linux/bk2patch/
->
-> Oh, but that may be useless, unless you regenerate your patches whenever
-> the tree is reparented. I ran into this while trying to do the same
-> thing. Basing it on the ChangeSet ID is a waste, and it needs to be
-> based on the ChangeSet key instead (the ChangeSet ID for a given key can
-> change when a merge is done).
+On Sat, Oct 05, 2002 at 08:41:25PM -0400, Zwane Mwaikambo wrote:
+> You didn't configure it properly...
+> http://function.linuxpower.ca/dmesg-386-2.4.txt
+> 	Zwane
 
-Good point.  I'll need to look at this more closely...
+I actually find this relatively disturbing:
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+Memory: 2584k/4352k available (881k kernel code, 1380k reserved, 171k data, 56k
+init, 0k hi)
 
-http://www.surriel.com/		http://distro.conectiva.com/
+To truly scale this far downward finding ways to use less than 40% of
+RAM on things allocated at or before boot-time seems necessary,
+especially trimming down that 881KB.
 
-Spamtraps of the month:  september@surriel.com trac@trac.org
+I'll have to apologize that it's unlikely I'll be able to take any
+direct action toward addressing this problem as my focus is elsewhere,
+but I consider this a valid and even important concern.
 
+
+Bill

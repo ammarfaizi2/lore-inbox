@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131836AbQLYQk3>; Mon, 25 Dec 2000 11:40:29 -0500
+	id <S131637AbQLYQn6>; Mon, 25 Dec 2000 11:43:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131637AbQLYQkL>; Mon, 25 Dec 2000 11:40:11 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:28420 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S131775AbQLYQjt>; Mon, 25 Dec 2000 11:39:49 -0500
-Date: Mon, 25 Dec 2000 17:09:14 +0100
-From: Martin Mares <mj@suse.cz>
-To: Marvin Stodolsky <stodolsk@rcn.com>
-Cc: linux-kernel@vger.kernel.org, Jacques.Goldberg@cern.ch,
-        Mark Spieth <mark@digivation.com.au>, Sean Walbran <sean@walbran.org>
-Subject: Re: BIOS problem, pro Microsoft, anti other OS
-Message-ID: <20001225170914.A15598@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <3A4769AC.F38B372C@rcn.com>
+	id <S131644AbQLYQns>; Mon, 25 Dec 2000 11:43:48 -0500
+Received: from cicero0.cybercity.dk ([212.242.40.52]:61202 "HELO
+	cicero0.cybercity.dk") by vger.kernel.org with SMTP
+	id <S131637AbQLYQne>; Mon, 25 Dec 2000 11:43:34 -0500
+Date: Mon, 25 Dec 2000 17:13:05 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Mohammad A. Haque" <mhaque@haque.net>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: test13-pre4... udf problem with dvd access vs test12
+Message-ID: <20001225171305.G303@suse.de>
+In-Reply-To: <3A47212D.F9F119C3@xmission.com> <3A476C7D.1952EDB4@haque.net> <3A477014.CE908BFC@haque.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <3A4769AC.F38B372C@rcn.com>; from stodolsk@rcn.com on Mon, Dec 25, 2000 at 10:37:16AM -0500
+Content-Disposition: inline
+In-Reply-To: <3A477014.CE908BFC@haque.net>; from mhaque@haque.net on Mon, Dec 25, 2000 at 11:04:36AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, Dec 25 2000, Mohammad A. Haque wrote:
+> Jens, I made sure to reverse the udf patch I mentioned in another thread
+> (all it really is merging changes from linux-udf cvs into the current
+> kernel). So this is from a clean test13-pre4 w/ some netfilter fixes.
 
-> This alert should probably be forwarded to Others, but appropriate
-> subTask persons in the kernel-source Maintainers list were not obvious.
-> 
-> Briefly, documented below is the fact/complications that some PC BIOS
-> chips are now coming with a default Microsoft setting, which makes them
-> hostile to some functionalities of other OS.  If particular under Linux,
-> a PCI Winmodem did NOT function with the Win98 BIOS setting, but did
-> fine  with BIOS choice "Other OS".  Possible, other PCI devices under
-> Linux OS might be simmilarly afflicated.
-> 
-> This indicates a need for Linux install software to be equipped with a
-> utility to probe the BIOS and report back "Linux hostile" BIOS
-> settings.  Today most Newbies are getting new PC boxes equipped with
-> WinModems.  Hostile BIOS settings will block their capability to get
-> on-line.  Unfortunately, I do not have the technical capablity to
-> directly contribute.  Thus please forward this alert to however may be
-> capable and concerned with dealing with the problem.
+Ok, looks unrelated however.
 
-Can you check what does Linux 2.4.0-test<latest> behave, please?
+> >>EIP; c019c017 <cdrom_log_sense+f/68>   <=====
 
-I know of these problems and I hope the new PCI code in 2.4.0 is able
-to assign the missing memory/IO resources without help of the BIOS, but
-unfortunately 2.2 isn't and it's very difficult to back-port the fixes
-as they depend on changes in many other parts of the kernel.
+Yes I know about this one, I've attached the patch here again. Linus,
+could you apply?
 
-You probably should make the ltmodem driver check the region base
-registers and interrupts and if they are not set, recommend the user to
-change the OS or PNP settings in their BIOS setup.
+--- drivers/ide/ide-cd.c~	Sat Dec 23 23:59:52 2000
++++ drivers/ide/ide-cd.c	Sun Dec 24 00:03:38 2000
+@@ -333,7 +333,7 @@
+ {
+ 	int log = 0;
+ 
+-	if (sense == NULL || pc->quiet)
++	if (sense == NULL || pc == NULL || pc->quiet)
+ 		return 0;
+ 
+ 	switch (sense->sense_key) {
 
-				Have a nice fortnight
 -- 
-Martin `MJ' Mares <mj@ucw.cz> <mj@suse.cz> http://atrey.karlin.mff.cuni.cz/~mj/
-First law of socio-genetics: Celibacy is not hereditary.
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,200 +1,216 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273449AbRINTEE>; Fri, 14 Sep 2001 15:04:04 -0400
+	id <S273456AbRINTDO>; Fri, 14 Sep 2001 15:03:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273455AbRINTDx>; Fri, 14 Sep 2001 15:03:53 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:40102 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S273449AbRINTDe>;
-	Fri, 14 Sep 2001 15:03:34 -0400
-Date: Fri, 14 Sep 2001 15:03:55 -0400 (EDT)
+	id <S273453AbRINTDG>; Fri, 14 Sep 2001 15:03:06 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:46757 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S273449AbRINTCv>;
+	Fri, 14 Sep 2001 15:02:51 -0400
+Date: Fri, 14 Sep 2001 15:03:12 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] lazy umount (4/4)
-In-Reply-To: <Pine.GSO.4.21.0109141502430.11172-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0109141503210.11172-100000@weyl.math.psu.edu>
+Subject: [PATCH] lazy umount (3/4)
+In-Reply-To: <Pine.GSO.4.21.0109141502090.11172-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0109141502430.11172-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Part 4/4:
-	Lazy umount itself. New functions - next_mnt() (walks the vfsmount
-tree) and umount_tree() (detach all mounts in a subtree and do mntput() on
-each vfsmonut there). do_umount() reorganized to use umount_tree() (if
-vfsmount is not busy, it can't have anything mounted on it, so umount_tree()
-does the right thing).  New flag to umount(2) - MNT_DETACH.  With that
-flag we call umount_tree() even if vfsmount is busy - i.e. we undo all
-mounts in a subtree and drop the references that pin vfsmounts down.
-As soon as they are not busy they will be deactivated (by mntput()).
+Part 3/4:
+	New function - check_mnt(). Checks that vfsmount is an ancestor
+of root_vfsmnt.  Calls added - since we are going to do lazy umount we
+should take care of mounting on something that is busy, but already umounted.
+Fixed leak in pivot_root(2)
 
-diff -urN S10-pre9-check_mnt/fs/super.c S10-pre9-lazy_umount/fs/super.c
---- S10-pre9-check_mnt/fs/super.c	Fri Sep 14 14:04:01 2001
-+++ S10-pre9-lazy_umount/fs/super.c	Fri Sep 14 14:04:28 2001
-@@ -356,6 +356,22 @@
- 	nd->dentry->d_mounted++;
+
+diff -urN S10-pre9-root_vfsmnt/fs/super.c S10-pre9-check_mnt/fs/super.c
+--- S10-pre9-root_vfsmnt/fs/super.c	Fri Sep 14 14:03:34 2001
++++ S10-pre9-check_mnt/fs/super.c	Fri Sep 14 14:04:01 2001
+@@ -327,6 +327,15 @@
+ 	return p;
  }
  
-+static struct vfsmount *next_mnt(struct vfsmount *p, struct vfsmount *root)
++static int check_mnt(struct vfsmount *mnt)
 +{
-+	struct list_head *next = p->mnt_mounts.next;
-+	if (next == &p->mnt_mounts) {
-+		while (1) {
-+			if (p == root)
-+				return NULL;
-+			next = p->mnt_child.next;
-+			if (next != &p->mnt_parent->mnt_mounts)
-+				break;
-+			p = p->mnt_parent;
-+		}
-+	}
-+	return list_entry(next, struct vfsmount, mnt_child);
++	spin_lock(&dcache_lock);
++	while (mnt->mnt_parent != mnt)
++		mnt = mnt->mnt_parent;
++	spin_unlock(&dcache_lock);
++	return mnt == root_vfsmnt;
 +}
 +
- static struct vfsmount *clone_mnt(struct vfsmount *old, struct dentry *root)
+ static void detach_mnt(struct vfsmount *mnt, struct nameidata *old_nd)
  {
- 	char *name = old->mnt_devname;
-@@ -1124,10 +1140,52 @@
- 	return 0;
+ 	old_nd->dentry = mnt->mnt_mountpoint;
+@@ -1226,6 +1235,8 @@
+ 	retval = -EINVAL;
+ 	if (nd.dentry != nd.mnt->mnt_root)
+ 		goto dput_and_out;
++	if (!check_mnt(nd.mnt))
++		goto dput_and_out;
+ 
+ 	retval = -EPERM;
+ 	if (!capable(CAP_SYS_ADMIN) && current->uid!=nd.mnt->mnt_owner)
+@@ -1277,7 +1288,7 @@
+ static int do_loopback(struct nameidata *nd, char *old_name)
+ {
+ 	struct nameidata old_nd;
+-	struct vfsmount *mnt;
++	struct vfsmount *mnt = NULL;
+ 	int err;
+ 
+ 	err = mount_is_safe(nd);
+@@ -1293,12 +1304,16 @@
+ 		return err;
+ 
+ 	down(&mount_sem);
+-	err = -ENOMEM;
+-	mnt = clone_mnt(old_nd.mnt, old_nd.dentry);
++	err = -EINVAL;
++	if (check_mnt(nd->mnt)) {
++		err = -ENOMEM;
++		mnt = clone_mnt(old_nd.mnt, old_nd.dentry);
++	}
+ 	if (mnt) {
+ 		err = graft_tree(mnt, nd);
+ 		mntput(mnt);
+ 	}
++
+ 	up(&mount_sem);
+ 	path_release(&old_nd);
+ 	return err;
+@@ -1318,6 +1333,9 @@
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
+ 
++	if (!check_mnt(nd->mnt))
++		return -EINVAL;
++
+ 	if (nd->dentry != nd->mnt->mnt_root)
+ 		return -EINVAL;
+ 
+@@ -1396,27 +1414,31 @@
+ 			int mnt_flags, char *name, void *data)
+ {
+ 	struct vfsmount *mnt = do_kern_mount(type, flags, name, data);
+-	int retval = PTR_ERR(mnt);
++	int err = PTR_ERR(mnt);
+ 
+ 	if (IS_ERR(mnt))
+ 		goto out;
+ 
+-	mnt->mnt_flags = mnt_flags;
+-
+ 	down(&mount_sem);
+ 	/* Something was mounted here while we slept */
+ 	while(d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
+ 		;
++	err = -EINVAL;
++	if (!check_mnt(nd->mnt))
++		goto unlock;
+ 
+ 	/* Refuse the same filesystem on the same mount point */
++	err = -EBUSY;
+ 	if (nd->mnt->mnt_sb == mnt->mnt_sb && nd->mnt->mnt_root == nd->dentry)
+-		retval = -EBUSY;
+-	else
+-		retval = graft_tree(mnt, nd);
++		goto unlock;
++
++	mnt->mnt_flags = mnt_flags;
++	err = graft_tree(mnt, nd);
++unlock:
+ 	up(&mount_sem);
+ 	mntput(mnt);
+ out:
+-	return retval;
++	return err;
  }
  
-+void umount_tree(struct vfsmount *mnt)
-+{
-+	struct vfsmount *p;
-+	LIST_HEAD(kill);
-+
-+	if (list_empty(&mnt->mnt_list))
-+		return;
-+
-+	for (p = mnt; p; p = next_mnt(p, mnt)) {
-+		list_del(&p->mnt_list);
-+		list_add(&p->mnt_list, &kill);
-+	}
-+
-+	while (!list_empty(&kill)) {
-+		mnt = list_entry(kill.next, struct vfsmount, mnt_list);
-+		list_del_init(&mnt->mnt_list);
-+		if (mnt->mnt_parent == mnt) {
-+			spin_unlock(&dcache_lock);
-+		} else {
-+			struct nameidata old_nd;
-+			detach_mnt(mnt, &old_nd);
-+			spin_unlock(&dcache_lock);
-+			path_release(&old_nd);
-+		}
-+		mntput(mnt);
-+		spin_lock(&dcache_lock);
-+	}
-+}
-+
- static int do_umount(struct vfsmount *mnt, int flags)
+ static int copy_mount_options (const void *data, unsigned long *where)
+@@ -1772,10 +1794,8 @@
+ 
+ asmlinkage long sys_pivot_root(const char *new_root, const char *put_old)
  {
- 	struct super_block * sb = mnt->mnt_sb;
--	struct nameidata parent_nd;
-+	int retval = 0;
-+
-+	/*
-+	 * If we may have to abort operations to get out of this
-+	 * mount, and they will themselves hold resources we must
-+	 * allow the fs to do things. In the Unix tradition of
-+	 * 'Gee thats tricky lets do it in userspace' the umount_begin
-+	 * might fail to complete on the first run through as other tasks
-+	 * must return, and the like. Thats for the mount program to worry
-+	 * about for the moment.
-+	 */
-+
-+	if( (flags&MNT_FORCE) && sb->s_op->umount_begin)
-+		sb->s_op->umount_begin(sb);
+-	struct dentry *root;
+-	struct vfsmount *root_mnt;
+ 	struct vfsmount *tmp;
+-	struct nameidata new_nd, old_nd, parent_nd, root_parent;
++	struct nameidata new_nd, old_nd, parent_nd, root_parent, user_nd;
+ 	char *name;
+ 	int error;
  
- 	/*
- 	 * No sense to grab the lock for this test, but test itself looks
-@@ -1139,7 +1197,7 @@
- 	 * /reboot - static binary that would close all descriptors and
- 	 * call reboot(9). Then init(8) could umount root and exec /reboot.
- 	 */
--	if (mnt == current->fs->rootmnt) {
-+	if (mnt == current->fs->rootmnt && !(flags & MNT_DETACH)) {
- 		int retval = 0;
- 		/*
- 		 * Special case for "unmounting" root ...
-@@ -1155,57 +1213,20 @@
+@@ -1794,11 +1814,14 @@
+ 	putname(name);
+ 	if (error)
+ 		goto out0;
++	error = -EINVAL;
++	if (!check_mnt(new_nd.mnt))
++		goto out1;
  
- 	spin_lock(&dcache_lock);
+ 	name = getname(put_old);
+ 	error = PTR_ERR(name);
+ 	if (IS_ERR(name))
+-		goto out0;
++		goto out1;
+ 	error = 0;
+ 	if (path_init(name, LOOKUP_POSITIVE|LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &old_nd))
+ 		error = path_walk(name, &old_nd);
+@@ -1807,11 +1830,14 @@
+ 		goto out1;
  
--	if (atomic_read(&sb->s_active) > 1) {
--		if (atomic_read(&mnt->mnt_count) > 2) {
--			spin_unlock(&dcache_lock);
--			return -EBUSY;
--		}
--		detach_mnt(mnt, &parent_nd);
--		list_del(&mnt->mnt_list);
-+	if (atomic_read(&sb->s_active) == 1) {
-+		/* last instance - try to be smart */
- 		spin_unlock(&dcache_lock);
--		mntput(mnt);
--		path_release(&parent_nd);
--		return 0;
-+		DQUOT_OFF(sb);
-+		acct_auto_close(sb->s_dev);
-+		spin_lock(&dcache_lock);
- 	}
--	spin_unlock(&dcache_lock);
--
--	/*
--	 * Before checking whether the filesystem is still busy,
--	 * make sure the kernel doesn't hold any quota files open
--	 * on the device. If the umount fails, too bad -- there
--	 * are no quotas running any more. Just turn them on again.
--	 */
--	DQUOT_OFF(sb);
--	acct_auto_close(sb->s_dev);
--
--	/*
--	 * If we may have to abort operations to get out of this
--	 * mount, and they will themselves hold resources we must
--	 * allow the fs to do things. In the Unix tradition of
--	 * 'Gee thats tricky lets do it in userspace' the umount_begin
--	 * might fail to complete on the first run through as other tasks
--	 * must return, and the like. Thats for the mount program to worry
--	 * about for the moment.
--	 */
--
--	if( (flags&MNT_FORCE) && sb->s_op->umount_begin)
--		sb->s_op->umount_begin(sb);
--
--	/* Something might grab it again - redo checks */
--
--	spin_lock(&dcache_lock);
--	if (atomic_read(&mnt->mnt_count) > 2) {
--		spin_unlock(&dcache_lock);
--		return -EBUSY;
-+	retval = -EBUSY;
-+	if (atomic_read(&mnt->mnt_count) == 2 || flags & MNT_DETACH) {
-+		umount_tree(mnt);
-+		retval = 0;
- 	}
--
--	/* OK, that's the point of no return */
--	detach_mnt(mnt, &parent_nd);
--	list_del(&mnt->mnt_list);
+ 	read_lock(&current->fs->lock);
+-	root_mnt = mntget(current->fs->rootmnt);
+-	root = dget(current->fs->root);
++	user_nd.mnt = mntget(current->fs->rootmnt);
++	user_nd.dentry = dget(current->fs->root);
+ 	read_unlock(&current->fs->lock);
+ 	down(&mount_sem);
+ 	down(&old_nd.dentry->d_inode->i_zombie);
++	error = -EINVAL;
++	if (!check_mnt(user_nd.mnt))
++		goto out2;
+ 	error = -ENOENT;
+ 	if (IS_DEADDIR(new_nd.dentry->d_inode))
+ 		goto out2;
+@@ -1820,10 +1846,10 @@
+ 	if (d_unhashed(old_nd.dentry) && !IS_ROOT(old_nd.dentry))
+ 		goto out2;
+ 	error = -EBUSY;
+-	if (new_nd.mnt == root_mnt || old_nd.mnt == root_mnt)
++	if (new_nd.mnt == user_nd.mnt || old_nd.mnt == user_nd.mnt)
+ 		goto out2; /* loop */
+ 	error = -EINVAL;
+-	if (root_mnt->mnt_root != root)
++	if (user_nd.mnt->mnt_root != user_nd.dentry)
+ 		goto out2;
+ 	if (new_nd.mnt->mnt_root != new_nd.dentry)
+ 		goto out2; /* not a mountpoint */
+@@ -1842,19 +1868,18 @@
+ 	} else if (!is_subdir(old_nd.dentry, new_nd.dentry))
+ 		goto out3;
+ 	detach_mnt(new_nd.mnt, &parent_nd);
+-	detach_mnt(root_mnt, &root_parent);
+-	attach_mnt(root_mnt, &old_nd);
++	detach_mnt(user_nd.mnt, &root_parent);
++	attach_mnt(user_nd.mnt, &old_nd);
+ 	attach_mnt(new_nd.mnt, &root_parent);
  	spin_unlock(&dcache_lock);
--	mntput(mnt);
--	path_release(&parent_nd);
--	return 0;
-+	return retval;
- }
- 
- /*
-diff -urN S10-pre9-check_mnt/include/linux/fs.h S10-pre9-lazy_umount/include/linux/fs.h
---- S10-pre9-check_mnt/include/linux/fs.h	Fri Sep 14 12:58:46 2001
-+++ S10-pre9-lazy_umount/include/linux/fs.h	Fri Sep 14 14:04:28 2001
-@@ -635,6 +635,7 @@
-  */
- 
- #define MNT_FORCE	0x00000001	/* Attempt to forcibily umount */
-+#define MNT_DETACH	0x00000002	/* Just detach from the tree */
- 
- #include <linux/minix_fs_sb.h>
- #include <linux/ext2_fs_sb.h>
+-	chroot_fs_refs(root,root_mnt,new_nd.dentry,new_nd.mnt);
++	chroot_fs_refs(user_nd.dentry,user_nd.mnt,new_nd.dentry,new_nd.mnt);
+ 	error = 0;
+ 	path_release(&root_parent);
+ 	path_release(&parent_nd);
+ out2:
+ 	up(&old_nd.dentry->d_inode->i_zombie);
+ 	up(&mount_sem);
+-	dput(root);
+-	mntput(root_mnt);
++	path_release(&user_nd);
+ 	path_release(&old_nd);
+ out1:
+ 	path_release(&new_nd);
 
 

@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268556AbRHBTCc>; Thu, 2 Aug 2001 15:02:32 -0400
+	id <S268598AbRHBTLZ>; Thu, 2 Aug 2001 15:11:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268598AbRHBTCW>; Thu, 2 Aug 2001 15:02:22 -0400
-Received: from dc-mxdb05.hsacorp.net ([209.225.8.79]:26779 "EHLO
-	dc-mxdb05.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id <S268556AbRHBTCH>; Thu, 2 Aug 2001 15:02:07 -0400
-From: "Gerald Walden" <thepond@charter.net>
-Subject: 8259A Edge or Level Triggered?
-To: linux-kernel@vger.kernel.org
-X-Mailer: CommuniGate Pro Web Mailer v.3.4.5
-Date: Thu, 02 Aug 2001 15:06:57 -0400
-Message-ID: <web-919724@dc-mxdb05.cluster1.charter.net>
+	id <S268688AbRHBTLF>; Thu, 2 Aug 2001 15:11:05 -0400
+Received: from w146.z064001233.sjc-ca.dsl.cnc.net ([64.1.233.146]:27304 "EHLO
+	windmill.gghcwest.com") by vger.kernel.org with ESMTP
+	id <S268598AbRHBTK7>; Thu, 2 Aug 2001 15:10:59 -0400
+Date: Thu, 2 Aug 2001 12:10:25 -0700 (PDT)
+From: "Jeffrey W. Baker" <jwbaker@acm.org>
+X-X-Sender: <jwb@heat.gghcwest.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Ongoing 2.4 VM suckage
+In-Reply-To: <Pine.LNX.3.95.1010802144823.4472A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.33.0108021206570.21298-100000@heat.gghcwest.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings:
 
-I am writing a driver for an x86 based machine.  The
-platform is a "standard" PC with a bios etc...
 
-If I install an interrupt handler, how do I know how the
-8259A is programmed by default?  Is it edge or level
-triggered?  If I want to change the default, how do I do it?
+On Thu, 2 Aug 2001, Richard B. Johnson wrote:
 
-I've been pouring through the kernel code looking for device
-initialization code for the PIC, and I cannot find an area
-where specific command bytes are sent to the PIC with  the
-exception of the EOI, and the setup of the interrupt vector
-table.
+> On Thu, 2 Aug 2001, Jeffrey W. Baker wrote:
+>
+> > This just in: Linux 2.4 VM still useless.
+> >
+> > I have 2 GB main memory and 4GB swap on a 2-way intel machine running a
+> > variety of 2.4 kernels (we upgrade every time we have to reboot), and we
+> > have to power cycle the machine weekly because too much memory usage + too
+> > much disk I/O == thrash for hours.
+> >
+> > Gosh, I guess it is silly to use all of the available RAM and I/O
+> > bandwidth on my machines.  My company will just go out of their way to
+> > do less work on smaller sets of data.
+> >
+>
+> Are you sure it's not just come user-code with memory leaks? I use
+> 2.4.1 on an embeded system with no disks, therefore no swap. It does
+> large FFT arrays to make spectrum-analyzer pictures and it has never
+> seen any problems with VM, in fact never any problems that can be
+> blamed on the Operating System.
+>
+> Try 2.4.1 and see if your problems go away. If not, you probably
+> have user-mode leakage.
 
-Please let me know if there is a more appropriate list to
-send this type of question to.
+My process are not small.  They are huge.  They take up nearly all
+available memory.  And then when a lot of file I/O kicks in, they get
+swapped out in favor of RAM, then the thrashing starts, and the box goes
+to la la land.
 
-Kindest Regards,
+Are you saying that I can expect any userland process to be able to take
+the box down?  Shit, why don't I just go back to DOS?
 
-Jerry
+-jwb
+

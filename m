@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264112AbUCZS2n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 13:28:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264115AbUCZS2n
+	id S264114AbUCZSaO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 13:30:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264127AbUCZSaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 13:28:43 -0500
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:17554 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S264112AbUCZSVH
+	Fri, 26 Mar 2004 13:30:13 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:23186 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S264114AbUCZSVX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 13:21:07 -0500
-Date: Fri, 26 Mar 2004 19:20:49 +0100
+	Fri, 26 Mar 2004 13:21:23 -0500
+Date: Fri, 26 Mar 2004 19:21:06 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390 (4/7): network driver.
-Message-ID: <20040326182049.GE2523@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390 (5/7): tape driver.
+Message-ID: <20040326182106.GF2523@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,1282 +21,507 @@ User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-s390 network driver changes:
- - ctc/lcs/qeth: prevent a ccw-device to be grouped multiple times.
- - icuv: clear correct field in iucv_register_program if no userid is specified.
- - lcs: fix online/offline cycle again.
- - lcs: fix ungrouping of lcs group device. The channels of the lcs card
-   should be offline afterwards.
- - lcs: don't do netif_stop_queue if no tx buffer is available, just
-   return -EBUSY and drop the packets.
+s390 tape driver changes:
+ - Prevent offline while device is in use.
+ - Do not use bus_id string in debug feature messages.
+ - Check for IS_ERR(irb) error conditions in interrupt handler.
+ - Fix removing tape discipline modules.
 
 diffstat:
- drivers/s390/cio/ccwgroup.c |   60 +++----
- drivers/s390/net/ctcmain.c  |   11 -
- drivers/s390/net/iucv.c     |   14 -
- drivers/s390/net/lcs.c      |  338 ++++++++++++++++++++++++++------------------
- drivers/s390/net/lcs.h      |   21 ++
- drivers/s390/net/netiucv.c  |   11 -
- drivers/s390/net/qeth.c     |   11 -
- drivers/s390/net/qeth.h     |    2 
- 8 files changed, 270 insertions(+), 198 deletions(-)
+ drivers/s390/char/tape.h       |    5 -
+ drivers/s390/char/tape_34xx.c  |   24 ++---
+ drivers/s390/char/tape_block.c |    7 +
+ drivers/s390/char/tape_core.c  |  196 +++++++++++++++++++++++++++++++++--------
+ drivers/s390/char/tape_std.c   |   22 +++-
+ 5 files changed, 198 insertions(+), 56 deletions(-)
 
-diff -urN linux-2.6/drivers/s390/cio/ccwgroup.c linux-2.6-s390/drivers/s390/cio/ccwgroup.c
---- linux-2.6/drivers/s390/cio/ccwgroup.c	Thu Mar 11 03:55:28 2004
-+++ linux-2.6-s390/drivers/s390/cio/ccwgroup.c	Fri Mar 26 18:25:57 2004
-@@ -1,7 +1,7 @@
- /*
-  *  drivers/s390/cio/ccwgroup.c
-  *  bus driver for ccwgroup
-- *   $Revision: 1.24 $
-+ *   $Revision: 1.25 $
-  *
-  *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
-  *                       IBM Corporation
-@@ -102,8 +102,10 @@
- 
- 	gdev = to_ccwgroupdev(dev);
- 
--	for (i = 0; i < gdev->count; i++)
-+	for (i = 0; i < gdev->count; i++) {
-+		gdev->cdev[i]->dev.driver_data = NULL;
- 		put_device(&gdev->cdev[i]->dev);
-+	}
- 	kfree(gdev);
- }
- 
-@@ -155,6 +157,7 @@
- 	struct ccwgroup_device *gdev;
- 	int i;
- 	int rc;
-+	int del_drvdata;
- 
- 	if (argc > 256) /* disallow dumb users */
- 		return -EINVAL;
-@@ -166,6 +169,7 @@
- 	memset(gdev, 0, sizeof(*gdev) + argc*sizeof(gdev->cdev[0]));
- 	atomic_set(&gdev->onoff, 0);
- 
-+	del_drvdata = 0;
- 	for (i = 0; i < argc; i++) {
- 		gdev->cdev[i] = get_ccwdev_by_busid(cdrv, argv[i]);
- 
-@@ -177,7 +181,15 @@
- 			rc = -EINVAL;
- 			goto error;
- 		}
-+		/* Don't allow a device to belong to more than one group. */
-+		if (gdev->cdev[i]->dev.driver_data) {
-+			rc = -EINVAL;
-+			goto error;
-+		}
- 	}
-+	for (i = 0; i < argc; i++)
-+		gdev->cdev[i]->dev.driver_data = gdev;
-+	del_drvdata = 1;
- 
- 	*gdev = (struct ccwgroup_device) {
- 		.creator_id = creator_id,
-@@ -212,9 +224,11 @@
- 	device_unregister(&gdev->dev);
- error:
- 	for (i = 0; i < argc; i++)
--		if (gdev->cdev[i])
-+		if (gdev->cdev[i]) {
- 			put_device(&gdev->cdev[i]->dev);
--
-+			if (del_drvdata)
-+				gdev->cdev[i]->dev.driver_data = NULL;
-+		}
- 	kfree(gdev);
- 
- 	return rc;
-@@ -399,40 +413,14 @@
- __ccwgroup_get_gdev_by_cdev(struct ccw_device *cdev)
- {
- 	struct ccwgroup_device *gdev;
--	struct list_head *entry;
--	struct device *dev;
--	int i, found;
--
--	/*
--	 * Find groupdevice cdev belongs to.
--	 * Unfortunately, we can't use bus_for_each_dev() because of the
--	 * semaphore (and return value of fn() is int).
--	 */
--	if (!get_bus(&ccwgroup_bus_type))
--		return NULL;
--
--	gdev = NULL;
--	down_read(&ccwgroup_bus_type.subsys.rwsem);
- 
--	list_for_each(entry, &ccwgroup_bus_type.devices.list) {
--		dev = get_device(container_of(entry, struct device, bus_list));
--		found = 0;
--		if (!dev)
--			continue;
--		gdev = to_ccwgroupdev(dev);
--		for (i = 0; i < gdev->count && (!found); i++) {
--			if (gdev->cdev[i] == cdev)
--				found = 1;
--		}
--		if (found)
--			break;
--		put_device(dev);
--		gdev = NULL;
-+	if (cdev->dev.driver_data) {
-+		gdev = (struct ccwgroup_device *)cdev->dev.driver_data;
-+		if (get_device(&gdev->dev))
-+			return gdev;
-+		return NULL;
- 	}
--	up_read(&ccwgroup_bus_type.subsys.rwsem);
--	put_bus(&ccwgroup_bus_type);
--
--	return gdev;
-+	return NULL;
- }
- 
- void
-diff -urN linux-2.6/drivers/s390/net/ctcmain.c linux-2.6-s390/drivers/s390/net/ctcmain.c
---- linux-2.6/drivers/s390/net/ctcmain.c	Fri Mar 26 18:24:55 2004
-+++ linux-2.6-s390/drivers/s390/net/ctcmain.c	Fri Mar 26 18:25:57 2004
-@@ -1,5 +1,5 @@
- /*
-- * $Id: ctcmain.c,v 1.57 2004/03/02 15:34:01 mschwide Exp $
-+ * $Id: ctcmain.c,v 1.58 2004/03/24 10:51:56 ptiedem Exp $
-  *
-  * CTC / ESCON network driver
-  *
-@@ -36,7 +36,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.57 $
-+ * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.58 $
-  *
-  */
- 
-@@ -319,7 +319,7 @@
- print_banner(void)
- {
- 	static int printed = 0;
--	char vbuf[] = "$Revision: 1.57 $";
-+	char vbuf[] = "$Revision: 1.58 $";
- 	char *version = vbuf;
- 
- 	if (printed)
-@@ -2067,7 +2067,8 @@
- 		return;
- 	}
- 	
--	priv = cdev->dev.driver_data;
-+	priv = ((struct ccwgroup_device *)cdev->dev.driver_data)
-+		->dev.driver_data;
- 
- 	/* Try to extract channel from driver data. */
- 	if (priv->channel[READ]->cdev == cdev)
-@@ -2963,8 +2964,6 @@
- 	cgdev->cdev[0]->handler = ctc_irq_handler;
- 	cgdev->cdev[1]->handler = ctc_irq_handler;
- 	cgdev->dev.driver_data = priv;
--	cgdev->cdev[0]->dev.driver_data = priv;
--	cgdev->cdev[1]->dev.driver_data = priv;
- 
- 	return 0;
- }
-diff -urN linux-2.6/drivers/s390/net/iucv.c linux-2.6-s390/drivers/s390/net/iucv.c
---- linux-2.6/drivers/s390/net/iucv.c	Fri Mar 26 18:24:55 2004
-+++ linux-2.6-s390/drivers/s390/net/iucv.c	Fri Mar 26 18:25:57 2004
-@@ -1,5 +1,5 @@
- /* 
-- * $Id: iucv.c,v 1.26 2004/03/10 11:55:31 braunu Exp $
-+ * $Id: iucv.c,v 1.27 2004/03/22 07:43:43 braunu Exp $
-  *
-  * IUCV network driver
-  *
-@@ -29,7 +29,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * RELEASE-TAG: IUCV lowlevel driver $Revision: 1.26 $
-+ * RELEASE-TAG: IUCV lowlevel driver $Revision: 1.27 $
-  *
-  */
- 
-@@ -351,7 +351,7 @@
- static void
- iucv_banner(void)
- {
--	char vbuf[] = "$Revision: 1.26 $";
-+	char vbuf[] = "$Revision: 1.27 $";
- 	char *version = vbuf;
- 
- 	if ((version = strchr(version, ':'))) {
-@@ -374,14 +374,14 @@
- {
- 	int ret;
- 
-+	if (iucv_external_int_buffer)
-+		return 0;
-+
- 	if (!MACHINE_IS_VM) {
- 		printk(KERN_ERR "IUCV: IUCV connection needs VM as base\n");
- 		return -EPROTONOSUPPORT;
- 	}
- 
--	if (iucv_external_int_buffer)
--		return 0;
--
- 	ret = bus_register(&iucv_bus);
- 	if (ret != 0) {
- 		printk(KERN_ERR "IUCV: failed to register bus.\n");
-@@ -830,7 +830,7 @@
- 			memset (new_handler->id.mask, 0xFF,
- 				sizeof (new_handler->id.mask));
- 		}
--		memset (new_handler->id.mask, 0x00,
-+		memset (new_handler->id.userid, 0x00,
- 			sizeof (new_handler->id.userid));
- 	}
- 	/* fill in the rest of handler */
-diff -urN linux-2.6/drivers/s390/net/lcs.c linux-2.6-s390/drivers/s390/net/lcs.c
---- linux-2.6/drivers/s390/net/lcs.c	Fri Mar 26 18:24:55 2004
-+++ linux-2.6-s390/drivers/s390/net/lcs.c	Fri Mar 26 18:25:58 2004
-@@ -11,7 +11,7 @@
-  *			  Frank Pavlic (pavlic@de.ibm.com) and
-  *		 	  Martin Schwidefsky <schwidefsky@de.ibm.com>
-  *
-- *    $Revision: 1.68 $	 $Date: 2004/03/02 15:34:01 $
-+ *    $Revision: 1.72 $	 $Date: 2004/03/22 09:34:27 $
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-@@ -58,9 +58,10 @@
- /**
-  * initialization string for output
-  */
--#define VERSION_LCS_C  "$Revision: 1.68 $"
-+#define VERSION_LCS_C  "$Revision: 1.72 $"
- 
- static char version[] __initdata = "LCS driver ("VERSION_LCS_C "/" VERSION_LCS_H ")";
-+static char debug_buffer[255];
- 
- /**
-  * Some prototypes.
-@@ -112,7 +113,7 @@
- {
- 	int cnt;
- 
--	LCS_DBF_TEXT(3, setup, "ichalloc");
-+	LCS_DBF_TEXT(2, setup, "ichalloc");
- 	for (cnt = 0; cnt < LCS_NUM_BUFFS; cnt++) {
- 		/* alloc memory fo iobuffer */
- 		channel->iob[cnt].data = (void *)
-@@ -124,7 +125,7 @@
- 	}
- 	if (cnt < LCS_NUM_BUFFS) {
- 		/* Not all io buffers could be allocated. */
--		LCS_DBF_TEXT(3, setup, "echalloc");
-+		LCS_DBF_TEXT(2, setup, "echalloc");
- 		while (cnt-- > 0)
- 			kfree(channel->iob[cnt].data);
- 		return -ENOMEM;
-@@ -140,7 +141,7 @@
- {
- 	int cnt;
- 
--	LCS_DBF_TEXT(3, setup, "ichfree");
-+	LCS_DBF_TEXT(2, setup, "ichfree");
- 	for (cnt = 0; cnt < LCS_NUM_BUFFS; cnt++) {
- 		if (channel->iob[cnt].data != NULL)
- 			kfree(channel->iob[cnt].data);
-@@ -148,6 +149,30 @@
- 	}
- }
- 
-+/*
-+ * Cleanup channel.
-+ */
-+static void
-+lcs_cleanup_channel(struct lcs_channel *channel)
-+{
-+	LCS_DBF_TEXT(3, setup, "cleanch");
-+	/* Kill write channel tasklets. */
-+	tasklet_kill(&channel->irq_tasklet);
-+	/* Free channel buffers. */
-+	lcs_free_channel(channel);
-+}
-+
-+/**
-+ * LCS free memory for card and channels.
-+ */
-+static void
-+lcs_free_card(struct lcs_card *card)
-+{
-+	LCS_DBF_TEXT(2, setup, "remcard");
-+	LCS_DBF_HEX(2, setup, &card, sizeof(void*));
-+	kfree(card);
-+}
-+
- /**
-  * LCS alloc memory for card and channels
-  */
-@@ -155,25 +180,34 @@
- lcs_alloc_card(void)
- {
- 	struct lcs_card *card;
--
--	LCS_DBF_TEXT(3, setup, "alloclcs");
-+	int rc;
-+	
-+	LCS_DBF_TEXT(2, setup, "alloclcs");
-+	
- 	card = kmalloc(sizeof(struct lcs_card), GFP_KERNEL | GFP_DMA);
- 	if (card == NULL)
- 		return NULL;
- 	memset(card, 0, sizeof(struct lcs_card));
- 	card->lan_type = LCS_FRAME_TYPE_AUTO;
- 	card->lancmd_timeout = LCS_LANCMD_TIMEOUT_DEFAULT;
--	return card;
--}
-+	/* Allocate io buffers for the read channel. */
-+	rc = lcs_alloc_channel(&card->read);
-+	if (rc){
-+		LCS_DBF_TEXT(2, setup, "iccwerr");
-+		lcs_free_card(card);
-+		return NULL;
-+	}
-+	/* Allocate io buffers for the write channel. */
-+	rc = lcs_alloc_channel(&card->write);
-+	if (rc) {
-+		LCS_DBF_TEXT(2, setup, "iccwerr");
-+		lcs_cleanup_channel(&card->read);
-+		lcs_free_card(card);
-+		return NULL;
-+	}
- 
--/**
-- * LCS free memory for card and channels.
-- */
--static void
--lcs_free_card(struct lcs_card *card)
--{
--	LCS_DBF_TEXT(2, setup, "remcard");
--	kfree(card);
-+	LCS_DBF_HEX(2, setup, &card, sizeof(void*));
-+	return card;
- }
- 
- /*
-@@ -218,25 +252,17 @@
- 	card->read.buf_idx = 0;
- }
- 
--static int
-+static void 
- lcs_setup_read(struct lcs_card *card)
- {
--	int rc;
-+	LCS_DBF_TEXT(3, setup, "initread");
- 
--	LCS_DBF_TEXT(3, setup, "readirq");
--	/* Allocate io buffers for the read channel. */
--	rc = lcs_alloc_channel(&card->read);
--	if (rc){
--		LCS_DBF_TEXT(3, setup, "iccwerr");
--		return rc;
--	}
- 	lcs_setup_read_ccws(card);
- 	/* Initialize read channel tasklet. */
- 	card->read.irq_tasklet.data = (unsigned long) &card->read;
- 	card->read.irq_tasklet.func = lcs_tasklet;
- 	/* Initialize waitqueue. */
- 	init_waitqueue_head(&card->read.wait_q);
--	return 0;
- }
- 
- /*
-@@ -247,7 +273,7 @@
- {
- 	int cnt;
- 
--	LCS_DBF_TEXT(2, setup, "iwritccw");
-+	LCS_DBF_TEXT(3, setup, "iwritccw");
- 	/* Setup write ccws. */
- 	memset(card->write.ccws, 0, sizeof(struct ccw1) * LCS_NUM_BUFFS + 1);
- 	for (cnt = 0; cnt < LCS_NUM_BUFFS; cnt++) {
-@@ -273,61 +299,32 @@
- 	card->write.buf_idx = 0;
- }
- 
--static int
-+static void 
- lcs_setup_write(struct lcs_card *card)
- {
--	int rc;
-+	LCS_DBF_TEXT(3, setup, "initwrit");
- 
--	LCS_DBF_TEXT(3, setup, "writeirq");
--	/* Allocate io buffers for the write channel. */
--	rc = lcs_alloc_channel(&card->write);
--	if (rc) {
--		LCS_DBF_TEXT(3, setup, "iccwerr");
--		return rc;
--	}
- 	lcs_setup_write_ccws(card);
- 	/* Initialize write channel tasklet. */
- 	card->write.irq_tasklet.data = (unsigned long) &card->write;
- 	card->write.irq_tasklet.func = lcs_tasklet;
- 	/* Initialize waitqueue. */
- 	init_waitqueue_head(&card->write.wait_q);
--	return 0;
- }
- 
--/*
-- * Cleanup channel.
-- */
--static void
--lcs_cleanup_channel(struct lcs_channel *channel)
--{
--	LCS_DBF_TEXT(3, setup, "cleanch");
--	/* Kill write channel tasklets. */
--	tasklet_kill(&channel->irq_tasklet);
--	/* Free channel buffers. */
--	lcs_free_channel(channel);
--}
-+
- 
- /**
-  * Initialize channels,card and state machines.
-  */
--static int
-+static void
- lcs_setup_card(struct lcs_card *card)
- {
--	int rc;
--
--	LCS_DBF_TEXT(3, setup, "initcard");
--
--	rc = lcs_setup_read(card);
--	if (rc) {
--		PRINT_ERR("Could not initialize read channel\n");
--		return rc;
--	}
--	rc = lcs_setup_write(card);
--	if (rc) {
--		PRINT_ERR("Could not initialize write channel\n");
--		lcs_cleanup_channel(&card->read);
--		return rc;
--	}
-+	LCS_DBF_TEXT(2, setup, "initcard");
-+	LCS_DBF_HEX(2, setup, &card, sizeof(void*));
-+	
-+	lcs_setup_read(card);
-+	lcs_setup_write(card);
- 	/* Set cards initial state. */
- 	card->state = DEV_STATE_DOWN;
- 	card->tx_buffer = NULL;
-@@ -342,7 +339,6 @@
- 	INIT_LIST_HEAD(&card->ipm_list);
- #endif
- 	INIT_LIST_HEAD(&card->lancmd_waiters);
--	return 0;
- }
- 
- /**
-@@ -355,6 +351,7 @@
- 	struct lcs_ipm_list *ipm_list;
- 
- 	LCS_DBF_TEXT(3, setup, "cleancrd");
-+	LCS_DBF_HEX(2,setup,&card,sizeof(void*));
- #ifdef	CONFIG_IP_MULTICAST
- 	/* Free multicast list. */
- 	list_for_each_safe(l, n, &card->ipm_list) {
-@@ -376,12 +373,10 @@
- static int
- lcs_start_channel(struct lcs_channel *channel)
- {
--	char dbf_text[15];
- 	unsigned long flags;
- 	int rc;
- 
--	sprintf(dbf_text,"ssch%s", channel->ccwdev->dev.bus_id);
--	LCS_DBF_TEXT(4, trace, dbf_text);
-+	LCS_DBF_TEXT_(4,trace,"ssch%s", channel->ccwdev->dev.bus_id);
- 	spin_lock_irqsave(get_ccwdev_lock(channel->ccwdev), flags);
- 	rc = ccw_device_start(channel->ccwdev,
- 			      channel->ccws + channel->io_idx, 0, 0,
-@@ -390,37 +385,56 @@
- 		channel->state = CH_STATE_RUNNING;
- 	spin_unlock_irqrestore(get_ccwdev_lock(channel->ccwdev), flags);
- 	if (rc) {
--		sprintf(dbf_text,"essc%s", channel->ccwdev->dev.bus_id);
--		LCS_DBF_TEXT(4, trace, dbf_text);
-+		LCS_DBF_TEXT_(4,trace,"essh%s", channel->ccwdev->dev.bus_id);
- 		PRINT_ERR("Error in starting channel, rc=%d!\n", rc);
- 	}
- 	return rc;
- }
- 
-+static int 
-+lcs_clear_channel(struct lcs_channel *channel)
-+{
-+	unsigned long flags;
-+	int rc;
-+
-+	LCS_DBF_TEXT(4,trace,"clearch");
-+	LCS_DBF_TEXT_(4,trace,"%s", channel->ccwdev->dev.bus_id);
-+	spin_lock_irqsave(get_ccwdev_lock(channel->ccwdev), flags);
-+	rc = ccw_device_clear(channel->ccwdev, (addr_t) channel);
-+	spin_unlock_irqrestore(get_ccwdev_lock(channel->ccwdev), flags);
-+	if (rc) {
-+		LCS_DBF_TEXT_(4,trace,"ecsc%s", channel->ccwdev->dev.bus_id);
-+		return rc;
-+	}
-+	wait_event(channel->wait_q, (channel->state == CH_STATE_CLEARED));
-+	channel->state = CH_STATE_STOPPED;
-+	return rc;
-+}
-+
-+
- /**
-  * Stop channel.
-  */
- static int
- lcs_stop_channel(struct lcs_channel *channel)
- {
--	char dbf_text[15];
- 	unsigned long flags;
- 	int rc;
- 
- 	if (channel->state == CH_STATE_STOPPED)
- 		return 0;
--	sprintf(dbf_text,"hsch%s", channel->ccwdev->dev.bus_id);
--	LCS_DBF_TEXT(4, trace, dbf_text);
-+	LCS_DBF_TEXT(4,trace,"haltsch");
-+	LCS_DBF_TEXT_(4,trace,"%s", channel->ccwdev->dev.bus_id);
- 	spin_lock_irqsave(get_ccwdev_lock(channel->ccwdev), flags);
- 	rc = ccw_device_halt(channel->ccwdev, (addr_t) channel);
- 	spin_unlock_irqrestore(get_ccwdev_lock(channel->ccwdev), flags);
- 	if (rc) {
--		sprintf(dbf_text,"ehsc%s", channel->ccwdev->dev.bus_id);
--		LCS_DBF_TEXT(4, trace, dbf_text);
-+		LCS_DBF_TEXT_(4,trace,"ehsc%s", channel->ccwdev->dev.bus_id);
- 		return rc;
- 	}
- 	/* Asynchronous halt initialted. Wait for its completion. */
- 	wait_event(channel->wait_q, (channel->state == CH_STATE_HALTED));
-+	lcs_clear_channel(channel);
- 	return 0;
- }
- 
-@@ -464,6 +478,7 @@
- {
- 	int index;
- 
-+	LCS_DBF_TEXT(5, trace, "_getbuff");
- 	index = channel->io_idx;
- 	do {
- 		if (channel->iob[index].state == BUF_STATE_EMPTY) {
-@@ -481,6 +496,7 @@
- 	struct lcs_buffer *buffer;
- 	unsigned long flags;
- 
-+	LCS_DBF_TEXT(5, trace, "getbuff");
- 	spin_lock_irqsave(get_ccwdev_lock(channel->ccwdev), flags);
- 	buffer = __lcs_get_buffer(channel);
- 	spin_unlock_irqrestore(get_ccwdev_lock(channel->ccwdev), flags);
-@@ -493,19 +509,16 @@
- static int
- __lcs_resume_channel(struct lcs_channel *channel)
- {
--	char dbf_text[15];
- 	int rc;
- 
- 	if (channel->state != CH_STATE_SUSPENDED)
- 		return 0;
- 	if (channel->ccws[channel->io_idx].flags & CCW_FLAG_SUSPEND)
- 		return 0;
--	sprintf(dbf_text,"rsch%s", channel->ccwdev->dev.bus_id);
--	LCS_DBF_TEXT(4, trace, dbf_text);
-+	LCS_DBF_TEXT_(5, trace, "rsch%s", channel->ccwdev->dev.bus_id);
- 	rc = ccw_device_resume(channel->ccwdev);
- 	if (rc) {
--		sprintf(dbf_text,"ersc%s", channel->ccwdev->dev.bus_id);
--		LCS_DBF_TEXT(4, trace, dbf_text);
-+		LCS_DBF_TEXT_(4, trace, "ersc%s", channel->ccwdev->dev.bus_id);
- 		PRINT_ERR("Error in lcs_resume_channel: rc=%d\n",rc);
- 	} else
- 		channel->state = CH_STATE_RUNNING;
-@@ -521,6 +534,7 @@
- {
- 	int prev, next;
- 
-+	LCS_DBF_TEXT(5, trace, "rdybits");
- 	prev = (index - 1) & (LCS_NUM_BUFFS - 1);
- 	next = (index + 1) & (LCS_NUM_BUFFS - 1);
- 	/* Check if we may clear the suspend bit of this buffer. */
-@@ -540,6 +554,7 @@
- 	unsigned long flags;
- 	int index, rc;
- 
-+	LCS_DBF_TEXT(5, trace, "rdybuff");
- 	if (buffer->state != BUF_STATE_LOCKED &&
- 	    buffer->state != BUF_STATE_PROCESSED)
- 		BUG();
-@@ -565,6 +580,7 @@
- {
- 	int index, prev, next;
- 
-+	LCS_DBF_TEXT(5, trace, "prcsbuff");
- 	if (buffer->state != BUF_STATE_READY)
- 		BUG();
- 	buffer->state = BUF_STATE_PROCESSED;
-@@ -597,6 +613,7 @@
- {
- 	unsigned long flags;
- 
-+	LCS_DBF_TEXT(5, trace, "relbuff");
- 	if (buffer->state != BUF_STATE_LOCKED &&
- 	    buffer->state != BUF_STATE_PROCESSED)
- 		BUG();
-@@ -614,6 +631,7 @@
- 	struct lcs_buffer *buffer;
- 	struct lcs_cmd *cmd;
- 
-+	LCS_DBF_TEXT(4, trace, "getlncmd");
- 	/* Get buffer and wait if none is available. */
- 	wait_event(card->write.wait_q,
- 		   ((buffer = lcs_get_buffer(&card->write)) != NULL));
-@@ -637,6 +655,7 @@
- 	struct list_head *l, *n;
- 	struct lcs_reply *reply;
- 
-+	LCS_DBF_TEXT(4, trace, "notiwait");
- 	spin_lock(&card->lock);
- 	list_for_each_safe(l, n, &card->lancmd_waiters) {
- 		reply = list_entry(l, struct lcs_reply, list);
-@@ -661,6 +680,7 @@
- {
- 	struct lcs_reply *reply;
- 
-+	LCS_DBF_TEXT(4, trace, "timeout");
- 	reply = (struct lcs_reply *) data;
- 	list_del(&reply->list);
- 	reply->received = 1;
-@@ -676,8 +696,8 @@
- 	struct lcs_cmd *cmd;
- 	struct timer_list timer;
- 	int rc;
--	char buf[16];
- 
-+	LCS_DBF_TEXT(4, trace, "sendcmd");
- 	cmd = (struct lcs_cmd *) buffer->data;
- 	cmd->sequence_no = ++card->sequence_no;
- 	cmd->return_code = 0;
-@@ -700,9 +720,7 @@
- 	add_timer(&timer);
- 	wait_event(reply.wait_q, reply.received);
- 	del_timer(&timer);
--	LCS_DBF_TEXT(5, trace, "sendcmd");
--	sprintf(buf, "rc:%d", reply.rc);
--	LCS_DBF_TEXT(5, trace, buf);
-+	LCS_DBF_TEXT_(4, trace, "rc:%d",reply.rc);
- 	return reply.rc ? -EIO : 0;
- }
- 
-@@ -747,6 +765,7 @@
- static void
- __lcs_lanstat_cb(struct lcs_card *card, struct lcs_cmd *cmd)
- {
-+	LCS_DBF_TEXT(2, trace, "statcb");
- 	memcpy(card->mac, cmd->cmd.lcs_lanstat_cmd.mac_addr, LCS_MAC_LENGTH);
- }
- 
-@@ -756,7 +775,7 @@
- 	struct lcs_buffer *buffer;
- 	struct lcs_cmd *cmd;
- 
--	LCS_DBF_TEXT(2, trace, "cmdstat");
-+	LCS_DBF_TEXT(2,trace, "cmdstat");
- 	buffer = lcs_get_lancmd(card, LCS_STD_CMD_SIZE);
- 	cmd = (struct lcs_cmd *) buffer->data;
- 	/* Setup lanstat command. */
-@@ -792,6 +811,7 @@
- static void
- __lcs_send_startlan_cb(struct lcs_card *card, struct lcs_cmd *cmd)
- {
-+	LCS_DBF_TEXT(2, trace, "srtlancb");
- 	card->lan_type = cmd->cmd.lcs_std_cmd.lan_type;
- 	card->portno = cmd->cmd.lcs_std_cmd.portno;
- }
-@@ -833,6 +853,7 @@
- 	cmd->cmd.lcs_qipassist.num_ip_pairs = 1;
- 	memcpy(cmd->cmd.lcs_qipassist.lcs_ipass_ctlmsg.ip_mac_pair,
- 	       &ipm_list->ipm, sizeof (struct lcs_ip_mac_pair));
-+	LCS_DBF_TEXT_(2, trace, "%x",ipm_list->ipm.ip_addr);
- 	return lcs_send_lancmd(card, buffer, NULL);
- }
- 
-@@ -856,6 +877,7 @@
- 	cmd->cmd.lcs_qipassist.num_ip_pairs = 1;
- 	memcpy(cmd->cmd.lcs_qipassist.lcs_ipass_ctlmsg.ip_mac_pair,
- 	       &ipm_list->ipm, sizeof (struct lcs_ip_mac_pair));
-+	LCS_DBF_TEXT_(2, trace, "%x",ipm_list->ipm.ip_addr);
- 	return lcs_send_lancmd(card, buffer, NULL);
- }
- 
-@@ -865,6 +887,7 @@
- static void
- __lcs_check_multicast_cb(struct lcs_card *card, struct lcs_cmd *cmd)
- {
-+	LCS_DBF_TEXT(2, trace, "chkmccb");
- 	card->ip_assists_supported =
- 		cmd->cmd.lcs_qipassist.ip_assists_supported;
- 	card->ip_assists_enabled =
-@@ -919,7 +942,7 @@
- 	card = (struct lcs_card *) data;
- 
- 	daemonize("fixipm");
--	LCS_DBF_TEXT(5, trace, "fixipm");
-+	LCS_DBF_TEXT(4,trace, "fixipm");
- 	spin_lock(&card->lock);
- 	list_for_each_safe(l, n, &card->ipm_list) {
- 		ipm = list_entry(l, struct lcs_ipm_list, list);
-@@ -952,6 +975,7 @@
- static void
- lcs_get_mac_for_ipm(__u32 ipm, char *mac, struct net_device *dev)
- {
-+	LCS_DBF_TEXT(4,trace, "getmac");
- 	if (dev->type == ARPHRD_IEEE802_TR)
- 		ip_tr_mc_map(ipm, mac);
- 	else
-@@ -971,7 +995,7 @@
- 	struct lcs_ipm_list *ipm, *tmp;
- 	struct lcs_card *card;
- 
--	LCS_DBF_TEXT(5, trace, "setmulti");
-+	LCS_DBF_TEXT(4, trace, "setmulti");
- 	in4_dev = in_dev_get(dev);
- 	if (in4_dev == NULL)
- 		return;
-@@ -1033,21 +1057,18 @@
- static void
- lcs_irq(struct ccw_device *cdev, unsigned long intparm, struct irb *irb)
- {
--	char dbf_text[15];
- 	struct lcs_card *card;
- 	struct lcs_channel *channel;
- 	int index;
- 
--	card = (struct lcs_card *)cdev->dev.driver_data;
-+	card = CARD_FROM_DEV(cdev);
- 	if (card->read.ccwdev == cdev)
- 		channel = &card->read;
- 	else
- 		channel = &card->write;
- 
--	sprintf(dbf_text, "Rint%s", cdev->dev.bus_id);
--	LCS_DBF_TEXT(5, trace, dbf_text);
--	sprintf(dbf_text, "%4x%4x", irb->scsw.cstat, irb->scsw.dstat);
--	LCS_DBF_TEXT(5, trace, dbf_text);
-+	LCS_DBF_TEXT_(5, trace, "Rint%s",cdev->dev.bus_id);
-+	LCS_DBF_TEXT_(5, trace, "%4x%4x",irb->scsw.cstat, irb->scsw.dstat);
- 
- 	/* How far in the ccw chain have we processed? */
- 	if ((channel->state != CH_STATE_INIT) &&
-@@ -1084,6 +1105,9 @@
- 		channel->state = CH_STATE_HALTED;
- 	}
- 
-+	if (irb->scsw.fctl & SCSW_FCTL_CLEAR_FUNC) {
-+		channel->state = CH_STATE_CLEARED;
-+	}
- 	/* Do the rest in the tasklet. */
- 	tasklet_schedule(&channel->irq_tasklet);
- }
-@@ -1094,7 +1118,6 @@
- static void
- lcs_tasklet(unsigned long data)
- {
--	char dbf_text[15];
- 	unsigned long flags;
- 	struct lcs_channel *channel;
- 	struct lcs_buffer *iob;
-@@ -1102,8 +1125,7 @@
- 	int rc;
- 
- 	channel = (struct lcs_channel *) data;
--	sprintf(dbf_text, "tlet%s", channel->ccwdev->dev.bus_id);
--	LCS_DBF_TEXT(5, trace, dbf_text);
-+	LCS_DBF_TEXT_(5, trace, "tlet%s",channel->ccwdev->dev.bus_id);
- 
- 	/* Check for processed buffers. */
- 	iob = channel->iob;
-@@ -1137,6 +1159,7 @@
- static void
- __lcs_emit_txbuffer(struct lcs_card *card)
- {
-+	LCS_DBF_TEXT(5, trace, "emittx");
- 	*(__u16 *)(card->tx_buffer->data + card->tx_buffer->count) = 0;
- 	card->tx_buffer->count += 2;
- 	lcs_ready_buffer(&card->write, card->tx_buffer);
-@@ -1152,6 +1175,7 @@
- {
- 	struct lcs_card *card;
- 
-+	LCS_DBF_TEXT(5, trace, "txbuffcb");
- 	/* Put buffer back to pool. */
- 	lcs_release_buffer(channel, buffer);
- 	card = (struct lcs_card *)
-@@ -1176,6 +1200,7 @@
- {
- 	struct lcs_header *header;
- 
-+	LCS_DBF_TEXT(5, trace, "hardxmit");
- 	if (skb == NULL) {
- 		card->stats.tx_dropped++;
- 		card->stats.tx_errors++;
-@@ -1201,7 +1226,6 @@
- 		/* Get new tx buffer */
- 		card->tx_buffer = lcs_get_buffer(&card->write);
- 		if (card->tx_buffer == NULL) {
--			netif_stop_queue(dev);
- 			card->stats.tx_dropped++;
- 			return -EBUSY;
- 		}
-@@ -1246,6 +1270,7 @@
- {
- 	int rc;
- 
-+	LCS_DBF_TEXT(2, trace, "strtauto");
- #ifdef CONFIG_NET_ETHERNET
- 	card->lan_type = LCS_FRAME_TYPE_ENET;
- 	rc = lcs_send_startlan(card, LCS_INITIATOR_TCPIP);
-@@ -1307,7 +1332,7 @@
- {
- 	int rc = 0;
- 
--	LCS_DBF_TEXT(3, setup," lcsdetct");
-+	LCS_DBF_TEXT(2, setup, "lcsdetct");
- 	/* start/reset card */
- 	if (card->dev)
- 		netif_stop_queue(card->dev);
-@@ -1340,7 +1365,7 @@
- {
- 	int retries;
- 
--	LCS_DBF_TEXT(4, trace, "rescard");
-+	LCS_DBF_TEXT(2, trace, "rescard");
- 	for (retries = 0; retries < 10; retries++) {
- 		if (lcs_detect(card) == 0) {
- 			netif_wake_queue(card->dev);
-@@ -1362,15 +1387,18 @@
- lcs_stopcard(struct lcs_card *card)
- {
- 	int rc;
--
-+	
- 	LCS_DBF_TEXT(3, setup, "stopcard");
-+	
- 	if (card->read.state != CH_STATE_STOPPED &&
- 	    card->write.state != CH_STATE_STOPPED &&
--	    card->state == DEV_STATE_UP)
-+	    card->state == DEV_STATE_UP) {
- 		rc = lcs_send_stoplan(card,LCS_INITIATOR_TCPIP);
--	rc = lcs_send_shutdown(card);
-+		rc = lcs_send_shutdown(card);
-+	}
- 	rc = lcs_stop_channels(card);
- 	card->state = DEV_STATE_DOWN;
-+		
- 	return rc;
- }
- 
-@@ -1492,6 +1520,7 @@
- static void
- lcs_get_control(struct lcs_card *card, struct lcs_cmd *cmd)
- {
-+	LCS_DBF_TEXT(5, trace, "getctrl");
- 	if (cmd->initiator == LCS_INITIATOR_LGW) {
- 		switch(cmd->cmd_code) {
- 		case LCS_CMD_STARTUP:
-@@ -1522,6 +1551,7 @@
- {
- 	struct sk_buff *skb;
- 
-+	LCS_DBF_TEXT(5, trace, "getskb");
- 	if (card->dev == NULL ||
- 	    card->state != DEV_STATE_UP)
- 		/* The card isn't up. Ignore the packet. */
-@@ -1619,6 +1649,7 @@
- 	LCS_DBF_TEXT(2, trace, "stopdev");
- 	card   = (struct lcs_card *) dev->priv;
- 	netif_stop_queue(dev);
-+	dev->flags &= ~IFF_UP;
- 	rc = lcs_stopcard(card);
- 	if (rc)
- 		PRINT_ERR("Try it again!\n ");
-@@ -1643,6 +1674,7 @@
- 		PRINT_ERR("LCS:Error in opening device!\n");
- 
+diff -urN linux-2.6/drivers/s390/char/tape.h linux-2.6-s390/drivers/s390/char/tape.h
+--- linux-2.6/drivers/s390/char/tape.h	Fri Mar 26 18:24:55 2004
++++ linux-2.6-s390/drivers/s390/char/tape.h	Fri Mar 26 18:25:58 2004
+@@ -198,6 +198,7 @@
+ 	/* entry in tape_device_list */
+ 	struct list_head		node;
+ 
++	int				cdev_id;
+ 	struct ccw_device *		cdev;
+ 	struct tape_class_device *	nt;
+ 	struct tape_class_device *	rt;
+@@ -263,8 +264,8 @@
+ extern int tape_mtop(struct tape_device *, int, int);
+ extern void tape_state_set(struct tape_device *, enum tape_state);
+ 
+-extern int tape_enable_device(struct tape_device *, struct tape_discipline *);
+-extern void tape_disable_device(struct tape_device *device);
++extern int tape_generic_online(struct tape_device *, struct tape_discipline *);
++extern int tape_generic_offline(struct tape_device *device);
+ 
+ /* Externals from tape_devmap.c */
+ extern int tape_generic_probe(struct ccw_device *);
+diff -urN linux-2.6/drivers/s390/char/tape_34xx.c linux-2.6-s390/drivers/s390/char/tape_34xx.c
+--- linux-2.6/drivers/s390/char/tape_34xx.c	Thu Mar 11 03:55:25 2004
++++ linux-2.6-s390/drivers/s390/char/tape_34xx.c	Fri Mar 26 18:25:58 2004
+@@ -202,8 +202,7 @@
+ 		tape_34xx_delete_sbid_from(device, 0);
+ 		tape_34xx_schedule_work(device, TO_MSEN);
  	} else {
-+		dev->flags |= IFF_UP;
- 		netif_wake_queue(dev);
- 		card->state = DEV_STATE_UP;
+-		DBF_EVENT(3, "unsol.irq! dev end: %s\n",
+-				device->cdev->dev.bus_id);
++		DBF_EVENT(3, "unsol.irq! dev end: %08x\n", device->cdev_id);
+ 		PRINT_WARN("Unsolicited IRQ (Device End) caught.\n");
+ 		tape_dump_sense(device, NULL, irb);
  	}
-@@ -1757,7 +1789,7 @@
- 	if (!get_device(&ccwgdev->dev))
- 		return -ENODEV;
+@@ -1314,17 +1313,18 @@
+ };
  
--	LCS_DBF_TEXT(3, setup, "add_dev");
-+	LCS_DBF_TEXT(2, setup, "add_dev");
-         card = lcs_alloc_card();
-         if (!card) {
-                 PRINT_ERR("Allocation of lcs card failed\n");
-@@ -1772,46 +1804,62 @@
- 		return ret;
-         }
- 	ccwgdev->dev.driver_data = card;
--	ccwgdev->cdev[0]->dev.driver_data = card;
- 	ccwgdev->cdev[0]->handler = lcs_irq;
--	ccwgdev->cdev[1]->dev.driver_data = card;
- 	ccwgdev->cdev[1]->handler = lcs_irq;
-         return 0;
+ static int
+-tape_34xx_enable(struct ccw_device *cdev)
++tape_34xx_online(struct ccw_device *cdev)
+ {
+-	return tape_enable_device(cdev->dev.driver_data,
+-				  &tape_discipline_34xx);
++	return tape_generic_online(
++		cdev->dev.driver_data,
++		&tape_discipline_34xx
++	);
  }
  
-+static int 
-+lcs_register_netdev(struct ccwgroup_device *ccwgdev)
+ static int
+-tape_34xx_disable(struct ccw_device *cdev)
++tape_34xx_offline(struct ccw_device *cdev)
+ {
+-	tape_disable_device(cdev->dev.driver_data);
+-	return 0;
++	return tape_generic_offline(cdev->dev.driver_data);
+ }
+ 
+ static struct ccw_driver tape_34xx_driver = {
+@@ -1333,8 +1333,8 @@
+ 	.ids = tape_34xx_ids,
+ 	.probe = tape_generic_probe,
+ 	.remove = tape_generic_remove,
+-	.set_online = tape_34xx_enable,
+-	.set_offline = tape_34xx_disable,
++	.set_online = tape_34xx_online,
++	.set_offline = tape_34xx_offline,
+ };
+ 
+ static int
+@@ -1342,7 +1342,7 @@
+ {
+ 	int rc;
+ 
+-	DBF_EVENT(3, "34xx init: $Revision: 1.18 $\n");
++	DBF_EVENT(3, "34xx init: $Revision: 1.19 $\n");
+ 	/* Register driver for 3480/3490 tapes. */
+ 	rc = ccw_driver_register(&tape_34xx_driver);
+ 	if (rc)
+@@ -1361,7 +1361,7 @@
+ MODULE_DEVICE_TABLE(ccw, tape_34xx_ids);
+ MODULE_AUTHOR("(C) 2001-2002 IBM Deutschland Entwicklung GmbH");
+ MODULE_DESCRIPTION("Linux on zSeries channel attached 3480 tape "
+-		   "device driver ($Revision: 1.18 $)");
++		   "device driver ($Revision: 1.19 $)");
+ MODULE_LICENSE("GPL");
+ 
+ module_init(tape_34xx_init);
+diff -urN linux-2.6/drivers/s390/char/tape_block.c linux-2.6-s390/drivers/s390/char/tape_block.c
+--- linux-2.6/drivers/s390/char/tape_block.c	Thu Mar 11 03:55:37 2004
++++ linux-2.6-s390/drivers/s390/char/tape_block.c	Fri Mar 26 18:25:58 2004
+@@ -274,12 +274,19 @@
+ 	flush_scheduled_work();
+ 	device->blk_data.requeue_task.data = tape_put_device(device);
+ 
++	if (!device->blk_data.disk) {
++		PRINT_ERR("(%s): No gendisk to clean up!\n",
++			device->cdev->dev.bus_id);
++		goto cleanup_queue;
++	}
++
+ 	del_gendisk(device->blk_data.disk);
+ 	device->blk_data.disk->private_data =
+ 		tape_put_device(device->blk_data.disk->private_data);
+ 	put_disk(device->blk_data.disk);
+ 
+ 	device->blk_data.disk = NULL;
++cleanup_queue:
+ 	device->blk_data.request_queue->queuedata = tape_put_device(device);
+ 
+ 	blk_cleanup_queue(device->blk_data.request_queue);
+diff -urN linux-2.6/drivers/s390/char/tape_core.c linux-2.6-s390/drivers/s390/char/tape_core.c
+--- linux-2.6/drivers/s390/char/tape_core.c	Thu Mar 11 03:55:24 2004
++++ linux-2.6-s390/drivers/s390/char/tape_core.c	Fri Mar 26 18:25:58 2004
+@@ -69,6 +69,34 @@
+ 	[TO_UNASSIGN] = "UAS"
+ };
+ 
++static inline int
++busid_to_int(char *bus_id)
 +{
-+	struct lcs_card *card;
-+	
-+	LCS_DBF_TEXT(2, setup, "regnetdv");
-+	card = (struct lcs_card *)ccwgdev->dev.driver_data;
-+	if (card->dev->reg_state != NETREG_UNINITIALIZED)
-+		return 0;
-+	SET_NETDEV_DEV(card->dev, &ccwgdev->dev);
-+	return register_netdev(card->dev);
++	int	dec;
++	int	d;
++	char *	s;
++
++	for(s = bus_id, d = 0; *s != '\0' && *s != '.'; s++)
++		d = (d * 10) + (*s - '0');
++	dec = d;
++	for(s++, d = 0; *s != '\0' && *s != '.'; s++)
++		d = (d * 10) + (*s - '0');
++	dec = (dec << 8) + d;
++
++	for(s++; *s != '\0'; s++) {
++		if (*s >= '0' && *s <= '9') {
++			d = *s - '0';
++		} else if (*s >= 'a' && *s <= 'f') {
++			d = *s - 'a' + 10;
++		} else {
++			d = *s - 'A' + 10;
++		}
++		dec = (dec << 4) + d;
++	}
++
++	return dec;
 +}
 +
- /**
-  * lcs_new_device will be called by setting the group device online.
-  */
-+
- static int
- lcs_new_device(struct ccwgroup_device *ccwgdev)
- {
- 	struct  lcs_card *card;
--	struct net_device *dev;
-+	struct net_device *dev=NULL;
-+	enum lcs_dev_states recover_state;
- 	int rc;
- 
- 	card = (struct lcs_card *)ccwgdev->dev.driver_data;
- 	if (!card)
- 		return -ENODEV;
- 
-+	LCS_DBF_TEXT(2, setup, "newdev");
-+	LCS_DBF_HEX(3, setup, &card, sizeof(void*));
- 	card->read.ccwdev  = ccwgdev->cdev[0];
- 	card->write.ccwdev = ccwgdev->cdev[1];
--
-+	
-+	recover_state = card->state;
- 	ccw_device_set_online(card->read.ccwdev);
- 	ccw_device_set_online(card->write.ccwdev);
- 
- 	LCS_DBF_TEXT(3, setup, "lcsnewdv");
--	rc = lcs_setup_card(card);
--	if (rc) {
--		LCS_DBF_TEXT(3, setup, "errinit");
--		PRINT_ERR("LCS card Initialization failed\n");
--		return rc;
--	}
--
-+	
-+	lcs_setup_card(card);
- 	rc = lcs_detect(card);
- 	if (rc) {
- 		lcs_stopcard(card);
- 		lcs_cleanup_card(card);
--		return -ENODEV;
-+		goto out;
-+	}
-+	if (card->dev) {
-+		LCS_DBF_TEXT(2, setup, "samedev");
-+		LCS_DBF_HEX(3, setup, &card, sizeof(void*));
-+		goto netdev_out;
- 	}
- 	switch (card->lan_type) {
- #ifdef CONFIG_NET_ETHERNET
-@@ -1840,27 +1888,34 @@
- 	}
- 	if (!dev)
- 		goto out;
--	memcpy(dev->dev_addr, card->mac, LCS_MAC_LENGTH);
- 	card->dev = dev;
--	dev->priv = card;
--	dev->open = lcs_open_device;
--	dev->stop = lcs_stop_device;
--	dev->hard_start_xmit = lcs_start_xmit;
-+netdev_out:
-+	card->dev->priv = card;
-+	card->dev->open = lcs_open_device;
-+	card->dev->stop = lcs_stop_device;
-+	card->dev->hard_start_xmit = lcs_start_xmit;
-+	card->dev->get_stats = lcs_getstats;
-+	SET_MODULE_OWNER(dev);
-+	if (lcs_register_netdev(ccwgdev) != 0)
-+		goto out;
-+	memcpy(card->dev->dev_addr, card->mac, LCS_MAC_LENGTH);
- #ifdef CONFIG_IP_MULTICAST
- 	if (lcs_check_multicast_support(card))
--		dev->set_multicast_list = lcs_set_multicast_list;
-+		card->dev->set_multicast_list = lcs_set_multicast_list;
- #endif
--	dev->get_stats = lcs_getstats;
--	SET_MODULE_OWNER(dev);
--	if (register_netdev(dev) != 0)
--		goto out;
--	/* Create symlinks. */
--	SET_NETDEV_DEV(dev, &ccwgdev->dev);
--
--	netif_stop_queue(dev);
--	lcs_stopcard(card);
-+	netif_stop_queue(card->dev);
-+	if (recover_state == DEV_STATE_RECOVER) {
-+		card->dev->flags |= IFF_UP;
-+		netif_wake_queue(card->dev);
-+		card->state = DEV_STATE_UP;
-+	} else
-+		lcs_stopcard(card);
-+	
- 	return 0;
- out:
-+	
-+	ccw_device_set_offline(card->read.ccwdev);
-+	ccw_device_set_offline(card->write.ccwdev);
- 	lcs_cleanup_card(card);
- 	return -ENODEV;
- }
-@@ -1872,17 +1927,25 @@
- lcs_shutdown_device(struct ccwgroup_device *ccwgdev)
- {
- 	struct lcs_card *card;
-+	enum lcs_dev_states recover_state;
- 	int ret;
- 
- 	LCS_DBF_TEXT(3, setup, "shtdndev");
- 	card = (struct lcs_card *)ccwgdev->dev.driver_data;
- 	if (!card)
- 		return -ENODEV;
-+	
-+	LCS_DBF_HEX(3, setup, &card, sizeof(void*));
-+	recover_state = card->state;
- 
- 	ret = lcs_stop_device(card->dev);
-+	ret = ccw_device_set_offline(card->read.ccwdev);
-+	ret = ccw_device_set_offline(card->write.ccwdev);	
-+	if (recover_state == DEV_STATE_UP) {
-+		card->state = DEV_STATE_RECOVER;
-+	}
- 	if (ret)
- 		return ret;
--	unregister_netdev(card->dev);
- 	return 0;
- }
- 
-@@ -1894,14 +1957,17 @@
- {
- 	struct lcs_card *card;
- 
--	LCS_DBF_TEXT(3, setup, "remdev");
- 	card = (struct lcs_card *)ccwgdev->dev.driver_data;
- 	if (!card)
- 		return;
-+	
-+	PRINT_INFO("Removing lcs group device ....\n");
-+	LCS_DBF_TEXT(3, setup, "remdev");
-+	LCS_DBF_HEX(3, setup, &card, sizeof(void*));
- 	if (ccwgdev->state == CCWGROUP_ONLINE) {
--		lcs_stop_device(card->dev); /* Ignore rc. */
--		unregister_netdev(card->dev);
-+		lcs_shutdown_device(ccwgdev); 
- 	}
-+	unregister_netdev(card->dev);
- 	sysfs_remove_group(&ccwgdev->dev.kobj, &lcs_attr_group);
- 	lcs_cleanup_card(card);
- 	lcs_free_card(card);
-diff -urN linux-2.6/drivers/s390/net/lcs.h linux-2.6-s390/drivers/s390/net/lcs.h
---- linux-2.6/drivers/s390/net/lcs.h	Thu Mar 11 03:55:36 2004
-+++ linux-2.6-s390/drivers/s390/net/lcs.h	Fri Mar 26 18:25:58 2004
-@@ -6,19 +6,36 @@
- #include <linux/workqueue.h>
- #include <asm/ccwdev.h>
- 
--#define VERSION_LCS_H "$Revision: 1.13 $"
-+#define VERSION_LCS_H "$Revision: 1.15 $"
- 
- #define LCS_DBF_TEXT(level, name, text) \
- 	do { \
- 		debug_text_event(lcs_dbf_##name, level, text); \
- 	} while (0)
- 
-+#define LCS_DBF_HEX(level,name,addr,len) \
-+do { \
-+	debug_event(lcs_dbf_##name,level,(void*)(addr),len); \
-+} while (0)
-+
-+#define LCS_DBF_TEXT_(level,name,text...) \
-+do {                                       \
-+	sprintf(debug_buffer, text);  \
-+		debug_text_event(lcs_dbf_##name,level, debug_buffer);\
-+} while (0)
-+
- /**
-  * some more definitions for debug or output stuff
-  */
- #define PRINTK_HEADER		" lcs: "
- 
- /**
-+ *	sysfs related stuff
-+ */
-+#define CARD_FROM_DEV(cdev) \
-+	(struct lcs_card *) \
-+	((struct ccwgroup_device *)cdev->dev.driver_data)->dev.driver_data;
-+/**
-  * CCW commands used in this driver
-  */
- #define LCS_CCW_WRITE		0x01
-@@ -123,6 +140,7 @@
- 	CH_STATE_STOPPED,
- 	CH_STATE_RUNNING,
- 	CH_STATE_SUSPENDED,
-+	CH_STATE_CLEARED,
- };
- 
- /**
-@@ -131,6 +149,7 @@
- enum lcs_dev_states {
- 	DEV_STATE_DOWN,
- 	DEV_STATE_UP,
-+	DEV_STATE_RECOVER,
- };
- 
- /**
-diff -urN linux-2.6/drivers/s390/net/netiucv.c linux-2.6-s390/drivers/s390/net/netiucv.c
---- linux-2.6/drivers/s390/net/netiucv.c	Fri Mar 26 18:24:55 2004
-+++ linux-2.6-s390/drivers/s390/net/netiucv.c	Fri Mar 26 18:25:58 2004
-@@ -1,5 +1,5 @@
  /*
-- * $Id: netiucv.c,v 1.45 2004/03/15 08:48:48 braunu Exp $
-+ * $Id: netiucv.c,v 1.47 2004/03/22 07:41:42 braunu Exp $
+  * Some channel attached tape specific attributes.
   *
-  * IUCV network driver
-  *
-@@ -30,7 +30,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * RELEASE-TAG: IUCV network driver $Revision: 1.45 $
-+ * RELEASE-TAG: IUCV network driver $Revision: 1.47 $
-  *
+@@ -296,10 +324,15 @@
+ }
+ 
+ /*
+- * Enable tape device
++ * Set a device online.
++ *
++ * This function is called by the common I/O layer to move a device from the
++ * detected but offline into the online state.
++ * If we return an error (RC < 0) the device remains in the offline state. This
++ * can happen if the device is assigned somewhere else, for example.
   */
- 
-@@ -764,7 +764,7 @@
+ int
+-tape_enable_device(struct tape_device *device,
++tape_generic_online(struct tape_device *device,
+ 		   struct tape_discipline *discipline)
  {
- 	struct iucv_event *ev = (struct iucv_event *)arg;
- 	struct iucv_connection *conn = ev->conn;
--
-+	__u16 msglimit;
  	int rc;
+@@ -328,6 +361,9 @@
+ 		goto out_char;
  
- 	pr_debug("%s() called\n", __FUNCTION__);
-@@ -793,10 +793,11 @@
+ 	tape_state_set(device, TS_UNUSED);
++
++	DBF_LH(3, "(%08x): Drive set online\n", device->cdev_id);
++
+ 	return 0;
  
- 	fsm_newstate(fi, CONN_STATE_SETUPWAIT);
- 	rc = iucv_connect(&(conn->pathid), NETIUCV_QUEUELEN_DEFAULT, iucvMagic,
--			  conn->userid, iucv_host, 0, NULL, NULL, conn->handle,
-+			  conn->userid, iucv_host, 0, NULL, &msglimit, conn->handle,
- 			  conn);
- 	switch (rc) {
- 		case 0:
-+			conn->netdev->tx_queue_len = msglimit;
- 			return;
- 		case 11:
- 			printk(KERN_NOTICE
-@@ -1911,7 +1912,7 @@
- static void
- netiucv_banner(void)
+ out_char:
+@@ -342,37 +378,49 @@
+ }
+ 
+ /*
+- * Disable tape device. Check if there is a running request and
+- * terminate it. Post all queued requests with -EIO.
++ * Set device offline.
++ *
++ * Called by the common I/O layer if the drive should set offline on user
++ * request. We may prevent this by returning an error.
++ * Manual offline is only allowed while the drive is not in use.
+  */
+-void
+-tape_disable_device(struct tape_device *device)
++int
++tape_generic_offline(struct tape_device *device)
  {
--	char vbuf[] = "$Revision: 1.45 $";
-+	char vbuf[] = "$Revision: 1.47 $";
- 	char *version = vbuf;
+-	struct list_head *l, *n;
+-	struct tape_request *request;
++	if (!device) {
++		PRINT_ERR("tape_generic_offline: no such device\n");
++		return -ENODEV;
++	}
++
++	DBF_LH(3, "(%08x): tape_generic_offline(%p)\n",
++		device->cdev_id, device);
  
- 	if ((version = strchr(version, ':'))) {
-diff -urN linux-2.6/drivers/s390/net/qeth.c linux-2.6-s390/drivers/s390/net/qeth.c
---- linux-2.6/drivers/s390/net/qeth.c	Fri Mar 26 18:24:55 2004
-+++ linux-2.6-s390/drivers/s390/net/qeth.c	Fri Mar 26 18:25:58 2004
-@@ -755,7 +755,7 @@
- 	int problem = 0;
- 	struct qeth_card *card;
+ 	spin_lock_irq(get_ccwdev_lock(device->cdev));
+-	/* Post remaining requests with -EIO */
+-	list_for_each_safe(l, n, &device->req_queue) {
+-		request = list_entry(l, struct tape_request, list);
+-		if (request->status == TAPE_REQUEST_IN_IO)
+-			__tape_halt_io(device, request);
+-		list_del(&request->list);
+-		/* Decrease ref_count for removed request. */
+-		request->device = tape_put_device(device);
+-		request->rc = -EIO;
+-		if (request->callback != NULL)
+-			request->callback(request, request->callback_data);
++	switch (device->tape_state) {
++		case TS_INIT:
++		case TS_NOT_OPER:
++			break;
++		case TS_UNUSED:
++			tapeblock_cleanup_device(device);
++			tapechar_cleanup_device(device);
++			device->discipline->cleanup_device(device);
++			tape_remove_minor(device);
++		default:
++			DBF_EVENT(3, "(%08x): Set offline failed "
++				"- drive in use.\n",
++				device->cdev_id);
++			PRINT_WARN("(%s): Set offline failed "
++				"- drive in use.\n",
++				device->cdev->dev.bus_id);
++			spin_unlock_irq(get_ccwdev_lock(device->cdev));
++			return -EBUSY;
+ 	}
+ 	spin_unlock_irq(get_ccwdev_lock(device->cdev));
  
--	card = cdev->dev.driver_data;
-+	card = CARD_FROM_CDEV(cdev);
+-	tapeblock_cleanup_device(device);
+-	tapechar_cleanup_device(device);
+-	device->discipline->cleanup_device(device);
+-	tape_remove_minor(device);
+-
+ 	tape_med_state_set(device, MS_UNKNOWN);
+-	device->tape_state = TS_INIT;
++
++	DBF_LH(3, "(%08x): Drive set offline.\n", device->cdev_id);
++	return 0;
+ }
  
- 	if (atomic_read(&card->shutdown_phase))
- 		return 0;
-@@ -6105,7 +6105,7 @@
- 	sprintf(dbf_text, "%4x", rqparam);
- 	QETH_DBF_TEXT4(0, trace, dbf_text);
+ /*
+@@ -479,14 +527,14 @@
+ tape_generic_probe(struct ccw_device *cdev)
+ {
+ 	struct tape_device *device;
+-	char *bus_id = cdev->dev.bus_id;
  
--	card = cdev->dev.driver_data;
-+	card = CARD_FROM_CDEV(cdev);
- 	if (!card)
+ 	device = tape_alloc_device();
+ 	if (IS_ERR(device))
+ 		return -ENODEV;
+-	PRINT_INFO("tape device %s found\n", bus_id);
++	PRINT_INFO("tape device %s found\n", cdev->dev.bus_id);
+ 	cdev->dev.driver_data = device;
+ 	device->cdev = cdev;
++	device->cdev_id = busid_to_int(cdev->dev.bus_id);
+ 	cdev->handler = __tape_do_irq;
+ 
+ 	ccw_device_set_options(cdev, CCWDEV_DO_PATHGROUP);
+@@ -497,15 +545,58 @@
+ 
+ /*
+  * Driverfs tape remove function.
++ *
++ * This function is called whenever the common I/O layer detects the device
++ * gone. This can happen at any time and we cannot refuse.
+  */
+ void
+ tape_generic_remove(struct ccw_device *cdev)
+ {
+-	ccw_device_set_offline(cdev);
++	struct tape_device *	device;
++	struct tape_request *	request;
++	struct list_head *	l, *n;
++
++	device = cdev->dev.driver_data;
++	DBF_LH(3, "(%08x): tape_generic_remove(%p)\n", device->cdev_id, cdev);
++
++	/*
++	 * No more requests may be processed. So just post them as i/o errors.
++	 */
++	spin_lock_irq(get_ccwdev_lock(device->cdev));
++	list_for_each_safe(l, n, &device->req_queue) {
++		request = list_entry(l, struct tape_request, list);
++		if (request->status == TAPE_REQUEST_IN_IO)
++			request->status = TAPE_REQUEST_DONE;
++		list_del(&request->list);
++
++		/* Decrease ref_count for removed request. */
++		request->device = tape_put_device(device);
++		request->rc = -EIO;
++		if (request->callback != NULL)
++			request->callback(request, request->callback_data);
++	}
++
++	if (device->tape_state != TS_UNUSED && device->tape_state != TS_INIT) {
++		DBF_EVENT(3, "(%08x): Drive in use vanished!\n",
++			device->cdev_id);
++		PRINT_WARN("(%s): Drive in use vanished - expect trouble!\n",
++			device->cdev->dev.bus_id);
++		PRINT_WARN("State was %i\n", device->tape_state);
++		device->tape_state = TS_NOT_OPER;
++		tapeblock_cleanup_device(device);
++		tapechar_cleanup_device(device);
++		device->discipline->cleanup_device(device);
++		tape_remove_minor(device);
++	}
++	device->tape_state = TS_NOT_OPER;
++	tape_med_state_set(device, MS_UNKNOWN);
++	spin_unlock_irq(get_ccwdev_lock(device->cdev));
++
+ 	if (cdev->dev.driver_data != NULL) {
+ 		sysfs_remove_group(&cdev->dev.kobj, &tape_attr_group);
+ 		cdev->dev.driver_data = tape_put_device(cdev->dev.driver_data);
+ 	}
++
+ }
+ 
+ /*
+@@ -665,7 +756,7 @@
+ 		op = "---";
+ 	DBF_EVENT(3, "DSTAT : %02x   CSTAT: %02x\n",
+ 		  irb->scsw.dstat,irb->scsw.cstat);
+-	DBF_EVENT(3, "DEVICE: %s OP\t: %s\n", device->cdev->dev.bus_id,op);
++	DBF_EVENT(3, "DEVICE: %08x OP\t: %s\n", device->cdev_id, op);
+ 	sptr = (unsigned int *) irb->ecw;
+ 	DBF_EVENT(3, "%08x %08x\n", sptr[0], sptr[1]);
+ 	DBF_EVENT(3, "%08x %08x\n", sptr[2], sptr[3]);
+@@ -815,7 +906,7 @@
+ 	spin_lock_irq(get_ccwdev_lock(device->cdev));
+ 	rc = __tape_halt_io(device, request);
+ 	if (rc == 0) {
+-		DBF_EVENT(3, "IO stopped on %s\n", device->cdev->dev.bus_id);
++		DBF_EVENT(3, "IO stopped on %08x\n", device->cdev_id);
+ 		rc = -ERESTARTSYS;
+ 	}
+ 	spin_unlock_irq(get_ccwdev_lock(device->cdev));
+@@ -823,6 +914,24 @@
+ }
+ 
+ /*
++ * Handle requests that return an i/o error in the irb.
++ */
++static inline void
++tape_handle_killed_request(
++	struct tape_device *device,
++	struct tape_request *request)
++{
++	if(request != NULL) {
++		/* Set ending status. FIXME: Should the request be retried? */
++		request->rc = -EIO;
++		request->status = TAPE_REQUEST_DONE;
++		__tape_remove_request(device, request);
++	} else {
++		__tape_do_io_list(device);
++	}
++}
++
++/*
+  * Tape interrupt routine, called from the ccw_device layer
+  */
+ static void
+@@ -835,7 +944,7 @@
+ 
+ 	device = (struct tape_device *) cdev->dev.driver_data;
+ 	if (device == NULL) {
+-		PRINT_ERR("could not get device structure for bus_id %s "
++		PRINT_ERR("could not get device structure for %s "
+ 			  "in interrupt\n", cdev->dev.bus_id);
  		return;
+ 	}
+@@ -843,6 +952,23 @@
  
-@@ -6231,7 +6231,7 @@
- 	sprintf(dbf_text, "%4x", rqparam);
- 	QETH_DBF_TEXT4(0, trace, dbf_text);
+ 	DBF_LH(6, "__tape_do_irq(device=%p, request=%p)\n", device, request);
  
--	card = cdev->dev.driver_data;
-+	card = CARD_FROM_CDEV(cdev);
- 	if (!card)
- 		return;
++	/* On special conditions irb is an error pointer */
++	if (IS_ERR(irb)) {
++		switch (PTR_ERR(irb)) {
++			case -ETIMEDOUT:
++				PRINT_WARN("(%s): Request timed out\n",
++					cdev->dev.bus_id);
++			case -EIO:
++				tape_handle_killed_request(device, request);
++				break;
++			default:
++				PRINT_ERR("(%s): Unexpected i/o error %li\n",
++					cdev->dev.bus_id,
++					PTR_ERR(irb));
++		}
++		return;
++	}
++
+ 	/* May be an unsolicited irq */
+ 	if(request != NULL)
+ 		request->rescnt = irb->scsw.count;
+@@ -1023,7 +1149,7 @@
+ #ifdef DBF_LIKE_HELL
+ 	debug_set_level(tape_dbf_area, 6);
+ #endif
+-	DBF_EVENT(3, "tape init: ($Revision: 1.44 $)\n");
++	DBF_EVENT(3, "tape init: ($Revision: 1.48 $)\n");
+ 	tape_proc_init();
+ 	tapechar_init ();
+ 	tapeblock_init ();
+@@ -1048,7 +1174,7 @@
+ MODULE_AUTHOR("(C) 2001 IBM Deutschland Entwicklung GmbH by Carsten Otte and "
+ 	      "Michael Holzheu (cotte@de.ibm.com,holzheu@de.ibm.com)");
+ MODULE_DESCRIPTION("Linux on zSeries channel attached "
+-		   "tape device driver ($Revision: 1.44 $)");
++		   "tape device driver ($Revision: 1.48 $)");
+ MODULE_LICENSE("GPL");
  
-@@ -6343,7 +6343,7 @@
- 	sprintf(dbf_text, "%4x", rqparam);
- 	QETH_DBF_TEXT4(0, trace, dbf_text);
+ module_init(tape_init);
+@@ -1056,9 +1182,9 @@
  
--	card = cdev->dev.driver_data;
-+	card = CARD_FROM_CDEV(cdev);
- 	if (!card)
- 		return;
+ EXPORT_SYMBOL(tape_dbf_area);
+ EXPORT_SYMBOL(tape_generic_remove);
+-EXPORT_SYMBOL(tape_disable_device);
+ EXPORT_SYMBOL(tape_generic_probe);
+-EXPORT_SYMBOL(tape_enable_device);
++EXPORT_SYMBOL(tape_generic_online);
++EXPORT_SYMBOL(tape_generic_offline);
+ EXPORT_SYMBOL(tape_put_device);
+ EXPORT_SYMBOL(tape_get_device_reference);
+ EXPORT_SYMBOL(tape_state_verbose);
+diff -urN linux-2.6/drivers/s390/char/tape_std.c linux-2.6-s390/drivers/s390/char/tape_std.c
+--- linux-2.6/drivers/s390/char/tape_std.c	Thu Mar 11 03:55:20 2004
++++ linux-2.6-s390/drivers/s390/char/tape_std.c	Fri Mar 26 18:25:58 2004
+@@ -42,8 +42,8 @@
  
-@@ -10620,13 +10620,10 @@
- 	card->gdev = gdev;
+ 	spin_lock_irq(get_ccwdev_lock(device->cdev));
+ 	if (request->callback != NULL) {
+-		DBF_EVENT(3, "%s: Assignment timeout. Device busy.\n",
+-			device->cdev->dev.bus_id);
++		DBF_EVENT(3, "%08x: Assignment timeout. Device busy.\n",
++			device->cdev_id);
+ 		PRINT_ERR("%s: Assignment timeout. Device busy.\n",
+ 			device->cdev->dev.bus_id);
+ 		ccw_device_clear(device->cdev, (long) request);
+@@ -84,10 +84,10 @@
+ 	if (rc != 0) {
+ 		PRINT_WARN("%s: assign failed - device might be busy\n",
+ 			device->cdev->dev.bus_id);
+-		DBF_EVENT(3, "%s: assign failed - device might be busy\n",
+-			device->cdev->dev.bus_id);
++		DBF_EVENT(3, "%08x: assign failed - device might be busy\n",
++			device->cdev_id);
+ 	} else {
+-		DBF_EVENT(3, "%s: Tape assigned\n", device->cdev->dev.bus_id);
++		DBF_EVENT(3, "%08x: Tape assigned\n", device->cdev_id);
+ 	}
+ 	tape_free_request(request);
+ 	return rc;
+@@ -102,6 +102,14 @@
+ 	int                  rc;
+ 	struct tape_request *request;
  
- 	gdev->cdev[0]->handler = qeth_interrupt_handler_read;
--	gdev->cdev[0]->dev.driver_data = card;
++	if (device->tape_state == TS_NOT_OPER) {
++		DBF_EVENT(3, "(%08x): Can't unassign device\n",
++			device->cdev_id);
++		PRINT_WARN("(%s): Can't unassign device - device gone\n",
++			device->cdev->dev.bus_id);
++		return -EIO;
++	}
++
+ 	request = tape_alloc_request(2, 11);
+ 	if (IS_ERR(request))
+ 		return PTR_ERR(request);
+@@ -111,10 +119,10 @@
+ 	tape_ccw_end(request->cpaddr + 1, NOP, 0, NULL);
  
- 	gdev->cdev[1]->handler = qeth_interrupt_handler_write;
--	gdev->cdev[1]->dev.driver_data = card;
- 
- 	gdev->cdev[2]->handler = qeth_interrupt_handler_qdio;
--	gdev->cdev[2]->dev.driver_data = card;
- 
- 	ret = __qeth_create_attributes(&gdev->dev);
- 	if (ret != 0)
-diff -urN linux-2.6/drivers/s390/net/qeth.h linux-2.6-s390/drivers/s390/net/qeth.h
---- linux-2.6/drivers/s390/net/qeth.h	Thu Mar 11 03:55:21 2004
-+++ linux-2.6-s390/drivers/s390/net/qeth.h	Fri Mar 26 18:25:58 2004
-@@ -696,6 +696,8 @@
- #define CARD_RDEV_ID(card) card->gdev->cdev[0]->dev.bus_id
- #define CARD_WDEV_ID(card) card->gdev->cdev[1]->dev.bus_id
- #define CARD_DDEV_ID(card) card->gdev->cdev[2]->dev.bus_id
-+#define CARD_FROM_CDEV(cdev) (struct qeth_card *) \
-+	((struct ccwgroup_device *) cdev->dev.driver_data)->dev.driver_data
- 
- #define SENSE_COMMAND_REJECT_BYTE 0
- #define SENSE_COMMAND_REJECT_FLAG 0x80
+ 	if ((rc = tape_do_io(device, request)) != 0) {
+-		DBF_EVENT(3, "%s: Unassign failed\n", device->cdev->dev.bus_id);
++		DBF_EVENT(3, "%08x: Unassign failed\n", device->cdev_id);
+ 		PRINT_WARN("%s: Unassign failed\n", device->cdev->dev.bus_id);
+ 	} else {
+-		DBF_EVENT(3, "%s: Tape unassigned\n", device->cdev->dev.bus_id);
++		DBF_EVENT(3, "%08x: Tape unassigned\n", device->cdev_id);
+ 	}
+ 	tape_free_request(request);
+ 	return rc;

@@ -1,108 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271690AbTGXPh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 11:37:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271696AbTGXPh3
+	id S269461AbTGXPje (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 11:39:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271696AbTGXPje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 11:37:29 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:47746 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S271690AbTGXPh0
+	Thu, 24 Jul 2003 11:39:34 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:55231 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S269461AbTGXPjc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 11:37:26 -0400
-Date: Thu, 24 Jul 2003 11:54:45 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Larry McVoy <lm@bitmover.com>
-cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Diego Calleja Garc?a <diegocg@teleline.es>,
-       Michael Bernstein <michael@seven-angels.net>, gmicsko@szintezis.hu,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: SCO offers UnixWare licenses for Linux
-In-Reply-To: <20030724150841.GA12647@work.bitmover.com>
-Message-ID: <Pine.LNX.4.53.0307241134200.21503@chaos>
-References: <1058807414.513.4.camel@sunshine> <141DFFFA-BBA4-11D7-A61F-000A95773C00@seven-angels.net>
- <20030721205940.7190f845.diegocg@teleline.es> <1059058329.957.11.camel@teapot.felipe-alfaro.com>
- <20030724150841.GA12647@work.bitmover.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 24 Jul 2003 11:39:32 -0400
+Date: Thu, 24 Jul 2003 08:54:32 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Tupshin Harper <tupshin@tupshin.com>
+Cc: Larry McVoy <lm@bitmover.com>, Nikita Danilov <Nikita@Namesys.COM>,
+       Shawn <core@enodev.com>, Hans Reiser <reiser@Namesys.COM>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       reiserfs mailing list <reiserfs-list@Namesys.COM>
+Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
+Message-ID: <20030724155432.GE12647@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Tupshin Harper <tupshin@tupshin.com>, Larry McVoy <lm@bitmover.com>,
+	Nikita Danilov <Nikita@Namesys.COM>, Shawn <core@enodev.com>,
+	Hans Reiser <reiser@Namesys.COM>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	reiserfs mailing list <reiserfs-list@Namesys.COM>
+References: <3F1EF7DB.2010805@namesys.com> <3F1F6005.4060307@tupshin.com> <1059021113.7911.13.camel@localhost> <3F1F66F0.1050406@tupshin.com> <1059024090.9728.22.camel@localhost> <16159.48809.812634.455756@laputa.namesys.com> <3F1FF6DB.2090104@tupshin.com> <20030724152649.GB12647@work.bitmover.com> <3F1FFBF9.2050308@tupshin.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F1FFBF9.2050308@tupshin.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Jul 2003, Larry McVoy wrote:
+On Thu, Jul 24, 2003 at 08:26:49AM -0700, Larry McVoy wrote:
+> > >http://www.namesys.com/code.html (requires bitkeeper)?                     
+>                                                                               
+> If someone can tell me what it is that you need and I'll do it and send you   
+> a patch.  I'm cloning that tree now.                                          
+   
+I pulled the r4 tree into linux-2.5 (2.6) top of trunk, merged it (it all
+automerged, ya gotta love that, see below), and sent out a patch.  If someone
+else needs that patch let me know.
 
-> On Thu, Jul 24, 2003 at 04:52:09PM +0200, Felipe Alfaro Solana wrote:
-> > On Mon, 2003-07-21 at 20:59, Diego Calleja Garc?a wrote:
-> > > El Mon, 21 Jul 2003 13:52:21 -0400 Michael Bernstein <michael@seven-angels.net> escribi?:
-> > >
-> > > > To put it simply, just because they "may,"  - and I say may here simply
-> > > > because we have no evidence to prove their claims but cannot flatly
-> > > > deny them - own the rights to Sys V, does NOT mean they own the right
-> > >
-> > > So they want to sell us something that still hasn't proved....cool.
-> >
-> > And can be rewritten from scratch if necessary... They're crazy!
->
-> There seems to be a prevailing opinion that if there is stolen code in
-> Linux that came from SCO owned code that all that needs to be done is
-> to remove it and everything is fine.  I don't think it works that way.
-> If code was stolen and the fact that it is in Linux helped destroy
-> SCO's business then SCO has the right to try and get damages.  I.e.,
-> Linux damaged SCO by using the code.
->
-> It's also not a simple case of rewriting.  _Assuming_ that there was
-> something significant in Linux which came from SCO, i.e., they can make
-> the case that the Linux community wouldn't have thought of it on their
-> own, then you don't get to rewrite it because now you know how whatever
-> "it" is works and you didn't before.
->
-> The business world takes their IP seriously.  If, and it is a big if,
-> there is code in Linux from SCO, that's going to be a nasty mess to
-> clean up and we had better all pray that IBM just buys them and puts
-> Unix into the public domain.  Otherwise I think SCO could force Linux
-> backwards to whereever it was before the tainted code came in.  If that
-> happens, I (and I suspect a lot of you) will work to make sure that
-> things which couldn't possibly be tainted (like drivers) do make it
-> forward.
->
-> If SCO prevails it won't be the end of the world.  A lot of that scalability
-> stuff is just a waste of time, IMO.  32 processor systems are dinosaurs that
-> are going away and I'm not the only one who thinks so, Dell and IDC agree:
->
-> 	http://news.com.com/2100-1010_3-1027556.html
->
-> Don't get me wrong, there are some cool things in 2.5 that we all want but
-> if SCO puts a dent in the works Linux will recover and maybe be better.
-> --
-> ---
-> Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
-
-At least in the United States, you are not going to get away with
-claiming there is some stolen code that caused damages. The sole
-responsibility of a person who discovers stolen property is to
-make "good effort" to return it. So the party that claims that
-his property was stolen needs first to identify that stolen property.
-Then, and only then, the party that has possession of the property
-needs to make "good effort" to return it. Good effort means that,
-amongst other things, the person who returns the property must not
-suffer undue cost.
-
-Child's poem describing this point of law; "Finders keepers, losers
-weepers!"
-
-This is a very important concept. If it did not exist, I could
-lose my personal property anywhere and then claim that somebody
-stole it, causing damages. Instead, to prevent this kind of
-"legal theft", the only thing a person found in possession of
-"stolen" property needs to do is to return it, unless there is
-evidence that the possessor actually stole the property in question.
-
-Of course there's always some lawyer(s) that attempt to make
-new case-law. See http://www.overlawyered.com for details.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+takepatch: 2782 new revisions, 8 conflicts in 357 files
+440459 bytes uncompressed to 2455963, 5.58X expansion
+Running resolve to apply new work ...
+resolve: found 25 renames in pass 1
+resolve: resolved 25 renames in pass 2
+Content merge of Makefile OK
+Content merge of arch/um/drivers/ubd_kern.c OK
+Content merge of fs/jbd/transaction.c OK
+Content merge of fs/proc/proc_misc.c OK
+Content merge of include/linux/sched.h OK
+Content merge of kernel/ksyms.c OK
+Content merge of kernel/sched.c OK
+resolve: resolved 7 conflicts in pass 3
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

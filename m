@@ -1,28 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314787AbSEPVxC>; Thu, 16 May 2002 17:53:02 -0400
+	id <S314841AbSEPV57>; Thu, 16 May 2002 17:57:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314841AbSEPVxB>; Thu, 16 May 2002 17:53:01 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46340 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314787AbSEPVxB>; Thu, 16 May 2002 17:53:01 -0400
-Subject: Re: [PATCH 2.4.19pre8][RFC] remove-NFS-close-to-open from VFS (was Re: [PATCHSET] 2.4.19-pre8-jp12)
-To: joergprante@gmx.de
-Date: Thu, 16 May 2002 23:13:01 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <200205162142.AWF00051@netmail.netcologne.de> from "=?iso-8859-15?q?J=F6rg=20Prante?=" at May 16, 2002 11:40:19 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S314842AbSEPV56>; Thu, 16 May 2002 17:57:58 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:34672 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S314841AbSEPV56>; Thu, 16 May 2002 17:57:58 -0400
+Date: Thu, 16 May 2002 23:57:44 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Paul Faure <paul@engsoc.org>, linux-kernel@vger.kernel.org
+Subject: Re: Process priority in 2.4.18 (RedHat 7.3)
+Message-ID: <20020516215744.GI1025@dualathlon.random>
+In-Reply-To: <3CE414BF.15A0C74B@zip.com.au> <Pine.LNX.4.33.0205161650170.18851-100000@lager.engsoc.carleton.ca> <3CE41F42.ED20D0C6@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E178TUb-0005Bh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is it possible to leave the VFS layer untouched? Or restrict the dentry 
-> revalidation to NFS and let other remote file systems coexist, i.e. without 
-> revalidation calls? 
+On Thu, May 16, 2002 at 02:06:10PM -0700, Andrew Morton wrote:
+> of transmit attempts and is relying on ksoftirqd to transmit.
 
-Really the other file systems want fixing - that revalidation is a real bug
-fix and the situation could occur for other network file systems too
+ksoftirqd or not the softirq are guaranteed to keep running even if
+there's a task in loop with SCHED_FIFO, ksoftirqd only enhance/polish
+the case of a recursive softirq, or a very big flood of softirq events,
+it is not required to run softirqs.
+
+Andrea

@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282878AbRK0I5z>; Tue, 27 Nov 2001 03:57:55 -0500
+	id <S281468AbRKZDS7>; Sun, 25 Nov 2001 22:18:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282880AbRK0I5p>; Tue, 27 Nov 2001 03:57:45 -0500
-Received: from bartok.tm.edu.ro ([193.226.8.238]:18845 "EHLO bartok.tm.edu.ro")
-	by vger.kernel.org with ESMTP id <S282878AbRK0I5h>;
-	Tue, 27 Nov 2001 03:57:37 -0500
-Date: Mon, 26 Nov 2001 20:04:34 +0200 (EET)
-From: Valkai Elod <elod@bartok.tm.edu.ro>
-To: Mark Hymers <markh@linuxfromscratch.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: How do I add a drive to the DMA blacklist?
-In-Reply-To: <20011126002257.A507@markcomp.blaydon.hymers.org.uk>
-Message-ID: <Pine.LNX.4.33.0111262001290.13196-100000@bartok.tm.edu.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281448AbRKZDSt>; Sun, 25 Nov 2001 22:18:49 -0500
+Received: from host.nec.com.au ([147.76.180.129]:3344 "EHLO
+	firewall.nec.com.au") by vger.kernel.org with ESMTP
+	id <S281462AbRKZDSi>; Sun, 25 Nov 2001 22:18:38 -0500
+Subject: Re: IDE is still crap.. or something
+From: Daniel Stone <DanielS@esd.nec.com.au>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 27 Nov 2001 14:17:17 +1100
+Message-Id: <1006831037.2070.0.camel@syslogd>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Nov 2001, Mark Hymers wrote:
+To quote you (I'm pulling this from the archives as I can't handle the
+l-k mail load anymore):
 
-> On Sun, 25, Nov, 2001 at 06:17:08PM -0500, Jonathan Kamens spoke thus..
-> > How do I get a drive added to the DMA blacklists in ide-dma.c?  I sent
-> > E-mail to Andre Hedrick in August about a drive that claims to support
-> > DMA but flakes out as soon as the kernel tries to use it -- the "WDC
-> > AC31000H".  This is not surprising, since all the other WDC drives of
-> > this vintage have the same problem.  I included a patch to add this
-> > drive to the two blacklists in ide-dma.c.  Andre never responded to my
-> > E-mail, and the drive still hasn't been added to the blacklists.
-> >
-> > Am I doing something wrong?  What do I need to do to get this drive
-> > added to the blacklists?
-> Actually, while this subject is being brought up, if I don't do:
-> /sbin/hdparm -d0 /dev/hdc
-> on bootup, my system locks up randomly.  Looks like a DMA issue with my
-> hdc drive.. Details are:
+>Also, I'm not meaning to sound important or anything with my sig. Maybe
+>I 
+> should change it? Hmm... 
 >
-> /proc/ide/hdc/model:
-> QUANTUM FIREBALLlct08 26
+>
+> 
+> > Regards, 
+> > 
+> > Andre Hedrick 
+> > Linux ATA Development 
+> > Linux Disk Certification Project 
+> _____________________________________________________ 
+> | Martin Eriksson <nitrax@giron.wox.org> 
+> | Linux developer / Ignorant excuse for a human / 
+> | Ranting bastard / Swede 
 
-This seems to confirm my doubts about Quantum lct drives' sanity. I'm
-having two drives: a Quantum CX 13G, and a Maxtor 40G@5400. Both work with
-UDMA33 (mb doesn't support more). When i put a QUANTUM FIREBALL lct20 20G
-drive in my rack, random lockups occur. I'd put all Quantum LCT drives on
-the blacklist!
+I suggest you remove "Linux developer" from your sig. I had "Linux
+Kernel Developer" in there for a while, and it was somewhat of a
+recurring topic on debian-devel, and made me look like a pretencious
+prick. So, unless your name's in CREDITS, or MAINTAINERS, it's not a
+terribly good thing to put in your sig. :)
 
--- 
-
-========================.~.===============================================
-Elod VALKAI             /V\               "Linux is like a wigwam -
-elod@bartok.tm.edu.ro  // \\                no windows, no gates,
-                      /(   )\                  apache inside!"
-==netadmin@bartok===== ^`~'^ ==---phone:(+40)56 221273 (195913-home)---===
+--
+Daniel Stone					<DanielS@esd.nec.com.au>
+Linux/UNIX Developer, NEC Business Solutions
+(not a Linux Kernel Developer)
 

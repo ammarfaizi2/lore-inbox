@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131625AbRDTUzH>; Fri, 20 Apr 2001 16:55:07 -0400
+	id <S131590AbRDTUwh>; Fri, 20 Apr 2001 16:52:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131672AbRDTUy5>; Fri, 20 Apr 2001 16:54:57 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26376 "EHLO
+	id <S131625AbRDTUw2>; Fri, 20 Apr 2001 16:52:28 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23816 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131625AbRDTUyq>; Fri, 20 Apr 2001 16:54:46 -0400
-Subject: Re: OK, let's try cleaning up another nit. Is anyone paying attention?
-To: esr@thyrsus.com
-Date: Fri, 20 Apr 2001 21:55:14 +0100 (BST)
-Cc: willy@ldl.fc.hp.com (Matthew Wilcox), linux-kernel@vger.kernel.org,
-        parisc-linux@parisc-linux.org
-In-Reply-To: <20010420154743.A19618@thyrsus.com> from "Eric S. Raymond" at Apr 20, 2001 03:47:43 PM
+	id <S131590AbRDTUwK>; Fri, 20 Apr 2001 16:52:10 -0400
+Subject: Re: numbers?
+To: fabio@chromium.com (Fabio Riccardi)
+Date: Fri, 20 Apr 2001 21:53:18 +0100 (BST)
+Cc: mingo@elte.hu, zab@zabbo.net (Zach Brown),
+        linux-kernel@vger.kernel.org (Linux Kernel List),
+        davem@redhat.com (David S. Miller),
+        alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <3AE08F8E.643FDC63@chromium.com> from "Fabio Riccardi" at Apr 20, 2001 12:35:42 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14qhvx-0002BR-00@the-village.bc.nu>
+Message-Id: <E14qhu5-0002B8-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> CONFIG_BINFMT_SOM: arch/parisc/config.in arch/parisc/defconfig
-> Not used in code anywhere.  Can you get rid of this one?
+> Incidentally the same server running on a kernel with a multiqueue scheduler
+> achieves 1600 connections per second on the same machine, that was the original
+> reason for my message for a better scheduler.
 
-Its used in the parisc tree as are most of the others you see. You probably want
-to simply skip processing arch/parisc
+I get 2000 connections a second with a single threaded server called thttpd
+on my setup. Thats out of the box on 2.4.2ac with zero copy/sendfile.
+
+I've never had occasion to frob with tux or specweb
 

@@ -1,64 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130256AbQKKIaf>; Sat, 11 Nov 2000 03:30:35 -0500
+	id <S130210AbQKKJkx>; Sat, 11 Nov 2000 04:40:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130245AbQKKIa0>; Sat, 11 Nov 2000 03:30:26 -0500
-Received: from linus.st-and.ac.uk ([138.251.32.11]:35483 "EHLO
-	linus.st-andrews.ac.uk") by vger.kernel.org with ESMTP
-	id <S130232AbQKKIaS>; Sat, 11 Nov 2000 03:30:18 -0500
-Date: Sat, 11 Nov 2000 08:26:07 GMT
-Message-Id: <200011110826.IAA01091@hindleyhome.st-andrews.ac.uk>
-From: Mark Hindley <mh15@st-andrews.ac.uk>
-To: linux-sound@vger.kernel.org
-CC: linux-kernel@vger.kernel.org
-Subject: opl3 under 2.4.0-test10
+	id <S130245AbQKKJkn>; Sat, 11 Nov 2000 04:40:43 -0500
+Received: from cedifarme.it ([192.106.88.8]:13572 "HELO linuximpresa.it")
+	by vger.kernel.org with SMTP id <S130210AbQKKJkd>;
+	Sat, 11 Nov 2000 04:40:33 -0500
+Date: Sat, 11 Nov 2000 10:46:06 +0100
+From: Michele Iacobellis <miacobellis@linuximpresa.it>
+To: linux-kernel@vger.kernel.org
+Subject: thanks for your help
+X-Mailer: Sylpheed version 0.4.1 (GTK+ 1.2.8; Linux 2.4.0-test9; i686)
+Organization: Linux Impresa
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20001111094128.1B2CD186@linuximpresa.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to setup my ALS 110 soundcard under my build of kernel
-2.4.0-test10.
+Hello all,
+	thanks for your help !
 
-I have built in isapnp support and also the sb and opl3 drivers. 
-
-The sb driver works fine other than complaining about a missing 16 bit
-DMA (which I understand is missing from the card anyway). I can play
-and record wav with no problems. I am still missing MIDI.
-
-However, even though I pass opl3=0x388 on the Kernel command line all
-I get is an isapnp panic.
-
-Am I doing something silly or is there a bug? Is it a sound driver or
-isapnp or kernel problem?
-
-While trying to locate the problem I could not get any response from
-/dev/sndstat.
-
-% cat /dev/sndstat
-cat: /dev/sndstat: No such device
-
-Is it not supported in 2.4.0? I can't find the same info in the /proc filesystem.
-
-
-The full dmesg extract that seems relevant is 
-
-Linux version 2.4.0-test10 (root@HindleyHome) (gcc version 2.95.2 20000220 (Debian GNU/Linux)) #26 Fri Nov 3 18:08:00 GMT 2000
-
-YM3812 and OPL-3 driver Copyright (C) by Hannu Savolainen, Rob Hooft 1993-1996
-Soundblaster audio driver Copyright (C) by Hannu Savolainen 1993-1996
-sb: PnP Sound Chip detected
-sb: ALS110 isapnp panic: opl3 device not found
-sb: ISAPnP reports 'PnP Sound Chip' at i/o 0x220, irq 5, dma 3, 1
-SB16: Bad or missing 16 bit DMA channel
-<Sound Blaster 16 (ALS-100) (4.02)> at 0x220 irq 5 dma 3,1
-sb: 1 Soundblaster PnP card(s) found.
-
-Thanks for the help
-
-
-Mark
-
-
-
+--
+# Eng. Michele Iacobellis
+# R&D - Linux Impresa
+# miacobellis@linuximpresa.it
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

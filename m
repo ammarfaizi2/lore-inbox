@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261280AbTEFONZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 10:13:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbTEFOM3
+	id S263765AbTEFOMU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 10:12:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbTEFOMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 10:12:29 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:7824 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261280AbTEFOLS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 10:11:18 -0400
-Subject: Re: [PATCH] asm-generic magic
-From: "David S. Miller" <davem@redhat.com>
-To: george anzinger <george@mvista.com>
-Cc: Andrew Morton <akpm@zip.com.au>, kbuild-devel@lists.sourceforge.net,
-       mec@shout.net,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <3EB75924.1080304@mvista.com>
-References: <3EB75924.1080304@mvista.com>
-Content-Type: text/plain
+	Tue, 6 May 2003 10:12:19 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:56392 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S263765AbTEFOLd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 10:11:33 -0400
+Message-ID: <3EB7D399.4090109@myrealbox.com>
+Date: Tue, 06 May 2003 08:24:09 -0700
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.4a) Gecko/20030502
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David van Hoose <davidvh@cox.net>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.69] Fails on "Uncompressing Kernel" (detailed)
+References: <fa.athqjpk.133cvik@ifi.uio.no>
+In-Reply-To: <fa.athqjpk.133cvik@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052205991.983.13.camel@rth.ninka.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 06 May 2003 00:26:31 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-05-05 at 23:41, george anzinger wrote:
-> That is, if the file exists in .../include/asm/ use that one, if not 
-> and it exist in .../include/asm-generic/ use the generic one.
+David van Hoose wrote:
+> I've managed to get 2.5.69 to boot *once*. Not trusting the kernel to 
+> report the numerous problems until I can boot the kernel more than once. 
+> I lost my config so I can't figure out what I managed to do so right. I 
+> have tried a couple other configs that I normally use for 2.4.x, but 
+> with the new 2.5.x options. Those I have attached.
+> All I get is the "Uncompressing Linux" and then no more output. However, 
+> it appears that my system is booting anyway as if it is on another TTY. 
 
-This is not at all how this stuff is supposed to work.
+The configuration menu has changed recently so that support for normal
+console operation is not included by default.  To activate the usual
+console on VT and on VGA requires selecting options that are buried
+in the 'Character device' 'Input device' and 'Graphics support' menu
+sections.  Go all the way to the bottom of each section and you will
+see the obvious items you need to select.  Rather a confusing change.
 
-You must include them from the asm-${ARCH}/foo.h file.
-
-Please, don't create this setup.
-
--- 
-David S. Miller <davem@redhat.com>

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265098AbTBOUeN>; Sat, 15 Feb 2003 15:34:13 -0500
+	id <S265134AbTBOUh7>; Sat, 15 Feb 2003 15:37:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265114AbTBOUeN>; Sat, 15 Feb 2003 15:34:13 -0500
-Received: from covert.black-ring.iadfw.net ([209.196.123.142]:37125 "EHLO
+	id <S265066AbTBOUgf>; Sat, 15 Feb 2003 15:36:35 -0500
+Received: from covert.brown-ring.iadfw.net ([209.196.123.142]:42757 "EHLO
 	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
-	id <S265098AbTBOUeI>; Sat, 15 Feb 2003 15:34:08 -0500
-Date: Sat, 15 Feb 2003 14:42:03 -0600
+	id <S265134AbTBOUea>; Sat, 15 Feb 2003 15:34:30 -0500
+Date: Sat, 15 Feb 2003 14:43:23 -0600
 From: Art Haas <ahaas@airmail.net>
 To: linux-kernel@vger.kernel.org
 Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] C99 initializers for drivers/net/aironet4500_proc.c
-Message-ID: <20030215204203.GE20146@debian>
+Subject: [PATCH] C99 initializers for drivers/net/arlan-proc.c
+Message-ID: <20030215204323.GF20146@debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,194 +26,443 @@ readability and remove warnings if '-W' is used.
 
 Art Haas
 
-===== drivers/net/aironet4500_proc.c 1.12 vs edited =====
---- 1.12/drivers/net/aironet4500_proc.c	Fri Jan 10 23:06:26 2003
-+++ edited/drivers/net/aironet4500_proc.c	Sat Feb 15 13:43:16 2003
-@@ -356,41 +356,160 @@
+===== drivers/net/arlan-proc.c 1.5 vs edited =====
+--- 1.5/drivers/net/arlan-proc.c	Tue Feb  5 01:49:26 2002
++++ edited/drivers/net/arlan-proc.c	Sat Feb 15 14:17:42 2003
+@@ -816,14 +816,18 @@
  
+ /* Place files in /proc/sys/dev/arlan */
+ #define CTBLN(num,card,nam) \
+-        {num , #nam, &(arlan_conf[card].nam), \
+-         sizeof(int), 0600, NULL, &proc_dointvec}
++        { .ctl_name = num,\
++          .procname = #nam,\
++          .data = &(arlan_conf[card].nam),\
++          .maxlen = sizeof(int), .mode = 0600, .proc_handler = &proc_dointvec}
+ #ifdef ARLAN_DEBUGGING
  
- ctl_table awc_exdev_table[] = {
--       {0, NULL, NULL,0, 0400, NULL},
--       {0}
+-#define ARLAN_PROC_DEBUG_ENTRIES	{48, "entry_exit_debug", &arlan_entry_and_exit_debug, \
+-                sizeof(int), 0600, NULL, &proc_dointvec},\
+-	{49, "debug", &arlan_debug, \
+-                sizeof(int), 0600, NULL, &proc_dointvec},
++#define ARLAN_PROC_DEBUG_ENTRIES \
++        { .ctl_name = 48, .procname = "entry_exit_debug",\
++          .data = &arlan_entry_and_exit_debug,\
++          .maxlen = sizeof(int), .mode = 0600, .proc_handler = &proc_dointvec},\
++	{ .ctl_name = 49, .procname = "debug", .data = &arlan_debug,\
++          .maxlen = sizeof(int), .mode = 0600, .proc_handler = &proc_dointvec},
+ #else 
+ #define ARLAN_PROC_DEBUG_ENTRIES
+ #endif
+@@ -858,8 +862,9 @@
+ 	CTBLN(27,cardNo, txTimeoutMs),\
+ 	CTBLN(28,cardNo, waitCardTimeout),\
+ 	CTBLN(29,cardNo, channelSet), \
+-	{30, "name", arlan_conf[cardNo].siteName, \
+-                16, 0600, NULL, &proc_dostring},\
++	{.ctl_name = 30, .procname = "name",\
++	 .data = arlan_conf[cardNo].siteName,\
++	 .maxlen = 16, .mode = 0600, .proc_handler = &proc_dostring},\
+ 	CTBLN(31,cardNo,waitTime),\
+ 	CTBLN(32,cardNo,lParameter),\
+ 	CTBLN(33,cardNo,_15),\
+@@ -897,22 +902,64 @@
+ 	ARLAN_SYSCTL_TABLE_TOTAL(0)
+ 
+ #ifdef ARLAN_PROC_SHM_DUMP
+-	{150, "arlan0-txRing", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_infotxRing},
+-	{151, "arlan0-rxRing", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_inforxRing},
+-	{152, "arlan0-18", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_info18},
+-	{153, "arlan0-ring", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_info161719},
+-	{154, "arlan0-shm-cpy", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_info},
+-#endif
+-	{155, "config0", &conf_reset_result, \
+-	 100, 0400, NULL, &arlan_configure}, \
+-	{156, "reset0", &conf_reset_result, \
+-	 100, 0400, NULL, &arlan_sysctl_reset}, \
+-	{0}
 +	{
-+	       .ctl_name	= 0,
-+	       .maxlen		= 0,
-+	       .mode		= 0400,
-+       },
++		.ctl_name	= 150,
++		.procname	= "arlan0-txRing",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_infotxRing,
++	},
++	{
++		.ctl_name	= 151,
++		.procname	= "arlan0-rxRing",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_inforxRing,
++	},
++	{
++		.ctl_name	= 152,
++		.procname	= "arlan0-18",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_info18,
++	},
++	{
++		.ctl_name	= 153,
++		.procname	= "arlan0-ring",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_info161719,
++	},
++	{
++		.ctl_name	= 154,
++		.procname	= "arlan0-shm-cpy",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_info,
++	},
++#endif
++	{
++		.ctl_name	= 155,
++		.procname	= "config0",
++		.data		= &conf_reset_result,
++		.maxlen		= 100,
++		.mode		= 0400,
++		.proc_handler	= &arlan_configure
++	},
++	{
++		.ctl_name	= 156,
++		.procname	= "reset0",
++		.data		= &conf_reset_result,
++		.maxlen		= 100,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_reset,
++	},
 +	{ .ctl_name = 0 }
  };
- ctl_table awc_exroot_table[] = {
--        {254, "aironet4500", NULL, 0, 0555, NULL},
--        {0}
+ 
+ static ctl_table arlan_conf_table1[] =
+@@ -921,22 +968,64 @@
+ 	ARLAN_SYSCTL_TABLE_TOTAL(1)
+ 
+ #ifdef ARLAN_PROC_SHM_DUMP
+-	{150, "arlan1-txRing", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_infotxRing},
+-	{151, "arlan1-rxRing", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_inforxRing},
+-	{152, "arlan1-18", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_info18},
+-	{153, "arlan1-ring", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_info161719},
+-	{154, "arlan1-shm-cpy", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_info},
+-#endif
+-	{155, "config1", &conf_reset_result,
+-	 100, 0400, NULL, &arlan_configure},
+-	{156, "reset1", &conf_reset_result,
+-	 100, 0400, NULL, &arlan_sysctl_reset},
+-	{0}
++	{
++		.ctl_name	= 150,
++		.procname	= "arlan1-txRing",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_infotxRing,
++	},
++	{
++		.ctl_name	= 151,
++		.procname	= "arlan1-rxRing",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_inforxRing,
++	},
++	{
++		.ctl_name	= 152,
++		.procname	= "arlan1-18",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_info18,
++	},
++	{
++		.ctl_name	= 153,
++		.procname	= "arlan1-ring",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_info161719,
++	},
++	{
++		.ctl_name	= 154,
++		.procname	= "arlan1-shm-cpy",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_info,
++	},
++#endif
++	{
++		.ctl_name	= 155,
++		.procname	= "config1",
++		.data		= &conf_reset_result,
++		.maxlen		= 100,
++		.mode		= 0400,
++		.proc_handler	= &arlan_configure,
++	},
++	{
++		.ctl_name	= 156,
++		.procname	= "reset1",
++		.data		= &conf_reset_result,
++		.maxlen		= 100,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_reset,
++	},
++	{ .ctl_name = 0 }
+ };
+ 
+ static ctl_table arlan_conf_table2[] =
+@@ -945,22 +1034,64 @@
+ 	ARLAN_SYSCTL_TABLE_TOTAL(2)
+ 
+ #ifdef ARLAN_PROC_SHM_DUMP
+-	{150, "arlan2-txRing", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_infotxRing},
+-	{151, "arlan2-rxRing", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_inforxRing},
+-	{152, "arlan2-18", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_info18},
+-	{153, "arlan2-ring", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_info161719},
+-	{154, "arlan2-shm-cpy", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_info},
+-#endif
+-	{155, "config2", &conf_reset_result,
+-	 100, 0400, NULL, &arlan_configure},
+-	{156, "reset2", &conf_reset_result,
+-	 100, 0400, NULL, &arlan_sysctl_reset},
+-	{0}
++	{
++		.ctl_name	= 150,
++		.procname	= "arlan2-txRing",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_infotxRing,
++	},
++	{
++		.ctl_name	= 151,
++		.procname	= "arlan2-rxRing",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_inforxRing,
++	},
++	{
++		.ctl_name	= 152,
++		.procname	= "arlan2-18",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_info18,
++	},
++	{
++		.ctl_name	= 153,
++		.procname	= "arlan2-ring",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_info161719,
++	},
++	{
++		.ctl_name	= 154,
++		.procname	= "arlan2-shm-cpy",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_info,
++	},
++#endif
++	{
++		.ctl_name	= 155,
++		.procname	= "config2",
++		.data		= &conf_reset_result,
++		.maxlen		= 100,
++		.mode		= 0400,
++		.proc_handler	= &arlan_configure,
++	},
++	{
++		.ctl_name	= 156,
++		.procname	= "reset2",
++		.data		= &conf_reset_result,
++		.maxlen		= 100,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_reset,
++	},
++	{ .ctl_name = 0 }
+ };
+ 
+ static ctl_table arlan_conf_table3[] =
+@@ -969,47 +1100,113 @@
+ 	ARLAN_SYSCTL_TABLE_TOTAL(3)
+ 
+ #ifdef ARLAN_PROC_SHM_DUMP
+-	{150, "arlan3-txRing", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_infotxRing},
+-	{151, "arlan3-rxRing", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_inforxRing},
+-	{152, "arlan3-18", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_info18},
+-	{153, "arlan3-ring", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_info161719},
+-	{154, "arlan3-shm-cpy", &arlan_drive_info,
+-	 ARLAN_STR_SIZE, 0400, NULL, &arlan_sysctl_info},
+-#endif
+-	{155, "config3", &conf_reset_result,
+-	 100, 0400, NULL, &arlan_configure},
+-	{156, "reset3", &conf_reset_result,
+-	 100, 0400, NULL, &arlan_sysctl_reset},
+-	{0}
++	{
++		.ctl_name	= 150,
++		.procname	= "arlan3-txRing",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_infotxRing,
++	},
++	{
++		.ctl_name	= 151,
++		.procname	= "arlan3-rxRing",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_inforxRing,
++	},
++	{
++		.ctl_name	= 152,
++		.procname	= "arlan3-18",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_info18,
++	},
++	{
++		.ctl_name	= 153,
++		.procname	= "arlan3-ring",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_info161719,
++	},
++	{
++		.ctl_name	= 154,
++		.procname	= "arlan3-shm-cpy",
++		.data		= &arlan_drive_info,
++		.maxlen		= ARLAN_STR_SIZE,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_info,
++	},
++#endif
++	{
++		.ctl_name	= 155,
++		.procname	= "config3",
++		.data		= &conf_reset_result,
++		.maxlen		= 100,
++		.mode		= 0400,
++		.proc_handler	= &arlan_configure,
++	},
++	{
++		.ctl_name	= 156,
++		.procname	= "reset3",
++		.data		= &conf_reset_result,
++		.maxlen		= 100,
++		.mode		= 0400,
++		.proc_handler	= &arlan_sysctl_reset,
++	},
++	{ .ctl_name = 0 }
+ };
+ 
+ 
+ 
+ static ctl_table arlan_table[] =
+ {
+-	{0, "arlan0", NULL, 0, 0600, arlan_conf_table0},
+-	{0, "arlan1", NULL, 0, 0600, arlan_conf_table1},
+-	{0, "arlan2", NULL, 0, 0600, arlan_conf_table2},
+-	{0, "arlan3", NULL, 0, 0600, arlan_conf_table3},
+-	{0}
++	{
++		.ctl_name	= 0,
++		.procname	= "arlan0",
++		.maxlen		= 0,
++		.mode		= 0600,
++		.child		= arlan_conf_table0,
++	},
++	{
++		.ctl_name	= 0,
++		.procname	= "arlan1",
++		.maxlen		= 0,
++		.mode		= 0600,
++		.child		= arlan_conf_table1,
++	},
++	{
++		.ctl_name	= 0,
++		.procname	= "arlan2",
++		.maxlen		= 0,
++		.mode		= 0600,
++		.child		= arlan_conf_table2,
++	},
++	{
++		.ctl_name	= 0,
++		.procname	= "arlan3",
++		.maxlen		= 0,
++		.mode		= 0600,
++		.child		= arlan_conf_table3,
++	},
++	{ .ctl_name = 0 }
+ };
+ 
+ #else
+ 
+ static ctl_table arlan_table[MAX_ARLANS + 1] =
+ {
+-	{0}
++	{ .ctl_name = 0 }
+ };
+ #endif
+ #else
+ 
+ static ctl_table arlan_table[MAX_ARLANS + 1] =
+ {
+-	{0}
++	{ .ctl_name = 0 }
+ };
+ #endif
+ 
+@@ -1018,8 +1215,14 @@
+ 
+ static ctl_table arlan_root_table[] =
+ {
+-	{254, "arlan", NULL, 0, 0555, arlan_table},
+-	{0}
 +	{
 +		.ctl_name	= 254,
-+		.procname	= "aironet4500",
++		.procname	= "arlan",
 +		.maxlen		= 0,
 +		.mode		= 0555,
++		.child		= arlan_table,
 +	},
 +	{ .ctl_name = 0 }
  };
  
- ctl_table awc_driver_proc_table[] = {
--        {1, "debug"			, &awc_debug, sizeof(awc_debug), 0600,NULL, proc_dointvec},
--        {2, "bap_sleep"			, &bap_sleep, sizeof(bap_sleep), 0600,NULL, proc_dointvec},
--        {3, "bap_sleep_after_setup"	, &bap_sleep_after_setup, sizeof(bap_sleep_after_setup), 0600,NULL, proc_dointvec},
--        {4, "sleep_before_command"	, &sleep_before_command, sizeof(sleep_before_command), 0600,NULL, proc_dointvec},
--        {5, "bap_sleep_before_write"	, &bap_sleep_before_write, sizeof(bap_sleep_before_write), 0600,NULL, proc_dointvec},
--        {6, "sleep_in_command"		, &sleep_in_command	, sizeof(sleep_in_command), 0600,NULL, proc_dointvec},
--        {7, "both_bap_lock"		, &both_bap_lock	, sizeof(both_bap_lock), 0600,NULL, proc_dointvec},
--        {8, "bap_setup_spinlock"	, &bap_setup_spinlock	, sizeof(bap_setup_spinlock), 0600,NULL, proc_dointvec},
--        {0}
-+	{
-+		.ctl_name	= 1,
-+		.procname	= "debug",
-+		.data		= &awc_debug,
-+		.maxlen		= sizeof(awc_debug),
-+		.mode		= 0600,
-+		.proc_handler	= proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= 2,
-+		.procname	= "bap_sleep",
-+		.data		= &bap_sleep,
-+		.maxlen		= sizeof(bap_sleep),
-+		.mode		= 0600,
-+		.proc_handler	= proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= 3,
-+		.procname	= "bap_sleep_after_setup",
-+		.data		= &bap_sleep_after_setup,
-+		.maxlen		= sizeof(bap_sleep_after_setup),
-+		.mode		= 0600,
-+		.proc_handler	= proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= 4,
-+		.procname	= "sleep_before_command",
-+		.data		= &sleep_before_command,
-+		.maxlen		= sizeof(sleep_before_command),
-+		.mode		= 0600,
-+		.proc_handler	= proc_dointvec,
-+	},
-+	{ 
-+		.ctl_name	= 5,
-+		.procname	= "bap_sleep_before_write",
-+		.data		= &bap_sleep_before_write,
-+		.maxlen		= sizeof(bap_sleep_before_write),
-+		.mode		= 0600,
-+		.proc_handler	= proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= 6,
-+		.procname	= "sleep_in_command",
-+		.data		= &sleep_in_command,
-+		.maxlen		= sizeof(sleep_in_command),
-+		.mode		= 0600,
-+		.proc_handler	= proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= 7,
-+		.procname	= "both_bap_lock",
-+		.data		= &both_bap_lock,
-+		.maxlen		= sizeof(both_bap_lock),
-+		.mode		= 0600,
-+		.proc_handler	= proc_dointvec
-+	},
-+	{
-+		.ctl_name	= 8,
-+		.procname	= "bap_setup_spinlock",
-+		.data		= &bap_setup_spinlock,
-+		.maxlen		= sizeof(bap_setup_spinlock),
-+		.mode		= 0600,
-+		.proc_handler	= proc_dointvec,
-+	},
-+	{ .ctl_name = 0 }
- };
- 
- ctl_table awc_driver_level_ctable[] = {
--        {1, "force_rts_on_shorter"	, NULL, sizeof(int), 0600,NULL, proc_dointvec},
--        {2, "force_tx_rate"		, NULL, sizeof(int), 0600,NULL, proc_dointvec},
--        {3, "ip_tos_reliability_rts"	, NULL, sizeof(int), 0600,NULL, proc_dointvec},
--        {4, "ip_tos_troughput_no_retries", NULL, sizeof(int), 0600,NULL, proc_dointvec},
--        {5, "debug"			, NULL, sizeof(int), 0600,NULL, proc_dointvec},
--        {6, "simple_bridge"		, NULL, sizeof(int), 0600,NULL, proc_dointvec},
--        {7, "p802_11_send"		, NULL, sizeof(int), 0600,NULL, proc_dointvec},
--        {8, "full_stats"		, NULL, sizeof(int), 0600,NULL, proc_dointvec},
--        {0}
-+	{
-+		.ctl_name	= 1,
-+		.procname	= "force_rts_on_shorter",
-+		.maxlen		= sizeof(int),
-+		.mode		= 0600,
-+		.proc_handler	= proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= 2,
-+		.procname	= "force_tx_rate",
-+		.maxlen		= sizeof(int),
-+		.mode		= 0600,
-+		.proc_handler	= proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= 3,
-+		.procname	= "ip_tos_reliability_rts",
-+		.maxlen		= sizeof(int),
-+		.mode		= 0600,
-+		.proc_handler	= proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= 4,
-+		.procname	= "ip_tos_troughput_no_retries",
-+		.maxlen		= sizeof(int),
-+		.mode		= 0600,
-+		.proc_handler	= proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= 5,
-+		.procname	= "debug",
-+		.maxlen		= sizeof(int),
-+		.mode		= 0600,
-+		.proc_handler	= proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= 6,
-+		.procname	= "simple_bridge",
-+		.maxlen		= sizeof(int),
-+		.mode		= 0600,
-+		.proc_handler	= proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= 7,
-+		.procname	= "p802_11_send",
-+		.maxlen		= sizeof(int),
-+		.mode		= 0600,
-+		.proc_handler	= proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= 8,
-+		.procname	= "full_stats",
-+		.maxlen		= sizeof(int),
-+		.mode		= 0600,
-+		.proc_handler	= proc_dointvec,
-+	},
-+	{ .ctl_name = 0 }
- };
- 
- ctl_table awc_root_table[] = {
--        {254, "aironet4500", NULL, 0, 0555, awc_driver_proc_table},
--        {0}
-+	{
-+		.ctl_name	= 254,
-+		.procname	= "aironet4500",
-+		.maxlen		= 0,
-+		.mode		= 0555,
-+		.child		= awc_driver_proc_table,
-+	},
-+	{ .ctl_name = 0 }
- };
- 
- struct ctl_table_header * awc_driver_sysctl_header;
+ /* Make sure that /proc/sys/dev is there */
 -- 
 They that can give up essential liberty to obtain a little temporary safety
 deserve neither liberty nor safety.

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264312AbRFNFV7>; Thu, 14 Jun 2001 01:21:59 -0400
+	id <S264291AbRFNFSi>; Thu, 14 Jun 2001 01:18:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264311AbRFNFVt>; Thu, 14 Jun 2001 01:21:49 -0400
-Received: from ntadm.assenhs.dk ([194.182.159.100]:531 "HELO assenhs.dk")
-	by vger.kernel.org with SMTP id <S264029AbRFNFVn>;
-	Thu, 14 Jun 2001 01:21:43 -0400
-DATE: 14 Jun 01 1:13:04 AM
-FROM: 3k23c2LY4@mailcity.com
-Reply-to: cfassociates@mailcity.com
-Message-ID: <O03YCw07eTzuy22Qr>
-TO: .@leeloo.zip.com.au
-SUBJECT: Are You In Need Of A Lifestyle Change...
+	id <S264311AbRFNFS2>; Thu, 14 Jun 2001 01:18:28 -0400
+Received: from [24.0.193.171] ([24.0.193.171]:6542 "EHLO mirai.cx")
+	by vger.kernel.org with ESMTP id <S264291AbRFNFSM>;
+	Thu, 14 Jun 2001 01:18:12 -0400
+Message-ID: <3B28490E.D4D5CF58@mirai.cx>
+Date: Wed, 13 Jun 2001 22:18:06 -0700
+From: J Sloan <jjs@mirai.cx>
+Organization: Mirai Consulting
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac13 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Blesson Paul <blessonpaul@usa.net>
+CC: linux-kernel@vger.kernel.org
+Subject: [OT] Re: inetd missing
+In-Reply-To: <20010614050151.3779.qmail@nwcst292.netaddress.usa.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Blesson Paul wrote:
 
-You have the opportunity to partake in the most extraordinary and 
-powerful wealth building program available! This information has
-never been offered to the general public, you have been given the 
-opportunity to take a close look.
+> hi
+>                       I just brought a CD of RedHat 7. Unfortunately I
+> couldn't find the inetd rpm. wheather it is missing or it is in any other
+> name
 
-If you're skeptical, that's okay. Just make the call and see for
-yourself.  My job is to inform you, your job is to make your own
-decision.
+It's xinetd -
 
-This is not multi-level marketing, nor is it a franchise, we will teach
- you how to amass wealth, protect that wealth, and show  
-you how to make that wealth work for you, rather then you working for it. 
+BTW You might think about RH 7.1 since 7.0
+was the end of the line for the legacy 2.2. kernel -
 
-You Own It To Yourself And Your Family  To Give Our 
-Program Serious Consideration
+cu
 
-I invite you to call me for more details at 1-800-995-0796 EXT 7071
-This is a free 2 minute recording, so call right now!
+jjs
 
-Prosperous regards,
-
-Paul
-This Is Not Multi Level Marketing/Serious Inquiries Only
-
-          MEMBER International Internet Watchdog Group 
 
 

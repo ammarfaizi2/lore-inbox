@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbULTXdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbULTXhI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261691AbULTXdN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 18:33:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbULTXaB
+	id S261708AbULTXhI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 18:37:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbULTXdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 18:30:01 -0500
-Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:30113 "EHLO
-	cenedra.walrond.org") by vger.kernel.org with ESMTP id S261678AbULTX0P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 18:26:15 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: Attila BODY <compi@freemail.hu>
-Subject: Re: USB storage (pendrive) problems
-Date: Mon, 20 Dec 2004 23:25:19 +0000
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <1103579679.23963.14.camel@localhost>
-In-Reply-To: <1103579679.23963.14.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 20 Dec 2004 18:33:47 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:54476 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261675AbULTXbg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 18:31:36 -0500
+Subject: Re: swsusp bigdiff [was Re: [PATCH] Software Suspend split to two
+	stage V2.]
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@suse.cz>
+Cc: hugang@soulinfo.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041120003010.GG1594@elf.ucw.cz>
+References: <20041119194007.GA1650@hugang.soulinfo.com>
+	 <20041120003010.GG1594@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1103585300.26640.47.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 21 Dec 2004 10:28:21 +1100
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412202325.20064.andrew@walrond.org>
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 December 2004 21:54, Attila BODY wrote:
-> Hi,
->
-> I have some weird problems with my pendrives recently. I just compile a
-> 2.6.9 to check if the problem is still exists there.
->
-> current kernel is 2.6.10-rc3 and the situation is the following:
->
-> If I copy more than few megabytes to the drive, the activity LED keeps
-> flashing forever. sync, umount keeps runing forever, normal reboot is
-> inpossible (alt+sysreq+b seems to work)
->
-> Tested with usb 1.1 and 2.0 pendrives, behaviour is the same.
->
+Hi.
 
-I'm doing exactly that with 2.6.10-rc3. umount does take a very long time (but 
-I had just written 600Mb+ over usb 1.1)
+On Sat, 2004-11-20 at 11:30, Pavel Machek wrote:
+> --- clean/Documentation/power/devices.txt	2004-11-03 01:23:03.000000000 +0100
+> +++ linux/Documentation/power/devices.txt	2004-11-03 02:16:40.000000000 +0100
+> @@ -141,3 +141,82 @@
+>  The driver core will not call any extra functions when binding the
+>  device to the driver. 
+>  
+> +pm_message_t meaning
+> +
+> +pm_message_t has two fields. event ("major"), and flags.  If driver
+> +does not know event code, it aborts the request, returning error. Some
+> +drivers may need to deal with special cases based on the actual type
+> +of suspend operation being done at the system level. This is why
+> +there are flags.
+> +
 
-Are you sure it doesn't come back if you leave it long enough?
+I don't know how I managed to miss this before, but I think it's
+definitely a step in the right direction. I do wonder, though, if we're
+going about this whole thing in a peacemeal approach. I feel like the
+whole issue of power state management on the system wide and driver
+level are being treated as two separate issues. Is it just me?
 
-Do the throughput sums; you'll be suprised how long it takes to send more than 
-a few Mb over usb 1.1 (1.5Mb/s). Eg 600Mb = 7minutes
+Regards,
 
-Usb 2 should be much faster; Do you have EHCI loaded?
+Nigel
+-- 
+Nigel Cunningham
+Cyclades Software Engineer
+Canberra, Australia
 
-Andrew Walrond
+http://www.cyclades.com
+
++61 (2) 6292 8028
++61 (417) 100 574
+

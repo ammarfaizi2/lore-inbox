@@ -1,306 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266853AbUAXC3K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 21:29:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266851AbUAXC1o
+	id S266858AbUAXCgZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 21:36:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266851AbUAXCd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 21:27:44 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:30664 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S266702AbUAXCXv (ORCPT
+	Fri, 23 Jan 2004 21:33:28 -0500
+Received: from [62.38.242.193] ([62.38.242.193]:25472 "EHLO pfn1.pefnos")
+	by vger.kernel.org with ESMTP id S264329AbUAXC3s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 21:23:51 -0500
-Date: Fri, 23 Jan 2004 18:23:49 -0800
-To: "David S. Miller" <davem@redhat.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6 IrDA] 8/11: ma600-sir: converted to new API
-Message-ID: <20040124022349.GI22410@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 23 Jan 2004 21:29:48 -0500
+From: "P. Christeas" <p_christ@hol.gr>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Solved: atkbd w 2.6.2rc1 : HowTo for extra (inet) keys ?
+Date: Sat, 24 Jan 2004 04:28:30 +0200
+User-Agent: KMail/1.6
+References: <200401232204.27819.p_christ@hol.gr> <20040123210953.GA12647@ucw.cz>
+In-Reply-To: <20040123210953.GA12647@ucw.cz>
+Cc: lkml <linux-kernel@vger.kernel.org>, omnibook@zurich.csail.mit.edu
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401240428.30493.p_christ@hol.gr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir262_dongles-8_ma600-sir.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Martin Diehl>
-* converted for new api from old driver
+After spending my evening on it :-(  I managed to find the correct keys for 
+the Omnibook XE3: 
+(I could only reverse-engineer the previous hack I 've had for it)
+Download and hack the 'console-tools' package (from sourceforge, project 
+"lct") so that 'setkeycodes' does accept keycodes >127.
+
+Vojtech, is 512 the upper bound for <keycode> at setkeycodes?
+
+Using 2.6.2-rc1, issue:
+setkeycodes e071 236
+setkeycodes e072 237
+setkeycodes e073 238
+setkeycodes e074 239
+
+ so that the upper (near the screen) row of "internet" buttons is assigned to 
+the keys X expect to receive.
+e071 etc. can be found using 'showkey -s'
+I still don't get where 236 came from (so that I could help other kbds, as 
+well).
 
 
-diff -u -p linux/drivers/net/irda.d6/ma600-sir.c  linux/drivers/net/irda/ma600-sir.c
---- linux/drivers/net/irda.d6/ma600-sir.c	Wed Dec 31 16:00:00 1969
-+++ linux/drivers/net/irda/ma600-sir.c	Thu Jan 22 16:43:43 2004
-@@ -0,0 +1,268 @@
-+/*********************************************************************
-+ *                
-+ * Filename:      ma600.c
-+ * Version:       0.1
-+ * Description:   Implementation of the MA600 dongle
-+ * Status:        Experimental.
-+ * Author:        Leung <95Etwl@alumni.ee.ust.hk> http://www.engsvr.ust/~eetwl95
-+ * Created at:    Sat Jun 10 20:02:35 2000
-+ * Modified at:   Sat Aug 16 09:34:13 2003
-+ * Modified by:   Martin Diehl <mad@mdiehl.de> (modified for new sir_dev)
-+ *
-+ * Note: very thanks to Mr. Maru Wang <maru@mobileaction.com.tw> for providing 
-+ *       information on the MA600 dongle
-+ * 
-+ *     Copyright (c) 2000 Leung, All Rights Reserved.
-+ *      
-+ *     This program is free software; you can redistribute it and/or 
-+ *     modify it under the terms of the GNU General Public License as 
-+ *     published by the Free Software Foundation; either version 2 of 
-+ *     the License, or (at your option) any later version.
-+ *  
-+ *     This program is distributed in the hope that it will be useful,
-+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ *     GNU General Public License for more details.
-+ * 
-+ *     You should have received a copy of the GNU General Public License 
-+ *     along with this program; if not, write to the Free Software 
-+ *     Foundation, Inc., 59 Temple Place, Suite 330, Boston, 
-+ *     MA 02111-1307 USA
-+ *     
-+ ********************************************************************/
-+
-+#include <linux/module.h>
-+#include <linux/delay.h>
-+#include <linux/init.h>
-+#include <linux/sched.h>
-+
-+#include <net/irda/irda.h>
-+
-+#include "sir-dev.h"
-+
-+static int ma600_open(struct sir_dev *);
-+static int ma600_close(struct sir_dev *);
-+static int ma600_change_speed(struct sir_dev *, unsigned);
-+static int ma600_reset(struct sir_dev *);
-+
-+/* control byte for MA600 */
-+#define MA600_9600	0x00
-+#define MA600_19200	0x01
-+#define MA600_38400	0x02
-+#define MA600_57600	0x03
-+#define MA600_115200	0x04
-+#define MA600_DEV_ID1	0x05
-+#define MA600_DEV_ID2	0x06
-+#define MA600_2400	0x08
-+
-+static struct dongle_driver ma600 = {
-+	.owner          = THIS_MODULE,
-+	.driver_name    = "MA600",
-+	.type           = IRDA_MA600_DONGLE,
-+	.open           = ma600_open,
-+	.close          = ma600_close,
-+	.reset          = ma600_reset,
-+	.set_speed      = ma600_change_speed,
-+};
-+
-+
-+int __init ma600_sir_init(void)
-+{
-+	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
-+	return irda_register_dongle(&ma600);
-+}
-+
-+void __exit ma600_sir_cleanup(void)
-+{
-+	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
-+	irda_unregister_dongle(&ma600);
-+}
-+
-+/*
-+	Power on:
-+		(0) Clear RTS and DTR for 1 second
-+		(1) Set RTS and DTR for 1 second
-+		(2) 9600 bps now
-+	Note: assume RTS, DTR are clear before
-+*/
-+static int ma600_open(struct sir_dev *dev)
-+{
-+	struct qos_info *qos = &dev->qos;
-+
-+	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
-+
-+	sirdev_set_dtr_rts(dev, TRUE, TRUE);
-+
-+	/* Explicitly set the speeds we can accept */
-+	qos->baud_rate.bits &= IR_2400|IR_9600|IR_19200|IR_38400
-+				|IR_57600|IR_115200;
-+	/* Hm, 0x01 means 10ms - for >= 1ms we would need 0x07 */
-+	qos->min_turn_time.bits = 0x01;		/* Needs at least 1 ms */	
-+	irda_qos_bits_to_value(qos);
-+
-+	/* irda thread waits 50 msec for power settling */
-+
-+	return 0;
-+}
-+
-+static int ma600_close(struct sir_dev *dev)
-+{
-+	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
-+
-+	/* Power off dongle */
-+	sirdev_set_dtr_rts(dev, FALSE, FALSE);
-+
-+	return 0;
-+}
-+
-+static __u8 get_control_byte(__u32 speed)
-+{
-+	__u8 byte;
-+
-+	switch (speed) {
-+	default:
-+	case 115200:
-+		byte = MA600_115200;
-+		break;
-+	case 57600:
-+		byte = MA600_57600;
-+		break;
-+	case 38400:
-+		byte = MA600_38400;
-+		break;
-+	case 19200:
-+		byte = MA600_19200;
-+		break;
-+	case 9600:
-+		byte = MA600_9600;
-+		break;
-+	case 2400:
-+		byte = MA600_2400;
-+		break;
-+	}
-+
-+	return byte;
-+}
-+
-+/*
-+ * Function ma600_change_speed (dev, speed)
-+ *
-+ *    Set the speed for the MA600 type dongle.
-+ *
-+ *    The dongle has already been reset to a known state (dongle default)
-+ *    We cycle through speeds by pulsing RTS low and then high.
-+ */
-+
-+/*
-+ * Function ma600_change_speed (dev, speed)
-+ *
-+ *    Set the speed for the MA600 type dongle.
-+ *
-+ *    Algorithm
-+ *    1. Reset (already done by irda thread state machine)
-+ *    2. clear RTS, set DTR and wait for 1ms
-+ *    3. send Control Byte to the MA600 through TXD to set new baud rate
-+ *       wait until the stop bit of Control Byte is sent (for 9600 baud rate, 
-+ *       it takes about 10 msec)
-+ *    4. set RTS, set DTR (return to NORMAL Operation)
-+ *    5. wait at least 10 ms, new setting (baud rate, etc) takes effect here 
-+ *       after
-+ */
-+
-+/* total delays are only about 20ms - let's just sleep for now to
-+ * avoid the state machine complexity before we get things working
-+ */
-+
-+static int ma600_change_speed(struct sir_dev *dev, unsigned speed)
-+{
-+	u8	byte;
-+	
-+	IRDA_DEBUG(2, "%s(), speed=%d (was %d)\n", __FUNCTION__,
-+		speed, dev->speed);
-+
-+	/* dongle already reset, dongle and port at default speed (9600) */
-+
-+	/* Set RTS low for 1 ms */
-+	sirdev_set_dtr_rts(dev, TRUE, FALSE);
-+	mdelay(1);
-+
-+	/* Write control byte */
-+	byte = get_control_byte(speed);
-+	sirdev_raw_write(dev, &byte, sizeof(byte));
-+
-+	/* Wait at least 10ms: fake wait_until_sent - 10 bits at 9600 baud*/
-+	set_current_state(TASK_UNINTERRUPTIBLE);
-+	schedule_timeout(MSECS_TO_JIFFIES(15));		/* old ma600 uses 15ms */
-+
-+#if 1
-+	/* read-back of the control byte. ma600 is the first dongle driver
-+	 * which uses this so there might be some unidentified issues.
-+	 * Disable this in case of problems with readback.
-+	 */
-+
-+	sirdev_raw_read(dev, &byte, sizeof(byte));
-+	if (byte != get_control_byte(speed))  {
-+		WARNING("%s(): bad control byte read-back %02x != %02x\n",
-+			__FUNCTION__, (unsigned) byte,
-+			(unsigned) get_control_byte(speed));
-+		return -1;
-+	}
-+	else
-+		IRDA_DEBUG(2, "%s() control byte write read OK\n", __FUNCTION__);
-+#endif
-+
-+	/* Set DTR, Set RTS */
-+	sirdev_set_dtr_rts(dev, TRUE, TRUE);
-+
-+	/* Wait at least 10ms */
-+	set_current_state(TASK_UNINTERRUPTIBLE);
-+	schedule_timeout(MSECS_TO_JIFFIES(10));
-+
-+	/* dongle is now switched to the new speed */
-+	dev->speed = speed;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Function ma600_reset (dev)
-+ *
-+ *      This function resets the ma600 dongle.
-+ *
-+ *      Algorithm:
-+ *    	  0. DTR=0, RTS=1 and wait 10 ms
-+ *    	  1. DTR=1, RTS=1 and wait 10 ms
-+ *        2. 9600 bps now
-+ */
-+
-+/* total delays are only about 20ms - let's just sleep for now to
-+ * avoid the state machine complexity before we get things working
-+ */
-+
-+int ma600_reset(struct sir_dev *dev)
-+{
-+	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
-+
-+	/* Reset the dongle : set DTR low for 10 ms */
-+	sirdev_set_dtr_rts(dev, FALSE, TRUE);
-+	set_current_state(TASK_UNINTERRUPTIBLE);
-+	schedule_timeout(MSECS_TO_JIFFIES(10));
-+
-+	/* Go back to normal mode */
-+	sirdev_set_dtr_rts(dev, TRUE, TRUE);
-+	set_current_state(TASK_UNINTERRUPTIBLE);
-+	schedule_timeout(MSECS_TO_JIFFIES(10));
-+
-+	dev->speed = 9600;      /* That's the dongle-default */
-+
-+	return 0;
-+}
-+
-+MODULE_AUTHOR("Leung <95Etwl@alumni.ee.ust.hk> http://www.engsvr.ust/~eetwl95");
-+MODULE_DESCRIPTION("MA600 dongle driver version 0.1");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("irda-dongle-11"); /* IRDA_MA600_DONGLE */
-+		
-+module_init(ma600_sir_init);
-+module_exit(ma600_sir_cleanup);
-+
+> On Fri, Jan 23, 2004 at 10:04:27PM +0200, P. Christeas wrote:
+> > Hello again.
+> > I just reverted my atkbd.c code to your version (Linus's tree) and
+> > unfortunately have 4 keys 'missing' from my HP Omnibook XE3GC extra
+> > "internet keys".
+> > Question 1: Can I fix the table from userland, using some utility? That
+> > is, can I upload an updated table into the kernel, so that I don't have
+> > to reboot?
+>
+> 'setkeycodes' can do that.
+>
+> > Q 2: Do you have any HowTo/QA for that?
+>
+> Not yet, but I'll have to write one.
+>
+> > Q 3: Will that work under X? (which AFAIK reads the 'raw' codes)
+>
+> X needs to be set up as well. In 2.6, X doesn't get real raw codes but
+> instead simulated raw codes generated by the kernel.
+>
+> > Q 4: It has been rather difficult for me to compute the scancodes needed
+> > for the table. Could you put the "formula" onto the HowTo?
+> >
+> > FYI, the codes are:
+> > "www": Unknown key pressed (translated set 2, code 0xf3 on
+> > isa0060/serio0). "Mail":  Unknown key pressed (translated set 2, code
+> > 0xf4 on isa0060/serio0). "Launch": Unknown key pressed (translated set 2,
+> > code 0xf2 on isa0060/serio0). "Help":  Unknown key pressed (translated
+> > set 2, code 0xf1 on isa0060/serio0).
+>
+> The formula for setkeycodes is:
+>
+> if (code > 0x100)
+> 	you're out of luck, setkeycodes doesn't handle this yet;
+> else if (code > 0x80)
+> 	result = code - 0x80 + 0xe000;
+> else
+> 	result = code;
+>
+> And then you use 'setkeycodes result keycode',
+>
+> where keycode you find in include/linux/input.h.

@@ -1,69 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271207AbRH3CFx>; Wed, 29 Aug 2001 22:05:53 -0400
+	id <S271200AbRH3CFX>; Wed, 29 Aug 2001 22:05:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271208AbRH3CFo>; Wed, 29 Aug 2001 22:05:44 -0400
-Received: from ntt-connection.daiwausa.com ([210.175.188.3]:65343 "EHLO
-	ead42.ead.dsa.com") by vger.kernel.org with ESMTP
-	id <S271207AbRH3CF0>; Wed, 29 Aug 2001 22:05:26 -0400
-Date: Wed, 29 Aug 2001 22:05:09 -0400
-From: "Bill Rugolsky Jr." <rugolsky@ead.dsa.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: David Lang <david.lang@digitalinsight.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-Message-ID: <20010829220509.A26395@ead45>
-In-Reply-To: <Pine.LNX.4.33.0108290858410.19372-100000@dlang.diginsite.com> <20010829234316Z16134-32384+1075@humbolt.nl.linux.org>
-Mime-Version: 1.0
+	id <S271207AbRH3CFO>; Wed, 29 Aug 2001 22:05:14 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:25608 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S271200AbRH3CFK>; Wed, 29 Aug 2001 22:05:10 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: David Rees <dbr@greenhydrant.com>
+Date: Thu, 30 Aug 2001 12:05:14 +1000 (EST)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20010829234316Z16134-32384+1075@humbolt.nl.linux.org>; from phillips@bonn-fries.net on Thu, Aug 30, 2001 at 01:49:54AM +0200
+Content-Transfer-Encoding: 7bit
+Message-ID: <15245.40794.888447.345100@notabene.cse.unsw.edu.au>
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: kupdated, bdflush and kjournald stuck in D state on RAID1 device (deadlock?)
+In-Reply-To: message from David Rees on Wednesday August 29
+In-Reply-To: <20010829141451.A20968@greenhydrant.com>
+	<3B8D60CF.A1400171@zip.com.au>
+	<20010829144016.C20968@greenhydrant.com>
+	<3B8D6BF9.BFFC4505@zip.com.au>
+	<20010829153818.B21590@greenhydrant.com>
+	<3B8D712C.1441BC5A@zip.com.au>
+	<20010829155633.D21590@greenhydrant.com>
+	<15245.35636.82680.966567@notabene.cse.unsw.edu.au>
+	<20010829175541.E21590@greenhydrant.com>
+	<15245.37937.625032.867615@notabene.cse.unsw.edu.au>
+	<20010829182406.A23371@greenhydrant.com>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 30, 2001 at 01:49:54AM +0200, Daniel Phillips wrote:
-> On August 29, 2001 06:02 pm, David Lang wrote:
-> > when you write a signed/unsigned comparison is it defined in any standard
-> > which type the compiler should generate or is it somethign that could be
-> > different in different compilers (and versions)
+On Wednesday August 29, dbr@greenhydrant.com wrote:
 > 
-> Yes, in the signed/unsigned case the comparison generated is always
-> unsigned.  This is something that all c programmers are supposed to have 
-> tattoed on the insides of their eyelids, because if you don't know it
-> there are all kinds of situations that can bite you, not just min and
-> max.
-> 
-> > (also when comparing different size items same question)
-> 
-> The narrower is expanded to the size of the wider before being compared.
+> Now, when you say out-of-memory, do you mean out of memory plus swap?  Or
+> just out of memory?
 
-Careful.  Operands of relational operators undergo "usual arithmetic
-conversions," which are value-preserving, so unsigned char and unsigned
-short are promoted to int on platforms where int is value-preserving.
-Similarly, unsigned int is promoted to long where long is value-preserving,
-as I pointed out earlier in this thread.  (This wasn't always the case,
-see below.)
+kmalloc(,GFP_NOIO) failure.  i.e. transient out-of-phyical-memory
+condition. 
+I suspect that kmalloc tends to fail only occasionally as the failure
+will then to slow allocation requests down, and give the VM system a
+bit of time to write more stuff out to disc and so free up memory.  
+I am fairly sure that without the patch it will happen again, but
+maybe not straight away.
 
-The problem here, of course, is that if you don't know the widths of the
-operands, you can't determine the type of the compare.  Change the width
-of the operand (to steal some bits in a structure, say) and the signedness
-of the comparison changes.
+
+NeilBrown
 
 > 
-> > if there are cases that are not defined in a standard and could vary by
-> > compiler/version then we definantly need to have the current version with
-> > the type argument.
+> Running out of memory is quite common with the kernel always filling up
+> buffers and cache, but running out of memory+swap is not common (and I know
+> I didn't hit that in my setup!)
 > 
-> No, these cases are defined perfectly clearly and have been at least
-> since K&R.
-
-K&R 1st Edition and the UNIX 7th Edition C reference manual specify that
-unsigned dominates.  The "value-preserving" language was crafted for
-C89, and appears in K&R, 2nd Edition.  C99 introduces the notion of
-integer type "rank" to generalize the rules to extended precision types.
-
-Regards,
-
-   Bill Rugolsky
+> Thanks for your help,
+> 
+> -Dave

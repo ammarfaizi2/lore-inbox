@@ -1,73 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133022AbREIDFZ>; Tue, 8 May 2001 23:05:25 -0400
+	id <S133029AbREIDPf>; Tue, 8 May 2001 23:15:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132919AbREIDFO>; Tue, 8 May 2001 23:05:14 -0400
-Received: from [63.143.102.194] ([63.143.102.194]:47350 "EHLO
-	foo.penguincomputing.com") by vger.kernel.org with ESMTP
-	id <S133022AbREIDFI>; Tue, 8 May 2001 23:05:08 -0400
-Date: Tue, 8 May 2001 20:05:06 -0700 (PDT)
-From: Jim Wright <jwright@penguincomputing.com>
-Reply-To: Jim Wright <jwright@penguincomputing.com>
-To: <redhat-devel-list@redhat.com>, <linux-kernel@vger.kernel.org>,
-        Jeremy Hogan <jhogan@redhat.com>, Mike Vaillancourt <mikev@redhat.com>
-cc: Jim Wright <jwright@penguincomputing.com>,
-        Philip Pokorny <ppokorny@penguincomputing.com>
-Subject: bug in redhat gcc 2.96
-Message-ID: <Pine.LNX.4.33.0105081927320.1798-100000@foo.penguincomputing.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S133088AbREIDP0>; Tue, 8 May 2001 23:15:26 -0400
+Received: from iris.services.ou.edu ([129.15.2.125]:56022 "EHLO
+	iris.services.ou.edu") by vger.kernel.org with ESMTP
+	id <S133029AbREIDPK>; Tue, 8 May 2001 23:15:10 -0400
+Date: Tue, 08 May 2001 22:17:35 -0500
+From: Sean Jones <sjones@ossm.edu>
+Subject: Re: SPARC include problem
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <3AF8B6CF.94EF38D@ossm.edu>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-ac5 i586)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en
+In-Reply-To: <3AF71B1F.56FFCA16@ossm.edu>
+ <20010508120108.A1802@arthur.ubicom.tudelft.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We believe we have found a bug in gcc.  We have been trying to track
-down why the .../drivers/scsi/sym53c8xx.c driver oopses with a divide
-by zero when initializing at line 5265, which reads:
+The include error was in kernel/sched.c . Should I rewrite the includes
+for this file to include include/asm/irq.h over include/linux/irq.h? I
+temporarily bypassed this problem by creating a blank asm/hw_irq.h . 
 
-        period = (4 * div_10M[0] + np->clock_khz - 1) / np->clock_khz;
+I also ran into a compile problem in arch/sparc/kernel/sparc_ksyms.c .
+The rw semaphores seem to be undeclared. Here are the warnings:
 
-We believe the bug is that gcc is generating incorrect code for this:
+D__KERNEL__ -I/usr/src/linux-2.4.4/include -Wall -Wstrict-prototypes -O2
+-fomit-frame-pointer -fno-strict-aliasing -m32 -pipe -mno-fpu
+-fcall-used-g5 -fcall-used-g7    -DEXPORT_SYMTAB -c sparc_ksyms.c
+In file included from /usr/src/linux-2.4.4/include/linux/sched.h:9,
+                 from sparc_ksyms.c:17:
+/usr/src/linux-2.4.4/include/linux/binfmts.h:45: warning: `struct
+mm_struct' declared inside parameter list
+/usr/src/linux-2.4.4/include/linux/binfmts.h:45: warning: its scope is
+only this definition or declaration, which is probably not what you
+want.
+sparc_ksyms.c:121: `___down_read' undeclared here (not in a function)
+sparc_ksyms.c:121: initializer element is not constant
+sparc_ksyms.c:121: (near initialization for
+`__ksymtab____down_read.value')
+sparc_ksyms.c:122: `___down_write' undeclared here (not in a function)
+sparc_ksyms.c:122: initializer element is not constant
+sparc_ksyms.c:122: (near initialization for
+`__ksymtab____down_write.value')
+sparc_ksyms.c:123: `___up_read' undeclared here (not in a function)
+sparc_ksyms.c:123: initializer element is not constant
+sparc_ksyms.c:123: (near initialization for
+`__ksymtab____up_read.value')
+sparc_ksyms.c:124: `___up_write' undeclared here (not in a function)
+sparc_ksyms.c:124: initializer element is not constant
+sparc_ksyms.c:124: (near initialization for
+`__ksymtab____up_write.value')
+make[1]: *** [sparc_ksyms.o] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.4.4/arch/sparc/kernel'
+make: *** [_dir_arch/sparc/kernel] Error 2
 
-                if      (f1 < 55000)            f1 =  40000;
-		else                            f1 =  80000;
+Thank you,
 
-Here is the test code to demonstrate this:
-
-% cat bug.c
-int main (int argc, char *argv[])
-{
-    unsigned f1;
-
-    f1 = (unsigned)argc;
-
-    if (f1 < 5) {
-	f1 = 4;
-    } else {
-	f1 = 8;
-    }
-    exit (f1);
-}
-
-And here are commands to exhibit the problem.
-
-% for i in 0 1 2 3 4 5 6 ; do ln bug.c bug$i.c ; done
-% for i in 0 1 2 3 4 5 6 ; do gcc -save-temps -O$i -o bug$i bug$i.c ; done
-% for i in 0 1 2 3 4 5 6 ; do ./bug$i 1 2 ; echo $? ; done
-% for i in 0 1 2 3 4 5 6 ; do ./bug$i 1 2 3 4 5 6 7 ; echo $? ; done
-
-The level 0 optimization assembly code appears correct.  For level 1 and
-above, the compiler emits a long-subtract-with-borrow statement which
-leaves EAX either 0 filled or 1 filled, based on the carry flag.
-
-As this is with Red Hat's version of gcc, I'm not sending
-this to the gcc folks.  RPMs of gcc with this problem
-include gcc-2.96-69 and gcc-2.96-81.  This has been logged
-as http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=39764.
-Any suggestions for a way to cope with this?  We have a
-customer who's system fails due to this.
+Sean
 
 
--- 
-Jim Wright   Software Engineer   Penguin Computing
-jwright@penguincomputing.com   v:415-358-2609   f:415-358-2646
-
+Erik Mouw wrote:
+> 
+> On Mon, May 07, 2001 at 05:01:03PM -0500, Sean Jones wrote:
+> > In compiling 2.4.4-ac5 for my SPARCStation 20, I had an error in the
+> > compile resulting from the inability to find a hw_irq.h in the
+> > include/asm directory. Do you know where I may be able to find such a
+> > file?
+> 
+> You don't. I discussed this last week with Russell King: the ARM port
+> also doesn't have the file hw_irq.h in include/asm-arm. According to
+> Russell it is only needed in the arch dependent subdirectories, and not
+> in the drivers.
+> 
+> Any driver that includes linux/irq.h is not written to be portable. The
+> only generic driver that includes it is driver/pcmcia/hd64465_ss.c, but
+> on second glance it's a Hitachi HD64465 specific driver anyway.
+> 
+> Erik
+> 
+> --
+> J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+> of Electrical Engineering, Faculty of Information Technology and Systems,
+> Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+> Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+> WWW: http://www-ict.its.tudelft.nl/~erik/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

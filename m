@@ -1,68 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVCHNxR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVCHN6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbVCHNxR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 08:53:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVCHNxR
+	id S261332AbVCHN6s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 08:58:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVCHN6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 08:53:17 -0500
-Received: from iua-mail.upf.es ([193.145.55.10]:35506 "EHLO iua-mail.upf.es")
-	by vger.kernel.org with ESMTP id S261948AbVCHNxE (ORCPT
+	Tue, 8 Mar 2005 08:58:48 -0500
+Received: from smtp3.pp.htv.fi ([213.243.153.36]:30081 "EHLO smtp3.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S261332AbVCHN6j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 08:53:04 -0500
-Date: Tue, 8 Mar 2005 14:52:51 +0100
-From: Maarten de Boer <mdeboer@iua.upf.es>
-To: linux-kernel@vger.kernel.org
-Cc: aic7xxx@freebsd.org
-Subject: Adaptec 29160 + Promise Ultratrak100 TX8 problems
-Message-Id: <20050308145251.6b73b8b6.mdeboer@iua.upf.es>
-Organization: IUA
-X-Mailer: Sylpheed version 0.9.9-gtk2-20040229 (GTK+ 2.4.10; i386-pc-linux-gnu)
+	Tue, 8 Mar 2005 08:58:39 -0500
+Date: Tue, 8 Mar 2005 15:58:36 +0200
+From: Paul Mundt <lethal@linux-sh.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-mm2
+Message-ID: <20050308135836.GC12820@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050308033846.0c4f8245.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-MTG-MailScanner: Found to be clean
-X-MTG-MailScanner-SpamCheck: not spam (whitelisted),
-	SpamAssassin (score=-5.899, required 5, autolearn=not spam,
-	ALL_TRUSTED -3.30, BAYES_00 -2.60)
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="dkEUBIird37B8yKS"
+Content-Disposition: inline
+In-Reply-To: <20050308033846.0c4f8245.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I am having nasty problems with an Adaptec 29160 and Promise
-Ultratrak100 TX8 external RAID. (kernel 2.6.11)
+--dkEUBIird37B8yKS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Initially, I can access the RAID normally. I create a (small, for
-testing) partition on it, and an ext3 filesystem. But when I start
-writing, in no-time the RAID and the SCSI adapter get into a broken
-state, and rebooting both RAID and Linux (simply rmmod/modprobe is not
-enough) is the only way out.
+With the BUG_ON() use in linux/list.h I get this:
 
-I trigger this with a small test like creating 10000 files, or
-extracting a kernel tar.gz.
+  CC      init/initramfs.o
+In file included from include/linux/wait.h:23,
+                 from include/linux/fs.h:205,
+                 from init/initramfs.c:2:
+include/linux/list.h: In function `list_del':
+include/linux/list.h:164: warning: implicit declaration of function `printk'
+In file included from include/linux/spinlock.h:13,
+                 from include/linux/wait.h:25,
+                 from include/linux/fs.h:205,
+                 from init/initramfs.c:2:
+include/linux/kernel.h: At top level:
+include/linux/kernel.h:116: error: conflicting types for 'printk'
+include/linux/kernel.h:116: note: a parameter list with an ellipsis can't m=
+atch an empty parameter name list declaration
+include/linux/list.h:164: error: previous implicit declaration of 'printk' =
+was here
+make[1]: *** [init/initramfs.o] Error 1
+make: *** [init] Error 2
 
-In my /var/log/messages I find:
+It looks like this is a result of having asm/bug.h included and not
+having linux/kernel.h included before it, as adding that makes this go
+away. This seems like it will be a problem for platforms that use
+printk() in their BUG() definitions (in the HAVE_ARCH_BUG case) without
+dragging in this header from somewhere else.
 
-Mar  8 10:58:22 iua-file-2 kernel: (scsi3:A:0:0): data overrun detected in Data-out phase.  Tag == 0x2.
-Mar  8 10:58:22 iua-file-2 kernel: (scsi3:A:0:0): Have seen Data Phase.  Length = 524288.  NumSGs = 33.
-Mar  8 10:58:52 iua-file-2 kernel: scsi3:0:0:0: Attempting to queue an ABORT message
-Mar  8 10:58:52 iua-file-2 kernel: CDB: 0x2a 0x0 0x0 0x2 0x8c 0x37 0x0 0x4 0x0 0x0
-Mar  8 10:58:52 iua-file-2 kernel: scsi3: At time of recovery, card was not paused
-Mar  8 10:58:52 iua-file-2 kernel: >>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
-Mar  8 10:58:52 iua-file-2 kernel: scsi3: Dumping Card State in Data-out phase,
-at SEQADDR 0x17b
-Mar  8 10:58:52 iua-file-2 kernel: Card was paused
+With this I can build on sh again. The other solution is to add the
+include to asm/bug.h directly, but it would be nice to avoid linux/
+includes from asm/ context in general..
 
-I have tried changing settings in the adaptec controller BIOS, I tried
-lowering the global_tag_depth, all to no avail. And having the reboot
-everytime it goes wrong makes trying things rather slow :-(
+Thoughts? Or ideas for a more appropriate fix?
 
-I googled for the messages, and found many people mentioning them, but
-no solution.
+--- linux-sh-2.6.11-mm2.orig/include/linux/list.h	2005-03-08 15:46:50.60156=
+5604 +0200
++++ linux-sh-2.6.11-mm2/include/linux/list.h	2005-03-08 15:46:53.882114403 =
++0200
+@@ -5,6 +5,7 @@
+=20
+ #include <linux/stddef.h>
+ #include <linux/prefetch.h>
++#include <linux/kernel.h>
+ #include <asm/system.h>
+ #include <asm/bug.h>
+=20
 
-I'd very much appreciate your help. Please Cc: me when replying, because
-I am not subscribed to the lkml.
+--dkEUBIird37B8yKS
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Kind regards,
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-Maarten
+iD8DBQFCLa+M1K+teJFxZ9wRAllsAJ953ucmH6NkNthqJj0463yXgU2XfACfR26Y
+KEVh0OwjXj+g7OhzMPZbpTQ=
+=F73w
+-----END PGP SIGNATURE-----
+
+--dkEUBIird37B8yKS--

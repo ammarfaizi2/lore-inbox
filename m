@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264607AbUDVRhw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264610AbUDVRjm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264607AbUDVRhw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 13:37:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264609AbUDVRhw
+	id S264610AbUDVRjm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 13:39:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264608AbUDVRjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 13:37:52 -0400
-Received: from sark.cc.gatech.edu ([130.207.7.23]:56277 "EHLO
-	sark.cc.gatech.edu") by vger.kernel.org with ESMTP id S264607AbUDVRht
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 13:37:49 -0400
-Date: Thu, 22 Apr 2004 13:37:48 -0400
-From: rm <async@cc.gatech.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: OOPS in input subsystem
-Message-ID: <20040422173747.GD16075@tokyo.cc.gatech.edu>
-References: <20040421203724.GB16075@tokyo.cc.gatech.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040421203724.GB16075@tokyo.cc.gatech.edu>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 22 Apr 2004 13:39:42 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:28591 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S264611AbUDVRji (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 13:39:38 -0400
+Message-Id: <200404221738.i3MHcg7J005234@eeyore.valparaiso.cl>
+To: alex@pilosoft.com
+Cc: jamal <hadi@cyberus.ca>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+Subject: Re: tcp vulnerability? haven't seen anything on it here... 
+In-Reply-To: Your message of "Thu, 22 Apr 2004 11:27:05 -0400."
+             <Pine.LNX.4.44.0404221121230.2738-100000@paix.pilosoft.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Thu, 22 Apr 2004 13:38:42 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 21, 2004 at 04:37:24PM -0400, rm wrote:
-> [2.] Full description of the problem/report:
-> 
-> I can reliably get an oops if i do the following: 
-> 1. plug in a ibm USB numeric keypad
-> 1.  cat /dev/input/event1  (which corresponds to the keypad)
-> 2.  unplug the keypad (leaving the cat in 1 running)
-> 3. run another cat /dev/input/event1
-> 
-> NOTE: the first instance of cat doesn't get any sort of end of file or
-> 	file error (which i believe was the old behaviour ~2.4). 
+alex@pilosoft.com said:
+> > > > Unless i misunderstood: You need someone/thing to see about 64K
+> > > > packets within a single flow to make the predicition so the attack
+> > > > is succesful. Sure to have access to such capability is to be in a
+> > > > hostile path, no? ;->
+> > > No, you do not need to see any packet.
 
+> > Ok, so i misunderstood then. How do you predict the sequences without
+> > seeing any packet? Is there any URL to mentioned paper?
 
-	so upon further investigation, it seems like the event
-device's disconnect handler is called, and if the device is open it
-calls input_close_device.  
+> You don't - just brute-force the tcp 4-tuple and sequence number. The
+> attack relies on the fact that you don't have to match sequence number
+> exactly, which cuts down on the search-space. (If total search space is
+> 2^32, rwin is 16k, effective attack search space is 2^32/16k). Multiplied 
+> by number of ephemeral ports, it becomes *feasible* but still not very 
+> likely.
 
-	since the file is still open, you can't release it then. so to
-prevent someone else from opening the now non existent device, it
-seems like evdev open should specifically check to make sure the
-handle is still valid, before letting the user open it.
+If everybody (or at least the bigger knots) filters spoofed traffic, this
+ceases to be a problem. And that solves a shipload of other problems, so...
 
-	although, the process that is holding the device open should
-receive an error when it is disconnected, but i don't know how to
-notify it of this error.  shouldn't input_close_device perform this?  
-
-	does anyone have any thoughts on the correct solution to this?
-
-	thanks, 
-	rob
-
-> oops:
-> Call Trace:
->  [<c0277d81>] input_accept_process+0x31/0x40
->  [<cf91736f>] evdev_open+0x5f/0x100 [evdev]
->  [<c01d166e>] file_alloc_security+0x3e/0xb0
->  [<c02789ee>] input_open_file+0x7e/0x170
->  [<c0173a67>] chrdev_open+0x117/0x300
->  [<c01691b9>] get_empty_filp+0x79/0x120
->  [<c0167170>] dentry_open+0x130/0x1e0
->  [<c0167038>] filp_open+0x68/0x70
->  [<c01675ab>] sys_open+0x5b/0x90
->  [<c010975d>] sysenter_past_esp+0x52/0x71
-
-----
-Robert Melby
-Georgia Institute of Technology, Atlanta Georgia, 30332
-uucp:     ...!{decvax,hplabs,ncar,purdue,rutgers}!gatech!prism!gt4255a
-Internet: async@cc.gatech.edu
+If the cracker has access to the connection between routers (quite unlikely
+for BGP), there is other, lower-hanging, fun to be had... and in that case
+they can just read the exact data from the stream, no guessing needed at
+all. And no protection possible either AFAICS.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

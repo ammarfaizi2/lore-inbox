@@ -1,88 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbULaMEt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261866AbULaME5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261865AbULaMEt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 07:04:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbULaMEt
+	id S261866AbULaME5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 07:04:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbULaME5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 07:04:49 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:43226 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261865AbULaMEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 07:04:45 -0500
-Message-ID: <41D54049.3040502@grupopie.com>
-Date: Fri, 31 Dec 2004 12:04:25 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: opengeometry@yahoo.ca, juhl-lkml@dif.dk, marcelo.tosatti@cyclades.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: waiting 10s before mounting root filesystem?
-References: <20041227195645.GA2282@node1.opengeometry.net>	<20041227201015.GB18911@sweep.bur.st>	<41D07D56.7020702@netshadow.at>	<20041229005922.GA2520@node1.opengeometry.net>	<20041230152531.GB5058@logos.cnet>	<Pine.LNX.4.61.0412310011400.3494@dragon.hygekrogen.localhost>	<Pine.LNX.4.61.0412310234040.4725@dragon.hygekrogen.localhost>	<20041231035834.GA2421@node1.opengeometry.net>	<20041231014905.30b05a11.akpm@osdl.org>	<41D5376A.8000705@grupopie.com> <20041231034257.7d2f7d39.akpm@osdl.org>
-In-Reply-To: <20041231034257.7d2f7d39.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 31 Dec 2004 07:04:57 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:16622 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S261866AbULaMEu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 07:04:50 -0500
+Message-ID: <007e01c4ef30$f23ba3c0$0f01a8c0@max>
+From: "Richard Purdie" <rpurdie@rpsys.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Flaw in ide_unregister()
+Date: Fri, 31 Dec 2004 12:04:54 -0000
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2527
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed; charset=iso-8859-1; reply-type=original
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Paulo Marques <pmarques@grupopie.com> wrote:
-> 
->>Andrew Morton wrote:
->>
->>>William Park <opengeometry@yahoo.ca> wrote:
->>>
->>>
->>>>-		printk("VFS: Cannot open root device \"%s\" or %s\n",
->>>>-				root_device_name, b);
->>>>-		printk("Please append a correct \"root=\" boot option\n");
->>>>+		if (--tryagain) {
->>>>+		    printk (KERN_WARNING "VFS: Waiting %dsec for root device...\n", tryagain);
->>>>+		    ssleep (1);
->>>>+		    goto retry;
->>>>+		}
->>>>+		printk (KERN_CRIT "VFS: Cannot open root device \"%s\" or %s\n", root_device_name, b);
->>>>+		printk (KERN_CRIT "Please append a correct \"root=\" boot option\n");
->>>
->>>
->>>Why is this patch needed?  If it is to offer the user a chance to insert
->>>the correct medium or to connect the correct device, why not rely upon the
->>>user doing that thing and then hitting reset?
->>
->>No, no. The problem is not user interaction.
->>
->>The problem is that the USB subsystem takes a lot of time to go through 
->>the hostcontrollers -> hubs -> devices. By the time it finds the USB 
->>mass storage that is supposed to be used as root filesystem, the kernel 
->>had already panic'ed.
-> 
-> 
-> That would be a USB bug, surely.  If /dev/usb/foo is present and
-> functioning correctly, and higher-level code tries to access that device,
-> USB should _not_ error out - it should block the caller until everything is
-> sorted out.
+I've been having some problems with calls to ide_unregister() (in ide.c).
 
-The problem is that, if you use udev (or iack, iack, cough, cough, 
-devfs), the device node is not yet present at the time the kernel tries 
-to mount it, although the hardware is physically there. This is because 
-the USB subsystem is busy going through all the USB tree, enumerating / 
-reseting devices, powering hubs, etc.
+This function is declared void which should mean it always succeeds and yet 
+it can fail *silently* under the following condition:
 
-I really don't know enough about the internal details, but it seems that 
-the USB startup sequence is asynchronous with respect to the rest of the 
-boot sequence. This is usually allright (I really don't want the 
-detection of my USB scanner to hold back my boot), but in the special 
-case where the root filesystem is in a USB mass storage device, it poses 
-a real problem.
+if (drive->usage || DRIVER(drive)->busy) goto abort;
 
-Maybe someone like Grek Kroah, Alan Stern, etc., can shed some more 
-light on this matter.
+(it also fails if (!hwif->present) although that is not a problem)
+
+The driver I've been having problems with is ide-cs.c. Specifically if a CF 
+card is removed without ejecting and unmounting the card first. In this 
+case, the hardware is gone so we want the ide_unregister call to succeed and 
+yet the above code aborts the unregister (silently). This makes it an ide 
+problem rather than an ide-cs/pcmcia problem.
+
+There are several solutions:
+
+1. Fix ide_unregister so it always succeeds. (Preferred Solution)
+2. Add parameter to ide_unregister to state whether it should abort on 
+busy/usage or not. (ugly)
+3. Add a return value. What does ide-cs.c do with it though? The hardware is 
+gone. (doesn't help)
+
+Only a limited number of drivers use ide_unregister():
+
+drivers/ide/ide-pnp.c
+drivers/ide/arm/rapide.c
+drivers/ide/legacy/ide-cs.c
+drivers/macintosh/mediabay.c
+
+Of these, I can't see anything that would break if we make ide_unregister 
+always succeed.
+
+I've tried removing the if statement above and just letting ide_unregister 
+succeed but the call then just deadlocks. I had to make some small changes 
+to ide.c and ide-disk.c to stop it using interfaces we've marked as dead and 
+allow deregistration of dead devices.
+
+The bare minimum of code I needed to make ide_unregister succeed when called 
+from ide-cs.c is in the following patch: 
+http://www.rpsys.net/openzaurus/ide.patch
+
+There are probably other places checks are needed. I would appreciate it if 
+someone could comment on whether these changes can be made to the ide 
+drivers, what else may need to be done or if there is an alternative 
+solution I've overlooked.
+
+Thanks,
+
+Richard
+
+
+
 
 -- 
-Paulo Marques - www.grupopie.com
-
-"A journey of a thousand miles begins with a single step."
-Lao-tzu, The Way of Lao-tzu
+No virus found in this outgoing message.
+Checked by AVG Anti-Virus.
+Version: 7.0.298 / Virus Database: 265.6.7 - Release Date: 30/12/2004
 

@@ -1,64 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316372AbSFJVnw>; Mon, 10 Jun 2002 17:43:52 -0400
+	id <S316404AbSFJVrS>; Mon, 10 Jun 2002 17:47:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316390AbSFJVnv>; Mon, 10 Jun 2002 17:43:51 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:64017 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S316372AbSFJVnt>;
-	Mon, 10 Jun 2002 17:43:49 -0400
-Date: Mon, 10 Jun 2002 21:33:45 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: perex@suse.cz, torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Kill warning in ac97_codec
-Message-ID: <20020610213345.A29262@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="pf9I7BMVVzbSWLtt"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S316416AbSFJVrR>; Mon, 10 Jun 2002 17:47:17 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28687 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316404AbSFJVrQ>;
+	Mon, 10 Jun 2002 17:47:16 -0400
+Message-ID: <3D051DAF.6020107@mandrakesoft.com>
+Date: Mon, 10 Jun 2002 17:44:15 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/00200205
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kai Henningsen <kaih@khms.westfalen.de>
+CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: of ethernet names (was [PATCH] Futex Asynchronous
+In-Reply-To: <Pine.LNX.4.44.0206091130490.13751-100000@home.transmeta.com> <8QbwdDPmw-B@khms.westfalen.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Actually, networking is moving in the direction described --
+yes, as Linus points out, we will need the magic ioctl stuff for back 
+compat.
+But the main way to communicate with a net device is netlink, already a 
+chardev.  ifconfig actually should be updated to use netlink.
 
---pf9I7BMVVzbSWLtt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Jeff
 
-Kill warning from xxx_bit funtions in ac97_codec.
-Compiled, but no possibility to test.
 
-Against 2.5.21.
 
-	Sam
-
---pf9I7BMVVzbSWLtt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ac97.patch"
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.453   -> 1.454  
-#	include/sound/ac97_codec.h	1.3     -> 1.4    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/06/10	sam@mars.ravnborg.org	1.454
-# ac97: kill warning: passing arg 2 of `xxx_bit' from incompatible pointer type
-# --------------------------------------------
-#
-diff -Nru a/include/sound/ac97_codec.h b/include/sound/ac97_codec.h
---- a/include/sound/ac97_codec.h	Mon Jun 10 21:31:23 2002
-+++ b/include/sound/ac97_codec.h	Mon Jun 10 21:31:23 2002
-@@ -160,7 +160,7 @@
- 	unsigned int rates_mic_adc;
- 	unsigned int spdif_status;
- 	unsigned short regs[0x80]; /* register cache */
--	unsigned char reg_accessed[0x80 / 8]; /* bit flags */
-+	unsigned long reg_accessed[0x80 / BITS_PER_LONG]; /* bit flags */
- 	union {			/* vendor specific code */
- 		struct {
- 			unsigned short unchained[3];	// 0 = C34, 1 = C79, 2 = C69
-
---pf9I7BMVVzbSWLtt--

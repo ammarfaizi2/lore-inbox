@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129109AbQKBAL1>; Wed, 1 Nov 2000 19:11:27 -0500
+	id <S131100AbQKBAM5>; Wed, 1 Nov 2000 19:12:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130388AbQKBALS>; Wed, 1 Nov 2000 19:11:18 -0500
-Received: from socrates.nmia.com ([198.59.166.170]:21572 "EHLO
-	socrates.nmia.com") by vger.kernel.org with ESMTP
-	id <S129109AbQKBALE>; Wed, 1 Nov 2000 19:11:04 -0500
-Message-ID: <3A00B116.5EF12AFB@nmia.com>
-Date: Wed, 01 Nov 2000 17:11:02 -0700
-From: kyle donald smith <ks1060@nmia.com>
-Organization: new mexico internet access, inc.
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.13 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Ethernet Sub-Interfaces disappearing?
+	id <S130830AbQKBAMr>; Wed, 1 Nov 2000 19:12:47 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:5312 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S130388AbQKBAM1>;
+	Wed, 1 Nov 2000 19:12:27 -0500
+Date: Thu, 2 Nov 2000 01:12:05 +0100
+From: Andries Brouwer <aeb@veritas.com>
+To: raptor <raptor@antifork.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: possible bug in hd geometry detect code?
+Message-ID: <20001102011205.A11776@veritas.com>
+In-Reply-To: <Pine.LNX.4.20.0011011436350.516-100000@hacaro.rewt.mil>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.20.0011011436350.516-100000@hacaro.rewt.mil>; from raptor@antifork.org on Wed, Nov 01, 2000 at 02:37:00PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
-We have a webserver running the Slackware distribution of Linux, with
-Kernel version 2.2.6. Our problem is that this machine looses the
-ethernet sub-interfaces (i.e. eth0:xx) and we are wondering why this is
-and what we need to do to fix it. Any help would be greatly appreciated,
-also please CC me personally as I am not currently on this mailing list.
-Thanks.
+On Wed, Nov 01, 2000 at 02:37:00PM +0100, raptor wrote:
 
--- 
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-Kyle Donald Smith		  E-Mail: ks1060@nmia.com
-Systems Operations Group	  Phone:  505/247-0888
-New Mexico Internet Access, Inc.  Pager:  505/698-1922
-2201 Buena Vista SE STE 311	  WWW:    http://www.nmia.com
-Albuquerque, NM 87106
+:  I've recently experienced a problem with hd geometry on Linux kernel
+:  2.2.17. I've got 2 identical hard drives, set up as LBA on BIOS. BIOS sees
+:  them both with geometry 1245/255/63, while Linux sees the second one as
+:  19857/16/63. 
+
+See the large disk howto, especially the section
+"14.2 Nonproblem: Identical disks have different geometry?"
+
+Andries
+
+http://www.win.tue.nl/~aeb/linux/Large-Disk-14.html#ss14.2
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

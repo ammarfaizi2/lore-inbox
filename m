@@ -1,78 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287919AbSBDATG>; Sun, 3 Feb 2002 19:19:06 -0500
+	id <S287924AbSBDAYp>; Sun, 3 Feb 2002 19:24:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287924AbSBDAS4>; Sun, 3 Feb 2002 19:18:56 -0500
-Received: from 198.216-123-194-0.interbaun.com ([216.123.194.198]:51462 "EHLO
-	mail.harddata.com") by vger.kernel.org with ESMTP
-	id <S287919AbSBDASp>; Sun, 3 Feb 2002 19:18:45 -0500
-Date: Sun, 3 Feb 2002 17:18:36 -0700
-From: Michal Jaegermann <michal@harddata.com>
-To: linux-kernel@vger.kernel.org
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] Warnings in drm modules - 2.4.18pre...
-Message-ID: <20020203171836.B12981@mail.harddata.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S287933AbSBDAYg>; Sun, 3 Feb 2002 19:24:36 -0500
+Received: from clavin.cs.tamu.edu ([128.194.130.106]:35771 "EHLO cs.tamu.edu")
+	by vger.kernel.org with ESMTP id <S287924AbSBDAYS>;
+	Sun, 3 Feb 2002 19:24:18 -0500
+Date: Sun, 3 Feb 2002 18:24:16 -0600 (CST)
+From: Xinwen - Fu <xinwenfu@cs.tamu.edu>
+To: Rob Landley <landley@trommello.org>
+cc: linux-kernel@vger.kernel.org
+Subject: packet created by local raw socket
+In-Reply-To: <20020203221438.NAPP25931.femail13.sdc1.sfba.home.com@there>
+Message-ID: <Pine.SOL.4.10.10202031800220.24685-100000@dogbert>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rob, 
+	Thanks for your reply! It's very good! 
 
-The following, obvious (DMA_BLOCK_SIZE is of size_t type) and otherwise
-harmless, patch kills literally few hundreds compilation warnings on
-64-bit platforms.
 
---- linux-2.4.18p7/drivers/char/drm/mga_drv.h~	Mon Aug 27 08:40:33 2001
-+++ linux-2.4.18p7/drivers/char/drm/mga_drv.h	Sun Feb  3 15:46:16 2002
-@@ -247,7 +247,7 @@
- 	if ( MGA_VERBOSE ) {						\
- 		DRM_INFO( "BEGIN_DMA( %d ) in %s\n",			\
- 			  (n), __FUNCTION__ );				\
--		DRM_INFO( "   space=0x%x req=0x%x\n",			\
-+		DRM_INFO( "   space=0x%x req=0x%lx\n",			\
- 			  dev_priv->prim.space, (n) * DMA_BLOCK_SIZE );	\
- 	}								\
- 	prim = dev_priv->prim.start;					\
-@@ -297,7 +297,7 @@
- #define DMA_WRITE( offset, val )					\
- do {									\
- 	if ( MGA_VERBOSE ) {						\
--		DRM_INFO( "   DMA_WRITE( 0x%08x ) at 0x%04x\n",		\
-+		DRM_INFO( "   DMA_WRITE( 0x%08x ) at 0x%04lx\n",	\
- 			  (u32)(val), write + (offset) * sizeof(u32) );	\
- 	}								\
- 	*(volatile u32 *)(prim + write + (offset) * sizeof(u32)) = val;	\
+	In fact my problem is simpler to you( the
+last email is not clear):
+	
+	Now I create a raw socket(SOCK_RAW) on a local machine, construct
+a ICMP packet and send it out. So what queues will this packet go through?
 
-Can it be applied, please, if only to reduce noise?
+	I tested it and it seems that this packet first goes to OUTPUT
+queue. is that right? If so, then ip stack's interface to RAW socket
+should be below the function of appending IP header to a transport layer 
+datagram but above the routing decision function and also above the
+OUTPUT queue, am I right?
 
-Once we are at it here is another patch of a similar character:
+Thanks!
 
---- linux-2.4.18p7/drivers/char/drm/radeon_cp.c~	Fri Sep 14 15:29:41 2001
-+++ linux-2.4.18p7/drivers/char/drm/radeon_cp.c	Sun Feb  3 15:30:19 2002
-@@ -623,7 +623,7 @@
- 
- 		RADEON_WRITE( RADEON_CP_RB_RPTR_ADDR,
- 			     entry->busaddr[page_ofs]);
--		DRM_DEBUG( "ring rptr: offset=0x%08x handle=0x%08lx\n",
-+		DRM_DEBUG( "ring rptr: offset=0x%08lx handle=0x%08lx\n",
- 			   entry->busaddr[page_ofs],
- 			   entry->handle + tmp_ofs );
- 	}
---- linux-2.4.18p7/drivers/char/drm/r128_cce.c~	Mon Aug 27 08:40:33 2001
-+++ linux-2.4.18p7/drivers/char/drm/r128_cce.c	Sun Feb  3 15:30:10 2002
-@@ -352,7 +352,7 @@
- 
- 		R128_WRITE( R128_PM4_BUFFER_DL_RPTR_ADDR,
-      			    entry->busaddr[page_ofs]);
--		DRM_DEBUG( "ring rptr: offset=0x%08x handle=0x%08lx\n",
-+		DRM_DEBUG( "ring rptr: offset=0x%08lx handle=0x%08lx\n",
- 			   entry->busaddr[page_ofs],
-      			   entry->handle + tmp_ofs );
- 	}
+Fu	
+	
 
-although results are not spectacular. :-)
 
-  Michal
+	
+
+
+
+Xinwen Fu
+
+
+On Sun, 3 Feb 2002, Rob Landley wrote:
+
+> On Sunday 03 February 2002 01:45 pm, Xinwen - Fu wrote:
+> > Hi, All,
+> >
+> > 	I want  to know how a raw packet passes the chain of iptables.
+> >
+> > 	Here are the iptables chains
+> >
+> > --->PRE------>[ROUTE]--->FWD---------->POST------>
+> >         Conntrack    |       Filter   ^    NAT (Src)
+> >         Mangle       |                |    Conntrack
+> >         NAT (Dst)    |             [ROUTE]
+> >         (QDisc)      v                |
+> >                      IN Filter       OUT Conntrack
+> >
+> >                      |  Conntrack     ^  Mangle
+> >                      |
+> >                      |                |  NAT (Dst)
+> >
+> >                      v                |  Filter
+> >
+> >
+> > 	So how a raw packet go through these chains?
+> 
+> 
+> Well, from trial and error and a lot of documentation reading, I eventually 
+> worked out that a TCP/IP packet basically seems to do this:
+> 
+> --->pre--->forward--->post--->
+>      |                           ^
+>      |                           |
+>      v                          |
+>      input->local ports->output
+> 
+> I'd like to point out that the last arrow should point from "output" to 
+> "post", since kmail apparently is not using a fixed with font, and I can't 
+> figure out how to get it to do so.  (I did figure out how to get it to use a 
+> korean, chinese, or cyrillic encoding, but not monospaced.  Sigh...)
+> 
+> So in prerouting, the packet is either forwarded on to the forwarding chain 
+> (if it's not for this box) or to the input chain (if it's for a daemon on 
+> this box).  Forwarding never sees packets locally generated on this box, they 
+> go into the output chain and then get sent on to postrouting (which is where 
+> forwarding also feeds into).
+> 
+> It took a little trial and error to work this out, by the way.  It's entirely 
+> ossibly I'm wrong (since I don't think the above agrees with the 
+> documentation), but at the same time it works and survives specific behavior 
+> testing, so... :)  The tables are fairly arbitrarily broken into "NAT" tables 
+> and non-NAT tables.  Oh, and one of the chains (output, I think) exists in 
+> both nat and non-nat versions.  To this day, I have no idea why...
+> 
+> > 	Thanks!!
+> >
+> > Xinwen Fu
+> 
+> If the above doesn't help, this might:
+> 
+> http://netfilter.samba.org/unreliable-guides/
+> 
+> Rob
+> 
+
+
+

@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269391AbRHGUB7>; Tue, 7 Aug 2001 16:01:59 -0400
+	id <S269395AbRHGUD3>; Tue, 7 Aug 2001 16:03:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269392AbRHGUBu>; Tue, 7 Aug 2001 16:01:50 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31760 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269391AbRHGUBr>; Tue, 7 Aug 2001 16:01:47 -0400
-Subject: Re: cpu not detected(x86)
-To: andrew.grover@intel.com (Grover, Andrew)
-Date: Tue, 7 Aug 2001 21:03:08 +0100 (BST)
-Cc: davej@suse.de ('Dave Jones'), nicos@pcsystems.de (Nico Schottelius),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <no.id> from "Grover, Andrew" at Aug 07, 2001 12:40:01 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S269393AbRHGUDU>; Tue, 7 Aug 2001 16:03:20 -0400
+Received: from [208.134.143.150] ([208.134.143.150]:56969 "EHLO
+	mail.playnet.com") by vger.kernel.org with ESMTP id <S269392AbRHGUDE>;
+	Tue, 7 Aug 2001 16:03:04 -0400
+Message-ID: <031901c11f7c$2185b0e0$0b32a8c0@playnet.com>
+From: "Marty Poulin" <mpoulin@playnet.com>
+To: "Dan Podeanu" <pdan@spiral.extreme.ro>,
+        "Torrey Hoffman" <torrey.hoffman@myrio.com>
+Cc: "'David Maynor'" <david.maynor@oit.gatech.edu>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L2.0108072212590.18776-100000@spiral.extreme.ro>
+Subject: Re: encrypted swap
+Date: Tue, 7 Aug 2001 15:04:13 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15UD4G-0003tE-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Longer-term, we need to change the kernel to not use the TSC for udelay, but
-> to use the PM Timer, if ACPI is going to be monkeying with CPU power states.
+From: "Dan Podeanu" <pdan@spiral.extreme.ro>
+> /proc/kcore & the likes). If its going to be stolen while its offline, you
+> can have your shutdown scripts blank the swap partition and the boot
+> scripts call mkswap on it.
 
-That can be done, and may be a help. 
+Assuming that the notebook was shutdown correctly is a big assumption.  The
+notebook could run out of power or freeze-up and if the user is not able to
+immediately able to restart the computer the swap is all laid out with a
+ribbon.
 
-The TSC timer isnt a very good source on many non intel chips that stop it
-to get the best power figures. It also helps with SMP because on an SMP box
-the tsc values may not calibrate.
+No I have to agree that a more elegant solution to this is encrypt
+everything and require the user to input the password whenever the system
+boots or returns from suspend.
 
-Alan
+Marty Poulin
+vandal@playnet.com
+Lead Programmer
+Host/Client Communications
+Playnet Inc./Cornered Rat Software
+

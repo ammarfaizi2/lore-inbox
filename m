@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129030AbQJ0Fk5>; Fri, 27 Oct 2000 01:40:57 -0400
+	id <S129078AbQJ0GUE>; Fri, 27 Oct 2000 02:20:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129079AbQJ0Fkr>; Fri, 27 Oct 2000 01:40:47 -0400
-Received: from [203.26.242.120] ([203.26.242.120]:17682 "EHLO
-	marina.lowendale.com.au") by vger.kernel.org with ESMTP
-	id <S129030AbQJ0Fkg>; Fri, 27 Oct 2000 01:40:36 -0400
-Date: Fri, 27 Oct 2000 16:59:58 +1100 (EST)
-From: Neale Banks <neale@lowendale.com.au>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-net@vger.kernel.org
-Subject: Re: VM-global-2.2.18pre17-7
-In-Reply-To: <39F85A09.DA88452F@ovh.net>
-Message-ID: <Pine.LNX.4.05.10010271651240.14633-100000@marina.lowendale.com.au>
+	id <S129142AbQJ0GTy>; Fri, 27 Oct 2000 02:19:54 -0400
+Received: from vger.timpanogas.org ([207.109.151.240]:45060 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129078AbQJ0GTn>; Fri, 27 Oct 2000 02:19:43 -0400
+Message-ID: <39F91DAB.B7A242E@timpanogas.org>
+Date: Fri, 27 Oct 2000 00:16:11 -0600
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: NCPFS flags all files executable on NetWare Volumes with NFS Namespace
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Oct 2000, octave klaba wrote:
 
-> > > Oct 26 16:38:01 ns29 kernel: eth0: card reports no resources.
-> > let me guess: intel eepro100 or similar??
-> yeap
+Petr/Linux,
 
-er, "me too":
+I noticed NCPFS is flagging all the files on a native NetWare volume as
+executable and chmod 
+-x does not work, even if the NetWare server has the NFS namespace
+loaded.  I looked at 
+you code in more detail, and I did not see support their for the
+NFS/Unix namespace.  
 
-  Bus  0, device   2, function  0:
-    Ethernet controller: Intel 82557 (rev 8).
-      Medium devsel.  Fast back-to-back capable.  IRQ 10.  Master Capable.  Latency=64.  Min Gnt=8.Max Lat=56.
-      Non-prefetchable 32 bit memory at 0xb5fff000 [0xb5fff000].
-      I/O at 0x2400 [0x2401].
-      Non-prefetchable 32 bit memory at 0xb5e00000 [0xb5e00000].
+Is this in a newer version, or has it not been implemented yet?  I was
+testing with MARS 
+and Native NetWare this evening and saw this.  If the NFS namespace is
+loaded, you should 
+be able to get to it and access and set all these bits in the file
+system namespace directory
+records.
 
-On Debian's 2.2.17-compact on a Compaq DL380 - with 60 days uptime I have
-6 "eth0: card reports no resources." messages reported in dmesg.
-
-[...]
-> > Well known problem with that one. dont know if its fully fixed ... With
-> > 2.4.0-test9-pre3 it doesnt happen on my machine ...
-> we have 1-2 servers running 2.4.0-test9 and we got this error ...
-> 
-> is there any patch to 2.2.18pre ? since the server has to run on sunday
-> we can still make the crazy tests 3 days. it would be cool to fix it to 
-> 2.2.X if the bug is known ;)
-
-Unless this is "mostly harmless" a backport of any fix to 2.2.xx would be
-received most gratefully.
+Do you need any info from me to get this working, or is there another
+version where I can 
+get this for Ute-Linux?
 
 Thanks,
-Neale.
 
+:-)
+
+Jeff
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131998AbRAGUea>; Sun, 7 Jan 2001 15:34:30 -0500
+	id <S135211AbRAGUfa>; Sun, 7 Jan 2001 15:35:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135483AbRAGUeU>; Sun, 7 Jan 2001 15:34:20 -0500
-Received: from cmn2.cmn.net ([206.168.145.10]:14968 "EHLO cmn2.cmn.net")
-	by vger.kernel.org with ESMTP id <S131998AbRAGUeI>;
-	Sun, 7 Jan 2001 15:34:08 -0500
-Message-ID: <3A58BF5C.1090505@valinux.com>
-Date: Sun, 07 Jan 2001 12:11:24 -0700
-From: Jeff Hartmann <jhartmann@valinux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.12-20smp i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+	id <S135721AbRAGUfU>; Sun, 7 Jan 2001 15:35:20 -0500
+Received: from linuxjedi.org ([192.234.5.42]:62225 "EHLO linuxjedi.org")
+	by vger.kernel.org with ESMTP id <S135483AbRAGUfH>;
+	Sun, 7 Jan 2001 15:35:07 -0500
+Message-ID: <3A58D418.32111AD@linuxjedi.org>
+Date: Sun, 07 Jan 2001 15:39:52 -0500
+From: "David L. Parsley" <parsley@linuxjedi.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "Michael D. Crawford" <crawford@goingware.com>
-CC: linux-kernel@vger.kernel.org, newbie@xfree86.org
-Subject: Re: DRI doesn't work on 2.4.0 but does on prerelease-ac5
-In-Reply-To: <3A57A83B.702CEC98@goingware.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        "Adam J. Richter" <adam@yggdrasil.com>, parsley@roanoke.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: Patch (repost): cramfs memory corruption fix
+In-Reply-To: <E14FLi2-0003Cy-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> -ac has the rather extended ramfs with resource limits and stuff. That one
+> also has rather more extended bugs 8). AFAIK none of those are in the vanilla
+> ramfs code
 
-> Could XFree86 4.0.2 fix this?  I had been waiting until the binary packages were
-> available from ftp.slackware.com because Patrick Volkerding lays out the
-> directories in a slightly different manner that he argues pretty convincingly is
-> preferable, but it would be a drag for me to reproduce by building it myself.
+Nifty stuff, too; it's nice for a ramfs mount to show up in 'df' with
+useful figures.  Shame I can't put anything there. ;-)
 
-XFree 4.0.2 will fix this.
+2.4.0 ramfs with the one-liner does it's job for me already; what I'd
+really love to fool with is _cramfs_. ;-)  In case you missed the
+beginning of this thread: all my cramfs initrd's fail to mount as
+/dev/ram0 with 'wrong magic'; their romfs counterparts work fine.  I did
+manage to pivot_root into a cramfs root, but it blew up pretty quick
+with 'attempt to access beyond end of device', and killed my init
+shell.  Then there's the wierdness where cramfs compiled in the kernel
+corrupts the romfs.  Adam's one-liner (bforget -> brelse on superblock)
+didn't fix this.
 
-> (EE) r128(0): R128DRIScreenInit failed (DRM version = 2.1.2, expected 1.0.x). 
-> Disabling DRI.
+The cramfs docs are contradictory btw; the kernel help says 'doesn't
+support hardlinks', and Documentation/filesystems/cramfs.txt says
+'Hardlinks are supported, but...'.  I made my cramfs with and without
+hardlinks (to busybox); but that didn't affect whether it mounted.  I
+haven't tested whether this fixes the 'access beyond end of device'
+problems.
 
-We made binary incompatible device interface changes with 4.0.2.  These 
-driver changes resulted in a more stable / faster / cleaner Rage 128 driver.
-
--Jeff
-
+regards,
+	David
+-- 
+David L. Parsley
+Network Administrator
+Roanoke College
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

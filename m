@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267354AbTB1Aw3>; Thu, 27 Feb 2003 19:52:29 -0500
+	id <S267346AbTB1AvP>; Thu, 27 Feb 2003 19:51:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267384AbTB1Aw3>; Thu, 27 Feb 2003 19:52:29 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61703 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267354AbTB1Aw2>; Thu, 27 Feb 2003 19:52:28 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Is the GIO_FONT ioctl() busted in Linux kernel 2.4?
-Date: 27 Feb 2003 17:02:29 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b3mcf5$629$1@cesium.transmeta.com>
-References: <3E5DDE8D.14024.6FCE7D82@localhost> <3E5DE0FC.29370.6FD7FC8B@localhost>
+	id <S267354AbTB1AvP>; Thu, 27 Feb 2003 19:51:15 -0500
+Received: from blackbird.intercode.com.au ([203.32.101.10]:35344 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S267346AbTB1AvP>; Thu, 27 Feb 2003 19:51:15 -0500
+Date: Fri, 28 Feb 2003 12:01:10 +1100 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: latten@austin.ibm.com
+cc: davem@redhat.com, <kuznet@ms2.inr.ac.ru>, <linux-kernel@vger.kernel.org>,
+       <netdev@oss.sgi.com>
+Subject: Re: PATCH: IPSec not using padding when Null Encryption
+In-Reply-To: <200302272129.h1RLTJW28434@faith.austin.ibm.com>
+Message-ID: <Pine.LNX.4.44.0302281159400.24571-100000@blackbird.intercode.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3E5DE0FC.29370.6FD7FC8B@localhost>
-By author:    "Kendall Bennett" <KendallB@scitechsoft.com>
-In newsgroup: linux.dev.kernel
->
-> "Kendall Bennett" <KendallB@scitechsoft.com> wrote:
+On Thu, 27 Feb 2003 latten@austin.ibm.com wrote:
+
+> I have tested it. Please let me know if all is well. 
+
+Looks fine to me.
+
+(Perhaps change the name of the blksize variable to padto or similar, in 
+case someone later thinks it's the real block size).
+
+> --- esp.c.orig	2003-02-20 16:07:59.000000000 -0600
+> +++ esp.c	2003-02-27 10:30:25.000000000 -0600
+> @@ -360,7 +360,7 @@
+>  	esp = x->data;
+>  	alen = esp->auth.icv_trunc_len;
+>  	tfm = esp->conf.tfm;
+> -	blksize = crypto_tfm_alg_blocksize(tfm);
+> +	blksize = (crypto_tfm_alg_blocksize(tfm) + 3) & ~3;
+>  	clen = (clen + 2 + blksize-1)&~(blksize-1);
+>  	if (esp->conf.padlen)
+>  		clen = (clen + esp->conf.padlen-1)&~(esp->conf.padlen-1);
 > 
-> > From looking at the 2.4 kernel source code that comes with Red
-> > Hat 8.0, it is clear that these functions are implemented on top
-> > of a new console font interface that supports 512 characters and
-> > up to 32x32 pixel fonts (obviously for fb consoles). 
-> 
-> Yep, after further investigation the problem is that the VGA console is 
-> configured to run with 512 characters, yet the 'old' interface code is 
-> trying to save/restore only 256 characters so it fails. It could be fixed 
-> if it was changed to save/restore 512 characters, but I don't know if 
-> that will break old code (it won't break mine as I always uses a 64K 
-> buffer to save/restore the font tables).
-> 
 
-It will break old code.  That's why you've been supposed to use
-GIO_FONTX (and GIO_UNISCRNMAP) since the 1.3.1 kernel days (which is
-when 512-character support was introduced.)
-
-You're *way* behind the times.
-
-man 4 console_ioctl
-
-	-hpa
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: cris ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+James Morris
+<jmorris@intercode.com.au>
+
+

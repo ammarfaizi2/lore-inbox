@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265755AbUF2NA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265756AbUF2NA3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265755AbUF2NA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 09:00:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265761AbUF2NA0
+	id S265756AbUF2NA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 09:00:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265760AbUF2NA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 09:00:26 -0400
-Received: from mail.humboldt.co.uk ([81.2.65.18]:33445 "EHLO
-	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S265755AbUF2NAZ
+	Tue, 29 Jun 2004 09:00:29 -0400
+Received: from mail.humboldt.co.uk ([81.2.65.18]:34213 "EHLO
+	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S265756AbUF2NAZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 29 Jun 2004 09:00:25 -0400
 Subject: pcnet32.c regression
 From: Adrian Cox <adrian@humboldt.co.uk>
 To: linux-kernel@vger.kernel.org
-Cc: brazilnut@us.ibm.com, tsbogend@alpha.franken.de
+Cc: brazilnut@us.ibm.com
 Content-Type: text/plain
-Message-Id: <1088513914.923.125.camel@localhost>
+Message-Id: <1088514023.923.126.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 29 Jun 2004 14:00:24 +0100
+Date: Tue, 29 Jun 2004 14:00:25 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org

@@ -1,78 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271212AbRH1Osh>; Tue, 28 Aug 2001 10:48:37 -0400
+	id <S271335AbRH1PCJ>; Tue, 28 Aug 2001 11:02:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271265AbRH1OsR>; Tue, 28 Aug 2001 10:48:17 -0400
-Received: from burdell.cc.gatech.edu ([130.207.3.207]:23812 "EHLO
-	burdell.cc.gatech.edu") by vger.kernel.org with ESMTP
-	id <S271212AbRH1OsJ>; Tue, 28 Aug 2001 10:48:09 -0400
-Message-ID: <3B8BAF1C.EC336B17@cc.gatech.edu>
-Date: Tue, 28 Aug 2001 10:47:56 -0400
-From: Josh Fryman <fryman@cc.gatech.edu>
-Organization: CoC, GaTech
-X-Mailer: Mozilla 4.77 [en] (X11; U; SunOS 5.7 sun4u)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: silly memory question ...
-In-Reply-To: <Pine.LNX.3.95.1010828101642.13417A-100000@chaos.analogic.com>
+	id <S271307AbRH1PB7>; Tue, 28 Aug 2001 11:01:59 -0400
+Received: from thunderchild.ikk.sztaki.hu ([193.225.87.24]:51205 "HELO
+	thunderchild.ikk.sztaki.hu") by vger.kernel.org with SMTP
+	id <S271278AbRH1PBm>; Tue, 28 Aug 2001 11:01:42 -0400
+Date: Tue, 28 Aug 2001 17:01:59 +0200
+From: Gergely Madarasz <gorgo@thunderchild.debian.net>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: aic7899 problems
+Message-ID: <20010828170159.O6202@thunderchild.ikk.sztaki.hu>
+In-Reply-To: <20010828145526.I6202@thunderchild.ikk.sztaki.hu> <200108281458.f7SEwSY89672@aslan.scsiguy.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <200108281458.f7SEwSY89672@aslan.scsiguy.com>; from gibbs@scsiguy.com on Tue, Aug 28, 2001 at 08:58:28AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
+On Tue, Aug 28, 2001 at 08:58:28AM -0600, Justin T. Gibbs wrote:
+> >Hello,
+> >
+> >the error message is like this:
+> >
+> >scsi0:0:3:0: Attempting to queue an ABORT message
+> >scsi0:0:3:0: Cmd aborted from QINFIFO
+> >aic7xxx_abort returns 8194
+> >
+> >lots of these messages. the same happens on scsi0:0:4:0, scsi0:0:5:0 and
+> >scsi0:0:9:0, then I get ext2 and I/O errors. I have 4 of these machines
+> >(ibm netfinity 5100), running for several weeks now as http proxies, and
+> >sometimes they crash (3 from 4 have crashed so far at least once, this is
+> >the first time I have logs from the beginning of the crash). The kernel is
+> >stock 2.4.7. On another machine (netfinity 7100, aic7896) I couldn't boot
+> >stock 2.4.9 because I got these messages right after the boot, the old aic
+> >driver worked though. I'm puzzled because the 5100's worked perfectly for
+> >almost a month. What should I try? 
+> 
+> Please boot a 2.4.9 system with "aic7xxx=verbose" in your lilo.conf
+> (aic7xxx driver statically linked into your kernel", or:
+> 
+> options aic7xxx aic7xxx=`"verbose"'
+> 
+> in your modules.conf (you'll have to recreate the initrd for it
+> to take effect) if you are loading a module.  Use a serial console
+> to capture all messages from the start of boot through several
+> reported errors, and send it to me.
 
-thanks to all of you for your suggestions... it turns out this
-is an ARM-specific issue, and maybe some other platforms as well.
-(or maybe just my specific ARM kernel/glibc combo. ;)
+I'll try but days or weeks might pass before the next crash occurs.
+Thanks.
 
-it turns out x86 ignores some "modes" for pages in memory.  or
-maybe ld.so doesn't bother to set them.  anyway, the code snippet 
-below "fixes" the pages i need fixed to become R/W/X.
-
-on *my* ARM, you can't default execute data pages; you can't 
-write text pages; etc, etc. (my kernel is 2.4.0 with glibc 2.1.2.)
-
-i don't know what other platforms enforce this, but hopefully 
-this is as educational for those suggesting solutions as it has 
-been for me. if i had specified i was running on ARM originally, 
-it may have made things clearer.
-
-thanks again,
-
-josh
-
-   // fix permissions on __app_code - we need R/W/X, not just R/X ... 
-   // ARM-specific problem, but this fix should work on ALL platform targets
-
-   printf("Fixing TEXT segment permissions for R/W/X....\n");
-   for (i=0; i<APP_CODE_K*1024/PAGESIZE; i++)
-   {
-      code = (ui32*) ((((ui32)__app_code + i*PAGESIZE) - 1) & ~(PAGESIZE-1));
-      if (mprotect( code, PAGESIZE, PROT_READ|PROT_WRITE|PROT_EXEC) )
-      {
-         printf("mprotect() on 0x%08x failed!\nerrno (%d) indicates status: ", code, errno);
-	 switch (errno) 
-	 {
-	    case EINVAL: printf("EINVAL: not valid ptr, or not multiple of PAGESIZE (%d)\n", PAGESIZE);  
-                         break;
-	    case EFAULT: printf("EFAULT: memory can not be accessed.\n"); 
-                         break;
-	    case EACCES: printf("EACCES: memory can not be given specified access modes.\n"); 
-                         break;
-	    case ENOMEM: printf("ENOMEM: internal kernel structures could not be allocated.\n"); 
-                         break;
-	    default:     printf("??????: unknown error result.\n");
-	 }
-         exit( CLNT_MPROT_FAIL );
-      }
-   }
-
-note:
-the dummy "nop" function "__app_code()" is APP_CODE_K in size of
-KBs of NOPs.
-
-note 2:
-i hope the KiB/MiB/whatever standard suggestion is never adopted 
-and revoked really soon now.
+-- 
+Madarasz Gergely   gorgo@thunderchild.debian.net   gorgo@linux.rulez.org
+    It's practically impossible to look at a penguin and feel angry.
+        Egy pingvinre gyakorlatilag lehetetlen haragosan nezni.
+                  HuLUG: http://mlf.linux.rulez.org/

@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262139AbTEHVjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 17:39:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262140AbTEHVjZ
+	id S262151AbTEHVfN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 17:35:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbTEHVfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 17:39:25 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:46759 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262139AbTEHVjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 17:39:24 -0400
-Date: Thu, 8 May 2003 14:48:08 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove devfs_register
-Message-Id: <20030508144808.745328f5.akpm@digeo.com>
-In-Reply-To: <20030508223449.A29413@lst.de>
-References: <20030508223449.A29413@lst.de>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 8 May 2003 17:35:13 -0400
+Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:20492
+	"EHLO cynthia.pants.nu") by vger.kernel.org with ESMTP
+	id S262151AbTEHVfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 17:35:11 -0400
+Date: Thu, 8 May 2003 14:47:46 -0700
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       linux-hfsplus-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] HFS+ driver
+Message-ID: <20030508214746.GB19450@pants.nu>
+References: <Pine.LNX.4.44.0305071643030.5042-100000@serv> <20030508213401.GA3458@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 May 2003 21:51:56.0481 (UTC) FILETIME=[0B4F4B10:01C315AC]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030508213401.GA3458@werewolf.able.es>
+User-Agent: Mutt/1.3.28i
+From: flar@pants.nu (Brad Boyer)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@lst.de> wrote:
->
-> Whee! devfs_register isn't used anymore in the whole tree
+On Thu, May 08, 2003 at 11:34:01PM +0200, J.A. Magallon wrote:
+> How about this ?
 
-devfs_register appears to still be used in
+Yes, this is a good patch. I originally started on 2.2.x, which
+doesn't have strsep, and I didn't trust strtok (with good reason).
+I'll get rid of my little hacked up function and use strsep instead.
+Thanks for taking a look at the code.
 
-./arch/ia64/sn/io/sn2/xbow.c
-./arch/ia64/sn/io/hcl.c
-./arch/ia64/sn/io/pciba.c
+	Brad Boyer
+	flar@allandria.com
+

@@ -1,48 +1,145 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271035AbTGQHfc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 03:35:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271042AbTGQHfc
+	id S271071AbTGQHjU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 03:39:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271119AbTGQHjU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 03:35:32 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:14996
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S271035AbTGQHfa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 03:35:30 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [PATCH] O6.1int
-Date: Thu, 17 Jul 2003 17:53:05 +1000
-User-Agent: KMail/1.5.2
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Wade <neroz@ii.net>,
-       Eugene Teo <eugene.teo@eugeneteo.net>, Wiktor Wodecki <wodecki@gmx.de>
-References: <200307171213.02643.kernel@kolivas.org> <1058427955.754.3.camel@teapot.felipe-alfaro.com>
-In-Reply-To: <1058427955.754.3.camel@teapot.felipe-alfaro.com>
+	Thu, 17 Jul 2003 03:39:20 -0400
+Received: from mail.jambit.de ([212.18.21.206]:40972 "EHLO mail.jambit.de")
+	by vger.kernel.org with ESMTP id S271071AbTGQHjM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 03:39:12 -0400
+Message-ID: <008f01c34c38$9be3c120$c100a8c0@wakatipu>
+From: "Michael Kerrisk" <mtk-lists@jambit.com>
+To: <aebr@win.tue.nl>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Bug in open() function (?)
+Date: Thu, 17 Jul 2003 09:54:11 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307171753.05708.kernel@kolivas.org>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jul 2003 17:45, Felipe Alfaro Solana wrote:
-> On Thu, 2003-07-17 at 04:13, Con Kolivas wrote:
-> > The bug in the O6int patch probably wasn't responsible for WIktor's
-> > problem actually. It shouldn't manifest for a very long time. Anyway here
-> > is the fix and a couple of minor cleanups.
+> > On Fri, 11 Jul 2003 22:23:00 PDT, Andrew Morton said:
+
+> >
+
+> > > We've lived with it for this long.
+
+> >
+
+> > Well... you have a point there..
+
+> >
+
+> > > Given that the behaviour is undefined, the behaviour which we should
+
+> > > implement is clearly "whatever 2.4 is doing".  So let's leave it
+alone.
+
+> >
+
+> > I suppose I could live with that *IF* somebody fixes 'man 2 open' to
+
+> > reflect reality.
+
 >
-> This is even better than plain O6-int. Everything is nearly perfect.
-> One thing I dislike a bit is that on my slow PIII 700Mhz, moving a
-> medium-sized window over Evolution 1.4.3 main window (displaying my
-> INBOX full of messages) makes the window movement a little jumpy
-> (Evolution 1.4.3 is well-known to be a serious CPU hogger when
-> repainting windows).
 
-Thanks. That one I _do_ know about, and am still thinking about a fair way to 
-fix.
+> Corrections and additions to manpages are always welcome.
 
-Con
+> Mail to aeb@cwi.nl .
+
+>
+
+>
+
+> (Concerning the topic under discussion, the man page says
+
+>
+
+>        O_TRUNC
+
+>               If  the  file  already exists and is a regular file
+
+>               and the open mode allows writing (i.e.,  is  O_RDWR
+
+>               or  O_WRONLY) it will be truncated to length 0.  If
+
+>               the file is a FIFO or  terminal  device  file,  the
+
+>               O_TRUNC  flag  is  ignored. Otherwise the effect of
+
+>               O_TRUNC is unspecified.
+
+>
+
+> which is precisely right. It continues
+
+>
+
+>                                        (On many Linux versions it
+
+>               will  be  ignored; on other versions it will return
+
+>               an error.)
+
+>
+
+> where someone may read this as if this is an exhaustive list of
+
+> possibilities. So adding ", or actually do the truncate" will
+
+> clarify.)
+
+>
+
+>
+
+> Concerning the desired behaviour: if I recall things correctly
+
+> doing the truncate was old SunOS behaviour, not doing it,
+
+> that is, honouring the O_RDONLY, is new Solaris behaviour.
+
+> Maybe someone with access to such machines can check.
+
+>
+
+> Software exists that does O_RDONLY | O_TRUNC.
+
+
+
+A late addition to this thread, but all of these systems DO truncate with
+
+O_RDONLY | O_TRUNC:
+
+
+
+Solaris 8
+
+Tru64 5.1B
+
+HP-UX 11.22
+
+FreeBSD 4.7
+
+
+
+Although this flag combination is left unspecified by SUSv3, I don't
+
+know of an implementation that DOESN'T truncate in these circumstances.
+
+
+
+Cheers
+
+
+
+Michael
 

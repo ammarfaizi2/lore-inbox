@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268471AbTANBLL>; Mon, 13 Jan 2003 20:11:11 -0500
+	id <S268465AbTANBH2>; Mon, 13 Jan 2003 20:07:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268472AbTANBLL>; Mon, 13 Jan 2003 20:11:11 -0500
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:59524 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S268471AbTANBLJ>; Mon, 13 Jan 2003 20:11:09 -0500
-To: andrea.glorioso@binary-only.com
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	id <S268467AbTANBH1>; Mon, 13 Jan 2003 20:07:27 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:54917 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S268465AbTANBHZ>; Mon, 13 Jan 2003 20:07:25 -0500
+Date: Mon, 13 Jan 2003 20:20:10 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Jeff Garzik <jgarzik@pobox.com>, Ross Biro <rossb@google.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Alan Cox <alan@redhat.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Are linux network drivers really affected by this?
-References: <1042116723.2556.3.camel@station3>
-	<87iswx4eaw.fsf@topo.binary-only.priv>
-	<1042199207.28469.49.camel@irongate.swansea.linux.org.uk>
-	<8765sx2r8u.fsf@topo.binary-only.priv>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 14 Jan 2003 10:19:01 +0900
-In-Reply-To: <8765sx2r8u.fsf@topo.binary-only.priv>
-Message-ID: <buo3cnw7cl6.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Subject: Re: Linux 2.4.21-pre3-ac4
+In-Reply-To: <1042495640.587.30.camel@zion.wanadoo.fr>
+Message-ID: <Pine.LNX.3.95.1030113201527.31662A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-andrea.glorioso@binary-only.com writes:
->     ac> Most of  them will pad with zero.  We have a couple of drivers
->     ac> that already pad with something along  the lines of "NetBSD is
->     ac> a cool OS too.."
+On 13 Jan 2003, Benjamin Herrenschmidt wrote:
+
+> On Mon, 2003-01-13 at 22:40, Richard B. Johnson wrote:
 > 
-> Let's talk about subliminal messages, then. :)
+> > There is a well-defined procedure for this. Any "read" anywhere
+> > in the PCI address space, will force all posted writes to complete.
+> > However, the "read" will not be the data one would obtain after
+> > the write completes. 
+> 
+> Just to avoid confusion, the above is obviously wrong, the read will
+> indeed force pending store queues to complete _in order_, the read will
+> reach the device after the stores are complete and you'll read the value
+> you would get after the write normally. At least on PCI ;)
+> 
+> Ben.
+> 
 
-How about `Printer on fire'?
+It is not, as you say; "obviously wrong". It is, in fact correct.
+If you think you will get, as previously stated, the current status
+by reading the status register of a device, while a posted-write
+is in-progress, the code is broken. There are warnings all over
+PCI device hardware specifications about this. 
 
--Miles
--- 
-I have seen the enemy, and he is us.  -- Pogo
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+
+

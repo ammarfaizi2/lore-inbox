@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272559AbRIKUR1>; Tue, 11 Sep 2001 16:17:27 -0400
+	id <S272564AbRIKUV5>; Tue, 11 Sep 2001 16:21:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272562AbRIKURQ>; Tue, 11 Sep 2001 16:17:16 -0400
-Received: from web12204.mail.yahoo.com ([216.136.173.88]:17160 "HELO
-	web12204.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S272559AbRIKURG>; Tue, 11 Sep 2001 16:17:06 -0400
-Message-ID: <20010911201727.89065.qmail@web12204.mail.yahoo.com>
-Date: Tue, 11 Sep 2001 22:17:27 +0200 (CEST)
-From: =?iso-8859-1?q?Giscard=20W=E9piw=E9?= <giscard_wepiwe@yahoo.de>
-Subject: Raw socket with ieee 802.11
-To: netfilter@lists.samba.org, linux-kernel@vger.kernel.org
-In-Reply-To: <018301c13ab1$4ff58f40$680c10ac@armazemparaiba.com.br>
+	id <S272563AbRIKUVi>; Tue, 11 Sep 2001 16:21:38 -0400
+Received: from mons.uio.no ([129.240.130.14]:13302 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S272562AbRIKUVa>;
+	Tue, 11 Sep 2001 16:21:30 -0400
+To: "chen, xiangping" <chen_xiangping@emc.com>
+Cc: "'nfs-request@lists.sourceforge.net'" 
+	<nfs-request@lists.sourceforge.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Questions on NFS client inode management.
+In-Reply-To: <276737EB1EC5D311AB950090273BEFDD043BC5A2@elway.lss.emc.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 11 Sep 2001 22:21:34 +0200
+In-Reply-To: "chen, xiangping"'s message of "Tue, 11 Sep 2001 14:30:18 -0400"
+Message-ID: <shsk7z5zdf5.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Does anyone knows, if raw socket programming is
-supported for WLAN 802.11 device?
+>>>>> " " == xiangping chen <chen> writes:
 
-If yes, how does the ethernet layer would look like?
+     > Hi, I have a question on inode management for NFS client.  It
+     > seems that the inodes created on a NFS client for a mounted nfs
+     > file system stays around until the file being removed. Is there
+     > any limits on how many inodes are allowed in memory for NFS? 
+     > What kind of behavior we expect if a malicious/careless
+     > application just keeps creating new files and flood the kernel
+     > memory with inodes created?
 
-Thanks.
+The same behaviour as for local files: as memory goes low, the
+ordinary reclaiming schemes kick in, and all should be hunky-dory. Of
+course in the *real world*, ...
 
-__________________________________________________________________
-Do You Yahoo!?
-Gesendet von Yahoo! Mail - http://mail.yahoo.de
+Cheers,
+   Trond

@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262455AbTH0Xji (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 19:39:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262474AbTH0Xji
+	id S262697AbTH1ADw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 20:03:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262723AbTH1ADw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 19:39:38 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:19846 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262455AbTH0Xjh
+	Wed, 27 Aug 2003 20:03:52 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:21638 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262697AbTH1ADu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 19:39:37 -0400
-Date: Thu, 28 Aug 2003 00:39:03 +0100
+	Wed, 27 Aug 2003 20:03:50 -0400
+Date: Thu, 28 Aug 2003 01:03:21 +0100
 From: Jamie Lokier <jamie@shareable.org>
-To: Timo Sirainen <tss@iki.fi>
-Cc: root@chaos.analogic.com, Martin Konold <martin.konold@erfrakon.de>,
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Timo Sirainen <tss@iki.fi>, Martin Konold <martin.konold@erfrakon.de>,
        linux-kernel@vger.kernel.org
 Subject: Re: Lockless file reading
-Message-ID: <20030827233903.GB3759@mail.jlokier.co.uk>
-References: <Pine.LNX.4.53.0308270925550.278@chaos> <A43789CE-D89E-11D7-9D97-000393CC2E90@iki.fi>
+Message-ID: <20030828000321.GC3759@mail.jlokier.co.uk>
+References: <1061987837.1455.107.camel@hurina> <200308271442.48672.martin.konold@erfrakon.de> <1061988729.1457.115.camel@hurina> <Pine.LNX.4.53.0308270925550.278@chaos>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <A43789CE-D89E-11D7-9D97-000393CC2E90@iki.fi>
+In-Reply-To: <Pine.LNX.4.53.0308270925550.278@chaos>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timo Sirainen wrote:
-> Maybe it would be possible to use some kind of error detection 
-> checksums which would guarantee that the data either is valid or isn't, 
-> regardless of the order in which it is written. I don't really know how 
-> that could be done though.
+Richard B. Johnson wrote:
+> Let's see if it is possible for the middle byte of
+> a 3-byte sequence to not be written when both
+> other bytes are written:
 
-You can use a strong checksum like MD5, if that is really faster than
-locking.  (Over NFS it probably is faster than fcntl()-locking, for
-small data blocks).
+> Even in machines that do load/store operations where individual
+> components of those stores happen in groups, access to/from
+> a buffer of such data is controlled (by hardware) so a write
+> will complete before a read occurs.
+
+I don't understand what you mean by this.
+
+Do you mean that the writes are forced to appear on a different CPU in
+the same order that they were written?  That isn't true on x86, for
+two reasons: 1. writes aren't always in processor order (see
+CONFIG_X86_OOSTORE and CONFIG_X86_PPRO_FENCE); 2. reads on the other
+processor are out of order anyway.
+
+> With hardware that can perform byte-access (ix86), the only
+> byte-access that is going to happen is at the end(s) of buffers.
+
+Not true.  Take a look at __copy_user() in arch/i386/lib/usercopy.c.
+The first few bytes are copied using "rep;movsb", which is not
+guaranteed to use a word write for the aligned pair, nor is it
+guaranteed a particular timing (there could be an interrupt between
+each byte).
+
+Other architectures are similar.
 
 -- Jamie

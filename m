@@ -1,37 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264620AbTIIUyl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 16:54:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264625AbTIIUyl
+	id S264300AbTIIU77 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 16:59:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264418AbTIIU7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 16:54:41 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:40839 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264620AbTIIUyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 16:54:40 -0400
-Subject: Re: wierd raid 1 problem
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ying-Hung Chen <ying@yingternet.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F5E14FC.5090001@yingternet.com>
-References: <3F5E14FC.5090001@yingternet.com>
+	Tue, 9 Sep 2003 16:59:42 -0400
+Received: from mail.velocity.net ([208.3.88.4]:14019 "EHLO mail.velocity.net")
+	by vger.kernel.org with ESMTP id S264300AbTIIU6x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 16:58:53 -0400
+Subject: Re: linux 2.4.X and Rocket 1540 SATA
+From: Dale Blount <dale@velocity.net>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1063128440.4956.22.camel@dale.velocity.net>
+References: <1063128440.4956.22.camel@dale.velocity.net>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063140808.30962.0.camel@dhcp23.swansea.linux.org.uk>
+Message-Id: <1063141132.4956.39.camel@dale.velocity.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
-Date: Tue, 09 Sep 2003 21:53:29 +0100
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 09 Sep 2003 16:58:52 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-09-09 at 18:59, Ying-Hung Chen wrote:
-> the corrupted files seem to 'recover' itself if i leave the machine 
-> alone for a while or umount and mount back the filesystem.
+On Tue, 2003-09-09 at 13:27, Dale Blount wrote:
+> Hello,
 > 
-> does anyone have this type of temperory file corruption problem? I 
-> tested it against 2.4.2x kernel including the last vanilla 2.4.22 + xfs 
-> patches, they all seem to have the same problem
+> I'm trying to get a HighPoint Rocket SATA (4 port) card working with
+> kernel 2.4.X.  Currently it hangs just after detecting hdc (IDE cdrom).
+> If I append hdg=noprobe hdi=noprobe, etc the box boots fine, but the
+> SATA drives are no where to be found.  I'm currently using 2.4.22-ac1 to
+> support the onboard intel SATA which works fine. 
+> 
+> I'm not sure what other information you'd need to help me debug this,
+> but I'm willing to provide whatever is needed.
+> 
 
-Classic symptoms of bad memory or a kernel bug corrupting data. See if
-the box passes memtest86 as a starter
+I hate to reply to myself, but I've realized more information may be
+needed.  The HPT card uses the hpt374 chip (ATA chipset that has had
+linux support for at least a year or so).  I've also tried disabling the
+onboard PATA ports (incase they are stomping on ideX) with no success. 
+I noticed in the kernel config help that the hpt366 driver requires
+"ide-probe" during boot, which is probably why noprobe lets the
+boot-process continue but kills the drive's access.
+
+This is the last line in the boot process when it hangs:
+hdc: ATAPI 52X CD-ROM drive, 120kB Cache, DMA
+
+Is there anyway to figure out why this card doesn't work?
+
+Thanks again,
+
+Dale
+
+
+> Thanks,
+> 
+> Dale
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

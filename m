@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269458AbUJFUHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269454AbUJFUHk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269458AbUJFUHK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 16:07:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269451AbUJFUDp
+	id S269454AbUJFUHk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 16:07:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269453AbUJFUHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 16:03:45 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3601 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S269419AbUJFUBS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 16:01:18 -0400
-Date: Wed, 6 Oct 2004 21:01:14 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       J?rn Engel <joern@wohnheim.fh-wedel.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Console: fall back to /dev/null when no console is availlable
-Message-ID: <20041006210114.A16305@flint.arm.linux.org.uk>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	J?rn Engel <joern@wohnheim.fh-wedel.de>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20041005185214.GA3691@wohnheim.fh-wedel.de> <20041005212712.I6910@flint.arm.linux.org.uk> <20041005210659.GA5276@kroah.com> <20041005221333.L6910@flint.arm.linux.org.uk> <1097074822.29251.51.camel@localhost.localdomain> <20041006174108.GA26797@kroah.com>
+	Wed, 6 Oct 2004 16:07:32 -0400
+Received: from ns1.maildns.com ([64.215.178.100]:29889 "HELO maildns.com")
+	by vger.kernel.org with SMTP id S269455AbUJFUGn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 16:06:43 -0400
+Subject: Re: PROBLEM: shutdown fails with 2.6.9-rc3
+From: Charles Johnston <charles@infoplatter.com>
+To: Daniel Gryniewicz <dang@fprintf.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1097090983.10141.3.camel@athena.fprintf.net>
+References: <1097090983.10141.3.camel@athena.fprintf.net>
+Content-Type: text/plain
+Message-Id: <1097093201.3008.2.camel@mercury>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041006174108.GA26797@kroah.com>; from greg@kroah.com on Wed, Oct 06, 2004 at 10:41:08AM -0700
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 06 Oct 2004 14:06:42 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 06, 2004 at 10:41:08AM -0700, Greg KH wrote:
-> On Wed, Oct 06, 2004 at 04:00:23PM +0100, Alan Cox wrote:
-> > On Maw, 2004-10-05 at 22:13, Russell King wrote:
-> > > I'm redirecting them in the /sbin/hotplug script to something sane,
-> > > but I think the kernel itself should be directing these three fd's
-> > > to somewhere whenever it invokes any user program, even if it is
-> > > /dev/null.
-> > 
-> > Someone should yes. There are lots of fascinating things happen when
-> > hotplug opens a system file, it gets assigned fd 2 and then we write to
-> > stderr.
+On Wed, 2004-10-06 at 13:29, Daniel Gryniewicz wrote:
+> Hi, all.
 > 
-> Good point.  So, should we do it in the kernel, in call_usermodehelper,
-> so that all users of this function get it correct, or should I do it in
-> userspace, in the /sbin/hotplug program?
+> I just upgraded to 2.6.9-rc3 from a 2.6.8.1 based kernel, and my laptop
+> is no longer powering off.  Sometimes, the screen powers off, sometimes
+> it sits there saying "Power Down",  but in either case, the power LED is
+> still lit, and a hard power-off is necessary.  This did not happen with
+> 2.6.8.1.  I tried booting with acpi=off (as there was a report of
+> shutdown weirdness due to acpi on 2.6.9-rc1), but that did not help.
+> 
+> I have a Dell Inspiron 8600 laptop, with a Pentium-M 1500, and Centrino
+> chipset.  Attached is lscpi, cpuinfo, /proc/modules, and config for the
+> 2.6.9-rc3 kernel that fails.
+> 
+> Linux version 2.6.9-rc3 (dang@athena) (gcc version 3.4.2 (Gentoo Linux
+> 3.4.2-r2, ssp-3.4.1-1, pie-8.7.6.5)) #1 Wed Oct 6 15:02:35 EDT 2004
+> 
+> Daniel
 
-If we're going to use /dev/console, how about we re-use what Jorn has for
-opening the console when starting init(8) ?
+I have the same machine and experienced the same problem starting with
+2.6.9-rc1.
 
-(Appologies Jorn - I'm not on a machine which allows me to type foreign
-characters, or even cut'n'paste atm.)
+The solution is to disable APIC and IO-APIC support.  The reason why it
+now has problems is the black-list with the Inspiron on it was removed.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+
+Charles
+

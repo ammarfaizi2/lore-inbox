@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130767AbQLCBNV>; Sat, 2 Dec 2000 20:13:21 -0500
+	id <S129352AbQLCCjx>; Sat, 2 Dec 2000 21:39:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130804AbQLCBNL>; Sat, 2 Dec 2000 20:13:11 -0500
-Received: from r109m245.cybercable.tm.fr ([195.132.109.245]:7428 "HELO alph")
-	by vger.kernel.org with SMTP id <S130767AbQLCBM4>;
-	Sat, 2 Dec 2000 20:12:56 -0500
-To: rusty@linuxcare.com
+	id <S129401AbQLCCjn>; Sat, 2 Dec 2000 21:39:43 -0500
+Received: from CPE-61-9-148-163.vic.bigpond.net.au ([61.9.148.163]:7943 "HELO
+	halfway.linuxcare.com.au") by vger.kernel.org with SMTP
+	id <S129352AbQLCCjd>; Sat, 2 Dec 2000 21:39:33 -0500
+From: Rusty Russell <rusty@linuxcare.com.au>
+To: Roger Crandell <rwc@lanl.gov>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch-2.4.0-test12-pre3] ip_conntrack_proto_tcp.c compilation fix.
-From: Yoann Vandoorselaere <yoann@mandrakesoft.com>
-Date: 03 Dec 2000 01:42:21 +0100
-Message-ID: <87sno6gwsy.fsf@mandrakesoft.com>
-X-Mailer: Gnus v5.7/Emacs 20.7
+Subject: Re: multiprocessor kernel problem 
+In-Reply-To: Your message of "Fri, 01 Dec 2000 09:41:58 PDT."
+             <3A27D4D6.4DA47346@lanl.gov> 
+Date: Sun, 03 Dec 2000 13:08:53 +1100
+Message-Id: <20001203020904.31A2C813F@halfway.linuxcare.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <3A27D4D6.4DA47346@lanl.gov> you write:
+> 
+> I have 2.4.0  test 10 and test 11 installed on a multiprocessor (Intel)
+> machine.  I have tried both test versions of the kernel.  I configured
+> the kernel for single
+> and multi processor.  When I boot single processor, iptables will run
+> fine.  When I boot the machine with the multiprocessor kernel and run
+> iptables, the kernel dumps several pages of hex and the final two lines
+> of output are:
+> 
+> Killing interrupt handler
+> scheduling in interrupt
 
---- linux/net/ipv4/netfilter/ip_conntrack_proto_tcp.c.orig	Sat Dec  2 16:18:05 2000
-+++ linux/net/ipv4/netfilter/ip_conntrack_proto_tcp.c	Sat Dec  2 16:19:04 2000
-@@ -228,6 +228,6 @@
- }
- 
- struct ip_conntrack_protocol ip_conntrack_protocol_tcp
--= { { NULL, NULLpkt_IPPROTO_TCP, "tcp",
--    tcp_ableto_tuple, tcp_invert_tuple, tcp_print_tuple, tcp_print_conntrack,
-+= { { NULL, NULL }, IPPROTO_TCP, "tcp",
-+    tcp_pkt_to_tuple, tcp_invert_tuple, tcp_print_tuple, tcp_print_conntrack,
-     tcp_packet, tcp_new, NULL };
+My development box (running test10pre5) is SMP, and it works fine.  I
+haven't updated to the latest kernel version because I like my
+filesystems in one piece, and the netfilter code hasn't changed.
 
+What is your kernel configuration, and iptables version?  Have you
+patched the kernel?
 
--- 
-		-- Yoann http://www.mandrakesoft.com/~yoann/
-   An engineer from NVidia, while asking him to release cards specs said :
-	"Actually, we do write our drivers without documentation."
-
-
-
-
-
-
-
-
+Thanks for the report,
+Rusty.
+--
+Hacking time.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

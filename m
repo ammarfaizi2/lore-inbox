@@ -1,144 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262810AbUDAJIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 04:08:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262807AbUDAJII
+	id S262794AbUDAJJW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 04:09:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262807AbUDAJIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 04:08:08 -0500
-Received: from gprs213-219.eurotel.cz ([160.218.213.219]:3713 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262810AbUDAJFU (ORCPT
+	Thu, 1 Apr 2004 04:08:19 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:65434 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262794AbUDAJHU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 04:05:20 -0500
-Date: Thu, 1 Apr 2004 11:04:52 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: perex@suse.cz, Tjeerd.Mulder@fujitsu-siemens.com,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: via82xx cmd line parsing is evil [was Re: Sound on newer arima notebook...]
-Message-ID: <20040401090452.GF224@elf.ucw.cz>
-References: <20040331145206.GA384@elf.ucw.cz> <s5h7jx1xdel.wl@alsa2.suse.de> <20040401080954.GA464@elf.ucw.cz> <s5hr7v8w1gr.wl@alsa2.suse.de> <20040401082905.GE224@elf.ucw.cz> <s5hptasw0t8.wl@alsa2.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <s5hptasw0t8.wl@alsa2.suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Thu, 1 Apr 2004 04:07:20 -0500
+Date: Thu, 1 Apr 2004 11:06:40 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Andries Brouwer <aebr@win.tue.nl>, Andre Hedrick <andre@linux-ide.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Lionel Bergeret <lbergeret@swing.be>, JunHyeok Heo <jhheo@idis.co.kr>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: [PATCH] Bogus LBA48 drives
+In-Reply-To: <406B14C1.8000708@pobox.com>
+Message-ID: <Pine.GSO.4.58.0404010933190.12148@waterleaf.sonytel.be>
+References: <Pine.GSO.4.58.0403301654300.9765@waterleaf.sonytel.be>
+ <Pine.LNX.4.10.10403300821520.11654-100000@master.linux-ide.org>
+ <20040331183410.GA3796@pclin040.win.tue.nl> <406B14C1.8000708@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 31 Mar 2004, Jeff Garzik wrote:
+> Andries Brouwer wrote:
+> > Hmm. I read in my copy of ATA7:
+> >
+> >  6.16.55 Words (103:100): Maximum user LBA for 48-bit Address feature set
+> >  Words (103:100) contain a value that is one greater than the maximum LBA
+> >  in user accessable space when the 48-bit Addressing feature set is supported.
+> >  The maximum value that shall be placed in this field is 0000FFFFFFFFFFFFh.
+> >  Support of these words is mandatory if the 48-bit Address feature set is supported.
+> >
+> > Do you read differently?
+>
+> The errata is, one needs to check that field for zero, and use the other
+> one if so...
 
+Which is not sufficient for `my' drives, since I get disk errors if I just use
+the other capacity field and don't disable LBA48 completely.
 
-> > snd-via82xx=enable:1 syntax is ugly, too, and we have better syntax
-> > already. via82xx.enable=1 via82xx.ac97_quirk=2 should be possible with
-> > new param handling code.
-> 
-> oh that's good to know.
+I'll check the ATA specs myself, if I find some time...
 
-And here's a patch. It compiles.
+Gr{oetje,eeting}s,
 
---- tmp/linux/sound/pci/via82xx.c	2004-02-20 12:30:04.000000000 +0100
-+++ linux/sound/pci/via82xx.c	2004-04-01 10:55:54.000000000 +0200
-@@ -51,6 +51,7 @@
- #include <linux/pci.h>
- #include <linux/slab.h>
- #include <linux/gameport.h>
-+#include <linux/moduleparam.h>
- #include <sound/core.h>
- #include <sound/pcm.h>
- #include <sound/pcm_params.h>
-@@ -60,9 +61,7 @@
- #define SNDRV_GET_ID
- #include <sound/initval.h>
- 
--#if 0
--#define POINTER_DEBUG
--#endif
-+#undef POINTER_DEBUG
- 
- MODULE_AUTHOR("Jaroslav Kysela <perex@suse.cz>");
- MODULE_DESCRIPTION("VIA VT82xx audio");
-@@ -82,33 +81,36 @@
- static int joystick[SNDRV_CARDS];
- #endif
- static int ac97_clock[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS - 1)] = 48000};
--static int ac97_quirk[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS - 1)] = AC97_TUNE_DEFAULT};
--static int dxs_support[SNDRV_CARDS];
-+static int ac97_quirk[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS - 1)] = 1};
-+static int dxs_support[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS - 1)] = 1};
- 
--MODULE_PARM(index, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
-+int index_num, mpu_port_num, enable_num, joystick_num, ac97_clock_num, ac97_quirk_num, dxs_support_num;
-+
-+module_param_array(index, int, index_num, 0666);
- MODULE_PARM_DESC(index, "Index value for VIA 82xx bridge.");
- MODULE_PARM_SYNTAX(index, SNDRV_INDEX_DESC);
- MODULE_PARM(id, "1-" __MODULE_STRING(SNDRV_CARDS) "s");
- MODULE_PARM_DESC(id, "ID string for VIA 82xx bridge.");
- MODULE_PARM_SYNTAX(id, SNDRV_ID_DESC);
--MODULE_PARM(enable, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
-+module_param_array(enable, int, enable_num, 0666);
- MODULE_PARM_DESC(enable, "Enable audio part of VIA 82xx bridge.");
- MODULE_PARM_SYNTAX(enable, SNDRV_ENABLE_DESC);
--MODULE_PARM(mpu_port, "1-" __MODULE_STRING(SNDRV_CARDS) "l");
-+module_param_array(mpu_port, long, mpu_port_num, 0666);
- MODULE_PARM_DESC(mpu_port, "MPU-401 port. (VT82C686x only)");
- MODULE_PARM_SYNTAX(mpu_port, SNDRV_PORT_DESC);
- #ifdef SUPPORT_JOYSTICK
-+module_param_array(joystick, int, joystick_num, 0666);
- MODULE_PARM(joystick, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
- MODULE_PARM_DESC(joystick, "Enable joystick. (VT82C686x only)");
- MODULE_PARM_SYNTAX(joystick, SNDRV_ENABLE_DESC "," SNDRV_BOOLEAN_FALSE_DESC);
- #endif
--MODULE_PARM(ac97_clock, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
-+module_param_array(ac97_clock, int, ac97_clock_num, 0666);
- MODULE_PARM_DESC(ac97_clock, "AC'97 codec clock (default 48000Hz).");
- MODULE_PARM_SYNTAX(ac97_clock, SNDRV_ENABLED ",default:48000");
--MODULE_PARM(ac97_quirk, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
-+module_param_array(ac97_quirk, int, ac97_quirk_num, 0666);
- MODULE_PARM_DESC(ac97_quirk, "AC'97 workaround for strange hardware.");
- MODULE_PARM_SYNTAX(ac97_quirk, SNDRV_ENABLED ",allows:{{-1,3}},dialog:list,default:-1");
--MODULE_PARM(dxs_support, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
-+module_param_array(dxs_support, int, dxs_support_num, 0666);
- MODULE_PARM_DESC(dxs_support, "Support for DXS channels (0 = auto, 1 = enable, 2 = disable, 3 = 48k only, 4 = no VRA)");
- MODULE_PARM_SYNTAX(dxs_support, SNDRV_ENABLED ",allows:{{0,4}},dialog:list");
- 
-@@ -2169,33 +2171,3 @@
- 
- module_init(alsa_card_via82xx_init)
- module_exit(alsa_card_via82xx_exit)
--
--#ifndef MODULE
--
--/* format is: snd-via82xx=enable,index,id,
--			  mpu_port,joystick,
--			  ac97_quirk,ac97_clock,dxs_support */
--
--static int __init alsa_card_via82xx_setup(char *str)
--{
--	static unsigned __initdata nr_dev = 0;
--
--	if (nr_dev >= SNDRV_CARDS)
--		return 0;
--	(void)(get_option(&str,&enable[nr_dev]) == 2 &&
--	       get_option(&str,&index[nr_dev]) == 2 &&
--	       get_id(&str,&id[nr_dev]) == 2 &&
--	       get_option_long(&str,&mpu_port[nr_dev]) == 2 &&
--#ifdef SUPPORT_JOYSTICK
--	       get_option(&str,&joystick[nr_dev]) == 2 &&
--#endif
--	       get_option(&str,&ac97_quirk[nr_dev]) == 2 &&
--	       get_option(&str,&ac97_clock[nr_dev]) == 2 &&
--	       get_option(&str,&dxs_support[nr_dev]) == 2);
--	nr_dev++;
--	return 1;
--}
--
--__setup("snd-via82xx=", alsa_card_via82xx_setup);
--
--#endif /* ifndef MODULE */
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263147AbTDFWJA (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 18:09:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263146AbTDFWI7 (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 18:08:59 -0400
-Received: from pop.gmx.de ([213.165.65.60]:32082 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263144AbTDFWI6 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 18:08:58 -0400
-Message-ID: <3E90A829.6060601@gmx.net>
-Date: Mon, 07 Apr 2003 00:20:25 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Fredrik Jagenheim <fredde@pobox.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: Maestro sound module locks up the computer
-References: <20030406193707.GG917@pobox.com>
-In-Reply-To: <20030406193707.GG917@pobox.com>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id S263121AbTDFWSs (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 18:18:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263138AbTDFWSs (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 18:18:48 -0400
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:42371 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S263121AbTDFWSr (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 18:18:47 -0400
+Subject: 2.5.66-bk12: acpi_power_off: sleeping function called from illegal
+	context
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049668212.725.13.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 07 Apr 2003 00:30:12 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fredrik Jagenheim wrote:
-> When playing music through the maestro sounddriver, the computer will lock up
-> at irregular intervals. These lock ups will cause the entire machine to freeze,
-[...]
-> I've narrowed it down (I think) to the maestro driver as these lockups only
-> happen when I play music. It doesn't matter if I use mplayer from console, or
-> xmms from X, the lockups still happen. These lockups doesn't happen if I don't
-> play music, so...
+Hi,
 
-Maybe I have a similar problem. ESS Maestro 2E, OSS maestro.o driver, 
-kernel 2.4.18 (and all versions since 2.4.0), Toshiba 4100XCDt laptop. 
-However, here first the sound becomes somehow distorted and a few 
-minutes later the machine just powers off. For me, it looks like a 
-hardware failure because the same problem was visible when I got the 
-machine with WinNT preinstalled.
+I'm seeing this oops on my P4 box running 2.5.66-bk12 + ACPI when
+shutting it down (copied by hand):
 
-Could you please tell me if sound is distorted before the "hangs"? In 
-that case, try pausing the output and then continue playing. The 
-distortion should disappear and you should be safe from hangs until the 
-next distortion period.
+Power down.
+acpi_power_off called
+Debug: sleeping function called from illegal context at
+include/asm/semaphore.h: 119
+Call  Trace:
+ [<c012088a>] __might_sleep+0x5f/0x75
+ [<c01ffb10>] acpi_os_wait_semaphore+0xc5/0xea
+ [<c021440c>] acpi_ut_acquire_mutex+0x51/0x73
+ [<c020ab4f>] acpi_set_register+0x34/0x15d
+ [<c020b1f6>] acpi_enter_sleep_state+0x77/0x1ab
+ [<c0215d7d>] acpi_power_off+0x21/0x23
+ [<c011a3e5>] machine_power_off+0x10/0x13
+ [<c0135f7b>] sys_reboot+0x332/0x741
+ [<c011e010>] schedule+0x210/0x6d7
+ [<c0130daf>] group_send_sig_info+0x2af/0x6b6
+ [<c011e50d>] preempt_schedule+0x36/0x50
+ [<c0131384>] kill_proc_info+0x60/0x62
+ [<c0134346>] sys_kill+0x4d/0x51
+ [<c016e76b>] __fput+0xaf/0xfb
+ [<c016cabc>] filp_close+0x160/0x226
+ [<c01850cb>] sys_ioctl+0x197/0x3e8
+ [<c010af29>] sysenter_past_esp+0x52/0x71
 
-Regards,
-Carl-Daniel
+This is not 100% reproducible. When using ACPI, the machine is *never*
+able to properly shut it off (only APM is able to turn the machine off).
 
--- 
-http://www.hailfinger.org
+________________________________________________________________________
+Linux Registered User #287198
 

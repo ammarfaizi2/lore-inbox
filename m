@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271651AbRIJThJ>; Mon, 10 Sep 2001 15:37:09 -0400
+	id <S271627AbRIJTwM>; Mon, 10 Sep 2001 15:52:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271646AbRIJThA>; Mon, 10 Sep 2001 15:37:00 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:58373 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S271645AbRIJTgt>;
-	Mon, 10 Sep 2001 15:36:49 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200109101936.XAA00707@ms2.inr.ac.ru>
-Subject: Re: [PATCH] ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
-To: tao@acc.umu.se, matthias.andree@gmx.de
-Date: Mon, 10 Sep 2001 23:36:20 +0400 (MSK DST)
-Cc: alan@lxorguk.ukuu.org.uk, wietse@porcupine.org,
-        linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-        netdev@oss.sgi.com
-In-Reply-To: <20010910100537.W26627@khan.acc.umu.se> from "David Weinehall" at Sep 10, 1 10:05:37 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S271655AbRIJTwC>; Mon, 10 Sep 2001 15:52:02 -0400
+Received: from d117.dhcp212-140.cybercable.fr ([212.198.140.117]:5979 "HELO
+	pridamix.molteni.net") by vger.kernel.org with SMTP
+	id <S271627AbRIJTvu>; Mon, 10 Sep 2001 15:51:50 -0400
+Message-ID: <3B9D19EA.7F3AE823@molteni.net>
+Date: Mon, 10 Sep 2001 21:52:10 +0200
+From: Olivier Molteni <olivier@molteni.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Stephan von Krawczynski <skraw@ithnet.com>
+CC: Erik DeBill <erik@www.creditminders.com>, linux-kernel@vger.kernel.org,
+        trond.myklebust@fys.uio.no
+Subject: Re: nfs client oops, all 2.4 kernels
+In-Reply-To: <20010910100202.A14106@www.creditminders.com> <20010910173420.11d2fa71.skraw@ithnet.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Stephan von Krawczynski wrote:
 
-> a bad idea after all. Whining about this causing "bloat and maintainance
+> On Mon, 10 Sep 2001 10:02:02 -0500 Erik DeBill <erik@www.creditminders.com>
+> wrote:
+>
+> > I've been running into a repeatable oops in the NFS client code,
+> > apparently related to file locking.
+>
 
-Listen, let's close this thread. :-)
+>
+> in linux/fs/locks.c I would say it fails either because thisfl_p is NULL or
+> *thisfl_p is NULL. Try securing it via:
+>
+> static void locks_delete_lock(struct file_lock **thisfl_p, unsigned int wait)
+> {
+>         struct file_lock *fl;
+>
+>         if (thisfl_p == NULL || *thisfl_p == NULL)
+>                 return;
+>
+>         fl = *thisfl_p;
+>
+>         *thisfl_p = fl->fl_next;
+>         fl->fl_next = NULL;
+>
+> ...
+> }
+>
+> This is for sure not the cure, but may help your setup.
 
-The patch sent by Matthias is enough small not to speak about some bloat.
+Hi, see my post and related answers [ Oops NFS Locking in 2.4.x] I have the same
+Problem.
+Returning on *thisfl_p == NULL don't fix the trouble... Kernel no more Oops, but
+process stay in wait state on IO (D).
+
+See the answers from Trond Myklebust, I think he is right...
+
+Regards,
+Olivier.
 
 
-And I see no reasons to refuse this: it evidently improves the things
-almost without efforts. No matter that this imporvement is not so useful,
-as it would happen if I guessed this way from the very beginning.
-So that applications will have to worry about compatibility with older
-kernels in any case.
-
-
-(BTW Matthias, while applying it to my tree, I noticed that
-it does not check for SIOGGIFNETMASK. It would be better to do this only
-when it is meaningful: I see only SIOGGIFNETMASK and SIOGGIFBROADCAST).
-
-Alexey

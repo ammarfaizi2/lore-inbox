@@ -1,46 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265845AbRF2PKz>; Fri, 29 Jun 2001 11:10:55 -0400
+	id <S265941AbRF2PRo>; Fri, 29 Jun 2001 11:17:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265891AbRF2PKe>; Fri, 29 Jun 2001 11:10:34 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42759 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265845AbRF2PKa>; Fri, 29 Jun 2001 11:10:30 -0400
-Subject: Re: Qlogic Fiber Channel
-To: christophe.barbe@lineo.fr (=?ISO-8859-1?Q?christophe_barb=E9?=)
-Date: Fri, 29 Jun 2001 16:09:56 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010629151910.C27847@pc8.lineo.fr> from "=?ISO-8859-1?Q?christophe_barb=E9?=" at Jun 29, 2001 03:19:10 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S265905AbRF2PRe>; Fri, 29 Jun 2001 11:17:34 -0400
+Received: from mercury.eng.emc.com ([168.159.40.77]:8966 "EHLO
+	mercury.lss.emc.com") by vger.kernel.org with ESMTP
+	id <S265891AbRF2PR1>; Fri, 29 Jun 2001 11:17:27 -0400
+Message-ID: <2CE33F05597DD411AAE800D0B769587C01D59A40@sryoung.lss.emc.com>
+From: "conway, heather" <conway_heather@emc.com>
+To: "'Mike Black'" <mblack@csihq.com>,
+        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
+Subject: RE: Qlogic Fiber Channel
+Date: Fri, 29 Jun 2001 11:17:17 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Fzu8-0000SK-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> =46rom my point of view, this driver is sadly broken. The fun part is t=
-> hat
-> the qlogic driver is certainly based on this one too (look at the code,=
->  the
-> drivers differs not so much).=20
+Hi Mike,
+Looks like QLogic up-rev'd the driver versions on their website.  They have
+the source code for both v4.25 and v4.27 posted now and rpm's for v4.25.
+Hope that helps.
+Heather  
 
-And if the other one is stable someone should spend the time merging the
-two.
-
-> IMHO the qlogicfc driver should be removed from the kernel tree and per=
-> haps
-> replaced by the last qlogic one. We then lost the IP support but this i=
-> s a
-> broken support.
-
-For 2.5 that may wellk make sense. Personally I'd prefer someone worked out
-why the qlogicfc driver behaves as it does. It sounds like two small bugs
-nothing more
-
-1.	That the FC event code wasnt updated from 2.2 so now runs
-	with IRQ's off when it didnt expect it
-
-2.	That someone has a slight glitch in the queue handling.
+> -----Original Message-----
+> From: Mike Black [mailto:mblack@csihq.com]
+> Sent: Friday, June 29, 2001 6:53 AM
+> To: linux-kernel@vger.kernel.or
+> Subject: Qlogic Fiber Channel
+> 
+> 
+> I have been running successfully with qla2x00src-4.15Beta.tgz 
+> for several
+> months now over several kernel versions up to 2.4.5.
+> When I tested 2.4.6-pre6 I decided to use the qlogicfc driver -- BAD
+> MISTAKE!!!
+> 
+> #1 - My system had crashed (for a different reason) and when 
+> the raid5 was
+> resyncing and e2fsck happening at the same time the kernel locked with
+> messages from qlogicfc.o:
+> qlogicfc0: no handle slots, this should not happen.
+> hostdata->queue  is 2a, inptr: 74
+> I was able to repeat this several times so it's a consistent error.
+> Waiting for the raid resync to finish did allow this complete 
+> -- but now
+> when I come in the next morning the console is locked up and 
+> no network
+> access either.  So I reset it.  Checked the logs and here it is again:
+> Jun 29 03:39:21 yeti kernel: qlogicfc0 : no handle slots, 
+> this should not
+> happen.
+> Jun 29 03:39:21 yeti kernel: hostdata->queued is 36, in_ptr: 13
+> This was during a tape backup.
+> 
+> So I'm switching back to qla2x00src-4.15Beta.tgz -- which 
+> does the resync
+> and e2fsck just fine together BTW.
+> Jun 29 06:22:47 yeti kernel: qla2x00: detect() found an HBA
+> Jun 29 06:22:47 yeti kernel: qla2x00: VID=1077 DID=2100 
+> SSVID=0 SSDID=0
+> 
+> Only problem is I don't see this package on qlogic's website 
+> anymore and
+> their "beta" directory is empty now.  I'm waiting to see what 
+> their tech
+> support says.
+> 
+> ________________________________________
+> Michael D. Black   Principal Engineer
+> mblack@csihq.com  321-676-2923,x203
+> http://www.csihq.com  Computer Science Innovations
+> http://www.csihq.com/~mike  My home page
+> FAX 321-676-2355
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 

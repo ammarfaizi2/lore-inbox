@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262502AbVBXVqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262507AbVBXVtg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262502AbVBXVqu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 16:46:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbVBXVqu
+	id S262507AbVBXVtg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 16:49:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262506AbVBXVtg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 16:46:50 -0500
-Received: from rproxy.gmail.com ([64.233.170.197]:27223 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262502AbVBXVqg (ORCPT
+	Thu, 24 Feb 2005 16:49:36 -0500
+Received: from mail.tmr.com ([216.238.38.203]:24072 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S262507AbVBXVsx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 16:46:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding;
-        b=H56qSHdySV+ugmFARcAW9o9K5KeaiBVgOWWvhMrN33ARfn42+WVIm56HlbMyXTdV8kAcL/w+G4dtJUPMd+pQ7t9RAtcj/mOF9fjKTy5jTG43yC8wPhsysv3IRSYh+952AjgkQhtL+jxbBHAniwC9Pdg3PdBq4TOQDEpMgVBZh9Q=
-Message-ID: <a728f9f905022413465b96acd4@mail.gmail.com>
-Date: Thu, 24 Feb 2005 16:46:34 -0500
-From: Alex Deucher <alexdeucher@gmail.com>
-Reply-To: Alex Deucher <alexdeucher@gmail.com>
-To: netdev@oss.sgi.com
-Subject: Marvell 88W8310 and 88E8050 PCI Express support
-Cc: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Feb 2005 16:48:53 -0500
+Date: Thu, 24 Feb 2005 16:37:26 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Folkert van Heusden <folkert@vanheusden.com>
+cc: Rog?rio Brito <rbrito@ime.usp.br>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11rc4: irq 5, nobody cared
+In-Reply-To: <20050224164407.GC5138@vanheusden.com>
+Message-ID: <Pine.LNX.3.96.1050224163358.16192A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've noticed most of the new AMD64 chipsets now include integrated
-marvell GigE and wifi chips onboard.  I haven't been able to find much
-on the status of linux support for these chips.  Apparently the PCIE
-GigE chip only works with sk98lin and not skge:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0502.1/0010.html
-Does anyone know if support for the chip is being added to skge?  The
-88W8310 doesn't seem to be supported at all, at least not that I can
-see.  Does anyone know the status of the 88W8310?  Are there any
-experimental drivers?  Is Marvell friendly to opensource?  Are the
-databooks available?
+On Thu, 24 Feb 2005, Folkert van Heusden wrote:
 
-Thanks,
+> > >>My linux laptop says:
+> > >>irq 5: nobody cared!
+> > >(...)
+> > >>Does anyone care? :-)
+> > >Well, I'm getting similar stack traces with my system and those are sure
+> > >scary, but it seems that my e-mails to the list are simply ignored,
+> > >unfortunately.
+> > I posted a similar thing, but the problem is not that you get the 
+> > message. It means your hardware generated an unexpected interrupt. The 
+> > kernel is reporting that fact as it should.
+> > The problem I had (not resolved) is that after the message
+> >   DISABLING IRQ NN
+> > I continued to get interrupts! So the logic to disable the IRQ is not 
+> > working correctly.
+> 
+> In my case, the interrupt should NOT be disabled as my WIFI-interface is
+> behind it (via ndiswrappers).
 
-Alex
+Well, that's debatable. The warnings mean that either the WiFi driver
+isn't catching them as it should, or that something else is generating the
+same (shared) IRQ.
 
-PS, please CC: me as I'm not subscribed.
+But what bothers me is that the kernel is trying to disable the IRQ and
+not doing it. I think that's an issue, since on my hardware that meant the
+system did nothing but write wrror messages to the log.
+
+> 
+> > as you note, because the hardware is generating the condition, no one 
+> > seems to care, even though there clearly is a problem in the disable 
+> > logic. I found a way to fix my hardware thanks to some pointers I got, 
+> > so I'm running, but I haven't heard that the base problem is fixed.
+> 
+> Aight.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

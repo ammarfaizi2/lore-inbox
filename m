@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264375AbTLKIHV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 03:07:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264395AbTLKIHV
+	id S264376AbTLKILr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 03:11:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbTLKILr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 03:07:21 -0500
-Received: from ns.suse.de ([195.135.220.2]:43177 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264375AbTLKIHU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 03:07:20 -0500
-Date: Thu, 11 Dec 2003 09:07:16 +0100
-From: Andi Kleen <ak@suse.de>
-To: "Yu, Luming" <luming.yu@intel.com>
-Cc: menage@google.com, agrover@groveronline.com, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] ACPI global lock macros
-Message-Id: <20031211090716.0c3662d3.ak@suse.de>
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F8401720C21@PDSMSX403.ccr.corp.intel.com>
-References: <3ACA40606221794F80A5670F0AF15F8401720C21@PDSMSX403.ccr.corp.intel.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 11 Dec 2003 03:11:47 -0500
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:54351 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S264376AbTLKILq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 03:11:46 -0500
+Reply-To: <hzhong@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: <rob@landley.net>, "'Larry McVoy'" <lm@bitmover.com>,
+       "'Linus Torvalds'" <torvalds@osdl.org>
+Cc: "'Andre Hedrick'" <andre@linux-ide.org>,
+       "'Arjan van de Ven'" <arjanv@redhat.com>, <Valdis.Kletnieks@vt.edu>,
+       "'Kendall Bennett'" <KendallB@scitechsoft.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: Linux GPL and binary module exception clause?
+Date: Thu, 11 Dec 2003 00:11:40 -0800
+Organization: Cisco Systems
+Message-ID: <014301c3bfbe$67fa1540$d43147ab@amer.cisco.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+In-Reply-To: <200312110143.23422.rob@landley.net>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Dec 2003 15:06:10 +0800
-"Yu, Luming" <luming.yu@intel.com> wrote:
+> For one thing, the plugin was made by someone without access 
+> to Netscape or IE's source code, using a documented interface 
+> that contained sufficient information to do the job without access 
+> to that source code.
+>
+> Yes, it matters.
 
-> 
-> Above code have a bug! Considering below code:
-> 
-> u8	acquired = FALSE;
-> 
-> ACPI_ACQUIRE_GLOBAL_LOC(acpi_gbl_common_fACS.global_lock, acquired);
-> if(acquired) {
-> ....
-> }
-> 
-> Gcc will complain " ERROR: '%cl' not allowed with sbbl ". And I think any other compiler will
-> complain that  too !
+_What_ matters?
 
-It has even more bugs, e.g. it doesn't tell gcc that GLptr is modified (this hurts with
-newer versions that optimize more aggressively) 
+Open source? (if you write a plugin for an opensource
+kernel/application, you are not plugin anymore and you are derived
+work.) I am sure you don't mean it.
 
-I tried to fix it on x86-64, but eventually gave up and adopted the IA64 C version.
+Documented interface? Hey, there are sources which are the best
+documentation. :-)
 
--Andi
+Seriously, even if I accept that there is never an intent to support a
+stable ABI for kernel modules, some vendor can easily claim that "we
+support a stable ABI, so write kernel modules for the kernel we
+distribute".
+
+Anything can prevent that? I cannot see GPL disallow it.
+
+So OK, Linus and other kernel developers never intended to provide a
+stable ABI, but someone else could. The original author's intent is
+never relevant anymore. This is the goodness of opensource, isn't it?
 

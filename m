@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136830AbRAHKwc>; Mon, 8 Jan 2001 05:52:32 -0500
+	id <S135621AbRAHK6x>; Mon, 8 Jan 2001 05:58:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135621AbRAHKwW>; Mon, 8 Jan 2001 05:52:22 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:18308 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S136920AbRAHKwG>;
-	Mon, 8 Jan 2001 05:52:06 -0500
-Date: Mon, 8 Jan 2001 02:34:52 -0800
-Message-Id: <200101081034.CAA17681@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: hch@caldera.de
-CC: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200101081039.LAA30397@ns.caldera.de> (message from Christoph
-	Hellwig on Mon, 8 Jan 2001 11:39:15 +0100)
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <200101081039.LAA30397@ns.caldera.de>
+	id <S136395AbRAHK6o>; Mon, 8 Jan 2001 05:58:44 -0500
+Received: from mailhub2.shef.ac.uk ([143.167.2.154]:15345 "EHLO
+	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
+	id <S135621AbRAHK6h>; Mon, 8 Jan 2001 05:58:37 -0500
+Date: Mon, 8 Jan 2001 10:57:32 +0000 (GMT)
+From: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kdb for modules
+Message-ID: <Pine.GSO.4.21.0101081053210.25031-100000@acms23>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Mon, 8 Jan 2001 11:39:15 +0100
-   From: Christoph Hellwig <hch@caldera.de>
+> kdb v0.6 is out of date and no longer supported. kdb v1.5 against 
+> 2.2.18 is in ftp://oss.sgi.com/projects/kdb/download/ix86/, it supports 
+> modules correctly. This patch is only there as a courtesy, SGI do not 
+> support kdb on 2.2 kernels, all our debugging work is on 2.4 kernels. 
+> If you want to use kdb on 2.2 kernels, you are pretty much on your own. 
 
-   don't you think the writepage file operation is rather hackish?
+Ok, this is fine, but just one question, please: is    
+kdb-v1.5-2.2.18-pre15.gz going (or at least supposed to) work with 2.2.18
+(final)?
 
-Not at all, it's simply direct sendfile support.  It does
-not try to be any fancier than that.
+Thanks
+Guennadi
+___
 
-Later,
-David S. Miller
-davem@redhat.com
+Dr. Guennadi V. Liakhovetski
+Department of Applied Mathematics
+University of Sheffield, U.K.
+email: G.Liakhovetski@sheffield.ac.uk
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292359AbSBYWcz>; Mon, 25 Feb 2002 17:32:55 -0500
+	id <S292371AbSBYWff>; Mon, 25 Feb 2002 17:35:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292356AbSBYWcs>; Mon, 25 Feb 2002 17:32:48 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:42249 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S292334AbSBYWcT>;
-	Mon, 25 Feb 2002 17:32:19 -0500
-Date: Mon, 25 Feb 2002 19:32:03 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
+	id <S292370AbSBYWe6>; Mon, 25 Feb 2002 17:34:58 -0500
+Received: from [217.79.102.244] ([217.79.102.244]:38901 "EHLO
+	monkey.beezly.org.uk") by vger.kernel.org with ESMTP
+	id <S292367AbSBYWes>; Mon, 25 Feb 2002 17:34:48 -0500
+Subject: Re: Linux 2.4.18 - Full tarball is OK
+From: Beezly <beezly@beezly.org.uk>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: Chris Funderburg <chris@directcommunications.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18 - Full tarball is OK
+        linux-kernel@vger.kernel.org
 In-Reply-To: <E16fTkG-0006VG-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33L.0202251931360.7820-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <E16fTkG-0006VG-00@the-village.bc.nu>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-37Oon11ktFLChOHxBPJs"
+X-Mailer: Evolution/1.0.2 
+Date: 25 Feb 2002 22:34:37 +0000
+Message-Id: <1014676477.23983.30.camel@monkey>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Feb 2002, Alan Cox wrote:
 
+--=-37Oon11ktFLChOHxBPJs
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+> > FYI - The full tarball already has the missing patch...
+> > So, I think, it's only patch-2.4.18 that has the problem...
+>=20
+> Argh thats the worst possible case. That means you can't do a single corr=
+ect
+> 2.4.18- patch=20
+>=20
 > If so Marcelo can you put up 2.4.18-fixed patch and a borked-fixed diff ?
 
-That would break hpa's incremental diff patches.
+If this is the case... which "version" of 2.4.18 does 2.4.19-pre1 patch
+from?
 
-If somebody needs 2.4.18 + fix, they can just run 2.4.18-rc4.
+I'm guessing it patches you from the "patched-from-2.4.17" release of
+2.4.18? (if that makes sense)
 
-regards,
+Beezly
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
 
-http://www.surriel.com/		http://distro.conectiva.com/
+--=-37Oon11ktFLChOHxBPJs
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8erv9Xu4ZFsMQjPgRAkXUAKCZSwdd2gX36+JlXuHGTzCr3O48lACgiKw2
+3qpeKiz6G5Qhkm8+5ER0JQU=
+=MG03
+-----END PGP SIGNATURE-----
+
+--=-37Oon11ktFLChOHxBPJs--

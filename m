@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285186AbRL2Sq7>; Sat, 29 Dec 2001 13:46:59 -0500
+	id <S285246AbRL2Sw3>; Sat, 29 Dec 2001 13:52:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285209AbRL2Squ>; Sat, 29 Dec 2001 13:46:50 -0500
-Received: from dsl-213-023-043-128.arcor-ip.net ([213.23.43.128]:64261 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S285186AbRL2Sqe>;
-	Sat, 29 Dec 2001 13:46:34 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Oliver Xymoron <oxymoron@waste.org>
-Subject: Re: [PATCH] rlimit_nproc
-Date: Sat, 29 Dec 2001 19:49:46 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Legacy Fishtank <garzik@havoc.gtf.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.43.0112291212340.18183-100000@waste.org>
-In-Reply-To: <Pine.LNX.4.43.0112291212340.18183-100000@waste.org>
+	id <S285236AbRL2SwT>; Sat, 29 Dec 2001 13:52:19 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:38025 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S285229AbRL2SwF>;
+	Sat, 29 Dec 2001 13:52:05 -0500
+Date: Sat, 29 Dec 2001 13:52:03 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Bernhard Rosenkraenzer <bero@redhat.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH] exporting seq_* stuff
+In-Reply-To: <Pine.LNX.4.42.0112291626430.23274-200000@bochum.stuttgart.redhat.com>
+Message-ID: <Pine.GSO.4.21.0112291328160.5671-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16KOYH-0000Fr-00@starship.berlin>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 29, 2001 07:13 pm, Oliver Xymoron wrote:
-> On Sat, 29 Dec 2001, Daniel Phillips wrote:
+
+
+On Sat, 29 Dec 2001, Bernhard Rosenkraenzer wrote:
+
+> depmod: *** Unresolved symbols in /lib/modules/2.5.2-pre3/kernel/fs/nfs/nfs.o
+> depmod:         seq_escape
+> depmod:         seq_printf
 > 
-> > On December 27, 2001 10:35 pm, Legacy Fishtank wrote:
-> > > On Thu, Dec 27, 2001 at 12:35:38PM -0800, Linus Torvalds wrote:
-> > > > Also worthwhile for automation is an md5sum or similar (for verifying that
-> > > > the mail made it though the mail system unscathed). A pgp signature would
-> > > > be even better, of course - especially useful as I suspect it would be
-> > > > good to also cc the things to some patch-list, and having a clear identity
-> > > > on the sender is always a good idea in these things.
-> > >
-> > > I've been thinking that a "patches@kernel.org" dumping ground would be
-> > > useful.
-> > >
-> > > This is NOT intended as a patch tracker.  This is NOT intended as a
-> > > substitution for submitting the patch to you, but instead intended
-> > > as a patch archive that doesn't go away.  We have seen linux-kernel
-> > > archives come and go, or drop messages.  But a patch archive would be
-> > > useful...  I'm not sure a mailing list proper is right for the job,
-> > > since I want to support the reception and archiving of multi-megabyte
-> > > patches at times.
-> >
-> > Exactly what I was thinking of: 'linux-patches@kernel.org'.  The idea is,
-> > instead of putting [PATCH] on your subject line and cc'ing it to Linus, you
-> > mail it to linux-patches with a cc to lkml if you like (depending on size of
-> > patch, how interesting, etc).  In any event, linux-patches will forward a
-> > copy to Linus.
+> I'm quite sure the patch I've attached is *not* the right thing to do(tm), 
+> but it works for me until we get a better fix. ;)
 > 
-> You of course need something like -2.4 and -2.5.
+> LLaP
+> bero
 
-Yes:
+[snip the attached horror]
 
-    linux-patches-2.0@kernel.org
-    linux-patches-2.2@kernel.org
-    linux-patches-2.4@kernel.org
-    linux-patches-2.5@kernel.org
+diff -urN C2-pre3/kernel/ksyms.c C2-pre3-fix/kernel/ksyms.c
+--- C2-pre3/kernel/ksyms.c	Thu Dec 27 19:48:04 2001
++++ C2-pre3-fix/kernel/ksyms.c	Sat Dec 29 13:48:12 2001
+@@ -46,6 +46,7 @@
+ #include <linux/tty.h>
+ #include <linux/in6.h>
+ #include <linux/completion.h>
++#include <linux/seq_file.h>
+ #include <asm/checksum.h>
+ 
+ #if defined(CONFIG_PROC_FS)
+@@ -480,6 +481,12 @@
+ EXPORT_SYMBOL(reparent_to_init);
+ EXPORT_SYMBOL(daemonize);
+ EXPORT_SYMBOL(csum_partial); /* for networking and md */
++EXPORT_SYMBOL(seq_escape);
++EXPORT_SYMBOL(seq_printf);
++EXPORT_SYMBOL(seq_open);
++EXPORT_SYMBOL(seq_release);
++EXPORT_SYMBOL(seq_read);
++EXPORT_SYMBOL(seq_lseek);
+ 
+ /* Program loader interfaces */
+ EXPORT_SYMBOL(setup_arg_pages);
 
-Now... conventions for the subject line?
-
-By the way, this to me is really a 'bot'.  The bulk of the proposals in this
-thread seem more like tools.
-
---
-Daniel

@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264282AbVBEHtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265402AbVBEHvw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264282AbVBEHtK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 02:49:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263645AbVBEHtK
+	id S265402AbVBEHvw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 02:51:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265541AbVBEHvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 02:49:10 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:42911 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S266469AbVBEHso
+	Sat, 5 Feb 2005 02:51:52 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:9114 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S265402AbVBEHvn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 02:48:44 -0500
-Subject: Re: [PATCH] PPC/PPC64: Introduce CPU_HAS_FEATURE() macro
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Olof Johansson <olof@austin.ibm.com>
-Cc: Pekka Enberg <penberg@gmail.com>, linuxppc64-dev@ozlabs.org,
-       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, paulus@samba.org,
-       anton@samba.org, trini@kernel.crashing.org, benh@kernel.crashing.org,
-       hpa@zytor.com, akpm@osdl.org
-In-Reply-To: <20050204172041.GA17586@austin.ibm.com>
-References: <20050204072254.GA17565@austin.ibm.com>
-	 <84144f0205020400172d89eddf@mail.gmail.com>
-	 <20050204172041.GA17586@austin.ibm.com>
-Date: Sat, 05 Feb 2005 09:48:19 +0200
-Message-Id: <1107589699.17616.4.camel@localhost>
+	Sat, 5 Feb 2005 02:51:43 -0500
+Date: Sat, 5 Feb 2005 08:52:36 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Michael Frank at BerliOS <mhf@hornet.berlios.de>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.11-rc3 fix compile failure in arch/i386/kernel/i387.c
+Message-ID: <20050205075236.GA15715@mars.ravnborg.org>
+Mail-Followup-To: Michael Frank at BerliOS <mhf@hornet.berlios.de>,
+	viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
+References: <4204785E.nailLAW1YU0SF@hornet.berlios.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4204785E.nailLAW1YU0SF@hornet.berlios.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-04 at 11:20 -0600, Olof Johansson wrote:
-> * cpu-has-feature(cpu-feature-foo) v cpu-has-feature(foo): I picked the
-> latter for readability.
-> * Renaming CPU_FTR_<x> -> CPU_<x> makes it less obvious that
-> it's actually a cpu feature it's describing (i.e. CPU_ALTIVEC vs
-> CPU_FTR_ALTIVEC).
-> * Renaming would clobber the namespace, CPU_* definitions are used in
-> other places in the tree.
-> * Can't make it an inline and still use the preprocessor concatenation.
+On Sat, Feb 05, 2005 at 08:40:14AM +0100, Michael Frank at BerliOS wrote:
+> 
+> My local tree which was built incrementally since 2.6.8 or so has an extra function:
+> 
+> $ mdiff -kd xx linux-2.6.10-Vanilla linux-2.6.10-Today
+> diff -uN -r -X /etc/sys/dont/kexdiff linux-2.6.10-Vanilla/Makefile linux-2.6.10-Today/Makefile
+> --- linux-2.6.10-Vanilla/Makefile       2005-01-04 5:54:17.000000000 +0100
+> +++ linux-2.6.10-Today/Makefile 2005-02-05 08:02:11.000000000 +0100
+> @@ -336,7 +336,7 @@
+>  CFLAGS_MODULE   = $(MODFLAGS)
+>  AFLAGS_MODULE   = $(MODFLAGS)
+>  LDFLAGS_MODULE  = -r
+> -CFLAGS_KERNEL  =-g
+> +CFLAGS_KERNEL  =
 
-Seriously, if readability is your argument, macro magic is not the
-answer. Ok, we can't clobber the CPU_ definitions, so pick another
-prefix.
+Just a hint.
+Use CONFIG_DEBUG_INFO - then you do not have to edit the Makefile.
 
-If you want readability, please consider using named enums:
-
-enum cpu_feature {
-	CF_ALTIVEC = /* ... */
-};
-
-static inline int cpu_has_feature(enum cpu_feature cf) { }
-
-			Pekka
-
+	Sam

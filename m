@@ -1,41 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132726AbRDILh2>; Mon, 9 Apr 2001 07:37:28 -0400
+	id <S132724AbRDILa1>; Mon, 9 Apr 2001 07:30:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132727AbRDILhS>; Mon, 9 Apr 2001 07:37:18 -0400
-Received: from indyio.rz.uni-sb.de ([134.96.7.3]:25121 "EHLO
-	indyio.rz.uni-sb.de") by vger.kernel.org with ESMTP
-	id <S132726AbRDILhO>; Mon, 9 Apr 2001 07:37:14 -0400
-Message-ID: <3AD19EDF.5959BF92@stud.uni-saarland.de>
-Date: Mon, 09 Apr 2001 11:37:03 +0000
-From: Studierende der Universitaet des Saarlandes 
-	<masp0008@stud.uni-sb.de>
-Reply-To: manfred@colorfullife.com
-Organization: Studierende Universitaet des Saarlandes
-X-Mailer: Mozilla 4.08 [en] (X11; I; Linux 2.0.36 i686)
-MIME-Version: 1.0
-To: acahalan@cs.uml.edu
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: softirq buggy
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132722AbRDILaI>; Mon, 9 Apr 2001 07:30:08 -0400
+Received: from ncc1701.cistron.net ([195.64.68.38]:6418 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S132720AbRDIL36>; Mon, 9 Apr 2001 07:29:58 -0400
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: build -->/usr/src/linux
+Date: Mon, 9 Apr 2001 11:29:57 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <9as6fl$gmq$1@ncc1701.cistron.net>
+In-Reply-To: <3AD079EA.50DA97F3@rcn.com> <3AD0A029.C17C3EFC@rcn.com> <9aqmci$gn2$1@ncc1701.cistron.net> <20010409010103.A16562@pcep-jamie.cern.ch>
+X-Trace: ncc1701.cistron.net 986815797 17114 195.64.65.67 (9 Apr 2001 11:29:57 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I'd prefer to inline cpu_is_idle(), but optimizing the idle 
-> >code path is probably not that important ;-) 
+In article <20010409010103.A16562@pcep-jamie.cern.ch>,
+Jamie Lokier  <lk@tantalophile.demon.co.uk> wrote:
+>Miquel van Smoorenburg wrote:
+>> .. but there should be a cleaner way to get at the CFLAGS used
+>> to compile the kernel.
 >
-> Sure it is, in one way: how fast can you get back to work? 
-> (not OK to take a millisecond getting out of the idle loop) 
+>There is a way though I'd not call it clean.  Here is an extract from
 
-2 short function calls instead of 2 "if(current->need_resched)" on the
-way out.
+Do you think something like this is the correct approach? If it
+was part of the official kernel you could write a Makefile like this:
 
-I didn't try very hard to fix the inline dependencies, could you try to
-move cpu_is_idle() from kernel/sched.c into <linux/pm.h>?
+KSRC = /lib/modules/`uname -r`/build
+include $(KSRC)/include/config.mak
 
-I'm sure it won't be more difficult than the last "Athlon+SMP doesn't
-compile" problem ;-)
+CFLAGS := $(CFLAGS) $(MODFLAGS)
 
---
-	Manfred
+module.c:  module.h
+
+--- linux-2.2.19.orig/Makefile	Mon Apr  9 13:01:37 2001
++++ linux-2.2.19/Makefile	Mon Apr  9 13:20:21 2001
+@@ -325,7 +325,8 @@
+ MODFLAGS += -DMODVERSIONS -include $(HPATH)/linux/modversions.h
+ endif
+ 
+-modules: include/config/MARKER $(patsubst %, _mod_%, $(SUBDIRS))  
++modules: include/config/MARKER $(patsubst %, _mod_%, $(SUBDIRS))  \
++		include/linux/config.mak
+ 
+ $(patsubst %, _mod_%, $(SUBDIRS)) : include/linux/version.h
+ 	$(MAKE) -C $(patsubst _mod_%, %, $@) CFLAGS="$(CFLAGS) $(MODFLAGS)" MAKING_MODULES=1 modules
+@@ -380,6 +381,31 @@
+ 	@exit 1
+ endif
+ 
++include/linux/config.mak: ./Makefile
++	@echo "VERSION		= $(VERSION)" > .mak
++	@echo "PATCHLEVEL	= $(PATCHLEVEL)" >> .mak
++	@echo "SUBLEVEL	= $(SUBLEVEL)" >> .mak
++	@echo "EXTRAVERSION	= $(EXTRAVERSION)" >> .mak
++	@echo "ARCH		= $(ARCH)" >> .mak
++	@echo "HOSTCC		= $(HOSTCC)" >> .mak
++	@echo "HOSTCFLAGS	= $(HOSTCFLAGS)" >> .mak
++	@echo "CROSS_COMPILE	= $(CROSS_COMPILE)" >> .mak
++	@echo "AS		= $(AS)" >> .mak
++	@echo "LD		= $(LD)" >> .mak
++	@echo "CC		= $(CC)" >> .mak
++	@echo "CPP		= $(CPP)" >> .mak
++	@echo "AR		= $(AR)" >> .mak
++	@echo "NM		= $(NM)" >> .mak
++	@echo "STRIP		= $(STRIP)" >> .mak
++	@echo "OBJCOPY		= $(OBJCOPY)" >> .mak
++	@echo "OBJDUMP		= $(OBJDUMP)" >> .mak
++	@echo "MAKE		= $(MAKE)" >> .mak
++	@echo "GENKSYMS	= $(GENKSYMS)" >> .mak
++	@echo "CFLAGS		= $(CFLAGS)" >> .mak
++	@echo "AFLAGS		= $(AFLAGS)" >> .mak
++	@echo "MODFLAGS	= $(MODFLAGS)" >> .mak
++	@mv -f .mak $@
++
+ clean:	archclean
+ 	rm -f kernel/ksyms.lst include/linux/compile.h
+ 	rm -f core `find . -name '*.[oas]' ! \( -regex '.*lxdialog/.*' \
+@@ -398,6 +424,7 @@
+ 
+ mrproper: clean archmrproper
+ 	rm -f include/linux/autoconf.h include/linux/version.h
++	rm -f include/linux/config.mak
+ 	rm -f drivers/net/hamradio/soundmodem/sm_tbl_{afsk1200,afsk2666,fsk9600}.h
+ 	rm -f drivers/net/hamradio/soundmodem/sm_tbl_{hapn4800,psk4800}.h
+ 	rm -f drivers/net/hamradio/soundmodem/sm_tbl_{afsk2400_7,afsk2400_8}.h
+
+
+Mike.
+

@@ -1,71 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262547AbSJVXUo>; Tue, 22 Oct 2002 19:20:44 -0400
+	id <S262506AbSJVXXk>; Tue, 22 Oct 2002 19:23:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262568AbSJVXUo>; Tue, 22 Oct 2002 19:20:44 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:62897 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262547AbSJVXUn>;
-	Tue, 22 Oct 2002 19:20:43 -0400
-Subject: Re: [Fastboot] [CFT] kexec syscall for 2.5.43 (linux booting linux)
-From: Andy Pfiffer <andyp@osdl.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
-       Werner Almesberger <wa@almesberger.net>
-In-Reply-To: <m1fzuyub3z.fsf@frodo.biederman.org>
-References: <m1k7kfzffk.fsf@frodo.biederman.org>
-	<1035241872.24994.21.camel@andyp> <m13cqzumx3.fsf@frodo.biederman.org>
-	<m1ptu3t3ec.fsf@frodo.biederman.org>  <m1fzuyub3z.fsf@frodo.biederman.org>
-Content-Type: text/plain
+	id <S262568AbSJVXXk>; Tue, 22 Oct 2002 19:23:40 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41482 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262506AbSJVXXk>;
+	Tue, 22 Oct 2002 19:23:40 -0400
+Message-ID: <3DB5DF63.6000000@pobox.com>
+Date: Tue, 22 Oct 2002 19:29:39 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@rth.ninka.net>
+CC: Matti Aarnio <matti.aarnio@zmailer.org>,
+       Slavcho Nikolov <snikolov@okena.com>, linux-kernel@vger.kernel.org
+Subject: Re: feature request - why not make netif_rx() a pointer?
+References: <00b201c27a0e$3f82c220$800a140a@SLNW2K> 	<20021022211535.GZ1111@mea-ext.zmailer.org> <1035326559.16085.18.camel@rth.ninka.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 22 Oct 2002 16:27:19 -0700
-Message-Id: <1035329239.24994.58.camel@andyp>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-10-22 at 01:33, Eric W. Biederman wrote:
-> Ok as promised kexec-tools-1.3.tar.gz is released.
+David S. Miller wrote:
+> On Tue, 2002-10-22 at 14:15, Matti Aarnio wrote:
 > 
-> The new test case it provides is
-> kexec -debug bzImage
+>>  ftp://zmailer.org/linux/netif_rx.patch
 > 
-> The serial console must be initialized before using this.
 > 
-> [root@p4dp8-0 root]# kexec -debug bzImage-2.4.17.eb-amd768-eepro100-kexec-apic-lb-mtd2 ip=dhcp root=/dev/nfs console=tty0 console=ttyS0,9600 reboot=hard panic=5 ide0=ata66 verbose
-> setup16_end: 00091ac4
-> Shutting down devices
-> kexecing image
-> a
-> b
-> c
-> d
-> e
-> f
-> g
-> h
-> < All above are various points in x86-setup-16.S >
-> i < Printed from the first callback in setup.S, before protected mode is entered >
-> j < Printed from the second callback in setup.S, just before the kernel decompresser is run >
+> Please EXPORT_GPL this, if you are going to do it at all.
 
 
-joe:/boot # ./kexec-1.3 -debug linux-2.5 console=ttyS0,9600 reboot=hard
-verbose
-setup16_end: 00091a94
-kexecing image
-a
-b
-c
-d
-e
-f
-g
-h
 
-Wedged.
+ug :(   Can we please have this not be in the fast path.  Thanks.
 
-Andy
+Make netif_rx_ the pointer, don't slow down my net drivers further...
+
+	Jeff
+
 
 

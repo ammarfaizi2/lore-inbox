@@ -1,86 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbUKSOAC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbUKSOEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261424AbUKSOAC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 09:00:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbUKSN7N
+	id S261411AbUKSOEP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 09:04:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbUKSOEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 08:59:13 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:2313 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261417AbUKSN6Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 08:58:24 -0500
-Subject: Re: [discuss] Re: RFC: let x86_64 no longer define X86
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20041119120549.GD21483@wotan.suse.de>
-References: <20041119005117.GM4943@stusta.de>
-	 <20041119085132.GB26231@wotan.suse.de> <419DC922.1020809@pobox.com>
-	 <20041119103418.GB30441@wotan.suse.de>
-	 <1100863700.21273.374.camel@baythorne.infradead.org>
-	 <20041119115539.GC21483@wotan.suse.de>
-	 <1100865050.21273.376.camel@baythorne.infradead.org>
-	 <20041119120549.GD21483@wotan.suse.de>
-Content-Type: text/plain
-Message-Id: <1100872680.8191.7391.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Fri, 19 Nov 2004 13:58:00 +0000
+	Fri, 19 Nov 2004 09:04:15 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:32275 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S261411AbUKSOEL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 09:04:11 -0500
+Message-ID: <419DEF98.9040303@conectiva.com.br>
+Date: Fri, 19 Nov 2004 11:05:28 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Organization: Conectiva S.A.
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Wright <chrisw@osdl.org>
+Cc: Ross Kendall Axe <ross.axe@blueyonder.co.uk>,
+       James Morris <jmorris@redhat.com>, netdev@oss.sgi.com,
+       Stephen Smalley <sds@epoch.ncsc.mil>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] linux 2.9.10-rc1: Fix oops in unix_dgram_sendmsg when
+ using SELinux and SOCK_SEQPACKET
+References: <Xine.LNX.4.44.0411180257300.3144-100000@thoron.boston.redhat.com> <Xine.LNX.4.44.0411180305060.3192-100000@thoron.boston.redhat.com> <20041118084449.Z14339@build.pdx.osdl.net> <419D6746.2020603@blueyonder.co.uk> <20041118231943.B14339@build.pdx.osdl.net>
+In-Reply-To: <20041118231943.B14339@build.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-11-19 at 13:05 +0100, Andi Kleen wrote:
-> I don't know details about the driver, but it's not enabled on x86-64 
-> because x86-64 doesn't have ISA set.
-
-That looks bogus actually -- I think it should only depend on the
-existence of parport_pc style hardware. CONFIG_ISA is definitely a
-digression. But still, either way the example is wrong. It shouldn't be
-limited to X86 and X86_64.
-
-I still haven't found good examples of cases where X86 is used and we
-would want to change that to X86 || X86_64. Could this be one?
-
-config HW_RANDOM
-        tristate "Intel/AMD/VIA HW Random Number Generator support"
-        depends on (X86 || IA64) && PCI
-
-...or this?
-
-config FTAPE
-        tristate "Ftape (QIC-80/Travan) support"
-        depends on BROKEN_ON_SMP && (ALPHA || X86)
-
-I also see some which already have it:
-
-config NVRAM
-        tristate "/dev/nvram support"
-        depends on ATARI || X86 || X86_64 || ARM || GENERIC_NVRAM
-config HANGCHECK_TIMER
-        tristate "Hangcheck timer"
-        depends on X86_64 || X86
-
-And some which seem to be wrong because they want only X86 not X86_64:
-
-config SONYPI
-        tristate "Sony Vaio Programmable I/O Control Device support (EXPERIMENTAL)"
-        depends on EXPERIMENTAL && X86 && PCI && INPUT && !64BIT
-config MWAVE
-        tristate "ACP Modem (Mwave) support"
-        depends on X86
-        select SERIAL_8250
-
-Using X86 to include X86_64 is bizarre and inconsistent, and it's
-already leading to errors in Kconfig. Let's fix it.
 
 
+Chris Wright wrote:
+> * Ross Kendall Axe (ross.axe@blueyonder.co.uk) wrote:
+> 
+>>Taking this idea further, couldn't we split unix_dgram_sendmsg into 2 
+>>functions, do_unix_dgram_sendmsg and do_unix_connectionless_sendmsg (and 
+>>similarly for unix_stream_sendmsg), then all we'd need is:
+>>
+>><pseudocode>
+>>static int do_unix_dgram_sendmsg(...);
+>>static int do_unix_stream_sendmsg(...);
+>>static int do_unix_connectionless_sendmsg(...);
+>>static int do_unix_connectional_sendmsg(...);
+> 
+> 
+> We could probably break it down to better functions and helpers, but I'm
+> not sure that's quite the breakdown.  That looks to me like an indirect
+> way to pass a flag which is already encoded in the ops and sk_type.
+> At anyrate, for 2.6.10 the changes should be small and obvious.
+> Better refactoring should be left for 2.6.11.
 
--- 
-dwmw2
+Hey, go ahead, do the split and please, please use sk->sk_prot, that is
+the way to do the proper split and will allow us to nuke several
+pointers in struct sock (sk_slab, sk_owner for now) :-)
 
+I have a friend doing this for X.25, will submit his patches as soon
+as we do some more testing and 2.6.10 is out.
+
+- Arnaldo

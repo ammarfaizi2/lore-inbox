@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310504AbSCUX5j>; Thu, 21 Mar 2002 18:57:39 -0500
+	id <S310528AbSCVACj>; Thu, 21 Mar 2002 19:02:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310517AbSCUX53>; Thu, 21 Mar 2002 18:57:29 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:8376 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S310515AbSCUX52>; Thu, 21 Mar 2002 18:57:28 -0500
-To: HGadi@ecutel.com (Hari Gadi)
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: module (kernel) debugging
-In-Reply-To: <E16oBVq-0006Z6-00@the-village.bc.nu>
-From: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
-Date: Fri, 22 Mar 2002 00:46:07 +0100
-Message-ID: <87663pmqm8.fsf@tigram.bogus.local>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Artificial
- Intelligence, i386-debian-linux)
+	id <S310538AbSCVAC3>; Thu, 21 Mar 2002 19:02:29 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:11015 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S310528AbSCVAC0>; Thu, 21 Mar 2002 19:02:26 -0500
+Message-ID: <3C9A747F.7EA87A2F@linux-m68k.org>
+Date: Fri, 22 Mar 2002 01:02:07 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "David S. Miller" <davem@redhat.com>, lm@bitmover.com, pavel@ucw.cz,
+        linux-kernel@vger.kernel.org
+Subject: Re: Bitkeeper licence issues
+In-Reply-To: <E16o9ZV-0006EZ-00@the-village.bc.nu>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Hi,
 
->> I am new to kernel level development. What are the best ways to debug runtime
->> kernel (module).
->
-> Your brain 8)
+Alan Cox wrote:
 
-I can confirm this :-).
+> > repeating work. Most development which is moved to india is also the type
+> > of development which is most likely to be automated by better tools. So if
+> > india just relies on this it will be hit very badly.
+> 
+> Read the book 8)
 
->> Are there any third party tools for debugging the kernel.
+Does it also contain the part, how it should apply to nations? I can see
+how applies in situations, when there is a halfway working market, but
+the relationship between nations is simply different.
 
-A _first_ party tool, which comes to my mind is:
-	printk(KERN_DEBUG "whatever\n");
-The advantage with printk() is, others can test and debug your module
-as well and report results to you.
-
-Regards, Olaf.
+bye, Roman

@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315368AbSEBTVv>; Thu, 2 May 2002 15:21:51 -0400
+	id <S315374AbSEBTW6>; Thu, 2 May 2002 15:22:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315372AbSEBTVu>; Thu, 2 May 2002 15:21:50 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:2576 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S315368AbSEBTVt>;
-	Thu, 2 May 2002 15:21:49 -0400
-Message-ID: <3CD18318.7060407@evision-ventures.com>
-Date: Thu, 02 May 2002 20:19:04 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S315375AbSEBTW5>; Thu, 2 May 2002 15:22:57 -0400
+Received: from mcewen.wcnet.org ([63.174.200.22]:51611 "EHLO mcewen.wcnet.org")
+	by vger.kernel.org with ESMTP id <S315374AbSEBTW4>;
+	Thu, 2 May 2002 15:22:56 -0400
+Date: Thu, 2 May 2002 15:24:09 -0400 (EDT)
+From: <skmail@mcewen.wcnet.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel strangeness
+Message-ID: <Pine.LNX.4.33.0205021516240.4418-100000@mcewen.wcnet.org>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
-Subject: Re: IDE hotplug support?
-In-Reply-To: <Pine.LNX.4.44.0204301746020.2301-100000@mustard.heime.net> <20020426152943.A413@toy.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Pavel Machek napisa?:
-> Hi!
-> 
-> 
->>I came across a nice case from procase, supporting 16 IDE drives in 
->>(so-called?) hotplug frames. Problem is... How will linux trat this?
-> 
-> 
-> Should be okay. Hdparm can force spindown and bus rescan, and that's 
-> basically what you need.
-> 
-> 
->>I plan to use 15 drives in a RAID-5, assigning the last 16th drive as a 
->>spare.
-> 
-> 
-> 8 controllers? hmmm...
 
-15 drives == 16 interfaces == 8 channels == 4 controllers
-with primary and secondary channel.
+Hi all-
 
-He will have groups of about 4 drives on each channel wich
-serialize each other due to excessive IRQ line sharing and
-master slave issues.
+I am trying to create a RH 7.2 based system that will run on a read only 
+32 meg flash disk.  It is going on a Soekris Net4501 board, which has 3 
+ethernets, 64 meg memory, and an AMD Elan SC520.  I loaded the flash disk 
+on a full install of RH 7.2.  Custom compiled the kernel for no modules, 
+for an i386 architecture.  It works fine on the desktop system I used to 
+load it, but when I put it on the net4501,  Lilo loads, starts loading the 
+kernel, then it hangs.  The last message on the screen is Freeing unused 
+kernel memory.  I also downloaded the latest 2.4.19-pre7, compiled it for 
+the Elan processor, with no success.  Same thing happens.  
 
-8 x 130MBy/s >>>> PCI bus throughput... I would rather recommend
-a classical RAID controller card for this kind of
-setup.
+I'm not sure what the kernel is looking for, why it stops at that 
+particular place.  Can anyone help?
 
-The request aliasing effects will be almost for sure disasterous
-to overall system performance.
+TIA
 

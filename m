@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132690AbRDQUue>; Tue, 17 Apr 2001 16:50:34 -0400
+	id <S132854AbRDQVE7>; Tue, 17 Apr 2001 17:04:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132859AbRDQUuX>; Tue, 17 Apr 2001 16:50:23 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:16521 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S132690AbRDQUuG>;
-	Tue, 17 Apr 2001 16:50:06 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15068.44155.12096.565071@pizda.ninka.net>
-Date: Tue, 17 Apr 2001 13:50:03 -0700 (PDT)
-To: Jesse S Sipprell <jss@inflicted.net>
-Cc: Jan Kasprzak <kas@informatics.muni.cz>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Possible problem with zero-copy TCP and sendfile()
-In-Reply-To: <20010417164407.B21620@bastard.inflicted.net>
-In-Reply-To: <20010417170206.C2589096@informatics.muni.cz>
-	<E14pXxg-0002cI-00@the-village.bc.nu>
-	<20010417181524.E2589096@informatics.muni.cz>
-	<20010417161036.A21620@bastard.inflicted.net>
-	<15068.42539.768756.883953@pizda.ninka.net>
-	<20010417164407.B21620@bastard.inflicted.net>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+	id <S132859AbRDQVEt>; Tue, 17 Apr 2001 17:04:49 -0400
+Received: from himalia.xerox.com ([208.140.33.21]:11979 "EHLO
+	himalia.eastgw.xerox.com") by vger.kernel.org with ESMTP
+	id <S132854AbRDQVEg>; Tue, 17 Apr 2001 17:04:36 -0400
+Message-Id: <200104172104.RAA08013@mailhost.eng.mc.xerox.com>
+To: linux-kernel@vger.kernel.org
+cc: leisner@rochester.rr.com
+Subject: kernel threads and close method in a device driver
+Date: Tue, 17 Apr 2001 17:04:28 -0400
+From: "Marty Leisner" <mleisner@eng.mc.xerox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Jesse S Sipprell writes:
- > On error, -1 is returned in the usual fashion and offset is purported to be
- > updated to point to the next byte following the last one sent.
- > 
- > Will the zerocopy patches break this?
+I'm involved with modifying a device driver for new hardware.
 
-No, they should not.
+The architecture is currently:
 
-Later,
-David S. Miller
-davem@redhat.com
+	open device
+	do IOCTL (spinning a kernel thread and doing initialization)
+
+There is currently an IOCTL which short-circuits to the close method.
+Turns out it seems necessary to do this IOCTL -- close never gets 
+invoked.
+
+What can cause a close not to get invoked?  BTW, the close is returning
+with a 0 status to the application ...(it definitely did NOT 
+get invoked in the driver)
+
+In ps:
+  F   UID   PID  PPID PRI  NI   VSZ  RSS WCHAN  STAT TTY        TIME COMMAND
+040 33839   750     1   7   0  1064  348 end    D    pts/2      0:00 ./openinit
+040 33839   630     1   0   0  1064  348 end    D    pts/0      0:00 ./openinit
+
+These are the kernel threads which won't go away.
+
+I'm running 2.2.12 with the bigphysarea patch...
+
+(leave my work address on the distribution -- I get linux kernel at home...)
+
+marty		mleisner@eng.mc.xerox.com   
+Don't  confuse education with schooling.
+	Milton Friedman to Yogi Berra

@@ -1,91 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbVAMXEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVAMXJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261787AbVAMXEr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 18:04:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbVAMXB7
+	id S261783AbVAMXJS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 18:09:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbVAMXFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 18:01:59 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54243 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261779AbVAMW5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 17:57:39 -0500
-Date: Thu, 13 Jan 2005 17:28:14 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wright <chrisw@osdl.org>,
-       akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: security contact draft
-Message-ID: <20050113192814.GA8176@logos.cnet>
-References: <20050113125503.C469@build.pdx.osdl.net> <1105647058.4624.134.camel@localhost.localdomain> <Pine.LNX.4.58.0501131325560.2310@ppc970.osdl.org>
+	Thu, 13 Jan 2005 18:05:25 -0500
+Received: from waste.org ([216.27.176.166]:65480 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261806AbVAMXDI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 18:03:08 -0500
+Date: Thu, 13 Jan 2005 15:03:02 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Andrew Morton <akpm@osdl.org>, "Theodore Y. Ts'o" <tytso@MIT.EDU>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 4/5] random periodicity detection fix
+Message-ID: <20050113230302.GD2940@waste.org>
+References: <20050113064629.GZ2940@waste.org> <20050113223437.GH2760@pclin040.win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501131325560.2310@ppc970.osdl.org>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20050113223437.GH2760@pclin040.win.tue.nl>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 13, 2005 at 01:31:19PM -0800, Linus Torvalds wrote:
+On Thu, Jan 13, 2005 at 11:34:37PM +0100, Andries Brouwer wrote:
+> On Wed, Jan 12, 2005 at 10:46:29PM -0800, Matt Mackall wrote:
 > 
-> 
-> On Thu, 13 Jan 2005, Alan Cox wrote:
+> > The input layer is now sending us a bunch of events in a row for each
+> > actual event. This shows up weaknesses in the periodicity detector and
+> > using the high clock rate from get_clock: each keystroke is getting
+> > accounted as 10 different tmaximal-entropy events.
 > > 
-> > It's not documenting the stuff Linus seems to be talking about which is
-> > a public list ? Or does Linus want both ?
+> > A brief touch on a trackpad will generate as much as 2000 maximal
+> > entropy events which is more than 2k of /dev/random output. IOW, we're
+> > WAY overestimating input entropy.
 > 
-> I see myself as pretty extreme when it comes to my approach to security.
+> Yes, indeed. I muttered about this long ago - let me see, yes,
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=106271659930542&w=3
 > 
-> And I actually distrust extremes. I'm at one end of the spectrum, and
-> vendor-sec is at the other (I'm not even counting the head-in-the-sand
-> approach as part of the spectrum ;). Knowing that, I'd expect that most
-> people are somewhere in between.
-> 
-> Which to me implies that while what I personally _want_ is total openness, 
-> that's not necessarily what makes the most sense in real life.
+> My patch did the opposite of your patch: I removed the
+> add entropy call in input.c.
 
-Gooood :) 
+Unfortunately almost all the original call sites have been dropped, so
+it's now easier to do it this way.
 
-> So I want to give people choice. I want to encourage openness. But hell, 
-> if we have a closed list with a declared short embargo that is known to 
-> not play games (ie clock starts ticking from original discovery, not from 
-> somebody elses embargo), that's good too.
-> 
-> Let people vote with their feet. If vendor-sec ends up being where all the
-> "important" things are discussed - so be it. We've not lost anything, and
-> at worst a "kernel-security" list would be a way to discuss stuff that was
-> already released by vendor-sec.
+Further, the input folks can't be relied upon to do the right thing,
+so it's better to grab _all_ the relevant data in one place and do our
+own filtering. 5/5 is a step in that direction, but the filtering is
+currently primitive.
 
-On my understanding we are about to win several things.
+Eventually we can do as gendisk does and embed a pointer to an
+entropy_state in the input objects and get back to all devices being
+monitored independently. 
 
-I rather prefer having vendorsec NOT deal with these issues because 
-it gives autonomy to the kernel team. It wont depend on "suspicious" criteria
-of embargo's - but instead have a clear written policy for embargo's.
+I've got a few dozen more /dev/random cleanup patches to push before
+that happens though.
 
-And the timeframe, as Alan says, has to be acceptable for the vendors to 
-generate their updates and run the QA process, otherwise things will 
-continue to be discussed at vendorsec.
+> Also, when there are several sources, all constant or almost constant,
+> then merging the streams might cause one to see variation where
+> there isn't really any.
 
-Other than that, by not "wrapping" the fixes with non descritive changelogs,
-we will have an official list of security problems. Hey, this is a serious 
-operating system.
+Agreed. Not a huge problem for input as the sources are all really a
+single console user (or so), but I'd like to check periodicity
+per-device and globally eventually.
 
-Wrapping up fixes means "disclosure" for the better informed people 
-(the bad guys) who read the changesets, and means "lack of knowledge" 
-for the less informed - users who dont run the latest kernel and only 
-upgrade in case of public security issues (the majority of them?).
-
-So the argument of "wrapping" up fixes for "better and safer code" is actually
-very bad if you think about it. 
-
-Once we have that, there will be a "official" list of known issues.
-
-Those MANY who ask
-"I'm using v2.6.12 on my customized kernel and I can't upgrade to the latest
-v2.6.20 kernel, which security bugs exist that I need fixed?"
-
-Will have an easy answer.
-
-This is better for the Linux kernel developers, better for vendors and better
-for users.
-
-
+-- 
+Mathematics is the supreme nostalgia of our time.

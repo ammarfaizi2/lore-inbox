@@ -1,71 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbTE2RMN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 13:12:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbTE2RMN
+	id S262423AbTE2RNL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 13:13:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbTE2RNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 13:12:13 -0400
-Received: from smtp1.wanadoo.es ([62.37.236.135]:14788 "EHLO smtp.wanadoo.es")
-	by vger.kernel.org with ESMTP id S262409AbTE2RMM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 13:12:12 -0400
-Message-ID: <3ED6426F.6010807@wanadoo.es>
-Date: Thu, 29 May 2003 19:25:03 +0200
-From: Xose Vazquez Perez <xose@wanadoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: gl, es, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>, miquels@cistron-office.nl
-Subject: Re: [announce] procps 2.0.13 with NPTL enhancements
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 29 May 2003 13:13:11 -0400
+Received: from ginger.cmf.nrl.navy.mil ([134.207.10.161]:22953 "EHLO
+	ginger.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id S262423AbTE2RNK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 13:13:10 -0400
+Message-Id: <200305291713.h4THDssG023347@ginger.cmf.nrl.navy.mil>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+cc: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] assorted he driver cleanup 
+In-reply-to: Your message of "Thu, 29 May 2003 14:06:22 -0300."
+             <20030529170621.GX24054@conectiva.com.br> 
+X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
+X-mailer: nmh 1.0
+Date: Thu, 29 May 2003 13:12:13 -0400
+From: chas williams <chas@cmf.nrl.navy.mil>
+X-Spam-Score: (*) hits=1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miquel van Smoorenburg wrote:
+In message <20030529170621.GX24054@conectiva.com.br>,Arnaldo Carvalho de Melo w
+rites:
+>no, no, I was talking just about the need for HE_SPIN_LOCK wrapper, not the
+>locking, i.e. couldn't it be just:
+>
+>spin_lock_irqsave(&dev->global_lock, flags)
+>
+>used so that it is clear that it is a irqsave variation, etc?
 
->In article <1054138948.783.179.camel@localhost>, Robert Love <rml@tech9.net> wrote:
->>On Wed, 2003-05-28 at 23:19, Phil Oester wrote:
->>
->>> Any comment on the procps v3.1.8 located here:
->>>
->>> http://procps.sourceforge.net/
->>>
->>> Seems it is actively maintained...
->>
->>It is a fork of the original procps tree.
+i suppose i could change it all back.  at one point, he_spin_lock()
+was 'optmized' away on non smp machines (since a single cpu doesnt
+tickle the particular h/w problem). 
 
->Well, you could also argue that the current 2.0 tree is a
->retroactive fork of an older version of procps.
-
->I don't understand why you don't work together.
-
---from the http://procps.sourceforge.net/faq.html --
-Why are there so many procps projects?
-
-The original maintainer seems to have had little time for procps.
-Whatever his reasons, the project didn't get maintained. Starting
-in 1997, Albert Cahalan wrote a new ps program for the package.
-For the next few years, Albert quietly helped the Debian package
-maintainer fix bugs. In 2001, Rik van Riel decided to do something
-about what appeared to be the lack of a maintainer. He picked up
-the buggy old code in Red Hat's CVS and started adding patches.
-Meanwhile, other people have patched procps in a great many ways.
-In 2002, Albert moved procps to this site. This was done to ensure
-that years of testing and bug fixes would not be lost. The major
-version number was changed to 3, partly to avoid confusing users
-and partly because the top program has been redone.
---end--
-
-I think too that is to waste the time&resources to have two,
-and to do a little  different some LiNUX distributions in a basic
-and important package
-
-but if both have freetime... ;-)
-
-regards,
--- 
-Software is like sex, it's better when it's bug free.
-
+i didnt want a ton of #ifdef CONFIG_SMP in the driver.

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262253AbTJFPIt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 11:08:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbTJFPIt
+	id S262260AbTJFPJb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 11:09:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbTJFPJa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 11:08:49 -0400
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:57011 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S262253AbTJFPIq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 11:08:46 -0400
-Message-ID: <3F818574.3000403@nortelnetworks.com>
-Date: Mon, 06 Oct 2003 11:08:36 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	Mon, 6 Oct 2003 11:09:30 -0400
+Received: from chaos.sr.unh.edu ([132.177.249.105]:7811 "EHLO chaos.sr.unh.edu")
+	by vger.kernel.org with ESMTP id S262260AbTJFPJ1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 11:09:27 -0400
+Date: Mon, 6 Oct 2003 11:09:33 -0400 (EDT)
+From: Kai Germaschewski <kai.germaschewski@unh.edu>
+X-X-Sender: kai@chaos.sr.unh.edu
+To: Jan Schubert <Jan.Schubert@GMX.li>
+cc: linux-kernel@vger.kernel.org, <kernelnewbies@vger.kernel.org>
+Subject: Re: Q: Maintainer for drivers/isdn/hisax in kernel-2.6
+In-Reply-To: <3F8090E7.9040501@GMX.li>
+Message-ID: <Pine.LNX.4.44.0310061107140.16435-100000@chaos.sr.unh.edu>
 MIME-Version: 1.0
-To: bert hubert <ahu@ds9a.nl>
-Cc: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>,
-       "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Re: Futex
-References: <D9B4591FDBACD411B01E00508BB33C1B01EC852D@mesadm.epl.prov-liege.be> <20031006075039.GA12376@outpost.ds9a.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert wrote:
-> On Mon, Oct 06, 2003 at 09:22:19AM +0200, Frederick, Fabian wrote:
-> 
->>Hi,
->>
->>	Why don't we have any futex doc included ?
->>Nothing about futexfs nor userspace futex usage ....
->>
-> 
-> http://ds9a.nl/futex-manpages/
+On Sun, 5 Oct 2003, Jan Schubert wrote:
 
-Just a note: the library mentioned needs a patch to compile on the 
-latest kernel (mostly just to handle the additional parm in the futex 
-syscall).  I've sent it to Rusty for the next version.
+> Who is the Maintainer for the (old) ISDN-Hisax-Part for the kernel-2.6 
+> (located in drivers/isdn/hisax)? I've digged into the code and got some 
+> problems. IMHO there exist some old/outdated code which will never be 
+> used in the current state (there are some Kernel-Config-Values which are 
+> not defined or which will never be used). I tried to write an module to 
+> get an Teles ISDN-PCMCIA Card running and run into some problems which 
+> prevents me from further testing now.
 
-Chris
+Well, Karsten Keil and me are listed for that, and I think Karsten is 
+actually actively working on fixing problems there. I've been far away 
+from any ISDN equipment for the past 1 1/2 years now, which combined with 
+a certain lack of time unfortunately reduced my ability to contribute, but 
+I'm still there to take questions and review patches.
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+--Kai
 

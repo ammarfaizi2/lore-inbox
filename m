@@ -1,427 +1,219 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264975AbTGGNYU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 09:24:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264981AbTGGNYU
+	id S267006AbTGGNmW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 09:42:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267014AbTGGNmW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 09:24:20 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:58766 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S264975AbTGGNYL
+	Mon, 7 Jul 2003 09:42:22 -0400
+Received: from imhotep.hursley.ibm.com ([194.196.110.14]:54986 "EHLO
+	tor.trudheim.com") by vger.kernel.org with ESMTP id S267006AbTGGNmM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 09:24:11 -0400
-Date: Mon, 7 Jul 2003 15:38:43 +0200 (CEST)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: OOPS: 2.5.74-mm2
-In-Reply-To: <20030703023714.55d13934.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.51.0307071536340.5102@dns.toxicfilms.tv>
-References: <20030703023714.55d13934.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 7 Jul 2003 09:42:12 -0400
+Subject: Re: kernel oops
+From: Anders Karlsson <anders@trudheim.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1057585054.2743.40.camel@dhcp22.swansea.linux.org.uk>
+References: <1057582393.2034.13.camel@tor.trudheim.com>
+	 <1057583643.2743.38.camel@dhcp22.swansea.linux.org.uk>
+	 <1057584747.2278.17.camel@tor.trudheim.com>
+	 <1057585054.2743.40.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-C3DG2J+JCNKpZlRIRqN7"
+Organization: Trudheim Technology Limited
+Message-Id: <1057586205.2039.3.camel@tor.trudheim.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 Rubber Turnip www.usr-local-bin.org 
+Date: 07 Jul 2003 14:56:45 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-2.5.74-mm2 oopses here just after booting. I get these dumps.
-Once they stoped, i pressed alt+ctl+del (noted in the dump below) and they
-started again, and the computer stopeed rebooting.
+--=-C3DG2J+JCNKpZlRIRqN7
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Regards,
-Maciej
+On Mon, 2003-07-07 at 14:37, Alan Cox wrote:
+> On Llu, 2003-07-07 at 14:32, Anders Karlsson wrote:
+> > The running kernel is 2.4.21-rc7-ac1, I was trying to compile
+> > 2.4.22-pre3 with the freeswan patches applied. I can try and
+> > compile the plain 2.4.22-pre3 a few times to provoke an oops.
+> > The system is presently still running 2.4.21-rc7-ac1.
+>=20
+> Ah I misunderstood - is the 2.4.21-rc7-ac1 with or without
+> freeswan  patches ?
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-c0118d2d
-*pde = 00000000
-Oops: 0002 [#1]
-PREEMPT
+2.4.21-rc7-ac1 only has the CPUFreq patches applied, courtesy of Bill
+Nottingham. There is no FreeS/WAN patches applied to it.
+
+I have just run another compile of 2.4.22-pre3, this time nothing else
+applied. The oopses is as follows.
+
+ksymoops 2.4.8 on i686 2.4.21-rc7-ac1.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.21-rc7-ac1/ (default)
+     -m /boot/System.map-2.4.21-rc7-ac1 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+kernel BUG at page_alloc.c:231!
+invalid operand: 0000
 CPU:    0
-EIP:    0060:[schedule+143/1022]    Not tainted VLI
-EFLAGS: 00010097
-EIP is at schedule+0x8f/0x3fe
-eax: 00000001   ebx: d9bcb940   ecx: d9bcb960   edx: ffffffff
-esi: 00000000   edi: c04558a0   ebp: d9b39ee0   esp: d9b39eb8
-ds: 007b   es: 007b   ss: 0068
-Process bash (pid: 462, threadinfo=d9b38000 task=d9bcb940)
-Stack: d9ebd980 c1403dc8 c1403dc8 00000000 40174560 d9ebd980 d9bec3c0 d9c06e6c
-       d9c06e00 d9b39f08 00000001 c015a837 00000000 d9bcb940 c011a7f9 d9b39f14
-       d9b39f14 d9ebd980 d9ebd9a0 d9bec3c0 00000000 d9bcb940 c011a7f9 d9b80f40
-Call Trace:
- [pipe_wait+123/154] pipe_wait+0x7b/0x9a
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [pipe_read+319/573] pipe_read+0x13f/0x23d
- [update_process_times+70/82] update_process_times+0x46/0x52
- [vfs_read+176/281] vfs_read+0xb0/0x119
- [sys_read+66/99] sys_read+0x42/0x63
- [syscall_call+7/11] syscall_call+0x7/0xb
+EIP:    0010:[<c0139296>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010202
+eax: 01000072   ebx: c16cbc30   ecx: 000243eb   edx: 00001000
+esi: c02f3e70   edi: c02f3e84   ebp: c02f3e70   esp: e42f1e74
+ds: 0018   es: 0018   ss: 0018
+Process cc1 (pid: 10269, stackpage=3De42f1000)
+Stack: 00001000 00000000 000233eb 00000286 00000000 c02f3e70 c02f3ff4
+000001ff=20
+       00000000 000001d2 c01394e2 d2de7280 c02f3e70 c02f3ff0 d22f294c
+00000000=20
+       c10030e0 00104025 d2dd9580 c012e250 c10030e0 00000000 00001000
+410f1000=20
+Call Trace:    [<c01394e2>] [<c012e250>] [<c012ebf5>] [<c012fb49>]
+[<c011a0d4>]
+  [<c010ebd0>] [<c0119f94>] [<c0108e78>]
+Code: 0f 0b e7 00 f0 39 2b c0 8b 43 18 a9 80 00 00 00 74 08 0f 0b=20
 
-Code: 17 04 75 6d 8b 03 85 c0 74 67 83 f8 01 0f 84 3f 03 00 00 83 2d a0 58 45 c0 01 8b 03 83 f8 02 0f 84 1d 03 00 00 8b 73 28 8d 4b 20 <83> 2e 01 8b 51 04 39 0a 0f 85 fc 02 00 00 8b 43 20 39 48 04 0f
- <6>note: bash[462] exited with preempt_count 2
-bad: scheduling while atomic!
-Call Trace:
- [schedule+1017/1022] schedule+0x3f9/0x3fe
- [generic_file_aio_write_nolock+1574/2931] generic_file_aio_write_nolock+0x626/0xb73
- [buffered_rmqueue+229/434] buffered_rmqueue+0xe5/0x1b2
- [vgacon_cursor+236/478] vgacon_cursor+0xec/0x1de
- [set_cursor+117/142] set_cursor+0x75/0x8e
- [vt_console_print+491/747] vt_console_print+0x1eb/0x2eb
- [generic_file_aio_write+137/253] generic_file_aio_write+0x89/0xfd
- [ext3_file_write+68/194] ext3_file_write+0x44/0xc2
- [do_sync_write+182/227] do_sync_write+0xb6/0xe3
- [mempool_free+81/177] mempool_free+0x51/0xb1
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [check_free_space+225/364] check_free_space+0xe1/0x16c
- [poke_blanked_console+92/111] poke_blanked_console+0x5c/0x6f
- [vt_console_print+521/747] vt_console_print+0x209/0x2eb
- [try_to_wake_up+160/410] try_to_wake_up+0xa0/0x19a
- [do_acct_process+637/653] do_acct_process+0x27d/0x28d
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [acct_process+72/132] acct_process+0x48/0x84
- [do_exit+135/1102] do_exit+0x87/0x44e
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [do_divide_error+0/250] do_divide_error+0x0/0xfa
- [do_page_fault+300/1113] do_page_fault+0x12c/0x459
- [__rmqueue+204/305] __rmqueue+0xcc/0x131
- [buffered_rmqueue+229/434] buffered_rmqueue+0xe5/0x1b2
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [error_code+45/56] error_code+0x2d/0x38
- [check_version+120/216] check_version+0x78/0xd8
- [schedule+143/1022] schedule+0x8f/0x3fe
- [pipe_wait+123/154] pipe_wait+0x7b/0x9a
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [pipe_read+319/573] pipe_read+0x13f/0x23d
- [update_process_times+70/82] update_process_times+0x46/0x52
- [vfs_read+176/281] vfs_read+0xb0/0x119
- [sys_read+66/99] sys_read+0x42/0x63
- [syscall_call+7/11] syscall_call+0x7/0xb
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-c0118d2d
-*pde = 00000000
-Oops: 0002 [#2]
-PREEMPT
+>>EIP; c0139296 <rmqueue+1f9/21d>   <=3D=3D=3D=3D=3D
+
+>>ebx; c16cbc30 <_end+132396c/3146ad9c>
+>>esi; c02f3e70 <contig_page_data+b0/340>
+>>edi; c02f3e84 <contig_page_data+c4/340>
+>>ebp; c02f3e70 <contig_page_data+b0/340>
+>>esp; e42f1e74 <_end+23f49bb0/3146ad9c>
+
+Trace; c01394e2 <__alloc_pages+3f/180>
+Trace; c012e250 <do_wp_page+51/25e>
+Trace; c012ebf5 <handle_mm_fault+122/124>
+Trace; c012fb49 <get_unmapped_area+86/115>
+Trace; c011a0d4 <do_page_fault+140/472>
+Trace; c010ebd0 <old_mmap+de/11d>
+Trace; c0119f94 <do_page_fault+0/472>
+Trace; c0108e78 <error_code+34/3c>
+
+Code;  c0139296 <rmqueue+1f9/21d>
+00000000 <_EIP>:
+Code;  c0139296 <rmqueue+1f9/21d>   <=3D=3D=3D=3D=3D
+   0:   0f 0b                     ud2a      <=3D=3D=3D=3D=3D
+Code;  c0139298 <rmqueue+1fb/21d>
+   2:   e7 00                     out    %eax,$0x0
+Code;  c013929a <rmqueue+1fd/21d>
+   4:   f0 39 2b                  lock cmp %ebp,(%ebx)
+Code;  c013929d <rmqueue+200/21d>
+   7:   c0 8b 43 18 a9 80 00      rorb   $0x0,0x80a91843(%ebx)
+Code;  c01392a4 <rmqueue+207/21d>
+   e:   00 00                     add    %al,(%eax)
+Code;  c01392a6 <rmqueue+209/21d>
+  10:   74 08                     je     1a <_EIP+0x1a>
+Code;  c01392a8 <rmqueue+20b/21d>
+  12:   0f 0b                     ud2a  =20
+
+ kernel BUG at page_alloc.c:100!
+invalid operand: 0000
 CPU:    0
-EIP:    0060:[schedule+143/1022]    Not tainted VLI
-EFLAGS: 00010006
-EIP is at schedule+0x8f/0x3fe
-eax: 00000008   ebx: d9bcb940   ecx: d9bcb960   edx: ffffffff
-esi: 00000000   edi: c04558a0   ebp: d9b39d88   esp: d9b39d60
-ds: 007b   es: 007b   ss: 0068
-Process bash (pid: 462, threadinfo=d9b38000 task=d9bcb940)
-Stack: 00000020 00000009 d9bcb990 dbdc7b80 d9bcb9e0 00000286 dbdc7b80 dbfeea60
-       00000002 00000000 d9bcb940 c011e785 d9bcb940 dbcdaae0 000001ce 00000002
-       d9b39e84 d9b38000 c0116b5c d9bcb940 c010a006 0000000b c034e105 00000002
-Call Trace:
- [do_exit+625/1102] do_exit+0x271/0x44e
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [do_divide_error+0/250] do_divide_error+0x0/0xfa
- [do_page_fault+300/1113] do_page_fault+0x12c/0x459
- [__rmqueue+204/305] __rmqueue+0xcc/0x131
- [buffered_rmqueue+229/434] buffered_rmqueue+0xe5/0x1b2
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [error_code+45/56] error_code+0x2d/0x38
- [check_version+120/216] check_version+0x78/0xd8
- [schedule+143/1022] schedule+0x8f/0x3fe
- [pipe_wait+123/154] pipe_wait+0x7b/0x9a
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [pipe_read+319/573] pipe_read+0x13f/0x23d
- [update_process_times+70/82] update_process_times+0x46/0x52
- [vfs_read+176/281] vfs_read+0xb0/0x119
- [sys_read+66/99] sys_read+0x42/0x63
- [syscall_call+7/11] syscall_call+0x7/0xb
+EIP:    0010:[<c0138e47>]    Not tainted
+EFLAGS: 00010206
+eax: 0100003d   ebx: c16cbcc0   ecx: 000000a3   edx: 00000000
+esi: d22f7090   edi: 00000000   ebp: 00000010   esp: e42f1ca8
+ds: 0018   es: 0018   ss: 0018
+Process cc1 (pid: 10269, stackpage=3De42f1000)
+Stack: c02f3efc c1000020 c16a59b0 c02f3e70 c1030020 00000203 ffffffff
+00010e8a=20
+       0000f000 d22f7090 00012000 00000010 c012f0a2 c16cbcc0 e42f1cec
+c0127315=20
+       edb9f134 40415000 ea6e8404 40027000 00000000 c012d83a dce4b680
+ea6e8400=20
+Call Trace:    [<c012f0a2>] [<c0127315>] [<c012d83a>] [<c01306e2>]
+[<c011c692>]
+  [<c01215f4>] [<c0109572>] [<c010943b>] [<c01095d9>] [<c0139296>]
+[<f1d8e857>]
+  [<f1d8db1d>] [<f1da2b06>] [<c0108e78>] [<c0139296>] [<c01394e2>]
+[<c012e250>]
+  [<c012ebf5>] [<c012fb49>] [<c011a0d4>] [<c010ebd0>] [<c0119f94>]
+[<c0108e78>]
+Code: 0f 0b 64 00 f0 39 2b c0 8b 53 08 85 d2 74 08 0f 0b 66 00 f0=20
 
-Code: 17 04 75 6d 8b 03 85 c0 74 67 83 f8 01 0f 84 3f 03 00 00 83 2d a0 58 45 c0 01 8b 03 83 f8 02 0f 84 1d 03 00 00 8b 73 28 8d 4b 20 <83> 2e 01 8b 51 04 39 0a 0f 85 fc 02 00 00 8b 43 20 39 48 04 0f
- <6>note: bash[462] exited with preempt_count 4
-bad: scheduling while atomic!
-Call Trace:
- [schedule+1017/1022] schedule+0x3f9/0x3fe
- [generic_file_aio_write_nolock+1574/2931] generic_file_aio_write_nolock+0x626/0xb73
- [vgacon_cursor+236/478] vgacon_cursor+0xec/0x1de
- [set_cursor+117/142] set_cursor+0x75/0x8e
- [vt_console_print+491/747] vt_console_print+0x1eb/0x2eb
- [generic_file_aio_write+137/253] generic_file_aio_write+0x89/0xfd
- [ext3_file_write+68/194] ext3_file_write+0x44/0xc2
- [do_sync_write+182/227] do_sync_write+0xb6/0xe3
- [vgacon_scroll+386/555] vgacon_scroll+0x182/0x22b
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [check_free_space+225/364] check_free_space+0xe1/0x16c
- [poke_blanked_console+92/111] poke_blanked_console+0x5c/0x6f
- [vt_console_print+521/747] vt_console_print+0x209/0x2eb
- [try_to_wake_up+160/410] try_to_wake_up+0xa0/0x19a
- [do_acct_process+637/653] do_acct_process+0x27d/0x28d
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [acct_process+72/132] acct_process+0x48/0x84
- [do_exit+135/1102] do_exit+0x87/0x44e
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [do_divide_error+0/250] do_divide_error+0x0/0xfa
- [do_page_fault+300/1113] do_page_fault+0x12c/0x459
- [do_notify_parent+329/1279] do_notify_parent+0x149/0x4ff
- [kill_fasync+48/82] kill_fasync+0x30/0x52
- [pipe_release+153/203] pipe_release+0x99/0xcb
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [error_code+45/56] error_code+0x2d/0x38
- [schedule+143/1022] schedule+0x8f/0x3fe
- [do_exit+625/1102] do_exit+0x271/0x44e
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [do_divide_error+0/250] do_divide_error+0x0/0xfa
- [do_page_fault+300/1113] do_page_fault+0x12c/0x459
- [__rmqueue+204/305] __rmqueue+0xcc/0x131
- [buffered_rmqueue+229/434] buffered_rmqueue+0xe5/0x1b2
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [error_code+45/56] error_code+0x2d/0x38
- [check_version+120/216] check_version+0x78/0xd8
- [schedule+143/1022] schedule+0x8f/0x3fe
- [pipe_wait+123/154] pipe_wait+0x7b/0x9a
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [pipe_read+319/573] pipe_read+0x13f/0x23d
- [update_process_times+70/82] update_process_times+0x46/0x52
- [vfs_read+176/281] vfs_read+0xb0/0x119
- [sys_read+66/99] sys_read+0x42/0x63
- [syscall_call+7/11] syscall_call+0x7/0xb
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-c0118d2d
-*pde = 00000000
-Oops: 0002 [#3]
-PREEMPT
-CPU:    0
-EIP:    0060:[schedule+143/1022]    Not tainted VLI
-EFLAGS: 00010006
-EIP is at schedule+0x8f/0x3fe
-eax: 00000008   ebx: d9bcb940   ecx: d9bcb960   edx: ffffffff
-esi: 00000000   edi: c04558a0   ebp: d9b39c30   esp: d9b39c08
-ds: 007b   es: 007b   ss: 0068
-Process bash (pid: 462, threadinfo=d9b38000 task=d9bcb940)
-Stack: 00000000 00000000 d9bcb990 0000000b d9bcb9e0 d9bcb940 c0132844 00000000
-       00000004 00000000 d9bcb940 c011e785 d9bcb940 00000000 000001ce 00000004
-       d9b39d2c d9b38000 c0116b5c d9bcb940 c010a006 0000000b c034e105 00000002
-Call Trace:
- [acct_process+79/132] acct_process+0x4f/0x84
- [do_exit+625/1102] do_exit+0x271/0x44e
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [do_divide_error+0/250] do_divide_error+0x0/0xfa
- [do_page_fault+300/1113] do_page_fault+0x12c/0x459
- [do_notify_parent+329/1279] do_notify_parent+0x149/0x4ff
- [kill_fasync+48/82] kill_fasync+0x30/0x52
- [pipe_release+153/203] pipe_release+0x99/0xcb
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [error_code+45/56] error_code+0x2d/0x38
- [schedule+143/1022] schedule+0x8f/0x3fe
- [do_exit+625/1102] do_exit+0x271/0x44e
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [do_divide_error+0/250] do_divide_error+0x0/0xfa
- [do_page_fault+300/1113] do_page_fault+0x12c/0x459
- [__rmqueue+204/305] __rmqueue+0xcc/0x131
- [buffered_rmqueue+229/434] buffered_rmqueue+0xe5/0x1b2
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [error_code+45/56] error_code+0x2d/0x38
- [check_version+120/216] check_version+0x78/0xd8
- [schedule+143/1022] schedule+0x8f/0x3fe
- [pipe_wait+123/154] pipe_wait+0x7b/0x9a
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [pipe_read+319/573] pipe_read+0x13f/0x23d
- [update_process_times+70/82] update_process_times+0x46/0x52
- [vfs_read+176/281] vfs_read+0xb0/0x119
- [sys_read+66/99] sys_read+0x42/0x63
- [syscall_call+7/11] syscall_call+0x7/0xb
+>>EIP; c0138e47 <__free_pages_ok+33/289>   <=3D=3D=3D=3D=3D
 
-Code: 17 04 75 6d 8b 03 85 c0 74 67 83 f8 01 0f 84 3f 03 00 00 83 2d a0 58 45 c0 01 8b 03 83 f8 02 0f 84 1d 03 00 00 8b 73 28 8d 4b 20 <83> 2e 01 8b 51 04 39 0a 0f 85 fc 02 00 00 8b 43 20 39 48 04 0f
- <6>note: bash[462] exited with preempt_count 6
-bad: scheduling while atomic!
-Call Trace:
- [schedule+1017/1022] schedule+0x3f9/0x3fe
- [generic_file_aio_write_nolock+1574/2931] generic_file_aio_write_nolock+0x626/0xb73
- [try_to_wake_up+160/410] try_to_wake_up+0xa0/0x19a
- [__down+268/290] __down+0x10c/0x122
- [default_wake_function+0/46] default_wake_function+0x0/0x2e
- [vt_console_print+491/747] vt_console_print+0x1eb/0x2eb
- [generic_file_aio_write+137/253] generic_file_aio_write+0x89/0xfd
- [ext3_file_write+68/194] ext3_file_write+0x44/0xc2
- [do_sync_write+182/227] do_sync_write+0xb6/0xe3
- [mempool_free+81/177] mempool_free+0x51/0xb1
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [check_free_space+225/364] check_free_space+0xe1/0x16c
- [poke_blanked_console+92/111] poke_blanked_console+0x5c/0x6f
- [vt_console_print+521/747] vt_console_print+0x209/0x2eb
- [try_to_wake_up+160/410] try_to_wake_up+0xa0/0x19a
- [do_acct_process+637/653] do_acct_process+0x27d/0x28d
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [acct_process+72/132] acct_process+0x48/0x84
- [do_exit+135/1102] do_exit+0x87/0x44e
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [do_divide_error+0/250] do_divide_error+0x0/0xfa
- [do_page_fault+300/1113] do_page_fault+0x12c/0x459
- [do_notify_parent+329/1279] do_notify_parent+0x149/0x4ff
- [try_to_wake_up+160/410] try_to_wake_up+0xa0/0x19a
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [error_code+45/56] error_code+0x2d/0x38
- [schedule+143/1022] schedule+0x8f/0x3fe
- [acct_process+79/132] acct_process+0x4f/0x84
- [do_exit+625/1102] do_exit+0x271/0x44e
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [do_divide_error+0/250] do_divide_error+0x0/0xfa
- [do_page_fault+300/1113] do_page_fault+0x12c/0x459
- [do_notify_parent+329/1279] do_notify_parent+0x149/0x4ff
- [kill_fasync+48/82] kill_fasync+0x30/0x52
- [pipe_release+153/203] pipe_release+0x99/0xcb
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [error_code+45/56] error_code+0x2d/0x38
- [schedule+143/1022] schedule+0x8f/0x3fe
- [do_exit+625/1102] do_exit+0x271/0x44e
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [do_divide_error+0/250] do_divide_error+0x0/0xfa
- [do_page_fault+300/1113] do_page_fault+0x12c/0x459
- [__rmqueue+204/305] __rmqueue+0xcc/0x131
- [buffered_rmqueue+229/434] buffered_rmqueue+0xe5/0x1b2
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [error_code+45/56] error_code+0x2d/0x38
- [check_version+120/216] check_version+0x78/0xd8
- [schedule+143/1022] schedule+0x8f/0x3fe
- [pipe_wait+123/154] pipe_wait+0x7b/0x9a
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [pipe_read+319/573] pipe_read+0x13f/0x23d
- [update_process_times+70/82] update_process_times+0x46/0x52
- [vfs_read+176/281] vfs_read+0xb0/0x119
- [sys_read+66/99] sys_read+0x42/0x63
- [syscall_call+7/11] syscall_call+0x7/0xb
+>>ebx; c16cbcc0 <_end+13239fc/3146ad9c>
+>>esi; d22f7090 <_end+11f4edcc/3146ad9c>
+>>esp; e42f1ca8 <_end+23f499e4/3146ad9c>
 
-I pressed alt_ctl+del here:
+Trace; c012f0a2 <zap_pte_range+108/13e>
+Trace; c0127315 <run_timer_list+137/15e>
+Trace; c012d83a <zap_page_range+83/f9>
+Trace; c01306e2 <exit_mmap+a5/17a>
+Trace; c011c692 <mmput+45/96>
+Trace; c01215f4 <do_exit+ca/262>
+Trace; c0109572 <do_invalid_op+0/6e>
+Trace; c010943b <do_divide_error+0/6e>
+Trace; c01095d9 <do_invalid_op+67/6e>
+Trace; c0139296 <rmqueue+1f9/21d>
+Trace; f1d8e857 <[jbd]__journal_file_buffer+df/23c>
+Trace; f1d8db1d <[jbd]journal_dirty_metadata+16f/222>
+Trace; f1da2b06 <[ext3]ext3_do_update_inode+168/402>
+Trace; c0108e78 <error_code+34/3c>
+Trace; c0139296 <rmqueue+1f9/21d>
+Trace; c01394e2 <__alloc_pages+3f/180>
+Trace; c012e250 <do_wp_page+51/25e>
+Trace; c012ebf5 <handle_mm_fault+122/124>
+Trace; c012fb49 <get_unmapped_area+86/115>
+Trace; c011a0d4 <do_page_fault+140/472>
+Trace; c010ebd0 <old_mmap+de/11d>
+Trace; c0119f94 <do_page_fault+0/472>
+Trace; c0108e78 <error_code+34/3c>
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-c0118d2d
-*pde = 00000000
-Oops: 0002 [#4]
-PREEMPT
-CPU:    0
-EIP:    0060:[schedule+143/1022]    Not tainted VLI
-EFLAGS: 00010006
-EIP is at schedule+0x8f/0x3fe
-eax: 00000008   ebx: d9bcb940   ecx: d9bcb960   edx: ffffffff
-esi: 00000000   edi: c04558a0   ebp: d9b39ad8   esp: d9b39ab0
-ds: 007b   es: 007b   ss: 0068
-Process bash (pid: 462, threadinfo=d9b38000 task=d9bcb940)
-Stack: 00000000 00000000 d9bcb990 0000000b d9bcb9e0 d9bcb940 c0132844 00000000
-       00000006 00000000 d9bcb940 c011e785 d9bcb940 00000000 000001ce 00000006
-       d9b39bd4 d9b38000 c0116b5c d9bcb940 c010a006 0000000b c034e105 00000002
-Call Trace:
- [acct_process+79/132] acct_process+0x4f/0x84
- [do_exit+625/1102] do_exit+0x271/0x44e
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [do_divide_error+0/250] do_divide_error+0x0/0xfa
- [do_page_fault+300/1113] do_page_fault+0x12c/0x459
- [do_notify_parent+329/1279] do_notify_parent+0x149/0x4ff
- [try_to_wake_up+160/410] try_to_wake_up+0xa0/0x19a
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [error_code+45/56] error_code+0x2d/0x38
- [schedule+143/1022] schedule+0x8f/0x3fe
- [acct_process+79/132] acct_process+0x4f/0x84
- [do_exit+625/1102] do_exit+0x271/0x44e
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [do_divide_error+0/250] do_divide_error+0x0/0xfa
- [do_page_fault+300/1113] do_page_fault+0x12c/0x459
- [do_notify_parent+329/1279] do_notify_parent+0x149/0x4ff
- [kill_fasync+48/82] kill_fasync+0x30/0x52
- [pipe_release+153/203] pipe_release+0x99/0xcb
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [error_code+45/56] error_code+0x2d/0x38
- [schedule+143/1022] schedule+0x8f/0x3fe
- [do_exit+625/1102] do_exit+0x271/0x44e
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [do_divide_error+0/250] do_divide_error+0x0/0xfa
- [do_page_fault+300/1113] do_page_fault+0x12c/0x459
- [__rmqueue+204/305] __rmqueue+0xcc/0x131
- [buffered_rmqueue+229/434] buffered_rmqueue+0xe5/0x1b2
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [error_code+45/56] error_code+0x2d/0x38
- [check_version+120/216] check_version+0x78/0xd8
- [schedule+143/1022] schedule+0x8f/0x3fe
- [pipe_wait+123/154] pipe_wait+0x7b/0x9a
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [pipe_read+319/573] pipe_read+0x13f/0x23d
- [update_process_times+70/82] update_process_times+0x46/0x52
- [vfs_read+176/281] vfs_read+0xb0/0x119
- [sys_read+66/99] sys_read+0x42/0x63
- [syscall_call+7/11] syscall_call+0x7/0xb
+Code;  c0138e47 <__free_pages_ok+33/289>
+00000000 <_EIP>:
+Code;  c0138e47 <__free_pages_ok+33/289>   <=3D=3D=3D=3D=3D
+   0:   0f 0b                     ud2a      <=3D=3D=3D=3D=3D
+Code;  c0138e49 <__free_pages_ok+35/289>
+   2:   64                        fs
+Code;  c0138e4a <__free_pages_ok+36/289>
+   3:   00 f0                     add    %dh,%al
+Code;  c0138e4c <__free_pages_ok+38/289>
+   5:   39 2b                     cmp    %ebp,(%ebx)
+Code;  c0138e4e <__free_pages_ok+3a/289>
+   7:   c0 8b 53 08 85 d2 74      rorb   $0x74,0xd2850853(%ebx)
+Code;  c0138e55 <__free_pages_ok+41/289>
+   e:   08 0f                     or     %cl,(%edi)
+Code;  c0138e57 <__free_pages_ok+43/289>
+  10:   0b 66 00                  or     0x0(%esi),%esp
+Code;  c0138e5a <__free_pages_ok+46/289>
+  13:   f0 00 00                  lock add %al,(%eax)
 
-Code: 17 04 75 6d 8b 03 85 c0 74 67 83 f8 01 0f 84 3f 03 00 00 83 2d a0 58 45 c0 01 8b 03 83 f8 02 0f 84 1d 03 00 00 8b 73 28 8d 4b 20 <83> 2e 01 8b 51 04 39 0a 0f 85 fc 02 00 00 8b 43 20 39 48 04 0f
- <6>note: bash[462] exited with preempt_count 8
-bad: scheduling while atomic!
-Call Trace:
- [schedule+1017/1022] schedule+0x3f9/0x3fe
- [generic_file_aio_write_nolock+1574/2931] generic_file_aio_write_nolock+0x626/0xb73
- [try_to_wake_up+160/410] try_to_wake_up+0xa0/0x19a
- [__down+268/290] __down+0x10c/0x122
- [default_wake_function+0/46] default_wake_function+0x0/0x2e
- [vt_console_print+491/747] vt_console_print+0x1eb/0x2eb
- [generic_file_aio_write+137/253] generic_file_aio_write+0x89/0xfd
- [ext3_file_write+68/194] ext3_file_write+0x44/0xc2
- [do_sync_write+182/227] do_sync_write+0xb6/0xe3
- [vgacon_scroll+386/555] vgacon_scroll+0x182/0x22b
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [check_free_space+225/364] check_free_space+0xe1/0x16c
- [poke_blanked_console+92/111] poke_blanked_console+0x5c/0x6f
- [vt_console_print+521/747] vt_console_print+0x209/0x2eb
- [try_to_wake_up+160/410] try_to_wake_up+0xa0/0x19a
- [do_acct_process+637/653] do_acct_process+0x27d/0x28d
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [acct_process+72/132] acct_process+0x48/0x84
- [do_exit+135/1102] do_exit+0x87/0x44e
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [do_divide_error+0/250] do_divide_error+0x0/0xfa
- [do_page_fault+300/1113] do_page_fault+0x12c/0x459
- [do_notify_parent+329/1279] do_notify_parent+0x149/0x4ff
- [try_to_wake_up+160/410] try_to_wake_up+0xa0/0x19a
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [error_code+45/56] error_code+0x2d/0x38
- [schedule+143/1022] schedule+0x8f/0x3fe
- [acct_process+79/132] acct_process+0x4f/0x84
- [do_exit+625/1102] do_exit+0x271/0x44e
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [do_divide_error+0/250] do_divide_error+0x0/0xfa
- [do_page_fault+300/1113] do_page_fault+0x12c/0x459
- [do_notify_parent+329/1279] do_notify_parent+0x149/0x4ff
- [try_to_wake_up+160/410] try_to_wake_up+0xa0/0x19a
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [error_code+45/56] error_code+0x2d/0x38
- [schedule+143/1022] schedule+0x8f/0x3fe
- [acct_process+79/132] acct_process+0x4f/0x84
- [do_exit+625/1102] do_exit+0x271/0x44e
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [do_divide_error+0/250] do_divide_error+0x0/0xfa
- [do_page_fault+300/1113] do_page_fault+0x12c/0x459
- [do_notify_parent+329/1279] do_notify_parent+0x149/0x4ff
- [kill_fasync+48/82] kill_fasync+0x30/0x52
- [pipe_release+153/203] pipe_release+0x99/0xcb
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [error_code+45/56] error_code+0x2d/0x38
- [schedule+143/1022] schedule+0x8f/0x3fe
- [do_exit+625/1102] do_exit+0x271/0x44e
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [do_divide_error+0/250] do_divide_error+0x0/0xfa
- [do_page_fault+300/1113] do_page_fault+0x12c/0x459
- [__rmqueue+204/305] __rmqueue+0xcc/0x131
- [buffered_rmqueue+229/434] buffered_rmqueue+0xe5/0x1b2
- [do_page_fault+0/1113] do_page_fault+0x0/0x459
- [error_code+45/56] error_code+0x2d/0x38
- [check_version+120/216] check_version+0x78/0xd8
- [schedule+143/1022] schedule+0x8f/0x3fe
- [pipe_wait+123/154] pipe_wait+0x7b/0x9a
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [autoremove_wake_function+0/79] autoremove_wake_function+0x0/0x4f
- [pipe_read+319/573] pipe_read+0x13f/0x23d
- [update_process_times+70/82] update_process_times+0x46/0x52
- [vfs_read+176/281] vfs_read+0xb0/0x119
- [sys_read+66/99] sys_read+0x42/0x63
- [syscall_call+7/11] syscall_call+0x7/0xb
+
+1 warning issued.  Results may not be reliable.
+
+
+If there is anything I can do to assist debugging, let me know.
+
+--=20
+Anders Karlsson <anders@trudheim.com>
+Trudheim Technology Limited
+
+--=-C3DG2J+JCNKpZlRIRqN7
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
+
+iD8DBQA/CXwdLYywqksgYBoRAqu1AKDL5SagwyzQTdahiX9kHl9YJbHXAgCgz8uD
+TfCU8KGeISlwqTqsDjrBGak=
+=qMUz
+-----END PGP SIGNATURE-----
+
+--=-C3DG2J+JCNKpZlRIRqN7--
+

@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266976AbTAZUqs>; Sun, 26 Jan 2003 15:46:48 -0500
+	id <S266986AbTAZUyl>; Sun, 26 Jan 2003 15:54:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266977AbTAZUqs>; Sun, 26 Jan 2003 15:46:48 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:14736 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266976AbTAZUqr>;
-	Sun, 26 Jan 2003 15:46:47 -0500
-Date: Sun, 26 Jan 2003 21:55:49 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: Dell Latitude CPi keyboard problems since 2.5.42
-Message-ID: <20030126215549.E3694@ucw.cz>
-References: <200301261439.PAA08423@harpo.it.uu.se>
+	id <S266987AbTAZUyl>; Sun, 26 Jan 2003 15:54:41 -0500
+Received: from moutng.kundenserver.de ([212.227.126.187]:22726 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S266986AbTAZUyk>; Sun, 26 Jan 2003 15:54:40 -0500
+Date: Sun, 26 Jan 2003 22:57:14 +0100
+From: Christian Zander <zander@minion.de>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Christian Zander <zander@minion.de>, Mark Fasheh <mark.fasheh@oracle.com>,
+       Thomas Schlichter <schlicht@uni-mannheim.de>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: no version magic, tainting kernel.
+Message-ID: <20030126215714.GA394@kugai>
+Reply-To: Christian Zander <zander@minion.de>
+References: <20030126132923.GB396@kugai> <Pine.LNX.4.44.0301261144430.15538-100000@chaos.physics.uiowa.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200301261439.PAA08423@harpo.it.uu.se>; from mikpe@csd.uu.se on Sun, Jan 26, 2003 at 03:39:44PM +0100
+In-Reply-To: <Pine.LNX.4.44.0301261144430.15538-100000@chaos.physics.uiowa.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 26, 2003 at 03:39:44PM +0100, Mikael Pettersson wrote:
-> On Sat, 25 Jan 2003 15:02:16 +0100, Vojtech Pavlik wrote:
-> >Do the symptoms persist when you disable AT keyboard support completely?
-> >(You'll need a different way to control the machine - USB or Ethernet
-> >for the test.)
+On Sun, Jan 26, 2003 at 11:51:22AM -0600, Kai Germaschewski wrote:
 > 
-> Disabling CONFIG_KEYBOARD_ATKBD (but keeping SERIO_I8042 and
-> MOUSE_PS2 enabled) eliminates the BIOS keyboard error on my
-> Latitude when rebooting after running 2.5.59.
+> Well, what I'm trying to say is that external build system will
+> always break one way or other. Since they're external, they're
+> naturally out of reach for me to influence, so there's really
+> nothing I can do it but telling people to using the internal system
+> instead.
+> 
 
-Hmm, interesting. Can you try disabling some of the probes for extended
-keyboards in atkbd.c to see if some of them could confuse your keyboard
-so that the BIOS doesn't like it after boot? Also you may want to kill
-the keyboard reset on reboot ... (atkbd_cleanup) ...
+External build systems have been working just fine even after kbuild
+was adopted as the build system of choice for the Linux kernel, there
+should be more convincing reasons for deliberately breaking them now.
+
+> Again, when you're using your own external build system, it's up to
+> you to mess it up in all possible ways, the above being one of them.
+> 
+> When you're using the kernel build, the above cannot happen, since
+> the kernel build system knows about this dependency and builds a new
+> init/vermagic.o with the correct information before it gets linked
+> into the external module.
+> 
+
+Is that so? Does kbuild determine that vermagic.o needs rebuilding if
+the compiler version changed?
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+christian zander
+zander@minion.de

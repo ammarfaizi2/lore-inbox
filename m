@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263909AbRFNSsH>; Thu, 14 Jun 2001 14:48:07 -0400
+	id <S263958AbRFNTAt>; Thu, 14 Jun 2001 15:00:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263927AbRFNSr5>; Thu, 14 Jun 2001 14:47:57 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:43186 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263925AbRFNSrm>;
-	Thu, 14 Jun 2001 14:47:42 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S263960AbRFNTAj>; Thu, 14 Jun 2001 15:00:39 -0400
+Received: from femail1.rdc1.on.home.com ([24.2.9.88]:64976 "EHLO
+	femail1.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S263958AbRFNTA2>; Thu, 14 Jun 2001 15:00:28 -0400
+Date: Thu, 14 Jun 2001 15:00:21 -0400 (EDT)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: Colonel <klink@clouddancer.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: obsolete code must die
+In-Reply-To: <20010614010834.2ECD678599@mail.clouddancer.com>
+Message-ID: <Pine.LNX.4.33.0106141459160.26171-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+X-Spam-To: uce@ftc.gov
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15145.1739.395626.842663@pizda.ninka.net>
-Date: Thu, 14 Jun 2001 11:47:39 -0700 (PDT)
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik), tom_gall@vnet.ibm.com (Tom Gall),
-        linux-kernel@vger.kernel.org
-Subject: Re: Going beyond 256 PCI buses
-In-Reply-To: <200106141801.f5EI13s413231@saturn.cs.uml.edu>
-In-Reply-To: <15144.51504.8399.395200@pizda.ninka.net>
-	<200106141801.f5EI13s413231@saturn.cs.uml.edu>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 13 Jun 2001, Colonel wrote:
 
-Albert D. Cahalan writes:
- >    You've added an ioctl. This isn't just any ioctl. It's a
- >    wicked nasty ioctl. It's an OH MY GOD YOU CAN'T BE SERIOUS
- >    ioctl by any standard.
+>>I really think doing a clean up is worthwhile. Maybe while looking for stuff
+>
+>You left out all the old non-IDE CDROM drives.
 
-It's an ioctl which allows things to work properly in the framework we
-currently have.
+And also UP systems.  I've got 2 SMP boxes here now.  Why not
+remove support for any system with less than 2 processors?  ;o)
 
- >    Fix:
- > 
- >    /proc/bus/PCI/0/0/3/0/config   config space
+I'll just have to replace my 486 firewall with the dual 486 in
+the closet.  ;o)
 
-Which breaks xfree86 instantly.  This fix is unacceptable.
 
-In fact, the current ioctl/mmap machanism was discussed with and
-agreed to by the PPC, Alpha, and Sparc64 folks.
+----------------------------------------------------------------------
+    Mike A. Harris  -  Linux advocate  -  Open Source advocate
+       Opinions and viewpoints expressed are solely my own.
+----------------------------------------------------------------------
+If Bill Gates had a dime for every time Windows crashed, he'd be rich!
 
-Later,
-David S. Miller
-davem@redhat.com

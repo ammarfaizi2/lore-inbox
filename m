@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286893AbSBIUMq>; Sat, 9 Feb 2002 15:12:46 -0500
+	id <S287388AbSBIUN3>; Sat, 9 Feb 2002 15:13:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286895AbSBIUMi>; Sat, 9 Feb 2002 15:12:38 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50187 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S286893AbSBIUMW>;
-	Sat, 9 Feb 2002 15:12:22 -0500
-Message-ID: <3C658272.8C517D55@zip.com.au>
-Date: Sat, 09 Feb 2002 12:11:30 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S287111AbSBIUNR>; Sat, 9 Feb 2002 15:13:17 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:28174 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S287306AbSBIUNM>; Sat, 9 Feb 2002 15:13:12 -0500
+Date: Sat, 9 Feb 2002 21:12:52 +0100
+From: Stelian Pop <stelian.pop@fr.alcove.com>
 To: Linus Torvalds <torvalds@transmeta.com>
-CC: Hugh Dickins <hugh@veritas.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] BUG preserve registers
-In-Reply-To: <3C6579DB.E93DAD92@zip.com.au> <Pine.LNX.4.33.0202091335340.1196-100000@home.transmeta.com>
+Cc: linux-kernel@vger.kernel.org, Andreas Dilger <adilger@turbolabs.com>
+Subject: Re: pull vs push (was Re: [bk patch] Make cardbus compile in -pre4)
+Message-ID: <20020209201252.GD32401@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+In-Reply-To: <20020209181213.GA32401@come.alcove-fr> <Pine.LNX.4.33.0202091241080.1196-100000@home.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0202091241080.1196-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Sat, 9 Feb 2002, Andrew Morton wrote:
-> > >
-> >
-> > Is better, except the filename gets expanded multipe times into
-> > the object file.  How about:
-> >
-> > #define BUG()                   \
-> >         asm(    "ud2\n"         \
-> >                 "\t.word %0\n"  \
-> >                 "\t.long %1\n"  \
-> >                  : : "i" (__LINE__), "i" (__FILE__))
-> 
-> Even better.
-> 
-> That way you can actually totally remove the "verbose bug" config option,
-> because even the verbose BUG's aren't actually using up any noticeable
-> amounts of space.
-> 
-> This is all assuming that gcc doesn't create the string for inline
-> functions that aren't used, which it probably cannot, so maybe this
-> doesn't work out.
-> 
+On Sat, Feb 09, 2002 at 12:59:16PM -0800, Linus Torvalds wrote:
 
-gcc generally get it wrong - unreferenced strings still appear
-in the object code from multiple usage patterns.  I think this
-was fixed about six months ago.
+> Right now the "definitive" bk repository is on master.kernel.org, which
+> can only be accessed by people who have accounts there.
+> 
+> I also push it to my private version on bkbits.net, and it is supposed to
+> be automatically then pushed onwards to the public one that is at
+> http://linux.bkbits.net:8080/linux-2.5, but the infrastructure for that
+> isn't yet working.
 
-But yes, the verbose BUG overhead is now six bytes per BUG, plus
-a few bytes per file for the filename.  And it's my opinion that
-the non-verbose BUG option is undesirable - it's making the
-developers' job harder.  Seems that with this change, the reasons
-for CONFIG_DEBUG_BUGVERBOSE are no longer with us, and it can
-disappear.
+Ok, understood. While waiting for a 'proper' infrastructure', maybe
+a simple cron entry will do the job ? (since the bk pull from your
+private tree on bkbits to the public tree on bkbits is not supposed
+to ever fail or have merge errors...)
 
--
+Anyway, just did a 'bk pull' once again and noticed than linux.bkbits.net
+has again the latest version. Thanks! (or thanks Larry, whatever is 
+more appropriate :-)).
+
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

@@ -1,164 +1,216 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136611AbREANpF>; Tue, 1 May 2001 09:45:05 -0400
+	id <S135314AbREANsQ>; Tue, 1 May 2001 09:48:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136613AbREANo4>; Tue, 1 May 2001 09:44:56 -0400
-Received: from cp26357-a.gelen1.lb.nl.home.com ([213.51.0.86]:21854 "HELO
-	lunchbox.oisec.net") by vger.kernel.org with SMTP
-	id <S136611AbREANoo>; Tue, 1 May 2001 09:44:44 -0400
-Date: Tue, 1 May 2001 15:44:37 +0200
-From: Cliff Albert <cliff@oisec.net>
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: 2.4.4, 2.4.4-ac1, 2.4.4-ac2, neighbour discovery bug (ipv6)
-Message-ID: <20010501154437.A23200@oisec.net>
-Mime-Version: 1.0
+	id <S136522AbREANsG>; Tue, 1 May 2001 09:48:06 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:35240 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S135314AbREANrp>; Tue, 1 May 2001 09:47:45 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Linus Torvalds <torvalds@transmeta.com>, Stephen Tweedie <sct@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        MM mailing list <linux-mm@kvack.org>
+Subject: [Patch] deadlock on write in tmpfs
+Organisation: SAP LinuxLab
+Message-ID: <m3hez5ci6p.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+Date: 01 May 2001 15:39:47 +0200
+X-SAP: out
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus and Stephen,
 
-When i traceroute6 my 2.4.4 box on my local lan, the 2.4.4 box panic's after about 10 seconds. The traceroute6 completes on the other box.
+tmpfs deadlocks when writing into a file from a mapping of the same
+file. 
 
-2.4.3-ac14 doesn't experience these problems. Only 2.4.4 (with or without ac{1,2}) panics
+The problem is the following:
 
----- traceroute6 output ----
-traceroute to neve.oisec.net (3ffe:8114:2000:0:250:bfff:fe21:629a) from 3ffe:8114:2000:0:210:4bff:feb3:1fb4, 30 hops max, 16 byte packets
- 1  neve.oisec.net (3ffe:8114:2000:0:250:bfff:fe21:629a)  0.583 ms  0.278 ms  0.233 ms
+- shmem_file_write may call shmem_no_page and calls
+  shmem_getpage_locked later,
+- shmem_no_page calls shmem_getpage_locked
+- shmem_getpage_locked may call shmem_writepage on page allocation
 
+- shmem_file_write holds the inode semaphore
+- shmem_getpage_locked prevent races against shmem_writepage with the
+  shmem spinlock
+- shmem_getpage_locked needs serialization against itself and
+  shmem_truncate
 
-wait 10 seconds and the following appears (unfortunately no stack dumps :()
+The last was done with the inode semaphore, which deadlocks with
+shmem_write
 
----- panic info 2.4.4-ac2 ----
-CPU	0
-EIP	0010:[<c0217314>]
-EFLAGS  00010206
-eax: c13c2060
-ebx: fffffffd
-ecx: 00000000
-edx: ca65b1dc
-esi: 00000000
-edi: 00000018
-ebp: cbf72000
-esp: c029feb0
-ds:  0018
-es:  0018
-ss:  0018
-Process swapper (pid: 0, stackpage=c029f000)
+So I see two choices: 
 
-Call Trace:
+1) Do not serialise the whole of shmem_getpage_locked but protect
+   critical pathes with the spinlock and do retries after sleeps
+2) Add another semaphore to serialize shmem_getpage_locked and
+   shmem_truncate
 
- c021e828 [ndisc_send_ns]
- c01e912c [deliver_to_old_ones]
- c021ecfd [ndisc_error_report]
- c01efd2b [ip_route_input_slow]
- c01eb7ab [neigh_timer_handler]
- c01eb664 [neigh_timer_handler]
- c0119f12 [timer_bh]
- c010b2db [timer_interrupt]
- c0116e5f [bh_action]
- c0116d98 [tasklet_hi_action]
- c0116c9f [do_softirq]
- c0107e41 [do_IRQ]
- c0105120 [default_idle]
- c0105120 [default_idle]
- c0106b14 [ret_from_intr]
- c0105120 [default_idle]
- c0105120 [default_idle]
- c0100018 [startup_32]
- c0105143 [default_idle]
- c01051a9 [cpu_idle]
- c0105000 [init]
- c0100197 [L6]
+I tried some time to get 1) done but the retry logic became way too
+complicated. So the attached patch implements 2)
 
----- panic info 2.4.4-ac1 ----
-CPU	0
-EIP	0010:[<c0217354>]
-EFLAGS  00010206
-eax: c13c2060
-ebx: fffffffd
-ecx: 00000000
-edx: cb73e35c
-esi: 00000000
-edi: 00000018
-ebp: cbf72000
-esp: c029feb0
-ds:  0018
-es:  0018
-ss:  0018
-Process swapper (pid: 0, stackpage=c029f000)
+I still think it's ugly to add another semaphore, but it works.
 
-Call Trace:
+Greetings
+		Christoph
 
- c021e868 [ndisc_send_ns]
- c01e916c [deliver_to_old_ones]
- c021ed3d [ndisc_error_report]
- c01e5d6b [ip_route_input_slow]
- c01eb7eb [neigh_timer_handler]
- c01eb6a4 [neigh_timer_handler]
- c0119f02 [timer_bh]
- c010b2db [timer_interrupt]
- c0116e4f [bh_action]
- c0116d88 [tasklet_hi_action]
- c0116c8f [do_softirq]
- c0107e41 [do_IRQ]
- c0105120 [default_idle]
- c0105120 [default_idle]
- c0106b14 [ret_from_intr]
- c0105120 [default_idle]
- c0105120 [default_idle]
- c0100018 [startup_32]
- c0105143 [default_idle]
- c01051a9 [cpu_idle]
- c0105000 [init]
- c0100197 [L6]
+diff -uNr 2.4.4/include/linux/shmem_fs.h c/include/linux/shmem_fs.h
+--- 2.4.4/include/linux/shmem_fs.h	Sun Apr 29 20:33:00 2001
++++ c/include/linux/shmem_fs.h	Sun Apr 29 22:43:56 2001
+@@ -19,6 +19,7 @@
+ 
+ struct shmem_inode_info {
+ 	spinlock_t	lock;
++	struct semaphore sem;
+ 	unsigned long	max_index;
+ 	swp_entry_t	i_direct[SHMEM_NR_DIRECT]; /* for the first blocks */
+ 	swp_entry_t   **i_indirect; /* doubly indirect blocks */
+diff -uNr 2.4.4/mm/shmem.c c/mm/shmem.c
+--- 2.4.4/mm/shmem.c	Mon Apr 30 09:45:39 2001
++++ c/mm/shmem.c	Tue May  1 15:15:38 2001
+@@ -161,6 +161,7 @@
+ 	swp_entry_t **base, **ptr, **last;
+ 	struct shmem_inode_info * info = &inode->u.shmem_i;
+ 
++	down(&info->sem);
+ 	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
+ 	spin_lock (&info->lock);
+ 	index = (inode->i_size + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
+@@ -197,6 +198,7 @@
+ 	info->swapped -= freed;
+ 	shmem_recalc_inode(inode);
+ 	spin_unlock (&info->lock);
++	up(&info->sem);
+ }
+ 
+ static void shmem_delete_inode(struct inode * inode)
+@@ -281,15 +283,12 @@
+  * still need to guard against racing with shm_writepage(), which might
+  * be trying to move the page to the swap cache as we run.
+  */
+-static struct page * shmem_getpage_locked(struct inode * inode, unsigned long idx)
++static struct page * shmem_getpage_locked(struct shmem_inode_info *info, struct inode * inode, unsigned long idx)
+ {
+ 	struct address_space * mapping = inode->i_mapping;
+-	struct shmem_inode_info *info;
+ 	struct page * page;
+ 	swp_entry_t *entry;
+ 
+-	info = &inode->u.shmem_i;
+-
+ repeat:
+ 	page = find_lock_page(mapping, idx);
+ 	if (page)
+@@ -393,6 +392,7 @@
+ 
+ static int shmem_getpage(struct inode * inode, unsigned long idx, struct page **ptr)
+ {
++	struct shmem_inode_info *info;
+ 	struct address_space * mapping = inode->i_mapping;
+ 	int error;
+ 
+@@ -407,27 +407,28 @@
+ 		page_cache_release(*ptr);
+ 	}
+ 
+-	down (&inode->i_sem);
+-	/* retest we may have slept */
++	info = &inode->u.shmem_i;
++	down (&info->sem);
++	/* retest we may have slept */  	
++
++	*ptr = ERR_PTR(-EFAULT);
+ 	if (inode->i_size < (loff_t) idx * PAGE_CACHE_SIZE)
+-		goto sigbus;
+-	*ptr = shmem_getpage_locked(inode, idx);
++		goto failed;
++
++	*ptr = shmem_getpage_locked(&inode->u.shmem_i, inode, idx);
+ 	if (IS_ERR (*ptr))
+ 		goto failed;
++
+ 	UnlockPage(*ptr);
+-	up (&inode->i_sem);
++	up (&info->sem);
+ 	return 0;
+ failed:
+-	up (&inode->i_sem);
++	up (&info->sem);
+ 	error = PTR_ERR(*ptr);
+-	*ptr = NOPAGE_OOM;
+-	if (error != -EFBIG)
+-		*ptr = NOPAGE_SIGBUS;
+-	return error;
+-sigbus:
+-	up (&inode->i_sem);
+ 	*ptr = NOPAGE_SIGBUS;
+-	return -EFAULT;
++	if (error == -ENOMEM)
++		*ptr = NOPAGE_OOM;
++	return error;
+ }
+ 
+ struct page * shmem_nopage(struct vm_area_struct * vma, unsigned long address, int no_share)
+@@ -500,6 +501,7 @@
+ struct inode *shmem_get_inode(struct super_block *sb, int mode, int dev)
+ {
+ 	struct inode * inode;
++	struct shmem_inode_info *info;
+ 
+ 	spin_lock (&sb->u.shmem_sb.stat_lock);
+ 	if (!sb->u.shmem_sb.free_inodes) {
+@@ -519,7 +521,9 @@
+ 		inode->i_rdev = to_kdev_t(dev);
+ 		inode->i_mapping->a_ops = &shmem_aops;
+ 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+-		spin_lock_init (&inode->u.shmem_i.lock);
++		info = &inode->u.shmem_i;
++		spin_lock_init (&info->lock);
++		sema_init (&info->sem, 1);
+ 		switch (mode & S_IFMT) {
+ 		default:
+ 			init_special_inode(inode, mode, dev);
+@@ -549,6 +553,7 @@
+ shmem_file_write(struct file *file,const char *buf,size_t count,loff_t *ppos)
+ {
+ 	struct inode	*inode = file->f_dentry->d_inode; 
++	struct shmem_inode_info *info;
+ 	unsigned long	limit = current->rlim[RLIMIT_FSIZE].rlim_cur;
+ 	loff_t		pos;
+ 	struct page	*page;
+@@ -624,7 +629,11 @@
+ 			__get_user(dummy, buf+bytes-1);
+ 		}
+ 
+-		page = shmem_getpage_locked(inode, index);
++		info = &inode->u.shmem_i;
++		down (&info->sem);
++		page = shmem_getpage_locked(info, inode, index);
++		up (&info->sem);
++
+ 		status = PTR_ERR(page);
+ 		if (IS_ERR(page))
+ 			break;
+@@ -635,7 +644,6 @@
+ 		}
+ 
+ 		kaddr = kmap(page);
+-// can this do a truncated write? cr
+ 		status = copy_from_user(kaddr+offset, buf, bytes);
+ 		kunmap(page);
+ 		if (status)
+@@ -932,7 +940,7 @@
+ 		
+ 	inode = dentry->d_inode;
+ 	down(&inode->i_sem);
+-	page = shmem_getpage_locked(inode, 0);
++	page = shmem_getpage_locked(&inode->u.shmem_i, inode, 0);
+ 	if (IS_ERR(page))
+ 		goto fail;
+ 	kaddr = kmap(page);
 
----- panic info 2.4.4 ----
-
-CPU	0
-EIP	0010:[<c021aa64>]
-EFLAGS  00010206
-eax: c13e3060
-ebx: fffffffd
-ecx: 00000000
-edx: c80ef3dc
-esi: 00000000
-edi: 00000018
-ebp: cbf7ac00
-esp: c02b9eb0
-ds:  0018
-es:  0018
-ss:  0018
-Process swapper (pid: 0, stackpage=c02b9000)
-
-Call Trace:
-
- c0221fe8 [ndisc_send_ns]
- c01ec2bc [deliver_to_old_ones]
- c02224ed [ndisc_error_report]
- c01e8d0b [ip_route_input_slow]
- c01ee93b [neigh_timer_handler]
- c01ee7f4 [neigh_timer_handler]
- c0119402 [timer_bh]
- c010aa3c [timer_interrupt]
- c011634f [bh_action]
- c0116288 [tasklet_hi_action]
- c011618f [do_softirq]
- c0107ec1 [do_IRQ]
- c0105120 [default_idle]
- c0105120 [default_idle]
- c0106b24 [ret_from_intr]
- c0105120 [default_idle]
- c0105120 [default_idle]
- c0100018 [startup_32]
- c0105143 [default_idle]
- c01051a9 [cpu_idle]
- c0105000 [init]
- c0100197 [L6]
-
-
--- 
-Cliff Albert		| IRCNet:    #linux.nl, #ne2000, #linux, #freebsd.nl
-cliff@oisec.net		| 	     #openbsd, #ipv6, #cu2.nl
--[ICQ: 18461740]--------| 6BONE:     CA2-6BONE       RIPE:     CA3348-RIPE

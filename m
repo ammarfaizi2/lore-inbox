@@ -1,89 +1,162 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278959AbRKAOGN>; Thu, 1 Nov 2001 09:06:13 -0500
+	id <S278932AbRKAOLC>; Thu, 1 Nov 2001 09:11:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278960AbRKAOGC>; Thu, 1 Nov 2001 09:06:02 -0500
-Received: from h55p103-2.delphi.afb.lu.se ([130.235.187.175]:58758 "EHLO gin")
-	by vger.kernel.org with ESMTP id <S278959AbRKAOFt>;
-	Thu, 1 Nov 2001 09:05:49 -0500
-Date: Thu, 1 Nov 2001 15:05:47 +0100
-To: linux-kernel@vger.kernel.org
-Subject: oops 2.4.13
-Message-ID: <20011101150547.A584@h55p111.delphi.afb.lu.se>
+	id <S278967AbRKAOKx>; Thu, 1 Nov 2001 09:10:53 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:519 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S278932AbRKAOKn>;
+	Thu, 1 Nov 2001 09:10:43 -0500
+Date: Thu, 1 Nov 2001 15:10:33 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: G?rard Roudier <groudier@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The good, the bad & the ugly (or VM, block devices, and SCSI :-)
+Message-Id: <20011101151033.1253900c.skraw@ithnet.com>
+In-Reply-To: <20011031181002.C1629-100000@gerard>
+In-Reply-To: <20011031164539.29c04ee0.skraw@ithnet.com>
+	<20011031181002.C1629-100000@gerard>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-From: andersg@0x63.nu
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Wed, 31 Oct 2001 18:29:25 +0100 (CET) Gérard Roudier <groudier@free.fr>
+wrote:
 
-got another oops on my smp-PII-system today with 2.4.13 with lvm1.0.1-rc4.
-The network load is pretty high on this machine. It has four ide-chains
-fully populated with disks with quite some activity at times (running as ftp
-and webserver).
+> > A29160:                                     symbios:
+> >
+> > cd read without nfs-load:                   cd read without nfs-load
+> > 2998,9 kB                                   3619,3 kB
+> > 3168,2 kB                                   3611,1 kB
+> > 2968,4 kB                                   3620,2 kB
+> >
+> > cd read with nfs load:                      cd read with nfs load
+> > 1926,2 kB                                   3408,1 kB
+> > 2123,4 kB                                   3395,2 kB
+> > 2539,4 kB                                   3605,1 kB
+> > 2631,9 kB                                   3605,8 kB
+> >
+> > [...]
+> > My personal opinion: Justin has work to do.
+> 
+> Agreed here. Justin should write a clean SCSI access method for Linux for
+> free as he did for FreeBSD. :-)
 
-As far as i can see, its task_list that is currupted in the buffer_head (am
-i right?). After this oops the nmi-watchdog detects a deadlock on the other
-processor because it's waiting on a lock, but that isn't relevant for
-analyzing this problem, is it?
+Just to make that clear: its not that I am in the position of _expecting_
+anything. I only want to give a clear hint what (according to my limited
+knowledge) the problem might be, and who could possibly solve it.
 
-Decoded it looks like this:
+> Just considering the CD read thoughtput differences, we cannot get any
+> useful information that applies to software driver differences from your
+> report. Given the very low throughput it involves (about 3 MB/s) compared
+> to the capabilities of the controllers (160 MB/s), the results should be
+> explainable by something related to difference in configuration or to some
+> hardware or kernel weirdness.
 
-Unable to handle kernel paging request at virtual address 6361661c
-c0114b90
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c0114b90>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010893
-eax: dba7ebec   ebx: 63616620   ecx: 00000001   edx: 00000003
-esi: c14b0180   edi: dba7ebe8   ebp: cd183ee8   esp: cd183ecc
-ds: 0018   es: 0018   ss: 0018
-Process lftp (pid: 27738, stackpage=cd183000)
-Stack: dba7ebe8 c14b0180 00000002 dba7ebec 00000001 00000086 00000003 00000001
-       c013476d dba7eba0 c0135207 dba7eba0 dbf1d680 00000008 c0194509 dba7eba0
-       00000001 dbf1d680 00000096 dbf61c60 c02c1ba0 c0198947 dbf1d680 00000001
-Call Trace: [<c013476d>] [<c0135207>] [<c0194509>] [<c0198947>] [<c019d208>]
-   [<c019a261>] [<c019d1a0>] [<c0108411>] [<c01085f6>] [<c010a638>]
-Code: 8b 4b fc 8b 01 85 45 fc 74 66 31 c0 9c 5e fa f0 fe 0d 00 08
+Well, what more can you expect from me, than the simple truth that the config
+is the _same_ for both tests and the only thing I am doing is exchange the
+scsi-controller (and therefore the used kernel-driver within the compiled
+bzImage).
+It is pretty clear that U160 cannot be reached by the CD-drive, because it is
+located on the scsi-2 connector (50 pin internal). It is a TEAC CD-532S which
+has (to my knowledge) not even wide-scsi but 8 bit data transfer). It is
+specified as being 30x, so should have a max throughput of 4500 kB/s (150 kB/s
+x 30). The values (at least symbios) are obviously not that far off, taking
+into account that 30x means "somewhere on the disk we reach 30x" and not
+"through the whole disk we have 30x".
+The only difference I can confirm is in TCQ-depth being configured to 8 on
+adaptec and 4 (!) on tekram. I reduced the tcq-depth on adaptec from 256 to 8,
+because 
+a) 256 doesn't work out anyway. I got switched back to 128 during workload
+according to the driver
+b) even 128 makes "feelable" latency during heavy I/O and concurrent
+shell-typing stuff.
+c) choose therefore 8, because the _old_ aic7xxx driver used 8, too, and was in
+my opinion better in terms of latency _and_ throughput (but didn't compile any
+more in some 2.4.x kernel, that's why I _had_ to switch over)
 
->>EIP; c0114b90 <__wake_up+38/c0>   <=====
-Trace; c013476c <unlock_buffer+3c/40>
-Trace; c0135206 <end_buffer_io_async+4e/ec>
-Trace; c0194508 <end_that_request_first+60/c0>
-Trace; c0198946 <ide_end_request+66/a4>
-Trace; c019d208 <ide_dma_intr+68/a8>
-Trace; c019a260 <ide_intr+124/18c>
-Trace; c019d1a0 <ide_dma_intr+0/a8>
-Trace; c0108410 <handle_IRQ_event+4c/78>
-Trace; c01085f6 <do_IRQ+a6/ec>
-Trace; c010a638 <call_do_IRQ+6/e>
-Code;  c0114b90 <__wake_up+38/c0>
-00000000 <_EIP>:
-Code;  c0114b90 <__wake_up+38/c0>   <=====
-   0:   8b 4b fc                  mov    0xfffffffc(%ebx),%ecx   <=====
-   Code;  c0114b92 <__wake_up+3a/c0>
-   3:   8b 01                     mov    (%ecx),%eax
-Code;  c0114b94 <__wake_up+3c/c0>
-   5:   85 45 fc                  test   %eax,0xfffffffc(%ebp)
-Code;  c0114b98 <__wake_up+40/c0>
-   8:   74 66                     je     70 <_EIP+0x70> c0114c00 <__wake_up+a8/c0>
-Code;  c0114b9a <__wake_up+42/c0>
-   a:   31 c0                     xor    %eax,%eax
-Code;  c0114b9c <__wake_up+44/c0>
-   c:   9c                        pushf  
-Code;  c0114b9c <__wake_up+44/c0>
-   d:   5e                        pop    %esi
-Code;  c0114b9e <__wake_up+46/c0>
-   e:   fa                        cli    
-Code;  c0114b9e <__wake_up+46/c0>
-   f:   f0 fe 0d 00 08 00 00      lock decb 0x800
-	 
--- 
+some additional infos:
+Motherboard Asus CUV4X-D, 2 x P-III 1 GHz, 1 GB RAM
 
-//anders/g
+/proc/scsi/scsi:
+
+Attached devices: 
+Host: scsi0 Channel: 00 Id: 08 Lun: 00
+  Vendor: IBM      Model: DDYS-T36950N     Rev: S96H
+  Type:   Direct-Access                    ANSI SCSI revision: 03
+Host: scsi1 Channel: 00 Id: 02 Lun: 00
+  Vendor: BNCHMARK Model: DLT1             Rev: 391B
+  Type:   Sequential-Access                ANSI SCSI revision: 02
+Host: scsi1 Channel: 00 Id: 03 Lun: 00
+  Vendor: TEAC     Model: CD-ROM CD-532S   Rev: 1.0A
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi1 Channel: 00 Id: 05 Lun: 00
+  Vendor: TEAC     Model: CD-R58S          Rev: 1.0P
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi1 Channel: 00 Id: 06 Lun: 00
+  Vendor: HP       Model: C1537A           Rev: L005
+  Type:   Sequential-Access                ANSI SCSI revision: 02
+
+/proc/interrupts (tekram):
+           CPU0       CPU1       
+  0:      77797      76618    IO-APIC-edge  timer
+  1:       3127       2991    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  5:         74         83   IO-APIC-level  HiSax
+  8:          1          1    IO-APIC-edge  rtc
+  9:       4651       4171   IO-APIC-level  EMU10K1, eth0
+ 10:      16563      16459   IO-APIC-level  sym53c8xx, sym53c8xx, eth2
+ 11:      62677      62214   IO-APIC-level  eth1, nvidia
+ 12:       8842       8772    IO-APIC-edge  PS/2 Mouse
+ 14:        143         29    IO-APIC-edge  ide0
+NMI:          0          0 
+LOC:     154305     154182 
+ERR:          0
+MIS:          0
+
+/proc/interrupts (adaptec):
+           CPU0       CPU1       
+  0:       5967       5266    IO-APIC-edge  timer
+  1:        209        192    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  5:          9          6   IO-APIC-level  HiSax
+  8:          1          1    IO-APIC-edge  rtc
+  9:        183        175   IO-APIC-level  EMU10K1, eth0
+ 10:       2309       2172   IO-APIC-level  aic7xxx, eth2
+ 11:       3532       3468   IO-APIC-level  eth1, nvidia
+ 12:        920       1103    IO-APIC-edge  PS/2 Mouse
+ 14:        124         48    IO-APIC-edge  ide0
+NMI:          0          0 
+LOC:      11124      10979 
+ERR:          0
+MIS:          0
+
+And yes: eth2 is exactly the device where the nfs-load is coming from. This is
+unintentional, it just worked out this way, but equal for both contestants.
+And no: unfortunately I cannot manage to come to a config where the scsi-IRQ is
+singular, I tried hard today, but the network is in fact a 4-port tulip card
+which makes a pci-bridge and the irqs behind the bridge tend to do whatever
+they like. In fact I moved the irq for the scsi-controllers via bios, but guess
+what: eth2 followed wherever I went.
+Keep in mind, even with no network traffic adaptec performs bad.
+Ah and another thing, I tried _several_ adaptec controllers (even a 29160N),
+all the same results.
+
+> I cannot believe a single second that the
+> difference is due to the software drivers.
+
+I can. I did a whole lot of such tests during my former job for a company
+producing scsi-controllers.
+
+> Thanks, anyway, for your report.
+
+Well, as already said, take it as a hint that your part of the story performs
+pretty well.
+;-)
+
+Regards,
+Stephan
 

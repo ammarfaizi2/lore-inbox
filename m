@@ -1,48 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262495AbSJOFyP>; Tue, 15 Oct 2002 01:54:15 -0400
+	id <S262460AbSJOFvk>; Tue, 15 Oct 2002 01:51:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262547AbSJOFyP>; Tue, 15 Oct 2002 01:54:15 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:41105 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S262495AbSJOFyO>; Tue, 15 Oct 2002 01:54:14 -0400
-Message-ID: <3DABAEDB.9070207@us.ibm.com>
-Date: Mon, 14 Oct 2002 22:59:55 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [RFC][PATCH] x86 transition to 4k stacks (0/3)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S262474AbSJOFvk>; Tue, 15 Oct 2002 01:51:40 -0400
+Received: from x101-201-88-dhcp.reshalls.umn.edu ([128.101.201.88]:53120 "EHLO
+	arashi.yi.org") by vger.kernel.org with ESMTP id <S262460AbSJOFvj>;
+	Tue, 15 Oct 2002 01:51:39 -0400
+Date: Tue, 15 Oct 2002 00:57:33 -0500
+From: Matt Reppert <arashi@arashi.yi.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       ext2-devel@lists.sourceforge.net, tytso@mit.edu
+Subject: [PATCH] Compile without xattrs
+Message-Id: <20021015005733.3bbde222.arashi@arashi.yi.org>
+In-Reply-To: <3DABA351.7E9C1CFB@digeo.com>
+References: <3DABA351.7E9C1CFB@digeo.com>
+Organization: Yomerashi
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-message-flag: : This mail sent from host minerva, please respond.
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The kernel currently uses an 8k stack, per task.  Here is the 
-infrastructure needed to allow us to halve that at some point in the 
-future.
+On Mon, 14 Oct 2002 22:10:41 -0700
+Andrew Morton <akpm@digeo.com> wrote:
 
-This is a port of work Ben LaHaise did around 2.5.20 time.  I split it
-up and updated it for the new preempt_count semantics.
+> - merge up the ext2/3 extended attribute code, convert that to use
+>   the slab shrinking API in Linus's current tree.
 
-I split the original patch up into 3 pieces (apply in this order):
-* clean thread info infrastructure (1/3)
-   - take out all instances of things like (8191&addr) to get
-     current stack address.
-* stack checking (3/3)
-   - use gcc's profiling features to check for stack overflows upon
-     entry to functions.
-   - Warn if the task goes over 4k.
-   - Panic if the stack gets within 512 bytes of overflowing.
-* interrupt stacks (3/3)
-   - allocate per-cpu interrupt stacks.  upon entry to
-     common_interrupt, switch to the current cpu's stack.
-   - inherit the interrupted task's preempt count
+Trivial patch for the "too chicken to enable xattrs for now" case, but I
+need this to compile:
 
-Any suggestions on how to deal with "gcc -p" and old, buggy versions
-of gcc would be appreciated.
--- 
-Dave Hansen
-haveblue@us.ibm.com
+--- linux-2.5-orig/include/linux/ext2_xattr.h	2002-10-15 00:47:03 -0500
++++ linux-2.5/include/linux/ext2_xattr.h	2002-10-15 00:45:48 -0500
+@@ -92,20 +92,20 @@
+ ext2_xattr_get(struct inode *inode, int name_index,
+ 	       const char *name, void *buffer, size_t size)
+ {
+-	return -ENOTSUP;
++	return -ENOTSUPP;
+ }
+ 
+ static inline int
+ ext2_xattr_list(struct inode *inode, char *buffer, size_t size)
+ {
+-	return -ENOTSUP;
++	return -ENOTSUPP;
+ }
+ 
+ static inline int
+ ext2_xattr_set(struct inode *inode, int name_index, const char *name,
+ 	       const void *value, size_t size, int flags)
+ {
+-	return -ENOTSUP;
++	return -ENOTSUPP;
+ }
+ 
+ static inline void
+--- linux-2.5-orig/include/linux/ext3_xattr.h	2002-10-15 00:49:59.000000000 -0500
++++ linux-2.5/include/linux/ext3_xattr.h	2002-10-15 00:50:12.000000000 -0500
+@@ -92,20 +92,20 @@
+ ext3_xattr_get(struct inode *inode, int name_index, const char *name,
+ 	       void *buffer, size_t size, int flags)
+ {
+-	return -ENOTSUP;
++	return -ENOTSUPP;
+ }
+ 
+ static inline int
+ ext3_xattr_list(struct inode *inode, void *buffer, size_t size, int flags)
+ {
+-	return -ENOTSUP;
++	return -ENOTSUPP;
+ }
+ 
+ static inline int
+ ext3_xattr_set(handle_t *handle, struct inode *inode, int name_index,
+ 	       const char *name, const void *value, size_t size, int flags)
+ {
+-	return -ENOTSUP;
++	return -ENOTSUPP;
+ }
+ 
+ static inline void
 
+
+Matt

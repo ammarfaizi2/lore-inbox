@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129828AbRBYFFT>; Sun, 25 Feb 2001 00:05:19 -0500
+	id <S129837AbRBYF0b>; Sun, 25 Feb 2001 00:26:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129831AbRBYFFJ>; Sun, 25 Feb 2001 00:05:09 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:59345 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129828AbRBYFE5>; Sun, 25 Feb 2001 00:04:57 -0500
-Message-ID: <3A98926A.AB1C2243@uow.edu.au>
-Date: Sun, 25 Feb 2001 16:04:42 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
-X-Accept-Language: en
+	id <S129838AbRBYF0V>; Sun, 25 Feb 2001 00:26:21 -0500
+Received: from smarty.smart.net ([207.176.80.102]:5138 "EHLO smarty.smart.net")
+	by vger.kernel.org with ESMTP id <S129837AbRBYF0Q>;
+	Sun, 25 Feb 2001 00:26:16 -0500
+From: Rick Hohensee <humbubba@smarty.smart.net>
+Message-Id: <200102250528.AAA20069@smarty.smart.net>
+Subject: Re: [PATCH][CFT] per-process namespaces for Linux
+To: linux-kernel@vger.kernel.org
+Date: Sun, 25 Feb 2001 00:28:59 -0500 (EST)
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Igor Mozetic <igor.mozetic@uni-mb.si>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 3c59x in 2.4.{0,1,2}
-In-Reply-To: <14996.58045.843929.411743@ravan.camtp.uni-mb.si>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Igor Mozetic wrote:
-> 
-> There is probably just some miscoordination between the kernel
-> mainteiners, but anyway. The 3c59x driver shipped with all
-> official 2.4.x kernels lacks the 'medialock' feature.
-> The result on 3c900 10M/combo cards can be unpleasant:
-> kernel log fills up quickly and only reboot helps.
-> However, Andrew's unofficial drivers at
-> http://www.uow.edu.au/~andrewm/linux/ work fine so this is
-> just a plea to include them into the official kernel.
+>I'm more than willing to answer questions on the design of the thing -
+>just
+>ask. So far that's the best I can do - all documentation is a pile of
+>notes
+>+ CVS log.
+>
+>                                                        Cheers,
+>                                                                Al
+>PS: hopefully - back for good.
 
-The latest 3c59x driver is in the zerocopy patch, as well
-as at the above site.
+That sounds like an especially fascinating pile of notes. Perhaps you
+could pile it next to the patch on the ftp site?
 
-Until things converge I'd suggest that you run a zerocopy
-kernel rather than updating just the driver.  We need the
-testing.
+Rick Hohensee
 
-Alexey has done wonders recently, and for 3com cards
-a zerocopy kernel now performs at least as well as
-a stock kernel.
+:; cLIeNUX /dev/tty5  01:08:45   /
+:;ls -d */
+Linux/        dev/          help/         owner/        temp/
+boot/         device/       incoming/     source/
+command/      floppy/       log/          subroutines/
+configure/    guest/        mounts/       suite/
+:; cLIeNUX /dev/tty5  01:08:55   /
+:;
+

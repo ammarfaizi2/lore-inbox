@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315572AbSEQKry>; Fri, 17 May 2002 06:47:54 -0400
+	id <S315577AbSEQKso>; Fri, 17 May 2002 06:48:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315577AbSEQKrx>; Fri, 17 May 2002 06:47:53 -0400
-Received: from violet.setuza.cz ([194.149.118.97]:15120 "EHLO violet.setuza.cz")
-	by vger.kernel.org with ESMTP id <S315572AbSEQKrx>;
-	Fri, 17 May 2002 06:47:53 -0400
-Subject: Re: counters
-From: Frank Schaefer <frank.schafer@setuza.cz>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3CE4C895.EB34A245@cisco.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 17 May 2002 12:47:53 +0200
-Message-Id: <1021632473.250.1.camel@ADMIN>
+	id <S315580AbSEQKsn>; Fri, 17 May 2002 06:48:43 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:64265 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S315577AbSEQKsl>; Fri, 17 May 2002 06:48:41 -0400
+Date: Fri, 17 May 2002 14:47:55 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>,
+        "Patrick Mochel (mochel@osdl.org)" <mochel@osdl.org>,
+        "'davem@redhat.com'" <davem@redhat.com>,
+        "'Greg@kroah.com'" <Greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: pci segments/domains
+Message-ID: <20020517144755.A16767@jurassic.park.msu.ru>
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7E45@orsmsx111.jf.intel.com> <3CE4098E.2070808@mandrakesoft.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-05-17 at 11:08, Manik Raina wrote:
-> 
-> 	Thanks for your response. What i meant was 
-> 	every process could have an account of how
-> 	many bytes were read/written to various
-> 	filesystems/sockets using read()/write()
-> 	system calls. 
-> 
-> 	We could dump this stuff in /proc and
-> 	it could tell us which processes are
-> 	heavily IO bound.
-> 
-> 	I am wondering if this information will
-> 	be useful to anyone.
+On Thu, May 16, 2002 at 03:33:34PM -0400, Jeff Garzik wrote:
+> I wouldn't mind making the PCI domain support a bit more explicit, 
+> though.  I think it's fair to be able to obtain a pointer to "struct 
+> pci_domain", which would most likely be defined in asm/pci.h for each arch.
 
-Hi Manik
+We already have it - void *sysdata. Host-to-PCI (domain) controllers might
+be totally different even inside any given architecture, so trying to
+make this more generic would be pointless - you will end up with a pointer
+to arch/device specific data anyway.
+I can think of the only case where domain info might be interesting - if
+some device wants to know whether it can talk to another device directly.
+We have pci_controller_num(pdev) for this.
 
-and sorry that I read only half of your initial post.
-I had a quick look at fs/read_write.c.
-
-I don't see any hook in the functions here, to perform such a task. And
-here this should belong to -- shouldn't it?
-
-the functions could add ``count'' to the procfs entry of ``current''.
-(just a thought) This info could be valuable - I think - if it wouldn't
-make a large performance issue.
-
-Regards
-Frank
-
-
+Ivan.

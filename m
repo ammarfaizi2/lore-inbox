@@ -1,85 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261926AbVCaDMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVCaDTy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261926AbVCaDMz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 22:12:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVCaDMz
+	id S261925AbVCaDTy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 22:19:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261927AbVCaDTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 22:12:55 -0500
-Received: from web30511.mail.mud.yahoo.com ([68.142.201.239]:22914 "HELO
-	web30511.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S261926AbVCaDMv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 22:12:51 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=sFBSN3Mlg5yS73w8uxMjKZtwDgV5P1Th1gHH78R7odpRkv8db2isWlQKkE/geRBWJZZnwdrMuLv4CRv1uZYsXAVQ02IrDB7+/lt8XZqAAV41Hx00bZr+mip1S7KsvR9IUCOGJREFgfWkfdskqQStf+AdYvmdUdQUz8jhl5HQeYs=  ;
-Message-ID: <20050331031250.42410.qmail@web30511.mail.mud.yahoo.com>
-Date: Wed, 30 Mar 2005 19:12:50 -0800 (PST)
-From: Tim Harvey <tim_harvey@yahoo.com>
-Subject: Poor SATA / RAID performance (2.6.11 and promise SATAII150 TX4)
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 30 Mar 2005 22:19:54 -0500
+Received: from h80ad2599.async.vt.edu ([128.173.37.153]:3341 "EHLO
+	h80ad2599.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261925AbVCaDTv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 22:19:51 -0500
+Message-Id: <200503310319.j2V3JhXJ009858@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Nick Orlov <bugfixer@list.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc1-mm3: class_simple API 
+In-Reply-To: Your message of "Sun, 27 Mar 2005 13:04:31 EST."
+             <20050327180431.GA4327@nikolas.hn.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050327180431.GA4327@nikolas.hn.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1112239182_3808P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 30 Mar 2005 22:19:42 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+--==_Exmh_1112239182_3808P
+Content-Type: text/plain; charset=us-ascii
 
-I'm attempting to benchmark software RAID5 on a system with:
-  - Promise SATAII150 TX4 card
-  - 4 Segate ST3300831AS drives 
-  - custom built kernel 2.6.11 (to get driver for promise SATAIITX4)
-  - FC3 install
-  - EPIA M10000 mainboard, 256MB memory
+On Sun, 27 Mar 2005 13:04:31 EST, Nick Orlov said:
 
-The tools I'm familiar with for benchmarking a PATA based RAID system are:
-  - hdparm
-  - dd
+> Problem is that the latest bk-driver-core patch included in the 2.6.12-rc1-mm3
+> removes class_simple API without providing EXPORT_SYMBOL'ed (as opposed to
+> EXPORT_SYMBOL_GPL) alternative.
+> 
+> As the result I don't see a way how out-of-the-kernel non-GPL drivers
+> (nvidia in my case) could be fixed.
 
-Here are some interesting stats from my system:
+Umm.. try running the latest drivers?
 
-[root@epiam10k ~]# more /proc/mdstat
-Personalities : [raid5] 
-md0 : active raid5 sdd1[3] sdc1[2] sdb1[1] sda1[0]
-      879100608 blocks level 5, 4k chunk, algorithm 2 [4/4] [UUUU]
-      
-unused devices: <none>
-[root@epiam10k ~]# hdparm -t /dev/sda
+[~]2 uname -a
+Linux turing-police.cc.vt.edu 2.6.12-rc1-mm3 #1 PREEMPT Sat Mar 26 22:07:50 EST 2005 i686 i686 i386 GNU/Linux
+[~]2 lsmod | grep nvidia
+nvidia               3912636  14 
+agpgart                25672  2 nvidia,intel_agp
+[~]2 grep -i nvidia /var/log/kernmsg
+Mar 30 21:58:19 turing-police kernel: [4294721.402000] nvidia: module license 'NVIDIA' taints kernel.
+Mar 30 21:58:19 turing-police kernel: [4294721.434000] NVRM: loading NVIDIA Linux x86 NVIDIA Kernel Module  1.0-7167  Fri Feb 25 09:08:22 PST 2005
 
-/dev/sda:
- Timing buffered disk reads:  116 MB in  3.02 seconds =  38.45 MB/sec
-HDIO_DRIVE_CMD(null) (wait for flush complete) failed: Inappropriate ioctl for
-device
-[root@epiam10k ~]# hdparm -t /dev/sda1
+(All usual disclaimers about binary modules apply.  If 7167 doesn't work for
+you, bug NVidia (Zander is usually quite helpful with providing patches) and/or
+check the NVidia/Linux message boards (there's a link on the NVidia driver
+download page).
 
-/dev/sda1:
- Timing buffered disk reads:  104 MB in  3.05 seconds =  34.10 MB/sec
-HDIO_DRIVE_CMD(null) (wait for flush complete) failed: Inappropriate ioctl for
-device
-[root@epiam10k ~]# hdparm -t /dev/md0
 
-/dev/md0:
- Timing buffered disk reads:   72 MB in  3.03 seconds =  23.79 MB/sec
+--==_Exmh_1112239182_3808P
+Content-Type: application/pgp-signature
 
-[root@epiam10k ~]# vmstat
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 1  0      0   3628   8984 142704    0    0   423    23 1023   112 30  3 61  6
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Observations:
-  - the performance of a raw SATA device (/dev/sda in the above example) seems
-low when I compare it to a PATA drive from a previous system (which would get
-about 45MB/sec)
-  - the performance of the RAID5 array (/dev/md0) seems very low - I expect
-quite an increase over a single device due to striping
-  - the number of interrupts per second (1023) seems very high
+iD8DBQFCS2xOcC3lWbTT17ARArHmAKCB3mfzV2338NZZ5rIFkwTyHQO1CQCg/W4e
+uutKH5cWeNWlqBe61KGfXZY=
+=9wDI
+-----END PGP SIGNATURE-----
 
-Questions:
-  - is hdparm the right tool for looking at SATA devices?
-  - is the error regarding the ioctl an issue?
-  - how do I set/get the DMA modes for the SATA controller and SATA drives?
-  - why would the interrupts per sec reported from vmstat be so high?
-
-Thanks for any suggesitons.  Please 'cc' me in any replies to the list.
-
-Tim Harvey
+--==_Exmh_1112239182_3808P--

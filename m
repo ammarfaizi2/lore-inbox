@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261839AbSI2Xid>; Sun, 29 Sep 2002 19:38:33 -0400
+	id <S261842AbSI2Xsi>; Sun, 29 Sep 2002 19:48:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261842AbSI2Xid>; Sun, 29 Sep 2002 19:38:33 -0400
-Received: from natwar.webmailer.de ([192.67.198.70]:58503 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S261839AbSI2Xic>; Sun, 29 Sep 2002 19:38:32 -0400
-Date: Mon, 30 Sep 2002 01:39:26 +0200
-From: Dominik Brodowski <linux@brodo.de>
-To: Gerald Britton <gbritton@alum.mit.edu>
-Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
-Subject: Re: [PATCH] Re: [2.5.39] (3/5) CPUfreq i386 drivers
-Message-ID: <20020930013926.A11768@brodo.de>
-References: <20020928112503.E1217@brodo.de> <20020928134457.A14784@brodo.de> <20020928134739.A11797@light-brigade.mit.edu> <20020929111603.F1250@brodo.de> <20020929121018.A811@brodo.de> <20020929155648.A20308@light-brigade.mit.edu>
+	id <S261843AbSI2Xsi>; Sun, 29 Sep 2002 19:48:38 -0400
+Received: from dp.samba.org ([66.70.73.150]:57034 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261842AbSI2Xsh>;
+	Sun, 29 Sep 2002 19:48:37 -0400
+Date: Mon, 30 Sep 2002 09:51:41 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Andi Kleen <ak@muc.de>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use __attribute__((malloc)) for gcc 3.2
+Message-ID: <20020929235141.GA1090@krispykreme>
+References: <20020929152731.GA10631@averell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <20020929155648.A20308@light-brigade.mit.edu>; from gbritton@alum.mit.edu on Sun, Sep 29, 2002 at 03:56:48PM -0400
+In-Reply-To: <20020929152731.GA10631@averell>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 29, 2002 at 03:56:48PM -0400, Gerald Britton wrote:
-> On Sun, Sep 29, 2002 at 12:10:18PM +0200, Dominik Brodowski wrote:
-> > I think I found the problem: it should be GFP_ATOMIC and not GFP_KERNEL in
-> > the allocation of struct cpufreq_driver. Will be fixed in the next release.
-> 
-> Nope.  That should be fine, it's in a process context and not holding any
-> locks, so GFP_KERNEL should be fine.  I found the bug though:
->  
-> -driver->policy = (struct cpufreq_policy *) (driver + sizeof(struct cpufreq_driver));
-> +driver->policy = (struct cpufreq_policy *) (driver + 1);
->  
-> Remember your pointer arithmetic.
 
-yes, you're right. I've just merged your patch into CVS, and I'll send a
-patch to Linus really soon. 
+Hi Andi,
 
-<snip>
-> [rounding] 
-> There probably isn't a lot that can be done about these unfortunately, but
-> they won't necessarily converge to a stable value so things may eventually
-> start to fail.
-Yes, that's a problem; but as cpufreq doesn't change speed dynamically yet
-(and thus the number of transitions is somewhat limited) it shouldn't cause
-too much trouble _yet_. But I'll try to think of a better solution _soon_.
+> Also added an noinline macro to wrap __attribute__((noinline)). That's 
+> not used yet. It tells the compiler that it should never inline, which
+> may be useful to prevent some awful code generation for those misguided
+> folks who use -O3 (gcc often screws up the register allocation of a 
+> function completely when bigger functions are inlined). 
 
-	Dominik
+Could you also add an always inline? It would be useful for functions
+like context_switch, where we require it to be inlined (otherwise it
+falls outside scheduling_functions_{start,end}_here and wchan handling
+fails).
+
+Anton

@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263207AbTDCB3D>; Wed, 2 Apr 2003 20:29:03 -0500
+	id <S263208AbTDCB3J>; Wed, 2 Apr 2003 20:29:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263208AbTDCB3C>; Wed, 2 Apr 2003 20:29:02 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:10042 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S263207AbTDCB3C>; Wed, 2 Apr 2003 20:29:02 -0500
-Date: Wed, 2 Apr 2003 20:40:26 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, James Simmons <jsimmons@infradead.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Why moving driver includes ?
-Message-ID: <20030402204026.A15082@devserv.devel.redhat.com>
-References: <mailman.1049324411.25620.linux-kernel2news@redhat.com> <200304030045.h330jok10685@devserv.devel.redhat.com> <3E8B8F31.5030407@redhat.com>
+	id <S263228AbTDCB3J>; Wed, 2 Apr 2003 20:29:09 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:59666
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S263208AbTDCB3I>; Wed, 2 Apr 2003 20:29:08 -0500
+Subject: Re: back-trace on mounting ide cd-rom
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030402154500.3e6b9a62.akpm@digeo.com>
+References: <1049326318.2872.36.camel@localhost>
+	 <20030402154500.3e6b9a62.akpm@digeo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049334036.1196.0.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3E8B8F31.5030407@redhat.com>; from drepper@redhat.com on Wed, Apr 02, 2003 at 05:32:33PM -0800
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 02 Apr 2003 20:40:37 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Wed, 02 Apr 2003 17:32:33 -0800
-> From: Ulrich Drepper <drepper@redhat.com>
+On Wed, 2003-04-02 at 18:45, Andrew Morton wrote:
 
-> > Yeah, but what does it have to do with kernel? You should have
-> > gotten Uli to add them to glibc.
-> 
-> Headers like have no place in glibc either.  There should be one or more
-> separate packages which distribute kernel headers.
+> ah, my new debug code is buggy.  It is legal to wait upon a zero-ref buffer
+> if that buffer's page is locked.
 
-I can see your point, but imagine how many packages this is
-going to create. Shall we plead with Arjan to maintain
-glibc-kernelheaders as a community package, to be a clearinghouse
-for these things?
+That fixed it (or it is not reproducing itself).
 
--- Pete
+Thanks, Andrew.  Glad to be of service.
+
+	Robert Love
+

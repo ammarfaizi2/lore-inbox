@@ -1,69 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262388AbUCHEVk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 23:21:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbUCHEVk
+	id S262389AbUCHFDL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 00:03:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262390AbUCHFDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 23:21:40 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20895 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262388AbUCHEVi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 23:21:38 -0500
-To: hari@in.ibm.com
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, r3pek@r3pek.homelinux.org,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] Re: kexec "problem" [and patch updates]
-References: <20040224160341.GA11739@in.ibm.com>
-	<28775.62.229.71.110.1077620541.squirrel@webmail.r3pek.homelinux.org>
-	<20040226165446.16a5bb3b.rddunlap@osdl.org>
-	<m1znb5c5q3.fsf@ebiederm.dsl.xmission.com>
-	<20040227113224.72f6dcc5.rddunlap@osdl.org>
-	<m1brnjcwpu.fsf@ebiederm.dsl.xmission.com>
-	<20040304130310.GA7741@in.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 07 Mar 2004 17:32:00 -0700
-In-Reply-To: <20040304130310.GA7741@in.ibm.com>
-Message-ID: <m17jxwuqkf.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 8 Mar 2004 00:03:11 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:56768 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262389AbUCHFDJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 00:03:09 -0500
+Subject: Re: Hyper-threaded pickle
+From: Len Brown <len.brown@intel.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4049F0EE.7060501@pobox.com>
+References: <40480795.5000402@pobox.com>
+	 <1078469072.12990.1742.camel@dhcppc4>  <4049F0EE.7060501@pobox.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1078722131.2336.39.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 08 Mar 2004 00:02:11 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hariprasad Nellitheertha <hari@in.ibm.com> writes:
-
-> Hello,
+> > Re: old systems -- we use dmi_scan to disable ACPI on systems by default
+> > on systems older than 1/1/2001.
 > 
-> I recreated this on a UNI system running an SMP kernel as well. 
+> What happens for the no-DMI case?
+
+When DMI is not present, dmi_scan is a no-op -- so ACPI will run in
+whatever default the system is set to -- eg. "off" for FC1, and "on" for
+FC2-test1.
+
+We've found in practice that dmi_scan has been pretty effective at
+identifying the set of systems new enough to have an ACPI enabled BIOS
+but old enough that the ACPI implementation is hopeless.  Though we've
+had many reports of 1/1/2001 being a bit *too* conservative -- disabling
+ACPI on systems where ACPI works fine.  Indeed, there is a bugzilla
+requesting a "white-list" to enable exceptions to this date.  I'm not
+enthusiastic about that plan, however.  I figure there are more 3-year
+old boxes that have been running Linux w/o ACPI than there are those
+which have; and I'd rather spend my ergs on the current and upcoming
+boxes where vendors are more willing to update a broken BIOS...
+
+> > Re: opteron & !HT.  Andi showed me a patch today that disables X86_HT if
+> > you build specifically for an AMD CPU that doesn't support HT.  This
+> > looks like a good idea, and possibly should be expanded.
 > 
-> The problem is because we now initialize cpu_vm_mask for init_mm with 
-> CPU_MASK_ALL (from 2.6.3 onwards) which makes all bits in cpumask 1. 
-> Hence BUG_ON(!cpus_equal(cpumask,tmp) fails. The change to set 
-> cpu_vm_mask to CPU_MASK_ALL was done to remove tlb flush optimizations 
-> for ppc64. On UNI kernels, CPU_MASK_ALL is 1 and hence the problem 
-> does not occur.
-
-So the problem is that CPU_MASK_ALL includes cpus that are not currently
-online.  So it has gone from being wrong by including too few cpus
-to being wrong by including too many cpus.
- 
-> I made a small patch which fixes this problem. The change is, essentially,
-> to use "tmp" instead of "cpumask". This ensures that only the (other) online 
-> cpus are sent the IPI. 
+> Cool.
 > 
-> I have done some testing with this patch. Kexec loads fine and I haven't seen
-> anything untoward. 
-> 
-> Comments please.
+> My main worry/concern is breaking older systems, due to this change in 
+> behavior.
 
-Any chance we can fix this right and get a proper value in cpu_vm_mask
-for init_mm?  All that needs to happen is that each cpu as it is
-started up is included in cpu_vm_mask.
+2.4 and SuSE have deployed this way for some time.  The HT part of ACPI
+was in RHL 8.0 and 9.0 by default as well -- and this is consistent with
+that.
 
-The reason kexec sees this is that it is possibly the only generic
-modifier of init_mm. 
+> An easy first step is to make CONFIG_X86_HT selectable again.
 
-If fixing this needs to be kexec specific we need to simply remove
-using init_mm.
+That wouldn't help the most importaht case though -- the distro who
+wants the same kernel binary to run on a broad variety of platforms.
 
-Eric
+-Len
+
+

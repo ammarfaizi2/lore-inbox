@@ -1,67 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267360AbSLERUp>; Thu, 5 Dec 2002 12:20:45 -0500
+	id <S261678AbSLERSH>; Thu, 5 Dec 2002 12:18:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267359AbSLERUp>; Thu, 5 Dec 2002 12:20:45 -0500
-Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:23977 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267360AbSLERUd>; Thu, 5 Dec 2002 12:20:33 -0500
-Subject: Re: Process verification while running
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Airlie <airlied@linux.ie>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0212050125420.14956-100000@skynet>
-References: <Pine.LNX.4.44.0212050125420.14956-100000@skynet>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Dec 2002 18:03:00 +0000
-Message-Id: <1039111380.19636.23.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S267323AbSLERSH>; Thu, 5 Dec 2002 12:18:07 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:62216 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S261678AbSLERSF>; Thu, 5 Dec 2002 12:18:05 -0500
+Date: Thu, 5 Dec 2002 12:24:16 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20 gets duplex wrong on NIC
+In-Reply-To: <3DED4698.60209@pobox.com>
+Message-ID: <Pine.LNX.3.96.1021205120739.18090D-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-05 at 01:34, Dave Airlie wrote:
-> kernel and userspace) to protect against memory issue and tampering. I
+On Tue, 3 Dec 2002, Jeff Garzik wrote:
 
-Well it wont protect you from tampering, there isnt really a way to do
-that
-
-> For the kernel I'm going to add a kernel thread that loops over the text
-> segment verifying integrity.
-
-Kernel module code lives outside that. You also have to make sure you 
-check the exception handlers area as part of your text.
-
-> For userspace I was initially going to use a userspace daemon that reads
-> via /proc/pid/mem interface and tests the text segments against what I
-> hope is in there.. but this seems to be a problem as I need to ptrace
-> attach the process (which starts sending SIGSTOPs around when the process
-> gets a signal) to get a /proc/pid/mem.
-
-You need to stop a process to do the check. You also need to audit its
-mappings, check any trampolines on the stack, check any data which is
-used for things like syscall numbering etc. Since there are function
-pointers all over the place in the data segment it wont help you one
-iota against tampering by competent bodies.
-
-> My other option is to implement my own kernel module to do the work, and
-> have a kernel thread running around.. I'd have to feed it the CRCs and
-> stuff at the start and let it go...
-
-That may be easier since you can then lock the mm, walk and verify it,
-then unlock the mm.
+> Bill Davidsen wrote:
+> > In spite of modules.conf the system boots with the NIC in half duplex. I 
+> > verified this with the mii-tool, I can set it full with mii-tool and it 
+> > works right (copied a CD image 650MB), and the blade in the switch has 
+> > been set either full or auto without gain. Yes, I tried the e100 driver as 
+> > well.
+> > 
+> > Info I think shows this attached to prevent munging, let me know if more 
+> > is needed.
 > 
-> Could I remove the check that stops other processes reading /proc/pid/mem?
-> safely enough considering this system runs embedded with very little scope
-> for outside interference...
+> 
+> Lots of feedback/questions/response:
+> 
+> When you're on a network, more is always needed :)
+> 
+> Please give _plenty_ of details about what is on the other side of the 
+> cable: hub? switch? vendor of hub/switch?  crossover to another NIC? 
+> what is the port configuration and what are the capabilities of the 
+> other end?  is it set to autonegotiate (on the other end)?
 
-You need to be very careful or you may make your box less not more
-secure. In addition you have to handle shared memory and memory mapped
-i/o mmap spaces, which is another reason you have to lock all users of
-that mm or stop them.
+Cisco 5509 set auto.
+> 
+> Why do you force full duplex?  It is often the wrong thing to do.
 
-Alan
+It gives about 4x throughput...
 
+The network folks say they have the same problem with most NICs and OS, so
+they have to teach Windows users to diddle the NIC. At least I came to
+them with the workaround. It's possible a known problem with those 10baseT
+blades.
 
+> 
+> For eepro100, you should use module option 'options' to specify 
+> 10baseT-FD... full_duplex appears to be somewhat redundant in the 
+> context of your problem.
+
+Okay, I assumed that since a grep showed:
+  MODULE_PARM(full_duplex, "1-" __MODULE_STRING(8) "i");
+that the option was supported. What does it do, if I need to diddle bits
+in the options?
+
+> For e100, you should use 'e100_speed_duplex' module option to specify media.
+> 
+> Finally, I would be very interested to know the results of using ethtool 
+> to set, and get, your media settings.  It's in every distro these days, 
+> plus you can d/l it from http://sf.net/projects/gkernel/
+
+Well, it's not installed at any rate, so I'll have to download it. Timing
+uncertain, I'm "off" for the next five days and leaving the site for home
+shortly because I have a 131 mile commute and heavy snow. Perhaps from
+home tonight.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

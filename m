@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266371AbRGBFmD>; Mon, 2 Jul 2001 01:42:03 -0400
+	id <S266374AbRGBFwe>; Mon, 2 Jul 2001 01:52:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266372AbRGBFlx>; Mon, 2 Jul 2001 01:41:53 -0400
-Received: from barnowl.demon.co.uk ([158.152.23.247]:49414 "EHLO
-	barnowl.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S266371AbRGBFlh>; Mon, 2 Jul 2001 01:41:37 -0400
-Mail-Copies-To: nobody
-To: linux-kernel@vger.kernel.org
-Subject: Re: Uncle Sam Wants YOU!
-In-Reply-To: <3B3F5F5C.40907@lycosmail.com>
-	<20010701130151.A10989@ChaoticDreams.ORG>
-	<3B3FB754.8040305@kalifornia.com>
-	<20010701171101.A13223@ChaoticDreams.ORG>
-	<007e01c10290$3f0da6d0$bb1cfa18@JimWS>
-From: Graham Murray <graham@barnowl.demon.co.uk>
-Date: Mon, 02 Jul 2001 05:40:53 +0000
-In-Reply-To: <007e01c10290$3f0da6d0$bb1cfa18@JimWS> ("Jim Roland"'s message
- of "Sun, 1 Jul 2001 19:45:09 -0500")
-Message-ID: <m2d77jx50a.fsf@barnowl.demon.co.uk>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266376AbRGBFwY>; Mon, 2 Jul 2001 01:52:24 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:4333 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S266374AbRGBFwK>; Mon, 2 Jul 2001 01:52:10 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sun, 1 Jul 2001 22:52:04 -0700
+Message-Id: <200107020552.WAA02457@adam.yggdrasil.com>
+To: kaos@ocs.com.au
+Subject: Re: [PATCH] Re: 2.4.6p6: dep_{bool,tristate} $CONFIG_ARCH_xxx bugs
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, rhw@MemAlpha.CX,
+        rmk@arm.linux.org.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jim Roland" <jroland@roland.net> writes:
+>On Sun, 1 Jul 2001 21:46:04 -0700, 
+>"Adam J. Richter" <adam@yggdrasil.com> wrote:
+>>Can you even write a hypothetical example?
 
-> What some people don't realize is that Microsoft *DID* do Unix a long time
-> ago, they were even into OS/2 Development.  :-)
+>if [ "$CONFIG_foo" = "n" -a "$CONFIG_bar" = "n" ]; then
+>  define_bool "$CONFIG_ALLOW_foo_bar n
+>fi
+>....
+>dep_tristate CONFIG_baz $CONFIG_ALLOW_foo_bar
 
-And they annoyed not just a few application vendors when just a few
-months after giving the message "Go with OS/2, it is the way forward",
-they abandoned it in favour of NT.
+	In linux-2.4.6-pre8, there are only three configuration variables
+that are defined with an indented 'define_bool' statement
+(CONFIG_BLK_DEV_IDE{DMA,PCI}, and CONFIG_PCI), and the conditional
+code execute by all "if" statements in all of the config.in files
+appears to be indented (or at least the first statement in the block
+is indented).  None of these three variables has the semantics that
+I think you you described above.
 
+	If you want to check, I determined this by the following shell
+commands:
+
+% find . -iname config.in | xargs egrep dep_tristate | tr '   ' '\n\n' | egrep '^\$CONFIG_' | sort -u > /tmp/config-dependencies 
+% find . -iname config.in | xargs egrep '^[   ].*define_bool' | fgrep -f /tmp/config-dependencies  | awk '{print $(NF-1)}' | sort -u
+CONFIG_BLK_DEV_IDEDMA
+CONFIG_BLK_DEV_IDEPCI
+CONFIG_PCI
+% find /usr/src/linux/ -iname config.in | xargs egrep -A 2 ^if | egrep -v -e -- | egrep '^-[^         ]'
+%
+ 
+
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

@@ -1,75 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277530AbRJVEom>; Mon, 22 Oct 2001 00:44:42 -0400
+	id <S277532AbRJVE7n>; Mon, 22 Oct 2001 00:59:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277540AbRJVEod>; Mon, 22 Oct 2001 00:44:33 -0400
-Received: from destructo.gearboxsoftware.com ([12.37.36.2]:21777 "HELO
-	gearboxsoftware.com") by vger.kernel.org with SMTP
-	id <S277532AbRJVEoO>; Mon, 22 Oct 2001 00:44:14 -0400
-From: "Sean Cavanaugh" <seanc@gearboxsoftware.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: The new X-Kernel !
-Date: Sun, 21 Oct 2001 23:44:48 -0500
-Message-ID: <000901c15ab4$4783fd10$150a10ac@gearboxsoftware.com>
+	id <S277545AbRJVE7e>; Mon, 22 Oct 2001 00:59:34 -0400
+Received: from mail6.speakeasy.net ([216.254.0.206]:49925 "EHLO
+	mail6.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S277532AbRJVE7Z>; Mon, 22 Oct 2001 00:59:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: safemode <safemode@speakeasy.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.12-ac3 + e2defrag
+Date: Mon, 22 Oct 2001 00:59:58 -0400
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-In-Reply-To: <E15vQWb-00085J-00@the-village.bc.nu>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011022045925Z277532-17408+3211@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well this thread is sort of a silly argument to begin with, seeing as
-all my Linux machines except one don't even have monitors attached to
-them :)
+OK, i ran e2defrag -p 16384 on a disk thinking, hey, 128MB of buffer isn't 
+anything to me since i have 770MB of ram and 128MB of swap.   Well, according 
+to top this is e2defrag a quarter of the way running through my 20GB fs.  
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+12023 root      16   0  125M  76M  9304 R    22.8 10.1   5:50 e2defrag
 
-I can argue the other side of the fence just as easily . . .
-The messages can be handy for figuring out what piece of hardware or
-kernel service is taking ages to load when one of them suddenly decides
-to take an unusually long time start.  Try piecing that kind of
-information out of a dmesg output.  I would rather see
-'system/module foo loading . . .' 
-'     module specific startup information (stuff we already see in
-startup'
-'system/module foo loaded in .xxx seconds'
+That seems right.  Yet this is the /proc/meminfo reading 
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  790016000 783785984  6230016     4096 632762368 20373504
+Swap: 133885952 101707776 32178176
+MemTotal:       771500 kB
+MemFree:          6084 kB
+MemShared:           4 kB
+Buffers:        617932 kB
+Cached:           6176 kB
+SwapCached:      13720 kB
+Active:         330800 kB
+Inact_dirty:    307032 kB
+Inact_clean:         0 kB
+Inact_target:   157272 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       771500 kB
+LowFree:          6084 kB
+SwapTotal:      130748 kB
+SwapFree:        31424 kB
 
-Also ,I also wouldn't really advocate hiding the messages anyway, since
-there are thousands of areas elsewhere (outside of the Kernel) to spend
-time on and improve usability which would have more of a real impact to
-users.
-
------Original Message-----
-From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk] 
-Sent: Sunday, October 21, 2001 4:53 PM
-To: Sean Cavanaugh
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The new X-Kernel !
-
-
-> Normal users really don't need to see the startup message spam on 
-> boot, unless there is an error (at which point it should be able to 
-> present the error to the user).  Any kind of of progress indicator' s 
-> really
-
-The big problem is making sure they then see the error, and the previous
-progress information. On a solid hang they might not get it
-
-> more for feedback that the boot is proceeding ok.  The fact the boot 
-> sequence isn't even interactive should also be a big hint that it 
-> isn't really necessary (except for kernel and driver developers).
-
-You are thinking the small picture not the big one. If you are going to
-graphical in init then you want to make full use of the graphical
-environment to clearly show things like parallel fsck behaviour, what
-servers are starting up (with pretty icons) and to do interactive things
-
-like starting a rescue shell, going single user, pausing the boot,
-changing run level, interactive boot.
-
-Alan
-
+So where does this 500+MB of buffer come from?  It grinded the system to a 
+swapcrazy like state even though it wasn't swapping like crazy.  From the way 
+it was acting i was getting scared that it might oom out and kill e2defrag 
+even though top seemed to show that the program was only using about 125M. 
+The question is, why did the kernel decide 610MB of buffers was necessary ?

@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267364AbUIFAHj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267354AbUIFAOe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267364AbUIFAHj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 20:07:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267354AbUIFAHj
+	id S267354AbUIFAOe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 20:14:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267356AbUIFAOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 20:07:39 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:912 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S267364AbUIFAHX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 20:07:23 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Matthew Wilcox <willy@debian.org>
-Subject: Re: multi-domain PCI and sysfs
-Date: Sun, 5 Sep 2004 17:06:50 -0700
-User-Agent: KMail/1.7
-Cc: Jon Smirl <jonsmirl@gmail.com>, lkml <linux-kernel@vger.kernel.org>
-References: <9e4733910409041300139dabe0@mail.gmail.com> <200409041603.56324.jbarnes@engr.sgi.com> <20040905230425.GU642@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20040905230425.GU642@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409051706.50455.jbarnes@engr.sgi.com>
+	Sun, 5 Sep 2004 20:14:34 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:9377 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267354AbUIFAOc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 20:14:32 -0400
+Subject: Re: [BUG] r200 dri driver deadlocks
+From: Lee Revell <rlrevell@joe-job.com>
+To: Patrick McFarland <diablod3@gmail.com>
+Cc: dri-devel@lists.sf.net, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <d577e569040905131870fa14a3@mail.gmail.com>
+References: <d577e569040904021631344d2e@mail.gmail.com>
+	 <1094321696.31459.103.camel@admin.tel.thor.asgaard.local>
+	 <d577e56904090413365f5e223d@mail.gmail.com>
+	 <1094366099.31457.112.camel@admin.tel.thor.asgaard.local>
+	 <d577e56904090501224f252dbc@mail.gmail.com>
+	 <1094406055.31464.118.camel@admin.tel.thor.asgaard.local>
+	 <d577e569040905131870fa14a3@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Message-Id: <1094429682.29921.6.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 05 Sep 2004 20:14:43 -0400
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, September 5, 2004 4:04 pm, Matthew Wilcox wrote:
-> On Sat, Sep 04, 2004 at 04:03:56PM -0700, Jesse Barnes wrote:
-> > On Saturday, September 4, 2004 3:45 pm, Jon Smirl wrote:
-> > > Is this a multipath configuration where pci0000:01 and pci0000:02 can
-> > > both get to the same target bus? So both busses are top level busses?
+On Sun, 2004-09-05 at 16:18, Patrick McFarland wrote:
+> On Sun, 05 Sep 2004 13:40:54 -0400, Michel Dänzer <michel@daenzer.net> wrote:
+> > On Sun, 2004-09-05 at 04:22 -0400, Patrick McFarland wrote:
+> > > On Sun, 05 Sep 2004 02:34:59 -0400, Michel Dänzer <michel@daenzer.net> wrote:
+> > > >
+> > > > Where did you get r200_dri.so from?
 > > >
-> > > I'm trying to figure out where to stick the vga=0/1 attribute for
-> > > disabling all the VGA devices in a domain. It's starting to look like
-> > > there isn't a single node in sysfs that corresponds to a domain, in
-> > > this case there are two for the same domain.
-> >
-> > Yes, I think that's the case.  Matthew would probably know for sure
-> > though.
->
-> Huh, eh, what?  There's no such thing as multipath PCI configurations.
-> The important concepts in PCI are:
+> > > From the one that comes with the Deb X I mentioned above.
+> > 
+> > Please try something newer, e.g. my xlibmesa-gl1-dri-trunk or a binary
+> > snapshot from dri.sf.net.
+> 
+> That shouldn't matter, should it? The userland stuff should never lock
+> the machine up.
+> I'll test it anyhow, though.
 
-Right, but I was answering his question about whether or not there was a place 
-to stick his 'vga' control file on a per-domain basis.  There would be if the 
-layout was something like this:
+No, it shouldn't.  Anything that directly accesses hardware belongs in
+the kernel.  How to fix this is a pretty hot topic now.
 
-/sys/devices/pciDDDD/BB/SS.F/foo
-rather than the current
-/sys/devices/pciDDDD:BB/DDDD:BB:SS.F/foo
+Lee
 
-> I haven't really looked at the VGA attribute.  I think Ivan or Grant
-> would be better equipped to help you on this front.  I remember them
-> rehashing it 2-3 years ago.
-
-I'm actually ok with a system wide vga arbitration driver, assuming that we'll 
-never have to worry about the scalability of stuff that wants to do legacy 
-vga I/O.
-
-Thanks,
-Jesse
- 

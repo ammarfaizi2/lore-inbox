@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265956AbUFVU6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265902AbUFVVCx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265956AbUFVU6j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 16:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265902AbUFVUs7
+	id S265902AbUFVVCx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 17:02:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266016AbUFVVCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 16:48:59 -0400
-Received: from web51809.mail.yahoo.com ([206.190.38.240]:54354 "HELO
-	web51809.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265956AbUFVUgs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 16:36:48 -0400
-Message-ID: <20040622190018.10371.qmail@web51809.mail.yahoo.com>
-Date: Tue, 22 Jun 2004 12:00:18 -0700 (PDT)
-From: Phy Prabab <phyprabab@yahoo.com>
-Subject: slow performance w/patch-2.6.7-mjb1
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 22 Jun 2004 17:02:50 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:13472 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S265900AbUFVVBs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 17:01:48 -0400
+Message-Id: <200406222100.i5ML0TY32225@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Bug fix in mm/hugetlb.c - use safe iterater
+Date: Tue, 22 Jun 2004 14:01:45 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcRYnCAzAMaAtxsgT1iqPqQq1PnuSg==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+With list poisoning on by default from linux-2.6.7, it's easier
+than ever to trigger the bug in try_to_free_low().  It ought to
+use the safe version of list iterater.
 
-To the mbligh, maintainer of mjb patch sets:
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
 
-I am trying to track down why I am seeing 2x in run
-time with patch-2.6.7-mjb1.  I would like to get the
-4g/4g patch, hence the use of this patch set, however,
-something within this patch has more than doubled the
-run time for a test executable I have so I would like
-to see what component might be the cause.  Is there a
-list of the various patches that went into this patch
-set and if so, are the patches in a broken out format?
 
-Thanks!
-Phy
+diff -Nurp linux-2.6.7.orig/mm/hugetlb.c linux-2.6.7/mm/hugetlb.c
+--- linux-2.6.7.orig/mm/hugetlb.c	2004-06-15 22:19:37.000000000 -0700
++++ linux-2.6.7/mm/hugetlb.c	2004-06-22 13:45:11.000000000 -0700
+@@ -134,8 +134,8 @@ static int try_to_free_low(unsigned long
+ {
+ 	int i;
+ 	for (i = 0; i < MAX_NUMNODES; ++i) {
+-		struct page *page;
+-		list_for_each_entry(page, &hugepage_freelists[i], lru) {
++		struct page *page, *next;
++		list_for_each_entry_safe(page, next, &hugepage_freelists[i], lru) {
+ 			if (PageHighMem(page))
+ 				continue;
+ 			list_del(&page->lru);
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+

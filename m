@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289336AbSA3Pzq>; Wed, 30 Jan 2002 10:55:46 -0500
+	id <S289339AbSA3P6q>; Wed, 30 Jan 2002 10:58:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289338AbSA3Pz2>; Wed, 30 Jan 2002 10:55:28 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:41988 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S289336AbSA3PzK>;
-	Wed, 30 Jan 2002 10:55:10 -0500
-Date: Wed, 30 Jan 2002 13:54:59 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Note describing poor dcache utilization under high memory pressure
-In-Reply-To: <E16VwCo-0000F0-00@starship.berlin>
-Message-ID: <Pine.LNX.4.33L.0201301354000.11594-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S289340AbSA3P6g>; Wed, 30 Jan 2002 10:58:36 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33810 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289339AbSA3P6b>; Wed, 30 Jan 2002 10:58:31 -0500
+Subject: Re: Oops with 2.4.18-pre3-ac2 with Intel ServerRAID Controller
+To: michelpereira@uol.com.br (Michel Angelo da Silva Pereira)
+Date: Wed, 30 Jan 2002 15:28:59 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020130113337.A2140@josephine.e-mail4you.com.br> from "Michel Angelo da Silva Pereira" at Jan 30, 2002 11:33:37 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16VwfU-0007Xu-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jan 2002, Daniel Phillips wrote:
-> On January 30, 2002 03:46 pm, Rik van Riel wrote:
-> > On Wed, 30 Jan 2002, Daniel Phillips wrote:
+> Jan 30 10:33:23 servmail kernel: i2o_scsi.c: Version 0.0.1
+> Jan 30 10:33:23 servmail kernel:   chain_pool: 2048 bytes @ f6b92800
+> Jan 30 10:33:23 servmail kernel:   (512 byte buffers X 4 can_queue X 1 =
+> i2o controllers)
+> Jan 30 10:33:23 servmail kernel: scsi2 : i2o/iop0
 
-> > >      |-bash---bash---xinit-+-XFree86
-> > >      |                     `-xfwm-+-xfce---gnome-terminal-+-bash---pstree
-> >
-> > It doesn't matter how deep the tree is, on exec() all
-> > previously shared page tables will be blown away.
-> >
-> > In this part of the tree, I see exactly 2 processes
-> > which could be sharing page tables (the two bash
-> > processes).
->
-> Sure, your point is that there is no problem and the speed of rmap on
-> fork is not something to worry about?
+Ok the oops is not nice. The timeouts point to i2o_scsi and/or the serveraid
+in i2o mode not liking one another (it has an official native mode driver
+too btw which is the one you wanted)
 
-No.  The point is that we should optimise for fork()+exec(),
-not for a long series of consecutive fork()s all sharing the
-same page tables.
-
-regards,
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Can you run the oops through ksymoops so I can see what the symbols are
+and I'll take a look. I guess Im mixing a bus/host address somewhere on
+the reset command (which just doesnt occur in normal i2o use)

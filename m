@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268918AbTBSOci>; Wed, 19 Feb 2003 09:32:38 -0500
+	id <S268919AbTBSOjP>; Wed, 19 Feb 2003 09:39:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268917AbTBSOci>; Wed, 19 Feb 2003 09:32:38 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:4612 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S268915AbTBSOci>; Wed, 19 Feb 2003 09:32:38 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302191443.h1JEhvdm000194@81-2-122-30.bradfords.org.uk>
-Subject: Re: Select voltage manually in cpufreq
-To: cw@f00f.org (Chris Wedgwood)
-Date: Wed, 19 Feb 2003 14:43:57 +0000 (GMT)
-Cc: pavel@suse.cz, linux-kernel@vger.kernel.org, davej@suse.delinux@brodo.de
-In-Reply-To: <20030218220858.GA15273@f00f.org> from "Chris Wedgwood" at Feb 18, 2003 02:08:58 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S268920AbTBSOjP>; Wed, 19 Feb 2003 09:39:15 -0500
+Received: from p0005.as-l043.contactel.cz ([194.108.242.5]:29685 "EHLO
+	SnowWhite.janik.cz") by vger.kernel.org with ESMTP
+	id <S268919AbTBSOjO> convert rfc822-to-8bit; Wed, 19 Feb 2003 09:39:14 -0500
+To: David Lang <david.lang@digitalinsight.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: openbkweb-0.0
+References: <Pine.LNX.4.44.0302181427440.8963-100000@dlang.diginsite.com>
+From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
+X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
+ ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
+ iHiAs(t(~b#1.{w.d[=Z
+Date: Wed, 19 Feb 2003 09:31:47 +0100
+In-Reply-To: <Pine.LNX.4.44.0302181427440.8963-100000@dlang.diginsite.com> (David
+ Lang's message of "Tue, 18 Feb 2003 14:34:42 -0800 (PST)")
+Message-ID: <m3d6lopt70.fsf@Janik.cz>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
+ (i386-suse-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Well, and does slow-low-power mean 300MHz, 1.4V as bios said, or
-> > 300MHz, 1.2V which is probably also safe?
-> 
-> I have no idea... that's the point... the user almost never knows what
-> *exact* magic values are required, they just want fast-on-power or
-> slow-on-battery sort of thing.
-> 
-> you pick two options, a slow and fast option; both should work
+[Cc: list shortened.]
 
-Until you are working on an embedded system, and want the extra
-functionality.
+   From: David Lang <david.lang@digitalinsight.com>
+   Date: Tue, 18 Feb 2003 14:34:42 -0800 (PST)
 
-Whenever you have a lot of options, adding extra options to try to
-simplify things rarely achieves that.
+   > Ok, it sounds like we have the following resources available for getting
+   > the kernel source
 
-Good defaults, and good documentation are much more useful than yet
-another way to alter several variables at once.
+[...]
 
-John.
+   > This isn't enough for people so will adding read-only CVS access to the
+   > tree itself be enough?
+
+This will be enough for people who want to have usual access to the Linux
+kernel source repository. It won't satisfy people who do not like the
+approach of using non-free software for developing the Linux kernel.
+-- 
+Pavel Janík
+
+/* Host controller interrupts must not be running while calling this
+ * function or the penguins will get angry. */
+                  -- 2.2.16 drivers/usb/ohci.c

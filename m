@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280930AbRKOQXT>; Thu, 15 Nov 2001 11:23:19 -0500
+	id <S280727AbRKOQZS>; Thu, 15 Nov 2001 11:25:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280727AbRKOQXI>; Thu, 15 Nov 2001 11:23:08 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:43791 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S280932AbRKOQXB>;
-	Thu, 15 Nov 2001 11:23:01 -0500
-Date: Thu, 15 Nov 2001 17:22:46 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux i/o tweaking
-Message-ID: <20011115172246.Z27010@suse.de>
-In-Reply-To: <Pine.LNX.4.30.0111151535060.13411-100000@mustard.heime.net>
-Mime-Version: 1.0
+	id <S280934AbRKOQY7>; Thu, 15 Nov 2001 11:24:59 -0500
+Received: from mx6.port.ru ([194.67.57.16]:11535 "EHLO smtp6.port.ru")
+	by vger.kernel.org with ESMTP id <S280727AbRKOQYt>;
+	Thu, 15 Nov 2001 11:24:49 -0500
+From: Samium Gromoff <_deepfire@mail.ru>
+Message-Id: <200111151330.fAFDU1x01012@vegae.deep.net>
+Subject: Re: 3.0.2 breaks linux-2.4.13-ac8 in tcp.c
+To: rml@tech9.net (Robert Love)
+Date: Thu, 15 Nov 2001 16:30:01 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1005024259.1376.4.camel@phantasy> from "Robert Love" at Nov 06, 2001 12:24:18 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0111151535060.13411-100000@mustard.heime.net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 15 2001, Roy Sigurd Karlsbakk wrote:
-> Hi all
+"  Robert Love wrote:"
 > 
-> After three days at Compaq's lab in Oslo, testing their medium-level
-> servers and storage systems with Linux, I've come to some sort of
-> conclusions, although these may be wrong. I also have come over a few
-> problems that I couln't find a good solution to.
+> On Tue, 2001-11-06 at 00:13, Samium Gromoff wrote:
+> >      well, not too much to add, maybe except that the RAM is ok and CPU is not
+> >    OC`ed...
+> > [...]
+> > tcp.c: In function `tcp_close':
+> > tcp.c:1978: Internal compiler error in rtx_equal_for_memref_p, at alias.c:1121
+> > Please submit a full bug report,
+> > with preprocessed source if appropriate.
+> > See <URL:http://www.gnu.org/software/gcc/bugs.html> for instructions.
 > 
->  * When running RAID from a Compaq Smart 5302/64 controller, software
-> RAID-5 is (slightly - ~15%) faster (on JBOD - each disk is configured as
-> a RAID-0 device with max - 256kB - stripe size) than the
-> hardware/controller based RAID-5. Both CPUs (1266MHz/512kB cache) are
-> maxed out by reading from software RAID-5 (???), giving me >= 107MB/s on
-> two SCSI-3 buses with six disks on each bus.
+> This is the GCC team's worry -- it is an internal GCC bug.  Send them
+> the compile log and the source file in question.
+   Well, i understand this, its just that i liked to ensure that the community
+ is aware of this problem... :)
 > 
->  * Even though I can get up to 25 MB/s from each disk, I can't get more
-> than 107 MB/s on the whole bunch (12 drives). It doesn't help much to do
-> RAID-0 either. Don't understand anything ...
+> See http://www.gnu.org/software/gcc/bugs.html
+> 
+> 	Robert Love
+> 
+> 
 
-Could you please try and profile where the time is spent? Boot with
-profile=2, and then do
-
-# readprofile -r
-# do I/O testing
-# readprofile | sort -nr
-
--- 
-Jens Axboe
-
+cheers, Samium Gromoff

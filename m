@@ -1,49 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264587AbSIVWpr>; Sun, 22 Sep 2002 18:45:47 -0400
+	id <S264607AbSIVW6Y>; Sun, 22 Sep 2002 18:58:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264588AbSIVWpr>; Sun, 22 Sep 2002 18:45:47 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:9889 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S264587AbSIVWpq>;
-	Sun, 22 Sep 2002 18:45:46 -0400
-Date: Mon, 23 Sep 2002 00:59:15 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
+	id <S264608AbSIVW6Y>; Sun, 22 Sep 2002 18:58:24 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:17281 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S264607AbSIVW6V>; Sun, 22 Sep 2002 18:58:21 -0400
+Date: Sun, 22 Sep 2002 18:03:25 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Roman Zippel <zippel@linux-m68k.org>, Sam Ravnborg <sam@ravnborg.org>,
        linux-kernel <linux-kernel@vger.kernel.org>,
-       LTT-Dev <ltt-dev@shafik.org>
-Subject: Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
-In-Reply-To: <3D8E470D.C76C459E@opersys.com>
-Message-ID: <Pine.LNX.4.44.0209230057150.31803-100000@localhost.localdomain>
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+Subject: Re: [kbuild-devel] linux kernel conf 0.6
+In-Reply-To: <3D8E4A06.5010603@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.44.0209221756130.11808-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 22 Sep 2002, Jeff Garzik wrote:
 
-On Sun, 22 Sep 2002, Karim Yaghmour wrote:
-
-> Ingo Molnar wrote:
-> > +int trace_event(u8 pm_event_id,
-> > +               void *pm_event_struct)
-> > [...]
-> > +       read_lock(&tracer_register_lock);
+> Kai Germaschewski wrote:
+> > On Sun, 22 Sep 2002, Jeff Garzik wrote:
 > > 
-> > ie. it's using a global spinlock. (sure, it can be made lockless, as other
-> > tracers have done it.)
+> > 
+> >>One cosmetic thing I mentioned to Roman, Config.new needs to be changed 
+> >>to something better, like conf.in or build.conf or somesuch.
+> > 
+> > 
+> > I agree. (But I'm not particularly good at coming up with names ;) 
+> > build.conf is maybe not too bad considering that there may be a day where 
+> > it is extended to support "<driver>.conf" as well.
 > 
-> It is, but this is separate from the trace driver. [...]
+> We want to make sure the config format is extensible in case we want to 
+> add Makefile rules or some other metadata (i.e. <driver>.conf contains 
+> all config/make info needed to build a driver, just drop it in)
+> 
+> 
+> > One other thing I wanted to mention but forgot was that lkc now
+> > does a quiet "make oldconfig" when .config changed or does not exist, 
+> > which is changed behavior.
+> 
+> 
+> Can you elaborate a bit on that?  'make oldconfig' is one of the things 
+> we want to keep working as-is...  That was a downside of ESR's system. 
+> If you're saying "silent" as in, if-no-changes-occurred or 
+> defconfig-copied-as-is, that's cool...
 
-it does not matter, it's called for every event.
+Roman probably knows better than I do, but anyway.
 
-> [...] This global spinlock is only used to avoid a race condition in the
-> registration/ unregistration of the tracing function with the trace
-> infrastructure.
+AFAICS, "quiet" only means the same thing as the traditional "make 
+oldconfig", but suppressing questions where the answers are known. (Which 
+I think is fine)
 
-(here you make the incorrect assumption that read-locking a rwlock is a
-lightweight operation.)
+I was just referring to the following, which really is not in the subtle 
+change category:
 
-	Ingo
+-------------------------------------------------------------
+[kai@zephyr linux-2.5.make]$ rm .config
+[kai@zephyr linux-2.5.make]$ make
+***
+*** You have not yet configured your kernel!
+***
+*** Please run some configurator (e.g. "make oldconfig" or
+*** "make menuconfig" or "make xconfig").
+***
+make: *** [.config] Error 1
+-------------------------------------------------------------
+
+whereas lkc changes this to run (the quiet) make oldconfig automatically.
+
+Same thing for 
+
+-------------------------------------------------------------
+[kai@zephyr linux-2.5.make]$ cp ../config-2.5 .config
+[kai@zephyr linux-2.5.make]$ make
+make[1]: Entering directory 
+`/home/kai/src/kernel/v2.5/linux-2.5.make/scripts'
+make[1]: Leaving directory 
+`/home/kai/src/kernel/v2.5/linux-2.5.make/scripts'
+***
+*** You changed .config w/o running make *config?
+*** Please run "make oldconfig"
+***
+-------------------------------------------------------------
+
+Since people run automated builds, erroring out is IMHO preferable to 
+dropping into interactive mode, which likely happens when you run make 
+oldconfig.
+
+
+--Kai
+
+
 

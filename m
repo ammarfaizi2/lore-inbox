@@ -1,78 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267800AbUHEQxf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267792AbUHEQxg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267800AbUHEQxf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 12:53:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267809AbUHEQw5
+	id S267792AbUHEQxg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 12:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267810AbUHEQwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 12:52:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37274 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267800AbUHEQus (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 12:50:48 -0400
-Date: Thu, 5 Aug 2004 09:50:22 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jari Ruusu <jariruusu@users.sourceforge.net>
-cc: Fruhwirth Clemens <clemens@endorphin.org>,
-       James Morris <jmorris@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: Linux 2.6.8-rc3 - BSD licensing
-In-Reply-To: <411228FF.485E4D07@users.sourceforge.net>
-Message-ID: <Pine.LNX.4.58.0408050941590.24588@ppc970.osdl.org>
-References: <Xine.LNX.4.44.0408041156310.9291-100000@dhcp83-76.boston.redhat.com>
-   <1091644663.21675.51.camel@ghanima> <Pine.LNX.4.58.0408041146070.24588@ppc970.osdl.org>
-   <1091647612.24215.12.camel@ghanima> <Pine.LNX.4.58.0408041251060.24588@ppc970.osdl.org>
- <411228FF.485E4D07@users.sourceforge.net>
+	Thu, 5 Aug 2004 12:52:32 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:56839 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S267801AbUHEQv2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 12:51:28 -0400
+To: colpatch@us.ibm.com
+Cc: William Lee Irwin III <wli@holomorphy.com>, Paul Jackson <pj@sgi.com>,
+       zwane@linuxpower.ca, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][2.6] first/next_cpu returns values > NR_CPUS
+References: <Pine.LNX.4.58.0407311347270.4094@montezuma.fsmlabs.com>
+	<20040731232126.1901760b.pj@sgi.com>
+	<Pine.LNX.4.58.0408010316590.4095@montezuma.fsmlabs.com>
+	<20040801124053.GS2334@holomorphy.com>
+	<20040801060529.4bc51b98.pj@sgi.com>
+	<20040801131004.GT2334@holomorphy.com>
+	<20040801063632.66c49e61.pj@sgi.com>
+	<20040801134112.GU2334@holomorphy.com>
+	<1091484032.4415.55.camel@arrakis>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Fri, 06 Aug 2004 01:50:23 +0900
+In-Reply-To: <1091484032.4415.55.camel@arrakis>
+Message-ID: <871xiljzqo.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matthew Dobson <colpatch@us.ibm.com> writes:
 
+> >  #define first_cpu(src) __first_cpu(&(src), NR_CPUS)
+> >  static inline int __first_cpu(const cpumask_t *srcp, int nbits)
+> >  {
+> > -	return find_first_bit(srcp->bits, nbits);
+> > +	return min_t(int, nbits, find_first_bit(srcp->bits, nbits));
+> >  }
+> >  
+> >  #define next_cpu(n, src) __next_cpu((n), &(src), NR_CPUS)
+> >  static inline int __next_cpu(int n, const cpumask_t *srcp, int nbits)
+> >  {
+> > -	return find_next_bit(srcp->bits, nbits, n+1);
+> > +	return min_t(int, nbits, find_next_bit(srcp->bits, nbits, n+1));
+> >  }
 
-On Thu, 5 Aug 2004, Jari Ruusu wrote:
-> 
-> Most of the files in loop-AES are licensed under GPL. Some files have less
-> restrictive license, but are still licensed under GPL-compatible license.
-> I am not aware of any files in loop-AES that are GPL-incompatible.
+>  #define first_node(src) __first_node(&(src), MAX_NUMNODES)
+>  static inline int __first_node(const nodemask_t *srcp, int nbits)
+>  {
+> -	return find_first_bit(srcp->bits, nbits);
+> +	return min_t(int, nbits, find_first_bit(srcp->bits, nbits));
+>  }
+>  
+>  #define next_node(n, src) __next_node((n), &(src), MAX_NUMNODES)
+>  static inline int __next_node(int n, const nodemask_t *srcp, int nbits)
+>  {
+> -	return find_next_bit(srcp->bits, nbits, n+1);
+> +	return min_t(int, nbits, find_next_bit(srcp->bits, nbits, n+1));
+>  }
 
-You're saying that you consider Gladman's original AES license to be
-GPL-compatible (ie a subset of it)? That's fine - apparently the FSF
-agrees.
-
-However, that is incompatible with you then complaining when it gets 
-released under the GPL. If the original license was a proper subset of the 
-GPL, then it can _always_ be re-released under the GPL, and you don't have 
-anything to complain about.
-
-So which is it? Either it's GPL-compatible or it isn't. If it is
-GPL-compatible, why are you making noises? And if it is not, why are you
-claiming that you can distribute loop-AES as a GPL'd project?
-
-You seem to be very very confused, Jari. There really _are_ only these two 
-cases:
-
- - the AES code is GPL-compatible
-
-   This fundamentally means that it has no more restrictions than the GPL, 
-   and that in turn means that it can always be re-licensed as GPL'd code. 
-   Which James Morris did (well, it was dual-licensed, but the only 
-   license that matters for the _kernel_ is the GPL).
-
-   In this case, you can't say "you can't do that". I'm sorry, but James 
-   _can_ do that, and it is _you_ who can't do that. 
-
- - the AES code is _not_ GPL compatible.
-
-   This fundamentally means that you can't relicense it under the GPL, but 
-   it _also_ means that you can't link it with GPL code, since the GPL
-   _requires_ that the code be under the GPL. In this case, loop-AES was 
-   always wrogn and lying about beign GPL'd, and you should stop
-   distributing it immediately.
-
-You can't have it both ways. And there aren't any third alternatives.
-
-Explain yourself.
-
-		Linus
-
+Shouldn't these use simply min()?  I worry min_t() may hide the real bug...
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

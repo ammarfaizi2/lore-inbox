@@ -1,90 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264085AbUF0Qmq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUF0RHR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264085AbUF0Qmq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 12:42:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264088AbUF0Qmq
+	id S264098AbUF0RHR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 13:07:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264154AbUF0RHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 12:42:46 -0400
-Received: from wavehammer.waldi.eu.org ([82.139.196.55]:29903 "EHLO
-	wavehammer.waldi.eu.org") by vger.kernel.org with ESMTP
-	id S264085AbUF0Qmn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 12:42:43 -0400
-Date: Sun, 27 Jun 2004 18:42:39 +0200
-From: Bastian Blank <bastian@waldi.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.7 - oops while dereferencing null pointer in nfs_create_request
-Message-ID: <20040627164239.GA8349@wavehammer.waldi.eu.org>
-Mail-Followup-To: Bastian Blank <bastian@waldi.eu.org>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="82I3+IH0IqGh5yIs"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040523i
+	Sun, 27 Jun 2004 13:07:17 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:14160 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S264098AbUF0RHO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 13:07:14 -0400
+To: Martin Mares <mj@ucw.cz>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pciutils: Support for MSI-X capability
+X-Message-Flag: Warning: May contain useful information
+References: <52y8mayzdy.fsf@topspin.com> <20040627114329.GE670@ucw.cz>
+From: Roland Dreier <roland@topspin.com>
+Date: Sun, 27 Jun 2004 10:07:12 -0700
+In-Reply-To: <20040627114329.GE670@ucw.cz> (Martin Mares's message of "Sun,
+ 27 Jun 2004 13:43:29 +0200")
+Message-ID: <528ye9ylof.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 27 Jun 2004 17:07:12.0716 (UTC) FILETIME=[306FA0C0:01C45C69]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Martin> Applied and will appear in -test6 soon.
 
---82I3+IH0IqGh5yIs
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+    Martin> Could you please add a couple of comments to the
+    Martin> capability defines in header.h?
 
-Hi folks
+Thanks, sorry about leaving out the comments.  Here is a patch.  I
+also added _CAP_ to the capability register defines so that I match
+the naming convention better.
 
-Linux 2.6.7 on s390 regulary oopses with the following error:
+Best,
+  Roland
 
-| Unable to handle kernel pointer dereference at virtual kernel address 000=
-0000000000000
-| Oops: 0004 [#1]
-| CPU:    2    Not tainted
-| Process pdflush (pid: 90, task: 000000000fbb5400, ksp: 000000000fad7ba0)
-| Krnl PSW : 0700200180000000 000000000010a08c (nfs3_request_init+0x34/0x50)
-| Krnl GPRS: 0000000000000000 0000000000000001 0000000000000000 00000000000=
-00028
-|            0000000000000001 0000000000000000 0000000000001000 00000000092=
-84948
-|            000000000040c300 000000000feecc00 0000000000000000 00000000008=
-15638
-|            0000000001ef3f00 000000000029df00 000000000010a07c 000000000fa=
-d72c8
-| Krnl Code: ba 54 30 00 a7 44 ff fc e3 20 c0 30 00 24 e3 40 f1 10 00 04
-| Call Trace:
-|  [nfs_create_request+220/316] nfs_create_request+0xdc/0x13c
-|  [nfs_update_request+718/1168] nfs_update_request+0x2ce/0x490
-|  [nfs_writepage_async+44/252] nfs_writepage_async+0x2c/0xfc
-|  [nfs_writepage+492/536] nfs_writepage+0x1ec/0x218
-|  [mpage_writepages+586/892] mpage_writepages+0x24a/0x37c
-|  [nfs_writepages+50/368] nfs_writepages+0x32/0x170
-|  [do_writepages+64/100] do_writepages+0x40/0x64
-|  [__sync_single_inode+130/632] __sync_single_inode+0x82/0x278
-|  [__writeback_single_inode+254/272] __writeback_single_inode+0xfe/0x110
-|  [sync_sb_inodes+426/896] sync_sb_inodes+0x1aa/0x380
-|  [writeback_inodes+360/388] writeback_inodes+0x168/0x184
-|  [wb_kupdate+182/324] wb_kupdate+0xb6/0x144
-|  [__pdflush+430/700] __pdflush+0x1ae/0x2bc
-|  [pdflush+46/60] pdflush+0x2e/0x3c
-|  [kthread+228/236] kthread+0xe4/0xec
-|  [kernel_thread_starter+20/28] kernel_thread_starter+0x14/0x1c
+Index: pciutils-2.1.99-test6/lib/header.h
+===================================================================
+--- pciutils-2.1.99-test6.orig/lib/header.h	2004-06-27 04:38:42.000000000 -0700
++++ pciutils-2.1.99-test6/lib/header.h	2004-06-27 10:01:04.000000000 -0700
+@@ -727,12 +727,12 @@
+ #define PCI_EXP_RTSTA		0x20	/* Root Status */
+ 
+ /* MSI-X */
+-#define  PCI_MSIX_ENABLE	0x8000
+-#define  PCI_MSIX_MASK		0x4000
+-#define  PCI_MSIX_TABSIZE	0x03ff
+-#define PCI_MSIX_TABLE		4
+-#define PCI_MSIX_PBA		8
+-#define  PCI_MSIX_BIR		0x7
++#define  PCI_MSIX_CAP_ENABLE	0x8000	/* MSI-X enabled */
++#define  PCI_MSIX_CAP_MASK	0x4000	/* All vectors masked */
++#define  PCI_MSIX_CAP_TABSIZE	0x03ff	/* Mask for (table_size - 1) */
++#define PCI_MSIX_TABLE		4	/* Vector table offset/BAR register */
++#define PCI_MSIX_PBA		8	/* PBA offset/BAR register */
++#define  PCI_MSIX_BIR_MASK	0x7	/* Mask of BAR index for table/PBA */
+ 
+ /*
+  * The PCI interface treats multi-function devices as independent
+Index: pciutils-2.1.99-test6/lspci.c
+===================================================================
+--- pciutils-2.1.99-test6.orig/lspci.c	2004-06-27 04:41:39.000000000 -0700
++++ pciutils-2.1.99-test6/lspci.c	2004-06-27 10:01:13.000000000 -0700
+@@ -990,18 +990,18 @@
+   u32 off;
+ 
+   printf("MSI-X: Enable%c Mask%c TabSize=%d\n",
+-	 FLAG(cap, PCI_MSIX_ENABLE),
+-	 FLAG(cap, PCI_MSIX_MASK),
+-	 (cap & PCI_MSIX_TABSIZE) + 1);
++	 FLAG(cap, PCI_MSIX_CAP_ENABLE),
++	 FLAG(cap, PCI_MSIX_CAP_MASK),
++	 (cap & PCI_MSIX_CAP_TABSIZE) + 1);
+   if (verbose < 2 || !config_fetch(d, where + PCI_MSIX_TABLE, 8))
+     return;
+ 
+   off = get_conf_long(d, where + PCI_MSIX_TABLE);
+   printf("\t\tVector table: BAR=%d offset=%08x\n",
+-	 off & PCI_MSIX_BIR, off & ~PCI_MSIX_BIR);
++	 off & PCI_MSIX_BIR_MASK, off & ~PCI_MSIX_BIR_MASK);
+   off = get_conf_long(d, where + PCI_MSIX_PBA);
+   printf("\t\tPBA: BAR=%d offset=%08x\n",
+-	 off & PCI_MSIX_BIR, off & ~PCI_MSIX_BIR);
++	 off & PCI_MSIX_BIR_MASK, off & ~PCI_MSIX_BIR_MASK);
+ }
+ 
+ static void
 
-Bastian
-
---=20
-	"Life and death are seldom logical."
-	"But attaining a desired goal always is."
-		-- McCoy and Spock, "The Galileo Seven", stardate 2821.7
-
---82I3+IH0IqGh5yIs
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iEYEARECAAYFAkDe+P8ACgkQnw66O/MvCNHnBQCeKGuKhgNDD75FaxkTPaISJwBK
-54QAoKt7qPMotXQhMi0WGvyScTkoqOao
-=YH7B
------END PGP SIGNATURE-----
-
---82I3+IH0IqGh5yIs--

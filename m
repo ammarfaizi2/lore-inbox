@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261662AbSJQDCK>; Wed, 16 Oct 2002 23:02:10 -0400
+	id <S261661AbSJQC7R>; Wed, 16 Oct 2002 22:59:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261663AbSJQDCK>; Wed, 16 Oct 2002 23:02:10 -0400
-Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:12166
-	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S261662AbSJQDCJ>; Wed, 16 Oct 2002 23:02:09 -0400
-Subject: Re: [Kernel 2.5] Qlogic 2x00 driver
-From: GrandMasterLee <masterlee@digitalroadkill.net>
-To: Simon Roscic <simon.roscic@chello.at>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200210161838.39824.simon.roscic@chello.at>
-References: <200210152120.13666.simon.roscic@chello.at>
-	 <1034744519.29307.26.camel@localhost>
-	 <200210161838.39824.simon.roscic@chello.at>
-Content-Type: text/plain
+	id <S261662AbSJQC7R>; Wed, 16 Oct 2002 22:59:17 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:26119 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S261661AbSJQC7Q>;
+	Wed, 16 Oct 2002 22:59:16 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200210170305.g9H35Ed36356@saturn.cs.uml.edu>
+Subject: per-process %CPU
+To: linux-kernel@vger.kernel.org
+Date: Wed, 16 Oct 2002 23:05:14 -0400 (EDT)
+Cc: robert.penz@outertech.com, mingo@elte.hu, rml@tech9.net
+In-Reply-To: <200210170146.33348.robert.penz@outertech.com> from "Robert Penz" at Oct 17, 2002 01:46:33 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: Digitalroadkill.net
-Message-Id: <1034824086.32333.29.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.2.99 (Preview Release)
-Date: 16 Oct 2002 22:08:07 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do you actually get the lockups then?
+> I want to do following
+>
+> [root@server13 root]# ps -eo pid,%cpu,%mem,user,args --sort user hC
+> ps: error: Option C is reserved.
+> usage: ps -[Unix98 options]
+>        ps [BSD-style options]
+>        ps --[GNU-style long options]
+>        ps --help for a command summary
+>
+> but If I replace C by any other OUTPUT MODIFIERS it works.
+> I just want the current %cpu of the process and not the
+> decaying average, so is there an other way to get to my goal?
+>
+> I tried it on redhat, suse and debian distris ... always the same.
 
-On Wed, 2002-10-16 at 11:38, Simon Roscic wrote:
-> On Wednesday 16 October 2002 07:02, GrandMasterLee <masterlee@digitalroadkill.net> wrote:
-> > Do you use LVM, EVMS, MD, other, or none?
-> >
-> 
-> none.
-> it's a XFS filesystem with the folowing mount options:
-> rw,noatime,logbufs=8,logbsize=32768
-> 
-> (this apply's to all 3 machines)
-> 
-> simon.
-> (please CC me, i'm not subscribed to lkml)
-> 
+I have bad news for you. The kernel doesn't even maintain
+the decaying average. Per-process %cpu on Linux is a lie,
+and always has been -- except with "top", which crudely does
+a measurement itself.
+
+What you get for %cpu is calculated over the lifetime of
+the process. Maybe you can find a scheduler hacker to fix
+this problem. I'll Cc: a few for you.
+
+Guys, this is a POSIX and UNIX requirement. The system is
+supposed to report per-process %CPU for a "recent" time frame.
+

@@ -1,34 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314491AbSECQAD>; Fri, 3 May 2002 12:00:03 -0400
+	id <S314503AbSECQDm>; Fri, 3 May 2002 12:03:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314493AbSECQAC>; Fri, 3 May 2002 12:00:02 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:11793 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314491AbSECQAB>; Fri, 3 May 2002 12:00:01 -0400
-Message-ID: <3CD2A54E.2070404@evision-ventures.com>
-Date: Fri, 03 May 2002 16:57:18 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S314511AbSECQDl>; Fri, 3 May 2002 12:03:41 -0400
+Received: from dsl-213-023-039-070.arcor-ip.net ([213.23.39.70]:31655 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S314503AbSECQDk>;
+	Fri, 3 May 2002 12:03:40 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Andrea Arcangeli <andrea@suse.de>
+Subject: Re: Virtual address space exhaustion (was  Discontigmem virt_to_page() )
+Date: Fri, 3 May 2002 18:02:18 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020503103813.K11414@dualathlon.random> <4055279713.1020413842@[10.10.2.3]>
 MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: 2.5.13 IDE and preemptible kernel problems
-In-Reply-To: <20020503173859.A1016@averell>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E173fVi-0002Ic-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Andi Kleen napisa?:
-> Hi,
+On Friday 03 May 2002 17:17, Martin J. Bligh wrote:
+> Andrea apparently wrote:
+> > Ah, and of course you could also use 2M pagetables by default to make it
+> > more usable but still you would run in some huge ram wastage in certain
+> > usages with small files, huge pageins and reads swapout and swapins,
+> > plus it wouldn't be guaranteed to be transparent to the userspace
+> > binaries (for istance mmap offset fields would break backwards
+> > compatibility on the required alignment, that's probably the last
+> > problem though). Despite its also significant drawbacks and the
+> > complexity of the change, probably the 4M pagetables would be the saner
+> > approch to manage more efficiently 64G with only a 800M kernel window.
 > 
-> When booting an preemptible kernel 2.5.13 kernel on x86-64 I get 
-> very quickly an scheduling in interrupt BUG. It looks like the 
-> preempt_count becomes 0 inside the ATA interrupt handler. This 
-> could happen when save_flags/restore_flags and friends are unmatched
-> and you have too many flags restores in IDE. 
+> Though that'd reduce the size of some of the structures, I'd still
+> have other concerns (such as tlb size, which is something stupid
+> like 4 pages, IIRC), and the space wastage you mentioned. Page 
+> clustering is probably a more useful technique - letting the existing
+> control structures control groups of pages. For example, one struct
+> page could control aligned groups of 4 4K pages, giving us an 
+> effective page size of 16K from the management overhead point of
+> view (swap in and out in 4 page chunks, etc).
 
-Thank you for pointing out. I will re check it.
+IMHO, this will be a much easier change than storing mem_map in highmem,
+and solves 75% of the problem.  It's not just ia32 numa that will benefit
+from it.  For example, MIPS supports 16K pages in software, which will
+take a lot of load off the tlb.  According to Ralf, there are benefits
+re virtual aliasing as well.
 
+-- 
+Daniel

@@ -1,245 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264346AbTIITuF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 15:50:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbTIITuE
+	id S264517AbTIITlV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 15:41:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264520AbTIITlU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 15:50:04 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53775 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264346AbTIITsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 15:48:07 -0400
-Date: Tue, 9 Sep 2003 20:48:03 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Buggy PCI drivers - do not mark pci_device_id as discardable data
-Message-ID: <20030909204803.N4216@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+	Tue, 9 Sep 2003 15:41:20 -0400
+Received: from kiuru.kpnet.fi ([193.184.122.21]:21174 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S264517AbTIITlE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 15:41:04 -0400
+Subject: Re: Nforce2
+From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+To: Alistair J Strachan <alistair@devzero.co.uk>
+Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <200309091801.17024.alistair@devzero.co.uk>
+References: <1063114472.589.4.camel@midux>
+	 <200309091801.17024.alistair@devzero.co.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-SU9sr0rUUuLm1vhLn+Je"
+Message-Id: <1063136426.3406.7.camel@midux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 09 Sep 2003 22:40:26 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guys,
 
-All these drivers are buggy wrt PCI hotplugging/Cardbus/PCI new_id
-support and are all potential sources of oops dumps.  You don't need
-to have hotplugging enabled to cause your machine to oops with any
-of these drivers loaded.
+--=-SU9sr0rUUuLm1vhLn+Je
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-The authors of future drivers doing this will be sent home to write
-1000 lines, using pen and paper, of: "I will not use __initdata with
-pci_device_id tables."  Printed copies, trick photography, and emails
-will not be accepted.
+Hello Alistair,
 
-(I'm sending Linus a separate patch since I've already sent him the
-AGP fixes.)
+I've tested everything, I think. It just can't use AGP 4x. I tryed with
+NvAGP 1 and 3. Here's the output in /var/log/XFree86.0.log:
+[...snip...]
+(**) NVIDIA(0): Option "NvAGP" "3"
+(**) NVIDIA(0): Use of any AGP requested (try AGPGART, then try NVIDIA's
+AGP)
+[...snip...]
+(WW) NVIDIA(0): Failed to verify AGP usage
+[...snip...]
+And I just noticed that 2.4 is not telling me the truth. The agp isn't
+enbaled there either. I don't know anything to do anymore.
+Looks like linux totally lacks support for my Mobo. *sigh*.
 
---- orig/drivers/char/agp/ati-agp.c	Mon Sep  8 23:36:52 2003
-+++ linux/drivers/char/agp/ati-agp.c	Tue Sep  9 20:11:19 2003
-@@ -491,7 +491,7 @@
- 	agp_put_bridge(bridge);
- }
- 
--static struct pci_device_id agp_ati_pci_table[] __initdata = {
-+static struct pci_device_id agp_ati_pci_table[] = {
- 	{
- 	.class		= (PCI_CLASS_BRIDGE_HOST << 8),
- 	.class_mask	= ~0,
---- orig/drivers/char/agp/sis-agp.c	Mon Sep  8 23:36:53 2003
-+++ linux/drivers/char/agp/sis-agp.c	Tue Sep  9 20:12:38 2003
-@@ -215,7 +215,7 @@
- 	agp_put_bridge(bridge);
- }
- 
--static struct pci_device_id agp_sis_pci_table[] __initdata = {
-+static struct pci_device_id agp_sis_pci_table[] = {
- 	{
- 	.class		= (PCI_CLASS_BRIDGE_HOST << 8),
- 	.class_mask	= ~0,
---- orig/drivers/char/agp/uninorth-agp.c	Thu Sep  4 16:36:58 2003
-+++ linux/drivers/char/agp/uninorth-agp.c	Tue Sep  9 20:12:38 2003
-@@ -350,7 +350,7 @@
- 	agp_put_bridge(bridge);
- }
- 
--static struct pci_device_id agp_uninorth_pci_table[] __initdata = {
-+static struct pci_device_id agp_uninorth_pci_table[] = {
- 	{
- 	.class		= (PCI_CLASS_BRIDGE_HOST << 8),
- 	.class_mask	= ~0,
---- orig/drivers/char/agp/via-agp.c	Mon Sep  8 23:36:53 2003
-+++ linux/drivers/char/agp/via-agp.c	Tue Sep  9 20:12:38 2003
-@@ -432,7 +432,7 @@
- 	agp_put_bridge(bridge);
- }
- 
--static struct pci_device_id agp_via_pci_table[] __initdata = {
-+static struct pci_device_id agp_via_pci_table[] = {
- 	{
- 	.class		= (PCI_CLASS_BRIDGE_HOST << 8),
- 	.class_mask	= ~0,
---- orig/drivers/char/watchdog/alim1535_wdt.c	Mon Sep  8 23:37:03 2003
-+++ linux/drivers/char/watchdog/alim1535_wdt.c	Tue Sep  9 20:45:16 2003
-@@ -317,7 +317,7 @@
-  *	want to register another driver on the same PCI id.
-  */
- 
--static struct pci_device_id ali_pci_tbl[] __initdata = {
-+static struct pci_device_id ali_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_AL, 1535, PCI_ANY_ID, PCI_ANY_ID,},
- 	{ 0, },
- };
---- orig/drivers/char/watchdog/amd7xx_tco.c	Sat Jun 14 22:33:48 2003
-+++ linux/drivers/char/watchdog/amd7xx_tco.c	Tue Sep  9 20:45:16 2003
-@@ -294,7 +294,7 @@
- 	.fops	= &amdtco_fops
- };
- 
--static struct pci_device_id amdtco_pci_tbl[] __initdata = {
-+static struct pci_device_id amdtco_pci_tbl[] = {
- 	/* AMD 766 PCI_IDs here */
- 	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_OPUS_7443, PCI_ANY_ID, PCI_ANY_ID, },
- 	{ 0, }
---- orig/drivers/char/watchdog/i810-tco.c	Sun Aug  3 11:21:11 2003
-+++ linux/drivers/char/watchdog/i810-tco.c	Tue Sep  9 20:45:16 2003
-@@ -301,7 +301,7 @@
-  * register a pci_driver, because someone else might one day
-  * want to register another driver on the same PCI id.
-  */
--static struct pci_device_id i810tco_pci_tbl[] __initdata = {
-+static struct pci_device_id i810tco_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801AA_0,	PCI_ANY_ID, PCI_ANY_ID, },
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801AB_0,	PCI_ANY_ID, PCI_ANY_ID, },
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_0,	PCI_ANY_ID, PCI_ANY_ID, },
---- orig/drivers/char/hw_random.c	Sat Jun 14 22:33:46 2003
-+++ linux/drivers/char/hw_random.c	Tue Sep  9 20:45:16 2003
-@@ -149,7 +149,7 @@
-  * register a pci_driver, because someone else might one day
-  * want to register another driver on the same PCI id.
-  */
--static struct pci_device_id rng_pci_tbl[] __initdata = {
-+static struct pci_device_id rng_pci_tbl[] = {
- 	{ 0x1022, 0x7443, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_amd },
- 	{ 0x1022, 0x746b, PCI_ANY_ID, PCI_ANY_ID, 0, 0, rng_hw_amd },
- 
---- orig/drivers/isdn/hisax/config.c	Sun Aug  3 11:21:16 2003
-+++ linux/drivers/isdn/hisax/config.c	Tue Sep  9 20:45:16 2003
-@@ -2113,7 +2113,7 @@
- 
- #include <linux/pci.h>
- 
--static struct pci_device_id hisax_pci_tbl[] __initdata = {
-+static struct pci_device_id hisax_pci_tbl[] = {
- #ifdef CONFIG_HISAX_FRITZPCI
- 	{PCI_VENDOR_ID_AVM,      PCI_DEVICE_ID_AVM_A1,           PCI_ANY_ID, PCI_ANY_ID},
- #endif
---- orig/drivers/isdn/hysdn/hysdn_init.c	Sat Jun 14 22:33:52 2003
-+++ linux/drivers/isdn/hysdn/hysdn_init.c	Tue Sep  9 20:45:16 2003
-@@ -21,7 +21,7 @@
- 
- #include "hysdn_defs.h"
- 
--static struct pci_device_id hysdn_pci_tbl[] __initdata = {
-+static struct pci_device_id hysdn_pci_tbl[] = {
- 	{PCI_VENDOR_ID_HYPERCOPE, PCI_DEVICE_ID_HYPERCOPE_PLX, PCI_ANY_ID, PCI_SUBDEVICE_ID_HYPERCOPE_METRO},
- 	{PCI_VENDOR_ID_HYPERCOPE, PCI_DEVICE_ID_HYPERCOPE_PLX, PCI_ANY_ID, PCI_SUBDEVICE_ID_HYPERCOPE_CHAMP2},
- 	{PCI_VENDOR_ID_HYPERCOPE, PCI_DEVICE_ID_HYPERCOPE_PLX, PCI_ANY_ID, PCI_SUBDEVICE_ID_HYPERCOPE_ERGO},
---- orig/drivers/net/fc/iph5526.c	Thu Sep  4 16:37:13 2003
-+++ linux/drivers/net/fc/iph5526.c	Tue Sep  9 20:45:17 2003
-@@ -110,7 +110,7 @@
- #define ALIGNED_ADDR(addr, len) ((((unsigned long)(addr) + (len - 1)) & ~(len - 1)) - (unsigned long)(addr))
- 
- 
--static struct pci_device_id iph5526_pci_tbl[] __initdata = {
-+static struct pci_device_id iph5526_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_INTERPHASE, PCI_DEVICE_ID_INTERPHASE_5526, PCI_ANY_ID, PCI_ANY_ID, },
- 	{ PCI_VENDOR_ID_INTERPHASE, PCI_DEVICE_ID_INTERPHASE_55x6, PCI_ANY_ID, PCI_ANY_ID, },
- 	{ }			/* Terminating entry */
---- orig/drivers/net/irda/via-ircc.c	Mon Sep  8 23:37:31 2003
-+++ linux/drivers/net/irda/via-ircc.c	Tue Sep  9 20:45:17 2003
-@@ -121,7 +121,7 @@
- 	}
- }
- 
--static struct pci_device_id via_pci_tbl[] __initdata = {
-+static struct pci_device_id via_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_VIA, DeviceID1, PCI_ANY_ID, PCI_ANY_ID,0,0,0 },
- 	{ PCI_VENDOR_ID_VIA, DeviceID2, PCI_ANY_ID, PCI_ANY_ID,0,0,1 },
- 	{ PCI_VENDOR_ID_VIA, DeviceID3, PCI_ANY_ID, PCI_ANY_ID,0,0,2 },
---- orig/drivers/net/skfp/skfddi.c	Mon Sep  8 23:37:35 2003
-+++ linux/drivers/net/skfp/skfddi.c	Tue Sep  9 20:45:17 2003
-@@ -182,7 +182,7 @@
- extern void enable_tx_irq(struct s_smc *smc, u_short queue);
- extern void mac_drv_clear_txd(struct s_smc *smc);
- 
--static struct pci_device_id skfddi_pci_tbl[] __initdata = {
-+static struct pci_device_id skfddi_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_SK, PCI_DEVICE_ID_SK_FP, PCI_ANY_ID, PCI_ANY_ID, },
- 	{ }			/* Terminating entry */
- };
---- orig/drivers/net/wan/sdladrv.c	Wed Aug 13 10:33:18 2003
-+++ linux/drivers/net/wan/sdladrv.c	Tue Sep  9 20:45:17 2003
-@@ -201,7 +201,7 @@
-  * Note: All data must be explicitly initialized!!!
-  */
- 
--static struct pci_device_id sdladrv_pci_tbl[] __initdata = {
-+static struct pci_device_id sdladrv_pci_tbl[] = {
- 	{ V3_VENDOR_ID, V3_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID, },
- 	{ }			/* Terminating entry */
- };
---- orig/drivers/net/dgrs.c	Mon Sep  8 23:37:29 2003
-+++ linux/drivers/net/dgrs.c	Tue Sep  9 20:45:16 2003
-@@ -120,7 +120,7 @@
- #include "dgrs_asstruct.h"
- #include "dgrs_bcomm.h"
- 
--static struct pci_device_id dgrs_pci_tbl[] __initdata = {
-+static struct pci_device_id dgrs_pci_tbl[] = {
- 	{ SE6_PCI_VENDOR_ID, SE6_PCI_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID, },
- 	{ }			/* Terminating entry */
- };
---- orig/drivers/net/hp100.c	Thu Sep  4 16:37:16 2003
-+++ linux/drivers/net/hp100.c	Tue Sep  9 20:45:16 2003
-@@ -284,7 +284,7 @@
- 
- #define HP100_PCI_IDS_SIZE	(sizeof(hp100_pci_ids)/sizeof(struct hp100_pci_id))
- 
--static struct pci_device_id hp100_pci_tbl[] __initdata = {
-+static struct pci_device_id hp100_pci_tbl[] = {
- 	{PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_J2585A, PCI_ANY_ID, PCI_ANY_ID,},
- 	{PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_J2585B, PCI_ANY_ID, PCI_ANY_ID,},
- 	{PCI_VENDOR_ID_COMPEX, PCI_DEVICE_ID_COMPEX_ENET100VG4, PCI_ANY_ID, PCI_ANY_ID,},
---- orig/drivers/net/sunhme.c	Mon Sep  8 23:37:36 2003
-+++ linux/drivers/net/sunhme.c	Tue Sep  9 20:45:17 2003
-@@ -179,7 +179,7 @@
-    where it could be referenced at any time due to hot plugging,
-    the __initdata reference should be removed. */
- 
--struct pci_device_id happymeal_pci_ids[] __initdata = {
-+struct pci_device_id happymeal_pci_ids[] = {
- 	{
- 	  .vendor	= PCI_VENDOR_ID_SUN,
- 	  .device	= PCI_DEVICE_ID_SUN_HAPPYMEAL,
---- orig/drivers/video/i810/i810_main.c	Wed Aug 13 10:33:34 2003
-+++ linux/drivers/video/i810/i810_main.c	Tue Sep  9 20:45:16 2003
-@@ -66,7 +66,7 @@
- 	"Intel(R) 815 (Internal Graphics with AGP) Framebuffer Device"
- };
- 
--static struct pci_device_id i810fb_pci_tbl[] __initdata = {
-+static struct pci_device_id i810fb_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810_IG1,
- 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810_IG3,
+midian@midux:~$ uname -r
+2.6.0-test5-mm1
 
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-Linux kernel maintainer of:
-  2.6 ARM Linux   - http://www.arm.linux.org.uk/
-  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-  2.6 Serial core
+NVRM version: NVIDIA Linux x86 nvidia.o Kernel Module  1.0-4496  Wed Jul
+16 19:03:09 PDT 2003
+GCC version:  gcc version 3.3.2 20030831 (Debian prerelease)
+
+midian@midux:~$ cat /proc/driver/nvidia/agp/status
+Status:          Disabled
+
+midian@midux:~$ lspci
+00:00.0 Host bridge: nVidia Corporation: Unknown device 01e0 (rev c1)
+00:00.1 RAM memory: nVidia Corporation: Unknown device 01eb (rev c1)
+00:00.2 RAM memory: nVidia Corporation: Unknown device 01ee (rev c1)
+00:00.3 RAM memory: nVidia Corporation: Unknown device 01ed (rev c1)
+00:00.4 RAM memory: nVidia Corporation: Unknown device 01ec (rev c1)
+00:00.5 RAM memory: nVidia Corporation: Unknown device 01ef (rev c1)
+00:01.0 ISA bridge: nVidia Corporation nForce2 ISA Bridge (rev a4)
+00:01.1 SMBus: nVidia Corporation nForce2 SMBus (MCP) (rev a2)
+00:02.0 USB Controller: nVidia Corporation nForce2 USB Controller (rev
+a4)
+00:02.1 USB Controller: nVidia Corporation nForce2 USB Controller (rev
+a4)
+00:02.2 USB Controller: nVidia Corporation nForce2 USB Controller (rev
+a4)
+00:04.0 Ethernet controller: nVidia Corporation nForce2 Ethernet
+Controller (rev a1)
+00:08.0 PCI bridge: nVidia Corporation: Unknown device 006c (rev a3)
+00:09.0 IDE interface: nVidia Corporation nForce2 IDE (rev a2)
+00:1e.0 PCI bridge: nVidia Corporation nForce2 AGP (rev c1)
+01:06.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev
+07)
+01:06.1 Input device controller: Creative Labs SB Live! MIDI/Game Port
+(rev 07)
+01:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
+RTL-8139/8139C/8139C+ (rev 10)
+01:0d.0 FireWire (IEEE 1394): Lucent Microelectronics FW323 (rev 61)
+02:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 MX
+440] (rev a3)
+
+Thanks.
+--=20
+----
+Markus H=E4stbacka <midian@ihme.org>
+
+--=-SU9sr0rUUuLm1vhLn+Je
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/Xiyp3+NhIWS1JHARAhskAJ98jU/K/2ofcr96F5jf95EmH8XCGwCg7Tw6
+D/QLIw1XM9nmu6u1hdQLT0A=
+=P2El
+-----END PGP SIGNATURE-----
+
+--=-SU9sr0rUUuLm1vhLn+Je--
+

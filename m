@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267310AbUH0Xjm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267669AbUH0Xl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267310AbUH0Xjm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 19:39:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267350AbUH0Xjh
+	id S267669AbUH0Xl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 19:41:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267517AbUH0Xk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 19:39:37 -0400
-Received: from cantor.suse.de ([195.135.220.2]:34182 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267310AbUH0Xja (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 19:39:30 -0400
-Date: Sat, 28 Aug 2004 01:36:02 +0200
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: akpm@osdl.org, William Lee Irwin III <wli@holomorphy.com>,
-       "David S. Miller" <davem@redhat.com>, raybry@sgi.com, ak@muc.de,
-       benh@kernel.crashing.org, manfred@colorfullife.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       vrajesh@umich.edu, hugh@veritas.com
-Subject: Re: page fault scalability patch final : i386 tested, x86_64 support added
-Message-ID: <20040827233602.GB1024@wotan.suse.de>
-References: <Pine.LNX.4.58.0408151552280.3370@schroedinger.engr.sgi.com> <20040815165827.0c0c8844.davem@redhat.com> <Pine.LNX.4.58.0408151703580.3751@schroedinger.engr.sgi.com> <20040815185644.24ecb247.davem@redhat.com> <Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com> <20040816143903.GY11200@holomorphy.com> <B6E8046E1E28D34EB815A11AC8CA3129027B679F@mtv-atc-605e--n.corp.sgi.com> <B6E8046E1E28D34EB815A11AC8CA3129027B67A9@mtv-atc-605e--n.corp.sgi.com> <B6E8046E1E28D34EB815A11AC8CA3129027B67B4@mtv-atc-605e--n.corp.sgi.com> <Pine.LNX.4.58.0408271616001.14712@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 27 Aug 2004 19:40:56 -0400
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:42848 "HELO
+	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267368AbUH0XkH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 19:40:07 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org, grendel@caudium.net
+Subject: Re: Termination of the Philips Webcam Driver (pwc)
+Date: Fri, 27 Aug 2004 18:40:03 -0500
+User-Agent: KMail/1.6.2
+Cc: "Nemosoft Unv." <webcam@smcc.demon.nl>, Linus Torvalds <torvalds@osdl.org>,
+       Craig Milo Rogers <rogers@isi.edu>,
+       Xavier Bestel <xavier.bestel@free.fr>,
+       Christoph Hellwig <hch@infradead.org>
+References: <20040826233244.GA1284@isi.edu> <200408272342.30619@smcc.demon.nl> <20040827224937.GA5107@beowulf.thanes.org>
+In-Reply-To: <20040827224937.GA5107@beowulf.thanes.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408271616001.14712@schroedinger.engr.sgi.com>
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408271840.04219.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Index: linux-2.6.9-rc1/include/linux/sched.h
-> ===================================================================
-> --- linux-2.6.9-rc1.orig/include/linux/sched.h	2004-08-25 10:50:12.534021000 -0700
-> +++ linux-2.6.9-rc1/include/linux/sched.h	2004-08-27 12:14:09.564008624 -0700
-> @@ -197,9 +197,10 @@
->  	pgd_t * pgd;
->  	atomic_t mm_users;			/* How many users with user space? */
->  	atomic_t mm_count;			/* How many references to "struct mm_struct" (users count as 1) */
-> +	atomic_t mm_rss;			/* Number of pages used by this mm struct */
+On Friday 27 August 2004 05:49 pm, Marek Habersack wrote:
+> On Fri, Aug 27, 2004 at 11:42:30PM +0200, Nemosoft Unv. scribbled:
+> [snip]
+> > > So I'd personally much prefer the user mode approach. At that point it's
+> > > still closed-source, but at least there is not even a whiff of a "hook"
+> > > inside the kernel.
+> > 
+> > My problem with that is that it makes using such cams a lot harder for both 
+> > users and developers of webcam tools. Basicly, every tool that wanted to 
+> > use webcam X that has some binary-only library would need to specifically 
+> > support it, use probing routines, check which formats are supported, set up 
+> > the decompressor, push the data through it, etc. Conversely, every user 
+> > that wanted to use webcams X, Y and Z would need to check first if they are 
+> > all supported by the program(s) he would like to use.
+> Forgive me if I'm talking bullshit, but wouldn't it be possible for you to
+> route the stream through a device with an entry in /dev/ which would be
+> opened by a userspace daemon which would take the stream from the in-kernel
+> pwc driver, apply all the codec magic to it, and then give it back to the
+> driver in the kernel so that the application that grabs the frames would get
+> the processed data? That way you would need only one userlevel daemon to
+> support the codecs and all the other apps would just read the data from the
+> framebuffer.
+> 
 
-atomic_t is normally 32bit, even on a 64bit arch.  This will limit the max 
-memory size per process to 2^(32+PAGE_SHIFT). I don't think that's a good idea.
+I wonder if something like uinput is possible/desirable for v4l?
 
-On some architectures it used to be 24bit only even, but I think that
-has been fixed.
-
-I think you need atomic64_t
-
--Andi
+-- 
+Dmitry

@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267335AbTA2VQ1>; Wed, 29 Jan 2003 16:16:27 -0500
+	id <S266721AbTA2VPx>; Wed, 29 Jan 2003 16:15:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263991AbTA2VQ1>; Wed, 29 Jan 2003 16:16:27 -0500
-Received: from [212.156.4.132] ([212.156.4.132]:15855 "EHLO fep02.ttnet.net.tr")
-	by vger.kernel.org with ESMTP id <S267335AbTA2VQ0>;
-	Wed, 29 Jan 2003 16:16:26 -0500
-Date: Wed, 29 Jan 2003 23:25:16 +0200
-From: Faik Uygur <faikuygur@ttnet.net.tr>
-To: Mauricio Martinez <mauricio@coe.neu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOPS in read_cd... what to do?
-Message-ID: <20030129212516.GA2489@ttnet.net.tr>
-Mail-Followup-To: Mauricio Martinez <mauricio@coe.neu.edu>,
-	linux-kernel@vger.kernel.org
-References: <Pine.GSO.4.33.0301270937370.18209-100000@Amps.coe.neu.edu>
+	id <S267335AbTA2VPx>; Wed, 29 Jan 2003 16:15:53 -0500
+Received: from packet.digeo.com ([12.110.80.53]:2192 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266721AbTA2VPw>;
+	Wed, 29 Jan 2003 16:15:52 -0500
+Date: Wed, 29 Jan 2003 13:42:05 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: [PATCH 2.5] Report write errors to applications
+Message-Id: <20030129134205.3e128777.akpm@digeo.com>
+In-Reply-To: <20030129162411.GB3186@waste.org>
+References: <20030129060916.GA3186@waste.org>
+	<20030128232929.4f2b69a6.akpm@digeo.com>
+	<20030129162411.GB3186@waste.org>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-9
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.33.0301270937370.18209-100000@Amps.coe.neu.edu>
-User-Agent: Mutt/1.4i
-X-PGP-Fingerprint: 15 C0 AA 31 59 F9 DE 4F 7D A6 C7 D8 A0 D5 67 73
-X-PGP-Key-ID: 0x5C447959
-X-PGP-Key-Size: 2048 bits
-X-Editor: GNU Emacs 21.2.1
-X-Operating-System: Debian GNU/Linux
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Jan 2003 21:25:08.0183 (UTC) FILETIME=[E5CB3E70:01C2C7DC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Oliver Xymoron <oxymoron@waste.org> wrote:
+>
+> > - fsync_buffers_list() will handle them and will return errors to the fsync()
+> > caller.  We only need to handle those buffers which were stripped
+> > asynchronously by VM activity.
+> 
+> Are we guaranteed that we'll get a try_to_free_buffers after IO
+> completion and before sync? I haven't dug through this path much.
 
-> I reported twice (Jan 15 the last time) to this list a kernel oops when
-> reading a CD in a SONY CDU-31A unit with kernels 2.4.18 - 2.4.20 (and
-> probably all the 2.4 series), which works fine on 2.2.x (and even
-> 1.2.x!!), maybe the maintainer of this part os the code is offline... Are
-> there any alternatives to fix this problem? Thank you.
+Think so.  That's the only place where buffers are detached.  Otherwise,
+fsync_buffers_list() looks at them all.
 
-There is something wrong here. This should help.
+There's also the prune_icache() buffer-stripper remove_inode_buffers(). 
+Nobody knows about the inode by that time, but there's a chance that the
+inode will be rescued before it is thrown away, so remove_inode_buffers()
+should propagate errors into the address_space as well.
 
---- linux-2.4.20/drivers/cdrom/cdu31a.c.orig    Fri Nov 29 01:53:12 2002
-+++ linux-2.4.20/drivers/cdrom/cdu31a.c Wed Jan 29 23:12:39 2003
-@@ -1384,9 +1384,9 @@
-                               readahead_buffer + (2048 -
-                                                   readahead_dataleft),
-                               readahead_dataleft);
--                       readahead_dataleft = 0;
-                        bytesleft -= readahead_dataleft;
-                        offset += readahead_dataleft;
-+                       readahead_dataleft = 0;
-                } else {
-                        /* The readahead will fill the whole buffer, get the data
-                           and return. */
+> Another 2.5 change I hadn't noticed. Ok, will look at that. I haven't
+> come up with a good test for the writepage ENOSPC, thoughts?
+
+See kswapd-writepage.c from
+http://www.zip.com.au/~akpm/linux/patches/2.5/ext3-tools.tar.gz
+
+If you run that over a filesystem which has only a few K of space, apply
+memory pressure while it is sleeping then data loss will ensue.
+
+hm, there's also enospc-writepage.c which is designed to exactly demonstrate
+this problem.
 
 

@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317185AbSFRAPP>; Mon, 17 Jun 2002 20:15:15 -0400
+	id <S317193AbSFRAYx>; Mon, 17 Jun 2002 20:24:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317187AbSFRAPO>; Mon, 17 Jun 2002 20:15:14 -0400
-Received: from twinlark.arctic.org ([208.44.199.239]:44230 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id <S317185AbSFRAPM>; Mon, 17 Jun 2002 20:15:12 -0400
-Date: Mon, 17 Jun 2002 17:15:13 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Andrew Morton <akpm@zip.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 3x slower file reading oddity
-In-Reply-To: <3D0E7041.860710CA@zip.com.au>
-Message-ID: <Pine.LNX.4.44.0206171649270.18507-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+	id <S317194AbSFRAYw>; Mon, 17 Jun 2002 20:24:52 -0400
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:29416 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S317193AbSFRAYv>; Mon, 17 Jun 2002 20:24:51 -0400
+To: Emmanuel Michon <emmanuel_michon@realmagic.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: binary compatibity (mixing different gcc versions) in modules
+References: <7w3cvmdquu.fsf@avalon.france.sdesigns.com>
+From: Andi Kleen <ak@muc.de>
+Date: 18 Jun 2002 02:24:27 +0200
+In-Reply-To: Emmanuel Michon's message of "Mon, 17 Jun 2002 14:40:07 +0200"
+Message-ID: <m3sn3ljux0.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.070095 (Pterodactyl Gnus v0.95) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Jun 2002, Andrew Morton wrote:
+Emmanuel Michon <emmanuel_michon@realmagic.fr> writes:
 
-> I rather depends on what is in /tmp/filelist.  I assume it's
-> something like the output of `find'.  And I assume you're
-> using ext2 or ext3?
+> Hi,
+> 
+> looking at nvidia proprietary driver, the makefile warns
+> the user against insmod'ing a module compiled with a gcc
+> version different from the one that was used to compile
+> the kernel.
+> 
+> This sounds strange to me, since I never encountered this
+> problem.
 
-yup: find mail1 mail2 -type f -print0 >/tmp/filelist
+Some earlier obsolete gcc versions had problems with empty types. This lead
+to an #if based on the compiler version that added a dummy field
+to spinlocks even for UP kernels. This made structure offsets of
+structures with spinlocks change based on gcc version.
 
-ext3.
+Should be long gone with recent compilers.
 
-thanks for the description of the block groups... that all makes more
-sense now.
+Still there are enough other variables to structure offsets depending 
+on the configuration.
 
-> You'll get best throughput with a single read thread.
-
-what if you have a disk array with lots of spindles?  it seems at some
-point that you need to give the array or some lower level driver a lot of
-i/os to choose from so that it can get better parallelism out of the
-hardware.
-
-i see similar slowdowns on a 4-IDE-disk softRAID5+LVM+ext3 setup (SMP
-2.4.19-pre7-ac4).  not nearly as bad as on the single disk.
-
--dean
-
+-Andi

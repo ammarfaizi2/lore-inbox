@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264433AbRFXTql>; Sun, 24 Jun 2001 15:46:41 -0400
+	id <S264446AbRFXTqL>; Sun, 24 Jun 2001 15:46:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264432AbRFXTqc>; Sun, 24 Jun 2001 15:46:32 -0400
-Received: from hssx-sktn-167-47.sasknet.sk.ca ([142.165.167.47]:22021 "HELO
-	mail.thock.com") by vger.kernel.org with SMTP id <S264433AbRFXTqT>;
-	Sun, 24 Jun 2001 15:46:19 -0400
-Message-ID: <3B3643A8.F3FE1E92@bigfoot.com>
-Date: Sun, 24 Jun 2001 13:46:48 -0600
-From: Dylan Griffiths <Dylan_G@bigfoot.com>
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: klink@clouddancer.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Annoying kernel behaviour
-In-Reply-To: <3B33EFC0.D9C930D5@bigfoot.com>    <9h0r6s$fe7$1@ns1.clouddancer.com>    <20010623090542.6019D7846F@mail.clouddancer.com> <3B35C2FA.37F57964@bigfoot.com> <9h4ft5$1ku$1@ns1.clouddancer.com> <20010624114655.3D187784C4@mail.clouddancer.com>
+	id <S264433AbRFXTqB>; Sun, 24 Jun 2001 15:46:01 -0400
+Received: from femail14.sdc1.sfba.home.com ([24.0.95.141]:50160 "EHLO
+	femail14.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S264432AbRFXTpq>; Sun, 24 Jun 2001 15:45:46 -0400
+Date: Sun, 24 Jun 2001 15:45:44 -0400
+From: Tom Vier <tmv5@home.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.5-ac17 swapoff machine check
+Message-ID: <20010624154544.A863@zero>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Colonel wrote:
-> Ah, notice that the IRQ shifted?  Perhaps there is something else on
-> irq 10, such as the SCSI controller?  My video cards always end up on
-> that IRQ, perhaps the computer is still accessible via the network?
+i had about 50megs of swap "used" when i ran swapoff -a. that trigger two
+machine checks, but the box stayed up and seemed none the worse. here's the
+syslog.
 
-I would expect the IRQ to shift as the system has a different
-motherboard/processor than it did in December.
-
-
-           CPU0       
-  0:    3208074          XT-PIC  timer
-  1:          2          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
- 10:          1          XT-PIC  bttv
- 12:      10444          XT-PIC  eth0
- 14:      12366          XT-PIC  ide0
- 15:         67          XT-PIC  ide1
-NMI:          0 
-ERR:          0
-
-There are no conflicts, and PCI should be able to share anyways.
-
-That machine, being a server, is only accesible via the network.  And when
-all my SSH sessions to it died, and the pings weren't pinging, I went over
-to the server corner, attached a monitor to the machaine and tried the magic
-sysrq on the keyboard after verifying that I couldn't get a local response. 
-As I said, I can easily lock an entire system in a way that corrupts files
-even on a synchronuslly mounted partition from userland with no warning, no
-error messages.
-
-Waht part of this do you fail to grasp?
+Jun 24 12:55:54 zero kernel: CIA machine check: vector=0x670 pc=0xfffffc00008470b8 code=0x98
+Jun 24 12:55:54 zero kernel: machine check type: processor detected hard error
+Jun 24 12:55:54 zero kernel: pc = [__get_swap_page+120/832]  ra = [try_to_swap_out+656/896]  ps = 0000
+Jun 24 12:55:54 zero kernel: v0 = 0000000000000001  t0 = 0000000000000000  t1 = 0000000149177150
+Jun 24 12:55:54 zero kernel: t2 = fffffc0000ace084  t3 = fffffc0149c77c58  t4 = 0000000000000001
+Jun 24 12:55:54 zero kernel: t5 = ffffffffffffffff  t6 = 00000000041d17d1  t7 = fffffc001ffe4000
+Jun 24 12:55:54 zero kernel: a0 = fffffc001ffe7ce0  a1 = 0000000000000001  a2 = fffffc00008428b0
+Jun 24 12:55:54 zero kernel: a3 = fffffc0016563ff8  a4 = fffffc0000cf1460  a5 = 0000000000000000
+Jun 24 12:55:54 zero kernel: t8 = 0000000000000000  t9 = fffffc0000b00b08  t10= fffffc0000ace084
+Jun 24 12:55:54 zero kernel: t11= 0000000010745f44  pv = fffffc0000847040  at = fffffc0000acf208
+Jun 24 12:55:54 zero kernel: gp = fffffc0000ac53a0  sp = fffffc001ffe7ca0
+Jun 24 12:55:54 zero kernel: CIA machine check: vector=0x670 pc=0xfffffc0000847330 code=0x98
+Jun 24 12:55:54 zero kernel: machine check type: processor detected hard error
+Jun 24 12:55:54 zero kernel: pc = [__get_swap_page+752/832]  ra = [try_to_swap_out+656/896]  ps = 0000
+Jun 24 12:55:54 zero kernel: v0 = 0000000000000001  t0 = 0000000000000000  t1 = 0000000149177150
+Jun 24 12:55:54 zero kernel: t2 = fffffc0000ace084  t3 = fffffc0149c77c58  t4 = 0000000000000001
+Jun 24 12:55:54 zero kernel: t5 = ffffffffffffffff  t6 = 0000000000000000  t7 = fffffc001ffe4000
+Jun 24 12:55:54 zero kernel: a0 = fffffc001ffe7ce0  a1 = 0000000000000001  a2 = fffffc00008428b0
+Jun 24 12:55:54 zero kernel: a3 = fffffc0016563ff8  a4 = fffffc0000cf1460  a5 = 0000000000000000
+Jun 24 12:55:54 zero kernel: t8 = 0000000000000000  t9 = fffffc0000b00b08  t10= fffffc0000ace084
+Jun 24 12:55:54 zero kernel: t11= 0000000010745f44  pv = fffffc0000847040  at = fffffc0000acf208
+Jun 24 12:55:54 zero kernel: gp = fffffc0000ac53a0  sp = fffffc001ffe7ca0
 
 
---
-    www.kuro5hin.org -- technology and culture, from the trenches.
+-- 
+Tom Vier <tmv5@home.com>
+DSA Key id 0x27371A2C

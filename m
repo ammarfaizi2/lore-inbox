@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262627AbTCNVhv>; Fri, 14 Mar 2003 16:37:51 -0500
+	id <S262626AbTCNVdb>; Fri, 14 Mar 2003 16:33:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263509AbTCNVhv>; Fri, 14 Mar 2003 16:37:51 -0500
-Received: from rj.sgi.com ([192.82.208.96]:53901 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S262627AbTCNVhu>;
-	Fri, 14 Mar 2003 16:37:50 -0500
-Date: Fri, 14 Mar 2003 13:48:27 -0800
-From: Jesse Barnes <jbarnes@sgi.com>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] small fix for aty128fb support on ia64
-Message-ID: <20030314214827.GC1037@sgi.com>
-Mail-Followup-To: James Simmons <jsimmons@infradead.org>,
-	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.GSO.4.21.0303081540090.8221-100000@vervain.sonytel.be> <Pine.LNX.4.44.0303081510380.28479-100000@phoenix.infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303081510380.28479-100000@phoenix.infradead.org>
-User-Agent: Mutt/1.4i
+	id <S262627AbTCNVdb>; Fri, 14 Mar 2003 16:33:31 -0500
+Received: from ts46-01-qdr3643.mdfrd.or.charter.com ([68.118.36.71]:47128 "EHLO
+	mail.flugsvamp.com") by vger.kernel.org with ESMTP
+	id <S262626AbTCNVda>; Fri, 14 Mar 2003 16:33:30 -0500
+Date: Fri, 14 Mar 2003 15:43:40 -0600 (CST)
+From: Jonathan Lemon <jlemon@flugsvamp.com>
+Message-Id: <200303142143.h2ELheqx076668@mail.flugsvamp.com>
+To: davidel@xmailserver.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch, rfc] lt-epoll ( level triggered epoll ) ...  X-Newsgroups: local.mail.linux-kernel In-Reply-To: <local.mail.linux-kernel/Pine.LNX.4.50.0303140845480.1903-100000@blue1.dev.mcafeelabs.com>
+References: <local.mail.linux-kernel/Pine.LNX.4.50.0303101139520.1922-100000@blue1.dev.mcafeelabs.com>
+	<local.mail.linux-kernel/20030311142447.GA14931@bjl1.jlokier.co.uk.lucky.linux.kernel>
+	<local.mail.linux-kernel/20030314155947.GD13106@netch.kiev.ua>
+Organization: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a patch I had to use on ia64.  The framebuffer worked nicely,
-but it looks like X doesn't restore the state correctly when I switch
-back to an fb console, so I just got a blank screen.
+In article <local.mail.linux-kernel/Pine.LNX.4.50.0303140845480.1903-100000@blue1.dev.mcafeelabs.com> you write:
+>On Fri, 14 Mar 2003, Valentin Nechayev wrote:
+>
+>>  Tue, Mar 11, 2003 at 14:27:50, jamie wrote about "Re: [patch, rfc]
+>lt-epoll ( level triggered epoll ) ...":
+>>
+>> > Actually I think _this_ is cleanest: A three-way flag per registered
+>> > fd interest saying whether to:
+>> >
+>> > 	1. Report 0->1 edges for this interest.  (Initial 1 counts as an event).
+>> > 	2. Continually report 1 levels for this interest.
+>> > 	3. One-shot, report the first time 1 is noted and unregister.
+>> >
+>> > ET poll is equivalent to 1.  LT poll is equivalent to 2.  dnotify's
+>> > one-shot mode is equivalent to 3.
+>>
+>> kqueue can do all three variants (1st with EV_CLEAR, 3rd with EV_ONESHOT).
+>>
+>> So, result of this whole epoll work is trivially predictable - Linux will have
+>> analog of "overbloated" and "poorly designed" kqueue, but more poor
+>> and with incompatible interface, adding its own stone to hell of
+>> different APIs. Congratulations.
+>
+>See, this is a free world, and I very much respect your opinion. On the
+>other side you might want to actually *read* the kqueue man page and find
+>out of its 24590 flags, where 99% of its users will use only 1% of its
+>functionality. Talking about overbloating. You might also want to know
+>that quite a few kqueue users currently running on your favourite OS, are
+>moving to Linux+epoll. The reason is still unclear to me, but I can leave
+>you to discover it as exercise.
 
-Maybe you can think of a better way to address the #ifdef issue, it
-certainly looks bad...
-
-Thanks,
-Jesse
-
-
---- linux-2.5.64-ia64-sn/drivers/video/aty128fb.c	Tue Mar  4 19:29:18 2003
-+++ linux-2.5.64-ia64/drivers/video/aty128fb.c	Fri Mar 14 12:12:19 2003
-@@ -1448,7 +1448,10 @@
- 			}
- 		}
- #endif /* CONFIG_ALL_PPC */
-+#if defined(CONFIG_PMAC_PBOOK) || defined(CONFIG_MTRR) || \
-+    defined(CONFIG_ALL_PPC)
- 		else
-+#endif /* this is getting ugly */
- 			mode_option = this_opt;
- 	}
- 	return 0;
-@@ -1709,7 +1712,7 @@
- 					"Guessing...\n");
- 	else {
- 		printk(KERN_INFO "aty128fb: Rage128 BIOS located at "
--				"segment %4.4X\n", (unsigned int)bios_seg);
-+				"segment %4.4lX\n", (unsigned long)bios_seg);
- 		aty128_get_pllinfo(par, bios_seg);
- 	}
- #endif
+FUD. You should know that in the normal case, kq users don't use any
+flags, but they are available for those people who are doing specific
+things.  But I bet you knew that already and just want to slam something
+that isn't epoll.
+-- 
+Jonathan

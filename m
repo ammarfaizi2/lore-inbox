@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312076AbSDDXsV>; Thu, 4 Apr 2002 18:48:21 -0500
+	id <S312254AbSDDXsL>; Thu, 4 Apr 2002 18:48:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312119AbSDDXsL>; Thu, 4 Apr 2002 18:48:11 -0500
-Received: from zero.tech9.net ([209.61.188.187]:20746 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S312076AbSDDXsB>;
-	Thu, 4 Apr 2002 18:48:01 -0500
-Subject: Re: Patch: linux-2.5.8-pre1/kernel/exit.c change caused BUG() at
-	boot  time
-From: Robert Love <rml@tech9.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrew Morton <akpm@zip.com.au>, Roger Larsson <roger.larsson@norran.net>,
-        Dave Hansen <haveblue@us.ibm.com>,
-        "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0204041541500.26177-100000@penguin.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 04 Apr 2002 18:47:59 -0500
-Message-Id: <1017964079.23629.662.camel@phantasy>
-Mime-Version: 1.0
+	id <S312119AbSDDXrw>; Thu, 4 Apr 2002 18:47:52 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:27652 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S312076AbSDDXrm>; Thu, 4 Apr 2002 18:47:42 -0500
+Date: Thu, 4 Apr 2002 18:45:24 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BUG] compile error in 2.4.19-pre5-ac1
+Message-ID: <Pine.LNX.3.96.1020404183703.4898A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-04-04 at 18:42, Linus Torvalds wrote:
+  init/do_mounts.c uses SCHED_YIELD, which seems no longer defined
+although grep tells me it's heavily used in non-Intel code. I noted that
+yield() is back, defined via an asmlink, so I replaced the SCHED_YIELD and
+schedule()  loop with a call to yield(). I also include linux/sched.h
+which may not have been needed but avoided trying a compile without.
 
-> Because that requires that every user of "set_task_state()" needs to know 
-> about preemption.
+  No patch, I'm not sure if defining SCHED_YIELD in sched.h would have
+been the better fix, or would even work, but this worked, I built my
+initrd file, and it all booted correctly several times (and is up as I
+type).
 
-Hm, how so?  I contend not to rudely set the task state but instead mark
-the task as "preempted" in preempt_schedule and handle this case in
-schedule.
+  Note of warning to new Redhat users, for some reason /usr/include/linux
+is a directory instead of a symbolic link to /usr/src/linux/include/linux,
+so changes in includes aren't used. Possibly an artifact of the install on
+that system, but something to note. 
 
-It requires zero change to anything else; this is the behavior of the
-original patch I sent you.
-
-> Btw, I think entry.S should just call preempt_schedule() instead, instead 
-> of knowing about these details.
-
-Agreed.
-
-	Robert Love
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

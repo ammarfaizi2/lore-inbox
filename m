@@ -1,59 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132660AbRDBJqr>; Mon, 2 Apr 2001 05:46:47 -0400
+	id <S131290AbRDBSXl>; Mon, 2 Apr 2001 14:23:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132663AbRDBJq1>; Mon, 2 Apr 2001 05:46:27 -0400
-Received: from [213.97.184.209] ([213.97.184.209]:12672 "HELO piraos.com")
-	by vger.kernel.org with SMTP id <S132660AbRDBJqU>;
-	Mon, 2 Apr 2001 05:46:20 -0400
-Date: Mon, 2 Apr 2001 11:45:06 +0200 (CEST)
-From: German Gomez Garcia <german@piraos.com>
-To: Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Strange problems with 2.4.3.
-Message-ID: <Pine.LNX.4.21.0104021133500.450-100000@hal9000.piraos.com>
+	id <S131293AbRDBSXc>; Mon, 2 Apr 2001 14:23:32 -0400
+Received: from fo.lugos.si ([212.93.228.69]:25907 "HELO fo.lugos.si")
+	by vger.kernel.org with SMTP id <S131290AbRDBSXR>;
+	Mon, 2 Apr 2001 14:23:17 -0400
+To: linux-kernel@vger.kernel.org
+From: sympa-request@lugos.si
+Subject: User guide
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20010402182109.67E027C86@fo.lugos.si>
+Date: Mon,  2 Apr 2001 20:21:09 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello,
 
-	After upgrading to 2.4.3 from the AC series I've found several
-problems, first that as several people already reported the tmpfs/shmfs
-problem. Also AIC7890 and aicasm problems with db (what about an option in
-configure to let people specify the version of db they have? I'm using
-db-3 and need to include db_185.h and link with -ldb-3). Those problems
-are easy fixed, but I found also the following:
+              SYMPA -- Systeme de Multi-Postage Automatique
+                       (Automatic Mailing System)
 
-	Everytime I transmit or received anything through my 3com 3c905b
-ethernet card I get:
+                                User's Guide
 
-eth1: transmit timed out, tx_status 82 status e605.
-diagnostics: net 04d8 media 8880 dma 000000ba.
-eth1: Interrupt posted but not delivered IRQ blocked by another device?
 
-I have the following:
+SYMPA is an electronic mailing-list manager that automates list management
+functions such as subscriptions, moderation, and archive management.
 
-eth1: 3Com PCI 3c905B Cyclone 100baseTx at 0xec00,  00:10:5a:48:e6:38, IRQ15
-  product code 5150 rev 00.12 date 09-18-98
-  8K byte-wide RAM 5:3 Rx:Tx split, autoselect/Autonegotiate interface.
-  MII transceiver found at address 24, status 786d.
-  Enabling bus-master transmits and whole-frame receives.
+All commands must be sent to the electronic address 
 
-	And finally after some time up the system just hangs up, the time
-is between 5 and 12 hours. No console activity, no SysRQ, nothing on the
-logs, just hanged up.
+You can put multiple commands in a message. These commands must appear in the
+message body and each line must contain only one command. The message body
+is ignored if the Content-Type is different from text/plain but even with
+crasy mailer using multipart and text/html for any message, commands in the
+subject are recognized.
 
-	I'm using 2.4.3 on a Dual PII450 Supermicro P6DBU. And the
-2.4.2-ac20 was rock solid (8 days up under heavy loading with no problems,
-since then I'm having some minor problems with every kernel).
+Available commands are:
 
-	Regards,
+ HELp                        * This help file
+ INFO                        * Information about a list
+ LISts                       * Directory of lists managed on this node
+ REView <list>               * Displays the subscribers to <list>
+ WHICH                       * Displays which lists you are subscribed to
+ SUBscribe <list> <GECOS>    * To subscribe or to confirm a subscription to
+                               <list>, <GECOS> is an optional information
+                               about subscriber.
 
-	- german
+ UNSubscribe <list> <EMAIL>  * To quit <list>. <EMAIL> is an optional 
+                               email address, usefull if different from
+                               your "From:" address.
+ UNSubscribe * <EMAIL>       * To quit all lists.
 
-PS: Please CC to me as I'm not subscribed to the list.
--------------------------------------------------------------------------
-German Gomez Garcia         | "This isn't right.  This isn't even wrong."
-<german@piraos.com>         |                         -- Wolfgang Pauli
+ SET <list|*> NOMAIL         * To suspend the message reception for <list>
+ SET <list|*> DIGEST         * Message reception in compilation mode
+ SET <list|*> SUMMARY        * Receiving the message index only
+ SET <list|*> MAIL           * <list> reception in normal mode
+ SET <list|*> CONCEAL        * To become unlisted (hidden subscriber address)
+ SET <list|*> NOCONCEAL      * Subscriber address visible via REView
+
+
+ INDex <list>                * <list> archive file list
+ GET <list> <file>           * To get <file> of <list> archive
+ LAST <list>                 * Used to received the last message from <list>
+ INVITE <list> <email>       * Invite <email> for subscribtion in <list>
+ CONFIRM <key>               * Confirmation for sending a message (depending
+                               on the list's configuration)
+ QUIT                        * Indicates the end of the commands (to ignore a
+                               signature)
+
+
+Powered by Sympa 3.0.3 : http://listes.cru.fr/sympa/
 

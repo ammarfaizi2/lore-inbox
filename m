@@ -1,71 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276511AbRJGSCL>; Sun, 7 Oct 2001 14:02:11 -0400
+	id <S276525AbRJGSCB>; Sun, 7 Oct 2001 14:02:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276519AbRJGSCB>; Sun, 7 Oct 2001 14:02:01 -0400
-Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:54278 "EHLO
-	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S276511AbRJGSBr>; Sun, 7 Oct 2001 14:01:47 -0400
-Reply-To: <frey@scs.ch>
-From: "Martin Frey" <frey@scs.ch>
-To: <becker@scyld.com>, <jgarzik@mandrakesoft.com>,
-        <tjeerd.mulder@fujitsu-siemens.com>, <torvalds@transmeta.com>,
-        <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Fix for drivers/net/natsemi.c on 64 bit platforms
-Date: Sun, 7 Oct 2001 14:01:54 -0400
-Message-ID: <011d01c14f5a$27c8da50$6a876ace@SCHLEPPDOWN>
+	id <S276519AbRJGSBv>; Sun, 7 Oct 2001 14:01:51 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:52724 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S276538AbRJGSBd>; Sun, 7 Oct 2001 14:01:33 -0400
+Message-ID: <3BC0982A.84ECBE7B@mvista.com>
+Date: Sun, 07 Oct 2001 11:00:10 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Mika Liljeberg <Mika.Liljeberg@welho.com>
+CC: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Benjamin LaHaise <bcrl@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Context switch times
+In-Reply-To: <E15pWfR-0006g5-00@the-village.bc.nu> <3BC02709.A8E6F999@welho.com> <20011007150358.G30515@nightmaster.csn.tu-chemnitz.de> <3BC05D2E.94F05935@welho.com> <20011007162439.P748@nightmaster.csn.tu-chemnitz.de> <3BC067BB.73AF1EB5@welho.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Mika Liljeberg wrote:
+> 
+> Ingo Oeser wrote:
+> > There are idle tasks per CPU. If there are runnable tasks and the
+> > idle-task of a CPU is running it, it is not fully loaded at this
+> > time.
+> >
+> > No idle task is running, if all CPUs are fully loaded AFAIR.
+> 
+> Yes. However, you still want to balance the queues even if all CPUs are
+> 100% utilized. It's a fairness issue. Otherwise you could have 1 task
+> running on one CPU and 49 tasks on another.
+> 
+On the face of it this only seems unfair.  I think what we want to do is
+to allocate the cpu resources among competing tasks as dictated by their
+NICE values.  If each task gets its allotted share it should not matter
+if one of them is monopolizing one cpu.  This is not to say that things
+will work out this way, but to say that this is not the measure, nor the
+thing to look at.
 
-the natsemi.c Ethernet driver cuts the upper bits of
-the address when accessing the EEPROM. Changing "int ee_addr"
-to "long ee_addr" in eeprom_read() fixes the problem for me on Alpha.
-The Bug is in the 2.2.x driver from Donald as
-well as in the 2.4.x driver. I tested the patch
-only on 2.4.x however, since it is actually trivial, I guess
-it will also work for Donalds version.
+I suggest that, using the "recalculate tick" as a measure of time (I
+know it is not very linear) when a cpu finds itself with nothing to do
+(because all its tasks have completed their slices or blocked) and other
+cpus have tasks in their queues it is time to "shop" for a new task to
+run.  This would then do load balancing just before each "recalculate
+tick".
 
-Here is the patch for 2.4.10:
---- linux-2.4.10/drivers/net/natsemi.c  Tue Aug 14 13:14:12 2001
-+++ linux-2.4.10.digitalpw/drivers/net/natsemi.c        Fri Oct  5 13:25:59 2001
-@@ -633,7 +633,7 @@
- {
-        int i;
-        int retval = 0;
--       int ee_addr = addr + EECtrl;
-+       long ee_addr = addr + EECtrl;
-        int read_cmd = location | EE_ReadCmd;
-        writel(EE_Write0, ee_addr);
+Of course, the above assumes that each cpu has its own run queue.
 
-and here for the driver on the Scyld page:
---- natsemi.c.orig      Sun Oct  7 13:49:03 2001
-+++ natsemi.c   Sun Oct  7 13:49:16 2001
-@@ -499,7 +499,7 @@
- {
-        int i;
-        int retval = 0;
--       int ee_addr = addr + EECtrl;
-+       long ee_addr = addr + EECtrl;
-        int read_cmd = location | EE_ReadCmd;
-        writel(EE_Write0, ee_addr);
-
-Regards, Martin
-
--- 
-Supercomputing Systems AG       email: frey@scs.ch
-Martin Frey                     web:   http://www.scs.ch/~frey/
-at Compaq Computer Corporation  phone: +1 603 884 4266
-ZKO2-3R75, 110 Spit Brook Road, Nashua, NH 03062
-
+George

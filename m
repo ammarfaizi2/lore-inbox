@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263890AbUDFPzx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 11:55:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263897AbUDFPzw
+	id S263867AbUDFP4M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 11:56:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbUDFP4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 11:55:52 -0400
-Received: from host24.tni.fr ([195.25.255.24]:39442 "HELO ender.tni.fr")
-	by vger.kernel.org with SMTP id S263890AbUDFPzo (ORCPT
+	Tue, 6 Apr 2004 11:56:12 -0400
+Received: from ns.suse.de ([195.135.220.2]:49854 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263897AbUDFP4H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 11:55:44 -0400
-Subject: Re: {put,get}_user() side effects
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Cc: Andi Kleen <ak@muc.de>, Geert Uytterhoeven <geert@linux-m68k.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <4072CD22.4010603@backtobasicsmgmt.com>
-References: <1HVGV-1Wl-21@gated-at.bofh.it>
-	 <m3fzbhfijh.fsf@averell.firstfloor.org>
-	 <1081261716.8318.7.camel@speedy.priv.grenoble.com>
-	 <4072CD22.4010603@backtobasicsmgmt.com>
-Content-Type: text/plain
-Message-Id: <1081266434.8318.12.camel@speedy.priv.grenoble.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.6 
-Date: Tue, 06 Apr 2004 17:47:14 +0200
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Apr 2004 11:56:07 -0400
+To: Juergen Salk <juergen.salk@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Strip whitespace from EXTRAVERSION?
+References: <20040406144709.GC16564@oest181.str.klinik.uni-ulm.de>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: YOW!!  Everybody out of the GENETIC POOL!
+Date: Tue, 06 Apr 2004 17:56:05 +0200
+In-Reply-To: <20040406144709.GC16564@oest181.str.klinik.uni-ulm.de> (Juergen
+ Salk's message of "Tue, 6 Apr 2004 16:47:09 +0200")
+Message-ID: <jeu0zx5cdm.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-04-06 at 08:30 -0700, Kevin P. Fleming wrote:
-> Xavier Bestel wrote:
-> 
-> > Sorry, I read too fast. I didn't know sizeof could avoid side effects.
-> > 
-> 
-> Both typeof and sizeof are compile-time constructs, so there is no 
-> opportunity for any expression side effects to occur. Presumably one 
-> could do:
-> 
-> typeof(1/0UL)
-> 
-> without ever causing the obvious side effect either (granted, this is a 
-> pointless piece of code :-)).
+Juergen Salk <juergen.salk@gmx.de> writes:
 
-Yeah, now that you tell it, it seems obvious when you consider macros
-like min/max and friends which rely on typeof to avoid side-effects.
+> --- Makefile-orig       Tue Apr  6 14:13:06 2004
+> +++ Makefile    Tue Apr  6 14:45:29 2004
+> @@ -3,6 +3,7 @@
+>  SUBLEVEL = 25
+>  EXTRAVERSION =
+>
+> +EXTRAVERSION:=$(shell echo $(EXTRAVERSION) | sed -e 's/[ 	]//g')
 
+EXTRAVERSION := $(strip $(EXTRAVERSION))
 
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

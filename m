@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbVBTJuy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbVBTJw1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbVBTJuy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 04:50:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVBTJuy
+	id S261784AbVBTJw1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 04:52:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbVBTJw1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 04:50:54 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:61373 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261763AbVBTJuv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 04:50:51 -0500
-Subject: Re: Bootsplash for 2.6.11-rc4
-From: Arjan van de Ven <arjan@infradead.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Greg KH <greg@kroah.com>, Michal Januszewski <spock@gentoo.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050219232519.GC1372@elf.ucw.cz>
-References: <20050218165254.GA1359@elf.ucw.cz>
-	 <20050219011433.GA5954@spock.one.pl> <20050219230326.GB13135@kroah.com>
-	 <20050219232519.GC1372@elf.ucw.cz>
-Content-Type: text/plain
-Date: Sun, 20 Feb 2005 10:50:43 +0100
-Message-Id: <1108893044.6282.41.camel@laptopd505.fenrus.org>
+	Sun, 20 Feb 2005 04:52:27 -0500
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:35473 "EHLO
+	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
+	id S261771AbVBTJwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Feb 2005 04:52:14 -0500
+Date: Sun, 20 Feb 2005 10:52:12 +0100
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: IBM Thinkpad G41 PCMCIA problems
+Message-ID: <20050220095211.GB12738@hardeman.nu>
+References: <20050220092208.GA12738@hardeman.nu> <20050220092659.A9509@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050220092659.A9509@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Feb 20, 2005 at 09:26:59AM +0000, Russell King wrote:
+>On Sun, Feb 20, 2005 at 10:22:09AM +0100, David Härdeman wrote:
+>> I see the same problem with an IBM Thinkpad G40, and only when there is 
+>> 1Gb of memory or more in the machine.
+>
+>Check to see if your e820 map has a hole in it, and whether any of
+>your Cardbus bridge memory / region 0 resources appear in it.
+>
+>If your e820 map contains a hole, I'd suspect another buggy bios.
 
-> How many distros do use some variant of bootsplash? SuSE does, from
-> above url I guess gentoo does, too... Does Red Hat do something
-> similar? [Or do they just set log-level to very high giving them clean
-> look?] What about Debian?
+e820 map:
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009f000 (usable)
+ BIOS-e820: 000000000009f000 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000ce000 - 00000000000d0000 (reserved)
+ BIOS-e820: 00000000000dc000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000000f6f0000 (usable)
+ BIOS-e820: 000000000f6f0000 - 000000000f700000 (reserved)
+ BIOS-e820: 000000000f700000 - 000000003f6f0000 (usable)
+ BIOS-e820: 000000003f6f0000 - 000000003f6f8000 (ACPI data)
+ BIOS-e820: 000000003f6f8000 - 000000003f6fa000 (ACPI NVS)
+ BIOS-e820: 000000003f700000 - 0000000040000000 (reserved)
+ BIOS-e820: 00000000ff800000 - 0000000100000000 (reserved)
+118MB HIGHMEM available.
+896MB LOWMEM available.
 
-Red Hat/Fedora uses "quiet" boot option, plus a userspace early graphic
+Is the hole between 0x36f6fa000 and 0x3f700000?
 
+And what would be the proper way of fixing it (assuming that IBM won't 
+issue a fixed BIOS)?
 
+Re,
+David

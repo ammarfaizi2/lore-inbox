@@ -1,54 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263028AbUFTEn1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263309AbUFTEpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263028AbUFTEn1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 00:43:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263309AbUFTEn1
+	id S263309AbUFTEpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 00:45:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbUFTEpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 00:43:27 -0400
-Received: from mail.kroah.org ([65.200.24.183]:8917 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263028AbUFTEn0 (ORCPT
+	Sun, 20 Jun 2004 00:45:16 -0400
+Received: from mail.kroah.org ([65.200.24.183]:62421 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263309AbUFTEpM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 00:43:26 -0400
-Date: Sat, 19 Jun 2004 21:42:15 -0700
+	Sun, 20 Jun 2004 00:45:12 -0400
+Date: Sat, 19 Jun 2004 21:43:15 -0700
 From: Greg KH <greg@kroah.com>
-To: Arun Sen <arunsen@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Two Questions
-Message-ID: <20040620044215.GA10008@kroah.com>
-Reply-To: linux-kernel@vger.kernel.org
-References: <029901c45657$d34d79b0$6401a8c0@waterdell>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Oops inserting USB storage device
+Message-ID: <20040620044315.GB10008@kroah.com>
+References: <Pine.LNX.4.58.0406192049430.2228@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <029901c45657$d34d79b0$6401a8c0@waterdell>
+In-Reply-To: <Pine.LNX.4.58.0406192049430.2228@montezuma.fsmlabs.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 19, 2004 at 06:47:47PM -0500, Arun Sen wrote:
-> Hi
-> I am doing some research that deals with patches to the kernel.
+On Sat, Jun 19, 2004 at 08:52:40PM -0400, Zwane Mwaikambo wrote:
+> I got the following upon insertion of said USB device. Did the kobject get
+> freed?
 
-What kind of research?  For what end result?
-
-> Here are my questions:
-> 
-> [1]  I have obtained the patches for different versions of the kernel from a
-> mirror website.
-
-What web site?  What location?
-
-> However, they do not tell me who are the authors of these
-> patches and what are their addresses/emails.  How can I get this
-> information?
-
-Which patches do you have questions about?
-
-> [2]  What is the actual process of approval of a patch that goes into the
-> kernel?
-
-Did you read the Documentation/SubmittingPatches file which documents
-the process?
+What kernel version?
 
 thanks,
 

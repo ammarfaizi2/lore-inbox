@@ -1,60 +1,32 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <157374-27302>; Sat, 30 Jan 1999 19:08:18 -0500
-Received: by vger.rutgers.edu id <157237-27302>; Sat, 30 Jan 1999 19:07:55 -0500
-Received: from z.ml.org ([209.208.36.5]:17525 "EHLO z.ml.org" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <157363-27300>; Sat, 30 Jan 1999 19:07:11 -0500
-Date: Sat, 30 Jan 1999 19:19:36 -0500 (EST)
-From: Gregory Maxwell <linker@z.ml.org>
-To: linux-kernel@vger.rutgers.edu
-Cc: alan@redhat.com
-Subject: Re: CMI-8338/Pci SoundPro
-In-Reply-To: <Pine.LNX.3.96.990130172312.2763A-100000@z.ml.org>
-Message-ID: <Pine.LNX.3.96.990130191738.2872J-100000@z.ml.org>
+Received: by vger.rutgers.edu via listexpand id <157352-27302>; Sat, 30 Jan 1999 19:14:01 -0500
+Received: by vger.rutgers.edu id <157359-27302>; Sat, 30 Jan 1999 19:13:38 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:20542 "EHLO penguin.e-mind.com" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <157404-27302>; Sat, 30 Jan 1999 19:11:06 -0500
+Date: Sun, 31 Jan 1999 01:23:34 +0100 (CET)
+From: Andrea Arcangeli <andrea@e-mind.com>
+To: Tim Waugh <tim@cyberelk.demon.co.uk>
+Cc: linux-kernel@vger.rutgers.edu
+Subject: Re: [patch] down_norecurse(), down_interruptible_norecurse(), up_norecurse()
+In-Reply-To: <Pine.LNX.4.05.9901301916240.263-100000@cyberelk.elk.co.uk>
+Message-ID: <Pine.LNX.3.96.990131012137.303A-100000@laser.bogus>
+X-PgP-Public-Key-URL: http://e-mind.com/~andrea/aa.asc
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+On Sat, 30 Jan 1999, Tim Waugh wrote:
 
-As an update to my own message..
-This card comes with a 2k dos com file which sets the dma/int/irq for sb16
-compatibility. I dont think it's a TSR. 
+> MUTEX_NORECURSE probably isn't for a mutex -- it's semaphores that don't
+> want recursion.  It would be nicer to have something like
+> SEMAPHORE(initval).  If I thought long enough about it, I'm fairly sure I
+> could come up with a situation where you'd want to initialise a semaphore
+> to >1.
 
-I dont have a copy of dos around here and I can't mount my freedos image
-to put the file there (dont have msdos kernel module.. :) )... I'm
-reasonable sure I can just disassemble this executable and find the ports
-it plays with.. :)
+Ok. I think the MUTEX word was to tell that you wanted a semaphore
+initialized to 1 (as a mutex unlocked), but agreed, SEMAPHORE(x) looks a
+better name for the norecursive semaphore initializer. 
 
-It should then work (though without the fancy features).
-
-
-On Sat, 30 Jan 1999, Gregory Maxwell wrote:
-
-> 
-> Is there currently any work on supporting the CMI8338 PCI sound chip?
-> 
-> This sound chip support 4ch analog out, 2 chanel 24bit S/PDIF in/out, and
-> various other nicities. It's ISA cousin was well supported in Linux (via
-> the stock SB16 drive). Probably the nicest feature of this card is it's
-> price: You can get these cards for $20 (with nice RCA S/PDIF output).
-> 
-> The page claims that it has legacy SB16 support via on board ISA DMA
-> emulaton (which supposdity works under real dos). I havn't gotten it
-> working under Linux yet, but I only spent about 5 seconds trying so far.
-> 
-> I'd like to see native support for it (to be able to use the full 24bit
-> output, and all four channels), and I'd imagine that the company should be
-> fairly open w/ specs. 
-> 
-> http://www.cmedia.com.tw/e_news3.htm
-> 
-> Thanks for any pointers.
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.rutgers.edu
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+Andrea Arcangeli
 
 
 -

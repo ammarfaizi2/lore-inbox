@@ -1,34 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319336AbSIGHXo>; Sat, 7 Sep 2002 03:23:44 -0400
+	id <S319447AbSIGHbh>; Sat, 7 Sep 2002 03:31:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319447AbSIGHXo>; Sat, 7 Sep 2002 03:23:44 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:49426 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S319336AbSIGHXo>;
-	Sat, 7 Sep 2002 03:23:44 -0400
-Date: Sat, 7 Sep 2002 09:39:56 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Adam Johnson <adamj@valley.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem: kernel 2.5.33 won't compile
-Message-ID: <20020907093956.A1826@mars.ravnborg.org>
-Mail-Followup-To: Adam Johnson <adamj@valley.net>,
-	linux-kernel@vger.kernel.org
-References: <3D7926C0.7010906@valley.net>
-Mime-Version: 1.0
+	id <S319448AbSIGHbg>; Sat, 7 Sep 2002 03:31:36 -0400
+Received: from 62-190-216-248.pdu.pipex.net ([62.190.216.248]:25861 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S319447AbSIGHbg>; Sat, 7 Sep 2002 03:31:36 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200209070743.g877h0Ro000803@darkstar.example.net>
+Subject: Re: ide drive dying?
+To: andre@linux-ide.org (Andre Hedrick)
+Date: Sat, 7 Sep 2002 08:42:59 +0100 (BST)
+Cc: hahn@physics.mcmaster.ca, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10209062354300.11256-100000@master.linux-ide.org> from "Andre Hedrick" at Sep 07, 2002 12:02:36 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D7926C0.7010906@valley.net>; from adamj@valley.net on Fri, Sep 06, 2002 at 06:05:52PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 06, 2002 at 06:05:52PM -0400, Adam Johnson wrote:
->     I get this error message when I try to compile 2.5.33:
-> drivers/built-in.o(.data+0x2d8d4): undefined reference to `local symbols 
-> in discarded section .text.exit'
+> Next dig out smartsuite from http://www.linux-ide.org/smart.html
 
-Try seaching ihttp://marc.theaimsgroup.com
-Hint: binutils compatibility problem, time to upgrade.
+I thought that smartsuite was now unmaintained, and posted a comment to that effect earlier in this thread - sorry for the mis-information.
 
-	Sam
+John.

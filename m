@@ -1,77 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267588AbUGWKOl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267602AbUGWKgH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267588AbUGWKOl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 06:14:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267597AbUGWKOl
+	id S267602AbUGWKgH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 06:36:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267605AbUGWKgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 06:14:41 -0400
-Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:35240 "HELO
-	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267588AbUGWKOf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 06:14:35 -0400
-From: tabris <tabris@tabris.net>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [Repost] IDE error 2.6.7-rc3-mm2 and 2.6.8-rc1-mm1
-Date: Fri, 23 Jul 2004 06:14:28 -0400
-User-Agent: KMail/1.6.1
-Cc: linux-kernel@vger.kernel.org
-References: <200407220659.22948.tabris@tabriel.tabris.net> <20040722153933.GJ3987@suse.de>
-In-Reply-To: <20040722153933.GJ3987@suse.de>
+	Fri, 23 Jul 2004 06:36:07 -0400
+Received: from viefep13-int.chello.at ([213.46.255.15]:55070 "EHLO
+	viefep13-int.chello.at") by vger.kernel.org with ESMTP
+	id S267602AbUGWKgD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 06:36:03 -0400
+To: linux-kernel@vger.kernel.org
+Subject: User-space Keyboard input?
+From: Mario Lang <mlang@delysid.org>
+Date: Fri, 23 Jul 2004 12:36:20 +0200
+Message-ID: <87y8lb80yj.fsf@lexx.delysid.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407230614.30822.tabris@tabris.net>
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 July 2004 11:39 am, Jens Axboe wrote:
-> On Thu, Jul 22 2004, Tabris wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >
-> > Jul 21 03:00:18 tabriel kernel: hda: drive_cmd: status=0x51 {
-> > DriveReady SeekComplete Error }
-> > Jul 21 03:00:18 tabriel kernel: hda: drive_cmd: error=0x04 {
-> > DriveStatusError }
-> > Jul 21 03:00:18 tabriel kernel: ide: failed opcode was: 0xe7
-> > Jul 21 03:00:23 tabriel kernel: hda: drive_cmd: status=0x51 {
-> > DriveReady SeekComplete Error }
-> > Jul 21 03:00:23 tabriel kernel: hda: drive_cmd: error=0x04 {
-> > DriveStatusError }
-> > Jul 21 03:00:23 tabriel kernel: ide: failed opcode was: 0xe7
-> > Jul 21 03:00:28 tabriel kernel: hda: drive_cmd: status=0x51 {
-> > DriveReady SeekComplete Error }
-> > Jul 21 03:00:28 tabriel kernel: hda: drive_cmd: error=0x04 {
-> > DriveStatusError }
-> > Jul 21 03:00:28 tabriel kernel: ide: failed opcode was: 0xe7
-> >
-> > 	This error did not occur in 2.6.6-rc3-mm2. Turning off ACPI made
-> > no difference, not that I expected one.
-> >
-> > 	It appears to be harmless but it's polluting my syslog.
-> >
-> > Appears related to
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=108946389700930
-> >
-> > 	None of my harddrives are over 60GiB (and hda is an 8GiB), so
-> > there's no reason i should be getting LBA48 Flush Cache.
-> >
-> > 	What should I do, what do you need from me to get to the bottom of
-> > this?
->
-> Does this work?
-	No, however it does seem to start it going in my syslog a bit earlier, 
-but that may be meaningless (normally I found it waited until after 
-qmail would start).
+--=-=-=
 
-	Also, my i2c/sensors have stopped working (tho I doubt it has anything 
-to do with your patch, it _does_ lineup with my applying your patch and 
-rebooting...)
+Hi.
 
---
-tabris
--
-Is it weird in here, or is it just me?
-		-- Steven Wright
+I'm working on BRLTTY[1], a user-space daemon which handles braille displays
+on UNIX platforms.  One of our display drivers recently gained the ability
+to receive (set 2) scancodes from a keyboard connected directly to the display.
+This is a very cool feature, since the display in question has
+a bluetooth interface, making it effectively into a complete wireless
+terminal (input and output through the same connection).
+
+However, this creates some problems.  First of all, we now have to deal
+with keyboard layouts.  Additionally, since we currently insert via
+TIOCSTI I think this might get problematic as soon as one switches
+to an X Windows console and modifiers come into play.
+
+Does anyone know (and can point me into the right direction) if
+Linux has some mechanism to allow for user-space keyboard data to
+be processed by the kernel as if it were received from the system
+keyboard?  I.e., keyboard layout would be handled by the same
+mapping which is configured for the system.
+
+-- 
+Thanks,
+  Mario
+
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBAOo23/wCKmsRPkQRAr5hAJ9/WD0JnDirClmm7mBhhTMq/DQ3vwCfejIL
+xOURfbcv9jEI/gHYB/QlJt0=
+=Fn9i
+-----END PGP SIGNATURE-----
+--=-=-=--

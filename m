@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129423AbQLNXpC>; Thu, 14 Dec 2000 18:45:02 -0500
+	id <S129880AbQLNXpm>; Thu, 14 Dec 2000 18:45:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129880AbQLNXow>; Thu, 14 Dec 2000 18:44:52 -0500
-Received: from [199.26.153.10] ([199.26.153.10]:41994 "EHLO fourelle.com")
-	by vger.kernel.org with ESMTP id <S129423AbQLNXon>;
-	Thu, 14 Dec 2000 18:44:43 -0500
-Message-ID: <3A3953DB.CDA2DF4E@fourelle.com>
-Date: Thu, 14 Dec 2000 15:12:27 -0800
-From: Adam Scislowicz <adams@fourelle.com>
-Organization: Fourelle Systems, Inc.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11-ac4 i686)
-X-Accept-Language: en
+	id <S129257AbQLNXp1>; Thu, 14 Dec 2000 18:45:27 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16132 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129880AbQLNXpG>; Thu, 14 Dec 2000 18:45:06 -0500
+Subject: Re: [lkml]Re: VM problems still in 2.2.18
+To: jjs@toyota.com (J Sloan)
+Date: Thu, 14 Dec 2000 23:17:11 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux kernel)
+In-Reply-To: <3A394C2F.C2895995@toyota.com> from "J Sloan" at Dec 14, 2000 02:39:43 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Non-Blocking socket (SOCK_STREAM send)
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E146hcf-0000DG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Could someone explain why send is failing with EPIPE on the 2.4.x
-kernel, while it is working with the 2.2.x kernels.
+> > I think Andrea just earned his official God status ;)
+> So, maybe his divine VM patches will make it into 2.2.19?
 
-The PsuedoCode:
-sock = socket(AF_INET, SOCK_STREAM, 0)
-buf = fcntl(sock, F_GETFL)
-fcntl(sock, F_SETFL, buf | O_NONBLOCK) // we check the SETFL return
-value, it succeeds
-while ((retval = connect(sock, addr, sizeof(struct sockaddr_in))) < 0)
-{
-  if (retval < 0) {
-   if (errno != EINPROGRESS) return -1; // return failure
- }
-} // the connect succeeds during first iteration with return value of 0.
+The question is merely 'in what form' . I wanted to keep them seperate from
+the other large changes in 2.2.18 for obvious reasons.
 
-send(sock, msg, msg_length, 0) // this connection is to the thttpd web
-server on the same host. XXX
-XXX: send fails with EPIPE on the 2.4.0-test11-ac 4 and 2.4.0-test12
-kernels, whereas it does not fail on 2.2.14-5.0(redhat kernel)
+Andrea - can we have the core VM changes you did without adopting the
+change in semaphore semantics for file system locking which will give third 
+party fs maintainers headaches and doesnt match 2.4 behaviour either ?
 
-More Info:
- thttpd is working properly on the 2.4.x machine, I can access it via
-Netscape, our software is a proxy.
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

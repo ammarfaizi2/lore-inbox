@@ -1,59 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262662AbREOHOd>; Tue, 15 May 2001 03:14:33 -0400
+	id <S262668AbREOHtd>; Tue, 15 May 2001 03:49:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262663AbREOHOY>; Tue, 15 May 2001 03:14:24 -0400
-Received: from mail7.bigmailbox.com ([209.132.220.38]:34320 "EHLO
-	mail7.bigmailbox.com") by vger.kernel.org with ESMTP
-	id <S262662AbREOHOI>; Tue, 15 May 2001 03:14:08 -0400
-Date: Tue, 15 May 2001 00:13:58 -0700
-Message-Id: <200105150713.AAA18791@mail7.bigmailbox.com>
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
-X-Mailer: MIME-tools 4.104 (Entity 4.116)
+	id <S262666AbREOHtX>; Tue, 15 May 2001 03:49:23 -0400
+Received: from 20dyn175.com21.casema.net ([213.17.90.175]:36868 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S262663AbREOHtP>;
+	Tue, 15 May 2001 03:49:15 -0400
+Date: Tue, 15 May 2001 09:48:36 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: torvalds@transmeta.org
+Subject: 2.4 To Pending Device Number Registrants
+Message-ID: <20010515094835.A13650@home.ds9a.nl>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	torvalds@transmeta.org
+In-Reply-To: <Pine.GSO.4.21.0105141856090.19333-100000@weyl.math.psu.edu> <E14zRIW-0001dr-00@the-village.bc.nu>
 Mime-Version: 1.0
-X-Originating-Ip: [202.72.10.12]
-From: "Jacky Liu" <jq419@my-deja.com>
-To: linux-kernel@vger.kernel.org
-Cc: hahn@coffee.psychology.mcmaster.ca
-Subject: Re: 2.4.4 kernel freeze for unknown reason
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre4i
+In-Reply-To: <E14zRIW-0001dr-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, May 14, 2001 at 11:58:39PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+On Mon, May 14, 2001 at 11:58:39PM +0100, Alan Cox wrote:
+> Yet another 2.5 project. If Linus wants to go play with name driven devices
+> and you want to help him great, but if he'd care to put out
+> linux-2.5.0.tar.gz _before_ starting that would be good for all of us
 
-Mark, I got your point about the dma/udma stuffs. My hdparm setting is UDMA w/ MultiSector 16..
+Well, that's one thing. 2.4 will not need userspace changes internally, so
+any funky major/minor number dynamic allocation stuff needs to be solved
+without userspace help. This probably rules out most everything, unless a
+setup is found that will special case all of /dev/ currently existing.
 
-I had recompiled my kernel and disabled the FB option but my linux box still hanged (another completely freeze) yesterday... Oh well..
+So I would think that this block of new major number allocations holds for
+2.5 and not 2.4. Also, if I'm correct, 2.4 won't be needing a lot of new
+major numbers anyhow.
 
-I have been tracking this thread for a few days and it seem the source of this problem is related to swap space. Vincent, would you mind to send me the patch for swap space problem if Alan had sent it to you? So I can test it on my machine and report the result later.
+This all means that a lot of the current hubbub is unjustified - 2.5 is not
+there yet. Yes there is urgency and this way of forcing discussion is a very
+Linus-eque way of trying to achieve something.
 
-Mark, please suggest a setting for the hdparm so I can test it on my machine. Thanks alot for your time.
+But unless I'm wrong, there is no way that this can affect a 2.4 without
+userspace changes which have historically been considered forbidden within a
+stable series.
 
-Best Regards,
-Jacky Liu
+Regards,
 
+bert
 
->Date: Thu, 10 May 2001 23:20:17 -0400 (EDT)
->From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
->To: Jacky Liu <jq419@my-deja.com>
->SUBJECT
->> You are right for the other assumption, I am running the harddisk in UDMA w/32bits mode. Are you suggesting me to turn off both functions? But if I turn them off, the performance will decrease alot.
->
->the only thing that matters is dma/udma or not.  32b mode is irrelevant
->to the actual dma/udma transfer, as is -m settings.  even -u has no
->measurable effect.
->
->> Is there any way I can get any crash information? e.g. any function I can turn on for logging or something?
->
->if your hang is as I'm imagining, there's nothing you can do, since it's
->purely hardware.  you could try compiling in magic sysrq, but I suspect 
->the hardware is hung.
-
-
-
-
-------------------------------------------------------------
---== Sent via Deja.com ==--
-http://www.deja.com/
+-- 
+http://www.PowerDNS.com      Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet

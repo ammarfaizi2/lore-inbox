@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265548AbUGTFBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265544AbUGTFMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265548AbUGTFBm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 01:01:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265654AbUGTFBm
+	id S265544AbUGTFMw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 01:12:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265654AbUGTFMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 01:01:42 -0400
-Received: from [216.208.38.106] ([216.208.38.106]:61437 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S265548AbUGTFBk (ORCPT
+	Tue, 20 Jul 2004 01:12:52 -0400
+Received: from [216.208.38.106] ([216.208.38.106]:5616 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265544AbUGTFMu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 01:01:40 -0400
-Date: Tue, 20 Jul 2004 07:02:43 +0200
+	Tue, 20 Jul 2004 01:12:50 -0400
+Date: Tue, 20 Jul 2004 07:13:53 +0200
 From: Vojtech Pavlik <vojtech@suse.cz>
-To: john stultz <johnstul@us.ibm.com>
-Cc: greg kh <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x445 usb legacy fix
-Message-ID: <20040720050243.GC313@ucw.cz>
-References: <1090286508.1388.434.camel@cog.beaverton.ibm.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.4 Backport] x445 usb legacy fix
+Message-ID: <20040720051353.GD313@ucw.cz>
+References: <1090289222.1388.461.camel@cog.beaverton.ibm.com> <20040719200608.280d17a1@lembas.zaitcev.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1090286508.1388.434.camel@cog.beaverton.ibm.com>
+In-Reply-To: <20040719200608.280d17a1@lembas.zaitcev.lan>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 19, 2004 at 06:21:49PM -0700, john stultz wrote:
+On Mon, Jul 19, 2004 at 08:06:08PM -0700, Pete Zaitcev wrote:
 
-> Greg, All,
-> 	Apparently there is an issue w/ the IBM x440/x445's BIOS's USB Legacy
-> support. Due to the delay in issuing SMI's across the IOAPICs, its
-> possible for I/O to ports 60/64 to cause register corruption. 
-> 
-> The solution is to disable the BIOS's USB Legacy support early in boot
-> (via PCI quirks) for x440/x445 systems. 
-> 
-> This is the same method posted to lkml here (Originally written by
-> Vojtech): http://www.ussg.iu.edu/hypermail/linux/kernel/0405.3/1712.html
-> 
-> (Use the following link for the raw mbox email)
-> http://lkml.org/lkml/mbox/2004/5/31/97
-> 
-> While Greg was cautious that this method couldn't always be used, I've
-> created a patch that applies on top of Vojtech's that creates a boot
-> option which allows you to specify "no-usb-legacy". Additionally this
-> patch enables the "no-usb-legacy" option by default for x440/x445
-> systems.
-> 
-> Please consider for inclusion (along with the patch linked to above)
-> into your tree. 
+> The patch looks a little dirty in small places, e.g. the double
+> semicolon, the HZ/100 instead of HZ/10, space, two variables
+> named "base" in two blocks. I do not believe Vojtech wrote it.
+> He must have gotten it from someone else.
 
-I think we'll go with the original patch that disables it
-unconditionally, right, Greg?
+Actually I did, but it was a quick cut-and-paste from the USB drivers to
+see if it would help with some PS/2 mouse detection problems reported to
+me. I never cleaned it up, and it was actually submitted for kernel
+inclusion by someone else than me (whose name I unfortunately don't
+remember).
+
+> The boot option may be useful, but in the core of the patch looks
+> like like a roundabout way to do things. Why don't you trigger
+> the meat of the quirk from, say, a DMI scan?
+> 
+> > +	{ PCI_FIXUP_FINAL,	PCI_ANY_ID,		PCI_ANY_ID,		quirk_usb_disable_smm_bios },
+> 
+> This looks like a bizzare place to use as a hook. The x400 and x445
+> obviously have their own bridges with own IDs (their NUMA cannot
+> be using Intel parts, right?). So why don't hook off that?
+
+Actually USB Legacy SMM emulation triggers problems on many many more
+systems. The quirk does exactly the same thing the USB HCI drivers do in
+their init code, it only does it early in the boot process, so that
+even if the USB drivers are modules, the i8042 controller and PS/2 mouse
+and keyboard initialization proceeds correctly.
+
+The other options are to compile the HCI drivers into the kernel or to
+have i8042 compiled as a module.
+
+> The routines to take ownership look sane from USB HC access
+> (not sane from C programming standpoint, as I mentioned above).
+
+> But in any case, it's not something I can decide. Marcelo has that
+> power for stock kernels, and for Red Hat kernels there's a process
+> which starts with Bugzilla.
 
 -- 
 Vojtech Pavlik

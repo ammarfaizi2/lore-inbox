@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129404AbRBRUdE>; Sun, 18 Feb 2001 15:33:04 -0500
+	id <S129485AbRBRUde>; Sun, 18 Feb 2001 15:33:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129485AbRBRUcy>; Sun, 18 Feb 2001 15:32:54 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:46054 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S129404AbRBRUcp>;
-	Sun, 18 Feb 2001 15:32:45 -0500
-Date: Sun, 18 Feb 2001 21:32:32 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200102182032.VAA132602.aeb@vlet.cwi.nl>
-To: axboe@suse.de, chief@bandits.org
-Subject: Re: Changes to ide-cd for 2.4.1 are broken?
-Cc: johnsom@orst.edu, linux-kernel@vger.kernel.org
+	id <S129803AbRBRUd2>; Sun, 18 Feb 2001 15:33:28 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:9481 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129485AbRBRUdT>;
+	Sun, 18 Feb 2001 15:33:19 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200102182032.XAA28257@ms2.inr.ac.ru>
+Subject: Re: MTU and 2.4.x kernel
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Sun, 18 Feb 2001 23:32:57 +0300 (MSK)
+Cc: davem@redhat.com (Dave Miller), linux-kernel@vger.kernel.org
+In-Reply-To: <E14TTRF-0000Ul-00@the-village.bc.nu> from "Alan Cox" at Feb 15, 1 06:47:31 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Jens Axboe <axboe@suse.de>
+Hello!
 
-    On Sat, Feb 17 2001, John Fremlin wrote:
-    > Specifically, this part:
-    > 
-    > @@ -2324,11 +2309,17 @@
-    >                     sense.ascq == 0x04)
-    >                         return CDS_DISC_OK;
-    >  
-    > +
-    > +               /*
-    > +                * If not using Mt Fuji extended media tray reports,
-    > +                * just return TRAY_OPEN since ATAPI doesn't provide
-    > +                * any other way to detect this...
-    > +                */
-    >                 if (sense.sense_key == NOT_READY) {
-    > -                       /* ATAPI doesn't have anything that can help
-    > -                          us decide whether the drive is really
-    > -                          emtpy or the tray is just open. irk. */
-    > -                       return CDS_TRAY_OPEN;
-    > +                       if (sense.asc == 0x3a && (!sense.ascq||sense.ascq == 1))
-    > +                               return CDS_NO_DISC;
-    > +                       else
-    > +                               return CDS_TRAY_OPEN;
-    >                 }
-    > 
-    > My tray is open as I type, and it is misreported as CDS_NO_DISC. In
-    > 2.4.0 it worked fine.
+> Please cite an exact RFC reference.
 
-    Your drive is broken, the only other valid combination is 0x3a/0x02
-    which means no media and tray open. You could try and dump the asc
-    and ascq to see what your drive reports for the different states.
+Imagine, I found this reference yet. This is rfc1191, of course. 8)
 
-Ha Jens - must we disagree twice on one evening?
-You know all about this stuff, so probably I am mistaken.
-However, my copy of SFF8020-r2.6 everywhere has
-"Sense 02 ASC 3A: Medium not present" without giving
-subcodes to distinguish Tray Open from No Disc.
-So, it seems to me that drives built to this spec will not have
-nonzero ASCQ.
+   in the MSS option.  The MSS option should be 40 octets less than the
+   size of the largest datagram the host is able to reassemble (MMS_R,
+   as defined in [1]); in many cases, this will be the architectural
+   limit of 65495 (65535 - 40) octets.
 
-Andries
+Alexey
+
+
+PS: But:
+
+   					A host MAY send an MSS value
+   derived from the MTU of its connected network (the maximum MTU over
+   its connected networks, for a multi-homed host); this should not
+   cause problems for PMTU Discovery, and may dissuade a broken peer
+   from sending enormous datagrams.
+
+          Note: At the moment, we see no reason to send an MSS greater
+          than the maximum MTU of the connected networks, and we
+          recommend that hosts do not use 65495.  It is quite possible
+          that some IP implementations have sign-bit bugs that would be
+          tickled by unnecessary use of such a large MSS.
+

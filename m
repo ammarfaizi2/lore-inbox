@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312696AbSDAWcz>; Mon, 1 Apr 2002 17:32:55 -0500
+	id <S312681AbSDAWoT>; Mon, 1 Apr 2002 17:44:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312681AbSDAWcp>; Mon, 1 Apr 2002 17:32:45 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:15035 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S312661AbSDAWce>;
-	Mon, 1 Apr 2002 17:32:34 -0500
-To: KontaktLens@vger.kernel.org
-From: akdenizgoz___@hotmail.com
-Date: Tue, 02 Apr 2002 01:32:59 -0-200
-Reply-To: akdenizgoz_@hotmail.com
-Subject: KONTAKT LENS FIYAT LISTES Lutfen karsilastirin.... -vqjtsrhu
-Content-Type: text/plain; charset=ISO-8859-1
-Message-ID: <tvcxafmpimh.rfcaqvjiv@a>
+	id <S312680AbSDAWoK>; Mon, 1 Apr 2002 17:44:10 -0500
+Received: from as1-4-7.bn.g.bonet.se ([194.236.61.89]:55214 "HELO cucumelo.org")
+	by vger.kernel.org with SMTP id <S312681AbSDAWnw>;
+	Mon, 1 Apr 2002 17:43:52 -0500
+Message-ID: <3CA8E3CF.5060508@cucumelo.org>
+Date: Tue, 02 Apr 2002 00:48:47 +0200
+From: Benny Sjostrand <gorm@cucumelo.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020326
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux needs new leadership.
+In-Reply-To: <Pine.LNX.4.01.2002ApR11F0015.31337-101723@transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-      Akdeniz Göz Merkezi her zaman oldugu gibi tum lens cesitlerini en uygun fiyatlarla sizlere sunmaktadir.
-Ustelik bir telefon yada e-mail ile adresinize teslim.
-        AKDENIZ GOZ MERKEZI     www.akdenizgoz.com
-Fevzipasa cad. No:73   Fatih / Istanbul      0 212 635 74 74
-              Bausch & Lomb
-Soflens 66     (1 kutu=3 aylik)    (aylik-numarali-seffaf)       35.000.000 TL
-Soflens 66     (4 kutu=1 yillik)    (aylik-numarali-seffaf)     125.000.000 TL
-Soflens 38     (1 kutu=3 aylik)    (aylik-numarali-seffaf)       40.000.000 TL
-Soflens 66 Toric  (1 kutu=3 aylik)    (astigmatik-seffaf)      75.000.000 TL
-Optima Colors         (1 cift)    (renkli - uzun süreli)          90.000.000 TL
-                        Ciba
-Focus Visitint (1 kutu=3 aylik)  (aylik-numarali-seffaf)       35.000.000 TL
-Focus Visitint (4 kutu=1yillik )  (aylik-numarali-seffaf)     125.000.000 TL
-Night&Day     (1 kutu=3 aylik)  (aylik-numarali-seffaf)       80.000.000 TL
-Focus Toric  (1 kutu=3 aylik)    (astigmatik-seffaf)              85.000.000 TL
-Ciba Illusion       (1 cift)    (renkli - uzun süreli)                 180.000.000 TL
-                        FreshLook      
-FreshLook        (1 cift)    (renkli - kisa süreli)                 33.000.000 TL
-FreshLook        (1 cift)    (renkli - kisa süreli - numarali)      42.000.000 TL
- Zeiss
-Contact Day 30 (1 kutu=3 aylik) (aylik-numarali-seffaf)       50.000.000 TL
- Biomediks
-Biomediks       (1 kutu=3 aylik)    (aylik-numarali-seffaf)       35.000.000 TL
- 
-Tum lenslerimiz orijinal olup saglik bakanligi bandrolleri uzerindedir.
-Kredi kartina komisyon uygulanmaz.
- 
-Bu maili bir daha almak istemiyorsaniz akdenizgoz@yahoo.com  mail adresine bos mail atiniz.
-If you want unsubscript from our list, please send empty mail akdenizgoz@yahoo.com
+>
+>
+>
+>You have until the end of April 1, 23:59 Pacific Time to submit your
+>nominations to the list. The most nominated person will become the leader
+>of kernel development. I will examine the list of nominations and,
+>
+So, 23:59 is getting closer some countries around the world, i dont 
+think changing
+the leader attacks the right problem. What's needed is to change to the 
+project
+model, course there to many hackers that produces to much code, we need 
+more administrative
+people for organisation purposes,  and using a project model like 
+"PROPS" would
+be perfect for future Linux kernel development.
+
+if it's not to late, then i'll nominate Bill Gates as future kernel 
+development leader.
+
+/gorm@cucumelo.org
+
+PS. you dont know what PROPS is? just never take a job where they stands 
+for PROPS if you
+      think you are a hacker.
+

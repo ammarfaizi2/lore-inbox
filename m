@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315337AbSGINvW>; Tue, 9 Jul 2002 09:51:22 -0400
+	id <S315358AbSGIOC1>; Tue, 9 Jul 2002 10:02:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315358AbSGINvW>; Tue, 9 Jul 2002 09:51:22 -0400
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:40849 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S315337AbSGINvV>; Tue, 9 Jul 2002 09:51:21 -0400
-Date: Tue, 9 Jul 2002 14:55:21 +0200
-From: Axel Siebenwirth <axel@hh59.org>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.24] RTL8139: ioctl(SIOCGIFHWADDR): No such device
-Message-ID: <20020709125521.GA13892@neon.hh59.org>
-Mail-Followup-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	linux-kernel@vger.kernel.org
-References: <20020702182820.GA12117@neon.hh59.org> <Pine.LNX.4.44.0207040341040.8135-100000@chaos.physics.uiowa.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207040341040.8135-100000@chaos.physics.uiowa.edu>
-User-Agent: Mutt/1.4i
-Organization: hh59.org
+	id <S315370AbSGIOC0>; Tue, 9 Jul 2002 10:02:26 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:51844 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S315358AbSGIOCZ>; Tue, 9 Jul 2002 10:02:25 -0400
+Date: Tue, 9 Jul 2002 10:06:45 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.19-rc1/2.5.25 provide dummy fsync() routine for directories on NFS mounts
+In-Reply-To: <200207091549.15913.trond.myklebust@fys.uio.no>
+Message-ID: <Pine.LNX.3.95.1020709095544.27285A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 9 Jul 2002, Trond Myklebust wrote:
 
-Kai Germaschewski schrieb am Donnerstag, den 04. Juli 2002:
-
-> On Tue, 2 Jul 2002, Axel Siebenwirth wrote:
+> Hi,
 > 
-> > Since I cannot initialize the network device eth1 for the RTL8139 card, I
-> > thought your changes about net_dev_init
-> > 
-> > <kai@tp1.ruhr-uni-bochum.de>
-> >         Make net_dev_init() an __initcall
-> > 
-> > may have caused this.
+>    There was a bug reported on the 'exim' user list a couple of months ago: 
+> the Linux NFS client reports -EINVAL if you try to fsync() a directory.
 > 
-> Yes, that seems quite possible. I'll submit a patch which fixes this 
-> shortly. In the mean time, you could try to find the __initcall line
-> in net/core/dev.c, and replace __initcall by subsys_initcall.
+>    The correct response would be to return a dummy '0' for success, since all 
+> NFS operations that change the directory are supposed to be performed 
+> synchronously on the server anyway...
 > 
-> If you do so, please let me know if it fixes the problem for you.
+> Cheers,
+>   Trond
+> 
 > 
 
-Still the same problem in 2.5.25. Replacing __initcall with subsys_initcall
-fixes it.
+Isn't it supposed to return EINVAL if "fd is bound to a file which
+doesn't support synchronization..."  That's what POSIX 4 says.
 
-Regards,
-Axel
+Errors:
+EBADF	fildes is not a valid file descriptor.
+EINVAL	The file descriptor is valid, but the system doesn't support
+	fsync on this particular file.
+
+I think code that opens a directory as a file is broken. We have
+opendir() for that and it returns a DIR pointer, not a file descriptor.
+If the directory was properly opened, one would never attempt to
+fsync() it.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

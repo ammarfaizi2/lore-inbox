@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265272AbRGAT2S>; Sun, 1 Jul 2001 15:28:18 -0400
+	id <S265394AbRGBSgL>; Mon, 2 Jul 2001 14:36:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265267AbRGAT2I>; Sun, 1 Jul 2001 15:28:08 -0400
-Received: from fepout4.telus.net ([199.185.220.239]:53065 "EHLO
-	priv-edtnes12-hme0.telusplanet.net") by vger.kernel.org with ESMTP
-	id <S265264AbRGAT2D>; Sun, 1 Jul 2001 15:28:03 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: "Philip V. Neves" <pneves@telus.net>
-Organization: pneves@ragingguppy.com
-To: linux-kernel@vger.kernel.org
-Subject: Possible problem with IDE device driver in kernel.
-Date: Thu, 2 Jan 1997 23:35:39 -0800
-X-Mailer: KMail [version 1.2]
+	id <S265395AbRGBSgB>; Mon, 2 Jul 2001 14:36:01 -0400
+Received: from denise.shiny.it ([194.20.232.1]:47776 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S265394AbRGBSf4>;
+	Mon, 2 Jul 2001 14:35:56 -0400
+Message-ID: <3B3DEA3D.251CB340@denise.shiny.it>
+Date: Sat, 30 Jun 2001 17:03:25 +0200
+From: Giuliano Pochini <pochini@denise.shiny.it>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3 ppc)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <97010223353900.00997@rasputan>
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: SCSI I/O error
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to report a bug that I've seen in a few linux kernels now. This 
-may be a serious problem with the IDE controler software because it may cause 
-a hard drive to ware out over a period of time. I've noticed for a long time 
-that when linux is loaded the hard drive light on my computer goes on and 
-stays on. It never turns off. If I boot with windows the light turns off. I 
-think it may be the device driver that forgets to turn of the light. Could 
-one of you please confirm if this is a problem with the kernel and get back 
-to me if it is not. 
 
-Thank you,
+>From my logs:
 
+Jun 29 14:19:56 Jay kernel: SCSI disk error : host 1 channel 0 id 5 lun 0
+return code = 8000002
+Jun 29 14:19:56 Jay kernel: Current sd08:11: sense key Recovered Error
+Jun 29 14:19:56 Jay kernel: Additional sense indicates Recovered data with
+error correction applied
+Jun 29 14:19:56 Jay kernel:  I/O error: dev 08:11, sector 480940
+Jun 29 14:19:56 Jay kernel: Incorrect number of segments after building list
 
-Philip V. Neves
+I programmed the disk to report recovered errors too, and the
+log shows one of these. The user-level tool exited with an
+I/O error.
+The last line comes from drivers/scsi/scsi_merge.c:__init_io()
+and I thing there is a bug in the SCSI error handling code.
+I have an Adaptec card.
+
+[Linux version 2.4.6-pre3]
+
+Bye.
+

@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264810AbTGHGVF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 02:21:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbTGHGVF
+	id S265136AbTGHG1j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 02:27:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266799AbTGHG1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 02:21:05 -0400
-Received: from us01smtp1.synopsys.com ([198.182.44.79]:35057 "EHLO
-	boden.synopsys.com") by vger.kernel.org with ESMTP id S264810AbTGHGVD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 02:21:03 -0400
-Date: Tue, 8 Jul 2003 08:35:27 +0200
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] O3int interactivity for 2.5.74-mm2
-Message-ID: <20030708063527.GB13611@Synopsys.COM>
-Reply-To: alexander.riesen@synopsys.COM
-Mail-Followup-To: Con Kolivas <kernel@kolivas.org>,
-	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <200307070317.11246.kernel@kolivas.org> <1057516609.818.4.camel@teapot.felipe-alfaro.com> <200307071319.57511.kernel@kolivas.org>
+	Tue, 8 Jul 2003 02:27:39 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:28820 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id S265136AbTGHG1i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 02:27:38 -0400
+Subject: Re: JFFS2: many compile warnings with gcc 2.95 + kernel 2.5
+From: David Woodhouse <dwmw2@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Adrian Bunk <bunk@fs.tum.de>, jffs-dev@axis.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030707180023.0877085e.akpm@osdl.org>
+References: <20030708001937.GA6848@fs.tum.de>
+	 <20030707180023.0877085e.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1057646526.28965.4.camel@imladris.demon.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307071319.57511.kernel@kolivas.org>
-Organization: Synopsys, Inc.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.1 (dwmw2) 
+Date: Tue, 08 Jul 2003 07:42:06 +0100
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Rcpt-To: akpm@osdl.org, bunk@fs.tum.de, jffs-dev@axis.com, linux-kernel@vger.kernel.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas, Mon, Jul 07, 2003 05:19:57 +0200:
-> > > Attached is an incremental patch against 2.5.74-mm2 with more
-> > > interactivity work. Audio should be quite resistant to skips with this,
-> > > and it should not induce further unfairness.
-> > >
-> > I'm seeing extreme X starvation with this patch under 2.5.74-mm2 when
-> > starting a CPU hogger:
-> >
-> 
-> Thanks to Felipe who picked this up I was able to find the one bug causing me 
-> grief. The idle detection code was allowing the sleep_avg to get to 
-> ridiculously high levels. This is corrected in the following replacement 
-> O3int patch. Note this fixes the mozilla issue too. Kick arse!!
-> 
+On Tue, 2003-07-08 at 02:00, Andrew Morton wrote:
+> Switching to %Z will fix that up.
 
-still skips. Pan, updating list of newsgroups, VIM compilation and xmms.
+Please don't. 
+
+If you really can't ignore the cosmetic warnings, then either use a
+C99-compliant compiler or remove the printf attribute from printk's
+declaration in linux/kernel.h.
+
+
+-- 
+dwmw2
 
 

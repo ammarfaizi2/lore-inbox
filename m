@@ -1,36 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288051AbSBZOxi>; Tue, 26 Feb 2002 09:53:38 -0500
+	id <S288058AbSBZOvi>; Tue, 26 Feb 2002 09:51:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284933AbSBZOx2>; Tue, 26 Feb 2002 09:53:28 -0500
-Received: from mustard.heime.net ([194.234.65.222]:19859 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S288012AbSBZOxT>; Tue, 26 Feb 2002 09:53:19 -0500
-Date: Tue, 26 Feb 2002 15:53:17 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: [BUG] Getting incorrect size on large files from DVD
-Message-ID: <Pine.LNX.4.30.0202261551150.14140-100000@mustard.heime.net>
+	id <S287862AbSBZOv2>; Tue, 26 Feb 2002 09:51:28 -0500
+Received: from montreal.eicon.com ([192.219.17.120]:12563 "EHLO
+	mtl_exchange.eicon.com") by vger.kernel.org with ESMTP
+	id <S288012AbSBZOvW>; Tue, 26 Feb 2002 09:51:22 -0500
+Message-ID: <D8E12241B029D411A3A300805FE6A2B9025761A9@montreal.eicon.com>
+From: Daniel Shane <daniel.shane@eicon.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: PCI driver in userspace
+Date: Tue, 26 Feb 2002 09:55:48 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.0.1460.8)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+Hi,
 
-Reading > 2^31bytes files, results in Linux reporting extremely low size -
-typically <10MB. Putting the same DVD disc into a Windoze box works fine.
+I'm looking for an example of userspace PCI driver, does anyone know where I
+could find one? (Probably not in the kernel source tree, obviously).
 
-Anyone have any ideas?
-
-I'm running 2.4.18-rc2
-
-roy
-
-
---
-Roy Sigurd Karlsbakk, Datavaktmester
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+Thanks!
+Daniel Shane

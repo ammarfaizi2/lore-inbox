@@ -1,27 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286213AbRLJKKh>; Mon, 10 Dec 2001 05:10:37 -0500
+	id <S286215AbRLJKhk>; Mon, 10 Dec 2001 05:37:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286214AbRLJKK2>; Mon, 10 Dec 2001 05:10:28 -0500
-Received: from netfinity.realnet.co.sz ([196.28.7.2]:17034 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S286213AbRLJKKX>; Mon, 10 Dec 2001 05:10:23 -0500
-Date: Mon, 10 Dec 2001 12:12:52 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: <zwane@netfinity.realnet.co.sz>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] APIC Error when doing apic_pm_suspend
-In-Reply-To: <200112100107.CAA18309@harpo.it.uu.se>
-Message-ID: <Pine.LNX.4.33.0112101212270.2228-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286144AbRLJKhb>; Mon, 10 Dec 2001 05:37:31 -0500
+Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:36362 "EHLO
+	alfik.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S284627AbRLJKhV>; Mon, 10 Dec 2001 05:37:21 -0500
+Date: Sun, 9 Dec 2001 23:58:50 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix for idiocy in mount_root cleanups.
+Message-ID: <20011209235850.D117@elf.ucw.cz>
+In-Reply-To: <Pine.LNX.4.33.0112080957530.16918-100000@athlon.transmeta.com> <Pine.GSO.4.21.0112081604060.7302-100000@binet.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0112081604060.7302-100000@binet.math.psu.edu>
+User-Agent: Mutt/1.3.23i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, i'll test it and report back.
+Hi!
 
-Cheers,
-	Zwane Mwaikambo
+> diff -urN C1-pre7/init/do_mounts.c C1-pre7-fix/init/do_mounts.c
+> --- C1-pre7/init/do_mounts.c	Fri Dec  7 20:48:43 2001
+> +++ C1-pre7-fix/init/do_mounts.c	Sat Dec  8 15:54:46 2001
+> @@ -351,7 +351,8 @@
+>  		mount("devfs", ".", "devfs", 0, NULL);
+>  retry:
+>  	for (p = fs_names; *p; p += strlen(p)+1) {
+> -		err = mount(name,"/root",p,root_mountflags,root_mount_data);
+> +		int err;
+> +		err = sys_mount(name,"/root",p,root_mountflags,root_mount_data);
+>  		switch (err) {
+>  			case 0:
+>  				goto done;
+> 
+> Is that OK with you?
 
+Also you should put space after , -- code around it uses that, and
+this really looks ugly to my eyes.
 
+							Pavel
+-- 
+"I do not steal MS software. It is not worth it."
+                                -- Pavel Kankovsky

@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUIZRmg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUIZR66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbUIZRmg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 13:42:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbUIZRme
+	id S261375AbUIZR66 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 13:58:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUIZR66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 13:42:34 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:55695 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261426AbUIZRmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 13:42:18 -0400
-Date: Sun, 26 Sep 2004 19:42:17 +0200
-From: Jan Kara <jack@suse.cz>
-To: "Andrew A." <aathan-linux-kernel-1542@cloakmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Consistent kernel hang during heavy TCP connection handling load
-Message-ID: <20040926174217.GB18172@atrey.karlin.mff.cuni.cz>
-References: <NFBBICMEBHKIKEFBPLMCOEPOIHAA.aathan-linux-kernel-1542@cloakmail.com> <OMEGLKPBDPDHAGCIBHHJIEFDEIAA.aathan-linux-kernel-1542@cloakmail.com>
+	Sun, 26 Sep 2004 13:58:58 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9710 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261375AbUIZR64
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Sep 2004 13:58:56 -0400
+Date: Sun, 26 Sep 2004 13:18:16 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Kevin Fenzi <kevin@scrye.com>, Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
+Message-ID: <20040926161816.GA27702@logos.cnet>
+References: <20040924021956.98FB5A315A@voldemort.scrye.com> <20040924143714.GA826@openzaurus.ucw.cz> <20040924210958.A3C5AA2073@voldemort.scrye.com> <1096069216.3591.16.camel@desktop.cunninghams> <20040925014546.200828E71E@voldemort.scrye.com> <1096113235.5937.3.camel@desktop.cunninghams>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <OMEGLKPBDPDHAGCIBHHJIEFDEIAA.aathan-linux-kernel-1542@cloakmail.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1096113235.5937.3.camel@desktop.cunninghams>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Sep 25, 2004 at 09:53:55PM +1000, Nigel Cunningham wrote:
+> Hi.
 > 
-> I would not normally quote an an entire message, but it contains data
-> relevant to this problem.
+> On Sat, 2004-09-25 at 11:45, Kevin Fenzi wrote:
+> > Nigel> The problem isn't really that you're out of memory. Rather, the
+> > Nigel> memory is so fragmented that swsusp is unable to get an order 8
+> > Nigel> allocation in which to store its metadata. There isn't really
+> > Nigel> anything you can do to avoid this issue apart from eating
+> > Nigel> memory (which swsusp is doing anyway).
+> > 
+> > Odd. I have never run into this before with either swsusp2 or
+> > swsusp1. 
 > 
-> The hang below occurs even outside of GDB, and also occurs after
-> upgrading the kernel:
+> You won't run into it with suspend2 because it doesn't use high order
+> allocations. There might be one exception, but apart from that, all of
+> suspend2's data is stored in order zero allocated pages, so
+> fragmentation is not an issue. This is the real solution to the problem.
+> I had to do it this way because I aim to have suspend work without
+> eating any memory.
 > 
-> Linux bbox.memeplex.com 2.6.8-1.521 #1 Mon Aug 16 09:01:18 EDT 2004
-> i686 i686 i386 GNU/Linux
+> > What causes memory to be so fragmented? 
 > 
-> 
-> 
-> Can anyone please give me a clue/pointer to tools/techniques that
-> might help identify where in the kernel the hang occurs?  The system
-> is so completely unresponsive when this occurs that I cannot provide
-> any forensic data.
-  How unresponsive exactly it is? Can you switch consoles and write? I
-suppose ps(1) hangs... Is the disk working?
+> Normal usage; the pattern of pages being freed and allocated inevitably
+> leads to fragmentation. The buddy allocator does a good job of
+> minimising it, but what is really needed is a run-time defragmenter. I
+> saw mention of this recently, but it's probably not that practical to
+> implement IMHO.
 
-You can compile kernel with the magic Sysrq key (it is the option in the
-kernel debugging section), run it and then press alt-sysrq-t and the
-state of all processes will be printed. That might help...
+I think it is possible to have a defragmenter: allocate new page, 
+invalidate mapped pte's, invalidate radix tree entry (and block radix lookups),`
+copy data from oldpage to newpage, remap pte's, insert radix tree
+entry, free oldpage.
 
-> Does anyone's experience show that these types of hangs might occur
-> purely as the result of use (or mis-use) of the pthreads library?  I'm
-> looking for hints about what parts of my code to review.
-> 
-> There could easily be erroneous calls to pthread_detach(),
-> pthread_join(), close(), and other system calls involved.
-> 
-> Thanks,
-> Andrew Athan
-
-								Honza
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+The memory hotplug patches do it - I'm trying to implement a similar version
+to free physically nearby pages and form high order pages.

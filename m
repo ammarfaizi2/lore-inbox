@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130151AbQKUTCu>; Tue, 21 Nov 2000 14:02:50 -0500
+	id <S129700AbQKUTDL>; Tue, 21 Nov 2000 14:03:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130083AbQKUTCl>; Tue, 21 Nov 2000 14:02:41 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:25841 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S129700AbQKUTCd>; Tue, 21 Nov 2000 14:02:33 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200011211832.eALIWDD20416@webber.adilger.net>
-Subject: Re: Ext2 & Performances
-In-Reply-To: <4.3.2.7.2.20001121190033.00d23bc0@mail.tekno-soft.it>
- "from Roberto Fichera at Nov 21, 2000 07:16:19 pm"
-To: Roberto Fichera <kernel@tekno-soft.it>
-Date: Tue, 21 Nov 2000 11:32:13 -0700 (MST)
-CC: Jakob Østergaard <jakob@unthought.net>,
-        linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+	id <S130701AbQKUTCv>; Tue, 21 Nov 2000 14:02:51 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11597 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129747AbQKUTCj>; Tue, 21 Nov 2000 14:02:39 -0500
+Subject: Re: Linux 2.4.0test11-ac1
+To: macro@ds2.pg.gda.pl (Maciej W. Rozycki)
+Date: Tue, 21 Nov 2000 18:31:13 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        johannes@erdfelt.com (Johannes Erdfelt), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.3.96.1001121192317.28403B-100000@delta.ds2.pg.gda.pl> from "Maciej W. Rozycki" at Nov 21, 2000 07:25:30 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13yICI-000504-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roberto Fichera writes:
-> I'm configuring a Compaq ML350 2x800PIII, 1Gb RAM, 5x36Gb UWS3 RAID 5
-> with Smart Array 4300, as database SQL server. So I need to chose 
-> between a single partition of 130Gb or multiple small partitions,
-> depending by the performance.
+> > > > o	Dont crash on boot with a dual cpu board holding a non intel cpu
+> > > Is this the patch to check for the Local APIC?
+> > Yep
+> 
+>  Hmm, that's weird -- the check is already there for some time -- see
+> verify_local_APIC().  It works and it's reliable even for the 82489DX.
 
-It is usually better to have multiple small partitions for performance and
-reliability, but this is more work to administer.
+Its completely unsafe. The CPU in question is NOT intel. It has no APIC
+instead you poke around randomly in MMIO space and the box dies. You have
+to check the cpu capabilities too
 
-> Yes! I know :-((!!! I'm looking for other fs that are journaled like ext3 
-> or raiserfs but I don't know which are a good choice for stability and
-> performances.
+Alan
 
-The current (0.0.5b) ext3 code is doing pretty good, and if you use
-metadata-only journalling it is about as fast as ext2.  I still wouldn't
-use this on a production system where data loss is fatal, although I
-have never had any data loss or filesystem corruption because of ext3.
-
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

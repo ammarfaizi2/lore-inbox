@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287184AbSABXLe>; Wed, 2 Jan 2002 18:11:34 -0500
+	id <S287978AbSABXQY>; Wed, 2 Jan 2002 18:16:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287173AbSABXLR>; Wed, 2 Jan 2002 18:11:17 -0500
-Received: from ns.suse.de ([213.95.15.193]:37905 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S287181AbSABXKd>;
-	Wed, 2 Jan 2002 18:10:33 -0500
-Date: Thu, 3 Jan 2002 00:10:28 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-Cc: Lionel Bouton <Lionel.Bouton@free.fr>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-In-Reply-To: <20020102174824.A21408@thyrsus.com>
-Message-ID: <Pine.LNX.4.33.0201030006120.427-100000@Appserv.suse.de>
+	id <S287988AbSABXQU>; Wed, 2 Jan 2002 18:16:20 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19211 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S287978AbSABXQG>; Wed, 2 Jan 2002 18:16:06 -0500
+Message-ID: <3C33918E.7080409@zytor.com>
+Date: Wed, 02 Jan 2002 15:02:38 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Dave Jones <davej@suse.de>, Robert Schwebel <robert@schwebel.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
+        Jason Sodergren <jason@mugwump.taiga.com>,
+        Anders Larsen <anders@alarsen.net>, rkaiser@sysgo.de
+Subject: Re: [PATCH][RFC] AMD Elan patch
+In-Reply-To: <E16LuX4-0005wH-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jan 2002, Eric S. Raymond wrote:
+Alan Cox wrote:
 
-> > > Just took a quick look at dmidecode.c and auditing this code doesn't
-> > > seem out of reach.
-> > Exactly. And 90% of it can be ditched.
-> But a setuid program *will not solve my problem*.
+> 
+> The 400/410 this isnt a problem for. Its discontinued and the 5x0 detect
+> differently (and actually have working serial ports I believe). So its
+> an end of life core
+> 
 
-Given decoding DMI isn't going to get you 100% fool proof way of
-detecting slots (See posts on laptops/other usually-with-crap-bios
-hardware), I think you're barking up the wrong tree with this
-anyway.
+It's end of lifed in this particular product, does that mean the core 
+itself won't find itself embedded in something? ...
 
-And if you don't know what hardware you've got in the box your
-configuring a kernel for, its questionable that you should be
-doing so in the first place.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+	-hpa
 

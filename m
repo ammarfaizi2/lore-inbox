@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272531AbRIOTWB>; Sat, 15 Sep 2001 15:22:01 -0400
+	id <S272466AbRIOT1B>; Sat, 15 Sep 2001 15:27:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272519AbRIOTVl>; Sat, 15 Sep 2001 15:21:41 -0400
-Received: from femail15.sdc1.sfba.home.com ([24.0.95.142]:60159 "EHLO
-	femail15.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S272520AbRIOTVg>; Sat, 15 Sep 2001 15:21:36 -0400
-Date: Sat, 15 Sep 2001 15:23:19 -0400
-From: Tom Vier <tmv5@home.com>
-To: Dustin Marquess <jailbird@alcatraz.fdf.net>
+	id <S272507AbRIOT0w>; Sat, 15 Sep 2001 15:26:52 -0400
+Received: from barry.mail.mindspring.net ([207.69.200.25]:9238 "EHLO
+	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S272466AbRIOT0o>; Sat, 15 Sep 2001 15:26:44 -0400
+Subject: Re: [PATCH] AGP GART for AMD 761
+From: Robert Love <rml@tech9.net>
+To: Jesper Juhl <juhl@eisenstein.dk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH - Software RAID Autodetection for OSF partitions
-Message-ID: <20010915152319.A17296@zero>
-In-Reply-To: <Pine.LNX.4.33.0109090443440.369-100000@alcatraz.fdf.net>
+In-Reply-To: <3BA22537.94D4EA28@eisenstein.dk>
+In-Reply-To: <1000577021.32706.29.camel@phantasy> 
+	<3BA22537.94D4EA28@eisenstein.dk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13.99+cvs.2001.09.14.18.39 (Preview Release)
+Date: 15 Sep 2001 15:27:41 -0400
+Message-Id: <1000582067.32708.51.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0109090443440.369-100000@alcatraz.fdf.net>; from jailbird@alcatraz.fdf.net on Sun, Sep 09, 2001 at 04:44:04AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i sent alan a patch for the same thing awhile ago, but he wanted to make
-sure 0xfd isn't used as a type by osf/1.
+On Fri, 2001-09-14 at 11:41, Jesper Juhl wrote:
+> <snip>
+> Here are the relevant parts of dmesg from my box:
+> 
+> Linux agpgart interface v0.99 (c) Jeff Hartmann
+> agpgart: Maximum main memory to use for agp memory: 439M
+> agpgart: unsupported bridge
+> agpgart: no supported devices found.
 
-On Sun, Sep 09, 2001 at 04:44:04AM -0500, Dustin Marquess wrote:
-> Here's a quick patch that I wrote-up for 2.4.10-pre5 (should work with
-> other 2.4.x kernels too), so that the OSF partition code should
-> auto-detect partitions with a fstype of 0xFD (software RAID).
+OK, its not working...
+
+> <snip>
+> It there is any other info that you would like me to provide or
+> something you'd like me to test I'm full willing to reconfigure my
+> system in any way nessesary to provide the requested info and/or test
+> results.
+
+Please type `/sbin/lspci -n -v -s 0:0' and give me the results.
+
+Let me see if that is enough to figure it out... thank you.
+
 
 -- 
-Tom Vier <tmv5@home.com>
-DSA Key id 0x27371A2C
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

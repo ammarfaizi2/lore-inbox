@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269392AbUICIrU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269453AbUICI5b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269392AbUICIrU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 04:47:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269317AbUICI2T
+	id S269453AbUICI5b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 04:57:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269432AbUICIvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 04:28:19 -0400
-Received: from [64.147.162.83] ([64.147.162.83]:28602 "EHLO
-	thunderbolt.ipaska.net") by vger.kernel.org with ESMTP
-	id S269326AbUICIXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 04:23:00 -0400
-Date: Fri, 3 Sep 2004 18:21:43 +1000
-From: Luke Yelavich <luke@audioslack.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Eric St-Laurent <ericstl34@sympatico.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>, Mark_H_Johnson@raytheon.com,
-       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>,
-       nando@ccrma.stanford.edu, free78@tin.it
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R0
-Message-ID: <20040903082143.GA8805@luke-laptop.yelavich.home>
-References: <20040902221402.GA29434@elte.hu> <1094171082.19760.7.camel@krustophenia.net> <1094181447.4815.6.camel@orbiter> <1094192788.19760.47.camel@krustophenia.net> <20040903063658.GA11801@elte.hu> <1094194157.19760.71.camel@krustophenia.net> <20040903070500.GB13100@elte.hu> <1094197233.19760.115.camel@krustophenia.net> <20040903080930.GA30814@luke-laptop.yelavich.home> <1094199195.19760.136.camel@krustophenia.net>
+	Fri, 3 Sep 2004 04:51:48 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:29413 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S269424AbUICIuU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 04:50:20 -0400
+Date: Fri, 3 Sep 2004 10:50:18 +0200
+From: Frank van Maarseveen <frankvm@xs4all.nl>
+To: Helge Hafting <helge.hafting@hist.no>
+Cc: Frank van Maarseveen <frankvm@xs4all.nl>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Dave Kleikamp <shaggy@austin.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       Hans Reiser <reiser@namesys.com>, Christoph Hellwig <hch@lst.de>,
+       fsdevel <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
+Message-ID: <20040903085018.GA8586@janus>
+References: <20040902214806.GA5272@janus> <20040902220027.GD23987@parcelfarce.linux.theplanet.co.uk> <20040902220242.GA5414@janus> <20040902220640.GE23987@parcelfarce.linux.theplanet.co.uk> <20040902221133.GB5414@janus> <20040902221722.GF23987@parcelfarce.linux.theplanet.co.uk> <20040902222650.GA5523@janus> <20040902223324.GG23987@parcelfarce.linux.theplanet.co.uk> <20040902225634.GA5756@janus> <41382EC0.8080309@hist.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1094199195.19760.136.camel@krustophenia.net>
-User-Agent: Mutt/1.4.2.1i
-X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - thunderbolt.ipaska.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - audioslack.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <41382EC0.8080309@hist.no>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 03, 2004 at 06:13:16PM EST, Lee Revell wrote:
-> > On Fri, Sep 03, 2004 at 05:40:34PM EST, Lee Revell wrote:
-> > > On Fri, 2004-09-03 at 03:05, Ingo Molnar wrote:
-> > Well with Lee's help, I think I have identified an ICE1712 sound driver issue,
-> > but this is yet to be determined.
-> 
-> Hmm, this one is still not fixed, using the latest VP patches?
+On Fri, Sep 03, 2004 at 10:43:44AM +0200, Helge Hafting wrote:
+> >
+> You don't need kernel support for cd'ing into fs images.
+> You need a shell (or GUI app) that:
+> 1. notices that user tries to CD into a file, not a directory
+> 2. Attempts fs type detection and do a loop mount.
+> 3. Give error message if it wasn't a supported fs image.
 
-I have been keeping up with the patches, but haven't had a chance to try it out
-with them lately. Currently building the latest one, and will be able to test
-again when done.
+Ok, and right now I'm in vim typing this message and want
+to ":new /tmp/backup.iso/etc/fstab"
+
+modifying 1000+ applications is not an option IMO. Putting it in
+a preloaded library might be doable except maybe for permission
+problems but this is incredibly clumsy and lacks the possibility
+to implement sane caching behavior because it is process bound.
+
 -- 
-Luke Yelavich
-http://www.audioslack.com
-luke@audioslack.com
+Frank

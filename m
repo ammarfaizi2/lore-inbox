@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290239AbSAQTuE>; Thu, 17 Jan 2002 14:50:04 -0500
+	id <S290275AbSAQTyo>; Thu, 17 Jan 2002 14:54:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290260AbSAQTtz>; Thu, 17 Jan 2002 14:49:55 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:1299 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S290239AbSAQTto>;
-	Thu, 17 Jan 2002 14:49:44 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200201171949.WAA04520@ms2.inr.ac.ru>
-Subject: Re: arpd not working in 2.4.17 or 2.5.1
-To: amit.gupta@amd.COM (Amit Gupta)
-Date: Thu, 17 Jan 2002 22:49:17 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C45B97C.9F7466B5@cmdmail.amd.com> from "Amit Gupta" at Jan 16, 2 08:45:02 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S290435AbSAQTye>; Thu, 17 Jan 2002 14:54:34 -0500
+Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:48621 "EHLO
+	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S290275AbSAQTyX>; Thu, 17 Jan 2002 14:54:23 -0500
+Message-ID: <3C472B64.6000206@wanadoo.fr>
+Date: Thu, 17 Jan 2002 20:52:04 +0100
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:0.9.7) Gecko/20011221
+X-Accept-Language: fr, en
 MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+CC: Tomasz Torcz <zdzichu@irc.pl>, "Michael H. Warfield" <mhw@wittsend.com>,
+        Hans-Christian Armingeon <linux.johnny@gmx.net>
+Subject: swapper [was OOPS on 2.4.17 ...]
+In-Reply-To: <20020117182758.GA736@irc.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Tomasz Torcz wrote:
+ > Process swapper (pid: 1, stackpage=c1199000)
 
-> the master daemon tries to connect to systems >1024.. arp kills it with
+Michael H. Warfield wrote:
+ > Process swapper (pid: 0,stackpage=c022f000)
 
-Make echo 2048 > /proc/sys/net/ipv4/neigh/default/gc_thresh3
-and live in peace.
+Hans-Christian Armingeon wrote:
+ > Process swapper (pid: 1, stackpage=cfe8d00)
 
-arpd will _not_ help you at all. Without tuning above you are lost
-in any case, with this tuning arpd is useless.
+what is this swapper process involved in 2.4.17 oops ? could it be 
+spawned when devfs thinks there is already a root fs mounted at boot 
+time before mounting the root fs given to the boot loader ?
 
-Not quite useless though, but its task has nothing to do with
-size of table. Its task is reducing broadcasting on LAN, which is
-importnat but a second order effect yet. Well, you can use arpd
-from iproute2.
 
-Alexey
+
+Pierre
+-- 
+------------------------------------------------
+  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------
+

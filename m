@@ -1,35 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277135AbRJHVWt>; Mon, 8 Oct 2001 17:22:49 -0400
+	id <S277145AbRJHVYt>; Mon, 8 Oct 2001 17:24:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277138AbRJHVWj>; Mon, 8 Oct 2001 17:22:39 -0400
-Received: from smtp6.mindspring.com ([207.69.200.110]:10017 "EHLO
-	smtp6.mindspring.com") by vger.kernel.org with ESMTP
-	id <S277135AbRJHVWY>; Mon, 8 Oct 2001 17:22:24 -0400
-Subject: Re: linux-2.4.10-acX
-From: Robert Love <rml@tech9.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15qeo4-0001MW-00@the-village.bc.nu>
-In-Reply-To: <E15qeo4-0001MW-00@the-village.bc.nu>
-Content-Type: text/plain
+	id <S277141AbRJHVYj>; Mon, 8 Oct 2001 17:24:39 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29714 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277138AbRJHVYa>; Mon, 8 Oct 2001 17:24:30 -0400
+Subject: Re: write/read cache raid5
+To: raid@ddx.a2000.nu
+Date: Mon, 8 Oct 2001 22:29:54 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.40.0110082309400.28345-100000@ddx.a2000.nu> from "raid@ddx.a2000.nu" at Oct 08, 2001 11:10:59 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
-Date: 08 Oct 2001 17:23:22 -0400
-Message-Id: <1002576203.8568.192.camel@phantasy>
-Mime-Version: 1.0
+Message-Id: <E15qhyE-0001ws-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-10-08 at 14:07, Alan Cox wrote:
+> > protected, battery backed, ECC'd etc. That is one place where things like
+> > the DPT (now Adaptec) millenium hardware raid can do a lot better than
+> > software solutions
+> 
+> So there is no way i can Speedup write to the raid5 array ?
+> (memory will be ecc and the server will be on ups)
 
-> Much of that will go on to Linus. Some he has refused (faster syscall path,
-> elevator flow control, ..). It takes time to feed stuff on and often I want
-> to test it in -ac first. Because so much changed in 2.4.10/11pre it's now
-> getting very hard to merge a lot of the fixes like the truncate standards
-> compliance stuff so they may not make Linus tree until 2.5
-
-What are Linus's complaints about the faster syscall path improvement?
-
-	Robert Love
+And you have no ECC on the PCI bus, nor will a UPS protect against a crash.
 

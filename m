@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277799AbRJLRhg>; Fri, 12 Oct 2001 13:37:36 -0400
+	id <S276021AbRJLSDc>; Fri, 12 Oct 2001 14:03:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277803AbRJLRh1>; Fri, 12 Oct 2001 13:37:27 -0400
-Received: from freeside.toyota.com ([63.87.74.7]:36614 "EHLO toyota.com")
-	by vger.kernel.org with ESMTP id <S277799AbRJLRhT>;
-	Fri, 12 Oct 2001 13:37:19 -0400
-Message-ID: <3BC729E2.E93A416E@lexus.com>
-Date: Fri, 12 Oct 2001 10:35:30 -0700
-From: J Sloan <jjs@lexus.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre1 i686)
-X-Accept-Language: en
+	id <S274299AbRJLSDX>; Fri, 12 Oct 2001 14:03:23 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11791 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S276021AbRJLSDE>; Fri, 12 Oct 2001 14:03:04 -0400
+Subject: Re: kapm-idled Funny in 2.4.10-ac12?
+To: gallir@uib.es
+Date: Fri, 12 Oct 2001 19:08:52 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <20011012193019.A612@linux.uib.es> from "Ricardo Galli" at Oct 12, 2001 07:30:19 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: "T. A." <tkhoadfdsaf@hotmail.com>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Re: Which kernel (Linus or ac)?
-In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org> <3BC5E152.3D81631@bigfoot.com> <3BC5E3AF.588D0A55@lexus.com> <3BC5EB56.21B4EF88@bigfoot.com> <3BC5FA12.F8E5C91E@lexus.com> <OE64cxtniFKULPEhGD100007fff@hotmail.com> <3BC688A2.4C7640B7@pobox.com> <OE394qrvAsp4XgWZGbR0000e29d@hotmail.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15s6js-0008Pf-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After this post we should take it offline and
-let the s/n ratio on lkml settle back down to
-a dull roar - apologies for the noise, this is
-the last post on this dead horse.
+> I am having almost the same problem in 2.4.12-ac1:
+> 
+> gallir@linux:~$ uname -a
+> Linux linux 2.4.12-ac1 #2 Fri Oct 12 19:01:03 CEST 2001 i686 unknown
+> 
+> kapm-idled consumes a 14% of CPU (in a P3 1GHz)
+> 
+> PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+>   3 root      17   0     0    0     0 RW   14.3  0.0   1:17 kapm-idled
+> 
+> The same happens with vanilla Linus tree (tested up to 2.4.11). In a P2,
+> CPU consuption was more than 85%.
+> 
+> The CPU's temperature, while the system idle, is more than 4 degrees (C)
+> higher than the same conditions with the kapm-idled disabled.
 
-"T. A." wrote:
+I've been reading throught the APM spec and code a bit further. The more
+I read the more I wonder quite how our idle code is meant to work and what
+kind of beer was overconsumed during its writing.
 
->     Oh I could deal with all of the problems as well.  But after a good bit
-> of recompiling, patching, upgrading, backtracking the things done in the
-> "Redhat" way
+There are two glaring issues I can see right now
 
-You may have a point with 7.0, but 7.1 was not
-that bad - and in any case, just applying the RH
-updates fixed the problems.
+#1	The BIOS might sleep for a tick, but it is also is allowed to slow
+	the cpu and return straight back to us.
 
-> which many times don't match the man pages, as well as undoing
-> the "Redhat" way annoyances I just end up with a variation of my own hand
-> built distribution.
+	If it returns back to us we spin in a tight loop at the lower clock
+	speed calling the APM bios. Not ideal.
 
-To each his own - choice is a wonderful thing, isn't it?
+	Just fixed that in my tree for the next -ac
 
-> And once I have to replace the system experimental C
-> library and compiler it just get even more ridicules.
+#2	We test system_idle() nr_running==1, but we spent all our time 
+	pretending we aren't running. Im not 100% sure the test is safe
+	yet
 
-Experimental? What you call experimental, I call (and
-my customers call) fully functional and fully supported.
-
-Using gcc-2.96 on the 40+ RH boxes I have scattered
-around the southwest has shown no problems, despite
-all the outrage from anti gcc-2.96 activists.
-
-Here is a heads-up for the benefit of those wondering
-about gcc-2.96:
-
-http://www.bero.org/gcc296.html
-
-cu
-
-jjs
-
+Alan

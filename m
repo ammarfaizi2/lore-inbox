@@ -1,66 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264180AbTEWUdU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 16:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264181AbTEWUdU
+	id S264181AbTEWUg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 16:36:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264182AbTEWUg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 16:33:20 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:41407 "EHLO
+	Fri, 23 May 2003 16:36:28 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:63679 "EHLO
 	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S264180AbTEWUdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 16:33:19 -0400
-Date: Fri, 23 May 2003 17:45:14 -0300
+	id S264181AbTEWUg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 16:36:27 -0400
+Date: Fri, 23 May 2003 17:48:51 -0300
 From: Eduardo Pereira Habkost <ehabkost@conectiva.com.br>
-To: 95Etwl@alumni.ee.ust.hk, dag@brattli.net
+To: p2@ace.ulyssis.sutdent.kuleuven.ac.be, mikep@linuxtr.net
 Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
        alan@lxorguk.ukuu.org.uk
-Subject: [PATCH] ma600 irda driver: Remove unneeded '##' from macro definition
-Message-ID: <20030523204513.GV2939@duckman.distro.conectiva>
+Subject: [PATCH] Fix multiline string
+Message-ID: <20030523204851.GW2939@duckman.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lpUp1egui7PDlNtH"
+	protocol="application/pgp-signature"; boundary="V4yrq4dHtCqH+JvC"
 Content-Disposition: inline
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---lpUp1egui7PDlNtH
+--V4yrq4dHtCqH+JvC
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Detected when using gcc 3.3. Compilation fails without this fix.
+Detected when using gcc 3.3.
 
 --=20
 Eduardo
 
 
-diff -purN linux-2.4.orig/drivers/net/irda/ma600.c linux-2.4/drivers/net/ir=
-da/ma600.c
---- linux-2.4.orig/drivers/net/irda/ma600.c	2003-05-22 20:13:14.000000000 -=
-0300
-+++ linux-2.4/drivers/net/irda/ma600.c	2003-05-22 20:13:14.000000000 -0300
-@@ -53,7 +53,7 @@
- 	if(!(expr)) { \
- 	        printk( "Assertion failed! %s,%s,%s,line=3D%d\n",\
-         	#expr,__FILE__,__FUNCTION__,__LINE__); \
--	        ##func}
-+	        func}
+diff -purN linux-2.4.orig/drivers/net/tokenring/olympic.c linux-2.4/drivers=
+/net/tokenring/olympic.c
+--- linux-2.4.orig/drivers/net/tokenring/olympic.c	2003-05-22 20:13:15.0000=
+00000 -0300
++++ linux-2.4/drivers/net/tokenring/olympic.c	2003-05-22 20:13:15.000000000=
+ -0300
+@@ -655,8 +655,8 @@ static int olympic_open(struct net_devic
+ 	printk(" stat_ring[7]: %p\n", &(olympic_priv->olympic_rx_status_ring[7]) =
+ );
+=20
+ 	printk("RXCDA: %x, rx_ring[0]: %p\n",readl(olympic_mmio+RXCDA),&olympic_p=
+riv->olympic_rx_ring[0]);
+-	printk("Rx_ring_dma_addr =3D %08x, rx_status_dma_addr =3D
+-%08x\n",olympic_priv->rx_ring_dma_addr,olympic_priv->rx_status_ring_dma_ad=
+dr) ;=20
++	printk("Rx_ring_dma_addr =3D %08x, rx_status_dma_addr =3D %08x\n",
++			olympic_priv->rx_ring_dma_addr,olympic_priv->rx_status_ring_dma_addr) ;=
+=20
  #endif
 =20
- /* convert hex value to ascii hex */
+ 	writew((((readw(olympic_mmio+RXENQ)) & 0x8000) ^ 0x8000) | i,olympic_mmio=
++RXENQ);
 
---lpUp1egui7PDlNtH
+--V4yrq4dHtCqH+JvC
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE+zohZcaRJ66w1lWgRApT5AKCJxVM+dSozFaFnNBtHYL/l+m7S9QCfWUaK
-nCVAzX23xMAmV40VHKjMAak=
-=3kyV
+iD8DBQE+zokzcaRJ66w1lWgRAro/AJ9yD9ztmNMEWjNWxmN0mMB6GMPa7gCfTD6a
+zZIC5hevp+N6oaN5ABWQFow=
+=G2Ef
 -----END PGP SIGNATURE-----
 
---lpUp1egui7PDlNtH--
+--V4yrq4dHtCqH+JvC--

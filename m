@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289111AbSAGEcH>; Sun, 6 Jan 2002 23:32:07 -0500
+	id <S289116AbSAGEkh>; Sun, 6 Jan 2002 23:40:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289115AbSAGEb6>; Sun, 6 Jan 2002 23:31:58 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:24929 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S289111AbSAGEbn>; Sun, 6 Jan 2002 23:31:43 -0500
-Date: Mon, 7 Jan 2002 05:31:54 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>, torrey.hoffman@myrio.com,
-        linux-kernel@vger.kernel.org,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: ramdisk corruption problems - was: RE: pivot_root and initrd kern el panic woes
-Message-ID: <20020107053154.M1561@athlon.random>
-In-Reply-To: <3C2EB208.B2BA7CBF@zip.com.au> <Pine.GSO.4.21.0112300129060.8523-100000@weyl.math.psu.edu>, <Pine.GSO.4.21.0112300129060.8523-100000@weyl.math.psu.edu>; <20011231010537.K1356@athlon.random> <3C36E6E8.628BF0BF@zip.com.au>, <3C36E6E8.628BF0BF@zip.com.au>; <20020107040828.H1561@athlon.random> <3C391AB1.21F8F48C@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3C391AB1.21F8F48C@zip.com.au>; from akpm@zip.com.au on Sun, Jan 06, 2002 at 07:49:05PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S289117AbSAGEk1>; Sun, 6 Jan 2002 23:40:27 -0500
+Received: from oe64.law9.hotmail.com ([64.4.8.199]:16132 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S289116AbSAGEkN>;
+	Sun, 6 Jan 2002 23:40:13 -0500
+X-Originating-IP: [66.108.21.174]
+From: "T. A." <tkhoadfdsaf@hotmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+        "Chris Wedgwood" <cw@f00f.org>
+In-Reply-To: <20020106032030.A27926@redhat.com> <E16NFxv-0005e4-00@the-village.bc.nu> <20020106233726.GA26491@weta.f00f.org> <200201070215.g072F0u3010729@sm14.texas.rr.com> <20020107023854.GA26751@weta.f00f.org>
+Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
+Date: Sun, 6 Jan 2002 23:40:15 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-ID: <OE64O554Q0BUHaxrXcq0000d9af@hotmail.com>
+X-OriginalArrivalTime: 07 Jan 2002 04:40:08.0302 (UTC) FILETIME=[626658E0:01C19735]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 06, 2002 at 07:49:05PM -0800, Andrew Morton wrote:
-> which is probably better than just ignoring it as we do at present.
-> I'll leave it as shown above unless there be objections.
+    There are 2MB pages as well.  Probably would be a better choice than
+4MB.  Also only has a 2 tier paging mechanism instead of a 3 tier one when
+paging with 4KB which should help take care of the current slowdown with
+highmem.
 
-by design defintely better as shown than mainline. a MS_ASYNC currently
-doesn't work because the VM will never care flushing dirty mapped pages,
-first it will have to unmap them that will never happen unless there's
-low-on mem condition, while the filemap_fdatasync will ensure those
-pages will hit the disk asynchronously in a sane amount of time
-(depending on kupdate). MS_ASYNC manpage says an update is scheduled,
-currently it will instead never happen for example if the machine is
-idle and there's no vm swap etc... your change will fix it.
+----- Original Message -----
+From: "Chris Wedgwood" <cw@f00f.org>
+To: "Marvin Justice" <mjustice@austin.rr.com>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>; "Benjamin LaHaise"
+<bcrl@redhat.com>; "Gerrit Huizenga" <gerrit@us.ibm.com>; "M. Edward
+Borasky" <znmeb@aracnet.com>; "Harald Holzer" <harald.holzer@eunet.at>;
+<linux-kernel@vger.kernel.org>
+Sent: Sunday, January 06, 2002 9:38 PM
+Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
 
-> I'll wait until Marcelo looks like he has his head above water and
-> then send out the final version of the ramdisk, truncate and
-> fsync/msync patches, cc'ed to yourself and lkml.
 
-I'd like to release a new -aa within tomorrow afternoon with every known
-bug discussed in this thread fixed, so then I can concentrate back on
-another thing, so I'd like to get those new versions ASAP :)
-
-for the buffer_new thing I guess it's simpler to just change the
-semantics of it rather than allocating ram on the stack.
-
-Andrea
+> On Sun, Jan 06, 2002 at 08:18:33PM -0600, Marvin Justice wrote:
+>
+>     Here's my (probably simple minded) understanding. With the PSE bit
+>     turned on in one of the x86 control registers (cr3?), page sizes
+>     are 4MB instead of the usual 4KB. One advantage of large pages is
+>     that there are fewer page tables and struct page's to store.
+>
+> Ah, I knew 4MB pages were possible... I was under the impression _all_
+> pages had to be 4MB which would seem to suck badly as they would be
+> too coarse for many applications (but for certain large sci. apps. I'm
+> sure this would be perfect, less TLB thrashing too with sparse
+> data-sets).
+>
+> On the whole, I'm not sure I can see how 4MB pages _everywhere_ in
+> user-space would be a win for many people at all...
+>
+>
+>   --cw
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

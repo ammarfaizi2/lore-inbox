@@ -1,51 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266590AbUBDUwN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 15:52:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266589AbUBDUuV
+	id S264441AbUBDUpk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 15:45:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266586AbUBDUoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 15:50:21 -0500
-Received: from devil.servak.biz ([209.124.81.2]:63705 "EHLO devil.servak.biz")
-	by vger.kernel.org with ESMTP id S266591AbUBDUst (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 15:48:49 -0500
-Subject: RE: Kernel 2.x POSIX Compliance/Conformance...
-From: Torrey Hoffman <thoffman@arnor.net>
-To: "Randazzo, Michael" <RANDAZZO@ddc-web.com>
-Cc: "'Valdis.Kletnieks@vt.edu'" <Valdis.Kletnieks@vt.edu>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <89760D3F308BD41183B000508BAFAC4104B16F38@DDCNYNTD>
-References: <89760D3F308BD41183B000508BAFAC4104B16F38@DDCNYNTD>
-Content-Type: text/plain
-Message-Id: <1075927877.3225.73.camel@moria.arnor.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 04 Feb 2004 12:51:17 -0800
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - devil.servak.biz
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - arnor.net
+	Wed, 4 Feb 2004 15:44:44 -0500
+Received: from amber.ccs.neu.edu ([129.10.116.51]:29660 "EHLO
+	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S264441AbUBDUm7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 15:42:59 -0500
+Date: Wed, 4 Feb 2004 15:42:58 -0500 (EST)
+From: Jim Faulkner <jfaulkne@ccs.neu.edu>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, kraxel@bytesex.org
+Subject: Re: major network performance difference between 2.4 and 2.6.2-rc2
+In-Reply-To: <Pine.GSO.4.58.0401302108560.1211@denali.ccs.neu.edu>
+Message-ID: <Pine.GSO.4.58.0402041529160.7454@denali.ccs.neu.edu>
+References: <Pine.GSO.4.58.0401302108560.1211@denali.ccs.neu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-04 at 12:18, Randazzo, Michael wrote:
-> Where are the kernel calls defined for locks and semaphores?
-> 
-> How come the kernel headers don't define Posix.4 
-> semaphores (_POSIX_SEMAPHROES) or Posix itself
-> (_POSIX_VERSION is undefined)
-> 
 
-I think you need to read "Linux Device Drivers".  If you don't want to
-buy it, you can read it for free online.
+On Fri, 30 Jan 2004, Jim Faulkner wrote:
 
-http://www.xml.com/ldd/chapter/book/
+>
+> There is a major networking performance problem on my machine under recent
+> 2.6 kernels.  I have a dual Athlon-MP machine with an onboard Intel
+> Ethernet Pro 100 device, which can use either the e100 or eepro100 driver.
+>
+> I ran some tests under 2.4 and recent 2.6 kernels to see what kind of
+> performance I could get.  I tested using both ftp and samba, the client
+> machine is a windows box with an onboard 3com 3c920b controller.  They
+> are connected through a D-Link 100 megabit full duplex switch.
 
-Chapter 9, pages 284-286 discusses locking and atomic operations.
+...
 
+> It appears that my network device is capable of 4 times the throughput
+> under 2.4 kernels versus recent 2.6 kernels.  I believe this problem arose
+> recently, probably sometime since 2.6.0, since I only recently noticed
+> this performance issue.
 
--- 
-Torrey Hoffman <thoffman@arnor.net>
+I am still experiencing severely degraded network performance under
+2.6.2-rc3 and 2.6.2-rc3-mm1.  Based on some kernel output, I think this
+problem may be related to Gerd Knorr's input patches, so I am CCing him on
+this e-mail.  You can view my entire original e-mail, which includes
+system configuration information, right here:
+http://groups.google.com/groups?selm=1jTPU-2ee-1%40gated-at.bofh.it&rnum=1
 
+While doing a large network transfer, and not at any other time, I get
+tons of messages like this from the kernel:
+
+Feb  4 15:13:50 delta-9 i2c IR (Hauppauge): unknown key: key=0x3f raw=0x3fff down=1
+Feb  4 15:13:55 delta-9 i2c IR (Hauppauge): unknown key: key=0x3f raw=0x3fff down=0
+Feb  4 15:13:57 delta-9 i2c IR (Hauppauge): unknown key: key=0x3f raw=0x3fff down=1
+Feb  4 15:14:00 delta-9 i2c IR (Hauppauge): unknown key: key=0x3f raw=0x3fff down=0
+Feb  4 15:14:01 delta-9 i2c IR (Hauppauge): unknown key: key=0x3f raw=0x3fff down=1
+Feb  4 15:14:03 delta-9 i2c IR (Hauppauge): unknown key: key=0x3f raw=0x3fff down=0
+Feb  4 15:14:03 delta-9 i2c IR (Hauppauge): unknown key: key=0x3f raw=0x3fff down=1
+Feb  4 15:14:05 delta-9 i2c IR (Hauppauge): unknown key: key=0x3f raw=0x3fff down=0
+Feb  4 15:14:06 delta-9 i2c IR (Hauppauge): unknown key: key=0x3f raw=0x3fff down=1
+
+I do have a hauppauge remote which works great under the 2.6 kernels
+(thanks Gerd), but I am not pressing any keys while this is happening.
+
+Additionally, while large network transfers are going on, both ksoftirqd/0
+and events/0 start going crazy, putting a huge load on my system:
+
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+  3 root      35  19     0    0    0 S 45.9  0.0   0:46.98 ksoftirqd/0
+  6 root       5 -10     0    0    0 S 43.3  0.0   1:56.63 events/0
+  12008 dogshu 15   0  4800 2356 3828 S  5.3  0.2   0:05.98 proftpd
+  12 root      15   0     0    0    0 S  0.3  0.0   0:00.41 pdflush
+  9778 root    16   0  5888 1724 5516 R  0.3  0.2   0:00.12 sshd
+
+the load before that network transfer was 0.01, and the load after the
+network transfer was 1.45.
+
+I'd really like to have my network performance back, so it would be great
+if someone could take a look at this. :)
+
+thanks for any help,
+Jim Faulkner

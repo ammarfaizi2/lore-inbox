@@ -1,77 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261261AbTEQGtl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 02:49:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbTEQGtl
+	id S261275AbTEQHSX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 03:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbTEQHSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 02:49:41 -0400
-Received: from Mail1.KONTENT.De ([81.88.34.36]:41123 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261261AbTEQGtk (ORCPT
+	Sat, 17 May 2003 03:18:23 -0400
+Received: from gw.enyo.de ([212.9.189.178]:23558 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S261275AbTEQHSW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 02:49:40 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: request_firmware() hotplug interface, third round.
-Date: Sat, 17 May 2003 09:02:58 +0200
-User-Agent: KMail/1.5.1
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, ranty@debian.org,
-       LKML <linux-kernel@vger.kernel.org>,
-       Simon Kelley <simon@thekelleys.org.uk>,
-       "Downing, Thomas" <Thomas.Downing@ipc.com>, Greg KH <greg@kroah.com>,
-       jt@hpl.hp.com, Pavel Roskin <proski@gnu.org>
-References: <1053101342.5589.5.camel@dhcp22.swansea.linux.org.uk> <200305170013.49808.oliver@neukum.org> <20030517045008.GD13827@zax>
-In-Reply-To: <20030517045008.GD13827@zax>
+	Sat, 17 May 2003 03:18:22 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: Simon Kirby <sim@netnation.org>, linux-kernel@vger.kernel.org
+Subject: Re: Route cache performance under stress
+References: <8765pshpd4.fsf@deneb.enyo.de>
+	<20030516222436.GA6620@netnation.com>
+	<1053138910.7308.3.camel@rth.ninka.net>
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>, Simon Kirby
+ <sim@netnation.org>,  linux-kernel@vger.kernel.org
+Date: Sat, 17 May 2003 09:31:04 +0200
+In-Reply-To: <1053138910.7308.3.camel@rth.ninka.net> (David S. Miller's
+ message of "16 May 2003 19:35:10 -0700")
+Message-ID: <87d6iit4g7.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305170902.58835.oliver@neukum.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag, 17. Mai 2003 06:50 schrieb David Gibson:
-> On Sat, May 17, 2003 at 12:13:49AM +0200, Oliver Neukum wrote:
-> > Am Freitag, 16. Mai 2003 18:09 schrieb Alan Cox:
-> > > On Gwe, 2003-05-16 at 09:07, Oliver Neukum wrote:
-> > > > So, if I understand you correctly, RAM is only saved if a device
-> > > > is hotpluggable and needs firmware only upon intial connection.
-> > > > Which, if you do suspend to disk correctly, is no device.
-> > >
-> > > Thats just because the interface is a little warped not the theory.
-> > > On a resume you need to reload firmware and you already handle
-> > > rediscovery on USB bus for example because the devices can change
-> >
-> > Right. But the order of resumption is fixed by hardware needs.
-> > So during resumption you cannot use block devices and therefore
-> > not start a hotplug script. Or did I miss something?
+"David S. Miller" <davem@redhat.com> writes:
+
+> On Fri, 2003-05-16 at 15:24, Simon Kirby wrote:
+>> I have been seeing this problem for over a year, and have had the same
+>> problems you have with DoS attacks saturating the CPUs on our routers.
 >
-> For devices that aren't essentialy to get userspace running
-> (e.g. network on a laptop running from local disk), the firmware
-> request doesn't have to happen during the hairy part of resumption.
+> Have a look at current kernels and see if they solve your problem.
+> They undoubtedly should, and I consider this issue resolved.
 
-Not true for network cards. Somebody might be running NFS
-over it. The problem is that you cannot tell (or rather shouldn't - it's
-a layering violation).
-
-Anything that is used for paging needs to be back to life before
-you can think about resurrecting user space.
-Also you need to bring keyboards back to life early to make
-sysreq work.
-
-Secondly, you need a way to get essential devices to work in
-all cases. If you implement it, why not use it?
-
-> The device could just mark itself as unusable at suspend time, then at
-> resume it schedule_work()s something to reload the firmware and
-> complete reinitialization.  Shortly after userspace is back in action,
-> the device will come back to life.
-
-Is supposed to. You cannot put blind trust into that. You need to use
-a pretty arbitrary timeout to deal with this.
-
-I fail to see technical improvements here.
-
-	Regards
-		Oliver
-
+The hash collision problem appears to be resolved, but not the more
+general performance issues.  Or are there any kernels without a
+routing cache?

@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287516AbSBGMRD>; Thu, 7 Feb 2002 07:17:03 -0500
+	id <S287532AbSBGMXg>; Thu, 7 Feb 2002 07:23:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287532AbSBGMQx>; Thu, 7 Feb 2002 07:16:53 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:30219 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287516AbSBGMQq>;
-	Thu, 7 Feb 2002 07:16:46 -0500
-Date: Thu, 7 Feb 2002 10:16:22 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: <alan@lxorguk.ukuu.org.uk>, <Ulrich.Weigand@de.ibm.com>,
-        <zaitcev@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: The IBM order relaxation patch
-In-Reply-To: <20020206.200100.85392985.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33L.0202071015470.17850-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287578AbSBGMXZ>; Thu, 7 Feb 2002 07:23:25 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:18126 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S287532AbSBGMXJ>; Thu, 7 Feb 2002 07:23:09 -0500
+Date: Thu, 7 Feb 2002 14:22:52 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Thomas Capricelli <tcaprice@logatique.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to check the kernel compile options ?
+Message-ID: <20020207122252.GL535637@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Thomas Capricelli <tcaprice@logatique.fr>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020206162657.GD534915@niksula.cs.hut.fi> <4.3.2.7.2.20020206131121.00b1f670@mail.osagesoftware.com> <20020207075607.GE534915@niksula.cs.hut.fi> <20020207091001.2E36923CC4@persephone.dmz.logatique.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020207091001.2E36923CC4@persephone.dmz.logatique.fr>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Feb 2002, David S. Miller wrote:
+On Thu, Feb 07, 2002 at 10:12:12AM +0100, you [Thomas Capricelli] wrote:
+>  
+> > Anyway, I think these kind of issues are solveable if only anybody agrees
+> > this is a good idea...
+> 
+> 	I for sur agree. Especially if we consider the practical approach :
+> 	Not all patches are required to add the file under linux/patches/,
+> 	but good ones will
+> 	Probability that such thing happen is almost 0, big kernel guys
+> aren't even reading this thread :(. I won't loose my time trying ot make
+> this happen as they wont even consider reading about such things.  too bad
+> :(
 
-> I do not think the Linus VM behavior is unreasonable, which basically
-> amounts to continually trying to free pages for all order 3 and below
-> allocations (if you can sleep and you aren't PF_MEMALLOC etc.).
+Yes. The problem is that Linux/Alan/Marcelo or who ever maintains proper
+kernel trees aren't interested - the /usr/src/linux/patches stuff is only on
+the way for them. (Although they could easily rm -rf /usr/src/linux/patches
+before making a release if they please.)
 
-The only problem is that it doesn't.  It won't try to free
-pages once you have enough free pages, which means you'll
-just end up in a livelock.
+This idea is mostly applicable to external patches not ment for inclusion
+(yet).
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+Maybe if there was a well-defined framework, we could persuade some of the
+most influential patch maintainers (Rik van Riel, Robert Love, Andre Hedrick
+etc..) use it. Then maybe, big maybe, it might catch fire.
 
-http://www.surriel.com/		http://distro.conectiva.com/
 
+-- v --
+
+v@iki.fi

@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265126AbTBEXD0>; Wed, 5 Feb 2003 18:03:26 -0500
+	id <S265130AbTBEXDq>; Wed, 5 Feb 2003 18:03:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265130AbTBEXD0>; Wed, 5 Feb 2003 18:03:26 -0500
-Received: from p508EF5E1.dip.t-dialin.net ([80.142.245.225]:14209 "EHLO
-	oscar.local.net") by vger.kernel.org with ESMTP id <S265126AbTBEXDZ>;
-	Wed, 5 Feb 2003 18:03:25 -0500
-Date: Thu, 6 Feb 2003 00:12:59 +0100
-From: Patrick Mau <mau@oscar.ping.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: pdflush in D state
-Message-ID: <20030205231259.GA5339@oscar.ping.de>
-Reply-To: Patrick Mau <mau@oscar.ping.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+	id <S265134AbTBEXDq>; Wed, 5 Feb 2003 18:03:46 -0500
+Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:49422
+	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
+	id <S265130AbTBEXDo>; Wed, 5 Feb 2003 18:03:44 -0500
+Message-ID: <3E419A43.7070100@rackable.com>
+Date: Wed, 05 Feb 2003 15:12:03 -0800
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21pre4aa1
+References: <20030131014020.GA8395@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 Feb 2003 23:13:16.0235 (UTC) FILETIME=[29DDA9B0:01C2CD6C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+Is the dac960 compile still broken?  Or did it break again?
 
-I have a strange observation regarding the pdflush kernel threads.
-My system has 512MB RAM. The behavior is independand of the filesystem
-type in use. I have tested ext2, ext3 and reiserfs.
+make[3]: Entering directory `/stuff/src/linux-2.4.21-pre4-aa1/drivers/block'
+gcc -D__KERNEL__ -I/stuff/src/linux-2.4.21-pre4-aa1/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686   
+-nostdinc -iwithprefix include -DKBUILD_BASENAME=DAC960  -DEXPORT_SYMTAB 
+-c DAC960.c
+DAC960.c: In function `DAC960_ProcessCompletedBuffer':
+DAC960.c:3029: warning: passing arg 1 of `blk_finished_io' makes pointer 
+from integer without a cast
+DAC960.c:3029: too few arguments to function `blk_finished_io'
+make[3]: *** [DAC960.o] Error 1
+make[3]: Leaving directory `/stuff/src/linux-2.4.21-pre4-aa1/drivers/block'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/stuff/src/linux-2.4.21-pre4-aa1/drivers/block'
+make[1]: *** [_subdir_block] Error 2
+make[1]: Leaving directory `/stuff/src/linux-2.4.21-pre4-aa1/drivers'
+make: *** [_dir_drivers] Error 2
 
-The scenario goes like this:
+-- 
+There is no such thing as obsolete hardware.
+Merely hardware that other people don't want.
+(The Second Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
 
-- Create a new filesystem on a spare partition.
-  All other partitions on this disk are NTFS and
-  not mounted.
-  
-- Copy the whole XFree source there.
 
-- "sync ; sync ; sync" and wait a few minutes
-  (I really tried waiting more than 5 minutes)
-  
-- now there are 400MB used by the page cache
 
-- start the build with "make World"
-
-XFree creates its Makefiles using "imake".
-After that it tries to remove many non-existant files to clean
-the source tree.
-
-This goes extremly fast, but after a few seconds pdflush
-gets stuck in D state and tries to write back dirty pages.
-The machine is completly unresponsive and "top" reports
-75 percent IO wait time. The actual build has not even started.
-
-I have no idea what pdflush is trying to do ...
-The files are already written and there is no other disk
-activity involved. I even tried single-user mode.
-
-The kernel is BK current 2.5.59, the machine is a P4@2.4 GHz.
-
-Has somebody else observed this ?
-
-cheers,
-Patrick

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131793AbRCOT3N>; Thu, 15 Mar 2001 14:29:13 -0500
+	id <S131798AbRCOTdX>; Thu, 15 Mar 2001 14:33:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131794AbRCOT2x>; Thu, 15 Mar 2001 14:28:53 -0500
-Received: from raven.toyota.com ([63.87.74.200]:56592 "EHLO raven.toyota.com")
-	by vger.kernel.org with ESMTP id <S131793AbRCOT2s>;
-	Thu, 15 Mar 2001 14:28:48 -0500
-Message-ID: <3AB117C5.45487A96@toyota.com>
-Date: Thu, 15 Mar 2001 11:28:05 -0800
-From: J Sloan <jjs@toyota.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre4 i686)
-X-Accept-Language: en
+	id <S131799AbRCOTdQ>; Thu, 15 Mar 2001 14:33:16 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:23309 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S131798AbRCOTcs>; Thu, 15 Mar 2001 14:32:48 -0500
+Date: Thu, 15 Mar 2001 23:44:52 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: William T Wilson <fluffy@snurgle.org>
+Cc: Torrey Hoffman <torrey.hoffman@myrio.com>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: RE: Is swap == 2 * RAM a permanent thing?
+In-Reply-To: <Pine.LNX.4.21.0103151421380.22425-100000@benatar.snurgle.org>
+Message-ID: <Pine.LNX.4.33.0103152344260.1320-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: How to optimize routing performance
-In-Reply-To: <Pine.LNX.4.33.0103152334400.1320-100000@duckman.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
+On Thu, 15 Mar 2001, William T Wilson wrote:
 
-> On Thu, 15 Mar 2001, J Sloan wrote:
+> it seems to me that in 2.2.x it looks like this:
 >
-> > Fun, yes, and perhaps not directly related, however
-> > under high load, where the sheer numbet of interrupts
-> > per second begins to overwhelm the kernel, might it
-> > not be relevant?
->
-> No.
->
-> > Or are you saying that the bottleneck is somewhere
-> > else completely,
->
-> Indeed. The bottleneck is with processing the incoming network
-> packets, at the interrupt level.
+> total usage == swap + RAM
+> under 2.4.x it looks like:
+> total usage == swap
 
-OK, I'll take this to kernel newbies!
+  total usage == maximum(swap, ram)
 
-:-)
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
 
-Jup
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbUKHMAn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbUKHMFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261588AbUKHMAn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 07:00:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbUKHMAn
+	id S261812AbUKHMFK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 07:05:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbUKHMFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 07:00:43 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:15327 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261588AbUKHMAh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 07:00:37 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 8 Nov 2004 12:40:08 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: video4linux-list@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] drivers/media/video/ cleanups
-Message-ID: <20041108114008.GB20607@bytesex>
-References: <20041107175017.GP14308@stusta.de>
+	Mon, 8 Nov 2004 07:05:10 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:51468 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261812AbUKHMFG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 07:05:06 -0500
+Subject: Re: VMM:  syscall for reordering pages in vm
+From: Arjan van de Ven <arjan@infradead.org>
+To: Willibald Krenn <Willibald.Krenn@gmx.at>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <418F4F97.5000805@gmx.at>
+References: <418F4F97.5000805@gmx.at>
+Content-Type: text/plain
+Message-Id: <1099915498.3577.7.camel@laptop.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041107175017.GP14308@stusta.de>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Mon, 08 Nov 2004 13:04:58 +0100
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.6 (++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (2.6 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[62.195.31.207 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[62.195.31.207 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 07, 2004 at 06:50:17PM +0100, Adrian Bunk wrote:
-> the patch below contains several cleanups for drivers/media/video/, most 
-> of them are:
-> - needlessly global code made static
-> - currenly unused code removed
+On Mon, 2004-11-08 at 11:51 +0100, Willibald Krenn wrote:
+> Quick Summary:
+> 
+> (Good or Bad?) Idea of implementing a syscall that allows
+> for virtual memory page exchange by modifying the physical<->virtual
+> page mapping. Intended usage: Moving pages in virtual memory without
+> the need to copy them. Feedback welcome!
 
-No, not this way in one big blob please.  It would be very nice if you
-can split that into smaller pieces:
-
-  (1) The ObviouslyCorrect stuff, i.e. make stuff static which isn't
-      declared in any header file.
-  (2) The stuff which needs some more careful review (drop functions,
-      drop stuff from header files, ...).
-
-Especially the later please splitted by driver, so the driver
-maintainers can have a look (which is kida problematic for some v4l
-drivers as there is no active maintainer currently, but I'd prefeare
-to have that separately in my inbox neverless).
-
-I don't like your attitude to just drop stuff as "cleanup".  If
-functions are declared in a header file they are usually for a reason,
-thus that kind of stuff needs some careful checking whenever these
-reasons still exist or not.  Not every function which isn't used at the
-moment automatically is useless.  cx88_risc_disasm() for example is
-useful for debugging the driver.  And that there is no in-kernel user
-for exported functions doesn't mean that nobody uses it.  The stuff
-exported by bttv-if is used by lirc for example.
-
-  Gerd
+eh isn't this already possible with mmap and mremap ?
 

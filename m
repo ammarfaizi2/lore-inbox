@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269430AbUJSOmu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269429AbUJSOsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269430AbUJSOmu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 10:42:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269422AbUJSOmt
+	id S269429AbUJSOsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 10:48:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269433AbUJSOsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 10:42:49 -0400
-Received: from lucidpixels.com ([66.45.37.187]:39555 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S269429AbUJSOme (ORCPT
+	Tue, 19 Oct 2004 10:48:15 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:36283 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269429AbUJSOsO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 10:42:34 -0400
-Date: Tue, 19 Oct 2004 10:42:31 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p500
-To: nvidia@nl.linux.org, linux-kernel@vger.kernel.org
-Subject: Kernel 2.6.9 breaks NVidia module, cannot start X.
-Message-ID: <Pine.LNX.4.61.0410191040270.8554@p500>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 19 Oct 2004 10:48:14 -0400
+Date: Tue, 19 Oct 2004 16:46:42 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U6
+Message-ID: <20041019144642.GA6512@elte.hu>
+References: <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041019124605.GA28896@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel: 2.6.9
-GCC: 3.4.2
-NVIDIA: 6111 (latest as of 10/19/04)
 
-   cc 
--Wp,-MD,/appc/kernel/NVIDIA-Linux-x86-1.0-6111-pkg1/usr/src/nv/.nvidia.mod.
-o.d -nostdinc -iwithprefix include -D__KERNEL__ -Iinclude  -Wall 
--Wstrict-protot
-ypes -Wno-trigraphs -fno-strict-aliasing -fno-common -O2 
--fomit-frame-pointer -W
-declaration-after-statement -pipe -msoft-float 
--mpreferred-stack-boundary=2 -fno
--unit-at-a-time -march=pentium4 -Iinclude/asm-i386/mach-default 
--DKBUILD_BASE
-NAME=nvidia -DKBUILD_MODNAME=nvidia -DMODULE -c -o 
-/appc/kernel/NVIDIA-Linux-x86
--1.0-6111-pkg1/usr/src/nv/nvidia.mod.o 
-/appc/kernel/NVIDIA-Linux-x86-1.0-6111-pk
-g1/usr/src/nv/nvidia.mod.c
-   ld -m elf_i386 -r -o 
-/appc/kernel/NVIDIA-Linux-x86-1.0-6111-pkg1/usr/src/nv/nv
-idia.ko /appc/kernel/NVIDIA-Linux-x86-1.0-6111-pkg1/usr/src/nv/nvidia.o 
-/appc/ke
-rnel/NVIDIA-Linux-x86-1.0-6111-pkg1/usr/src/nv/nvidia.mod.o
-make[1]: Leaving directory `/usr/src/linux-2.6.9'
-NVIDIA: left KBUILD.
-FATAL: Error inserting nvidia 
-(/lib/modules/2.6.9/kernel/drivers/video/nvidia.ko
-): Unknown symbol in module, or unknown parameter (see dmesg)
-make: *** [package-install] Error 1
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-# dmesg
-nvidia: module license 'NVIDIA' taints kernel.
-nvidia: Unknown symbol __VMALLOC_RESERVE
-nvidia: Unknown symbol __VMALLOC_RESERVE
+> i have released the -U6 Real-Time Preemption patch:
+>  
+>   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.9-rc4-mm1-U6
 
+i've re-released the patch because shortly after releasing it i found a
+false-positive in the deadlock-detector that was triggering in oowriter. 
+
+The latest patch is thus:
+
+ $ md5sum realtime-preempt-2.6.9-rc4-mm1-U6
+ 9fd546bdd2d45ff1a8d5a88160135170  realtime-preempt-2.6.9-rc4-mm1-U6
+
+if you've got the earlier one and have CONFIG_RWSEM_DEADLOCK_DETECT
+enabled then please download the new patch.
+
+	Ingo

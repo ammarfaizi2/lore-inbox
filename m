@@ -1,85 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262974AbVAFUEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263010AbVAFUDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262974AbVAFUEM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 15:04:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbVAFUEJ
+	id S263010AbVAFUDY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 15:03:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbVAFUBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 15:04:09 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:35528 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S263001AbVAFUCY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 15:02:24 -0500
-Message-ID: <41DD9968.7070004@comcast.net>
-Date: Thu, 06 Jan 2005 15:02:48 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-CC: linux-kernel@vger.kernel.org
+	Thu, 6 Jan 2005 15:01:55 -0500
+Received: from smtp.terra.es ([213.4.129.129]:4979 "EHLO tsmtp2.mail.isp")
+	by vger.kernel.org with ESMTP id S263001AbVAFT7F convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 14:59:05 -0500
+Date: Thu, 6 Jan 2005 20:58:56 +0100
+From: Diego Calleja <diegocg@teleline.es>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: paolo.ciarrocchi@gmail.com, tytso@mit.edu, davidsen@tmr.com,
+       diegocg@teleline.es, willy@w.ods.org, wli@holomorphy.com,
+       aebr@win.tue.nl, solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
 Subject: Re: starting with 2.7
-References: <1697129508.20050102210332@dns.toxicfilms.tv>
-In-Reply-To: <1697129508.20050102210332@dns.toxicfilms.tv>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-Id: <20050106205856.456d211b.diegocg@teleline.es>
+In-Reply-To: <20050106193214.GK3096@stusta.de>
+References: <20050103134727.GA2980@stusta.de>
+	<Pine.LNX.3.96.1050103115639.27655A-100000@gatekeeper.tmr.com>
+	<20050103183621.GA2885@thunk.org>
+	<4d8e3fd30501060603247e955a@mail.gmail.com>
+	<20050106193214.GK3096@stusta.de>
+X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+El Thu, 6 Jan 2005 20:32:14 +0100 Adrian Bunk <bunk@stusta.de> escribió:
 
-This is gonna go on forever.
+> If a security vulnerability was found today, this meant backporting and 
+> applying the patch to 11 different kernel versions, the oldest one being 
+> more than one year old.
 
-I tried[1], but I guess development HAS to be in the "stable" branch and
-can't be shipped to a similarly managed "volatile" branch for
-development, since it obviously makes such a big difference to mainline
-kernel developers and less so to home users, third party developers, and
-businesses and institutions who rely on a mostly stable codebase to
-avoid surprise breakage.
 
-Is this a serious operating system or a running experiment?  Running
-experiments have no place in production; if your "stable" mainline
-branch is going to continuously add and remove features and go through
-wild API and functionality changes, nobody is going to want to use it.
-Mozilla doesn't support IE's broken crap "because IE is a moving
-target."  Unpredictable API changes and changes to the deep inner
-workings of the kernel will make the kernel "a moving target."  If
-that's the route you take, it will become too difficult for people to
-develope for linux.
+Personally I'd be happier if security issues would trigger a new release. I
+mean, if a security issue shows up in 2.6.10, release 2.6.11, with 2.6.11
+being 2.6.10 + the patch for the security issues, and at the same time
+release 2.6.12-rcwhatever with all the patches that were going to 
+be 2.6.11. Marcelo has done this at least one time in 2.4, but in 2.6
+serious issues have been found and the patch has been available for weeks
+but the "latest stable version" in kernel.org didn't have the patch for that
+time. 
 
-[1] http://woct-blog.blogspot.com/2005/01/finally-new-pax.html
+Vendors will fix it themselves true, but lots of people still use whatever
+it's available at kernel.org, and linux always will be that way (hopefully),
+so it'd be nice to get fast "official" updates to those issues. Currently,
+you've to patch it yourself, and for that you usually have to read it in 
+some linux news page and extract the patch from a lkml mirror (kernel.org
+don't warns of any security issue at all) so lots of people don't notice that
+there's any security issue because currently there's no way of notifying them.
+However a new kernel release would have the desired effect - the user updates
+his kernel because he knows there's something to fix.
 
-Maciej Soltysiak wrote:
-| Hi,
-|
-| I was wondering in the tram today are we close to branching
-| off to 2.7
-|
-| Do the mighty kernel developers have solid plans, ideas, etc
-| to start experimental code
-|
-| Regards,
-| Maciej
-|
-|
-| -
-| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-| the body of a message to majordomo@vger.kernel.org
-| More majordomo info at  http://vger.kernel.org/majordomo-info.html
-| Please read the FAQ at  http://www.tux.org/lkml/
-|
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB3ZlohDd4aOud5P8RAg02AJ0VhUkRyzvfXzHS8YkQgdWru+VpyQCcCrbA
-3rQr6wgKPMLXAl79OsrwdBQ=
-=ci1u
------END PGP SIGNATURE-----
+And if nobody wants those "security-only" releases at least a special section
+in kernel.org would be nice, slashdot is not really a good way to get
+security notifications and not all people wants to subscribe to a mailing
+list.

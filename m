@@ -1,70 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263459AbUCTQPv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 11:15:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbUCTQPv
+	id S263457AbUCTQOp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 11:14:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263459AbUCTQOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 11:15:51 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:43536 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263459AbUCTQPm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 11:15:42 -0500
-Date: Sat, 20 Mar 2004 16:15:38 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: can device drivers return non-ram via vm_ops->nopage?
-Message-ID: <20040320161538.C6726@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	Linus Torvalds <torvalds@osdl.org>
-References: <20040320133025.GH9009@dualathlon.random> <20040320144022.GC2045@holomorphy.com> <20040320150621.GO9009@dualathlon.random> <20040320154419.A6726@flint.arm.linux.org.uk> <20040320155739.GQ9009@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 20 Mar 2004 11:14:44 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:17297 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263457AbUCTQOn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 11:14:43 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] barrier patch set
+Date: Sat, 20 Mar 2004 17:23:11 +0100
+User-Agent: KMail/1.5.3
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Chris Mason <mason@suse.com>
+References: <20040319153554.GC2933@suse.de> <200403200059.22234.bzolnier@elka.pw.edu.pl> <20040320095341.GA2711@suse.de>
+In-Reply-To: <20040320095341.GA2711@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040320155739.GQ9009@dualathlon.random>; from andrea@suse.de on Sat, Mar 20, 2004 at 04:57:39PM +0100
+Message-Id: <200403201723.11906.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 20, 2004 at 04:57:39PM +0100, Andrea Arcangeli wrote:
-> > One of my current projects is fixing this crap in ALSA.
-> 
-> Do you agree it should be fixed by returning a PFN from ->nopage?
+On Saturday 20 of March 2004 10:53, Jens Axboe wrote:
+> On Sat, Mar 20 2004, Bartlomiej Zolnierkiewicz wrote:
+> > - do not use hwgroup->wrq (die!) and do not add drive->special_buf,
+> >   just do what PM code does and other special commands do - use taskfile
+> >   (yes, dirty stack allocation)
+>
+> Doesn't work for split flush, ie issue a bunch of flushes to devices,
+> then wait for them. I agree using ->wrq and special_buf is ugly as hell,
+> though.
 
-No.  How would you return the PFN from a remapped page?  It's far
-easier to provide an interface which returns the struct page* for
-the underlying pages, thusly:
+I can't see why it doesn't work, please explain.
 
-static struct page *
-dma_coherent_to_page(struct device *dev, void *cpu_addr,
-		     dma_addr_t handle, unsigned int offset)
+> > - ide_get_error_location() is cool but clean other places doing same
+> > thing as you are duplicating existing code
+> >   (please use u64 not sector_t - you are getting raw info from the disk)
+>
+> Ok
 
-And this is precisely what I would be working on if I weren't writing
-this mail. 8)
+Cool.
 
-Take a moment to think about the problem.  We've allocated some memory
-for coherent DMA via the dma_alloc_coherent() interface.  At some point,
-we've had to get a struct page* in this allocator.  However, the
-allocator has had to do some architecture defined operations to provide
-coherent memory.
+> > - why does blkdev_issue_flush() add REQ_BLOCK_PC to rq->flags?
+>
+> Ehm, because it _is_ a REQ_BLOCK_PC? ;-)
 
-Only the architecture can translate the results from dma_alloc_coherent()
-back to a struct page* - which it needs to be able to do if
-dma_free_coherent() is going to work.
+Ok, it is PC till SCSI->IDE transform, then it is no longer PC. :)
 
-Therefore, what we need to do to solve the ALSA problem is require all
-architectures to provide dma_coherent_to_page() and make ALSA use that.
+> > - why are we doing pre-flush?
+>
+> To ensure previously written data is on platter first.
 
-(A related problem is that some architectures need pgprot_dmacoherent()
-to modify the page protections so that the user space mapping is also
-DMA-coherent.  However, that discussion should be the subject of a
-new thread.)
+I know this, I want to know what for you are doing this?
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Previously written data is already acknowledgment to the upper layers so you
+can't do much even if you hit error on flush cache.  IMO if error happens we
+should just check if failed sector is of our ordered write if not well report
+it and continue.  It's cleaner and can give some (small?) performance gain.
+
+Regards,
+Bartlomiej
+

@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129281AbRB1UcJ>; Wed, 28 Feb 2001 15:32:09 -0500
+	id <S129111AbRB1Uqm>; Wed, 28 Feb 2001 15:46:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129282AbRB1Ub7>; Wed, 28 Feb 2001 15:31:59 -0500
-Received: from e166066.upc-e.chello.nl ([213.93.166.66]:61451 "EHLO Ion.var.cx")
-	by vger.kernel.org with ESMTP id <S129281AbRB1Ubw>;
-	Wed, 28 Feb 2001 15:31:52 -0500
-Date: Wed, 28 Feb 2001 21:31:46 +0100
-From: Frank v Waveren <fvw@var.cx>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Boris Dragovic <lynx@falcon.etf.bg.ac.yu>, linux-kernel@vger.kernel.org
-Subject: Re: negative mod use count
-Message-ID: <20010228213146.A1120@var.cx>
-In-Reply-To: <200102281958.UAA13226@falcon.etf.bg.ac.yu> <3A9D5AAB.E9AB4673@didntduck.org>
+	id <S129271AbRB1Uqc>; Wed, 28 Feb 2001 15:46:32 -0500
+Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:47116 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP
+	id <S129111AbRB1UqX>; Wed, 28 Feb 2001 15:46:23 -0500
+Date: Wed, 28 Feb 2001 13:46:20 -0700
+From: Michal Jaegermann <michal@harddata.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 kernels - "attempt to access beyond end of device"
+Message-ID: <20010228134620.A29971@mail.harddata.com>
+In-Reply-To: <20010226191007.A15716@mail.harddata.com> <20010227163627.A23026@mail.harddata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A9D5AAB.E9AB4673@didntduck.org>; from bgerst@didntduck.org on Wed, Feb 28, 2001 at 03:08:11PM -0500
+X-Mailer: Mutt 0.95.5us
+In-Reply-To: <20010227163627.A23026@mail.harddata.com>; from Michal Jaegermann on Tue, Feb 27, 2001 at 04:36:27PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 28, 2001 at 03:08:11PM -0500, Brian Gerst wrote:
-> > what does negative module use count mean?
-> A bugged module.
+I think that I found what gives me a hell with this box and it
+looks like that this not Linux at all.  Once again, this is Athlon
+K6 on Asus AV7 mobo and "Award Advanced ACPI BIOS" version 1005C.
+I have more checks to make before I will be fully satisfied but
+this looks like it.
 
-Not at all. A non-zero usage count means the module can't be unloaded.
-Whatever the module does with the usage count apart from that is
-completely it's own choice.
+In this BIOS setup there are two "advanced" options:
 
--- 
-Frank v Waveren                                      Fingerprint: 0EDB 8787
-fvw@[var.cx|dse.nl|stack.nl|chello.nl] ICQ#10074100     09B9 6EF5 6425 B855
-Public key: http://www.var.cx/pubkey/fvw@var.cx-gpg     7179 3036 E136 B85D
+System Performance Setting [Optimal, Normal]
+USB Legacy Support [Auto, Enabled, Disabled]
+
+If the first one is set to "Normal" and the second one to "Disabled"
+then the whole system becomes stable.  I copied from various file
+systems to a directory+on ext2 around 1.2 GB of files without any ill
+effects and run succesfully 'diff -r' between two directories 475 MB 
+each.  If BIOS options are any other way then one should expect
+spectacular blowups with corrupted file systems and other nasty effects
+after the first oops.  It survives up to something between 130 to 150
+MB of data moved, does not matter which kernel, and that is it.
+
+It is difficult to know what is "System Performance Setting" as it
+always shows "Optimal" regardless of a status on the last save.  But a
+system behaviour depends on how it was set so it seems to change even if
+a display, on the next visit, does not.  How "USB Legacy Support" comes
+into the picture I cannot even imagine.
+
+I did try with 2.2.19pre and 2.4 kernels and the picture does not
+change.  Any rational explanation beyond that BIOS is doing something
+really nasty?
+
+  Cheers,
+  Michal
 

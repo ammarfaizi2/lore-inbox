@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271059AbTGPTei (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 15:34:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271062AbTGPTei
+	id S271083AbTGPTkP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 15:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271089AbTGPTkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 15:34:38 -0400
-Received: from dp.samba.org ([66.70.73.150]:52922 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S271059AbTGPTeh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 15:34:37 -0400
-Date: Thu, 17 Jul 2003 05:46:46 +1000
-From: Anton Blanchard <anton@samba.org>
-To: torvalds@osdl.org
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] fix bootmem allocator on machines with holes in memory
-Message-ID: <20030716194646.GA793@krispykreme>
+	Wed, 16 Jul 2003 15:40:14 -0400
+Received: from uldns1.unil.ch ([130.223.8.20]:27819 "EHLO uldns1.unil.ch")
+	by vger.kernel.org with ESMTP id S271083AbTGPTkL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 15:40:11 -0400
+Date: Wed, 16 Jul 2003 21:55:02 +0200
+From: Gregoire Favre <greg@magma.unil.ch>
+To: linux-kernel@vger.kernel.org
+Subject: 260-t1(ac1) don't boot on my Mandrake Cooker (2573 does)
+Message-ID: <20030716195502.GD7158@magma.unil.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-Hi,
+I can't boot with either 2.6.0-test1, neither with 2.6.0-test1-ac1, it
+ends like this:
 
-If the memory we are trying to allocate is too large to fit in the
-current region, we should skip to the end. We currently search the
-available bitmap, find the area is too small, increment the start by
-incr and try again. This resulted in an apparent lockup on a 64GB
-machine that had a 3GB IO hole starting at 1GB (and the mem_map array
-would not fit in the first region).
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+found reiserfs format "3.6" with standard journal
+Reiserfs journal params: device sdb2, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
+reiserfs: checking transaction log (sdb2) for (sdb2)
+Using r5 hash to sort names
+VFS: Mounted root (reiserfs filesystem).
+Mounted devfs on /dev
+Freeing unused kernel memory: 148k freed
+INIT: version 2.85 booting
+INIT: Kernel panic: Attempted to kill init!
+cannot execute "/etc/rc.d/rc.sysinit"
 
-Also use ALIGN macro instead of an open coded version.
+I don't know what the problem is, as the same configuration works
+juste perfectly with 2.5.73???
 
-Anton
+Please CC to me as I am not on this ml ;-)
 
-===== mm/bootmem.c 1.18 vs edited =====
---- 1.18/mm/bootmem.c	Sat Jul  5 16:52:55 2003
-+++ edited/mm/bootmem.c	Thu Jul 17 05:00:42 2003
-@@ -183,7 +183,7 @@
- 	for (i = preferred; i < eidx; i += incr) {
- 		unsigned long j;
- 		i = find_next_zero_bit(bdata->node_bootmem_map, eidx, i);
--		i = (i + incr - 1) & -incr;
-+		i = ALIGN(i, incr);
- 		if (test_bit(i, bdata->node_bootmem_map))
- 			continue;
- 		for (j = i + 1; j < i + areasize; ++j) {
-@@ -195,7 +195,7 @@
- 		start = i;
- 		goto found;
- 	fail_block:
--		;
-+		i = ALIGN(j, incr);
- 	}
- 
- 	if (preferred > offset) {
+Thank you very much,
+
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

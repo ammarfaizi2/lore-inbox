@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278194AbRJLW70>; Fri, 12 Oct 2001 18:59:26 -0400
+	id <S278191AbRJLW64>; Fri, 12 Oct 2001 18:58:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278195AbRJLW7Q>; Fri, 12 Oct 2001 18:59:16 -0400
-Received: from jalon.able.es ([212.97.163.2]:2948 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S278194AbRJLW7J>;
-	Fri, 12 Oct 2001 18:59:09 -0400
-Date: Sat, 13 Oct 2001 00:59:30 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: J Sloan <jjs@lexus.com>
-Cc: "T . A ." <tkhoadfdsaf@hotmail.com>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Re: Which kernel (Linus or ac)?
-Message-ID: <20011013005930.I1693@werewolf.able.es>
-In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org> <3BC5E152.3D81631@bigfoot.com> <3BC5E3AF.588D0A55@lexus.com> <3BC5EB56.21B4EF88@bigfoot.com> <3BC5FA12.F8E5C91E@lexus.com> <OE64cxtniFKULPEhGD100007fff@hotmail.com> <3BC688A2.4C7640B7@pobox.com> <OE394qrvAsp4XgWZGbR0000e29d@hotmail.com> <3BC729E2.E93A416E@lexus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3BC729E2.E93A416E@lexus.com>; from jjs@lexus.com on Fri, Oct 12, 2001 at 19:35:30 +0200
-X-Mailer: Balsa 1.2.0
+	id <S278195AbRJLW6q>; Fri, 12 Oct 2001 18:58:46 -0400
+Received: from [216.163.180.10] ([216.163.180.10]:56567 "EHLO
+	c0mailgw09.prontomail.com") by vger.kernel.org with ESMTP
+	id <S278191AbRJLW60>; Fri, 12 Oct 2001 18:58:26 -0400
+Message-ID: <3BC7757A.CB01C83C@starband.net>
+Date: Fri, 12 Oct 2001 18:58:03 -0400
+From: war <war@starband.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Evil scsi bug.
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When ide-scsi is loaded, box a with a symbios scsi board does NOT work,
+the scanner does not work.
 
-On 20011012 J Sloan wrote:
->After this post we should take it offline and
->let the s/n ratio on lkml settle back down to
->a dull roar - apologies for the noise, this is
->the last post on this dead horse.
->
->"T. A." wrote:
->
->
->Here is a heads-up for the benefit of those wondering
->about gcc-2.96:
->
->http://www.bero.org/gcc296.html
->
+Oct 12 18:39:23 p3 kernel: Attached scsi generic sg2 at scsi0, channel
+0, id 3, lun 0,  type 6
+Oct 12 18:39:23 p3 kernel: sym53c875-0-<3,*>: target did not report
+SYNC.
+Oct 12 18:39:23 p3 kernel: ide-scsi: The scsi wants to send us more data
+than expected - discarding data
+Oct 12 18:39:23 p3 kernel: ide-scsi: transferred 5 of 6 bytes
 
-Nice, a bunch of comments about the front end. But you miss the point
-that what was broken in gcc-2.96 was the back end (the optimizer). 
-And you missed that it needed about 50 updates to get a real compiler.
-gcc that ships with RH 7.1 generates bad code in optimized mode. Do not
-remember the exact post in LKML, but I saw 2 lines of code that made gcc
-put the user initialization of a variable before the automatic one to zero.
+When I unload ide-scsi, and load the scsi module all by itself, it works
+fine.
+What an evil bug/problem!
 
-If you want a good distro, take Mandrake 8.1.
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.13-pre1-beo #1 SMP Fri Oct 12 11:32:03 CEST 2001 i686
+With box b, I have an adaptec and ide-scsi both built into the kernel,
+and they work great.
+

@@ -1,112 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266773AbUFYPzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266775AbUFYQDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266773AbUFYPzz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 11:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266774AbUFYPzz
+	id S266775AbUFYQDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 12:03:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266777AbUFYQDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 11:55:55 -0400
-Received: from mxfep02.bredband.com ([195.54.107.73]:60917 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S266773AbUFYPzc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 11:55:32 -0400
-Subject: [PATCH/RFC] b44 and sundance watchdog changes.
-From: Ian Kumlien <pomac@vapor.com>
-To: linux-kernel@vger.kernel.org
-Cc: Donald Becker <becker@scyld.com>, "David S. Miller" <davem@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-c/VfRdWSx/pyF2Gbjcat"
-Message-Id: <1088178930.23713.27.camel@big>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 25 Jun 2004 17:55:30 +0200
+	Fri, 25 Jun 2004 12:03:16 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:37000 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S266775AbUFYQDN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 12:03:13 -0400
+Date: Fri, 25 Jun 2004 12:02:47 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Daniel Jacobowitz <dan@debian.org>
+cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: swsusp.S: meaningfull assembly labels
+In-Reply-To: <20040625151858.GA27013@nevyn.them.org>
+Message-ID: <Pine.LNX.4.53.0406251152580.28750@chaos>
+References: <20040625115936.GA2849@elf.ucw.cz> <Pine.LNX.4.53.0406250827250.28070@chaos>
+ <20040625151858.GA27013@nevyn.them.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 25 Jun 2004, Daniel Jacobowitz wrote:
 
---=-c/VfRdWSx/pyF2Gbjcat
-Content-Type: multipart/mixed; boundary="=-GcWDQ+Ttnsy/No5XbijE"
+> On Fri, Jun 25, 2004 at 08:37:45AM -0400, Richard B. Johnson wrote:
+> > NO! You just made those labels public! The LOCAL symbols need to
+> > begin with ".L".  Now, if you have a 'copy_loop' in another module,
+> > linked with this, anywhere in the kernel, they will share the
+> > same address -- not what you expected, I'm sure! The assembler
+> > has some strange rules you need to understand. Use `nm` and you
+> > will find that your new labels are in the object file!
+>
+> Er, no.  They'll show up in the object file.  That doesn't mean they're
+> global; static symbols also show up in the object file.
+>
+> --
+> Daniel Jacobowitz
+
+I got caught on these, thinking that they weren't globals when
+I made a assembly files that used, not only named labels but
+also definitions like:
+
+BUF = 0x08
+LEN = 0x0c
+
+code:	movl	BUF(%esp), %ebx
+	movl	LEN(%esp), %ecx
 
 
---=-GcWDQ+Ttnsy/No5XbijE
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+This was done in several files. When linked, I got 'duplicate synbol'
+errors. These symbols, while not 'globals' in the sense that 'C'
+code can link with them are global definitions that are seen by
+the linker and cause duplicate symbol errors. I went through
+the gas documentation, trying to find how to prevent these
+private symbols from being written to the object file and there
+is no command-line mechanism. You just have to start every name
+with .L to keep them local.
 
-Hi,=20
+When I used labels like 'code' above, even though not declared
+'.global',  the labels also showed up as duplicate symbols when
+linking the resulting object files.
 
-I experimented some with the watchdog timers in these drivers because i
-had some problems with em.
 
-sundance.c:
-I first raised this to 8 (and had no problems with it) but since too
-many watchdog 'resets' breaks the hardware to the point where you have
-to actually shutdown the machine for a while, i thought, better safe
-than sorry.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-b44.c:
-My first try was to raise the timer to 10, but i actually got a failure,
-so i increased it again by a 5s increment.
-
-This was tested while transfering ~20 gigs of data via nfs.
-The only problem that i experienced during this time is 2x:
-b44: eth0: Link is down.
-b44: eth0: Link is up at 100 Mbps, full duplex.
-b44: eth0: Flow control is on for TX and on for RX.
-
-There was no messages at all from the sundance driver, it worked
-perfectly.
-
-Comments? suggestions?
-
-PS. Sorry, couldn't find anyone listed in maintainers, so module authors
-was added to CC =3DP
-
-CC me since i'm not subscribed.
-DS.
-
---=20
-Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
-
---=-GcWDQ+Ttnsy/No5XbijE
-Content-Disposition: inline; filename=b44.diff
-Content-Type: text/x-patch; name=b44.diff; charset=ISO-8859-1
-Content-Transfer-Encoding: base64
-
-LS0tIGxpbnV4L2RyaXZlcnMvbmV0L2I0NC5jLm9sZAkyMDA0LTA2LTI1IDA1OjE0OjIzLjAwMDAw
-MDAwMCArMDIwMA0KKysrIGxpbnV4L2RyaXZlcnMvbmV0L2I0NC5jCTIwMDQtMDYtMjUgMTU6Mzg6
-MjIuMDAwMDAwMDAwICswMjAwDQpAQCAtNDMsNyArNDMsNyBAQA0KIC8qIGxlbmd0aCBvZiB0aW1l
-IGJlZm9yZSB3ZSBkZWNpZGUgdGhlIGhhcmR3YXJlIGlzIGJvcmtlZCwNCiAgKiBhbmQgZGV2LT50
-eF90aW1lb3V0KCkgc2hvdWxkIGJlIGNhbGxlZCB0byBmaXggdGhlIHByb2JsZW0NCiAgKi8NCi0j
-ZGVmaW5lIEI0NF9UWF9USU1FT1VUCQkJKDUgKiBIWikNCisjZGVmaW5lIEI0NF9UWF9USU1FT1VU
-CQkJKDE1ICogSFopDQogDQogLyogaGFyZHdhcmUgbWluaW11bSBhbmQgbWF4aW11bSBmb3IgYSBz
-aW5nbGUgZnJhbWUncyBkYXRhIHBheWxvYWQgKi8NCiAjZGVmaW5lIEI0NF9NSU5fTVRVCQkJNjAN
-Cg==
-
---=-GcWDQ+Ttnsy/No5XbijE
-Content-Disposition: inline; filename=sundance.diff
-Content-Type: text/x-patch; name=sundance.diff; charset=ISO-8859-1
-Content-Transfer-Encoding: base64
-
-LS0tIGxpbnV4L2RyaXZlcnMvbmV0L3N1bmRhbmNlLmMub2xkCTIwMDQtMDYtMjUgMDU6MTQ6MTMu
-MDAwMDAwMDAwICswMjAwDQorKysgbGludXgvZHJpdmVycy9uZXQvc3VuZGFuY2UuYwkyMDA0LTA2
-LTI1IDA1OjE0OjQ5LjAwMDAwMDAwMCArMDIwMA0KQEAgLTE0NSw3ICsxNDUsNyBAQA0KIA0KIC8q
-IE9wZXJhdGlvbmFsIHBhcmFtZXRlcnMgdGhhdCB1c3VhbGx5IGFyZSBub3QgY2hhbmdlZC4gKi8N
-CiAvKiBUaW1lIGluIGppZmZpZXMgYmVmb3JlIGNvbmNsdWRpbmcgdGhlIHRyYW5zbWl0dGVyIGlz
-IGh1bmcuICovDQotI2RlZmluZSBUWF9USU1FT1VUICAoNCpIWikNCisjZGVmaW5lIFRYX1RJTUVP
-VVQgICgxMCpIWikNCiAjZGVmaW5lIFBLVF9CVUZfU1oJCTE1MzYJLyogU2l6ZSBvZiBlYWNoIHRl
-bXBvcmFyeSBSeCBidWZmZXIuKi8NCiANCiAjaWZuZGVmIF9fS0VSTkVMX18NCg==
-
---=-GcWDQ+Ttnsy/No5XbijE--
-
---=-c/VfRdWSx/pyF2Gbjcat
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBA3Ery7F3Euyc51N8RAueuAKCdbxY8+XBo3cDiTCWEk5pn9vx2mQCgiELv
-6qp/3d1oiPhLG5wymtKNKzg=
-=F0vT
------END PGP SIGNATURE-----
-
---=-c/VfRdWSx/pyF2Gbjcat--
 

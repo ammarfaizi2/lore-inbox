@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264883AbRF3JjR>; Sat, 30 Jun 2001 05:39:17 -0400
+	id <S264896AbRF3JsI>; Sat, 30 Jun 2001 05:48:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264885AbRF3JjH>; Sat, 30 Jun 2001 05:39:07 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:23176 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S264883AbRF3Jiz>; Sat, 30 Jun 2001 05:38:55 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sat, 30 Jun 2001 02:38:50 -0700
-Message-Id: <200106300938.CAA23552@baldur.yggdrasil.com>
-To: rmk@arm.linux.org.uk
-Subject: Re: linux-2.4.6-pre6: numerous dep_{bool,tristate} $CONFIG_ARCH_xxx bugs
+	id <S264900AbRF3Jr7>; Sat, 30 Jun 2001 05:47:59 -0400
+Received: from dutidad.twi.tudelft.nl ([130.161.158.199]:38060 "EHLO dutidad")
+	by vger.kernel.org with ESMTP id <S264896AbRF3Jro>;
+	Sat, 30 Jun 2001 05:47:44 -0400
+Date: Sat, 30 Jun 2001 11:47:35 +0200
+From: "Charl P. Botha" <c.p.botha@its.tudelft.nl>
+To: Jeff S Wheeler <jsw@five-elements.com>
 Cc: linux-kernel@vger.kernel.org
+Subject: Re: VIA 82C686B SouthBridge fixup in linux/drivers/pci/quirks.c
+Message-ID: <20010630114735.A4311@dutidad.twi.tudelft.nl>
+In-Reply-To: <NEBBJNLLGLPLEJAFGEPEEEFLCBAA.jsw@five-elements.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <NEBBJNLLGLPLEJAFGEPEEEFLCBAA.jsw@five-elements.com>; from jsw@five-elements.com on Fri, Jun 29, 2001 at 09:44:51PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Russell King <rmk@arm.linux.org.uk>
->On Sat, Jun 30, 2001 at 08:26:22AM +0100, Alan Cox wrote:
->> #2
->> 	dep_tristate $FOO $BAR
->> 
->> to say 'FOO requires BAR and must be a similar setting _IF_CONFIGURED_'
+On Fri, Jun 29, 2001 at 09:44:51PM -0400, Jeff S Wheeler wrote:
+> The VIA686B SouthBridge bug workaround is not activated on motherboards
+> which have a VIA 82C686B that needs fixing, but not a VIA NorthBridge.  For
 
->Err, how can $BAR be undefined?  Configure sets all config variables which
->are answered with 'n' to 'n'.
+> Below is a patch to the __initdata table which causes the fix to be applied
+> based on detection of the buggy SouthBridge, and *not* the NorthBridge which
+> is commonly used with it.  This is the correct behavior, and was suggested
+> by someone during the thread I reference, however this aspect of the fix was
 
-One example would be processing of the following line on a non-sparc
-computer (from linux-2.4.6-pre6/drivers/sbus/audio/Config.in):
+No, this is NOT correct behaviour.  Please read the pages at:
+http://home.tiscalinet.de/au-ja/review-kt133a-1-en.html (and especially
+click on "Bugfix for everybody"); this URL is in the code.  You will note
+that it is explicitly stated that this fix is NOT meant for any other
+Northbridge than VIA.  So, in short, if there is no BIOS update available
+for your board, you're going to have to some more research.  The PCI
+registers that are configured could have a totally different (and even
+dangerous) effect on your configuration.
 
-dep_tristate '  Sun Microsystems userflash support' CONFIG_MTD_SUN_UFLASH $CONFIG_SPARC64
-
-I think this could also come up for drivers that depend on
-$CONFIG_ISA when configured for non-PC platforms that do not ask
-about ISA support.
-
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+-- 
+charl p. botha      | computer graphics and cad/cam 
+http://cpbotha.net/ | http://www.cg.its.tudelft.nl/

@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262431AbTE2RXI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 13:23:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbTE2RXI
+	id S262426AbTE2RXA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 13:23:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTE2RXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 13:23:08 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:39379 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262431AbTE2RXG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 13:23:06 -0400
-Date: Thu, 29 May 2003 10:36:28 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "Downing, Thomas" <Thomas.Downing@ipc.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.70-mm2
-Message-Id: <20030529103628.54d1e4a0.akpm@digeo.com>
-In-Reply-To: <170EBA504C3AD511A3FE00508BB89A920221E5FF@exnanycmbx4.ipc.com>
-References: <170EBA504C3AD511A3FE00508BB89A920221E5FF@exnanycmbx4.ipc.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 29 May 2003 13:23:00 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:47886 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S262426AbTE2RW7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 13:22:59 -0400
+Date: Thu, 29 May 2003 14:36:37 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: chas williams <chas@cmf.nrl.navy.mil>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] assorted he driver cleanup
+Message-ID: <20030529173637.GZ24054@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	chas williams <chas@cmf.nrl.navy.mil>, davem@redhat.com,
+	linux-kernel@vger.kernel.org
+References: <20030529170621.GX24054@conectiva.com.br> <200305291713.h4THDssG023347@ginger.cmf.nrl.navy.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 May 2003 17:36:24.0586 (UTC) FILETIME=[D37686A0:01C32608]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305291713.h4THDssG023347@ginger.cmf.nrl.navy.mil>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Downing, Thomas" <Thomas.Downing@ipc.com> wrote:
->
-> -----Original Message-----
-> From: Andrew Morton [mailto:akpm@digeo.com]
-> 
+Em Thu, May 29, 2003 at 01:12:13PM -0400, chas williams escreveu:
+> In message <20030529170621.GX24054@conectiva.com.br>,Arnaldo Carvalho de Melo w
+> rites:
+> >no, no, I was talking just about the need for HE_SPIN_LOCK wrapper, not the
+> >locking, i.e. couldn't it be just:
 > >
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.70/2.5.70-
-> mm2/
-> [snip]
-> >  Needs lots of testing.
-> [snip]
+> >spin_lock_irqsave(&dev->global_lock, flags)
+> >
+> >used so that it is clear that it is a irqsave variation, etc?
 > 
-> I for one would like to help in that testing, as might others.
-> Could you point to/name some effective test tools/scripts/suites 
-> for testing your work?  As it is, my testing is just normal usage,
-> lots of builds.
+> i suppose i could change it all back.  at one point, he_spin_lock()
+> was 'optmized' away on non smp machines (since a single cpu doesnt
+> tickle the particular h/w problem). 
 > 
+> i didnt want a ton of #ifdef CONFIG_SMP in the driver.
 
-I was specifically referring to the O_SYNC changes there.  That means
-databases: postgresql, mysql, sapdb, etc.
+Sure thing, but hey, spin_lock_irqsave and friends take care of how to behave
+when in up or smp, i.e. its how all the other drivers use spinlocks 8)
 
-Some of these use fsync()-based synchronisation and won't benefit, but they
-may have compile-time or runtime options to use O_SYNC instead.
-
-
-Apart from that, just using the kernel in day-to-day activity is the most
-important thing.  If everyone does that, and everyone is happy then by
-definition this kernel is a wrap.
+- Arnaldo

@@ -1,31 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318182AbSHDQzj>; Sun, 4 Aug 2002 12:55:39 -0400
+	id <S318193AbSHDQ55>; Sun, 4 Aug 2002 12:57:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318184AbSHDQzj>; Sun, 4 Aug 2002 12:55:39 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:56056 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318182AbSHDQzi>; Sun, 4 Aug 2002 12:55:38 -0400
-Subject: Re: Bug at page_alloc.c:183
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Victor Bogado da Silva Lins <victor@bogado.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1028479242.2599.28.camel@victor.bogado>
-References: <1028479242.2599.28.camel@victor.bogado>
-Content-Type: text/plain
+	id <S318196AbSHDQ54>; Sun, 4 Aug 2002 12:57:56 -0400
+Received: from mta07-svc.ntlworld.com ([62.253.162.47]:27076 "EHLO
+	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S318193AbSHDQ5z>; Sun, 4 Aug 2002 12:57:55 -0400
+Message-ID: <3D4D5DCB.88F1484E@ntlworld.com>
+Date: Sun, 04 Aug 2002 18:00:59 +0100
+From: alien.ant@ntlworld.com
+X-Mailer: Mozilla 4.7 [en-gb] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Alex Davis <alex14641@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 IDE Partition Check issue
+References: <20020804054239.62923.qmail@web9203.mail.yahoo.com>
+		<1028470037.14195.24.camel@irongate.swansea.linux.org.uk> 
+		<3D4D4544.4045B5D3@ntlworld.com> <1028480553.14195.35.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 04 Aug 2002 19:17:18 +0100
-Message-Id: <1028485038.14196.37.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-08-04 at 17:40, Victor Bogado da Silva Lins wrote:
-> Aug  4 12:44:59 victor kernel: invalid operand: 0000
-> Aug  4 12:44:59 victor kernel: CPU:    0
-> Aug  4 12:44:59 victor kernel: EIP:    0010:[<c0130031>]    Tainted: P
 
-Take it up with Nvidia or duplicate the problem on a box that has never
-had the module loaded from a cold boot onwards
 
+Alan Cox wrote:
+> 
+> On Sun, 2002-08-04 at 16:16, alien.ant@ntlworld.com wrote:
+> >
+> > Alan - I'm wondering if this issue is related to Maxtor drives? All the
+> > reports I have seen of this problem have featured drives from this
+> > manufacturer.
+> 
+> The ALi hang may well be sort of this. If its what Andre thinks then its
+> lack of support for LBA48 on ALi interface hardware (or at least for the
+> documentation we currently have on how to program it). If so -ac2 should
+> sort that one out
+
+In my case I'm using a Highpoint and not an ALi controller. People also
+seem to experience the same problem with Promise, ALi and Highpoint
+controllers on the 2.4.19-pre kernels so it looks unlikely to be a
+controller spei

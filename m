@@ -1,61 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263131AbUC2UOs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 15:14:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263137AbUC2UOr
+	id S263135AbUC2USB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 15:18:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263136AbUC2USB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 15:14:47 -0500
-Received: from ns.suse.de ([195.135.220.2]:54720 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263131AbUC2UOl (ORCPT
+	Mon, 29 Mar 2004 15:18:01 -0500
+Received: from fed1mtao05.cox.net ([68.6.19.126]:9972 "EHLO fed1mtao05.cox.net")
+	by vger.kernel.org with ESMTP id S263135AbUC2UR6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 15:14:41 -0500
-Date: Mon, 29 Mar 2004 22:14:34 +0200
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: nickpiggin@yahoo.com.au, jun.nakajima@intel.com, ricklind@us.ibm.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
-       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net,
-       mbligh@aracnet.com
-Subject: Re: [Lse-tech] [patch] sched-domain cleanups,
- sched-2.6.5-rc2-mm2-A3
-Message-Id: <20040329221434.4602e062.ak@suse.de>
-In-Reply-To: <20040329114635.GA30093@elte.hu>
-References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com>
-	<20040325154011.GB30175@wotan.suse.de>
-	<20040325190944.GB12383@elte.hu>
-	<20040325162121.5942df4f.ak@suse.de>
-	<20040325193913.GA14024@elte.hu>
-	<20040325203032.GA15663@elte.hu>
-	<20040329084531.GB29458@wotan.suse.de>
-	<4068066C.507@yahoo.com.au>
-	<20040329080150.4b8fd8ef.ak@suse.de>
-	<20040329114635.GA30093@elte.hu>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 29 Mar 2004 15:17:58 -0500
+Date: Mon, 29 Mar 2004 13:17:56 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>,
+       kgdb-bugreport@lists.sourceforge.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH][KGDB] Drop 'E' packet support
+Message-ID: <20040329201756.GK2895@smtp.west.cox.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Mar 2004 13:46:35 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
+Hi.  After working on the docs a bit based on the textfile from Anurekh
+Saxena, I'd like to commit the following patch (and similar hunks to the
+i386-lite and x86_64 patch) to drop support for the 'E' packet.
 
-> 
-> * Andi Kleen <ak@suse.de> wrote:
-> 
-> > Sorry ignore this report - I just found out I booted the wrong kernel
-> > by mistake. Currently retesting, also with the proposed change to only
-> > use a single scheduling domain.
-> 
-> here are the items that are in the works:
-> 
->   redhat.com/~mingo/scheduler-patches/sched.patch
-> 
-> it's against 2.6.5-rc2-mm5. This patch also reduces the rate of active
-> balancing a bit.
+This isn't something supported by stock GDB, nor AFAIK is it something
+that's been submitted for inclusion in GDB.  So I'd really like to drop
+this entirely until it's something gdb CVS supports (and I assume would
+be documented in
+http://sources.redhat.com/gdb/current/onlinedocs/gdb_33.html#SEC656 ).
+I could stand putting off the question for now and putting it in the
+non-lite patches, but I'd really rather not.
 
-I applied only this patch and it did slightly better than the normal -mm* 
-1.5 - 2x CPU bandwidth, but still very short of the 3.7x-4x mainline
-and 2.4 reach.
+If no one objects, I'd like to commit this noon, -0700 on 30 March.
+diff -u linux-2.6.4/kernel/kgdb.c linux-2.6.4/kernel/kgdb.c
+--- linux-2.6.4/kernel/kgdb.c	2004-03-19 08:22:37.147169789 -0700
++++ linux-2.6.4/kernel/kgdb.c	2004-03-29 13:13:11.440594007 -0700
+@@ -130,11 +130,6 @@
+ }
+ 
+ void __attribute__ ((weak))
+-    kgdb_printexceptioninfo(int exceptionNo, int errorcode, char *buffer)
+-{
+-}
+-
+-void __attribute__ ((weak))
+     kgdb_disable_hw_debug(struct pt_regs *regs)
+ {
+ }
+@@ -875,12 +870,6 @@
+ 				int_to_threadref(&thref, threadid);
+ 				pack_threadid(remcom_out_buffer + 2, &thref);
+ 				break;
+-
+-			case 'E':
+-				/* Print exception info */
+-				kgdb_printexceptioninfo(exVector, err_code,
+-							remcom_out_buffer);
+-				break;
+ 			case 'T':
+ 				if (memcmp(remcom_in_buffer + 1,
+ 					   "ThreadExtraInfo,", 16)) {
 
--Andi
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264034AbTEFTI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 15:08:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264035AbTEFTI1
+	id S262054AbTEFT14 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 15:27:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbTEFT14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 15:08:27 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48965 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP id S264034AbTEFTI0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 15:08:26 -0400
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Using GPL'd Linux drivers with non-GPL, binary-only kernel
-References: <20030506164252.GA5125@mail.jlokier.co.uk>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 06 May 2003 13:17:48 -0600
-In-Reply-To: <20030506164252.GA5125@mail.jlokier.co.uk>
-Message-ID: <m13cjranqb.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	Tue, 6 May 2003 15:27:56 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:8461 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261199AbTEFT1z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 15:27:55 -0400
+Date: Tue, 6 May 2003 21:40:27 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>, linux-serial@vger.kernel.org,
+       rmk@arm.linux.org.uk
+Subject: Re: serial ioctl emulation done right
+Message-ID: <20030506194027.GA5727@atrey.karlin.mff.cuni.cz>
+References: <20030506184731.GA5419@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030506184731.GA5419@elf.ucw.cz>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <jamie@shareable.org> writes:
+Hi!
 
-> So, as dynamic loading is ok between parts of Linux and binary-only
-> code, that seems to imply we could build a totally different kind of
-> binary-only kernel which was able to make use of all the Linux kernel
-> modules.
+> What about this one? This makes it possible to kill copy from
+> x86-64/ia32/ia32_ioctl.c, and adds support for setserial on all
+> architectures...
 
-If you build a kernel to run Linux drivers that seems to scream
-derivative work to me.
-
->  We could even modularise parts of the kernel which aren't
-> modular now, so that we could take advantage of even more parts of Linux.
-> 
-> What do you think?
-
-At the very best support wise you would fall under the same category
-as if you loaded a binary only driver.
-
-On a very practical side you would suffer severe bitrot.  As I have
-seen no project that has attempted this being able to keep up with 
-the kernel API.  Netkit, Mach and MILO are good examples of why not to
-do this.
-
-Eric
+It actually introduces very ugly warnings, I'm working ont that.
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

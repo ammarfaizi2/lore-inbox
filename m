@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267022AbTBCTPR>; Mon, 3 Feb 2003 14:15:17 -0500
+	id <S266976AbTBCTZq>; Mon, 3 Feb 2003 14:25:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267023AbTBCTPR>; Mon, 3 Feb 2003 14:15:17 -0500
-Received: from h80ad247a.async.vt.edu ([128.173.36.122]:23179 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267022AbTBCTPQ>; Mon, 3 Feb 2003 14:15:16 -0500
-Message-Id: <200302031924.h13JO9a0026095@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: Matt Reppert <arashi@arashi.yi.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CPU throttling?? 
-In-Reply-To: Your message of "Mon, 03 Feb 2003 13:14:56 CST."
-             <20030203131456.34c04df8.arashi@arashi.yi.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <200302031713.h13HD2K8000181@darkstar.example.net> <200302031857.h13IvHa0025735@turing-police.cc.vt.edu>
-            <20030203131456.34c04df8.arashi@arashi.yi.org>
+	id <S266989AbTBCTZp>; Mon, 3 Feb 2003 14:25:45 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:18920 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S266976AbTBCTZp>;
+	Mon, 3 Feb 2003 14:25:45 -0500
+Subject: Re: 2.5.59-mjb3 (scalability / NUMA patchset)
+From: Mark Haverkamp <markh@osdl.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <316530000.1044299003@flay>
+References: <19270000.1038270642@flay><134580000.1039414279@titus>
+	 <32230000.1039502522@titus><568990000.1040112629@titus>
+	 <21380000.1040717475@titus> <821470000.1041579423@titus>
+	 <214500000.1041821919@titus> <676880000.1042101078@titus>
+	 <922170000.1042183282@titus> <437220000.1042531505@titus>
+	 <190030000.1042787514@titus> <19610000.1043137151@titus>
+	 <20200000.1043806571@flay>  <125620000.1044238081@[10.10.2.4]>
+	 <1044297228.29537.5.camel@markh1.pdx.osdl.net>  <315150000.1044297722@flay>
+	 <1044298502.29532.8.camel@markh1.pdx.osdl.net>  <316530000.1044299003@flay>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1044300917.29532.11.camel@markh1.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_318543187P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 03 Feb 2003 11:35:17 -0800
 Content-Transfer-Encoding: 7bit
-Date: Mon, 03 Feb 2003 14:24:09 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_318543187P
-Content-Type: text/plain; charset=us-ascii
+On Mon, 2003-02-03 at 11:03, Martin J. Bligh wrote:
+> >> What gcc are you using? I'm betting 3.2 ... 2.95 seems to work fine.
+> > 
+> > You are right, I am using:
+> > 
+> > gcc (GCC) 3.2 20020903 (Red Hat Linux 8.0 3.2-7)
+> > 
+> > 
+> >> (still might be an issue with the patch, just trying to track it down)
+> 
+> Could you find the definition of cpu_online_map, and remove the "=1"
+> initialisation from it ... see if that fixes it? (I just added that)
+> Seems suspiciously closely related ... if that doesn't do it, I'll 
+> try to diagnose here.
+> 
+> Thanks,
+> 
+> M.
 
-On Mon, 03 Feb 2003 13:14:56 CST, Matt Reppert said:
+I removed the = 1 from cpu_online_map in arch/i386/kernel/smpboot.c and
+got the boot hang in the same place.
 
-> Yes. I have a powerpc laptop that runs at 700 MHz. If I throttle the CPU cloc
-k
-> speed down to 400 MHz and change nothing else the battery has noticeably long
-er
-> life; since it's running slower, it takes less power when it's active (not
-> halted).
+Mark.
+-- 
+Mark Haverkamp <markh@osdl.org>
 
-I knew that.  The question I asked was whether halted at 700Mhz takes more
-power than halted at 400Mhz... 
-
---==_Exmh_318543187P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+PsHYcC3lWbTT17ARAgzPAKCeibuFatler3zxZ0cVIxJc05BSfgCg3Hj/
-zKsfRCjP4pJq1iM/5jyLR08=
-=FLSb
------END PGP SIGNATURE-----
-
---==_Exmh_318543187P--

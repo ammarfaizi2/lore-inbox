@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291750AbSBNQN4>; Thu, 14 Feb 2002 11:13:56 -0500
+	id <S291753AbSBNQQN>; Thu, 14 Feb 2002 11:16:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291743AbSBNQNp>; Thu, 14 Feb 2002 11:13:45 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32519 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291750AbSBNQN3>;
-	Thu, 14 Feb 2002 11:13:29 -0500
-Message-ID: <3C6BE221.7F824863@mandrakesoft.com>
-Date: Thu, 14 Feb 2002 11:13:21 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: torvalds@transmeta.com, davidm@hpl.hp.com,
-        "David S. Miller" <davem@redhat.com>, anton@samba.org,
-        linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: [PATCH] move task_struct allocation to arch
-In-Reply-To: <11830.1013700380@warthog.cambridge.redhat.com>
+	id <S291754AbSBNQP6>; Thu, 14 Feb 2002 11:15:58 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:11649
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S291746AbSBNQOn>; Thu, 14 Feb 2002 11:14:43 -0500
+Date: Thu, 14 Feb 2002 09:14:37 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Allan Sandfeld <linux@sneulv.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18-rc1
+Message-ID: <20020214161437.GA2004@opus.bloom.county>
+In-Reply-To: <Pine.LNX.4.21.0202131732330.20915-100000@freak.distro.conectiva> <E16b8HV-0001JS-00@Princess>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <E16b8HV-0001JS-00@Princess>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
-> 
-> Hi Linus,
-> 
-> This patch moves task_struct allocation from kernel/fork.c into
-> arch/*/kernel/process.c.
-> 
-> David Mosberger wrote:
-> 
-> >   David.H> What might be worth doing is to move the task_struct slab
-> >   David.H> cache and (de-)allocator out of fork.c and to stick it in
-> >   David.H> the arch somewhere. Then archs aren't bound to have the two
-> >   David.H> separate. So for a system that can handle lots of memory,
-> >   David.H> you can allocate the thread_info, task_struct and
-> >   David.H> supervisor stack all on one very large chunk if you so
-> >   David.H> wish.
+On Wed, Feb 13, 2002 at 11:53:41PM +0100, Allan Sandfeld wrote:
+> On Wednesday 13 February 2002 20:33, Marcelo Tosatti wrote:
+> > So here it goes.
 > >
-> > Could you do this?  I'd prefer if task_info could be completely hidden
-> > inside the x86/sparc arch-specific code, but if things are set up such
-> > that we at least have the option to keep the stack, task_info, and
-> > task_struct in a single chunk of memory (and without pointers between
-> > them), I'd have much less of an issue with it.
+> > rc1:
+> <snip>
+> > - Merge some -ac bugfixes			(Alan Cox)
+> 
+> Here's a crazy idea. Why not branch off the new pre-tree when commiting a 
+> rc-kernel? 
 
-Is this the first in a multi-step patch series, or something like that?
-
-You just duplicated code in a generic location and pasted it into the
-arch.  Where's the gain in that?  I do see the gain in letting the arch
-allocate the task struct, but surely your patch should provide a generic
-mechanism for an arch to call by default, instead of duplicating code??
-
-	Jeff
-
-
+Because it would remove people from the pool of testers.  Part of the
+goal of the -rc series seems to be to get as many people running a
+kernel as possible to find potential bugs.
 
 -- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

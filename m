@@ -1,90 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129443AbRCWVWz>; Fri, 23 Mar 2001 16:22:55 -0500
+	id <S129393AbRCWVSP>; Fri, 23 Mar 2001 16:18:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131324AbRCWVWq>; Fri, 23 Mar 2001 16:22:46 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:19683 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S129443AbRCWVWj>; Fri, 23 Mar 2001 16:22:39 -0500
-Message-Id: <l0313030fb6e15a6513ac@[192.168.239.101]>
-In-Reply-To: <UTC200103231829.TAA06442.aeb@vlet.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Fri, 23 Mar 2001 21:14:55 +0000
-To: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: [PATCH] Prevent OOM from killing init
+	id <S129443AbRCWVSF>; Fri, 23 Mar 2001 16:18:05 -0500
+Received: from dfw-smtpout2.email.verio.net ([129.250.36.42]:21682 "EHLO
+	dfw-smtpout2.email.verio.net") by vger.kernel.org with ESMTP
+	id <S129393AbRCWVRz>; Fri, 23 Mar 2001 16:17:55 -0500
+Message-ID: <3ABBBD56.9D70D995@bigfoot.com>
+Date: Fri, 23 Mar 2001 13:17:10 -0800
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.19pre17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: UDMA 100 / PIIX4 question
+In-Reply-To: <Pine.LNX.4.10.10103201628390.8689-100000@coffee.psychology.mcmaster.ca>
+		<3AB8FDAD.BF71A5F@bigfoot.com> <20010323102603Z130485-407+2891@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->The main point is letting malloc fail when the memory cannot be
->guaranteed.
+> I am afraid that I do not know how to change my partition type.  I can confirm. however, that the BIOS is set to Auto / LBA and that BIOS confirms UDMA 5 is set (and cannot be set unless the correct cabling is detected).
 
-If I read various things correctly, malloc() is supposed to fail as you
-would expect if /proc/sys/vm/overcommit_memory is 0.  This is the case on
-my RH 6.2 box, dunno about yours.  I can write a simple test program which
-simply allocates tons of memory if you like...
+[tim@abit tim]# fdisk /dev/hdc
 
-...and I did.  It filled up my physical and swap memory, and got killed by
-the OOM handler before malloc() failed, even though overcommit_memory was
-set to 0.
+Command (m for help): t
+Partition number (1-4): 1
+Hex code (type L to list codes): c
+Changed system type of partition 1 to c (Win95 FAT32 (LBA))
+...
 
-*****BAD!*****
+> But is my controller, though detected as a PIIX4 (and described as such in the Asus manual), really a PIIX4?  lspci :
+> 
+> 00:00.0 Host bridge: Intel Corporation: Unknown device 1130 (rev 02)
+> 00:01.0 PCI bridge: Intel Corporation: Unknown device 1131 (rev 02)
+> 00:1e.0 PCI bridge: Intel Corporation: Unknown device 244e (rev 01)
+> 00:1f.0 ISA bridge: Intel Corporation: Unknown device 2440 (rev 01)
+> 00:1f.1 IDE interface: Intel Corporation: Unknown device 244b (rev 01)
+> 00:1f.2 USB Controller: Intel Corporation: Unknown device 2442 (rev 01)
+> ...
+> 
+> On the other hand, cat /proc/ide/piix :
+> 
+>                                Intel PIIX4 Ultra 100 Chipset.
+> --------------- Primary Channel ---------------- Secondary Channel -------------
+>                  enabled                          enabled
+> --------------- drive0 --------- drive1 -------- drive0 ---------- drive1 ------
+> DMA enabled:    yes              no              yes               no
+> UDMA enabled:   yes              no              yes               no
+> UDMA enabled:   5                X               2                 X
+> UDMA
+> DMA
+> PI
 
-Here's my test program and output (on a Duron with 256M physical and 250M
-swap):
+ICH2 is marked '80821BA' and is rated ATA/100 by intel, PIIX4 is '82371AB'
+so you can look on your motherboard.  Andre is the one to say if the driver
+is compatible.  I can't find a single reference to the 80821 in
+drivers/block/*.c for 2.2.19pre17 + ide.2.2.18.1221.
 
-[chromi@beryllium compsci]$ cat make_mem.c
-#include <stdio.h>
-#include <stdlib.h>
+Here's what a PIIX4 looks like.
 
-int main(void)
-{
-  /* Allocate tons of RAM, print out how far, we get, and exit when we
-malloc() fails.
-   * We also access each page we allocate, to ensure we really are getting
-the memory we reserve.
-   * If we are killed by SIGSEGV or by OOM instead of malloc() failing, the
-VM system is broken.
-   */
+[tim@smp ide]# cat /proc/ide/ide0/config
+pci bus 00 device 39 vid 8086 did 7111 channel 0
+86 80 11 71 05 00 80 02 01 80 01 01 00 20 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+01 f0 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+07 a3 00 80 00 00 00 00 01 00 02 00 00 00 00 00
+...
+00 00 00 00 00 00 00 00 30 0f 00 00 00 00 00 00
 
-  char *p;
-  unsigned long pages = 0;
+[tim@smp ide]# cat /proc/ide/piix
 
-  while(1) {
-    p = malloc(1024);
-    if(!p)
-      break;
-    *p = 1;
-    pages++;
-    printf("%lu K\r", pages);
-  }
+                                Intel PIIX4 Ultra 33 Chipset.
+--------------- Primary Channel ---------------- Secondary Channel
+-------------
+                 enabled                          enabled
+--------------- drive0 --------- drive1 -------- drive0 ---------- drive1
+------
+DMA enabled:    yes              no              no                no 
+UDMA enabled:   yes              no              no                no 
+UDMA enabled:   2                X               X                 X
+UDMA
+DMA
+PIO
 
-  printf("\n*** malloc() failed!\n");
+[tim@smp tim]# lspci | grep IDE
+00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
+[tim@smp tim]# lspci -n | grep 7.1
+00:07.1 Class 0101: 8086:7111 (rev 01)
 
-  return 0;
-}
-[chromi@beryllium compsci]$ gcc -O -Wall -o make_mem make_mem.c
-[chromi@beryllium compsci]$ ./make_mem
-493625 KKilled
-[chromi@beryllium compsci]$
-
-
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
-
-The key to knowledge is not to rely on people to teach you it.
-
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
-
-
+--

@@ -1,319 +1,99 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314984AbSEXUeH>; Fri, 24 May 2002 16:34:07 -0400
+	id <S315091AbSEXUhK>; Fri, 24 May 2002 16:37:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315042AbSEXUeG>; Fri, 24 May 2002 16:34:06 -0400
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:12302 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S314984AbSEXUeE>; Fri, 24 May 2002 16:34:04 -0400
-Date: Fri, 24 May 2002 22:34:04 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [rfc,patch] breaking up sched.h
-Message-ID: <Pine.LNX.4.33.0205242219001.30843-100000@gans.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315096AbSEXUhJ>; Fri, 24 May 2002 16:37:09 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:12114 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S315091AbSEXUhH>; Fri, 24 May 2002 16:37:07 -0400
+Date: Fri, 24 May 2002 22:36:30 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: negative dentries wasting ram
+Message-ID: <20020524203630.GJ15703@dualathlon.random>
+In-Reply-To: <20020524194344.GH15703@dualathlon.random> <Pine.GSO.4.21.0205241549520.9792-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While it's quite common to do "current->foo", every file doing
-so needs to #include <linux/sched.h> for the declaration of
-task_struct.
-In order to reduce the number of #include <linux/sched.h>, I'd propose to
-move task_struct to a separate header file (patch below), and include it
-from <asm/current.h>.
+On Fri, May 24, 2002 at 03:55:45PM -0400, Alexander Viro wrote:
+> 
+> 
+> On Fri, 24 May 2002, Andrea Arcangeli wrote:
+>  
+> > and they provide useful cache, they remebers the i_size and everything
+> > else that you need to read from disk the next time a lookup that ends in
+> > such inode happens. It's not a "this dentry doesn't exist" kind of
+> > info after an unlink, so very very unlikely to be ever needed
+> > information. Furthmore there cannot be an huge grow of those inodes see
+> > below.
+> 
+> That's crap, since there _IS_ such a grow.  Again, they easily sit around
+> for 5-7 minutes without a single attempt to access them, while the system
+> is swapping like hell.
 
-Other common causes for unnecessary sched.h includes are
+no-way, that's because your vm is broken then, apply vm-35 and it
+shouldn't really happen, if the system swaps inodes will be pruned
+correcty too, an inode will never stay around for minutes while the
+system is swapping. Actually really you may want to apply also my last
+fix for the inode highmem balance to be sure to rotate the list, maybe
+that could make the difference for this case, but again, if something goes
+wrong in this sense it's a prune_icache bug, not a design bug in iput.
 
-  request_irq()
-  free_irq()
-  suser()
-  fsuser()
-  capable()
+> 
+> > It's a "I know everything about this valid inode" that is been used in
+> > the past and that may be used in the future, so I feel it's an order of
+> > magnitude more useful information.
+> 
+> It's "I hadn't touched that inode in quite a while, but I'll retain it
+> in-core almost indefinitely".
 
-While the latter three are probably better hosted in
-<linux/capability.h>, I'm unsure where to move the former two.
-<linux/irq.h> seems quite natural, but it starts with a comment
+disagree, you can apply the same argument to the whole dcache in the
+first place (not even the negative one!).
 
-  /*
-   * Please do not include this file in generic code.  There is currently
-   * no requirement for any architecture to implement anything held
-   * within this file.
-   *
-   * Thanks. --rmk
-   */
+> 
+> > means there's mem pressure, so the inode as well will be collected soon,
+> > prune_icache is run right after prune_dcache. So only the very last
+> > inodes will be left there for minutes, and they will belong to the most
+> > hot dentries, so very likely to be required again by a later iget as
+> > soon as the dentry is re-created. It don't see any similarity to the
+> > unlink-dentry-negative issue.
+> 
+> Again, inodes are in that state only if there is no dentry pointing to
+> them.  And in _that_ state (== no references from the rest of kernel)
+> they happily sit around for minutes.
 
-so that seems to be no-go. Any alternative suggestions?
+there is no difference at all from the inode side prospective if there's
+a dentry or not, nothing guarantees that the dentry will be used soon.
 
-Tim
+As said unless your vm is broken, freeing the inode at the last iput, so
+to have it allocated only when some dentry is pointing to it, shouldn't
+nearly make any difference in practice, if it makes big difference that's
+a vm problem.
 
+> 
+> > But if you want to change the iput so that the inode is discared at the
+> > last iput that probably won't make much differnce, but I don't see any
+> > benefit. As said until the last prune_icache, most of the inodes are
+> > released anyways after they become unused.  But I just don't see a
+> > problem there, because those inodes won't stays there for minutes
+> > prune_icache will collect them, and if the last one stays for minute
+> > it's fine, the dcache aging made sure that if that was the last inode
+> > left hanging around it is more likely to be reused next and if it's
+> > reused we avoid a lowlevel ->read_inode. In short the part about the
+> > inodes destroy procedure looks all right to me.
+> 
+> It's always a pity when trivial testing spoils a beautiful theory, isn't it?
 
---- linux-2.5.17/include/linux/sched.h	Tue May 21 07:07:31 2002
-+++ linux-2.5.17-jc/include/linux/sched.h	Fri May 24 21:53:20 2002
-@@ -129,6 +129,7 @@
- #ifdef __KERNEL__
- 
- #include <linux/spinlock.h>
-+#include <linux/task_struct.h>
- 
- /*
-  * This serializes "schedule()" and also protects
-@@ -246,125 +247,6 @@
- #define INIT_USER (&root_user)
- 
- typedef struct prio_array prio_array_t;
--
--struct task_struct {
--	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
--	struct thread_info *thread_info;
--	atomic_t usage;
--	unsigned long flags;	/* per process flags, defined below */
--	unsigned long ptrace;
--
--	int lock_depth;		/* Lock depth */
--
--	int prio, static_prio;
--	list_t run_list;
--	prio_array_t *array;
--
--	unsigned long sleep_avg;
--	unsigned long sleep_timestamp;
--
--	unsigned long policy;
--	unsigned long cpus_allowed;
--	unsigned int time_slice;
--
--	struct list_head tasks;
--
--	struct mm_struct *mm, *active_mm;
--	struct list_head local_pages;
--
--	unsigned int allocation_order, nr_local_pages;
--
--/* task state */
--	struct linux_binfmt *binfmt;
--	int exit_code, exit_signal;
--	int pdeath_signal;  /*  The signal sent when the parent dies  */
--	/* ??? */
--	unsigned long personality;
--	int did_exec:1;
--	pid_t pid;
--	pid_t pgrp;
--	pid_t tty_old_pgrp;
--	pid_t session;
--	pid_t tgid;
--	/* boolean value for session group leader */
--	int leader;
--	/* 
--	 * pointers to (original) parent process, youngest child, younger sibling,
--	 * older sibling, respectively.  (p->father can be replaced with 
--	 * p->parent->pid)
--	 */
--	struct task_struct *real_parent; /* real parent process (when being debugged) */
--	struct task_struct *parent;	/* parent process */
--	struct list_head children;	/* list of my children */
--	struct list_head sibling;	/* linkage in my parent's children list */
--	struct list_head thread_group;
--
--	/* PID hash table linkage. */
--	struct task_struct *pidhash_next;
--	struct task_struct **pidhash_pprev;
--
--	wait_queue_head_t wait_chldexit;	/* for wait4() */
--	struct completion *vfork_done;		/* for vfork() */
--
--	unsigned long rt_priority;
--	unsigned long it_real_value, it_prof_value, it_virt_value;
--	unsigned long it_real_incr, it_prof_incr, it_virt_incr;
--	struct timer_list real_timer;
--	struct tms times;
--	unsigned long start_time;
--	long per_cpu_utime[NR_CPUS], per_cpu_stime[NR_CPUS];
--/* mm fault and swap info: this can arguably be seen as either mm-specific or thread-specific */
--	unsigned long min_flt, maj_flt, nswap, cmin_flt, cmaj_flt, cnswap;
--	int swappable:1;
--/* process credentials */
--	uid_t uid,euid,suid,fsuid;
--	gid_t gid,egid,sgid,fsgid;
--	int ngroups;
--	gid_t	groups[NGROUPS];
--	kernel_cap_t   cap_effective, cap_inheritable, cap_permitted;
--	int keep_capabilities:1;
--	struct user_struct *user;
--/* limits */
--	struct rlimit rlim[RLIM_NLIMITS];
--	unsigned short used_math;
--	char comm[16];
--/* file system info */
--	int link_count, total_link_count;
--	struct tty_struct *tty; /* NULL if no tty */
--	unsigned int locks; /* How many file locks are being held */
--/* ipc stuff */
--	struct sysv_sem sysvsem;
--/* CPU-specific state of this task */
--	struct thread_struct thread;
--/* filesystem information */
--	struct fs_struct *fs;
--/* open file information */
--	struct files_struct *files;
--/* namespace */
--	struct namespace *namespace;
--/* signal handlers */
--	spinlock_t sigmask_lock;	/* Protects signal and blocked */
--	struct signal_struct *sig;
--
--	sigset_t blocked;
--	struct sigpending pending;
--
--	unsigned long sas_ss_sp;
--	size_t sas_ss_size;
--	int (*notifier)(void *priv);
--	void *notifier_data;
--	sigset_t *notifier_mask;
--	
--/* Thread group tracking */
--   	u32 parent_exec_id;
--   	u32 self_exec_id;
--/* Protection of (de-)allocation: mm, files, fs, tty */
--	spinlock_t alloc_lock;
--
--/* journalling filesystem info */
--	void *journal_info;
--	struct dentry *proc_dentry;
--};
- 
- extern void __put_task_struct(struct task_struct *tsk);
- #define get_task_struct(tsk) do { atomic_inc(&(tsk)->usage); } while(0)
+well, try 2.4.19pre8aa3 + the inode fix I posted this morning, and then
+try to spol the theory with the trivial testing again :) I think you
+won't spoil it, but I'd like to know if you can reproduce the problem
+such way too.
 
---- linux-2.5.17/include/linux/task_struct.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.5.17-jc/include/linux/task_struct.h	Fri May 24 21:52:03 2002
-@@ -0,0 +1,128 @@
-+#ifndef _LINUX_TASK_STRUCT_H
-+#define _LINUX_TASK_STRUCT_H
-+
-+#ifdef __KERNEL__
-+
-+struct task_struct {
-+	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
-+	struct thread_info *thread_info;
-+	atomic_t usage;
-+	unsigned long flags;	/* per process flags, defined below */
-+	unsigned long ptrace;
-+
-+	int lock_depth;		/* Lock depth */
-+
-+	int prio, static_prio;
-+	list_t run_list;
-+	prio_array_t *array;
-+
-+	unsigned long sleep_avg;
-+	unsigned long sleep_timestamp;
-+
-+	unsigned long policy;
-+	unsigned long cpus_allowed;
-+	unsigned int time_slice;
-+
-+	struct list_head tasks;
-+
-+	struct mm_struct *mm, *active_mm;
-+	struct list_head local_pages;
-+
-+	unsigned int allocation_order, nr_local_pages;
-+
-+/* task state */
-+	struct linux_binfmt *binfmt;
-+	int exit_code, exit_signal;
-+	int pdeath_signal;  /*  The signal sent when the parent dies  */
-+	/* ??? */
-+	unsigned long personality;
-+	int did_exec:1;
-+	pid_t pid;
-+	pid_t pgrp;
-+	pid_t tty_old_pgrp;
-+	pid_t session;
-+	pid_t tgid;
-+	/* boolean value for session group leader */
-+	int leader;
-+	/* 
-+	 * pointers to (original) parent process, youngest child, younger sibling,
-+	 * older sibling, respectively.  (p->father can be replaced with 
-+	 * p->parent->pid)
-+	 */
-+	struct task_struct *real_parent; /* real parent process (when being debugged) */
-+	struct task_struct *parent;	/* parent process */
-+	struct list_head children;	/* list of my children */
-+	struct list_head sibling;	/* linkage in my parent's children list */
-+	struct list_head thread_group;
-+
-+	/* PID hash table linkage. */
-+	struct task_struct *pidhash_next;
-+	struct task_struct **pidhash_pprev;
-+
-+	wait_queue_head_t wait_chldexit;	/* for wait4() */
-+	struct completion *vfork_done;		/* for vfork() */
-+
-+	unsigned long rt_priority;
-+	unsigned long it_real_value, it_prof_value, it_virt_value;
-+	unsigned long it_real_incr, it_prof_incr, it_virt_incr;
-+	struct timer_list real_timer;
-+	struct tms times;
-+	unsigned long start_time;
-+	long per_cpu_utime[NR_CPUS], per_cpu_stime[NR_CPUS];
-+/* mm fault and swap info: this can arguably be seen as either mm-specific or thread-specific */
-+	unsigned long min_flt, maj_flt, nswap, cmin_flt, cmaj_flt, cnswap;
-+	int swappable:1;
-+/* process credentials */
-+	uid_t uid,euid,suid,fsuid;
-+	gid_t gid,egid,sgid,fsgid;
-+	int ngroups;
-+	gid_t	groups[NGROUPS];
-+	kernel_cap_t   cap_effective, cap_inheritable, cap_permitted;
-+	int keep_capabilities:1;
-+	struct user_struct *user;
-+/* limits */
-+	struct rlimit rlim[RLIM_NLIMITS];
-+	unsigned short used_math;
-+	char comm[16];
-+/* file system info */
-+	int link_count, total_link_count;
-+	struct tty_struct *tty; /* NULL if no tty */
-+	unsigned int locks; /* How many file locks are being held */
-+/* ipc stuff */
-+	struct sysv_sem sysvsem;
-+/* CPU-specific state of this task */
-+	struct thread_struct thread;
-+/* filesystem information */
-+	struct fs_struct *fs;
-+/* open file information */
-+	struct files_struct *files;
-+/* namespace */
-+	struct namespace *namespace;
-+/* signal handlers */
-+	spinlock_t sigmask_lock;	/* Protects signal and blocked */
-+	struct signal_struct *sig;
-+
-+	sigset_t blocked;
-+	struct sigpending pending;
-+
-+	unsigned long sas_ss_sp;
-+	size_t sas_ss_size;
-+	int (*notifier)(void *priv);
-+	void *notifier_data;
-+	sigset_t *notifier_mask;
-+	
-+/* Thread group tracking */
-+   	u32 parent_exec_id;
-+   	u32 self_exec_id;
-+/* Protection of (de-)allocation: mm, files, fs, tty */
-+	spinlock_t alloc_lock;
-+
-+/* journalling filesystem info */
-+	void *journal_info;
-+	struct dentry *proc_dentry;
-+};
-+
-+
-+#endif /* __KERNEL__ */
-+
-+#endif
-
+Andrea

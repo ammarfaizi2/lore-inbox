@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315597AbSEJSor>; Fri, 10 May 2002 14:44:47 -0400
+	id <S313568AbSEJSqq>; Fri, 10 May 2002 14:46:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313568AbSEJSoq>; Fri, 10 May 2002 14:44:46 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:374 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S315597AbSEJSop>; Fri, 10 May 2002 14:44:45 -0400
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>, chen_xiangping@emc.com,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Tcp/ip offload card driver
-In-Reply-To: <FA2F59D0E55B4B4892EA076FF8704F553D1A42@srgraham.eng.emc.com>
-	<3CDBFF5B.32550.1364FB2@localhost> <3CDBE7EB.9060605@mandrakesoft.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 10 May 2002 12:36:06 -0600
-Message-ID: <m1n0v7zw89.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S315799AbSEJSqp>; Fri, 10 May 2002 14:46:45 -0400
+Received: from smtp1.home.se ([195.66.35.200]:15500 "EHLO smtp1.home.se")
+	by vger.kernel.org with ESMTP id <S313568AbSEJSqo>;
+	Fri, 10 May 2002 14:46:44 -0400
+Message-ID: <005201c1f853$040428c0$0319450a@sandos>
+From: =?iso-8859-1?Q?John_B=E4ckstrand?= <sandos@home.se>
+To: <linux-kernel@vger.kernel.org>
+Subject: [OT] hardware question
+Date: Fri, 10 May 2002 20:46:37 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+My problems regarding a SB16 isa on a 486 seems to be
+coming from the use of a pentium overdrive 80mhz
+instead of a DX33. It is _only_ when trying to do sound
+that everything breaks, otherwise its really stable.
+Similar results were achieved in windows. My hunch is
+that the cpu is in some way making dma or interrupts
+unstable, or maybe the entire ISA bus. I tried to read
+a mp3 from floppy aswell, but that also crashed. Its
+only in linux/windows that the overdrive causes
+problems, the creative dos diagnose.exe can play fine
+even with the overdrive. Any ideas to this weirdness?
 
-> Pedro M. Rodrigues wrote:
-> 
-> >   Actually there is. Think iSCSI. Have a look at this article at LinuxJournal
-> > - http://linuxjournal.com/article.php?sid=4896 .
-> >
-> 
-> Ug...  why bother?  Just buy an SMP system at that point...
+Im not on the list so answer in private.
 
-Or equally fix the kernel driver to do interrupt mitigation.  From
-the article that looks like all they have managed to achieve.  There
-may be a valid argument buried in there for remote DMA as well.
+---
+John Bäckstrand
 
-But given in the low contention case the kernel with it's own network
-drivers was twice as fast.  tcp/ip offload looks to have some serious
-weaknesses even for iSCSI.  The embedded processor kept better
-performance going for just a little while but then it's performance
-crashed as well.
 
-Plus there is the general rule.  The primary CPU, it's memory, and
-it's I/O subsystem improve out of necessity, while IO processors
-stagnate, because they can.  The only exception to this I have seen
-are graphics coprocessors.
-
-Eric

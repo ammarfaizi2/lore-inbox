@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129053AbQJ3QiX>; Mon, 30 Oct 2000 11:38:23 -0500
+	id <S129044AbQJ3QjN>; Mon, 30 Oct 2000 11:39:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129055AbQJ3QiE>; Mon, 30 Oct 2000 11:38:04 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:36434 "EHLO saturn.homenet")
-	by vger.kernel.org with ESMTP id <S129053AbQJ3QiA>;
-	Mon, 30 Oct 2000 11:38:00 -0500
-Date: Mon, 30 Oct 2000 16:38:35 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kmalloc() allocation.
-In-Reply-To: <Pine.LNX.3.95.1001030112739.1186B-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.21.0010301632280.2555-100000@saturn.homenet>
+	id <S129055AbQJ3QjD>; Mon, 30 Oct 2000 11:39:03 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:54003 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129044AbQJ3Qiy>; Mon, 30 Oct 2000 11:38:54 -0500
+Date: Mon, 30 Oct 2000 14:36:39 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Andi Kleen <ak@suse.de>, dean gaudet <dean-list-linux-kernel@arctic.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Andrew Morton <andrewm@uow.edu.au>, kumon@flab.fujitsu.co.jp,
+        Alexander Viro <viro@math.psu.edu>,
+        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
+        linux-kernel@vger.kernel.org, Olaf Kirch <okir@monad.swb.de>
+Subject: Re: [PATCH] Re: Negative scalability by removal of lock_kernel()?(Was:
+In-Reply-To: <20001030162815.B21935@athlon.random>
+Message-ID: <Pine.LNX.4.21.0010301435050.16609-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2000, Richard B. Johnson wrote:
-> > So, if you don't need physically contiguous (and fast) allocations perhaps
-> > you could make use of vmalloc()/vfree() instead? There must be also some
-> > "exotic" allocation APIs like bootmem but I know nothing of them so I stop
-> > here.
+On Mon, 30 Oct 2000, Andrea Arcangeli wrote:
+> On Mon, Oct 30, 2000 at 07:29:51AM +0100, Andi Kleen wrote:
+> > It should not be needed anymore for 2.4, because the accept() wakeup has been
+> > fixed.
 > 
-> Okay. Looks like I need a linked-list so I can use noncontiguous memory.
+> Certainly sleeping in accept will be just way better than file any locking.
+> 
+> OTOH accept() is still _wrong_ as it wake-one FIFO while it
+> should wake-one LIFO (so that we optimize the cache usage skip
+> TLB flushes and allow the redundand tasks to be paged out). I
+> can only see cons in doing FIFO wake-one.
 
-Just to remind, I was talking of physically and not just virtually
-contiguous. vmalloc will still give you a virtually-contiguous chunk. But
-if by "I need a linked-list" you mean that each node of the list may be
-talking to some hardware but the hardware won't know about the whole list,
-then you still need to use physically-contiguous allocator like
-__get_free_pages() for each data node, i.e. if your hardware actually
-needs physically contiguous chunk to talk to. Also, in this case, using
-vmalloc() to allocate just the "linkage/admin overhead" is silly, just
-using kmalloc or even creating a private slab object cache is probably a
-better idea.
+LIFO wakeup is indeed the way to go for things like accept().
 
-Regards,
-Tigran
+For stuff like ___wait_on_page(), OTOH, you really want FIFO
+wakeup to avoid starvation (yes, I know we're currently doing
+wake_all in ___wait_on_page ;))...
+
+regards,
+
+Rik
+--
+"What you're running that piece of shit Gnome?!?!"
+       -- Miguel de Icaza, UKUUG 2000
+
+http://www.conectiva.com/		http://www.surriel.com/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,32 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263222AbSJGU6Y>; Mon, 7 Oct 2002 16:58:24 -0400
+	id <S263482AbSJGVzo>; Mon, 7 Oct 2002 17:55:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263223AbSJGU6Y>; Mon, 7 Oct 2002 16:58:24 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:58052 "EHLO
-	zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S263222AbSJGU6W>; Mon, 7 Oct 2002 16:58:22 -0400
-Message-ID: <3DA1F58A.7030903@nortelnetworks.com>
-Date: Mon, 07 Oct 2002 16:58:50 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S263483AbSJGVzo>; Mon, 7 Oct 2002 17:55:44 -0400
+Received: from web40012.mail.yahoo.com ([66.218.78.30]:34421 "HELO
+	web40012.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S263482AbSJGVzh>; Mon, 7 Oct 2002 17:55:37 -0400
+Message-ID: <20021007220111.29298.qmail@web40012.mail.yahoo.com>
+Date: Mon, 7 Oct 2002 15:01:11 -0700 (PDT)
+From: Brad Chapman <jabiru_croc@yahoo.com>
+Subject: [QUESTION] Is 2.5.41 useable?
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: PC speaker dead in 2.5.40?
-References: <Pine.NEB.4.44.0210072225320.8340-100000@mimas.fachschaften.tu-muenchen.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
- > Is it
-> perhaps possible to move the speaker support to "Character devices"?
+Is 2.5.41 useable, i.e. will it mostly work without Oopsing or crashing?
 
-Or how about putting it under "Sound"?  Seems logical to me.
+Brad
 
-Chris
+P.S: CC me for replies.
 
+__________________________________________________
+Do you Yahoo!?
+Faith Hill - Exclusive Performances, Videos & More
+http://faith.yahoo.com

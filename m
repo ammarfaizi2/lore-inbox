@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262699AbTHaVTK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 17:19:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262708AbTHaVTK
+	id S262689AbTHaVWO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 17:22:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbTHaVWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 17:19:10 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:39885 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S262699AbTHaVTH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 17:19:07 -0400
-Date: Sun, 31 Aug 2003 14:18:55 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pascal Schmidt <der.eremit@email.de>,
+	Sun, 31 Aug 2003 17:22:14 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:38339 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262689AbTHaVWK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 17:22:10 -0400
+Subject: Re: Re: Re: IDE DMA breakage w/ 2.4.21+ and 2.6.0-test4(-mm4)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Petr Baudis <pasky@ucw.cz>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Andre Hedrick <andre@linux-ide.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bandwidth for bkbits.net (good news)
-Message-ID: <20030831211855.GB12752@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Andrea Arcangeli <andrea@suse.de>, Larry McVoy <lm@bitmover.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Pascal Schmidt <der.eremit@email.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030831013928.GN24409@dualathlon.random> <20030831025659.GA18767@work.bitmover.com> <1062335711.31351.44.camel@dhcp23.swansea.linux.org.uk> <20030831144505.GS24409@dualathlon.random> <1062343891.10323.12.camel@dhcp23.swansea.linux.org.uk> <20030831154450.GV24409@dualathlon.random> <20030831162243.GC18767@work.bitmover.com> <20030831163350.GY24409@dualathlon.random> <20030831164802.GA12752@work.bitmover.com> <20030831170633.GA24409@dualathlon.random>
+In-Reply-To: <20030831200639.GA573@pasky.ji.cz>
+References: <20030831161634.GA695@pasky.ji.cz>
+	 <1062352643.11140.0.camel@dhcp23.swansea.linux.org.uk>
+	 <200308312032.47638.bzolnier@elka.pw.edu.pl>
+	 <20030831185706.GB695@pasky.ji.cz>  <20030831200639.GA573@pasky.ji.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1062364872.11140.13.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030831170633.GA24409@dualathlon.random>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Sun, 31 Aug 2003 22:21:13 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 31, 2003 at 07:06:33PM +0200, Andrea Arcangeli wrote:
-> On Sun, Aug 31, 2003 at 09:48:02AM -0700, Larry McVoy wrote:
-> > works when we've tried what you said to try isn't very compelling.  I know
-> > this doesn't work from both theory and practice.
-> 
-> Post your configure scripts so we can point you what you did wrong.
+On Sul, 2003-08-31 at 21:06, Petr Baudis wrote:
+> I did few more experiments, and one strange thing is that /proc/dma does not
+> change when turning using_dma on thru hdparm:
 
-They are Cisco configuration, it won't do you much good.  All the traffic
-goes in/out through a Cisco 2610, we have a full T1 and we clamped all 
-TCP traffic at .75Mbit.  Still didn't help even though we verified that
-it was indeed clamping down on the traffic.
+IDE DMA is PCI not ISA. It appears your mainboard is dying when both ISA
+and PCI DMA occur together. If so you'd want to drop the ESS audiodrive
+into PIO mode assuming ALSA supports it (OSS doesnt although I've got
+the docs if you care that much).
 
-I'm not sure why you are arguing this, if you have a fat pipe feeding into
-a small pipe and you are trying to throttle at far end of the small pipe
-isn't it obvious that you can't make that work?  It's not the packets we
-send, it's the packets you send.  And all the flow control stuff is per
-connection, not per pipe.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Can you do another test here - write to a floppy disk while doing IDE
+DMA and see if it also hangs.
+
+> (By the way, there are two 'capacity' entries in /proc/ide/ide*/hd*/.)
+
+Curious 8)
+
+

@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266023AbUBQGG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 01:06:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266029AbUBQGGz
+	id S266027AbUBQGBA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 01:01:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266029AbUBQGBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 01:06:55 -0500
-Received: from fw.osdl.org ([65.172.181.6]:30124 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266023AbUBQGGx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 01:06:53 -0500
-Date: Mon, 16 Feb 2004 22:06:48 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: vrajesh@umich.edu, linux-kernel@vger.kernel.org, Linux-MM@kvack.org
-Subject: Re: [PATCH] mremap NULL pointer dereference fix
-In-Reply-To: <20040216220031.16a2c0c7.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0402162203230.2154@home.osdl.org>
-References: <Pine.SOL.4.44.0402162331580.20215-100000@blue.engin.umich.edu>
- <Pine.LNX.4.58.0402162127220.30742@home.osdl.org>
- <Pine.LNX.4.58.0402162144510.30742@home.osdl.org> <20040216220031.16a2c0c7.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 17 Feb 2004 01:01:00 -0500
+Received: from law11-f126.law11.hotmail.com ([64.4.17.126]:41994 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S266027AbUBQGA6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 01:00:58 -0500
+X-Originating-IP: [142.179.2.127]
+X-Originating-Email: [sycotic_69@hotmail.com]
+From: "Mitch Goes" <sycotic_69@hotmail.com>
+To: mec@shout.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Q> scripts/Menuconfig: line 832: MCmenu78: command not found
+Date: Mon, 16 Feb 2004 22:00:57 -0800
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <LAW11-F126bGymSx0LD00002363@hotmail.com>
+X-OriginalArrivalTime: 17 Feb 2004 06:00:57.0599 (UTC) FILETIME=[694B98F0:01C3F51B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Filing an error report
 
+the error is reproducable and is found when in the sound menu, entering 
+Advanced Linux Sound Architecture at the very bottom.  The program crashes 
+and all previous settings lost.
 
-On Mon, 16 Feb 2004, Andrew Morton wrote:
-> 
-> This saves a goto.   It works, but I wasn't able to trigger
-> the oops without it either.
+kernel version 2.4.22
 
-To trigger the bug you have to have _just_ the right memory usage, I 
-suspect. You literally have to have the destination page directory 
-allocation unmap the _exact_ source page (which has to be clean) for the 
-bug to hit. 
+Thank you
 
-So I suspect the oops only triggers on the machine that the trigger
-program was written for.
+_________________________________________________________________
+Help STOP SPAM with the new MSN 8 and get 2 months FREE*   
+http://join.msn.com/?page=dept/bcomm&pgmarket=en-ca&RU=http%3a%2f%2fjoin.msn.com%2f%3fpage%3dmisc%2fspecialoffers%26pgmarket%3den-ca
 
-Your version of the patch saves a goto in the source, but results in an 
-extra goto in the generated assembly unless the compiler is clever enough 
-to notice the double test for NULL.
-
-Never mind, that's a micro-optimization, and your version is cleaner. 
-Let's go with it if Rajesh can verify that it fixes the problem for him.
-
-Rajesh?
-
-		Linus

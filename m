@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264859AbSKENtE>; Tue, 5 Nov 2002 08:49:04 -0500
+	id <S264798AbSKEOWV>; Tue, 5 Nov 2002 09:22:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264860AbSKENtE>; Tue, 5 Nov 2002 08:49:04 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:17158 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S264859AbSKENtD>; Tue, 5 Nov 2002 08:49:03 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
+	id <S264831AbSKEOWV>; Tue, 5 Nov 2002 09:22:21 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:16910 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S264798AbSKEOWU>; Tue, 5 Nov 2002 09:22:20 -0500
+Date: Tue, 5 Nov 2002 18:28:02 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: alan@lxorguk.ukuu.org.uk, greg@kroah.com, jgarzik@pobox.com,
+       jung-ik.lee@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: Patch: 2.5.45 PCI Fixups for PCI HotPlug
+Message-ID: <20021105182802.A4167@jurassic.park.msu.ru>
+References: <200211051317.FAA26655@adam.yggdrasil.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15815.52697.903554.908594@laputa.namesys.com>
-Date: Tue, 5 Nov 2002 16:55:37 +0300
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Linus Torvalds <Torvalds@Transmeta.COM>
-Cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
-Subject: [PATCH]: fix typo in usr/Makefile
-X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
-X-Antipastobozoticataclysm: When George Bush projectile vomits antipasto on the Japanese.
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200211051317.FAA26655@adam.yggdrasil.com>; from adam@yggdrasil.com on Tue, Nov 05, 2002 at 05:17:10AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Linus,
+On Tue, Nov 05, 2002 at 05:17:10AM -0800, Adam J. Richter wrote:
+> 	If pci_do_fixups determines that f->vendor and f->device do
+> not match the device in question, it will not call the corresponding
+> f->hook, so it is OK for that f->hook to point to the address of a
+> discarded __init routine that now contains garbage as long as the
+> ID's will not match any hot plugged device.
 
-following patch fixes typo introduced by last changeset: "./$<" already
-contains directory.
+Unless f->device == PCI_ANY_ID. Plus you won't be able to discard
+the list itself.
 
-Please apply.
-Nikita.
-===== usr/Makefile 1.3 vs edited =====
---- 1.3/usr/Makefile	Tue Nov  5 01:04:41 2002
-+++ edited/usr/Makefile	Tue Nov  5 16:48:19 2002
-@@ -11,6 +11,6 @@
- 	$(call if_changed,ld)
- 
- $(obj)/initramfs_data.cpio.gz: $(obj)/gen_init_cpio
--	( cd $(obj) ; ./$< | gzip -9c > $@ )
-+	( ./$< | gzip -9c > $@ )
- 
- 
-
+Ivan.

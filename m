@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316943AbSEWQYB>; Thu, 23 May 2002 12:24:01 -0400
+	id <S316946AbSEWQ1C>; Thu, 23 May 2002 12:27:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316944AbSEWQYA>; Thu, 23 May 2002 12:24:00 -0400
-Received: from web14204.mail.yahoo.com ([216.136.172.146]:35606 "HELO
-	web14204.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S316943AbSEWQX7>; Thu, 23 May 2002 12:23:59 -0400
-Message-ID: <20020523162359.62535.qmail@web14204.mail.yahoo.com>
-Date: Thu, 23 May 2002 09:23:59 -0700 (PDT)
-From: Erik McKee <camhanaich99@yahoo.com>
-Subject: 2.5.17 Module woes
-To: linux-kernel@vger.kernel.org
+	id <S316947AbSEWQ1A>; Thu, 23 May 2002 12:27:00 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:50686 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S316946AbSEWQ0z>;
+	Thu, 23 May 2002 12:26:55 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15597.6222.724619.443491@napali.hpl.hp.com>
+Date: Thu, 23 May 2002 09:26:54 -0700
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Q: PREFETCH_STRIDE/16
+In-Reply-To: <Pine.LNX.4.21.0205231554090.1304-100000@localhost.localdomain>
+X-Mailer: VM 7.03 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, this is just too wierd....
+>>>>> On Thu, 23 May 2002 16:12:16 +0100 (BST), Hugh Dickins <hugh@veritas.com> said:
 
-In logs the following....
-request_module[scsi_hostadaptor]: Root fs not mounted
-last message repeated 3 times
-modprobe: modprobe: Can't locate module eth1
-insmod: /lib/modules/2.4.18/kernel/net/ipv4/netfilter/iptable_nat.o: insmod
-iptable_nat failed
+  Hugh> Could anyone please shed light on PREFETCH_STRIDE, and in
+  Hugh> particular its sole use:
+  Hugh> prefetchw(pmd+j+(PREFETCH_STRIDE/16)); in mm/memory.c:
+  Hugh> free_one_pgd().
 
-Ok, so why are these strange.  First of all, there is nothing remotely scsi in
-this box.  Also, eth1 driver is compiled into the kernel.  Masq was working
-fine, so the last message isn't important, except that it was trying to load a
-module from 2.4.18 on a 2.5 box?
+  Hugh> That looks to me suspiciously like something inserted to suit
+  Hugh> one particular architecture - ia64? is it really suitable for
+  Hugh> others? is 4*L1_CACHE_SIZE really right for PREFETCH_STRIDE on
+  Hugh> anything that prefetches except ia64? what's the "/ 16"?
+  Hugh> shouldn't there be a "/ sizeof(pmd_t)" somewhere (PAE or not)?
+  Hugh> is it right to prefetch each time around that loop? isn't it
+  Hugh> appropriate only to the exit_mm (0 to TASK_SIZE) clearance?
 
-__________________________________________________
-Do You Yahoo!?
-LAUNCH - Your Yahoo! Music Experience
-http://launch.yahoo.com
+  Hugh> All in all, I'm thinking that line shouldn't be there, or not
+  Hugh> without a substantial comment...
+
+That code certainly wasn't optimized for ia64.  Furthermore, I also do
+not like the prefetch distance it's using.  In fact, in my ia64-patch,
+I use the following code instead:
+
+		prefetchw(pmd + j + PREFETCH_STRIDE/sizeof(*pmd));
+
+This is more sensible (because it really does prefetch by the
+PREFETCH_STRIDE distance) and it also happens to run (slightly) faster
+on Itanium.
+
+	--david

@@ -1,50 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316542AbSFULNL>; Fri, 21 Jun 2002 07:13:11 -0400
+	id <S316545AbSFULQf>; Fri, 21 Jun 2002 07:16:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316545AbSFULNK>; Fri, 21 Jun 2002 07:13:10 -0400
-Received: from pat.uio.no ([129.240.130.16]:43150 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S316542AbSFULNJ>;
-	Fri, 21 Jun 2002 07:13:09 -0400
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Robert Love <rml@tech9.net>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] (resend) credentials for 2.5.23
-References: <20020619212909.A3468@redhat.com> <1024540235.917.127.camel@sinai>
-	<20020620122858.B4674@redhat.com> <1024593066.922.149.camel@sinai>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-In-Reply-To: <1024593066.922.149.camel@sinai>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-Date: 21 Jun 2002 13:12:59 +0200
-Message-ID: <shs4rfwx4uc.fsf@charged.uio.no>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S316548AbSFULQf>; Fri, 21 Jun 2002 07:16:35 -0400
+Received: from point41.gts.donpac.ru ([213.59.116.41]:35851 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S316545AbSFULQd>;
+	Fri, 21 Jun 2002 07:16:33 -0400
+Date: Fri, 21 Jun 2002 15:14:40 +0400
+From: Andrey Panin <pazke@orbita1.ru>
+To: Jesse Barnes <jbarnes@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] SGI VISWS support for 2.5
+Message-ID: <20020621111440.GA3613@pazke.ipt>
+Mail-Followup-To: Jesse Barnes <jbarnes@sgi.com>,
+	linux-kernel@vger.kernel.org
+References: <20020620112608.GA303@pazke.ipt> <20020620213743.GA67049@sgi.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="GvXjxJ+pjyke8COw"
+Content-Disposition: inline
+In-Reply-To: <20020620213743.GA67049@sgi.com>
+User-Agent: Mutt/1.4i
+X-Uname: Linux pazke 2.5.23
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Robert Love <rml@tech9.net> writes:
 
-     > CLONE_CRED.  I suspect 90% of the cases retain the same
-     > credentials anyhow.  Copy-on-write? :)
+--GvXjxJ+pjyke8COw
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ben,
+On =D0=A7=D1=82=D0=B2, =D0=98=D1=8E=D0=BD 20, 2002 at 02:37:43 -0700, Jesse=
+ Barnes wrote:
+> I gave it a go on a 320 that I have here and it gets into start_kernel
+> somewhere, but I don't get any output on the serial console.  If you'd
+> like to get it into 2.5, maybe we should clean it up a little first
+> (as well as get it working)?
 
-  Making the credentials a monolithic block like you appear to be
-doing just doesn't make sense. If you look at the way things like
-fsuid/fsgid/groups[] are used, you will see that almost all those that
-filesystems that care are making their own private copies.
+We definetely need to make it working and cleanup is a good thing too,
+but i dont have a VISWS (right now) so i'm limited to trivial mergework.
 
-  It would be a lot more useful to split out fsuid/fsgid/groups[] as
-per the *BSD ucred, and then allow filesystems to reference the
-resulting struct instead (using COW semantics).
+> When I ported the last patch forward to 2.4.17, I noticed that there
+> were quite a few parts that could use some work.  Looking through the
+> patch, it seems like the head.S stuff could be done in a better way,
 
-That way too, 'struct file' could finally contain a reference to a
-full copy of the filesystem credentials, and we could get rid of
-the 'struct file' crud in address_space_operations like readpage().
+As far as i understand VISWS fragment in the head.S does 3 thing:
+	1) fills page tables;
+	2) twiddle some bits in cr3.
+	3) loads gdt and idt;
+My small brain can't understand why we must do 1 and 3 so early.
+BTW looks like we are filling page tables many times (for every CPU).
+And why we move stext and _stext for VISWS ?
+These are great mysteries ...
 
-See
-  http://www.fys.uio.no/~trondmy/src/bsdcred/linux-2.5.1-pre11_cred.dif
+> maybe a seperate head.S for machines that start in protected mode?
+I'm doubtfull, does it worth the effort ?
 
-for my earlier attempt at doing this sort of thing...
+> Then again, maybe the boot loader should just be changed? The
+> interrupt handler code also needs to be fixed up.
+> I haven't looked at the patch to seperate out i386 subarches yet, but
+> maybe that would be a good first step to abstracting away some of the
+> visws setup code?
 
-Cheers,
-  Trond
+2.5 with James's arch-split patch has most of VISWS code separated already.
+The only big trouble that remains is VISWS hacks in parse_mem_cmdline()=20
+function.
+
+Also when 2.5 will realy use platform driver to support reboot, halt
+and power off, it will be possible to split VISWS code from process.c.
+
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+
+--GvXjxJ+pjyke8COw
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9EwqgBm4rlNOo3YgRAn2lAJsE4kPn44XeztLU+U0hAhm5MGw9dgCfannF
+AaN6EXCuc6nPkOMFWwz05SA=
+=ZIgB
+-----END PGP SIGNATURE-----
+
+--GvXjxJ+pjyke8COw--

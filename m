@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318224AbSHMQfc>; Tue, 13 Aug 2002 12:35:32 -0400
+	id <S318969AbSHMQqB>; Tue, 13 Aug 2002 12:46:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318225AbSHMQfc>; Tue, 13 Aug 2002 12:35:32 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33287 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318224AbSHMQfa>; Tue, 13 Aug 2002 12:35:30 -0400
-Date: Tue, 13 Aug 2002 09:41:46 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] NUMA-Q disable irqbalance
-In-Reply-To: <1993130000.1029255222@flay>
-Message-ID: <Pine.LNX.4.44.0208130937050.7411-100000@home.transmeta.com>
+	id <S318970AbSHMQqA>; Tue, 13 Aug 2002 12:46:00 -0400
+Received: from dsl-213-023-021-187.arcor-ip.net ([213.23.21.187]:65205 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318969AbSHMQqA>;
+	Tue, 13 Aug 2002 12:46:00 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Rob Landley <landley@trommello.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: large page patch (fwd) (fwd)
+Date: Tue, 13 Aug 2002 18:47:01 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: frankeh@watson.ibm.com, davidm@hpl.hp.com,
+       David Mosberger <davidm@napali.hpl.hp.com>,
+       "David S. Miller" <davem@redhat.com>, gh@us.ibm.com,
+       Martin.Bligh@us.ibm.com, wli@holomorpy.com,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0208111555130.1233-100000@home.transmeta.com> <E17e2NT-0001if-00@starship> <200208131351.g7DDpuf261384@pimout5-ext.prodigy.net>
+In-Reply-To: <200208131351.g7DDpuf261384@pimout5-ext.prodigy.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17eeow-0001y9-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 13 August 2002 10:51, Rob Landley wrote:
+> On Sunday 11 August 2002 07:44 pm, Daniel Phillips wrote:
+> So you would object to microsoft granting rights to its patents saying "you 
+> can use this patent in software that runs on windows, but use it on any other 
+> platform and we'll sue you", but you don't mind going the other way?
 
-On Tue, 13 Aug 2002, Martin J. Bligh wrote:
-:
-> This patch is from Matt Dobson. It disables irq_balance for the NUMA-Q
-> and makes it a config option for everyone else.
+You missed the point.  I was talking about using copyright against patents,
+and specifically in the case where patents are held by people who also want
+to use the copyrighted code.  The intention is to help keep our friends
+honest.
 
-Please don't use negative config options.
+Dealing with Microsoft, or anyone else whose only motivation is to obstruct,
+is an entirely separate issue.
 
-I'd much rather have
-
-	bool 'IRQ balancing support' CONFIG_IRQ_BALANCE
-
-than some "Disable IRQ balancing?" question.
-
-Also, the explanation should probably explain that a P4 needs manual IRQ 
-balancing since the P4 broke the Intel-documented round-robin behaviour.
-
-Finally, exactly since IRQ balancing is practically required on P4-SMP, I
-really don't think a CONFIG option works. It needs to be configured in on
-any kernel that expects to use P4's in an SMP configuration.
-
-In other words, I think this needs to do a dynamic disable (with the 
-possible exception of a NUMA-Q machine, since that one is already a static 
-config option and won't have P4's in it).
-
-		Linus
-
+-- 
+Daniel

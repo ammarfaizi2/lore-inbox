@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263734AbTJCNin (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 09:38:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263741AbTJCNin
+	id S263543AbTJCOAz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 10:00:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263587AbTJCOAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 09:38:43 -0400
-Received: from janus.zeusinc.com ([205.242.242.161]:13080 "EHLO
-	zso-proxy.zeusinc.com") by vger.kernel.org with ESMTP
-	id S263734AbTJCNim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 09:38:42 -0400
-Subject: Problems caused by scheduler tweaks in 2.6.0-test6?
-From: Tom Sightler <ttsig@tuxyturvy.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1065188297.2660.17.camel@iso-8590-lx.zeusinc.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2) 
-Date: Fri, 03 Oct 2003 09:38:17 -0400
+	Fri, 3 Oct 2003 10:00:55 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:51387 "EHLO
+	natsmtp01.webmailer.de") by vger.kernel.org with ESMTP
+	id S263543AbTJCOAx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 10:00:53 -0400
+Message-ID: <3F7D817A.7020603@softhome.net>
+Date: Fri, 03 Oct 2003 16:02:34 +0200
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Organization: Home Sweet Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andries Brouwer <aebr@win.tue.nl>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Eric W. Biederman" <aebr@win.tue.nl>
+Subject: Re: [PATCH] linuxabi
+References: <BCSP.62t.7@gated-at.bofh.it> <CcWl.7kh.9@gated-at.bofh.it> <CdIL.8ts.13@gated-at.bofh.it>
+In-Reply-To: <CdIL.8ts.13@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Andries Brouwer wrote:
+> 
+> Possibly. So we need discussion.
+> 
+> I have registered comment #1: Al prefers the enum style.
+> A possibility.
+> 
+> Now you come with comment #2: write LINUX_MS_RDONLY instead of
+> MS_RDONLY. You have not convinced me.
+> 
 
-Over the last few months I have tested many different scheduler tweaks
-mostly by testing the -mm kernels and also by applying Nick's patches
-against vanilla kernels.  Up until recently I have been very happy with
-2.6.0-test5 with Nick's scheduler patches.
+   My 0.02 euro.
 
-Then I decided to try 2.6.0-test6 which seems to include a lot of Con's
-work and, while overall this seems nice, I'm having two relatively
-serious side effects that seem to be related to this inclusion.
+   LINUX_* - not right stuff. It makes a lot of sence to have the same 
+name for same thing, even in different contexts. Or you are going to 
+create a hell for some-one who may wish to make a documentation.
 
-1.  VMware performance varies wildly.  I can't put my finger on this
-exact issue, but I have found as way to repeatably trigger bad
-performance.  When running VMware in fullscreen mode, enable window
-animation and repeatedly minimize/maximize a window.  Under 2.4.x and
-2.6.0-test5 w/Nick's patches this process runs reasonably smooth,
-although noticably slower than native speed.  With stock 2.6.0-test6
-after only a few seconds the minimize/maximize animiation slows to a
-complete crawl, take 20+ seconds to complete the minimize opertaion. 
-I've tried tuning VMware with priorities but no luck.
+   Headers are going to be used in different context (hopefully) so 
+would be no collisions (hopefully).
 
-2.  I also use Wine to run various Windows programs on occasion,
-particularly Outlook 2000 (mainly when attempting to help other running
-this application on Windows).  The program runs fine, but always hangs
-on exit.  I didn't originally think this was related to the scheduler,
-but interestingly, after applying Nick's patches to 2.6.0-test6, which
-back out Con's changes, this problem goes away.
+   Another question does GCC have something like C++'s namespace for C?
+   That's would be good. Changing names - bad.
 
-Is there any help out there for these type of issues?  I know that many
-people seem to think these changes make life better, and I'll admidt
-that playing MP3's and DVD's is better with these changes, but I'd
-rather have my system preform well at other tasks.  I would think having
-a way to turn off all the fancy interactivity detection would be ideal
-but there always seems to be opposition to adding tuning knobs.
+   And #define LINUX_NS(x) doesn't make sound - you will lose ability to 
+grep over defines and [ce]tags will not work on this anymore. cpp is not
+correct tool for namespace implementation.
 
-Later,
-Tom
-
+-- 
+Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
+--
+   "... and for $64000 question, could you get yourself vaguely
+      familiar with the notion of on-topic posting?"
+				-- Al Viro @ LKML
 

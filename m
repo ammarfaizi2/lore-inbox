@@ -1,83 +1,175 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbTISQMP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 12:12:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbTISQMP
+	id S261616AbTISQYn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 12:24:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbTISQYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 12:12:15 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:55022 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S261612AbTISQMN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 12:12:13 -0400
-Subject: Re: Make modules_install doesn't create /lib/modules/$version
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       rob@landley.net, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <16234.51231.312249.132103@gargle.gargle.HOWL>
-References: <20030919024455.834992C0F1@lists.samba.org>
-	 <1063950080.5491.10.camel@workshop.saharacpt.lan>
-	 <16234.51231.312249.132103@gargle.gargle.HOWL>
-Content-Type: text/plain
-Message-Id: <1063987305.5491.21.camel@workshop.saharacpt.lan>
+	Fri, 19 Sep 2003 12:24:43 -0400
+Received: from mailhub4.dartmouth.edu ([129.170.17.94]:14977 "EHLO
+	mailhub4.dartmouth.edu") by vger.kernel.org with ESMTP
+	id S261616AbTISQYj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 12:24:39 -0400
+Date: Fri, 19 Sep 2003 12:24:22 -0400
+From: Omen Wild <Omen.Wild@Dartmouth.EDU>
+To: linux-kernel@vger.kernel.org
+Subject: call_usermodehelper does not report exit status?
+Message-ID: <20030919162422.GB2236@descolada.dartmouth.edu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 19 Sep 2003 18:01:46 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="aT9PWwzfKXlsBJM1"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4-2i
+X-MailScanner: No virus detected by mailhub3.Dartmouth.EDU
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-09-19 at 11:10, Mikael Pettersson wrote:
-> Martin Schlemmer writes:
->  > On Fri, 2003-09-19 at 04:25, Rusty Russell wrote:
->  > > In message <20030918091511.276309a6.rddunlap@osdl.org> you write:
->  > > > On Thu, 18 Sep 2003 03:21:40 -0400 Rob Landley <rob@landley.net> wrote:
->  > > > 
->  > > > | I've installed -test3, -test4, and now -test5, and each time make 
->  > > > | modules_install died with the following error:
->  > > > | 
->  > > > | Kernel: arch/i386/boot/bzImage is ready
->  > > > | sh arch/i386/boot/install.sh 2.6.0-test5 arch/i386/boot/bzImage System.map ""
->  > > > | /lib/modules/2.6.0-test5 is not a directory.
->  > > 
->  > > Looks like arch/i386/boot/install.sh is calling ~/bin/installkernel or
->  > > /sbin/installkernel, which is not creating the directory.
->  > > 
->  > > Should depmod create the directory?  It can, of course, but AFAICT the
->  > > old one didn't.
->  > > 
->  > > Maybe a RedHat issue?
->  > > 
->  > 
->  > Likely, it works fine here with the one we are using
->  > from debianutils.
-> 
-> So how come it's never been a problem on my RH boxes?
-> (Currently RH9 + module-init-tools but none of Arjan's .rpms)
-> 
-> I basically do
-> make bzImage modules |& tee /tmp/log
-> grep Warning /tmp/log
-> su
-> make modules_install
-> make install
-> 
-> Creating the /lib/modules/<version> directory is the kernel's
-> job, not installkernel (it's never done that before).
 
-Yes, OK, so I have not checked =)  I just reacted on if
-installkernel form non RH misbehave or not.
-
-So what have you tried up to now ?  Does there even
-exist a /lib/modules/2.6.0-test5 ?  If so, is it an file/something
-else ?  What happens if you create it manually beforehand ?
-
-Else have a look at scripts/Makefile.modinst and maybe add
-a few @echo's.  I have not looked that closely at the build
-system yet.
+--aT9PWwzfKXlsBJM1
+Content-Type: multipart/mixed; boundary="i0/AhcQY5QxfSsSZ"
+Content-Disposition: inline
 
 
--- 
-Martin Schlemmer
+--i0/AhcQY5QxfSsSZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+As part of a LSM I am writing, I need to call a user-space program and
+check its return status.  I found the call_usermodehelper function and
+call it with the wait flag set, but I cannot get a non-zero return
+status of the program to propagate into the kernel.  If I try to run a
+non-existent program then call_usermodehelper returns -1, so at least
+some errors propagate properly.  I have attached a trivial LSM test
+program that hooks inode_rename, runs /bin/false and prints the return
+status of call_usermodehelper. =20
+
+This is with kernel 2.6.0-test5-mm3 compiled on an up to date Debian
+unstable.
+
+For simplicity I have also attached a patch to security/Makefile to
+build this test LSM as a kernel module.
+
+Before I break out UML or the kernel debugger, does anyone have any
+ideas what I am doing wrong?
+
+Thanks,
+  Omen
+
+--=20
+There is much Obi-Wan did not tell you.
+
+--i0/AhcQY5QxfSsSZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="Makefile.patch"
+Content-Transfer-Encoding: quoted-printable
+
+--- Makefile.orig       2003-09-19 12:18:20.000000000 -0400
++++ Makefile    2003-09-19 12:14:11.000000000 -0400
+@@ -18,3 +18,6 @@
+=20
+ obj-$(CONFIG_SECURITY_CAPABILITIES)    +=3D commoncap.o capability.o
+ obj-$(CONFIG_SECURITY_ROOTPLUG)                +=3D commoncap.o root_plug.o
++
++# Test modules
++obj-m +=3D test.o
+
+--i0/AhcQY5QxfSsSZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="test.c"
+
+#include <linux/config.h>
+#include <linux/kernel.h>
+#include <linux/security.h>
+#include <linux/stat.h>
+#include <linux/skbuff.h>
+#include <linux/netlink.h>
+#include <linux/ctype.h>
+#include <linux/file.h>
+#include <linux/spinlock.h>
+
+#include <linux/fs.h>
+#include <net/tcp.h>
+#include <linux/sched.h>
+#include <linux/string.h>
+#include <linux/vmalloc.h>
+#include <linux/dcache.h>
+#include <linux/list.h>
+#include <linux/namespace.h>
+#include <linux/writeback.h>
+#include <linux/quotaops.h>
+
+#if defined(CONFIG_SECURITY_enforcer_MODULE)
+#define MY_NAME THIS_MODULE->name
+#else
+#define MY_NAME "Test"
+#endif
+
+static int test_inode_rename (struct inode *inode, int mask)
+{
+   int status;
+   char *envp[] = {
+	  "HOME=/",
+	  "TERM=linux",
+	  "PATH=/usr/sbin:/sbin:/bin:/usr/bin",
+	  NULL };
+
+   char *argv[] = {
+	  "/bin/false",
+	  NULL };
+
+   printk(KERN_INFO "calling helper '%s'\n",
+		  argv[0]);
+
+   status = call_usermodehelper(argv[0], argv, envp, 1);
+
+   printk(KERN_INFO "helper returned = %d\n", status);
+
+   return 0;
+}
+
+static struct security_operations test_ops = {
+   .inode_rename = test_inode_rename,
+};
+
+static int __init test_init (void)
+{
+   /* register ourselves with the security framework */
+   if (register_security (&test_ops)) {
+	  printk (KERN_INFO "Failure registering " MY_NAME " module with the kernel\n");
+	  return -EINVAL;
+   }
+
+   printk (KERN_INFO MY_NAME " LSM initialized.\n");
+   return 0;
+}
+
+static void __exit test_exit (void)
+{
+   if (unregister_security (&test_ops))
+	  printk (KERN_INFO MY_NAME ": failure unregistering with the kernel.\n");
+}
 
 
+module_init (test_init);
+module_exit (test_exit);
+
+MODULE_AUTHOR("Omen Wild <Omen.Wild@Dartmouth.EDU>");
+MODULE_DESCRIPTION("Test Module");
+MODULE_LICENSE("GPL");
+
+--i0/AhcQY5QxfSsSZ--
+
+--aT9PWwzfKXlsBJM1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/ay226QDOrpNC/+sRAgiuAJ0UKrKKZll6aaeDSDcllcGFmcodOgCdHjrC
+2KdCDIBQDVWhQSGkLB5ltAc=
+=0s2i
+-----END PGP SIGNATURE-----
+
+--aT9PWwzfKXlsBJM1--

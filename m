@@ -1,90 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268677AbUHLTkD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268681AbUHLTs2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268677AbUHLTkD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 15:40:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268675AbUHLTkD
+	id S268681AbUHLTs2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 15:48:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268679AbUHLTs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 15:40:03 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:36085 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268677AbUHLTj6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 15:39:58 -0400
-Subject: Re: module.viomap support for ppc64
-From: Hollis Blanchard <hollisb@us.ibm.com>
-To: Olaf Hering <olh@suse.de>
-Cc: Dave Boutcher <boutcher@us.ibm.com>, linuxppc64-dev@lists.linuxppc.org,
-       linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
-In-Reply-To: <20040812173751.GA30564@suse.de>
-References: <20040812173751.GA30564@suse.de>
-Content-Type: text/plain
-Message-Id: <1092339278.19137.8.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 12 Aug 2004 14:34:38 -0500
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Aug 2004 15:48:28 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:44712 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S268675AbUHLTsY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 15:48:24 -0400
+Date: Thu, 12 Aug 2004 21:46:56 +0200 (CEST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alan Cox <alan@redhat.com>
+cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: IDE hackery: lock fixes and hotplug controller stuff
+In-Reply-To: <20040812185614.GC866@devserv.devel.redhat.com>
+Message-ID: <Pine.GSO.4.58.0408122122190.12534@mion.elka.pw.edu.pl>
+References: <20040810161911.GA10565@devserv.devel.redhat.com>
+ <200408101916.17489.bzolnier@elka.pw.edu.pl> <20040810182353.GA17364@devserv.devel.redhat.com>
+ <200408121912.35507.bzolnier@elka.pw.edu.pl> <20040812185614.GC866@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-12 at 12:37, Olaf Hering wrote:
-> Current MODULE_DEVICE_TABLE(vio, $table); defines 2 char pointers. I'm
-> not sure if depmod can really handle it. Where do they point to in the
-> module binary? I could find an answer, so far. I just declared an array.
 
-Olaf explained on irc that output_vio_entry() below was finding NULL for
-the name and compat pointers. Perhaps some additional relocation needs
-to take place before those can be used?
+On Thu, 12 Aug 2004, Alan Cox wrote:
 
-> diff -p -purN module-init-tools-3.0-pre10.orig/moduleops_core.c module-init-tools-3.0-pre10/moduleops_core.c
-> --- module-init-tools-3.0-pre10.orig/moduleops_core.c	2003-12-24 06:17:07.000000000 +0100
-> +++ module-init-tools-3.0-pre10/moduleops_core.c	2004-08-12 15:21:44.000000000 +0200
-> @@ -176,6 +176,10 @@ static void PERBIT(fetch_tables)(struct
->  	module->ccw_table = PERBIT(deref_sym)(module->data,
->  					"__mod_ccw_device_table");
-> 
-> +	module->vio_size = PERBIT(VIO_DEVICE_SIZE);
-> +	module->vio_table = PERBIT(deref_sym)(module->data,
-> +					"__mod_vio_device_table");
-> +
->  	module->ieee1394_size = PERBIT(IEEE1394_DEVICE_SIZE);
->  	module->ieee1394_table = PERBIT(deref_sym)(module->data,
->  					"__mod_ieee1394_device_table");
-> diff -p -purN module-init-tools-3.0-pre10.orig/tables.c module-init-tools-3.0-pre10/tables.c
-> --- module-init-tools-3.0-pre10.orig/tables.c	2003-12-24 06:23:38.000000000 +0100
-> +++ module-init-tools-3.0-pre10/tables.c	2004-08-12 19:19:01.708780583 +0200
-> @@ -127,7 +127,31 @@ void output_ieee1394_table(struct module
->  			output_ieee1394_entry(fw, shortname, out);
->  	}
->  }
-> +static void output_vio_entry(struct vio_device_id *fw, char *name, FILE *out)
-> +{
-> +	fprintf(out, "%-20s %-32s %s\n",
-> +		name, fw->name, fw->compat);
-> +}
-> 
-> +void output_vio_table(struct module *modules, FILE *out)
-> +{
-> +	struct module *i;
-> +
-> +	fprintf(out, "%-20s %-32s compatible\n", "# vio module", "name");
-> +
-> +	for (i = modules; i; i = i->next) {
-> +		struct vio_device_id *fw;
-> +		char shortname[strlen(i->pathname) + 1];
-> +
-> +		if (!i->vio_table)
-> +			continue;
-> +
-> +		make_shortname(shortname, i->pathname);
-> +		for (fw = i->vio_table; *fw->name;
-> +		     fw = (void *) fw + i->vio_size)
-> +			output_vio_entry(fw, shortname, out);
-> +	}
-> +}
-> 
->  /* We set driver_data to zero */
->  static void output_ccw_entry(struct ccw_device_id *ccw, char *name, FILE *out)
+> On Thu, Aug 12, 2004 at 07:12:35PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > It is a correct analysis for /proc/ide/hdx/settings:ide-scsi but not
+> > for /proc/ide/hdx/driver which works just fine (modulo being racy)
+> > and your patch removes both interfaces...
+>
+> I see no viable way to fix it, and I see nobody using it so it should
+> die. If someone does want to keep it then they can rewrite the ide layer
+> to make it work.
 
--- 
-Hollis Blanchard
-IBM Linux Technology Center
+"driver" interface _works_ (tested earlier today with 2.6.8-rc3-bk3)
+and how do you know that there are no users of it, from the magic ball?
 
+Also aren't you the one who has made "ide-scsi" interface non-functional
+by introducing ide_setting_sem, he? 8)
+
+http://lkml.org/lkml/2003/2/18/146
+
+I fully agree that both interfaces should be removed nowadays but this
+should be done with some (minimal) care...
+
+> I also have the it8212 working in smart but non raid now. Seems issuing an
+> LBA 48 cache flush (0xEF) crashes the firmware which is why it died on load
+> for some users.  To do that I've added hwif->raw_taskfile() so that an
+> interface can filter commands.
+
+Ouch, they should really fix this in the firmware.
+
+Bartlomiej

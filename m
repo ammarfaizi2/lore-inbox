@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271935AbRIDPTP>; Tue, 4 Sep 2001 11:19:15 -0400
+	id <S271836AbRIDP1E>; Tue, 4 Sep 2001 11:27:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271794AbRIDPTD>; Tue, 4 Sep 2001 11:19:03 -0400
-Received: from firewall.fesppr.br ([200.238.157.11]:1010 "EHLO smtp2.fesppr.br")
-	by vger.kernel.org with ESMTP id <S271767AbRIDPSy>;
-	Tue, 4 Sep 2001 11:18:54 -0400
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: H.323 and 2.4
-Message-ID: <999616751.3b94f0ef41ca8@webmail.fesppr.br>
-Date: Tue, 04 Sep 2001 12:19:11 -0300 (BRT)
-From: Alexandre Hautequest <hquest@fesppr.br>
+	id <S271794AbRIDP0y>; Tue, 4 Sep 2001 11:26:54 -0400
+Received: from [209.38.98.99] ([209.38.98.99]:52153 "EHLO srvr201.castmark.com")
+	by vger.kernel.org with ESMTP id <S271767AbRIDP0l>;
+	Tue, 4 Sep 2001 11:26:41 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Fred <fred@arkansaswebs.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, rastos@woctni.sk
+Subject: Re: Should I use Linux to develop driver for specialized ISA card?
+Date: Tue, 4 Sep 2001 10:26:40 -0500
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E15eHup-0003ir-00@the-village.bc.nu>
+In-Reply-To: <E15eHup-0003ir-00@the-village.bc.nu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-User-Agent: IMP/PHP IMAP webmail program 2.2.4
-X-Originating-IP: 172.16.40.2
-X-WebMail-Company: Fundacao de Estudos Sociais do Parana
+Message-Id: <01090410264000.14864@bits.linuxball>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+I'm  curious, Alan, Why? I'm a hardware developer, and I would have assumed 
+that linux would have been ideal for real time / embedded projects? (routers 
+/ controllers / etc.) Is there, for instance, a reason to suspect that linux 
+would not be able to respond to interrupts at say 8Khz?
+of course I know nothing of rtlinux so I'll read.
 
-The H.323 protocol, as many of you know, got some issues when used in a masq'ed
-env. The guys at http://www.coritel.it/coritel/ip/sofia/nat/nat2/nat2.htm have a
-2.2 module to solve this masq trouble.
+TIA
+Fred
 
-Anyone have any solution for 2.4?
 
-Please cc me, as i'm not on list.
-
-TIA.
---
-Alexandre Hautequest - hquest at fesppr.br
-Fundação de Estudos Sociais do Paraná - http://www.fesppr.br/
-Centro de Administração de Redes - CAR
-"Eu acreditava no sistema. Até que eles formataram minha família"
-
-Registered Linux User #116289 http://counter.li.org/
-
-"Ninguém é melhor do que todos nós juntos."
-Equipe Zeus Competições - www.gincaneiros-zeus.com.br
-
---
-Alexandre Hautequest - hquest at fesppr.br
-Fundação de Estudos Sociais do Paraná - http://www.fesppr.br/
-Centro de Administração de Redes - CAR
-"Eu acreditava no sistema. Até que eles formataram minha família"
-
-Registered Linux User #116289 http://counter.li.org/
-
-"Ninguém é melhor do que todos nós juntos."
-Equipe Zeus Competições - www.gincaneiros-zeus.com.br
-
---
-Alexandre Hautequest - hquest at fesppr.br
-Fundação de Estudos Sociais do Paraná - http://www.fesppr.br/
-Centro de Administração de Redes - CAR
-"Eu acreditava no sistema. Até que eles formataram minha família"
-
-Registered Linux User #116289 http://counter.li.org/
-
-"Ninguém é melhor do que todos nós juntos."
-Equipe Zeus Competições - www.gincaneiros-zeus.com.br
-
--------------------------------------------------
-Esta mensagem foi enviada pelo WebMail da FESP.
-Conheça a FESP: http://www.fesppr.br/
+ _________________________________________________ 
+On Tuesday 04 September 2001 10:15 am, Alan Cox wrote:
+> > The moving parts of the plotter are controlled by ISA card that generates
+> > (and responds to) interrupts on each movement or printing event.
+> > The interrupts can be generated quite fast; up to frequency of 4kHz.
+>
+> Thats fine. The issue you might need to consider is how long you can wait
+> between an irq and actually excuting the handler. If that is very tight
+> then you may want Victor Yodaiken's rtlinux
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

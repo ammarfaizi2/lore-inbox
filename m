@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270206AbTGWLni (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 07:43:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270210AbTGWLnh
+	id S270212AbTGWLli (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 07:41:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270210AbTGWLk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 07:43:37 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:64956 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S270206AbTGWLnD
+	Wed, 23 Jul 2003 07:40:26 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:2807 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S270206AbTGWLjP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 07:43:03 -0400
-Date: Wed, 23 Jul 2003 14:57:43 +0300
-From: Ville Herva <vherva@niksula.hut.fi>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, a.marsman@aYniK.com,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-pre7: are security issues solved?
-Message-ID: <20030723115742.GK150921@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	"David S. Miller" <davem@redhat.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>, a.marsman@aYniK.com,
-	alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0307212234390.3580-100000@localhost.localdomain> <E19fGMZ-0000Zm-00@gondolin.me.apana.org.au> <20030723033505.145db6b8.davem@redhat.com>
+	Wed, 23 Jul 2003 07:39:15 -0400
+Subject: Re: Promise SATA driver GPL'd
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Andre Hedrick <andre@linux-ide.org>,
+       "Adam J. Richter" <adam@yggdrasil.com>, andersen@codepoet.org,
+       jgarzik@pobox.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030723105146.GB26422@fs.tum.de>
+References: <200307230512.h6N5CXQ10468@adam.yggdrasil.com>
+	 <Pine.LNX.4.10.10307222219300.10927-100000@master.linux-ide.org>
+	 <20030723090847.GZ26422@fs.tum.de>
+	 <1058956149.5520.10.camel@dhcp22.swansea.linux.org.uk>
+	 <20030723105146.GB26422@fs.tum.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058960631.5520.22.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030723033505.145db6b8.davem@redhat.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 23 Jul 2003 12:43:52 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 23, 2003 at 03:35:05AM -0700, you [David S. Miller] wrote:
-> On Wed, 23 Jul 2003 19:56:47 +1000
-> Herbert Xu <herbert@gondor.apana.org.au> wrote:
-> 
-> > Aschwin Marsman <a.marsman@aynik.com> wrote:
-> > > 
-> > >> CAN-2003-0461: /proc/tty/driver/serial reveals the exact character counts
-> > >> for serial links. This could be used by a local attacker to infer password
-> > >> lengths and inter-keystroke timings during password entry.
-> > 
-> > What's the problem with exposing those counters?
-> 
-> If I know your password is 7 characters I have a smaller
-> space of passwords to search to just brute-force it.
+On Mer, 2003-07-23 at 11:51, Adrian Bunk wrote:
+> > v2 or later. The GPL only permits "any version" or "n or later".
 
-Further, if you monitor the /proc/tty/driver/serial character counts with
-small enough resolution, I guess you could learn the delays between
-individual key presses when the user enters his password. This can be used
-to further aid the brute force attack (delays between different key pairs
-have different average delays statistically, just as different characters
-have different frequencies in a given language. I think there is a paper on
-this, and someone suggested an attack like this for snooping ssh
-passwords.)
+> This implicitely says that if the version of the GPL is specified it's 
+> fixed.
 
+It says you may use "this or any later version" or you may not specify.
+It doesn't permit you to specify "this version alone". See the no
+additional restrictions clause
 
--- v --
-
-v@iki.fi

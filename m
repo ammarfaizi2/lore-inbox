@@ -1,69 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262389AbUFBQ1L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbUFBQd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262389AbUFBQ1L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 12:27:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUFBQ1L
+	id S261638AbUFBQd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 12:33:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263419AbUFBQd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 12:27:11 -0400
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:8578 "EHLO
-	websrv.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S263324AbUFBQ0b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 12:26:31 -0400
-Subject: Re: [PATCH] 5/5: Device-mapper: dm-zero
-From: Christophe Saout <christophe@saout.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Alasdair G Kergon <agk@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1086193026.4659.3.camel@leto.cs.pocnet.net>
-References: <20040602154605.GR6302@agk.surrey.redhat.com>
-	 <1086192141.4659.1.camel@leto.cs.pocnet.net>
-	 <20040602160905.GX28915@suse.de>
-	 <1086193026.4659.3.camel@leto.cs.pocnet.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-bFy3Lftz8gzaYdEHC1/z"
-Date: Wed, 02 Jun 2004 18:26:11 +0200
-Message-Id: <1086193571.4659.7.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.8 
+	Wed, 2 Jun 2004 12:33:56 -0400
+Received: from ebb.errno.com ([66.127.85.87]:10504 "EHLO ebb.errno.com")
+	by vger.kernel.org with ESMTP id S261638AbUFBQdy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 12:33:54 -0400
+From: Sam Leffler <sam@errno.com>
+Organization: Errno Consulting
+To: hostap@shmoo.com
+Subject: Re: Prism54 WPA Support - wpa_supplicant - Linux general wpa support
+Date: Wed, 2 Jun 2004 09:28:07 -0700
+User-Agent: KMail/1.6.1
+Cc: mcgrof@studorgs.rutgers.edu (Luis R. Rodriguez),
+       Netdev <netdev@oss.sgi.com>, prism54-devel@prism54.org,
+       Jean Tourrilhes <jt@bougret.hpl.hp.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+References: <20040602071449.GJ10723@ruslug.rutgers.edu>
+In-Reply-To: <20040602071449.GJ10723@ruslug.rutgers.edu>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406020928.07513.sam@errno.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 02 June 2004 12:14 am, Luis R. Rodriguez wrote:
+> So WPA is now a priority for prism54 development. Here's where we're at.
+> Long ago in January Jouni had added some wpa supplicant support into
+> prism54. It's not until today when I started looking into
+> wpa_supplicant.
+>
+> I'm glad wpa_supplicant exists :). Interacting with it *is* our missing
+> link to getting full WPA support (great job Jouni). In wpa_supplicant
+> cvs I see a base code for driver_prism54.c (empty routines, just providing
+> skeleton). Well I'll be diving in it now and see where I can get. If anyone
+> else is interested in helping with WPA support for prism54, working with
+> wpa_supplicant is the way to go.
+>
+> I'm curious though -- wpa_supplicant is pretty much userspace. This was
+> done with good intentions from what I read but before we get dirty
+> with wpa_supplicant I'm wondering if we should just integrate a lot of
+> wpa_supplicant into kernel space (specifically wireless tools).
+> Regardless, as Jouni points out, there is still a framework for WPA that
+> needs to be written for all linux wireless drivers, whether it's to assist
+> wpa_supplicant framework or to integrate wpa_supplicant into kernel space.
+>
+> What's the plan?
 
---=-bFy3Lftz8gzaYdEHC1/z
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I think wpa_supplicant takes the right approach (i.e. putting the majority of 
+the code in user space).  The supplicant is not performance intensive and 
+there's little justification for it going in the kernel on other grounds 
+(like security).  I've had madwifi working with wpa_supplicant for quite a 
+while and have also done a rough port of wpa_supplicant to the bsd world too 
+so it's design is proven (and in general I think it's excellent work).
 
-Am Mi, den 02.06.2004 um 18:17 Uhr +0200 schrieb Christophe Saout:
+I'd second Jouni's comments about moving the wireless extensions support 
+forward.  Aside from WPA there are a few private mechanisms required for 
+multi-mode devices that should be handled through a standard API.
 
-> What does this & PAGE_MASK do? This looks wrong too.
-
-Sorry, please forget this.
-
-
---- linux.orig/drivers/md/dm-zero.c  2004-06-02 18:24:38.231186664 +0200
-+++ linux/drivers/ms/dm-zero.c	     2004-06-02 18:24:55.645539280 +0200
-@@ -35,7 +35,8 @@
-	bio_for_each_segment(bv, bio, i) {
-		char *data =3D bvec_kmap_irq(bv, &flags);
-		memset(data, 0, bv->bv_len);
-- 		bvec_kunmap_irq(bv, &flags);
-+ 		flush_dcache_page(bv->bv_page);
-+ 		bvec_kunmap_irq(data, &flags);
-  	}
-  }
-=20
-
-
---=-bFy3Lftz8gzaYdEHC1/z
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAvf+jZCYBcts5dM0RArt+AJ4+t/W+mmHUcSWwfDyGkgtvrA+h9QCeIGHg
-blDOWUh+3iK65p8SyEYxc+I=
-=Ep30
------END PGP SIGNATURE-----
-
---=-bFy3Lftz8gzaYdEHC1/z--
-
+	Sam

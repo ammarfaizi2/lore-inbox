@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263443AbRFOKgJ>; Fri, 15 Jun 2001 06:36:09 -0400
+	id <S264000AbRFOLEQ>; Fri, 15 Jun 2001 07:04:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263986AbRFOKf6>; Fri, 15 Jun 2001 06:35:58 -0400
-Received: from shell.ca.us.webchat.org ([216.152.64.152]:9090 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S263443AbRFOKfo>; Fri, 15 Jun 2001 06:35:44 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: <root@chaos.analogic.com>, "Roger Larsson" <roger.larsson@norran.net>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: SMP spin-locks
-Date: Fri, 15 Jun 2001 03:35:21 -0700
-Message-ID: <NCBBLIEPOCNJOAEKBEAKGEDMPOAA.davids@webmaster.com>
+	id <S264341AbRFOLEF>; Fri, 15 Jun 2001 07:04:05 -0400
+Received: from kaiser.cip.physik.uni-muenchen.de ([141.84.136.1]:58632 "EHLO
+	kaiser.cip.physik.uni-muenchen.de") by vger.kernel.org with ESMTP
+	id <S264000AbRFOLDv>; Fri, 15 Jun 2001 07:03:51 -0400
+Date: Fri, 15 Jun 2001 13:03:36 +0200 (CEST)
+From: "Andreas K. Huettel" <Andreas.Huettel@Physik.Uni-Muenchen.DE>
+Reply-To: "Andreas K. Huettel" <andreas@akhuettel.de>
+To: linux-kernel@vger.kernel.org
+cc: alan@lxorguk.ukuu.org.uk
+Subject: 2.4.5-ac14: clock timer problem NOT resolved. 
+Message-ID: <Pine.LNX.4.21.0106151124360.1118-100000@ankogel.cip.physik.uni-muenchen.de>
+X-Information: My public GPG key can be obtained at http://www.akhuettel.de/
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.3.95.1010614223154.20486A-100000@chaos.analogic.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Spinlocks are machine dependent. A simple increment of a byte
-> memory variable, spinning if it's not 1 will do fine. Decrementing
-> this variable will release the lock. A `lock` prefix is not necessary
-                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> because  all Intel byte operations are atomic anyway. This assumes
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> that the lock was initialized to 0. It doesn't have to be. It
-> could be initialized to 0xaa (anything) and spin if it's not
-> 0xab (or anything + 1).
 
-	If this is true, atomicity isn't enough to do it. Atomicity means that
-there's a single instruction (and so it can't be interrupted mid-modify).
-Atomicity (at least as the term is normally used) doesn't prevent the
-cache-coherency logic from ping-ponging the memory location between two
-processor's caches during the atomic operation.
+Sorry to disappoint you. Still the VIA "clock timer configuration lost"
+error message on ASUS board, ca every 1 - 5 minutes.
 
-	DS
+Either the messages are still bogus or the asus board is buggy too. 
+
+best regards, Andreas
+
+- ---------------------------------------------------------------------
+Andreas K. Huettel          andreas@akhuettel.de
+81627 Muenchen              huettel@qubit.org
+Germany                     http://www.akhuettel.de/
+- ---------------------------------------------------------------------  
+Please use GNUPG or PGP for signed and encrypted email. My public key 
+can be found at http://www.akhuettel.de/pgp_key.html
+- ---------------------------------------------------------------------  
+
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7KeuOL+gLs3iH94cRAucUAJwOifa0utbVMMCQ2LNV3st9TczcbgCeIqVZ
+4MFY3mbYxCFiicvG86tBL10=
+=imZh
+-----END PGP SIGNATURE-----
+
 

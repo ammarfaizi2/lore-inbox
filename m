@@ -1,71 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271032AbTHSQDH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 12:03:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270995AbTHSQDG
+	id S270859AbTHSQBu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 12:01:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270858AbTHSQBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 12:03:06 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:62480 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S270810AbTHSQC7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 12:02:59 -0400
-Date: Tue, 19 Aug 2003 11:53:29 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Willy Tarreau <willy@w.ods.org>
-cc: Richard Underwood <richard@aspectgroup.co.uk>,
-       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "'David S. Miller'" <davem@redhat.com>,
-       Stephan von Krawczynski <skraw@ithnet.com>, carlosev@newipnet.com,
-       lamont@scriptkiddie.org, bloemsaa@xs4all.nl,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-In-Reply-To: <20030819145403.GA3407@alpha.home.local>
-Message-ID: <Pine.LNX.3.96.1030819114722.6826F-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 19 Aug 2003 12:01:50 -0400
+Received: from fw.osdl.org ([65.172.181.6]:32429 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270859AbTHSQAy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 12:00:54 -0400
+Date: Tue, 19 Aug 2003 08:56:52 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Install new kernel without reboots.
+Message-Id: <20030819085652.3b157f56.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.51.0308191729290.27171@dns.toxicfilms.tv>
+References: <Pine.LNX.4.51.0308191729290.27171@dns.toxicfilms.tv>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Aug 2003, Willy Tarreau wrote:
+On Tue, 19 Aug 2003 17:30:52 +0200 (CEST) Maciej Soltysiak <solt@dns.toxicfilms.tv> wrote:
 
-> Hello,
-> 
-> On Tue, Aug 19, 2003 at 03:34:43PM +0100, Richard Underwood wrote:
+| Hi,
+| 
+| I have heard it is possible to change the kernel without reboots.
+| And I am not talking about UML.
+| 
+| Is it true? I could not find any documents on the web.
 
-> > 	Now, since 172.24.0.80 is a Linux box, it's happily adding
-> > 172.20.240.2 into its ARP table and reply to it, hence the reply.
-> > 
-> > 	But if I was to do this in the other direction (arp -d 172.20.240.1;
-> > ping -I 172.24.0.1 172.20.240.1) then I'd lose connectivity over my default
-> > route because 172.20.240.1 won't accept ARP packets from IP numbers not on
-> > the connected subnet. The <incomplete> ARP entry will block any further ARP
-> > requests from valid IP numbers.
-> 
-> This is exactly the case I calmly discussed privately with David then Alexey.
-> Both explained me that in fact, the remote host shouldn't be filtering the ARP
-> requests based on the source IP they provide, but agreed that it seems to be a
-> general trend today. Alexey proposed a slight change which can at least solve
-> this very common case by preventing the system from using the local address as
-> a source IP if it is not on the interface through which the request is sent.
-> 
-> Obviously it will not solve all very special cases, which people can work
-> around with arptables, but it will solve this common one.
+Eric Biederman has been working on 'kexec', which is a fast
+reboot (Linux boots Linux).  See
+  http://www.xmission.com/~ebiederm/files/kexec/
+and
+  http://developer.osdl.org/%7Eandyp/kexec/
+for some 2.5.[67]x versions.  I'm trying to update it to
+2.6.0-test3 and make it reboot successfully on my dual P4
+machine.  Currently it hangs during the reboot.
 
-I wonder if a change to add a flag preventing *any* packet from being sent
-on a NIC which doesn't have the proper source address would be politically
-acceptable. I did that type of patch for 2.4.16 to prevent killing
-routers by having the MAC change for an IP. It will hurt performance on at
-least some routers, and the patch eliminated the problem.
-
-I later changed to using source routing, since the number of IPs was
-modest and didn't change, but I am still fighting the issue in a test
-environment, where the number of IPs is high and I can't just grab a range
-in some cases.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+--
+~Randy
+"Everything is relative."

@@ -1,130 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135172AbRDZGwI>; Thu, 26 Apr 2001 02:52:08 -0400
+	id <S133120AbRDZG5S>; Thu, 26 Apr 2001 02:57:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135170AbRDZGvt>; Thu, 26 Apr 2001 02:51:49 -0400
-Received: from wb3-a.mail.utexas.edu ([128.83.126.138]:59910 "HELO
-	mail.utexas.edu") by vger.kernel.org with SMTP id <S133120AbRDZGvo>;
-	Thu, 26 Apr 2001 02:51:44 -0400
-Message-ID: <3AE71CE9.3A164F75@mail.utexas.edu>
-Date: Thu, 26 Apr 2001 00:52:25 +0600
-From: "Bobby D. Bryant" <bdbryant@mail.utexas.edu>
-Organization: (I do not speak for) The University of Texas at Austin (nor they for 
- me).
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-ac9 i686)
-X-Accept-Language: en,fr,de
+	id <S135170AbRDZG5I>; Thu, 26 Apr 2001 02:57:08 -0400
+Received: from eising.k-net.dtu.dk ([130.225.71.229]:12780 "EHLO
+	eising.k-net.dk") by vger.kernel.org with ESMTP id <S133120AbRDZG5B>;
+	Thu, 26 Apr 2001 02:57:01 -0400
+From: "Allan Frank" <allan@ostenfeld.dk>
+To: <linux-kernel@vger.kernel.org>
+Subject: alpha stack problem: resource.h
+Date: Thu, 26 Apr 2001 08:59:12 +0200
+Message-ID: <IIEKLBDNKAPNMMEJLDAGEECPCGAA.allan@ostenfeld.dk>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: Athlon-optimized 2.4.4pre7 still won't boot.
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an Athlon + VIA system that would never boot an Athlon-optimized
-2.4.3[-ac*], and just FYI, it will not boot an Athlon-optimized
-2.4.4pre7 either.
+Hi
 
-It does compile without errors, and an otherwise identical i686 kernel
-boots and appears to run fine.
+Yesterday I installed 2.2.19 one of out alpha servers and I found that it
+still has the same bug that we patched 2.2.14 to get rid of. In the 2.4 line
+it seems to be fixed.
+The bug has the affect that a unprev. user cannot increase the stack limit
+even if he/she is allowed to.
 
-With the Athlon kernel I get a flood of boot-time error messages that
-streams off the screen, so I do not know exactly what the trigger is; it
-ultimately hangs without completing the boot.
+This mailing list item fom Jun 12 2000 describes the problem:
 
-I have tried a couple of times with different compilers, and I notice
-that sometimes it gets past the point of mounting the disks, and other
-times it does not get that far.
+http://www.uwsg.iu.edu/hypermail/linux/alpha/0006.1/0003.html
 
-The tail of the message on my most recent try is:
+<snippit from page>
 
-    Kernel panic: Aiee, killing interrupt handler!
-    In interrupt handler - not syncing
+It is because wrong value in the
+/usr/src/linux/include/asm-alpha/resource.h
 
-The most basic poop follows.  If this is news, I'll be happy to provide
-however much more detail you require.
+The INIT_RLIMITS defined the RLIMIT_STACK as
 
-Thanks,
-
-Bobby Bryant
-Austin, Texas
+{_STK_LIM, _STK_LIM}
 
 
-% cat /proc/cpuinfo
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 4
-model name      : AMD Athlon(tm) Processor
-stepping        : 2
-cpu MHz         : 1202.732
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca
-cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
-bogomips        : 2398.61
+The latter defines hard limit of the stack.
+When I pointed the problem, only Intel and PPC people corrected it.
+You should change the value as
 
-% cat /proc/pci
-PCI devices found:
-  Bus  0, device   0, function  0:
-    Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev
-3).
-      Master Capable.  Latency=8.
-      Prefetchable 32 bit memory at 0xd0000000 [0xd3ffffff].
-  Bus  0, device   1, function  0:
-    PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
-(rev 0).
-      Master Capable.  No bursts.  Min Gnt=4.
-  Bus  0, device   7, function  0:
-    ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South]
-(rev 64).
-  Bus  0, device   7, function  1:
-    IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 6).
-      Master Capable.  Latency=32.
-      I/O at 0xe000 [0xe00f].
-  Bus  0, device   7, function  2:
-    USB Controller: VIA Technologies, Inc. UHCI USB (rev 22).
-      IRQ 9.
-      Master Capable.  Latency=32.
-      I/O at 0xe400 [0xe41f].
-  Bus  0, device   7, function  4:
-    Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev
-64).
-  Bus  0, device   8, function  0:
-    VGA compatible controller: Matrox Graphics, Inc. MGA 2064W
-[Millennium] (rev 1).
-      IRQ 10.
-      Non-prefetchable 32 bit memory at 0xd4000000 [0xd4003fff].
-      Prefetchable 32 bit memory at 0xd5000000 [0xd57fffff].
-  Bus  0, device  12, function  0:
-    Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev
-16).
-      IRQ 11.
-      Master Capable.  Latency=32.  Min Gnt=32.Max Lat=64.
-      I/O at 0xec00 [0xecff].
-      Non-prefetchable 32 bit memory at 0xd7000000 [0xd70000ff].
+{_STK_LIM, LONG_MAX}
 
-% gcc -v
-Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
-gcc version 2.96 20000731 (Red Hat Linux 7.0)
- =
-% rpm -q gcc
-gcc-2.96-71
+and recompile your kernel.
+It will resolve your problem.
 
-(That's from a Red Hat "Rawhide" RPM of a few weeks back.)
+</snippit from page>
 
-Also, the "kgcc" hack gives the same result:
+I can report that is does resolve the problem here. Is this a bug or is the
+kernel supposed to work that way?
 
-%  kgcc -v
-Reading specs from
-/usr/lib/gcc-lib/i386-glibc21-linux/egcs-2.91.66/specs
-gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
 
+/Allan
+Outlook stinks.
 

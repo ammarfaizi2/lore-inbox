@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262754AbVBYRPB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262758AbVBYRPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262754AbVBYRPB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 12:15:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbVBYRPA
+	id S262758AbVBYRPX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 12:15:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbVBYRPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 12:15:00 -0500
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:37336 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S262754AbVBYRND (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 12:13:03 -0500
-Date: Fri, 25 Feb 2005 18:12:12 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Mark Fortescue <mark@mtfhpc.demon.co.uk>
-cc: davem@davemloft.net, kuznet@ms2.inr.ac.ru, pekkas@netcore.fi,
-       jmorris@redhat.com, yoshfuji@linux-ipv6.org, kaber@coreworks.de,
-       netdev@oss.sgi.com, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.6.8.1 to linux-2.6.10: Kernel Patching Issues.
-In-Reply-To: <Pine.LNX.4.10.10502251550520.26208-100000@mtfhpc.demon.co.uk>
-Message-ID: <Pine.LNX.4.53.0502251805280.1039@gockel.physik3.uni-rostock.de>
-References: <Pine.LNX.4.10.10502251550520.26208-100000@mtfhpc.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 25 Feb 2005 12:15:23 -0500
+Received: from fire.osdl.org ([65.172.181.4]:32435 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262755AbVBYRNQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 12:13:16 -0500
+Subject: Re: [PATCH] Fix panic in 2.6 with bounced bio and dm
+From: Mark Haverkamp <markh@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1109351021.5014.10.camel@markh1.pdx.osdl.net>
+References: <1109351021.5014.10.camel@markh1.pdx.osdl.net>
+Content-Type: text/plain
+Date: Fri, 25 Feb 2005 09:13:12 -0800
+Message-Id: <1109351592.5014.13.camel@markh1.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Feb 2005, Mark Fortescue wrote:
-
-> The kernel patch files patch-2.6.9 and patch-2.6.10 do not apear to be
-> correct. I had some errors during patching so I generated a diff against a
-> freshly downloaded linux-2.6.10 kernel. See the steps below:
+On Fri, 2005-02-25 at 09:03 -0800, Mark Haverkamp wrote:
+> Last September a fix was checked in for a memory leak problem in
+> bounce_end_io causing the entire bio to be checked.  This ended up
+> causing some dm cloned bios that had bounce buffers to free NULL pages
+> because their bi_idx can be non-zero.   This patch skips NULL pages in
+> the bio's bio_vec.  I'm not sure if this is the most optimal fix but I
+> think that it is safe since bvec_alloc memsets the bio_vec to zero.
 > 
-> 1) bzcat linux-2.6.8.1.tar.bz2 | tar -xf -
-> 2) cd linux-2.6.8.1
-> 3) bzcat ../patch-2.6.8.1.bz2 | patch -R -p1
-> 	This gives a 2.6.8 kernel.
-> 
-> 4) bzcat ../patch-2.6.9.bz2 | patch -p1
-> 	This should give a 2.6.9 kernel. The patch has two errors:
-> 		./net/ipv4/netfilter/ipt_ecn.c.rej
-> 		./net/ipv4/netfilter/ipt_tcpmss.c.rej
-> 
-> 5) bzcat ../patch-2.6.10.bz2 | patch -p1 -f
-> 	This should give a 2.6.10 kernel. The patch has three erros:
-> 		./include/linux/netfilter_ipv4/ipt_connmark.h.rej
-> 		./net/ipv4/netfilter/ipt_connmark.c.rej
-> 		./net/ipv6/netfilter/ip6t_MARK.c.rej
-> 6) cd ..; mv linux-2.6.8.1 linux-2.6.10p
-> 7) bzcat linux-2.6.10.tar.bz2 | tar -xf -
-> 8) diff -rupN linux-2.6.10p linux-2.6.10 | tee patch-2.6.10.err
+> Mark.
 
-Yes, these steps should work. Actually, I just checked (copy & paste the
-commands from your mail), and it works for me.
+I forgot a signed-off-by
 
-Are you sure your files are ok? md5sums for my copies of the files are
+Signed-off-by Mark Haverkamp <markh@osdl.org>
 
-cffcd2919d9c8ef793ce1ac07a440eda  linux-2.6.10.tar.bz2
-98f93075c7c24e681eaf7e70783af5e4  linux-2.6.8.1.tar.gz
-98b7db13a3f13199a48e89a79d2ee388  patch-2.6.10.bz2
-824b7d88ab2fabc031f1a6c1e6e288ee  patch-2.6.8.1.bz2
-fe744cdcd31b97b803e51ad785520489  patch-2.6.9.bz2
 
-Are you sure your filesystem works ok? Not out of quota?
+===== mm/highmem.c 1.55 vs edited =====
+--- 1.55/mm/highmem.c	2005-01-07 21:44:13 -08:00
++++ edited/mm/highmem.c	2005-02-25 07:54:21 -08:00
+@@ -319,7 +319,7 @@
+ 	 */
+ 	__bio_for_each_segment(bvec, bio, i, 0) {
+ 		org_vec = bio_orig->bi_io_vec + i;
+-		if (bvec->bv_page == org_vec->bv_page)
++		if (!bvec->bv_page || bvec->bv_page == org_vec->bv_page)
+ 			continue;
+ 
+ 		mempool_free(bvec->bv_page, pool);	
 
-Tim
+-- 
+Mark Haverkamp <markh@osdl.org>
+

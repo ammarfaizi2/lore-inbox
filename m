@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262692AbTCPRCR>; Sun, 16 Mar 2003 12:02:17 -0500
+	id <S262695AbTCPRRS>; Sun, 16 Mar 2003 12:17:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262693AbTCPRCR>; Sun, 16 Mar 2003 12:02:17 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:45319 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S262692AbTCPRCR>; Sun, 16 Mar 2003 12:02:17 -0500
-Message-ID: <3E74B108.1010605@aitel.hist.no>
-Date: Sun, 16 Mar 2003 18:14:48 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: Maxime <x@organigramme.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: make bzImage fails when LANG set
-References: <3E74AC1C.8010901@organigramme.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262699AbTCPRRS>; Sun, 16 Mar 2003 12:17:18 -0500
+Received: from mail.skjellin.no ([80.239.42.67]:44726 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id <S262695AbTCPRRR>;
+	Sun, 16 Mar 2003 12:17:17 -0500
+Subject: Re: problems with DFE-580TX (sundance) in 2.4.20
+From: Andre Tomt <andre@tomt.net>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1047743481.7202.29.camel@slurv.ws.tomt.net>
+References: <1047743481.7202.29.camel@slurv.ws.tomt.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: 
+Message-Id: <1047835672.6970.12.camel@slurv.ws.tomt.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2- 
+Date: 16 Mar 2003 18:27:53 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maxime wrote:
+On Sat, 2003-03-15 at 16:51, Andre Tomt wrote: 
+> Hi,
+> 
+> I recently got hold of a D-Link DFE-580TX 4 port Server Adapter for
+> testing, but we're having serious issues with it. It is a card with a
+> Intel PCI-to-PCI bridge on it, having 4 sundance chips on their "own"
+> bus.
 
-> Notice it is in french.  I search on the web for similar problem, and 
-> find a few examples, all in foreing language.  Nobody seemed to know how 
-> to solve this.  I then remembered I added these lines to my /etc/profile:
-> 
-> export LANG=fr
-> export LC_ALL=fr_CA
-> 
-> By removing them, the kernel compiled just fine.  Stange bug!
-> 
-Strange indeed. I never had any problems compiling with LANG=no_NO
-I don't set LC_ALL though.
+Seems like we solved it, maybe I should read the warnings on MMIO access
+to the NIC registers in the kernel configuration next time - I'm a bit 
+ashamed now :-)
 
-Helge Hafting
+I have no possibility to try other hardware setups and coldboots until
+monday, but so far it seems to be working, over about 5 warm boots in
+the Intel setup.
+
+-- 
+Mvh,
+André Tomt
+andre@tomt.net
 

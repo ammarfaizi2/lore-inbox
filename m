@@ -1,486 +1,925 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314420AbSEXP0g>; Fri, 24 May 2002 11:26:36 -0400
+	id <S314444AbSEXP3n>; Fri, 24 May 2002 11:29:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317144AbSEXP0f>; Fri, 24 May 2002 11:26:35 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:49935 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314420AbSEXP00>; Fri, 24 May 2002 11:26:26 -0400
-Message-ID: <3CEE4CC5.3020004@evision-ventures.com>
-Date: Fri, 24 May 2002 16:23:01 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.17 IDE 70
-In-Reply-To: <Pine.LNX.4.44.0205202211040.949-100000@home.transmeta.com>
-Content-Type: multipart/mixed;
- boundary="------------070205040508010506060302"
+	id <S317152AbSEXP3m>; Fri, 24 May 2002 11:29:42 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:52147 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S314444AbSEXP3b>;
+	Fri, 24 May 2002 11:29:31 -0400
+Date: Fri, 24 May 2002 17:29:10 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Vojtech Pavlik <vojtech@suse.cz>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] New driver for Artop [Acard] controllers.
+Message-ID: <20020524172910.A17984@ucw.cz>
+In-Reply-To: <Pine.SOL.4.30.0205241620440.16894-100000@mion.elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="5mCyUwZo2JvN/JJP"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070205040508010506060302
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Sh*t I did forget to adjust the topic line. So here it is again just
-for reassurance.
+--5mCyUwZo2JvN/JJP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thu May 23 14:37:50 CEST 2002 ide-clean-70
+On Fri, May 24, 2002 at 04:29:39PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> Hi!
+> 
+> I have a very quick look over patch/driver... looks quite ok...
+> 
+> But it doesn't support multiple controllers. We should add 'unsigned
+> long private' to 'ata_channel struct' and store index in the chipset
+> table there.
+> You can remove duplicate entries from module data table.
+> 
+> BTW: please don't touch pdc202xx.c I am playing with it...
 
-- Apply host chip driver cleanups by Bartomiej Zonierkiewicz.
+Here is a new patch. Martin: This one should be OK for inclusion now.
+Bartlomiej: Please check it anyway.
 
-- Take the draft device type driver implementation from Adam Richter and make
-    it actually work with some of the drivers we have at hand. Quite a lot
-    of it was fixed by me as well to have the desired effects.
+-- 
+Vojtech Pavlik
+SuSE Labs
 
-    We have added a attach method for the sub device type drivers to make it
-    possible dor sub device type drivers to attach devices to the overall
-    infrastructure. UNIX has something like this SCSI code is implementing
-    something like this, just for some unknown reasons Linux block device
-    operations don't have it...
+--5mCyUwZo2JvN/JJP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="artop2.diff"
 
-- ide_drive_t is finally gone. Please use struct ata_device instead.
+ChangeSet@1.659, 2002-05-24 17:27:41+02:00, vojtech@twilight.ucw.cz
+  Cleanup whitespace.
 
-    Hint the ide.h specific byte type should go over time as well, sine there
-    is no need to invent something already handled by the kernel. Please use
-    the unambigious u8 type instead where possible.
+ChangeSet@1.658, 2002-05-24 17:24:54+02:00, vojtech@twilight.ucw.cz
+  Remove superfluous chip entries in chip table.
+  Remove global variables to allow more than one controller.
+  Remove other forgotten stuff.
 
-- Add a bit of documentation about cabling issues. ide.txt needs a lot of
-    improvement at some time still.
-
-Well the fact that this is collecting many bits from different people
-again makes this patch unfortunately rather big.  I compress it
-therefore, since sending the patches to lkml turned out the be sucsessfull
-in attracting more people to the overall effort.
-
-Once again I would like to express my many thanks to all of them who are
-involved!.
+ChangeSet@1.657, 2002-05-24 15:34:29+02:00, vojtech@twilight.ucw.cz
+  This is a new driver for the Artop (Acard) controllers. It's completely
+  untested, as I have never seen the hardware. However, I suspect it is
+  much less broken than the previous one ...
 
 
---------------070205040508010506060302
-Content-Type: application/x-gzip;
- name="ide-clean-70.diff.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="ide-clean-70.diff.gz"
+ Config.help |   25 --
+ Config.in   |    5 
+ aec62xx.c   |  676 ++++++++++++++++--------------------------------------------
+ 3 files changed, 190 insertions(+), 516 deletions(-)
 
-H4sICPNC7jwAA2lkZS1jbGVhbi03MC5kaWZmANQ8a3fjNq6f5V/BSe9JndhO9PA7TbaZPKY5
-m0mySWY6Pd1eHVmWY93YkkeS82ib/vYLgJSspy1Ppt1tzoxlkyAIgCAIgKSG9mjEGnPvgk1s
-Z/7UUHdaO0pn1/DM8a7p2f7u0LMfLM/ftYfWjsmBimorjUajFBpJlWW1IbcaqsLkTh/+ac0d
-OfxjNRnqK7VabXl3CyxNJmt9rdNX2hks33/PGkpPrXdYjT++/77CvhlaI9ux2OHtoX51dinr
-P1yeHzP4a1ZYhfmBEdgms52AWYos68OpMfNcswqd4nfdMAPbdfSAjeaOWQdwb24GzAgMfWg9
-2KbFtonMqMazPs8tP2Db3uetvUpDoH9w7SHHD3gRP6MO8H+qA+oXMUKJQF2prY2lkMwKkySJ
-cUzbg/loZHl1Nnd8+86xhiSFieXcBWOgHYSzu00iVeU2ipQ/UKQSItk4ury4OLlmR7e3XRiC
-xuFGXdRcfDg/f0EECfaDuWPpIfXVHD7Z4Dmw2Mx2t5IcJxsWj8CiOfsNKIm4mrjOHRtNjDsf
-aJKII60rI0f8gRyxbWY9BZ7BkRiTiWsaAbQduR4LxhbjotpBwN1IaZC6SoMoA3Jmtu5ZxjCX
-syXyxg5Nd+4EwHUaVTGv5RCSHEhFXM+6A3qGiAq+sn12dnyiH+OcuD55h2OFYmm2eigW/kCx
-vMSmSIbbR88O8gdyfXY5rr+QX64HrSZpNn8IPbgd2z6Df3NfjP/UhfkMloOwMVASxwcqfLY9
-8tzpNqkHIEdaLG9kmFZWSZiQG5HmzOaBTqjWld1jQnBpZF8kvMe45NLqF84r0ZDDsu++Yyqa
-hxcuwVaLJEiPtSUYuKXkFxOfOw++ovwS2L6qALlCl5Fgu62gBPmDrKtnBXPPYcqetLsN9jgg
-EaH4PKAXljKfjQ1nOLGgHKT8aNneEAp9ktpLzOwifabrjOw7ISUYC1zU8gS3sLnFrYoExLkP
-/6AtjLY5Njy2vT2x/WBvUScwjIccNUoV/u8z+tU4sId7lWG+j3LsmvOp5SCJrkMuQfAUCJch
-ty7rn+SC5Xgn6hLvZAUOjalKX5X7SjfXN9E69R6sOp26ykd6e3ubPhj74FvMHdFAb/iWZxsT
-+1drg7kz7AfnkuPSOmZ5zLFMGGzDe97BoQ7nGraczieBPZukphMXLmif4TPrwZ084KQEywWj
-sGPuMHYWMH8+m7le4Fca8xkLXNZLYvDZDPoFN8qADuoMCHLBn6J57UFn1//yWXXuz2HVfGZK
-k20ypbW1g6RZUG0aDhtYjCMOHl1ODkcZ9UDEYQmyAUa60Wb+zDJ3KrX9r/xXqR250ymwMLOD
-EVDs9yu1Sq3BmnIDFHcI2gl8IfemMZgAmQaxMMMfNEDCdtngUpDVsB12/P4QJDEEYGKyUmNs
-DvNFxXkf4MCNDD9A54E6Ohuxmev7NiLks8hn/tidT4YoJiMIDHMMIwTC8q2Z4YEXgnPJcawJ
-jDNpyDMShb0YD4Y9Qcp22O3zzDZpAFCCQ9u/x2HC7yPbg+kI9oIdHTeuL9+H5b6F/C6Ienbn
-bGo/RTSFYMbU4rKoM1AtA/QUJzhovgf2HcXg21OgwgsbImEgFM/CAQxCpU4YfpIW50RoniDj
-5MFCZQkC1ARvTkIAk3RPqhMSAzBDGCPkSFih4HlmxelFEohkQvv1NahSe/2sQyyxmcdeO/Eq
-tWjmMfY1Zh44fleePQU700fLDQMugwYArUx+UkbyHpsa/+d6+9oeA5YMFMbUdqAAasbDweJ3
-G8KsG9I1jgoQKQtEnQiRqmJDM4VomEBUsDbEAsVdwzLb6tNTFL3m1mXXhlywuF1X5L6s9JtZ
-u75YG1bjaPZbvb6aXV/IDZBpWajhM4yyLAe1eGAHfp/9xn6Tn2S5Hn281KV0CXuhEGzgugE2
-7LPL01P97eXh9TGVUwzUp0D4VAftYb+L72DBKg0JGjek3+C/xKdYn10dnekfTy6OL6/1s2P9
-8Pr28gphJD7veP3xycezo5OoXj+8veq2WwRmO3agm2N75ltBnwmR6PFSAgPT0G5DiWXeL6Bi
-hXFcZAgzuKiUwL5EYo24xC5OPp5chzJrLJHZxeUhGv4/T4TX/zUybBooLJU+uAx5SZM+sjKM
-ad0yCUYiq0ngtVLCgJxPnUhiRJcgsooe+Fap+T8ddppF8z+sWzH/Q7DXzP8sDspbqc08HJRk
-UdvoHPKHCKQGz2C90ThPjGfAHKYfEg4+9KSDFnCHOjciiuIV8snBulvDpLefRFEcBuUiYqju
-iW6h3Fv49EKzGgdi9amx6h+iaujgigWRUE3K6XR9NCyOJgC3BLwTWDZnWIN83tbZh9sw16G2
-NUpq0UPIG2KshuugEzV3oHFG3hQHiqHVKS1VVurZrFYOmiWS78YSW+AFVt9UqzhqfKoO2cFB
-Rk7AQbBFgtlC289jysLwKq67RxT87YATl9XrqG75FIrAcqZQq+QUysHBU7+9vtzLT/1qSl1R
-WQ2fYkzpDyzThH0Lkc67i8vrE/boesOexj5CjDWkOI69Pbu9+ZYdXV6cnr0DM3wClkk/+/iW
-2o9selQa6ASN2M9s438E4Nvzf6LpxgZHxxvszT7bcDZYw2X/JmD6ywO+Pbw6WQP89Pzy6uqn
-NRrcHN2cReC/7KFnB8Ml8TS4TsIIeQVDfHXGngkfMAp+M1sGxiAIsSoLkV5C0ALaPeQBR/X9
-6fvd6/PzXaBhS/i/kVRD+n441i8vzn8iJPGuMmAszVnYsoQGm36rpcm5a0BYtVx/Q6hsdqCp
-lFTfLAquvc2+puVqb5fSQN1QdXe3ySTdWGAQIOZ/TEVPBs8KUY/cTDUocUO9kjV/AlidYIuT
-7VgNdqmo5apkO2/OjRJuoHieiyZbDm2sopCN5Y8oOWgxnrpEt4M6rW6FmS12N4eQF2ITC2Mr
-4BFCGxG2UONHG36PjQeIAnH2hqERJce4wYdgGiQGMc/AGmGQ9Ag4oQADImHOE8ZccI1GeLGh
-Urgvgfk4eO6rrRabWjAcbMOYBy623kDUtSWoy2xcrMJPko7hEcaebY8fwTSl18q9+CYIjI8E
-ApkasCAOIIrnSfGjG6Lx7eHNyfXJuyqigXWU29KmsKX0FIMneArTg1MDho7nIlHuE4t2oXZh
-BAJceyH2B0u6+yFKkBAOTAgP3GBM+it8WB7NI/WpQYpp5qLTEvnLDJ3Lc5eovpIkYdpGd+9B
-MBCi0tThyryezAUu9GGjai6cncEOFu8lPSZJ2p5immefbSLO0MX5GUH/V/kl1z1a2SaieZFr
-lTK51pR+SEIx6ow+xITCyVzG5j53VbPd0/KtblS5wu5GcK/wvfOQcNvb6sv5tlfpckPV1ZLW
-F1Uz1F4ww5gZsUegY6ESoC4f/dRVj6C7POsiKKGdZO6r5VsY1Fnsg3/DtNrESvmLObiWmJR8
-hPE0PRkd2xlaT6gH9AuTdHz2qx3aH+WPmDzQEqH15krEGiQgNL7Y1zIBLLzcFSa2gOlSXnJq
-A3itSSuAZ6aNWAElfOwzPrdEYSnneRiYqtrp5s6CqG75JIjAcvYmso5v/hzIwcHjz15fkfPz
-T22+CxUmn16Se0mLnXiBeq1xjDd87Q5+mVEYzwKtmZ8ECKuWj0EIlTVDWqfkEGRR8BFo9Vv5
-I9BrYgKAPnEEKlwcHI1O3olwrRrWU2B5jthjw2Egjw16Hrg+TDBqR0W4fYDx9dIGWfjUsAsS
-zIlleGHWafkaXNhs1Tqc2FuFVUiRgGdYiqYzJVyL0yBqBKJyEDLoMp1k4A/SZ5zEtCkbeQUY
-B1bTYbOY63UmPzW7HCvfqk1mXQRvpNdLJCJUOifnkoNg1cRYJFy4vQYnY2zrVFqHKcK/5Uko
-I0SSUJM27vkjvu2MXCT2fwlvuJXNidjLMQ6ijWCGdo1hKq9Wk4J2ZRXFH+NWgoXdQDOR9vm5
-/Qtw+luvDWw3u/ChNuFDwW+KCh89+WUvi4SmACCJO0mNgwg1ubBCeF1+yKwbHjKTeIYyd1hX
-Si7eaP01MtO6vIFdqNUadrXdLrSrWLXariLUmtvuy1FoTJX7arffzD8R2Owo9Tar4aPLTwRa
-DvCKFjY8G/jD1S3g1I9P3n54px9fn3080c8uTi8lCYiIw3Sa+uH5+eWPmBFRNE1vZyHUDISS
-7KcjxyBkWW9lIICSCAK+N1cBaAhAnHYhWGsCq90wiSwUJe3dgAzxi/+zwPb+8BPmWG4wcIgZ
-KUcPAeNrQsK8IErPeuC7DAiuPT1Vc5yp2GHIvPbqaxFor0XQei2CTikEkXznXcY1Oba0L1/Y
-q9AksapHdiBBDg4Z2EAkKY+IulgVHvgRz2/AH+aaNawen91cnR/+pAuluD17f3bx7maLbW5G
-ICInd3V9eaSf3mwltEWwcwdG3HZGbpVzUQ+PAtWZOxrpAfUvkgwtStTWWmp3cbC0aspsE1bf
-rrzF/sE2HHeD9dnGs+WL46VVUymo546LRPnxfK3AMdgCy1fjQHFJkWQ0qsVeQNTmgAIDSYIv
-MDy2M9BnVdvFGJnVgIDOYIvXu/MAqxDsd0wcpGGIU1h6WmCUWp0O2CJxtJLbIQbB1SuGQOxQ
-QIDWwOSK/TS1+szGEabjIA4Ydx8PAAwogH20A3O8g6AQqZWf0SxXnSsN3PtJNDYnhu9jc8xx
-cEzGMOVxoaRx2/Po/PDmRr8++Xh2c3Z5UWebUWOcKFL0i23C5HgajbBQ+CjVKioRqy5gDhju
-TqJKKKAPMmJ4WcGh+ndkUVmLRe3vyOJ6o9j6O7LYXIvFzt+RxXaGxfhawRkC28udXDwm6i/x
-WzNnSpMpnmXnSSm30WyiB9jqgfFtJoIdWfjjhSsp8GP7tuvkC72Ga0mR0GuvEnotT+g1zAWT
-DUcsjQMuJrGkmbjqJM+T3N6e6dxv7SNEDOV+IeQeGwDN93urUKqlUapxlGLLhjeOil/gvxiS
-uARfXu3k8CEKVTUxojiC7GCfwEJdTfUZujVPT+R0TQ3/fklgSl3lJxIL0gzIOqVqjRkAfTo9
-udZxt4QPdK6L0kUXBSQHPgMfLtp34v5MboSyRYLGDn6P9aBDHQ2HqKjGaiB4+j0G2W6TNr7Q
-5i/LJarFiQppUtM0pWOiv4KmZpIm+TBNVDoMKyJKluNExWlYRYKWIuHPoYDw5drTMOgHAwTa
-qgE51MHC9EXko0ZFhLbbtB1HX7uC5j+l70jL31j23Th41h2YC896MPYscXWCtxKNUtNDlAJl
-4aRdxFbpRXQw93Vz4gKZSF11kfeIrsqF6ackpG45gfeMG5+imk64icUHN3+qbC9Z1zigEI2Q
-p+tqtS1ajjodta70WK3T1eqqIpK9WYvzZbnB9S2QOFIUpkLpNPWbfTqkB+HIPyn4qHKGvuOD
-cPMjHt7T5fjRItZQKKDkAxouwLjJH9IGtj9dCnRF6adGPHBLBdMFxItgLnfydcJYDlGAVVyW
-kmvEp3F+PmA5BSuNY0SIujYh6Rj2iwnREoTIaxOifi1C1Dgh7e7ybGlkohZbl+GfSDgsa04H
-azDFjUdrWt16K3av8Rt7BM5I+uQRP/4VBdR00h/vgz7y0/7ck5t7/OCYO6J0ObAenWTwrDsb
-r3v4PB4HG2Ea3lAcZ8GtEIcZA3ceO77zrc/QqtUZfeBuKl04sSd2YFscjTEKxBF9nh8GmjwL
-z9DDFBrwOx+XN3iXB2YWhf3Y79ASVhB+EBZh3Ok8RkgutP4BjO+VC4bn91sPmLJ8dmuZY8ed
-uHfQfx2QmpQxIBwljD2mLLfWANZKA2sclKcvEuFEdg9h5aGPRn70ICWih0YsRy7hNsoTLsai
-FNxYDxjA8sIFjM56AIXMezAme19gnUP/EL9Gh67QXtZwvT49+/T+pA/KMHUfxH3ARmNw/ysJ
-SCrYWllQlmeQ5YUx/rIlgRvkoqaxFSPeE+604MkGkikl+GS5KWNHAIGTfW27vGgpxomsTkOS
-QkZjzkzK4OVSoyaoeVNCXblTF2+V7/ZlmVyfx3UXizWk0yojHSWUjlRWOmQm4o3ytj7i9SsJ
-bZYhVO5+AaHaKkK1tQjVUoSm6NwsRxc61aKLHCSc2aYAyCFCRSKWUMERqMUIlFIIlGIEFAUs
-jBixzG5+XNynjExZTeIRcjoW55YsDA3f/8iDA0kc3VtcA+CnWYX4ABXfPYn1DSIlEVO+nI3m
-sKLiJbkHyw/sO77WEzEYjrDE/Ma1GFdbPrV3MdKsJ6BQjRO6RNFVNIZ0wzRE0G7vgkMEzTnT
-KFTOS2I+ooYUuJnlQ7LQOFGbmCSmxr2ViPN2AXIXQnOCkxidGZtZ8OHQ7c4IND5aPGDc3Gd/
-ZMPYTCwpSkuMGSwdL/kzZ4qZtbTSJzTuPV+g1IKpl0CgLkGglEGgLEEgxxAQUGw1pDxY/qg3
-c0ddW3PUhdHlgx5bpossJQcMBydhwbAiYoNDZcZcZAmKxrzcRMV+8PNF5Anz5aN9LflETZbw
-8+UqnOKjnJkvYo0yM0s7XdhFsTsaO6eSTjGkQ0BM8YPTCsgpw1+V0gvqwQFTcIUGUnj+lOx8
-HpSCUJ0VUN0lQHx25QKRUYI/2mcIJ1PobYufb5bwS5cY9pLvuollYT7Pbe9+6QF+ntTpaXhv
-t9bTwiOz63r6Ye5EAFC/pBCxNf6129oUQECE2jLC03RSZpMCYariCFzLqLNNghd73eRWVTkG
-tBLo9sGogBaAj49LMheGona1uqKwmqJ2wqMo0sizPvOtDOX0dE9wS4XfQVnPFETOJqhypzo6
-V7ihoJG3tCw5tIL9KBMk0Z6J/+zT2whArfl7XbYwbvLCuE3HzXudJ43SDk5BCCL6b6zfQ8YH
-i+3qoHkr2lAR7JZKO30BTSxm2b8AQ3jCUO11+B0StdutK7I44ZEe36Ycy/IkVMLsFqhES/5K
-KrG7W8zcyB4BbwltQFm8/fCuuvX1FCPdy39UI3KIKasK6aahDmiKLHSg14vpgAcW9r66QbR/
-6os3ibTk9z/8ihwyysD/29lIJQCzmtBu/wWa4NtPwBt8/unakNfTf1QjCggqqxV5zSPNaHXD
-G2athWZIhQe1xYpkircMilWfMVSJTfYHrkWyWKWyOBKL2gA/VYWPW0nlWa0+a9qRuO6sqT3r
-WpNXaE9Z/VnXpqT0Z3270uTultJUoyPYSGKA7958Q3naLqUal2gCso4HX88Pb+u8QWYbKs/R
-Ktpw0vhuGFHJ36pR5Wc+mcSvTYv9jna8jvPCDygrzVZbnFBOvj1QvBAj1jq80BT3SaM7TuZ4
-6UagOU5t/mFBdAF2PxEakC+6J2AoMMgBEv50CBY5zAuwqChkuNvi3mETd0LDHdCl+zFMhEs8
-HEB9WOkWxxhd2z0eiwO5Rf5xDHfSTx6LiLWcVz2OudWiX+FVY0aGXtLkzWcB5odguoobhHh0
-s9jI5VAWYSYjKQhcYSPzmjFKFPFXyG6H96xt1wz4RciZ+2h5pLhzfFUJh3LcwOqLKmM0sszA
-p9u/QhF63bqqoSKARqjRGoA8eBZ0gDojLdJ+llAzDjGY+7H6jqyLAnEMeIldT2sGiRML6QKw
-H7hhrrHT1KOivQXYp0+fqHwBJV4bzGFWGvMczVwVupQgj61PXoyQdRaFkmvCn0Jy6blebi88
-9CJYjFjDC1ikVIuyvSVcyblcUVlgTy3c701CitI0sO191if4ttQkdFi8RGLyQmJM4nnS1Xv4
-OWIrtXFfSDCsT2mC0bNOzmiWmdERjJjCsRXGs9GiWKUu30Ibz7CHRfeTeN3KC0oc7BWXb3Nw
-8Kuf3b6cf/VT1WS6uCOeaAazF2Angyhrcw/Dga835md7E5fF4AfevsDy/PcqRQC49nOXYHqv
-I8YqvYmvTq/bI3MvQAEivNShA2ss8mt4/ptg9vfxrd+p3V0gAamgnna3xasofYvesSleDDkx
-8GDvZI5HJvimdQxp42AMS+j+vrzFkojL6ELQbrXlQb4uhHUrdCEEe8XLCHJwhG8xKngPDF5Q
-RM9WTd29p5Mo4XtS8PWTzoN7H75Vkr+wP3DZzMO3hvIdJcPEN8ViqcHubHy3JlGW9x4UQabO
-31NR9CqU9M3DTKPStzaT72QXSMn9MueeZzmBQPr/3X1texo31vBn+iuUdNNCAIfhzdhusrdj
-k8Z349gLTts83VxcGMY2GwyUgTjebe7f/pw3aTQzGhhsd9vdXruxPSNppKOjo/N+rHjVHY5X
-3YnHq3qxkEqOml6gp0NVUlhkDKd09cwcS0mJ1AYL+gbQdmSfBlNAg1v6cy/aYnA7GKNrjWnD
-DyT5Qr1FyRfqrSgCqDbxf88ORwHxgcFUYcpXgCZs+oW/GFylpWG4WlBeH91sRaAyktrELkc7
-r/NE5CFWbTcCAnf29VnvtNN+1T47eN07PjlsY2Lslk5A0eAEFHq3dcymOyeBYOLmOQmk472r
-ClArxplM1GlkFdhIPF9NlUbRchgbU6SRo5xGtZaWU63ZQtEU/hUx7evRBKj10FePAVZlXvHW
-1WP7BTAUV3D101Mk/rC17960e5iYrHN0enZ08jb/eP9s/xlnFeOpATW7mPd5F5ZzHxV/ut/p
-fuc4z4mwg9LjwH71BjjUt912/vH3p2/ouUUsMRMCpYs6R5epT+wMbCVVxpsFvnsxwtxFPhDH
-BeXRFeKoUyChWF4zikvOTzmZYlImZr3IhakId1uXUqwguJEmo9kGb7hgeR5JUiz7YOeKsjBv
-OvPZrxAaECZy6z0MEHxOVTUiHWejCTkqC9py4x4+gtbd06O3vTcnBz/03r3FH+3DKHg4f/HQ
-H4zhthgqCTwdUfj/1lXJvj/Ob9WU/CEwNzFQmCVAbDcEU7O1XWoBiuzo1CHLFlcxWV7PeiwN
-rjhe8bIpav5rNNznOrik/Ic40qozKD55IDBr0R33aoTCLvQ2j5GR6PWCPua1x44qTz8KnGt/
-CgRVHZy+U5QFktkRWAosY5SHJu42hCtNQZZmvSo6nC9SQaWoLDe9CWawxgsZIHEzmvk9wMbF
-iPZ8C1s6b3qh8tDtAhilK0qKFvYjdxLzpyJP8zDTVp9yFV36nKOvRI0xISDMpYz6CWLCML1c
-bAQ6B5gX/MYnDxWQASRfIoC8zwn/zv1Bf8mJ6/vq2h+O9MdK/IkbX2CDYekVBI5JbqKBg46f
-b6bTj6p/2QfkoxmblG+IjpTT+xa4w2tMf43vwuzYlOk6LDVhecpyxjwhLVjJ5XI6v1VXfUBm
-HyY2nsLZH2Lma0ZnAv095iFXLl0rBlByEQWSuzZy96Q1MpzEyKTQ266wonPbW5max1x8lLlv
-iYmmHN9NtEr9brXibdOmVSvVpqZ/AKTr/q3W/CBIrm6UIdqYQn4ObNuFOunghrA7qsbjxZT6
-D6cYnIzwhdYRwOHcYOTlrMcZ0fO5qxus3RLgVX51U2KdjlXcBZWAHOj1dHpxAV2DZJvBYj7m
-okr6CbSfh+365H2xmOM39O88JkiwADzXzPKxeRXXT6uYbVbFTJNybRZQnSbuVcMr1Tm+HKBX
-fqF7o4OI/BoLeKT0YMtzjRT9GIdnKZU5QXTafTWdBRIAx/7Yy8kCc+BisjsT5RP6PKDcT5VY
-IhFBGPNIBVKec4AQBdhIHr3KHo2mvlOUqwJTdHT3VLHIaW5Jc5F2yWCSvFj6YMqT98FEMInL
-hUwLvW10AAvDRWuU8rhMgCoVaSgYP+qYL5WQnUd8ZXPcEy+sWIw4AOmAR3wVCzxMgbK1VUR+
-+iBJ51PazsLwx5QWi2vyKndepxRpChwG8ROozsErM/9NnNMoKbk+tT9lx2f9GUml5/7laIKZ
-lFGdJIJdfBY3fWRDTMUtPARKYY0D6IJLQOqOcNxiz0LAiTzMWzyeDIeEjwDg1AG2D1emuBn8
-W34xAf6GNorwEB7RriTHgadkqzEvTW8LIsuJhgngC2zAWrDIPjO4eZ81I9aRaBG4l6OlH0o6
-2SAAz/8MYqOU9jDhJQqEMZMhFm1Czz2FcgcyC9hJ8p+CVH5OBYMwPKD/ES6/2RiG3xK60aiU
-vBYSDrTO7xjFE/k/aVENpg+X53NFno9pSfViWSoturGXjoAGm5kvg7uBtIt07tkCo67kxL/+
-6egVHfgrrbCXVH7fIMXE34Nfrj7sGcU/Z+67utkaTZlq/2IKgJ28etVtn31ARTfSyNQGfHIH
-V8mP6AOPGst7foL0uZdT5O2ADAzFx/WBgJB/JAkMQ8ImgGGqymEZp52j4/3Oe/IyfISYRNWH
-AIcK6rffaCyOeMgAUhghMsB6EOKtEJ0gqZYzT69oprd2M5KTuyvw5fBse6y09aqe1trGgiFp
-2F1R0S4n+vDqRLtlC1WtOzHWeHBlSJcFq3joZTl37V8PZrf5b/Q+lRT+Pxj9059e5OGQFgpW
-K26kgVVSic01PRNveBwZYP6rEhyf/xo+nkyJ7mhJjB/qkDNub6zGRTNx3kHXtE0bbBLOMLbl
-plfsOY9AXaPT5YeRyfKjlKma8NYoGhLRGlFJznNObJ0X03610hIu2qttawKbyyXZcHZ00lFd
-JIkAh31zBVfiJ478m5Mo2A85gBK8HsHRIiVH4M8l/ouCB0TpsGUiCUwvUSTgQqE7igl5+52T
-v9DPCrYZPc40Dq5KYe8C5gDhw2+neBDwITrADQyUha6OmSRaJaJgnuDFoawsIzbI4eCr6KlR
-f4VzuksHoZjaxT49VgcjjNKOeduUObJarbWM6pHdN3qkBzX6adRz5s/2u6hhOXp71u503p2e
-Hb180+ZKFFjFC3ZWG/ryr//fsyq5KEvWJ9hmRx2BLm2Xrew0E9sBHr8G5KZWqegc8XEpGlAG
-CJ6uxKURRHQrKPCylD9YUr0u2imdC8ptKOoFg/5EHgQcNo96rKiGBnUaqXKBxlVSnLmy1CCp
-L3Ei4hJKNOh2TuSXHinKXDliSsxPYtSYHupwCycDEr18qP0H/o4WSyyiWiZefQIi69KXRpuI
-IRTotFIOiYsg9EGCI7q9Gv9wOVvwTGZBc6U2eA/CN+B/eQY9PCwUxDshnHouTbaxIzPhjqWf
-4WNNCp5r9Qm8AijDgZ7IN+R4iW9QWWJyOF6AXzGF4bxGdhw1Wa0UsLdhmLSokwg+k+lC/z5n
-lcyaXgzdaDcu2ULiMey57tAzpGm9LtKNwiR3UxHHSoM0MrVKa0dyueVmk5muaZAnTxl9gnMx
-qGrQ5GLbYnSTIlKwctLoJvFSQJ3Twek7LvMpM2k2yX2mVtnZLjWaoqM2JMEWLogu8CRYLWhT
-glBDzWCPdwxviNV9dbkcyTvLkA9lo3zk4DMhWQPzYtpQ6/eqHEk24hZyWY3CSdAtzYWwAhuL
-wLyrc5YYk6Kl9ac+6PO9O0uVUSK5kjrixcoLKz5PaHsStLEkU4tKr6Kl4Dun/fPpSees131/
-/PLkTd6xP6Z+OOLhO8PLboyJya4b4WKZcTFkpu+JjaQOdI+2KUKmtF+tlEnia6hi2xBVCX1Y
-yfFNRJXyVHQpRKlEifJNHp8WRJESMoHU1lwVWk3GT5V9GPaivKBRgf3uqJ9QDa5lDIqb3fjF
-jW/8YorCMIQjqwzzTxk5JCAQoI+p1CfLWUTzyJB0HUsnnopgUkOFT9WDq8Nr1rTwGu2OkLlA
-te6e6w3BzP2K9vSmP1pAo8v5dIlhj+U4xYjZP9j1WujFKYljLBlJrg8A60XQ41IzPb7a7Ud7
-ydVjE8Sc5BzZP2AU4B0bXGF2Fvc6kHOf9/zPs9H81jHKtMcMBjHXuESZ/SHvpj39sgNIFmPN
-lutkmyTz4p6otdFrWqIAwxAziODVyNOi5u1UtZnH2U9bP5ID275hkeIBmgkDBm10cQvLwRKR
-Jn0lPR3BnM/JZP0UhVerbB7RPbLL6/rreI+JPfU11z9nt2JaEHKEc3+MKmTuhRl3Am2yw+nN
-r9FMyMl36HJ5Fi2CCEcEWstk7zPJpH2mhkJlC4Bcre2IddiwyidnR6/e9w5P3rZjfkzuGRh4
-joid1MUXIyAuxc0IsTFwqZExmDUJV48hNkj+8WeDSnPyKnY4b1mt2qhqb21bW4xpRjmw64d2
-5y1lUFdJT49Pj9WP7Q5mvFSPOcSruLobU9TU3kqM9DY9wNuH/rz+2BuOgJjTatRjaPe4xGYZ
-m+C8FEP29TQwFauR1+gP+zPStc99zajjK11pDKQSuhqgx/mSEzVR4FpgzOystJlM1cfJ9AZt
-7uMRuW7d9G/RnD/0F+jjhmPCANyZ00YRWZkMbktkfw+C5bWvGhWF8XF4OU2mkzLGyeV/fPOy
-pNpH3f0CfbJWM03wNZoi2SzO5yDYQj+VgYxIJbrQh+FqifZWYEKoQBi9h7FQrAI0ojxUtyU2
-5o54lSc/bFEdN4DZnMpMs9mf20gh7sH0+hqHGaPxFwuZUogfFbiHXYDlPv/558c0GjrkXPtY
-IV39RCqp0NZO6fg4icKn/pxhx+LgR1gmAj9gCA0G/mxBo1FpMQQCfhxbcQo/16yoEll/8PEG
-SxjCmxmcGV6uaEVQGcf6tHtjCA9jdvmOKMKj0Aj3xBEeKYIod0QSHimJKRtjiYAoBVWyoQmP
-kQFXVuOJwDkrsrCWFQlRAm2fw5ZUKqYiYq1a5eu22tLuHKHLM/Yyq8TMtFVyxkO7Rfzld89V
-C1+iFQDNH47vxvuwRzgqK1zEdlc9CQg9ufuT4daTIUAHSGxJh9EJgucp7z5gDSXe79KHgagm
-ZvBMeTDBtBfqieKYIgZLjcBRrNXruvr51yoSDoZFTZnQB4NgZJTs0Iy0s1jA9GvYGjI248HE
-9sq/BrmQfJrYmxiz5S3xOqTXZWCWDH+gPvpzEAuoBOrXXMjyPsPgvFgDZIqN8Dp3WmQzqtUb
-O7quoriiXPoTWpUIKMYigGKjcHd8vZu7m0V3/VeBVd9pTe1Lv6B1TZEc2DrmkLWR4nEZqqzS
-3THLKe6Y0XwakbLei37oeUSAqVdZqVY35yLGWVhM7nowrGocB0QGS6uYbCybXMSaKVuVze23
-PHDHp+hXa51/qZXD/zcZWZLq/xsbglyAvZ1dL1mamS0PQLPQSQB/ihtwWv504y81GM6n1z32
-lEmPCtizkva6FSLhWEaFivsBV6U/34WTc/b6qNtj/CsRH4sf3JUjZU8CyZjIz7v2W3lW4jCE
-yfD8Fl5r5heEPBHwIn3Cx6XQNtNEq9FOvVFq1sRrX+kzZGWrlNIulxN0ztBn687wi7j3cBcK
-2HkqET6hZSHdP0NKIMbVSSk5HDsnx5bbltYQphguihLY+usvlQ84wLd/r3yL1xlMZHA9wxfM
-k5dp6o8LiZEBhsHH0Uz7YVIO1Rss6jtHh8Ix+cQKLE3CNPlbrCT4HX5S0jNEo4m2ZCbvwifB
-rgw5xMsv0mkvMj9O4sTxUXnHHhTUx2vya4K3ZJd2tCqU1PevTnv4/fab0EOJXiVn2O50eIIH
-/cm3VByZnKbQyRdHDF0xM82cmQ6HlkHp1EjfxE+fC2xmUq/6I3FTNjpbk7F2rm5GwG9R7IF7
-ch+Bn8XCZ7jy5GwJG66BOfUX1KSEZsF0qIbKeIOQklhAh76F6+dupOFQOut4qOFMEArThpR0
-DAgVg0Sy0wXDZjSx3uFNmGGj+BTTaU0WLi1G6gyrsoo5OspSaZtDldso+JjXMX+mAwf/ibLz
-OwX3/Nnb3sujsy5Bk6z3NgugDxWzAColyAPk94PDMhANUYtF2QLJbuB/Hi0suOCfIXdQTtWu
-ah9/gS37msAz7degVbAJO7bQsQjtcSB7SUYuFEJfzvI6rBAbsMYLQgdpY3w9tEM/TzRYUJTK
-Mrh1IAOOxbNA39Eyq3vdBojkYdV8ndbDhWiXFbypN4sb8oAEQEUPeu+67d7Bybu3Z3sZtkOl
-7AerbPTirU1gEG92Neh94wfRkdidhQ3qaVcFJ1yQrEU8S7kmUODgpT0JUjYwZpX/om3m9h2L
-Uk0UecLvzEAStz9DS4N32CcUTrZSvh75OH/2Ye8sDVsaNQrZyDG4w6WVMv+73lyJKd3jysKx
-oneWe7IbXVrl3Kpbi/xAnGds3WWGU8OOh+14x3WXnIX4ArN7XW5uGLmmRp43NHC5vMcOJrlk
-2AwN6VyZbWuV30NiqUlxOs3kBkwso6sqZA3wLOM9myrr8cv10h63S2YjqGbNRuAahCW+xm7D
-c1eirlAEMv8wuZXyWJZgMFrcompK063z0TToDW7H6HNoPcEg/9gjDLjkNNpKPHblLSW3GfYu
-/el1wXJECseJPaOBvgrLiZgpwKzMFJ8lhinEnuEwe06TBWL5E7hBOFNBEEXiktLfSLFcqOzd
-pf5mRcd6efU6p0SjX+qRaK+4hIhbmkG+VibUoBs6TiwnAwk5VLZsmiqB07c2l7+tKSakb3rn
-lL31S3niEsN5PjEh3POaVQx+Aug166W6+NpqaNtflUclsmwpo76K864K6xVYfGs5GnEX8q00
-Kv2REnOXaa82Z3Z/B/GeSzQ8uHyPAHCI9+kXuX2PW9gXlT9tsUt/ZVfdXxS1xS+VVaBAyNmr
-TczdIU7YyfsjJ8ItTsSkzHuKFcUiz8eIFebgIfdguZhwmIYMgFQTfantP18or1mwo+ZYTb51
-vjU+76/SGBy9/XH/zdGh+r59ctw+67yHzRuq09fvu0cH+2/U6/b+Yfev8dmX7E/zfsWAZ3vH
-6K1UfxpJmm38IpLRtC2BrLiGwNxHLL6TcJaC2mtks4wMevxgl50KlQc72SnChBPry7kHQPvU
-k/sQeF/OpSO+e6XlcnjgN+OmV6kc7E0kPZGKMt+26ceB8P9ax55Hx3cy52ZQbCDv6LTYR4dd
-BzNe9SrFopWR8b8YT2ez21TWX79ez/zrlg5zT9JWk87+J4fhrC+V3UbVnYOKclmU6jr9EDpW
-rBn6R3iKJtLK1s5O7pV/ruAb+Dkq2IX858F0djvHMlkqf1BQ3s5OE4gs/NhR3/eHI3Xy+bo/
-Ud9dwu/T/5n4Cy7SugW/bY3GLxwjoHEcRsBvqNP+cqxeYqq46Y36bgZ//Q/+c85PcJAXVl6X
-ne1tTj+6s92IB+6lGbR4ndkMWsxw5zCeN0gy3SVDufCuNgQrIysu89icGY8sIMGOy9uNjGF6
-KnE+fGenXmrsIHh3GqVmxcWH689l5MRPj9SrNyenp++zcOMytnVd3nEv78KQh6PLD5CC+be7
-s+uZWVCGkdzU/FVhQyNYs44RjeLCv1OxnSKU8Lp+B7FEYOQWTB6FoBhhsSP0rxQM0EyMfHs0
-XC2X8CjMv5BX3XJm124cBeqTEM/phXAy5HdDXuBrjUMOJbLTsGnPZAONcpZZMLzyPDqqYVzH
-wKFaTjaL6pZTzY1xqCZUyzKViG55zUrUGquozblGzlPmWT6IgZQHTEEFMzOLmy2psMufSAJi
-rsKaMrGIFMzsgg466fhArmUxOmxV5ChrCKH55bW0ewWldlD2DW4myw/aQgG9kMeY54P79GKe
-zPcyoLmJfwZBbWM6ly6mbUTowg4bGX7W2MvuQOEyf/p3IHBpBrN7krqHNKMlaV22iT6Mbc3Q
-rnTLkcMaFqWDKkEI3TanFO2Lg6H810qROAoxIxQ/lDkrKlEnSd96mTo+QadUbQ2cXfK9bn3+
-nCr38sv1Ui+3u0cCbtcgnHW5suu5sy43MKdCsaEzK9i1pblEH0eYEFWMhv9QLYqEV8uIwsGl
-fgNmdNMlTTh3dkR2wanSB3QVjtVpbGOImuydIZktzRd5bNhnfU3SlKdIsHvoZZ1MtZmjMizT
-iwsOSD+h7HZ4wE8Pjg+O9tW1fz2d3+ZEzJYKLfyDHd0x50V/jMG6MA0sdK7jJCzJF9f0VXlD
-kHxVvBMUyMkYLXAAhRGsMi/O5pg6CMc7PTjY7xwWSPHnbnF41GkfnKE18tMUrxQMShtcY0EN
-fLvIPYW/ZplPz2wwSj089G792aFmSXVRbXuDoxMbA06Ot9uouTyMJQ8SJUypbJviNVI8HItK
-fPInw+lcF5X4sf328KSDRSX235BZd1Xdif03veNG1duhPE/oJb9mxOPD9UMeH/Z+PDptd3rb
-9cqOyW+1euCDDANDm16zHpYOfbgRdZKr1SN22x1gJn866fzQXTuy1bZ30H3ZAFzWdR2my8V5
-fjQ5z+siO6qoqgWqSdOswC0tT4tVcnkXtx9X61aFs2u5jevB6Ho29j9LaN+uwurB7AVAzIBw
-AUSWGxSdXGw0QoO45Oj6QhJbSsghsyDIL8yn4zHwG8BzYqBTMAa29AlmHPyknlSqn0kuNBXZ
-RM9OpajGGDQQ/o3hhJP0WMX490r214zwmfoRThnEQbZcjgPgwjU3KDiZGXX4u2ql/cLnwyrK
-a243hjuCoWpNsRoHRPXhIJH2nVRYVKFpVXMrhBytGsYlNFp1HVQrSJEaibopPP4dWPEQSMGn
-V6MFZeWuVCgrd8WLw+ahcebfhDL3whjEGYIKVYsrNqs1DZUABBHMXjYGeRH1GgLKAVKzxq75
-tU61hunX2u6d4MZizoq9Lm44vvtgrcOn3EqMskkLDHTRX44XuzptBwGwXiMPpWa9YdFjaXBP
-opwBQv9FtFevdgVS//EUtgkUFs9LS/PwVNPt3PdRtXI575+fs27n0p/4c2DehZPc4obPNI/A
-vAudManhLUzJwZv9brfXPTvp7H+PvEnbZTa3Fr6ccJS0SZOLsCg5IGsFZ2QdJD6CynKavsTp
-7jaxwcVtz9Bdu/ZmOgN32jk5Puq2iXlLZ92kVQ+Tsrc6XOByOIC/sPwX9elN50MQ9i9Gn1H/
-GyKxFNssp0IFKHv+SaX+eRf/KbhAWo7Bg5dSEi7OTdFSP5ZCvdaAe9UxJT/JjILWoj9Lrb8i
-L9eLWtzunqb5+CBsmIdB3J65HhdSkLxzKy3zMrIxzHuwhn7uf/uTEtrMvXS7fGNDuzzN4S+v
-qZ7KX8ywlLpPK/v6AWeMRImcCy/0Qd5foroZM1T/A718dZGF6cXiBitOjPvnU0pAekvjSdIF
-OK9wJ93in+RtA1SnP1b+5BKkc84LKOOc+YOrCa67rI6Ced8ff8tFMY5gGqPFcuGrkwtuNB1P
-LzGJAmokseflEsCHH9j/BFRNvZkuMLYbEwEczrfU0bg/6avD/qfRcEu40DplDIWfpjRVRDsa
-mt9wS3bVsT8cLa/VGVo4y+oJyTxcjab84pre9VAzQ0i9cqBDphJdThQ+UKcmPUB82GEwWz/c
-S0orcegHg/lohiXa3gBYASbxwc6H40IsmUDKiAf9GWeFGPlcpuTYRxMRbVmXKsPAnC/9XV3p
-e+Vg2BKwaBgCbWANX34xg/c9fJ9xqHF0dY7BuIWWRHcalLkBfnrmMsR8SuejRR5urrP903bv
-sPO3nskFW1Lf4OfKL3TqMtSM8BOsqjgbzXzKLPFcycP+Z/fDYAGzwUh8r2LgDovBBj1OvoQF
-djH7TwBnIzBuYNFWWBusF/iTwF/TkJIEoQWjh0n8+U/SCDJamF4sZqBg7qGggankJTicrn7b
-yrehK0zZTs6k1ak0v3SfjWyx5DTI5s4z1rcTrjP0biPHGZ5EzG2mWdmuUKktTOppckRpA4HV
-MXyo3WaKltPRyXJOMeb9AdIBAY7Y4ZA6WrBHE1nUQNMbXAH38MmqgdWstDAtWB3n1aqUdmp6
-YrDeAGZl1k8de/I8gz9PdwEyA2WXwYNj+/WkuN6l+vvQ91d4+6zBm018fagyprj50LD8j3qK
-P7XTDjUqWbbPe/nqoyqDElTQsJykgn+1ElXAtWYnJ6T3xaLw0pbZ2Nqq4Bdq9WHLLDC0rmoj
-sWSesRE8EhjmtgEyib23e9AXzB+c6hKESPM7OATh3GPuQBFXBQJFRkcF4r+ibgqm+wZOCg48
-K9t4FnopJHAOJq4IJzomgySCu1jc45BYl/EUrSEnb7tnnfb+MZzbl+++p9w69J/bp0iYmvhY
-Eg5oliwuDiYxsnY9sMmHXdrgjkivCjqhTiqyW2k3yiKervKqQ1Sz0cPhVBE14qeYdZ12XRe4
-05y3QkBHRlkN6HK0Hu+X1ZAPo/M4fV7sYlCG0Tne/9+TDkDlaiEehjQYpQst2GKmmzg4XAMS
-d5aRzrVvzB8NvzKM3n2fkGrvv7SYD1qZ6+BY3jk8tXv65oRkOZNnDja/r1+OFVdvZgkcLfCh
-Y0CdkwnzAOrwqPzYHWTPc0667XDGPHsVSC2eBBF3HvMtmbboYVI/cz+PodQYfxxcPIYipNzt
-LWQ1SQmz5/GyeA2FO57wGaJBfjePIYvJzoyUD+MthOMlZm879G5wlFaf8/seJKcLbdKNd9Mj
-5FZ7PuhZKlpHad3n7n6milFbBKFfnCVYecmbDOaaG9aeYdQl6heGj0pK170vr2UfQp6ZhXQ8
-Euo5/p28OsMs35gs5xrvy8P2j6+6vVdv4B56tf/uzZmoVqlvxCfXONIyrxc26/aOXh287qjf
-8LfOu+9P+Lef4DerVeReNmlv7VlPss56cvdpq6Lyqq2Hm3yMMyFSlg/3gRsZbEZmN+J3pzKF
-UmRg+rQnrT7AD0bodZVCpGWrwgruQ9/vmg0sTtozTO5BvN6FsCemfV+SUMxEEYoZCUIxSg+K
-cWTNRAvsKIUUOkBNVh4jauE+QsXo8V87SffRXztLfezvOdf1p70YOeymyFi6hKMemQ5i7eeP
-WA69K8QdtjUpqQkWV4CF9Xy8vc08fJ2SzIMKMtFKu8+eqle+P1Z0vuBwYnZrq6g4JrWnZMgw
-WrC1xdVX/xThI1wn9w6axWKKZrGY5vid0Cyudvu2aaOeZtRXO67/We+pHR3T6adtBs3opb1o
-edtVt/FTXq0xfUorh3920maZYvhMDMHe2V6ad3a9VfLQl5h+iOVTcaWQxRT1goHU+4nofukr
-5BDMIFQb+VU7umdzrHY4FFsl/g6P9znLUcyh+Iy+doa1BL8vGEMGjSszQS/Lag8+orgS3+cL
-1G/CKbL8yUnRaE1cF7JMXznl5HaPgG7Mo0s9BlDmOc7BNZa7PzQOXbdh8n2yPEAnNEKUlHOY
-4rqFrNkDvRzHOGnLWRXMvfGiVqVi0rpPITOaKtAvPR5+Ve11tiDeD8cfAsXJax7/c9ao4jde
-k6+Bnj/BRPwBWwu9GlnK+QceY/zvS7TsyV0x+IEwxywurdC14+az24tvCsV55J7rKqX8UICw
-Uycg0A8NBLkE/Pl8LxUcbvx1ncbs2L/aImYv7GrIX8EYltEwhMJoKAAIgSi1b70KxQXQDzYL
-w3/62EwvLnq/Lkf+YnxbSF/y5hTkIY9sCAJyElV5bF/QD8lZUw9JQUK7We7f6/6AxB3Htahf
-rb5/dSvH/ZtM5uG+f5NDsNtRa9dLhlhxbjU+uN6OcX1ABvKqPx+Sr87RIdczufHVYNIHWfQS
-A4MoJSvId9PlIsfOgNgJqyTr+h5MdLhMLTKi/0Q/EeXtVLZyXEkyZxVLNpvsqtvGoljwS0Vq
-i68qybaqr7Z1hekFTUrB8ODfjp/Kr+gTo3/HfH86p59VuULf/cf7B73j9uHR/sv991kQ5bj/
-EViEse/YP/1qNaLoVvfwUEsOwYxaa7dedwcDeXzmBU2m5/8o/8XBBBUEyEVSv5SBo92aprc+
-6Bbs1oNgVWPKYBc2psyX06/KkeYkKBRyuSKV6JyNoEHxa7WuSfr8DqPzW7kYslyHjclKvKK5
-5L7QzSX6fcq+pnV0GKF/U4EN6+jso+fo4UEBFzMbDub9UfoMdfvXp2fU/mq20O2/KsteITCD
-3K5eQPARUWSLNLv8b5kqocvvmNfTX8xv5c8Lv486KdhDBGyZIwDhj78geaZtusWyr7/jl2Q/
-o1+kNNmD8XLow/Ozk9PDo07hWQfkrGDrGg5BlgM7CVrbda/hJO3m3eoja5o5iHsz45l1jMGH
-trZbbzkPbY2cvOlf4keeEm0+6vwNS0BNByMqqmfcI1FzYnREmjUtUTe8AjgJWqD8ERa3oijP
-6ZwivLA0W3DV/0huSFPWAlKh3KNn0Ea7aW05JDlZEmpXZnDdrOJ0o7XFA7qdY1yvc7QV3KF7
-SNIcbcIkRsuen2PV8ymCqARAuCmpp5iz/LmKVqV9WhAOkqFK6aDFz5wy9G6bBL29nrtyNFy4
-qBWm0tFcyMv45rlgwt9Bbskp5rkBGXZaw07mUjYyan+j8l8E5L2MLt1YZ6VZ9Zwnz7xbffJM
-M8dtmTw17pPnGIP5qh3X6WWBaJsFokiMNFeFQ76KdnSIUpeaLK/PsdAc+mQy4pA7VYB2Rvmw
-Lcgx+2TvFtYsWy58VCAEmwiJkX6ZxENYQhcnrj71x0sfS7BhITtRKtNHEY/JXRF4pulk2KNg
-FlVWFSIMs/nouj+/jYS4ePSGm/fZJTwXjPuf9Hqxb/kFQWoUUNvrPirpsGf0OfViZoUctotV
-47f9RTbguI9O5ABMZFYH/nA5p7zN5LxG8NdB5lsJUuXYik2AneyeWSJn3pohx4RYYKVLJADt
-RZSCO9JYYoISeevCQ2TdrwAwqAqGlV3O+9dcIo87ZzmFHImSkv8hfLn6HIbt7nEQ3YNUKyjh
-1FNOYmu75NXgKMLPWmtlSkAkzPoLpH8DTPuYsUaTrR5IXBKWokBcSfuzsBQ9GTV8DNS47U3g
-7W1vcQUik12ORib886t2p/cOrlzuKCGOVky4WO5Igk0NMNpu7mZo1MjQqLlDjXK4nN+eh9Pr
-ebXaXoburU6Wj7SyNNrO0qiRNt1KJct0qyndm80MvetNd29t8JQthte6KI8LK23F1wZ6r834
-GTdKxzReKsb4iFhN6ijxZIXVst4rh/PRZkWM8iqp/dOSegn/P4D/H55abc722eX17KX8POCT
-oqQgW4urbNZENjJhnKK0Qo2rXriR9MOnMJZosso4N/ESEBUaT4/ea85Fa52VURos53N/khhN
-Ev6DMAb79PPPbOdjF1ay70ltdp58rWpCtxGcc78/NFO4mc6HEvwWAuubELRWDEz+ceXzk0rr
-c2hfNy1YIY03XuqM2FPYVk8WQyzMCBS6Vr9mg4dC5WMV7p8g3wcELKi/iwhCJQZrzYpsGO0z
-cELAFedysLOfMfZFnvaH/8Bnxk49eVLFmqSVz5WW2sUfFfHthSPh+o+WUU7T07CNRhBG9s8+
-xjra/uTdWe/l+7N2Pk+zVEWcV6GkSKcEC5QImXq1STF79fpOaefPhYuxfb3LrgLqKOC84D8P
-/6niPzX8p47/NPCfJvx/G/7fYnA0OISxvl3T4UJf0nVmshe2ZnhDPbYQueV4Me9HlcN3HCgh
-/EUV47moYnwTilp0jXiNVnLStzNhFVXlowjyf9iKfGy1DSKW1EldAUvR83CXniumM8F0OR/4
-GHY2XzCRqReS/UzSl3Bu8kQQv1kvNRtotN0u1T3rUGc6vtx0gMYjOv/m0T+W1zMQnuVhmR+i
-p4A9psnETi4EmJCm4hXiMnj8KorfPsr6AjxfgHztlRT+qMoxgBZlDzeOJhHpWFK0c2aYonsY
-dKqUUczVtn8amWlwNZ3DXNvm9lMHb37onh7GIIDAr9XwIeE6Rn88c78CWOeP3jLt0ptfJLh7
-F5i9xyvgNkRHbjYJvPl0/hNt2vIl3E0vOQawT445ezwzApElwZRFfmFFSSjLlEGGW85BLoHn
-nGGAhkIWPGdwnXbdxqhqEqJq0KNOsT5577vvPIIA/VYpWLw408yQnhiooHssroXB+w3DsmLS
-S6Hhy9mm0io4YEVDC7DcY1djY+vZpI/GQHaPVneOBhOwhxMcnwDWB71W5UaljQZr0imrUlYt
-kFnRorq2BcxZAmrd0o3KIrisb9TM0AilG4SdxmZS4vGZiWyHbgFiZ2oLw1PAGs9LKh+lq+hS
-V9Du7VTfHjdBH+VkY0xHRuCq615CPLV7mp25JYMMFluDZ62q2Qwf/IkXkVjDH7APxeT4FstY
-dI6J+jJ8bw2j4pBQm0BiOwtiN7KCKy6ehNJJ5XMDrsJv2qdxcLVPYS1MghPbWtlwW6u7nGsu
-0yxU+ixUfBZRkOp8SHGgVPaUdfbhLz28t6ciw9l7G38X+ZRJcFavlOrALDdqO6VqU8fWq7FP
-irorXzWbx1f/VANK3DCdkNoPIfCPZbCg92zz4l4znR2C0vOQXKfjH8MLBFNdWheA/Wetxpd8
-npbAgT3CtccD7x6/e3PW2W82KauMZnunF+odUXCgFRj5PppTUgjVqpRno4kADRW01AoahSYh
-El0j1/TjruYIHgMaPj5lrkECBfUsjMDXpTuCnA6mPDxsFbJeWxEfWZRmaClSMRblYmFHFHzl
-n/58qqbLhcWZhA3NfOyGUVZFR/TJvheilIaZOkDH/0NsRJpjsWaepjd6aT/158CDXUYAvBKo
-GYG5mwJK+MzcHy4H7MgfB6EjIiu8FczxcB4WCskIA/MIHTNjI4eWYXh2jhJTkRcOThBNtipY
-zrWHCZyNAKamQaXbjwK1hDlS6g/0pshx1iodu7hG4jIhizTpNY3Xsl1rP2eN8FXZyQduMoSb
-S73DCMTDCiAc+O1A8d9UKoazltswmaKnRlf1o5+P27scYMe7DL/czKdiSibFqSqXzz/+kxzV
-eSZMqBxhaj/td9DNVsrorTk+9oGxgtNSx7PPyeHxfh7lobSDUkzArOiC2CqiUOTSKdFhZM34
-TBQI8AjhKLC7IOkUYdhf4HUC1wWeypoAT1BauqaibtFgTWrLauaWXuaWgnHFTZGLErpFo4Cz
-Iewa8G/Yg6cRCUnGiwfhXxdydX6rRovAH19oauSc50bnKvwYVU6Hu2OsiaPe8w1BaSXh5TRY
-O2g4Kza266VqTSs6tXSmyYgtm1V2o7qWz80UdjKLtlvT7Hz4FOO9CFsvLmrAMxPv4n47qOtK
-15dTOLZaJTjCwsEL95xQGuYp5c2cCpjxCdU71nwe5ekJYET3/dsDjI87fN9rvzWVtWHYm/lo
-4a8Zlwb5LTpEhEvW2Um9BFDr/4lA5XzTEWhusgNVe/LuDaBAMHpXfYjNqa7aHI3x1cTmtPac
-oks2+859N0c9KMYXV/axl6F7qH/HGSmuGcKamHsAlTxktcQ+DkLTrusERpTBROeKK4aKtf6P
-xBGc9z0P8GqE0jC6MwZWbfj8QTRiQ+RMDpCioQgzOaOIxYmbK6VaQxWbXqVUrcv1LAyFbOlu
-mBAphen75pu8Ft4KhZw2gVgeDmSj1Nlu01S7ZhTUMDtGaawfxQtHQa23Y5D6+kGAj1wzSC3D
-IHUzSApQqhkGqa4bxMswiLdukEpkED3GNdKRcDW5aMfjn3rJRTi7VlO6euu7eildK+5Ve9EZ
-w6oNaxxbdtc1e/c41QzjpOyCF13L+nHCdf1LRF4yK7NQw05fSQcztrORH5CVfiUpPXJ/+Rz6
-Xf+mYSpuRPTleFPzlisJil0SzdasQ6T0odoHAPoZYZ1afhddnnD5IGiIU7KazkeXo0l/jBbm
-MpM5Fcz6A9/KEh4uQ7moovu+i193ls+eFIJI1DQpUo2S/0P7Xr5RRB1YoRCrbVLOcYS29r7G
-PST/5pgTRDn0oQB0mCwKufjZfPFCeXjLKm0VpWvD1crDVttrWrVWNOIjtaaRl95IBG/FNk9Z
-1qN8Cghw3001R5X0q+CNMTHKK/wjyZ29CtIjppFttULp0eXZRvSNPRPSPTXkjeRXVU/nv0qC
-z2WLleXGDg0PdBBbvXXVH3zUpmh4MT7v8zO257OWXZT17jDdrG5y8JHB1XqXjNxmDhkU14Kp
-MtCmbUT2PH7JGMTh6mcXC7Kelo2EruIG1HIWA+r6Rs0MjcSAms0Amc3C9+B2sExGKPxyFJvY
-Moek1kYmMdZphHL5YngiH0U4uoh9yE5dWX7RHw4BTVCtwxx9dBqiL7NSjIXtsbmZnBDuKF4h
-xQAKu5xoU9VXulIUreC3KIYZlwugqYkV0VHfrpd2VHG72jAxD64TPp2ty9YLR3Ti36BYYh/n
-/57zzWE+jVK1CtCq1XXqC5y6EMGF7QLxX3aEZWvvYOX/o840PgpNFTdXt2pIYRVozmDLBcX1
-GCtFNhqwgghsTgI2IQJwwsd5OBfmWuFoMmPc9D8jT8LryELKjHqZGyMHFiMcu6vIRotLN203
-m9pDGM5BMPCG2jswJAcqfGIdagcxiJ32mCd7liN8V59JHj3qMNmqSUxfWF/gz4LpD4/WbqxG
-MOx4LSJ5raZXqnrJElMP6NmC6ixA7F5/Muzd9EcLlp6J1aUwShCd0PE8ipHoJllSHrFQmQYB
-TE8bpVrBYYDnBgBXxa8gUH99pO0+m7rAhKZwU0YFE5ItVFnxVo0CbeccqnN/0MesX+gocj6a
-BrorpTbHTqg0EBcStKCPuALL1XCok4XCeIstdXalTecYHYuBd7fqpj+hyrAkQyBA1PTiYkvt
-q/OlqdDCN36zalnjKWUE0IMB3K7TBUUMjzGf4XB6M7mc94c+9eUZYSAeuwg6VrtysS+PTrq6
-55rFsoXMXq7uCKvOulxel+5IaxR+JvM6FfflSU4xnHpLHY6Cj6o/GAAJR6v1BebuGwXBEjv1
-cU0asBIIj5Gc15Slg3PXYw0Q/I4/n0/nAc5Wg1F3ZGiSu1Fg+ROF4YPIufUHi5JeW7YvSWvd
-aT++fVk+KAA5Xy64UxBuF5cf0/XH/iyHPOc44sXfkXwU0zXD7pJsj1aUZCMrAOcim//K7DL8
-UuX7k8InK7WdUqOhijtwe3mNMJaZk9UpdGBUC/JGsmo9W1x2WNNLGxqCXz5Ikizq/NzyN5Mo
-ERO09Oqkc9AO6xQQ68vVyXbdZdZ04UqqPrsiFo/aUSiOTGo3lFPsx9QOZtlsSiYgThdr9SZx
-YTdM96WHoTbn0ynBZledvHrVe3my3zmk58Ri7SqP50Eh/btU/uJVD7Mz/Ca/U4hM7kvp4SHQ
-rN4dAvxHZJ0PAIt6azUsTl/vH/zw74BM44+EzNs/MWC2/9NQJoTF15LVlQjeGliojAREZYSF
-chIQlQECRaCKk3SyCENwEr7z0QLW/69/kTc0ilr0z5eSMk/q9M+XLzimrtPihq6KECe1Brp8
-Q3BMLtypFQmEvCNk4ljy54cRYuAqGCXPJiddq+xgUKxX8ajo7n8ByNJAVfxa26RcRM4C9EYA
-jUBU4QlnsFYrVMPYq1RbmPPhvwCu90fFJKzCUk0PRQ6b8O1seUQo5VhKGhF+tzaLCDdz5NHa
-IIlIfAzO5gPDuLMk1rYpmw//QKwSNjeqAxr0xwNEB66rCHKilaNB11pkZfc5/CKxxtEhxud9
-rdOK5JaBP0aTiym847KQF9PebDHPL6aUX7u3yJ8T138+xE+wX6hDx77xKDqiXTo+f07Z26PW
-2Az7/uuw2UjJHqNfrd513eoemWOSQ+jcaV4yuaZQE86MWQ2zp1Hp2/l0ucB8B6iHmHyaftSp
-gzj5J2XZoRxY5L/OUjw+7avLEaZep0lJLrRYIqdfh5JxK0OKLtN2XWYuFu4wDo0Cz1T+b4e9
-s6PjTvv7MMAX5M5WRRVQXtwuqN9IKky0Yz+IqmhtvSYnu23WreRycywHC2u9gO/ZWg41nOqS
-wd8GLC3GAYCWIlgT9qTc8VQp15lhKRLrn+iSbjxmGg7DYJZYHHCExajpyRwEbJjbLT2LJgFg
-vNG+EoF6OtPJfhk9diz0YB/8myufknhxF1j3FGt4oPF8PBosUtYt408/Rpcs4RofCvFFm/aO
-9YadaCHajQEk/t7R8emb93lpUPmwZdVOkIeeeciqmLBXDB8Cqo4Xf1j0CnwZVytNSsFFPwQ+
-COb50Nb/cHJZSSWtrBx1/YDU0P4w/aAsBAgr0nBxA9fJ0Z3XZYXQI2ycRIeBUOU8ZMYiCkBA
-hKpUrDxgKSuMtdoo2Viid/ZcY4hf1gGh5BHedmNPXkVOCryqe4091AbdTOfBgjMnS244TqeG
-qjtz9nXt2Wp9m9OzbUfB0soElta9wNK6G1ishoJ1TxcaJmL3iaJALLNjhlsy8OfwOwDyY+C8
-KiPvV9+Xkab3uDRTx1mZca1ap3rH+KPajHr8xO1xo6Cvs0nZBC74dPMx+G/LwNZtd35sd346
-6fzQ7R10XzaAsu6aYC5ZMQxBJeZePFfdH3+Shr0OjNE9ArHpbfsnCSRLTWG2SXYye0Yn3Zd1
-MyNXjjKjdM6QroxXc/dcZcxctzigFP3R4DbLPVf/Iv14iZK+0L9V+rdG/9bp3wbWpyYkxHRE
-HmDhthdJPJU5oQynqQnOG9w63GG89tburBVHr+La7XgOpBRTci6ZfScs+YNQ1tmuYklqOKuW
-lWvHvKmmv6o5cqw0tsnhp9Hck0xeLXTvqTV06jUrhpjClWmwJ8N4NCRn8yd/QSAm59PA5+Rb
-BdNqOInmLGPUdyUs095RrhRb5dUptnC+mfzxgegLjSc8oHhTQAMSexIj2KkI6vslQpgel4sh
-mNV3SmjYqTU9o+jJMosqu61a08jSCw4CB1Fn6wdbW9c9mAUTx9cwP9oLpgGnRye9OkHY5XP7
-22qHW1IApXRd664bIoXz8OhkB5ukT9MqlWIqJhVXYtK69GsPklQvmqc3kc8MMGyN3y0wZuhv
-W6xXayWPw0JWZ8W7ewI18drLkDWtnOJTl3pXxzJVPVepl7SknGR0pqb3odnWWJiv6blkJ2g2
-qbh85rvaGlAvRSNLigO+Pm7at79t/Z50+td/vON7BP77DbMsSIYGzNvFs8aJ2AwBzqmQ3oFS
-Mvw1ylxQl2jOLMkchdPnBFriWu+4/eNH0PI7YqGZ10ZXvR3tH49jgAXHeMMweCJLZIOVGnGF
-W/+f1GE/Ha7ksv8QHvtZxJRxqzrwKu5qCOHLNQKKaXcf6cQxCCtym7v1ilM02aYqJtvaD0+K
-zR0QmNC9JfQMQr2ELjCFijw4h476BQJgTZJdsii5QI+m/MvcR3ejRB72yCDpnLJzqN8pva9Y
-9tiwt5MNXviXDTO6V2yYWTiZtchVrPkaZefvBIeax8n8vVBfcaAz0gS+H/UpA0iINpAhgYlN
-OA8NZkrSZC4JGI3ObIISBcU68Dg7rQES9oN7y86qXOeKXvVKTNeNdbF0LXFJk39z5bOXH9yY
-qB7z58r/PMP8KqUQCDTCCNgsLFscev/BKJ32/uF7U1PqBh1M0TlKlw4RNzgsTTD2F76rZohZ
-8ngaLEbzX9fryhM97oBF2WME4g7GBOBtqsTCPwTAP/lctmPo98dchAXverrF2O/W4Ir61lTO
-+FaquguAAXD98SiAbekvpIYL7i7Be+HeQBdI6U7RUNpEoxbtmFmbFqN40ohIGwnf6+4hrDKP
-VwCVm09cRLG36TdRrOEdy2mljsJ3UXXXcxfnaVSqpKGgn3WdA+5ZtCQBV3MErgjG7vUXi/7g
-amVZS02jUW+vwkrfGg3gjGqPS135hwvTqRTvPZNdLDCzkCGf005Obyb+fBf4lbPXR90e1+FF
-p1GeKr6ITh6NCoOx358sZ7vhO3lSYuXPZHh+Cy+1n8xw2pN4P6tH+JDNDQ1vp1RvADCrVUys
-R8DU9d3Csb4QB4i+1AAhPRRV6xR/1mQZcyRKPkxc0e5iRzg7VILQ6q6r/t5l0yLCU+I1aSBk
-JPoHjiT+RBEl5KHRZfliOh5Pb5COwlGnPIGzMVY7oVxaJUwMNKC06wEXoKGk7aOFj3WDgJ5Q
-bRoYE6jKtT8c9RXV3lWmnjZmLkKo7J/tq3H/lnX5ItJQh18+IEacvT9t97BQW0nRr1gTTX49
-7ZwctLtdrLZNf4PodSy/dk70b92D/bdv27oJoFNJVRuNL1ogG5XUBRWdR52SlkVG+g8gy3O0
-5f0aM3/Hy63qjqhxiNi4zX4iUf2n6JSs4tphjXqVczTXAYBUup6zQ6uR+k4d7//ce/3T0asu
-ABd/J5VWF94Vi6RUihys4JcRQpLK2X/FBcWP3kYLikc+wMCHPo+eI6h4VPb5Y1CZtJs3V1hz
-UKKKRFsSDPoTQbhA5fVYJa5GjpN6zBXbNdxhbPInJj8A/MpXJhkPtkYLcxxbC+rjNVw8WHcq
-AChNL+JNCiX1/avTHuZba78pkFXRDE9ZNEjLqDghW7vTCSeHWsddddBH+yp9AlOf9emkCg0D
-HtWdxTCHdxBwHUuf//xiFjKiOuZSCDykoPqS+iZKBguZp/mKdwOYGxeZCUlx2nw/Uj13AvOq
-JTBuDAX7hqnoh8J+HPGGH7AL7LGMb/YJsH5mIICP8MhJK0aMcpn++iL6rl9DZokX2JNjiRCG
-X3+pEMJ++/fKt6RRWcwH1zN8YaOebXgJ7TS/C6IVo2n/HgTL7LmTyeSO2LV+bvdArWIcsSJE
-7gupSz4BeRtiUh7Gk3xBE6bDdoww2bTygRCxuB4Li0z7ica7ii+QQUNeAFdttIz8NcEs2pdw
-paPgY/76I/lF5U2H6/4/pvMS3Rvqu+/U6X7n7G3v5dFZN0yXYHMGQxBg0Jeni3+8BtGjd+aD
-WIPo8/QK/1zIn6yxbVUalGevValhxgRiYfzrJTYY7uY8w75Y0p8uNU5lxuWrHJehOZKIsBhW
-Jo9zLkTEIs+Nqm+OKaFICSXKNTnQ8p04xpJQhH8bLMelhs3Mmve+StThimi9ez3/8wiDUdPW
-toZv+uOYEzY20YSXkwxgSLByEQ4MI8ngcJNISHXcxsC1zYEQ3aIcqHMfD6fMvJlinvYYyyBk
-4NB7AzoTIzcA2fIR9ePOZxJbd94PRgP6QnDFLOWShHuWMefk+obV5vjrnKxVf5hHSvAWWgDZ
-ovfPyFdWVSKK4Bscv3+OEcicDZaFAkCKJQiD+N2/8gxx+jCx5RiD/9C9Cv2L4aMg5Q7GyN+S
-bwoILlf9WfBXbTb89zJNsWOhUcPinmyGwxaClHHLizEWZGZ1HYdCqJrByQYLlGXOl8FtGiuh
-eTnNNxTXzaP4wLPAm8WY4YhCm2MSUhgXaaH8GPxBJlMO0oeUK9LEIms4hrzDNeQdC8EmLMf2
-3hwdtN922/nH35++wbTZKVoJKS/8jNUCeNNeiYrA8SapjXA02lApvnIE0kLUK2nOOjWPXZvh
-R9PW8QJ9eEalsnVEq2F11K5okJC4gBj5lUoS4TQtWs5SnaG4hukgACV+aX6gMErpjY+0r1id
-ddD1iimIG/GWyI2u4QD2UF8o7ljovfK5N+7D/Tr0Z4uryGN5Uv6iLCUXOrDscVQjLb0Lt9AS
-I4zxcmLK+ak/H02XIRkLtljrsEOeTpghd9s4Orl0JxY8JG7yKWlO8Gal2y7/lPUEBeXSFBS0
-q1n+qZzOwppmokZZ0WwoOQ0wIUtvkcs/DVUqzl7J5EtUvWcxnfcW4u3QrFQRHPhD4oBkbSFn
-lTohBJCMhqsU1U1a8yLfHIDw6H49BtKBuvW50WxJU/IhFj0dGxTd2/MUq1XvCYOFzgb7gD8l
-uF/hrhn1Az/YUmfTqbpeDq7gDg4C2D+6786BKF7iHcibCufeR+fIG7okBYGbXovUfM2qV6pW
-BEvgcz4wPmbFdEhkzav0e6S90hfmPhxHuqVHqCy/Rj9eVKtLMPw1+tAGUyweEajZNAhG52P/
-kTJJ9OmudlzVQMgvYd03/dtH4l0hk2WViYtQRypbI8xLKcfgqaHk9qAPNGRRhiScc0806xBp
-s1rb3zDbY4oQmCwcHPPqQcilUTw1+BoyUnNyPtJHfQfsitzT7oWHMzQKrXL77clh+0cRTnWY
-1urOxnPGEvQiNSB5UYGwDmjt5t+0GqAgBqftnW30JWtVdOlEC/ARvSzz+sY7DA+APjvO+JYo
-KqMEUEITIvomk3YwFY3IqIofis7EIayvJI7xYR0jWju0ckyj00/MKCqmcuyOAokLo3b2kjUX
-Tw+O4JGSLdLRd7kcMwAtvsN2gGhzdL/eS/a8e3Ny8INjO+EKWPpb9G8PQ5sKFlXDifLVOgoo
-Ze9Kkla2j21S2aD332DA/wcLxc6f63QBAA==
---------------070205040508010506060302--
 
+diff -Nru a/drivers/ide/Config.help b/drivers/ide/Config.help
+--- a/drivers/ide/Config.help	Fri May 24 17:27:58 2002
++++ b/drivers/ide/Config.help	Fri May 24 17:27:58 2002
+@@ -295,28 +295,13 @@
+   It is normally safe to answer Y; however, the default is N.
+ 
+ CONFIG_BLK_DEV_AEC62XX
+-  This driver adds up to 4 more EIDE devices sharing a single
+-  interrupt. This add-on card is a bootable PCI UDMA controller. In
+-  order to get this card to initialize correctly in some cases, you
+-  should say Y here, and preferably also to "Use DMA by default when
+-  available".
+-
+-  The ATP850U/UF is an UltraDMA 33 chipset base.
+-  The ATP860 is an UltraDMA 66 chipset base.
+-  The ATP860M(acintosh) version is an UltraDMA 66 chipset base.
+-  The ATP865 is an ATA100/133 chipset.
+-
+-  Please read the comments at the top of <file:drivers/ide/aec62xx.c>.
+-  If you say Y here, then say Y to "Use DMA by default when available"
+-  as well.
+-
+-CONFIG_AEC62XX_TUNING
+-  Please read the comments at the top of <file:drivers/ide/aec62xx.c>.
+-  If unsure, say N.
++  This driver adds explicit support for Acard AEC62xx (Artop ATP8xx)
++  IDE controllers. This allows the kernel to change PIO, DMA and UDMA
++  speeds and to configure the chip to optimum performance.
+ 
+ CONFIG_AEC6280_BURST
+-  Use burst mode for DMA transfers. Higher speed, but causes more load
+-  on the bus.
++  Use burst mode for DMA transfers. This helps to achieve higher
++  transfer rates, but causes more load on the PCI bus.
+ 
+   If unsure, say N.
+ 
+diff -Nru a/drivers/ide/Config.in b/drivers/ide/Config.in
+--- a/drivers/ide/Config.in	Fri May 24 17:27:58 2002
++++ b/drivers/ide/Config.in	Fri May 24 17:27:58 2002
+@@ -40,9 +40,8 @@
+          int '      Default queue depth' CONFIG_BLK_DEV_IDE_TCQ_DEPTH 32
+       fi
+       dep_bool '    Good-Bad DMA Model-Firmware (EXPERIMENTAL)' CONFIG_IDEDMA_NEW_DRIVE_LISTINGS $CONFIG_EXPERIMENTAL
+-      dep_bool '    AEC62XX chip set support' CONFIG_BLK_DEV_AEC62XX $CONFIG_BLK_DEV_IDEDMA_PCI
+-      dep_mbool '      AEC62XX Tuning support' CONFIG_AEC62XX_TUNING $CONFIG_BLK_DEV_AEC62XX
+-      dep_mbool '      AEC6280 Burst mode' CONFIG_AEC6280_BURST $CONFIG_BLK_DEV_AEC62XX
++      dep_bool '    Acard (Artop) chipset support' CONFIG_BLK_DEV_AEC62XX $CONFIG_BLK_DEV_IDEDMA_PCI
++      dep_mbool '      ATP865 burst mode' CONFIG_AEC6280_BURST $CONFIG_BLK_DEV_AEC62XX
+       dep_bool '    ALI M15x3 chipset support' CONFIG_BLK_DEV_ALI15X3 $CONFIG_BLK_DEV_IDEDMA_PCI
+       dep_mbool '      ALI M15x3 WDC support (DANGEROUS)' CONFIG_WDC_ALI15X3 $CONFIG_BLK_DEV_ALI15X3 $CONFIG_EXPERIMENTAL
+       dep_bool '    AMD and nVidia chipset support' CONFIG_BLK_DEV_AMD74XX $CONFIG_BLK_DEV_IDEDMA_PCI
+diff -Nru a/drivers/ide/aec62xx.c b/drivers/ide/aec62xx.c
+--- a/drivers/ide/aec62xx.c	Fri May 24 17:27:58 2002
++++ b/drivers/ide/aec62xx.c	Fri May 24 17:27:58 2002
+@@ -1,559 +1,270 @@
+-/**** vi:set ts=8 sts=8 sw=8:************************************************
++/*
++ *
++ * $Id: aec62xx.c,v 1.0 2002/05/24 14:37:19 vojtech Exp $
+  *
+- * Version 0.11	March 27, 2002
++ *  Copyright (c) 2002 Vojtech Pavlik
+  *
+- * Copyright (C) 1999-2000	Andre Hedrick (andre@linux-ide.org)
++ *  Based on the work of:
++ *	Andre Hedrick
++ */
++
++/*
++ * AEC 6210UF (ATP850UF), AEC6260 (ATP860) and AEC6280 (ATP865) IDE driver for Linux.
+  *
++ * UDMA66 and higher modes are autoenabled only in case the BIOS has detected a
++ * 80 wire cable. To ignore the BIOS data and assume the cable is present, use
++ * 'ide0=ata66' or 'ide1=ata66' on the kernel command line.
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ * Should you need to contact me, the author, you can do so either by
++ * e-mail - mail your message to <vojtech@ucw.cz>, or by paper mail:
++ * Vojtech Pavlik, Simunkova 1594, Prague 8, 182 00 Czech Republic
+  */
+ 
+ #include <linux/config.h>
+-#include <linux/types.h>
+ #include <linux/kernel.h>
+-#include <linux/delay.h>
+-#include <linux/timer.h>
+-#include <linux/mm.h>
+ #include <linux/ioport.h>
+ #include <linux/blkdev.h>
+-#include <linux/hdreg.h>
+-
+-#include <linux/interrupt.h>
+ #include <linux/pci.h>
+ #include <linux/init.h>
+ #include <linux/ide.h>
+-
+ #include <asm/io.h>
+-#include <asm/irq.h>
+ 
+ #include "ata-timing.h"
+ #include "pcihost.h"
+ 
+-#undef DISPLAY_AEC62XX_TIMINGS
++#define AEC_DRIVE_TIMING	0x40
++#define AEC_UDMA_NEW		0x44
++#define AEC_MISC		0x49
++#define AEC_IDE_ENABLE		0x4a
++#define AEC_UDMA_OLD		0x54
+ 
+-#ifndef HIGH_4
+-#define HIGH_4(H)		((H)=(H>>4))
+-#endif
+-#ifndef LOW_4
+-#define LOW_4(L)		((L)=(L-((L>>4)<<4)))
+-#endif
+-#ifndef SPLIT_BYTE
+-#define SPLIT_BYTE(B,H,L)	((H)=(B>>4), (L)=(B-((B>>4)<<4)))
+-#endif
+-#ifndef MAKE_WORD
+-#define MAKE_WORD(W,HB,LB)	((W)=((HB<<8)+LB))
+-#endif
++static unsigned char aec_cyc2udma[17] = { 0, 0, 7, 6, 5, 4, 4, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1 };
+ 
++/*
++ * aec_set_speed_old() writes timing values to
++ * the chipset registers for ATP850UF
++ */
+ 
+-#if defined(DISPLAY_AEC62XX_TIMINGS) && defined(CONFIG_PROC_FS)
+-#include <linux/stat.h>
+-#include <linux/proc_fs.h>
+-
+-static int aec62xx_get_info(char *, char **, off_t, int);
+-extern int (*aec62xx_display_info)(char *, char **, off_t, int); /* ide-proc.c */
+-static struct pci_dev *bmide_dev;
+-
+-static const char *aec6280_get_speed(u8 speed)
+-{
+-	switch(speed) {
+-		case 7: return "6";
+-		case 6: return "5";
+-		case 5: return "4";
+-		case 4: return "3";
+-		case 3: return "2";
+-		case 2: return "1";
+-		case 1: return "0";
+-		case 0: return "?";
+-	}
+-	return "?";
+-}
+-
+-static int aec62xx_get_info (char *buffer, char **addr, off_t offset, int count)
++static void aec_set_speed_old(struct pci_dev *dev, unsigned char dn, struct ata_timing *timing)
+ {
+-	char *p = buffer;
+-
+-	u32 bibma = pci_resource_start(bmide_dev, 4);
+-	u8 c0 = 0, c1 = 0;
+-	u8 art = 0, uart = 0;
+-
+-	switch(bmide_dev->device) {
+-		case PCI_DEVICE_ID_ARTOP_ATP850UF:
+-			p += sprintf(p, "\n                                AEC6210 Chipset.\n");
+-			break;
+-		case PCI_DEVICE_ID_ARTOP_ATP860:
+-			p += sprintf(p, "\n                                AEC6260 No Bios Chipset.\n");
+-			break;
+-		case PCI_DEVICE_ID_ARTOP_ATP860R:
+-			p += sprintf(p, "\n                                AEC6260 Chipset.\n");
+-			break;
+-		case PCI_DEVICE_ID_ARTOP_ATP865:
+-			p += sprintf(p, "\n                                AEC6280 Chipset without ROM.\n");
+-			break;
+-		case PCI_DEVICE_ID_ARTOP_ATP865R:
+-			p += sprintf(p, "\n                                AEC6280 Chipset with ROM.\n");
+-			break;
+-		default:
+-			p += sprintf(p, "\n                                AEC62?? Chipset.\n");
+-			break;
+-	}
++	unsigned char t;
+ 
+-        /*
+-         * at that point bibma+0x2 et bibma+0xa are byte registers
+-         * to investigate:
+-         */
+-	c0 = inb_p((unsigned short)bibma + 0x02);
+-	c1 = inb_p((unsigned short)bibma + 0x0a);
+-
+-	p += sprintf(p, "--------------- Primary Channel ---------------- Secondary Channel -------------\n");
+-	(void) pci_read_config_byte(bmide_dev, 0x4a, &art);
+-	p += sprintf(p, "                %sabled                         %sabled\n",
+-		(art&0x02)?" en":"dis",(art&0x04)?" en":"dis");
+-	p += sprintf(p, "--------------- drive0 --------- drive1 -------- drive0 ---------- drive1 ------\n");
+-	p += sprintf(p, "DMA enabled:    %s              %s             %s               %s\n",
+-		(c0&0x20)?"yes":"no ",(c0&0x40)?"yes":"no ",(c1&0x20)?"yes":"no ",(c1&0x40)?"yes":"no ");
+-
+-	switch(bmide_dev->device) {
+-		case PCI_DEVICE_ID_ARTOP_ATP850UF:
+-			(void) pci_read_config_byte(bmide_dev, 0x54, &art);
+-			p += sprintf(p, "DMA Mode:       %s(%s)          %s(%s)         %s(%s)           %s(%s)\n",
+-				(c0&0x20)?((art&0x03)?"UDMA":" DMA"):" PIO",
+-				(art&0x02)?"2":(art&0x01)?"1":"0",
+-				(c0&0x40)?((art&0x0c)?"UDMA":" DMA"):" PIO",
+-				(art&0x08)?"2":(art&0x04)?"1":"0",
+-				(c1&0x20)?((art&0x30)?"UDMA":" DMA"):" PIO",
+-				(art&0x20)?"2":(art&0x10)?"1":"0",
+-				(c1&0x40)?((art&0xc0)?"UDMA":" DMA"):" PIO",
+-				(art&0x80)?"2":(art&0x40)?"1":"0");
+-			(void) pci_read_config_byte(bmide_dev, 0x40, &art);
+-			p += sprintf(p, "Active:         0x%02x", art);
+-			(void) pci_read_config_byte(bmide_dev, 0x42, &art);
+-			p += sprintf(p, "             0x%02x", art);
+-			(void) pci_read_config_byte(bmide_dev, 0x44, &art);
+-			p += sprintf(p, "            0x%02x", art);
+-			(void) pci_read_config_byte(bmide_dev, 0x46, &art);
+-			p += sprintf(p, "              0x%02x\n", art);
+-			(void) pci_read_config_byte(bmide_dev, 0x41, &art);
+-			p += sprintf(p, "Recovery:       0x%02x", art);
+-			(void) pci_read_config_byte(bmide_dev, 0x43, &art);
+-			p += sprintf(p, "             0x%02x", art);
+-			(void) pci_read_config_byte(bmide_dev, 0x45, &art);
+-			p += sprintf(p, "            0x%02x", art);
+-			(void) pci_read_config_byte(bmide_dev, 0x47, &art);
+-			p += sprintf(p, "              0x%02x\n", art);
+-			break;
+-		case PCI_DEVICE_ID_ARTOP_ATP860:
+-		case PCI_DEVICE_ID_ARTOP_ATP860R:
+-			(void) pci_read_config_byte(bmide_dev, 0x44, &art);
+-			p += sprintf(p, "DMA Mode:       %s(%s)          %s(%s)",
+-				(c0&0x20)?((art&0x07)?"UDMA":" DMA"):" PIO",
+-				((art&0x06)==0x06)?"4":((art&0x05)==0x05)?"4":((art&0x04)==0x04)?"3":((art&0x03)==0x03)?"2":((art&0x02)==0x02)?"1":((art&0x01)==0x01)?"0":"?",
+-				(c0&0x40)?((art&0x70)?"UDMA":" DMA"):" PIO",
+-				((art&0x60)==0x60)?"4":((art&0x50)==0x50)?"4":((art&0x40)==0x40)?"3":((art&0x30)==0x30)?"2":((art&0x20)==0x20)?"1":((art&0x10)==0x10)?"0":"?");
+-			(void) pci_read_config_byte(bmide_dev, 0x45, &art);
+-			p += sprintf(p, "         %s(%s)           %s(%s)\n",
+-				(c1&0x20)?((art&0x07)?"UDMA":" DMA"):" PIO",
+-				((art&0x06)==0x06)?"4":((art&0x05)==0x05)?"4":((art&0x04)==0x04)?"3":((art&0x03)==0x03)?"2":((art&0x02)==0x02)?"1":((art&0x01)==0x01)?"0":"?",
+-				(c1&0x40)?((art&0x70)?"UDMA":" DMA"):" PIO",
+-				((art&0x60)==0x60)?"4":((art&0x50)==0x50)?"4":((art&0x40)==0x40)?"3":((art&0x30)==0x30)?"2":((art&0x20)==0x20)?"1":((art&0x10)==0x10)?"0":"?");
+-			(void) pci_read_config_byte(bmide_dev, 0x40, &art);
+-			p += sprintf(p, "Active:         0x%02x", HIGH_4(art));
+-			(void) pci_read_config_byte(bmide_dev, 0x41, &art);
+-			p += sprintf(p, "             0x%02x", HIGH_4(art));
+-			(void) pci_read_config_byte(bmide_dev, 0x42, &art);
+-			p += sprintf(p, "            0x%02x", HIGH_4(art));
+-			(void) pci_read_config_byte(bmide_dev, 0x43, &art);
+-			p += sprintf(p, "              0x%02x\n", HIGH_4(art));
+-			(void) pci_read_config_byte(bmide_dev, 0x40, &art);
+-			p += sprintf(p, "Recovery:       0x%02x", LOW_4(art));
+-			(void) pci_read_config_byte(bmide_dev, 0x41, &art);
+-			p += sprintf(p, "             0x%02x", LOW_4(art));
+-			(void) pci_read_config_byte(bmide_dev, 0x42, &art);
+-			p += sprintf(p, "            0x%02x", LOW_4(art));
+-			(void) pci_read_config_byte(bmide_dev, 0x43, &art);
+-			p += sprintf(p, "              0x%02x\n", LOW_4(art));
+-			(void) pci_read_config_byte(bmide_dev, 0x49, &uart);
+-			p += sprintf(p, "reg49h = 0x%02x ", uart);
+-			(void) pci_read_config_byte(bmide_dev, 0x4a, &uart);
+-			p += sprintf(p, "reg4ah = 0x%02x\n", uart);
+-			break;
+-		case PCI_DEVICE_ID_ARTOP_ATP865:
+-		case PCI_DEVICE_ID_ARTOP_ATP865R:
+-			(void) pci_read_config_byte(bmide_dev, 0x44, &art);
+-			p += sprintf(p, "DMA Mode:       %s(%s)          %s(%s)",
+-				(c0&0x20)?((art&0x0f)?"UDMA":" DMA"):" PIO",
+-				aec6280_get_speed(art&0x0f),
+-				(c0&0x40)?((art&0xf0)?"UDMA":" DMA"):" PIO",
+-				aec6280_get_speed(art>>4));
+-			(void) pci_read_config_byte(bmide_dev, 0x45, &art);
+-			p += sprintf(p, "         %s(%s)          %s(%s)\n",
+-				(c0&0x20)?((art&0x0f)?"UDMA":" DMA"):" PIO",
+-				aec6280_get_speed(art&0x0f),
+-				(c0&0x40)?((art&0xf0)?"UDMA":" DMA"):" PIO",
+-				aec6280_get_speed(art>>4));
+-			(void) pci_read_config_byte(bmide_dev, 0x40, &art);
+-			p += sprintf(p, "Active:         0x%02x", HIGH_4(art));
+-			(void) pci_read_config_byte(bmide_dev, 0x41, &art);
+-			p += sprintf(p, "             0x%02x", HIGH_4(art));
+-			(void) pci_read_config_byte(bmide_dev, 0x42, &art);
+-			p += sprintf(p, "            0x%02x", HIGH_4(art));
+-			(void) pci_read_config_byte(bmide_dev, 0x43, &art);
+-			p += sprintf(p, "              0x%02x\n", HIGH_4(art));
+-			(void) pci_read_config_byte(bmide_dev, 0x40, &art);
+-			p += sprintf(p, "Recovery:       0x%02x", LOW_4(art));
+-			(void) pci_read_config_byte(bmide_dev, 0x41, &art);
+-			p += sprintf(p, "             0x%02x", LOW_4(art));
+-			(void) pci_read_config_byte(bmide_dev, 0x42, &art);
+-			p += sprintf(p, "            0x%02x", LOW_4(art));
+-			(void) pci_read_config_byte(bmide_dev, 0x43, &art);
+-			p += sprintf(p, "              0x%02x\n", LOW_4(art));
+-			(void) pci_read_config_byte(bmide_dev, 0x49, &uart);
+-			p += sprintf(p, "reg49h = 0x%02x ", uart);
+-			(void) pci_read_config_byte(bmide_dev, 0x4a, &uart);
+-			p += sprintf(p, "reg4ah = 0x%02x\n", uart);
+-			break;
+-		default:
+-			break;
+-	}
++	pci_write_config_byte(dev, AEC_DRIVE_TIMING + (dn << 1),     FIT(timing->active, 0, 15));
++	pci_write_config_byte(dev, AEC_DRIVE_TIMING + (dn << 1) + 1, FIT(timing->recover, 0, 15));
+ 
+-	return p-buffer;/* => must be less than 4k! */
++	pci_read_config_byte(dev, AEC_UDMA_OLD, &t);
++	t &= ~(3 << (dn << 1));
++	if (timing->udma)
++		t |= (5 - FIT(timing->udma, 2, 4)) << (dn << 1);
++	pci_write_config_byte(dev, AEC_UDMA_OLD, t);
+ }
+-#endif	/* defined(DISPLAY_AEC62xx_TIMINGS) && defined(CONFIG_PROC_FS) */
+-
+-byte aec62xx_proc = 0;
+-
+-struct chipset_bus_clock_list_entry {
+-	byte		xfer_speed;
+-
+-	byte		chipset_settings_34;
+-	byte		ultra_settings_34;
+-
+-	byte		chipset_settings_33;
+-	byte		ultra_settings_33;
+-};
+-
+-struct chipset_bus_clock_list_entry aec62xx_base [] = {
+-#ifdef CONFIG_BLK_DEV_IDEDMA
+-	{	XFER_UDMA_6,	0x41,	0x06,	0x31,	0x07	},
+-	{	XFER_UDMA_5,	0x41,	0x05,	0x31,	0x06	},
+-	{	XFER_UDMA_4,	0x41,	0x04,	0x31,	0x05	},
+-	{	XFER_UDMA_3,	0x41,	0x03,	0x31,	0x04	},
+-	{	XFER_UDMA_2,	0x41,	0x02,	0x31,	0x03	},
+-	{	XFER_UDMA_1,	0x41,	0x01,	0x31,	0x02	},
+-	{	XFER_UDMA_0,	0x41,	0x01,	0x31,	0x01	},
+-
+-	{	XFER_MW_DMA_2,	0x41,	0x00,	0x31,	0x00	},
+-	{	XFER_MW_DMA_1,	0x42,	0x00,	0x31,	0x00	},
+-	{	XFER_MW_DMA_0,	0x7a,	0x00,	0x0a,	0x00	},
+-#endif /* CONFIG_BLK_DEV_IDEDMA */
+-	{	XFER_PIO_4,	0x41,	0x00,	0x31,	0x00	},
+-	{	XFER_PIO_3,	0x43,	0x00,	0x33,	0x00	},
+-	{	XFER_PIO_2,	0x78,	0x00,	0x08,	0x00	},
+-	{	XFER_PIO_1,	0x7a,	0x00,	0x0a,	0x00	},
+-	{	XFER_PIO_0,	0x70,	0x00,	0x00,	0x00	},
+-	{	0,		0x00,	0x00,	0x00,	0x00	}
+-};
+ 
+ /*
+- * TO DO: active tuning and correction of cards without a bios.
++ * aec_set_speed_new() writes timing values to the chipset registers for all
++ * other Artop chips
+  */
+ 
+-static byte pci_bus_clock_list (byte speed, struct chipset_bus_clock_list_entry * chipset_table)
++static void aec_set_speed_new(struct pci_dev *dev, unsigned char dn, struct ata_timing *timing)
+ {
+-	for ( ; chipset_table->xfer_speed ; chipset_table++)
+-		if (chipset_table->xfer_speed == speed) {
+-			return ((byte) ((system_bus_speed <= 33333) ? chipset_table->chipset_settings_33 : chipset_table->chipset_settings_34));
+-		}
+-	return 0x00;
+-}
++	unsigned char t;
+ 
+-static byte pci_bus_clock_list_ultra (byte speed, struct chipset_bus_clock_list_entry * chipset_table)
+-{
+-	for ( ; chipset_table->xfer_speed ; chipset_table++)
+-		if (chipset_table->xfer_speed == speed) {
+-			return ((byte) ((system_bus_speed <= 33333) ? chipset_table->ultra_settings_33 : chipset_table->ultra_settings_34));
+-		}
+-	return 0x00;
++	pci_write_config_byte(dev, AEC_DRIVE_TIMING + dn,
++		(FIT(timing->active, 0, 15) << 4) | FIT(timing->recover, 0, 15));
++
++	pci_read_config_byte(dev, AEC_UDMA_NEW + (dn >> 1), &t);
++	t &= ~(0xf << ((dn & 1) << 2));
++	if (timing->udma)
++		t |= aec_cyc2udma[FIT(timing->udma, 2, 16)] << ((dn & 1) << 2);
++	pci_write_config_byte(dev, AEC_UDMA_NEW + (dn >> 1), t);
+ }
+ 
+-static int aec62xx_ratemask(struct ata_device *drive)
+-{
+-	struct pci_dev *dev = drive->channel->pci_dev;
+-	u32 bmide = pci_resource_start(dev, 4);
+-	int map = 0;
++/*
++ * aec_set_drive() computes timing values configures the drive and
++ * the chipset to a desired transfer mode. It also can be called
++ * by upper layers.
++ */
+ 
+-	if (!eighty_ninty_three(drive))
+-		return XFER_UDMA;
++static int aec_set_drive(ide_drive_t *drive, unsigned char speed)
++{
++	struct ata_timing t;
++	int T, UT;
++	int aec_old;
+ 
+-	switch(dev->device) {
+-		case PCI_DEVICE_ID_ARTOP_ATP865R:
+-		case PCI_DEVICE_ID_ARTOP_ATP865:
+-			if (IN_BYTE(bmide+2) & 0x10)
+-				map |= XFER_UDMA_133;
+-			else
+-				map |= XFER_UDMA_100;
+-		case PCI_DEVICE_ID_ARTOP_ATP860R:
+-		case PCI_DEVICE_ID_ARTOP_ATP860:
+-			map |= XFER_UDMA_66;
+-		case PCI_DEVICE_ID_ARTOP_ATP850UF:
+-			map |= XFER_UDMA;
+-	}
+-	return map;
+-}
++	aec_old = (drive->channel->pci_dev->device == PCI_DEVICE_ID_ARTOP_ATP850UF);
+ 
+-static int aec6210_tune_chipset(struct ata_device *drive, byte speed)
+-{
+-	struct pci_dev *dev = drive->channel->pci_dev;
+-	unsigned short d_conf	= 0x0000;
+-	byte ultra		= 0x00;
+-	byte ultra_conf		= 0x00;
+-	byte tmp0		= 0x00;
+-	byte tmp1		= 0x00;
+-	byte tmp2		= 0x00;
+-	unsigned long flags;
+-
+-	__save_flags(flags);	/* local CPU only */
+-	__cli();		/* local CPU only */
+-
+-	pci_read_config_word(dev, 0x40|(2*drive->dn), &d_conf);
+-	tmp0 = pci_bus_clock_list(speed, aec62xx_base);
+-	SPLIT_BYTE(tmp0,tmp1,tmp2);
+-	MAKE_WORD(d_conf,tmp1,tmp2);
+-	pci_write_config_word(dev, 0x40|(2*drive->dn), d_conf);
+-
+-	tmp1 = 0x00;
+-	tmp2 = 0x00;
+-	pci_read_config_byte(dev, 0x54, &ultra);
+-	tmp1 = ((0x00 << (2*drive->dn)) | (ultra & ~(3 << (2*drive->dn))));
+-	ultra_conf = pci_bus_clock_list_ultra(speed, aec62xx_base);
+-	tmp2 = ((ultra_conf << (2*drive->dn)) | (tmp1 & ~(3 << (2*drive->dn))));
+-	pci_write_config_byte(dev, 0x54, tmp2);
++	if (speed != XFER_PIO_SLOW && speed != drive->current_speed)
++		if (ide_config_drive_speed(drive, speed))
++			printk(KERN_WARNING "ide%d: Drive %d didn't accept speed setting. Oh, well.\n",
++				drive->dn >> 1, drive->dn & 1);
+ 
+-	__restore_flags(flags);	/* local CPU only */
++	T = 1000000000 / system_bus_speed;
++	UT = T / (aec_old ? 1 : 4);
+ 
+-	return ide_config_drive_speed(drive, speed);
+-}
++	ata_timing_compute(drive, speed, &t, T, UT);
+ 
+-static int aec6260_tune_chipset(struct ata_device *drive, byte speed)
+-{
+-	struct pci_dev *dev = drive->channel->pci_dev;
+-	byte unit		= (drive->select.b.unit & 0x01);
+-	u8 ultra_pci = drive->channel->unit ? 0x45 : 0x44;
+-	byte drive_conf		= 0x00;
+-	byte ultra_conf		= 0x00;
+-	byte ultra		= 0x00;
+-	byte tmp1		= 0x00;
+-	byte tmp2		= 0x00;
+-	unsigned long flags;
+-
+-	__save_flags(flags);	/* local CPU only */
+-	__cli();		/* local CPU only */
+-
+-	pci_read_config_byte(dev, 0x40|drive->dn, &drive_conf);
+-	drive_conf = pci_bus_clock_list(speed, aec62xx_base);
+-	pci_write_config_byte(dev, 0x40|drive->dn, drive_conf);
+-
+-	pci_read_config_byte(dev, ultra_pci, &ultra);
+-	tmp1 = ((0x00 << (4*unit)) | (ultra & ~(7 << (4*unit))));
+-	ultra_conf = pci_bus_clock_list_ultra(speed, aec62xx_base);
+-	tmp2 = ((ultra_conf << (4*unit)) | (tmp1 & ~(7 << (4*unit))));
+-	pci_write_config_byte(dev, ultra_pci, tmp2);
+-	__restore_flags(flags);	/* local CPU only */
++	if (aec_old)
++		aec_set_speed_old(drive->channel->pci_dev, drive->dn, &t);
++	else
++		aec_set_speed_new(drive->channel->pci_dev, drive->dn, &t);
+ 
+ 	if (!drive->init_speed)
+ 		drive->init_speed = speed;
+-
+ 	drive->current_speed = speed;
+-	return ide_config_drive_speed(drive, speed);
++
++	return 0;
+ }
+ 
++/*
++ * aec62xx_tune_drive() is a callback from upper layers for
++ * PIO-only tuning.
++ */
+ 
+-static int aec62xx_tune_chipset(struct ata_device *drive, byte speed)
++static void aec62xx_tune_drive(ide_drive_t *drive, unsigned char pio)
+ {
+-	switch (drive->channel->pci_dev->device) {
+-		case PCI_DEVICE_ID_ARTOP_ATP865:
+-		case PCI_DEVICE_ID_ARTOP_ATP865R:
+-		case PCI_DEVICE_ID_ARTOP_ATP860:
+-		case PCI_DEVICE_ID_ARTOP_ATP860R:
+-			return aec6260_tune_chipset(drive, speed);
+-		case PCI_DEVICE_ID_ARTOP_ATP850UF:
+-			return aec6210_tune_chipset(drive, speed);
+-		default:
+-			return -1;
++	if (pio == 255) {
++		aec_set_drive(drive, ata_timing_mode(drive, XFER_PIO | XFER_EPIO));
++		return;
+ 	}
++
++	aec_set_drive(drive, XFER_PIO_0 + min_t(byte, pio, 5));
+ }
+ 
+ #ifdef CONFIG_BLK_DEV_IDEDMA
+-static int config_chipset_for_dma(struct ata_device *drive, u8 udma)
++static int aec62xx_dmaproc(struct ata_device *drive)
+ {
++	short speed;
+ 	int map;
+-	u8 mode;
+-
+-	if (drive->type != ATA_DISK)
+-		return 0;
+ 
+-	if (udma)
+-		map = aec62xx_ratemask(drive);
+-	else
+-		map = XFER_SWDMA | XFER_MWDMA;
+-
+-	mode = ata_timing_mode(drive, map);
+-
+-	if (mode < XFER_SW_DMA_0)
+-		return 0;
+-
+-	return !aec62xx_tune_chipset(drive, mode);
+-}
+-#endif /* CONFIG_BLK_DEV_IDEDMA */
++	map = XFER_PIO | XFER_EPIO | XFER_MWDMA | XFER_UDMA | XFER_SWDMA | XFER_UDMA;
+ 
+-static void aec62xx_tune_drive(struct ata_device *drive, byte pio)
+-{
+-	byte speed;
++	if (drive->channel->udma_four)
++		switch (drive->channel->pci_dev->device) {
++			case PCI_DEVICE_ID_ARTOP_ATP865R:
++			case PCI_DEVICE_ID_ARTOP_ATP865:
++				map |= XFER_UDMA_100 | XFER_UDMA_133;
++			case PCI_DEVICE_ID_ARTOP_ATP860R:
++			case PCI_DEVICE_ID_ARTOP_ATP860:
++				map |= XFER_UDMA_66;
++		}
+ 
+-	if (pio == 255)
+-		speed = ata_timing_mode(drive, XFER_PIO | XFER_EPIO);
+-	else
+-		speed = XFER_PIO_0 + min_t(byte, pio, 4);
++	speed = ata_timing_mode(drive, map);
++	aec_set_drive(drive, speed);
++	udma_enable(drive, drive->channel->autodma && (speed & XFER_MODE) != XFER_PIO, 0);
+ 
+-	(void) aec62xx_tune_chipset(drive, speed);
+-}
+-
+-#ifdef CONFIG_BLK_DEV_IDEDMA
+-static int config_drive_xfer_rate(struct ata_device *drive)
+-{
+-	struct hd_driveid *id = drive->id;
+-	int on = 1;
+-	int verbose = 1;
+-
+-	if (id && (id->capability & 1) && drive->channel->autodma) {
+-		/* Consult the list of known "bad" drives */
+-		if (udma_black_list(drive)) {
+-			on = 0;
+-			goto fast_ata_pio;
+-		}
+-		on = 0;
+-		verbose = 0;
+-		if (id->field_valid & 4) {
+-			if (id->dma_ultra & 0x007F) {
+-				/* Force if Capable UltraDMA */
+-				on = config_chipset_for_dma(drive, 1);
+-				if ((id->field_valid & 2) &&
+-				    (!on))
+-					goto try_dma_modes;
+-			}
+-		} else if (id->field_valid & 2) {
+-try_dma_modes:
+-			if ((id->dma_mword & 0x0007) ||
+-			    (id->dma_1word & 0x0007)) {
+-				/* Force if Capable regular DMA modes */
+-				on = config_chipset_for_dma(drive, 0);
+-				if (!on)
+-					goto no_dma_set;
+-			}
+-		} else if (udma_white_list(drive)) {
+-			if (id->eide_dma_time > 150) {
+-				goto no_dma_set;
+-			}
+-			/* Consult the list of known "good" drives */
+-			on = config_chipset_for_dma(drive, 0);
+-			if (!on)
+-				goto no_dma_set;
+-		} else {
+-			goto fast_ata_pio;
+-		}
+-	} else if ((id->capability & 8) || (id->field_valid & 2)) {
+-fast_ata_pio:
+-		on = 0;
+-		verbose = 0;
+-no_dma_set:
+-		aec62xx_tune_drive(drive, 5);
+-	}
+-	udma_enable(drive, on, verbose);
+ 	return 0;
+ }
+-
+-int aec62xx_dmaproc(struct ata_device *drive)
+-{
+-	return config_drive_xfer_rate(drive);
+-}
+ #endif
+ 
++/*
++ * The initialization callback. Here we determine the IDE chip type
++ * and initialize its drive independent registers.
++ */
++
+ static unsigned int __init aec62xx_init_chipset(struct pci_dev *dev)
+ {
+-	u8 reg49h = 0;
+-	u8 reg4ah = 0;
++	unsigned char t;
++
++/*
++ * Initialize if needed.
++ */
++
++	switch (dev->device) {
+ 
+-	switch(dev->device) {
+-		case PCI_DEVICE_ID_ARTOP_ATP865:
+ 		case PCI_DEVICE_ID_ARTOP_ATP865R:
+-			/* Clear reset and test bits.  */
+-			pci_read_config_byte(dev, 0x49, &reg49h);
+-			pci_write_config_byte(dev, 0x49, reg49h & ~0x30);
+-			/* Enable chip interrupt output.  */
+-			pci_read_config_byte(dev, 0x4a, &reg4ah);
+-			pci_write_config_byte(dev, 0x4a, reg4ah & ~0x01);
++		case PCI_DEVICE_ID_ARTOP_ATP865:
++
++			/* Clear reset and test bits. */
++			pci_read_config_byte(dev, AEC_MISC, &t);
++			pci_write_config_byte(dev, AEC_MISC, t & ~0x30);
++
++			/* Enable chip interrupt output. */
++			pci_read_config_byte(dev, AEC_IDE_ENABLE, &t);
++			pci_write_config_byte(dev, AEC_IDE_ENABLE, t & ~0x01);
++
+ #ifdef CONFIG_AEC6280_BURST
+-			/* Must be greater than 0x80 for burst mode.  */
++			/* Must be greater than 0x80 for burst mode. */
+ 			pci_write_config_byte(dev, PCI_LATENCY_TIMER, 0x90);
+-			/* Enable burst mode.  */
+-			pci_read_config_byte(dev, 0x4a, &reg4ah);
+-			pci_write_config_byte(dev, 0x4a, reg4ah | 0x80);
++
++			/* Enable burst mode. */
++			pci_read_config_byte(dev, AEC_IDE_ENABLE, &t);
++			pci_write_config_byte(dev, AEC_IDE_ENABLE, t | 0x80);
++
+ #endif
+-			break;
+-		default:
+-			break;
+ 	}
+ 
+-	if (dev->resource[PCI_ROM_RESOURCE].start) {
+-		pci_write_config_dword(dev, PCI_ROM_ADDRESS, dev->resource[PCI_ROM_RESOURCE].start | PCI_ROM_ADDRESS_ENABLE);
+-		printk("%s: ROM enabled at 0x%08lx\n", dev->name, dev->resource[PCI_ROM_RESOURCE].start);
+-	}
++/*
++ * Print the boot message.
++ */
+ 
+-#if defined(DISPLAY_AEC62XX_TIMINGS) && defined(CONFIG_PROC_FS)
+-	if (!aec62xx_proc) {
+-		aec62xx_proc = 1;
+-		bmide_dev = dev;
+-		aec62xx_display_info = &aec62xx_get_info;
+-	}
+-#endif
++	pci_read_config_byte(dev, PCI_REVISION_ID, &t);
++	printk(KERN_INFO "AEC_IDE: %s (rev %02x) controller on pci%s\n",
++		dev->name, t, dev->slot_name);
+ 
+-	return dev->irq;
++	return 0;
+ }
+ 
+ static unsigned int __init aec62xx_ata66_check(struct ata_channel *ch)
+ {
+-	u8 mask	= ch->unit ? 0x02 : 0x01;
+-	u8 ata66 = 0;
++	unsigned char t;
+ 
+-	pci_read_config_byte(ch->pci_dev, 0x49, &ata66);
+-
+-	return ((ata66 & mask) ? 0 : 1);
++	pci_read_config_byte(ch->pci_dev, AEC_MISC, &t);
++	return ((t & (1 << ch->unit)) ? 0 : 1);
+ }
+ 
+-static void __init aec62xx_init_channel(struct ata_channel *hwif)
++static void __init aec62xx_init_channel(struct ata_channel *ch)
+ {
+-	hwif->tuneproc = aec62xx_tune_drive;
+-	hwif->speedproc = aec62xx_tune_chipset;
+-	hwif->drives[0].autotune = 1;
+-	hwif->drives[1].autotune = 1;
++	int i;
++
++	ch->tuneproc = &aec62xx_tune_drive;
++	ch->speedproc = &aec_set_drive;
++	ch->autodma = 0;
++
++	ch->io_32bit = 1;
++	ch->unmask = 1;
++
++	for (i = 0; i < 2; i++) {
++		ch->drives[i].autotune = 1;
++		ch->drives[i].dn = ch->unit * 2 + i;
++	}
+ 
+ #ifdef CONFIG_BLK_DEV_IDEDMA
+-	if (hwif->dma_base) {
+-		hwif->XXX_udma = aec62xx_dmaproc;
+-		hwif->highmem = 1;
+-# ifdef CONFIG_IDEDMA_AUTO
++	if (ch->dma_base) {
++		ch->highmem = 1;
++		ch->XXX_udma = aec62xx_dmaproc;
++#ifdef CONFIG_IDEDMA_AUTO
+ 		if (!noautodma)
+-			hwif->autodma = 1;
+-# endif
++			ch->autodma = 1;
++#endif
+ 	}
+ #endif
+ }
+ 
+-static void __init aec62xx_init_dma(struct ata_channel *hwif, unsigned long dmabase)
++/*
++ * We allow the BM-DMA driver only work on enabled interfaces.
++ */
++static void __init aec62xx_init_dma(struct ata_channel *ch, unsigned long dmabase)
+ {
+-	u8 reg54h = 0;
++	unsigned char t;
+ 
+-	/* FIXME: we need some locking here */
+-	pci_read_config_byte(hwif->pci_dev, 0x54, &reg54h);
+-	pci_write_config_byte(hwif->pci_dev, 0x54, reg54h & ~(hwif->unit ? 0xF0 : 0x0F));
+-	ata_init_dma(hwif, dmabase);
++	pci_read_config_byte(ch->pci_dev, AEC_IDE_ENABLE, &t);
++	if (t & (1 << ((ch->unit << 1) + 2)))
++		ata_init_dma(ch, dmabase);
+ }
+ 
+ /* module data table */
+@@ -574,7 +285,7 @@
+ 		init_chipset: aec62xx_init_chipset,
+ 		ata66_check: aec62xx_ata66_check,
+ 		init_channel: aec62xx_init_channel,
+-		enablebits: { {0x00,0x00,0x00},	{0x00,0x00,0x00} },
++		enablebits: { {0x4a,0x02,0x02},	{0x4a,0x04,0x04} },
+ 		bootable: NEVER_BOARD,
+ 		flags: ATA_F_IRQ | ATA_F_NOADMA | ATA_F_DMA
+ 	},
+@@ -594,7 +305,7 @@
+ 		init_chipset: aec62xx_init_chipset,
+ 		ata66_check: aec62xx_ata66_check,
+ 		init_channel: aec62xx_init_channel,
+-		enablebits: { {0x00,0x00,0x00},	{0x00,0x00,0x00} },
++		enablebits: { {0x4a,0x02,0x02},	{0x4a,0x04,0x04} },
+ 		bootable: NEVER_BOARD,
+ 		flags: ATA_F_IRQ | ATA_F_DMA
+ 	},
+@@ -604,26 +315,6 @@
+ 		init_chipset: aec62xx_init_chipset,
+ 		ata66_check: aec62xx_ata66_check,
+ 		init_channel: aec62xx_init_channel,
+-		enablebits: { {0x00,0x00,0x00},	{0x00,0x00,0x00} },
+-		bootable: OFF_BOARD,
+-		flags: ATA_F_IRQ | ATA_F_DMA
+-	},
+-	{
+-		vendor: PCI_VENDOR_ID_ARTOP,
+-		device: PCI_DEVICE_ID_ARTOP_ATP865,
+-		init_chipset: aec62xx_init_chipset,
+-		ata66_check: aec62xx_ata66_check,
+-		init_channel: aec62xx_init_channel,
+-		enablebits: { {0x00,0x00,0x00},	{0x00,0x00,0x00} },
+-		bootable: NEVER_BOARD,
+-		flags: ATA_F_IRQ | ATA_F_NOADMA | ATA_F_DMA
+-	},
+-	{
+-		vendor: PCI_VENDOR_ID_ARTOP,
+-		device: PCI_DEVICE_ID_ARTOP_ATP865R,
+-		init_chipset: aec62xx_init_chipset,
+-		ata66_check: aec62xx_ata66_check,
+-		init_channel: aec62xx_init_channel,
+ 		enablebits: { {0x4a,0x02,0x02},	{0x4a,0x04,0x04} },
+ 		bootable: OFF_BOARD,
+ 		flags: ATA_F_IRQ | ATA_F_DMA
+@@ -634,9 +325,8 @@
+ {
+ 	int i;
+ 
+-	for (i = 0; i < ARRAY_SIZE(chipsets); ++i) {
+-		ata_register_chipset(&chipsets[i]);
+-	}
++	for (i = 0; i < ARRAY_SIZE(chipsets); i++)
++		ata_register_chipset(chipsets + i);
+ 
+ 	return 0;
+ }
+
+--5mCyUwZo2JvN/JJP--

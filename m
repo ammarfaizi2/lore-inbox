@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317258AbSHOR3e>; Thu, 15 Aug 2002 13:29:34 -0400
+	id <S317264AbSHORoW>; Thu, 15 Aug 2002 13:44:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317261AbSHOR3e>; Thu, 15 Aug 2002 13:29:34 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42757 "EHLO
+	id <S317269AbSHORoW>; Thu, 15 Aug 2002 13:44:22 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56326 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317258AbSHOR3d>; Thu, 15 Aug 2002 13:29:33 -0400
-Date: Thu, 15 Aug 2002 10:35:40 -0700 (PDT)
+	id <S317264AbSHORoV>; Thu, 15 Aug 2002 13:44:21 -0400
+Date: Thu, 15 Aug 2002 10:51:03 -0700 (PDT)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Dax Kelson <dax@gurulabs.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Kendrick M. Smith" <kmsmith@umich.edu>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "nfs@lists.sourceforge.net" <nfs@lists.sourceforge.net>,
-       <beepy@netapp.com>, <trond.myklebust@fys.uio.no>
-Subject: Re: Will NFSv4 be accepted?
-In-Reply-To: <Pine.LNX.4.44.0208141938350.31203-100000@mooru.gurulabs.com>
-Message-ID: <Pine.LNX.4.44.0208151027510.3130-100000@home.transmeta.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Greg Banks <gnb@alphalink.com.au>, <linux-kernel@vger.kernel.org>,
+       <kbuild-devel@lists.sourceforge.net>
+Subject: Re: Get rid of shell based Config.in parsers?
+In-Reply-To: <20020814221400.A1562@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.44.0208151048330.3130-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 14 Aug 2002, Dax Kelson wrote:
+On Wed, 14 Aug 2002, Sam Ravnborg wrote:
 > 
-> Q for Linus: What's the prospect of adding crypto to the kernel?
+> Where comes the requirement that we shall keep the existing shell 
+> based config parsers?
 
-For a good enough excuse, and with a good enough argument that it's not 
-likely to be a big export problem, I don't think it's impossible any more.
+I use them exclusively.
 
-However, the "good enough excuse" has to be better than "some technically 
-excellent, but not very widespread" thing. 
+It is far and away the most convenient parsing - just to do "make
+oldconfig"  (possibly by making changes by hand to the .config file
+first).
 
-Quite frankly, I personally suspect that crypto is one of those things 
-that will be added by vendor kernels first - if vendors are willing to 
-handle whatever export issues there are, that's good, and if they aren't, 
-then the standard kernel cannot really force it upon them anyway.
-
-I personally doubt that NFS would be the thing driving this. Judging by 
-past performance, NFS security issues don't seem to bother people. I'd 
-personally assume that the thing that would be important enough to people 
-for vendors to add it is VPN or encrypted (local) disks.
+As far as I'm personally concerned, the shell parsers are the _only_ 
+parser that really matter. So if you want to replace them with something 
+else, that something else had better be pretty much perfect and not take 
+all that long to build.
 
 		Linus
 

@@ -1,78 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265142AbTFMLEL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 07:04:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265350AbTFMLEL
+	id S265352AbTFMLQA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 07:16:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265355AbTFMLQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 07:04:11 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:22153 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S265142AbTFMLEJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 07:04:09 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Paul Mackerras" <paulus@samba.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] udev enhancements to use kernel event queue
-Date: Fri, 13 Jun 2003 04:17:54 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKCEFJDKAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	Fri, 13 Jun 2003 07:16:00 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:43789 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S265352AbTFMLP7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 07:15:59 -0400
+Date: Fri, 13 Jun 2003 13:29:31 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: John Bradford <john@grabjohn.com>
+Cc: jw@pegasys.ws, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21-rc8
+Message-Id: <20030613132931.64125055.skraw@ithnet.com>
+In-Reply-To: <200306120859.h5C8xuh7000958@81-2-122-30.bradfords.org.uk>
+References: <200306120859.h5C8xuh7000958@81-2-122-30.bradfords.org.uk>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <16105.3943.510055.309447@nanango.paulus.ozlabs.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 12 Jun 2003 09:59:56 +0100
+John Bradford <john@grabjohn.com> wrote:
 
-Pual Mackerras is said to have opined:
+> > Saying it is a bad idea to release a kernel with known bugs
+> > is like saying it is a bad idea to buy a computer when the
+> > price will be going down soon.  Would you care to delay
+> > 2.4.21 until next spring or would you rather get the fixes
+> > it contains today and have 2.4.22 with your pet fix on
+> > (hopefully) a scale of weeks?
+> 
+> A lot of the known bugs have fixes which appear to be OK, but haven't
+> really had enough testing to go in to a -final tree.  A lot of them
+> won't have been tested on SMP boxes for example.
 
-> Patrick Mochel writes:
+One of the more important things in kernel development - according to my
+personal opinion - is the fact that there is _one_ main tree and you may well
+ignore others. The more you split up, the less testing there will be. There is
+only a certain amount of people that really use not-released kernels. If you
+produce more branches the total amount of tests done will not really increase
+but rather decrease (per branch) because of the split-up.
+Don't do that, please
+And another thing is: your proposal seems to increase load on the maintree
+maintainer. I don't think this is the right way to go. I would rather say the
+subsytem maintainers should be more involved. Which means: if a subsystem does
+not work as expected or the patches are a mess, then I'd say it's the maintree
+maintainers job to kick the a** of the subsystem maintainer to solve it, and
+not to solve the problem himself. Surely he can give hints and suggestions -
+who wouldn't - but the work should be done by the maintainer. I think this is
+the fundamental idea behind maintainership.
 
-> > +static inline int atomic_inc_and_read(atomic_t *v)
-> > +{
-> > +	__asm__ __volatile__(
-> > +		LOCK "incl %0"
-> > +		:"=m" (v->counter)
-> > +		:"m" (v->counter));
-> > +	return v->counter;
-> > +}
-
-> BZZZT.  If another CPU is also doing atomic_inc_and_read you could end
-> up with both calls returning the same value.
->
-> You can't do atomic_inc_and_read on 386.  You can on cpus that have
-> cmpxchg (e.g. later x86).  You can also on machines with load-locked
-> and store-conditional instructions (alpha, ppc, probably most other
-> RISCs).
-
-	You can also do it with a conditional move instruction, but it's kind of
-ugly. No help on a '386 though.
-
-	There are ways to do it that work on a 386, but they are all basically
-equivalent to (or worse than) acquiring a spinlock, doing the deed, and then
-releasing it.
-
-	You could also do (in pseudo-code):
-
-top:
- ret <- v->counter
- inc ret
- LOCK incl v->counter
- cmp v->counter, ret
- jz end
- LOCK decl v->counter
- jmp top:
-end:
- return ret
-
-	This does not strictly guarantee in order return values, but that's
-meaningless without a lock anyway.
-
-	DS
-
-
+Regards,
+Stephan

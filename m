@@ -1,108 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261952AbUDCUn7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 15:43:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbUDCUn7
+	id S261979AbUDCUxr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 15:53:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbUDCUxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 15:43:59 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:29585 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261952AbUDCUn4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 15:43:56 -0500
-Message-ID: <406F21FB.4010502@colorfullife.com>
-Date: Sat, 03 Apr 2004 22:43:39 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: hadi@cyberus.ca
-CC: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-       Michal Wronski <wrona@mat.uni.torun.pl>,
-       Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
-Subject: Re: [RFC, PATCH] netlink based mq_notify(SIGEV_THREAD)
-References: <406F13A1.4030201@colorfullife.com> <1081023487.2037.19.camel@jzny.localdomain>
-In-Reply-To: <1081023487.2037.19.camel@jzny.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 3 Apr 2004 15:53:47 -0500
+Received: from prosun.first.gmd.de ([194.95.168.2]:59834 "EHLO
+	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S261979AbUDCUxp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 15:53:45 -0500
+Subject: solved (was Re: xterm scrolling speed - scheduling weirdness
+	in	2.6 ?!)
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: jamie@shareable.org, tconnors+linuxkernel1080972247@astro.swin.edu.au
+Content-Type: text/plain
+Message-Id: <1081025611.1351.108.camel@localhost>
+Mime-Version: 1.0
+Date: Sat, 03 Apr 2004 22:53:31 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jamal wrote:
+Sorry for breaking up the thread... This is copy+paste work.
 
->On Sat, 2004-04-03 at 14:42, Manfred Spraul wrote:
->  
+[...]
+> > I fixed this issue in multi-gnome-terminal by using a buffer of 32kb.
+> > It is filled as long as there is input comming in within 10ms.
+> > If the buffer is full or 10ms passed the buffer is written out to the
+> > screen. This makes it also 2-3 times faster on kernel 2.4.
+> 
+> A factor of 2 or 3 though?
+> 
+> In 2.4, to ls -lA my home directory with its 510 files, took less than
+> 0.5 sec. Currently, buffering via cat in 2.6 takes 0.5 sec. Just
+> straight ls -lA takes 6 seconds or so.
 >
->>mq_notify(SIGEV_THREAD) must be implemented in user space. If an event 
->>is triggered, the kernel must send a notification to user space, and 
->>then glibc must create the thread with the requested attributes for the 
->>notification callback.
->>    
->>
->
->I am ignorant about SIGEV_THREAD but from what i gathered above: 
->
->- something (from user space??) attempts to create a thread in the
->kernel
->- the kernel sends notification to user space when said thread is
->created or done doing something it was asked
->
-No - this part is wrong.
+> Does your factor of 3 bring you up to what you were seeing in 2.4, or
+> do you still have a regression?
 
->- something (in glibc/userspace??) is signalled by the kernel to do
->something with the result
->  
->
-This is correct.
+Huh? Maybe you read the mail again. IT IS NOW 2-3 TIMES FASTER ON 2.4 !
 
-mq_notify is a function from the posix message queue interface:
-It allows user space to request that a notification should be sent if a 
-new message is waiting in the message queue. There are two options for 
-the notification: a signal or a callback that should be called in the 
-context of a new thread.
-Signals are trivial, but calling a function in the context of a new 
-thread is tricky: the kernel can't create new user space threads.
-Thus the kernel interface for mq_notify with sigev_notify==SIGEV_THREAD 
-is an asynchroneous interface: the initial syscall just registers 
-something and if a message arrives in the queue, then a notice is sent 
-to user space. glibc must then create a SuS compatible interface on top 
-of that.
+And yes on kernel 2.6, ls -lA /usr/bin (~3200files) pops up 0.6s on this
+667Mhz G4 powerbook here (which might be a little faster than your
+machine).
 
-The problem is how should I sent the information that a message is 
-waiting to user space?
+To make it clear once again. There was a busy loop in the terminal doing
+while ( (saveerrno == EAGAIN) && (count = read (fd, buffer, 4096)) > 0) 
+{
+    saveerrno = errno;
 
->> The current implementation in Andrew's -mm tree 
->>uses single shot file descriptor - it works, but it's resource hungry.
->>    
->>
->
->Essentially you attempt to open only a single fd via netlink as opposed
->to open/close behavior you are alluding to, is that correct? 
->
-Yes.
+	output stuff
+}
 
->then all events are unicast to this fd. I am assuming you dont need to
->have more than one listener to these events? example, could one process
->create such a event which multiple processes may be interested in?
->  
->
-Correct, always only one process interested in the notification.
+If the terminal process gets to much cpu for too long this will make the
+terminal spit out characters one by one. This in turn will obviously
+turn of any jumpscrolling. When I add a usleep of 5ms in this loop jump
+scrolling is working nicely again (but it is still slower than the
+solution I proposed). This again underlines that _this_ is not a kernel
+schedulers bug.
 
->>Attached is a new proposal:
->>- split netlink_unicast into separate substeps
->>- use an AF_NETLINK socket for the message queue notification
->>    
->>
->
->I am trying to frob why you mucked around with AF_NETLINK; maybe your
->response will shed some light.
->  
->
-I'm looking for the simplest interface to send 32 byte cookies from 
-kernel to user space. The final send must be non-blocking, setup can 
-block. Someone recommended that I should look at netlink. 
-netlink_unicast was nearly perfect, except that I had to split setup and 
-sending into two functions.
+And yes, since probably all other terminals have their roots in xterm
+every terminal is affected!
 
---
-    Manfred
+The fix (see other mail) was for multi-gnome-terminal, which in turn has
+its roots in the old gnome-terminal.
+
+This fix is now in debian unstable/mgt cvs.
+
+Wwwoffle might have other issues. Is your CPU to the max while this is
+happening ? Which process eats up CPU then ? In the mgt/xterm case this
+was easily observable - mgt eat up all cpu. If that is the case you
+observe another polling bug triggered by this scheduler making your
+process to get too high priority and thus via polling cpu time. 
+
+Soeren
+
+PS: Please CC me I am not subscribed, sometimes reading the archives
+though.
 

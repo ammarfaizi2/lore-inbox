@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbVDERpu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbVDERuR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbVDERpu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 13:45:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbVDERnm
+	id S261857AbVDERuR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 13:50:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbVDERtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 13:43:42 -0400
-Received: from one.firstfloor.org ([213.235.205.2]:49606 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261846AbVDERS7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 13:18:59 -0400
-To: Christopher Allen Wing <wingc@engin.umich.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: clock runs at double speed on x86_64 system w/ATI RS200 chipset
-References: <200504031231.j33CVtHp021214@harpo.it.uu.se>
-	<Pine.LNX.4.58.0504041050250.32159@hammer.engin.umich.edu>
-From: Andi Kleen <ak@muc.de>
-Date: Tue, 05 Apr 2005 19:18:56 +0200
-In-Reply-To: <Pine.LNX.4.58.0504041050250.32159@hammer.engin.umich.edu> (Christopher
- Allen Wing's message of "Mon, 4 Apr 2005 10:53:39 -0400 (EDT)")
-Message-ID: <m18y3x16rj.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 5 Apr 2005 13:49:14 -0400
+Received: from mail.kroah.org ([69.55.234.183]:21169 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261848AbVDER27 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 13:28:59 -0400
+Date: Tue, 5 Apr 2005 10:28:43 -0700
+From: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: [00/11] -stable review
+Message-ID: <20050405172843.GA17915@kroah.com>
+References: <20050405164539.GA17299@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050405164539.GA17299@kroah.com>
+User-Agent: Mutt/1.5.8i
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christopher Allen Wing <wingc@engin.umich.edu> writes:
 
-> On Sun, 3 Apr 2005, Mikael Pettersson wrote:
->
->> Well, first step is to try w/o ACPI. ACPI is inherently fragile
->> and bugs there can easily explain your timer problems. Either
->> recompile with CONFIG_ACPI=n, or boot with "acpi=off pci=noacpi".
->
->
-> When I boot without ACPI (I used 'acpi=off pci=noacpi') the system fails
-> to come up all the way; it hangs after loading the SATA driver. (but
-> before the SATA driver finishes probing the disks)
->
-> I'm guessing that the interrupt from the SATA controller is not getting
-> through? Anyway, I assumed that ACPI was basically required for x86_64
-> systems to work, is this not really the case?
+Hm, sorry about the wrong subject, there were only 8 patches.
 
-Alternatively you can try to boot with noapic. Does that help?
+And here's a diffstat of all of them, just to make this email worth
+reading and not just an apology:
 
--Andi
+ lib/rwsem-spinlock.c          |   42 ++++++++++++++++++++++++++----------------
+ lib/rwsem.c                   |   16 ++++++++++------
+ net/ipv4/xfrm4_output.c       |   12 ++++++------
+ net/ipv6/xfrm6_output.c       |   12 ++++++------
+ arch/um/kernel/skas/uaccess.c |    3 ++-
+ arch/ia64/kernel/fsys.S       |    4 +++-
+ arch/ia64/kernel/signal.c     |    3 ++-
+ net/ipv4/tcp_input.c          |    5 ++++-
+ fs/jbd/transaction.c          |    6 +++---
+ drivers/i2c/chips/eeprom.c    |    3 ++-
+ sound/core/timer.c            |    5 ++++-
+ 11 files changed, 68 insertions(+), 43 deletions(-)
+
+thanks,
+
+greg k-h

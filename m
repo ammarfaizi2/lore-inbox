@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311650AbSCTPaX>; Wed, 20 Mar 2002 10:30:23 -0500
+	id <S311661AbSCTPbN>; Wed, 20 Mar 2002 10:31:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311652AbSCTPaN>; Wed, 20 Mar 2002 10:30:13 -0500
-Received: from mail-src.takas.lt ([212.59.31.66]:6901 "EHLO mail.takas.lt")
-	by vger.kernel.org with ESMTP id <S311650AbSCTPaD>;
-	Wed, 20 Mar 2002 10:30:03 -0500
-Date: Wed, 20 Mar 2002 17:27:20 +0200 (EET)
-From: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Subject: Re[2]: Filesystem Corruption (ext2) on Tyan S2462, 2xAMD1900MP, 2.4.17SMP
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-Disposition: INLINE
-In-Reply-To: <E16nVId-0000yr-00@the-village.bc.nu>
-X-Mailer: Mahogany 0.64.2 'Sparc', compiled for Linux 2.4.18-rc4 i686
-Message-ID: <ISPFE11r0dSHpVyLrid00004b63@mail.takas.lt>
-X-OriginalArrivalTime: 20 Mar 2002 15:30:01.0780 (UTC) FILETIME=[1A10E740:01C1D024]
+	id <S311652AbSCTPbE>; Wed, 20 Mar 2002 10:31:04 -0500
+Received: from firewall.embl-grenoble.fr ([193.49.43.1]:21724 "HELO
+	out.esrf.fr") by vger.kernel.org with SMTP id <S311653AbSCTPay>;
+	Wed, 20 Mar 2002 10:30:54 -0500
+Date: Wed, 20 Mar 2002 16:30:36 +0100
+From: Samuel Maftoul <maftoul@esrf.fr>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: make rpm is not documented
+Message-ID: <20020320163036.C22220@pcmaftoul.esrf.fr>
+In-Reply-To: <20020320154100.D21789@pcmaftoul.esrf.fr> <E16nhv9-0002XX-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Mar 2002 01:53:59 +0000 (GMT) Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
-> > I am in their lab trying to reproduce the error and I have found some docs
-> > which could help address the error of the 4byte FIFO issue in the engine.
-> > It looks fixable on paper.
+On Wed, Mar 20, 2002 at 03:22:35PM +0000, Alan Cox wrote:
+> > Second stuff, make rpm don't work for me on suse's kernel.
 > 
-> Andre - if you want the info I have from the previous stuff I was involved
-> in I can strip out customer company info and send it on.
+> Ask SuSE 8)
 > 
-> > As for the AMD driver, who knows which version is in that kernel.
+> > Didn't yet watched what is the problem, but seems to be related with
+> > EXTRAVERSION or something like this.
 > 
-> 2.4.18 has a very old one
-> 2.4.18-ac has the Andre/AMD updated one, but not the further updates.
->                 (eg it turns off SWDMA on more chipsets than it needs to)
-
-Is AMD driver somehow related to ServerWorks OSB4?
-
-BTW, it seems I have the same problem with Compaq ProLiant ML330, which has OSB4,
-and Seagate ST320011A drives. Is turning off UDMA enough?
-
-Regards,
-Nerijus
-
+> At least some versions of the script didnt like multiple '-' symbols. 
+> Gerald Britton fixed this for 2.4.18
+I'm using unstable suse kernel wich is merged from 1st March up to
+2.4.19pre1aa
+The patch don't seem to work , but I won't bother you with this stuff as
+this is some specific suse Makefile ( EXTRAVERSION is set to nothing but
+it has another way to fill it , later in their Makefile )
+> Basically the thing works with
+> 
+> make config/menuconfig/xconfig
+> if you use make menu/xconfig then run make oldconfig (I dont trust xconfig..)
+Neither I  ;-)
+> make rpm
+> 
+> [wait.. wait.. wait.. ]
+> 
+> rpm --install
+> 
+> add to lilo.conf
+> 
+> enjoy
+        Sam
+PS: Thanks for answering

@@ -1,85 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264266AbTFIQgI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 12:36:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264393AbTFIQgI
+	id S264534AbTFIQkC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 12:40:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264535AbTFIQkC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 12:36:08 -0400
-Received: from daffy.hulpsystems.net ([64.246.21.252]:19370 "EHLO
-	daffy.hulpsystems.net") by vger.kernel.org with ESMTP
-	id S264266AbTFIQgF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 12:36:05 -0400
+	Mon, 9 Jun 2003 12:40:02 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:42163 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S264534AbTFIQkA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 12:40:00 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Frank Cusack" <fcusack@fcusack.com>
+Cc: <public@mikl.as>, <linux-kernel@vger.kernel.org>
 Subject: RE: Linksys WRT54G and the GPL
-From: Martin List-Petersen <martin@list-petersen.dk>
-To: "Downing, Thomas" <Thomas.Downing@ipc.com>
-Cc: Russell King <rmk@arm.linux.org.uk>,
-       Colm =?ISO-8859-1?Q?MacC=E1rthaigh?= <colm@stdlib.net>,
-       Andrew Miklas <public@mikl.as>, linux-kernel@vger.kernel.org
-In-Reply-To: <170EBA504C3AD511A3FE00508BB89A92022B63E8@exnanycmbx4.ipc.com>
-References: <170EBA504C3AD511A3FE00508BB89A92022B63E8@exnanycmbx4.ipc.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-M9TA5iInDeZaX433DI2n"
-Organization: 
-Message-Id: <1055177371.26298.106.camel@loke>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 09 Jun 2003 18:49:31 +0200
+Date: Mon, 9 Jun 2003 09:53:37 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKGEJNDIAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20030608224727.D9097@google.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-M9TA5iInDeZaX433DI2n
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> On Sun, Jun 08, 2003 at 10:32:52PM -0700, David Schwartz wrote:
 
-On Mon, 2003-06-09 at 15:13, Downing, Thomas wrote:
-> -----Original Message-----
-> From: Russell King [mailto:rmk@arm.linux.org.uk]
-> Sent: Sunday, June 08, 2003 5:48 PM
->=20
-> >>   http://www.vitalsystem.com/
-> >
-> > and www.armlinux.net.  Linus has already been informed of this situatio=
-n,
-> > and we came to the conclusion that, at the time, there was no way to
-> > enforce the copyright due to their location in the world.  This may hav=
-e
-> > changed recently.
->=20
-> IANAL and all that, but VITAL Systems Inc. list themselves as having
-> a corporate HQ in Phoenix, AZ, USA.  As such, were someone interested,
-> a suit could proceed in US courts.
-> -
+> > Including the source with the product would be insufficient to
+> > meet the GPL
+> > requirements. They would have to offer the source (or a written offer to
+> > obtain the source for no more than the cost of physically copying it) to
+> > everyone who downloaded their software from their web site. The
+> > GPL is quite
+> > clear that the source code offer must be made to anyone to whom
+> > the object
+> > code is distributed. (The program must be accompanied by the offer.)
 
-Vital Systems Inc (http://www.vitalsystem.com) is not Vitals Systems (http:=
-//www.armlinux.net). Thats a wrong. And the
-one that is ignoring the GPL here is Vitals Systems (http://www.armlinux.ne=
-t).
+> No, a source code *offer* must be made to anyone, period.
 
-Unfortunatly not based in the U.S.
+	No.
 
+> Section 3(b) of GPLv2 says "Accompany it with a written offer ...  to give
+> any third party ... [the] source code".
 
+	"Accompany" means two things have to travel together. If I have to
+accompany a car with an instruction manual, it does not follow that I must
+give the instruction manual to anyone who requests it.
 
-Regards,
-Martin List-Petersen
-martin at list-petersen dot dk
---
-Lie, n.:
-        A very poor substitute for the truth, but the only one
-        discovered to date.
+> If the source code is actually distributed with the object code, then
+> they need only make it available to those who obtain the object code.
+> Of course those folks are free to redistribute to anyone, if they want.
 
+	But the object code is available from their web site. I don't see how you
+can accompany a download with a written offer, so to comply with the GPL,
+they must "accompany" the object code with the source code.
 
+	DS
 
---=-M9TA5iInDeZaX433DI2n
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+5LqazAGaxP8W1ugRAir6AJoDZL8OXe5nAMLe1dgsQ+/CZ9KIJACeLFuW
-FAFDj+ngNdX9eBqmoYek1Lo=
-=xchY
------END PGP SIGNATURE-----
-
---=-M9TA5iInDeZaX433DI2n--
 

@@ -1,68 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263736AbUJAQFf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUJAQIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263736AbUJAQFf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 12:05:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbUJAQFf
+	id S264098AbUJAQIs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 12:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264530AbUJAQIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 12:05:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30363 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263736AbUJAQFP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 12:05:15 -0400
-Date: Fri, 1 Oct 2004 08:58:23 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Robert Love <rml@novell.com>
-Cc: mpm@selenic.com, ttb@tentacle.dhs.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, gamin-list@gnome.org
-Subject: Re: [patch] make dnotify compile-time configurable
-Message-Id: <20041001085823.05adc9b5.rddunlap@osdl.org>
-In-Reply-To: <1096645479.7676.15.camel@betsy.boston.ximian.com>
-References: <1096611874.4803.18.camel@localhost>
-	<20041001151124.GQ31237@waste.org>
-	<1096644076.7676.6.camel@betsy.boston.ximian.com>
-	<20041001083110.76a58fd2.rddunlap@osdl.org>
-	<1096645479.7676.15.camel@betsy.boston.ximian.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 1 Oct 2004 12:08:47 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:1853 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S264098AbUJAQGj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 12:06:39 -0400
+Subject: Re: Serial driver hangs
+From: Paul Fulghum <paulkf@microgate.com>
+To: Roland =?ISO-8859-1?Q?Ca=DFebohm?= 
+	<roland.cassebohm@VisionSystems.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+In-Reply-To: <200410011722.28877.roland.cassebohm@visionsystems.de>
+References: <200409281734.38781.roland.cassebohm@visionsystems.de>
+	 <1096575030.19487.50.camel@localhost.localdomain>
+	 <1096579503.1938.166.camel@deimos.microgate.com>
+	 <200410011722.28877.roland.cassebohm@visionsystems.de>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1096646788.2757.13.camel@deimos.microgate.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 01 Oct 2004 11:06:28 -0500
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 01 Oct 2004 11:44:39 -0400 Robert Love wrote:
+On Fri, 2004-10-01 at 10:22, Roland Caßebohm wrote:
+> Yes, I think you are right, if the system is to slow to fetch 
+> the data fast enough the buffer will be sometime full. And if 
+> it would be possible to use the second flip buffer then, this 
+> buffer would be full too sometime.
+> It would just take a little longer till data got lost. But if 
+> I want that I could just make the buffers larger.
+> 
+> ...
+> 
+> I have just tested it, but unfortunately I've got a very bad 
+> result. :-( In my test case (2 port with 921600 baud) I get 
+> very much data loss.
 
-| On Fri, 2004-10-01 at 08:31 -0700, Randy.Dunlap wrote:
-| 
-| > I'd rather see inotify additions and dnotify config options kept
-| > separate.  They may serve a similar purpose, but inotify doesn't
-| > replace the dnotify API.  If the latter were true, combining
-| > them would make sense IMO.
-| 
-| I'm not really following.
-| 
-| Whether or not dnotify is a configuration option is separate, and could
-| go into the kernel either way.
+Roland:
 
-Sorry, that's about all that I was trying to say.  If patches A & B
-are logically separate, don't combine them.  Nothing new there.
+Can I impose on you to try the following patches?
 
-| But what matters if our inotify patch also carries the change?  People
-| with inotify definitely DO want this patch, because they don't need
-| dnotify.  Not much uses dnotify--it is a pain to use--and inotify
-| replaces its functionality.
+The differences here are:
+* don't call flush_to_ldisc() directly from ISR
+* flush_to_ldisc() keeps flushing flip buffers until empty
 
-Well, the patch shouldn't remove dnotify unconditionally, or not
-until we have that elusive stable kernel series that people keep
-mentioning elsewhere.
+These patches are for testing purposes only
+and not intended for general use.
+I would like to see how your high speed setup reacts.
 
-| It is also a practical move: the diffs conflict.
-
-I see.
+Thanks in advance.
 
 -- 
-~Randy
-MOTD:  Always include version info.
-(Again.  Sometimes I think ln -s /usr/src/linux/.config .signature)
+Paul Fulghum
+paulkf@microgate.com
+
+--- a/drivers/char/serial.c	2004-09-30 15:25:17.000000000 -0500
++++ b/drivers/char/serial.c	2004-10-01 10:42:33.000000000 -0500
+@@ -572,9 +572,17 @@ static _INLINE_ void receive_chars(struc
+ 	icount = &info->state->icount;
+ 	do {
+ 		if (tty->flip.count >= TTY_FLIPBUF_SIZE) {
+-			tty->flip.tqueue.routine((void *) tty);
+-			if (tty->flip.count >= TTY_FLIPBUF_SIZE)
+-				return;		// if TTY_DONT_FLIP is set
++			/* no room in flip buffer, discard rx FIFO contents to clear IRQ
++			 * *FIXME* Hardware with auto flow control
++			 * would benefit from leaving the data in the FIFO and
++			 * disabling the rx IRQ until space becomes available.
++			 */
++			do {
++				serial_inp(info, UART_RX);
++				icount->overrun++;
++				*status = serial_inp(info, UART_LSR);
++			} while ((*status & UART_LSR_DR) && (max_count-- > 0));
++			return;		// if TTY_DONT_FLIP is set
+ 		}
+ 		ch = serial_inp(info, UART_RX);
+ 		*tty->flip.char_buf_ptr = ch;
+--- a/drivers/char/tty_io.c	2004-04-14 08:05:29.000000000 -0500
++++ b/drivers/char/tty_io.c	2004-10-01 10:49:45.000000000 -0500
+@@ -1944,32 +1944,34 @@ static void flush_to_ldisc(void *private
+ 	int		count;
+ 	unsigned long flags;
+ 
+-	if (test_bit(TTY_DONT_FLIP, &tty->flags)) {
+-		queue_task(&tty->flip.tqueue, &tq_timer);
+-		return;
+-	}
+-	if (tty->flip.buf_num) {
+-		cp = tty->flip.char_buf + TTY_FLIPBUF_SIZE;
+-		fp = tty->flip.flag_buf + TTY_FLIPBUF_SIZE;
+-		tty->flip.buf_num = 0;
+-
+-		save_flags(flags); cli();
+-		tty->flip.char_buf_ptr = tty->flip.char_buf;
+-		tty->flip.flag_buf_ptr = tty->flip.flag_buf;
+-	} else {
+-		cp = tty->flip.char_buf;
+-		fp = tty->flip.flag_buf;
+-		tty->flip.buf_num = 1;
+-
+-		save_flags(flags); cli();
+-		tty->flip.char_buf_ptr = tty->flip.char_buf + TTY_FLIPBUF_SIZE;
+-		tty->flip.flag_buf_ptr = tty->flip.flag_buf + TTY_FLIPBUF_SIZE;
+-	}
+-	count = tty->flip.count;
+-	tty->flip.count = 0;
+-	restore_flags(flags);
++	while(tty->flip.count) {
++		if (test_bit(TTY_DONT_FLIP, &tty->flags)) {
++			queue_task(&tty->flip.tqueue, &tq_timer);
++			return;
++		}
++		if (tty->flip.buf_num) {
++			cp = tty->flip.char_buf + TTY_FLIPBUF_SIZE;
++			fp = tty->flip.flag_buf + TTY_FLIPBUF_SIZE;
++			tty->flip.buf_num = 0;
++
++			save_flags(flags); cli();
++			tty->flip.char_buf_ptr = tty->flip.char_buf;
++			tty->flip.flag_buf_ptr = tty->flip.flag_buf;
++		} else {
++			cp = tty->flip.char_buf;
++			fp = tty->flip.flag_buf;
++			tty->flip.buf_num = 1;
++
++			save_flags(flags); cli();
++			tty->flip.char_buf_ptr = tty->flip.char_buf + TTY_FLIPBUF_SIZE;
++			tty->flip.flag_buf_ptr = tty->flip.flag_buf + TTY_FLIPBUF_SIZE;
++		}
++		count = tty->flip.count;
++		tty->flip.count = 0;
++		restore_flags(flags);
+ 	
+-	tty->ldisc.receive_buf(tty, cp, fp, count);
++		tty->ldisc.receive_buf(tty, cp, fp, count);
++	}
+ }
+ 
+ /*
+
+

@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316965AbSEWQn7>; Thu, 23 May 2002 12:43:59 -0400
+	id <S316953AbSEWQpq>; Thu, 23 May 2002 12:45:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316967AbSEWQn6>; Thu, 23 May 2002 12:43:58 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:54733 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S316965AbSEWQn4>;
-	Thu, 23 May 2002 12:43:56 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S316957AbSEWQpp>; Thu, 23 May 2002 12:45:45 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:17869 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S316953AbSEWQpo>; Thu, 23 May 2002 12:45:44 -0400
+Date: Thu, 23 May 2002 09:46:08 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.4 VM sucks. Again
+Message-ID: <399720000.1022172368@flay>
+In-Reply-To: <200205231629.g4NGTWE22956@mail.pronto.tv>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15597.7242.995639.291333@napali.hpl.hp.com>
-Date: Thu, 23 May 2002 09:43:54 -0700
-To: "David S. Miller" <davem@redhat.com>
-Cc: davidm@hpl.hp.com, hugh@veritas.com, linux-kernel@vger.kernel.org,
-        andrea@suse.de, torvalds@transmeta.com
-Subject: Re: Q: PREFETCH_STRIDE/16
-In-Reply-To: <20020523.092155.70675460.davem@redhat.com>
-X-Mailer: VM 7.03 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 23 May 2002 09:21:55 -0700 (PDT), "David S. Miller" <davem@redhat.com> said:
+>> > Starting up 30 downloads from a custom HTTP server (or Tux - or Apache -
+>> > doesn't matter), file size is 3-6GB, download speed = ~4.5Mbps. After
+>> > some time the kernel (a) goes bOOM (out of memory) if not having any
+>> > swap, or (b) goes gong swapping out anything it can.
+>> 
+>> How much RAM do you have, and what does /proc/meminfo
+>> and /proc/slabinfo say just before the explosion point?
+> 
+> I have 1 gig - highmem (not enabled) - 900 megs.
+> for what I can see, kernel can't reclaim buffers fast enough.
+> ut looks better on -aa.
 
-  DaveM> All of these particular prefetches are amusing, with or
-  DaveM> without your fix, considering there are other more powerful
-  DaveM> ways to optimize this stuff. :-)
+Sounds like exactly the same problem we were having. There are two
+approaches to solving this - Andrea has a patch that tries to free them
+under memory pressure, akpm has a patch that hacks them down as soon
+as you've fininshed with them (posted to lse-tech mailing list). Both approaches
+seemed to work for me, but the performance of the fixes still has to be established.
 
-What do you have in mind?
+I've seen over 1Gb of buffer_heads ;-)
 
-	--david
+M.
+

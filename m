@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267309AbTBUApf>; Thu, 20 Feb 2003 19:45:35 -0500
+	id <S267334AbTBUAp7>; Thu, 20 Feb 2003 19:45:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267328AbTBUApf>; Thu, 20 Feb 2003 19:45:35 -0500
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:50706 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S267309AbTBUAoG>; Thu, 20 Feb 2003 19:44:06 -0500
-Date: Fri, 21 Feb 2003 00:54:12 +0000
-From: John Levon <levon@movementarian.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add module load profile hook
-Message-ID: <20030221005412.GA95016@compsoc.man.ac.uk>
-References: <20030220215317.GA80769@compsoc.man.ac.uk> <20030221004042.22EC12C117@lists.samba.org>
+	id <S267333AbTBUApj>; Thu, 20 Feb 2003 19:45:39 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:28364 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267270AbTBUAoD>;
+	Thu, 20 Feb 2003 19:44:03 -0500
+Date: Thu, 20 Feb 2003 16:36:19 -0800 (PST)
+Message-Id: <20030220.163619.133744671.davem@redhat.com>
+To: maxk@qualcomm.com
+Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+       ak@suse.de
+Subject: Re: ioctl32 consolidation
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <5.1.0.14.2.20030220145240.0d449118@mail1.qualcomm.com>
+References: <20030220223119.GA18545@elf.ucw.cz>
+	<5.1.0.14.2.20030220145240.0d449118@mail1.qualcomm.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030221004042.22EC12C117@lists.samba.org>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18m1S8-000DBt-00*ZnGS2GeqK3M*
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 21, 2003 at 11:33:46AM +1100, Rusty Russell wrote:
+   From: Max Krasnyansky <maxk@qualcomm.com>
+   Date: Thu, 20 Feb 2003 14:56:22 -0800
+   
+   Eventually we'll be able to kill ugly mess like arch/sparc64/kernel/ioctl32.c.
+   That stuff really belongs to the actual subsystems that implement those ioctls.
 
-> Sure, but I think I prefer a more generic notifier mechanism anyway,
-> which oprofile can use as well as other mechanisms.
-> 
-> Say, module_notifier with a MODULE_LOADED, MODULE_INITIALIZED,
-> MODULE_UNLOADING, MODULE_GONE?
-
-What needs this ?
-
-> Thoughts?
-
-If the code isn't going to be used there's no point in it. But if it is,
-I'm fine with fitting in with the above.
-
-regards
-john
+Not really possible with things like SIOCDEVPRIVATE...
+Those need special processing and even that is insufficient.

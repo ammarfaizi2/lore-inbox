@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263606AbUARUtC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 15:49:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263636AbUARUtC
+	id S263679AbUARUrL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 15:47:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUARUrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 15:49:02 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:46816 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S263606AbUARUs7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 15:48:59 -0500
-From: Willem Riede <wrlk@riede.org>
-Subject: Re: Making MO drive work with ide-cd
-Date: Sun, 18 Jan 2004 15:48:56 -0500
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
-Message-Id: <pan.2004.01.18.20.48.54.969059@riede.org>
-References: <UTC200401181220.i0ICKpx05161.aeb@smtp.cwi.nl>
-Reply-To: wrlk@riede.org
-To: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 18 Jan 2004 15:47:11 -0500
+Received: from are.twiddle.net ([64.81.246.98]:13969 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id S263679AbUARUrK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jan 2004 15:47:10 -0500
+Date: Sun, 18 Jan 2004 12:47:00 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Andi Kleen <ak@colin2.muc.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@muc.de>,
+       Andrew Morton <akpm@osdl.org>, jh@suse.cz,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add noinline attribute
+Message-ID: <20040118204700.GA31601@twiddle.net>
+Mail-Followup-To: Andi Kleen <ak@colin2.muc.de>,
+	Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@muc.de>,
+	Andrew Morton <akpm@osdl.org>, jh@suse.cz,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040114083114.GA1784@averell> <Pine.LNX.4.58.0401141519260.4500@evo.osdl.org> <20040115074834.GA38796@colin2.muc.de> <Pine.LNX.4.58.0401151448200.2597@evo.osdl.org> <20040116101345.GA96037@colin2.muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040116101345.GA96037@colin2.muc.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Jan 2004 13:20:51 +0100, Andries.Brouwer wrote:
+On Fri, Jan 16, 2004 at 11:13:45AM +0100, Andi Kleen wrote:
+> Ok, here is a new patch that does the whole thing in generic code and for
+> modules too. I didn't bother to change the sort algorithm because the 
+> existing one works well enough.
 
->     From der.eremit@email.de  Sun Jan 18 02:16:30 2004
->     From: Pascal Schmidt <der.eremit@email.de>
-> 
->     Please fill the whole disk and then reread and compare via ide-scsi.
->     That never worked for me in 2.6 using ide-scsi, but it does work
->     with the patch in -mm.
-> 
-> Yes, you are right. Yesterday night I tried a small amount of I/O,
-> and that worked fine, but today the kernel couldn't cope with a diff
-> between two 640MB trees.
-> Unable to handle kernel paging request at virtual address 6b6b6b6b.
-> Followed by a bad kernel crash (vanilla 2.6.1).
-> 
-> OK. So, just like the rumours said already, ide-scsi is badly broken.
-> 
->     By the way, what hardware sector size does your MO use? I have
->     only tested my patch with 2048 byte sector size - everything else
->     is unlikely to work with ide-cd...
-> 
-> It uses media with 512-byte and media with 2048-byte sectors.
->      
->     > Are there cases where ide-cd is useful?
->     > Should we retarget ide_optical to ide-scsi?
-> 
->     I agree that the situation in mainline as it is now is undesirable,
->     only mounting prewritten discs read-only works.
-> 
-> Yes. We must find out what is wrong in ide-scsi and fix it.
+One, you've still got the function marked __init.
 
-I am trying to maintain ide-scsi so I'm very interested in details
-of the crash you observed. Can you post them, or mail directly to
-me if that's not appropriate?
+Two, the format of struct exception_table_entry is arch specific.
+That comparison won't work on Alpha, because "insn" is encoded 
+pc-relative.
 
-Thanks, Willem Riede.
 
+r~

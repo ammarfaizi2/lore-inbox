@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314077AbSDQGzB>; Wed, 17 Apr 2002 02:55:01 -0400
+	id <S314075AbSDQGyR>; Wed, 17 Apr 2002 02:54:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314078AbSDQGzA>; Wed, 17 Apr 2002 02:55:00 -0400
-Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:10509 "EHLO
-	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S314077AbSDQGy6>; Wed, 17 Apr 2002 02:54:58 -0400
-From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: linux-kernel@vger.kernel.org
-Date: Wed, 17 Apr 2002 08:54:02 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: traditional bug: only one of two serial ports found on HP Vectra XM
-Message-ID: <3CBD382B.20432.3A9A82@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
-X-Content-Conformance: HerringScan-0.9/Sophos-3.56+2.9+2.03.090+01 April 2002+73161@20020417.064902Z
+	id <S314077AbSDQGyQ>; Wed, 17 Apr 2002 02:54:16 -0400
+Received: from [202.135.142.194] ([202.135.142.194]:50439 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S314075AbSDQGyQ>; Wed, 17 Apr 2002 02:54:16 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: dipankar@in.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.8 fix for percpu area 
+In-Reply-To: Your message of "Tue, 16 Apr 2002 12:57:17 +0530."
+             <20020416125716.A31123@in.ibm.com> 
+Date: Wed, 17 Apr 2002 16:57:44 +1000
+Message-Id: <E16xjNw-0001A5-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+In message <20020416125716.A31123@in.ibm.com> you write:
+> The percpu area stuff is broken in two places -
+> 
+> Missing stub for setup_per_cpu_areas() in the UP case
+> and missing definition of __per_cpu_data attribute in percpu.h.
+> Here is a patch that fixes these. Please apply.
 
-historically I believed Linux very much. When it said my HP Vecra XM 
-only has one serial port I was surprised, but believed it. That was 
-some years ago. 2.4.18 still says that there is one serial port:
+You should be including "linux/percpu.h" which defines __per_cpu_data
+for UP.
 
-ttyS00 at 0x3f8 (irq=4) as a 16550A
+The other fix is to move the whole #ifdef __GENERIC_PER_CPU
+... setup_per_cpu_areas(void) { ...#endif out from inside the #ifdef
+CONFIG_SMP block (patch sent).
 
-However recently I had to work on the backside of the PC and found 
-two(!) serial ports labelled "Serial A" and "Serial B". So shouldn't 
-both ports be detected?
-
-Regards,
-Ulrich Windl
-(the one who is NOT subscribed in this honourable list)
-
+Thanks,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

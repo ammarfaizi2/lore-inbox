@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVAXXdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbVAXXgA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbVAXXdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 18:33:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVAXXc0
+	id S261664AbVAXXgA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 18:36:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVAXXd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 18:32:26 -0500
-Received: from waste.org ([216.27.176.166]:2776 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261636AbVAXXaf (ORCPT
+	Mon, 24 Jan 2005 18:33:26 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:34965 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261737AbVAXXch (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 18:30:35 -0500
-Date: Mon, 24 Jan 2005 15:30:07 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au,
-       trond.myklebust@fys.uio.no, okir@suse.de, Andries.Brouwer@cwi.nl,
-       agruen@suse.de
-Subject: Re: [PATCH] lib/qsort
-Message-ID: <20050124233007.GH12076@waste.org>
-References: <20050122203326.402087000@blunzn.suse.de> <20050122203618.962749000@blunzn.suse.de> <20050124201527.GZ12076@waste.org> <20050124150940.26945fe3.akpm@osdl.org>
+	Mon, 24 Jan 2005 18:32:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=AFrwxRq+dmimseu3lnAz494ZCJrKAuGk/onP6qUkaS/iU+rH3IeuSXDmEv/lEmxF8kb1KENLp7ZtmCjrqpDj/sL8qg7vYbjaoLyq4Xt/bHLUPG1kUb47f9G2qW2Xyi2AgWX6hF3LCnz3nTXUs5sw4cY5pGYhQH1nyTtT/LTlkLQ=
+Message-ID: <58cb370e0501241532d078a01@mail.gmail.com>
+Date: Tue, 25 Jan 2005 00:32:34 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Karsten Keil <kkeil@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1
+In-Reply-To: <20050124203624.GB14335@pingi3.kke.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050124150940.26945fe3.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050124021516.5d1ee686.akpm@osdl.org>
+	 <20050124121226.GA29098@infradead.org>
+	 <20050124203624.GB14335@pingi3.kke.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 03:09:40PM -0800, Andrew Morton wrote:
-> Matt Mackall <mpm@selenic.com> wrote:
+On Mon, 24 Jan 2005 21:36:24 +0100, Karsten Keil <kkeil@suse.de> wrote:
+> On Mon, Jan 24, 2005 at 12:12:26PM +0000, Christoph Hellwig wrote:
+> > > +i4l-new-hfc_usb-driver-version.patch
 > >
-> > This patch introduces an implementation of qsort to lib/.
+> > this drivers wants:
+> >
+> >  - update for Documentation/CodingStyle
 > 
-> It screws me over right proper.  Can we stick with Andreas's known-working
-> patch for now, and do the sorting stuff as a separate, later activity?
+> agree, I only take the patch from chip manufacturer and
+> test compiling and working with my hardware and do not look at code style
+> yet.
 > 
-> It would involve:
+> >  - conversion to proper pci API
 > 
-> - Removal of the old sort code
-> 
-> - Introduction of the new sort code
-> 
-> - Migration of the NFS ACL code, XFS and group code over to the new
->   implementation.
+> ??? the driver is not PCI related at all
 
-Ok, will do after mm++.
+it seems that hch wanted to also mention this patch:
 
-FYI, I'm going to submit a heapsort variant instead with similar
-performance. It gets rid of the potentially exploitable worst-case
-behavior of qsort as well as the extra stack space (and the resultant
-need for error handling).
+i4l-hfc-4s-and-hfc-8s-driver.patch
 
-Apparently the glibc folks wanted this to be EXPORT_SYMBOL_GPL the
-last time around, btw.
-
--- 
-Mathematics is the supreme nostalgia of our time.
+and it is indeed a very ugly one...

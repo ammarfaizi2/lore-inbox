@@ -1,63 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269114AbUICHAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269312AbUICHAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269114AbUICHAX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 03:00:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269261AbUICHAX
+	id S269312AbUICHAo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 03:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269310AbUICHAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 03:00:23 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:31944 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S269114AbUICHAO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 03:00:14 -0400
-Date: Fri, 3 Sep 2004 09:01:36 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Eric St-Laurent <ericstl34@sympatico.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>, Mark_H_Johnson@raytheon.com,
-       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R0
-Message-ID: <20040903070136.GA13100@elte.hu>
-References: <20040902065549.GA18860@elte.hu> <20040902111003.GA4256@elte.hu> <20040902215728.GA28571@elte.hu> <1094162812.1347.54.camel@krustophenia.net> <20040902221402.GA29434@elte.hu> <1094171082.19760.7.camel@krustophenia.net> <1094181447.4815.6.camel@orbiter> <1094192788.19760.47.camel@krustophenia.net> <20040903063658.GA11801@elte.hu> <1094194157.19760.71.camel@krustophenia.net>
+	Fri, 3 Sep 2004 03:00:44 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28111 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269261AbUICHAg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 03:00:36 -0400
+Date: Fri, 3 Sep 2004 08:00:34 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Hans Reiser <reiser@namesys.com>
+Cc: Paul Jakma <paul@clubi.ie>, David Masover <ninja@slaphack.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@ucw.cz>,
+       Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040903070034.GM23987@parcelfarce.linux.theplanet.co.uk>
+References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl> <41352279.7020307@slaphack.com> <41356321.4030307@namesys.com> <Pine.LNX.4.61.0409030037540.23011@fogarty.jakma.org> <413809EF.8060102@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1094194157.19760.71.camel@krustophenia.net>
+In-Reply-To: <413809EF.8060102@namesys.com>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Lee Revell <rlrevell@joe-job.com> wrote:
-
-> > vanilla kernel 2.6.8.1 would be quite interesting to get a few charts of
-> > - especially if your measurement methodology has changed.
+On Thu, Sep 02, 2004 at 11:06:39PM -0700, Hans Reiser wrote:
+> Linus, did you get the email in which I (I think....) answered all the 
+> problems with files as directories that you and Viro had raised?
 > 
-> OK, I will give this a shot.  Now that the VP patches are stabilizing
-> I will be doing more profiling.  I also want to try the -mm kernel,
-> this has some interesting differences from the stock kernel.  For
-> example I measured about a 10% improvement with the old method, which
-> implies a big performance gain.
+> You and Viro did not respond to it....
 
-the -mm kernel used to have additional *-latency-fix patches that were
-done based on the initial preemption-timing patch in -mm and partly
-based on early VP discussions and findings. I recently reviewed and
-merged the 2-3 missing ones into VP. Andrew has dropped these patches
-meanwhile and i expect to submit the cleaner and more complete solution
-that is in VP.
-
-So i'd expect -mm to still perform better than vanilla (it usually
-does), but if that big 10% difference in latencies doesnt show up
-anymore i'd attribute it to the shuffling around of latency related
-patches, not some genuine deficiency in -mm.
-
-	Ingo
+Message-ID, please.  There was a lot of mails from you in this thread and
+I probably have missed one that did address *any* problems.  If such mail had
+ever existed, that is.

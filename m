@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265925AbTGCKbk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 06:31:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265934AbTGCKbb
+	id S264256AbTGCKnz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 06:43:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264955AbTGCKnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 06:31:31 -0400
-Received: from MailBox.iNES.RO ([80.86.96.21]:52904 "EHLO MailBox.iNES.RO")
-	by vger.kernel.org with ESMTP id S265925AbTGCKbY (ORCPT
+	Thu, 3 Jul 2003 06:43:55 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:2570 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S264256AbTGCKny (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 06:31:24 -0400
-Subject: Re: 2.5.74-mm1 (p4-clockmod does not compile)
-From: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <20030703023714.55d13934.akpm@osdl.org>
-References: <20030703023714.55d13934.akpm@osdl.org>
-Content-Type: text/plain
-Organization: iNES Group SRL
-Message-Id: <1057229141.1479.16.camel@LNX.iNES.RO>
+	Thu, 3 Jul 2003 06:43:54 -0400
+Date: Thu, 3 Jul 2003 12:58:28 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Chris Mason <mason@suse.com>
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk, andrea@suse.de, piggin@cyberone.com.au
+Subject: Re: Status of the IO scheduler fixes for 2.4
+Message-Id: <20030703125828.1347879d.skraw@ithnet.com>
+In-Reply-To: <1057197726.20903.1011.camel@tiny.suse.com>
+References: <Pine.LNX.4.55L.0307021923260.12077@freak.distro.conectiva>
+	<Pine.LNX.4.55L.0307021927370.12077@freak.distro.conectiva>
+	<1057197726.20903.1011.camel@tiny.suse.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-3) 
-Date: 03 Jul 2003 13:45:41 +0300
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-RAVMilter-Version: 8.4.1(snapshot 20020919) (MailBox.iNES.RO)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 02 Jul 2003 22:02:07 -0400
+Chris Mason <mason@suse.com> wrote:
 
-Here are the errors:
+> [...]
+> Nick would like to see a better balance of throughput/fairness, I wimped
+> out and went for the userspace toggle instead because I think anything
+> else requires pulling in larger changes from 2.5 land.
 
-  CC      arch/i386/kernel/cpu/cpufreq/p4-clockmod.o
-arch/i386/kernel/cpu/cpufreq/p4-clockmod.c: In function `cpufreq_p4_setdc':
-arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:67: error: incompatible types in assignment
-arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:78: error: incompatible type for argument 2 of `set_cpus_allowed'
-arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:90: error: incompatible type for argument 2 of `set_cpus_allowed'
-arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:131: error: incompatible type for argument 2 of `set_cpus_allowed'
-make[3]: *** [arch/i386/kernel/cpu/cpufreq/p4-clockmod.o] Error 1
-make[2]: *** [arch/i386/kernel/cpu/cpufreq] Error 2
-make[1]: *** [arch/i386/kernel/cpu] Error 2
-make: *** [arch/i386/kernel] Error 2
+I have a short question on that: did you check if there are any drawbacks on
+network performance through this? We had a phenomenon here with 2.4.21 with
+both samba and simple ftp where network performance dropped to a crawl when
+simply entering "sync" on the console. Even simple telnet-sessions seemed to be
+affected. As we could not create a reproducable setup I did not talk about this
+up to now, but I wonder if anyone else ever checked that out ...
 
-
+Regards,
+Stephan
 
 

@@ -1,29 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277082AbRJQT2G>; Wed, 17 Oct 2001 15:28:06 -0400
+	id <S277092AbRJQT3g>; Wed, 17 Oct 2001 15:29:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277085AbRJQT14>; Wed, 17 Oct 2001 15:27:56 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:25875 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S277082AbRJQT1o>;
-	Wed, 17 Oct 2001 15:27:44 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200110171927.XAA22869@ms2.inr.ac.ru>
-Subject: Re: [NFS] NFSD over TCP: TCP broken?
-To: kalele@veritas.com (Shirish Kalele)
-Date: Wed, 17 Oct 2001 23:27:54 +0400 (MSK DST)
-Cc: linux-kernel@vger.kernel.org, tamir@veritas.com, paulp@veritas.com
-In-Reply-To: <00b401c157a1$8edd3f20$3291b40a@fserv2000.net> from "Shirish Kalele" at Oct 17, 1 11:53:14 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S277094AbRJQT3Q>; Wed, 17 Oct 2001 15:29:16 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:34432 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S277083AbRJQT3I>;
+	Wed, 17 Oct 2001 15:29:08 -0400
+Date: Wed, 17 Oct 2001 12:29:29 -0700 (PDT)
+Message-Id: <20011017.122929.63130945.davem@redhat.com>
+To: cary_dickens2@hp.com
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org, erik_habbinga@hp.com
+Subject: Re: Problem with 2.4.14prex and qlogicfc
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <C5C45572D968D411A1B500D0B74FF4A80418D573@xfc01.fc.hp.com>
+In-Reply-To: <C5C45572D968D411A1B500D0B74FF4A80418D573@xfc01.fc.hp.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+   From: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
+   Date: Wed, 17 Oct 2001 15:16:03 -0400
+   
+   I've done that and the problem is still there.  It no longer gives me the
+   perpetual link is up message when trying to mount storage on the fibre
+   channel disks.  Now it just stops.  I booted without any of the fibre
+   storage being mounted and ran an fdisk on the storage in question.  The
+   response from the ps -eo cmd,wchan is:
+   fdisk /dev/sdc lock_page
 
->        through the underlying protocol,  the  error  EMSGSIZE  is
->        returned, and the message is not transmitted.
+Ok, and to reiterate this is on an x86 system with HIGHMEM enabled?
+Also, just to confirm, you have _not_ applied Jen's block highmem
+patches on top of this 2.4.13-preX tree right?  It is just a vanilla
+2.4.13-preX tree?
 
-It is about datagram sockets, stream sockets never return EMSGSIZE,
-because have no messages boundaries.
-
-Alexey
+Franks a lot,
+David S. Miller
+davem@redhat.com

@@ -1,49 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263000AbVCELji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262844AbVCELu7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263000AbVCELji (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 06:39:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262844AbVCELjh
+	id S262844AbVCELu7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 06:50:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbVCELu7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 06:39:37 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:10513 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263051AbVCELhi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 06:37:38 -0500
-Date: Sat, 5 Mar 2005 11:37:30 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: LKML <linux-kernel@vger.kernel.org>, Ian Molton <spyro@f2s.com>,
-       Richard Purdie <rpurdie@rpsys.net>
-Subject: Re: [PATCH][MMC] Secure Digital (SD) support
-Message-ID: <20050305113730.B26541@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-	LKML <linux-kernel@vger.kernel.org>, Ian Molton <spyro@f2s.com>,
-	Richard Purdie <rpurdie@rpsys.net>
-References: <422701A0.8030408@drzeus.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <422701A0.8030408@drzeus.cx>; from drzeus-list@drzeus.cx on Thu, Mar 03, 2005 at 01:22:56PM +0100
+	Sat, 5 Mar 2005 06:50:59 -0500
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:59041 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262844AbVCELuv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 06:50:51 -0500
+Message-ID: <42299D31.7020901@arcor.de>
+Date: Sat, 05 Mar 2005 12:51:13 +0100
+From: Prakash Punnoor <prakashp@arcor.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050222)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] nicksched for 2.6.11
+References: <4225A020.5060001@yahoo.com.au>
+In-Reply-To: <4225A020.5060001@yahoo.com.au>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigFCEA3653E467665D6E27C2C2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 03, 2005 at 01:22:56PM +0100, Pierre Ossman wrote:
-> Here are the patches for Secure Digital support that I've been sitting 
-> on for a while. I tried to get some feedback on inclusion of this 
-> previously but since I didn't get any I'll just submit the thing.
-> It was originally diffed against 2.6.10 but it applies to 2.6.11 just 
-> fine (only minor fuzz).
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigFCEA3653E467665D6E27C2C2
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Can we please come to a consensus about GEN_FL_REMOVABLE.  After
-talking to other kernel developers, particularly in the block
-interface area, I am convinced that it is fundamentally incorrect
-to set this flag for MMC/SD devices.
+Nick Piggin schrieb:
+> I've had a few queries about this, so by "popular" demand, I've
+> put my latest nicksched stuff here:
+>
+> www.kerneltrap.org/~npiggin/2.6.11-nicksched.gz
+>
+> It includes all the multiprocessor stuff that's in -mm, and also
+> my alternate scheduler policy.
 
-Unfortunately, it appears that you're not convinced.  This needs
-resolving since it is an interface issue.
+Hi,
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+just to make sure, is it still advised to renice X when using your scheduler?
+
+--
+Prakash Punnoor
+
+formerly known as Prakash K. Cheemplavam
+
+--------------enigFCEA3653E467665D6E27C2C2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCKZ0xxU2n/+9+t5gRAl+BAJ0W+/GBLt9nTaUZAPi8ra9EI6uGDQCZAea/
+pRxkDPDOEk1cj6wqYIcreb8=
+=xhtQ
+-----END PGP SIGNATURE-----
+
+--------------enigFCEA3653E467665D6E27C2C2--

@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263811AbUDVHTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263697AbUDVHSG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263811AbUDVHTL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 03:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263805AbUDVHRu
+	id S263697AbUDVHSG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 03:18:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263708AbUDVHR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 03:17:50 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:34994 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263708AbUDVHJQ (ORCPT
+	Thu, 22 Apr 2004 03:17:59 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:36273 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263697AbUDVHJK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 03:09:16 -0400
-Date: Thu, 22 Apr 2004 00:07:03 -0700
+	Thu, 22 Apr 2004 03:09:10 -0400
+Date: Thu, 22 Apr 2004 00:07:51 -0700
 From: Paul Jackson <pj@sgi.com>
 To: Paul Jackson <pj@sgi.com>
 Cc: colpatch@us.ibm.com, wli@holomorphy.com, rusty@rustcorp.com.au,
        linux-kernel@vger.kernel.org
-Subject: [Patch 4 of 17] cpumask v4 - two missing 'const' qualifiers in
- bitops/bitmap
-Message-Id: <20040422000703.2060692e.pj@sgi.com>
+Subject: [Patch 14 of 17] cpumask v4 - Optimize i386 cpumask macro usage.
+Message-Id: <20040422000751.5adc3ffc.pj@sgi.com>
 In-Reply-To: <20040421232247.22ffe1f2.pj@sgi.com>
 References: <20040421232247.22ffe1f2.pj@sgi.com>
 Organization: SGI
@@ -27,36 +26,26 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mask4-bitmap-const - two missing 'const' qualifiers in bitops/bitmap
-        Add a couple of missing 'const' qualifiers on
-        bitops test_bit and bitmap_equal args.
+mask14-cpumask-i386-simplify - Optimize i386 cpumask macro usage.
+        Optimize a bit of cpumask code for asm-i386/mach-es7000
+        Code untested, unreviewed.  Feedback welcome.
 
-Index: 2.6.5.bitmap/include/asm-generic/bitops.h
+Index: 2.6.5.bitmap/include/asm-i386/mach-es7000/mach_ipi.h
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-generic/bitops.h	2004-04-05 02:41:32.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-generic/bitops.h	2004-04-05 03:15:17.000000000 -0700
-@@ -42,7 +42,7 @@
- 	return retval;
+--- 2.6.5.bitmap.orig/include/asm-i386/mach-es7000/mach_ipi.h	2004-04-08 04:19:28.000000000 -0700
++++ 2.6.5.bitmap/include/asm-i386/mach-es7000/mach_ipi.h	2004-04-08 04:19:34.000000000 -0700
+@@ -10,9 +10,8 @@
+ 
+ static inline void send_IPI_allbutself(int vector)
+ {
+-	cpumask_t mask = cpumask_of_cpu(smp_processor_id());
+-	cpus_complement(mask);
+-	cpus_and(mask, mask, cpu_online_map);
++	cpumask_t mask = cpu_online_map;
++	cpu_clear(smp_processor_id(), mask);
+ 	if (!cpus_empty(mask))
+ 		send_IPI_mask(mask, vector);
  }
- 
--extern __inline__ int test_bit(int nr, long * addr)
-+extern __inline__ int test_bit(int nr, const unsigned long * addr)
- {
- 	int	mask;
- 
-Index: 2.6.5.bitmap/lib/bitmap.c
-===================================================================
---- 2.6.5.bitmap.orig/lib/bitmap.c	2004-04-05 03:12:27.000000000 -0700
-+++ 2.6.5.bitmap/lib/bitmap.c	2004-04-05 03:15:17.000000000 -0700
-@@ -65,7 +65,7 @@
- EXPORT_SYMBOL(bitmap_full);
- 
- int bitmap_equal(const unsigned long *bitmap1,
--		unsigned long *bitmap2, int bits)
-+		const unsigned long *bitmap2, int bits)
- {
- 	int k, lim = bits/BITS_PER_LONG;
- 	for (k = 0; k < lim; ++k)
 
 
 -- 

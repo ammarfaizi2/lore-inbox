@@ -1,87 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbVCASvR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVCAS7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261585AbVCASvR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 13:51:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVCASvR
+	id S261556AbVCAS7q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 13:59:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVCAS7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 13:51:17 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:56467 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261585AbVCASvJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 13:51:09 -0500
-Message-Id: <200502282007.j1SK7L505841@www.watkins-home.com>
-From: "Guy" <bugzilla@watkins-home.com>
-To: "'Andrew Walrond'" <andrew@walrond.org>, <linux-kernel@vger.kernel.org>
-Cc: "'Mike Hardy'" <mhardy@h3c.com>, "'Jesper Juhl'" <juhl-lkml@dif.dk>,
-       <linux-raid@vger.kernel.org>, <alan@lxorguk.ukuu.org.uk>
-Subject: RE: No swap can be dangerous (was Re: swap on RAID (was Re: swp - Re: ext3 journal on software raid))
-Date: Mon, 28 Feb 2005 15:07:15 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
-In-Reply-To: <200501070928.13307.andrew@walrond.org>
-Thread-Index: AcUdxC5ytE0t1RVCQl6KhT3yELAwcAACS4/g
+	Tue, 1 Mar 2005 13:59:46 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:13809 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261556AbVCAS7m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 13:59:42 -0500
+Date: Tue, 1 Mar 2005 12:59:39 -0600
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andi Kleen <ak@muc.de>, Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "Luck, Tony" <tony.luck@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
+Message-ID: <20050301185939.GC1220@austin.ibm.com>
+References: <422428EC.3090905@jp.fujitsu.com> <m1hdjvi8r3.fsf@muc.de> <Pine.LNX.4.58.0503011001320.25732@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0503011001320.25732@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040818i
+From: Linas Vepstas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was just kidding about the RAM disk!
+On Tue, Mar 01, 2005 at 10:08:48AM -0800, Linus Torvalds was heard to remark:
+> 
+> On Tue, 1 Mar 2005, Andi Kleen wrote:
+> > 
+> > But what would the default handling be? It would be nice if there
+> > was a simple way for a driver to say "just shut me down on an error"
+> > without adding iochk_* to each function. Ideally this would be just
+> > a standard callback that knows how to clean up the driver.
+> 
+> There can't be any.
+> 
+> The thing is, IO errors just will be very architecture-dependent. Some 
 
-I think swapping to a RAM disk can't work.
-Let's assume a page is swapped out.  Now the first page of swap space is
-used, and memory is now allocated for it.  Now assume the process frees the
-memory, the page in swap can now be freed, but the RAM disk still has the
-memory allocated, just not used.  Now if the Kernel were to swap the first
-page of that RAM disk, it may be swapped to the first page of swap, which
-would change the data in the RAM disk which is being swapped out.  So, I
-guess it can't be swapped, or must be re-swapped, or new memory is
-allocated.  In any event, that 1 block will never be un-swapped, since it
-will never be needed.  Each time the Kernel attempts to swap some of the RAM
-disk the RAM disk's memory usage will increase.  This will continue until
-all of the RAM disk is used and there is no available swap space left.  Swap
-will be full of swap.  :)
+:) 
+FWIW, I've got a working prototype that is ppc64-architecture specific
+and I've been yelled at for not proposing an architecture-generic API
+and so my current goal is to hash out enough commonality with Seto to 
+come up with a generic API that's acceptable for the mainline kernel.
 
-I hope that is clear!  It makes my head hurt!
+(FYI, the 'prototype' currently ships with Novell/SUSE SLES9, but 
+I haven't been sucessful in getting the patches in upstream.)
 
-I don't know about lomem or DMAable memory.  But if special memory does
-exists....
-It seems like if the Kernel can move memory to disk, it would be easier to
-move memory to memory.  So, if special memory is needed, the Kernel should
-be able to relocate as needed.  Maybe no code exists to do that, but I think
-it would be easier to do than to swap to disk (assuming you have enough free
-memory).
+> might have exceptions happening, without the exception handler really 
+> having much of an idea of who caused it, unless that driver had prepared 
+> it some way, and gotten the proper locks.
 
-Guy
+Most hotplug-capable drivers are "most of the way there", since they
+can deal with the sudden loss of i/o to the pci card, and know how
+to clean themselves up.
 
------Original Message-----
-From: Andrew Walrond [mailto:andrew@walrond.org] 
-Sent: Friday, January 07, 2005 4:28 AM
-To: linux-kernel@vger.kernel.org
-Cc: Guy; 'Mike Hardy'; 'Jesper Juhl'; linux-raid@vger.kernel.org;
-alan@lxorguk.ukuu.org.uk
-Subject: Re: No swap can be dangerous (was Re: swap on RAID (was Re: swp -
-Re: ext3 journal on software raid))
+> A non-converted driver just doesn't _do_ any of that. It doesn't guarantee 
+> that it's the only one accessing that bus, since it doesn't do the 
+> "iocheck_clear()/iocheck_read()" things that imply all the locking etc.
 
-On Thursday 06 January 2005 23:15, Guy wrote:
-> If I MUST/SHOULD have swap space....
-> Maybe I will create a RAM disk and use it for swap!  :)  :)  :)
+Yes; for example, the pci error might affect multiple device drivers.
+The proposal is that there should be a "master cleanup thread" to
+deal with this (see my other email).
 
-Well, indeed, I had the same thought. As long as you could guarantee that
-the 
-ram was of the highmem/non-dmaable type...
+> Shutting down the hardware by default might be a horribly bad thing to do
 
-But we're getting ahead of ourselves. I think we need an authoritive answer
-to 
-the original premise. Perhaps Alan (cc-ed) might spare us a moment?
+The current ppc64 prototype code does a pci-hotplug-remove/hotplug-add
+if we've detected a pci error, and the affected device driver doesn't 
+know what to do.  This works for ethernet cards, but can't work for
+anything with a file system on it (because a pci-hotplug-remove 
+on a scsi card trickles up to the block device, which trickles up to
+the file system, which can't be unmounted post-facto.) 
 
-Did I dream this up, or is it correct?
+> In fact, I'd argue that even a driver that _uses_ the interface should not
+> necessarily shut itself down on error. Obviously, it should always log the
+> error, but outside of that it might be good if the operator can decide and
+> set a flag whether it should try to re-try (which may not always be
+> possible, of course), shut down, or just continue.
 
-"I think the gist was this: the kernel can sometimes needs to move bits of 
-memory in order to free up dma-able ram, or lowmem. If I recall correctly, 
-the kernel can only do this move via swap, even if there is stacks of free 
-(non-dmaable or highmem) memory."
+On ppc64, "just continue" is not an option; the pci slot is "isolated"
+all i/o is blocked, including dma. 
 
-Andrew
+The current prototype code tells the device driver that the pci slot is
+hung, then it resets the slot, then it tells the device driver that the
+pci slot is good-to-go again.  
+
+My goal is to negotiate a standard set of interfaces in struct pci_driver 
+to do the above. (see other email).
+
+--linas
 

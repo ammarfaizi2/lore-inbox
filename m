@@ -1,56 +1,289 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262758AbTCJIgA>; Mon, 10 Mar 2003 03:36:00 -0500
+	id <S262757AbTCJIiC>; Mon, 10 Mar 2003 03:38:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262761AbTCJIfs>; Mon, 10 Mar 2003 03:35:48 -0500
-Received: from h-64-105-35-31.SNVACAID.covad.net ([64.105.35.31]:22413 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S262758AbTCJIfb>; Mon, 10 Mar 2003 03:35:31 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 10 Mar 2003 00:46:05 -0800
-Message-Id: <200303100846.AAA09348@baldur.yggdrasil.com>
-To: mbligh@aracnet.com
-Subject: Re: 2.5.64bk5: X86_PC + HIGHMEM boot failure
-Cc: gone@us.ibm.com, linux-kernel@vger.kernel.org
+	id <S262761AbTCJIg0>; Mon, 10 Mar 2003 03:36:26 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:4356 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262752AbTCJIfY>;
+	Mon, 10 Mar 2003 03:35:24 -0500
+Date: Sun, 9 Mar 2003 23:22:17 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: ioctl32 cleanup -- generic
+Message-ID: <20030309222217.GA26529@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 09 Mar 2003, Martin J. Bligh wrote:
+Hi!
 
->> 	Under linux-2.5.64bk5, CONFIG_X86_PC sets CONFIG_NUMA,
->> which sets CONFIG_DISCONTIGMEM.  This causes the version of
->> set_max_mapnr_init in arch/i386/mm/discontig.c to be compiled
->> in (instead of the one from arch/i386/mm/init.c):
->>
->> Err, I meant 2.5.64bk4. 
+This is ioctl32 cleanup -- it kills [crappy and] duplicated code and
+moves it to fs/compat.c. fs/compat.c version is from x86-64, which
+should have correct locking. Please apply,
 
->Hmmm ... well I don't see bk4 on ftp.kernel.org,
+								Pavel
 
-	I meant ftp://ftp.kernel.org/pub/liux/kernel/v2.5/linux-2.5.64.tar.gz
-patched with
-ftp://ftp.kernel.org/pub/liux/kernel/v2.5/snapshots/patch-2.5.64-bk4.gz.
+--- clean/fs/compat.c	2003-01-17 23:10:00.000000000 +0100
++++ linux/fs/compat.c	2003-03-09 22:39:06.000000000 +0100
+@@ -4,7 +4,11 @@
+  *  Kernel compatibililty routines for e.g. 32 bit syscall support
+  *  on 64 bit kernels.
+  *
+- *  Copyright (C) 2002 Stephen Rothwell, IBM Corporation
++ *  Copyright (C) 2002       Stephen Rothwell, IBM Corporation
++ *  Copyright (C) 1997-2000  Jakub Jelinek  (jakub@redhat.com)
++ *  Copyright (C) 1998       Eddie C. Dost  (ecd@skynet.be)
++ *  Copyright (C) 2001,2002  Andi Kleen, SuSE Labs 
++ *  Copyright (C) 2003       Pavel Machek (pavel@suse.cz)
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License version 2 as
+@@ -20,6 +24,12 @@
+ #include <linux/namei.h>
+ #include <linux/file.h>
+ #include <linux/vfs.h>
++#include <linux/ioctl32.h>
++#include <linux/init.h>
++#include <linux/sockios.h>	/* for SIOCDEVPRIVATE */
++#include <linux/fs.h>
++#include <linux/smp_lock.h>
++#include <linux/ctype.h>
+ 
+ #include <asm/uaccess.h>
+ 
+@@ -159,3 +169,214 @@
+ out:
+ 	return error;
+ }
++
++
++/* ioctl32 stuff, used by sparc64, parisc, s390x, ppc64, x86_64 */
++
++#define IOCTL_HASHSIZE 256
++struct ioctl_trans *ioctl32_hash_table[IOCTL_HASHSIZE];
++
++extern struct ioctl_trans ioctl_start[], ioctl_end[]; 
++
++static inline unsigned long ioctl32_hash(unsigned long cmd)
++{
++	return (((cmd >> 6) ^ (cmd >> 4) ^ cmd)) % IOCTL_HASHSIZE;
++}
++
++static void ioctl32_insert_translation(struct ioctl_trans *trans)
++{
++	unsigned long hash;
++	struct ioctl_trans *t;
++
++	hash = ioctl32_hash (trans->cmd);
++	if (!ioctl32_hash_table[hash])
++		ioctl32_hash_table[hash] = trans;
++	else {
++		t = ioctl32_hash_table[hash];
++		while (t->next)
++			t = t->next;
++		trans->next = 0;
++		t->next = trans;
++	}
++}
++
++static int __init init_sys32_ioctl(void)
++{
++	int i;
++
++	for (i = 0; &ioctl_start[i] < &ioctl_end[0]; i++) {
++		if (ioctl_start[i].next != 0) { 
++			printk("ioctl translation %d bad\n",i); 
++			return -1;
++		}
++
++		ioctl32_insert_translation(&ioctl_start[i]);
++	}
++	return 0;
++}
++
++__initcall(init_sys32_ioctl);
++
++static struct ioctl_trans *ioctl_free_list;
++
++/* Never free them really. This avoids SMP races. With a Read-Copy-Update
++   enabled kernel we could just use the RCU infrastructure for this. */
++static void free_ioctl(struct ioctl_trans *t) 
++{ 
++	t->cmd = 0; 
++	mb();
++	t->next = ioctl_free_list;
++	ioctl_free_list = t;
++} 
++
++int register_ioctl32_conversion(unsigned int cmd, int (*handler)(unsigned int, unsigned int, unsigned long, struct file *))
++{
++	struct ioctl_trans *t;
++	unsigned long hash = ioctl32_hash(cmd);
++
++	lock_kernel(); 
++	for (t = (struct ioctl_trans *)ioctl32_hash_table[hash];
++	     t;
++	     t = t->next) { 
++		if (t->cmd == cmd) {
++			printk("Trying to register duplicated ioctl32 handler %x\n", cmd);
++			unlock_kernel();
++			return -EINVAL; 
++		}
++	} 
++
++	if (ioctl_free_list) { 
++		t = ioctl_free_list; 
++		ioctl_free_list = t->next; 
++	} else { 
++		t = kmalloc(sizeof(struct ioctl_trans), GFP_KERNEL); 
++		if (!t) { 
++			unlock_kernel();
++		return -ENOMEM;
++		}
++	}
++	
++	t->next = NULL;
++	t->cmd = cmd;
++	t->handler = handler; 
++	ioctl32_insert_translation(t);
++
++	unlock_kernel();
++	return 0;
++}
++
++static inline int builtin_ioctl(struct ioctl_trans *t)
++{ 
++	return t >= (struct ioctl_trans *)ioctl_start &&
++	       t < (struct ioctl_trans *)ioctl_end; 
++} 
++
++/* Problem: 
++   This function cannot unregister duplicate ioctls, because they are not
++   unique.
++   When they happen we need to extend the prototype to pass the handler too. */
++
++int unregister_ioctl32_conversion(unsigned int cmd)
++{
++	unsigned long hash = ioctl32_hash(cmd);
++	struct ioctl_trans *t, *t1;
++
++	lock_kernel(); 
++
++	t = (struct ioctl_trans *)ioctl32_hash_table[hash];
++	if (!t) { 
++		unlock_kernel();
++		return -EINVAL;
++	} 
++
++	if (t->cmd == cmd) { 
++		if (builtin_ioctl(t)) {
++			printk("%p tried to unregister builtin ioctl %x\n",
++			       __builtin_return_address(0), cmd);
++		} else { 
++		ioctl32_hash_table[hash] = t->next;
++			free_ioctl(t); 
++			unlock_kernel();
++		return 0;
++		}
++	} 
++	while (t->next) {
++		t1 = (struct ioctl_trans *)(long)t->next;
++		if (t1->cmd == cmd) { 
++			if (builtin_ioctl(t1)) {
++				printk("%p tried to unregister builtin ioctl %x\n",
++				       __builtin_return_address(0), cmd);
++				goto out;
++			} else { 
++			t->next = t1->next;
++				free_ioctl(t1); 
++				unlock_kernel();
++			return 0;
++			}
++		}
++		t = t1;
++	}
++	printk(KERN_ERR "Trying to free unknown 32bit ioctl handler %x\n", cmd);
++ out:
++	unlock_kernel();
++	return -EINVAL;
++}
++
++EXPORT_SYMBOL(register_ioctl32_conversion); 
++EXPORT_SYMBOL(unregister_ioctl32_conversion); 
++
++asmlinkage long compact_sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
++{
++	struct file * filp;
++	int error = -EBADF;
++	int (*handler)(unsigned int, unsigned int, unsigned long, struct file * filp);
++	struct ioctl_trans *t;
++
++	filp = fget(fd);
++	if(!filp)
++		goto out2;
++
++	if (!filp->f_op || !filp->f_op->ioctl) {
++		error = sys_ioctl (fd, cmd, arg);
++		goto out;
++	}
++
++	t = (struct ioctl_trans *)ioctl32_hash_table [ioctl32_hash (cmd)];
++
++	while (t && t->cmd != cmd)
++		t = (struct ioctl_trans *)t->next;
++	if (t) {
++		handler = t->handler;
++		error = handler(fd, cmd, arg, filp);
++	} else if (cmd >= SIOCDEVPRIVATE && cmd <= (SIOCDEVPRIVATE + 15)) {
++		error = siocdevprivate_ioctl(fd, cmd, arg);
++	} else {
++		static int count;
++		if (++count <= 50) { 
++			char buf[10];
++			char *path = (char *)__get_free_page(GFP_KERNEL), *fn = "?"; 
++
++			/* find the name of the device. */
++			if (path) {
++		       		fn = d_path(filp->f_dentry, filp->f_vfsmnt, 
++					    path, PAGE_SIZE);
++			}
++
++			sprintf(buf,"'%c'", (cmd>>24) & 0x3f); 
++			if (!isprint(buf[1]))
++			    sprintf(buf, "%02x", buf[1]);
++			printk("ioctl32(%s:%d): Unknown cmd fd(%d) "
++			       "cmd(%08x){%s} arg(%08x) on %s\n",
++			       current->comm, current->pid,
++			       (int)fd, (unsigned int)cmd, buf, (unsigned int)arg,
++			       fn);
++			if (path) 
++				free_page((unsigned long)path); 
++		}
++		error = -EINVAL;
++	}
++out:
++	fput(filp);
++out2:
++	return error;
++}
+--- clean/include/linux/ioctl32.h	2002-10-20 16:22:47.000000000 +0200
++++ linux/include/linux/ioctl32.h	2003-03-06 22:12:05.000000000 +0100
+@@ -19,5 +19,10 @@
+ 
+ extern int unregister_ioctl32_conversion(unsigned int cmd);
+ 
++struct ioctl_trans {
++	unsigned long cmd;
++	int (*handler)(unsigned int, unsigned int, unsigned long, struct file * filp);
++	struct ioctl_trans *next;
++};
+ 
+ #endif
 
->but the same
->changes are in my tree ...  I've just checked it, and it doesn't 
->do that for me. It should *allow* you to turn on CONFIG_NUMA 
->(and that might be broken for PCs still) but it shouldn't be on 
->by default ... could you check that you can still disable it?
->Works for me ...
-
-	Oops.  You're right it is possible to deactivate
-CONFIG_NUMA in this kernel under X86_PC, and that avoids
-the problem.  I guess there still is the minor issue that
-either CONFIG_NUMA should work with X86_PC + HIGHMEM (even
-on machines without high memory) or else CONFIG_NUMA
-should not be selectable in this case, but that's obviously
-a bug of much less importance.
-
-	Sorry for my misunderstanding of the CONFIG_NUMA configution
-options.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
-
-
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

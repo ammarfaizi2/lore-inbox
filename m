@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289839AbSAWNL3>; Wed, 23 Jan 2002 08:11:29 -0500
+	id <S289849AbSAWNR3>; Wed, 23 Jan 2002 08:17:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289840AbSAWNLK>; Wed, 23 Jan 2002 08:11:10 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:6840 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S289839AbSAWNKx>; Wed, 23 Jan 2002 08:10:53 -0500
-Date: Wed, 23 Jan 2002 15:06:53 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.2-pre2-3 SMP broken on UP boxen
-In-Reply-To: <Pine.LNX.4.33.0201231555100.2467-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0201231505090.20902-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289844AbSAWNRT>; Wed, 23 Jan 2002 08:17:19 -0500
+Received: from [202.54.26.202] ([202.54.26.202]:44192 "EHLO hindon.hss.co.in")
+	by vger.kernel.org with ESMTP id <S289849AbSAWNRM>;
+	Wed, 23 Jan 2002 08:17:12 -0500
+X-Lotus-FromDomain: HSS
+From: gspujar@hss.hns.com
+To: linux-kernel@vger.kernel.org
+Message-ID: <65256B4A.0048D8DF.00@sandesh.hss.hns.com>
+Date: Wed, 23 Jan 2002 18:49:29 +0530
+Subject: linux kernel source
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jan 2002, Ingo Molnar wrote:
 
-> Al found the bug, in smpboot.c:
-> 
-> -        global_irq_holder = 0;
-> +        global_irq_holder = NO_PROC_ID;
-> 
-> does this fix it?
-> 
 
-Unfortunately i'd have to go home to try it out, if you don't mind waiting 
-till 10:00 GMT Thursday 24th i can send you a confirmation.
 
-Thanks,
-	Zwane Mwaikambo
+Hi,
+Where can I get the source code for "init" process on internet ?
+and  the entire kernel source code.
+
+Any pointers ?
+
+Thanks
+-Girish
+
+
+"DISCLAIMER: This message is proprietary to Hughes Software Systems Limited
+(HSS) and is intended solely for the use of the individual  to whom it is
+addressed. It may contain  privileged or confidential information  and should
+not be circulated or used for any purpose other than for what it is intended. If
+you have received this message in error, please notify the originator
+immediately. If you are not the intended recipient, you are notified that you
+are strictly prohibited from using, copying, altering, or disclosing the
+contents of this message. HSS accepts no responsibility for loss or damage
+arising from the use of the information transmitted by this email including
+damage from virus."
+
+
+
 
 

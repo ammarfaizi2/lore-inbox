@@ -1,92 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261942AbSJIU3o>; Wed, 9 Oct 2002 16:29:44 -0400
+	id <S261958AbSJIUbB>; Wed, 9 Oct 2002 16:31:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261956AbSJIU3o>; Wed, 9 Oct 2002 16:29:44 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:54430 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S261942AbSJIU3h>; Wed, 9 Oct 2002 16:29:37 -0400
-Message-ID: <20021009203410.25807.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-15"
+	id <S261986AbSJIUbB>; Wed, 9 Oct 2002 16:31:01 -0400
+Received: from pop018pub.verizon.net ([206.46.170.212]:27787 "EHLO
+	pop018.verizon.net") by vger.kernel.org with ESMTP
+	id <S261958AbSJIUa7>; Wed, 9 Oct 2002 16:30:59 -0400
+Message-Id: <200210092032.g99KWbdH000348@pool-141-150-241-241.delv.east.verizon.net>
+Date: Wed, 9 Oct 2002 16:32:35 -0400
+From: Skip Ford <skip.ford@verizon.net>
+To: Robert Love <rml@tech9.net>
+Cc: Jeff Garzik <jgarzik@pobox.com>, David Woodhouse <dwmw2@infradead.org>,
+       Ben Collins <bcollins@debian.org>, linux-kernel@vger.kernel.org,
+       davem@redhat.com
+Subject: Re: BK kernel commits list
+References: <20021009144414.GZ26771@phunnypharm.org> <20021009.045845.87764065.davem@redhat.com> <18079.1034115320@passion.cambridge.redhat.com> <20021008.175153.20269215.davem@redhat.com> <200210091149.g99BnWQ5000628@pool-141-150-241-241.delv.east.verizon.net> <7908.1034165878@passion.cambridge.redhat.com> <3DA4392B.8070204@pobox.com> <27367.1034175300@passion.cambridge.redhat.com> <3DA4882A.8000909@pobox.com> <1034193558.29463.4400.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Thu, 10 Oct 2002 04:34:10 +0800
-Subject: [BENCHMARK] dbench based
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws4-4.us4.outblaze.com
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1034193558.29463.4400.camel@phantasy>; from rml@tech9.net on Wed, Oct 09, 2002 at 03:59:17PM -0400
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at pop018.verizon.net from [141.150.241.241] at Wed, 9 Oct 2002 15:36:37 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-here the results of a simple dbench test.
-The "core" of script is the following:
+Robert Love wrote:
+> On Wed, 2002-10-09 at 15:48, Jeff Garzik wrote:
+> 
+> > Actually, after subscribing to bk-commits-* and seeing the output,
+> > I really think the only addition needed is to pipe the output
+> > through diffstat.
+> 
+> I think this would be cool, too.
+> 
+> I also like Daniel's suggestion of having the sender's _name_ by the
+> name attributed with the patch (or at least "BK Commit" or something).
+> 
+> But nothing _needs_ to be done.  This works great.  Good job, Dave and
+> Co.
 
-for value in 2 8 16 24 32;
-do 
-	log=${kern}$1.dbench${value}.$date.log
-	echo $log
-		> ./log/$log
-		for i in `seq 1 1 3`;
-		do 
-			echo $i ":" $value
-			sync;
-			sync;
-			sync;
-			./dbench $value |grep Th >> ./log/$log
-		done;
-	
-	 awk '{tot+=$2}; END {print "Average: " tot/NR " MB/sec"}' ./log/$log >>./log/$log
+I agree.  Thanks to David Woodhouse for feeding it and DaveM for
+creating it.
 
-The scripts evaluates the average of 3 runs of dbench N.
-The missing part of the script is just "logging".
-If someone is interested I can send or post to lkml the whole script.
-
-
-
-
---- 2.4.19 ---
-Istances Throughput
-2 	 46.6689
-8 	 25.5343
-16 	 20.7133
-24 	 16.2473
-32 	 14.2351
-
---- 2.5.34 ---
-Istances Throughput
-2 	 28.675
-8 	 26.7106
-16 	 21.0888
-24 	 13.9644
-32 	 12.6921
-
---- 2.5.41 ---
-Istances Throughput
-2 	 31.0127
-8 	 32.0934
-16 	 29.3058
-24 	 20.291
-32 	 19.157
-
-
-Ok, dbench is not the best benchmark but, finally, 2.5.41 is faster then 2.4.19 (from the "dbench" point of view ;-)
-
-
-HW PIII@800, 256 MiB RAM
-FS ext3
-
-
-Comments ?
-
-Ciao,
-		Paolo
+I'd like to suggest that once Linus makes a release and all of the
+changeset diffs are wiped out on kernel.org, that a message be sent to
+bk-commits indicating that.  Nothing fancy, just an empty message with a
+subject of "--MARK--" would be nice.  But either way, it's a great
+list.
 
 -- 
-Get your free email from www.linuxmail.org 
-
-
-Powered by Outblaze
+Skip

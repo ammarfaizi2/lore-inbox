@@ -1,44 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265009AbUEKWq2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265010AbUEKWq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265009AbUEKWq2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 18:46:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265010AbUEKWq2
+	id S265010AbUEKWq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 18:46:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265035AbUEKWq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 18:46:28 -0400
-Received: from mail.tpgi.com.au ([203.12.160.53]:63420 "EHLO mail5.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S265009AbUEKWqE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 18:46:04 -0400
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: swsusp documentation updates
-Date: Wed, 12 May 2004 08:45:26 +1000
-User-Agent: KMail/1.5.3
-Cc: Andrew Morton <akpm@zip.com.au>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040505094719.GA4259@elf.ucw.cz> <1083798626.17294.79.camel@laptop-linux.wpcb.org.au> <20040511025157.GA3752@elf.ucw.cz>
-In-Reply-To: <20040511025157.GA3752@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 11 May 2004 18:46:57 -0400
+Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:15744
+	"HELO home.linuxace.com") by vger.kernel.org with SMTP
+	id S265010AbUEKWqz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 18:46:55 -0400
+Date: Tue, 11 May 2004 15:46:54 -0700
+From: Phil Oester <kernel@linuxace.com>
+To: Kevin Stewart <kevins@netgate.net.nz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: in.tftpd + iptables kernel panic
+Message-ID: <20040511224654.GA1630@linuxace.com>
+References: <003701c4379e$0b75b380$2a1625ca@SKAVIN>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200405120845.26902.ncunningham@linuxmail.org>
-X-TPG-Antivirus: Passed
+In-Reply-To: <003701c4379e$0b75b380$2a1625ca@SKAVIN>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Yes, this is fixed by the patch referenced here:
 
-On Tue, 11 May 2004 12:51, Pavel Machek wrote:
-> You are using swsusp2, suspend2 and Suspend2. I figured out you mean
-> suspend2 and applied this: (it will eventually propagate).
-> 								Pavel
+http://lists.netfilter.org/pipermail/netfilter-devel/2004-April/015054.html
 
-Sorry. Yes, I did mean suspend2. Thanks!
+Phil
 
-Nigel
 
+On Wed, May 12, 2004 at 09:22:15AM +1200, Kevin Stewart wrote:
+> I am running a stable debian install with tftpd 0.17-9 kernel 2.4.26
+> While backing up cisco configs via tftp I caused a kernel panic

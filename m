@@ -1,75 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbTEESUm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 14:20:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbTEESUl
+	id S261193AbTEESS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 14:18:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbTEESS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 14:20:41 -0400
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:33041 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261195AbTEESUj convert rfc822-to-8bit (ORCPT
+	Mon, 5 May 2003 14:18:57 -0400
+Received: from ns.suse.de ([213.95.15.193]:26376 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261193AbTEESSy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 14:20:39 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: Jochen Hein <jochen@jochen.org>
-Subject: Re: [2.5.69, TR] compile error
-Date: Mon, 5 May 2003 20:32:55 +0200
-User-Agent: KMail/1.5.1
-References: <87bryh9ue3.fsf@echidna.jochen.org>
-In-Reply-To: <87bryh9ue3.fsf@echidna.jochen.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+	Mon, 5 May 2003 14:18:54 -0400
+Date: Mon, 5 May 2003 20:31:23 +0200
+From: Karsten Keil <kkeil@suse.de>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: alan@lxorguk.ukuu.org.uk, kai@tp1.ruhr-uni-bochum.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: ISDN massive packet drops while DVD burn/verify
+Message-ID: <20030505183123.GA31871@pingi3.kke.suse.de>
+Mail-Followup-To: Stephan von Krawczynski <skraw@ithnet.com>,
+	alan@lxorguk.ukuu.org.uk, kai@tp1.ruhr-uni-bochum.de,
+	linux-kernel@vger.kernel.org
+References: <20030416151221.71d099ba.skraw@ithnet.com> <Pine.LNX.4.44.0304161056430.5477-100000@chaos.physics.uiowa.edu> <20030419193848.0811bd90.skraw@ithnet.com> <1050789691.3955.17.camel@dhcp22.swansea.linux.org.uk> <20030505164653.GA30015@pingi3.kke.suse.de> <20030505192652.7f17ea9e.skraw@ithnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305052033.10592.fsdeveloper@yahoo.de>
+In-Reply-To: <20030505192652.7f17ea9e.skraw@ithnet.com>
+User-Agent: Mutt/1.4i
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.4.20-4GB i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, May 05, 2003 at 07:26:52PM +0200, Stephan von Krawczynski wrote:
+> On Mon, 5 May 2003 18:46:53 +0200
+> Karsten Keil <kkeil@suse.de> wrote:
+> 
+> > > How did we manage to become that bad?
+> > 
+> > Its not so bad, the problem is how do you tune the system. If you prefer to
+> > not interrupt the IDE transfers, which seems to be the default case, you
+> > loose IRQ latency, which doesn't matter in much cases, but not on
+> > this. You can tune it (hdparm work also with cdwriters, since
+> > even if it use ide-scsi, the underlying driver is the ide driver.
+> 
+> You mean UDMA 2 does not make it (which I had in the test case)?
+> 
+> # hdparm -i /dev/hdc
+> 
+> /dev/hdc:
+> 
+>  Model=SONY DVD RW DRU-500A, FwRev=2.0c, SerialNo=DA5B9D3D
+>  Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
+>  RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
+>  BuffType=unknown, BuffSize=0kB, MaxMultSect=0
+>  (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
+>  IORDY=on/off, tPIO={min:180,w/IORDY:120}, tDMA={min:120,rec:120}
+>  PIO modes:  pio0 pio1 pio2 pio3 pio4 
+>  DMA modes:  mdma0 mdma1 mdma2 
+>  UDMA modes: udma0 udma1 *udma2 
+>  AdvancedPM=no
+>  Drive conforms to: device does not report version:  4 5 6
+> 
 
-On Monday 05 May 2003 19:27, Jochen Hein wrote:
-> This seems to be a fallout from the irq-type changes:
->
->   gcc -Wp,-MD,drivers/net/pcmcia/.ibmtr_cs.o.d -D__KERNEL__ -Iinclude
->   -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
->   -fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium2
->   -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include
->   -DMODULE   -DKBUILD_BASENAME=ibmtr_cs -DKBUILD_MODNAME=ibmtr_cs -c
->   -o drivers/net/pcmcia/ibmtr_cs.o drivers/net/pcmcia/ibmtr_cs.c
-> In file included from drivers/net/pcmcia/ibmtr_cs.c:71:
-> drivers/net/tokenring/ibmtr.c: In function `tok_open':
-> drivers/net/tokenring/ibmtr.c:903: warning: `MOD_INC_USE_COUNT' is
->   deprecated (declared at include/linux/module.h:456)
-> In file included from drivers/net/pcmcia/ibmtr_cs.c:71:
-> drivers/net/tokenring/ibmtr.c: In function `tok_close':
-> drivers/net/tokenring/ibmtr.c:1068: warning: `MOD_DEC_USE_COUNT' is
->   deprecated (declared at include/linux/module.h:468)
-> drivers/net/pcmcia/ibmtr_cs.c: At top level:
-> drivers/net/pcmcia/ibmtr_cs.c:130: conflicting types for
->   `tok_interrupt'
-> drivers/net/tokenring/ibmtr.c:1170: previous declaration of
->   `tok_interrupt'
-> make[3]: *** [drivers/net/pcmcia/ibmtr_cs.o] Fehler 1
-> make[2]: *** [drivers/net/pcmcia] Fehler 2
-> make[1]: *** [drivers/net] Fehler 2
-> make: *** [drivers] Fehler 2
+No the mode doesn't matter so much here, what give
 
-Can you please post your .config, as I'm not able to reproduce it.
-thanks.
+hdparm -v /dev/hdc
 
-- -- 
-Regards Michael Büsch
-http://www.8ung.at/tuxsoft
- 20:32:19 up  2:57,  1 user,  load average: 1.17, 1.06, 1.14
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE+tq5moxoigfggmSgRAghNAJ0UOjfMe+00LE5Rfo4zMOFKZMwJvACeOtWg
-Vcf0mH80oXgwedcBrDk/NsE=
-=7vUk
------END PGP SIGNATURE-----
+> > This all don't say that here maybe also other problems around, but I have no
+> > better explanation.
+> 
+> Hm, this looks like the unresolved sleeping AVM Fritz2 syndrome to me: no idea
+> of what's really going on ...
 
+Hmm, don't remember this issue at the moment.
+
+-- 
+Karsten Keil
+SuSE Labs
+ISDN development

@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263603AbTDCU3x 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 15:29:53 -0500
+	id S261386AbTDCUgH 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 15:36:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S263610AbTDCU3x 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 15:29:53 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:57028 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S263603AbTDCU3w 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 15:29:52 -0500
-Subject: Re: your mail
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: root@chaos.analogic.com
-Cc: "David S. Miller" <davem@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.53.0304031458190.9794@chaos>
-References: <Pine.LNX.4.53.0304031113490.5422@chaos>
-	 <1049397747.12168.1.camel@rth.ninka.net>
-	 <Pine.LNX.4.53.0304031458190.9794@chaos>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049402431.1085.1.camel@aurora.localdomain>
+	id S263558AbTDCUgH 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 15:36:07 -0500
+Received: from p508B6582.dip.t-dialin.net ([80.139.101.130]:13187 "EHLO
+	dea.linux-mips.net") by vger.kernel.org with ESMTP
+	id S261386AbTDCUgG 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 15:36:06 -0500
+Date: Thu, 3 Apr 2003 22:46:47 +0200
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@digeo.com>, "David S. Miller" <davem@redhat.com>,
+       Jes Sorensen <jes@trained-monkey.org>, Miles Bader <miles@gnu.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] flush flush_page_to_ram
+Message-ID: <20030403224647.A8545@linux-mips.org>
+References: <Pine.LNX.4.44.0304031741130.2047-100000@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 03 Apr 2003 15:40:31 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0304031741130.2047-100000@localhost.localdomain>; from hugh@veritas.com on Thu, Apr 03, 2003 at 05:47:55PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-04-03 at 15:02, Richard B. Johnson wrote:
-> Well it's not a yahoo users problem because yahoo users can't fix
-> it. Some yahoo users have yahoo "free" mail as their only connection
-> to the internet because of facist network administrators. It gets
-> worse how that you can't tell a company to go screw themselves and
-> get another job. The three engineers that I know who use yahoo do
-> so because they don't have any choice and there is no way that they
-> can configure the mailer to get rid of the empty HTML section.
+On Thu, Apr 03, 2003 at 05:47:55PM +0100, Hugh Dickins wrote:
 
-I would suggest that those who think Yahoo is there only option, check
-out digitalme.com or myrealbox.com.  Web, pop, imap, etc.  All free.
+> All architectures are updated, but the only ones where it amounts
+> to more than deleting a line or two are m68k, mips, mips64 and v850.
 
-Trever
---
-"Never raise your hand to your children - it leaves your midsection
-unprotected." -- Matthew Harrell
+As of about two weeks ago I've eleminated flush_page_to_ram() from the
+MIPS code - it was indeed a huge patch ...
 
+  Ralf

@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261669AbTEDUW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 16:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbTEDUW3
+	id S261686AbTEDUpS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 16:45:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbTEDUpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 16:22:29 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:39121 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S261669AbTEDUW2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 16:22:28 -0400
-Date: Sun, 4 May 2003 22:34:37 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Felix von Leitner <felix-kernel@fefe.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.68] Scalability issues
-Message-ID: <20030504203437.GJ25527@louise.pinerecords.com>
-References: <20030504173956.GA28370@codeblau.de> <20030504194451.GA29196@codeblau.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030504194451.GA29196@codeblau.de>
-User-Agent: Mutt/1.4.1i
+	Sun, 4 May 2003 16:45:18 -0400
+Received: from daimi.au.dk ([130.225.16.1]:3458 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id S261686AbTEDUpR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 16:45:17 -0400
+Message-ID: <3EB57EC5.7BC7E0F@daimi.au.dk>
+Date: Sun, 04 May 2003 22:57:41 +0200
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-19.7.xsmp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [Announcement] "Exec Shield", new Linux security feature
+References: <Pine.LNX.4.44.0305021217090.17548-100000@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [felix-kernel@fefe.de]
+Ingo Molnar wrote:
 > 
-> Here is the ksymoops output.  The taint came from the nvidia kernel
-> module, X was not running, so the module did not do anything at the
-> time.
+> the first 1MB of the ASCII-armor is left unused to provide NULL pointer
+> dereference protection and leave space for 16-bit emulation mappings used
+> by XFree86 and others.
 
-Please reproduce those without ever loading the NVidia module
-so as to rule out its random scribbling over kernel memory.
+But in some cases you need 1MB+64KB. I think you should change the
+start address from 0x00101000 to 0x00111000 so it does not overlap
+the address space addressable from virtual 86 mode.
 
--TS
+-- 
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:aaarep@daimi.au.dk
+for(_=52;_;(_%5)||(_/=5),(_%5)&&(_-=2))putchar(_);

@@ -1,75 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbUKSMH1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbUKSM1D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbUKSMH1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 07:07:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUKSMFi
+	id S261390AbUKSM1D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 07:27:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbUKSMYg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 07:05:38 -0500
-Received: from ppsw-4.csi.cam.ac.uk ([131.111.8.134]:21175 "EHLO
-	ppsw-4.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261378AbUKSMED (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 07:04:03 -0500
-Subject: Re: performance of filesystem xattrs with Samba4
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: tridge@samba.org
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <16797.41728.984065.479474@samba.org>
-References: <16797.41728.984065.479474@samba.org>
-Content-Type: text/plain
-Organization: University of Cambridge Computing Service, UK
-Date: Fri, 19 Nov 2004 12:03:53 +0000
-Message-Id: <1100865833.6443.17.camel@imp.csi.cam.ac.uk>
+	Fri, 19 Nov 2004 07:24:36 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:10454 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261372AbUKSMH3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 07:07:29 -0500
+Date: Fri, 19 Nov 2004 13:05:49 +0100
+From: Andi Kleen <ak@suse.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Andi Kleen <ak@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
+       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: RFC: let x86_64 no longer define X86
+Message-ID: <20041119120549.GD21483@wotan.suse.de>
+References: <20041119005117.GM4943@stusta.de> <20041119085132.GB26231@wotan.suse.de> <419DC922.1020809@pobox.com> <20041119103418.GB30441@wotan.suse.de> <1100863700.21273.374.camel@baythorne.infradead.org> <20041119115539.GC21483@wotan.suse.de> <1100865050.21273.376.camel@baythorne.infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
-Content-Transfer-Encoding: 7bit
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1100865050.21273.376.camel@baythorne.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-11-19 at 18:38 +1100, tridge@samba.org wrote:
-> I've been developing the posix backend for Samba4 over the last few
-> months. It has now reached the stage where it is passing most of the
-> test suites, so its time to start some performance testing.
+On Fri, Nov 19, 2004 at 11:50:50AM +0000, David Woodhouse wrote:
+> On Fri, 2004-11-19 at 12:55 +0100, Andi Kleen wrote:
+> > On Fri, Nov 19, 2004 at 11:28:20AM +0000, David Woodhouse wrote:
+> > > Can you show some examples? We don't have this for any other
+> > > architecture.
+> > 
+> > Just grep for any use of X86 in Kconfig.
 > 
-> The biggest change from the kernels point of view is that Samba4 makes
-> extensive use of filesystem xattrs. Almost every file with have a
-> user.DosAttrib xattr containing file attributes and additional
-> timestamp fields. A lot of files will also have a system.NTACL
-> attribute containing a NT ACL, and many files will have a
-> user.DosStreams xattr for NT alternate data streams. Some rare files
-> will have a user.DosEAs xattr for DOS extended attribute
-> support. Files with streams will also have separate xattrs for each NT
-> stream.
-[snip]
-> Soon we'll be starting to integrate the xattr support with a LSM
-> module, to allow the kernel to interpret the NT ACLs directly to avoid
-> races, make things a little more efficient (using a xattr cache
-> holding unpacked ACLs), and allowing for the possibility of non-Samba
-> file access to obey the NT ACLs.
+> OK, I'll pick the first I find...
+> 
+> config ATP
+>         tristate "AT-LAN-TEC/RealTek pocket adapter support"
+>         depends on NET_POCKET && ISA && X86
+> 
+> Why is that OK on x86_64 but not Alpha? Why isn't the use of X86 a bug
+> in that case?
 
-Note, that NTFS supports all those things natively on the file system,
-so it may be worth keeping in mind when designing your APIs.  It would
-be nice if one day when ntfs write support is finished, when running
-Samba on an NTFS partition on Linux, Samba can directly access all those
-things directly from NTFS.  I guess a good way would be if your
-interface is sufficiently abstracted so that it can use xattrs as a
-backend or a native backend which NTFS could provide for you or Samba
-could provide for NTFS.  For example NTFS stores the 4 different times
-in NT format in each inode (base Mft record) so you would not have to
-take an xattr performance hit there.
+I don't know details about the driver, but it's not enabled on x86-64 
+because x86-64 doesn't have ISA set.
 
-Anyway, just thought I would mention this, I am not expecting you to do
-anything about it, especially since full NTFS read-write support is
-still a long way away...
-
-Best regards,
-
-        Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
-
+-Andi

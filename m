@@ -1,146 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265943AbUGEEjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265945AbUGEErU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265943AbUGEEjl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 00:39:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265945AbUGEEjl
+	id S265945AbUGEErU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 00:47:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265947AbUGEErU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 00:39:41 -0400
-Received: from twin.uoregon.edu ([128.223.214.27]:25296 "EHLO twin.uoregon.edu")
-	by vger.kernel.org with ESMTP id S265943AbUGEEjg (ORCPT
+	Mon, 5 Jul 2004 00:47:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:45798 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265945AbUGEErT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 00:39:36 -0400
-Date: Sun, 4 Jul 2004 21:39:36 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Fawad Lateef <fawad_lateef@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: Need help in creating 8GB RAMDISK
-In-Reply-To: <20040705031812.4571.qmail@web20809.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.44.0407042134510.9532-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 Jul 2004 00:47:19 -0400
+Date: Sun, 4 Jul 2004 21:46:09 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: vrajesh@umich.edu, linux-kernel@vger.kernel.org
+Subject: Re: prio_tree generalization
+Message-Id: <20040704214609.71b0084d.akpm@osdl.org>
+In-Reply-To: <20040704222438.A11865@almesberger.net>
+References: <20040704222438.A11865@almesberger.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sorry, butI don't think you're going to get there.  appending two 4GB 
-rammdisks using linux software raidraid might work. but creating one 
-single ramdisk larger won't work cleanly.
+Werner Almesberger <wa@almesberger.net> wrote:
+>
+> I'm currently experimenting with the prio_tree code in an elevator
+>  ("IO scheduler"),
 
+Offtopic, but that's a premature optmztn.  O(n) linear searches work just
+fine for disk elevators under most circumstances - we don't get may
+complaints about CPU consumption in the 2.4 elevator.
 
-On Sun, 4 Jul 2004, Fawad Lateef wrote:
+A disk isn't going to retire more than 100 requests/sec in practice, and
+the cost of an all-requests search is relatively small.
 
-> Dear Joel 
-> 
-> Can you please tell me the way of using more than 4GB
-> of RAM in a single process or module ???? I tried to
-> solve that problem using threads, but it isn't working
-> tooo, there might be the problem in my thread
-> implementation but can it be done using threads ???
-> Please do tell me way of doing this ......... 
-> 
-> I also tried to make 2 different modules each for 4GB
-> and then made another module which is just receiving
-> the request changes its bh->b_rdev to the
-> corresponding drive and returns 1. So kernel will try
-> to call the request function of the module related to
-> bh->b_rdev. but this is also not working .!!!!
-> 
-> Please help me ..... I m working on Linux-2.4.23
-> 
-> Thanks and Regards,
-> 
-> Fawad Lateef
-> 
-> 
-> 
-> 
-> > On Sun, 4 Jul 2004, Fawad Lateef wrote:
-> > 
-> > > Hello
-> > > 
-> > > I am creating a RAMDISK of 7GB (from 1GB to 8GB).
-> > I
-> > > reserved the RAM by changing the code in
-> > > arch/i386/mm/init.c .......... 
-> > > 
-> > > But I am not able to access the RAM from 1GB to
-> > 8GB in
-> > > a kernel module ........ after crossing the 4GB
-> > RAM,
-> > > the system goes into standby state. But if I
-> > insert
-> > > the same module 2 times means one for 1GB to 4GB
-> > and
-> > > other for 4GB to 8GB. and mount them seprately
-> > both
-> > > works fine ............ 
-> > 
-> > on a non-64bit intel architecture you can only grab
-> > 4GB of ram per 
-> > process because that's how big the page table is.
-> > There are 16 4GB page 
-> > tables for the 64GB ram that intel machines are
-> > capable of addressing.
-> >  
-> > > Can any one tell me the reason behind this ??? I
-> > think
-> > > that in a single module we can't access more than
-> > 4GB
-> > > RAM ...... If this is the reason then what to do
-> > ??? I
-> > > need 7GB RAMDISK as a single drive ....
-> > > 
-> > > Thanks and Regards,
-> > > 
-> > > Fawad Lateef
-> > > 
-> > > 
-> > > 		
-> > > __________________________________
-> > > Do you Yahoo!?
-> > > Yahoo! Mail - You care about security. So do we.
-> > > http://promotions.yahoo.com/new_mail
-> > > -
-> > > To unsubscribe from this list: send the line
-> > "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at 
-> > http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > > 
-> > 
-> > -- 
-> >
-> --------------------------------------------------------------------------
-> > 
-> > Joel Jaeggli  	       Unix Consulting 	      
-> > joelja@darkwing.uoregon.edu    
-> > GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3
-> > C38B F000 35AB B67F 56B2
-> > 
-> > 
-> > -
-> > To unsubscribe from this list: send the line
-> > "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at 
-> > http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-> 
-> 
-> 		
-> __________________________________
-> Do you Yahoo!?
-> Yahoo! Mail - 50x more storage than other providers!
-> http://promotions.yahoo.com/new_mail
-> 
-
--- 
--------------------------------------------------------------------------- 
-Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu    
-GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
-
-
-
+Once the new design is settled in, is proven to be useful and desirable,
+that's the time to start thinking about millioptimisations such as
+converting the search complexity from O(n) to O(log(n)).

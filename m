@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132600AbRDAXwg>; Sun, 1 Apr 2001 19:52:36 -0400
+	id <S132581AbRDBALg>; Sun, 1 Apr 2001 20:11:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132596AbRDAXw0>; Sun, 1 Apr 2001 19:52:26 -0400
-Received: from warden.digitalinsight.com ([208.29.163.2]:12973 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S132604AbRDAXwQ>; Sun, 1 Apr 2001 19:52:16 -0400
-Date: Sun, 1 Apr 2001 16:43:47 -0700 (PDT)
-From: David Lang <dlang@diginsite.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Manfred Spraul <manfred@colorfullife.com>,
-   "Albert D. Cahalan" <acahalan@cs.uml.edu>, <lm@bitmover.com>,
-   <linux-kernel@vger.kernel.org>
-Subject: Re: bug database braindump from the kernel summit
-In-Reply-To: <Pine.LNX.3.96.1010401183934.6155B-100000@mandrakesoft.mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33.0104011640280.25794-100000@dlang.diginsite.com>
+	id <S132589AbRDBAL0>; Sun, 1 Apr 2001 20:11:26 -0400
+Received: from imap.digitalme.com ([193.97.97.75]:20069 "EHLO digitalme.com")
+	by vger.kernel.org with ESMTP id <S132581AbRDBALO>;
+	Sun, 1 Apr 2001 20:11:14 -0400
+Message-ID: <3AC7B54C.2010706@bigfoot.com>
+Date: Sun, 01 Apr 2001 19:10:04 -0400
+From: "Trever L. Adams" <trever_Adams@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3 i686; en-US; 0.8.1)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+CC: linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Serial, 115Kbps, 2.2, 2.4
+In-Reply-To: <Pine.LNX.4.10.10104011432180.5518-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff, my point was that not all systems will have this script. also it
-won't do you any good if the system you are compiling on is not the same
-system the kernel will be running on
+Mark Hahn wrote:
 
-but we are starting the wrong discussion here :-)
+>> There may be a possibility this is machine specific, because if it is 
+>> meant to forward the packet to the internal net and I slow the machine 
+>> down (external cache off) it works fine, turn the cache back on and it 
+>> is a problem.
+> 
+> 
+> where's the serial port?  (isa, pci?)  could there be a problem
+> with something being overclocked (like >8 MHz ISA, etc)?
+> also, is the port's fifo detected and used?
 
-David Lang
 
-On Sun, 1 Apr 2001, Jeff Garzik
-wrote:
+As far as I know the system is not overclocked (standard Digital 
+Venturis 6200 GL PPro 200 Mhz machine).  It is an ISA modem.  All info I 
+have on the port is as follows:
 
-> On Sun, 1 Apr 2001, David Lang wrote:
-> > On Sun, 1 Apr 2001, Jeff Garzik wrote:
-> > > /sbin/installkernel copies stuff into /boot, appending a version number.
-> > > One way might be to have this script also copy the kernel config.
->
-> > could be, /sbin/installkernel doesn't exist on my systems
->
-> arch/i386/boot/install.sh has been calling /sbin/installkernel, if it
-> exists, for a good while now.
->
-> It sounds like your kernel or initscripts package is incomplete.
-> You can grab installkernel off a Mandrake- or RedHat-based system.
->
-> 	Jeff
->
->
->
->
+Serial driver version 5.05 (2000-12-13) with MANY_PORTS SHARE_IRQ 
+SERIAL_PCI ISAPNP enabled
+ttyS00 at 0x03f8 (irq = 4) is a 16550A
+
+cat /proc/ioports
+03f8-03ff : serial(auto)
+
+It is a USR 56K Voice/Fax/Modem.  I am unable to find the exact model. 
+It was definitely pre v.90 though I believe it has been updated 
+(Firmware) to that.  I have another, though I don't remember similar 
+problems even though it was at the same baudrate (different machine though).
+
+Trever Adams
 

@@ -1,57 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268844AbRG0NJq>; Fri, 27 Jul 2001 09:09:46 -0400
+	id <S268846AbRG0NQI>; Fri, 27 Jul 2001 09:16:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268843AbRG0NJg>; Fri, 27 Jul 2001 09:09:36 -0400
-Received: from [209.226.93.226] ([209.226.93.226]:34037 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S268842AbRG0NJ0>; Fri, 27 Jul 2001 09:09:26 -0400
-Date: Fri, 27 Jul 2001 09:08:14 -0400
-Message-Id: <200107271308.f6RD8EA02743@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: "Paul G. Allen" <pgallen@randomlogic.com>,
-        "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>,
-        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>,
-        "kplug-lpsg@kernel-panic.org" <kplug-lpsg@kernel-panic.org>
-Subject: Re: Linx Kernel Source tree and metrics
-In-Reply-To: <01072714523106.00285@starship>
-In-Reply-To: <3B612D26.BA131CEC@randomlogic.com>
-	<01072714523106.00285@starship>
+	id <S268851AbRG0NP4>; Fri, 27 Jul 2001 09:15:56 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:21764 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S268846AbRG0NPr>;
+	Fri, 27 Jul 2001 09:15:47 -0400
+Date: Fri, 27 Jul 2001 15:15:51 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH 2.4.8-pre1 - RESEND] Configure.help updates for sonypi & meye
+Message-ID: <20010727151551.A6860@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Daniel Phillips writes:
-> On Friday 27 July 2001 10:58, Paul G. Allen wrote:
-> > For those interested, I have run the kernel (2.4.2-2) through a
-> > program and generated extensive HTML reports including call trees,
-> > function and data declarations, source code, and metrics. I plan to
-> > upgrade this to the latest kernel and keep it up to date (as much as
-> > possible :), but I am a) working with a kernel that I know currently
-> > runs on my dual Athlon, and b) wanted to test this out and run it by
-> > the two lists first.
-> >
-> > My bandwisth is currently limited (cable modem), but if it's decided
-> > that I'll keep this available, I will upload it to a web server with
-> > a couple T1's avalable (or maybe I will use one of our companies
-> > servers on a DS3 or greater).
-> >
-> > The URL is:
-> >
-> > http://24.5.14.144:3000/linux-kernel
-> >
-> > If you have any connection problems (and there may be, since it's
-> > currently running on the same machine I'm using to develop with - the
-> > dual Athlon), suggestions (even if it's "hey, dork, it's already
-> > available at http://xxx.yyy"), or whatever, please let me know.
+Hi Linus,
 
-Hm. Interesting. But I note it has the devfsd source code in there as
-well. That's definately not part of the kernel!
+This patch adds the missing Configure.help entries for the 
+sonypi and motion eye driver.
 
-				Regards,
+Stelian.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+--- linux-2.4.8-pre1.orig/Documentation/Configure.help	Fri Jul 27 14:56:25 2001
++++ linux-2.4.8-pre1/Documentation/Configure.help	Fri Jul 27 15:10:31 2001
+@@ -14228,6 +14228,19 @@
+ 
+   If unsure, say N.
+ 
++Sony Vaio Programmable I/O Control Device support
++CONFIG_SONYPI
++  This driver enables access to the Sony Programmable I/O Control Device
++  which can be found in many (all ?) Sony Vaio laptops.
++
++  If you have one of those laptops, read Documentation/sonypi.txt,
++  and say Y or M here.
++
++  If you want to compile the driver as a module ( = code which can be
++  inserted in and removed from the running kernel whenever you want),
++  say M here and read <file:Documentation/modules.txt>. The module will be
++  called sonypi.o.
++
+ Intel Random Number Generator support
+ CONFIG_INTEL_RNG
+   This driver provides kernel-side support for the Random Number
+@@ -17520,6 +17533,19 @@
+   module called pms.o ( = code which can be inserted in and removed
+   from the running kernel whenever you want). If you want to compile
+   it as a module, say M here and read Documentation/modules.txt.
++
++CONFIG_VIDEO_MEYE
++  This is the video4linux driver for the Motion Eye camera found
++  in the Vaio Picturebook laptops. Please read the material in
++  <file:Documentation/video4linux/meye.txt> for more information.
++
++  If you say Y or M here, you need to say Y or M to "Sony Programmable
++  I/O Control Device" in the character device section.
++
++  This driver is available as a module called meye.o ( = code
++  which can be inserted in and removed from the running kernel
++  whenever you want). If you want to compile it as a module, say M
++  here and read <file:Documentation/modules.txt>.
+ 
+ IBM's S/390 architecture
+ CONFIG_ARCH_S390
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262323AbTLSQRg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 11:17:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbTLSQRg
+	id S263448AbTLSQSj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 11:18:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbTLSQSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 11:17:36 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:1028 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262323AbTLSQRe
+	Fri, 19 Dec 2003 11:18:39 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:25793 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S263448AbTLSQSh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 11:17:34 -0500
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Module Alias back compat code
-References: <20031219031034.A38502C06C@lists.samba.org>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sat, 20 Dec 2003 01:16:45 +0900
-In-Reply-To: <20031219031034.A38502C06C@lists.samba.org>
-Message-ID: <87hdzwye8i.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 19 Dec 2003 11:18:37 -0500
+Subject: [PATCH] Remove use of nameidata by selinux_inode_permission
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1071850702.10242.99.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Fri, 19 Dec 2003 11:18:22 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell <rusty@rustcorp.com.au> writes:
+This patch against 2.6.0 removes the use of nameidata by
+selinux_inode_permission, as this appears to be unsafe in certain cases
+(e.g. path_walk call from rpc_lookup_parent), leading to an Oops if
+d_path is subsequently called by avc_audit on the (mnt,dentry) pair to
+generate a pathname for an audit message.  The change does not affect
+the ability of SELinux to perform its permission check (which only
+requires the inode), only the set of information that is available for
+audit messages.  We'll investigate better approaches for the SELinux
+audit generation in the future.  Please apply, or let me know if you
+would like me to resubmit later.
 
-> The provides backwards compat for old char and block aliases.
-> 
-> MODULE_ALIAS_BLOCK() and MODULE_ALIAS_CHAR() define aliases of form
-> "XXX-<major>-<minor>", so we should probe for modules using this
-> form.  Unfortunately in 2.4, block aliases were "XXX-<major>" and
-> char aliases were of both forms.
-> 
-> Ideally, all modules would now be using MODULE_ALIAS() macros to
-> define their aliases, and the old configuration files wouldn't
-> matter as much.  Unfortunately, this hasn't happened, so we make
-> request_module() return the exit status of modprobe, and then
-> do fallback when probing for char and block devices.
+ security/selinux/hooks.c |    4 ----
+ 1 files changed, 4 deletions(-)
 
-Umm.. Although I may be mis-understanding this problem, is the following
-scripts the not enough?
-
-This does
-
-	block-major-1 -> block-major-1-*
-
-
---- generate-modprobe.conf.orig	2003-08-12 05:03:59.000000000 +0900
-+++ generate-modprobe.conf	2003-12-20 00:31:17.000000000 +0900
-@@ -59,8 +59,9 @@
- parse_alias()
- {
-     PA_ALIAS=`resolve_alias $1 $3`
-+    NAME=`echo $2|sed -e 's/\(block\|char\)-major-\([0-9]\+\)$/\1-major-\2-*/'`
+--- linux-2.6.0/security/selinux/hooks.c	2003-12-17 21:59:41.000000000 -0500
++++ linux-2.6.0-respin/security/selinux/hooks.c	2003-12-19 10:42:20.000000000 -0500
+@@ -1738,10 +1738,6 @@
+ 		return 0;
+ 	}
  
--    echo "alias $2 $PA_ALIAS"
-+    echo "alias $NAME $PA_ALIAS"
+-	if (nd && nd->dentry)
+-		return dentry_has_perm(current, nd->mnt, nd->dentry,
+-				       file_mask_to_av(inode->i_mode, mask));
+-
+ 	return inode_has_perm(current, inode,
+ 			       file_mask_to_av(inode->i_mode, mask), NULL, NULL);
  }
- 
- # Parse options: args modulename aliasto.
+
+
+
+
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+

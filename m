@@ -1,85 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264067AbRFROhL>; Mon, 18 Jun 2001 10:37:11 -0400
+	id <S264122AbRFROyn>; Mon, 18 Jun 2001 10:54:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264120AbRFROhB>; Mon, 18 Jun 2001 10:37:01 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:40715 "EHLO
-	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S264067AbRFROgv>; Mon, 18 Jun 2001 10:36:51 -0400
-To: linux-kernel@vger.kernel.org
-Subject: problem with write() to a socket and EPIPE
-From: oliver.kowalke@t-online.de
-Date: Mon, 18 Jun 2001 16:36:23 +0200 (MEST)
-Message-ID: <992874658.3b2e10a2ef441@webmail.t-online.de>
-X-Priority: 3 (Normal)
-X-Mailer: T-Online WebMail 2.00
-X-Complaints-To: abuse#webmail@t-online.com
+	id <S264128AbRFROyd>; Mon, 18 Jun 2001 10:54:33 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:56587 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S264122AbRFROyV>; Mon, 18 Jun 2001 10:54:21 -0400
+Date: Mon, 18 Jun 2001 11:54:09 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: German Gomez Garcia <german@piraos.com>,
+        Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Strange behaviour of swap under 2.4.5-ac15
+In-Reply-To: <20010618155605.D13836@athlon.random>
+Message-ID: <Pine.LNX.4.33.0106181153440.32426-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 18 Jun 2001, Andrea Arcangeli wrote:
 
-I've the following problem.
-If the peer has closed its socket connection the second write to this 
-socket should return -1 and errno should be set to EPIPE (if SIGPIPE is 
-set  
-to be ignored). This never happens with my code. Why?
+> > which is now a lot closer to being balanced. It's not a bug,
+>
+> wrong, that was a core showstopper bug and it renders any
+> machine with a zone empty unusable. (it has nothing to do with
+> beauty or stats)
 
-OS: Linux (Debian 2.2r3)
-kernel: 2.4.4
-compiler: gcc-2.95.2
-c-lib: libc-2.1.3
+YOUR PATCH fixes a real bug, true.  But that wasn't
+what German was complaining about ;)
 
-with best regards,
-Oliver
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
 
-(writen() is a member function of my socket C++-class)
 
-ssize_t
-sock::writen( const void * vptr, size_t n)
-{
-        size_t          nleft;
-        ssize_t         nwritten;
-        const char      *ptr;
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 
-        ptr = static_cast< char * >( vptr);
-        nleft = n;
-
-        struct sigaction new_sa;
-        struct sigaction old_sa;
-        
-        new_sa.sa_handler = SIG_IGN;
-        ::sigemptyset( & new_sa.sa_mask);
-        new_sa.sa_flags = 0;
-        ::sigaction( SIGPIPE, & new_sa, & old_sa);              
-
-        while ( nleft > 0)
-        {
-                if ( ( nwritten = ::write( m_handle, ptr, nleft) ) <= 
-0) 
-                {
-                        if ( errno == EINTR)
-
-                                nwritten = 0;           /* and call 
-write() again */ 
-
-                        else if ( errno == EPIPE)
-
-                                return EOF;             /* write to 
-socket with no readers */ 
-
-                        else
-
-                                throw net_io_ex( ::strerror( errno), 
-"writen()", __FILE__);     /* error */ 
-
-                }
-
-                nleft -= nwritten;
-                ptr   += nwritten;
-        }
-        /* set to its previous action */
-        ::sigaction( SIGPIPE, & old_sa, 0);
-
-        return n;
-}

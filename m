@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267583AbUG3EBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267587AbUG3EJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267583AbUG3EBy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 00:01:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267584AbUG3EBy
+	id S267587AbUG3EJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 00:09:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267592AbUG3EJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 00:01:54 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65170 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267583AbUG3EBw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 00:01:52 -0400
-Message-ID: <4109C81A.5040507@pobox.com>
-Date: Fri, 30 Jul 2004 00:01:30 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Fri, 30 Jul 2004 00:09:57 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:12221 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S267587AbUG3EJ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 00:09:56 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Gerrit Huizenga <gh@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       suparna@in.ibm.com, fastboot@osdl.org, mbligh@aracnet.com,
+       jbarnes@engr.sgi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
+References: <E1BqJQF-00053v-00@w-gerrit2>
+	<m1zn5i2weh.fsf@ebiederm.dsl.xmission.com>
+	<1091143551.1596.17.camel@localhost.localdomain>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 29 Jul 2004 22:07:35 -0600
+In-Reply-To: <1091143551.1596.17.camel@localhost.localdomain>
+Message-ID: <m1r7qu2l4o.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-To: Erez Zadok <ezk@cs.sunysb.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: fistgen-0.1 released (linux-2.6 support)
-References: <200407291751.i6THpea3002949@agora.fsl.cs.sunysb.edu>
-In-Reply-To: <200407291751.i6THpea3002949@agora.fsl.cs.sunysb.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erez Zadok wrote:
-> We're pleased to announce the release of fistgen-0.1, the package of
-> stackable templates.  This release includes numerous bug fixes, but biggest
-> new thing is a port to Linux 2.6!
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+
+> On Gwe, 2004-07-30 at 01:04, Eric W. Biederman wrote:
+> > The beauty of kexec is all of these fun things become user 
+> > problems from the point of the view of the sick kernel so
+> > it does not need to worry about them.
+> > 
+> > I will be happy to see a SHA patch for /sbin/kexec.  
 > 
-> We've tested the templates under various conditions for more than two
-> months: over ext2/3, over nfs, with low-memory conditions, small/large
-> files, large compile benchmarks, small and large postmark configurations,
-> fsx-linux, and other tests -- and permutations of these.  This exhaustive
-> testing was done to help ensure that the templates are as stable as possible
-> (many people are now using fist in production environments).
-> 
-> Get the new tarball from
-> 
-> 	ftp://ftp.filesystems.org/pub/fist/fistgen-0.1.tar.gz
-> 
-> Here's the relevant portion of the NEWS file:
+> crypto/sha1.c provides all the code you need.
 
+Yep that is the easy part, finding a sha1 implementation.  The
+interesting part is the logic that hooks in the code and computes and
+checks the hash.  Especially with the area the sha1 code checkes
+including the sha1 check code :)
 
-And for those of us who don't know what a stackable template is?
-No doubt there are many well-tested permutations in production 
-environments, but still...
-
-	Jeff
-
-
+Eric

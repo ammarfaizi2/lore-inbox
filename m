@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318747AbSH1Hcw>; Wed, 28 Aug 2002 03:32:52 -0400
+	id <S318757AbSH1Hss>; Wed, 28 Aug 2002 03:48:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318748AbSH1Hcw>; Wed, 28 Aug 2002 03:32:52 -0400
-Received: from ns0.tateyama.or.jp ([210.128.170.1]:41996 "HELO
-	ns0.tateyama.or.jp") by vger.kernel.org with SMTP
-	id <S318747AbSH1Hcv> convert rfc822-to-8bit; Wed, 28 Aug 2002 03:32:51 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Gabor Kerenyi <wom@tateyama.hu>
-To: Helge Hafting <helgehaf@aitel.hist.no>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.32 - some menuconfig oddities
-Date: Wed, 28 Aug 2002 16:43:31 +0900
-References: <Pine.LNX.4.33.0208271239580.2564-100000@penguin.transmeta.com> <3D6C7C5D.4370C600@aitel.hist.no>
-In-Reply-To: <3D6C7C5D.4370C600@aitel.hist.no>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208281643.31560.wom@tateyama.hu>
+	id <S318758AbSH1Hss>; Wed, 28 Aug 2002 03:48:48 -0400
+Received: from dp.samba.org ([66.70.73.150]:54965 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S318757AbSH1Hsq>;
+	Wed, 28 Aug 2002 03:48:46 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: James Simmons <jsimmons@transvirtual.com>, geert@linux-m68k.org
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [PATCH] Makefile typo
+Date: Wed, 28 Aug 2002 17:31:10 +1000
+Message-Id: <20020828025328.CDF062C134@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 28 August 2002 16:31, Helge Hafting wrote:
-> This item is listed twice inthe IDE menu:
-> RZ1000 chipset bugfix/support
->
-> These are inaccessible
-> Fusion MPT device support  --->
-> Security options  --->
+s/cfbimgblit/cfbimgblt/
 
-As I see for the latter one there is only one default
-module in security/ and it is always compiled.
+Rusty.
 
-Gabor
+--- working-2.5.32-hotcpu-cpudown-ppc/drivers/video/Makefile.~1~	2002-08-28 09:29:47.000000000 +1000
++++ working-2.5.32-hotcpu-cpudown-ppc/drivers/video/Makefile	2002-08-28 17:28:23.000000000 +1000
+@@ -60,7 +60,7 @@
+ obj-$(CONFIG_FB_3DFX)             += tdfxfb.o
+ obj-$(CONFIG_FB_MAC)              += macfb.o macmodes.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o 
+ obj-$(CONFIG_FB_HP300)            += hpfb.o cfbfillrect.o cfbimgblt.o
+-obj-$(CONFIG_FB_OF)               += offb.o cfbfillrect.o cfbimgblit.o cfbcopyarea.o
++obj-$(CONFIG_FB_OF)               += offb.o cfbfillrect.o cfbimgblt.o cfbcopyarea.o
+ obj-$(CONFIG_FB_IMSTT)            += imsttfb.o
+ obj-$(CONFIG_FB_RETINAZ3)         += retz3fb.o
+ obj-$(CONFIG_FB_CLGEN)            += clgenfb.o
 
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,96 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277382AbRKXMYO>; Sat, 24 Nov 2001 07:24:14 -0500
+	id <S277798AbRKXMZY>; Sat, 24 Nov 2001 07:25:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278078AbRKXMYE>; Sat, 24 Nov 2001 07:24:04 -0500
-Received: from [194.6.179.14] ([194.6.179.14]:24396 "EHLO mailhost.cubic.ch")
-	by vger.kernel.org with ESMTP id <S277382AbRKXMXv>;
-	Sat, 24 Nov 2001 07:23:51 -0500
-Message-ID: <1167.213.3.86.198.1006604706.squirrel@cubic.ch>
-Date: Sat, 24 Nov 2001 13:25:06 +0100 (CET)
-Subject: Oops in ksoftirqd
-From: "Martin Petruzzi" <santino@cubic.ch>
-To: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.1.2)
+	id <S278078AbRKXMZP>; Sat, 24 Nov 2001 07:25:15 -0500
+Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:49284 "EHLO
+	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
+	id <S277798AbRKXMY6>; Sat, 24 Nov 2001 07:24:58 -0500
+Message-ID: <3BFF9199.C01CB9FD@randomlogic.com>
+Date: Sat, 24 Nov 2001 04:24:57 -0800
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+Organization: Akamai Technologies, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: Which gcc version?
+In-Reply-To: <Pine.SGI.4.31L.02.0111231532000.13038141-100000@irix2.gl.umbc.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Community
+John Jasen wrote:
+> 
+> On Fri, 23 Nov 2001, J Sloan wrote:
+> 
+> > This is all silly FUD - time for the pointer again -
+> >
+> > http://www.bero.org/gcc296.html
+> 
+> Redhat apologists are given the due they deserve.
+> 
+> Their first cut at a released 2.96 should never have made it out of the
+> labs alive, and for that matter, neither should have 7.0.
+> 
+> That said, the versions in 7.1, and the patches available have done
+> reasonably well for everything that I've tried to compile (kernels
+> included).
+> 
+> What are they going to do about gcc 3.0.x? It'll be amusing to watch.
+> 
 
-I think I detected an Oops. I may do any mistakes, but I can reproduce the Oops exactly. 
-I'm running a server with kernel 2.4.14, patched with br2684-against2.4.2.diff and ext3-2.4-0.9.15-2414.gz.
-I'm using an Alcatel Speedtouch USB ADSL-modem.
-The clients in the network are all Win98 communicating with Putty (SSH).
+I installed RH 7.0 when it was released and was sorely dissappointed.
+The compiler never worked for anything I tried to compile (and seeing as
+how programming was 50% of my job, THAT was a MAJOR issue). I quickly
+went back to RH 6.2.
 
-The problem is about the following script:
-***********************************************************
-#!/bin/sh
+That said, I now run RH 7.1 and 7.2 (depending upon the box, this one
+runs 7.1 w/kernel 2.4.14).
 
-/usr/bin/clear
+[root@keroon /root]# gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
+gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-85)
+[root@keroon /root]# 
 
-/usr/bin/killall pppd
-/sbin/ifconfig nas0 down
-/usr/bin/killall br2684ctl
+Works just fine for everything. The problem with the RH 7.1 release is
+with make, not gcc. make 3.79.x has bugs that cause, among other things,
+internal assertion errors. Though it works fine for the kernel, it will
+not work for many other programs (see disscussion groups, e.g. -
+gnu.org, for more info). So I back-rev'd that to 3.78.1-4:
 
-sleep 1
+[root@keroon /root]# make -v
+GNU Make version 3.78.1, by Richard Stallman and Roland McGrath.
+Built for i386-redhat-linux-gnu
+Copyright (C) 1988, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99
+	Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
 
-/usr/sbin/br2684ctl -b -c 0 -a 8.35
-/sbin/iconfig nas0 up
-/usr/sbin/pppd
+Report bugs to <bug-make@gnu.org>.
 
-/usr/bin/tail -2 /var/log/messages
-echo -n "Press ENTER to quit. "
-read x
-
-exit 0
-***********************************************************
-
-When I execute this script over sudo, as any user logged in with Putty, it works perfect.
-Then I've defined a ssh-user just giving his privatkey-file instead of prompting the passwd. In Putty I set /usr/bin/sudo inet_up to 
-execute when logged in.
-
-The target was to simply doubleclick the Putty-Icon from any Win-client to set up the connection.
-
-When I do so, it still works fine, it ends with a connection (which is available to all clients) and log out is done as well.
-After that, the first keystroke in any console on the server (through ssh or local) causes immediatly the following screen on the server: 
-
-***********************************************************
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
-*pde = 00000000
-Oops: 0002
-CPU: 0
-EIP: 0010:[<c01fbbac>] Not tainted
-EEFLAGS: 00010012
-eax: c13c5080	ebx: 00000080	ecx: 00000002	edx: 00000000
-esi: 00000020	edi: 00000019	ebp: 0000004a	esp: c13e7e8c
-ds: 0018	es: 0018	ss: 0018
-Process ksoftirqd_CPU0 (pid: 4, stackpage=c13e7000)
-Stack:	0000a020 c13dc944 c01a0f37 0000005c 00000020 00000064 00000001 0000001f
-		c13dc940 c031d000 c031d07c c02a8340 00000000 00004000 c13dc940 c13dc800
-		cc880000 c01a099a c13dc800 00004050 00000014 cbfdd740 24000001 0000000b
-Call Trace:	[<c01a0f37>] [<c01a099a>] [<c0107ffa>] [<c0108178>] [<c010a178>] 
-			[<c01f0018>] [<c01fbef5>] [<c02441da>] [<c01081ac>] [<c020527a>] [<c01192d4>]
-
-			[<c01ff8be>] [<c0115fab>] [<c0105000>] [<c01163d5>] [<c0105516>] [<c0166240>]  
+[root@keroon /root]# 
 
 
-Code: c7 42 04 a0 95 31 c0 89 15 a0 95 31 c0 c7 00 00 00 00 00 c7
-<0>Kernel panic: Aiee, killing interrupt handler!
-In interrupt handler - not syncing
-************************************************************
+and everything works just peachy. I compile everything for Athlon, and
+it still works fine.
 
-I did that several times to exclude all other related actions. It only happens with the sequence
-described above, but everytime.
-
-Now I actually don't need any help since I worked around it by setting up DialOnDemand, so I don't use that thing anymore (any other 
-scripts I have do work the same way), but I still find it could be interesting for the developers.
-
-If there is an obvious mistake in what I did, I would certainly also be interested to know.
-
-Thank you 
-
-Martin
-
+PGA
+-- 
+Paul G. Allen
+UNIX Admin II/Network Security
+Akamai Technologies, Inc.
+www.akamai.com

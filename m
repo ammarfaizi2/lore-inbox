@@ -1,93 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265227AbUFRP1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265368AbUFRPbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265227AbUFRP1u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 11:27:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265325AbUFRP1a
+	id S265368AbUFRPbW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 11:31:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265349AbUFRP3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 11:27:30 -0400
-Received: from vsmtp1b.tin.it ([212.216.176.141]:27608 "EHLO vsmtp1.tin.it")
-	by vger.kernel.org with ESMTP id S265264AbUFRPXU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 11:23:20 -0400
-Subject: Re: [BUG] 2.6.x ALSA sound is pretty broken
-From: Hetfield <hetfield666@virgilio.it>
-Reply-To: hetfield666@virgilio.it
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <40D2FA24.50607@vision.ee>
-References: <1087567432.9282.17.camel@blight.blight>
-	 <40D2FA24.50607@vision.ee>
-Content-Type: text/plain; charset=iso-8859-15
-Organization: Hetfield
-Message-Id: <1087572189.1733.1.camel@blight.blight>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 18 Jun 2004 17:23:10 +0200
-Content-Transfer-Encoding: 8bit
+	Fri, 18 Jun 2004 11:29:32 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:37392 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S265353AbUFRP27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 11:28:59 -0400
+Message-ID: <40D30E61.6070703@techsource.com>
+Date: Fri, 18 Jun 2004 11:46:41 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: 4Front Technologies <dev@opensound.com>
+CC: thinkliberty <thinkliberty@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Stop the Linux kernel madness
+References: <40D232AD.4020708@opensound.com> <77709e76040617180749cd1f09@mail.gmail.com> <40D24163.5000006@opensound.com>
+In-Reply-To: <40D24163.5000006@opensound.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il ven, 2004-06-18 alle 16:20, Lenar Lõhmus ha scritto:
-> Hello,
-> 
-> Do you have DMA enabled for your hard disk? hdparm -d /dev/hdx
-> will tel you ...
-> 
-disabling DMA fixes completly the problem.
-of course cpu usage is very high without it.
-i can't burn cd and speed faster than 4x.
 
-so ide-dma related seems!
 
-> Lenar
+4Front Technologies wrote:
+> thinkliberty wrote:
 > 
-> Hetfield wrote:
+>> Can't you just supply SUSE users with a new kernel RPM or patch that
+>> you package to work with your program or kernel module?
+>>
+>> It's not the best situation, but what other choice do you have? Other
+>> companies do it.
+>> See:
+>> http://www.netraverse.com/member/downloads/kernel_download.php
 > 
-> >i've got hard problems with sound in all 2.6.x, even 2.6.7 kernels.
-> >
-> >with 2.4.2x or windows i've got no problems, so i'm sure it's kernel and
-> >not hardware related.
-> >
-> >the problem is that sound jumps, flickers and isn't good when harddisk
-> >reads lots of data (i mean not 1-2mb but 60-100mb and more)
-> >
-> >i checked irq and there is not conflict, i setted a higher and lower
-> >value of latency and nothing changed.
-> >
-> >i've the same problems since 2.6.0 kernels. Vanilla and Gentoo too.
-> >I've tried lots of solutions, like disabling preemptile kernel, adding
-> >alsa and oss, only oss, only alsa, as module or built-in.
-> >nothing changes.
-> >
-> >my audio card is a Creative SB PCI128, found by linux as
-> >
-> >
-> >0000:00:0b.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI] (rev
-> >01)
-> >        Subsystem: Unknown device 4942:4c4c
-> >        Flags: bus master, slow devsel, latency 32, IRQ 10
-> >        I/O ports at b000
-> >
-> >while on Windows i use es1371/3 drivers.
-> >however with 2.4.x i always used es1370 alsa module without problems.
-> >When harddisk is sleeping sound is normally good.
-> >
-> >Thanks for support
-> >
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
-> >  
-> >
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> Our software doesn't need any patches like Win4Lin. Our software works
+> off the standard Linux kernel sources (if they were intact).
+> 
+> THe problem here is that SuSE has gone and changed all the kernel headers
+> so that now software doesn't compile. It does work if you were using
+> the stock kerne.org sources.
 
-________________________________________________________________________
-Hetfield
-www.blight.tk
+
+If SuSE is such a problem for you, then don't support their distro.
+
+The GPL explicitly allows them to do what they are doing with their 
+kernels.  There is nothing unethical about them shipping patched kernels 
+and calling them "Linux".
+
+The problem is not with SuSE.  The problem is with your expectations.
 

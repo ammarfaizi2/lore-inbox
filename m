@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266322AbSK1RfP>; Thu, 28 Nov 2002 12:35:15 -0500
+	id <S266553AbSK1RrC>; Thu, 28 Nov 2002 12:47:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266359AbSK1RfP>; Thu, 28 Nov 2002 12:35:15 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:16389 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S266322AbSK1RfO>; Thu, 28 Nov 2002 12:35:14 -0500
-Date: Thu, 28 Nov 2002 20:41:54 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Dave Jones <davej@codemonkey.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Sebastian Benoit <benoit-lists@fb12.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: drivers/pci/quirks.c / Re: Linux v2.5.50
-Message-ID: <20021128204154.A24030@jurassic.park.msu.ru>
-References: <Pine.LNX.4.44.0211271456160.18214-100000@penguin.transmeta.com> <20021128111528.A28437@turing.fb12.de> <1038500743.10021.1.camel@irongate.swansea.linux.org.uk> <20021128200207.A23822@jurassic.park.msu.ru> <1038505301.10168.26.camel@irongate.swansea.linux.org.uk> <20021128173120.GC930@suse.de>
-Mime-Version: 1.0
+	id <S266564AbSK1RrC>; Thu, 28 Nov 2002 12:47:02 -0500
+Received: from khms.westfalen.de ([62.153.201.243]:23514 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S266553AbSK1RrB>; Thu, 28 Nov 2002 12:47:01 -0500
+Date: 28 Nov 2002 18:53:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8aiMdRMXw-B@khms.westfalen.de>
+In-Reply-To: <200211281625.gASGPo804227@work.bitmover.com>
+Subject: Re: connectivity to bkbits.net?
+X-Mailer: CrossPoint v3.12d.kh10 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20021128173120.GC930@suse.de>; from davej@codemonkey.org.uk on Thu, Nov 28, 2002 at 05:31:20PM +0000
+Organization: Organisation? Me?! Are you kidding?
+References: <200211281625.gASGPo804227@work.bitmover.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 28, 2002 at 05:31:20PM +0000, Dave Jones wrote:
-> I would hope no-one has the idea to wire a hammer up to a
-> triton/natoma chipset.  The VIA ones are more questionable.
+lm@bitmover.com (Larry McVoy)  wrote on 28.11.02 in <200211281625.gASGPo804227@work.bitmover.com>:
 
-AFAIK, hammers need their own very specific host bridges and
-won't work with anything else.
+> We've been having problems getting out to certain parts of the net for the
+> last few days, in particular, we can't get to sgi.com which is unusual.
+> If you are having problems getting to bkbits.net, let me know.  We have
+> a couple of machines at rackspace and I can push repos over there.
+>
+> traceroute to sgi.com (128.167.58.40), 30 hops max, 38 byte packets
+>  1  bitmover (10.3.9.3)  0.535 ms  0.103 ms  0.100 ms
+>  2  cisco (192.132.92.1)  1.236 ms  1.175 ms  1.228 ms
+>  3  s9-1-1-6-0.ar2.SFO1.gblx.net (64.214.96.229)  3.080 ms  3.205 ms  2.982
+> ms  4  64.215.195.189 (64.215.195.189)  3.052 ms  3.256 ms  3.114 ms
+>  5  64.211.147.86 (64.211.147.86)  4.592 ms  4.623 ms  4.468 ms
+>  6  so6-0-0-2488M.br2.PAO2.gblx.net (207.136.163.126)  4.586 ms  4.530 ms
+> 4.701 ms  7  p4-0.paix-bi1.bbnplanet.net (4.0.6.81)  4.627 ms  4.467 ms
+> 4.427 ms  8  p6-0.snjpca1-br1.bbnplanet.net (4.24.7.61)  5.179 ms  5.678 ms
+> 5.215 ms  9  p1-0.sjccolo-dbe1.bbnplanet.net (4.24.6.253)  5.431 ms  5.214
+> ms  5.235 ms 10  vlan40.sjccolo-isw03-rc1.bbnplanet.net (128.11.200.91)
+> 5.326 ms  5.396 ms  5.464 ms 11  128.11.16.169 (128.11.16.169)  5.581 ms
+> 5.470 ms  5.654 ms 12  *
 
-I'm aware of the only one case where x86 northbridges are wired to
-non-x86 CPU - AMD-750 and AMD-760 (Irongate) and Alpha ev6.
-None of these chips are listed in the quirks though.
+>From two or three traceroutes, that problem seems to be at the SGI end. I  
+can't get to them either (nothing after the same IP as for you, at hop  
+#17, some place at Genuity), but you are practically next door.
 
-Ivan.
+MfG Kai

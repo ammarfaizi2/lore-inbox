@@ -1,43 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129927AbRAKPNX>; Thu, 11 Jan 2001 10:13:23 -0500
+	id <S129790AbRAKPW5>; Thu, 11 Jan 2001 10:22:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131879AbRAKPNN>; Thu, 11 Jan 2001 10:13:13 -0500
-Received: from [216.151.155.116] ([216.151.155.116]:6923 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S129927AbRAKPND>; Thu, 11 Jan 2001 10:13:03 -0500
-To: James Brents <James@nistix.com>
+	id <S129927AbRAKPWq>; Thu, 11 Jan 2001 10:22:46 -0500
+Received: from e56090.upc-e.chello.nl ([213.93.56.90]:44295 "EHLO unternet.org")
+	by vger.kernel.org with ESMTP id <S129790AbRAKPW1>;
+	Thu, 11 Jan 2001 10:22:27 -0500
+Date: Thu, 11 Jan 2001 16:22:00 +0100
+From: Frank de Lange <frank@unternet.org>
+To: Andrew Morton <andrewm@uow.edu.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE DMA problems on 2.4.0 with vt82c686a driver
-In-Reply-To: <3A5DB638.1050809@nistix.com>
-From: Doug McNaught <doug@wireboard.com>
-Date: 11 Jan 2001 10:12:54 -0500
-In-Reply-To: James Brents's message of "Thu, 11 Jan 2001 07:33:44 -0600"
-Message-ID: <m34rz6rukp.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
-MIME-Version: 1.0
+Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware related?
+Message-ID: <20010111162200.J20535@unternet.org>
+In-Reply-To: <20010110223015.B18085@unternet.org> <3A5D9D87.8A868F6A@uow.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A5D9D87.8A868F6A@uow.edu.au>; from andrewm@uow.edu.au on Thu, Jan 11, 2001 at 10:48:23PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Brents <James@nistix.com> writes:
+On Thu, Jan 11, 2001 at 10:48:23PM +1100, Andrew Morton wrote:
+> Losing both NICs at the same time could be the elusive "APIC
+> stops generating interrupts" problem.
 
-> Hello,
-> Since this looks like either a chipset, drive, or driver problem, I am
-> submitting this.
-> 
-> I have recently started using DMA mode on my harddisk. However, I occasionally
-> (not often/constant, but sometimes) get CRC errors:
-> 
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+Yup, that's what I thought... But the real question is, is this a
+software/configuration problem or a hardware problem which can only be fixed by
+physically changing something on the board?... As it is, as you call it,
+'elusive', it is a b*tch to pinpoint the source of these problems...
 
-You might try testing with a different drive if you can get hold of
-one--if that works OK, that'll narrow it down to either a drive or
-drive-chipset interaction.  The above error message could very well
-mean that you're starting to lose the drive, so keep backups!
+> Do you get any transmit timeout messages in the logs?  If
+> so, send them.
 
--Doug
+Here they are (marked with ***):
+
+grep -B2 -A2 transmit /var/log/messages:
+    Jan 10 22:24:47 behemoth kernel: usb_control/bulk_msg: timeout 
+    Jan 10 22:24:50 behemoth kernel: usb_control/bulk_msg: timeout 
+*** Jan 10 22:56:51 behemoth kernel: NETDEV WATCHDOG: eth0: transmit timed out 
+    Jan 10 22:57:03 behemoth last message repeated 7 times
+    Jan 10 22:57:03 behemoth kernel: SysRq: Emergency Sync 
+    --
+    Jan 10 22:57:09 behemoth kernel: Syncing device 16:07 ... OK 
+    Jan 10 22:57:09 behemoth kernel: Done. 
+*** Jan 10 22:57:09 behemoth kernel: NETDEV WATCHDOG: eth0: transmit timed out 
+    Jan 10 22:57:09 behemoth kernel: SysRq: Emergency Sync 
+    Jan 10 22:57:09 behemoth kernel: Syncing device 03:01 ... OK 
+
+> Does it happen with a uniprocessor build?
+
+Not tried yet, since I wanna use both CPU's :-).
+
+> Are you able to boot with the `noapic' LILO option?
+
+I am, and did it a while ago. As far as I remember, it did not make it stop...
+I'll try again (even though it is not a real solution, since that APIC is there
+for a reason...)
+
+Cheers//Frank
+
+-- 
+  WWWWW      _______________________
+ ## o o\    /     Frank de Lange     \
+ }#   \|   /                          \
+  ##---# _/     <Hacker for Hire>      \
+   ####   \      +31-320-252965        /
+           \    frank@unternet.org    /
+            -------------------------
+ [ "Omnis enim res, quae dando non deficit, dum habetur
+    et non datur, nondum habetur, quomodo habenda est."  ]
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,71 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264667AbTFAQje (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 12:39:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbTFAQje
+	id S264668AbTFAQnR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 12:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264669AbTFAQnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 12:39:34 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:63431 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264667AbTFAQjd
+	Sun, 1 Jun 2003 12:43:17 -0400
+Received: from dclient217-162-108-200.hispeed.ch ([217.162.108.200]:46857 "EHLO
+	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S264668AbTFAQnQ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 12:39:33 -0400
-Date: Sun, 1 Jun 2003 09:52:52 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Larry McVoy <lm@bitmover.com>, Jonathan Lundell <linux@lundell-bros.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Question about style when converting from K&R to ANSI C.
-Message-ID: <20030601165252.GD3012@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Steven Cole <elenstev@mesatop.com>, Larry McVoy <lm@bitmover.com>,
-	Jonathan Lundell <linux@lundell-bros.com>,
-	linux-kernel@vger.kernel.org
-References: <1054446976.19557.23.camel@spc> <20030601132626.GA3012@work.bitmover.com> <20030601134942.GA10750@alpha.home.local> <20030601140602.GA3641@work.bitmover.com> <p05210609baffd3a79cfb@[207.213.214.37]> <20030601161133.GC3012@work.bitmover.com> <1054485978.19557.93.camel@spc>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1054485978.19557.93.camel@spc>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+	Sun, 1 Jun 2003 12:43:16 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+Subject: Re: [Bug 762] New: cs4232, cs4236 module loading problem
+Date: Sun, 1 Jun 2003 18:56:34 +0200
+User-Agent: KMail/1.4.3
+To: "linux-kernel" <linux-kernel@vger.kernel.org>, feketga@delfin.klte.hu
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200306011856.34369.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thanks for the input.  You've convinced me.  When going through
-> arch/ppc/xmon/xmon.c, I will leave things like the following unchanged:
-> 
-> /* Command interpreting routine */
-> static int
-> cmds(struct pt_regs *excp)
-> {
+yaroslav's linux-sound tree has two fixes to cs4236.c, i think they fix the
+reported oops. 
 
-Great.
 
-> My changes will be similar to the following:
-> 
-> @@ -1837,9 +1818,7 @@
->         return *lineptr++;
->  }
-> 
-> -void
-> -take_input(str)
-> -char *str;
-> +void take_input(char *str)
->  {
->         lineptr = str;
->  }
+rgds
+-daniel
 
-OK, I'm confused.  You said you were convinced but then shouldn't that be
 
-void
-take_input(char *str)
-{
-       lineptr = str;
-}
+--- 1.14/sound/isa/cs423x/cs4236.c	Thu Apr 10 03:28:11 2003
++++ 1.15/sound/isa/cs423x/cs4236.c	Fri Apr 11 04:37:55 2003
+@@ -590,6 +590,9 @@
+ 	cards += pnp_register_card_driver(&cs423x_pnpc_driver);
+ #endif
+        if (!cards) {
++#ifdef CONFIG_PNP
++		pnp_unregister_card_driver(&cs423x_pnpc_driver);
++#endif
+ #ifdef MODULE
+ 		printk(KERN_ERR IDENT " soundcard not found or device busy\n");
+ #endif
 
-??
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+
+--- 1.15/sound/isa/cs423x/cs4236.c	Fri Apr 11 04:37:55 2003
++++ 1.16/sound/isa/cs423x/cs4236.c	Tue May 20 14:13:00 2003
+@@ -365,7 +365,6 @@
+ 			snd_printk(KERN_ERR IDENT " MPU401 PnP manual resources are invalid, using auto config\n");
+ 		err = pnp_activate_dev(pdev);
+ 		if (err < 0) {
+-			kfree(cfg);
+ 			printk(KERN_ERR IDENT " MPU401 PnP configure failed for WSS (out of resources?)\n");
+ 			mpu_port[dev] = SNDRV_AUTO_PORT;
+ 			mpu_irq[dev] = SNDRV_AUTO_IRQ;
+@@ -382,7 +381,7 @@
+ 	kfree(cfg);
+ 	return 0;
+ }
+-#endif
++#endif /* CONFIG_PNP */
+ 
+ static void snd_card_cs4236_free(snd_card_t *card)
+ {
+
+

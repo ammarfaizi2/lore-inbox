@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286429AbRLTWeS>; Thu, 20 Dec 2001 17:34:18 -0500
+	id <S286421AbRLTWaI>; Thu, 20 Dec 2001 17:30:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286430AbRLTWeJ>; Thu, 20 Dec 2001 17:34:09 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:1786 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S286429AbRLTWdu>; Thu, 20 Dec 2001 17:33:50 -0500
-Message-ID: <3C226708.FECAE3CD@mvista.com>
-Date: Thu, 20 Dec 2001 14:32:40 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S286422AbRLTW35>; Thu, 20 Dec 2001 17:29:57 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:24972 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S286421AbRLTW3p>; Thu, 20 Dec 2001 17:29:45 -0500
+Message-Id: <200112202229.fBKMTXq06694@butler1.beaverton.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM xSeries Linux (NUMA)
+To: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] MAX_MP_BUSSES increase
+Date: Thu, 20 Dec 2001 14:29:32 -0800
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <Pine.LNX.4.33.0112192154190.19321-100000@penguin.transmeta.com> <Pine.LNX.4.33.0112201405550.6212-100000@localhost.localdomain> <m3y9jxesd3.fsf@averell.firstfloor.org>
+In-Reply-To: <m3y9jxesd3.fsf@averell.firstfloor.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>, <mingo@elte.hu>
 MIME-Version: 1.0
-To: "Martin A. Brooks" <martin@jtrix.com>
-CC: Mark Hahn <hahn@physics.mcmaster.ca>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: asymmetric multiprocessing
-In-Reply-To: <Pine.LNX.4.33.0112200912480.7795-100000@coffee.psychology.mcmaster.ca> <1008858802.431.43.camel@unhygienix>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin A. Brooks" wrote:
-> 
-> On Thu, 2001-12-20 at 14:13, Mark Hahn wrote:
-> > not supported (and frowned upon by the spec).  the issue is TSC,
-> > of course, and it's definitely not clear whether the normal case
-> > (correctly configured SMP) should be burdoned by support for
-> > mixed-clock chips.
-> 
-> I'm no expert on MP, hence I fail to see why differing clock speeds
-> between CPUs should be a problem providing the system bus rates are
-> constant. As each CPU would be rated differently as far as bogomips are
-> concerned, couldn't the scheduler apply load accordingly?
-> 
-But then you are forcing the system to include cpu information each time
-it reads the TSC.  For example, the TSC is currently used to provide the
-sub jiffie resolution for the system clock.  If you also need to include
-which cpu you run into a couple of problems: a) what if the start TSC is
-read from a different cpu than the end TSC?  (In this case the start is
-the last jiffie interrupt and the end is "now" when the time is being
-requested.)  b.) The conversion to micro seconds depends on the clock
-rate, i.e. the TSC clock rate.
+On Thursday 20 December 2001 09:03 am, you wrote:
+> mingo@elte.hu (Ingo Molnar) writes:
+> > On Wed, 19 Dec 2001, Linus Torvalds wrote:
+> > > > Marcello and Linus, please apply.
+> > >
+> > > Can you give a rough description of what kinds of arrays this will
+> > > impact, just out of curiosity. Ie do we talk about "5kB more memory in
+> > > order to avoid problems", or are we talking about something
+> > > noticeable..
+> > >
+> > > 		Linus "too lazy to grep" Torvalds
+> >
+> > the change is OK, it's about +3K RAM used, on SMP kernels.
+>
+> hmm, I come more to 11K (most of it in mp_irqs)
+> ... which could be easily allocated with the bootmem allocator at parse
+> time.
+>
+> -Andi
+
+Thanks to all who replied.  My rationale for simply increasing the size of 
+static arrays was to have a minimum impact on 2.4, as well as to make 
+something that Cannot Fail(TM).  If you like, I could make one for 2.5 that 
+would do an initial scan of the MPS table, allocate the arrays using the 
+bootmem allocator, then go about its business as usual.  (Special offer for a 
+limited time only!  mpc_* array overflow checking added at NO EXTRA CHARGE!!  
+;^)
+
+The catch with bootmem allocation is that it only allocates in pages (unless 
+wli's new bootmem allocator is adopted).  So, expect some extra memory to be 
+lost to internal fragmentation anyway.
+
+Another suggestion through private mail was to make MAX_MP_BUSSES a tunable 
+config parameter.  I didn't know about that.  Early boot stuff should work 
+without fuss, not rely on config tweaks.  At the very least, I'd have to add 
+array overflow checking, because this crashes before the console is opened or 
+kdb is initialized.  Silent crashes like that are bad news.
+
 -- 
-George           george@mvista.com
-High-res-timers: http://sourceforge.net/projects/high-res-timers/
-Real time sched: http://sourceforge.net/projects/rtsched/
+James Cleverdon, IBM xSeries Platform (NUMA), Beaverton
+jamesclv@us.ibm.com   |   cleverdj@us.ibm.com
+

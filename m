@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261541AbSKNE1u>; Wed, 13 Nov 2002 23:27:50 -0500
+	id <S264628AbSKNEYE>; Wed, 13 Nov 2002 23:24:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262430AbSKNE1t>; Wed, 13 Nov 2002 23:27:49 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5639 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261541AbSKNE1t>;
-	Wed, 13 Nov 2002 23:27:49 -0500
-Message-ID: <3DD327BF.4040705@pobox.com>
-Date: Wed, 13 Nov 2002 23:34:07 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: Modules and the Interfaces who Love Them (Take I)
-References: <20021114032456.5676D2C0C9@lists.samba.org>
-In-Reply-To: <20021114032456.5676D2C0C9@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264702AbSKNEYE>; Wed, 13 Nov 2002 23:24:04 -0500
+Received: from mail.michigannet.com ([208.49.116.30]:41230 "EHLO
+	member.michigannet.com") by vger.kernel.org with ESMTP
+	id <S264628AbSKNEYD>; Wed, 13 Nov 2002 23:24:03 -0500
+Date: Wed, 13 Nov 2002 23:30:48 -0500
+From: Paul <set@pobox.com>
+To: Patrick Finnegan <pat@purdueriots.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Moving from Linux 2.4.19 LVM to LVM2
+Message-ID: <20021114043047.GU9928@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>,
+	Patrick Finnegan <pat@purdueriots.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0211132253340.11522-100000@ibm-ps850.purdueriots.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211132253340.11522-100000@ibm-ps850.purdueriots.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
+Patrick Finnegan <pat@purdueriots.com>, on Wed Nov 13, 2002 [11:05:37 PM] said:
+> Is there an easy and plainless way to do this?  Are the LVM2 tools
+> backwards-compatible with the old LVM?  I've got important partitions on
+> LVM (/usr, /tmp, /var, /home) and I'd like to be able to switch back and
+> forth between 2.4 and 2.5 kernels without needing to keep around separate
+> copies of bootscripts and userland tools if possible.
+> 
+> Thanks!
+> 
+> Pat
 
-> Slow: Your approach where every interface has to do reference counts
-> even though they're only useful for modules makes every interface
-> slow, whether they are using modules or not.  You can't make them
-> fast, because that would make every interface NR_CPUS *
-> sizeof(cacheline) larger.
+	Hi;
 
+	I have been playing with this. The userspace tools are
+not backwards compatible. (2.4 tools didnt seem compatible
+with 2.2 tools either-- Ive got 3 sets of them laying around)
+	Currently, LVM2 under 2.5 repeatedly will hit a BUG() and
+oops for me. I also managed to destroy a test striped lv.
+I wouldnt trust any important data to it yet.
+	(Jens Axboe has expressed a willingness to help with
+the problem. Just a matter of time...)
+	You need a > 2.5.47 kernel (eg. a recent bk snapshot,
+or eg. 2.5.47-ac2 or 2.5.45-mcp2) to even compile with
+DM support if you want to play with this.
 
-(tangent alert)
-
-Objects controlled by interfaces typically should be ref-counted... 
-life in the kernel is slowly getting better WRT this, but we're not 
-there yet.  In any case, the ref counts help, not hurt.
-
-	Jeff
-
-
-
+Paul
+set@pobox.com

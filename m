@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262686AbUKENnw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262689AbUKENpy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262686AbUKENnw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 08:43:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262689AbUKENnv
+	id S262689AbUKENpy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 08:45:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbUKENpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 08:43:51 -0500
-Received: from unthought.net ([212.97.129.88]:24256 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S262686AbUKENns (ORCPT
+	Fri, 5 Nov 2004 08:45:53 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:36501 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262689AbUKENpl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 08:43:48 -0500
-Date: Fri, 5 Nov 2004 14:43:46 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Brad Campbell <brad@wasp.net.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: nfs stale filehandle issues with 2.6.10-rc1 in-kernel server
-Message-ID: <20041105134346.GD12752@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Brad Campbell <brad@wasp.net.au>, lkml <linux-kernel@vger.kernel.org>
-References: <41877751.502@wasp.net.au> <1099413424.7582.5.camel@lade.trondhjem.org> <4187E4E1.5080304@pobox.com> <20041102200925.GA12752@unthought.net> <418AE9DD.3010008@pobox.com>
+	Fri, 5 Nov 2004 08:45:41 -0500
+Date: Fri, 5 Nov 2004 14:46:39 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Amit Shah <amitshah@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RT-preempt-2.6.10-rc1-mm2-V0.7.11 hang
+Message-ID: <20041105134639.GA14830@elte.hu>
+References: <200411051837.02083.amitshah@gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <418AE9DD.3010008@pobox.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <200411051837.02083.amitshah@gmx.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 04, 2004 at 09:47:57PM -0500, Jeff Garzik wrote:
-> Jakob Oestergaard wrote:
-...
-> >
-> >Hi Jeff,
-> >
-> >Does running an 'ls' on the server in the exported directory that is
-> >stale on the client resolve the problem (temporarily)?
+
+* Amit Shah <amitshah@gmx.net> wrote:
+
+> Hi Ingo,
 > 
-> Yes.
+> I'm trying out the RT preempt patch on a P4 HT machine, I get the following 
+> message:
 > 
+> e1000_xmit_frame+0x0/0x83b [e1000]
 
-Hah!  Is that weird, or is that weird?   :)
+hm, does this happen with -V0.7.13 too? (note that it's against
+2.6.10-rc1-mm3, a newer -mm tree.)
 
-Probably whoever wants to look into this might want to get in touch with
-Anders as well:
- http://lkml.org/lkml/2004/11/2/107
-
-A quick workaround is to have cron run an 'ls' for you in the exported
-directory on the server side - b-e-a-utiful!  :)
-
--- 
-
- / jakob
-
+	Ingo

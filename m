@@ -1,74 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268272AbUHXU1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268274AbUHXUaI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268272AbUHXU1W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 16:27:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268274AbUHXU1W
+	id S268274AbUHXUaI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 16:30:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268276AbUHXUaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 16:27:22 -0400
-Received: from dauntless.milewski.org ([64.142.38.232]:56241 "EHLO
-	dauntless.milewski.org") by vger.kernel.org with ESMTP
-	id S268272AbUHXU1J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 16:27:09 -0400
-Message-ID: <412BA4FC.2070505@asperasoft.com>
-Date: Tue, 24 Aug 2004 13:28:44 -0700
-From: Serban Simu <serban@asperasoft.com>
-Organization: Aspera
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: page allocation failure & sk98lin
-References: <412AE018.8000207@asperasoft.com> <412AF360.60005@yahoo.com.au>
-In-Reply-To: <412AF360.60005@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Aug 2004 16:30:08 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:30638 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S268274AbUHXUaB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 16:30:01 -0400
+Date: Tue, 24 Aug 2004 22:29:55 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Peter Osterlund <petero2@telia.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Speed up the cdrw packet writing driver
+Message-ID: <20040824202951.GA24280@suse.de>
+References: <m33c2py1m1.fsf@telia.com> <20040823114329.GI2301@suse.de> <m3llg5dein.fsf@telia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3llg5dein.fsf@telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you, Nick. Just wanted to mention that while I understand that we 
-recover from this allocation failure (and also I don't mind the stack 
-printouts), about 20% of my incoming network traffic (600-700 Mbps) 
-seems to be dropped in the process. Does the memory manager have to 
-spend a considerable amount of time to recover?
+On Mon, Aug 23 2004, Peter Osterlund wrote:
+> Jens Axboe <axboe@suse.de> writes:
+> 
+> > On Sat, Aug 14 2004, Peter Osterlund wrote:
+> > > Hi!
+> > > 
+> > > This patch replaces the pd->bio_queue linked list with an rbtree.  The
+> > > list can get very long (>200000 entries on a 1GB machine), so keeping
+> > > it sorted with a naive algorithm is far too expensive.
+> > 
+> > It looks like you are assuming that bio->bi_sector is unique which isn't
+> > necessarily true. In that respect, list -> rbtree conversion isn't
+> > trivial (or, at least it requires extra code to handle this).
+> 
+> I don't think that is assumed anywhere.
+> 
+> The pkt_rbtree_find() function returns the first node with a sector
+> number >= s, even if there are multiple bios with bi_sector == s. Note
+> that the code branches to the left if s == tmp->bio->bi_sector.
+> 
+> The pkt_rbtree_insert() function is careful to insert a bio after any
+> already existing bios with the same sector number. Note that it
+> branches to the right if s == tmp->bio->bi_sector.
+> 
+> The tree rotations done internally in rbtree.c also can't mess things
+> up, because tree rotations don't change the inorder traversal order of
+> a tree.
 
-I will have a look at the -mm fixes, thanks for the idea.
+You are right, the code looks fine indeed. The bigger problem is
+probably that a faster data structure is needed at all, having hundreds
+of thousands bio's pending for a packet writing device is not nice at
+all.
 
--Serban
-
-Nick Piggin wrote:
-
-> Serban Simu wrote:
-> 
->> Hello all,
->>
->> I found a few references to similar problems in the list but no 
->> indications of whether this has been fixed or can be avoided.
->>
->> I'm using 2.6.8.1 and the patch: sk98lin_v7.04_2.6.8_patch. This 
->> happens  when receiving data fast on the GigE card (about 600Mbps) and 
->> writing on disk. It seems to happen after writing 1 GB to disk (1024 
->> MB) but I can't correlate that very reliably.
->>
->> I would appreciate any information pointing me to a fix or explanation.
->>
->> Thank you!
->>
->> -Serban
->>
->> swapper: page allocation failure. order:0, mode:0x20
-> 
-> 
-> 
-> The messages should be basically harmless and can't be completely avoided.
-> 
-> That said, -mm kernels have patches to fix up numerous problems with the 
-> page
-> allocator which have a good chance of fixing your problems.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+-- 
+Jens Axboe
 

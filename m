@@ -1,100 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262189AbVANWhZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVANWld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262189AbVANWhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 17:37:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVANWhZ
+	id S261338AbVANWld (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 17:41:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVANWlc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 17:37:25 -0500
-Received: from multivac.one-eyed-alien.net ([64.169.228.101]:48033 "EHLO
-	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S262189AbVANWhN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 17:37:13 -0500
-Date: Fri, 14 Jan 2005 14:37:12 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Enrico Bartky <DOSProfi@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: lspci != scanpci !?
-Message-ID: <20050114223712.GA26009@one-eyed-alien.net>
-Mail-Followup-To: Enrico Bartky <DOSProfi@web.de>,
-	linux-kernel@vger.kernel.org
-References: <003d01c4fa7b$983b21b0$0c00a8c0@amd64>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
-Content-Disposition: inline
-In-Reply-To: <003d01c4fa7b$983b21b0$0c00a8c0@amd64>
-User-Agent: Mutt/1.4.1i
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2005 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+	Fri, 14 Jan 2005 17:41:32 -0500
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:4240 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S261338AbVANWla (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 17:41:30 -0500
+Message-ID: <41E84A92.5030807@am.sony.com>
+Date: Fri, 14 Jan 2005 14:41:22 -0800
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc1-mm1
+References: <20050114002352.5a038710.akpm@osdl.org>
+In-Reply-To: <20050114002352.5a038710.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> - Added the Linux Trace Toolkit (and hence relayfs).  Mainly because I
+>   haven't yet taken as close a look at LTT as I should have.  Probably neither
+>   have you.
+> 
+>   It needs a bit of work on the kernel<->user periphery, which is not a big
+>   deal.
+> 
+>   As does relayfs, IMO.  It seems to need some regularised way in which a
+>   userspace relayfs client can tell relayfs what file(s) to use.  LTT is
+>   currently using some ghastly stick-a-pathname-in-/proc thing.  Relayfs
+>   should provide this service.
+> 
+>   relayfs needs a closer look too.  A lot of advanced instrumentation
+>   projects seem to require it, but none of them have been merged.  Lots of
+>   people say "use netlink instead" and lots of other people say "err, we think
+>   relayfs is better".  This is a discussion which needs to be had.
 
---SUOF0GtieIMvvwua
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks very much.  I know lots of embedded folks who will be happy to
+see this discussion take place.  (As an aside, I'll try to encourage
+some of our more shy members to speak up and participate in the
+discussion as well.  I know Hitachi has been doing some work on
+tracing, and I'd hate to see duplicate effort.)
 
-On Fri, Jan 14, 2005 at 09:57:00PM +0100, Enrico Bartky wrote:
-> Hello,
->=20
-> I have a Gigabyte GA-5AA Board with ALi Aladdin IV Chipset ( 1533, 1541 )=
-. I
-> tried to get the smbus to work, but Gigabyte have disabled it and I can't
-> activate it in the BIOS. I use kernel 2.6.10 and looked at the m7101-hotp=
-lug
-> for kernel 2.4-module from lm_sensors. I added the following to
-> drivers/pci/quirks.c:
->=20
-> ....
-> /* ALi 1533 fixup to enable the M7101 SMBus Controller
-> * ported from prog/hotplug of the lm_sensors
-> * package
-> */
-> static void __devinit quirk_ali1533_smbus(struct pci_dev *dev)
-> {
-> u8 val =3D 0;
->=20
-> pci_read_config_byte ( dev, 0x5F, &val );
-> if ( val & 0x4 )
-> {
-> pci_write_config_byte ( dev, 0x5F, val & 0xFB );
-> }
-> }
-> DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M1533,
-> quirk_ali1533_smbus );
-> ....
->=20
-> Now the scanpci command shows the M7101 BUT lspci and /proc/pci,
-> /proc/bus/pci, /sys/bus/pci NOT. What can I do? Is there anything like a
-> "update_pci" command?
+BTW - I agree with most of the relayfs comments.  It seems like overkill
+for the kernel developer doing a "casual", ad-hoc trace.  I'll try to
+work with Karim on the suggested improvements.
 
-I think there is a kernel command-line parameter you can use to tell the
-kernel to ignore the BIOS-supplied PCI map and generate it's own via
-scanning (ala what scanpci does).
-
-Matt
-
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-Department of Justice agent.  I have come to purify the flock.
-					-- DOJ agent
-User Friendly, 5/22/1998
-
---SUOF0GtieIMvvwua
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFB6EmYIjReC7bSPZARAntsAKCYrxLQgm8Rb9S9Htx8I7bUrA1DQQCfYnlN
-7ZnUzV6+FF0OV7eW1RJkLWo=
-=RV/q
------END PGP SIGNATURE-----
-
---SUOF0GtieIMvvwua--
+=============================
+Tim Bird
+Architecture Group Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+=============================

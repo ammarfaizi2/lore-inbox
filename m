@@ -1,85 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273065AbRJJAZM>; Tue, 9 Oct 2001 20:25:12 -0400
+	id <S271005AbRJJAgv>; Tue, 9 Oct 2001 20:36:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273818AbRJJAZC>; Tue, 9 Oct 2001 20:25:02 -0400
-Received: from [209.250.60.207] ([209.250.60.207]:42764 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S273065AbRJJAYm>; Tue, 9 Oct 2001 20:24:42 -0400
-Date: Tue, 9 Oct 2001 19:24:59 -0500
-From: Steven Walter <srwalter@yahoo.com>
-To: Michael Peddemors <michael@wizard.ca>
+	id <S271714AbRJJAgl>; Tue, 9 Oct 2001 20:36:41 -0400
+Received: from mail5.speakeasy.net ([216.254.0.205]:1805 "EHLO
+	mail5.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S271005AbRJJAg2>; Tue, 9 Oct 2001 20:36:28 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: safemode <safemode@speakeasy.net>
+To: Robert Love <rml@ufl.edu>
+Subject: 2.4.10-ac10-preempt lmbench output. 
+Date: Tue, 9 Oct 2001 20:36:56 -0400
+X-Mailer: KMail [version 1.3.2]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Framebuffer detection problems, 2.4.9
-Message-ID: <20011009192459.A26019@hapablap.dyn.dhs.org>
-Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
-	Michael Peddemors <michael@wizard.ca>, linux-kernel@vger.kernel.org
-In-Reply-To: <1002670696.4112.285.camel@mistress>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1002670696.4112.285.camel@mistress>; from michael@wizard.ca on Tue, Oct 09, 2001 at 04:38:15PM -0700
-X-Uptime: 7:18pm  up 1 day,  8:44,  0 users,  load average: 0.38, 0.85, 0.94
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011010003636Z271005-760+23005@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 09, 2001 at 04:38:15PM -0700, Michael Peddemors wrote:
-> I seldom dive into the graphical end of things myself, but this one has
-> had me stumped for the last week and a half..
-> 
-> I have a working ThinClient setup, that loads it's kernel via tftpd and
-> mknbi, with the 'vga=ask' option..
-> On one machine, with a Cirrus Logic card, (Cirrus Framebuffer support
-> compiled in) things work fine, but on all my other boxes with VESA
-> complaint cards, I cannot get it to use the VESA framebuffer, or
-> seemingly to detect the VESA devices with this kernel, although we can
-> on detect and pass modes using LILO on similar kernels.
-> 
-> I have of course read as many how-to's as possible, and the svga.txt
-> file seems to indicate that if I use the vga=ask option, and then run
-> scan it should show all VESA modes as well, (It does detect it as a VESA
-> VGA card), but the /fb/vesafb.txt seems to indicate that it won't show
-> the modes..
+I'm very pleased so far with ac10 with the preempt patch.  Much better than 
+2.4.9-ac18-preempt, which is what i was using.  I'm just going to put up some 
+output from lmbench to see if anyone who is running the non-preempt version 
+is seeing better or worse timings and scores.   Perhaps the improvement is 
+all in my head due to me moving my atapi devices off of the promise card 
+(since you're not supposed to put any on it) and now everything is generally 
+running faster despite the kernel being used.  Heh.  so here they are 
 
-It doesn't show the modes.  You have to enter one yourself, or tell it
-to LILO.  /fb/vesafb.txt has more information about the varying modes
-availible.  Read the whole file if you haven't already.  Be sure to add
-0x200 as documented.
+ftp://ftp.bitmover.com/lmbench/LMbench2.tgz
+(top of README says lmbench 2alpha8)
+compiled without any changes to the Makefile (gcc 2.95.4)
 
-> I see that in video.S CONFIG_VIDEO_VESA is harddefined, but I cannot
-> quite understand why I cannot enter a VESA mode that works..
-> I tried 313, 0313, and the decimal equivs 787 and 0787 but it keeps
-> returning that as an invalid mode..  This occurs on several machines,
-> all with recent video cards, that are VESA compliant, and listed as
-> compatible.. the motherboards all use recent BIOS's but still no joy..
-> 
-> I will accept help here, or can someone point me to a good mailing list
-> to work this out?
-> 
-> -- 
-> "Catch the Magic of Linux..."
-> --------------------------------------------------------
-> Michael Peddemors - Senior Consultant
-> LinuxAdministration - Internet Services
-> NetworkServices - Programming - Security
-> Wizard IT Services http://www.wizard.ca
-> Linux Support Specialist - http://www.linuxmagic.com
-> --------------------------------------------------------
-> (604)589-0037 Beautiful British Columbia, Canada
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Simple syscall: 0.3226 microseconds
+Simple read: 0.8185 microseconds
+Simple write: 0.5791 microseconds
+Simple stat: 3.7546 microseconds
+Simple open/close: 5.6581 microseconds
+lat_fs (ext2)
+0k      1000    36770   123993
+1k      1000    15526   74383
+4k      1000    15202   73692
+10k     1000    9124    51972
+FIFO latency: 8.0457 microseconds
+Signal handler installation: 0.932 microseconds
+Signal handler overhead: 2.852 microseconds
+Protection fault: 0.761 microseconds
+Pipe latency: 7.9139 microseconds
+Pagefaults on /something.avi: 13098 usecs
+Process fork+exit: 249.6818 microseconds
+Process fork+execve: 298.0000 microseconds
+Process fork+/bin/sh -c: 7883.0000 microseconds
+AF_UNIX sock stream latency: 11.0054 microseconds
+Select on 200 tcp fd's: 62.7955 microseconds
+Select on 200 fd's: 18.5960 microseconds
+Fcntl lock latency: 7.3516 microseconds
+lat_ctx on an Eterm process
+"size=0k ovr=2.82
+"size=1024k ovr=301.96
 
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
-Freedom is slavery. Ignorance is strength. War is peace.
-			-- George Orwell
-Those that would give up a necessary freedom for temporary safety
-deserver neither freedom nor safety.
-			-- Ben Franklin
+That's all from lmbench2.  Anyone without the preempt patch using the same 
+kernel care to compare? I'm very pleased.  
+Heavily io bound processes (dbench 32)  still causes something as light as an 
+mp3 player to skip, though.   That probably wont be fixed intil 2.5, since 
+you need to have preemption in the vm and the rest of the kernel.  

@@ -1,85 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274961AbTHRQym (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 12:54:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274964AbTHRQym
+	id S273288AbTHRQrp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 12:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274813AbTHRQrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 12:54:42 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:41690 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S274961AbTHRQye (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 12:54:34 -0400
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Jes Sorensen <jes@wildopensource.com>
-Subject: Re: [PATCH] RFC: kills consistent_dma_mask
-References: <m3oeynykuu.fsf@defiant.pm.waw.pl>
-	<20030818111522.A12835@devserv.devel.redhat.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 18 Aug 2003 18:14:25 +0200
-In-Reply-To: <20030818111522.A12835@devserv.devel.redhat.com>
-Message-ID: <m33cfzuen2.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
+	Mon, 18 Aug 2003 12:47:45 -0400
+Received: from 224.Red-217-125-129.pooles.rima-tde.net ([217.125.129.224]:4339
+	"HELO cocodriloo.com") by vger.kernel.org with SMTP id S273288AbTHRQrh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 12:47:37 -0400
+Date: Mon, 18 Aug 2003 18:51:02 +0200
+From: Antonio Vargas <wind@cocodriloo.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Tom Sightler <ttsig@tuxyturvy.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] O16.2int
+Message-ID: <20030818165102.GB7570@wind.cocodriloo.com>
+References: <1061152667.5526.26.camel@athxp.bwlinux.de> <1061156820.1775.32.camel@iso-8590-lx.zeusinc.com> <1061169664.3f402a00ae7b6@kolivas.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1061169664.3f402a00ae7b6@kolivas.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev <zaitcev@redhat.com> writes:
-
-> Are you talking about doing tripple calls, e.g.
+On Mon, Aug 18, 2003 at 11:21:04AM +1000, Con Kolivas wrote:
+> Quoting Tom Sightler <ttsig@tuxyturvy.com>:
 > 
->        pci_set_dma_mask(pdev, 0xFFFFFFFF);
->        foo = pci_alloc_consistent(pdev, size, &handle);
->        // Restore for upcoming streaming allocations
->        pci_set_dma_mask(pdev, 0xFFFFFFFFFFFFFFFF);
+> > Hi Con,
 > 
-> Possibly Jes considered that alternative and decided that it
-> did not allow for sufficient performance.
-
-Possibly. Is that true?
-
-I could imagine even something like that:
-
-init_module()
-{
-        using_dac = 1;
-        if (!pci_dma_supported(dev, 0xFFFFFFFFFFFFFFFF)) {
-                if (!pci_dma_supported(dev, 0xFFFFFFFF))
-                      	error;
-                using_dac = 0;
-        }
-}
-
-...
-
-        foo = pci_alloc_consistent(pdev, size, &handle, 0xFFFFFFFF);
-        bar = pci_map_single(...,
-                using_dac ? 0xFFFFFFFFFFFFFFFF : 0xFFFFFFFF);
-
-I don't think it would be slower. If inlined, if would be even faster.
-
-However, the main problem is not that it isn't beautiful but rather that
-it's broken.
-
-> Before you go for that, I'd rather see you implementing the
-> double/tripple calls in drivers, check for effects, THEN
-> go for removal of the mask.
-
-The problem is that the official kernel does NOT contain any driver which
-needs different masks.
-
-> > This patch doesn't actually change any current kernel behaviour.
+> Hi Tom
 > 
-> Sure it does. It blows all non-mmu ia64 out of the water.
+> > 1. -- Wine running Windows Media Player 6.4 works great when running in
+> 
+> Yes a well known problem now (see other threads about wine). Wine doing 
+> something very cpu intensive exhibits this due to a combination of wine 
+> breakage brought out by my scheduler tweaks causing priority inversion.
+> 
+> > 2. -- Adobe Acrobat 5.07 for Linux seems to have a very similar issue, a
+> > large complex document seems to starve out the whole system making the
+> > system feel locked up for several seconds.
+> 
+> Actually I've profiled acroread and it seems to be more a memory issue than a 
+> scheduler one per se. Something very inefficient about it's design and it 
+> behaves much worse as a mozilla plugin than standalone. Give it lots of cpu 
+> time and it just keeps doing more and more vm work.
 
-No. The kernel (2.6.0-test3 at least) doesn't count on that under any
-circumstances.
+Acrobat has a switch so that it keeps a cache of rendered pages, and
+obviously it default to ON, so just reading a big PDF file page by
+page will trash all the system with lots useless data. BUT, for simple
+PDF usage in a non-multitasking single-user machine it's faster
+so there you have a possible reason for it's strange behaviour.
 
-> The consistent mask looks a little distasteful to me, and I think
-> it should not buy us performance because consistent allocations
-> are not supposed to be fast. They are bad, but what you are doing
-> is worse: you are trying to ruin the day of legitimate users.
+ 
+> > 3. -- It seems I can trigger the same kind of starvation by simply doing
+> > large selects in a Konsole window.  Selecting a large section of text
+> 
+> > Konsole issue, however, if another application is using a reasonable
+> > amount of CPU, say a video playing in Wine using ~50% CPU, then it seems
+> > easy to make this happen.  Once it happens it's very hard to recover,
+> 
+> This is because of wine, not the Konsole which behaves fine, but tips the 
+> combination of wine and something else over the edge.
+> 
+> I'm working on it. Thanks very much for your report.
+> 
+> Cheers,
+> Con
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Of course this isn't what I'm trying to do.
 -- 
-Krzysztof Halasa
-Network Administrator
+winden/network
+
+1. Dado un programa, siempre tiene al menos un fallo.
+2. Dadas varias lineas de codigo, siempre se pueden acortar a menos lineas.
+3. Por induccion, todos los programas se pueden
+   reducir a una linea que no funciona.

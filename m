@@ -1,50 +1,146 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261826AbSJQILu>; Thu, 17 Oct 2002 04:11:50 -0400
+	id <S261855AbSJQIWk>; Thu, 17 Oct 2002 04:22:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261851AbSJQILu>; Thu, 17 Oct 2002 04:11:50 -0400
-Received: from barclay.balt.net ([195.14.162.78]:42946 "EHLO barclay.balt.net")
-	by vger.kernel.org with ESMTP id <S261826AbSJQILt>;
-	Thu, 17 Oct 2002 04:11:49 -0400
-Date: Thu, 17 Oct 2002 10:14:31 +0200
-From: Zilvinas Valinskas <zilvinas@gemtek.lt>
-Cc: Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: 2.5.43-mm1: KDE (3.1 beta2) do not start anymore
-Message-ID: <20021017081431.GA16028@gemtek.lt>
-Reply-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
-References: <200210162327.53701.Dieter.Nuetzel@hamburg.de> <20021016225043.4A3732FBBA@oscar.casa.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021016225043.4A3732FBBA@oscar.casa.dyndns.org>
-User-Agent: Mutt/1.3.28i
-X-Attribution: Zilvinas
-X-Url: http://www.gemtek.lt/
-To: unlisted-recipients:; (no To-header on input)
+	id <S261856AbSJQIWk>; Thu, 17 Oct 2002 04:22:40 -0400
+Received: from [199.203.76.13] ([199.203.76.13]:9624 "EHLO
+	linux.optibase.co.il") by vger.kernel.org with ESMTP
+	id <S261855AbSJQIWf>; Thu, 17 Oct 2002 04:22:35 -0400
+Message-ID: <3DAE749B.3040305@optibase.com>
+Date: Thu, 17 Oct 2002 10:28:11 +0200
+From: Constantine Gavrilov <const-g@optibase.com>
+Organization: Optibase
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020313
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Problem implementing poll method
+Content-Type: multipart/mixed;
+ boundary="------------010900030209060508050805"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 16, 2002 at 06:50:43PM -0400, Ed Tomlinson wrote:
-> Dieter N?tzel wrote:
-> 
-> > Nothing in the logs.
-> > But maybe (short before) sound initialization.
-> > Could it be "shared page table" related, too?
-> > 
-> > W'll try that tomorrow.
-> 
-> Kde 3.0 has never been able to start here when shared page tables have
-> been enabled in an mm kernel.  Still some cleanups and debugging to do 
-> it would seem.
+This is a multi-part message in MIME format.
+--------------010900030209060508050805
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I do use 2.4.43-mm1 (with shared pte enabled) - it boots just fine here.
 
-> 
-> Ed Tomlinson
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+----------------------------------------
+Constantine Gavrilov
+Linux Leader
+Optibase Ltd
+7 Shenkar St, Herzliya 46120, Israel
+Phone: (972-9)-970-9140
+Fax:   (972-9)-958-6099
+----------------------------------------
+
+
+
+--------------010900030209060508050805
+Content-Type: text/plain;
+ name="let.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="let.txt"
+
+Hi,
+
+I have a problem implementing poll method.
+
+I have written a driver for MPEG encoder card. The user-space SDK needs to be able to wait for a certain event that is reported by the interrupt handler. I have done it using ioctl method, like this:
+
+	u32 timeout=milliseconds * HZ / 1000;
+
+	set_bit(0, &dev->fintwait);
+	if(test_bit(0, &dev->fintwait)) {
+		interruptible_sleep_on_timeout(&dev->interrupt_queue,timeout);
+
+		if (signal_pending(current)) {
+			printk(KERN_ERR "optenc: IntWait restarted by signal\n");
+			return -ERESTARTSYS;
+		}
+
+		if(test_bit(0, &dev->fintwait)) {
+			printk(KERN_ERR "optenc: intwait timeout\n");
+			..//returns wait timeout
+		}
+		else {
+			...//returns wait OK
+		}
+	}
+	//returns wait OK
+	
+The interrupt handler wakes up the queue and updates dev->fintwait like this:
+
+	clear_bit(0, &dev->fintwait);
+	wake_up_interruptible(&dev->interrupt_queue);
+	
+
+It worked very well for me. I wanted to implement the same wait using the poll method. So, my poll function looks like this:
+
+unsigned int optenc_poll(struct file *filp, poll_table *wait_table)
+{
+	unsigned int mask = 0;
+	struct mydev *dev = filp->private_data;
+	
+	set_bit(0, &dev->fintwait);
+	if(test_bit(0, &dev->fintwait)) {
+		poll_wait(filp, &dev->interrupt_queue, wait_table);
+		if(test_bit(0, &dev->fintwait))
+			return mask;
+		else {
+			mask |= POLLIN |POLLRDNORM;
+			return mask;
+		}
+	}
+	else {
+		mask |= POLLIN |POLLRDNORM;
+		return mask;
+	}
+}
+
+Seems straightforward and the same thing as above. But, I have the following problems:
+
+a) I have a lot of calls with wait_table = NULL and poll_wait does not block. I always do select on one file descriptor only and I never use zero timeout, so I do not understand the reason for it.
+
+b) Even when wait_table is not NULL, poll_wait returns before (!!) interrupt handler wakes up the queue. I have checked it with printk. It always like this:
+
+	set_bit
+	poll_wait
+	poll_wait returns and test_bit is true
+	wake_up and clear_bit
+
+It is like poll_wait does not seem to block and I have spurious calles with wait_table == NULL. Any ideas?
+
+
+Just to verify, the user-space wait function looks like this :
+
+BOOL Wait(int timeout)
+{
+
+	fd_set set;
+	struct timeval tv;
+	int retval;
+
+	FD_ZERO(&set);
+	FD_SET(fd, &set);
+	tv.tv_sec = timeout/1000;
+	tv.tv_usec = (timeout%1000)*1000;
+
+	int rc=select(fd+1, &set, NULL, NULL, &tv);
+	if(rc == -1) {
+		PERROR("select");
+		return FALSE;
+	}
+	if(rc == 1)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+I use 2.4.18-pre7ac1 and I have also checked stock RedHat's 2.4.9-34.
+
+--------------010900030209060508050805--
+

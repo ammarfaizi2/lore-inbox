@@ -1,103 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267065AbTAUNnu>; Tue, 21 Jan 2003 08:43:50 -0500
+	id <S267068AbTAUNsH>; Tue, 21 Jan 2003 08:48:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267068AbTAUNnu>; Tue, 21 Jan 2003 08:43:50 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:59789 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S267065AbTAUNns>; Tue, 21 Jan 2003 08:43:48 -0500
-Date: Tue, 21 Jan 2003 08:54:33 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: AnonimoVeneziano <voloterreno@tin.it>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Spurious 8259A interrupt: IRQ7 ????
-In-Reply-To: <3E2D4D15.4080001@tin.it>
-Message-ID: <Pine.LNX.3.95.1030121084206.20505A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267070AbTAUNsH>; Tue, 21 Jan 2003 08:48:07 -0500
+Received: from pc-62-31-74-42-ed.blueyonder.co.uk ([62.31.74.42]:33153 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S267068AbTAUNsG>; Tue, 21 Jan 2003 08:48:06 -0500
+Subject: Re: 2.4.21-pre3 - problems with ext3 (long)
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
+Cc: akpm@zip.com.au, Andreas Dilger <adilger@clusterfs.com>,
+       linux-kernel@vger.kernel.org,
+       Bartlomiej Solarz-Niesluchowski <solarz@wsisiz.edu.pl>
+In-Reply-To: <Pine.LNX.4.51.0301210029010.30053@oceanic.wsisiz.edu.pl>
+References: <Pine.LNX.4.51.0301141401260.6636@oceanic.wsisiz.edu.pl>
+	<1043102297.13050.59.camel@sisko.scot.redhat.com> 
+	<Pine.LNX.4.51.0301210029010.30053@oceanic.wsisiz.edu.pl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Jan 2003 13:56:26 +0000
+Message-Id: <1043157386.2447.56.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jan 2003, AnonimoVeneziano wrote:
+Hi,
 
-> David D. Hagood wrote:
-> 
-> > AnonimoVeneziano wrote:
-> >
-> >> What does it mean this message?
-> >>
-> >> Of what problem is the signal?
-> >
-> >
-> > It is most likely a hardware problem.
-> >
-> > When a device signals an interrupt, it asserts its interrupt pin. When 
-> > the CPU asks the interrupt controller what device generated the 
-> > interrupt, the interrupt controller tells the CPU.
-> >
-> > But if the interrupt line "goes away" before the CPU fetches the 
-> > vector, then the interrupt controller doesn't "know" what IRQ caused 
-> > the interrupt. So the interrupt controller sends an IRQ #7 to the CPU, 
-> > along with setting a bit in the interrupt controller's status register 
-> > that says in effect "this isn't really an IRQ 7, but I have no idea 
-> > what it was. Sorry."
-> >
-> > If you have ISA cards in your system, remove them from the system and 
-> > re-insert them (with the power off, of course) - they may have 
-> > developed some oxidization on the card edge connector. You can also 
-> > try scrubbing the card edge with some plain paper (a US dollar bill 
-> > works even better, but you might not have access to dead presidents in 
-> > Italy.)
-> >
-> > Ditto with PCI cards - remove them, polish the connector, then 
-> > re-insert them.
-> >
-> >
-> >
-> Thank you very much all of you for the answers.So, this should be an 
-> harmless message, I've tried to attach something to the parallel port , 
-> or disable it in the bios, but doesn't work, the only way to remove this 
-> problem is to load the parport_pc module, this message with the module 
-> loaded doesn't appear. I've tried with other bioses , and the problem 
-> appears on all of them. If I compile in the kernel UP-IO-ACPI the 
-> problem disappears, but I have a lot of other problems, because my 
-> system is quite young and the support for IO-APIC is not added yet for 
-> me.If I use only UP-APIC this problem appears, and if don't use apic 
-> this disappears.
-> 
-> I'll try to remove some HW and retry. Someone had this problem without 
-> APIC enabled?
-> 
-> Thank you
-> 
-> Bye
-> 
-> Marcello
+On Tue, 2003-01-21 at 00:25, Lukasz Trabinski wrote:
 
-If it bothers you, just comment out the message in the kernel.
-A "catch-all" for interrupt glitches is the IRQ7. It can be
-caused by real problems (unlikely if the rest of the machine
-works), or the occasional glitch where some hardware didn't
-assert its IRQ line long enough for it to be recognized. This
-is a hardware glitch and they happen. They started to happen
-more often once level interrupts, necessary for PCI interrupt
-sharing, started to become common. Level interrupts, as opposed
-to edge interrupts are not latched. If a glitch occurs on a
-edge interrupt, the event is latched. If enabled, the interrupt
-is handled just like a "real" one and nobody is the wiser. With
-level interrupts, the CPU can become "confused" with a glitch
-if, by the time the CPU starts to handle the interrupt, it no-
-longer exists. The result is that the CPU executes the IRQ7
-handler, the "catch-all", which is also used for the printer.
+> system boot  2.4.20:
+> Dec 15 15:27:01 oceanic kernel: Assertion failure in journal_start_Rsmp_c2be780a
+> () at transaction.c:248: "handle->h_transaction->t_journal == journal
 
-Bottom line, it's normal. It's being handled. You probably should
-just comment out the message in "production" software so it doesn't
-bother anybody.
+> With earlier kernels 2.4.X (for example 2.4.20-rc2) this machine has much 
+> longer uptime.
+
+OK, which was the last one which ran stable for you?  I note that you've
+got a failure marked "2.4.20" in the log.
+
+> Dec 15 15:27:01 oceanic kernel: Kernel panic: EXT3-fs panic (device sd(8,23)): load_block_bitmap: block_group >= groups_count - block_group = 524287, groups_count = 2126
+
+Do you have the backtrace for that?  I can't see any way that particular
+error can happen unless the kernel's memory is getting corrupt, or
+there's a corrupt superblock coming in from the disk.  
+
+Also, are you sure you've been ksymoops'ing these from the right
+System.map files?  The traces really don't make a lot of sense.
+
+Finally,
+
+> By the way, last crash was with messages:
+> Jan 19 11:50:20 oceanic kernel: kernel BUG at highmem.c:159!
+> Jan 19 11:50:20 oceanic kernel: invalid operand: 0000
+> Jan 19 11:50:20 oceanic kernel: CPU:    1
+
+If that happens again, serial console is the best way of getting the
+full oops.  How much memory does your system have?  Have you ever seen
+this error before?  
 
 Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+ Stephen
 

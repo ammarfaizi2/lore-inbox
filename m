@@ -1,57 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264062AbSIQMGk>; Tue, 17 Sep 2002 08:06:40 -0400
+	id <S264070AbSIQMRF>; Tue, 17 Sep 2002 08:17:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264064AbSIQMGk>; Tue, 17 Sep 2002 08:06:40 -0400
-Received: from 62-190-219-100.pdu.pipex.net ([62.190.219.100]:55815 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S264062AbSIQMGj>; Tue, 17 Sep 2002 08:06:39 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209171217.g8HCHRWt002001@darkstar.example.net>
-Subject: Re: Hi is this critical??
-To: rmk@arm.linux.org.uk (Russell King)
-Date: Tue, 17 Sep 2002 13:17:27 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk, andre@linux-ide.org,
-       nuitari@balthasar.nuitari.net, venom@sns.it,
-       linux-kernel@vger.kernel.org, xavier.bestel@free.fr, mark@veltzer.org
-In-Reply-To: <20020917130225.C28438@flint.arm.linux.org.uk> from "Russell King" at Sep 17, 2002 01:02:25 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S264074AbSIQMRF>; Tue, 17 Sep 2002 08:17:05 -0400
+Received: from mta06ps.bigpond.com ([144.135.25.138]:16895 "EHLO
+	mta06ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S264070AbSIQMRE>; Tue, 17 Sep 2002 08:17:04 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Andreas Schuldei <andreas@schuldei.org>, greg@kroah.com
+Subject: Re: usb keyboard registering twice
+Date: Tue, 17 Sep 2002 22:15:51 +1000
+User-Agent: KMail/1.4.5
+Cc: linux-kernel@vger.kernel.org
+References: <20020917084303.GC2277@lukas>
+In-Reply-To: <20020917084303.GC2277@lukas>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200209172215.52034.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, Sep 17, 2002 at 12:17:53PM +0100, Alan Cox wrote:
-> > On Tue, 2002-09-17 at 12:09, Russell King wrote:
-> > > Then you find out that its been used in the world cup.  You try to
-> > > return it to the vendor, but the vendor says its your fault for
-> > > dropping the drive.  You protest, but the vendor refuses to listen
-> > > because they've got their technology that says so in their product.
-> > 
-> > Then you take them to the small claims court. Its their burden of proof.
-> 
-> Ok.  So the vendor gets out their technology that says "this drive
-> has been exposed to excessive G force."  So they have proof that it
-> has been dropped by someone.  However, the vendor can't prove that:
-> 
-> 1. the vendor didn't drop it
-> 2. the parcel company didn't drop it
-> 3. you didn't drop it
-> 
-> Conversely, you can't prove:
-> 
-> 1. that the vendor dropped it
-> 2. the parcel company dropped it
-> 3. you dropped it (not that you'd want to)
-> 
-> So its now their word against yours, and as you say, its up to the
-> vendor to prove that _you_ caused the damage.  Fortunately, this
-> technology doesn't do that, so honest users might be safe for the
-> time being.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Am I missing something, though, or is it not the case that if it has been dropped by the parcel company or the vendor, errors are likely to show up pretty soon if they are going to show up at all.  You can't phone up 35 months in to a three year warranty, and expect them to believe, "Oh, the parcel company broke it, and it hasn't shown up because it damaged the last sector on the disk", (especially since most disks park the heads on the outside of the disk, so if that is the problem, you're going to notice it straight away).
+On Tue, 17 Sep 2002 18:43, Andreas Schuldei wrote:
+> i have here a usb keyboard which is registering once with the
+> usb layer and twice with the input layer. Here is /proc/bus/usb/devices
+<hubs snipped>
+> T:  Bus=01 Lev=02 Prnt=02 Port=00 Cnt=01 Dev#=  4 Spd=1.5 MxCh= 0
+> D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+> P:  Vendor=045e ProdID=002b Rev= 1.11
+> S:  Product=Microsoft Internet Keyboard Pro
+> C:* #Ifs= 2 Cfg#= 1 Atr=a0 MxPwr=100mA
+> I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=01 Driver=hid
+> E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=10ms
+> I:  If#= 1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=hid
+> E:  Ad=82(I) Atr=03(Int.) MxPS=   3 Ivl=10ms
+This is the main keyboard. Note that it has two interfaces (I: lines), both 
+associated with the hid driver. Also note that they are different (see Sub 
+changes).
 
-I suppose that you could have a problem like a cracked spindle that didn't show up straight away, but realistically, if it's not your fault it got broken, then it's not likely to show up after a couple of years, is it?
+<more stuff snipped>
 
-John.
+> and here is /proc/bus/input/devices
+<devices snipped>
+> I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+> N: Name="045e:002b"
+> P: Phys=usb1:1.1/input1
+> D: Drivers=kbd event1
+> B: EV=10000a
+> B: KEY=ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff
+> ffffffff ffffffff ffff0000 38000 39fa d843d7a9 9e0000 0 0 1
+> B: ABS=1 0
+>
+> I: Bus=0000 Vendor=0000 Product=0000 Version=0000
+> N: Name="045e:002b"
+> P: Phys=usb1:1.1/input0
+> D: Drivers=kbd event0
+> B: EV=120002
+> B: KEY=10000 0 ffe00000 7ff ffbeffdf ffffffff ffffffff fffffffe
+> B: LED=7
+>
+>
+> Here you see that the last two entries describe the same device.
+Kind of. They actually describe the two interfaces on the device. The Sub on 
+HID actually indicates that the keyboard is boot protocol compatible. Those 
+multimedia keys on your keyboard can't be represented using boot protocol 
+(refer to USB HID spec for details). So they appear as a different interface.
+Which keys are on which interface should be obvious from the KEY lines :)
+
+> Is this a bogus keyboard (As you can see it is a Microsoft
+> product!), or is it the kernels responsibility to catch that?
+It is a normal keyboard design. Logitech is the same.
+
+> Would it be the usb layer or the input layer which is responsible
+> to varify that the devices are unique?
+Don't kid yourself. USB keyboards are not distinct, except for the physical 
+topology. 
+
+> In this case the USB layer cold have caught it, since the it is
+> both at usb1:1.1. But why do they have different keys? is that a
+> hardware feature like the mac-address in ethernet cards?
+The KEY line is a bit mask describing the keys on the interface. The LED line 
+and ABS lines are similar bitmasks.
+
+> I am working with 2.4.19-backstreet-ruby, which is a backport of
+> greater parts of the usb, input and console work from 2.5 to
+> 2.4.19. And i do not expect anyone but me to fix this. I would be
+> thankfull for any help regarding HOW it would be fixed, though.
+Don't try to fix it. Enjoy it :)
+
+Brad
+- -- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9hxz3W6pHgIdAuOMRAhkRAJ4hv7oQv7ZQpq0/M/YgsRNjQqt73wCeM1vd
+EvI3vb466hy82wQMmgI5ZOQ=
+=FaYF
+-----END PGP SIGNATURE-----
+

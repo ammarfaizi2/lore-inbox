@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262817AbTK1RU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 12:20:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbTK1RU6
+	id S262731AbTK1RX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 12:23:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262775AbTK1RX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 12:20:58 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:8198 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262817AbTK1RU5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 12:20:57 -0500
-To: lkml-031128@amos.mailshell.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.6test11 kernel panic on "head -1 /proc/net/tcp"
-References: <20031128170138.9513.qmail@mailshell.com>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sat, 29 Nov 2003 02:20:41 +0900
-In-Reply-To: <20031128170138.9513.qmail@mailshell.com>
-Message-ID: <87d6bc2yvq.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Fri, 28 Nov 2003 12:23:26 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:50305 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262731AbTK1RXY convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Nov 2003 12:23:24 -0500
+Message-ID: <3FC7845E.1080800@nortelnetworks.com>
+Date: Fri, 28 Nov 2003 12:22:38 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andries.Brouwer@cwi.nl
+Cc: szepe@pinerecords.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       root@chaos.analogic.com
+Subject: Re: BUG (non-kernel), can hurt developers.
+References: <UTC200311281029.hASATvD16681.aeb@smtp.cwi.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lkml-031128@amos.mailshell.com writes:
+Andries.Brouwer@cwi.nl wrote:
+>        The routine handler must be very careful, since processing
+>        elsewhere  was  interrupted at some arbitrary point. POSIX
+>        has the concept of "safe function".  If  a  signal  inter­
+>        rupts  an  unsafe  function,  and  handler calls an unsafe
+>        function, then the behavior is undefined.  Safe  functions
+>        are listed explicitly in the various standards.  The POSIX
+>        1003.1-2003 list is
 
-> "bad: scheduling while atomic!
-> Call Trace:
->    schedule+0x55d/0x570
+<snip>
 
-Does this patch fix this problem?
+You may also want to mention the SUS async-safe list as well, since 
+there are some additional functions there.
 
-diff -puN net/ipv4/tcp_ipv4.c~tcp_seq-oops-fix net/ipv4/tcp_ipv4.c
---- linux-2.6.0-test11/net/ipv4/tcp_ipv4.c~tcp_seq-oops-fix	2003-11-29 00:52:15.000000000 +0900
-+++ linux-2.6.0-test11-hirofumi/net/ipv4/tcp_ipv4.c	2003-11-29 00:52:28.000000000 +0900
-@@ -2356,6 +2356,7 @@ static void *tcp_get_idx(struct seq_file
- static void *tcp_seq_start(struct seq_file *seq, loff_t *pos)
- {
- 	struct tcp_iter_state* st = seq->private;
-+	st->state = TCP_SEQ_STATE_LISTENING;
- 	st->num = 0;
- 	return *pos ? tcp_get_idx(seq, *pos - 1) : SEQ_START_TOKEN;
- }
+Chris
 
-_
+
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272799AbTHKRVL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 13:21:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272821AbTHKQtk
+	id S272841AbTHKRXn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 13:23:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272827AbTHKRVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 12:49:40 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:65112 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S272790AbTHKQt3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 12:49:29 -0400
-To: torvalds@osdl.org
-From: davej@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] logic error in gus_wave driver
-Message-Id: <E19mFqr-00068c-00@tetrachloride>
-Date: Mon, 11 Aug 2003 17:48:57 +0100
+	Mon, 11 Aug 2003 13:21:17 -0400
+Received: from magic-mail.adaptec.com ([208.236.45.100]:63419 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S272915AbTHKRUn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 13:20:43 -0400
+Date: Mon, 11 Aug 2003 11:22:22 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Paul Blazejowski <paulb@blazebox.homeip.net>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: Linux [2.6.0-test3/mm1] aic7xxx problems.
+Message-ID: <2425882704.1060622541@aslan.btc.adaptec.com>
+In-Reply-To: <1060543928.887.19.camel@blaze.homeip.net>
+References: <1060543928.887.19.camel@blaze.homeip.net>
+X-Mailer: Mulberry/3.1.0b5 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/sound/oss/gus_wave.c linux-2.5/sound/oss/gus_wave.c
---- bk-linus/sound/oss/gus_wave.c	2003-05-26 12:57:43.000000000 +0100
-+++ linux-2.5/sound/oss/gus_wave.c	2003-07-13 13:33:57.000000000 +0100
-@@ -3034,7 +3034,7 @@ void __init gus_wave_init(struct address
- 
- 	gus_initialize();
- 	
--	if ((gus_mem_size > 0) & !gus_no_wave_dma)
-+	if ((gus_mem_size > 0) && !gus_no_wave_dma)
- 	{
- 		hw_config->slots[4] = -1;
- 		if ((gus_devnum = sound_install_audiodrv(AUDIO_DRIVER_VERSION,
+> On a side note, the same aic7xxx drivers version 6.2.8 and 6.2.36 works
+> with 2.4.21 and 2.4.22-rc1/rc2 series of kernel with above hardware.
+
+I don't think that any of the changes between 6.2.35 and 6.2.36 will
+make a difference for you, but you could try upgrading.  The source
+files are here:
+
+http://people.FreeBSD.org/~gibbs/linux/SRC/
+
+The console output you've provided makes me think that interrupts are
+not working correctly in your system.
+
+--
+Justin
+

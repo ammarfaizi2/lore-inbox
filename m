@@ -1,95 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263281AbTJQDtk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 23:49:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263300AbTJQDtk
+	id S263300AbTJQEbW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 00:31:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263301AbTJQEbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 23:49:40 -0400
-Received: from auto-matic.ca ([216.209.85.42]:33287 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id S263281AbTJQDti (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 23:49:38 -0400
-Date: Thu, 16 Oct 2003 23:47:55 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Val Henson <val@nmt.edu>, Larry McVoy <lm@work.bitmover.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Transparent compression in the FS
-Message-ID: <20031017034755.GA18901@mark.mielke.cc>
-References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl> <3F8D6417.8050409@pobox.com> <20031016162926.GF1663@velociraptor.random> <20031016172930.GA5653@work.bitmover.com> <20031016174927.GB25836@speare5-1-14> <3F8F0766.30405@pobox.com>
+	Fri, 17 Oct 2003 00:31:22 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:46297 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S263300AbTJQEbU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 00:31:20 -0400
+Subject: Re: decaying average for %CPU
+From: Albert Cahalan <albert@users.sf.net>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F8F6020.2040206@cyberone.com.au>
+References: <1066358155.15931.145.camel@cube>
+	 <3F8F5A53.50209@cyberone.com.au> <1066359629.15920.161.camel@cube>
+	 <3F8F6020.2040206@cyberone.com.au>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1066364241.15931.180.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F8F0766.30405@pobox.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 17 Oct 2003 00:17:22 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 16, 2003 at 05:02:30PM -0400, Jeff Garzik wrote:
-> I'm curious if anyone has done any work on using multiple different 
-> checksums?  For example, the cost of checksumming a single block with 
-> multiple algorithms (sha1+md5+crc32 for a crazy example), and storing 
-> each checksum (instead of just one sha1 sum), may be faster than reading 
-> the block off of disk to compare it with the incoming block.  OTOH, 
-> there is still a mathematical possibility (however-more-remote) of a 
-> collission...
+On Thu, 2003-10-16 at 23:21, Nick Piggin wrote:
+> Albert Cahalan wrote:
+> >On Thu, 2003-10-16 at 22:56, Nick Piggin wrote:
+> >>Albert Cahalan wrote:
+> >>
+> >>>The UNIX standard requires that Linux provide
+> >>>some measure of a process's "recent" CPU usage.
+> >>>Right now, it isn't provided. You might run a
+> >>>CPU hog for a year, stop it ("kill -STOP 42")
+> >>>for a few hours, and see that "ps" is still
+> >>>reporting 99.9% CPU usage. This is because the
+> >>>kernel does not provide a decaying average.
+> >>>
+> >>I think the kernel provides enough info for userspace to do
+> >>the job, doesn't it?
+> >>
+> >
+> >I'm pretty sure not. Linux provides:
+> >
+> >per-process start time
+> >current time
+> >per-process total (lifetime) CPU usage
+> >units of time measurement (awkwardly)
+> >boot time
+> 
+> But your userspace program can calculate deltas in the total
+> CPU statistics. Yep, its in /proc/stat.
 
-I believe you are drawing your conclusions on a incorrect hunch.
+Huh?
 
-Figure that you had a 'perfect' hash algorithm, that would turn
-any 32768 bit block (4096 bytes) into a 32 bit hash value. We will
-define 'perfect' to mean that the algorithm is balanced (i.e. the
-weight distribution of the hash values is approximately even).
+This isn't about "top", which displays % of CPU
+time used over the refresh interval by reading
+all the process data multiple times.
 
-Then, we find a second 'perfect' hash algorithm that can be
-mathematically proven to have no similarities to the first algorithm,
-and also maps 32768 bit blocks to 32 bit hash values.
+This is about programs like "ps", which read
+everything and then spit out the output.
 
-The result is two 32 bit values, or a single 64 bit value. The
-possible values that can be represented using 64 bits is 2**64-1.
+I hope you're not suggesting to read things
+twice with a huge sleep(5) in the middle, or
+to run some kind of daemon that polls /proc
+once a second. That's far beyond horrid.
 
-The possible values that can be represented using 32768 bits is
-2**32768-1. There is guaranteed to be *many* combinations of bytes
-that would produce the same set of 32-bit hash values.
+> >>From that you can compute %CPU over the whole
+> >life of the process. This does not meet the
+> >requirements of the UNIX standard.
+> >
+> >What we do for load average is about right,
+> >except that per-process values can't all get
+> >updated at the same time. So the algorithm
+> >needs to be adjusted a bit to allow for that
+> 
+> load average is not CPU load though
 
-Now, we come back to reality. In reality, I suggest that it is
-impossible (or unreasonably difficult) to come up with two 'perfect'
-hash algorithms that have no similarities between them. It is likely
-that the algorithms are not perfect, and have weaknesses (i.e. certain
-hash values would result more frequently than others), and they also
-have similarities that would cause these weaknesses to multiply against
-each other, meaning that multiple algorithms may make the final result
-*less* unique, than using the best algorithm, with a larger hash value.
+Sure, but the algorithm is pretty close. Put in
+a 1.0 when the CPU is used and a 0.0 when not,
+and you have system-wide %CPU. To make that be
+per-process instead, you need to adjust the
+multiplier to account for a variable amount of
+time since the process last ran. That involves
+fixed-point exponentiation I guess, which might be
+approximated with a polynomial or lookup table.
 
-On the other side of reality, certain types of blocks are a lot more
-likely to appear than other types of blocks, within the same file, and
-certain types of damage to files, affect blocks in only certain ways.
-Meaning -- it is statistically difficult for a block to be altered or
-damaged in such a way as to trick any proper checksum/hash algorithm
-into thinking the block is valid, when it isn't.
+You can push the last step (only) out into
+user-space, when the last-computed value is
+adjusted for time spent since there last was
+a state change between running and not. I've
+doubts about this being a good idea though,
+since it gives an ABI that prevents future
+changes to the time constants.
 
-Unclear conclusion? :-)
-
-I believe that checksum/hash is a perfectly valid way of verifying the
-consistency of data (no surprise here). I believe that using multiple
-algorithms is silly. Instead, pick the best algorithm, and increase the
-number of bits. I'll let the experts define 'best', but will suggest that
-'best' is relative to the application. For a transmission protocol, 'best'
-may mean 'best given that data corruption is only expected to happen in
-the following ways'. For digital signatures, 'best' may mean 'statistically
-difficult to create a message with the same hash value, that presents a
-different apparently valid message'.
-
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
 

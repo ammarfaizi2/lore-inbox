@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266771AbSKOUib>; Fri, 15 Nov 2002 15:38:31 -0500
+	id <S266689AbSKOUqK>; Fri, 15 Nov 2002 15:46:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266774AbSKOUib>; Fri, 15 Nov 2002 15:38:31 -0500
-Received: from rwcrmhc52.attbi.com ([216.148.227.88]:53486 "EHLO
-	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
-	id <S266771AbSKOUia>; Fri, 15 Nov 2002 15:38:30 -0500
-From: jordan.breeding@attbi.com
-To: linux-kernel@vger.kernel.org
-Subject: use of drm on pci radeons in 2.5.x
-Date: Fri, 15 Nov 2002 20:45:17 +0000
-X-Mailer: AT&T Message Center Version 1 (Nov  5 2002)
-X-Authenticated-Sender: am9yZGFuLmJyZWVkaW5nQGF0dGJpLmNvbQ==
-Message-Id: <20021115204520.GNOV1052.rwcrmhc52.attbi.com@rwcrwbc70>
+	id <S266690AbSKOUqK>; Fri, 15 Nov 2002 15:46:10 -0500
+Received: from mons.uio.no ([129.240.130.14]:53465 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S266689AbSKOUqJ>;
+	Fri, 15 Nov 2002 15:46:09 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15829.24239.643774.231548@helicity.uio.no>
+Date: Fri, 15 Nov 2002 21:53:03 +0100
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
+       richard@bouska.cz
+Subject: Re: NFS mountned  directory  and apache2 (2.5.47)
+In-Reply-To: <20021115202649.A18706@infradead.org>
+References: <79A23782BB8@vcnet.vc.cvut.cz>
+	<15829.22032.166977.73195@helicity.uio.no>
+	<20021115202649.A18706@infradead.org>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I noticed that ATI now has quite a few PCI based Radeons.  I also notcied that 
-the current drm code in the kernel as well as the dri code in the CVS Xfree86 
-tree has code like:
 
-#if defined(__alpha__) || defined(__powerpc__)
-# define PCIGART_ENABLED
-#else
-# undef PCIGART_ENABLED
-#endif
+    >> I disagree. Sendfile can *always* be emulated using the
+    >> standard file 'read' method.
 
-which could also be easily modified to allow for its use on x86, however in 
-drivers/char/drm/Kconfig we have this currently:
+     > Linus removed that in early 2.5 because it led to kmap()
+     > deadlocks.  sendfile can fail with EINVAL and userspace must
+     > not rely on it working on any object.
 
-config DRM_RADEON
-    tristate "ATI Radeon"
-    depends on DRM && AGP
-    help
-  Choose this option if you have an ATI Radeon graphics card.  There
-  are both PCI and AGP versions.  You don't need to choose this to
-  run the Radeon in plain VGA mode.  There is a product page at
-  <http://www.ati.com/na/pages/products/pc/radeon32/index.html>.
-  If M is selected, the module will be called radeon.o.
+Fair enough. The kernel may not be the appropriate place for providing
+such an emulation, but there's no reason why glibc shouldn't be able
+to do so for the case where sendfile returns EINVAL.
 
-My question is that if someone was running on PPC or Alpha or an x86 chipset 
-(and modifying the test mentioned above) with no AGP like the Intel E7500 and 
-was using a Radeon with PCI (like the PCI 7500) why should they have to enable 
-AGP in Kconfig just to get the Radeon DRM driver?  Thanks.
+However none of this changes the matter of the NFS client. The latter
+*does* support a pagecache, and so the one-line patch is appropriate.
 
-Jordan
+Cheers,
+  Trond

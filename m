@@ -1,49 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262234AbTIHJog (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 05:44:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262301AbTIHJog
+	id S262290AbTIHJkx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 05:40:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262301AbTIHJkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 05:44:36 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:22927 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262234AbTIHJob
+	Mon, 8 Sep 2003 05:40:53 -0400
+Received: from [66.155.158.133] ([66.155.158.133]:7296 "EHLO
+	ns.waumbecmill.com") by vger.kernel.org with ESMTP id S262290AbTIHJks convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 05:44:31 -0400
-Date: Mon, 8 Sep 2003 10:44:13 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] Alternate futex non-page-pinning and COW fix
-Message-ID: <20030908094413.GB25176@mail.jlokier.co.uk>
-References: <20030907132010.GB19977@mail.jlokier.co.uk> <20030908020812.4EC372C609@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030908020812.4EC372C609@lists.samba.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 8 Sep 2003 05:40:48 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: joe briggs <jbriggs@briggsmedia.com>
+Organization: BMS
+To: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org,
+       mathieu.desnoyers@polymtl.ca, mingo@redhat.com
+Subject: Re: PROBLEM: APIC on a Pentium Classic SMP, kernel 2.4.21-pre5 to 2.4.23-pre3
+Date: Mon, 8 Sep 2003 06:40:10 -0400
+User-Agent: KMail/1.4.3
+References: <200309080933.h889X06U011447@harpo.it.uu.se>
+In-Reply-To: <200309080933.h889X06U011447@harpo.it.uu.se>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200309080640.10149.jbriggs@briggsmedia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> In message <20030907132010.GB19977@mail.jlokier.co.uk> you write:
-> > I don't see a problem, as long as it is documented.  Anybody grokking
-> > the old futex code would expect futexes to move with mappings.
-> 
-> BTW, I don't know of anyone *doing* this, but IMHO it's not worth a
-> single line of kernel code, since if you don't adjust your futex
-> addresses when you mremap, the try_down_futex will segv after the poll
-> or whatever.  As a programmer, I would *expect* to have to reset the
-> futexes (along with every other pointer into the map) when mremap
-> happens: after all, I told the kernel to watch the old address.  If it
-> still works, great, but I'd not expect it.
+I have a Tyan 2460 Dual Athlon mobo running 2.4.21-ac, and it would reliably 
+freeze (i.e., completely lock up with no error messages) under moderate PCI 
+load (NFS, SMB, or disk-to-disk transfer).  I tried "noapic" with no 
+improvement. I shifted to 2.4.22-ac and the problem went away.
 
-Sure.  As long as it's documented, because my expectation is the
-opposite of yours :)
+On Monday 08 September 2003 05:33 am, Mikael Pettersson wrote:
+> On Sun, 07 Sep 2003 18:37:48 -0400, Mathieu Desnoyers wrote:
+> >IRQ problems with APIC enabled on a Neptune chipset, Pentium 90 SMP.
+> >
+> >Description
+> >
+> >Since kernel 2.4.21-pre2, IRQ problems are present on my Pentium 90 SMP,
+> > wi= th
+> >APIC enabled. It works well with 2.4.20 with APIC enabled, or with newer
+> >kernels with "noapic" kernel option.
+>
+> There were a lot of I/O-APIC & MP table parsing changes in 2.4.21
+> for clustered apic. Chances are something there broke on your
+> ancient BIOS & mobo. I can't immediately see anything obviously
+> broken in 2.4.21: you'll have to identify the first pre-patch where
+> things broke and then test or revert it piece by piece.
+>
+> >On kernel 2.4.21-pre2, there is a kernel oops before this, with a
+> >"Dereferencing NULL pointer".
+>
+> You didn't run that through ksymoops and post it, so how is anyone
+> supposed to be able to debug it?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-(Some uses of futex don't read the memory after they are woken, until
-they have re-tested some other condition and can recalculate the
-address, so segv and pointers-into-the-map don't occur in these uses).
-
--- Jamie
+-- 
+Joe Briggs
+Briggs Media Systems
+105 Burnsen Ave.
+Manchester NH 01304 USA
+TEL 603-232-3115 FAX 603-625-5809 MOBILE 603-493-2386
+www.briggsmedia.com

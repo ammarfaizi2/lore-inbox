@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbULVJwL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbULVKEE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbULVJwL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 04:52:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbULVJwL
+	id S261897AbULVKEE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 05:04:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbULVKED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 04:52:11 -0500
-Received: from rproxy.gmail.com ([64.233.170.201]:3386 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261956AbULVJwI (ORCPT
+	Wed, 22 Dec 2004 05:04:03 -0500
+Received: from smtp.ucla.edu ([169.232.47.136]:33716 "EHLO smtp.ucla.edu")
+	by vger.kernel.org with ESMTP id S261897AbULVKEA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 04:52:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=dWO4RXSh6kT1CAKgC6XIt+qU/ftOsKQMxOu80HSHecEE+83LEIf1ISbiDBpPvyyfDjPggLlQHLR+/ixGQaM/089EEDzeooQn7EI635MBWH915Ii8bOgbkuTSV4heGF4GGOZeClPm4T5uU/dFZU357YCll85v86Ocb9iSLMNBzD4=
-Message-ID: <641bfad604122201527736eca6@mail.gmail.com>
-Date: Wed, 22 Dec 2004 11:52:07 +0200
-From: Edward Broustinov <edichka@gmail.com>
-Reply-To: Edward Broustinov <edichka@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Can't activate dma on ide/sata under 2.6.5/9 + Intel E7520 chipset
-In-Reply-To: <20041222094014.B5A1E5F727@attila.bofh.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <1103708275.570197.31660@z14g2000cwz.googlegroups.com>
-	 <20041222094014.B5A1E5F727@attila.bofh.it>
+	Wed, 22 Dec 2004 05:04:00 -0500
+Date: Wed, 22 Dec 2004 02:03:57 -0800 (PST)
+From: Chris Stromsoe <cbs@cts.ucla.edu>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc3, syslogd hangs then processes get stuck in schedule_timeout
+In-Reply-To: <20041222013726.72da5ee7.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0412220158020.5064@potato.cts.ucla.edu>
+References: <Pine.LNX.4.61.0412211606360.28245@potato.cts.ucla.edu>
+ <20041222013726.72da5ee7.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Probable-Spam: no
+X-Spam-Hits: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-hdparm -d1 /dev/hda (or /dev/sda) returns "HDIO_SET_DMA failed:
-Operation not permitted" on both disks. 
-Is it possible that there's no (full?) support for ICH5-R in those kernels?
-The motherboard is Intel SE7520BD2, exact kernel versions which were
-tried are:
-2.6.9-1.667smp #1 SMP Tue Nov 2 15:09:11 EST 2004 x86_64 x86_64 x86_64
-GNU/Linux (FC3 64bit)
-2.6.5-1.358smp #1 SMP Sat May 8 09:28:14 EDT 2004 x86_64 x86_64 x86_64
-GNU/Linux (FC2 64bit)
+On Wed, 22 Dec 2004, Andrew Morton wrote:
 
-2.4.21/22 (RH9) and 2.6.7* (AS3.0) do not show this problem on the board.
+>>  sysrq+t output from three hangs in November with 2.6.9 is at
+>>  http://hashbrown.cts.ucla.edu/deadlock/.
+>
+> Can't see anything untoward there,
 
-Does anybody have any idea/patch/hack?
+thanks for looking... Chuck Ebbert mentioned some recent libc futex fixes 
+offlist that I'll look into.
 
-Thanks a lot,
-Edward
+> although one wonders why you have 609 instances of cron running.
+
+when the syslogd hang happens, cron will fork off a new task and then the 
+child hangs.  The same thing happens with ssh into the box (sshd forks and 
+the child hangs).  The 609 cron scripts in the particular sysrq+t are the 
+result of normal system activity over a period of time, all hanging after 
+the fork.
+
+
+-Chris

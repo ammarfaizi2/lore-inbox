@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274300AbRITDob>; Wed, 19 Sep 2001 23:44:31 -0400
+	id <S274303AbRITD7l>; Wed, 19 Sep 2001 23:59:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274301AbRITDoM>; Wed, 19 Sep 2001 23:44:12 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:9428 "EHLO
+	id <S274304AbRITD7b>; Wed, 19 Sep 2001 23:59:31 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:10196 "EHLO
 	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S274300AbRITDoI>; Wed, 19 Sep 2001 23:44:08 -0400
-Date: Wed, 19 Sep 2001 21:45:37 -0600
-Message-Id: <200109200345.f8K3jbr29597@vindaloo.ras.ucalgary.ca>
+	id <S274303AbRITD7X>; Wed, 19 Sep 2001 23:59:23 -0400
+Date: Wed, 19 Sep 2001 22:01:03 -0600
+Message-Id: <200109200401.f8K413n29745@vindaloo.ras.ucalgary.ca>
 From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: torvalds@transmeta.com, crutcher+kernel@datastacks.com
+To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] for drivers/char/sysrq.c
+Subject: drivers/char/sonypi.h broken
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, Linus. The appended patch fixes drivers/char/sysrq.c so that it
-doesn't do a bugus redefine of wakeup_bdflush(), nor attempt to pass
-arguments to it. The changes in 2.4.10-pre12 broke sysrq.c compiling.
+  Hi, Linus. I now find that drivers/char/sonypi.h has been broken in
+2.4.10-pre12. I get the following compile errors:
 
-<whinge>
-How did something this basic get submitted in the first place?!?
-Doesn't anyone bother compiling patches before sending to Linus?
-This is the second time today I've had to patch the kernel just to get
-the rotten thing to compile. I'm not happy that whoever put in those
-__builtin_expect()'s didn't bother testing with THE RECOMMENDED
-COMPILER!!! It's not the first time that sort of thing has happened.
-</whinge>
+sonypi.h:195: `SONYPI_EVENT_PKEY_P1' undeclared here (not in a function)
+sonypi.h:195: initializer element for `sonypi_pkeyev[0].event' is not constant
+sonypi.h:196: `SONYPI_EVENT_PKEY_P2' undeclared here (not in a function)
+sonypi.h:196: initializer element for `sonypi_pkeyev[1].event' is not constant
+sonypi.h:197: `SONYPI_EVENT_PKEY_P3' undeclared here (not in a function)
+sonypi.h:197: initializer element for `sonypi_pkeyev[2].event' is not constant
+make[2]: *** [sonypi.o] Error 1
+
+I have no idea what the values should be, so I'm unable to generate a
+patch. Hopefully the guilty party (i.e. the lazy bastard who sent in a
+broken patch without bothering to compile the fucking thing first)
+will be shamed into generating a patch ASAP.
+
+Yes, I'm annoyed. So much for syncing up tonight with -pre12, testing
+(yeah, some of us still believe in TESTING), and thence onto coding.
+I've spent the evening flushing out other people's turds. Grrr.
 
 				Regards,
 
 					Richard....
 Permanent: rgooch@atnf.csiro.au
 Current:   rgooch@ras.ucalgary.ca
-
---- sysrq.c~	Wed Sep 19 21:25:45 2001
-+++ sysrq.c	Wed Sep 19 21:37:31 2001
-@@ -32,7 +32,6 @@
- 
- #include <asm/ptrace.h>
- 
--extern void wakeup_bdflush(int);
- extern void reset_vc(unsigned int);
- extern struct list_head super_blocks;
- 
-@@ -221,7 +220,7 @@
- static void sysrq_handle_sync(int key, struct pt_regs *pt_regs,
- 		struct kbd_struct *kbd, struct tty_struct *tty) {
- 	emergency_sync_scheduled = EMERG_SYNC;
--	wakeup_bdflush(0);
-+	wakeup_bdflush();
- }
- static struct sysrq_key_op sysrq_sync_op = {
- 	handler:	sysrq_handle_sync,
-@@ -232,7 +231,7 @@
- static void sysrq_handle_mountro(int key, struct pt_regs *pt_regs,
- 		struct kbd_struct *kbd, struct tty_struct *tty) {
- 	emergency_sync_scheduled = EMERG_REMOUNT;
--	wakeup_bdflush(0);
-+	wakeup_bdflush();
- }
- static struct sysrq_key_op sysrq_mountro_op = {
- 	handler:	sysrq_handle_mountro,

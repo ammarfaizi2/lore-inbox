@@ -1,107 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288920AbSAES6V>; Sat, 5 Jan 2002 13:58:21 -0500
+	id <S288919AbSAES4C>; Sat, 5 Jan 2002 13:56:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288924AbSAES6C>; Sat, 5 Jan 2002 13:58:02 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:42391
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S288920AbSAES5x>; Sat, 5 Jan 2002 13:57:53 -0500
-Date: Sat, 5 Jan 2002 13:44:15 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: CML2-2.0.0 is available -- major release announcement
-Message-ID: <20020105134415.A22465@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S288920AbSAESzw>; Sat, 5 Jan 2002 13:55:52 -0500
+Received: from pintail.mail.pas.earthlink.net ([207.217.120.122]:51684 "EHLO
+	pintail.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S288919AbSAESzm>; Sat, 5 Jan 2002 13:55:42 -0500
+From: "Karol Pietrzak" <noodlez84@earthlink.net>
+To: linux-kernel@vger.kernel.org
+Date: Sat, 5 Jan 2002 14:01:56 -0500
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: slow CD ripping from moving from 2.4.4 to 2.4.17
+Reply-to: noodlez84@earthlink.net
+Message-ID: <3C370754.15459.B7184@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest version is always available at http://www.tuxedo.org/~esr/cml2/
+Hello.
+I am the original poster, and I am happy to say that my problem 
+has been solved thanks to Mark Hahn.  The solution was to tweak 
+the VM (via /proc/sys/vm/bdflush).
 
-Release 2.0.0: Sat Jan  5 13:30:28 EST 2002
-	* Added autoconfigurator.py derived from Giacomo Catenazzi's bash
-	  script.  Combining this with CML2's rulebase knowledge allows us
-	  to eliminate huge numbers of questions.
-	* Rulebase and help sync with 2.4.18-pre1/2.5.2-pre7.
-	* Clean out cruft in the top-level rules file.
-	* Inequality value forcing now handles trits better.
-	* It is now possible to declare symbols and menus *after* they occur.
-	* 'private' declaration has been replaced with "label...with...";
-	  see the reference manual for details.
-	* 'choicegroup' declaration introduced.
+Here's the excerpt from fs/buffer.c which I looked at:
 
-After months of maintainance only, there was some kind of harmonic
-convergence in the last few days where the need for a bunch of new
-features all went past critical at the same time.  
+union bdflush_param {
+	struct {
+		int nfract;	/* Percentage of buffer cache dirty to 
+				   activate bdflush */
+		int dummy1;	/* old "ndirty" */
+		int dummy2;	/* old "nrefill" */
+		int dummy3;	/* unused */
+		int interval;	/* jiffies delay between kupdate flushes */
+		int age_buffer;	/* Time for normal buffer to age before we 
+flush it */
+		int nfract_sync;/* Percentage of buffer cache dirty to 
+				   activate bdflush synchronously */
+		int dummy4;	/* unused */
+		int dummy5;	/* unused */
+	} b_un;
+	unsigned int data[N_PARAM];
+} bdf_prm = {{40, 0, 0, 0, 5*HZ, 30*HZ, 60, 0, 0}};
 
-The bug queue for CML2 itself is empty.  However, there are some known
-rulebase bugs near the framebuffer code which are under investigation.
-Also, the navigation bar in the optional tree-widget-based
-configurator is not fully enabled.
+After a little tinkering, this is now in my 
+/etc/init.d./boot.local :
+echo "10 0 0 0 500 3000 5 0 0" > /proc/sys/vm/bdflush 
 
-			NEW LANGUAGE FEATURES
+Thus, the only modified numbers are:
+1. nfract : from 40% to 10% (Percentage of buffer cache dirty to 
 
-2.0.0 substantially extends the CML2 constraint language.
+activate bdflush)
+2. nfract_sync : from 60% to 5% (Percentage of buffer cache 
+dirty to activate bdflush synchronously)
 
-One new feature is choicegroups.  This generalizes the concept of choice
-menus.  You can now constrain any group of symbols so that at most one 
-can have a non-N value.
+I don't quite understand what all that means (my knowledge of C 
+is very limited), but it works :)
 
-Another significant change is that the 'private' feature is gone.  It
-turned out to be mis-designed -- since private symbols weren't saved
-to config.out, they were getting re-queried for by make oldconfig.
+Once again, thank you.  You've made me a happy Linux user...  
+Ripping performance, with these changes in place, is now around 
+26-30X, where before, it was 13-15X.
 
-Instead there is now a more general facility, label/with declarations,
-that allows you to label symbols in the config file with specified
-tags in a following comment.  These can be used to pass instructions
-to configuration postprocessors.  One such instruction, "PRIVATE", is
-now defined -- it tells configtrans.py not to propagate the associated
-symbol into the generated autoconf.h.
+On 31 Dec 2001, linux-kernel@vger.kernel.org wrote:
 
-As part of the label/with change, many ordering restrictions in the CML2
-compiler have been removed.  It is now possible to use symbols or menu
-identifiers *before* their prompt declaration.  This removes a technical
-barrier to dispersing the symbols.cml file the way Linus wants (though
-there are still reasons I don't think it's a good idea to do that) and
-in general makes the language easier to use.
+> Hello.
+> Using 2.4.4 up to, I believe, 2.4.14, CD ripping was fine.  My
+> Plextor 12/10/32S (S for SCSI) ripped audio CDs at around 25X,
+> even sometimes at 30X.  While ripping, my hard drive would work
+> continuously, and so would my CDRW drive.
+> 
+> Now with 2.4.17, my hard drive can't keep up with my CDRW drive:
+> everything happens in bursts.  My CDRW drive starts ripping as
+> fast as possible, but my hard drive doesn't do anything (0-5
+> seconds).  Then, my hard drive decides to start writing, which
+> stops the CD ripping process (5-8 seconds).  Now that the hard
+> drive is done, the CDRW drive continues ripping... for 4 seconds
+> and the process continues over and over again.  This brings down
+> the ripping speed down to ~18X, a far cry from the 30X achieved
+> with 2.4.4 and very close to the writing speed of my CDRW drive
+> (12X), which is ridiculous.
+> 
+> As stated before, ripping is fine in 2.4.4 (which I still keep
+> around because of this problem).  What does help in 2.4.17,
+> however, is manually entering running the 'sync' command ever
+> second or so on another console.  This makes the ripping process
+> a lot more "continuous," like 2.4.4.
+> 
+> I can't burn CDs in 2.4.4, however, because that freezes up my
+> computer, for some reason.  That happens a lot less often in
+> 2.4.17 (but that's another matter).
+> 
+> I am using SuSE 7.2 Pro with the latest cdda2wav (1.11a12).
+> 
+> Linux linux 2.4.17 #2 Fri Dec 21 17:14:19 EST 2001 i586 unknown
+> 
+> Gnu C                  2.95.3
+> Gnu make               3.79.1
+> binutils               2.10.91.0.4
+> util-linux             2.11b
+> mount                  2.11b
+> modutils               2.4.5
+> e2fsprogs              1.19
+> reiserfsprogs          3.x.0k-pre15
+> PPP                    2.4.0
+> Linux C Library        x    1 root     root      1343073 May 11 
+> 2001 /lib/libc.so.6 Dynamic linker (ldd)   2.2.2 Procps          
+>       2.0.7 Net-tools              1.60 Kbd                   
+> 1.04 Sh-utils               2.0 Modules Loaded         ppp_async
+> ppp_generic slhc nls_cp437 vfat fat
+> 
+> I am using a Pentium I 233 with 32MB of RAM.  I have an Advansys
+> Ultra SCSI card with 3 devices total hooked up to it.
+> 
+> Anyone have any ideas?  Anything I can do?
 
-			AUTOCONFIGURATION
-
-It's always been part of my plan to support autoconfiguration -- a
-utility that would combine CML2's knowledge base with hardware and
-software autoprobes to make configuring for the box you're running on
-as painless as possible.
-
-Giacomo Catenazzi had been working on an autoconfigure.sh utility that
-included a lot of autoprobe knowledge -- over 2500 tests, in fact.  A few
-day ago we realized that it needed to be combined with CML2.  The specific
-issue was PCI devices -- since we know we can get a complete list of them,
-the autoconfigurator should be able to deduce that all others are absent
-and produce a configuration for a trimmer kernel.
-
-We concluded that autoconfigure.sh needed access to the list of PCI 
-dependents in the CML2 rulebase, and Giacomo said he'd decided as a 
-consequence to rewrite it in Python.  And I'm sure he would have ... but
-I got the bit in my teeth and did it first :-).  
-
-The first version of autoconfigure.py is included with this release. I
-have tested it on three machines (one dual Athlon box built in late
-2000, one dual Pentium II box from 1998 and one Cyrix machine from
-1996) and it is extremely effective.  Kudos to Giocomo for collecting
-so many useful probes.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-The danger (where there is any) from armed citizens, is only to the
-*government*, not to *society*; and as long as they have nothing to
-revenge in the government (which they cannot have while it is in their
-own hands) there are many advantages in their being accustomed to the 
-use of arms, and no possible disadvantage.
-        -- Joel Barlow, "Advice to the Privileged Orders", 1792-93
+--
+Karol Pietrzak
+PGP KeyID: 3A1446A0

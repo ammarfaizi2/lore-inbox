@@ -1,107 +1,306 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317364AbSFGXuS>; Fri, 7 Jun 2002 19:50:18 -0400
+	id <S317369AbSFGXx2>; Fri, 7 Jun 2002 19:53:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317365AbSFGXuR>; Fri, 7 Jun 2002 19:50:17 -0400
-Received: from [193.87.76.14] ([193.87.76.14]:17352 "HELO kerberos.ynet.sk")
-	by vger.kernel.org with SMTP id <S317364AbSFGXuQ>;
-	Fri, 7 Jun 2002 19:50:16 -0400
-Date: Sat, 8 Jun 2002 01:52:23 +0200 (CEST)
-From: Tomas Vanderka <vanto@ynet.sk>
+	id <S317370AbSFGXx1>; Fri, 7 Jun 2002 19:53:27 -0400
+Received: from holomorphy.com ([66.224.33.161]:11409 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S317369AbSFGXxG>;
+	Fri, 7 Jun 2002 19:53:06 -0400
+Date: Fri, 7 Jun 2002 16:52:59 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: kernel meltdown
-Message-ID: <Pine.LNX.4.44.0206080135310.16213-200000@marvin.ynet.sk>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811740-1989807884-1023493943=:16213"
+Cc: kernel-janitor-discuss@lists.sourceforge.net
+Subject: remove magic numbers for fault return codes
+Message-ID: <20020607235259.GP6777@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org,
+	kernel-janitor-discuss@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+The return codes from fault handling functions are open-coded in
+memory.c and arch/i386/mm/fault.c.
 
----1463811740-1989807884-1023493943=:16213
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+This patch removes them in favor of defining integer constants with
+mnemonic names and using them as the return codes and in dispatches
+on the return values from handle_mm_fault(), and also removing some of
+the associated comments explaining what the magic numbers mean at
+various points where they were formerly used. In addition two redundant
+variables were removed, a comment was added to the bad_wp_page: label
+to explain to onlookers more of what the printk() there means, and
+failure to match the return code with a value in the various switch()
+statements on the return code was flagged as a BUG() at various points.
 
-Hi,
-yesterday morning I got almost the same oops and kernel BUG at 
-slab.c:1794! I am running an up box so It's not an smp problem i think.
-(I have lot of oopses since I added one hdd and changed raid0 to raid5. 
-aren't you using stuff like raid, lvm or reiserfs?)
-Just sent this because it looks like the same problem
+>From what I saw in page_alloc.c last time, since these hit the same
+lines, they might as well all go out in one batch. I am, of course,
+willing to adjust/separate various bits as desired.
 
-VanTo
 
----1463811740-1989807884-1023493943=:16213
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=7d
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0206080152230.16213@marvin.ynet.sk>
-Content-Description: 
-Content-Disposition: attachment; filename=7d
+Cheers,
+Bill
 
-a3N5bW9vcHMgMi40LjUgb24gaTY4NiAyLjQuMTktcHJlOS1hYTIuICBPcHRp
-b25zIHVzZWQNCiAgICAgLVYgKGRlZmF1bHQpDQogICAgIC1LIChzcGVjaWZp
-ZWQpDQogICAgIC1sIC9wcm9jL21vZHVsZXMgKGRlZmF1bHQpDQogICAgIC1v
-IC9saWIvbW9kdWxlcy8yLjQuMTktcHJlOS1hYTIvIChkZWZhdWx0KQ0KICAg
-ICAtbSAvYm9vdC9TeXN0ZW0ubWFwLTIuNC4xOS1wcmU5LWFhMiAoc3BlY2lm
-aWVkKQ0KDQpObyBtb2R1bGVzIGluIGtzeW1zLCBza2lwcGluZyBvYmplY3Rz
-DQpObyBrc3ltcywgc2tpcHBpbmcgbHNtb2QNCmtlcm5lbCBCVUcgYXQgc2xh
-Yi5jOjE3OTQhDQppbnZhbGlkIG9wZXJhbmQ6IDAwMDANCkNQVTogICAgMA0K
-RUlQOiAgICAwMDEwOls8YzAxMmZjMzc+XSAgICBOb3QgdGFpbnRlZA0KVXNp
-bmcgZGVmYXVsdHMgZnJvbSBrc3ltb29wcyAtdCBlbGYzMi1pMzg2IC1hIGkz
-ODYNCkVGTEFHUzogMDAwMTAwMDINCmVheDogYmZmZmJmZmYgICBlYng6IDAw
-MDAwMDAwICAgZWN4OiAwMDAwMDA0MCAgIGVkeDogYzE4NGYyNjgNCmVzaTog
-MDAwMDAwMDUgICBlZGk6IGMxODRmMmUwICAgZWJwOiBlZmZlNWY1MCAgIGVz
-cDogZWZmZTVmMzANCmRzOiAwMDE4ICAgZXM6IDAwMTggICBzczogMDAxOA0K
-UHJvY2VzcyBrc3dhcGQgKHBpZDogNSwgc3RhY2twYWdlPWVmZmU1MDAwKQ0K
-U3RhY2s6IGMxODRmMjU4IDAwMDAwMDAwIDAwMDAwMDA2IDAwMDAwMDAyIDAw
-MDAwMDAyIDAwMDAwMDIwIDAwMDAwMWQwIGMwMjUwMzEwIA0KICAgICAgIGVm
-ZmU1ZjY0IGMwMTMwZTgzIDAwMDAwMDNjIDAwMDAwMWQwIDAwMDAwMDIwIGVm
-ZmU1ZjhjIGMwMTMwZjFmIGVmZmU1ZjdjIA0KICAgICAgIGVmZmU1ZjdjIDAw
-MDAwMDAwIGMwMjUwMzEwIDAwMDAwMDAwIGMwMjUwMzEwIDAwMDAwMDAxIGVm
-ZmU0MDAwIGVmZmU1ZmE0IA0KQ2FsbCBUcmFjZTogWzxjMDEzMGU4Mz5dIFs8
-YzAxMzBmMWY+XSBbPGMwMTMxMDdiPl0gWzxjMDEzMTBmNj5dIFs8YzAxMzEy
-NGY+XSANCiAgIFs8YzAxMDhhMDg+XSBbPGMwMTMxMWIwPl0gWzxjMDEwNTAw
-MD5dIFs8YzAxMDcyMDY+XSBbPGMwMTMxMWIwPl0gDQpDb2RlOiAwZiAwYiAw
-MiAwNyBlMCBlOCAyMSBjMCA4YiAwMCA0NiAzOSBkMCA3NSBlYSA4YiA0NSBl
-MCA4OSBmMiANCg0KDQo+PkVJUDsgYzAxMmZjMzcgPGttZW1fY2FjaGVfcmVh
-cCtlNy8yMDA+ICAgPD09PT09DQoNCj4+ZWF4OyBiZmZmYmZmZiBCZWZvcmUg
-Zmlyc3Qgc3ltYm9sDQo+PmVkeDsgYzE4NGYyNjggPEVORF9PRl9DT0RFKzE1
-NWU3OTQvPz8/Pz4NCj4+ZWRpOyBjMTg0ZjJlMCA8RU5EX09GX0NPREUrMTU1
-ZTgwYy8/Pz8/Pg0KPj5lYnA7IGVmZmU1ZjUwIDxFTkRfT0ZfQ09ERSsyZmNm
-NTQ3Yy8/Pz8/Pg0KPj5lc3A7IGVmZmU1ZjMwIDxFTkRfT0ZfQ09ERSsyZmNm
-NTQ1Yy8/Pz8/Pg0KDQpUcmFjZTsgYzAxMzBlODMgPHNocmlua19jYWNoZXMr
-MTMvNDA+DQpUcmFjZTsgYzAxMzBmMWYgPHRyeV90b19mcmVlX3BhZ2VzKzZm
-LzEwMD4NClRyYWNlOyBjMDEzMTA3YiA8a3N3YXBkX2JhbGFuY2VfcGdkYXQr
-NmIvYzA+DQpUcmFjZTsgYzAxMzEwZjYgPGtzd2FwZF9iYWxhbmNlKzI2LzUw
-Pg0KVHJhY2U7IGMwMTMxMjRmIDxrc3dhcGQrOWYvYzA+DQpUcmFjZTsgYzAx
-MDhhMDggPHJldF9mcm9tX2ZvcmsrMC8xOD4NClRyYWNlOyBjMDEzMTFiMCA8
-a3N3YXBkKzAvYzA+DQpUcmFjZTsgYzAxMDUwMDAgPF9zdGV4dCswLzA+DQpU
-cmFjZTsgYzAxMDcyMDYgPGtlcm5lbF90aHJlYWQrMjYvNDA+DQpUcmFjZTsg
-YzAxMzExYjAgPGtzd2FwZCswL2MwPg0KDQpDb2RlOyAgYzAxMmZjMzcgPGtt
-ZW1fY2FjaGVfcmVhcCtlNy8yMDA+DQowMDAwMDAwMCA8X0VJUD46DQpDb2Rl
-OyAgYzAxMmZjMzcgPGttZW1fY2FjaGVfcmVhcCtlNy8yMDA+ICAgPD09PT09
-DQogICAwOiAgIDBmIDBiICAgICAgICAgICAgICAgICAgICAgdWQyYSAgICAg
-IDw9PT09PQ0KQ29kZTsgIGMwMTJmYzM5IDxrbWVtX2NhY2hlX3JlYXArZTkv
-MjAwPg0KICAgMjogICAwMiAwNyAgICAgICAgICAgICAgICAgICAgIGFkZCAg
-ICAoJWVkaSksJWFsDQpDb2RlOyAgYzAxMmZjM2IgPGttZW1fY2FjaGVfcmVh
-cCtlYi8yMDA+DQogICA0OiAgIGUwIGU4ICAgICAgICAgICAgICAgICAgICAg
-bG9vcG5lIGZmZmZmZmVlIDxfRUlQKzB4ZmZmZmZmZWU+IGMwMTJmYzI1IDxr
-bWVtX2NhY2hlX3JlYXArZDUvMjAwPg0KQ29kZTsgIGMwMTJmYzNkIDxrbWVt
-X2NhY2hlX3JlYXArZWQvMjAwPg0KICAgNjogICAyMSBjMCAgICAgICAgICAg
-ICAgICAgICAgIGFuZCAgICAlZWF4LCVlYXgNCkNvZGU7ICBjMDEyZmMzZiA8
-a21lbV9jYWNoZV9yZWFwK2VmLzIwMD4NCiAgIDg6ICAgOGIgMDAgICAgICAg
-ICAgICAgICAgICAgICBtb3YgICAgKCVlYXgpLCVlYXgNCkNvZGU7ICBjMDEy
-ZmM0MSA8a21lbV9jYWNoZV9yZWFwK2YxLzIwMD4NCiAgIGE6ICAgNDYgICAg
-ICAgICAgICAgICAgICAgICAgICBpbmMgICAgJWVzaQ0KQ29kZTsgIGMwMTJm
-YzQyIDxrbWVtX2NhY2hlX3JlYXArZjIvMjAwPg0KICAgYjogICAzOSBkMCAg
-ICAgICAgICAgICAgICAgICAgIGNtcCAgICAlZWR4LCVlYXgNCkNvZGU7ICBj
-MDEyZmM0NCA8a21lbV9jYWNoZV9yZWFwK2Y0LzIwMD4NCiAgIGQ6ICAgNzUg
-ZWEgICAgICAgICAgICAgICAgICAgICBqbmUgICAgZmZmZmZmZjkgPF9FSVAr
-MHhmZmZmZmZmOT4gYzAxMmZjMzAgPGttZW1fY2FjaGVfcmVhcCtlMC8yMDA+
-DQpDb2RlOyAgYzAxMmZjNDYgPGttZW1fY2FjaGVfcmVhcCtmNi8yMDA+DQog
-ICBmOiAgIDhiIDQ1IGUwICAgICAgICAgICAgICAgICAgbW92ICAgIDB4ZmZm
-ZmZmZTAoJWVicCksJWVheA0KQ29kZTsgIGMwMTJmYzQ5IDxrbWVtX2NhY2hl
-X3JlYXArZjkvMjAwPg0KICAxMjogICA4OSBmMiAgICAgICAgICAgICAgICAg
-ICAgIG1vdiAgICAlZXNpLCVlZHgNCg0K
----1463811740-1989807884-1023493943=:16213--
+
+===== include/linux/mm.h 1.55 vs edited =====
+--- 1.55/include/linux/mm.h	Sat May 25 16:25:47 2002
++++ edited/include/linux/mm.h	Fri Jun  7 15:59:07 2002
+@@ -305,6 +305,16 @@
+ #define NOPAGE_SIGBUS	(NULL)
+ #define NOPAGE_OOM	((struct page *) (-1))
+ 
++/*
++ * Different kinds of faults, as returned by handle_mm_fault().
++ * Used to decide whether a process gets delivered SIGBUS or
++ * just gets major/minor fault counters bumped up.
++ */
++#define VM_FAULT_OOM	(-1)
++#define VM_FAULT_SIGBUS	0
++#define VM_FAULT_MINOR	1
++#define VM_FAULT_MAJOR	2
++
+ /* The array of struct pages */
+ extern struct page *mem_map;
+ 
+===== mm/memory.c 1.70 vs edited =====
+--- 1.70/mm/memory.c	Fri May 31 18:18:07 2002
++++ edited/mm/memory.c	Fri Jun  7 15:19:49 2002
+@@ -514,18 +514,18 @@
+ 			while (!(map = follow_page(mm, start, write))) {
+ 				spin_unlock(&mm->page_table_lock);
+ 				switch (handle_mm_fault(mm, vma, start, write)) {
+-				case 1:
++				case VM_FAULT_MINOR:
+ 					tsk->min_flt++;
+ 					break;
+-				case 2:
++				case VM_FAULT_MAJOR:
+ 					tsk->maj_flt++;
+ 					break;
+-				case 0:
+-					if (i) return i;
+-					return -EFAULT;
++				case VM_FAULT_SIGBUS:
++					return i ? i : -EFAULT;
++				case VM_FAULT_OOM:
++					return i ? i : -ENOMEM;
+ 				default:
+-					if (i) return i;
+-					return -ENOMEM;
++					BUG();
+ 				}
+ 				spin_lock(&mm->page_table_lock);
+ 			}
+@@ -982,7 +982,7 @@
+ 			establish_pte(vma, address, page_table, pte_mkyoung(pte_mkdirty(pte_mkwrite(pte))));
+ 			pte_unmap(page_table);
+ 			spin_unlock(&mm->page_table_lock);
+-			return 1;	/* Minor fault */
++			return VM_FAULT_MINOR;
+ 		}
+ 	}
+ 	pte_unmap(page_table);
+@@ -1016,16 +1016,21 @@
+ 	spin_unlock(&mm->page_table_lock);
+ 	page_cache_release(new_page);
+ 	page_cache_release(old_page);
+-	return 1;	/* Minor fault */
++	return VM_FAULT_MINOR;
+ 
+ bad_wp_page:
+ 	pte_unmap(page_table);
+ 	spin_unlock(&mm->page_table_lock);
+ 	printk(KERN_ERR "do_wp_page: bogus page at address %08lx\n", address);
+-	return -1;
++	/*
++	 * This should really halt the system so it can be debugged or
++	 * at least the kernel stops what it's doing before it corrupts
++	 * data, but for the moment just pretend this is OOM.
++	 */
++	return VM_FAULT_OOM;
+ no_mem:
+ 	page_cache_release(old_page);
+-	return -1;
++	return VM_FAULT_OOM;
+ }
+ 
+ static void vmtruncate_list(list_t *head, unsigned long pgoff)
+@@ -1149,7 +1154,7 @@
+ 	struct page *page;
+ 	swp_entry_t entry = pte_to_swp_entry(orig_pte);
+ 	pte_t pte;
+-	int ret = 1;
++	int ret = VM_FAULT_MINOR;
+ 
+ 	pte_unmap(page_table);
+ 	spin_unlock(&mm->page_table_lock);
+@@ -1162,17 +1167,19 @@
+ 			 * Back out if somebody else faulted in this pte while
+ 			 * we released the page table lock.
+ 			 */
+-			int retval;
+ 			spin_lock(&mm->page_table_lock);
+ 			page_table = pte_offset_map(pmd, address);
+-			retval = pte_same(*page_table, orig_pte) ? -1 : 1;
++			if (pte_same(*page_table, orig_pte))
++				ret = VM_FAULT_OOM;
++			else
++				ret = VM_FAULT_MINOR;
+ 			pte_unmap(page_table);
+ 			spin_unlock(&mm->page_table_lock);
+-			return retval;
++			return ret;
+ 		}
+ 
+ 		/* Had to read the page from swap area: Major fault */
+-		ret = 2;
++		ret = VM_FAULT_MAJOR;
+ 	}
+ 
+ 	lock_page(page);
+@@ -1188,7 +1195,7 @@
+ 		spin_unlock(&mm->page_table_lock);
+ 		unlock_page(page);
+ 		page_cache_release(page);
+-		return 1;
++		return VM_FAULT_MINOR;
+ 	}
+ 
+ 	/* The page isn't present yet, go ahead with the fault. */
+@@ -1246,7 +1253,7 @@
+ 			pte_unmap(page_table);
+ 			page_cache_release(page);
+ 			spin_unlock(&mm->page_table_lock);
+-			return 1;
++			return VM_FAULT_MINOR;
+ 		}
+ 		mm->rss++;
+ 		flush_page_to_ram(page);
+@@ -1260,10 +1267,10 @@
+ 	/* No need to invalidate - it was non-present before */
+ 	update_mmu_cache(vma, addr, entry);
+ 	spin_unlock(&mm->page_table_lock);
+-	return 1;	/* Minor fault */
++	return VM_FAULT_MINOR;
+ 
+ no_mem:
+-	return -1;
++	return VM_FAULT_OOM;
+ }
+ 
+ /*
+@@ -1291,10 +1298,11 @@
+ 
+ 	new_page = vma->vm_ops->nopage(vma, address & PAGE_MASK, 0);
+ 
+-	if (new_page == NULL)	/* no page was available -- SIGBUS */
+-		return 0;
++	/* no page was available -- either SIGBUS or OOM */
++	if (new_page == NOPAGE_SIGBUS)
++		return VM_FAULT_SIGBUS;
+ 	if (new_page == NOPAGE_OOM)
+-		return -1;
++		return VM_FAULT_OOM;
+ 
+ 	/*
+ 	 * Should we do an early C-O-W break?
+@@ -1303,7 +1311,7 @@
+ 		struct page * page = alloc_page(GFP_HIGHUSER);
+ 		if (!page) {
+ 			page_cache_release(new_page);
+-			return -1;
++			return VM_FAULT_OOM;
+ 		}
+ 		copy_user_highpage(page, new_page, address);
+ 		page_cache_release(new_page);
+@@ -1339,13 +1347,13 @@
+ 		pte_unmap(page_table);
+ 		page_cache_release(new_page);
+ 		spin_unlock(&mm->page_table_lock);
+-		return 1;
++		return VM_FAULT_MINOR;
+ 	}
+ 
+ 	/* no need to invalidate: a not-present page shouldn't be cached */
+ 	update_mmu_cache(vma, address, entry);
+ 	spin_unlock(&mm->page_table_lock);
+-	return 2;	/* Major fault */
++	return VM_FAULT_MAJOR;
+ }
+ 
+ /*
+@@ -1397,7 +1405,7 @@
+ 	establish_pte(vma, address, pte, entry);
+ 	pte_unmap(pte);
+ 	spin_unlock(&mm->page_table_lock);
+-	return 1;
++	return VM_FAULT_MINOR;
+ }
+ 
+ /*
+@@ -1425,7 +1433,7 @@
+ 			return handle_pte_fault(mm, vma, address, write_access, pte, pmd);
+ 	}
+ 	spin_unlock(&mm->page_table_lock);
+-	return -1;
++	return VM_FAULT_OOM;
+ }
+ 
+ /*
+===== arch/i386/mm/fault.c 1.13 vs edited =====
+--- 1.13/arch/i386/mm/fault.c	Tue Feb 26 17:13:20 2002
++++ edited/arch/i386/mm/fault.c	Fri Jun  7 15:26:47 2002
+@@ -56,12 +56,16 @@
+ 
+ 	for (;;) {
+ 	survive:
+-		{
+-			int fault = handle_mm_fault(current->mm, vma, start, 1);
+-			if (!fault)
++		switch (handle_mm_fault(current->mm, vma, start, 1)) {
++			case VM_FAULT_SIGBUS:
+ 				goto bad_area;
+-			if (fault < 0)
++			case VM_FAULT_OOM:
+ 				goto out_of_memory;
++			case VM_FAULT_MINOR:
++			case VM_FAULT_MAJOR:
++				break;
++			default:
++				BUG();
+ 		}
+ 		if (!size)
+ 			break;
+@@ -239,16 +243,18 @@
+ 	 * the fault.
+ 	 */
+ 	switch (handle_mm_fault(mm, vma, address, write)) {
+-	case 1:
+-		tsk->min_flt++;
+-		break;
+-	case 2:
+-		tsk->maj_flt++;
+-		break;
+-	case 0:
+-		goto do_sigbus;
+-	default:
+-		goto out_of_memory;
++		case VM_FAULT_MINOR:
++			tsk->min_flt++;
++			break;
++		case VM_FAULT_MAJOR:
++			tsk->maj_flt++;
++			break;
++		case VM_FAULT_SIGBUS:
++			goto do_sigbus;
++		case VM_FAULT_OOM:
++			goto out_of_memory;
++		default:
++			BUG();
+ 	}
+ 
+ 	/*

@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313578AbSEPQ2n>; Thu, 16 May 2002 12:28:43 -0400
+	id <S313911AbSEPQpg>; Thu, 16 May 2002 12:45:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313690AbSEPQ2m>; Thu, 16 May 2002 12:28:42 -0400
-Received: from tomts15.bellnexxia.net ([209.226.175.3]:54753 "EHLO
-	tomts15-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S313578AbSEPQ2m>; Thu, 16 May 2002 12:28:42 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ghozlane Toumi <ghoz@sympatico.ca>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Fix BUG macro
-Date: Thu, 16 May 2002 12:27:55 -0400
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <E178GJX-0005J5-00@wagner.rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020516162841.PYWL19243.tomts15-srv.bellnexxia.net@there>
+	id <S314277AbSEPQpf>; Thu, 16 May 2002 12:45:35 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:32272 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S313911AbSEPQpf>;
+	Thu, 16 May 2002 12:45:35 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200205161645.g4GGjTu29201@oboe.it.uc3m.es>
+Subject: Re: Kernel deadlock using nbd over acenic driver.
+In-Reply-To: <Pine.LNX.4.44.0205161042330.14957-100000@waste.org> from Oliver
+ Xymoron at "May 16, 2002 11:22:13 am"
+To: Oliver Xymoron <oxymoron@waste.org>
+Date: Thu, 16 May 2002 18:45:29 +0200 (MET DST)
+Cc: "Peter T. Breuer" <ptb@it.uc3m.es>,
+        "chen, xiangping" <chen_xiangping@emc.com>,
+        "'Jes Sorensen'" <jes@wildopensource.com>,
+        "'Steve Whitehouse'" <Steve@ChyGwyn.com>, linux-kernel@vger.kernel.org
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-
-On Thursday 16 May 2002 04:08, Rusty Russell wrote:
-
->--- linux-2.5.15/include/asm-i386/page.h        Wed May 15 19:53:25 2002
->+++ working-2.5.15-rcu/include/asm-i386/page.h  Thu May 16 17:34:47 2002
->@@ -96,11 +96,16 @@
->  */
+"Oliver Xymoron wrote:"
+> On Thu, 16 May 2002, Peter T. Breuer wrote:
+> > Any way of making sure that send_msg on the socket can always get the
+> > (known a priori) buffers it needs?
 > 
-> #if 1  /* Set to zero for a slightly smaller kernel */
->+#define __STRINGIZE2(x) #x
->+#define __STRINGIZE(x) __STRINGIZE2(x)
-> #define BUG()                          \
->  __asm__ __volatile__( "ud2\n"         \
->                        "\t.word %c0\n" \
->                        "\t.long %c1\n" \
->-                        : : "i" (__LINE__), "i" (__FILE__))
->+                       "\t.long %c2\n" \
->+                        : : "i" (__LINE__), \
->+                       "i" (__STRINGIZE(KBUILD_BASENAME)), \
->+                       "i" (__FUNCTION__))
-> #else
-> #define BUG() __asm__ __volatile__("ud2\n")
-> #endif
+> Not at present. Note that we also need reservations on the receive side
+> for ACK handling which is "interesting".
 
-Minor nit : any reason why you don't use  __stringify from 
-include/linux/stringify.h ?
+One thing at a time.  What if there is a zone "ceiling" that we keep
+lowered exactly until it is time for the process that does the send_msg
+to run, when we raise the ceiling.  (I don't know how this VM stuff
+works in detail inside - this is an invitation to list the objections).
+The scheduler could presumably be trained to muck with the ceilings
+according to flags on the process (task?) structs.
 
-Ghoz
+Peter

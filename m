@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264034AbSIQK3G>; Tue, 17 Sep 2002 06:29:06 -0400
+	id <S264026AbSIQKZs>; Tue, 17 Sep 2002 06:25:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264035AbSIQK3G>; Tue, 17 Sep 2002 06:29:06 -0400
-Received: from mail.cybertrails.com ([162.42.150.35]:54028 "EHLO
-	mail2.cybertrails.com") by vger.kernel.org with ESMTP
-	id <S264034AbSIQK3F>; Tue, 17 Sep 2002 06:29:05 -0400
-Date: Tue, 17 Sep 2002 03:33:26 -0700
-From: Paul Dickson <dickson@permanentmail.com>
-To: linux-kernel@vger.kernel.org, Srinivas Chavva <chavvasrini@yahoo.com>
-Subject: Re: Configuring kernel
-Message-Id: <20020917033326.0daaa62e.dickson@permanentmail.com>
-In-Reply-To: <20020915223408.51335.qmail@web13201.mail.yahoo.com>
-References: <3D83A943.3010200@davehollis.com>
-	<20020915223408.51335.qmail@web13201.mail.yahoo.com>
-X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S264034AbSIQKZs>; Tue, 17 Sep 2002 06:25:48 -0400
+Received: from 62-190-217-132.pdu.pipex.net ([62.190.217.132]:18182 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S264026AbSIQKZs>; Tue, 17 Sep 2002 06:25:48 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200209171037.g8HAbuIf001453@darkstar.example.net>
+Subject: Re: Heuristic readahead for filesystems
+To: jdow@earthlink.net (jdow)
+Date: Tue, 17 Sep 2002 11:37:56 +0100 (BST)
+Cc: jw@pegasys.ws, linux-kernel@vger.kernel.org
+In-Reply-To: <02f401c25deb$e5f87bc0$1125a8c0@wednesday> from "jdow" at Sep 16, 2002 06:45:27 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Sep 2002 15:34:08 -0700 (PDT), Srinivas Chavva wrote:
-
-> When I tried to execute the command "make xconfig" I
-> got the following output
+> > Well they could read contiguous sectors if the sector interleave
+> > was correctly determined and the correct interleave was set
+> > while low-level formatting. Now-days, interleave is either ignored
+> > or unavailable because there is a sector buffer that can contain
+> > an entire track of data. Some SCSI drives have sector buffers
+> > that can contain a whole cylinder of data.
 > 
-> rm -f include/asm
-> (cd include; ln -sf asm -i386 asm)
-> make -C scripts knconfig.tk
-> make: *** scripts: No such file or directory. Stop.
-> make: *** [xconfig] Error 2
+> When I say contiguous I mean contiguous not interleaved, sonny. I had
+> CP/M (and UCSD Pascal) reading physically contiguous sectors on the
+> disk with no lost speed. That means I read, with my DSSD format of
+> 9 sectors each 512 bytes in size per side 18 full tracks 19 revolutions
+> of the disk. I did skew the sector numbers to allow for seeks. But I
+> did not interleave the tracks. It was not necessary with clean and
+> correct code. I rather resent the presumption that I am a dumb bitch
+> here.
 
-I get:
+Ah, but the *really* clever thing to do at the time, on systems where you couldn't optimally achieve 1:1 interleave on a floppy, was to allocate sectors on alternating sides of the disk.  So, you could, for example, read two tracks in 3 revolutions, instead of 6, in the case of 3:1 interleave :-).
 
-  rm -f include/asm
-  ( cd include ; ln -sf asm-i386 asm)
-  make -C scripts kconfig.tk
-  make[1]: Entering directory `/usr/src/linux-2.4.18/scripts'
-  <...>
-
-Did you unpack the kernel as root and now trying to configure the kernel
-as a normal user?  The error is stating the equivelent that the directory
-`/usr/src/linux-2.4.18/scripts' is not there (make was trying to cd into
-it).  So I assume you either deleted the directory or you don't have
-access to it.
-
-	-Paul
-
+John.

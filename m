@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262415AbUBXTuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 14:50:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbUBXTuY
+	id S262417AbUBXTyW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 14:54:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262421AbUBXTyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 14:50:24 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:20234 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262415AbUBXTuW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 14:50:22 -0500
-Date: Tue, 24 Feb 2004 19:50:18 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Greg KH <greg@kroah.com>
-Cc: "Woodruff, Robert J" <woody@co.intel.com>, linux-kernel@vger.kernel.org,
-       "Hefty, Sean" <sean.hefty@intel.com>,
-       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
-       "Davis, Arlin R" <arlin.r.davis@intel.com>,
-       marcelo.tosatti@cyclades.com, torvalds@osdl.org
-Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
-Message-ID: <20040224195018.A27219@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Greg KH <greg@kroah.com>, "Woodruff, Robert J" <woody@co.intel.com>,
-	linux-kernel@vger.kernel.org, "Hefty, Sean" <sean.hefty@intel.com>,
-	"Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
-	"Davis, Arlin R" <arlin.r.davis@intel.com>,
-	marcelo.tosatti@cyclades.com, torvalds@osdl.org
-References: <F595A0622682C44DBBE0BBA91E56A5ED1C36C7@orsmsx410.jf.intel.com> <20040224194430.GB639@kroah.com>
-Mime-Version: 1.0
+	Tue, 24 Feb 2004 14:54:22 -0500
+Received: from tantale.fifi.org ([216.27.190.146]:22923 "EHLO tantale.fifi.org")
+	by vger.kernel.org with ESMTP id S262417AbUBXTyT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 14:54:19 -0500
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: [PATCH] Nfs lost locks
+References: <87k72h17n7.fsf@ceramic.fifi.org>
+	<Pine.LNX.4.58L.0402241607500.23951@logos.cnet>
+Mail-Copies-To: nobody
+From: Philippe Troin <phil@fifi.org>
+Date: 24 Feb 2004 11:54:03 -0800
+In-Reply-To: <Pine.LNX.4.58L.0402241607500.23951@logos.cnet>
+Message-ID: <87wu6cckys.fsf@ceramic.fifi.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040224194430.GB639@kroah.com>; from greg@kroah.com on Tue, Feb 24, 2004 at 11:44:30AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 11:44:30AM -0800, Greg KH wrote:
-> Please make those changes and then post the patch here (not just a link,
-> if it's too big, split it up into the logical pieces to fit.)  We can go
-> from there.
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> writes:
 
-I don't understand why anyone is wasting time on this.  Without available
-hardware drivers this huge midlayer is completely useless.
+> On Fri, 20 Feb 2004, Philippe Troin wrote:
+> 
+> > The NFS client is prone to loose locks on filesystems when the locking
+> > process is killed with a signal. This has been discussed on the nfs
+> > mailing list in these threads:
+> >
+> >   http://sourceforge.net/mailarchive/forum.php?thread_id=3213117&forum_id=4930
+> >
+> >   http://marc.theaimsgroup.com/?l=linux-nfs&m=107074045907620&w=2
+> >
+> > Marcelo, if the above links are not sufficient, please email back for
+> > more details.
+> >
+> > The enclosed patch is from Trond, and it fixes the problem.
+> 
+> Hi Philippe,
+> 
+> It might be wise to wait for the patch to be in 2.6 first?
+> 
+> Trond, what do you think?
 
+I do not know about the 2.6.x status, but Trond requested help with
+pushing this patch to the kernel, mentionning he was very busy with
+NFSv4.
+
+I personnaly think it fixes a serious problem with file locking on
+NFS, but that's my assessment.
+
+Phil.

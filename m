@@ -1,60 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263310AbUCTKON (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 05:14:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbUCTKON
+	id S263311AbUCTKRp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 05:17:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263318AbUCTKRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 05:14:13 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:58771
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S263310AbUCTKOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 05:14:08 -0500
-Message-ID: <405C195B.10004@redhat.com>
-Date: Sat, 20 Mar 2004 02:13:47 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040319
-X-Accept-Language: en-us, en
+	Sat, 20 Mar 2004 05:17:45 -0500
+Received: from gizmo01bw.bigpond.com ([144.140.70.11]:61863 "HELO
+	gizmo01bw.bigpond.com") by vger.kernel.org with SMTP
+	id S263311AbUCTKRn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 05:17:43 -0500
+From: Ross Dickson <ross@datscreative.com.au>
+Reply-To: ross@datscreative.com.au
+Organization: Dat's Creative Pty Ltd
+To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
+       Len Brown <len.brown@intel.com>
+Subject: Re: idle Athlon with IOAPIC is 10C warmer since 2.6.3-bk1
+Date: Sat, 20 Mar 2004 20:19:44 +1000
+User-Agent: KMail/1.5.1
+Cc: Thomas Schlichter <thomas.schlichter@web.de>, linux-kernel@vger.kernel.org
+References: <200403181019.02636.ross@datscreative.com.au> <1079738422.7279.308.camel@dhcppc4> <405C0EF1.1060104@gmx.de>
+In-Reply-To: <405C0EF1.1060104@gmx.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-CC: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] error value for opening block devices
-X-Enigmail-Version: 0.83.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------030003010301040404040407"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200403202019.44612.ross@datscreative.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030003010301040404040407
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+On Saturday 20 March 2004 19:29, Prakash K. Cheemplavam wrote:
+> Len Brown wrote:
+> > On Fri, 2004-03-19 at 14:22, Prakash K. Cheemplavam wrote:
+> > 
+> > 
+> >>Hmm, I just did a cat /proc/acpi/processor/CPU0/power:
+> >>active state:            C1
+> >>default state:           C1
+> >>bus master activity:     00000000
+> >>states:
+> >>    *C1:                  promotion[--] demotion[--] latency[000] 
+> >>usage[00000000]
+> >>     C2:                  <not supported>
+> >>     C3:                  <not supported>
+> >>
+> >>I am currently NOT using APIC mode (nforce2, as well) and using vanilla 
+> >>2.6.4. It seems C1 halt state isn't used, which exlains why I am having 
+> [snip]
+> > 
+> > 
+> > Actually I think it is that we don't _count_ C1 usage.
+> 
+> Hmm, OK, then I am really puzzled what specifically about mm sources 
+> make my idle temps hotter, as I still couldn't properly resolve it what 
+> is causing it. I thought ACPI, but no, using APM only does the same (apm 
+> only with vanilla is low temp though.)
 
-Opening a non-existing block device currently yields an ENXIO error.
-Doing the same for char devices produces the correct error ENODEV.
+Hi Prakash,
 
-The attached patch fixes the symptoms.  Somebody with more knowledge
-will have to decide whether there are any negative side effects.
+Have you seen this thread, it may be relevant?
+Re: [2.6.4-rc2] bogus semicolon behind if()
+http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-03/4170.html
 
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+I have not looked to see which kern sources besides 2.6.4-rc2 may have it.
 
---------------030003010301040404040407
-Content-Type: text/plain;
- name="d-blk-enodev"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="d-blk-enodev"
+Regards
+Ross.
 
-LS0tIGZzL2Jsb2NrX2Rldi5jLXNhdmUJMjAwNC0wMy0xMiAxMTo0NDoxNC4wMDAwMDAwMDAg
-LTA4MDAKKysrIGZzL2Jsb2NrX2Rldi5jCTIwMDQtMDMtMjAgMDE6NTM6MTkuMDAwMDAwMDAw
-IC0wODAwCkBAIC01NTAsNyArNTUwLDcgQEAgc3RhdGljIGludCBkb19vcGVuKHN0cnVjdCBi
-bG9ja19kZXZpY2UgKgogewogCXN0cnVjdCBtb2R1bGUgKm93bmVyID0gTlVMTDsKIAlzdHJ1
-Y3QgZ2VuZGlzayAqZGlzazsKLQlpbnQgcmV0ID0gLUVOWElPOworCWludCByZXQgPSAtRU5P
-REVWOwogCWludCBwYXJ0OwogCiAJZmlsZS0+Zl9tYXBwaW5nID0gYmRldi0+YmRfaW5vZGUt
-PmlfbWFwcGluZzsKQEAgLTU2Myw2ICs1NjMsNyBAQCBzdGF0aWMgaW50IGRvX29wZW4oc3Ry
-dWN0IGJsb2NrX2RldmljZSAqCiAJfQogCW93bmVyID0gZGlzay0+Zm9wcy0+b3duZXI7CiAK
-KwlyZXQgPSAtRU5YSU87CiAJZG93bigmYmRldi0+YmRfc2VtKTsKIAlpZiAoIWJkZXYtPmJk
-X29wZW5lcnMpIHsKIAkJYmRldi0+YmRfZGlzayA9IGRpc2s7Cg==
---------------030003010301040404040407--
+
+> 
+> Prakash
+> 
+> 
+> 
+

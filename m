@@ -1,66 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266864AbUIJGwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266539AbUIJGwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266864AbUIJGwF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 02:52:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266808AbUIJGwF
+	id S266539AbUIJGwo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 02:52:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266808AbUIJGwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 02:52:05 -0400
-Received: from mail.donpac.ru ([80.254.111.2]:38564 "EHLO donpac.ru")
-	by vger.kernel.org with ESMTP id S266539AbUIJGvK (ORCPT
+	Fri, 10 Sep 2004 02:52:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:20395 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266539AbUIJGwX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 02:51:10 -0400
-Date: Fri, 10 Sep 2004 10:51:07 +0400
-From: Andrey Panin <pazke@donpac.ru>
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: netwinder or ARM build platform
-Message-ID: <20040910065107.GE692@pazke>
-Mail-Followup-To: Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <200409091759.i89HxHI2023135@work.bitmover.com>
+	Fri, 10 Sep 2004 02:52:23 -0400
+Date: Fri, 10 Sep 2004 08:52:13 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
+Message-ID: <20040910065213.GA11140@devserv.devel.redhat.com>
+References: <20040909232532.GA13572@taniwha.stupidest.org> <1094798428.2800.3.camel@laptop.fenrus.com> <20040910064519.GA4232@taniwha.stupidest.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rqzD5py0kzyFAOWN"
+	protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
 Content-Disposition: inline
-In-Reply-To: <200409091759.i89HxHI2023135@work.bitmover.com>
-User-Agent: Mutt/1.5.6+20040803i
-X-SMTP-Authenticated: pazke@donpac.ru (cram)
+In-Reply-To: <20040910064519.GA4232@taniwha.stupidest.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---rqzD5py0kzyFAOWN
+--a8Wt8u1KmwUX3Y2C
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On 253, 09 09, 2004 at 10:59:17AM -0700, Larry McVoy wrote:
-> BK found another bad hard drive today, on our netwinder.  The disk is die=
-ing
-> badly unfortunately and I don't have installation media for this beast.
-> I suspect I can go find it but does anyone know of a faster build platform
-> for arm?  Russell uses bk on arms (no kidding, that's amazing) and so we
-> continue to support it but that netwinder is just amazingly slow.  If the=
-re
-> is a faster platform we want one.
+On Thu, Sep 09, 2004 at 11:45:19PM -0700, Chris Wedgwood wrote:
+> 
+> > 4k+irqstacks and 8k basically have near comparable stack space, with
+> > this patch you create an option that has more but that is/should be
+> > deprecated.
+> 
+> maybe, but *who* says this is depricated?
 
-What about these beasts http://www.iyonix.com/ ?
+I just did ;)
 
---=20
-Andrey Panin		| Linux and UNIX system administrator
-pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
+the roadmap was
 
---rqzD5py0kzyFAOWN
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+8K stacks  ->  dual 4k/8k option -> 4k stacks
+
+this roadmap comes down to basically keeping the available stack space equal
+over time (because yes if you see overflows with 4k you WILL see them with
+8k too just it takes some fun firewall rules and a network interrupt at just
+the right time). 
+
+Your proposal adds a temporary "bulb" that suddenly "allows" code to bloat
+into it...
+
+
+--a8Wt8u1KmwUX3Y2C
+Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQFBQU7bby9O0+A2ZecRAs2KAKCxyvxmn7NRuVBcykmOZ//+ZFC2TACeJKx5
-ey2n/XIcxsKn6A386n5bH6g=
-=3uVr
+iD8DBQFBQU8cxULwo51rQBIRAiyIAJ9xzowK2rjX2oNhtaTX67VqphRyVwCeM/fp
+Twbd5HtQho9cB0WlqEO661w=
+=KWcc
 -----END PGP SIGNATURE-----
 
---rqzD5py0kzyFAOWN--
+--a8Wt8u1KmwUX3Y2C--

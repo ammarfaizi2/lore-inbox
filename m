@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbTKXU7r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 15:59:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbTKXU7r
+	id S261476AbTKXUzE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 15:55:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbTKXUzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 15:59:47 -0500
-Received: from wormhole.wms-hn.de ([141.7.87.2]:8107 "EHLO wormhole.wms-hn.de")
-	by vger.kernel.org with ESMTP id S261680AbTKXU7p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 15:59:45 -0500
-Subject: Can't login with kernel 2.6
-From: Tilo Lutz <TiloLutz@gmx.de>
+	Mon, 24 Nov 2003 15:55:04 -0500
+Received: from smtp2.Stanford.EDU ([171.67.16.116]:6281 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S261476AbTKXUzB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 15:55:01 -0500
+Message-ID: <3FC27019.7010402@myrealbox.com>
+Date: Mon, 24 Nov 2003 12:54:49 -0800
+From: Andy Lutomirski <luto@myrealbox.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1069711178.2331.8.camel@tilo.rz.uni-karlsruhe.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 24 Nov 2003 22:59:38 +0100
+Subject: Re: hard links create local DoS vulnerability and security problems
+References: <fa.hevpbbs.u5q2r6@ifi.uio.no> <fa.l1quqni.v405hu@ifi.uio.no>
+In-Reply-To: <fa.l1quqni.v405hu@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
 
-I'm running Suse 9.0.
-I'V upgraded to module-init-tools 0.9.15pre4
-nd util-linux to 2.12pre.
-The system runs without any probems with
-kernel 2.4.21 but doesn't with kernel 2.6.0-test10
 
-I can't login as any user in normal runlevels.
+Valdis.Kletnieks@vt.edu wrote:
 
-A script to set up network has shown an error:
-chown root:root user unknown.
-I also get en error: /dev/tty unknown device.
+> 
+> In any case, if a user is *MAKING* a program set-UID, it's probably because
+> he *wants* it to run as himself even if others invoke it (otherwise, he
+> could just leave it in ~/bin and be happy).  So this is really a red herring,
+> as it's only a problem if (a) he decides to get rid of the binary, and fails
+> to do so because of hard links he doesn't know about, or (b) he's an idiot
+> programmer and it malfunctions if invoked with an odd argv[0]....
 
-If I start in runlevel S i can log in as root
-which doesn't work in any other runlevel.
+Right... but non-privileged users _can't_ delete these extra links, even 
+if they notice them from the link count.  And non-idiots do make 
+security errors -- they just fix them.  But in this case, fixing the 
+error after the fact may be impossible without root's help.
 
-I don't know where to look for the problem. I haven't
-found an answer in Google or maillinglist archive.
-All user accounts are stored in /etc/passwd / /etc/shadow.
-Passwords are only encrypted with crypt().
-I use PAM to authenticate.
+And how many package managers / install scripts check for hard links of 
+files they're about to overwrite?
 
-With krenel 2.6.0-test9 I also got a very strange error when
-some programs are started in init:
-Invalid ELF header.
-
-Any ides how to solve this?
-
-Thank you for your help
-
-Tilo
-
+--Andy
 

@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbTIXB57 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 21:57:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbTIXB57
+	id S261245AbTIXCAi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 22:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbTIXCAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 21:57:59 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:51917 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S261240AbTIXB55 (ORCPT
+	Tue, 23 Sep 2003 22:00:38 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:14816 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S261245AbTIXCAc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 21:57:57 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16240.47156.771134.68028@napali.hpl.hp.com>
-Date: Tue, 23 Sep 2003 14:16:36 -0700
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Luck, Tony" <tony.luck@intel.com>, "David S. Miller" <davem@redhat.com>,
-       davidm@hpl.hp.com, davidm@napali.hpl.hp.com, peter@chubb.wattle.id.au,
-       bcrl@kvack.org, ak@suse.de, iod00d@hp.com, peterc@gelato.unsw.edu.au,
-       linux-ns83820@kvack.org, linux-ia64@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: NS83820 2.6.0-test5 driver seems unstable on IA64
-In-Reply-To: <1064350834.11760.4.camel@dhcp23.swansea.linux.org.uk>
+	Tue, 23 Sep 2003 22:00:32 -0400
+Date: Tue, 23 Sep 2003 18:47:29 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: davidm@hpl.hp.com
+Cc: davidm@napali.hpl.hp.com, alan@lxorguk.ukuu.org.uk, tony.luck@intel.com,
+       peter@chubb.wattle.id.au, bcrl@kvack.org, ak@suse.de, iod00d@hp.com,
+       peterc@gelato.unsw.edu.au, linux-ns83820@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
+Message-Id: <20030923184729.26d02bea.davem@redhat.com>
+In-Reply-To: <16240.47156.771134.68028@napali.hpl.hp.com>
 References: <DD755978BA8283409FB0087C39132BD101B01194@fmsmsx404.fm.intel.com>
 	<1064350834.11760.4.camel@dhcp23.swansea.linux.org.uk>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+	<16240.47156.771134.68028@napali.hpl.hp.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 23 Sep 2003 22:00:34 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> said:
+On Tue, 23 Sep 2003 14:16:36 -0700
+David Mosberger <davidm@napali.hpl.hp.com> wrote:
 
-  >> Looking at a couple of ia64 build servers here I see zero unaligned
-  >> access messages in the logs.
+> Red Hat users won't be bothered by unaligned messages.
 
-  Alan> Anyone who can deliver network traffic to your box can soon fix that...
-
-Not if he's running Red Hat.  This is on a Red Hat 9 machine (x86,
-just so you can't argue it's ia64-specific...):
-
- $ fgrep LOGLEVEL /etc/rc.sysinit
- /bin/dmesg -n $LOGLEVEL
- $ fgrep LOGLEVEL /etc/sysconfig/*
- /etc/sysconfig/init:LOGLEVEL=3
-
-Red Hat users won't be bothered by unaligned messages.
-
-	--david
+Let's hope they don't need to see anything useful in the dmesg output.

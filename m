@@ -1,99 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271557AbRIBD2U>; Sat, 1 Sep 2001 23:28:20 -0400
+	id <S271569AbRIBDvd>; Sat, 1 Sep 2001 23:51:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271560AbRIBD2L>; Sat, 1 Sep 2001 23:28:11 -0400
-Received: from nycsmtp1fb.rdc-nyc.rr.com ([24.29.99.76]:28689 "EHLO si.rr.com")
-	by vger.kernel.org with ESMTP id <S271557AbRIBD2G>;
-	Sat, 1 Sep 2001 23:28:06 -0400
-Message-ID: <3B91A7A0.4020904@si.rr.com>
-Date: Sat, 01 Sep 2001 23:29:36 -0400
-From: Frank Davis <fdavis@si.rr.com>
-Reply-To: fdavis@si.rr.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] 2.4.9-ac5: drivers/sound/trident.c
-Content-Type: multipart/mixed;
- boundary="------------060602090900070009070805"
+	id <S271572AbRIBDvW>; Sat, 1 Sep 2001 23:51:22 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:57354 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S271569AbRIBDvJ>; Sat, 1 Sep 2001 23:51:09 -0400
+From: Linus Torvalds <torvalds@transmeta.com>
+Date: Sat, 1 Sep 2001 20:48:12 -0700
+Message-Id: <200109020348.f823mCs01183@penguin.transmeta.com>
+To: andy@spylog.ru, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10-pre3 - bug report
+Newsgroups: linux.dev.kernel
+In-Reply-To: <20010902053338.A26119@spylog.ru>
+In-Reply-To: <Pine.LNX.4.33.0109011212380.922-100000@penguin.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060602090900070009070805
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In article <20010902053338.A26119@spylog.ru> you write:
+>
+>		run
+>		test:/spylog/test/tiobench-0.3.1 # ./tiobench.pl 
+>		No size specified, using 1792 MB
+>	
+>    syslog level "kern.*":
+>	
+>ep  2 05:20:18 test kernel: Inspecting /boot/System.map
+>Sep  2 05:20:18 test kernel: Loaded 12509 symbols from /boot/System.map.
+>Sep  2 05:20:18 test kernel: Symbols match kernel version 2.4.10.
+>Sep  2 05:20:18 test kernel: No module symbols loaded - kernel modules not enabled. 
+>Sep  2 05:24:52 test kernel: __alloc_pages: 0-order allocation failed (gfp=0x70/1).
+>Sep  2 05:24:54 test last message repeated 77 times
+>Sep  2 05:24:54 test kernel: __alloc_pages: 0-order allocation failed (gfp=0x30/1).
 
-Hello,
-   The attached patch addresses a locking concern with the trident 
-driver. Please apply and test. It is against 2.4.9-ac5 . Thanks.
-Regards,
-Frank
+These are bounce buffer allocations - they do fail, but the failures
+should be temporary and the machine should make progress. 
 
---------------060602090900070009070805
-Content-Type: text/plain;
- name="TRIDENTP"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline;
- filename="TRIDENTP"
+There are some nasty issues with HIGHMEM that will be seriously improved
+during 2.5.x when we start doing IO directly from highmem for
+controllers that can handle it, but that 2.4.x is not likely to really
+fix.  So you should expect to see messages like the above that are about
+"we couldn't allocate memory for bounce buffers", and they _will_ imply
+that performance isn't going to be as good as it possibly should be, but
+at the same time it shouldn't be a real problem either.
 
---- drivers/sound/trident.c.old	Thu Aug 30 21:42:58 2001
-+++ drivers/sound/trident.c	Sat Sep  1 23:04:34 2001
-@@ -37,6 +37,8 @@
-  *
-  *  History
-  *  v0.14.9c
-+ *	September 1 2001 Frank Davis <fdavis112@juno.com>
-+ *	added spinlock to SNDCTL_DSP_RESET
-  *	August 10 2001 Peter Wächtler <pwaechtler@loewe-komp.de>
-  *	added support for Tvia (formerly Integraphics/IGST) CyberPro5050
-  *	this chip is often found in settop boxes (combined video+audio)
-@@ -703,8 +705,7 @@
-  	 *	clash with another cyberpro config event
-  	 */
-  
--	save_flags(flags);
--	cli();
-+	spin_lock_irqsave(&card->lock, flags);
- 	portDat = cyber_inidx(CYBER_PORT_AUDIO, CYBER_IDX_AUDIO_ENABLE);
- 	/* enable, if it was disabled */
- 	if( (portDat & CYBER_BMSK_AUENZ) != CYBER_BMSK_AUENZ_ENABLE ) {
-@@ -729,7 +730,7 @@
- 		cyber_outidx( CYBER_PORT_AUDIO, 0xb3, 0x06 );
- 		cyber_outidx( CYBER_PORT_AUDIO, 0xbf, 0x00 );
- 	}
--	restore_flags(flags);
-+	spin_unlock_irqrestore(&card->lock, flags);
- 	return ret;
- }
- 
-@@ -2098,20 +2099,23 @@
- 		break;
- 		
- 	case SNDCTL_DSP_RESET:
--		/* FIXME: spin_lock ? */
- 		if (file->f_mode & FMODE_WRITE) {
- 			stop_dac(state);
- 			synchronize_irq();
- 			dmabuf->ready = 0;
-+			spin_lock_irqsave(&card->lock, flags);
- 			dmabuf->swptr = dmabuf->hwptr = 0;
- 			dmabuf->count = dmabuf->total_bytes = 0;
-+			spin_unlock_irqrestore(&card->lock, flags);
- 		}
- 		if (file->f_mode & FMODE_READ) {
- 			stop_adc(state);
- 			synchronize_irq();
- 			dmabuf->ready = 0;
-+			spin_lock_irqsave(&card->lock, flags);
- 			dmabuf->swptr = dmabuf->hwptr = 0;
- 			dmabuf->count = dmabuf->total_bytes = 0;
-+			spin_unlock_irqrestore(&card->lock, flags);
- 		}
- 		break;
- 
+Does the machine stay up and perform reasonably well?
 
---------------060602090900070009070805--
+(Where "reasonable" doesn't necessarily mean "really well", but means
+"it's not absolutely horrible").
 
+		Linus

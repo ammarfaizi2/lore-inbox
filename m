@@ -1,62 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267796AbTBUW5x>; Fri, 21 Feb 2003 17:57:53 -0500
+	id <S267524AbTBUXK1>; Fri, 21 Feb 2003 18:10:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267797AbTBUW5x>; Fri, 21 Feb 2003 17:57:53 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:35575 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S267796AbTBUW5u>;
-	Fri, 21 Feb 2003 17:57:50 -0500
-Message-ID: <B9ECACBD6885D5119ADC00508B68C1EA0D19BB0F@orsmsx107.jf.intel.com>
-From: "Moore, Robert" <robert.moore@intel.com>
-To: "'Bjorn Helgaas'" <bjorn_helgaas@hp.com>,
-       Matthew Wilcox <willy@debian.org>
-Cc: "Moore, Robert" <robert.moore@intel.com>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       "Walz, Michael" <michael.walz@intel.com>, t-kochi@bq.jp.nec.com,
-       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: RE: [ACPI] [PATCH] 1/3 ACPI resource handling
-Date: Fri, 21 Feb 2003 15:07:48 -0800
+	id <S267801AbTBUXK1>; Fri, 21 Feb 2003 18:10:27 -0500
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:58563 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S267524AbTBUXKZ>; Fri, 21 Feb 2003 18:10:25 -0500
+Message-ID: <3E56B428.7080505@quark.didntduck.org>
+Date: Fri, 21 Feb 2003 18:20:08 -0500
+From: Brian Gerst <bgerst@quark.didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Use mempool_alloc/free_slab
+Content-Type: multipart/mixed;
+ boundary="------------020705080502050607010607"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is worth looking into, anyway.
-memcpy is appropriate, also.
-Bob
+This is a multi-part message in MIME format.
+--------------020705080502050607010607
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
+Convert fs/bio.c and fs/jfs/jfs_metapage.c to use the mempool_alloc_slab 
+and mempool_free_slab helper functions.
 
------Original Message-----
-From: Bjorn Helgaas [mailto:bjorn_helgaas@hp.com] 
-Sent: Friday, February 21, 2003 2:37 PM
-To: Matthew Wilcox
-Cc: Moore, Robert; Grover, Andrew; Walz, Michael; t-kochi@bq.jp.nec.com;
-linux-kernel@vger.kernel.org; acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] [PATCH] 1/3 ACPI resource handling
+--
+				Brian Gerst
 
-On Friday 21 February 2003 3:15 pm, Matthew Wilcox wrote:
-> On Fri, Feb 21, 2003 at 03:09:15PM -0700, Bjorn Helgaas wrote:
-> > Or, since you mention a macro, maybe your question is not about
-> > the usefulness of acpi_resource_to_address64() itself, but about
-> > how I implemented it, namely, with the copy_field and copy_address
-> > macros:
-> 
-> Can I suggest that you do a simple memcpy() for the case where you're
-> translating an address64 into an address64?
+--------------020705080502050607010607
+Content-Type: text/plain;
+ name="mempool_alloc_slab-3"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mempool_alloc_slab-3"
 
-I suppose we could.  Or maybe we should just get to the root of the
-thing and make a generic acpi_resource_address structure and never
-even expose the 16, 32, and 64 bit variants.  As far as I can tell,
-they just make life difficult for consumers.
+diff -urN linux-2.5.62-bk6/fs/bio.c linux/fs/bio.c
+--- linux-2.5.62-bk6/fs/bio.c	2003-01-13 16:20:57.000000000 -0500
++++ linux/fs/bio.c	2003-02-21 08:48:11.000000000 -0500
+@@ -52,16 +52,6 @@
+ };
+ #undef BV
+ 
+-static void *slab_pool_alloc(int gfp_mask, void *data)
+-{
+-	return kmem_cache_alloc(data, gfp_mask);
+-}
+-
+-static void slab_pool_free(void *ptr, void *data)
+-{
+-	kmem_cache_free(data, ptr);
+-}
+-
+ static inline struct bio_vec *bvec_alloc(int gfp_mask, int nr, unsigned long *idx)
+ {
+ 	struct biovec_pool *bp;
+@@ -749,8 +739,8 @@
+ 		if (i >= scale)
+ 			pool_entries >>= 1;
+ 
+-		bp->pool = mempool_create(pool_entries, slab_pool_alloc,
+-					slab_pool_free, bp->slab);
++		bp->pool = mempool_create(pool_entries, mempool_alloc_slab,
++					mempool_free_slab, bp->slab);
+ 		if (!bp->pool)
+ 			panic("biovec: can't init mempool\n");
+ 
+@@ -766,7 +756,7 @@
+ 					SLAB_HWCACHE_ALIGN, NULL, NULL);
+ 	if (!bio_slab)
+ 		panic("bio: can't create slab cache\n");
+-	bio_pool = mempool_create(BIO_POOL_SIZE, slab_pool_alloc, slab_pool_free, bio_slab);
++	bio_pool = mempool_create(BIO_POOL_SIZE, mempool_alloc_slab, mempool_free_slab, bio_slab);
+ 	if (!bio_pool)
+ 		panic("bio: can't create mempool\n");
+ 
+diff -urN linux-2.5.62-bk6/fs/jfs/jfs_metapage.c linux/fs/jfs/jfs_metapage.c
+--- linux-2.5.62-bk6/fs/jfs/jfs_metapage.c	2003-02-10 14:22:17.000000000 -0500
++++ linux/fs/jfs/jfs_metapage.c	2003-02-21 08:48:11.000000000 -0500
+@@ -120,15 +120,6 @@
+ 	mempool_free(mp, metapage_mempool);
+ }
+ 
+-static void *mp_mempool_alloc(int gfp_mask, void *pool_data)
+-{
+-	return kmem_cache_alloc(metapage_cache, gfp_mask);
+-}
+-static void mp_mempool_free(void *element, void *pool_data)
+-{
+-	return kmem_cache_free(metapage_cache, element);
+-}
+-
+ int __init metapage_init(void)
+ {
+ 	/*
+@@ -139,8 +130,8 @@
+ 	if (metapage_cache == NULL)
+ 		return -ENOMEM;
+ 
+-	metapage_mempool = mempool_create(METAPOOL_MIN_PAGES, mp_mempool_alloc,
+-					  mp_mempool_free, NULL);
++	metapage_mempool = mempool_create(METAPOOL_MIN_PAGES, mempool_alloc_slab,
++					  mempool_free_slab, metapage_cache);
+ 
+ 	if (metapage_mempool == NULL) {
+ 		kmem_cache_destroy(metapage_cache);
 
-Then acpi_rs_address16_resource(), acpi_rs_address32_resource(),
-and acpi_rs_address64_resource() could be collapsed into one function
-with pretty trivial checks for the different sizes.  And there's lots
-of similar collapsing that could be done.  I bet we'd even find one
-or two defects in the process of removing all the duplicated code.
+--------------020705080502050607010607--
 
-Of course, I guess that would change the CA interface, so that
-constrains things a bit.
-
-Bjorn

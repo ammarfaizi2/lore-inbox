@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261974AbREYVvz>; Fri, 25 May 2001 17:51:55 -0400
+	id <S261966AbREYWBg>; Fri, 25 May 2001 18:01:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261966AbREYVvp>; Fri, 25 May 2001 17:51:45 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:15110 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S261974AbREYVvf>; Fri, 25 May 2001 17:51:35 -0400
-Date: Fri, 25 May 2001 23:50:45 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: CaT <cat@zip.com.au>
-Cc: Thiago Vinhas de Moraes <tvinhas@networx.com.br>,
-        linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: The difference between Linus's kernel and Alan Cox's kernel
-Message-ID: <20010525235045.N15193@arthur.ubicom.tudelft.nl>
-In-Reply-To: <XFMail.010525213709.nemosoft@smcc.demon.nl> <3B0EB7A6.E0B17C79@mandrakesoft.com> <01052517123904.01385@zeus.networx.com.br> <20010525233218.M15193@arthur.ubicom.tudelft.nl> <20010526074017.E855@zip.com.au>
+	id <S261969AbREYWB1>; Fri, 25 May 2001 18:01:27 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:15113 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261966AbREYWBX>;
+	Fri, 25 May 2001 18:01:23 -0400
+Date: Sat, 26 May 2001 00:01:19 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Alexandr Andreev <andreev@niisi.msk.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Disabling interrupts before block device request call
+Message-ID: <20010526000119.A23273@suse.de>
+In-Reply-To: <3B0EE8CF.7040502@niisi.msk.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010526074017.E855@zip.com.au>; from cat@zip.com.au on Sat, May 26, 2001 at 07:40:18AM +1000
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+In-Reply-To: <3B0EE8CF.7040502@niisi.msk.ru>; from andreev@niisi.msk.ru on Fri, May 25, 2001 at 07:20:47PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 26, 2001 at 07:40:18AM +1000, CaT wrote:
-> On Fri, May 25, 2001 at 11:32:18PM +0200, Erik Mouw wrote:
-> > I just added this to the kernelnewbies FAQ:
-> > 
-> >   http://www.kernelnewbies.org/faq.php3
-> 
-> Typo: First para, last sentence: s/Linux/Linus/
+On Fri, May 25 2001, Alexandr Andreev wrote:
+> Hi, list
+> In ll_rw_block.c, before calling block device specific request function 
+> ( i mean do_hd_request, do_ftl_request, ... ) the io_request_lock is 
+> locking, and all interrupts are disabling. I know, that request handler 
+> routine have to be atomic, but when we read data from a flash device ( 
+> for example ) we use a timeouts. Where do we have to enable timer 
+> interrupts, or should we disable all interrupts?
 
-Oops. Fixed, thanks.
+Even with dropping io_request_lock, it's not recommended to sleep inside
+the request_fn. WIth plugging, you are basically preventing the other
+plugged queues from being run until you return.
 
-
-Erik
+You could use a timer or similar to call you on a specified timeout
+instead.
 
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Jens Axboe
+

@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264605AbTLHQPv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 11:15:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265440AbTLHQPv
+	id S265490AbTLHQI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 11:08:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265489AbTLHQI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 11:15:51 -0500
-Received: from postfix3-2.free.fr ([213.228.0.169]:56546 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S264605AbTLHQPc
+	Mon, 8 Dec 2003 11:08:29 -0500
+Received: from play.smurf.noris.de ([192.109.102.42]:48610 "EHLO
+	play.smurf.noris.de") by vger.kernel.org with ESMTP id S265490AbTLHQID
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 11:15:32 -0500
-From: Duncan Sands <baldrick@free.fr>
-To: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
-Date: Mon, 8 Dec 2003 17:15:15 +0100
-User-Agent: KMail/1.5.4
-Cc: Vince <fuzzy77@free.fr>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       mfedyk@matchmail.com, zwane@holomorphy.com,
-       linux-kernel@vger.kernel.org,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <3FC4E8C8.4070902@free.fr> <200312081110.28590.baldrick@free.fr> <3FD4A0C2.4090109@pacbell.net>
-In-Reply-To: <3FD4A0C2.4090109@pacbell.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312081715.15359.baldrick@free.fr>
+	Mon, 8 Dec 2003 11:08:03 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+Subject: Re: Physical address
+Date: Mon, 08 Dec 2003 17:05:50 +0100
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2003.12.08.16.05.47.407612@smurf.noris.de>
+References: <20031208150713.39743.qmail@web25201.mail.ukl.yahoo.com> <Pine.LNX.4.53.0312081019410.29539@chaos>
+NNTP-Posting-Host: p50847149.dip.t-dialin.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Trace: play.smurf.noris.de 1070899549 2224 80.132.113.73 (8 Dec 2003 16:05:49 GMT)
+X-Complaints-To: smurf@noris.de
+NNTP-Posting-Date: Mon, 8 Dec 2003 16:05:49 +0000 (UTC)
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 08 December 2003 17:03, David Brownell wrote:
-> Duncan Sands wrote:
-> > Hi Vince, I'm not sure, but it looks like a bug in the USB core.
-> > I was kind of expecting this :)  My patch causes devio.c to hold
-> > a reference to the usb_device maybe long after the device has
-> > been disconnected.  This is supposed to be OK, but from your
->
-> ... no, that's not supposed to be OK.  Returning from disconnect()
-> means that a device driver is no longer referencing the interface
-> the driver bound to, or ep0.
+Hi, Richard B. Johnson wrote:
 
-Well, I thought Greg wanted it to be OK :)  Anyway, I don't use
-the device after disconnect except to take the semaphore
-(dev->serialize), check for disconnection (dev->state), and
-of course to execute a usb_put_dev.  Surely this usage should
-be OK?
+> Don't expect any help
+> from some LK pedantics, but this hack will get you started if
+> you are not using any special addresses (like high RAM).
 
-Ciao,
+... and if the driver will never run on non-PC-like or non-x86 systems.
 
-Duncan.
+> Also, don't tell anybody .... <grin>...
+
+*Grumble*. IMHO you(generic) should do this right the first time.
+The learning curve may be a bit steeper, but OTOH you won't get into any
+bad habits, and you won't leave a mess for other people to debug.
+
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+We are bits of stellar matter that got cold
+by accident, bits of a star gone wrong.
+		-- Sir Arthur Eddington
+

@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263490AbRFAM45>; Fri, 1 Jun 2001 08:56:57 -0400
+	id <S263491AbRFANAr>; Fri, 1 Jun 2001 09:00:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263473AbRFAM4r>; Fri, 1 Jun 2001 08:56:47 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:26013 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S263490AbRFAM42>;
-	Fri, 1 Jun 2001 08:56:28 -0400
-Message-ID: <3B1790FB.82FC9251@mandrakesoft.com>
-Date: Fri, 01 Jun 2001 08:56:27 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>,
-        Pete Zaitcev <zaitcev@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] support for Cobalt Networks (x86 only) systems (for realthis
-In-Reply-To: <E155oP7-0000Sl-00@the-village.bc.nu>
+	id <S263473AbRFANAh>; Fri, 1 Jun 2001 09:00:37 -0400
+Received: from [130.239.18.139] ([130.239.18.139]:17099 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S263491AbRFANAY>;
+	Fri, 1 Jun 2001 09:00:24 -0400
+Date: Fri, 1 Jun 2001 14:59:00 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Phil Auld <pauld@egenera.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Configure.help is complete
+Message-ID: <20010601145900.C12402@khan.acc.umu.se>
+In-Reply-To: <Pine.GSO.4.21.0105311555250.17748-100000@weyl.math.psu.edu> <3B178E0E.A4530D47@egenera.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3B178E0E.A4530D47@egenera.com>; from pauld@egenera.com on Fri, Jun 01, 2001 at 08:43:58AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > In both of these situations, calling the ioctls without priveleges is
-> > quite useful, so maybe rate-limiting for ioctls and proc files like this
-> > would be a good idea in general.
+On Fri, Jun 01, 2001 at 08:43:58AM -0400, Phil Auld wrote:
+> Alexander Viro wrote:
+> 
+> ...snip...
+> 
+> > 
+> > We should start removing the crap from procfs in 2.5. Documenting shit is
+> > a good step, but taking it out would be better.
+> > 
+> 
+> Not to open a what may be can of worms but ...
+> 
+> What's wrong with procfs? 
 
-> Many of them (like the MII and APM ones) the result can be cached
+Imho, a procfs should be for process-information, nothing else.
+The procfs in its current form, while useful, is something horrible
+that should be taken out on the backyard and shot using slugs.
 
-Only some of them can be cached...  (some of the MIIs in some drivers
-are already cached, in fact)   you can't cache stuff like what your link
-partner is advertising at the moment, or what your battery status is at
-the moment.
+Ehrmmm. No, but seriously, the non-process stuff should be separate
+from the procfs. Maybe call it kernfs or whatever.
 
--- 
-Jeff Garzik      | Disbelief, that's why you fail.
-Building 1024    |
-MandrakeSoft     |
+> It allows a general interface to the kernel that does not require new
+> syscalls/ioctls and can be accessed from user space without specifically
+> compiled programs. You can use shell scripts, java, command line etc.
+
+Yes, and it's also totally non standardised.
+
+
+/David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

@@ -1,117 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUK0C1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262905AbUK0C1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbUK0C1O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 21:27:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263116AbUK0CKA
+	id S262905AbUK0C1R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 21:27:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263113AbUK0CJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 21:10:00 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:10692 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262846AbUKZThb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:37:31 -0500
-Date: Thu, 25 Nov 2004 10:33:00 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: ChenLi Tien <cltien@cmedia.com.tw>
-Cc: ChenLi Tien <cltien@cmedia.com.tw>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cmpci.c fixes for joystick initialization in 2.4.27
-Message-ID: <20041125123300.GH16189@logos.cnet>
-References: <Pine.LNX.4.44.0410311137110.1383-100000@shampoo>
+	Fri, 26 Nov 2004 21:09:28 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:37024 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262905AbUKZThs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:37:48 -0500
+Subject: Re: Suspend 2 merge:L 12/51: Disable OOM killer when suspending.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041125181208.GC1417@openzaurus.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <1101294601.5805.237.camel@desktop.cunninghams>
+	 <20041125181208.GC1417@openzaurus.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1101419241.27250.34.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0410311137110.1383-100000@shampoo>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 26 Nov 2004 08:47:21 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
+On Fri, 2004-11-26 at 05:12, Pavel Machek wrote:
+> Hi!
+> 
+> > When preparing the image, suspend eats all the memory in sight, both to
+> > reduce the image size and to improve the reliability of our stats (We've
+> > worked hard to make it work reliably under heavy load - 100+). Of course
+> > this can result in the OOM killer being triggered, so this simple test
+> > stops that happening.
+> 
+> andrew's shrink_all_memory should enable you to free memory without
+> hacking OOM killer, no?
 
-ChenLi, 
+I do use shrink_all_memory, but I also then allocate those pages that
+were freed. We added that when seeking to get Suspend to work well and
+reliably under heavy load. IIRC, the issue was that pages that were
+freed were immediately getting allocated by other programs. Having said
+this, it is a while since I looked at the code for preparing the image.
+I can take a look and confirm my thinking.
 
-Have you received this patch?
+> If shrink_all_memory is broken... fix it.
 
-Can you confirm 0x201 is the standard address for the port?
+Agree.
 
-On Sun, Oct 31, 2004 at 12:01:53PM +0100, Michele Debandi wrote:
-> Hello,
+> > +	if (test_suspend_state(SUSPEND_FREEZER_ON))
+> > +		return;
+> > +	
 > 
-> I hope you are the current mantainer of cmpci module on 2.4 series kernel.
-> 
-> I have an integrated CM8738 sound chip on my Asus P4B533 motherboard.
-> The lspci -v output is:
-> 
-> 02:03.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
->         Subsystem: Asustek Computer, Inc.: Unknown device 80e2
->         Flags: bus master, stepping, medium devsel, latency 32, IRQ 21
->         I/O ports at b800 [size=256]
->         Capabilities: [c0] Power Management version 2
-> 
-> With the cmpci.c driver the joystick will not work. MSDOS initialization
-> sets the joystick port at the address 0x201, and windows driver uses also
-> this port. The cmpci driver initializes instead the port 0x200, and
-> on my chipset at that address thre is nothing. So I modified the driver
-> modules to use the port 0x201 but mantaining the 8-port allocation of the
-> original driver.
-> This is tested and seems to work on a stantard PC/XT style 2-axis/2-button
-> joystick.
-> 
-> Below there is the diff file.
-> 
-> Greetings
-> 
-> Mike
-> 
-> --- drivers/sound/cmpci.c.ORIG	Tue Oct 26 20:55:08 2004
-> +++ drivers/sound/cmpci.c	Tue Oct 26 21:01:23 2004
-> @@ -3354,7 +3354,7 @@
->  #endif
->  	s->iosynth = fmio;
->  	s->iomidi = mpuio;
-> -	s->gameport.io = 0x200;
-> +	s->gameport.io = 0x201; /*use standard DOS io port */
->  	s->status = 0;
->  	/* range check */
->  	if (speakers < 2)
-> @@ -3443,7 +3443,8 @@
->  #endif
->  	/* enable joystick */
->  	if (joystick) {
-> -		if (s->gameport.io && !request_region(s->gameport.io, CM_EXTENT_GAME, "cmpci GAME")) {
-> +	        /* need to use port 0x201, but the extent starts at 0x200??? */
-> +		if (s->gameport.io && !request_region((s->gameport.io) - 1, CM_EXTENT_GAME, "cmpci GAME")) {
->  			printk(KERN_ERR "cmpci: gameport io ports in use\n");
->  			s->gameport.io = 0;
->  	       	} else
-> @@ -3549,8 +3550,13 @@
->  		s->max_channels = 2;
->  	}
->  	/* register gameport */
-> -	if (joystick)
-> +	if (joystick) {
->  		gameport_register_port(&s->gameport);
-> +		/* better write some more info */
-> +		printk(KERN_INFO "gameport%d: CMPCI at %#x", s->gameport.number, s->gameport.io);
-> +	        printk(" size %d", CM_EXTENT_GAME);
-> +		printk(" speed %d kHz\n", s->gameport.speed);
-> +	}
->  	/* store it in the driver field */
->  	pci_set_drvdata(pcidev, s);
->  	/* put it into driver list */
-> @@ -3576,7 +3582,7 @@
->  	free_irq(s->irq, s);
->  err_irq:
->  	if (s->gameport.io)
-> -		release_region(s->gameport.io, CM_EXTENT_GAME);
-> +		release_region((s->gameport.io)-1, CM_EXTENT_GAME);
->  #ifdef CONFIG_SOUND_CMPCI_FM
->  	if (s->iosynth) release_region(s->iosynth, CM_EXTENT_SYNTH);
->  #endif
-> @@ -3612,7 +3618,7 @@
-> 
->  	if (s->gameport.io) {
->  		gameport_unregister_port(&s->gameport);
-> -		release_region(s->gameport.io, CM_EXTENT_GAME);
-> +		release_region((s->gameport.io)-1, CM_EXTENT_GAME);
->  	}
->  	release_region(s->iobase, CM_EXTENT_CODEC);
->  #ifdef CONFIG_SOUND_CMPCI_MIDI
+> Hmm, yes, something like this migh be usefull for BUG_ONs etc...
+> For consistency, right name is probably in_suspend(void).
+
+There is a difference; there is sections of time where we're in_suspend
+(test_suspend_state(SUSPEND_RUNNING)) but the freezer isn't on (initial
+set up and cleanup). As far as the OOM killer goes, it probably doesn't
+matter which is used, but I thought it important to point out that
+freezer being on !== in_suspend(). (Freezer could also be on for S3?..
+'spose you don't care of OOM killer runs then, though). Would you like
+to see in_freezer()?
+
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
+

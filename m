@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263516AbTDMNGV (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 09:06:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263509AbTDMM5l (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 08:57:41 -0400
-Received: from amsfep12-int.chello.nl ([213.46.243.18]:56610 "EHLO
-	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S263505AbTDMM4Q (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 08:56:16 -0400
-Date: Sun, 13 Apr 2003 15:05:18 +0200
-Message-Id: <200304131305.h3DD5Im3001299@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] M68k needs WANT_PAGE_VIRTUAL
+	id S263511AbTDMN3X (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 09:29:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263513AbTDMN3X (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 09:29:23 -0400
+Received: from port-212-202-185-162.reverse.qdsl-home.de ([212.202.185.162]:18573
+	"EHLO gw.localnet") by vger.kernel.org with ESMTP id S263511AbTDMN3W (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Apr 2003 09:29:22 -0400
+Message-ID: <3E9968FB.8050409@trash.net>
+Date: Sun, 13 Apr 2003 15:41:15 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Kevin Buhr <buhr@telus.net>
+CC: Maciej Soltysiak <solt@dns.toxicfilms.tv>, netfilter-devel@lists.samba.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: BUG somewhere in NAT mechanism [was: my linux box does not learn
+ from redirects]
+References: <Pine.LNX.4.51.0304121406180.24111@dns.toxicfilms.tv> <8765pj6lg9.fsf@saurus.asaurus.invalid> <3E99574B.5060306@trash.net>
+In-Reply-To: <3E99574B.5060306@trash.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k needs WANT_PAGE_VIRTUAL (from Richard Zidlicky)
 
---- linux-2.4.21-pre7/include/asm-m68k/page.h	Sun Apr  6 10:29:44 2003
-+++ linux-m68k-2.4.21-pre7/include/asm-m68k/page.h	Sun Apr  6 23:24:12 2003
-@@ -127,6 +127,7 @@
- 
- #ifndef CONFIG_SUN3
- 
-+#define WANT_PAGE_VIRTUAL
- #ifdef CONFIG_SINGLE_MEMORY_CHUNK
- extern unsigned long m68k_memoffset;
- 
 
-Gr{oetje,eeting}s,
+Patrick McHardy wrote:
 
-						Geert
+>> Maciej Soltysiak <solt@dns.toxicfilms.tv> writes:
+>>  
+>> It looks like the relevant bit of code is:
+>>
+>> ip_nat_core.c:881 (in 2.4.20)
+>>        /* Redirects on non-null nats must be dropped, else they'll
+>>           start talking to each other without our translation, and be
+>>           confused... --RR */
+>>        if (hdr->type == ICMP_REDIRECT) {
+>>                /* Don't care about races here. */
+>>                if (info->initialized
+>>                    != ((1 << IP_NAT_MANIP_SRC) | (1 << 
+>> IP_NAT_MANIP_DST))
+>>
+>
+> Apart from what you're saying, it should be:
+>
+>                            if (info->initialized
+>                                 & ((1 << IP_NAT_MANIP_SRC) | (1 << 
+> IP_NAT_MANIP_DST))
+>
+> otherwise (maybe that's what Maciej is seeing) redirects for 
+> connections without natbindings
+> will be dropped too. 
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Sorry this was wrong, it seems because of null_bindings every connection 
+has at least one
+binding per direction.
+
+Bye
+Patrick
+
+

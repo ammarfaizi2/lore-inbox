@@ -1,40 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269325AbUICHNj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269013AbUICHMy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269325AbUICHNj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 03:13:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269311AbUICHNj
+	id S269013AbUICHMy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 03:12:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269295AbUICHMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 03:13:39 -0400
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:43396 "EHLO
-	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id S269295AbUICHNf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 03:13:35 -0400
-Date: Fri, 3 Sep 2004 03:13:35 -0400
-To: linux-fsdevel@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
-Message-ID: <20040903071335.GB16619@delft.aura.cs.cmu.edu>
-Mail-Followup-To: linux-fsdevel@vger.kernel.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain> <20040902203854.GA4801@janus> <200409022319.i82NJlTN025039@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409022319.i82NJlTN025039@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.5.6+20040803i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+	Fri, 3 Sep 2004 03:12:54 -0400
+Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:51147
+	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
+	with ESMTP id S269013AbUICHMw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 03:12:52 -0400
+Message-ID: <41381972.8080600@bio.ifi.lmu.de>
+Date: Fri, 03 Sep 2004 09:12:50 +0200
+From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.8.1-mm1][input] - IBM TouchPad support added? Which patch
+ is this? - Unsure still
+References: <200408170349.44626.shawn.starr@rogers.com> <200408170402.33368.shawn.starr@rogers.com> <200408170801.00068.dtor_core@ameritech.net>
+In-Reply-To: <200408170801.00068.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 02, 2004 at 07:19:47PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Thu, 02 Sep 2004 22:38:54 +0200, Frank van Maarseveen said:
-> > 	cd /dev/cdrom
-> > 	ls
+Dmitry Torokhov wrote:
+> On Tuesday 17 August 2004 03:02 am, Shawn Starr wrote:
 > 
-> And the CD in the drive at the moment is AC/DC "Back in Black".  What
-> should this produce as output?
+>>Sorry, I stand corrected. I don't know where this patch is added from which 
+>>enables the touchpad to act as a 'button press'.
+>>
+> 
+> 
+> mousedev now does tap emulation for touchpads working in absolute mode
+> (Synaptics) so you don't need to use psmouse.proto= parameter to force
+> it in PS/2 compatibility mode. Use mousedev.tap_time= option to control
+> it.
+> 
+> The patch is only in -mm at the moment.
 
-Hehe, cdfs already figured that one out. Ofcourse you show the
-individual tracks as .wav files.
+Can that patch be downloaded somewhere to patch against 2.6.8.1? I don't
+have any tapping support for my synaptic touchpad on my compaq laptop after
+switching from 2.4 to 2.6.
+It seems that most of the patches at http://www.geocities.com/dt_or/input/2_6_7/
+are already in 2.6.8.1: Just the tapping stuff seems to be missing. And
+I can't extract your patch from the 2.6.9-rc1-mm2 stuff, because it seems
+to be mixed with some other patches there.
+Is there a sole version of this patch fir 2.6.8.1 somewhere?
 
-Jan
+cu,
+Frank
+
+
+-- 
+Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
+Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
+LMU, Amalienstr. 17           Phone: +49 89 2180-4049
+80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+

@@ -1,62 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262719AbTCPSZt>; Sun, 16 Mar 2003 13:25:49 -0500
+	id <S262723AbTCPSac>; Sun, 16 Mar 2003 13:30:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262721AbTCPSZt>; Sun, 16 Mar 2003 13:25:49 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:56813 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S262719AbTCPSZs>;
-	Sun, 16 Mar 2003 13:25:48 -0500
-Date: Sun, 16 Mar 2003 19:36:32 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Osamu Tomita <tomita@cinet.co.jp>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: Complete support PC-9800 for 2.5.64-ac4 (11/11) SCSI
-In-Reply-To: <1047836839.9267.29.camel@mulgrave>
-Message-ID: <Pine.GSO.4.21.0303161934340.17014-100000@vervain.sonytel.be>
+	id <S262724AbTCPSac>; Sun, 16 Mar 2003 13:30:32 -0500
+Received: from realityfailure.org ([209.150.103.212]:2690 "EHLO
+	bushido.realityfailure.org") by vger.kernel.org with ESMTP
+	id <S262723AbTCPSab>; Sun, 16 Mar 2003 13:30:31 -0500
+Date: Sun, 16 Mar 2003 13:41:13 -0500 (EST)
+From: John Jasen <jjasen@realityfailure.org>
+X-X-Sender: jjasen@bushido
+To: Shawn <core@enodev.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Larry McVoy <lm@bitmover.com>
+Subject: Re: [PROPOSAL] BitchKeeper
+In-Reply-To: <1047838276.3966.17.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0303161340540.1491-100000@bushido>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Mar 2003, James Bottomley wrote:
-> On Sat, 2003-03-15 at 19:15, Osamu Tomita wrote:
-> >     /* This is what the 3393 chip looks like to us */
-> >  typedef struct {
-> > +#ifdef CONFIG_WD33C93_PIO
-> > +   unsigned int   SASR;
-> > +   unsigned int   SCMD;
-> > +#else
-> >     volatile unsigned char  *SASR;
-> >     volatile unsigned char  *SCMD;
-> > +#endif
-> >  } wd33c93_regs;
-> >  
-> 
-> This really doesn't look right.  For non PIO (which is all drivers apart
-> from yours), they expect to dereference SASR to get the port number (as
-> an unsigned char).  If you remove the dereference, don't they all break?
+On 16 Mar 2003, Shawn wrote:
 
-On m68k and MIPS, we do not derefence SASR to get the port number, SASR _is_
-the MMIO pointer to the 8-bit SASR register. Hence you access the register by
-dereferencing the pointer.
+> Maybe someone could purchase "bitchmover.com".. Nah, that's probably
+> taken by some pimp somewhere.
 
-> Perhaps the better thing to do is to make your driver use an unsigned
-> int *, so the dereference works in all cases.
+actually, whois shows no match ...
 
-Actually, it was my suggestion to remove the dereference for PIO accesses. In
-that case SASR contains the I/O port register.
+-- 
+-- John E. Jasen (jjasen@realityfailure.org)
+-- User Error #2361: Please insert coffee and try again.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
 

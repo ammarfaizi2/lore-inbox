@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264058AbUEHSrS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264095AbUEHSwk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264058AbUEHSrS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 14:47:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbUEHSrS
+	id S264095AbUEHSwk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 14:52:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbUEHSwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 14:47:18 -0400
-Received: from fw.osdl.org ([65.172.181.6]:57036 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264058AbUEHSrR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 14:47:17 -0400
-Date: Sat, 8 May 2004 11:46:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Bruce Guenter <bruceg@em.ca>
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc3-mm2
-Message-Id: <20040508114648.4e61bf31.akpm@osdl.org>
-In-Reply-To: <20040508165902.GF25615@em.ca>
-References: <20040505013135.7689e38d.akpm@osdl.org>
-	<20040506195223.017cd7f6.akpm@osdl.org>
-	<1083903398.7481.43.camel@bach>
-	<200405072213.23167.rjwysocki@sisk.pl>
-	<20040507230915.447a92fa.akpm@osdl.org>
-	<20040508165902.GF25615@em.ca>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 8 May 2004 14:52:40 -0400
+Received: from smtp-out4.xs4all.nl ([194.109.24.5]:9740 "EHLO
+	smtp-out4.xs4all.nl") by vger.kernel.org with ESMTP id S264095AbUEHSwi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 May 2004 14:52:38 -0400
+Date: Sat, 8 May 2004 20:52:29 +0200
+From: Jurriaan <thunder7@xs4all.nl>
+To: "J. Ryan Earl" <heretic@clanhk.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AMD64 and RAID6
+Message-ID: <20040508185229.GA869@middle.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
+References: <409D1D86.6050907@clanhk.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <409D1D86.6050907@clanhk.org>
+X-Message-Flag: Still using Outlook? As you can see, it has some errors.
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bruce Guenter <bruceg@em.ca> wrote:
->
-> On Fri, May 07, 2004 at 11:09:15PM -0700, Andrew Morton wrote:
-> > Works for me too.  Can you share your kernel boot commandline with us?
+From: J. Ryan Earl <heretic@clanhk.org>
+Date: Sat, May 08, 2004 at 12:48:54PM -0500
+> Why doesn't RAID6 use the int64x4 algorithm in this situation?  What is 
+> the motivation of setting the 'prefer field' on the sse algorithms and 
+> not on the integer based algorithms?
 > 
-> Sure.  I use (in grub):
-> 	kernel /vmlinuz-2.6.6-rc2-mm2 vga=1 ro root=/dev/md15 elevator=deadline console=ttyS0,115200n8
+IIRC, the sse variants have better cache-behaviour, and are thus almost
+always selected.
 
-oh, and you're using x86_64 too.
+Try googling for exact answers, this has come up before.
+
+HTH,
+Jurriaan
+-- 
+Spock: "Logic, logic, logic...  Logic is the beginning of wisdom,
+Valeris, not  the end."
+"STVI:TUC", Stardate 9522.6
+Debian (Unstable) GNU/Linux 2.6.6-rc3-mm1 2x6062 bogomips 0.06 0.16

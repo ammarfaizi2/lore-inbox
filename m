@@ -1,74 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277410AbRJEPZ5>; Fri, 5 Oct 2001 11:25:57 -0400
+	id <S277408AbRJEPY1>; Fri, 5 Oct 2001 11:24:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277413AbRJEPZs>; Fri, 5 Oct 2001 11:25:48 -0400
-Received: from [204.177.156.37] ([204.177.156.37]:5760 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S277410AbRJEPZi>; Fri, 5 Oct 2001 11:25:38 -0400
-Date: Fri, 5 Oct 2001 16:27:15 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Bernd Harries <bha@gmx.de>
-cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: __get_free_pages(): is the MEM really mine?
-In-Reply-To: <3BBDB662.CB729213@gmx.de>
-Message-ID: <Pine.LNX.4.21.0110051554020.1187-100000@localhost.localdomain>
+	id <S277411AbRJEPYR>; Fri, 5 Oct 2001 11:24:17 -0400
+Received: from IP-213157001138.dialin.heagmedianet.de ([213.157.1.138]:15366
+	"EHLO gateway.me") by vger.kernel.org with ESMTP id <S277408AbRJEPYD>;
+	Fri, 5 Oct 2001 11:24:03 -0400
+Message-ID: <3BBDD0BA.94E53586@frontsite.de>
+Date: Fri, 05 Oct 2001 17:24:42 +0200
+From: Matthias Welwarsky <matthias.welwarsky@frontsite.de>
+Reply-To: matze@stud.fbi.fh-darmstadt.de
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-rt i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Problem understanding cap_emulate_setxuid()
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Oct 2001, Bernd Harries wrote:
-> Hugh Dickins wrote:
-> 
-> > I don't
-> > know whether you're following the mmap-makes-all-pages-present
-> > model (using remap_page_range), or the fault-page-by-page model
-> > (supplying your own nopage function). 
-> 
-> The nopage method. In Alessandro Rubini's book (p.391) I read, that
-> I can't use remap_page_range() on pages optained by get_free_page().
+Hi all,
 
-I just looked that up.  Rubini is right that remap_page_range only
-works as you'd want on reserved pages, and pages which fail the
-VALID_PAGE(page) test (I'm trying to avoid saying "invalid pages"),
-and there is a good reason for that.  But Rubini omits to mention
-mem_map_reserve, which can be used (on pages you own exclusively)
-to mark a page as temporarily reserved, so remap_page_range will
-then work as you'd want on it (with mem_map_unreserve to undo later).
+I'm having certain difficulties to understand how cap_emulate_setxuid()
+in kernel/sys.c is supposed to work. I have a program that needs
+CAP_SYS_NICE in order to create realtime threads.
 
-The mem_map_reserve, remap_page_range model is commoner in drivers
-than the nopage model; but it is somewhat deprecated now, Linus for
-one certainly preferring the nopage model; and the VM_RESERVED vma
-flag can give pages that immunity from swap_out which mem_map_reserve
-also confers.  You're not wrong to follow the nopage model.
+For security reasons, I don't want the program to run as the root user.
+So, I initially start the program setuid-root, then set CAP_SYS_NICE,
+then drop root privileges. In pseudo-C, the program looks like this:
 
-> Hmm, the only thing that happens to them after munmap() is 
-> free_pages(). I don't access the pages anymore. But maybe some code in free_pages does? Or decrements count to -1?
+prctl(PR_SET_KEEPCAPS, 1);
+cap_set(CAP_SYS_NICE);
+seteuid(getuid());
 
-I've forgotten by now what your precise symptoms were.  But either
-pages would be freed twice and allocated twice; or they would hit a
-BUG() statement in second free or second allocation; neither good.
+However, from looking at cap_emulate_setxuid() I learned that when
+switching the effective uid != 0, current->cap_effective is cleared,
+regardless the settings of current->keep_capabilities. Huh? How is this
+supposed to work at all? It at least seems to be a little impractical.
 
-> > Either you should force page count 1 on each of the 
-> > order-0-pages before you mmap them in (and raise count to 2);
-> 
-> by get_page(), right?
+When a program is started setuid-root, getuid() == real_user_id and
+geteuid() == 0. So, how would I drop root privileges without switching
+the effective user id away from 0? Is this a bug in
+cap_emulate_setxuid() or am I missing something?
 
-Fine; and I expect you'll need to undo it later by appropriate put_page()s.
+It seems that with the current implementation, cap_effective ==
+cap_permitted is only true when the effective uid == 0? However, to
+minimize security implications, I'd like the process to run with
+real_uid == effective_uid so that e.g. plugins cannot switch the
+effective uid back to 0 and do funny things on root-owned files.
+Shouldn't this be possible with capabilities?
 
-> Ok, thanks a lot. So it's definitely insufficient how my minor 26 version handles the pages, right? If so, that's a statement I can live with.
-> 
-> And it was never ment that I could simply mmap the upper pages to userspace directly, without 'touching' each page, was it? 
+best regards,
+    Matthias
 
-Probably all the drivers which use higher order allocations are using
-the older, mem_map_reserve + remap_page_range method; the reserved
-bit preserves a page against freeing whatever its page count.  Maybe
-you're the first to use the nopage method on a higher order allocation
-(or maybe not, and there are already drivers working around it).
+--
+Matthias Welwarsky
+Fachschaft Informatik FH Darmstadt
+Email: matze@stud.fbi.fh-darmstadt.de
 
-I wouldn't claim the way it is currently is ideal design: I think
-you've hit a not entirely satisfactory but easily worked around oddity,
-
-Hugh
-
+"I bet the human brain is a kludge."
+                -- Marvin Minsky

@@ -1,28 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270849AbRHXDv3>; Thu, 23 Aug 2001 23:51:29 -0400
+	id <S270857AbRHXDxu>; Thu, 23 Aug 2001 23:53:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270855AbRHXDvT>; Thu, 23 Aug 2001 23:51:19 -0400
-Received: from femail34.sdc1.sfba.home.com ([24.254.60.24]:4043 "EHLO
-	femail34.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S270849AbRHXDvG>; Thu, 23 Aug 2001 23:51:06 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: Fred <fred@arkansaswebs.com>, linux-kernel@vger.kernel.org
-Subject: Re: File System Limitations
-Date: Thu, 23 Aug 2001 20:50:40 -0700
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <E15a4Gz-0004uz-00@the-village.bc.nu> <01082322391300.12871@bits.linuxball>
-In-Reply-To: <01082322391300.12871@bits.linuxball>
+	id <S270862AbRHXDxk>; Thu, 23 Aug 2001 23:53:40 -0400
+Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:27916 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S270857AbRHXDxa>; Thu, 23 Aug 2001 23:53:30 -0400
+Message-ID: <3B864198.9E132BFB@ntsp.nec.co.jp>
+Date: Fri, 24 Aug 2001 11:59:21 +0000
+From: Pete Marvin King <pmking@ntsp.nec.co.jp>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01082320504000.00444@c779218-a>
-Content-Transfer-Encoding: 7BIT
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: socket problem
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 23 August 2001 08:39 pm, Fred wrote:
-> /a5 directory above is /dev/hda5 a vfat partition (is this the
-> problem?)
 
-that's exactly the problem, FAT32 doesn't support files over 2GB
+    Is it possible to increase the maximum sockets that can be opened
+simultaneously?
+I'd like it to reach 1024, is it possible?
+
+    I'm currently doing a stress test on postgres. we created a dummy
+client that would
+connect to it 1024 times. But is just stops at 324,
+postgres reports : " postmaster: StreamConnection: accept: Too many open
+files in system".
+
+    I don't think the problem is not with the file descriptors. Is it
+the max num of sockets?
+or maybe the maximum number of files that can be opened?
+
+    Any help would be greatly appreciated.
+
+    I'm using slackware 7.1 - linux 2.4.5
+
+thanx,
+marvin
+
+
+

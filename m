@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290296AbSAPAL5>; Tue, 15 Jan 2002 19:11:57 -0500
+	id <S290292AbSAPAP5>; Tue, 15 Jan 2002 19:15:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290292AbSAPALr>; Tue, 15 Jan 2002 19:11:47 -0500
-Received: from tangens.hometree.net ([212.34.181.34]:23486 "EHLO
+	id <S290298AbSAPAPr>; Tue, 15 Jan 2002 19:15:47 -0500
+Received: from tangens.hometree.net ([212.34.181.34]:32190 "EHLO
 	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S290298AbSAPALg>; Tue, 15 Jan 2002 19:11:36 -0500
+	id <S290292AbSAPAPk>; Tue, 15 Jan 2002 19:15:40 -0500
 To: linux-kernel@vger.kernel.org
 Path: forge.intermeta.de!not-for-mail
 From: "Henning P. Schmiedehausen" <hps@intermeta.de>
 Newsgroups: hometree.linux.kernel
-Subject: Removing the whitespaces??? [Was: Re: Why not "attach" patches?]
-Date: Wed, 16 Jan 2002 00:11:35 +0000 (UTC)
+Subject: Re: CML2-2.1.3 is available
+Date: Wed, 16 Jan 2002 00:15:39 +0000 (UTC)
 Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <a22gfn$c15$1@forge.intermeta.de>
-In-Reply-To: <Pine.LNX.4.33.0201151448050.5892-100000@xanadu.home> <Pine.LNX.4.33.0201151405250.9053-100000@segfault.osdlab.org> <20020115151629.N11251@lynx.adilger.int>
+Message-ID: <a22gnb$c2s$1@forge.intermeta.de>
+In-Reply-To: <20020115145324.A5772@thyrsus.com> <Pine.LNX.4.33.0201151514090.5892-100000@xanadu.home> <20020115151804.A6308@thyrsus.com>
 Reply-To: hps@intermeta.de
 NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1011139895 29424 212.34.181.4 (16 Jan 2002 00:11:35 GMT)
+X-Trace: tangens.hometree.net 1011140139 29678 212.34.181.4 (16 Jan 2002 00:15:39 GMT)
 X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Wed, 16 Jan 2002 00:11:35 +0000 (UTC)
+NNTP-Posting-Date: Wed, 16 Jan 2002 00:15:39 +0000 (UTC)
 X-Copyright: (C) 1996-2002 Henning Schmiedehausen
 X-No-Archive: yes
 X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger <adilger@turbolabs.com> writes:
+"Eric S. Raymond" <esr@thyrsus.com> writes:
 
->Well, it would be a feature if it knew enough to only remove whitespace
->at the end of "+" lines in context diffs.  Then we wouldn't have 200kB
->of useless whitespace in the kernel sources.
+>Rob Landley pointed out correctly that the vitality flag was not
+>actually solving this problem, and it was an ugly wart on the
+>language.  Instead, there's a symbol property "BOOTABLE" in the new
+>rulebase that is attached to IDE and SCSI hardware symbols that are
+>controllers for what could be boot devices.
 
-apply patches. Run this. Rinse. Repeat. :-)
+Wasn't this SunOS (Larry?):  "Can't boot a typewriter."
 
---- cut ---
+Actually, some can. Or maybe their current incarnation, the serial port.
 
-mkdir /usr/src/linux.noblanks
-
-(
-  cd /usr/src/linux
-  find . -type d -exec mkdir -p /usr/src/linux.noblanks/{} \;
-  for i in `find . -type f`; do
-    perl -ne 's/[        ]+$//; print;' < ${i} > /usr/src/linux.noblanks/${i}
-  done
-)
-
-diff -ur /usr/src/linux /usr/src/linux.noblanks | mail -s "blanks removed" torvalds@transmeta.com 
-
-rm -rf /usr/src/linux.noblanks
---- cut ---
-
-(This is a TAB and a space in the square brackets above. 
-Don't use \s. Trust me.)
-
-linux-2.2.20.tar.bz2:		15,751,285 bytes
-linux-2.2.20-nbl.tar.bz2:       15,608,085 bytes
-
-Patch Size (uncompressed):	17,815,166 bytes (yes this _is_ 17,4 MBytes)
-           (compressed, bzip2):  3,322,456 bytes 
-
-One mega-patch to shear off about 140 KBytes from the compressed (and
-about 170 k from the unpacked (94488 vs. 94316 KBytes ) kernel source
-would (while it may be the biggest single "reduce-size-of-kernel-tree
-patch" in years :-) ) a little gross.
+Will you make every thinkable device "BOOTABLE"? USB?
 
 	Regards
 		Henning

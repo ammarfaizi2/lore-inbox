@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316610AbSGGWu6>; Sun, 7 Jul 2002 18:50:58 -0400
+	id <S316615AbSGGXB6>; Sun, 7 Jul 2002 19:01:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316614AbSGGWu5>; Sun, 7 Jul 2002 18:50:57 -0400
-Received: from smtp.comcast.net ([24.153.64.2]:46445 "EHLO smtp.comcast.net")
-	by vger.kernel.org with ESMTP id <S316610AbSGGWuz>;
-	Sun, 7 Jul 2002 18:50:55 -0400
-Date: Sun, 07 Jul 2002 18:55:02 -0400
-From: Justin Hibbits <jrh29@po.cwru.edu>
-Subject: Re: Patch for Menuconfig script (CC all replies to me personally)
-To: rhw@infodead.org
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3D28C6C6.9070208@po.cwru.edu>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a) Gecko/20020610
+	id <S316621AbSGGXB5>; Sun, 7 Jul 2002 19:01:57 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54032 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316615AbSGGXB4>;
+	Sun, 7 Jul 2002 19:01:56 -0400
+Message-ID: <3D28CA7D.9930E9F7@zip.com.au>
+Date: Sun, 07 Jul 2002 16:10:53 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: [patch] fix O_DIRECT oops
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's for any 'sh' compliant shell.  I'll look into checking for all sh-compatible shells,
-until then, I hope you like it :) (took a ton of time to do this...).  Also, I only tested
-it with 2.4.18 (but it can very easily be adapted for the 2.5.xx kernels, and should work
-with any other 2.4.xx kernel without any modification, but I guarentee nothing :P )
 
-Oh, I hope this doesn't start another thread (I'm using mozilla to send, and mutt to receive,
-so there may be problems).
+inode->i_sb->s_bdev is NULL when the inode refers to a blockdev.
+Use the get_block() result instead.
 
 
-Thanks for you reply, and I thank you and all other kernel hackers for a job well done
-(I look forward for 2.6 :) )
+ buffer.c |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
 
-Justin Hibbits
+--- 2.5.25/fs/buffer.c~direct_io-fix	Sun Jul  7 04:00:23 2002
++++ 2.5.25-akpm/fs/buffer.c	Sun Jul  7 04:01:38 2002
+@@ -2302,8 +2302,9 @@ int generic_direct_IO(int rw, struct ino
+ 			struct kiobuf *iobuf, unsigned long blocknr,
+ 			int blocksize, get_block_t *get_block)
+ {
+-	int i, nr_blocks, retval;
++	int i, nr_blocks, retval = 0;
+ 	sector_t *blocks = iobuf->blocks;
++	struct block_device *bdev = NULL;
+ 
+ 	nr_blocks = iobuf->length / blocksize;
+ 	/* build the blocklist */
+@@ -2333,11 +2334,12 @@ int generic_direct_IO(int rw, struct ino
+ 				BUG();
+ 		}
+ 		blocks[i] = bh.b_blocknr;
++		bdev = bh.b_bdev;
+ 	}
+ 
+ 	/* This does not understand multi-device filesystems currently */
+-	retval = brw_kiovec(rw, 1, &iobuf,
+-			inode->i_sb->s_bdev, blocks, blocksize);
++	if (bdev)
++		retval = brw_kiovec(rw, 1, &iobuf, bdev, blocks, blocksize);
+ 
+  out:
+ 	return retval;
 
---You wrote--
-Hi Justin.
-
-> This is just a patch to the Menuconfig script (can be easily adapted
-> to the other ones) that allows you to configure the kernel without
-> the requirement of bash (I tested it with ksh, in POSIX-only mode).  
-> Feel free to flame me :P
-
-Does it also work in the case where the current shell is csh or tcsh
-(for example)? If not, you will need to replace the test for bash with a
-test for bash or ksh or ... instead, as otherwise it will still fail.
-Certainly on the systems I've used where bash isn't available, tcsh has
-been far commoner than ksh.
-
-Best wishes from Riley.
-
-
-
-
+-

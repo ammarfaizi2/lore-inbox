@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289273AbSANXNO>; Mon, 14 Jan 2002 18:13:14 -0500
+	id <S289160AbSANXNO>; Mon, 14 Jan 2002 18:13:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289272AbSANXNF>; Mon, 14 Jan 2002 18:13:05 -0500
-Received: from sydney1.au.ibm.com ([202.135.142.193]:31757 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S289277AbSANXMt>; Mon, 14 Jan 2002 18:12:49 -0500
-Date: Tue, 15 Jan 2002 10:12:56 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: esr@thyrsus.com, alan@lxorguk.ukuu.org.uk, babydr@baby-dragons.com,
-        cate@debian.org, linux-kernel@vger.kernel.org
-Subject: Re: Hardwired drivers are going away?
-Message-Id: <20020115101256.33f1bafa.rusty@rustcorp.com.au>
-In-Reply-To: <Pine.GSO.4.21.0201141337580.224-100000@weyl.math.psu.edu>
-In-Reply-To: <20020114131050.E14747@thyrsus.com>
-	<Pine.GSO.4.21.0201141337580.224-100000@weyl.math.psu.edu>
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S289273AbSANXNF>; Mon, 14 Jan 2002 18:13:05 -0500
+Received: from khms.westfalen.de ([62.153.201.243]:47272 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S289160AbSANXMr>; Mon, 14 Jan 2002 18:12:47 -0500
+Date: 14 Jan 2002 20:31:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8GpxaCDXw-B@khms.westfalen.de>
+In-Reply-To: <m1elkuq87v.fsf@frodo.biederman.org>
+Subject: Re: initramfs buffer spec -- second draft
+X-Mailer: CrossPoint v3.12d.kh8 R/C435
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <3C41EA0D.2050205@zytor.com> <a1oqmm$is3$1@cesium.transmeta.com> <m1ofjyqb7t.fsf@frodo.biederman.org> <3C41EA0D.2050205@zytor.com> <m1elkuq87v.fsf@frodo.biederman.org>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jan 2002 14:09:16 -0500 (EST)
-Alexander Viro <viro@math.psu.edu> wrote:
-> Two technical obstacles:
-> 	a) on some architecures modular code is slower (IIRC, the problem is
-> with medium-range calls being faster than far ones and usable only in the
-> kernel proper).  We probaly want to leave a gap after the .text and remap
-> .text of module in there - if I understand the problem that should be
-> enough, but that's really a question to folks dealing with these ports (PPC64
-> and Itanic?)
+ebiederm@xmission.com (Eric W. Biederman)  wrote on 13.01.02 in <m1elkuq87v.fsf@frodo.biederman.org>:
 
-Sparc64 has a special allocator.  PPC32 is not so lucky, and if the module
-doesn't end up under 32MB we use trampolines (PLT in the ppc parlance).
-PPC64 has similar issues.
+> I admit I did a quick search earlier and I did not find this format
+> specified, elsewhere.
 
-> 	b) current differences between options parsing in case of built-in
-> and modular drivers.
+The latest existing formal spec is probably POSIX 2001 (look under "pax").  
+An older POSIX version would have it under "cpio". You'll probably also  
+find it there in Unix98 a.k.a. SuSv2. (POSIX 2001 (the Austin revision)  
+supersedes all of those.)
 
-I have a patch for this, of course, but it's tied to my replacement module
-loader:
+It's a bit long to post here - probably exceeds fair use.
 
-	http://www.kernel.org/pub/linux/kernel/people/rusty/patches/Module/param.patch.bz2
-
-Cheers!
-Rusty.
--- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+MfG Kai

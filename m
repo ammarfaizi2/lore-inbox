@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbVBQXag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVBQXeU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbVBQXag (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 18:30:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVBQX2v
+	id S261246AbVBQXeU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 18:34:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVBQXcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 18:28:51 -0500
-Received: from gprs214-47.eurotel.cz ([160.218.214.47]:56216 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261242AbVBQX2I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 18:28:08 -0500
-Date: Fri, 18 Feb 2005 00:27:19 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: vojtech@suse.cz, acpi-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, seife@suse.de, rjw@sisk.pl
-Subject: Re: [ACPI] Call for help: list of machines with working S3 (fwd)
-Message-ID: <20050217232719.GB12638@elf.ucw.cz>
+	Thu, 17 Feb 2005 18:32:43 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:32903
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261242AbVBQXaz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 18:30:55 -0500
+Date: Thu, 17 Feb 2005 15:30:31 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Andi Kleen <ak@suse.de>
+Cc: benh@kernel.crashing.org, ak@suse.de, nickpiggin@yahoo.com.au,
+       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] page table iterators
+Message-Id: <20050217153031.011f873f.davem@davemloft.net>
+In-Reply-To: <20050217230342.GA3115@wotan.suse.de>
+References: <4214A1EC.4070102@yahoo.com.au>
+	<4214A437.8050900@yahoo.com.au>
+	<20050217194336.GA8314@wotan.suse.de>
+	<1108680578.5665.14.camel@gaston>
+	<20050217230342.GA3115@wotan.suse.de>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 18 Feb 2005 00:03:42 +0100
+Andi Kleen <ak@suse.de> wrote:
 
-Sorry, I was too fast with my  mail client. Please cc: Len in your
-replies.
+> And to be honest we only have about 6 or 7 of these walkers
+> in the whole kernel. And 90% of them are in memory.c
+> While doing 4level I think I changed all of them around several
+> times and it wasn't that big an issue.  So it's not that we
+> have a big pressing problem here... 
 
+It's super error prone.  A regression added by your edit of these
+walkers for the 4level changes was only discovered and fixed
+yesterday by the ppc folks.
 
-To: Len Brown <len.brown@intel.com>
-Subject: Re: [ACPI] Call for help: list of machines with working S3
-X-Warning: Reading this can be dangerous to your mental health.
-
-Hi!
-
-> > I'm not sure if you can push the whole industry at once.
-> 
-> The goal is to know what to tell the system vendors
-> interested in supporting Linux what they should do
-> with their BIOS on future platforms.
-> 
-> I believe our message should be:
-> 1. BIOS should save/restore video in S3
-
-Actually, that'd expect too much of BIOS writers. I believe right
-solution is "POST video as you do during normal boot in S3 resume".
-
-> 2. Use Intel's ACPICA ASL compiler -- if not for production,
-> then at least as a static source code checker for validation.
-
-3. Try to boot linux (here's live cd). If it complains about bios bugs
-(dmesg | grep ...), try to see if it is not indeed your bug.
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
-
------ End forwarded message -----
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+I absolutely support any change which consolidates these things.

@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262810AbTHUQVm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 12:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262784AbTHUQVm
+	id S262785AbTHUQOm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 12:14:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262799AbTHUQOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 12:21:42 -0400
-Received: from main.gmane.org ([80.91.224.249]:19687 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262810AbTHUQVl (ORCPT
+	Thu, 21 Aug 2003 12:14:41 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:42655 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262785AbTHUQOh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 12:21:41 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jens Gecius <jens@gecius.de>
-Subject: Re: 2.6.0-test3 smp irq balance
-Date: Thu, 21 Aug 2003 18:21:39 +0200
-Message-ID: <87vfsrq8vg.fsf@maniac.gecius.de>
-References: <878yporqgy.fsf@maniac.gecius.de> <1061468471.27494.1.camel@laptop.fenrus.com>
+	Thu, 21 Aug 2003 12:14:37 -0400
+Date: Thu, 21 Aug 2003 12:14:36 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: torvalds@osdl.org
+Cc: len.brown@intel.com, andrew.grover@intel.com, zwane@linuxpower.ca,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] 'noapic' already handled elsewhere
+Message-ID: <20030821161436.GA15610@gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) XEmacs/21.4 (Rational FORTRAN,
- i386-debian-linux)
-Cancel-Lock: sha1:AyMh4z0Ag+X8Ds3bmUbhfIWoAls=
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjanv@redhat.com> writes:
+I sent a previous patch to s/LOCAL_APIC/IO_APIC/, as Zwane noticed
+my first patch needed that.  In that patch, I commented __setup()
+would be better.
 
->> irqs seem not to be distributed between cpus, having one to handle all
->> (even while building kernel on both cpus (according to gkrell), the
->> numbers for the second cpu don't change.
->
-> just install and run the irqbalance daemon from:
-> http://people.redhat.com/arjanv/irqbalance
+Well... line 718 of arch/i386/kernel/io_apic.c _already_ handles this
+case, using __setup() properly.
 
-I did. Didn't change anything. The numbers are the same - the only
-CPU2 irq increasing is LOC. Any other hints?
+Word of warning... patch only compile tested, but seems obvious from
+looking at io_apic.c.
 
--- 
-Tschoe,                http://gecius.de/gpg-key.txt - Fingerprint:
- Jens                  1AAB 67A2 1068 77CA 6B0A  41A4 18D4 A89B 28D0 F097
+BTW, why isn't ACPI using __setup() as well?  I don't see that ACPI
+needs to patch arch/i386/kernel/setup.c at all.
 
+
+===== arch/i386/kernel/setup.c 1.94 vs edited =====
+--- 1.94/arch/i386/kernel/setup.c	Thu Aug 21 01:32:04 2003
++++ edited/arch/i386/kernel/setup.c	Thu Aug 21 12:09:13 2003
+@@ -544,12 +544,6 @@
+ 			if (!acpi_force) acpi_disabled = 1;
+ 		}
+ 
+-#ifdef CONFIG_X86_LOCAL_APIC
+-		/* disable IO-APIC */
+-		else if (!memcmp(from, "noapic", 6)) {
+-			skip_ioapic_setup = 1;
+-		}
+-#endif /* CONFIG_X86_LOCAL_APIC */
+ #endif /* CONFIG_ACPI_BOOT */
+ 
+ 		/*

@@ -1,68 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLGJy1>; Thu, 7 Dec 2000 04:54:27 -0500
+	id <S129183AbQLGLHp>; Thu, 7 Dec 2000 06:07:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129406AbQLGJyR>; Thu, 7 Dec 2000 04:54:17 -0500
-Received: from smtp1.ihug.co.nz ([203.109.252.7]:19461 "EHLO smtp1.ihug.co.nz")
-	by vger.kernel.org with ESMTP id <S129183AbQLGJyL>;
-	Thu, 7 Dec 2000 04:54:11 -0500
-Message-ID: <3A2F5706.5CCF5771@ihug.co.nz>
-Date: Thu, 07 Dec 2000 22:23:18 +1300
-From: Gerard Sharp <gsharp@ihug.co.nz>
-Reply-To: gsharp@ihug.co.nz
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test11-ac4-smp i686)
-X-Accept-Language: en
+	id <S129392AbQLGLHf>; Thu, 7 Dec 2000 06:07:35 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:17079 "EHLO penguin.homenet")
+	by vger.kernel.org with ESMTP id <S129183AbQLGLH2>;
+	Thu, 7 Dec 2000 06:07:28 -0500
+Date: Thu, 7 Dec 2000 10:18:05 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: [patch] Re: [patch-2.4.0-test12-pre6] truncate(2) permissions
+In-Reply-To: <Pine.GSO.4.21.0012061728530.17341-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0012071007420.970-100000@penguin.homenet>
 MIME-Version: 1.0
-To: "kernel@netravi.net" <kernel@netravi.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: HPT366 + SMP = slight corruption in 2.3.99 - 2.4.0-11
-In-Reply-To: <Pine.LNX.4.10.10012060315450.31693-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"kernel@netravi.net" wrote:
-> On 2.2.17 I had good luck with BP6.
+On Wed, 6 Dec 2000, Alexander Viro wrote:
+> On Wed, 6 Dec 2000, Linus Torvalds wrote:
+> > Why remove the EROFS test?
+>
+> there, so if it's not a regular file we die before the call of permission(),
+> if it is and fs is readonly - we get -EROFS from permission() and die
+> there. In either case we don't get to the IS_RDONLY() check...
 
-Never tried the 2.2 series with this controller - probably should get
-around to doing that this weekend. :S
+just to add that I removed the immutable test for almost the same reason:
 
-> EX:
-> [root@animal /root]# uptime
->   3:17am  up 51 days, 20:17,  2 users,  load average: 0.00, 0.04, 0.02
+a) we don't hit that test because permission takes care of it (for
+regulars/dirs/symlinks but here only regulars are important)
 
-Uptime proves nothing alas; I could get 30+ days if I wanted :S
+b) the error returned by permission EACCES makes a lot more sense than
+EPERM we were trying to return. I already quotes Single UNIX v2 to explain
+why.
 
-> Can you post/e-mail any additional details about the lockups. I am very
-> curious about this. We have a huge mosix cluster in production with BP6
-> mobo's and have plans to upgrade to 2.4 as soon as an official stable
-> kernel is released.
+Now, here is the same patch, except:
 
-The problem is not one of lockups. The system in question doesn't lock;
-it doesn't crash; it doesn't even log anything at the time - not even
-APIC errors.
-Instead it quietly and silently corrupts exactly four bytes at a time;
-mostly on the last four bytes of a 4096 block...
+a) tested under test12-pre7
 
-I can most easily cause the corruption by copying a large amount of
-known data across the disk, and then checking for differences:
-cp -aR /usr/src/linux /usr/src/l2 ; diff -dur /usr/src/linux /usr/src/l2
+b) I suggest we explain why we return EPERM for append-only files despite
+the fact that SuS and common sense suggest EACCES.
 
-When it does corrupt in this manner, it is not so much of a concern - I
-can detect, delete, and recopy the corrupted file(s).
-What is more worrying is, what if it is quietly silently and happily
-corrupting other data - when I'm NOT staring at it with a paranoid
-concern; for example, compiling binaries; or altering large data
-files...
+Facts verified under FreeBSD 4.2
 
-As such, I cannot at this time reduce the problem to one of Software or
-Hardware Error; and while it is A Major Problem in my eyes; I avoid it
-currently by not using the hpt366 controller :)
+The rationale for being compatible with 4.4BSD on append-only but not on
+immutable is -- for immutable we can do the test by means of permission()
+fast but for append-only we would need an extra if() above permission so
+let's just be BSD-compatible.  Alternatively, one could ignore BSD
+altogether and return EACCES in both. Or, one could ignore SuS altogether
+and return EPERM for both immutable and append-only. It is a matter of
+taste so... I chose something in the middle , perhaps non-intuitive but
+optimized for speed and the size of code.
 
+Regards,
+Tigran
 
-Gerard Sharp
-Two Penguins at 1024x768
+--- linux/fs/open.c	Thu Oct 26 16:11:21 2000
++++ work/fs/open.c	Thu Dec  7 09:06:50 2000
+@@ -102,7 +102,12 @@
+ 		goto out;
+ 	inode = nd.dentry->d_inode;
+ 
+-	error = -EACCES;
++	/* For directories it's -EISDIR, for other non-regulars - -EINVAL */
++	error = -EISDIR;
++	if (S_ISDIR(inode->i_mode))
++		goto dput_and_out;
++
++	error = -EINVAL;
+ 	if (!S_ISREG(inode->i_mode))
+ 		goto dput_and_out;
+ 
+@@ -110,12 +115,9 @@
+ 	if (error)
+ 		goto dput_and_out;
+ 
+-	error = -EROFS;
+-	if (IS_RDONLY(inode))
+-		goto dput_and_out;
+-
++	/* EPERM for 4.4BSD compat. EACCES would make more sense */
+ 	error = -EPERM;
+-	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
++	if (IS_APPEND(inode))
+ 		goto dput_and_out;
+ 
+ 	/*
+@@ -163,7 +165,7 @@
+ 		goto out;
+ 	dentry = file->f_dentry;
+ 	inode = dentry->d_inode;
+-	error = -EACCES;
++	error = -EINVAL;
+ 	if (!S_ISREG(inode->i_mode) || !(file->f_mode & FMODE_WRITE))
+ 		goto out_putf;
+ 	error = -EPERM;
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

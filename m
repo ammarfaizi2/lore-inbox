@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316420AbSEWON7>; Thu, 23 May 2002 10:13:59 -0400
+	id <S316717AbSEWOPg>; Thu, 23 May 2002 10:15:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316717AbSEWON6>; Thu, 23 May 2002 10:13:58 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:61191 "EHLO
+	id <S316726AbSEWOPf>; Thu, 23 May 2002 10:15:35 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:61959 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316420AbSEWON5>; Thu, 23 May 2002 10:13:57 -0400
-Date: Thu, 23 May 2002 10:10:10 -0400 (EDT)
+	id <S316717AbSEWOPe>; Thu, 23 May 2002 10:15:34 -0400
+Date: Thu, 23 May 2002 10:11:56 -0400 (EDT)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Dave McCracken <dmccr@us.ibm.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] POSIX personality
-In-Reply-To: <Pine.LNX.4.33.0205211349100.3073-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.3.96.1020523094611.11249A-100000@gatekeeper.tmr.com>
+To: "Mohammad A. Haque" <mhaque@haque.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ip alias and default outgoing interface
+In-Reply-To: <Pine.LNX.4.44.0205220003060.3979-100000@viper.haque.net>
+Message-ID: <Pine.LNX.3.96.1020523101028.11249B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 May 2002, Linus Torvalds wrote:
+On Wed, 22 May 2002, Mohammad A. Haque wrote:
 
-> I don't see any reason to start using some fixed-mode semantics without 
-> seeing some stronger arguments on exactly why that would be a good idea. 
-> We have used up 11 of 24 bits (and more can be made available) over the 
-> last five years, and there are no obvious inefficiencies that I can see.
+> I've got a setup where I have one ethernet card and multiple ips 
+> assigned using ip alias.
+> 
+> i've noticed that sometimes out going traffic goes out using the ip of 
+> the last interface I brought up.
+> 
+> Is this supposed to happen? How do I make it so that the default gw 
+> interface is used?
 
-I think the reason which comes to mind is avoiding future problems. By
-having a single POSIX mode flag not only does the program not have to know
-about setting the "right" other bits today, but if we find that POSIX
-behaviour is needed in some other area in the future, the program doesn't
-need to be modified and recompiled, because the POSIX behaviour "is in
-there" for all things.
-
-Ideally a program could execute some make-Linux-run-POSIX in init, and
-have the expected behaviour everywhere without all manner of ifdefs.
-
-I think that's a stronger argument, avoiding future problems is nice, like
-wearing Kevlar sox if you shoot yourself in the foot a lot.
+Time to tell us which kernel you run. I haven't seen this with 2.4.recent,
+but most of the connections are either incoming or explicitly SNET'd.
 
 -- 
 bill davidsen <davidsen@tmr.com>

@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265901AbTAJSaY>; Fri, 10 Jan 2003 13:30:24 -0500
+	id <S265754AbTAJS2Y>; Fri, 10 Jan 2003 13:28:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265628AbTAJS0Q>; Fri, 10 Jan 2003 13:26:16 -0500
-Received: from [193.158.237.250] ([193.158.237.250]:17800 "EHLO
-	mail.intergenia.de") by vger.kernel.org with ESMTP
-	id <S265754AbTAJS0B>; Fri, 10 Jan 2003 13:26:01 -0500
-Date: Fri, 10 Jan 2003 19:34:43 +0100
-Message-Id: <200301101834.h0AIYgU04073@mail.intergenia.de>
-To: Miles Bader <miles@gnu.org>
-From: miles@lsi.nec.co.jp (Miles Bader)
-Subject: [PATCH]  Add __gpl_ksymtab section to v850 linker script [rescued]
-CC: linux-kernel@vger.kernel.org
+	id <S265819AbTAJS0d>; Fri, 10 Jan 2003 13:26:33 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:59265 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S265713AbTAJSZl>; Fri, 10 Jan 2003 13:25:41 -0500
+Date: Fri, 10 Jan 2003 13:36:46 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Hell.Surfers@cwctv.net
+cc: vlad@geekizoid.com, jalvo@mbay.net, linux-kernel@vger.kernel.org,
+       rms@gnu.org
+Subject: RE: What's in a name?
+In-Reply-To: <0b9ad5923170a13DTVMAIL1@smtp.cwctv.net>
+Message-ID: <Pine.LNX.3.95.1030110132230.27408A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- linux-2.5.55-moo.orig/arch/v850/vmlinux.lds.S	2002-12-24 15:01:07.000000000 +0900
-+++ linux-2.5.55-moo/arch/v850/vmlinux.lds.S	2003-01-09 15:27:41.000000000 +0900
-@@ -1,8 +1,8 @@
- /*
-  * arch/v850/vmlinux.lds.S -- kernel linker script for v850 platforms
-  *
-- *  Copyright (C) 2002  NEC Electronics Corporation
-- *  Copyright (C) 2002  Miles Bader <miles@gnu.org>
-+ *  Copyright (C) 2002,03  NEC Electronics Corporation
-+ *  Copyright (C) 2002,03  Miles Bader <miles@gnu.org>
-  *
-  * This file is subject to the terms and conditions of the GNU General
-  * Public License.  See the file COPYING in the main directory of this
-@@ -51,6 +51,9 @@
- 		___start___ksymtab = . ;/* Kernel symbol table.  */	      \
- 			*(__ksymtab)					      \
- 		___stop___ksymtab = . ;					      \
-+		___start___gpl_ksymtab = . ; /* Same for GPL symbols.  */     \
-+			*(__gpl_ksymtab)				      \
-+		___stop___gpl_ksymtab = . ;				      \
- 		. = ALIGN (4) ;						      \
- 		__etext = . ;
- 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+On Fri, 10 Jan 2003 Hell.Surfers@cwctv.net wrote:
+
+> what early distribution? grep gpl and lgpl...
+> 
+> -- DM.
+> 
+
+Yggdrasl (or however you spell it). Most binary files have
+the date of Feb 26, 1996. Many text files have the date of
+July 11, 1995. I have sources, many with the dates of
+Aug 31, 1992:
+
+-rw-r--r--   1 root     bin          4502 Aug 31  1992 CHANGES
+-rw-r--r--   1 root     bin          1658 Aug 31  1992 README
+-rw-r--r--   1 root     bin          2029 Aug 31  1992 brac.c
+-rw-r--r--   1 root     bin         11258 Aug 31  1992 ch.c
+-rw-r--r--   1 root     bin          3534 Aug 31  1992 charset.c
+[SNIPPED...]
+
+In those days very few persons even heard of GPL.
+
+These are the only gpl or GPL strings found in any binaries.
+
+sub showGPL {
+last if (/^{END OF GPL COPYRIGHT}$/) ;
+last if (/^{END OF GPL CONDITIONS}$/) ;
+    &showGPL unless $QUIET ;
+{END OF GPL COPYRIGHT}
+{END OF GPL CONDITIONS}
+   To appear in SIGPLAN Conference on Programming Language Design 
+  label .about.gpl3 -text "Pulic License (GPL)"
+
+
+Note that "Public" is even spelled incorrectly!
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+
 

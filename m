@@ -1,62 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129034AbQKFIAg>; Mon, 6 Nov 2000 03:00:36 -0500
+	id <S129036AbQKFIC4>; Mon, 6 Nov 2000 03:02:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129036AbQKFIA0>; Mon, 6 Nov 2000 03:00:26 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:36102 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S129034AbQKFIAS>; Mon, 6 Nov 2000 03:00:18 -0500
-Date: Mon, 6 Nov 2000 08:00:05 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Oliver Xymoron <oxymoron@waste.org>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-In-Reply-To: <3A0661A1.668BD8CB@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.21.0011060752250.15143-100000@imladris.demon.co.uk>
+	id <S130249AbQKFICp>; Mon, 6 Nov 2000 03:02:45 -0500
+Received: from waste.org ([209.173.204.2]:33586 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S129036AbQKFICf>;
+	Mon, 6 Nov 2000 03:02:35 -0500
+Date: Mon, 6 Nov 2000 02:02:31 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: "David S. Miller" <davem@redhat.com>
+cc: barryn@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] document ECN in 2.4 Configure.help
+In-Reply-To: <200011060730.XAA31897@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.10.10011060148300.8248-100000@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Nov 2000, Jeff Garzik wrote:
+On Sun, 5 Nov 2000, David S. Miller wrote:
 
-> David Woodhouse wrote:
-> > The desired mixer levels should be available to the module at the time of
-> > initialisation.
+>    Date: 	Mon, 6 Nov 2000 01:34:14 -0600 (CST)
+>    From: Oliver Xymoron <oxymoron@waste.org>
 > 
-> For drivers built into the kernel that gets messy.  The command line is
-> only so long.  Sounds messy for modules too.  Further (responding to
-> your other e-mail), few probably care about having the mixer containing
-> default, not custom, values for 10 seconds between driver init and aumix
-> execution from initscripts...
+>    I'm still not sure why it's been decided not to do fallback or how
+>    this whole situation is any different from path MTU discovery.
+> 
+> We don't use fallbacks for path MTU discovery (I assume you are
+> referring to black hole detection, we don't do it, never have never
+> will), you have to explicitly turn path-mtu discovery off.  It's been
+> on by default for 3 or 4 years now :-)
 
-I don't mean this to happen on boot. As you say, that gets messy. The
-first time a module is loaded after booting, the levels can be all zeroed. 
+Hmmm, for some reason I thought we had it, but it's been a non-issue for a
+long time. The ECN thing hasn't bitten me yet either, happily.
 
-I'm more interested in the case where the module is loaded for the second
-time:
+So the question then becomes what is the process whereby we decide that
+Linux will follow standards that are known to silently break things in a
+large part of the real world. We explicitly don't do this with a user's
+hardware, and I think we have other work-arounds for network
+interoperability. How big and how badly does something have to break
+before it becomes something we work around?
 
-User loads a mixer to set the 'line' level to something sensible so he can
-listen to the radio, which is routed through the sound card to his amp.
-
-User closes mixer program. Module is unloaded. Levels remain the same -
-all is well.
-
-Some time later, something tries to 'beep' via /dev/audio. Module is
-reloaded, the feed the user was listening to is interrupted.
-
-Actually, the way it happened to me was that it was five in the morning, I
-was in halls of residence, and suddenly I was playing the radio at full
-volume :)
-
-After fixing the sb16 driver to use the existing persistent storage, and
-watching that facility disappear from the module support shortly
-thereafter, I just decided not to autoload the sound modules.
-
--- 
-dwmw2
-
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

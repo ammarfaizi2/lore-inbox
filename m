@@ -1,63 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263877AbUDFPuf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 11:50:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263871AbUDFPt7
+	id S263881AbUDFPxW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 11:53:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263882AbUDFPxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 11:49:59 -0400
-Received: from bay2-f23.bay2.hotmail.com ([65.54.247.23]:265 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S263877AbUDFPtj (ORCPT
+	Tue, 6 Apr 2004 11:53:22 -0400
+Received: from pop.gmx.de ([213.165.64.20]:15836 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263881AbUDFPxL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 11:49:39 -0400
-X-Originating-IP: [209.172.74.2]
-X-Originating-Email: [idht4n@hotmail.com]
-From: "David L" <idht4n@hotmail.com>
-To: dwmw2@infradead.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mtd - No flash chips recognised.
-Date: Tue, 06 Apr 2004 08:49:35 -0700
+	Tue, 6 Apr 2004 11:53:11 -0400
+X-Authenticated: #271361
+Date: Tue, 6 Apr 2004 17:53:01 +0200
+From: Edgar Toernig <froese@gmx.de>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: "Kevin B. Hendricks" <kevin.hendricks@sympatico.ca>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Catching SIGSEGV with signal() in 2.6
+Message-Id: <20040406175301.1d46c0cd.froese@gmx.de>
+In-Reply-To: <40722D42.90406@redhat.com>
+References: <200404052040.54301.kevin.hendricks@sympatico.ca>
+	<4072101F.3010603@redhat.com>
+	<200404052301.28021.kevin.hendricks@sympatico.ca>
+	<40722D42.90406@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY2-F23KWQTHL2bti200002529@hotmail.com>
-X-OriginalArrivalTime: 06 Apr 2004 15:49:36.0195 (UTC) FILETIME=[C30F6930:01C41BEE]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Fri, 2004-04-02 at 08:39 -0800, David L wrote:
-> > I'm trying to use 2.6.4 with a Mobile DiskOnChip.  I get the message
-> > "No flash chips recognised".  It looks like the DoC_IdentChip function
-> > in doc2001.c is finding a nand_flash_id of 0xa5, which isn't one of the
-> > ids listed in nand_ids.c.
+Ulrich Drepper wrote:
 >
->Er, then it should surely be saying 'No recognised DiskOnChip found' or
->something to that effect?
+> Kevin B. Hendricks wrote:
+> 
+> > So the code has been wrong since the beginning and we were just "lucky" it 
+> > worked in all pre-2.6 kernels?
+> 
+> The old code depended on undefined behavior.
 
-Here's what it says:
+Maybe it's simply *old* code, possibly written under libc5.
+There, signal() used SA_RESETHAND which implies SA_NODEFER
+which in turn did not block the signal and exiting from the
+signal handler via longjmp was OK.
 
-INFTL: inftlcore.c $Revision: 1.14 $, inftlmount.c $Revision: 1.11 $
-DiskOnChip Millennium Plus found at address 0xC8000
-No flash chips recognised.
-Possible DiskOnChip with unknown ChipID FF found at 0xca000
-Possible DiskOnChip with unknown ChipID 33 found at 0xcc000
-Possible DiskOnChip with unknown ChipID 76 found at 0xce000
-Possible DiskOnChip with unknown ChipID 00 found at 0xd0000
-Possible DiskOnChip with unknown ChipID 00 found at 0xd2000
-Possible DiskOnChip with unknown ChipID FF found at 0xd4000
-Possible DiskOnChip with unknown ChipID FF found at 0xd6000
-Possible DiskOnChip with unknown ChipID FF found at 0xd8000
-Possible DiskOnChip with unknown ChipID FF found at 0xda000
-Possible DiskOnChip with unknown ChipID 00 found at 0xdc000
-Possible DiskOnChip with unknown ChipID 00 found at 0xde000
-Possible DiskOnChip with unknown ChipID FF found at 0xe0000
-Possible DiskOnChip with unknown ChipID FF found at 0xe2000
-Possible DiskOnChip with unknown ChipID FF found at 0xe4000
-DiskOnChip failed TOGGLE test, dropping.
-Possible DiskOnChip with unknown ChipID 00 found at 0xe8000
-Possible DiskOnChip with unknown ChipID 0F found at 0xea000
-Possible DiskOnChip with unknown ChipID 74 found at 0xec000
-Possible DiskOnChip with unknown ChipID 00 found at 0xee000
+With the new signal() behaviour in glibc2 one may get results
+undefined by POSIX but it still worked as before because the
+sigprocmask was ignored for SIGSEGV under Linux <2.6.
 
-_________________________________________________________________
-Free up your inbox with MSN Hotmail Extra Storage! Multiple plans available. 
-http://join.msn.com/?pgmarket=en-us&page=hotmail/es2&ST=1/go/onm00200362ave/direct/01/
+It's the combination of new glibc2 and new kernel that makes
+code like the mentioned one break.
 
+It has nothing to do with POSIX - for POSIX all of this is
+"undefined/implementation defined behaviour".  I had chosen
+to stay compatible...
+
+Ciao, ET.
+
+-- 
+Not every program claims to be POSIX compliant (who reads
+3600 pages of difficult to obtain specs?) - some are simply
+Linux programs...

@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265873AbRF2MbJ>; Fri, 29 Jun 2001 08:31:09 -0400
+	id <S265874AbRF2Me7>; Fri, 29 Jun 2001 08:34:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265874AbRF2Ma7>; Fri, 29 Jun 2001 08:30:59 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:57079 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S265873AbRF2Mas>; Fri, 29 Jun 2001 08:30:48 -0400
-Date: Fri, 29 Jun 2001 14:31:15 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Keith Owens <kaos@ocs.com.au>, ankry@green.mif.pg.gda.pl,
-        elenstev@mesatop.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.6-pre6 fix drivers/net/Config.in error
-In-Reply-To: <3B3B9653.A8331780@mandrakesoft.com>
-Message-ID: <Pine.GSO.3.96.1010629143015.20975A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S265875AbRF2Met>; Fri, 29 Jun 2001 08:34:49 -0400
+Received: from hood.tvd.be ([195.162.196.21]:8839 "EHLO hood.tvd.be")
+	by vger.kernel.org with ESMTP id <S265874AbRF2Meg>;
+	Fri, 29 Jun 2001 08:34:36 -0400
+Date: Fri, 29 Jun 2001 14:31:29 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Alan Cox <laughing@shared-source.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.5-ac21
+In-Reply-To: <20010629005133.A30356@lightning.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.05.10106291430350.5146-100000@callisto.of.borg>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jun 2001, Jeff Garzik wrote:
+On Fri, 29 Jun 2001, Alan Cox wrote:
+> 	Kept old atyfb code (someone needs to sort out which atyfb is the
+> 		one being worked on and get that tree into the kernel)
 
-> It is not redundant because in theory CONFIG_EISA could exist without
-> CONFIG_ISA.
+The one in its own subdirectory (drivers/video/aty/) is the new one. I'll send
+it to Linus (one day)...
 
- Huh?  You can put an ISA card into an EISA slot.
+Gr{oetje,eeting}s,
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266735AbSLJLC5>; Tue, 10 Dec 2002 06:02:57 -0500
+	id <S266750AbSLJLZi>; Tue, 10 Dec 2002 06:25:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266750AbSLJLC4>; Tue, 10 Dec 2002 06:02:56 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:3785 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S266735AbSLJLC4>;
-	Tue, 10 Dec 2002 06:02:56 -0500
-Date: Tue, 10 Dec 2002 11:08:41 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: george anzinger <george@mvista.com>, Jim Houston <jim.houston@ccur.com>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
-       "David S. Miller" <davem@redhat.com>, ak@muc.de, davidm@hpl.hp.com,
-       schwidefsky@de.ibm.com, ralf@gnu.org, willy@debian.org
-Subject: Re: [PATCH] compatibility syscall layer (lets try again)
-Message-ID: <20021210110841.GA15418@bjl1.asuk.net>
-References: <3DEEB37A.233DD280@mvista.com> <Pine.LNX.4.44.0212041830100.3100-100000@home.transmeta.com>
-Mime-Version: 1.0
+	id <S266761AbSLJLZi>; Tue, 10 Dec 2002 06:25:38 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:59101 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S266750AbSLJLZh>; Tue, 10 Dec 2002 06:25:37 -0500
+Cc: linux-kernel@vger.kernel.org
+References: <20021210032242.GA17583@net-ronin.org>
+From: Olaf Dietsche <olaf.dietsche@t-online.de>
+To: carbonated beverage <ramune@net-ronin.org>
+Subject: Re: capable open_port() check wrong for kmem
+Date: Tue, 10 Dec 2002 12:33:04 +0100
+Message-ID: <87fzt6nm6n.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Military
+ Intelligence, i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0212041830100.3100-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> So what we do is to introduce a _new_ system call 
-> (system call number NNN), which takes a different form of timeout, namely 
-> "absolute value of end time".
+carbonated beverage <ramune@net-ronin.org> writes:
 
-An "absolute value of end time" variant of
-select/poll/epoll/io_getevents would be good anyway from userspace, to
-avoid the gettimeofday+poll race condition.
+> 	I found that I can't open /dev/kmem O_RDONLY.  The open_mem
+> and open_kmem calls (open_port()) in drivers/char/mem.c checks for
+> CAP_SYS_RAWIO.
+>
+> 	Is there a possibility of splitting that off into a read and
+> write pair, i.e. CAP_SYS_RAWIO_WRITE, CAP_SYS_RAWIO_READ?
+>
+> 	If not, is there a way to grant read-only access to /dev/kmem?
 
-So, perhaps the solution here is to simply provide absolute time
-variants of the system calls which currently take time delays, and
-have the relative-time variants rewrite themselves into absolute form?
+You may want to look at this thread:
+<http://groups.google.com/groups?threadm=87smza1p7f.fsf%40goat.bogus.local>
 
-That's architecture neutral _and_ fixes a long-standing race
-condition..
-
--- Jamie
+Regards, Olaf.

@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318982AbSIDApa>; Tue, 3 Sep 2002 20:45:30 -0400
+	id <S318973AbSIDAm5>; Tue, 3 Sep 2002 20:42:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318987AbSIDApa>; Tue, 3 Sep 2002 20:45:30 -0400
-Received: from balthasar.nuitari.net ([216.40.249.34]:37774 "HELO
-	nuitari.nuitari.net") by vger.kernel.org with SMTP
-	id <S318982AbSIDAp3>; Tue, 3 Sep 2002 20:45:29 -0400
-Date: Wed, 4 Sep 2002 03:02:25 -0400 (EDT)
-From: Nuitari <nuitari@balthasar.nuitari.net>
-To: Kenneth Corbin <kencx@peak.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Linux consistently crashes running grip. (continued)
-In-Reply-To: <200209031655.56412.kencx@peak.org>
-Message-ID: <Pine.LNX.4.44.0209040257470.28297-100000@balthasar.nuitari.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318982AbSIDAm5>; Tue, 3 Sep 2002 20:42:57 -0400
+Received: from holomorphy.com ([66.224.33.161]:26274 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S318973AbSIDAm4>;
+	Tue, 3 Sep 2002 20:42:56 -0400
+Date: Tue, 3 Sep 2002 17:40:28 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.33-mm1
+Message-ID: <20020904004028.GS888@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@zip.com.au>,
+	lkml <linux-kernel@vger.kernel.org>,
+	"linux-mm@kvack.org" <linux-mm@kvack.org>
+References: <3D7437AC.74EAE22B@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <3D7437AC.74EAE22B@zip.com.au>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Sep 2002, Kenneth Corbin wrote:
+On Mon, Sep 02, 2002 at 09:16:44PM -0700, Andrew Morton wrote:
+> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.33/2.5.33-mm1/
+> Seven new patches - mostly just code cleanups.
+> +slablru-speedup.patch
+>   A patch to improve slablru cpu efficiency.  Ed is
+>   redoing this.
 
-> Long description of same problem.   Still continuing after dumping the nvidia 
-> drivers and upgrading to the latest Redhat kernel.   Anything else I can do?
-> 
-> I am not subscribed to this list, please cc me with any response.
-> Thanks in advance for wading through this.
-> 
-> 1. Linux consistently crashes running grip.
-> 
-> 2. Grip 3.0.1-1 is a graphical X frontend for a variety of CD ripper and MP3
-> encoder programs.   When it is only ripping CD's everything is OK.  But when
-> it is ripping and encoding tracks, the system will die shortly after the
-> ripping operation finishes while the encoding operation is going on.   The
-> time till death is variable, it has ranged from 5 seconds to 5 minutes on one
-> occasion, but it always crashes.  It happens with two different encoders
-> (notlame and oggenc) and two different rippers (cdparanoia and cdda2wav)  The
-> quickest way to induce a failure is to make one pass ripping tracks and a
-> second pass asking it to rip and encode.  It is smart enough to realize the
-> tracks have already been ripped and doesn't do much beyond checking that they
-> are all accounted for.   But my system still crashes.
+count_list() appears to be the largest consumer of cpu after this is
+done, or so say the profiles after running updatedb by hand on
+2.5.33-mm1 on a 900MHz P-III T21 Thinkpad with 256MB of RAM.
 
-> Gnu C                  2.96
+  4608 __rdtsc_delay                            164.5714
+  2627 __generic_copy_to_user                    36.4861
+  2401 count_list                                42.8750
+  1415 find_inode_fast                           29.4792
+  1325 do_anonymous_page                          3.3801
 
-Did you try testing your ram for any defects (even if it means trying 
-various combinations of ram) ?
-The only times I had similar problems was when I had faulty ram on my 
-motherboard or (in 1 case) a really defective onboard ide controller.
+It also looks like there's either a bit of internal fragmentation or a
+missing kmem_cache_reap() somewhere:
 
-Also be careful with Gcc 2.96, there is a lot of problems related to it.
+  ext3_inode_cache:    20001KB    51317KB   38.97
+      dentry_cache:     4734KB    18551KB   25.52
+   radix_tree_node:     1811KB     1923KB   94.20
+       buffer_head:     1132KB     1378KB   82.12
+
+It does stay quite a bit more nicely bounded than without slablru though.
+
+Maybe it's old news. Just thought I'd try running a test on something tiny
+for once. (new kbd/mouse config options were a PITA BTW)
 
 
+Cheers,
+Bill

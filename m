@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278642AbRKHV5T>; Thu, 8 Nov 2001 16:57:19 -0500
+	id <S278653AbRKHWCj>; Thu, 8 Nov 2001 17:02:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278633AbRKHV5J>; Thu, 8 Nov 2001 16:57:09 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:61714 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S278642AbRKHV5A>; Thu, 8 Nov 2001 16:57:00 -0500
-Message-Id: <200111082156.fA8LuuY66000@aslan.scsiguy.com>
-To: christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@online.fr>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Question: Adaptec AIC7xxx support 
-In-Reply-To: Your message of "Thu, 08 Nov 2001 22:45:58 +0100."
-             <20011108224558.C505@online.fr> 
-Date: Thu, 08 Nov 2001 14:56:56 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S278649AbRKHWCa>; Thu, 8 Nov 2001 17:02:30 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:4350 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S278643AbRKHWCO>;
+	Thu, 8 Nov 2001 17:02:14 -0500
+Date: Thu, 8 Nov 2001 15:01:58 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: aputhiya <aputhiya@temple.edu>
+Cc: linux-smp@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: APIC Cluster Model
+Message-ID: <20011108150158.D9043@lynx.no>
+Mail-Followup-To: aputhiya <aputhiya@temple.edu>, linux-smp@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3BFC7A20@smaug.ocis.temple.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3BFC7A20@smaug.ocis.temple.edu>; from aputhiya@temple.edu on Thu, Nov 08, 2001 at 04:28:51PM -0500
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >This is a drawback of single driver for multiple cards. Good cards
->> >suffer to enable the driver to support bad ones.
->>=20
->> This has nothing to do with the card the aic7xxx driver is accessing.
->
->Sorry if I upset you.
+On Nov 08, 2001  16:28 -0500, aputhiya wrote:
+> Linux uses FLAT MODEL for setting up the IO APIC for SMP machines (Intel
+> IA-32  arch). I was wondering if the CLUSTER MODEL has been implemented
+> in any of  later SMP kernels?
 
-You didn't upset me.  I just wanted to ensure that an inacurate statement
-wasn't propogated.
+Yes, the IBM folks implemented this for CONFIG_MULITQUAD.  I don't know
+the details, but it is in stock 2.4.13+ kernels at least.
 
->I was convinced it was to support old hardware.
-
-Yes and no.  Although more common in older hardware, there are still
-companies that bring new products to market that take *forever* to
-wakeup after a bus reset.
-
->You seems to indicate that it depends more on the attached scsi targets,
->and I believe it but I have never seen this kind of configuration where
->the timeout needs to be 15000 Msec. Is this a so common config to set
->this value as default ?
-
-There are still lots of devices out there that don't work with shorter
-timeouts.  I don't know that it matters what percentage of people have
-these devices so much as allowing them to install/use the OS without
-the frustration of trying to figure out how to make their system work.
-Other than a bit of wall clock time, the extra delay does not "hurt"
-setups that can use a lower timeout.
-
+Cheers, Andreas
 --
-Justin
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

@@ -1,53 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279720AbRJ3BVI>; Mon, 29 Oct 2001 20:21:08 -0500
+	id <S279725AbRJ3BZi>; Mon, 29 Oct 2001 20:25:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279716AbRJ3BU7>; Mon, 29 Oct 2001 20:20:59 -0500
-Received: from codepoet.org ([166.70.14.212]:43350 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S279715AbRJ3BUx>;
-	Mon, 29 Oct 2001 20:20:53 -0500
-Date: Mon, 29 Oct 2001 18:21:32 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: r128 + agpgart + APM suspend = death
-Message-ID: <20011029182132.A13066@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011028212006.A9278@codepoet.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011028212006.A9278@codepoet.org>
-User-Agent: Mutt/1.3.22i
-X-Operating-System: 2.4.12-ac3-rmk2, Rebel NetWinder (Intel StrongARM-110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S279723AbRJ3BZ2>; Mon, 29 Oct 2001 20:25:28 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4874 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S279715AbRJ3BZQ>; Mon, 29 Oct 2001 20:25:16 -0500
+Date: Mon, 29 Oct 2001 17:23:36 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: do_swap_page() in -pre4
+In-Reply-To: <3BDDE188.766CF4BB@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0110291711290.7733-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun Oct 28, 2001 at 09:20:06PM -0700, Erik Andersen wrote:
-> I have a Dell Latitude C800 laptop.  It works just great and
-> I can use agpgart + r128 + XFree86 4.0.1 to get nice full 
-> screen 3D.  tuxracer looks nice.
-> 
-> But if I suspend my laptop when the agpgart module is loaded
-> is seems to suspend just fine, but will not resume....  Just
-[----------snip---------------]
-> 
-> Anyone else seeing similar problems with APM + agpgart?
-> The problem has has been the same with all the 2.4.x kernels
-> I've tried it on, though I am running 2.4.12-ac6 at the moment.
 
-One more bit of data.  XFree86 reports that my system has a:
-    (--) PCI:*(1:0:0) ATI Rage 128 Mobility MF rev 0, Mem @ 0xe8000000/26, 0xfcffc000/14, I/O @ 0xcc00/8
+On Mon, 29 Oct 2001, Andrew Morton wrote:
+> Linus Torvalds wrote:
+> >
+> > On Mon, 29 Oct 2001, Andrew Morton wrote:
+> > >
+> > > That UnlockPage() looks wrong to me?
+> >
+> > You're right. I'll fix it and make a pre5, it's obviously left-overs from
+> > before..
 
-A few friends of mine have similar Dell laptops with the same set of kernel
-modules loaded -- and theirs do not choke on APM suspend.  But their systems 
-report a slightly different r128 model: 
-    (--) PCI:*(1:0:0) ATI Rage 128 Mobility LF rev 2, Mem @ 0xf8000000/26, 0xf4100000/14, I/O @ 0x2000/8
+pre5 fixed (along with some other things, like remobing from the LRU list
+in all cases where needed..)
 
- -Erik
+> OK.  Could you please add mm->page_table_lock to this comment:
+>
+> + *
+> + * Ordering:
+       mm->page_table_lock ->
+> + *     swap_lock ->
+	    swap_device_lock() ->
+> + *             pagemap_lru_lock ->
+> + *                     pagecache_lock
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+is what it should be. If that doesn't look right, holler.
+
+I don't think any other locking really changed, except the LRU and the
+pagecache lock used to be the other way around.
+
+Oh, the thing that _did_ change was that getting the page lock used to
+also freeze the swap_map count for that page. Which meant much too much
+locking of pages on swapin (which in turn meant that you couldn't just
+re-attach the page while it was being written out).
+
+pre5 makes the new rules clearer, I think (ie we check the swap count
+under the swap lock, and we check the page count under the pagecache lock,
+so there should be no "subtle" rules wrt the page lock at all. The page
+lock has no bearing on the swap count at all).
+
+I've tested pre5 by running X and konqueror in 40MB of RAM, and I tested
+pre4 by swapping heavily in 2GB or ram (which only goes to show you how
+forgiving 2G is even if you have almost 3BG in swap - the UnlockPage and a
+few other things were very clear in 40MB and never showed up with tons
+of memory).
+
+It behaves well here, although in the low-memory tests I think there I've
+found what appears to be a KDE process startup race condition (ie KDE is
+not happy about swapping heavily and starting new processes - looks like
+the communication setup is racy or something).
+
+Testers appreciated,
+
+		Linus
+

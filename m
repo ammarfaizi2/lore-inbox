@@ -1,72 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265293AbUF1XiN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265288AbUF1Xf5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265293AbUF1XiN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 19:38:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265294AbUF1XiM
+	id S265288AbUF1Xf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 19:35:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265293AbUF1Xf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 19:38:12 -0400
-Received: from gizmo10bw.bigpond.com ([144.140.70.20]:31684 "HELO
-	gizmo10bw.bigpond.com") by vger.kernel.org with SMTP
-	id S265293AbUF1XiI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 19:38:08 -0400
-Message-ID: <40E0ABDD.5010108@bigpond.net.au>
-Date: Tue, 29 Jun 2004 09:38:05 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Mon, 28 Jun 2004 19:35:57 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:11702 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S265288AbUF1Xfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 19:35:55 -0400
+Date: Mon, 28 Jun 2004 19:29:43 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: __setup()'s not processed in bk-current
+In-Reply-To: <Pine.GSO.4.33.0406281523340.25702-100000@sweetums.bluetronic.net>
+Message-ID: <Pine.GSO.4.33.0406281838260.25702-100000@sweetums.bluetronic.net>
 MIME-Version: 1.0
-To: Timothy Miller <miller@techsource.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Nice 19 process still gets some CPU
-References: <40E035CE.1020401@techsource.com>
-In-Reply-To: <40E035CE.1020401@techsource.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Miller wrote:
-> Given how much I've read here about schedulers, I should probably be 
-> able to answer this question myself, but I just thought I might talk to 
-> the experts.
-> 
-> I'm running SETI@Home, and it has a nice value of 19.  Everything else, 
-> for the most part, is at zero.
-> 
-> I'm running kernel gentoo-dev-sources-2.6.7-r6 (I believe).
-> 
-> When I'm not running SETI@Home, compiler threads (emerge of a package, 
-> kernel compile, etc.) get 100% CPU.  When I AM running SETI@Home, 
-> SETI@Home still manages to get between 5% and 10% CPU.
-> 
-> I would expect that nice 0 processes should get SO MUCH more than nice 
-> 19 processes that the nice 19 process would practically starve (and in 
-> the case of a nice 19 process, I think starvation by nice 0 processes is 
-> just fine), but it looks like it's not starving.
-> 
-> Why is that?
+On Mon, 28 Jun 2004, Ricky Beam wrote:
+>The linked kernel *looks* correct (x86_64 here):
+>Contents of section .init.data:
+> ffffffff8058d000 6e6f736d 70006d61 78637075 733d0070  nosmp.maxcpus=.p
+>
+>Contents of section .init.setup:
+> ffffffff80593510 00d05880 ffffffff 60125780 ffffffff  ..X.....`.W.....
+> ffffffff80593520 00000000 00000000 00000000 00000000  ................
+> ffffffff80593530 06d05880 ffffffff 70125780 ffffffff  ..X.....p.W.....
+> ffffffff80593540 00000000 00000000 00000000 00000000  ................
+>
+>Do I smell some bad pointer math?  Yeap:
+>DEBUG: sizeof(obs_kernel_param): 24 (0x18)
 
-If you wish to control the "severity" of nice you should try the "pb" 
-mode of the scheduler evaluation patch:
+Ahh.  Not bad pointer math.  Bad kernel source :-)  The compiler is not
+aware of the packing/alignment of the .init.setup section until link
+time which is too late.  The .init.setup section is ALIGN(16)'d for
+almost all archs.  (h8300 is 4 bytes.)
 
-<http://prdownloads.sourceforge.net/cpuse/patch-2.6.7-spa_hydra_FULL-v1.2?download>
+There may be other instances like this that'll eventually bite us in the
+ass.
 
-The "severity" of nice will vary with the ratio of the promotion 
-interval (/proc/sys/kernel/cpusched/promotion_interval in milliseconds) 
-to the time slice (/proc/sys/kernel/cpusched/time_slice also in 
-milliseconds).  To experiment with these settings you can use two CPU 
-bound processes with different nice values and use top to see how much 
-changing the promotion interval to time slice ratio effects their CPU 
-usage rates.
+(A) Fix... at least for x86_64.
 
-There's a primitive GUI for setting these parameters' values at:
+===== include/linux/init.h 1.33 vs edited =====
+--- 1.33/include/linux/init.h   2004-06-27 03:19:38 -04:00
++++ edited/include/linux/init.h 2004-06-28 18:39:37 -04:00
+@@ -107,11 +107,12 @@
+        static initcall_t __initcall_##fn \
+        __attribute_used__ __attribute__((__section__(".security_initcall.init"))) = fn
 
-<http://prdownloads.sourceforge.net/cpuse/gcpuctl_hydra-1.0.tar.gz?download>
++/* FIXME: not all arch's are aligned on a 16byte boundry */
+ struct obs_kernel_param {
+        const char *str;
+        int (*setup_func)(char *);
+        int early;
+-};
++} __attribute__((aligned(16)));
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+ /* Only for really core code.  See moduleparam.h for the normal way. */
+ #define __setup_param(str, unique_id, fn, early)                       \
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+===== arch/x86_64/kernel/vmlinux.lds.S 1.23 vs edited =====
+--- 1.23/arch/x86_64/kernel/vmlinux.lds.S       2004-05-30 07:33:25 -04:00
++++ edited/arch/x86_64/kernel/vmlinux.lds.S     2004-06-28 19:20:20 -04:00
+@@ -87,7 +87,7 @@
+        _einittext = .;
+   }
+   .init.data : { *(.init.data) }
+-  . = ALIGN(16);
++  . = ALIGN(32);
+   __setup_start = .;
+   .init.setup : { *(.init.setup) }
+   __setup_end = .;
+
+(don't ask me why __setup_start is landing 16b less than it should)
+
+--Ricky
+
 

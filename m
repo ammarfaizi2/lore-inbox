@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318758AbSHQVAL>; Sat, 17 Aug 2002 17:00:11 -0400
+	id <S318739AbSHQU5M>; Sat, 17 Aug 2002 16:57:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318764AbSHQVAL>; Sat, 17 Aug 2002 17:00:11 -0400
-Received: from ausadmmsps307.aus.amer.dell.com ([143.166.224.102]:15120 "HELO
-	AUSADMMSPS307.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id <S318758AbSHQVAI>; Sat, 17 Aug 2002 17:00:08 -0400
-X-Server-Uuid: 82a6c0aa-b49f-4ad3-8d2c-07dae6b04e32
-Message-ID: <20BF5713E14D5B48AA289F72BD372D6821CB78@AUSXMPC122.aus.amer.dell.com>
-From: Matt_Domsch@Dell.com
-To: bunk@fs.tum.de, marcelo@conectiva.com.br
-cc: linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: RE: [BK PATCH 2.4.x] move asm-ia64/efi.h to linux/efi.h (was
- RE: Lin ux 2.4.20-pre3)
-Date: Sat, 17 Aug 2002 16:04:02 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-X-WSS-ID: 114065C81479743-01-01
-Content-Type: text/plain; 
- charset=us-ascii
+	id <S318737AbSHQU5M>; Sat, 17 Aug 2002 16:57:12 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:43762 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318739AbSHQU5M>; Sat, 17 Aug 2002 16:57:12 -0400
+Subject: Re: PNPBIOS support -- 2.4.20pre3
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Garst R. Reese" <reese@isn.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D5EB4EB.B1F128B2@isn.net>
+References: <3D5E471A.5990F8D9@isn.net>
+	<1029612095.4647.7.camel@irongate.swansea.linux.org.uk> 
+	<3D5EB4EB.B1F128B2@isn.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 17 Aug 2002 22:00:32 +0100
+Message-Id: <1029618032.4809.78.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I sure hope so.  Here's the patch set for 2.4.x which fixes 
-> the NULL_GUID
-> bug, moves efi.h from include/asm-ia64 to include/linux, and fixes
-> efi_guid_unparse.
+On Sat, 2002-08-17 at 21:41, Garst R. Reese wrote:
+> > Only in -ac currently
+> Thanks Alan. It turns out that 2.4.20pre3 hangs on boot for me, so I'm
+> back to 2.4.19. Will ac4 do?
 
-Now available, please bk pull http://mdomsch.bkbits.net/linux-2.4-gpt
-
-Thanks,
-Matt
-
---
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
+2.4.19-ac4 should do or 2.4.20pre2-ac3 has the very newest IDE code
 

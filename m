@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312895AbSDEOwI>; Fri, 5 Apr 2002 09:52:08 -0500
+	id <S313047AbSDEQYf>; Fri, 5 Apr 2002 11:24:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312898AbSDEOv7>; Fri, 5 Apr 2002 09:51:59 -0500
-Received: from pD9001BAF.dip.t-dialin.net ([217.0.27.175]:13803 "EHLO
-	zeus.prom.vpn") by vger.kernel.org with ESMTP id <S312895AbSDEOvw>;
-	Fri, 5 Apr 2002 09:51:52 -0500
-Subject: [PATCH] [CLEANUP] radeonfb accelerator id in 2.4.19
-From: Ingo Albrecht <prom@berlin.ccc.de>
-To: Ani Joshi <ajoshi@shell.unixbox.com>
-Cc: Linux Framebuffer Development List 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 05 Apr 2002 16:51:10 +0200
-Message-Id: <1018018270.30211.259.camel@zeus>
-Mime-Version: 1.0
+	id <S313050AbSDEQYP>; Fri, 5 Apr 2002 11:24:15 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:44183 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S313047AbSDEQYG>; Fri, 5 Apr 2002 11:24:06 -0500
+Date: Fri, 5 Apr 2002 18:24:07 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Martin Mares <mj@ucw.cz>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 Boot enhancements, pic 16 4/9
+In-Reply-To: <20020405105911.GA3116@ucw.cz>
+Message-ID: <Pine.GSO.3.96.1020405181548.25048D-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 5 Apr 2002, Martin Mares wrote:
 
-This small patch assigns an accelerator id to radeonfb.
-The reason for this should be obvious.
+> For such purposes, it would be wonderful if somebody could teach gas
+> how to assemble absolute code and make real location of code and base
+> for calculation of symbols independent. It probably could be done with
+> sections and a cleverly written ldscript (modulo ld bugs), but it's
+> nowhere near elegant.
 
-This is against 2.4.19-pre6, but making it apply against
-something else shouldnt be a lot of work ;)
-
-I read LKML, but not fbdev-devel.
-
-Ingo
+ The location of code is already independent from symbol addresses.  The
+default location is identity-mapped to addresses but that can be changed.
+You normally do that by setting a different LMA in a linker script with
+the "AT" keyword. 
 
 -- 
-Let the people think they govern and they will be governed.
-                -- William Penn, founder of Pennsylvania
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+

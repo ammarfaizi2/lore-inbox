@@ -1,117 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbTJYL0w (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 07:26:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262575AbTJYL0w
+	id S262575AbTJYLqM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 07:46:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262576AbTJYLqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 07:26:52 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:56836 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S262574AbTJYL0t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 07:26:49 -0400
-Date: Sat, 25 Oct 2003 13:26:37 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Rob Landley <rob@landley.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kconfig choice menu help text is not working in -test8
-Message-ID: <20031025112637.GA901@mars.ravnborg.org>
-Mail-Followup-To: Rob Landley <rob@landley.net>,
-	linux-kernel@vger.kernel.org
-References: <200310250244.56881.rob@landley.net>
-Mime-Version: 1.0
+	Sat, 25 Oct 2003 07:46:12 -0400
+Received: from as6-4-8.rny.s.bonet.se ([217.215.27.171]:55568 "EHLO
+	pc2.dolda2000.com") by vger.kernel.org with ESMTP id S262575AbTJYLqL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Oct 2003 07:46:11 -0400
+From: Fredrik Tolf <fredrik@dolda2000.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200310250244.56881.rob@landley.net>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16282.25212.456947.292339@pc7.dolda2000.com>
+Date: Sat, 25 Oct 2003 13:46:04 +0200
+To: Mike Anderson <andmike@us.ibm.com>
+Cc: Fredrik Tolf <fredrik@dolda2000.com>,
+       Patrick Mansfield <patmans@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: Elevator bug in concert with usb-storage
+In-Reply-To: <20031025062759.GB1288@beaverton.ibm.com>
+References: <16279.15393.575929.983297@pc7.dolda2000.com>
+	<20031023082726.A20073@beaverton.ibm.com>
+	<16280.9893.292564.320412@pc7.dolda2000.com>
+	<20031025062759.GB1288@beaverton.ibm.com>
+X-Mailer: VM 7.17 under Emacs 21.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 25, 2003 at 02:44:56AM -0500, Rob Landley wrote:
-> I'm banging away on the bzip patch, adding a choice menu to kconfig for 
-> bzip/gzip/uncompressed, and I notice that the help text isn't working right.
+Mike Anderson writes:
+ > Fredrik Tolf [fredrik@dolda2000.com] wrote:
+ > > Sorry, that didn't work well. It doesn't crash on the same thing
+ > > anymore, but nonetheless crashes. In addition, when I have removed the
+ > > device but not yet umounted the filesystem, I tried to ls its root
+ > > dir. Before, nothing extraordinary happened then, but now there's a
+ > > couple of oopses for the ls process as well.
+ > >
+ > > .. snip ..
+ > >
+ > > Call Trace:
+ > >  [<c02176b3>] elv_queue_empty+0x1d/0x20
+ > >  [<c0219ab4>] __make_request+0x80/0x4ae
+ > >  [<c021a016>] generic_make_request+0x134/0x186
+ > 
+ > I tried to reproduce this error last night using the scsi_debug driver,
+ > but could not. I tried different combinations of file systems (fat, ext2,
+ > ext3). I did notice that I had elevator=deadline on the cmdline. I
+ > removed this in case the elevator_queue_empty_fn between the two
+ > elevators made a difference. I still was unable to reproduce. I will try
+ > a few more combinations of things this weekend and let you know what I
+ > find out. There might be a race still with our cleanups and I am not
+ > able to reproduce it exactly on my system.
 
-Anders Gustafsson <andersg@0x63.nu> posted this patch some time ago.
-I never came around testing it.
+Be aware that this was with usb-storage as the back-end driver. I
+don't know if that might make some difference (as opposed to using
+scsi_debug, that is).
 
-	Sam
+Is there anything I can do to help?
 
-ChangeSet@1.1292, 2003-08-24 22:22:55+02:00, andersg@0x63.nu
-  Make menuconfig display helptext in "choice" menus.
-
-
- kconfig/mconf.c      |   20 ++++++++++++++++----
- lxdialog/checklist.c |    3 ++-
- 2 files changed, 18 insertions(+), 5 deletions(-)
-
-
-diff -Nru a/scripts/kconfig/mconf.c b/scripts/kconfig/mconf.c
---- a/scripts/kconfig/mconf.c	Sun Aug 24 22:26:52 2003
-+++ b/scripts/kconfig/mconf.c	Sun Aug 24 22:26:52 2003
-@@ -607,6 +607,7 @@
- 	struct symbol *active;
- 	int stat;
- 
-+	active = sym_get_choice_value(menu->sym);
- 	while (1) {
- 		cprint_init();
- 		cprint("--title");
-@@ -618,13 +619,18 @@
- 		cprint("6");
- 
- 		current_menu = menu;
--		active = sym_get_choice_value(menu->sym);
- 		for (child = menu->list; child; child = child->next) {
- 			if (!menu_is_visible(child))
- 				continue;
- 			cprint("%p", child);
- 			cprint("%s", menu_get_prompt(child));
--			cprint(child->sym == active ? "ON" : "OFF");
-+			if (sym_get_choice_value(menu->sym) == child->sym) {
-+				cprint("ON");
-+			}else if (active== child->sym) {
-+				cprint("SELECTED");
-+			}else{
-+				cprint("OFF");
-+			}
- 		}
- 
- 		stat = exec_conf();
-@@ -634,9 +640,15 @@
- 				break;
- 			sym_set_tristate_value(menu->sym, yes);
- 			return;
--		case 1:
--			show_help(menu);
-+		case 1: {
-+			struct menu *tmp;
-+			if (sscanf(input_buf, "%p", &tmp) == 1) {
-+				show_help(tmp);
-+				active=tmp->sym;
-+			} else
-+				show_help(menu);
- 			break;
-+		}
- 		case 255:
- 			return;
- 		}
-diff -Nru a/scripts/lxdialog/checklist.c b/scripts/lxdialog/checklist.c
---- a/scripts/lxdialog/checklist.c	Sun Aug 24 22:26:52 2003
-+++ b/scripts/lxdialog/checklist.c	Sun Aug 24 22:26:52 2003
-@@ -138,7 +138,7 @@
-     /* Initializes status */
-     for (i = 0; i < item_no; i++) {
- 	status[i] = !strcasecmp (items[i * 3 + 2], "on");
--	if (!choice && status[i])
-+	if ((!choice && status[i]) || (!strcasecmp (items[i * 3 + 2], "selected")))
-             choice = i;
-     }
- 
-@@ -302,6 +302,7 @@
- 	case 'H':
- 	case 'h':
- 	case '?':
-+	    fprintf (stderr, "%s", items[(scroll + choice) * 3]);
- 	    delwin (dialog);
- 	    free (status);
- 	    return 1;
+Fredrik Tolf
 

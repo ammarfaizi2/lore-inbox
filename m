@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281019AbRKOTi7>; Thu, 15 Nov 2001 14:38:59 -0500
+	id <S281011AbRKOThj>; Thu, 15 Nov 2001 14:37:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281015AbRKOTit>; Thu, 15 Nov 2001 14:38:49 -0500
-Received: from chunnel.redhat.com ([199.183.24.220]:32760 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S281012AbRKOTil>; Thu, 15 Nov 2001 14:38:41 -0500
-Date: Thu, 15 Nov 2001 19:37:17 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Matt Bernstein <matt@theBachChoir.org.uk>
-Cc: Arjan van de Ven <arjanv@redhat.com>,
-        Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>,
-        linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: Re: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
-Message-ID: <20011115193717.B14221@redhat.com>
-In-Reply-To: <3BF285D7.8F5AAB6E@redhat.com> <Pine.LNX.4.33.0111141502110.8473-100000@nick.dcs.qmul.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0111141502110.8473-100000@nick.dcs.qmul.ac.uk>; from matt@theBachChoir.org.uk on Wed, Nov 14, 2001 at 03:08:25PM +0000
+	id <S281012AbRKOTh3>; Thu, 15 Nov 2001 14:37:29 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:4100 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S281011AbRKOThU>; Thu, 15 Nov 2001 14:37:20 -0500
+Message-ID: <002501c16e0c$d3800550$f5976dcf@nwfs>
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Microsoft IE6 is crashing with Linux 2.4.X
+Date: Thu, 15 Nov 2001 12:35:47 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, Nov 14, 2001 at 03:08:25PM +0000, Matt Bernstein wrote:
+I have upgraded several W2K boxes to the latest IE6 packages I downloaded
+from Microsoft's website.  I am seeing a behavior which appears to be a bug.
+It appears to be malicious "malfunctioning" with some sort of deliberate
+breakage designed to create incompatibility between Linux and W2K mail
+systems.  Attempts to relay mail via sendmail/Linux is resulting in the
+following message.  This message shows up 1 out of 3 times or so relaying
+emails from Outlook IE6 through a Linux server:
 
-> I hope they do; I've just set up a very similar beast (looks like the same
-> mobo and same CPUs). Is the RAM "registered" ECC? Are your CPUs the same
-> stepping? One problem we were bitten by was the Radeon DRI, so we disabled
-> it (in XF86Config-4) and it now seems to at least boot into X.
+The connection to the server has failed. Account: 'mail.timpanogas.org',
+Server: 'mail.timpanogas.org', Protocol: SMTP, Port: 25, Secure(SSL): No,
+Socket Error: 10061, Error Number: 0x800CCC0E
 
-There are known problems in AMD760+Radeon setups, and a workaround is
-to avoid asserting RADEON_SOFT_RESET_HBP during init.  The latest
-kernels have that fix in the radeon drm.  Using that in conjunction
-with an X server containing the same fix, I've finally got a stable
-761+radeon setup here.
+The IE5 clients and earlier IE6 clients do not exhibit this behavior.  Does
+anyone know if Linux has broken something or can verify this behavior
+independent of what we are seeing?
+It looks like MS up to their old tricks of creating annoyances for customers
+which are designed to look like bugs in our software.  When I was at Novell,
+I saw these types of things regularly in their software (i.e. DRDOS,
+NetWare, etc.) designed to deliberately create incompatibility and breakage
+at customer sites.  I am not certain this is what is happening here, but if
+someone else can verify, then perhaps this is the case, and we should alert
+Linux users.
 
-I think the X server fix went in on the 4.1.99 branch, but I know that
-at least the Red Hat XFree86-4.1 rpms have got the patch back-ported.
+Thanks
 
-> it's not any faster than a dual PIII (1GHz) at the task it's meant to
-> perform :( both CPUs report 75% usage, and vmstat 1 doesn't show the IO
-> systems being slugged. Very strange. We're wondering if we've hit memory
-> bandwidth as the tasks involve some hard sums with big matrices.
+Jeff
 
-If the CPUs were bottlenecked on memory then they would still be
-pegged at 100% according to the OS.  They'd just get less work done in
-a given interval.
-
-Cheers,
- Stephen

@@ -1,100 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262151AbSJFTi2>; Sun, 6 Oct 2002 15:38:28 -0400
+	id <S262141AbSJFTeV>; Sun, 6 Oct 2002 15:34:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262156AbSJFTi2>; Sun, 6 Oct 2002 15:38:28 -0400
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:45280 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262151AbSJFTi0>; Sun, 6 Oct 2002 15:38:26 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Is it a bug ?
-Date: Sun, 6 Oct 2002 21:43:29 +0200
-User-Agent: KMail/1.4.3
-Organization: WOLK - Working Overloaded Linux Kernel
-Cc: Rebert Luc <lucrebert@altern.org>
+	id <S262144AbSJFTeV>; Sun, 6 Oct 2002 15:34:21 -0400
+Received: from gate.perex.cz ([194.212.165.105]:16136 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S262141AbSJFTeT>;
+	Sun, 6 Oct 2002 15:34:19 -0400
+Date: Sun, 6 Oct 2002 21:38:54 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ALSA update
+Message-ID: <Pine.LNX.4.33.0210062136590.503-100000@pnote.perex-int.cz>
 MIME-Version: 1.0
-Message-Id: <200210062141.12037.m.c.p@wolk-project.de>
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_H4SK2MKBFUPCE6A8WDQ0"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus, please do a
 
---------------Boundary-00=_H4SK2MKBFUPCE6A8WDQ0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	bk pull http://linux-sound.bkbits.net/linux-sound
 
-Hi Rebert,
+This will update the following files:
 
-> I have try many times to compile a kernel 2.4.18 and 2.4.19 for my k6-2=
- (it
-> is a desktop computer i don't need pcmia as a module or compiled in the
-> kernel so i haven't stick it) but every time there si a bug when i make
-> "make modules_install" I can see this bug !!!  Can you help me please ?=
- I
-> think it's a bug, what do you think about this ?
+ include/sound/version.h             |    2 
+ sound/core/info.c                   |    6 
+ sound/core/sound.c                  |    9 
+ sound/isa/sgalaxy.c                 |   21 -
+ sound/pci/Config.in                 |    4 
+ sound/pci/cs46xx/dsp_spos.c         |    1 
+ sound/pci/cs46xx/dsp_spos_scb_lib.c |    1 
+ sound/sound_core.c                  |   15 -
+ sound/usb/usbaudio.c                |  183 +++++++++-----
+ sound/usb/usbaudio.h                |   29 +-
+ sound/usb/usbmidi.c                 |  395 ++++++++++++++++++++++++-------
+ sound/usb/usbquirks.h               |  451 ++++++++++++++++++++++++------------
+ 12 files changed, 770 insertions(+), 347 deletions(-)
 
-> depmod: *** Unresolved symbols in /lib/modules/2.4.18/kernel/fs/binfmt_=
-elf.o
-> depmod:         empty_zero_page
-> depmod:         get_user_pages
-> make: *** [_modinst_post] Error 1
+through these ChangeSets:
 
-for 2.4.18 this is true, but I think it cannot be true for 2.4.19. The mi=
-ssing=20
-things were added in 2.4.19-pre1. Patch attached for 2.4.18.
+<perex@suse.cz> (02/10/05 1.696.1.3)
+   ALSA update
+     - updated config descriptions for EMU10K1 and INTEL8X0
 
---=20
-Kind regards
-        Marc-Christian Petersen
+<perex@suse.cz> (02/10/05 1.696.1.2)
+   ALSA update
+     - CS46xx driver - removed unused variable
+     - USB code
+       - pass struct usb_interface pointer to the usb-midi parser.
+         in usb-midi functions, this instance is used instead of parsing
+         the interface from dev and ifnum.
+       - allocate the descriptor buffer only for parsing the audio device.
+       - clean up, new probe/disconnect callbacks for 2.4 API.
+       - added the support for Yamaha and Midiman devices.                                                  
 
-http://sourceforge.net/projects/wolk
+<perex@suse.cz> (02/10/04 1.696.1.1)
+   ALSA
+     - DEVFS cleanup - removal of compatibility code for 2.2 and 2.4 kernels
+     - fixed sgalaxy driver (save_flags/cli/restore_flags removal)
+     - USB Audio driver
+       - added the missing dev_set_drvdata() for 2.5 API
+       - simplified the conexistence of old and new USB APIs
+       - don't skip the active capture urbs
+       - added the debug print for active capture urbs
+       - don't change runtime->rate even if the current rate is not same
+       - check the bandwidth for urbs (for tests only, now commented out)
 
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
-Key available at www.keyserver.net. Encrypted e-mail preferred.
 
+						Jaroslav
 
---------------Boundary-00=_H4SK2MKBFUPCE6A8WDQ0
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="fixit.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="fixit.patch"
-
-diff -Naur -X /home/marcelo/lib/dontdiff tmp/linux/arch/i386/kernel/i386_ksyms.c linux/arch/i386/kernel/i386_ksyms.c
---- tmp/linux/arch/i386/kernel/i386_ksyms.c	Mon Feb 25 20:28:49 2002
-+++ linux/arch/i386/kernel/i386_ksyms.c	Mon Feb 25 20:04:47 2002
-@@ -73,6 +73,7 @@
- EXPORT_SYMBOL(get_cmos_time);
- EXPORT_SYMBOL(apm_info);
- EXPORT_SYMBOL(gdt);
-+EXPORT_SYMBOL(empty_zero_page);
- 
- #ifdef CONFIG_DEBUG_IOVIRT
- EXPORT_SYMBOL(__io_virt_debug);
-diff -Naur -X /home/marcelo/lib/dontdiff tmp/linux/mm/memory.c linux/mm/memory.c
---- tmp/linux/mm/memory.c	Mon Feb 25 20:28:51 2002
-+++ linux/mm/memory.c	Mon Feb 25 20:04:48 2002
-@@ -44,6 +44,7 @@
- #include <linux/iobuf.h>
- #include <linux/highmem.h>
- #include <linux/pagemap.h>
-+#include <linux/module.h>
- 
- #include <asm/pgalloc.h>
- #include <asm/uaccess.h>
-@@ -523,6 +523,8 @@
- 	i = -EFAULT;
- 	goto out;
- }
-+
-+EXPORT_SYMBOL(get_user_pages);
- 
- /*
-  * Force in an entire range of pages from the current process's user VA,
-
---------------Boundary-00=_H4SK2MKBFUPCE6A8WDQ0--
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project  http://www.alsa-project.org
+SuSE Linux    http://www.suse.com
 

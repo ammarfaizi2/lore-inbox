@@ -1,38 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270799AbRHNUQx>; Tue, 14 Aug 2001 16:16:53 -0400
+	id <S270784AbRHNUVY>; Tue, 14 Aug 2001 16:21:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270798AbRHNUQn>; Tue, 14 Aug 2001 16:16:43 -0400
-Received: from roc-24-95-218-9.rochester.rr.com ([24.95.218.9]:52873 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S270784AbRHNUQc>; Tue, 14 Aug 2001 16:16:32 -0400
-Date: Tue, 14 Aug 2001 10:24:44 -0400
-From: Chris Mason <mason@suse.com>
-To: "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: re: Performance 2.4.8 is worse than 2.4.x<8 (SPEC NFS results sho w
- this)
-Message-ID: <22920000.997799084@tiny>
-In-Reply-To: <F341E03C8ED6D311805E00902761278C04728E71@xfc04.fc.hp.com>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
+	id <S270795AbRHNUVN>; Tue, 14 Aug 2001 16:21:13 -0400
+Received: from anime.net ([63.172.78.150]:29456 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S270784AbRHNUVD>;
+	Tue, 14 Aug 2001 16:21:03 -0400
+Date: Tue, 14 Aug 2001 13:19:53 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
+To: Chris Crowther <chrisc@shad0w.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] CDP handler for linux
+In-Reply-To: <Pine.LNX.4.33.0108141934130.3283-100000@monolith.shad0w.org.uk>
+Message-ID: <Pine.LNX.4.30.0108141318370.30363-100000@anime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 14 Aug 2001, Chris Crowther wrote:
+> 	1) am I nuts
+> 	2) is anyone else interested in this
 
+I cant see real justification to put cdp handler in kernelspace.
+IMHO this belongs in userspace eg cdpd
 
-On Monday, August 13, 2001 09:40:59 AM -0700 "HABBINGA,ERIK
-(HP-Loveland,ex1)" <erik_habbinga@hp.com> wrote:
+-Dan
 
-> Here are some SPEC SFS NFS testing (http://www.spec.org/osg/sfs97) results
-> I've been doing over the past few weeks that shows NFS performance
-> degrading since the 2.4.5pre1 kernel.  I've kept the hardware constant,
-> only changing the kernel. 
-
-Did the 2.4.5pre1 have the transaction tracking patch?
-
--chris
+-- 
+[-] Omae no subete no kichi wa ore no mono da. [-]
 

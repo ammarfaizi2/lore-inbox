@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286917AbRL1OXu>; Fri, 28 Dec 2001 09:23:50 -0500
+	id <S286916AbRL1O2a>; Fri, 28 Dec 2001 09:28:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286916AbRL1OXi>; Fri, 28 Dec 2001 09:23:38 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:7091 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S286914AbRL1OXZ>; Fri, 28 Dec 2001 09:23:25 -0500
-Date: 28 Dec 2001 12:25:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8Fj9GBEXw-B@khms.westfalen.de>
-In-Reply-To: <Pine.GSO.4.30.0112221113120.2091-100000@balu>
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
-X-Mailer: CrossPoint v3.12d.kh8 R/C435
+	id <S286914AbRL1O2T>; Fri, 28 Dec 2001 09:28:19 -0500
+Received: from mail.nep.net ([12.23.44.24]:57106 "HELO nep.net")
+	by vger.kernel.org with SMTP id <S286919AbRL1O2J>;
+	Fri, 28 Dec 2001 09:28:09 -0500
+Message-ID: <19AB8F9FA07FB0409732402B4817D75A1251C1@FILESERVER.SRF.srfarms.com>
+From: "Ryan C. Bonham" <Ryan@srfarms.com>
+To: "Linux Kernel List (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Tyan Tomcat i815T(S2080) LAN problems
+Date: Fri, 28 Dec 2001 09:35:45 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <E16H9C4-0005ST-00@sites.inka.de> <Pine.GSO.4.30.0112221113120.2091-100000@balu>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pozsy@sch.bme.hu (Pozsar Balazs)  wrote on 22.12.01 in <Pine.GSO.4.30.0112221113120.2091-100000@balu>:
+Hi,
 
-> Please NO NO NO NO!!
->
-> Why on earth is it good to develop misunderstandings and inconsistency
-> with well- and widely-known historical abbrevs?
+Has anyone gotten the Dual built-in LAN cards to work on the Tyan S2080 Motherboard?  I am running a Redhat kernel 2.4.9-13.. I haven't tried the latest kernel yet.. I saw some talk about this board in the archives but I found no solutions. It says it has a Intel 82559 LAN controller and a ICH2 LAN Controller. I am only seeing one NIC when I boot up. And dmesg is showing
+eth0: Invalid EEPROM checksum 0xFF00, check setting before activating this device!
 
-It's not. The sooner we bury this computer-originated idiocy of using  
-decimal prefixes to denote binary values, the better.
+eth0 does initialize, and I can ping from it.  Anyways, is this fixed in a later kernel or is there a patch out there that hasn't made it into the kernel yet??
 
-You *do* remember which version has the longer history, right?
+Thanks
 
-MfG Kai
+Ryan Bonham

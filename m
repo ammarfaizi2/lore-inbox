@@ -1,77 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262306AbVCPJnk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262308AbVCPJpO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262306AbVCPJnk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 04:43:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbVCPJnk
+	id S262308AbVCPJpO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 04:45:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbVCPJpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 04:43:40 -0500
-Received: from hermine.aitel.hist.no ([158.38.50.15]:25348 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S262306AbVCPJnh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 04:43:37 -0500
-Message-ID: <42380094.2050704@aitel.hist.no>
-Date: Wed, 16 Mar 2005 10:47:00 +0100
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Andrew Morton <akpm@osdl.org>, dtor_core@ameritech.net,
-       dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-mm3 mouse oddity
-References: <20050312034222.12a264c4.akpm@osdl.org> <4236D428.4080403@aitel.hist.no> <d120d50005031506252c64b5d2@mail.gmail.com> <20050315110146.4b0c5431.akpm@osdl.org> <20050315201038.GA5484@ucw.cz>
-In-Reply-To: <20050315201038.GA5484@ucw.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Mar 2005 04:45:14 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:52234 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262308AbVCPJom
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 04:44:42 -0500
+Date: Wed, 16 Mar 2005 20:44:06 +1100
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: Can no longer build ipv6 built-in (2.6.11, today's BK head)
+Message-ID: <20050316094406.GA4784@gondor.apana.org.au>
+References: <200503160353.j2G3rTKr015647@mail02.syd.optusnet.com.au> <20050315200651.6c0eb372.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050315200651.6c0eb372.davem@davemloft.net>
+User-Agent: Mutt/1.5.6+20040907i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
+On Tue, Mar 15, 2005 at 08:06:51PM -0800, David S. Miller wrote:
+> On Wed, 16 Mar 2005 14:53:29 +1100
+> Peter Chubb <peterc@gelato.unsw.edu.au> wrote:
+> 
+> > A simple fix is to delete the __exit from the various functions now that
+> > they're called other than at module_exit.
+> > 
+> > Signed-off-by: Peter Chubb <peterc@gelato.unsw.edu.au>
+> 
+> Applied, thanks Peter.
 
->On Tue, Mar 15, 2005 at 11:01:46AM -0800, Andrew Morton wrote:
->  
->
->>Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
->>    
->>
->>>On Tue, 15 Mar 2005 13:25:12 +0100, Helge Hafting
->>><helge.hafting@aitel.hist.no> wrote:
->>>      
->>>
->>>>2.6.11-mm1 and earlier: mouse appear as /dev/input/mouse0
->>>>2.6.11-mm3: mouse appear as /dev/input/mouse1
->>>>
->>>>No big problem, one change to xorg.conf and I got the mouse back.
->>>>I guess it wasn't supposed to change like that though?
->>>>
->>>>        
->>>>
->>>Vojtech activated scroll handling in keyboard code by default so now
->>>your keyboard is mapped to the mouse0 and the mouse moved to mouse1.
->>>      
->>>
->>We cannot ship a kernel with this change, surely?  Our users would come
->>hunting for us with pitchforks.
->>    
->>
->
->Mouse device numbers are defined to be unstable because of hotplug.
->
->Most users use /dev/input/mice, where this won't have impact.
->
->The officially correct solution is to use udev to get stable device
->names.
->
->The change is easily reverted - just change the 'atkbd.scroll' default
->value.
->  
->
-Please don't remove it - it is nice to have support for the hardware.
-Apps using this is also necessary - and they are possible now.
-If you want to go the route of least surprise you may want to
-make sure the "new" mice get higher numbers instead of
-pushing "older" mice around.
+Thanks guys.
 
-Helge Hafting
-
-
+Calling an __exit function from an __init function is actually fairly
+common.  I wonder if it would be useful to have an __initexit marker
+that gets dropped when both __init and __exit would be dropped.
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

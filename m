@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbVCQRpq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVCQR5c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbVCQRpq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 12:45:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbVCQRpq
+	id S261191AbVCQR5c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 12:57:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbVCQR5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 12:45:46 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:712 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261879AbVCQRpi (ORCPT
+	Thu, 17 Mar 2005 12:57:32 -0500
+Received: from fire.osdl.org ([65.172.181.4]:33924 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261191AbVCQR53 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 12:45:38 -0500
-Date: Thu, 17 Mar 2005 12:47:16 +0530
-From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: akpm@osdl.org, anton@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PPC64 Fix kprobes calling smp_processor_id when preemptible
-Message-ID: <20050317071716.GA7386@in.ibm.com>
-Reply-To: ananth@in.ibm.com
-References: <16949.6337.715642.803244@cargo.ozlabs.ibm.com>
+	Thu, 17 Mar 2005 12:57:29 -0500
+Date: Thu, 17 Mar 2005 09:57:03 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Linux Audit Discussion <linux-audit@redhat.com>,
+       Ondrej Zary <linux@rainbow-software.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Syscall auditing - move "name=" field to the end
+Message-ID: <20050317175703.GE28536@shell0.pdx.osdl.net>
+References: <4238A65C.7020908@rainbow-software.org> <20050316224117.GC28536@shell0.pdx.osdl.net> <1111026301.6833.38.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16949.6337.715642.803244@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1111026301.6833.38.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 14, 2005 at 03:53:21PM +1100, Paul Mackerras wrote:
-
-Hi Paul,
-
-> When booting with kprobes and preemption both enabled and
-> CONFIG_DEBUG_PREEMPT=y, I get lots of warnings about smp_processor_id
-> being called in preemptible code, from kprobe_exceptions_notify.  On
-> ppc64, interrupts and preemption are not disabled in the handlers for
-> most synchronous exceptions such as breakpoints and page faults
-> (interrupts are disabled in the very early exception entry code but
-> are reenabled before calling the C handler).
+* David Woodhouse (dwmw2@infradead.org) wrote:
+> On Wed, 2005-03-16 at 14:41 -0800, Chris Wright wrote:
+> > * Ondrej Zary (linux@rainbow-software.org) wrote:
+> > > This patch moves the "name=" field to the end of audit records. The 
+> > > original placement is bad because it cannot be properly parsed. It is 
+> > > impossible to tell if the name is "/bin/true" or "/bin/true inode=469634 
+> > > dev=00:00" because the "inode=" and "dev=" fields can be omitted.
 > 
-> This patch adds a preempt_disable/enable pair to
-> kprobe_exceptions_notify, and moves the preempt_disable() in
-> kprobe_handler() to be done only in the case where we are about to
-> single-step an instruction.  This eliminates the bug warnings.
+> Consider: 
+> 
+> open("/bin/true\naudit(1111008484.824:89346): ...", O_RDONLY);
+> 
+> I don't think this patch is enough -- either we need to escape the text
+> completely or just dump it as hex instead of a string. One option would
+> be to dump it in quotes as a string if all chars in the string are in
+> the range 0x20-0x7e, and as hex otherwise. That slightly complicates the
+> parsing, but not by much, and still gives you plain text in the majority
+> of cases while protecting against abuse.
 
-The patch is fine, but it seems to break jprobes - we have an unbalanced
-preempt_enable/disable path while handling jprobes. Patch below is
-against 2.6.11-mm4 and fixes the issue.
+Yes good point.  I don't have a strong preference.  Steve, are you
+working on processing log data, do you have a preference?
 
-Thanks,
-Ananth
-
-
-Signed-off-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-
-diff -Naurp temp/linux-2.6.11/arch/ppc64/kernel/kprobes.c kprobes/linux-2.6.11/arch/ppc64/kernel/kprobes.c
---- temp/linux-2.6.11/arch/ppc64/kernel/kprobes.c	2005-03-17 05:15:53.000000000 +0530
-+++ kprobes/linux-2.6.11/arch/ppc64/kernel/kprobes.c	2005-03-17 19:46:21.000000000 +0530
-@@ -262,7 +262,6 @@ int setjmp_pre_handler(struct kprobe *p,
- 
- void jprobe_return(void)
- {
--	preempt_enable_no_resched();
- 	asm volatile("trap" ::: "memory");
- }
- 
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263101AbUFFInp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263079AbUFFIoa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263101AbUFFInp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 04:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263147AbUFFIno
+	id S263079AbUFFIoa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 04:44:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263126AbUFFIoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 04:43:44 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:11456 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263101AbUFFIn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 04:43:29 -0400
-Date: Sun, 6 Jun 2004 09:43:26 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Christoph Hellwig <hch@infradead.org>,
-       Mike McCormack <mike@codeweavers.com>, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-Subject: Re: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
-Message-ID: <20040606084326.GA6716@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Mike McCormack <mike@codeweavers.com>, mingo@elte.hu,
-	linux-kernel@vger.kernel.org
-References: <40C2B51C.9030203@codeweavers.com> <20040606073241.GA6214@infradead.org> <40C2E045.8090708@codeweavers.com> <20040606081021.GA6463@infradead.org> <40C2E5DC.8000109@codeweavers.com> <20040606083924.GA6664@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040606083924.GA6664@infradead.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 6 Jun 2004 04:44:30 -0400
+Received: from imap.gmx.net ([213.165.64.20]:36748 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263079AbUFFIo2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 04:44:28 -0400
+X-Authenticated: #4512188
+Message-ID: <40C2D969.4010509@gmx.de>
+Date: Sun, 06 Jun 2004 10:44:25 +0200
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040604)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Miles Lane <miles.lane@comcast.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc2-bk6 -- mtrr: 0xd0000000,0x8000000 overlaps existing
+ 0xd0000000,0x200000
+References: <40C28573.6070704@comcast.net>
+In-Reply-To: <40C28573.6070704@comcast.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 06, 2004 at 09:39:24AM +0100, Christoph Hellwig wrote:
-> > True, we are relying on undocumented assumptions.  On the other hand, 
-> > there's plenty of programs that rely on undocumented assumptions. 
-> > Binary compatability to me means that the same binary will work even 
-> > when the underlying system changes... is there a caveat that I missed?
+Miles Lane wrote:
+> I am getting an error using the nv open-source driver
+> for the GeForce FX 5600 board.
 > 
-> And there's plenty of programs that break because of that.  Wine is now
-> one of those.  You can either cludge around your brokenness even more or
-> try to get it fixed.  Your choice.
+> vesafb: framebuffer at 0xd0000000, mapped to 0xf8808000, size 3072k
+> vesafb: mode is 1024x768x16, linelength=2048, pages=1
+> vesafb: protected mode interface info at c000:f530
+> vesafb: scrolling: redraw
+> vesafb: directcolor: size=0:5:6:5, shift=0:11:5:0
+> fb0: VESA VGA frame buffer device
+> mtrr: 0xd0000000,0x8000000 overlaps existing 0xd0000000,0x200000
 
-And btw, if you'd have read the whole thread you'd have seen that I argued
-against mergign the randomization and address space layout changes into
-2.6, and such changes during stable series are bad.  But your still much
-better of getting your code fixed properly, and thus pretty much means
-havign your own binary format handler in the kernel that sets up the address
-space in a windows compatible way.
+Well, don'T use framebuffer console and everthing will be fine.
 
-> 
----end quoted text---
+Prakash

@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287508AbSA0CSF>; Sat, 26 Jan 2002 21:18:05 -0500
+	id <S287516AbSA0CXT>; Sat, 26 Jan 2002 21:23:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287518AbSA0CRz>; Sat, 26 Jan 2002 21:17:55 -0500
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:50442
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S287508AbSA0CRn>; Sat, 26 Jan 2002 21:17:43 -0500
-Message-Id: <5.1.0.14.2.20020126211133.01ce7ff0@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 26 Jan 2002 21:13:26 -0500
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-From: Stevie O <stevie@qrpff.net>
-Subject: Re: 2.2.20: pci-scan+natsemi & Device or resource busy
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20020126210522.01d433c0@whisper.qrpff.net>
-In-Reply-To: <3C5344DF.6FC8BB24@mandrakesoft.com>
- <5.1.0.14.2.20020126183314.01cbb510@whisper.qrpff.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S287518AbSA0CXG>; Sat, 26 Jan 2002 21:23:06 -0500
+Received: from gear.torque.net ([204.138.244.1]:6150 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S287516AbSA0CWu>;
+	Sat, 26 Jan 2002 21:22:50 -0500
+Message-ID: <3C53643E.47EDB3C2@torque.net>
+Date: Sat, 26 Jan 2002 21:21:50 -0500
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.3-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Andi Kleen <ak@suse.de>
+Subject: [PATCH] sg in lk 2.5.3-pre5
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 09:06 PM 1/26/2002 -0500, Stevie O wrote:
->At 07:07 PM 1/26/2002 -0500, Jeff Garzik wrote:
->>Stevie O wrote:
->> > My friend is trying Linux for the first time. I'm having him use the
->> > pci-scan and natsemi modules for his Netgear FA-311 card. With the initial
->>
->>These aren't Linux drivers, they are scyld.com drivers...  See
->>http://scyld.com/ for support and more info...
->
->Ahah! Thank you :P
->
->/me smacks himself for not verifying that he'd found the right drivers
->
->Any idea what drivers I *do* need?
->
+In pre5 the sg driver tries to set up both address
+and page+offset in scatterlist entries. Unfortunately
+asm-i386/pci.h's pci_map_sg() contains this check:
 
-Erm, wait...
+                if (sg[i].address && sg[i].page)
+                        BUG();
 
-A google for "linux fa-311 driver" yields this as the first result:
+which kills that strategy with the sym53c8xx driver.
+The sooner we get rid of address in struct scatterlist
+the better ... the address,page+offset duality is a mess. 
+Strange that Andi Kleen had problems compiling ide-scsi, 
+it compiled and worked on my UP and SMP machines (AMD and
+dual Celeron respectively).
 
-http://www.scyld.com/network/ethercard.html
+Sg patch (which has been already sent to Jens) follows.
 
-The title of this page is "Linux Drivers for PCI Ethernet Chips"...
+Doug Gilbert
 
-Netgear isn't exactly a small company, I'm finding it hard to believe that 
-NOBODY has ever tried to create a module for one of their cards...
+--- linux/drivers/scsi/sg.c     Thu Jan 24 18:45:01 2002
++++ linux/drivers/scsi/sg.c3523 Thu Jan 24 20:53:28 2002
+@@ -19,7 +19,7 @@
+  */
+ #include <linux/config.h>
+ #ifdef CONFIG_PROC_FS
+- static char sg_version_str[] = "Version: 3.5.23 (20020103)";
++ static char sg_version_str[] = "Version: 3.5.23 (20020124)";
+ #endif
+  static int sg_version_num = 30523; /* 2 digits for each component */
+ /*
+@@ -76,7 +76,7 @@
+ #include <linux/version.h>
+ #endif /* LINUX_VERSION_CODE */
 
+-#define SG_STILL_HAVE_ADDRESS_IN_SCATTERLIST
++/* #define SG_STILL_HAVE_ADDRESS_IN_SCATTERLIST */
 
---
-Stevie-O
-
-Real programmers use COPY CON PROGRAM.EXE
-
+ #define SG_ALLOW_DIO_DEF 0
+ #define SG_ALLOW_DIO_CODE      /* compile out be commenting this define */

@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264319AbUAMM5O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 07:57:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264315AbUAMM5O
+	id S264256AbUAMNH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 08:07:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264257AbUAMNH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 07:57:14 -0500
-Received: from matrix.roma2.infn.it ([141.108.255.2]:13710 "EHLO
-	matrix.roma2.infn.it") by vger.kernel.org with ESMTP
-	id S264319AbUAMM4a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 07:56:30 -0500
-From: "Emiliano 'AlberT' Gabrielli" <AlberT@SuperAlberT.it>
-Reply-To: AlberT@SuperAlberT.it
-Organization: SuperAlberT.it
-To: gentile <pierre.gentile@mpsa.com>, linux-kernel@vger.kernel.org
-Subject: Re: driver provenance in kernel
-Date: Tue, 13 Jan 2004 13:57:13 +0100
-User-Agent: KMail/1.5.4
-References: <loom.20040113T133054-768@post.gmane.org>
-In-Reply-To: <loom.20040113T133054-768@post.gmane.org>
+	Tue, 13 Jan 2004 08:07:59 -0500
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:44720 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264256AbUAMNH6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 08:07:58 -0500
+Date: Tue, 13 Jan 2004 14:07:54 +0100 (CET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Ralf Baechle <ralf@linux-mips.org>
+Cc: Adrian Bunk <bunk@fs.tum.de>, linux-mips@linux-mips.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] fix DECSTATION depends
+In-Reply-To: <20040113022826.GC1646@linux-mips.org>
+Message-ID: <Pine.LNX.4.55.0401131401300.21962@jurand.ds.pg.gda.pl>
+References: <20040113015202.GE9677@fs.tum.de> <20040113022826.GC1646@linux-mips.org>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200401131357.13179.AlberT@SuperAlberT.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13:37, martedì 13 gennaio 2004, gentile wrote:
-> Hello,
->
-> I'd like to hnow if a driver is already present in a kernel before
-> atempting to load it as module. I looked into System.map for a key label
-> without success :-(
->
-> I know it must be a stupid question but if someone could help me anyway ?
->
-> Thanks
->
+On Tue, 13 Jan 2004, Ralf Baechle wrote:
 
-man lsmod
+> > it seems the following is required in Linus' tree to get correct depends 
+> > for DECSTATION:
+> 
+> Thanks,  applied.
 
-:-)
+ The dependency was intentional: stable for 32-bit, experimental for
+64-bit.  I'm reverting the change immediately.  Please always contact me
+before applying non-obvious changes for the DECstation.
 
+ If there's anything wrong with the depends, it should be fixed elsewhere.  
+Details, please.
+
+  Maciej
 
 -- 
-<?php echo '       Emiliano `AlberT` Gabrielli       '."\n".
-           '  E-Mail: AlberT_AT_SuperAlberT_it  '."\n".
-           '  Web:    http://SuperAlberT.it  '."\n".
-'  IRC:    #php,#AES azzurra.com '."\n".'ICQ: 158591185'; ?>
-
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

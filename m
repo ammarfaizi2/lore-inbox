@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266379AbUGUAyx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266381AbUGUA7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266379AbUGUAyx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 20:54:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266381AbUGUAyx
+	id S266381AbUGUA7q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 20:59:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266386AbUGUA7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 20:54:53 -0400
-Received: from 214.98-30-64.ftth.swbr.surewest.net ([64.30.98.214]:50189 "HELO
-	sublime.the-space.net") by vger.kernel.org with SMTP
-	id S266379AbUGUAyu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 20:54:50 -0400
-Date: Tue, 20 Jul 2004 17:55:32 -0700 (PDT)
-From: Andy Biddle <andyb@chainsaw.com>
-X-X-Sender: andyb@sublime.winfirst.com
-To: linux-kernel@vger.kernel.org
-Subject: Asus A7M266-D, Linux 2.6.7 and APIC
-Message-ID: <20040720175509.H48409@sublime.winfirst.com>
+	Tue, 20 Jul 2004 20:59:46 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:54544 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S266381AbUGUA7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 20:59:44 -0400
+Message-ID: <40FDC625.9080804@techsource.com>
+Date: Tue, 20 Jul 2004 21:25:57 -0400
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Lee Revell <rlrevell@joe-job.com>
+CC: "The Linux Audio Developers' Mailing List" 
+	<linux-audio-dev@music.columbia.edu>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary	Kernel	Preemption
+ Patch
+References: <20040712163141.31ef1ad6.akpm@osdl.org>	 <1090306769.22521.32.camel@mindpipe> <20040720071136.GA28696@elte.hu>	 <200407202011.20558.musical_snake@gmx.de>	 <1090353405.28175.21.camel@mindpipe>  <40FDAF86.10104@gardena.net> <1090369957.841.14.camel@mindpipe>
+In-Reply-To: <1090369957.841.14.camel@mindpipe>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having what I suspect is a newbie-type problem, but I assure you I've
-looked around.
 
-I have a dual-proc server that I've recently decided to overhaul.  It's an
-Asus A7M266-D motherboard.  It had been running with dual Athlon MP 1800+s
-and RedHat and BIOS rev 1003 for at least a year with no real problems.
 
-First I decided to change the OS to Gentoo.  I build the system with no
-problem and built a custom kernel based on linux 2.6.7-gentoo-r11.
-Everything was working great.  Then I changed out the procs and went with
-dual Athlon MP 2800+s.  To support these, I needed to (according to Asus's
-website) upgrade the BIOS to 1011.002 or higher.  (Latest is 1011.003, so
-that's what I used.)
+Lee Revell wrote:
 
-Now, when I boot to this custom kernel I get about 2 seconds into the boot
-process before the system starts spewing constant "APIC error on CPU0:
-04(04)" messages.   It stops booting at that point.
+> There are still a few areas that need work, ioctl gives me problems, but
+> the latest 2.6 kernels are quite good.  If you look at the 'clean'
+> version of the voluntary kernel preemption patch it is pretty small.  My
+> understanding is that the kernel is already preemptible anytime that a
+> spin lock (including the BKL) is not held, and that the voluntary kernel
+> preemption patch adds some scheduling points in places where it is safe
+> to sleep, but preemption is disabled because we are holding the BKL, and
+> that the number of these should approach zero as the kernel is improved
+> anyway.
 
-I've done a little research and it seems that I'm supposed to do a couple
-of things:
-	1.  Disable "MPS 1.4 Support" in the BIOS.
-	2.  pass the kernel "noapic" as a parameter.
 
-I've done both of these and I STILL get the APIC messages.  (Which leads
-me to suspect the "noapic" isn't working or I'm doing it wrong at the very
-least.)
+That's confusing to me.  It was my understanding that the BKL is used to 
+completely lock down the kernel so that no other CPU can have a process 
+get into the kernel... something like how SMP was done under 2.0.
 
-I've build another custom kernel where the only difference is that SMP is
-disabled.  Sure enough, that works like a champ, but with only the single
-CPU.
+So, if you sleep during a BKL, wouldn't that imply that nothing else 
+would be allowed to enter the kernel until after the kernel thread that 
+took the lock wakes up and releases the lock?
 
-I've searched through the kernel "make menuconfig" menus and can't see
-that I'm missing anything.  In fact, I can't even FIND "APIC" options
-unless I disable SMP...
-
-I'm just about out of ideas here... Any suggestions?
-
-Thanks,
-AndyB
--
-To unsubscribe from this list: send the line "unsubscribe linux-smp" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
 

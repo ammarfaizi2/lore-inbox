@@ -1,42 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262612AbULPBgw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262640AbULPBxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262612AbULPBgw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 20:36:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbULPBSR
+	id S262640AbULPBxm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 20:53:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262583AbULPAzB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 20:18:17 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:35713 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262567AbULPAvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 19:51:22 -0500
-Subject: Re: No Subject
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@suse.de>
-Cc: Keir.Fraser@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
-       Steven.Hand@cl.cam.ac.uk, Ian.Pratt@cl.cam.ac.uk, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       riel@redhat.com
-In-Reply-To: <41BF1983.mailP9C1B91GB@suse.de>
-References: <41BF1983.mailP9C1B91GB@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1103154617.3585.20.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 15 Dec 2004 23:50:18 +0000
+	Wed, 15 Dec 2004 19:55:01 -0500
+Received: from alg145.algor.co.uk ([62.254.210.145]:44561 "EHLO
+	dmz.algor.co.uk") by vger.kernel.org with ESMTP id S262543AbULPA0G
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 19:26:06 -0500
+Date: Thu, 16 Dec 2004 00:25:42 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@mips.com>
+To: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, "Maciej W. Rozycki" <macro@linux-mips.org>
+Subject: [PATCH] PCI early fixup missing bits
+Message-ID: <Pine.LNX.4.61.0412152359360.14855@perivale.mips.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MTUK-Scanner: Found to be clean
+X-MTUK-SpamCheck: not spam (whitelisted), SpamAssassin (score=-4.727,
+	required 4, AWL, BAYES_00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Xen interface seems to me better described that most of the kernel
-interfaces and has more papers written on it. I would rather see
-arch/xen and public exposure and use of the platform before considering
-major redesigns. The s390 people have proved we can remove/fold arch
-directories effectively and after original implementation without
-problems.
+Hello,
 
-I'm not convinced by your arguments about arch/xen although I am long
-term in favour because I'd like see it easy to build a kernel which can
-be used without Xen and can switch into Xen guest mode on Xen loading.
+ A few bits seem to be missing for PCI early fixup to work -- the 
+pci_fixup_device() helper ignores fixups of the pci_fixup_early type.  
+Also the local class variable needs to be refreshed after performing the 
+fixups for they can change dev->class.
 
-Alan
+ The patch should be obvious.  Checked against 2.6.10-rc3-bk9.  Please 
+apply.
 
+  Maciej
+
+Signed-off-by: Maciej W. Rozycki <macro@mips.com>
+
+patch-mips-2.6.10-rc2-20041124-pci_fixup_early-1
+diff -up --recursive --new-file linux-mips-2.6.10-rc2-20041124.macro/drivers/pci/probe.c linux-mips-2.6.10-rc2-20041124/drivers/pci/probe.c
+--- linux-mips-2.6.10-rc2-20041124.macro/drivers/pci/probe.c	2004-11-22 14:27:03.000000000 +0000
++++ linux-mips-2.6.10-rc2-20041124/drivers/pci/probe.c	2004-12-15 18:45:32.000000000 +0000
+@@ -490,6 +490,7 @@ static int pci_setup_device(struct pci_d
+ 
+ 	/* Early fixups, before probing the BARs */
+ 	pci_fixup_device(pci_fixup_early, dev);
++	class = dev->class >> 8;
+ 
+ 	switch (dev->hdr_type) {		    /* header type */
+ 	case PCI_HEADER_TYPE_NORMAL:		    /* standard header */
+diff -up --recursive --new-file linux-mips-2.6.10-rc2-20041124.macro/drivers/pci/quirks.c linux-mips-2.6.10-rc2-20041124/drivers/pci/quirks.c
+--- linux-mips-2.6.10-rc2-20041124.macro/drivers/pci/quirks.c	2004-11-22 14:27:04.000000000 +0000
++++ linux-mips-2.6.10-rc2-20041124/drivers/pci/quirks.c	2004-12-15 18:36:15.000000000 +0000
+@@ -1232,6 +1232,8 @@ static void pci_do_fixups(struct pci_dev
+ 	}
+ }
+ 
++extern struct pci_fixup __start_pci_fixups_early[];
++extern struct pci_fixup __end_pci_fixups_early[];
+ extern struct pci_fixup __start_pci_fixups_header[];
+ extern struct pci_fixup __end_pci_fixups_header[];
+ extern struct pci_fixup __start_pci_fixups_final[];
+@@ -1245,6 +1247,11 @@ void pci_fixup_device(enum pci_fixup_pas
+ 	struct pci_fixup *start, *end;
+ 
+ 	switch(pass) {
++	case pci_fixup_early:
++		start = __start_pci_fixups_early;
++		end = __end_pci_fixups_early;
++		break;
++
+ 	case pci_fixup_header:
+ 		start = __start_pci_fixups_header;
+ 		end = __end_pci_fixups_header;

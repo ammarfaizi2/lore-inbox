@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132663AbQKDKTj>; Sat, 4 Nov 2000 05:19:39 -0500
+	id <S129033AbQKDKYu>; Sat, 4 Nov 2000 05:24:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132664AbQKDKTU>; Sat, 4 Nov 2000 05:19:20 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:45062 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S132663AbQKDKTM>;
-	Sat, 4 Nov 2000 05:19:12 -0500
-Date: Sat, 4 Nov 2000 11:19:09 +0100
-From: Andi Kleen <ak@suse.de>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: "Hen, Shmulik" <shmulik.hen@intel.com>,
-        "'LKML'" <linux-kernel@vger.kernel.org>,
-        "'LNML'" <linux-net@vger.kernel.org>
-Subject: Re: Locking Between User Context and Soft IRQs in 2.4.0
-Message-ID: <20001104111909.A11500@gruyere.muc.suse.de>
-In-Reply-To: <07E6E3B8C072D211AC4100A0C9C5758302B27077@hasmsx52.iil.intel.com> <3A03DABD.AF4B9AD5@mandrakesoft.com>
+	id <S129164AbQKDKYk>; Sat, 4 Nov 2000 05:24:40 -0500
+Received: from nwcst283.netaddress.usa.net ([204.68.23.28]:56771 "HELO
+	nwcst283.netaddress.usa.net") by vger.kernel.org with SMTP
+	id <S129033AbQKDKYg> convert rfc822-to-8bit; Sat, 4 Nov 2000 05:24:36 -0500
+Message-ID: <20001104102435.19069.qmail@nwcst283.netaddress.usa.net>
+Date: 4 Nov 00 15:54:35 IST
+From: Nitin Dhingra <nitin.d@usa.net>
+To: linux-kernel@vger.kernel.org
+Subject: A little help in SCSI Device Drivers
+X-Mailer: USANET web-mailer (34FM.0700.4.03)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A03DABD.AF4B9AD5@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Nov 04, 2000 at 04:45:33AM -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 04, 2000 at 04:45:33AM -0500, Jeff Garzik wrote:
-> 
-> > *       What about dev->open and dev->stop ?
-> 
-> Sleep all you want, we'll leave the light on for ya.
+Respected Sir,
+I had got your mail from redhat.com and came to know you are 
+working under drivers in Linux. I am also working in this field,
+I would like you to help me out with one problem as I am stuck here
+and couldn't proceed further.
+
+I am working in a project that involves making a low-level device 
+driver for a SCSI card (Symbios Logic sym 53c810) and the problem 
+that I am facing is with interrupts. There is a kind of a script 
+processor in the card to which we give some instructions to interrupt
+and the IRQ line 10 is supposed to be interrupted. Now the problem 
+is we request irq 10 and provide our ISR entry, but this ISR is never
+called infact when we check /proc/interrupts or /proc/stat, there is
+"0" value infront of our entry.
+
+I have verified that interrupt has occured in the SCSI as I had 
+polled and found out. Now I am not able to get where could be the 
+problem as the interrupt is ocuuring from SCSI side and also the card
+is working fine that I have checked. 
+
+Could you suggest some possible solution to this?
+
+I would be awaiting your precious suggestion.
+
+Thanks,
+
+Regards,
+Nitin Dhingra
 
 
-... but make sure you have no module unload races (or at least not too
-huge holes, some are probably unavoidable with the current network
-driver interface, e.g. without moving module count management a bit up). 
-This means you should do MOD_INC_USE_COUNT very early at least to
-minimize the windows (and DEC_USE_COUNT very late) 
-
-> dev->do_ioctl:
-> 	Locking: Inside rtnl_lock() semaphore.
-> 	Sleeping: OK
-
-Just make sure you lock against your interrupt and xmit threads.
-
-> 	Locking: Inside dev->xmit_lock spinlock.
-> 	Sleeping: NO[1]
-> 
-> 
-> NOTE [1]: On principle, you should not sleep when a spinlock is held.
-> However, since this spinlock is per-net-device, we only block ourselves
-> if we sleep, so the effect is mitigated.
-
-Sounds like dangerous advice.
-
--Andi
+____________________________________________________________________
+Get free email and a permanent address at http://www.netaddress.com/?N=1
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

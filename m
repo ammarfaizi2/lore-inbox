@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264329AbUEXQAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264330AbUEXQE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264329AbUEXQAi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 12:00:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264330AbUEXQAi
+	id S264330AbUEXQE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 12:04:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264331AbUEXQE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 12:00:38 -0400
-Received: from mail01.hansenet.de ([213.191.73.61]:63140 "EHLO
-	webmail.hansenet.de") by vger.kernel.org with ESMTP id S264329AbUEXQAg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 12:00:36 -0400
-Date: Mon, 24 May 2004 18:00:26 +0200
-From: Malte =?ISO-8859-1?B?U2NocvZkZXI=?= <MalteSch@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Bad X-performance on 2.6.6 & 2.6.7-rc1 on x86-64
-Message-Id: <20040524180026.07a80c10@highlander.Home.LAN>
-Reply-To: MalteSch@gmx.de
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 24 May 2004 12:04:29 -0400
+Received: from fw.osdl.org ([65.172.181.6]:149 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264330AbUEXQE1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 12:04:27 -0400
+Date: Mon, 24 May 2004 08:54:17 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Ed Tomlinson <edt@aei.ca>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, zwane@arm.linux.org.uk
+Subject: Re: [PATCH][2.6-mm] Make i386 boot not so chatty
+Message-Id: <20040524085417.169d660d.rddunlap@osdl.org>
+In-Reply-To: <200405220801.53761.edt@aei.ca>
+References: <Pine.LNX.4.58.0405210032160.2864@montezuma.fsmlabs.com>
+	<20040520234006.291c3dfa.akpm@osdl.org>
+	<200405220801.53761.edt@aei.ca>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Mon__24_May_2004_18_00_26_+0200_nHe4sVyo1ggJ3F8Z"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Mon__24_May_2004_18_00_26_+0200_nHe4sVyo1ggJ3F8Z
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Sat, 22 May 2004 08:01:53 -0400 Ed Tomlinson wrote:
 
-Hi,
-I build a 64-bit kernel (using gcc 3.3.3) on debian/sid for an Athlon 64 32=
-00+. The System has a Radeon 9800pro as graphics card.=20
-When playing videos using xine in full PAL-Resolution these videos run chop=
-py, top then shows a cpuload of roughly 50% system and 50% user.
+| On May 21, 2004 02:40 am, Andrew Morton wrote:
+| > Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
+| > >
+| > > This patch silences the default i386 boot by putting a lot of development
+| > >  related printks under KERN_DEBUG loglevel, allowing the normal chatty mode
+| > >  to be turned on by using the 'debug' kernel parameter.
+| > 
+| > I think I like it chatty.  Turning this stuff off by default makes kernel
+| > developers' lives that little bit harder.
+| > 
+| > Is the `quiet' option not suitable?
+| 
+| I have been using linux for years with an a few dips into development.  I second
+| Andrew's idea.  I like the idea of a quiet parm _much_ more than a default quiet mode.
 
-Thanks.
---=20
----------------------------------------
-Malte Schr=F6der
-MalteSch@gmx.de
-ICQ# 68121508
----------------------------------------
+which is already there, of course.  and it works well -- i use it
+often.  however, i've seen at least one distro override it with a
+sysctl during init-scripts.  bah.  :(
 
-
---Signature=_Mon__24_May_2004_18_00_26_+0200_nHe4sVyo1ggJ3F8Z
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAshwd4q3E2oMjYtURAqzJAKDOHSPdhh2ResSZgU5J4GXDO52wtACfSdZy
-uzfbGXqsJ1vy0QJ2IH3tass=
-=9lf5
------END PGP SIGNATURE-----
-
---Signature=_Mon__24_May_2004_18_00_26_+0200_nHe4sVyo1ggJ3F8Z--
+--
+~Randy

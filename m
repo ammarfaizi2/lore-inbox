@@ -1,22 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbUCZXqv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 18:46:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbUCZXqv
+	id S261455AbUCZXrr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 18:47:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbUCZXrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 18:46:51 -0500
-Received: from fw.osdl.org ([65.172.181.6]:51351 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261437AbUCZXqu (ORCPT
+	Fri, 26 Mar 2004 18:47:47 -0500
+Received: from fw.osdl.org ([65.172.181.6]:59031 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261455AbUCZXrp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 18:46:50 -0500
-Date: Fri, 26 Mar 2004 15:48:51 -0800
+	Fri, 26 Mar 2004 18:47:45 -0500
+Date: Fri, 26 Mar 2004 15:49:55 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>
+To: Sid Boyce <sboyce@blueyonder.co.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [EXT3/JBD] Periodic journal flush not enough?
-Message-Id: <20040326154851.7a3ad417.akpm@osdl.org>
-In-Reply-To: <20040326231958.GA484@gondor.apana.org.au>
-References: <20040326231958.GA484@gondor.apana.org.au>
+Subject: Re: 2.6.5-rc2-mm4
+Message-Id: <20040326154955.65d40a3e.akpm@osdl.org>
+In-Reply-To: <4064B8B1.6050501@blueyonder.co.uk>
+References: <4062E015.2000608@blueyonder.co.uk>
+	<40633278.9060503@blueyonder.co.uk>
+	<4064B8B1.6050501@blueyonder.co.uk>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,18 +26,17 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu <herbert@gondor.apana.org.au> wrote:
+Sid Boyce <sboyce@blueyonder.co.uk> wrote:
 >
-> I've encountered a problem with the journal flush timer.  The problem
-> is that when a filesystem is short on space, relying on a timer-based
-> flushing mechanism is no longer adequate.  For example, on my P4 2GHz
-> I can trigger an ENOSPC error by doing
-> 
-> while :; do echo test > a; [ -s a ] || break; rm a; done; echo Out of space
-> 
-> on an ext3 file system with 12Mb of free space using the usual 5s
-> journal flush timer.
+> >> arch/x86_64/kernel/signal.c: In function `do_signal':
+> >> arch/x86_64/kernel/signal.c:426: warning: passing arg 2 of 
+> >> `get_signal_to_deliver' from incompatible poi
+> >> nter type
+> >> arch/x86_64/kernel/signal.c:426: error: too few arguments to function 
+> >> `get_signal_to_deliver'
+> >> make[1]: *** [arch/x86_64/kernel/signal.o] Error 1
+> >> make: *** [arch/x86_64/kernel] Error 2
 
-I cannot reproduce this.  Please send more details.  Journalling mode,
-kernel version, etc.
+You'll need to revert signal-race-fix.patch until the various arch guys
+catch up.
 

@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264551AbUFEHzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264546AbUFEHzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264551AbUFEHzL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 03:55:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264546AbUFEHzL
+	id S264546AbUFEHzV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 03:55:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbUFEHzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 03:55:11 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:64181 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S264551AbUFEHzE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 03:55:04 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: "Zephaniah E. Hull" <warp@babylon.d2dc.net>
-Subject: Re: [linux-usb-devel] Re: USBDEVFS_RESET deadlocks USB bus.
-Date: Sat, 5 Jun 2004 09:55:01 +0200
-User-Agent: KMail/1.5.4
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       "David A. Desrosiers" <desrod@gnu-designs.com>,
-       linux-usb-devel@lists.sourceforge.net
-References: <20040604193911.GA3261@babylon.d2dc.net> <200406042240.43490.baldrick@free.fr> <20040604213037.GA2881@babylon.d2dc.net>
-In-Reply-To: <20040604213037.GA2881@babylon.d2dc.net>
+	Sat, 5 Jun 2004 03:55:21 -0400
+Received: from havoc.eusc.inter.net ([213.73.101.6]:17224 "EHLO
+	havoc.eusc.inter.net") by vger.kernel.org with ESMTP
+	id S264546AbUFEHzO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jun 2004 03:55:14 -0400
+Message-ID: <40C17E59.2080103@scienion.de>
+Date: Sat, 05 Jun 2004 10:03:37 +0200
+From: Sebastian Kloska <kloska@scienion.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Keith Duthie <psycho@albatross.co.nz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: APM realy sucks on 2.6.x
+References: <40C0E91D.9070900@scienion.de> <Pine.LNX.4.53.0406051105170.27816@loki.albatross.co.nz>
+In-Reply-To: <Pine.LNX.4.53.0406051105170.27816@loki.albatross.co.nz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200406050955.01677.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 June 2004 23:30, Zephaniah E. Hull wrote:
-> On Fri, Jun 04, 2004 at 10:40:43PM +0200, Duncan Sands wrote:
-> > > c4bae310 Call Trace:
-> > >  [<c0336735>] __down+0x85/0x120
-> > >  [<c033692f>] __down_failed+0xb/0x14
-> > >  [<c026af27>] .text.lock.hub+0x69/0x82
-> > >  [<c0272b7f>] usbdev_ioctl+0x19f/0x710
-> > >  [<c015a45d>] file_ioctl+0x5d/0x170
-> > >  [<c015a686>] sys_ioctl+0x116/0x250
-> > >  [<c0103f8f>] syscall_call+0x7/0xb
-> >
-> > Does this help?
+ No i2c is completely disabled
+
+
+Keith Duthie wrote:
+
+>On Fri, 4 Jun 2004, Sebastian Kloska wrote:
 >
-> I'm afraid not.
+>  
+>
+>>After all this bashing...
+>>
+>>Is there anyone out there who has the same experiences ?
+>>    
+>>
+>
+>I had the same problem at one time. Does disabling i2c help at all??
+>
+>If so, the problem is probably in the w83781d or w83627hf driver; I could
+>send you a copy of the patch, or you could just get the latest i2c release
+>from http://www2.lm-sensors.nu/~lm78/index.html
+>  
+>
 
-Are you sure?  That seems impossible to me!  Can you
-get a new call trace please.
 
-Thanks,
-
-Duncan.

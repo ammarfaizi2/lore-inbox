@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262020AbRE2Cz5>; Mon, 28 May 2001 22:55:57 -0400
+	id <S262022AbRE2Cw5>; Mon, 28 May 2001 22:52:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262023AbRE2Czr>; Mon, 28 May 2001 22:55:47 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:8835 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S262020AbRE2Cze>; Mon, 28 May 2001 22:55:34 -0400
-Date: Mon, 28 May 2001 22:55:33 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200105290255.f4T2tXl24191@devserv.devel.redhat.com>
-To: jgarzik@mandrakesoft.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Plain 2.4.5 VM...
-In-Reply-To: <mailman.991098720.29883.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.991098720.29883.linux-kernel2news@redhat.com>
+	id <S262020AbRE2Cwh>; Mon, 28 May 2001 22:52:37 -0400
+Received: from mnh-1-04.mv.com ([207.22.10.36]:35085 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S262017AbRE2Cwg>;
+	Mon, 28 May 2001 22:52:36 -0400
+Message-Id: <200105290406.XAA05975@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: user-mode port 0.42-2.4.5
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 28 May 2001 23:06:13 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ouch!  When compiling MySql, building sql_yacc.cc results in a ~300M
-> cc1plus process size.  Unfortunately this leads the machine with 380M of
-> RAM deeply into swap:
-> 
-> Mem:   381608K av,  248504K used,  133104K free,       0K shrd,     192K buff
-> Swap:  255608K av,  255608K used,       0K free                  215744K cached
-> 
-> Vanilla 2.4.5 VM.
+The user-mode port of 2.4.5 is available.
 
-I noticed that too and there is no way around it. If we assume
-a 2.5xRAM target, you must add about 704MB. In my case I had no
-spare partition so I added a swapfile, as undoubtedly many
-2.4 sufferers did.
+The network drivers have been completely redone.  If you've tried to set up 
+UML networking and failed, try it again.  There's a new helper which will do 
+most of the host-side setup for you.  The easiest way to get it is to install 
+the RPM.  It's also available from CVS.  See http://user-mode-linux.sourceforge
+.net/networking.html for all the details.
 
--- Pete
+A number of other bugs have been fixed, as well.
+
+The project's home page is http://user-mode-linux.sourceforge.net
+
+Downloads are available at http://sourceforge.net/project/filelist.php?group_id
+=429 and ftp://ftp.nl.linux.org/pub/uml/
+
+				Jeff
+
+

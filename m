@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263260AbTKQCCX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 21:02:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263267AbTKQCCX
+	id S263131AbTKQCRn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 21:17:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263221AbTKQCRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 21:02:23 -0500
-Received: from lns-th2-3f-81-56-201-35.adsl.proxad.net ([81.56.201.35]:58753
-	"EHLO tethys.solarsys.org") by vger.kernel.org with ESMTP
-	id S263260AbTKQCCV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 21:02:21 -0500
-Date: Mon, 17 Nov 2003 03:01:58 +0100
-From: wwp <subscript@free.fr>
-To: linux-kernel@vger.kernel.org
-Subject: possible IDE/ext3 fs corruption while playing w/ ACPI and/or
- 2.4.22?
-Message-Id: <20031117030158.6f690676.subscript@free.fr>
-X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 16 Nov 2003 21:17:43 -0500
+Received: from mail-03.iinet.net.au ([203.59.3.35]:63725 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S263131AbTKQCRm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 21:17:42 -0500
+Subject: Re: Terrible interactivity with 2.6.0-t9-mm3
+From: Gawain Lynch <gawain@freda.homelinux.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>,
+       linux-kernel@vger.kernel.org, CaT <cat@zip.com.au>
+In-Reply-To: <20031116134231.763fc5ed.akpm@osdl.org>
+References: <20031116192643.GB15439@zip.com.au> <3FB7DCF9.5090205@gmx.de>
+	 <20031116134231.763fc5ed.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1069035604.1916.3.camel@frodo.felicity.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 17 Nov 2003 13:20:04 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+On Mon, 2003-11-17 at 08:42, Andrew Morton wrote:
+> Two things to try, please:
+> 
+> a) Is the problem from Linus's tree?  Try 2.6.0-test9 plus 
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm3/broken-out/linus.patch
+> 
+> b) The only significant scheduler change in mm3 was 
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm3/broken-out/context-switch-accounting-fix.patch
+> 	
+>    So please try -mm3 with the above patch reverted with
+> 
+> 	patch -R -p1 < context-switch-accounting-fix.patch
+> 
 
+Hi Andrew,
 
-I wonder if playing w/ vanilla 2.4.22 or 2.4.22+ACPI patches can lead to
-IDE/ext3 fs corruption..
+This is also easily reproducible here with just a kernel compile.
 
-I'm using SuSE 8.1 on my Dell Inspiron 8200, default SuSE 2.4.19-4GB
-kernel (acpi 20020829). I've compiled 2.4.22 vanilla and 2.4.22 + latest
-ACPI code + latest ieee1394 (gcc 3.2), and got IDE faults that lead to ext3
-corruption when (re)booting to those 2.4.22 kernels, in different ACPI modes
-(w/ or w/o batteries, power supply).
+I have tried both a) and b) with b) not changing anything, but a) seems
+to work...  Anything more to try?
 
-Here what /var/log/messages shows:
-	kernel: hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-	kernel: hda: drive not ready for command
-This error usually occurs right when booting the a 2.4.22 kernel (vanilla or
-w/ ACPI patches), and I got broken files and directories sometimes.
+Gawain
 
-I usually use SuSE's 2.4.19 kernel, and never have IDE/ext3 problems. Those past
-3 months, I tried twice to compile and use 2.4.22 and each time I got fs corruption.
-
-So I double-checked my drive for broken sectors, also did 4-hour long memory
-check: nothing bad has been found. I've also upgraded to modutils 2.4.26.
-
-That's why I'm trying to figure out what element (kernel, acpi, ieee1394,
-SuSE stuff, Dell hardware/BIOS) is leading to such IDE errors and to fs
-data loss.
-
-Any thought about such problems or maybe how to investigate? Did anyone
-experienced such problems w/ ACPI, Dell hardware or fresh 2.4.22 kernel?
-
-
-Regards,
-
--- 
-wwp

@@ -1,40 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277842AbRKAEw3>; Wed, 31 Oct 2001 23:52:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277966AbRKAEwT>; Wed, 31 Oct 2001 23:52:19 -0500
-Received: from dsl-213-023-038-229.arcor-ip.net ([213.23.38.229]:49670 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S277842AbRKAEwC>;
-	Wed, 31 Oct 2001 23:52:02 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andreas Dilger <adilger@turbolabs.com>
-Subject: Re: Google's mm problem - not reproduced on 2.4.13
-Date: Thu, 1 Nov 2001 05:52:34 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15yzlQ-00021P-00@starship.berlin> <E15z2WJ-0000wc-00@starship.berlin> <20011031145331.S16554@lynx.no>
-In-Reply-To: <20011031145331.S16554@lynx.no>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15z9qE-0000iy-00@starship.berlin>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S273904AbRJTStk>; Sat, 20 Oct 2001 14:49:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S273918AbRJTStV>; Sat, 20 Oct 2001 14:49:21 -0400
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:41394 "EHLO snfc21.pbi.net") by vger.kernel.org with ESMTP id <S273904AbRJTStQ>; Sat, 20 Oct 2001 14:49:16 -0400
+Date: Sat, 20 Oct 2001 04:52:23 -0700
+From: Bruce Korb <bkorb@pacbell.net>
+Subject: How do you clean up with pthread locks held?
+To: linux-kernel@vger.kernel.org, bug-glibc@gnu.org, guile-user@gnu.org
+Cc: bkorb@pacbell.net
+Message-id: <3BD16577.5093D070@pacbell.net>
+Organization: Home
+MIME-version: 1.0
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i586)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On October 31, 2001 10:53 pm, Andreas Dilger wrote:
-> On Oct 31, 2001  22:03 +0100, Daniel Phillips wrote:
-> > Ben reports that his test with 2 Gig memory runs fine, as it does for me, but 
-> > that it locks up tight with 3.5 Gig, requiring power cycle.  Since I only 
-> > have 2 Gig here I can't reproduce that (yet).
+
+I should note that I do not conciously use pthreads.
+Every thread in this process group is a complete
+new process.  But the Guile library may.  Don't know.
+
+Here's the stack trace (linux 2.4.7 & glibc-2.1):
+
+> 4008cc66 sigsuspend () from /lib/libc.so.6
+> 400324d0 __pthread_wait_for_restart_signal () \
+>           from /lib/libpthread.so.0
+> 40034355 __pthread_alt_lock () from /lib/libpthread.so.0
+> 40030bb2 pthread_mutex_lock () from /lib/libpthread.so.0
+> 400d223b free () from /lib/libc.so.6
+> 400c4c91 fclose@@GLIBC_2.1 () from /lib/libc.so.6
+> 0805eb9c closeServer () at agShell.c:66
+> 4008f2f5 exit () from /lib/libc.so.6
+> 08060837 main (argc=6, argv=0xbffff264) at autogen.c:97
+> 4007cbaf __libc_start_main () from /lib/libc.so.6
+
+"closeServer" is a callback in the "atexit()" list:
+
+> void
+> closeServer( void )
+> {
+>     if (serverId == NULLPROCESS)
+>         return;
 > 
-> Sadly, I bought some memory yesterday, and it was only U$30 for 256MB
-> DIMMs, so $120/GB if you have enough slots.  Not that I'm suggesting
-> you go out and but more memory Daniel, as you probably have your slots
-> filled with 2GB, and larger sticks are still bit more expesive.
+>     (void)kill( serverId, SIGKILL );
+>     serverId = NULLPROCESS;
+-->   (void)fclose( serverPair.pfRead ); <-- call in stack
+>     (void)fclose( serverPair.pfWrite );
+>     serverPair.pfRead = serverPair.pfWrite = (FILE*)NULL;
+> }
 
-You're not kidding.  Just FYI, four 1GB sticks for this machine will set you
-back a  kilobuck.  (PC/133 Registered SDRAM 72-bit ECC, 168-pin gold-plated
-DIMM)
+The (edited, slightly) process status:
 
---
-Daniel
+> $ ps -t pts/1 -l
+>   F S   PID  PPID ADDR SZ WCHAN  TTY   CMD
+> 000 S  1393  1392 -   383 rt_sig pts/1 ksh
+> 404 Z 13156 13155 -     0 do_exi pts/1 sh <defunct>
+> 000 T 13155  1393 -  1005 do_sig pts/1 ag
+
+Things to note about the program:
+
+1.  The "serverId" process was fork()-ed with different ends of
+    two separate "pipe(2)" calls for STDIN_FILENO and STDOUT_FILENO.
+    These fileno's were fdopen-ed to create "pfRead" and "pfWrite".
+
+2.  The program seg-faulted before this, calling gh_eval_str() to
+    retrieve the value of a scheme variable, via:  "(. var-name)".
+    The variable exists, so likely there is some internal issue.
+
+3.  The seg-fault was handled with a siglongjump back to main(),
+    with an immediate call to exit(3).
+
+============
+
+So, we have all kinds of issues here.  The main one is this:
+How can one reliably clean up in a signal handler?  If there
+are hidden pthread locks being held by a hung thread and those
+locks are needed for cleanup, what do you do?  How do you
+detect the issue and just let the kernel clean everything up?
+
+My short-term hackaround will be to not close the pipes when
+I am in "exit" processing.  (I close the server for other reasons,
+too.)  I don't like that, though.

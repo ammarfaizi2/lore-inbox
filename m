@@ -1,56 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263041AbTCSRNq>; Wed, 19 Mar 2003 12:13:46 -0500
+	id <S263080AbTCSRUu>; Wed, 19 Mar 2003 12:20:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263056AbTCSRNq>; Wed, 19 Mar 2003 12:13:46 -0500
-Received: from smtp-102.noc.nerim.net ([62.4.17.102]:18703 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id <S263041AbTCSRNp> convert rfc822-to-8bit; Wed, 19 Mar 2003 12:13:45 -0500
-Date: Wed, 19 Mar 2003 18:24:42 +0100
-From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= 
-	<philippe.gramoulle@mmania.com>
-To: Alexander Hoogerhuis <alexh@ihatent.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hard freeze with 2.5.65-mm1
-Message-Id: <20030319182442.4a9fa86c.philippe.gramoulle@mmania.com>
-In-Reply-To: <8765qfacaz.fsf@lapper.ihatent.com>
-References: <20030319104927.77b9ccf9.philippe.gramoulle@mmania.com>
-	<8765qfacaz.fsf@lapper.ihatent.com>
-Organization: Lycos Europe
-X-Mailer: Sylpheed version 0.8.11claws24 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S263083AbTCSRUu>; Wed, 19 Mar 2003 12:20:50 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:31621
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263080AbTCSRUt>; Wed, 19 Mar 2003 12:20:49 -0500
+Subject: Re: PATCH: I2O updates
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1048096801.30751.59.camel@irongate.swansea.linux.org.uk>
+References: <1048096801.30751.59.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048099352.30751.69.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 19 Mar 2003 18:42:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-03-19 at 18:00, Alan Cox wrote:
+> This brings the I2O layer up to date. It fixes the i2o scsi hang
+> on boot. It fixes the stack abuse by the i2o_proc code and it 
+> merges i2o_pci into i2o_core. I2O is now dead so no other 
+> transports are likely to appear, so this always rather messy
+> abstraction can go.
 
-Hi,
+I see I found another bug in evolution. I'll resend them
 
-My workstation froze hard again , this time after few hours.
-
-There was no disk activiy and nothing on the serial console :-(
-
-The machine didn't freeze even even when i ran several program et the same time
-(opera, mozilla, sylpheed, pan,etc...) but froze as the box was almost idle.
-
-Thanks,
-
-Philippe
-
-On 19 Mar 2003 11:19:32 +0100
-Alexander Hoogerhuis <alexh@ihatent.com> wrote:
-
-  | 
-  | Philippe Gramoullé <philippe.gramoulle@mmania.com> writes:
-  | 
-  | > Hi,
-  | >
-  | > [SNIPPED HANG]
-  | >
-  | 
-  | Did your machine have any disk activity? I had a very similar thing
-  | happen, but could still hear my disk move.
-  | 
-  | mvh,
-  | A

@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314609AbSEUOLp>; Tue, 21 May 2002 10:11:45 -0400
+	id <S314641AbSEUOMT>; Tue, 21 May 2002 10:12:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314634AbSEUOLo>; Tue, 21 May 2002 10:11:44 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:4268 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S314609AbSEUOLo>; Tue, 21 May 2002 10:11:44 -0400
-Date: Tue, 21 May 2002 09:11:42 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: A Guy Called Tyketto <tyketto@wizard.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.17: hfs no go
-In-Reply-To: <20020521063757.GA16181@wizard.com>
-Message-ID: <Pine.LNX.4.44.0205210909100.10815-100000@chaos.physics.uiowa.edu>
+	id <S314637AbSEUOMS>; Tue, 21 May 2002 10:12:18 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:6666 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S314634AbSEUOMO>; Tue, 21 May 2002 10:12:14 -0400
+Message-Id: <200205211409.g4LE9HY31513@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
+Subject: Re: RFC - named loop devices...
+Date: Tue, 21 May 2002 17:11:34 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020521015517.609d5516.spyro@armlinux.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 May 2002, A Guy Called Tyketto wrote:
+On 20 May 2002 22:55, Ian Molton wrote:
+> I havent thought about this too much, but...
+>
+> When /etc/mtab is a symlink to /proc/mounts the umount command will fail
+> to unmount loopback mounted filesystems properly.
 
-> gcc -D__KERNEL__ -I/usr/src/linux-2.5.15/include -Wall -Wstrict-prototypes 
-> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
-> -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4 -DMODULE 
-> -DMODVERSIONS -include /usr/src/linux-2.5.15/include/linux/modversions.h 
-> -DKBUILD_BASENAME=inode -c -o inode.o inode.c
-> inode.c: In function `hfs_prepare_write':
-> inode.c:242: dereferencing pointer to incomplete type
-> gcc -D__KERNEL__ -I/usr/src/linux-2.5.15/include -Wall -Wstrict-prototypes 
-> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
-> -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4 -DMODULE 
-> -DMODVERSIONS -include /usr/src/linux-2.5.15/include/linux/modversions.h 
-> -DKBUILD_BASENAME=mdb -c -o mdb.o mdb.c
+I have such symlink!
 
-Okay, I think Christoph Hellwig already gave you the right hint on how to 
-fix the actual problem in inode.c.
+> I was wondering if a solution to this would be to introduce 'named'
+> loopback devices.
+>
+> with named loop devices, umount will then know that mount was the
+> creator of a loopback device that it mounted, and can safely destroy it.
+>
+> at present, mounting and unmounting disc images causes one to run out of
+> loopback devices rather rapidly.
+>
+> If I were to knock up a patch to implement named loop devices, would it
+> stand a chance of being accepted?
+>
+> also, how should this work? should the name be that of the creating
+> process or should it just be a field that the creator can fill in as it
+> pleases?
 
-However, this snippet also shows a glitch I introduced, i.e. make 
-wouldn't stop the build on error immediately, as it used to.
-
-So here's the fix for that one.
-
---Kai
-
-
-# --------------------------------------------
-# 02/05/21	kai@tp1.ruhr-uni-bochum.de	1.584
-# kbuild: Stop immediately on error
-# 
-# This patch restores the previous behavior of stopping the build
-# immediately on error (unless the -k option is given to make)
-# --------------------------------------------
-#
-diff -Nru a/Rules.make b/Rules.make
---- a/Rules.make	Tue May 21 09:08:38 2002
-+++ b/Rules.make	Tue May 21 09:08:38 2002
-@@ -380,5 +380,5 @@
- if_changed = $(if $(strip $? \
- 		          $(filter-out $($(1)),$(cmd_$(@F)))\
- 			  $(filter-out $(cmd_$(@F)),$($(1)))),\
--	       @echo $($(1)); $($(1)); echo 'cmd_$(@F) := $($(1))' > $(@D)/.$(@F).cmd)
-+	       @echo $($(1)); $($(1)) || exit $$?; echo 'cmd_$(@F) := $($(1))' > $(@D)/.$(@F).cmd)
- 
-
+Have no time to think about this now, but will test any patches -
+I want /etc/mtab -> /proc/mounts to become standard practice
+--
+vda

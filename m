@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263502AbUDBBfn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 20:35:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbUDBBfn
+	id S263529AbUDBBel (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 20:34:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbUDBBel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 20:35:43 -0500
-Received: from main.gmane.org ([80.91.224.249]:31695 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263502AbUDBBfg (ORCPT
+	Thu, 1 Apr 2004 20:34:41 -0500
+Received: from fw.osdl.org ([65.172.181.6]:44170 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263502AbUDBBej (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 20:35:36 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Joshua Kwan <joshk@triplehelix.org>
-Subject: Re: 2.6.5-rc3-mm4
-Date: Thu, 01 Apr 2004 20:35:32 -0500
-Message-ID: <pan.2004.04.02.01.35.32.434379@triplehelix.org>
-References: <20040401020512.0db54102.akpm@osdl.org> <200404011112.21212.norberto+linux-kernel@bensa.ath.cx>
+	Thu, 1 Apr 2004 20:34:39 -0500
+Date: Thu, 1 Apr 2004 17:36:49 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: hugh@veritas.com, vrajesh@umich.edu, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap
+ complexity fix
+Message-Id: <20040401173649.22f734cd.akpm@osdl.org>
+In-Reply-To: <20040402011627.GK18585@dualathlon.random>
+References: <20040402001535.GG18585@dualathlon.random>
+	<Pine.LNX.4.44.0404020145490.2423-100000@localhost.localdomain>
+	<20040402011627.GK18585@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: three-cambridge-center-one-nineteen.mit.edu
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(pinging Sam Ravnborg)
-
-On Thu, 01 Apr 2004 11:12:20 -0300, Norberto Bensa wrote:
-> 	make: LANG: Command not found
-> 	make: *** [all] Error 127
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> > it isn't doing anything useful for rw_swap_page_sync, just getting you
+> > into memory allocation difficulties.  No need for add_to_page_cache or
+> > add_to_swap_cache there at all.  As I say, I haven't tested this path,
 > 
-> Workaround is:
-> 
-> 	LC_ALL= sudo make
+> I wouldn't need to call add_to_page_cache either, it's just Andrew
+> prefers it.
 
-This is not right. If you look in the Makefile for LC_ALL, you'll note
-that the assignments are made having an indent in front of them (meaning:
-execute as shell command.)
+Well all of this is to avoid a fairly arbitrary BUG_ON in the radix-tree
+code.  If I hadn't added that, we'd all be happy.
 
-Convert those indents to spaces, and you're good to go. I'm not going to
-bother submitting a patch because pan is surely going to munge it again.
-
--- 
-Joshua Kwan
-
+The code is well-tested and has been thrashed to death in the userspace
+radix-tree test harness.
+(http://www.zip.com.au/~akpm/linux/patches/stuff/rtth.tar.gz).  Let's
+remove the BUG_ON.

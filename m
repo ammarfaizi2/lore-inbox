@@ -1,67 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262338AbUCGV2u (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 16:28:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbUCGV2u
+	id S262339AbUCGVdV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 16:33:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbUCGVdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 16:28:50 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:37050 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262338AbUCGV2s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 16:28:48 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jakub Bogusz <qboosh@pld-linux.org>
-Subject: Re: (2.6 IDE) why PDC202XX_FORCE not allowed with BLK_DEV_PDC202XX_NEW=m?
-Date: Sun, 7 Mar 2004 22:36:12 +0100
-User-Agent: KMail/1.5.3
-References: <20040307210701.GA23440@satan.blackhosts>
-In-Reply-To: <20040307210701.GA23440@satan.blackhosts>
-Cc: linux-kernel@vger.kernel.org
+	Sun, 7 Mar 2004 16:33:21 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:44983
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S262339AbUCGVdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 16:33:20 -0500
+Message-ID: <404B950B.8010205@redhat.com>
+Date: Sun, 07 Mar 2004 13:32:59 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040307
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403072236.12019.bzolnier@elka.pw.edu.pl>
+To: mike@theoretic.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Potential bug in fs/binfmt_elf.c?
+References: <1078508281.3065.33.camel@linux.littlegreen> <404A1C71.3010507@redhat.com> <1078607410.10313.7.camel@linux.littlegreen> <404ABD06.4060607@redhat.com> <pan.2004.03.07.09.58.43.675972@codeweavers.com> <404AFD72.3070306@redhat.com> <pan.2004.03.07.11.53.54.970527@codeweavers.com>
+In-Reply-To: <pan.2004.03.07.11.53.54.970527@codeweavers.com>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mike Hearn wrote:
 
-[ Please use linux-ide@vger.kernel.org for IDE issues. ]
+> But can it handle this case, or will it also map the load area ELF section
+> wrongly?
 
-On Sunday 07 of March 2004 22:07, Jakub Bogusz wrote:
-> PDC202XX_FORCE option is needed to override controller disable by BIOS
-> when RAID is used. Or maybe there is another way to do this in 2.6.x?
+It will most probably do something you don't want.
 
-Nope.
+But ld.so is no particularly special program.  Just write your own very
+small and specialized dynamic loader which does exactly what you need.
 
-> This option has "depends on BLK_DEV_PDC202XX_NEW=y" flag in
-> drivers/ide/Kconfig, thus is not available with pdc202xx_new in
-> module - why?
-
-It seems like a leftover from non-modular IDE PCI days.
-
-> I saw success report with modular pdc202xx_new after this simple change
-> (without PDC202XX_FORCE controller ports were not detected):
->
-> --- linux/drivers/ide/Kconfig.orig        2004-03-04 07:16:45.000000000
-> +0100 +++ linux/drivers/ide/Kconfig     2004-03-07 17:37:25.000000000 +0100
-> @@ -720,7 +720,7 @@
->  # FIXME - probably wants to be one for old and for new
->  config PDC202XX_FORCE
->         bool "Enable controller even if disabled by BIOS"
-> -       depends on BLK_DEV_PDC202XX_NEW=y
-> +       depends on BLK_DEV_PDC202XX_NEW
->         help
->           Enable the PDC202xx controller even if it has been disabled in
-> the BIOS setup.
->
->
-> The same may apply to PDC202XX_BURST for pdc202xx_old module...
-> (but not tested)
-
-Yes, you are right.
-
-Thanks,
-Bartlomiej
-
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

@@ -1,109 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131198AbRBAUrK>; Thu, 1 Feb 2001 15:47:10 -0500
+	id <S131476AbRBAUvu>; Thu, 1 Feb 2001 15:51:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131476AbRBAUrB>; Thu, 1 Feb 2001 15:47:01 -0500
-Received: from ns.caldera.de ([212.34.180.1]:4616 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S131198AbRBAUqr>;
-	Thu, 1 Feb 2001 15:46:47 -0500
-Date: Thu, 1 Feb 2001 21:46:27 +0100
-Message-Id: <200102012046.VAA16746@ns.caldera.de>
-From: Christoph Hellwig <hch@caldera.de>
-To: sct@redhat.com ("Stephen C. Tweedie")
-Cc: bsuparna@in.ibm.com, linux-kernel@vger.kernel.org,
-        kiobuf-io-devel@lists.sourceforge.net
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <20010201193221.D11607@redhat.com>
-User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
+	id <S131619AbRBAUva>; Thu, 1 Feb 2001 15:51:30 -0500
+Received: from styx.suse.cz ([195.70.145.226]:22525 "EHLO kerberos.suse.cz")
+	by vger.kernel.org with ESMTP id <S131476AbRBAUvX>;
+	Thu, 1 Feb 2001 15:51:23 -0500
+Date: Thu, 1 Feb 2001 21:51:16 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Byron Stanoszek <gandalf@winds.org>
+Cc: safemode <safemode@voicenet.com>, linux-kernel@vger.kernel.org
+Subject: Re: VT82C686A corruption with 2.4.x
+Message-ID: <20010201215116.A3239@suse.cz>
+In-Reply-To: <20010201190653.H2341@suse.cz> <Pine.LNX.4.21.0102011316210.27273-100000@winds.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0102011316210.27273-100000@winds.org>; from gandalf@winds.org on Thu, Feb 01, 2001 at 01:20:00PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010201193221.D11607@redhat.com> you wrote:
-> Buffer_heads are _sometimes_ used for caching data.
+On Thu, Feb 01, 2001 at 01:20:00PM -0500, Byron Stanoszek wrote:
 
-Actually they are mostly used, but that should have any value for the
-discussion...
+> > On Thu, Feb 01, 2001 at 11:46:08AM -0500, Byron Stanoszek wrote:
+> > 
+> > > Yeah, by bios does the same thing too on the Abit KT7(a).
+> > 
+> > Ok, I'll remember this. This is most likely the cause of the problems
+> > many people had with the KT7 in the past.
+> 
+> What cause are you referring to? As far as I know, there are two options to
+> increasing the FSB clock.. one increases both FSB+PCICLK, the other just
+> increases FSB. If you increase the FSB only, it should keep PCICLK at a solid
+> 33. (But I could be wrong, I've never tested that. I can tomorrow though.)
 
-> That's one of the
-> big problems with them, they are too overloaded, being both IO
-> descriptors _and_ cache descriptors.
+I mean that people can alter the PCI clock on these boards and that 33
+doesn't to be always exactly 33 due to rounding errors if used with a
+FSB other than 66 or 100 or 133.
 
-Agreed.
+Could it be that the PCI bus is not asynchronous, but only
+pseudo-synchronous, allowing for divisors of 5, 4.5, 4, 3.5, 3, 2.5, 2?
 
-> If you've got 128k of data to
-> write out from user space, do you want to set up one kiobuf or 256
-> buffer_heads?  Buffer_heads become really very heavy indeed once you
-> start doing non-trivial IO.
+> > The U33 chips do UDMA timing in PCICLK (T = 30ns @ 33MHz) increments, U66 in
+> > PCICLK*2 (T = 15ns @ 33 MHz) increments, and for U100 it's assumed that
+> > there is an external 100MHz clock fed to the chip, so that the UDMA timing is
+> > in T = 10ns increments independent of the PCICLK. I'm not 100% sure about
+> > the last, it might be just PCICLK*3 (T = 10ns @ 33 MHz). An experiment needs
+> > to be carried out to verify this.
+> 
+> I don't have a KT7A personally, I only have a KT7. Can anyone else with a KT7A
+> verify this? By verify, I take it you mean to use idebus=33 and overclock
+> PCICLK? :) At least that would determine if UDMA100 is based on PCI or an
+> external 100MHz source.
 
-Sure - I was never arguing in favor of buffer_head's ...
+Actually he should use the correct idebus= so that the Active/Recover
+timings are correct. If KT7A doesn't work with UDMA at high PCI clocks
+*even when* idebus= is correct would mean that the UDMA timing is in
+1/(PCICLK*3) units instead of units of 10ns.
 
->> > What is so heavyweight in the current kiobuf (other than the embedded
->> > vector, which I've already noted I'm willing to cut)?
->> 
->> array_len
-
-> kiobufs can be reused after IO.  You can depopulate a kiobuf,
-> repopulate it with new pages and submit new IO without having to
-> deallocate the kiobuf.  You can't do this without knowing how big the
-> data vector is.  Removing that functionality will prevent reuse,
-> making them _more_ heavyweight.
-
->> io_count,
-
-> Right now we can take a kiobuf and turn it into a bunch of
-> buffer_heads for IO.  The io_count lets us track all of those sub-IOs
-> so that we know when all submitted IO has completed, so that we can
-> pass the completion callback back up the chain without having to
-> allocate yet more descriptor structs for the IO.
-
-> Again, remove this and the IO becomes more heavyweight because we need
-> to create a separate struct for the info.
-
-No.  Just allow passing the multiple of the devices blocksize over
-ll_rw_block.  XFS is doing that and it just needs an audit of the lesser
-used block drivers.
-
->> and the lack of
->> scatter gather in one kiobuf struct (you always need an array)
-
-> Again, _all_ data being sent down through the block device layer is
-> either in buffer heads or is page aligned.
-
-That's the point.  You are always talking about the block-layer only.
-And I think it should be generic instead.
-Looks like that is the major point.
-
-> You want us to triple the
-> size of the "heavyweight" kiobuf's data vector for what gain, exactly?
-
-double.
-
-> Obviously, extra code will be needed to scan kiobufs if we do that,
-> and unless we have both per-page _and_ per-kiobuf start/offset pairs
-> (adding even further to the complexity), those scatter-gather lists
-> would prevent us from carving up a kiobuf into smaller sub-ios without
-> copying the whole (expanded) vector.
-
-No.  I think I explained that in my last mail.
-
-> That's a _lot_ of extra complexity in the disk IO layers.
-
-> Possibly, but I remain to be convinced, because you may end up with a
-> mechanism which is generic but is not well-tuned for any specific
-> case, so everything goes slower.
-
-As kiobufs are widely used for real IO, just as containers, this is
-better then nothing.
-And IMHO a nice generic concepts that lets different subsystems work
-toegther is a _lot_ better then a bunch of over-optimized, rather isolated
-subsytems.  The IO-Lite people have done a nice research of the effect of
-an unified IO-Caching system vs. the typical isolated systems.
-
-	Christoph
+Anyone help us?
 
 -- 
-Of course it doesn't work. We've performed a software upgrade.
+Vojtech Pavlik
+SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

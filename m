@@ -1,40 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267608AbTALWoO>; Sun, 12 Jan 2003 17:44:14 -0500
+	id <S267594AbTALWtX>; Sun, 12 Jan 2003 17:49:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267610AbTALWoN>; Sun, 12 Jan 2003 17:44:13 -0500
-Received: from vitelus.com ([64.81.243.207]:16145 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S267608AbTALWoM>;
-	Sun, 12 Jan 2003 17:44:12 -0500
-Date: Sun, 12 Jan 2003 14:52:28 -0800
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: Rob Wilkens <robw@optonline.net>
-Cc: Rik van Riel <riel@conectiva.com.br>,
+	id <S267595AbTALWtX>; Sun, 12 Jan 2003 17:49:23 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:57106
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S267594AbTALWtT>; Sun, 12 Jan 2003 17:49:19 -0500
+Subject: Re: any chance of 2.6.0-test*?
+From: Robert Love <rml@tech9.net>
+To: robw@optonline.net
+Cc: Oliver Neukum <oliver@neukum.name>,
        Matti Aarnio <matti.aarnio@zmailer.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: any chance of 2.6.0-test*?
-Message-ID: <20030112225228.GP31238@vitelus.com>
-References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <1042400094.1208.26.camel@RobsPC.RobertWilkens.com> <20030112211530.GP27709@mea-ext.zmailer.org> <1042406849.3162.121.camel@RobsPC.RobertWilkens.com> <Pine.LNX.4.50L.0301121939170.26759-100000@imladris.surriel.com> <1042407845.3162.131.camel@RobsPC.RobertWilkens.com> <20030112214937.GM31238@vitelus.com> <1042409239.3162.136.camel@RobsPC.RobertWilkens.com> <20030112221802.GN31238@vitelus.com> <1042410897.1209.165.camel@RobsPC.RobertWilkens.com>
+In-Reply-To: <1042410145.3162.152.camel@RobsPC.RobertWilkens.com>
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
+	 <20030112211530.GP27709@mea-ext.zmailer.org>
+	 <1042406849.3162.121.camel@RobsPC.RobertWilkens.com>
+	 <200301122306.14411.oliver@neukum.name>
+	 <1042410145.3162.152.camel@RobsPC.RobertWilkens.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1042412286.834.101.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1042410897.1209.165.camel@RobsPC.RobertWilkens.com>
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 12 Jan 2003 17:58:06 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 12, 2003 at 05:34:58PM -0500, Rob Wilkens wrote:
-> You're wrong.  You wouldn't have to jump over them any more than you
-> have to jump over the "goto" statement.
+On Sun, 2003-01-12 at 17:22, Rob Wilkens wrote:
 
-The goto is a conditional jump. You propose replacing it with a
-conditional jump past the error handling code predicated on the
-opposite condition. Where's the improvement?
+> I say "please don't use goto" and instead have a "cleanup_lock" function
+> and add that before all the return statements..  It should not be a
+> burden.  Yes, it's asking the developer to work a little harder, but the
+> end result is better code.
 
-> > any instructions, and you end up with a kernel which has much more
-> > duplicated code and thus thrashes the cache more. It also makes the
-> 
-> If that argument was taken to it's logical conclusion (and I did, in my
-> mind just now), no one should add any code the grows the kernel at all.
+No, it is gross and it bloats the kernel.  It inlines a bunch of junk
+for N error paths, as opposed to having the exit code once at the end. 
+Cache footprint is key and you just killed it.
 
-Not without good reason.
+Nor is it easier to read.
+
+As a final argument, it does not let us cleanly do the usual stack-esque
+wind and unwind, i.e.
+
+	do A
+	if (error)
+		goto out_a;
+	do B
+	if (error)
+		goto out_b;
+	do C
+	if (error)
+		goto out_c;
+	goto out;
+	out_c:
+	undo C
+	out_b:
+	undo B:
+	out_a:
+	undo A
+	out:
+	return ret;
+
+Now stop this.
+
+	Robert Love
+
+

@@ -1,76 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284140AbRLRQMG>; Tue, 18 Dec 2001 11:12:06 -0500
+	id <S284147AbRLRQKz>; Tue, 18 Dec 2001 11:10:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284141AbRLRQL5>; Tue, 18 Dec 2001 11:11:57 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:54427 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S284140AbRLRQLq>; Tue, 18 Dec 2001 11:11:46 -0500
-Message-ID: <3C1F6AC0.40604@redhat.com>
-Date: Tue, 18 Dec 2001 11:11:44 -0500
-From: Doug Ledford <dledford@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011211
-X-Accept-Language: en-us
+	id <S284141AbRLRQKq>; Tue, 18 Dec 2001 11:10:46 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:58642 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S284147AbRLRQKf>; Tue, 18 Dec 2001 11:10:35 -0500
+Date: Tue, 18 Dec 2001 14:10:19 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: war <war@starband.net>, <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Limits broken in 2.4.x kernel.
+In-Reply-To: <200112181459.fBIExrW15830@pinkpanther.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.33L.0112181409460.28489-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Greg Pomerantz <gmp@alumni.brown.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: i810_audio mono troubles
-In-Reply-To: <auto-000001925289@mx1.relaypoint.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg Pomerantz wrote:
+On Tue, 18 Dec 2001, Alan Cox wrote:
 
-> +++ drivers/sound/i810_audio.c	Mon Dec 17 23:15:19 2001
-> @@ -609,6 +609,9 @@
->  	
->  	new_rate = ac97_set_dac_rate(codec, rate);
->  
-> +	if ((dmabuf->fmt & I810_FMT_STEREO) == 0)
-> +		new_rate *= 2;
-> +
->  	if(new_rate != rate) {
->  		dmabuf->rate = (new_rate * 48000)/clocking;
->  	}
-> @@ -1687,6 +1690,12 @@
->  		if (dmabuf->enable & ADC_RUNNING) {
->  			stop_adc(state);
->  		}
-> +
-> +		if (*(int *)arg == 0)
-> +			dmabuf->fmt &= ~I810_FMT_STEREO;
-> +		else
-> +			dmabuf->fmt |= I810_FMT_STEREO;
-> +
->  		return put_user(1, (int *)arg);
->  
->  	case SNDCTL_DSP_GETBLKSIZE:
+> > would be limited to 3 processes.
+> >
+> > I was curious if this fix would ever be merged into the Linux Kernel so
+> > limits would actually work properly?
+>
+> Linus kept rejecting it. Now we have Marcelo as 2.4.x maintainer I'll
+> look at submitting it. 2.5 will no doubt stay broken for a while.
 
+One of the things to remember for when marcelo takes over
+2.6, I guess ;)
 
-OK, first off, Alan & Co. will shoot this one down because handling 
-stereo/mono conversion belongs in user space (the agreed upon way of 
-handling things evidently).  Secondly, aside from that point, this is wrong 
-anyway.  You are dividing the play rate in half to compensate for the fact 
-that the sound is being sent to two channels instead of one.  So, now each 
-channel is playing at half speed and slightly out of phase and with much 
-reduced high frequency clarity.  Instead, what you should do, is byte double 
-the stream (CPU consuming).  You would need to take any input buffer and 
-copy every 16bit sample.  A very simple (and non-optimized) stereo converter 
-  might look like this:
-
-short *input=&input_buffer, *output=&output_buffer;
-int i,j;
-
-for(i=0, j=0;i < input_size;i++, j+=2)
-	output[j] = output[j+1] = input[i];
-
-
-
+Rik
 -- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
 
-  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-       Please check my web site for aic7xxx updates/answers before
-                       e-mailing me about problems
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265388AbRF0Til>; Wed, 27 Jun 2001 15:38:41 -0400
+	id <S265390AbRF0ToB>; Wed, 27 Jun 2001 15:44:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265390AbRF0Tic>; Wed, 27 Jun 2001 15:38:32 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:16201 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S265388AbRF0TiR>; Wed, 27 Jun 2001 15:38:17 -0400
-Date: Wed, 27 Jun 2001 14:38:02 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200106271938.OAA78951@tomcat.admin.navo.hpc.mil>
-To: axboe@suse.de, "Jeffrey W. Baker" <jwbaker@acm.org>
-Subject: Re: How to change DVD-ROM speed?
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: [XMailTool v3.1.2b]
+	id <S265396AbRF0Tnv>; Wed, 27 Jun 2001 15:43:51 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:8455 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S265390AbRF0Tne>; Wed, 27 Jun 2001 15:43:34 -0400
+Date: Wed, 27 Jun 2001 16:43:28 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Chris Mason <mason@suse.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Xuan Baldauf <xuan--lkml@baldauf.org>, <linux-kernel@vger.kernel.org>,
+        <andrea@suse.de>,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+Subject: Re: VM deadlock
+In-Reply-To: <910160000.993670608@tiny>
+Message-ID: <Pine.LNX.4.33L.0106271641570.23373-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> On Wed, Jun 27 2001, Jeffrey W. Baker wrote:
-> > > On Wed, Jun 27 2001, Jeffrey W. Baker wrote:
-> > > > I am trying to change the spin rate of my IDE DVD-ROM drive.  My system is
-> > > > an Apple PowerBook G4, and I am using kernel 2.4.  I want the drive to
-> > > > spin at 1X when I watch movies.  Currently, it spins at its highest speed,
-> > > > which is very loud and a large power load.
-> > > >
-> > > > /proc/sys/dev/cdrom/info indicates that the speed of the drive can be
-> > > > changed.  I use hdparm -E 1 /dev/dvd to attempt to set the speed, and it
-> > > > reports success.  However, the drive continues to spin at its highest
-> > > > speed.
-> > >
-> > > Linux still uses the old-style SET_SPEED command, which is probably not
-> > > supported correctly by your newer drive. Just checking, I see latest Mt
-> > > Fuji only lists it for CD-RW. For DVD, we're supposed to do
-> > > SET_STREAMING to specify such requirements.
-> > >
-> > > Feel free to implement it :-)
-> > 
-> > I will be happy to :)  Should I hang conditional code off the existing
-> > ioctl (CDROM_SELECT_SPEED, ide_cdrom_select_speed) or use a new one?
-> 
-> Excellent. I'd say use the same ioctl if you can, but default to using
-> SET_STREAMING for DVD drives.
+On Wed, 27 Jun 2001, Chris Mason wrote:
 
-As long as it still works for the combo drives - CD/CD-RW/DVD
-Sony VIAO high end laptops, Toshiba has one, maybe others by now.
+> Reiserfs expects write_inode() calls initiated by kswapd to
+> always have sync==0.  Otherwise, kswapd ends up waiting on the
+> log, which isn't what we want at all.
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+If you don't have free memory, you are limited to 2 choices:
 
-Any opinions expressed are solely my own.
+1) wait on IO
+2) spin endlessly, wasting CPU until the IO is done
+
+If (1) isn't possible in reiserfs, I'd say something in
+reiserfs needs to be fixed, otherwise you will always
+have problems when the system has lots of dirty mappings
+that need to be written out.
+
+regards,
+
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

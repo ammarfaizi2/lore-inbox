@@ -1,53 +1,164 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276330AbRJUQKw>; Sun, 21 Oct 2001 12:10:52 -0400
+	id <S276329AbRJUQJW>; Sun, 21 Oct 2001 12:09:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276331AbRJUQKm>; Sun, 21 Oct 2001 12:10:42 -0400
-Received: from mw3.texas.net ([206.127.30.13]:20397 "EHLO mw3.texas.net")
-	by vger.kernel.org with ESMTP id <S276330AbRJUQK2> convert rfc822-to-8bit;
-	Sun, 21 Oct 2001 12:10:28 -0400
-Message-ID: <3BD2F350.5000107@btech.com>
-Date: Sun, 21 Oct 2001 11:09:52 -0500
-From: "Malcolm H. Teas" <mhteas@btech.com>
-Organization: Blaze Technology, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Tim Jansen <tim@tjansen.de>
-CC: lgb@lgb.hu, linux-kernel@vger.kernel.org
-Subject: Re: The new X-Kernel !
-In-Reply-To: <00d401c159ae$6000c7d0$5cbefea9@moya> <20011021093728.A17786@vega.digitel2002.hu> <15vI4j-1Z1VtgC@fmrl02.sul.t-online.com>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S276330AbRJUQJN>; Sun, 21 Oct 2001 12:09:13 -0400
+Received: from warande3094.warande.uu.nl ([131.211.123.94]:62573 "EHLO
+	xar.sliepen.oi") by vger.kernel.org with ESMTP id <S276329AbRJUQJC>;
+	Sun, 21 Oct 2001 12:09:02 -0400
+Date: Sun, 21 Oct 2001 18:09:29 +0200
+From: Guus Sliepen <guus@warande3094.warande.uu.nl>
+To: linux-kernel@vger.kernel.org
+Cc: Maxim Krasnyansky <max_mk@yahoo.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] [RFC] dev_alloc_name() requirement of %d and the 100 names limit
+Message-ID: <20011021180929.A29733@sliepen.warande.net>
+Mail-Followup-To: Guus Sliepen <guus@sliepen.warande.net>,
+	linux-kernel@vger.kernel.org, Maxim Krasnyansky <max_mk@yahoo.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="xXmbgvnjoT4axfJE"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+X-oi: oi
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-Tim Jansen wrote:
-
-> On Sunday 21 October 2001 09:37, Gábor Lénárt wrote:
-> 
->>moved into kernel space :) IMHO it's strictly user space issue. You can
->>start X or gdm/xdm/kdm from a boot script and so on. No kernel modification
->>is needed for this.
->>
-> 
-> But what the kernel COULD do is include something like the Linux Progress 
-> Patch (http://lpp.freelords.org/). It replaces the text output of the kernel 
-> with graphics and a progress bar, so people are not frightened by cryptic 
-> text output while booting.
+--xXmbgvnjoT4axfJE
+Content-Type: multipart/mixed; boundary="cWoXeonUoKmBZSoM"
+Content-Disposition: inline
 
 
-But what graphics resources does the LPP require?  If it's more restricted than 
-the current Linux boot process it affects server-oriented machines that aren't 
-running X or graphics, that just serve resources on the net.
+--cWoXeonUoKmBZSoM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'd not like to see the minimum bar for hardware compatibility raised without 
-very good cause.  Boot time messages aren't a good cause for me. YMMV.
+Hello,
 
-My feeling: At best it should be an option only, and default to no LPP.
+Somewhere between 2.4.10 and 2.4.12 the dev_alloc_name() function was
+changed to explicitly check for a %d in the name of a to-be allocated
+network interface. The idea is that this function returns a unique name
+or bails out.
 
--Malcolm Teas
+The recent change broke at least tinc (a userspace VPN daemon), because
+it tries to alloc a tun/tap device and gives it a name, but does not require
+that the %d must be present (the documentation of the tun/tap driver nor
+the example code in Documentation/ make any mention of that). I don't
+see why the %d would have to be mandatory, so the attached patch allows
+device names without a %d to work as well.
 
+A comment in that function says that if anyone would need more than 100
+devices the algorithm should be fixed. The patch does this, allowing a
+virtually unlimitted amount of names, in O(log(n)) time, n being the
+number of already allocated names.
 
+I stresstested the patched, I was able to allocate 1901 network devices
+using "test%d" as the name. After that my system claimed it didn't have
+any file descriptors left.
+
+--=20
+Met vriendelijke groet / with kind regards,
+  Guus Sliepen <guus@sliepen.warande.net>
+
+--cWoXeonUoKmBZSoM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch_dev_alloc_name
+Content-Transfer-Encoding: quoted-printable
+
+--- dev.c.old	Sun Oct 21 15:39:44 2001
++++ dev.c	Sun Oct 21 17:45:11 2001
+@@ -550,30 +550,65 @@
+=20
+ int dev_alloc_name(struct net_device *dev, const char *name)
+ {
+-	int i;
+-	char buf[32];
++	int i, j, k;
++	char buf[IFNAMSIZ];
+ 	char *p;
+=20
+ 	/*
+ 	 * Verify the string as this thing may have come from
+-	 * the user.  There must be one "%d" and no other "%"
++	 * the user.  There may only be one "%d" and no other "%"
+ 	 * characters.
+ 	 */
+ 	p =3D strchr(name, '%');
+-	if (!p || p[1] !=3D 'd' || strchr(p+2, '%'))
++	if (!p)
++	{
++		snprintf(buf,sizeof(buf),name);
++		if (__dev_get_by_name(buf) =3D=3D NULL) {
++			strcpy(dev->name, buf);
++			return 0;
++		}
++		else
++			return -ENFILE;
++	}
++
++	if (p[1] !=3D 'd' || strchr(p+2, '%'))
+ 		return -EINVAL;
+=20
+ 	/*
+-	 * If you need over 100 please also fix the algorithm...
++	 * New algorithm that works in O(log(n)) worst case time, where
++	 * n is the number of already allocated devices with the
++	 * same base name.
++	 *
++	 * The algorithm works by trying a device number j between i and k,
++	 * and changes i and k depending on whether it was allocated or not.
++	 *
++	 * i is the lower bound of already allocated devices,
++	 * k is the upper bound of already allocated devices,
++	 * k =3D 0 means k is infinite.
+ 	 */
+-	for (i =3D 0; i < 100; i++) {
+-		snprintf(buf,sizeof(buf),name,i);
++	i =3D j =3D k =3D 0;
++	for (;;)
++	{
++		snprintf(buf,sizeof(buf),name,j);
+ 		if (__dev_get_by_name(buf) =3D=3D NULL) {
+-			strcpy(dev->name, buf);
+-			return i;
++			if (j =3D=3D i || j =3D=3D i + 1)
++			{
++				strcpy(dev->name, buf);
++				return j;
++			}
++			else
++				k =3D j;
+ 		}
++		else
++			i =3D j;
++
++		if (k)
++			j =3D (i + k) / 2;
++		else
++			j *=3D 2;
++		if (j =3D=3D i)
++			j++;
+ 	}
+-	return -ENFILE;	/* Over 100 of the things .. bail out! */
+ }
+=20
+ /**
+
+--cWoXeonUoKmBZSoM--
+
+--xXmbgvnjoT4axfJE
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE70vM4AxLow12M2nsRAnaFAJ9fJO/0C0hlT5f1jnzg9Cqe7w8aJgCdGK2r
+ep+HOwDyjHI/CRzybNjGiJs=
+=RAAh
+-----END PGP SIGNATURE-----
+
+--xXmbgvnjoT4axfJE--

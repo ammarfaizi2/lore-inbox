@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262781AbSITPee>; Fri, 20 Sep 2002 11:34:34 -0400
+	id <S262782AbSITPc1>; Fri, 20 Sep 2002 11:32:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262783AbSITPed>; Fri, 20 Sep 2002 11:34:33 -0400
-Received: from t-raenon.nmd.msu.ru ([193.232.127.69]:6353 "HELO
-	t-raenon.nmd.msu.ru") by vger.kernel.org with SMTP
-	id <S262781AbSITPec>; Fri, 20 Sep 2002 11:34:32 -0400
-Date: Fri, 20 Sep 2002 19:39:33 +0400
-From: Alexander Lyamin <flx@msu.ru>
-To: Alexander Lyamin <flx@msu.ru>, Mark Hounschell <markh@compro.net>,
-       Oleg Drokin <green@namesys.com>, linux-kernel@vger.kernel.org
-Subject: Re: [P4DC6+]  Booting problems with dual p4 on i860 chipset with 2.4 and 2.5
-Message-ID: <20020920193933.C14066@t-raenon.nmd.msu.ru>
-Reply-To: flx@msu.ru
-Mail-Followup-To: Alexander Lyamin <flx@msu.ru>,
-	Mark Hounschell <markh@compro.net>, Oleg Drokin <green@namesys.com>,
-	linux-kernel@vger.kernel.org
-References: <20020920190537.A11244@namesys.com> <3D8B3BDE.11C7E177@compro.net> <20020920193138.B14066@t-raenon.nmd.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	id <S262785AbSITPc0>; Fri, 20 Sep 2002 11:32:26 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:2577 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S262782AbSITPcZ>; Fri, 20 Sep 2002 11:32:25 -0400
+Date: Fri, 20 Sep 2002 09:37:11 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Ville Herva <vherva@niksula.hut.fi>, linux-kernel@vger.kernel.org
+cc: Jani Forssell <jani.forssell@viasys.com>
+Subject: Re: 2.4.20pre7, aic7xxx-6.2.8: Panic: HOST_MSG_LOOP with invalid
+ SCB 0
+Message-ID: <1184680000.1032536231@aslan.scsiguy.com>
+In-Reply-To: <20020920052832.GH41965@niksula.cs.hut.fi>
+References: <20020920052832.GH41965@niksula.cs.hut.fi>
+X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20020920193138.B14066@t-raenon.nmd.msu.ru>
-User-Agent: Mutt/1.3.22.1i
-X-Operating-System: Linux 2.4.15-pre9
-X-Fnord: +++ath
-X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
-X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fri, Sep 20, 2002 at 07:31:38PM +0400, Alexander Lyamin wrote:
-> Fri, Sep 20, 2002 at 11:16:46AM -0400, Mark Hounschell wrote:
-> > Oleg Drokin wrote:
-> > > 
-> > > Hello!
-> > > 
-> > >    We have a problem with newly acquired dual p4 xeon (2.2Ghz, heperthreading
-> > >    blah blah) box built on i860 chipset (SuperMicro P4DC6+ motherboard).
-> > >    Thank you.
-> > > 
-> > 
-> > I've got 6 of them here running SuSE 8.0. Hyperthreading was disabled in the
-> > bios when Suse-8.0 was
-> > installed and 3 of the 6 had the clock speed set at it's lowest setting when
-> > they arrived but other than that there were no problems. HT was enabled after
-> > the install of SuSE-8.0 and no problems there either. ?????
+> Celeron 1.3GHz, Intel i815 chipset, 512MB ram.
 > 
-> what is your bios version Mark ?
+> AIC-2640 PCI card with uw and narrow connectors. A Seagate scsi disk
+> (rootfs) attached to uw, and a HP tape drive attached to narrow. Tape
+> drive never used.
+> 
+> I only ran 2.4.20pre7 (no other patches) for a night and it crashed:
+> 
+> -------------------------------------------------------------------
+> Kernel panic: HOST_MSG_LOOP with invalid SCB 0
+> 
+> In interrupt handler, not syncing
 
-Ok, with bios updated to 1.2b (initially we had 1.2a) AND
-after toggling  MPS1.4>MPS1.1>MPS1.4  and Hyperthreading OFF and then back
-ON it finally boots.
+I need all of the messages leading up to the panic in order to
+diagnose this.  You may need to use a serial console to get
+them all.
 
-P.S.
-new hardware is black box full of cheap tricks most of time :)
--- 
-"Cache remedies via multi-variable logic shorts will leave you crying."(cl)
-Lex Lyamin
+--
+Justin

@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314885AbSDVWvC>; Mon, 22 Apr 2002 18:51:02 -0400
+	id <S314887AbSDVWvf>; Mon, 22 Apr 2002 18:51:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314887AbSDVWvC>; Mon, 22 Apr 2002 18:51:02 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:38667 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S314885AbSDVWu7>; Mon, 22 Apr 2002 18:50:59 -0400
-Message-ID: <3CC493B1.E9877DB4@zip.com.au>
-Date: Mon, 22 Apr 2002 15:50:25 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S314889AbSDVWvc>; Mon, 22 Apr 2002 18:51:32 -0400
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:62642 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S314887AbSDVWvW>; Mon, 22 Apr 2002 18:51:22 -0400
+To: "Saxena, Sunil" <sunil.saxena@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Initial process CPU state was Re: SSE related security hole
+In-Reply-To: <9287DC1579B0D411AA2F009027F44C3F171C1A9E@FMSMSX41>
+From: Andi Kleen <ak@muc.de>
+Date: 23 Apr 2002 00:51:09 +0200
+Message-ID: <m3ofgbcppe.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.070095 (Pterodactyl Gnus v0.95) Emacs/20.7
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Dave Hansen <haveblue@us.ibm.com>, Alexander Viro <viro@math.psu.edu>,
-        linux-kernel@vger.kernel.org,
-        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Subject: Re: locking in sync_old_buffers
-In-Reply-To: <3CC48D51.3050506@us.ibm.com> <Pine.LNX.4.44.0204221525190.1235-100000@home.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> ...
-> >  >http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.8/everything.patch.gz
-> > Absolutely.  What else does it contain that I should watch out for?
-> 
-> Don't use it on a production machine, but since this is in the 2.5.x
-> future, I'd love to hear about not just lock contention but also about
-> whether you can see any problems under heavy load.
-> 
+"Saxena, Sunil" <sunil.saxena@intel.com> writes:
 
-It may choke under metadata-intensive workloads on really
-large memory machines.  It works fine with 2.5 gigabyte x86,
-but 16 gigs may cause problems.
+Hallo Sunil,
 
-This is because the dirty-memory balancing code doesn't know
-that blockdev mappings are restricted to ZONE_NORMAL.  The
-correct fix for that is, of course, to allow blockdev mappings
-to use highmem.  That will require methodical picking away at
-all the filesystems, and will take some time.
+> We recognized that there is a discrepancy in the individual instruction
+> descriptions in Vol 2 where it is indicated that the instruction would
+> generate a UD#. We will be rectifying this discrepancy in the next revision
+> of Vol 2 as well as via the monthly Specification Updates.
 
-ext2 should be OK because much of its metadata (directories)
-are in highmem at present.
+Could you quickly describe what the Intel recommended way is to clear
+the whole CPU at the beginning of a process? Is there a better way
+than "save state with fxsave at bootup and restore into each
+new process"? After all it would be a bit unfortunate to have
+instructions which are transparently tolerant to new CPU state (fxsave/fxrstor 
+for context switching), but no matching way to clear the same state for 
+security reasons.  Using the bootup FXSAVE image would make linux
+depend on the BIOS for this (so in the worst case when the bios 
+doesn't clear e.g. the XMM registers or some future registers each 
+process could see the state of some previous boot after a warm boot) 
 
--
+Another way would be to do a fxsave after clearing of known state (x87,MMX,
+SSE) at OS bootup and then afterwards set all the so far reserved parts of the 
+FXSAVE image to zero. Then restore this image later into each new process.
+This would avoid any BIOS/direct warmboot dependencies.  It would work 
+assuming that all future IA32 state can be safely initialized with zeroes
+via FXRSTOR. Is this a safe assumption?
+
+Thanks, 
+-Andi
+

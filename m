@@ -1,50 +1,1237 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261353AbSKKVZ0>; Mon, 11 Nov 2002 16:25:26 -0500
+	id <S261398AbSKKVWb>; Mon, 11 Nov 2002 16:22:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261374AbSKKVZ0>; Mon, 11 Nov 2002 16:25:26 -0500
-Received: from packet.digeo.com ([12.110.80.53]:36073 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261353AbSKKVZZ>;
-	Mon, 11 Nov 2002 16:25:25 -0500
-Message-ID: <3DD021D3.B7F1C511@digeo.com>
-Date: Mon, 11 Nov 2002 13:32:03 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: alan@cotse.com
-CC: linux-kernel@vger.kernel.org, vs@namesys.com
-Subject: Re: [BENCHMARK] 2.5.46-mm1 with contest
-References: <3DD01B32.4A113A71@digeo.com> <YWxhbg==.563e560fc9743df6e2cd56ac2568e2c0@1037049066.cotse.net>
+	id <S261401AbSKKVWb>; Mon, 11 Nov 2002 16:22:31 -0500
+Received: from covert.black-ring.iadfw.net ([209.196.123.142]:32019 "EHLO
+	covert.iadfw.net") by vger.kernel.org with ESMTP id <S261398AbSKKVWO>;
+	Mon, 11 Nov 2002 16:22:14 -0500
+Date: Mon, 11 Nov 2002 15:28:55 -0600
+From: Art Haas <ahaas@airmail.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] C99 initializers for drivers/ide/pci (1 of 2), take 2
+Message-ID: <20021111212855.GC31915@debian>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Nov 2002 21:32:06.0877 (UTC) FILETIME=[C8B8A0D0:01C289C9]
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Willis wrote:
-> 
-> > That's an awful lot of mapped memory.  Have you been altering
-> > /proc/sys/vm/swappiness?  Has some application run berzerk
-> > and used tons of memory?
-> >
-> > Slab:             7592 kB
-> > Committed_AS:   423120 kB
-> > PageTables:       1996 kB
-> > ReverseMaps:     69425
-> > HugePages_Total:    15
-> > HugePages_Free:     15
-> > Hugepagesize:     4096 kB
-> 
-> vm.swappiness was set to 0
+Hi.
 
-OK ;)
+Here's a new set of patches for drivers/ide/pci that switch the files to
+use C99 initializers. I've removed the lines that initialize variables
+to NULL or 0. The patch is against 2.5.47.
 
-That sucker really works.  I run my desktop machines (768M and 256M)
-at swappiness=80% or 90%.   I end up with 10-20 megs in swap after a
-day or two, which seems about right.  The default of 60 is probably a
-little too unswappy.
+This patch is for the files starting with [a-n].
 
-> I'll stick to 2.5.46 for a while yet I guess, to be sure.
+Art Haas
 
-Thanks.
+
+--- linux-2.5.47/drivers/ide/pci/adma100.h.old	2002-10-07 15:45:28.000000000 -0500
++++ linux-2.5.47/drivers/ide/pci/adma100.h	2002-11-11 14:53:21.000000000 -0600
+@@ -12,24 +12,19 @@
+ 
+ static ide_pci_device_t pdcadma_chipsets[] __devinitdata = {
+ 	{
+-		vendor:	PCI_VENDOR_ID_PDC,
+-		device:	PCI_DEVICE_ID_PDC_1841,
+-		name:		"ADMA100",
+-		init_setup:	init_setup_pdcadma,
+-		init_chipset:	init_chipset_pdcadma,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_pdcadma,
+-		init_dma:	init_dma_pdcadma,
+-		channels:	2,
+-		autodma:	NODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	OFF_BOARD,
+-		extra:		0
++		.vendor		= PCI_VENDOR_ID_PDC,
++		.device		= PCI_DEVICE_ID_PDC_1841,
++		.name		= "ADMA100",
++		.init_setup	= init_setup_pdcadma,
++		.init_chipset	= init_chipset_pdcadma,
++		.init_hwif	= init_hwif_pdcadma,
++		.init_dma	= init_dma_pdcadma,
++		.channels	= 2,
++		.autodma	= NODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= OFF_BOARD,
+ 	},{
+-		vendor:		0,
+-		device:		0,
+-		channels:	0,
+-		bootable:	EOL,
++		.bootable	= EOL,
+ 	}
+ }
+ 
+--- linux-2.5.47/drivers/ide/pci/aec62xx.h.old	2002-10-07 15:45:28.000000000 -0500
++++ linux-2.5.47/drivers/ide/pci/aec62xx.h	2002-11-11 14:54:01.000000000 -0600
+@@ -84,10 +84,9 @@
+ 
+ static ide_pci_host_proc_t aec62xx_procs[] __initdata = {
+ 	{
+-		name:		"aec62xx",
+-		set:		1,
+-		get_info:	aec62xx_get_info,
+-		parent:		NULL,
++		.name		= "aec62xx",
++		.set		= 1,
++		.get_info	= aec62xx_get_info,
+ 	},
+ };
+ #endif /* DISPLAY_AEC62XX_TIMINGS && CONFIG_PROC_FS */
+@@ -100,75 +99,65 @@
+ 
+ static ide_pci_device_t aec62xx_chipsets[] __devinitdata = {
+ 	{	/* 0 */
+-		vendor:		PCI_VENDOR_ID_ARTOP,
+-		device:		PCI_DEVICE_ID_ARTOP_ATP850UF,
+-		name:		"AEC6210",
+-		init_setup:	init_setup_aec62xx,
+-		init_chipset:	init_chipset_aec62xx,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_aec62xx,
+-		init_dma:	init_dma_aec62xx,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x4a,0x02,0x02}, {0x4a,0x04,0x04}},
+-		bootable:	OFF_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_ARTOP,
++		.device		= PCI_DEVICE_ID_ARTOP_ATP850UF,
++		.name		= "AEC6210",
++		.init_setup	= init_setup_aec62xx,
++		.init_chipset	= init_chipset_aec62xx,
++		.init_hwif	= init_hwif_aec62xx,
++		.init_dma	= init_dma_aec62xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x4a,0x02,0x02}, {0x4a,0x04,0x04}},
++		.bootable	= OFF_BOARD,
+ 	},{	/* 1 */
+-		vendor:		PCI_VENDOR_ID_ARTOP,
+-		device:		PCI_DEVICE_ID_ARTOP_ATP860,
+-		name:		"AEC6260",
+-		init_setup:	init_setup_aec62xx,
+-		init_chipset:	init_chipset_aec62xx,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_aec62xx,
+-		init_dma:	init_dma_aec62xx,
+-		channels:	2,
+-		autodma:	NOAUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	OFF_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_ARTOP,
++		.device		= PCI_DEVICE_ID_ARTOP_ATP860,
++		.name		= "AEC6260",
++		.init_setup	= init_setup_aec62xx,
++		.init_chipset	= init_chipset_aec62xx,
++		.init_hwif	= init_hwif_aec62xx,
++		.init_dma	= init_dma_aec62xx,
++		.channels	= 2,
++		.autodma	= NOAUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= OFF_BOARD,
+ 	},{	/* 2 */
+-		vendor:		PCI_VENDOR_ID_ARTOP,
+-		device:		PCI_DEVICE_ID_ARTOP_ATP860R,
+-		name:		"AEC6260R",
+-		init_setup:	init_setup_aec62xx,
+-		init_chipset:	init_chipset_aec62xx,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_aec62xx,
+-		init_dma:	init_dma_aec62xx,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x4a,0x02,0x02}, {0x4a,0x04,0x04}},
+-		bootable:	NEVER_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_ARTOP,
++		.device		= PCI_DEVICE_ID_ARTOP_ATP860R,
++		.name		= "AEC6260R",
++		.init_setup	= init_setup_aec62xx,
++		.init_chipset	= init_chipset_aec62xx,
++		.init_hwif	= init_hwif_aec62xx,
++		.init_dma	= init_dma_aec62xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x4a,0x02,0x02}, {0x4a,0x04,0x04}},
++		.bootable	= NEVER_BOARD,
+ 	},{	/* 3 */
+-		vendor:		PCI_VENDOR_ID_ARTOP,
+-		device:		PCI_DEVICE_ID_ARTOP_ATP865,
+-		name:		"AEC6X80",
+-		init_setup:	init_setup_aec6x80,
+-		init_chipset:	init_chipset_aec62xx,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_aec62xx,
+-		init_dma:	init_dma_aec62xx,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	OFF_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_ARTOP,
++		.device		= PCI_DEVICE_ID_ARTOP_ATP865,
++		.name		= "AEC6X80",
++		.init_setup	= init_setup_aec6x80,
++		.init_chipset	= init_chipset_aec62xx,
++		.init_hwif	= init_hwif_aec62xx,
++		.init_dma	= init_dma_aec62xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= OFF_BOARD,
+ 	},{	/* 4 */
+-		vendor:		PCI_VENDOR_ID_ARTOP,
+-		device:		PCI_DEVICE_ID_ARTOP_ATP865R,
+-		name:		"AEC6X80R",
+-		init_setup:	init_setup_aec6x80,
+-		init_chipset:	init_chipset_aec62xx,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_aec62xx,
+-		init_dma:	init_dma_aec62xx,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x4a,0x02,0x02}, {0x4a,0x04,0x04}},
+-		bootable:	OFF_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_ARTOP,
++		.device		= PCI_DEVICE_ID_ARTOP_ATP865R,
++		.name		= "AEC6X80R",
++		.init_setup	= init_setup_aec6x80,
++		.init_chipset	= init_chipset_aec62xx,
++		.init_hwif	= init_hwif_aec62xx,
++		.init_dma	= init_dma_aec62xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x4a,0x02,0x02}, {0x4a,0x04,0x04}},
++		.bootable	= OFF_BOARD,
+ 	}
+ };
+ 
+--- linux-2.5.47/drivers/ide/pci/alim15x3.h.old	2002-10-07 15:45:28.000000000 -0500
++++ linux-2.5.47/drivers/ide/pci/alim15x3.h	2002-11-11 14:54:18.000000000 -0600
+@@ -17,10 +17,9 @@
+ 
+ static ide_pci_host_proc_t ali_procs[] __initdata = {
+ 	{
+-		name:		"ali",
+-		set:		1,
+-		get_info:	ali_get_info,
+-		parent:		NULL,
++		.name		= "ali",
++		.set		= 1,
++		.get_info	= ali_get_info,
+ 	},
+ };
+ #endif /* DISPLAY_ALI_TIMINGS && CONFIG_PROC_FS */
+@@ -32,23 +31,18 @@
+ 
+ static ide_pci_device_t ali15x3_chipsets[] __devinitdata = {
+ 	{	/* 0 */
+-		vendor:		PCI_VENDOR_ID_AL,
+-		device:		PCI_DEVICE_ID_AL_M5229,
+-		name:		"ALI15X3",
+-		init_chipset:	init_chipset_ali15x3,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_ali15x3,
+-		init_dma:	init_dma_ali15x3,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	ON_BOARD,
+-		extra:		0
++		.vendor		= PCI_VENDOR_ID_AL,
++		.device		= PCI_DEVICE_ID_AL_M5229,
++		.name		= "ALI15X3",
++		.init_chipset	= init_chipset_ali15x3,
++		.init_hwif	= init_hwif_ali15x3,
++		.init_dma	= init_dma_ali15x3,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= ON_BOARD,
+ 	},{
+-		vendor:		0,
+-		device:		0,
+-		channels:	0,
+-		bootable:	EOL,
++		.bootable	= EOL,
+ 	}
+ };
+ 
+--- linux-2.5.47/drivers/ide/pci/amd74xx.h.old	2002-10-07 15:45:28.000000000 -0500
++++ linux-2.5.47/drivers/ide/pci/amd74xx.h	2002-11-11 14:54:49.000000000 -0600
+@@ -17,10 +17,9 @@
+ 
+ static ide_pci_host_proc_t amd74xx_procs[] __initdata = {
+ 	{
+-		name:		"amd74xx",
+-		set:		1,
+-		get_info:	amd74xx_get_info,
+-		parent:		NULL,
++		.name		= "amd74xx",
++		.set		= 1,
++		.get_info	= amd74xx_get_info,
+ 	},
+ };
+ #endif  /* defined(DISPLAY_VIPER_TIMINGS) && defined(CONFIG_PROC_FS) */
+@@ -31,75 +30,62 @@
+ 
+ static ide_pci_device_t amd74xx_chipsets[] __devinitdata = {
+ 	{	/* 0 */
+-		vendor:		PCI_VENDOR_ID_AMD,
+-		device:		PCI_DEVICE_ID_AMD_COBRA_7401,
+-		name:		"AMD7401",
+-		init_chipset:	init_chipset_amd74xx,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_amd74xx,
+-		init_dma:	init_dma_amd74xx,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x40,0x01,0x01}, {0x40,0x02,0x02}},
+-		bootable:	ON_BOARD,
+-		extra:		0
++		.vendor		= PCI_VENDOR_ID_AMD,
++		.device		= PCI_DEVICE_ID_AMD_COBRA_7401,
++		.name		= "AMD7401",
++		.init_chipset	= init_chipset_amd74xx,
++		.init_hwif	= init_hwif_amd74xx,
++		.init_dma	= init_dma_amd74xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x40,0x01,0x01}, {0x40,0x02,0x02}},
++		.bootable	= ON_BOARD,
+ 	},{	/* 1 */
+-		vendor:		PCI_VENDOR_ID_AMD,
+-		device:		PCI_DEVICE_ID_AMD_VIPER_7409,
+-		name:		"AMD7409",
+-		init_chipset:	init_chipset_amd74xx,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_amd74xx,
+-		init_dma:	init_dma_amd74xx,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x40,0x01,0x01}, {0x40,0x02,0x02}},
+-		bootable:	ON_BOARD,
+-		extra:		0
++		.vendor		= PCI_VENDOR_ID_AMD,
++		.device		= PCI_DEVICE_ID_AMD_VIPER_7409,
++		.name		= "AMD7409",
++		.init_chipset	= init_chipset_amd74xx,
++		.init_hwif	= init_hwif_amd74xx,
++		.init_dma	= init_dma_amd74xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x40,0x01,0x01}, {0x40,0x02,0x02}},
++		.bootable	= ON_BOARD,
+ 	},{	/* 2 */
+-		vendor:		PCI_VENDOR_ID_AMD,
+-		device:		PCI_DEVICE_ID_AMD_VIPER_7411,
+-		name:		"AMD7411",
+-		init_chipset:	init_chipset_amd74xx,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_amd74xx,
+-		init_dma:	init_dma_amd74xx,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x40,0x01,0x01}, {0x40,0x02,0x02}},
+-		bootable:	ON_BOARD,
+-		extra:		0
++		.vendor		= PCI_VENDOR_ID_AMD,
++		.device		= PCI_DEVICE_ID_AMD_VIPER_7411,
++		.name		= "AMD7411",
++		.init_chipset	= init_chipset_amd74xx,
++		.init_hwif	= init_hwif_amd74xx,
++		.init_dma	= init_dma_amd74xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x40,0x01,0x01}, {0x40,0x02,0x02}},
++		.bootable	= ON_BOARD,
+ 	},{	/* 3 */
+-		vendor:		PCI_VENDOR_ID_AMD,
+-		device:		PCI_DEVICE_ID_AMD_OPUS_7441,
+-		name:		"AMD7441",
+-		init_chipset:	init_chipset_amd74xx,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_amd74xx,
+-		init_dma:	init_dma_amd74xx,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x40,0x01,0x01}, {0x40,0x02,0x02}},
+-		bootable:	ON_BOARD,
+-		extra:		0
++		.vendor		= PCI_VENDOR_ID_AMD,
++		.device		= PCI_DEVICE_ID_AMD_OPUS_7441,
++		.name		= "AMD7441",
++		.init_chipset	= init_chipset_amd74xx,
++		.init_hwif	= init_hwif_amd74xx,
++		.init_dma	= init_dma_amd74xx,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x40,0x01,0x01}, {0x40,0x02,0x02}},
++		.bootable	= ON_BOARD,
+ 	},{	/* 4 */
+-		vendor:		PCI_VENDOR_ID_AMD,
+-		device:		PCI_DEVICE_ID_AMD_8111_IDE,
+-		name:		"AMD8111",
+-		init_chipset:	init_chipset_amd74xx,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_amd74xx,
+-		init_dma:	init_dma_amd74xx,
+-		autodma:	AUTODMA,
+-		channels:	2,
+-		enablebits:	{{0x40,0x01,0x01}, {0x40,0x02,0x02}},
+-		bootable:	ON_BOARD,
+-		extra:		0
++		.vendor		= PCI_VENDOR_ID_AMD,
++		.device		= PCI_DEVICE_ID_AMD_8111_IDE,
++		.name		= "AMD8111",
++		.init_chipset	= init_chipset_amd74xx,
++		.init_hwif	= init_hwif_amd74xx,
++		.init_dma	= init_dma_amd74xx,
++		.autodma	= AUTODMA,
++		.channels	= 2,
++		.enablebits	= {{0x40,0x01,0x01}, {0x40,0x02,0x02}},
++		.bootable	= ON_BOARD,
+ 	},{
+-		vendor:		0,
+-		device:		0,
+-		channels:	0,
+-		bootable:	EOL,
++		.bootable	= EOL,
+ 	}
+ };
+ 
+--- linux-2.5.47/drivers/ide/pci/cmd640.h.old	2002-09-16 09:33:59.000000000 -0500
++++ linux-2.5.47/drivers/ide/pci/cmd640.h	2002-11-11 14:55:01.000000000 -0600
+@@ -9,23 +9,16 @@
+ 
+ static ide_pci_device_t cmd640_chipsets[] __initdata = {
+ 	{
+-		vendor:		PCI_VENDOR_ID_CMD,
+-		device:		PCI_DEVICE_ID_CMD_640,
+-		name:		"CMD640",
+-		init_setup:	NULL,
+-		init_chipset:	NULL,
+-		init_iops:	NULL,
+-		init_hwif:	IDE_IGNORE,
+-		init_dma:	NULL,
+-		channels:	2,
+-		autodma:	NODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	ON_BOARD,
+-		extra:		0
++		.vendor		= PCI_VENDOR_ID_CMD,
++		.device		= PCI_DEVICE_ID_CMD_640,
++		.name		= "CMD640",
++		.init_hwif	= IDE_IGNORE,
++		.channels	= 2,
++		.autodma	= NODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= ON_BOARD,
+ 	},{
+-		vendor:		0,
+-		device:		0,
+-		bootable:	EOL,
++		.bootable	= EOL,
+ 	}
+ }
+ 
+--- linux-2.5.47/drivers/ide/pci/cmd64x.h.old	2002-10-07 15:45:28.000000000 -0500
++++ linux-2.5.47/drivers/ide/pci/cmd64x.h	2002-11-11 14:55:26.000000000 -0600
+@@ -71,10 +71,9 @@
+ 
+ static ide_pci_host_proc_t cmd64x_procs[] __initdata = {
+ 	{
+-		name:		"cmd64x",
+-		set:		1,
+-		get_info:	cmd64x_get_info,
+-		parent:		NULL,
++		.name		= "cmd64x",
++		.set		= 1,
++		.get_info	= cmd64x_get_info,
+ 	},
+ };
+ #endif  /* defined(DISPLAY_CMD64X_TIMINGS) && defined(CONFIG_PROC_FS) */
+@@ -85,62 +84,52 @@
+ 
+ static ide_pci_device_t cmd64x_chipsets[] __devinitdata = {
+ 	{	/* 0 */
+-		vendor:		PCI_VENDOR_ID_CMD,
+-		device:		PCI_DEVICE_ID_CMD_643,
+-		name:		"CMD643",
+-		init_chipset:	init_chipset_cmd64x,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_cmd64x,
+-		init_dma:	init_dma_cmd64x,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	ON_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_CMD,
++		.device		= PCI_DEVICE_ID_CMD_643,
++		.name		= "CMD643",
++		.init_chipset	= init_chipset_cmd64x,
++		.init_hwif	= init_hwif_cmd64x,
++		.init_dma	= init_dma_cmd64x,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= ON_BOARD,
+ 	},{	/* 1 */
+-		vendor:		PCI_VENDOR_ID_CMD,
+-		device:		PCI_DEVICE_ID_CMD_646,
+-		name:		"CMD646",
+-		init_chipset:	init_chipset_cmd64x,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_cmd64x,
+-		init_dma:	init_dma_cmd64x,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x51,0x80,0x80}},
+-		bootable:	ON_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_CMD,
++		.device		= PCI_DEVICE_ID_CMD_646,
++		.name		= "CMD646",
++		.init_chipset	= init_chipset_cmd64x,
++		.init_hwif	= init_hwif_cmd64x,
++		.init_dma	= init_dma_cmd64x,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x51,0x80,0x80}},
++		.bootable	= ON_BOARD,
+ 	},{	/* 2 */
+-		vendor:		PCI_VENDOR_ID_CMD,
+-		device:	PCI_DEVICE_ID_CMD_648,
+-		name:		"CMD648",
+-		init_chipset:	init_chipset_cmd64x,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_cmd64x,
+-		init_dma:	init_dma_cmd64x,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	ON_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_CMD,
++		.device	= PCI_DEVICE_ID_CMD_648,
++		.name		= "CMD648",
++		.init_chipset	= init_chipset_cmd64x,
++		.init_hwif	= init_hwif_cmd64x,
++		.init_dma	= init_dma_cmd64x,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= ON_BOARD,
+ 	},{
+-		vendor:		PCI_VENDOR_ID_CMD,
+-		device:		PCI_DEVICE_ID_CMD_649,
+-		name:		"CMD649",
+-		init_chipset:	init_chipset_cmd64x,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_cmd64x,
+-		init_dma:	init_dma_cmd64x,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	ON_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_CMD,
++		.device		= PCI_DEVICE_ID_CMD_649,
++		.name		= "CMD649",
++		.init_chipset	= init_chipset_cmd64x,
++		.init_hwif	= init_hwif_cmd64x,
++		.init_dma	= init_dma_cmd64x,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= ON_BOARD,
+ 	},{
+-		vendor:		0,
+-		device:		0,
+-		channels:	2,
+-		bootable:	EOL,
++		.channels	= 2,
++		.bootable	= EOL,
+ 	}
+ };
+ 
+--- linux-2.5.47/drivers/ide/pci/cs5530.h.old	2002-10-07 15:45:28.000000000 -0500
++++ linux-2.5.47/drivers/ide/pci/cs5530.h	2002-11-11 14:55:39.000000000 -0600
+@@ -17,10 +17,9 @@
+ 
+ static ide_pci_host_proc_t cs5530_procs[] __initdata = {
+ 	{
+-		name:		"cs5530",
+-		set:		1,
+-		get_info:	cs5530_get_info,
+-		parent:		NULL,
++		.name		= "cs5530",
++		.set		= 1,
++		.get_info	= cs5530_get_info,
+ 	},
+ };
+ #endif /* DISPLAY_CS5530_TIMINGS && CONFIG_PROC_FS */
+@@ -31,23 +30,18 @@
+ 
+ static ide_pci_device_t cs5530_chipsets[] __devinitdata = {
+ 	{	/* 0 */
+-		vendor:		PCI_VENDOR_ID_CYRIX,
+-		device:		PCI_DEVICE_ID_CYRIX_5530_IDE,
+-		name:		"CS5530",
+-		init_chipset:	init_chipset_cs5530,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_cs5530,
+-		init_dma:	init_dma_cs5530,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	ON_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_CYRIX,
++		.device		= PCI_DEVICE_ID_CYRIX_5530_IDE,
++		.name		= "CS5530",
++		.init_chipset	= init_chipset_cs5530,
++		.init_hwif	= init_hwif_cs5530,
++		.init_dma	= init_dma_cs5530,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= ON_BOARD,
+ 	},{
+-		vendor:		0,
+-		device:		0,
+-		channels:	0,
+-		bootable:	EOL,
++		.bootable	= EOL,
+ 	}
+ };
+ 
+--- linux-2.5.47/drivers/ide/pci/cy82c693.h.old	2002-10-07 15:45:28.000000000 -0500
++++ linux-2.5.47/drivers/ide/pci/cy82c693.h	2002-11-11 14:55:52.000000000 -0600
+@@ -70,23 +70,18 @@
+ 
+ static ide_pci_device_t cy82c693_chipsets[] __devinitdata = {
+ 	{	/* 0 */
+-		vendor:		PCI_VENDOR_ID_CONTAQ,
+-		device:		PCI_DEVICE_ID_CONTAQ_82C693,
+-		name:		"CY82C693",
+-		init_chipset:	init_chipset_cy82c693,
+-		init_iops:	init_iops_cy82c693,
+-		init_hwif:	init_hwif_cy82c693,
+-		init_dma:	NULL,
+-		channels:	1,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	ON_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_CONTAQ,
++		.device		= PCI_DEVICE_ID_CONTAQ_82C693,
++		.name		= "CY82C693",
++		.init_chipset	= init_chipset_cy82c693,
++		.init_iops	= init_iops_cy82c693,
++		.init_hwif	= init_hwif_cy82c693,
++		.channels	= 1,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= ON_BOARD,
+ 	},{
+-		vendor:		0,
+-		device:		0,
+-		channels:	0,
+-		bootable:	EOL,
++		.bootable	= EOL,
+ 	}
+ };
+ 
+--- linux-2.5.47/drivers/ide/pci/generic.h.old	2002-10-07 15:45:28.000000000 -0500
++++ linux-2.5.47/drivers/ide/pci/generic.h	2002-11-11 14:56:48.000000000 -0600
+@@ -11,149 +11,121 @@
+ 
+ static ide_pci_device_t generic_chipsets[] __devinitdata = {
+ 	{	/* 0 */
+-		vendor:		PCI_VENDOR_ID_NS,
+-		device:		PCI_DEVICE_ID_NS_87410,
+-		name:		"NS87410",
+-		init_chipset:	init_chipset_generic,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_generic,
+-		init_dma:	init_dma_generic,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x43,0x08,0x08}, {0x47,0x08,0x08}},
+-		bootable:	ON_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_NS,
++		.device		= PCI_DEVICE_ID_NS_87410,
++		.name		= "NS87410",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.init_dma	= init_dma_generic,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x43,0x08,0x08}, {0x47,0x08,0x08}},
++		.bootable	= ON_BOARD,
+         },{	/* 1 */
+-		vendor:		PCI_VENDOR_ID_PCTECH,
+-		device:		PCI_DEVICE_ID_PCTECH_SAMURAI_IDE,
+-		name:		"SAMURAI",
+-		init_chipset:	init_chipset_generic,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_generic,
+-		init_dma:	init_dma_generic,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	ON_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_PCTECH,
++		.device		= PCI_DEVICE_ID_PCTECH_SAMURAI_IDE,
++		.name		= "SAMURAI",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.init_dma	= init_dma_generic,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= ON_BOARD,
+ 	},{	/* 2 */
+-		vendor:		PCI_VENDOR_ID_HOLTEK,
+-		device:		PCI_DEVICE_ID_HOLTEK_6565,
+-		name:		"HT6565",
+-		init_chipset:	init_chipset_generic,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_generic,
+-		init_dma:	init_dma_generic,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	ON_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_HOLTEK,
++		.device		= PCI_DEVICE_ID_HOLTEK_6565,
++		.name		= "HT6565",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.init_dma	= init_dma_generic,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= ON_BOARD,
+ 	},{	/* 3 */
+-		vendor:		PCI_VENDOR_ID_UMC,
+-		device:		PCI_DEVICE_ID_UMC_UM8673F,
+-		name:		"UM8673F",
+-		init_chipset:	init_chipset_generic,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_generic,
+-		init_dma:	init_dma_generic,
+-		channels:	2,
+-		autodma:	NODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	ON_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_UMC,
++		.device		= PCI_DEVICE_ID_UMC_UM8673F,
++		.name		= "UM8673F",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.init_dma	= init_dma_generic,
++		.channels	= 2,
++		.autodma	= NODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= ON_BOARD,
+ 	},{	/* 4 */
+-		vendor:		PCI_VENDOR_ID_UMC,
+-		device:		PCI_DEVICE_ID_UMC_UM8886A,
+-		name:		"UM8886A",
+-		init_chipset:	init_chipset_generic,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_generic,
+-		init_dma:	init_dma_generic,
+-		channels:	2,
+-		autodma:	NODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	ON_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_UMC,
++		.device		= PCI_DEVICE_ID_UMC_UM8886A,
++		.name		= "UM8886A",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.init_dma	= init_dma_generic,
++		.channels	= 2,
++		.autodma	= NODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= ON_BOARD,
+ 	},{	/* 5 */
+-		vendor:		PCI_VENDOR_ID_UMC,
+-		device:		PCI_DEVICE_ID_UMC_UM8886BF,
+-		name:		"UM8886BF",
+-		init_chipset:	init_chipset_generic,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_generic,
+-		init_dma:	init_dma_generic,
+-		channels:	2,
+-		autodma:	NODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	ON_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_UMC,
++		.device		= PCI_DEVICE_ID_UMC_UM8886BF,
++		.name		= "UM8886BF",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.init_dma	= init_dma_generic,
++		.channels	= 2,
++		.autodma	= NODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= ON_BOARD,
+ 	},{	/* 6 */
+-		vendor:		PCI_VENDOR_ID_HINT,
+-		device:		PCI_DEVICE_ID_HINT_VXPROII_IDE,
+-		name:		"HINT_IDE",
+-		init_chipset:	init_chipset_generic,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_generic,
+-		init_dma:	init_dma_generic,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	ON_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_HINT,
++		.device		= PCI_DEVICE_ID_HINT_VXPROII_IDE,
++		.name		= "HINT_IDE",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.init_dma	= init_dma_generic,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= ON_BOARD,
+ 	},{	/* 7 */
+-		vendor:		PCI_VENDOR_ID_VIA,
+-		device:		PCI_DEVICE_ID_VIA_82C561,
+-		name:		"VIA_IDE",
+-		init_chipset:	init_chipset_generic,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_generic,
+-		init_dma:	init_dma_generic,
+-		channels:	2,
+-		autodma:	NOAUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	ON_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_VIA,
++		.device		= PCI_DEVICE_ID_VIA_82C561,
++		.name		= "VIA_IDE",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.init_dma	= init_dma_generic,
++		.channels	= 2,
++		.autodma	= NOAUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= ON_BOARD,
+ 	},{	/* 8 */
+-		vendor:		PCI_VENDOR_ID_OPTI,
+-		device:		PCI_DEVICE_ID_OPTI_82C558,
+-		name:		"OPTI621V",
+-		init_chipset:	init_chipset_generic,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_generic,
+-		init_dma:	init_dma_generic,
+-		channels:	2,
+-		autodma:	NOAUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	ON_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_OPTI,
++		.device		= PCI_DEVICE_ID_OPTI_82C558,
++		.name		= "OPTI621V",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.init_dma	= init_dma_generic,
++		.channels	= 2,
++		.autodma	= NOAUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= ON_BOARD,
+ 	},{
+-		vendor:		0,
+-		device:		0,
+-		channels:	0,
+-		bootable:	EOL,
++		.bootable	= EOL,
+ 	}
+ };
+ 
+ static ide_pci_device_t unknown_chipset[] __devinitdata = {
+ 	{	/* 0 */
+-		vendor:		0,
+-		device:		0,
+-		name:		"PCI_IDE",
+-		init_chipset:	init_chipset_generic,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_generic,
+-		init_dma:	init_dma_generic,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	ON_BOARD,
+-		extra:		0,
++		.name		= "PCI_IDE",
++		.init_chipset	= init_chipset_generic,
++		.init_hwif	= init_hwif_generic,
++		.init_dma	= init_dma_generic,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= ON_BOARD,
+ 	},{
+-		vendor:		0,
+-		device:		0,
+-		channels:	0,
+-		bootable:	EOL,
++		.bootable	= EOL,
+ 	}
+ 
+ };
+--- linux-2.5.47/drivers/ide/pci/hpt34x.h.old	2002-10-07 15:45:28.000000000 -0500
++++ linux-2.5.47/drivers/ide/pci/hpt34x.h	2002-11-11 14:57:01.000000000 -0600
+@@ -23,10 +23,9 @@
+ 
+ static ide_pci_host_proc_t hpt34x_procs[] __initdata = {
+ 	{
+-		name:		"hpt34x",
+-		set:		1,
+-		get_info:	hpt34x_get_info,
+-		parent:		NULL,
++		.name		= "hpt34x",
++		.set		= 1,
++		.get_info	= hpt34x_get_info,
+ 	},
+ };
+ #endif  /* defined(DISPLAY_HPT34X_TIMINGS) && defined(CONFIG_PROC_FS) */
+@@ -37,23 +36,19 @@
+ 
+ static ide_pci_device_t hpt34x_chipsets[] __devinitdata = {
+ 	{	/* 0 */
+-		vendor:		PCI_VENDOR_ID_TTI,
+-		device:		PCI_DEVICE_ID_TTI_HPT343,
+-		name:		"HPT34X",
+-		init_chipset:	init_chipset_hpt34x,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_hpt34x,
+-		init_dma:	init_dma_hpt34x,
+-		channels:	2,
+-		autodma:	NOAUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	NEVER_BOARD,
+-		extra:		16
++		.vendor		= PCI_VENDOR_ID_TTI,
++		.device		= PCI_DEVICE_ID_TTI_HPT343,
++		.name		= "HPT34X",
++		.init_chipset	= init_chipset_hpt34x,
++		.init_hwif	= init_hwif_hpt34x,
++		.init_dma	= init_dma_hpt34x,
++		.channels	= 2,
++		.autodma	= NOAUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= NEVER_BOARD,
++		.extra		= 16
+ 	},{
+-		vendor:		0,
+-		device:		0,
+-		channels:	0,
+-		bootable:	EOL,
++		.bootable	= EOL,
+ 	}
+ };
+ 
+--- linux-2.5.47/drivers/ide/pci/hpt366.h.old	2002-10-07 15:45:28.000000000 -0500
++++ linux-2.5.47/drivers/ide/pci/hpt366.h	2002-11-11 14:57:39.000000000 -0600
+@@ -426,10 +426,9 @@
+ 
+ static ide_pci_host_proc_t hpt366_procs[] __initdata = {
+ 	{
+-		name:		"hpt366",
+-		set:		1,
+-		get_info:	hpt366_get_info,
+-		parent:		NULL,
++		.name		= "hpt366",
++		.set		= 1,
++		.get_info	= hpt366_get_info,
+ 	},
+ };
+ #endif  /* defined(DISPLAY_HPT366_TIMINGS) && defined(CONFIG_PROC_FS) */
+@@ -443,80 +442,68 @@
+ 
+ static ide_pci_device_t hpt366_chipsets[] __devinitdata = {
+ 	{	/* 0 */
+-		vendor:		PCI_VENDOR_ID_TTI,
+-		device:		PCI_DEVICE_ID_TTI_HPT366,
+-		name:		"HPT366",
+-		init_setup:	init_setup_hpt366,
+-		init_chipset:	init_chipset_hpt366,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_hpt366,
+-		init_dma:	init_dma_hpt366,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	OFF_BOARD,
+-		extra:		240
++		.vendor		= PCI_VENDOR_ID_TTI,
++		.device		= PCI_DEVICE_ID_TTI_HPT366,
++		.name		= "HPT366",
++		.init_setup	= init_setup_hpt366,
++		.init_chipset	= init_chipset_hpt366,
++		.init_hwif	= init_hwif_hpt366,
++		.init_dma	= init_dma_hpt366,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= OFF_BOARD,
++		.extra		= 240
+ 	},{	/* 1 */
+-		vendor:		PCI_VENDOR_ID_TTI,
+-		device:		PCI_DEVICE_ID_TTI_HPT372,
+-		name:		"HPT372A",
+-		init_setup:	init_setup_hpt37x,
+-		init_chipset:	init_chipset_hpt366,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_hpt366,
+-		init_dma:	init_dma_hpt366,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	OFF_BOARD,
+-		extra:		0
++		.vendor		= PCI_VENDOR_ID_TTI,
++		.device		= PCI_DEVICE_ID_TTI_HPT372,
++		.name		= "HPT372A",
++		.init_setup	= init_setup_hpt37x,
++		.init_chipset	= init_chipset_hpt366,
++		.init_hwif	= init_hwif_hpt366,
++		.init_dma	= init_dma_hpt366,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= OFF_BOARD,
+ 	},{	/* 2 */
+-		vendor:		PCI_VENDOR_ID_TTI,
+-		device:		PCI_DEVICE_ID_TTI_HPT302,
+-		name:		"HPT302",
+-		init_setup:	init_setup_hpt37x,
+-		init_chipset:	init_chipset_hpt366,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_hpt366,
+-		init_dma:	init_dma_hpt366,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	OFF_BOARD,
+-		extra:		0
++		.vendor		= PCI_VENDOR_ID_TTI,
++		.device		= PCI_DEVICE_ID_TTI_HPT302,
++		.name		= "HPT302",
++		.init_setup	= init_setup_hpt37x,
++		.init_chipset	= init_chipset_hpt366,
++		.init_hwif	= init_hwif_hpt366,
++		.init_dma	= init_dma_hpt366,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= OFF_BOARD,
+ 	},{	/* 3 */
+-		vendor:		PCI_VENDOR_ID_TTI,
+-		device:		PCI_DEVICE_ID_TTI_HPT371,
+-		name:		"HPT371",
+-		init_setup:	init_setup_hpt37x,
+-		init_chipset:	init_chipset_hpt366,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_hpt366,
+-		init_dma:	init_dma_hpt366,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	OFF_BOARD,
+-		extra:		0
++		.vendor		= PCI_VENDOR_ID_TTI,
++		.device		= PCI_DEVICE_ID_TTI_HPT371,
++		.name		= "HPT371",
++		.init_setup	= init_setup_hpt37x,
++		.init_chipset	= init_chipset_hpt366,
++		.init_hwif	= init_hwif_hpt366,
++		.init_dma	= init_dma_hpt366,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= OFF_BOARD,
+ 	},{	/* 4 */
+-		vendor:		PCI_VENDOR_ID_TTI,
+-		device:		PCI_DEVICE_ID_TTI_HPT374,
+-		name:		"HPT374",
+-		init_setup:	init_setup_hpt374,
+-		init_chipset:	init_chipset_hpt366,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_hpt366,
+-		init_dma:	init_dma_hpt366,
+-		channels:	2,	/* 4 */
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	OFF_BOARD,
+-		extra:		0
++		.vendor		= PCI_VENDOR_ID_TTI,
++		.device		= PCI_DEVICE_ID_TTI_HPT374,
++		.name		= "HPT374",
++		.init_setup	= init_setup_hpt374,
++		.init_chipset	= init_chipset_hpt366,
++		.init_hwif	= init_hwif_hpt366,
++		.init_dma	= init_dma_hpt366,
++		.channels	= 2,	/* 4 */
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= OFF_BOARD,
+ 	},{
+-		vendor:		0,
+-		device:		0,
+-		channels:	0,
+-		bootable:	EOL,
++		.bootable	= EOL,
+ 	}
+ };
+ 
+--- linux-2.5.47/drivers/ide/pci/it8172.h.old	2002-10-07 15:45:28.000000000 -0500
++++ linux-2.5.47/drivers/ide/pci/it8172.h	2002-11-11 14:57:48.000000000 -0600
+@@ -21,24 +21,19 @@
+ 
+ static ide_pci_device_t it8172_chipsets[] __devinitdata = {
+ 	{	/* 0 */
+-		vendor:		PCI_VENDOR_ID_ITE,
+-		device:		PCI_DEVICE_ID_ITE_IT8172G,
+-		name:		"IT8172G",
+-		init_setup:	init_setup_it8172,
+-		init_chipset:	init_chipset_it8172,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_it8172,
+-                init_dma:	init_dma_it8172,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x40,0x00,0x01}},
+-		bootable:	ON_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_ITE,
++		.device		= PCI_DEVICE_ID_ITE_IT8172G,
++		.name		= "IT8172G",
++		.init_setup	= init_setup_it8172,
++		.init_chipset	= init_chipset_it8172,
++		.init_hwif	= init_hwif_it8172,
++                .init_dma	= init_dma_it8172,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x40,0x00,0x01}},
++		.bootable	= ON_BOARD,
+ 	},{
+-		vendor:		0,
+-		device:		0,
+-		channels:	0,
+-		bootable:	EOL,
++		.bootable	= EOL,
+ 	}
+ };
+ 
+--- linux-2.5.47/drivers/ide/pci/ns87415.h.old	2002-10-07 15:45:28.000000000 -0500
++++ linux-2.5.47/drivers/ide/pci/ns87415.h	2002-11-11 15:19:29.000000000 -0600
+@@ -10,23 +10,17 @@
+ 
+ static ide_pci_device_t ns87415_chipsets[] __devinitdata = {
+ 	{	/* 0 */
+-		vendor:		PCI_VENDOR_ID_NS,
+-		device:		PCI_DEVICE_ID_NS_87415,
+-		name:		"NS87415",
+-		init_chipset:	NULL,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_ns87415,
+-                init_dma:	init_dma_ns87415,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+-		bootable:	ON_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_NS,
++		.device		= PCI_DEVICE_ID_NS_87415,
++		.name		= "NS87415",
++		.init_hwif	= init_hwif_ns87415,
++		.init_dma	= init_dma_ns87415,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= ON_BOARD,
+ 	},{
+-		vendor:		0,
+-		device:		0,
+-		channels:	0,
+-		bootable:	EOL,
++		.bootable	= EOL,
+ 	}
+ };
+ 
+--- linux-2.5.47/drivers/ide/pci/nvidia.h.old	2002-10-07 15:45:28.000000000 -0500
++++ linux-2.5.47/drivers/ide/pci/nvidia.h	2002-11-11 14:58:11.000000000 -0600
+@@ -17,10 +17,9 @@
+ 
+ static ide_pci_host_proc_t nforce_procs[] __initdata = {
+ 	{
+-		name:		"nforce",
+-		set:		1,
+-		get_info:	nforce_get_info,
+-		parent:		NULL,
++		.name		= "nforce",
++		.set		= 1,
++		.get_info	= nforce_get_info,
+ 	},
+ };
+ #endif  /* defined(DISPLAY_NFORCE_TIMINGS) && defined(CONFIG_PROC_FS) */
+@@ -31,18 +30,16 @@
+ 
+ static ide_pci_device_t nvidia_chipsets[] __devinitdata = {
+ 	{
+-		vendor:		PCI_VENDOR_ID_NVIDIA,
+-		device:		PCI_DEVICE_ID_NVIDIA_NFORCE_IDE,
+-		name:		"NFORCE",
+-		init_chipset:	init_chipset_nforce,
+-		init_iops:	NULL,
+-		init_hwif:	init_hwif_nforce,
+-		init_dma:	init_dma_nforce,
+-		channels:	2,
+-		autodma:	AUTODMA,
+-		enablebits:	{{0x50,0x01,0x01}, {0x50,0x02,0x02}},
+-		bootable:	ON_BOARD,
+-		extra:		0,
++		.vendor		= PCI_VENDOR_ID_NVIDIA,
++		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE_IDE,
++		.name		= "NFORCE",
++		.init_chipset	= init_chipset_nforce,
++		.init_hwif	= init_hwif_nforce,
++		.init_dma	= init_dma_nforce,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x50,0x01,0x01}, {0x50,0x02,0x02}},
++		.bootable	= ON_BOARD,
+ 	}
+ };
+ 
+-- 
+They that can give up essential liberty to obtain a little temporary safety
+deserve neither liberty nor safety.
+ -- Benjamin Franklin, Historical Review of Pennsylvania, 1759

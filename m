@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267963AbTCFKGG>; Thu, 6 Mar 2003 05:06:06 -0500
+	id <S268041AbTCFKIU>; Thu, 6 Mar 2003 05:08:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267966AbTCFKGG>; Thu, 6 Mar 2003 05:06:06 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:24971 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id <S267963AbTCFKGE>;
-	Thu, 6 Mar 2003 05:06:04 -0500
-From: Mikael Pettersson <mikpe@user.it.uu.se>
+	id <S268039AbTCFKIU>; Thu, 6 Mar 2003 05:08:20 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:41965 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S268033AbTCFKIT>;
+	Thu, 6 Mar 2003 05:08:19 -0500
+Date: Thu, 6 Mar 2003 11:18:23 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+In-Reply-To: <20030306101641.GA3519@f00f.org>
+Message-ID: <Pine.LNX.4.44.0303061117041.7333-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15975.8192.437452.801287@gargle.gargle.HOWL>
-Date: Thu, 6 Mar 2003 11:16:32 +0100
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unable to boot a raw kernel image :??
-In-Reply-To: <3E661F8F.50100@zytor.com>
-References: <20021129132126.GA102@DervishD>
-	<3DF08DD0.BA70DA62@gmx.de>
-	<b453er$qo7$1@cesium.transmeta.com>
-	<15974.6329.574794.597753@gargle.gargle.HOWL>
-	<3E661C1D.904@zytor.com>
-	<15974.7817.474141.453202@gargle.gargle.HOWL>
-	<3E661F8F.50100@zytor.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin writes:
- > Mikael Pettersson wrote:
- > >  > 
- > >  > This is the patch I'm trying to get Linus to accept.
- > > 
- > > That's similar to what you posted to LKML a while ago, and
- > > it has the limitations of requiring mountable /dev/fd0, which
- > > needs a magic entry in /etc/fstab ("user" privs, not "owner"),
- > > and MS-DOS FS support in the kernel used for the build.
- > > 
- > 
- > No, it doesn't (if you have SYSLINUX 2.02 or higher.)
 
-Indeed. The SYSLINUX 2.02 + mtools combination works like a charm
-for 'make bzdisk'. I'm happy with your nobootsect patch.
+On Thu, 6 Mar 2003, Chris Wedgwood wrote:
 
-/Mikael
+> > +#elif CONFIG_NR_SIBLINGS_4
+> > +# define CONFIG_NR_SIBLINGS 4
+> 
+> There are HT chips which have 4 siblings?
+
+not that i'm aware of - this was just there because i'm sure this thing
+wont stop at 2 logical CPUs, and i wanted to add a Kconfig structure that
+deals with that too. We can comment off the "CONFIG_NR_SIBLINGS 4" line
+from the Kconfig, for now.
+
+	Ingo
+

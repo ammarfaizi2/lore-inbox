@@ -1,81 +1,197 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbUKGRyg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261666AbUKGR66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261665AbUKGRyg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 12:54:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbUKGRyg
+	id S261666AbUKGR66 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 12:58:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbUKGR66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 12:54:36 -0500
-Received: from imap3.nextra.sk ([195.168.1.92]:8455 "EHLO tic.nextra.sk")
-	by vger.kernel.org with ESMTP id S261671AbUKGRwV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 12:52:21 -0500
-Message-ID: <418E60F4.3090501@rainbow-software.org>
-Date: Sun, 07 Nov 2004 18:52:52 +0100
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041105)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: parport not working in 2.6.9
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 7 Nov 2004 12:58:58 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:40719 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261666AbUKGR61 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 12:58:27 -0500
+Date: Sun, 7 Nov 2004 18:57:51 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: kraxel@bytesex.org, michael@mihu.de
+Cc: linux-kernel@vger.kernel.org
+Subject: RFC: [2.6 patch] saa7146 cleanups
+Message-ID: <20041107175751.GQ14308@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I've noticed that parallel port stopped working for me with 2.6.9. It works with 2.6.8.1 using the same .config - the relevant part:
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-# CONFIG_PARPORT_SERIAL is not set
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_PARPORT_PC_SUPERIO=y
-# CONFIG_PARPORT_OTHER is not set
-CONFIG_PARPORT_1284=y
+The patch below contains the following saa7146 cleanups:
+- make needlessly global code static
+- remove unused code
 
-I've noticed that there's "smsc parport" instead of parport0 in /proc/ioports and new smsc_check range but the 0778-077a range is no longer there. My board has SMC Super I/O chip.
-
-Here's "diff ioports-2.6.8.1 ioports-2.6.9" output:
-3c3,4
-< 0040-005f : timer
----
-> 0040-0043 : timer0
-> 0050-0053 : timer1
-19c20
-< 0378-037a : parport0
----
-> 0378-037a : smsc parport
-22a24
-> 03f0-03f2 : smsc_check
-25d26
-< 0778-077a : parport0
-29c30,33
-<   4008-400b : ACPI timer
----
->   4000-4003 : PM1a_EVT_BLK
->   4004-4005 : PM1a_CNT_BLK
->   4008-400b : PM_TMR
->   400c-400f : GPE0_BLK
+Please comment on this, especially if patches for in-kernel uses of 
+currently unused code are pending.
 
 
-I also see some new ACPI errors during 2.6.9 startup:
-ACPI: Subsystem revision 20040816
-    ACPI-0205: *** Error: Return object type is incorrect [\_SB_.PCI0.ISA_.UAR1._PRW] (Node c7f89f40), AE_TYPE
-    ACPI-0205: *** Error: Return object type is incorrect [\_SB_.PCI0.ISA_.UAR2._PRW] (Node c7f89e20), AE_TYPE
-    ACPI-0205: *** Error: Return object type is incorrect [\_SB_.PCI0.ISA_.LPT_._PRW] (Node c7f89c40), AE_TYPE
+diffstat output:
+ drivers/media/common/saa7146_core.c |   22 ++--------------------
+ drivers/media/common/saa7146_fops.c |   11 -----------
+ drivers/media/common/saa7146_hlp.c  |   21 ++-------------------
+ drivers/media/common/saa7146_i2c.c  |    2 +-
+ drivers/media/common/saa7146_vbi.c  |    2 +-
+ include/media/saa7146_vv.h          |    3 ---
+ 6 files changed, 6 insertions(+), 55 deletions(-)
 
 
-and this:
-parport: PnPBIOS parport detected.
-pnp: Device 00:0e disabled.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
+--- linux-2.6.10-rc1-mm3-full/include/media/saa7146_vv.h.old	2004-11-07 18:36:50.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/include/media/saa7146_vv.h	2004-11-07 18:38:07.000000000 +0100
+@@ -207,7 +207,6 @@
+ void saa7146_set_capture(struct saa7146_dev *dev, struct saa7146_buf *buf, struct saa7146_buf *next);
+ void saa7146_write_out_dma(struct saa7146_dev* dev, int which, struct saa7146_video_dma* vdma) ;
+ void saa7146_set_hps_source_and_sync(struct saa7146_dev *saa, int source, int sync);
+-void saa7146_set_gpio(struct saa7146_dev *saa, u8 pin, u8 data);
+ 
+ /* from saa7146_video.c */
+ extern struct saa7146_use_ops saa7146_video_uops;
+@@ -219,8 +218,6 @@
+ 
+ /* resource management functions */
+ int saa7146_res_get(struct saa7146_fh *fh, unsigned int bit);
+-int saa7146_res_check(struct saa7146_fh *fh, unsigned int bit);
+-int saa7146_res_locked(struct saa7146_dev *dev, unsigned int bit);
+ void saa7146_res_free(struct saa7146_fh *fh, unsigned int bits);
+ 
+ #define RESOURCE_DMA1_HPS	0x1
+--- linux-2.6.10-rc1-mm3-full/drivers/media/common/saa7146_core.c.old	2004-11-07 18:37:09.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/media/common/saa7146_core.c	2004-11-07 18:37:31.000000000 +0100
+@@ -25,7 +25,7 @@
+ struct semaphore saa7146_devices_lock;
+ 
+ static int initialized = 0;
+-int saa7146_num = 0;
++static int saa7146_num = 0;
+ 
+ unsigned int saa7146_debug = 0;
+ 
+@@ -45,27 +45,9 @@
+ #endif
+ 
+ /****************************************************************************
+- * gpio and debi helper functions
++ * debi helper function
+  ****************************************************************************/
+ 
+-/* write "data" to the gpio-pin "pin" */
+-void saa7146_set_gpio(struct saa7146_dev *dev, u8 pin, u8 data)
+-{
+-	u32 value = 0;
+-
+-	/* sanity check */
+-	if(pin > 3)
+-		return;
+-
+-	/* read old register contents */
+-	value = saa7146_read(dev, GPIO_CTRL );
+-	
+-	value &= ~(0xff << (8*pin));
+-	value |= (data << (8*pin));
+-
+-	saa7146_write(dev, GPIO_CTRL, value);
+-}
+-
+ /* This DEBI code is based on the saa7146 Stradis driver by Nathan Laredo */
+ int saa7146_wait_for_debi_done(struct saa7146_dev *dev)
+ {
+--- linux-2.6.10-rc1-mm3-full/drivers/media/common/saa7146_fops.c.old	2004-11-07 18:38:17.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/media/common/saa7146_fops.c	2004-11-07 18:39:23.000000000 +0100
+@@ -32,17 +32,6 @@
+ 	return 1;
+ }
+ 
+-int saa7146_res_check(struct saa7146_fh *fh, unsigned int bit)
+-{
+-	return (fh->resources & bit);
+-}
+-
+-int saa7146_res_locked(struct saa7146_dev *dev, unsigned int bit)
+-{
+-	struct saa7146_vv *vv = dev->vv_data;
+-	return (vv->resources & bit);
+-}
+-
+ void saa7146_res_free(struct saa7146_fh *fh, unsigned int bits)
+ {
+ 	struct saa7146_dev *dev = fh->dev;
+--- linux-2.6.10-rc1-mm3-full/drivers/media/common/saa7146_hlp.c.old	2004-11-07 18:39:46.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/media/common/saa7146_hlp.c	2004-11-07 18:45:20.000000000 +0100
+@@ -9,11 +9,6 @@
+ 	*clip_format |=  (( ((palette&0xf00)>>8) << 30) | ((palette&0x00f) << 24) | (((palette&0x0f0)>>4) << 16));
+ }
+ 
+-static void calculate_bcs_ctrl_register(struct saa7146_dev *dev, int brightness, int contrast, int colour, u32 *bcs_ctrl)
+-{
+-	*bcs_ctrl = ((brightness << 24) | (contrast << 16) | (colour <<  0));
+-}
+-
+ static void calculate_hps_source_and_sync(struct saa7146_dev *dev, int source, int sync, u32* hps_ctrl)
+ {
+ 	*hps_ctrl &= ~(MASK_30 | MASK_31 | MASK_28);
+@@ -62,7 +57,7 @@
+ };
+ 
+ /* table of attenuation values for horizontal scaling */
+-u8 h_attenuation[] = { 1, 2, 4, 8, 2, 4, 8, 16, 0};
++static u8 h_attenuation[] = { 1, 2, 4, 8, 2, 4, 8, 16, 0};
+ 
+ /* calculate horizontal scale registers */
+ static int calculate_h_scale_registers(struct saa7146_dev *dev,
+@@ -208,7 +203,7 @@
+ };
+ 
+ /* table of attenuation values for vertical scaling */
+-u16 v_attenuation[] = { 2, 4, 8, 16, 32, 64, 128, 256, 0};
++static u16 v_attenuation[] = { 2, 4, 8, 16, 32, 64, 128, 256, 0};
+ 
+ /* calculate vertical scale registers */
+ static int calculate_v_scale_registers(struct saa7146_dev *dev, enum v4l2_field field,
+@@ -620,18 +615,6 @@
+       	saa7146_write(dev, MC2, (MASK_05 | MASK_21));
+ }
+ 
+-void saa7146_set_picture_prop(struct saa7146_dev *dev, int brightness, int contrast, int colour)
+-{
+-	u32	bcs_ctrl = 0;
+-	
+-	calculate_bcs_ctrl_register(dev, brightness, contrast, colour, &bcs_ctrl);
+-	saa7146_write(dev, BCS_CTRL, bcs_ctrl);
+-	
+-	/* update the bcs register */
+-      	saa7146_write(dev, MC2, (MASK_06 | MASK_22));
+-}
+-
+-
+ /* select input-source */
+ void saa7146_set_hps_source_and_sync(struct saa7146_dev *dev, int source, int sync)
+ {
+--- linux-2.6.10-rc1-mm3-full/drivers/media/common/saa7146_i2c.c.old	2004-11-07 18:40:26.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/media/common/saa7146_i2c.c	2004-11-07 18:40:37.000000000 +0100
+@@ -1,7 +1,7 @@
+ #include <linux/version.h>
+ #include <media/saa7146_vv.h>
+ 
+-u32 saa7146_i2c_func(struct i2c_adapter *adapter)
++static u32 saa7146_i2c_func(struct i2c_adapter *adapter)
+ {
+ //fm	DEB_I2C(("'%s'.\n", adapter->name));
+ 
+--- linux-2.6.10-rc1-mm3-full/drivers/media/common/saa7146_vbi.c.old	2004-11-07 18:41:12.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/media/common/saa7146_vbi.c	2004-11-07 18:41:20.000000000 +0100
+@@ -130,7 +130,7 @@
+ 	return 0;
+ }
+ 
+-void saa7146_set_vbi_capture(struct saa7146_dev *dev, struct saa7146_buf *buf, struct saa7146_buf *next)
++static void saa7146_set_vbi_capture(struct saa7146_dev *dev, struct saa7146_buf *buf, struct saa7146_buf *next)
+ {
+ 	struct saa7146_vv *vv = dev->vv_data;
+ 
 
-In 2.6.8.1, it's correct:
-parport: PnPBIOS parport detected.
-parport0: PC-style at 0x378 (0x778), irq 7, dma 3 [PCSPP,TRISTATE,COMPAT,ECP,DMA]
-lp0: using parport0 (interrupt-driven).
-
-If more details are needed, just ask.
-
--- 
-Ondrej Zary

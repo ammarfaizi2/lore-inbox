@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269318AbRHWRnL>; Thu, 23 Aug 2001 13:43:11 -0400
+	id <S269326AbRHWRqx>; Thu, 23 Aug 2001 13:46:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269391AbRHWRnB>; Thu, 23 Aug 2001 13:43:01 -0400
-Received: from [128.55.19.230] ([128.55.19.230]:34453 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S269318AbRHWRms>; Thu, 23 Aug 2001 13:42:48 -0400
-Message-ID: <3B853F83.C31F8503@lbl.gov>
-Date: Thu, 23 Aug 2001 10:38:11 -0700
-From: Thomas Davis <tadavis@lbl.gov>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac5 i686)
+	id <S269436AbRHWRqm>; Thu, 23 Aug 2001 13:46:42 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:32016 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S269417AbRHWRqh>; Thu, 23 Aug 2001 13:46:37 -0400
+Message-ID: <3B854186.F0C00E3C@zip.com.au>
+Date: Thu, 23 Aug 2001 10:46:46 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac9 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-CC: Roger Larsson <roger.larsson@norran.net>,
-        linux-usb-users@lists.sourceforge.net,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Klaus Mueller <klmuell@web.de>
-Subject: Re: [Linux-usb-users] Report: Sony Handycam USB and Linux 2.4.9-pre2
-In-Reply-To: <200108141108.f7EB8v612177@mailgate3.cinetic.de> <200108142242.AAA22621@mailb.telia.com> <3B84628B.F998731C@lbl.gov> <200108231739.f7NHdIm16408@maild.telia.com>
+To: Adrian Cox <adrian@humboldt.co.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Filling holes in ext2
+In-Reply-To: <3B83E9FD.6020801@humboldt.co.uk> <3B83FB3F.A0BDC056@zip.com.au> <3B853BE6.3010703@humboldt.co.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roger Larsson wrote:
+Adrian Cox wrote:
 > 
-> On Thursdayen den 23 August 2001 03:55, Thomas Davis wrote:
-> > Roger Larsson wrote:
-> > > Hi,
-> > >
-> > > [Note: I am not subscribed to linux-usb-users, please cc:]
-> > >
-> > > I have a Sony PC110E that has been working with a small patch since 2.4.0
-> > > But with 2.4.9-pre2 it does not work anymore...
-> >
-> > Hmm.. I just got this camera (except it's an NTSC version), and I get
-> >
-> > "not a block device" when I try to mount it.
+> Andrew Morton wrote:
 > 
-> try with fdisk (or cfdisk) it works...
+> > It matters.  -ac kernels handle this by clearing out the blocks
+> > on the error path in __block_prepare_write().  If you retest with
+> > -ac kernels, you should just see zeroes.
 > 
+> That doesn't help. The problem occurs just the same on -ac kernels.
 
-fdisk works fine.  it's when I try to mount it I get the error.
+OK, that code is for IO errors and disk-full.
 
-I'll try the patch and see what happens..
+> In this case __block_prepare_write() is successful. What happens is that
+> if __copy_from_user() fails, the block remains mapped but not up to
+> date. Thus the next read access to the file fetches the garbage data off
+> disk, and presents it to the user.
 
--- 
-------------------------+--------------------------------------------------
-Thomas Davis		| ASG Cluster guy
-tadavis@lbl.gov		| 
-(510) 486-4524		| "80 nodes and chugging Captain!"
+generic_file_write() will mark the page not up-to-date in this case.
+I wonder what's actually going on?  Perhaps the fact that we've
+instantiated a block in ext2 outside i_size?
+
+If you change the error path in -ac's generic_file_write() thusly:
+
+-	goto fail_write;
++	status = -EFAULT;
++	goto sync_failure;
+
+does it fix it?
+
+Can you send the code you're using to demonstrate this?
+
+-

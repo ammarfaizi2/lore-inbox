@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbUAaGIX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 01:08:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264126AbUAaGIW
+	id S263452AbUAaGf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 01:35:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263544AbUAaGf7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 01:08:22 -0500
-Received: from terminus.zytor.com ([63.209.29.3]:43403 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S263185AbUAaGIV
+	Sat, 31 Jan 2004 01:35:59 -0500
+Received: from smtp2.clear.net.nz ([203.97.37.27]:40600 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S263452AbUAaGf6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 01:08:21 -0500
-Message-ID: <401B464C.50004@zytor.com>
-Date: Fri, 30 Jan 2004 22:08:12 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040105
-X-Accept-Language: en, sv, es, fr
-MIME-Version: 1.0
-To: Paul Mackerras <paulus@samba.org>
-CC: klibc list <klibc@zytor.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: long long on 32-bit machines
-References: <4017F991.2090604@zytor.com> <16408.59474.427408.682002@cargo.ozlabs.ibm.com>
-In-Reply-To: <16408.59474.427408.682002@cargo.ozlabs.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 31 Jan 2004 01:35:58 -0500
+Date: Sat, 31 Jan 2004 19:37:25 +1300
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: [Swsusp-devel] Software Suspend 2.0
+In-reply-to: <200401310622.17530.luke7jr@yahoo.com>
+To: Luke-Jr <luke7jr@yahoo.com>
+Cc: swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1075531042.18161.35.camel@laptop-linux>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1075436665.2086.3.camel@laptop-linux>
+ <200401310622.17530.luke7jr@yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mackerras wrote:
-> H. Peter Anvin writes:
-> 
-> 
->>Does anyone happen to know if there are *any* 32-bit architectures (on 
->>which Linux runs) for which the ABI for a "long long" is different from 
->>passing two "longs" in the appropriate order, i.e. (hi,lo) for bigendian 
->>or (lo,hi) for littleendian?
-> 
-> 
-> Are you are talking about passing arguments to a function?  PPC32
-> passes long long arguments in two registers in the order you would
-> expect (hi, lo), BUT you have to use an odd/even register pair.  In
-> other words, if you have a function like this:
-> 
-> 	int foo(int a, long long b)
-> 
-> then a will be passed in r3 and b will be passed in r5 and r6, and r4
-> will be unused.
-> 
+Hi.
 
-Does system calls follow the same convention?
+On Sat, 2004-01-31 at 19:22, Luke-Jr wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Except that it doesn't seem to work...
+> 1. patched in software-suspend-core-2.0-whole -- worked fine
+> 2. software-suspend-linux-2.6.1-rev3-whole:
+> 	2a. can't autodetect files to patch
+> 	2b. alot of patching fails
+> 
+> Is there something obvious I'm doing wrong? :/
 
-	-hpa
+Yes. Apply the patches the other way around - the version specific one
+first, then the core. Oh, you'll also want to get the latest 2.6.1 patch
+(http://swsusp.sf.net).
+
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
+
+Evolution (n): A hypothetical process whereby infinitely improbable events occur 
+with alarming frequency, order arises from chaos, and no one is given credit.
+

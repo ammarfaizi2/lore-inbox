@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267291AbSLELw6>; Thu, 5 Dec 2002 06:52:58 -0500
+	id <S267299AbSLEMFU>; Thu, 5 Dec 2002 07:05:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267299AbSLELw6>; Thu, 5 Dec 2002 06:52:58 -0500
-Received: from h-64-105-35-8.SNVACAID.covad.net ([64.105.35.8]:43211 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S267291AbSLELw5>; Thu, 5 Dec 2002 06:52:57 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Thu, 5 Dec 2002 03:57:53 -0800
-Message-Id: <200212051157.DAA04682@adam.yggdrasil.com>
-To: david@gibson.dropbear.id.au
-Subject: Re: [RFC] generic device DMA implementation
-Cc: davem@redhat.com, James.Bottomley@steeleye.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, miles@gnu.org
+	id <S267301AbSLEMFU>; Thu, 5 Dec 2002 07:05:20 -0500
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:18950 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S267299AbSLEMFT>; Thu, 5 Dec 2002 07:05:19 -0500
+Date: Thu, 5 Dec 2002 13:12:50 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Chris Adams <cmadams@hiwaay.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: #! incompatible -- binfmt_script.c broken?
+Message-ID: <20021205121250.GE15405@merlin.emma.line.org>
+Mail-Followup-To: Chris Adams <cmadams@hiwaay.net>,
+	linux-kernel@vger.kernel.org
+References: <20021204205945.A233182@hiwaay.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021204205945.A233182@hiwaay.net>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson wrote:
->Since, with James's approach you'd need a dma sync function (which
->might compile to NOP) in pretty much the same places you'd need
->map/sync calls, I don't see that it does make the source noticeably
->simpler.
+On Wed, 04 Dec 2002, Chris Adams wrote:
 
-        Because then you don't have to have a branch for
-case where the platform *does* support consistent memory.
+> Try the following under your shell.  On Solaris and Tru64 sh and ksh, it
+> is handled with no error.  Under bash (on Linux, Solaris, and Tru64), it
+> returns an error:
+> 
+> $ set "-- xyzzy"
+> $ echo $?
+> 
+> According to SUSv3, bash is not compliant, because for set, under the
+> section "CONSEQUENCES OF ERRORS" is listed "None." and the "EXIT STATUS"
+> is "Zero."
 
->>       If were to try the approach of using pci_{map,sync}_single
->> always (i.e., just writing the code not to use alloc_consistent),
->> that would have a performance cost on machines where using
->> consistent memory for writing small amounts of data is cheaper than
->> the cost of the cache flushes that would otherwise be required.
->
->Well, I'm only talking about the cases where we actually care about
->reducing the use of consistent memory.
+> Fix the shell(s).
 
-        Then you're not fully weighing the benefits of this facility.
-The primary beneficiaries of this facility are device drivers for
-which we'd like to have the performance advantages of consistent
-memory when available (at least on machines that always return
-consistent memory) but which we'd also like to have work as
-efficiently as possible on platforms that lack consistent memory or
-have so little that we want the device driver to still work even when
-no consistent memory is available.  That includes all PCI devices that
-users of the inconsistent parisc machines want to use.
+That's correct. But how do you derive that the sh command line must
+behave the same? The sh command is not the sh special built-in.
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+However, it would be reasonable if a /bin/sh set $1 to be "-- xyzzy" if
+a file "foo" with
+
+#! /bin/sh -- xyzzy
+
+was executed (as path = [/bin/sh] argv = [./foo] [-- xyzzy]);
+and although I didn't check, I wonder how shells without the "--" long
+options parse that line.

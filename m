@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264743AbSL0Ceu>; Thu, 26 Dec 2002 21:34:50 -0500
+	id <S264755AbSL0Cit>; Thu, 26 Dec 2002 21:38:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264745AbSL0Ceu>; Thu, 26 Dec 2002 21:34:50 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:34566 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S264743AbSL0Cet>;
-	Thu, 26 Dec 2002 21:34:49 -0500
-Date: Thu, 26 Dec 2002 18:38:53 -0800
+	id <S264760AbSL0Cit>; Thu, 26 Dec 2002 21:38:49 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:36102 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S264755AbSL0Cir>;
+	Thu, 26 Dec 2002 21:38:47 -0500
+Date: Thu, 26 Dec 2002 18:42:50 -0800
 From: Greg KH <greg@kroah.com>
-To: Shawn Starr <spstarr@sh0n.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PROBLEM][2.5.52/53][USB] USB Device unusable
-Message-ID: <20021227023852.GD9549@kroah.com>
-References: <200212241533.21347.spstarr@sh0n.net> <200212241725.15439.spstarr@sh0n.net> <20021226175137.GC8229@kroah.com> <200212261433.16060.spstarr@sh0n.net>
+To: lvm-devel@sistina.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [lvm-devel] [PATCH] allow dm-ioctl.ko to be used
+Message-ID: <20021227024250.GE9549@kroah.com>
+References: <20021220224148.GA13612@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200212261433.16060.spstarr@sh0n.net>
+In-Reply-To: <20021220224148.GA13612@kroah.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 26, 2002 at 02:33:15PM -0500, Shawn Starr wrote:
-> Well, libgphoto2 reports that my camera is supported. It supports JamCam 
-> versions 2.0 and 3.0.
+On Fri, Dec 20, 2002 at 02:41:49PM -0800, Greg KH wrote:
+> I guess no one runs the dm code as a module :)
 > 
-> I haven't tried it in any other Linux machine.
+> Here's a small patch that allows dm-ioctl.ko to be loaded.  It is
+> against the latest 2.5.52-bk tree.  Joe, please add this to the next set
+> of patches you send out.
 
-As there are no visible usb subsystem errors or failures here, I would
-take it up with the gphoto people :)
+Ok, seems that dm-ioctl only gets built as a stand alone module with the
+"testing" patches on Joe's web site, that's why no one else was having
+this problem :)
 
-Good luck,
+Joe, if you want to add this patch, please do, but I now realize that it
+isn't necessary for people to use the in-kernel version of dm right now.
+
+thanks,
 
 greg k-h

@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292021AbSBTRAp>; Wed, 20 Feb 2002 12:00:45 -0500
+	id <S292027AbSBTRGQ>; Wed, 20 Feb 2002 12:06:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292027AbSBTRAf>; Wed, 20 Feb 2002 12:00:35 -0500
-Received: from magic.adaptec.com ([208.236.45.80]:17308 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP
-	id <S292021AbSBTRAU>; Wed, 20 Feb 2002 12:00:20 -0500
-Message-ID: <F8D30FF32B23D61198B9009027D61DB32FC1D8@otcexc01.otc.adaptec.com>
-From: "Bonds, Deanna" <Deanna_Bonds@adaptec.com>
-To: "'Jordan Breeding'" <ledzep37@attbi.com>, linux-kernel@vger.kernel.org
-Subject: RE: Adaptec dpt_i20.c broken in 2.5?
-Date: Wed, 20 Feb 2002 11:59:06 -0500
+	id <S292030AbSBTRGG>; Wed, 20 Feb 2002 12:06:06 -0500
+Received: from [217.11.143.226] ([217.11.143.226]:50304 "HELO
+	hello.skrzynka.pl") by vger.kernel.org with SMTP id <S292027AbSBTRF6>;
+	Wed, 20 Feb 2002 12:05:58 -0500
+Message-ID: <000401c1ba31$082104b0$d8644cd5@krios>
+From: "Riot777" <riot777@skrzynka.pl>
+To: <linux-kernel@vger.kernel.org>
+Subject: Please help me with newer 2.4.xx
+Date: Wed, 20 Feb 2002 18:04:51 +0100
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-	charset="iso-8859-15"
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I will be getting to this soon.  
+  Dear Linux Kernel community pleez help me I have some serious problem with
+2.4xx newer kernels and my softmodem Motorola sm56 driver compabilyty.
+The problem is in the kernells from 2.4.8 to 2.4.14/16/17 becouse I've been
+using this kernells and report that issue.
+Modem run good on older kernells 2.4.1 to 2.4.5 last is standard for my
+distribution Slackware 8.0.
+But on newer kernels like 2.4.8 - newest 2.4.17 the driver doesn't work maby
+this is becouse new memory architecture.
+I don't really know what is the problem but problem lays in newer kernels .
+Driver is a closed source drv in program which is making a module cold
+sm56.o
+after typed command.
+Motorola says the driver is fully functional and they can't help me becouse
+company discounted from softmodem buisness. And the driver only works on
+kernels 2.4.xx .
+But the drivers works fine on oldre kernells why on newer they doesn't ?
+The kernel developers/hackers  are the only pepole which could help me and
+other users of this modem.
+Please send me solution or patch for this issue on my email
+riot777@skrzynka.pl
+Help me please maby somebody could tell this Marcelo Tossati , maby anybody
+can
+do some patch ???
+Maby is somebody in community who could help me pleez I'm in despair.
 
-Deanna
+With very best wishes Riot777
 
-> -----Original Message-----
-> From: Jordan Breeding [mailto:ledzep37@attbi.com]
-> Sent: Wednesday, February 20, 2002 6:38 AM
-> To: linux-kernel@vger.kernel.org
-> Subject: Adaptec dpt_i20.c broken in 2.5?
-> 
-> 
-> I will most likely be purchasing a system soon which will 
-> make use of an
-> Adaptec Zero Channel raid card and so it will require the use of the
-> dpt_i2o Adaptec driver.  However, currently in 2.5.5 if you select
-> Adaptec i2o to be compiled it gives an error caused by this line:
-> 
-> #error Please convert me to Documentation/DMA-mapping.txt
-> 
-> Will this be fixed in a -pre version any time soon?  Thanks 
-> for any info
-> on the situation with this scsi driver.
-> 
-> Jordan
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+--
+This mail was sent by Riot777
+Linux Registered User #252508
+http://counter.li.org
+
+
+

@@ -1,80 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264905AbUBDXe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 18:34:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbUBDXe1
+	id S264941AbUBDX3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 18:29:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbUBDX3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 18:34:27 -0500
-Received: from fw.osdl.org ([65.172.181.6]:39611 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264365AbUBDXbq (ORCPT
+	Wed, 4 Feb 2004 18:29:24 -0500
+Received: from gate.crashing.org ([63.228.1.57]:53380 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S264941AbUBDX3E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 18:31:46 -0500
-Subject: Re: Linux 2.6.2 aka "Feisty Dunnart" (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0402032001040.2131@home.osdl.org>
-References: <Pine.LNX.4.58.0402032001040.2131@home.osdl.org>
+	Wed, 4 Feb 2004 18:29:04 -0500
+Subject: Re: [PATCH] PCI / OF linkage in sysfs
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Greg KH <greg@kroah.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20040204231324.GA5078@kroah.com>
+References: <1075878713.992.3.camel@gaston>
+	 <Pine.LNX.4.58.0402041407160.2086@home.osdl.org>
+	 <20040204231324.GA5078@kroah.com>
 Content-Type: text/plain
-Message-Id: <1075937804.8286.22.camel@cherrytest.pdx.osdl.net>
+Message-Id: <1075937299.4019.41.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 04 Feb 2004 15:36:44 -0800
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 05 Feb 2004 10:28:20 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compile statistics for the last few kernel releases (including the mm
-patches)....
 
-Linux 2.6 Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
+> Or, if you really want to be able to get the OF info from the pci device
+> in sysfs, why not create a symlink in the pci device directory pointing
+> to your OF path in sysfs?  That would seem like the best option.
 
-Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- -------- ---------
-2.6.2          0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
-2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
-2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
-2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
+The OF device-tree isn't in sysfs, it's in /proc/device-tree, we never
+"ported" that code to sysfs for various reasons. I could start doing
+so but I'm afraid I won't have time to do that before 2.6.3 and I
+really want something in asap so I can finally fix the bootloader setup
+and XFree once for all...
 
-Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
+Now, if you consider a symlink to /proc/device-tree acceptable... :)
 
-Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
-                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
---------------- ---------- -------- -------- -------- -------- --------
-2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
-2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
-2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
-2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
-2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
-2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
-2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
-2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
-2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
-2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
-2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
-2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
-
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-Daily compiles (ia32): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
-Daily compiles (ia64): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
-Latest changes in Linus' bitkeeper tree:
-   http://linux.bkbits.net:8080/linux-2.5
-
-John
+Ben.
 
 

@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262731AbVAVRrA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262606AbVAVRwC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262731AbVAVRrA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 12:47:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbVAVRqP
+	id S262606AbVAVRwC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 12:52:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbVAVRwC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 12:46:15 -0500
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:17618 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262611AbVAVRdP convert rfc822-to-8bit
+	Sat, 22 Jan 2005 12:52:02 -0500
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:16850 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262606AbVAVRdP convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 22 Jan 2005 12:33:15 -0500
 Cc: linux-kernel@vger.kernel.org, js@linuxtv.org
 In-Reply-To: <1106415266247@linuxtv.org>
 X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Sat, 22 Jan 2005 18:34:30 +0100
-Message-Id: <1106415270932@linuxtv.org>
+Date: Sat, 22 Jan 2005 18:34:29 +0100
+Message-Id: <11064152692242@linuxtv.org>
 Mime-Version: 1.0
 To: Linus Torvalds <torvalds@osdl.org>
 From: Johannes Stezenbach <js@linuxtv.org>
 X-SA-Exim-Connect-IP: 217.231.47.99
-Subject: [PATCH 5/9] add ATSC support, misc fixes
+Subject: [PATCH 4/9] support nxt2002 frontend, misc skystar2 fixes
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
@@ -26,1144 +26,1780 @@ X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- [DVB] dvb-core: vfree() checking cleanups, patch by Domen Puncer
-- [DVB] dvb-core: fix handling of discontinuity indicator in section filter,
-        bug reported by Frank Rosengart
-- [DVB] dvb-core: handle PUSI in section filter correctly, patch by Emard,
-        bug reported by Patrick Valsecchi
-- [DVB] dvb-core: add support for ATSC/VSB frontends, patch by Taylor Jacob
-- [DVB] dvb-core: removed semi-colon from a very wrong place; FE_ENABLE_HIGH_LNB_VOLTAGE
-        kernel oops; thanks to Christophe Massiot
-- [DVB] dvb-core: Fixed slow tuning problems, remove frequeny bending support from
-        frontend code, code simplification
+- [DVB] nxt2002: add support for nxt2002 frontend (firmware extraction, Kconfig, driver)
+- [DVB] skystar2: misc cleanup, remove unneeded casts, remove unreachable
+        code, patches by Francois Romieu
+- [DVB] skystar2: fix mt352 clock setting for VHF (6 and 7 MHz bw channels),
+        patch by Thomas Martin and Dieter Zander:
+- [DVB] b2c2-usb-core: fix file permissions to be octal, ISO C90 compile fix,
+        temporally repaired the request_types
+- [DVB] remove remains of dibusb driver after splitup
 
 Signed-off-by: Michael Hunold <hunold@linuxtv.org>
 Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 
-diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/dvb-core/dvb_demux.c linux-2.6.11-rc2-dvb/drivers/media/dvb/dvb-core/dvb_demux.c
---- linux-2.6.11-rc2/drivers/media/dvb/dvb-core/dvb_demux.c	2005-01-20 19:54:05.000000000 +0100
-+++ linux-2.6.11-rc2-dvb/drivers/media/dvb/dvb-core/dvb_demux.c	2005-01-20 19:56:37.000000000 +0100
-@@ -247,7 +249,22 @@
- 		}
+diff -uraNwB linux-2.6.11-rc2/Documentation/dvb/get_dvb_firmware linux-2.6.11-rc2-dvb/Documentation/dvb/get_dvb_firmware
+--- linux-2.6.11-rc2/Documentation/dvb/get_dvb_firmware	2005-01-20 19:55:06.000000000 +0100
++++ linux-2.6.11-rc2-dvb/Documentation/dvb/get_dvb_firmware	2004-12-17 22:00:17.000000000 +0100
+@@ -21,7 +21,8 @@
+ use File::Temp qw/ tempdir /;
+ use IO::Handle;
  
- /* 
--** Losless Section Demux 1.4 by Emard
-+** Losless Section Demux 1.4.1 by Emard
-+** Valsecchi Patrick:
-+**  - middle of section A  (no PUSI)
-+**  - end of section A and start of section B 
-+**    (with PUSI pointing to the start of the second section)
-+**  
-+**  In this case, without feed->pusi_seen you'll receive a garbage section
-+**  consisting of the end of section A. Basically because tsfeedp
-+**  is incemented and the use=0 condition is not raised
-+**  when the second packet arrives.
-+**
-+** Fix:
-+** when demux is started, let feed->pusi_seen = 0 to
-+** prevent initial feeding of garbage from the end of
-+** previous section. When you for the first time see PUSI=1
-+** then set feed->pusi_seen = 1
- */
- static int dvb_dmx_swfilter_section_copy_dump(struct dvb_demux_feed *feed, const u8 *buf, u8 len)
+-@components = ( "sp8870", "sp887x", "tda10045", "tda10046", "av7110", "dec2000t", "dec2540t", "dec3000s", "vp7041", "dibusb" );
++@components = ( "sp8870", "sp887x", "tda10045", "tda10046", "av7110", "dec2000t",
++		"dec2540t", "dec3000s", "vp7041", "dibusb", "nxt2002" );
+ 
+ # Check args
+ syntax() if (scalar(@ARGV) != 1);
+@@ -233,6 +234,23 @@
+ 	$outfile;
+ }
+ 
++sub nxt2002 {
++    my $sourcefile = "Broadband4PC_4_2_11.zip";
++    my $url = "http://www.bbti.us/download/windows/$sourcefile";
++    my $hash = "c6d2ea47a8f456d887ada0cfb718ff2a";
++    my $outfile = "dvb-fe-nxt2002.fw";
++    my $tmpdir = tempdir(DIR => "/tmp", CLEANUP => 1);
++
++    checkstandard();
++    
++    wgetfile($sourcefile, $url);
++    unzip($sourcefile, $tmpdir);
++    verify("$tmpdir/SkyNETU.sys", $hash);
++    extract("$tmpdir/SkyNETU.sys", 375832, 5908, $outfile);
++
++    $outfile;
++}
++
+ # ---------------------------------------------------------------
+ # Utilities
+ 
+diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/frontends/Makefile linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/Makefile
+--- linux-2.6.11-rc2/drivers/media/dvb/frontends/Makefile	2005-01-20 19:54:04.000000000 +0100
++++ linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/Makefile	2004-12-17 22:00:17.000000000 +0100
+@@ -24,3 +24,5 @@
+ obj-$(CONFIG_DVB_TDA80XX) += tda80xx.o
+ obj-$(CONFIG_DVB_TDA10021) += tda10021.o
+ obj-$(CONFIG_DVB_STV0297) += stv0297.o
++obj-$(CONFIG_DVB_NXT2002) += nxt2002.o
++
+diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/frontends/Kconfig linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/Kconfig
+--- linux-2.6.11-rc2/drivers/media/dvb/frontends/Kconfig	2005-01-20 19:54:04.000000000 +0100
++++ linux-2.6.11-rc2-dvb/drivers/media/dvb/frontends/Kconfig	2005-01-20 19:56:37.000000000 +0100
+@@ -46,6 +46,7 @@
+ config DVB_SP8870
+  	tristate "Spase sp8870 based"
+ 	depends on DVB_CORE
++	select FW_LOADER
+ 	help
+  	  A DVB-T tuner module. Say Y when you want to support this frontend.
+ 
+@@ -56,6 +57,7 @@
+ config DVB_SP887X
+  	tristate "Spase sp887x based"
+ 	depends on DVB_CORE
++	select FW_LOADER
+ 	help
+ 	  A DVB-T tuner module. Say Y when you want to support this frontend.
+ 
+@@ -84,6 +86,7 @@
+ config DVB_TDA1004X
+ 	tristate "Philips TDA10045H/TDA10046H based"
+ 	depends on DVB_CORE
++	select FW_LOADER
+ 	help
+ 	  A DVB-T tuner module. Say Y when you want to support this frontend.
+ 
+@@ -145,4 +148,13 @@
+ 	help
+ 	  A DVB-C tuner module. Say Y when you want to support this frontend.
+ 
++comment "ATSC (North American/Korean Terresterial DTV) frontends"
++	depends on DVB_CORE
++
++config DVB_NXT2002
++	tristate "Nxt2002 based"
++	depends on DVB_CORE
++	help
++	  An ATSC 8VSB tuner module. Say Y when you want to support this frontend.
++
+ endmenu
+diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/b2c2/Kconfig linux-2.6.11-rc2-dvb/drivers/media/dvb/b2c2/Kconfig
+--- linux-2.6.11-rc2/drivers/media/dvb/b2c2/Kconfig	2005-01-20 19:54:05.000000000 +0100
++++ linux-2.6.11-rc2-dvb/drivers/media/dvb/b2c2/Kconfig	2004-12-17 22:00:17.000000000 +0100
+@@ -4,9 +4,11 @@
+ 	select DVB_STV0299
+ 	select DVB_MT352
+ 	select DVB_MT312
++	select DVB_NXT2002
+ 	help
+ 	  Support for the Skystar2 PCI DVB card by Technisat, which
+-	  is equipped with the FlexCopII chipset by B2C2.
++	  is equipped with the FlexCopII chipset by B2C2, and
++	  for the B2C2/BBTI Air2PC-ATSC card.
+ 
+ 	  Say Y if you own such a device and want to use it.
+ 
+@@ -17,7 +19,7 @@
+ 	select DVB_MT352
+ 	help
+ 	  Support for the Air/Sky/Cable2PC USB DVB device by B2C2. Currently
+-	  this does nothing, but providing basic function for the used usb
++	  the does nothing, but providing basic function for the used usb 
+ 	  protocol.
+ 
+ 	  Say Y if you own such a device and want to use it.
+diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/b2c2/skystar2.c linux-2.6.11-rc2-dvb/drivers/media/dvb/b2c2/skystar2.c
+--- linux-2.6.11-rc2/drivers/media/dvb/b2c2/skystar2.c	2005-01-20 19:55:47.000000000 +0100
++++ linux-2.6.11-rc2-dvb/drivers/media/dvb/b2c2/skystar2.c	2005-01-20 19:56:37.000000000 +0100
+@@ -53,7 +53,7 @@
+ #include "stv0299.h"
+ #include "mt352.h"
+ #include "mt312.h"
+-
++#include "nxt2002.h"
+ 
+ static int debug;
+ static int enable_hw_filters = 2;
+@@ -1379,10 +1378,7 @@
+ 		write_reg_dw(adapter, 0x008, adapter->dmaq1.bus_addr & 0xfffffffc);
+ 		udelay(1000);
+ 
+-		if (subbuffers == 0)
+-			dma_enable_disable_irq(adapter, 0, 1, 0);
+-		else
+-			dma_enable_disable_irq(adapter, 0, 1, 1);
++		dma_enable_disable_irq(adapter, 0, 1, subbuffers ? 1 : 0);
+ 
+ 		irq_dma_enable_disable_irq(adapter, 1);
+ 
+@@ -1681,84 +1677,80 @@
+ 	return IRQ_HANDLED;
+ }
+ 
+-static void init_dma_queue(struct adapter *adapter)
++static int init_dma_queue_one(struct adapter *adapter, struct dmaq *dmaq,
++			      int size, int dmaq_offset)
  {
-@@ -293,7 +310,12 @@
- 		sec->seclen = seclen;
- 		sec->crc_val = ~0;
- 		/* dump [secbuf .. secbuf+seclen) */
-+		if(feed->pusi_seen)
- 		dvb_dmx_swfilter_section_feed(feed);
-+#ifdef DVB_DEMUX_SECTION_LOSS_LOG
++	struct pci_dev *pdev = adapter->pdev;
+ 	dma_addr_t dma_addr;
+ 
+-	if (adapter->dmaq1.buffer != 0)
+-		return;
+-
+-	adapter->dmaq1.head = 0;
+-	adapter->dmaq1.tail = 0;
+-	adapter->dmaq1.buffer = NULL;
+-
+-	adapter->dmaq1.buffer = pci_alloc_consistent(adapter->pdev, SIZE_OF_BUF_DMA1 + 0x80, &dma_addr);
++	dmaq->head = 0;
++	dmaq->tail = 0;
+ 
+-	if (adapter->dmaq1.buffer != 0) {
+-		memset(adapter->dmaq1.buffer, 0, SIZE_OF_BUF_DMA1);
+-
+-		adapter->dmaq1.bus_addr = dma_addr;
+-		adapter->dmaq1.buffer_size = SIZE_OF_BUF_DMA1;
+-
+-		dma_init_dma(adapter, 0);
++	dmaq->buffer = pci_alloc_consistent(pdev, size + 0x80, &dma_addr);
++	if (!dmaq->buffer)
++		return -ENOMEM;
+ 
+-		adapter->dma_status = adapter->dma_status | 0x10000000;
++	dmaq->bus_addr = dma_addr;
++	dmaq->buffer_size = size;
+ 
+-		ddprintk("%s: allocated dma buffer at 0x%p, length=%d\n", __FUNCTION__, adapter->dmaq1.buffer, SIZE_OF_BUF_DMA1);
++	dma_init_dma(adapter, dmaq_offset);
+ 
+-	} else {
++	ddprintk("%s: allocated dma buffer at 0x%p, length=%d\n",
++		 __FUNCTION__, dmaq->buffer, size);
+ 
+-		adapter->dma_status = adapter->dma_status & ~0x10000000;
++	return 0;
+ 	}
+ 
+-	if (adapter->dmaq2.buffer != 0)
+-		return;
+-
+-	adapter->dmaq2.head = 0;
+-	adapter->dmaq2.tail = 0;
+-	adapter->dmaq2.buffer = NULL;
+-
+-	adapter->dmaq2.buffer = pci_alloc_consistent(adapter->pdev, SIZE_OF_BUF_DMA2 + 0x80, &dma_addr);
+-
+-	if (adapter->dmaq2.buffer != 0) {
+-		memset(adapter->dmaq2.buffer, 0, SIZE_OF_BUF_DMA2);
+-
+-		adapter->dmaq2.bus_addr = dma_addr;
+-		adapter->dmaq2.buffer_size = SIZE_OF_BUF_DMA2;
+-
+-		dma_init_dma(adapter, 1);
+-
+-		adapter->dma_status = adapter->dma_status | 0x20000000;
+-
+-		ddprintk("%s: allocated dma buffer at 0x%p, length=%d\n", __FUNCTION__, adapter->dmaq2.buffer, (int) SIZE_OF_BUF_DMA2);
++static int init_dma_queue(struct adapter *adapter)
++{
++	struct {
++		struct dmaq *dmaq;
++		u32 dma_status;
++		int size;
++	} dmaq_desc[] = {
++		{ &adapter->dmaq1, 0x10000000, SIZE_OF_BUF_DMA1 },
++		{ &adapter->dmaq2, 0x20000000, SIZE_OF_BUF_DMA2 }
++	}, *p = dmaq_desc;
++	int i;
+ 
+-	} else {
++	for (i = 0; i < 2; i++, p++) {
++		if (init_dma_queue_one(adapter, p->dmaq, p->size, i) < 0)
++			adapter->dma_status &= ~p->dma_status;
 +		else
-+			printk("dvb_demux.c pusi not seen, discarding section data\n");
-+#endif
- 		sec->secbufp += seclen; /* secbufp and secbuf moving together is */
- 		sec->secbuf += seclen; /* redundand but saves pointer arithmetic */
- 		}
-@@ -305,7 +327,7 @@
- static int dvb_dmx_swfilter_section_packet(struct dvb_demux_feed *feed, const u8 *buf) 
- {
- 	u8 p, count;
--	int ccok;
-+	int ccok, dc_i = 0;
- 	u8 cc;
- 
- 	count = payload(buf);
-@@ -316,31 +338,41 @@
- 	p = 188-count; /* payload start */
- 
- 	cc = buf[3] & 0x0f;
--	ccok = ((feed->cc+1) & 0x0f) == cc ? 1 : 0;
-+	ccok = ((feed->cc + 1) & 0x0f) == cc;
- 	feed->cc = cc;
--	if(ccok == 0)
--	{
-+
-+	if (buf[3] & 0x20) {
-+		/* adaption field present, check for discontinuity_indicator */
-+		if ((buf[4] > 0) && (buf[5] & 0x80))
-+			dc_i = 1;
++			adapter->dma_status |= p->dma_status;
 +	}
-+
-+	if (!ccok || dc_i) {
- #ifdef DVB_DEMUX_SECTION_LOSS_LOG
- 		printk("dvb_demux.c discontinuity detected %d bytes lost\n", count);
- 		/* those bytes under sume circumstances will again be reported
- 		** in the following dvb_dmx_swfilter_section_new
- 		*/
- #endif
-+		/* Discontinuity detected. Reset pusi_seen = 0 to
-+		** stop feeding of suspicious data until next PUSI=1 arrives
-+		*/
-+		feed->pusi_seen = 0;
- 		dvb_dmx_swfilter_section_new(feed);
- 		return 0;
++	return (adapter->dma_status & 0x30000000) ? 0 : -ENOMEM;
++}
+ 
+-		adapter->dma_status = adapter->dma_status & ~0x20000000;
++static void free_dma_queue_one(struct adapter *adapter, struct dmaq *dmaq)
++{
++	if (dmaq->buffer) {
++		pci_free_consistent(adapter->pdev, dmaq->buffer_size + 0x80,
++				    dmaq->buffer, dmaq->bus_addr);
++		memset(dmaq, 0, sizeof(*dmaq));
  	}
- 
--	if(buf[1] & 0x40)
--	{
-+	if (buf[1] & 0x40) {
- 		// PUSI=1 (is set), section boundary is here
--		if(count > 1 && buf[p] < count)
--		{
-+		if (count > 1 && buf[p] < count) {
- 			const u8 *before = buf+p+1;
- 			u8 before_len = buf[p];
- 			const u8 *after = before+before_len;
- 			u8 after_len = count-1-before_len;
- 
- 			dvb_dmx_swfilter_section_copy_dump(feed, before, before_len);
-+			/* before start of new section, set pusi_seen = 1 */
-+			feed->pusi_seen = 1;
- 			dvb_dmx_swfilter_section_new(feed);
- 			dvb_dmx_swfilter_section_copy_dump(feed, after, after_len);
- 		}
-@@ -349,9 +381,7 @@
- 			if(count > 0)
- 				printk("dvb_demux.c PUSI=1 but %d bytes lost\n", count);
- #endif
--	}
--	else
--	{
-+	} else {
- 		// PUSI=0 (is not set), no section boundary
- 		const u8 *entire = buf+p;
- 		u8 entire_len = count;
-@@ -784,10 +814,8 @@
- 	}
- 
- #ifndef NOBUFS
--	if (feed->buffer) { 
- 		vfree(feed->buffer);
- 		feed->buffer=0;
--	}
- #endif
- 
- 	feed->state = DMX_STATE_FREE;
-@@ -1055,10 +1094,8 @@
- 		return -EINVAL;
- 	}
- #ifndef NOBUFS
--	if (dvbdmxfeed->buffer) {
- 		vfree(dvbdmxfeed->buffer);
- 		dvbdmxfeed->buffer=0;
--	}
- #endif
- 	dvbdmxfeed->state=DMX_STATE_FREE;
- 
-@@ -1269,9 +1317,7 @@
- 	struct dmx_demux *dmx = &dvbdemux->dmx;
- 
- 	dmx_unregister_demux(dmx);
--	if (dvbdemux->filter)
- 		vfree(dvbdemux->filter);
--	if (dvbdemux->feed)
- 		vfree(dvbdemux->feed);
- 	return 0;
- }
-diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/dvb-core/dvb_demux.h linux-2.6.11-rc2-dvb/drivers/media/dvb/dvb-core/dvb_demux.h
---- linux-2.6.11-rc2/drivers/media/dvb/dvb-core/dvb_demux.h	2005-01-20 19:54:05.000000000 +0100
-+++ linux-2.6.11-rc2-dvb/drivers/media/dvb/dvb-core/dvb_demux.h	2005-01-20 19:56:37.000000000 +0100
-@@ -93,6 +93,7 @@
-         enum dmx_ts_pes pes_type;
- 
-         int cc;
-+        int pusi_seen; /* prevents feeding of garbage from previous section */
- 
-         u16 peslen;
- 
-diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/dvb-core/dvb_frontend.c linux-2.6.11-rc2-dvb/drivers/media/dvb/dvb-core/dvb_frontend.c
---- linux-2.6.11-rc2/drivers/media/dvb/dvb-core/dvb_frontend.c	2005-01-20 19:54:05.000000000 +0100
-+++ linux-2.6.11-rc2-dvb/drivers/media/dvb/dvb-core/dvb_frontend.c	2005-01-20 19:56:37.000000000 +0100
-@@ -89,9 +89,36 @@
- 
- static DECLARE_MUTEX(frontend_mutex);
- 
-+struct dvb_frontend_private {
-+
-+	struct dvb_device *dvbdev;
-+	struct dvb_frontend_parameters parameters;
-+	struct dvb_fe_events events;
-+	struct semaphore sem;
-+	struct list_head list_head;
-+	wait_queue_head_t wait_queue;
-+	pid_t thread_pid;
-+	unsigned long release_jiffies;
-+	int state;
-+	int bending;
-+	int lnb_drift;
-+	int inversion;
-+	int auto_step;
-+	int auto_sub_step;
-+	int started_auto_step;
-+	int min_delay;
-+	int max_drift;
-+	int step_size;
-+	int exit;
-+	int wakeup;
-+	fe_status_t status;
-+};
-+
-+
- static void dvb_frontend_add_event(struct dvb_frontend *fe, fe_status_t status)
- {
--	struct dvb_fe_events *events = &fe->events;
-+	struct dvb_frontend_private *fepriv = (struct dvb_frontend_private*) fe->frontend_priv;
-+	struct dvb_fe_events *events = &fepriv->events;
- 	struct dvb_frontend_event *e;
- 	int wp;
- 
-@@ -109,7 +136,7 @@
- 
- 	e = &events->events[events->eventw];
- 
--	memcpy (&e->parameters, &fe->parameters, 
-+	memcpy (&e->parameters, &fepriv->parameters,
- 		sizeof (struct dvb_frontend_parameters));
- 
- 	if (status & FE_HAS_LOCK)
-@@ -128,7 +155,8 @@
- static int dvb_frontend_get_event(struct dvb_frontend *fe,
- 			    struct dvb_frontend_event *event, int flags)
- {
--        struct dvb_fe_events *events = &fe->events;
-+	struct dvb_frontend_private *fepriv = (struct dvb_frontend_private*) fe->frontend_priv;
-+	struct dvb_fe_events *events = &fepriv->events;
- 
- 	dprintk ("%s\n", __FUNCTION__);
- 
-@@ -143,12 +171,12 @@
-                 if (flags & O_NONBLOCK)
-                         return -EWOULDBLOCK;
- 
--		up(&fe->sem);
-+		up(&fepriv->sem);
- 
-                 ret = wait_event_interruptible (events->wait_queue,
-                                                 events->eventw != events->eventr);
- 
--        	if (down_interruptible (&fe->sem))
-+		if (down_interruptible (&fepriv->sem))
- 			return -ERESTARTSYS;
- 
-                 if (ret < 0)
-@@ -206,27 +234,28 @@
- {
- 	int autoinversion;
- 	int ready = 0;
--	int original_inversion = fe->parameters.inversion;
--	u32 original_frequency = fe->parameters.frequency;
-+	struct dvb_frontend_private *fepriv = (struct dvb_frontend_private*) fe->frontend_priv;
-+	int original_inversion = fepriv->parameters.inversion;
-+	u32 original_frequency = fepriv->parameters.frequency;
- 
- 	/* are we using autoinversion? */
- 	autoinversion = ((!(fe->ops->info.caps & FE_CAN_INVERSION_AUTO)) &&
--			 (fe->parameters.inversion == INVERSION_AUTO));
-+			 (fepriv->parameters.inversion == INVERSION_AUTO));
- 
- 	/* setup parameters correctly */
- 	while(!ready) {
- 		/* calculate the lnb_drift */
--		fe->lnb_drift = fe->auto_step * fe->step_size;
-+		fepriv->lnb_drift = fepriv->auto_step * fepriv->step_size;
- 
- 		/* wrap the auto_step if we've exceeded the maximum drift */
--		if (fe->lnb_drift > fe->max_drift) {
--			fe->auto_step = 0;
--			fe->auto_sub_step = 0;
--			fe->lnb_drift = 0;
-+		if (fepriv->lnb_drift > fepriv->max_drift) {
-+			fepriv->auto_step = 0;
-+			fepriv->auto_sub_step = 0;
-+			fepriv->lnb_drift = 0;
- 		}
- 
- 		/* perform inversion and +/- zigzag */
--		switch(fe->auto_sub_step) {
-+		switch(fepriv->auto_sub_step) {
- 		case 0:
- 			/* try with the current inversion and current drift setting */
- 			ready = 1;
-@@ -235,68 +264,70 @@
- 		case 1:
- 			if (!autoinversion) break;
- 
--			fe->inversion = (fe->inversion == INVERSION_OFF) ? INVERSION_ON : INVERSION_OFF;
-+			fepriv->inversion = (fepriv->inversion == INVERSION_OFF) ? INVERSION_ON : INVERSION_OFF;
- 			ready = 1;
- 			break;
- 
- 		case 2:
--			if (fe->lnb_drift == 0) break;
-+			if (fepriv->lnb_drift == 0) break;
- 		    
--			fe->lnb_drift = -fe->lnb_drift;
-+			fepriv->lnb_drift = -fepriv->lnb_drift;
- 			ready = 1;
- 			break;
- 	    
- 		case 3:
--			if (fe->lnb_drift == 0) break;
-+			if (fepriv->lnb_drift == 0) break;
- 			if (!autoinversion) break;
- 		    
--			fe->inversion = (fe->inversion == INVERSION_OFF) ? INVERSION_ON : INVERSION_OFF;
--			fe->lnb_drift = -fe->lnb_drift;
-+			fepriv->inversion = (fepriv->inversion == INVERSION_OFF) ? INVERSION_ON : INVERSION_OFF;
-+			fepriv->lnb_drift = -fepriv->lnb_drift;
- 			ready = 1;
- 			break;
- 		    
- 		default:
--			fe->auto_step++;
--			fe->auto_sub_step = -1; /* it'll be incremented to 0 in a moment */
-+			fepriv->auto_step++;
-+			fepriv->auto_sub_step = -1; /* it'll be incremented to 0 in a moment */
- 			break;
- 		}
- 	    
--		if (!ready) fe->auto_sub_step++;
-+		if (!ready) fepriv->auto_sub_step++;
- 	}
- 
- 	/* if this attempt would hit where we started, indicate a complete
- 	 * iteration has occurred */
--	if ((fe->auto_step == fe->started_auto_step) &&
--	    (fe->auto_sub_step == 0) && check_wrapped) {
-+	if ((fepriv->auto_step == fepriv->started_auto_step) &&
-+	    (fepriv->auto_sub_step == 0) && check_wrapped) {
- 		return 1;
- 		}
- 
- 	dprintk("%s: drift:%i inversion:%i auto_step:%i "
- 		"auto_sub_step:%i started_auto_step:%i\n",
--		__FUNCTION__, fe->lnb_drift, fe->inversion,
--		fe->auto_step, fe->auto_sub_step, fe->started_auto_step);
-+		__FUNCTION__, fepriv->lnb_drift, fepriv->inversion,
-+		fepriv->auto_step, fepriv->auto_sub_step, fepriv->started_auto_step);
-     
- 	/* set the frontend itself */
--	fe->parameters.frequency += fe->lnb_drift;
-+	fepriv->parameters.frequency += fepriv->lnb_drift;
- 	if (autoinversion)
--		fe->parameters.inversion = fe->inversion;
-+		fepriv->parameters.inversion = fepriv->inversion;
- 	if (fe->ops->set_frontend)
--		fe->ops->set_frontend(fe, &fe->parameters);
-+		fe->ops->set_frontend(fe, &fepriv->parameters);
- 
--	fe->parameters.frequency = original_frequency;
--	fe->parameters.inversion = original_inversion;
-+	fepriv->parameters.frequency = original_frequency;
-+	fepriv->parameters.inversion = original_inversion;
- 
--	fe->auto_sub_step++;
-+	fepriv->auto_sub_step++;
- 	return 0;
  }
  
- static int dvb_frontend_is_exiting(struct dvb_frontend *fe)
+ static void free_dma_queue(struct adapter *adapter)
  {
--	if (fe->exit)
-+	struct dvb_frontend_private *fepriv = (struct dvb_frontend_private*) fe->frontend_priv;
-+
-+	if (fepriv->exit)
- 		return 1;
+-	if (adapter->dmaq1.buffer != 0) {
+-		pci_free_consistent(adapter->pdev, SIZE_OF_BUF_DMA1 + 0x80, adapter->dmaq1.buffer, adapter->dmaq1.bus_addr);
++	struct dmaq *dmaq[] = {
++		&adapter->dmaq1,
++		&adapter->dmaq2,
++		NULL
++	}, **p;
  
--	if (fe->dvbdev->writers == 1)
--		if (jiffies - fe->release_jiffies > dvb_shutdown_timeout * HZ)
-+	if (fepriv->dvbdev->writers == 1)
-+		if (jiffies - fepriv->release_jiffies > dvb_shutdown_timeout * HZ)
- 			return 1;
- 
- 	return 0;
-@@ -304,8 +335,10 @@
- 
- static int dvb_frontend_should_wakeup(struct dvb_frontend *fe)
- {
--	if (fe->wakeup) {
--		fe->wakeup = 0;
-+	struct dvb_frontend_private *fepriv = (struct dvb_frontend_private*) fe->frontend_priv;
-+
-+	if (fepriv->wakeup) {
-+		fepriv->wakeup = 0;
- 		return 1;
+-		adapter->dmaq1.bus_addr = 0;
+-		adapter->dmaq1.head = 0;
+-		adapter->dmaq1.tail = 0;
+-		adapter->dmaq1.buffer_size = 0;
+-		adapter->dmaq1.buffer = NULL;
++	for (p = dmaq; *p; p++)
++		free_dma_queue_one(adapter, *p);
  	}
- 	return dvb_frontend_is_exiting(fe);
-@@ -313,8 +346,10 @@
  
- static void dvb_frontend_wakeup(struct dvb_frontend *fe)
+-	if (adapter->dmaq2.buffer != 0) {
+-		pci_free_consistent(adapter->pdev, SIZE_OF_BUF_DMA2 + 0x80, adapter->dmaq2.buffer, adapter->dmaq2.bus_addr);
++static void release_adapter(struct adapter *adapter)
++{
++	struct pci_dev *pdev = adapter->pdev;
+ 
+-		adapter->dmaq2.bus_addr = 0;
+-		adapter->dmaq2.head = 0;
+-		adapter->dmaq2.tail = 0;
+-		adapter->dmaq2.buffer_size = 0;
+-		adapter->dmaq2.buffer = NULL;
+-	}
++	iounmap(adapter->io_mem);
++	pci_disable_device(pdev);
++	pci_release_region(pdev, 0);
++	pci_release_region(pdev, 1);
+ }
+ 
+ static void free_adapter_object(struct adapter *adapter)
+@@ -1766,16 +1758,9 @@
+ 	dprintk("%s:\n", __FUNCTION__);
+ 
+ 	close_stream(adapter, 0);
+-
+-	if (adapter->irq != 0)
+ 		free_irq(adapter->irq, adapter);
+-
+ 	free_dma_queue(adapter);
+-
+-	if (adapter->io_mem)
+-		iounmap(adapter->io_mem);
+-
+-	if (adapter != 0)
++	release_adapter(adapter);
+ 	kfree(adapter);
+ }
+ 
+@@ -1784,21 +1769,24 @@
+ static int claim_adapter(struct adapter *adapter)
  {
--	fe->wakeup = 1;
--	wake_up_interruptible(&fe->wait_queue);
-+	struct dvb_frontend_private *fepriv = (struct dvb_frontend_private*) fe->frontend_priv;
+ 	struct pci_dev *pdev = adapter->pdev;
+-
+ 	u16 var;
++	int ret;
+ 
+-	if (!request_region(pci_resource_start(pdev, 1), pci_resource_len(pdev, 1), skystar2_pci_driver.name))
+-		return -EBUSY;
++	ret = pci_request_region(pdev, 1, skystar2_pci_driver.name);
++	if (ret < 0)
++		goto out;
+ 
+-	if (!request_mem_region(pci_resource_start(pdev, 0), pci_resource_len(pdev, 0), skystar2_pci_driver.name))
+-		return -EBUSY;
++	ret = pci_request_region(pdev, 0, skystar2_pci_driver.name);
++	if (ret < 0)
++		goto err_pci_release_1;
+ 
+ 	pci_read_config_byte(pdev, PCI_CLASS_REVISION, &adapter->card_revision);
+ 
+ 	dprintk("%s: card revision %x \n", __FUNCTION__, adapter->card_revision);
+ 
+-	if (pci_enable_device(pdev))
+-		return -EIO;
++	ret = pci_enable_device(pdev);
++	if (ret < 0)
++		goto err_pci_release_0;
+ 
+ 	pci_read_config_word(pdev, 4, &var);
+ 
+@@ -1811,13 +1799,23 @@
+ 
+ 	if (!adapter->io_mem) {
+ 		dprintk("%s: can not map io memory\n", __FUNCTION__);
+-
+-		return 2;
++		ret = -EIO;
++		goto err_pci_disable;
+ 	}
+ 
+ 	dprintk("%s: io memory maped at %p\n", __FUNCTION__, adapter->io_mem);
+ 
+-	return 1;
++	ret = 1;
++out:
++	return ret;
 +
-+	fepriv->wakeup = 1;
-+	wake_up_interruptible(&fepriv->wait_queue);
++err_pci_disable:
++	pci_disable_device(pdev);
++err_pci_release_0:
++	pci_release_region(pdev, 0);
++err_pci_release_1:
++	pci_release_region(pdev, 1);
++	goto out;
  }
  
  /*
-@@ -323,6 +358,7 @@
- static int dvb_frontend_thread (void *data)
+@@ -1873,11 +1871,12 @@
  {
- 	struct dvb_frontend *fe = (struct dvb_frontend *) data;
-+	struct dvb_frontend_private *fepriv = (struct dvb_frontend_private*) fe->frontend_priv;
- 	unsigned long timeout;
- 	char name [15];
- 	int quality = 0, delay = 3*HZ;
-@@ -338,14 +374,14 @@
-         sigfillset (&current->blocked);
-         unlock_kernel ();
- 
--	fe->status = 0;
-+	fepriv->status = 0;
- 	dvb_frontend_init (fe);
--	fe->wakeup = 0;
-+	fepriv->wakeup = 0;
- 
- 	while (1) {
--		up (&fe->sem);      /* is locked when we enter the thread... */
-+		up(&fepriv->sem);	    /* is locked when we enter the thread... */
- 
--		timeout = wait_event_interruptible_timeout(fe->wait_queue,
-+		timeout = wait_event_interruptible_timeout(fepriv->wait_queue,
- 							   dvb_frontend_should_wakeup(fe),
- 							   delay);
- 		if (0 != dvb_frontend_is_exiting (fe)) {
-@@ -356,44 +392,43 @@
- 		if (current->flags & PF_FREEZE)
- 			refrigerator(PF_FREEZE);
- 
--		if (down_interruptible (&fe->sem))
-+		if (down_interruptible(&fepriv->sem))
- 			break;
- 
- 		/* if we've got no parameters, just keep idling */
--		if (fe->state & FESTATE_IDLE) {
-+		if (fepriv->state & FESTATE_IDLE) {
- 			delay = 3*HZ;
- 			quality = 0;
- 			continue;
- 		}
- 
--retune:
- 		/* get the frontend status */
--		if (fe->state & FESTATE_RETUNE) {
-+		if (fepriv->state & FESTATE_RETUNE) {
- 			s = 0;
- 		} else {
- 			if (fe->ops->read_status)
- 				fe->ops->read_status(fe, &s);
--			if (s != fe->status) {
-+			if (s != fepriv->status) {
- 			dvb_frontend_add_event (fe, s);
--				fe->status = s;
-+				fepriv->status = s;
- 			}
- 		}
- 		/* if we're not tuned, and we have a lock, move to the TUNED state */
--		if ((fe->state & FESTATE_WAITFORLOCK) && (s & FE_HAS_LOCK)) {
--			update_delay(&quality, &delay, fe->min_delay, s & FE_HAS_LOCK);
--			fe->state = FESTATE_TUNED;
-+		if ((fepriv->state & FESTATE_WAITFORLOCK) && (s & FE_HAS_LOCK)) {
-+			update_delay(&quality, &delay, fepriv->min_delay, s & FE_HAS_LOCK);
-+			fepriv->state = FESTATE_TUNED;
- 
- 			/* if we're tuned, then we have determined the correct inversion */
- 			if ((!(fe->ops->info.caps & FE_CAN_INVERSION_AUTO)) &&
--			    (fe->parameters.inversion == INVERSION_AUTO)) {
--				fe->parameters.inversion = fe->inversion;
-+			    (fepriv->parameters.inversion == INVERSION_AUTO)) {
-+				fepriv->parameters.inversion = fepriv->inversion;
- 			}
- 			continue;
- 		}
- 
- 		/* if we are tuned already, check we're still locked */
--		if (fe->state & FESTATE_TUNED) {
--			update_delay(&quality, &delay, fe->min_delay, s & FE_HAS_LOCK);
-+		if (fepriv->state & FESTATE_TUNED) {
-+			update_delay(&quality, &delay, fepriv->min_delay, s & FE_HAS_LOCK);
- 
- 			/* we're tuned, and the lock is still good... */
- 			if (s & FE_HAS_LOCK)
-@@ -401,49 +436,49 @@
- 			else {
- 				/* if we _WERE_ tuned, but now don't have a lock,
- 				 * need to zigzag */
--				fe->state = FESTATE_ZIGZAG_FAST;
--				fe->started_auto_step = fe->auto_step;
-+				fepriv->state = FESTATE_ZIGZAG_FAST;
-+				fepriv->started_auto_step = fepriv->auto_step;
- 				check_wrapped = 0;
- 			}
- 		}
- 
- 		/* don't actually do anything if we're in the LOSTLOCK state,
- 		 * the frontend is set to FE_CAN_RECOVER, and the max_drift is 0 */
--		if ((fe->state & FESTATE_LOSTLOCK) && 
--		    (fe->ops->info.caps & FE_CAN_RECOVER) && (fe->max_drift == 0)) {
--			update_delay(&quality, &delay, fe->min_delay, s & FE_HAS_LOCK);
-+		if ((fepriv->state & FESTATE_LOSTLOCK) &&
-+		    (fe->ops->info.caps & FE_CAN_RECOVER) && (fepriv->max_drift == 0)) {
-+			update_delay(&quality, &delay, fepriv->min_delay, s & FE_HAS_LOCK);
- 						continue;
- 				}
- 	    
- 		/* don't do anything if we're in the DISEQC state, since this
- 		 * might be someone with a motorized dish controlled by DISEQC.
- 		 * If its actually a re-tune, there will be a SET_FRONTEND soon enough.	*/
--		if (fe->state & FESTATE_DISEQC) {
--			update_delay(&quality, &delay, fe->min_delay, s & FE_HAS_LOCK);
-+		if (fepriv->state & FESTATE_DISEQC) {
-+			update_delay(&quality, &delay, fepriv->min_delay, s & FE_HAS_LOCK);
- 			continue;
- 				}
- 
- 		/* if we're in the RETUNE state, set everything up for a brand
- 		 * new scan, keeping the current inversion setting, as the next
- 		 * tune is _very_ likely to require the same */
--		if (fe->state & FESTATE_RETUNE) {
--			fe->lnb_drift = 0;
--			fe->auto_step = 0;
--			fe->auto_sub_step = 0;
--			fe->started_auto_step = 0;
-+		if (fepriv->state & FESTATE_RETUNE) {
-+			fepriv->lnb_drift = 0;
-+			fepriv->auto_step = 0;
-+			fepriv->auto_sub_step = 0;
-+			fepriv->started_auto_step = 0;
- 			check_wrapped = 0;
- 		}
- 
- 		/* fast zigzag. */
--		if ((fe->state & FESTATE_SEARCHING_FAST) || (fe->state & FESTATE_RETUNE)) {
--			delay = fe->min_delay;
-+		if ((fepriv->state & FESTATE_SEARCHING_FAST) || (fepriv->state & FESTATE_RETUNE)) {
-+			delay = fepriv->min_delay;
- 
- 			/* peform a tune */
- 			if (dvb_frontend_autotune(fe, check_wrapped)) {
- 				/* OK, if we've run out of trials at the fast speed.
- 				 * Drop back to slow for the _next_ attempt */
--				fe->state = FESTATE_SEARCHING_SLOW;
--				fe->started_auto_step = fe->auto_step;
-+				fepriv->state = FESTATE_SEARCHING_SLOW;
-+				fepriv->started_auto_step = fepriv->auto_step;
- 				continue;
- 			}
- 			check_wrapped = 1;
-@@ -452,15 +487,14 @@
- 			 * This ensures we cannot return from an
- 			 * FE_SET_FRONTEND ioctl before the first frontend tune
- 			 * occurs */
--			if (fe->state & FESTATE_RETUNE) {
--				fe->state = FESTATE_TUNING_FAST;
--				goto retune;
-+			if (fepriv->state & FESTATE_RETUNE) {
-+				fepriv->state = FESTATE_TUNING_FAST;
- 			}
- 		}
- 
- 		/* slow zigzag */
--		if (fe->state & FESTATE_SEARCHING_SLOW) {
--			update_delay(&quality, &delay, fe->min_delay, s & FE_HAS_LOCK);
-+		if (fepriv->state & FESTATE_SEARCHING_SLOW) {
-+			update_delay(&quality, &delay, fepriv->min_delay, s & FE_HAS_LOCK);
- 		    
- 			/* Note: don't bother checking for wrapping; we stay in this
- 			 * state until we get a lock */
-@@ -476,7 +510,7 @@
- 			fe->ops->sleep(fe);
- 	}
- 
--	fe->thread_pid = 0;
-+	fepriv->thread_pid = 0;
- 	mb();
- 
- 	dvb_frontend_wakeup(fe);
-@@ -486,21 +520,22 @@
- static void dvb_frontend_stop(struct dvb_frontend *fe)
- {
- 	unsigned long ret;
-+	struct dvb_frontend_private *fepriv = (struct dvb_frontend_private*) fe->frontend_priv;
- 
- 	dprintk ("%s\n", __FUNCTION__);
- 
--		fe->exit = 1;
-+	fepriv->exit = 1;
- 	mb();
- 
--	if (!fe->thread_pid)
-+	if (!fepriv->thread_pid)
- 		return;
- 
- 	/* check if the thread is really alive */
--	if (kill_proc(fe->thread_pid, 0, 1) == -ESRCH) {
-+	if (kill_proc(fepriv->thread_pid, 0, 1) == -ESRCH) {
- 		printk("dvb_frontend_stop: thread PID %d already died\n",
--				fe->thread_pid);
-+				fepriv->thread_pid);
- 		/* make sure the mutex was not held by the thread */
--		init_MUTEX (&fe->sem);
-+		init_MUTEX (&fepriv->sem);
- 		return;
- 	}
- 
-@@ -508,27 +543,28 @@
- 	dvb_frontend_wakeup(fe);
- 
- 	/* wait until the frontend thread has exited */
--	ret = wait_event_interruptible(fe->wait_queue,0 == fe->thread_pid);
-+	ret = wait_event_interruptible(fepriv->wait_queue,0 == fepriv->thread_pid);
- 	if (-ERESTARTSYS != ret) {
--		fe->state = FESTATE_IDLE;
-+		fepriv->state = FESTATE_IDLE;
- 		return;
- 	}
--	fe->state = FESTATE_IDLE;
-+	fepriv->state = FESTATE_IDLE;
- 
- 	/* paranoia check in case a signal arrived */
--	if (fe->thread_pid)
-+	if (fepriv->thread_pid)
- 		printk("dvb_frontend_stop: warning: thread PID %d won't exit\n",
--				fe->thread_pid);
-+				fepriv->thread_pid);
- }
- 
- static int dvb_frontend_start(struct dvb_frontend *fe)
- {
- 	int ret;
-+	struct dvb_frontend_private *fepriv = (struct dvb_frontend_private*) fe->frontend_priv;
- 
- 	dprintk ("%s\n", __FUNCTION__);
- 
--	if (fe->thread_pid) {
--		if (!fe->exit)
-+	if (fepriv->thread_pid) {
-+		if (!fepriv->exit)
- 			return 0;
- 		else
- 		dvb_frontend_stop (fe);
-@@ -536,12 +572,12 @@
- 
- 	if (signal_pending(current))
- 		return -EINTR;
--	if (down_interruptible (&fe->sem))
-+	if (down_interruptible (&fepriv->sem))
- 		return -EINTR;
- 
--	fe->state = FESTATE_IDLE;
--	fe->exit = 0;
--	fe->thread_pid = 0;
-+	fepriv->state = FESTATE_IDLE;
-+	fepriv->exit = 0;
-+	fepriv->thread_pid = 0;
- 	mb();
- 
- 	ret = kernel_thread (dvb_frontend_thread, fe, 0);
-@@ -545,12 +581,13 @@
- 	mb();
- 
- 	ret = kernel_thread (dvb_frontend_thread, fe, 0);
-+
- 	if (ret < 0) {
- 		printk("dvb_frontend_start: failed to start kernel_thread (%d)\n", ret);
--		up(&fe->sem);
-+		up(&fepriv->sem);
- 		return ret;
- 	}
--	fe->thread_pid = ret;
-+	fepriv->thread_pid = ret;
- 
- 	return 0;
- }
-@@ -561,11 +597,12 @@
- {
- 	struct dvb_device *dvbdev = file->private_data;
- 	struct dvb_frontend *fe = dvbdev->priv;
-+	struct dvb_frontend_private *fepriv = (struct dvb_frontend_private*) fe->frontend_priv;
- 	int err = -EOPNOTSUPP;
- 
- 	dprintk ("%s\n", __FUNCTION__);
- 
--	if (!fe || fe->exit)
-+	if (!fe || fepriv->exit)
- 		return -ENODEV;
- 
- 	if ((file->f_flags & O_ACCMODE) == O_RDONLY &&
-@@ -573,7 +610,7 @@
- 	     cmd == FE_DISEQC_RECV_SLAVE_REPLY))
- 		return -EPERM;
- 
--	if (down_interruptible (&fe->sem))
-+	if (down_interruptible (&fepriv->sem))
- 		return -ERESTARTSYS;
- 
- 	switch (cmd) {
-@@ -617,48 +654,48 @@
- 	case FE_DISEQC_RESET_OVERLOAD:
- 		if (fe->ops->diseqc_reset_overload) {
- 			err = fe->ops->diseqc_reset_overload(fe);
--			fe->state = FESTATE_DISEQC;
--			fe->status = 0;
-+			fepriv->state = FESTATE_DISEQC;
-+			fepriv->status = 0;
- 		}
- 		break;
- 
- 	case FE_DISEQC_SEND_MASTER_CMD:
- 		if (fe->ops->diseqc_send_master_cmd) {
- 			err = fe->ops->diseqc_send_master_cmd(fe, (struct dvb_diseqc_master_cmd*) parg);
--			fe->state = FESTATE_DISEQC;
--			fe->status = 0;
-+			fepriv->state = FESTATE_DISEQC;
-+			fepriv->status = 0;
- 		}
- 		break;
- 
- 	case FE_DISEQC_SEND_BURST:
- 		if (fe->ops->diseqc_send_burst) {
- 			err = fe->ops->diseqc_send_burst(fe, (fe_sec_mini_cmd_t) parg);
--			fe->state = FESTATE_DISEQC;
--			fe->status = 0;
-+			fepriv->state = FESTATE_DISEQC;
-+			fepriv->status = 0;
- 		}
- 		break;
- 
- 	case FE_SET_TONE:
- 		if (fe->ops->set_tone) {
- 			err = fe->ops->set_tone(fe, (fe_sec_tone_mode_t) parg);
--			fe->state = FESTATE_DISEQC;
--			fe->status = 0;
-+			fepriv->state = FESTATE_DISEQC;
-+			fepriv->status = 0;
- 		}
- 		break;
- 
- 	case FE_SET_VOLTAGE:
- 		if (fe->ops->set_voltage) {
- 			err = fe->ops->set_voltage(fe, (fe_sec_voltage_t) parg);
--		fe->state = FESTATE_DISEQC;
--			fe->status = 0;
-+			fepriv->state = FESTATE_DISEQC;
-+			fepriv->status = 0;
- 		}
- 		break;
- 
- 	case FE_DISHNETWORK_SEND_LEGACY_CMD:
- 		if (fe->ops->dishnetwork_send_legacy_command) {
- 			err = fe->ops->dishnetwork_send_legacy_command(fe, (unsigned int) parg);
--			fe->state = FESTATE_DISEQC;
--			fe->status = 0;
-+			fepriv->state = FESTATE_DISEQC;
-+			fepriv->status = 0;
- 		}
- 		break;
- 
-@@ -668,14 +705,14 @@
- 		break;
- 
- 	case FE_ENABLE_HIGH_LNB_VOLTAGE:
--		if (fe->ops->enable_high_lnb_voltage);
-+		if (fe->ops->enable_high_lnb_voltage)
- 			err = fe->ops->enable_high_lnb_voltage(fe, (int) parg);
- 		break;
- 
- 	case FE_SET_FRONTEND: {
- 		struct dvb_frontend_tune_settings fetunesettings;
- 	    
--		memcpy (&fe->parameters, parg,
-+		memcpy (&fepriv->parameters, parg,
- 			sizeof (struct dvb_frontend_parameters));
- 
- 		memset(&fetunesettings, 0, sizeof(struct dvb_frontend_tune_settings));
-@@ -684,41 +721,41 @@
- 		    
- 		/* force auto frequency inversion if requested */
- 		if (dvb_force_auto_inversion) {
--			fe->parameters.inversion = INVERSION_AUTO;
-+			fepriv->parameters.inversion = INVERSION_AUTO;
- 			fetunesettings.parameters.inversion = INVERSION_AUTO;
- 		}
- 		if (fe->ops->info.type == FE_OFDM) {
- 			/* without hierachical coding code_rate_LP is irrelevant,
- 			 * so we tolerate the otherwise invalid FEC_NONE setting */
--			if (fe->parameters.u.ofdm.hierarchy_information == HIERARCHY_NONE &&
--			    fe->parameters.u.ofdm.code_rate_LP == FEC_NONE)
--				fe->parameters.u.ofdm.code_rate_LP = FEC_AUTO;
-+			if (fepriv->parameters.u.ofdm.hierarchy_information == HIERARCHY_NONE &&
-+			    fepriv->parameters.u.ofdm.code_rate_LP == FEC_NONE)
-+				fepriv->parameters.u.ofdm.code_rate_LP = FEC_AUTO;
- 		}
- 
- 		/* get frontend-specific tuning settings */
- 		if (fe->ops->get_tune_settings && (fe->ops->get_tune_settings(fe, &fetunesettings) == 0)) {
--			fe->min_delay = (fetunesettings.min_delay_ms * HZ) / 1000;
--			fe->max_drift = fetunesettings.max_drift;
--			fe->step_size = fetunesettings.step_size;
-+			fepriv->min_delay = (fetunesettings.min_delay_ms * HZ) / 1000;
-+			fepriv->max_drift = fetunesettings.max_drift;
-+			fepriv->step_size = fetunesettings.step_size;
- 		} else {
- 			/* default values */
- 			switch(fe->ops->info.type) {
- 			case FE_QPSK:
--				fe->min_delay = HZ/20;
--				fe->step_size = fe->parameters.u.qpsk.symbol_rate / 16000;
--				fe->max_drift = fe->parameters.u.qpsk.symbol_rate / 2000;
-+				fepriv->min_delay = HZ/20;
-+				fepriv->step_size = fepriv->parameters.u.qpsk.symbol_rate / 16000;
-+				fepriv->max_drift = fepriv->parameters.u.qpsk.symbol_rate / 2000;
- 		break;
- 			    
- 			case FE_QAM:
--				fe->min_delay = HZ/20;
--				fe->step_size = 0; /* no zigzag */
--				fe->max_drift = 0;
-+				fepriv->min_delay = HZ/20;
-+				fepriv->step_size = 0; /* no zigzag */
-+				fepriv->max_drift = 0;
- 				break;
- 			    
- 			case FE_OFDM:
--				fe->min_delay = HZ/20;
--				fe->step_size = fe->ops->info.frequency_stepsize * 2;
--				fe->max_drift = (fe->ops->info.frequency_stepsize * 2) + 1;
-+				fepriv->min_delay = HZ/20;
-+				fepriv->step_size = fe->ops->info.frequency_stepsize * 2;
-+				fepriv->max_drift = (fe->ops->info.frequency_stepsize * 2) + 1;
- 				break;
- 			case FE_ATSC:
- 				printk("dvb-core: FE_ATSC not handled yet.\n");
-@@ -726,12 +763,12 @@
- 			}
- 		}
- 		if (dvb_override_tune_delay > 0)
--		       fe->min_delay = (dvb_override_tune_delay * HZ) / 1000;
-+			fepriv->min_delay = (dvb_override_tune_delay * HZ) / 1000;
- 
--		fe->state = FESTATE_RETUNE;
-+		fepriv->state = FESTATE_RETUNE;
- 		dvb_frontend_wakeup(fe);
- 		dvb_frontend_add_event (fe, 0);	    
--		fe->status = 0;
-+		fepriv->status = 0;
- 		err = 0;
- 		break;
- 	}
-@@ -742,13 +779,13 @@
- 
- 	case FE_GET_FRONTEND:
- 		if (fe->ops->get_frontend) {
--			memcpy (parg, &fe->parameters, sizeof (struct dvb_frontend_parameters));
-+			memcpy (parg, &fepriv->parameters, sizeof (struct dvb_frontend_parameters));
- 			err = fe->ops->get_frontend(fe, (struct dvb_frontend_parameters*) parg);
- 		}
- 		break;
- 	};
- 
--	up (&fe->sem);
-+	up (&fepriv->sem);
- 	return err;
- }
- 
-@@ -757,12 +793,13 @@
- {
- 	struct dvb_device *dvbdev = file->private_data;
- 	struct dvb_frontend *fe = dvbdev->priv;
-+	struct dvb_frontend_private *fepriv = (struct dvb_frontend_private*) fe->frontend_priv;
- 
- 	dprintk ("%s\n", __FUNCTION__);
- 
--	poll_wait (file, &fe->events.wait_queue, wait);
-+	poll_wait (file, &fepriv->events.wait_queue, wait);
- 
--	if (fe->events.eventw != fe->events.eventr)
-+	if (fepriv->events.eventw != fepriv->events.eventr)
- 		return (POLLIN | POLLRDNORM | POLLPRI);
- 
- 	return 0;
-@@ -773,6 +809,7 @@
- {
- 	struct dvb_device *dvbdev = file->private_data;
- 	struct dvb_frontend *fe = dvbdev->priv;
-+	struct dvb_frontend_private *fepriv = (struct dvb_frontend_private*) fe->frontend_priv;
- 	int ret;
- 
- 	dprintk ("%s\n", __FUNCTION__);
-@@ -786,7 +823,7 @@
- 			dvb_generic_release (inode, file);
- 
- 		/*  empty event queue */
--		fe->events.eventr = fe->events.eventw = 0;
-+		fepriv->events.eventr = fepriv->events.eventw = 0;
- 	}
- 	
- 	return ret;
-@@ -797,11 +833,12 @@
- {
- 	struct dvb_device *dvbdev = file->private_data;
- 	struct dvb_frontend *fe = dvbdev->priv;
-+	struct dvb_frontend_private *fepriv = (struct dvb_frontend_private*) fe->frontend_priv;
- 
- 	dprintk ("%s\n", __FUNCTION__);
- 
- 	if ((file->f_flags & O_ACCMODE) != O_RDONLY)
--		fe->release_jiffies = jiffies;
-+		fepriv->release_jiffies = jiffies;
- 
- 	return dvb_generic_release (inode, file);
- }
-@@ -818,6 +854,7 @@
- int dvb_register_frontend(struct dvb_adapter* dvb,
- 			  struct dvb_frontend* fe)
- {
-+	struct dvb_frontend_private *fepriv;
- 	static const struct dvb_device dvbdev_template = {
- 		.users = ~0,
- 		.writers = 1,
-@@ -831,20 +868,26 @@
- 	if (down_interruptible (&frontend_mutex))
- 		return -ERESTARTSYS;
- 
--	init_MUTEX (&fe->sem);
--	init_waitqueue_head (&fe->wait_queue);
--	init_waitqueue_head (&fe->events.wait_queue);
--	init_MUTEX (&fe->events.sem);
--	fe->events.eventw = fe->events.eventr = 0;
--	fe->events.overflow = 0;
-+	fe->frontend_priv = kmalloc(sizeof(struct dvb_frontend_private), GFP_KERNEL);
-+	if (fe->frontend_priv == NULL) {
-+		up(&frontend_mutex);
-+		return -ENOMEM;
-+	}
-+	fepriv = (struct dvb_frontend_private*) fe->frontend_priv;
-+	memset(fe->frontend_priv, 0, sizeof(struct dvb_frontend_private));
-+
-+	init_MUTEX (&fepriv->sem);
-+	init_waitqueue_head (&fepriv->wait_queue);
-+	init_waitqueue_head (&fepriv->events.wait_queue);
-+	init_MUTEX (&fepriv->events.sem);
- 	fe->dvb = dvb;
--	fe->inversion = INVERSION_OFF;
-+	fepriv->inversion = INVERSION_OFF;
- 
- 	printk ("DVB: registering frontend %i (%s)...\n",
- 		fe->dvb->num,
- 		fe->ops->info.name);
- 
--	dvb_register_device (fe->dvb, &fe->dvbdev, &dvbdev_template,
-+	dvb_register_device (fe->dvb, &fepriv->dvbdev, &dvbdev_template,
- 			     fe, DVB_DEVICE_FRONTEND);
- 
- 	up (&frontend_mutex);
-@@ -854,15 +897,18 @@
- 
- int dvb_unregister_frontend(struct dvb_frontend* fe)
- {
-+	struct dvb_frontend_private *fepriv = (struct dvb_frontend_private*) fe->frontend_priv;
- 	dprintk ("%s\n", __FUNCTION__);
- 
- 	down (&frontend_mutex);
--			dvb_unregister_device (fe->dvbdev);
-+	dvb_unregister_device (fepriv->dvbdev);
- 			dvb_frontend_stop (fe);
- 	if (fe->ops->release)
- 		fe->ops->release(fe);
- 	else
- 		printk("dvb_frontend: Demodulator (%s) does not have a release callback!\n", fe->ops->info.name);
-+	if (fe->frontend_priv)
-+		kfree(fe->frontend_priv);
- 	up (&frontend_mutex);
- 	return 0;
- }
-diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/dvb-core/dvb_frontend.h linux-2.6.11-rc2-dvb/drivers/media/dvb/dvb-core/dvb_frontend.h
---- linux-2.6.11-rc2/drivers/media/dvb/dvb-core/dvb_frontend.h	2005-01-20 19:54:05.000000000 +0100
-+++ linux-2.6.11-rc2-dvb/drivers/media/dvb/dvb-core/dvb_frontend.h	2005-01-20 19:56:37.000000000 +0100
-@@ -115,28 +115,7 @@
- 	struct dvb_frontend_ops* ops;
- 	struct dvb_adapter *dvb;
- 	void* demodulator_priv;
+ 	struct adapter *adapter;
+ 	u32 tmp;
++	int ret = -ENOMEM;
+ 
+-	if (!(adapter = kmalloc(sizeof(struct adapter), GFP_KERNEL))) {
++	adapter = kmalloc(sizeof(struct adapter), GFP_KERNEL);
++	if (!adapter) {
+ 		dprintk("%s: out of memory!\n", __FUNCTION__);
 -
--	struct dvb_device *dvbdev;
--	struct dvb_frontend_parameters parameters;
--	struct dvb_fe_events events;
--	struct semaphore sem;
--	struct list_head list_head;
--	wait_queue_head_t wait_queue;
--	pid_t thread_pid;
--	unsigned long release_jiffies;
--	int state;
--	int bending;
--	int lnb_drift;
--	int inversion;
--	int auto_step;
--	int auto_sub_step;
--	int started_auto_step;
--	int min_delay;
--	int max_drift;
--	int step_size;
--	int exit;
--	int wakeup;
--	fe_status_t status;
-+	void* frontend_priv;
- };
- 
- extern int dvb_register_frontend(struct dvb_adapter* dvb,
-diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/dvb-core/dvb_net.c linux-2.6.11-rc2-dvb/drivers/media/dvb/dvb-core/dvb_net.c
---- linux-2.6.11-rc2/drivers/media/dvb/dvb-core/dvb_net.c	2005-01-20 19:54:05.000000000 +0100
-+++ linux-2.6.11-rc2-dvb/drivers/media/dvb/dvb-core/dvb_net.c	2005-01-20 19:56:37.000000000 +0100
-@@ -123,7 +123,6 @@
- struct dvb_net_priv {
- 	int in_use;
-         struct net_device_stats stats;
--        char name[6];
- 	u16 pid;
- 	struct dvb_net *host;
-         struct dmx_demux *demux;
-@@ -1165,12 +1162,17 @@
- 	if ((if_num = get_if(dvbnet)) < 0)
- 		return -EINVAL;
- 
--	net = alloc_netdev(sizeof(struct dvb_net_priv), "dvb",
--			   dvb_net_setup);
-+	net = alloc_netdev(sizeof(struct dvb_net_priv), "dvb", dvb_net_setup);
- 	if (!net)
- 		return -ENOMEM;
- 	
--	sprintf(net->name, "dvb%d_%d", dvbnet->dvbdev->adapter->num, if_num);
-+	if (dvbnet->dvbdev->id)
-+		snprintf(net->name, IFNAMSIZ, "dvb%d%u%d",
-+			 dvbnet->dvbdev->adapter->num, dvbnet->dvbdev->id, if_num);
-+	else
-+		/* compatibility fix to keep dvb0_0 format */
-+		snprintf(net->name, IFNAMSIZ, "dvb%d_%d",
-+			 dvbnet->dvbdev->adapter->num, if_num);
- 
- 	net->addr_len  		= 6;
- 	memcpy(net->dev_addr, dvbnet->dvbdev->adapter->proposed_mac, 6);
-@@ -1196,6 +1198,7 @@
- 		free_netdev(net);
- 		return result;
- 	}
-+	printk("dvb_net: created network interface %s\n", net->name);
- 
-         return if_num;
- }
-@@ -1214,6 +1216,7 @@
- 
- 	dvb_net_stop(net);
- 	flush_scheduled_work();
-+	printk("dvb_net: removed network interface %s\n", net->name);
-         unregister_netdev(net);
- 	dvbnet->state[num]=0;
- 	dvbnet->device[num] = NULL;
-diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/ttusb-dec/ttusb_dec.c linux-2.6.11-rc2-dvb/drivers/media/dvb/ttusb-dec/ttusb_dec.c
---- linux-2.6.11-rc2/drivers/media/dvb/ttusb-dec/ttusb_dec.c	2005-01-20 19:55:47.000000000 +0100
-+++ linux-2.6.11-rc2-dvb/drivers/media/dvb/ttusb-dec/ttusb_dec.c	2005-01-20 19:56:40.000000000 +0100
-@@ -756,7 +755,7 @@
- 
- 	if (!dec->iso_stream_count) {
- 		for (i = 0; i < ISO_BUF_COUNT; i++)
--			usb_unlink_urb(dec->iso_urb[i]);
-+			usb_kill_urb(dec->iso_urb[i]);
+-		return -ENOMEM;
++		goto out;
  	}
  
- 	up(&dec->iso_sem);
-@@ -821,7 +820,7 @@
- 				       "error %d\n", __FUNCTION__, i, result);
+ 	memset(adapter, 0, sizeof(struct adapter));
+@@ -1887,20 +1886,16 @@
+ 	adapter->pdev = pdev;
+ 	adapter->irq = pdev->irq;
  
- 				while (i) {
--					usb_unlink_urb(dec->iso_urb[i - 1]);
-+					usb_kill_urb(dec->iso_urb[i - 1]);
- 					i--;
- 				}
- 
-@@ -1379,7 +1378,7 @@
- 	dec->iso_stream_count = 0;
- 
- 	for (i = 0; i < ISO_BUF_COUNT; i++)
--		usb_unlink_urb(dec->iso_urb[i]);
-+		usb_kill_urb(dec->iso_urb[i]);
- 
- 	ttusb_dec_free_iso_urbs(dec);
- }
-diff -uraNwB linux-2.6.11-rc2/include/linux/dvb/frontend.h linux-2.6.11-rc2-dvb/include/linux/dvb/frontend.h
---- linux-2.6.11-rc2/include/linux/dvb/frontend.h	2005-01-20 19:53:19.000000000 +0100
-+++ linux-2.6.11-rc2-dvb/include/linux/dvb/frontend.h	2004-12-17 22:00:18.000000000 +0100
-@@ -158,10 +158,11 @@
-         QAM_64,
-         QAM_128,
-         QAM_256,
--	QAM_AUTO
-+	QAM_AUTO,
-+	VSB_8,
-+	VSB_16
- } fe_modulation_t;
- 
+-	if ((claim_adapter(adapter)) != 1) {
+-		free_adapter_object(adapter);
 -
- typedef enum fe_transmit_mode {
- 	TRANSMISSION_MODE_2K,
- 	TRANSMISSION_MODE_8K,
-@@ -206,6 +206,9 @@
-         fe_modulation_t  modulation;  /* modulation type (see above) */
- };
+-		return -ENODEV;
+-	}
++	ret = claim_adapter(adapter);
++	if (ret < 0)
++		goto err_kfree;
  
-+struct dvb_vsb_parameters {
-+	fe_modulation_t	modulation;  /* modulation type (see above) */
+ 	irq_dma_enable_disable_irq(adapter, 0);
+ 
+-	if (request_irq(pdev->irq, isr, 0x4000000, "Skystar2", adapter) != 0) {
++	ret = request_irq(pdev->irq, isr, 0x4000000, "Skystar2", adapter);
++	if (ret < 0) {
+ 		dprintk("%s: unable to allocate irq=%d !\n", __FUNCTION__, pdev->irq);
+-
+-		free_adapter_object(adapter);
+-
+-		return -ENODEV;
++		goto err_release_adapter;
+ 	}
+ 
+ 	read_reg_dw(adapter, 0x208);
+@@ -1908,13 +1903,9 @@
+ 	write_reg_dw(adapter, 0x210, 0xb2ff);
+ 	write_reg_dw(adapter, 0x208, 0x40);
+ 
+-	init_dma_queue(adapter);
+-
+-	if ((adapter->dma_status & 0x30000000) == 0) {
+-		free_adapter_object(adapter);
+-
+-		return -ENODEV;
+-	}
++	ret = init_dma_queue(adapter);
++	if (ret < 0)
++		goto err_free_irq;
+ 
+ 	adapter->b2c2_revision = (read_reg_dw(adapter, 0x204) >> 0x18);
+ 
+@@ -1931,11 +1922,8 @@
+ 	default:
+ 		printk("%s: The revision of the FlexCop chip on your card is %d\n", __FILE__, adapter->b2c2_revision);
+ 		printk("%s: This driver works only with FlexCopII(rev.130), FlexCopIIB(rev.195) and FlexCopIII(rev.192).\n", __FILE__);
+-		free_adapter_object(adapter);
+-		pci_set_drvdata(pdev, NULL);
+-		release_region(pci_resource_start(pdev, 1), pci_resource_len(pdev, 1));
+-		release_mem_region(pci_resource_start(pdev, 0), pci_resource_len(pdev, 0));
+-			return -ENODEV;
++		ret = -ENODEV;
++		goto err_free_dma_queue;
+ 		}
+ 
+ 	decide_how_many_hw_filters(adapter);
+@@ -1979,16 +1967,26 @@
+ 		ctrl_enable_mac(adapter, 1);
+ 	}
+ 
+-	spin_lock_init(&adapter->lock);
++	adapter->lock = SPIN_LOCK_UNLOCKED;
+ 
+-	return 0;
++out:
++	return ret;
++
++err_free_dma_queue:
++	free_dma_queue(adapter);
++err_free_irq:
++	free_irq(pdev->irq, adapter);
++err_release_adapter:
++	release_adapter(adapter);
++err_kfree:
++	pci_set_drvdata(pdev, NULL);
++	kfree(adapter);
++	goto out;
+ }
+ 
+ static void driver_halt(struct pci_dev *pdev)
+ {
+-	struct adapter *adapter;
+-
+-	adapter = pci_get_drvdata(pdev);
++	struct adapter *adapter = pci_get_drvdata(pdev);
+ 
+ 	irq_dma_enable_disable_irq(adapter, 0);
+ 
+@@ -1998,9 +1996,9 @@
+ 
+ 	pci_set_drvdata(pdev, NULL);
+ 
+-	release_region(pci_resource_start(pdev, 1), pci_resource_len(pdev, 1));
+-
+-	release_mem_region(pci_resource_start(pdev, 0), pci_resource_len(pdev, 0));
++	pci_disable_device(pdev);
++	pci_release_region(pdev, 1);
++	pci_release_region(pdev, 0);
+ }
+ 
+ static int dvb_start_feed(struct dvb_demux_feed *dvbdmxfeed)
+@@ -2325,11 +2323,22 @@
+ 
+ 
+ 
++static int nxt2002_request_firmware(struct dvb_frontend* fe, const struct firmware **fw, char* name)
++{
++	struct adapter* adapter = (struct adapter*) fe->dvb->priv;
++
++	return request_firmware(fw, name, &adapter->pdev->dev);
++}
+ 
+ 
++static struct nxt2002_config samsung_tbmv_config = {
++	.demod_address = 0x0A,
++	.request_firmware = nxt2002_request_firmware,
 +};
++
+ static int samsung_tdtc9251dh0_demod_init(struct dvb_frontend* fe)
+ {
+-	static u8 mt352_clock_config [] = { 0x89, 0x10, 0x2d };
++	static u8 mt352_clock_config [] = { 0x89, 0x18, 0x2d };
+ 	static u8 mt352_reset [] = { 0x50, 0x80 };
+ 	static u8 mt352_adc_ctl_1_cfg [] = { 0x8E, 0x40 };
+ 	static u8 mt352_agc_cfg [] = { 0x67, 0x28, 0xa1 };
+@@ -2407,7 +2416,15 @@
+ static void frontend_init(struct adapter *skystar2)
+ {
+ 	switch(skystar2->pdev->device) {
+-	case 0x2103: // Technisat Skystar2 OR Technisat Airstar2
++	case 0x2103: // Technisat Skystar2 OR Technisat Airstar2 (DVB-T or ATSC)
++
++		// Attempt to load the Nextwave nxt2002 for ATSC support 
++		skystar2->fe = nxt2002_attach(&samsung_tbmv_config, &skystar2->i2c_adap);
++		if (skystar2->fe != NULL) {
++			skystar2->fe_sleep = skystar2->fe->ops->sleep;
++			skystar2->fe->ops->sleep = flexcop_sleep;
++			break;
++		}
  
- struct dvb_ofdm_parameters {
-         fe_bandwidth_t      bandwidth;
-@@ -219,13 +222,14 @@
+ 		// try the skystar2 v2.6 first (stv0299/Samsung tbmu24112(sl1935))
+ 		skystar2->fe = stv0299_attach(&samsung_tbmu24112_config, &skystar2->i2c_adap);
+@@ -2462,26 +2479,24 @@
+ 	struct adapter *adapter;
+ 	struct dvb_adapter *dvb_adapter;
+ 	struct dvb_demux *dvbdemux;
++	struct dmx_demux *dmx;
++	int ret = -ENODEV;
  
+-	int ret;
+-
+-	if (pdev == NULL)
+-		return -ENODEV;
++	if (!pdev)
++		goto out;
  
- struct dvb_frontend_parameters {
--        __u32 frequency;     /* (absolute) frequency in Hz for QAM/OFDM */
-+	__u32 frequency;     /* (absolute) frequency in Hz for QAM/OFDM/ATSC */
-                                   /* intermediate frequency in kHz for QPSK */
- 	fe_spectral_inversion_t inversion;
- 	union {
- 		struct dvb_qpsk_parameters qpsk;
- 		struct dvb_qam_parameters  qam;
- 		struct dvb_ofdm_parameters ofdm;
-+		struct dvb_vsb_parameters vsb;
- 	} u;
- };
+-	if (driver_initialize(pdev) != 0)
+-		return -ENODEV;
+-
+-	dvb_register_adapter(&dvb_adapter, skystar2_pci_driver.name, THIS_MODULE);
++	ret = driver_initialize(pdev);
++	if (ret < 0)
++		goto out;
  
-diff -uraNwB linux-2.6.11-rc2/include/linux/dvb/version.h linux-2.6.11-rc2-dvb/include/linux/dvb/version.h
---- linux-2.6.11-rc2/include/linux/dvb/version.h	2005-01-20 19:53:19.000000000 +0100
-+++ linux-2.6.11-rc2-dvb/include/linux/dvb/version.h	2004-12-17 22:00:18.000000000 +0100
-@@ -24,6 +24,7 @@
- #define _DVBVERSION_H_
+-	if (dvb_adapter == NULL) {
++	ret = dvb_register_adapter(&dvb_adapter, skystar2_pci_driver.name,
++				   THIS_MODULE);
++	if (ret < 0) {
+ 		printk("%s: Error registering DVB adapter\n", __FUNCTION__);
+-
+-		driver_halt(pdev);
+-
+-		return -ENODEV;
++		goto err_halt;
+ 	}
  
- #define DVB_API_VERSION 3
-+#define DVB_API_VERSION_MINOR 1
+-	adapter = (struct adapter *) pci_get_drvdata(pdev);
++	adapter = pci_get_drvdata(pdev);
  
- #endif /*_DVBVERSION_H_*/
+ 	dvb_adapter->priv = adapter;
+ 	adapter->dvb_adapter = dvb_adapter;
+@@ -2504,14 +2517,13 @@
+ 	adapter->i2c_adap.algo_data         = NULL;
+ 	adapter->i2c_adap.id                = I2C_ALGO_BIT;
  
+-	if (i2c_add_adapter(&adapter->i2c_adap) < 0) {
+-		dvb_unregister_adapter (adapter->dvb_adapter);
+-		return -ENOMEM;
+-	}
++	ret = i2c_add_adapter(&adapter->i2c_adap);
++	if (ret < 0)
++		goto err_dvb_unregister;
+ 
+ 	dvbdemux = &adapter->demux;
+ 
+-	dvbdemux->priv = (void *) adapter;
++	dvbdemux->priv = adapter;
+ 	dvbdemux->filternum = N_PID_SLOTS;
+ 	dvbdemux->feednum = N_PID_SLOTS;
+ 	dvbdemux->start_feed = dvb_start_feed;
+@@ -2519,68 +2531,87 @@
+ 	dvbdemux->write_to_decoder = NULL;
+ 	dvbdemux->dmx.capabilities = (DMX_TS_FILTERING | DMX_SECTION_FILTERING | DMX_MEMORY_BASED_FILTERING);
+ 
+-	dvb_dmx_init(&adapter->demux);
++	ret = dvb_dmx_init(&adapter->demux);
++	if (ret < 0)
++		goto err_i2c_del;
++
++	dmx = &dvbdemux->dmx;
+ 
+ 	adapter->hw_frontend.source = DMX_FRONTEND_0;
+-
+ 	adapter->dmxdev.filternum = N_PID_SLOTS;
+-	adapter->dmxdev.demux = &dvbdemux->dmx;
++	adapter->dmxdev.demux = dmx;
+ 	adapter->dmxdev.capabilities = 0;
+ 
+-	dvb_dmxdev_init(&adapter->dmxdev, adapter->dvb_adapter);
++	ret = dvb_dmxdev_init(&adapter->dmxdev, adapter->dvb_adapter);
++	if (ret < 0)
++		goto err_dmx_release;
+ 
+-	ret = dvbdemux->dmx.add_frontend(&dvbdemux->dmx, &adapter->hw_frontend);
++	ret = dmx->add_frontend(dmx, &adapter->hw_frontend);
+ 	if (ret < 0)
+-		return ret;
++		goto err_dmxdev_release;
+ 
+ 	adapter->mem_frontend.source = DMX_MEMORY_FE;
+ 
+-	ret = dvbdemux->dmx.add_frontend(&dvbdemux->dmx, &adapter->mem_frontend);
++	ret = dmx->add_frontend(dmx, &adapter->mem_frontend);
+ 	if (ret < 0)
+-		return ret;
++		goto err_remove_hw_frontend;
+ 
+-	ret = dvbdemux->dmx.connect_frontend(&dvbdemux->dmx, &adapter->hw_frontend);
++	ret = dmx->connect_frontend(dmx, &adapter->hw_frontend);
+ 	if (ret < 0)
+-		return ret;
++		goto err_remove_mem_frontend;
+ 
+ 	dvb_net_init(adapter->dvb_adapter, &adapter->dvbnet, &dvbdemux->dmx);
+ 
+ 	frontend_init(adapter);
++out:
++	return ret;
+ 
+-	return 0;
++err_remove_mem_frontend:
++	dvbdemux->dmx.remove_frontend(&dvbdemux->dmx, &adapter->mem_frontend);
++err_remove_hw_frontend:
++	dvbdemux->dmx.remove_frontend(&dvbdemux->dmx, &adapter->hw_frontend);
++err_dmxdev_release:
++	dvb_dmxdev_release(&adapter->dmxdev);
++err_dmx_release:
++	dvb_dmx_release(&adapter->demux);
++err_i2c_del:
++	i2c_del_adapter(&adapter->i2c_adap);
++err_dvb_unregister:
++	dvb_unregister_adapter(adapter->dvb_adapter);
++err_halt:
++	driver_halt(pdev);
++	goto out;
+ }
+ 
+ static void skystar2_remove(struct pci_dev *pdev)
+ {
+-	struct adapter *adapter;
++	struct adapter *adapter = pci_get_drvdata(pdev);
+ 	struct dvb_demux *dvbdemux;
++	struct dmx_demux *dmx;
+ 
+-	if (pdev == NULL)
++	if (!adapter)
+ 		return;
+ 
+-	adapter = pci_get_drvdata(pdev);
+-
+-	if (adapter != NULL) {
+ 		dvb_net_release(&adapter->dvbnet);
+ 		dvbdemux = &adapter->demux;
++	dmx = &dvbdemux->dmx;
+ 
+-		dvbdemux->dmx.close(&dvbdemux->dmx);
+-		dvbdemux->dmx.remove_frontend(&dvbdemux->dmx, &adapter->hw_frontend);
+-		dvbdemux->dmx.remove_frontend(&dvbdemux->dmx, &adapter->mem_frontend);
++	dmx->close(dmx);
++	dmx->remove_frontend(dmx, &adapter->hw_frontend);
++	dmx->remove_frontend(dmx, &adapter->mem_frontend);
+ 
+ 		dvb_dmxdev_release(&adapter->dmxdev);
+-		dvb_dmx_release(&adapter->demux);
++	dvb_dmx_release(dvbdemux);
++
++	if (adapter->fe != NULL)
++		dvb_unregister_frontend(adapter->fe);
+ 
+-		if (adapter->fe != NULL) dvb_unregister_frontend(adapter->fe);
++	dvb_unregister_adapter(adapter->dvb_adapter);
+ 
+-		if (adapter->dvb_adapter != NULL) {
+ 			i2c_del_adapter(&adapter->i2c_adap);
+ 
+-			dvb_unregister_adapter(adapter->dvb_adapter);
+-		}
+ 		driver_halt(pdev);
+ 	}
+-}
+ 
+ static struct pci_device_id skystar2_pci_tbl[] = {
+ 	{0x000013d0, 0x00002103, 0xffffffff, 0xffffffff, 0x00000000, 0x00000000, 0x00000000},
+diff -uraNwB linux-2.6.11-rc2/drivers/media/dvb/b2c2/b2c2-usb-core.c linux-2.6.11-rc2-dvb/drivers/media/dvb/b2c2/b2c2-usb-core.c
+--- linux-2.6.11-rc2/drivers/media/dvb/b2c2/b2c2-usb-core.c	2005-01-20 19:55:47.000000000 +0100
++++ linux-2.6.11-rc2-dvb/drivers/media/dvb/b2c2/b2c2-usb-core.c	2005-01-20 19:56:37.000000000 +0100
+@@ -33,7 +33,7 @@
+ }
+ 
+ static int debug;
+-module_param(debug, int, 0x644);
++module_param(debug, int, 0644);
+ MODULE_PARM_DESC(debug, "set debugging level (1=info,ts=2,ctrl=4 (or-able)).");
+ 
+ #define deb_info(args...) dprintk(0x01,args)
+@@ -89,12 +89,22 @@
+ 
+ /* request types */
+ typedef enum {
++
++/* something is wrong with this part
+ 	RTYPE_READ_DW         = (1 << 6),
+ 	RTYPE_WRITE_DW_1      = (3 << 6),
+ 	RTYPE_READ_V8_MEMORY  = (6 << 6),
+ 	RTYPE_WRITE_V8_MEMORY = (7 << 6),
+ 	RTYPE_WRITE_V8_FLASH  = (8 << 6),
+ 	RTYPE_GENERIC         = (9 << 6),
++*/
++	RTYPE_READ_DW = (3 << 6),
++	RTYPE_WRITE_DW_1 = (1 << 6),
++	
++	RTYPE_READ_V8_MEMORY  = (6 << 6),
++	RTYPE_WRITE_V8_MEMORY = (7 << 6),
++	RTYPE_WRITE_V8_FLASH  = (8 << 6),
++	RTYPE_GENERIC         = (9 << 6),
+ } b2c2_usb_request_type_t;
+ 
+ /* request */
+@@ -391,9 +401,9 @@
+ 		}
+ 	/* initialising and submitting iso urbs */
+ 	for (i = 0; i < B2C2_USB_NUM_ISO_URB; i++) {
+-		deb_info("initializing and submitting urb no. %d (buf_offset: %d).\n",i,buffer_offset);
+ 		int frame_offset = 0;
+ 		struct urb *urb = b2c2->iso_urb[i];
++		deb_info("initializing and submitting urb no. %d (buf_offset: %d).\n",i,buffer_offset);
+ 
+ 		urb->dev = b2c2->udev;
+ 		urb->context = b2c2;
+diff -uraN b/drivers/media/dvb/dibusb/dvb-dibusb.c a/drivers/media/dvb/dibusb/dvb-dibusb.c
+--- b/drivers/media/dvb/dibusb/dvb-dibusb.c	2005-01-21 15:27:02.000000000 +0100
++++ a/drivers/media/dvb/dibusb/dvb-dibusb.c	1970-01-01 01:00:00.000000000 +0100
+@@ -1,1032 +0,0 @@
+-/*
+- * Driver for mobile USB Budget DVB-T devices based on reference
+- * design made by DiBcom (http://www.dibcom.fr/)
+- *
+- * dvb-dibusb.c
+- *
+- * Copyright (C) 2004 Patrick Boettcher (patrick.boettcher@desy.de)
+- *
+- * based on GPL code from DiBcom, which has
+- * Copyright (C) 2004 Amaury Demol for DiBcom (ademol@dibcom.fr)
+- *
+- * Remote control code added by David Matthews (dm@prolingua.co.uk)
+- *
+- *	This program is free software; you can redistribute it and/or
+- *	modify it under the terms of the GNU General Public License as
+- *	published by the Free Software Foundation, version 2.
+- *
+- * Acknowledgements
+- *
+- *  Amaury Demol (ademol@dibcom.fr) from DiBcom for providing specs and driver
+- *  sources, on which this driver (and the dib3000mb/mc/p frontends) are based.
+- *
+- * see Documentation/dvb/README.dibusb for more information
+- */
+-
+-#include <linux/config.h>
+-#include <linux/kernel.h>
+-#include <linux/usb.h>
+-#include <linux/firmware.h>
+-#include <linux/version.h>
+-#include <linux/moduleparam.h>
+-#include <linux/pci.h>
+-#include <linux/input.h>
+-
+-#include "dmxdev.h"
+-#include "dvb_demux.h"
+-#include "dvb_filter.h"
+-#include "dvb_net.h"
+-#include "dvb_frontend.h"
+-#include "dib3000.h"
+-
+-#include "dvb-dibusb.h"
+-
+-
+-/* debug */
+-#ifdef CONFIG_DVB_DIBCOM_DEBUG
+-#define dprintk(level,args...) \
+-	    do { if ((debug & level)) { printk(args); } } while (0)
+-
+-#define debug_dump(b,l) if (debug) {\
+-	int i; deb_xfer("%s: %d > ",__FUNCTION__,l); \
+-	for (i = 0; i < l; i++) deb_xfer("%02x ", b[i]); \
+-	deb_xfer("\n");\
+-}
+-
+-static int debug;
+-module_param(debug, int, 0x644);
+-MODULE_PARM_DESC(debug, "set debugging level (1=info,2=xfer,4=alotmore,8=ts,16=err,32=rc (|-able)).");
+-#else
+-#define dprintk(args...)
+-#define debug_dump(b,l)
+-#endif
+-
+-#define deb_info(args...) dprintk(0x01,args)
+-#define deb_xfer(args...) dprintk(0x02,args)
+-#define deb_alot(args...) dprintk(0x04,args)
+-#define deb_ts(args...)   dprintk(0x08,args)
+-#define deb_err(args...)   dprintk(0x10,args)
+-#define deb_rc(args...)   dprintk(0x20,args)
+-
+-static int pid_parse;
+-module_param(pid_parse, int, 0x644);
+-MODULE_PARM_DESC(pid_parse, "enable pid parsing (filtering) when running at USB2.0");
+-
+-/* Version information */
+-#define DRIVER_VERSION "0.1"
+-#define DRIVER_DESC "Driver for DiBcom based USB Budget DVB-T device"
+-#define DRIVER_AUTHOR "Patrick Boettcher, patrick.boettcher@desy.de"
+-
+-static int dibusb_readwrite_usb(struct usb_dibusb *dib,
+-		u8 *wbuf, u16 wlen, u8 *rbuf, u16 rlen)
+-{
+-	int actlen,ret = -ENOMEM;
+-
+-	if (wbuf == NULL || wlen == 0)
+-		return -EINVAL;
+-
+-	if ((ret = down_interruptible(&dib->usb_sem)))
+-		return ret;
+-
+-	if (dib->feedcount &&
+-		wbuf[0] == DIBUSB_REQ_I2C_WRITE &&
+-		dib->dibdev->parm->type == DIBUSB1_1)
+-		deb_err("BUG: writing to i2c, while TS-streaming destroys the stream."
+-				"(%x reg: %x %x)\n", wbuf[0],wbuf[2],wbuf[3]);
+-			
+-	debug_dump(wbuf,wlen);
+-
+-	ret = usb_bulk_msg(dib->udev,usb_sndbulkpipe(dib->udev,
+-			dib->dibdev->parm->cmd_pipe), wbuf,wlen,&actlen,
+-			DIBUSB_I2C_TIMEOUT);
+-
+-	if (ret)
+-		err("bulk message failed: %d (%d/%d)",ret,wlen,actlen);
+-	else
+-		ret = actlen != wlen ? -1 : 0;
+-
+-	/* an answer is expected, and no error before */
+-	if (!ret && rbuf && rlen) {
+-		ret = usb_bulk_msg(dib->udev,usb_rcvbulkpipe(dib->udev,
+-				dib->dibdev->parm->result_pipe),rbuf,rlen,&actlen,
+-				DIBUSB_I2C_TIMEOUT);
+-
+-		if (ret)
+-			err("recv bulk message failed: %d",ret);
+-		else {
+-			deb_alot("rlen: %d\n",rlen);
+-			debug_dump(rbuf,actlen);
+-		}
+-	}
+-
+-	up(&dib->usb_sem);
+-	return ret;
+-}
+-
+-static int dibusb_i2c_msg(struct usb_dibusb *dib, u8 addr,
+-		u8 *wbuf, u16 wlen, u8 *rbuf, u16 rlen)
+-{
+-	u8 sndbuf[wlen+4]; /* lead(1) devaddr,direction(1) addr(2) data(wlen) (len(2) (when reading)) */
+-	/* write only ? */
+-	int wo = (rbuf == NULL || rlen == 0),
+-		len = 2 + wlen + (wo ? 0 : 2);
+-
+-	deb_alot("wo: %d, wlen: %d, len: %d\n",wo,wlen,len);
+-
+-	sndbuf[0] = wo ? DIBUSB_REQ_I2C_WRITE : DIBUSB_REQ_I2C_READ;
+-	sndbuf[1] = (addr & 0xfe) | (wo ? 0 : 1);
+-
+-	memcpy(&sndbuf[2],wbuf,wlen);
+-
+-	if (!wo) {
+-		sndbuf[wlen+2] = (rlen >> 8) & 0xff;
+-		sndbuf[wlen+3] = rlen & 0xff;
+-	}
+-
+-	return dibusb_readwrite_usb(dib,sndbuf,len,rbuf,rlen);
+-}
+-
+-/*
+- * DVB stuff
+- */
+-static void dibusb_urb_complete(struct urb *urb, struct pt_regs *ptregs)
+-{
+-	struct usb_dibusb *dib = urb->context;
+-
+-	deb_ts("urb complete feedcount: %d, status: %d\n",dib->feedcount,urb->status);
+-
+-	if (dib->feedcount > 0 && urb->status == 0) {
+-		deb_ts("URB return len: %d\n",urb->actual_length);
+-		if (urb->actual_length % 188)
+-			deb_ts("TS Packets: %d, %d\n", urb->actual_length/188,urb->actual_length % 188);
+-
+-		/* Francois recommends to drop not full-filled packets, even if they may 
+-		 * contain valid TS packets
+-		 */
+-		if (urb->actual_length == dib->dibdev->parm->default_size && dib->dvb_is_ready)
+-		dvb_dmx_swfilter_packets(&dib->demux, (u8*) urb->transfer_buffer,urb->actual_length/188);
+-		else
+-			deb_ts("URB dropped because of the " 
+-					"actual_length or !dvb_is_ready (%d).\n",dib->dvb_is_ready);
+-	} else 
+-		deb_ts("URB dropped because of feedcount or status.\n");
+-
+-		usb_submit_urb(urb,GFP_KERNEL);
+-}
+-
+-static int dibusb_ctrl_feed(struct usb_dibusb *dib, int pid, int onoff)
+-{
+-	if (dib->dibdev->parm->firmware_bug && dib->feedcount) {
+-		deb_ts("stop feeding\n");
+-		if (dib->xfer_ops.fifo_ctrl != NULL) {
+-			if (dib->xfer_ops.fifo_ctrl(dib->fe,0)) {
+-				err("error while inhibiting fifo.");
+-				return -ENODEV;
+-			}
+-		} else {
+-			err("fifo_ctrl is not set.");
+-			return -ENODEV;
+-		}
+-	}
+-
+-	dib->feedcount += onoff ? 1 : -1;
+-
+-	if (dib->pid_parse) {
+-	if (dib->xfer_ops.pid_ctrl != NULL) {
+-		if (dib->xfer_ops.pid_ctrl(dib->fe,pid,onoff) < 0) {
+-		err("no free pid in list.");
+-		return -ENODEV;
+-	}
+-	} else {
+-		err("no pid ctrl callback.");
+-		return -ENODEV;
+-	}
+-	}
+-	/*
+-	 * start the feed, either if there is the firmware bug or
+-	 * if this was the first pid to set.
+-	 */
+-	if (dib->dibdev->parm->firmware_bug || dib->feedcount == onoff) {
+-
+-		deb_ts("controlling pid parser\n");
+-		if (dib->xfer_ops.pid_parse != NULL) {
+-			if (dib->xfer_ops.pid_parse(dib->fe,dib->pid_parse) < 0) {
+-				err("could not handle pid_parser");
+-			}
+-		}
+-
+-		deb_ts("start feeding\n");
+-		if (dib->xfer_ops.fifo_ctrl != NULL) {
+-			if (dib->xfer_ops.fifo_ctrl(dib->fe,1)) {
+-				err("error while enabling fifo.");
+-				return -ENODEV;
+-			}
+-		} else {
+-			err("fifo_ctrl is not set.");
+-			return -ENODEV;
+-}
+-	}
+-	return 0;
+-}
+-
+-static int dibusb_start_feed(struct dvb_demux_feed *dvbdmxfeed)
+-{
+-	struct usb_dibusb *dib = dvbdmxfeed->demux->priv;
+-	deb_ts("pid: 0x%04x, feedtype: %d\n", dvbdmxfeed->pid,dvbdmxfeed->type);
+-	dvbdmxfeed->priv = dib;
+-	return dibusb_ctrl_feed(dib,dvbdmxfeed->pid,1);
+-}
+-
+-static int dibusb_stop_feed(struct dvb_demux_feed *dvbdmxfeed)
+-{
+-	struct usb_dibusb *dib = (struct usb_dibusb *) dvbdmxfeed->priv;
+-	if (dib == NULL) {
+-		err("dib in dmxfeed->priv was NULL");
+-		return -EINVAL;
+-}
+-	deb_ts("dvbdmxfeed pid: 0x%04x, feedtype: %d\n",
+-			dvbdmxfeed->pid, dvbdmxfeed->type);
+-	return dibusb_ctrl_feed(dib,dvbdmxfeed->pid,0);
+-}
+-
+-/* Table to map raw key codes to key events.  This should not be hard-wired
+-   into the kernel.  */
+-static const struct { u8 c0, c1, c2; uint32_t key; } rc_keys [] =
+-{
+-	/* Key codes for the little Artec T1/Twinhan/HAMA/ remote. */
+-	{ 0x00, 0xff, 0x16, KEY_POWER },
+-	{ 0x00, 0xff, 0x10, KEY_MUTE },
+-	{ 0x00, 0xff, 0x03, KEY_1 },
+-	{ 0x00, 0xff, 0x01, KEY_2 },
+-	{ 0x00, 0xff, 0x06, KEY_3 },
+-	{ 0x00, 0xff, 0x09, KEY_4 },
+-	{ 0x00, 0xff, 0x1d, KEY_5 },
+-	{ 0x00, 0xff, 0x1f, KEY_6 },
+-	{ 0x00, 0xff, 0x0d, KEY_7 },
+-	{ 0x00, 0xff, 0x19, KEY_8 },
+-	{ 0x00, 0xff, 0x1b, KEY_9 },
+-	{ 0x00, 0xff, 0x15, KEY_0 },
+-	{ 0x00, 0xff, 0x05, KEY_CHANNELUP },
+-	{ 0x00, 0xff, 0x02, KEY_CHANNELDOWN },
+-	{ 0x00, 0xff, 0x1e, KEY_VOLUMEUP },
+-	{ 0x00, 0xff, 0x0a, KEY_VOLUMEDOWN },
+-	{ 0x00, 0xff, 0x11, KEY_RECORD },
+-	{ 0x00, 0xff, 0x17, KEY_FAVORITES }, /* Heart symbol - Channel list. */
+-	{ 0x00, 0xff, 0x14, KEY_PLAY },
+-	{ 0x00, 0xff, 0x1a, KEY_STOP },
+-	{ 0x00, 0xff, 0x40, KEY_REWIND },
+-	{ 0x00, 0xff, 0x12, KEY_FASTFORWARD },
+-	{ 0x00, 0xff, 0x0e, KEY_PREVIOUS }, /* Recall - Previous channel. */
+-	{ 0x00, 0xff, 0x4c, KEY_PAUSE },
+-	{ 0x00, 0xff, 0x4d, KEY_SCREEN }, /* Full screen mode. */
+-	{ 0x00, 0xff, 0x54, KEY_AUDIO }, /* MTS - Switch to secondary audio. */
+-	/* additional keys TwinHan VisionPlus, the Artec seemingly not have */
+-	{ 0x00, 0xff, 0x0c, KEY_CANCEL }, /* Cancel */
+-	{ 0x00, 0xff, 0x1c, KEY_EPG }, /* EPG */
+-	{ 0x00, 0xff, 0x00, KEY_TAB }, /* Tab */
+-	{ 0x00, 0xff, 0x48, KEY_INFO }, /* Preview */
+-	{ 0x00, 0xff, 0x04, KEY_LIST }, /* RecordList */
+-	{ 0x00, 0xff, 0x0f, KEY_TEXT }, /* Teletext */
+-	/* Key codes for the KWorld/ADSTech/JetWay remote. */
+-	{ 0x86, 0x6b, 0x12, KEY_POWER },
+-	{ 0x86, 0x6b, 0x0f, KEY_SELECT }, /* source */
+-	{ 0x86, 0x6b, 0x0c, KEY_UNKNOWN }, /* scan */
+-	{ 0x86, 0x6b, 0x0b, KEY_EPG },
+-	{ 0x86, 0x6b, 0x10, KEY_MUTE },
+-	{ 0x86, 0x6b, 0x01, KEY_1 },
+-	{ 0x86, 0x6b, 0x02, KEY_2 },
+-	{ 0x86, 0x6b, 0x03, KEY_3 },
+-	{ 0x86, 0x6b, 0x04, KEY_4 },
+-	{ 0x86, 0x6b, 0x05, KEY_5 },
+-	{ 0x86, 0x6b, 0x06, KEY_6 },
+-	{ 0x86, 0x6b, 0x07, KEY_7 },
+-	{ 0x86, 0x6b, 0x08, KEY_8 },
+-	{ 0x86, 0x6b, 0x09, KEY_9 },
+-	{ 0x86, 0x6b, 0x0a, KEY_0 },
+-	{ 0x86, 0x6b, 0x18, KEY_ZOOM },
+-	{ 0x86, 0x6b, 0x1c, KEY_UNKNOWN }, /* preview */
+-	{ 0x86, 0x6b, 0x13, KEY_UNKNOWN }, /* snap */
+-	{ 0x86, 0x6b, 0x00, KEY_UNDO },
+-	{ 0x86, 0x6b, 0x1d, KEY_RECORD },
+-	{ 0x86, 0x6b, 0x0d, KEY_STOP },
+-	{ 0x86, 0x6b, 0x0e, KEY_PAUSE },
+-	{ 0x86, 0x6b, 0x16, KEY_PLAY },
+-	{ 0x86, 0x6b, 0x11, KEY_BACK },
+-	{ 0x86, 0x6b, 0x19, KEY_FORWARD },
+-	{ 0x86, 0x6b, 0x14, KEY_UNKNOWN }, /* pip */
+-	{ 0x86, 0x6b, 0x15, KEY_ESC },
+-	{ 0x86, 0x6b, 0x1a, KEY_UP },
+-	{ 0x86, 0x6b, 0x1e, KEY_DOWN },
+-	{ 0x86, 0x6b, 0x1f, KEY_LEFT },
+-	{ 0x86, 0x6b, 0x1b, KEY_RIGHT },
+-};
+-
+-/*
+- * Read the remote control and feed the appropriate event.
+- * NEC protocol is used for remote controls
+- */
+-static int dibusb_read_remote_control(struct usb_dibusb *dib)
+-{
+-	u8 b[1] = { DIBUSB_REQ_POLL_REMOTE }, rb[5];
+-	int ret;
+-	int i;
+-	if ((ret = dibusb_readwrite_usb(dib,b,1,rb,5)))
+-		return ret;
+-
+-	switch (rb[0]) {
+-		case DIBUSB_RC_NEC_KEY_PRESSED:
+-			/* rb[1-3] is the actual key, rb[4] is a checksum */
+-			deb_rc("raw key code 0x%02x, 0x%02x, 0x%02x, 0x%02x\n",
+-				rb[1], rb[2], rb[3], rb[4]);
+-
+-			if ((0xff - rb[3]) != rb[4]) {
+-				deb_rc("remote control checksum failed.\n");
+-				break;
+-			}
+-
+-			/* See if we can match the raw key code. */
+-			for (i = 0; i < sizeof(rc_keys)/sizeof(rc_keys[0]); i++) {
+-				if (rc_keys[i].c0 == rb[1] &&
+-					rc_keys[i].c1 == rb[2] &&
+-				    rc_keys[i].c2 == rb[3]) {
+-					dib->rc_input_event = rc_keys[i].key;
+-					deb_rc("Translated key 0x%04x\n", dib->rc_input_event);
+-					/* Signal down and up events for this key. */
+-					input_report_key(&dib->rc_input_dev, dib->rc_input_event, 1);
+-					input_report_key(&dib->rc_input_dev, dib->rc_input_event, 0);
+-					input_sync(&dib->rc_input_dev);
+-					break;
+-				}
+-			}
+-			break;
+-		case DIBUSB_RC_NEC_EMPTY: /* No (more) remote control keys. */
+-			break;
+-		case DIBUSB_RC_NEC_KEY_REPEATED:
+-			/* rb[1]..rb[4] are always zero.*/
+-			/* Repeats often seem to occur so for the moment just ignore this. */
+-			deb_rc("Key repeat\n");
+-			break;
+-		default:
+-			break;
+-	}
+-	
+-	return 0;
+-}
+-
+-#define RC_QUERY_INTERVAL (100)	/* milliseconds */
+-
+-/* Remote-control poll function - called every RC_QUERY_INTERVAL ms to see
+-   whether the remote control has received anything. */
+-static void dibusb_query_rc (void *data)
+-{
+-	struct usb_dibusb *dib = (struct usb_dibusb *) data;
+-	/* TODO: need a lock here.  We can simply skip checking for the remote control
+-	   if we're busy. */
+-	dibusb_read_remote_control(dib);
+-	schedule_delayed_work(&dib->rc_query_work,
+-			      msecs_to_jiffies(RC_QUERY_INTERVAL));
+-}
+-
+-/*
+- * Cypress controls
+- */
+-
+-#if 0
+-/*
+- * #if 0'ing the following functions as they are not in use _now_,
+- * but probably will be sometime.
+- */
+-
+-/*
+- * do not use this, just a workaround for a bug,
+- * which will hopefully never occur :).
+- */
+-static int dibusb_interrupt_read_loop(struct usb_dibusb *dib)
+-{
+-	u8 b[1] = { DIBUSB_REQ_INTR_READ };
+-	return dibusb_write_usb(dib,b,1);
+-}
+-
+-/*
+- * ioctl for power control
+- */
+-static int dibusb_hw_sleep(struct usb_dibusb *dib)
+-{
+-	u8 b[1] = { DIBUSB_IOCTL_POWER_SLEEP };
+-	return dibusb_ioctl_cmd(dib,DIBUSB_IOCTL_CMD_POWER_MODE, b,1);
+-}
+-
+-#endif
+-static int dibusb_write_usb(struct usb_dibusb *dib, u8 *buf, u16 len)
+-{
+-	return dibusb_readwrite_usb(dib,buf,len,NULL,0);
+-}
+-
+-/*
+- * ioctl for the firmware
+- */
+-static int dibusb_ioctl_cmd(struct usb_dibusb *dib, u8 cmd, u8 *param, int plen)
+-{
+-	u8 b[34];
+-	int size = plen > 32 ? 32 : plen;
+-	b[0] = DIBUSB_REQ_SET_IOCTL;
+-	b[1] = cmd;
+-	memcpy(&b[2],param,size);
+-
+-	return dibusb_write_usb(dib,b,2+size);
+-}
+-
+-static int dibusb_hw_wakeup(struct usb_dibusb *dib)
+-{
+-	u8 b[1] = { DIBUSB_IOCTL_POWER_WAKEUP };
+-	return dibusb_ioctl_cmd(dib,DIBUSB_IOCTL_CMD_POWER_MODE, b,1);
+-}
+-
+-/*
+- * I2C
+- */
+-static int dibusb_i2c_xfer(struct i2c_adapter *adap,struct i2c_msg msg[],int num)
+-{
+-	struct usb_dibusb *dib = i2c_get_adapdata(adap);
+-	int i;
+-
+-	if (down_interruptible(&dib->i2c_sem) < 0)
+-		return -EAGAIN;
+-
+-	for (i = 0; i < num; i++) {
+-		/* write/read request */
+-		if (i+1 < num && (msg[i+1].flags & I2C_M_RD)) {
+-			if (dibusb_i2c_msg(dib, msg[i].addr, msg[i].buf,msg[i].len,
+-						msg[i+1].buf,msg[i+1].len) < 0)
+-				break;
+-			i++;
+-		} else
+-			if (dibusb_i2c_msg(dib, msg[i].addr, msg[i].buf,msg[i].len,NULL,0) < 0)
+-				break;
+-	}
+-
+-	up(&dib->i2c_sem);
+-	return i;
+-}
+-
+-static u32 dibusb_i2c_func(struct i2c_adapter *adapter)
+-{
+-	return I2C_FUNC_I2C;
+-}
+-
+-static int thomson_cable_eu_pll_set(struct dvb_frontend* fe, struct
+-		dvb_frontend_parameters* params);
+-
+-static struct dib3000_config thomson_cable_eu_config = {
+-	.demod_address = 0x10,
+-	.pll_addr = 194,
+-	.pll_set = thomson_cable_eu_pll_set,
+-};
+-
+-static int thomson_cable_eu_pll_set(struct dvb_frontend* fe, struct
+-		dvb_frontend_parameters* params)
+-{
+-	struct usb_dibusb* dib = (struct usb_dibusb*) fe->dvb->priv;
+-	u8 buf[4];
+-	struct i2c_msg msg = {
+-		.addr = thomson_cable_eu_config.pll_addr,
+-		.flags = 0,
+-		.buf = buf,
+-		.len = sizeof(buf)
+-	};
+-	u32 tfreq = (params->frequency + 36125000) / 62500;
+-	int vu,p0,p1,p2;
+-
+-	if (params->frequency > 403250000)
+-		vu = 1, p2 = 1, p1 = 0, p0 = 1;
+-	else if (params->frequency > 115750000)
+-		vu = 0, p2 = 1, p1 = 1, p0 = 0;
+-	else if (params->frequency > 44250000)
+-		vu = 0, p2 = 0, p1 = 1, p0 = 1;
+-	else
+-		return -EINVAL;
+-
+-	buf[0] = (tfreq >> 8) & 0x7f;
+-	buf[1] = tfreq & 0xff;
+-   	buf[2] = 0x8e;
+-   	buf[3] = (vu << 7) | (p2 << 2) | (p1 << 1) | p0;
+-
+-	if (i2c_transfer (&dib->i2c_adap, &msg, 1) != 1)
+-		return -EIO;
+-
+-	msleep(1);
+-	return 0;
+-}
+-
+-static int panasonic_cofdm_env57h1xd5_pll_set(struct dvb_frontend *fe, struct
+-		dvb_frontend_parameters *params);
+-
+-static struct dib3000_config panasonic_cofdm_env57h1xd5 = {
+-	.demod_address = 0x18,
+-	.pll_addr = 192,
+-	.pll_set = panasonic_cofdm_env57h1xd5_pll_set,
+-};
+-
+-static int panasonic_cofdm_env57h1xd5_pll_set(struct dvb_frontend *fe, struct
+-		dvb_frontend_parameters *params)
+-{
+-	struct usb_dibusb* dib = (struct usb_dibusb*) fe->dvb->priv;
+-	u8 buf[4];
+-	u32 freq = params->frequency;
+-	u32 tfreq = (freq + 36125000) / 1000000 * 6 + 1;
+-	u8 TA, T210, R210, ctrl1, cp210, p4321;
+-	struct i2c_msg msg = {
+-		.addr = panasonic_cofdm_env57h1xd5.pll_addr,
+-		.flags = 0,
+-		.buf = buf,
+-		.len = sizeof(buf)
+-	};
+-
+-	if (freq > 858000000) {
+-		err("frequency cannot be larger than 858 MHz.");
+-		return -EINVAL;
+-	}
+-
+-	// contol data 1 : 1 | T/A=1 | T2,T1,T0 = 0,0,0 | R2,R1,R0 = 0,1,0
+-	TA = 1;
+-	T210 = 0;
+-	R210 = 0x2;
+-	ctrl1 = (1 << 7) | (TA << 6) | (T210 << 3) | R210;
+-
+-// ********    CHARGE PUMP CONFIG vs RF FREQUENCIES     *****************
+-	if (freq < 470000000)
+-		cp210 = 2;  // VHF Low and High band ch E12 to E4 to E12
+-	else if (freq < 526000000)
+-		cp210 = 4;  // UHF band Ch E21 to E27
+-	else // if (freq < 862000000)
+-		cp210 = 5;  // UHF band ch E28 to E69
+-
+-//*********************    BW select  *******************************
+-	if (freq < 153000000)
+-		p4321  = 1; // BW selected for VHF low
+-	else if (freq < 470000000)
+-		p4321  = 2; // BW selected for VHF high E5 to E12
+-	else // if (freq < 862000000)
+-		p4321  = 4; // BW selection for UHF E21 to E69
+-
+-	buf[0] = (tfreq >> 8) & 0xff;
+-	buf[1] = (tfreq >> 0) & 0xff;
+-	buf[2] = 0xff & ctrl1;
+-	buf[3] =  (cp210 << 5) | (p4321);
+-
+-	if (i2c_transfer (&dib->i2c_adap, &msg, 1) != 1)
+-		return -EIO;
+-
+-	msleep(1);
+-	return 0;
+-}
+-
+-static struct i2c_algorithm dibusb_algo = {
+-	.name			= "DiBcom USB i2c algorithm",
+-	.id				= I2C_ALGO_BIT,
+-	.master_xfer	= dibusb_i2c_xfer,
+-	.functionality	= dibusb_i2c_func,
+-};
+-
+-static void frontend_init(struct usb_dibusb* dib)
+-{
+-	switch (dib->dibdev->parm->type) {
+-		case DIBUSB1_1:
+-		case DIBUSB1_1_AN2235:
+-	dib->fe = dib3000mb_attach(&thomson_cable_eu_config, &dib->i2c_adap,&dib->xfer_ops);
+-			break;
+-		case DIBUSB2_0:
+-			dib->fe = dib3000mc_attach(&panasonic_cofdm_env57h1xd5,&dib->i2c_adap, &dib->xfer_ops);
+-			break;
+-	}
+-
+-	if (dib->fe == NULL) {
+-		printk("dvb-dibusb: A frontend driver was not found for device %04x/%04x\n",
+-		       le16_to_cpu(dib->udev->descriptor.idVendor),
+-		       le16_to_cpu(dib->udev->descriptor.idProduct));
+-	} else {
+-		if (dvb_register_frontend(dib->adapter, dib->fe)) {
+-			printk("dvb-dibusb: Frontend registration failed!\n");
+-			if (dib->fe->ops->release)
+-				dib->fe->ops->release(dib->fe);
+-			dib->fe = NULL;
+-		}
+-	}
+-}
+-
+-static int dibusb_dvb_init(struct usb_dibusb *dib)
+-{
+-	int ret;
+-
+-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,4)
+-    if ((ret = dvb_register_adapter(&dib->adapter, DRIVER_DESC)) < 0) {
+-#else
+-    if ((ret = dvb_register_adapter(&dib->adapter, DRIVER_DESC ,
+-			THIS_MODULE)) < 0) {
+-#endif
+-		deb_info("dvb_register_adapter failed: error %d", ret);
+-		goto err;
+-	}
+-	dib->adapter->priv = dib;
+-
+-	strncpy(dib->i2c_adap.name,dib->dibdev->name,I2C_NAME_SIZE);
+-#ifdef I2C_ADAP_CLASS_TV_DIGITAL
+-	dib->i2c_adap.class = I2C_ADAP_CLASS_TV_DIGITAL,
+-#else
+-	dib->i2c_adap.class = I2C_CLASS_TV_DIGITAL,
+-#endif
+-	dib->i2c_adap.algo 		= &dibusb_algo;
+-	dib->i2c_adap.algo_data = NULL;
+-	dib->i2c_adap.id		= I2C_ALGO_BIT;
+-
+-	i2c_set_adapdata(&dib->i2c_adap, dib);
+-
+-	if ((i2c_add_adapter(&dib->i2c_adap) < 0)) {
+-		err("could not add i2c adapter");
+-		goto err_i2c;
+-	}
+-
+-	dib->demux.dmx.capabilities = DMX_TS_FILTERING | DMX_SECTION_FILTERING;
+-
+-	dib->demux.priv = (void *)dib;
+-	/* get pidcount from demod */
+-	dib->demux.feednum = dib->demux.filternum = 16;
+-	dib->demux.start_feed = dibusb_start_feed;
+-	dib->demux.stop_feed = dibusb_stop_feed;
+-	dib->demux.write_to_decoder = NULL;
+-	if ((ret = dvb_dmx_init(&dib->demux)) < 0) {
+-		err("dvb_dmx_init failed: error %d",ret);
+-		goto err_dmx;
+-	}
+-
+-	dib->dmxdev.filternum = dib->demux.filternum;
+-	dib->dmxdev.demux = &dib->demux.dmx;
+-	dib->dmxdev.capabilities = 0;
+-	if ((ret = dvb_dmxdev_init(&dib->dmxdev, dib->adapter)) < 0) {
+-		err("dvb_dmxdev_init failed: error %d",ret);
+-		goto err_dmx_dev;
+-	}
+-
+-	dvb_net_init(dib->adapter, &dib->dvb_net, &dib->demux.dmx);
+-
+-	frontend_init(dib);
+-
+-	/* Start the remote-control polling. */
+-	schedule_delayed_work(&dib->rc_query_work, msecs_to_jiffies(RC_QUERY_INTERVAL));
+-
+-	goto success;
+-err_dmx_dev:
+-	dvb_dmx_release(&dib->demux);
+-err_dmx:
+-	i2c_del_adapter(&dib->i2c_adap);
+-err_i2c:
+-	dvb_unregister_adapter(dib->adapter);
+-err:
+-	return ret;
+-success:
+-	dib->dvb_is_ready = 1;
+-	return 0;
+-}
+-
+-static int dibusb_dvb_exit(struct usb_dibusb *dib)
+-{
+-	cancel_delayed_work(&dib->rc_query_work);
+-	flush_scheduled_work();
+-	input_unregister_device(&dib->rc_input_dev);
+-
+-	dib->dvb_is_ready = 0;
+-	deb_info("unregistering DVB part\n");
+-	dvb_net_release(&dib->dvb_net);
+-	dib->demux.dmx.close(&dib->demux.dmx);
+-	dvb_dmxdev_release(&dib->dmxdev);
+-	dvb_dmx_release(&dib->demux);
+-	if (dib->fe != NULL) dvb_unregister_frontend(dib->fe);
+-	i2c_del_adapter(&dib->i2c_adap);
+-	dvb_unregister_adapter(dib->adapter);
+-
+-	return 0;
+-}
+-
+-static int dibusb_exit(struct usb_dibusb *dib)
+-{
+-	int i;
+-	if (dib->urb_list != NULL) {
+-		for (i = 0; i < dib->dibdev->parm->num_urbs; i++) {
+-			if (dib->urb_list[i] != NULL) {
+-			deb_info("killing URB no. %d.\n",i);
+-
+-				/* stop the URBs */
+-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,7)
+-				usb_unlink_urb(dib->urb_list[i]);
+-#else
+-				usb_kill_urb(dib->urb_list[i]);
+-#endif
+-			
+-			deb_info("freeing URB no. %d.\n",i);
+-				/* free the URBs */
+-				usb_free_urb(dib->urb_list[i]);
+-			}
+-		}
+-		/* free the urb array */
+-		kfree(dib->urb_list);
+-		}
+-
+-	pci_free_consistent(NULL,
+-		dib->dibdev->parm->urb_buf_size*dib->dibdev->parm->num_urbs,dib->buffer,
+-		dib->dma_handle);
+-	return 0;
+-}
+-
+-static int dibusb_init(struct usb_dibusb *dib)
+-{
+-	int ret,i,bufsize;
+-	sema_init(&dib->usb_sem, 1);
+-	sema_init(&dib->i2c_sem, 1);
+-
+-	/*
+-	 * when reloading the driver w/o replugging the device
+-	 * a timeout occures, this helps
+-	 */
+-	usb_clear_halt(dib->udev,usb_sndbulkpipe(dib->udev,dib->dibdev->parm->cmd_pipe));
+-	usb_clear_halt(dib->udev,usb_rcvbulkpipe(dib->udev,dib->dibdev->parm->result_pipe));
+-	usb_clear_halt(dib->udev,usb_rcvbulkpipe(dib->udev,dib->dibdev->parm->data_pipe));
+-
+-	/* allocate the array for the data transfer URBs */
+-	dib->urb_list = kmalloc(dib->dibdev->parm->num_urbs*sizeof(struct urb *),GFP_KERNEL);
+-	if (dib->urb_list == NULL)
+-		return -ENOMEM;
+-	memset(dib->urb_list,0,dib->dibdev->parm->num_urbs*sizeof(struct urb *));
+-
+-	bufsize = dib->dibdev->parm->num_urbs*dib->dibdev->parm->urb_buf_size;
+-	deb_info("allocate %d bytes as buffersize for all URBs\n",bufsize);
+-	/* allocate the actual buffer for the URBs */
+-	if ((dib->buffer = pci_alloc_consistent(NULL,bufsize,&dib->dma_handle)) == NULL) {
+-		deb_info("not enough memory.\n");
+-		dibusb_exit(dib);
+-		return -ENOMEM;
+-	}
+-	deb_info("allocation complete\n");
+-	memset(dib->buffer,0,bufsize);
+-
+-	/* allocate and submit the URBs */
+-	for (i = 0; i < dib->dibdev->parm->num_urbs; i++) {
+-		if (!(dib->urb_list[i] = usb_alloc_urb(0,GFP_KERNEL))) {
+-		dibusb_exit(dib);
+-		return -ENOMEM;
+-	}
+-		deb_info("submitting URB no. %d\n",i);
+-
+-		usb_fill_bulk_urb( dib->urb_list[i], dib->udev,
+-				usb_rcvbulkpipe(dib->udev,dib->dibdev->parm->data_pipe),
+-				&dib->buffer[i*dib->dibdev->parm->urb_buf_size],
+-				dib->dibdev->parm->urb_buf_size,
+-				dibusb_urb_complete, dib);
+-
+-		dib->urb_list[i]->transfer_flags = 0;
+-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,7)
+-		dib->urb_list[i]->timeout = 0;
+-#endif
+-
+-		if ((ret = usb_submit_urb(dib->urb_list[i],GFP_KERNEL))) {
+-			err("could not submit buffer urb no. %d\n",i);
+-			dibusb_exit(dib);
+-			return ret;
+-		}
+-	}
+-
+-	dib->dvb_is_ready = 0;
+-
+-	/* Initialise the remote-control structures.*/
+-	init_input_dev(&dib->rc_input_dev);
+-
+-	dib->rc_input_dev.evbit[0] = BIT(EV_KEY);
+-	dib->rc_input_dev.keycodesize = sizeof(unsigned char);
+-	dib->rc_input_dev.keycodemax = KEY_MAX;
+-	dib->rc_input_dev.name = DRIVER_DESC " remote control";
+-
+-	for (i=0; i<sizeof(rc_keys)/sizeof(rc_keys[0]); i++)
+-		set_bit(rc_keys[i].key, dib->rc_input_dev.keybit);
+-
+-	input_register_device(&dib->rc_input_dev);
+-
+-	dib->rc_input_event = KEY_MAX;
+-
+-	INIT_WORK(&dib->rc_query_work, dibusb_query_rc, dib);
+-
+-	dibusb_hw_wakeup(dib);
+-
+-	if ((ret = dibusb_dvb_init(dib))) {
+-		dibusb_exit(dib);
+-		return ret;
+-	}
+-	return 0;
+-}
+-
+-/*
+- * load a firmware packet to the device
+- */
+-static int dibusb_writemem(struct usb_device *udev,u16 addr,u8 *data, u8 len)
+-{
+-	return usb_control_msg(udev, usb_sndctrlpipe(udev,0),
+-			0xa0, USB_TYPE_VENDOR, addr, 0x00, data, len, 5*HZ);
+-}
+-
+-static int dibusb_loadfirmware(struct usb_device *udev,
+-		struct dibusb_device *dibdev)
+-{
+-	const struct firmware *fw = NULL;
+-	const char **fws;
+-	u16 addr;
+-	u8 *b,*p;
+-	int ret = 0,i;
+-
+-	fws = dibdev->parm->fw_filenames;
+-
+-	for (i = 0; i < sizeof(fws)/sizeof(const char*); i++) {
+-		if ((ret = request_firmware(&fw, fws[i], &udev->dev)) == 0) {
+-			info("using firmware file (%s).",fws[i]);
+-			break;
+-		}
+-		deb_info("tried to find '%s' firmware - unsuccessful. (%d)\n",
+-				fws[i],ret);
+-	}
+-
+-	if (fw == NULL) {
+-		err("did not find a valid firmware file. "
+-			"Please see linux/Documentation/dvb/ for more details on firmware-problems.");
+-		return -EINVAL;
+-	}
+-	p = kmalloc(fw->size,GFP_KERNEL);
+-	if (p != NULL) {
+-		u8 reset;
+-		/*
+-		 * you cannot use the fw->data as buffer for
+-		 * usb_control_msg, a new buffer has to be
+-		 * created
+-		 */
+-		memcpy(p,fw->data,fw->size);
+-
+-		/* stop the CPU */
+-		reset = 1;
+-		if ((ret = dibusb_writemem(udev,dibdev->parm->usb_cpu_csreg,&reset,1)) != 1)
+-			err("could not stop the USB controller CPU.");
+-		for(i = 0; p[i+3] == 0 && i < fw->size; ) {
+-			b = (u8 *) &p[i];
+-			addr = *((u16 *) &b[1]);
+-
+-			ret = dibusb_writemem(udev,addr,&b[4],b[0]);
+-
+-			if (ret != b[0]) {
+-				err("error while transferring firmware "
+-					"(transferred size: %d, block size: %d)",
+-					ret,b[0]);
+-				ret = -EINVAL;
+-				break;
+-			}
+-			i += 5 + b[0];
+-		}
+-		/* length in ret */
+-		if (ret > 0)
+-			ret = 0;
+-		/* restart the CPU */
+-		reset = 0;
+-		if (ret || dibusb_writemem(udev,dibdev->parm->usb_cpu_csreg,&reset,1) != 1) {
+-			err("could not restart the USB controller CPU.");
+-			ret = -EINVAL;
+-		}
+-
+-		kfree(p);
+-	} else {
+-		ret = -ENOMEM;
+-	}
+-	release_firmware(fw);
+-
+-	return ret;
+-}
+-
+-/*
+- * USB
+- */
+-static int dibusb_probe(struct usb_interface *intf,
+-		const struct usb_device_id *id)
+-{
+-	struct usb_device *udev = interface_to_usbdev(intf);
+-	struct usb_dibusb *dib = NULL;
+-	struct dibusb_device *dibdev = NULL;
+-
+-	int ret = -ENOMEM,i,cold=0;
+-
+-	for (i = 0; i < DIBUSB_SUPPORTED_DEVICES; i++)
+-		if (dibusb_devices[i].cold_product_id == le16_to_cpu(udev->descriptor.idProduct) ||
+-			dibusb_devices[i].warm_product_id == le16_to_cpu(udev->descriptor.idProduct)) {
+-			dibdev = &dibusb_devices[i];
+-
+-			cold = dibdev->cold_product_id == le16_to_cpu(udev->descriptor.idProduct);
+-
+-			if (cold)
+-				info("found a '%s' in cold state, will try to load a firmware",dibdev->name);
+-			else
+-				info("found a '%s' in warm state.",dibdev->name);
+-		}
+-
+-	if (dibdev == NULL) {
+-		err("something went very wrong, "
+-				"unknown product ID: %.4x",le16_to_cpu(udev->descriptor.idProduct));
+-		return -ENODEV;
+-	}
+-
+-	if (cold)
+-		ret = dibusb_loadfirmware(udev,dibdev);
+-	else {
+-		dib = kmalloc(sizeof(struct usb_dibusb),GFP_KERNEL);
+-		if (dib == NULL) {
+-			err("no memory");
+-			return ret;
+-		}
+-		memset(dib,0,sizeof(struct usb_dibusb));
+-
+-		dib->pid_parse = 1;
+-		switch (udev->speed) {
+-			case USB_SPEED_LOW:
+-				err("cannot handle USB speed because it is to sLOW.");
+-				break;
+-			case USB_SPEED_FULL:
+-				info("running at FULL speed, will use pid parsing.");
+-				break;
+-			case USB_SPEED_HIGH:
+-				if (!pid_parse) {
+-					dib->pid_parse = 0;
+-				info("running at HIGH speed, will deliver the complete TS.");
+-				} else
+-					info("running at HIGH speed, will use pid_parsing anyway.");
+-				break;
+-			case USB_SPEED_UNKNOWN: /* fall through */
+-			default:
+-				err("cannot handle USB speed because it is unkown.");
+-				break;
+-		}
+-
+-		dib->udev = udev;
+-		dib->dibdev = dibdev;
+-
+-		usb_set_intfdata(intf, dib);
+-
+-		ret = dibusb_init(dib);
+-	}
+-
+-	if (ret == 0)
+-		info("%s successfully initialized and connected.",dibdev->name);
+-	else
+-		info("%s error while loading driver (%d)",dibdev->name,ret);
+-	return ret;
+-}
+-
+-static void dibusb_disconnect(struct usb_interface *intf)
+-{
+-	struct usb_dibusb *dib = usb_get_intfdata(intf);
+-	const char *name = DRIVER_DESC;
+-
+-	usb_set_intfdata(intf,NULL);
+-	if (dib != NULL) {
+-		name = dib->dibdev->name;
+-		dibusb_dvb_exit(dib);
+-		dibusb_exit(dib);
+-		kfree(dib);
+-	}
+-	info("%s successfully deinitialized and disconnected.",name);
+-
+-}
+-
+-/* usb specific object needed to register this driver with the usb subsystem */
+-static struct usb_driver dibusb_driver = {
+-	.owner		= THIS_MODULE,
+-	.name		= "dvb_dibusb",
+-	.probe 		= dibusb_probe,
+-	.disconnect = dibusb_disconnect,
+-	.id_table 	= dibusb_table,
+-};
+-
+-/* module stuff */
+-static int __init usb_dibusb_init(void)
+-{
+-	int result;
+-	if ((result = usb_register(&dibusb_driver))) {
+-		err("usb_register failed. Error number %d",result);
+-		return result;
+-	}
+-
+-	return 0;
+-}
+-
+-static void __exit usb_dibusb_exit(void)
+-{
+-	/* deregister this driver from the USB subsystem */
+-	usb_deregister(&dibusb_driver);
+-}
+-
+-module_init (usb_dibusb_init);
+-module_exit (usb_dibusb_exit);
+-
+-MODULE_AUTHOR(DRIVER_AUTHOR);
+-MODULE_DESCRIPTION(DRIVER_DESC);
+-MODULE_LICENSE("GPL");
 

@@ -1,74 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267909AbTAHV00>; Wed, 8 Jan 2003 16:26:26 -0500
+	id <S267886AbTAHVZN>; Wed, 8 Jan 2003 16:25:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267919AbTAHV00>; Wed, 8 Jan 2003 16:26:26 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:13186 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S267909AbTAHVZ3>; Wed, 8 Jan 2003 16:25:29 -0500
-Date: Wed, 8 Jan 2003 16:37:22 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PCI code:  why need  outb (0x01, 0xCFB); ?
-In-Reply-To: <3E1C8CD2.4070402@zytor.com>
-Message-ID: <Pine.LNX.3.95.1030108161352.626A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267908AbTAHVZN>; Wed, 8 Jan 2003 16:25:13 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:37762 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S267886AbTAHVZM>; Wed, 8 Jan 2003 16:25:12 -0500
+Message-Id: <200301082133.h08LXlRA014406@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: John Bradford <john@grabjohn.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Undelete files on ext3 ?? 
+In-Reply-To: Your message of "Wed, 08 Jan 2003 10:57:01 GMT."
+             <200301081057.h08Av1og000585@darkstar.example.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <200301081057.h08Av1og000585@darkstar.example.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1379394798P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 08 Jan 2003 16:33:47 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Jan 2003, H. Peter Anvin wrote:
+--==_Exmh_1379394798P
+Content-Type: text/plain; charset=us-ascii
 
-> Nakajima, Jun wrote:
-> >
-> > Normally all accesses should be long (0xcf8/0xcfc) but x86 is byte addresseable and some chipsets do support byte accesses. 
-> > We do not encourage use of byte accesses as it will not be supported in future platforms.
-> > 
-> 
-> The PCI standard is quite explicit: byte accesses are permitted to the
-> data window (0xCFC) and not permitted to the address window (0xCF8).
-> Accepting byte accesses to the address window, or not supporting byte
-> accesses to the data window, *will* result in breakage (I can attest to
-> this fact quite well.)
-> 
-> 	-hpa
-> 
+On Wed, 08 Jan 2003 10:57:01 GMT, John Bradford said:
 
-After power-on reset, or a hardware reset if provided (not SW
-reset), you do a byte-write to CSE (Configuration Space Enable).
-CSE is at 0xCF8. The 8-bit field is:
-00000000B
-   |  ||_________ SCE (special cycle enable)
-   |  |__________ <1,3> Target function number
-   |_____________ non-zero = enable configuration
+> What I was thinking of was a virtual device that allocated a new
+> sector whenever an old one was overwritten - kind of like a journaled
+> filesystem, but without the filesystem, (I.E. just the journal) :-).
 
-This is done by the BIOS because once the enable configuration bits
-are set, all accesses are supposed to be 32 bits.
+$ DIR FOO.TXT;*
+FOO.TXT;1   FOO.TXT;2   FOO.TXT;2
 
-There is also another byte-port at 0xCFA this is called the
-forward register and it must be set before enabling configuration
-transactions. This register identifies one of 256 possible
-PCI buses.
+VMS-style file versioning, anybody? ;)
 
-None of the 8-bit registers are supposed to be touched (they
-are not accessible) after configuration transactions are
-enabled. All of the configuration registers are specified
-as numbered doubleword registers, from 0 to 15. Attempting to
-read or write less than a doubleword can stop the bus interface
-state-machine, locking up everything. This is because many of
-the physical lines are shared (see IDSEL, muxed to address lines).
-If the exact step-by-step bus activity for which it was designed,
-does not occur, all bets are off!
+--==_Exmh_1379394798P
+Content-Type: application/pgp-signature
 
-This was hinted by "Nakajima, Jun" <jun.nakajima@intel.com>. 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQE+HJk7cC3lWbTT17ARAq5sAJ4uDMne9tofPN4TxVKv4t+qWLz3YQCbBV+e
+ysYy3mJ/RP4d+t37rKndtBo=
+=4W2r
+-----END PGP SIGNATURE-----
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
-
+--==_Exmh_1379394798P--

@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbVAHVyj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261848AbVAHVyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261628AbVAHVyj (ORCPT <rfc822;willy@w.ods.org>);
+	id S261848AbVAHVyj (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 8 Jan 2005 16:54:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbVAHVyM
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbVAHVyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 16:54:12 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1541 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261628AbVAHVxg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 16:53:36 -0500
-Date: Sat, 8 Jan 2005 22:53:29 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: neilb@cse.unsw.edu.au, trond.myklebust@fys.uio.no
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/lockd/clntproc.c: make 2 functions static
-Message-ID: <20050108215329.GZ14108@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 8 Jan 2005 16:54:00 -0500
+Received: from fw.osdl.org ([65.172.181.6]:38335 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261894AbVAHVwG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 16:52:06 -0500
+Date: Sat, 8 Jan 2005 13:51:46 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       Mike Waychison <Michael.Waychison@Sun.COM>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Make pipe data structure be a circular list of pages, rather
+ than
+In-Reply-To: <1105220326.24592.98.camel@krustophenia.net>
+Message-ID: <Pine.LNX.4.58.0501081345440.2386@ppc970.osdl.org>
+References: <41DE9D10.B33ED5E4@tv-sign.ru>  <Pine.LNX.4.58.0501070735000.2272@ppc970.osdl.org>
+  <1105113998.24187.361.camel@localhost.localdomain> 
+ <Pine.LNX.4.58.0501070923590.2272@ppc970.osdl.org> 
+ <Pine.LNX.4.58.0501070936500.2272@ppc970.osdl.org> <41DEF81B.60905@sun.com>
+  <41DF1F3D.3030006@nortelnetworks.com> <1105220326.24592.98.camel@krustophenia.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below makes two needlessly global functions static.
 
 
-diffstat output:
- fs/lockd/clntproc.c         |    4 ++--
- include/linux/lockd/lockd.h |    2 --
- 2 files changed, 2 insertions(+), 4 deletions(-)
+On Sat, 8 Jan 2005, Lee Revell wrote:
+> 
+> Many latency critical apps use (tmpfs mounted) FIFO's for IPC; the Linux
+> FIFO being one of the fastest known IPC mechanisms.  Each client in the
+> JACK (http://jackit.sf.net) graph wakes the next one by writing a single
+> byte to a FIFO.  Ardour's GUI, control, and audio threads interact via a
+> similar mechanism.  How would you expect this change to impact the inter
+> thread wakeup latency?  It's confusing when people say "performance",
+> meaning "increased throughput albeit with more latency".  For many
+> people that's a regression.
 
+I posted the performance numbers in the thread already, and with every
+single throughput number I also talked abotu what the latency difference
+was. So quite frankly, if you were confused, I suspect it was because you
+didn't read them. Tssk, tssk.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Short and sweet: the latency changes are in the noise for SMP, but can be
+seen on UP. I'll look at it a bit more:  since I had to add the coalescing
+code anyway, I might also decide to re-use a buffer page rather than free
+it immediately, since that may help latency for small writes.
 
---- linux-2.6.10-mm2-full/include/linux/lockd/lockd.h.old	2005-01-08 04:29:36.000000000 +0100
-+++ linux-2.6.10-mm2-full/include/linux/lockd/lockd.h	2005-01-08 04:30:09.000000000 +0100
-@@ -143,8 +143,6 @@
-  * Lockd client functions
-  */
- struct nlm_rqst * nlmclnt_alloc_call(void);
--int		  nlmclnt_call(struct nlm_rqst *, u32);
--int		  nlmclnt_async_call(struct nlm_rqst *, u32, rpc_action);
- int		  nlmclnt_block(struct nlm_host *, struct file_lock *, u32 *);
- int		  nlmclnt_cancel(struct nlm_host *, struct file_lock *);
- u32		  nlmclnt_grant(struct nlm_lock *);
---- linux-2.6.10-mm2-full/fs/lockd/clntproc.c.old	2005-01-08 04:29:49.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/lockd/clntproc.c	2005-01-08 04:30:15.000000000 +0100
-@@ -322,7 +322,7 @@
- /*
-  * Generic NLM call
-  */
--int
-+static int
- nlmclnt_call(struct nlm_rqst *req, u32 proc)
- {
- 	struct nlm_host	*host = req->a_host;
-@@ -428,7 +428,7 @@
- 	return status;
- }
- 
--int
-+static int
- nlmclnt_async_call(struct nlm_rqst *req, u32 proc, rpc_action callback)
- {
- 	struct nlm_host	*host = req->a_host;
-
+		Linus

@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285730AbRLYTO6>; Tue, 25 Dec 2001 14:14:58 -0500
+	id <S285719AbRLYTOI>; Tue, 25 Dec 2001 14:14:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285732AbRLYTOu>; Tue, 25 Dec 2001 14:14:50 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:58529 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S285730AbRLYTOm>;
-	Tue, 25 Dec 2001 14:14:42 -0500
-Date: Tue, 25 Dec 2001 14:14:41 -0500
-From: Legacy Fishtank <garzik@havoc.gtf.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Colonel <klink@clouddancer.com>, linux-kernel@vger.kernel.org
-Subject: Re: 
-Message-ID: <20011225141441.A14941@havoc.gtf.org>
-In-Reply-To: <002001c18d5f$98cb62c0$010411ac@local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <002001c18d5f$98cb62c0$010411ac@local>; from manfred@colorfullife.com on Tue, Dec 25, 2001 at 05:17:01PM +0100
+	id <S285730AbRLYTN7>; Tue, 25 Dec 2001 14:13:59 -0500
+Received: from tourian.nerim.net ([62.4.16.79]:45585 "HELO tourian.nerim.net")
+	by vger.kernel.org with SMTP id <S285719AbRLYTNs>;
+	Tue, 25 Dec 2001 14:13:48 -0500
+Message-ID: <3C28CFEA.1010808@free.fr>
+Date: Tue, 25 Dec 2001 20:13:46 +0100
+From: Lionel Bouton <Lionel.Bouton@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011220
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Daniela Engert <dani@ngrt.de>, linux-kernel@vger.kernel.org
+Cc: Chris Shutters <cshutters@ebiz-tech.com>
+Subject: Re: [RFC] SIS5513 ATA100 support
+In-Reply-To: <3C27B02B.7070804@free.fr>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 25, 2001 at 05:17:01PM +0100, Manfred Spraul wrote:
-> > When I went to build 2.4.17 on a dinky box (486, 16M RAM), the
-> > config option was missing.  The box is a wall mount and is not very
-> > capable of multiple kernel experimentation alas.  Can someone
-> > supply some background as to what has happened?
+Lionel Bouton wrote:
+
 > 
-> It seems that RTNETLINK is now unconditionally enabled, I don't know
-> why.
+> 
+> here's my first patch to sis5513.c : this should set the correct timings 
+> for ATA100 chips (and hopefully say goodbye to heavy fs corruption in 
+> UDMA modes).
+> 
 
-It's required by newer RedHat and MDK initscripts, perhaps others.
-ip, iproute and similar utilities use it, and so since it's commonly
-required DaveM made it unconditional...  I think the checkin comment was
-something along the lines of "make it unconditional unless Alan
-complains about kernel bloat" :)
 
-	Jeff
+Problem not yet solved. I'm back to the drawing board but now I have a 
+"reliable" way of triggering the problem.
 
+
+> It compiles cleanly but is **not yet tested**.
+
+ >
+
+> If there's an obvious mistake please tell me 
+
+
+Don't know yet if it's obvious, but there's one.
+
+> 
+> If others want to have a look or even (I repeat **not yet tested**) try 
+> this code **on backuped data** they're more than welcome.
+> 
+
+
+Having a look at the code is always welcome. But don't waste your time 
+and data testing...
+
+
+> If you want to have a quick look at the whole new sis5513.c :
+> 
+> http://gyver.homeip.net/sis5513.c
+> 
+> 
+
+
+LB
 

@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132038AbRDGWEJ>; Sat, 7 Apr 2001 18:04:09 -0400
+	id <S132042AbRDGWHa>; Sat, 7 Apr 2001 18:07:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132042AbRDGWD7>; Sat, 7 Apr 2001 18:03:59 -0400
-Received: from [216.174.202.135] ([216.174.202.135]:37905 "EHLO
-	celeborn.rivendell.insynq.com") by vger.kernel.org with ESMTP
-	id <S132038AbRDGWDt>; Sat, 7 Apr 2001 18:03:49 -0400
-From: Ian Eure <ieure@insynq.com>
+	id <S132044AbRDGWHU>; Sat, 7 Apr 2001 18:07:20 -0400
+Received: from cx518206-b.irvn1.occa.home.com ([24.21.107.123]:5504 "EHLO
+	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with ESMTP
+	id <S132042AbRDGWHL>; Sat, 7 Apr 2001 18:07:11 -0400
+From: "Barry K. Nathan" <barryn@cx518206-b.irvn1.occa.home.com>
+Message-Id: <200104072207.PAA03796@cx518206-b.irvn1.occa.home.com>
+Subject: Re: processes stuck in D state
+To: linux4u@wanadoo.es (Pau Aliagas)
+Date: Sat, 7 Apr 2001 15:07:11 -0700 (PDT)
+Cc: linux-kernel@vger.kernel.org (lkml)
+Reply-To: barryn@pobox.com
+In-Reply-To: <Pine.LNX.4.33.0104041744100.1585-100000@pau.intranet.ct> from "Pau Aliagas" at Apr 04, 2001 05:47:20 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15055.36597.353681.125824@pyramid.insynq.com>
-Date: Sat, 7 Apr 2001 15:04:37 -0700
-To: linux-kernel@vger.kernel.org
-Subject: loop problems continue in 2.4.3
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-X-Face: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i'm still having loopback problems with linux 2.4.3, even though they
-were supposed to be fixed. it doesn't deadlock my maching right away
-anymore, but instead causes a kernel panic after 4-6 uses of the loop
-device.
+Pau Aliagas wrote:
+> Since 2.2.4-ac28 and 2.4.3 I keep on getting processes in D state that I
+> cannot kill, usually mozilla or nautilus which use a large amount of RAM.
 
-the message i get is: "Kernel panic: Invalid blocksize passed to
-set_blocksize"
+I don't have time to help debug this, but I'm getting this too, with
+2.4.3 final. The previous kernel I ran was 2.4.3-pre4, and it did not
+have this problem.
 
-100% reproducable. has anyone else seen this?
+In my case, it's usually mozilla (I'm seeing this with the daily
+snapshots, but not with mozilla-0.8.1, at least not yet), but at least
+once I saw it with freeamp (2.1rc5) too.
 
-i did compile with gcc 2.92.3, and i have hedrick's ide patches
-applied.
-
-anyone else see this?
-
-p.s. please cc: me in any replies, i'm not on the list.
-
--- 
- ___________________________________
-| Ian Eure - <ieure@insynq.com>     | "You're living in a facist world...
-|         -  Developer -            | Freedom is a luxury." -Front Line
-|        -  InsynQ, Inc. -          | Assembly, "Digital Tension Dementia"
-| Your Internet Utility Company.tm  |________________________________________
+-Barry K. Nathan <barryn@pobox.com>

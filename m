@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVDDPQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbVDDPci@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261260AbVDDPQs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 11:16:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbVDDPQr
+	id S261257AbVDDPci (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 11:32:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVDDPci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 11:16:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7612 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261260AbVDDPQ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 11:16:27 -0400
-Date: Mon, 4 Apr 2005 07:02:13 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: "kern.petr@seznam.cz" <kern.petr@seznam.cz>
-Cc: Christophe Lucas <clucas@rotomalug.org>, linux-kernel@vger.kernel.org
-Subject: Re: ChangeLog-2.4.30
-Message-ID: <20050404100212.GA28137@logos.cnet>
-References: <20050404074823.GC28840@rhum.iomeda.fr> <42514555.1070205@seznam.cz>
-Mime-Version: 1.0
+	Mon, 4 Apr 2005 11:32:38 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:17562 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261257AbVDDPcg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 11:32:36 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42514555.1070205@seznam.cz>
-User-Agent: Mutt/1.5.5.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16977.24079.564977.842269@alkaid.it.uu.se>
+Date: Mon, 4 Apr 2005 17:32:31 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Christopher Allen Wing <wingc@engin.umich.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: clock runs at double speed on x86_64 system w/ATI RS200 chipset
+In-Reply-To: <Pine.LNX.4.58.0504041050250.32159@hammer.engin.umich.edu>
+References: <200504031231.j33CVtHp021214@harpo.it.uu.se>
+	<Pine.LNX.4.58.0504041050250.32159@hammer.engin.umich.edu>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christopher Allen Wing writes:
+ > 
+ > 
+ > On Sun, 3 Apr 2005, Mikael Pettersson wrote:
+ > 
+ > > Well, first step is to try w/o ACPI. ACPI is inherently fragile
+ > > and bugs there can easily explain your timer problems. Either
+ > > recompile with CONFIG_ACPI=n, or boot with "acpi=off pci=noacpi".
+ > 
+ > 
+ > When I boot without ACPI (I used 'acpi=off pci=noacpi') the system fails
+ > to come up all the way; it hangs after loading the SATA driver. (but
+ > before the SATA driver finishes probing the disks)
+ > 
+ > I'm guessing that the interrupt from the SATA controller is not getting
+ > through? Anyway, I assumed that ACPI was basically required for x86_64
+ > systems to work, is this not really the case?
 
-The files are there now, as they should.
-                                                                                                                                                                 
-[marcelo@logos marcelo]$ wget http://www.kernel.org/pub/linux/kernel/v2.4/linux-2.4.30.tar.bz2
---06:59:59--  http://www.kernel.org/pub/linux/kernel/v2.4/linux-2.4.30.tar.bz2
-           => `linux-2.4.30.tar.bz2'
-Resolving www.kernel.org... 204.152.189.116
-Connecting to www.kernel.org[204.152.189.116]:80... connected.
-HTTP request sent, awaiting response... 200 OK
-Length: 31,136,728 [application/x-bzip2]
- 
- 0% [                                     ] 26,064        29.81K/s
+In principle ACPI shouldn't be needed, but in its absence the
+BIOS must provide an MP table and the x86-64 kernel must still
+have code to parse it -- otherwise I/O APIC mode won't work.
+I don't know if that's the case or not.
 
-Dunno why they were missing before - probably some delay in the kernel.org 
-mirroring/archiving system.
-
-On Mon, Apr 04, 2005 at 03:47:01PM +0200, kern.petr@seznam.cz wrote:
-> These files missing too:
-> http://www.kernel.org/pub/linux/kernel/v2.4/patch-2.4.30.bz2
-> http://www.kernel.org/pub/linux/kernel/v2.4/linux-2.4.30.tar.bz2
+I suggest you boot normally (with ACPI fully enabled) and send a
+bug report to LKML and the ACPI list with the interrupt routing
+info from the kernel log.

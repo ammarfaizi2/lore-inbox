@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131625AbRCSWZ2>; Mon, 19 Mar 2001 17:25:28 -0500
+	id <S131631AbRCSW3i>; Mon, 19 Mar 2001 17:29:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131631AbRCSWZS>; Mon, 19 Mar 2001 17:25:18 -0500
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:35832 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S131625AbRCSWZP>; Mon, 19 Mar 2001 17:25:15 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200103192223.f2JMNt717802@webber.adilger.int>
-Subject: Re: [CHECKER] question about functions that can fail
-In-Reply-To: <200103192149.NAA29973@csl.Stanford.EDU> from Dawson Engler at "Mar
- 19, 2001 01:49:01 pm"
-To: Dawson Engler <engler@csl.stanford.edu>
-Date: Mon, 19 Mar 2001 15:23:54 -0700 (MST)
-CC: linux-kernel@vger.kernel.org, mc@cs.stanford.edu
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S131636AbRCSW3S>; Mon, 19 Mar 2001 17:29:18 -0500
+Received: from fluent1.pyramid.net ([206.100.220.212]:47156 "EHLO
+	fluent1.pyramid.net") by vger.kernel.org with ESMTP
+	id <S131631AbRCSW3P>; Mon, 19 Mar 2001 17:29:15 -0500
+Message-Id: <4.3.2.7.2.20010319142441.00b2e9f0@mail.fluent-access.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Mon, 19 Mar 2001 14:28:15 -0800
+To: Torrey Hoffman <torrey.hoffman@myrio.com>,
+        "'otto.wyss@bluewin.ch'" <otto.wyss@bluewin.ch>,
+        linux-kernel@vger.kernel.org
+From: Stephen Satchell <satch@fluent-access.com>
+Subject: RE: Linux should better cope with power failure
+In-Reply-To: <B65FF72654C9F944A02CF9CC22034CE22E1B40@mail0.myrio.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dawson writes:
-> right now we are trying to derive which functions can "reasonably" fail
-> by examining all call sites and recording the number of times functions
-> are checked vs not checked.
+At 01:16 PM 3/19/01 -0800, Torrey Hoffman wrote:
+>Yes.  Some of this is your responsibility.  You have several options:
+>1. Get a UPS.  That would not have helped your particular problem,
+>    but it's a good idea if you care about data integrity.
+>2. Use a journaling file system.  These are much more tolerant of
+>    abuse.  Reiserfs seems to work for me on embedded systems I am
+>    building where the user can (and does) remove the power any time.
+>3. Use RAID.  Hard drives are very cheap and software raid is very
+>    easy to set up.
 
-First of all, thanks for this interesting work you are doing.  Pre-emptive
-bug squashing is great.  Probably saved many man-years of grief for people
-who are having intermittent problems, or have uncommon hardware/configuration.
+Sorry, but you really should have read the ENTIRE thread before 
+commenting.  This guy's original complaint was that his USB keyboard locks 
+up, and the only way to get it back is to do a very rude restart.  In 
+combatting this problem, the guy was observing the "shortcomings" of the 
+file system.
 
-> I've included the most egregious cases of check/not checked:
-> 
->                            parse_options	:	14	:	1:
+To be more to the point of the guy's problem, he should consider using 
+software specifically intended for UPS hardware to notify a system when the 
+power is going to go, and wire up an appropriate switch to signal his 
+system to enter shutdown when his keyboard goes south.  By forcing an 
+orderly shutdown, he doesn't see the fsck-ing messages, he gets his USB 
+keyboard back, and all is well with the world.
 
-It appears you are not making a distinction between static functions and
-global functions.  The parse_options function is local to ext2, but since
-many filesystem writers look at ext2 for guidance, they often have functions
-with similar names.  It looks like parse_options is one of the common ones.
+Of course, the other option is to use a regular keyboard instead of a USB 
+keyboard, but why point out the really easy solution?  "Hey Doc, it hurts 
+when I do this."  "Then don't do it."
 
-That said, I'm guessing the 1 time the return value isn't checked is a bug.
-It appears to be in fs/proc/inode.c, and the parse_options() there _does_
-return 1 on error (unknown mount option), so we _should_ probably fail
-mounting /proc in that case.
+Satch
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263219AbTE3Dob (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 23:44:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263234AbTE3Dob
+	id S263212AbTE3Dus (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 23:50:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263234AbTE3Dus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 23:44:31 -0400
-Received: from rth.ninka.net ([216.101.162.244]:61064 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S263219AbTE3Doa (ORCPT
+	Thu, 29 May 2003 23:50:48 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:701 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263212AbTE3Dur (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 23:44:30 -0400
-Subject: Re: Algoritmic Complexity Attacks and 2.4.20 the dcache code
-From: "David S. Miller" <davem@redhat.com>
+	Thu, 29 May 2003 23:50:47 -0400
+Date: Fri, 30 May 2003 06:02:18 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
 To: Scott A Crosby <scrosby@cs.rice.edu>
 Cc: linux-kernel@vger.kernel.org
+Subject: Re: Algoritmic Complexity Attacks and 2.4.20 the dcache code
 In-Reply-To: <oydbrxlbi2o.fsf@bert.cs.rice.edu>
-References: <oydbrxlbi2o.fsf@bert.cs.rice.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1054267067.2713.3.camel@rth.ninka.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 29 May 2003 20:57:47 -0700
+Message-ID: <Pine.LNX.4.44.0305300550130.3609-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-05-29 at 13:42, Scott A Crosby wrote:
-> I highly advise using a universal hashing library, either our own or
-> someone elses. As is historically seen, it is very easy to make silly
-> mistakes when attempting to implement your own 'secure' algorithm.
 
-Why are you recommending this when after 2 days of going back
-and forth in emails with me you came to the conclusion that for
-performance critical paths such as the hashes in the kernel the Jenkins
-hash was an acceptable choice?
+On 29 May 2003, Scott A Crosby wrote:
 
-It is unacceptably costly to use a universal hash, it makes a multiply
-operation for every byte of key input plus a modulo operation at the
-end of the hash computation.  All of which can be extremely expensive
-on some architectures.
+> I have confirmed via an actual attack that it is possible to force the
+> dcache to experience a 200x performance degradation if the attacker can
+> control filenames. On a P4-1.8ghz, the time to list a directory of
+> 10,000 files is 18 seconds instead of .1 seconds.
 
-I showed and backed this up for you with benchmarks comparing your
-universal hashing code and Jenkins.
+are you sure this is a big issue? Kernel 2.0 (maybe even 2.2) lists 10,000
+files at roughly the same speed (18 seconds) without any attack pattern
+used for filenames - still it's a kernel being used.
 
-Some embedded folks will have your head on a platter if we end up using
-a universal hash function for the DCACHE solely based upon your advice.
-:-)
+the network hash collision was a much more serious issue, because it could
+be triggered externally, could be maintained with a relatively low input
+packet flow, and affected all users of the network stack.
 
--- 
-David S. Miller <davem@redhat.com>
+also, directories with 10,000 files are not quite common on systems where
+there is a trust problem between users. So a typical directory with say
+100 files will be listed in 0.18 seconds - it's slower, but does not make
+the system unusable.
+
+also, dcache flushes happen quite frequently under VM pressure - and
+especially when using many files you get VM pressure. So it would take a
+really specialized attack to keep the dcache size at the critical level
+and trigger the slowdown.
+
+also, any local user who can create thousands of files can cause much more
+havoc by simply overloading the system. You might as well use that CPU
+time to really bog down the system by making it swap heavily - this will
+cause a _much_ heavier slowdown.
+
+	Ingo
+

@@ -1,92 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264711AbUEOTgD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264715AbUEOTlw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264711AbUEOTgD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 15:36:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264715AbUEOTgD
+	id S264715AbUEOTlw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 15:41:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264716AbUEOTlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 15:36:03 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:6117 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S264711AbUEOTf6 (ORCPT
+	Sat, 15 May 2004 15:41:52 -0400
+Received: from mail.tmr.com ([216.238.38.203]:20118 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S264715AbUEOTlv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 15:35:58 -0400
-Message-ID: <40A670D9.5010409@colorfullife.com>
-Date: Sat, 15 May 2004 21:34:49 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
+	Sat, 15 May 2004 15:41:51 -0400
+Message-ID: <40A67424.7010408@tmr.com>
+Date: Sat, 15 May 2004 15:48:52 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Alec H. Peterson" <ahp@hilander.com>
-CC: linux-kernel@vger.kernel.org, Dominik Brodowski <linux@brodo.de>,
-       netdev@oss.sgi.com
-Subject: Re: PCI memory reservation failure - 2.4/2.6
-References: <BDD74A21E0B47FEAC3AB8A10@[192.168.0.100]> <40A29211.2010707@colorfullife.com> <9C9F57570B19C8A682D96940@[192.168.0.100]>
-In-Reply-To: <9C9F57570B19C8A682D96940@[192.168.0.100]>
-Content-Type: multipart/mixed;
- boundary="------------090502040709030809050103"
+To: arjanv@redhat.com
+CC: Andrew Morton <akpm@osdl.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+References: <Pine.LNX.3.96.1040512115750.23213A-100000@gatekeeper.tmr.com> <1084378819.10949.0.camel@laptop.fenrus.com>
+In-Reply-To: <1084378819.10949.0.camel@laptop.fenrus.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090502040709030809050103
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Arjan van de Ven wrote:
+>>>"4KSTACKS" already is present in the module version string.
+>>>
+>>>And Fedora is shipping now with 4k stacks, so presumably any disasters
+>>>are relatively uncommon...
+>>
+>>Fedora and kernel.org have a lot of unshared bugs and features,
+>>unfortunately. I take that information as an encouraging proof of concept,
+>>not a waranty that the kernel.org code will behave in a similar way.
+> 
+> 
+> Hey! That's slander of title! :-)
+> Seriously the difference between the Fedora Core 2 kernel and the
+> matching kernel.org kernel aren't THAT big. The 4g/4g split patch being
+> the biggest delta.
+> 
+I was thinking about the one you charge for... I wouldn't use FCn for 
+production on a bet. I was thinking of my RHEL AS3.0 vs. kernel.org, 
+which are kernels stable enough for commercial use.
 
-Alec H. Peterson wrote:
-
->
-> A module parameter sounds like a grand idea.  I'd be happy to take a 
-> stab at it if others feel it is the way to go.
-
-There are two possible approaches:
-- just a module parameter. Probably something for 2.4.
-- a combination of a dmi detection of buggy bios versions plus a pci 
-quirk that resets start and end to 0.
-
-Attached is the module parameter patch against 2.6. If it works I can 
-write a backport to 2.4 and try to convince Marcelo to merge it.
-Could you send me the output of dmidecode? I'll try to write the 
-autodetection patch for 2.6.
-
---
-    Manfred
-
-
---------------090502040709030809050103
-Content-Type: text/plain;
- name="patch-yenta"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-yenta"
-
---- 2.6/drivers/pcmcia/yenta_socket.c	2004-05-15 11:21:38.000000000 +0200
-+++ build-2.6/drivers/pcmcia/yenta_socket.c	2004-05-15 15:00:22.000000000 +0200
-@@ -40,7 +40,7 @@
- #define to_ns(cycles)	((cycles)*120)
- 
- static int yenta_probe_cb_irq(struct yenta_socket *socket);
--
-+static int override_bios;
- 
- /*
-  * Generate easy-to-use ways of reading a cardbus sockets
-@@ -548,7 +548,7 @@
- 
- 	start = config_readl(socket, offset) & mask;
- 	end = config_readl(socket, offset+4) | ~mask;
--	if (start && end > start) {
-+	if (start && end > start && !override_bios) {
- 		res->start = start;
- 		res->end = end;
- 		if (request_resource(root, res) == 0)
-@@ -1105,6 +1105,8 @@
- };
- MODULE_DEVICE_TABLE(pci, yenta_table);
- 
-+MODULE_PARM (override_bios, "i");
-+MODULE_PARM_DESC (override_bios, "yenta ignore bios resource allocation");
- 
- static struct pci_driver yenta_cardbus_driver = {
- 	.name		= "yenta_cardbus",
-
---------------090502040709030809050103--
-
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

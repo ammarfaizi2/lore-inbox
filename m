@@ -1,33 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262901AbSKMVfc>; Wed, 13 Nov 2002 16:35:32 -0500
+	id <S263899AbSKMVuE>; Wed, 13 Nov 2002 16:50:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262908AbSKMVfc>; Wed, 13 Nov 2002 16:35:32 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:57845 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S262901AbSKMVfb>; Wed, 13 Nov 2002 16:35:31 -0500
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A504@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Stephen Hemminger'" <shemminger@osdl.org>
-Cc: acpi-devel@sourceforge.net, Kernel List <linux-kernel@vger.kernel.org>
-Subject: RE: ACPI patches updated (20021111)
-Date: Wed, 13 Nov 2002 13:42:21 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	id <S264610AbSKMVuE>; Wed, 13 Nov 2002 16:50:04 -0500
+Received: from ngw.bvu.edu ([147.92.2.13]:8204 "EHLO ngw.bvu.edu")
+	by vger.kernel.org with ESMTP id <S263899AbSKMVuD> convert rfc822-to-8bit;
+	Wed, 13 Nov 2002 16:50:03 -0500
+Message-Id: <sdd26bdb.016@ngw.bvu.edu>
+X-Mailer: Novell GroupWise Internet Agent 6.0.1
+Date: Wed, 13 Nov 2002 15:12:08 -0600
+From: "Anthony Murray" <murrant@bvu.edu>
+To: <alan@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [bug] i2o_lan modules fails to build in 2.5.47
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Stephen Hemminger [mailto:shemminger@osdl.org] 
-> Will this fix problems with IRQ routing.
-> On our SMP test machines, ACPI has to be disabled otherwise the SCSI
-> disk controllers don't work.
-> 
-> This is a major pain, and ACPI should be default off until it gets
-> fixed.
+Hi, I am hvaing trouble building the i2o_lan module for 2.5.47.  I have a 3com 905 net card and built support for it into the kernel. Here is the errors:
 
-ACPI has not yet been adequately tested on machines with multiple IO-APICs.
-More assistance in this area would be gratefully accepted. In the meantime,
-"acpi=off" works pretty well to disable ACPI-related configuration problems.
+[...snip...]
+make -f scripts/Makefile.build obj=drivers/message/i2o
+  gcc -Wp,-MD,drivers/message/i2o/.i2o_lan.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium3 -Iarch/i386/mach-generic -nostdinc -iwithprefix include -DMODULE -include include/linux/modversions.h   -DKBUILD_BASENAME=i2o_lan   -c -o drivers/message/i2o/i2o_lan.o drivers/message/i2o/i2o_lan.c
+drivers/message/i2o/i2o_lan.c:28:2: #error Please convert me to Documentation/DMA-mapping.txt
+drivers/message/i2o/i2o_lan.c:120: parse error before "struct"
+drivers/message/i2o/i2o_lan.c: In function `i2o_lan_receive_post_reply':
+drivers/message/i2o/i2o_lan.c:385: `run_i2o_post_buckets_task' undeclared (first use in this function)
+drivers/message/i2o/i2o_lan.c:385: (Each undeclared identifier is reported only once
+drivers/message/i2o/i2o_lan.c:385: for each function it appears in.)
+drivers/message/i2o/i2o_lan.c: In function `i2o_lan_register_device':
+drivers/message/i2o/i2o_lan.c:1406: structure has no member named `list'
+drivers/message/i2o/i2o_lan.c:1406: structure has no member named `list'
+drivers/message/i2o/i2o_lan.c:1406: structure has no member named `list'
+drivers/message/i2o/i2o_lan.c:1406: structure has no member named `list'
+drivers/message/i2o/i2o_lan.c:1407: structure has no member named `sync'
+make[3]: *** [drivers/message/i2o/i2o_lan.o] Error 1
+make[2]: *** [drivers/message/i2o] Error 2
+make[1]: *** [drivers/message] Error 2
+make: *** [drivers] Error 2
 
-Regards -- Andy
+Thanks,
+Tony Murray

@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265860AbUATXS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 18:18:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265867AbUATXS1
+	id S265885AbUATXYc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 18:24:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265887AbUATXYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 18:18:27 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:29411 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265860AbUATXR0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 18:17:26 -0500
-Date: Wed, 21 Jan 2004 00:17:18 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] small doc fix for CONFIG_SWAP
-Message-ID: <20040120231718.GB6441@fs.tum.de>
+	Tue, 20 Jan 2004 18:24:31 -0500
+Received: from pooh.lsc.hu ([195.56.172.131]:10142 "EHLO pooh.lsc.hu")
+	by vger.kernel.org with ESMTP id S265885AbUATXYa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 18:24:30 -0500
+Date: Wed, 21 Jan 2004 00:09:07 +0100
+From: GCS <gcs@lsc.hu>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.1-mm5
+Message-ID: <20040120230907.GA20425@lsc.hu>
+References: <Pine.LNX.4.58.0401201724190.9398@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.58.0401201724190.9398@localhost.localdomain>
+X-Operating-System: GNU/Linux
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"swap" is more known than "Support for paging of anonymous memory".
-The patch below adds "(swap)" to the prompt of CONFIG_SWAP.
-
-Please apply
-Adrian
-
-
---- linux-2.6.1-mm5/init/Kconfig.old	2004-01-21 00:10:59.000000000 +0100
-+++ linux-2.6.1-mm5/init/Kconfig	2004-01-21 00:11:10.000000000 +0100
-@@ -66,7 +66,7 @@
- menu "General setup"
- 
- config SWAP
--	bool "Support for paging of anonymous memory"
-+	bool "Support for paging of anonymous memory (swap)"
- 	depends on MMU
- 	default y
- 	help
+On Tue, Jan 20, 2004 at 05:56:42PM -0500, Thomas Molina <tmolina@cablespeed.com> wrote:
+> Finding module dependencies:  cat: 
+> /sys//devices/pci0000:00/0000:00:07.2/usb1/bNumConfigurations: No such 
+> file or directory
+> /etc/hotplug/usb.agent: line 144: [: too many arguments
+ I think you use Debian, and it's a bug in their scripts, not in the
+kernel itself.
+/GCS

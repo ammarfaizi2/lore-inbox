@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266670AbUHQT5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268360AbUHQT7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266670AbUHQT5G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 15:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268360AbUHQT5G
+	id S268360AbUHQT7g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 15:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268396AbUHQT7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 15:57:06 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:8466 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S266670AbUHQT5D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 15:57:03 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Subject: lkml problem
-Date: Tue, 17 Aug 2004 22:56:54 +0300
-User-Agent: KMail/1.5.4
+	Tue, 17 Aug 2004 15:59:36 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:21889 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S268360AbUHQT7e
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 15:59:34 -0400
+Date: Tue, 17 Aug 2004 23:59:42 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>, Russell King <rmk@arm.linux.org.uk>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+Subject: ldchk -> arch/arm/Makefile? [Was: 2.6.8.1-mm1]
+Message-ID: <20040817215941.GA23582@mars.ravnborg.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+References: <20040816143710.1cd0bd2c.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408172256.54881.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <20040816143710.1cd0bd2c.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matti,
+Hi Andrew.
 
-Can you check why do my mails stopped appearing on
-lkml lately? My SMTP server reports them as accepted:
+The following two patches can be dropped from -mm. The functionality has
+moved to scripts/mksysmap
 
-info msg 192270: bytes 23472 from <vda@port.imtp.ilyichevsk.odessa.ua> qp 21977 uid 80
-starting delivery 440: msg 192270 to remote arjanv@redhat.com
-starting delivery 441: msg 192270 to remote Jens.Maurer@gmx.net
-starting delivery 442: msg 192270 to remote linux-kernel@vger.kernel.org
-delivery 442: success: 12.107.209.244_accepted_message./Remote_host_said:_250_2.7.0_nothing_apparently_wrong_i
-delivery 440: success: 66.187.233.31_accepted_message./Remote_host_said:_250_2.0.0_i7HHVve1030758_Message_acce
-delivery 441: success: 213.165.64.100_accepted_message./Remote_host_said:_250_2.6.0_{mx028}_Message_accepted/
 
-My SMTP server's IP is 195.66.192.168
---
-vda
+handle-undefined-symbols.patch
+  Fail if vmlinux contains undefined symbols
+  
+sparc32-ignore-undefined-symbols-with-3-or-more-leading-underscores.patch
+  sparc32: ignore undefined symbols with 3 or more leading underscores
+    
 
+On the topic of undefined symbols only certain ARM tool-chains
+actually have this problem.
+Russell - would it be possible to move the check to arch/arm/Makefile?
+Assuming people always build zImage or one of the other arch specific targets.
+
+This check have so far caused much more pain than it ought to do - so
+if we could move it to where it really matters would be better.
+
+	Sam

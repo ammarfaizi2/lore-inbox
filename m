@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262446AbSJVLvo>; Tue, 22 Oct 2002 07:51:44 -0400
+	id <S262465AbSJVMQr>; Tue, 22 Oct 2002 08:16:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262461AbSJVLvo>; Tue, 22 Oct 2002 07:51:44 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:15886 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S262446AbSJVLvo>;
-	Tue, 22 Oct 2002 07:51:44 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: Christoph Hellwig <hch@sgi.com>
-Cc: Piet Delaney <piet@www.piet.net>, "Matt D. Robinson" <yakker@aparity.com>,
-       linux-kernel@vger.kernel.org, steiner@sgi.com,
-       jeremy@classic.engr.sgi.com
-Subject: Re: [PATCH] 2.5.44: lkcd (9/9): dump driver and build files 
-In-reply-to: Your message of "Tue, 22 Oct 2002 14:47:45 -0400."
-             <20021022144745.A7367@sgi.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Date: Tue, 22 Oct 2002 21:57:35 +1000
-Message-ID: <8948.1035287855@ocs3.intra.ocs.com.au>
+	id <S262475AbSJVMQr>; Tue, 22 Oct 2002 08:16:47 -0400
+Received: from sentry.gw.tislabs.com ([192.94.214.100]:10627 "EHLO
+	sentry.gw.tislabs.com") by vger.kernel.org with ESMTP
+	id <S262465AbSJVMQr>; Tue, 22 Oct 2002 08:16:47 -0400
+Date: Tue, 22 Oct 2002 08:22:26 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+X-X-Sender: <sds@raven>
+To: Crispin Cowan <crispin@wirex.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-security-module@wirex.com>
+Subject: Re: [PATCH] remove sys_security
+In-Reply-To: <3DB46DD2.8030007@wirex.com>
+Message-ID: <Pine.GSO.4.33.0210220806040.22890-100000@raven>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Oct 2002 14:47:45 -0400, 
-Christoph Hellwig <hch@sgi.com> wrote:
->On Mon, Oct 21, 2002 at 03:06:59PM -0700, Piet Delaney wrote:
->> > Using volatile is almost always a bug.  USe atomic variables
->> > or bitops instead.
->> 
->> Yea, volatile is just being used to implement a simple atomic variable. 
->
->It just isn't guaranteed to be atomic.. Use atomic_t (for actual
->values) or unsigned long + set_bit/test_bit/ænd friends for bitmasks.
 
-atomic_t is problematic for debugging code which can be invoked by an
-error from any state.  On parisc, atomic_add is implemented using load
-and clear on a hash of the lock address, so it is possible to get
-collisions on locks when doing atomic ops from debugging code.
-Especially when the parisc code in 2.5.44 has exactly one hash table
-entry.  kdb has the same problem and tries to avoid atomic_t for the
-same reason, the current state is unreliable.
+On Mon, 21 Oct 2002, Crispin Cowan wrote:
 
-The dump_in_progress flag is set in one place and cleared in another.
-All the other uses of dump_in_progress are testing its state.  If
-atomic_t cannot be used safely, then it must be defined as volatile.
+> Therefore, the sys_security syscall has been removed. LSM-aware
+> applications that want to talk to security modules can do so through a
+> file system interface. This will work for WireX, and Smalley says it
+> will work for SELinux. I hope it will work for others.
+
+Actually, with regard to using a pseudo filesystem interface, I said that
+we could investigate it, but I have doubts about cleanly supporting the
+extended forms of existing calls (e.g. execve_secure, mkdir_secure,
+msgrcv_secure, recvmsg_secure, etc) using such an interface.  I
+raised the same issue when sys_security was originally discussed on
+the lsm list long ago.  SELinux extends the POSIX API to incorporate
+security (specifically flexible mandatory access control) as a first class
+notion.
+
+However, I understand Christoph's objection to sys_security and am not
+trying to revive that debate.  We can hopefully have a dialogue about the
+SELinux API with the kernel developers at a later time and come to some
+consensus on a set of specific system calls that can be added to the
+kernel to support equivalent functionality to the SELinux API.
+
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
 

@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265879AbTGDIhv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 04:37:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265881AbTGDIhv
+	id S265899AbTGDIkG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 04:40:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265878AbTGDIkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 04:37:51 -0400
-Received: from adsl-67-124-159-170.dsl.pltn13.pacbell.net ([67.124.159.170]:5600
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S265879AbTGDIht (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 04:37:49 -0400
-Date: Fri, 4 Jul 2003 01:52:16 -0700
-To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Unable to handle NULL point when doing lsof
-Message-ID: <20030704085216.GA26432@triplehelix.org>
-References: <3F0539E5.6030905@portrix.net> <20030704.173441.71640872.yoshfuji@linux-ipv6.org>
+	Fri, 4 Jul 2003 04:40:06 -0400
+Received: from holomorphy.com ([66.224.33.161]:39884 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S265891AbTGDIim (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 04:38:42 -0400
+Date: Fri, 4 Jul 2003 01:53:00 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.74-mm1 fails to boot due to APIC trouble, 2.5.73mm3 works.
+Message-ID: <20030704085300.GY26348@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Helge Hafting <helgehaf@aitel.hist.no>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20030703023714.55d13934.akpm@osdl.org> <3F054109.2050100@aitel.hist.no>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030704.173441.71640872.yoshfuji@linux-ipv6.org>
+In-Reply-To: <3F054109.2050100@aitel.hist.no>
+Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
-From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 04, 2003 at 10:55:37AM +0200, Helge Hafting wrote:
+> 2.5.74-mm1 dies very early during bootup due to some APIC trouble:
+> (written down by hand)
+> Posix conformance testing by UNIFIX
+> enabled Extint on cpu #0
+> ESR before enabling vector 00000000
+> ESR after enabling vector 00000000
+> Enabling IP-APIC IRQs
+> BIOS bug, IO-APIC #0 ID2 is already used!...
+> kernel panic: Max APIC ID exceeded!
 
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Okay, fixing.
 
-On Fri, Jul 04, 2003 at 05:34:41PM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ w=
-rote:
-> Please try http://bugme.osdl.org/attachment.cgi?id=3D476&action=3Dview
-> Thanks.
 
-This does not work, it produces the same segfault - 2.5.74-mm1 with
-fbdev patches.
-
--Josh
-
---=20
-"Notice that, written there, rather legibly, in the Baroque style common=20
-to New York subway wall writers, was, uhm... was the old familiar=20
-suggestion. And rather beautifully illustrated, as well..."
-
-       -- Art Garfunkel on the inspiration for "A Poem On The Underground W=
-all"
-
---UlVJffcvxoiEqYs2
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/BUBAT2bz5yevw+4RAuYGAJwP2Z5dkMWENWsmKnTN8Dvj5r6UHwCfXRof
-1d0hNrzattFc9hSsmgKuqjk=
-=6GIK
------END PGP SIGNATURE-----
-
---UlVJffcvxoiEqYs2--
+-- wli

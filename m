@@ -1,33 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316878AbSFDWNw>; Tue, 4 Jun 2002 18:13:52 -0400
+	id <S316863AbSFDWSa>; Tue, 4 Jun 2002 18:18:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316882AbSFDWMo>; Tue, 4 Jun 2002 18:12:44 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:13954 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316891AbSFDWLH>;
-	Tue, 4 Jun 2002 18:11:07 -0400
-Date: Tue, 04 Jun 2002 15:07:57 -0700 (PDT)
-Message-Id: <20020604.150757.10296659.davem@redhat.com>
-To: paulus@samba.org
-Cc: mochel@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.5.20 on alpha
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15613.14457.3095.983212@argo.ozlabs.ibm.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S316896AbSFDWS3>; Tue, 4 Jun 2002 18:18:29 -0400
+Received: from mallaury.noc.nerim.net ([62.4.17.82]:42505 "HELO
+	mallaury.noc.nerim.net") by vger.kernel.org with SMTP
+	id <S316863AbSFDWS1>; Tue, 4 Jun 2002 18:18:27 -0400
+Message-ID: <3CFD3CB3.5030409@free.fr>
+Date: Wed, 05 Jun 2002 00:18:27 +0200
+From: Lionel Bouton <Lionel.Bouton@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Daniela Engert <dani@ngrt.de>, linux-kernel@vger.kernel.org
+Cc: Ollie Lho <ollie@sis.com.tw>
+Subject: SIS645DX ATA/133
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Paul Mackerras <paulus@samba.org>
-   Date: Wed, 5 Jun 2002 08:00:25 +1000 (EST)
-   
-   I can see two solutions: either rename "unused_initcall" to "sys_init"
-   or something similar and use it for sys_bus_init
+ > Just for reference: my machine at home has a SiS645DX (ATA/133) plus a
+ > Promise PDC20268 (ATA/100). The latest SUSE distribution (2.4.18 based)
+ > falls flat on its face, the IDE drivers fail to handle both IDE
+ > controllers.
+ >
+ > Andre's patches supposedly fix the Promise issue, but the SiS problem
+ > is still unresolved in Linux.
+ >
+ > Ciao,
+ >   Dani
+ >
 
-See similar postings on this topic, with Subject
-"Re: [2.5.19] Oops during PCI scan on Alpha"
+Lately I spent a couple of hours through the info I've at hand 
+concerning the 645DX ATA/133 support.
+My problem lies in the original 645 (only ATA/100 capable) versus the 645DX.
+I should have no problem coding support for each one. In fact the 
+original 645 should already be supported (I says "should" as I've no 
+success reports, people tends to write reports when there is a failure 
+:-). The problem is I don't yet know how to differentiate them. So I 
+can't support both of them in the same driver and this is a show stopper 
+for me.
+If anyone on the list knows how to make the difference, please mail me 
+the info.
 
-There is a patch at the end of the thread which does
-exactly as you describe.
+A complete lspci -vxxx from both a 645 and a 645DX might help if the 
+difference lies in the config registers but I'm unsure.
+
+LB.
+

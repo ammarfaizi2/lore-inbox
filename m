@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316893AbSEVIpS>; Wed, 22 May 2002 04:45:18 -0400
+	id <S316895AbSEVIzz>; Wed, 22 May 2002 04:55:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316894AbSEVIpR>; Wed, 22 May 2002 04:45:17 -0400
-Received: from newnetman.ebone.net ([195.158.227.238]:50818 "EHLO
-	newnetman.ebone.net") by vger.kernel.org with ESMTP
-	id <S316893AbSEVIpQ>; Wed, 22 May 2002 04:45:16 -0400
-Message-ID: <3CEB5A9C.A3602DC2@maersk-moller.net>
-Date: Wed, 22 May 2002 10:45:16 +0200
-From: Peter Maersk-Moller <Peter@maersk-moller.net>
-Organization: <http://www.maersk-moller.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13-pre5 i686)
-X-Accept-Language: en
+	id <S316898AbSEVIzy>; Wed, 22 May 2002 04:55:54 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:11022 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316895AbSEVIzx>; Wed, 22 May 2002 04:55:53 -0400
+Message-ID: <3CEB4E43.5020203@evision-ventures.com>
+Date: Wed, 22 May 2002 09:52:35 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: i2c-old.h missing in 2.5.15-2.5.16
-In-Reply-To: <20020522083655Z316893-22651+48153@vger.kernel.org>
-Content-Type: text/plain; charset=us-ascii
+To: Nick Kurshev <nickols_k@mail.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: /dev/port BUG and possible workaround
+In-Reply-To: <20020522124116.680f59b8.nickols_k@mail.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Uz.ytkownik Nick Kurshev napisa?:
 
-Noticed that while trying to compile 2.5.15 and 2.5.16, then some of the drivers
-(forgot which - maybe i2c-something it self) requires existence of linux/i2c-old.h,
-but linux/i2c-old.h seems to have been excluded. Adding linux/i2c-old.h enables
-a succesfull compiling of the kernel, but maybe it was left out intentionally.
+...
 
---PMM
+> 800=inl(CFC)
+> 2. Wrong log with using of /dev/port:
+
+...
+
+> But it seems that nobody uses this device. Then what is goal
+> of implementing of this device?
+
+Basically the goal is that contrary to some silly /proc
+stuff which is "en vouge" nowadays you have the ability to
+controll port access by using normal user permission control
+semantics of unix file access permissions, by giving /dev/port
+a proper group and so on. This is legacy crap of course, since
+the above goal can be reached by using a apache-suexec alike wrapper
+as well... even with more fine grained resolution of access controll.
+

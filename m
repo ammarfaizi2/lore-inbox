@@ -1,62 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129043AbRBBVEV>; Fri, 2 Feb 2001 16:04:21 -0500
+	id <S129372AbRBBVIC>; Fri, 2 Feb 2001 16:08:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129794AbRBBVEM>; Fri, 2 Feb 2001 16:04:12 -0500
-Received: from www.wen-online.de ([212.223.88.39]:58129 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S129043AbRBBVEF>;
-	Fri, 2 Feb 2001 16:04:05 -0500
-Date: Fri, 2 Feb 2001 22:03:53 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: RAMFS
-In-Reply-To: <20010202214122.C753@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.Linu.4.10.10102022151400.490-100000@mikeg.weiden.de>
+	id <S130058AbRBBVHv>; Fri, 2 Feb 2001 16:07:51 -0500
+Received: from gherkin.sa.wlk.com ([192.158.254.49]:42247 "HELO
+	gherkin.sa.wlk.com") by vger.kernel.org with SMTP
+	id <S129372AbRBBVHn> convert rfc822-to-8bit; Fri, 2 Feb 2001 16:07:43 -0500
+Message-Id: <m14OnQj-0005keC@gherkin.sa.wlk.com>
+From: rct@gherkin.sa.wlk.com (Bob_Tracy)
+Subject: ATAPI CD burner with cdrecord > 1.6.1
+To: linux-kernel@vger.kernel.org
+Date: Fri, 2 Feb 2001 15:07:41 -0600 (CST)
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UNKNOWN-8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Feb 2001, Ingo Oeser wrote:
+Kernel version is 2.4.1.  For versions of cdrecord later than 1.6.1
+(1.8.1 through the latest 1.10 alpha verified), attempting to burn a
+CD results in a SCSI error of some kind.  Here's some representative
+output from a "dummy" burn session with cdrecord-1.9:
 
-> On Fri, Feb 02, 2001 at 08:24:19PM +0100, Mike Galbraith wrote:
-> > On Fri, 2 Feb 2001, Ingo Oeser wrote:
-> > > No, so have to unlock it also, if you return -ENOSPC.
-> > > 
-> > > So the correct fix seems to be:
-> [...]
-> > > This currently works for me (but using 2.4.0 + dwg-ramfs.patch + this patch)
-> >
-> > Have you stressed it?  (I see leakiness)
-> 
-> I do reads and writes to it every 5 seconds and sometimes more (
-> mounted on /tmp, /var/run and the like ) and had an uptime of
-> about a week (I use it in an embedded-like system and we
-> sometimes change the system image).
-> 
-> There might be a dentry or inode leak, but that doesn't bite me,
-> because I only create the files I need once and extend or shrink
-> them.
 
-That won't show it. I can do that kind of stuff all day long, no
-problem whatsoever.
+Calling: /usr/local/lib/xcdroast-0.98/bin/cdrecord dev=0,1,0 fs=4096k  -v -useinfo speed=4 -dao -dummy -eject -pad -data "/u3/superrescue/superrescue-1.2.3.raw" ...
 
-> But I couldn't stress it too much.
-> 
-> Where exactly do you see the leaks?
+pregap1: -1
+Cdrecord 1.9 (i686-pc-linux-gnu) Copyright (C) 1995-2000 Jörg Schilling
+TOC Type: 1 = CD-ROM
+scsidev: '0,1,0'
+scsibus: 0 target: 1 lun: 0
+Linux sg driver version: 3.1.17
+Using libscg version 'schily-0.1'
+atapi: 1
+Device type    : Removable CD-ROM
+Version        : 0
+Response Format: 1
+Vendor_info    : 'HP      '
+Identifikation : 'CD-Writer+ 7200 '
+Revision       : '3.01'
+Device seems to be: Generic mmc CD-RW.
+Using generic SCSI-3/mmc CD-R driver (mmc_cdr).
+Driver flags   : SWABAUDIO
+Drive buf size : 786432 = 768 KB
+FIFO size      : 4194304 = 4096 KB
+Track 01: data  498 MB         padsize:  30 KB
+Total size:     572 MB (56:41.28) = 255096 sectors
+Lout start:     572 MB (56:43/21) = 255096 sectors
+Current Secsize: 2048
+ATIP start of lead in:  -11754 (97:25/21)
+ATIP start of lead out: 335100 (74:30/00)
+Disk type:    Long strategy type (Cyanine, AZO or similar)
+Manuf. index: 8
+Manufacturer: Hitachi Maxell, Ltd.
+Blocks total: 335100 Blocks current: 335100 Blocks remaining: 80004
+RBlocks total: 346013 RBlocks current: 346013 RBlocks remaining: 90917
+Starting to write CD/DVD at speed 2 in dummy mode for single session.
+Waiting for reader process to fill input buffer ...
+input buffer ready.
+cdrecord: Input/output error. mode select g1: scsi sendcmd: retryable error
+CDB:  55 10 00 00 00 00 00 00 3C 00
+status: 0x0 (GOOD STATUS)
+cmd finished after 0.023s timeout 200s
+cdrecord: Warning: using default CD write parameter data.
+cdrecord: Cannot open new session.
+Mode Select Data 00 10 00 00 05 32 12 00 00 00 00 00 00 00 00 00 00 00 00 96 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+cdrecord: fifo had 64 puts and 0 gets.
 
-(I don't have a solid grip yet.. just starting to seek)
+As I recall, things work just fine with a real SCSI CD burner, so I
+think this behavior is limited to the ide-scsi flavor of things.  If
+anyone has a clue as to what's really happening here, a fix or workaround
+would be appreciated.  In the meantime, I'll continue to use the older
+software (xcdroast-0.96e with cdrecord-1.6.1).  Thanks!
 
-> PS: For reference, I put the diff to 2.4.0 that I use to
->    http://www.tu-chemnitz.de/~ioe/dwg-ramfs.patch
-> 
->    The original patch has _not_ been done by me, but by
->    David Gibson, Linuxcare Australia.
-
-I'll take a look at this.. thanks.
-
+-- 
+Bob Tracy
+rct@frus.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

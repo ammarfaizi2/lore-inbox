@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVAHNLB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVAHNT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbVAHNLB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 08:11:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbVAHNLA
+	id S261155AbVAHNT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 08:19:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVAHNT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 08:11:00 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13986 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261159AbVAHNKs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 08:10:48 -0500
-Date: Sat, 8 Jan 2005 13:10:45 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       mingo@elte.hu, paulmck@us.ibm.com, arjan@infradead.org,
-       linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
-       pbadari@us.ibm.com, markv@us.ibm.com, greghk@us.ibm.com,
-       torvalds@osdl.org
-Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
-Message-ID: <20050108131045.GB26051@parcelfarce.linux.theplanet.co.uk>
-References: <20050106210408.GM1292@us.ibm.com> <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk> <20050106152621.395f935e.akpm@osdl.org> <20050106234123.GA27869@infradead.org> <20050106162928.650e9d71.akpm@osdl.org> <20050107002624.GA29006@infradead.org> <20050107090014.GA24946@elte.hu> <20050107091542.GA5295@infradead.org> <20050107140034.46aec534.akpm@osdl.org> <20050107233246.GH14108@stusta.de>
+	Sat, 8 Jan 2005 08:19:26 -0500
+Received: from gprs215-164.eurotel.cz ([160.218.215.164]:60544 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261155AbVAHNTX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 08:19:23 -0500
+Date: Sat, 8 Jan 2005 14:19:09 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: ncunningham@linuxmail.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-mm2: swsusp regression [update]
+Message-ID: <20050108131909.GA7363@elf.ucw.cz>
+References: <20050106002240.00ac4611.akpm@osdl.org> <1105135940.2488.39.camel@desktop.cunninghams> <200501080156.06145.rjw@sisk.pl> <200501081049.02862.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050107233246.GH14108@stusta.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200501081049.02862.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 08, 2005 at 12:32:47AM +0100, Adrian Bunk wrote:
-> - wasts space for all users of Linux (e.g. some of the recent removals
->   are "remove EXPORT_SYMBOL'ed but completely unused function" patches
->   I sent)
+Hi!
 
-Note that this alone is *NOT* enough for removal - there are groups of
-functions that basically are libraries and that are supposed to be
-exported, whether we have all of them used in the tree at given time
-or not.
+> > Thanks for pointing it out.  I have adapted this patch to -mm2, but 
+> > unfortunately it does not fix the issue.  Still searching. ;-)
+> 
+> The regression is caused by the timer driver.  Obviously, turning 
+> timer_resume() in arch/x86_64/kernel/time.c into a NOOP makes it go away.
+> 
+> It looks like a locking problem to me.  I'll try to find a fix, although 
+> someone who knows more about these things would probably do it faster. :-)
+
+(I do not have time right now, but...)
+
+...you might want to look at i386 time code, they have common
+ancestor, and i386 one seems to work.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

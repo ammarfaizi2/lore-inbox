@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312872AbSDKTqK>; Thu, 11 Apr 2002 15:46:10 -0400
+	id <S312887AbSDKUGO>; Thu, 11 Apr 2002 16:06:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312882AbSDKTqJ>; Thu, 11 Apr 2002 15:46:09 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36366 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S312872AbSDKTqH>; Thu, 11 Apr 2002 15:46:07 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
+	id <S312886AbSDKUGN>; Thu, 11 Apr 2002 16:06:13 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:46608 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S312885AbSDKUGN>; Thu, 11 Apr 2002 16:06:13 -0400
+Date: Thu, 11 Apr 2002 13:05:59 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: linux as a minicomputer ?
-Date: 11 Apr 2002 12:45:46 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a94p5a$2sa$1@cesium.transmeta.com>
-In-Reply-To: <20020411154601.GY17962@antefacto.com>
+In-Reply-To: <a94p5a$2sa$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.10.10204111302350.28825-100000@www.transvirtual.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020411154601.GY17962@antefacto.com>
-By author:    "John P. Looney" <john@antefacto.com>
-In newsgroup: linux.dev.kernel
+
+> >  Many many moons ago, the GGI project promised us the ability to buy a
+> > four-processor box, four PCI video cards, four USB mice & keyboards, and
+> > let four people use that machine at once, with benefits all around.
+> > 
 > 
->  Many many moons ago, the GGI project promised us the ability to buy a
-> four-processor box, four PCI video cards, four USB mice & keyboards, and
-> let four people use that machine at once, with benefits all around.
-> 
+> "Benefits all around?"  Such a machine would be slower and more
+> expensive than four single processor boxes, so what's the point?
 
-"Benefits all around?"  Such a machine would be slower and more
-expensive than four single processor boxes, so what's the point?
+Not with the right hardware combinations. The four processors is over
+kill. I have a multi-desktop system that is dual and it is plenty of
+power. With a regular machine just put in two matrox g450 cards and enable
+dual head support. Attach 3 extra USB keyboards and 3 USB mice and you
+are ready to go. With purpore kernel support of course. So the cost is
+no longer a issue.
 
-This is fundamentally the problem with these kinds of schemes -- they
-get outcompeted on price and availability by the massmarket items.
-This is part of the very attraction of Linux -- it's running Unix on
-stock, cheap, hardware.
-
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

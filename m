@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268439AbUJUSVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270778AbUJUSdl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268439AbUJUSVO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 14:21:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270785AbUJUSRT
+	id S270778AbUJUSdl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 14:33:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270774AbUJUSaw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 14:17:19 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:35340 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S268987AbUJUSOa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 14:14:30 -0400
-Message-ID: <4177FF47.5040005@techsource.com>
-Date: Thu, 21 Oct 2004 14:26:15 -0400
-From: Timothy Miller <miller@techsource.com>
+	Thu, 21 Oct 2004 14:30:52 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:25321 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S270785AbUJUSZn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 14:25:43 -0400
+Date: Thu, 21 Oct 2004 11:25:45 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>,
+       kernel-janitors <kernel-janitors@lists.osdl.org>
+cc: greg@kroah.com, hannal@us.ibm.com, dri-devel@lists.sourceforge.net
+Subject: [PATCH 2.6] drm_drv.h: replace pci_find_device
+Message-ID: <258330000.1098383145@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: John Ripley <jripley@rioaudio.com>
-CC: "'Greg Buchholz'" <linux@sleepingsquirrel.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-References: <82D5E38355314D46AF3015FF55F6955802F83515@CORPMAIL3>
-In-Reply-To: <82D5E38355314D46AF3015FF55F6955802F83515@CORPMAIL3>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+As pci_find_device is going away I've replaced it with pci_get_device.
+for_each_pci_dev is a macro wrapper around pci_get_device.
+If someone with this hardware could test it I would appreciate it.
 
-John Ripley wrote:
+Thanks.
 
-> 
-> It would also really reduce the cost and effort involved in producing the
-> card. It wouldn't take much (heh) to get it up and running as a simple frame
-> buffer + blitter, but it could be scaled to do fancy multi-texture ops over
-> time - all just by reprogramming the FPGA. All the manufacturer needs to
-> provide is a "getting started" FPGA file and output to a video DAC. The
-> community would do the rest over time.
-> 
-> I think "Open" hardware is one thing, but open *and* completely
-> reprogrammable is a far greater hook, at least for me. I'd be prepared to
-> shell out a few $100 for something as hackable as that. Hey, it's an FPGA on
-> a PCI Express card at the end of the day, what can't you do with it!
-> 
+Hanna Linder
+IBM Linux Technology Center
 
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
 
-Ok, I'll bite.  What you're suggesting is that instead of developing 
-just a graphics card, I should develop a card populated with a bunch of 
-FPGA's that's reprogrammable.  Putting aside the logic design tool issue 
-(which may be difficult), what you'd get is a very expensive 
-reprogrammable card with some RAM and some video output hardware.
-
-How much would you pay for THIS card?  $2000?
-
-Now, the thing is, this card is SO generic that Tech Source would have 
-very little value-add.  Say we populate it with a bunch of Spartan 3 
-400's... well, you'd download Xilinx's WebPack, code up your design in 
-Verilog (Do you want to learn chip design???  It's not like programming 
-in C!!!), and then use our open source utility to upload your code.
-
-GREAT... until some other company comes along and clones it, which would 
-be WAY too easy to do.  Now, for the users of this sort of product, it's 
-a fine thing.  But it becomes a pointless investment for Tech Source, 
-which is where I work and who pays me to work on this stuff, which they 
-wouldn't do if it's not worth it.
-
+---
+diff -Nrup linux-2.6.9cln/drivers/char/drm/drm_drv.h linux-2.6.9patch2/drivers/char/drm/drm_drv.h
+--- linux-2.6.9cln/drivers/char/drm/drm_drv.h	2004-10-18 16:35:52.000000000 -0700
++++ linux-2.6.9patch2/drivers/char/drm/drm_drv.h	2004-10-20 14:51:17.000000000 -0700
+@@ -556,9 +556,8 @@ static int __init drm_init( void )
+ 
+ 	DRM(mem_init)();
+ 
+-	while ((pdev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != NULL) {
++	for_each_pci_dev(pdev) 
+ 		DRM(probe)(pdev);
+-	}
+ 	return 0;
+ }
+ 
 

@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291020AbSCGDEp>; Wed, 6 Mar 2002 22:04:45 -0500
+	id <S292708AbSCGDgt>; Wed, 6 Mar 2002 22:36:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291022AbSCGDEg>; Wed, 6 Mar 2002 22:04:36 -0500
-Received: from bitmover.com ([192.132.92.2]:47489 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S291020AbSCGDE0>;
-	Wed, 6 Mar 2002 22:04:26 -0500
-Date: Wed, 6 Mar 2002 19:04:19 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Tom Lord <lord@regexps.com>
-Cc: linux-kernel@vger.kernel.org, davej@suse.de
-Subject: Re: Why not an arch mirror for the kernel?
-Message-ID: <20020306190419.E31751@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Tom Lord <lord@regexps.com>, linux-kernel@vger.kernel.org,
-	davej@suse.de
-In-Reply-To: <200203071425.GAA06679@morrowfield.home>
+	id <S291081AbSCGDgk>; Wed, 6 Mar 2002 22:36:40 -0500
+Received: from [202.135.142.194] ([202.135.142.194]:55057 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S292554AbSCGDg3>; Wed, 6 Mar 2002 22:36:29 -0500
+Date: Thu, 7 Mar 2002 14:39:47 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Richard Henderson <rth@twiddle.net>
+Cc: torvalds@transmeta.com, matthew@hairy.beasts.org, bcrl@redhat.com,
+        david@mysql.com, wli@holomorphy.com, linux-kernel@vger.kernel.org,
+        frankeh@watson.ibm.com
+Subject: Re: [PATCH] Fast Userspace Mutexes III.
+Message-Id: <20020307143947.000f51dd.rusty@rustcorp.com.au>
+In-Reply-To: <20020306175203.A26064@twiddle.net>
+In-Reply-To: <E16hjZY-0001AV-00@wagner.rustcorp.com.au>
+	<20020306175203.A26064@twiddle.net>
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200203071425.GAA06679@morrowfield.home>; from lord@regexps.com on Thu, Mar 07, 2002 at 06:25:12AM -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 07, 2002 at 06:25:12AM -0800, Tom Lord wrote:
-> 	Dave Jones observes:
+On Wed, 6 Mar 2002 17:52:03 -0800
+Richard Henderson <rth@twiddle.net> wrote:
+
+> On Mon, Mar 04, 2002 at 02:55:36PM +1100, Rusty Russell wrote:
+> > +	/* If we take the semaphore from 1 to 0, it's ours. */
+> > +	while (!atomic_dec_and_test(count)) {
+> > +		if (signal_pending(current)) {
+> > +			retval = -EINTR;
+> > +			break;
 > 
-> 	Something I've not yet worked out is why none of the
-> 	proponents of arch, subversion etc are offering to run a
-> 	mirror of Linus' bitkeeper tree for those who don't want to
-> 	use bk, but "must have 0-day kernels".
+> This is not safe from wraparound.  Let one thread hold the
+> lock forever; let other threads keep trying to take the lock
+> while periodically getting SIGALRM.  Eventually one of the
+> spinning threads will incorrectly acquire the mutex.
 
-It's amazing to me that all these people who don't like the license,
-or are having a bad day, or are 18 year old boys who can't write code
-so they are killing time by being self appointed license police,
-all of these people could download BK, spend 5 minutes reading the docs,
-and write a 5 line shell script which would export each pre-release and
-release as a patch from BK.  It's trivial.  There's no excuse for anyone
-to be whining about the BK license, they can use BK to get the data into
-whatever bloody system satisfies their religion and be done with it.
+Yes, this was noted.  And yes, it's about time we fixed sparc32
+or threw it out of the tree.  But since the real problem here is
+"lock held forever", so I don't care.
 
-> I am working on some tools that will help to implement automatic,
-> incremental, bidirectional gateways between arch, Subversion, and Bk.
+> You really do need that cmpxchg loop.
 
-Gateways, yes, bidirectional, no.  Arch doesn't begin to maintain
-the metadata which BK maintains, so it can't begin to solve the
-same problems.  If you have a bidirectional gateway, you reduce BK
-to the level of arch or subversion, in which case, why use BK at all?
-If CVS/Arch/Subversion/whatever works for you, I'd say just use it and
-leave BK out of it.
+Well, not decrementing if count < 0 already also works (as seen in
+later patches), and I'm not going to break those SMP 386s if I don't
+have to.
+
+Cheers!
+Rusty.
+PS. Will Alpha have to do any special magic with the mmap PROT_SEM flag?
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

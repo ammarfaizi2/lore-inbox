@@ -1,68 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263246AbUDRR6l (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 13:58:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263552AbUDRR4s
+	id S263665AbUDRSBt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 14:01:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263632AbUDRSBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 13:56:48 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:2552 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S263360AbUDRR4T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 13:56:19 -0400
-Date: Sun, 18 Apr 2004 19:55:35 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>
-Subject: Re: [PATCH 437] Amiga eth%d
-In-Reply-To: <Pine.GSO.4.58.0404181952050.17347@waterleaf.sonytel.be>
-Message-ID: <Pine.GSO.4.58.0404181954540.17347@waterleaf.sonytel.be>
-References: <200404130838.i3D8cI26018497@callisto.of.borg> <407C164F.1090501@pobox.com>
- <Pine.GSO.4.58.0404181952050.17347@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 18 Apr 2004 14:01:24 -0400
+Received: from madrid10.amenworld.com ([62.193.203.32]:28944 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S263645AbUDRSBP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 14:01:15 -0400
+Date: Sun, 18 Apr 2004 19:58:56 +0200
+From: DervishD <raul@pleyades.net>
+To: Remi Colinet <remi.colinet@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Questions : disk partition re-reading
+Message-ID: <20040418175856.GC3612@DervishD>
+Mail-Followup-To: Remi Colinet <remi.colinet@free.fr>,
+	linux-kernel@vger.kernel.org
+References: <4082819E.10106@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4082819E.10106@free.fr>
+User-Agent: Mutt/1.4.2.1i
+Organization: Pleyades
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Apr 2004, Geert Uytterhoeven wrote:
-> On Tue, 13 Apr 2004, Jeff Garzik wrote:
-> > As a further change, can you please add KERN_xxx prefixes to those printk's?
->
-> Do these look OK?
->
-> To: akpm, linus, jeff
-> Cc: lkml
-> Subject: [PATCH] Amiga A2065 Ethernet KERN_*
->
-> Amiga A2065 Ethernet: Add KERN_* prefixes to printk() messages
+    Hi Remi :)
 
-Oops, forgot you have to apply this one first:
+ * Remi Colinet <remi.colinet@free.fr> dixit:
+> 1/ Is it possible to alter a disk partition of a used disk and beeing 
+> able to use the modified partition without having to reboot the box?
 
-To: akpm, linus, jeff
-Cc: lkml
-Subject: [PATCH] Amiga A2065 Ethernet debug
+    sfdisk -R <disk-you-want-to-get-its-partition-table-reread>
+ 
+> 2/ Is it possible to delete a disk partition without having the 
+> partition numbers changed?
 
-Amiga A2065 Ethernet: Add missing variable in debug code
+    For primary partitions, it is possible. Don't know for extended
+ones :??
+ 
+> Do I need to upgrade fdisk or use an other utility?
 
---- linux-2.6.6-rc1/drivers/net/a2065.c	11 Apr 2004 11:49:17 -0000	1.14
-+++ linux-m68k-2.6.6-rc1/drivers/net/a2065.c	16 Apr 2004 11:36:50 -0000
-@@ -274,6 +274,7 @@
- 	struct sk_buff *skb = 0;	/* XXX shut up gcc warnings */
+    AFAIK, fdisk will do, except for rereading. Well, 'fdisk'
+actually *do* a rereading, but only after altering the partition
+table of the disk. 'sfdisk' can do it on demand, but if the disk is
+busy the BKLRRPART ioctl will fail.
 
- #ifdef TEST_HITS
-+	int i;
- 	printk ("[");
- 	for (i = 0; i < RX_RING_SIZE; i++) {
- 		if (i == lp->rx_new)
+    Raúl Núñez de Arenas Coronado
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

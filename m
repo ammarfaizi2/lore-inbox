@@ -1,33 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318878AbSIIUcs>; Mon, 9 Sep 2002 16:32:48 -0400
+	id <S318849AbSIIUdW>; Mon, 9 Sep 2002 16:33:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318891AbSIIUcs>; Mon, 9 Sep 2002 16:32:48 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50182 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318888AbSIIUcr>; Mon, 9 Sep 2002 16:32:47 -0400
-Date: Mon, 9 Sep 2002 13:40:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Daniel Jacobowitz <dan@debian.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: do_syslog/__down_trylock lockup in current BK
-In-Reply-To: <Pine.LNX.4.44.0209092230550.16779-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0209091338330.1747-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318881AbSIIUdV>; Mon, 9 Sep 2002 16:33:21 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:53487
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318849AbSIIUdU>; Mon, 9 Sep 2002 16:33:20 -0400
+Subject: Re: [PATCH][RFC] per isr in_progress markers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Zwane Mwaikambo <zwane@mwaikambo.name>
+Cc: Ingo Molnar <mingo@elte.hu>, Robert Love <rml@tech9.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0209081250000.1096-100000@linux-box.realnet.co.sz>
+References: <Pine.LNX.4.44.0209081250000.1096-100000@linux-box.realnet.co.sz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 09 Sep 2002 21:40:35 +0100
+Message-Id: <1031604035.29792.27.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2002-09-08 at 11:57, Zwane Mwaikambo wrote:
+> iirc IDE is capable of doing its own masking per device(nIEN) and in fact 
+> does even do unconditional sti's in its isr paths. So i would think it 
+> would be one of the not so painful device drivers to take care of. 
 
-On Mon, 9 Sep 2002, Ingo Molnar wrote:
->
-> the lockup is likely in the while loop - ie. zap_thread() not actually
-> reparenting a thread and thus causing an infinite loop - is that possible?
-
-Hmm.. This patch changes the last argument of zap_thread() from a "1" to a
-"0" for the ptrace_children list. Was that intentional or a cut-and-paste 
-error? If it was intentional, please remove the argument altogether, since 
-it's now always 0.
-
-		Linus
+If I remember rightly nIEN doesnt work everywhere. Also many IDE
+interfaces may be using legacy IRQ wiring rather than PCI irq lines. 
 

@@ -1,66 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265237AbUAJIVn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 03:21:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265238AbUAJIVn
+	id S264898AbUAJIrI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 03:47:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUAJIrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 03:21:43 -0500
-Received: from [216.127.68.117] ([216.127.68.117]:24973 "HELO 216.127.68.117")
-	by vger.kernel.org with SMTP id S265237AbUAJIVl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 03:21:41 -0500
-Message-ID: <3FFFB60C.9010309@meerkatsoft.com>
-Date: Sat, 10 Jan 2004 17:21:32 +0900
-From: Alex <alex@meerkatsoft.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en, ja
+	Sat, 10 Jan 2004 03:47:08 -0500
+Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:63081 "HELO
+	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264898AbUAJIrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 03:47:04 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Gunter =?iso-8859-1?q?K=F6nigsmann?= <gunter.koenigsmann@gmx.de>,
+       Gunter =?iso-8859-1?q?K=F6nigsmann?= <gunter@peterpall.de>
+Subject: [PATCH 1/2] Synaptics rate switching
+Date: Sat, 10 Jan 2004 03:45:13 -0500
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
+       Andrew Morton <akpm@osdl.org>
+References: <Pine.LNX.4.53.0401091101170.1050@calcula.uni-erlangen.de> <200401100344.03758.dtor_core@ameritech.net>
+In-Reply-To: <200401100344.03758.dtor_core@ameritech.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Cannot boot after new Kernel Build
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401100345.17211.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I am trying to build a new kernel but what ever version 2.4.24, 2.6.0,
-2.6.1 i am trying to build I come across the same problem.
+===================================================================
 
-when doing a "make install" i get the following error.
 
-/dev/mapper/control: open failed: No such file or directlry
-Is device-mapper driver missing from kernel?
-Comman failed.
+ChangeSet@1.1512, 2004-01-10 02:42:42-05:00, dtor_core@ameritech.net
+  Input: Allow switching between high and low reporting rate for Synaptics
+         touchpads in native mode. Synaptics support 2 report rates - 40
+         and 80 packets/sec; report rate must be set using Synaptics mode
+         set command. Rate is controlled by psmouse.rate parameter, values
+         greater or equal 80 will set 'high' rate. (psmouse.rate defaults
+         to 100)
+  
+         Using low report rate should help slower systems or systems
+         spending too much time in SCI (ACPI).
 
-I have installed the lates packages
-device mapper 1.00.07
-initscripts 7.28.1
-modutils, lvm2.2.00.08
-mkinitrd-3.5.15.1-2
 
-If I just ignore the message and try to boot the machine with the new
-kernel then I get a Kernel Panic.
+ psmouse.h   |    1 +
+ synaptics.c |    4 +++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-VFS: Cannot open root device "LABEL=/" or unknown-block(0,0)
-Please append a correct "root=" boot option
-Kernel panic: VFS: Unapble to mount root fs on unknown-block(0,0).
 
-The boot command in grub is
-root (hd0,0)
-kernel /vmlinuz-2.6.1 ro root=LABEL=/ hdc=ide-scsi
-initrd /initrd-2.6.1.img
-
-It is basically the same (except the version) as I use for 2.4.20-28 so
-I assume the label is correct.
-
-I saw quite a few messages of similar type but no real answer to the
-problem. Any Ideas what it could be ?  I am using RH9.0
-
-Thanks
-Alex
+===================================================================
 
 
 
-
-
-
+diff -Nru a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
+--- a/drivers/input/mouse/psmouse.h	Sat Jan 10 03:22:26 2004
++++ b/drivers/input/mouse/psmouse.h	Sat Jan 10 03:22:26 2004
+@@ -67,6 +67,7 @@
+ int psmouse_command(struct psmouse *psmouse, unsigned char *param, int command);
+ 
+ extern int psmouse_smartscroll;
++extern unsigned int psmouse_rate;
+ extern unsigned int psmouse_resetafter;
+ 
+ #endif /* _PSMOUSE_H */
+diff -Nru a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+--- a/drivers/input/mouse/synaptics.c	Sat Jan 10 03:22:26 2004
++++ b/drivers/input/mouse/synaptics.c	Sat Jan 10 03:22:26 2004
+@@ -214,7 +214,9 @@
+ {
+ 	struct synaptics_data *priv = psmouse->private;
+ 
+-	mode |= SYN_BIT_ABSOLUTE_MODE | SYN_BIT_HIGH_RATE;
++	mode |= SYN_BIT_ABSOLUTE_MODE;
++	if (psmouse_rate >= 80)
++		mode |= SYN_BIT_HIGH_RATE;
+ 	if (SYN_ID_MAJOR(priv->identity) >= 4)
+ 		mode |= SYN_BIT_DISABLE_GESTURE;
+ 	if (SYN_CAP_EXTENDED(priv->capabilities))

@@ -1,33 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266353AbSLCWku>; Tue, 3 Dec 2002 17:40:50 -0500
+	id <S266363AbSLCWtU>; Tue, 3 Dec 2002 17:49:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266359AbSLCWku>; Tue, 3 Dec 2002 17:40:50 -0500
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:27140 "EHLO
-	lap.molina") by vger.kernel.org with ESMTP id <S266353AbSLCWkt>;
-	Tue, 3 Dec 2002 17:40:49 -0500
-Date: Tue, 3 Dec 2002 16:39:36 -0600 (CST)
-From: Thomas Molina <tmolina@copper.net>
-X-X-Sender: tmolina@lap.molina
-To: PlasmaJohn <lkml@projectplasma.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: sound is stutter, sizzle with lasts kernel releases
-In-Reply-To: <Pine.LNX.4.44.0212022353060.13961-100000@bard.cbnet>
-Message-ID: <Pine.LNX.4.44.0212031636140.1170-100000@lap.molina>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266367AbSLCWtU>; Tue, 3 Dec 2002 17:49:20 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:42915 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266363AbSLCWtU>; Tue, 3 Dec 2002 17:49:20 -0500
+Subject: Errormessage
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: wildenrath@plus.cablesurf.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Dec 2002 23:30:59 +0000
+Message-Id: <1038958259.13379.1.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Dec 2002, PlasmaJohn wrote:
+Nothing in the kernel messages there would explain your graphical
+problems. 2.4.4-4 is a -very- old kernel though. 
 
-> Please excuse me if I'm being naive, but aren't SBlive cards really bad bus
-> citizens and have problems on SMP machines, Via chipsets, etc.?
-> 
-> Or did Linux fix what Creative and Microsoft couldn't.  Or won't.  ;)
-
-SBline doesn't share interrupts well.  Usually, changing PCI slots in 
-order to affect what interrupt is used can help a lot.  The problem is, 
-depending on the motherboard, figuring out what a particular PCI slot 
-shares an interrupt with can be difficult.
 

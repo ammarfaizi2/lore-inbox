@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267766AbUIOXJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267769AbUIOXMo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267766AbUIOXJU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 19:09:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267725AbUIOXIr
+	id S267769AbUIOXMo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 19:12:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267725AbUIOXJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 19:08:47 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:5264 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S267767AbUIOXF5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 19:05:57 -0400
-Date: Thu, 16 Sep 2004 00:05:44 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Netdev <netdev@oss.sgi.com>, leonid.grossman@s2io.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The ultimate TOE design
-In-Reply-To: <1095275660.20569.0.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0409160003590.23011@fogarty.jakma.org>
-References: <4148991B.9050200@pobox.com>  <Pine.LNX.4.61.0409152102050.23011@fogarty.jakma.org>
- <1095275660.20569.0.camel@localhost.localdomain>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 15 Sep 2004 19:09:48 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:57058 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S267751AbUIOXJJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 19:09:09 -0400
+Date: Wed, 15 Sep 2004 16:09:04 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Being more anal about iospace accesses..
+Message-ID: <20040915230904.GA19450@plexity.net>
+Reply-To: dsaxena@plexity.net
+References: <Pine.LNX.4.58.0409081543320.5912@ppc970.osdl.org> <Pine.LNX.4.58.0409150737260.2333@ppc970.osdl.org> <Pine.LNX.4.58.0409150859100.2333@ppc970.osdl.org> <20040915222157.GA17284@plexity.net> <Pine.LNX.4.58.0409151540260.2333@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0409151540260.2333@ppc970.osdl.org>
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Sep 2004, Alan Cox wrote:
+On Sep 15 2004, at 15:46, Linus Torvalds was caught saying:
+> Quite frankly, of your two suggested interfaces, I would select neither. 
+> I'd just say that if your bus is special enough, just write your own 
+> drivers, and use
+> 
+> 	cookie = ixp4xx_iomap(dev, xx);
+> 	...
+> 	ixp4xx_iowrite(val, cookie + offset);
+> 
+> which is perfectly valid. You don't have to make these devices even _look_ 
+> like a PCI device. Why should you?
 
-> Last time I checked 2Ghz accelerators for intel and AMD were quite 
-> cheap and also had the advantage they ran user mode code when idle 
-> from network processing.
+Problem is that some of those devices are not that special. For example,
+the on-board 16550 is accessed using readb/writeb in the 8250.c driver.
+I don't think we want to add that level of low-level detail to that
+driver and instead should just hide it in the platform code. I look
+at it from the point of view that the driver should not care about how
+the access actually occurs on the bus. It just says, write data foo at
+location bar regardless of whether bar is ISA, PCI, on-chip, RapidIO,
+etc and that writing of the data is hidden in the implementation of
+the accessor API.
 
-Indeed.
+~Deepak
 
-Unfortunately though, my vague understanding is, the interesting bits 
-on the IXP, the microengines, are integrated with the XScale ASIC.
 
-I agree it's silly to stick a general purpose CPU in there, but you 
-get it for "free" anyway.
-
-regards,
 -- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-War is an equal opportunity destroyer.
+Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
+
+"Unlike me, many of you have accepted the situation of your imprisonment
+and will die here like rotten cabbages." - Number 6

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131048AbRAaUqd>; Wed, 31 Jan 2001 15:46:33 -0500
+	id <S131297AbRAaUsD>; Wed, 31 Jan 2001 15:48:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131680AbRAaUqW>; Wed, 31 Jan 2001 15:46:22 -0500
-Received: from lairdtest1.internap.com ([206.253.215.67]:56839 "EHLO
-	lairdtest1.internap.com") by vger.kernel.org with ESMTP
-	id <S131048AbRAaUqN>; Wed, 31 Jan 2001 15:46:13 -0500
-Date: Wed, 31 Jan 2001 12:45:44 -0800 (PST)
-From: Scott Laird <laird@internap.com>
-To: George <greerga@entropy.muc.muohio.edu>
-cc: Peter Samuelson <peter@cadcamlab.org>,
-        Bernd Eckenfels <inka-user@lina.inka.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Request: increase in PCI bus limit
-In-Reply-To: <Pine.LNX.4.30.0101311535130.24040-100000@entropy.muc.muohio.edu>
-Message-ID: <Pine.LNX.4.31.0101311243340.13278-100000@lairdtest1.internap.com>
+	id <S131355AbRAaUrx>; Wed, 31 Jan 2001 15:47:53 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:12017 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S131297AbRAaUrl>; Wed, 31 Jan 2001 15:47:41 -0500
+Date: Wed, 31 Jan 2001 18:46:42 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Gabor Lenart <lgb@lgb.hu>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH/REQ] Increase kmsg buffer from 16K to 32K, kernel/printk.c
+In-Reply-To: <20010131182124.A1890@supervisor.hu>
+Message-ID: <Pine.LNX.4.21.0101311846110.1321-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 31 Jan 2001, Gabor Lenart wrote:
+> On Wed, Jan 31, 2001 at 05:06:07PM +0000, Alan Cox wrote:
+> > > Does Linus or anyone object to raising the ksmg buffer from 16K to 32K?
+> > > 4/5 systems I have now overflow the buffer during boot before init is
+> > > even launched.
+> > 
+> > Thats just an indication that 2.4.x is currently printking too much crap on
+> > boot
+> 
+> Would it be possible to grow and shring that buffer on demand?
+> Let's say we have a default size and let it grow to a maximum
+> value. After some timeout, buffer size can be shrinked to
+> default value if it's enough at that moment. Or something
+> similar.
 
+And when you can't allocate memory for expanding the
+printk() ringbuffer?  Print a message? ;)
 
-On Wed, 31 Jan 2001, George wrote:
->
-> If someone says 1 bus, give them one bus.
->
-> Just make the description say:
->   Add 1 for every PCI
->   Add 1 for every AGP
->   Add 1 for every CardBus
->   Also account for anything else funny in the system.
->
-> Then panic on boot if they're wrong (sort of like processor type).
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-Where do cards with PCI-PCI bridges, like multiport PCI ethernet cards,
-fit into this?  I can easily add 3 or 4 extra busses into a box just by
-grabbing a couple extra Intel dual-port Ethernet cards.
-
-
-Scott
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

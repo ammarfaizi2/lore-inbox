@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264696AbTH3PDR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 11:03:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264899AbTH3PDR
+	id S261891AbTH3PST (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 11:18:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbTH3PST
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 11:03:17 -0400
-Received: from hauptpostamt.charite.de ([193.175.66.220]:34983 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id S264696AbTH3PDM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 11:03:12 -0400
-Date: Sat, 30 Aug 2003 17:03:05 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.22-ac1
-Message-ID: <20030830150305.GD6862@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200308291237.h7TCbYc12849@devserv.devel.redhat.com> <20030830090223.GC27477@charite.de> <20030830095330.GM734@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030830095330.GM734@alpha.home.local>
-User-Agent: Mutt/1.5.4i
+	Sat, 30 Aug 2003 11:18:19 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:42627 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S261891AbTH3PSR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 11:18:17 -0400
+Date: Sat, 30 Aug 2003 12:13:57 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Antonio Vargas <wind@cocodriloo.com>, lkml <linux-kernel@vger.kernel.org>,
+       Andrea Arcangeli <andrea@suse.de>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>
+Subject: Andrea VM changes
+Message-ID: <Pine.LNX.4.55L.0308301209500.31588@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Willy Tarreau <willy@w.ods.org>:
-> On Sat, Aug 30, 2003 at 11:02:23AM +0200, Ralf Hildebrandt wrote:
-> > * Alan Cox <alan@redhat.com>:
-> > 
-> > > Linux 2.4.22-ac1
-> > 
-> > Did you forget to adjust the version string in the patch? It reports
-> > as bk2 here.
-> 
-> are you sure you didn't apply it on top of -bk2 yourself ? In this case, you
-> should get at least a Makefile.rej because an empty EXTRAVERSION was expected.
 
-I'm rebuilding as we speak. I shouldn't be patching & building kernels
-while talking to my wife.
+> You need to integrate with -aa on the VM.  It has been hard enough for
+> Andrea to get his stuff in, I doubt you will fair any better.
 
--- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
-Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
-AIM: ralfpostfix
+Thats because I never received separate patches which make sense one by
+one.  Most of Andreas changes are all grouped into few big patches that
+only he knows the mess. That is not the way to merge things.
+
+I want to work out with him after I merge other stuff to address that.

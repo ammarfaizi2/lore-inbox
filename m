@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132707AbRC2LFC>; Thu, 29 Mar 2001 06:05:02 -0500
+	id <S132711AbRC2LQW>; Thu, 29 Mar 2001 06:16:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132706AbRC2LEm>; Thu, 29 Mar 2001 06:04:42 -0500
-Received: from 8.ylenurme.ee ([193.40.6.8]:34564 "EHLO ns.linking.ee")
-	by vger.kernel.org with ESMTP id <S132701AbRC2LEd>;
-	Thu, 29 Mar 2001 06:04:33 -0500
-Date: Thu, 29 Mar 2001 13:03:36 +0200 (EET)
-From: Elmer Joandi <elmer@linking.ee>
-To: Chris Mason <mason@suse.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: OOPS: reiserfs, 2.4.2-ac26 SMP
-In-Reply-To: <120820000.985791904@tiny>
-Message-ID: <Pine.LNX.4.30.0103291256350.2852-100000@localhost.localdomain>
+	id <S132715AbRC2LQN>; Thu, 29 Mar 2001 06:16:13 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:22030 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S132711AbRC2LP6>; Thu, 29 Mar 2001 06:15:58 -0500
+Message-ID: <3AC31657.AF324CF@evision-ventures.com>
+Date: Thu, 29 Mar 2001 13:02:47 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+   "H. Peter Anvin" <hpa@transmeta.com>, Andries.Brouwer@cwi.nl,
+   linux-kernel@vger.kernel.org, tytso@MIT.EDU
+Subject: Re: Larger dev_t
+In-Reply-To: <E14iTV6-00072X-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Mar 2001, Chris Mason wrote:
+Alan Cox wrote:
+> 
+> > Why do you worry about installers? New distro - new kernel - new
+> > installer
+> 
+> Because the same code tends to be shared with post install configuration
+> tools too.
 
-> Most likely compiled with redhat gcc 2.96.  Please upgrade to their latest,
-> or use kgcc.
-
-umm, upgraded to their latest, the only difference is that it wont
-happen now  right away, but after some time.
-
-
-elmer.
-
-
+So change them as well for a new distribution. What's there problem.
+There isn't anything out there you can't do by hand. 
+Fortunately so!

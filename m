@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266805AbSLDCBH>; Tue, 3 Dec 2002 21:01:07 -0500
+	id <S266806AbSLDCGn>; Tue, 3 Dec 2002 21:06:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266806AbSLDCBH>; Tue, 3 Dec 2002 21:01:07 -0500
-Received: from transfire.txc.com ([208.5.237.254]:34021 "EHLO pguin2.txc.com")
-	by vger.kernel.org with ESMTP id <S266805AbSLDCBG>;
-	Tue, 3 Dec 2002 21:01:06 -0500
-Date: Tue, 3 Dec 2002 21:08:38 -0500
-From: Igor Schein <igor@txc.com>
-To: linux-kernel@vger.kernel.org
-Subject: performance of cache-intensive applications
-Message-ID: <20021204020838.GF3807@txc.com>
-Reply-To: igor@txc.com
-Mime-Version: 1.0
+	id <S266809AbSLDCGn>; Tue, 3 Dec 2002 21:06:43 -0500
+Received: from packet.digeo.com ([12.110.80.53]:40652 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266806AbSLDCGn>;
+	Tue, 3 Dec 2002 21:06:43 -0500
+Message-ID: <3DED64E8.870ECAA5@digeo.com>
+Date: Tue, 03 Dec 2002 18:14:00 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20aa1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: "Martin J. Bligh" <mbligh@aracnet.com>, Christoph Hellwig <hch@sgi.com>,
+       rml@tech9.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] set_cpus_allowed() for 2.4
+References: <20021202192652.A25938@sgi.com> <1919608311.1038822649@[10.10.2.3]> <3DEBB4BD.F64B6ADC@digeo.com> <20021202195003.GC28164@dualathlon.random> <3DED18CC.5770EA90@digeo.com> <20021204000618.GG11730@dualathlon.random> <3DED4CA4.5B9A20EA@digeo.com> <20021204004234.GL11730@dualathlon.random> <3DED5700.C32DC2B0@digeo.com> <20021204012144.GR11730@dualathlon.random>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Dec 2002 02:14:07.0703 (UTC) FILETIME=[D3684670:01C29B3A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrea Arcangeli wrote:
+> 
+> ...
+> > Could be.  Removing -pipe affected it quite a bit.
+> 
+> you could try decreasing PARENT_PENALTY to 50. I would like to see if
+> the scheduler *still* thinks they're interactive stuff then.
+> 
 
-I am using an open-source application on ix86 to perform a task which
-is cache-intensive.  When I run consecutive iterations of the task on
-a fixed input, the variance in timing of each iteration is extemely
-high.   Needless to say, the test machine is always non-occupied.
-
-On every other OS I tried, Solaris, HPUX, FreeBSD and Tru64, the
-timing is very consistent between the iterations.  My question is, are
-there known issues with L2 cache reuse in Linux kernel?
-
-I can provide any necessary information for anyone interested in
-addressing this issue, but I purposely skipped most technical details
-in this post to keep it simple.
-
-Thanks in advance.
-
-Igor
-
+That didn't seem to make much difference either way.

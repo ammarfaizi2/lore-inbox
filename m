@@ -1,69 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265270AbTL0AAL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 19:00:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265273AbTL0AAK
+	id S265275AbTLZX41 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 18:56:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265276AbTLZX40
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 19:00:10 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:59832 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S265270AbTLZX75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 18:59:57 -0500
-Date: Fri, 26 Dec 2003 15:59:47 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: azarah@nosferatu.za.org
-cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0 sound output - wierd effects
-Message-ID: <2060000.1072483186@[10.10.2.4]>
-In-Reply-To: <1072482611.21020.71.camel@nosferatu.lan>
-References: <1080000.1072475704@[10.10.2.4]> <1072479167.21020.59.camel@nosferatu.lan>  <1480000.1072479655@[10.10.2.4]> <1072480660.21020.64.camel@nosferatu.lan>  <1640000.1072481061@[10.10.2.4]> <1072482611.21020.71.camel@nosferatu.lan>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 26 Dec 2003 18:56:26 -0500
+Received: from pentafluge.infradead.org ([213.86.99.235]:57768 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265275AbTLZX4Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 18:56:25 -0500
+Subject: Re: Page aging broken in 2.6
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Rik van Riel <riel@surriel.com>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0312260957100.14874@home.osdl.org>
+References: <1072423739.15458.62.camel@gaston>
+	 <Pine.LNX.4.58.0312260957100.14874@home.osdl.org>
+Content-Type: text/plain
+Message-Id: <1072482941.15458.90.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 27 Dec 2003 10:55:42 +1100
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sat, 2003-12-27 at 01:24, Martin J. Bligh wrote:
->> > Over here the your main one if not using oss emu is alsa-lib  I used
->> > 0.9.8 for most of the time, but latest 1.0_rc[12] works as well.
->> 
->> Debian doesn't seem to have an alsa-lib exactly.
-> 
-> Should provide /usr/lib/libasound.so.2.0.0 (version may differ).
 
-Aha, thanks ;-)
+> Yeah, all hail bad MMU's.
 
-$ dpkg -S /usr/lib/libasound.so.2.0.0
-libasound2: /usr/lib/libasound.so.2.0.0
+Bad MMUs or our architetured beeing tied to one MMU type ? :)
 
-Package: libasound2
-Versions: 
-0.9.0beta10a-3(/var/lib/apt/lists/ftp.debian.org_debian_dists_stable_main_binary-i386_Packages)(/var/lib/dpkg/status)
+(Note that I'm no special fan of our PPC hash table, it seems
+to be fairly bad with the cache).
 
-Which is probably horribly old, knowing Debian stable ;-)
+Note also that the need for a flush isn't tied to that fact we
+have a hash table but to how we use it in linux. If we used the
+real HW A and D bits and had ptep_test_and_clear* actually walk
+the hash and use them, we could avoid the flush the same way in
+this case.
 
->> >  Also, does xmms use oss or alsa as output
->> > driver - switching between the two may or may not improve things?
->> 
->> Errm. No idea which it uses, nor can I see anything in it that switches ;-)
->
-> If you right click on xmms, and then select options->preferences, on the
-> first page to the bottom there should be output plugin.  If you cannot
-> select alsa, see if there is a xmms-alsa or libxmms-alsa plugin.  Sorry,
-> I do not know Debian that well.
+But we do not, we use the hash as a big TLB cache and consider
+any page in there as accessed and any writeable page in there as
+diry, so clearing those bits requires evicting from the hash
+(hash misses, at least on ppc32, are fairly cheap though).
 
-Thanks, it was on OSS - there's no ALSA selection, nor can I find one.
-There's probably one in unstable somewhere, but ... see below.
- 
-> Basically as sombody else noted - it might be with the OSS emulation,
-> so we want to use native alsa support with xmms ...
+> Hash tables may need some kind of "not very urgent TLB flush" thing, so 
+> that it doesn't penalize sane architectures.
 
-I'll play with it - should narrow things down. However, fundamentally,
-it used to work in 2.5.74, and is broken as of test3 ... that strongly
-implies to me there's a kernel problem. I'd rather fix OSS emulation
-if possible, and save everybody migrating to 2.6 from this pain ... ;-)
+Or do what I propose here, that is have ptep_test_and_clear_* be
+responsible for the flush on archs where it is necessary, but then
+it would be nice to have more than the ptep as an argument...
 
-M.
+Ben.
+
 

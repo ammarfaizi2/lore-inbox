@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131111AbRBQWGs>; Sat, 17 Feb 2001 17:06:48 -0500
+	id <S131850AbRBQWMT>; Sat, 17 Feb 2001 17:12:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131984AbRBQWGj>; Sat, 17 Feb 2001 17:06:39 -0500
-Received: from felix.convergence.de ([212.84.236.131]:49536 "EHLO
-	convergence.de") by vger.kernel.org with ESMTP id <S131111AbRBQWGZ>;
-	Sat, 17 Feb 2001 17:06:25 -0500
-Date: Sat, 17 Feb 2001 23:07:59 +0100
-From: Felix von Leitner <leitner@convergence.de>
+	id <S131984AbRBQWMJ>; Sat, 17 Feb 2001 17:12:09 -0500
+Received: from mail2.rdc2.bc.home.com ([24.2.10.85]:8907 "EHLO
+	mail2.rdc2.bc.home.com") by vger.kernel.org with ESMTP
+	id <S131850AbRBQWL4>; Sat, 17 Feb 2001 17:11:56 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux stifles innovation...
-Message-ID: <20010217230759.B4561@convergence.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <5.0.0.25.0.20010216170349.01efc030@mail.etinc.com> <Pine.LNX.4.10.10102161511510.12028-100000@clueserver.org> <5.0.0.25.0.20010217145654.0390e900@mail.etinc.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <5.0.0.25.0.20010217145654.0390e900@mail.etinc.com>; from dennis@etinc.com on Sat, Feb 17, 2001 at 03:05:36PM -0500
+From: jpinpg@home.com
+Subject: Re: re. too long mac address for --mac-source netfilter option
+X-Mailer: Gmail 0.6.8 (http://gmail.linuxpower.org)
+Message-Id: <20010217221149.HDKR585.mail2.rdc2.bc.home.com@nonesuch.localdomain>
+Date: Sat, 17 Feb 2001 14:11:49 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus spake Dennis (dennis@etinc.com):
-> You are confusing "progress" with "innovation". If there is only 1 choice, 
-> thats not innovation. Expanding on a bad idea, or even a good one, is not 
-> innovation.
 
-This is bizarre.
+James L. wrote -
+> Hello All,
+> 
+> On Sat, 17 Feb 2001 jbinpg@home.com wrote:
+> > Stefan Hanse writes -
+> > >Umm..  An ethernet MAC address is 48bit long, ie AA:BB:CC:DD:EE:FF, 6
+> >groups, not 14. Is this really an ethernet
+> > >interface? (If it really has 14 groups).
+> >
+> >> Good question. I have determined by scanning my firewall logs that the
+> >"invalid" mac addresses are all coming from cable modem routers. And my
+> >linux kernel is recognizing them as being MAC addresses. Would it be
+> >better to write another module looking for these long "MAC"  rather than
+> >tamper with the mac module?
+> >
+> >> To illustrate, here is a cut from my system log showing a portscan from
+> >my cable modem provider (a routine part of their service contract since
+> >you are not allowed to run client-side servers). SRC and DST have been
+> >x'ed out:
+> >
+> >> Feb 17 08:49:42 nonesuch kernel: IN=eth0 OUT=
+> >MAC=00:01:02:69:49:4f:00:00:77:93:83:d2:08:00 SRC=xx.xx.xx.xx
+>      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 	This appears to be an ATM NSAP address .  Hth ,  JimL
 
-Please name one innovation in the history of mankind that could not be
-seen as expanding on a different idea or even cloning an idea from
-someone else (for example, nature).
+OK, thanks Jim. The question then becomes: could a netfilter module for recognizing ATM addresses be developed? Are all ATM addresses 14 groups?
 
-Dennis, do you have a single argument or are you going to post bizarre
-statements like this forever?  Please just say so, so people cann
-killfile you now.
-
-Felix
+Jack Bowling
+mailto: jbinpg@home.com

@@ -1,172 +1,253 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265617AbRFWEQC>; Sat, 23 Jun 2001 00:16:02 -0400
+	id <S265621AbRFWEhd>; Sat, 23 Jun 2001 00:37:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265618AbRFWEPv>; Sat, 23 Jun 2001 00:15:51 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:42421 "EHLO
+	id <S265623AbRFWEhX>; Sat, 23 Jun 2001 00:37:23 -0400
+Received: from mailhost.idcomm.com ([207.40.196.14]:40118 "EHLO
 	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S265617AbRFWEPj>; Sat, 23 Jun 2001 00:15:39 -0400
-Message-ID: <3B341848.1EF6DA3B@idcomm.com>
-Date: Fri, 22 Jun 2001 22:17:12 -0600
+	id <S265621AbRFWEhF>; Sat, 23 Jun 2001 00:37:05 -0400
+Message-ID: <3B341D4D.D54103B9@idcomm.com>
+Date: Fri, 22 Jun 2001 22:38:37 -0600
 From: "D. Stimits" <stimits@idcomm.com>
 Reply-To: stimits@idcomm.com
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Cleanup kbuild for aic7xxx
-In-Reply-To: <10972.993257428@ocs3.ocs-net>
+CC: kernel-list <linux-kernel@vger.kernel.org>
+Subject: Re: Is this part of newer filesystem hierarchy?
+In-Reply-To: <Pine.LNX.4.33.0106222328100.24168-100000@Expansa.sns.it>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
+Luigi Genoni wrote:
 > 
-> On Fri, 22 Jun 2001 13:39:45 -0600,
-> "Justin T. Gibbs" <gibbs@scsiguy.com> wrote:
-> >>The existing build process for aic7xxx on Linux has several problems.
-> >>
-> >>* Users have to manually select "rebuild firmware".  Relying on users
-> >>  to perform any action other than make *config is unacceptable.  It is
-> >>  far too error prone.
-> >
-> >Users don't have to manually select "rebuild firmware".  They can
-> >rely on the generated files already in the aic7xxx directory.  This
-> >is why the option defaults to off.
+> Again i am confused.
+> 
+> /usr/bin/ld is linker at compilation time, at it works how i told in
+> second part
+> of my mail, (just try to compile it, it comes with binutils,
+> ftp.kernel.org/pub/linux/devel/binutils).
+> 
+> /lib/d-2.2.X.so  is what you are talking about.
+> So should i think os an hack to ld-2.2.3.so ??
 
-For the SGI patched kernels based on either 2.4.5 or 2.4.6-pre1, I have
-had to manually select this for a 7892 controller. Without manually
-selecting it, it guarantees boot failure. I don't know if this is due to
-the SGI modifications or not. The real problem I found is that during
-boot failure, there was no meaningful debug message.
+The RH 7.1 comes with:
+:~# ld --version
+GNU ld 2.10.91
+Copyright 2001 Free Software Foundation, Inc.
+This program is free software; you may redistribute it under the terms
+of
+the GNU General Public License.  This program has absolutely no
+warranty.
+  Supported emulations:
+   elf_i386
+   i386linux
+   elf_i386_glibc21
 
-> 
-> You rely on a timestamp check to tell the users "suggest you rebuild
-> firmware".  That timestamp check is inherently unreliable when files
-> are both generated and shipped.
-> 
-> >>* Rebuilding the firmware requires lex, yacc and libdb.  Not everybody
-> >>  has these installed.
-> >
-> >Then they shouldn't check the box "rebuild firmware".
-> 
-> See above.  Users think they need to turn on the firmware build, then
-> complain when it breaks.
-> 
-> >>* The check for which libdb to use assumes that the presence of a db.h
-> >>  is enough, but the overlap between glibc-devel and dbx-devel packages
-> >>  means that finding a db.h is not enough, you have to confirm that the
-> >>  corresponding libdb exists.
-> >
-> >Such is Linux.  Those who understand what it means to rebuild the
-> >firmware will have the necessary tools, check the box in config,
-> >and have it work.
-
-But there is insufficient menu dialog associated with rebuild firmware.
+The glibc rpm is version 2.2.2-10.
 
 > 
-> Wrong.  Such is the way it _used_ to be.  As the use of Linux expands,
-> more and more people are building their own kernels without knowing all
-> the internals.  This is good, we get more users.  But kernel build code
-> can no longer assume that anybody building a kernel is automatically an
-> expert.
+> to see how it works loock at /usr/bin/ldd, it's an interesting script.
 > 
-> >>* It checks if the firmware is up to date by comparing the timestamps
-> >>  on aic7xxx_seq.h and aic7xxx_reg.h against aic7xxx.seq and
-> >>  aic7xxx.reg.  Alas, when a patch hits those files there is no
-> >>  guarantee which order the files are listed in the patch so the final
-> >>  timestamp order is unreliable.  diff lists files in alphabetical
-> >>  order but other source repository systems can generate patches in any
-> >>  order.  This is a problem for all generated files, not just aic7xxx.
-> >
-> >So you might get a harmless warning if you haven't checked the box.  This
-> >is not fatal and I have yet to hear one complaint about it.
+> I can understand why old glibc 2.1 is not isered in the directories
+> where ldconfig has to loock to create its db for loader, but there should
+> be a corrispective /usr/i386-(redhat/glibc2.2???)-linux/ (with its
+> subdirectories)
+> for glibc 2.2, since it is necessary at compilation
+> time.
 
-Missing firmware rebuild is fatal for my system, SMP x86 with integrated
-7892. Messages and config menu information is inadequate, it requires a
-bit of pounding the head on the wall to figure it out.
+There is *no* /usr/i386-xxx except for:
+/usr/i386-glibc21-linux/
+
+No glibc22 version exists.
+
+> This do not change the problem which is related to /lib/ld-2.2.X.so.
+> doing a strings /lib/ld-2.XXX
+> you will find also
+> 
+> info[19]->d_un.d_val == sizeof (Elf32_Rel)
+> info[20]->d_un.d_val == 17
+> /lib/
+> /usr/lib/
+> {ORIGIN}
+> {PLATFORM}
+> expand_dynamic_string_token
+> dl-load.c
+
+"i686" is visible on a line by itself, but so are i386, i486, and i586.
+The full path of /lib/i686/ is not mentioned anywhere. So it looks like
+strings of /lib/ld-2* does not offer any hints as to how the i686
+subdirectory is being chosen without it being specified anywhere else. I
+think this will end up just being one of those mysteries, and the boot
+software coder will have to find some non-trivial workaround. It sounds
+like the /lib/i686/ path was hardcoded in the linker when it was
+compiled, which means there are no simple config file checks.
+
+D. Stimits, stimits@idcomm.com
 
 > 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=99124017310488&w=2
-> was fatal, you even replied to it.
+> this is the interesting section of the output. This way you can check for
+> an hack to the loader, but I think to something else instead of an hack.
 > 
-> >>* Shipping files which are also overwritten by users causes problems
-> >>  for source control systems and can cause spurious differences when
-> >>  generating patches.  This is a problem for all generated files, not
-> >>  just aic7xxx.
+> I do not have a red hat here around, since i do prefer another style for
+> my linux systems, so i cannot check by person.
+> 
+> Luigi Genoni
+> 
+> On Fri, 22 Jun 2001, D. Stimits wrote:
+> 
+> > Luigi Genoni wrote:
+> > >
+> > > I do not know if this is a new filesystem hierarchy, it should not be,
+> > > at less untill lsb finishes all discussion (anyway it is similar to lsb
+> > > standard). Your mail is a little confusing for me. Let's see if i can
+> > > clarify my ideas.
+> > >
+> > > On Thu, 21 Jun 2001, D. Stimits wrote:
+> > >
+> > > > I found on my newer Redhat 7.1 distribution that glibc is being placed
+> > > > differently than just /lib/. Here is the structure I found:
+> > > >
+> > > > /lib/ has:
+> > > > libc-2.2.2.so (hard link)
+> > > > libc.so.6     (sym link to above)
+> > > >
+> > > > A new directory appears, /lib/i686/ (uname -m is i686):
+> > > > libc-2.2.2.so (a full hard link copy of /lib/ version)
+> > > > libc.so.6     (sym link to hard link in this directory)
+> > > >
+> > > > The file size of /lib/libc-2.2.2.so is around 1.2 MB, while the size of
+> > > > /lib/i686/libc-2.2.2.so is over 5 MB. The 5 MB version has symbols,
+> > > > while the 1.2 MB version is stripped.
+> > > >
+> > > > Here is the peculiar part that I need to find out about. My
+> > > > /lib/ld.so.conf does not contain the i686 directory in its path. Nor do
+> > > > any local LD environment variables. Even so, "ldconfig -p" lists *only*
+> > > > the libc.so.6 sym link, not the libc-2.2.2.so, and the one listed is for
+> > > > the i686 subdirectory, not the /lib/ directory. How is it possible that
+> > > > the i686 directory is being checked if it is not listed in ld.so.conf
+> > > > and not part of any LD path variable? I am using a non-Redhat kernel
+> > > > (patched 2.4.6-pre1), so I know it isn't a Redhat-ism related to the
+> > > > kernel itself. My ld version:
+> > > excuse, but if you do something like,
+> > > ldd /bin/ls
+> > >
+> > > what do you get, which libc is loaded?
 > >
-> >Those using revision control should know how to use revision control.
-> >The driver is developed under revision control and the current setup
-> >causes me no grief.  Of course, I don't keep the generated files in
-> >revision control because there is no benefit in doing so.
-> 
-> Users take patches from Linus or Alan Cox which include the generated
-> patches and add the patches to local source repositories.  That
-> includes the generated files.  If it comes from Linus or AC it is a
-> "master" copy.  End users do not have the luxury of excluding the
-> generated files from revision control because it is not their input.
-> And if they do exclude the files then their users are forced to
-> generate the firmware.  Excluding the aic7xxx generated files from
-> source revision works for you because you always generate the firmware,
-> it does not work for anybody else.
-> 
-> >For those
-> >that decide to keep the generated files in revision control, they
-> >should pull any update to the generated files from the vendor (they
-> >are always provided in my patches) and *never check the box*.
-> 
-> Users must not be forced to go hunting for files from a vendor when the
-> rst of the code is in the kernel.  Especially when that vendor is not
-> listed in MAINTAINERS and there is no contact data in the aic7xxx
-> directory.
-> 
-> >>The patch below fixes all of the above issues.  It does not touch the
-> >>aic7xxx code nor sequencer input, just the generated files and the
-> >>kbuild related files.  The patch is approx 100Kb but most of it is the
-> >>rename of aic7xxx_{seq,reg}.h to aic7xxx_{seq,reg}.h_shipped.
+> > :~# ldd /bin/ls
+> >   libtermcap.so.2 => /lib/libtermcap.so.2 (0x4002a000)
+> >   libc.so.6 => /lib/i686/libc.so.6 (0x4002e000)
+> >   /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x40000000)
 > >
-> >I don't see this as an improvement.
-> 
-> I do, and I am the kernel build maintainer.  I don't tell you how to
-> code aic7xxx drivers, but I can and will fix kbuild problems.  The
-> current aic7xxx kbuild is a problem.
-> 
-> >>After applying this patch, normal users will not have to worry about
-> >>generating aic7xxx firmware.
+> > The i686 subdirectory version is visible to the linker. I don't know
+> > how.
 > >
-> >This is already true today.
-> 
-> Not true, the timestamp check produces spurious prompts.
-> 
-> >>In particular they will not have to
-> >>select "rebuild firmware" nor will they need lex, yacc or libdb.
+> > >
+> > > have you got a file like /etc/ld.so.preload??
 > >
-> >Already true today.
-> 
-> Wrong.  See
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=99323170127833&w=2
-> 
-> >>Only people who change one of these files
+> > No. Nor are any preload or LD environment variables set. Something
+> > Redhat has done is making the i686 subdirectory visible. Maybe ld
+> > searches recursively?
 > >
-> >Today, this only applies to those that *check the rebuild firmware*
-> >box.
-> 
-> Which the broken timestamp check encourages people to do.
-> 
-> >What again are you trying to fix?  It looks to me like you are simply
-> >trying to make it harder for people actually working on the aic7xxx
-> >driver to have proper dependencies.
-> 
-> The patch still works for anybody changing the aic7xxx firmware or the
-> aicasm code.  Any change to the generated files or the aicasm files now
-> forces a rebuild, the option is not required.  Only people changing
-> aic7xxx firmware are affected, instead of everybody.
-> 
-> Bottom line: the current method relies on unreliable timestamps,
-> produces spurious warning messages and causes problems for everybody
-> using source control except for you.  The new method is clean.  And as
-> kbuild maintainer, that is the way I want it to be done.
+> > > basically you can use the stripped glibc (faster), but then,
+> > > if you have troubles and you need to debug, just set the preload file,
+> > > or use LD_PRELOAD variable to use
+> > > the non stripped library. In princip it is not a stupid idea,
+> > > not that i like it, but it is not stupid.
+> >
+> > Without any preload, it appears the linker is by default choosing the
+> > debug version in the i686 subdirectory. Redhat must have mucked with it,
+> > otherwise I don't see how it could be searching the i686 subdirectory
+> > without any configuration customization (no preload, no LD environment
+> > variables). But this is what I want to verify...where the "mucking" has
+> > occurred, it is important to find out for some software that is used to
+> > create custom and/or rescue disks. (alternately, to find out if there is
+> > a predictable scheme, such as knowning ld is searching recursively, or
+> > searches for /lib/{uname -m})
+> >
+> > >
+> > > > ~# ld --version
+> > > > GNU ld 2.10.91
+> > > > Copyright 2001 Free Software Foundation, Inc.
+> > > > This program is free software; you may redistribute it under the terms
+> > > > of
+> > > > the GNU General Public License.  This program has absolutely no
+> > > > warranty.
+> > > >   Supported emulations:
+> > > >    elf_i386
+> > > >    i386linux
+> > > >    elf_i386_glibc21
+> > > >
+> > > > Possibly Redhat altered ld? According to the man page, this directory
+> > > > should not be found since it is not part of ld.so.conf, and also the
+> > > > /lib/ version *should* be found (but isn't). What has changed, is it a
+> > > > standard for filesystem hierarchy, or is it something distribution
+> > > > specific? (I need to pass the answer along to someone working on
+> > > > customized boot software that is currently being confused by this
+> > > > distinction; there is a need to find a proper means to detect libc and
+> > > > linker information)
+> > > ld links dynamic libraries if the final extension is .so (usually a link),
+> > > and uses the soname (usually a link too, created by ldconfig), for
+> > > the binaries it generates, otherway it will use .a library archives.
+> > > /usr/lib/libc.so (the file used by ld to link glibc), is a script. There
+> > > are good reason for that, with libc5 it was a link to /lib/libc.so.5
+> > > (soname).
+> > > ld loocks for .so files as is configured
+> > > inside of the files in /usr/<arch/host name>/lib/ldscripts
+> >
+> > Interesting that there is a /usr/i386-glibc21-linux/ directory, but
+> > glibc 2.2 is used. In /usr/i386-glibc21-linux/lib/ is file
+> > libc-2.1.3.so, which matches this particular naming, but ldconfig -p
+> > does not indicate this directory is searched. There is no ldscripts,
+> > either as a file name or a directory name. The visible directory tree
+> > there is:
+> > /usr/i386-glibc21-linux/ as base, then these:
+> > -- lib
+> >     `-- gcc-lib
+> >         `-- i386-redhat-linux
+> >             `-- 2.96
+> >                 `-- include
+> > ->../../../../../lib/gcc-lib/i386-glibc21-linux/egcs-2.91.66/include
+> >
+> >
+> >
+> > >
+> > > please note that usually for klibraries inside of /lib, the .so link is in
+> > > /usr/lib, or at less it should.
+> > >
+> > > syntax is like:
+> > > SEARCH_DIR(/lib); SEARCH_DIR(/usr/lib); SEARCH_DIR(/usr/local/lib); \
+> > > SEARCH_DIR(/usr/i386-slackware-linux/lib);
+> > >
+> > > (that is why you need to pass -L/usr/X11R6/lib to link X11 apps
+> > > at runtime) anyway to load shared libraries is managed by
+> > > /lib/ld-2.XXX.so, using
+> > > the db created by ldconfig that uses /etc/ld.so.conf
+> > > as its configuration file.
+> >
+> > There must be something more, since the i686 subdirectory is being
+> > searched without ld.so.conf and without environment variables pointing
+> > at it (e.g., recursive search from any named directory).
+> >
+> > D. Stimits, stimits@idcomm.com
+> >
+> > >
+> > > Luigi Genoni
+> > >
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
 > 
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

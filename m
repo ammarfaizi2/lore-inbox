@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317874AbSIOGkT>; Sun, 15 Sep 2002 02:40:19 -0400
+	id <S317876AbSIOGsr>; Sun, 15 Sep 2002 02:48:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317876AbSIOGkS>; Sun, 15 Sep 2002 02:40:18 -0400
-Received: from packet.digeo.com ([12.110.80.53]:62597 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S317874AbSIOGjq>;
-	Sun, 15 Sep 2002 02:39:46 -0400
-Message-ID: <3D843008.1AFA5259@digeo.com>
-Date: Sun, 15 Sep 2002 00:00:24 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: Daniel Phillips <phillips@arcor.de>, linux-usb-devel@lists.sourceforge.net,
+	id <S317887AbSIOGsr>; Sun, 15 Sep 2002 02:48:47 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:22798 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317876AbSIOGsq>;
+	Sun, 15 Sep 2002 02:48:46 -0400
+Date: Sat, 14 Sep 2002 23:49:44 -0700
+From: Greg KH <greg@kroah.com>
+To: Brad Hards <bhards@bigpond.net.au>
+Cc: oliver@neukum.name, Brian Craft <bcboy@thecraftstudio.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-References: <Pine.LNX.4.44.0209101156510.7106-100000@home.transmeta.com> <E17qRfU-0001qz-00@starship> <20020915020739.A22101@devserv.devel.redhat.com>
+Subject: Re: delay before open() works
+Message-ID: <20020915064944.GA727@kroah.com>
+References: <20020914094225.A1267@porky.localdomain> <200209151525.01920.bhards@bigpond.net.au> <20020915061026.GA484@kroah.com> <200209151638.32883.bhards@bigpond.net.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Sep 2002 06:44:34.0859 (UTC) FILETIME=[5A7FC7B0:01C25C83]
+Content-Disposition: inline
+In-Reply-To: <200209151638.32883.bhards@bigpond.net.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
+On Sun, Sep 15, 2002 at 04:38:32PM +1000, Brad Hards wrote:
+> On Sun, 15 Sep 2002 16:10, Greg KH wrote:
+> > This "second" hotplug event will happen when the driver registers with
+> > the "class".  So for the example of the USB scanner driver, it registers
+> > itself with the USB "class" to set up the file_ops structure (this is
+> > done in usb_register_dev().  At that point in time, /sbin/hotplug will
+> > be called again.
+> This is too soon, at least for the scanner driver. Look at how much code runs 
+> in scanner_probe() between the fops registration and the devfs registration.
 > 
-> > From: Daniel Phillips <phillips@arcor.de>
-> > Date: Sun, 15 Sep 2002 07:10:00 +0200
-> 
-> >[...]
-> > Let's try a different show of hands: How many users would be happier if
-> > they knew that kernel developers are using modern techniques to improve
-> > the quality of the kernel?
-> 
-> I do not see how using a debugger improves a quality of the kernel.
-> Good thinking and coding does improve kernel quality. Debugger
-> certainly does not help if someone cannot code.
-> 
-> A debugger can do some good things. Some people argue that it
-> improves productivity, which I think may be true under some
-> circomstances. If your build system sucks and/or slow, and
-> if you work with a binary only software, debugger helps.
-> If you work with something like Linux, and compile on something
-> better than a 333MHz x86, it probably does not help your
-> productivity. This is all wonderful, but has nothing to do
-> with the code quality.
+> Hmmm, that is probably a race anyway. Oliver?
 
-Uh, I feel obliged to respond to these statements just in case
-anyone thinks they contain anything which is correct.
+You're right, that is a race.  And is due to the historical fact that
+usb_register() used to also register the fops structure at the same
+time.  Now that the functions are split apart, the call to
+usb_register_dev() should be done at the same place as the call to
+devfs_register().  Patches gladly accepted :)
 
-I have spent twelve months doing kernel development without kgdb and
-eighteen months with.  "With" is better.
+thanks,
 
-> And to think that your users would be happier with a crap produced
-> by a debugger touting Windows graduate than with a quality code
-> debugged with observation simply defies any reason.
-> 
-
-uh-huh.
+greg k-h

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268355AbUI2MxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268360AbUI2M4D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268355AbUI2MxN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 08:53:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268365AbUI2MxJ
+	id S268360AbUI2M4D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 08:56:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268368AbUI2Myc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 08:53:09 -0400
-Received: from mail.renesas.com ([202.234.163.13]:55205 "EHLO
+	Wed, 29 Sep 2004 08:54:32 -0400
+Received: from mail.renesas.com ([202.234.163.13]:12966 "EHLO
 	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S268355AbUI2MwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 08:52:05 -0400
-Date: Wed, 29 Sep 2004 21:51:54 +0900 (JST)
-Message-Id: <20040929.215154.1025206099.takata.hirokazu@renesas.com>
+	id S268360AbUI2MxJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 08:53:09 -0400
+Date: Wed, 29 Sep 2004 21:52:55 +0900 (JST)
+Message-Id: <20040929.215255.276753506.takata.hirokazu@renesas.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
-Subject: [PATCH 2.6.9-rc2-mm4] [m32r] Update comments for Renesas
+Subject: [PATCH 2.6.9-rc2-mm4] [m32r] Architecture upgrade on 20040928
 From: Hirokazu Takata <takata@linux-m32r.org>
 X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
 Mime-Version: 1.0
@@ -24,211 +24,197 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello,
 
-Here is a patch to update comments for Renesas.
-The M32R processor is a product of Renesas Technology Corporation now.
+Miscellaneous upgrade for recent m32r kernel changes.
+Please apply.
 
 Thank you.
 
-	* arch/m32r/kernel/setup.c:
-	- Change from "MITSUBISHI" to "Renesas"
-	- Remove RCS ID.
-	* arch/m32r/kernel/setup_m32700ut.c: ditto.
-	* arch/m32r/kernel/setup_mappi.c: ditto.
+	* arch/m32r/kernel/entry.S:
+	Add system calls; taken from asm-i386/unistd.h.
+	- [PATCH][2/6] perfctr-2.7.3 for 2.6.7-rc1-mm1: i386  (05/31/2004)
+	- [PATCH] Make key management use syscalls not prctls (09/06/2004)
 
-	* arch/m32r/kernel/setup_mappi2.c: 
-	- Remove RCS ID.
-	* arch/m32r/kernel/setup_oaks32r.c: ditto.
-	* arch/m32r/kernel/setup_opsput.c: ditto.
-	* arch/m32r/kernel/setup_usrv.c: ditto.
+	* arch/m32r/kernel/io_m32102.c: Remove.
+	This file is no longer used. Please remove this file.
+	
+	* arch/m32r/kernel/irq.c: 
+	- Fix the unnecessary entropy call in the irq handler.
 
-	* include/asm-m32r/m32102.h:
-	- Add copyright statement of Renesas
-	- Remove RCS ID.
-	* include/asm-m32r/m32r.h: ditto.
-	* include/asm-m32r/m32r_mp_fpga.h: ditto.
+	* arch/m32r/kernel/signal.c:
+	- Merge common signal handling fault handling in generic code;
+	  use force_sigsegv() instead of force_sig().
+
+	* arch/m32r/kernel/smp.c:
+	- Just add brackets.
+
+	* include/asm-m32r/hardirq.h:
+	- factor out common <asm/hardirq.h> code
 
 Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
 ---
 
- arch/m32r/kernel/setup.c          |    2 +-
- arch/m32r/kernel/setup_m32700ut.c |    4 +---
- arch/m32r/kernel/setup_mappi.c    |    6 +-----
- arch/m32r/kernel/setup_mappi2.c   |    4 ----
- arch/m32r/kernel/setup_oaks32r.c  |    4 ----
- arch/m32r/kernel/setup_opsput.c   |    2 --
- arch/m32r/kernel/setup_usrv.c     |    4 ----
- include/asm-m32r/m32102.h         |    7 ++++---
- include/asm-m32r/m32r.h           |    7 +++----
- include/asm-m32r/m32r_mp_fpga.h   |    8 ++++----
- 10 files changed, 14 insertions(+), 34 deletions(-)
+ arch/m32r/kernel/entry.S     |   10 +
+ arch/m32r/kernel/io_m32102.c |  277 -------------------------------------------
+ arch/m32r/kernel/irq.c       |    8 -
+ arch/m32r/kernel/signal.c    |   11 -
+ arch/m32r/kernel/smp.c       |    3 
+ include/asm-m32r/hardirq.h   |   30 ----
+ 6 files changed, 24 insertions(+), 315 deletions(-)
 
 
-diff -ruNp a/arch/m32r/kernel/setup.c b/arch/m32r/kernel/setup.c
---- a/arch/m32r/kernel/setup.c	2004-09-28 10:19:10.000000000 +0900
-+++ b/arch/m32r/kernel/setup.c	2004-09-28 12:38:23.000000000 +0900
-@@ -1,7 +1,7 @@
- /*
-  *  linux/arch/m32r/kernel/setup.c
-  *
-- *  Setup routines for MITSUBISHI M32R
-+ *  Setup routines for Renesas M32R
-  *
-  *  Copyright (c) 2001, 2002  Hiroyuki Kondo, Hirokazu Takata,
-  *                            Hitoshi Yamamoto
-diff -ruNp a/arch/m32r/kernel/setup_m32700ut.c b/arch/m32r/kernel/setup_m32700ut.c
---- a/arch/m32r/kernel/setup_m32700ut.c	2004-09-28 10:19:10.000000000 +0900
-+++ b/arch/m32r/kernel/setup_m32700ut.c	2004-09-28 12:38:23.000000000 +0900
-@@ -1,7 +1,7 @@
- /*
-  *  linux/arch/m32r/kernel/setup_m32700ut.c
-  *
-- *  Setup routines for MITSUBISHI M32700UT Board
-+ *  Setup routines for Renesas M32700UT Board
-  *
-  *  Copyright (c) 2002 	Hiroyuki Kondo, Hirokazu Takata,
-  *                      Hitoshi Yamamoto, Takeo Takahashi
-@@ -9,8 +9,6 @@
-  *  This file is subject to the terms and conditions of the GNU General
-  *  Public License.  See the file "COPYING" in the main directory of this
-  *  archive for more details.
-- *
-- *  $Id: setup_m32700ut.c,v 1.6 2003/11/27 10:18:49 takeo Exp $
-  */
+diff -ruNp a/arch/m32r/kernel/entry.S b/arch/m32r/kernel/entry.S
+--- a/arch/m32r/kernel/entry.S	2004-09-28 10:19:10.000000000 +0900
++++ b/arch/m32r/kernel/entry.S	2004-09-28 12:38:11.000000000 +0900
+@@ -992,6 +992,16 @@ ENTRY(sys_call_table)
+         .long sys_mq_notify
+         .long sys_mq_getsetattr
+         .long sys_ni_syscall            /* reserved for kexec */
++	.long sys_waitid
++	.long sys_perfctr_info
++	.long sys_vperfctr_open
++	.long sys_vperfctr_control
++	.long sys_vperfctr_unlink
++	.long sys_vperfctr_iresume
++	.long sys_vperfctr_read		/* 290 */
++	.long sys_add_key
++	.long sys_request_key
++	.long sys_keyctl
  
- #include <linux/config.h>
-diff -ruNp a/arch/m32r/kernel/setup_mappi.c b/arch/m32r/kernel/setup_mappi.c
---- a/arch/m32r/kernel/setup_mappi.c	2004-09-28 10:19:10.000000000 +0900
-+++ b/arch/m32r/kernel/setup_mappi.c	2004-09-28 12:38:23.000000000 +0900
-@@ -1,16 +1,12 @@
- /*
-  *  linux/arch/m32r/kernel/setup_mappi.c
-  *
-- *  Setup routines for MITSUBISHI MAPPI Board
-+ *  Setup routines for Renesas MAPPI Board
-  *
-  *  Copyright (c) 2001, 2002  Hiroyuki Kondo, Hirokazu Takata,
-  *                            Hitoshi Yamamoto
-  */
+ syscall_table_size=(.-sys_call_table)
  
--static char *rcsid =
--"$Id$";
--static void use_rcsid(void) {rcsid = rcsid; use_rcsid();}
+diff -ruNp a/arch/m32r/kernel/irq.c b/arch/m32r/kernel/irq.c
+--- a/arch/m32r/kernel/irq.c	2004-09-28 10:19:10.000000000 +0900
++++ b/arch/m32r/kernel/irq.c	2004-09-28 12:38:11.000000000 +0900
+@@ -187,15 +187,17 @@ int handle_IRQ_event(unsigned int irq,
+ 		struct pt_regs *regs, struct irqaction *action)
+ {
+ 	int status = 1;	/* Force the "do bottom halves" bit */
+-	int retval = 0;
++	int ret, retval = 0;
+ 
+ 	if (!(action->flags & SA_INTERRUPT))
+ 		local_irq_enable();
+ 
+ 	do {
+-		status |= action->flags;
+-		retval |= action->handler(irq, action->dev_id, regs);
++		ret = action->handler(irq, action->dev_id, regs);
++		if (ret == IRQ_HANDLED)
++			status |= action->flags;
+ 		action = action->next;
++		retval |= ret;
+ 	} while (action);
+ 	if (status & SA_SAMPLE_RANDOM)
+ 		add_interrupt_randomness(irq);
+diff -ruNp a/arch/m32r/kernel/signal.c b/arch/m32r/kernel/signal.c
+--- a/arch/m32r/kernel/signal.c	2004-09-28 10:19:10.000000000 +0900
++++ b/arch/m32r/kernel/signal.c	2004-09-28 12:38:23.000000000 +0900
+@@ -404,9 +404,7 @@ static void setup_frame(int sig, struct 
+ 	return;
+ 
+ give_sigsegv:
+-	if (sig == SIGSEGV)
+-		ka->sa.sa_handler = SIG_DFL;
+-	force_sig(SIGSEGV, current);
++	force_sigsegv(sig, current);
+ }
+ 
+ static void setup_rt_frame(int sig, struct k_sigaction *ka, siginfo_t *info,
+@@ -482,9 +480,7 @@ static void setup_rt_frame(int sig, stru
+ 	return;
+ 
+ give_sigsegv:
+-	if (sig == SIGSEGV)
+-		ka->sa.sa_handler = SIG_DFL;
+-	force_sig(SIGSEGV, current);
++	force_sigsegv(sig, current);
+ }
+ 
+ /*
+@@ -528,9 +524,6 @@ handle_signal(unsigned long sig, struct 
+ 	else
+ 		setup_frame(sig, ka, oldset, regs);
+ 
+-	if (ka->sa.sa_flags & SA_ONESHOT)
+-		ka->sa.sa_handler = SIG_DFL;
 -
- #include <linux/config.h>
- #include <linux/irq.h>
- #include <linux/kernel.h>
-diff -ruNp a/arch/m32r/kernel/setup_mappi2.c b/arch/m32r/kernel/setup_mappi2.c
---- a/arch/m32r/kernel/setup_mappi2.c	2004-09-28 10:19:10.000000000 +0900
-+++ b/arch/m32r/kernel/setup_mappi2.c	2004-09-28 12:38:23.000000000 +0900
-@@ -7,10 +7,6 @@
-  *                            Hitoshi Yamamoto, Mamoru Sakugawa
-  */
+ 	if (!(ka->sa.sa_flags & SA_NODEFER)) {
+ 		spin_lock_irq(&current->sighand->siglock);
+ 		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
+diff -ruNp a/arch/m32r/kernel/smp.c b/arch/m32r/kernel/smp.c
+--- a/arch/m32r/kernel/smp.c	2004-09-28 10:19:10.000000000 +0900
++++ b/arch/m32r/kernel/smp.c	2004-09-28 12:38:23.000000000 +0900
+@@ -441,9 +441,10 @@ static void flush_tlb_others(cpumask_t c
+ 	 */
+ 	send_IPI_mask(cpumask, INVALIDATE_TLB_IPI, 0);
  
--static char *rcsid =
--"$Id$";
--static void use_rcsid(void) {rcsid = rcsid; use_rcsid();}
+-	while (!cpus_empty(flush_cpumask))
++	while (!cpus_empty(flush_cpumask)) {
+ 		/* nothing. lockup detection does not belong here */
+ 		mb();
++	}
+ 
+ 	flush_mm = NULL;
+ 	flush_vma = NULL;
+diff -ruNp a/include/asm-m32r/hardirq.h b/include/asm-m32r/hardirq.h
+--- a/include/asm-m32r/hardirq.h	2004-09-28 10:19:53.000000000 +0900
++++ b/include/asm-m32r/hardirq.h	2004-09-28 12:38:24.000000000 +0900
+@@ -30,7 +30,12 @@ typedef struct {
+ 
+ #define PREEMPT_BITS	8
+ #define SOFTIRQ_BITS	8
++
++#if NR_IRQS > 256
++#define HARDIRQ_BITS	9
++#else
+ #define HARDIRQ_BITS	8
++#endif
+ 
+ #define PREEMPT_SHIFT	0
+ #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
+@@ -45,29 +50,10 @@ typedef struct {
+ # error HARDIRQ_BITS is too low!
+ #endif
+ 
+-/*
+- * Are we doing bottom half or hardware interrupt processing?
+- * Are we in a softirq context? Interrupt context?
+- */
+-#define in_irq()		(hardirq_count())
+-#define in_softirq()		(softirq_count())
+-#define in_interrupt()		(irq_count())
 -
- #include <linux/config.h>
- #include <linux/irq.h>
- #include <linux/kernel.h>
-diff -ruNp a/arch/m32r/kernel/setup_oaks32r.c b/arch/m32r/kernel/setup_oaks32r.c
---- a/arch/m32r/kernel/setup_oaks32r.c	2004-09-28 10:19:10.000000000 +0900
-+++ b/arch/m32r/kernel/setup_oaks32r.c	2004-09-28 12:38:23.000000000 +0900
-@@ -7,10 +7,6 @@
-  *                            Hitoshi Yamamoto, Mamoru Sakugawa
-  */
- 
--static char *rcsid =
--"$Id: setup_oaks32r.c,v 1.1 2004/03/31 05:06:18 sakugawa Exp $";
--static void use_rcsid(void) {rcsid = rcsid; use_rcsid();}
 -
- #include <linux/config.h>
- #include <linux/irq.h>
- #include <linux/kernel.h>
-diff -ruNp a/arch/m32r/kernel/setup_opsput.c b/arch/m32r/kernel/setup_opsput.c
---- a/arch/m32r/kernel/setup_opsput.c	2004-09-28 10:19:10.000000000 +0900
-+++ b/arch/m32r/kernel/setup_opsput.c	2004-09-28 12:38:23.000000000 +0900
-@@ -10,8 +10,6 @@
-  *  This file is subject to the terms and conditions of the GNU General
-  *  Public License.  See the file "COPYING" in the main directory of this
-  *  archive for more details.
-- *
-- *  $Id: setup_opsput.c,v 1.1 2004/07/27 06:54:20 sakugawa Exp $
-  */
- 
- #include <linux/config.h>
-diff -ruNp a/arch/m32r/kernel/setup_usrv.c b/arch/m32r/kernel/setup_usrv.c
---- a/arch/m32r/kernel/setup_usrv.c	2004-09-28 10:19:10.000000000 +0900
-+++ b/arch/m32r/kernel/setup_usrv.c	2004-09-28 12:38:23.000000000 +0900
-@@ -7,10 +7,6 @@
-  *                                  Hitoshi Yamamoto
-  */
- 
--static char *rcsid =
--"$Id$";
--static void use_rcsid(void) {rcsid = rcsid; use_rcsid();}
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
 -
- #include <linux/config.h>
- #include <linux/irq.h>
- #include <linux/kernel.h>
-diff -ruNp a/include/asm-m32r/m32102.h b/include/asm-m32r/m32102.h
---- a/include/asm-m32r/m32102.h	2004-09-28 10:19:53.000000000 +0900
-+++ b/include/asm-m32r/m32102.h	2004-09-29 10:28:05.000000000 +0900
-@@ -2,10 +2,11 @@
- #define _M32102_H_
+ #define irq_enter()		(preempt_count() += HARDIRQ_OFFSET)
+ #define nmi_enter()		(irq_enter())
+ #define nmi_exit()		(preempt_count() -= HARDIRQ_OFFSET)
  
- /*
-- * Mitsubishi M32R 32102 group
-- * Copyright (c) 2001 [Hitoshi Yamamoto] All rights reserved.
-+ * Renesas M32R 32102 group
-+ *
-+ * Copyright (c) 2001  Hitoshi Yamamoto
-+ * Copyright (c) 2003, 2004  Renesas Technology Corp.
-  */
--/* $Id$ */
+-#ifdef CONFIG_PREEMPT
+-# define in_atomic()	((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
+-# define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+-#else
+-# define in_atomic()	(preempt_count() != 0)
+-# define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+-#endif
+ #define irq_exit()							\
+ do {									\
+ 		preempt_count() -= IRQ_EXIT_OFFSET;			\
+@@ -76,10 +62,4 @@ do {									\
+ 		preempt_enable_no_resched();				\
+ } while (0)
  
- /*======================================================================*
-  * Special Function Register
-diff -ruNp a/include/asm-m32r/m32r.h b/include/asm-m32r/m32r.h
---- a/include/asm-m32r/m32r.h	2004-09-28 10:19:53.000000000 +0900
-+++ b/include/asm-m32r/m32r.h	2004-09-29 10:46:50.000000000 +0900
-@@ -2,12 +2,11 @@
- #define _ASM_M32R_M32R_H_
- 
- /*
-- * Mitsubishi M32R processor
-- * Copyright (C) 1997-2002, Mitsubishi Electric Corporation
-+ * Renesas M32R processor
-+ *
-+ * Copyright (C) 2003, 2004  Renesas Technology Corp.
-  */
- 
--/* $Id$ */
+-#ifndef CONFIG_SMP
+-# define synchronize_irq(irq)	barrier()
+-#else
+-  extern void synchronize_irq(unsigned int irq);
+-#endif /* CONFIG_SMP */
 -
- #include <linux/config.h>
- 
- /* Chip type */
-diff -ruNp a/include/asm-m32r/m32r_mp_fpga.h b/include/asm-m32r/m32r_mp_fpga.h
---- a/include/asm-m32r/m32r_mp_fpga.h	2004-09-28 10:19:53.000000000 +0900
-+++ b/include/asm-m32r/m32r_mp_fpga.h	2004-09-28 12:38:24.000000000 +0900
-@@ -2,12 +2,12 @@
- #define _ASM_M32R_M32R_MP_FPGA_
- 
- /*
-- * Mitsubishi M32R-MP-FPGA
-- * Copyright (c) 2002 [Hitoshi Yamamoto] All rights reserved.
-+ * Renesas M32R-MP-FPGA
-+ *
-+ * Copyright (c) 2002  Hitoshi Yamamoto
-+ * Copyright (c) 2003, 2004  Renesas Technology Corp.
-  */
- 
--/* $Id$ */
--
- /*
-  * ========================================================
-  * M32R-MP-FPGA Memory Map
+ #endif /* __ASM_HARDIRQ_H */
 
 --
 Hirokazu Takata <takata@linux-m32r.org>
 Linux/M32R Project:  http://www.linux-m32r.org/
+

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262861AbTKJMqm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 07:46:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263392AbTKJMqm
+	id S263427AbTKJMtS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 07:49:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbTKJMtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 07:46:42 -0500
-Received: from [160.216.153.99] ([160.216.153.99]:8463 "EHLO molly.vabo.cz")
-	by vger.kernel.org with ESMTP id S262861AbTKJMql (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 07:46:41 -0500
-Date: Mon, 10 Nov 2003 13:47:22 -0500 (EST)
-From: Tomas Konir <moje@vabo.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OT: why no file copy() libc/syscall ??
-In-Reply-To: <20031110120949.86290.qmail@web40907.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.58.0311101345280.11279@moje.vabo.cz>
-References: <20031110120949.86290.qmail@web40907.mail.yahoo.com>
+	Mon, 10 Nov 2003 07:49:18 -0500
+Received: from smtp1.netcologne.de ([194.8.194.112]:2738 "EHLO
+	smtp1.netcologne.de") by vger.kernel.org with ESMTP id S263427AbTKJMtR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 07:49:17 -0500
+Message-ID: <3FAF894C.4040806@interia.pl>
+Date: Mon, 10 Nov 2003 13:49:16 +0100
+From: Tomasz Chmielewski <mangoo@interia.pl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.5) Gecko/20031015
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)
+To: linux-kernel@vger.kernel.org
+Subject: compressed tmpfs
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Nov 2003, Bradley Chapman wrote:
+Hello,
 
-> Mr. Rossetti,
-> 
-> It is horribly RTFM.
-> 
-> man 2 sendfile is what you're after.
+I was looking for something like tmpfs, but with additional feature - 
+that all the files in that file system would be compressed.
 
-mhm
-sendfile() can copy extended attributes and ACL ?
+I think it could be nice for one's RAM, especially in embedded 
+devices/diskless stations, at a little expense of efficiency.
 
-(i'm not think, that copy is the right candidate to syscall)
+Is there such a feature in 2.4 kernel yet, and, if not, where should I 
+look for it?
 
-	MOJE
+There is e2compr module on http://sourceforge.net/projects/e2compr/, but 
+I'm not sure if it can be easily applied to 2.4.22 kernel (seems like 
+it's for 2.4.17 kernels only).
 
--- 
-Konir Tomas
-Czech Republic
-Brno
-ICQ 25849167
+
+Regards,
+
+Tomasz Chmielewski
 

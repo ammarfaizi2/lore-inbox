@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129152AbQKSFzc>; Sun, 19 Nov 2000 00:55:32 -0500
+	id <S130357AbQKSGDX>; Sun, 19 Nov 2000 01:03:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129588AbQKSFzW>; Sun, 19 Nov 2000 00:55:22 -0500
-Received: from nifty.blue-labs.org ([208.179.0.193]:18215 "EHLO
+	id <S130293AbQKSGDC>; Sun, 19 Nov 2000 01:03:02 -0500
+Received: from nifty.blue-labs.org ([208.179.0.193]:20007 "EHLO
 	nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S129152AbQKSFzK>; Sun, 19 Nov 2000 00:55:10 -0500
-Message-ID: <3A17640F.7AF77B5A@linux.com>
-Date: Sat, 18 Nov 2000 21:24:31 -0800
+	id <S129588AbQKSGCw>; Sun, 19 Nov 2000 01:02:52 -0500
+Message-ID: <3A1765D6.C1E45E36@linux.com>
+Date: Sat, 18 Nov 2000 21:32:09 -0800
 From: David Ford <david@linux.com>
 Organization: Blue Labs
 X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Johannes Erdfelt <johannes@erdfelt.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: speaking of USB...(bug/hub.c)
-In-Reply-To: <3A165556.FFA4FCB6@linux.com> <20001118154042.A15356@sventech.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Jeff Garzik <jgarzik@mandrakesoft.com>, David Hinds <dhinds@valinux.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pcmcia event thread. (fwd)
+In-Reply-To: <Pine.LNX.4.10.10011180750230.8465-100000@penguin.transmeta.com>
 Content-Type: multipart/mixed;
- boundary="------------B84A2B079F17142BF9A1C5DA"
+ boundary="------------15E3F3B023772932B7E6FBBB"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------B84A2B079F17142BF9A1C5DA
+--------------15E3F3B023772932B7E6FBBB
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-Johannes Erdfelt wrote:
+Linus Torvalds wrote:
 
-> > # dmesg
-> > hub.c: USB new device connect on bus1/1, assigned device number 6
-> > usb-uhci.c: interrupt, status 2, frame# 121
-> > usb.c: USB device not accepting new address=6 (error=-110)
-> > hub.c: USB new device connect on bus1/1, assigned device number 7
->
-> Status 2 means there was an error with the transfer. This doesn't look
-> like a hub.c bug at all.
->
-> What kind of device is this?
->
-> Does this problem still happen with the other UHCI driver?
+> Can you (you've probably done this before, but anyway) enable DEBUG in
+> arch/i386/kernel/pci-i386.h? I wonder if the kernel for some strange
+> reason doesn't find your router, even though "dump_pirq" obviously does..
+> If there's something wrong with the checksumming for example..
 
-This device is any usb device I plug in.  Mouse, Kodak camera, Pegasus
-network module...
-
-I'll try with the JE driver.
+..building now.
 
 -d
 
 
---------------B84A2B079F17142BF9A1C5DA
+--------------15E3F3B023772932B7E6FBBB
 Content-Type: text/x-vcard; charset=us-ascii;
  name="david.vcf"
 Content-Transfer-Encoding: 7bit
@@ -69,7 +59,7 @@ x-mozilla-cpt:;14688
 fn:David Ford
 end:vcard
 
---------------B84A2B079F17142BF9A1C5DA--
+--------------15E3F3B023772932B7E6FBBB--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

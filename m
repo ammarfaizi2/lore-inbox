@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275283AbTHGLdD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 07:33:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275289AbTHGLdD
+	id S275281AbTHGLcd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 07:32:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275283AbTHGLcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 07:33:03 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:39042 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S275283AbTHGLdB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 07:33:01 -0400
-Subject: Re: 2.5/2.6 PCMCIA Issues
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: torvalds@osdl.org
-Cc: Andrew Morton <akpm@osdl.org>,
+	Thu, 7 Aug 2003 07:32:33 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:19717 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S275281AbTHGLcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 07:32:32 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [Dri-devel] Re: any DRM update scheduled for 2.4.23-pre?
+Date: Thu, 7 Aug 2003 13:31:48 +0200
+User-Agent: KMail/1.5.3
+Cc: arjanv@redhat.com, Mikael Pettersson <mikpe@csd.uu.se>, faith@valinux.com,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-In-Reply-To: <200308060711.h767B0I19677@mail.osdl.org>
-References: <20030804232204.GA21763@nasledov.com>
-	 <20030805144453.A8914@flint.arm.linux.org.uk>
-	 <20030806045627.GA1625@nasledov.com>
-	 <200308060559.h765xhI05860@mail.osdl.org>
-	 <20030805234212.081c0493.akpm@osdl.org>
-	 <200308060711.h767B0I19677@mail.osdl.org>
-Content-Type: text/plain
+       Mitch@0Bits.COM
+References: <16177.5641.6571.273023@gargle.gargle.HOWL> <200308061743.46570.m.c.p@wolk-project.de> <1060255303.3123.16.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1060255303.3123.16.camel@dhcp22.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1060255748.3123.18.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 07 Aug 2003 12:29:08 +0100
+Content-Disposition: inline
+Message-Id: <200308071331.48961.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-08-06 at 08:11, Linus Torvalds wrote:
-> Anyway, I suspect that i82365 should just quit by default if a yenta
-> controller has already been found. I can't imagine that you'd have
-> both a yenta controller _and_ an i82365 controller, since there are
-> actually some port overlaps there (ie yenta should already register
-> the i82365 legacy ports).
+On Thursday 07 August 2003 13:21, Alan Cox wrote:
 
-I have such a box, it worked in 2.4 (the i82365 is at different ports)
+Hi Alan,
+
+> I can send him the -ac one minus the small change for the memory accounting
+> stuff easily enough. Thats a tree which lots of people have run (both
+> vendor and non vendor) so its probably a safer pick.
+please so so after .22 final :) ... Thanks.
+
+ciao, Marc
 

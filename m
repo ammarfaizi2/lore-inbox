@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262673AbSJBXRQ>; Wed, 2 Oct 2002 19:17:16 -0400
+	id <S262687AbSJBX21>; Wed, 2 Oct 2002 19:28:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262678AbSJBXRP>; Wed, 2 Oct 2002 19:17:15 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:23776 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262673AbSJBXRP>;
-	Wed, 2 Oct 2002 19:17:15 -0400
-Date: Wed, 2 Oct 2002 19:22:44 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andreas Dilger <adilger@clusterfs.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Lars Marowsky-Bree <lmb@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
-In-Reply-To: <20021002231456.GA3000@clusterfs.com>
-Message-ID: <Pine.GSO.4.21.0210021922200.13480-100000@weyl.math.psu.edu>
+	id <S262691AbSJBX21>; Wed, 2 Oct 2002 19:28:27 -0400
+Received: from magic.adaptec.com ([208.236.45.80]:4789 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id <S262687AbSJBX20>;
+	Wed, 2 Oct 2002 19:28:26 -0400
+Date: Wed, 02 Oct 2002 17:33:37 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Jos Hulzink <josh@stack.nl>, Eriksson Stig <stig.eriksson@sweco.se>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: aic7xxx problems?
+Message-ID: <4119940000.1033601617@aslan.btc.adaptec.com>
+In-Reply-To: <20021002225057.TYEL1314.amsfep11-int.chello.nl@there>
+References: <E50A0EFD91DBD211B9E40008C75B6CCA01497EDD@ES-STH-012>
+ <3901880000.1033578523@aslan.btc.adaptec.com>
+ <3907280000.1033578658@aslan.btc.adaptec.com>
+ <20021002225057.TYEL1314.amsfep11-int.chello.nl@there>
+X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 2 Oct 2002, Andreas Dilger wrote:
-
-> On Oct 02, 2002  23:46 +0100, Alan Cox wrote:
-> > Absolutely - taking the core EVMS(say the core code and the bits to do
-> > LVM1) and polishing them up to be good clean citizens without code
-> > duplication and other weirdness would be a superb start for EVMS as a
-> > merge candidate. The rest can follow a piece at a time once the core is
-> > right if EVMS is the right path
+> On Wednesday 02 October 2002 19:10, Justin T. Gibbs wrote:
+>> 
+>> Actually, in reviewing your message more fully, the problem is that
+>> the timeout for the rewind operation is too short for your configuration.
+>> The timeout should go away if you bump up the timeout in the st driver
+>> so that your tape drive can rewind in peace.
 > 
-> I actually see EVMS as the "VFS for disk devices".  It is a very good
-> way to at allow dynamic disk device allocation, and could relatively
-> easily be modified to use all of the "legacy" disk major devices and
-> export only real partitions (one per minor).
+> I guess there is something seriously wrong in the driver then: my SCSI
+> cdrom  writers have the same problem. Result: lots of bad CDs.
 > 
-> You could have thousands of disks and partitions without the current
-> limitations on major/minor device mapping.
-> 
-> This was one of the things that Linus was pushing for when 2.5 started.
+> Jos
 
-... and you don't need EVMS for that.
+I would have to see the messages to say.
+
+--
+Justin
 

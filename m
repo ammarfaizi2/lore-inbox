@@ -1,128 +1,144 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129340AbQKXPhX>; Fri, 24 Nov 2000 10:37:23 -0500
+        id <S129525AbQKXPnp>; Fri, 24 Nov 2000 10:43:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129391AbQKXPhN>; Fri, 24 Nov 2000 10:37:13 -0500
-Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:44474 "EHLO
-        smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-        id <S129340AbQKXPhE>; Fri, 24 Nov 2000 10:37:04 -0500
-Message-ID: <3A1E8412.5931B6B2@haque.net>
-Date: Fri, 24 Nov 2000 10:06:58 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
+        id <S129391AbQKXPnY>; Fri, 24 Nov 2000 10:43:24 -0500
+Received: from gear.torque.net ([204.138.244.1]:59410 "EHLO gear.torque.net")
+        by vger.kernel.org with ESMTP id <S129145AbQKXPnY>;
+        Fri, 24 Nov 2000 10:43:24 -0500
+Message-ID: <3A1E85C8.EF156623@torque.net>
+Date: Fri, 24 Nov 2000 10:14:16 -0500
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test11 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Ion Badulescu <ionut@cs.columbia.edu>
-CC: Guest section DW <dwguest@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
-In-Reply-To: <Pine.LNX.4.21.0011240047520.16450-100000@age.cs.columbia.edu>
+To: Ulrich Windl <Ulrich.Windl@rz.uni-regensburg.de>
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: 2.2.16: How to freeze the kernel
+In-Reply-To: <3A1E309C.26058.40EA98@localhost>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get the following followingon every reboot once.
-
-Nov 23 01:14:37 viper kernel: hdb: drive_cmd: status=0x51 { DriveReady
-SeekComplete Error }
-Nov 23 01:14:37 viper kernel: hdb: drive_cmd: error=0x04
-Nov 23 01:14:37 viper kernel: hdb: drive_cmd: status=0x51 { DriveReady
-SeekComplete Error }
-Nov 23 01:14:37 viper kernel: hdb: drive_cmd: error=0x04
-
-hdb is my DVD drive. But other than that I haven't seen any other ide
-related errors.
-
-
-I found these two lines nested in between alot of other messages that I
-missed before.
-
-Nov 23 00:35:11 viper kernel: EXT2-fs error (device ide0(3,3)):
-ext2_free_blocks: bit already cleared for block 147021
-Nov 23 00:35:11 viper kernel: EXT2-fs error (device ide0(3,3)):
-ext2_free_blocks: bit already cleared for block 147021
-
-Then I get these ....
-
-Nov 23 00:40:06 viper kernel: EXT2-fs warning (device ide0(3,3)):
-ext2_unlink: Deleting nonexistent file (622295), 0
-Nov 23 00:40:06 viper kernel: = 1
-Nov 23 00:40:06 viper kernel: EXT2-fs error (device ide0(3,3)):
-ext2_free_blocks: Freeing blocks not in datazone - block = 540028982,
-count = 1
-Nov 23 00:40:06 viper kernel: EXT2-fs error (device ide0(3,3)):
-ext2_free_blocks: Freeing blocks not in datazone - block = 540024880,
-count = 1
-
-[mhaque@viper mhaque]$ sudo hdparm -iv /dev/hda   
-
-/dev/hda:
- multcount    = 16 (on)
- I/O support  =  3 (32-bit w/sync)
- unmaskirq    =  0 (off)
- using_dma    =  1 (on)
- keepsettings =  1 (on)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    = 128 (on)
- geometry     = 1650/255/63, sectors = 26520480, start = 0
-
- Model=IBM-DJNA-371350, FwRev=J76OA30K, SerialNo=GM0GMFE4929
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=34
- BuffType=DualPortCache, BuffSize=1966kB, MaxMultSect=16, MultSect=16
- CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=26520480
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4 
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 
-
-[mhaque@viper mhaque]$ sudo hdparm -iv /dev/hdb
-
-/dev/hdb:
- HDIO_GET_MULTCOUNT failed: Invalid argument
- I/O support  =  3 (32-bit w/sync)
- unmaskirq    =  0 (off)
- using_dma    =  1 (on)
- keepsettings =  1 (on)
- HDIO_GET_NOWERR failed: Invalid argument
- readonly     =  1 (on)
- readahead    = 128 (on)
- HDIO_GETGEO failed: Invalid argument
-
- Model=CREATIVEDVD-ROM DVD2240E 12/24/97, FwRev=1.7A, SerialNo=
- Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
- RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
- BuffType=unknown, BuffSize=0kB, MaxMultSect=0
- (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:150}
- PIO modes: pio0 pio1 pio2 pio4 
- DMA modes: sdma0 sdma1 sdma2 sdma? mdma0 mdma1 *mdma2 
-
-Ion Badulescu wrote:
+Ulrich Windl wrote:
 > 
-> Ok. Are there any IDE-related errors in your logs prior to getting the f/s
-> corruption? They could be relevant no matter how much time passed between
-> them and the first signs of corruption.
+> Hello,
 > 
-> Are your drives running with UDMA transfers enabled?
+> this is for your interest, amusement, and for "what not to do":
 > 
-> Thanks,
-> Ion
+> I managed to freeze the kernel (2.2.16 from SuSE Linux 7.0) in a way
+> that I could not even switch virtual consoles. Completely silent
+> eberything...
 > 
-> --
->   It is better to keep your mouth shut and be thought a fool,
->             than to open it and remove all doubt.
+> It all started when Windows/95 ruined another CD-R while trying to
+> write an image to the media. So I decided to try it with Linux, using
+> the same CD writer.
+> 
+> I plugged the device to the so far unused SCSI channel and used the
+> "add-sigle-device" method to avoid reboot, and I succeeded:
+> 
+> kgate kernel: scsi singledevice 0 0 4 0
+> kgate kernel:   Vendor: WAITEC    Model: WT624             Rev: 7.0F
+> kgate kernel:   Type:   CD-ROM                             ANSI SCSI
+> revision: 0
+> kgate kernel: Detected scsi CD-ROM sr1 at scsi0, channel 0, id 4, lun 0
+> kgate kernel: (scsi0:0:4:0) Synchronous at 10.0 Mbyte/sec, offset 15.
+> kgate kernel: sr1: scsi3-mmc drive: 24x/24x writer cd/rw xa/form2 cdda
+> tray
+> 
+> Then I used "cdrecord-1.8.1" to simulate writing at "speed=8". It
+> worked so far, but there was a warning about possible problems with
+> "simulated fixation", and actually several minutes nothing happened
+> while the simulated fixation was expected to take place.
 
--- 
+Evidently some media/cdwriters don't like "simulated
+fixation" hence the comment from cdrecord. In your
+case the warning seems well founded.
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
+When cdrecord issues the SCSI command to fixate
+(0x5b on my Yamaha) it sets a long timeout (480.5
+seconds (8 minutes)). To find out the current
+state (in the lk 2.4 series) try:
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+$ cat /proc/scsi/sg/debug 
+dev_max(currently)=9 max_active_device=3 (origin 1)
+ scsi_dma_free_sectors=512 sg_pool_secs_aval=320 def_reserved_size=32768
+ >>> device=sg2 scsi2 chan=0 id=6 lun=0   em=0 sg_tablesize=255 excl=0
+   FD(1): timeout=480500ms bufflen=32768 (res)sgat=0 low_dma=0
+   cmd_q=0 f_packid=0 k_orphan=0 closed=0
+     act: id=4054 blen=0 t_o/elap=480500/9920ms sgat=0 op=0x5b
+
+$ cat /proc/scsi/sg/debug 
+dev_max(currently)=9 max_active_device=3 (origin 1)
+ scsi_dma_free_sectors=512 sg_pool_secs_aval=320 def_reserved_size=32768
+ >>> device=sg2 scsi2 chan=0 id=6 lun=0   em=0 sg_tablesize=255 excl=0
+   FD(1): timeout=480500ms bufflen=32768 (res)sgat=0 low_dma=0
+   cmd_q=0 f_packid=0 k_orphan=0 closed=0
+     act: id=4054 blen=0 t_o/elap=480500/13840ms sgat=0 op=0x5b
+
+The last line of these 2 commands shows that SCSI command
+0x5b is active with a timeout value of 480500 milliseconds.
+9.92 seconds has elapsed when the first 'cat'
+was executed and 13.8 seconds had elapsed when
+the second one was executed. In my test case
+the "dummy fixate" concluded successfully. But what if
+it locked up the cdwriter, as the warning hints at?
+
+There is no way that I know of to cancel
+a command once it is "active". The timeout
+will get it (usually by the brute force
+technique of resetting the SCSI bus). [I
+have toyed with the idea of trying to shorten
+the timeout of an active command.]
+ 
+> At some point I hit ^C, returning to the prompt. As the device did not
+> seem to be ready, I thought "remove the device and reconnect", so I did
+> "remove-single-device" (possibly while a command was still "busy"). The
+> remove suceeded, but a second later everything had stopped!
+
+Things _not_ to do while there is an active
+SCSI command still executing:
+  - remove a module that it is using
+    (e.g. sg, aic7xxx, scsi_mod).
+    In most (but not all) cases rmmod will 
+    report the module is busy.
+  - use remove-single-device
+ 
+> Should a device with busy commands be able to be removed? I guess no...
+
+Correct.
+ 
+> The last message in the syslog was:
+> 
+> kgate kernel: scsi : aborting command due to timeout : pid 8358,
+>  scsi0, channel 0, id 4, lun 0 UNKNOWN(0x5b) 00 02 00 00 00 00 00 00 00
+> 
+> At that point I pressed "RESET", and interestingly the builtin BIOS of
+> the Adaptec 2740 (EISA) hung while trying to detect the device.
+
+In my experience cdwriters are not always well behaved
+SCSI devices and can lockup and not respond to SCSI
+bus resets. This means you need to power cycle them
+to get them back into a functional mode. It is also
+a good reason _not_ to have SCSI cdwriters (and scanners)
+on the same SCSI bus as high speed modern SCSI disks.
+Luckily they tend to use different SCSI parallel bus
+types.
+ 
+> Only after powering down both, the CD writer and the machine (a HP
+> Netserver LD Pro), the BIOS detected the device again. So I guess
+> something badly hung...
+> 
+> The driver being used was
+> Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI) 5.1.31/3.2.4
+> 
+> After that, everything worked fine.
+
+Thanks for the report. Hopefully everything worked ok
+when you did _not_ use the "dummy" option in cdrecord.
+
+Doug Gilbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319046AbSH1XLX>; Wed, 28 Aug 2002 19:11:23 -0400
+	id <S319024AbSH1XIg>; Wed, 28 Aug 2002 19:08:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319047AbSH1XLX>; Wed, 28 Aug 2002 19:11:23 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:41720 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319046AbSH1XLW>; Wed, 28 Aug 2002 19:11:22 -0400
-Subject: Re: [PATCH] M386 flush_one_tlb invlpg
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>,
-       Marc Dietrich <Marc.Dietrich@hrz.uni-giessen.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0208282059390.2079-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0208282059390.2079-100000@localhost.localdomain>
-Content-Type: text/plain
+	id <S319027AbSH1XIg>; Wed, 28 Aug 2002 19:08:36 -0400
+Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:64267 "EHLO
+	wildsau.idv.uni.linz.at") by vger.kernel.org with ESMTP
+	id <S319024AbSH1XIf>; Wed, 28 Aug 2002 19:08:35 -0400
+From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
+Message-Id: <200208282308.g7SN8W7S032115@wildsau.idv.uni.linz.at>
+Subject: [path] via-rhine.c
+In-Reply-To: <20020828214333.GA18492@k3.hellgate.ch> from Roger Luethi at "Aug 28, 2 11:43:33 pm"
+To: rl@hellgate.ch (Roger Luethi)
+Date: Thu, 29 Aug 2002 01:08:31 +0200 (MET DST)
+Cc: linux-kernel@vger.kernel.org (l),
+       kernel@wildsau.idv.uni.linz.at (H.Rosmanith (Kernel Mailing List))
+X-Mailer: ELM [version 2.4ME+ PL37 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 29 Aug 2002 00:17:58 +0100
-Message-Id: <1030576678.7190.80.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-28 at 21:30, Hugh Dickins wrote:
-> New patch below defines cpu_has_invlpg as (boot_cpu_data.x86 > 3).
-> But I do feel safer with that original cpu_has_pge test, which was
-> using a decent capability flag, and only changed behaviour of the
-> CONFIG_M386 __flush_tlb_one when it's necessary.
-> 
-> Isn't CONFIG_M386 about maximum safe applicability, rather than speed?
-> Am I imagining it, or were there a few i386 + i486 SMP machines built?
-> Or might there be some i486 clone which didn't really implement invlpg,
-> which could be used with a CONFIG_M386 kernel before this change,
-> but not after?  But perhaps I'm just dreaming up excuses for my
-> senselessness - your call.
 
-To answer that
+hello list,
 
-There are no SMP i386 boxes that support Intel MP 1.1
-There are a few SMP 486 boxes using MP 1.1
+this patch is agains 1.15 of via-rhine.c
+it isn't supposed to be a fix, but a workaround. if you have any
+better idea why the error is occuring, you are welcome.
 
-The nx586 processor is a '586' class CPU that has neither wp nor invlpg
-by default. I believe however that it reports family '3' if it has the
-hypercode loaded which lacks invlpg
+regards,
+h.rosmanith
 
+
+--- via-rhine.c.p9-debug	Thu Aug 29 07:14:12 2002
++++ via-rhine.c	Thu Aug 29 07:12:43 2002
+@@ -100,6 +100,15 @@
+ 	- allow selecting backoff algorithm (module parameter)
+ 	- cosmetic cleanups, remove 3 unused members of struct netdev_private
+ 
++	preliminary: (Herbert Rosmanith):
++	- for some yet unknown reason (which seems to be collision-related),
++	 TX DMA is off in via_rhine_interrupt in the ChipCmd register. this
++	 leads to an entry in the ringbuffer which is never processed and
++	 therefore blocks the ringbuffer. the hack provided sets the TxRingPtr
++	 in the chip to the entry blocking the ringbuffer, marking it for
++	 being processed again. this error seems to happen only with the VT6103.
++
+ */
+ 
+ #define DRV_NAME	"via-rhine"
+@@ -474,6 +483,8 @@
+ 
+ #define MAX_MII_CNT	4
+ struct netdev_private {
++	// XXX hack hack hack
++	int intr_cmd;
+ 	/* Descriptor rings */
+ 	struct rx_desc *rx_ring;
+ 	struct tx_desc *tx_ring;
+@@ -1294,11 +1305,13 @@
+ static void via_rhine_interrupt(int irq, void *dev_instance, struct pt_regs *rgs)
+ {
+ 	struct net_device *dev = dev_instance;
++	struct netdev_private *np=dev->priv;
+ 	long ioaddr;
+ 	u32 intr_status;
+ 	int boguscnt = max_interrupt_work;
+ 
+ 	ioaddr = dev->base_addr;
++	np->intr_cmd=readw(ioaddr+ChipCmd); // needed later in via_rhine_tx
+ 	
+ 	while ((intr_status = readw(ioaddr + IntrStatus))) {
+ 		/* Acknowledge all of the current interrupt sources ASAP. */
+@@ -1350,8 +1363,12 @@
+ 		if (debug > 6)
+ 			printk(KERN_DEBUG " Tx scavenge %d status %8.8x.\n",
+ 				   entry, txstatus);
+-		if (txstatus & DescOwn)
++		if (txstatus & DescOwn) {
++			if ((np->intr_cmd&0x0010)==0) // Gack! DMA is off
++				writel(np->tx_ring_dma + entry * sizeof(struct tx_desc),
++					dev->base_addr+TxRingPtr);
+ 			break;
++		}
+ 		if (txstatus & 0x8000) {
+ 			if (debug > 1)
+ 				printk(KERN_DEBUG "%s: Transmit error, Tx status %8.8x.\n",

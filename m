@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129245AbQKPMbt>; Thu, 16 Nov 2000 07:31:49 -0500
+	id <S130121AbQKPMoO>; Thu, 16 Nov 2000 07:44:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129745AbQKPMbj>; Thu, 16 Nov 2000 07:31:39 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:30973 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129245AbQKPMbe>; Thu, 16 Nov 2000 07:31:34 -0500
-Date: Thu, 16 Nov 2000 10:01:11 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Christoph Rohland <cr@sap.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: shm swapping in 2.4 again
-In-Reply-To: <qww1ywcz5z4.fsf@sap.com>
-Message-ID: <Pine.LNX.4.21.0011160959340.13085-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130145AbQKPMoE>; Thu, 16 Nov 2000 07:44:04 -0500
+Received: from ns.caldera.de ([212.34.180.1]:19466 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S130121AbQKPMnx>;
+	Thu, 16 Nov 2000 07:43:53 -0500
+Date: Thu, 16 Nov 2000 13:13:37 +0100
+Message-Id: <200011161213.NAA27334@ns.caldera.de>
+From: Christoph Hellwig <hch@caldera.de>
+To: davem@redhat.com ("David S. Miller")
+Cc: willy@meta-x.org, linux-kernel@vger.kernel.org, wtarreau@yahoo.fr
+Subject: Re: sunhme.c patch for new PCI interface (UNTESTED)
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <200011160845.AAA10212@pizda.ninka.net>
+User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Nov 2000, Christoph Rohland wrote:
-> On Wed, 15 Nov 2000, Rik van Riel wrote:
-> > On 15 Nov 2000, Christoph Rohland wrote:
-> > You really want to have it in the swap cache, so we have
-> > a place for it allocated in cache, etc...
-> > 
-> > Basically, when we unmap it in try_to_swap_out(), we
-> > should add the page to the swap cache, and when the
-> > last user stops using the page, we should push the
-> > page out to swap.
-> 
-> So in shm_swap_out I check if the page is already in the swap
-> cache. If not I put the page into it and note the swap entry in
-> the shadow pte of shm. Right?
+In article <200011160845.AAA10212@pizda.ninka.net> you wrote:
 
-Exactly. And I'll change page_launder() to:
-1. write dirty swap cache pages to disk
-2. do some IO clustering (maybe) or rely on luck ;)
+> I never ported it to the new PCI interfaces strictly because when
+> combined with SBUS it makes the driver initialization look really
+> sloppy.
 
-> So does the page live all the time in the swap cache? This would
-> lead to a vastly increased swap usage since we would have to
-> preallocate the swap entries on page allocation.
+BTW, what do you think of a new PCI style probing for SBUS?
+When I hacked on a small sbus driver, I thought it might be a good idea
+to have tables like the new PCI interface for all busses.
 
-If the usage count of the swap entry is 1 (all users of the
-page have swapped it in and the swap cache is the only user),
-then we can free the page from swap and the swap cache.
+The interface for SBUS would be:
 
-regards,
+struct sbus_device_id {
+	char *		promname;
+	unsigned long	driver_data;
+};
 
-Rik
---
-"What you're running that piece of shit Gnome?!?!"
-       -- Miguel de Icaza, UKUUG 2000
+struct sbus_driver {
+	struct list_head	node;
+	char *			name;
+	struct sbus_device_id *	id_table;
 
-http://www.conectiva.com/		http://www.surriel.com/
+	int (* probe)(struct sbus_dev * dev, const struct sbus_device_id * id);
+	void (* remove)(struct sbus_dev * dev);
+};
 
+Would you accept such a change for 2.5?
+
+	Christoph
+
+-- 
+Always remember that you are unique.  Just like everyone else.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

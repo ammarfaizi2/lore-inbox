@@ -1,44 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286171AbRLJGz7>; Mon, 10 Dec 2001 01:55:59 -0500
+	id <S286173AbRLJG5T>; Mon, 10 Dec 2001 01:57:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286170AbRLJGzu>; Mon, 10 Dec 2001 01:55:50 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:61960 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S286171AbRLJGzg>; Mon, 10 Dec 2001 01:55:36 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fully preemptible kernel
-Date: Mon, 10 Dec 2001 08:54:50 -0200
-X-Mailer: KMail [version 1.2]
-Cc: kpreempt-tech@lists.sourceforge.net
-In-Reply-To: <1007930466.11789.2.camel@phantasy>
-In-Reply-To: <1007930466.11789.2.camel@phantasy>
-MIME-Version: 1.0
-Message-Id: <01121008545000.01013@manta>
-Content-Transfer-Encoding: 7BIT
+	id <S286174AbRLJG5K>; Mon, 10 Dec 2001 01:57:10 -0500
+Received: from asooo.flowerfire.com ([63.254.226.247]:7955 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S286173AbRLJG44>; Mon, 10 Dec 2001 01:56:56 -0500
+Date: Mon, 10 Dec 2001 00:56:41 -0600
+From: Ken Brownfield <brownfld@irridia.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Slight Return (was Re: [VM] 2.4.14/15-pre4 too "swap-happy"?)
+Message-ID: <20011210005641.A11697@asooo.flowerfire.com>
+In-Reply-To: <20011208071259.C24098@asooo.flowerfire.com> <Pine.LNX.4.21.0112091650410.24337-100000@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.21.0112091650410.24337-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Sun, Dec 09, 2001 at 04:51:14PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 December 2001 18:41, Robert Love wrote:
-> Updated preempt-kernel patches for 2.4.16 and 2.4.17-pre6 are now
-> available at:
->
->  	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/preempt-kernel
->
-> patches for various previous kernels are there as well, but not in sync
-> with this release.
->
-> This patch enables a fully preemptible linux kernel -- userspace
-> processes are preemptible by higher priority tasks, even if running in
-> kernel space.  Nice gains in response _and_ throughput are observed.
->
-> The main change in this release is support for the SH architecture.
-> i386 and ARM are also supported.
+Yes, any kind of fairly heavy, spread-out I/O combined with updatedb
+will do the trick, like samba.  NFS isn't required, it just seems to be
+a particularly good trigger.
 
-I reported a problem with preemptible 2.4.13 and Samba server (oops, problems 
-with creation of files from win clients).
-Is this issue addressed?
---
-vda
+It seems like anything that hits the inode/dentry caches hard, actually,
+and doesn't always happen when freepages (or its 2.4.x equivalent) has
+been hit.  I had a little applet that malloc'ed and memcpy'ed 1GB of RAM
+and exited, which doesn't really help like it did before 2.4.15-pre[56].
+
+It also happens for me a lot more with my 4GB machines, though I have
+seen it on my 1GB HIGHMEM boxes as well.  If the problem is related to
+scanning the cache, perhaps more RAM simply makes it worse.
+
+I'm planning on trying Andrew Morton's patches as soon as I'm able.
+
+Thanks,
+-- 
+Ken.
+brownfld@irridia.com
+
+
+On Sun, Dec 09, 2001 at 04:51:14PM -0200, Marcelo Tosatti wrote:
+| 
+| 
+| On Sat, 8 Dec 2001, Ken Brownfield wrote:
+| 
+| > Just a quick followup to this, which is still a near show-stopper issue
+| > for me.
+| > 
+| > This is easy to reproduce for me if I run updatedb locally, and then run
+| > updatedb on a remote machine that's scanning an NFS-mounted filesystem
+| > from the original local machine.  Instant kswapd saturation, especially
+| > on large filesystems.
+| > 
+| > Doing updatedb on NFS-mounted filesystems also seems to cause kswapd to
+| > peg on the NFS-client side as well.
+| 
+| Can you reproduce the problem without the over NFS updatedb? 
+| 
+| Thanks 
+| 
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/

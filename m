@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267581AbTBRDvt>; Mon, 17 Feb 2003 22:51:49 -0500
+	id <S267578AbTBRDvk>; Mon, 17 Feb 2003 22:51:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267583AbTBRDvt>; Mon, 17 Feb 2003 22:51:49 -0500
-Received: from dp.samba.org ([66.70.73.150]:2180 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267581AbTBRDvs>;
-	Mon, 17 Feb 2003 22:51:48 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>, tridge@samba.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       cyeoh@samba.org, sfr@canb.auug.org.au, anton@samba.org,
-       paulus@samba.org, drepper@redhat.com
-Subject: Re: [PATCH] Prevent setting 32 uids/gids in the error range 
-In-reply-to: Your message of "17 Feb 2003 14:55:20 -0000."
-             <1045493720.19397.4.camel@irongate.swansea.linux.org.uk> 
-Date: Tue, 18 Feb 2003 15:01:29 +1100
-Message-Id: <20030218040149.17A5D2C04B@lists.samba.org>
+	id <S267581AbTBRDvk>; Mon, 17 Feb 2003 22:51:40 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:26549 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267578AbTBRDvj>;
+	Mon, 17 Feb 2003 22:51:39 -0500
+Date: Mon, 17 Feb 2003 19:46:12 -0800 (PST)
+Message-Id: <20030217.194612.131926469.davem@redhat.com>
+To: maxk@qualcomm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0301180439480.10820-100000@champ.qualcomm.com>
+References: <Pine.LNX.4.33.0301020341140.2038-100000@champ.qualcomm.com>
+	<Pine.LNX.4.33.0301180439480.10820-100000@champ.qualcomm.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <1045493720.19397.4.camel@irongate.swansea.linux.org.uk> you write:
-> On Mon, 2003-02-17 at 07:41, Rusty Russell wrote:
-> > Tridge noticed that getegid() was returning EPERM.
-> > 
-> > I used -1000 since that's what PTR_ERR uses, but i386 _syscall macros
-> > use -125: I don't suppose it really matters.
-> 
-> Thats a bug in the interface. getegid/getgid/setegid/setuid() is not permitted to fail.
-> If libc is setting errno and returning -1 the libc wrapper is wrong.
 
-OK, thanks.  Note that out asm-i386/unistd.h syscallX macros do it
-wrong, too.
+After talking to Alexey, I don't like this patch.
 
-AFAICT, glibc (2.3.1) gets this wrong, and interprets 0xffffffff
-return from geteuid() as an error (ie. it's not just an strace bug).
-Tested by Tridge.
+The new module subsystem was supposed to deal with things
+like this cleanly, and this patch is merely a hack to cover
+up for it's shortcomings.
 
-Paulus points out that this also means special handling on archs (PPC
-and PPC64 that I know of) which set a condition code on error: this
-can be sidestepped in glibc, as well.
+To be honest, I'd rather just disallow module unloading or
+let them stay buggy than put this hack into the tree.
 
-Other archs beware.
-
-Thanks for the clarification,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Special hacks are for 2.4.x where things like full cleanups
+are not allowed.

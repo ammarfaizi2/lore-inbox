@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261757AbTCZQJA>; Wed, 26 Mar 2003 11:09:00 -0500
+	id <S261759AbTCZQUD>; Wed, 26 Mar 2003 11:20:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261758AbTCZQJA>; Wed, 26 Mar 2003 11:09:00 -0500
-Received: from uranus.lan-ks.de ([194.45.71.1]:49415 "EHLO uranus.lan-ks.de")
-	by vger.kernel.org with ESMTP id <S261757AbTCZQI4>;
-	Wed, 26 Mar 2003 11:08:56 -0500
-To: James Simmons <jsimmons@infradead.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 500] New: fbcon sleeping function call from illegal
- context
-X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
-X-Message-Flag: This space is intentionally left blank
-X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
-X-Note: sending SPAM is a violation of both german and US law and will
-	at least trigger a complaint at your provider's postmaster.
-X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
-     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
-X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
-X-No-Archive: yes
-From: Jochen Hein <jochen@jochen.org>
-Date: Wed, 26 Mar 2003 17:09:01 +0100
-In-Reply-To: <Pine.LNX.4.44.0303252114470.6228-100000@phoenix.infradead.org> (James
- Simmons's message of "Tue, 25 Mar 2003 21:16:21 +0000 (GMT)")
-Message-ID: <87wuimds9u.fsf@echidna.jochen.org>
-User-Agent: Gnus/5.090015 (Oort Gnus v0.15) Emacs/21.2
-References: <Pine.LNX.4.44.0303252114470.6228-100000@phoenix.infradead.org>
+	id <S261762AbTCZQUD>; Wed, 26 Mar 2003 11:20:03 -0500
+Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:53475 "EHLO
+	d12lmsgate-4.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S261759AbTCZQUC>; Wed, 26 Mar 2003 11:20:02 -0500
+Importance: Normal
+Sensitivity: 
+Subject: Re: [PATCH] s390 update (4/9): common i/o layer update.
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF53EAB661.698F04AC-ONC1256CF5.0059F8AC@de.ibm.com>
+From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+Date: Wed, 26 Mar 2003 17:27:23 +0100
+X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 26/03/2003 17:28:52
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons <jsimmons@infradead.org> writes:
 
-> Please try my patch I sent to Ben. I attached it to this email for people 
-> to try it.
+> > + typeof (chsc_area_ssd.response_block)
+> > +       *ssd_res = &chsc_area_ssd.response_block;
+>
+> Yikes!  Please use the actual type here instead of typeof()
+Trouble is that response_block is an anonymous structure. There
+is not type...
 
-This is not against stock (can't remember applying a patch) 2.5.66; I
-get Rejects:
+> > + if (sch->lpm == 0)
+> > +       return -ENODEV;
+> > + else
+> > +       return -EACCES;
+>
+> I'd write this as return (sch->lpm ? -EACCES : -ENODEV), but maybe I'm
+> just too picky..
+No, you are not. return (sch->lpm ? -EACCES : -ENODEV) is better.
 
-root@gswi1164:/usr/src/linux-2.5.66# patch -p1 <
-~jochen/tmp/fbcon-illegal-context.diff
-patching file drivers/video/console/fbcon.c
-Hunk #3 FAILED at 232.
-Hunk #8 succeeded at 588 with fuzz 2.
-Hunk #10 FAILED at 1024.
-Hunk #11 FAILED at 1147.
-3 out of 11 hunks FAILED -- saving rejects to file
-drivers/video/console/fbcon.c.rej
-patching file drivers/video/softcursor.c
-patching file include/linux/fb.h
-Hunk #2 FAILED at 407.
-1 out of 2 hunks FAILED -- saving rejects to file
-include/linux/fb.h.rej
+> > - sch = kmalloc (sizeof (*sch), GFP_DMA);
+> > + sch = kmalloc (sizeof (*sch), GFP_KERNEL | GFP_DMA);
+>
+> What about using GFP_KERNEL | __GFP_DMA instead?  This makes it
+> more clear that it's just a qualifier.
+Hmm, GFP_DMA and __GFP_DMA are equivalent. I don't quite see your
+point here.
 
--- 
-#include <~/.signature>: permission denied
+blue skies,
+   Martin
+
+

@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266310AbSLKAgX>; Tue, 10 Dec 2002 19:36:23 -0500
+	id <S266897AbSLKArZ>; Tue, 10 Dec 2002 19:47:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266444AbSLKAgX>; Tue, 10 Dec 2002 19:36:23 -0500
-Received: from pc2-cwma1-4-cust129.swan.cable.ntl.com ([213.105.254.129]:30913
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266310AbSLKAgX>; Tue, 10 Dec 2002 19:36:23 -0500
-Subject: Re: IDE feature request & problem
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Milan Roubal <roubm9am@barbora.ms.mff.cuni.cz>
-Cc: Petr Sebor <petr@scssoft.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <039d01c2a0ab$b19a5ad0$551b71c3@krlis>
-References: <068d01c29d97$f8b92160$551b71c3@krlis><1039312135.27904.11.camel@irongate.sw
-	 ansea.linux.org.uk><20021208234102.GA8293@scssoft.com> 
-	<021401c2a05d$f1c72c80$551b71c3@krlis>
-	<1039540202.14251.43.camel@irongate.swansea.linux.org.uk> 
-	<039d01c2a0ab$b19a5ad0$551b71c3@krlis>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 11 Dec 2002 01:20:43 +0000
-Message-Id: <1039569643.14166.105.camel@irongate.swansea.linux.org.uk>
+	id <S266853AbSLKArZ>; Tue, 10 Dec 2002 19:47:25 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:27570 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S266444AbSLKArZ> convert rfc822-to-8bit; Tue, 10 Dec 2002 19:47:25 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <ve3mtm@rac.ca>, <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Tue, 10 Dec 2002 16:55:07 -0800
+In-Reply-To: <00d501c2a0ac$fe66bc40$0201a8c0@melanson>
+Subject: Re: Is this going to be true ?
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <20021211005509.AAA27981@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-12-11 at 00:24, Milan Roubal wrote:
-> Hi Alan,
-> I have got xfs partition and man fsck.xfs say
-> that it will run automatically on reboot.
 
-You need to force one. Something (I assume XFS) asked the disk for a
-stupid sector number. Thats mostly likely due to some kind of internal
-corruption on the XFS
+On Tue, 10 Dec 2002 19:33:58 -0500, Michael Melanson wrote:
+>Didn't they support an "Unix subsystem" on older versions of NT, to emulate
+>console Unix apps? I seem to remember something about a that a while ago.
+
+	Many versions of Windows have an almost completely useless POSIX subsystem. 
+It supplies everything POSIX demands and not a drop more, including 
+essentially no way to interact with the other subsystems. I believe Microsoft 
+implemented it simply to be able to put a checkbox next to 'POSIX compliant'.
+
+	DS
+
 

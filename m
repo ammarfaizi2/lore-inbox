@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265998AbTGAGF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 02:05:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265999AbTGAGF5
+	id S266003AbTGAGJs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 02:09:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265999AbTGAGJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 02:05:57 -0400
-Received: from web20002.mail.yahoo.com ([216.136.225.47]:18852 "HELO
-	web20002.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265998AbTGAGFz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 02:05:55 -0400
-Message-ID: <20030701062017.42244.qmail@web20002.mail.yahoo.com>
-Date: Mon, 30 Jun 2003 23:20:17 -0700 (PDT)
-From: Raghava Raju <vraghava_raju@yahoo.com>
-Subject: To make a function get executed on cpu2
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Tue, 1 Jul 2003 02:09:48 -0400
+Received: from angband.namesys.com ([212.16.7.85]:22765 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S266003AbTGAGIW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 02:08:22 -0400
+Date: Tue, 1 Jul 2003 10:22:42 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Fredrik Tolf <fredrik@dolda2000.cjb.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PTY DOS vulnerability?
+Message-ID: <20030701062242.GA7998@namesys.com>
+References: <200306301613.11711.fredrik@dolda2000.cjb.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200306301613.11711.fredrik@dolda2000.cjb.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-Hi,
+On Mon, Jun 30, 2003 at 04:18:36PM +0200, Fredrik Tolf wrote:
+> Has someone considered PTYs as a possible attack vector for DOS 
+> attacks? Correct me if I'm wrong, but cannot someone just open 
+> all available PTYs on a console-less server and make everyone 
+> unable to log in?
 
-In multicpu systems in kernel version 2.4.19, how 
-can we specify that a function be executed on 
-a cpu of our choice(say cpu_2). Moreover if I call a
-function from cpu_1 to be executed on cpu_2, I dont
-want to wait in cpu_1 until complete execution of
-function on cpu_2 . Is it possible?????
+ability to login != availability of free ptys.
 
-Any example would be really helpful. Please 
-mail back to vraghava_raju@yahoo.com.
+> I mean, what if eg. apache is hacked, and the first thing the 
+> attacker does is to tie up all PTYs, so that noone can log in to 
+> correct the situation while the attacker can go about his 
+> business? Then the only possible solution would be to reboot the 
+> server, which might very well not be desirable.
 
-Regards
-Raghava.
+Nope.
+slogin someuser@someserver "/bin/bash -i"
+will let you in even if you do not have a single pty free. Try it.
+If course job control won't work and other minor things are there,
+but still this is enough to e.g kill apache and all of its children in your case.
 
-__________________________________
-Do you Yahoo!?
-SBC Yahoo! DSL - Now only $29.95 per month!
-http://sbc.yahoo.com
+> Shouldn't PTYs be a per-user resource limit?
+
+This one is still interesting, though.
+
+Bye,
+    Oleg

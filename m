@@ -1,79 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVBFTlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVBFTmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261283AbVBFTlF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 14:41:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbVBFTlF
+	id S261291AbVBFTmk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 14:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbVBFTmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 14:41:05 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:28373 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261283AbVBFTlB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 14:41:01 -0500
-Subject: [PATCH] raw1394 : Fix hang on unload
-From: Parag Warudkar <kernel-stuff@comcast.net>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net,
-       Jody McIntyre <scjody@modernduck.com>
-Content-Type: multipart/mixed; boundary="=-qtZxAWYzLp4skE61MVeh"
-Date: Sun, 06 Feb 2005 14:41:15 -0500
-Message-Id: <1107718875.4378.25.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Sun, 6 Feb 2005 14:42:39 -0500
+Received: from ppsw-5.csi.cam.ac.uk ([131.111.8.135]:52365 "EHLO
+	ppsw-5.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261291AbVBFTmX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 14:42:23 -0500
+Date: Sun, 6 Feb 2005 19:42:17 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Andrew Morton <akpm@osdl.org>
+cc: nathans@sgi.com, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: RFC: [PATCH-2.6] Add helper function to lock multiple page cache
+ pages.
+In-Reply-To: <20050203024755.1792b6c0.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.60.0502061932270.21938@hermes-1.csi.cam.ac.uk>
+References: <Pine.LNX.4.60.0502021354540.16084@hermes-1.csi.cam.ac.uk>
+ <20050202143422.41c29202.akpm@osdl.org> <1107427057.9010.18.camel@imp.csi.cam.ac.uk>
+ <20050203024755.1792b6c0.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 3 Feb 2005, Andrew Morton wrote:
+> I did a patch which switched loop to use the file_operations.read/write
+> about a year ago.  Forget what happened to it.  It always seemed the right
+> thing to do..
 
---=-qtZxAWYzLp4skE61MVeh
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+How did you implement the write?  At the moment the loop driver gets hold 
+of both source and destination pages (the latter via grab_cache_page() and 
+aops->prepare_write()) and copies/transforms directly from the source to 
+the destination page (and then calls commit_write() on the destination 
+page).  Did you allocate a buffer for each request, copy/transform to the 
+buffer and then submit the buffer via file_operations->write?  That would 
+clearly be not very efficient but given fops->write() is not atomic I 
+don't see how that could be optimised further...
 
-I was seeing rmmod getting stuck consistently in D state while removing
-raw1394. Looking at raw1394.c:cleanup_raw1394 - the order of doing
-things seemed incorrect to me after comparing other places in raw1394.c
-which do the same thing but with a different order.
+Perhaps the loop driver should work as is when 
+aops->{prepare,commit}_write() are not NULL and should fall back to 
+a buffered fops->write() otherwise?
 
-bash          R  running task       0  4319   3884                3900
-(NOTLB)
-rmmod         D 0000008428792a16     0  4490   3900
-(NOTLB)
-ffff81001cff9dd8 0000000000000082 0000000000000000 0000000100000000
-       0000007400000000 ffff8100211c9070 000000000000097b
-ffff81002c8a2800
-       ffffffff80397c97 ffff81002b6f9360
-Call Trace:<ffffffff80379d25>{__down+421}
-<ffffffff80133510>{default_wake_function+0}
-       <ffffffff8037cd8c>{__down_failed+53}
-<ffffffff801c0e40>{generic_delete_inode+0}
-       <ffffffff8029e540>{.text.lock.driver+5}
-<ffffffff885a8260>{:raw1394:cleanup_raw1394+16}
-       <ffffffff8015eb31>{sys_delete_module+497}
-<ffffffff8021a692>{__up_write+514}
-       <ffffffff80183efb>{sys_munmap+107} <ffffffff8010ecda>{system_call
-+126}
+Or have I missed some way in which the fops->write() case can be 
+optimized?
 
-Attached patch fixes the rmmod raw1394 hang. Tested.
+Best regards,
 
-Parag
-
---=-qtZxAWYzLp4skE61MVeh
-Content-Disposition: attachment; filename=raw1394.c.patch
-Content-Type: text/x-patch; name=raw1394.c.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
---- drivers/ieee1394/raw1394.c.orig	2005-02-06 14:34:58.000000000 -0500
-+++ drivers/ieee1394/raw1394.c	2005-02-06 14:36:18.000000000 -0500
-@@ -2758,10 +2758,10 @@
- 
- static void __exit cleanup_raw1394(void)
- {
--	hpsb_unregister_protocol(&raw1394_driver);
- 	cdev_del(&raw1394_cdev);
-         devfs_remove(RAW1394_DEVICE_NAME);
-         hpsb_unregister_highlevel(&raw1394_highlevel);
-+	hpsb_unregister_protocol(&raw1394_driver);
- }
- 
- module_init(init_raw1394);
-
---=-qtZxAWYzLp4skE61MVeh--
-
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264477AbTDPQbt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 12:31:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264478AbTDPQbt
+	id S264471AbTDPQaq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 12:30:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264468AbTDPQaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 12:31:49 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2821 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S264477AbTDPQbe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 12:31:34 -0400
+	Wed, 16 Apr 2003 12:30:46 -0400
+Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:23791 "HELO
+	cocodriloo.com") by vger.kernel.org with SMTP id S264471AbTDPQap
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 12:30:45 -0400
+Date: Wed, 16 Apr 2003 18:54:08 +0200
+From: Antonio Vargas <wind@cocodriloo.com>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] kdevt-diff
-Date: 16 Apr 2003 09:43:04 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b7k16o$6r2$1@cesium.transmeta.com>
-References: <20030414175141.GS4917@ca-server1.us.oracle.com> <Pine.LNX.4.44.0304141056450.19302-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Subject: RedHat 9 and 2.5.x support
+Message-ID: <20030416165408.GD30098@wind.cocodriloo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.44.0304141056450.19302-100000@home.transmeta.com>
-By author:    Linus Torvalds <torvalds@transmeta.com>
-In newsgroup: linux.dev.kernel
-> 
-> (My prefernce for the 32-bit version would be 12+20 bits, but it's not a
-> very strong one, and it doesn't really matter for the kernel proper, so I
-> think Andries who has been tirelessly working on this for five years or
-> more gets the final say on it).
-> 
 
-I think 12+20 is a good choice for the 32-bit version (NFSv2 and those
-guys.)
+I've just installed RedHat 9 on my desktop machine and I'd like
+if it will support running under 2.5.65+ instead of his usual
+2.4.19+.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+I've got a separate machine for mail, compiling and whatever
+else I need for real work. I just need to assure I can run
+my 2.5 kernel on this distro and use it for desktop. Do I
+need some special packages, manual installs, etc...???
+
+I can recall there are modutils issues, and would not mind
+compiling/installing my own, but are there any other issues?
+
+Greets, Antonio.
+
+ps. cowahead! ;)

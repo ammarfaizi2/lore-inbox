@@ -1,37 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268981AbRHFUOO>; Mon, 6 Aug 2001 16:14:14 -0400
+	id <S268992AbRHFUQy>; Mon, 6 Aug 2001 16:16:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268989AbRHFUOE>; Mon, 6 Aug 2001 16:14:04 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:5764 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S268981AbRHFUNs>; Mon, 6 Aug 2001 16:13:48 -0400
-Date: Mon, 6 Aug 2001 16:13:58 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200108062013.f76KDwI11220@devserv.devel.redhat.com>
-To: mheinz@infiniconsys.com, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Resources for SCSI, SRP, Infiniband?
-In-Reply-To: <mailman.997107541.5496.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.997107541.5496.linux-kernel2news@redhat.com>
+	id <S268998AbRHFUQq>; Mon, 6 Aug 2001 16:16:46 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:61202 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S268992AbRHFUQj>;
+	Mon, 6 Aug 2001 16:16:39 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200108062016.f76KGmG117015@saturn.cs.uml.edu>
+Subject: Re: tulip driver problem
+To: trini@kernel.crashing.org (Tom Rini)
+Date: Mon, 6 Aug 2001 16:16:48 -0400 (EDT)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), linux-kernel@vger.kernel.org
+In-Reply-To: <20010806100319.C833@cpe-24-221-152-185.az.sprintbbd.net> from "Tom Rini" at Aug 06, 2001 10:03:19 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm making progress, but could someone direct me to a list of do's and 
-> don't's for SCSI drivers in 2.4?
+Tom Rini writes:
+> On Mon, Aug 06, 2001 at 12:19:10PM -0400, Albert D. Cahalan wrote:
 
-Laugh, sadly.
+>> This is the Force PowerCore 6750 single-board computer with
+>> a PowerPC processor and the DEC 21143 Ethernet chip.
+>
+> Just wondering, but when booting 2.4.x, do you see something like:
+> "Unknown bridge resource %d: assuming transparent"
+> for the tulip?
 
-> Also, anybody else looking at developing IB and or SRP?
+Nope. The closest is "Memory resource not set for host bridge 0".
 
-Nobody does IB in the open, because hardware is not generally
-available. Adapter manufacturers roll their proprietary stacks.
-I work in a Trillian style effort (e.g. definitely to be opensourced
-at a later date) - contact johnsonm at redhat if you are interested
-in joining.
+This is the VME 6750 BTW, not the CompactPCI 6750.
+I'll put my IRQ table adjustments below, in case they are wrong.
 
-No SRP implementations exist that I know of, prorotypes may
-be out there, coming from storage startups. AFAIK, Intel is
-using a packetised SCSI mapping, at least Ashok Raj made
-noises about it on IDF.
+Right now, a 2.4.8-pre4 boot gives this:
 
--- Pete
+ip_conntrack (2048 buckets, 16384 max)
+ip_tables: (c)2000 Netfilter core team
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+Looking up port of RPC 100003/2 on 172.16.101.112
+eth0: Setting half-duplex based on MII#1 link partner capability of 0021.
+NETDEV WATCHDOG: eth0: transmit timed out
+NETDEV WATCHDOG: eth0: transmit timed out
+NETDEV WATCHDOG: eth0: transmit timed out
+NETDEV WATCHDOG: eth0: transmit timed out
+
+That "eth0: Setting half-duplex" line doesn't show if I use the
+other driver or forget to adjust the IRQ mappings; the rest is
+the same no matter what.
+
+
+        static char pci_irq_table[][4] =
+        /*
+         *      PCI IDSEL/INTPIN->INTLINE
+         *      A       B       C       D
+         */
+        {
+                {11,    14,     5,      10},    /* IDSEL 24 - Universe II */
+                {0,     0,      0,      0},     /* IDSEL 25 - unused */
+                {10,    11,     14,     5},     /* IDSEL 26 - Winbond */
+                {10,    11,     14,     5},     /* IDSEL 27 - DEC 21143 */
+                {14,    5,      10,     11},    /* IDSEL 28 - PMC I */
+                {11,    14,     5,      10},    /* IDSEL 29 - PMC II */
+                {0,     0,      0,      0},     /* IDSEL 30 - unused */
+#if 0
+                {9,     10,     11,     12},    /* IDSEL 24 - DEC 21554 */
+                {10,    0,      0,      0},     /* IDSEL 25 - DEC 21143 */
+                {11,    12,     9,      10},    /* IDSEL 26 - PMC I */
+                {12,    9,      10,     11},    /* IDSEL 27 - PMC II */
+                {0,     0,      0,      0},     /* IDSEL 28 - unused */
+                {0,     0,      9,      0},     /* IDSEL 29 - unused */
+                {0,     0,      0,      0},     /* IDSEL 30 - Winbond */
+#endif
+                };

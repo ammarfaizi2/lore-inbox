@@ -1,71 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263013AbUCSPGe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 10:06:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263010AbUCSPGe
+	id S263007AbUCSPKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 10:10:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263010AbUCSPKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 10:06:34 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:6599 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S263013AbUCSPGc
+	Fri, 19 Mar 2004 10:10:16 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19387 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263007AbUCSPKM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 10:06:32 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: module scanning in kgdb 2.x
-Date: Fri, 19 Mar 2004 20:36:04 +0530
-User-Agent: KMail/1.5
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
-       Tom Rini <trini@kernel.crashing.org>
-References: <200403121206.16130.amitkale@emsyssoft.com> <1079471931.19722.15.camel@bach>
-In-Reply-To: <1079471931.19722.15.camel@bach>
+	Fri, 19 Mar 2004 10:10:12 -0500
+Message-ID: <405B0D44.9070902@pobox.com>
+Date: Fri, 19 Mar 2004 10:09:56 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Mark <mark@harddata.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH,RFT] latest libata (includes Silicon Image work)
+References: <4059EBB8.4010807@pobox.com> <200403181628.33558.mark@harddata.com>
+In-Reply-To: <200403181628.33558.mark@harddata.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403192036.04225.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 17 Mar 2004 2:48 am, Rusty Russell wrote:
-> On Fri, 2004-03-12 at 17:36, Amit S. Kale wrote:
-> > Hi,
->
-> Hi Amit,
->
-> 	FYI: you would have received a quicker response if you'd CC'd me.
+Mark wrote:
+> On March 18, 2004 11:34 am, Jeff Garzik <jgarzik@pobox.com> wrote:
+> 
+>>Attached is the latest libata patch against 2.6.x mainline.  Although
+>>not 100% of content, most of this patch resolves around getting Silicon
+>>Image into better shape.  As I mentioned in my last post, this patch
+>>affects all libata users, so plenty of testing is requested.
+>>
+> 
+> Jeff,
+> 
+> After applying this to and rebuilding arjanv newest redhat kernel 
+> (2.6.4-1.275), sd_mod doesn't load when at sata_sil is loaded. It did before 
+> I patched the kernel rpm.
 
-Hi Rusty,
 
-Thanks.
-Yep! I'll CC you on any further modules stuff.
+That's a configuration problem of some sort...  libata doesn't change 
+any of that.
 
->
-> > It does following things:
-> > 1. Adds MODULE_STATE_GONE to indicate that a module was removed. This is
-> > differnent from MODULE_STATE_GOING. gdb needs to be notified of a module
-> > event _after_ a module has been removed. Or else it'll still find the
-> > module during a module list scan and will not remove it from its core.
->
-> Makes sense.
->
-> > 2. Defines a structure mod_section which stores module section names and
-> > offsets preserved during loading of a module.
-> >
-> > 3. Adds a couple of fields to struct module to keep module section
-> > information.
->
-> Why not just set the section strings to SHF_ALLOC rather than copying
-> (and possibly truncating) the names into your struct mod_section?
-> struct mod_section is then simply void *addr; char *name;
+	Jeff
 
-How can I do that? Do I have to use objcopy on module files for this purpose?
 
--Amit
+

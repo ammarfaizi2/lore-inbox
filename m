@@ -1,93 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbUK3AwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbUK3Ax3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261911AbUK3AwN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 19:52:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbUK3AwN
+	id S261915AbUK3Ax3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 19:53:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbUK3Ax3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 19:52:13 -0500
-Received: from hera.kernel.org ([63.209.29.2]:63875 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261911AbUK3Avz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 19:51:55 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-Date: Tue, 30 Nov 2004 00:51:49 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <cogg75$3a6$1@terminus.zytor.com>
-References: <19865.1101395592@redhat.com> <cofv73$us3$1@terminus.zytor.com> <A697CF5A-4267-11D9-8DB8-000393ACC76E@mac.com>
+	Mon, 29 Nov 2004 19:53:29 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:59083 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261915AbUK3AxR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 19:53:17 -0500
+Subject: Re: Suspend 2 merge: 49/51: Checksumming
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Rob Landley <rob@landley.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200411291830.33885.rob@landley.net>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <200411290455.10318.rob@landley.net>
+	 <1101767472.4343.439.camel@desktop.cunninghams>
+	 <200411291830.33885.rob@landley.net>
+Content-Type: text/plain
+Message-Id: <1101775792.4329.23.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1101775909 3399 127.0.0.1 (30 Nov 2004 00:51:49 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Tue, 30 Nov 2004 00:51:49 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 30 Nov 2004 11:49:52 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <A697CF5A-4267-11D9-8DB8-000393ACC76E@mac.com>
-By author:    Kyle Moffett <mrmacman_g4@mac.com>
-In newsgroup: linux.dev.kernel
->
-> On Nov 29, 2004, at 15:01, H. Peter Anvin wrote:
-> > Most people seem to have suggested include/linux-abi for this; I would
-> > personally prefer include/linux-abi/arch for the second.
-> 
-> It seems like there are two ways to adjust the headers.  We could move
-> the private headers to a new directory (include/kernel?), or we could 
-> move
-> the public headers to a new directory (include/linux-abi?).  I am 
-> willing to
-> work on some simple and trivial patches to begin doing either one, if we
-> can reach an agreement as to which one is preferrable (and what to call
-> the new directory.)
-> 
+Hi.
 
-If we can preserve compatibility, moving the private headers to a
-separate place makes sense.  However, preserving compatibility is not
-a good thing, because a lot of the brokenness is in how things are
-exported.  Thus, you want libc to be able to have a linux/* wrapper
-for backwards compatibility.
-
-My first choice would be to put the ABI headers in linux/abi.
-
-> > Good, except your "struct winsize" is bad; you're stepping on
-> > namespace which belongs to userspace.  Since we can't use typedefs on
-> > struct tags, I suggest:
+On Tue, 2004-11-30 at 10:30, Rob Landley wrote:
+> On Monday 29 November 2004 07:24 pm, Nigel Cunningham wrote:
+> > Hi.
 > >
-> > struct __kstruct_winsize {
-> >        /* ... */
-> > };
+> > On Mon, 2004-11-29 at 20:55, Rob Landley wrote:
+> > > On Wednesday 24 November 2004 08:02 am, Nigel Cunningham wrote:
+> > > > A plugin for verifying the consistency of an image. Working with kdb,
+> > > > it can look up the locations of variations. There will always be some
+> > > > variations shown, simply because we're touching memory before we get
+> > > > here and as we check the image.
+> > >
+> > > A while back I suggested checking the last mount time of the mounted
+> > > local filesystems as a quick and dirty sanity check between loading the
+> > > image and unfreezing all the processes.  (Since a read-only mount
+> > > shouldn't touch this, triggering swsusp resume from userspace after
+> > > prodding various hardware shouldn't cause a major problem either...) 
+> > > Does that sound like a good idea?
 > >
-> > .. and userspace can do:
-> >
-> > #define __kstruct_winsize winsize
+> > If I recall correctly, someone replied that even a read only mount under
+> > one filesystem (XFS? Not sure), would replay the journal, so it wasn't a
+> > goer.
 > 
-> My initial suggestion would be to leave the types as-is, primarily for
-> the reasons in Linus' earlier email, but also for simplicity and to
-> prevent inadvertent breakage.
+> You could always special case the broken one until they fix it... :)
 
-True; I hadn't considered the weirdness of the namespace pollution
-issue.  However, the issue with struct tags remain.
+Mmm. I wonder how much code that would require us to add. I do like the
+idea of not interacting where the answer is obvious :>. I still think,
+however, that interacting when the answer isn't obvious is the right
+thing to do. Take for example the case where we find an image, but the
+device numbers look like they belong to 2.4 and we're a 2.6 kernel. We
+can't read the header (we can't be sure that this is the cause). The
+user - or their cat - might have selected the wrong boot image
+unintentionally. Why shouldn't we give them the opportunity to reboot
+and get the right one?
 
-Note also that not all ABI issues can be well-described in C headers,
-and certainly not the way it currently is.  Syscall numbers and ioctl
-APIs are examples there (I do some hideously ugly hacks in klibc to
-try to auto-derive as much of the ABI as possible; this is part of
-making klibc very easy to port to new architectures and keeps
-maintenance in one place.)  However, cleaning up the headers is a
-major step forward.
-
-> >>  (3) Remove all #if(n)def __KERNEL__ clauses.
-> >>
-> >>  (4) Remove the -D__KERNEL__ from the master kernel Makefile.
+> > > Haven't had time to look into it myself, though.  (Just recently got time
+> > > enough to bang on busybox again.  Somewhere around 2.6.7, software
+> > > suspend stopped working for me and I haven't even had a chance to track
+> > > _that_ down yet.  Hopefully fixed in 2.6.9 or 2.6.10, I haven't played
+> > > with it recently...)
 > >
-> > Bad!  There is code in the kernel which can compile in userspace for
-> > testing.  This is highly valuable and should be kept.
+> > If you mean suspend2, I might be able to help if given more info.
 > 
-> I would propose that if we decide to move the public headers instead of
-> the internal kernel headers, we autogenerate headers for installation
-> that have a #warning wrapper if __KERNEL__ isn't defined.
+> Nah, the one that's built in.  I'll try it again when I upgrade to 2.6.10 in a 
+> few days.
 
-	-hpa
+Okay.
+
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
+

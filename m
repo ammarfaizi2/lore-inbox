@@ -1,76 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267735AbUG3QUj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267739AbUG3QpA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267735AbUG3QUj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 12:20:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267734AbUG3QUj
+	id S267739AbUG3QpA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 12:45:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267738AbUG3Qo7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 12:20:39 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:50409 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267735AbUG3QU3 (ORCPT
+	Fri, 30 Jul 2004 12:44:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:11654 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267739AbUG3Qo5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 12:20:29 -0400
-Date: Fri, 30 Jul 2004 17:20:23 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Gigabit Ethernet support for forcedeth
-Message-ID: <20040730162023.GD8175@redhat.com>
-References: <20040730100421.GB8175@redhat.com> <410A4A1C.4040608@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eDs+MzjklnCQZgvp"
-Content-Disposition: inline
-In-Reply-To: <410A4A1C.4040608@colorfullife.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 30 Jul 2004 12:44:57 -0400
+Message-ID: <410A7A86.6030206@redhat.com>
+Date: Fri, 30 Jul 2004 09:42:46 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040728
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: arjanv@redhat.com
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: symlinks follow 8 or 5?
+References: <1091079278.1999.5.camel@localhost.localdomain>	 <slrn-0.9.7.4-22364-14114-200407301259-tc@hexane.ssi.swin.edu.au> <1091171770.2794.4.camel@laptop.fenrus.com>
+In-Reply-To: <1091171770.2794.4.camel@laptop.fenrus.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arjan van de Ven wrote:
 
---eDs+MzjklnCQZgvp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> you haven't been paying attention.... the current 2.6 kernels have a
+> patch series that is fixing this for most filesystems already 
 
-On Fri, Jul 30, 2004 at 03:16:12PM +0200, Manfred Spraul wrote:
+Which reminds me: how can we safely determine whether this is
+implemented for a local filesystem from userland?  Unless we can do I
+cannot change the value of SYMLOOP_MAX and people will not be able to
+take advantage of the raised limit safely.
 
-> Tim Waugh wrote:
->=20
-> >Works fine if I back out that patch.
-> >
-> >=20
-> >
-> The patch rewrites the phy initialization. Backing it out is not really=
-=20
-> a solution: I have one report that it fixes the link detection, without=
-=20
-> the patch no link is detected.
-
-I wasn't suggesting it as a solution, just trying to provide data.
-Now you have a report that it breaks link detection. :-)
-
-> Which phy is used by your board? Could you enable dprintk (near line=20
-> 115) and reload the driver?
-
-I've enabled dprintk and captured *.debug syslog output from a normal
-boot.  Here is the result:
-
-http://cyberelk.net/tim/tmp/forcedeth-debug
-
-Hope you can make some sense of it.  Let me know what else I can try.
-
-Tim.
-*/
-
---eDs+MzjklnCQZgvp
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBCnVH9gevn0C09XYRAvkWAKCoERrlwZEh6wkPpEJgkUL+aKRbTgCfQm37
-IJDSCPFEKRab4LMuS00SXWo=
-=wcgB
------END PGP SIGNATURE-----
-
---eDs+MzjklnCQZgvp--
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312586AbSDEN2P>; Fri, 5 Apr 2002 08:28:15 -0500
+	id <S312600AbSDEN3p>; Fri, 5 Apr 2002 08:29:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312588AbSDEN2F>; Fri, 5 Apr 2002 08:28:05 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39942 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312586AbSDEN17>; Fri, 5 Apr 2002 08:27:59 -0500
-Subject: Re: faster boots?
-To: rgooch@ras.ucalgary.ca (Richard Gooch)
-Date: Fri, 5 Apr 2002 13:49:59 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), bcrl@redhat.com (Benjamin LaHaise),
-        akpm@zip.com.au (Andrew Morton), joeja@mindspring.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200204050538.g355c4v02240@vindaloo.ras.ucalgary.ca> from "Richard Gooch" at Apr 04, 2002 10:38:04 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S312590AbSDEN3f>; Fri, 5 Apr 2002 08:29:35 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:44301 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S312588AbSDEN33>; Fri, 5 Apr 2002 08:29:29 -0500
+Date: Fri, 5 Apr 2002 14:29:23 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, Release 2.0 is available
+Message-ID: <20020405142923.B7061@flint.arm.linux.org.uk>
+In-Reply-To: <p73k7rms6ba.fsf@oldwotan.suse.de> <7853.1018011163@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16tTAF-0008F2-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Be careful here. I did this for a while with a Maxtor 80 GB IDE drive,
-> and after a few months, it started making unpleasant noises when
-> spinning up (lots of clicking and clacking). I went back to continuous
+On Fri, Apr 05, 2002 at 10:52:43PM +1000, Keith Owens wrote:
+> On a smaller config (full config takes too long when single threaded).
+> 
+> kbuild 2.4:
+> 	make oldconfig dep bzImage modules	6:25
+> 	make bzImage modules (no changes)	0:22
+> 
+> kbuild 2.5:
+> 	make oldconfig installable		4:45
+> 	make installable (no changes)		0:16
 
-I can tell you I've had 80Gb Maxtors do that that were always spun up. They
-went back and the replacement ones have behaved so far. I don't think its
-that related
+How does it compare in (ahem) 32-64MB machines?
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

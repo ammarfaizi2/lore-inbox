@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbTLBHnR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 02:43:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbTLBHnR
+	id S261552AbTLBISv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 03:18:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbTLBISv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 02:43:17 -0500
-Received: from mailout02.ims-firmen.de ([213.174.32.97]:62651 "EHLO
-	mailout02.ims-firmen.de") by vger.kernel.org with ESMTP
-	id S261506AbTLBHnQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 02:43:16 -0500
-X-KENId: 00007ADBKEN03153EF9
-X-KENRelayed: 00007ADBKEN03153EF9@ken
-Date: 02 Dec 2003 08:43:03 +0100
-From: Robert Voigt <robert.voigt@euroavionics.com>
-Subject: development standards of kernel needed for certification effort
-To: linux-kernel@vger.kernel.org
-Message-Id: <1070350985.501.19.camel@notfall>
+	Tue, 2 Dec 2003 03:18:51 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:44811 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261552AbTLBISu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 03:18:50 -0500
+Date: Tue, 2 Dec 2003 08:18:45 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: snpe <snpe@snpe.co.yu>
+Cc: Ian Kent <raven@themaw.net>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4 future
+Message-ID: <20031202081845.B19277@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	snpe <snpe@snpe.co.yu>, Ian Kent <raven@themaw.net>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <Pine.LNX.4.44.0312012302310.9674-100000@raven.themaw.net> <20031201153316.B3879@infradead.org> <200312020223.55505.snpe@snpe.co.yu>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200312020223.55505.snpe@snpe.co.yu>; from snpe@snpe.co.yu on Tue, Dec 02, 2003 at 02:23:55AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We want to use Linux for avionics software and need to certify it to
-DO-178B. For that we must reference any development standards that have
-been used. These are in particular
-- software requirements standards
-- software design standards
-- software code standards
+On Tue, Dec 02, 2003 at 02:23:55AM +0000, snpe wrote:
+> Is there linux-abi for 2.6 kernel ?
 
-I found the file Documentation/CodingStyle to be relevant. Is there
-anything else that has been written and followed? If someone can say
-that there is not, which I think is quite likely, this information would
-also be valuable.
-
-Thank you very much in advance
-
-
+AFAIK not.

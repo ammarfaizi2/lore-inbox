@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261741AbUCPWHD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 17:07:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbUCPWHD
+	id S261744AbUCPWSu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 17:18:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUCPWSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 17:07:03 -0500
-Received: from gate.crashing.org ([63.228.1.57]:27103 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261741AbUCPWHB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 17:07:01 -0500
-Subject: Re: consistent_sync_for_cpu() and friends on ppc32
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Olaf Hering <olh@suse.de>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040316104627.47fc1f25.davem@redhat.com>
-References: <20040315201616.GA31268@suse.de>
-	 <20040315123647.4ce943b7.davem@redhat.com>
-	 <1079396621.1967.196.camel@gaston>
-	 <20040315164917.6a85966b.davem@redhat.com>
-	 <1079400967.2302.213.camel@gaston>
-	 <20040316104627.47fc1f25.davem@redhat.com>
+	Tue, 16 Mar 2004 17:18:50 -0500
+Received: from mail.tpgi.com.au ([203.12.160.100]:24225 "EHLO
+	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S261744AbUCPWSs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 17:18:48 -0500
+Subject: Re: The verdict on the future of suspending to disk?
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Reply-To: ncunningham@users.sourceforge.net
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Patrick Mochel <mochel@digitalimplant.org>, Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Suspend development list <swsusp-devel@lists.sourceforge.net>
+In-Reply-To: <20040316113717.GB2282@elf.ucw.cz>
+References: <1079408330.3403.5.camel@calvin.wpcb.org.au>
+	 <20040316113717.GB2282@elf.ucw.cz>
 Content-Type: text/plain
-Message-Id: <1079474087.920.14.camel@gaston>
+Message-Id: <1079467995.3403.68.camel@calvin.wpcb.org.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 17 Mar 2004 08:54:48 +1100
+X-Mailer: Ximian Evolution 1.4.5-2.norlug 
+Date: Wed, 17 Mar 2004 09:13:15 +1300
 Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-> See, the direction really doesn't matter for the sync ops.
-
-Well, the direction makes the difference between a flush and an
-invalidation ;)
-
-> If you flush the cpu caches at MAP time, and your PCI controller doesn't
-> have DMA caching or something like that, then sync for CPU can always be
-> a nop.  You will have always previously flushed the cpu caches before
-> giving the buffer back to the device, either via MAP or sync for device
-> calls.
+On Wed, 2004-03-17 at 00:37, Pavel Machek wrote:
+> I do not think Patrick is going to maintain anything.
 > 
-> So basically, make MAP and sync for device writeback flush the cpu caches.
+> If you want to maintain it, you can have it. Big plus if you are able
+> to deal with Patrick.
 
-No, flush on TO_DEVICE and BIDIRECTIONAL, invalidate on FROM_DEVICE,
-it's less expensive to invalidate than flush in that case, since we
-don't care about writing to real memory whatever junk the cache
-contained for this area.
+Okay, but can we clearly delineate responsibilities? I'm happy to deal
+with the suspend-to-disk stuff because I understand it. I don't however
+understand suspend-to-ram or kobjects (yes, I will need to learn them)
+or device drivers, so I don't want anyone thinking I'm going to
+concentrate on anything more than what I'm already doing. That said, I'd
+love to take over software suspend and work on merging the work I've
+done.
 
-Ben.
+Nigel
+-- 
+Nigel Cunningham
+C/- Westminster Presbyterian Church Belconnen
+61 Templeton Street, Cook, ACT 2614.
++61 (2) 6251 7727(wk); +61 (2) 6253 0250 (home)
 
-
+Evolution (n): A hypothetical process whereby infinitely improbable events occur 
+with alarming frequency, order arises from chaos, and no one is given credit.
 

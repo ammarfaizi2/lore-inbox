@@ -1,43 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbULUShe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261844AbULUSll@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261836AbULUShe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 13:37:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbULUShe
+	id S261844AbULUSll (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 13:41:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbULUSll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 13:37:34 -0500
-Received: from mail.kroah.org ([69.55.234.183]:19387 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261836AbULUSh3 (ORCPT
+	Tue, 21 Dec 2004 13:41:41 -0500
+Received: from mail.kroah.org ([69.55.234.183]:701 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261844AbULUSlk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 13:37:29 -0500
-Date: Tue, 21 Dec 2004 10:37:10 -0800
+	Tue, 21 Dec 2004 13:41:40 -0500
+Date: Tue, 21 Dec 2004 10:37:38 -0800
 From: Greg KH <greg@kroah.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add mmap support to struct bin_attribute files
-Message-ID: <20041221183710.GA8490@kroah.com>
-References: <200412210932.54961.jbarnes@engr.sgi.com>
+To: Tejun Heo <tj@home-tj.org>
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH REPOST 2.6.10-rc3 0/4] module sysfs: module sysfs related cleanups
+Message-ID: <20041221183738.GB8490@kroah.com>
+References: <20041220014728.GA16197@home-tj.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200412210932.54961.jbarnes@engr.sgi.com>
+In-Reply-To: <20041220014728.GA16197@home-tj.org>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 21, 2004 at 09:32:54AM -0800, Jesse Barnes wrote:
-> This patch adds an mmap method and some more error checking to struct 
-> bin_attribute--good for things like exporting PCI resources directly.  I 
-> wasn't sure about the return values for the case where an attribute is 
-> missing a given method, and it looks like mm.h can't be included in sysfs.h, 
-> so I had to forward declare struct vm_area_struct.  Other than that, it works 
-> fine for my test cases.
+On Mon, Dec 20, 2004 at 10:47:28AM +0900, Tejun Heo wrote:
+>  Hello, Greg.
 > 
->  fs/sysfs/bin.c        |   27 +++++++++++++++++++++++++--
->  include/linux/sysfs.h |    6 ++++++
->  2 files changed, 31 insertions(+), 2 deletions(-)
-> 
-> Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
+>  Here are the regenerated patches with the fix.
 
-Nice, thanks for doing this.  I've applied it to my trees.
+Thanks, I've applied all 4 patches to my trees, and they will show up in
+the next -mm release.
 
 greg k-h
+

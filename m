@@ -1,63 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269739AbRHII4q>; Thu, 9 Aug 2001 04:56:46 -0400
+	id <S269748AbRHIJGt>; Thu, 9 Aug 2001 05:06:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269740AbRHII4g>; Thu, 9 Aug 2001 04:56:36 -0400
-Received: from www.grips.com ([62.144.214.31]:27153 "EHLO grips_nts2.grips.com")
-	by vger.kernel.org with ESMTP id <S269739AbRHII4Z>;
-	Thu, 9 Aug 2001 04:56:25 -0400
-Message-ID: <3B72510C.2020503@grips.com>
-Date: Thu, 09 Aug 2001 10:59:56 +0200
-From: gjury <gjury@grips.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010803
-X-Accept-Language: de-at, en
+	id <S269752AbRHIJGj>; Thu, 9 Aug 2001 05:06:39 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5394 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269748AbRHIJGd>; Thu, 9 Aug 2001 05:06:33 -0400
+Subject: Re: Swapping for diskless nodes
+To: dws@dirksteinberg.de (Dirk W. Steinberg)
+Date: Thu, 9 Aug 2001 10:08:37 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <no.id> from "Dirk W. Steinberg" at Aug 09, 2001 09:51:42 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Athlon/MSI mobo combo broken?
-In-Reply-To: <Pine.LNX.4.10.10108082057430.10284-100000@coffee.psychology.mcmaster.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15Ulnx-0006zZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I did not say chipset at all.
-You seem to miss the fact, that >= 40 % of the SDRAM modules are not 
-even close to the spec.
-The german magazin ct can sing a song about it. http://www.heise.de/ct
-Software has nothing to do with this.
-The windows installation on my PC suffert from the same effects.
-It was just harder to spot there below ... .
-Every memory tester i tried was showing no problems at all.
-It may be triggered more likely or not, but bad SDRAM cannot be fixed in 
-software.
-Thats my own only plausible theory.
+> what is the best/recommended way to do remote swapping via the network
+> for diskless workstations or compute nodes in clusters in Linux 2.4?=20
+> Last time i checked was linux 2.2, and there were some races related=20
+> to network swapping back then. Has this been fixed for 2.4?
 
-regards
-gerold
+The best answer probably is "don't". Networks are high latency things for
+paging and paging is latency sensitive. If performance is not an issue then
+the nbd driver ought to work. You may need to check it uses the right
+GFP_ levels to avoid deadlocks and you might need to up the amount of atomic
+pool memory. Hopefully other hacks arent needed
 
-Mark Hahn wrote:
+[The general case of network swap is basically insoluble but its possible to
+ make it perfectly usable as Sun proved]
 
->>If you have PC100 SDRAM try to replace it with PC133.
->>
->
->ugh, this is the same (mistaken) approach as turning off CONFIG_MK7:
->cripple performance enough that your system works.  turning off 
->CONFIG_MK7 disables Arjan's nice code in mmx.c which delivers 
->2-4x the copy/zero-page bandwidth...
->
->there *are* stable via/athlon systems, and that indicates that the 
->problem is not inherent to the chipset.  I have a gigabyte ga-7zx,
->duron/600, pc133 system that has always been rock-solid.  and I 
->recently built an Asus a7v-133, tbird/1199, pc133 system that is
->also entirely stable.  both run cas2 pc133, CONFIG_MK7 kernels, etc.
->both have fairly generous power supplies.
->
->so far, the only plausible theory is that some individual factor(s)
->(MB, bios settings, power quality, dram quality, etc) causes 
->the instability that some people report.
->
->regards, mark hahn.
->
-
-
+Alan

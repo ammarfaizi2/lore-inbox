@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311281AbSCQDib>; Sat, 16 Mar 2002 22:38:31 -0500
+	id <S311284AbSCQDnu>; Sat, 16 Mar 2002 22:43:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311282AbSCQDiV>; Sat, 16 Mar 2002 22:38:21 -0500
-Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:18187 "EHLO
-	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S311281AbSCQDiM>; Sat, 16 Mar 2002 22:38:12 -0500
-Date: Sun, 17 Mar 2002 04:37:26 +0100 (CET)
-From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-To: Keith Owens <kaos@ocs.com.au>
-cc: Petko Manolov <pmanolov@lnxw.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: debugging eth driver 
-In-Reply-To: <25257.1016329003@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.4.44.0203170435080.12507-100000@rudy.mif.pg.gda.pl>
+	id <S311283AbSCQDnk>; Sat, 16 Mar 2002 22:43:40 -0500
+Received: from twinlark.arctic.org ([204.107.140.52]:13576 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP
+	id <S311285AbSCQDnV>; Sat, 16 Mar 2002 22:43:21 -0500
+Date: Sat, 16 Mar 2002 19:43:20 -0800 (PST)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>, <mingo@redhat.com>
+Subject: Re: /dev/md0: Device or resource busy
+In-Reply-To: <E16mRYV-000853-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0203161937390.7016-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Mar 2002, Keith Owens wrote:
+On Sun, 17 Mar 2002, Alan Cox wrote:
 
-> On Sat, 16 Mar 2002 10:52:10 -0800, 
-> Petko Manolov <pmanolov@lnxw.com> wrote:
-> >Alan Cox wrote:
-> >>>How am i supposed to get a feedback from the upper layers?
-> >> 
-> >> Keep an eye on /proc/net/snmp
+> > i just tried a "linux init=/bin/sh" boot, and it's still saying Device or
+> > resource busy:
 > >
-> >It isn't very readable format..  Any other way or i have to
-> >read the code and see what the messages mean?
-> 
-> Quick and dirty script to neatly format /proc/net/snmp.  BTW, there is
-> a mismatch in the ICMP list on 2.4.17, 26 headers and 27 values :(.
+> > init-2.05a# raidstop /dev/md0
+> > md: md0 still in use.
+> > /dev/md0: Device or resource busy
+> > init-2.05a# mount /proc
+>
+> Duplicated. Seems the md code deos indeed have a bug there
 
-BTW. I dont't know how it looks in 2.4.x but in 2.2.x format
-/proc/net/snmp and /proc/net/snmp6 is diffrent. Is it bug or feacture ? :)
+ACK!  sorry.  it's not the kernel code, it's raidstop.  it seems to open
+/dev/md0 an extra time for what reason i'm not sure.  it even does it when
+you're referring to other md devices.  for example:
 
-kloczek
--- 
------------------------------------------------------------
-*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
------------------------------------------------------------
-Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+# strace raidstop /dev/md3
+...
+open("/dev/md0", O_RDONLY)              = 4
+ioctl(4, 0x800c0910, 0x804fd1c)         = 0
+open("/dev/md3", O_RDWR)                = 5
+fstat64(5, {st_mode=S_IFBLK|0660, st_rdev=makedev(9, 3), ...}) = 0
+ioctl(5, 0x932, 0)                      = 0
+...
+
+mdctl doesn't have this problem.
+
+fwiw dpkg tells me i've got raidtools 0.90.20010914-9
+
+-dean
 

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292666AbSDQPwQ>; Wed, 17 Apr 2002 11:52:16 -0400
+	id <S292855AbSDQPzO>; Wed, 17 Apr 2002 11:55:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292730AbSDQPwP>; Wed, 17 Apr 2002 11:52:15 -0400
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:9672 "EHLO
+	id <S292870AbSDQPzN>; Wed, 17 Apr 2002 11:55:13 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:18122 "EHLO
 	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S292666AbSDQPwN>; Wed, 17 Apr 2002 11:52:13 -0400
-Date: Wed, 17 Apr 2002 17:52:09 +0200
+	id <S292855AbSDQPzL>; Wed, 17 Apr 2002 11:55:11 -0400
+Date: Wed, 17 Apr 2002 17:55:08 +0200
 From: Stelian Pop <stelian.pop@fr.alcove.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [BKPATCH 2.4] sonypi driver: doclet fix.
-Message-ID: <20020417155209.GC1519@come.alcove-fr>
+Subject: [BKPATCH 2.4] meye driver: fix request_irq bug
+Message-ID: <20020417155508.GE1519@come.alcove-fr>
 Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
 Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
@@ -25,12 +25,12 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This patch fixes a trivial doclet in the sonypi driver,
-reported by Christoph Begall.
+This patch fixes a failure in the meye driver to request_irq when
+it is compiled into the kernel.
 
 Marcelo, please apply.
 
-Stelan.
+Stelian.
 
 You can import this changeset into BK by piping this whole message to
 '| bk receive [path to repository]' or apply the patch as usual.
@@ -38,34 +38,33 @@ You can import this changeset into BK by piping this whole message to
 ===================================================================
 
 
-ChangeSet@1.418, 2002-04-17 15:59:55+02:00, stelian@popies.net
-  Doclet for sonypi driver, as reported by Christoph Begall.
+ChangeSet@1.418, 2002-04-17 16:29:42+02:00, stelian@popies.net
+  Fix meye driver request_irq bug.
 
 
- sonypi.txt |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ meye.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
 
-diff -Nru a/Documentation/sonypi.txt b/Documentation/sonypi.txt
---- a/Documentation/sonypi.txt	Wed Apr 17 16:00:17 2002
-+++ b/Documentation/sonypi.txt	Wed Apr 17 16:00:17 2002
-@@ -36,14 +36,14 @@
- driver and the ACPI BIOS, because Sony doesn't agree to release any programming
- specs for its laptops. If someone convinces them to do so, drop me a note.
+diff -Nru a/drivers/media/video/meye.c b/drivers/media/video/meye.c
+--- a/drivers/media/video/meye.c	Wed Apr 17 16:30:05 2002
++++ b/drivers/media/video/meye.c	Wed Apr 17 16:30:05 2002
+@@ -1237,7 +1237,6 @@
+ 	sonypi_camera_command(SONYPI_COMMAND_SETCAMERA, 1);
  
--Module options:
-+Driver options:
- ---------------
+ 	meye.mchip_dev = pcidev;
+-	meye.mchip_irq = pcidev->irq;
+ 	memcpy(&meye.video_dev, &meye_template, sizeof(meye_template));
  
- Several options can be passed to the sonypi driver, either by adding them
- to /etc/modules.conf file, when the driver is compiled as a module or by
- adding the following to the kernel command line (in your bootloader):
+ 	if (mchip_dma_alloc()) {
+@@ -1251,6 +1250,7 @@
+ 		goto out3;
+ 	}
  
--	sonypi=minor[[[[[,camera],fnkeyinit],verbose],compat],nojogdial]
-+	sonypi=minor[,verbose[,fnkeyinit[,camera[,compat[,nojogdial]]]]]
- 
- where:
- 
++	meye.mchip_irq = pcidev->irq;
+ 	mchip_adr = pci_resource_start(meye.mchip_dev,0);
+ 	if (!mchip_adr) {
+ 		printk(KERN_ERR "meye: mchip has no device base address\n");
 
 ===================================================================
 
@@ -75,20 +74,19 @@ This BitKeeper patch contains the following changesets:
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch14465
-M'XL(`/%_O3P``[54T6K;,!1]CK[B0A^;V)(MV[$A(VLSMK'!0D:?PAX468FU
-MV)*1E"X&?_SD9#1C:S<Z5ME<P_75T3WG'G0%=U:88F2=J"53Z`K>:>N*4:M;
-M*6R@A/.IE=8^%5:Z$:&32NI#N!=&B3JLI3H<)U%`D2];,L<KN!?&%B,2Q`\9
-MU[6B&*W>O+W[^'J%T&P&MQ53._%9.)C-D-/FGM6EG3-7U5H%SC!E&^%8P'73
-M/Y3V$<:1?Q*2Q3A)>Y)BFO6<E(0P2D2)(SI-*6J8X:+6\[8^\'T7E-(ZHSV2
-M$MS)>_8K'AU@HBG.^P3'TRE:``DHF0*.0DQ#D@%)BB0ODN0:1P7&\$.G^44?
-MN"8PP>@&_B^/6\1AH7GM#]AJ`U:KKI50&NGU'0.S8$2KC1,E;#JOI_$\=5O!
-MC=BQN@[0!T@PQ1@M+UJCR3,70IAA]`K:88J/L_(='AJA''-2J_#<9."./Y',
-M"8Y)3W&2T9YSZK4EFZ@D.:,L?T3-OR!2DI$XR1/2IPG-Z,E,3^T8O/5BK:/G
-MM^[!B/=:.K2>GIWVN\_('WP6P21Z$9]MY=$/V3`/(@QH4_K(5`FV\V2.WDMG
-ML3_!Q'P[O=X;RR=U_P>?+>(<"'I_BHN3Q4&W`ZPMT(*FP[]3')U/F352:;,>
-M^[J-MF(]WJJ]Z/S%Y-9C[ED8YK^Z\<-?CY7^JG>E9/6785VN*5X)OK>'9L9$
-.F:9EE*/O?F0NZ@L%````
+begin 664 bkpatch15977
+M'XL(`.V&O3P``[6476^;,!2&K^-?<:1>5@';F$"84F5K]Z5-6M6IUY,QI\$*
+M8&H;VDK\^#EIU4A;UWUH!23#P7[/.:\?.()+A[:8.8^-EATY@@_&^6+6FUZC
+MBSKT(71A3`C%M6DQ]KK39HBW:#MLXD9WP^V<1X*$:>?2JQI&M*Z8L2AYC/B[
+M'HO9Q=OWEY]?7Q"R6L%I+;L-?D4/JQ7QQHZRJ=Q:^KHQ7>2M[%R+7D;*M-/C
+MU(E3RL.9LBRAZ6)B"RJR2;&*,2D85I2+?"%(*ZW"QJS[9E#;NZC2SEL3E#I4
+M7H_R1SVQD^$Y74XI3?*<G`&+!,N!\IB*F&7`%@5?%H(?4UY0"@\^K0_^P#&#
+M.25OX/_V<4H4O-.WT.(=0F5UL!4L7@_H_#=MKZ$<-A'Y!&*9Y8*<'QPE\[\\
+M"*&2DA/H=WOU=.WWZ5W<8J5E/.H*3;RK*U*'9I:,)FP2G*5B2E,IE119Q7FI
+M*'O"M-]*"I8QP9=)-B4T%]F>FE^OV6'T<O63A_JC4/_ZRD:R46;$/U).@BX7
+M&>4/;>SP^@FN)'L>+O8B<-U([>'*6/!U``Q'K3!D@1(!.UDV6(7;\!IA<+K;
+M@/8.=MQ)[ZTN!X\!OON>OL#<WNRO`-/Y,[OT#VB>!?<H,/*1\30)XVROU*I:
+G]_NO8`6]"AG&^4EX>G7X":D:U=8-[:K,EUE:E0GY#E^\6E7I!```
 `
 end
 -- 

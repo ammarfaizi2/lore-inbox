@@ -1,60 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291571AbSBAGdu>; Fri, 1 Feb 2002 01:33:50 -0500
+	id <S291566AbSBAGju>; Fri, 1 Feb 2002 01:39:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291566AbSBAGdk>; Fri, 1 Feb 2002 01:33:40 -0500
-Received: from [217.9.226.246] ([217.9.226.246]:11649 "HELO
-	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
-	id <S291570AbSBAGdb>; Fri, 1 Feb 2002 01:33:31 -0500
-To: Anton Blanchard <anton@samba.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Rik van Riel <riel@conectiva.com.br>, John Stoffel <stoffel@casc.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Radix-tree pagecache for 2.5
-In-Reply-To: <Pine.LNX.4.33.0201311115450.1732-100000@penguin.transmeta.com>
-	<Pine.LNX.4.33.0201312227350.18203-100000@localhost.localdomain>
-	<20020131231242.GA4138@krispykreme>
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <20020131231242.GA4138@krispykreme>
-Date: 01 Feb 2002 08:32:40 +0200
-Message-ID: <878zad1zlj.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S291568AbSBAGjb>; Fri, 1 Feb 2002 01:39:31 -0500
+Received: from chmls18.ne.ipsvc.net ([24.147.1.153]:22987 "EHLO
+	chmls18.ne.ipsvc.net") by vger.kernel.org with ESMTP
+	id <S291566AbSBAGj1>; Fri, 1 Feb 2002 01:39:27 -0500
+From: "Guillaume Boissiere" <boissiere@mediaone.net>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 1 Feb 2002 01:39:15 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: New device naming convention
+Message-ID: <3C59F1C3.21004.28F8E65B@localhost>
+X-mailer: Pegasus Mail for Windows (v4.01)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Anton" == Anton Blanchard <anton@samba.org> writes:
+I added this item on my kernel 2.5 status list a few weeks ago, and 
+it seems to be _the_ hot topic for 2.5.
 
-Anton> Hi Ingo,
+o Pending   Finalize new device naming convention    (Linus Torvalds)
 
->> Yes, it's very nice. Anton Blanchard has benchmarked both patch variants
->> (tree vs. scalable-hash page buckets) for SMP scalability against the
->> stock hash, on big RAM, many CPUs boxes, via dbench load. He has found
->> performance of radix trees vs. scalable hash to be at least equivalent. (i
->> think Anton has a few links to show the resulting graphs.)
+What exactly are people expecting Linus to decide on?  And once it 
+has been decided, what is the next step after that?
 
-Anton> Here are some results on a 12 way machine. (2.4.16-splay is the radix
-Anton> patch):
+I really don't want to start a flame war on the subject (so please
+refrain from rants), I am just trying to understand what people are 
+waiting for. 
 
-Anton> http://samba.org/~anton/linux/pagecache_locking/1/summary.png
+Anyone care to explain?  Thanks,
 
-A correction, "-splay" is the very first variant I posted, which used
-splay trees for the page cache.
+-- Guillaume
 
-Anton> As you can see both patches give pretty much equal improvements.
 
-Anton> The other problem with the current pagecache hash is that it maxes out
-Anton> at order 9 (due to the get_free_pages limitation) which starts to hurt
-Anton> at 4GB RAM and above. On a 32GB machine the average hashchain depth
-Anton> was very high:
-
-Anton> http://samba.org/~anton/linux/pagecache/pagecache_before.png
-
-Anton> There were a few solutions (from davem and ingo) to allocate a larger
-Anton> hash but with the radix patch we no longer have to worry about this.
-
-Anton> So the radix patch solves 2 problems quite nicely :)
-
-Anton> Anton

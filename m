@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261199AbRELOaH>; Sat, 12 May 2001 10:30:07 -0400
+	id <S261255AbRELOeH>; Sat, 12 May 2001 10:34:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261252AbRELO36>; Sat, 12 May 2001 10:29:58 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26385 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261199AbRELO3s>; Sat, 12 May 2001 10:29:48 -0400
-Subject: Re: 2.4.4 kernel freeze for unknown reason
-To: mikeg@wen-online.de (Mike Galbraith)
-Date: Sat, 12 May 2001 15:25:53 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linuxkernel@AdvancedResearch.org (Vincent Stemen),
-        jq419@my-deja.com (Jacky Liu), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0105121504560.365-100000@mikeg.weiden.de> from "Mike Galbraith" at May 12, 2001 03:45:17 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261257AbRELOd5>; Sat, 12 May 2001 10:33:57 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:45212 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S261255AbRELOdu>;
+	Sat, 12 May 2001 10:33:50 -0400
+Message-ID: <3AFD49CC.655E3E4F@mandrakesoft.com>
+Date: Sat, 12 May 2001 10:33:48 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] winbond-840 update
+In-Reply-To: <3AFD0A27.49C11072@colorfullife.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14yaLB-0004CF-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Does any swap write/release if you hit such a box with heavy duty IO?
-> (pages on dirty list, swapspace allocated but writeout defered?)
+Manfred Spraul wrote:
+> @@ -437,9 +439,9 @@
+>         if (option > 0) {
+>                 if (option & 0x200)
+>                         np->full_duplex = 1;
+> -               np->default_port = option & 15;
+> -               if (np->default_port)
+> -                       np->medialock = 1;
+> +               if (option & 15)
+> +                       printk(KERN_INFO "%s: ignoring user supplied media type %d",
+> +                               dev->name, option & 15);
+>         }
+>         if (find_cnt < MAX_UNITS  &&  full_duplex[find_cnt] > 0)
+>                 np->full_duplex = 1;
 
-Hard to tell. I switched my desktop box back to 2.2 a while back
-until the VM works. 
+I'm not sure this part is something we want in the mainstream kernel...
 
-Alan
-
+-- 
+Jeff Garzik      | Game called on account of naked chick
+Building 1024    |
+MandrakeSoft     |

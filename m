@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261589AbSIXHGh>; Tue, 24 Sep 2002 03:06:37 -0400
+	id <S261594AbSIXHQn>; Tue, 24 Sep 2002 03:16:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261590AbSIXHGh>; Tue, 24 Sep 2002 03:06:37 -0400
-Received: from holomorphy.com ([66.224.33.161]:14233 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261589AbSIXHGg>;
-	Tue, 24 Sep 2002 03:06:36 -0400
-Date: Tue, 24 Sep 2002 00:11:16 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rolf Fokkens <fokkensr@fokkensr.vertis.nl>
-Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 32bit wraps and USER_HZ [64 bit counters], kernel 2.5.37
-Message-ID: <20020924071116.GC3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Rolf Fokkens <fokkensr@fokkensr.vertis.nl>,
-	Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-References: <200209222207.g8MM7MM04998@fokkensr.vertis.nl> <200209232208.g8NM8bN05831@fokkensr.vertis.nl> <1032819194.25745.241.camel@phantasy> <200209240704.g8O74Ur01620@fokkensr.vertis.nl>
+	id <S261595AbSIXHQn>; Tue, 24 Sep 2002 03:16:43 -0400
+Received: from paperboy.noris.net ([62.128.1.27]:63140 "EHLO mail2.noris.net")
+	by vger.kernel.org with ESMTP id <S261594AbSIXHQm>;
+	Tue, 24 Sep 2002 03:16:42 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <200209240704.g8O74Ur01620@fokkensr.vertis.nl>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Message-Id: <p05111701b9b4f24d964e@[192.109.102.36]>
+Date: Mon, 23 Sep 2002 18:36:02 +0200
+To: linux-kernel@vger.kernel.org
+From: Matthias Urlichs <smurf@noris.de>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 24 September 2002 00:13, Robert Love wrote:
->> Having arrays statically created at NR_CPUS inside the task_struct is
->> just gross.  Especially with NR_CPUS=32.  That is 128 bytes each!  Now
->> with your changes, it is 256 bytes each!
+Peter Waechtler:
+>  [ unattributed -- please don't discard attributions ]
 
-On Tue, Sep 24, 2002 at 09:04:25AM +0200, Rolf Fokkens wrote:
-> I can understand that. However from a user point of view statistics are very 
-> usefull information, but not specifically the per-processor statistics.
-> I assume you mean to leave out the per-process statistics? Or do you mean to 
-> kmalloc the per-processor statistics when needed - that is: only when 
-> processes are running or maybe when the user has chosen to turn then on (some 
-> sysctl maybe)? 
+>  Having multiple threads doing real work including IO means more
+>  blocking IO and therefore more context switches.
 
-I'm in favor of removing them entirely.
+On the other hand, having to multiplex in userspace requires calls to 
+poll() et al, _and_ explicitly handling state which the kernel needs 
+to handle anyway -- including locking and all that crap.
 
-
-Cheers,
-Bill
+Given that an efficient and fairly-low-cost 1:1 implementation is 
+demonstrably possible ;-) the necessity to do any kind of n:m work 
+strikes me as extremely low.
+-- 
+Matthias Urlichs      http://smurf.noris.de     ICQ:20193661    AIM:smurfixx

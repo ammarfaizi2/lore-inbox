@@ -1,49 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267935AbUGaKGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267929AbUGaKJz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267935AbUGaKGu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 06:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267934AbUGaKGt
+	id S267929AbUGaKJz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 06:09:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267932AbUGaKJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 06:06:49 -0400
-Received: from holomorphy.com ([207.189.100.168]:64671 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267935AbUGaKGs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 06:06:48 -0400
-Date: Sat, 31 Jul 2004 03:06:41 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Eric Anholt <eta@lclark.edu>
-Cc: arjanv@redhat.com, Dave Airlie <airlied@linux.ie>,
-       linux-kernel@vger.kernel.org, DRI <dri-devel@lists.sourceforge.net>
-Subject: Re: drm - first steps towards 64-bit correctness..
-Message-ID: <20040731100641.GA2334@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Eric Anholt <eta@lclark.edu>, arjanv@redhat.com,
-	Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org,
-	DRI <dri-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.58.0407310940540.6368@skynet> <1091266345.425.34.camel@leguin> <1091267687.2819.3.camel@laptop.fenrus.com> <1091267836.425.46.camel@leguin>
+	Sat, 31 Jul 2004 06:09:55 -0400
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:9961 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S267929AbUGaKJt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 06:09:49 -0400
+Date: Sat, 31 Jul 2004 12:09:47 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.8-rc2-mm1 breaks PPPoE for me (was: 2.6.8-rc2-mm1)
+Message-ID: <20040731100947.GA7453@merlin.emma.line.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040728020444.4dca7e23.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1091267836.425.46.camel@leguin>
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <20040728020444.4dca7e23.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-07-31 at 02:54, Arjan van de Ven wrote:
->> can you explain why u32 would be outlawed? Surely it's trivial to do a
->> typedef for u32 on BSD for drm ??
+On Wed, 28 Jul 2004, Andrew Morton wrote:
 
-On Sat, Jul 31, 2004 at 02:57:17AM -0700, Eric Anholt wrote:
-> If there are nice standard types (uint32_t or u_int32_t, can't remember
-> which at the moment, I mentioned it in an email some time ago) out there
-> already that linux has too, why not use those?
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc2/2.6.8-rc2-mm1/
+...
+> gcc35-pppoe.c.patch
+>   gcc-3.5 fixes
 
-uint*_t. ISTR something about Linux' usage predating standard type
-names for the things.
+Andrew,
 
-I have much more serious issues with other naming conventions to get
-worked up about this one. In general I don't mind ones that are less
-verbose than the standard.
+I'm not sure if my problem is related to this patch, but in
+2.6.8-rc2-mm1, PPPoE doesn't work for me, kernel compiled with gcc (GCC)
+3.3.1 (SuSE Linux), a vanilla 2.6.7 is fine with the same compiler.
 
+pppd[5685]: Plugin /usr/lib/pppd/2.4.1/pppoe.so loaded.
+pppd[5685]: PPPoE Plugin Initialized
+pppd[5685]: pppd 2.4.1 started by root, uid 0
+pppd[5685]: Sending PADI
+pppd[5685]: HOST_UNIQ successful match 
+pppd[5685]: Failed to negotiate PPPoE connection: 25 Inappropriate ioctl for device
+pppd[5685]: Exit.
 
--- wli
+A successful pppd session start, with 2.6.7, looks like this:
+
+pppd[5070]: PPPoE Plugin Initialized
+pppd[5070]: pppd 2.4.1 started by root, uid 0
+pppd[5070]: Sending PADI
+pppd[5070]: HOST_UNIQ successful match 
+pppd[5070]: HOST_UNIQ successful match 
+pppd[5070]: Got connection: 164b
+pppd[5070]: Connecting PPPoE socket: 00:90:1a:XX:XX:XX 4b16 eth1 0x808a560
+/sbin/hotplug[5166]: INTERFACE=ppp0
+pppd[5070]: Using interface ppp0
+pppd[5070]: Connect: ppp0 <--> eth1
+pppd[5070]: Setting MTU to 1492.
+pppd[5070]: Couldn't increase MRU to 1500
+pppd[5070]: Setting MTU to 1492.
+pppd[5070]: local  IP address 217.81.XXX.XXX
+pppd[5070]: remote IP address 217.5.XXX.XXX
+pppd[5070]: Script /etc/ppp/ip-up finished (pid 5180), status = 0x0
+
+HTH,
+
+-- 
+Matthias Andree
+
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)

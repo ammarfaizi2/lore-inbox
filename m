@@ -1,42 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263962AbUH1Hpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263001AbUH1H50@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263962AbUH1Hpg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 03:45:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266683AbUH1Hpf
+	id S263001AbUH1H50 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 03:57:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265928AbUH1H50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 03:45:35 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17425 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263962AbUH1Hpe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 03:45:34 -0400
-Date: Sat, 28 Aug 2004 08:45:29 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org, perex@suse.de
-Subject: Re: ALSA update broke Sparc
-Message-ID: <20040828084529.C15347@flint.arm.linux.org.uk>
-Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
-	linux-kernel@vger.kernel.org, perex@suse.de
-References: <20040827183646.1da2befc.davem@davemloft.net>
+	Sat, 28 Aug 2004 03:57:26 -0400
+Received: from rproxy.gmail.com ([64.233.170.204]:23201 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263001AbUH1H5Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 03:57:25 -0400
+Message-ID: <2ff2162804082800576f79e28@mail.gmail.com>
+Date: Sat, 28 Aug 2004 13:27:25 +0530
+From: BAIN <bainonline@gmail.com>
+Reply-To: BAIN <bainonline@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Compression filter for Loopback device
+In-Reply-To: <412F3210.3030506@nec-labs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040827183646.1da2befc.davem@davemloft.net>; from davem@davemloft.net on Fri, Aug 27, 2004 at 06:36:46PM -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <951A499AA688EF47A898B45F25BD8EE80126D4DB@mailer.nec-labs.com> <2ff2162804082703342bca4594@mail.gmail.com> <2ff21628040827033840b1576e@mail.gmail.com> <412F3210.3030506@nec-labs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 27, 2004 at 06:36:46PM -0700, David S. Miller wrote:
-> Can I make a small formal request of the ALSA folks?  Can you
-> at least setup a cross-compiler to make sure your ALSA merges
-> don't explode on sparc64?  As it stands, 1 out of every 2 ALSA
-> merges breaks the build on that platform.
+On Fri, 27 Aug 2004 09:07:28 -0400, Lei Yang <leiyang@nec-labs.com> wrote:
+> First of all, link is invalid:)
 
-This is only one such small case.  There's also the case of mmaping
-DMA buffers into userspace...
+> > i do know about linuxcc project
+> > http://linuxcc.sf.net
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+oops this shud have been 
+http://linuxcompressed.sf.net
+sorry,
+
+BAIN

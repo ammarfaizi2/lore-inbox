@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131988AbRCYO1G>; Sun, 25 Mar 2001 09:27:06 -0500
+	id <S131997AbRCYOgR>; Sun, 25 Mar 2001 09:36:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131989AbRCYO05>; Sun, 25 Mar 2001 09:26:57 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:32018 "EHLO
+	id <S132005AbRCYOgH>; Sun, 25 Mar 2001 09:36:07 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:41988 "EHLO
 	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S131988AbRCYO0t>; Sun, 25 Mar 2001 09:26:49 -0500
-Message-ID: <3ABDFD24.877A1FE9@evision-ventures.com>
-Date: Sun, 25 Mar 2001 16:13:56 +0200
+	id <S131997AbRCYOgC>; Sun, 25 Mar 2001 09:36:02 -0500
+Message-ID: <3ABDFF3F.C7C64EB5@evision-ventures.com>
+Date: Sun, 25 Mar 2001 16:22:55 +0200
 From: Martin Dalecki <dalecki@evision-ventures.com>
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
 X-Accept-Language: en, de
 MIME-Version: 1.0
-To: Mike Galbraith <mikeg@wen-online.de>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <Pine.LNX.4.33.0103241039590.2310-100000@mikeg.weiden.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk, hpa@transmeta.com,
+        torvalds@transmeta.com, tytso@MIT.EDU, linux-kernel@vger.kernel.org
+Subject: Re: Larger dev_t
+In-Reply-To: <UTC200103241425.PAA08694.aeb@vlet.cwi.nl> <3ABCB1D7.968452D6@mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
+Jeff Garzik wrote:
 > 
-> On Sat, 24 Mar 2001, Doug Ledford wrote:
+> Also for 2.5, kdev_t needs to go away, along with all those arrays based
+> on major number, and be replaced with either "struct char_device" or
+> "struct block_device" depending on the device.
 > 
-> [snip list of naughty behavior]
-> 
-> > What was that you were saying about "should *never* happen"?  Oh, and let's
-> Get off your lazy butts and do something about it.  Don't work on the
-> oom-killer though.. that's only a symptom.  Work on the problem instead.
+> I actually went through the kernel in 2.4.0-test days and did this.
+> Most kdev_t usages should really be changed to "struct block_device".
+> The only annoyance in the conversion was ROOT_DEV and similar things
+> that are tied into the boot process.  I didn't want to change that and
+> potentially break the boot protocol...
 
-You are absolutely right about the fact that there are serious
-memmory balancing problems out there as well. But ther oom_killer.c
-needs to be changed as well - becouse in it's current state it's
-buggy as hell as well. You propably know that you earn stability
-in SW systems by making them survive the borderline conditions...
+Please se the patches I have send roughly a year to the list as well.
+It's actually NOT easy. In esp the SCSI and IDE-CD usage of minor arrays
+is
+a huge obstacle.
+
+-- 
+- phone: +49 214 8656 283
+- job:   eVision-Ventures AG, LEV .de (MY OPINIONS ARE MY OWN!)
+- langs: de_DE.ISO8859-1, en_US, pl_PL.ISO8859-2, last ressort:
+ru_RU.KOI8-R

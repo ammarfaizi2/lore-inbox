@@ -1,64 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264420AbTE0WxX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 18:53:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264421AbTE0WxX
+	id S264416AbTE0WyN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 18:54:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264421AbTE0WyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 18:53:23 -0400
-Received: from newmail.somanetworks.com ([216.126.67.42]:31158 "EHLO
-	mail.somanetworks.com") by vger.kernel.org with ESMTP
-	id S264420AbTE0WxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 18:53:22 -0400
-Date: Tue, 27 May 2003 19:06:28 -0400
-From: Georg Nikodym <georgn@somanetworks.com>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: manish <manish@storadinc.com>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org,
-       Christian Klose <christian.klose@freenet.de>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-Message-Id: <20030527190628.779eda78.georgn@somanetworks.com>
-In-Reply-To: <200305271954.11635.m.c.p@wolk-project.de>
-References: <3ED2DE86.2070406@storadinc.com>
-	<3ED3A2AB.3030907@gmx.net>
-	<3ED3A55E.8080807@storadinc.com>
-	<200305271954.11635.m.c.p@wolk-project.de>
-Organization: SOMA Networks
-X-Mailer: Sylpheed version 0.8.11claws175 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	Tue, 27 May 2003 18:54:13 -0400
+Received: from inet-mail1.oracle.com ([148.87.2.201]:19881 "EHLO
+	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
+	id S264416AbTE0WyL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 18:54:11 -0400
+Date: Tue, 27 May 2003 15:55:20 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: linux-kernel@vger.kernel.org
+Subject: WimMark I report for 2.5.70-mm1
+Message-ID: <20030527225519.GL32128@ca-server1.us.oracle.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.JlWzj9'b/(,1e'"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.JlWzj9'b/(,1e'
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+WimMark I report for 2.5.70-mm1
 
-On Tue, 27 May 2003 20:04:49 +0200
-Marc-Christian Petersen <m.c.p@wolk-project.de> wrote:
+Runs (deadline): 717.27 1064.57 1089.13
+Runs (anticipatory):  1342.93 1121.47 1330.42
 
-> ALL: Anyone who has this kind of pauses/stops/mouse is dead/keyboard
-> is dead/:
->      speak _NOW_ please, doesn't matter who you are!
+	WimMark I is a rough benchmark we have been running
+here at Oracle against various kernels.  Each run tests an OLTP
+workload on the Oracle database with somewhat restrictive memory
+conditions.  This reduces in-memory buffering of data, allowing for
+more I/O.  The I/O is read and sync write, random and seek-laden.  The
+runs all do ramp-up work to populate caches and the like.
+	The benchmark is called "WimMark I" because it has no
+official standing and is only a relative benchmark useful for comparing
+kernel changes.  The benchmark is normalized an arbitrary kernel, which
+scores 1000.0.  All other numbers are relative to this.  A bigger number
+is a better number.  All things being equal, a delta <50 is close to
+unimportant, and a delta < 20 is very identical.
+	This benchmark is sensitive to random system events.  I run
+three runs because of this.  If two runs are nearly identical and the
+remaining run is way off, that run should probably be ignored (it is
+often a low number, signifying that something on the system impacted
+the benchmark).
+	The machine in question is a 4 way 700 MHz Xeon machine with 2GB
+of RAM.  CONFIG_HIGHMEM4GB is selected.  The disk accessed for data is a
+10K RPM U2W SCSI of similar vintage.  The data files are living on an
+ext3 filesystem.  Unless mentioned, all runs are
+on this machine (variation in hardware would indeed change the
+benchmark).
+	WimMark I run results are archived at
+http://oss.oracle.com/~jlbec/wimmark/wimmark_I.html
 
-Uh, ok.  These pauses have kept me from using anything newer than riel's
-2.4.19-rmap15a
+-- 
 
--g
+"Reader, suppose you were and idiot.  And suppose you were a member of
+ Congress.  But I repeat myself."
+	- Mark Twain
 
---=.JlWzj9'b/(,1e'
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD4DBQE+0+91oJNnikTddkMRApKYAJjUWvtd27DoMmgjdzMbXXn2eTMNAJ0TM9Kv
-RxLjD8H8TUNuSzNUmesWUg==
-=yWR0
------END PGP SIGNATURE-----
-
---=.JlWzj9'b/(,1e'--
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

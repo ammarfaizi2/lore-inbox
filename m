@@ -1,69 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267001AbUAXTgP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 14:36:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267002AbUAXTgP
+	id S267004AbUAXUPf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 15:15:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267005AbUAXUPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 14:36:15 -0500
-Received: from village.ehouse.ru ([193.111.92.18]:29704 "EHLO mail.ehouse.ru")
-	by vger.kernel.org with ESMTP id S267001AbUAXTgM (ORCPT
+	Sat, 24 Jan 2004 15:15:34 -0500
+Received: from Mail.MNSU.EDU ([134.29.1.12]:166 "EHLO mail.mnsu.edu")
+	by vger.kernel.org with ESMTP id S267004AbUAXUPa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 14:36:12 -0500
-From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-To: "Feldman, Scott" <scott.feldman@intel.com>,
-       "Petr Sebor" <petr@scssoft.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.x] e1000: NETDEV WATCHDOG: eth0: transmit timed out
-Date: Sat, 24 Jan 2004 22:36:03 +0300
-User-Agent: KMail/1.5.4
-References: <C6F5CF431189FA4CBAEC9E7DD5441E0102229D92@orsmsx402.jf.intel.com>
-In-Reply-To: <C6F5CF431189FA4CBAEC9E7DD5441E0102229D92@orsmsx402.jf.intel.com>
+	Sat, 24 Jan 2004 15:15:30 -0500
+Message-ID: <4012D258.6010201@mnsu.edu>
+Date: Sat, 24 Jan 2004 14:15:20 -0600
+From: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org,
+       "XFS: linux-xfs@oss.sgi.com" <linux-xfs@oss.sgi.com>,
+       marcelo.tosatti@cyclades.com
+Subject: 2.4.24 with the 2.4.23-xfs patches from sgi
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401242236.03765.rathamahata@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Scott, Petr,
+Hello,
 
-On Saturday 24 January 2004 01:28, Feldman, Scott wrote:
-> > since we have upgraded cabling on our network and transfer
-> > speeds increased a little bit, we are experiencing very often
-> > situations where the Intel PRO/1000 nics just stop responding
-> > and network dies for a while. Local console works, there are
-> > no more error messages other than (when the eth0 comes to a
-> > life again):
-> >
-> > NETDEV WATCHDOG: eth0: transmit timed out
-> > e1000: eth0 NIC Link is Up 1000 Mbps Full Duplex
->
-> Petr, I need you to try something.  Get ethtool 1.8
-> (sf.net/projects/gkernel) and turn off TSO:
->
->   # ethtool -K eth0 tso off
->
-> If you now longer see NETDEV WATCHDOG's, I have a next step.  More on
-> that later.
-I have had exactly the same problem with 2.6.{0,1} kernels:
-"NETDEV WATCHDOG: eth0: transmit timed out"
-where eth0 is:
-"03:07.0 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet Controller (Copper) (rev 01)".
-The only difference is that my eth0 is at 100 Mbps Full Duplex.
-And yes, in my case this problem was solved by `ethtool -K eth0 tso off`.
+In the last 48-hours we've had two machines hang with no messages on the 
+console and none in the logs, pings return, drive lights are all off and 
+don't ever flash.   Both machines we running linux-2.4.24 with the 
+xfs-2.4.23-all-i386 patch as recommended by the XFS group.  These 
+machines had been running fine on this kernel image since Jan  13, 
+2004.  One machine was running XFS as a filesystem and the other was 
+running EXT2.  These machines have both been in constant production for 
+over 4 years and there has not been any hardware changes, including 
+those to it's environment with is power and temperature controlled.
 
->
-> -scott
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Both machines are Pentium-3 class, 256M of memory, both using SCSI disk 
+with different SCSI controllers.  This is the the version string:
+Linux version 2.4.24-xfs (j3gum@krypton) (gcc version 2.95.4 20011002 
+(Debian prerelease)) #1 SMP Tue Jan 13 22:05:12 CST 2004
 
+If you need more specific info. I'll prob. keep these and the other 
+dozen on the same kernel image up for a few more days.
 -- 
-                   Best regards,
-                   Sergey S. Kostyliov <rathamahata@php4.ru>
-                   Public PGP key: http://sysadminday.org.ru/rathamahata.asc
+jeffrey hundstad
 

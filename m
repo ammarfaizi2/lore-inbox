@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318058AbSIJU0W>; Tue, 10 Sep 2002 16:26:22 -0400
+	id <S318061AbSIJU0q>; Tue, 10 Sep 2002 16:26:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318061AbSIJU0W>; Tue, 10 Sep 2002 16:26:22 -0400
-Received: from pD9E23544.dip.t-dialin.net ([217.226.53.68]:50366 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S318058AbSIJU0V>; Tue, 10 Sep 2002 16:26:21 -0400
-Date: Tue, 10 Sep 2002 14:31:17 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] undo 2.5.34 ftape damage
-In-Reply-To: <15742.2206.709234.102259@kim.it.uu.se>
-Message-ID: <Pine.LNX.4.44.0209101430090.10048-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318080AbSIJU0q>; Tue, 10 Sep 2002 16:26:46 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:22034 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S318061AbSIJU0p>; Tue, 10 Sep 2002 16:26:45 -0400
+Date: Tue, 10 Sep 2002 22:31:22 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Joe Kellner <jdk@kingsmeadefarm.com>
+Cc: John Alvord <jalvo@mbay.net>, linux-kernel@vger.kernel.org
+Subject: Re: XFS?
+Message-ID: <20020910203122.GU26075@louise.pinerecords.com>
+References: <p73wupuq34l.fsf@oldwotan.suse.de> <20020909193820.GA2007@lnuxlab.ath.cx.suse.lists.linux.kernel> <Pine.LNX.4.44.0209091457590.3793-100000@hawkeye.luckynet.adm.suse.lists.linux.kernel> <p73wupuq34l.fsf@oldwotan.suse.de> <20020909162050.B4781@q.mn.rr.com> <5.1.0.14.2.20020910190828.00b27258@pop.gmx.net> <20020910142347.A5000@q.mn.rr.com> <92ksnuc403ubdr07dqvnor1mf9lr18srij@4ax.com> <1031689072.3d7e5370a83d2@webmail>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1031689072.3d7e5370a83d2@webmail>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
+X-Uptime: 14 days, 8:35
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > So does Redhat/Suse/??? ship XFS yet?
+> 
+> Mandrake has had XFS support in the default boot kernel since 8.0. AFAIK, Suse
+> and  Slackware also have XFS capable kernels now too.
 
-On Tue, 10 Sep 2002, Mikael Pettersson wrote:
-> In the 2.5.33->2.5.34 step someone removed "export-objs" from
-> drivers/char/ftape/lowlevel/Makefile, which makes it impossible to build
-> ftape as a module since is _does_ have a number of EXPORT_SYMBOL's.
+Slackware lets you use a special install kernel that has XFS [1] compiled in
+and that the installer can take advantage of.  However, you have to provide
+your own XFS vmlinuz for actually booting into the new system, as Slackware
+rightly continues to use bare Marcelo(tm) kernels.
 
-This is the expsyms output. Draw your own conclusions on what should be 
-done.
+[1] and JFS, too.
 
-Remove arch/arm/kernel/apm.o.
-Remove arch/arm/mach-clps711x/leds-p720t.o.
-Remove arch/arm/mach-integrator/leds.o.
-Add arch/arm/mach-ftvpci/leds.o.
-Remove arch/arm/mach-pxa/irq.o.
-Remove arch/arm/mach-pxa/sa1111.o.
-Remove arch/arm/mach-sa1100/irq.o.
-Remove arch/arm/mach-sa1100/usb_ctl.o.
-Remove arch/arm/mach-sa1100/usb_recv.o.
-Remove arch/arm/mach-sa1100/usb_send.o.
-Remove arch/ppc/amiga/amiga_ksyms.o.
-Remove drivers/char/ftape/zftape/zftape_syms.o. <-- Bugger?
-Remove drivers/char/pty.o.
-Add drivers/usb/class/usb-midi.o.
-
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
-
+T.

@@ -1,75 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263142AbUCMRxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 12:53:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263143AbUCMRxZ
+	id S263146AbUCMR4D (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 12:56:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263147AbUCMR4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 12:53:25 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:4361
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263142AbUCMRxX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 12:53:23 -0500
-Date: Sat, 13 Mar 2004 18:54:06 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@redhat.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Sat, 13 Mar 2004 12:56:03 -0500
+Received: from struggle.mr.itd.umich.edu ([141.211.14.79]:41601 "EHLO
+	struggle.mr.itd.umich.edu") by vger.kernel.org with ESMTP
+	id S263146AbUCMRzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 12:55:16 -0500
+Date: Sat, 13 Mar 2004 12:55:09 -0500 (EST)
+From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+X-X-Sender: vrajesh@ruby.engin.umich.edu
+To: riel@redhat.com
+cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, andrea@suse.de
 Subject: Re: anon_vma RFC2
-Message-ID: <20040313175406.GK30940@dualathlon.random>
-References: <Pine.LNX.4.44.0403131653010.3585-100000@localhost.localdomain> <Pine.LNX.4.44.0403131227210.15971-100000@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0403131227210.15971-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <Pine.GSO.4.58.0403121548530.2624@sapphire.engin.umich.edu>
+Message-ID: <Pine.LNX.4.58.0403131246580.28574@ruby.engin.umich.edu>
+References: <20040310080000.GA30940@dualathlon.random>
+ <Pine.LNX.4.44.0403100759550.7125-100000@chimarrao.boston.redhat.com>
+ <20040310135012.GM30940@dualathlon.random> <Pine.GSO.4.58.0403121149400.2624@sapphire.engin.umich.edu>
+ <20040312172600.GC30940@dualathlon.random> <Pine.GSO.4.58.0403121548530.2624@sapphire.engin.umich.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 13, 2004 at 12:28:31PM -0500, Rik van Riel wrote:
-> On Sat, 13 Mar 2004, Hugh Dickins wrote:
-> > On Sat, 13 Mar 2004, Linus Torvalds wrote:
-> 
-> > > 	if (PageAnonymous(page) && page->count > 1) {
-> > > 		newpage = alloc_page();
-> > > 		copy_page(page, newpage);
-> > > 		page = newpage;
-> > > 	}
-> > > 	/* Move the page to the new address */
-> > > 	page->index = address >> PAGE_SHIFT;
-> > > 
-> > > and now we have zero special cases.
-> > 
-> > That's always been a fallback solution, I was just a little too ashamed
-> > to propose it originally - seems a little wrong to waste whole pages
-> > rather than wasting a few bytes of data structure trying to track them:
-> > though the pages are pageable unlike any data structure we come up with.
-> 
-> No, Linus is right.
-> 
-> If a child process uses mremap(), it stands to reason that
-> it's about to use those pages for something.
-> 
-> Think of it as taking the COW faults early, because chances
-> are you'd be taking them anyway, just a little bit later...
 
-using mremap to _move_ anonymous maps is simply not frequent. It's so
-unfrequent that it's hard to tell if the child is going to _read_ or to
-_write_. Using those pages means nothing, all it matters is if it will
-use those pages from reading or for writing, and I don't see how you can
-assume it's going to write to them and how can you assume this is an
-early-COW in the common case.
+> The only problem is mremap() after a fork(), and hell, we know that's a
+> special case anyway, and let's just add a few lines to copy_one_pte(),
+> which basically does:
+>
+>	if (PageAnonymous(page) && page->count > 1) {
+>		newpage = alloc_page();
+>		copy_page(page, newpage);
+>		page = newpage;
+>	}
+>	/* Move the page to the new address */
+>	page->index = address >> PAGE_SHIFT;
+>
+> and now we have zero special cases.
 
-the only interesting point to me is that it's non frequent, with that I
-certainly agreee, but I don't see this as an early-COW.
+This part makes the problem so simple. If this is acceptable, then we
+have many choices. Since we won't have many mms in the anonmm list,
+I don't think we will have any search complexity problems. If we really
+worry again about search complexity, we can consider using prio_tree
+(adds 16 bytes per vma - we cannot share vma.shared.prio_tree_node).
+The prio_tree easily fits for anonmm after linus-mremap-simplification.
 
-What worries me most are things like kde, they used the library design
-with the only object of sharing readonly anonymous pages, that's very
-smart since it still avoids one bug in one app to take down the whole
-GUI, but if they happen to use mremap to move those readonly page around
-after the for we'll screw them completely. I've no indication that this
-may be the case and if they ever call mrmap, but I cannot tell the
-opposite either.
+Rajesh
+
+

@@ -1,68 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262285AbTFBT0T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 15:26:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbTFBT0T
+	id S261895AbTFBT3a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 15:29:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbTFBT3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 15:26:19 -0400
-Received: from adsl-66-136-200-10.dsl.austtx.swbell.net ([66.136.200.10]:17792
-	"EHLO dragon.taral.net") by vger.kernel.org with ESMTP
-	id S262285AbTFBT0R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 15:26:17 -0400
-Date: Mon, 2 Jun 2003 14:39:42 -0500
-From: Taral <taral@taral.net>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Modular IDE completely broken
-Message-ID: <20030602193942.GB1718@taral.net>
-References: <20030601055414.GA11218@taral.net> <20030602065339.5dbb6b6c.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7iMSBzlTiPOCCT2k"
-Content-Disposition: inline
-In-Reply-To: <20030602065339.5dbb6b6c.rddunlap@osdl.org>
-User-Agent: Mutt/1.5.4i
+	Mon, 2 Jun 2003 15:29:30 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:44244 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261895AbTFBT32
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 15:29:28 -0400
+Date: Mon, 2 Jun 2003 21:41:59 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Arne Brutschy <abrutschy@xylon.de>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ide driver 2.4.21-rc6
+In-Reply-To: <515243431.20030602205153@xylon.de>
+Message-ID: <Pine.SOL.4.30.0306022139380.21554-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---7iMSBzlTiPOCCT2k
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+What about turning on "Special FastTrak Feature" instead...
+--
+Bartlomiej
 
-On Mon, Jun 02, 2003 at 06:53:39AM -0700, Randy.Dunlap wrote:
-> On Sun, 1 Jun 2003 00:54:14 -0500 Taral <taral@taral.net> wrote:
->=20
-> | I've submitted this patch before, but I think it got ignored. This makes
-> | modular IDE at least compile and removes the circular dependencies.
-> |=20
-> | If there's a reason this patch isn't being applied (it's crappy, someone
-> | else is working on this problem already, etc.), _please_ tell me!
->=20
-> What kernel version is this [was attached] patch for?
->=20
-> It's probably clear to some people, but stating that explicitly
-> sure would be Good.
+On Mon, 2 Jun 2003, Arne Brutschy wrote:
 
-2.5.69
+> Using the Promise 20276 IDE controller without raid function
+> doesn't work with 2.4.21*.
+>
+> If you want to use the IDE controller just as plain controller without
+> Promise software raid (i.e. if you prefer to trust the linux software
+> raid), the kernel always reports this:
+>
+> PDC20276: IDE controller at PCI slot 02:02.0
+> PDC20276: chipset revision 1
+> PDC20276: not 100% native mode: will probe irqs later
+> PDC20276: neither IDE port enabled (BIOS)
+>
+> Afterwards, the kernel disables the controller. This has been reported
+> by serveral other users. This small patch solves the problem.
+>
+> Arne
+>
+>
+> --- linux-2.4.21-rc6/drivers/ide/setup-pci.c.orig       2003-06-01 11:38:23.000000000 +0200
+> +++ linux-2.4.21-rc6/drivers/ide/setup-pci.c    2003-06-01 11:40:12.000000000 +0200
+> @@ -640,7 +640,8 @@
+>                  */
+>                 if (((d->vendor == PCI_VENDOR_ID_PROMISE) &&
+>                      ((d->device == PCI_DEVICE_ID_PROMISE_20262) ||
+> -                     (d->device == PCI_DEVICE_ID_PROMISE_20265))) &&
+> +                     (d->device == PCI_DEVICE_ID_PROMISE_20265) ||
+> +                     (d->device == PCI_DEVICE_ID_PROMISE_20276))) &&
+>                     (secondpdc++==1) && (port==1))
+>                         goto controller_ok;
 
---=20
-Taral <taral@taral.net>
-This message is digitally signed. Please PGP encrypt mail to me.
-"Most parents have better things to do with their time than take care of
-their children." -- Me
-
---7iMSBzlTiPOCCT2k
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+26f+oQQF8xCPwJQRAgBfAJ4n/jv5tjCjilLhcZoErW0wdT7CTACfWe6r
-ixaE8kdAKCv3bbOb3J3/OUY=
-=4/6m
------END PGP SIGNATURE-----
-
---7iMSBzlTiPOCCT2k--

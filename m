@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263171AbTHBNG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 09:06:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbTHBNG3
+	id S262577AbTHBM7T (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 08:59:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbTHBM7T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 09:06:29 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:56258 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S263171AbTHBNG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 09:06:28 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Sat, 2 Aug 2003 15:06:26 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.22-pre10
-Message-Id: <20030802150626.01fd24d4.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.44.0308011316490.3656-100000@logos.cnet>
-References: <Pine.LNX.4.44.0308011316490.3656-100000@logos.cnet>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 2 Aug 2003 08:59:19 -0400
+Received: from [217.157.19.70] ([217.157.19.70]:28430 "EHLO jehova.dsm.dk")
+	by vger.kernel.org with ESMTP id S262577AbTHBM7S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 08:59:18 -0400
+Date: Sat, 2 Aug 2003 14:59:16 +0200 (CEST)
+From: Thomas Horsten <thomas@horsten.com>
+X-X-Sender: thomas@jehova.dsm.dk
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] (2.4.2x) Driver for Medley software RAID (Silicon Image
+ 3112 SATARaid, CMD680, etc?) for testing
+In-Reply-To: <Pine.LNX.4.40.0308012225130.29551-100000@jehova.dsm.dk>
+Message-ID: <Pine.LNX.4.40.0308021446080.30871-100000@jehova.dsm.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Aug 2003 13:19:11 -0300 (BRT)
-Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+In response to some early feedback:
 
-> 
-> Hello,
-> 
-> Here goes -pre10, hopefully the last -pre of 2.4.22. 
+If you test this driver and it doesn't work, please include the output
+from dmesg in your bug report (trace is enabled by default).
 
-Have I missed something before, is this expected during build:
+If it does work, currently it is logging 2 lines for each request, which
+means it will be pretty slow if you are using syslogd/klogd.
 
-make[3]: Circular /usr/src/linux-2.4.22-pre10/include/asm/smplock.h <-
-/usr/src/linux-2.4.22-pre10/include/linux/interrupt.h dependency dropped.
+So when your array is detected and you can mount a partition, please
+remove this excessive trace by removing the following line from
+drivers/ide/raid/medley.c:
 
-?
+#define DEBUGGING_MEDLEY 0
 
-Regards,
-Stephan
+It is not enough to set the value to 0 you need to remove or comment out
+that line altogether to remove the trace (my mistake).
 
+I will post minor updates to the driver on http://infowares.com/linux
+
+// Thomas
 

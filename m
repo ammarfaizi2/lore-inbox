@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264891AbSIRBEV>; Tue, 17 Sep 2002 21:04:21 -0400
+	id <S264897AbSIRBM1>; Tue, 17 Sep 2002 21:12:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264897AbSIRBEU>; Tue, 17 Sep 2002 21:04:20 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:31109 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264891AbSIRBEU>;
-	Tue, 17 Sep 2002 21:04:20 -0400
-Date: Tue, 17 Sep 2002 18:00:14 -0700 (PDT)
-Message-Id: <20020917.180014.07882539.davem@redhat.com>
-To: hadi@cyberus.ca
-Cc: akpm@digeo.com, manfred@colorfullife.com, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Info: NAPI performance at "low" loads
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.GSO.4.30.0209172053360.3686-100000@shell.cyberus.ca>
-References: <3D87A59C.410FFE3E@digeo.com>
-	<Pine.GSO.4.30.0209172053360.3686-100000@shell.cyberus.ca>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264898AbSIRBM1>; Tue, 17 Sep 2002 21:12:27 -0400
+Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:6055 "EHLO
+	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S264897AbSIRBM1>; Tue, 17 Sep 2002 21:12:27 -0400
+Date: Tue, 17 Sep 2002 22:16:24 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Daniel Phillips <phillips@arcor.de>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, <alan@lxorguk.ukuu.org.uk>,
+       <david-b@pacbell.net>, <mdharm-kernel@one-eyed-alien.net>,
+       <greg@kroah.com>, <linux-usb-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
+In-Reply-To: <E17rT2w-0000AQ-00@starship>
+Message-ID: <Pine.LNX.4.44L.0209172216000.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: jamal <hadi@cyberus.ca>
-   Date: Tue, 17 Sep 2002 20:57:58 -0400 (EDT)
-   
-   I am not so sure with that 6% difference there is no other bug lurking
-   there; 6% seems too large for an extra two PCI transactions per packet.
+On Wed, 18 Sep 2002, Daniel Phillips wrote:
 
-{in,out}{b,w,l}() operations have a fixed timing, therefore his
-results doesn't sound that far off.
+> Thanks.  Well, it comes under the category of "managing Linus", and
+> everybody does, or tries to, up to a point.  Not that it often works.
 
-It is also one of the reasons I suspect Andrew saw such bad results
-with 3c59x, but probably that is not the only reason.
+Well, how much work would you manage to do if you had 350 managers ? ;)
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
+

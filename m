@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261477AbSJDEoN>; Fri, 4 Oct 2002 00:44:13 -0400
+	id <S261486AbSJDEsL>; Fri, 4 Oct 2002 00:48:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261478AbSJDEoN>; Fri, 4 Oct 2002 00:44:13 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:2830 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261477AbSJDEoM>;
-	Fri, 4 Oct 2002 00:44:12 -0400
-Date: Thu, 3 Oct 2002 21:46:53 -0700
+	id <S261487AbSJDEsL>; Fri, 4 Oct 2002 00:48:11 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:4110 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261486AbSJDEsK>;
+	Fri, 4 Oct 2002 00:48:10 -0400
+Date: Thu, 3 Oct 2002 21:50:51 -0700
 From: Greg KH <greg@kroah.com>
-To: Muli Ben-Yehuda <mulix@actcom.co.il>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: export of sys_call_table
-Message-ID: <20021004044652.GA3556@kroah.com>
-References: <20021003153943.E22418@openss7.org> <20021003221525.GA2221@kroah.com> <20021003222716.GB14919@suse.de> <1033684027.1247.43.camel@phantasy> <20021003225842.GA79989@compsoc.man.ac.uk> <20021004040503.GH15215@actcom.co.il>
+To: John Tyner <jtyner@cs.ucr.edu>
+Cc: video4linux-list@redhat.com, linux-kernel@vger.kernel.org,
+       kraxel@bytesex.org
+Subject: Re: Vicam/3com homeconnect usb camera driver
+Message-ID: <20021004045051.GB3556@kroah.com>
+References: <Pine.LNX.4.30.0210032047510.15999-400000@hill.cs.ucr.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021004040503.GH15215@actcom.co.il>
+In-Reply-To: <Pine.LNX.4.30.0210032047510.15999-400000@hill.cs.ucr.edu>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 04, 2002 at 07:05:03AM +0300, Muli Ben-Yehuda wrote:
+On Thu, Oct 03, 2002 at 08:59:30PM -0700, John Tyner wrote:
 > 
-> http://marc.theaimsgroup.com/?l=kernelnewbies&m=102267164910800&w=2, 
-
-You didn't read my post to that same thread did you:
-	http://marc.theaimsgroup.com/?l=kernelnewbies&m=102130770415962
-
-And for the most part, the people on kernelnewbies have given up on
-trying to explain to new people why this does not work.  I know I sure
-have :)
-
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=101821127019203&w=2
+> The code is for for 2.4.19, and I'll port it forward to 2.5 if it
+> seems like it would be useful.
 > 
-> [2] Can the LSM hooks be used for notification and modification on
-> every system call's entry and exit?  
+> Apologies:
+> 	1. The files are not a patch but should build outside of the tree.
 
-No.  See the LSM mailing list archives for why we did not decide to do
-this.  (hint, you don't really achieve what you want to by doing this.)
+If you send me a patch for 2.5, I'd be glad to add it to the tree.
+Right now, I'm not accepting USB drivers that don't show up in 2.5
+first.
 
-If you _really_ want to hook things like this, look at LTT or dprobes.
-They should work just fine for you.
+Other than that, the code looks nice.  Did you look at how the usb video
+drivers do their memory management in 2.4.20-pre like I mentioned
+before?
 
 thanks,
 

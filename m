@@ -1,98 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280631AbRKGLys>; Wed, 7 Nov 2001 06:54:48 -0500
+	id <S280524AbRKGL47>; Wed, 7 Nov 2001 06:56:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280524AbRKGLyj>; Wed, 7 Nov 2001 06:54:39 -0500
-Received: from [212.42.171.85] ([212.42.171.85]:2823 "EHLO
-	mail.runtime-collective.com") by vger.kernel.org with ESMTP
-	id <S280602AbRKGLyV>; Wed, 7 Nov 2001 06:54:21 -0500
-Date: Wed, 7 Nov 2001 11:53:52 +0000
-From: Berkan Eskikaya <berkan@runtime-collective.com>
-To: Gerard Roudier <groudier@free.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sym53c8xx problem
-Message-ID: <20011107115352.D22106@runtime-collective.com>
-In-Reply-To: <20011106024430.A7893@cogs.susx.ac.uk> <20011106181733.C1653-100000@gerard>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="jho1yZJdad60DJr+"
-Content-Disposition: inline
-In-Reply-To: <20011106181733.C1653-100000@gerard>
-User-Agent: Mutt/1.3.22i
+	id <S280602AbRKGL4t>; Wed, 7 Nov 2001 06:56:49 -0500
+Received: from sj-msg-core-2.cisco.com ([171.69.24.11]:42425 "EHLO
+	sj-msg-core-2.cisco.com") by vger.kernel.org with ESMTP
+	id <S280524AbRKGL4m>; Wed, 7 Nov 2001 06:56:42 -0500
+Date: Wed, 7 Nov 2001 17:26:12 +0530 (IST)
+From: Manik Raina <manik@cisco.com>
+To: arjanv@redhat.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] : fixed warnings in pdcraid.c
+Message-ID: <Pine.LNX.4.21.0111071723390.6846-200000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-551152399-1005134172=:6846"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
---jho1yZJdad60DJr+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--8323328-551152399-1005134172=:6846
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Hi Gerard, 
+Hi,
 
-Thanks for the explanation. The kernel we're running
-has been patched for better Oracle performance. The
-patch --attached to this mail-- effects SHMMAX, SHMMNI, 
-SHMSEG, SEMMNI, SEMMSL, SEMMNS, SEMUME, SEMMNU, and SEMMAP; 
-and I just saw a comment in include/asm-i386/shmparam.h 
-saying not to touch the default SHMMAX because people 
-depend on it.
+This patch fixes the warnings generated when compiling
+2.4.14. It fixes the warnings which i have attached 
+at the end of the mail .....
 
-Maybe this explains the mystery?
+They're all unused variables.
 
-Cheers,
+Manik
 
-Berkan
 
---jho1yZJdad60DJr+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="patch-2.2.19-ora8i"
-
-diff -ru linux/include/asm-i386/shmparam.h linux.ora8i/include/asm-i386/shmparam.h
---- linux/include/asm-i386/shmparam.h	Sun Mar 25 17:31:05 2001
-+++ linux.ora8i/include/asm-i386/shmparam.h	Mon Oct  1 11:22:04 2001
-@@ -33,14 +33,14 @@
-  * SHMMAX <= (PAGE_SIZE << _SHM_IDX_BITS).
-  */
+diff -r -u /home/manik/linux/orig/linux/drivers/ide/pdcraid.c ./pdcraid.c
+--- /home/manik/linux/orig/linux/drivers/ide/pdcraid.c	Tue Oct 16 01:57:42 2001
++++ ./pdcraid.c	Wed Nov  7 17:09:27 2001
+@@ -96,7 +96,7 @@
+ static int pdcraid_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
+ {
+ 	unsigned int minor;
+-   	unsigned long sectors,*larg;
++  	unsigned long sectors;
  
--#define SHMMAX 0x2000000		/* max shared seg size (bytes) */
-+#define SHMMAX 0x40000000		/* max shared seg size (bytes) */
- /* Try not to change the default shipped SHMMAX - people rely on it */
+ 	
  
- #define SHMMIN 1 /* really PAGE_SIZE */	/* min shared seg size (bytes) */
--#define SHMMNI (1<<_SHM_ID_BITS)	/* max num of segs system wide */
-+#define SHMMNI 200	/* max num of segs system wide */
- #define SHMALL				/* max shm system wide (pages) */ \
- 	(1<<(_SHM_IDX_BITS+_SHM_ID_BITS))
- #define	SHMLBA PAGE_SIZE		/* attach addr a multiple of this */
--#define SHMSEG SHMMNI			/* max shared segs per process */
-+#define SHMSEG 100			/* max shared segs per process */
+@@ -280,7 +280,6 @@
+ 	 */
+ 	return 1;
  
- #endif /* _ASMI386_SHMPARAM_H */
-diff -ru linux/include/linux/sem.h linux.ora8i/include/linux/sem.h
---- linux/include/linux/sem.h	Sun Mar 25 17:31:03 2001
-+++ linux.ora8i/include/linux/sem.h	Mon Oct  1 11:22:44 2001
-@@ -60,17 +60,17 @@
- 	int semaem;
- };
+- outerr:
+ 	buffer_IO_error(bh);
+ 	return 0;
+ }
+@@ -547,7 +546,6 @@
+ 			   
+ static __init int pdcraid_init_one(int device,int raidlevel)
+ {
+-	request_queue_t *q;
+ 	int i,count;
  
--#define SEMMNI  128             /* ?  max # of semaphore identifiers */
--#define SEMMSL  250              /* <= 512 max num of semaphores per id */
--#define SEMMNS  (SEMMNI*SEMMSL) /* ? max # of semaphores in system */
-+#define SEMMNI  256             /* ?  max # of semaphore identifiers */
-+#define SEMMSL  256             /* <= 512 max num of semaphores per id */
-+#define SEMMNS  2048            /* ? max # of semaphores in system */
- #define SEMOPM  32	        /* ~ 100 max num of ops per semop call */
- #define SEMVMX  32767           /* semaphore maximum value */
+ 	probedisk(0, device, raidlevel);
+@@ -585,7 +583,7 @@
  
- /* unused */
--#define SEMUME  SEMOPM          /* max num of undo entries per process */
--#define SEMMNU  SEMMNS          /* num of undo structures system wide */
-+#define SEMUME  10              /* max num of undo entries per process */
-+#define SEMMNU  30              /* num of undo structures system wide */
- #define SEMAEM  (SEMVMX >> 1)   /* adjust on exit max value */
--#define SEMMAP  SEMMNS          /* # of entries in semaphore map */
-+#define SEMMAP  10              /* # of entries in semaphore map */
- #define SEMUSZ  20		/* sizeof struct sem_undo */
+ static __init int pdcraid_init(void)
+ {
+-	int i,retval,device,count=0;
++	int retval,device,count=0;
  
- #ifdef __KERNEL__
+ 	do {
+ 	
 
---jho1yZJdad60DJr+--
+--8323328-551152399-1005134172=:6846
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=X
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.21.0111071726120.6846@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename=X
+
+cGRjcmFpZC5jOiBJbiBmdW5jdGlvbiBgcGRjcmFpZF9pb2N0bCc6DQpwZGNy
+YWlkLmM6OTk6IHdhcm5pbmc6IHVudXNlZCB2YXJpYWJsZSBgbGFyZycNCnBk
+Y3JhaWQuYzogSW4gZnVuY3Rpb24gYHBkY3JhaWQwX21ha2VfcmVxdWVzdCc6
+DQpwZGNyYWlkLmM6MjgzOiB3YXJuaW5nOiBsYWJlbCBgb3V0ZXJyJyBkZWZp
+bmVkIGJ1dCBub3QgdXNlZA0KcGRjcmFpZC5jOiBJbiBmdW5jdGlvbiBgcGRj
+cmFpZF9pbml0X29uZSc6DQpwZGNyYWlkLmM6NTUwOiB3YXJuaW5nOiB1bnVz
+ZWQgdmFyaWFibGUgYHEnDQpwZGNyYWlkLmM6IEluIGZ1bmN0aW9uIGBwZGNy
+YWlkX2luaXQnOg0KcGRjcmFpZC5jOjU4ODogd2FybmluZzogdW51c2VkIHZh
+cmlhYmxlIGBpJw0K
+--8323328-551152399-1005134172=:6846--

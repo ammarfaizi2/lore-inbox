@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262826AbREVVH5>; Tue, 22 May 2001 17:07:57 -0400
+	id <S262833AbREVVL5>; Tue, 22 May 2001 17:11:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262827AbREVVHr>; Tue, 22 May 2001 17:07:47 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31748 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262826AbREVVHi>; Tue, 22 May 2001 17:07:38 -0400
-Subject: Re: scheduling callbacks in user space triggered via kernel....
-To: ashok.raj@intel.com (Raj, Ashok)
-Date: Tue, 22 May 2001 22:05:02 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org ("Linux-Kernel (E-mail)")
-In-Reply-To: <9319DDF797C4D211AC4700A0C96B7C9404AC1F7D@orsmsx42.jf.intel.com> from "Raj, Ashok" at May 22, 2001 01:15:56 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262832AbREVVLr>; Tue, 22 May 2001 17:11:47 -0400
+Received: from user-vc8ftn3.biz.mindspring.com ([216.135.246.227]:47113 "EHLO
+	mail.ivivity.com") by vger.kernel.org with ESMTP id <S262827AbREVVLo>;
+	Tue, 22 May 2001 17:11:44 -0400
+Message-ID: <25369470B6F0D41194820002B328BDD2071790@ATLOPS>
+From: Bharath Madhavan <bharath_madhavan@ivivity.com>
+To: linux-kernel@vger.kernel.org
+Subject: Speeding up VFS using HW assist
+Date: Tue, 22 May 2001 17:11:37 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E152JKx-0002TG-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there a method to schedule user mode code from kernel agent?
+Hello All,
+	I will be using Linux as the OS for an embedded system.
+I was looking into 2.4.4 kernel code and saw the dcache implementation
+in VFS which is pretty neat and fast by itself.
 
-You can wake user processes,send them signals etc but ingeneral its not
-a good idea
+My question is, will I gain any considerable efficiency in file system
+access
+if I can move this "pathname -> inode" lookup into some proprietery 
+HW assist mechanism and take out the dcache hashing and "cached_lookup"
+function.
 
-> registers with the kernel mode agent with a function/parm to run, then when
-> the callback is appropriate the kerenl agent triggers this callback to
-> happen.
+How good(bad) was it before the dcache implementation and in which release
+was dcache feature added (was it only after 2.2.x release). 
+Did we get 2-3 times better performance with dcache? (if not, how much?)
 
-The unix model is much more that the app does
+Can anyone suggest any other place in the file system (VFS and EXT2) where
+we
+can use any HW assist (let us say FPGA implementing search, lookup, etc.)
+to speed up file-system access (both for opening and read/write)
 
-	while(1)
-	{
-		get_event(fd);
-		switcH(event)
-		{
-				..
-			...
-		}
-	}
+Would tweaking the buffer cache and page cache sizes make a considerable 
+effect on efficiency?
 
-> or a method to bind a function to a file handle, when there is Completed IO,
-> the kernel would call the registered function with a parameter of the buffer
-> submitted for IO.
+Any other suggestions?
 
-The b_end_io callback can possibly be used, or Ben's asynchronosu callbacks,
-but that deals with kernel level completion.
+Thanks a lot,
 
-Alan
-
+Bharath

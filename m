@@ -1,63 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313083AbSC0Tjp>; Wed, 27 Mar 2002 14:39:45 -0500
+	id <S313086AbSC0Tpg>; Wed, 27 Mar 2002 14:45:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313085AbSC0Tj0>; Wed, 27 Mar 2002 14:39:26 -0500
-Received: from tolkor.sgi.com ([192.48.180.13]:3993 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S313083AbSC0TjT>;
-	Wed, 27 Mar 2002 14:39:19 -0500
-Subject: [RFC] kmem_cache_zalloc
-From: Eric Sandeen <sandeen@sgi.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 27 Mar 2002 13:39:17 -0600
-Message-Id: <1017257958.16305.168.camel@stout.americas.sgi.com>
+	id <S313087AbSC0Tp1>; Wed, 27 Mar 2002 14:45:27 -0500
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:50693 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S313086AbSC0TpH>;
+	Wed, 27 Mar 2002 14:45:07 -0500
+Date: Wed, 27 Mar 2002 11:45:09 -0800
+From: Greg KH <greg@kroah.com>
+To: berk <berk@madfire.net>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] Easydisk support for 2.4.9+ kernels
+Message-ID: <20020327194508.GA4568@kroah.com>
+In-Reply-To: <309870813.20020327165627@madfire.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 27 Feb 2002 17:42:12 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the interest of whittling down the changes that XFS makes to the core
-kernel, I thought I'd start throwing out some the easier self-contained
-modifications for discussion.
+On Wed, Mar 27, 2002 at 04:56:27PM +0500, berk wrote:
+> Dunno if this is already patched or not.. i'm not too much inet guy..
+> but just in case its needed by someone, here goes USB EasyDisk patch
+> for kernel USB support (my kernel is 2.4.9-13 and works fine with it).
+> 
+> The patch:
 
-XFS adds a kmem_cache_zalloc function to mm/slab.c, it does what you
-might expect:  kmem_cache_alloc + memset
+Please send this to the usb-storage author and maintainer.
 
-Is this something that might be considered for inclusion in the core
-kernel, or should we roll it back into fs/xfs?
+thanks,
 
-Thanks,
-
--Eric
-
---- 18.1/mm/slab.c Fri, 07 Dec 2001 09:35:49 +1100 kaos (linux-2.4/j/5_slab.c 1.2.1.2.1.2.1.3.1.3 644)
-+++ 18.11/mm/slab.c Mon, 07 Jan 2002 13:27:25 +1100 kaos (linux-2.4/j/5_slab.c 1.2.1.2.1.7 644)
-@@ -1567,6 +1567,23 @@ void kmem_cache_free (kmem_cache_t *cach
- 	local_irq_restore(flags);
- }
- 
-+void *
-+kmem_cache_zalloc(kmem_cache_t *cachep, int flags)
-+{
-+	void    *ptr;
-+	ptr = __kmem_cache_alloc(cachep, flags);
-+	if (ptr)
-+#if DEBUG
-+		memset(ptr, 0, cachep->objsize -
-+			(cachep->flags & SLAB_RED_ZONE ? 2*BYTES_PER_WORD : 0));
-+#else
-+		memset(ptr, 0, cachep->objsize);
-+#endif
-+
-+	return ptr;
-+}
-+
-+
-
-
--- 
-Eric Sandeen      XFS for Linux     http://oss.sgi.com/projects/xfs
-sandeen@sgi.com   SGI, Inc.
-
+greg k-h

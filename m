@@ -1,87 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261870AbUC0VBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 16:01:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbUC0VBQ
+	id S261874AbUC0VHn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 16:07:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUC0VHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 16:01:16 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48790 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261874AbUC0VBO convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 16:01:14 -0500
-To: Jamie Lokier <jamie@shareable.org>
-Cc: =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Davide Libenzi <davidel@xmailserver.org>,
-       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cowlinks v2
-References: <20040321125730.GB21844@wohnheim.fh-wedel.de>
-	<Pine.LNX.4.44.0403210944310.12359-100000@bigblue.dev.mdolabs.com>
-	<20040321181430.GB29440@wohnheim.fh-wedel.de>
-	<m1y8ptu42m.fsf@ebiederm.dsl.xmission.com>
-	<20040325174942.GC11236@mail.shareable.org>
-	<m1ekrgyf5y.fsf@ebiederm.dsl.xmission.com>
-	<20040325194303.GE11236@mail.shareable.org>
-	<m1ptb0zjki.fsf@ebiederm.dsl.xmission.com>
-	<20040327102828.GA21884@mail.shareable.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 27 Mar 2004 14:00:45 -0700
-In-Reply-To: <20040327102828.GA21884@mail.shareable.org>
-Message-ID: <m1vfkq80oy.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Sat, 27 Mar 2004 16:07:43 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:58240 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S261874AbUC0VHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 16:07:41 -0500
+Date: Sun, 28 Mar 2004 05:01:32 +0800
+From: "Michael Frank" <mhf@linuxmail.org>
+To: Luke-Jr <luke-jr@artcena.com>, swsusp-devel@lists.sourceforge.net
+Subject: Paranoia is fun [Was Re: -nice tree [was Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]]]
+Cc: "Micha Feigin" <michf@post.tau.ac.il>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+References: <20040323233228.GK364@elf.ucw.cz> <200403270440.47737.luke-jr@artcena.com> <20040327195009.GA2737@luna.mooo.com> <200403272003.35410.luke-jr@artcena.com>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7BIT
+Message-ID: <opr5jgous34evsfm@smtp.pacific.net.th>
+In-Reply-To: <200403272003.35410.luke-jr@artcena.com>
+User-Agent: Opera M2/7.50 (Linux, build 615)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <jamie@shareable.org> writes:
+This thread mutates fast :)
 
-> Eric W. Biederman wrote:
-> > It is easy to add something like a cowstat or a readcowlink and teach
-> > the few programs that care (i.e. diff, tar,...) how to use it.  So I
-> > would rather concentrate on making cow links look like a separate copy
-> > than early optimizations.
-> 
-> I agree, having each cowlink look like a separate copy, with separate
-> inode numbers, is best.  That _is_ POSIX compatible -- the sharing is
-> just a storage optimisation, and programs which only use the POSIX API
-> won't see the difference.
-> 
-> I have no problem with adding cowstat() to diff, and I'm sure other
-> people will eventually extend rsync and tar to use it, if it becomes
-> widely used.
-> 
-> It's not the simplest solution, though.  The filesystem changes are
-> non-trivial.  (The simplest solution is just an ext2 attribute which
-> says you can't write to the file if it has >1 links).
+On Sat, 27 Mar 2004 20:03:35 +0000, Luke-Jr <luke-jr@artcena.com> wrote:
 
-There are two possible implementations strategies for implementing
-cow files.  You can either start as Jörn did with hardlinks, or you
-can start with symlinks.
+> On Saturday 27 March 2004 07:50 pm, Micha Feigin wrote:
+>> If the key is given at resume command line and this is properly
+>> forgotten when the resumed kernel kicks in then a user key will also
+>> probably be ok.
+> The resume command line is usually stored on the same disk as the image in a
+> configuration file.
+>
 
-The set of tradeoffs is interesting.  When using hardlinks the only
-sane thing to do is to change the inode number when you do a copy.
-You are limited to normal files, no directories, no symlinks, and the
-original must resided on the same filesystem as the copy.  In addition
-a copy will always have a link count of one.  So on that score I
-see a hard time getting POSIX semantics out of the a hard link based
-cow.
+... so one really would not want to put the key there.
 
-When you start with symlinks the tradeoffs are different.  You only
-trigger a copy on write when you go through the copy not when you
-write through the original.  You get distinct inodes for free.  They
-can be straight forwardly extended to work on symlinks and other node
-types.  You can have multiple links at the end of the copy, because
-symlinks can be hard linked.  The original can be stored on another
-filesystem.  If you don't change the original you get POSIX semantics.
+Each and every shortcut is unsafe as it somwhere has to store the
+full key and could be reverse engineered and broken "easily"
+relative to breaking the key.
 
-As for simplicity I think the two approaches are roughly equal.  
+Guess Micha meant to edit the resume command line prior to
+boot, which would work at this time.
 
-As my memory has it the proto implementation I saw using a stackable
-fs and cow symlinks was about a 1000 lines.  And it was that large
-because it was complete (i.e. it did the copies including copying
-directories.)
+The only "safe" way is to enter the key when prompted
+For references Google for cryptoswap, loop-aes, cryptoapi
 
-Eric
+Also resuming kernel md5 checksum should flow into the key to
+prevent some schlaphut replacing the kernel.  (I know that
+it would be  hard  to make  addresses match, but still easier
+than breaking the key). So, this is really important.
+
+It was discussed to pass the resume command line on to the
+resumed kernel for config, in which case the key should be
+stripped prior to doing so.
+
+Michael
+
+P.S.
+
+I say "safe" because it is safe only as long as noone can observe
+key entry or touch the machine to install a (keyboard) bug...
+
+BTW, When did we look last into our keyboards and  are we
+sure there are no spare chips (bugs) planted in our machines ;)
+
+Well, perhaps we need linux computers implanted into our teeth
+so that we can be "more" safe. The key could be transmitted
+by tongue using (morse) code however (unauthorized) third party
+objects must be prevented from entering the mouth to prevent spying.
+
+Well, should I mention what could be hidden _on_ those bloody chips.
+
+Have a nice day.
+

@@ -1,67 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262290AbTFFV1q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 17:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262294AbTFFV1q
+	id S262284AbTFFVZC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 17:25:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbTFFVZC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 17:27:46 -0400
-Received: from [63.205.85.133] ([63.205.85.133]:27602 "EHLO gaz.sfgoth.com")
-	by vger.kernel.org with ESMTP id S262290AbTFFV1h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 17:27:37 -0400
-Date: Fri, 6 Jun 2003 14:43:17 -0700
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Werner Almesberger <wa@almesberger.net>
-Cc: "David S. Miller" <davem@redhat.com>, chas@cmf.nrl.navy.mil,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations (take 2)
-Message-ID: <20030606214317.GD21217@gaz.sfgoth.com>
-References: <20030606121339.A3232@almesberger.net> <20030606.081618.108808702.davem@redhat.com> <20030606122616.B3232@almesberger.net> <20030606.082802.124082825.davem@redhat.com> <20030606125416.C3232@almesberger.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 6 Jun 2003 17:25:02 -0400
+Received: from mail331.mail.bellsouth.net ([205.152.58.209]:37429 "EHLO
+	imf31bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id S262284AbTFFVZB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 17:25:01 -0400
+From: "J.C. Wren" <jcwren@jcwren.com>
+Reply-To: jcwren@jcwren.com
+To: <linux-kernel@vger.kernel.org>
+Subject: Is there a bug with su, and /dev/std*?
+Date: Fri, 6 Jun 2003 17:38:33 -0400
+User-Agent: KMail/1.5.2
+References: <Pine.SOL.4.30.0306062228140.13809-100000@mion.elka.pw.edu.pl>
+In-Reply-To: <Pine.SOL.4.30.0306062228140.13809-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030606125416.C3232@almesberger.net>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200306061738.33612.jcwren@jcwren.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger wrote:
-> (It's different in the case of
-> SVCs, but they're managed by a user space demon. Besides, if
-> their device goes away, they die too.)
+	I was writing a script that writes to /dev/error, and I'm experiencing odd behavior.  This is with a 2.4.18 kernel.
 
-Yes, in theory it would be nice to have SVCs be able to reroute between
-interfaces, but we certainly don't have the infrastructure to do that now
-(and I doubt that they'll ever be a significant enough push to demand its
-development)  To do that you'd need the kernel to look like a simple
-ATM switch and have atmsigd speak NNI to its neighbors (didn't someone have
-some code for this WAY back in the dark ages... but it had some unfortunate
-license issues... or am I remembering wrong?)
+	I login to an account, 'jcw'.
 
-You still would have the the userspace-visible vcc pinned to a ATM device
-but it would just be a pseudo-device managed by the virtual switch.  Then
-the switch would take care of how to route the SVC.
+	[jcw@drive jcw]$ echo test_msg >/dev/error
+        test_msg
+	[jcw@drive jcw]$ su - slimedr
+        Password:
+        [slimedr@drive jcw]$ echo test_msg >/dev/error
+	bash: /dev/stderr: Permission denied
 
-So in short I agree with you that the current method is best - it makes
-no operational sense to deactivate an ATM interface while there are still
-open VCs.  Since VCs are intrinsically bound to a {dev,vpi,vci} tuple from
-userlands perspective they would be uselss if their dev disappeared (even
-if it reappeared later).
+	As user 'jcw' we see
 
-One thing I WOULD like to see is way to do something like "ifconfig up/down"
-on ATM devices (once the VCs are all down) instead of having all of the
-ATM cards with drivers automatically considered "up" like we currently do.
-Some types of interfaces (esp *DSL) have rather complicated procedures for
-setting up the interface and it would be nice to be able to control this
-explicitly.  It'd be really useful to have a third state called "auto"
-which would bring it up when the first VCC is opened and down when the last
-is closed.  Not only would this be great for DSL (since it would establish
-the DSL connection automatically when you run pppd or whatever) but it
-would be a sane "least surprise" default.
+	[jcw@drive jcw]$ ls -l /dev/stderr
+	lrwxrwxrwx    1 root     root           17 Mar 11 15:28 /dev/stderr -> ../proc/self/fd/2
+	[jcw@drive jcw]$ ls -l /proc/self/fd/2
+	lrwx------    1 jcw      jcw            64 Jun  6 17:31 /proc/self/fd/2 -> /dev/pts/5
+	
+	As user 'slimedr' we see
 
-[Very vaguely related - it would also be nice to have a per-itf flag to
-require CAP_NET_BIND_SERVICE for all VCCs instead of just "vpi==0 &&
-vci<ATM_NOT_RSV_VCI".  In 99% of deployments there aren't any ATM-native
-apps running so you don't want users establishing random ATM vcs]
+	[slimedr@drive slimedr]$ ls -l /dev/stderr
+	lrwxrwxrwx    1 root     root           17 Mar 11 15:28 /dev/stderr -> ../proc/self/fd/2
+	[slimedr@drive slimedr]$ ls -l /proc/self/fd/2
+	lrwx------    1 slimedr  slimedr        64 Jun  6 17:34 /proc/self/fd/2 -> /dev/pts/5
 
--Mitch
+	So what gives?  Shouldn't the user context change with 'su -' allow me to write to /dev/stderr and /dev/stdout?
+

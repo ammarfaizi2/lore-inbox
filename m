@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261787AbTEZQbz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 12:31:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbTEZQbz
+	id S261785AbTEZQ2m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 12:28:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbTEZQ2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 12:31:55 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:42759 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S261787AbTEZQbL
+	Mon, 26 May 2003 12:28:42 -0400
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:23488 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S261785AbTEZQ2h
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 12:31:11 -0400
-Date: Mon, 26 May 2003 18:44:04 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>, willy@w.ods.org,
-       gibbs@scsiguy.com, linux-kernel@vger.kernel.org,
-       marcelo@conectiva.com.br
-Subject: Re: Undo aic7xxx changes
-Message-ID: <20030526164404.GA11381@alpha.home.local>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva> <20030524111608.GA4599@alpha.home.local> <20030525125811.68430bda.skraw@ithnet.com> <200305251447.34027.m.c.p@wolk-project.de> <20030526170058.105f0b9f.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 26 May 2003 12:28:37 -0400
+Message-ID: <20030526164013.32513.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <20030526170058.105f0b9f.skraw@ithnet.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Dean McEwan" <dean_mcewan@linuxmail.org>
+To: jakob@unthought.net
+Cc: szepe@pinerecords.com, viro@parcelfarce.linux.theplanet.co.uk,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Date: Mon, 26 May 2003 16:40:13 +0000
+Subject: Re: Digital Rights Management - An idea (okay a crap idea, ok?)
+X-Originating-Ip: 62.7.156.128
+X-Originating-Server: ws5-6.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 26, 2003 at 05:00:58PM +0200, Stephan von Krawczynski wrote:
-> On Sun, 25 May 2003 14:47:56 +0200
-> Marc-Christian Petersen <m.c.p@wolk-project.de> wrote:
-> 
-> > On Sunday 25 May 2003 12:58, Stephan von Krawczynski wrote:
-> > 
-> > Hi Stephan,
-> > before trying this, could you please update to aic20030523? Thank you.
-> > 
-> > 
-> > ciao, Marc
-> 
-> Hello Marc,
-> 
-> I did this. The combination rc3+aic20030523 survived the first day of tests. So
-> it seems at least better than rc3+aic20030520.
 
-The same has been running on my Alpha since yesterday evening on a 54GB raid0
-which I transformed to raid5 (39 GB backed up to IDE ; mkraid ; 39GB restored).
+> Your idea is fundamentally flawed. You can always add more layers of
+> self-checking-self-checkers, but this does not change the fact that the
+> idea is fundamentally flawed.
+> 
+> I'm sorry - it's not that I don't like you or anything like that - but
+> the idea is stupid, just give it up   :)
+> 
 
-Still alive.
-Cheers,
-Willy
+It is isn't it? :-) I'll think of something else to protect my code :-)
+I'd say fundamentally fucked.
 
+I only thought of it as a way to protect my code from being
+misused by companys protecting thier hardware registers and specs.
+
+Hmmm... Im going to have another chat with my solicitors :-)
+
+I won't however put £67,000 in rn'd down the pan by people 
+exploiting me :-)
+
+Perhaps i'll do a direct X type thing and make the v.92 
+library/codec/stack proprietary with LGPL -> GPL --> kernel
+linking, free of course :)
+
+My solicitors say at least three companies would abuse
+the GPL code ive done.
+
+I have to get the code ready for a site, possibly SF but
+probably not.
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
+
+Powered by Outblaze

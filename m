@@ -1,54 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266010AbRGGD7I>; Fri, 6 Jul 2001 23:59:08 -0400
+	id <S265995AbRGGDxi>; Fri, 6 Jul 2001 23:53:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266008AbRGGD66>; Fri, 6 Jul 2001 23:58:58 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:645 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S266004AbRGGD6y>; Fri, 6 Jul 2001 23:58:54 -0400
-Date: Fri, 6 Jul 2001 23:58:10 -0400 (EDT)
-From: Ben LaHaise <bcrl@redhat.com>
-X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: Jes Sorensen <jes@sunsite.dk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit m
- achi ne
-In-Reply-To: <15174.19941.681583.314691@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.33.0107062355070.26274-100000@toomuch.toronto.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266006AbRGGDx3>; Fri, 6 Jul 2001 23:53:29 -0400
+Received: from toscano.org ([64.50.191.142]:59076 "HELO bubba.toscano.org")
+	by vger.kernel.org with SMTP id <S266004AbRGGDxY>;
+	Fri, 6 Jul 2001 23:53:24 -0400
+Date: Fri, 6 Jul 2001 23:53:24 -0400
+From: Pete Toscano <pete.lkml@toscano.org>
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Hi all, a strange full lock in SMP-kernel 2.4.6 and 2.4.5
+Message-ID: <20010706235324.A19386@bubba.toscano.org>
+Mail-Followup-To: Pete Toscano <pete.lkml@toscano.org>,
+	kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010707021356.A2232@eresmas.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010707021356.A2232@eresmas.net>; from linuxx@eresmas.net on Sat, Jul 07, 2001 at 02:13:56AM +0100
+X-Unexpected: The Spanish Inquisition
+X-Uptime: 11:41pm  up 1 day, 13:40,  3 users,  load average: 0.06, 0.30, 0.35
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Jul 2001, David S. Miller wrote:
+I think I've seen this same problem, at least with regards to USB
+printing.  Yesterday, I traced the problem down to a patch to usb-uhci.c
+in the transition from 2.4.3 to 2.4.4.  The problem persists today.  A
+work around for this problem is to use the alternate UHCI driver
+(uhci.o).
 
-> What about for drivers of SAC-only devices, they eat the overhead
-> when highmem is enabled too?
+What motherboard and chipset are you using.  I use the Tyan Tiger 133
+motherboard with the VIA Apollo Pro 133a chipset.  Someone else who I
+heard from uses another VIA-based chipset (I think, he never replied to
+my question).  Maybe this is a VIA-related problem, like the APIC
+problem is.  (Do you use "noapic" when you boot?  He and I both have SMP
+systems too....)
 
-Yes.  It's not an unreasonable overhead considering that it's configured
-out for all the non-highmem kernels that will be shipped.  Keep in mind
-that the expected lifespan for 32 bit systems is now less than 3 years, so
-elaborate planning that delays implementation buys us nothing more than a
-smaller window of usefulness.
+I posted something on the linux-usb list yesterday about this problem
+and with all the info I was able to track down, but I have yet to see
+any response.  I've taken this as far as I can by myself.  I don't know
+enough about kernel programming or about USB to check the code in
+usb-uhci.c, but I'm more than happy to help by providing information
+and/or testing potential patches/fixes.
 
+pete
 
-> This says nothing about the real reason the IA64 solution is
-> unacceptable, the inputs to the mapping functions which must
-> be "page+offset+len" triplets as there is no logical "virtual
-> address" to pass into the mapping routines on 32-bit systems.
+On Sat, 07 Jul 2001, linuxx wrote:
 
-On x86 a 64 bit DMA address cookie is fine.  If you've got concerns, tell
-us what you have in mind for a design.
-
-
-> Face it, the ia64 stuff is not what we can use across the board.  It
-> simply doesn't deal with all the necessary issues.  Therefore,
-> encouraging driver author's to use this ia64 hacked up scheme is
-> not such a hot idea until we have a real API implemented.
-
-So what's the API?
-
-		-ben
-
+> Well Full lock in 2.4.5 and .6 when in a SMP intel p III 500mhz when i try to print any file in a epson 760 usb and parport
+> printer.  
+> I put in antecedents . With 2.4.3 and before the printer via usb or partport print ok . In 2.4.5-6 when i try to send
+> anything to /dev/usb/lp0 like cat a.txt > /dev/usb/lp0 the system fail or if i do in lpr same . I have no problem if i use parport whit the sames kernels .I have all right configured. With the same computer in other distribution .Same kernel = same lock .Of course the LPRng and gcc are 
+> all compiled in this machine and work right for months , both stables versions.I put the only trace y can get for the lock.
+> I hope help something for any other thing i not subscribed to kernel list so i like to know any answer you can give. THANKS
+> 
+> CPU:    0
+> EIP:    0010:[<d084acd1>]
+> EFLAGS: 00000086
+> eax: cd747600  ebx: cd1d42a0  ecx: 00000001  edx: cd747600
+> esi: cd1d41fc  edi: 00000000  ebp: 00000004  esp: cd077f34
+> ds: 0018  es: 0018  ss:0018
+> Process cat (pid: 378, stackpage=cd077000)
+> Stack: 0000017a 00000000 00000005 00000000 00000206 cd1d41a0 cd8f0000 00000000
+>        00000004 d0837aac cd1d41fc d084e411 cd1d41fc 00000000 cdec8c60 ffffffea
+>        00000000 00000004 c013a1c6 cdec8c60 0804c860 00000004 cdec8c80 00000025
+> 
+> Call Trace: [<013a1c6>] [<c0106ea7>]
+> Code: 80 7b 24 00 f3 90 7e f8 e9 e0 d0 ff ff 80 bf 80 00 00 00 00
+> console shuts up ...
+> <unfinished ...>
+> +++ killed by SIGSEGV +++

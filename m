@@ -1,96 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270169AbTGZPLg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 11:11:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272540AbTGZPIg
+	id S270138AbTGZOme (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 10:42:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272541AbTGZOd5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 11:08:36 -0400
-Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:58271 "EHLO
-	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S270142AbTGZPGC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 11:06:02 -0400
-Date: Sat, 26 Jul 2003 16:19:56 +0100
-From: Hugo Mills <hugo-lkml@carfax.org.uk>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Meelis Roos <mroos@math.ut.ee>, lkml <linux-kernel@vger.kernel.org>,
-       neilb@cse.unsw.edu.au
-Subject: Re: NFS server broken in 2.4.22-pre6?
-Message-ID: <20030726151956.GA11253@carfax.org.uk>
-Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Meelis Roos <mroos@math.ut.ee>, lkml <linux-kernel@vger.kernel.org>,
-	neilb@cse.unsw.edu.au
-References: <Pine.GSO.4.44.0307242023530.5806-100000@math.ut.ee> <Pine.LNX.4.55L.0307251001480.12492@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55L.0307251001480.12492@freak.distro.conectiva>
-X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
-X-GPG-Key: 1C335860
-X-Parrot: It is no more. It has joined the choir invisible.
-X-IRC-Nick: darksatanic
-User-Agent: Mutt/1.5.4i
+	Sat, 26 Jul 2003 10:33:57 -0400
+Received: from amsfep15-int.chello.nl ([213.46.243.28]:19732 "EHLO
+	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id S272500AbTGZOcZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 10:32:25 -0400
+Date: Sat, 26 Jul 2003 16:51:28 +0200
+Message-Id: <200307261451.h6QEpSB9002274@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] m68k do_fork()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+M68k: Update for changed do_fork() semantics in 2.5.70
 
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--- linux-2.6.x/arch/m68k/kernel/process.c	Thu Feb 13 17:01:13 2003
++++ linux-m68k-2.6.x/arch/m68k/kernel/process.c	Wed May 28 17:34:58 2003
+@@ -202,24 +202,19 @@
+ 
+ asmlinkage int m68k_fork(struct pt_regs *regs)
+ {
+-	struct task_struct *p;
+-	p = do_fork(SIGCHLD, rdusp(), regs, 0, NULL, NULL);
+-	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
++	return do_fork(SIGCHLD, rdusp(), regs, 0, NULL, NULL);
+ }
+ 
+ asmlinkage int m68k_vfork(struct pt_regs *regs)
+ {
+-	struct task_struct *p;
+-	p = do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD, rdusp(), regs, 0, NULL,
+-		    NULL);
+-	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
++	return do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD, rdusp(), regs, 0,
++		       NULL, NULL);
+ }
+ 
+ asmlinkage int m68k_clone(struct pt_regs *regs)
+ {
+ 	unsigned long clone_flags;
+ 	unsigned long newsp;
+-	struct task_struct *p;
+ 	int *parent_tidptr, *child_tidptr;
+ 
+ 	/* syscall2 puts clone_flags in d1 and usp in d2 */
+@@ -229,9 +224,8 @@
+ 	child_tidptr = (int *)regs->d4;
+ 	if (!newsp)
+ 		newsp = rdusp();
+-	p = do_fork(clone_flags & ~CLONE_IDLETASK, newsp, regs, 0,
+-		    parent_tidptr, child_tidptr);
+-	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
++	return do_fork(clone_flags & ~CLONE_IDLETASK, newsp, regs, 0,
++		       parent_tidptr, child_tidptr);
+ }
+ 
+ int copy_thread(int nr, unsigned long clone_flags, unsigned long usp,
 
-On Fri, Jul 25, 2003 at 10:05:33AM -0300, Marcelo Tosatti wrote:
-> 
-> 
-> On Thu, 24 Jul 2003, Meelis Roos wrote:
-> 
-> > NFS serving seems to be broken in 2.4.22-pre6. I had 2 computers running
-> > 2.4.22-pre6 (x86, debian unstable current). Tried to acces them via NFS
-> > (using am-utils actually) from a 3rd computer, IO error. Tried to
-> > mount directly, mount: RPC: timed out. Rebooted one computer to 2.4.18
-> > and NFS started to work.
-> >
-> > No more details currently but I can test more thoroughly tomorrow.
-> 
-> Meelis,
-> 
-> Please report more details.
+Gr{oetje,eeting}s,
 
-   I'm also having trouble with NFS, with a 2.4.22-pre6-ac1 server.
+						Geert
 
-   I'm booting a diskless workstation (with a 2.4.21-ac1 client), and
-it will boot and mount the root filesystem. When I try to mount any
-other filesystems, the client reports
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-mount: can't get address for vlad
-
-and loses the main NFS mount: attempts to access any file on the root
-filesystem gives stale NFS file handle errors. The failure to mount
-also breaks the server -- I can no longer boot the diskless client.
-Restarting the NFS server allows me to boot the client once again.
-
-   Like Meelis, I'm also using Debian unstable, and I've tried with
-both the 1.0.3-1 and 1.0.5 versions of the nfs-tools on both machines.
-Both versions give the same error that I reported above.
-
-   Hugo.
-
--- 
-=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
-  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
-       --- "Are you the man who rules the Universe?" "Well,  I ---       
-                              try not to."                               
-
---5vNYLRcllDrimb99
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/IpwbssJ7whwzWGARAu37AJ4lMftyvGgaRCGT7jS7ZFlYCtDukQCdFJ3j
-sAlGqaiGYWLlT16ndRelbh8=
-=zppx
------END PGP SIGNATURE-----
-
---5vNYLRcllDrimb99--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261418AbSKGQf7>; Thu, 7 Nov 2002 11:35:59 -0500
+	id <S261457AbSKGQnq>; Thu, 7 Nov 2002 11:43:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261446AbSKGQf7>; Thu, 7 Nov 2002 11:35:59 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:21260 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261418AbSKGQf6>; Thu, 7 Nov 2002 11:35:58 -0500
-Date: Thu, 7 Nov 2002 11:41:56 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: 2.5.46-mm1
-In-Reply-To: <3DC8D423.DAD2BF1A@digeo.com>
-Message-ID: <Pine.LNX.3.96.1021107113557.30525C-100000@gatekeeper.tmr.com>
+	id <S261460AbSKGQnq>; Thu, 7 Nov 2002 11:43:46 -0500
+Received: from kim.it.uu.se ([130.238.12.178]:9937 "EHLO kim.it.uu.se")
+	by vger.kernel.org with ESMTP id <S261457AbSKGQno>;
+	Thu, 7 Nov 2002 11:43:44 -0500
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15818.39371.311141.742866@kim.it.uu.se>
+Date: Thu, 7 Nov 2002 17:50:19 +0100
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>,
+       "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH][2.5-AC] Forced enable/disable local APIC
+In-Reply-To: <Pine.LNX.4.44.0211071140310.27141-100000@montezuma.mastecende.com>
+References: <15818.37221.445746.346901@kim.it.uu.se>
+	<Pine.LNX.4.44.0211071140310.27141-100000@montezuma.mastecende.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Nov 2002, Andrew Morton wrote:
+Zwane Mwaikambo writes:
+ > On Thu, 7 Nov 2002, Mikael Pettersson wrote:
+ > 
+ > > Zwane Mwaikambo writes:
+ > >  > +int enable_local_apic_flag __initdata = 0; /* 0=probe, 1=force, 2=disable e.g. DMI */
+ > > ...
+ > >  > +	if (enable_local_apic_flag == 1)
+ > >  > +		goto force_apic;
+ > >  >  
+ > >  >  	switch (boot_cpu_data.x86_vendor) {
+ > >  >  	case X86_VENDOR_AMD:
+ > >  > @@ -642,6 +661,7 @@
+ > >  >  		goto no_apic;
+ > >  >  	}
+ > >  >  
+ > >  > +force_apic:
+ > >  >  	if (!cpu_has_apic) {
+ > >  >  		/*
+ > >  >  		 * Some BIOSes disable the local APIC in the
+ > > 
+ > > Of what use is the force case? If someone boots with "lapic" on a CPU
+ > > where the APIC feature bit is off, then the code will rdmsr/wrmsr on
+ > > APICBASE, even though we (the kernel) haven't verified that the CPU
+ > > actually has that MSR. This is doubleplusungood.
+ > 
+ > We still honour the APIC feature bit, its just that we bypass the cpuid 
+ > checks. Looks sane no?
 
-> 
-> url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.46/2.5.46-mm1/
-> 
-> It wasn't clear whether it was useful or desirable to keep these patchsets
-> turning over.  But it will be helpful to keep them as a marshalling point
-> for people to see what is queued up, to get some additional testing and
-> stabilisation and for people to sync up against.  And also to keep things
-> like shared pagetables and dcache-rcu under test.
+No. Read what I wrote: if cpu_has_apic is false, the code drops into
+the "try the hard way by messing with the APICBASE MSR". Your "force"
+goto bypasses the CPU checks, which are there to ensure that the CPU
+actually _has_ an APICBASE MSR.
 
-For what it's worth, the last mm kernel which booted on my old P-II IDE
-test machine was 44-mm2. With 44-mm6 and this one I get an oops on boot.
-Unfortunately it isn't written to disk, scrolls off the console, and
-leaves the machine totally dead to anything less than a reset. I will try
-2.5.46 base after I apply the few patches needed to make it compile, and
-send you my config if you think it will help.
+I still see no reason at all for the force.
 
-2.5.44 and all 4[45]-ac? builds booted and ran.
-
-This is just a "problem present" notice, I have no decent info for
-debugging.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+/Mikael

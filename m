@@ -1,50 +1,24 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <970999-2834>; Tue, 16 Jun 1998 10:18:35 -0400
-Received: from cr154328-a.ktchnr1.on.wave.home.com ([24.112.104.63]:1302 "HELO bifrost.voskamp.waterloo.on.ca" ident: "root") by vger.rutgers.edu with SMTP id <970981-2834>; Tue, 16 Jun 1998 10:18:19 -0400
-Message-Id: <m0ylwhc-0003XwC@bifrost.voskamp.waterloo.on.ca>
-From: jeff@bifrost.voskamp.waterloo.on.ca (Jeff Voskamp)
-Subject: Re: binfmt_script
-To: agriffis@css.tayloru.edu (Aron Griffis)
-Date: Tue, 16 Jun 1998 10:27:12 -0400 (EDT)
-Cc: linux-kernel@vger.rutgers.edu
-In-Reply-To: <19980616092717.A16431@css.tayloru.edu> from "Aron Griffis" at Jun 16, 98 09:27:17 am
-WWW-homepage: http://www.voskamp.waterloo.on.ca/~jeff
-Content-Type: text
+Received: by vger.rutgers.edu id <971161-3822>; Tue, 30 Jun 1998 19:08:52 -0400
+Received: from x2cip32.wmis.net ([209.44.12.182]:1064 "EHLO x2dip72.wmis.net" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <971146-3822>; Tue, 30 Jun 1998 19:08:42 -0400
+Message-ID: <19980630194427.A650@msu.edu>
+Date: Tue, 30 Jun 1998 19:44:27 -0400
+From: Aaron Tiensivu <tiensivu@pilot.msu.edu>
+To: Linux Kernel Digest <linux-kernel@vger.rutgers.edu>
+Subject: [offtopic] MP3Mobile using Linux
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.92.8
+X-OS: Linux 2.1.107 
+X-ICQ: 3085269
+X-EGN: 24108
+X-URL: http://www.msu.edu/~tiensivu
 Sender: owner-linux-kernel@vger.rutgers.edu
 
->There appears to be a restriction on scripts that allows only a single
->parameter to the interpreter in the #! line.  For example:
->
->    #!/bin/csh -fb	<-- fine
->    #!/bin/csh -f -b	<-- not allowed
->
->Is there a reason for this restriction?
->
->-Aron
+File under incredibly cool.
+http://www.chaos.org.uk/~altman/mp3mobile/
 
-Given a file 
 
-Foo
----
-#!<interpreter> <options>
-
-the kernel changes the command line
-
-Foo <args>
-
-to
-
-<interpreter <options> Foo <args>
-
-Once you know that all should be clear.
-
-Hint: the -f option in csh takes the next "word" as the name of the file
-to run.  The first verstion gives "csh -fb blah args" while the second
-gives "csh -f -b blah args" and csh tries to run the script "-b".
-
-As far as I know all unices (?) do it this way.
-
-Jeff Voskamp
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

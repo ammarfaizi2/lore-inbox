@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265166AbTFMGTt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 02:19:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265167AbTFMGTt
+	id S265167AbTFMGVB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 02:21:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265170AbTFMGVB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 02:19:49 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:63757 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S265166AbTFMGTs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 02:19:48 -0400
-Date: Fri, 13 Jun 2003 08:30:52 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: CaT <cat@zip.com.au>
-Cc: swsusp@lister.fornax.hu, linux-kernel@vger.kernel.org, pavel@suse.cz
-Subject: Re: 2.5.70-bk16 - nfs interferes with s4bios suspend
-Message-ID: <20030613063052.GA1558@zaurus.ucw.cz>
-References: <20030613033703.GA526@zip.com.au>
-Mime-Version: 1.0
+	Fri, 13 Jun 2003 02:21:01 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:44083 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S265167AbTFMGUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 02:20:55 -0400
+Date: Thu, 12 Jun 2003 23:34:35 -0700
+Message-Id: <200306130634.h5D6YZ523894@magilla.sf.frob.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030613033703.GA526@zip.com.au>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: davidm@hpl.hp.com
+X-Fcc: ~/Mail/linus
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: FIXMAP-related change to mm/memory.c
+In-Reply-To: David Mosberger's message of  Thursday, 12 June 2003 19:16:37 -0700 <16105.13317.608868.581471@napali.hpl.hp.com>
+X-Zippy-Says: Darling, my ELBOW is FLYING over FRANKFURT, Germany..
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> I considered a pte_user_read()/pte_user_write()-like approach, but
+> rejected it.  First of all, it doesn't really help with execute-only
+> pages.
 
-> Not too sure which list to send this to exactly so here goes. I go
-> my laptop back from warranty repair and it was returned with an old
-> version of the bios that still had suspend-2-disk capability in it.
-> Having set everything up I hit the suspend button and all seemed to
-> go ok upto a point:
-...
-> =
->  stopping tasks failed (2 tasks remaining)
-> Suspend failed: Not all processes stopped!
-> Restarting tasks...<6> Strange, rpciod not stopped
->  Strange, lockd not stopped
+The definition I gave was "should be readable by ptrace", and so it works
+if that's how you categorize all execute-only pages.  But...
 
-NFS needs "refrigerator" support for 
-its kernel threads.
+> [...], but I'm worried about someone adding other
+> execute-only pages further down the road, not being aware that
+> ptrace() would cause a potential security problem).
 
--- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+Given that concern, I'll agree with your assessment.
 
+> For ia64, I think we really want to say: if it's accessing the gate
+> page, allow reads.  There is just no way we can infer that from
+> looking at the PTE itself.
+> 
+> Is there really a point in allowing other FIXMAP pages to be read via
+> ptrace() on x86?
+
+Currently, none are (because pte_user is only true of the vsyscall page).
+For each individual arch, it seems reasonable enough to me to just have
+special cases rather than testing the page tables.  Rather than the code
+now in #ifdef FIXADDR_START it could just call an arch_get_user_pages
+function to check for magic user addresses without vmas.
+
+Linus's suggested change is obviously the minimal change from what we have
+now.  But the arch_get_user_pages idea might be the more conservative
+implementation compared to the status quo before my get_user_pages patch.
+
+
+Thanks,
+Roland

@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261934AbSLIARG>; Sun, 8 Dec 2002 19:17:06 -0500
+	id <S261963AbSLIAQb>; Sun, 8 Dec 2002 19:16:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261973AbSLIARG>; Sun, 8 Dec 2002 19:17:06 -0500
-Received: from [129.63.8.2] ([129.63.8.2]:30737 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S261934AbSLIARF>;
-	Sun, 8 Dec 2002 19:17:05 -0500
-Date: Sun, 8 Dec 2002 19:24:29 -0500 (EST)
-Message-Id: <200212090024.gB90OTN25818@saturn.cs.uml.edu>
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-To: linux-kernel@vger.kernel.org
-Cc: nleroy@cs.wisc.edu, acahalan@cs.uml.edu
-Subject: Re: Detecting threads vs processes with ps or /proc
+	id <S261894AbSLIAQb>; Sun, 8 Dec 2002 19:16:31 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:45527 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S261934AbSLIAQa>; Sun, 8 Dec 2002 19:16:30 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Steven Dake <sdake@mvista.com>
+Date: Mon, 9 Dec 2002 09:35:06 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15859.51482.570635.122591@notabene.cse.unsw.edu.au>
+Cc: Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org
+Subject: Re: RFC - new raid superblock layout for md driver
+In-Reply-To: message from Steven Dake on Wednesday November 20
+References: <20021120234743.GF29881@marowsky-bree.de>
+	<3DDC2A6F.2030307@mvista.com>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Robert Love writes:
-> On Fri, 2002-12-06 at 14:56, Nick LeRoy wrote:
->
->> I was considerring doing something like this as well.  From your
->> experience,  does it work reliably?
->
-> It never fails to detect threads (no false negatives).
+( sorrt for the delay in replying, I had a week off, and then a week
+catching up...)
 
-Testing the algorithm on idle test processes won't show
-this damn-obvious race condition:
+On Wednesday November 20, sdake@mvista.com wrote:
+> The only application where having a RAID volume shareable between two 
+> hosts is useful is for a clustering filesystem (GFS comes to mind). 
+>  Since RAID is an important need for GFS (if a disk node fails, you 
+> don't want ot loose the entire filesystem as you would on GFS) this 
+> possibility may be worth exploring.
+> 
+> Since GFS isn't GPL at this point and OpenGFS needs alot of work, I've 
+> not spent the time looking at it.
+> 
+> Neil have you thought about sharing an active volume between two hosts 
+> and what sort of support would be needed in the superblock?
+> 
 
-1. you read the first thread's info
-2. the second thread calls mmap() and/or takes a page fault
-3. you read the second thread's info
+I think that the only way shared access could work is if different
+hosts controlled different slices of the device.  The hosts would have
+to some-how negotiate and record who was managing which bit.  It is
+quite appropriate that this information be stored on the raid array,
+and quite possibly in a superblock.  But I think that this is a
+sufficiently major departure from how md/raid normally works that I
+would want it to go in a secondary superblock.
+There is 60K free at the end of each device on an MD array.  Whoever
+was implementing this scheme could just have a flag in the main
+superblock to say "there is a secondary superblock" and then read the
+info about who owns what from somewhere in that extra 60K
 
-> It does sometimes detect child processes that forked but did not exec as
-> threads (false positives).  The failure case is when a program forks,
-> does not call exec, and the children go on to execute the exact same
-> code (so they look and act just like threads, but they have unique
-> addresses spaces).
->
-> One thing to note: if you can modify the kernel and procps, you can just
-> export the value of task->mm out of /proc.  It is a gross hack, and
-> perhaps a security issue, but that will work 100%.  Same ->mm implies
-> thread.
+So in short, I think the metadata needed for this sort of thing is
+sufficiently large and sufficiently unknown that I wouldn't make any
+allowance for it in the primary superblock.
 
-This forces sorting, which is slow and eats memory.
-It's better to list the ->mm peers in a proc file.
-For example, a /proc/42/mm-peers file containing
-a simple list of the peers.
+Does that sound reasonable?
 
-There's still a race condition, but at least it only
-involves threads that get created during the /proc scan.
-
-There's also the problem with new-style threads simply not
-being listed anywhere. Crackers are going to love it if
-the Linux 2.6 kernel has a built-in way to hide things.
+NeilBrown

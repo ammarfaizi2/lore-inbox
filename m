@@ -1,54 +1,204 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316683AbSFVA35>; Fri, 21 Jun 2002 20:29:57 -0400
+	id <S316492AbSFUWY7>; Fri, 21 Jun 2002 18:24:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316821AbSFVA34>; Fri, 21 Jun 2002 20:29:56 -0400
-Received: from [66.89.142.11] ([66.89.142.11]:17517 "EHLO exalane.intransa.com")
-	by vger.kernel.org with ESMTP id <S316683AbSFVA34>;
-	Fri, 21 Jun 2002 20:29:56 -0400
-Message-ID: <3D13C4FE.8020601@candelatech.com>
-Date: Fri, 21 Jun 2002 17:29:50 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
+	id <S316799AbSFUWY6>; Fri, 21 Jun 2002 18:24:58 -0400
+Received: from relay2.uni-heidelberg.de ([129.206.210.211]:10202 "EHLO
+	relay2.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S316492AbSFUWY4>; Fri, 21 Jun 2002 18:24:56 -0400
+From: Bernd Schubert <bernd-schubert@web.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: Symoops with Dual-Serverworks board
+Date: Sat, 22 Jun 2002 00:24:56 +0200
+User-Agent: KMail/1.4.1
 MIME-Version: 1.0
-To: andersen@codepoet.org
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Anyone get Linux on a Shuttle SpaceWalker SS40?
-References: <3D13BE09.40608@candelatech.com> <20020622001659.GA4339@codepoet.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Jun 2002 00:29:52.0311 (UTC) FILETIME=[ECBE7470:01C21983]
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_K9U27N0U1B233O34AOHA"
+Message-Id: <200206220024.56296.bernd-schubert@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Andersen wrote:
-> On Fri Jun 21, 2002 at 05:00:09PM -0700, Ben Greear wrote:
-> 
->>I got a cute (and very quiet) SS40 bare-bones system.  I put an
->>Athlon 1.8 and 256MB DDR (Generic, Samsung chips), and a cheap Maxtor 20GB 
->>HD.
-> 
-> 
-> Perhaps the "very quiet" is a clue...  No fan?
-> 
->  -Erik
 
-Give me a little credit :)
+--------------Boundary-00=_K9U27N0U1B233O34AOHA
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 
-The bios has a temperature controlled fan, and I explicitly
-tested that the fan comes on high when it gets warmer..and spins
-slower when it's cool.
+Hi,
 
-The bios reported temperature was about 47degres C, well within
-spec for an Athlon.
+a few month ago I already wrote about this, but at this time the machine was 
+instable due to defect ECC-RAM, so I didn't create a symoops report.
 
-Ben
+Now the RAM is exchanged, the machine is much more stable, but not stable 
+enough, it keeps oopsing and sometimes it also crashes at all (no reaction to 
+keyboard (though Magic Sysrq's are enabled) and network).
+
+Well the logfile is full of messages like this:
+
+Jun 19 15:50:45 noether kernel: mtrr: Serverworks LE sdetected. 
+Write-combining disabled.
+Jun 19 15:50:45 noether kernel: mtrr: your processor doesn't support 
+write-combining
+Jun 19 15:50:45 noether kernel: mtrr: Serverworks LE detected. Write-combining 
+disabled.
+Jun 19 15:50:45 noether kernel: mtrr: your processor doesn't support 
+write-combining
+
+Unfortunality, the bios has no option to disable Write-combining (as someone 
+suggested).
+
+For the last oops I've created a ksymoops report. Well, its my first one and I 
+hope I havn't made any mistakes (actually I havn't read the ksymoops manpage 
+in detail). The ksymoops output is attached as bzip2-file.
+
+
+Thanks in advance for any help,
+
+Bernd
+
+
+PS: Some system specific details are also attached. If you need more 
+information, please don't hesitate to ask.
+
+
 
 -- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+Bernd Schubert
+Physikalisch Chemisches Institut
+Abt. Theoretische Chemie
+INF 229, 69120 Heidelberg
+Tel.: 06221/54-5210
+e-mail: bernd.schubert@pci.uni-heidelberg.de
+--------------Boundary-00=_K9U27N0U1B233O34AOHA
+Content-Type: application/x-bzip2;
+  name="symoops_noether.out.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="symoops_noether.out.bz2"
 
+QlpoOTFBWSZTWfe6qXEABHt/gHxRIABmb///O7XOCr//3+BQBFqoPc6NqO7W2uQSSImCMk8mTTIg
+YiZMymTQ0GjJtTTQ9QSRKeBAU9J6UyAA0yABpkAANAEiU9U2UnkJ6mmkzKeRPSGmjEBoAaAADjJk
+00wmRkDAjE0YIwg0aYABBJIImp+o1Ho1NPUNAAD1DQAAADQ39xJts7iaIbBs9rThbN6WHsr3UGV7
+bPt/SeyHd8pRS/Vx0URcnNdwYcbIpfUCSHUn9yM334HRIf9nk+PLzcw9Hw+V2NtsTeBB2YruLHfw
+UjfUDQud9IhpH66Gt9Y6YPTN6+n7pUdl7PsdU9PejIcFwz2Hdo2BJY8fqkqlCaxxEwVfbcuXYzKz
+0XareWxOLePd3rbcsTM22Z8yL2RyQw9062NgchFzRaZbo7V7vw3i780IR+3DoEXupZE0NBn4dHDQ
+2JKdmZJYce7k9MUwnwmJdbgfBIqlVTp+psut54o0Kzb0bcZrrfh4ghzmRKNOickxr0uykzOGe1mp
+kZ6ZCjd8E2oXVWOpw1j0PS0ls76i+aTx1lLDxK8EZniUnwBWtDE5RwFxiNQzJCZUdRJGwTPg4cte
+YcfJphGPaggIMIYNtwOkmL8kSSUl5Awu9F3U1Vt/Wdowtp0Z+b2Pl0qYZkUlVglSeVEb68iSrrna
+PFmqoyYmasLJoLUos/GTuqEsRg4ZOIos3MbEiBEwfhRq4Zld94JLdOmlljVTajYjbGM2ZytWGny1
+CfXGaZtlNZF9WSVd5ZFRmLtgVQzJKVUt0MmTvDgy3SJ48l1bwv0uMMoIUVeQRYkw66wiAwZ02CQQ
+Jx12iCt2/rGp65s2iSbPW1hb6a1TDOk7tiHqL2Di3jSV6SqkSK2FdysH2AwI60Hgo1gsqTMOUpS3
+sVy5ZXZlS0PjMCQhugbC788Xi5GBJefRHuRud9G52iSs3OftZElAHfnWU7tedCchdSF4X88K17+L
+r7uzZtNNKFIwGo+JhwHnQI2EMB48kpLJXvDPmqCHq9tA6Au7OuGBtiGOakvxWh1jCkrUoZUYuLrt
+wHKw1chk2tNgm22222wVVu8984XZmm8vjqA74QihNUYZC7H4dV7PBAlDT/aXzpI8ssiadI8lJhGe
+Ol3+F0ZZzLhogYQyU7SiTfrSTnQmtoRQofDk1J7CgleGiAhLiEqoC3jQHHDOKXJt5uAA1oWhcxnI
+0rjZU3Na5Zcr6NNnvct3A4jHxNIQDDbbicSfbZEX1CWZAMzi5iLYzobSmBQj1bSpbuF1L4gHGkoC
+Tum9PhlrZgDC84h+B/I0ARaMCS6eUS2yHuKemkfMkpcK6LEBeX1pJpnqqyZY0iszwB9E8DUH0GRi
+eJYxSTvw0wB5O+3CPP3JooC+hfwDraNYSc9Aa52QnqjEfTfgVITP1OvNTg/FrisZxwyJaLcupOce
+c8dDpQCGyludCxzaqjEG9JYpMUxQ7RQHCtiJptcFsNSFpjVf/F3JFOFCQ97qpcQ=
 
+--------------Boundary-00=_K9U27N0U1B233O34AOHA
+Content-Type: application/x-bzip2;
+  name="cpuinfo.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="cpuinfo.bz2"
+
+QlpoOTFBWSZTWb3qAkEAAWNfgD6wSGH78BjqQAC/59/xQAHcAAMAANAAGTQAABoDAADQABk0AAAa
+AwAA0AAZNAAAGgCqmgqeTIDSaZTJPajTUeU8ahqemaUvB06pv7b3Jveb9qPqmmhCrsZUjcx4fRoS
+kSxaHwh6vJpeg5oXKP49nsxfP+vfwCqHu4Myjg/H7bSyz5bVS97NbJcNzmhc1rk1EMXQlrlR1uPp
+fbKLJvd5yorKV6/+naqYOS6VG5mm6Wa54PF4PFNDyeSyiiqqDM8Hm4erks/53k29CXB3OLi4sXa7
+0O53P8YMVrMn8Hi5vzisvm+6rYqsPWa4hYztDByYtKHJnebmuXoQ3OpYh8Pd0LMV+56pUa97e6nk
+3JmuE0ITdYwXsmDReswXOkiVFlENrW7BvaWTgwalTU6kOxVVrNiZqVTZ2EpTHR9VTaNOEsxTmxdb
+F8Mm1e+WdqOpDJNkq7drOuKsmogiVzQyQtRDCW9NKbYosoZibU4qLmhql2Ny9bMozL1Em4QqjY0o
+XMVyF7Wq2M7oS+V72/8XckU4UJC96gJB
+
+--------------Boundary-00=_K9U27N0U1B233O34AOHA
+Content-Type: application/x-bzip2;
+  name="boot.msg.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="boot.msg.bz2"
+
+QlpoOTFBWSZTWe+3ObAADpt/gH20GCBr7///f///6r/v//BgFBzi18zezoA87D0G9o66229uB6DS
+eE7sBd3LsO03uNT0Kd7uK9zaHbOho2BnQlEEACYmTRoJPCaGpkep6VPyNU9qho0GmgB6QepglBAm
+mmiaZNRojSaR+lBsUeoBp6NQaeoAABoeoNT0CRoqeaKek3pE9Iep6gZqAGgZAAA9IDQZAk0oqabV
+PUzUninqZpNommTJoxNBpoaaD1A0AAaAHA0GmQ00aGEDIaGCNDTJo0AyDEAAaCRIQBGQmgNJhMQ0
+00TQ1GjT0m0nphGoNNDQ0cgdIDbJIT7BIBhBZ1UEUQLlBVsJSylIUqBIzgxvuXqcD+/69Q7W74PL
+2OsBub9oUdXh11O4T00hrUUJczbZt8HjpD7h8yoPnQItMy4W4qYGck401WJySSBBtFPd2ag7QnB5
+7lVdZRBomAqL714d5/xgv0XS2ZRyzdzX4i4cpV4svBdyLyeOf9syOnPNogoKvL1TPI9Zla1rWta1
+rW9PpnJnumzdlMHMceMk6NTOluO/aSTzUtlbs1tYy+/2euQOQuZTas2DFQERB59AkkNomYBiAIEi
+DAEGSMIvOPNQBRQe99UlyRWhFbbGMEEz8M7kBrSGkIogICALQw8yXDyoh+I6vzu6M/kbJ/A035YT
+Sd9GcdS/rdrNbH+NMjN/0gugHwMFGfJs3dpas9tFj2tbu3Ub9Ga/dNO3N/3vRTaexEQBmnFjuwXK
+gG0pZNOXXXXXXcfd/js9Ph975+H0xiChMBGYwqqqqpMzsNOfPXXlppe9b66666abm7IwpoiIwwIo
+dwomKoA0UEggXR/8YPUIMUBOkJiQZPiAP84HkBA32fWXqJpSNVIomEfEi7HJlFRHifWFtNrsJd8X
+yU5c8/hMVi7XDQ38uSLdmJLKK5YVuJs2lnXIrHR8LvGbs4pt9+86ZTt4zsaakvoIeP+A5HJS9dQ5
+OXrMGGYZ1oClSuLmJX2e3s3f+b8K9gKum+X3/10o3dF5NaFDE+tNY03wXl3hBBOs6KLAeBPHtgmF
+MmrcY/3tJpFvPIdXSMNU6YxIwTO8bkHfE9/t6j8x1W07DZJhwdPyMCst5xlnwekUr8LnNCcs5vPv
+1Q4HQj43S3kl8aRRUlHa1Mpb9PXj1ru5mBHXSimFbibS1/ItH69UXvUl3kJs5dWE+TKqVrbVV2ji
+hmqosb9ks/gehmmvf3Sd9U1QplOpdRst0F0C6e6LV2sd7kkRqYpSgY3uc4qBl5iWfhAanKzbFRCf
+bYcHvqzsGy47CmEyvwtqj3bjKknzx113xlderQ0GDiUVB+d9fDPhoK5I5ldGsueeT3B98NLXwjZz
+ikpRWHglhSemtxoFu2KZzXMSpdqUJnZMUzpC6c1A+tvYq8IfJF+aZ5wQIBFjtMPhEz38j1zzavnz
+hab9O+25LN4piYHgX7MsxVn6zZNCH9KhhL06QJ6GWyUyaiAnOmSjcOyx/i9vtfasE/I0nxEmko2J
+xiuBuUm8zT2dg6v+GgyUMvfT3REpDQtf+dunI7DGwqKZbX57L3nB3YmaKmCsya9fchsWIWBkTZbH
+TaJDpo6OXG2SXWzZ4wBPQ9DWrvTfYaSKJvyCIGPRyZU3M2XHDo12yqAnbLnl5TY/eWmJ4USJz6VJ
+3+S7XYKgTwMJXwiXp8WyYeD0WHsYi/j4QTszfohvwfAyQ9/DxpNkPf5usjrshp9KnuOCsgnoa1re
+VeSozzymaDJDevzU9xc/7kr3L4iuoTrRUamWbS34Co4puZHYZwx8HjryU+xMxnnW+g0ZP9M2iCzk
+EUz3AVHL5Dci3CoQIiegDcLFNJd6xhue4yQ4c5GcDRGgQy45neM+xEQnXyXybxPWeSk36WDXRK0I
+1GD5yBwr69irLqt3MJ08XwSipRUH7mQRE+2w7svM4yr8shUQr2MI+ZhNlodXk0EWODyxJccp+J7K
+BU11gPEhxYwYgKORUfEivexzEUa57pDtUumu4dfSDkvjRTRTjJt+o2eI4PSefdq9u30mNwhBY/7l
+3o1wt6jcDQDHJwCX8BJJpCGAEIDc0p/XCQS83NYXcxV5n891SwzcFtQSfTGP5+0t0nryK72X82BP
+MjO3mJFGIQK8IBo4sAQIneaG8myJCBo6s+XtOLWgLscI2WHLhZI+hnX5fp7p5xZoSU2hHhaEuOpQ
+fzGZES5wep+gRwk4kA4a+UHEwFYMl8sD67gCsokriAXFODnnj5JkZ1yJs7SUDnbzWKhVKdU1x6BM
+me353kodnnXUaQ98TAwWauqU3ArTlSoXUGoomThv6GE0VVPbp0eOzwamXn6Y9Ms0M65IB0gwYkmH
+ipFR1/oLIkTXJnPrnvT8eN86SbTtak1qh6+SeK2YTRphnQ250zodun5mPvxR503cBXXX0uOqcRGw
+wcO7rLKWBBkyMugGx2xzExUSRJYQS1zFwtFKC4lI3NjZdkc/h0dEkWy6Sfq13243wUfQWMDw8jW8
+mFNcTwTTE8J83wXx6acWIvvOJCKAo1GYU0oyqymKnCB5xjEU0Te/PrRjKYOpyouDfGjYyJZFexut
+dVHjPDOAA3cyAZ7FiO2HXpGy/HLrV+kYVS3ZxEdYZComIjzYqoPTpk+CCW96PtTweW4Jghjlu7by
+GV+2kNu1tCqqF1vIn4r3a7o+SGIqGjilaomdFt7LimOwAiYtZcaOasZH1oea+u0lMyq8tHDnPjRU
+fQhlFqFS6mKGIfvsAgRylljCunDSZHWxIgEOIfDWnPlyHbBN8tkcQUhaJDlM1REEdM0VEvHWiQO8
+bLWbqTaGmVklFN2W07wna6Iggp+YK21MrS0uOsGxpIylnGY6oG0d/TItfyvyVj4kBji1dgTj5M4Z
+rvtkhw3BjQmkDGy2pKEemPFSVeOORgYSt1XSNAS/pbHWGGU9FGR+tZH9xent++x834T5BHPA+7t6
+g15ILTYUK5xERME6XWeieFSV6Tx9nsZNTlJsXgOXivj4t7lKctUw+1CDwSXvPn8vXupL3W0830GV
+6XEjbf254tUfswr9WjvWRMyfLHnxTCZXA5VlKXmF1hxmMSx92mXRS+UAeUexhzMntICbk/s6NHZn
+l+SBADLLPtklz/b16d672Qp3Vdd09pyOL7sN83wXkBHckmChAzsT2KBiJDAYT1s1mKUmQlJRYCDK
+WygFLEFciURRYsUa0jErLaExiWWIWLihQtCxm9s4jvcx+HX/TxHlNzudmHm82fh4jjFFHx2USKdv
++vKYz8nfmJVOG4LFKqiFHv0yFJpMja0u7vIQWMDqo5/IsCBFM8hl5TBpYCQ70iDtcuf9FBUT4SV6
+zhQfU5qpMaHGQvhaCkp5MLlJ1FVCelwZB2Jd+/ZOnhpsuU3q4c5CNVTE6go34k8u0D19gySFwfsl
+AtzI1PSFCmltj3QRRSk5QF5CMqUQJoP1fDo5biZt1YcvB1GkrWLAftAI++ah6lmXzFM3MS+EkaNE
+w6Jwxg+XtQPLupUVINeUBxujHSCCR5aWnOPZSGTJ7i630tRwuOlnyWqGvB90ll+EQ1145SCZf2ap
+momQoZHK2wW+brKKAnvHMWyAKKLyVeUeBOPT0Tk+FlE5EYFy52WooZCFIZOclUingGklMmLpfK0p
+HxcFyEtugg4gkyfYajTTA14hMzcUERp2G+lQibxO0UNco/CAhI95SZ6S0k1bhOex+mzaHEMLqTqP
+ACDwmDBrgqKeqhmdcl8ow/iVH0mwVCeUn2xkt4+oWBT0UcgAp1EyFJkHRzkEs00vU5P0BxGVddD4
+9fn07izHm/fUHs+stL1smUPp+Mgqa+FALSIO6TRDE/s+5JQe8MKhQ2cyiV7yMMVQjm+40Eyfb+ek
+Sqjlzlc/2jg6n1ThOzqqi/QiYYXLxkDKp6sTmQoCbTSo60TmLc2pRSZq9y65C/a/UVq748PpNIjA
+ayKzDfzsLjeW/+U5UZ4qfr34nBrNCsuDnNZnHOW87RYFdYKXgdKFp8UJcsj6PbXYumBHgeP5Qj78
+i7gtW60+w2XouEVBqeX0TQpz/H1TNk1vNcjS8rhyytQZJ2cgyq1JQixmLkTfLztzrG7pwL1GUVE6
+NhTWHjS71mV3bJpr5bl5wApi6BMUio7CsiUlZwkqHYY7OQUV25U6DlgIgqsSBc2GeHl8+GTcOi8+
+pODf6CWaehmcWt4UsXbkuDWV2wxTl7lD4k/HTb0AyXEyOJogE6MYwIvvhxljs2zg1Wz2g5b90Fp2
+kyjoUKCALJqzBg8g5gSzF+jsCow86iZYKpTgMj4VYutO+U3TAcdtyRz2QMZHIuJdUxKYxk/iR0Mv
+llLMpUT7KoToKe4uZE4BdCUb48pZRaD4+eMFh+82qYYwYeUknV6i0CWCsJODqWUmGgrovRIZmpAX
+VYePbsqKaxpgweSPqJcLGzI6+TupfjmKN6FAhPcQ6nCcRPWEwM9Q0OXe7okzFGOubLztUOJb2uyi
+Zwslx1YomZtDJbOBW2Gjyp2T24QSCQ0FyFaGrTVG3KqU0TU+kJsk8tglZSBgZThGO9klUwjIZN+/
+LCVRDaZElIzWKAwGJPowN6gniky78T5/LNHy81hayAUdX9QmucE8GZsn6gma9KLULwolm/NSnZuh
+EjujfNWgpmecVRIzeloWI1AxNiBjQnKLYmSvpYjonYpCnXWVVGQFFbXNVKznzGPkSucEiYxfxgPE
+NBytFCgmKgHkpCpa4eNA/C4JRx4vg0dH95QJNZxIxsdjBRRoooUkcXkU2eYIIXXd24mDPbf9psnb
+uqKkqzIg0HeNbhm9nT17EYmbsIcYyUjOdt14ayg+5cN9AXO6NpxfKxmqgORjMs9iqxIUIh3YRsSj
+SoDT36dLgA6Lq0p1/JDOsN7QZBFBZEFidHgI8pIvz+FoZiSA4i9FELILCKVKtaI92g0ARCGNWokE
+tms2amYzFAipa3QoHggfavg48zUp1SPR3HxvmVJnAMCh986ImUOPe4VrQ0y0ZA2k8iTkd567Dt7H
+Q53b2cvE2kXMwshKwwi6qdxcs1gq7xoz82RwgvOOh0ZPztI1HJOdrGqbrXySCnVYNC2IecBQcLSp
+D1jsDaRSElVtLAmpb68ffxVLgerl1FJmgZBWmZF8yAaq10pI5aJ7FBwwSaM9BRsyGhjOg6lSoBRJ
+uIiF5rMGKCxGIwE4sE5hDJu7jvazbmzFtrWahEJqmSIMYPUF6JqzdlWLVKdghK1NXe4vL6qJHtVF
+V5sUGUlL24uFV7SjE0aeA+F1UgBB3BlRIs1qulANK0D9jUiXaufzyIGBefXIOQZZnzPjPWO1y0pV
+MrvGL+KkYHIeHG/GTg6mR2JhJNmpBaNDFwxkmlIahkJpHnqNFn0rVCuKBeyyUfjt1lyr0sNbI1rS
+bLyvWtC9AUZKQocSCB8qJoMq5+IK5Ct8QXh0VMxGZOxMl96gxDV5zMdlfEtqjdOSeQvL0akznVvq
+GqqLcio2QpcaNKAVVM7MWYBzV7GqXD6JkAVs8jJL+wdV6qDKoqKK1MpQl3Vbmi6oFm7CzCrWYYbE
+V0XL3y0sTY0hod0QGkvEk5ca8EqR4TShiCZGmjBN05JpC0kDVSGsoJNSHv3XVIqLphxd8AaxozaN
+5DWkaValVAXaEuQsNGkuR1jUkixaRop2Eq4TbTLdIc2k2PJnBXSRZai1YYDbGm0l+yAxaGUpXnWg
+IO6dTrHQ9zzcZW02njZGAUpacawFikFrYw+J9+rT887fTOt13tONROydSFIw7GM1y25ucAmUKENh
+ndUd8T0mtmOg34HVEG5jH8zS1hVFbkQ3tusTSNZK4zsoMsAr1gYo0XjGOeYmwGikczrJtO20tHIZ
+oxAhdEoDPTZxO5oPaS4GN1buwKbAMlct2M4802SRMD19RpzhBWFoOLpWDoqZpKQsuJokx7RJ0gUZ
+JL+MWiUicrCE+g0x/QynsmmsLpjAyLLdVYqoHewkVE7Dt4AznEyEfpXCljJ5A122IhF0M9XtmxiE
+8I3jMoNJhlsowqotJAz20PI+SJbLKgirCGDFhWA8Ukx3taa3Y6jpqaWxCFhVSnIgNmp0hbt8uK7h
+ieAep5HKO0/sGgbhbA+GGvcMnD6OjaCoUJzOhmqDMDjK8Wiree/MWwKJm+QGqE1CMEhiIAgVZIFK
+gEml00OR9Gizizb4OEnLWEJ5X743+zXWqcfO1w4s83gP/YxI3sEd5HCOouF023tH4qRLY1C9M5bu
+BAcKZnXvDMRTRTFL3hml1r/4u5IpwoSHfbnNgA==
+
+--------------Boundary-00=_K9U27N0U1B233O34AOHA--

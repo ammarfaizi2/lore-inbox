@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129402AbRBJDh6>; Fri, 9 Feb 2001 22:37:58 -0500
+	id <S129609AbRBJDhc>; Fri, 9 Feb 2001 22:37:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129904AbRBJDhc>; Fri, 9 Feb 2001 22:37:32 -0500
-Received: from cheetah.STUDENT.CWRU.Edu ([129.22.164.229]:6784 "EHLO
-	cheetah.STUDENT.cwru.edu") by vger.kernel.org with ESMTP
-	id <S129400AbRBJDhX>; Fri, 9 Feb 2001 22:37:23 -0500
-Date: Fri, 9 Feb 2001 22:37:16 -0500 (EST)
-From: Matthew Gabeler-Lee <msg2@po.cwru.edu>
-X-X-Sender: <cheetah@cheetah.STUDENT.cwru.edu>
-To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: bttv problems in 2.4.0/2.4.1
-In-Reply-To: <Pine.LNX.4.21.0102091600320.26669-100000@sol.compendium-tech.com>
-Message-ID: <Pine.LNX.4.33.0102092236310.4226-100000@cheetah.STUDENT.cwru.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129402AbRBJDhX>; Fri, 9 Feb 2001 22:37:23 -0500
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:46085 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S129400AbRBJDhK>; Fri, 9 Feb 2001 22:37:10 -0500
+Date: Sat, 10 Feb 2001 16:37:06 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OFF-TOPIC] sendmail (was: Re: someone knows a good sendmail mailing list ?)
+Message-ID: <20010210163706.A8934@metastasis.f00f.org>
+In-Reply-To: <20010208094957.6478.OGAWAOSM@bs.mmk.fst.pb.nttdata.co.jp>, <Pine.LNX.4.21.0102081426350.2378-100000@duckman.distro.conectiva> <95um9g$ajl$1@forge.intermeta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <95um9g$ajl$1@forge.intermeta.de>; from hps@tanstaafl.de on Thu, Feb 08, 2001 at 05:50:40PM +0000
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Disabling ACPI (all of power management, really.  SMP so no APM) seems
-to have made it work in 2.4.1 for me.
+On Thu, Feb 08, 2001 at 05:50:40PM +0000, Henning P. Schmiedehausen wrote:
 
-On Fri, 9 Feb 2001, Dr. Kelsey Hudson wrote:
+    Ok, admittedly not on Linux. If this gets repeated again and
+    again on LKM, maybe it should read "sendmail on Linux can not
+    handle the load" [1].
 
-> Do you have framebuffer console compiled into your kernel? I noticed
-> similar behavior on my system when I had framebuffer console compiled in,
-> ACPI or APM (cant remember which, probably ACPI) compiled in, and bttv as
-> modules. System would power off when ACPI was loaded. Other times it would
-> do other stupid things like hang abruptly for no apparent reason.
+Whilst I admit sendmail is a horrible monster which I hope never to
+deal with again; I wonder why you claim performance if better on OSs
+other than linux (presumaby you mean comaprable hardware and
+configuration)?
 
--- 
-	-Matt
+In my experience, sendmail performs no worse under linux than
+elsewhere and sometimes better (asynchronous metadata writes
+suspected to be the cause, not verified)
 
-If you suspect a man, don't employ him.
 
+
+  --cw
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,125 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267650AbUHRUsQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267695AbUHRUtl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267650AbUHRUsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 16:48:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267646AbUHRUsQ
+	id S267695AbUHRUtl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 16:49:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267709AbUHRUtl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 16:48:16 -0400
-Received: from gprs214-253.eurotel.cz ([160.218.214.253]:52608 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S267690AbUHRUsD (ORCPT
+	Wed, 18 Aug 2004 16:49:41 -0400
+Received: from holomorphy.com ([207.189.100.168]:19641 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267695AbUHRUtF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 16:48:03 -0400
-Date: Wed, 18 Aug 2004 22:47:35 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: David Brownell <david-b@pacbell.net>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: [patch] enums to clear suspend-state confusion
-Message-ID: <20040818204735.GE5395@elf.ucw.cz>
-References: <20040812120220.GA30816@elf.ucw.cz> <20040818061227.GA7854@elf.ucw.cz> <1092812149.9932.180.camel@gaston> <200408180817.17822.david-b@pacbell.net>
+	Wed, 18 Aug 2004 16:49:05 -0400
+Date: Wed, 18 Aug 2004 13:48:38 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ray Bryant <raybry@sgi.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Christoph Lameter <clameter@sgi.com>,
+       "David S. Miller" <davem@redhat.com>, ak@muc.de,
+       benh@kernel.crashing.org, manfred@colorfullife.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: page fault fastpath patch v2: fix race conditions, stats for 8,32     and    512 cpu SMP
+Message-ID: <20040818204838.GE11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ray Bryant <raybry@sgi.com>, Hugh Dickins <hugh@veritas.com>,
+	Christoph Lameter <clameter@sgi.com>,
+	"David S. Miller" <davem@redhat.com>, ak@muc.de,
+	benh@kernel.crashing.org, manfred@colorfullife.com,
+	linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <fa.ofiojek.hkeujs@ifi.uio.no> <fa.o1kt2ua.1bm6n0c@ifi.uio.no> <4123B873.4010403@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200408180817.17822.david-b@pacbell.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <4123B873.4010403@sgi.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hugh Dickins wrote:
+>> Just handling that one anonymous case is not worth it, when we know
+>> that the next day someone else from SGI will post a similar test
+>> which shows the same on file pages ;)
 
-> The advantage of switching _now_ to enums is that it can be done
-> without actually changing drivers ... however, there are actually
-> two different suspend-state confusions.  That patch just affects
-> the first of them, whereas it's the second which actively breaks
-> things today:
-> 
->  - Confusion #1 ... "generic" PM framework uses a u32, and the
->    meaning of that u32 has never been formally defined.
-> 
->    In practice, most kernel code (except swsusp) passes an
->    enum there already ... PM_SUSPEND_* values, which are
->    unfortunately in an anonymous enum so there's no way
->    even a smartened "sparse" could report errors.
-> 
->  - Confusion #2 ... PCI suspend calls use a u32, which has since
->    at least 2.4 meant a PCI power state.   Those values are not
->    the same as PM_SUSPEND_* values.
-> 
->    PCI drivers that use that u32 are currently getting burnt by the
->    way PM_SUSPEND_* values get passed in when the drivers
->    expect a PCI power state.  Example, passing PM_SUSPEND_MEM
->    when the intention is PCI_D3hot (2 rather than 3).
-> 
-> I happen to think the _right_ fix involves switching from a scalar to
-> something that recognizes {bus,device,driver}-specific PM states.
+On Wed, Aug 18, 2004 at 03:13:39PM -0500, Ray Bryant wrote:
+> Hugh -- this is called full employment for kernel scalability analysts.
+> :-) :-)
+> Actually, disks are so slow that I wouldn't expect that scalability problem 
+> to show up in the page fault code, but rather in the block I/O or page 
+> cache management portions of the code instead.
 
-That would not provide enough info for the driver. 
+mapping->tree_lock is a near-certain culprit-to-be.
 
-> Such a switch would be extremely disruptive; it'd mean changing
-> every driver.   So it's something I'd not rush into ... it'd be worth
-> doing as part of fixing multiple holes in the PM framework.
-> 
-> Which leaves me thinking that the desirable near-term fix involves
-> cleanup for #1, and minor sleight-of-hand to fix #2.  Something
-> like the attached patch (untested) ... which would let us answer
-> Andrew's "why?" question by pointing to some bugtraq IDs.
 
-I believe correct fix for #2 is what I've done. Pass enum system_state
-down to driver, and make them use to_pci_state() helper. Fix of driver
-then looks like:
+On Wed, Aug 18, 2004 at 03:13:39PM -0500, Ray Bryant wrote:
+> I think that the major impact here is actually grabbing the lock when
+> 30 or more processors are trying to obtain it -- the amount of time that 
+> the lock is actually held is insignificant in comparison.
 
---- clean/drivers/net/e100.c	2004-06-22 12:36:10.000000000 +0200
-+++ linux/drivers/net/e100.c	2004-08-18 08:21:23.000000000 +0200
-@@ -2269,7 +2269,7 @@
- }
- 
- #ifdef CONFIG_PM
--static int e100_suspend(struct pci_dev *pdev, u32 state)
-+static int e100_suspend(struct pci_dev *pdev, enum system_state state)
- {
- 	struct net_device *netdev = pci_get_drvdata(pdev);
- 	struct nic *nic = netdev_priv(netdev);
-@@ -2282,7 +2282,7 @@
- 	pci_save_state(pdev, nic->pm_state);
- 	pci_enable_wake(pdev, state, nic->flags & (wol_magic | e100_asf(nic)));
- 	pci_disable_device(pdev);
--	pci_set_power_state(pdev, state);
-+	pci_set_power_state(pdev, to_pci_state(state));
- 
- 	return 0;
- }
+The spinlocking algorithms in general use are rather weak. Queued locks
+with O(contenders) cacheline transfers instead of unbounded may be
+useful in such arrangements so that occasional contention is not so
+catastrophic, and it appears you certainly have the space for them.
+In general, everyone's favored rearranging algorithms for less
+contention instead of fiddling with locking algorithms, but I suspect
+in the case of such large systems the number of nontrivial algorithms
+to devise is daunting enough locking algorithms may mitigate the issues.
 
-> +enum system_state {
-> +	PM_SUSPEND_ON = 0,
-> +	PM_SUSPEND_STANDBY = 1,
-> +	/* HACK ALERT:  PM_SUSPEND_MEM == PCI_D3cold */
-> +	PM_SUSPEND_MEM = 3,
-> +	PM_SUSPEND_DISK = 4,
->  	PM_SUSPEND_MAX,
->  };
 
-Okay, I did not do this one. I'll probably just fix those drivers that
-care, instead. The rest of patch was pretty much same as mine patch,
-except:
+Hugh Dickins wrote:
+>> The main lesson I took from your patch (I think wli was hinting at
+>> the same) is that we ought now to question page_table_lock usage,
+>> should be possible to cut it a lot.
 
-> --- 1.86/kernel/power/swsusp.c	Thu Jul  1 22:23:48 2004
-> +++ edited/kernel/power/swsusp.c	Wed Aug 18 07:48:04 2004
-> @@ -699,7 +699,7 @@
->  	else
->  #endif
->  	{
-> -		device_suspend(3);
-> +		device_suspend(PM_SUSPEND_DISK);
->  		device_shutdown();
->  		machine_power_off();
->  	}
+On Wed, Aug 18, 2004 at 03:13:39PM -0500, Ray Bryant wrote:
+> That would be a useful avenue to explore.  Unfortunately, we are on kind of 
+> a tight fuse here trying to get the next kernel release ready.   At the 
+> moment we are in the mode of moving fixes from 2.4.21 to 2.6, and this is 
+> one such fix.   I'd be willing to pursue both in parallel so that in a 
+> future release
+> we have gotten to page_table_lock reduction as well.  Does that make sense 
+> at all?
+> (I just don't want to get bogged down in a 6-month effort here unless we 
+> can't avoid it.)
 
-this is no longer neccessary. -mm swsusp already uses right constants.
+Scalability issues with fault handling have trivial enough hardware
+requirements that it's likely feasible for others to work on it also.
+Also fortunate for you is that others also have issues here, and those
+on much smaller systems.
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+
+Hugh Dickins wrote:
+>> I do think this will be a more fruitful direction than pte locking:
+>> just looking through the arches for spare bits puts me off pte locking.
+
+On Wed, Aug 18, 2004 at 03:13:39PM -0500, Ray Bryant wrote:
+> The original patch that we had for 2.4.21 did exactly that, we shied away 
+> from that due to concerns as to which processors allow you to update a 
+> running pte using a cmpxchg (== the set of processors for which set_pte() 
+> is a simple store.)  AFAIK, the only such processor is i386, but if 
+> Christoph is correct, then more recent Intel x86 processors don't even have 
+> that restriction.  I'll admit that I encouraged Christoph not to follow 
+> that path due to concerns of arch dependent code creeping into the 
+> do_anonymous_page() path.
+
+I'm in general more concerned about how one synchronizes with TLB miss
+handlers, particularly for machines where this would involve the TLB
+miss handler looping until a valid value is fetched in what is now a
+very highly optimized performance-critical codepath.
+
+
+-- wli

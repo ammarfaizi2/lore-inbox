@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293510AbSCASrc>; Fri, 1 Mar 2002 13:47:32 -0500
+	id <S293516AbSCASuC>; Fri, 1 Mar 2002 13:50:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293507AbSCASrX>; Fri, 1 Mar 2002 13:47:23 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30727 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293505AbSCASrS>;
-	Fri, 1 Mar 2002 13:47:18 -0500
-Message-ID: <3C7FCC53.4E270646@zip.com.au>
-Date: Fri, 01 Mar 2002 10:45:39 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
-X-Accept-Language: en
+	id <S293507AbSCAStw>; Fri, 1 Mar 2002 13:49:52 -0500
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:30935 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S293516AbSCAStl>; Fri, 1 Mar 2002 13:49:41 -0500
+Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7C9F@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Marcin Gogolewski'" <marcing@ms-itti.com.pl>,
+        linux-kernel@vger.kernel.org
+Cc: "Mike Smith (E-mail)" <msmith@freebsd.org>
+Subject: RE: Oops with ACPI (in sched:566)
+Date: Fri, 1 Mar 2002 10:49:35 -0800 
 MIME-Version: 1.0
-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-CC: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Ben Greear <greearb@candelatech.com>,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-net@vger.kernel.org
-Subject: Re: Various 802.1Q VLAN driver patches. [try2]
-In-Reply-To: <20020301.072831.120445660.davem@redhat.com> <3C7FA81A.3070602@candelatech.com> <20020301.081110.76328637.davem@redhat.com> <3C7FAC00.4010402@candelatech.com> <3C7FADBB.3A5B338F@mandrakesoft.com>,
-		<3C7FADBB.3A5B338F@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Mar 01, 2002 at 11:35:07AM -0500 <20020301174619.A6125@devcon.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Ferber wrote:
-> 
-> On Fri, Mar 01, 2002 at 11:35:07AM -0500, Jeff Garzik wrote:
-> >
-> > It looks like the eepro100 one, mysterious as it is, is ok.  The others
-> > I have different plans for:  making them act similar to the recent
-> > 8139cp changes.
-> 
-> The 3c59x one is available on
-> 
-> http://www.myipv6.de/patches/vlan/3c59x.c-8021q.patch
-> 
+> From: Marcin Gogolewski [mailto:marcing@ms-itti.com.pl]
+> I have STL2 machine, if I compile kernel (2.4.18) with ACPI I got:
+> [...] (I hope this is OK, I write it down from monitor ;-) )
+> ACPI: Core Subsystem version [20011018]
+> Scheduling in interrupt
+> kernel BUG at sched:566!
 
-Looks OK, except all the additions to the driver are inside
+I've heard of problems with STL2 before, due to a poor ACPI BIOS.
 
-+#if defined(CONFIG_VLAN_8021Q) || defined(CONFIG_VLAN_8021Q_MODULE)
+If you're willing, I'd be great if you could get the ACPI pmtools
+(http://developer.intel.com/technology/iapc/acpi/downloads.htm), run
+acpidmp, and send me the output. At least then I can put the STL2 on the
+ACPI blacklist, and maybe we can figure out more about the problem, too.
 
-Is this avoidable somehow?
-
--
+Regards -- Andy

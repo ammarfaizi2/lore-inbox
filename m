@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264625AbTAEJaB>; Sun, 5 Jan 2003 04:30:01 -0500
+	id <S264628AbTAEJ4U>; Sun, 5 Jan 2003 04:56:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264628AbTAEJaA>; Sun, 5 Jan 2003 04:30:00 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:48073 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S264625AbTAEJaA>;
-	Sun, 5 Jan 2003 04:30:00 -0500
-Date: Sun, 5 Jan 2003 10:38:25 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Richard Stallman <rms@gnu.org>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
-In-Reply-To: <E18Uxy2-00047M-00@fencepost.gnu.org>
-Message-ID: <Pine.GSO.4.21.0301051037460.10495-100000@vervain.sonytel.be>
+	id <S264630AbTAEJ4U>; Sun, 5 Jan 2003 04:56:20 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:38404 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S264628AbTAEJ4U>;
+	Sun, 5 Jan 2003 04:56:20 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301051004.h05A4bxs000499@darkstar.example.net>
+Subject: Re: PROBLEM: sound is stutter, sizzle with lasts kernel releases
+To: xizard@enib.fr (XI)
+Date: Sun, 5 Jan 2003 10:04:37 +0000 (GMT)
+Cc: tmolina@copper.net, linux-kernel@vger.kernel.org
+In-Reply-To: <3E17836F.2000303@enib.fr> from "XI" at Jan 05, 2003 01:59:27 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Jan 2003, Richard Stallman wrote:
->     I have the freedom to use Linux and ClearCase. If closed source modules
->     were to be disallowed, it would be illegal for me to use this configuration,
->     and I would be forced to use HP-UX or Solaris, and not Linux.
+> > SBline doesn't share interrupts well.  Usually, changing PCI slots in 
+> > order to affect what interrupt is used can help a lot.  The problem is, 
+> > depending on the motherboard, figuring out what a particular PCI slot 
+> > shares an interrupt with can be difficult.
 > 
-> You can't have freedom while using ClearCase, because it is non-free
-> software.  What we really need is a free replacement for it.  Will
-> people write one?  Our main influence on whether people do this is by
+> After some time, I have tested ALL possibilities with my PCI graphic 
+> card and my sound blaster live. (4 PCI slots => 12 possibilities).
+> 
+> The problem is always the same, sound still stutter.
+> 
+> 
+> Sum-up of my problem:
+> The sound of my computer stutter when I move a window, watch a movie, 
+> ... with a kernel 2.4.19 and 2.4.20 ; whereas with a kernel 2.4.8, it 
+> works fine.
+> I use a sound blaster live! with a Matrox G200 PCI, and an AMD 760MPX 
+> chipset.
 
-People are already working on it: http://www.advogato.org/proj/Katie/
+Try adding this line to the "Device" section of your XF86Config file:
 
-Gr{oetje,eeting}s,
+Option	"PciRetry"	"true"
 
-						Geert
+and let us know if it stops the stuttering or not.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+John.

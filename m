@@ -1,56 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbUKFD4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbUKFD77@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbUKFD4i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 22:56:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbUKFD4i
+	id S261309AbUKFD77 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 22:59:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbUKFD77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 22:56:38 -0500
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:36242 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S261307AbUKFD4g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 22:56:36 -0500
-Date: Fri, 5 Nov 2004 19:55:22 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Ross Biro <ross.biro@gmail.com>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>,
-       Andre Hedrick <andre@pyxtechnologies.com>
-Subject: Re: [PATCH 2/3] WIN_* -> ATA_CMD_* conversion: update WIN_* users to use ATA_CMD_*
-Message-ID: <20041106035522.GA13091@taniwha.stupidest.org>
-References: <20041103091101.GC22469@taniwha.stupidest.org> <418AE8C0.3040205@pobox.com> <58cb370e041105051635c15281@mail.gmail.com> <20041106032314.GC6060@taniwha.stupidest.org> <8783be660411051945252097c3@mail.gmail.com>
+	Fri, 5 Nov 2004 22:59:59 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34785 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261309AbUKFD7w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 22:59:52 -0500
+Date: Sat, 6 Nov 2004 03:59:51 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Richard Waltham <richard@fars-robotics.net>
+Cc: Matthew Wilcox <matthew@wil.cx>, SUPPORT <support@4bridgeworks.com>,
+       Thomas Babut <thomas@babut.net>, linux-kernel@vger.kernel.org,
+       Linux SCSI <linux-scsi@vger.kernel.org>, groudier@free.fr
+Subject: Re: Kernel 2.6.x hangs with Symbios Logic 53c1010 Ultra3 SCSI Ada pter
+Message-ID: <20041106035951.GC24690@parcelfarce.linux.theplanet.co.uk>
+References: <D5169CBBC6369D4CBFFABD7905CC9D695D31@tehran.Fars-Robotics.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8783be660411051945252097c3@mail.gmail.com>
+In-Reply-To: <D5169CBBC6369D4CBFFABD7905CC9D695D31@tehran.Fars-Robotics.local>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 05, 2004 at 10:45:04PM -0500, Ross Biro wrote:
+On Sat, Nov 06, 2004 at 12:02:32AM -0000, Richard Waltham wrote:
+> Good as a backup but the original PPR capability is defined in
+> scan_scsi.c. Shouldn't scan_scsi.c take note of the bus mode and enable
+> PPR capabilities accordingly? This would then cover this issue for all
+> relevant LLDDs wouldn't it?
 
-> Just a reminder, this error recovery doesn't work on many modern
-> hard drives, and is a violation of all ATA specs after ATA-2*.
+scan_scsi.c doesn't know what mode the bus is in.  scan_scsi.c doesn't
+even know whether the bus is SPI, FC, iSCSI, SAS or SATA.
 
-I think this code is the only user of that token and I wonder how well
-tested this is?  Bart?  Andre?
+> > Thanks, those are interesting.  It's good to see that we 
+> > really are spitting PPR out onto the wire when we shouldn't be.
+> 
+> And from what I've seen is the PPR negotiation keeps on being retied on
+> all subsequent commands. So performance really is killed by this.
 
-> In particular, most Maxtor and Western Digital Drives will not
-> recover from errors with this command sequence.  The preferred error
-> recovery is to do a reset followed by a set features, because that
-> is what Windows does (as told to me by a drive vendor).
+Yes, we'll do that as long as the device target parameters differ from
+the achieved parameters.
 
-I assume for Windows they do that for all drives?  Even older ones?
+> > I think disabling PPR on an SE bus should be a better fix than that.
+> 
+> And don't forget HVD as well;)   
 
-I also wonder what happens with TCQ when you get an error?  Do you
-just retry everything outstanding?
+Yes, I thought about HVD and decided that I wanted to code the check
+against LVD rather than against SE ;-)
 
-> I've tested the reset/set features method of error recovery and it
-> works on all the drives I've tried.  I have not tried it on any
-> older drives, or any other types of ATAPI devices.
+> My main concern with my patch to scan_scsi.c was to handle SCSI 3 LVD
+> devices that caused problems. Scan_scsi.c sets all SCSI 3 devices as PPR
+> capable - SE, HVD as well as LVD. I have no issue with explicitly
+> disallowing PPR for SE and HVD devices. But what about SCSI 3 and LVD
+> devices that don't handle PPR - OK they may be broken but...
 
-It probably should get fixed, there just doesn't seem to be much
-incentive to beat on the old IDE code though :( Minor cleanups seem
-worthwhile but anything intrusive I worry will break some hard-to-test
-platform for someone.
+I've got some devices that fail PPR when the bus is in SE mode but
+work fine when the bus is in LVD mode.  So this patch certainly fixes
+those problems.  THe question is whether there exist devices that:
 
-That said, if libata gets PATA support merged then know this is
-wonderful there.
+ - Claim to be SCSI3 compliant
+ - Fail PPR when on an LVD bus
+
+> There is an issue that needs resolving where a drive appears to indicate
+> it is capable of PPR, i.e. says it is SCSI 3 + LVD, but does not
+> actually support PPR. Then when it receives at PPR message it causes
+> problems in the driver because it terminates the PPR MSG OUT early with
+> an unexpected phase change.
+
+I think those devices need blacklisting.  Either that, or we need to do
+DV in non-approved ways.  Perhaps start with SDTR+WDTR.  If we get up
+to Fast-40, then try PPR.  I suspect James has Opinions on this though ;-)
+
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

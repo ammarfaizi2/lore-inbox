@@ -1,36 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268462AbRGZRq5>; Thu, 26 Jul 2001 13:46:57 -0400
+	id <S268560AbRGZRrr>; Thu, 26 Jul 2001 13:47:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268559AbRGZRqr>; Thu, 26 Jul 2001 13:46:47 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45839 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268462AbRGZRqk>; Thu, 26 Jul 2001 13:46:40 -0400
-Subject: Re: Linux 2.4.7-ac1
-To: plars@austin.ibm.com (Paul Larson)
-Date: Thu, 26 Jul 2001 18:47:52 +0100 (BST)
+	id <S268592AbRGZRro>; Thu, 26 Jul 2001 13:47:44 -0400
+Received: from mail.myrio.com ([63.109.146.2]:5615 "HELO smtp1.myrio.com")
+	by vger.kernel.org with SMTP id <S268560AbRGZRrZ>;
+	Thu, 26 Jul 2001 13:47:25 -0400
+Message-ID: <D52B19A7284D32459CF20D579C4B0C0211C961@mail0.myrio.com>
+From: Torrey Hoffman <torrey.hoffman@myrio.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, Nat Ersoz <nat.ersoz@myrio.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01072612421000.21482@plars.austin.ibm.com> from "Paul Larson" at Jul 26, 2001 12:42:10 PM
-X-Mailer: ELM [version 2.5 PL5]
+Subject: RE: IGMP join/leave time variability
+Date: Thu, 26 Jul 2001 10:47:05 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15PpEm-0004C2-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> pth_str02 test (simple test that tries to create 1000 threads) could only 
-> make it up to 980 threads on my machine.  Saw this change in fork.c with 
-> 2.4.7-ac1:
-> 
-> -       max_threads = mempages / (THREAD_SIZE/PAGE_SIZE) / 2;
-> +       max_threads = mempages / (THREAD_SIZE/PAGE_SIZE) / 16;
-> 
-> Any reason why this was done?  I think the max I was ever able to hit before 
-> was somewhere around 1018 or so, so it's not that big of a drop.  I was just 
 
-Im just playing with better choices of parameters to be more conservative
-about thread allocations
+Alan Cox wrote:
+ 
+> Read the IGMP RFC documents they discuss in detail the cases 
+> where time delays and randomness are needed and important. 
 
+I'm one of Nat's co-workers, also looking at this problem.
+
+RFC 2236, the IGMPv2 spec, states:
+"
+   When a host joins a multicast group, it should immediately transmit
+   an unsolicited Version 2 Membership Report for that group, in case it
+   is the first member of that group on the network.  To cover the
+   possibility of the initial Membership Report being lost or damaged,
+   it is recommended that it be repeated once or twice after short
+   delays [Unsolicited Report Interval].  
+"
+
+>From this, I infer that there should be _no_ initial delay on sending 
+the IGMP join.  In fact, a quick peek at the source confirms this: 
+(net/ipv4/igmp.c):
+
+#define IGMP_Initial_Report_Delay               (1*HZ)
+
+/* IGMP_Initial_Report_Delay is not from IGMP specs!
+ * IGMP specs require to report membership immediately after
+ * joining a group, but we delay the first report by a
+ * small interval. It seems more natural and still does not
+ * contradict to specs provided this delay is small enough.
+ */
+
+But this "small interval" is actually very noticeable in our application.
+
+I think we'll take it out of our version, and I believe it should be 
+removed from the standard kernel.
+
+Regards,
+
+Torrey Hoffman

@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315611AbSGCMYJ>; Wed, 3 Jul 2002 08:24:09 -0400
+	id <S316965AbSGCM2M>; Wed, 3 Jul 2002 08:28:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316951AbSGCMYJ>; Wed, 3 Jul 2002 08:24:09 -0400
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:17068 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S315611AbSGCMYI>; Wed, 3 Jul 2002 08:24:08 -0400
-Message-Id: <200207031226.g63CQND76592@d12relay01.de.ibm.com>
-From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-Subject: Re: Device Model Docs
-To: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
-Mail-Copies-To: arndb@de.ibm.com
-Date: Wed, 03 Jul 2002 16:26:21 +0200
-References: <Pine.LNX.4.33.0207021420150.8496-100000@geena.pdx.osdl.net>
-Organization: IBM Deutschland Entwicklung GmbH
-User-Agent: KNode/0.7.1
+	id <S316993AbSGCM2M>; Wed, 3 Jul 2002 08:28:12 -0400
+Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:42765 "EHLO
+	daytona.compro.net") by vger.kernel.org with ESMTP
+	id <S316965AbSGCM2K>; Wed, 3 Jul 2002 08:28:10 -0400
+Message-ID: <3D22EEB0.B3266763@compro.net>
+Date: Wed, 03 Jul 2002 08:31:44 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-lcrs i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Stephane Charette <scharette@packeteer.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: performance impact of using noapic
+References: <20020702192006Z316884-686+254@vger.kernel.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel wrote:
- 
-> Everyone is encouraged to have a look. Feel free to send me comments,
-> corrections, or patches.
+Stephane Charette wrote:
 
-In binding.txt, you write:
-> Upon the successful completion of probe, the device is registered with
-> the class to which it belongs. Device drivers belong to one and only
-> class, and that is set in the driver's devclass field.
+> 
+> My questions are:
+> 
+> 1) am I right in thinking that "noapic" will force all interrupts to be handled by 1 CPU?
 
-I have two drivers (drivers/s390/char/tape.c and drivers/s390/net/ctcmain.c)
-that might have problems with this. S390 tapes are available through two
-interfaces, a character device implementing the standard tape interface
-and a block device that allows you to mount a filesystem written to a tape 
-(unlike most tape drives, they allow random access reads).
+Yes.
 
-CTC (channel to channel) is a point-to-point connection between two machines
-and can be used either as a tty device or as a network device.
+> 
+> 2) how would you force all interrupts from only 1 hardware device (and not all devices) to be handled by 1 processor, as hinted in the paragraph quoted above?
 
-Do you have any idea how I can map this to correct driver classes?
+echo "00000001" > /proc/irq/19/smp_affinity
 
-        Arnd <><
+Will cause irq 19 to be serviced by processor 1
+
+echo "00000003" > /proc/irq/19/smp_affinity
+
+Will allow irq 19 to be serviced by processor 1 and 2
+
+You could also do this in the driver if you wanted.
+
+Note that this will not work when noapic is used..
+
+
+Mark

@@ -1,92 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbTKCIvz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 03:51:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbTKCIvz
+	id S261411AbTKCIts (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 03:49:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbTKCIts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 03:51:55 -0500
-Received: from badenpowell.cs.ubc.ca ([142.103.6.71]:3566 "EHLO
-	badenpowell.cs.ubc.ca") by vger.kernel.org with ESMTP
-	id S261506AbTKCIvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 03:51:52 -0500
-Date: Mon, 3 Nov 2003 00:51:49 -0800 (PST)
-From: Dustin Lang <dalang@cs.ubc.ca>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re:No backlight control on PowerBook G4
-In-Reply-To: <1067820334.692.38.camel@gaston>
-Message-ID: <Pine.GSO.4.53.0311021647410.17357@columbia.cs.ubc.ca>
-References: <Pine.GSO.4.53.0311021038450.3818@columbia.cs.ubc.ca>
- <1067820334.692.38.camel@gaston>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -6.2 BAYES_01,IN_REP_TO,QUOTED_EMAIL_TEXT,REFERENCES,REPLY_WITH_QUOTES,USER_AGENT_PINE
+	Mon, 3 Nov 2003 03:49:48 -0500
+Received: from fw.osdl.org ([65.172.181.6]:62081 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261411AbTKCItr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 03:49:47 -0500
+Date: Mon, 3 Nov 2003 00:52:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Gary Wolfe <gpwolfe@cableone.net>
+Cc: linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: [crash/panic] Linux-2.6.0-test9
+Message-Id: <20031103005218.6dc72800.akpm@osdl.org>
+In-Reply-To: <3FA5FFF7.2020006@cableone.net>
+References: <3FA5FFF7.2020006@cableone.net>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Gary Wolfe <gpwolfe@cableone.net> wrote:
+>
+> Greetings,
+> 
+> I have:
+> 
+> Asus P4C800 Deluxe w/2.4GHz P4 (no HT and not 800Mhz bus)
+> 
+> Tried test8 and, now, test9 and both exhibit same problem.
+> 
+> The issue seems to be related to the PnPBIOS support under the Plug and 
+> Play Kconfig category.  When enabled I get a crash of the form:
+> 
+> Linux Plug and Play Support v0.97 (c) Adam Belay
+> PnPBIOS: Scanning system for PnP BIOS support...
+> PnPBIOS: Found PnP BIOS installation structure at 0xc00f5350
+> PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0x5f3a, dseg 0xf0000
+> general protection fault: 0000 [#1]
+> CPU: 0
+> EIP: 0098:[<00002b60>] Not tainted
+> EFLAGS: 00010083
+> EIP is at 0x2b60
+> eax: 000023d6  ebx: 0000007a  ecx: 00010000  edx: 00000001
+> esi: dfed244e  edi: 0000006d  ebp: dfed0000  esp: dfed9eda
 
-Hi Ben,
+Your stack pointer became misaligned.  I thought Manfred fixed that?
+You don't have nmi_watchdog enabled on the kernel boot command line
+do you?
 
-> You can't expect a machine just released a couple of weeks ago by
-> Apple to be fully supported by linux, do you ? :)
+> ds: 00b0  es: 00b0  ss: 0068
+> Process Swapper (pid:1 threadinfo=dfed8000 task=c151b900)
+> Stack: 000003d6 23d629d2 00000000 815d006d 0000d3ff 00010001 9f2c80fc 
+> 006dd408
+> 9f2c0000 d3ff9f08 00060001 61f990c0c 010c010c 007b6054 0000007b 00a08000
+> 601000b0 00a85fd6 00000082 000b0000 00010090 00a80000 00b00000 00a00001
+> Call Trace:
+> 
+> Code: Bad EIP value.
+> <0>Kernel panic: Attempted to kill init!
+> 
+> ....blinking  cursor and nothing else.
+> 
+> If I remove the PNPBIOS option I get past this point.  I would be happy 
+> to email my full .config should anyone wish to look at it.  I'd also be 
+> happy to test any patches anyone may have for this issue.
+> 
 
-I'm very impressed at how well things are supported.  I had to buy a USB
-wireless dongle, the Linksys WUSB12 (which works great), thanks to
-Broadcom's proprietariness about the Airport Extreme, but other than that,
-almost everything is automagic.
-
-> If it's a new Mobility 9600 machine, then I expect my 2.6 tree
-> (bk://ppc.bkbits.net/linuxppc-2.5-benh or rsync from source.mvista.com)
-> to work, though the actual backlight "scale" may not be fully correct
-> yet.
-
-Actually, it's got a GeForce FX Go 5200.
-
-I just grabbed your 2.6 tree and see the same things happening.
-
-> Unfortunately, there's isn't much HW documentation available for these
-> babies, other than reading Apple darwin source, Open Firmware forth
-> code, etc...
-
-Oh joy.  I've heard great things about Forth :)
-
-> Regarding overall power management (that is machine sleep), it is not
-> supported on these machines yet. The blocking factor is the new ATI chip,
-> which need to be rebooted from scratch. ATI told me they might be able to
-> send me tables to do that though, so there is hope.
-
-Cool.  I think backlight control, drive spindown, and CPU frequency
-scaling should go a fairly long way on the battery life front.  Speaking
-of CPU scaling, do you know if it should work on this machine?  I selected
-it in the kernel config, but /sys/devices/system/cpu/cpu0 is empty.
-
-Just for reference, /proc/cpuinfo is:
-
-cpu             : 7457, altivec supported
-clock           : 999MHz
-revision        : 1.1 (pvr 8002 0101)
-bogomips        : 761.85
-machine         : PowerBook6,2
-motherboard     : PowerBook6,2 MacRISC3 Power Macintosh
-board revision  : 00000002
-detected as     : 287 (Unknown Intrepid-based)
-pmac flags      : 00000008
-L2 cache        : 512K unified
-memory          : 256MB
-pmac-generation : NewWorld
-
-
-Oh, I just noticed something else in dmesg:
-    PMU driver 2 initialized for Core99, firmware: 0c
-
-*shrug*
-
-I grabbed the newest Darwin/xnu source I could find from Apple, and I can
-no longer find where they do the backlight control - it used to be in
-iokit/Drivers/platform/drvApplePMU .  I'll have to look more closely
-tomorrow...
-
-Again, many thanks for your work on this platform.
-
-Cheers,
-dstn.

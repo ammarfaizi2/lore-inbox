@@ -1,71 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265345AbSJRTiT>; Fri, 18 Oct 2002 15:38:19 -0400
+	id <S265352AbSJRThn>; Fri, 18 Oct 2002 15:37:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265347AbSJRTiS>; Fri, 18 Oct 2002 15:38:18 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:17803 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S265345AbSJRTiQ>; Fri, 18 Oct 2002 15:38:16 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 18 Oct 2002 12:52:39 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: John Gardiner Myers <jgmyers@netscape.com>
-cc: Benjamin LaHaise <bcrl@redhat.com>, Dan Kegel <dank@kegel.com>,
-       Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
-       David Miller <davem@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Stephen Tweedie <sct@redhat.com>
-Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
-In-Reply-To: <3DB05AB2.3010907@netscape.com>
-Message-ID: <Pine.LNX.4.44.0210181241300.1537-100000@blue1.dev.mcafeelabs.com>
+	id <S265345AbSJRThn>; Fri, 18 Oct 2002 15:37:43 -0400
+Received: from nameservices.net ([208.234.25.16]:54046 "EHLO opersys.com")
+	by vger.kernel.org with ESMTP id <S265352AbSJRThl>;
+	Fri, 18 Oct 2002 15:37:41 -0400
+Message-ID: <3DB065AC.A18F1BD@opersys.com>
+Date: Fri, 18 Oct 2002 15:49:00 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Niels Provos <provos@citi.umich.edu>, LTT-Dev <ltt-dev@shafik.org>
+CC: linux-kernel@vger.kernel.org, marius@umich.edu
+Subject: Re: systrace for linux
+References: <20021018191057.GJ1704@citi.citi.umich.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Oct 2002, John Gardiner Myers wrote:
 
-> Your claim was that even if the API will drop an event at registration
-> time, my code scheme would not work.  Thus, we can take "the API will
-> drop an event at registration time" as postulated.  That being
-> postulated, if there is still data to be read/written on the file
-> descriptor then the first event_wait will return immediately.
->
-> In fact, given that postulate and the appropriate axioms about the
-> behavior of event_wait() and do_io(), one can prove that my code scheme
-> is equivalent to yours.  The logical conclusion from that and your claim
-> would be that you don't understand how edge triggered APIs have to be used.
+Hello Niels,
 
-No, the concept of edge triggered APIs is that you have to use the fd
-until EAGAIN. It's a very simple concept. That means that after a
-connect()/accept() you have to start using the fd because I/O space might
-be available for read()/write(). Dropping an event is an attempt of using
-the API like poll() & Co., where after an fd born, it is put inside the
-set to be later wake up. You're basically saying "the kernel should drop an
-event at creation time" and I'm saying that, to keep the API usage
-consistent to "use the fd until EAGAIN", you have to use the fd as soon as
-it'll become available.
+This is the sort of facility which can easily go on top of the existing
+LTT infrastructure (http://www.opersys.com/LTT) since most of the events
+you need are already cleanly caught by LTT. If we'd reintegrate the
+event callback mechanisms we removed on Ingo Molnar's request (albeit
+exporting them as GPLonly this time), systrace would then be easily
+maintained as a loadable kernel module. In addition, since LTT already
+has appropriate hooks for 6 architectures, systrace would immediately
+become available on those archs (i386, PPC, S/390, ARM, MIPS, SH).
 
+Karim
 
+Niels Provos wrote:
+> Marius A. Eriksen just finished the Linux port of systrace.  You can
+> find the kernel patch at
+> 
+>   http://www.citi.umich.edu/u/provos/systrace/linux.html
+> 
+> Systrace is a fine grained sandbox for applications and system services.
+> It supports interactive policy generation, intrusion detection, policy
+> enforcement, privilege elevation, etc.  More information at
+> 
+>   http://www.citi.umich.edu/u/provos/systrace/
+> 
+> Comments are appreciated.
 
-> >The reason you're asking /dev/epoll to drop an event at
-> >fd insertion time shows very clearly that you're going to use the API is
-> >the WRONG way and that you do not understand how such APIs works.
-> >
-> The wrong way as defined by what?  Having /dev/epoll drop appropriate
-> events at registration time permits a useful simplification/optimization
-> and makes the system significantly less prone to subtle progamming errors.
->
-> I do understand how such APIs work, to the extent that I am pointing out
-> a flaw in their current models.
-
-I'm sorry but why do you want to sell your mistakes for API flaws ?
-
-
-
-- Davide
-
-
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

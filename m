@@ -1,70 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265691AbTFSBdV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 21:33:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265692AbTFSBdV
+	id S265692AbTFSBeg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 21:34:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265690AbTFSBeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 21:33:21 -0400
-Received: from inet-mail3.oracle.com ([148.87.2.203]:13782 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id S265691AbTFSBdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 21:33:19 -0400
-Message-ID: <3EF11662.2060102@oracle.com>
-Date: Wed, 18 Jun 2003 18:48:18 -0700
-From: Scot McKinley <scot.mckinley@oracle.com>
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.0.1) Gecko/20020920 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Myers <jgmyers@netscape.com>
-CC: Joel Becker <jlbec@evilplan.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-Subject: Re: [PATCH 2.5.71-mm1] aio process hang on EINVAL
-References: <1055810609.1250.1466.camel@dell_ss5.pdx.osdl.net> <3EEE6FD9.2050908@netscape.com> <20030617085408.A1934@in.ibm.com> <1055884008.1250.1479.camel@dell_ss5.pdx.osdl.net> <3EEFAC58.905@netscape.com> <20030618001534.GJ7895@parcelfarce.linux.theplanet.co.uk> <3EEFB165.5070208@netscape.com> <20030618004214.GK7895@parcelfarce.linux.theplanet.co.uk> <3EF104D7.5050905@netscape.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Jun 2003 21:34:36 -0400
+Received: from fe5.rdc-kc.rr.com ([24.94.163.52]:50697 "EHLO mail5.kc.rr.com")
+	by vger.kernel.org with ESMTP id S265692AbTFSBeZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 21:34:25 -0400
+Date: Wed, 18 Jun 2003 20:48:23 -0500
+From: Greg Norris <haphazard@kc.rr.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.72 oops (scheduling while atomic)
+Message-ID: <20030619014822.GA5705@glitch.localdomain>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
+References: <20030617143551.GA3057@glitch.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="zYM0uCDKw75PZbzx"
+Content-Disposition: inline
+In-Reply-To: <20030617143551.GA3057@glitch.localdomain>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
- > The kernel would have to be substantially more complex to report all
- > errors that could possibly be detected during queuing.
+--zYM0uCDKw75PZbzx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-It doesn't have to report all of them...obviously the application CAN
-handle async completions, otherwise it wouldn't be io_submit'ing aio.
-However, for the one that it can report, it is a nice optimization TO
-actually report them.
+I just re-tested with 2.5.72-bk1, which still experiences the problem. 
+I enabled all of the debugging options this time, however, and so
+captured what I hope to be a more informative oops.  The .config was
+otherwise unchanged.
 
- > The kernel could
- > even detect success during queuing if it really tried.
+Let me know if I can provide any additional information.
 
-Yes, this is also a good thing, as i mentioned in my earlier message.
-ie, if the io has ALREADY completed, return it immediately.
 
- > This is not a reasonable requirement.  A correctly written program has
- > to be able to handle errors reported asynchronously.  Why else would
- > they be using an asynchronous API?
+--zYM0uCDKw75PZbzx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=oops-decoded
 
-Yes, the program WILL be able to handle async completions, obviously, since
-it attempting aio submissions. However, it MAY also be able to handle
-synchronous/immediate completions of its aio submissions.
+ksymoops 2.4.8 on i686 2.4.21.  Options used
+     -v ../vmlinux_glitch.1 (specified)
+     -K (specified)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.21/ (default)
+     -m /boot/System.map-2.5.72-bk1 (specified)
 
- > So?  That is a miniscule amount of resources used by an extremely rare
- > condition.  Such a picayune optimization hardly justifies the necessary
- > increase in complexity.
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+Call Trace:
+ [<c011c4f3>] schedule+0x607/0x60c
+ [<c010a0ea>] apic_timer_interrupt+0x1a/0x20
+ [<c01070e9>] default_idle+0x0/0x31
+ [<c01070e9>] default_idle+0x0/0x31
+ [<c01071a3>] cpu_idle+0x0x51/0x53
+ [<c0105000>] _stext+0x0/0x92
+ [<c0320842>] start_kernel+0x16d/0x185
+ [<c0320432>] unknown_bootoption+0x0/0xf8
+Unable to handle kernel paging request at virtual address 40128560
+400d2aa3
+*pde = 3ff58067
+Oops:   0007 [#1]
+CPU:    0
+EIP:    0073:[<400d2aa3>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010216
+eax: 40128560  ebx: 0804d5e9  ecx: 00000002  edx: 00000002
+esi: 00000005  edi: 0804d5e9  ebp: bffffbe8  esp: bffff8bc
+ds: 007b  es: 007b  ss: 007b
+ <0>Kernel panic: Attempted to kill init!
+Warning (Oops_read): Code line not seen, dumping what data is available
 
-It may not be miniscule. As we expand the ability to do aio to network
-descriptors, the transport that we are utilizing could easily have a
-"bcopy threshold" (a bcopy thresheld, for those that don't know, is the
-threshold under which all io will be done synchronously. ie, it MAY be
-more efficient to actually copy the data, instead of doing async io,
-if the data is small). Thus, all transfers below the bcopy threshold will
-incur this extra queuing overhead (etc), even tho they have ALREADY
-completed! This will be for the NORMAL io path, NOT an error condition.
-Also, there is no need for the app to have keep this memory around til
-the async completion is returned, if the io already completed synchronously
-(either a synchronous error, or an immediate/synchronous *successful* io
-operation). This memory could be substantial, if the presentation protocol
-the app has to adhere to requires a substantial amount of small packets
-and/or there all many connections being serviced.
 
+Trace; c011c4f3 <schedule+607/60c>
+Trace; c010a0ea <apic_timer_interrupt+1a/20>
+Trace; c01070e9 <default_idle+0/31>
+Trace; c01070e9 <default_idle+0/31>
+Trace; c01071a3 <cpu_idle+51/53>
+Trace; c0105000 <_stext+0/0>
+Trace; c0320842 <start_kernel+16d/185>
+Trace; c0320432 <unknown_bootoption+0/f8>
+
+>>EIP; 400d2aa3 <__crc_param_set_short+8c15a/1fb35f>   <=====
+
+>>eax; 40128560 <__crc_param_set_short+e1c17/1fb35f>
+>>ebx; 0804d5e9 <__crc___mntput+21e4fc/396ec3>
+>>edi; 0804d5e9 <__crc___mntput+21e4fc/396ec3>
+>>ebp; bffffbe8 <__crc_input_register_handler+86aeb4/8a7903>
+>>esp; bffff8bc <__crc_input_register_handler+86ab88/8a7903>
+
+
+1 warning issued.  Results may not be reliable.
+
+--zYM0uCDKw75PZbzx--

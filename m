@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284304AbRLXCBr>; Sun, 23 Dec 2001 21:01:47 -0500
+	id <S284305AbRLXCH5>; Sun, 23 Dec 2001 21:07:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284305AbRLXCBg>; Sun, 23 Dec 2001 21:01:36 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:5104 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S284304AbRLXCB0>;
-	Sun, 23 Dec 2001 21:01:26 -0500
-Date: Mon, 24 Dec 2001 13:00:55 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Ishan Oshadi Jayawardena <ioshadi@sltnet.lk>
+	id <S284314AbRLXCHr>; Sun, 23 Dec 2001 21:07:47 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:2059 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S284305AbRLXCHe>;
+	Sun, 23 Dec 2001 21:07:34 -0500
+Date: Mon, 24 Dec 2001 00:07:28 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Joe <joeja@mindspring.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] a bit smarter dmi-scan.c
-Message-Id: <20011224130055.32113ef8.sfr@canb.auug.org.au>
-In-Reply-To: <3C26255B.70AE386A@sltnet.lk>
-In-Reply-To: <3C26255B.70AE386A@sltnet.lk>
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Subject: Re: 2.4.17.. multiple oops 's
+Message-ID: <20011224000728.A21656@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Joe <joeja@mindspring.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3C26676A.3E4237C3@mindspring.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C26676A.3E4237C3@mindspring.com>
+User-Agent: Mutt/1.3.23i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Em Sun, Dec 23, 2001 at 03:23:22PM -0800, Joe escreveu:
+> uname -r = 2.4.17
+> OS = RH 7.2
+> glibc = /lib/libc-2.2.4.so
 
-On Sun, 23 Dec 2001 12:41:31 -0600
-Ishan Oshadi Jayawardena <ioshadi@sltnet.lk> wrote:
->
-> --- src/linux/arch/i386/kernel/dmi_scan.c       Sat Dec 22 16:31:11 2001
-> +++ src/linux/arch/i386/kernel/dmi_scan.c.mod   Sat Dec 22 17:06:22 2001
-> @@ -255,26 +255,29 @@
->  
->  static __init int set_realmode_power_off(struct dmi_blacklist *d)
->  {
-> +#if defined (CONFIG_APM)
+And the compiler, which version? This is a very important information to
+provide...
 
-APM can also be compiled as a module.
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+- Arnaldo

@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271815AbRHUStu>; Tue, 21 Aug 2001 14:49:50 -0400
+	id <S271822AbRHUSta>; Tue, 21 Aug 2001 14:49:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271819AbRHUStl>; Tue, 21 Aug 2001 14:49:41 -0400
-Received: from sproxy.gmx.de ([213.165.64.20]:58168 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S271815AbRHUSt0>;
-	Tue, 21 Aug 2001 14:49:26 -0400
-Message-ID: <3B82AD39.1268A6F0@gmx.at>
-Date: Tue, 21 Aug 2001 20:49:29 +0200
-From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-ac3 i686)
-X-Accept-Language: en
+	id <S271819AbRHUStL>; Tue, 21 Aug 2001 14:49:11 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:7913 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S271815AbRHUStE>;
+	Tue, 21 Aug 2001 14:49:04 -0400
+Date: Tue, 21 Aug 2001 19:49:12 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: David Wagner <daw@mozart.cs.berkeley.edu>, linux-kernel@vger.kernel.org
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: /dev/random in 2.4.6
+Message-ID: <2352526043.998423352@[10.132.112.53]>
+In-Reply-To: <9lu91c$n5v$3@abraham.cs.berkeley.edu>
+In-Reply-To: <9lu91c$n5v$3@abraham.cs.berkeley.edu>
+X-Mailer: Mulberry/2.1.0b3 (Win32)
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] repeatable 2.4.8-ac7, 2.4.7-ac6 [I] just run xdos
-In-Reply-To: <Pine.LNX.4.33.0108191600580.10914-100000@boston.corp.fedex.com>
-		<m166bjokre.fsf@frodo.biederman.org>
-		<20010819214322.D1315@squish.home.loc>
-		<m1snenmfe0.fsf@frodo.biederman.org>
-		<20010820211410.B218@squish.home.loc>
-		<m1g0amlzcm.fsf@frodo.biederman.org> <3B828898.BD98D4C4@gmx.at> <m1ae0tmll8.fsf@frodo.biederman.org>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric W. Biederman" wrote:
-> 
-> Wilfried Weissmann <Wilfried.Weissmann@gmx.at> writes:
-> >
-> > I have the same problem on a K7-800. My kernel is 2.4.7-ac3 (with K7
-> > optimization!). Everything else seems to work fine, but dosemu locks up
-> > the computer when running certain games.
-> > Sometimes I can play for quite some time (1/2 hour or more) without
-> > problems. Eventually it will freeze. It feels like it is triggered by
-> > mouse activity.
-> 
-> Hmm.  There are some similiar conditions.  And it may be the same bug.
-> 
-> Is your dosemu not suid root?  And running in X when you are playing those
-> games?  You don't have any ports lines in your dosemu.conf?
-> 
-> It is very important to rule out dosemu doing direct hardware access, before investigating
-> something else like the kernel.
+> No, let's not.  If the attacker has a SHA-1 exploit, then all your
+> SSL and IPSEC and other implementations are insecure, and they are
+> probably the only reason you're using /dev/random anyway.
 
-I set $_videoportaccess = (0)
-This should not change anything since $_graphics=(0) too. However I
-experienced no more crashes. (???)
+Fair point, though for some applications one could conceivably be
+using a different hash, and there are applications where breaking
+the hash gives you less than breaking the encryption.
 
-> 
-> Eric
+> Instead, let's assume SHA-1 is good, since it probably is, and since
+> you have to assume this anyway for the rest of your system.
 
-thanks,
-Wilfried
+But if we assume SHA-1 is good, then you might as well drop all the
+entropy measurement and blocking logic, and /dev/urandom is
+fine for /ANY/ application. Furthermore, if SHA-1 is good,
+Robert's patch does no harm, but makes existing applications
+work.
+
+IE if we assume SHA-1 is unbreakable, Robert's patch is harmless.
+If we assume SHA-1 /is/ breakable, Robert's patch is harmless
+if, and only if, in situations where it is configured on,
+it doesn't overestimate the entropy network events provide
+(sometimes this may be 0, in which case don't switch it on).
+
+--
+Alex Bligh

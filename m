@@ -1,141 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281369AbRLACFf>; Fri, 30 Nov 2001 21:05:35 -0500
+	id <S283888AbRLACHf>; Fri, 30 Nov 2001 21:07:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283887AbRLACFQ>; Fri, 30 Nov 2001 21:05:16 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:11683 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S281369AbRLACFE>; Fri, 30 Nov 2001 21:05:04 -0500
-Date: Fri, 30 Nov 2001 18:05:05 -0800
-From: "David C. Hansen" <haveblue@us.ibm.com>
-Message-Id: <200112010205.fB1255o22033@localhost.localdomain>
-To: george anzinger <george@mvista.com>
-Subject: Re: [LART] pc_keyb.c changes
-Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Rick Lindsley <ricklind@us.ibm.com>
+	id <S283889AbRLACHZ>; Fri, 30 Nov 2001 21:07:25 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:7943 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S283888AbRLACHM>; Fri, 30 Nov 2001 21:07:12 -0500
+Date: Fri, 30 Nov 2001 18:17:43 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Larry McVoy <lm@bitmover.com>
+cc: Andrew Morton <akpm@zip.com.au>, Daniel Phillips <phillips@bonn-fries.net>,
+        Henning Schmiedehausen <hps@intermeta.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+In-Reply-To: <20011130171510.B19152@work.bitmover.com>
+Message-ID: <Pine.LNX.4.40.0111301810400.1600-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george anzinger wrote:
-> It depends on how it is referenced.  If it is just a counter, you 
-> may be able to just make it atomic.
+On Fri, 30 Nov 2001, Larry McVoy wrote:
 
-This was my first instinct in this case.  But it appears that some things expect aux_count to stay in it's state while operations are performed.  The operations on aux_queue look like they need locking.
+> On Fri, Nov 30, 2001 at 05:13:38PM -0800, Davide Libenzi wrote:
+> > On Fri, 30 Nov 2001, Larry McVoy wrote:
+> > Wait a minute.
+> > Wasn't it you that were screaming against Sun, leaving their team because
+> > their SMP decisions about scaling sucked, because their OS was bloated
+> > like hell with sync spinlocks, saying that they tried to make it scale but
+> > they failed miserably ?
+>
+> Yup, that's me, guilty on all charges.
+>
+> > What is changed now to make Solaris, a fairly vanishing OS, to be the
+> > reference OS/devmodel for every kernel developer ?
+>
+> It's not.  I never said that we should solve the same problems the same
+> way that Sun did, go back and read the posting.
 
-> If it needs to "stick" for a little longer, then consider if there 
-> are many readers and only a few writers, in which case look at the 
-> read/write_lockirq code, however, this does have the down side of 
-> irq off.
+This is your quote Larry :
 
-I think that Al's biggest objection here is that interrupts are disabled.  The rwlock idea is a good one because aux_count is only read in the interrupt.  So, we don't have to disable interrupts, except when we hold the write.  But, sadly, the only place this changes anything is in pckbd_pm_resume() and handle_mouse_event().  Open and release both need a write lock.  I've attached a patch that turns aux_count_lock into a rw_lock.  Let's hope I don't break 64-bit architectures again :)
+<>
+If you want to try and make Linux people work like Sun people, I think
+that's going to be tough.  First of all, Sun has a pretty small kernel
+group, they work closely with each other, and they are full time,
+highly paid, professionals working with a culture that is intolerant of
+anything but the best.  It's a cool place to be, to learn, but I think
+it is virtually impossible to replicate in a distributed team, with way
+more people, who are not paid the same or working in the same way.
+<>
 
-> BKL did not protect against interrupts, so one wonders if the irq 
-> bit is needed at all.
-I think that this case is one where the risk was minimal, and ignored.
+So, if these guys are smart, work hard and are professionals, why did they
+take bad design decisions ?
+Why didn't they implemented different solutions like, let's say "multiple
+independent OSs running on clusters of 4 CPUs" ?
+What we really have to like about Sun ?
+Me personally, if I've to choose, I'll take the logo.
 
---
-Dave Hansen
-haveblue@us.ibm.com
---- linux-2.5.1-pre5/drivers/char/pc_keyb.c	Fri Nov 30 17:40:03 2001
-+++ linux/drivers/char/pc_keyb.c	Fri Nov 30 17:45:58 2001
-@@ -90,7 +90,7 @@
-  
- static struct aux_queue *queue;	/* Mouse data buffer. */
- static int aux_count;
--static spinlock_t aux_count_lock = SPIN_LOCK_UNLOCKED;
-+static rwlock_t aux_count_lock = RW_LOCK_UNLOCKED;
- /* used when we send commands to the mouse that expect an ACK. */
- static unsigned char mouse_reply_expected;
- 
-@@ -406,9 +406,9 @@
- 
-        if (rqst == PM_RESUME) {
-                if (queue) {                    /* Aux port detected */
--		       spin_lock_irqsave(&aux_count_lock, flags);
-+		       read_lock(&aux_count_lock);
-               	       if ( aux_count == 0) {   /* Mouse not in use */ 
--                               spin_lock(&kbd_controller_lock);
-+                               spin_lock_irqsave(&kbd_controller_lock, flags);
- 			       /*
- 				* Dell Lat. C600 A06 enables mouse after resume.
- 				* When user touches the pad, it posts IRQ 12
-@@ -420,9 +420,9 @@
- 			       kbd_write_command(KBD_CCMD_WRITE_MODE);
- 			       kb_wait();
- 			       kbd_write_output(AUX_INTS_OFF);
--			       spin_unlock(&kbd_controller_lock);
-+			       spin_unlock_irqrestore(&kbd_controller_lock, flags);
- 		       }
--		       spin_unlock_irqrestore(&aux_count_lock, flags);
-+		       read_unlock(&aux_count_lock);
- 	       }
-        }
- #endif
-@@ -452,7 +452,7 @@
- 
- 	prev_code = scancode;
- 	add_mouse_randomness(scancode);
--	spin_lock_irqsave(&aux_count_lock, flags);
-+	read_lock(&aux_count_lock);
- 	if ( aux_count ) {
- 		int head = queue->head;
- 
-@@ -464,7 +464,7 @@
- 			wake_up_interruptible(&queue->proc_list);
- 		}
- 	}
--	spin_unlock_irqrestore(&aux_count_lock, flags);
-+	read_unlock(&aux_count_lock);
- #endif
- }
- 
-@@ -1054,12 +1054,12 @@
- {
- 	unsigned long flags;
- 	fasync_aux(-1, file, 0);
--	spin_lock_irqsave(&aux_count_lock, flags);
-+	write_lock_irqsave(&aux_count_lock, flags);
- 	if ( --aux_count ) {
--		spin_unlock_irqrestore(&aux_count_lock, flags);
-+	        write_unlock_irqrestore(&aux_count_lock, flags);
- 		return 0;
- 	}
--	spin_unlock_irqrestore(&aux_count_lock, flags);
-+	write_unlock_irqrestore(&aux_count_lock, flags);
- 	kbd_write_cmd(AUX_INTS_OFF);			    /* Disable controller ints */
- 	kbd_write_command_w(KBD_CCMD_MOUSE_DISABLE);
- 	aux_free_irq(AUX_DEV);
-@@ -1076,18 +1076,18 @@
- 	unsigned long flags;
- 	int ret;
- 
--	spin_lock_irqsave(&aux_count_lock, flags);
-+	write_lock_irqsave(&aux_count_lock, flags);
- 	if ( aux_count++ ) {
--		spin_unlock_irqrestore(&aux_count_lock, flags);
-+	        write_unlock_irqrestore(&aux_count_lock, flags);
- 		return 0;
- 	}
- 	queue->head = queue->tail = 0;		/* Flush input queue */
--	spin_unlock_irqrestore(&aux_count_lock, flags);
-+	write_unlock_irqrestore(&aux_count_lock, flags);
- 	ret = aux_request_irq(keyboard_interrupt, AUX_DEV);
--	spin_lock_irqsave(&aux_count_lock, flags);
-+	write_lock_irqsave(&aux_count_lock, flags);
- 	if (ret) {
- 		aux_count--;
--		spin_unlock_irqrestore(&aux_count_lock, flags);
-+		write_unlock_irqrestore(&aux_count_lock, flags);
- 		return -EBUSY;
- 	}
- 	kbd_write_command_w(KBD_CCMD_MOUSE_ENABLE);	/* Enable the
-@@ -1099,7 +1099,7 @@
- 	mdelay(2);			/* Ensure we follow the kbc access delay rules.. */
- 
- 	send_data(KBD_CMD_ENABLE);	/* try to workaround toshiba4030cdt problem */
--	spin_unlock_irqrestore(&aux_count_lock, flags);
-+	write_unlock_irqrestore(&aux_count_lock, flags);
- 	return 0;
- }
- 
+
+
+
+- Davide
+
+

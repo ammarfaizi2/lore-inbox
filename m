@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbTJDJKa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 05:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbTJDJKa
+	id S261965AbTJDJcM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 05:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbTJDJcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 05:10:30 -0400
-Received: from mail1.bluewin.ch ([195.186.1.74]:19341 "EHLO mail1.bluewin.ch")
-	by vger.kernel.org with ESMTP id S261956AbTJDJK3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 05:10:29 -0400
-Date: Sat, 4 Oct 2003 11:10:18 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Harold Martin <cocoadev@earthlink.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6-test6 not powering down
-Message-ID: <20031004091018.GA10456@k3.hellgate.ch>
-Mail-Followup-To: Harold Martin <cocoadev@earthlink.net>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <1065219390.1717.17.camel@silver>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 4 Oct 2003 05:32:12 -0400
+Received: from smtprelay02.ispgateway.de ([62.67.200.157]:23751 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S261965AbTJDJcL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 05:32:11 -0400
+From: Ingo Oeser <ioe-lists@rameria.de>
+To: "David S. Miller" <davem@redhat.com>
+Subject: Re: mlockall and mmap of IO devices don't mix
+Date: Sat, 4 Oct 2003 11:29:25 +0200
+User-Agent: KMail/1.5.4
+Cc: joe.korty@ccur.com, linux-kernel@vger.kernel.org, riel@redhat.com,
+       andrea@suse.de, Andrew Morton <akpm@osdl.org>
+References: <20031003214411.GA25802@rudolph.ccur.com> <20031003172727.3d2b6cb2.akpm@osdl.org> <20031003224727.2f6956b5.davem@redhat.com>
+In-Reply-To: <20031003224727.2f6956b5.davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1065219390.1717.17.camel@silver>
-X-Operating-System: Linux 2.6.0-test6 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.4i
+Message-Id: <200310041129.25813.ioe-lists@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 03 Oct 2003 15:16:30 -0700, Harold Martin wrote:
-> I'm running a PIII system and now when it reaches "Power down." in it's
-> shutdown sequence the machine doesn't shut off like it did under 2.4.
-> I'm not sure what info would be useful in finding out the cause so just
-> ask me. Or maybe I'm just screwing option up, which isn't entirely
-> unheard of... ;)
+On Saturday 04 October 2003 07:47, David S. Miller wrote:
+> On Fri, 3 Oct 2003 17:27:27 -0700
+>
+> Andrew Morton <akpm@osdl.org> wrote:
+> > Maybe it's best to not overload VM_RESERVED in this manner, but to always
+> > mark /dev/mem as VM_IO.
+>
+> Just in cast is isn't clear, it should be defined that anything
+> that sets VM_IO on an mmap() area should prefill the page tables
+> as a side effect of such a mmap() request.
+>
+> Then things like mlockall() have simple semantics on VM_IO area, they
+> end up being a nop.
 
-Turning off UP APIC support often helps.
+It should be already, but the check in get_user_pages() looks wrong and
+will only disallow VM_IO if you provide space for an page array.
+It should be unconditional and we are done, because follow_pages will
+never be called with such vmas.
 
-Roger
+Putting this check for "forbidden VMAs" into follow_pages is also a good
+decision, if follow_pages() is called by strange callers not knowing the
+limitations. kernel/futex.c is such an user, which don't check these in
+the fast path (does it like wait on hardware triggered futexes there?).
+
+It might be good to add VM_RESERVED check to get_user_pages(), too.
+These pages are available anyway, so never need to be considered from
+its users.
+
+Regards
+
+Ingo Oeser
+
+

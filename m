@@ -1,53 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272767AbTHGEtq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 00:49:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275057AbTHGEtq
+	id S275057AbTHGEwg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 00:52:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275058AbTHGEwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 00:49:46 -0400
-Received: from mail11.speakeasy.net ([216.254.0.211]:23739 "EHLO
-	mail.speakeasy.net") by vger.kernel.org with ESMTP id S272767AbTHGEtp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 00:49:45 -0400
-Message-ID: <3F31DA6F.7000303@users.sourceforge.net>
-Date: Wed, 06 Aug 2003 21:49:51 -0700
-From: Cyril Bortolato <borto@users.sourceforge.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Thu, 7 Aug 2003 00:52:36 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:43656
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S275057AbTHGEwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 00:52:34 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Daniel Phillips <phillips@arcor.de>, Ed Sweetman <ed.sweetman@wmich.edu>,
+       Eugene Teo <eugene.teo@eugeneteo.net>
+Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
+Date: Wed, 6 Aug 2003 17:28:04 -0400
+User-Agent: KMail/1.5
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel@kolivas.org
+References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <3F2264DF.7060306@wmich.edu> <200307271046.30318.phillips@arcor.de>
+In-Reply-To: <200307271046.30318.phillips@arcor.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] gmodconfig 0.4 is released
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308061728.04447.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gmodconfig is a tool to manage Linux kernel modules. It features
-a GNOME graphic interface which enables users to:
-- configure kernel modules parameters in their native language
-   and save settings to /etc/modules.conf
-- access modules informations (author, license, link to website)
-- check for new modules versions
-- download, build and install modules packaged for DKMS
+On Sunday 27 July 2003 11:46, Daniel Phillips wrote:
 
-Some of this data is not found in modinfo's output and has to
-be supplied to gmodconfig in XML files. A companion tool to
-gmodconfig called gmodconfigedit can help module authors create
-and update those XML files.
+> The definition of a realtime scheduler is that the worst case latency is
+> bounded.  The current crop of interactive tweaks do not do that.  So we
+> need a scheduler with a bounded worst case.  Davide Libenzi's recent patch
+> that implements a new SCHED_SOFTRR scheduler policy, usable by non-root
+> users, provides such a bound.  Please don't lose sight of the fact that
+> this is the correct solution to the problem, and that interactive tweaking,
+> while it may produce good results for some or even most users in some or
+> even most situations, will never magically transform Linux into an
+> operating system that an audiophile could love.
 
-For details please visit:
-http://gmodconfig.sourceforge.net/
+Thinking out loud for a bit, please tell me if I'm wrong about SCHED_SOFTRR...
 
-This tool can help inexperienced Linux users to configure modules
-(as is sometimes required with consumer devices like webcams)
-without having to learn about /etc/modules.conf, and install or
-upgrade modules with the click of a mouse, thanks to DKMS.
-Experienced users might find it helpful, too.
+Whatever the policy is, there's only so many ticks to go around and there is 
+an overload for which it will fail.  No resource allocation scheme can 
+prevent starvation if there simply isn't enough of the resource to go around.
 
-It still has some rough edges and I welcome feedback from the
-community. Please Cc me your comments as I'm not subscribed to
-linux-kernel.
+So, how does SCHED_SOFTRR fail?  Theoretically there is a minimum timeslice 
+you can hand out, yes?  And an upper bound on scheduling latency.  So 
+logically, there is some maximum number "N" of SCHED_SOFTRR tasks running at 
+once where you wind up round-robining with minimal timeslices and the system 
+is saturated.  At N+1, you fall over.  (And in reality, there are interrupts 
+and kernel threads and other things going on that get kind of cramped 
+somewhere below N.)
 
-Thanks,
-Cyril Bortolato
+In theory, the real benefit of SCHED_SOFTRR is that an attempt to switch to it 
+can fail with -EMYBRAINISMELTING up front, so you know when it won't work at 
+the start, rather than having it glitch halfway through the run.  At which 
+point half the fun becomes policy decisions about how to allocate the finite 
+number of SCHED_SOFTRR slots between however many users are trying to use the 
+system, which gets into Alan Cox's accounting work...
+
+Sorry if this is old hat; I'm still a week and change behind on the list, but 
+catching up... :)
+
+Rob
+
 

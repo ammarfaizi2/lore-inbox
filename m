@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275683AbTHOEwv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 00:52:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275684AbTHOEwv
+	id S275685AbTHOE4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 00:56:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275686AbTHOE4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 00:52:51 -0400
-Received: from storm.he.net ([64.71.150.66]:10665 "HELO storm.he.net")
-	by vger.kernel.org with SMTP id S275683AbTHOEws (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 00:52:48 -0400
-Date: Thu, 14 Aug 2003 21:52:38 -0700
-From: Greg KH <greg@kroah.com>
-To: Ian Molton <spyro@f2s.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [BUG] ipaq USBserial driver
-Message-ID: <20030815045238.GB29502@kroah.com>
-Mail-Followup-To: Greg KH <greg@kroah.com>, Ian Molton <spyro@f2s.com>,
-	linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-References: <20030815021401.792fae10.spyro@f2s.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030815021401.792fae10.spyro@f2s.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.21-xfs (i686)
+	Fri, 15 Aug 2003 00:56:16 -0400
+Received: from chromatix.demon.co.uk ([80.177.102.173]:50383 "EHLO
+	lithium.chromatix.org.uk") by vger.kernel.org with ESMTP
+	id S275685AbTHOE4O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 00:56:14 -0400
+Date: Fri, 15 Aug 2003 05:55:50 +0100
+Subject: Re: agpgart failure on KT400
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v552)
+Cc: linux-kernel@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+From: Jonathan Morton <chromi@chromatix.demon.co.uk>
+In-Reply-To: <20030815044701.GA29502@kroah.com>
+Message-Id: <BE0BC96C-CEDC-11D7-A88B-003065664B7C@chromatix.demon.co.uk>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.552)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 15, 2003 at 02:14:01AM +0100, Ian Molton wrote:
-> Hi.
-> 
-> Havent had time to track this down but the ipaq.c driver seems to have a
-> problem since about 2.5.57 or so.
-> 
-> I get repeatable stiffing of 2.6.0-test3 if I place my toshiba e750 in
-> the cradle while ipaq.ko is loaded. if it isnt loaded the machine is
-> fine. Im using uhci-hcd.
+>> However, I did encounter a compilation problem with one of the USB
+>> device drivers - not a major problem at present since that particular
+>> device is attached to a different machine - but it does show that 2.6
+>> isn't ready for primetime yet.  The major distros aren't going to make
+>> that switch for a while.
+>
+> Which device driver?
+> What was the error?
+> Did you report it anywhere?
 
-Can you try using the nmi watchdog to see where the kernel is locked up at?
+OV511 - it looks like it's an "old driver, new kernel" compatibility 
+thing.  I haven't reported it yet, got other things on my plate, 
+including what appear to be routing loops within my ISP.
 
-> the e750 needs ipaq.c too be modified btw. (its prod id is 0x0409 not
-> 0406 as is the toshiba e740).
+Since I know who the maintainer is, I'll probably report it directly to 
+him when I get a chance.
 
-Try sending a patch to the author/maintainer of this driver.
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@chromatix.demon.co.uk
+website:  http://www.chromatix.uklinux.net/
+tagline:  The key to knowledge is not to rely on people to teach you it.
 
-thanks,
-
-greg k-h

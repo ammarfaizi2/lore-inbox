@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263883AbSITXBi>; Fri, 20 Sep 2002 19:01:38 -0400
+	id <S263917AbSITXGe>; Fri, 20 Sep 2002 19:06:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263910AbSITXBi>; Fri, 20 Sep 2002 19:01:38 -0400
-Received: from jalon.able.es ([212.97.163.2]:51102 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S263883AbSITXBh>;
-	Fri, 20 Sep 2002 19:01:37 -0400
-Date: Sat, 21 Sep 2002 01:06:34 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
+	id <S263924AbSITXGe>; Fri, 20 Sep 2002 19:06:34 -0400
+Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:29825 "EHLO
+	gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id <S263917AbSITXGd>; Fri, 20 Sep 2002 19:06:33 -0400
+Date: Fri, 20 Sep 2002 16:11:33 -0700
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Ulrich Drepper <drepper@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
 Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-Message-ID: <20020920230634.GA1555@werewolf.able.es>
-References: <Pine.NEB.4.44.0209201144270.2586-100000@mimas.fachschaften.tu-muenchen.de> <3D8B7157.6040205@redhat.com>
+Message-ID: <20020920231133.GA2599@gnuppy.monkey.org>
+References: <20020920215029.GB1527@gnuppy.monkey.org> <Pine.LNX.4.44.0209201528360.22066-100000@twinlark.arctic.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3D8B7157.6040205@redhat.com>; from drepper@redhat.com on Fri, Sep 20, 2002 at 21:04:55 +0200
-X-Mailer: Balsa 1.4.1
+In-Reply-To: <Pine.LNX.4.44.0209201528360.22066-100000@twinlark.arctic.org>
+User-Agent: Mutt/1.4i
+From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 20, 2002 at 03:30:19PM -0700, dean gaudet wrote:
+> > It's better to have an explict pthread_suspend_[thread,all]() function
+> 
+> could this be implemented by having a gc thread in a unique process group
+> and then suspending the jvm process group?
 
-On 2002.09.20 Ulrich Drepper wrote:
->-----BEGIN PGP SIGNED MESSAGE-----
->Hash: SHA1
->
->Adrian Bunk wrote:
->
->> My personal estimation is that Debian will support kernel 2.4 in it's
->> stable distribution until 2006 or 2007 (this is based on the experience
->> that Debian usually supports two stable kernel series and the time between
->> stable releases of Debian is > 1 year). What is the proposed way for
->> distributions to deal with this?
->
->Two ways:
->
->- - continue to use the old code
->
->- - backport the required functionality
->
+Suspending how ? via signal ?  
 
-Could you post a list of requirements ? For example:
-- kernel: futexes, per_cpu_areas
-- toolchain: binutils version + RH-patches, gcc version
-- glibc: 2.2.xxxx
-etc...
+Possibly, but having an explicit syscall() call is important since interrupts
+are also suspended under that condition, pthread_cond_timedwait(), etc...
+It really needs to be suspended in a way that's different than the SIGSOMETHING
+mechanism. I was fixing bugs in libc_r, so I know the issues to a certain degree
+and bad logic those particular corner cases was screwing me up.
 
-Perhaps it is not so difficult, for example futexes are in -aa for 2.4,
-Mandrake has gcc-3.2, etc...
+bill
 
-Are you pushing hard for the infrastructure you need to get in standard
-source trees (ie, changes to gcc, binutils...) ??
-
-Thanks.
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.0 (Cooker) for i586
-Linux 2.4.20-pre7-jam0 (gcc 3.2 (Mandrake Linux 9.0 3.2-1mdk))

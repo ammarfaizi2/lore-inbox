@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270658AbRHJWAZ>; Fri, 10 Aug 2001 18:00:25 -0400
+	id <S270659AbRHJWBS>; Fri, 10 Aug 2001 18:01:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270657AbRHJWAF>; Fri, 10 Aug 2001 18:00:05 -0400
-Received: from neon-gw.transmeta.com ([63.209.4.196]:11532 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S270656AbRHJWAA>; Fri, 10 Aug 2001 18:00:00 -0400
-From: Linus Torvalds <torvalds@transmeta.com>
-Date: Fri, 10 Aug 2001 14:59:37 -0700
-Message-Id: <200108102159.f7ALxb908284@penguin.transmeta.com>
-To: Axel.Thimm@physik.fu-berlin.de, linux-kernel@vger.kernel.org
-Subject: Re: Remotely rebooting a machine with state 'D' processes, how?
-Newsgroups: linux.dev.kernel
-In-Reply-To: <20010810231906.A21435@bonzo.nirvana>
+	id <S270660AbRHJWBG>; Fri, 10 Aug 2001 18:01:06 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:37380 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270656AbRHJWA4>; Fri, 10 Aug 2001 18:00:56 -0400
+Subject: Re: [PATCH] LVM snapshot support for reiserfs and others
+To: akpm@zip.com.au (Andrew Morton)
+Date: Fri, 10 Aug 2001 23:01:39 +0100 (BST)
+Cc: mason@suse.com (Chris Mason), viro@math.psu.edu (Alexander Viro),
+        adilger@turbolinux.com (Andreas Dilger), linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com, lvm-devel@sistina.com,
+        ext3-users@redhat.com (ext3-users@redhat.com)
+In-Reply-To: <no.id> from "Andrew Morton" at Aug 10, 2001 01:04:27 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15VKLb-0001i5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010810231906.A21435@bonzo.nirvana> you write:
->How can I reboot a stuck machine remotely, when there are uninterruptable
->processes arround? shutdown -r, reboot [-n] [-f], telinit 6 do not give the
->intended results. Localy I can use Alt-SysRq-S/U/B, but what if I still have a
->remote ssh connection and don't want to have to get to the machines location?
->
->Of course the real problem are the processes themselves, but being able to
->revive a machine is also nice ;)
+> ext3 will probably lock up on unmount with 2.4.8-pre8.  The fix is
+> to replace fsync_dev with fsync_no_super in fs/ext3/super.c and
+> fs/jbd/recovery.c.  I'll be generating a new patchset this weekend.
 
-You have to use the reboot() system call directly as root, with the
-proper arguments to make it avoid doing even any sync. See
+Actually if you dont fix recovery.c it will hang the machine when you mount
+an fs that needs recovering. With the old patches at least umount of ext3
+seems fine as is.
 
-	man 2 reboot
-
-for details.
-
-		Linus
+Alan

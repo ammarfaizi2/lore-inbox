@@ -1,88 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262483AbSI2OK5>; Sun, 29 Sep 2002 10:10:57 -0400
+	id <S262484AbSI2OJE>; Sun, 29 Sep 2002 10:09:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262485AbSI2OK5>; Sun, 29 Sep 2002 10:10:57 -0400
-Received: from mail-3.tiscali.it ([195.130.225.149]:22099 "EHLO
-	mail.tiscali.it") by vger.kernel.org with ESMTP id <S262483AbSI2OKz> convert rfc822-to-8bit;
-	Sun, 29 Sep 2002 10:10:55 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Lorenzo Allegrucci <l.allegrucci@tiscalinet.it>
-Organization: -ENOENT
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: qsbench, interesting results
-Date: Sun, 29 Sep 2002 16:15:24 +0200
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200209291615.24158.l.allegrucci@tiscalinet.it>
+	id <S261678AbSI2OJE>; Sun, 29 Sep 2002 10:09:04 -0400
+Received: from thunk.org ([140.239.227.29]:21156 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S262483AbSI2OJD>;
+	Sun, 29 Sep 2002 10:09:03 -0400
+Date: Sun, 29 Sep 2002 10:13:28 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: chrisl@gnuchina.org
+Cc: Ryan Cumming <ryan@completely.kicks-ass.org>,
+       Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [PATCH] fix htree dir corrupt after fsck -fD
+Message-ID: <20020929141325.GD653@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, chrisl@gnuchina.org,
+	Ryan Cumming <ryan@completely.kicks-ass.org>,
+	Andreas Dilger <adilger@clusterfs.com>,
+	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+References: <E17uINs-0003bG-00@think.thunk.org> <20020926235741.GC10551@think.thunk.org> <20020927041234.GS22795@clusterfs.com> <200209271820.41906.ryan@completely.kicks-ass.org> <20020928141330.GA653@think.thunk.org> <20020929070315.GA6876@vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020929070315.GA6876@vmware.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Sep 29, 2002 at 12:03:15AM -0700, chrisl@gnuchina.org wrote:
+> When e2fsck rehash the directory index. it will left one empty
+> dir entry at the end of block if next dir entry can not fit in.
+> I think it is OK to do so but I also make a patch to make the empty
+> space merge with previous entry to consistent with the kernel.
 
-qsbench is a VM benchmark based on sorting a large array
-by quick sort.
-http://web.tiscali.it/allegrucci/qsbench-1.0.0.tar.gz
+Nice catch!  Yup, e2fsck will create an empty directory entry, instead
+of letting the previous entry absorb the extra space.  Both are legal
+ways of doing things, but yes, the kernel does the latter in all cases
+except when deleting the last directory entry in a block.  (But that's
+OK, because the split code would never need to be invoked on an empty
+directory block.)
 
-Below are some results of qsbench sorting a 350Mb array
-on a 256+400Mb RAM+swap machine.
-Tested kernels: 2.4.19, 2.5.38 and 2.5.39
-All runs made with the same default seed, to compare
-apples with apples :)
-I used /usr/bin/time because it gives better statistics
-such as major and minor page faults etc.
-(Sorry for >72 cols).
+> dx_make_map need to skip the empty entry. So here is the patch for
+> review before I push it back to htree BK repository.
 
+That patch looks fine.  Push away!
 
-2.4.19
-bash-2.05# /usr/bin/time ./qsbench -m 350
-46.29user 3.54system 2:34.66elapsed 32%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (24739major+370199minor)pagefaults 0swaps
-bash-2.05# /usr/bin/time ./qsbench -m 350
-46.57user 3.27system 2:35.73elapsed 32%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (24493major+370706minor)pagefaults 0swaps
-bash-2.05# /usr/bin/time ./qsbench -m 350
-46.61user 3.09system 2:35.91elapsed 31%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (24560major+370571minor)pagefaults 0swaps
+> Ted, is e2fsck endian free now? I notice some code in
+> copy_dir_entries() do not have cpu_to_le32 for rec_len etc.
 
-Perfectly reproducible performance.
+Yes, e2fsprogs is endian-free.  The byte swapping happens in the
+library routine ext2fs_read_dir_block() and ext2fs_write_dir_block().
+Note that you have to tell these routines whether you're planning on
+using the v2 version of dirent struct or not, because that affects
+whether or not the name_len field needs to be byte-swapped or not.
 
-
-2.5.38
-bash-2.05# /usr/bin/time ./qsbench -m 350
-ERROR: i = 7766682
- *** WARNING ***  1 errors.
-47.11user 3.57system 3:42.19elapsed 22%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (39875major+439626minor)pagefaults 0swaps
-bash-2.05# /usr/bin/time ./qsbench -m 350
-46.80user 3.68system 3:42.20elapsed 22%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (39336major+441350minor)pagefaults 0swaps
-bash-2.05# /usr/bin/time ./qsbench -m 350
-46.87user 3.70system 3:44.50elapsed 22%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (39926major+440091minor)pagefaults 0swaps
-
-This is interesting, qsbench got an array not "quite" sorted.
-I have run qsbench a lot of times in the past on many kernels
-and I have never seen such error.
-I don't think it's my hardware fault so I would like to know
-if somebody can reproduce it.
-Performance is worse than 2.4.19
-
-
-2.5.39
-bash-2.05# /usr/bin/time ./qsbench -m 350
-46.94user 4.41system 8:17.94elapsed 10%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (66343major+455167minor)pagefaults 0swaps
-bash-2.05# /usr/bin/time ./qsbench -m 350
-46.74user 4.64system 8:45.03elapsed 9%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (68600major+454782minor)pagefaults 0swaps
-bash-2.05# /usr/bin/time ./qsbench -m 350
-46.81user 4.31system 8:37.07elapsed 9%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (69090major+454355minor)pagefaults 0swaps
-
-Big performance drop.
-
-
-Comments?
-
+					- Ted

@@ -1,100 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262534AbTJTLSq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 07:18:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbTJTLSq
+	id S262550AbTJTLfN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 07:35:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262554AbTJTLfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 07:18:46 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:26038 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S262534AbTJTLSo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 07:18:44 -0400
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+	Mon, 20 Oct 2003 07:35:13 -0400
+Received: from mail.netbeat.de ([193.254.185.26]:41476 "HELO mail.netbeat.de")
+	by vger.kernel.org with SMTP id S262550AbTJTLfG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 07:35:06 -0400
 Subject: Re: 2.6.0-test8-mm1
-Date: Mon, 20 Oct 2003 13:18:31 +0200
-User-Agent: KMail/1.5.9
-Cc: Andrew Morton <akpm@osdl.org>
-References: <20031020020558.16d2a776.akpm@osdl.org>
-In-Reply-To: <20031020020558.16d2a776.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-03=_MS8k/uFGG0fUsUe";
-  charset="iso-8859-1"
+From: Jan Ischebeck <mail@jan-ischebeck.de>
+To: akpm@osdl.org
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1066649703.20369.11.camel@JHome.uni-bonn.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 20 Oct 2003 13:35:03 +0200
 Content-Transfer-Encoding: 7bit
-Message-Id: <200310201318.36486.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrew,
 
---Boundary-03=_MS8k/uFGG0fUsUe
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_HS8k/ft28SoHPCB"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+The new framebuffer code for ATI RADEON grfx cards doesn't work correct.
 
---Boundary-01=_HS8k/ft28SoHPCB
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+After startup the screen switches to an unsupported mode, flickers and
+just shows a small line at the top.I get a freq of 87 hz instead of 60.
 
-On Monday 20 October 2003 11:05, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test8=
-/2
->.6.0-test8-mm1
-  ~~ snip ~~
-> +fix-sqrt.patch
->
->  Fix int_sqrt().
+Zhuang:~# fbset
+ 
+mode "1024x768-87"
+    # D: 44.901 MHz, H: 35.523 kHz, V: 86.960 Hz
+    geometry 1024 768 1024 768 8
+    timings 22271 56 24 33 8 160 8
+    laced true
+    rgba 8/0,8/0,8/0,0/0
+endmode
 
-I really like this one... ;-)
+switching to 60 hz doesn't improve the flickering screen.
+(fbset 1024x768-60)
 
-The problem ist that oom_kill.c assumes that int_sqrt() never returns 0. So=
- we=20
-could get a division by zero there :-(
+Probably this is connected to a warning about '*dcc2*' function I got
+compiling the Radeon driver. I will recompile later to see the warning
+again.
 
-The attached patch fixes that...
+my config:
 
-Regards
-   Thomas
+CONFIG_DRM=y
+# CONFIG_DRM_TDFX is not set
+# CONFIG_DRM_GAMMA is not set
+# CONFIG_DRM_R128 is not set
+CONFIG_DRM_RADEON=y
+# CONFIG_DRM_I810 is not set
+# CONFIG_DRM_I830 is not set
+# CONFIG_DRM_MGA is not set
+# CONFIG_DRM_SIS is not set
+...
 
---Boundary-01=_HS8k/ft28SoHPCB
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="fix-oom_kill.diff"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline;
-	filename="fix-oom_kill.diff"
+Thanks for a new -mm kernel,
 
-=2D-- linux-2.6.0-test8-mm1/mm/oom_kill.c.orig	Mon Oct 20 12:49:58 2003
-+++ linux-2.6.0-test8-mm1/mm/oom_kill.c	Mon Oct 20 12:52:55 2003
-@@ -63,8 +63,8 @@
- 	cpu_time =3D (p->utime + p->stime) >> (SHIFT_HZ + 3);
- 	run_time =3D (get_jiffies_64() - p->start_time) >> (SHIFT_HZ + 10);
-=20
-=2D	points /=3D int_sqrt(cpu_time);
-=2D	points /=3D int_sqrt(int_sqrt(run_time));
-+	points /=3D cpu_time ? int_sqrt(cpu_time) : 1;
-+	points /=3D run_time ? int_sqrt(int_sqrt(run_time)) : 1;
-=20
- 	/*
- 	 * Niced processes are most likely less important, so double
+Jan
+-- 
+Jan Ischebeck <mail@jan-ischebeck.de>
 
---Boundary-01=_HS8k/ft28SoHPCB--
-
---Boundary-03=_MS8k/uFGG0fUsUe
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA/k8SMYAiN+WRIZzQRAruNAKCC7acIAM9FmVuZnipvR5kfLJRFuQCgjLft
-KTm1aDdcO+9AO7kZM33F/Lc=
-=Vj24
------END PGP SIGNATURE-----
-
---Boundary-03=_MS8k/uFGG0fUsUe--

@@ -1,32 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319802AbSIMVo2>; Fri, 13 Sep 2002 17:44:28 -0400
+	id <S319807AbSIMVvV>; Fri, 13 Sep 2002 17:51:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319803AbSIMVo2>; Fri, 13 Sep 2002 17:44:28 -0400
-Received: from AMontpellier-205-1-13-198.abo.wanadoo.fr ([80.14.68.198]:12163
-	"EHLO awak") by vger.kernel.org with ESMTP id <S319802AbSIMVo2> convert rfc822-to-8bit;
-	Fri, 13 Sep 2002 17:44:28 -0400
-Subject: Re: Good way to free as much memory as possible under 2.5.34?
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L.0209131830560.1857-100000@imladris.surriel.com>
-References: <Pine.LNX.4.44L.0209131830560.1857-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 13 Sep 2002 23:48:36 +0200
-Message-Id: <1031953717.20072.5.camel@bip>
+	id <S319808AbSIMVvV>; Fri, 13 Sep 2002 17:51:21 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:53255 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S319807AbSIMVvV>;
+	Fri, 13 Sep 2002 17:51:21 -0400
+Message-Id: <200209132156.g8DLuDx08868@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: [OSDL] VM_Regress test available on STP
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 13 Sep 2002 14:56:13 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le ven 13/09/2002 à 23:33, Rik van Riel a écrit :
 
-> I suspect only very few people will use swsuspend, so it should
-> not be intrusive.
+Mel Gorman's VM Regress tool is now available as an automated test on
+OSDL's Scalable Test Platform. (http://www.osdl.org/stp or 
+http://sourceforge.net/projects/stp )
 
-I don't think so.
+VM Regress project page: http://www.csn.ul.ie/~mel/projects/vmregress/
+Some sample results (2.4.18 kernel) http://khack.osdl.org/stp/5210
+
+Please give us feedback on the test and STP.  
+
+cliffw
 
 

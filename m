@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274814AbTGaRCm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 13:02:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274819AbTGaRCm
+	id S274830AbTGaRBa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 13:01:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274831AbTGaRBa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 13:02:42 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:50957 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S274814AbTGaRCj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 13:02:39 -0400
-Date: Thu, 31 Jul 2003 12:54:43 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2+ext3+dbench=Buffer I/O error
-In-Reply-To: <20030730150902.5281f72c.akpm@osdl.org>
-Message-ID: <Pine.LNX.3.96.1030731125324.5711A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 31 Jul 2003 13:01:30 -0400
+Received: from smtp2.libero.it ([193.70.192.52]:35480 "EHLO smtp2.libero.it")
+	by vger.kernel.org with ESMTP id S274830AbTGaRB3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 13:01:29 -0400
+Subject: Re: 2.6.0-test2, sensors and sysfs
+From: Flameeyes <daps_mls@libero.it>
+To: Greg KH <greg@kroah.com>
+Cc: Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030731165056.GA3622@kroah.com>
+References: <1059669362.23100.12.camel@laurelin>
+	 <20030731165056.GA3622@kroah.com>
+Content-Type: text/plain
+Message-Id: <1059670884.23098.18.camel@laurelin>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 31 Jul 2003 19:01:24 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jul 2003, Andrew Morton wrote:
-
-> Mike Galbraith <efault@gmx.de> wrote:
-> >
-> > Greetings,
-> > 
-> > While trying to duplicate Randy Hron's "dbench has intermittent hang on 
-> > 2.6.0-test1-ac2" report, I received quite a few "Buffer I/O error on 
-> > /dev/hda8, logical block N" messages.  (changing elevators makes no 
-> > difference fwiw).
-> 
-> That's just a gremlinlet.  You can delete the offending printk for now.
-
-I can live with the message, it will remind me that there is still an
-issue of some kind. I get it doing other things and on other partitions,
-obviously.
-
+On Thu, 2003-07-31 at 18:50, Greg KH wrote:
+> What sensor drivers are you using in 2.4?  Are these drivers even
+> present in 2.6?  Remember, a lot of them have not been ported yet.
+The same, i2c-viapro and via686a, and they works well for mainboard, cpu
+and system temperatures, and also for fans' rpms.
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Flameeyes <dgp85@users.sf.net>
 

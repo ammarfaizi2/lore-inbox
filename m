@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267238AbUHXBgf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267385AbUHWTRa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267238AbUHXBgf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 21:36:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267961AbUHXBcr
+	id S267385AbUHWTRa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 15:17:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267375AbUHWTQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 21:32:47 -0400
-Received: from holomorphy.com ([207.189.100.168]:16776 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268184AbUHXB32 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 21:29:28 -0400
-Date: Mon, 23 Aug 2004 18:29:24 -0700
-From: wli@holomorphy.com
-To: Dave Jones <davej@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com
-Subject: Re: [PATCH] Writeback page range hint
-Message-ID: <20040824012924.GP4418@holomorphy.com>
-Mail-Followup-To: wli@holomorphy.com, Dave Jones <davej@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com
-References: <200408232138.i7NLcfJd019125@hera.kernel.org> <20040824010723.GA15668@redhat.com>
+	Mon, 23 Aug 2004 15:16:05 -0400
+Received: from mail.kroah.org ([69.55.234.183]:5060 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267263AbUHWSgw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 14:36:52 -0400
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI and I2C fixes for 2.6.8
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <1093286082562@kroah.com>
+Date: Mon, 23 Aug 2004 11:34:42 -0700
+Message-Id: <1093286082835@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040824010723.GA15668@redhat.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 24, 2004 at 02:07:23AM +0100, Dave Jones wrote:
-> Causes sparse spew..
-> include/linux/writeback.h:54:19: warning: dubious one-bit signed bitfield
-> include/linux/writeback.h:55:30: warning: dubious one-bit signed bitfield
-> include/linux/writeback.h:56:19: warning: dubious one-bit signed bitfield
-> include/linux/writeback.h:57:19: warning: dubious one-bit signed bitfield
+ChangeSet 1.1790.2.6, 2004/08/02 15:34:59-07:00, nacc@us.ibm.com
 
-Does this help?
+[PATCH] PCI Hotplug: ibmphp: remove long_delay
+
+Remove unused function long_delay().
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
-Index: mm4-2.6.8.1/include/linux/writeback.h
-===================================================================
---- mm4-2.6.8.1.orig/include/linux/writeback.h	2004-08-23 16:11:10.318739856 -0700
-+++ mm4-2.6.8.1/include/linux/writeback.h	2004-08-23 18:26:45.790960088 -0700
-@@ -51,10 +51,10 @@
- 	loff_t start;
- 	loff_t end;
+ drivers/pci/hotplug/ibmphp.h |    6 ------
+ 1 files changed, 6 deletions(-)
+
+
+diff -Nru a/drivers/pci/hotplug/ibmphp.h b/drivers/pci/hotplug/ibmphp.h
+--- a/drivers/pci/hotplug/ibmphp.h	2004-08-23 11:08:22 -07:00
++++ b/drivers/pci/hotplug/ibmphp.h	2004-08-23 11:08:22 -07:00
+@@ -759,11 +759,5 @@
+ extern int ibmphp_unconfigure_card (struct slot **, int);
+ extern struct hotplug_slot_ops ibmphp_hotplug_slot_ops;
  
--	int nonblocking:1;		/* Don't get stuck on request queues */
--	int encountered_congestion:1;	/* An output: a queue is full */
--	int for_kupdate:1;		/* A kupdate writeback */
--	int for_reclaim:1;		/* Invoked from the page allocator */
-+	unsigned nonblocking:1,		/* Don't get stuck on request queues */
-+	    encountered_congestion:1,	/* An output: a queue is full */
-+	    for_kupdate:1,		/* A kupdate writeback */
-+	    for_reclaim:1;		/* Invoked from the page allocator */
- };
+-static inline void long_delay (int delay)
+-{
+-	set_current_state (TASK_INTERRUPTIBLE);
+-	schedule_timeout (delay);
+-}
+-
+ #endif				//__IBMPHP_H
  
- /*
+

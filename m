@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316878AbSFKHVh>; Tue, 11 Jun 2002 03:21:37 -0400
+	id <S316880AbSFKHY5>; Tue, 11 Jun 2002 03:24:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316880AbSFKHVg>; Tue, 11 Jun 2002 03:21:36 -0400
-Received: from nixpbe.pdb.siemens.de ([192.109.2.33]:25771 "EHLO
-	nixpbe.pdb.sbs.de") by vger.kernel.org with ESMTP
-	id <S316878AbSFKHVf>; Tue, 11 Jun 2002 03:21:35 -0400
-Subject: Re: Serverworks OSB4 in impossible state
-From: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
-To: Daniela Engert <dani@ngrt.de>
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200206101642.SAA30947@myway.myway.de>
-Content-Type: text/plain
+	id <S316882AbSFKHY4>; Tue, 11 Jun 2002 03:24:56 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28938 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316880AbSFKHY4>;
+	Tue, 11 Jun 2002 03:24:56 -0400
+Message-ID: <3D05A6A1.328B7FDE@zip.com.au>
+Date: Tue, 11 Jun 2002 00:28:33 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Keith Owens <kaos@ocs.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 no timestamp update on modified mmapped files
+In-Reply-To: Your message of "Mon, 10 Jun 2002 23:49:02 MST."
+	             <3D059D5E.C9F9F659@zip.com.au> <11378.1023779257@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 11 Jun 2002 09:22:24 +0200
-Message-Id: <1023780145.23733.352.camel@biker.pdb.fsc.net>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mon, 2002-06-10 um 18.41 schrieb Daniela Engert:
+Keith Owens wrote:
+> 
+> On Mon, 10 Jun 2002 23:49:02 -0700,
+> Andrew Morton <akpm@zip.com.au> wrote:
+> >Keith Owens wrote:
+> >> On Mon, 10 Jun 2002 23:17:27 -0700,
+> >> Andrew Morton <akpm@zip.com.au> wrote:
+> >> >     The st_ctime and st_mtime fields of a file that is mapped with MAP_SHARED
+> >> >     and PROT_WRITE shall be marked for update at some point in the interval
+> >> >     between a write reference to the mapped region and the next call to msync() with
+> >> >     MS_ASYNC or MS_SYNC for that portion of the file by any process. If there is
+> >> >     no such call and if the underlying file is modified as a result of a write reference,
+> >> >     then these fields shall be marked for update at some time after the write reference.
+> >>
+> >> That says nothing about a file where the only updates are via mmap.  My
+> >> file had grown to its final size so there were no more writes, only
+> >> pages being dirtied via mmap.
+> >
+> >It is specifically referring to updates via mmap!  "a write reference
+> >to the mapped region".  This is the mmap documentation.
+> 
+> I saw "write reference" and my brain translated that to "write()".  I
+> blame the long weekend.
 
-> The intersting bits of the DMA status register are bits 0 though 2. A
-> value of 5 indicates the condition "interrupt from unit, DMA state
-> machine active". This is a valid status! It basically means the unit
-> issued an interrupt before the PRD table is exhausted. This makes sense
-> because the CD-ROM units fails to transfer the amount of data described
-> by the PRD table because of the non-recoverable read error.
+That'll be a left-brain/write-brain thing.
 
-Shouldn't the error bit be set too? (But that wouldn't make any
-difference with the current driver ...)
+I think it's too late to fix this in 2.4.  If we did, a person
+could develop and test an application on 2.4.21, ship it, then
+find that it fails on millions of 2.4.17 machines.
 
-> What you makes sense (the next DMA transfer is scheduled but never
-> carried out by the CD-ROM unit) except for the panic, ofcoz. The
-> correct driver action in this case were stopping the DMA engine and
-> issuing a reset of the state machines involved (both on the host and
-> the unit side).
-
-The message, the comments in the code, and what Alan wrote here:
-http://groups.google.com/groups?hl=de&lr=&threadm=linux.kernel.Pine.LNX.4.31.0206031234370.12103-100000%40boxer.fnal.gov&rnum=2&prev=/groups%3Fq%3Dosb4-bug%2540ide.cabal.tm%26hl%3Dde%26lr%3D%26selm%3Dlinux.kernel.Pine.LNX.4.31.0206031234370.12103-100000%2540boxer.fnal.gov%26rnum%3D2
-suggest that trying to recover from this condition is extremely
-dangerous (note that the kernel doesn't even panic(), because
-a sync() may kill a disk, the comments say).
-
-Anyway, thanks a lot for your insightful comments.
-Martin
-
--- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
-
-
-
-
-
+-

@@ -1,38 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267217AbRGKH0M>; Wed, 11 Jul 2001 03:26:12 -0400
+	id <S267220AbRGKH3b>; Wed, 11 Jul 2001 03:29:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267219AbRGKH0B>; Wed, 11 Jul 2001 03:26:01 -0400
-Received: from core-gateway-1.hyperlink.com ([213.219.35.163]:47634 "EHLO
-	core-gateway-1.hyperlink.com") by vger.kernel.org with ESMTP
-	id <S267217AbRGKHZt>; Wed, 11 Jul 2001 03:25:49 -0400
-To: linux-kernel@vger.kernel.org
-Subject: RE: es1370/1371 compilation clash
-Message-ID: <994836365.3b4bff8dba816@extranet.jtrix.com>
-Date: Wed, 11 Jul 2001 08:26:05 +0100 (BST)
-From: "Martin A. Brooks" <martin.brooks@hyperlink.com>
+	id <S267219AbRGKH3W>; Wed, 11 Jul 2001 03:29:22 -0400
+Received: from [202.140.153.5] ([202.140.153.5]:60425 "EHLO
+	techctd.techmas.hcltech.com") by vger.kernel.org with ESMTP
+	id <S267220AbRGKH3N>; Wed, 11 Jul 2001 03:29:13 -0400
+Message-ID: <3B4C00D8.A70F62@techmas.hcltech.com>
+Date: Wed, 11 Jul 2001 13:01:36 +0530
+From: "N. Varadarajan" <varadhu_n@techmas.hcltech.com>
+X-Mailer: Mozilla 4.7 [en] (Win98; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.5
-X-Originating-IP: 10.119.8.1
+To: kernel Linux <linux-kernel@vger.kernel.org>
+CC: Vasu Varma P V <pvvvarma@techmas.hcltech.com>
+Subject: Total RAM in the system
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alex,
+Hi,
+Is there a way to know the amount of physical RAM
+present in the system from a loadable kernel
+module
 
-alexx wrote:
->This is the "fixed" one ;) 
->It is also available from: 
->http://www.tuxx-home.at/kernel-patches/
-
-This fixes the problem for me, thanks.
-
-Regards 
-
-Martin A. Brooks,  Systems Administrator
--------------------------------------------
-Hyperlink Plc		t: +44 207 395 4980
-57-59 Neal Street	f: +44 207 395 4981
-Covent Garden		e: martin@hyperlink.com
-London WC2H 9PJ		w: http://www.hyperlink.com
+thanx
+Varada

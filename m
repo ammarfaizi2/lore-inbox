@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285476AbRLGTaj>; Fri, 7 Dec 2001 14:30:39 -0500
+	id <S285474AbRLGT3j>; Fri, 7 Dec 2001 14:29:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285480AbRLGTaU>; Fri, 7 Dec 2001 14:30:20 -0500
-Received: from Mail.Trilogic.com ([207.190.245.162]:27915 "EHLO trilogic.com")
-	by vger.kernel.org with ESMTP id <S285476AbRLGTaL>;
-	Fri, 7 Dec 2001 14:30:11 -0500
-Message-Id: <01Dec7.142641est.119045@bouncer.trilogic.com>
-From: Todd Harrington <THarrington@trilogicsystems.com>
-To: linux-kernel@vger.kernel.org
-Subject: w83782d hangs during modprobe on Tyan
-Date: Fri, 7 Dec 2001 14:27:02 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain; charset="iso-8859-1"
+	id <S285479AbRLGT3c>; Fri, 7 Dec 2001 14:29:32 -0500
+Received: from bitmover.com ([192.132.92.2]:64145 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S285474AbRLGT2i>;
+	Fri, 7 Dec 2001 14:28:38 -0500
+Date: Fri, 7 Dec 2001 11:28:37 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Dana Lacoste <dana.lacoste@peregrine.com>
+Cc: "'Larry McVoy'" <lm@bitmover.com>,
+        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: SMP/cc Cluster description
+Message-ID: <20011207112837.R27589@work.bitmover.com>
+Mail-Followup-To: Dana Lacoste <dana.lacoste@peregrine.com>,
+	'Larry McVoy' <lm@bitmover.com>,
+	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B29B8@OTTONEXC1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B29B8@OTTONEXC1>; from dana.lacoste@peregrine.com on Fri, Dec 07, 2001 at 11:14:13AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 07, 2001 at 11:14:13AM -0800, Dana Lacoste wrote:
+> Man you guys are NUTS.
 
-> We are using a Tyan 2688 motherboard (WinBond w83782d). The problem that I
-> am having is the lm_sensors package is hanging when I load the w83781d
-> (modprobe w83781d) driver. 
+I resemble that remark :-)
+
+> > Did you even consider that this is virtually identical to the problem
+> > that a network of workstations or servers has?  Did it occur 
+> > to you that
+> > people have solved this problem in many different ways?  Or 
+> > did you just
+> > want to piss into the wind and enjoy the spray?
 > 
-> We are using the lm_sensors 2.6.2 and i2c 2.6.2. I have also tried the CVS
-> version and have done:
+> I may be a total tool here, but this question is really bugging me :
 > 
-> modprobe i2c-piix4
-> modprobe w83781d init=0
-> 
-> I have also tried modprobe w83781d force_w83782d=0,0x29
-> 
-> The system still hangs.
-> 
-> I read on the linux-kernel mailing list a similar problem and it said
-> there was a bug in the winbond driver but there was has been patch posted
-> to bugtracker but the changes have not been integrated with CVS yet? Not
-> sure if this related.
-> 
-> Hoping someone can help me!
-> 
-> Regards,
-> 
-> 
-> 
-> Todd Harrington
-> Trilogic Systems
-> Senior Systems Engineer
-> Tel -  978-658-3800 x-151
-> Fax - 978-657-5927
-> todd@trilogic.com
-> "Trilogic Systems:Providing you a full portfolio of 
-> design, integration, certification and support services."
-> 
-> 
-> 
+> What, if any, advantages does your proposal have over (say) a Beowulf
+> cluster?  Why does having the cluster in one box seem a better solution
+> than having a Beowulf type cluster with a shared Network filesystem?
+
+Because I can mmap the same data across cluster nodes and get at it using
+hardware, so a cache miss is a cache miss regardless of which node I'm
+on, and it takes ~200 nanoseconds.  With a network based cluster, those
+times go up about a factor of 10,000 or so.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

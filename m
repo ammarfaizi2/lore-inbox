@@ -1,154 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264072AbTFGX5D (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 19:57:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264077AbTFGX5D
+	id S264069AbTFHANC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 20:13:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264077AbTFHANC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 19:57:03 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:44162 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S264072AbTFGX46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 19:56:58 -0400
-Date: Sun, 8 Jun 2003 02:10:27 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: James Stevenson <james@stev.org>
-Cc: ncorbic@sangoma.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] wanrouter: fix stack usage
-Message-ID: <20030608001027.GA5629@wohnheim.fh-wedel.de>
-References: <20030607234510.GB8511@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0306080158280.1776-100000@jlap.stev.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0306080158280.1776-100000@jlap.stev.org>
-User-Agent: Mutt/1.3.28i
+	Sat, 7 Jun 2003 20:13:02 -0400
+Received: from oak.sktc.net ([64.71.97.14]:17816 "EHLO oak.sktc.net")
+	by vger.kernel.org with ESMTP id S264069AbTFHANA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 20:13:00 -0400
+Message-ID: <3EE282B4.2010207@sktc.net>
+Date: Sat, 07 Jun 2003 19:26:28 -0500
+From: "David D. Hagood" <wowbagger@sktc.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030507
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christophe Saout <christophe@saout.de>
+CC: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [FUN] Re: [PATCH] Move BUG/BUG_ON/WARN_ON to asm headers
+References: <16097.56616.35782.882995@argo.ozlabs.ibm.com>	 <20030607145633.V626@nightmaster.csn.tu-chemnitz.de> <1055028601.7146.0.camel@chtephan.cs.pocnet.net>
+In-Reply-To: <1055028601.7146.0.camel@chtephan.cs.pocnet.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 June 2003 01:59:03 +0100, James Stevenson wrote:
+Christophe Saout wrote:
+> Hi Ingo!
 > 
-> i am guessing it doesnt compile.
+>> On Sat, Jun 07, 2003 at 10:40:08PM +1000, Paul Mackerras wrote:
+>> > +struct bug_entry *module_find_bug(unsigned long bugaddr)
+>> 
+>> A wet dream of many driver writers has come true: A function,
+>> which finds the bug in their module ;-)
 > 
-> int err;
-> err -ENOBUFS; ????
+> *The* bug? That sounds very optimistic. ;-)
 > 
-> 
-> -                       return -ENOBUFS;
-> +                       err -ENOBUFS;
-> +                       goto out;
 
-Good catch!  BTW, it did compile, but with c that doesn't mean a lot
-and with #ifdefs even less.
+Well, y'just gotta iterate...
 
-Updated patch below.
+struct bug_entry *x = module_find_bug(my_module);
+while (x)
+{
+    module_fix_bug(my_module,x);
+    x = module_find_bug(my_module)
+}
 
-Jörn
+So, who will write module_fix_bug?
 
--- 
-Anything that can go wrong, will.
--- Finagle's Law
 
---- linux-2.5.70-bk12/net/wanrouter/wanmain.c~stackfix_wanrouter	2003-06-05 17:47:43.000000000 +0200
-+++ linux-2.5.70-bk12/net/wanrouter/wanmain.c	2003-06-08 02:05:09.000000000 +0200
-@@ -668,7 +668,7 @@
- static int wanrouter_device_new_if(struct wan_device *wandev,
- 				   wanif_conf_t *u_conf)
- {
--	wanif_conf_t conf;
-+	wanif_conf_t *cnf;
- 	struct net_device *dev = NULL;
- #ifdef CONFIG_WANPIPE_MULTPPP
- 	struct ppp_device *pppdev=NULL;
-@@ -678,38 +678,47 @@
- 	if ((wandev->state == WAN_UNCONFIGURED) || (wandev->new_if == NULL))
- 		return -ENODEV;
- 
--	if (copy_from_user(&conf, u_conf, sizeof(wanif_conf_t)))
--		return -EFAULT;
-+	cnf = kmalloc(sizeof(wanif_conf_t), GFP_KERNEL);
-+	if (!cnf)
-+		return -ENOBUFS;
- 
--	if (conf.magic != ROUTER_MAGIC)
--		return -EINVAL;
-+	err = -EFAULT;
-+	if (copy_from_user(cnf, u_conf, sizeof(wanif_conf_t)))
-+		goto out;
- 
--	if (conf.config_id == WANCONFIG_MPPP) {
-+	err = -EINVAL;
-+	if (cnf->magic != ROUTER_MAGIC)
-+		goto out;
-+
-+	if (cnf->config_id == WANCONFIG_MPPP) {
- #ifdef CONFIG_WANPIPE_MULTPPP
- 		pppdev = kmalloc(sizeof(struct ppp_device), GFP_KERNEL);
-+		err = -ENOBUFS;
- 		if (pppdev == NULL)
--			return -ENOBUFS;
-+			goto out;
- 		memset(pppdev, 0, sizeof(struct ppp_device));
- 		pppdev->dev = kmalloc(sizeof(struct net_device), GFP_KERNEL);
- 		if (pppdev->dev == NULL) {
- 			kfree(pppdev);
--			return -ENOBUFS;
-+			err = -ENOBUFS;
-+			goto out;
- 		}
- 		memset(pppdev->dev, 0, sizeof(struct net_device));
--		err = wandev->new_if(wandev,
--				     (struct net_device *)pppdev, &conf);
-+		err = wandev->new_if(wandev, (struct net_device *)pppdev, cnf);
- 		dev = pppdev->dev;
- #else
- 		printk(KERN_INFO "%s: Wanpipe Mulit-Port PPP support has not been compiled in!\n",
- 				wandev->name);
--		return -EPROTONOSUPPORT;
-+		err = -EPROTONOSUPPORT;
-+		goto out;
- #endif
- 	} else {
- 		dev = kmalloc(sizeof(struct net_device), GFP_KERNEL);
-+		err = -ENOBUFS;
- 		if (dev == NULL)
--			return -ENOBUFS;
-+			goto out;
- 		memset(dev, 0, sizeof(struct net_device));
--		err = wandev->new_if(wandev, dev, &conf);
-+		err = wandev->new_if(wandev, dev, cnf);
- 	}
- 
- 	if (!err) {
-@@ -748,7 +757,8 @@
- 				++wandev->ndev;
- 
- 				unlock_adapter_irq(&wandev->lock, &smp_flags);
--				return 0;	/* done !!! */
-+				err = 0;	/* done !!! */
-+				goto out;
- 			}
- 		}
- 		if (wandev->del_if)
-@@ -761,18 +771,19 @@
- 		dev->priv = NULL;
- 	}
- 
--
- #ifdef CONFIG_WANPIPE_MULTPPP
--	if (conf.config_id == WANCONFIG_MPPP)
-+	if (cnf->config_id == WANCONFIG_MPPP)
- 		kfree(pppdev);
- 	else
- 		kfree(dev);
- #else
- 	/* Sync PPP is disabled */
--	if (conf.config_id != WANCONFIG_MPPP)
-+	if (cnf->config_id != WANCONFIG_MPPP)
- 		kfree(dev);
- #endif
- 
-+out:
-+	kfree(cnf);
- 	return err;
- }
- 

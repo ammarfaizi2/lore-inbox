@@ -1,39 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272835AbRIQNoO>; Mon, 17 Sep 2001 09:44:14 -0400
+	id <S273617AbRIQOF6>; Mon, 17 Sep 2001 10:05:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273457AbRIQNoE>; Mon, 17 Sep 2001 09:44:04 -0400
-Received: from abel.math.tsukuba.ac.jp ([130.158.120.16]:55738 "HELO
-	abel.math.tsukuba.ac.jp") by vger.kernel.org with SMTP
-	id <S272835AbRIQNnw>; Mon, 17 Sep 2001 09:43:52 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Michael Dreher <dreher@math.tsukuba.ac.jp>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.9 deadlock
-Date: Mon, 17 Sep 2001 22:45:00 +0900
-X-Mailer: KMail [version 1.3]
-Cc: linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <E15ixC2-0006xx-00@the-village.bc.nu>
-In-Reply-To: <E15ixC2-0006xx-00@the-village.bc.nu>
+	id <S273618AbRIQOFs>; Mon, 17 Sep 2001 10:05:48 -0400
+Received: from smtp.mediascape.net ([212.105.192.20]:27916 "EHLO
+	smtp.mediascape.net") by vger.kernel.org with ESMTP
+	id <S273617AbRIQOFc>; Mon, 17 Sep 2001 10:05:32 -0400
+Message-ID: <3BA602FA.247C808B@mediascape.de>
+Date: Mon, 17 Sep 2001 16:04:42 +0200
+From: Olaf Zaplinski <o.zaplinski@mediascape.de>
+X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.2.19 i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010917134414.94691FC91@abel.math.tsukuba.ac.jp>
+To: linux-kernel@vger.kernel.org
+Subject: Re: broken VM in 2.4.10-pre9
+In-Reply-To: <Pine.LNX.4.33L2.0109160031500.7740-100000@flashdance> <9o1dev$23l$1@penguin.transmeta.com> <1000722338.14005.0.camel@x153.internalnet> <9o2v1r$85g$1@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> [...]
+> What do you want to happen? You want to have an interface like
+> 
+>         echo 0 > /proc/bugs/mm
+> 
+> that makes mm bugs go away?
 
->> yesterday my box locked up. It happened when I opened a link in a new
->> window of konqueror of kde2.2.
->> No ping, no sysrq, no keyboard LEDs. Obviously nothing in the logs.
->> I had to press reset.
->
-> A very long link and with XFree 4.1.0 ? If so its a known XFree86
-> problem. It should be fixed in an upcoming xfree release
+Good idea! ;-)
 
-Dont remember how long the url was, but I guess less than 100 characters.
-This is XFree 4.0.3.
+Well, I had similar problems and went back to 2.2.19... but isn't there a
+tuneable yet?
 
-Best regards,
-Michael
+On http://www.badtux.org/eric/editorial/mindcraft.html I found this one:
 
-(Resend, because it did not appear on the list)
+'Tuning the file buffer size so that more than 60% of memory can be used
+(90% in this example) can be accomplished by issuing the following command:
+echo "2 10 90" >/proc/sys/vm/buffermem"
+This is documented in the file /usr/src/linux/Documentation/sysctl/vm.txt
+along with many other tuning parameters, such as the 'bdflush' parameter.'
+
+
+But vm.txt from 2.4.9ac10 and 2.2.19 says:
+
+buffermem:
+
+The three values in this file correspond to the values in
+the struct buffer_mem. It controls how much memory should
+be used for buffer memory. The percentage is calculated
+as a percentage of total system memory.
+
+The values are:
+min_percent     -- this is the minimum percentage of memory
+                   that should be spent on buffer memory
+borrow_percent  -- UNUSED
+max_percent     -- UNUSED
+
+Is vm.txt out of date, or is there really no tuneable, neither in 2.2.x nor
+in 2.4.x?
+
+Olaf

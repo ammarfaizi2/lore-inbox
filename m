@@ -1,96 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261796AbTJRSJv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 14:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTJRSJv
+	id S261793AbTJRSHg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 14:07:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbTJRSHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 14:09:51 -0400
-Received: from web40912.mail.yahoo.com ([66.218.78.209]:23370 "HELO
-	web40912.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261796AbTJRSHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 14:07:42 -0400
-Message-ID: <20031018180741.69117.qmail@web40912.mail.yahoo.com>
-Date: Sat, 18 Oct 2003 11:07:41 -0700 (PDT)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: This bug appears under 2.6.0-test8 as well (was: 2.6.0-test7-mm1)
-To: Ben Collins <bcollins@debian.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net
-In-Reply-To: <20031018132741.GV866@phunnypharm.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 18 Oct 2003 14:07:36 -0400
+Received: from play.smurf.noris.de ([192.109.102.42]:59574 "EHLO
+	play.smurf.noris.de") by vger.kernel.org with ESMTP id S261793AbTJRSH3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 14:07:29 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+Subject: RE: Blockbusting news, this is important (Re: Why are bad disk se	ctors numbered strangely, and what happens to them?)
+Date: Sat, 18 Oct 2003 20:06:13 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2003.10.18.18.06.12.173887@smurf.noris.de>
+References: <785F348679A4D5119A0C009027DE33C105CDB2EF@mcoexc04.mlm.maxtor.com>
+NNTP-Posting-Host: linux.smurf.noris.de
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: play.smurf.noris.de 1066500396 22905 192.109.102.39 (18 Oct 2003 18:06:36 GMT)
+X-Complaints-To: smurf@noris.de
+NNTP-Posting-Date: Sat, 18 Oct 2003 18:06:36 +0000 (UTC)
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. Collins,
+Hi, Mudama, Eric wrote:
 
---- Ben Collins <bcollins@debian.org> wrote:
-> > 
-> > I was looking briefly at this too, and as you say, the problem is that 
-> > some things have to happen in interrupt, others happen in process 
-> > context.  I've attached a patch that implements one way to fix it: 
-> > double book-keeping - we maintain two lists of the highlevel drivers, 
-> > one protected by a semaphore another protected by the rw spinlock. The 
-> > lists are identical, except between the two list_add_tail()'s (and the 
-> > two list_del()'s), but that doesn't allow any harmful race conditions.
-> > 
-> > A more radical approach would be to split the highlevel interface into 
-> > two interfaces add_host() + remove_host() in a hpsb_host_notification 
-> > interface and the rest in another interface.  The driver would have to 
-> > register both interfaces if it needs them. Some drivers only use 
-> > add_host() and remove_host(), so they could register only the 
-> > hpsb_host_notification interface.
-> 
-> Actually I'm leaning toward getting rid of our internal locking and
-> reference counting and relying heavily on the device model's reference
-> counting and such. Take some of the work load off of our code.
-> 
-> Each host already has a device associated with it, so it just requires a
-> revamp of some internals.
+> If current trends hold, in the next few years, hard drives are going to have
+> to pick up and rewrite their data continuously to avoid signal decay on the
+> media...
 
-JFYI, this bug also appears under 2.6.0-test8:
+I expect I'd be VERY unhappy if I couldn't put a complete computer in
+storage any more, and expect it to work when I turn it back on in two
+months / years.
 
-ohci1394: $Rev: 1045 $ Ben Collins <bcollins@debian.org>
-ohci1394_0: OHCI-1394 1.1 (PCI): IRQ=[10]  MMIO=[e8207000-e82077ff]  Max
-Packet=[2048]
-Debug: sleeping function called from invalid context at mm/slab.c:1857
-in_atomic():1, irqs_disabled():0
-Call Trace:
- [<c012186b>] __might_sleep+0xa0/0xc1
- [<c01531f4>] __kmalloc+0x204/0x216
- [<e08a9e2c>] hpsb_create_hostinfo+0x6b/0xe8 [ieee1394]
- [<e08aef8a>] nodemgr_add_host+0x23/0x1d2 [ieee1394]
- [<c0210abc>] sprintf+0x1f/0x23
- [<e08aa62d>] highlevel_add_host+0x6b/0x6f [ieee1394]
- [<e08a9c42>] hpsb_add_host+0x6d/0x95 [ieee1394]
- [<e08c0b4e>] ohci1394_pci_probe+0x512/0x620 [ohci1394]
- [<e08bdb18>] ohci_irq_handler+0x0/0x1129 [ohci1394]
- [<c0216d33>] pci_device_probe_static+0x52/0x63
- [<c0216d7f>] __pci_device_probe+0x3b/0x4e
- [<c0216dbe>] pci_device_probe+0x2c/0x4a
- [<c0279e72>] bus_match+0x3f/0x6a
- [<c0279f84>] driver_attach+0x56/0x80
- [<c027a256>] bus_add_driver+0x9f/0xb1
- [<c027a6ba>] driver_register+0x8c/0x90
- [<c0216faa>] pci_register_driver+0x8c/0xab
- [<e0886013>] ohci1394_init+0x13/0x3d [ohci1394]
- [<c0145a37>] sys_init_module+0x213/0x3e6
- [<c017228b>] sys_read+0x42/0x63
- [<c010a179>] sysenter_past_esp+0x52/0x71
+What timeframe are you talking about here anyway?
 
-ieee1394: Host added: ID:BUS[0-00:1023]  GUID[00e0b8060000db10]
+Oh well, I do remember the times when disks didn't work the next
+_day_ because they developed stiction and the only way to get them to run
+again was to peel off the label near the center and give the thing a
+not-so-gentle push with a screwdriver... in fact we had a contest how long
+an 80-MB disk would continue to work with the top off. :-)
 
-Since I don't use the OHCI1394 drivers yet, I can't really offer any assistance,
-except to test patches that make the debug message go away.
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+:mouse belt: n. See {rat belt}.
 
-Brad
-
-=====
-Brad Chapman
-
-Permanent e-mail: kakadu_croc@yahoo.com
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Shopping - with improved product search
-http://shopping.yahoo.com

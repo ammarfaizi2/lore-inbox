@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266511AbUI0Pvi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266555AbUI0Py2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266511AbUI0Pvi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 11:51:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266512AbUI0Pvi
+	id S266555AbUI0Py2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 11:54:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266566AbUI0Py1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 11:51:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:3478 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266511AbUI0PvY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 11:51:24 -0400
-Date: Mon, 27 Sep 2004 11:51:12 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Kaigai Kohei <kaigai@ak.jp.nec.com>
-cc: "akpm@osdl.org" <akpm@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] SELinux performance improvement with RCU
-In-Reply-To: <200409271057.i8RAvcA1007873@mailsv.bs1.fc.nec.co.jp>
-Message-ID: <Xine.LNX.4.44.0409271146550.21876-100000@thoron.boston.redhat.com>
+	Mon, 27 Sep 2004 11:54:27 -0400
+Received: from LPBPRODUCTIONS.COM ([68.98.211.131]:42131 "HELO
+	lpbproductions.com") by vger.kernel.org with SMTP id S266513AbUI0Pwo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 11:52:44 -0400
+From: Matt Heler <lkml@lpbproductions.com>
+Reply-To: lkml@lpbproductions.com
+To: gene.heskett@verizon.net
+Subject: Re: 2.6.9-rc2-mm4
+Date: Mon, 27 Sep 2004 08:52:43 -0700
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <20040926181021.2e1b3fe4.akpm@osdl.org> <200409270706.21661.lkml@lpbproductions.com> <200409271131.27329.gene.heskett@verizon.net>
+In-Reply-To: <200409271131.27329.gene.heskett@verizon.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409270852.44366.lkml@lpbproductions.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Sep 2004, Kaigai Kohei wrote:
+On Monday 27 September 2004 8:31 am, Gene Heskett wrote:
+> ones to be effected, so lets compare notes:
+>
+> AMD Athlon 2800xp, biostar N7-NCD-Pro motherboard with an nforce2
+> chipset, and using the forcedeth driver for eth0.  A gigabyte of
+> DDR400 rated ram running in DDR333 dual channel mode, the 2800xp
+> Athlon can't handle the DDR400 fsb correctly. No acpi is enabled, and
+> apm only for shutdown control & rtc handling.
+>
 
-> Because this patch depends on two external function: atomic_inc_return()
-> and list_replace_rcu(), I was waiting for those functions to be merged
-> into 2.6.9-rc2-mm2 tree.
-> Please apply this.
-
-Kaigai, 
-
-Have you addressed the lockups which Stephen Smalley reported to you when 
-testing this code?
-
-You also have not addressed issues raised regarding low end performance.
-
-Also, the patch has not been fully vetted by the maintainers (Stephen and
-myself).
-
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
-
+Simular system here. Athlon 3000xp , with nforce2 chipset. 

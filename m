@@ -1,89 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268149AbUHTPGI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268186AbUHTPIw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268149AbUHTPGI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 11:06:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264973AbUHTPGI
+	id S268186AbUHTPIw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 11:08:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268155AbUHTPHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 11:06:08 -0400
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:24935 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S268155AbUHTPAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 11:00:47 -0400
-Subject: Re: HCI USB on USB 2.0: hci_usb_intr_rx_submit (works with USB 1.1)
-From: "Raf D'Halleweyn" <list@noduck.net>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Max Krasnyansky <maxk@qualcomm.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1092990717.18082.60.camel@pegasus>
-References: <1091581193.15561.3.camel@alto.dhalleweyn.com>
-	 <1092049263.21815.18.camel@pegasus>
-	 <1092966777.5230.4.camel@alto.dhalleweyn.com>
-	 <1092990717.18082.60.camel@pegasus>
-Content-Type: text/plain
-Date: Fri, 20 Aug 2004 11:00:39 -0400
-Message-Id: <1093014039.28268.10.camel@base>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.93 
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Aug 2004 11:07:45 -0400
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:25532 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S268169AbUHTPGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 11:06:19 -0400
+Date: Fri, 20 Aug 2004 17:05:43 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Dave Jones <davej@redhat.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: includes cleanup.
+In-Reply-To: <20040819143907.GA4236@redhat.com>
+Message-ID: <Pine.LNX.4.53.0408201653110.1940@gockel.physik3.uni-rostock.de>
+References: <20040819143907.GA4236@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-20 at 10:31 +0200, Marcel Holtmann wrote:
-> your dongle looks like a Broadcom based dongle. Please include the part
-> from /proc/bus/usb/devices matching your device. The main problem is
-> that the mini driver and the firmware for the Broadcom dongle can't be
-> loaded throught request_firmware() by the bcm203x driver. Check the
-> BlueZ webpage for more details and put these files in the correct place.
+On Thu, 19 Aug 2004, Dave Jones wrote:
+
+> I noticed that every file that could be built as a module was sucking
+> in sched.h (and therefore, every other include file under the sun).
 > 
-> Regards
+> This patch
+> - removes the sched.h from module.h
+> - Moves the capable() definition from sched.h to capability.h
+> - split out the wake_up_* stuff to linux/wakeup.h
+> - Removed sched.h includes from a bunch of drivers that didn't
+>   need it due to the above work.
+> - Fixes up all the breakage I was able to find under x86.
+>   Fixing other arch's is simple enough, they just need to include
+>   sched.h explicity in a few places now (or jiffies.h, or capability.h or wakeup.h))
 > 
-> Marcel
-
-Okay, I had bluez-bluefw installed (Debian package) but it seems that
-bluez now uses the standard firmware loading mechanism (request_firmware
-()). As such, I copied the BCM2033-FW.bin and BCM2033-MD.hex files from
-that package into /usr/lib/hotplug/firmware and removed bluez-bluefw.
-
-However, I cannot find any evidence of the firmware actually being
-loaded. I believe that my hotplug install is correctly installed (it can
-load the ipw2100 firmware). I added some debugging
-to /etc/hotplug/firmware.agent, but couldn't find any evidence of any
-firmware being requested for the dongle.
-
-Any suggestions what I could try next? Should I add USB_DEVICE(0x0a12,
-0x0001) to the usb_device_id array in bcm203x.c?
-
-BTW this used to work (but maybe this was under 2.4, using bluefw).
-
-Raf.
-
-/proc/bus/usb/devices for 1/19:
-T:  Bus=01 Lev=03 Prnt=03 Port=00 Cnt=01 Dev#= 19 Spd=12  MxCh= 0
-D:  Ver= 1.10 Cls=e0(unk. ) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=0a12 ProdID=0001 Rev= 4.43
-C:* #Ifs= 3 Cfg#= 1 Atr=c0 MxPwr=  0mA
-I:  If#= 0 Alt= 0 #EPs= 3 Cls=e0(unk. ) Sub=01 Prot=01 Driver=hci_usb
-E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:  If#= 1 Alt= 0 #EPs= 2 Cls=e0(unk. ) Sub=01 Prot=01 Driver=hci_usb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(unk. ) Sub=01 Prot=01 Driver=hci_usb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(unk. ) Sub=01 Prot=01 Driver=hci_usb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(unk. ) Sub=01 Prot=01 Driver=hci_usb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(unk. ) Sub=01 Prot=01 Driver=hci_usb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(unk. ) Sub=01 Prot=01 Driver=hci_usb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-I:  If#= 2 Alt= 0 #EPs= 0 Cls=fe(app. ) Sub=01 Prot=00 Driver=(none)
+> I've not done any measurements to see if this is noticable on a compile,
+> as I'd expect it to be mostly in the noise anyway (though last time I
+> did this in 2.5.early, it did shave off the best part of a minute off
+> my worst-case-scenario build), but untangling the spaghetti of includes
+> a little should at least mean gcc uses less memory during the build.
+> 
+> comments?
 
 
+Hey, it's includes cleanup time again?
+I've postponed my work in late 2.5 for 2.7, but with the new development 
+model it seems we are asked to destabilize 2.6 instead ;-)
+
+Patch looks good to me, I also had a patch waiting to move capable() to 
+where it belongs. So I went to the attic and started my kludgy old scripts 
+on your updated patch. I really should try to dust them of and understand 
+them again...
+
+Some driver fixups to it that look valid at a short first glance are 
+below.
+
+Tim
+
+
+--- linux-2.6.8.1-sr1/drivers/char/efirtc.c	2004-04-04 05:37:37.000000000 +0200
++++ linux-2.6.8.1-sr2/drivers/char/efirtc.c	2004-08-20 16:28:26.000000000 +0200
+@@ -36,6 +36,7 @@
+ #include <linux/rtc.h>
+ #include <linux/proc_fs.h>
+ #include <linux/efi.h>
++#include <linux/capability.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/system.h>
+
+--- linux-2.6.8.1-sr1/drivers/char/watchdog/shwdt.c	2004-08-17 21:38:52.000000000 +0200
++++ linux-2.6.8.1-sr2/drivers/char/watchdog/shwdt.c	2004-08-20 16:31:40.000000000 +0200
+@@ -28,6 +28,8 @@
+ #include <linux/notifier.h>
+ #include <linux/ioport.h>
+ #include <linux/fs.h>
++#include <linux/jiffies.h>
++#include <linux/timer.h>
+ 
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+
+--- linux-2.6.8.1-sr1/drivers/input/gameport/gameport.c	2004-08-17 00:13:33.000000000 +0200
++++ linux-2.6.8.1-sr2/drivers/input/gameport/gameport.c	2004-08-20 16:32:15.000000000 +0200
+@@ -18,6 +18,7 @@
+ #include <linux/slab.h>
+ #include <linux/stddef.h>
+ #include <linux/delay.h>
++#include <linux/jiffies.h>
+ 
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+ MODULE_DESCRIPTION("Generic gameport layer");
+
+--- linux-2.6.8.1-sr1/drivers/macintosh/ans-lcd.c	2004-08-17 21:38:52.000000000 +0200
++++ linux-2.6.8.1-sr2/drivers/macintosh/ans-lcd.c	2004-08-20 16:32:47.000000000 +0200
+@@ -9,6 +9,7 @@
+ #include <linux/fcntl.h>
+ #include <linux/init.h>
+ #include <linux/delay.h>
++#include <linux/capability.h>
+ #include <asm/uaccess.h>
+ #include <asm/sections.h>
+ #include <asm/prom.h>
+
+--- linux-2.6.8.1-sr1/drivers/media/dvb/frontends/dst.c	2004-08-17 00:13:25.000000000 +0200
++++ linux-2.6.8.1-sr2/drivers/media/dvb/frontends/dst.c	2004-08-20 16:33:12.000000000 +0200
+@@ -29,6 +29,7 @@
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
+ #include <linux/delay.h>
++#include <linux/jiffies.h>
+ #include <asm/div64.h>
+ 
+ #include "dvb_frontend.h"
+
+--- linux-2.6.8.1-sr1/drivers/media/dvb/frontends/grundig_29504-491.c	2004-08-17 00:13:25.000000000 +0200
++++ linux-2.6.8.1-sr2/drivers/media/dvb/frontends/grundig_29504-491.c	2004-08-20 16:33:36.000000000 +0200
+@@ -29,6 +29,7 @@
+ #include <linux/module.h>
+ #include <linux/string.h>
+ #include <linux/slab.h>
++#include <linux/jiffies.h>
+ 
+ #include "dvb_frontend.h"
+ #include "dvb_functions.h"
+
+--- linux-2.6.8.1-sr1/drivers/media/dvb/frontends/stv0299.c	2004-08-17 21:38:52.000000000 +0200
++++ linux-2.6.8.1-sr2/drivers/media/dvb/frontends/stv0299.c	2004-08-20 16:34:01.000000000 +0200
+@@ -50,6 +50,7 @@
+ #include <linux/module.h>
+ #include <linux/string.h>
+ #include <linux/slab.h>
++#include <linux/jiffies.h>
+ #include <asm/div64.h>
+ 
+ #include "dvb_frontend.h"
+
+--- linux-2.6.8.1-sr1/drivers/media/dvb/frontends/tda1004x.c	2004-08-17 21:38:52.000000000 +0200
++++ linux-2.6.8.1-sr2/drivers/media/dvb/frontends/tda1004x.c	2004-08-20 16:34:29.000000000 +0200
+@@ -42,6 +42,7 @@
+ #include <linux/fcntl.h>
+ #include <linux/errno.h>
+ #include <linux/syscalls.h>
++#include <linux/jiffies.h>
+ 
+ #include "dvb_frontend.h"
+ #include "dvb_functions.h"

@@ -1,78 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262633AbTE2UN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 16:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbTE2UN6
+	id S262593AbTE2URK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 16:17:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbTE2URK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 16:13:58 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:30900 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262633AbTE2UN4
+	Thu, 29 May 2003 16:17:10 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:27087 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S262593AbTE2URJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 16:13:56 -0400
-Message-ID: <3ED66C83.8070608@austin.ibm.com>
-Date: Thu, 29 May 2003 15:24:35 -0500
-From: Mark Peloquin <peloquin@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	Thu, 29 May 2003 16:17:09 -0400
+Date: Thu, 29 May 2003 13:30:15 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.70-mm1
+Message-ID: <39810000.1054240214@[10.10.2.4]>
+In-Reply-To: <20030529115237.33c9c09a.akpm@digeo.com>
+References: <20030527004255.5e32297b.akpm@digeo.com><1980000.1054189401@[10.10.2.4]><18080000.1054233607@[10.10.2.4]> <20030529115237.33c9c09a.akpm@digeo.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Nightly regression runs against current bk tree
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> OK, a 10x improvement isn't too bad.  I'm hoping the gap between ext2 and
+> ext3 is mainly idle time and not spinning-on-locks time.
+> 
+> 
+>> 
+>>    2024927   267.3% total
+>>    1677960   472.8% default_idle
+>>     116350     0.0% .text.lock.transaction
+>>      42783     0.0% do_get_write_access
+>>      40293     0.0% journal_dirty_metadata
+>>      34251  6414.0% __down
+>>      27867  9166.8% .text.lock.attr
+> 
+> Bah.  In inode_setattr(), move the mark_inode_dirty() outside
+> lock_kernel().
 
-Our team would like to assist the community in quickly identifying 
-patches that provide
-performance improvements or regressions in the 2.5 kernel tree. The way 
-to do this
-will be to run a nightly regression test suite against the current bk 
-tree, and then compare
-the results against the previous night's results, showing the 
-differences. Additionally,
-also comparing against the 2.5 point release.
+OK, will do. 
 
-We have dedicated a machine and thrown together some scripts that will grab
-and build the latest kernel files, execute the regression suite, 
-collecting (hopefully)
-enough system state information to allow meaningful analysis of any peculiar
-results encountered.
+>>      20016  2619.9% __wake_up
+>>      19632   927.4% schedule
+>>      12204     0.0% .text.lock.sched
+>>      12128     0.0% start_this_handle
+>>      10011     0.0% journal_add_journal_head
+> 
+> hm, lots of context switches still.
 
-Here are links to the current regression results obtained:
+I think that's ext3 busily kicking the living crap out of semaphores ;-)
+See __down above ...
 
-2.5.70 vs 2.5.70-bk1:
-http://www.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk1/2.5.70-vs-2.5.70-bk1/
-
-2.5.70 vs 2.5.70-bk2:
-http://www.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk2/2.5.70-vs-2.5.70-bk2/
-2.5.70-bk1 vs 2.5.70-bk2
-http://www.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-bk2/2.5.70-bk1-vs-2.5.70-bk2/
-
-The regression suite executes in about 7.5 hours currently. We would 
-like to keep
-the execution time below 12 hours, so when a problem is encountered, we 
-will have
-time to recover without falling behind on the daily snapshots. We have 
-attempted
-to strike a balance between test execution time and test coverage. Work 
-is still
-ongoing in the area to provide the best balance and maintain repeatability.
-
-Currently the regression suite operates on the 2.5 kernel bk tree. We do 
-plan on
-adding another machine that will perform similiar regression comparisons 
-for the
--mm and -mjb patches.
-
-Please bear in mind this is work in progress and there might be a few 
-rough edges.
-However, with your input, we feel it can provide a useful function. 
-Please do not
-hesitate to provide feedback or suggestions on improvements including 
-content
-and presentation.
-
-Mark Peloquin
-IBM Linux performance team
+M.
 

@@ -1,48 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287874AbSAVGyy>; Tue, 22 Jan 2002 01:54:54 -0500
+	id <S287924AbSAVHFz>; Tue, 22 Jan 2002 02:05:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288114AbSAVGyn>; Tue, 22 Jan 2002 01:54:43 -0500
-Received: from zero.tech9.net ([209.61.188.187]:1029 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S287874AbSAVGyb>;
-	Tue, 22 Jan 2002 01:54:31 -0500
-Subject: Re: 2.4.18pre4aa1
-From: Robert Love <rml@tech9.net>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020122074806.A1547@athlon.random>
-In-Reply-To: <20020122074806.A1547@athlon.random>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 22 Jan 2002 01:58:58 -0500
-Message-Id: <1011682739.17096.563.camel@phantasy>
+	id <S288114AbSAVHFq>; Tue, 22 Jan 2002 02:05:46 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:57404 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S287924AbSAVHFf>; Tue, 22 Jan 2002 02:05:35 -0500
+Date: Tue, 22 Jan 2002 09:05:18 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: "David S. Miller" <davem@redhat.com>
+Cc: andrea@suse.de, alan@redhat.com, linux-kernel@vger.kernel.org,
+        akpm@zip.com.au, ripperda@nvidia.com, drobbins@gentoo.org
+Subject: Re: Athlon PSE/AGP Bug
+Message-ID: <20020122070517.GK135220@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	"David S. Miller" <davem@redhat.com>, andrea@suse.de,
+	alan@redhat.com, linux-kernel@vger.kernel.org, akpm@zip.com.au,
+	ripperda@nvidia.com, drobbins@gentoo.org
+In-Reply-To: <3C4C5B26.3A8512EF@zip.com.au> <20020121.142320.123999571.davem@redhat.com> <20020122013909.N8292@athlon.random> <20020121.170822.32749723.davem@redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020121.170822.32749723.davem@redhat.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-01-22 at 01:48, Andrea Arcangeli wrote:
+David S. Miller said:
+>
+> The funny part is, if this published errata is the problem, it cannot be a
+> problem under Linux since we never invalidate 4MB pages.  We create them
+> at boot time and they never change after that.
 
-> Only in 2.4.18pre4aa1/: 00_icmp-offset-1
-> 
-> 	Remote security fix from Andi (see bugtraq).
+and:
+>  From: Arjan van de Ven <arjanv@redhat.com>
+>  > Well we don't know what nvidia's kernel module is doing.....                 
+>                                                                                 
+> I know it isn't using large pages, that is for sure.
 
-Are we sure this works?  I thought I saw someone (IRC perhaps?) who had
-weird anomalies with this fix (although it does certainly fix the hole).
+and:
+> I think this is all "just so happens" personally, and all the that
+> turning off the large pages really does is change the timings so that
+> whatever bug is really present simply becomes a heisenbug.
 
-> Only in 2.4.18pre2aa2: 10_vm-22
-> Only in 2.4.18pre4aa1/: 10_vm-23
-> 
-> 	Minor changes (try to always do some relevant work during the
-> 	refiling).
+Andrea Arcangeli <andrea@suse.de> said:
+> My same wondering, however I wasn't sure how much the timing could
+> really change to make the kernel bugs trigger.
 
-When will we see this in 2.4 stock? ;-)
+Alan Cox said:
+> That problem shouldnt be hitting Linux x86. I don't know about the Nvidia
+> module but the base kernel shouldnt hit an invlpg on 4Mb pages
 
-I know you have said you are busy, but it would great to get the bits
-pushed to Marcelo in reasonable documented chunks so he can merge
-them...
 
-Also, these should be pushed to Linus, too.  Same VM in 2.5, after all.
+Here's what Ripperda of nVidia (I imagine this is the same "Terrence
+Ripperda of NVIDIA" mentioned at http://www.gentoo.org/) said on nvidia @
+#irc.openprojects.net:
 
-	Robert Love
+*** ripperda (~ripperda@z06.nvidia.com) has joined channel #nvidia
+<Primer> ripperda: my man!
+<Primer> major props for reporting the athlon bug
+<ripperda> hey primer
+<ripperda> thanks, hopefully we can get athlons a lot more stable under the
+drivers now
+<ripperda> I feel bad I screwed the pooch and didn't get it figured out
+quicker
+<Thunderbird> who discovered the bug after all?
+<Primer> Thunderbird: AMD, back in Sept. 2000
+<Primer> :P
+<ripperda> one of our main windows kernel developers here, over a year ago
+<Primer> except they forgot to tell us
+<Thunderbird> why did nobody publish it before then?
+<ripperda> he mentioned it to me, but I was swamped with other things, tried
+to see if it would affect us, but was still a little new to the kernel code
+<Russ|werk> hey ripperda
+<Russ|werk> ripperda: is the fix going to cause a release?
+<ripperda> this athlon bug can't be fixed in our code, that's a kernel issue
 
+So clearly either nvidia driver uses large paging or there appears to be
+some great misunderstanding.
+
+Also, drobbins at http://www.gentoo.org goes on to say:
+
+"I informed kernel hacker Andrew Morton of the issue; he put me in touch
+with Alan Cox.  Alan is going to try to add some kind of Athlon/AGP CPU bug
+detection code to the kernel so that it will be able to auto-downgrade to 4K
+pages when necessary."
+
+Another case of miscommunication?
+
+I sincerely hope you guys can sort this out...
+
+
+-- v --
+
+v@iki.fi

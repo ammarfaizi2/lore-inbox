@@ -1,83 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261407AbUCHXWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 18:22:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbUCHXWZ
+	id S261224AbUCHXdM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 18:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbUCHXdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 18:22:25 -0500
-Received: from fep21-0.kolumbus.fi ([193.229.0.48]:20467 "EHLO
-	fep21-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S261407AbUCHXWO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 18:22:14 -0500
-Message-ID: <404D0032.1000807@helsinki.fi>
-Date: Tue, 09 Mar 2004 01:22:26 +0200
-From: Kliment Yanev <Kliment.Yanev@helsinki.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040222
-X-Accept-Language: en-us, en
+	Mon, 8 Mar 2004 18:33:12 -0500
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:43960 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S261224AbUCHXdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 18:33:11 -0500
+Date: Tue, 9 Mar 2004 00:33:08 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: lkml <linux-kernel@vger.kernel.org>
+cc: Arthur Corliss <corliss@digitalmages.com>
+Subject: Re: [PATCH][RFC] fix BSD accounting (w/ long-term perspective ;-)
+In-Reply-To: <Pine.LNX.4.53.0403082241200.16420@gockel.physik3.uni-rostock.de>
+Message-ID: <Pine.LNX.4.53.0403090030280.23750@gockel.physik3.uni-rostock.de>
+References: <Pine.LNX.4.53.0403082241200.16420@gockel.physik3.uni-rostock.de>
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Nokia c110 driver
-References: <40408852.8040608@helsinki.fi>	<20040228104105.5a699d32.rddunlap@osdl.org>	<40419A1C.5070103@helsinki.fi>	<20040301101706.3a606d35.rddunlap@osdl.org>	<404C8A35.3020308@helsinki.fi>	<20040308090640.2d557f9e.rddunlap@osdl.org>	<404CF77A.2050301@helsinki.fi> <20040308150907.4db68831.rddunlap@osdl.org>
-In-Reply-To: <20040308150907.4db68831.rddunlap@osdl.org>
-X-Enigmail-Version: 0.83.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> Patch for 2.6 kernel is below.
+
+Whoops, missed the incremental hunk below. Corrected full patch is at
+  http://www.physik3.uni-rostock.de/tim/kernel/2.6/acct-06.patch
+
+Tim
 
 
-
-Randy.Dunlap wrote:
-
-|
-| I have no idea where these symbols live or come from.
-
-I found them! they are in the binary-only part of the driver but for
-some reason they are not getting linked into the .ko file. I tried
-linking them manually but then I get an "invalid module format"
-
-|
-| You know, it's possible that you could purchase a card that already
-| works on Linux 2.6.... that might be a better solution than trying
-| to use an unknown binary module.
-
-At this point I am doing this just to see if it will work... I don't
-need the card for another week or so and if I don't get this one to work
-I'll just buy another one. Yet I have the feeling that this card will
-work before long... if only I could get those files linked that is...
-
-My makefile (dhw, dap, dmgr and dcfg are in the binary parts, present in
-the current dir as dhw.o etc.; all the others are .c files that get
-compiled during a make):
-
-~    ifneq ($(KERNELRELEASE),)
-~    obj-m       := nokia_c110.o
-~    module-objs := dllc.o dtools.o dhw.o dap.o dmgr.o dcfg.o
-
-~    else
-~    KDIR        := /lib/modules/$(shell uname -r)/build
-~    PWD         := $(shell pwd)
-
-~    default:
-~        $(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
-~    endif
-
-
-|
-
-Thanks for all your help so far.
-
-Kliment
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFATQAyrPQTyNB9u9YRAul8AKCgtRfIC65TDVxGNdsyZtnD9mMOKQCgl7Pe
-qhYXJJggGUVYzNjBdN3tphU=
-=/fei
------END PGP SIGNATURE-----
+--- linux-2.6.4-rc1-acct/kernel/acct.c	2004-03-08 22:31:26.000000000 +0100
++++ linux-2.6.4-rc1-acct1/kernel/acct.c	2004-03-09 00:25:50.000000000 +0100
+@@ -345,8 +345,8 @@ static void do_acct_process(long exitcod
+ 	ac.ac_etime = encode_comp_t(jiffies_64_to_AHZ(elapsed));
+ 	do_div(elapsed, HZ);
+ 	ac.ac_btime = xtime.tv_sec - elapsed;
+-	ac.ac_utime = encode_comp_t(current->utime);
+-	ac.ac_stime = encode_comp_t(current->stime);
++	ac.ac_utime = encode_comp_t(jiffies_to_AHZ(current->utime));
++	ac.ac_stime = encode_comp_t(jiffies_to_AHZ(current->stime));
+ 	ac.ac_uid = current->uid;
+ 	ac.ac_gid = current->gid;
+ #if ACCT_VERSION==1

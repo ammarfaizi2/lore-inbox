@@ -1,81 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263205AbUJ2Ac7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263351AbUJ2BOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263205AbUJ2Ac7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 20:32:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263280AbUJ2A2r
+	id S263351AbUJ2BOX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 21:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263350AbUJ2BNB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 20:28:47 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:62982 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263275AbUJ2A1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 20:27:52 -0400
-Date: Fri, 29 Oct 2004 02:27:17 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: James.Bottomley@SteelEye.com
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] scsi/qla2xxx/qla_rscn.c: remove unused functions
-Message-ID: <20041029002716.GA29142@stusta.de>
-References: <20041028232101.GH3207@stusta.de>
+	Thu, 28 Oct 2004 21:13:01 -0400
+Received: from 0.fe-0-0-0.c1.pfn.citynetwireless.net ([209.218.71.2]:37837
+	"EHLO core.citynetwireless.net") by vger.kernel.org with ESMTP
+	id S263285AbUJ2BHY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 21:07:24 -0400
+Date: Thu, 28 Oct 2004 20:07:21 -0500
+From: parker@citynetwireless.net
+To: linux-kernel@vger.kernel.org
+Subject: ICMP ttl-exceeded packets not sourced correctly
+Message-ID: <20041029010721.GA25817@core.citynetwireless.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041028232101.GH3207@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ this time without the problems due to a digital signature... ]
+I think there's a problem with the ICMP code...
 
-The patch below removes two unused functions from 
-drivers/scsi/qla2xxx/qla_rscn.c
+Say you have a router, and it's multihomed to two different isp's,
+say cogentco.com and qwest.net as your upstreams.
+On your cogent interface, you have the ip address on the /30 assigned by cogent,
+with reverse dns being blahblah.demarc.cogentco.com on the qwest interface.
+Same story with qwest, with reverse dns being whatever.qwest.net.
+Now let's say someone out on the internet with ip address of 1.1.1.1 runs
+a traceroute into your network and his incoming path to your network comes over qwest.
+Your router's hop should source its ICMP ttl-exceeded code (the traceroute hop) on
+its qwest /30 ip address, because thats where the traceroute got triggered.
+ICMP ttl-exceeded code's response should not be originated from the interface
+holding the route, but should be origianted from the interface that got hit
+with the traceroute.
 
-
-diffstat output:
- drivers/scsi/qla2xxx/qla_rscn.c |   26 --------------------------
- 1 files changed, 26 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm1-full/drivers/scsi/qla2xxx/qla_rscn.c.old	2004-10-28 23:26:04.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/scsi/qla2xxx/qla_rscn.c	2004-10-28 23:26:32.000000000 +0200
-@@ -47,8 +47,6 @@
- /* Local Prototypes. */
- static inline uint32_t qla2x00_to_handle(uint16_t, uint16_t, uint16_t);
- static inline uint16_t qla2x00_handle_to_idx(uint32_t);
--static inline uint16_t qla2x00_handle_to_iter(uint32_t);
--static inline uint16_t qla2x00_handle_to_type(uint32_t);
- static inline uint32_t qla2x00_iodesc_to_handle(struct io_descriptor *);
- static inline struct io_descriptor *qla2x00_handle_to_iodesc(scsi_qla_host_t *,
-     uint32_t);
-@@ -130,30 +128,6 @@
- }
- 
- /**
-- * qla2x00_handle_to_type() - Retrive the descriptor type for a given handle.
-- * @handle: descriptor handle
-- *
-- * Returns the descriptor type specified by the @handle.
-- */
--static inline uint16_t
--qla2x00_handle_to_type(uint32_t handle)
--{
--	return ((uint16_t)(((handle) >> HDL_TYPE_SHIFT) & HDL_TYPE_MASK));
--}
--
--/**
-- * qla2x00_handle_to_iter() - Retrive the rolling signature for a given handle.
-- * @handle: descriptor handle
-- *
-- * Returns the signature specified by the @handle.
-- */
--static inline uint16_t
--qla2x00_handle_to_iter(uint32_t handle)
--{
--	return ((uint16_t)(((handle) >> HDL_ITER_SHIFT) & HDL_ITER_MASK));
--}
--
--/**
-  * qla2x00_iodesc_to_handle() - Convert an IO descriptor to a unique handle.
-  * @iodesc: io descriptor
-  *
+-- 
+Bubba Parker
+Systems Administrator
+CityNet LLC
+http://www.citynetinfo.com/

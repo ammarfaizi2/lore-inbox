@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263448AbUHBVAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263540AbUHBVBm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263448AbUHBVAu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 17:00:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUHBVAt
+	id S263540AbUHBVBm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 17:01:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263555AbUHBVBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 17:00:49 -0400
-Received: from web14928.mail.yahoo.com ([216.136.225.87]:56477 "HELO
-	web14928.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263448AbUHBVAs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 17:00:48 -0400
-Message-ID: <20040802210048.5071.qmail@web14928.mail.yahoo.com>
-Date: Mon, 2 Aug 2004 14:00:48 -0700 (PDT)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-In-Reply-To: <200408021002.31117.jbarnes@engr.sgi.com>
-MIME-Version: 1.0
+	Mon, 2 Aug 2004 17:01:42 -0400
+Received: from holomorphy.com ([207.189.100.168]:18095 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263540AbUHBVBd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 17:01:33 -0400
+Date: Mon, 2 Aug 2004 14:01:19 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, kiran@in.ibm.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, greg@kroah.com, dipankar@in.ibm.com
+Subject: Re: [patchset] Lockfree fd lookup 0 of 5
+Message-ID: <20040802210119.GS2334@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"David S. Miller" <davem@redhat.com>,
+	viro@parcelfarce.linux.theplanet.co.uk, kiran@in.ibm.com,
+	akpm@osdl.org, linux-kernel@vger.kernel.org, greg@kroah.com,
+	dipankar@in.ibm.com
+References: <20040802101053.GB4385@vitalstatistix.in.ibm.com> <20040802165607.GN12308@parcelfarce.linux.theplanet.co.uk> <20040802130729.2dae8fd5.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040802130729.2dae8fd5.davem@redhat.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Jesse Barnes <jbarnes@engr.sgi.com> wrote:
-> It it suitable for the mainline yet?  I expect those familiar with 
-> the various cards to add the necessary quirks code as needed.
+On Mon, 2 Aug 2004 17:56:07 +0100 viro@parcelfarce.linux.theplanet.co.uk wrote:
+>> How about this for comparison?  That's just a dumb "convert to rwlock"
+>> patch; we can be smarter in e.g. close_on_exec handling, but that's a
+>> separate story.
 
-Is tracking the boot video device and redirecting to C000:0 going to be
-a quirk, architecture specific, or what? Where does this little piece
-of code need to go?
+On Mon, Aug 02, 2004 at 01:07:29PM -0700, David S. Miller wrote:
+> Compares to plain spinlocks, rwlock's don't buy you much,
+> if anything, these days.
+> Especially for short sequences of code.
 
-=====
-Jon Smirl
-jonsmirl@yahoo.com
+I've found unusual results in this area. e.g. it does appear to matter
+for mapping->tree_lock for database workloads that heavily share a
+given file and access it in parallel. The radix tree walk, though
+intuitively short, is long enough to make the rwlock a win in the
+database-oriented uses and microbenchmarks starting around 4x.
 
 
-	
-		
-__________________________________
-Do you Yahoo!?
-New and Improved Yahoo! Mail - 100MB free storage!
-http://promotions.yahoo.com/new_mail 
+-- wli

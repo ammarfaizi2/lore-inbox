@@ -1,86 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262064AbULLJsr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbULLKXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262064AbULLJsr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 04:48:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbULLJsr
+	id S261763AbULLKXk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 05:23:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbULLKXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 04:48:47 -0500
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:62835 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262064AbULLJse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 04:48:34 -0500
-Message-ID: <41BC13ED.8020809@yahoo.com.au>
-Date: Sun, 12 Dec 2004 20:48:29 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
+	Sun, 12 Dec 2004 05:23:40 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:33224 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261763AbULLKXi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 05:23:38 -0500
+Message-ID: <41BC1BF9.70701@colorfullife.com>
+Date: Sun, 12 Dec 2004 11:22:49 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Christoph Lameter <clameter@sgi.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: page fault scalability patch V12 [0/7]: Overview and performance
-    tests
-References: <Pine.LNX.4.44.0412120914190.3476-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0412120914190.3476-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       George Anzinger <george@mvista.com>, Lee Revell <rlrevell@joe-job.com>,
+       dipankar@in.ibm.com, ganzinger@mvista.com,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: RCU question
+References: <41BA0ECF.1060203@mvista.com> <Pine.LNX.4.61.0412101558240.24986@montezuma.fsmlabs.com> <41BA59F6.5010309@mvista.com> <Pine.LNX.4.61.0412101943260.1101@montezuma.fsmlabs.com> <41BA698E.8000603@mvista.com> <Pine.LNX.4.61.0412110751020.5214@montezuma.fsmlabs.com> <41BB2108.70606@colorfullife.com> <41BB25B2.90303@mvista.com> <Pine.LNX.4.61.0412111947280.7847@montezuma.fsmlabs.com> <41BC0854.4010503@colorfullife.com> <20041212093714.GL16322@dualathlon.random>
+In-Reply-To: <20041212093714.GL16322@dualathlon.random>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> On Sun, 12 Dec 2004, Nick Piggin wrote:
-> 
->>Christoph Lameter wrote:
+Andrea Arcangeli wrote:
+
+>On Sun, Dec 12, 2004 at 09:59:00AM +0100, Manfred Spraul wrote:
+>  
+>
+>>It means that our NMI irq return path should check if it points to a hlt 
+>>instruction and if yes, then increase the saved EIP by one before doing 
+>>the iretd, right?
+>>    
 >>
->>>On Thu, 9 Dec 2004, Hugh Dickins wrote:
->>
->>>>probably others (harder to think through).  Your 4/7 patch for i386 has
->>>>an unused atomic get_64bit function from Nick, I think you'll have to
->>>>define a get_pte_atomic macro and use get_64bit in its 64-on-32 cases.
->>>
->>>That would be a performance issue.
->>
->>Problems were pretty trivial to reproduce here with non atomic 64-bit
->>loads being cut in half by atomic 64 bit stores. I don't see a way
->>around them, unfortunately.
-> 
-> 
-> Of course, it'll only be a performance issue in the 64-on-32 cases:
-> the 64-on-64 and 32-on-32 macro should reduce to exactly the present
-> "entry = *pte".
-> 
+>
+>I don't think we'll ever post any event through nmi, so it doesn't
+>matter. We only care to be waken by real irqs, not nmi/smi. Idle loop is
+>fine to ignore the actions of the nmi handlers and to hang into the
+>"hlt".
+>  
+>
+No, You misunderstood the problem:
 
-That's right, yep. There is no ordering requirement, only that
-the actual store and load be atomic.
+sti
+** NMI handler
+** normal interrupt arrives, is queued by the cpu
+** irqd from NMI handler
+** cpu notices the normal interrupt, handles it.
+** normal interrupt does a wakeup, schedules a tasklet, whatever
+** irqd from normal interupt
+hlt << cpu sleeps.
 
-> I've had the impression that Christoph and SGI have to care a great
-> deal more about ia64 than the others; and as x86_64 advances, so
-> i386 PAE grows less important.  Just so long as a get_64bit there
-> isn't a serious degradation from present behaviour, it's okay.
-> 
+Thus: lost wakeup.
 
-I don't think it was particularly serious for PAE. Probably not
-worth holding off until 2.7. We'll see.
-
-> Oh, hold on, isn't handle_mm_fault's pmd without page_table_lock
-> similarly racy, in both the 64-on-32 cases, and on architectures
-> which have a more complex pmd_t (sparc, m68k, h8300)?  Sigh.
-> 
-
-Can't comment on a specific architecture... some may have problems.
-I think i386 prepopulates pmds, so it is no problem; but generally:
-
-I think you can get away with it if you write the "unimportant"
-word(s) first, do a wmb(), then write the word containing the
-present bit. I guess this has to be done this way otherwise the
-hardware walker will blow up...
-
-Of course, the hardware walker would be doing either atomic or
-correctly ordered reads, while a plain dereference doesn't
-guarantee anything.
-
-I'm not sure of the history behind the code, but I would be in
-favour of making _all_ pagetable access go through accessor
-functions, even if nobody quite needs them yet.
+--
+    Manfred
+**

@@ -1,71 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbTKTPkp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 10:40:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbTKTPkp
+	id S261953AbTKTPyN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 10:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbTKTPyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 10:40:45 -0500
-Received: from sea2-dav43.sea2.hotmail.com ([207.68.164.15]:41989 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261909AbTKTPko
+	Thu, 20 Nov 2003 10:54:12 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:50583 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S261953AbTKTPyL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 10:40:44 -0500
-X-Originating-IP: [80.204.235.254]
-X-Originating-Email: [pupilla@hotmail.com]
-From: "Marco Berizzi" <pupilla@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: ipsec on kernel 2.6.0-test9
-Date: Thu, 20 Nov 2003 16:41:31 +0100
+	Thu, 20 Nov 2003 10:54:11 -0500
+Date: Thu, 20 Nov 2003 13:51:49 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Samuel Flory <sflory@rackable.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.23-rc2 amd64 compile still broken
+In-Reply-To: <3FBC176C.3060701@rackable.com>
+Message-ID: <Pine.LNX.4.44.0311201348060.1383-100000@logos.cnet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1123
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1123
-Message-ID: <Sea2-DAV43yDd3OJXsN000001a7@hotmail.com>
-X-OriginalArrivalTime: 20 Nov 2003 15:40:43.0301 (UTC) FILETIME=[A86CBD50:01C3AF7C]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Me again.
-I have downloaded kame-snap kit from
-ftp://ftp.kame.net/pub/kame/snap/kame-20031117-freebsd49-snap.tgz ,
-untarred and kame/IMPLEMENTATION report this:
-
-...
-- Tunnel mode IPComp is not working right.  KAME box can generate
-tunnelled
-  IPComp packet, however, cannot accept tunneled IPComp packet.
-...
-
-Is this the problem?
-
-Marco Berizzi wrote:
 
 
-> Hello everybody.
-> I'm playing with ipsec on linux 2.6.0-test9 + ipsec-tools-0.2.2
-> I would like to implement a simple esp-tunnel with ipcomp. This is my
-> setkey init file:
->
-> /usr/local/sbin/setkey -c <<EOF
-> flush;
-> spdflush;
-> spdadd 10.1.2.0/24 10.1.1.0/24 any -P in ipsec
->     ipcomp/tunnel/172.16.1.247-172.16.1.226/require
->     esp/tunnel/172.16.1.247-172.16.1.226/require;
->
-> spdadd 10.1.1.0/24 10.1.2.0/24 any -P out ipsec
->     ipcomp/tunnel/172.16.1.226-172.16.1.247/require
->     esp/tunnel/172.16.1.226-172.16.1.247/require;
-> EOF
-...
-> Am I doing something wrong?  Without ipcomp things are working good.
-> My env: Slackware 9.1 gcc 3.2.3 kernel 2.6.0-test9 glibc 2.3.2
-> ipsec-tools-0.2.2 (Cocorita=172.16.1.247 K2=172.16.1.226 connected by
-> two 3C905 100Mbit/s)
-> Any feedback are welcome.
-> TIA.
->
-> PS: Please cc me. I'm not subscribed to the list
+On Wed, 19 Nov 2003, Samuel Flory wrote:
+
+>    The amd64 compile is still breaking for me.
+> 
+> gcc -D__KERNEL__ -I/usr/src/linux-2.4.23-rc2/include -Wall 
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+> -fomit-frame-pointer -mno-red-zone -mcmodel=kernel -pipe 
+> -fno-reorder-blocks -finline-limit=2000 -fno-strength-reduce 
+> -Wno-sign-compare -fno-asynchronous-unwind-tables    -nostdinc 
+> -iwithprefix include -DKBUILD_BASENAME=pci_x86_64  -c -o pci-x86_64.o 
+> pci-x86_64.c
+> gcc -D__KERNEL__ -I/usr/src/linux-2.4.23-rc2/include -Wall 
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+> -fomit-frame-pointer -mno-red-zone -mcmodel=kernel -pipe 
+> -fno-reorder-blocks -finline-limit=2000 -fno-strength-reduce 
+> -Wno-sign-compare -fno-asynchronous-unwind-tables    -nostdinc 
+> -iwithprefix include -DKBUILD_BASENAME=pci_pc  -c -o pci-pc.o pci-pc.c
+> pci-pc.c:573: redefinition of `use_acpi_pci'
+> pci-pc.c:30: `use_acpi_pci' previously defined here
+> pci-pc.c:573: warning: `use_acpi_pci' was declared `extern' and later 
+> `static'
+> {standard input}: Assembler messages:
+> {standard input}:1581: Error: symbol `use_acpi_pci' is already defined
+> make[1]: *** [pci-pc.o] Error 1
+> make[1]: Leaving directory `/usr/src/linux-2.4.23-rc2/arch/x86_64/kernel'
+> make: *** [_dir_arch/x86_64/kernel] Error 2A
+
+Samuel,
+
+Len Brown just sent me a fix for this.
+
+Can you please try again using the BK tree?
+
+
+
+
+

@@ -1,134 +1,279 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311752AbSCXIWf>; Sun, 24 Mar 2002 03:22:35 -0500
+	id <S311837AbSCXIwX>; Sun, 24 Mar 2002 03:52:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311753AbSCXIW0>; Sun, 24 Mar 2002 03:22:26 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:40196
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S311752AbSCXIWM>; Sun, 24 Mar 2002 03:22:12 -0500
-Date: Sun, 24 Mar 2002 00:21:52 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-cc: list linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.18: many IDE errors
-In-Reply-To: <3C9D8844.8DA9298C@eyal.emu.id.au>
-Message-ID: <Pine.LNX.4.10.10203240014430.2377-100000@master.linux-ide.org>
+	id <S311840AbSCXIwP>; Sun, 24 Mar 2002 03:52:15 -0500
+Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:42168 "EHLO
+	ringstrom.mine.nu") by vger.kernel.org with ESMTP
+	id <S311837AbSCXIwB>; Sun, 24 Mar 2002 03:52:01 -0500
+Date: Sun, 24 Mar 2002 09:51:32 +0100 (CET)
+From: Tobias Ringstrom <tori@ringstrom.mine.nu>
+X-X-Sender: tori@boris.prodako.se
+To: David Eduardo Gomez Noguera <davidgn@servidor.unam.mx>
+cc: alan@lxorguk.ukuu.org.uk, <linux-kernel@vger.kernel.org>
+Subject: Re: CNet Fast Etherenet (Davicom DM9102AF)
+In-Reply-To: <20020323191342.4c7d1fe6.davidgn@servidor.unam.mx>
+Message-ID: <Pine.LNX.4.44.0203240930270.16934-100000@boris.prodako.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 23 Mar 2002, David Eduardo Gomez Noguera wrote:
 
-It is not a case of bad cables but maybe cable routing.
-Also, four 160GB disks eat power!
+> Why would tulip perform better though?
 
-I have a box dual athlon similar setup w/ 460W ps
-I have to wait for the PS to warm up or there is not enough juice to
-properly spin up the last drive.  However if I replace the four 160GB's
-with four 20GB Seagate's no problem.
+The dmfe driver's packet transmission code is not very efficient.  I have
+a patch that fixes it, but I do not know if it will break with older
+Davicom chips, althouhg I see no reason why it should.  I have included
+the patch at the end of this email.
 
-You are going to need at least a 400W PS w/ almost no ripple to make it
-work.  If you have this then check the cable routing.
+It would be nice if you could try the patch and let me know if it works
+for you.  I'd be very surprised if it does not work with your card (since
+I have one of those).
 
-Also hdparm -i /dev/hdX to see if their transfer rates are reduced.
+/Tobias
 
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Sun, 24 Mar 2002, Eyal Lebedinsky wrote:
-
-> I have six disks in the machine, each a master on the cable. Two are
-> on the on-board controller and Four are on two PCI ATA-100 cards.
-> 
-> I am getting disk error (BadCRC) on all disks, intermittently.
-> 
-> I upgraded from RH 2.4.9 (with SGI xfs) to 2.4.18+xfs. Same problem.
-> I then applied the 2.4.18-rc1 IDE patches with no improvement (well,
-> the four 160GB disks are now fully visible and not clipped to 28bits
-> which is a nice surprise).
-> 
-> I checked the memory, replaced the power supply with a hefty 400W,
-> I even used a recent mobo (Gigabyte GA-6VTXE). No beef, practically
-> the same rate of errors.
-> 
-> I do not believe all six cables are bad (80w all). This is a UP, and
-> I did not enalbe local APIC. Should I?
-> 
-> Any ideas where to go from here? On request I have boot messages
-> (with errors) and lspci output - I prefer not to overload the list.
-> 
-> The setup is two WD 60GB disks (hda/hdc) which host the root fs (ext2)
-> a working area (md2=RAID0, most of the space) and an xfs log
-> (md1=RAID1).
-> 
-> hde/g/i/k are Maxtor 160GB, RAID5, xfs (with external log on md0).
-> 
-> I get errors intermittently on all, here is an example after a boot
-> following the creation of the raid5 (so a sync was running for about
-> two hours).
-> 
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> ide0: reset: success
-
-Safe transfer rate down grade!
-
-> hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> ide1: reset: success
-
-Safe transfer rate down grade!
-
-> hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> md: md1: sync done.
-> raid5: resync finished.
-> hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> invalidate: busy buffer
-
-GAK!
-
+--- /usr/src/linux-2.4.18.crypto/drivers/net/dmfe.c	Fri Mar  1 10:21:38 2002
++++ ./dmfe.c	Sun Mar 24 09:40:52 2002
+@@ -61,7 +61,7 @@
+ */
+ 
+ #define DRV_NAME	"dmfe"
+-#define DRV_VERSION	"1.36.4"
++#define DRV_VERSION	"1.36.4tx"
+ #define DRV_RELDATE	"2002-01-17"
+ 
+ #include <linux/module.h>
+@@ -100,11 +100,9 @@
+ 
+ #define DM9102_IO_SIZE  0x80
+ #define DM9102A_IO_SIZE 0x100
+-#define TX_MAX_SEND_CNT 0x1             /* Maximum tx packet per time */
+ #define TX_DESC_CNT     0x10            /* Allocated Tx descriptors */
+ #define RX_DESC_CNT     0x20            /* Allocated Rx descriptors */
+-#define TX_FREE_DESC_CNT (TX_DESC_CNT - 2)	/* Max TX packet count */
+-#define TX_WAKE_DESC_CNT (TX_DESC_CNT - 3)	/* TX wakeup count */
++#define TX_IRQ_THR      12
+ #define DESC_ALL_CNT    (TX_DESC_CNT + RX_DESC_CNT)
+ #define TX_BUF_ALLOC    0x600
+ #define RX_ALLOC_SIZE   0x620
+@@ -211,8 +209,9 @@
+ 	struct rx_desc *first_rx_desc;
+ 	struct rx_desc *rx_insert_ptr;
+ 	struct rx_desc *rx_ready_ptr;	/* packet come pointer */
+-	unsigned long tx_packet_cnt;	/* transmitted packet count */
+-	unsigned long tx_queue_cnt;	/* wait to send packet count */
++	int tx_int_pkt_num;		/* number of packets to transmit until
++					 * a transmit interrupt is requested */
++	u32 tx_live_cnt;		/* number of used/live tx slots */
+ 	unsigned long rx_avail_cnt;	/* available rx descriptor count */
+ 	unsigned long interval_rx_cnt;	/* rx packet count a callback time */
+ 
+@@ -541,8 +540,9 @@
+ 					db->buf_pool_ptr, db->buf_pool_dma_ptr);
+ 		unregister_netdev(dev);
+ 		pci_release_regions(pdev);
+-		kfree(dev);	/* free board information */
++		pci_disable_device(pdev);
+ 		pci_set_drvdata(pdev, NULL);
++		kfree(dev);	/* free board information */
+ 	}
+ 
+ 	DMFE_DBUG(0, "dmfe_remove_one() exit", 0);
+@@ -567,8 +567,8 @@
+ 
+ 	/* system variable init */
+ 	db->cr6_data = CR6_DEFAULT | dmfe_cr6_user_set;
+-	db->tx_packet_cnt = 0;
+-	db->tx_queue_cnt = 0;
++	db->tx_int_pkt_num = TX_IRQ_THR;
++	db->tx_live_cnt = 0;
+ 	db->rx_avail_cnt = 0;
+ 	db->link_failed = 1;
+ 	db->wait_reset = 0;
+@@ -687,9 +687,6 @@
+ 
+ 	DMFE_DBUG(0, "dmfe_start_xmit", 0);
+ 
+-	/* Resource flag check */
+-	netif_stop_queue(dev);
+-
+ 	/* Too large packet check */
+ 	if (skb->len > MAX_PACKET_SIZE) {
+ 		printk(KERN_ERR DRV_NAME ": big packet = %d\n", (u16)skb->len);
+@@ -699,38 +696,33 @@
+ 
+ 	spin_lock_irqsave(&db->lock, flags);
+ 
+-	/* No Tx resource check, it never happen nromally */
+-	if (db->tx_queue_cnt >= TX_FREE_DESC_CNT) {
+-		spin_unlock_irqrestore(&db->lock, flags);
+-		printk(KERN_ERR DRV_NAME ": No Tx resource %ld\n", db->tx_queue_cnt);
+-		return 1;
+-	}
+-
+ 	/* Disable NIC interrupt */
+ 	outl(0, dev->base_addr + DCR7);
+ 
+ 	/* transmit this packet */
+ 	txptr = db->tx_insert_ptr;
+ 	memcpy(txptr->tx_buf_ptr, skb->data, skb->len);
+-	txptr->tdes1 = cpu_to_le32(0xe1000000 | skb->len);
++	if (--db->tx_int_pkt_num < 0)
++	{
++		txptr->tdes1 = cpu_to_le32(0xe1000000 | skb->len);
++		db->tx_int_pkt_num = TX_IRQ_THR;
++	}
++	else
++		txptr->tdes1 = cpu_to_le32(0x61000000 | skb->len);
++
++	/* Transmit Packet Process */
++	txptr->tdes0 = cpu_to_le32(0x80000000);	/* set owner bit to DM910X */
++	outl(0x1, dev->base_addr + DCR1);	/* Issue Tx polling command */
++	dev->trans_start = jiffies;		/* saved the time stamp */
+ 
+ 	/* Point to next transmit free descriptor */
+-	db->tx_insert_ptr = txptr->next_tx_desc;
++	txptr = txptr->next_tx_desc;
+ 
+-	/* Transmit Packet Process */
+-	if ( (!db->tx_queue_cnt) && (db->tx_packet_cnt < TX_MAX_SEND_CNT) ) {
+-		txptr->tdes0 = cpu_to_le32(0x80000000);	/* Set owner bit */
+-		db->tx_packet_cnt++;			/* Ready to send */
+-		outl(0x1, dev->base_addr + DCR1);	/* Issue Tx polling */
+-		dev->trans_start = jiffies;		/* saved time stamp */
+-	} else {
+-		db->tx_queue_cnt++;			/* queue TX packet */
+-		outl(0x1, dev->base_addr + DCR1);	/* Issue Tx polling */
+-	}
++	if (txptr->tdes0 & cpu_to_le32(0x80000000))
++		netif_stop_queue(dev);
+ 
+-	/* Tx resource check */
+-	if ( db->tx_queue_cnt < TX_FREE_DESC_CNT )
+-		netif_wake_queue(dev);
++	db->tx_insert_ptr = txptr;
++	db->tx_live_cnt++;
+ 
+ 	/* free this SKB */
+ 	dev_kfree_skb(skb);
+@@ -860,18 +852,18 @@
+ static void dmfe_free_tx_pkt(struct DEVICE *dev, struct dmfe_board_info * db)
+ {
+ 	struct tx_desc *txptr;
+-	unsigned long ioaddr = dev->base_addr;
+ 	u32 tdes0;
+ 
+ 	txptr = db->tx_remove_ptr;
+-	while(db->tx_packet_cnt) {
++	while (db->tx_live_cnt > 0)
++	{
+ 		tdes0 = le32_to_cpu(txptr->tdes0);
+ 		/* printk(DRV_NAME ": tdes0=%x\n", tdes0); */
+ 		if (tdes0 & 0x80000000)
+ 			break;
+ 
+ 		/* A packet sent completed */
+-		db->tx_packet_cnt--;
++		db->tx_live_cnt--;
+ 		db->stats.tx_packets++;
+ 
+ 		/* Transmit statistic counter */
+@@ -908,17 +900,8 @@
+ 	/* Update TX remove pointer to next */
+ 	db->tx_remove_ptr = txptr;
+ 
+-	/* Send the Tx packet in queue */
+-	if ( (db->tx_packet_cnt < TX_MAX_SEND_CNT) && db->tx_queue_cnt ) {
+-		txptr->tdes0 = cpu_to_le32(0x80000000);	/* Set owner bit */
+-		db->tx_packet_cnt++;			/* Ready to send */
+-		db->tx_queue_cnt--;
+-		outl(0x1, ioaddr + DCR1);		/* Issue Tx polling */
+-		dev->trans_start = jiffies;		/* saved time stamp */
+-	}
+-
+ 	/* Resource available check */
+-	if ( db->tx_queue_cnt < TX_WAKE_DESC_CNT )
++	if ((db->tx_insert_ptr->tdes0 & (cpu_to_le32(0x80000000))) == 0)
+ 		netif_wake_queue(dev);	/* Active upper layer, send again */
+ }
+ 
+@@ -1159,7 +1142,7 @@
+ 	db->interval_rx_cnt = 0;
+ 
+ 	/* TX polling kick monitor */
+-	if ( db->tx_packet_cnt &&
++	if ( db->tx_live_cnt > TX_IRQ_THR &&
+ 	     time_after(jiffies, dev->trans_start + DMFE_TX_KICK) ) {
+ 		outl(0x1, dev->base_addr + DCR1);   /* Tx polling again */
+ 
+@@ -1167,13 +1150,13 @@
+ 		if ( time_after(jiffies, dev->trans_start + DMFE_TX_TIMEOUT) ) {
+ 			db->reset_TXtimeout++;
+ 			db->wait_reset = 1;
+-			printk(KERN_WARNING "%s: Tx timeout - resetting\n",
+-			       dev->name);
++			printk(KERN_WARNING "%s: Tx timeout - resetting (%d)\n",
++			       dev->name, db->tx_live_cnt);
+ 		}
+ 	}
+ 
+ 	if (db->wait_reset) {
+-		DMFE_DBUG(0, "Dynamic Reset device", db->tx_packet_cnt);
++		DMFE_DBUG(0, "Dynamic Reset device", db->tx_live_cnt);
+ 		db->reset_count++;
+ 		dmfe_dynamic_reset(dev);
+ 		db->first_in_callback = 0;
+@@ -1271,8 +1254,8 @@
+ 	dmfe_free_rxbuffer(db);
+ 
+ 	/* system variable init */
+-	db->tx_packet_cnt = 0;
+-	db->tx_queue_cnt = 0;
++	db->tx_int_pkt_num = TX_IRQ_THR;
++	db->tx_live_cnt = 0;
+ 	db->rx_avail_cnt = 0;
+ 	db->link_failed = 1;
+ 	db->wait_reset = 0;
+@@ -1464,6 +1447,12 @@
+ 	txptr = db->tx_insert_ptr;
+ 	suptr = (u32 *) txptr->tx_buf_ptr;
+ 
++	if (txptr->tdes0 & cpu_to_le32(0x80000000)) {
++		printk(KERN_WARNING "%s: Too busy to send filter frame\n",
++		       dev->name);
++		return;
++	}
++
+ 	/* Node address */
+ 	addrptr = (u16 *) dev->dev_addr;
+ 	*suptr++ = addrptr[0];
+@@ -1491,19 +1480,15 @@
+ 
+ 	/* prepare the setup frame */
+ 	db->tx_insert_ptr = txptr->next_tx_desc;
++	db->tx_live_cnt++;
+ 	txptr->tdes1 = cpu_to_le32(0x890000c0);
+ 
+-	/* Resource Check and Send the setup packet */
+-	if (!db->tx_packet_cnt) {
+-		/* Resource Empty */
+-		db->tx_packet_cnt++;
+-		txptr->tdes0 = cpu_to_le32(0x80000000);
+-		update_cr6(db->cr6_data | 0x2000, dev->base_addr);
+-		outl(0x1, dev->base_addr + DCR1);	/* Issue Tx polling */
+-		update_cr6(db->cr6_data, dev->base_addr);
+-		dev->trans_start = jiffies;
+-	} else
+-		db->tx_queue_cnt++;	/* Put in TX queue */
++	/* Send the setup frame */
++	dev->trans_start = jiffies;		/* saved the time stamp */
++	txptr->tdes0 = cpu_to_le32(0x80000000);
++	update_cr6(db->cr6_data | 0x2000, dev->base_addr);
++	outl(0x1, dev->base_addr + DCR1);	/* Issue Tx polling command */
++	update_cr6(db->cr6_data, dev->base_addr);
+ }
+ 
+ 
 

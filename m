@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbTJJMYm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 08:24:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbTJJMYl
+	id S261906AbTJJM2S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 08:28:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbTJJM2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 08:24:41 -0400
-Received: from lucidpixels.com ([66.45.37.187]:35490 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S261670AbTJJMYk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 08:24:40 -0400
-Date: Fri, 10 Oct 2003 08:24:38 -0400 (EDT)
-From: war <war@lucidpixels.com>
-X-X-Sender: war@p500
-To: linux-kernel@vger.kernel.org
-Subject: ABIT IC7-G Linux Kernel Power Off Issue
-Message-ID: <Pine.LNX.4.58.0310100822430.27952@p500>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 10 Oct 2003 08:28:18 -0400
+Received: from inet-mail4.oracle.com ([148.87.2.204]:8331 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id S261906AbTJJM2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 08:28:17 -0400
+Date: Fri, 10 Oct 2003 05:27:55 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: statfs() / statvfs() syscall ballsup...
+Message-ID: <20031010122755.GC22908@ca-server1.us.oracle.com>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Ulrich Drepper <drepper@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <16261.56894.8109.858323@charged.uio.no> <Pine.LNX.4.44.0310091525200.20936-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310091525200.20936-100000@home.osdl.org>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just wanted to let everyone know I finally got a response with this issue:
+On Thu, Oct 09, 2003 at 03:26:47PM -0700, Linus Torvalds wrote:
+> User space shouldn't know or care about frsize, and it doesn't even 
+> necessarily make any sense on a lot of filesystems, so make it easy for 
+> the user. It's not as if the rounding errors really matter.
 
--> Question, will this be fixed in 2.4?
+	User space has to know about frsize for O_DIRECT alignment.
+Some times you just want to write the 512 B you have in hand, not have to
+read-modify-write the n KB around it.  frsize is much nicer that hunting
+up the appropriate block device to BLKSSZGET on .
 
-Thanks to Andrew:
 
-Subject:      Re: ABIT IC7-G Power Off Issue
-From:         Andrew Schulman <andrex@deadspam.com>
-Newsgroups:   alt.comp.periphs.mainboard.abit
-Date:         Thu, 09 Oct 2003 19:59:16 -0400
+Joel
 
-> After executing: shutdown -i 0 -g 0 -y
-> Gets to:
-> Flushing hda hdb hdc, etc, then
-> Power Down.
->
-> But then it stays here, everything stays on, the video, the box, etc.
-
-I used to have this exact problem.  I solved it by forcing the ospm_system
-module to load at boot time, by mentioning it in /etc/modules.
-ospm_system
-is part of ACPI; on your system it might be a different module, e.g. if
-you
-use APM.
-
-What seems to happen is that at power down, the last thing the kernel
-wants
-to do is to call ospm_system to turn the power off.  But the kernel module
-loader has already been shut down, so if the module hasn't already been
-loaded, it can't load and the kernel hangs.
-
-I had this problem with the 2.4 kernels, but I believe it's been solved in
-2.6.  I'm running 2.6.0-test4, and now that I look back I find that I
-don't
-even have an ospm_system module any more.  But the system still powers
-down
-correctly.  The last message I see on the screen now is "calling
-acpi_power_off".  This isn't a module; it seems to be a function that's
-built into the kernel when ACPI support is enabled.
-
-Good luck,
-Andrew.
 
 -- 
-To reply by email, change "deadspam.com" to "alumni.utexas.net"
 
+"I have never let my schooling interfere with my education."
+        - Mark Twain
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313477AbSGIKtF>; Tue, 9 Jul 2002 06:49:05 -0400
+	id <S313558AbSGIKwM>; Tue, 9 Jul 2002 06:52:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313563AbSGIKtE>; Tue, 9 Jul 2002 06:49:04 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:54432 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S313477AbSGIKtB>;
-	Tue, 9 Jul 2002 06:49:01 -0400
-Date: Tue, 9 Jul 2002 12:51:35 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Jens Axboe <axboe@suse.de>
-Cc: Anton Altaparmakov <aia21@cantab.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Subject: Re: [PATCH] 2.4 IDE core for 2.5
-Message-ID: <20020709125135.A7885@ucw.cz>
-References: <20020709102249.GA20870@suse.de> <Pine.SOL.3.96.1020709114618.20865B-100000@libra.cus.cam.ac.uk> <20020709104935.GB20870@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020709104935.GB20870@suse.de>; from axboe@suse.de on Tue, Jul 09, 2002 at 12:49:35PM +0200
+	id <S313563AbSGIKwL>; Tue, 9 Jul 2002 06:52:11 -0400
+Received: from gsd.di.uminho.pt ([193.136.20.132]:942 "HELO
+	homer.lsd.di.uminho.pt") by vger.kernel.org with SMTP
+	id <S313558AbSGIKwI> convert rfc822-to-8bit; Tue, 9 Jul 2002 06:52:08 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Jose Orlando Pereira <jop@lsd.di.uminho.pt>
+Organization: Universidade do Minho
+To: linux-kernel@vger.kernel.org
+Subject: IDE corruption with ServerWorks OSB4 and 2.4.18 + Fix
+Date: Tue, 9 Jul 2002 11:54:39 +0100
+X-Mailer: KMail [version 1.4]
+Cc: Andre Hedrick <andre@linux-ide.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200207091154.39789.jop@lsd.di.uminho.pt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 09, 2002 at 12:49:35PM +0200, Jens Axboe wrote:
+Hi,
 
-> On Tue, Jul 09 2002, Anton Altaparmakov wrote:
-> > On Tue, 9 Jul 2002, Jens Axboe wrote:
-> > > I've forward ported the 2.4 IDE core (well 2.4.19-pre10-ac2 to be exact)
-> > > to 2.5.25. It consists of 7 separate patches:
-> > 
-> > Fantastic! Seeing that the patches are bitkeeper generated, would it be
-> > possible for you to make a repository available with the patches? (on
-> > bkbits perhaps?) Would make it a lot easier for us bitkeeper users just to
-> > pull from your repository... Especially once you update the patches...
-> 
-> Yes they are from a bk tree here, I'll set one up on bkbits...
+This is an experience report. I hope it is useful. I don't know if this is 
+known fact, but I've not been able to find it by searching the archives.
+I've found only a reference to using MWDMA2 and loosing some
+performance.
 
-Cool, thanks. I guess I also will make a lot of use of those patches.
-I need to be debugging input now, not IDE. ;) 
+I've been using 2.4.6 (plain) on a couple of OSB4-based machines which boot 
+with UDMA2 enabled with no problem whatsoever. Recently, I've upgraded one of 
+them to 2.4.18-3smp (RedHat), which doesn't use DMA by default. Using hdparm 
+-d1 to activate DMA results either in an error message about OSB4 and freeze 
+or in a very severe corruption of the root partition (reinstallation 
+required).
+
+After some experimentation, and by comparing /proc/ide/hda/settings with the 
+machine still running 2.4.6, I've tryied setting hdparm -X66 before using -d1 
+and it now works *reliably* and fast (21Mb/s).
+
+If anybody wants further information about the hardware or wants to
+experiment better fixes, please ask. I don't mind reinstalling the thing a few 
+more times. :-)
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+Jose Orlando Pereira
+* mailto:jop@di.uminho.pt * http://gsd.di.uminho.pt/~jop *

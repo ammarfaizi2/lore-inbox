@@ -1,51 +1,75 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316059AbSEZNFE>; Sun, 26 May 2002 09:05:04 -0400
+	id <S316067AbSEZNUn>; Sun, 26 May 2002 09:20:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316060AbSEZNFD>; Sun, 26 May 2002 09:05:03 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:4869 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S316059AbSEZNFD>; Sun, 26 May 2002 09:05:03 -0400
-Date: Sun, 26 May 2002 15:04:52 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Larry McVoy <lm@bitmover.com>, "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Linus Torvalds <torvalds@transmeta.com>, Wolfgang Denk <wd@denx.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-In-Reply-To: <22471.1022407898@redhat.com>
-Message-ID: <Pine.LNX.4.21.0205261502240.17583-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316072AbSEZNUm>; Sun, 26 May 2002 09:20:42 -0400
+Received: from ppp-217-133-218-67.dialup.tiscali.it ([217.133.218.67]:130 "EHLO
+	home.ldb.ods.org") by vger.kernel.org with ESMTP id <S316067AbSEZNUl>;
+	Sun, 26 May 2002 09:20:41 -0400
+Subject: Re: How to send GnuPG signed mail to linux-kernel and maintainers?
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Dave Jones <davej@suse.de>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020526145018.H16102@suse.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-/j5PveOR0GKatHV4j7Ar"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 26 May 2002 15:20:34 +0200
+Message-Id: <1022419234.4072.46.camel@ldb>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Sun, 26 May 2002, David Woodhouse wrote:
+--=-/j5PveOR0GKatHV4j7Ar
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> > > To get a free patent license, EVERYTHING must be GPL.
-> > > Not just the real-time part! So that would be:
-> > > 
-> > > 1. the RT microkernel (OK)
-> > > 2. the RT "app"       (OK)
-> > > 3. Linux itself       (OK)
-> > > 4. normal Linux apps  (ouch!)
+On Sun, 2002-05-26 at 14:50, Dave Jones wrote:
+> On Sun, May 26, 2002 at 02:29:07PM +0200, Luca Barbieri wrote:
+>  > Not using digital signatures is obviously not an option since there is
+>  > no way to prove that a message was not authentic (if it contains a
+>  > trojan patch, for example). 
 > 
-> > Whether that is true or not I don't know.  But I do know that if all
-> > the stuff was GPLed, then you are safe no matter what, right? 
+> Just because a patch has been signed does not mean it somehow manages
+> to bypass peer review.
 > 
-> It's been asserted that the patent licence requires that _all_ userspace 
-> apps running on the system by GPL'd. Yet there are many Free Software 
-> applications in a standard Linux distribution that are under 
-> GPL-incompatible licences. Apache, xinetd, etc...
+> If the patch is correct, it gets applied. If it's not obviously correct,
+> it gets reviewed by someone more familiar with the code.
 > 
-> If that interpretation is true, it _would_ be a problem, and not just for 
-> those trying to make money from it.
+> Some people have a hard enough time getting patches they believe are
+> legitimate features/fixes past Al Viro, Dave Miller and the likes.
+> The chances of a trojan patch getting past them is I would hope, extremely minimal.
 
-It is a possible interpretation. The problem is that there is very broad
-patent, a very vague patent licence and patent owner, who refuses to
-answer the most simple questions. :-(
+Signing a patch and getting it applied are completely separate issues.
+OTOH, if Linus or anyone else has a policy of dropping all mail using
+non-plaintext encodings, sending it using such an encoding is a sure way
+of preventing its application.
 
-bye, Roman
+What I was trying to say is that someone might post a trojan patch with
+my name and after it gets rejected, I might get accused of trying to get
+it applied. And if the forger somehow manages to get it applied the
+damage to me is even greater.
 
+Another problem that arises from unsigned messages and people not
+verifying signed ones is that someone may send a message pretending that
+it is from a legitimate maintainer of a patchset (including you) and
+announce a new version of the patchset with a changed URL.
+If the patchset maintainer doesn't immediately notice the problem,
+several people might apply the patchset, trusting the maintainer, before
+the forgery is exposed.
+
+
+--=-/j5PveOR0GKatHV4j7Ar
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA88OEidjkty3ft5+cRAqUGAJ0bAmiFfZOyqN0+tpnPePbJnvUjrwCgjPr0
+jm+CyT7tRoMHsdzHZ9pxUj4=
+=X4NY
+-----END PGP SIGNATURE-----
+
+--=-/j5PveOR0GKatHV4j7Ar--

@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264447AbTDPR34 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 13:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264465AbTDPR34
+	id S264484AbTDPRbl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 13:31:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264486AbTDPRbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 13:29:56 -0400
-Received: from coral.ocn.ne.jp ([211.6.83.180]:64709 "HELO
-	smtp.coral.ocn.ne.jp") by vger.kernel.org with SMTP id S264447AbTDPR3z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 13:29:55 -0400
-Date: Thu, 17 Apr 2003 02:41:47 +0900
-From: Bruce Harada <bharada@coral.ocn.ne.jp>
-To: root@chaos.analogic.com
+	Wed, 16 Apr 2003 13:31:41 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:40320 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S264484AbTDPRbk (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 13:31:40 -0400
+Message-Id: <200304161743.h3GHhXSt005248@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/02/2003 with nmh-1.0.4+dev
+To: Michael Buesch <fsdeveloper@yahoo.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: System Call parameters
-Message-Id: <20030417024147.33a76987.bharada@coral.ocn.ne.jp>
-In-Reply-To: <Pine.LNX.4.53.0304161256130.11667@chaos>
-References: <Pine.LNX.4.53.0304161256130.11667@chaos>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.6; i686-pc-linux-gnu)
+Subject: Re: 2.4.x Problem with cd writing 
+In-Reply-To: Your message of "Wed, 16 Apr 2003 19:19:08 +0200."
+             <200304161919.08615.fsdeveloper@yahoo.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <200304161919.08615.fsdeveloper@yahoo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_-1548936460P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 16 Apr 2003 13:43:32 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Apr 2003 12:58:15 -0400 (EDT)
-"Richard B. Johnson" <root@chaos.analogic.com> wrote:
+--==_Exmh_-1548936460P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> How does the kernel get more than five parameters?
-> 
-> Currently...
-> 	eax	= function code
-> 	ebx	= first parameter
-> 	ecx	= second parameter
-> 	edx	= third parameter
-> 	esi	= fourth parameter
-> 	edi	= fifth parameter
-> 
-> Some functions like mmap() take 6 parameters!
-> Does anybody know how these parameters get passed?
-> I have an "ultra-light" 'C' runtime library I have
-> been working on and, so-far, I've got everything up
-> to mmap()  (in syscall.h) (89 functions) working.
-> I thought, maybe ebp was being used, but it doesn't
-> seem to be the case.
-> 
-> Maybe after 5 functions, there is a parameter list
-> passed by pointer???? I don't have a clue and I
-> can figure out the code, it's really obscure...
+On Wed, 16 Apr 2003 19:19:08 +0200, Michael Buesch <fsdeveloper@yahoo.de>=
+  said:
+> While my writer writes TOC or fixes CD (doesn't write real data-stream)=
+,
+> the whole ide-disk interface of the system is frozen. Kernel ist still
+> working and all programs run correctly, until they need harddisk
+> access. No harddisk or CD-ROM access is possible.
+> After the writer finishes TOC or fixating, the ide-disk interface
+> defrosts.
 
->From http://www.google.co.jp/search?q=cache:7GJP4whNQEkC:webster.cs.ucr.edu/Page_Linux/LinuxSysCalls.pdf+Linux+mmap+parameters+ebp&hl=ja&ie=UTF-8 :
+I thought this was a generic IDE issue - fixation requires the controller=
+'s
+undivided attention and was basically a hardware restriction.  Are you su=
+re
+that it's ever NOT frozen the interface?
 
- Certain Linux 2.4 calls pass a sixth parameter in EBP. Calls compatible with earlier versions of the kernel pass six or
- more parameters in a parameter block and pass the address of the parameter block in EBX (this change was probably
- made in kernel 2.4 because someone noticed that an extra copy between kernel and user space was slowing down
- those functions with exactly six parameters; who knows the real reason, though).
+--==_Exmh_-1548936460P
+Content-Type: application/pgp-signature
 
-Relevant? No idea.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQE+nZZEcC3lWbTT17ARAgtWAJ4neCnF/0LBMIJNNhVif9pn5RNZfACgwtAv
+Iud1oyHVk74bB+Q/xmg1LJg=
+=JTZ4
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1548936460P--

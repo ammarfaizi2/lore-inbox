@@ -1,66 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135883AbRDTMLZ>; Fri, 20 Apr 2001 08:11:25 -0400
+	id <S135885AbRDTMPZ>; Fri, 20 Apr 2001 08:15:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135885AbRDTMLP>; Fri, 20 Apr 2001 08:11:15 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:56329 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S135883AbRDTMLG>; Fri, 20 Apr 2001 08:11:06 -0400
-Date: Fri, 20 Apr 2001 16:04:43 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: David Howells <dhowells@cambridge.redhat.com>
-Cc: "David S. Miller" <davem@redhat.com>, torvalds@transmeta.com,
-        dhowells@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] generic rw_semaphores, compile warnings patch
-Message-ID: <20010420160443.A12528@jurassic.park.msu.ru>
-In-Reply-To: <15071.30776.914468.900710@pizda.ninka.net> <24459.987753038@warthog.cambridge.redhat.com>
+	id <S135886AbRDTMPP>; Fri, 20 Apr 2001 08:15:15 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:61199 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S135885AbRDTMPA>;
+	Fri, 20 Apr 2001 08:15:00 -0400
+Date: Fri, 20 Apr 2001 08:15:49 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+Subject: Plans for Configure.help
+Message-ID: <20010420081549.A4263@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <24459.987753038@warthog.cambridge.redhat.com>; from dhowells@cambridge.redhat.com on Fri, Apr 20, 2001 at 08:50:38AM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 20, 2001 at 08:50:38AM +0100, David Howells wrote:
-> There's also a missing "struct rw_semaphore;" declaration in linux/rwsem.h. It
-> needs to go in the gap below "#include <linux/wait.h>". Otherwise the
-> declarations for the contention handling functions will give warnings about
-> the struct being declared in the parameter list.
+Since Axel Boldt just handed me the maintainer's baton for Configure.help,
+now would probably be a good time for me to explain why I took the job,
+what my plans for it are, and how they fit into the CML2 work and other
+things I'm doing.
 
-Also on alpha __u16 is undeclared in rwsem.c, and old rwsem code wasn't
-cleaned up properly.
+Once Linus put the imprimatur on CML2 for 2.5, it looked pretty
+inevitable to me that I would end up with de facto reponsibility for
+the help file.  The configuration system is that file's only user,
+and there are good reasons to re-engineer the interface between
+them.  
 
-Ivan.
+A major one is that CML2's question prompts are separated into symbol
+files in order to support internationalization -- and it's silly for
+that information to be separate from the help file.  Right now, the
+prompts associated with each symbol are stored twice and the copy
+in Configure.help is unused.
 
---- 2.4.4p5/include/linux/rwsem-spinlock.h	Fri Apr 20 14:06:50 2001
-+++ linux/include/linux/rwsem-spinlock.h	Fri Apr 20 15:37:28 2001
-@@ -14,6 +14,8 @@
- 
- #ifdef __KERNEL__
- 
-+#include <linux/types.h>
-+
- /*
-  * the semaphore definition
-  */
---- 2.4.4p5/include/asm-alpha/semaphore.h	Fri Apr 20 13:53:28 2001
-+++ linux/include/asm-alpha/semaphore.h	Fri Apr 20 15:37:28 2001
-@@ -225,5 +225,3 @@ extern inline void up(struct semaphore *
- #endif
- 
- #endif
--
--#endif
---- 2.4.4p5/arch/alpha/kernel/alpha_ksyms.c	Fri Apr 20 13:52:56 2001
-+++ linux/arch/alpha/kernel/alpha_ksyms.c	Fri Apr 20 14:01:36 2001
-@@ -173,9 +173,6 @@ EXPORT_SYMBOL(down);
- EXPORT_SYMBOL(down_interruptible);
- EXPORT_SYMBOL(down_trylock);
- EXPORT_SYMBOL(up);
--EXPORT_SYMBOL(__down_read_failed);
--EXPORT_SYMBOL(__down_write_failed);
--EXPORT_SYMBOL(__rwsem_wake);
- EXPORT_SYMBOL(down_read);
- EXPORT_SYMBOL(down_write);
- EXPORT_SYMBOL(up_read);
+So after CML2 goes in, I plan to merge CML2's symbol files with
+Configure.help.  That file will move to a new format, perhaps some 
+simple flavor of XML markup, and contain all internationalizable
+text elements of the configurator.
+
+Something else I plan to do is change the convention for handing 
+radiobutton symbols like processor-type choices.  At present, if you
+request help for one of these, CML1 looks up the help for the 
+first entry in the containing choice menu.  This was a kluge to get
+around the fact that menus are not named entities in CML1 and can't
+have help in them.  In CML2, the menu names and banners will be in
+the help file, and will have their own help texts.
+
+
+In preparation for these changes, I have been writing help entries
+(65 of them so far) and taking a  hard look at the CONFIG_ symbol
+namespace.  I really have a couple of overlapping agendas here:
+
+1. Clean up and update the Configure.help file.  There are too many
+orphans and duplicates in there and too many symbols missing entries.
+I'd like to have this in shape before the 2.5 fork, as it will affect
+the user's CML1 configuration experience in the stable 2.4 branch.
+
+Steven Cole (who has asked to be listed as co-maintainer, and IMO has
+earned it) is very interested in tackling this.  I think it will be a
+good division of labor for him to do most of the content editing and
+updating while I take care of the format and interface redesign.
+
+2. Develop better auditing and consistency-checking tools.  Steven's
+ach script was a good start, but it only cross-checks Configure.help
+with [Cc]onfig.in files.  My kxref can do a better job by checking
+against the C code as well.  Again, this is not a CML2-specific issue.
+
+3. Once I wrote kxref and looked at the reports from it, I realized 
+that the CONFIG_ namespace is a mess.  More about this in a separate 
+thread, since it has implications beyond the help system.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+"Extremism in the defense of liberty is no vice; moderation in the
+pursuit of justice is no virtue."
+	-- Barry Goldwater (actually written by Karl Hess)

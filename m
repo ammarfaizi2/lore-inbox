@@ -1,58 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbULRTPQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbULRT1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbULRTPQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Dec 2004 14:15:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbULRTPQ
+	id S261220AbULRT1R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Dec 2004 14:27:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbULRT1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Dec 2004 14:15:16 -0500
-Received: from main.gmane.org ([80.91.229.2]:24992 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261216AbULRTPK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Dec 2004 14:15:10 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Joseph Seigh" <jseigh_02@xemaps.com>
-Subject: Re: What does atomic_read actually do?
-Date: Sat, 18 Dec 2004 14:20:44 -0500
-Message-ID: <opsi7xcuizs29e3l@grunion>
-References: <opsi7o5nqfs29e3l@grunion> <1103394867.4127.18.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: stenquists.ne.client2.attbi.com
-User-Agent: Opera M2/7.54 (Win32, build 3865)
+	Sat, 18 Dec 2004 14:27:17 -0500
+Received: from smtpout03-04.mesa1.secureserver.net ([64.202.165.74]:4289 "HELO
+	smtpout03-04.mesa1.secureserver.net") by vger.kernel.org with SMTP
+	id S261220AbULRT1P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Dec 2004 14:27:15 -0500
+Message-ID: <41C4849D.9060207@starnetworks.us>
+Date: Sat, 18 Dec 2004 12:27:25 -0700
+From: "Kevin P. Fleming" <kpfleming@starnetworks.us>
+Organization: Star Networks, LLC
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kumar Gala <kumar.gala@freescale.com>
+CC: Jeff Garzik <jgarzik@pobox.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Make gcapatch work for all bk transports
+References: <Pine.GSO.4.44.0412181239400.2707-100000@sysperf.somerset.sps.mot.com>
+In-Reply-To: <Pine.GSO.4.44.0412181239400.2707-100000@sysperf.somerset.sps.mot.com>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Dec 2004 19:34:27 +0100, Arjan van de Ven <arjan@infradead.org>  
-wrote:
+Kumar Gala wrote:
 
-> On Sat, 2004-12-18 at 11:23 -0500, Joseph Seigh wrote:
->> It doesn't do anything that would actually guarantee that the fetch from
->> memory would be atomic as far as I can see, at least in the x86 version.
->
-> define atomic....
->
-> what linux atomics guarantee you is that you either "see" the old or the
-> new value if you use atomic_* as the sole accessor API, with the
-> footnote that this only holds if you don't forcefully misalign the
-> atomic_t.
->
-> if you want ordering guarantees on top... you need to use explicit
-> bariers for that (wmb/rmb and friends).
->
-> For the "no inbetween" rule, doing the read the way x86 does works on
-> x86, since x86 makes sure that on the write side, no intermediate
-> results become visible.
+> I didn't even think if your case.  How about extracting out the transport
+> from 'bk parent -p' as a middle ground.  I dont think this will help your
+> case.  If not, we can leave the script as is.
 
-I mean atomic in the either old or new sense.  I'm wondering what  
-guarantees
-the atomicity.  Not the C standard.  I can see the gcc compiler uses a MOV
-instruction to load the atomic_t from memory which is guaranteed atomic by
-the architecture if aligned properly.  But gcc does that for any old int
-as far as I can see, so why use atomic_read?
-
-Joe Seigh
-
+It would actually be nice if bk supported a method to get the "root" 
+parent path from any clone; this obviously won't work, though, if the 
+clone is disconnected (on a laptop with no link, or something).

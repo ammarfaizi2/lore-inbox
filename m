@@ -1,68 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUG1G1T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266218AbUG1Gap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbUG1G1T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 02:27:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266240AbUG1G1T
+	id S266218AbUG1Gap (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 02:30:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266366AbUG1Gap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 02:27:19 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:32131 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261375AbUG1G1K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 02:27:10 -0400
-Date: Wed, 28 Jul 2004 06:55:17 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org, William Lee Irwin III <wli@holomorphy.com>,
-       Lenar L?hmus <lenar@vision.ee>, Andrew Morton <akpm@osdl.org>,
-       Lee Revell <rlrevell@joe-job.com>, Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2, preemptable hardirqs
-Message-ID: <20040728045517.GB14363@elte.hu>
-References: <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040727162759.GA32548@elte.hu> <1090967441.1835.2.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1090967441.1835.2.camel@teapot.felipe-alfaro.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 28 Jul 2004 02:30:45 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:25790 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S266218AbUG1Gag (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 02:30:36 -0400
+Message-ID: <4107480A.8020808@comcast.net>
+Date: Wed, 28 Jul 2004 02:30:34 -0400
+From: Ed Sweetman <safemode@comcast.net>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Jens Axboe <axboe@suse.de>, Jan-Frode Myklebust <janfrode@parallab.uib.no>,
+       linux-kernel@vger.kernel.org
+Subject: Re: OOM-killer going crazy.
+References: <20040725094605.GA18324@zombie.inka.de> <41045EBE.8080708@comcast.net> <20040726091004.GA32403@ii.uib.no> <410500FD.8070206@comcast.net> <4105D7ED.5040206@yahoo.com.au> <20040727100724.GA11189@suse.de> <41065748.8050107@comcast.net> <41065902.20909@yahoo.com.au> <4106D978.7090008@comcast.net> <4106FAAB.5080106@yahoo.com.au>
+In-Reply-To: <4106FAAB.5080106@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick Piggin wrote:
 
-* Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
+> Ed Sweetman wrote:
+>
+>> Nick Piggin wrote:
+>>
+>
+>>> OK so it does sound like a different problem.
+>>>
+>>> I didn't follow your other thread closely... does /proc/slabinfo
+>>> show any evidence of a leak?
+>>
+>>
+>>
+>>
+>> Surprisingly no. You'd think that since the kernel is responsible for 
+>> saying what memory can't be touched or swapped out it would have some 
+>> sort of tag on the huge 600MB of ram I currently can't do anything 
+>> with since i burned that audio cd but slabinfo doesn't seem to show 
+>> anything about it. Maybe i'm reading it wrong.
+>>
+>
+> It could be memory coming straight out of the page allocator that
+> isn't being freed.
+>
+> Jens, any ideas?
+> -
 
-> I've seen an oops on my P4 machine when booting with voluntary-
-> preempt=3, but not with voluntary-preempt<3. I think it's related to
-> the serial controller (IRQ3 and IRQ4). Please, see attached dmesg.
 
-do you mean this one:
 
-> irq event 4: bogus return value ffffffff
->  [<c0105b7e>] __report_bad_irq+0x24/0x7d
->  [<c0105c3e>] note_interrupt+0x49/0x88
->  [<c02bb3c2>] schedule+0x222/0x48d
->  [<c0105f05>] do_hardirq+0x10f/0x191
->  [<c0123cb5>] irqd+0x0/0xad
->  [<c0123d55>] irqd+0xa0/0xad
->  [<c0130010>] kthread+0x7c/0xa4
->  [<c012ff94>] kthread+0x0/0xa4
->  [<c0102249>] kernel_thread_helper+0x5/0xb
-> handlers:
+Con Kolivas' 2.6.8-rc1-ck6 snapshot patch seems fix the problem.  Not 
+only is my audio not corrupted when i write a disk but I get no mem leak 
+situation and thus no OOM.  I did 5 dummy burns with no swap being used 
+and stable vm statistics, final real burn resulted in successful disc.
 
-this isnt an oops, it is essentially just a warning. I am too getting
-this a couple of times during bootup when using the serial console.
+2.6.8-rc1 2.6.8-rc1-mm both flipped out.  ck touches all relevent files 
+so something the patch does fixed whatever was wrong. 
 
-irqd changes timings and apparently in this case the serial IRQ line
-gets deregistered for some amount of time while the hw still produces an
-interrupt. (it might also be an irqd bug, but all seems to be functional
-and i have no problems using the serial console.)
-
-so unless you see some instability later on (or see a large flood of
-such messages), you can disregard this warning.
-
-	Ingo

@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131400AbQLZAhp>; Mon, 25 Dec 2000 19:37:45 -0500
+	id <S130509AbQLZAqp>; Mon, 25 Dec 2000 19:46:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131401AbQLZAhf>; Mon, 25 Dec 2000 19:37:35 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:35657 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S131400AbQLZAhX>; Mon, 25 Dec 2000 19:37:23 -0500
-Date: Tue, 26 Dec 2000 01:06:47 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Christoph Hellwig <hch@ns.caldera.de>, linux-kernel@vger.kernel.org,
-        lvm-devel@sistina.com
-Subject: Re: [PATCH] LVM includes userlevel headers
-Message-ID: <20001226010647.A2468@athlon.random>
-In-Reply-To: <20001225235333.A22731@caldera.de> <20001226003244.E25861@athlon.random>
-Mime-Version: 1.0
+	id <S131129AbQLZAq0>; Mon, 25 Dec 2000 19:46:26 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:47883 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S130509AbQLZAqW>;
+	Mon, 25 Dec 2000 19:46:22 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200012260015.eBQ0FJk41580@saturn.cs.uml.edu>
+Subject: Re: About Celeron processor memory barrier problem
+To: timw@splhi.com
+Date: Mon, 25 Dec 2000 19:15:19 -0500 (EST)
+Cc: kaih@khms.westfalen.de (Kai Henningsen), torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20001224125023.A1900@scutter.internal.splhi.com> from "Tim Wright" at Dec 24, 2000 12:50:23 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001226003244.E25861@athlon.random>; from andrea@suse.de on Tue, Dec 26, 2000 at 12:32:44AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 26, 2000 at 12:32:44AM +0100, Andrea Arcangeli wrote:
-> On Mon, Dec 25, 2000 at 11:53:33PM +0100, Christoph Hellwig wrote:
-> > The first patch fixes that and the second changes the toplevel Makefile
-> > to search only the kernel and gcc (for stdarg.h) includes to prevent such
-> > accidents.
-> 
-> Looks fine, thanks.
+Tim Wright writes:
 
-BTW, I included your fixes into the 2.2.x backport (nostdinc in a separate
-patch):
+> There was a similar thread to this recently. The issue is that if you
+> choose the wrong processor type, you may not even be able to complain.
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.2/2.2.19pre3aa2/14_bigmem-rawio-lvm-0.9-2.2.19pre3aa2-3.bz2
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.2/2.2.19pre3aa2/00_nostdinc-Christoph-Hellwig-1
-
-Andrea
+An illegal opcode handler could deal with the problem.
+It could crudely emulate just enough to make printk work.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

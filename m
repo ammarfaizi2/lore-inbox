@@ -1,42 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262371AbVAJRxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262412AbVAKDse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262371AbVAJRxN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 12:53:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbVAJRu5
+	id S262412AbVAKDse (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 22:48:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbVAKDrq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 12:50:57 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:8868 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262336AbVAJRbk (ORCPT
+	Mon, 10 Jan 2005 22:47:46 -0500
+Received: from fw.osdl.org ([65.172.181.6]:56222 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262412AbVAKDpq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 12:31:40 -0500
-Date: Mon, 10 Jan 2005 09:31:34 -0800
-From: Greg KH <greg@kroah.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org,
-       tom.l.nguyen@intel.com
-Subject: Re: [PATCH] PCI: Clean up printks in msi.c
-Message-ID: <20050110173133.GA30605@kroah.com>
-References: <52sm59yzsx.fsf@topspin.com> <Pine.LNX.4.61.0501101022500.26637@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0501101022500.26637@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.5.6i
+	Mon, 10 Jan 2005 22:45:46 -0500
+Message-ID: <41E34A51.3080005@osdl.org>
+Date: Mon, 10 Jan 2005 19:38:57 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Dave <dave.jiang@gmail.com>,
+       linux-kernel@vger.kernel.org, smaurer@teja.com, linux@arm.linux.org.uk,
+       dsaxena@plexity.net, drew.moseley@intel.com
+Subject: Re: clean way to support >32bit addr on 32bit CPU
+References: <8746466a050110153479954fd2@mail.gmail.com> <Pine.LNX.4.58.0501101607240.2373@ppc970.osdl.org> <41E31D95.50205@osdl.org> <Pine.LNX.4.58.0501101722200.2373@ppc970.osdl.org> <20050111020550.GE2696@holomorphy.com>
+In-Reply-To: <20050111020550.GE2696@holomorphy.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 10, 2005 at 10:23:22AM -0700, Zwane Mwaikambo wrote:
-> On Mon, 10 Jan 2005, Roland Dreier wrote:
+William Lee Irwin III wrote:
+> On Mon, Jan 10, 2005 at 05:30:25PM -0800, Linus Torvalds wrote:
 > 
-> > Add "PCI:" prefixes and fix up the formatting and grammar of printks
-> > in drivers/pci/msi.c.  The main motivation was to fix the shouting
-> > "MSI INIT SUCCESS" message printed when an MSI-using driver is first
-> > started, but while we're at it we might as well tidy up all the messages.
+>>I don't think ioaddr_t needs to match resources. None of the IO accessor
+>>functions take "u64"s anyway - and aren't likely to do so in the future
+>>either - so "unsigned long" should be good enough.
+>>Having u64 for resource handling is mainly an issue for RAM and
+>>memory-mapped IO (right now the 32-bit limit means that we throw away
+>>information about stuff above the 4GB mark from the e820 interfaces on
+>>x86, for example - that _happens_ to work because we never see anything 
+>>but RAM there anyway, but it means that /proc/iomem doesn't show all of 
+>>the system RAM, and it does mean that our resource management doesn't 
+>>actually handle 64-bit addresses correctly. 
+>>See drivers/pci/probe.c for the result:
+>>	"PCI: Unable to handle 64-bit address for device xxxx"
+>>(and I do not actually think this has _ever_ happened in real life, which 
+>>makes me suspect that Windows doesn't handle them either - but it 
+>>inevitably will happen some day).
 > 
-> I reckon just get rid of that MSI init success message entirely.
+> 
+> I have a vague recollection of seeing a report of an ia32 device and/or
+> machine with this property from John Fusco but am having a tough time
+> searching the archives properly for it. I do recall it being around the
+> time the remap_pfn_range() work was started, and I also claimed it as
+> one of the motivators of it in one of my posts. I'm unaware of whether
+> there are more general resources in John Fusco's situation.
+> 
+> My follow-ups began with:
+> Message-ID: <20040924021735.GL9106@holomorphy.com>
+> References: <41535AAE.6090700@yahoo.com>
 
-I agree.  Roland, care to change it?
+http://marc.theaimsgroup.com/?l=linux-mm&m=109598180125156&w=2
 
-thanks,
-
-greg k-h
+-- 
+~Randy

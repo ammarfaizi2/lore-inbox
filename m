@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262329AbTIUEwg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 00:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbTIUEwf
+	id S262331AbTIUFXi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 01:23:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262333AbTIUFXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 00:52:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:34277 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262329AbTIUEwf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 00:52:35 -0400
-Date: Sat, 20 Sep 2003 21:51:52 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: gaxt <gaxt@rogers.com>
+	Sun, 21 Sep 2003 01:23:38 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2006 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262331AbTIUFXh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 01:23:37 -0400
+Date: Sun, 21 Sep 2003 06:23:36 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Matthew Wilcox <willy@debian.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test5-mm3 VFAT File system problem
-Message-Id: <20030920215152.5e5b318c.rddunlap@osdl.org>
-In-Reply-To: <3F6C543D.7080706@rogers.com>
-References: <3F6C543D.7080706@rogers.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: What's the point of __KERNEL_SYSCALLS__?
+Message-ID: <20030921052335.GE7665@parcelfarce.linux.theplanet.co.uk>
+References: <20030919164044.GF21596@parcelfarce.linux.theplanet.co.uk> <20030921045411.GC13172@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030921045411.GC13172@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Sep 2003 09:21:01 -0400 gaxt <gaxt@rogers.com> wrote:
+> --- drivers/media/dvb/frontends/alps_tdlb7.c	29 Jul 2003 17:25:42 -0000	1.2
+> +++ drivers/media/dvb/frontends/alps_tdlb7.c	21 Sep 2003 04:01:52 -0000
+[snip]
+> @@ -161,25 +158,25 @@ static int sp8870_read_code(const char *
+>  	loff_t l;
+>  	char *dp;
+>  
+> -	fd = open(fn, 0, 0);
+> +	fd = sys_open(fn, 0, 0);
 
-| Upon moving from -mm2 to -mm3, my vfat filesystems did not automatically 
-| bount at bootup as per the fstab and could not be accessed by 
-| applications in Gnome ie. my mount point showed no subdirectories or files.
-| 
-| I could manually mount (not by mount /mnt/win_c but by the full mount -t 
-| vfat /dev/hda1 /mnt/win_c) and I could explore using ls in terminals but 
-| programs in Gnome could not open the filesystem.
-| 
-| Upon rebooting into -mm2 everything was fine again.
+*Ugh*
 
-Please post your /etc/fstab file.
-
-Thanks,
---
-~Randy
+What context is it executed in?  I'd tried to trace the potential callers,
+but I don't see immediate reasons to believe that it never can happen in
+user task context.  It either should be shown (and commented) or we'd
+better switch to filp_open() and friends.  Descriptor tables can be shared...

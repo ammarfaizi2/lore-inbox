@@ -1,71 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262296AbSL2Xqi>; Sun, 29 Dec 2002 18:46:38 -0500
+	id <S262384AbSL2Xsg>; Sun, 29 Dec 2002 18:48:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262326AbSL2Xqi>; Sun, 29 Dec 2002 18:46:38 -0500
-Received: from packet.digeo.com ([12.110.80.53]:31479 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262296AbSL2Xqh>;
-	Sun, 29 Dec 2002 18:46:37 -0500
-Message-ID: <3E0F8B4C.568C018C@digeo.com>
-Date: Sun, 29 Dec 2002 15:54:52 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: khromy <khromy@lnuxlab.ath.cx>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.53-mm3: xmms: page allocation failure. order:5, mode:0x20
-References: <20021229202610.GA24554@lnuxlab.ath.cx> <3E0F5E2C.70F7D112@digeo.com> <20021229233236.GA25035@lnuxlab.ath.cx>
-Content-Type: text/plain; charset=us-ascii
+	id <S262392AbSL2Xsg>; Sun, 29 Dec 2002 18:48:36 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:6016
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262384AbSL2Xsf>; Sun, 29 Dec 2002 18:48:35 -0500
+Subject: Re: Micron Samurai chipset in 2.4.x (ide-pci.c)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Stephen Brown <sbrown7@umbc.edu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L.01.0212291740470.13872-100000@linux3.gl.umbc.edu>
+References: <Pine.LNX.4.44L.01.0212291740470.13872-100000@linux3.gl.umbc.edu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Dec 2002 23:54:52.0801 (UTC) FILETIME=[AE3CE710:01C2AF95]
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 30 Dec 2002 00:37:56 +0000
+Message-Id: <1041208676.1172.0.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-khromy wrote:
-> 
-> On Sun, Dec 29, 2002 at 12:42:20PM -0800, Andrew Morton wrote:
-> > khromy wrote:
-> > >
-> > > Running 2.5.53-mm3, I found the following in dmesg.  I don't remember
-> > > getting anything like this with 2.5.53-mm3.
-> > >
-> > > xmms: page allocation failure. order:5, mode:0x20
-> >
-> > gack.  Someone is requesting 128k of memory with GFP_ATOMIC.  It fell
-> > afoul of the reduced memory reserves.  It deserved to.
-> >
-> > Could you please add this patch, and make sure that you have set
-> > CONFIG_KALLSYMS=y?  This will find the culprit.
-> 
-> XFree86: page allocation failure. order:0, mode:0xd0
-> Call Trace:
->  [<c012a3dd>] __alloc_pages+0x255/0x264
->  [<c012a414>] __get_free_pages+0x28/0x60
->  [<c012c7e6>] cache_grow+0xb6/0x20c
->  [<c012c9cf>] __cache_alloc_refill+0x93/0x220
->  [<c012cb96>] cache_alloc_refill+0x3a/0x58
->  [<c012cf1d>] kmem_cache_alloc+0x45/0xc8
->  [<c017e36c>] journal_alloc_journal_head+0x10/0x68
->  [<c017e458>] journal_add_journal_head+0x80/0x120
+Send me an lspci and dmesg of the IDE bits from the failed and ok case
+and I'll see if I can see how to do a workaround
 
-oops, sorry.  They're all expected.  I'd like to know where
-the 5-order failure during xmms usage came from.  Were you
-using a CDROM at the time??
-
-This should tell us, thanks:
-
-
---- 25/mm/page_alloc.c~a	Sun Dec 29 15:52:29 2002
-+++ 25-akpm/mm/page_alloc.c	Sun Dec 29 15:52:47 2002
-@@ -547,6 +547,8 @@ nopage:
- 		printk("%s: page allocation failure."
- 			" order:%d, mode:0x%x\n",
- 			current->comm, order, gfp_mask);
-+		if (order > 3)
-+			dump_stack();
- 	}
- 	return NULL;
- }
-
-_

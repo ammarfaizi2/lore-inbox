@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268746AbUJSMs4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268878AbUJSMvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268746AbUJSMs4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 08:48:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268751AbUJSMsz
+	id S268878AbUJSMvN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 08:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268751AbUJSMvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 08:48:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21990 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268746AbUJSMsy
+	Tue, 19 Oct 2004 08:51:13 -0400
+Received: from vuosaari.hai.fi ([62.142.210.66]:6532 "EHLO vuosaari.hai.fi")
+	by vger.kernel.org with ESMTP id S268878AbUJSMvL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 08:48:54 -0400
-Date: Tue, 19 Oct 2004 13:48:50 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Delete drivers/pci/syscall.c?
-Message-ID: <20041019124850.GM16153@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Tue, 19 Oct 2004 08:51:11 -0400
+Date: Tue, 19 Oct 2004 15:51:10 +0300 (EEST)
+From: =?iso-8859-1?Q?Tero_Grundstr=F6m?= <tero@vuosaari.hai.fi>
+To: Stuart Longland <stuartl@longlandclan.hopto.org>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       CK Kernel <ck@vds.kolivas.org>
+Subject: Re: [ck] 2.6.9-ck1
+In-Reply-To: <41750A2A.60306@longlandclan.hopto.org>
+Message-ID: <Pine.LNX.4.58.0410191550000.8316@vuosaari.hai.fi>
+References: <4174F6DB.3000304@kolivas.org> <Pine.LNX.4.58.0410191522331.8316@vuosaari.hai.fi>
+ <41750A2A.60306@longlandclan.hopto.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 19 Oct 2004, Stuart Longland wrote:
 
-Linus, I noticed you touching drivers/pci/syscall.c which made me look
-a bit more carefully at that file.  It is broken for machines with
-overlapping PCI bus numbers in separate domains.  There's basically no
-way to fix this unless we encode the domain into the upper bits of the
-bus number.
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> Tero Grundström wrote:
+> > Hi,
+> >
+> > I just wonder, shouldn't this release be named 2.6.9-rc4-ck3? I don't see
+> > 2.6.9 final released yet.
+> >
+>
+> 2.6.9 has been released -- at least it's available on mirror.aarnet.edu.au.
 
-The information is already available through /proc and /sys.  It's hooked
-into the syscall tables of alpha, arm, ia64, ppc, ppc64, sparc and
-sparc64.  Whatever's using those syscalls must have some kind of backup
-strategy for grovelling around in files.
+Yep, upgrading already :)
 
-What would break if we just made those syscalls return -ENOSYS?
-
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+--
+T.G.

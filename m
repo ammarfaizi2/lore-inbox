@@ -1,77 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292259AbSBTT4k>; Wed, 20 Feb 2002 14:56:40 -0500
+	id <S292273AbSBTUCU>; Wed, 20 Feb 2002 15:02:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292262AbSBTT4d>; Wed, 20 Feb 2002 14:56:33 -0500
-Received: from tomts21-srv.bellnexxia.net ([209.226.175.183]:2296 "EHLO
-	tomts21-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S292253AbSBTTzW>; Wed, 20 Feb 2002 14:55:22 -0500
-Date: Wed, 20 Feb 2002 14:54:44 -0800
-From: Jason Yan <jasonyanjk@yahoo.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: initialize page tables --  Re: paging question
-X-mailer: FoxMail 4.0 beta 2 [cn]
-Message-Id: <20020220195513.EIBW1236.tomts21-srv.bellnexxia.net@abc337>
+	id <S292255AbSBTUCP>; Wed, 20 Feb 2002 15:02:15 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:8642 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S292273AbSBTUAp>; Wed, 20 Feb 2002 15:00:45 -0500
+Message-Id: <200202201913.MAA13519@tstac.esa.lanl.gov>
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: Miles Lane <miles@megapathdsl.net>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.5 -- filesystems.c:30: In function `sys_nfsservctl': dereferencing pointer to incomplete type
+Date: Wed, 20 Feb 2002 12:59:18 -0700
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <1014228802.6910.29.camel@turbulence.megapathdsl.net>
+In-Reply-To: <1014228802.6910.29.camel@turbulence.megapathdsl.net>
+Cc: Dave Jones <davej@suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you Dick
+On Wednesday 20 February 2002 11:13 am, Miles Lane wrote:
+> This has been reported by someone else, but the .config
+> information was not included in the report.  Hopefully,
+> this will help.
 
-Oops, I use a wrong subject, what I want to ask is how the pg0 be initialized
+[Config info snipped]
 
-in head.S,
-
-395 .org 0x2000
-396 ENTRY(pg0)
-
-so $pg0-__PAGE_OFFSET = 0x2000 - 0xC0000000 = 40002000, how comes bff00000 ?
-
->84 movl $pg0-_PAGE_OFFSET,%edi
-
-%edi = bff00000 (or 40002000) ?
-
->87 2:      stosl
-
-that's  move %eax  to  %es:%edi, __KERNEL_DS = 0x18, so %es is 0x18, according the gdt_table, 0x00cf92000000ffff, the base linear address is 0x00000000, that means
-%es:%edi = bff00000 (or 40002000), how can the %eax be moved into an nonexist ram, 
-cause at that time, no page directory and and page table yet.
-
-Anyway, thank you for your help.
-
-Regards,
-
-Jason  
-
->> 48         cld
->> 49         movl $(__KERNEL_DS),eax
->> 50         movl eax,ds
->> 51         movl eax,es
->> 52         movl eax,fs
->> 53         movl eax,gs
->> 81 /*
->> 82  * Initialize page tables
->> 83  */
->> 84         movl $pg0-__PAGE_OFFSET,edi /* initialize page tables */
->> 85         movl $007,eax  /* "007" doesn't mean with right to kill, but
->> 86                                    PRESENT+RW+USER */
->> 87 2:      stosl
->> 88         add $0x1000,eax
->> 89         cmp $empty_zero_page-__PAGE_OFFSET,edi
->> 90         jne 2b
->>    
->> I remove the SMP code.  According the setup.S, gdt_table is setup as
->> gdt_table:		
->> 			#.quad 0x0000000000000000;	// null
->> 			#.quad 0x0000000000000000;	// not used
->> 			#.quad 0x00cf9a000000ffff;	// 0x10 kernel 4GB code at 0x00000000
->> 			#.quad 0x00cf92000000ffff;	// 0x18 kernel 4GB data at 0x00000000
->> 
->> 1) So, what's in eax after line 49 ?  0x0 ?
->> 2) Isn't __PAGE_OFFSET 0xC0000000 ? what's the result of $pg0-__PAGE_OFFSET ?
->> 
->> Thanks,
->> 
->> Jason
 >
+> gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+> -pipe -mpreferred-stack-boundary=2 -march=athlon
+> -DKBUILD_BASENAME=filesystems  -DEXPORT_SYMTAB -c filesystems.c
+> filesystems.c: In function `sys_nfsservctl':
+> filesystems.c:30: dereferencing pointer to incomplete type
+
+You could try this small patch.  The 2.5.5-pre1 version of filesystems.c
+used #if defined (CONFIG_NFSD_MODULE) around most of this code, 
+so perhaps this will be correct.
+
+Steven
+
+--- linux-2.5.5/fs/filesystems.c.orig	Wed Feb 20 07:52:36 2002
++++ linux-2.5.5/fs/filesystems.c	Wed Feb 20 12:35:42 2002
+@@ -22,7 +22,7 @@
+ {
+ 	int ret = -ENOSYS;
+ 	
+-#if defined(CONFIG_MODULES)
++#if defined(CONFIG_NFSD_MODULE)
+ 	lock_kernel();
+ 
+ 	if (nfsd_linkage ||
 
 

@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261966AbRESSfi>; Sat, 19 May 2001 14:35:38 -0400
+	id <S261230AbRESTBW>; Sat, 19 May 2001 15:01:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261956AbRESSf2>; Sat, 19 May 2001 14:35:28 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:25362 "EHLO
+	id <S261956AbRESTBC>; Sat, 19 May 2001 15:01:02 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:36626 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261950AbRESSfR>; Sat, 19 May 2001 14:35:17 -0400
-Date: Sat, 19 May 2001 11:34:48 -0700 (PDT)
+	id <S261230AbRESTAu>; Sat, 19 May 2001 15:00:50 -0400
+Date: Sat, 19 May 2001 12:00:41 -0700 (PDT)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Ben LaHaise <bcrl@redhat.com>, Alexander Viro <viro@math.psu.edu>,
-        Andrew Morton <andrewm@uow.edu.au>, Andries.Brouwer@cwi.nl,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-In-Reply-To: <E1519Xe-00005c-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0105191132420.14472-100000@penguin.transmeta.com>
+To: Pavel Machek <pavel@suse.cz>
+cc: James Simmons <jsimmons@transvirtual.com>,
+        Alexander Viro <viro@math.psu.edu>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: no ioctls for serial ports? [was Re: LANANA: To Pending Device
+ Number Registrants]
+In-Reply-To: <20010519122328.C31814@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.21.0105191152130.14472-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 19 May 2001, Alan Cox wrote:
->
-> > Now that I'm awake and refreshed, yeah, that's awful.  But
-> > echo "hot-add,slot=5,device=/dev/sda" >/dev/md0/control *is* sane.  Heck,
-> > the system can even send back result codes that way.
-> 
-> Only to an English speaker. I suspect Quebec City canadians would prefer a
-> different command set.
+[ Attribution is gone, so I just deleted it.. ]
 
-I was waiting for the "anglo-saxon" argument.
+> > > > 	fd = open("/dev/tty00/nonblock,9600,n8", O_RDWR);
+> > >
+> > > Hmm, there might be problem with this. How do you change speed without
+> > > reopening device? [Remember: your mice knows when you close device]
 
-I don't think it's a valid argument. You already have "/dev". You already
-have english names for the numbers in ioctl's (and let's not be mentally
-dishonest and say "numbers are cross-cultural", because NOBODY MUST EVER
-USE THE RAW NUMBERS - you have to use the anglo-saxon #define'd names
-because the numbers aren't even cross-platform on Linux, much less
-portable to other systems).
+The naming scheme is not a replacement for these kinds of ioctl's - it's
+just a way to make them less critical, and get people thinking in other
+directions so that we don't get _more_ ioctl's.
 
-So the "English is bad" argument is a complete non-argument.
+Remember, the serial lines we already have legacy support for, that's not
+going away. The termios-based stuff isn't Linux-only, and we'll
+obviously maintain it for the forseeable future.
+
+But if we can use naming to avoid ioctl's in the future, then THAT is
+good. I'm in particular thinking about frame-buffer and similar things,
+where we might be able to avoid making the situation worse.
+
+And remember where this discussion started: not ioctl's, but device
+numbers. The _biggest_ advantage of naming may be to get rid of the need
+for extra major and minor numbers, and cleaning up /dev in the process-
 
 		Linus
 

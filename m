@@ -1,29 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132807AbRDDMwl>; Wed, 4 Apr 2001 08:52:41 -0400
+	id <S132813AbRDDM7w>; Wed, 4 Apr 2001 08:59:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132809AbRDDMwc>; Wed, 4 Apr 2001 08:52:32 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:43533 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132807AbRDDMwV>; Wed, 4 Apr 2001 08:52:21 -0400
-Subject: Re: uninteruptable sleep (D state => load_avrg++)
-To: christophe.barbe@lineo.fr (christophe barbe)
-Date: Wed, 4 Apr 2001 13:53:34 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20010404141349.A6702@pc8.inup.com> from "christophe barbe" at Apr 04, 2001 02:13:49 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132818AbRDDM7m>; Wed, 4 Apr 2001 08:59:42 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:36108 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S132813AbRDDM7g>;
+	Wed, 4 Apr 2001 08:59:36 -0400
+Date: Wed, 4 Apr 2001 13:57:40 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Fabio Riccardi <fabio@chromium.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: a quest for a better scheduler
+In-Reply-To: <E14kbH2-0000qX-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0104041351400.4611-100000@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14kmn2-0001sb-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The sleep should certainly be interruptible and I that's what I said to t=
-> he GFS guy.
-> But what the reason to increment the load average for each D process ?
 
-D indicates short term I/O wait. This is how unix has always computed the
-laod average.
+On Wed, 4 Apr 2001, Alan Cox wrote:
+
+> The problem has always been - alternative scheduler, crappier
+> performance for 2 tasks running (which is most boxes). [...]
+
+it's not only the 2-task case, but also less flexibility or lost
+semantics.
+
+> Indeed. I'd love to see you beat tux entirely in userspace. It proves
+> the rest of the API for the kernel is right
+
+well, until the cost of entry into the kernel is eliminated, this is not
+possible - unless there are performance bugs in TUX :-)
+
+but yes, getting a userspace solution that gets 'close enough' in eg.
+SPECweb99 benchmarks (which is complex enough to be trusted as a generic
+performance metric) would be a nice thing to have. There are existing
+SIGIO based, multithreaded solutions (eg. phttpd), with varying success.
+
+	Ingo
 

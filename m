@@ -1,58 +1,143 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130971AbRCFPik>; Tue, 6 Mar 2001 10:38:40 -0500
+	id <S130970AbRCFP4a>; Tue, 6 Mar 2001 10:56:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130977AbRCFPia>; Tue, 6 Mar 2001 10:38:30 -0500
-Received: from rhinocomputing.com ([161.58.241.147]:32271 "EHLO
-	rhinocomputing.com") by vger.kernel.org with ESMTP
-	id <S130971AbRCFPiQ>; Tue, 6 Mar 2001 10:38:16 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15013.1126.621871.683720@rhino.thrillseeker.net>
-Date: Tue, 6 Mar 2001 10:38:14 -0500
-From: Billy Harvey <Billy.Harvey@thrillseeker.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-        linux-thinkpad@www.bm-soft.com
-Subject: -ac11 sound card, anacron, suspend errors on Thinkpad A20p
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+	id <S130981AbRCFP4V>; Tue, 6 Mar 2001 10:56:21 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:48985 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S130970AbRCFP4O>; Tue, 6 Mar 2001 10:56:14 -0500
+Date: Tue, 6 Mar 2001 09:56:09 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200103061556.JAA94341@tomcat.admin.navo.hpc.mil>
+To: schwab@suse.de, Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Subject: Re: binfmt_script and ^M
+Cc: Paul Flinders <paul@dawa.demon.co.uk>,
+        Paul Flinders <P.Flinders@ftel.co.uk>, Jeff Mcadams <jeffm@iglou.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        John Kodis <kodis@mail630.gsfc.nasa.gov>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel@vger.kernel.org, bug-bash@gnu.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When using -ac11 (otherwise stable) I've noticed the following sound
-card messages when unplugging or plugging in my Thinkpad:
+---------  Received message begins Here  ---------
 
-Mar  6 09:53:17 localhost kernel: cs461x: AC'97 read problem (ACSTS_VSTS), reg = 0x1a
-Mar  6 09:53:17 localhost kernel: cs461x: AC'97 read problem (ACSTS_VSTS), reg = 0x1a
-Mar  6 09:53:18 localhost apmd[194]: Now using Battery Power
-Mar  6 09:53:18 localhost kernel: cs461x: AC'97 read problem (ACSTS_VSTS), reg = 0x1a
-Mar  6 09:53:32 localhost last message repeated 10 times
-Mar  6 09:53:32 localhost apmd[194]: Now using AC Power
-Mar  6 09:53:32 localhost apmd[194]: Charge: * * * (99% 1:59)
-Mar  6 09:53:32 localhost anacron[20263]: Anacron 2.3 started on 2001-03-06
-Mar  6 09:53:32 localhost anacron[20263]: Normal exit (0 jobs run)
-Mar  6 09:53:32 localhost kernel: cs461x: AC'97 read problem (ACSTS_VSTS), reg = 0x1a
-Mar  6 09:55:16 localhost last message repeated 64 times
-Mar  6 09:55:23 localhost last message repeated 17 times
-Mar  6 09:55:25 localhost apmd[194]: Now using Battery Power
-Mar  6 09:55:25 localhost apmd[194]: Battery: * * * (99% unknown)
-Mar  6 09:55:26 localhost kernel: cs461x: AC'97 read problem (ACSTS_VSTS), reg = 0x1a
-Mar  6 09:55:28 localhost last message repeated 5 times
-Mar  6 09:55:29 localhost apmd[194]: Now using AC Power
-Mar  6 09:55:29 localhost apmd[194]: Charge: * * * (99% unknown)
-Mar  6 09:55:29 localhost anacron[20333]: Anacron 2.3 started on 2001-03-06
-Mar  6 09:55:29 localhost anacron[20333]: Normal exit (0 jobs run)
-Mar  6 09:55:29 localhost kernel: cs461x: AC'97 read problem (ACSTS_VSTS), reg = 0x1a
+> 
+> Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil> writes:
+> 
+> |> Andreas Schwab <schwab@suse.de>:Andreas Schwab <schwab@suse.de>Andreas Schwab <schwab@suse.de>
+> |> > Paul Flinders <paul@dawa.demon.co.uk> writes:
+> |> > 
+> |> > |> Andreas Schwab wrote:
+> |> > |> 
+[snip]
+> |> > |> It's a difficult one - logically white space should terminate the interpreter
+> |> > 
+> |> > No, IFS-whitespace delimits arguments in the Bourne shell.
+> |> 
+> |> IFS can be defined in the environment.
+> 
+> No, the shell won't import it.
 
-The Anacron restart was curious, but I haven't noticed either of these
-messages previously.  The "buttons" on TKMixer would cycle as if being
-activated after this event too.  Restarting TKMixer solves both the
-cycling problem and the sound messages.  This is repeatable, and the
-AC'97 message doesn't occur if TKMixer isn't running.  The
-Anacron message occurs with or without TKMixer's involvment.
+I wasn't directly referring to the bourn shell or bash. The "shell" is whatever
+program is specified on the "#!<shellprog>". The arbitrary <shellprog> could
+import it, depending on the definition. (IFS=....; export IFS). If <shellprog>
+imports it then it could be used, but only after the <shellprog> is running.
 
-Suspend has not worked for quite a while in the 2.4 kernel series (I
-can't remember when it last did, but it *did*).  Anyone have a
-APM/ACPI configuration for the 2.4 that seems to work?
+By default, IFS is a non-exported environment variable. It can be exported
+to other programs if desired, those other programs can be used in
+"#!<shellprog>" constructs.
 
-Billy
+And some systems do import IFS. IRIX bourn shell will import it:
+
+tomcat 54% sh
+$ echo "..${IFS}.."
+.. 
+..
+tomcat 54% sh
+$ echo "..${IFS}.."	--(default: space, tab and \n")
+.. 
+..
+$ IFS="         ^M" 	--(space, tab and \r)
+$ export IFS
+$ echo "..${IFS}.."
+.. 
+$ sh			-- new subshell
+$ echo "..${IFS}.."
+.. 			-- space, tab and \r.
+$ 
+
+The same test on bash shows that it will not import it:
+
+bash-2.04$ bash
+bash-2.04$ echo "..${IFS}.."
+.. 
+..
+bash-2.04$ IFS=" ^M"
+bash-2.04$ export IFS
+bash-2.04$ echo "..${IFS}.."
+.. 
+bash-2.04$ bash
+bash-2.04$ echo "..${IFS}.."
+.. 
+..
+bash-2.04$
+
+The same test done on ash shows that it will import it:
+
+bash-2.04$ ash
+$ echo "..${IFS}.."
+.. 
+..
+$ IFS="         ^M"
+$ export IFS
+$ echo "..${IFS}.."
+.. 
+$ ash
+$ echo "..${IFS}.."
+.. 
+$ 
+
+The csh shell, on the other hand, doesn't use IFS. It always uses blank or tab
+unless they are escaped with \ or are enclosed in quotes.
+
+Personally, I wouldn't want to change the kernel. There is no good way to
+determine which error should be given: the script doesn't exist, or the
+shell doesn't exist. Either may be nonexistant, and there is only two
+possibilities. First do a "ls -l" on the script (must be readable as well
+as executable, second do a "ls -l 'line' where line is the first line
+of the shell script, minus the "#!". Sometimes it takes a vi/emacs/...
+session to look for any funny characters.
+
+The first case is that the shell script doesn't exist. This is reported
+by the users command interpreter. The second case is reported by the
+kernel. If all that is wanted is to change the format of the message, then
+that should be doable - it has to report a different error than "No such
+file..." which is the standard error status for this error. Just because the
+file that isn't found is the shell program is no reason to change the status -
+it really IS "No such file...". There will be some programs that depend
+on this status return (menu/window managers come to mind) to issue an
+appropriate status.
+
+If the error is "Permission denied", then the equivalent situation exists.
+The difference is that the "ls" alone is enough to determine why. (permission
+may be denied for the shell program as well as the script).
+
+A case can be made that the shell programs (bash/ash/csh...) do not do a
+complete analysis of the exit status. All they appear to do is a "perror".
+
+If the command does exist, then assume it is the shell program that is
+missing?? I would implement this by doing a "stat" on the command path (if
+it doesn't exist/permission denied/whatever - issue message about the command
+path), then do the exec, followed by the return status analysis. Of course
+this isn't easy when using execl, which is why it isn't done - perhaps a
+change to the exec.. library funtions?
+
+This is a user mode issue and not a kernel issue.
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

@@ -1,79 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267381AbUIFBfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267382AbUIFBh3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267381AbUIFBfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 21:35:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267382AbUIFBfZ
+	id S267382AbUIFBh3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 21:37:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267380AbUIFBh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 21:35:25 -0400
-Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:42083 "HELO
-	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267381AbUIFBfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 21:35:10 -0400
-Message-ID: <413BBECB.1060400@yahoo.com.au>
-Date: Mon, 06 Sep 2004 11:35:07 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040726 Debian/1.7.1-4
-X-Accept-Language: en
+	Sun, 5 Sep 2004 21:37:29 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:30876 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S267382AbUIFBhF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 21:37:05 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Jens Axboe <axboe@suse.de>
+Date: Mon, 6 Sep 2004 11:36:50 +1000
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Arjan van de Ven <arjanv@redhat.com>,
-       "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/3] beat kswapd with the proverbial clue-bat
-References: <413AA7B2.4000907@yahoo.com.au>  <20040904230210.03fe3c11.davem@davemloft.net>  <413AAF49.5070600@yahoo.com.au> <413AE6E7.5070103@yahoo.com.au>  <Pine.LNX.4.58.0409051021290.2331@ppc970.osdl.org> <1094405830.2809.8.camel@laptop.fenrus.com> <Pine.LNX.4.58.0409051051120.2331@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0409051051120.2331@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16699.48946.29579.495180@cse.unsw.edu.au>
+Cc: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
+Subject: Re: bug in md write barrier support?
+In-Reply-To: message from Jens Axboe on Saturday September 4
+References: <20040903172414.GA6771@lst.de>
+	<16697.4817.621088.474648@cse.unsw.edu.au>
+	<20040904082121.GB2343@suse.de>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Saturday September 4, axboe@suse.de wrote:
+> On Sat, Sep 04 2004, Neil Brown wrote:
+> > On Friday September 3, hch@lst.de wrote:
+> > > md_flush_mddev just passes on the sector relative to the raid device,
+> > > shouldn't it be translated somewhere?
+> > 
+> > Yes.  md_flush_mddev should simply be removed.  
+> > The functionality should be, and largely is, in the individual
+> > personalities. 
+> 
+> Yes, sorry I was a little lazy there even though I followed the plugging
+> conversion :(
+> 
+> > Is there documentation somewhere on exactly what an issue_flush_fn
+> > should do (is it  allowed to sleep? what must happen before it is
+> > allowed to return, what is the "error_sector" for,  that sort of thing).
+> 
+> It is allowed to sleep, you should return when the flush is complete.
+> error_sector is the failed location, which really should be a dev,sector
+> tupple.
 
->
->On Sun, 5 Sep 2004, Arjan van de Ven wrote:
->
->>well... we have a reverse mapping now. What is stopping us from doing
->>physical defragmentation ?
->>
->
->Nothing but replacement policy, really, and the fact that not everything
->is rmappable.
->
->I think we should _normally_ honor replacement policy, the way we do now.  
->Only if we are in the situation "we have enough memory, but not enough
->high-order-pages" should we go to a separate physical defrag algorithm.
->
->
+Could I get a little more information about this function please.
+I've read through the code, and there isn't much in the way of
+examples to follow: only reiserfs uses it, only scsi-disk and ide-disk
+supports it (I think).
 
-Sure.
+It would seem that this is for write requests where b_end_io has already
+been called, indicating that the data is safe, but that maybe the data
+isn't really safe after-all, and blk_issue_flush needs to be called.
 
->So either kswapd should have a totally different mode, or there should be
->a separate "kdefragd". It would potentially also be good if it is user-
->triggerable, so that you could, for example, have a heavier defragd run
->from the daily "cron" runs - something that doesn't seem to make much
->sense from a traditional kswapd standpoint.
->
->In other words, I don't think the physical thing should be triggered at 
->all by normal memory pressure. A large-order allocation failure would 
->trigger it "somewhat", and maybe it might run very slowly in the 
->background (wake up every five minutes or so to see if it is worth doing 
->anything), and then some user-triggerable way to make it more aggressive.
->
->Does that sound sane to people?
->
->
+I would have thought that after b_end_io is called, that data should
+be safe anyway.  Not so?
 
-Not to me :P
+How do you tell a device: it is OK to just leave the data is cache,
+I'll call blk_issue_flush when I want it safe.
+Is this related to barriers are all??
 
-I think doing it just in time with kswapd and watermarks like we
-do for order 0 allocations should be fine.
-
-If you think of kswapd as "do the same freeing work the allocator
-will otherwise have to" and "provide a context for doing freeing
-work if the allocator can't" (in the !wait case)... then I think my
-changes are pretty logical.
-
-I think I confused everybody in the first email - we *do not* try
-to heed any order-3 and above watermarks if we're only doing order-2
-and below allocations... maybe this was the sticking point?
-
+NeilBrown

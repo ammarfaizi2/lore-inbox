@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266805AbTBCQpN>; Mon, 3 Feb 2003 11:45:13 -0500
+	id <S266809AbTBCQuH>; Mon, 3 Feb 2003 11:50:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266806AbTBCQpN>; Mon, 3 Feb 2003 11:45:13 -0500
-Received: from dux1.tcd.ie ([134.226.1.23]:13234 "HELO dux1.tcd.ie")
-	by vger.kernel.org with SMTP id <S266805AbTBCQpN>;
-	Mon, 3 Feb 2003 11:45:13 -0500
-Subject: CPU throttling??
-From: Seamus <assembly@gofree.indigo.ie>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <02ea01c2cb9b$9e90bbd0$15c809c6@PCJOERI01>
-References: <02ea01c2cb9b$9e90bbd0$15c809c6@PCJOERI01>
+	id <S266840AbTBCQuH>; Mon, 3 Feb 2003 11:50:07 -0500
+Received: from [217.167.51.129] ([217.167.51.129]:35779 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S266809AbTBCQuG>;
+	Mon, 3 Feb 2003 11:50:06 -0500
+Subject: Re: [BUG] vmalloc, kmalloc - 2.4.x
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1044286828.2397.26.camel@gregs>
+References: <1044284924.2402.12.camel@gregs>
+	 <1044289102.21009.1.camel@irongate.swansea.linux.org.uk>
+	 <1044286828.2397.26.camel@gregs>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1044291313.17360.4.camel@taherias.sre.tcd.ie>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1- 
-Date: 03 Feb 2003 16:55:13 +0000
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1044291724.588.68.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 03 Feb 2003 18:02:04 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a simple question,
+On Mon, 2003-02-03 at 16:40, Grzegorz Jaskiewicz wrote:
+> On Mon, 2003-02-03 at 16:18, Alan Cox wrote:
+> 
+> > Firstly vmalloc isnt permitted in interrupt context (use kmalloc with GFP_KERNEL),
+> > although for such small chunks you might want to vmalloc a bigger buffer once
+> > at startup.
+> i've allso tried kmalloc with the same result.
+> Also, in this example it is timer - module isn't cleanly wroted becouse
+> it supose to be only an example.
 
-Would it be possible to throttle cpu when machine is in idle mode in
-Linux? or is it purely a BIOS and motherboard functionality.
+I suppose you meant kmalloc with GFP_ATOMIC...
 
-As you know some modern laptops in order to save power, throttle cpu
-(lower the cpu clock cycles per sec) when in idle mode.
-
-Thanks,
-
-Seamus
-
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>

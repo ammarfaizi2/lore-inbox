@@ -1,31 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129456AbRCAMf3>; Thu, 1 Mar 2001 07:35:29 -0500
+	id <S129563AbRCAM7l>; Thu, 1 Mar 2001 07:59:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129534AbRCAMfT>; Thu, 1 Mar 2001 07:35:19 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4621 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129456AbRCAMfH>; Thu, 1 Mar 2001 07:35:07 -0500
-Subject: Re: [linux-usb-devel] USB oops Linux 2.4.2ac6
-To: david-b@pacbell.net (David Brownell)
-Date: Thu, 1 Mar 2001 12:38:13 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <113501c0a1fa$1499e5e0$6800000a@brownell.org> from "David Brownell" at Feb 28, 2001 06:48:21 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129576AbRCAM7b>; Thu, 1 Mar 2001 07:59:31 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:38272 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129563AbRCAM7Y>; Thu, 1 Mar 2001 07:59:24 -0500
+Date: Thu, 1 Mar 2001 07:59:01 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Neal Gieselman <Neal.Gieselman@Visionics.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3 fsck question
+In-Reply-To: <D0FA767FA2D5D31194990090279877DA57328F@dbimail.digitalbiometrics.com>
+Message-ID: <Pine.LNX.3.95.1010301075344.9180A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14YSLX-0007mZ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> makes it handle lowspeed devices wrong ... AMD told me I'd need
-> an NDA to learn their workaround, and I've not pursued it.  (Does
-> anyone already know what kind of NDA they use?)
+On Wed, 28 Feb 2001, Neal Gieselman wrote:
 
-It varies depending on the info. They may well be able to sort out a sane
-NDA with you. If they dont want to then I guess it would be best if the
-ohci driver printing a message explaining the component has an undocumented
-errata fix, gave AMD's phone number and refused to load..
+> I then went single user and ran fsck.ext3 on / while mounted.
+> Bad move.  It ran and reported many errors which I chose to repair.
+> It screwed the partition up to the point where it paniced on boot.
+[SNIPPED....]
+
+You must NEVER fsck a file-system that is mounted read/write. Note,
+when you `umount /`. It is still available for read/execute. You
+can execute fsck at this time.
+
+> Anyone else have luck with this combination?
+> Excuse the stupid question, but with ext3, do I really require the
+> fsck.ext3?  
+
+fsck.ext3 goes with ext3 file systems, just like fsck.ext2 goes with
+ext2. 
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 

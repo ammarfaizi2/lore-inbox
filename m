@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262933AbUB0SrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 13:47:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262895AbUB0SqY
+	id S262944AbUB0S4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 13:56:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262947AbUB0S4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 13:46:24 -0500
-Received: from hera.kernel.org ([63.209.29.2]:62413 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S262944AbUB0SoF (ORCPT
+	Fri, 27 Feb 2004 13:56:25 -0500
+Received: from waste.org ([209.173.204.2]:5863 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262944AbUB0S4P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 13:44:05 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: Intel vs AMD64
-Date: Fri, 27 Feb 2004 18:44:00 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c1o35g$ii7$1@terminus.zytor.com>
-References: <7F740D512C7C1046AB53446D37200173EA28A5@scsmsx402.sc.intel.com> <20040226133959.GA19254@dingdong.cryptoapps.com>
+	Fri, 27 Feb 2004 13:56:15 -0500
+Date: Fri, 27 Feb 2004 12:55:55 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: Why no interrupt priorities?
+Message-ID: <20040227185555.GJ3883@waste.org>
+References: <F760B14C9561B941B89469F59BA3A8470255F02D@orsmsx401.jf.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1077907440 19016 63.209.29.3 (27 Feb 2004 18:44:00 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Fri, 27 Feb 2004 18:44:00 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <F760B14C9561B941B89469F59BA3A8470255F02D@orsmsx401.jf.intel.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20040226133959.GA19254@dingdong.cryptoapps.com>
-By author:    Chris Wedgwood <cw@f00f.org>
-In newsgroup: linux.dev.kernel
+On Fri, Feb 27, 2004 at 09:44:44AM -0800, Grover, Andrew wrote:
+> > From: Helge Hafting [mailto:helgehaf@aitel.hist.no] 
+> > Grover, Andrew wrote:
+> > > Is the assumption that hardirq handlers are superfast also 
+> > the reason
+> > > why Linux calls all handlers on a shared interrupt, even if 
+> > the first
+> > > handler reports it was for its device?
+> > > 
+> > No, it is the other way around.  hardirq handlers have to be superfast
+> > because linux usually _have to_ call all the handlers of a shared irq.
+> > 
+> > The fact that one device did indeed have an interrupt for us 
+> > doesn't mean
+> > that the others didn't.  So all of them have to be checked to be safe.
 > 
-> Not that it really matters that much --- but I'm curious to know why
-> Intel made this decision?
+> If a device later in the handler chain is also interrupting, then the
+> interrupt will immediately trigger again. The irq line will remain
+> asserted until nobody is asserting it.
 > 
-> It seems really dumb to make such differences when Intel is already
-> sorely lagging behind their competitor here, I would think given the
-> circumstances Intel would try to be as compatible as possible on all
-> fronts.
+> If the LAST guy in the chain is the one with the interrupt, then you
+> basically get today's ISR "call each handler" behavior, but it should be
+> possible to in some cases to get less time spent in do_IRQ.
 
-This, and a whole bunch of the other "IA-32e differences", I think
-really should be classified as "Intel bugs."
+Let's imagine you have n sources simultaneously interrupting on a
+given descriptor. Check the first, it's happening, acknowledge it,
+exit, notice interrupt still asserted, check the first, nope, check
+the second, yep, exit, etc. By the time we've made it to the nth ISR,
+we've banged on the first one n times, the second n-1 times, etc. In
+other words, early chain termination has an O(n^2) worst case.
 
-They really have more the flavour of errata than anything else...
-
-	-hpa
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264503AbTDXXlV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 19:41:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbTDXXiG
+	id S264670AbTDYAWh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 20:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263692AbTDXXev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 19:38:06 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:17092 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264499AbTDXXeH convert rfc822-to-8bit
+	Thu, 24 Apr 2003 19:34:51 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:64689 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264473AbTDXXd6 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 19:34:07 -0400
+	Thu, 24 Apr 2003 19:33:58 -0400
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10512280533305@kroah.com>
+Message-Id: <1051228053892@kroah.com>
 Subject: Re: [PATCH] More USB fixes for 2.5.68
-In-Reply-To: <1051228053892@kroah.com>
+In-Reply-To: <10512280533216@kroah.com>
 From: Greg KH <greg@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Thu, 24 Apr 2003 16:47:33 -0700
@@ -22,560 +22,250 @@ Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1165.2.13, 2003/04/23 17:47:05-07:00, greg@kroah.com
+ChangeSet 1.1165.2.12, 2003/04/23 17:38:41-07:00, greg@kroah.com
 
-[PATCH] USB: keyspan_pda: add support for new tty tiocmget and tiocmset functions.
-
-
- drivers/usb/serial/io_edgeport.c |   80 ++++++++++++---------------------
- drivers/usb/serial/io_tables.h   |    8 +++
- drivers/usb/serial/io_ti.c       |   82 ++++++++++++----------------------
- drivers/usb/serial/keyspan.c     |   68 +++++++++++++---------------
- drivers/usb/serial/keyspan.h     |   11 ++++
- drivers/usb/serial/keyspan_pda.c |   94 ++++++++++++++++++---------------------
- 6 files changed, 156 insertions(+), 187 deletions(-)
+[PATCH] USB: ftdi_sio: add support for new tty tiocmget and tiocmset functions.
 
 
-diff -Nru a/drivers/usb/serial/io_edgeport.c b/drivers/usb/serial/io_edgeport.c
---- a/drivers/usb/serial/io_edgeport.c	Thu Apr 24 16:22:31 2003
-+++ b/drivers/usb/serial/io_edgeport.c	Thu Apr 24 16:22:31 2003
-@@ -455,6 +455,8 @@
- static void edge_set_termios		(struct usb_serial_port *port, struct termios *old_termios);
- static int  edge_ioctl			(struct usb_serial_port *port, struct file *file, unsigned int cmd, unsigned long arg);
- static void edge_break			(struct usb_serial_port *port, int break_state);
-+static int  edge_tiocmget		(struct usb_serial_port *port, struct file *file);
-+static int  edge_tiocmset		(struct usb_serial_port *port, struct file *file, unsigned int set, unsigned int clear);
- static int  edge_startup		(struct usb_serial *serial);
- static void edge_shutdown		(struct usb_serial *serial);
+ drivers/usb/serial/ftdi_sio.c |  193 ++++++++++++++++++------------------------
+ 1 files changed, 87 insertions(+), 106 deletions(-)
+
+
+diff -Nru a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
+--- a/drivers/usb/serial/ftdi_sio.c	Thu Apr 24 16:23:00 2003
++++ b/drivers/usb/serial/ftdi_sio.c	Thu Apr 24 16:23:00 2003
+@@ -175,6 +175,8 @@
+ static void ftdi_sio_write_bulk_callback (struct urb *urb, struct pt_regs *regs);
+ static void ftdi_sio_read_bulk_callback	(struct urb *urb, struct pt_regs *regs);
+ static void ftdi_sio_set_termios	(struct usb_serial_port *port, struct termios * old);
++static int  ftdi_sio_tiocmget		(struct usb_serial_port *port, struct file *file);
++static int  ftdi_sio_tiocmset		(struct usb_serial_port *port, struct file *file, unsigned int set, unsigned int clear);
+ static int  ftdi_sio_ioctl		(struct usb_serial_port *port, struct file * file, unsigned int cmd, unsigned long arg);
+ static void ftdi_sio_break_ctl		(struct usb_serial_port *port, int break_state );
  
-@@ -1762,42 +1764,27 @@
- 	return -ENOIOCTLCMD;
- }
- 
--static int set_modem_info(struct edgeport_port *edge_port, unsigned int cmd, unsigned int *value)
-+static int edge_tiocmset (struct usb_serial_port *port, struct file *file, unsigned int set, unsigned int clear)
- {
--	unsigned int mcr = edge_port->shadowMCR;
--	unsigned int arg;
--
--	if (copy_from_user(&arg, value, sizeof(int)))
--		return -EFAULT;
--
--	switch (cmd) {
--		case TIOCMBIS:
--			if (arg & TIOCM_RTS)
--				mcr |= MCR_RTS;
--			if (arg & TIOCM_DTR)
--				mcr |= MCR_RTS;
--			if (arg & TIOCM_LOOP)
--				mcr |= MCR_LOOPBACK;
--			break;
-+        struct edgeport_port *edge_port = usb_get_serial_port_data(port);
-+	unsigned int mcr;
- 
--		case TIOCMBIC:
--			if (arg & TIOCM_RTS)
--				mcr &= ~MCR_RTS;
--			if (arg & TIOCM_DTR)
--				mcr &= ~MCR_RTS;
--			if (arg & TIOCM_LOOP)
--				mcr &= ~MCR_LOOPBACK;
--			break;
-+	dbg("%s - port %d", __FUNCTION__, port->number);
- 
--		case TIOCMSET:
--			/* turn off the RTS and DTR and LOOPBACK 
--			 * and then only turn on what was asked to */
--			mcr &=  ~(MCR_RTS | MCR_DTR | MCR_LOOPBACK);
--			mcr |= ((arg & TIOCM_RTS) ? MCR_RTS : 0);
--			mcr |= ((arg & TIOCM_DTR) ? MCR_DTR : 0);
--			mcr |= ((arg & TIOCM_LOOP) ? MCR_LOOPBACK : 0);
--			break;
--	}
-+	mcr = edge_port->shadowMCR;
-+	if (set & TIOCM_RTS)
-+		mcr |= MCR_RTS;
-+	if (set & TIOCM_DTR)
-+		mcr |= MCR_DTR;
-+	if (set & TIOCM_LOOP)
-+		mcr |= MCR_LOOPBACK;
-+
-+	if (clear & TIOCM_RTS)
-+		mcr &= ~MCR_RTS;
-+	if (clear & TIOCM_DTR)
-+		mcr &= ~MCR_DTR;
-+	if (clear & TIOCM_LOOP)
-+		mcr &= ~MCR_LOOPBACK;
- 
- 	edge_port->shadowMCR = mcr;
- 
-@@ -1806,12 +1793,17 @@
- 	return 0;
- }
- 
--static int get_modem_info(struct edgeport_port *edge_port, unsigned int *value)
-+static int edge_tiocmget(struct usb_serial_port *port, struct file *file)
- {
-+        struct edgeport_port *edge_port = usb_get_serial_port_data(port);
- 	unsigned int result = 0;
--	unsigned int msr = edge_port->shadowMSR;
--	unsigned int mcr = edge_port->shadowMCR;
-+	unsigned int msr;
-+	unsigned int mcr;
-+
-+	dbg("%s - port %d", __FUNCTION__, port->number);
- 
-+	msr = edge_port->shadowMSR;
-+	mcr = edge_port->shadowMCR;
- 	result = ((mcr & MCR_DTR)	? TIOCM_DTR: 0)	  /* 0x002 */
- 		  | ((mcr & MCR_RTS)	? TIOCM_RTS: 0)   /* 0x004 */
- 		  | ((msr & MSR_CTS)	? TIOCM_CTS: 0)   /* 0x020 */
-@@ -1822,13 +1814,9 @@
- 
- 	dbg("%s -- %x", __FUNCTION__, result);
- 
--	if (copy_to_user(value, &result, sizeof(int)))
--		return -EFAULT;
--	return 0;
-+	return result;
- }
- 
--
--
- static int get_serial_info(struct edgeport_port *edge_port, struct serial_struct * retinfo)
- {
- 	struct serial_struct tmp;
-@@ -1884,16 +1872,6 @@
- 			dbg("%s (%d) TIOCSERGETLSR", __FUNCTION__,  port->number);
- 			return get_lsr_info(edge_port, (unsigned int *) arg);
- 			return 0;
--
--		case TIOCMBIS:
--		case TIOCMBIC:
--		case TIOCMSET:
--			dbg("%s (%d) TIOCMSET/TIOCMBIC/TIOCMSET", __FUNCTION__,  port->number);
--			return set_modem_info(edge_port, cmd, (unsigned int *) arg);
--
--		case TIOCMGET:  
--			dbg("%s (%d) TIOCMGET", __FUNCTION__,  port->number);
--			return get_modem_info(edge_port, (unsigned int *) arg);
- 
- 		case TIOCGSERIAL:
- 			dbg("%s (%d) TIOCGSERIAL", __FUNCTION__,  port->number);
-diff -Nru a/drivers/usb/serial/io_tables.h b/drivers/usb/serial/io_tables.h
---- a/drivers/usb/serial/io_tables.h	Thu Apr 24 16:22:31 2003
-+++ b/drivers/usb/serial/io_tables.h	Thu Apr 24 16:22:31 2003
-@@ -114,6 +114,8 @@
- 	.shutdown		= edge_shutdown,
- 	.ioctl			= edge_ioctl,
- 	.set_termios		= edge_set_termios,
-+	.tiocmget		= edge_tiocmget,
-+	.tiocmset		= edge_tiocmset,
- 	.write			= edge_write,
- 	.write_room		= edge_write_room,
- 	.chars_in_buffer	= edge_chars_in_buffer,
-@@ -137,6 +139,8 @@
- 	.shutdown		= edge_shutdown,
- 	.ioctl			= edge_ioctl,
- 	.set_termios		= edge_set_termios,
-+	.tiocmget		= edge_tiocmget,
-+	.tiocmset		= edge_tiocmset,
- 	.write			= edge_write,
- 	.write_room		= edge_write_room,
- 	.chars_in_buffer	= edge_chars_in_buffer,
-@@ -160,6 +164,8 @@
- 	.shutdown		= edge_shutdown,
- 	.ioctl			= edge_ioctl,
- 	.set_termios		= edge_set_termios,
-+	.tiocmget		= edge_tiocmget,
-+	.tiocmset		= edge_tiocmset,
- 	.write			= edge_write,
- 	.write_room		= edge_write_room,
- 	.chars_in_buffer	= edge_chars_in_buffer,
-@@ -183,6 +189,8 @@
- 	.shutdown		= edge_shutdown,
- 	.ioctl			= edge_ioctl,
- 	.set_termios		= edge_set_termios,
-+	.tiocmget		= edge_tiocmget,
-+	.tiocmset		= edge_tiocmset,
- 	.write			= edge_write,
- 	.write_room		= edge_write_room,
- 	.chars_in_buffer	= edge_chars_in_buffer,
-diff -Nru a/drivers/usb/serial/io_ti.c b/drivers/usb/serial/io_ti.c
---- a/drivers/usb/serial/io_ti.c	Thu Apr 24 16:22:31 2003
-+++ b/drivers/usb/serial/io_ti.c	Thu Apr 24 16:22:31 2003
-@@ -2403,42 +2403,27 @@
+@@ -198,6 +200,8 @@
+ 	.ioctl =		ftdi_sio_ioctl,
+ 	.set_termios =		ftdi_sio_set_termios,
+ 	.break_ctl =		ftdi_sio_break_ctl,
++	.tiocmget =		ftdi_sio_tiocmget,
++	.tiocmset =		ftdi_sio_tiocmset,
+ 	.attach =		ftdi_sio_startup,
+         .shutdown =             ftdi_sio_shutdown,
+ };
+@@ -219,6 +223,8 @@
+ 	.ioctl =		ftdi_sio_ioctl,
+ 	.set_termios =		ftdi_sio_set_termios,
+ 	.break_ctl =		ftdi_sio_break_ctl,
++	.tiocmget =		ftdi_sio_tiocmget,
++	.tiocmset =		ftdi_sio_tiocmset,
+ 	.attach =		ftdi_8U232AM_startup,
+         .shutdown =             ftdi_sio_shutdown,
+ };
+@@ -823,125 +829,100 @@
  	return;
- }
+ } /* ftdi_sio_set_termios */
  
--static int set_modem_info (struct edgeport_port *edge_port, unsigned int cmd, unsigned int *value)
-+static int edge_tiocmset (struct usb_serial_port *port, struct file *file, unsigned int set, unsigned int clear)
- {
--	unsigned int mcr = edge_port->shadow_mcr;
--	unsigned int arg;
-+        struct edgeport_port *edge_port = usb_get_serial_port_data(port);
-+	unsigned int mcr;
- 
--	if (copy_from_user(&arg, value, sizeof(int)))
--		return -EFAULT;
--
--	switch (cmd) {
--		case TIOCMBIS:
--			if (arg & TIOCM_RTS)
--				mcr |= MCR_RTS;
--			if (arg & TIOCM_DTR)
--				mcr |= MCR_RTS;
--			if (arg & TIOCM_LOOP)
--				mcr |= MCR_LOOPBACK;
--			break;
-+	dbg("%s - port %d", __FUNCTION__, port->number);
- 
--		case TIOCMBIC:
--			if (arg & TIOCM_RTS)
--				mcr &= ~MCR_RTS;
--			if (arg & TIOCM_DTR)
--				mcr &= ~MCR_RTS;
--			if (arg & TIOCM_LOOP)
--				mcr &= ~MCR_LOOPBACK;
--			break;
--
--		case TIOCMSET:
--			/* turn off the RTS and DTR and LOOPBACK 
--			 * and then only turn on what was asked to */
--			mcr &=  ~(MCR_RTS | MCR_DTR | MCR_LOOPBACK);
--			mcr |= ((arg & TIOCM_RTS) ? MCR_RTS : 0);
--			mcr |= ((arg & TIOCM_DTR) ? MCR_DTR : 0);
--			mcr |= ((arg & TIOCM_LOOP) ? MCR_LOOPBACK : 0);
--			break;
--	}
-+	mcr = edge_port->shadow_mcr;
-+	if (set & TIOCM_RTS)
-+		mcr |= MCR_RTS;
-+	if (set & TIOCM_DTR)
-+		mcr |= MCR_DTR;
-+	if (set & TIOCM_LOOP)
-+		mcr |= MCR_LOOPBACK;
-+
-+	if (clear & TIOCM_RTS)
-+		mcr &= ~MCR_RTS;
-+	if (clear & TIOCM_DTR)
-+		mcr &= ~MCR_DTR;
-+	if (clear & TIOCM_LOOP)
-+		mcr &= ~MCR_LOOPBACK;
- 
- 	edge_port->shadow_mcr = mcr;
- 
-@@ -2447,12 +2432,17 @@
- 	return 0;
- }
- 
--static int get_modem_info (struct edgeport_port *edge_port, unsigned int *value)
-+static int edge_tiocmget(struct usb_serial_port *port, struct file *file)
- {
-+        struct edgeport_port *edge_port = usb_get_serial_port_data(port);
- 	unsigned int result = 0;
--	unsigned int msr = edge_port->shadow_msr;
--	unsigned int mcr = edge_port->shadow_mcr;
-+	unsigned int msr;
-+	unsigned int mcr;
- 
-+	dbg("%s - port %d", __FUNCTION__, port->number);
-+
-+	msr = edge_port->shadow_msr;
-+	mcr = edge_port->shadow_mcr;
- 	result = ((mcr & MCR_DTR)	? TIOCM_DTR: 0)	  /* 0x002 */
- 		  | ((mcr & MCR_RTS)	? TIOCM_RTS: 0)   /* 0x004 */
- 		  | ((msr & MSR_CTS)	? TIOCM_CTS: 0)   /* 0x020 */
-@@ -2463,9 +2453,7 @@
- 
- 	dbg("%s -- %x", __FUNCTION__, result);
- 
--	if (copy_to_user(value, &result, sizeof(int)))
--		return -EFAULT;
--	return 0;
-+	return result;
- }
- 
- static int get_serial_info (struct edgeport_port *edge_port, struct serial_struct * retinfo)
-@@ -2515,18 +2503,6 @@
- //			return get_lsr_info(edge_port, (unsigned int *) arg);
- 			break;
- 
--		case TIOCMBIS:
--		case TIOCMBIC:
--		case TIOCMSET:
--			dbg("%s - (%d) TIOCMSET/TIOCMBIC/TIOCMSET", __FUNCTION__, port->number);
--			return set_modem_info(edge_port, cmd, (unsigned int *) arg);
--			break;
--
--		case TIOCMGET:  
--			dbg("%s - (%d) TIOCMGET", __FUNCTION__, port->number);
--			return get_modem_info(edge_port, (unsigned int *) arg);
--			break;
--
- 		case TIOCGSERIAL:
- 			dbg("%s - (%d) TIOCGSERIAL", __FUNCTION__, port->number);
- 			return get_serial_info(edge_port, (struct serial_struct *) arg);
-@@ -2665,6 +2641,8 @@
- 	.shutdown		= edge_shutdown,
- 	.ioctl			= edge_ioctl,
- 	.set_termios		= edge_set_termios,
-+	.tiocmget		= edge_tiocmget,
-+	.tiocmset		= edge_tiocmset,
- 	.write			= edge_write,
- 	.write_room		= edge_write_room,
- 	.chars_in_buffer	= edge_chars_in_buffer,
-@@ -2688,6 +2666,8 @@
- 	.shutdown		= edge_shutdown,
- 	.ioctl			= edge_ioctl,
- 	.set_termios		= edge_set_termios,
-+	.tiocmget		= edge_tiocmget,
-+	.tiocmset		= edge_tiocmset,
- 	.write			= edge_write,
- 	.write_room		= edge_write_room,
- 	.chars_in_buffer	= edge_chars_in_buffer,
-diff -Nru a/drivers/usb/serial/keyspan.c b/drivers/usb/serial/keyspan.c
---- a/drivers/usb/serial/keyspan.c	Thu Apr 24 16:22:31 2003
-+++ b/drivers/usb/serial/keyspan.c	Thu Apr 24 16:22:31 2003
-@@ -282,48 +282,46 @@
- 	keyspan_send_setup(port, 0);
- }
- 
--static int keyspan_ioctl(struct usb_serial_port *port, struct file *file,
--			     unsigned int cmd, unsigned long arg)
-+static int keyspan_tiocmget(struct usb_serial_port *port, struct file *file)
- {
--	unsigned int			value, set;
-+	unsigned int			value;
- 	struct keyspan_port_private 	*p_priv;
- 
- 	p_priv = usb_get_serial_port_data(port);
- 	
--	switch (cmd) {
--	case TIOCMGET:
--		value = ((p_priv->rts_state) ? TIOCM_RTS : 0) |
--			((p_priv->dtr_state) ? TIOCM_DTR : 0) |
--			((p_priv->cts_state) ? TIOCM_CTS : 0) |
--			((p_priv->dsr_state) ? TIOCM_DSR : 0) |
--			((p_priv->dcd_state) ? TIOCM_CAR : 0) |
--			((p_priv->ri_state) ? TIOCM_RNG : 0); 
--
--		if (put_user(value, (unsigned int *) arg))
--			return -EFAULT;
--		return 0;
-+	value = ((p_priv->rts_state) ? TIOCM_RTS : 0) |
-+		((p_priv->dtr_state) ? TIOCM_DTR : 0) |
-+		((p_priv->cts_state) ? TIOCM_CTS : 0) |
-+		((p_priv->dsr_state) ? TIOCM_DSR : 0) |
-+		((p_priv->dcd_state) ? TIOCM_CAR : 0) |
-+		((p_priv->ri_state) ? TIOCM_RNG : 0); 
-+
-+	return value;
-+}
-+
-+static int keyspan_tiocmset(struct usb_serial_port *port, struct file *file,
-+			    unsigned int set, unsigned int clear)
-+{
-+	struct keyspan_port_private 	*p_priv;
-+
-+	p_priv = usb_get_serial_port_data(port);
- 	
--	case TIOCMSET:
--		if (get_user(value, (unsigned int *) arg))
--			return -EFAULT;
--		p_priv->rts_state = ((value & TIOCM_RTS) ? 1 : 0);
--		p_priv->dtr_state = ((value & TIOCM_DTR) ? 1 : 0);
--		keyspan_send_setup(port, 0);
--		return 0;
--
--	case TIOCMBIS:
--	case TIOCMBIC:
--		if (get_user(value, (unsigned int *) arg))
--			return -EFAULT;
--		set = (cmd == TIOCMBIS);
--		if (value & TIOCM_RTS)
--			p_priv->rts_state = set;
--		if (value & TIOCM_DTR)
--			p_priv->dtr_state = set;
--		keyspan_send_setup(port, 0);
--		return 0;
--	}
-+	if (set & TIOCM_RTS)
-+		p_priv->rts_state = 1;
-+	if (set & TIOCM_DTR)
-+		p_priv->dtr_state = 1;
-+
-+	if (clear & TIOCM_RTS)
-+		p_priv->rts_state = 0;
-+	if (clear & TIOCM_DTR)
-+		p_priv->dtr_state = 0;
-+	keyspan_send_setup(port, 0);
-+	return 0;
-+}
- 
-+static int keyspan_ioctl(struct usb_serial_port *port, struct file *file,
-+			     unsigned int cmd, unsigned long arg)
-+{
- 	return -ENOIOCTLCMD;
- }
- 
-diff -Nru a/drivers/usb/serial/keyspan.h b/drivers/usb/serial/keyspan.h
---- a/drivers/usb/serial/keyspan.h	Thu Apr 24 16:22:31 2003
-+++ b/drivers/usb/serial/keyspan.h	Thu Apr 24 16:22:31 2003
-@@ -63,6 +63,11 @@
- 					 struct termios *old);
- static void keyspan_break_ctl		(struct usb_serial_port *port,
- 					 int break_state);
-+static int  keyspan_tiocmget		(struct usb_serial_port *port,
-+					 struct file *file);
-+static int  keyspan_tiocmset		(struct usb_serial_port *port,
-+					 struct file *file, unsigned int set,
-+					 unsigned int clear);
- static int  keyspan_fake_startup	(struct usb_serial *serial);
- 
- static int  keyspan_usa19_calc_baud	(u32 baud_rate, u32 baudclk, 
-@@ -551,6 +556,8 @@
- 	.ioctl			= keyspan_ioctl,
- 	.set_termios		= keyspan_set_termios,
- 	.break_ctl		= keyspan_break_ctl,
-+	.tiocmget		= keyspan_tiocmget,
-+	.tiocmset		= keyspan_tiocmset,
- 	.attach			= keyspan_startup,
- 	.shutdown		= keyspan_shutdown,
- };
-@@ -574,6 +581,8 @@
- 	.ioctl			= keyspan_ioctl,
- 	.set_termios		= keyspan_set_termios,
- 	.break_ctl		= keyspan_break_ctl,
-+	.tiocmget		= keyspan_tiocmget,
-+	.tiocmset		= keyspan_tiocmset,
- 	.attach			= keyspan_startup,
- 	.shutdown		= keyspan_shutdown,
- };
-@@ -597,6 +606,8 @@
- 	.ioctl			= keyspan_ioctl,
- 	.set_termios		= keyspan_set_termios,
- 	.break_ctl		= keyspan_break_ctl,
-+	.tiocmget		= keyspan_tiocmget,
-+	.tiocmset		= keyspan_tiocmset,
- 	.attach			= keyspan_startup,
- 	.shutdown		= keyspan_shutdown,
- };
-diff -Nru a/drivers/usb/serial/keyspan_pda.c b/drivers/usb/serial/keyspan_pda.c
---- a/drivers/usb/serial/keyspan_pda.c	Thu Apr 24 16:22:31 2003
-+++ b/drivers/usb/serial/keyspan_pda.c	Thu Apr 24 16:22:31 2003
-@@ -457,62 +457,54 @@
- 	return rc;
- }
- 
-+static int keyspan_pda_tiocmget(struct usb_serial_port *port, struct file *file)
-+{
-+	struct usb_serial *serial = port->serial;
-+	int rc;
-+	unsigned char status;
-+	int value;
- 
--static int keyspan_pda_ioctl(struct usb_serial_port *port, struct file *file,
--			     unsigned int cmd, unsigned long arg)
-+	rc = keyspan_pda_get_modem_info(serial, &status);
-+	if (rc < 0)
-+		return rc;
-+	value =
-+		((status & (1<<7)) ? TIOCM_DTR : 0) |
-+		((status & (1<<6)) ? TIOCM_CAR : 0) |
-+		((status & (1<<5)) ? TIOCM_RNG : 0) |
-+		((status & (1<<4)) ? TIOCM_DSR : 0) |
-+		((status & (1<<3)) ? TIOCM_CTS : 0) |
-+		((status & (1<<2)) ? TIOCM_RTS : 0);
-+	return value;
-+}
-+
-+static int keyspan_pda_tiocmset(struct usb_serial_port *port, struct file *file,
-+				unsigned int set, unsigned int clear)
+-static int ftdi_sio_ioctl (struct usb_serial_port *port, struct file * file, unsigned int cmd, unsigned long arg)
++static int ftdi_sio_tiocmget (struct usb_serial_port *port, struct file *file)
  {
  	struct usb_serial *serial = port->serial;
- 	int rc;
--	unsigned int value;
--	unsigned char status, mask;
-+	unsigned char status;
+ 	struct ftdi_private *priv = usb_get_serial_port_data(port);
+-	__u16 urb_value=0; /* Will hold the new flags */
+-	char buf[2];
+-	int  ret, mask;
++	char *buf = NULL;
++	int ret = -EINVAL;
++	int size;
+ 	
+-	dbg("%s cmd 0x%04x", __FUNCTION__, cmd);
++	dbg("%s", __FUNCTION__);
  
-+	rc = keyspan_pda_get_modem_info(serial, &status);
-+	if (rc < 0)
-+		return rc;
+-	/* Based on code from acm.c and others */
+-	switch (cmd) {
++	buf = kmalloc(2, GFP_KERNEL);
++	if (!buf)
++		goto exit;
+ 
+-	case TIOCMGET:
+-		dbg("%s TIOCMGET", __FUNCTION__);
+-		if (priv->ftdi_type == sio){
+-			/* Request the status from the device */
+-			if ((ret = usb_control_msg(serial->dev, 
+-						   usb_rcvctrlpipe(serial->dev, 0),
+-						   FTDI_SIO_GET_MODEM_STATUS_REQUEST, 
+-						   FTDI_SIO_GET_MODEM_STATUS_REQUEST_TYPE,
+-						   0, 0, 
+-						   buf, 1, WDR_TIMEOUT)) < 0 ) {
+-				err("%s Could not get modem status of device - err: %d", __FUNCTION__,
+-				    ret);
+-				return(ret);
+-			}
+-		} else {
+-			/* the 8U232AM returns a two byte value (the sio is a 1 byte value) - in the same 
+-			   format as the data returned from the in point */
+-			if ((ret = usb_control_msg(serial->dev, 
+-						   usb_rcvctrlpipe(serial->dev, 0),
+-						   FTDI_SIO_GET_MODEM_STATUS_REQUEST, 
+-						   FTDI_SIO_GET_MODEM_STATUS_REQUEST_TYPE,
+-						   0, 0, 
+-						   buf, 2, WDR_TIMEOUT)) < 0 ) {
+-				err("%s Could not get modem status of device - err: %d", __FUNCTION__,
+-				    ret);
+-				return(ret);
+-			}
+-		}
++	if (priv->ftdi_type == sio) {
++		size = 1;
++	} else {
++		/* the 8U232AM returns a two byte value (the sio is a 1 byte value) - in the same 
++		   format as the data returned from the in point */
++		size = 2;
++	}
++	ret = usb_control_msg(serial->dev,
++			      usb_rcvctrlpipe(serial->dev, 0),
++			      FTDI_SIO_GET_MODEM_STATUS_REQUEST,
++			      FTDI_SIO_GET_MODEM_STATUS_REQUEST_TYPE,
++			      0, 0, buf, size, WDR_TIMEOUT);
++	if (ret < 0) {
++		err("%s Could not get modem status of device - err: %d",
++		    __FUNCTION__, ret);
++		goto exit;
++	}
 +
++	ret = (buf[0] & FTDI_SIO_DSR_MASK ? TIOCM_DSR : 0) |
++		(buf[0] & FTDI_SIO_CTS_MASK ? TIOCM_CTS : 0) |
++		(buf[0]  & FTDI_SIO_RI_MASK  ? TIOCM_RI  : 0) |
++		(buf[0]  & FTDI_SIO_RLSD_MASK ? TIOCM_CD  : 0);
++
++exit:
++	kfree(buf);
++	return ret;
++}
+ 
+-		return put_user((buf[0] & FTDI_SIO_DSR_MASK ? TIOCM_DSR : 0) |
+-				(buf[0] & FTDI_SIO_CTS_MASK ? TIOCM_CTS : 0) |
+-				(buf[0]  & FTDI_SIO_RI_MASK  ? TIOCM_RI  : 0) |
+-				(buf[0]  & FTDI_SIO_RLSD_MASK ? TIOCM_CD  : 0),
+-				(unsigned long *) arg);
+-		break;
+-
+-	case TIOCMSET: /* Turns on and off the lines as specified by the mask */
+-		dbg("%s TIOCMSET", __FUNCTION__);
+-		if (get_user(mask, (unsigned long *) arg))
+-			return -EFAULT;
+-		urb_value = ((mask & TIOCM_DTR) ? HIGH : LOW);
+-		if (set_dtr(serial->dev, usb_sndctrlpipe(serial->dev, 0),urb_value) < 0){
+-			err("Error from DTR set urb (TIOCMSET)");
+-		}
+-		urb_value = ((mask & TIOCM_RTS) ? HIGH : LOW);
+-		if (set_rts(serial->dev, usb_sndctrlpipe(serial->dev, 0),urb_value) < 0){
+-			err("Error from RTS set urb (TIOCMSET)");
+-		}	
+-		break;
+-					
+-	case TIOCMBIS: /* turns on (Sets) the lines as specified by the mask */
+-		dbg("%s TIOCMBIS", __FUNCTION__);
+- 	        if (get_user(mask, (unsigned long *) arg))
+-			return -EFAULT;
+-  	        if (mask & TIOCM_DTR){
+-			if ((ret = set_dtr(serial->dev, 
+-					   usb_sndctrlpipe(serial->dev, 0),
+-					   HIGH)) < 0) {
+-				err("Urb to set DTR failed");
+-				return(ret);
+-			}
+-		}
+-		if (mask & TIOCM_RTS) {
+-			if ((ret = set_rts(serial->dev, 
+-					   usb_sndctrlpipe(serial->dev, 0),
+-					   HIGH)) < 0){
+-				err("Urb to set RTS failed");
+-				return(ret);
+-			}
+-		}
+-					break;
++static int ftdi_sio_tiocmset (struct usb_serial_port *port, struct file *file,
++			      unsigned int set, unsigned int clear)
++{
++	struct usb_serial *serial = port->serial;
++	int ret = 0;
++	
++	dbg("%s", __FUNCTION__);
+ 
+-	case TIOCMBIC: /* turns off (Clears) the lines as specified by the mask */
+-		dbg("%s TIOCMBIC", __FUNCTION__);
+- 	        if (get_user(mask, (unsigned long *) arg))
+-			return -EFAULT;
+-  	        if (mask & TIOCM_DTR){
+-			if ((ret = set_dtr(serial->dev, 
+-					   usb_sndctrlpipe(serial->dev, 0),
+-					   LOW)) < 0){
+-				err("Urb to unset DTR failed");
+-				return(ret);
+-			}
+-		}	
+-		if (mask & TIOCM_RTS) {
+-			if ((ret = set_rts(serial->dev, 
+-					   usb_sndctrlpipe(serial->dev, 0),
+-					   LOW)) < 0){
+-				err("Urb to unset RTS failed");
+-				return(ret);
+-			}
 +	if (set & TIOCM_RTS)
-+		status |= (1<<2);
++		if ((ret = set_rts(serial->dev, 
++				   usb_sndctrlpipe(serial->dev, 0),
++				   HIGH)) < 0) {
++			err("Urb to set RTS failed");
++			goto exit;
++		}
++
 +	if (set & TIOCM_DTR)
-+		status |= (1<<7);
++		if ((ret = set_dtr(serial->dev, 
++				   usb_sndctrlpipe(serial->dev, 0),
++				   HIGH)) < 0) {
++			err("Urb to set DTR failed");
++			goto exit;
++		}
 +
 +	if (clear & TIOCM_RTS)
-+		status &= ~(1<<2);
-+	if (clear & TIOCM_DTR)
-+		status &= ~(1<<7);
-+	rc = keyspan_pda_set_modem_info(serial, status);
-+	return rc;
-+}
++		if ((ret = set_rts(serial->dev, 
++				   usb_sndctrlpipe(serial->dev, 0),
++				   LOW)) < 0) {
++			err("Urb to unset RTS failed");
++			goto exit;
++		}
 +
-+static int keyspan_pda_ioctl(struct usb_serial_port *port, struct file *file,
-+			     unsigned int cmd, unsigned long arg)
++	if (clear & TIOCM_DTR)
++		if ((ret = set_dtr(serial->dev, 
++				   usb_sndctrlpipe(serial->dev, 0),
++				   LOW)) < 0) {
++			err("Urb to unset DTR failed");
++			goto exit;
+ 		}
+-		break;
+ 
+-		/*
+-		 * I had originally implemented TCSET{A,S}{,F,W} and
+-		 * TCGET{A,S} here separately, however when testing I
+-		 * found that the higher layers actually do the termios
+-		 * conversions themselves and pass the call onto
+-		 * ftdi_sio_set_termios. 
+-		 *
+-		 */
++exit:
++	return ret;
++}
+ 
++static int ftdi_sio_ioctl (struct usb_serial_port *port, struct file * file, unsigned int cmd, unsigned long arg)
 +{
- 	switch (cmd) {
--	case TIOCMGET: /* get modem pins state */
--		rc = keyspan_pda_get_modem_info(serial, &status);
--		if (rc < 0)
--			return rc;
--		value =
--			((status & (1<<7)) ? TIOCM_DTR : 0) |
--			((status & (1<<6)) ? TIOCM_CAR : 0) |
--			((status & (1<<5)) ? TIOCM_RNG : 0) |
--			((status & (1<<4)) ? TIOCM_DSR : 0) |
--			((status & (1<<3)) ? TIOCM_CTS : 0) |
--			((status & (1<<2)) ? TIOCM_RTS : 0);
--		if (copy_to_user((unsigned int *)arg, &value, sizeof(int)))
--			return -EFAULT;
--		return 0;
--	case TIOCMSET: /* set a state as returned by MGET */
--		if (copy_from_user(&value, (unsigned int *)arg, sizeof(int)))
--			return -EFAULT;
--		status =
--			((value & TIOCM_DTR) ? (1<<7) : 0) |
--			((value & TIOCM_CAR) ? (1<<6) : 0) |
--			((value & TIOCM_RNG) ? (1<<5) : 0) |
--			((value & TIOCM_DSR) ? (1<<4) : 0) |
--			((value & TIOCM_CTS) ? (1<<3) : 0) |
--			((value & TIOCM_RTS) ? (1<<2) : 0);
--		rc = keyspan_pda_set_modem_info(serial, status);
--		if (rc < 0)
--			return rc;
--		return 0;
--	case TIOCMBIS: /* set bits in bitmask <arg> */
--	case TIOCMBIC: /* clear bits from bitmask <arg> */
--		if (copy_from_user(&value, (unsigned int *)arg, sizeof(int)))
--			return -EFAULT;
--		rc = keyspan_pda_get_modem_info(serial, &status);
--		if (rc < 0)
--			return rc;
--		mask =
--			((value & TIOCM_RTS) ? (1<<2) : 0) |
--			((value & TIOCM_DTR) ? (1<<7) : 0);
--		if (cmd == TIOCMBIS)
--			status |= mask;
--		else
--			status &= ~mask;
--		rc = keyspan_pda_set_modem_info(serial, status);
--		if (rc < 0)
--			return rc;
--		return 0;
- 	case TIOCMIWAIT:
- 		/* wait for any of the 4 modem inputs (DCD,RI,DSR,CTS)*/
- 		/* TODO */
-@@ -874,6 +866,8 @@
- 	.ioctl =		keyspan_pda_ioctl,
- 	.set_termios =		keyspan_pda_set_termios,
- 	.break_ctl =		keyspan_pda_break_ctl,
-+	.tiocmget =		keyspan_pda_tiocmget,
-+	.tiocmset =		keyspan_pda_tiocmset,
- 	.attach =		keyspan_pda_startup,
- 	.shutdown =		keyspan_pda_shutdown,
- };
++	dbg("%s cmd 0x%04x", __FUNCTION__, cmd);
++
++	switch (cmd) {
+ 	default:
+ 	  /* This is not an error - turns out the higher layers will do 
+-	   *  some ioctls itself (see comment above)
++	   *  some ioctls itself
+  	   */
+ 		dbg("%s arg not supported - it was 0x%04x", __FUNCTION__,cmd);
+ 		return(-ENOIOCTLCMD);
 

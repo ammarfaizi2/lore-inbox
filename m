@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264183AbUD0PgB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264175AbUD0Pfv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264183AbUD0PgB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 11:36:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264176AbUD0PgB
+	id S264175AbUD0Pfv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 11:35:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264184AbUD0Pfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 11:36:01 -0400
-Received: from mail.kroah.org ([65.200.24.183]:60826 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264183AbUD0Pfo (ORCPT
+	Tue, 27 Apr 2004 11:35:50 -0400
+Received: from mail.kroah.org ([65.200.24.183]:58778 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264175AbUD0Pfl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 11:35:44 -0400
-Date: Tue, 27 Apr 2004 08:35:12 -0700
+	Tue, 27 Apr 2004 11:35:41 -0400
+Date: Mon, 26 Apr 2004 16:55:55 -0700
 From: Greg KH <greg@kroah.com>
-To: stefan.eletzhofer@eletztrick.de, linux-kernel@vger.kernel.org
-Subject: Re: i2c_get_client() missing?
-Message-ID: <20040427153512.GA19633@kroah.com>
-References: <20040427150144.GA2517@gonzo.local>
+To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Pcihpd-discuss] [RFC] New sysfs tree for hotplug
+Message-ID: <20040426235555.GC24536@kroah.com>
+References: <20040415170939.0ff62618.tokunaga.keiich@jp.fujitsu.com> <20040416223436.GB21701@kroah.com> <20040423211816.152dc326.tokunaga.keiich@jp.fujitsu.com> <20040423200751.GA7990@kroah.com> <20040426145808.4ed2a7b0.tokunaga.keiich@jp.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040427150144.GA2517@gonzo.local>
+In-Reply-To: <20040426145808.4ed2a7b0.tokunaga.keiich@jp.fujitsu.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 27, 2004 at 05:01:44PM +0200, stefan.eletzhofer@eletztrick.de wrote:
-> Hi,
-> I'm in the process of porting my Epson 8564 RTC chip from 2.4 to
-> 2.6.6-rc2. This is a RTC chip sitting on a I2C bus.
+On Mon, Apr 26, 2004 at 02:58:08PM +0900, Keiichiro Tokunaga wrote:
 > 
-> The code is here:
-> http://213.239.196.168/~seletz/patches/2.6.6-rc2/i2c-rtc8564.patch
-> http://213.239.196.168/~seletz/patches/2.6.6-rc2/machine-raalpha-rtc.patch
+> I think it depends on a hotplug driver that is invoked when writing to
+> a "eject" file.  In the board case, a board hotplug driver (I'm making) 
+> handles those CPUs, memory, and PCI slots on the board.  So my
+> story for board hotplug is:
 > 
-> In order to split up functionality (I2C bus access and RTC misc device
-> stuff) I wrote two separate modules. In the rtc code module I did a i2c_get_client()
-> with the ID of my RTC chip to get a struct i2c_client which I think I need to
-> talk to the chip. I've implemented the command callback in my I2C module, which
-> I want to call from my RTC module.
-> 
-> Now I find that in 2.6.6-rc2 the i2c_get_client() implementation is missing (the prototype
-> is still in linux/i2c.h). Even the docs for i2c_use_client() refer to that function.
+>   - user checks/knows what resources are on the board (dependency)
+>   - user writes to the "eject" file of the board properly (invocation)
 
-It was removed as there were no users of it from what I remember.  I
-should go and delete that prototype too...
+Why not make a program that does all of this from userspace?  It would
+turn off the proper CPUs, memory, and pci slots for a specific "board".
+Otherwise you are going to have to either:
+	- hook the current CPU, memory, and pci hotplug code to allow it
+	  to be called from within the kernel
+	- have your kernel code write to a the sysfs files from within
+	  kernelspace.
 
-> Most probably I'm missing something, but how is one supposed to access a i2c-client's
-> command function when i2c_get_client() is missing?
-
-Where do you need to access it from?  Why do all of the current drivers
-not need it?
-
-> Of course I could just merge these two drivers and forget about
-> separating i2c chip access and rtc stuff, but ...
-
-If you always need both drivers to get the system to work, and there's
-no real reason to split them up...
+Neither of which are acceptable things :(
 
 thanks,
 

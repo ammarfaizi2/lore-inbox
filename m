@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317192AbSF2H3W>; Sat, 29 Jun 2002 03:29:22 -0400
+	id <S290289AbSF2IUz>; Sat, 29 Jun 2002 04:20:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317214AbSF2H3V>; Sat, 29 Jun 2002 03:29:21 -0400
-Received: from kuma.unm.edu ([129.24.9.36]:23238 "HELO kuma.unm.edu")
-	by vger.kernel.org with SMTP id <S317192AbSF2H3U>;
-	Sat, 29 Jun 2002 03:29:20 -0400
-To: linux-kernel@vger.kernel.org
-Subject: IO and PCI
-Date: Sat, 29 Jun 2002 01:31:42 -0600
-From: sheltraw@unm.edu
-Message-ID: <1025335902.3d1d625ef2db3@webmail.unm.edu>
-X-Mailer: UNM WebMail Cyrusoft Silkymail v1.1.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Originating-IP: 204.252.57.12
+	id <S293203AbSF2IUy>; Sat, 29 Jun 2002 04:20:54 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:2053 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S290289AbSF2IUx>;
+	Sat, 29 Jun 2002 04:20:53 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>, mec@shout.net,
+       kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kconfig: menuconfig and config uses $objtree 
+In-reply-to: Your message of "Sat, 29 Jun 2002 09:26:01 +0200."
+             <20020629092601.A2019@mars.ravnborg.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 29 Jun 2002 18:23:00 +1000
+Message-ID: <7026.1025338980@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Kernel List
+On Sat, 29 Jun 2002 09:26:01 +0200, 
+Sam Ravnborg <sam@ravnborg.org> wrote:
+>So in our discussion about shadow-tress I recall you mentioned 
+>several times that using a built-only tree of src-files would create
+>a lot of problems when changes were made, and you had to distribute
+>changes back in the original trees.
+>My point then was that changes were always made in the original tree.
+>And now I see that you use the exact same apporach for config-files
+>within kbuild-2.5. So do you agree that creating a built-only tree
+>suddenly becomes an OK solution?
 
-Is there a way to disable IO read/writes to a PCI device. The bit 0
-of command register in PCI configuration space can be used to 
-disable/enable memory-mapped IO but will it disable direct IO 
-(what is the proper term?) as well?
+You are confusing two completely different cases.  Config reads from a
+lot of files and generates one file.  Kernel build both reads and
+writes lots of files, plus the developer edits files as they create
+their code.  Different problems require different solutions.
 
-I would like to be able to disable direct IO read/writes to one of
-two video cards in an x386 while leaving the other alone. Then
-I could use the direct IO registers to do palette changing and
-enable interrupts on vertical blanking without doing so on both 
-cards (since they both respond to the same direct IO addresses). 
+Creating a set of symlinks in the object tree to point to every source
+file is possible but horribly slow!  On my build machine, creating
+10,300 symlinks takes 90 seconds before you can even start compiling [*].
+In contrast, all of the kbuild 2.5 processing (phases 1 through 4) on
+the same machine takes 9 seconds before you start compiling.
 
-Of course if I knew the addresses/offsets for memory-mapped versions
-of the appropriate registers on one card I could solve this problem
-but I do not neccesarily have that info.
+I use symlinks for CML because there are far fewer files and the
+symlink tree only has to be built when make *config is requested.
+There are also several CML programs that would have to be changed each
+time the tree structure changed, code replication is bad.
 
-Thanks for any help!
-Daniel Sheltraw
+I do not use symlinks for the main build because they are too slow.
+Especially when you include the overhead of resynchronising the source
+symlinks on every build.  It has to be redone every time because the
+set of source files may have changed.

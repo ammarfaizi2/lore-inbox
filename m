@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132752AbRDINmm>; Mon, 9 Apr 2001 09:42:42 -0400
+	id <S132753AbRDINu4>; Mon, 9 Apr 2001 09:50:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132753AbRDINmc>; Mon, 9 Apr 2001 09:42:32 -0400
-Received: from mail.cis.nctu.edu.tw ([140.113.23.5]:3077 "EHLO
-	mail.cis.nctu.edu.tw") by vger.kernel.org with ESMTP
-	id <S132752AbRDINmT>; Mon, 9 Apr 2001 09:42:19 -0400
-Message-ID: <012a01c0c0fb$b9305290$ae58718c@cis.nctu.edu.tw>
-From: "nctucis" <gis88530@cis.nctu.edu.tw>
-To: <linux-kernel@vger.kernel.org>
-Subject: skbuff.h
-Date: Mon, 9 Apr 2001 21:48:12 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+	id <S132754AbRDINup>; Mon, 9 Apr 2001 09:50:45 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:30496 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S132753AbRDINub>; Mon, 9 Apr 2001 09:50:31 -0400
+Date: Mon, 9 Apr 2001 15:50:52 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: softirq buggy
+Message-ID: <20010409155052.H7108@athlon.random>
+In-Reply-To: <200104081758.VAA15670@ms2.inr.ac.ru> <3AD0D9A8.189AA43C@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3AD0D9A8.189AA43C@colorfullife.com>; from manfred@colorfullife.com on Sun, Apr 08, 2001 at 11:35:36PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Apr 08, 2001 at 11:35:36PM +0200, Manfred Spraul wrote:
+> I've attached a new patch:
+> 
+> * cpu_is_idle() moved to <linux/pm.h>
+> * function uninlined due to header dependencies
+> * cpu_is_idle() doesn't call do_softirq directly, instead the caller
+> returns to schedule()
+> * cpu_is_idle() exported for modules.
+> * docu updated.
+> 
+> I'd prefer to inline cpu_is_idle(), but optimizing the idle code path is
+> probably not that important ;-)
 
-I use 2.2.16 kernel.
-I found that there is a sk_buff structure in
-"/usr/src/linux/include/linux/skbuff.c", and
-there is a variable "unsigned in csum;" in 
-the sk_buff structure.
+your cpu_is_idle will return 0 in the need_resched != 0 check even if the cpu
+is idle (because of the -1 trick for avoiding the SMP-IPI to notify the cpu).
 
-I want to know this checksum check what information.
-Could you give me a hand, please?
+The issue you are addressing is quite londstanding and it is not only related
+to the loop with an idle cpu.
 
--=-=-=-=-=-=-=-
-In fact, I found 64byte and 1518byte UDP packet waste different
-time to do masquerade(ip_fw_masquerade). 
-Many books say NAT just modify header fields, so it should no 
-different between small and big packet size.
-I guess the different time due to csum_partial(h.raw, doff, sum)
-in ip_fw_masquerade(). Right? Thanks a lot.
-(But I can't find out source code of this function.)
+This is the way I prefer to fix it:
 
-Cheers,
-Tom
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.4pre1/ksoftirqd-1
 
-
+Andrea

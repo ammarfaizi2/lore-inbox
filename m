@@ -1,84 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265023AbUD2W52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265029AbUD2W6a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265023AbUD2W52 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 18:57:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265026AbUD2W5C
+	id S265029AbUD2W6a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 18:58:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265032AbUD2W5k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 18:57:02 -0400
-Received: from smtp.netcabo.pt ([212.113.174.9]:10473 "EHLO smtp.netcabo.pt")
-	by vger.kernel.org with ESMTP id S265023AbUD2WyS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 18:54:18 -0400
-Subject: [PATCH] can we compile ACPI without define CONFIG_PM ?
-From: =?ISO-8859-1?Q?S=E9rgio?= Monteiro Basto <sergiomb@netcabo.pt>
-Reply-To: sergiomb@netcabo.pt
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       acpi-devel <acpi-devel@lists.sourceforge.net>
-Content-Type: multipart/mixed; boundary="=-dLzTM9Lm4cHmA24HrIeB"
-Message-Id: <1083279256.3410.30.camel@darkstar>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 29 Apr 2004 23:54:17 +0100
-X-OriginalArrivalTime: 29 Apr 2004 22:54:17.0589 (UTC) FILETIME=[E6A7D250:01C42E3C]
+	Thu, 29 Apr 2004 18:57:40 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:27660 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S265034AbUD2W5M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 18:57:12 -0400
+Message-ID: <4091895A.6040800@techsource.com>
+Date: Thu, 29 Apr 2004 19:01:46 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Marc Boucher <marc@linuxant.com>
+CC: Rik van Riel <riel@redhat.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       David Gibson <david@gibson.dropbear.id.au>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+References: <Pine.LNX.4.44.0404281958310.19633-100000@chimarrao.boston.redhat.com> <40911C01.80609@techsource.com> <20040429213246.GA15988@valve.mbsi.ca> <40917DBA.1080308@techsource.com> <6DB1DC9C-9A2B-11D8-B83D-000A95BCAC26@linuxant.com>
+In-Reply-To: <6DB1DC9C-9A2B-11D8-B83D-000A95BCAC26@linuxant.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-dLzTM9Lm4cHmA24HrIeB
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
 
-Hi Kernel mailing list!
+Marc Boucher wrote:
 
-IIRC: if I recall correctly=20
-we couldn't compile ACPI without Power management option (CONFIG_PM),
-but now, this is possible.
+> 
+> The proprietary modem code for the HSF driver is not part of the kernel, 
+> nor did its original developers ever intend for it to be run by the 
+> Linux kernel.
+> 
+> Whether proprietary binary-only code is dynamically loaded through the 
+> module subsystem or physically by someone installing a card is a 
+> technicality with little relevance.
 
-If the answer to the subject is no, then consider apply this patch on
-kernel 2.4.26.
 
-Accidentally, I compile ACPI without CONFIG_PM on one Dell something
-dual Pentium III and power off didn't work.
+So, what you're saying is that you have taken a binary driver, not 
+written by you, designed for an entirely different ABI, and you have 
+written some code, which you have released under GPL, that interfaces 
+between the Linux Kernel and the binary driver?
 
-So I need some confirmation from acpi-devel, but this is one meter of
-xconfig of the kernel so ...
+Kinda like that project which lets people use Windows network drivers 
+under Linux?
 
-For APM Xconfiguration, it's better that, we can choose APM options only
-if we select APM ( because if we don't select CONFIG_PM, CONFIG_APM will
-be disable and the APM options don't!).
-This patch correct also this situation.
+I don't see a problem with that, ideologically.  I mean, it sucks that 
+we can't get Linux-specific drivers, but at least people can use the 
+hardware.
 
-Thanks,
---=20
-S=E9rgio M. B.
 
---=-dLzTM9Lm4cHmA24HrIeB
-Content-Disposition: attachment; filename=configopti.diff
-Content-Type: text/x-patch; name=configopti.diff; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+HOWEVER, there are two problems:
 
---- linux-2.4.26s/arch/i386/config.in.orig	2004-04-29 23:38:38.000000000 +0100
-+++ linux-2.4.26s/arch/i386/config.in	2004-04-29 23:40:58.000000000 +0100
-@@ -360,7 +360,7 @@
- bool 'Power Management support' CONFIG_PM
- 
- dep_tristate '  Advanced Power Management BIOS support' CONFIG_APM $CONFIG_PM
--if [ "$CONFIG_APM" != "n" ]; then
-+if [ "$CONFIG_APM" != "n" -a "$CONFIG_PM" = "y" ]; then
-    bool '    Ignore USER SUSPEND' CONFIG_APM_IGNORE_USER_SUSPEND
-    bool '    Enable PM at boot time' CONFIG_APM_DO_ENABLE
-    bool '    Make CPU Idle calls when idle' CONFIG_APM_CPU_IDLE
-@@ -370,7 +370,9 @@
-    bool '    Use real mode APM BIOS call to power off' CONFIG_APM_REAL_MODE_POWER_OFF
- fi
- 
--source drivers/acpi/Config.in
-+if [ "$CONFIG_PM" = "y" ]; then
-+	source drivers/acpi/Config.in
-+fi
- 
- endmenu
- 
+(1) It still taints the kernel, because the behavior of the Windows 
+driver is still a black box that cannot be debugged.  The only way to 
+avoid that would be to run the Windows driver in some kind of sandbox.
 
---=-dLzTM9Lm4cHmA24HrIeB--
+(2) Misleading the kernel (and users) into thinking that the driver does 
+not taint the kernel, when in fact it does, is wrong.
+
+
+
+
+You have pointed out an interesting point in another email.  I have to 
+agree that, technically, thunking to BIOS code also taints the kernel, 
+because it, too, is a black box which could corrupt the kernel.  What do 
+others have to say about that?
+
 

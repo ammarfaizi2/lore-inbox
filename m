@@ -1,60 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265943AbUFTUeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265941AbUFTUk6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265943AbUFTUeK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 16:34:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265944AbUFTUeK
+	id S265941AbUFTUk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 16:40:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265944AbUFTUk6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 16:34:10 -0400
-Received: from [80.72.36.106] ([80.72.36.106]:21120 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S265943AbUFTUeH (ORCPT
+	Sun, 20 Jun 2004 16:40:58 -0400
+Received: from cantor.suse.de ([195.135.220.2]:64971 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265941AbUFTUkz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 16:34:07 -0400
-Date: Sun, 20 Jun 2004 22:34:06 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Memory and rsync problem with vanilla 2.6.7
-In-Reply-To: <40D5A305.80807@yahoo.com.au>
-Message-ID: <Pine.LNX.4.58.0406202230330.2489@alpha.polcom.net>
-References: <20040426013944.49a105a8.akpm@osdl.org>
- <Pine.LNX.4.58.0404270105200.2304@donald.themaw.net>
- <Pine.LNX.4.58.0404261917120.24825@alpha.polcom.net>
- <Pine.LNX.4.58.0404261102280.19703@ppc970.osdl.org>
- <Pine.LNX.4.58.0404262350450.3003@alpha.polcom.net>
- <Pine.LNX.4.58.0406191841050.6160@alpha.polcom.net>
- <Pine.LNX.4.58.0406191040170.6178@ppc970.osdl.org> <40D508E8.2050407@yahoo.com.au>
- <Pine.LNX.4.58.0406201543520.22369@alpha.polcom.net>
- <Pine.LNX.4.58.0406201636380.29262@alpha.polcom.net> <40D5A305.80807@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 20 Jun 2004 16:40:55 -0400
+Subject: Re: Stop the Linux kernel madness
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Jari Ruusu <jariruusu@users.sourceforge.net>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <40D5B09A.E1B582F2@users.sourceforge.net>
+References: <40D232AD.4020708@opensound.com>
+	 <mailman.1087541100.18231.linux-kernel2news@redhat.com>
+	 <20040618124716.183669f8@lembas.zaitcev.lan>
+	 <40D46B6C.9618B196@users.sourceforge.net>
+	 <20040619205253.GO28927@marowsky-bree.de>
+	 <40D5B09A.E1B582F2@users.sourceforge.net>
+Content-Type: text/plain
+Organization: SUSE Labs
+Message-Id: <1087764291.19400.134.camel@winden.suse.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 20 Jun 2004 22:44:51 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jun 2004, Nick Piggin wrote:
-
-> Grzegorz Kulewski wrote:
-> >>>Well it doesn't seem to have caused too much trouble as yet... But it
-> >>>is the obvious candidate if your problems continue. If you are not a
-> >>>bk user, the attached patch will also revert that change.
-> >>
-> >>Thanks, I will test it soon and I will report results. But I am not saying 
-> >>it is a bug - maybe it is simply change that can lead to problems with 
-> >>insane debug options but itself is good?
+On Sun, 2004-06-20 at 17:43, Jari Ruusu wrote:
+> Lars Marowsky-Bree wrote:
+> > On 2004-06-19T19:35:56,
+> >    Jari Ruusu <jariruusu@users.sourceforge.net> said:
+> > > Last time I checked, SUSE kernels include " characters in EXTRAVERSION
+> > > and KERNELRELEASE Makefile strings. Those " characters need to be
+> > > filtered out before EXTRAVERSION and KERNELRELEASE strings can be
+> > > used.
+> > >
+> > > Just another SUSE sillyness.
 > > 
-> > 
-> > Are you sure that this is good patch against vanilla 2.6.7? It gives me 
-> > 2 failed hunks (both normal and -R)... Should I merge it manually?
+> > What kind of crap 've you been smokin'? Sue your dealer.
 > 
-> You're right here's the correct one.
+> First 6 lines of Kernel Makefile (SuSE 8 ES on AMD64 Opteron):
+> 
+> VERSION = 2
+> PATCHLEVEL = 4
+> SUBLEVEL = 21
+> EXTRAVERSION = -$(CONFIG_RELEASE)-$(CONFIG_CFGNAME)
 
-No, it is not. GCC complains about priority undeclared. It should be 
-probably sc->priority (I changed it this way). Looks like you do not know 
-how to code in C ;-).
+Indeed, that was a bug. In our current tree we have this, which gets rid
+of the superfluous quotes:
+
+EXTRAVERSION = -$(shell echo $(CONFIG_RELEASE)-$(CONFIG_CFGNAME))
+
+> KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
+> 
+> 
+> Last 7 lines of .config (SuSE 8 ES on AMD64 Opteron):
+> 
+> #
+> # Build options
+> #
+> # CONFIG_SUSE_KERNEL is not set
+> CONFIG_UNITEDLINUX_KERNEL=y
+> CONFIG_CFGNAME="smp"
+> CONFIG_RELEASE=207
+> 
+> 
+> Those " characters around "smp" will not go away automatically.
+> To see the difference try these lines in Makefile:
+> 
+>     echo $(KERNELRELEASE)
+>     echo '$(KERNELRELEASE)'
+
+Well, it depends in which context you use the string, which is why we
+didn't catch the bug for a long time. I agree that the quotes shouldn't
+be there. Mistakes happen.
+
+> Those " characters make quite difference in Makefile code like this:
+> 
+> ifneq ($(KERNELRELEASE),$(shell uname -r))
+>     @echo You compiled this for wrong kernel
+> endif
+
+This test may often turn out not to be very useful: For example, we are
+building modules for different kernels without booting into each of
+those kernels. Cross-compiling is another case where the above test
+doesn't work.
 
 
-Thanks,
+Regards,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX AG
 
-Grzegorz Kulewski
 

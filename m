@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129457AbQKJTRg>; Fri, 10 Nov 2000 14:17:36 -0500
+	id <S130553AbQKJTWi>; Fri, 10 Nov 2000 14:22:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129741AbQKJTR1>; Fri, 10 Nov 2000 14:17:27 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:4110 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129457AbQKJTRO>; Fri, 10 Nov 2000 14:17:14 -0500
-Message-ID: <3A0C48CD.5E3F99DF@timpanogas.org>
-Date: Fri, 10 Nov 2000 12:13:17 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+	id <S131506AbQKJTWa>; Fri, 10 Nov 2000 14:22:30 -0500
+Received: from dweeb.lbl.gov ([128.3.1.28]:8458 "EHLO beeble.lbl.gov")
+	by vger.kernel.org with ESMTP id <S130553AbQKJTWO>;
+	Fri, 10 Nov 2000 14:22:14 -0500
+Message-ID: <3A0C486D.184F31AE@lbl.gov>
+Date: Fri, 10 Nov 2000 11:11:41 -0800
+From: Thomas Davis <tadavis@lbl.gov>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-RAID i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Richard A Nelson <cowboy@vnet.ibm.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in 
- /var/spool/mqueue]
-In-Reply-To: <Pine.LNX.4.30.0011101409240.19584-100000@back40.badlands.lexington.ibm.com>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+CC: Constantine Gavrilov <const-g@xpert.com>,
+        willy tarreau <wtarreau@yahoo.fr>, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.18pre21
+In-Reply-To: <20001110092846.29847.qmail@web1102.mail.yahoo.com> <20001110114425.E13151@mea-ext.zmailer.org> <3A0BC699.791064BE@xpert.com> <20001110121402.F13151@mea-ext.zmailer.org> <3A0BCC4C.FCE21320@xpert.com> <20001110125150.G13151@mea-ext.zmailer.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matti Aarnio wrote:
+>         Beowulf systems have "bonding" in use for parallel Ethernet
+>         links in between two machines, however THAT is not EtherChannel
+>         compatible thing!
+> 
 
-Since I posted this on LKML, Claus over at sendmail.org seems more
-motivated to track it down.  (since it might appear on the front page of
-Linux today).  I would love your assistance Richard.  
-It could be a local problem since smrsh also seems to be f_cked up as
-well, but I am seeing the same thing with an out of the box RH6.2.
+Maybe we should adopt's sun naming then, and call it 'Trunking'.
 
-Jeff
+This is the same driver that Beowulf uses, and it is Etherchannel
+compatible.
 
-Richard A Nelson wrote:
-> 
-> On Fri, 10 Nov 2000, Jeff V. Merkey wrote:
-> 
-> > 8.11.1 has problems talking to older sendmails and qmail.  I've seen
-> > even worse problems on 8.11.1, and backreved it immediately, and the
-> > encryption stuff has a lot of build problems on Linux.
-> 
-> Sounds like local build problems, possibly all the problems !
-> 
-> I can assist if you want to build 8.11.1 on Linux
-> --
-> Rick Nelson
-> Life'll kill ya                         -- Warren Zevon
-> Then you'll be dead                     -- Life'll kill ya
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+The only part of Etherchannel we don't support is the XOR channel
+selection (yuck!) and the automatic configuration of the links (it's a 
+MII thing, that's undocumented.)
+
+Leave it as Ethernet Bonding.
+
+-- 
+------------------------+--------------------------------------------------
+Thomas Davis		| PDSF Project Leader
+tadavis@lbl.gov		| 
+(510) 486-4524		| "Only a petabyte of data this year?"
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

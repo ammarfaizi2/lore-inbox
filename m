@@ -1,84 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265008AbTIDNxE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 09:53:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265012AbTIDNxE
+	id S265016AbTIDN5m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 09:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265024AbTIDN5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 09:53:04 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:58260 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S265008AbTIDNw5 (ORCPT
+	Thu, 4 Sep 2003 09:57:42 -0400
+Received: from mail0.epfl.ch ([128.178.50.57]:56586 "HELO mail0.epfl.ch")
+	by vger.kernel.org with SMTP id S265016AbTIDN5j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 09:52:57 -0400
-Date: Thu, 4 Sep 2003 15:52:56 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
-       campbell@torque.net
-Subject: Re: 2.6.0-test4-mm5: SCSI imm driver doesn't compile
-Message-ID: <20030904135256.GS14376@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
-	campbell@torque.net
-References: <20030902231812.03fae13f.akpm@osdl.org> <20030903170256.GA18025@fs.tum.de> <20030904133056.GA2411@conectiva.com.br>
+	Thu, 4 Sep 2003 09:57:39 -0400
+Date: Thu, 4 Sep 2003 15:57:37 +0200
+From: Frederic Gobry <frederic.gobry@smartdata.ch>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4 does not detect my touchpad
+Message-ID: <20030904135737.GA7956@rhin>
+References: <20030904115044.GA7114@rhin> <20030904142534.A2949@pclin040.win.tue.nl>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BVXm2WAry1WzRMtx"
+	protocol="application/pgp-signature"; boundary="tKW2IUtsqtDRztdT"
 Content-Disposition: inline
-In-Reply-To: <20030904133056.GA2411@conectiva.com.br>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
+In-Reply-To: <20030904142534.A2949@pclin040.win.tue.nl>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---BVXm2WAry1WzRMtx
+--tKW2IUtsqtDRztdT
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2003-09-04 10:30:56 -0300, Arnaldo Carvalho de Melo <acme@conectiva=
-=2Ecom.br>
-wrote in message <20030904133056.GA2411@conectiva.com.br>:
-> Em Wed, Sep 03, 2003 at 07:02:56PM +0200, Adrian Bunk escreveu:
-> > The following compile error (tested with gcc 2.95) seems to come from=
-=20
-> > Linus' tree:
->=20
-> I just converted it to the more safe c99 init style, but haven't noticed
+> If you #define DEBUG in i8042.c and make sure you use a large
+> log buffer then all probing is logged via syslog, and we can
+> see what was sent and how the touchpad reacted.
 
-C99 style is
+Here we go:
 
-	.element =3D initializer,
-
-not
-	[element] =3D initializer,
-
-which is a GNU/GCCism.
-
-MfG, JBG
+kernel: mice: PS/2 mouse device common for all mice
+kernel: drivers/input/serio/i8042.c: 20 -> i8042 (command) [0]
+kernel: drivers/input/serio/i8042.c: 47 <- i8042 (return) [0]
+kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [0]
+kernel: drivers/input/serio/i8042.c: 56 -> i8042 (parameter) [0]
+kernel: drivers/input/serio/i8042.c: d3 -> i8042 (command) [0]
+kernel: drivers/input/serio/i8042.c: f0 -> i8042 (parameter) [0]
+kernel: drivers/input/serio/i8042.c: 0f <- i8042 (return) [0]
+kernel: drivers/input/serio/i8042.c: d3 -> i8042 (command) [0]
+kernel: drivers/input/serio/i8042.c: 56 -> i8042 (parameter) [0]
+kernel: drivers/input/serio/i8042.c: a9 <- i8042 (return) [0]
+kernel: drivers/input/serio/i8042.c: d3 -> i8042 (command) [0]
+kernel: drivers/input/serio/i8042.c: a4 -> i8042 (parameter) [0]
+kernel: drivers/input/serio/i8042.c: 5b <- i8042 (return) [0]
+kernel: drivers/input/serio/i8042.c: d3 -> i8042 (command) [1]
+kernel: drivers/input/serio/i8042.c: 5a -> i8042 (parameter) [1]
+kernel: drivers/input/serio/i8042.c: a5 <- i8042 (return) [1]
+kernel: drivers/input/serio/i8042.c: a7 -> i8042 (command) [1]
+kernel: drivers/input/serio/i8042.c: 20 -> i8042 (command) [1]
+kernel: drivers/input/serio/i8042.c: 56 <- i8042 (return) [1]
+kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [1]
+kernel: drivers/input/serio/i8042.c: 46 -> i8042 (parameter) [1]
+kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [1]
+kernel: drivers/input/serio/i8042.c: 47 -> i8042 (parameter) [1]
+kernel: drivers/input/serio/i8042.c: f2 -> i8042 (kbd-data) [1]
+kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [1]
+kernel: drivers/input/serio/i8042.c: ab <- i8042 (interrupt, kbd, 1) [2]
+kernel: drivers/input/serio/i8042.c: 41 <- i8042 (interrupt, kbd, 1) [7]
+kernel: drivers/input/serio/i8042.c: ed -> i8042 (kbd-data) [7]
+kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [8]
+kernel: drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [8]
+kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [8]
+kernel: drivers/input/serio/i8042.c: f8 -> i8042 (kbd-data) [8]
+kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [8]
+kernel: drivers/input/serio/i8042.c: f4 -> i8042 (kbd-data) [8]
+kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [8]
+kernel: drivers/input/serio/i8042.c: f0 -> i8042 (kbd-data) [8]
+kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [8]
+kernel: drivers/input/serio/i8042.c: 02 -> i8042 (kbd-data) [8]
+kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [8]
+kernel: drivers/input/serio/i8042.c: f0 -> i8042 (kbd-data) [8]
+kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [9]
+kernel: drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [9]
+kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [9]
+kernel: drivers/input/serio/i8042.c: 41 <- i8042 (interrupt, kbd, 1) [13]
+kernel: input: AT Set 2 keyboard on isa0060/serio0
+kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
 
 --=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
+ Fr=E9d=E9ric Gobry       SMARTDATA    	 =20
+                      http://www.smartdata.ch/
+ PGP: 5B44F4A5        Lausanne - Switzerland
+                      +41 21 693 84 98
 
---BVXm2WAry1WzRMtx
+--tKW2IUtsqtDRztdT
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE/V0O3Hb1edYOZ4bsRAhniAJ9WvjYXTmW/CnpeYmM56QaBpIB7uQCdEfaD
-n2vukuXYqQ9fSGtn6iNYPIQ=
-=xp44
+iD8DBQE/V0TQFjQHpltE9KURAj8NAKCfjHaPHmyqXSzenFHjm7ckz26s2ACdEmUC
+ZY2+IQvMwfLQqvmocneK+w8=
+=fxCE
 -----END PGP SIGNATURE-----
 
---BVXm2WAry1WzRMtx--
+--tKW2IUtsqtDRztdT--

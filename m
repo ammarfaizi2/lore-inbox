@@ -1,85 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262427AbTEXMVF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 May 2003 08:21:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTEXMVF
+	id S262429AbTEXM07 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 May 2003 08:26:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264089AbTEXM07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 May 2003 08:21:05 -0400
-Received: from mail024.syd.optusnet.com.au ([210.49.20.148]:20401 "EHLO
-	mail024.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262427AbTEXMVD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 May 2003 08:21:03 -0400
-Message-ID: <3ECF66A8.8070002@optusnet.com.au>
-Date: Sat, 24 May 2003 22:33:44 +1000
-From: "steve.glass@optusnet.com.au" <steve.glass@optusnet.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	Sat, 24 May 2003 08:26:59 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:44256 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S262429AbTEXM06
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 May 2003 08:26:58 -0400
+Date: Sat, 24 May 2003 14:39:28 +0200 (CEST)
+From: Oktay Akbal <oktay.akbal@s-tec.de>
+X-X-Sender: oktay@omega.s-tec.de
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Defective Disk not reported as Dead
+In-Reply-To: <200305230739.h4N7d2u22467@Port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.55.0305241432410.24000@omega.s-tec.de>
+References: <Pine.LNX.4.55.0305230911560.18618@omega.s-tec.de>
+ <200305230739.h4N7d2u22467@Port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Boot time OOPS when using large (128MB) frame buffer with VESA fb
- driver
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.9; AVE: 6.19.0.3; VDF: 6.19.0.20; host: email)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Denis,
 
-/[1.] One line summary of the problem:/
+you should understand, that I really try not to reproduce the Problem,
+since this is a VERY productive Database- and Fileserver.
 
-Immediately after getting the "booting linux" message the screen clears 
-and the machine freezes.
-/
-[2.] Full description of the problem/report:/
+So am seeking hints on known Bugs or just some hints.
 
-After upgrading my PC from 512MB to 1GB of RAM and repeatably got the 
-above behaviour. Using a serial console it is clear that the kernel is 
-issuing an OOPS but the video card hasn't finished initialization.
+For the Kernel-traces I assume that I would need some messages.
+But for the kernel everything seems to be normal. At least there are
+no messages in syslog.
 
-/[2.1.] Problem cause:
-/
-Very early in the boot sequence, vesafb_init(at line 540) calls 
-ioremap() to map the frame buffer. Eventually, __ioremap() calls 
-get_vm_area() to request is to find a 128MB block (the size of my Ti4200 
-frame buffer). This should be a problem because the whole non-contiguous 
-memory is only 128MB and get_vm_area() adds PAGE_SIZE (another 8MB 
-sanity space) for good measure. Unfortunately, a bug in get_vm_area() 
-means that the memory wrap-around check is not performed during first 
-call - and this is the first time it is called!
+Oktay
 
-As a result, the block is erroneously allocated and returned. 
-Fortunately, __ioremap() does a redundant check that the start address 
-plus size does not wrap around and this test fails so it BUGs out at 
-line 73. The video card hasn't been initialized yet so the user never 
-gets to see the OOPS message (I used a serial console).
+On Fri, 23 May 2003, Denis Vlasenko wrote:
 
-/[2.2.] Solution:
-/
-The problem is fixed by changing the definition of __VMALLOC_RESERVE so 
-it reserves more memory for the non-contiguous address pool. E.g. 
-changing line 143 of include/asm-i386/page.h to allocate 192MB of addresses.
-
-#define __VMALLOC_RESERVE       (192 << 20)
-
-With this done there is no need to fix the bug in get_vm_area(); 
-although I can provide the code for that.
-
-/[3.] Keywords (i.e., modules, networking, kernel):
-/
-kernel, vesafb, i386, non-contiguous memory manager, get_vm_area()
-
-[4.] Kernel version (from /proc/version):
-
-2.4.19, 2.4.20, 2.4.21rc1
-
-...
-
-[7.] Environment
-
-PC, Athlon, ASUS A7V333 mobo, 1GB RAM, Ti4200 128MB video card.
-
-Hope that is good, its working perfectly with just that 1-line change.
-
-Steve
-
+> On 23 May 2003 10:23, Oktay Akbal wrote:
+> > Hello !
+> >
+> > We do have some strange problem here.
+> > A Server with some qlogic qla2002f-Adapter (2-channel)is connected to
+> > 2 external Raid-Arrays via multipathing and raid1 on top of it. But
+> > the multipathing and raid should not be the problem here.
+> >
+> > The Raid-Arrays itself are Fibre-to-Ide and present themselfs as 1
+> > disks each. Now for the problem: Due to a firmware bug the raid-boxes
+> > sometimes seems to loose the ability to write (and read i think) to
+> > their internal disks. The effect is, that the cache fills up but does
+> > not get flushed to disks. When full, the box is in a strange state.
+> > It gets detected when reloading the kernel-modules but linux can no
+> > longer access the disks. when accessing the partition all processes
+> > on that disk hang (like ls or ps -efa etc.)
+>
+> This sounds like bug. Can you determine where exactly those processes
+> are nailed? I bet you'll see them in D state, but folks will need
+> more details, more precisely kernel stack backtraces.
 

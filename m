@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130985AbQKATVf>; Wed, 1 Nov 2000 14:21:35 -0500
+	id <S130391AbQKAT2i>; Wed, 1 Nov 2000 14:28:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130525AbQKATVZ>; Wed, 1 Nov 2000 14:21:25 -0500
-Received: from animal.cs.chalmers.se ([129.16.225.30]:10959 "EHLO
-	animal.cs.chalmers.se") by vger.kernel.org with ESMTP
-	id <S130985AbQKATVP>; Wed, 1 Nov 2000 14:21:15 -0500
-Date: Wed, 1 Nov 2000 20:21:07 +0100 (MET)
-From: Dennis Bjorklund <dennisb@cs.chalmers.se>
-To: linux-kernel@vger.kernel.org
-Subject: Broadcast
-Message-ID: <Pine.SOL.4.21.0011012010340.19399-100000@muppet17.cs.chalmers.se>
+	id <S131152AbQKAT22>; Wed, 1 Nov 2000 14:28:28 -0500
+Received: from c266492-a.lakwod1.co.home.com ([24.1.8.253]:45327 "EHLO
+	benatar.snurgle.org") by vger.kernel.org with ESMTP
+	id <S130391AbQKAT2Q>; Wed, 1 Nov 2000 14:28:16 -0500
+Date: Wed, 1 Nov 2000 14:27:36 -0500 (EST)
+From: William T Wilson <fluffy@snurgle.org>
+To: Dennis Bjorklund <dennisb@cs.chalmers.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Broadcast
+In-Reply-To: <Pine.SOL.4.21.0011012010340.19399-100000@muppet17.cs.chalmers.se>
+Message-ID: <Pine.LNX.4.21.0011011423420.21946-100000@benatar.snurgle.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to turn of the broadcast flag for a network card. But I
-can't, why??
+On Wed, 1 Nov 2000, Dennis Bjorklund wrote:
 
-I have two network-cards in the machine and an application (rwhod) that
-wants to send it's messages out on every interface that can broadcast. But
-never want to broadcast anything on this interface so why not turn it
-of? If I could that is..
+> I'm trying to turn of the broadcast flag for a network card. But I
+> can't, why??
 
-This is what happens:
+Broadcast determines the type of connection - broadcast or point-to-point
+(there can be other types also, but you will not see them much).
 
-$ ifconfig eth1
-eth1      Link encap:Ethernet  HWaddr 00:50:BA:6E:76:63  
-          inet addr:192.168.0.1  Bcast:192.168.0.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:143190 errors:0 dropped:194 overruns:0 frame:0
-          TX packets:143584 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100 
-          Interrupt:9 Base address:0xe400 
+You wouldn't want to do this anyway.  It means Ethernet broadcasts, not IP
+broadcasts.  IP will not work over Ethernet without broadcasts.
 
-$ ifconfig eth1 -broadcast
-$ ifconfig eth1
-eth1      Link encap:Ethernet  HWaddr 00:50:BA:6E:76:63  
-          inet addr:192.168.0.1  Bcast:192.168.0.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:143228 errors:0 dropped:194 overruns:0 frame:0
-          TX packets:143622 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100 
-          Interrupt:9 Base address:0xe400 
+> I have two network-cards in the machine and an application (rwhod)
+> that wants to send it's messages out on every interface that can
+> broadcast. But never want to broadcast anything on this interface so
+> why not turn it of? If I could that is..
 
-As you can see. It still says BROADCAST.
+Do you really need rwhod at all?
 
-This is on the 2.2.16 kernel and
-
-$ ifconfig -V
-net-tools 1.54
-ifconfig 1.39 (1999-03-18)
-
-/Dennis
+If rwhod doesn't have an option as to which address to bind to, your only
+choice is to block its communication with ipchains.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,116 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271431AbRIJR1Y>; Mon, 10 Sep 2001 13:27:24 -0400
+	id <S270958AbRIJRmG>; Mon, 10 Sep 2001 13:42:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271467AbRIJR1P>; Mon, 10 Sep 2001 13:27:15 -0400
-Received: from ns1.openratings.com ([64.55.77.195]:26867 "EHLO
-	exchange.hq.openratings.com") by vger.kernel.org with ESMTP
-	id <S271431AbRIJR04>; Mon, 10 Sep 2001 13:26:56 -0400
-Message-ID: <4A46E75D51A2D5119F2A00B0D03D7F09018D@exchange.hq.openratings.com>
-From: Paul Hamm <paulhamm@OpenRatings.com>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel Panic: Aiee, Killing Interupt Handler, Process kpnpbios
-Date: Mon, 10 Sep 2001 13:27:17 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S271333AbRIJRl5>; Mon, 10 Sep 2001 13:41:57 -0400
+Received: from ns.caldera.de ([212.34.180.1]:48616 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S270958AbRIJRlm>;
+	Mon, 10 Sep 2001 13:41:42 -0400
+Date: Mon, 10 Sep 2001 19:41:58 +0200
+Message-Id: <200109101741.f8AHfwx17136@ns.caldera.de>
+From: hch@caldera.de (Christoph Hellwig)
+To: andrea@suse.de (Andrea Arcangeli)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10pre7aa1
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <20010910175416.A714@athlon.random>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PC hard crashes with a GPF 0000.  Leaves no log on the error.
+In article <20010910175416.A714@athlon.random> you wrote:
+> Only in 2.4.10pre4aa1: 00_paride-max_sectors-1
+> Only in 2.4.10pre7aa1: 00_paride-max_sectors-2
+>
+> 	Rediffed (also noticed the gendisk list changes deleted too much stuff
+> 	here so resurrected it).
 
-Default RedHat roswell install
-PC is a Dell GX110 w/ i810 chipset integrated audio/video/networking with 1
-additional 3com 3c905b installed
+Do you plan to submit the max_sectors changes to Linus & Alan?
+Otherwise I will do as they seem to be needed for reliable operation.
 
->more /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 8
-model name      : Pentium III (Coppermine)
-stepping        : 6
-cpu MHz         : 730.971
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov pat pse36 mm
-x fxsr sse
-bogomips        : 1458.17
 
->more /proc/meminfo
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  128176128 120569856  7606272    28672  6221824 35848192
-Swap: 534601728 21389312 513212416
-MemTotal:       125172 kB
-MemFree:          7428 kB
-MemShared:          28 kB
-Buffers:          6076 kB
-Cached:          18084 kB
-SwapCached:      16924 kB
-Active:          11552 kB
-Inact_dirty:     28640 kB
-Inact_clean:       920 kB
-Inact_target:    32428 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       125172 kB
-LowFree:          7428 kB
-SwapTotal:      522072 kB
-SwapFree:       501184 kB
-NrSwapPages:    125296 pages
+> Only in 2.4.10pre7aa1: 00_rcu-1
+>
+> 	wait_for_rcu and call_rcu implementation (from IBM). I did some
+> 	modifications with respect to the original version from IBM.
+> 	In particular I dropped the vmalloc_rcu/kmalloc_rcu, the
+> 	rcu_head must always be allocated in the data structures, it has
+> 	to be a field of a class, rather than hiding it in the allocation
+> 	and playing dirty and risky with casts on a bigger allocation.
 
->uname -a
-Linux xxxxx 2.4.6-3.1 #1 Tue Jul 24 14:54:56 EDT 2001 i686 unknown
+Do we really need yet-another per-CPU thread for this?  I'd prefer to have
+the context thread per-CPU instead (like in Ben's asynchio patch) and do
+this as well.
 
-The complete screen of the error is below, there is one error in the second
-block of the STACK info.  Had to hand write it and did not notice until I
-typed it out.
+BTW, do you plan to merge patches that actually _use_ this into your tree?
 
-General Protection Fault 0000
-CPU: 0
-EIP: 0010:[<c01d2acd>]
-EFLAGS: 00010282
-EAX:00000006	EBX: c4b9392c	ECX: 00000006	EDX: 000000d8
-ESI: c1847012	EDI: c4100c68	EBP: c1847012	ESP: c7e912e50
-DS: 0018	ES: 0078	SS: 0018
-Process kpnpbios (PID: 2, STACKPAGE=c7e9f000)
-STACK:	c4b9392c	04000001	c4100c00	000000e6
-c8883265	c4b9392c	c4100c00	0000001f
-	000080e6	0000ec00	00000015	c4100d40
-c3052000	00000800	c30527ff	00000246
-	c5eec794	04000001	00000005	0000e401
-c88829af	c4100c00	c4100c00	00000020
-CALL TRACE:	[<c8883265>]	[<88829af>]	[<c010851a>]	[<c0108698>]
-[<c0218eba>]  <<<<< (missing 1 digit on second block)
-	[<c0130078>]	[<cb680018>]	[<c01b3fef?]	[<c0116390>]
-[<c01b41f3>]
-	[<c0105000>]
+> Only in 2.4.10pre4aa1: 10_prefetch-4
+> Only in 2.4.10pre7aa1: 10_prefetch-5
+>
+> 	Part of prefetch in mainline, rediffed the architectural parts.
 
-	[<c01056e6>]	[<c01b4180>]
+In my tree I also have an ia64 prefetch patch (I think it's from redhat,
+not sure though), it's appended if you want to take it.
 
-Code	f3 a6 0f 92 c0 0f 97 c2 38 c2 0f 95 c0 fe c0 88 43 6a eb
+	Christoph
 
-<0> Kernel Panic: Aiee, Killing Interupt Handler
-	In Interupt Handler - Not Syncing
+-- 
+Of course it doesn't work. We've performed a software upgrade.
 
-We disabled the integrated audio in bios.  Other than that is is a stock.
-The PC crashes about once a day with this error.  Let me know if there is
-anything else that is needed, as this is my first post.  Also no useful log
-data.  Just happily chugging along and the syslog restarting after a manual
-reset.  Yes it will be posted to RedHat.
-
-Paul Hamm
-Manager  Technical Services
-Open Ratings Inc
-617-582-5124
-www.openratings.com
-
+--- linux/include/asm-ia64/processor.h.org	Thu Jun 28 12:43:20 2001
++++ linux/include/asm-ia64/processor.h	Thu Jun 28 12:48:28 2001
+@@ -958,6 +958,25 @@
+ 	return result;
+ }
+ 
++
++#define ARCH_HAS_PREFETCH
++#define ARCH_HAS_PREFETCHW
++#define ARCH_HAS_SPINLOCK_PREFETCH
++#define PREFETCH_STRIDE 256
++
++extern inline void prefetch(const void *x)
++{
++         __asm__ __volatile__ ("lfetch [%0]" : : "r"(x));
++}
++         
++extern inline void prefetchw(const void *x)
++{
++	__asm__ __volatile__ ("lfetch.excl [%0]" : : "r"(x));
++}
++
++#define spin_lock_prefetch(x)   prefetchw(x)
++
++                  
+ #endif /* !__ASSEMBLY__ */
+ 
+ #endif /* _ASM_IA64_PROCESSOR_H */

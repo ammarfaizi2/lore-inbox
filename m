@@ -1,91 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129773AbRAESkK>; Fri, 5 Jan 2001 13:40:10 -0500
+	id <S129183AbRAESnK>; Fri, 5 Jan 2001 13:43:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131017AbRAESkA>; Fri, 5 Jan 2001 13:40:00 -0500
-Received: from sparrow.ists.dartmouth.edu ([129.170.249.49]:30848 "EHLO
-	sparrow.websense.net") by vger.kernel.org with ESMTP
-	id <S129773AbRAESjx>; Fri, 5 Jan 2001 13:39:53 -0500
-Date: Fri, 5 Jan 2001 13:38:39 -0500 (EST)
-From: William Stearns <wstearns@pobox.com>
-Reply-To: William Stearns <wstearns@pobox.com>
-To: Jens Axboe <axboe@suse.de>, Joel Koerwer <joel@ideacode.com>
-cc: ML-linux-kernel <linux-kernel@vger.kernel.org>,
-        "Ts'o, Theodore -- Theodore Ts'o" <tytso@mit.edu>, <tytso@valinux.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: Loopback filesystem still hangs on 2.4.0-test13-pre7
-In-Reply-To: <20010104022119.B2408@suse.de>
-Message-ID: <Pine.LNX.4.30.0101041838230.884-100000@sparrow.websense.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129387AbRAESnA>; Fri, 5 Jan 2001 13:43:00 -0500
+Received: from open.your.mind.be ([195.162.205.66]:63478 "HELO
+	portablue.intern.mind.be") by vger.kernel.org with SMTP
+	id <S129183AbRAESmu>; Fri, 5 Jan 2001 13:42:50 -0500
+Date: Fri, 5 Jan 2001 19:42:02 +0100
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] tulip driver
+Message-ID: <20010105194202.A1831@mind.be>
+Mail-Followup-To: p2@mind.be, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="X1bOJ3K7DJ5YkBrT"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Answer: 42
+X-Operating-system: Debian GNU/Linux
+From: p2@mind.be (Peter De Schrijver)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day, all,
 
-On Thu, 4 Jan 2001, Jens Axboe wrote:
+--X1bOJ3K7DJ5YkBrT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> On Wed, Jan 03 2001, William Stearns wrote:
-> > 	This is just meant as an informational message, not a complaint.
-> > Ted, could you note that this still exists on 2.4.0-test13-pre7 in the
-> > todo page?  Many thanks.
-> >
-> > [1.] One line summary of the problem:
-> > 	Loopback filesystem writes still hang on 2.4.0-test13-pre7.
->
-> Could you try with this patch:
->
-> *.kernel.org/pub/linux/kernel/people/axboe/patches/2.4-prerelease/loop-remap-2
->
-> it survives 10 runs of your script and dbench abuse etc. If there are still
-> problems, I'd like to know... Should be faster too :-)
+Hi,
 
-	I applied your Jan 4th version of this patch to 2.4.0-prerelease
-proper (Linus' Jan 4th diff had changes to fs/buffer.c that conflicted).
-I didn't apply either of the other patches in that directory.
-	When I booted it, I got:
+Attached you will find a patch to the tulip driver in Linux 2.4. This patch
+will interpret a bit more of 21142 extended format type 3 info blocks in a 
+tulip SROM. This allows correct autonegotation of the builtin 21143 based
+ethernet adapter on a digital PWS500a(u). Maybe a future version should do
+a more thorough interpretation of the SROM. 
 
-...
-devfs: devfs_register(): device already registered: "252"
-devfs: devfs_register(): device already registered: "253"
-devfs: devfs_register(): device already registered: "254"
-loop: loaded (max 255 devices)
+Peter.
 
-	, but I suspect this is cosmetic.
-	The verdict?  This patch is marvelous!  I _cannot_ crash it, even
-under heavy load.  My test script went through 256 passes without even a
-glitch - previous kernels would have left one or more tasks in the "D"
-state by pass 16 or earlier without fail.  Lots of bash's filling up
-memory and mostly filling swap, no problem (in fact, I had to kill off a
-few when I ran out of file descriptors at 1500 processes).  Running X and
-some X apps (including xmms, which always seemed to spell death to old
-kernels) was also no problem.
-	In short, _I_ _can't_ _get_ _it_ _to_ _fail_!  I'm tremendously
-happy with the patch.
-	I also agree with the speed assessment - 70M of linux source code
-copies (granted, between caches) in only a few seconds once the cache is
-loaded.
 
-	I realize that my 24 hours of testing hardly counts as validation
-of the patch - could others beat on it as well (Joel?)?  Jens, any chance
-you could update it for 2.4.0-final?
-	My solitary vote is for moving this to "Fix exists but isn't
-merged" on Ted's list.
-	Once again, my sincere thanks to both Jens and Jeff for their work
-on the loop filesystem.  I'll keep beating on it.
-	Cheers,
-	- Bill
 
----------------------------------------------------------------------------
-	"Scattered showers my ass!"
-	-- Noah
-(Courtesy of "Michael B. Trausch" <mtrausch@wcnet.org>)
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts,
-and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
-LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
---------------------------------------------------------------------------
+--X1bOJ3K7DJ5YkBrT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-tulip
 
+diff -rc linux.orig/drivers/net/tulip/eeprom.c linux/drivers/net/tulip/eeprom.c
+*** linux.orig/drivers/net/tulip/eeprom.c	Sat Dec 30 20:23:14 2000
+--- linux/drivers/net/tulip/eeprom.c	Fri Jan  5 19:02:36 2001
+***************
+*** 207,214 ****
+--- 207,219 ----
+  					p += (p[0] & 0x3f) + 1;
+  					continue;
+  				} else if (p[1] & 1) {
++ 					int gpr_len, reset_len;
++ 
+  					mtable->has_mii = 1;
+  					leaf->media = 11;
++ 					gpr_len=p[3]*2;
++ 					reset_len=p[4+gpr_len]*2;
++ 					new_advertise |= get_u16(&p[7+gpr_len+reset_len]);
+  				} else {
+  					mtable->has_nonmii = 1;
+  					leaf->media = p[2] & 0x0f;
+
+--X1bOJ3K7DJ5YkBrT--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

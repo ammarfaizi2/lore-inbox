@@ -1,56 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264424AbUEDVMJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264631AbUEDVOx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264424AbUEDVMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 17:12:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264621AbUEDVMG
+	id S264631AbUEDVOx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 17:14:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264625AbUEDVOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 17:12:06 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49640 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264424AbUEDVKp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 17:10:45 -0400
-Message-ID: <409806C6.3060300@pobox.com>
-Date: Tue, 04 May 2004 17:10:30 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: Allen Martin <AMartin@nvidia.com>, linux-kernel@vger.kernel.org,
-       Ross Dickson <ross@datscreative.com.au>,
-       Len Brown <len.brown@intel.com>
-Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
- for idle=C1halt, 2.6.5
-References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49FC2D@mail-sc-6-bk.nvidia.com> <200405040111.01514.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200405040111.01514.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 4 May 2004 17:14:53 -0400
+Received: from legolas.restena.lu ([158.64.1.34]:31189 "EHLO smtp.restena.lu")
+	by vger.kernel.org with ESMTP id S264631AbUEDVO2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 17:14:28 -0400
+Subject: RE: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
+	for idle=C1halt, 2.6.5
+From: Craig Bradney <cbradney@zip.com.au>
+To: Jesse Allen <the3dfxdude@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040504203840.GA2102@tesore.local>
+References: <20040504203840.GA2102@tesore.local>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5+2TtRLZbz5+vSLtxVFW"
+Message-Id: <1083705265.696.5.camel@amilo.bradney.info>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 04 May 2004 23:14:25 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> +/*
-> + * Fixup for C1 Halt Disconnect problem on nForce2 systems.
-> + *
-> + * From information provided by "Allen Martin" <AMartin@nvidia.com>:
-> + *
-> + * A hang is caused when the CPU generates a very fast CONNECT/HALT cycle
-> + * sequence.  Workaround is to set the SYSTEM_IDLE_TIMEOUT to 80 ns.
-> + * This allows the state-machine and timer to return to a proper state within
-> + * 80 ns of the CONNECT and probe appearing together.  Since the CPU will not
-> + * issue another HALT within 80 ns of the initial HALT, the failure condition
-> + * is avoided.
-> + */
-> +static void __devinit pci_fixup_nforce2(struct pci_dev *dev)
 
+--=-5+2TtRLZbz5+vSLtxVFW
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Minor nit:  is __devinit really needed?
+On Tue, 2004-05-04 at 22:38, Jesse Allen wrote:
+> Allen Martin wrote:
+> > This will require changing the value for register at bus:0 dev:0 func:0
+> > offset 6c.
+> >
+> > Chip   Current Value   New Value
+> > C17       1F0FFF01     1F01FF01
+> > C18D      9F0FFF01     9F01FF01
+> >
+> > Northbridge chip version may be determined by reading the PCI revision
+> > ID (offset 8) of the host bridge at bus:0 dev:0 func:0.  C1 or greater
+> > is C18D.
+>=20
+> I believe I have confirmed that the Shuttle AN35N BIOS indeed has this fi=
+x as
+> of Dec 5th 03 version.
+>=20
+> lspci -xxx -vvv
+> 00:00.0 Host bridge: nVidia Corporation nForce2 AGP (different version?)=20
+> (rev c1)
+> ...
+> 60: 08 00 01 20 20 00 88 80 10 00 00 00 01 ff 01 9f
 
-You're changing a northbridge or a southbridge, not a PCI card, I 
-presume...?  That would only need to be done once, when the kernel is 
-booted, regardless of CONFIG_HOTPLUG AFAICS.
+I can confirm on my Asus A7N8X Deluxe v2.0 with BIOS 1007 (the latest),
+that its reporting
 
-	Jeff
+60: 08 00 01 20 20 00 88 80 10 00 00 00 01 ff 0f 9f
 
+So, it looks like it needs the new value as per the note.
 
+I haven't applied that patch that was posted yesterday, am awaiting more
+reaction from Len, Ross and all.
+
+Craig
+
+--=-5+2TtRLZbz5+vSLtxVFW
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAmAewi+pIEYrr7mQRAjn7AJ9aziqlMe9mu7cRzmJ2aLy12R8FXACggEcm
+JaNC2eSOUnKHGSNhL51KR5w=
+=oal1
+-----END PGP SIGNATURE-----
+
+--=-5+2TtRLZbz5+vSLtxVFW--
 

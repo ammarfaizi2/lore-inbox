@@ -1,41 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269896AbRHJDCl>; Thu, 9 Aug 2001 23:02:41 -0400
+	id <S269898AbRHJD1y>; Thu, 9 Aug 2001 23:27:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269897AbRHJDCb>; Thu, 9 Aug 2001 23:02:31 -0400
-Received: from [64.162.95.164] ([64.162.95.164]:55450 "EHLO
-	ssh.chaoticdreams.org") by vger.kernel.org with ESMTP
-	id <S269896AbRHJDCT>; Thu, 9 Aug 2001 23:02:19 -0400
-Date: Thu, 9 Aug 2001 19:59:45 -0700
-From: Paul Mundt <lethal@ChaoticDreams.ORG>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: Louis Garcia <louisg00@bellsouth.net>, Steven Walter <srwalter@yahoo.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: ATI frame buffer
-Message-ID: <20010809195945.A26029@ChaoticDreams.ORG>
-In-Reply-To: <997395178.8772.5.camel@tiger> <Pine.LNX.4.10.10108091524520.24524-100000@transvirtual.com>
-Mime-Version: 1.0
+	id <S269900AbRHJD1o>; Thu, 9 Aug 2001 23:27:44 -0400
+Received: from mauve.demon.co.uk ([158.152.209.66]:23745 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S269898AbRHJD12>; Thu, 9 Aug 2001 23:27:28 -0400
+From: Ian Stirling <root@mauve.demon.co.uk>
+Message-Id: <200108100327.EAA22951@mauve.demon.co.uk>
+Subject: Network device aliases
+To: linux-kernel@vger.kernel.org (l)
+Date: Fri, 10 Aug 2001 04:27:29 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <Pine.LNX.4.10.10108091524520.24524-100000@transvirtual.com>; from jsimmons@transvirtual.com on Thu, Aug 09, 2001 at 03:25:44PM -0700
-Organization: Chaotic Dreams Development Team
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 09, 2001 at 03:25:44PM -0700, James Simmons wrote:
-> > The docs for the aty128fb states that it only supports the Rage128 based
-> > devices. You sure it's also for the radeon?
-> 
-> aty128fb does NOT work for the radeon cards!!! Their is a radeonfb.c
-> driver out their somewhere. I have seen it before.
-> 
-There is indeed a radeonfb. It's in Alan's tree, has been for awhile.
-
-Regards,
-
--- 
-Paul Mundt <lethal@chaoticdreams.org>
-
+I think I've more or less worked out how network devices are initiated,
+and configured, with the help of the htmlised sources, but am not
+finding anything on how aliases (eth0:1 ...) work.
+Do they have an entire device structure that only differs in name and
+IP address?
+Any pointers would be most welcome.
+Many thanks.

@@ -1,122 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275282AbTHMRcF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 13:32:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275284AbTHMRcE
+	id S275285AbTHMRsU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 13:48:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275289AbTHMRsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 13:32:04 -0400
-Received: from mail.kroah.org ([65.200.24.183]:13471 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S275282AbTHMRcA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 13:32:00 -0400
-Date: Wed, 13 Aug 2003 10:31:51 -0700
-From: Greg KH <greg@kroah.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, rddunlap@osdl.org, davej@redhat.com,
+	Wed, 13 Aug 2003 13:48:20 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59568 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S275285AbTHMRsS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 13:48:18 -0400
+Message-ID: <3F3A79CA.6010102@pobox.com>
+Date: Wed, 13 Aug 2003 13:47:54 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: "David S. Miller" <davem@redhat.com>, rddunlap@osdl.org, davej@redhat.com,
        willy@debian.org, linux-kernel@vger.kernel.org,
        kernel-janitor-discuss@lists.sourceforge.net
 Subject: Re: C99 Initialisers
-Message-ID: <20030813173150.GA3317@kroah.com>
-References: <20030812112729.GF3169@parcelfarce.linux.theplanet.co.uk> <20030812180158.GA1416@kroah.com> <3F397FFB.9090601@pobox.com> <20030812171407.09f31455.rddunlap@osdl.org> <3F3986ED.1050206@pobox.com> <20030812173742.6e17f7d7.rddunlap@osdl.org> <20030813004941.GD2184@redhat.com> <32835.4.4.25.4.1060743746.squirrel@www.osdl.org> <3F39AFDF.1020905@pobox.com> <20030813031432.22b6a0d6.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030813031432.22b6a0d6.davem@redhat.com>
-User-Agent: Mutt/1.4.1i
+References: <20030812112729.GF3169@parcelfarce.linux.theplanet.co.uk> <20030812180158.GA1416@kroah.com> <3F397FFB.9090601@pobox.com> <20030812171407.09f31455.rddunlap@osdl.org> <3F3986ED.1050206@pobox.com> <20030812173742.6e17f7d7.rddunlap@osdl.org> <20030813004941.GD2184@redhat.com> <32835.4.4.25.4.1060743746.squirrel@www.osdl.org> <3F39AFDF.1020905@pobox.com> <20030813031432.22b6a0d6.davem@redhat.com> <20030813173150.GA3317@kroah.com>
+In-Reply-To: <20030813173150.GA3317@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 13, 2003 at 03:14:32AM -0700, David S. Miller wrote:
+Greg KH wrote:
+> # add PCI_DEVICE() macro to make pci_device_id tables easier to read.
 > 
-> Hey guys, define a set of macros to make it more readable.
-> This would keep the number of lines down and also make
-> the C99 folks happy.
+> diff -Nru a/drivers/net/tg3.c b/drivers/net/tg3.c
+> --- a/drivers/net/tg3.c	Wed Aug 13 10:29:08 2003
+> +++ b/drivers/net/tg3.c	Wed Aug 13 10:29:08 2003
 
-Heh, much like the USB people have had for years :)
 
-How about this patch?  If you like it I'll add the pci.h change to the
-tree and let you take the tg3.c part.
+This patch is ok with me.
 
-thanks,
+And I agree with David that, in generic, C99 initializers is the way to 
+go.  However, the higher level point remains:
 
-greg k-h
+PCI IDs, and data like them, are fundamentally not C code.
 
-# add PCI_DEVICE() macro to make pci_device_id tables easier to read.
+I'm a strong believer in putting data in its most natural form, and then 
+transforming it via automated tools into the desired form.  C code is a 
+natural form of data that describes "process and procedure", and the 
+compiler is the automated tool that transforms it.  PCI ID tables are 
+data that is not process/procedure, but instead much more of a 
+traditional data table.  So it should be a form more suitable for its 
+multiple uses.  Distro installers and other utilities already pay 
+attention to the PCI ID tables in drivers.  Why are we compiling 
+non-code into ELF .o objects, and then forcing people to extract that 
+non-code from .o files?  In the South we call it "going around your 
+elbow to get to your thumb" :)
 
-diff -Nru a/drivers/net/tg3.c b/drivers/net/tg3.c
---- a/drivers/net/tg3.c	Wed Aug 13 10:29:08 2003
-+++ b/drivers/net/tg3.c	Wed Aug 13 10:29:08 2003
-@@ -128,36 +128,21 @@
- static int tg3_debug = -1;	/* -1 == use TG3_DEF_MSG_ENABLE as value */
- 
- static struct pci_device_id tg3_pci_tbl[] = {
--	{ PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5700,
--	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
--	{ PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5701,
--	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
--	{ PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5702,
--	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
--	{ PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5703,
--	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
--	{ PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5704,
--	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
--	{ PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5702FE,
--	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
--	{ PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5702X,
--	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
--	{ PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5703X,
--	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
--	{ PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5704S,
--	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
--	{ PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5702A3,
--	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
--	{ PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5703A3,
--	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
--	{ PCI_VENDOR_ID_SYSKONNECT, 0x4400,
--	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
--	{ PCI_VENDOR_ID_ALTIMA, PCI_DEVICE_ID_ALTIMA_AC1000,
--	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
--	{ PCI_VENDOR_ID_ALTIMA, PCI_DEVICE_ID_ALTIMA_AC1001,
--	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
--	{ PCI_VENDOR_ID_ALTIMA, PCI_DEVICE_ID_ALTIMA_AC9100,
--	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5700) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5701) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5702) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5703) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5704) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5702FE) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5702X) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5703X) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5704S) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5702A3) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5703A3) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_SYSKONNECT, 0x4400) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_ALTIMA, PCI_DEVICE_ID_ALTIMA_AC1000) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_ALTIMA, PCI_DEVICE_ID_ALTIMA_AC1001) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_ALTIMA, PCI_DEVICE_ID_ALTIMA_AC9100) },
- 	{ 0, }
- };
- 
-diff -Nru a/include/linux/pci.h b/include/linux/pci.h
---- a/include/linux/pci.h	Wed Aug 13 10:29:08 2003
-+++ b/include/linux/pci.h	Wed Aug 13 10:29:08 2003
-@@ -524,6 +524,18 @@
- 
- #define	to_pci_driver(drv) container_of(drv,struct pci_driver, driver)
- 
-+/**
-+ * PCI_DEVICE - macro used to describe a specific pci device
-+ * @vend: the 16 bit PCI Vendor ID
-+ * @dev: the 16 bit PCI Device ID
-+ *
-+ * This macro is used to create a struct pci_device_id that matches a
-+ * specific device.  The subvendor and subdevice fields will be set to
-+ * PCI_ANY_ID.
-+ */
-+#define PCI_DEVICE(vend,dev) \
-+	.vendor = (vend), .device = (dev), \
-+	.subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID
- 
- /* these external functions are only available when PCI support is enabled */
- #ifdef CONFIG_PCI
+	Jeff
+
+
+

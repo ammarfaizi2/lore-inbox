@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267342AbTALJUq>; Sun, 12 Jan 2003 04:20:46 -0500
+	id <S267344AbTALJXp>; Sun, 12 Jan 2003 04:23:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268265AbTALJUp>; Sun, 12 Jan 2003 04:20:45 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:18438 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267342AbTALJTV>;
-	Sun, 12 Jan 2003 04:19:21 -0500
-Date: Sun, 12 Jan 2003 01:27:06 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: any chance of 2.6.0-test*?
-Message-ID: <20030112092706.GN30025@kroah.com>
-References: <20030110161012.GD2041@holomorphy.com> <1042219147.31848.65.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1042219147.31848.65.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+	id <S268264AbTALJXo>; Sun, 12 Jan 2003 04:23:44 -0500
+Received: from tomts6.bellnexxia.net ([209.226.175.26]:3837 "EHLO
+	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S267344AbTALJXk>; Sun, 12 Jan 2003 04:23:40 -0500
+Date: Sun, 12 Jan 2003 04:32:34 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: two more oddities with the fs/Kconfig file
+In-Reply-To: <20030112073406.GM21826@fs.tum.de>
+Message-ID: <Pine.LNX.4.44.0301120430470.4878-100000@dell>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 10, 2003 at 05:19:08PM +0000, Alan Cox wrote:
-> The entire tty layer locking is terminally broken and nobody has even
-> started fixing it. Just try a mass of parallel tty/pty activity . It
-> was problematic before, pre-empt has taken it  to dead, defunct and
-> buried. 
+On Sun, 12 Jan 2003, Adrian Bunk wrote:
 
-I've looked into this, and wow, it's not a simple fix :(
+> On Sun, Jan 12, 2003 at 02:07:13AM -0500, Robert P. J. Day wrote:
+> > 
+> >   there are a few options that are categorized as simply
+> > "bool", with no following label -- examples being UMSDOS,
+> > QUOTACTL, and a couple of others.  without a label on that
+> > line, the option is not displayed for selection anywhere
+> > on the menu.  is this deliberate?
+> >...
+> 
+> Yes, this is what was called define_bool in the old kconfig.
+> 
+> E.g.
+> 
+> config QUOTACTL
+>         bool
+>         depends on XFS_QUOTA || QUOTA
+>         default y
+> 
+> says that QUOTACTL is automatically selected if XFS_QUOTA or QUOTA is 
+> selected. This is a config option that is never visible to the user 
+> configuring the kernel.
 
-But this is really the first it's been mentioned, I can't see holding up
-2.6 for this.  It's a 2.7 job at the earliest, unless someone wants to
-step up and do it right now...
+just a picky point -- since "JBD" is one of these bool options
+with no label, why does it need a help screen as it has in the
+current Kconfig file?  particularly with info about how and
+why to *select* this module.  
 
-thanks,
+or is that cruft leftover from before?
 
-greg k-h
+rday
+

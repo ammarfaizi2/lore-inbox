@@ -1,59 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129175AbRBOVNe>; Thu, 15 Feb 2001 16:13:34 -0500
+	id <S129996AbRBOVRy>; Thu, 15 Feb 2001 16:17:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129447AbRBOVNZ>; Thu, 15 Feb 2001 16:13:25 -0500
-Received: from FACULTY-164.ubishops.ca ([207.162.104.164]:2820 "HELO
-	thanatos.ubishops.ca") by vger.kernel.org with SMTP
-	id <S129175AbRBOVNK>; Thu, 15 Feb 2001 16:13:10 -0500
-Message-ID: <3A8C465D.5E2A118D@ubishops.ca>
-Date: Thu, 15 Feb 2001 16:13:01 -0500
-From: Thomas Hood <jdthood@ubishops.ca>
-Reply-To: jdthoodREMOVETHIS@yahoo.co.uk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
+	id <S130018AbRBOVRo>; Thu, 15 Feb 2001 16:17:44 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:6017 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129996AbRBOVRl>; Thu, 15 Feb 2001 16:17:41 -0500
+Date: Thu, 15 Feb 2001 16:17:20 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: dave@kd0yu.com
+cc: linux-kernel@vger.kernel.org
+Subject: RE: Linux stifles innovation...
+In-Reply-To: <200102152043.f1FKh0l06981@goliath.kd0yu.com>
+Message-ID: <Pine.LNX.3.95.1010215160357.30144A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] to deal with bad dev->refcnt in unregister_netdevice()
-In-Reply-To: <20010214092251.D1144@e-trend.de> <3A8AA725.7446DEA0@ubishops.ca> <20010214165758.L28359@e-trend.de> <20010214122244.H7859@conectiva.com.br>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update on the "unregister_netdevice" bug ...
+On Thu, 15 Feb 2001 dave@kd0yu.com wrote:
 
-Arnaldo Carvalho de Melo has been valiantly trying in his
-scarce free time to find the cause.  I haven't been able to
-hunt effectively because I don't really understand the networking
-code; however I have been experimenting to see what are the
-exact conditions under which the failure occurs.  I modified
-my kernel to print dev->refcnt in /proc/net/dev so that I
-could see what the refcnt of eth0 is at any given moment.
-One of the more interesting experiment logs is appended 
-below.
+> 
+> "I'm an American, I believe in the American Way, I worry if the 
+> government encourages open source, and I don't think we've done 
+> enough education of policy makers to understand the threat."
+> 
 
-Experimentation seems to show
-1) It happens when ipx is used, specifically when 
-   auto_interface=on and auto_primary=on
-2) It happens only or especially when using DHCP
-3) It happens only to PCMCIA ethernet cards
+It is not American to steal. The first "Flight Simulator" was
+published on the PROGRAM EXCHANGE BBS System in the '70s. I know,
+with the help of some Turbo Pascal wizards for the graphics, and
+my state-machine, written in assembly, I did it. The original idea
+was started, and ran in text-mode under CP/M.
 
-Thomas Hood
-jdthood_AT_yahoo.co.uk
+The first flight simulator was also very difficult to fly. This
+is because I incorporated all the quirks of airplanes, spiral
+instability, long-mode oscillations, adverse yaw, etc. I had just
+gotten my Commercial Pilot's license at the time and joined AIAA.
+Every quirk I could find was built into that simulator.
 
-Linux 2.4.1-ac10
-/etc/pcmcia/network disabled with an 'exit 0'
+When M$ copied it, their first releases were also difficult to fly.
+Eventually, they understood enough about the code so that they were
+able to remove the instabilities and any kid could fly it. Their
+introduction into "games" brought them enough money to do anything
+they wanted, including continuing to steal.
 
-command                         refcnt  message
--------                         ------  -------
-(boot)                               0
-(I inserted Xircom card)             1
-ifconfig eth0 up                     2
-ipx_configure --auto_interface=on --auto_primary=on    2
-ifconfig eth0 down                   0  "Freeing alive device c127ac8c, eth0"
-cardctl eject                        ?  "unregister_netdevice: waiting for
-   eth0 to become free. Usage count = 0
-   Message from syslogd@thanatos at Wed Feb 14 12:51:26 2001 ...
-   thanatos kernel: unregister_netdevice: waiting for eth0 to become free.
-   Usage count = 0"
+Again, this is not "American". This is Microsoft.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+

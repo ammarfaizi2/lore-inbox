@@ -1,45 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265833AbUBFXna (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 18:43:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265549AbUBFXna
+	id S265510AbUBFXl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 18:41:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265553AbUBFXl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 18:43:30 -0500
-Received: from lanshark.nersc.gov ([128.55.16.114]:38536 "EHLO
-	lanshark.nersc.gov") by vger.kernel.org with ESMTP id S265553AbUBFXm7
+	Fri, 6 Feb 2004 18:41:29 -0500
+Received: from mail-05.iinet.net.au ([203.59.3.37]:13270 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S265510AbUBFXl1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 18:42:59 -0500
-Message-ID: <40242651.3080207@lbl.gov>
-Date: Fri, 06 Feb 2004 15:42:09 -0800
-From: Thomas Davis <tadavis@lbl.gov>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Fri, 6 Feb 2004 18:41:27 -0500
+Message-ID: <4024261E.5070702@cyberone.com.au>
+Date: Sat, 07 Feb 2004 10:41:18 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: i_size_write called without i_sem..
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: Rick Lindsley <ricklind@us.ibm.com>, Anton Blanchard <anton@samba.org>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, dvhltc@us.ibm.com
+Subject: Re: [PATCH] Load balancing problem in 2.6.2-mm1
+References: <200402062311.i16NBdF14365@owlet.beaverton.ibm.com> <40242152.5030606@cyberone.com.au> <231480000.1076110387@flay>
+In-Reply-To: <231480000.1076110387@flay>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've found these in my dmesg..
 
-i_size_write() called without i_sem
-Call Trace:
- [<c01436c5>] i_size_write_check+0x55/0x60
- [<c0163d2b>] generic_commit_write+0x4b/0x80
- [<c01b3bf5>] ext2_commit_chunk+0x25/0x70
- [<c01b4bbf>] ext2_make_empty+0x12f/0x1b0
- [<c01b8434>] ext2_mkdir+0x94/0x120
- [<c016fafe>] vfs_mkdir+0x4e/0x90
- [<c016fbcf>] sys_mkdir+0x8f/0xd0
- [<c015fc7e>] sys_write+0x2e/0x50
- [<c02ca1ba>] sysenter_past_esp+0x43/0x69
 
-kernel info:
+Martin J. Bligh wrote:
 
-Linux version 2.6.2-mm1 (root@lanshark.nersc.gov) (gcc version 3.3.2 20031022 (Red Hat Linux 3.3.2-1)) #1 SMP Thu Feb 5 15:50:03 PST 2004
+>>From a later email ....
+>>
+>>Hopefully just tending to round down more would damp it better.
+>>*imbalance = (*imbalance + SCHED_LOAD_SCALE/2) >> SCHED_LOAD_SHIFT;
+>>Or even remove the addition all together.
+>>
+>
+>I'd side with just removing the addition alltogether ...
+>
+>
 
-Hints?
+By that stage though, it has already passed through the
+imbalance_pct filter, and with the higher precision and
+averaging of previous loads, it might take a while to
+get there.
 
-thomas
+>>>Moreover, as Rick pointed out, it's particularly futile over idle cpus ;-)
+>>>
+>>I don't follow...
+>>
+>
+>If CPU 7 has 1 task, and cpu 8 has 0 tasks, there's an imbalance of 1.
+>There is no point whatsoever in bouncing that task back and forth
+>between cpu 7 and 8 - it just makes things slower, and trashes the cache.
+>There's *no* fairness issue here.
+>
+>
+
+Right, it should not be moved. I think Anton is seeing a problem
+with active balancing, and not so much a problem with the imbalance
+calculation though.
+
+>If CPU 8 has 2 tasks, and cpu 1 has 1 task, there's an imbalance of 1.
+>*If* that imbalance persists (and it probably won't, given tasks being
+>created, destroyed, and blocking for IO), we may want to rotate that 
+>to 1 vs 2, and then back to 2 vs 1, etc. in the interests of fairness,
+>even though it's slower throughput overall.
+>
+
+Yes, although as long as it's node local and happens a couple of
+times a second you should be pretty hard pressed noticing the
+difference.
+

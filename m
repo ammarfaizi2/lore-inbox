@@ -1,134 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265100AbTFCQrp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 12:47:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265103AbTFCQro
+	id S265093AbTFCQot (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 12:44:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265097AbTFCQot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 12:47:44 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:3313 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265100AbTFCQrj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 12:47:39 -0400
-Date: Tue, 03 Jun 2003 09:49:58 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 770] New: usbaudio does not compile
-Message-ID: <113000000.1054658998@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	Tue, 3 Jun 2003 12:44:49 -0400
+Received: from node-c-7b22.a2000.nl ([62.194.123.34]:5504 "EHLO
+	wsprwl.xs4all.nl") by vger.kernel.org with ESMTP id S265093AbTFCQor
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 12:44:47 -0400
+Date: Tue, 3 Jun 2003 18:58:15 +0200
+From: Ruud Linders <rkmp@xs4all.nl>
+To: Paul Rolland <rol@as2917.net>
+Cc: "'Russell King'" <rmk@arm.linux.org.uk>, "'Ruud Linders'" <rkmp@xs4all.nl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Serial port numbering (ttyS..) wrong for 2.5.61+
+Message-ID: <20030603165815.GA2016@wsprwl.xs4all.nl>
+References: <20030602185118.B776@flint.arm.linux.org.uk> <011501c32936$d8fc44d0$3f00a8c0@witbe>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <011501c32936$d8fc44d0$3f00a8c0@witbe>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=770
 
-           Summary: usbaudio does not compile
-    Kernel Version: 2.5.70-bk8
-            Status: NEW
-          Severity: normal
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: a.akhavan@ndr.de
+Paul,
 
+Setting SERIAL_DEBUG_PCI gives me this:
 
-Distribution: SuSE 8.2
-Hardware Environment: Acer Travelmate 800 LCi
-Software Environment: gcc 3.3
-Problem Description: usbaudio does not compile on 2.5.70-bk8
-(I've skipped a few snapshots, so it might have been introduced at > 2.5.70-bk5)
-It used to compile before. 
+Serial: 8250/16550 driver $Revision: 1.90 $ IRQ sharing enabled
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+Setup PCI port: port bc00, irq 21, type 0
+ttyS14 at I/O 0xbc00 (irq = 21) is a 16550A
+Setup PCI port: port bc08, irq 21, type 0
+ttyS15 at I/O 0xbc08 (irq = 21) is a 16550A
+Setup PCI port: port bc10, irq 21, type 0
+ttyS2 at I/O 0xbc10 (irq = 21) is a 16550A
+Setup PCI port: port bc18, irq 21, type 0
+ttyS3 at I/O 0xbc18 (irq = 21) is a 16550A
 
-Error-log:
-In file included from sound/usb/usbaudio.c:35:
-include/linux/usb.h: In function `usb_make_path':
-include/linux/usb.h:327: warning: comparison between signed and unsigned
-sound/usb/usbaudio.c: In function `parse_audio_format_i_type':
-sound/usb/usbaudio.c:1947: error: `iface_no' undeclared (first use in this function)
-sound/usb/usbaudio.c:1947: error: (Each undeclared identifier is reported only once
-sound/usb/usbaudio.c:1947: error: for each function it appears in.)
-sound/usb/usbaudio.c:1947: error: `altno' undeclared (first use in this function)
-sound/usb/usbaudio.c: In function `parse_audio_endpoints':
-sound/usb/usbaudio.c:2172: warning: comparison between signed and unsigned
-sound/usb/usbaudio.c: In function `snd_usb_audio_create':
-sound/usb/usbaudio.c:2582: warning: comparison between signed and unsigned
-make[2]: *** [sound/usb/usbaudio.o] Error 1
-make[1]: *** [sound/usb] Error 2
-make: *** [sound] Error 2
+Doesn't give us much more detail.
+
+BTW, this is the entry in 8250_pci.c for the board in question:
+        {       PCI_VENDOR_ID_PLX, PCI_DEVICE_ID_PLX_1077,
+                PCI_ANY_ID, PCI_ANY_ID, 0, 0, 
+                pbn_b2_4_921600 },
+
+Note that the ttyS's _are_ numbered in sequence in 2.4.20
 
 
-Steps to reproduce:
-Pentium M + Centrino / ACPI / usb
-
-
-CONFIG_SOUND=m
-
-CONFIG_SND=m
-CONFIG_SND_SEQUENCER=m
-CONFIG_SND_SEQ_DUMMY=m
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=m
-CONFIG_SND_VERBOSE_PRINTK=y
-CONFIG_SND_DEBUG=y
-CONFIG_SND_DEBUG_DETECT=y
-
-CONFIG_SND_DUMMY=m
-CONFIG_SND_VIRMIDI=m
-CONFIG_SND_MTPAV=m
-CONFIG_SND_SERIAL_U16550=m
-CONFIG_SND_MPU401=m
-
-CONFIG_SND_ALI5451=m
-CONFIG_SND_EMU10K1=m
-CONFIG_SND_YMFPCI=m
-CONFIG_SND_ENS1370=m
-CONFIG_SND_ENS1371=m
-CONFIG_SND_INTEL8X0=m
-CONFIG_SND_SONICVIBES=m
-CONFIG_SND_VIA82XX=m
-
-CONFIG_SND_USB_AUDIO=m
-
-
-CONFIG_SOUND_PRIME=m
-CONFIG_SOUND_BT878=m
-CONFIG_SOUND_ICH=m
-CONFIG_SOUND_VIA82CXXX=m
-CONFIG_SOUND_OSS=m
-CONFIG_SOUND_TRACEINIT=y
-CONFIG_SOUND_DMAP=y
-
-CONFIG_USB=m
-
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_BANDWIDTH=y
-
-CONFIG_USB_EHCI_HCD=m
-CONFIG_USB_OHCI_HCD=m
-CONFIG_USB_UHCI_HCD=m
-
-CONFIG_USB_AUDIO=m
-CONFIG_USB_MIDI=m
-CONFIG_USB_ACM=m
-CONFIG_USB_PRINTER=m
-CONFIG_USB_STORAGE=m
-CONFIG_USB_STORAGE_DATAFAB=y
-CONFIG_USB_STORAGE_FREECOM=y
-CONFIG_USB_STORAGE_ISD200=y
-CONFIG_USB_STORAGE_DPCM=y
-CONFIG_USB_STORAGE_SDDR09=y
-CONFIG_USB_STORAGE_SDDR55=y
-CONFIG_USB_STORAGE_JUMPSHOT=y
-
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_HIDDEV=y
-
-CONFIG_USB_AIPTEK=m
-CONFIG_USB_WACOM=m
-CONFIG_USB_KBTAB=m
-
-
+On Mon, Jun 02, 2003 at 08:43:24PM +0200, Paul Rolland wrote:
+> Hello,
+> 
+> 
+> > When we add a port to the system, we try to find in order:
+> > 
+> > - a port which matches the base address
+> > - a port which is unallocated
+> > 
+> > Probably the easiest way to stop the "ttyS14" occuring would 
+> > be to clear the port information at boot when we don't find a port.
+> > 
+> >From 8250_pci.c, you have :
+> 
+> /*              
+>  * Probe one serial board.  Unfortunately, there is no rhyme nor reason
+>  * to the arrangement of serial ports on a PCI card.
+>  */             
+> 
+> It seems that your board is reporting the parameters in such an order
+> that when looking for a port based on the IRQ, I/O port, ... the matching
+> one has id 14...
+> 
+> You could see this more clearly by setting SERIAL_DEBUG_PCI
+> at line 1549 to activate the code :
+> #ifdef SERIAL_DEBUG_PCI
+>                 printk("Setup PCI port: port %x, irq %d, type %d\n",
+>                        serial_req.port, serial_req.irq, serial_req.io_type);
+> #endif
+> 
+> that would report to you the order in which ports are found on
+> your system.
+> 
+> Regards,
+> Paul
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

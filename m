@@ -1,88 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264405AbUGKVIu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266521AbUGKVV3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264405AbUGKVIu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 17:08:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266662AbUGKVIu
+	id S266521AbUGKVV3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 17:21:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266522AbUGKVV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 17:08:50 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:46750 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S264405AbUGKVIr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 17:08:47 -0400
-Date: Sun, 11 Jul 2004 23:06:24 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Daniel Phillips <phillips@istop.com>, sdake@mvista.com
-Cc: David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
-Message-ID: <20040711210624.GC3933@marowsky-bree.de>
-References: <200407050209.29268.phillips@redhat.com> <200407101657.06314.phillips@redhat.com> <1089501890.19787.33.camel@persist.az.mvista.com> <200407111544.25590.phillips@istop.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+	Sun, 11 Jul 2004 17:21:29 -0400
+Received: from mail003.syd.optusnet.com.au ([211.29.132.144]:42958 "EHLO
+	mail003.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S266521AbUGKVV0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 17:21:26 -0400
+Message-ID: <40F1AF1E.7030301@kolivas.org>
+Date: Mon, 12 Jul 2004 07:20:30 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Grzegorz Kulewski <kangur@polcom.net>
+Cc: =?ISO-8859-1?Q?Andr=E9_Goddard_Rosa?= <andre.goddard@gmail.com>,
+       ck kernel mailing list <ck@vds.kolivas.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ck] Re: [announce] [patch] Voluntary Kernel Preemption Patch
+References: <20040709182638.GA11310@elte.hu>	<20040709195105.GA4807@infradead.org>	<20040710124814.GA27345@elte.hu> <40F0075C.2070607@kolivas.org>	<40F016D9.8070300@kolivas.org> <20040711064730.GA11254@elte.hu>	<40F14E53.2030300@kolivas.org> <20040711143853.GA6555@elte.hu>	<b8bf377804071110291e61d19b@mail.gmail.com> <Pine.LNX.4.58.0407111945030.8681@alpha.polcom.net>
+In-Reply-To: <Pine.LNX.4.58.0407111945030.8681@alpha.polcom.net>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig72E2B4212A13B8C0A0DA1797"
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <200407111544.25590.phillips@istop.com>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-07-11T15:44:25,
-   Daniel Phillips <phillips@istop.com> said:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig72E2B4212A13B8C0A0DA1797
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-> Unless you can prove that your userspace approach never deadlocks, the other 
-> questions don't even move the needle.  I am sure that one day somebody, maybe 
-> you, will demonstrate a userspace approach that is provably correct.  
+Grzegorz Kulewski wrote:
+> On Sun, 11 Jul 2004, [ISO-8859-1] André Goddard Rosa wrote:
+> 
+> 
+>>Hi, can anyone explain this:
+>>
+>>Using Ingo's first patch when I:
+>>echo 1 > /proc/sys/kernel/kernel_preempt
+>>
+>>my system hang up after 2 seconds aproximately.
+> 
+> 
+> I had the same problem.
+> 
+> 
+> 
+>>Using Ingo's modifications + Con's it doesn't lock anymore 
+> 
+> 
+> Yes, my too. Maybe H3 version of Ingo's patch fixed that?
+> 
+>  
+> 
+>>and is the best kernel that I have used to test..
+> 
+> 
+> Yes, 2.6.7-bk20-ck5 is really the best!
 
-If you can _prove_ your kernel-space implementation to be correct, I'll
-drop all and every single complaint ;)
+You have an earlier snapshot wich had Ingo's H2 patch which was buggy. 
+The last snapshot I announced had Ingo's H3 patch which fixed that exact 
+problem.
 
-> Until then, if you want your cluster to stay up and fail over
-> properly, there's only one game in town.  
+Cheers,
+Con
 
-This however is not true; clusters have managed just fine running in
-user-space (realtime priority, mlocked into (pre-allocated) memory
-etc).
+--------------enig72E2B4212A13B8C0A0DA1797
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-I agree that for a cluster filesystem it's much lower latency to have
-the infrastructure in the kernel. Going back and forth to user-land just
-ain't as fast and also not very neat.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-However, the memory argument is pretty weak; the memory for
-heartbeating and core functionality must be pre-allocated if you care
-that much. And if you cannot allocate it, maybe you ain't healthy enough
-to join the cluster in the first place.
+iD8DBQFA8a8iZUg7+tp6mRURAqpLAJ0cxnhNACO+9W+uKHT+KZt3CguCVACeIv7b
+WdIVSZreqiw2nRfVb8+1roE=
+=OvX6
+-----END PGP SIGNATURE-----
 
-Otherwise, I don't much care about whether it's in-kernel or not.
-
-My main argument against being in the kernel space has always been
-portability and ease of integration, which makes this quite annoying for
-ISVs, and the support issues which arise. But if it's however a common
-component part of the 'kernel proper', then this argument no longer
-holds.
-
-If the infrastructure takes that jump, I'd be happy. Infrastructure is
-boring and has been solved/reinvented so often there's hardly anything
-new and exciting about heartbeating, membership, there's more fun work
-higher up the stack.
-
-> > There is one more advantage to group messaging and distributed
-> > locking implemented within the kernel, that I hadn't originally
-> > considered; it sure is sexy.
-> I don't think it's sexy, I think it's ugly, to tell the truth.  I am
-> actively researching how to move the slow-path cluster infrastructure
-> out of kernel, and I would be pleased to work together with anyone
-> else who is interested in this nasty problem.
-
-Messaging (which hopefully includes strong authentication if not
-encryption, though I could see that being delegated to IPsec) and
-locking is in the fast-path, though.
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering	    \ ever tried. ever failed. no matter.
-SUSE Labs, Research and Development | try again. fail again. fail better.
-SUSE LINUX AG - A Novell company    \ 	-- Samuel Beckett
-
+--------------enig72E2B4212A13B8C0A0DA1797--

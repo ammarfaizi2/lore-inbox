@@ -1,58 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319703AbSIMQSX>; Fri, 13 Sep 2002 12:18:23 -0400
+	id <S319698AbSIMQgE>; Fri, 13 Sep 2002 12:36:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319704AbSIMQSX>; Fri, 13 Sep 2002 12:18:23 -0400
-Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:25040 "EHLO
-	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S319703AbSIMQSW>; Fri, 13 Sep 2002 12:18:22 -0400
-Date: Fri, 13 Sep 2002 13:22:54 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Con Kolivas <conman@kolivas.net>
-cc: linux-kernel@vger.kernel.org, <gh@us.ibm.com>
-Subject: Re: System response benchmarks in performance patches
-In-Reply-To: <1031933335.3d820d97a13c6@kolivas.net>
-Message-ID: <Pine.LNX.4.44L.0209131320130.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S319704AbSIMQgE>; Fri, 13 Sep 2002 12:36:04 -0400
+Received: from h66-38-216-165.gtconnect.net ([66.38.216.165]:45829 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S319698AbSIMQgD>;
+	Fri, 13 Sep 2002 12:36:03 -0400
+Date: Fri, 13 Sep 2002 12:40:55 -0400 (EDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Giuliano Pochini <pochini@shiny.it>
+cc: Helge Hafting <helgehaf@aitel.hist.no>, <linux-kernel@vger.kernel.org>
+Subject: Re: Killing/balancing processes when overcommited
+In-Reply-To: <XFMail.20020913150221.pochini@shiny.it>
+Message-ID: <Pine.LNX.4.44.0209131240020.1403-100000@innerfire.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Sep 2002, Con Kolivas wrote:
+On Fri, 13 Sep 2002, Giuliano Pochini wrote:
 
-> I came up with a very simple way of measuring responsiveness that gives
-> me numbers that are meaningful to me. What I've done is the old faithful
-> kernel compile and measured it under different loads to simulate the
-> pc's ability to perform under various loads.
+> Date: Fri, 13 Sep 2002 15:02:21 +0200 (CEST)
+> From: Giuliano Pochini <pochini@shiny.it>
+> To: Helge Hafting <helgehaf@aitel.hist.no>
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: Killing/balancing processes when overcommited
+>
+>
+> > This is hard to setup, and has the some weaknesses:
+> > 1. You worry only about apps you _know_.  But the guy who got
+> > his netscape or make -j killed will rename his
+> > copies of these apps to something else so your carefully
+> > set up oom killer won't know what is running.
+> > (How much memory is the "mybrowser" app supposed to use?)
+> > Or he'll get another software package that you haven't heard of.
+> >
+> > 2. Lots and lots of people running netscapes using
+> > only 70M each will still be too much.  Think of
+> > a university with xterms and then they all
+> > goes to cnn.com or something for the latest news
+> > about some large event.
+> >
+> > Even nice well-behaved apps
+> > is bad when there is unusually many of them. [...]
+>
+> That's obvious. The point is that the sysadmin should be
+> able to hint the oom killer as much as possible.
+> The current linux/mm/oom_kill.c:badness() takes into account
+> many factors. The sysadmin should be able to affect the
+> badness calculation on process/user/something basis.
 
-Absolutely wonderful.  I'd love to see this easily scriptable
-so we can just run it with one command, eg:
+I think what is really needed is a daemon to handle complex descisions
+like that with the kernel OOM killer as a fall back.
 
-$ ./contest
+	Gerhard
 
-> Kernel			Time		%CPU
-> 2.4.19			3:00.76		58%
-> 2.4.19-ck7			2:01.68		86%
-> 2.4.19-ck7-rmap		2:05.95		83%
-> 2.4.18-6mdk    	        3:01.48         58%
+--
+Gerhard Mack
 
-Very interesting results. People benchmarking just one thing
-at a time won't get variances anywhere near this big, while
-real system workload is pretty much always multitasking.
+gmack@innerfire.net
 
-I think I've finally found a benchmark that gives results which
-are meaningful in the context of a multitasking system.
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
+<>< As a computer I find your faith in technology amusing.
 

@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287333AbSA1XCv>; Mon, 28 Jan 2002 18:02:51 -0500
+	id <S287337AbSA1XGw>; Mon, 28 Jan 2002 18:06:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287337AbSA1XCk>; Mon, 28 Jan 2002 18:02:40 -0500
-Received: from alpha9.cc.monash.edu.au ([130.194.1.9]:20487 "EHLO
-	ALPHA9.CC.MONASH.EDU.AU") by vger.kernel.org with ESMTP
-	id <S287333AbSA1XC3>; Mon, 28 Jan 2002 18:02:29 -0500
-Date: Tue, 29 Jan 2002 10:01:32 +1100
-From: Kim Oldfield <swsusp@oldfield.wattle.id.au>
-Subject: Re: [swsusp] swsusp for 2.4.17 -- newer ide supported
-In-Reply-To: <20020128100704.GA3013@elf.ucw.cz>
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-        Swsusp mailing list <swsusp@lister.fornax.hu>
-Message-id: <20020128230132.GB24550@barclay.its.monash.edu.au>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-disposition: inline
-Content-transfer-encoding: 7BIT
-User-Agent: Mutt/1.3.25i
-In-Reply-To: <20020128100704.GA3013@elf.ucw.cz>
+	id <S287487AbSA1XGm>; Mon, 28 Jan 2002 18:06:42 -0500
+Received: from vsdc01.corp.publichost.com ([64.7.196.123]:21009 "EHLO
+	vsdc01.corp.publichost.com") by vger.kernel.org with ESMTP
+	id <S287337AbSA1XGa>; Mon, 28 Jan 2002 18:06:30 -0500
+Message-ID: <3C55D970.40605@vitalstream.com>
+Date: Mon, 28 Jan 2002 15:06:24 -0800
+From: Rick Stevens <rstevens@vitalstream.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Note describing poor dcache utilization under high memory pressure
+In-Reply-To: <Pine.LNX.4.33L.0201281940580.32617-100000@imladris.surriel.com> <3C55C9F7.6010106@vitalstream.com> <E16VKVM-0000DL-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Jan 2002, Pavel Machek typed:
-] This is newer version of swsusp patch. It now supports newer ide
-] driver (which just about everybody uses). It sometimes fails to
-] suspend when top is running, otherwise no bugs are known. Try to break
-] this one!
+Daniel Phillips wrote:
 
-(As with previous versions) it does not work with ext3:
+> On January 28, 2002 11:00 pm, Rick Stevens wrote:
+> 
+>>I've gotta read up on the kernel's VM system.  I use to write them
+>>for a certain three-letter-acronymed company--many, many moons ago.
+>>Maybe I'd have some ideas.  Then again, perhaps not.
+>>
+> 
+> Well, you really want to take a trip over to irc.openprojects.net, 
+> #kernelnewbies, and there you'll find a number of still-current IBM people 
+> happily helping cook up plots to take over Linu^H^H^H^H the world ;-)
 
-Cut and paste from syslog:
-twilight kernel: SysRq : Software suspend
-twilight kernel: 
-twilight kernel: Suspend Machine: Stopping processes
-twilight kernel: Suspend Machine: Waiting for tasks to stop... ::::::::::::::::::::::::::::
-twilight kernel:  stopping tasks failed (1 tasks remaining)
-twilight kernel: Suspend Machine: Not all processes stopped!
-twilight kernel: Resume Machine: Restarting tasks...<6> Strange, kjournald not stopped
-twilight kernel:  done
-twilight kernel: Resume Machine: Done resume from 0
 
-Regards,
-Kim
+Uh, I never said IBM ;-)  I said "a three-letter-acronym" company.
+There were several.  The one I dealt with was in Massachusetts, had
+a real penchant for three-letter acronyms and used a programming
+dialect which was the only single word oxymoron in the English
+language (enough hints yet?).
+
+And, no, I wasn't an employee.
+
+----------------------------------------------------------------------
+- Rick Stevens, SSE, VitalStream, Inc.      rstevens@vitalstream.com -
+- 949-743-2010 (Voice)                    http://www.vitalstream.com -
+-                                                                    -
+-        "More hay, Trigger?" "No thanks, Roy, I'm stuffed!"         -
+----------------------------------------------------------------------
+

@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262418AbSJOFZP>; Tue, 15 Oct 2002 01:25:15 -0400
+	id <S262410AbSJOFVC>; Tue, 15 Oct 2002 01:21:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262426AbSJOFZP>; Tue, 15 Oct 2002 01:25:15 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:26887 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262418AbSJOFZO>;
-	Tue, 15 Oct 2002 01:25:14 -0400
-Date: Mon, 14 Oct 2002 22:31:18 -0700
-From: Greg KH <greg@kroah.com>
-To: "Randy.Dunlap" <randy.dunlap@verizon.net>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.42 Doc/kernel-parameters
-Message-ID: <20021015053118.GB11190@kroah.com>
-References: <3DAB9B42.FBDE93C7@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DAB9B42.FBDE93C7@verizon.net>
-User-Agent: Mutt/1.4i
+	id <S262416AbSJOFVC>; Tue, 15 Oct 2002 01:21:02 -0400
+Received: from dp.samba.org ([66.70.73.150]:15809 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262410AbSJOFVB>;
+	Tue, 15 Oct 2002 01:21:01 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] 'virtual => physical page mapping cache' take #2, vcache-2.5.38-C4 
+In-reply-to: Your message of "Fri, 27 Sep 2002 20:54:31 +0200."
+             <Pine.LNX.4.44.0209272043260.17678-100000@localhost.localdomain> 
+Date: Tue, 15 Oct 2002 15:15:13 +1000
+Message-Id: <20021015052656.2AB992C06B@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 14, 2002 at 09:36:18PM -0700, Randy.Dunlap wrote:
-> Hi,
-> 
-> Please apply to 2.5.42.
-> Updates/corrects Documentation/kernel-parameters.txt file.
+In message <Pine.LNX.4.44.0209272043260.17678-100000@localhost.localdomain> you
+ write:
+> +	page = pin_page(uaddr - offset);
+> +	ret = IS_ERR(page);
+> +	if (ret)
+> +		goto out;
+> +	head = hash_futex(page, offset);
 
-You forgot to add the "nousb" flag that you wrote the patch for :)
+Um, you mean:
+	if (IS_ERR(page)) {
+		ret = PTR_ERR(page);
+		goto out;
+	}
 
-thanks,
-
-greg k-h
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

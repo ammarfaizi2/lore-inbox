@@ -1,124 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262412AbVADX6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262443AbVADXdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262412AbVADX6I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 18:58:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262411AbVADXzU
+	id S262443AbVADXdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 18:33:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262413AbVADXM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 18:55:20 -0500
-Received: from out008pub.verizon.net ([206.46.170.108]:13055 "EHLO
-	out008.verizon.net") by vger.kernel.org with ESMTP id S262178AbVADXu0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 18:50:26 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Date: Tue, 4 Jan 2005 18:50:20 -0500
-User-Agent: KMail/1.7
-Cc: Willy Tarreau <willy@w.ods.org>, "Theodore Ts'o" <tytso@mit.edu>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Thomas Graf <tgraf@suug.ch>,
-       Bill Davidsen <davidsen@tmr.com>, Adrian Bunk <bunk@stusta.de>,
-       Diego Calleja <diegocg@teleline.es>, wli@holomorphy.com,
-       aebr@win.tue.nl, solt2@dns.toxicfilms.tv
-References: <20050104031229.GE26856@postel.suug.ch> <20050104211910.GB7280@thunk.org> <20050104214324.GG22075@alpha.home.local>
-In-Reply-To: <20050104214324.GG22075@alpha.home.local>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 4 Jan 2005 18:12:29 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:29366 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262132AbVADXIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 18:08:54 -0500
+Subject: Re: Main CPU- I/O CPU interaction
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Valdis.Kletnieks@vt.edu
+Cc: tony osborne <tonyosborne_a@hotmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200501032227.j03MRocl008354@turing-police.cc.vt.edu>
+References: <BAY14-F83B94FD7D13C5D19883F795900@phx.gbl>
+	 <200501032227.j03MRocl008354@turing-police.cc.vt.edu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501041850.20446.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.205.52.185] at Tue, 4 Jan 2005 17:50:20 -0600
+Message-Id: <1104857088.17176.27.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 04 Jan 2005 22:03:45 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 January 2005 16:43, Willy Tarreau wrote:
->On Tue, Jan 04, 2005 at 04:19:10PM -0500, Theodore Ts'o wrote:
->> The problem with the -rc releases is that we try to predict in
->> advance which releases in advance will be stable, and we don't
->> seem to be able to do a good job of that.
->
->I really like this description, it's the most accurate description I
-> ever read of an -rc release. I wish you could convince Linus with
-> it.
->
->The problem with -rc is that if we try to predict, it implies that
-> we don't expect to count much on user reports. Then why do an -rc
-> at all if we don't expect enough testings ?
->
->> If we do a release every week, my guess is
->> that at least 1 in 3 releases will turn out to be stable enough
->> for most purposes.  But we won't know until after 2 or 3 days
->> which releases will be the good ones.
+On Llu, 2005-01-03 at 22:27, Valdis.Kletnieks@vt.edu wrote:
+> What sort of I/O device processor is (a) supported by Linux *and* (b) filesystem
+> aware?  Unless it meets both criteria, the main CPU(s) will still have to do
+> all the work of block allocation, inode creation, and all the rest of that
+> stuff.
 
-Thats what gets me, when approaching a point release, the -rc's come 
-at almost daily intervals.  Granted, if  huge bug that really hurts 
-shows up in -rc1, then -rc2 should follow as soon as *that* bug can 
-be addressed.  Then maybe in 3 days, something else shows up as a 
-trend in the reports, go fix that and have -rc3 after say 5 days.  
-Then sit and watch the folks like me, who usually do build the -rc 
-stuff just so I can attempt to do my part in heading off the 2.6.8 
-fiasco.  -rc(x) should have a lifetime of no less than a week of the 
-rest of us beating on it before it gets its name changed to 2.6.xx.
+NetApp 8)
 
-IMO, some of the stuff has moved to final in the last days with 
-nowhere near enough time for this old fart to beat on it.  The recent 
-string of realtime stuff from Ingo ran very well indeed here, with 
-one glaring exception that seemed to vary from reboot to reboot to 
-exactly the same kernel, something was happening that destroyed the 
-amanda client amandad, several days in a row.  OTOH, after running 
-flawlessly wth 33-04 for a week, the next and subsequent reboots to 
-that kernel will now fail amanda 100% of the time.  Now I'm using 
--ac2, but -ac1, for the limited time I ran it, worked very well too.
+The offloading file system stuff has been proposed and kicked around and
+failed repeatedly in different circles. What has had some success is
+offloading layout so that the I/O device thinks in terms of
 
-But that doesn't mean I will not continue to build the -mm1-***.34-* 
-series for testing also, because I will, if only to be able to report 
-that so and so is broken.
+	handle = allocate(blocks, near_this, and_this, ....)
+	data = read(handle, offset, len)
+	write(handle, offset, len, data)
+	free(handle)
 
-Basicly, if we who don't mind bleeding occasionally, don't have at 
-least 48 hours to beat on a test kernel from the time we get around 
-to building it, then there are going to be gotcha's that get by this 
-testing and into the linus mainline.  This does not portend well for 
-progress in general, and like Dave Jones said, leads to lots of 
-name-of-distro-specific patches.  There should be an announced 
-feature freeze at least 15 days ahead of a release, with nothing but 
-bigfixes allowed in from that point, and the actual release made when 
-its satisfactorially stable for everybody.  I'd suggest not less than 
-7 days of most of us running it in the real world as an example of 
-stable, with the only bug reports being generated by us laid at 
-hardwares feet during that time.  Not a hell of a lot you can do 
-about randomly bum hardware.
+type API's, allowing the storage subsystem to do physical
+mirror/relocation/HSM in private.
 
->That's always been my point, and one of the reasons why *some* of
-> Alan's kernels work well.
->
->> In practice, that's all the -rc releases are these days anyway
->> (there are times when a 2.6.x-rcy release is more stable than
->> 2.6.z).  The problem is that since the -rc releases are called
->> what they are called, they don't get enough testing.
->
->Perfectly true. I would add that with -rc releases, people only
-> upgrade when we tell them that they can, while with more frequent
-> releases, they upgrade when they *need* to, and can try several
-> versions if the first one they pick does not work.
->
->Regards,
->Willy
->
-I disagree Willy, if I see an -rc candidate, even if I'm following an 
-interesting thread, like Ingo's patches, the rc will get built and 
-run here, precisely so I can bitch if it doesn't work.  I have an 
-idea there are more like me who are interested as much in whats *new* 
-as in how well does it run *my* stuff, and that you may possibly be 
-undercounting us...
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.31% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

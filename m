@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbUBVIuI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 03:50:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbUBVIuI
+	id S261204AbUBVJHR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 04:07:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbUBVJHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 03:50:08 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:13200 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261202AbUBVIuC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 03:50:02 -0500
-Date: Sun, 22 Feb 2004 10:50:21 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "James H. Cloos Jr." <cloos@jhcloos.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: make help ARCH=xx fun
-Message-ID: <20040222095021.GB2266@mars.ravnborg.org>
-Mail-Followup-To: "James H. Cloos Jr." <cloos@jhcloos.com>,
-	linux-kernel@vger.kernel.org
-References: <m3y8qwv78e.fsf@lugabout.jhcloos.org>
+	Sun, 22 Feb 2004 04:07:17 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:47113 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261204AbUBVJHQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 04:07:16 -0500
+Date: Sun, 22 Feb 2004 09:07:11 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org, Jim Wilson <wilson@specifixinc.com>,
+       Judith Lebzelter <judith@osdl.org>, Dan Kegel <dank@kegel.com>,
+       cliff white <cliffw@osdl.org>, "Timothy D. Witham" <wookie@osdl.org>
+Subject: Re: Kernel Cross Compiling [update]
+Message-ID: <20040222090711.A11210@flint.arm.linux.org.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Jim Wilson <wilson@specifixinc.com>,
+	Judith Lebzelter <judith@osdl.org>, Dan Kegel <dank@kegel.com>,
+	cliff white <cliffw@osdl.org>,
+	"Timothy D. Witham" <wookie@osdl.org>
+References: <20040222035350.GB31813@MAIL.13thfloor.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m3y8qwv78e.fsf@lugabout.jhcloos.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040222035350.GB31813@MAIL.13thfloor.at>; from herbert@13thfloor.at on Sun, Feb 22, 2004 at 04:53:50AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 21, 2004 at 09:26:41AM -0500, James H. Cloos Jr. wrote:
-> I was looking at the arch-specific make options for various archs,
-> and found this bit of fun:
+On Sun, Feb 22, 2004 at 04:53:50AM +0100, Herbert Poetzl wrote:
+>    interesting is that some architectures (arm, chris, v850)
+>    do not even have an appropriate default config
+
+For some (eg ARM) one single default config makes zero sense.  I've
+been debating about removing arch/arm/defconfig for this reason; we
+have a whole host of machine default configurations in arch/arm/config
+to serve this purpose.
+
+>    				   linux-2.4.25
+>    			   config  dep     kernel  modules
 > 
-> :; make help ARCH=sh
-> [elided]
-> Architecture specific targets (sh):
->   zImage                  - Compressed kernel image (arch/sh/boot/zImage)
->   SCCS            - Build for arch/sh/configs/SCCS
->   defconfig-adx           - Build for adx
->   defconfig-cqreek        - Build for cqreek
->   defconfig-dreamcast     - Build for dreamcast
->   defconfig-hp680         - Build for hp680
->   defconfig-se7751        - Build for se7751
->   defconfig-snapgear      - Build for snapgear
->   defconfig-systemh       - Build for systemh
-> [elided]
-> 
-> The defconfig options only show up after a bk get in arch/sh/configs/.
-The sh people have decided to create the list based on the content of the directory.
-Therefore you see the SCCS entry, and that's why you need to do a 'bk bet'.
-In general you cannot expect the konfig and build system to work 100% if there is
-random files missing in the tree. Those files bk can checkout automatically is
-more by luck - and no effort has been put into making this a trustworthy way
-to do it.
+>    alpha/alpha: 	   OK	   OK	   OK	   OK
+>    arm/arm:		   OK	   OK	   FAILED  FAILED
 
-I expect sh to change their defconfig system to the same infrastructure as used
-by ppc, arm and others.
+ARM is not expected to build in 2.4 kernels, and probably never will.
 
-> There are also several archs that do not have any arch-specific
-> help.  ppc64 (unlike ppc) is one such example.
-Patches are welcome.
-
-	Sam
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264856AbRFYQUz>; Mon, 25 Jun 2001 12:20:55 -0400
+	id <S264863AbRFYQWp>; Mon, 25 Jun 2001 12:22:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264862AbRFYQUp>; Mon, 25 Jun 2001 12:20:45 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:60175 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S264856AbRFYQU3>;
-	Mon, 25 Jun 2001 12:20:29 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5-ac12 kernel oops 
-In-Reply-To: Your message of "Mon, 25 Jun 2001 09:02:19 MST."
-             <20010625160219.84967784D9@mail.clouddancer.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 26 Jun 2001 02:20:23 +1000
-Message-ID: <730.993486023@ocs3.ocs-net>
+	id <S264864AbRFYQWf>; Mon, 25 Jun 2001 12:22:35 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:5388 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S264863AbRFYQWZ>; Mon, 25 Jun 2001 12:22:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: klink@clouddancer.com (Colonel), linux-kernel@vger.kernel.org
+Subject: Re: What are the VM motivations??
+Date: Mon, 25 Jun 2001 18:25:30 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <20010621190103.A888@jmcmullan.resilience.com> <9h6d6b$509$1@ns1.clouddancer.com> <20010625154649.820E4784D9@mail.clouddancer.com>
+In-Reply-To: <20010625154649.820E4784D9@mail.clouddancer.com>
+MIME-Version: 1.0
+Message-Id: <01062518253003.01008@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Jun 2001 09:02:19 -0700 (PDT), 
-klink@clouddancer.com (Colonel) wrote:
->In clouddancer.list.kernel, Keith Owens wrote:
->>partition_name at c01aad00 and another at c014cba0.  Both
->>fs/partitions/msdos.c and drivers/md/md.c define that symbol, md
+On Monday 25 June 2001 17:46, Colonel wrote:
+> >> POST IT.  Give the rest of us some clues and the opportunity to check
+> >> evaluator's replies.
+> >
+> >Well, if you try that strategy you'll find you never get around to posting
+> > it because you'll be too worried about getting it right.  The point is
+> > not to get it right, it's to get a starting point down on (virtual)
+> > paper.  I'd strongly suggest passing something like that around for
+> > comment privately first.
 >
->and I have both in the kernel.
->Only the raid5 was active, the msdos stuff is a module for 'just in
->case'.  Something else triggered this, I've run raid for a long time
->without problems.
+> Well, it does seem that some ego is involved here...
 
-Both msdos and raid are in your kernel, msdos is not a module.
+Not in this case.  Do it whichever way you want, the point is: do it (don't 
+just talk about it)
 
-Don't be misled by ksymoops reporting duplicate symbols.  It reads the
-entire symbol map and reports discrepancies as it does so, mainly to
-pick up idiots who feed /proc/ksyms from 2.2 and System.map from 2.4.
-Don't laugh, it happens!  Unless the trace shows raid or msdos are
-implicated in the oops, you can ignore the ksymoops warning.
-
->>ksymoops has a hierarchy of trust.  System.map is more trustworthy than
->>/proc/ksyms because ksyms changes, especially if you rebooted after the
->>oops and before running ksymoops.
->
->Hmm, I would have thought that /proc was more up to date, because it
->would reflect changes.  No reboot, never even considered it (I've
->rescued too many junior sysadmins that think rebooting is _the_ answer).
-
-/proc/ksyms is dynamic, it changes as modules are loaded and unloaded.
-And often the oops is so bad that the machine is dead so reboot is the
-only option, ksyms after reboot may be for a completely different
-kernel.  If you want accurate ksyms and lsmod data to feed into
-ksymoops, 'man insmod' and read section 'KSYMOOPS ASSISTANCE'.
-
+--
+Daniel

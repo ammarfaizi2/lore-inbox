@@ -1,32 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273477AbRIUMOz>; Fri, 21 Sep 2001 08:14:55 -0400
+	id <S273470AbRIUMXi>; Fri, 21 Sep 2001 08:23:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273474AbRIUMOr>; Fri, 21 Sep 2001 08:14:47 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:10259 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S273479AbRIUMOf>; Fri, 21 Sep 2001 08:14:35 -0400
-Subject: Re: Intel 82815 VGA
-To: rmo@eurotux.com (Ricardo Manuel Oliveira)
-Date: Fri, 21 Sep 2001 13:19:58 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BAB140E.3E42DF27@eurotux.com> from "Ricardo Manuel Oliveira" at Sep 21, 2001 10:18:54 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S273479AbRIUMXS>; Fri, 21 Sep 2001 08:23:18 -0400
+Received: from CPE-61-9-150-236.vic.bigpond.net.au ([61.9.150.236]:4850 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S273470AbRIUMXK>; Fri, 21 Sep 2001 08:23:10 -0400
+Message-ID: <3BAB307D.F1110ED7@eyal.emu.id.au>
+Date: Fri, 21 Sep 2001 22:20:13 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-pre10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15kPHi-0008Ev-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "list, linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.4.10-pre13: aironet4500_card.c compile problem
+Content-Type: multipart/mixed;
+ boundary="------------B0A4A57C62E46F9FA377B9D3"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Problem with i815EM chipset (in ASUS M1000 laptop series) -
-> the display blinks *VERY* frequently - seems to blink for
-> every disk access or so.
+This is a multi-part message in MIME format.
+--------------B0A4A57C62E46F9FA377B9D3
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-It shouldnt be affected by PCI traffic but I guess its possible someone
-has been sawing bits off. Try turning off ide DMA 
+It is missing <linux/init.h>
 
-(hdparm -d0 /dev/hda)
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>
+--------------B0A4A57C62E46F9FA377B9D3
+Content-Type: text/plain; charset=us-ascii;
+ name="2.4.0-pre13-aironet.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="2.4.0-pre13-aironet.patch"
 
-Alan
+--- linux/drivers/net/aironet4500_card.c.orig	Fri Sep 21 22:14:16 2001
++++ linux/drivers/net/aironet4500_card.c	Fri Sep 21 22:14:37 2001
+@@ -17,6 +17,7 @@
+ #endif
+ 
+ #include <linux/version.h>
++#include <linux/init.h>
+ #include <linux/config.h>
+ #include <linux/module.h>
+ 
+
+--------------B0A4A57C62E46F9FA377B9D3--
+

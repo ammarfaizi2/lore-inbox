@@ -1,223 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129450AbQJ2V7q>; Sun, 29 Oct 2000 16:59:46 -0500
+	id <S129671AbQJ2WDS>; Sun, 29 Oct 2000 17:03:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129671AbQJ2V7h>; Sun, 29 Oct 2000 16:59:37 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:9227 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129450AbQJ2V7U>;
-	Sun, 29 Oct 2000 16:59:20 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: torvalds@transmeta.com
-cc: linux-kbuild@torque.net, linux-kernel@vger.kernel.org,
-        linux-usb-devel@lists.sourceforge.net
-Subject: [patch] 2.4.0-test10-pre6 fix usb initialization order 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 30 Oct 2000 08:59:07 +1100
-Message-ID: <16430.972856747@ocs3.ocs-net>
+	id <S129787AbQJ2WC7>; Sun, 29 Oct 2000 17:02:59 -0500
+Received: from getafix.lostland.net ([216.29.29.27]:22313 "EHLO
+	getafix.lostland.net") by vger.kernel.org with ESMTP
+	id <S129671AbQJ2WCs>; Sun, 29 Oct 2000 17:02:48 -0500
+Date: Sun, 29 Oct 2000 17:02:47 -0500 (EST)
+From: adrian <jimbud@lostland.net>
+To: linux-kernel@vger.kernel.org
+Subject: Oops with v2.2.18-pre18
+Message-ID: <Pine.BSO.4.21.0010291650510.3803-100000@getafix.lostland.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.  Without this patch, USB has problems when built
-into the kernel and modversions are used, I have confirmation that it
-fixes the reported problem.  The only changes from the previous version
-of this patch are in the documentation.
 
-This patch against 2.4.0-test10-pre6 implements LINK_FIRST and
-LINK_LAST to fix the problem with usb initialization order.  The patch
-*only* affects drivers/usb because that is the only Makefile that
-specifies LINK_FIRST.  All the other Makefiles still rely on the kludge
-where the link order is implicit in the order that objects are
-declared.  USB is a special case[*] and the kludge is no longer enough,
-it really does need LINK_FIRST.
+Hello folks,
 
-[*]http://www.uwsg.indiana.edu/hypermail/linux/kernel/0010.3/0661.html
+   I've mainly been testing the 2.4.0-test kernels, but I decided to go
+ahead and test the 2.2.18-pre18 for a bit of variety.  I hadn't noticed
+any problems until I recompiled it without USB support.  After doing a
+make modules, I got the following:
 
-Do not change any other Makefiles to use LINK_FIRST/LAST unless you can
-guarantee that you know and have take care of all the side effects of
-changing link order.  Given the lack of documentation on link order in
-most Makefiles, that means leave link order alone until 2.5 unless
-there is absolutely no other way of fixing the problem.
+Unable to handle kernel paging request at virtual address bb6c8f1e
+current->tss.cr3 = 0cac9000, %cr3 = 0cac9000
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c013050c>]
+EFLAGS: 00010283
+eax: cff9bb50   ebx: bb6c8f06   ecx: 0000001e   edx: cff80000
+esi: 0067bf11   edi: c5521023   ebp: bb6c8f1e   esp: cca59f40
+ds: 0018   es: 0018   ss: 0018
+Process make (pid: 3749, process nr: 63, stackpage=cca59000)
+Stack: c5521023 00000001 cff9bb50 c552101e 0067bf11 00000005 c012b508 cb9f7a40 
+       cca59f88 cca59f88 c012b783 cb9f7a40 cca59f88 00000001 c5521000 c5521000 
+       bfffde44 bfffdd8c c552101e 00000005 0067bf11 c012b880 c5521000 cb9f7a40 
+Call Trace: [<c012b508>] [<c012b783>] [<c012b880>] [<c012993e>] [<c0109044>] 
+Code: 8b 6d 00 8b 74 24 18 39 73 48 75 58 8b 74 24 24 39 73 0c 75 
 
-Index: 0-test10-pre6.1/drivers/usb/Makefile
---- 0-test10-pre6.1/drivers/usb/Makefile Tue, 24 Oct 2000 14:20:12 +1100 kaos (linux-2.4/n/b/19_Makefile 1.1.1.11 644)
-+++ 0-test10-pre6.1(w)/drivers/usb/Makefile Sun, 29 Oct 2000 12:38:11 +1100 kaos (linux-2.4/n/b/19_Makefile 1.1.1.11 644)
-@@ -18,6 +18,18 @@ O_OBJS		:=
- 
- export-objs		:= usb.o
- 
-+# usb.o contains usb_init which is marked as __initcall (actually
-+# module_init).  usb_init must be executed before all other usb __initcall
-+# routines, otherwise the individual drivers will be initialized before the
-+# hub driver is, causing the hub driver initialization sequence to
-+# needlessly probe every USB driver with the root hub device.  This causes
-+# a lot of unnecessary system log messages, a lot of user confusion, and
-+# has been known to cause a incorrectly programmed USB device driver to
-+# grab the root hub device improperly.
-+#     Greg Kroah-Hartman, 27 Oct 2000
-+
-+LINK_FIRST := usb.o
-+
- # Multipart objects.
- 
- list-multi		:= usbcore.o
-@@ -98,6 +110,10 @@ int-m		:= $(sort $(foreach m, $(multi-m)
- 
- obj-m		:= $(filter-out $(obj-y), $(obj-m))
- int-m		:= $(filter-out $(int-y), $(int-m))
-+
-+# Take multi-part drivers out of obj-y and put components in.
-+
-+obj-y		:= $(filter-out $(list-multi), $(obj-y)) $(int-y)
- 
- # Translate to Rules.make lists.
- 
-Index: 0-test10-pre6.1/Rules.make
---- 0-test10-pre6.1/Rules.make Tue, 19 Sep 2000 10:36:07 +1100 kaos (linux-2.4/B/c/24_Rules.make 1.2.1.4 644)
-+++ 0-test10-pre6.1(w)/Rules.make Mon, 30 Oct 2000 08:49:58 +1100 kaos (linux-2.4/B/c/24_Rules.make 1.2.1.4 644)
-@@ -31,6 +31,9 @@ unexport LX_OBJS
- unexport MX_OBJS
- unexport MIX_OBJS
- unexport SYMTAB_OBJS
-+# Control link order, added 29 Oct 2000 Keith Owens <kaos@ocs.com.au>
-+unexport LINK_FIRST
-+unexport LINK_LAST
- 
- #
- # Get things started.
-@@ -84,8 +87,19 @@ all_targets: $(O_TARGET) $(L_TARGET)
- #
- # Rule to compile a set of .o files into one .o file
- #
-+# Note: if LINK_FIRST or LINK_LAST are specified, the rest of the
-+# object files are sorted to remove duplicates.  Thus, if you use
-+# LINK_FIRST/LAST, make sure they specify all ordering requirements.
-+#
- ifdef O_TARGET
--ALL_O = $(OX_OBJS) $(O_OBJS)
-+  ALL_O = $(OX_OBJS) $(O_OBJS)
-+  ifneq ($(strip $(LINK_FIRST)$(LINK_LAST)),)
-+    ALL_O := $(sort $(ALL_O))
-+    ALL_O := \
-+      $(filter $(ALL_O), $(LINK_FIRST)) \
-+      $(filter-out $(LINK_FIRST) $(LINK_LAST), $(ALL_O)) \
-+      $(filter $(ALL_O), $(LINK_LAST))
-+  endif
- $(O_TARGET): $(ALL_O)
- 	rm -f $@
-     ifneq "$(strip $(ALL_O))" ""
-Index: 0-test10-pre6.1/Documentation/kbuild/makefiles.txt
---- 0-test10-pre6.1/Documentation/kbuild/makefiles.txt Mon, 02 Oct 2000 15:28:44 +1100 kaos (linux-2.4/b/d/12_makefiles. 1.3 644)
-+++ 0-test10-pre6.1(w)/Documentation/kbuild/makefiles.txt Mon, 30 Oct 2000 08:52:03 +1100 kaos (linux-2.4/b/d/12_makefiles. 1.3 644)
-@@ -1,6 +1,9 @@
- Linux Kernel Makefiles
- 2000-September-14
- Michael Elizabeth Chastain, <mec@shout.net>
-+2000-October-29
-+LINK_FIRST/LAST Keith Owens <kaos@ocs.com.au>,
-+		Peter Samuelson <peter@cadcamlab.org>
- 
- 
- 
-@@ -319,7 +322,7 @@ architecture-specific values.
- 		# arch/alpha/Makefile
- 
- 		SUBDIRS := $(SUBDIRS) arch/alpha/kernel arch/alpha/mm \
--		           arch/alpha/lib arch/alpha/math-emu
-+			   arch/alpha/lib arch/alpha/math-emu
- 
- 	This list may depend on the configuration:
- 
-@@ -656,12 +659,17 @@ The public interface of Rules.make consi
- 	with the name $(O_TARGET).  This $(O_TARGET) name also appears
- 	in the top Makefile.
- 
--	The order of files in $(O_OBJS) and $(OX_OBJS) is significant.
--	All $(OX_OBJS) files come first, in the order listed, followed by
--	all $(O_OBJS) files, in the order listed.  Duplicates in the lists
--	are allowed: the first instance will be linked into $(O_TARGET)
--	and succeeding instances will be ignored.  (Note: Rules.make may
--	emit warning messages for duplicates, but this is harmless).
-+	Even if a subdirectory Makefile has an $(O_TARGET), the .config
-+	options still control whether or not its $(O_TARGET) goes into
-+	vmlinux.  See the $(M_OBJS) example below.
-+
-+	If neither $(LINK_FIRST) nor $(LINK_LAST) are defined, the order of
-+	files in $(O_OBJS) and $(OX_OBJS) is significant.  All $(OX_OBJS)
-+	files come first, in the order listed, followed by all $(O_OBJS)
-+	files, in the order listed.  Duplicates in the lists are allowed:
-+	the first instance will be linked into $(O_TARGET) and succeeding
-+	instances will be ignored.  (Note: Rules.make may emit warning
-+	messages for duplicates, but this is harmless).
- 
- 	Example:
- 
-@@ -680,9 +688,61 @@ The public interface of Rules.make consi
- 		O_OBJS   += pci.o pci_iommu.o
- 		endif
- 
--	Even if a subdirectory Makefile has an $(O_TARGET), the .config
--	options still control whether or not its $(O_TARGET) goes into
--	vmlinux.  See the $(M_OBJS) example below.
-+	If either $(LINK_FIRST) or $(LINK_LAST) are defined, the order of
-+	files in $(O_OBJS) and $(OX_OBJS) is ignored.  Instead the files are
-+	linked in the order $(LINK_FIRST), the rest, $(LINK_LAST).  The
-+	order of entries in $(LINK_FIRST) and $(LINK_LAST) is preserved
-+	exactly as specified.  The order of the rest of the files is
-+	undefined; currently it is alphabetical, but you must not rely on
-+	this.  When either $(LINK_FIRST) or $(LINK_LAST) are defined, they
-+	must satisfy all possible ordering requirements for the
-+	corresponding $(O_TARGET).
-+
-+	The only justification for $(LINK_FIRST) and $(LINK_LAST) is to
-+	control the order of initialization routines.  Routines which are
-+	defined as __initcall or module_init and are linked into the kernel
-+	will be executed during kernel startup in the order they were
-+	linked.
-+
-+	Use $(LINK_FIRST) to ensure that certain routines, if present, are
-+	executed before all others in the current directory.  For example,
-+	usb_init() in usb.c must be executed before all other usb
-+	initialization routines:
-+
-+		# drivers/usb/Makefile
-+		LINK_FIRST := usb.o
-+
-+	Use $(LINK_LAST) to ensure that initialization routines, if present,
-+	are executed after all other such routines in the current directory.
-+	Typically this is needed where you have multiple drivers that can
-+	recognise a piece of hardware and you want the older drivers to be
-+	tried last.  For example, SCSI card `foo' can be controlled by
-+	drivers bar.o and baz.o but baz.o is preferred, if present.
-+	``LINK_LAST := bar.o'' will ensure that the initialization routines
-+	in bar.o are tried last.
-+
-+	[Note that the only way to control the kernel link order *between*
-+	directories is by manipulating variables such as $(DRIVERS-y) in the
-+	toplevel Makefile.  This has directory-level granularity; if
-+	finer-grained control is needed, you must use a workaround.  Such
-+	cases should be rare, if they exist at all.]
-+
-+	$(LINK_FIRST) and $(LINK_LAST) must not contain any duplicate object
-+	names.  For this reason, you should define them unconditionally,
-+	i.e. they should not depend on the kernel configuration.  They do
-+	not need to, because they only affect the link order, not the actual
-+	list of objects linked to $(O_TARGET).  In other words, if an object
-+	appears in $(LINK_FIRST) or $(LINK_LAST) but does not appear in
-+	$(O_OBJS) or $(OX_OBJS), it is ignored.
-+
-+	All uses of $(LINK_FIRST) and $(LINK_LAST) must be justified and
-+	fully documented in the Makefile.  Historically, entries in
-+	Makefiles were manually ordered with no documentation.  This is
-+	unfortunate because now, in some cases, we cannot be sure whether a
-+	particular ordering is by chance or by necessity -- or, if by
-+	necessity, what the reason was.  This lack of critical information
-+	is unacceptable.  See drivers/usb/Makefile for an example of the
-+	level of detail required.
- 
- 
- 
+>>EIP; c013050c <d_lookup+64/dc>   <=====
+Trace; c012b508 <cached_lookup+10/54>
+Trace; c012b783 <lookup_dentry+113/1e8>
+Trace; c012b880 <__namei+28/58>
+Trace; c012993e <sys_newstat+e/60>
+Trace; c0109044 <system_call+34/38>
+Code;  c013050c <d_lookup+64/dc>
+00000000 <_EIP>:
+Code;  c013050c <d_lookup+64/dc>   <=====
+   0:   8b 6d 00                  mov    0x0(%ebp),%ebp   <=====
+Code;  c013050f <d_lookup+67/dc>
+   3:   8b 74 24 18               mov    0x18(%esp,1),%esi
+Code;  c0130513 <d_lookup+6b/dc>
+   7:   39 73 48                  cmp    %esi,0x48(%ebx)
+Code;  c0130516 <d_lookup+6e/dc>
+   a:   75 58                     jne    64 <_EIP+0x64> c0130570 <d_lookup+c8/dc>
+Code;  c0130518 <d_lookup+70/dc>
+   c:   8b 74 24 24               mov    0x24(%esp,1),%esi
+Code;  c013051c <d_lookup+74/dc>
+  10:   39 73 0c                  cmp    %esi,0xc(%ebx)
+Code;  c013051f <d_lookup+77/dc>
+  13:   75 00                     jne    15 <_EIP+0x15> c0130521 <d_lookup+79/dc>
+
+
+Up until I started the recompile, I had run several tests (start up a
+vmware session, run quake3, etc.) all of which gave no errors or
+indications of instability.  Now, having vmware loaded might render this
+moot, but I wanted to throw it out in case it would trigger any
+lightbulbs.
+
+Regards,
+Adrian
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277564AbRKHSgz>; Thu, 8 Nov 2001 13:36:55 -0500
+	id <S277431AbRKHSnR>; Thu, 8 Nov 2001 13:43:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277533AbRKHSgp>; Thu, 8 Nov 2001 13:36:45 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:54027 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S277431AbRKHSgg>;
-	Thu, 8 Nov 2001 13:36:36 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200111081832.VAA24875@ms2.inr.ac.ru>
-Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
-To: adilger@turbolabs.com (Andreas Dilger)
-Date: Thu, 8 Nov 2001 21:32:32 +0300 (MSK)
-Cc: davem@redhat.com, tim@physik3.uni-rostock.de, jgarzik@mandrakesoft.com,
-        andrewm@uow.edu.au, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com, netdev@oss.sgi.com, ak@muc.de
-In-Reply-To: <20011108111024.X5922@lynx.no> from "Andreas Dilger" at Nov 8, 1 11:10:24 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S277533AbRKHSnI>; Thu, 8 Nov 2001 13:43:08 -0500
+Received: from posta2.elte.hu ([157.181.151.9]:19433 "HELO posta2.elte.hu")
+	by vger.kernel.org with SMTP id <S277431AbRKHSm6>;
+	Thu, 8 Nov 2001 13:42:58 -0500
+Date: Thu, 8 Nov 2001 20:40:50 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [patch] scheduler cache affinity improvement for 2.4 kernels
+In-Reply-To: <Pine.LNX.4.40.0111080954350.1501-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.33.0111082028430.20248-100000@localhost.localdomain>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> is more likely that nobody knows about them, because nobody uses them, 
-> because nobody knows about them, etc.
+On Thu, 8 Nov 2001, Davide Libenzi wrote:
 
-Yes, it is thing which usually happens with good macros. :-)
+> It sets the time ( in jiffies ) at which the process won't have any
+> more scheduling advantage.
+
+(sorry, it indeed makes sense, since sched_jtime is on the order of
+jiffies.)
+
+> > and your patch adds a scheduling advantage to processes with more cache
+> > footprint, which is the completely opposite of what we want.
+>
+> It is exactly what we want indeed :
+
+if this is what is done by your patch, then we do not want to do this.
+My patch does not give an advantage of CPU-intensive processes over that
+of eg. 'vi'. Perhaps i'm misreading your patch, it's full of branches that
+does not make the meaning very clear, cpu_jtime and sched_jtime are not
+explained. Is sched_jtime the timestamp of the last schedule of this
+process? And is cpu_jtime the number of jiffies spent on this CPU? Is
+cpu_jtime cleared if we switch to another CPU?
+
+	Ingo
 
 
-> If people don't want to see them, that is fine with me - they will stop.
-
-I talk only about neighbour.c. It is pretty hairy to bring it to
-brain cache fastly enough. And I am afraid (remember) that in the past
-I did some silly tricks, sort of using the fact that large positive
-now - mark means that mark is in future. Mostly likely killed together
-with another hacks, but I am not sure.
-
-Another places are trivial as rule and can be edited any time.
-
-Alexey

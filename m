@@ -1,71 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132122AbQLQDIe>; Sat, 16 Dec 2000 22:08:34 -0500
+	id <S132123AbQLQDOo>; Sat, 16 Dec 2000 22:14:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132123AbQLQDIO>; Sat, 16 Dec 2000 22:08:14 -0500
-Received: from mail.aslab.com ([205.219.89.194]:11025 "EHLO mail.aslab.com")
-	by vger.kernel.org with ESMTP id <S132122AbQLQDIN>;
-	Sat, 16 Dec 2000 22:08:13 -0500
-Message-ID: <04e401c067d1$1e6a90a0$7818b7c0@aslab.com>
-From: "Jeff Nguyen" <jeff@aslab.com>
-To: <davej@suse.de>, "Rico Tudor" <rico@patrec.com>
-Cc: <linux-kernel@vger.kernel.org>, "Jim Foster" <jfoster@serverworks.com>
-In-Reply-To: <Pine.LNX.4.21.0012161956020.7396-100000@neo.local>
-Subject: Re: ServerWorks docs?
-Date: Sat, 16 Dec 2000 18:29:00 -0800
+	id <S132163AbQLQDOe>; Sat, 16 Dec 2000 22:14:34 -0500
+Received: from mail.inconnect.com ([209.140.64.7]:32489 "HELO
+	mail.inconnect.com") by vger.kernel.org with SMTP
+	id <S132123AbQLQDOY>; Sat, 16 Dec 2000 22:14:24 -0500
+Date: Sat, 16 Dec 2000 19:43:57 -0700 (MST)
+From: Dax Kelson <dax@gurulabs.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: test13pre2 - ieee1394 compile failure
+In-Reply-To: <Pine.LNX.4.10.10012160946450.21362-100000@penguin.transmeta.com>
+Message-ID: <Pine.SOL.4.30.0012161932320.16016-100000@ultra1.inconnect.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serverworks wants to support the Linux community. Thus they are
-willing to share certain information to developers without risking the IP.
-Recently ASL has been working with Serverworks in supporting the
-lm-sensor project and other Linux software developer.
+Linus Torvalds said once upon a time (Sat, 16 Dec 2000):
 
-Let me know if you need some help with the chipset information.
+> Can anybody else find build irregularities with the new Makefiles? Please
+> holler..
 
-Jeff
+I've been having problems building Firewire support since test12-pre3, I'm
+still having problems with test13-pre2 (although different problems).
 
-ASL Inc.
+You can read about my test12-pre3+ problems here:
 
------ Original Message -----
-From: <davej@suse.de>
-To: "Rico Tudor" <rico@patrec.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Saturday, December 16, 2000 12:00 PM
-Subject: Re: ServerWorks docs?
+http://lists.insecure.org/linux-kernel/2000/Dec/0186.html
+
+My current test13-pre2 problems:
+
+ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
+init/version.o \
+	--start-group \
+	arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
+mm/mm.o fs/fs.o ipc/ipc.o \
+	drivers/block/block.o drivers/char/char.o drivers/misc/misc.o
+drivers/net/net.o drivers/media/media.o  drivers/char/agp/agp.o
+drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o
+drivers/ieee1394/ieee1394.a drivers/cdrom/driver.o
+drivers/sound/sounddrivers.o drivers/pci/driver.o drivers/pnp/pnp.o
+drivers/video/video.o drivers/usb/usbdrv.o drivers/input/inputdrv.o
+drivers/i2c/i2c.o \
+	net/network.o \
+	/usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a
+/usr/src/linux/arch/i386/lib/lib.a \
+	--end-group \
+	-o vmlinux
+ld: cannot open drivers/ieee1394/ieee1394.a: No such file or directory
+
+>From my .config:
+
+#
+# IEEE 1394 (FireWire) support
+#
+CONFIG_IEEE1394=y
+# CONFIG_IEEE1394_PCILYNX is not set
+CONFIG_IEEE1394_OHCI1394=y
+CONFIG_IEEE1394_VIDEO1394=m
+CONFIG_IEEE1394_RAWIO=m
+# CONFIG_IEEE1394_VERBOSEDEBUG is not set
 
 
-> On 16 Dec 2000, Rico Tudor wrote:
->
-> > Does anyone have reference material for the ServerWorks northbridge?
-> > I want to add their chipsets to my ECC-monitoring utility, but their
-> > web site is little more than marketing drivel.  Plus, they don't respond
-> > to e-mail.
->
-> I've tried on several occasions, but not got anywhere.
-> Judging by the comments on the lm-sensors homepage, chances of them
-> publically releasing register level info seems pretty slim.
->
-> regards,
->
-> Davej.
->
-> --
-> | Dave Jones <davej@suse.de>  http://www.suse.de/~davej
-> | SuSE Labs
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+Dax Kelson
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbUCSO37 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 09:29:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbUCSO37
+	id S261891AbUCSOiN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 09:38:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbUCSOiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 09:29:59 -0500
-Received: from styx.suse.cz ([82.208.2.94]:1152 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S261582AbUCSO35 (ORCPT
+	Fri, 19 Mar 2004 09:38:13 -0500
+Received: from holomorphy.com ([207.189.100.168]:35716 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261891AbUCSOiL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 09:29:57 -0500
-Date: Fri, 19 Mar 2004 15:30:14 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Stefan Smietanowski <stesmi@stesmi.com>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 24/44] Workaround i8042 chips with broken MUX mode
-Message-ID: <20040319143014.GA749@ucw.cz>
-References: <20040316182409.54329.qmail@web80508.mail.yahoo.com> <20040318203717.GA4430@ucw.cz> <200403190005.36956.dtor_core@ameritech.net> <20040319135819.GB658@ucw.cz> <405B01E7.5000809@stesmi.com>
+	Fri, 19 Mar 2004 09:38:11 -0500
+Date: Fri, 19 Mar 2004 06:38:08 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] anobjrmap 1/6 objrmap
+Message-ID: <20040319143808.GP2045@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0403182317050.16911-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <405B01E7.5000809@stesmi.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.44.0403182317050.16911-100000@localhost.localdomain>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 19, 2004 at 03:21:27PM +0100, Stefan Smietanowski wrote:
-> Hi.
-> 
-> >So far on every machine I've got a report from it was caused by BIOS
-> >emulation of PS/2 mouse using an USB mouse (even when USB mouse wasn't
-> >present). Compiling the USB modules into the kernel fixes the problem.
-> 
-> Could this have anything to do with the fact that my x86-64 kernel nukes
-> on startup if USB keyboard/mouse emul is enabled in the BIOS?
+On Thu, Mar 18, 2004 at 11:21:07PM +0000, Hugh Dickins wrote:
+> First of six patches implementing full object-based rmap over 2.6.5-rc1,
+> reviving my anonmm method to compare against Andrea's anon_vma method.
+> I've not yet implemented Linus' early-COW solution to the mremap move
+> issue, that will follow; handling of non-linear obj vmas also to follow.
+> Sorry, not yet checked against wli's tree, he may have some fixes to it.
 
-Yes, and no. USB keyboard/mouse emulation is simply broken in most
-BIOSes. It's even more broken on AMD64 BIOSes, because usually noone
-tests its interaction with 64-bit longmode. And thus when it is invoked
-in 64-bit longmode, it crashes the machine.
+It would actually take serious rereading to verify that what issues I'd
+fixed weren't ones I introduced myself. In that set of patches,
+anobjrmap appeared alongside a page allocator rewrite, a top-down vma
+allocation policy for i386, an arch/i386/mm/pgtable.c rewrite, wrapping
+every modification to userspace ptes to track statistics wanted by
+/proc/, highpmd, something that RCU'd inode->i_mmap{,_shared} missing
+the needed smp_read_barrier_depends() calls, and using wrappers around
+rwlocks to allow mapping->page_lock to be configured as an rwlock or
+spinlock at compile-time thrown in for good measure, so there isn't
+much of a way to rule out my own hacks. There was even experimental
+junk at some point e.g. to remove files_lock in addition to a fair
+number of other quetionable/buggy patches I dumped instead of debugging.
 
-On x86 it just causes problems with PS/2 mouse and keyboard.
+The story of that tree is too tortuous and sad to tell. I'll put up a
+new tree with a substantially different emphasis, comprised of
+completely different patches, when I have enough material to warrant it.
 
-So it's caused by the same thing, but these are two different problems.
 
-> This is on an ASUS K8T800 and an MSI K8T800 board.
-> 
-> If you don't know what I'm talking about I'll give more info of course.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+-- wli

@@ -1,50 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270756AbTHFNXT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 09:23:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274997AbTHFNXT
+	id S270755AbTHFNWU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 09:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274997AbTHFNWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 09:23:19 -0400
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:26514 "EHLO
-	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S270756AbTHFNXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 09:23:15 -0400
-Date: Wed, 6 Aug 2003 13:06:56 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Andi Kleen <ak@colin2.muc.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Export touch_nmi_watchdog
-Message-ID: <20030806130656.R639@nightmaster.csn.tu-chemnitz.de>
-References: <20030805211416.GD31598@colin2.muc.de> <Pine.LNX.4.44.0308051503220.2835-100000@home.osdl.org> <20030806000716.GA68984@colin2.muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20030806000716.GA68984@colin2.muc.de>; from ak@colin2.muc.de on Wed, Aug 06, 2003 at 02:07:16AM +0200
-X-Spam-Score: -5.0 (-----)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19kOG0-0005z7-00*pYxUixZ7F8Y*
+	Wed, 6 Aug 2003 09:22:20 -0400
+Received: from iti.cs.uni-magdeburg.de ([141.44.26.1]:16515 "EHLO
+	iti.cs.uni-magdeburg.de") by vger.kernel.org with ESMTP
+	id S270755AbTHFNWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 09:22:16 -0400
+Message-ID: <3F31014A.8060701@iti.cs.uni-magdeburg.de>
+Date: Wed, 06 Aug 2003 15:23:22 +0200
+From: Henner Graubitz <graubitz@iti.CS.Uni-Magdeburg.De>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Feedback 2.6.0-test2
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 06, 2003 at 02:07:16AM +0200, Andi Kleen wrote:
-> On Tue, Aug 05, 2003 at 03:14:00PM -0700, Linus Torvalds wrote:
-> > 	#ifdef CONFIG_WATCHDOG
-> > 	#warning This driver does bad things and will not work
-> > 	#endif
-> 
-> Well the problem is that many of my multiple CPU testboxes have a fusion
-> controller (it's the standard on board chip on the AMD Quartet and Newisys
-> systems). 
- 
-That means, that this driver has a large (paying?) customer base.
-This should be enough reason to put some efforts into fixing it.
-At least it should for the (big) companies selling servers based
-on this chipset, because it will help their customers a lot and
-their own support staff finding latency problems.
+Hi,
 
-So if you don't have the time to fix it, it's simply a problem
-with your management ignoring its customers ;-/
+I patched and tested 2.6.0-test2.
 
-Regards
+After patching and doing make oldconfig (of my working 2.4.21) I tried 
+to compile the new kernel but it did not function:
 
-Ingo Oeser
+Compiling stopped with
+
+
+drivers/char/riscom8.c: In function `rc_release_drivers':
+drivers/char/riscom8.c:1756: warning: implicit declaration of function 
+`remove_bh'
+drivers/char/riscom8.c:1756: `RISCOM8_BH' undeclared (first use in this 
+function)
+drivers/char/riscom8.c: At top level:
+drivers/char/riscom8.c:84: warning: `DECLARE_TASK_QUEUE' declared 
+`static' but never defined
+make[3]: *** [drivers/char/riscom8.o] Fehler 1
+make[2]: *** [drivers/char] Fehler 2
+make[1]: *** [drivers] Fehler 2
+make: *** [modules] Fehler 2
+
+I also want to send you the output of scripts/ver_linux:
+
+Linux laptop 2.4.21 #5 Mon Jul 7 11:58:18 CEST 2003 i686 unknown
+
+Gnu C                  2.95.4
+Gnu make               3.79.1
+util-linux             2.11n
+mount                  2.11n
+module-init-tools      2.4.15
+e2fsprogs              1.27
+pcmcia-cs              3.1.33
+PPP                    2.4.1
+nfs-utils              1.0
+Linux C Library        2.2.5
+Dynamic linker (ldd)   2.2.5
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               2.0.11
+Modules Loaded         apm nls_cp437 i810_audio ac97_codec ide-scsi 
+soundcore usb-storage mousedev usbmouse keybdev usbkbd input usb-ohci 
+usbcore
+
+
+You do not have to respond on this mail. This is supposed just as 
+feedback for your kernel.
+
+Many thanks
+
+Henner
+
+
+
+
+-- 
+Otto-von-Guericke-Universitaet Magdeburg
+Institute of Technical and Business Information Systems
+Research group KMD
+Universitaetsplatz 2
+39106 Magdeburg
+Tel. +49-391-67-18189
+FAX  +49-391-67-18110
+http://wwwiti.cs.uni-magdeburg.de/~graubitz/
+

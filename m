@@ -1,52 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290356AbSAXVwc>; Thu, 24 Jan 2002 16:52:32 -0500
+	id <S290351AbSAXVzM>; Thu, 24 Jan 2002 16:55:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290361AbSAXVwY>; Thu, 24 Jan 2002 16:52:24 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:43651 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S290356AbSAXVwM>; Thu, 24 Jan 2002 16:52:12 -0500
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200201242152.g0OLq4n08807@eng2.beaverton.ibm.com>
-Subject: O_DIRECT broken in 2.5.3-preX ?
-To: axboe@suse.de (Jens Axboe)
-Date: Thu, 24 Jan 2002 13:52:04 -0800 (PST)
-Cc: andrea@suse.de (Andrea Arcangeli), linux-kernel@vger.kernel.org (lkml),
-        pbadari@us.ibm.com
-In-Reply-To: <20020115145549.M31878@suse.de> from "Jens Axboe" at Jan 15, 2002 01:55:49 PM PST
-X-Mailer: ELM [version 2.5 PL3]
+	id <S290371AbSAXVzG>; Thu, 24 Jan 2002 16:55:06 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:25728 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S290370AbSAXVyw>; Thu, 24 Jan 2002 16:54:52 -0500
+Date: Thu, 24 Jan 2002 16:55:48 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Oliver Xymoron <oxymoron@waste.org>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux-Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: booleans and the kernel
+In-Reply-To: <Pine.LNX.4.44.0201241433110.2839-100000@waste.org>
+Message-ID: <Pine.LNX.3.95.1020124165419.1859A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 24 Jan 2002, Oliver Xymoron wrote:
 
-I am reading the O_DIRECT code patch for 2.5.3-pre4. I was wondering
-how is this working in 2.5.X ? Here is my concern:
+> On Thu, 24 Jan 2002, Richard B. Johnson wrote:
+> 
+> > On Thu, 24 Jan 2002, Oliver Xymoron wrote:
+> >
+> > > On Thu, 24 Jan 2002, Jeff Garzik wrote:
+> > >
+> > > > A small issue...
+> > > >
+> > > > C99 introduced _Bool as a builtin type.  The gcc patch for it went into
+> > > > cvs around Dec 2000.  Any objections to propagating this type and usage
+> > > > of 'true' and 'false' around the kernel?
+> > >
+> > > Ugh, no. C doesn't need booleans, neither do Perl or Python. This is a
+> > > sickness imported from _recent_ C++ by way of Java by way of Pascal. This
+> > > just complicates things.
+> > >
+> > > > Where variables are truly boolean use of a bool type makes the
+> > > > intentions of the code more clear.  And it also gives the compiler a
+> > > > slightly better chance to optimize code [I suspect].
+> > >
+> > > Unlikely. The compiler can already figure this sort of thing out from
+> > > context.
+> >
+> > IFF the 'C' compiler code-generators start making better code, i.e.,
+> > ORing a value already in a register, with itself and jumping on
+> > condition, then bool will be helpful. Right now, I see tests against
+> > numbers (like 0). This increases the code-size because the 0 is
+> > in the instruction stream, plus the comparison of an immediate
+> > value to a register value (on Intel) takes more CPU cycles.
+> 
+> The compiler _will_ turn if(a==0) into a test of a with itself rather than
+> a comparison against a constant. Since PDP days, no doubt.
 
-generic_direct_IO() creates a blocks[] list and passes it to
-brw_kiovec() with a single kiobuf.
-	
-	retval = brw_kiovec(rw, 1, &iobuf, inode->i_dev, blocks, blocksize);
 
-But brw_kiovec() uses only b[0] to call ll_rw_bio().
-
-	for (i = 0; i < nr; i++) {
-                iobuf = iovec[i];
-                iobuf->errno = 0;
-
-                ll_rw_kio(rw, iobuf, dev, b[i] * (size >> 9));
-        }
+Don't you wish!
 
 
-Note that nr = 1 here. ll_rw_kio() uses b[0] as starting sector
-and does the entire IO (for iobuf->length). This is wrong !!!
-It is doing IO from wrong blocks.  Some one should use other 
-block numbers from blocks[] list. Isn't it ?
+int foo(int i)
+{
 
-What am I missing here ? Please let me know.
+    if(i) return 0;
+    else
+    return 1;
+}
 
-Thanks,
-Badari
+	.file	"xxx.c"
+	.version	"01.01"
+gcc2_compiled.:
+.text
+	.align 4
+.globl foo
+	.type	 foo,@function
+foo:
+	pushl %ebp
+	movl %esp,%ebp
+	cmpl $0,8(%ebp)      <-------------- Compare against zero.
+	je .L2
+	xorl %eax,%eax
+	jmp .L1
+	jmp .L3
+	.align 4
+.L2:
+	movl $1,%eax
+	jmp .L1
+	.align 4
+.L3:
+.L1:
+	movl %ebp,%esp
+	popl %ebp
+	ret
+.Lfe1:
+	.size	 foo,.Lfe1-foo
+	.ident	"GCC: (GNU) egcs-2.91.66 19990314 (egcs-1.1.2 release)"
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

@@ -1,45 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281274AbRKPK1g>; Fri, 16 Nov 2001 05:27:36 -0500
+	id <S281288AbRKPKdq>; Fri, 16 Nov 2001 05:33:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281285AbRKPK11>; Fri, 16 Nov 2001 05:27:27 -0500
-Received: from ultra02.rbg.informatik.tu-darmstadt.de ([130.83.9.52]:24482
-	"EHLO mail.rbg.informatik.tu-darmstadt.de") by vger.kernel.org
-	with ESMTP id <S281274AbRKPK1J>; Fri, 16 Nov 2001 05:27:09 -0500
-Date: Fri, 16 Nov 2001 11:26:14 +0100
-From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: [OOPS] net/8139too
-Message-ID: <20011116112614.A725@walker.iti.informatik.tu-darmstadt.de>
-Reply-To: pmhahn@titan.lahn.de
-In-Reply-To: <Pine.LNX.4.33.0111160721120.6043-100000@titan.lahn.de> <3BF4BD81.C3E4A4DC@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3BF4BD81.C3E4A4DC@zip.com.au>; from akpm@zip.com.au on Fri, Nov 16, 2001 at 08:17:21 +0100
-X-Mailer: Balsa 1.2.1
+	id <S281286AbRKPKdh>; Fri, 16 Nov 2001 05:33:37 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:31721 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S281284AbRKPKdW>;
+	Fri, 16 Nov 2001 05:33:22 -0500
+Date: Fri, 16 Nov 2001 05:33:20 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Devlinks.  Code.  (Dcache abuse?)
+In-Reply-To: <15348.58752.207182.488419@notabene.cse.unsw.edu.au>
+Message-ID: <Pine.GSO.4.21.0111160528020.5234-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrew, Jedd, LKML!
 
-On 2001.11.16 08:17 Andrew Morton wrote:
-> > Since linux-2.4.15-pre[14]+kdb+freeswan I get an oops when stopping my
-> > 8139too network:
-> >
-> > # ifdown eth0
-> > eth0: unable to signal thread
-> 
-> Could you please tell us what the return value is from kill_proc()?
-Now running 2.4.15-pre5 with your patch and kill_proc returns -3.
 
-Willing to test more patches.
+On Fri, 16 Nov 2001, Neil Brown wrote:
 
-BYtE
-Philipp
--- 
-   / /  (_)__  __ ____  __ Philipp Hahn
-  / /__/ / _ \/ // /\ \/ /
-/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
+> +	if (!(nd->mnt->mnt_flags & MNT_NODEV)
+> +	    && dentry->d_inode
+> +	    && (dentry->d_inode->i_mode & S_ISVTX)) {
+> +		dentry = devlink_find(dentry, link);
+
+You are breaking vfsmount refcounting.  Badly.
+

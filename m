@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263225AbUB1AMm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 19:12:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263217AbUB1AKv
+	id S263237AbUB1ATp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 19:19:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263223AbUB1AQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 19:10:51 -0500
-Received: from mail.kroah.org ([65.200.24.183]:51365 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263219AbUB1AJv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 19:09:51 -0500
-Subject: Re: [PATCH] PCI fixes for 2.6.4-rc1
-In-Reply-To: <10779269823390@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 27 Feb 2004 16:09:42 -0800
-Message-Id: <10779269823562@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Fri, 27 Feb 2004 19:16:44 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:16766 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S263232AbUB1APf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 19:15:35 -0500
+Date: Fri, 27 Feb 2004 19:15:24 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org, <linux-hotplug-devel@lists.sourceforge.net>,
+       <linux-hotplug-memory@lists.sourceforge.net>
+Subject: Re: [ANNOUNCE] Linux hotplug memory mailing list created
+In-Reply-To: <20040227215349.GA12122@kroah.com>
+Message-ID: <Pine.LNX.4.44.0402271914560.1747-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1614, 2004/02/24 11:07:43-08:00, rmk-pci@arm.linux.org.uk
+On Fri, 27 Feb 2004, Greg KH wrote:
 
-[PATCH] PCI: Don't report pci_request_regions() failure twice
+> As I personally know of at least 3 different groups at 3 different
+> companies working on this feature, and all of them don't seem to want to
+> talk together on linux-kernel or linux-mm,
 
-pci_request_regions() reports an error when pci_request_region() fails.
-However, since pci_request_region() already reports an error on failure,
-pci_request_regions() has some unwanted duplication.
+What makes you think they'll want to talk together on this
+list, then ? ;)
 
-
- drivers/pci/pci.c |    5 -----
- 1 files changed, 5 deletions(-)
-
-
-diff -Nru a/drivers/pci/pci.c b/drivers/pci/pci.c
---- a/drivers/pci/pci.c	Fri Feb 27 15:57:30 2004
-+++ b/drivers/pci/pci.c	Fri Feb 27 15:57:30 2004
-@@ -535,11 +535,6 @@
- 	return 0;
- 
- err_out:
--	printk (KERN_WARNING "PCI: Unable to reserve %s region #%d:%lx@%lx for device %s\n",
--		pci_resource_flags(pdev, i) & IORESOURCE_IO ? "I/O" : "mem",
--		i + 1, /* PCI BAR # */
--		pci_resource_len(pdev, i), pci_resource_start(pdev, i),
--		pci_name(pdev));
- 	while(--i >= 0)
- 		pci_release_region(pdev, i);
- 		
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

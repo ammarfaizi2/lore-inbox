@@ -1,96 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282400AbRLDRsR>; Tue, 4 Dec 2001 12:48:17 -0500
+	id <S280620AbRLDRuQ>; Tue, 4 Dec 2001 12:50:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281228AbRLDRqz>; Tue, 4 Dec 2001 12:46:55 -0500
-Received: from host5.mileniumnet.com.br ([200.199.222.5]:29709 "EHLO
-	strauss.mileniumnet.com.br") by vger.kernel.org with ESMTP
-	id <S283218AbRLDRpY>; Tue, 4 Dec 2001 12:45:24 -0500
-Date: Tue, 4 Dec 2001 14:55:26 -0200 (BRST)
-From: Thiago Rondon <maluco@mileniumnet.com.br>
-X-X-Sender: <maluco@freak.linuxms.com.br>
-To: Michael Zhu <apiggyjj@yahoo.ca>
-cc: Tyler BIRD <BIRDTY@uvsc.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: Insmod problems
-In-Reply-To: <20011204170642.78487.qmail@web20209.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.33L.0112041454390.2229-100000@freak.linuxms.com.br>
+	id <S281566AbRLDRsY>; Tue, 4 Dec 2001 12:48:24 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:29090 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S282404AbRLDRru>;
+	Tue, 4 Dec 2001 12:47:50 -0500
+Message-ID: <3C0D0BFD.6080903@dplanet.ch>
+Date: Tue, 04 Dec 2001 18:46:37 +0100
+From: Giacomo Catenazzi <cate@dplanet.ch>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Wayne.Brown@altec.com
+CC: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+In-Reply-To: <86256B18.005EE7DC.00@smtpnotes.altec.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Dec 2001 17:47:49.0079 (UTC) FILETIME=[C9F91E70:01C17CEB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Wayne.Brown@altec.com wrote:
 
-_KERNEL_ != __KERNEL__
+> 
+> In fact, here's all I want to know about the whole CML2/kbuild 2.5 issue.  Right
+> now I upgrade my kernel like this (simplified slightly):
+> 
+> <apply latest patches>
+> mv .config ..
+> make mrproper
+> mv ../.config .
+> make oldconfig
+> make dep
+> make bzlilo modules modules_install
+> <reboot>
+> 
+> Will I still be able to do it this simply in 2.5.x?  (Assuming there's
+> eventually a 2.5.x I can get to compile cleanly.  :-)
+> 
 
-gcc -D__KERNEL__ -DMODULE -c hello.c
 
-> gcc -D_KERNEL_ -DMODULE -c hello.c
->
-> --- Tyler BIRD <BIRDTY@uvsc.edu> wrote:
-> > You need to define the __KERNEL__ and MODULE symbols
-> >
-> > #define __KERNEL__
-> > #define MODULE
-> >
-> >
-> > >>> Nav Mundi <nmundi@karthika.com> 12/04/01 09:33AM
-> > >>>
-> > What are we doing wrong? - Nav & Michael
-> > **************************************************
-> >
-> > hello.c Source:
-> >
-> > #include "/home/mzhu/linux/include/linux/config.h"
-> > /*retrieve the CONFIG_* macros */
-> > #if defined(CONFIG_MODVERSIONS) &&
-> > !defined(MODVERSIONS)
-> > #define MODVERSIONS  /* force it on */
-> > #endif
-> >
-> > #ifdef MODVERSIONS
-> > #include
-> > "/home/mzhu/linux/include/linux/modversions.h"
-> > #endif
-> >
-> > #include "/home/mzhu/linux/include/linux/module.h"
-> >
-> > int init_module(void)  { printk("<1>Hello,
-> > world\n");  return 0; }
-> > void cleanup_module(void) { printk("<1>Goodbye cruel
-> > world\n"); }
-> >
-> > Output:
-> >
-> > #>gcc -D_KERNEL_ -DMODULE -c hello.c
-> >
-> > [This builds the hello.o file. ]
-> >
-> > #>insmod hello.o
-> >
-> > hello.o : unresolved symbol printk
-> > hello.o : Note: modules without a GPL compatible
-> > license cannot use
-> > GPONLY_symbols
-> >
-> >
-> >
-> >
-> > -
-> > To unsubscribe from this list: send the line
-> > "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at
-> > http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
->
-> ______________________________________________________
-> Send your holiday cheer with http://greetings.yahoo.ca
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Yes you can do.
+hmm. only for the CML2 part. The new kbuild-2.5 (also the new Makefile)
+will no more work with your command:
+make dep: is no more needed
+make bzlilo modules modules_install: it would be a simble
+make install: (and you configure with CML1/CML2 what install
+means).
+
+	giacomo
 

@@ -1,99 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262994AbUCSNqu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 08:46:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262999AbUCSNqu
+	id S262998AbUCSNuA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 08:50:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262997AbUCSNuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 08:46:50 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:62606 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262994AbUCSNqq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 08:46:46 -0500
-Date: Fri, 19 Mar 2004 08:48:28 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Jamie Lokier <jamie@shareable.org>
-cc: Robert_Hentosh@Dell.com, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: spurious 8259A interrupt
-In-Reply-To: <20040319130609.GE2650@mail.shareable.org>
-Message-ID: <Pine.LNX.4.53.0403190825070.929@chaos>
-References: <6C07122052CB7749A391B01A4C66D31E014BEA49@ausx2kmps304.aus.amer.dell.com>
- <20040319130609.GE2650@mail.shareable.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 19 Mar 2004 08:50:00 -0500
+Received: from ns.suse.de ([195.135.220.2]:17032 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262998AbUCSNt6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 08:49:58 -0500
+Subject: Re: True  fsync() in Linux (on IDE)
+From: Chris Mason <mason@suse.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Peter Zaitsev <peter@mysql.com>, Jens Axboe <axboe@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <405AA9D9.40109@namesys.com>
+References: <1079572101.2748.711.camel@abyss.local>
+	 <20040318064757.GA1072@suse.de> <1079639060.3102.282.camel@abyss.local>
+	 <20040318194745.GA2314@suse.de>  <1079640699.11062.1.camel@watt.suse.com>
+	 <1079641026.2447.327.camel@abyss.local>
+	 <1079642001.11057.7.camel@watt.suse.com>
+	 <1079642801.2447.369.camel@abyss.local>
+	 <1079643740.11057.16.camel@watt.suse.com>
+	 <1079644190.2450.405.camel@abyss.local>
+	 <1079644743.11055.26.camel@watt.suse.com>  <405AA9D9.40109@namesys.com>
+Content-Type: text/plain
+Message-Id: <1079704347.11057.130.camel@watt.suse.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 19 Mar 2004 08:52:27 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Mar 2004, Jamie Lokier wrote:
+On Fri, 2004-03-19 at 03:05, Hans Reiser wrote:
+> Chris Mason wrote:
+> 
+> >On Thu, 2004-03-18 at 16:09, Peter Zaitsev wrote:
+> >  
+> >
+> >>On Thu, 2004-03-18 at 13:02, Chris Mason wrote:
+> >>
+> >>    
+> >>
+> >>>>In the former case cache is surely not flushed. 
+> >>>>
+> >>>>        
+> >>>>
+> >>>Hmmm, is it reiser?  For both 2.4 reiserfs and ext3, the flush happens
+> >>>when you commit.  ext3 always commits on fsync and reiser only commits
+> >>>when you've changed metadata.
+> >>>      
+> >>>
+> >>Oh. Yes. This is Reiser, I did not think it is FS issue.
+> >>I'll know to stay away from ReiserFS now.
+> >>    
+> >>
+> >
+> >For reiserfs data=ordered should be enough to trigger the needed
+> >commits.  If not, data=journal.  Note that neither fs does barriers for
+> >O_SYNC, so we're just not perfect in 2.4.
+> >
+> >-chris
+> >
+> You are not listening to Peter.  As I understand it from what Peter says 
+> and your words, your implementation is wrong, and makes fsync 
+> meaningless.  If so, then you need to fix it.  fsync should not be 
+> meaningless even for metadata only journaling.  This is a serious bug 
+> that needs immediate correction, if Peter and I understand it correctly 
+> from your words.
 
-> Robert_Hentosh@Dell.com wrote:
-> > >  IRQ10 asserted
-> > >  INTACK cycle lets PIC deliver vector to processor
-> > >  processor masks IRQ10 in PIC
-> > >  processor sends EOI command to PIC
-> > >  processor reads a status register in the NIC, which causes IRQ10 to be
-> > >  deasserted
-> > >  processor unmasks IRQ10 in PIC
->
-> > The PIC defaults to IRQ7 because of its design, when IRQ10 was already
-> > cleared. Sticking delays in is not viable in a generic ISR routing.  A
-> > possible fix to this issue would be to issue the EOI after the read to
-> > the status register on the NIC, and I see some documentation on the PIC
-> > that actually suggests that this is the way to service an interrupt.
-> > This seemed like a risky change, since sending the EOI and using the
-> > mask has been in use for some time and the change would effect all
-> > devices using interrupts.
->
-> That reminds me: why does Linux mask the IRQ anyway?
->
-> Why doesn't it simply call the handler functions, and then send EOI to
-> the PIC with no unmasking?
->
-> For those rare occasions when an interrupt handler wants to re-enable
-> interrupts (sti), _then_ it could mask the interrupt that called the handler.
->
-> Why wouldn't that work?
+I am listening to Peter, Jens and I have spent a significant amount of
+time on this code.  We can go back and spend many more hours testing and
+debugging the 2.4 changes, or we can go forward with a very nice
+solution in 2.6.
 
-It would work. However, the driver would then have to "know"
-if the interrupt came from IO-APIC or from the 8259. It also
-would have to "know" what IRQ it was actually using, etc.,
-not just at configuration time, but forever. So, all the
-dirty details were put in the kernel code so that the
-ISR only needs to know it was called as a result of an
-interrupt.
+I'm planning on going forward with 2.6
 
-There is no problem with masking ON/OFF the interrupt
-input to the 8259, In fact, this can be used to generate
-another (unreliable) edge if the IRQ line is still asserted.
-
-The IRQ7 spurious is usually an artifact of a crappy motherboard
-design where the CPU "thinks" it was interrupted, but the
-controller didn't wiggle the CPUs INT line. Once the INT
-cycle starts, it must complete or the CPU would hang forever
-waiting for the vector. Therefore, if the controller gets
-the vector request from the CPU and it didn't actually interrupt,
-the controller puts the IRQ7 vector on the bus, that ISR gets
-called, and you get a "spurious interrupt". If you are
-looking at the programming of the 8259, you are looking in
-the wrong place. You need to look at the hardware timing on
-the motherboard. That's where the problem originates. The
-8259 is just doing its job, keeping the CPU running after
-this spurious event.
-
-FYI, the motherboards in the cheapie Dell machines we have
-been getting (Optiplex GX260) are attrocious in this respect.
-To prevent the error logs from getting filled up with
-the "Spurious interrupt" messages, they need to be commented
-out in kernels that run on these machines. Otherwise, we
-get such messages about 50 or 60 times per hour. I note
-that the original question came from somebody at Dell. They
-really need to check their own back-yard before investigating
-software.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+-chris
 
 

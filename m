@@ -1,59 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261842AbSKLQFN>; Tue, 12 Nov 2002 11:05:13 -0500
+	id <S261627AbSKLP5u>; Tue, 12 Nov 2002 10:57:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266589AbSKLQFN>; Tue, 12 Nov 2002 11:05:13 -0500
-Received: from x101-201-88-dhcp.reshalls.umn.edu ([128.101.201.88]:29319 "EHLO
-	arashi.yi.org") by vger.kernel.org with ESMTP id <S261842AbSKLQFM>;
-	Tue, 12 Nov 2002 11:05:12 -0500
-Date: Tue, 12 Nov 2002 10:12:01 -0600
-From: Matt Reppert <arashi@arashi.yi.org>
-To: Adam Voigt <adam@cryptocomm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: File Limit in Kernel?
-Message-Id: <20021112101201.0c86bf3a.arashi@arashi.yi.org>
-In-Reply-To: <1037115535.1439.5.camel@beowulf.cryptocomm.com>
-References: <1037115535.1439.5.camel@beowulf.cryptocomm.com>
-Organization: Yomerashi
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-message-flag: : This mail sent from host minerva, please respond.
+	id <S261723AbSKLP5u>; Tue, 12 Nov 2002 10:57:50 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:62896 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261627AbSKLP5t>; Tue, 12 Nov 2002 10:57:49 -0500
+Subject: [2.5 bk current] Compile error in module.c
+From: Paul Larson <plars@austin.ibm.com>
+To: rusty@rustcorp.com.au
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-zCH6+R6ao/F8Ph/vicXT"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 12 Nov 2002 10:00:12 -0600
+Message-Id: <1037116812.10626.6.camel@plars>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Nov 2002 10:38:55 -0500
-Adam Voigt <adam@cryptocomm.com> wrote:
 
-> I have a directory with 39,000 files in it, and I'm trying to use the cp
-> command to copy them into another directory, and neither the cp or the
-> mv command will work, they both same "argument list too long" when I
-> use: cp -f * /usr/local/www/images
-> 
-> Is this a kernel limitation?
+--=-zCH6+R6ao/F8Ph/vicXT
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Yes, but you can get around it in userspace. See
-http://www.linuxjournal.com/article.php?sid=6060
+The ltp nightly run last night failed to compile with the following
+errors:
 
-(Short answer is this from include/linux/binfmts.h.:
-/*
- * MAX_ARG_PAGES defines the number of pages allocated for arguments
- * and envelope for the new program. 32 should suffice, this gives
- * a maximum env+arg of 128kB w/4KB pages!
- */
-#define MAX_ARG_PAGES 32
+  gcc -Wp,-MD,kernel/.module.o.d -D__KERNEL__ -Iinclude -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=3D2
+-march=3Di686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include  =20
+-DKBUILD_BASENAME=3Dmodule -DKBUILD_MODNAME=3Dmodule -DEXPORT_SYMTAB  -c -o
+kernel/module.o kernel/module.c
+In file included from kernel/module.c:19:
+include/linux/module.h:239: warning: `symbol_put' redefined
+include/linux/module.h:57: warning: this is the location of the previous
+definition
+kernel/module.c:555: parse error before `do'
+kernel/module.c:560: parse error before `do'
+kernel/module.c:560: parse error before `&'
+kernel/module.c:560: warning: type defaults to `int' in declaration of
+`_raw_spin_lock'
+kernel/module.c:560: warning: function declaration isn't a prototype
+kernel/module.c:560: conflicting types for `_raw_spin_lock'
+include/asm/spinlock.h:117: previous declaration of `_raw_spin_lock'
+kernel/module.c:560: warning: data definition has no type or storage
+class
+kernel/module.c:561: warning: type defaults to `int' in declaration of
+`ks'
+kernel/module.c:561: braced-group within expression allowed only inside
+a function
+kernel/module.c:575: `symbol_put_addr' undeclared here (not in a
+function)
+kernel/module.c:575: initializer element is not constant
+kernel/module.c:575: (near initialization for
+`__ksymtab_symbol_put_addr.value')gcc: Internal compiler error: program
+cc1 got fatal signal 11
+make[1]: *** [kernel/module.o] Error 1
+make: *** [kernel] Error 2
+jeep:/kernel/bk/linux-2.5# {standard input}: Assembler messages:
+{standard input}:0: Warning: end of file not at end of a line; newline
+inserted
 
-I'm assuming your arch has 4kb pages, so the 'problem' is that you're
-passing more than 128kb of cmdline arguments.)
+--=-zCH6+R6ao/F8Ph/vicXT
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-> If yes, how can I get around it?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-The article has a bunch of ways. You don't really need to change
-the kernel though ... if you don't mind generating 39000 new processes
-one after the other, I'd do something like 'for FILE in * ; do mv $FILE
-/usr/local/www/images ; done'. Probably slower than calling mv once due
-to process overhead done 39000 times, but it *works*, and it's simple.
-(If you use a csh instead of something bash-like, change that to fit.)
+iEYEABECAAYFAj3RJYwACgkQg9lkBG+YkH9liwCeNZBo5i2oTTR0PofQsHSrMvv3
+ENsAn38/Yqn3mF8wdiRxUGyV4UGYntWc
+=4pAI
+-----END PGP SIGNATURE-----
 
-Matt
+--=-zCH6+R6ao/F8Ph/vicXT--
+

@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262772AbUC2JLn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 04:11:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262773AbUC2JLn
+	id S262773AbUC2JYH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 04:24:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262774AbUC2JYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 04:11:43 -0500
-Received: from mailhost.cs.auc.dk ([130.225.194.6]:5568 "EHLO
-	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S262772AbUC2JLm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 04:11:42 -0500
-Subject: Re: Kernel / Userspace Data Transfer
-From: Emmanuel Fleury <fleury@cs.auc.dk>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20040329124542.019edd8b.p.mironchik@sam-solutions.net>
-References: <1080528430.40678e2e9eb3a@www.beonline.com.au>
-	 <406799F3.1020508@opersys.com>
-	 <20040329124542.019edd8b.p.mironchik@sam-solutions.net>
-Content-Type: text/plain
-Organization: Aalborg University -- Computer Science Dept.
-Message-Id: <1080551378.5830.0.camel@rade7.s.cs.auc.dk>
+	Mon, 29 Mar 2004 04:24:07 -0500
+Received: from tarantel.rz.fh-muenchen.de ([129.187.244.239]:64461 "HELO
+	mailserv.rz.fh-muenchen.de") by vger.kernel.org with SMTP
+	id S262773AbUC2JYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 04:24:04 -0500
+Date: Mon, 29 Mar 2004 11:24:02 +0200
+From: Daniel Egger <degger@tarantel.rz.fh-muenchen.de>
+To: Bernd Fuhrmann <silverbanana@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: usage of RealTek 8169 crashes my Linux system
+Message-ID: <20040329112402.A26390@tarantel.rz.fh-muenchen.de>
+References: <40673495.3050500@gmx.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 29 Mar 2004 11:09:40 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre2us
+In-Reply-To: <40673495.3050500@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-03-29 at 11:45, Pavel Mironchik wrote:
-> The best Userspace-kernelspace-Userspace transfer thing is soket.
-> Unix or TCP/UDP sockets API is avaible from kernel space.
-> You should use it...
+On Sun, Mar 28, 2004 at 10:24:53PM +0200, Bernd Fuhrmann wrote:
 
-Do you mean Netlink ?
+> I'm using a RealTek 8169 1000MBit NIC. However, whenever larger amounts 
+> of data are being transfered (copying files through smb for instance) 
+> Linux crashes. It happens after 10MB-100MB transferred data so it's 
+> never as stable as it should be. The whole System runs fine as long as 
+> that Realtek 8169 NIC is not used (by transferring data through it). 
+> When it crashes there is no entry for that event in kern.log and the 
+> system just hangs.
 
-Regards
--- 
-Emmanuel Fleury
+> I'm using:
+> Linux 2.6.4
+> gcc 3.3.3
+> 2X Athlon MP 2600 Mhz
+> Tyan Tiger S2466N-4M Dual / AMD760MPX
+> 2x 512MB ECC/REG Infineon DDR PC266 RAM
+> Debian (unstable)
 
-Computer Science Department, |  Office: B1-201
-Aalborg University,          |  Phone:  +45 96 35 72 23
-Fredriks Bajersvej 7E,       |  Fax:    +45 98 15 98 89
-9220 Aalborg East, Denmark   |  Email:  fleury@cs.auc.dk
+Might be a SMP related problem. Since the r8169 fix in 2.6.4 those 
+cheapass cards work fine for me albeit a bit slow using the same compiler 
+and the same kernel on UP.
+
+--
+Servus,
+       Daniel
 

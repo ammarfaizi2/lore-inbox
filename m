@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263427AbUCTOtW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 09:49:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbUCTOtW
+	id S263430AbUCTOv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 09:51:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbUCTOv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 09:49:22 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:10230 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S263427AbUCTOtV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 09:49:21 -0500
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fast 64-bit atomic writes (SSE?)
-References: <874qskl5ca.fsf@love-shack.home.digitalvampire.org.suse.lists.linux.kernel>
-	<p73znacvuic.fsf@brahms.suse.de>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@digitalvampire.org>
-Date: 20 Mar 2004 06:48:37 -0800
-In-Reply-To: <p73znacvuic.fsf@brahms.suse.de>
-Message-ID: <87vfkzk20q.fsf@love-shack.home.digitalvampire.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
+	Sat, 20 Mar 2004 09:51:27 -0500
+Received: from holomorphy.com ([207.189.100.168]:26760 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263430AbUCTOvW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 09:51:22 -0500
+Date: Sat, 20 Mar 2004 06:51:11 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
+       mjy@geizhals.at, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_PREEMPT and server workloads
+Message-ID: <20040320145111.GD2045@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
+	mjy@geizhals.at, linux-kernel@vger.kernel.org
+References: <40591EC1.1060204@geizhals.at> <20040318060358.GC29530@dualathlon.random> <20040318015004.227fddfb.akpm@osdl.org> <20040318145129.GA2246@dualathlon.random> <405A584B.40601@cyberone.com.au> <20040319050948.GN2045@holomorphy.com> <20040320121423.GA9009@dualathlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040320121423.GA9009@dualathlon.random>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Andi> Better is probably to use CMPXCHG8, which avoids all of
-    Andi> this.
+On Thu, Mar 18, 2004 at 09:09:48PM -0800, William Lee Irwin III wrote:
+>> Someone really needs to get numbers on this stuff.
 
-Sorry to follow up again so soon, but I just looked up CMPXCHG8, and I
-don't see how to use it to write to write-only device memory.  Can you
-elaborate a little?
+On Sat, Mar 20, 2004 at 01:14:23PM +0100, Andrea Arcangeli wrote:
+> Takashi already did it and we know it doesn't reduce the maximum latency.
 
-Thanks,
-  Roland
+I may have missed one of his posts where he gave the results from the
+RT test suite. I found a list of functions with some kind of numbers,
+though I didn't see a description of what those numbers were and was
+looking for something more detailed (e.g. the output of the RT
+instrumentation things he had with and without preempt). This is all
+mostly curiosity and sort of hoping this gets carried out vaguely
+scientifically anyway, so I'm not really arguing one way or the other.
+
+
+-- wli

@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263962AbTDNU3B (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 16:29:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263966AbTDNU3B (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 16:29:01 -0400
-Received: from smtp1.wanadoo.fr ([193.252.22.25]:1074 "EHLO
-	mwinf0601.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S263962AbTDNU26 (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 16:28:58 -0400
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>
-Subject: Re: BUGed to death
-Date: Mon, 14 Apr 2003 22:40:41 +0200
-User-Agent: KMail/1.5.1
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <80690000.1050351598@flay>
-In-Reply-To: <80690000.1050351598@flay>
+	id S263615AbTDNUhx (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 16:37:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263688AbTDNUhx (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 16:37:53 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:8587 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263615AbTDNUhv (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 16:37:51 -0400
+Date: Mon, 14 Apr 2003 16:52:36 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Frank van Maarseveen <frankvm@xs4all.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Memory mapped files question
+In-Reply-To: <20030414202741.GA26414@iapetus.localdomain>
+Message-ID: <Pine.LNX.4.53.0304141645470.29118@chaos>
+References: <A46BBDB345A7D5118EC90002A5072C780BEBAD8D@orsmsx116.jf.intel.com>
+ <004301c302bd$ed548680$fe64a8c0@webserver> <Pine.LNX.4.53.0304141559140.28851@chaos>
+ <20030414202741.GA26414@iapetus.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304142240.41999.baldrick@wanadoo.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 April 2003 22:19, Martin J. Bligh wrote:
-> Seems all these bug checks are fairly expensive. I can get 1%
-> back on system time for kernel compiles by changing BUG to
-> "do {} while (0)" to make them all compile away. Profiles aren't
-> very revealing though ... seems to be within experimental error ;-(
+On Mon, 14 Apr 2003, Frank van Maarseveen wrote:
+
+> On Mon, Apr 14, 2003 at 04:13:52PM -0400, Richard B. Johnson wrote:
+> >
+> > Memory mapped files are supposed to be accessed through memory!
+> > Any program that needs to know what's on the physical disk is
+> > broken. If you need to write to files and know when they are
+> > written to the physical media, you use a journaled file-system.
 >
-> I was pondering CONFIG_RUN_WILD_NAKED_AND_FREE, but maybe we can
-> just nail a few of the hottest path ones instead (I think you did
-> a couple already recently). I guess that suggestion isn't much
-> use without more profile data though ;-)
+> It is not that simple.
+> Shared mmaped files are _never_ flushed, at least in 2.4.x. So,
+> without an explicit msync() a process (innd comes to mind) may loose
+> years of updates upon a system crash or power outage.
+>
+> I have learned to live with it but I still find this a bit awkward.
+>
+> --
+> Frank
+>
 
-You would think that the compiler would consider a branch leading to
-ud2 (i.e. BUG()) to be "unlikely", but it doesn't seem to.  Maybe some
-improvement can be made there.
+But it is that simple. If you need to update the file with the
+memory copy an explicit msync() must be used. Also note that
+msync() takes some parameters that may be different in different
+processes that access that mmapped file. Therefore, even msync()
+goesn't guarantee that everything gets updated for the next
+power outage. So, if you absolutely-posix-a-tively need to get
+that data onto a disk, they you need to use some kind of signaling
+mechanism (to pause all writers), explicitly write everything from
+the lowest to the highest, update your check-point file and close
+it, then restart all writers. Upon restart, you can unwind to
+the check-point file and restart.
 
-All the best,
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 
-Duncan.
-
-PS: gcc 3.2.3

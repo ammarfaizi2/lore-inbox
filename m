@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263991AbSKDAeJ>; Sun, 3 Nov 2002 19:34:09 -0500
+	id <S264037AbSKDAgS>; Sun, 3 Nov 2002 19:36:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263997AbSKDAeJ>; Sun, 3 Nov 2002 19:34:09 -0500
-Received: from holomorphy.com ([66.224.33.161]:31633 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S263991AbSKDAeI>;
-	Sun, 3 Nov 2002 19:34:08 -0500
-Date: Sun, 3 Nov 2002 16:39:06 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, hch@lst.de,
-       Benjamin LaHaise <bcrl@redhat.com>
+	id <S264146AbSKDAgS>; Sun, 3 Nov 2002 19:36:18 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:64920 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S264037AbSKDAgR>; Sun, 3 Nov 2002 19:36:17 -0500
+Date: Sun, 3 Nov 2002 19:42:49 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
 Subject: Re: interrupt checks for spinlocks
-Message-ID: <20021104003906.GB12891@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Davide Libenzi <davidel@xmailserver.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	hch@lst.de, Benjamin LaHaise <bcrl@redhat.com>
-References: <20021103220816.GY16347@holomorphy.com> <Pine.LNX.4.44.0211031612250.954-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <20021103194249.A1603@devserv.devel.redhat.com>
+References: <mailman.1036362421.16883.linux-kernel2news@redhat.com> <200211040028.gA40S8600593@devserv.devel.redhat.com> <20021104002813.GZ16347@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211031612250.954-100000@blue1.dev.mcafeelabs.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021104002813.GZ16347@holomorphy.com>; from wli@holomorphy.com on Sun, Nov 03, 2002 at 04:28:13PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Nov 2002, William Lee Irwin III wrote:
-[...]
->> The only action taken is printk() and dump_stack(). No arch code has
->> been futzed with to provide irq tainting yet. Looks like a good way
->> to shake out lurking bugs to me (somewhat like may_sleep() etc.).
+> Date: Sun, 3 Nov 2002 16:28:13 -0800
+> From: William Lee Irwin III <wli@holomorphy.com>
 
-On Sun, Nov 03, 2002 at 04:15:46PM -0800, Davide Libenzi wrote:
-> Wouldn't it be interesting to keep a ( per task ) list of acquired
-> spinlocks to be able to diagnose cross locks in case of stall ?
-> ( obviously under CONFIG_DEBUG_SPINLOCK )
+> >> (1) check that spinlocks are not taken in interrupt context without
+> >> 	interrupts disabled
 
-That would appear to require cycle detection, but it sounds like a
-potential breakthrough usage of graph algorithms in the kernel.
-(I've always been told graph algorithms would come back to haunt me.)
-Or maybe not, deadlock detection has been done before.
+> > Bill, why is this bad? I routinely use this technique.
+> > -- Pete
+> 
+> If you receive the same interrupt on the same cpu and re-enter code
+> that does that, you will deadlock.
 
-A separate patch/feature/whatever for deadlock detection could do that
-nicely, though. What I've presented here is meant only to flag far more
-trivial errors with interrupt enablement/disablement than the full
-deadlock detection problem.
+How would that happen? I thought it was not possible to re-enter
+an interrupt, and that it was pretty fundamental for Linux.
+When did we allow it, and what are implications for architectures?
 
-
-Bill
+-- Pete

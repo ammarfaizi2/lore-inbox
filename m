@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264959AbRFZO6h>; Tue, 26 Jun 2001 10:58:37 -0400
+	id <S264972AbRFZPE1>; Tue, 26 Jun 2001 11:04:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264964AbRFZO6R>; Tue, 26 Jun 2001 10:58:17 -0400
-Received: from NS.CenSoft.COM ([208.219.23.2]:21008 "EHLO
-	ns.centurysoftware.com") by vger.kernel.org with ESMTP
-	id <S264959AbRFZO6L>; Tue, 26 Jun 2001 10:58:11 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jordan Crouse <jordanc@Censoft.com>
-Reply-To: jordanc@Censoft.com
-Organization: The Microwindows Project
-To: linux-kernel@vger.kernel.org
-Subject: [OT] Re: When the FUD is all around (sniff).
-Date: Tue, 26 Jun 2001 08:59:35 -0600
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <E15Es2e-0003T1-00@the-village.bc.nu>
-In-Reply-To: <E15Es2e-0003T1-00@the-village.bc.nu>
+	id <S264970AbRFZPEQ>; Tue, 26 Jun 2001 11:04:16 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:25098 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S264967AbRFZPEA>; Tue, 26 Jun 2001 11:04:00 -0400
+Date: Tue, 26 Jun 2001 10:30:41 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Tim Waugh <twaugh@redhat.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: parport_pc tries to load parport_serial automatically
+In-Reply-To: <20010626102303.K7663@redhat.com>
+Message-ID: <Pine.LNX.4.21.0106261027350.850-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Message-Id: <01062608593502.10305@cosmic>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 June 2001 06:34, Alan Cox mentioned:
 
-> > I suppose they received some pression from M$, but if people read of a
-> > FUD from a M$ employed, then they can guess what is going on, if it is a
-> > newspaper usually telling facts in a correct way...
->
-> It is common for newspaper staff to be corrupt, same with magazine people.
-> Sometimes because people generally believe in a cause and are not impartial
-> (which I've seen both pro and anti Linux btw) and sometimes because
-> advertising revenue is a good thing.
 
->From reading the article, the author showed that he understood the open 
-source world fairly well (better than my grandmother), even taking a crack at 
-Microsoft at one point:
+On Tue, 26 Jun 2001, Tim Waugh wrote:
 
-"il servizio Hotmail di Microsoft, che gestisce la posta per oltre 12 milioni 
-di utenti Internet, non "gira", come si dice nel gergo tecnico, su 
-piattaforma Microsoft, ma su di un aggregato di pacchetti Open Source."
+> On Tue, Jun 26, 2001 at 03:17:32AM -0300, Marcelo Tosatti wrote:
+> 
+> > If the initialization of parport_serial fails, we obviously get an
+> > error message, which is really annoying:
+> 
+> [This is different to the issue that is fixed in the -ac tree about
+> parport_serial getting probed for even when disabled in config.]
+> 
+> The idea was that people who have multi-IO cards but don't know what
+> modules are can have things Just Work: parport_serial gets loaded
+> automagically and detects their cards for them.  But yes, the flip
+> side is that people who _don't_ have multi-IO cards are going to get
+> that error.
+> 
+> There are three ways out, I think:
+> 
+> - change parport_pc so that it doesn't request parport_serial at
+>   init.  In this case, how will parport_serial get loaded at all?
+>   Perhaps with some recommended /etc/modules.conf lines (perhaps
+>   parport_lowlevel{1,2,3,...})?
 
-"Hotmail, from Microsoft, doesn't run on a Microsoft platform but rather a 
-collection of Open Source packages."
+I think this is sane. This is how it works for parport_pc.
 
-He also discussed Perl, Python and other projects at length.  Basically, from 
-his writing, I think that he was more missinformed that actually pushing real 
-FUD.  I'll bet when he investigated the story, somebody close to him 
-mentioned that Linus had the final say on what went into the kernel, and he 
-probably saw a few e-mails on Google from people with rejected patches, and 
-he assumed that there was something rotten going on.  And it probably doesn't 
-help that we are always fighting amongst ourselves over architecture, 
-implementation and the such.  An uneducated person reading over the archives 
-would probably assume that Alan and Linus are ready to start hunting each 
-other down, and the articles they write would probably reflect this.  
 
-> > The situation is going to be sad
->
-> There is a saying in he UK 'You can fool all of the people some of the
-> time, you can fool some of the people all the time, but you cannot fool all
-> of the people all of the time'. 
-
-Didn't Abraham Lincoln say that?  :)
-
-Jordan

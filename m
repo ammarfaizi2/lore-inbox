@@ -1,22 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbTLCVIl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 16:08:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbTLCVIl
+	id S261276AbTLCUz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 15:55:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbTLCUz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 16:08:41 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:26508 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S261965AbTLCVIh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 16:08:37 -0500
-Date: Wed, 3 Dec 2003 19:06:01 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: bill davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: XFS for 2.4
-In-Reply-To: <bqlhuv$jh2$1@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0312031904550.1302-100000@logos.cnet>
+	Wed, 3 Dec 2003 15:55:56 -0500
+Received: from fw.osdl.org ([65.172.181.6]:63116 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261276AbTLCUzw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 15:55:52 -0500
+Date: Wed, 3 Dec 2003 12:55:23 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Manfred Spraul <manfred@colorfullife.com>,
+       Srivatsa Vaddagiri <vatsa@in.ibm.com>, Raj <raju@mailandnews.com>,
+       linux-kernel@vger.kernel.org, lhcs-devel@lists.sourceforge.net
+Subject: Re: kernel BUG at kernel/exit.c:792!
+In-Reply-To: <Pine.LNX.4.58.0312032122420.6622@earth>
+Message-ID: <Pine.LNX.4.58.0312031254590.2055@home.osdl.org>
+References: <20031203153858.C14999@in.ibm.com> <3FCDCEA3.1020209@mailandnews.com>
+ <20031203182319.D14999@in.ibm.com> <Pine.LNX.4.58.0312032059040.4438@earth>
+ <Pine.LNX.4.58.0312031203430.7406@home.osdl.org> <3FCE453D.9080701@colorfullife.com>
+ <Pine.LNX.4.58.0312032122420.6622@earth>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,23 +29,23 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On 3 Dec 2003, bill davidsen wrote:
+On Wed, 3 Dec 2003, Ingo Molnar wrote:
+>
+> On Wed, 3 Dec 2003, Manfred Spraul wrote:
+>
+> > It's wrong, because next_thread() relies on
+> >
+> >     task->pids[PIDTYPE_TGID].pid_chain.next
+> >
+> > That pointer is not valid after detach_pid(task, PIDTYPE_TGID), and
+> > that's called within __unhash_process.  Thus next_thread() fails if it's
+> > called on a dead task. Srivatsa's second patch is the right change: If
+> > pid_alive() is wrong, then break from the loop without calling
+> > next_thread().
+>
+> yes. And for thread groups this can only happen for the thread group
+> leader if all 'child' threads have exited.
 
-> is code which has has been stable for years. There just aren't any
-> other candidates, all the other FS stuff went in with less testing and
-> have fewer users now (JFS as example). This is also not code offered
-> "right before a freeze" this code has been offered version by version
-> for two bleepin' years, has it not? There's no slippery slope, there
-> are no other major features which have proven long-term stability. Fell
-> free to name them if I'm wrong...
-> 
-> Marcelo admits he doesn't like the coding style, he has the right to
-> keep out anything he doesn't like, but let's not invent other reasons.
-> It's his call and he made it. It's a pity he didn't make the call
-> earlier and save people the effort, though.
+Ok, color me convinced. Will apply,
 
-Actually my personal opinion should not matter that much in this case. 
-
-But anyway, Christoph Hellwig is reviewing the XFS patches for inclusion.
-
-
+		Linus

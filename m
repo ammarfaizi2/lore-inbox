@@ -1,48 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266528AbUBLSZv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 13:25:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266522AbUBLSZu
+	id S266529AbUBLSlN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 13:41:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266535AbUBLSlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 13:25:50 -0500
-Received: from cs24243203-239.austin.rr.com ([24.243.203.239]:44044 "EHLO
-	raptor.int.mccr.org") by vger.kernel.org with ESMTP id S266528AbUBLSZu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 13:25:50 -0500
-Date: Thu, 12 Feb 2004 12:25:45 -0600
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] get_unmapped_area() change -> non booting machine
-Message-ID: <387610000.1076610345@[10.1.1.5]>
-In-Reply-To: <Pine.LNX.4.58.0402121014330.5816@home.osdl.org>
-References: <1076384799.893.5.camel@gaston>
- <Pine.LNX.4.58.0402100814410.2128@home.osdl.org>
- <20040210173738.GA9894@mail.shareable.org>
- <20040213002358.1dd5c93a.ak@suse.de> <20040212100446.GA2862@elte.hu>
- <Pine.LNX.4.58.0402120833000.5816@home.osdl.org>
- <339500000.1076605352@[10.1.1.5]>
- <Pine.LNX.4.58.0402120912430.5816@home.osdl.org>
- <362010000.1076607103@[10.1.1.5]>
- <Pine.LNX.4.58.0402121014330.5816@home.osdl.org>
-X-Mailer: Mulberry/3.0.3 (Linux/x86)
+	Thu, 12 Feb 2004 13:41:13 -0500
+Received: from grassmarket.ucs.ed.ac.uk ([129.215.166.64]:45227 "EHLO
+	grassmarket.ucs.ed.ac.uk") by vger.kernel.org with ESMTP
+	id S266529AbUBLSlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 13:41:11 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Reply-To: s0348365@sms.ed.ac.uk
+Organization: University of Edinburgh
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.3-rc2-mm1
+Date: Thu, 12 Feb 2004 18:43:54 +0000
+User-Agent: KMail/1.6
+References: <20040212015710.3b0dee67.akpm@osdl.org>
+In-Reply-To: <20040212015710.3b0dee67.akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402121843.55084.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 12 February 2004 09:57, you wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3-rc2/2.6
+>.3-rc2-mm1/
+>
+>
+> - Added the big ISDN update
+>
+> - Device Mapper update
+>
+[snip]
 
---On Thursday, February 12, 2004 10:19:21 -0800 Linus Torvalds
-<torvalds@osdl.org> wrote:
+I don't know if it's still worth reporting these, but at the risk of sounding 
+like a broken record..
 
-> Well, the _common_ case at least for the loader is that the "top of the 
-> hole" is actually the stack. So the above would _really_ suck, and crash 
-> pretty much immediately ;)
+Badness in interruptible_sleep_on at kernel/sched.c:2235
+Call Trace:
+ [<c011b289>] interruptible_sleep_on+0xe9/0x120
+ [<c011ae80>] default_wake_function+0x0/0x20
+ [<c0365c17>] copy_block+0xa7/0xe0
+ [<c036167c>] emu10k1_audio_write+0x1ac/0x320
+ [<c03614d0>] emu10k1_audio_write+0x0/0x320
+ [<c015370a>] vfs_write+0x10a/0x150
+ [<c010f26a>] do_gettimeofday+0x1a/0xb0
+ [<c0153802>] sys_write+0x42/0x70
+ [<c03f0266>] sysenter_past_esp+0x43/0x65
 
-Hmm, good point.  My mental image of the address space tagged the section
-at TASK_UNMAPPED_BASE as already allocated.
+Haven't noticed it before.
 
-Dave McCracken
+Other than that, the whole ACPI on nForce2 thing seems to have been fixed. 
+Back to -mm for me.
 
+-- 
+Cheers,
+Alistair.
+
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/AI Undergraduate
+contact:    7/10 Darroch Court,
+            University of Edinburgh.

@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266919AbUG1OEP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266925AbUG1OJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266919AbUG1OEP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 10:04:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266921AbUG1OEP
+	id S266925AbUG1OJk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 10:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267164AbUG1OJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 10:04:15 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:35269 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266919AbUG1OEN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 10:04:13 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Alan Cox <alan@redhat.com>
+	Wed, 28 Jul 2004 10:09:40 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34220 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266925AbUG1OJj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 10:09:39 -0400
+Date: Wed, 28 Jul 2004 10:08:46 -0400
+From: Alan Cox <alan@redhat.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Alan Cox <alan@redhat.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: PATCH: Add support for Innovision DM-8401H
-Date: Wed, 28 Jul 2004 16:10:54 +0200
-User-Agent: KMail/1.5.3
-References: <20040728134910.GA8514@devserv.devel.redhat.com>
-In-Reply-To: <20040728134910.GA8514@devserv.devel.redhat.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Message-ID: <20040728140846.GA23938@devserv.devel.redhat.com>
+References: <20040728134910.GA8514@devserv.devel.redhat.com> <200407281610.54961.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200407281610.54961.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200407281610.54961.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 28, 2004 at 04:10:54PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> On Wednesday 28 of July 2004 15:49, Alan Cox wrote:
+> > This is an SII 680 with strange PCI identifiers it appears
+> No, this is a different chipset (produced by ITE).
 
-[ cc: linux-ide, please! ]
+Ok then its a different chipset produced by ITE which appears to work
+perfectly with the SII driver, rather like the different chipset produced
+by Adaptec that is bug compatible and register identical with the SI3112
 
-On Wednesday 28 of July 2004 15:49, Alan Cox wrote:
-> This is an SII 680 with strange PCI identifiers it appears
+> I asked you to compare Sil and ITE datasheets
+> (as I don't have one for Sil0680).
+> 
+> Have you done this?
 
-No, this is a different chipset (produced by ITE).
+I don't have the ITE datasheet.
 
-> Original patch: Alex Hewson
-> Verified by: Alan Cox <alan@redhat.com>
-
-I asked you to compare Sil and ITE datasheets
-(as I don't have one for Sil0680).
-
-Have you done this?
-
-> @@ -1634,6 +1634,7 @@
->  #define PCI_VENDOR_ID_ITE		0x1283
->  #define PCI_DEVICE_ID_ITE_IT8172G	0x8172
->  #define PCI_DEVICE_ID_ITE_IT8172G_AUDIO 0x0801
-> +#define PCI_DEVICE_ID_ITE_DM8401	0x8212
-
-This chipset is used by other cards as well.
- 
-> @@ -1108,7 +1111,8 @@
->  static ide_pci_device_t siimage_chipsets[] __devinitdata = {
->  	/* 0 */ DECLARE_SII_DEV("SiI680"),
->  	/* 1 */ DECLARE_SII_DEV("SiI3112 Serial ATA"),
-> -	/* 2 */ DECLARE_SII_DEV("Adaptec AAR-1210SA")
-> +	/* 2 */ DECLARE_SII_DEV("Adaptec AAR-1210SA"),
-> +	/* 3 */ DECLARE_SII_DEV("InnoVISION DM8401H")
->  };
-
-ditto
+Alan
 

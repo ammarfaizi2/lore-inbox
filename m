@@ -1,90 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbTLBQVi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 11:21:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbTLBQVi
+	id S262352AbTLBQYd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 11:24:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbTLBQYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 11:21:38 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:52900 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262328AbTLBQVe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 11:21:34 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 Dec 2003 11:24:33 -0500
+Received: from host-65-120-145-91.coremetrics.com ([65.120.145.91]:60343 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262352AbTLBQYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 11:24:30 -0500
+Subject: Re: XFS for 2.4
+From: Austin Gonyou <austin@coremetrics.com>
+To: Darrell Michaud <dmichaud@wsi.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Russell Cattelan <cattelan@xfs.org>, Nathan Scott <nathans@sgi.com>,
+       linux-kernel@vger.kernel.org, XFS List <linux-xfs@oss.sgi.com>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1070381443.5316.260.camel@atherne>
+References: <1070381443.5316.260.camel@atherne>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <16332.48129.638814.999930@alkaid.it.uu.se>
-Date: Tue, 2 Dec 2003 17:21:21 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: marcelo.tosatti@cyclades.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH][2.4.23] fix some DRM43 warnings
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Organization: Coremetrics, Inc.
+Message-Id: <1070382114.2392.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 02 Dec 2003 10:21:54 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Resend. Was ignored for 2.4.23-pre :-(]
+I second this as well. I'm sure there are others. XFS is a good option
+to have for official FS inclusion and I'm *very* happy it's in 2.6. If
+it were in 2.4, that *may* make adoption of 2.6 for some, slow in coming
+along. While that may be true, I see that most will eventually want to
+take advantage of all 2.6 has to offer, but if XFS were in the official
+tree, then that may be one less piece of guess work needed when
+upgrading from 2.4 to 2.6 with regards to FS maintenance. (i.e. same
+version of XFS in both trees == possible same reliability, etc)
 
-This patch fixes three sources of warnings in the new 4.3 DRM code:
-- drm_os_linux.h has a #warning on broken list_entry usage.
-  The patch backports a fix from the 2.6 code.
-- radeon_drv.h has a #warning PCI posting bug.
-  The #warning refers to an obsolete and unused macro.
-  Simply remove it. It's also gone from the 2.6 code.
-- drm_agpsupport.h generates a gcc warning on an assignment
-  used as a truth value.
-  The patch backports a fix from the 2.6 code.
-
-These changes are well-tested: they have been in 2.6 for ages,
-and I've been running them in 2.4.23-pre/rc for months.
-Please apply.
-
-/Mikael
-
-diff -ruN linux-2.4.23/drivers/char/drm/drm_agpsupport.h linux-2.4.23.drm43-fixes/drivers/char/drm/drm_agpsupport.h
---- linux-2.4.23/drivers/char/drm/drm_agpsupport.h	2003-11-29 00:28:11.000000000 +0100
-+++ linux-2.4.23.drm43-fixes/drivers/char/drm/drm_agpsupport.h	2003-11-29 00:33:29.000000000 +0100
-@@ -79,7 +79,7 @@
- 		return -EBUSY;
- 	if(!drm_agp->acquire)
- 		return -EINVAL;
--	if (retcode = drm_agp->acquire())
-+	if ((retcode = drm_agp->acquire()))
- 		return retcode;
- 	dev->agp->acquired = 1;
- 	return 0;
-diff -ruN linux-2.4.23/drivers/char/drm/drm_os_linux.h linux-2.4.23.drm43-fixes/drivers/char/drm/drm_os_linux.h
---- linux-2.4.23/drivers/char/drm/drm_os_linux.h	2003-11-29 00:28:11.000000000 +0100
-+++ linux-2.4.23.drm43-fixes/drivers/char/drm/drm_os_linux.h	2003-11-29 00:33:29.000000000 +0100
-@@ -13,12 +13,10 @@
- 		return -EFAULT
- 
- 
--#warning the author of this code needs to read up on list_entry
- #define DRM_GETSAREA()							 \
- do { 									 \
--	struct list_head *list;						 \
--	list_for_each( list, &dev->maplist->head ) {			 \
--		drm_map_list_t *entry = (drm_map_list_t *)list;		 \
-+	drm_map_list_t *entry;						 \
-+	list_for_each_entry( entry, &dev->maplist->head, head ) {	 \
- 		if ( entry->map &&					 \
- 		     entry->map->type == _DRM_SHM &&			 \
- 		     (entry->map->flags & _DRM_CONTAINS_LOCK) ) {	 \
-diff -ruN linux-2.4.23/drivers/char/drm/radeon_drv.h linux-2.4.23.drm43-fixes/drivers/char/drm/radeon_drv.h
---- linux-2.4.23/drivers/char/drm/radeon_drv.h	2003-11-29 00:28:11.000000000 +0100
-+++ linux-2.4.23.drm43-fixes/drivers/char/drm/radeon_drv.h	2003-11-29 00:33:29.000000000 +0100
-@@ -839,14 +839,6 @@
-  * Ring control
-  */
- 
--#if defined(__powerpc__)
--#define radeon_flush_write_combine()	(void) GET_RING_HEAD( &dev_priv->ring )
--#else
--#define radeon_flush_write_combine()	wmb()
--#warning PCI posting bug
--#endif
--
--
- #define RADEON_VERBOSE	0
- 
- #define RING_LOCALS	int write, _nr; unsigned int mask; u32 *ring;
+On Tue, 2003-12-02 at 10:10, Darrell Michaud wrote:
+> As a user it would be very beneficial for me to have XFS support in
+> the
+> official 2.4 kernel tree. XFS been stable and "2.4 integration-ready"
+> for a long time, and 2.4 is going to be used in certain environments
+> for
+> a long time, if only because it's easier to upgrade a 2.4 kernel to a
+> newer 2.4 kernel than to upgrade to a 2.6 kernel. It seems like an
+> easy
+> case to make.
+> 
+> I use other filesystems and some funky drivers as well.. and I'm
+> always
+> very happy to see useful backports show up in the 2.4 tree. Thank you!
+> 
+> 
+> 
+> On Tue, 2003-12-02 at 10:50, Marcelo Tosatti wrote:
+> > On Tue, 2 Dec 2003, Russell Cattelan wrote:
+> > 
+> > > On Tue, 2003-12-02 at 05:18, Marcelo Tosatti wrote:
+> > > [snip] 
+> > > > Also I'm not completly sure if the generic changes are fine and
+> I dont
+> > > > like the XFS code in general.
+> > > Ahh so the real truth comes out.
+> > > 
+> > > 
+> > > Is there a reason for your sudden dislike of the XFS code?
+> > 
+> > I always disliked the XFS code. 
+> > 
+> > > or is this just an arbitrary general dislike for unknown or
+> unstated
+> > > reasons?
+> > 
+> > I dont like the style of the code. Thats a personal issue, though,
+> and 
+> > shouldnt matter.
+> > 
+> > The bigger point is that XFS touches generic code and I'm not sure
+> if that 
+> > can break something.
+> > 
+> > Why it matters so much for you to have XFS in 2.4 ? 
+> > 
+> -- 
+> Darrell Michaud <dmichaud@wsi.com>
+-- 
+Austin Gonyou <austin@coremetrics.com>
+Coremetrics, Inc.

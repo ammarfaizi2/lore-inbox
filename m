@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315513AbSFYOtV>; Tue, 25 Jun 2002 10:49:21 -0400
+	id <S315528AbSFYPOb>; Tue, 25 Jun 2002 11:14:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315517AbSFYOtV>; Tue, 25 Jun 2002 10:49:21 -0400
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:52962 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S315513AbSFYOtU>; Tue, 25 Jun 2002 10:49:20 -0400
-Date: Tue, 25 Jun 2002 16:49:18 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Question concerning PCI device driver
-Message-ID: <20020625144918.GA22794@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	"Bloch, Jack" <Jack.Bloch@icn.siemens.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <180577A42806D61189D30008C7E632E8793954@boca213a.boca.ssc.siemens.com>
+	id <S315529AbSFYPOb>; Tue, 25 Jun 2002 11:14:31 -0400
+Received: from adsl-66-136-202-174.dsl.austtx.swbell.net ([66.136.202.174]:40840
+	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
+	id <S315528AbSFYPOa>; Tue, 25 Jun 2002 11:14:30 -0400
+Subject: [Possibly OT] Qlogic and greater than 8 luns.
+From: Austin Gonyou <austin@digitalroadkill.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 25 Jun 2002 10:13:26 -0500
+Message-Id: <1025018006.25139.7.camel@UberGeek>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <180577A42806D61189D30008C7E632E8793954@boca213a.boca.ssc.siemens.com>
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 25, 2002 at 09:21:46AM -0400, Bloch, Jack wrote:
+If anyone out there has had any issues with QLA2200's and a Cu FC1
+array(PV660F in this case), and seeing > than 8 luns with 2.4.x please
+help me understand what's missing.
 
-> I am now porting this driver to a 2.4 Kernel and in the Linux device driver
-> book it talks about using pci_module_init. How do I get the major number to
-> allow for IOCTL commands? 
 
-Just do it in the same way, only the pci management functions changed:
-you will now need to register your chrdev in the pci_probe callback
-instead of the module_init() function.
+I use GRUB for booting, I've flashed the cards to support > 8 luns on
+the HBA, Windows can see all the LUNs but Linux cannot. I've worked with
+several tech support people, and tried all the supported driver versions
+from Qlogic. Still, linux only sees 8 LUNSs(0-7). 
 
-You should look at the existing drivers in the kernel tree, under
-drivers/char, and you'll find many drivers which work that way...
+This is a direct attach scenario. I've also added the max_scsi_luns=128
+to my GRUB boot string.  If anyone knows if there's a ql2xopts= setting
+to enable Driver LUN support > 8 LUNs, I'd greatly appreciate any help.
+I've been working on this for nearly 2 days straight and my boss is
+putting pressure on me to get this done sooner than promised. 
 
-Stelian.
+TIA. 
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+Austin Gonyou <austin@digitalroadkill.net>

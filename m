@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285229AbSBCADH>; Sat, 2 Feb 2002 19:03:07 -0500
+	id <S284970AbSBCAN2>; Sat, 2 Feb 2002 19:13:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284732AbSBCAC6>; Sat, 2 Feb 2002 19:02:58 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:39880 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S285229AbSBCACo>;
-	Sat, 2 Feb 2002 19:02:44 -0500
-Date: Sat, 2 Feb 2002 19:02:42 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        davem@redhat.com
-Subject: Re: [PATCH] Generic HDLC patch for 2.5.3
-Message-ID: <20020202190242.C1740@havoc.gtf.org>
-In-Reply-To: <m3adurpifs.fsf@defiant.pm.waw.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m3adurpifs.fsf@defiant.pm.waw.pl>; from khc@pm.waw.pl on Sun, Feb 03, 2002 at 12:33:59AM +0100
+	id <S284732AbSBCANS>; Sat, 2 Feb 2002 19:13:18 -0500
+Received: from mailhost.cs.auc.dk ([130.225.194.6]:3580 "EHLO
+	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP
+	id <S284300AbSBCANL>; Sat, 2 Feb 2002 19:13:11 -0500
+Date: Sun, 3 Feb 2002 01:13:09 +0100 (MET)
+From: Lars Christensen <larsch@cs.auc.dk>
+To: <linux-kernel@vger.kernel.org>
+cc: Andrew Morton <akpm@zip.com.au>
+Subject: Re: 2.4.17 agpgart process hang on crash
+In-Reply-To: <3C5C76F2.78BA9A54@zip.com.au>
+Message-ID: <Pine.GSO.4.33.0202030104290.1223-100000@peta.cs.auc.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 03, 2002 at 12:33:59AM +0100, Krzysztof Halasa wrote:
-> Hi,
-> 
-> The attached file updates Linux 2.5.3 generic HDLC, please apply.
-> 
-> The patch includes:
-> - new SIOCDEVICE ioctl for setting all protocol and hardware parameters
->   of (HDLC) network devices, instead of using PRIVATE netdev ioctls
->   (details in hdlc.h and respective hdlc_*.c and/or N2 + C101 drivers)
-> - the HDLC code is now split into hdlc_generic.c, hdlc_fr.c,
->   hdlc_cisco.c etc. files,
-> - all protocol parameters (timeouts etc.) are (should/aim) now configurable
->   via SIOCDEVICE ioctl,
+On Sat, 2 Feb 2002, Andrew Morton wrote:
 
+> Lars Christensen wrote:
+> >
+> > No luck. Still hangs (e.g. with ./testgart & pkill -ABRT testgart), with
+> > and without that patch and with and without 2.4.18-pre7. Does seem to
+> > happen when dumping core--it doesn't happen with core dumping disabled.
+> >
+>
+> This one, please:
+>
+> --- linux-2.4.18-pre7/drivers/char/agp/agpgart_fe.c	Sun Aug 12 10:38:48 2001
+> +++ linux-akpm/drivers/char/agp/agpgart_fe.c	Sat Feb  2 15:29:49 2002
+> @@ -605,19 +605,18 @@ static int agp_mmap(struct file *file, s
 
+<snip>
 
-Linus,
+> +	if (ret == 0)
+> +		vma->vm_flags |= VM_IO;
+>  	return -EPERM;
+>  }
 
-Please revert, or do not apply, this patch.
+> Sorry - make the last statement `return ret;'
 
-ftp://ftp.pm.waw.pl/pub/linux/hdlc/experimental/hdlc-2.5.3.patch.gz
+Better. The process dumps core now, but ps -ef hangs after printing a few
+processes. Also, with a app runnig with a window open in X, the window
+stays, so apparently, the process isn't gone.
 
-It adds undiscussed networking changed which I very much doubt DaveM
-would approve of, and I do not approve of:  SIOCDEVICE is far too
-generic for inclusion, and it adds a structure for passing untyped
-data which is very definitely non-portable.
-
-	Jeff
-
+-- 
+Lars Christensen, larsch@cs.auc.dk
 
 

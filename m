@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131135AbQLMMkV>; Wed, 13 Dec 2000 07:40:21 -0500
+	id <S131253AbQLMM4o>; Wed, 13 Dec 2000 07:56:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131305AbQLMMkL>; Wed, 13 Dec 2000 07:40:11 -0500
-Received: from net128-053.mclink.it ([195.110.128.53]:56039 "EHLO
-	mail.mclink.it") by vger.kernel.org with ESMTP id <S131135AbQLMMjx>;
-	Wed, 13 Dec 2000 07:39:53 -0500
-From: "CMA" <cma@mclink.it>
-To: "'Rainer Mager'" <rmager@vgkk.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: R: Signal 11 - the continuing saga
-Date: Wed, 13 Dec 2000 13:10:10 +0100
-Message-ID: <001501c064fd$a4997dc0$65000a0a@intracma.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <NEBBJBCAFMMNIHGDLFKGAEAHCJAA.rmager@vgkk.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+	id <S131315AbQLMM4e>; Wed, 13 Dec 2000 07:56:34 -0500
+Received: from enterprise.cistron.net ([195.64.68.33]:51210 "EHLO
+	enterprise.cistron.net") by vger.kernel.org with ESMTP
+	id <S131253AbQLMM40>; Wed, 13 Dec 2000 07:56:26 -0500
+From: reneb@orac.aais.nl (Rene Blokland)
+Subject: [SOLVED]Trident sound does not work anymore!
+Date: Wed, 13 Dec 2000 13:24:43 +0100
+Organization: Cistron Internet Services B.V.
+Message-ID: <slrn93eqkb.4r.reneb@orac.aais.nl>
+Reply-To: reneb@cistron.nl
+X-Trace: enterprise.cistron.net 976710366 26854 62.216.0.12 (13 Dec 2000 12:26:06 GMT)
+X-Complaints-To: abuse@cistron.nl
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> From: CMA [mailto:cma@mclink.it]
->> Did you already try to selectively disable L1 and L2 caches (if
->> your box has both) and see what happens?
->
->Anyone know how to do this?
-
-If you own a p6 class machine (sorry but I didn't find your hw specs in
-previous messages)
-you should be able to enter setup and disable L1 and/or L2 usually in
-"advanced setup".
-If you disable L1, the machine will be *much* slower.
-If you disable L2, you will notice it under heavy load.
-Most of the times sig 11 is due L1 cache overheating (on chip). Just
-controlling whether cpu cooling fan is properly seated and spinning solves
-the problem.
-Regards.
-Dr. Eng. Mauro Tassinari
-www.c-m-a.it
-
+I wrote:
+>Hi there, as the subject says the trident sound does not work since
+>2.4.0-test9. this messages does dmesg:
+>Trident 4DWave/SiS 7018/ALi 5451 PCI Audio, version 0.14.6, 12:36:52 Nov 20 2000
+>trident: Trident 4DWave DX found at IO 0xd800, IRQ 0
+>trident: unable to allocate irq 0
+>any ideas?
+After removing the soundcard and inserting it again to update the pci-bios
+of the mb, found out that when the srcew is tight the irq 0.
+when the screw is not tight it works like a charm!
+So it was a hardware problem and NOT the kernel.
+Sorry and regards, Rene.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

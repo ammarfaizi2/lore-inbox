@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133034AbRAQL5O>; Wed, 17 Jan 2001 06:57:14 -0500
+	id <S135247AbRAQMIo>; Wed, 17 Jan 2001 07:08:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133035AbRAQL5E>; Wed, 17 Jan 2001 06:57:04 -0500
-Received: from libra.cyb.it ([212.11.95.209]:48653 "EHLO relay2.flashnet.it")
-	by vger.kernel.org with ESMTP id <S133034AbRAQL4o>;
-	Wed, 17 Jan 2001 06:56:44 -0500
-Date: Wed, 17 Jan 2001 12:54:17 +0100
-From: David Santinoli <u235@libero.it>
+	id <S135240AbRAQMIf>; Wed, 17 Jan 2001 07:08:35 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:7685 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S133035AbRAQMIW>;
+	Wed, 17 Jan 2001 07:08:22 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
 To: linux-kernel@vger.kernel.org
-Subject: Partition renumbering under 2.4.0
-Message-ID: <20010117125417.A717@aidi.santinoli.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+Date: Wed, 17 Jan 2001 13:07:29 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Killing process with SIGKILL and ncpfs
+CC: marteen.deboer@iua.upf.es
+X-mailer: Pegasus Mail v3.40
+Message-ID: <12D4186E13AE@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 Hi,
- I've noticed that some logical partitions get different numbering under 2.2.16
-and 2.4.0. Here's my /dev/hdb layout:
+  Maarten de Boer pointed to me, that if you load some simple program,
+such as 'void main(void) {}', trace into main (break main; run)
+and then quit from gdb (Really exit? yes), child process is then
+killed due to INT3 (probably). Then exit_mmap releases executable
+mapping - and ncp_do_request is entered with SIGKILL pending!
 
-  hdb1: fat32
-  hdb2: Solaris partition (contains 4 Solaris slices)
-  hdb3: ext2
-  hdb4: extended partition (contains 1 ext2 logical partition)
+Trace; d18e8822 <[ncpfs]ncp_do_request+1e2/1f8>
+Trace; d18e88a5 <[ncpfs]ncp_request2+6d/a0>
+Trace; d18e7c3c <[ncpfs]ncp_make_closed+9c/c8>
+Trace; d18e332e <[ncpfs]ncp_release+a/1c>
+Trace; c01349c1 <fput+39/e8>
+Trace; c012566e <exit_mmap+da/124>
+Trace; c0115e54 <mmput+38/50>
+Trace; c011a134 <do_exit+d0/2a8>
+Trace; c0108e10 <do_signal+234/28c>
+Trace; c011f032 <force_sig_info+9a/a4>
+Trace; c011f24d <force_sig+11/18>
+Trace; c0109581 <do_int3+35/78>
+Trace; c0109088 <error_code+34/3c>
+Trace; c0108fa4 <signal_return+14/18>
 
-and here's how it gets detected by the kernels:
+So my question is:
+(1) should ncpfs ignore ALL signals (even SIGKILL/SIGSTOP) when
+    task is in PF_EXITING mode, or
+(2) should kernel clear all pending signals at the beginning of do_exit or
+(3) is it gdb bug that they forget 'int3' operation in traced program?
 
-2.2.16:
-  hdb: hdb1 hdb2 <solaris: [s0] hdb5 [s1] hdb6 [s2] hdb7 [s7] hdb8 > hdb3 hdb4 <
- hdb9 >
-
-2.4.0:
- hdb: hdb1 hdb2 hdb3 hdb4 < hdb5 >
- hdb2: <solaris: [s0] hdb6 [s1] hdb7 [s2] hdb8 [s7] hdb9 >
-
-Note that the ext2 logical partition is called "hdb9" by 2.2.16 and "hdb5" by
-2.4.0.
-This makes it difficult to manage multi-boot systems with 2.2.x and 2.4.x
-kernels, as it requires updating fstab between boots. Switching to other
-identification strategies such as ext2 labels - as discussed in other threads -
-could be a workaround, as far as I know.
-
-Cheers,
- David
+                                    Thanks,
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
+                                            
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

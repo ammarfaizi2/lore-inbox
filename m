@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315200AbSHHFtu>; Thu, 8 Aug 2002 01:49:50 -0400
+	id <S315413AbSHHF5r>; Thu, 8 Aug 2002 01:57:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315222AbSHHFtu>; Thu, 8 Aug 2002 01:49:50 -0400
-Received: from h-66-134-202-172.SNVACAID.covad.net ([66.134.202.172]:16265
-	"EHLO freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S315200AbSHHFtt>; Thu, 8 Aug 2002 01:49:49 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Wed, 7 Aug 2002 22:53:01 -0700
-Message-Id: <200208080553.WAA09913@adam.yggdrasil.com>
-To: pavel@suse.cz
-Subject: Re: Patch: linux-2.5.30/arch/arm/mach-iop310/iq80310-pci.c BUG_ON(cond1 || cond2) separation
-Cc: linux-kernel@vger.kernel.org, mporter@mvista.com, rmk@arm.linux.org.uk
+	id <S315449AbSHHF5r>; Thu, 8 Aug 2002 01:57:47 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:54165 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S315413AbSHHF5q>;
+	Thu, 8 Aug 2002 01:57:46 -0400
+Date: Thu, 8 Aug 2002 08:00:45 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+       jmacd@namesys.com, phillips@arcor.de, rml@tech9.net
+Subject: Re: [PATCH] lock assertion macros for 2.5.30
+Message-ID: <20020808060045.GM2243@suse.de>
+References: <20020807205134.GA27013@sgi.com> <Pine.LNX.4.44L.0208071758280.23404-100000@imladris.surriel.com> <20020807210855.GA27182@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020807210855.GA27182@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek writes:
->it makes code slower/bigger... probably bad idea
+On Wed, Aug 07 2002, Jesse Barnes wrote:
+> On Wed, Aug 07, 2002 at 06:02:19PM -0300, Rik van Riel wrote:
+> > On Wed, 7 Aug 2002, Jesse Barnes wrote:
+> > 
+> > > +++ linux-2.5.30-lockassert/drivers/scsi/scsi.c Wed Aug  7 11:35:32 2002
+> > > @@ -262,7 +262,7 @@
+> > 
+> > > +        MUST_NOT_HOLD(q->queue_lock);
+> > 
+> > ...
+> > 
+> > > +#if defined(CONFIG_DEBUG_SPINLOCK) && defined(CONFIG_SMP)
+> > > +#define MUST_HOLD(lock)			BUG_ON(!spin_is_locked(lock))
+> > > +#define MUST_NOT_HOLD(lock)		BUG_ON(spin_is_locked(lock))
+> > 
+> > Please tell me the MUST_NOT_HOLD thing is a joke.
+> > 
+> > What is to prevent another CPU in another code path
+> > from holding this spinlock when the code you've
+> > inserted the MUST_NOT_HOLD in is on its merry way
+> > not holding the lock ?
+> 
+> Nothing at all, but isn't that how the scsi ASSERT_LOCK(&lock, 0)
+> macro worked before?  I could just remove all those checks in the scsi
+> code I guess.
 
-	 The costs of expanding these two BUG_ON's is trivial,
-considering that they get executed something like once per device,
-during an initialization process.  This is a section of code where I
-would think correctness and ease of debugging would be more important,
-especially since they might be from bug reports submitted by users who
-might have limited tolerance for repeatedly trying new kernels.
+The SCSI ASSERT_LOCK() were never used from kernel space, they are for
+the user space similator. So it was always single threaded from there
+and has no bearing on what actual kernel code does.
 
-	If you're really squeezed for space, you're probably going to
-have to define BUG() and BUG_ON() to something smaller that does not
-generate a file name and line number (include/asm-i386/page.h an "#if"
-for this, although mips does not), or even defining them as nothing.
+For MUST_NOT_HOLD to work, you need to take into account which processor
+took the lock etc.
 
-	By the way, if no bug is detected, BUG_ON(cond1 || cond2)
-executes the same instructions as BUG_ON(cond1); BUG_ON(cond2),
-although there are probably greater instruction prefetch costs due to
-the the ~20 bytes of code (that is normally not executed) for the
-different call or trap instruction, and instruction cache issues.
+> After I posted the last patch, a few people asked for MUST_NOT_HOLD so
+> I added it back in.  Do you think it's a bad idea?  See the last
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Your current version is surely worthless.
+
+-- 
+Jens Axboe
+

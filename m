@@ -1,32 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281648AbRLLRsP>; Wed, 12 Dec 2001 12:48:15 -0500
+	id <S281678AbRLLSBI>; Wed, 12 Dec 2001 13:01:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281663AbRLLRrz>; Wed, 12 Dec 2001 12:47:55 -0500
-Received: from p3EE26592.dip.t-dialin.net ([62.226.101.146]:47332 "EHLO
-	merlin.fbunet.de") by vger.kernel.org with ESMTP id <S281648AbRLLRrw>;
-	Wed, 12 Dec 2001 12:47:52 -0500
-X-AV-Checked: Wed Dec 12 18:47:54 2001 merlin.fbunet.de
-Content-Type: text/plain; charset=US-ASCII
-From: Fridtjof Busse <fridtjof@fbunet.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Repost: ASUS APM Problem (ASUS L8400L & ASUS P2B-F)
-Date: Wed, 12 Dec 2001 18:47:54 +0100
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16EBn3-0001Ug-00@the-village.bc.nu>
-In-Reply-To: <E16EBn3-0001Ug-00@the-village.bc.nu>
-X-OS: Linux on i686
+	id <S281719AbRLLSAr>; Wed, 12 Dec 2001 13:00:47 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:4880 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S281678AbRLLSAl>; Wed, 12 Dec 2001 13:00:41 -0500
+Date: Wed, 12 Dec 2001 19:00:33 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: <puw@cola.teststation.com>
+To: "Eshwar D - CTD, Chennai." <deshwar@ctd.hcltech.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Problem SMBFS
+In-Reply-To: <EF836A380096D511AD9000B0D021B5273EFC6F@narmada.ctd.hcltech.com>
+Message-ID: <Pine.LNX.4.33.0112121857220.4034-100000@cola.teststation.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011212174754.5A2DA73D5E@merlin.fbunet.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 12. December 2001 16:59, Alan Cox wrote:
-> > $ cat /proc/apm
-> > 1.14 1.2 0x03 0x01 0xff 0x80 -1% -1 ?
-> >                              ^^^^^^^^
->
-> -1 is "unknown"
+On Tue, 11 Dec 2001, Eshwar D - CTD, Chennai. wrote:
 
-Is there any way to get this working?
+> 	When i read a file xyz (file is in smbfs mounted directory) from one
+> client and i am didn't closed, from second client i written some data using
+> write system call and closed xyz file,  i am not see the data from client
+> one. Then i closed file in client one and tried to read the data, same thing
+> is continuing. Can any one suggest me is this is the property of smbfs. I am
+> not a member in mailing list please send me u r request to my mail id
+
+Kernel version? This sounds a lot like a problem fixed sometime around
+2.2.18 where smbfs didn't consider certain files as changed.
+
+Are both clients smbfs?
+
+/Urban
+

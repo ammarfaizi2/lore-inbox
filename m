@@ -1,47 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265803AbRGBCwx>; Sun, 1 Jul 2001 22:52:53 -0400
+	id <S266345AbRGBC6y>; Sun, 1 Jul 2001 22:58:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266032AbRGBCwn>; Sun, 1 Jul 2001 22:52:43 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:21002 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265803AbRGBCw2>;
-	Sun, 1 Jul 2001 22:52:28 -0400
-Date: Sun, 1 Jul 2001 19:51:28 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-usb-users@lists.sourceforge.net
-Subject: Re: usbserial/keyspan module load race [was: 2.4.5 keyspan driver]
-Message-ID: <20010701195128.A21973@kroah.com>
-In-Reply-To: <20010630003323.A908@glitch.snoozer.net> <20010630133752.A850@glitch.snoozer.net> <20010701154910.A15335@glitch.snoozer.net>
+	id <S266348AbRGBC6o>; Sun, 1 Jul 2001 22:58:44 -0400
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:34374 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S266345AbRGBC6i>; Sun, 1 Jul 2001 22:58:38 -0400
+Subject: Re: Soft updates for 2.5?
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Alex Khripin <akhripin@morgoth.mit.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0107012331360.19985-100000@imladris.rielhome.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0107012331360.19985-100000@imladris.rielhome.conectiva>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 01 Jul 2001 22:58:04 -0400
+Message-Id: <994042685.12022.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010701154910.A15335@glitch.snoozer.net>; from haphazard@socket.net on Sun, Jul 01, 2001 at 03:49:10PM -0500
-X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 01, 2001 at 03:49:10PM -0500, Gregory T. Norris wrote:
-> Ok, I've figured out how to reproduce the problem.
+While on the topic of reslilent, high-performance filesystems, what ever
+became of "Tux", Daniel Philip's mythical WAFL-type filesystem?
+
+On 01 Jul 2001 23:33:52 -0300, Rik van Riel wrote:
+> On Sat, 30 Jun 2001, Alex Khripin wrote:
 > 
-> Initially, usbcore and usb-uhci are the only USB drivers loaded.  If I
-> load usbserial and keyspan seperately ("modprobe usbserial ; sleep 5 ;
-> modprobe keyspan") everything works correctly.  The problem occurs when
-> I let modprobe pull in usbserial behind the scenes as a dependency. The
-> keyspan driver (usually) doesn't detect the device, and /proc/modules
-> forever lists it as "initializing".  The module won't unload at this
-> point, so the driver's unusable until the next reboot.
+> > There was a discussion in October, 2000, about the Granger and
+> > McKusick paper on soft updates for the BSD FFS. Reading the thread,
+> > nothing conclusive seemed to come out of it.
 > 
-> Unfortunately I have no idea how/where to fix this.  Anyone want to
-> take a stab at it?
+> What you want is ext3.
+> 
+> It is a journaling version of ext2, which basically
+> means you get all the advantages of soft updates and
+> a bit more (due to the atomicity that journaled
+> transactions can give you).
+> 
+> It should be superior to softupdates in both the
+> consistency area and the performance area (due to
+> the fact that stuff is in the journal, you have
+> more freedom to reorder the writes to the "main"
+> part of the filesystem).
+> 
+> regards,
+> 
+> Rik
+> --
+> Virtual memory is like a game you can't win;
+> However, without VM there's truly nothing to lose...
+> 
+> http://www.surriel.com/		http://distro.conectiva.com/
+> 
+> Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+--
+Michael Rothwell
+rothwell@holly-springs.nc.us
 
-Which keyspan driver are you doing this with, keyspan_pda.o or
-keyspan.o?
 
-Have you tried having the linux-hotplug scripts install the driver for
-you when you plug the device in? <http://linux-hotplug.sourceforge.net/>
-
-thanks,
-
-greg k-h

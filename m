@@ -1,33 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291753AbSCRSqg>; Mon, 18 Mar 2002 13:46:36 -0500
+	id <S292131AbSCRTCv>; Mon, 18 Mar 2002 14:02:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291766AbSCRSq0>; Mon, 18 Mar 2002 13:46:26 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:42179 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S291753AbSCRSqH>; Mon, 18 Mar 2002 13:46:07 -0500
-Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7D07@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'torvalds@transmeta.com'" <torvalds@transmeta.com>,
-        linux-kernel@vger.kernel.org
-Cc: "Diefenbaugh, Paul S" <paul.s.diefenbaugh@intel.com>
-Subject: RE: Oops in 2.5.7-pre2: ACPI?
-Date: Mon, 18 Mar 2002 10:43:45 -0800
+	id <S292130AbSCRTCm>; Mon, 18 Mar 2002 14:02:42 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:18953 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S291948AbSCRTC3>; Mon, 18 Mar 2002 14:02:29 -0500
+Message-ID: <3C963954.87168F84@zip.com.au>
+Date: Mon, 18 Mar 2002 11:00:36 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: fadvise syscall?
+In-Reply-To: <3C959D55.14768770@zip.com.au> <200203181641.g2IGf1M20210@vindaloo.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: torvalds@transmeta.com [mailto:torvalds@transmeta.com]
-> I fixed the non-ACPI brokenness, which then left the ACPI merge in a
-> halfway state..  So right now ACPI device initialization 
-> doesn't work. 
-> I'm hoping that the ACPI folks can fix up their broken 
-> assumptions soon. 
+Richard Gooch wrote:
+> 
+> Andrew Morton writes:
+> > Note that it applies to a file descriptor.  If
+> > posix_fadvise(FADV_DONTNEED) is called against a file descriptor,
+> > and someone else has an fd open against the same file, that other
+> > user gets their foot shot off.  That's OK.
+> 
+> Let me verify that I understand what you're saying. Process A and B
+> independently open the file. The file is already in the cache (because
+> other processes regularly read this file). Process A is slowly reading
+> stuff. Process B does FADV_DONTNEED on the whole file. The pages are
+> dropped.
+> 
+> You're saying this is OK? How about this DoS attack:
+>         int fd = open ("/lib/libc.so", O_RDONLY, 0);
+>         while (1) {
+>                 posix_fadvise (fd, 0, 0, FADVISE_DONTNEED);
+>                 sleep (1);
+>         }
+> 
+> Let me see that disc head move! Wheeee!
+> 
 
-I can see from bkbits looks like you already fixed it post-pre2, so I guess
-we will just sit tight and everything will be fine once pre3 is out.
+POSIX_FADV_DONTNEED could only unmap pages from the caller's
+VMA's, so the problem would only affect other processes which
+share the same mm - CLONE_MM threads.
 
-Thanks -- Regards -- Andy
+If some other process has a reference on the pages then they
+wouldn't get unmapped as a result of this.  It's the same
+as madvise(MADV_DONTNEED).
+
+-

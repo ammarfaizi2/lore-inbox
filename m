@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319265AbSHWTu2>; Fri, 23 Aug 2002 15:50:28 -0400
+	id <S319217AbSHWTue>; Fri, 23 Aug 2002 15:50:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319260AbSHWTtq>; Fri, 23 Aug 2002 15:49:46 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:24704 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S319261AbSHWTtU>;
-	Fri, 23 Aug 2002 15:49:20 -0400
-Date: Fri, 2 Nov 2001 01:25:15 +0000
+	id <S319262AbSHWTtY>; Fri, 23 Aug 2002 15:49:24 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:11904 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S319214AbSHWTtE>;
+	Fri, 23 Aug 2002 15:49:04 -0400
+Date: Fri, 2 Nov 2001 05:12:12 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: vda@port.imtp.ilyichevsk.odessa.ua, Andrew Rodland <arodland@noln.com>,
-       Stas Sergeev <stssppnn@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] New PC-Speaker driver
-Message-ID: <20011102012515.A35@toy.ucw.cz>
-References: <3D5A8C2C.9010700@yahoo.com> <20020814184407.4ca9e406.arodland@noln.com> <200208150821.g7F8L6p19730@Port.imtp.ilyichevsk.odessa.ua> <E17fI5E-0002at-00@starship>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       Benjamin LaHaise <bcrl@redhat.com>, Andrea Arcangeli <andrea@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Pavel Machek <pavel@Elf.ucw.cz>, linux-kernel@vger.kernel.org,
+       linux-aio@kvack.org
+Subject: Re: aio-core why not using SuS? [Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for 2.5.29)]
+Message-ID: <20011102051212.H35@toy.ucw.cz>
+References: <2156501334.1029532543@[10.10.2.3]> <Pine.LNX.4.44.0208162134440.2497-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E17fI5E-0002at-00@starship>; from phillips@arcor.de on Thu, Aug 15, 2002 at 12:42:28PM +0200
+In-Reply-To: <Pine.LNX.4.44.0208162134440.2497-100000@home.transmeta.com>; from torvalds@transmeta.com on Fri, Aug 16, 2002 at 09:46:09PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
-
-> > In short: making it work right on wide variety of hardware is next to impossible
-> > and even then results are mediocre (low volume, radio quality).
 > 
-> So what?  If it works on *your* hardware then you want the option.
+> But if you have such a mapping, then you _cannot_ make a per-task VM
+> space, because many tasks will share the same VM. You cannot even do a
+> per-cpu mapping change (and rewrite the VM on thread switch), since the VM
+> is _shared_ across CPU's, and absolutely has to be in order to work with
+> CPU's that do TLB fill in hardware (eg x86).
 
-It will work well enough to be used for speech synthesis on most hw. It only
-eats CPU when in use. [Integrating festival into kernel for *speaking* panics?]
-
-
-									Pavel
+You could have different %cr3 on different CPUs and use page tables as TLBs
+(emulating software-filled TLBs, basically); but that smells like "bye bye
+performance".
+								Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
 details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.

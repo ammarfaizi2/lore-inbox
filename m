@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266249AbUIJByB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266574AbUIJB5l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266249AbUIJByB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 21:54:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266880AbUIJByB
+	id S266574AbUIJB5l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 21:57:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266880AbUIJB5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 21:54:01 -0400
-Received: from ozlabs.org ([203.10.76.45]:6092 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S266249AbUIJBx7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 21:53:59 -0400
-Date: Fri, 10 Sep 2004 11:50:41 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Paul Mackerras <paulus@samba.org>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: [PATCH][5/8] Arch agnostic completely out of line locks / ppc64
-Message-ID: <20040910015040.GI11358@krispykreme>
-References: <20040909154259.GE11358@krispykreme> <20040909171954.GW3106@holomorphy.com> <16704.52551.846184.630652@cargo.ozlabs.ibm.com> <20040909220040.GM3106@holomorphy.com> <16704.59668.899674.868174@cargo.ozlabs.ibm.com> <20040910000903.GS3106@holomorphy.com> <Pine.LNX.4.58.0409091712270.5912@ppc970.osdl.org> <20040910003505.GG11358@krispykreme> <Pine.LNX.4.58.0409091750300.5912@ppc970.osdl.org> <20040910014228.GH11358@krispykreme>
+	Thu, 9 Sep 2004 21:57:41 -0400
+Received: from serwer.tvgawex.pl ([212.122.214.2]:19990 "HELO
+	mother.localdomain") by vger.kernel.org with SMTP id S266574AbUIJB53
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 21:57:29 -0400
+Date: Fri, 10 Sep 2004 03:57:15 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: patches failing - is 2.6.9-rc1 patch against 2.6.8? (not 2.6.8.1)
+Message-ID: <20040910015715.GC31473@irc.pl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040909214208.3b259016@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <20040910014228.GH11358@krispykreme>
-User-Agent: Mutt/1.5.6+20040818i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040909214208.3b259016@localhost.localdomain>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> Yep Im agreeing with you :) But we also need to fix profile_pc() since
-> it wont handle the 2 deep _spin_lock -> __preempt_spin_lock. Should be
-> no problems, ill work on this.
+On Thu, Sep 09, 2004 at 09:42:08PM -0400, Johann Koenig wrote:
+> I get the following when trying to get the 2.6.9-rc1 kernel:
+> 
+> jkoenig@note:/usr/src$ grep -i fail patch.rc1.info -A5 -B5
+> patching file Makefile
+> Hunk #1 FAILED at 1.
+> 1 out of 13 hunks FAILED -- saving rejects to file Makefile.rej
+> patching file fs/nfs/file.c
+> Hunk #2 FAILED at 74.
+> Hunk #3 FAILED at 91.
+> 2 out of 11 hunks FAILED -- saving rejects to file fs/nfs/file.c.rej
 
-Lets just make __preempt_spin_lock inline, then everything should work
-as is.
+ You are probably patching 2.6.8.1. That's wrong way. 2.6.9-rc1.patch is
+made against 2.6.8.
 
-Anton
+-- 
+Tomasz Torcz                        To co nierealne - tutaj jest normalne.
+zdzichu@irc.-nie.spam-.pl          Ziomale na ¿ycie maj± tu patenty specjalne.
+

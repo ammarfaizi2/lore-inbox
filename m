@@ -1,106 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbUC3Vmu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 16:42:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbUC3Vmt
+	id S261313AbUC3Vjy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 16:39:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUC3Vjy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 16:42:49 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:8126 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id S261369AbUC3VmF convert rfc822-to-8bit
+	Tue, 30 Mar 2004 16:39:54 -0500
+Received: from mail.tmr.com ([216.238.38.203]:19461 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261313AbUC3Vju convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 16:42:05 -0500
-content-class: urn:content-classes:message
+	Tue, 30 Mar 2004 16:39:50 -0500
+Date: Tue, 30 Mar 2004 16:37:44 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: BlaisorBlade <blaisorblade_spam@yahoo.it>
+cc: Administrator@smtp.paston.co.uk,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [NEW FEATURE]Partitions on loop device for 2.6
+In-Reply-To: <010a01c415a4$26fc1110$d100000a@sbs2003.local>
+Message-ID: <Pine.LNX.3.96.1040330162602.7288C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
-Date: Tue, 30 Mar 2004 13:40:23 -0800
-Message-ID: <7F740D512C7C1046AB53446D3720017301226482@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
-Thread-Index: AcQSRuLJRmOAInKpT2GffMxlCepNxAAM6y/gAQgP0yA=
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Ingo Molnar" <mingo@elte.hu>, <piggin@cyberone.com.au>
-Cc: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>, <kernel@kolivas.org>,
-       <rusty@rustcorp.com.au>, <ricklind@us.ibm.com>, <anton@samba.org>,
-       <lse-tech@lists.sourceforge.net>, <mbligh@aracnet.com>,
-       "Andi Kleen" <ak@suse.de>
-X-OriginalArrivalTime: 30 Mar 2004 21:40:24.0326 (UTC) FILETIME=[9BD51260:01C4169F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The problem we observed was that the performance was lower with a large
-number of threads (># of CPUs, such as 2x) with SPECjbb. With fewer
-threads, the sched-domain scheduler performed slightly better. What we
-found was that the sched-domain changes balance_interval (between
-min_interaval and max_interval) reflecting success/failure of load
-balancing, whereas the base scheduler does not. That value determines
-how often we do inter and intra node baloancing, and we see the same
-performance if we use the same hard code value as the base scheduler
-does. 
+On Mon, 29 Mar 2004, BlaisorBlade wrote:
 
-Nick,
-That algorithm sounds reasonable to me, but how did you pick up
-min_interval and max_interval, especially for NUMA? 
+> Alle 22:04, venerdì 2 gennaio 2004, Bill Davidsen ha scritto:
+> > BlaisorBlade wrote:
+> > > NEED:
+> > > I have the need to loop mount files containing not plain filesystems, but
+> > > whole disk images.
+> > >
+> > > This is especially needed when using User-mode-linux, since to run any
+> > > distro installer you must partition the virtual disks(and on the host,
+> > > the backing file of the disk contains a partition table).
+> > >
+> > > Currently this could be done by specifying a positive offset, but letting
+> > > the kernel partition code handle this is better, isn't it? Would you ever
+> > > accept this feature into stock kernel?
+> >
+> > UML is on my list of things to learn (as opposed to "try casually and
+> > ignore")
+> It is something a bit like VMWare. But instead of emulating hardware and 
+> running an OS inside that, you run a patched Linux kernel that runs as an 
+> userspace process on the host and provides a virtual machine, which must 
+> access a virtual disk, which is stored on a file.
+> See http://user-mode-linux.sourceforge.net/ for more info.
+> > but have you considered using NBD?
+> I didn't really know what it was, nor it seems useful for this "as is" (I've 
+> not really checked). Maybe that sentence means that the server program could 
+> do the partition parsing?
+> -- 
+> cat <<EOSIGN
+> Paolo Giarrusso, aka Blaisorblade
+> Linux Kernel 2.4.23/2.6.0 on an i686; Linux registered user n. 292729
+> EOSIGN
 
-Jun
+No, I had in mind that using NBD you might be able to do partitions on the
+network device, depending on just how much it looks like a real block
+device. And since it looks as if just about anything can be a backing
+store for NBD I thought it might be useful to export the file or partition
+being used as the pseudo-drive and letting the UML kernel then do
+partitions on it as it will. While a loopback mount looks like a partition
+more than a disk, I believe the NBD actually looks like a drive.
 
->-----Original Message-----
->From: lse-tech-admin@lists.sourceforge.net [mailto:lse-tech-
->admin@lists.sourceforge.net] On Behalf Of Nakajima, Jun
->Sent: Thursday, March 25, 2004 7:15 AM
->To: Andi Kleen; Ingo Molnar
->Cc: piggin@cyberone.com.au; linux-kernel@vger.kernel.org;
-akpm@osdl.org;
->kernel@kolivas.org; rusty@rustcorp.com.au; ricklind@us.ibm.com;
->anton@samba.org; lse-tech@lists.sourceforge.net; mbligh@aracnet.com
->Subject: RE: [Lse-tech] [patch] sched-domain cleanups,
-sched-2.6.5-rc2-mm2-
->A3
->
->We have found some performance regressions (e.g. SPECjbb) with the
->scheduler on a large IA-64 NUMA machine, and we are debugging it. On
-SMP
->machines, we haven't seen performance regressions.
->
->Jun
->
->>-----Original Message-----
->>From: Andi Kleen [mailto:ak@suse.de]
->>Sent: Wednesday, March 24, 2004 8:56 PM
->>To: Ingo Molnar
->>Cc: piggin@cyberone.com.au; linux-kernel@vger.kernel.org;
->akpm@osdl.org;
->>kernel@kolivas.org; rusty@rustcorp.com.au; Nakajima, Jun;
->>ricklind@us.ibm.com; anton@samba.org; lse-tech@lists.sourceforge.net;
->>mbligh@aracnet.com
->>Subject: Re: [Lse-tech] [patch] sched-domain cleanups,
->sched-2.6.5-rc2-mm2-
->>A3
->>
->>On Thu, 25 Mar 2004 09:28:09 +0100
->>Ingo Molnar <mingo@elte.hu> wrote:
->>
->>> i've reviewed the sched-domains balancing patches for upstream
->inclusion
->>> and they look mostly fine.
->>
->>The main problem it has is that it performs quite badly on Opteron
-NUMA
->>e.g. in the OpenMP STREAM test (much worse than the normal scheduler)
->>
->>-Andi
->
->
->-------------------------------------------------------
->This SF.Net email is sponsored by: IBM Linux Tutorials
->Free Linux tutorial presented by Daniel Robbins, President and CEO of
->GenToo technologies. Learn everything from fundamentals to system
->administration.http://ads.osdn.com/?ad_id70&alloc_id638&op=ick
->_______________________________________________
->Lse-tech mailing list
->Lse-tech@lists.sourceforge.net
->https://lists.sourceforge.net/lists/listinfo/lse-tech
+I played with NBD long ago when it was new stuff, but what I did would
+have worked as well on a partition or a device, so I have nothing to offer
+but the suggestion.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

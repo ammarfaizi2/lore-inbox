@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129213AbQKFRf4>; Mon, 6 Nov 2000 12:35:56 -0500
+	id <S129525AbQKFRh0>; Mon, 6 Nov 2000 12:37:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129525AbQKFRfq>; Mon, 6 Nov 2000 12:35:46 -0500
-Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:20212 "EHLO
-	passion.cygnus") by vger.kernel.org with ESMTP id <S129213AbQKFRf3>;
-	Mon, 6 Nov 2000 12:35:29 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <E13spve-0006Pt-00@the-village.bc.nu> 
-In-Reply-To: <E13spve-0006Pt-00@the-village.bc.nu> 
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: dalecki@evision-ventures.com (Martin Dalecki),
-        jgarzik@mandrakesoft.com (Jeff Garzik), goemon@anime.net (Dan Hollis),
-        oxymoron@waste.org (Oliver Xymoron), kaos@ocs.com.au (Keith Owens),
-        linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page] 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 06 Nov 2000 17:34:33 +0000
-Message-ID: <9399.973532073@redhat.com>
+	id <S129928AbQKFRhG>; Mon, 6 Nov 2000 12:37:06 -0500
+Received: from ns1.SuSE.com ([202.58.118.2]:26120 "HELO ns1.suse.com")
+	by vger.kernel.org with SMTP id <S129525AbQKFRgz>;
+	Mon, 6 Nov 2000 12:36:55 -0500
+Date: Mon, 6 Nov 2000 17:37:14 -0800 (PST)
+From: James Simmons <jsimmons@suse.com>
+To: Richard Guenther <richard.guenther@student.uni-tuebingen.de>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Broken colors on console with 2.4.0-textXX
+In-Reply-To: <Pine.LNX.4.21.0011061025210.17375-100000@fs1.dekanat.physik.uni-tuebingen.de>
+Message-ID: <Pine.LNX.4.21.0011061733250.6278-100000@euclid.oak.suse.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-alan@lxorguk.ukuu.org.uk said:
-> > No! The best way to do it are just *persistently loaded* modules.
-> > It's THAT simple!
->
- So you want to split every sound driver into two or more modules ? 
+> > > > How recent of a test kernel. Yes their was a problem with the console
+> > > > palette but it is now fixed in the most recent test kernels.
+> > > 
+> > > 2.4.0-test10-pre5
+> > 
+> > Please upgrade to a newer kernel. This problem has been fixed :-)
+> > 
+> 
+> Unfortunately I cannot confirm this. Checked 2.4.0-test10 and the problem
+> is still there. I digged further and it seems to be a race condition(?)
+> triggered by swapped out stuff - because just starting X and switching
+> back to the console works fine, but as I start some memory-consuming stuff
+> (I have only 32Megs of ram) and then switch back to the console its
+> completely garbagled the first time and black the second time and later.
 
-The point here is that although I've put up with just keeping the sound 
-driver loaded for the last few years, permanently taking up a large amount 
-of DMA memory, the inter_module_xxx stuff that Keith is proposing would 
-give us a simple way of storing the data which we want to store. 
-
-It's even simpler (and cleaner) than having to split all the sound drivers 
-up into data and worker modules.
-
-Someone suggested combining the 'data' modules so that one data module was 
-shared by different 'worker' modules.
-
-Build that into the kernel rather than making it a module.
-
-Call its functions 'inter_module_get' et al.
-
-We seem to have returned to what I was suggesting in the first place.
-
-Being able to do it completely in userspace would be neater, though.
-
---
-dwmw2
-
+I have seen this problem before. The problem is the X server is the one
+that sets the hardware back to vga text mode. Under heavy stress the X
+server can fail and the hardware is left in a undeterminate state. I have
+started on working to solve this problem but it will be something for
+2.5.X since it requires quite a bit of change to vgacon and the console
+system. My recent vga patches where early attempts at this but they are
+still incomplete.  
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

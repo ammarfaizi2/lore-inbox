@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbULZRIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbULZRTU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261714AbULZRIq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 12:08:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbULZRIp
+	id S261711AbULZRTU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 12:19:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbULZRTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 12:08:45 -0500
-Received: from [62.206.217.67] ([62.206.217.67]:51131 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S261711AbULZRH5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 12:07:57 -0500
-Message-ID: <41CEEFB5.1080904@trash.net>
-Date: Sun, 26 Dec 2004 18:07:01 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Max Kellermann <max@duempel.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: problem with 2.6.10 + ipsec/tunnel + netfilter
-References: <20041226164022.GA2631@roonstrasse.net>
-In-Reply-To: <20041226164022.GA2631@roonstrasse.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 26 Dec 2004 12:19:20 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:14560 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S261711AbULZRTQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Dec 2004 12:19:16 -0500
+Date: Sun, 26 Dec 2004 09:19:00 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Larry McVoy <lm@bitmover.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [BK] disconnected operation
+Message-ID: <20041226171900.GA27706@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	Larry McVoy <lm@bitmover.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1104077531.5268.32.camel@mulgrave> <20041226162727.GA27116@work.bitmover.com> <1104079394.5268.34.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1104079394.5268.34.camel@mulgrave>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Max Kellermann wrote:
-> Hi,
+On Sun, Dec 26, 2004 at 10:43:13AM -0600, James Bottomley wrote:
+> On Sun, 2004-12-26 at 08:27 -0800, Larry McVoy wrote:
+> > I suspect that your hostname changes when you disconnect.  Leases are 
+> > issued on a per host basis.  If you make your hostname constant when
+> > you unplug it should work.  If it doesn't, let us know.
 > 
-> I upgraded my router today to 2.6.10, from 2.6.9-rc3. It has three
-> network adapters: ppp0(eth0) for Internet, eth2 is WLAN and eth0 is
-> ethernet. My notebooks connected on eth2 use ipsec (tunnel mode,
-> 172.28.1.x/32 - 0.0.0.0/32) to secure the wireless connection.
-> 
-> Since I upgraded to 2.6.10, the router won't route packets which come
-> from the tunnel. It used to receive ESP packets, decrypted them, got
-> the new destination IP address, and routed them like normal incoming
-> packets. Downgrading to 2.6.9-rc3 makes the problem disappear.
+> Well, that's a new one, but no, I have a fixed hostname which dhcp is
+> forbidden from changing.
 
-Cut-n-paste from previous answer to the same problem:
+Let's do a little poll here to find out if it is specific to you or if
+this is a problem that everyone is having.  Could we get people who
+use BK disconnected to stand up and be counted?  Does this work for 
+anyone?
 
-Since Linux 2.6.10-rcX. packets from a tunnel-mode SA are dropped if
-no policy exists. You most likely only have an input policy, but no
-forward policy. If you use setkey to configure your policies,
-duplicate the input policy and replace "-P in" with "-P fwd". If you
-let racoon generate the policy you need to upgrade to the latest
-version. pluto should already get it right.
+For James, could you do a little debugging please?  Run the following
+when you are plugged in and it works and also when it doesn't:
 
-Regards
-Patrick
+	bk getuser
+	bk getuser -r
+	bk gethost
+	bk gethost -r
+	bk dotbk
+
+We'll track it down and fix it if it is a problem on our end.  This stuff
+is supposed to work, we certainly haven't intentionally caused a problem.
+-- 
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

@@ -1,66 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267086AbSLKJ3z>; Wed, 11 Dec 2002 04:29:55 -0500
+	id <S267091AbSLKJgX>; Wed, 11 Dec 2002 04:36:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267094AbSLKJ3z>; Wed, 11 Dec 2002 04:29:55 -0500
-Received: from CPE-203-51-35-111.nsw.bigpond.net.au ([203.51.35.111]:62446
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S267086AbSLKJ3y>; Wed, 11 Dec 2002 04:29:54 -0500
-Message-ID: <3DF7075E.CB1C7201@eyal.emu.id.au>
-Date: Wed, 11 Dec 2002 20:37:34 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20-ac1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-pre1 compile failure: drivers/net/pcmcia/fmvj18x_cs.c
-References: <Pine.LNX.4.50L.0212101834240.23096-100000@freak.distro.conectiva>
+	id <S267094AbSLKJgX>; Wed, 11 Dec 2002 04:36:23 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:33990 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S267091AbSLKJgW>;
+	Wed, 11 Dec 2002 04:36:22 -0500
+Date: Wed, 11 Dec 2002 10:43:45 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: BUG in 2.5.50
+Message-ID: <20021211094345.GS16003@suse.de>
+References: <200212091056.08860.roy@karlsbakk.net> <Pine.LNX.4.50.0212090508390.2139-100000@montezuma.mastecende.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0212090508390.2139-100000@montezuma.mastecende.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686
--malign-functions=4  -DMODULE -DMODVERSIONS -include
-/data2/usr/local/src/linux-2.4-pre/include/linux/modversions.h 
--nostdinc -iwithprefix include -DKBUILD_BASENAME=fmvj18x_cs  -c -o
-fmvj18x_cs.o fmvj18x_cs.c
-fmvj18x_cs.c: In function `fmvj18x_config':
-fmvj18x_cs.c:489: `PRODID_TDK_GN3410' undeclared (first use in this
-function)
-fmvj18x_cs.c:489: (Each undeclared identifier is reported only once
-fmvj18x_cs.c:489: for each function it appears in.)
-fmvj18x_cs.c:529: `MANFID_UNGERMANN' undeclared (first use in this
-function)
-make[3]: *** [fmvj18x_cs.o] Error 1
-make[3]: Leaving directory
-`/data2/usr/local/src/linux-2.4-pre/drivers/net/pcmcia'
+On Mon, Dec 09 2002, Zwane Mwaikambo wrote:
+> Added Jens to CC to verify any incorrect information i may or may not put
+> down.
+> 
+> On Mon, 9 Dec 2002, Roy Sigurd Karlsbakk wrote:
+> 
+> > installed 2.5.50 and got an OOPS after a short while. .
+> > config is attached as tonjeconfig
+> > /var/log/messages including dmesg and oops is attached as tonje_messages
+> 
+> Perhaps this might help with debugging;
+> 
+> He has CONFIG_BLK_DEV_IDE_TCQ enabled and his IBM supports it,
+> 
+> when he gets to do_rw_disk();
+> 
+> We know its a READ request
+> 	if (rq_data_dir(rq) == READ) {
+> 		if (blk_rq_tagged(rq))
+> 			return hwif->ide_dma_queued_read(drive);
+> 
+> ... the request isn't tagged so we drop down here...
+> 
+> 		if (drive->using_dma && !hwif->ide_dma_read(drive))
+> 			return ide_started;
+> 
+> int __ide_dma_read (ide_drive_t *drive)
+> ...
+> 	if (HWGROUP(drive)->handler != NULL)
+> 		BUG();
+> 
+> and ->handler = ?
 
-#
-# PCMCIA network device support
-#
-CONFIG_NET_PCMCIA=y
-CONFIG_PCMCIA_3C589=m
-CONFIG_PCMCIA_3C574=m
-CONFIG_PCMCIA_FMVJ18X=m
-CONFIG_PCMCIA_PCNET=m
-CONFIG_PCMCIA_AXNET=m
-CONFIG_PCMCIA_NMCLAN=m
-CONFIG_PCMCIA_SMC91C92=m
-CONFIG_PCMCIA_XIRC2PS=m
-CONFIG_ARCNET_COM20020_CS=m
-CONFIG_PCMCIA_IBMTR=m
-CONFIG_PCMCIA_XIRCOM=m
-CONFIG_PCMCIA_XIRTULIP=m
-CONFIG_NET_PCMCIA_RADIO=y
-CONFIG_PCMCIA_RAYCS=m
-CONFIG_PCMCIA_NETWAVE=m
-CONFIG_PCMCIA_WAVELAN=m
-CONFIG_AIRONET4500_CS=m
+If tcq is enabled on the drive, rq _must_ be tagged.
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+-- 
+Jens Axboe
+

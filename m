@@ -1,46 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265085AbSLCSbw>; Tue, 3 Dec 2002 13:31:52 -0500
+	id <S265426AbSLCSfb>; Tue, 3 Dec 2002 13:35:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265306AbSLCSbw>; Tue, 3 Dec 2002 13:31:52 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:34502 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S265085AbSLCSbv>; Tue, 3 Dec 2002 13:31:51 -0500
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A56B@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Arjan van de Ven'" <arjanv@redhat.com>, marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: [BK PATCH] ACPI updates
-Date: Tue, 3 Dec 2002 10:39:18 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	id <S265424AbSLCSfb>; Tue, 3 Dec 2002 13:35:31 -0500
+Received: from mg01.austin.ibm.com ([192.35.232.18]:40065 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S265426AbSLCSf3>; Tue, 3 Dec 2002 13:35:29 -0500
+Subject: Re: [Linux-pm-devel] IBM/MontaVista Dynamic Power Management Project
+From: Hollis Blanchard <hollis@austin.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-pm-devel@lists.sourceforge.net
+Cc: cpufreq list <cpufreq@www.linux.org.uk>
+In-Reply-To: <OF6879354C.0478D137-ON86256C84.005CA3C0@pok.ibm.com>
+References: <OF6879354C.0478D137-ON86256C84.005CA3C0@pok.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-Gnu9FXsgHZGj9j0LrFBY"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Dec 2002 12:45:53 -0600
+Message-Id: <1038941153.1054.195.camel@granite.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Arjan van de Ven [mailto:arjanv@redhat.com] 
-> Marcelo,
-> 
-> Please don't merge this. This patch removes existing, small, working,
-> maintained functionality from the kernel and "replaces" it with
-> something else for which patches aren't even accepted and 
-> that is a lot
-> bigger and less readable code.
-> 
-> Not only is it rude on the side of the ACPI people to remove 
-> "competing"
-> functionality, but it will break all kinds of existing setups that now
-> have to change the way they configure their system. In 
-> addition it's not
-> even needed, the existing code can live together with the code Andrew
-> proposes just fine as the United Linux kernel proves.
 
-The ACPI code's CPU-enumeration-only config option does what acpitable.[ch]
-did. This has been in 2.5 for a long time, so this would unify the 2.4 and
-2.5 approaches.
+--=-Gnu9FXsgHZGj9j0LrFBY
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Is your concern with the code, or the cmdline option? We could certainly
-keep the same cmdline option "acpismp=force" if that is the issue, but that
-always seemed like kind of a strange name for the option, to me.
+Please note that the cpufreq list address was incorrect in the original
+mail; please cc cpufreq@www.linux.org.uk (not .uk.org :) on future
+replies.
 
-Regards -- Andy
+-Hollis
+--=20
+PowerPC Linux
+IBM Linux Technology Center
+
+On Tue, 2002-12-03 at 11:46, Bishop Brock wrote:
+> IBM and MontaVista have initiated a joint project to develop a
+> dynamic power management control and policy mechanism for Linux
+> for processors supporting dynamic voltage and frequency scaling.
+> A paper describing the proposal can be obtained from
+>=20
+> http://www.research.ibm.com/arl/projects/dpm.html
+>=20
+> A working prototype of the proposed framework for
+> the IBM PowerPC 405LP processor exists and will be made
+> public in the near future.
+>=20
+> Bishop Brock
+>=20
+> IBM Research, Austin Center for Low-Power Computing
+> 11400 Burnet Road    MS/904-6F021
+> Austin, TX 78758
+> (512) 838-0149    IBM T/L 678-0149
+>=20
+>=20
+>=20
+>=20
+>=20
+> -------------------------------------------------------
+> This SF.net email is sponsored by: Microsoft Visual Studio.NET=20
+> comprehensive development tool, built to increase your=20
+> productivity. Try a free online hosted session at:
+> http://ads.sourceforge.net/cgi-bin/redirect.pl?micr0003en
+> _______________________________________________
+> Linux-pm-devel mailing list
+> Linux-pm-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/linux-pm-devel
+>=20
+
+
+--=-Gnu9FXsgHZGj9j0LrFBY
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA97Pvh4KXmU2P6AeoRAr6OAJ0VKxjMf6vXWwFqmfyEISNf/zOqjgCgvHaw
+v2nEBTxnzLV+gY3w5MpcR0I=
+=ruEx
+-----END PGP SIGNATURE-----
+
+--=-Gnu9FXsgHZGj9j0LrFBY--
+

@@ -1,36 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135608AbREIAij>; Tue, 8 May 2001 20:38:39 -0400
+	id <S135611AbREIAm3>; Tue, 8 May 2001 20:42:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135611AbREIAia>; Tue, 8 May 2001 20:38:30 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:4045 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S135608AbREIAiS>; Tue, 8 May 2001 20:38:18 -0400
-Message-ID: <3AF890F9.A414620@uow.edu.au>
-Date: Wed, 09 May 2001 10:36:09 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac13 i686)
-X-Accept-Language: en
+	id <S135617AbREIAmT>; Tue, 8 May 2001 20:42:19 -0400
+Received: from spiral.extreme.ro ([212.93.159.205]:21141 "HELO
+	spiral.extreme.ro") by vger.kernel.org with SMTP id <S135611AbREIAmJ>;
+	Tue, 8 May 2001 20:42:09 -0400
+Date: Wed, 9 May 2001 03:42:25 +0300 (EEST)
+From: Dan Podeanu <pdan@spiral.extreme.ro>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.4-ac6
+In-Reply-To: <E14xHad-00011M-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0105090341300.32482-100000@spiral.extreme.ro>
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 
-In-Reply-To: <Pine.LNX.3.95.1010508154726.29540A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> To driver wizards:
-> 
-> I have a driver which needs to wait for some hardware.
-> Basically, it needs to have some code added to the run-queue
-> so it can get some CPU time even though it's not being called.
-> 
-> It needs to get some CPU time which can be "turned on" or
-> "turned off" as a result of an interrupt or some external
-> input from  an ioctl().
+On Wed, 9 May 2001, Alan Cox wrote:
 
-schedule_task()?
+...
+> 2.4.4-ac6
+...
+
+To be sincere I was expecting the Athlone pre-pre-pre-patch/fix to be
+included.
+
+

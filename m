@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266666AbUGVCCs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266677AbUGVCDp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266666AbUGVCCs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 22:02:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266669AbUGVCCs
+	id S266677AbUGVCDp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 22:03:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266669AbUGVCDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 22:02:48 -0400
-Received: from ishtar.tlinx.org ([64.81.245.74]:36494 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S266666AbUGVCCq (ORCPT
+	Wed, 21 Jul 2004 22:03:45 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:28593 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266677AbUGVCDi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 22:02:46 -0400
-Message-ID: <40FF1FE7.4050403@tlinx.org>
-Date: Wed, 21 Jul 2004 19:01:11 -0700
-From: L A Walsh <lkml@tlinx.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: NFS subnet access problems
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Jul 2004 22:03:38 -0400
+Date: Wed, 21 Jul 2004 17:44:28 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
+       linux-audio-dev@music.columbia.edu, arjanv@redhat.com,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "La Monte H.P. Yarroll" <piggy@timesys.com>
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
+Message-ID: <20040721154428.GA24374@elte.hu>
+References: <1089677823.10777.64.camel@mindpipe> <20040712174639.38c7cf48.akpm@osdl.org> <20040719102954.GA5491@elte.hu> <1090380467.1212.3.camel@mindpipe> <20040721000348.39dd3716.akpm@osdl.org> <20040721053007.GA8376@elte.hu> <1090389791.901.31.camel@mindpipe> <20040721082218.GA19013@elte.hu> <20040721085246.GA19393@elte.hu> <40FE545E.3050300@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40FE545E.3050300@yahoo.com.au>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jul 21 00:15:54 ishtar nfsd[1590]: Unauthorized access by NFS client 
-192.168.3.2.
-Jul 21 00:15:58 ishtar last message repeated 5928 times
 
-I wanted to give ro access to all clients on a 192.168.3.0/26 network to 
-a "/Share"
-directory, and rw to a few, but I've never managed to get the network access
-statement to work correctly.  Finally I switched to a /24 network to 
-make netmasks more cleanI simply removed every thing but the
-'ro' export of /Share which I thought should work but does not.  The above
-client is an example.
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-server:
-    inet addr:192.168.3.1  Bcast:192.168.3.255  Mask:255.255.255.0
-/etc/exports:
-/Share          192.168.3.0/24(async,ro,no_subtree_check,nohide)
+> What do you think about deferring softirqs just while in critical
+> sections?
+> 
+> I'm not sure how well this works, and it is CONFIG_PREEMPT only but in
+> theory it should prevent unbounded softirqs while under locks without
+> taking the performance hit of doing the context switch.
 
- > showmount -e
-Export list for server:
-/Share   192.168.3.0/24
+i dont think this is sufficient. A high-prio RT task might be performing
+something that is important to it but isnt in any critical section. This
+includes userspace processing. We dont want to delay it with softirqs.
 
-client:
-    configed as inet addr:192.168.3.2  Bcast:192.168.3.255  
-Mask:255.255.255.0
-
-Client had access when it was specifically given access by hostname, but 
-doesn't
-solve access problems for anonymous dhcp hosts that I bring online as 
-test machines.
-
-Are there some options needed for anon client access?
-
-the kernel seems to indicate it is exporting to the subnet, yet it is 
-denying
-mount permisson...bug, misconfig?
-
--linda
-
-
-
+	Ingo

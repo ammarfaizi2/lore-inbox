@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265887AbRF3Lqi>; Sat, 30 Jun 2001 07:46:38 -0400
+	id <S265897AbRF3MDC>; Sat, 30 Jun 2001 08:03:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265890AbRF3Lq3>; Sat, 30 Jun 2001 07:46:29 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:13361 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S265887AbRF3LqN>; Sat, 30 Jun 2001 07:46:13 -0400
-Message-ID: <3B3DBB19.1060007@kalifornia.com>
-Date: Sat, 30 Jun 2001 04:42:17 -0700
-From: Ben Ford <ben@kalifornia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010628
-X-Accept-Language: en-us
+	id <S265898AbRF3MCw>; Sat, 30 Jun 2001 08:02:52 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:13583 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S265897AbRF3MCg>; Sat, 30 Jun 2001 08:02:36 -0400
+Subject: Re: linux-2.4.6-pre6: numerous dep_{bool,tristate} $CONFIG_ARCH_xxx bugs
+To: rmk@arm.linux.org.uk (Russell King)
+Date: Sat, 30 Jun 2001 13:01:18 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), adam@yggdrasil.com (Adam J. Richter),
+        kaos@ocs.com.au, linux-kernel@vger.kernel.org
+In-Reply-To: <20010630125855.B12788@flint.arm.linux.org.uk> from "Russell King" at Jun 30, 2001 12:58:55 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Patrick Dreker <patrick@dreker.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, jffs-dev@axis.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Cosmetic JFFS patch.
-In-Reply-To: <Pine.LNX.4.33.0106280956030.15199-100000@penguin.transmeta.com> <6082.993748704@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15GJR8-0001xJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
+> > > Err, how can $BAR be undefined?  Configure sets all config variables which
+> > > are answered with 'n' to 'n'.
+> > 
+> > Welcome to the 'if' statement....
+> Thank you, yes, but I believe we were talking about dep_* and not if
+> statements?
 
->
->Also consider the question "What was the last thing you see on screen 
->before it reboots?"
->
+No we are talking about Config.in scripts
 
-USER: A bunch of words.
-TECH: What words?
-USER: Dunno, there were a lot though.
+	if [ condition ]
+		bool 'foo' CONFIG_FOO
 
-;)
+	fi
 
--b
+	dep_tristate ... $CONFIG_FOO
 
--- 
-:    __o
-:   -\<,
-:   0/ 0
------------
-
-
+> 
 

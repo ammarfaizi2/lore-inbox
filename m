@@ -1,68 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266511AbUJRThP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267661AbUJRTqx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266511AbUJRThP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 15:37:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267602AbUJRTgo
+	id S267661AbUJRTqx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 15:46:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267659AbUJRTqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 15:36:44 -0400
-Received: from mail.scitechsoft.com ([63.195.13.67]:14504 "EHLO
-	mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id S267657AbUJRTfA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 15:35:00 -0400
-From: "Kendall Bennett" <KendallB@scitechsoft.com>
-Organization: SciTech Software, Inc.
-To: Jon Smirl <jonsmirl@gmail.com>
-Date: Mon, 18 Oct 2004 12:34:45 -0700
+	Mon, 18 Oct 2004 15:46:45 -0400
+Received: from host140-227-149-62.serverdedicati.aruba.it ([62.149.227.140]:36618
+	"EHLO 62.149.227.140") by vger.kernel.org with ESMTP
+	id S267618AbUJRTml (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 15:42:41 -0400
+Date: Mon, 18 Oct 2004 21:41:52 +0200
+From: Katarina Igor <katarina.igor@faroweb.com>
+Subject: From MRS. KATARINA IGOR.
+Message-ID: <217cbc26e5b29d2fcfa20415d584028d@faroweb.com>
+X-Mailer: IceWarp Web Mail 5.2.2
+X-Originating-IP: 212.165.142.178
 MIME-Version: 1.0
-Subject: Re: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video card BOOT?
-CC: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
-Message-ID: <4173B865.23362.117B098E@localhost>
-In-reply-to: <9e47339104101610447a393abc@mail.gmail.com>
-References: <416E6ADC.3007.294DF20D@localhost>
-X-mailer: Pegasus Mail for Windows (4.21c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Spam-Flag: NO
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl <jonsmirl@gmail.com> wrote:
+FROM MRS  KATARINA IGOR.
 
-> > What this means is that it should be possible to build a new version of
-> > the VESA framebuffer console driver for the Linux kernel that will have
-> > these important features:
-> > 
-> > 1. Be able to switch display modes on the fly, supporting all modes
-> > enumerated by the Video BIOS.
-> > 
-> > 2. Be able to support refresh rate control on graphics cards that support
-> > the VBE 3.0 services.
-> 
-> How is this going to work if there are multiple graphics cards
-> installed? Each card will want to install it's own VBE extension
-> interrupt. 
+EMAILS: katarina.igor@atlas.cz
+       
+      
 
-Yep. The code I have ported to the Linux kernel right now does not 
-support multiple consoles because porting that code would be a lot more 
-work (I would prefer to keep it in userland if possible since it already 
-works there).
 
-Anyway the way the system works for multiple controllers is that there is 
-a separate BIOS image and separate machine state maintained for each 
-graphics card. So you can run the VBE driver on the primary, secondary 
-and ternary drivers if you want. We do it all the time with SNAP just for 
-fun and giggles ;-)
+Dear,  
 
+
+RE: YOUR ASSISTANCE IS HIGHLY NEEDED.
+
+I am very sure that this mail will bring lots of surprises and curiosity to you since there was no previous correspondence before now between us.I am the widow of one of the top rulers in Chechnya, My husband died along side with the Chenchan president who was killed in a bomb attack early this year in a parade ground.
+
+My husband told me before his death that he has a deposit of $28.8m which he deposited overseas and handed to me all the documents which my lawyer has confirmed with the bank. 
+Right now I am looking for an Investor who will help me to invest the total sum in the west and after which I will relocate to your country.The security situation in Chechnya does not warrant me to do much from here; therefore I have designated my family lawyers who will co ordinate every aspect of the fund transfer and the investment   with your assistance.
+
+I am ready to concede up to 25% of the funds to you as your share if you will help me to pull the funds and invest it in your country which has a stable economy.
+
+Upon receipt of your acceptance letter to my private mail box quoted above, I will introduce you to my family lawyer for details on how the transfer can be done in the shortest possible time.
+Awaiting your Urgent response via MY DIRECT EMAIL ADDRESS   stated BELOW.
+
+                             katarina.igor@atlas.cz
+                    
 Regards,
 
----
-Kendall Bennett
-Chief Executive Officer
-SciTech Software, Inc.
-Phone: (530) 894 8400
-http://www.scitechsoft.com
+MRS. KATARINA IGOR.
 
-~ SciTech SNAP - The future of device driver technology! ~
+
+
+
+
+
+
+
+
+
 
 

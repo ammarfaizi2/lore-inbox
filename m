@@ -1,59 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbTJAIRy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 04:17:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbTJAIRy
+	id S261863AbTJAI1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 04:27:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbTJAI1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 04:17:54 -0400
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:1266 "EHLO
-	natsmtp01.webmailer.de") by vger.kernel.org with ESMTP
-	id S262033AbTJAIRx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 04:17:53 -0400
-Message-ID: <3F7A8E0F.9040903@softhome.net>
-Date: Wed, 01 Oct 2003 10:19:27 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030831
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: kartikey bhatt <kartik_me@hotmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Wed, 1 Oct 2003 04:27:24 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:1920 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S261863AbTJAI1X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 04:27:23 -0400
+Date: Wed, 1 Oct 2003 09:27:32 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200310010827.h918RWgj000465@81-2-122-30.bradfords.org.uk>
+To: Paul Jakma <paul@clubi.ie>, kartikey bhatt <kartik_me@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.56.0309301648110.22571@fogarty.jakma.org>
+References: <LAW11-F18b4SaFMwr9y00007564@hotmail.com>
+ <Pine.LNX.4.56.0309301648110.22571@fogarty.jakma.org>
 Subject: Re: Can't X be elemenated?
-References: <BGWr.3eL.7@gated-at.bofh.it>
-In-Reply-To: <BGWr.3eL.7@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kartikey bhatt wrote:
-> hey everyone who have joined this thread, my fundamental question have got
-> out of scope. I mean to say
-> 
+Quote from Paul Jakma <paul@clubi.ie>:
 
-   And we meant to answer.
+> You wont impress /anyone/ with "just X" (ie just the X server) -
+> cause all you'll get is a tiled background of tiny X logos and an X
+> mouse pointer.
 
-> 1. Kernel level support for graphics device drivers.
+On the other hand, seeing a heavyweight application being controlled
+on a 4MB 486 over a compressed 9600 serial link will usually impress
+technical people who are used to other systems and have never seen
+anything like that before - what other windowing systems support
+remote display over a network, and running of the windowing system
+recursively?
 
-   Already done. Look for DRI/DRM/framebuffer.
-
-> 2. On top of that, one can develop complete lightweight GUI.
-
-   That's not a kernel stuff - but it is already done - google around 
-for microwindows nanogui - you will find links for light-weight GUIs.
-
-   Bringing this into kernel space will make it only slower. On 
-performance critical pathes people avoid simple calls - and you want to 
-bring here system call...
-
-> 3. Maybe kernel can provide support for event handling.
-
-   Already in place for last two decades - poll()/select().
-
--- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
---
-   "... and for $64000 question, could you get yourself vaguely
-      familiar with the notion of on-topic posting?"
-				-- Al Viro @ LKML
-
+John

@@ -1,36 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285135AbRL1BBJ>; Thu, 27 Dec 2001 20:01:09 -0500
+	id <S284264AbRL1A7j>; Thu, 27 Dec 2001 19:59:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284309AbRL1BBC>; Thu, 27 Dec 2001 20:01:02 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5895 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285589AbRL1BAx>; Thu, 27 Dec 2001 20:00:53 -0500
-Subject: Re: [patch] SiS7012 audio driver
-To: tom@infosys.tuwien.ac.at (Thomas Gschwind)
-Date: Fri, 28 Dec 2001 01:11:23 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, alan@redhat.com (Alan Cox)
-In-Reply-To: <20011228013522.A10716@infosys.tuwien.ac.at> from "Thomas Gschwind" at Dec 28, 2001 01:35:22 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S284017AbRL1A73>; Thu, 27 Dec 2001 19:59:29 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:52431
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S283938AbRL1A7Y>; Thu, 27 Dec 2001 19:59:24 -0500
+Date: Thu, 27 Dec 2001 19:44:44 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: ISA core vs. ISA card support
+Message-ID: <20011227194444.A26341@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16JlYR-0007Ye-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> BTW, does anybody have a datasheet?  Currently, this driver is based
-> on the fact that OSS uses the same driver for the i810 and SiS7012
-> chipsets and some experimentations.
+Because the CML2 coodebase is basically buttoned down at this point,
+I'm now trying to do a little forward design -- looking for rulebase
+cleanups that will get much harder to do once the CML2 rulebase is
+dispersed to the care of four-dozen maintainers.
 
-I've asked but not received
+Top of my list is maybe doing something about the ISA config symbol.
+There is a declaration in my arch/i386 rules file that looks like this:
 
-> If you have questions, recommendations, etc. please mail me directly I
-> am not regularly reading the kernel mailing list.
+# There are PCI-only machines out there, but as of 2.4.0-test1 I'm told
+# nobody has tested the kernel with an x86 lacking ISA.  Giacomo Catenazzi
+# believes that some motherboard chips use the ISA support code anyway even
+# if you don't have an ISA bus.
+require X86 implies ISA==y
 
-Doug Ledford <dledford@redhat.com> is working on this driver and has
-much updated the i810 support and fixed bugs. Send him a copy. Also
-btw the nvidia chipset also seems to use an i810 clone
+This is a real problem, because it means that people configuring for 
+PCI-only X86 machines (an increasingly common case) are going to see a
+whole boatload of ISA-card questions irrelevant to them.  I'd like to
+fix this *before* changing it everywhere might imply a turf war, thank you.
 
-Alan
+There are a couple of ways I could address this in the rulebase. The best
+course depends on facts I don't know.  Like, have kernels more recent than
+2.4.0-test1 been built without ISA and tested on PCI-only machines?  If
+this is known to work reliably, I can remove the above rule and life will
+be simpler and happier.
+
+If not, then I need to tghink about splitting the config symbol into ISA 
+and ISA_SLOTS and hacking all of the present driver-visibility predicates
+to use the latter, with an implication like this
+
+require ISA_SLOTS implies ISA==y
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+It would be thought a hard government that should tax its people one tenth 
+part.	-- Benjamin Franklin

@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVAYPss@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbVAYPxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbVAYPss (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 10:48:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVAYPss
+	id S261968AbVAYPxH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 10:53:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVAYPxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 10:48:48 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28346 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261973AbVAYPsq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 10:48:46 -0500
-Date: Tue, 25 Jan 2005 09:59:25 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: 8xx 2.6.10-rc3 console_init()->con_init()->__alloc_bootmem() caus es "Oops: kernel access of bad area"
-Message-ID: <20050125115925.GC19585@logos.cnet>
-References: <313680C9A886D511A06000204840E1CF0A64758D@whq-msgusr-02.pit.comms.marconi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <313680C9A886D511A06000204840E1CF0A64758D@whq-msgusr-02.pit.comms.marconi.com>
-User-Agent: Mutt/1.5.5.1i
+	Tue, 25 Jan 2005 10:53:07 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:26333 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261968AbVAYPxD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 10:53:03 -0500
+Date: Tue, 25 Jan 2005 10:52:54 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Fruhwirth Clemens <clemens@endorphin.org>, <linux-kernel@vger.kernel.org>,
+       Michal Ludvig <michal@logix.cz>
+Subject: Re: [PATCH 01/04] Adding cipher mode context information to crypto_tfm
+In-Reply-To: <20050124143109.75ff1ab8.akpm@osdl.org>
+Message-ID: <Xine.LNX.4.44.0501251042020.26690-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25, 2005 at 09:30:49AM -0500, Povolotsky, Alexander wrote:
-> I booting kernel on 8xx 2.6.10-rc3
-> while trying to debug non-working console,
-> I moved  console_init() call way down in __init start_kernel()
-> and put indefinite while loop right after it -
-> is it legtimate thing to do ?
-> 
-> Then I got soft reboot and was able to examine the content of the log buffer
-> in the bootloader.
-> I see that in a trace (function call sequence):
-> 
-> console_init()->con_init()->__alloc_bootmem() 
-> 
-> I am getting "Oops: kernel access of bad area"
-> 
-> I am looking for advise,
+On Mon, 24 Jan 2005, Andrew Morton wrote:
 
-Hi Alexander,
+> These patches clash badly with Michael Ludvig's work:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc2/2.6.11-rc2-mm1/broken-out/cryptoapi-prepare-for-processing-multiple-buffers-at.patch
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc2/2.6.11-rc2-mm1/broken-out/cryptoapi-update-padlock-to-process-multiple-blocks-at.patch
+> 
+> so someone's going to have to rework things.  Ordinarily Michael would go
+> first due to test coverage.
+> 
+> James, your call please.  Also, please advise on the suitability of
+> Michael's patches for a 2.6.11 merge.
 
-I recommend using the linuxppc-2.5 BK tree for 8xx. Are you doing that?
+I think the generic scatterwalk changes are more important and 
+fundamental (still to be fully reviewed).
 
-The linuxppc-embedded list is a better place for discussion of such issues.
+I agree with Fruhwirth that the cipher code is starting to become
+ungainly.  I'm not sure these patches are heading in the right direction 
+from a design point of view, although we do need the functionality.  
 
-And about your problem, you need to get the full oops message, not only the 
-beginning of it.
+Perhaps temporarily drop the multible block changes above until we get the
+generic scatterwalk code in and a cleaned up design to handle cipher mode
+offload.
+
+Fruhwirth, do you have any cycles to work on implementing your ideas for 
+more cleanly reworking Michal's multiblock code?
+
+Also, I would think this is more 2.6.12 material, at this stage.
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
 

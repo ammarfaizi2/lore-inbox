@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263609AbTKJPsK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 10:48:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263929AbTKJPsJ
+	id S263926AbTKJP5I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 10:57:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263928AbTKJP5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 10:48:09 -0500
-Received: from SPARCLINUX.MIT.EDU ([18.248.2.241]:6024 "EHLO
-	sparclinux.mit.edu") by vger.kernel.org with ESMTP id S263609AbTKJPsI
+	Mon, 10 Nov 2003 10:57:08 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:17794 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263926AbTKJP5G
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 10:48:08 -0500
-Date: Mon, 10 Nov 2003 10:48:06 -0500
-From: Rob Radez <rob@osinvestor.com>
-To: Stan Benoit <sab7@mail.ptd.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sparc 20 problem ver test9
-Message-ID: <20031110154806.GA20064@osinvestor.com>
-References: <20031110083716.A32096@mail.ptd.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031110083716.A32096@mail.ptd.net>
-User-Agent: Mutt/1.5.4i
+	Mon, 10 Nov 2003 10:57:06 -0500
+Date: Mon, 10 Nov 2003 10:58:44 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: syscall numbers larger than 255?
+In-Reply-To: <3FAFB081.3090900@nortelnetworks.com>
+Message-ID: <Pine.LNX.4.53.0311101054430.15074@chaos>
+References: <3FAFB081.3090900@nortelnetworks.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 10, 2003 at 08:37:16AM -0500, Stan Benoit wrote:
-> Hello,
-> 
-> System:
-> SPARC Station 20
-> Processor(s):
-> SuperSPARC II
-> Kernel: linux-2.6.0-test9
-> GCC: 2.95.3
+On Mon, 10 Nov 2003, Chris Friesen wrote:
 
-SMP for sparc32 in 2.6 is known broken.  Also, to contact sparclinux
-people, try sparclinux@vger.kernel.org instead of linux-kernel.
+>
+> Just a quick and simple question for someone that knows the answer.
+>
+> Stock 2.4.20 for i386 uses syscalls up to 252.  I want to add about a
+> half-dozen new syscalls (forward porting stuff that we've got on 2.4.18).
+>
+> Does x86 support syscall numbers > 255?  If yes, do I have to do
+> anything special to use them? If not, what are my options?
+>
+> Thanks,
+>
+> Chris
 
-Regards,
-Rob Radez
+Sure. With the old int 0x80 calling convention, the syscall number
+is just put into the EAX register which can contain 32 bits. There
+may be some mask on the kernel side to limit 'damage', but you
+can change this if you are adding system-calls. The newer calling
+convention also has just the 32 bit limitation.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

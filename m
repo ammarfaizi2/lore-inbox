@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267536AbRGXN5E>; Tue, 24 Jul 2001 09:57:04 -0400
+	id <S267540AbRGXODy>; Tue, 24 Jul 2001 10:03:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267539AbRGXN4z>; Tue, 24 Jul 2001 09:56:55 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:14865 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S267537AbRGXN4q>; Tue, 24 Jul 2001 09:56:46 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Common hash table implementation
-Date: Tue, 24 Jul 2001 14:57:20 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01071815464209.12129@starship> <01072122255100.02679@starship> <3B5B6311.C8F8094E@eyal.emu.id.au>
-In-Reply-To: <3B5B6311.C8F8094E@eyal.emu.id.au>
-MIME-Version: 1.0
-Message-Id: <01072414572008.00301@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S267541AbRGXODo>; Tue, 24 Jul 2001 10:03:44 -0400
+Received: from sundiver.zdv.Uni-Mainz.DE ([134.93.174.136]:8944 "HELO
+	duron.intern.kubla.de") by vger.kernel.org with SMTP
+	id <S267540AbRGXODc>; Tue, 24 Jul 2001 10:03:32 -0400
+Date: Tue, 24 Jul 2001 16:03:26 +0200
+From: Dominik Kubla <kubla@sciobyte.de>
+To: Michael Poole <poole@troilus.org>
+Cc: Paul Jakma <paul@clubi.ie>, linux-kernel@vger.kernel.org
+Subject: Re: Arp problem
+Message-ID: <20010724160326.G31198@intern.kubla.de>
+In-Reply-To: <Pine.LNX.4.33.0107240208460.10839-100000@fogarty.jakma.org> <20010724140916.F31198@intern.kubla.de> <87k80y8qsz.fsf@cj46222-a.reston1.va.home.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87k80y8qsz.fsf@cj46222-a.reston1.va.home.com>
+User-Agent: Mutt/1.3.18i
+X-No-Archive: yes
+Restrict: no-external-archive
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Monday 23 July 2001 01:34, Eyal Lebedinsky wrote:
-> Daniel Phillips wrote:
-> > Yes, I tested almost all of them to see how well they worked my
-> > directory index application.  There are really only two criterea:
-> >
-> >   1) How random is the hash
-> >   2) How efficient is it
-> >
-> > My testing was hardly what you would call rigorous.  Basically,
-> > what I do is hash a lot of very unrandom strings and see how
-> > uniform the
->
-> Actually, to measure the randomness you need to measure the
-> randomness of the output in the face of non-random input.
+On Tue, Jul 24, 2001 at 08:17:16AM -0400, Michael Poole wrote:
+> 
+> This may be a stupid question, but does
+>   cat 0 > /proc/sys/net/ipv4/conf/eth0/send_redirects
+> help the problem any (for the proper value of "eth0")?  A college
+> roommate of mine once had the same problem, and clearing
+> send_redirects for the interface fixed it for him.
+> 
+> -- Michael Poole
 
-This is exactly what I do.
+It may be a work-around, but it does not solve the problem.
+There are legitimate uses of redirects and simply disabling them
+might cause different problems.  The correct solution is to have
+the kernel treat aliased interfaces the same as interfaces on
+different networking cards.
 
-> Most well constructed
-> hash functions perform well when the strings are random, however real
-> world data (e.g. directory contntent) is not random at all.
+Dominik
+-- 
+ScioByte GmbH, Zum Schiersteiner Grund 2, 55127 Mainz (Germany)
+Phone: +49 6131 550 117  Fax: +49 6131 610 99 16
 
-I think you meant to say there, "even many poorly constructed hash
-functions perform well when..."
-
-> Efficiency should measure both space and time resources. If it should
-> work in a multithreaded situation then another level of complexity is
-> added.
-
-Sure, I could have added "how big is it".  For me, that's just 
-another kind of efficiency.  Writing the code so it's reentrant is 
-just good practice.  There is no excuse whatsoever for not doing
-that for something simple like a hash function, even if you
-yourself never expect to run two copies concurrently.
-
---
-Daniel
+GnuPG: 717F16BB / A384 F5F1 F566 5716 5485  27EF 3B00 C007 717F 16BB

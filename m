@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbTIKOEt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 10:04:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbTIKOEt
+	id S261321AbTIKODW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 10:03:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbTIKODW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 10:04:49 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18097 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261345AbTIKOE2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 10:04:28 -0400
-Message-ID: <3F6080DD.3040509@pobox.com>
-Date: Thu, 11 Sep 2003 10:04:13 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Thu, 11 Sep 2003 10:03:22 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5190 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261321AbTIKODU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 10:03:20 -0400
+To: insecure@mail.od.ua
+Cc: Michael Frank <mhf@linuxmail.org>, Yann Droneaud <yann.droneaud@mbda.fr>,
+       fruhwirth clemens <clemens-dated-1063536166.2852@endorphin.org>,
+       linux-kernel@vger.kernel.org,
+       =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Subject: Re: nasm over gas?
+References: <20030904104245.GA1823@leto2.endorphin.org>
+	<200309052028.37367.insecure@mail.od.ua>
+	<m18yp0o2mq.fsf@ebiederm.dsl.xmission.com>
+	<200309100034.58742.insecure@mail.od.ua>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 11 Sep 2003 08:03:15 -0600
+In-Reply-To: <200309100034.58742.insecure@mail.od.ua>
+Message-ID: <m1znhbl8ws.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK-PATCH] kbuild: Separate output directory support
-References: <20030911100514.GA14390@mars.ravnborg.org>
-In-Reply-To: <20030911100514.GA14390@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> Usage is simple:
-> cd /path/to/kernel/src
-> mkdir ~/build/kernel
-> make O=~/build/kernel [Make options]
-> Please note: The O= syntax must be used for ALL invocations of make.
-[...]
-> How it works:
-> If the O= option is used, or KBUILD_OUTPUT is set then a second invocation
-> of make happens in the output directory.
-> The second invocation of make uses VPATH to tell make where to locate
-> the files. Furthermore include options for gcc is modifyied to point
-> both in the directory where the kernel src is located, and in the
-> directory where the output files are located. The latter is used for
-> generated .h files.
+insecure <insecure@mail.od.ua> writes:
 
+> On Sunday 07 September 2003 21:49, Eric W. Biederman wrote:
+> > insecure <insecure@mail.od.ua> writes:
+> > > On Friday 05 September 2003 15:59, Michael Frank wrote:
+> > > What gives you an impression that anyone is going to rewrite linux in
+> > > asm? I _only_ saying that compiler-generated asm is not 'good'. It's
+> > > mediocre. Nothing more. I am not asm zealot.
+> >
+> > I think I would agree with that statement most compiler-generated assembly
+> > code is mediocre in general.  At the same time I would add most human
+> > generated assembly is poor, and a pain to maintain.
+> 
+> I had an impression people think gcc generates code which
+> is 'mostly good' even compared to handwritted code.
+> That is not true (yet).
 
-Sweet!  Thanks for all your hard work, Sam.
+It is true.  Not when compared to hand optimized code.  But compared
+to a day to day churn it is true.  Although I tend to still prefer gcc
+2.95 for the code size.  
 
-	Jeff
-
-
-
+Eric

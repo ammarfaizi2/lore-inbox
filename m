@@ -1,137 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264160AbUGFQxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264206AbUGFRFY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264160AbUGFQxV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 12:53:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264154AbUGFQxV
+	id S264206AbUGFRFY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 13:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264213AbUGFRFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 12:53:21 -0400
-Received: from vsmtp12.tin.it ([212.216.176.206]:63361 "EHLO vsmtp12.tin.it")
-	by vger.kernel.org with ESMTP id S264160AbUGFQxP (ORCPT
+	Tue, 6 Jul 2004 13:05:24 -0400
+Received: from host81-133-159-142.in-addr.btopenworld.com ([81.133.159.142]:45539
+	"HELO hellrimore3412.com") by vger.kernel.org with SMTP
+	id S264206AbUGFRFS convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 12:53:15 -0400
-Subject: EDD enhanchement patch
-From: Frediano Ziglio <freddyz77@tin.it>
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-Cc: linux-kernel@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Content-Type: multipart/mixed; boundary="=-8JDf0XgKSrYRa7RI1P6X"
-Message-Id: <1089132808.4435.8.camel@freddy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 06 Jul 2004 18:53:28 +0200
+	Tue, 6 Jul 2004 13:05:18 -0400
+From: "ARAF.M.MADIHAH" <arafmadihah@yahoo.com>
+Reply-To: afaf_madihah@zwallet.com
+To: linux-kernel@vger.kernel.org
+Date: Tue, 6 Jul 2004 18:07:12 +0100
+Subject: CONSIDERATIONS FOR ALLAH WORKS
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <S264206AbUGFRFS/20040706170518Z+949@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear Sir, 
+Assalamualaikum, 
 
---=-8JDf0XgKSrYRa7RI1P6X
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+I am ARAF.M. MOHAMMED from Singapore, married to Late Kazeem Mohammed of blessed memory who was an oil explorer in Singapore and Kuwait for twelve years before he died in 2000.We were married for twelve years without a child. He died after a brief illness that lasted for only four days. Before his death we were both devoted Muslims. Since his death I've been battling with Cancer and fibroid problems. When my late Husband was alive he deposited the sum of $15.5million (Fifteen Million, Five Hundred thousand U.S Dollars) with a Finance Company in Europe.
+ 
+Recently, my doctor told me that I have only six months to live due to cancer problem. . Having known my condition I decided to donate this fund to either a Moslem organization or devoted Muslim individual that will utilize this money the way I am going to instruct herein. 
+I want the Muslim organization or individual to use this money in all sincerity to fund mosques, orphanages, widows, and also propagating the word of ALLAH and to ensure that the society upholds the views and belief of the Holy Quran. 
+The Holy Quran emphasizes so much on ALLAH'S benevolence and this has encouraged me to take the bold step. I took this decision because I don't have any child that will inherit the funds. My husband relatives are new Christian's converts and I don't want a situation where this money will be used in an Unholy manner. Hence the reasons for this bold decision. I know that after death I will be with ALLAH the most beneficent and the most merciful. 
+My doctors have warned against constant telephone discussion because of my deteriorating condition and further more, my husband relatives are always beside me and I don't want them to have an inside of my. I don't want them to know about this development. With ALLAH all things are possible. 
 
-This patch add support for DTPE data in EDD and mbr_signature. This
-patch do not solve fdisk problems but can help these programs to compute
-correct head count.
+Please reply strictly via FAX NO: 27 11 507 6103, the fax is accessed solely by me from my sick bed in South Africa where I am presently to receive herbal treatment for my cancer as advised by my husband's relatives. OR email araf_madihah@zwallet.com <mailto:araf_madihah@zwallet.com>. On receipt of your confirmation to assist, I will release all details (Name, address of the trust company in Europe) to you where funds are located and a letter of Authority mandating the trust company to release funds to you and a copy of certificate of deposit released to you also. I want you and the Muslim community where you reside to always pray for me. 
+ 
+My happiness is that I lived a true devoted Muslims worthy of emulation. Whoever that wants to serve ALLAH must serve him in truth and in fairness. Please always be prayerful all through your life. Any delay in your reply will give room in sourcing for a Muslim organization or a devoted Muslim for this same purpose. Until I hear from you, my dreams will rest squarely on your shoulders. 
+May the Almighty ALLAH continue to guide and protect you. 
+Regards, 
+MRS ARAF.M. MOHAMMED 
 
-freddy77
-
-
---=-8JDf0XgKSrYRa7RI1P6X
-Content-Disposition: attachment; filename=edd.diff.gz
-Content-Type: application/x-gzip; name=edd.diff.gz
-Content-Transfer-Encoding: base64
-
-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
-+L8byPTnYj3s/yfdYcUCl0IAAA==
-
---=-8JDf0XgKSrYRa7RI1P6X--
 

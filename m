@@ -1,156 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262910AbVCWU1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVCWUlD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262910AbVCWU1O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 15:27:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262891AbVCWUZB
+	id S261268AbVCWUlD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 15:41:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVCWUiI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 15:25:01 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:54919 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262902AbVCWUTy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 15:19:54 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <29204.1111608899@redhat.com> 
-References: <29204.1111608899@redhat.com> 
-To: torvalds@osdl.org, akpm@osdl.org, Michael A Halcrow <mahalcro@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] Keys: Use RCU to manage session keyring pointer
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Wed, 23 Mar 2005 20:19:45 +0000
-Message-ID: <29285.1111609185@redhat.com>
+	Wed, 23 Mar 2005 15:38:08 -0500
+Received: from mailhub.lss.emc.com ([168.159.2.31]:6552 "EHLO
+	mailhub.lss.emc.com") by vger.kernel.org with ESMTP id S261268AbVCWUgj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 15:36:39 -0500
+From: Brett Russ <russb@emc.com>
+To: jgarzik@pobox.com
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+User-Agent: lksp 0.3
+Content-Type: text/plain; charset=US-ASCII
+Subject: [PATCH libata-dev-2.6 00/03] libata: scsi error handling improvements
+Message-ID: <20050323203514.D62A1893@lns1032.lss.emc.com>
+References: <20050317221753.0D09D0D9@lns1032.lss.emc.com> <4240FAB9.5040200@pobox.com>
+In-Reply-To: <4240FAB9.5040200@pobox.com>
+Date: Wed, 23 Mar 2005 15:36:29 -0500 (EST)
+X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.0.3.0, Antispam-Data: 2005.3.23.11
+X-PerlMx-Spam: Gauge=, SPAM=7%, Reasons='__CT 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __SANE_MSGID 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+These patches are a resubmit of patch 5/5 of the first series
+submitted 2005-03-17.  Jeff requested that the single patch be split
+into a suggested 3 smaller patches; the results are below.  I also
+took this opportunity to further clean up the changes.
 
-The attached patch uses RCU to manage the session keyring pointer in struct
-signal_struct. This means that searching need not disable interrupts and get a
-the sighand spinlock to access this pointer. Furthermore, by judicious use of
-rcu_read_(un)lock(), this patch also avoids the need to take and put refcounts
-on the session keyring itself, thus saving on even more atomic ops.
+[ Start of patch descriptions ]
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-warthog>diffstat -p1 keys-rcu-session-2612rc1mm1.diff 
- security/keys/process_keys.c |   42 +++++++++++++++++++++---------------------
- security/keys/request_key.c  |    7 +++----
- 2 files changed, 24 insertions(+), 25 deletions(-)
+01_libata_libata-whitespace.patch
+	: whitespace updates
 
-diff -uNrp linux-2.6.12-rc1-mm1-keys-umhelper/security/keys/process_keys.c linux-2.6.12-rc1-mm1-keys-rcu-session/security/keys/process_keys.c
---- linux-2.6.12-rc1-mm1-keys-umhelper/security/keys/process_keys.c	2005-03-23 17:22:46.000000000 +0000
-+++ linux-2.6.12-rc1-mm1-keys-rcu-session/security/keys/process_keys.c	2005-03-23 18:27:12.055768099 +0000
-@@ -1,6 +1,6 @@
- /* process_keys.c: management of a process's keyrings
-  *
-- * Copyright (C) 2004 Red Hat, Inc. All Rights Reserved.
-+ * Copyright (C) 2004-5 Red Hat, Inc. All Rights Reserved.
-  * Written by David Howells (dhowells@redhat.com)
-  *
-  * This program is free software; you can redistribute it and/or
-@@ -181,7 +181,7 @@ static int install_process_keyring(struc
- 			goto error;
- 		}
- 
--		/* attach or swap keyrings */
-+		/* attach keyring */
- 		spin_lock_irqsave(&tsk->sighand->siglock, flags);
- 		if (!tsk->signal->process_keyring) {
- 			tsk->signal->process_keyring = keyring;
-@@ -227,12 +227,14 @@ static int install_session_keyring(struc
- 
- 	/* install the keyring */
- 	spin_lock_irqsave(&tsk->sighand->siglock, flags);
--	old = tsk->signal->session_keyring;
--	tsk->signal->session_keyring = keyring;
-+	old = rcu_dereference(tsk->signal->session_keyring);
-+	rcu_assign_pointer(tsk->signal->session_keyring, keyring);
- 	spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
- 
- 	ret = 0;
- 
-+	/* we're using RCU on the pointer */
-+	synchronize_kernel();
- 	key_put(old);
-  error:
- 	return ret;
-@@ -245,8 +247,6 @@ static int install_session_keyring(struc
-  */
- int copy_thread_group_keys(struct task_struct *tsk)
- {
--	unsigned long flags;
--
- 	key_check(current->thread_group->session_keyring);
- 	key_check(current->thread_group->process_keyring);
- 
-@@ -254,10 +254,10 @@ int copy_thread_group_keys(struct task_s
- 	tsk->signal->process_keyring = NULL;
- 
- 	/* same session keyring */
--	spin_lock_irqsave(&current->sighand->siglock, flags);
-+	rcu_read_lock();
- 	tsk->signal->session_keyring =
--		key_get(current->signal->session_keyring);
--	spin_unlock_irqrestore(&current->sighand->siglock, flags);
-+		key_get(rcu_dereference(current->signal->session_keyring));
-+	rcu_read_unlock();
- 
- 	return 0;
- 
-@@ -381,8 +381,7 @@ struct key *search_process_keyrings_aux(
- 					key_match_func_t match)
- {
- 	struct task_struct *tsk = current;
--	unsigned long flags;
--	struct key *key, *ret, *err, *tmp;
-+	struct key *key, *ret, *err;
- 
- 	/* we want to return -EAGAIN or -ENOKEY if any of the keyrings were
- 	 * searchable, but we failed to find a key or we found a negative key;
-@@ -436,17 +435,18 @@ struct key *search_process_keyrings_aux(
- 	}
- 
- 	/* search the session keyring last */
--	spin_lock_irqsave(&tsk->sighand->siglock, flags);
--
--	tmp = tsk->signal->session_keyring;
--	if (!tmp)
--		tmp = tsk->user->session_keyring;
--	atomic_inc(&tmp->usage);
--
--	spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
-+	if (tsk->signal->session_keyring) {
-+		rcu_read_lock();
-+		key = keyring_search_aux(
-+			rcu_dereference(tsk->signal->session_keyring),
-+			type, description, match);
-+		rcu_read_unlock();
-+	}
-+	else {
-+		key = keyring_search_aux(tsk->user->session_keyring,
-+					 type, description, match);
-+	}
- 
--	key = keyring_search_aux(tmp, type, description, match);
--	key_put(tmp);
- 	if (!IS_ERR(key))
- 		goto found;
- 
-diff -uNrp linux-2.6.12-rc1-mm1-keys-umhelper/security/keys/request_key.c linux-2.6.12-rc1-mm1-keys-rcu-session/security/keys/request_key.c
---- linux-2.6.12-rc1-mm1-keys-umhelper/security/keys/request_key.c	2005-03-23 17:35:16.000000000 +0000
-+++ linux-2.6.12-rc1-mm1-keys-rcu-session/security/keys/request_key.c	2005-03-23 18:14:13.908029567 +0000
-@@ -175,13 +175,12 @@ static struct key *__request_key_constru
- 	key->expiry = now.tv_sec + key_negative_timeout;
- 
- 	if (current->signal->session_keyring) {
--		unsigned long flags;
- 		struct key *keyring;
- 
--		spin_lock_irqsave(&current->sighand->siglock, flags);
--		keyring = current->signal->session_keyring;
-+		rcu_read_lock();
-+		keyring = rcu_dereference(current->signal->session_keyring);
- 		atomic_inc(&keyring->usage);
--		spin_unlock_irqrestore(&current->sighand->siglock, flags);
-+		rcu_read_unlock();
- 
- 		key_link(keyring, key);
- 		key_put(keyring);
+	This patch adjusts some whitespace to bring the format of
+	libata-scsi.c to a consistent state.
+
+02_libata_ata_dump_status.patch
+	: create/use ata_dump_status()
+
+	This patch introduces the ata_dump_status() function, which
+	for now is called from ata_to_sense_error() only.
+
+03_libata_rework-cc-generation.patch
+	: rework check condition handling
+
+	This patch refactors the check condition creation within
+	libata.  Changes include:
+
+	- ata_to_sense_error() now *only* performs the translation
+          from an ATA status/error register combination to a SCSI
+          SK/ASC/ASCQ combination.  Additionally, the translation is
+          logged at level KERNEL_ERR and any untranslatable combos are
+          logged at level KERNEL_WARNING.
+
+	- ata_dump_status() is modified to take a taskfile struct as
+          argument in preparation for a future patch which will add
+          proper display of the failing location (LBA or CHS)
+
+	- created ata_gen_fixed_sense() to generate a fixed length CC
+          sense block.
+
+	- ata_pass_thru_cc() has been renamed to
+          ata_gen_ata_desc_sense() to fit the naming convention
+          mentioned above.  Its guts were changed a bit as well.
+
+	- ata_scsi_qc_complete() has been modified to fix a bug where
+          ATA_12/16 commands would not generate a sense block on
+          error.  Other changes made here as well, including the call
+          to ata_dump_status().
+
+[ End of patch descriptions ]
+

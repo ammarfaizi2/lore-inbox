@@ -1,112 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271836AbTGXX75 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 19:59:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271832AbTGXX74
+	id S271831AbTGXX52 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 19:57:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271832AbTGXX51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 19:59:56 -0400
-Received: from adsl-66-159-224-106.dslextreme.com ([66.159.224.106]:26118 "EHLO
-	zork.ruvolo.net") by vger.kernel.org with ESMTP id S271836AbTGXX7o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 19:59:44 -0400
-Date: Thu, 24 Jul 2003 17:14:41 -0700
-From: Chris Ruvolo <chris+lkml@ruvolo.net>
-To: Ben Collins <bcollins@debian.org>, gaxt <gaxt@rogers.com>,
-       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-Subject: Re: Firewire
-Message-ID: <20030725001441.GE23196@ruvolo.net>
-Mail-Followup-To: Ben Collins <bcollins@debian.org>, gaxt <gaxt@rogers.com>,
-	linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-References: <3F1FE06A.5030305@rogers.com> <20030724223522.GA23196@ruvolo.net> <20030724223615.GN1512@phunnypharm.org> <20030724230928.GB23196@ruvolo.net> <20030724231421.GQ1512@phunnypharm.org> <20030724234837.GC23196@ruvolo.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xJK8B5Wah2CMJs8h"
-Content-Disposition: inline
-In-Reply-To: <20030724234837.GC23196@ruvolo.net>
-User-Agent: Mutt/1.3.28i
+	Thu, 24 Jul 2003 19:57:27 -0400
+Received: from relay3.hrnoc.net ([216.120.225.15]:24078 "EHLO relay3.hrnoc.net")
+	by vger.kernel.org with ESMTP id S271831AbTGXX4f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 19:56:35 -0400
+Date: Thu, 24 Jul 2003 20:11:43 -0400
+Subject: Re: SCO offers UnixWare licenses for Linux
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v552)
+Cc: Michael Bernstein <michael@seven-angels.net>,
+       Stephan von Krawczynski <skraw@ithnet.com>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>, diegocg@teleline.es,
+       gmicsko@szintezis.hu, Hurley Nick <hurley@cis.ohio-state.edu>,
+       linux-kernel@vger.kernel.org
+To: Larry McVoy <lm@bitmover.com>
+From: Michael Bernstein <michael@seven-angels.net>
+In-Reply-To: <20030724234213.GA20064@work.bitmover.com>
+Message-Id: <92A3044A-BE34-11D7-B1B8-000A95773C00@seven-angels.net>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.552)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19fqBD-0006TA-Qb*.VtrDqiQaew*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---xJK8B5Wah2CMJs8h
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Thursday, July 24, 2003, at 07:42  PM, Larry McVoy wrote:
 
-> That is very odd, considering it works under 2.4.  Is it possible the
-> pending_packets list isn't being updated?  Would the verbose debug option
-> help?
+> By your arguments, anything fundamental needs to be free.   Let me 
+> know when
+> you get a free house, car, food, health care, etc.
+>
+> Until then, we live in world with certain rules.  You don't have to 
+> like them
+> and you are welcome (in some countries to try and change them) but 
+> until you
+> do, you have to obey them or go to jail (or whatever the repercussion 
+> is).
 
-Here is the debug output from loading ohci1394:
+Well, certain countries give free health care, and eventually the 
+United States will probably have to approach that due to the baby boom 
+and the medicare problems currently.  However, a hospital in the United 
+States cannot deny medical attention to someone in need, regardless if 
+they can pay for it or not.
 
--Chris
+I think there is a difference between everyone getting everything free, 
+and some people in need getting what they need to survive.  Government 
+subsidized housing is nothing new for low income families.   The same 
+goes for food.  You can then argue that in Africa, people starve.  
+However, you would have to look at the relief aid organizations that 
+are trying to change that.
 
-ohci1394: $Rev: 986 $ Ben Collins <bcollins@debian.org>
-PCI: Found IRQ 10 for device 0000:00:0b.0
-ohci1394_0: Remapped memory spaces reg 0xc897a000
-ohci1394_0: Soft reset finished
-ohci1394_0: Iso contexts reg: 000000a8 implemented: 000000ff
-ohci1394_0: 8 iso receive contexts available
-ohci1394_0: Iso contexts reg: 00000098 implemented: 000000ff
-ohci1394_0: 8 iso transmit contexts available
-ohci1394_0: GUID: 00110600:00006a85
-ohci1394_0: Receive DMA ctx=0 initialized
-ohci1394_0: Receive DMA ctx=0 initialized
-ohci1394_0: Transmit DMA ctx=0 initialized
-ohci1394_0: Transmit DMA ctx=1 initialized
-ohci1394_0: OHCI-1394 1.0 (PCI): IRQ=[10]  MMIO=[db001000-db0017ff]  Max Packet=[2048]
-ohci1394_0: request csr_rom address: c0961000
-ohci1394_0: IntEvent: 00030010
-ohci1394_0: irq_handler: Bus reset requested
-ohci1394_0: Cancel request received
-ohci1394_0: Got RQPkt interrupt status=0x00008409
-ohci1394_0: SelfID interrupt received (phyid 0, root)
-ohci1394_0: SelfID packet 0x807f8956 received
-ieee1394: Including SelfID 0x56897f80
-ohci1394_0: SelfID for this node is 0x807f8956
-ohci1394_0: SelfID complete
-ohci1394_0: PhyReqFilter=ffffffffffffffff
-ieee1394: selfid_complete called with successful SelfID stage ... irm_id: 0xFFC0 node_id: 0xFFC0
-ieee1394: NodeMgr: Processing host reset for knodemgrd_0
-ohci1394_0: Single packet rcv'd
-ohci1394_0: Got phy packet ctx=0 ... discarded
-ieee1394: Initiating ConfigROM request for node 00:1023
-ieee1394: send packet local: ffc00140 ffc0ffff f0000400
-ieee1394: received packet: ffc00140 ffc0ffff f0000400
-ieee1394: send packet local: ffc00160 ffc00000 00000000 60f30404
-ieee1394: received packet: ffc00160 ffc00000 00000000 60f30404
-ieee1394: unsolicited response packet received - np
-ieee1394: contents: ffc00160 ffc00000 00000000 60f30404
-ieee1394: send packet local: ffc00540 ffc0ffff f0000400
-ieee1394: received packet: ffc00540 ffc0ffff f0000400
-ieee1394: send packet local: ffc00560 ffc00000 00000000 60f30404
-ieee1394: received packet: ffc00560 ffc00000 00000000 60f30404
-ieee1394: unsolicited response packet received - np
-ieee1394: contents: ffc00560 ffc00000 00000000 60f30404
-ieee1394: send packet local: ffc00940 ffc0ffff f0000400
-ieee1394: received packet: ffc00940 ffc0ffff f0000400
-ieee1394: send packet local: ffc00960 ffc00000 00000000 60f30404
-ieee1394: received packet: ffc00960 ffc00000 00000000 60f30404
-ieee1394: unsolicited response packet received - np
-ieee1394: contents: ffc00960 ffc00000 00000000 60f30404
-ieee1394: ConfigROM quadlet transaction error for node 00:1023
-ieee1394: send packet 100: ffff0100 ffc0ffff f0000234 1f0000c0
-ohci1394_0: Inserting packet for node 63:1023, tlabel=0, tcode=0x0, speed=0
-ohci1394_0: Starting transmit DMA ctx=0
-ohci1394_0: IntEvent: 00000001
-ohci1394_0: Got reqTxComplete interrupt status=0x00008011
-ohci1394_0: Packet sent to node 63 tcode=0x0 tLabel=0x00 ack=0x11 spd=0 data=0x1F0000C0 ctx=0
+The problem that arises is that not everyone has the MEANS to be able 
+to afford the fundamentals that are required to live.  Many human 
+beings feel it is necessary to help those in need since many of us 
+(myself included) have much more then the average person.
 
---xJK8B5Wah2CMJs8h
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Larry, I may only be 22, but I recommend you travel to some places like 
+Egypt (and yes, I have been there) or parts of Eastern Europe, or even 
+Mexico (and not Cancun or any beach front for tourists, I mean Mexico 
+City).  You may disagree that humans should help out other humans in 
+need, but you would at least realize how fortunate the majority of us 
+are.  I would say that anyone who can afford to own a computer, be 
+online, and all that jazz that goes along with being a geek, are quite 
+fortunate indeed.  Sure, everyone has their problems, but you never 
+grew up knitting rugs so that you could afford a menial meal each day.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+I think Linux and free software in general have an idea of this, and 
+that is why many people feel that software should be free.  Computers 
+are becoming a fundamental need in life to survive in an increasingly 
+competitive world.  I would argue that they are becoming more 
+fundamental to everyday life then a car is.  Not only can it be 
+considered as a method of economic survival, but also a tool for 
+cultural understanding and communication.  Communication is probably 
+the most fundamental human need  (after life sustaining needs), and 
+computers allow that to happen at a level no one imagined.
 
-iD8DBQE/IHZwKO6EG1hc77ERAnFEAKDrOKHPeF+EyU+Dk/Hx8VxCmtZ/WgCg4NAg
-gJYeW23qDCZ+LhvnMPp/+P4=
-=yHqi
------END PGP SIGNATURE-----
+This is all a philosophical argument with very real applications to the 
+everyday life of most people.  To get back to the topic of IP, overall 
+IP creates scenarios where corporations impede on the progress of human 
+beings.  For an extreme scenario, what if someone could patent a new 
+method for food production that could eliminate starvation worldwide.  
+Would that be right to not allow it to be utilized for the betterment 
+of society, or should one corporation, knowing its value, rule over the 
+world and force its will upon humanity?
 
---xJK8B5Wah2CMJs8h--
+Another scenario (totally hypothetical, IBM is only an example with a 
+huge patents collection!), much less extreme, which in all reality 
+would hurt your livelihood as well.  What if a corporation like IBM 
+pulled out a patent which gives them the right to all the work you have 
+done.  You as the engineer who designed Bitkeeper are entitled to 
+certain rights.  You developed an implementation of a system 
+independently of anyone else's source control system.  However, one 
+corporation that really didn't have a great interest in it pulled out a 
+patent which basically destroys your current method of livelihood, 
+regardless of the fact that you independently implemented it.  How 
+would you feel?  What would this do?
+
+If IBM had no product anywhere close to the functionality of Bitkeeper, 
+the world would be forced to use inferior source control products 
+because of the whim of one corporation.  Is that right?  IBM would be 
+in fact stifling not only competition in the source control world, but 
+progress as well.
+
+Think about all of this, travel around, see the world.  It will make 
+you a better person.  This isn't about a person's right to sell things, 
+a person's right to own things, or the dissolution of the capitalistic 
+state.  It's about fundamental humanity.
+
+Michael Bernstein
+michael@seven-angels.net
+

@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261580AbSJILtu>; Wed, 9 Oct 2002 07:49:50 -0400
+	id <S261542AbSJILqH>; Wed, 9 Oct 2002 07:46:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261581AbSJILtu>; Wed, 9 Oct 2002 07:49:50 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:43535 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S261580AbSJILts>; Wed, 9 Oct 2002 07:49:48 -0400
-Date: Wed, 9 Oct 2002 04:55:27 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] silence an unnescessary raid5 debugging message
-Message-ID: <20021009115527.GD10333@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <20021008180350.A15858@redhat.com> <15779.27330.284336.914423@notabene.cse.unsw.edu.au> <20021008193612.H15858@redhat.com> <20021008.175116.22950725.davem@redhat.com> <20021008210249.I15858@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021008210249.I15858@redhat.com>
-User-Agent: Mutt/1.3.27i
+	id <S261555AbSJILqH>; Wed, 9 Oct 2002 07:46:07 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:61572 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S261542AbSJILqG>; Wed, 9 Oct 2002 07:46:06 -0400
+Date: Wed, 9 Oct 2002 07:53:19 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Alexander Kellett <lypanov@kde.org>, jw schultz <jw@pegasys.ws>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: The end of embedded Linux?
+In-Reply-To: <1034164188.1253.5.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.3.95.1021009074742.27056A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 08, 2002 at 09:02:49PM -0400, Benjamin LaHaise wrote:
-> On Tue, Oct 08, 2002 at 05:51:16PM -0700, David S. Miller wrote:
-> >    From: Benjamin LaHaise <bcrl@redhat.com>
-> >    Date: Tue, 8 Oct 2002 19:36:12 -0400
-> >    
-> >    As it stands, the syslogging from the printk does more damage to
-> >    performance than the underlying problem.  Besides, LVM snapshots
-> >    are slow, but they're useful for a class of problems anyways.
-> > 
-> > He's just saying kill the real problem first, that's all.
+On 9 Oct 2002, Alan Cox wrote:
+
+> On Wed, 2002-10-09 at 08:37, Alexander Kellett wrote: 
+> > This talk of adeos reminds me of something that i'd
+> > "dreamed" of a while back. Whats the feasability of
+> > having a 70kb kernel that barely even provides support 
+> > for user space apps and is basically just an hardware 
+> > abstraction layer for "applications" that can be 
+> > written as kernel modules?
 > 
-> I'm just saying that the message is the only real problem I have with 
-> the state of 2.4.  Sure, 2.5 deserves it fixed correctly, but I doubt 
-> the correct fix will make it into 2.4 anytime soon (it's far more 
-> dangerous than we should consider shipping in a "stable" series).
+> Its called FreeDOS,
+> 
 
-It sound to me like a big nasty message should be generated
-when the snapshot volume is created to advise that
-performance will be horribly impaired.  Thrashing the log
-file to warn the user is like breaking your arm to remind
-yourself to trim your fingernails.
+-emm. Maybe he needs just a bit more. There's s book by Richard A.
+Burgess, "Developing your own 32-bit Operating System". Howard W Sams.
+ISBN 0-672-30655-7. It comes with a CDROM and a small OS that works.
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+In fact, it seems that a well-known, expensive 32-bit OS used by a
+lot of the embedded companies is is DIRECT COPY of this! In many
+procedures they didn't even change the variable names. The only thing
+they did was... oh well I don't want to get sued ... 
 
-		Remember Cernan and Schmitt
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
+

@@ -1,67 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263685AbUC3OpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 09:45:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263689AbUC3OpQ
+	id S263689AbUC3OrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 09:47:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263681AbUC3OrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 09:45:16 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:7084 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263685AbUC3OpG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 09:45:06 -0500
-Date: Tue, 30 Mar 2004 20:13:24 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       Robert Olsson <Robert.Olsson@data.slu.se>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, Dave Miller <davem@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Andrew Morton <akpm@osdl.org>
-Subject: Re: route cache DoS testing and softirqs
-Message-ID: <20040330144324.GA3778@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20040329184550.GA4540@in.ibm.com> <20040329222926.GF3808@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040329222926.GF3808@dualathlon.random>
-User-Agent: Mutt/1.4.1i
+	Tue, 30 Mar 2004 09:47:09 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:23939 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263689AbUC3OrA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 09:47:00 -0500
+Date: Tue, 30 Mar 2004 09:48:14 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Willy Tarreau <willy@w.ods.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Len Brown <len.brown@intel.com>,
+       Arkadiusz Miskiewicz <arekm@pld-linux.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+Subject: Re: [ACPI] Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
+In-Reply-To: <20040330142215.GA21931@alpha.home.local>
+Message-ID: <Pine.LNX.4.53.0403300943520.6151@chaos>
+References: <A6974D8E5F98D511BB910002A50A6647615F6939@hdsmsx402.hd.intel.com>
+ <1080535754.16221.188.camel@dhcppc4> <20040329052238.GD1276@alpha.home.local>
+ <1080598062.983.3.camel@dhcppc4> <1080651370.25228.1.camel@dhcp23.swansea.linux.org.uk>
+ <Pine.LNX.4.53.0403300814350.5311@chaos> <20040330142215.GA21931@alpha.home.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 30, 2004 at 12:29:26AM +0200, Andrea Arcangeli wrote:
-> the only real starvation you can claim is in presence of an _hard_irq
-> flood, not a softirq one. Ingo had some patch for the hardirq
-> throttling, unfortunately those pathes were mixed with irrelevant
-> softirq changes, but the hardirq part of these patches was certainly
-> valid (though in most business environments I imagine if one is under
-> hardirq attack in the local ethernet, the last worry is probably the
-> throttling of hardirqs ;)
+On Tue, 30 Mar 2004, Willy Tarreau wrote:
 
-Hmm.. What about firewalls and routers on the internet ? Shouldn't
-they care ?
+> On Tue, Mar 30, 2004 at 08:15:46AM -0500, Richard B. Johnson wrote:
+> > On Tue, 30 Mar 2004, Alan Cox wrote:
+> >
+> > > On Llu, 2004-03-29 at 23:07, Len Brown wrote:
+> > > > Linux uses this locking mechanism to coordinate shared access
+> > > > to hardware registers with embedded controllers,
+> > > > which is true also on uniprocessors too.
+> > >
+> > > If the ACPI layer simply refuses to run on a CPU without cmpxchg
+> > > then I can't see there being a problem, there don't appear to be
+> > > any 386 processors with ACPI
+> > >
+> >
+> > Yep, but to get to use cmpxchg, you need to compile as a '486 or
+> > higher. This breaks i386.
+>
+> OK, so why not compile the cmpxchg instruction even on i386 targets
+> to let generic kernels stay compatible with everything, but disable
+> ACPI at boot if the processor does not feature cmpxchg ? This could
+> be helpful for boot/install kernels which try to support a wide
+> range of platforms, and may need ACPI to correctly enable interrupts
+> on others.
+>
+> Cheers,
+> Willy
+>
 
-> So you're simply asking the ksoftirqd offloading to become more
-> aggressive, and to make the softirq even more scheduler friendly,
-> something I never had a reason to do yet, since ksoftirqd already
-> eliminates the starvation issue, and secondly because I did care about
-> the performance of softirq first (delaying softirqs is derimental for
-> performance if it happens frequently w/o this kind of flood-load). I
-> even got a patch for 2.4 doing this kind of changes to the softirqd for
-> similar reasons on embedded systems where the cpu spent on the softirqs
-> would been way too much under attack. I had to back it out since it was
-> causing drop of performance in specweb or something like that and nobody
-> but the embdedded people needed it.  But now here we've a case where it
-> makes even more sense since the hardirq aren't strictly related to this
-> load, this load with the rcu-routing-cache is just about letting the
-> scheduler go together witn an intensive softirq load. So we can try
-> again with a truly userspace throttling of the softirqs (and in 2.4 I
-> didn't change the nice from 19 to -20 so maybe this will just work
-> perfectly).
+Because it would get used (by the compiler) in other code as well!
+As soon as the 386 sees it, you get an "invalid instruction trap"
+and you are dead.
 
-Tried it and it didn't work. I still got dst cache overflows. I will dig
-out more numbers about what what happened - is ksoftirqd a pig still or
-we are mostly doing short softirq bursts on the back of a hardirq
-flood.
+It might be a good idea to declare that after version xxx,
+'386 compatibility is no longer provided. There is plenty of
+usability for '386s in 2.4.nn, for instance.
 
-Thanks
-Dipankar
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130142AbRB1MDF>; Wed, 28 Feb 2001 07:03:05 -0500
+	id <S130139AbRB1M3Q>; Wed, 28 Feb 2001 07:29:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130139AbRB1MCz>; Wed, 28 Feb 2001 07:02:55 -0500
-Received: from pat.uio.no ([129.240.130.16]:32392 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S130142AbRB1MCv>;
-	Wed, 28 Feb 2001 07:02:51 -0500
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: David Fries <dfries@umr.edu>, linux-kernel@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: Stale NFS handles on 2.4.2
-In-Reply-To: <20010214002750.B11906@unthought.net>
-	<20010224141855.B12988@d-131-151-189-65.dynamic.umr.edu>
-	<15000.39826.947692.141119@notabene.cse.unsw.edu.au>
-	<20010224235342.D483@d-131-151-189-65.dynamic.umr.edu>
-	<15000.53110.664338.230709@notabene.cse.unsw.edu.au>
-	<20010225131013.E483@d-131-151-189-65.dynamic.umr.edu>
-	<15004.16978.439300.108625@notabene.cse.unsw.edu.au>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Content-Type: text/plain; charset=US-ASCII
-Date: 28 Feb 2001 13:02:31 +0100
-In-Reply-To: Neil Brown's message of "Wed, 28 Feb 2001 11:12:02 +1100 (EST)"
-Message-ID: <shsd7c3817s.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+	id <S130143AbRB1M25>; Wed, 28 Feb 2001 07:28:57 -0500
+Received: from spider.nlr.nl ([137.17.80.200]:22319 "EHLO smtp-server.nlr.nl")
+	by vger.kernel.org with ESMTP id <S130139AbRB1M2s>;
+	Wed, 28 Feb 2001 07:28:48 -0500
+Disclaimer: "The National Aerospace Laboratory NLR DOES NOT ACCEPT ANY FINANCIAL COMMITMENT derived from this message."
+Message-ID: <3A9CEED6.C68D3FFD@nlr.nl>
+Date: Wed, 28 Feb 2001 13:28:06 +0100
+From: "Rob W. van Swol" <vanswol@nlr.nl>
+X-Mailer: Mozilla 4.7C-SGI [en] (X11; I; IRIX 6.5 IP32)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: opl3sa2 won't load in kernel 2.4.2
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Neil Brown <neilb@cse.unsw.edu.au> writes:
 
-     > So... you can access things under /home/david, but you cannot
-     > access /home/david itself?  So, supposing that "fred" were some
-     > file that you happen to know is in /home/david, then
+Hi,
 
-     >     ls /home/david fails with ESTALE and does not cause
-     > 			       any traffic to the server and
+I cannot find an answer to my problem. Sound was always working ok in
+2.2.x and 2.4.1 kernels. But now the opl3sa2 module won't load anymore.
+First I got the messages:
 
-This is normal. Once an inode gets flagged as being stale, then it
-remains stale. After all it would be a bug too if a filehandle were
-stale one moment, and then not the next.
+opl3sa2: No cards found
+opl3sa2: 0 PnP card(s) found. 
 
-The question here is therefore really why did the server tell us that
-the filehandle was stale in the first place.
+The I added isapnp=0 to the options line in /etc/modules.conf and then I
+get:
 
-Cheers,
-   Trond
+opl3sa2: Control I/O port 0x0 not free
+                          ^^^
+It seems that the io address is not correctly passed to the module?!
+
+
+The relevant lines from /etc/modules.conf are:
+
+alias sound-slot-0 opl3sa2
+alias sound-service-0-0 opl3sa2
+alias midi opl3
+options opl3 io=0x388
+options opl3sa2 mss_io=0x530 irq=5 dma=1 dma2=0 mpu_io=0x330 io=0x370
+isapnp=0
+
+Any idea???
+
+Answer please with a CC to vanswol@nlr.nl
+Regards,
+Rob
+
+
+_____________________________________________________________
+
+Rob W. van Swol
+National Aerospace Laboratory NLR       Tel. +31 527 248252
+P.O. Box 153                            Fax  +31 527 248210
+8300 AD Emmeloord                       E-Mail vanswol@nlr.nl
+The Netherlands                         http://www.neonet.nl/
+

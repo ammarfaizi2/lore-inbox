@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263656AbREYIkj>; Fri, 25 May 2001 04:40:39 -0400
+	id <S263655AbREYIjt>; Fri, 25 May 2001 04:39:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263657AbREYIkb>; Fri, 25 May 2001 04:40:31 -0400
-Received: from ns.suse.de ([213.95.15.193]:4100 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S263656AbREYIkX>;
-	Fri, 25 May 2001 04:40:23 -0400
-Date: Fri, 25 May 2001 10:39:21 +0200
-From: Andi Kleen <ak@suse.de>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Andi Kleen <ak@suse.de>, Andreas Dilger <adilger@turbolinux.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] large stack variables (>=1K) in 2.4.4 and 2.4.4-ac8
-Message-ID: <20010525103921.A26630@gruyere.muc.suse.de>
-In-Reply-To: <20010525102015.C26038@gruyere.muc.suse.de> <26599.990779480@ocs3.ocs-net>
+	id <S263656AbREYIjj>; Fri, 25 May 2001 04:39:39 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:40712 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S263655AbREYIjb>; Fri, 25 May 2001 04:39:31 -0400
+Date: Fri, 25 May 2001 10:39:07 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: David Weinehall <tao@acc.umu.se>, Mike Galbraith <mikeg@wen-online.de>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC][PATCH] Re: Linux 2.4.4-ac10
+Message-ID: <20010525103907.H29793@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20010521223212.C4934@khan.acc.umu.se> <Pine.LNX.4.33.0105231233070.311-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <26599.990779480@ocs3.ocs-net>; from kaos@ocs.com.au on Fri, May 25, 2001 at 06:31:20PM +1000
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <Pine.LNX.4.33.0105231233070.311-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Wed, May 23, 2001 at 12:34:04PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 25, 2001 at 06:31:20PM +1000, Keith Owens wrote:
-> That is exactly what I said above, a separate fault task with its own
-> stack for every cpu.  But there is no point in doing this to detect a
-> hardware stack overflow when the overflow has already corrupted the
-> struct task which is at the bottom of the stack segment.
+Hi!
 
-You can at least get a backtrace, which is useful enough.
-
+> > IMVHO every developer involved in memory-management (and indeed, any
+> > software development; the authors of ntpd comes in mind here) should
+> > have a 386 with 4MB of RAM and some 16MB of swap. Nowadays I have the
+> > luxury of a 486 with 8MB of RAM and 32MB of swap as a firewall, but it's
+> > still a pain to work with.
 > 
-> To get any benefit from hardware detection of kernel stack overflow you
-> must also dedicate the stack segment to hold only stack data.  That
-> means moving struct task to yet another page, adding an extra page per
-> task.  It is just too expensive, we write better code than that.
+> You're absolutely right. The smallest thing I'm testing with
+> on a regular basis is my dual pentium machine, booted with
+> mem=8m or mem=16m.
+> 
+> Time to hunt around for a 386 or 486 which is limited to such
+> a small amount of RAM ;)
 
-Ah this was a misunderstanding. I was just talking about plain recovery
-from stack faults; not from hardware stack overflow detection. Even without
-wather tight overflow detection they happen often enough and usually not
-too long after a stack page overflow.
-
-
-
-
--Andi
+Buy agenda handheld: 16MB flash, 8MB ram, X, size of palm. It is
+definitely more sexy machine than average 486. [Or get philips velo 1,
+if you want keyboard ;-)]
+								Pavel
+-- 
+The best software in life is free (not shareware)!		Pavel
+GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+

@@ -1,38 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265181AbUFHDFk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265163AbUFHDL7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265181AbUFHDFk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 23:05:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265175AbUFHDFj
+	id S265163AbUFHDL7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 23:11:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265170AbUFHDL7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 23:05:39 -0400
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:62801 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265163AbUFHDFj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 23:05:39 -0400
-Message-ID: <40C52CFF.4080207@yahoo.com.au>
-Date: Tue, 08 Jun 2004 13:05:35 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Mon, 7 Jun 2004 23:11:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:42631 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265163AbUFHDL5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 23:11:57 -0400
+Date: Mon, 7 Jun 2004 23:11:54 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Phy Prabab <phyprabab@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: VM in 2.6
+In-Reply-To: <20040607203343.64863.qmail@web51809.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.44.0406072311480.30948-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Phy Prabab <phyprabab@yahoo.com>, kernel@kolivas.org,
-       linux-kernel@vger.kernel.org, zwane@linuxpower.ca, wli@holomorphy.com
-Subject: Re: [PATCH] Staircase Scheduler v6.3 for 2.6.7-rc2
-References: <200406080712.44759.kernel@kolivas.org>	<20040607214034.27475.qmail@web51807.mail.yahoo.com> <20040607195011.34f8e84e.akpm@osdl.org>
-In-Reply-To: <20040607195011.34f8e84e.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Mon, 7 Jun 2004, Phy Prabab wrote:
 
-> At a guess I'd say either a) you're hitting some path in the kernel which
-> is going for a giant and bogus romp through memory, trashing CPU caches or
-> b) your workload really dislikes run-child-first-after-fork or c) the page
-> allocator is serving up pages which your access pattern dislikes or d)
-> something else.
-> 
+> The default layout for the vm in 2.6 is 3G/1G
+> user/kernel space?
 
-e) it's the staircase scheduler patch?
+Yes.
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261850AbUDNVdl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 17:33:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbUDNVdk
+	id S261851AbUDNVh0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 17:37:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUDNVh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 17:33:40 -0400
-Received: from havoc.gtf.org ([216.162.42.101]:51935 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S261850AbUDNVdj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 17:33:39 -0400
-Date: Wed, 14 Apr 2004 17:33:36 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] conditionalize some boring buffer_head checks
-Message-ID: <20040414213336.GC30663@havoc.gtf.org>
-References: <407CEB91.1080503@pobox.com> <20040414005832.083de325.akpm@osdl.org> <20040414010240.0e9f4115.akpm@osdl.org> <407CF201.408@pobox.com> <20040414011653.22c690d9.akpm@osdl.org> <407CFFF9.5010500@pobox.com> <20040414212539.GE1175@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 14 Apr 2004 17:37:26 -0400
+Received: from [62.241.33.80] ([62.241.33.80]:3602 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S261851AbUDNVgF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 17:36:05 -0400
+From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
+Organization: Linux-Systeme GmbH
+To: linux-kernel@vger.kernel.org
+Subject: Re: [SECURITY] CAN-2004-0075 (was: Re: [SECURITY] CAN-2004-0109 isofs fix.)
+Date: Wed, 14 Apr 2004 23:34:45 +0200
+User-Agent: KMail/1.6.1
+Cc: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, greg@kroah.com
+References: <20040414171147.GB23419@redhat.com> <200404142230.33553@WOLK> <20040414204701.GA1034@redhat.com>
+In-Reply-To: <20040414204701.GA1034@redhat.com>
+X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040414212539.GE1175@waste.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404142334.45518@WOLK>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 14, 2004 at 04:25:39PM -0500, Matt Mackall wrote:
-> Sticking this in arch/*/Kconfig seems silly (as does much of the
-> duplication in said files). Can we stick this and other debug bits
-> under the kallsyms option in init/Kconfig instead? Or alternately move
-> debugging bits into their own file that gets included as appropriate.
+On Wednesday 14 April 2004 22:47, Dave Jones wrote:
 
-I would rather have an arch/generic/Kconfig.debug file that gets
-included.  init/Kconfig may be generic, but its name hardly implies its
-purpose as used.
+Hey Dave,
 
-There are clearly two classes of debug options, one arch-specific, and
-one not.
+>  > Okay, now while we are at fixing security holes, is there any chance we
+>  > can _finally_ get the attached patch in?
 
-	Jeff
+> Ugh, that's still lingering? I thought that was sitting in Greg's
+> to-be-merged tree, or had been merged already. Good job you've kept on this
+> one.
 
+yep, still lingering. ... But Greg picked it up now and merged it :)
 
+ciao, Marc
 

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315374AbSEYVpH>; Sat, 25 May 2002 17:45:07 -0400
+	id <S315416AbSEYVvt>; Sat, 25 May 2002 17:51:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315415AbSEYVpG>; Sat, 25 May 2002 17:45:06 -0400
-Received: from dsl-213-023-040-043.arcor-ip.net ([213.23.40.43]:41680 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S315374AbSEYVpG>;
-	Sat, 25 May 2002 17:45:06 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Wolfgang Denk <wd@denx.de>, Larry McVoy <lm@bitmover.com>
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-Date: Sat, 25 May 2002 23:44:52 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020525212053.5B88A11972@denx.denx.de>
+	id <S315417AbSEYVvs>; Sat, 25 May 2002 17:51:48 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15366 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315416AbSEYVvs>; Sat, 25 May 2002 17:51:48 -0400
+Message-ID: <3CF0075A.6030906@zytor.com>
+Date: Sat, 25 May 2002 14:51:22 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020524
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17BjLI-0003oa-00@starship>
+To: Lionel Bouton <Lionel.Bouton@inet6.fr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: isofs unhide option:  troubles with Wine
+In-Reply-To: <1022301029.2443.28.camel@jwhiteh> <acopak$1th$1@penguin.transmeta.com> <acosbi$2lr$1@cesium.transmeta.com> <20020525232044.B18560@bouton.inet6-interne.fr>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 25 May 2002 23:20, Wolfgang Denk wrote:
-> In message <20020525140532.A11297@work.bitmover.com> you wrote:
-> >
-> > > Yes, of course it was a fork at a very early point  of  the  develop-
-> > > ment. So what? Nobody denies that RTAI is based on the same core idea
-> > > as RT-Linux - that's why the RT-Linux patent _is_ an issue to RTAI.
-> > 
-> > s/same core idea/same core code/
-> > 
-> > Go search around, get the code you can still find on the net and start
-> > diffing.  So not only do the RTAI people have an issue with the patent,
-> > it looks like they'd better be conforming to the GPL as well.  Didn't
+Lionel Bouton wrote:
+> On Sat, May 25, 2002 at 01:31:46PM -0700, H. Peter Anvin wrote:
 > 
-> Ummm, please do not start spreading FUD. Instead  of  making  such  a
-> claim,  please  be  specific,  and  show  such  "substantial parts of
-> RT/Linux" code!
+>>[...]
+>>I think we should just dump the hidden bit; if someone wants it they
+>>can ioctl() for it.
+>>
+> 
+> 
+> I didn't know we could and couldn't find how from a quick look-through in
+> fs/. Is the ioctl really implemented ? If so where should I look ?
+> That would be good news for Wine as they would have a way to populate the
+> flags member of the struct.
+> 
 
-Twice, Larry has ignored the challenge to provide specific examples that
-support his claim that substantial parts of RTLinux have been incorporated
-into the RTAI code, and instead has responded to other points in the same
-posts.
+I don't think it's there now.  We should add it, though.
 
-My tentative conclusion is that Larry is unable to support his claim.
+	-hpa
 
--- 
-Daniel
+

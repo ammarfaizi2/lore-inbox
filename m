@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319506AbSIGStI>; Sat, 7 Sep 2002 14:49:08 -0400
+	id <S319509AbSIGTmV>; Sat, 7 Sep 2002 15:42:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319507AbSIGStI>; Sat, 7 Sep 2002 14:49:08 -0400
-Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:14555 "EHLO
-	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S319506AbSIGStH>; Sat, 7 Sep 2002 14:49:07 -0400
-Date: Sat, 7 Sep 2002 15:53:26 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: LMbench2.0 results
-In-Reply-To: <3D79F0CC.6000702@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.44L.0209071553020.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S319510AbSIGTmV>; Sat, 7 Sep 2002 15:42:21 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:22500 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S319509AbSIGTmU>;
+	Sat, 7 Sep 2002 15:42:20 -0400
+Date: Sat, 7 Sep 2002 15:47:00 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Daniel Phillips <phillips@arcor.de>, Rusty Russell <rusty@rustcorp.com.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Question about pseudo filesystems
+In-Reply-To: <20020907192736.A22492@kushida.apsleyroad.org>
+Message-ID: <Pine.GSO.4.21.0209071544090.23598-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Sep 2002, Jeff Garzik wrote:
-> Paolo Ciarrocchi wrote:
-> > Comments?
->
-> Yeah:  "ouch" because I don't see a single category that's faster.
 
-HZ went to 1000, which should help multimedia latencies a lot.
 
-> Oh well, it still needs to be tuned....
+On Sat, 7 Sep 2002, Jamie Lokier wrote:
 
-For throughput or for latency ? ;)
+> Alexander Viro wrote:
+> > If your rules are "it's pinned as long as there are opened files created
+> > by foo()" - very well, there are two variants.  The basic idea is the same
+> > - have sum of ->mnt_count for all vfsmounts of our type bumped whenever we
+> > call foo() and drop whenever final fput() is done on a file created by foo().
+> 
+> Thanks -- that's what I implemented, except I used a semaphore instead
+> of a spinlock.
+> 
+> I wanted to check that it's safe to call `mntput' from `->release()',
+> which seems like quite a dubious thing to depend on.  But if you say it
+> is safe, that's cool.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+It is neither safe nor needed.  Please, look at the previous posting again -
+neither variant calls mntput() in ->release().
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
+Now, __fput() _does_ call mntput() - always.  And yes, if that happens to
+be the final reference - it's OK.
 

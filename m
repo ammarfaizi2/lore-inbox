@@ -1,40 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267268AbUBMWxy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 17:53:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267277AbUBMWxy
+	id S267167AbUBMXaq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 18:30:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267197AbUBMXaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 17:53:54 -0500
-Received: from pop.gmx.net ([213.165.64.20]:60875 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S267268AbUBMWvq (ORCPT
+	Fri, 13 Feb 2004 18:30:46 -0500
+Received: from fw.osdl.org ([65.172.181.6]:64721 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267167AbUBMXao (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 17:51:46 -0500
-X-Authenticated: #20450766
-Date: Fri, 13 Feb 2004 23:39:53 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Brad Cramer <bcramer@callahanfuneralhome.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: sym53c8xx_2 driver and tekram dc-390u2w kernel-2.6.x
-In-Reply-To: <004e01c3f243$8eadc7b0$6501a8c0@office>
-Message-ID: <Pine.LNX.4.44.0402132334460.4537-100000@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 13 Feb 2004 18:30:44 -0500
+Subject: Re: [PATCH 2.6.3-rc2-mm1] __block_write_full patch
+From: Daniel McNeil <daniel@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040213143836.0a5fdabb.akpm@osdl.org>
+References: <20040212015710.3b0dee67.akpm@osdl.org>
+	 <1076707830.1956.46.camel@ibm-c.pdx.osdl.net>
+	 <20040213143836.0a5fdabb.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1076715039.1956.104.camel@ibm-c.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 13 Feb 2004 15:30:39 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Feb 2004, Brad Cramer wrote:
+On Fri, 2004-02-13 at 14:38, Andrew Morton wrote:
 
->  I can not get my scsi hd to work with my tekram dc-390u2w controller and
-> the sym53c8xx_2 driver under kernel-2.6.2. Everything works great using
-> kernel-2.4.28 and sym53c8xx driver so I know this is not a hardware issue
-> with the disk. I have built the sym53c8xx_2 driver into the kernel and have
+> My suspicion is that the real problem is that mpage_writepages() moved the
+> page onto mapping->locked_pages while there is buffer-level I/O in flight
+> (that's OK).  But PG_writeback is not set because writepage never started
+> any I/O.  So filemap_fdatawait() never waits for the ext3-initiated
+> buffer-level I/O.
 
-Can you send your dmesg output when attempting to boot a 2.6.x kernel? You
-might want to move (or, at least, CC) this discussion to the linux-scsi
-(linux-scsi@vger.kernel.org) list.
 
-Guennadi
----
-Guennadi Liakhovetski
+kjournald was calling ll_rw_block() with a bunch of bh's and
+PG_writeback was not set.
+
+A subsequent __block_write_full_page()  with the
+page locked, sees that none of the bh(s) for that page
+are dirty.  PG_PageWriteback would be set, unlock_page()
+and then see no buffers to submit, so clear PG_Page_Writeback
+(but buffer i/o still in flight).  filemap_fdatawait() has
+nothing to wait for.
+
+I think we agree.
+
+> 
+> If so, there are several ways to fix this:
+
+> c) Change __block_write_full_page() to move the page back onto
+>    mapping->dirty_pages if it was WB_SYNC_NONE and we discovered that the
+>    page had a locked buffer.  This way, a subsequent WB_SYNC_ALL will
+>    correctly wait on that buffer.
+> 
+> Try c), please?
+
+No problem.  I will code this up and give it a try.
+
+My only concern is that a racing mpage_writepages(WB_SYNC_NONE)
+with a mpage_write_pages(WB_SYNC_ALL) from a filemap_write_and_wait. 
+Both could be processing the io_pages list, if the
+mpage_writepages(WB_SYNC_NONE) moves a page that has locked buffers 
+back to the dirty_pages list, then when the filemap_write_and_wait()
+calls filemap_fdatawait, it will not wait for the page moved back
+to the dirty list.
+
+I'll code up the change and run my tests and let you know what happens.
+
+Thanks,
+
+Daniel
 
 

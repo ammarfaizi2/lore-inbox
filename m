@@ -1,45 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267295AbSLELUL>; Thu, 5 Dec 2002 06:20:11 -0500
+	id <S267292AbSLELbZ>; Thu, 5 Dec 2002 06:31:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267297AbSLELUL>; Thu, 5 Dec 2002 06:20:11 -0500
-Received: from kiruna.synopsys.com ([204.176.20.18]:61941 "HELO
-	kiruna.synopsys.com") by vger.kernel.org with SMTP
-	id <S267295AbSLELUK>; Thu, 5 Dec 2002 06:20:10 -0500
-Date: Thu, 5 Dec 2002 12:24:21 +0100
-From: Alex Riesen <Alexander.Riesen@synopsys.com>
-To: Ingo Molnar <mingo@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Sean Neakums <sneakums@zork.net>
-Subject: Re: world read permissions on /proc/irq/prof_cpu_mask and ...smp_affinity
-Message-ID: <20021205112421.GG26745@riesen-pc.gr05.synopsys.com>
-Reply-To: Alexander.Riesen@synopsys.com
-References: <20021203114938.GD26745@riesen-pc.gr05.synopsys.com> <Pine.LNX.4.44.0212041036001.22730-100000@devserv.devel.redhat.com>
+	id <S267296AbSLELbZ>; Thu, 5 Dec 2002 06:31:25 -0500
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:31493 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S267292AbSLELbY>; Thu, 5 Dec 2002 06:31:24 -0500
+Date: Thu, 5 Dec 2002 12:38:48 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Alexander.Riesen@synopsys.com, Matthias Andree <matthias.andree@gmx.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: #! incompatible -- binfmt_script.c broken?
+Message-ID: <20021205113848.GC15405@merlin.emma.line.org>
+Mail-Followup-To: Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Alexander.Riesen@synopsys.com, linux-kernel@vger.kernel.org
+References: <Alexander.Riesen@synopsys.com> <20021204142628.GE26745@riesen-pc.gr05.synopsys.com> <200212050042.gB50ga4C001486@eeyore.valparaiso.cl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0212041036001.22730-100000@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4i
-Organization: Synopsys, Inc.
+In-Reply-To: <200212050042.gB50ga4C001486@eeyore.valparaiso.cl>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2002 at 10:37:01AM -0500, Ingo Molnar wrote:
-> > Is there any reason to set the permissions to 0600?
-> > It makes the admin to login as root just to look on the
-> > current system state.
-> > Is there something against 0644?
+On Wed, 04 Dec 2002, Horst von Brand wrote:
+
+> Alex Riesen <Alexander.Riesen@synopsys.com> said:
 > 
-> i've got nothing against 0644, 0600 was just the default paranoid value.  
-> (reading it could in theory mean an IO-APIC read.)
+> [...]
 > 
+> > looks correct. The interpreter (/bin/sh) has got everything after
+> > its name. IOW: "-- # -*- perl -*- -T"
+> > It's just solaris' shell (/bin/sh) just ignores options starting with
+> > "--". And freebsd's as well.
+> 
+> And Linux's too. Try it.
 
-Just found a patch from Olaf Dietsche (2.5.40: fix chmod/chown on procfs).
-Quote:
-  This patch allows to change uid, gid and mode of files and directories
-  located in procfs.
+Is there the "Linux's /bin/sh"? I believe most distributions use GNU
+bash for /bin/sh, and that certainly does NOT ignore these, but parse.
 
-The patch was accepted 2.5.
+The problem is that binfmt_script.c does not split the remainder of the
+line at whitespace.
 
-This perfectly solves the problem, and in very clean way, i think.
+Assuming your current working directory does not have files that match
+-*-:
 
--alex
+$ /bin/sh '-- # -*- perl -*- -T'
+/bin/sh: -- # -*- perl -*- -T: invalid option
+Usage:  /bin/sh [GNU long option] [option] ...
+        /bin/sh [GNU long option] [option] script-file ...
+GNU long options:
+        --debug
+...
+
+$ /bin/bash -- # -*- perl -*- -T
+$ 
+
+$ /usr/bin/ksh '-- # -*- perl -*- -T'
+/usr/bin/ksh: /usr/bin/ksh: --: unknown option
+
+$ /usr/bin/ksh -- # -*- perl -*- -T
+$
+
+$ /usr/bin/zsh '-- # -*- perl -*- -T'
+/usr/bin/zsh: no such option:  # _*_ perl _*_ _T
+
+$ /usr/bin/zsh -- # -*- perl -*- -T
+$
+
+-- 
+Matthias Andree

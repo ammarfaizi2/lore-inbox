@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265293AbUHRLKg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264984AbUHRLOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265293AbUHRLKg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 07:10:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265317AbUHRLKf
+	id S264984AbUHRLOy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 07:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265317AbUHRLOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 07:10:35 -0400
-Received: from gwout.thalesgroup.com ([195.101.39.227]:25350 "EHLO
-	GWOUT.thalesgroup.com") by vger.kernel.org with ESMTP
-	id S265293AbUHRLKd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 07:10:33 -0400
-Message-ID: <41233923.80202@fr.thalesgroup.com>
-Date: Wed, 18 Aug 2004 13:10:27 +0200
-From: "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
-Reply-To: pierre-olivier.gaillard@fr.thalesgroup.com
-Organization: Thales Air Defence
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: voluntary-preempt-2.6.8.1-P1 seems to lose UDP messages.
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 18 Aug 2004 07:14:54 -0400
+Received: from mail.humboldt.co.uk ([81.2.65.18]:26562 "EHLO
+	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S264984AbUHRLOw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 07:14:52 -0400
+Subject: Re: [PATCH][2.4.27] PowerPC 745x data corruption bug fix
+From: Adrian Cox <adrian@humboldt.co.uk>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@lists.linuxppc.org, paulus@samba.org
+In-Reply-To: <20040816170534.GA7303@smtp.west.cox.net>
+References: <200408161004.i7GA48fY002331@harpo.it.uu.se>
+	 <20040816170534.GA7303@smtp.west.cox.net>
+Content-Type: text/plain
+Message-Id: <1092827448.10314.10.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 18 Aug 2004 12:10:48 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 2004-08-16 at 18:05, Tom Rini wrote:
+> On Mon, Aug 16, 2004 at 12:04:08PM +0200, Mikael Pettersson wrote:
 
-I have a real-time application that transmits 20 MBytes/s over UDP/Gigabit 
-Ethernet between 2 PCs. The NICs are from Intel and use the e1000 driver 
-(MTU=1500). On the receive side, the computer has to process the data (real-time 
-tasks doing signal processing work and using up 50% of the CPU time).
+> > So previously a CPU got _PAGE_COHERENT on SMP.
+> > Now a CPU gets _PAGE_COHERENT on (SMP || 745x).
+> > 
+> > I suspect the CONFIG_MPC10X_BRIDGE is an attempt to enable
+> > the fix in some other cases too.
+> 
+> The reason CPU_FTR_NEED_COHERENT was added was to work around an MPC107
+> (now Tsi107) errata.  See
+> http://216.239.57.104/search?q=cache:1MDn1X8ieUUJ:www.geocrawler.com/archives/3/8358/2002/9/100/9559482/+%22Adrian+Cox%22+errata&hl=en
+> (original is conn refused right now).
 
-This app works OK with 2.6.7 and 2.6.8.1 : the app does not complain about lost 
-messages.
+I've now written some notes to explain these issues, in case it comes up
+again:
+http://www.humboldt.co.uk/Notes/mpc107cache.html
 
-But when I use the voluntary-preemt-2.6.8.1-P1 patch on the receiving PC, the 
-app starts complaining about lost messages. And also, netstat -s -u shows that 
-lots of UDP packets are lost (on the PC that receives the data).
-[root@centaurus root]# netstat -u -s
-Udp:
-     8433 packets received
-     0 packets to unknown port received.
-     869 packet receive errors
-     366 packets sent
-
-I have already retried with the e1000 parameters RxIntDelay=0 and 
-RxDescriptors=1024. This did not improve anything.
-
-Note: I don't see any error message with dmesg nor in /var/log/messages.
-
-I find the voluntary-preempt series very important and would really like it to 
-make its way into the stock kernel. I would therefore gladly make additional 
-tests to help you find the problem. Please give me directions.
-
-
-	thanks for your help,
-
-	P.O. Gaillard
+- Adrian Cox
+Humboldt Solutions Ltd.
 
 

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274222AbRIXWkK>; Mon, 24 Sep 2001 18:40:10 -0400
+	id <S274224AbRIXWoa>; Mon, 24 Sep 2001 18:44:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274223AbRIXWkA>; Mon, 24 Sep 2001 18:40:00 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:3770 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S274222AbRIXWjv>;
-	Mon, 24 Sep 2001 18:39:51 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Mon, 24 Sep 2001 16:39:49 -0600
-To: Andrew Morton <akpm@zip.com.au>
-Cc: J Troy Piper <jtp@dok.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: ext3-2.4-0.9.10
-Message-ID: <20010924163949.K14526@turbolinux.com>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	J Troy Piper <jtp@dok.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010924163546.C244@dok.org> <3BAFABA9.9A8DD1B4@zip.com.au>
+	id <S274225AbRIXWoU>; Mon, 24 Sep 2001 18:44:20 -0400
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:39952 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S274224AbRIXWoH>; Mon, 24 Sep 2001 18:44:07 -0400
+Date: Tue, 25 Sep 2001 00:44:31 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: David Grant <davidgrant79@hotmail.com>, Greg Ward <gward@python.net>,
+        bugs@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: Re: "hde: timeout waiting for DMA": message gone, same behaviour
+Message-ID: <20010925004431.A197@suse.cz>
+In-Reply-To: <20010921150806.A2453@gerg.ca> <20010921154903.A621@gerg.ca> <20010921215622.A1282@suse.cz> <20010921164304.A545@gerg.ca> <20010922100451.A2229@suse.cz> <OE3183UV8wAddX47sFo00001649@hotmail.com> <20010922110945.B678@gerg.ca> <OE48GTjkifTNRMOKS310000192c@hotmail.com> <20010924103544.A1572@suse.cz> <m1k7yo77v7.fsf@frodo.biederman.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3BAFABA9.9A8DD1B4@zip.com.au>
-User-Agent: Mutt/1.3.20i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m1k7yo77v7.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Mon, Sep 24, 2001 at 12:37:32PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 24, 2001  14:54 -0700, Andrew Morton wrote:
-> > Any more progress on my journal_revoke BUG?  Strangely enough, I've been
-> > mounting the drives as ext2 to try and avoid the errors, but I *STILL* hit
-> > the BUG when untar'ing a large file, or compiling a large file (ie. kernel
-> > source), which is somewhat unnerving.
+On Mon, Sep 24, 2001 at 12:37:32PM -0600, Eric W. Biederman wrote:
+
+> > The PnP stuff is for ISA PnP cards. If you don't have those, it's
+> > irrelevant. When "PnP OS Installed" is set to "No", the BIOS does the
+> > ISAPnP initialization. If it is set to "Yes", it skips that step. Linux
+> > prefers to have the ISAPnP cards pre-initialized, though it can do it
+> > all by itself.
 > 
-> That should have been fixed in 0.9.9????
+> "PnP OS Installed" applies to PCI as well as ISA PnP.  The rule is
+> something like all possible boot devices must be initialized but that
+> is all. 
 
-If the problem happens under ext2 as well, it is not a journal_revoke BUG
-(or at least it shouldn't be...).  Can you post the OOPS output (after
-running it through ksymoops of course) WHEN RUNNING WITH EXT2.  It may be
-that there is a bug lurking somewhere else also, and you just happen to
-be lucky enough to find both.
+Well, I know of no BIOS that would, with PnP OS Installed set to Yes not
+configure all PCI cards in the system.
 
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
-
+-- 
+Vojtech Pavlik
+SuSE Labs

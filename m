@@ -1,89 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317058AbSGXMhp>; Wed, 24 Jul 2002 08:37:45 -0400
+	id <S317181AbSGXMqc>; Wed, 24 Jul 2002 08:46:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317059AbSGXMhp>; Wed, 24 Jul 2002 08:37:45 -0400
-Received: from reload.namesys.com ([212.16.7.75]:37265 "EHLO
-	reload.namesys.com") by vger.kernel.org with ESMTP
-	id <S317058AbSGXMhn>; Wed, 24 Jul 2002 08:37:43 -0400
-Date: Wed, 24 Jul 2002 16:40:54 +0400
-From: Joshua MacDonald <jmacd@namesys.com>
-To: Jakob Oestergaard <jakob@unthought.net>, linux-kernel@vger.kernel.org
-Subject: Re: type safe lists (was Re: PATCH: type safe(r) list_entry repacement: generic_out_cast)
-Message-ID: <20020724124054.GO11106@reload.namesys.com>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	linux-kernel@vger.kernel.org
-References: <15677.33040.579042.645371@laputa.namesys.com> <20020723220745.GD2090@reload.namesys.com> <20020724122232.GT11081@unthought.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20020724122232.GT11081@unthought.net>
-User-Agent: Mutt/1.3.27i
+	id <S317182AbSGXMqc>; Wed, 24 Jul 2002 08:46:32 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:5837 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S317181AbSGXMqb>; Wed, 24 Jul 2002 08:46:31 -0400
+Date: Wed, 24 Jul 2002 14:49:18 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jens Axboe <axboe@suse.de>
+cc: <martin@dalecki.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: please DON'T run 2.5.27 with IDE!
+In-Reply-To: <20020724124124.GA15201@suse.de>
+Message-ID: <Pine.SOL.4.30.0207241446130.15605-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 24, 2002 at 02:22:32PM +0200, Jakob Oestergaard wrote:
-> On Wed, Jul 24, 2002 at 02:07:45AM +0400, Joshua MacDonald wrote:
-> ...
-> > This may interest you.  We have written a type-safe doubly-linked list
-> > template which is used extensively in reiser4.  This is the kind of thing that
-> > some people like very much and some people hate, so I'll spare you the
-> > advocacy.
-> 
-> Ok, here's my comments:
-> 
-> *) Using macros like that is ugly as hell, but as I see it it is the
-> only way to achieve type safety in such generic code.  If the ugliness
-> is confined to one header file, and possibly one .c file containing the
-> needed instantiations, I would argue that the ugliness is bearable.  In
-> other words, I think your solution is the prettiest one possible.
-> 
-> Since all list routines right now are extremely simple, it's probably ok
-> to just have it all in a header. If larger routines are added later on,
-> it may be desirable to create a .c file holding the needed (macro
-> instantiated) routines. In that case, the following applies:
-> 
-> *) I would suggest making one list_instances.c which holds all the
-> INSTANTIATE... definitions of the list types needed in the kernel. This
-> way we will avoid having two list codes generated for the same type (an
-> easy accident to make with the macro approach)
-> *) You would have to somehow separate the "simple" routines which should
-> be inlined, and the larger ones which should remain function calls. This
-> would mean that a .c file using the list header would have the inline
-> functions declared in the list header (using static inline so unused
-> routines won't bloat the .o), and find it's larger out-of-line routines
-> in the global list .o.
-> 
-> The reason I'm suggesting doing the above instead of simply
-> instantiating a list implementation for each type needed, whenever it is
-> needed, is simply to avoid code bloat.
-> 
-> My only comment for the code would be to require that the link from the
-> element into the list would always be called "rx_list_backlink" or
-> whatever (if the list name is "rx_list") - the freedom you have in
-> specifying what the LINK_NAME is, is useless as I see it, and only adds
-> to the confusion.
 
-Jakob,
+On Wed, 24 Jul 2002, Jens Axboe wrote:
 
-These are fine suggestions.  The debug-only list invariants, the splice
-function, and possibly others are definetly candidates for non-static-inline
-inclusion.  A single list_instances.c file makes a lot of sense (except for
-modules--maybe?), and you are right that LINK_NAME is basically useless.
+> On Wed, Jul 24 2002, Bartlomiej Zolnierkiewicz wrote:
+> > > void blk_start_queue(request_queue_t *q)
+> > > {
+> > >          if (test_bit(QUEUE_FLAG_STOPPED, &q->queue_flags)) {
+> > >                  unsigned long flags;
+> > >
+> > > ================== possigle race here for qeue_flags BTW.
+> > >
+> > >                  spin_lock_irqsave(q->queue_lock, flags);
+> > >                  clear_bit(QUEUE_FLAG_STOPPED, &q->queue_flags);
+> > >
+> > >                  if (!elv_queue_empty(q))
+> > >                          q->request_fn(q);
+> > > ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> > > If we call it from within request_fn then if this isn't recursion on the
+> > > kernel stack then I don't know...
+> >
+> > You really don't know.
+> >
+> > And funny thing is I have diffirent blk_start_queue() function in my tree
+> > (2.5.27) ? Without described above race and without possibilty of
+> > recursion...
+> >
+> > 2.5.27:drivers/block/ll_rw_blk.c
+> > void blk_start_queue(request_queue_t *q)
+> > {
+> >         if (test_and_clear_bit(QUEUE_FLAG_STOPPED, &q->queue_flags)) {
+> >                 unsigned long flags;
+> >
+> >                 spin_lock_irqsave(q->queue_lock, flags);
+> >                 if (!elv_queue_empty(q))
+> >                         q->request_fn(q);
+> >                 spin_unlock_irqrestore(q->queue_lock, flags);
+> >         }
+> > }
+>
+> Yep, the version Martin posted must be really old.
 
-Since this code is already part of reiser4, it is likely to be crititically
-reviewed again when Hans begins his push.  I will fix the LINK_NAME issue and
-change the reiser4-specific assert() calls to generic ones.  We welcome
-feedback.
+It's worst. Martin's version exists only in his tree (mind?).
+I checked back revision and blk_start_queue() was inroduced in 2.5.19
+and it was the correct one.
 
--josh
+> --
+> Jens Axboe
 
 
-> -- 
-> ................................................................
-> :   jakob@unthought.net   : And I see the elder races,         :
-> :.........................: putrid forms of man                :
-> :   Jakob Østergaard      : See him rise and claim the earth,  :
-> :        OZ9ABN           : his downfall is at hand.           :
-> :.........................:............{Konkhra}...............:

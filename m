@@ -1,48 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288950AbSATTZJ>; Sun, 20 Jan 2002 14:25:09 -0500
+	id <S288951AbSATTZJ>; Sun, 20 Jan 2002 14:25:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288952AbSATTZA>; Sun, 20 Jan 2002 14:25:00 -0500
-Received: from femail45.sdc1.sfba.home.com ([24.254.60.39]:8374 "EHLO
-	femail45.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S288951AbSATTYy>; Sun, 20 Jan 2002 14:24:54 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Pavel Machek <pavel@suse.cz>, Helge Hafting <helgehaf@aitel.hist.no>
-Subject: Re: Preempt & how long it takes to interrupt (was Re: [2.4.17/18pre] VM and swap - it's really unusable)
-Date: Sun, 20 Jan 2002 06:22:47 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <3C42CA59.F070C2B8@aitel.hist.no> <20020118224140.GI6918@elf.ucw.cz>
-In-Reply-To: <20020118224140.GI6918@elf.ucw.cz>
+	id <S288953AbSATTZA>; Sun, 20 Jan 2002 14:25:00 -0500
+Received: from mx2out.umbc.edu ([130.85.253.52]:62364 "EHLO mx2out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S288950AbSATTYu>;
+	Sun, 20 Jan 2002 14:24:50 -0500
+Date: Sun, 20 Jan 2002 14:24:40 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+cc: Andrew Morton <akpm@zip.com.au>,
+        Richard Guenther <rguenth@tat.physik.uni-tuebingen.de>,
+        Oliver Paukstadt <pstadt@stud.fh-heilbronn.de>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>,
+        <linux-raid@vger.kernel.org>
+Subject: Re: 2.4.17 RAID-1 EXT3  reliable to hang....
+In-Reply-To: <20020120193141.A1112@mea-ext.zmailer.org>
+Message-ID: <Pine.SGI.4.31L.02.0201201422500.1767115-100000@irix2.gl.umbc.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020120192453.GVRA23469.femail45.sdc1.sfba.home.com@there>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 January 2002 05:41 pm, Pavel Machek wrote:
+Really?
 
-> So... how long do you have to stay in interrupt for it to be a bug?
+Software raid?
+
+I have a quad ppro that is doing ext3/md just fine, and its running
+2.4.17.
+
+On Sun, 20 Jan 2002, Matti Aarnio wrote:
+
+> Date: Sun, 20 Jan 2002 19:31:41 +0200
+> From: Matti Aarnio <matti.aarnio@zmailer.org>
+> To: Andrew Morton <akpm@zip.com.au>
+> Cc: Richard Guenther <rguenth@tat.physik.uni-tuebingen.de>,
+>      Oliver Paukstadt <pstadt@stud.fh-heilbronn.de>,
+>      Linux-Kernel <linux-kernel@vger.kernel.org>, linux-raid@vger.kernel.org
+> Subject: Re: 2.4.17 RAID-1 EXT3  reliable to hang....
 >
-> There's *no* requirement that says "it may not take second to handle
-> an interrupt". Actually I guess that some nasty conditions (UHCI needs
-> reset?) may take that long in interrupt. Oh and actually few releases
-> ago, console switching was done from interrupt and it *did* take 2
-> seconds for me.
+> On Mon, Jan 07, 2002 at 02:09:29AM -0800, Andrew Morton wrote:
+> ...
+> > I spent *ages* on the ext3 buffer writeout code and it's still not
+> > ideal.  Can you test with this patch applied?
+> >
+> > http://www.zipworld.com.au/~akpm/linux/2.4/2.4.18-pre1/mini-ll.patch
+> >
+> > It should go into 2.4.17 OK.
 >
-> If someone assumes interrupts are "short", he has broken code already.
+>    I just tried this into  2.4.18-pre4  and it still hard-hangs
+>    the RAID-1 + EXT3 on SMP.
+>
+> /Matti Aarnio
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-That kinda defeats the entire purpose of low-latency patches, doesn't it?
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
 
-I'm not entirely certain what Alan's smoking if he's raising the straw man 
-argument of a two second delay dropping 300 packets and causing connections 
-to abort (my sister's on DSL, 5 second dropouts every time the phone rings, 
-but connections continue just fine.  Wouldn't want to play quake under those 
-circumstances, but would I really have the ~200 CPU-hog background threads 
-while playing quake as per Alan's example, and even then the argument is just 
-that either the network driver or the network card is bad...)
-
-Still not as bad an example as Aunt Tillie, I'll grant you...
-
-Rob

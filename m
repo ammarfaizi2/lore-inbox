@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265883AbTFSSYV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 14:24:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265884AbTFSSYV
+	id S265888AbTFSSgH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 14:36:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265889AbTFSSgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 14:24:21 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:10481 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S265883AbTFSSYQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 14:24:16 -0400
-Subject: Re: [patch] setscheduler fix
-From: Robert Love <rml@tech9.net>
-To: Joe Korty <joe.korty@ccur.com>
-Cc: george anzinger <george@mvista.com>,
-       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
-       "'Andrew Morton'" <akpm@digeo.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'mingo@elte.hu'" <mingo@elte.hu>, "Li, Adam" <adam.li@intel.com>
-In-Reply-To: <20030619182057.GA1228@rudolph.ccur.com>
-References: <A46BBDB345A7D5118EC90002A5072C780DD16DB0@orsmsx116.jf.intel.com>
-	 <3EF1DE35.20402@mvista.com> <20030619171950.GA936@rudolph.ccur.com>
-	 <1056044732.8770.39.camel@localhost>
-	 <20030619182057.GA1228@rudolph.ccur.com>
-Content-Type: text/plain
-Message-Id: <1056047890.1066.22.camel@localhost>
+	Thu, 19 Jun 2003 14:36:07 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:18931 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id S265888AbTFSSgF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 14:36:05 -0400
+Date: Thu, 19 Jun 2003 11:49:01 -0700
+From: Chris Wright <chris@wirex.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] PCI device list locking - take 3
+Message-ID: <20030619114901.A23053@figure1.int.wirex.com>
+References: <20030619181412.GA5257@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 19 Jun 2003 11:38:10 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030619181412.GA5257@kroah.com>; from greg@kroah.com on Thu, Jun 19, 2003 at 11:14:12AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-06-19 at 11:20, Joe Korty wrote:
+* Greg KH (greg@kroah.com) wrote:
+> Here's the latest version of the pci list locking patch.  I've taken
+> Chris's comments and addressed them by making sure we don't walk off the
+> end of a deleted device in the pci_find_* and pci_get_* functions.
 
-> Looks good to me.
+Looks good.  Perhaps the pci_proc_detach should be earlier (i.e. before
+list removal) to reflect the order in which things are added.  I'm not
+sure of the dependencies, but seems a good practice anyway.
 
-Good.
-
-> migration_thread and try_to_wake_up already have a simplier version of
-> your test that seems to be correct for that environment, so no change
-> is needed there.
-> 
-> wake_up_forked_process in principle might need your patch, but as it
-> appears to be called only from boot code it is unimportant that it
-> have the lowest possible latency, so no change is needed there either.
-
-Agreed.
-
-This is worse than just a latency issue, by the way. Imagine if a
-FIFO/50 thread promotes a FIFO/40 thread to FIFO/60. The thread should
-run immediately (because, at priority 60, it is the highest), but it may
-not until the FIFO/50 thread completes.
-
-	Robert Love
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

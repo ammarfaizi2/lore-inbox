@@ -1,39 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268292AbTBSBv0>; Tue, 18 Feb 2003 20:51:26 -0500
+	id <S268300AbTBSCBx>; Tue, 18 Feb 2003 21:01:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268293AbTBSBv0>; Tue, 18 Feb 2003 20:51:26 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:20619
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268292AbTBSBvZ>; Tue, 18 Feb 2003 20:51:25 -0500
-Subject: Re: a really annoying feature of the config menu structure
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S268301AbTBSCBx>; Tue, 18 Feb 2003 21:01:53 -0500
+Received: from tomts9.bellnexxia.net ([209.226.175.53]:27592 "EHLO
+	tomts9-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S268300AbTBSCBw>; Tue, 18 Feb 2003 21:01:52 -0500
+Date: Tue, 18 Feb 2003 21:09:10 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
 To: Stephen Wille Padnos <stephen.willepadnos@verizon.net>
-Cc: "Robert P. J. Day" <rpjday@mindspring.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E52DE8B.6040002@verizon.net>
-References: <Pine.LNX.4.44.0302181604310.23007-100000@dell>
-	 <3E52B4CE.7040009@verizon.net>
-	 <1045619804.25795.14.camel@irongate.swansea.linux.org.uk>
-	 <3E52DE8B.6040002@verizon.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045623798.25795.73.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 19 Feb 2003 03:03:19 +0000
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: a really annoying feature of the config menu structure
+In-Reply-To: <3E52DCE6.5090403@verizon.net>
+Message-ID: <Pine.LNX.4.44.0302182059250.25284-100000@dell>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-02-19 at 01:31, Stephen Wille Padnos wrote:
-> It seems that the mjpeg stuff will be in the wrong place when it starts 
-> being used by non-DVB modules.  I see the two (DVB and mjpeg) as 
-> distinct entities - like ethernet drivers and ipv4.  (DVB drivers should 
-> let you change channels and whatnot, mjpeg drivers should allow you to 
-> decode data streams from any available source.)
+On Tue, 18 Feb 2003, Stephen Wille Padnos wrote:
 
-Its more by API than by hardware. One driver sometimes covers cards with
-and without tuners, with and without mpeg hardware and so on. Classification
-is nice, but like biology its never neat
+> Robert P. J. Day wrote:
+
+> >  what has to be avoided is for any of these directories to
+> >give itself a menu label that implies that it's fairly high
+> >up in the food chain, and subsequently leave no way to 
+> >incorporate submenus beneath it.  (see, eg., "Multimedia")
+> >
+> The only change to "drivers/media/Kconfig" was the removal of the menu 
+> and endmenu lines, for exactly the purpose of removing the title.
+
+that's still not good enough.  think about it this way:  every
+directory with related source that makes up a subcomponent of the
+kernel -- I2C, USB, kernel hacking, whatever -- should theoretically
+be under the control of a maintainer.
+
+that maintainer should not only look after patches to the
+code, but should keep the Kconfig file in that directory up
+to date.  ideally, that maintainer should be the ultimate
+authority for *everything* that happens in that directory.
+
+at the top level, whoever organizes the main config menu
+should not have to do any more than source other Kconfig
+files to pull them into the top-level menu.  this gives the
+main config person total freedom to shift around menu entries
+and submenus without *ever* going into one of those lower
+directories and making *any* changes to their contents.
+
+from my perspective, it's not good enough that you only
+had to remove the two menu definition lines -- you shouldn't
+have had to do *anything* in what you can consider someone
+else's directory.  now, assuming that you appreciate that,
+yes, this is a problem, what are the possible solutions?
+
+i can think of a couple solutions, but they require making
+sure everyone agrees on some kind of standard for how maintainers
+are going to manage their Kconfig files so that they're 
+movable at will.
+
+i'll hold off going any further until i'm sure i'm making
+sense here.
+
+rday
 

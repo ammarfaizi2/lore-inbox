@@ -1,135 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274976AbTHAWsN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 18:48:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274978AbTHAWsN
+	id S274975AbTHAWkc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 18:40:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274976AbTHAWkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 18:48:13 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:54288 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S274976AbTHAWsG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 18:48:06 -0400
-Date: Sat, 2 Aug 2003 00:47:53 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.22-pre10
-Message-ID: <20030801224753.GA912@alpha.home.local>
-References: <Pine.LNX.4.44.0308011316490.3656-100000@logos.cnet>
+	Fri, 1 Aug 2003 18:40:31 -0400
+Received: from pcp04570266pcs.jersyc01.nj.comcast.net ([68.39.15.57]:50955
+	"EHLO pig.peterjohanson.com") by vger.kernel.org with ESMTP
+	id S274975AbTHAWk1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 18:40:27 -0400
+Date: Fri, 1 Aug 2003 18:50:40 -0400
+From: Peter Johanson <latexer@gentoo.org>
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: rmmodding e100 trace calls on 2.6.0-test2-mm2
+Message-ID: <20030801224932.GA4241@gonzo.peterjohanson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="osDK9TLjxFScVI/L"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308011316490.3656-100000@logos.cnet>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 01, 2003 at 01:19:11PM -0300, Marcelo Tosatti wrote:
-> 
-> Hello,
-> 
-> Here goes -pre10, hopefully the last -pre of 2.4.22. 
-> 
-> It contains a bunch of important fixes, detailed below.
-> 
-> Please help testing.
 
-Hi Marcelo,
+--osDK9TLjxFScVI/L
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-First, one word : Congratulations !
+I get the following errors when rmmodding e100 and similar errors with
+other net modules . The errors seem to come from the latest addition to=20
+drivers/base/class.c. Please reply directly as i'm on linux-net and not
+on linux-kernel. thanks.
 
-This is the _first_ vanilla 2.4 kernel which I can run _unpatched_ on my
-customer's firewalls. This one was stressed all the day at 4000 hits/s.
-Subsystems and drivers include aic7xxx, cpqarray, bonding, tulip, eepro100,
-sunhme, PIII / PPro SMP, netfilter. Everything looks fine and smooth even at a
-sustained write rate of 900 kB/s (logs). I only loose and corrupt significant
-number of firewall logs above 3000 lines/s if I don't extend the log buffer
-size. I've been using the fairly simple attached patch for a few months now
-with success (no loss up to 5600 lines/s). I believe Randy Dunlap has already
-got nearly the same one included in 2.5/2.6, so may want to include it too
-since it's not really intrusive, although my customer can survive with one
-patch :-)
+-pete
 
-Second, I'm writing this mail from my alpha :
+kobject 'statistics' does not have a release() function, it is broken
+and must be fixed.
+Badness in kobject_cleanup at lib/kobject.c:402
+Call Trace:
+ [<c0226001>] kobject_cleanup+0x5f/0x85
+ [<c02f90a5>] netdev_unregister_sysfs+0x39/0x3b
+ [<c02f8549>] netdev_run_todo+0x108/0x170
+ [<f98f3538>] e100_remove1+0x27/0x7e [e100]
+ [<c0232cc3>] pci_device_remove+0x3b/0x3d
+ [<c0276ac7>] device_release_driver+0x62/0x64
+ [<c0276ae9>] driver_detach+0x20/0x2e
+ [<c0276d2c>] bus_remove_driver+0x3d/0x75
+ [<c02770e8>] driver_unregister+0x13/0x28
+ [<c0232f61>] pci_unregister_driver+0x16/0x26
+ [<f98fb91f>] e100_cleanup_module+0x1b/0x4f [e100]
+ [<c012fa94>] sys_delete_module+0x137/0x191
+ [<c014687e>] do_munmap+0x147/0x183
+ [<c0109097>] syscall_call+0x7/0xb
+=20
+Device class 'eth0' does not have a release() function,
+it is broken and must be fixed.
+Badness in class_dev_release at drivers/base/class.c:201
+Call Trace:
+ [<c0226025>] kobject_cleanup+0x83/0x85
+ [<c02776e6>] class_device_unregister+0x13/0x23
+ [<c02f8549>] netdev_run_todo+0x108/0x170
+ [<f98f3538>] e100_remove1+0x27/0x7e [e100]
+ [<c0232cc3>] pci_device_remove+0x3b/0x3d
+ [<c0276ac7>] device_release_driver+0x62/0x64
+ [<c0276ae9>] driver_detach+0x20/0x2e
+ [<c0276d2c>] bus_remove_driver+0x3d/0x75
+ [<c02770e8>] driver_unregister+0x13/0x28
+ [<c0232f61>] pci_unregister_driver+0x16/0x26
+ [<f98fb91f>] e100_cleanup_module+0x1b/0x4f [e100]
+ [<c012fa94>] sys_delete_module+0x137/0x191
+ [<c014687e>] do_munmap+0x147/0x183
+ [<c0109097>] syscall_call+0x7/0xb
 
-bash-2.03$ uname -a
-Linux alpha 2.4.22-pre10 #1 Fri Aug 1 23:20:31 CEST 2003 alpha unknown
+kobject 'class_obj' does not have a release() function, it is broken and
+must be fixed.
+Badness in kobject_cleanup at lib/kobject.c:402
+Call Trace:
+ [<c0226001>] kobject_cleanup+0x5f/0x85
+ [<c02f8549>] netdev_run_todo+0x108/0x170
+ [<f98f3538>] e100_remove1+0x27/0x7e [e100]
+ [<c0232cc3>] pci_device_remove+0x3b/0x3d
+ [<c0276ac7>] device_release_driver+0x62/0x64
+ [<c0276ae9>] driver_detach+0x20/0x2e
+ [<c0276d2c>] bus_remove_driver+0x3d/0x75
+ [<c02770e8>] driver_unregister+0x13/0x28
+ [<c0232f61>] pci_unregister_driver+0x16/0x26
+ [<f98fb91f>] e100_cleanup_module+0x1b/0x4f [e100]
+ [<c012fa94>] sys_delete_module+0x137/0x191
+ [<c014687e>] do_munmap+0x147/0x183
+ [<c0109097>] syscall_call+0x7/0xb
+=20
+--=20
+Peter Johanson
+<latexer@gentoo.org>
 
-It compiled without a glitch and I've got no error in the logs yet. The
-previous stable version on this machine was 2.4.21-rc3 + aic7xxx from Justin.
-For the record, this one is an NFS server on reiserfs on soft raid5 on aic7xxx.
+Key ID =3D 0x6EFA3917
+Key fingerprint =3D A90A 2518 57B1 9D20 9B71  A2FF 8649 439B 6EFA 3917
 
-Third, my VAIO likes it a lot since I can now power it off without holding the
-button during 4 seconds !
+--osDK9TLjxFScVI/L
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-So for me, it looks like the cleanest 2.4 to date. I will only tell you in 450
-days if it's as much reliable as have been my old ones for the last 450 days of
-interrupted service :-)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-I hope we'll get other positive records so that we can quickly get 2.4.22.
+iD8DBQE/Ku7AhklDm276ORcRAjwXAKDYJx3F9yeUzLzVEwSPwbMR1dZCGACcD90b
+nqsEjI/fqbmnN1NUbejBX7w=
+=eoI4
+-----END PGP SIGNATURE-----
 
-Thanks to you and all others in $ChangeLog for this good version !
-Willy
- 
-============
-patch : make LOG_BUF_LEN configurable at config time
-============
-
-diff -urN wt10-pre3/Documentation/Configure.help wt10-pre3-log-buf-len/Documentation/Configure.help
---- wt10-pre3/Documentation/Configure.help	Wed Mar 19 09:58:25 2003
-+++ wt10-pre3-log-buf-len/Documentation/Configure.help	Tue Mar 25 08:20:35 2003
-@@ -25231,6 +25231,19 @@
-   output to the second serial port on these devices.  Saying N will
-   cause the debug messages to appear on the first serial port.
- 
-+Kernel log buffer length shift
-+CONFIG_LOG_BUF_SHIFT
-+  The kernel log buffer has a fixed size of :
-+      64 kB (2^16) on MULTIQUAD and IA64,
-+     128 kB (2^17) on S390
-+      32 kB (2^15) on SMP systems
-+      16 kB (2^14) on UP systems
-+
-+  You have the ability to change this size with this parameter which
-+  fixes the bit shift used to get the buffer length (which must be a
-+  power of 2). Eg: a value of 16 sets the buffer to 64 kB (2^16).
-+  The default value of 0 uses standard values above.
-+
- Disable pgtable cache
- CONFIG_NO_PGT_CACHE
-   Normally the kernel maintains a `quicklist' of preallocated
-diff -urN wt10-pre3/arch/i386/config.in wt10-pre3-log-buf-len/arch/i386/config.in
---- wt10-pre3/arch/i386/config.in	Wed Mar 19 09:58:25 2003
-+++ wt10-pre3-log-buf-len/arch/i386/config.in	Tue Mar 25 08:25:12 2003
-@@ -508,6 +508,8 @@
-     string '   Initial kernel command line' CONFIG_CMDLINE "root=301 ro"
- fi
- 
-+int 'Kernel messages buffer length shift (0 = default)' CONFIG_LOG_BUF_SHIFT 0
-+
- endmenu
- 
- source lib/Config.in
-diff -urN wt10-pre3/kernel/printk.c wt10-pre3-log-buf-len/kernel/printk.c
---- wt10-pre3/kernel/printk.c	Wed Mar 19 09:58:20 2003
-+++ wt10-pre3-log-buf-len/kernel/printk.c	Tue Mar 25 08:14:55 2003
-@@ -29,6 +29,7 @@
- 
- #include <asm/uaccess.h>
- 
-+#if !defined(CONFIG_LOG_BUF_SHIFT) || (CONFIG_LOG_BUF_SHIFT - 0 == 0)
- #if defined(CONFIG_MULTIQUAD) || defined(CONFIG_IA64)
- #define LOG_BUF_LEN	(65536)
- #elif defined(CONFIG_ARCH_S390)
-@@ -37,6 +38,9 @@
- #define LOG_BUF_LEN	(32768)
- #else	
- #define LOG_BUF_LEN	(16384)			/* This must be a power of two */
-+#endif
-+#else /* CONFIG_LOG_BUF_SHIFT */
-+#define LOG_BUF_LEN (1 << CONFIG_LOG_BUF_SHIFT)
- #endif
- 
- #define LOG_BUF_MASK	(LOG_BUF_LEN-1)
-
-
+--osDK9TLjxFScVI/L--

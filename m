@@ -1,61 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318018AbSHHVv3>; Thu, 8 Aug 2002 17:51:29 -0400
+	id <S318022AbSHHV7M>; Thu, 8 Aug 2002 17:59:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318019AbSHHVv3>; Thu, 8 Aug 2002 17:51:29 -0400
-Received: from mons.uio.no ([129.240.130.14]:45034 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S318018AbSHHVv2>;
-	Thu, 8 Aug 2002 17:51:28 -0400
+	id <S318028AbSHHV7M>; Thu, 8 Aug 2002 17:59:12 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32525 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318022AbSHHV7L>; Thu, 8 Aug 2002 17:59:11 -0400
+Date: Thu, 8 Aug 2002 15:02:50 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Hubertus Franke <frankeh@us.ibm.com>
+cc: Rik van Riel <riel@conectiva.com.br>, Andries Brouwer <aebr@win.tue.nl>,
+       Andrew Morton <akpm@zip.com.au>, <andrea@suse.de>, <davej@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>, Paul Larson <plars@austin.ibm.com>
+Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
+In-Reply-To: <OF607243C8.ACB54959-ON85256C0F.00771789-85256C0F.0077571A@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0208081500550.9114-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15698.59577.788998.300262@charged.uio.no>
-Date: Thu, 8 Aug 2002 23:55:05 +0200
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: trond.myklebust@fys.uio.no, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5.30+] Second attempt at a shared credentials patch
-In-Reply-To: <81390000.1028837464@baldur.austin.ibm.com>
-References: <23130000.1028818693@baldur.austin.ibm.com>
-	<shsofcdfjt6.fsf@charged.uio.no>
-	<44050000.1028823650@baldur.austin.ibm.com>
-	<15698.41542.250846.334946@charged.uio.no>
-	<52960000.1028829902@baldur.austin.ibm.com>
-	<15698.52455.437254.428402@charged.uio.no>
-	<81390000.1028837464@baldur.austin.ibm.com>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Dave McCracken <dmccr@us.ibm.com> writes:
 
-     > --On Thursday, August 08, 2002 09:56:23 PM +0200 Trond
-     > Myklebust <trond.myklebust@fys.uio.no> wrote:
+On Thu, 8 Aug 2002, Hubertus Franke wrote:
+> 
+> That is true. All was done under the 16-bit assumption
+> My hunch is that the current algorithm might actually work quite well
+> for a sparsely populated pid-space (32-bits).
 
-    >> ... which begs the question: are you saying that there are no
-    >> SMP issues with CLONE_CRED and setting/reading the 'struct
-    >> cred' members?
+I agree.
 
-     > Yes, I'm saying there are no SMP issues with the shared cred
-     > structure.  I looked for them and failed to find any.
-     > Credentials are not set cross-task, and are always done via
-     > atomic ops.  I also failed to find any broader race conditions
-     > that would require a lock.
+So let's just try Andries approach, suggested patch as follows..
 
-What if one thread is doing an RPC call while the other is changing
-the 'groups' entry?
+(yeah, silly mask and MAX_PID, but since even the kernel uses signed
+integers for some of it, this way it never gets close to being an issue).
 
-Given that the first thread wants both to copy and/or compare the
-groups entry what prevents scenarios of the form?
+		Linus
 
-  Thread 1                       Thread 2
+----
+--- 1.2/include/linux/threads.h	Tue Feb  5 07:23:04 2002
++++ edited/include/linux/threads.h	Thu Aug  8 14:58:28 2002
+@@ -19,6 +19,7 @@
+ /*
+  * This controls the maximum pid allocated to a process
+  */
+-#define PID_MAX 0x8000
++#define PID_MASK 0x3fffffff
++#define PID_MAX (PID_MASK+1)
+ 
+ #endif
+===== kernel/fork.c 1.57 vs edited =====
+--- 1.57/kernel/fork.c	Tue Jul 30 15:49:20 2002
++++ edited/kernel/fork.c	Thu Aug  8 15:00:16 2002
+@@ -142,7 +142,7 @@
+ 		return 0;
+ 
+ 	spin_lock(&lastpid_lock);
+-	if((++last_pid) & 0xffff8000) {
++	if((++last_pid) & ~PID_MASK) {
+ 		last_pid = 300;		/* Skip daemons etc. */
+ 		goto inside;
+ 	}
+@@ -157,7 +157,7 @@
+ 			   p->tgid == last_pid	||
+ 			   p->session == last_pid) {
+ 				if(++last_pid >= next_safe) {
+-					if(last_pid & 0xffff8000)
++					if(last_pid & ~PID_MASK)
+ 						last_pid = 300;
+ 					next_safe = PID_MAX;
+ 				}
 
-                                change cred->ngroups
-  copy cred->ngroups
-  copy cred->groups
-                                change cred->groups
-
-
-Cheers,
-  Trond

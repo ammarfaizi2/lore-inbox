@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277484AbRJEQkZ>; Fri, 5 Oct 2001 12:40:25 -0400
+	id <S277485AbRJEQkO>; Fri, 5 Oct 2001 12:40:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277483AbRJEQkP>; Fri, 5 Oct 2001 12:40:15 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7221 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S277484AbRJEQkJ>; Fri, 5 Oct 2001 12:40:09 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: viro@math.psu.edu (Alexander Viro),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-Subject: Re: Security question: "Text file busy" overwriting executables but
-In-Reply-To: <E15pFHW-00041w-00@the-village.bc.nu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 05 Oct 2001 10:30:19 -0600
-In-Reply-To: <E15pFHW-00041w-00@the-village.bc.nu>
-Message-ID: <m1zo76xd5w.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S277483AbRJEQkE>; Fri, 5 Oct 2001 12:40:04 -0400
+Received: from foobar.isg.de ([62.96.243.63]:48000 "HELO mail.isg.de")
+	by vger.kernel.org with SMTP id <S277484AbRJEQjy>;
+	Fri, 5 Oct 2001 12:39:54 -0400
+Message-ID: <3BBDE27D.2E65F818@isg.de>
+Date: Fri, 05 Oct 2001 18:40:29 +0200
+From: lkv@isg.de
+Organization: Innovative Software AG
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
+X-Accept-Language: German, de, en
 MIME-Version: 1.0
+To: Christopher Friesen <cfriesen@nortelnetworks.com>
+Cc: "Kernel, Linux" <linux-kernel@vger.kernel.org>
+Subject: Re: Desperately missing a working "pselect()" or similar...
+In-Reply-To: <3BBDD37D.56D7B359@isg.de> <3BBDE1AA.98C4712F@nortelnetworks.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Christopher Friesen wrote:
 
-> > On Thu, 4 Oct 2001, Linus Torvalds wrote:
-> > 
-> > > The reason the kernel refuses to honour it, is that MAP_DENYWRITE is an
-> > > excellent DoS-vehicle - you just mmap("/etc/passwd") with MAP_DENYWRITE,
-> > > and even root cannot write to it.. Vary nasty.
-> > 
-> > <nit>
-> > I _really_ doubt that something does write() on /etc/passwd.  Create a
-> > file and rename it over the thing - sure, but that's it.
-> > </nit>
+> > I'm currently looking for a decent method to wait on either
+> > an I/O event _or_ a signal coming from another process.
 > 
-> The MAP_DENYWRITE rule was added a long time ago because people found actual
-> workable DoS attacks
+> > - Unix domain sockets would be awkward to use due to the fact
+> >   I'd need to come up with some "filenames" for them to bind to,
+> >   and both security considerations and the danger of "leaking"
+> >   files that remain on disk forever make me shudder...
+> 
+> If you use a named socket in the abstract namespace, then it can't "leak" to
+> disk....
 
-Do you have any details.  I would like to figure out what it takes to
-export MAP_DENYWRITE safely to userspace.
+Ok, but man 7 unix says:
 
-Currently checking to see if the file is executable looks good
-enough.  I don't see any case where this would be a problem, unless
-someone has set their permissions wrong.  
+ SCM_CREDENTIALS  and  the abstract namespace were introduced with
+ Linux 2.2 and should not be used in portable programs
 
-The fix for bad permission (during a DOS attack) is either:
-	chmod correct_permissions foo
-	lsof foo | xargs kill
-or:
-        chmod correct_permissions foo
-	mv foo bar
-        cp -a bar foo
-        rm bar
+... and I really do want to write portable programs...
 
-Which looks fairly straight forward.
+Regards,
 
-Eric
+Lutz Vieweg
+
+--
+ Dipl. Phys. Lutz Vieweg | email: lkv@isg.de
+ Innovative Software AG  | Phone/Fax: +49-69-505030 -120/-505
+ Feuerbachstrasse 26-32  | http://www.isg.de/people/lkv/
+ 60325 Frankfurt am Main | ^^^ PGP key available here ^^^

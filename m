@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262311AbVAUIXE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262312AbVAUIal@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262311AbVAUIXE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 03:23:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbVAUIXD
+	id S262312AbVAUIal (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 03:30:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbVAUIal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 03:23:03 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:19699 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262311AbVAUIWs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 03:22:48 -0500
-Message-ID: <41F0BBD5.1010006@mvista.com>
-Date: Fri, 21 Jan 2005 00:22:45 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       matthias@corelatus.se,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: patch to fix set_itimer() behaviour in boundary cases
-References: <16872.55357.771948.196757@antilipe.corelatus.se>	 <20050115013013.1b3af366.akpm@osdl.org>	 <1105830384.16028.11.camel@localhost.localdomain>	 <1105877497.8462.0.camel@laptopd505.fenrus.org>	 <41EEF284.2010600@mvista.com>	 <1106208433.4192.0.camel@laptopd505.fenrus.org>	 <41F03AD2.4010803@mvista.com> <1106293769.4182.64.camel@laptopd505.fenrus.org>
-In-Reply-To: <1106293769.4182.64.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 21 Jan 2005 03:30:41 -0500
+Received: from fw.osdl.org ([65.172.181.6]:48529 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262312AbVAUIai (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 03:30:38 -0500
+Date: Fri, 21 Jan 2005 00:30:11 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc1-mm2
+Message-Id: <20050121003011.155538a5.akpm@osdl.org>
+In-Reply-To: <41F0B807.6000606@kolivas.org>
+References: <20050119213818.55b14bb0.akpm@osdl.org>
+	<41F0B807.6000606@kolivas.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->>>This one I meant to fix in the kernel fwiw; we can put that loop inside
->>>the kernel easily I'm sure
->>
->>Yes, but it will increase the data size of the timer...
->>
+Con Kolivas <kernel@kolivas.org> wrote:
+>
+>  Wont boot.
 > 
-> 
-> eh how?
-> the way I think it can be done is to just have multiple timers fire
-> until the total time is up. It's not a performance issue (a timer firing
-> every 24 days.. who cares, esp since such long delays are rare anyway)
-> after all...
+>  Stops after BIOS check successful.
 
-Sure that works, but you still need to keep info around on when the timer is 
-supposed to expire.  This will be at least two words (u64)jiffies_expire_time. 
-This would likly end up in the task struc along with the timer itself.
+Your config boots OK on my P4.  As per usual :(
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+>  Tried reverting a couple of patches mentioning boot or reboot and had no 
+>  luck. Any ideas?
 
+None whatsoever, sorry.  Guess you could try stripping the .config, see if
+you can identify something from that.
+
+Did you try early printk?

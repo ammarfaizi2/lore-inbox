@@ -1,87 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129079AbQKMPGf>; Mon, 13 Nov 2000 10:06:35 -0500
+	id <S129060AbQKMPOg>; Mon, 13 Nov 2000 10:14:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129091AbQKMPGQ>; Mon, 13 Nov 2000 10:06:16 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:29956 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129079AbQKMPF5>;
-	Mon, 13 Nov 2000 10:05:57 -0500
-Message-ID: <3A10031B.79D8A9B5@mandrakesoft.com>
-Date: Mon, 13 Nov 2000 10:04:59 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: torvalds@transmeta.com, dhinds@valinux.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pcmcia event thread. (fwd)
-In-Reply-To: <3A0FF138.A510B45@mandrakesoft.com>  <7572.974120930@redhat.com> <20554.974126251@redhat.com>
+	id <S129249AbQKMPO1>; Mon, 13 Nov 2000 10:14:27 -0500
+Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:45552 "EHLO
+	passion.cygnus") by vger.kernel.org with ESMTP id <S129044AbQKMPOP>;
+	Mon, 13 Nov 2000 10:14:15 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3A10031B.79D8A9B5@mandrakesoft.com> 
+In-Reply-To: <3A10031B.79D8A9B5@mandrakesoft.com>  <3A0FF138.A510B45@mandrakesoft.com> <7572.974120930@redhat.com> <20554.974126251@redhat.com> 
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: torvalds@transmeta.com, dhinds@valinux.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pcmcia event thread. (fwd) 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Mon, 13 Nov 2000 15:14:04 +0000
+Message-ID: <26373.974128444@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
-> jgarzik@mandrakesoft.com said:
-> > Racy.  Use waitpid() in the thread killer instead.
-> 
-> Doesn't waitpid() require the thread we're waiting for to be child of the
-> rmmod process? I suppose we could arrange that, but it's not particularly
-> clean.
 
-Doh, totally forgot about that.  Will this work:
+jgarzik@mandrakesoft.com said:
+> Doh, totally forgot about that.  Will this work:
+> 	save_current = current;
+> 	current = find_task_by_pid(1);
+> 	waitpid(...);
+> 	current = save_current;
 
-	save_current = current;
-	current = find_task_by_pid(1);
-	waitpid(...);
-	current = save_current;
+Changing the thread's parent to current->pid would be better than modifying 
+current. Still sucks though.... 
 
-In any case, we -really- need a wait_for_kernel_thread_to_die()
-function.
+> In any case, we -really- need a wait_for_kernel_thread_to_die()
+> function. 
 
+up_and_exit() would do it. Or preferably passing the address of the 
+semaphore as an extra argument to kernel_thread() in the first place.
 
-> jgarzik@mandrakesoft.com said:
-> > Why are you cloning _FS, _FILES, and _SIGHAND?  I don't see why the
-> > third arg should not be zero.  man clone...
-> 
-> If we don't specify CLONE_FS | CLONE_FILES | CLONE_SIGHAND then new ones
-> get allocated just for us to free them again immediately. If we clone them,
-> then we just increase and decrease the use counts of the parent's ones. The
-> latter is slightly more efficient, and I don't think it really matters. If
-> you really care, that can be changed. I've dropped CLONE_SIGHAND because
-> daemonize() doesn't free that, but left CLONE_FS and CLONE_FILES.
+In the meantime, enough other places in the kernel have this same race that
+I'm not too concerned about it. Hopefully, we'll get the extra arg to
+kernel_thread before the final cut of 2.4, and this code can get converted
+along with everything else.
 
-Cool tip, thanks.
+> > +        spin_lock_irq(&current->sigmask_lock);
+> > +        sigfillset(&current->blocked);
+> > +        recalc_sigpending(current);
+> > +        spin_unlock_irq(&current->sigmask_lock);
 
+> what does this do?
 
-> +        spin_lock_irq(&current->sigmask_lock);
-> +        sigfillset(&current->blocked);
-> +        recalc_sigpending(current);
-> +        spin_unlock_irq(&current->sigmask_lock);
-
-what does this do?
+Well, I _hope_ it blocks all signals, so that we can sleep in 
+TASK_INTERRUPTIBLE without adding 1 to the load average, and without having 
+to worry about the pesky things actually interrupting us.
 
 
-> +    /* Start the thread for handling queued events for socket drivers */
-> +    event_thread_pid = kernel_thread (pcmcia_event_thread, NULL, CLONE_FS | CLONE_FILES);
-> +
-> +    if (event_thread_pid < 0) {
-> +           printk(KERN_ERR "init_pcmcia_cs: fork failed: errno %d\n", -event_thread_pid);
-> +           return event_thread_pid;
-> +    }
+jgarzik@mandrakesoft.com said:
+> why do you store the event_thread_pid but never use it?
 
-why do you store the event_thread_pid but never use it?
-
-regards,
-
-	Jeff
+Because I got half way through doing waitpid() before I realised it was 
+sucky. We store it short-term so we can print it. No reason why we can't 
+shift the static declaration into init_pcmcia_cs() though.
 
 
--- 
-Jeff Garzik             |
-Building 1024           | The chief enemy of creativity is "good" sense
-MandrakeSoft            |          -- Picasso
+
+--
+dwmw2
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

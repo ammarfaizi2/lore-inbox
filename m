@@ -1,74 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262644AbSIPP5Y>; Mon, 16 Sep 2002 11:57:24 -0400
+	id <S262402AbSIPQAy>; Mon, 16 Sep 2002 12:00:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262645AbSIPP5Y>; Mon, 16 Sep 2002 11:57:24 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:43403 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262644AbSIPP5X>;
-	Mon, 16 Sep 2002 11:57:23 -0400
-Subject: [ANNOUNCE]  Journaled File System (JFS)  release 1.0.22
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF1DB2874A.3A92B29E-ON85256C36.00576261@pok.ibm.com>
-From: "Steve Best" <sbest@us.ibm.com>
-Date: Mon, 16 Sep 2002 11:02:14 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11  |July 29, 2002) at
- 09/16/2002 12:02:16 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S262429AbSIPQAv>; Mon, 16 Sep 2002 12:00:51 -0400
+Received: from crack.them.org ([65.125.64.184]:34833 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S262402AbSIPQAs>;
+	Mon, 16 Sep 2002 12:00:48 -0400
+Date: Mon, 16 Sep 2002 12:05:37 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix for ptrace breakage
+Message-ID: <20020916160537.GA12905@nevyn.them.org>
+Mail-Followup-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0209161349270.29027-100000@localhost.localdomain> <87vg565eo2.fsf@devron.myhome.or.jp> <87wupmrtn1.fsf@devron.myhome.or.jp> <20020916130735.GA3920@nevyn.them.org> <87sn0at3di.fsf@devron.myhome.or.jp> <20020916144204.GA7991@nevyn.them.org> <87fzwasz96.fsf@devron.myhome.or.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87fzwasz96.fsf@devron.myhome.or.jp>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 17, 2002 at 12:57:57AM +0900, OGAWA Hirofumi wrote:
+> Daniel Jacobowitz <dan@debian.org> writes:
+> 
+> > > > Some comments.  First of all, you said you fixed a race on
+> > > > current->ptrace and some other bugs - would you mind saying where they
+> > > > were?  It's definitely cleaner after your patch but I'd like to
+> > > > understand where you found bugs, since I think you're introducing more.
+> > > 
+> > > It's the following
+> > > 
+> > > 		task_t *trace_task = p->parent;
+> > > 		int ptrace_flag = p->ptrace;
+> > > 		BUG_ON (ptrace_flag == 0);
+> > > 
+> > > 		__ptrace_unlink(p);
+> > > 		p->ptrace = ptrace_flag;
+> > > 		__ptrace_link(p, trace_task);
+> > 
+> > We have the tasklist lock.  How can there be a race here?  The parent
+> > can't detach while we're holding the tasklist lock.  If there is a race
+> > with PTRACE_SETOPTIONS, then PTRACE_SETOPTIONS should take the lock.
+> 
+> No. If the real parent don't change ->ptrace, it doesn't need
+> lock.
 
-Release 1.0.22 of JFS was made available today.
+I don't understand what you mean by that.  Do you mean, "if it does
+change ->ptrace, it doesn't need a lock"?
 
-Drop 60 on September 16, 2002 (jfs-2.4-1.0.22.tar.gz
-and jfsutils-1.0.22.tar.gz) includes fixes to the file
-system and utilities.
+The locking requirements for tsk->ptrace are not documented anywhere
+right now; we basically don't have any.
 
-There are two patches available to support ACLs, the first is
-JFS extended attributes (jfs-2.4-1.0.22-xattr.patch)
-the second is JFS ACLs (jfs-2.4-1.0.22-acl.patch).
+> > > > So you reparent children on the ptrace_list right here.  But they still
+> > > > need to go through zap_thread!  You're right, the do_notify_parent in
+> > > > zap_thread isn't necessary; it'll be taken care of in sys_wait4.  The
+> > > > orphaned pgrp check is still relevant though.
+> > > 
+> > > ??? You forget tasklist_lock?
+> > 
+> > Huh?
+> > 
+> > The problem I am describing is when a child - which will become an
+> > orphaned pgrp when ``father'' dies - is being ptraced at the moment of
+> > ``father''s death.  With your patch it will be moved to
+> > reaper->ptrace_children (or child_reaper->ptrace_children) but never
+> > orphaned properly.  It'll miss a signal.
+> >
+> > > > If you're going to remove the if, you need to maintain its effect! 
+> > > > See:
+> > > > > -		if (p->parent != father) {
+> > > > > -			BUG_ON(p->parent != p->real_parent);
+> > > > > -			return;
+> > > > > -		}
+> > > > 
+> > > > This is the case where we were tracing something.  The ptrace_unlink
+> > > > returned it to its original parent.  It doesn't need the
+> > > > remove_parent/add_parent (though they are harmless); it does need to
+> > > > avoid the orphaned pgrp check.  It may need the do_notify_parent check,
+> > > > which was a bug in the previous code.
+> > > 
+> > > What is the basis which you think it is bug?
+> > 
+> > The death of a tracing process should not have any effect on the traced
+> > process except to untrace it.  It should not go through the orphaning
+> > checks.  The orphaning checks assume that the exiting process is the
+> > real parent, and will orphan the pgrp if it is not in the same
+> > session... as its tracer!  That's a bug.
+> 
+> Ah, ok. I think, it's longtime (odd) behavior. And you think, it's
+> a bug. Right?
+> 
+> And, both of your and old code has odd behavior. yes?
 
-Utilities changes
+Before your patch, do_notify_parent didn't get called; I think that
+perhaps it should be.  I'll think about that.  After your patch the
+process group will be unexpectedly orphaned, which is not now the case.
 
-- add jfs_tune utility (see jfs_tune man page for details)
-  jfs_tune allows users to:
-    attach a JFS external journal to a JFS file system
-    set/change volume label, UUID of JFS file system and external log
-    devices
-    view superblock information of JFS file system and external log
-    devices
-- add option '-J journal_device' to mkfs.jfs to create an external journal
-   only   and optionally set its volume label (see mkfs.jfs man page)
-- add option '-J device=' to mkfs.jfs to attach an existing JFS external
-   journal to the JFS file system that will be created
-   (see mkfs.jfs man page)
-- fix mkfs.jfs to store 16 character volume labels properly
-- code cleaup
-- add extend support to JFS FSIM for EVMS
-    see http://sourceforge.net/projects/evms/
+Let me sit on this for a couple of hours.  I'll send you an alternative
+patch to look at.
 
-
-File System changes
-
-- Use strtoul instead of strtoull
-- Add write_super_lockfs & unlock_fs used for snapshot
-- rework extent invalidation
-- cosmetic changes to reduce the diff to the bitkeeper tree
-- backport lmLogWait from 2.5
-- Remove unused jfs_extendfs.h
-- use buffer_heads to access the superblock
-- ifdef out unused functions related to partial blocks
-- sync the block device on umount or r/o remount
-- remove superfluous includes
-
-
-For more details about JFS, please see the patch instructions
-or changelog.jfs files.
-
-
-Steve
-JFS for Linux http://oss.software.ibm.com/jfs
-
-
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

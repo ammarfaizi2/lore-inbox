@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbTFNVVo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 17:21:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbTFNVVo
+	id S261153AbTFNV13 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 17:27:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbTFNV13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 17:21:44 -0400
-Received: from smtp.terra.es ([213.4.129.129]:63188 "EHLO tsmtp6.mail.isp")
-	by vger.kernel.org with ESMTP id S261151AbTFNVVn (ORCPT
+	Sat, 14 Jun 2003 17:27:29 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:24963 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S261153AbTFNV13 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 17:21:43 -0400
-Date: Sat, 14 Jun 2003 23:35:27 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-To: marcelo@conectiva.com.br
+	Sat, 14 Jun 2003 17:27:29 -0400
+Date: Sat, 14 Jun 2003 23:41:14 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Ryan Underwood <nemesis-lists@icequake.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.21 released
-Message-Id: <20030614233527.08831e2a.diegocg@teleline.es>
-In-Reply-To: <20030613182924.A32241@infradead.org>
-References: <200306131453.h5DErX47015940@hera.kernel.org>
-	<20030613165628.GE28609@in-ws-001.cid-net.de>
-	<20030613172226.GB9339@merlin.emma.line.org>
-	<20030613182924.A32241@infradead.org>
-X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Subject: Re: mga dualhead console + gpm = instant reboot
+Message-ID: <20030614214114.GE2776@vana.vc.cvut.cz>
+References: <20030614014212.GC1010@dbz.icequake.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030614014212.GC1010@dbz.icequake.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Jun 2003 18:29:24 +0100
-Christoph Hellwig <hch@infradead.org> wrote:
-
-> On Fri, Jun 13, 2003 at 07:22:26PM +0200, Matthias Andree wrote:
-> > I'd add "XFS merge" to the list:
+On Fri, Jun 13, 2003 at 08:42:12PM -0500, Ryan Underwood wrote:
+> Hello,
 > 
-> I'll start feeding the few remaining core changes to Marcelo now,
-> the actual filesystem then is just yet another driver that could
-> be merged any time :)
+> I run the mga dualhead console.  It works ok for the most part (some
+> strange behavior on the second head happens that can be noticed in e.g.
+> lynx when the cursor is blinking).  However, if I move the gpm mouse on
+> the first head, switch to a console on the second head, move gpm mouse
+> again, then switch back to a console on the first head, moving the mouse
+> thereafter results in an instant reboot of the system.
+> 
+> Since there does not appear to be any kernel panic or oops, I am at a
+> loss how to track the problem down.  Any ideas?
 
-Just a small suggestion: Why not ALSA?
-I mean, 2.5 is there for new things, indeed. But alsa are drivers (ie: it
-shouldnt affect core code and you haven't to use them if you don't want) ,
-and after all it's one of those things that lots of people have to add (a
-lot of times manually and lots of people doesn't want to know how to patch
-a kernel; although all distros ship it).
-
-In some cases, alsa gives you decent sound (in the case of my sound card,
-which is both supported by oss and alsa). Other times, you've not a choice.
-
-And although it's not perfect code, and it has bugs, i bet the alsa people
-wouldn't mind to help to solve them.
-
-I'm not saying we should merge 2.5 changes in 2.4 but...
-
-
-Just a very hume and small suggestion :)
+Kernel version? And if it is 2.4.x, did you boot with
+'video=scrollback:0' ? If not, then please do so...
+								Petr
+ 

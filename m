@@ -1,56 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316842AbSFVG37>; Sat, 22 Jun 2002 02:29:59 -0400
+	id <S316824AbSFVBbX>; Fri, 21 Jun 2002 21:31:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316844AbSFVG36>; Sat, 22 Jun 2002 02:29:58 -0400
-Received: from h-64-105-35-162.SNVACAID.covad.net ([64.105.35.162]:1966 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S316842AbSFVG36>; Sat, 22 Jun 2002 02:29:58 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Fri, 21 Jun 2002 23:29:51 -0700
-Message-Id: <200206220629.XAA21506@adam.yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] /proc/scsi/map
+	id <S316825AbSFVBbW>; Fri, 21 Jun 2002 21:31:22 -0400
+Received: from daimi.au.dk ([130.225.16.1]:43399 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S316824AbSFVBbV>;
+	Fri, 21 Jun 2002 21:31:21 -0400
+Message-ID: <3D13D365.A39B1F38@daimi.au.dk>
+Date: Sat, 22 Jun 2002 03:31:17 +0200
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: john stultz <johnstul@us.ibm.com>
+CC: lkml <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Subject: Re: [RFC] [PATCH] tsc_disable_B2 with "soft" rdtsc
+References: <1024613272.5184.176.camel@cog>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-06-21 at 15:33, Oliver Xymoron wrote:
-> On Thu, 20 Jun 2002, Patrick Mochel wrote:
+john stultz wrote:
 > 
-> > > But it was entierly behind me how to fit this
-> > > in to the sheme other sd@4,0:h,raw
-> > > OS-es are using. And finally how would one fit this in to the
-> > > partitioning shemes? For the system aprtitions are simply
-> > > block devices hanging off the corresponding block device.
-> >
-> > Partitions are purely logical entities on a physical disk. They have no
-> > presence in the physical device tree.
+> Hello all,
 > 
-> As I raised elsewhere in this thread, the distinction between physical and
-> logical is troubling.  Consider iSCSI [...]
+>         Here is my next rev of the tsc-disable patch. This one corrects a
+> Configure.in typo (Caught by Gabriel Paubert), and probably more
+> controversial, implements a soft rdtsc instruction via do_gettimeofday.
+> 
+> This avoids the earlier "box won't boot" problems with i686 optimized
+> glibc's that called rdtsc. The rdtsc instruction will now be caught, and
+> faked returning to the user program the same value of gettimeofday. Yes,
+> its pretty hackish, but it works, albeit slowly.
 
-	Absolutely!  devicefs should be for anything that is simplified
-by using the drivers/base rendezvous to eliminate that type of list
-management which is repeated so many times in the kernel.
++#ifdef CONFIG_X86_NUMA
++       /* "soft" rdtsc implementation */
++       if(!cpu_has_tsc)
++       {
++               char rdtsc_inst[2] = {0x0f, 0x31}; /*rdtsc opcode*/
++               char* inst_ptr = (char*)regs->eip;
++               if((inst_ptr[0] == rdtsc_inst[0])
++                       &&(inst_ptr[1] == rdtsc_inst[1])){
 
-	One thing that is very confusing about the current
-drivers/base code is that "struct bus' really has nothing to do
-with a bus.  It should be called "struct device_type."  For example,
-sd_mod (scsi disk), sr_mod (scsi cdrom), and sg (scsi generic) are
-all drivers for arbitrary scsi devices, regardless of whether
-they are connected by scsi ribbon cable, usb, or whatever.
+Any particular reason for puting the opcode in an
+array and verify against that instead of just
+verifying inst_ptr[i] against the constants?
 
-	In the example of system partitions and raid, you could put a
-struct device in struct gendisk and have the partitioning module
-register themselves as drivers of that device type.  That way, they
-would automatically try to attach to each disk that had no
-partitioning scheme attached (actually, I'd rather eliminate all
-partitioning suppot from the kernel and just have the device
-mapper make the partition devices under control of a user level
-utility, similar to the way all of my systems have been running
-for the past couple of years via partx).
++                       struct timeval tv;
++                       do_gettimeofday(&tv);
++                       regs->eax = tv.tv_usec;
++                       regs->edx = tv.tv_sec;
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Looks like the soft tsc is going to be jumping
+rather than runing. It is going to be increasing
+at a constat rate most of the time, but will make
+a big jump ahead every second. Couldn't the jump
+easilly be made a lot smaller by using:
+   regs->eax = tv.tv_usec<<2;
+
+Of course this is not completely accurate either,
+are we willing to pay the price for a more
+accurate version?
+
++                       regs->eip += 2; /*= size of opcode*/
++                       return;
++               }
++       }
++#endif
+
+-- 
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:razor-report@daimi.au.dk

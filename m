@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270102AbRHMLgH>; Mon, 13 Aug 2001 07:36:07 -0400
+	id <S270117AbRHMLzx>; Mon, 13 Aug 2001 07:55:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270105AbRHMLf5>; Mon, 13 Aug 2001 07:35:57 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5124 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270102AbRHMLfs>; Mon, 13 Aug 2001 07:35:48 -0400
-Subject: Re: Lost interrupt with HPT370
-To: kevin@labsysgrp.com (Kevin P. Fleming)
-Date: Mon, 13 Aug 2001 12:37:51 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "Kevin P. Fleming" at Aug 12, 2001 10:08:12 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15WG2Z-0007Di-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S270118AbRHMLzm>; Mon, 13 Aug 2001 07:55:42 -0400
+Received: from mx5.port.ru ([194.67.57.15]:6411 "EHLO mx5.port.ru")
+	by vger.kernel.org with ESMTP id <S270117AbRHMLz2>;
+	Mon, 13 Aug 2001 07:55:28 -0400
+From: "Samium Gromoff" <_deepfire@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re: strange gcc crashes...
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: 10.0.0.1 via proxy [195.34.30.65]
+Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15WGJY-000Ecx-00@f12.port.ru>
+Date: Mon, 13 Aug 2001 15:55:24 +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have just tried an HPT-366 card with IC35L040VER07 drives (latest DeskStar
-> 41G ATA-100, although the card is only ATA-66) and could not get them to
-> even let me create a filesystem without hard locking the machine. This was
-> using 2.4.8-ac1 and 2.4.7-ac11. I wrote this off to motherboard/IDE card
-> compatibility (or lack thereof), but could it still be an IDE driver issue?
+at Aug 11, 01 06:51:15 PM +0000 Mark Hahn wrote:
+>>     so it seems to me like kernel problem...
+>
+>why is that?  I've never seen a sig11 from production >code
+>that wasn't caused by flakey ram.  in fact, your >descriptions
+>are a perfect example of similar hardware problems.
 
-Some HPT cards have problems with certain drives. I believe its a fixed
-problem in newer boards or on those with updatable firmware if you update
-the firmware itself
+and some other people told me about cpu overheating...
 
-Check your drive is in the bad_ata100_5 and bad_ata66_4 list. If not add
-it then rebuild and retry (drivers/ide/hpt366.c) - and let me know
+but 55 minutes long memtest run showed no problems et al
+ with cpu (P166-nonMMX-oc`ed to 180) staying warm, not by any means hot
+ on mobo Zida 5DVX.
 
-Alan
+ maybe 55 min is not enough for proper mem testing?
+
+---
+
+
+cheers,
+
+
+   Samium Gromoff

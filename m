@@ -1,48 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265625AbUFDFxm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265631AbUFDF4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265625AbUFDFxm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 01:53:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265628AbUFDFxl
+	id S265631AbUFDF4T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 01:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265633AbUFDF4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 01:53:41 -0400
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:22098 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265625AbUFDFxk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 01:53:40 -0400
-Message-ID: <40C00E5E.1090002@yahoo.com.au>
-Date: Fri, 04 Jun 2004 15:53:34 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Fri, 4 Jun 2004 01:56:19 -0400
+Received: from relay01.kbs.net.au ([203.220.32.149]:189 "EHLO
+	relay01.kbs.net.au") by vger.kernel.org with ESMTP id S265631AbUFDF4Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 01:56:16 -0400
+Date: Fri, 4 Jun 2004 15:56:13 +1000
+From: "Pods" <pods@dodo.com.au>
+To: linux-kernel@vger.kernel.org
+Reply-to: "Pods" <pods@dodo.com.au>
+Subject: lotsa oops - 2.6.5 (preempt + unable handle virutal address + more?)
+X-Priority: 3
+X-Mailer: Dodo Internet Webmail Server 
+X-Original-IP: 203.220.42.35
+Content-Transfer-Encoding: 7BIT
+X-MSMail-Priority: Medium
+Importance: Medium
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: pj@sgi.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, ak@muc.de,
-       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-       mikpe@csd.uu.se, Simon.Derr@bull.net, wli@holomorphy.com
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
- implementation
-References: <20040603094339.03ddfd42.pj@sgi.com>	<20040603101010.4b15734a.pj@sgi.com>	<1086313667.29381.897.camel@bach>	<40BFD839.7060101@yahoo.com.au>	<20040603223005.01bbab21.pj@sgi.com>	<40C00A2B.1040606@yahoo.com.au> <20040603224033.2dc5da9f.akpm@osdl.org>
-In-Reply-To: <20040603224033.2dc5da9f.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-Id: <E1BW7gZ-00066c-00@mail.kbs.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
->> Yes, I'm all for the full cpumask abstraction.
-> 
-> 
-> Where do we stand wrt pass-by-reference?  I remember there was initially
-> some concern that lugging 512-bit scalars around by value was expensive, so
-> Bill's original work was at least geared toward pass-by-reference?
-> 
+Hi, sorry for the not very descriptive subject.
 
-That is a valid concern. One I hadn't really thought about
-as the patch is coming from SGI :)
+I have a problem with linux 2.6.5, it crashes, a lot. Some times it spews
+out oops at me, sometimes i dotn know if it oopsed or not because the
+machine doesnt respond.
 
-kernel/sched.c doesn't pass around cpumask_t's anywhere
-critical anymore (this used to be a problem). Any other
-important places spring to mind?
+I can reproduce this by several means, including playing a dvd, compiling
+firefox, mplayer or thunderbird and i can be doing something not quite a
+hard on the system such as browsing the web or chatting... It'll find some
+way to piss me off.
+
+Now, i have supplied several oops, each on containing the full output of
+dmesg via the kernel logging daemon. I have also supplied my hardware specs
+(mobo + lspci -vvv) and out put of ver_linux?... All these files can be
+found @ http://users.quickfox.org/~pods/linux-issues/.
+
+I didnt want to post them here because each oops IIRC is different. Just to
+let you know if have tried several way in which to correct this.
+
+* several different kernels ( 2.4.18-bf24, 2.4.26, 2.6.5 )
+** with ide shareirq
+** noapic
+** + apic
+** noacpi
+** + acpi
+** lots of other differences
+
+* Recently i had turned to bios and have disabled many things including apic
+(just incase you where wondering, bios had mps @ 1.4)
+
+If you would rather me add the very large amoung of oops to this email, tell
+me and i'll do so. Thanks in advance.
+
+P.S Im not subscribed to the list, i may consider it depending on the amount
+of feedback i get and how involved i need to be, but for now i'd rather if
+people could CC me their response. Thank you
+again.
+
+________________________________________________
+
+Message sent using
+Dodo Internet Webmail Server
+

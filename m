@@ -1,73 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264881AbRFTO1K>; Wed, 20 Jun 2001 10:27:10 -0400
+	id <S264885AbRFTOmW>; Wed, 20 Jun 2001 10:42:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264883AbRFTO1A>; Wed, 20 Jun 2001 10:27:00 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:24581 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S264881AbRFTO0y>; Wed, 20 Jun 2001 10:26:54 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Subject: Re: [RFC] Early flush (was: spindown)
-Date: Wed, 20 Jun 2001 16:29:49 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Mike Galbraith <mikeg@wen-online.de>, Rik van Riel <riel@conectiva.com.br>,
-        Pavel Machek <pavel@suse.cz>, John Stoffel <stoffel@casc.com>,
-        Roger Larsson <roger.larsson@norran.net>, <thunder7@xs4all.nl>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0106171156410.318-100000@mikeg.weiden.de> <01062003503300.00439@starship> <200106200439.f5K4d4501462@vindaloo.ras.ucalgary.ca>
-In-Reply-To: <200106200439.f5K4d4501462@vindaloo.ras.ucalgary.ca>
-MIME-Version: 1.0
-Message-Id: <01062016294903.00439@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S264886AbRFTOmM>; Wed, 20 Jun 2001 10:42:12 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:36637 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S264885AbRFTOmA>; Wed, 20 Jun 2001 10:42:00 -0400
+Date: Wed, 20 Jun 2001 16:41:56 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.20pre5aa1
+Message-ID: <20010620164156.G22569@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 June 2001 06:39, Richard Gooch wrote:
-> Daniel Phillips writes:
-> > I never realized how much I didn't like the good old 5 second delay
-> > between saving an edit and actually getting it written to disk until
-> > it went away.  Now the question is, did I lose any performance in
-> > doing that.  What I wrote in the previous email turned out to be
-> > pretty accurate, so I'll just quote it
->
-> Starting I/O immediately if there is no load sounds nice. However,
-> what about the other case, when the disc is already spun down (and
-> hence there's no I/O load either)? I want the system to avoid doing
-> writes while the disc is spun down. I'm quite happy for the system to
-> accumulate dirtied pages/buffers, reclaiming clean pages as needed,
-> until it absolutely has to start writing out (or I call sync(2)).
+Diff between 2.2.20pre3aa1 and 2.2.20pre5aa1:
 
-I'd like that too, but what about sync writes?  As things stand now, there is 
-no option but to spin the disk back up.  To get around this we'd have to 
-change the basic behavior of the block device and that's doable, but it's an 
-entirely different proposition than the little patch above.
+Only in 2.2.20pre3aa1: 00_newboot-2.2.20-pre2-1.diff.gz
 
-You know about this project no doubt:
+	Merged in 2.2.20pre5.
 
-   http://noflushd.sourceforge.net/
+Only in 2.2.20pre3aa1: 00_mips-irix-dumpable-1
 
-This is really complementary to what I did.  Lightweight is not really a good 
-way to describe it though, the tar is almost 10,000 lines long.  There is 
-probably a clever thing to do at the kernel level to shorten that up.
+	Not needed anymore with the do_coredump() common code.
 
-There's one thing I think I can help fix up while I'm working in here, this 
-complaint: 
+Only in 2.2.20pre3aa1: 00_parent-timeslice-loss-fix-4
+Only in 2.2.20pre5aa1: 00_parent-timeslice-loss-fix-5
 
-    Reiserfs journaling bypasses the kernel's delayed write mechanisms and    
-    writes straight to disk.
+	Fixup rejects with asm_offsets.h sparc/sparc64 updates in pre5.
 
-We need to address the reasons why such filesystems have to bypass kupdate.  
-This touches on how sync and fsync work, updating supers, flushing the inode 
-cache etc, but with Al Viro's superblock work merged now we could start 
-thinking about it.
-
-> Right now I hack that by setting bdflush parameters to 5 minutes. But
-> that's not ideal either.
-
-Yes, that still works with my patch.  The noflushd user space daemon works by 
-turning off kupdate (set update time to 0).
-
---
-Daniel
+Andrea

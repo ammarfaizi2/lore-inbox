@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291738AbSBNQEX>; Thu, 14 Feb 2002 11:04:23 -0500
+	id <S291741AbSBNQIX>; Thu, 14 Feb 2002 11:08:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291741AbSBNQEO>; Thu, 14 Feb 2002 11:04:14 -0500
-Received: from fsgi03.fnal.gov ([131.225.68.48]:317 "EHLO fsgi03.fnal.gov")
-	by vger.kernel.org with ESMTP id <S291738AbSBNQEA>;
-	Thu, 14 Feb 2002 11:04:00 -0500
-Date: Thu, 14 Feb 2002 10:03:57 -0600
-From: Alexander Moibenko <moibenko@fnal.gov>
-To: <linux-kernel@vger.kernel.org>
-Subject: fsync delays for a long time.
-Message-ID: <Pine.SGI.4.31.0202140951330.3076325-100000@fsgi03.fnal.gov>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291742AbSBNQIG>; Thu, 14 Feb 2002 11:08:06 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:55443 "HELO
+	outpost.powerdns.com") by vger.kernel.org with SMTP
+	id <S291741AbSBNQHt>; Thu, 14 Feb 2002 11:07:49 -0500
+Date: Thu, 14 Feb 2002 17:07:48 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Dave McCracken <dmccr@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, drepper@redhat.com, torvalds@transmeta.com
+Subject: Re: setuid/pthread interaction broken? 'clone_with_uid()?'
+Message-ID: <20020214170748.B17490@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Dave McCracken <dmccr@us.ibm.com>, linux-kernel@vger.kernel.org,
+	drepper@redhat.com, torvalds@transmeta.com
+In-Reply-To: <20020214165143.A16601@outpost.ds9a.nl> <38300000.1013702447@baldur>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <38300000.1013702447@baldur>; from dmccr@us.ibm.com on Thu, Feb 14, 2002 at 04:03:47PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-we are using gdbm in our application. It has been noticed that whenever
-a disk intesive job is running our application hangs for a very long time.
-This is the scenario I'm getting in trouble with:
-run my gdbm application and bonnie test on the same device.
-When gdbm comes to the point when it calls fsync it delays for a long
-time.
-The time depends on the CPU and disk speed, but always is intolerably big:
-few tens of sec - to minutes.
-It does not seem to depend on the size of the DB.
-Application runs on the machines with 2.2.x kernel.
-Had anyone seen the same problem?
-I've seen a discussion about a bad performance of SCSI versus IDE drives
-with mySQL on this list. But we tried it on both with the same (bad)
-result. IDE is even worse in our case. In the discussion it was also said
-that fsync for 2.4.x is modified. But does it fix a problem?
-Thanks in advance for comments and suggestions.
+On Thu, Feb 14, 2002 at 04:03:47PM +0000, Dave McCracken wrote:
 
---------------------------------------------------------------------------
-Alexander N. Moibenko, Integrated Systems Development, CD, Fermilab
-email: moibenko@fnal.fnal.gov
---------------------------------------------------------------------------
+> It's the expected behavior for a task-based model like Linux.  Each task is
+> independent and inherits the uid/gid from whoever called clone().  It's
+> just one of several resources that are specified as process-wide in POSIX,
+> but are per-task in Linux.
 
+Could this also be solved by making threads call 'clone' themselves? 
+
+> I've been working on a patch to allow clone() to specify shared
+> credentials, but it's been on the back burner.
+
+Would be much appreciated.
+
+Regards,
+
+bert hubert
+
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
+Linux Advanced Routing & Traffic Control: http://ds9a.nl/lartc

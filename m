@@ -1,54 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263060AbTLMWJy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 17:09:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbTLMWJy
+	id S265053AbTLMW2l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 17:28:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265279AbTLMW2l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 17:09:54 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:41882
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S263060AbTLMWJw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 17:09:52 -0500
-Date: Sat, 13 Dec 2003 17:18:00 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 and IDE "geometry"
-Message-ID: <20031213171800.A28547@animx.eu.org>
-References: <20031212131704.A26577@animx.eu.org> <20031212194439.GB11215@win.tue.nl> <20031212163545.A26866@animx.eu.org> <20031213132208.GA11523@win.tue.nl>
+	Sat, 13 Dec 2003 17:28:41 -0500
+Received: from c-130372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.19]:8609
+	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
+	id S265053AbTLMW2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 17:28:37 -0500
+Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
+From: Ian Kumlien <pomac@vapor.com>
+To: ross@datscreative.com.au
+Cc: Jesse Allen <the3dfxdude@hotmail.com>, linux-kernel@vger.kernel.org,
+       AMartin@nvidia.com
+In-Reply-To: <200312140407.28580.ross@datscreative.com.au>
+References: <200312140407.28580.ross@datscreative.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-qa/Jv4ZXdpVkAhkfCGbW"
+Message-Id: <1071354516.2634.3.camel@big.pomac.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <20031213132208.GA11523@win.tue.nl>; from Andries Brouwer on Sat, Dec 13, 2003 at 02:22:08PM +0100
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 13 Dec 2003 23:28:36 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > This I know, however, the kernel in the past has the geometry from the BIOS
-> 
-> The kernel made some attempts. It often worked and often failed.
 
-On all the different PCs I've worked with, it always worked.  Most of those
-were dells and old FIC boards.
+--=-qa/Jv4ZXdpVkAhkfCGbW
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> > I realize this too, however, I need it to happen automatically and be
-> > consistent with the bios idea of the disk.
-> 
-> So you script sfdisk or so in order to setup large numbers of disks
-> and cannot use constant geometry settings because this is on many
-> different BIOSes that disagree on the desired geometry?
+On Sat, 2003-12-13 at 19:07, Ross Dickson wrote:
+> ..APIC TIMER ack delay, reload:16701, safe:16691
 
-Not quite, each is 1 PC and 1 Hard disk.
+calibrating APIC timer ...
+..... CPU clock speed is 2079.0146 MHz.
+..... host bus clock speed is 332.0663 MHz.
+NET: Registered protocol family 16
+..APIC TIMER ack delay, reload:20791, safe:20779
+..APIC TIMER ack delay, predelay count: 20769
+..APIC TIMER ack delay, predelay count: 20786
+..APIC TIMER ack delay, predelay count: 20716
+..APIC TIMER ack delay, predelay count: 20731
+..APIC TIMER ack delay, predelay count: 20747
+..APIC TIMER ack delay, predelay count: 20762
+..APIC TIMER ack delay, predelay count: 20780
+..APIC TIMER ack delay, predelay count: 20729
+..APIC TIMER ack delay, predelay count: 20740
+..APIC TIMER ack delay, predelay count: 20757
+---
 
-> And this is all on disks smaller than 8 GB so that at least there can be
-> some geometry?
+Survived my greptest which no non patched kernel has ever done on this
+machine.
 
-Thus far, the smallest has been 1.2gb and the largest being 80gb.  2.4.x (x
-= any version upto 21  I have not used 22 or 23 yet) has worked for me
-flawlessly.
+Has anyone got that extended ringbuffer to work? I haven't been able to
+get a complete "boot" dmesg in ages because of all the output all the
+drivers make... Does it need a updated dmesg?
+(I mean, is this like the non updated gnome-terminal in mdk 9.1 that
+deadlocks on 2.6 if you run some ncurces apps in a "larger than usual"
+window?)
 
-The script does use sfdisk to aquire the size and the user tells it just how
-large the partition to be and defaulting to the largest possible.  If the
-geometry is wrong, the other OS won't boot.
+--=20
+Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+--=-qa/Jv4ZXdpVkAhkfCGbW
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/25KU7F3Euyc51N8RAl4uAJ9vHT3ZMYTTPgoAui7qHXOHfl7eRwCgtC+G
+U9d+IfDIRnMvCJ6/YR56yE8=
+=KRFF
+-----END PGP SIGNATURE-----
+
+--=-qa/Jv4ZXdpVkAhkfCGbW--
+

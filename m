@@ -1,47 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265405AbUFHXgS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265402AbUFHXoW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265405AbUFHXgS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 19:36:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265428AbUFHXgS
+	id S265402AbUFHXoW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 19:44:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265418AbUFHXoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 19:36:18 -0400
-Received: from holomorphy.com ([207.189.100.168]:3713 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265405AbUFHXgR (ORCPT
+	Tue, 8 Jun 2004 19:44:22 -0400
+Received: from ozlabs.org ([203.10.76.45]:19900 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265402AbUFHXoR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 19:36:17 -0400
-Date: Tue, 8 Jun 2004 16:36:10 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: [PATCH] staircase scheduler v6.4 for 2.6.7-rc3
-Message-ID: <20040608233610.GC1444@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Peter Williams <pwil3058@bigpond.net.au>,
-	Con Kolivas <kernel@kolivas.org>,
-	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>
-References: <200406090023.54421.kernel@kolivas.org> <40C645F7.6070704@bigpond.net.au>
-Mime-Version: 1.0
+	Tue, 8 Jun 2004 19:44:17 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40C645F7.6070704@bigpond.net.au>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16582.20441.569108.903222@cargo.ozlabs.ibm.com>
+Date: Wed, 9 Jun 2004 09:46:33 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
+       benh@kernel.crashing.org, olh@suse.de
+Subject: [PATCH][PPC32] serial console autodetection
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 09, 2004 at 09:04:23AM +1000, Peter Williams wrote:
-> There was no need to add the extra overhead of a flag to indicate that a 
-> task was queued for scheduling.  Testing whether run_list is empty 
-> achieves the same thing as reliably as the old array == NULL test did.
+>From Olaf Hering <olh@suse.de>:
 
-Overhead? Doubtful. Also, that requires the use of list_del_init()
-while dequeueing, which is not in place now. Please do back the claim
-with measurements. It should be easy enough to nop out set_task_queued(),
-implement task_queued() via !list_empty(), and clear_task_queued() via
-INIT_LIST_HEAD() for a quick performance comparison. But I'd say to
-merge it even if there's no difference, as it's more self-contained.
+We have something like this in our kernel since many months.
+It sets the console device to what OF uses. ppc64 does the same, and it
+works ok. serial is found on CHRP, ch-a is used on all powermacs.
 
-
--- wli
+diff -p -purN linux-2.6.6-bk8/arch/ppc/kernel/setup.c linux-2.6.6-bk8.autoconsole/arch/ppc/kernel/setup.c
+--- linux-2.6.6-bk8/arch/ppc/kernel/setup.c	2004-05-22 09:18:42.000000000 +0200
++++ linux-2.6.6-bk8.autoconsole/arch/ppc/kernel/setup.c	2004-05-22 09:29:18.000000000 +0200
+@@ -16,6 +16,7 @@
+ #include <linux/seq_file.h>
+ #include <linux/root_dev.h>
+ #include <linux/cpu.h>
++#include <linux/console.h>
+ 
+ #include <asm/residual.h>
+ #include <asm/io.h>
+@@ -474,6 +475,60 @@ platform_init(unsigned long r3, unsigned
+ 		break;
+ 	}
+ }
++
++#ifdef CONFIG_SERIAL_CORE_CONSOLE
++extern char *of_stdout_device;
++
++static int __init set_preferred_console(void)
++{
++	struct device_node *prom_stdout;
++	char *name;
++	int offset;
++
++	/* The user has requested a console so this is already set up. */
++	if (strstr(saved_command_line, "console="))
++		return -EBUSY;
++
++	prom_stdout = find_path_device(of_stdout_device);
++	if (!prom_stdout)
++		return -ENODEV;
++
++	name = (char *)get_property(prom_stdout, "name", NULL);
++	if (!name)
++		return -ENODEV;
++
++	if (strcmp(name, "serial") == 0) {
++		int i;
++		u32 *reg = (u32 *)get_property(prom_stdout, "reg", &i);
++		if (i > 8) {
++			switch (reg[1]) {
++				case 0x3f8:
++					offset = 0;
++					break;
++				case 0x2f8:
++					offset = 1;
++					break;
++				case 0x898:
++					offset = 2;
++					break;
++				case 0x890:
++					offset = 3;
++					break;
++				default:
++					/* We dont recognise the serial port */
++					return -ENODEV;
++			}
++		}
++	} else if (strcmp(name, "ch-a") == 0)
++		offset = 0;
++	else if (strcmp(name, "ch-b") == 0)
++		offset = 1;
++	else
++		return -ENODEV;
++	return add_preferred_console("ttyS", offset, NULL);
++}
++console_initcall(set_preferred_console);
++#endif /* CONFIG_SERIAL_CORE_CONSOLE */
+ #endif /* CONFIG_PPC_MULTIPLATFORM */
+ 
+ struct bi_record *find_bootinfo(void)
+diff -p -purN linux-2.6.6-bk8/arch/ppc/syslib/prom_init.c linux-2.6.6-bk8.autoconsole/arch/ppc/syslib/prom_init.c
+--- linux-2.6.6-bk8/arch/ppc/syslib/prom_init.c	2004-05-22 09:18:42.000000000 +0200
++++ linux-2.6.6-bk8.autoconsole/arch/ppc/syslib/prom_init.c	2004-05-22 09:26:54.000000000 +0200
+@@ -118,7 +118,7 @@ ihandle prom_stdout __initdata = 0;
+ char *prom_display_paths[FB_MAX] __initdata = { 0, };
+ phandle prom_display_nodes[FB_MAX] __initdata;
+ unsigned int prom_num_displays __initdata = 0;
+-static char *of_stdout_device __initdata = 0;
++char *of_stdout_device __initdata = 0;
+ static ihandle prom_disp_node __initdata = 0;
+ 
+ unsigned int rtas_data;   /* physical pointer */
+@@ -880,6 +880,11 @@ prom_init(int r3, int r4, prom_entry pp)
+ 	for (i = 0; i < prom_num_displays; ++i)
+ 		prom_display_paths[i] = PTRUNRELOC(prom_display_paths[i]);
+ 
++#ifdef CONFIG_SERIAL_CORE_CONSOLE
++	/* Relocate the of stdout for console autodetection */
++	of_stdout_device = PTRUNRELOC(of_stdout_device);
++#endif
++
+ 	prom_print("returning 0x");
+ 	prom_print_hex(phys);
+ 	prom_print("from prom_init\n");

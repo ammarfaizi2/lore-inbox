@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262245AbVAOIzS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262244AbVAOJao@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262245AbVAOIzS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 03:55:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbVAOIzS
+	id S262244AbVAOJao (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 04:30:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbVAOJan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 03:55:18 -0500
-Received: from main.gmane.org ([80.91.229.2]:63625 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262245AbVAOIzN (ORCPT
+	Sat, 15 Jan 2005 04:30:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:36263 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262244AbVAOJaf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 03:55:13 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Pasi Savolainen <psavo@iki.fi>
-Subject: Re: swapspace layout improvements advocacy
-Date: Sat, 15 Jan 2005 08:55:08 +0000 (UTC)
-Message-ID: <slrncuhmjb.19r.psavo@varg.dyndns.org>
-References: <20050112123524.GA12843@lnx-holt.americas.sgi.com> <Pine.LNX.4.44.0501121758180.2765-100000@localhost.localdomain> <20050112105315.2ac21173.akpm@osdl.org> <Pine.LNX.4.53.0501141433000.7044@gockel.physik3.uni-rostock.de> <20050114225213.GA4841@ip68-4-98-123.oc.oc.cox.net>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: a11a.mannikko1.ton.tut.fi
-X-Face: $sk2zxhxVp'QPUj~kr+z:<m>#+84DO\Ab{4Hes1.P>]p=XhgsnwZM^[:"M?W#_x{W5[lu7i bqv7lOL`]5G%fH"Pgd5;+t"w)sOPDg::&T$Z9p#|xSMIb`$Udj6u14lh]imQ\z
-User-Agent: slrn/0.9.8.1 (Debian)
+	Sat, 15 Jan 2005 04:30:35 -0500
+Date: Sat, 15 Jan 2005 01:30:13 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: matthias@corelatus.se
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: patch to fix set_itimer() behaviour in boundary cases
+Message-Id: <20050115013013.1b3af366.akpm@osdl.org>
+In-Reply-To: <16872.55357.771948.196757@antilipe.corelatus.se>
+References: <16872.55357.771948.196757@antilipe.corelatus.se>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Barry K. Nathan <barryn@pobox.com>:
-> On Fri, Jan 14, 2005 at 02:55:27PM +0100, Tim Schmielau wrote:
->> 2.6 seems in due need of such a patch.
->> 
->> I recently found out that 2.6 kernels degrade horribly when going into 
->> swap. On my dual PIII-850 with as little as 256 mb ram, I can easily 
-> [snip]
+Matthias Lang <matthias@corelatus.se> wrote:
 >
-> I haven't tried the patch in question (unless it's in any Fedora
-> kernels), but I've noticed that the single biggest step to improve
-> swapping performance in 2.6 is to use the CFQ scheduler, not the AS
-> scheduler. (That's also why Red Hat/Fedora kernels use CFQ as the
-> default scheduler.)
+> The linux implementation of setitimer() doesn't behave quite as
+>  expected. I found several problems:
+> 
+>    1. POSIX says that negative times should cause setitimer() to 
+>       return -1 and set errno to EINVAL. In linux, the call succeeds.
+> 
+>    2. POSIX says that time values with usec >= 1000000 should
+>       cause the same behaviour. In linux, the call succeeds.
+> 
+>    3. If large time values are given, linux quietly truncates them
+>       to the maximum time representable in jiffies. On 2.4.4 on PPC,
+>       that's about 248 days. On 2.6.10 on x86, that's about 24 days.
+> 
+>       POSIX doesn't really say what to do in this case, but looking at
+>       established practice, i.e. "what BSD does", since the call comes 
+>       from BSD, *BSD returns -1 if the time is out of range.
+> 
 
-I've not tried the patch yet, but with 1G mem / 1G swap when I finally
-hit the swap and quit the program that uses it (straw, gimp..), machine
-will stop responding for 10-15sec. 
-I have 'elevator=cfq' in boot command and this is SMP. Last seen
-yesterday when shutting down 2.6.10-rc2-mm4 to try out latest -mm.
-I did vmstat runs a while ago, but didn't see anything really out of
-line, maybe it didn't get data either (or I don't know what is normal).
+These are things we probably cannot change now.  All three are arguably
+sensible behaviour and do satisfy the principle of least surprise.  So
+there may be apps out there which will break if we "fix" these things.
 
-
--- 
-   Psi -- <http://www.iki.fi/pasi.savolainen>
-
+If the kernel version was 2.7.0 then well maybe...

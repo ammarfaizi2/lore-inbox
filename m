@@ -1,81 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268330AbUIPXV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268439AbUIPXV7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268330AbUIPXV7 (ORCPT <rfc822;willy@w.ods.org>);
+	id S268439AbUIPXV7 (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 16 Sep 2004 19:21:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268337AbUIPXVB
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268330AbUIPXG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 19:21:01 -0400
-Received: from 147.32.220.203.comindico.com.au ([203.220.32.147]:65212 "EHLO
-	relay01.mail-hub.kbs.net.au") by vger.kernel.org with ESMTP
-	id S268348AbUIPXSZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 19:18:25 -0400
-Subject: Re: [PATCH] Suspend2 Merge: Driver model patches 2/2
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@digeo.com>, Patrick Mochel <mochel@digitalimplant.org>,
-       Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040916230713.GA16403@kroah.com>
-References: <1095332331.3855.161.camel@laptop.cunninghams>
-	 <20040916142847.GA32352@kroah.com>
-	 <1095373127.5897.23.camel@laptop.cunninghams>
-	 <20040916223539.GA16151@kroah.com>
-	 <1095374947.6537.34.camel@laptop.cunninghams>
-	 <20040916230713.GA16403@kroah.com>
-Content-Type: text/plain
-Message-Id: <1095376793.5902.49.camel@laptop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 17 Sep 2004 09:19:53 +1000
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Sep 2004 19:06:26 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:24015 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268321AbUIPXFT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 19:05:19 -0400
+Date: Thu, 16 Sep 2004 16:03:51 -0700 (PDT)
+From: Ray Bryant <raybry@sgi.com>
+To: Ray Bryant <raybry@austin.rr.com>, Andrew Morton <akpm@osdl.org>
+Cc: Ray Bryant <raybry@sgi.com>, lse-tech@lists.sourceforge.net,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org
+Message-Id: <20040916230351.23023.75244.58133@tomahawk.engr.sgi.com>
+In-Reply-To: <20040916230344.23023.79384.49263@tomahawk.engr.sgi.com>
+References: <20040916230344.23023.79384.49263@tomahawk.engr.sgi.com>
+Subject: [PATCH 1/3] lockmeter: fixed-up: lockmeter fixes for preempt case
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Updated lockmeter-preempt-fix.patch.
 
-On Fri, 2004-09-17 at 09:07, Greg KH wrote:
-> > What's broken? (I want to learn what I've done wrong that I'm not
-> > seeing).
-> 
->  - No locking when traversing the list.
->  - Reference count needs to be bumped before returning a pointer to the
->    object you found.
+Signed-off-by: Ray Bryant <raybry@sgi.com>
 
-Ah. Fair enough. I haven't seen any problems because the locking is more
-abstract: processes are frozen when this runs for suspend. I'll fix it,
-but won't bother resubmitting it because Pavel's changes should obsolete
-this stuff.
+Index: linux-2.6.9-rc2-mm1/kernel/lockmeter.c
+===================================================================
+--- linux-2.6.9-rc2-mm1.orig/kernel/lockmeter.c	2004-09-16 11:03:05.000000000 -0700
++++ linux-2.6.9-rc2-mm1/kernel/lockmeter.c	2004-09-16 12:03:20.000000000 -0700
+@@ -1236,18 +1236,58 @@
+ EXPORT_SYMBOL(_write_trylock);
+ 
+ #if defined(CONFIG_SMP) && defined(CONFIG_PREEMPT)
++/*
++ * This could be a long-held lock.  If another CPU holds it for a long time,
++ * and that CPU is not asked to reschedule then *this* CPU will spin on the
++ * lock for a long time, even if *this* CPU is asked to reschedule.
++ *
++ * So what we do here, in the slow (contended) path is to spin on the lock by
++ * hand while permitting preemption.
++ *
++ * Called inside preempt_disable().
++ */
++static inline void __preempt_spin_lock(spinlock_t *lock, void *caller_pc)
++{
++	if (preempt_count() > 1) {
++		_metered_spin_lock(lock, caller_pc);
++		return;
++	}
++
++	do {
++		preempt_enable();
++		while (spin_is_locked(lock))
++			cpu_relax();
++		preempt_disable();
++	} while (!_metered_spin_trylock(lock, caller_pc));
++}
++
+ void __lockfunc _spin_lock(spinlock_t *lock)
+ {
+ 	preempt_disable();
+ 	if (unlikely(!_metered_spin_trylock(lock, __builtin_return_address(0))))
+-		__preempt_spin_lock(lock);
++		__preempt_spin_lock(lock, __builtin_return_address(0));
++}
++
++static inline void __preempt_write_lock(rwlock_t *lock, void *caller_pc)
++{
++	if (preempt_count() > 1) {
++		_metered_write_lock(lock, caller_pc);
++		return;
++	}
++
++	do {
++		preempt_enable();
++		while (rwlock_is_locked(lock))
++			cpu_relax();
++		preempt_disable();
++	} while (!_metered_write_trylock(lock,caller_pc));
+ }
+ 
+ void __lockfunc _write_lock(rwlock_t *lock)
+ {
+ 	preempt_disable();
+ 	if (unlikely(!_metered_write_trylock(lock, __builtin_return_address(0))))
+-		__preempt_write_lock(lock);
++		__preempt_write_lock(lock, __builtin_return_address(0));
+ }
+ #else
+ void __lockfunc _spin_lock(spinlock_t *lock)
+@@ -1458,3 +1498,13 @@
+ 	return 0;
+ }
+ EXPORT_SYMBOL(_spin_trylock_bh);
++
++int in_lock_functions(unsigned long addr)
++{
++	/* Linker adds these: start and end of __lockfunc functions */
++	extern char __lock_text_start[], __lock_text_end[];
++
++	return addr >= (unsigned long)__lock_text_start
++	&& addr < (unsigned long)__lock_text_end;
++}
++EXPORT_SYMBOL(in_lock_functions);
 
-> > > mention the fact that the functionality this function proposes to offer
-> > > is not needed either.
-> > > 
-> > > > (their patch just fills in a field that was left blank previously),
-> > > 
-> > > What patch?
-> > 
-> > Attached. Sorry if I wrongly assumed this was the patch you're talking
-> > about.
-> 
-> Ah, no, I've never seen this one, thanks.  But it looks sane, I don't
-> have a problem with it (sysfs will like it, it's not a suspend specific
-> patch at all.)
-
-Antonio posted it to LKML last week IIRC, which is why I didn't include
-it in the device driver patches. Given Pavel's changes (again), I'm in
-two minds as to whether its needed. It's clearly the right thing to do,
-but not needed at the moment. Then again, as we noted already, the whole
-device_class thing doesn't get a lot of use at the moment.
-
-Regards,
-
-Nigel
 -- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-Many today claim to be tolerant. True tolerance, however, can cope with others
-being intolerant.
-
+Best Regards,
+Ray
+-----------------------------------------------
+Ray Bryant                       raybry@sgi.com
+The box said: "Requires Windows 98 or better",
+           so I installed Linux.
+-----------------------------------------------

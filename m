@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318451AbSGSEjR>; Fri, 19 Jul 2002 00:39:17 -0400
+	id <S318455AbSGSEnu>; Fri, 19 Jul 2002 00:43:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318457AbSGSEjR>; Fri, 19 Jul 2002 00:39:17 -0400
-Received: from ip68-100-183-147.nv.nv.cox.net ([68.100.183.147]:19858 "HELO
-	ascellatech.com") by vger.kernel.org with SMTP id <S318451AbSGSEjQ>;
-	Fri, 19 Jul 2002 00:39:16 -0400
-Subject: Re: SMP Problem with 2.4.19-rc2 on Asus A7M266-D
-From: Amith Varghese <amith@xalan.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.1.6.0.20020719121809.01d15d88@pop.cs.curtin.edu.au>
-References: <5.1.1.6.0.20020719121809.01d15d88@pop.cs.curtin.edu.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 19 Jul 2002 00:42:10 -0400
-Message-Id: <1027053730.3621.187.camel@viper>
+	id <S318461AbSGSEnu>; Fri, 19 Jul 2002 00:43:50 -0400
+Received: from theirongiant.weebeastie.net ([203.62.148.50]:37576 "EHLO
+	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S318455AbSGSEnt>; Fri, 19 Jul 2002 00:43:49 -0400
+Date: Fri, 19 Jul 2002 14:45:18 +1000
+From: CaT <cat@zip.com.au>
+To: Larry McVoy <lm@work.bitmover.com>, Rob Landley <landley@trommello.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
+Message-ID: <20020719044518.GK5608@zip.com.au>
+References: <200207190432.g6J4WD2366706@pimout5-int.prodigy.net> <20020718213857.E23208@work.bitmover.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020718213857.E23208@work.bitmover.com>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have the same setup with the same exact problem.
+On Thu, Jul 18, 2002 at 09:38:57PM -0700, Larry McVoy wrote:
+> On Thu, Jul 18, 2002 at 06:33:54PM -0400, Rob Landley wrote:
+> > I've been sitting on this question for years, hoping I'd come
+> > across the answer, and I STILL don't know what the "i" is short for.
+> > Somebody here has got to know this. :)
+> 
+> Incore node, I believe.  In the original Unix code there was dinode and
+> inode if I remember correctly, for disk node and incore node.
 
-Amith
+That's a new one. I always thought it was 'information node' so in the
+above it'd be disk information node and just information node.
 
-On Fri, 2002-07-19 at 00:26, David Shirley wrote:
-> Hi Guys,
-> 
-> I was running 2.4.18 with an Asus A7M266-D Board with Athlon 2000 MP's fine,
-> I decided to try out 2.4.19-rc2-ac2 and now the machine doesn't even boot.
-> 
-> With no kernel options (in grub) it gets upto "ENABLING IO-APIC IRQ's" and 
-> a little
-> bit further then it hangs and prints out "APIC error on CPU0: 00(08)"
-> 
-> If i put in noapic in grub it does exactly the same thing but prints out 
-> the above lots and
-> lots in quick succession and with CPU1 not 0.
-> 
-> Btw: It does the same thing with MPS1.4 rather than 1.1
-> 
-> Anyone?
-> 
-> Cheers
-> Dave
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Makes sense to me in any case. :)
 
-
+-- 
+GOVERNMENT ANNOUNCEMENT - The  government announced  today that  it is
+changing its mascot  to a condom because  it more clearly reflects the
+government's political stance.  A condom stands up to inflation, halts
+production, destroys  the next generation,  protects a bunch of pricks
+and finally, gives you a sense of security while you're being screwed!

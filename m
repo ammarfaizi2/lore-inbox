@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267456AbTBIVjY>; Sun, 9 Feb 2003 16:39:24 -0500
+	id <S267457AbTBIWBB>; Sun, 9 Feb 2003 17:01:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267457AbTBIVjY>; Sun, 9 Feb 2003 16:39:24 -0500
-Received: from 2-118.ctame702-5.telepar.net.br ([200.140.236.118]:45696 "EHLO
-	PolesApart.wox.org") by vger.kernel.org with ESMTP
-	id <S267456AbTBIVjX>; Sun, 9 Feb 2003 16:39:23 -0500
-Message-ID: <3E46CCD1.60903@PolesApart.dhs.org>
-Date: Sun, 09 Feb 2003 19:49:05 -0200
-From: Alexandre Pereira Nunes <alex@PolesApart.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pt-BR; rv:1.2.1) Gecko/20021130
-X-Accept-Language: pt-br, en-us, en
-MIME-Version: 1.0
+	id <S267458AbTBIWBB>; Sun, 9 Feb 2003 17:01:01 -0500
+Received: from 12-252-67-253.client.attbi.com ([12.252.67.253]:55681 "EHLO
+	morningstar.nowhere.lie") by vger.kernel.org with ESMTP
+	id <S267457AbTBIWBA>; Sun, 9 Feb 2003 17:01:00 -0500
+From: "John W. M. Stevens" <john@betelgeuse.us>
+Date: Sun, 9 Feb 2003 15:10:44 -0700
 To: linux-kernel@vger.kernel.org
-Subject: video4linux API question
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Setjmp/Longjmp in the kernel?
+Message-ID: <20030209221044.GA8761@morningstar.nowhere.lie>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Greetings,
 
+I ported an Object Oriented infrastructure to work with the Linux
+kernel about two years ago.  For various reasons, that work was
+dropped for a while.  Now, upon picking it back up again, there
+are some new features that were not present in the original port
+that I need to support.
 
-In v4l v1 api, is there a way to get the "active" (current) video input (channel)?
-I mean, I can use VIDIOCSCHAN to tell the channel i want, but I can't 
-use (i.e.) VIDIOCGCHAN to see what is the selected channel between different programs.
-It seems that it could be of some use, since there is already some state stored
-in the driver (at least in bttv I can use for example one interactive program for setting
-input parameters (bright/contrast/whatever) and then let these settings in effect for another,
-non-interactive capture daemon, for example.
+Among these is a simple exception support system.  The core
+of this system is based on the existence of a setjmp/longjmp
+facility.  In digging through the source code, I've found a
+few, architechturally specific implementations of such a
+facility, but no generalized, multi-platform support.
 
-Of course there are some implications in doing it this way, but that is exactly my question: if there are some
-provisions for something like that (settings remaining throught multiple sessions) planned in th API,
-or if I can't rely in this behaviour at all.
+A FAQ I found seems to suggest this deliberate, and that such
+support will not ever be added to Linux.  Am I correct in
+my understanding?  If so, is an architechturally specific
+implementation (such as was done for ppc) acceptable?
 
-
-Also, are there any provisions for multiple programs open()ing the same device simultaneously?
-
-
-What about v4l 2, in both issues?
-
-
-Thanks in advance,
-
-
-Alexandre
-
-
-
+Thanks,
+John S.

@@ -1,54 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265659AbRGSRww>; Thu, 19 Jul 2001 13:52:52 -0400
+	id <S265806AbRGSSBE>; Thu, 19 Jul 2001 14:01:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265714AbRGSRwm>; Thu, 19 Jul 2001 13:52:42 -0400
-Received: from unthought.net ([212.97.129.24]:25313 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S265659AbRGSRw2>;
-	Thu, 19 Jul 2001 13:52:28 -0400
-Date: Thu, 19 Jul 2001 19:52:31 +0200
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Andi Kleen <ak@suse.de>
-Cc: Cornel Ciocirlan <ctrl@rdsnet.ro>, linux-kernel@vger.kernel.org
-Subject: Re: Request for comments
-Message-ID: <20010719195231.B31165@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Andi Kleen <ak@suse.de>, Cornel Ciocirlan <ctrl@rdsnet.ro>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0107191757400.17990-100000@groove.rdsnet.ro.suse.lists.linux.kernel> <oup4rs8kenl.fsf@pigdrop.muc.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <oup4rs8kenl.fsf@pigdrop.muc.suse.de>; from ak@suse.de on Thu, Jul 19, 2001 at 07:33:02PM +0200
+	id <S265771AbRGSSAz>; Thu, 19 Jul 2001 14:00:55 -0400
+Received: from igw3.watson.ibm.com ([198.81.209.18]:1949 "EHLO
+	igw3.watson.ibm.com") by vger.kernel.org with ESMTP
+	id <S265714AbRGSSAj>; Thu, 19 Jul 2001 14:00:39 -0400
+Reply-To: mostrows@speakeasy.net
+To: kuznet@ms2.inr.ac.ru
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+        netdev@oss.sgi.com
+Subject: Re: [PATCH] PPPOE can kfree SKB twice (was Re: kernel panic problem. (smp, iptables?))
+In-Reply-To: <200107191727.VAA30738@ms2.inr.ac.ru>
+From: Michal Ostrowski <mostrows@us.ibm.com>
+Date: 19 Jul 2001 14:00:54 -0400
+In-Reply-To: <200107191727.VAA30738@ms2.inr.ac.ru>
+Message-ID: <sb666cohk89.fsf@slug.watson.ibm.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Copyleft)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, Jul 19, 2001 at 07:33:02PM +0200, Andi Kleen wrote:
-> Cornel Ciocirlan <ctrl@rdsnet.ro> writes:
+kuznet@ms2.inr.ac.ru writes:
+
+> Hello!
 > 
-> > Hi, 
-> > 
-> > I was thinking of starting a project to implement a Cisco-like
-> > "NetFlow" architecture for Linux. This would be relevant for edge routers
-> > and/or network monitoring devices.  
+> SOme short comment on the patch:
 > 
-> Linux 2.1+ already has such a cache in form of the rtcache since several
-> years.
+> 
+> > -	dev_queue_xmit(skb);
+> > +	/* The skb we are to transmit may be a copy (see above).  If
+> > +	 * this fails, then the caller is responsible for the original
+> > +	 * skb, otherwise we must free it.  Also if this fails we must
+> > +	 * free the copy that we made.
+> > +	 */
+> > +
+> > +	if (dev_queue_xmit(skb)<0) {
+> 
+> dev_queue_xmit _frees_ frame, not depending on return value.
+> Return value is not a criterium to assume anything.
+> 
 
-NeTraMet is a project that will give you NetFlow-like data.  You set up traffic
-meters on your routers, and gather data centrally from the meters using SNMP.
+My mistake.  It seemed perfectly reasonable at 6:00 am.  :-)
 
-Works great.
+However, could we not have dev_queue_xmit behave as such (not free
+frame on failure)?  That is, could we extend dev_queue_xmit to tell it
+(optionally) that we want the skb back in case of failure?
+dev_queue_xmit unconditionally frees the skb in any failure mode,
+which is I would venture to say that we could do this.
 
-See: http://www2.auckland.ac.nz/net/Accounting/ntm.Release.note.html
+The reason why I'm proposing this is that ppp_generic.c assumes that
+the skb is still available after a transmission failure via pppoe.  To
+support the semantics of dev_queue_xmit and ppp_generic we would have
+to always copy skb's inside pppoe_xmit.  Then, if dev_queue_xmit fails
+the original is deleted.
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+In the common case dev_queue_xmit will not fail, and so in that case
+I'd like to have to avoid making a copy of the skb.
+
+Michal Ostrowski
+mostrows@speakeasy.net
+

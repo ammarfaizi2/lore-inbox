@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264820AbTB0Mj7>; Thu, 27 Feb 2003 07:39:59 -0500
+	id <S264867AbTB0Mpc>; Thu, 27 Feb 2003 07:45:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264867AbTB0Mj7>; Thu, 27 Feb 2003 07:39:59 -0500
-Received: from isaac.asimov.net ([208.185.231.103]:56970 "HELO
-	isaac.asimov.net") by vger.kernel.org with SMTP id <S264820AbTB0Mj7>;
-	Thu, 27 Feb 2003 07:39:59 -0500
-Date: Thu, 27 Feb 2003 04:50:17 -0800
-From: Patrick Michael Kane <modus-linux-kernel@pr.es.to>
-To: linux-kernel@vger.kernel.org
-Subject: preventing route cache overflow
-Message-ID: <20030227045017.A11619@pr.es.to>
+	id <S264875AbTB0Mpc>; Thu, 27 Feb 2003 07:45:32 -0500
+Received: from unthought.net ([212.97.129.24]:5762 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S264867AbTB0Mpb>;
+	Thu, 27 Feb 2003 07:45:31 -0500
+Date: Thu, 27 Feb 2003 13:55:49 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 7/8] dm: __LOW macro fix no. 2
+Message-ID: <20030227125549.GD4239@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Joe Thornber <joe@fib011235813.fsnet.co.uk>,
+	Linux Mailing List <linux-kernel@vger.kernel.org>
+References: <20030226170537.GA8289@fib011235813.fsnet.co.uk> <20030226171249.GG8369@fib011235813.fsnet.co.uk> <20030227093442.GC4239@unthought.net> <20030227100144.GA6387@fib011235813.fsnet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030227100144.GA6387@fib011235813.fsnet.co.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We recently had a server come under attack.  Some script monkeys
-started generating a bunch of pings and SYNs from a huge variety of
-spoofed addresses (mostly in 43.0.0.0/8 and 44.0.0.0/8, for those that
-are interested).
+On Thu, Feb 27, 2003 at 10:01:44AM +0000, Joe Thornber wrote:
+> On Thu, Feb 27, 2003 at 10:34:42AM +0100, Jakob Oestergaard wrote:
+> > If you want a magic "usually_min_but_sometimes_max()" macro, then make
+> > it's *name* reflect it's voodoo propeties.
+> 
+> See the patch I just posted in response to Greg.
 
-There were so many forged packets that the destination cache began to
-overflow hundreds or thousands of times per second ("kernel: dst cache
-overflow").  This had a huge negative impact on server performance.
+That makes me happy, for all it matters   ;)
 
-Adjusting net/ipv4/route/(max_size|gc_interval) or flushing the route
-cache manually on a regular basis seemed to have little or no
-measurable impact on the problem.  While IDS and manual filtering at
-the firewall eventually resolved the problem, how do we protect
-ourselves against this sort of attack in the future?  Can the route
-cache be disabled?  The overflow path made less catastrophic?
+Cheers,
 
-TIA,
 -- 
-Patrick Michael Kane
-<modus-linux-kernel@pr.es.to>
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

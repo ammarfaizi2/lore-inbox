@@ -1,72 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265062AbUFRJKL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265030AbUFRJG2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265062AbUFRJKL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 05:10:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265056AbUFRJGy
+	id S265030AbUFRJG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 05:06:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265058AbUFRJEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 05:06:54 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:49870 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S265062AbUFRJFN (ORCPT
+	Fri, 18 Jun 2004 05:04:21 -0400
+Received: from ints.net ([194.44.58.85]:27407 "EHLO primus.ints.net")
+	by vger.kernel.org with ESMTP id S265074AbUFRIwY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 05:05:13 -0400
-Date: Fri, 18 Jun 2004 11:05:11 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+	Fri, 18 Jun 2004 04:52:24 -0400
+Date: Fri, 18 Jun 2004 11:51:53 +0300
+From: "Vitaly V. Bursov" <vitalyvb@ukr.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Stop the Linux kernel madness
-Message-ID: <20040618090511.GV20632@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <40D232AD.4020708@opensound.com> <20040618004450.GT12308@parcelfarce.linux.theplanet.co.uk> <40D23EBD.50600@opensound.com> <40D24606.6040009@yahoo.com.au> <40D2474D.8030303@opensound.com> <200406180745.i5I7jrvk000381@81-2-122-30.bradfords.org.uk>
+Cc: Alan Cox <alan@redhat.com>
+Subject: linux-2.6.7 Equalizer Load-balancer.  eql.c. local non-privileged
+ DoS
+Message-Id: <20040618115153.3ad2dc32.vitalyvb@ukr.net>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="to8f3SlXE8P+wJat"
-Content-Disposition: inline
-In-Reply-To: <200406180745.i5I7jrvk000381@81-2-122-30.bradfords.org.uk>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Fri__18_Jun_2004_11_51_53_+0300_Bw+0oR6rgwEHlkXf"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---to8f3SlXE8P+wJat
-Content-Type: text/plain; charset=iso-8859-1
+--Signature=_Fri__18_Jun_2004_11_51_53_+0300_Bw+0oR6rgwEHlkXf
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 
-On Fri, 2004-06-18 08:45:53 +0100, John Bradford <john@grabjohn.com>
-wrote in message <200406180745.i5I7jrvk000381@81-2-122-30.bradfords.org.uk>:
-> Quote from 4Front Technologies <dev@opensound.com>:
+Hello,
 
-> Now, a less huge plunge back to 1977 hardware might be fun.  If anybody
-> is throwing away unwanted VAX hardware in the London and Kent area, I mig=
-ht
-> be interested :-).
+there are multiple vulns in drivers/net/eql.c
 
-/me as well (Germany, Nordrhein-Westfalen). I'm doing real Linux
-development on those machines:) By the way, a GCC hacker is needed...
+====
+static int eql_g_slave_cfg(struct net_device *dev, slave_config_t __user *scp)
+{
+...
+        if (copy_from_user(&sc, scp, sizeof (slave_config_t)))
+                return -EFAULT;
 
-MfG, JBG
+        slave_dev = dev_get_by_name(sc.slave_name);
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
+        ret = -EINVAL;
 
---to8f3SlXE8P+wJat
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+        spin_lock_bh(&eql->queue.lock);
+        if (eql_is_slave(slave_dev)) {
+...
+====
+
+and
+
+====
+static int eql_s_slave_cfg(struct net_device *dev, slave_config_t __user *scp)  
+{
+....
+        if (copy_from_user(&sc, scp, sizeof (slave_config_t)))
+                return -EFAULT;
+
+        eql = dev->priv;
+        slave_dev = dev_get_by_name(sc.slave_name);
+
+        ret = -EINVAL;
+
+        spin_lock_bh(&eql->queue.lock);
+        if (eql_is_slave(slave_dev)) {
+====
+
+if there is no such device, dev_get_by_name returns NULL and everything dies.
+Exploiting this is trivial.
+
+
+Hopefully somebody will check this file carefully and fix it.
+
+I am not in a list.
+-- 
+Thanks,
+Vitaly
+GPG Key ID: F95A23B9
+
+--Signature=_Fri__18_Jun_2004_11_51_53_+0300_Bw+0oR6rgwEHlkXf
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFA0rBHHb1edYOZ4bsRAmqXAKCCyaLCE52vKu33+/gHCio1CLoqXQCgjbyX
-XzhVUGseeivGz6ZCBp/pfho=
-=LVau
+iD8DBQFA0q0t73PAj/laI7kRAnHHAKCnvwUFjZf7J5wPYYEbgRRLVw4jKACfSZ0A
+oNU9Uxo0goyxa8/LlrRKS0c=
+=q+Pi
 -----END PGP SIGNATURE-----
 
---to8f3SlXE8P+wJat--
+--Signature=_Fri__18_Jun_2004_11_51_53_+0300_Bw+0oR6rgwEHlkXf--

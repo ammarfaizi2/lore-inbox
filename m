@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264371AbUAMQka (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 11:40:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbUAMQka
+	id S264366AbUAMQkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 11:40:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbUAMQkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 11:40:30 -0500
-Received: from urtica.linuxnews.pl ([217.67.200.130]:17677 "EHLO
-	urtica.linuxnews.pl") by vger.kernel.org with ESMTP id S264371AbUAMQk2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 11:40:28 -0500
-Date: Tue, 13 Jan 2004 17:39:53 +0100 (CET)
-From: Pawel Kot <pkot@linuxnews.pl>
-To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.24+grsec compilation issue
-In-Reply-To: <200401131009.30858.gj@pointblue.com.pl>
-Message-ID: <Pine.LNX.4.33.0401131737170.23000-100000@urtica.linuxnews.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 13 Jan 2004 11:40:25 -0500
+Received: from main.gmane.org ([80.91.224.249]:60896 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264366AbUAMQkX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 11:40:23 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jens Benecke <jens@spamfreemail.de>
+Subject: Re: 2.6.1mm2: nforce2 / amd74xx IDE driver doesn't load
+Date: Tue, 13 Jan 2004 16:40:05 +0100
+Organization: University of the Armed Forces, Hamburg, Germany
+Message-ID: <bu13gl$rs2$1@sea.gmane.org>
+References: <2867040.OKCKYgd4AF@spamfreemail.de> <400329AE.8050304@cyberone.com.au> <3411792.vcVGz9Xbqa@spamfreemail.de> <200401131534.53423.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: KNode/0.7.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jan 2004, Grzegorz Jaskiewicz wrote:
+Bartlomiej Zolnierkiewicz wrote:
 
-> On Tuesday 13 January 2004 03:08, you wrote:
-> > This does not belong on this list unless you get the same problem with a
-> > clean vanilla kernel.
->
-> Don't think so.
->
-> Anyway, it looks like bug in debian stable binutils/gcc.
+>> I have found a (perhaps THE) reason why my X is so jerky: the nforce2
+>> chipset driver (amd74xx) doesn't load, because it "thinks" the BIOS IDE
+>> ports are disabled - which is definitely not the case
+> 
+> It doesn't load because IDE ports are already controlled by generic IDE
+> code.
+> Just use CONFIG_BLK_DEV_AMD74XX=y.  I will fix this "BIOS" comment.
 
-Not true. This is the problem with grsecurity patch. Go and read their
-archives. Or read this:
-http://hedera.linuxnews.pl/_forum/00/_post/2395.html?postnum=28958
+I can't, because I (plan to) use this kernel on many different machines. Not
+all of those (in fact: only one) uses the amd74xx module.
 
-pkot
+Is there a kernel parameter I can use to disable the generic IDE code on
+boot?
+I already tried compiling without CONFIG_BLK_DEV_GENERIC, which doesn't
+help.
+
+
+Thanks!
+
 -- 
-mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
-http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
-
+Jens Benecke (jens at spamfreemail.de)
+Please DO NOT CC: me.
+ 
+http://www.hitchhikers.de - Europaweite kostenlose Mitfahrzentrale
+http://www.spamfreemail.de - 100% saubere Postfächer - garantiert!
+http://www.rb-hosting.de - PHP ab 9? - SSH ab 19? - günstiger Traffic
 

@@ -1,39 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265378AbUAKRGX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 12:06:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265436AbUAKRGX
+	id S265918AbUAKQ50 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 11:57:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265919AbUAKQ50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 12:06:23 -0500
-Received: from chiark.greenend.org.uk ([193.201.200.170]:3278 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id S265378AbUAKRGW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 12:06:22 -0500
-To: linux-kernel@vger.kernel.org
-Cc: rml@ximian.com
-Subject: Re: Laptops & CPU frequency
-In-Reply-To: <1073791061.1663.77.camel@localhost>
-References: <20040111025623.GA19890@ncsu.edu> <20040111025623.GA19890@ncsu.edu> <1073791061.1663.77.camel@localhost>
-Message-Id: <E1Afj2b-0004QN-00@chiark.greenend.org.uk>
-From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
-Date: Sun, 11 Jan 2004 17:06:21 +0000
+	Sun, 11 Jan 2004 11:57:26 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:64673 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265918AbUAKQ5Y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 11:57:24 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 11 Jan 2004 08:57:28 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Der Herr Hofrat <der.herr@hofr.at>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 schedule_tick question
+In-Reply-To: <200401101235.i0ACZUS12298@hofr.at>
+Message-ID: <Pine.LNX.4.44.0401110855420.19685-100000@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
+On Sat, 10 Jan 2004, Der Herr Hofrat wrote:
 
->The MHz value in /proc/cpuinfo should be updated as the CPU speed
->changes - that is, it is not calculated just at boot, but it is updated
->as the speed actually changes.
+>  in 2.6.0 kernel/sched.c scheduler_tick currently the 
+>  case of rt_tasks for SCHED_RR is doing
+> 
+> 	if ((p->policy == SCHED_RR) && !--p->time_slice) {
+> 			...
+>                         dequeue_task(p, rq->active);
+>                         enqueue_task(p, rq->active);
+> 
+>  which is:
+> 
+> static inline void dequeue_task(struct task_struct *p, prio_array_t *array)
+> {
+>         array->nr_active--;
+>         list_del(&p->run_list);
+>         if (list_empty(array->queue + p->prio))
+>                 __clear_bit(p->prio, array->bitmap);
+> }
+> 
+> static inline void enqueue_task(struct task_struct *p, prio_array_t *array)
+> {
+>         list_add_tail(&p->run_list, array->queue + p->prio);
+>         __set_bit(p->prio, array->bitmap);
+>         array->nr_active++;
+>         p->array = array;
+> }
+> 
+>  looking at these two functions this looks like quite some overhead as it
+>  actually could be reduced to:
+> 
+>         list_del(&p->run_list);
+> 	list_add_tail(&p->run_list, array->queue + p->prio);
+> 
+>  for the rest I don't see any effect it would have ?
 
-Is this true even when the speed changes aren't done through Speedstep?
-Some older (PII/non-Speedstep PIIIs) Thinkpads automatically change
-speed based on presence of AC power, but do it in a way that's exposed
-as an ACPI throttling state rather than a performance state. My
-experience is that this doesn't result in cpuinfo getting updated, and
-various kernel things seem to become unhappy. On the other hand, I
-haven't tried this since 2.5.5something - I just told the BIOS not to
-touch stuff instead.
+Yes, we could have a rotate_task() function but the impact is basically 
+zero because of the little overhead compared to the frequency of the 
+operation.
 
--- 
-Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org
+
+
+- Davide
+
+

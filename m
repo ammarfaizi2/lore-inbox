@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262036AbSJNQqH>; Mon, 14 Oct 2002 12:46:07 -0400
+	id <S261984AbSJNQua>; Mon, 14 Oct 2002 12:50:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262039AbSJNQqH>; Mon, 14 Oct 2002 12:46:07 -0400
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:45034 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S262036AbSJNQqF>; Mon, 14 Oct 2002 12:46:05 -0400
-Date: Mon, 14 Oct 2002 09:53:19 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] 2.5.42-ac1, 2.5.42,
- 2.5.41 boot hang with CONFIG_USB_DEBUG=n
-To: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-Cc: greg@kroah.com, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Message-id: <3DAAF67F.1080504@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-15; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <20021013172557.GA890@rousalka.noos.fr>
+	id <S262060AbSJNQua>; Mon, 14 Oct 2002 12:50:30 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54546 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261984AbSJNQu3>;
+	Mon, 14 Oct 2002 12:50:29 -0400
+Message-ID: <3DAAF717.6030306@pobox.com>
+Date: Mon, 14 Oct 2002 12:55:51 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: rms@gnu.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Bitkeeper outragem, old and new
+References: <E180rX3-0005dL-00@fencepost.gnu.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Now it turns out I didn't do such a piss-poor of configuring my 2.5 
-> kernel, since the only option I could find that make a difference was 
-> CONFIG_USB_DEBUG. When I accept flooding my system logs with obscure usb 
-> incantations the system boots:(.   ...
-> 
->     Can an helpful soul help me bring my system some relief  ? I'd 
-> really like not to boot in debug mode.
+Richard,
 
-That's a new failure mode!   Can you help narrow this down?
+By this point, BitKeeper users will continue to be BitKeeper users and 
+BitKeeper haters will continue to be BitKeeper haters.  No one's mind is 
+changing about BK these days -- either they like it or they don't.  The 
+debate has reached the level of emacs vs. vi, pro/anti-abortion, gun 
+control, <insert favorite political issue here>.
 
-You're using the OHCI driver, so you can just tweak the lines at the
-top of drivers/usb/host/ohci-hcd.c that can #define DEBUG.  If you
-comment out that #define, and leave CONFIG_USB_DEBUG on (and then
-rebuild and re-init with the new OHCI driver), does that work or not?
+No one's mind is being changed, there's just a lot of energy wasted on 
+pointless ranting.
 
-If that works, it'd be time to see which OHCI printk()s morph init (?)
-timing enough to matter to your K7 box.   Looked to me like they were
-all either before or after the timing-critical bits (chip init), so
-disabling just the OHCI messages "should" not change your failure mode.
+Thus, you should have seen even before hitting 'Send' that your message 
+was nothing but a lot of hot air, slashdot fodder and a troll.  Would it 
+not be logically more productive to direct FSF efforts instead towards 
+funding Arch or SubVersion development?
 
-- Dave
+	Jeff, a humble BitKeeper user and kernel developer
 
 
 

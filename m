@@ -1,124 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266275AbUGESRv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266294AbUGES2W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266275AbUGESRv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 14:17:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266294AbUGESRv
+	id S266294AbUGES2W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 14:28:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266296AbUGES2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 14:17:51 -0400
-Received: from web51808.mail.yahoo.com ([206.190.38.239]:60603 "HELO
-	web51808.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266275AbUGESRr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 14:17:47 -0400
-Message-ID: <20040705181747.83811.qmail@web51808.mail.yahoo.com>
-Date: Mon, 5 Jul 2004 11:17:47 -0700 (PDT)
-From: Phy Prabab <phyprabab@yahoo.com>
-Subject: Re: [still problems] Re: Slow internet access for 2.6.7bk15&16
-To: bert hubert <ahu@ds9a.nl>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-In-Reply-To: <20040705053504.GA2602@outpost.ds9a.nl>
+	Mon, 5 Jul 2004 14:28:22 -0400
+Received: from netrider.rowland.org ([192.131.102.5]:7684 "HELO
+	netrider.rowland.org") by vger.kernel.org with SMTP id S266294AbUGES2V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 14:28:21 -0400
+Date: Mon, 5 Jul 2004 14:28:20 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: janne <sniff@xxx.ath.cx>
+cc: Duncan Sands <baldrick@free.fr>, <linux-usb-users@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: linux 2.6.7, usb2 data corruption & lockups & poor performance
+In-Reply-To: <Pine.LNX.4.40.0407050318490.20551-200000@xxx.xxx>
+Message-ID: <Pine.LNX.4.44L0.0407051424290.15781-100000@netrider.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Appreciate the tips and help!
-Phy
+On Mon, 5 Jul 2004, janne wrote:
 
---- bert hubert <ahu@ds9a.nl> wrote:
-> On Sun, Jul 04, 2004 at 04:28:52PM -0700, Phy Prabab
-> wrote:
-> > Okay, so, I checked the latest bk (17) and found
-> that
-> > the fix indicated by the below link has already
-> made
-> > it in and still I see the slow down in ftp
-> transfers
-> > in comparison to 2.6.6 and 2.4.x kernels.  Any
-> > suggestions?
-> 
-> I've forwarded your message to netdev@oss.sgi.com,
-> but see also
->
-http://groups.google.com/groups?selm=2emz3-6GV-5%40gated-at.bofh.it&output=gplain
-> 
-> Good luck!
-> 
-> > 
-> > Dual Opteron
-> > Broadcom Ge
-> > using tg3
-> > 
-> > Thanks!
-> > Phy
-> > --- bert hubert <ahu@ds9a.nl> wrote:
-> > > On Sat, Jul 03, 2004 at 07:41:12PM -0700, Phy
-> Prabab
-> > > wrote:
-> > > > Heelo,
-> > > > 
-> > > > I have been watching a thread concerning the
-> slow
-> > > down
-> > > > with accessing some websites but have not
-> found a
-> > > > resolution to the issue.  
-> > > 
-> > > Probably fixed by
-> > >
-> >
->
-http://linus.bkbits.net:8080/linux-2.5/cset@40e47ae2tQ_PIxw_HStw3YgsdJFHow?nav=index.html|ChangeSet@-4d
-> > > 
-> > > -- 
-> > > http://www.PowerDNS.com      Open source,
-> database
-> > > driven DNS Software 
-> > > http://lartc.org           Linux Advanced
-> Routing &
-> > > Traffic Control HOWTO
-> > > -
-> > > To unsubscribe from this list: send the line
-> > > "unsubscribe linux-kernel" in
-> > > the body of a message to
-> majordomo@vger.kernel.org
-> > > More majordomo info at 
-> > > http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > > 
-> > 
-> > 
-> > 
-> > 		
-> > __________________________________
-> > Do you Yahoo!?
-> > New and Improved Yahoo! Mail - Send 10MB messages!
-> > http://promotions.yahoo.com/new_mail 
-> > -
-> > To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -- 
-> http://www.PowerDNS.com      Open source, database
-> driven DNS Software 
-> http://lartc.org           Linux Advanced Routing &
-> Traffic Control HOWTO
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Updated kernel to 2.6.7, apparently bttv and pci overloading are not
+> issues here: I got usb2 to crash with nothing else loading the pci bus
+> except light network traffic. usb2 read speed improved from 5-15MBytes/s
+> to over 20MBytes/s when i switched it to a kt600 motherboard.
+> But still it's over 10MBytes/s less than the manufacturer's claimed
+> sustained data rate.
 
+Why do you say that you got usb2 to crash?  The log you posted clearly 
+shows that the crash originated in the reiserfs code, caused by a series 
+of I/O errors.
 
+Your log doesn't give any indication why those I/O errors occurred; in 
+fact it starts in the middle of the errors.  If you want to find out what 
+really went wrong, you will have to turn on the usb-storage debugging 
+option in your kernel's configuration.
 
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail - 50x more storage than other providers!
-http://promotions.yahoo.com/new_mail
+Alan Stern
+

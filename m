@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268150AbTCFRHl>; Thu, 6 Mar 2003 12:07:41 -0500
+	id <S268137AbTCFRCx>; Thu, 6 Mar 2003 12:02:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268147AbTCFRHg>; Thu, 6 Mar 2003 12:07:36 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:4446
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S268131AbTCFRHc>; Thu, 6 Mar 2003 12:07:32 -0500
-Date: Thu, 6 Mar 2003 12:15:44 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Mike Anderson <andmike@us.ibm.com>, "" <Andries.Brouwer@cwi.nl>,
-       "" <torvalds@transmeta.com>, "" <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: 2.5.63/64 do not boot: loop in scsi_error
-In-Reply-To: <1046968304.1746.20.camel@mulgrave>
-Message-ID: <Pine.LNX.4.50.0303061213400.25282-100000@montezuma.mastecende.com>
-References: <UTC200303060639.h266dIo22884.aeb@smtp.cwi.nl>
- <20030306064921.GA1425@beaverton.ibm.com>
- <Pine.LNX.4.50.0303060256200.25282-100000@montezuma.mastecende.com>
- <20030306083054.GB1503@beaverton.ibm.com>
- <Pine.LNX.4.50.0303060331030.25282-100000@montezuma.mastecende.com>
- <20030306085506.GB2222@beaverton.ibm.com>
- <Pine.LNX.4.50.0303060354550.25282-100000@montezuma.mastecende.com>
- <20030306091824.GA2577@beaverton.ibm.com> 
- <Pine.LNX.4.50.0303060455560.25282-100000@montezuma.mastecende.com>
- <1046968304.1746.20.camel@mulgrave>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268131AbTCFRCw>; Thu, 6 Mar 2003 12:02:52 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:2499 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S268137AbTCFRCL>;
+	Thu, 6 Mar 2003 12:02:11 -0500
+Date: Thu, 06 Mar 2003 08:53:19 -0800 (PST)
+Message-Id: <20030306.085319.85616559.davem@redhat.com>
+To: laforge@netfilter.org
+Cc: bunk@fs.tum.de, cat@zip.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [2.5 patch] remove EXPORT_NO_SYMBOLS from ip6tables code
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030306010920.GN4880@sunbeam.de.gnumonks.org>
+References: <20030305153259.GE2075@zip.com.au>
+	<20030305220542.GM20423@fs.tum.de>
+	<20030306010920.GN4880@sunbeam.de.gnumonks.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Mar 2003, James Bottomley wrote:
+   From: Harald Welte <laforge@netfilter.org>
+   Date: Thu, 6 Mar 2003 02:09:20 +0100
 
-> This log implies the error handling finished after the BDR.  That looks
-> like the system doesn't have Mike's latest patch for the logic reversal
-> problem in scsi_eh_ready_devs, could you check this?
+   On Wed, Mar 05, 2003 at 11:05:42PM +0100, Adrian Bunk wrote:
+   > The patch that added new ip6tables matches in 2.5.64 added seven 
+   > occurances of the obsolete EXPORT_NO_SYMBOLS. The patch below removes 
+   > them.
+   
+   Thanks, this was my fault.  I submitted one patch (for 2.4 and 2.5) to
+   davem... and obviously this is no longer possible with the intrusive
+   changes of 2.5.x ...
+   
+   Davem, please include this into your 2.5.x tree. Thanks.
 
-static void scsi_eh_ready_devs(struct Scsi_Host *shost,
-                              struct list_head *work_q,
-                              struct list_head *done_q)
-{
-       if (scsi_eh_bus_device_reset(shost, work_q, done_q))
-               if (scsi_eh_bus_reset(shost, work_q, done_q))
-                       if (scsi_eh_host_reset(work_q, done_q))
-                               scsi_eh_offline_sdevs(work_q, done_q);
-}
-
-That is what i currently have, i'll try a boot with;
-
--               if (scsi_eh_bus_reset(shost, work_q, done_q))
-+               if (!scsi_eh_bus_reset(shost, work_q, done_q))
-
-Thanks,
-	Zwane
--- 
-function.linuxpower.ca
+Applied, thanks.

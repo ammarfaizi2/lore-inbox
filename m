@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132006AbRAHVK4>; Mon, 8 Jan 2001 16:10:56 -0500
+	id <S131880AbRAHVOg>; Mon, 8 Jan 2001 16:14:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132029AbRAHVKq>; Mon, 8 Jan 2001 16:10:46 -0500
-Received: from mail.telcel.net.ve ([200.35.64.9]:32400 "EHLO
-	mail01.t-net.net.ve") by vger.kernel.org with ESMTP
-	id <S132006AbRAHVKo> convert rfc822-to-8bit; Mon, 8 Jan 2001 16:10:44 -0500
-Date: Mon, 8 Jan 2001 17:10:30 -0400 (VET)
-From: Ernesto Hernandez-Novich <emhn@telcel.net.ve>
+	id <S131823AbRAHVO1>; Mon, 8 Jan 2001 16:14:27 -0500
+Received: from mail.ima.pl ([195.117.13.5]:44807 "EHLO mail.ima.pl")
+	by vger.kernel.org with ESMTP id <S130516AbRAHVOO>;
+	Mon, 8 Jan 2001 16:14:14 -0500
+Message-Id: <5.0.0.25.0.20010108214619.00aaea60@195.117.13.2>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0
+Date: Mon, 08 Jan 2001 22:12:18 +0100
 To: linux-kernel@vger.kernel.org
-Subject: Re: Shared memory not enabled in 2.4.0?
-In-Reply-To: <882569CE.0069993A.00@hqoutbound.ops.3com.com>
-Message-ID: <Pine.LNX.4.21.0101081708310.758-100000@freakazoid.nuevomundo.seg>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+From: Blizbor <tb670725@ima.pl>
+Subject: Re: Bug in 2.2 kernels (mysterious hangs after freeing unused
+  memory)
+In-Reply-To: <20010108210920.U3472@arthur.ubicom.tudelft.nl>
+In-Reply-To: <5.0.0.25.0.20010107190604.00a44400@195.117.13.2>
+ <5.0.0.25.0.20010107190604.00a44400@195.117.13.2>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2001 Steven_Snyder@3com.com wrote:
-> For some reason shared memory is not being enabled on my system running kernel
-> v2.4.0 (on RedHat v6.2,  with all updates applied).
-> 
-> Per the documentation I have this line in my /etc/fstab:
-> 
->      none  /dev/shm  shm defaults  0 0
-> 
-> Yes, I have created this subdirectory:
-> 
->      # ls -l /dev | grep shm
->      drwxrwxrwt    1 root     root            0 Jan  7 11:54 shm
-> 
-> No complaints are seen at startup, yet I still have no shared memory:
-> 
->      # cat /proc/meminfo
->              total:    used:    free:  shared: buffers:  cached:
->      Mem:  130293760 123133952  7159808        0 30371840 15179776
->      Swap: 136241152        0 136241152
->      MemTotal:       127240 kB
->      MemFree:          6992 kB
->      MemShared:           0 kB
->      Buffers:         29660 kB
->      Cached:          14824 kB
->      Active:           3400 kB
->      Inact_dirty:     37872 kB
->      Inact_clean:      3212 kB
->      Inact_target:        4 kB
->      HighTotal:           0 kB
->      HighFree:            0 kB
->      LowTotal:       127240 kB
->      LowFree:          6992 kB
->      SwapTotal:      133048 kB
->      SwapFree:       133048 kB
+At 01-01-08 21:09, you wrote:
+>On Sun, Jan 07, 2001 at 07:21:08PM +0100, Blizbor wrote:
+>> I have found something weird in kernel 2.2.17.
+>> After installation on the Pentium PRO equipped machine,
+>> I have moved hard disk to another one, but equipped
+>> with AMD-K5 and after encountering problems I moved again
+>> this disk to machine equipped with Intel Pentium MMX.
+>> 
+>> On all machines except Pentium PRO boot process was stopping
+>> after freeing unused kernel memory.
+>
+>A kernel compiled and optimised for a PPro does not neccesarily run on
+>an AMD K5 or a Pentium MMX.
 
-You should check shared memory with "ipcs" instead.
+Yes, I know that. 
+Kernel was compiled for i386.
+Problem was by simplified "init" process handling in kernel
+- especially no error handling for them. Problem is not in that 
+something doesnt run but in that so there aren't information 
+about error. I didn't expect that kernel do something more 
+complicated than saying about error. Hanging is not good idea ;)
+I've lost few work days to find whats
+going on. Problem is lack of one short line displayed on console:
+"init process failed, reason: killed by signal 4".
+I was really surprised that on installation CD marked as i386,
+some stupid guy put binaries for i686.
+Exactly six rpm's - three containing kernel (that's OK) and one 
+containing glibc. Even if "smart guys" wanted to make preformance
+boost, they should do that in the safe way. But this is problem of the 
+RedHat 7 developers. Together with glibc srpms that doesnt have chance
+to build on i386 platform due to bugs in specs file. But let we
+leave alone RH and their problems with their experimental distribution.
 
-Make sure you enabled "System V IPC" under "General Setup" (it's a
-default value, though).
--- 
-Ernesto Hernández-Novich - Running Linux 2.4.0 i686 - Unix: Live free or die!
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1
-GCS/E d+(++) s+: a C+++$ UBLAVHIOSC*++++$ P++++$ L+++$ E- W+ N++ o K++ w--- O-
-M- V PS+ PE Y+ PGP>++ t+ 5 X+ R* tv+ b++ DI+++$ D++ G++ e++ h r++ y+
------END GEEK CODE BLOCK-----
-
+Cheers,
+Blizbor
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

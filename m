@@ -1,55 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVABDqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261242AbVABDqg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbVABDqO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 22:46:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbVABDqN
+	id S261242AbVABDqg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 22:46:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVABDqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 22:46:13 -0500
-Received: from orb.pobox.com ([207.8.226.5]:49868 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S261239AbVABDqM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 22:46:12 -0500
-Date: Sat, 1 Jan 2005 19:46:06 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
-Cc: John M Flinchbaugh <john@hjsoft.com>, linux-kernel@vger.kernel.org,
-       pavel@ucw.cz
-Subject: Re: 2.6.10: e100 network broken after swsusp/resume
-Message-ID: <20050102034606.GA7406@ip68-4-98-123.oc.oc.cox.net>
-References: <20041228144741.GA2969@butterfly.hjsoft.com> <20050101172344.GA1355@elf.ucw.cz> <20050101172344.GA1355@elf.ucw.cz> <20050101221722.GA28045@butterfly.hjsoft.com> <E1CksSX-0003Ki-00@chiark.greenend.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1CksSX-0003Ki-00@chiark.greenend.org.uk>
-User-Agent: Mutt/1.5.5.1i
+	Sat, 1 Jan 2005 22:46:36 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:25744 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261242AbVABDqb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jan 2005 22:46:31 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 1 Jan 2005 19:46:23 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Jesse Allen <the3dfxdude@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: ptrace single-stepping change breaks Wine
+In-Reply-To: <Pine.LNX.4.58.0501011406330.2280@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0501011424210.3870@bigblue.dev.mdolabs.com>
+References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com> 
+ <1104401393.5128.24.camel@gamecube.scs.ch>  <1104411980.3073.6.camel@littlegreen>
+  <200412311413.16313.sailer@scs.ch>  <1104499860.3594.5.camel@littlegreen>
+ <53046857041231074248b111d5@mail.gmail.com> <Pine.LNX.4.58.0412310753400.10974@bigblue.dev.mdolabs.com>
+ <Pine.LNX.4.58.0412311359460.2280@ppc970.osdl.org>
+ <Pine.LNX.4.58.0501011357030.3870@bigblue.dev.mdolabs.com>
+ <Pine.LNX.4.58.0501011406330.2280@ppc970.osdl.org>
+X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
+X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 01, 2005 at 11:14:57PM +0000, Matthew Garrett wrote:
-> Does pci=routeirq make any difference?
+On Sat, 1 Jan 2005, Linus Torvalds wrote:
 
-I'm not the original poster, and I haven't read this whole thread yet,
-but I may have some useful input...
+> On Sat, 1 Jan 2005, Davide Libenzi wrote:
+> > 
+> > I used the test program below on 2.4.27, 2.6.8.1 and latest BK + TF-careful. 
+> > In all cases single stepping over POPF succeeded.
+> 
+> I don't think you realize what the failure case for popf was.
+>
+> It wasn't that we couldn't single-step it: it was that we corrupted the 
+> resulting elfags value after single-stepping it.
 
-I think I'm seeing this problem (with the same symptoms) with both e100
-and 8139too, on two different machines. It started with 2.6.10-rc1-bk24;
-bk23 works fine.
+I thought you were saying that we cleared TF, and this resulted in ptrace 
+losing control over the tracee becasue of the missing flag. But yeah, TF 
+reporting has always been broken.
 
-I haven't tested my e100 system (laptop) as thoroughly as my 8139too system
-(desktop), but this is what I'm seeing with 8139too:
 
-Adding pci=routeirq makes the problem go away. Using acpi=off *instead* of
-pci=routeirq also makes the problem go away. If I use "noapic" instead
-of acpi=off or pci=routeirq, I get a different variant of the problem:
-Almost immediately after resume, there's a kernel log message that the
-NIC's interrupt has been disabled (I forget the exact wording). Checking
-/proc/interrupts shows that the NIC's interrupt (which is not shared
-with any other devices) has shot up to 100000 interrupts. (This
-phenomenon does not happen if I do not specify noapic.)
 
-Now I'll go and read the rest of this thread. If there's any more
-information I need to provide or anything else I need to try, let me
-know.
+> Try to extend your program to print out not only the EIP after the 
+> single-step, but also the value of EFLAGS, and you'll see what I mean. 
+> Earlier kernels are _really_ bad at it: they'll always report that TF is 
+> set. The "TF-careful" patch gets TF right for normal instructions, and the 
+> "TF-popf" patch gets TF right after popf too.
+> 
+> The one remaining case I know of where we still get TF wrong is "pushf",
+> where single-stepping a pushf will not corrupt TF, but it will save the
+> wrong value on the stack (which obviously may corrupt TF _later_, when the
+> paired "popf" happens).
 
--Barry K. Nathan <barryn@pobox.com>
+That would be even trickier than the POPF case. Do you really want to go 
+there? Anyway, the TF-careful fixes Wine and single-step-after-syscall, 
+and on top of that brings some needed cleanup. It still remain to be 
+verfied the strace case, for which I do not have a testcase. Looking at 
+how we handle things in TF-careful, it should be fine too.
+
+
+- Davide
 

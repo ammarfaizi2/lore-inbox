@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268011AbUHXPd6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268013AbUHXPj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268011AbUHXPd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 11:33:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267992AbUHXPd6
+	id S268013AbUHXPj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 11:39:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268004AbUHXPj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 11:33:58 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:27853 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S268017AbUHXPdt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 11:33:49 -0400
-Date: Tue, 24 Aug 2004 17:33:43 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: John Cherry <cherry@osdl.org>, "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil, jmorris@redhat.com
-Subject: 2.6.9-rc1: selinux/hooks.c: functions returning unassigned variables
-Message-ID: <20040824153342.GG7019@fs.tum.de>
-References: <200408241519.i7OFJS6S027910@cherrypit.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408241519.i7OFJS6S027910@cherrypit.pdx.osdl.net>
-User-Agent: Mutt/1.5.6i
+	Tue, 24 Aug 2004 11:39:28 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:35838 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S268059AbUHXPfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 11:35:23 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Tue, 24 Aug 2004 17:34:11 +0200
+To: schilling@fokus.fraunhofer.de, Kai.Makisara@kolumbus.fi
+Cc: linux-kernel@vger.kernel.org, der.eremit@email.de, christer@weinigel.se,
+       axboe@suse.de
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <412B5FF3.nailBTB61UTSR@burner>
+References: <2ptdY-42Y-55@gated-at.bofh.it>
+ <2uPdM-380-11@gated-at.bofh.it> <2uUwL-6VP-11@gated-at.bofh.it>
+ <2uWfh-8jo-29@gated-at.bofh.it> <2uXl0-Gt-27@gated-at.bofh.it>
+ <2vge2-63k-15@gated-at.bofh.it> <2vgQF-6Ai-39@gated-at.bofh.it>
+ <2vipq-7O8-15@gated-at.bofh.it> <2vj2b-8md-9@gated-at.bofh.it>
+ <2vDtS-bq-19@gated-at.bofh.it> <E1ByXMd-00007M-4A@localhost>
+ <412770EA.nail9DO11D18Y@burner> <412889FC.nail9MX1X3XW5@burner>
+ <Pine.LNX.4.58.0408221450540.297@neptune.local>
+ <m37jrr40zi.fsf@zoo.weinigel.se> <4128CAA2.nail9RG21R1OG@burner>
+ <Pine.LNX.4.58.0408232113030.4258@kai.makisara.local>
+In-Reply-To: <Pine.LNX.4.58.0408232113030.4258@kai.makisara.local>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 24, 2004 at 08:19:28AM -0700, John Cherry wrote:
->...
-> security/selinux/hooks.c:2825: warning: `ret' might be used uninitialized in this function
-> security/selinux/hooks.c:2886: warning: `ret' might be used uninitialized in this function
+Kai Makisara <Kai.Makisara@kolumbus.fi> wrote:
+
+> > BTW: 'mt' should not need to send SCSI comands. THis shoul dbe handled via
+> > specilized ioctls.
+> > 
+> There are already ioctls for changing the tape parameters. Christer, there 
+> is no need to introduce tapes into this discussion.
+
+This is my words....
 
 
-This was
-  [NET]: Add skb_header_pointer, and use it where possible.
+Tape drives have a well known and simple and standardized interface since many
+years (> 40). There exist ioctl()s to do anything you like.
 
 
-@Dave:
-In both functions ret is returned, but line that assigned a value to ret 
-was removed.
+CD/DVD writing ist still constantly evolving, so you cannot have it in the 
+kernel.
 
-*shrug*
+BTW: I am strongly against any list of "safe commands" as this would only make 
+things more complicated. Things that control security should be ket simple.
 
-
-cu
-Adrian
+Jörg
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

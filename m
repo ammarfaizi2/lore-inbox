@@ -1,80 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317901AbSFSPJK>; Wed, 19 Jun 2002 11:09:10 -0400
+	id <S317906AbSFSPMM>; Wed, 19 Jun 2002 11:12:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317904AbSFSPJJ>; Wed, 19 Jun 2002 11:09:09 -0400
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:28294 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S317901AbSFSPJJ>; Wed, 19 Jun 2002 11:09:09 -0400
-Date: Wed, 19 Jun 2002 17:08:57 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5] include <linux/tqueue.h> in pcmcia drivers...
-Message-ID: <20020619150857.GB16023@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
+	id <S317912AbSFSPML>; Wed, 19 Jun 2002 11:12:11 -0400
+Received: from mail.parknet.co.jp ([210.134.213.6]:42764 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S317906AbSFSPMJ>; Wed, 19 Jun 2002 11:12:09 -0400
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.18] vfat doesn't support files > 2GB under Linux, under Windoze it does
+References: <20020617225149.56796.qmail@web14604.mail.yahoo.com>
+	<87sn3kf9ce.fsf@devron.myhome.or.jp>
+	<20020619072016.GA28198@louise.pinerecords.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Thu, 20 Jun 2002 00:11:36 +0900
+In-Reply-To: <20020619072016.GA28198@louise.pinerecords.com>
+Message-ID: <87sn3jfglz.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The pcmcia drivers haven't been updated to include the new
-tqueue.h header when using tq_structs.
+Tomas Szepe <szepe@pinerecords.com> writes:
 
-I noticed the breakage when compiling i82365.c for my laptop, and 
-took the time to modify all the drivers in that directory.
+> > > > This patch break some filesystems (adfs, affs, hfs, hpfs, qnx4).
+> > > > And I haven't fixed them yet. So, I can't submit this patch.
+> > > > 
+> > > > If it's OK, I'll make the patch for 2.4.18.
+> > > 
+> > > 
+> > > Any update on the patch yet?
+> > 
+> > Whether it's needed, there is patch of fat for 2.4.18 and 2.5.19, here.
+> 
+> Any chance you're sending this to Marcelo for possible inclusion in 2.4.20?
 
-Stelian.
-
-===== drivers/pcmcia/hd64465_ss.c 1.4 vs edited =====
---- 1.4/drivers/pcmcia/hd64465_ss.c	Tue Feb  5 16:24:35 2002
-+++ edited/drivers/pcmcia/hd64465_ss.c	Wed Jun 19 16:34:38 2002
-@@ -37,6 +37,7 @@
- #include <linux/vmalloc.h>
- #include <asm/errno.h>
- #include <linux/irq.h>
-+#include <linux/tqueue.h>
- 
- #include <asm/io.h>
- #include <asm/hd64465.h>
-===== drivers/pcmcia/i82092.c 1.4 vs edited =====
---- 1.4/drivers/pcmcia/i82092.c	Sat Mar 23 23:55:21 2002
-+++ edited/drivers/pcmcia/i82092.c	Wed Jun 19 16:35:04 2002
-@@ -14,6 +14,7 @@
- #include <linux/module.h>
- #include <linux/pci.h>
- #include <linux/init.h>
-+#include <linux/tqueue.h>
- 
- #include <pcmcia/cs_types.h>
- #include <pcmcia/ss.h>
-===== drivers/pcmcia/i82365.c 1.11 vs edited =====
---- 1.11/drivers/pcmcia/i82365.c	Tue Feb  5 16:23:06 2002
-+++ edited/drivers/pcmcia/i82365.c	Wed Jun 19 16:33:03 2002
-@@ -46,6 +46,7 @@
- #include <linux/ioport.h>
- #include <linux/delay.h>
- #include <linux/proc_fs.h>
-+#include <linux/tqueue.h>
- #include <asm/irq.h>
- #include <asm/io.h>
- #include <asm/bitops.h>
-===== drivers/pcmcia/tcic.c 1.6 vs edited =====
---- 1.6/drivers/pcmcia/tcic.c	Tue Feb  5 16:23:06 2002
-+++ edited/drivers/pcmcia/tcic.c	Wed Jun 19 16:36:04 2002
-@@ -49,6 +49,7 @@
- #include <linux/ioport.h>
- #include <linux/delay.h>
- #include <linux/proc_fs.h>
-+#include <linux/tqueue.h>
- 
- #include <pcmcia/version.h>
- #include <pcmcia/cs_types.h>
+Before, I want to some test on 2.5.x at least. After it, I'll try to
+submit a patch...
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

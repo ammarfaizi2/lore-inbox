@@ -1,73 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267610AbTA3TRU>; Thu, 30 Jan 2003 14:17:20 -0500
+	id <S267611AbTA3TZv>; Thu, 30 Jan 2003 14:25:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267611AbTA3TRU>; Thu, 30 Jan 2003 14:17:20 -0500
-Received: from 24.213.60.109.up.mi.chartermi.net ([24.213.60.109]:10651 "EHLO
-	front3.chartermi.net") by vger.kernel.org with ESMTP
-	id <S267610AbTA3TRT>; Thu, 30 Jan 2003 14:17:19 -0500
-Date: Thu, 30 Jan 2003 14:27:56 -0500 (EST)
-From: Nathaniel Russell <reddog83@chartermi.net>
-X-X-Sender: reddog83@reddog.example.net
-To: Alan Cox <alan@redhat.com>
-cc: alan@lxorguk.ukuu.org.uk, <linux-kernel@vger.kernel.org>
-Subject: Via 8233 Audio [2.4-ac]
-In-Reply-To: <200212171634.gBHGYY426298@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.44.0301301421430.1084-200000@reddog.example.net>
+	id <S267612AbTA3TZu>; Thu, 30 Jan 2003 14:25:50 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:37557 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S267611AbTA3TZu>; Thu, 30 Jan 2003 14:25:50 -0500
+Message-ID: <3E397D29.3000705@nortelnetworks.com>
+Date: Thu, 30 Jan 2003 14:29:45 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-84179507-1043954876=:1084"
+To: "Lars 'Cebewee' Noschinski" <CebeWee@gmx.de>
+Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+       John Bradford <john@grabjohn.com>,
+       "(jeff millar)" <wa1hco@adelphia.net>, Raphael_Schmid@CUBUS.COM,
+       rob@r-morris.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: Scaring the non-geeks (was Bootscreen)
+References: <200301281440.h0SEeBS8001126@darkstar.example.net> <200301291409.57213.roy@karlsbakk.net> <961914102.20030130195303@gmx.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Lars 'Cebewee' Noschinski wrote:
 
---8323328-84179507-1043954876=:1084
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+> Till Windows Me, every Windows user got textmode messages at boot time.
+> And they survived it.
 
-As you requested that i e-mail you about the Via 8233 Audio i have
-included the attachment with the unexecpted DSP stopped unexpectly patch
-that you sent me to debug the audio to find out why my audio would stop
-unexecptly. To tell you what i was doing. I was listening to about 20 +
-mp3's and also surfing the INET and then logged off after i saw that
-message because i was going to burn a Audio CD from my mp3's.
-Cc me at reddog83@chartermi.net
-P.S. Alan if you need more infomation about my system i'll be happy to
-send you some.
-Nathaniel
+I don't know what you're running, but I get nothing between "starting 
+windows 98" and the gui starting up.  Win95 was the same way."
 
-On Tue, 17 Dec 2002, Alan Cox wrote:
+Chris
 
-> > I have played 4 mp3's and switched to X and so far nothing.
-> > I don't know here is my dmesg log. I don't know how i got the first
-> > Assertion but I'll keep working with the driver and report back to you,
-> > ok.
->
-> If anything pops up let me know
->
 
---8323328-84179507-1043954876=:1084
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="audio.log.ac"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0301301427560.1084@reddog.example.net>
-Content-Description: Via 8233 Audio
-Content-Disposition: attachment; filename="audio.log.ac"
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 
-TGludXggdmVyc2lvbiAyLjQuMjAgKHJvb3RAcmVkZG9nKSAoZ2NjIHZlcnNp
-b24gMy4yLjEpICMxIEZyaSBEZWMgNiAwMToyODo1NyBFU1QgMjAwMg0KW1NO
-SVBFRF0NClZpYSA2ODZhLzgyMzMvODIzNSBhdWRpbyBkcml2ZXIgMS45LjEt
-YWMyDQpQQ0k6IEZvdW5kIElSUSAxMSBmb3IgZGV2aWNlIDAwOjExLjUNClBD
-STogU2hhcmluZyBJUlEgMTEgd2l0aCAwMDowOS4xDQpQQ0k6IFNoYXJpbmcg
-SVJRIDExIHdpdGggMDA6MGEuMA0KdmlhODJjeHh4OiBTaXggY2hhbm5lbCBh
-dWRpbyBhdmFpbGFibGUNClBDSTogU2V0dGluZyBsYXRlbmN5IHRpbWVyIG9m
-IGRldmljZSAwMDoxMS41IHRvIDY0DQphYzk3X2NvZGVjOiBBQzk3IEF1ZGlv
-IGNvZGVjLCBpZDogSUNFMTcoSUNFMTIzMikNCnZpYTgyY3h4eDogYm9hcmQg
-IzEgYXQgMHhFODAwLCBJUlEgMTENCltTTklQRURdDQp2aWFfYXVkaW86IGln
-bm9yaW5nIGRyYWluIHBsYXliYWNrIGVycm9yIC0xMQ0KdmlhX2F1ZGlvOiBp
-Z25vcmluZyBkcmFpbiBwbGF5YmFjayBlcnJvciAtMTENCnZpYV9hdWRpbzog
-aWdub3JpbmcgZHJhaW4gcGxheWJhY2sgZXJyb3IgLTExDQp2aWFfYXVkaW86
-IGlnbm9yaW5nIGRyYWluIHBsYXliYWNrIGVycm9yIC0xMQ0KdmlhX2F1ZGlv
-OiBpZ25vcmluZyBkcmFpbiBwbGF5YmFjayBlcnJvciAtMTENCnZpYTgyY3h4
-X2F1ZGlvOiBEU1Agc3RvcHBlZCB1bmV4cGVjdGVkbHkuDQo=
---8323328-84179507-1043954876=:1084--

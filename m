@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261874AbSLPWys>; Mon, 16 Dec 2002 17:54:48 -0500
+	id <S262207AbSLPW4R>; Mon, 16 Dec 2002 17:56:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261973AbSLPWys>; Mon, 16 Dec 2002 17:54:48 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:51431 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S261874AbSLPWyr>;
-	Mon, 16 Dec 2002 17:54:47 -0500
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A5AB@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Pavel Machek'" <pavel@suse.cz>
-Cc: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: RE: [ACPI] Metolious hardware-sensors-using-ACPI specs
-Date: Mon, 16 Dec 2002 15:02:31 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	id <S262208AbSLPW4R>; Mon, 16 Dec 2002 17:56:17 -0500
+Received: from dp.samba.org ([66.70.73.150]:13222 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262207AbSLPW4Q>;
+	Mon, 16 Dec 2002 17:56:16 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@digeo.com>
+Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
+Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Subject: Re: [2.5.51] Failure to mount ext3 root when ext2 compiled in 
+In-reply-to: Your message of "Thu, 12 Dec 2002 20:09:52 -0800."
+             <3DF95D90.DEE68C66@digeo.com> 
+Date: Tue, 17 Dec 2002 08:42:35 +1100
+Message-Id: <20021216230413.DAB262C0B1@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Pavel Machek [mailto:pavel@suse.cz] 
-> Ouch, I started implementing that hour ago... [Never mind, very little
-> damage done so far].
+In message <3DF95D90.DEE68C66@digeo.com> you write:
+> Rebuilding the kernel, even if you "didn't change anything" makes
+> it go away.
+> 
+> I assume that in your case a `make clean' will not fix it.   You
+> lucky duck.   Can you stick a printk right at the end of
+> ext3_fill_super()?
 
-Wow you work fast. ;-)
+You have cursed me.  Now it works.  Looks like a build problem?
 
-> But... Metolious sounds *needed*; how do you access voltage sensors
-> without metolious, in a way that can coexist with ACPI thermal
-> support?
-
-(I think you mean thermal sensors)
-
-A solution in search of a problem. I can say this because I helped define
-it. :)
-
-The machines that care about manageability (servers) appear to be entirely
-disjoint from the ones that have thermal zones (and, servers use IPMI),
-therefore thermal chip contention doesn't happen. And, Metolious required a
-fair amount of AML code.
-
--- Andy
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

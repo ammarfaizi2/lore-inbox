@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261893AbREYVBP>; Fri, 25 May 2001 17:01:15 -0400
+	id <S261882AbREYVCF>; Fri, 25 May 2001 17:02:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261882AbREYVBF>; Fri, 25 May 2001 17:01:05 -0400
-Received: from penguin.roanoke.edu ([199.111.154.8]:8453 "EHLO
-	penguin.roanoke.edu") by vger.kernel.org with ESMTP
-	id <S261868AbREYVA4>; Fri, 25 May 2001 17:00:56 -0400
-Message-ID: <3B0ECB0F.999B9856@linuxjedi.org>
-Date: Fri, 25 May 2001 17:13:51 -0400
-From: "David L. Parsley" <parsley@linuxjedi.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1-pre7 i686)
-X-Accept-Language: en
+	id <S261881AbREYVB4>; Fri, 25 May 2001 17:01:56 -0400
+Received: from blackhole.compendium-tech.com ([64.156.208.74]:2962 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S261868AbREYVBj>; Fri, 25 May 2001 17:01:39 -0400
+Date: Fri, 25 May 2001 14:01:15 -0700 (PDT)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+X-X-Sender: <kernel@sol.compendium-tech.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] fbdev logo (fwd)
+In-Reply-To: <Pine.LNX.4.05.10105102106100.21744-100000@callisto.of.borg>
+Message-ID: <Pine.LNX.4.33.0105251400310.20785-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [CFT][PATCH] namespaces patch (2.4.5-pre6)
-In-Reply-To: <Pine.GSO.4.21.0105251621400.28097-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> 
->         Folks, new version of the patch is on
-> ftp.math.psu.edu/pub/viro/namespaces-c-S5-pre6.gz
-> 
->         News:
-> * ported to 2.4.5-pre6
-> * new (cleaner) locking mechanism
-> * lock_super() is starting to become fs-private thing - first steps to
->   removing it from VFS code are done.
-> 
-> Please, help with testing. I'm feeding the pieces suitable for 2.4 into
-> the Linus' tree, so patch got smaller.
+On Thu, 10 May 2001, Geert Uytterhoeven wrote:
+>   - Political fixes:
+>       o There were still some penguins left carrying a glass of beer or wine.
+>         This problem is about 2 years old!
 
-OK, at the risk of asking a Stupid Question (tm), what exactly does
-the namespaces patch buy us?  From the viewpoint of an
-integrator/system admin?  I'd happily check it out if I thought it
-would solve any of the problems I regularly see.
+I still don't understand why the penguin holding beer/wine was wrong...
 
-regards,
-	David
+ Kelsey Hudson                                           khudson@ctica.com
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------
 
--- 
-David L. Parsley
-Network Administrator, Roanoke College
-"If I have seen further it is by standing on ye shoulders of
-Giants."
---Isaac Newton

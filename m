@@ -1,47 +1,48 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154675-8316>; Wed, 9 Sep 1998 14:10:52 -0400
-Received: from noc.nyx.net ([206.124.29.3]:4323 "EHLO noc.nyx.net" ident: "mail") by vger.rutgers.edu with ESMTP id <154797-8316>; Wed, 9 Sep 1998 13:37:56 -0400
-Date: Wed, 9 Sep 1998 14:13:42 -0600 (MDT)
-From: Colin Plumb <colin@nyx.net>
-Message-Id: <199809092013.OAA10252@nyx10.nyx.net>
-X-Nyx-Envelope-Data: Date=Wed Sep  9 14:13:42 1998, Sender=colin, Recipient=, Valsender=colin@localhost
-To: tytso@MIT.EDU
-Subject: Re: GPS Leap Second Scheduled!
-Cc: andrejp@luz.fe.uni-lj.si, linux-kernel@vger.rutgers.edu
+Received: by vger.rutgers.edu id <154565-8316>; Wed, 9 Sep 1998 17:12:47 -0400
+Received: from caffeine.ix.net.nz ([203.97.100.28]:4647 "EHLO caffeine.ix.net.nz" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154524-8316>; Wed, 9 Sep 1998 15:58:01 -0400
+Date: Thu, 10 Sep 1998 10:33:44 +1200
+From: Chris Wedgwood <chris@cybernet.co.nz>
+To: linux-kernel@vger.rutgers.edu
+Subject: Re: Very poor TCP/SACK performance
+Message-ID: <19980910103344.A16713@caffeine.ix.net.nz>
+References: <Pine.LNX.4.02.9809062347430.3952-100000@jeffd.i2k.net> <19980908232117.A859@math.fu-berlin.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.94.5i
+In-Reply-To: <19980908232117.A859@math.fu-berlin.de>; from Felix von Leitner on Tue, Sep 08, 1998 at 11:21:17PM +0200
+X-No-Archive: Yes
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-> Hence, the above equation would have the same value for 23:59:60 and
-> 00:00:00 on the next day.  Hence, time() should return the same value.
+On Tue, Sep 08, 1998 at 11:21:17PM +0200, Felix von Leitner wrote:
 
-The problem becomes more acute for gettimeofday() and the POSIX
-ns-resolution equivalent, clock_gettime(CLOCK_REALTIME).
+> Why is Linux using SACK, anyway? Stevens refers to it like "yeah,
+> the BSD people implemented it once, but it didn't work so it was
+> discarded and is now obsolete".
 
-There are a few axioms that you'd like to have hold:
+I think the context of Stevens probably refers to RFC1072, "TCP
+Extensions for Long-Delay Paths", section 3.1. This is dated October
+1988, some ten years old.
 
-- time() and gettimeofday() return the same time as
-  clock_gettime(CLOCK_REALTIME), as far as precision permits.
-- gettimeofday() never returns the same value twice (documented BSD behaviour)
-- no clock ever runs backwards
+RFC2018 presumably obsoletes this part, and it looks to me like the
+more modern SACK description doesn't fit with the earlier one. This
+one is October 1996, not so old.
 
-This makes the handling of the tv_usec or tv_nsec parts of the time during
-a leap second a bit problematic.
+> And, you know, if Stevens says so, I'd be tempted to just accept
+> this as God given and be done with it.  What was the reason to add
+> SACK support to Linux?  Almost no system under the sun seems to
+> support it, anyway. Right?
 
-One option is to count twice.
-One option is to count at half speed during 23:59:60 and 0:00:00.
-One option is to use the curve y = 1/4*x^3 - 3/4*x^2 + x to interpolate
-y smoothly from 0 to 1 as x goes from 0 to 2.
-One option is to freeze the fractional part fr one of the two seconds.
-One (pretty rude) option is to count tv_usec from -1000000 to -1
-during 23:59:60.  (tv_usec is a *signed* long.)
+S. Floyd et al probably know more about SACK than Stevens and have
+done recent (5 years or so) research in this area.
 
-I don't know of a pretty way.  What I'd like, as I said, is a defined kludge,
-so that there is a defined mapping between struct timeval and struct timespec
-and UTC in the vicinity of a leap second.  This ensures that timestamps
-collected on different machines can at least be compared, even if the
-time intervals reported are incorrect.  ("Why were my ping times
-half of usual at midnight last night?")
--- 
-	-Colin
+http://www-nrg.ee.lbl.gov/floyd/sacks.html has more details and
+recent research efforts which tend to indicate SACK is a way cool
+thing that will prevent hair loss reduce global warming.
+
+
+
+-Chris
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266218AbSKFX0w>; Wed, 6 Nov 2002 18:26:52 -0500
+	id <S266210AbSKFXSy>; Wed, 6 Nov 2002 18:18:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266219AbSKFX0w>; Wed, 6 Nov 2002 18:26:52 -0500
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:20733 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S266218AbSKFX0u>;
-	Wed, 6 Nov 2002 18:26:50 -0500
-Date: Wed, 6 Nov 2002 18:33:25 -0500
+	id <S266211AbSKFXSy>; Wed, 6 Nov 2002 18:18:54 -0500
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:16381 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S266210AbSKFXSx>;
+	Wed, 6 Nov 2002 18:18:53 -0500
+Date: Wed, 6 Nov 2002 18:25:29 -0500
 From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Patrick Mansfield <patmans@us.ibm.com>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.5.46: ide-cd cdrecord (almost) success report
-Message-ID: <20021106233325.GA29940@www.kroptech.com>
-References: <20021106041330.GA9489@www.kroptech.com> <20021106072223.GB4369@suse.de> <20021106155656.GA20403@www.kroptech.com> <20021106101144.A10985@eng2.beaverton.ibm.com>
+Message-ID: <20021106232529.GC27210@www.kroptech.com>
+References: <20021106041330.GA9489@www.kroptech.com> <20021106072223.GB4369@suse.de> <20021106074457.GE4369@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021106101144.A10985@eng2.beaverton.ibm.com>
+In-Reply-To: <20021106074457.GE4369@suse.de>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 06, 2002 at 10:11:44AM -0800, Patrick Mansfield wrote:
-> On Wed, Nov 06, 2002 at 10:56:56AM -0500, Adam Kropelin wrote:
-> > On Wed, Nov 06, 2002 at 08:22:23AM +0100, Jens Axboe wrote:
-> > > On Tue, Nov 05 2002, Adam Kropelin wrote:
-> > > > Still without coaster I tried one more thing...
-> > > > 'dd if=/dev/zero of=foo bs=1M' in parallel with another burn. That one
-> > > > did it in. ;) I'm running ext3 and the writeout load totally killed
-> > > > burn, which isn't surprising. I was asking for it, I know. What happened
-> > > 
-> > > Really, this should work. The deadline scheduler should handle this just
-> > > fine in fact. Which device is your burner and which device is the hard
-> > > drive? It sounds like a bug.
+On Wed, Nov 06, 2002 at 08:44:57AM +0100, Jens Axboe wrote:
+> On Wed, Nov 06 2002, Jens Axboe wrote:
+> > > when the cdrecord buffer underran was surprising, though: oops below.
+> > > Very repeatable. Can supply copious hw details if it helps.
 > > 
-> > Hard disk is sdc on onboard AIC7xxx.
-> > Writer is hdc, the only device on the secondary onboard IDE channel.
-> > All other disks (IDE & SCSI) were idle during the test.
+> > I'll try and reproduce that here, there's been a similar report (same
+> > oops) before. If you can just send me the dmesg output after a boot that
+> > should be fine.
 > 
-> What queue depth is the AIC setting?
-> 
-> SCSI in 2.5.x no longer copies the request, so if you have a queue
-> depth larger than the allocated requests there might not be
-> any free requests left for the blk layer to play with.
-> 
-> AIC default queue depth is 253 (with 2.5.46 queue depth can be set to 1
+> Could you reproduce with this patch? I'd like to see the request state
+> when this happens.
 
-Are you talking tcq depth here? Best as I can tell, 2.5.46 defaults to
-16. Lowering it to 2 doesn't seem to help.
-
-> queue depth). You can modify .config, or pass boot/module options to
-> lower it.
-
-If I've misunderstood you, please clue me in and I'll give it a shot...
+Here you go... This was with max tags locked at 4. I've included some of
+the surrounding lines from cdrecord.
 
 --Adam
+
+Track 01:   85 of  437 MB written (fifo   0%) [buf  31%]   3.3x./opt/schily/bin/cdrecord: Input/output error. write_g1: scsi sendcmd: no error
+CDB:  2A 00 00 00 AA BE 00 00 1F 00
+status: 0x1 (GOOD STATUS)
+resid: 63488
+cmd finished after 0.011s timeout 40s
+
+write track data: error after 89518080 bytes
+cdrom_newpc_intr: dev hdc: flags = REQ_RW REQ_NOMERGE REQ_STARTED REQ_BLOCK_PC REQ_FAILED REQ_QUIET
+sector 0, nr/cnr 124/8
+bio 00000000, biotail c1cd0860, buffer c968d000, data 00000000, len 63488
+cdb: 2a 00 00 00 aa be 00 00 1f 00 00 00 00 00 00 00
+hdc: padding 63488 bytes
+Sense Bytes: 70 00 00 00 00 00 00 12 00 00 00 00 00 00 00 00 00 00
+

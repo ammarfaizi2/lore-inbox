@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267493AbTBUPbi>; Fri, 21 Feb 2003 10:31:38 -0500
+	id <S267503AbTBUPc1>; Fri, 21 Feb 2003 10:32:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267503AbTBUPbh>; Fri, 21 Feb 2003 10:31:37 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:7144 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id <S267493AbTBUPbf>;
-	Fri, 21 Feb 2003 10:31:35 -0500
-From: Mikael Pettersson <mikpe@user.it.uu.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15958.18607.772631.502418@gargle.gargle.HOWL>
-Date: Fri, 21 Feb 2003 16:41:35 +0100
-To: Ion Badulescu <ionut@badula.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: UP local APIC is deadly on SMP Athlon
-In-Reply-To: <Pine.LNX.4.44.0302210959090.17290-100000@guppy.limebrokerage.com>
-References: <15958.15349.873243.599197@gargle.gargle.HOWL>
-	<Pine.LNX.4.44.0302210959090.17290-100000@guppy.limebrokerage.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+	id <S267505AbTBUPc0>; Fri, 21 Feb 2003 10:32:26 -0500
+Received: from d146.dhcp212-198-27.noos.fr ([212.198.27.146]:8923 "EHLO
+	deep-space-9.dsnet") by vger.kernel.org with ESMTP
+	id <S267503AbTBUPcX>; Fri, 21 Feb 2003 10:32:23 -0500
+Date: Fri, 21 Feb 2003 16:42:23 +0100
+From: Stelian Pop <stelian@popies.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH 2.4.21-pre4-bk RESEND] CREDITS update
+Message-ID: <20030221164223.H12004@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ion Badulescu writes:
- > AMD 760MP and 760MPX, both have this problem.
+Hi,
 
-Ok, AMD's chipsets are reasonable.
+This patch updates my CREDITS contact information.
 
- > > Is the second CPU installed or not?
- > 
- > Installed.
- > 
- > > If the second CPU is installed, has it been disabled in BIOS?
- > 
- > It hasn't been disabled (the BIOS doesn't have that option).
+Marcelo, please apply.
 
-That kills the noisy-bus theory.
+Thanks,
 
- > Well, the second CPU is there, and there are no problems with the APIC and 
- > the IO-APIC if the kernel is compiled with CONFIG_SMP=y. Only the UP case 
- > causes the problem. So I don't think the bus itself is noisy, unless the 
- > noises are produced by the second CPU somehow, and we can't do anything 
- > about it because we're not touching that second CPU.
+Stelian.
 
-An UP_APIC kernel without IOAPIC shouldn't generate any APIC bus messages.
-Have you checked if the BIOS has an option for choosing "PIC" or "APIC"
-interrupt delivery? Try setting it to PIC mode.
-
- > I know that AMD's K7 APIC is supposed to be compatible with the Intel P6 
- > APIC, but do you think there might be some incompatibility between that 
- > that causes this? Or perhaps some undefined behavior we rely on, and which 
- > is different between Intel and AMD?...
-
-None that I know of, to both questions.
-All problems I've seen have been caused by non-Intel chipsets.
-
-/Mikael
+===== CREDITS 1.66 vs edited =====
+--- 1.66/CREDITS	Fri Feb 14 04:12:37 2003
++++ edited/CREDITS	Fri Feb 21 09:41:52 2003
+@@ -2415,13 +2415,10 @@
+ D: CDROM driver "sonycd535" (Sony CDU-535/531)
+ 
+ N: Stelian Pop
+-E: stelian.pop@fr.alcove.com
++E: stelian@popies.net
+ P: 1024D/EDBB6147 7B36 0E07 04BC 11DC A7A0  D3F7 7185 9E7A EDBB 6147
+ D: sonypi, meye drivers, mct_u232 usb serial hacks
+-S: Alcôve
+-S: 153, bd. Anatole France 
+-S: 93200 Saint Denis
+-S: France
++S: Paris, France
+ 
+ N: Frederic Potter 
+ E: fpotter@cirpack.com
+-- 
+Stelian Pop <stelian@popies.net>

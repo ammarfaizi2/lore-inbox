@@ -1,101 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318799AbSHLTmt>; Mon, 12 Aug 2002 15:42:49 -0400
+	id <S318803AbSHLT6f>; Mon, 12 Aug 2002 15:58:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318802AbSHLTms>; Mon, 12 Aug 2002 15:42:48 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:41739 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S318799AbSHLTmq>; Mon, 12 Aug 2002 15:42:46 -0400
-Date: Mon, 12 Aug 2002 21:45:37 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-cc: Greg Banks <gnb@alphalink.com.au>, Peter Samuelson <peter@cadcamlab.org>,
-       <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
-Subject: Re: [patch] config language dep_* enhancements
-In-Reply-To: <Pine.LNX.4.44.0208120924320.5882-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.LNX.4.44.0208121959360.8911-100000@serv>
+	id <S318804AbSHLT6f>; Mon, 12 Aug 2002 15:58:35 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:48393 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S318803AbSHLT6e>; Mon, 12 Aug 2002 15:58:34 -0400
+Message-ID: <3D58140E.3070800@namesys.com>
+Date: Tue, 13 Aug 2002 00:01:18 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: Andrew Morton <akpm@zip.com.au>,
+       Hans Reiser <reiser@bitshadow.namesys.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK] [PATCH] reiserfs changeset 7 of 7 to include into 2.4 tree
+References: <Pine.LNX.4.44.0208121533470.3048-100000@freak.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Marcelo Tosatti wrote:
 
-On Mon, 12 Aug 2002, Kai Germaschewski wrote:
+>On Sat, 10 Aug 2002, Hans Reiser wrote:
+>
+>  
+>
+>>I forgot to mention that a variety of benchmarks of various allocator
+>>options are on www.namesys.com/benchmarks.html.  They aren't very
+>>understandable, but if questions are asked I'll answer them.
+>>    
+>>
+>
+>I get this from the "Mongo" benchmark homepage.
+>
+>I suppose the behaviour with your patches is "skip_busy", right?
+>
+Yes.
 
-> Of course, this is a 2.5 change, though the only potential for breakage
-> are the dep_* statements which are arguably already broken. It shouldn't
-> be too hard to come up with a script which points out the dep_* statements
-> which reference symbols defined only later (or use gcml2, which I
-> understand can do that already?) to see how much breakage there may be.
+-- 
+Hans
 
-Most should be fixable. The biggest problem are recursive references like
-this:
 
-if [ OLD != y ]; then
-  tristate NEW
-fi
-if [ NEW != y ]; then
-  tristate OLD
-fi
-
-with the latest modifications this can be written as:
-
-dep_tristate NEW !OLD
-dep_tristate OLD !NEW
-
-This still has the back reference and you have to run 'make config'
-twice to change NEW from n to y.
-It's possible to fix this:
-
-tristate DRV
-if [ DRV == y ]; then
-  choice OLD NEW
-fi
-if [ DRV == m ]; then
-  dep_tristate NEW DRV
-  dep_tristate OLD DRV
-fi
-
-That should look interesting in xconfig, but we could define a new
-statement for this, but you get a new problem if the drivers had their own
-suboptions and you want to arrange them most user friendly directly after
-the driver statement like this:
-
-tristate DRV
-if [ DRV == y ]; then
-  choice OLD NEW
-  if [ NEW == y ]; then
-    bool ...
-  fi
-  if [ OLD == y ]; then
-    bool ...
-  fi
-fi
-if [ DRV == m ]; then
-  dep_tristate NEW DRV
-  if [ NEW == y ]; then
-    bool ...
-  fi
-  dep_tristate OLD DRV
-  if [ OLD == y ]; then
-    bool ...
-  fi
-fi
-
-This should work quite well with config and menuconfig and maybe someone
-fixes xconfig, so a lot can be fixed within cml1, but it won't be
-necessarily nice. :) I didn't make up this example, just look at
-CONFIG_SCSI_AIC7XXX* which would need fixing like this.
-More examples of the cml1 limitations can be found in arch/ppc/config.in -
-a single choice statement needs to be splitted into multiple choice
-statements.
-The current config is really very limited and can not be easily extended
-(just try adding the help text or build information). At some point we
-have to drop cml1 and replace it with something else. This doesn't has be
-very painful, I have a tool that can convert most of the current config
-into whatever you want.
-
-bye, Roman
 

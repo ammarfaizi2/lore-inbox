@@ -1,80 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265314AbUEZHKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265332AbUEZHPW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265314AbUEZHKF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 03:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265330AbUEZHKF
+	id S265332AbUEZHPW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 03:15:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265334AbUEZHPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 03:10:05 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:65514 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S265314AbUEZHJ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 03:09:59 -0400
-Date: Wed, 26 May 2004 03:11:07 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Keith Owens <kaos@sgi.com>
-Subject: [PATCH][2.6-mm] i386: enable interrupts on contention in spin_lock_irq
-Message-ID: <Pine.LNX.4.58.0405260250310.1794@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 26 May 2004 03:15:22 -0400
+Received: from gate.crashing.org ([63.228.1.57]:48009 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S265332AbUEZHPR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 03:15:17 -0400
+Subject: [PATCH] ppc32 implementation of ptep_set_access_flags
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1085554527.7835.59.camel@gaston>
+References: <1085369393.15315.28.camel@gaston>
+	 <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
+	 <1085371988.15281.38.camel@gaston>
+	 <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
+	 <1085373839.14969.42.camel@gaston>
+	 <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
+	 <20040525034326.GT29378@dualathlon.random>
+	 <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
+	 <20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk>
+	 <Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org>
+	 <20040525153501.GA19465@foobazco.org>
+	 <Pine.LNX.4.58.0405250841280.9951@ppc970.osdl.org>
+	 <20040525102547.35207879.davem@redhat.com>
+	 <Pine.LNX.4.58.0405251034040.9951@ppc970.osdl.org>
+	 <20040525105442.2ebdc355.davem@redhat.com>
+	 <Pine.LNX.4.58.0405251056520.9951@ppc970.osdl.org>
+	 <1085521251.24948.127.camel@gaston>
+	 <Pine.LNX.4.58.0405251452590.9951@ppc970.osdl.org>
+	 <Pine.LNX.4.58.0405251455320.9951@ppc970.osdl.org>
+	 <1085522860.15315.133.camel@gaston>
+	 <Pine.LNX.4.58.0405251514200.9951@ppc970.osdl.org>
+	 <1085530867.14969.143.camel@gaston>
+	 <Pine.LNX.4.58.0405251749500.9951@ppc970.osdl.org>
+	 <1085541906.14969.412.camel@gaston>
+	 <Pine.LNX.4.58.0405252031270.15534@ppc970.osdl.org>
+	 <1085546780.5584.19.camel@gaston>
+	 <Pine.LNX.4.58.0405252151100.15534@ppc970.osdl.org>
+	 <1085551152.6320.38.camel@gaston>  <1085554527.7835.59.camel@gaston>
+Content-Type: text/plain
+Message-Id: <1085555491.7835.61.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 26 May 2004 17:11:31 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This little bit was missing from the previous patch. It will enable
-interrupts whilst a cpu is spinning on a lock in spin_lock_irq as well as
-spin_lock_irqsave. UP/SMP compile and runtime/stress tested on i386,
-UP/SMP compile tested on amd64.
+Here's the ppc32 implementation of ptep_set_access_flags:
 
-Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
- include/asm-i386/spinlock.h |    1 +
- include/linux/spinlock.h    |    9 +++++++--
- 2 files changed, 8 insertions(+), 2 deletions(-)
-
-Index: linux-2.6.6-mm5/include/asm-i386/spinlock.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.6-mm5/include/asm-i386/spinlock.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 spinlock.h
---- linux-2.6.6-mm5/include/asm-i386/spinlock.h	22 May 2004 16:45:24 -0000	1.1.1.1
-+++ linux-2.6.6-mm5/include/asm-i386/spinlock.h	26 May 2004 05:36:34 -0000
-@@ -174,6 +174,7 @@ here:
- 		:"=m" (lock->lock) : : "memory");
+===== include/asm-ppc/pgtable.h 1.32 vs edited =====
+--- 1.32/include/asm-ppc/pgtable.h	2004-05-23 07:56:24 +10:00
++++ edited/include/asm-ppc/pgtable.h	2004-05-26 17:07:35 +10:00
+@@ -548,6 +548,16 @@
+ 	pte_update(ptep, 0, _PAGE_DIRTY);
  }
-
-+#define _raw_spin_lock_irq(lock)	_raw_spin_lock_flags(lock, X86_EFLAGS_IF)
- static inline void _raw_spin_lock_flags (spinlock_t *lock, unsigned long flags)
- {
- #ifdef CONFIG_DEBUG_SPINLOCK
-Index: linux-2.6.6-mm5/include/linux/spinlock.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.6-mm5/include/linux/spinlock.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 spinlock.h
---- linux-2.6.6-mm5/include/linux/spinlock.h	22 May 2004 16:45:22 -0000	1.1.1.1
-+++ linux-2.6.6-mm5/include/linux/spinlock.h	26 May 2004 06:36:55 -0000
-@@ -44,9 +44,14 @@
- #ifdef CONFIG_SMP
- #include <asm/spinlock.h>
-
-+#ifndef _raw_spin_lock_irq
-+#define _raw_spin_lock_irq(lock)		_raw_spin_lock(lock)
-+#endif
+ 
++#define __HAVE_ARCH_PTEP_SET_ACCESS_FLAGS
++static inline void __ptep_set_access_flags(pte_t *ptep, pte_t entry, int dirty)
++{
++	unsigned long bits = pte_val(entry) &
++		(_PAGE_DIRTY | _PAGE_ACCESSED | _PAGE_RW);
++	pte_update(ptep, 0, bits);
++}
++#define  ptep_set_access_flags(__vma, __address, __ptep, __entry, __dirty) \
++        __ptep_set_access_flags(__ptep, __entry, __dirty)
 +
- #else
+ /*
+  * Macro to mark a page protection value as "uncacheable".
+  */
 
--#define _raw_spin_lock_flags(lock, flags) _raw_spin_lock(lock)
-+#define _raw_spin_lock_flags(lock, flags)	_raw_spin_lock(lock)
-+#define _raw_spin_lock_irq(lock)		_raw_spin_lock(lock)
 
- #if !defined(CONFIG_PREEMPT) && !defined(CONFIG_DEBUG_SPINLOCK)
- # define atomic_dec_and_lock(atomic,lock) atomic_dec_and_test(atomic)
-@@ -289,7 +294,7 @@ do { \
- do { \
- 	local_irq_disable(); \
- 	preempt_disable(); \
--	_raw_spin_lock(lock); \
-+	_raw_spin_lock_irq(lock); \
- } while (0)
-
- #define spin_lock_bh(lock) \

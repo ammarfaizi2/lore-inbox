@@ -1,77 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269347AbUICHvY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269339AbUICHxg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269347AbUICHvY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 03:51:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269340AbUICHtv
+	id S269339AbUICHxg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 03:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269340AbUICHxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 03:49:51 -0400
-Received: from asplinux.ru ([195.133.213.194]:54280 "EHLO relay.asplinux.ru")
-	by vger.kernel.org with ESMTP id S269339AbUICHtd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 03:49:33 -0400
-Message-ID: <413824B9.8080600@sw.ru>
-Date: Fri, 03 Sep 2004 12:00:57 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Fri, 3 Sep 2004 03:53:36 -0400
+Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:5840 "EHLO
+	acheron.informatik.uni-muenchen.de") by vger.kernel.org with ESMTP
+	id S269339AbUICHxX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 03:53:23 -0400
+Message-ID: <413822F1.5060406@bio.ifi.lmu.de>
+Date: Fri, 03 Sep 2004 09:53:21 +0200
+From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>, torvalds@osdl.org,
-       wli@holomorphy.com, linux-kernel@vger.kernel.org
-Subject: Re: INIT hangs with tonight BK pull (2.6.9-rc1+)
-References: <200409030204.11806.dtor_core@ameritech.net>
-In-Reply-To: <200409030204.11806.dtor_core@ameritech.net>
-Content-Type: multipart/mixed;
- boundary="------------030601090606070406080409"
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.8.1-mm1][input] - IBM TouchPad support added? Which patch
+ is this? - Unsure still
+References: <200408170349.44626.shawn.starr@rogers.com> <200408170801.00068.dtor_core@ameritech.net> <41381972.8080600@bio.ifi.lmu.de> <200409030227.42441.dtor_core@ameritech.net>
+In-Reply-To: <200409030227.42441.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030601090606070406080409
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Dmitry Torokhov wrote:
 
-> After doing BK pull last night INIT gets stuck in do_tty_hangup after
-> executing rc.sysinit. Was booting fine with pull from 2 days ago...
+> No, I don't think I have one... If you are using BitKeeper, yo could just do:
 > 
-> Anyone else seeing this?
+> 	bk pull bk://dtor.bkbits.net/input
+
+I will try that (not having bitkeeper yet, but I planned to do install for
+some time... You always need a reason to be pushed :-))
+
 > 
-> I suspect pidhash patch because it touched tty_io.c, but I have not tried
-> reverting it as it is getting too late here... So I apologize in advance
-> if I am pointing finger at the innocent ;)
+> But have you tried installing XFree86/XOrg Synaptics driver
+> (http://w1.894.telia.com/~u89404340/touchpad/index.html)?
+> It does support tapping just fine...
 
-Oops, you are right. These do_each_task_pid()/while_each_task_pid() do 
-loop 4ever with 'continue' inside.
-Strange, that I haven't faced the problem on my machine before sending 
-the patch... :(
+I will try. I had already looked at the page, but it says "If you use a
+2.6 linux kernel, you might want to try Dmitry Torokhov's kernel patches."
+so that's looked at your patches first :-)
 
-Sorry for the inconvinience. Patch is inside.
+I will try both your proposals and report sucess.
+Thanks!
 
-Kirill
+cu,
+Frank
 
---------------030601090606070406080409
-Content-Type: text/plain;
- name="diff-pid-sent2-fix"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-pid-sent2-fix"
-
---- ./include/linux/pid.h.pid2	2004-09-03 11:52:27.510664040 +0400
-+++ ./include/linux/pid.h	2004-09-03 11:40:33.616192496 +0400
-@@ -46,10 +46,10 @@ extern void switch_exec_pids(struct task
- 		do {
- 
- #define while_each_task_pid(who, type, task)				\
--			task = pid_task((task)->pids[type].pid_list.next,\
--						type);			\
--			prefetch((task)->pids[type].pid_list.next);	\
--		} while (hlist_unhashed(&(task)->pids[type].pid_chain));\
-+		} while (task = pid_task((task)->pids[type].pid_list.next,\
-+						type),			\
-+			prefetch((task)->pids[type].pid_list.next),	\
-+			hlist_unhashed(&(task)->pids[type].pid_chain));	\
- 	}								\
- 
- #endif /* _LINUX_PID_H */
-
---------------030601090606070406080409--
+-- 
+Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
+Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
+LMU, Amalienstr. 17           Phone: +49 89 2180-4049
+80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
 

@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262734AbTIEOvl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 10:51:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262854AbTIEOvl
+	id S262771AbTIEOIR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 10:08:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262778AbTIEOIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 10:51:41 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59349 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262734AbTIEOvj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 10:51:39 -0400
-Date: Fri, 5 Sep 2003 15:51:24 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Jan Ischebeck <mail@jan-ischebeck.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org, torvalds@osdl.org
-Subject: Re: 2.6.0-test4-mm6
-Message-ID: <20030905145124.GF454@parcelfarce.linux.theplanet.co.uk>
-References: <1062766000.2081.11.camel@JHome.uni-bonn.de>
+	Fri, 5 Sep 2003 10:08:17 -0400
+Received: from imap.gmx.net ([213.165.64.20]:2261 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262771AbTIEOIP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 10:08:15 -0400
+Subject: Re: [2.6.0-test-x] Kernel Oops and pppd segfault
+From: Florian Zimmermann <florian.zimmermann@gmx.net>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030905084126.A15120@infradead.org>
+References: <1062711059.8011.4.camel@mindfsck>
+	 <20030905084126.A15120@infradead.org>
+Content-Type: text/plain
+Message-Id: <1062769373.3377.1.camel@mindfsck>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1062766000.2081.11.camel@JHome.uni-bonn.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 05 Sep 2003 15:42:54 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 05, 2003 at 02:46:40PM +0200, Jan Ischebeck wrote:
-> Seems like I got the reason for X not starting:
+On Fri, 2003-09-05 at 09:41, Christoph Hellwig wrote:
+> On Thu, Sep 04, 2003 at 11:30:59PM +0200, Florian Zimmermann wrote:
+> > I have posted that to linux-ppp mailing list, but
+> > no answer for 2 weeks now..
 > 
-> pseudo terminals can't be acquired and only two consoles are running.
-> 
-> -> X11 can't get console Vt7
-> -> pppd doesn't work either
-> 
-> This definitely worked with -mm5.
+> This should fix the oops, but the failure is still strange.
+   ^^^^^ what? where? when?
+In case you attached a patch, please resend - there was no
+attachement :)
 
-Grr...  Dumb typo.  Patch below should fix that...
+> 
+> do you already have a ppp device in /dev before loading the module?
 
-diff -urN B4-misc3/drivers/char/tty_io.c B4-current/drivers/char/tty_io.c
---- B4-misc3/drivers/char/tty_io.c	Thu Sep  4 02:19:38 2003
-+++ B4-current/drivers/char/tty_io.c	Fri Sep  5 10:46:59 2003
-@@ -1334,7 +1334,7 @@
- 		return -ENODEV;
- 	}
- 
--	if (device == MKDEV(TTY_MAJOR,2)) {
-+	if (device == MKDEV(TTYAUX_MAJOR,2)) {
- #ifdef CONFIG_UNIX98_PTYS
- 		/* find a device that is not in use. */
- 		retval = -1;
+the module is never loaded btw, but before i try to load the
+module the /device is already there:
+
+crw-r--r--    1 root     root     108,   0 Sep  5  2003 /dev/ppp
+
+
+
+

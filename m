@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268087AbRG0VNV>; Fri, 27 Jul 2001 17:13:21 -0400
+	id <S268112AbRG0VMV>; Fri, 27 Jul 2001 17:12:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268973AbRG0VNN>; Fri, 27 Jul 2001 17:13:13 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:19932 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S268087AbRG0VMq>; Fri, 27 Jul 2001 17:12:46 -0400
-Date: Fri, 27 Jul 2001 22:14:08 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: [PATCH] hang on /dev/kmem
-Message-ID: <Pine.LNX.4.21.0107272210260.1242-100000@localhost.localdomain>
+	id <S268087AbRG0VML>; Fri, 27 Jul 2001 17:12:11 -0400
+Received: from maila.telia.com ([194.22.194.231]:4348 "EHLO maila.telia.com")
+	by vger.kernel.org with ESMTP id <S268112AbRG0VL6>;
+	Fri, 27 Jul 2001 17:11:58 -0400
+Message-Id: <200107272112.f6RLC3d28206@maila.telia.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.8-pre1 and dbench -20% throughput
+Date: Fri, 27 Jul 2001 23:08:04 +0200
+X-Mailer: KMail [version 1.2.3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-read_kmem() gets stuck in silly loop after reading last vmalloc area.
-Patch below against 2.4.8-pre1 or 2.4.7-ac1: please apply.
+Hi all,
 
-Hugh
+I have done some throughput testing again.
+Streaming write, copy, read, diff are almost identical to earlier 2.4 kernels.
+(Note: 2.4.0 was clearly better when reading from two files - i.e. diff - 
+15.4 MB/s v. around 11 MB/s with later kenels - can be a result of disk 
+layout too...)
 
---- linux-2.4.8-pre1/drivers/char/mem.c	Wed Jul 11 00:07:46 2001
-+++ linux/drivers/char/mem.c	Fri Jul 27 21:40:05 2001
-@@ -260,7 +260,9 @@
- 			if (len > PAGE_SIZE)
- 				len = PAGE_SIZE;
- 			len = vread(kbuf, (char *)p, len);
--			if (len && copy_to_user(buf, kbuf, len)) {
-+			if (!len)
-+				break;
-+			if (copy_to_user(buf, kbuf, len)) {
- 				free_page((unsigned long)kbuf);
- 				return -EFAULT;
- 			}
+But "dbench 32" (on my 256 MB box) results has are the most interesting:
 
+2.4.0 gave 33 MB/s
+2.4.8-pre1 gives 26.1 MB/s (-21%)
+
+Do we now throw away pages that would be reused?
+
+[I have also verified that mmap002 still works as expected]
+
+/RogerL

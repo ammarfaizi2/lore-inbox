@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267038AbSLKHOG>; Wed, 11 Dec 2002 02:14:06 -0500
+	id <S267001AbSLKHqC>; Wed, 11 Dec 2002 02:46:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267041AbSLKHOG>; Wed, 11 Dec 2002 02:14:06 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:7843 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S267038AbSLKHOF>;
-	Wed, 11 Dec 2002 02:14:05 -0500
-Date: Wed, 11 Dec 2002 08:21:39 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Wil Reichert <wilreichert@yahoo.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: "bio too big" error
-Message-ID: <20021211072139.GF16003@suse.de>
-References: <1039572597.459.82.camel@darwin> <3DF6A673.D406BC7F@digeo.com> <1039577938.388.9.camel@darwin>
+	id <S267005AbSLKHqC>; Wed, 11 Dec 2002 02:46:02 -0500
+Received: from holomorphy.com ([66.224.33.161]:28832 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267001AbSLKHp7>;
+	Wed, 11 Dec 2002 02:45:59 -0500
+Date: Tue, 10 Dec 2002 23:53:06 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Robert Love <rml@tech9.net>, davidel@xmailserver.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] epoll: don't printk pointer value
+Message-ID: <20021211075306.GI9882@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@digeo.com>, Robert Love <rml@tech9.net>,
+	davidel@xmailserver.org, linux-kernel@vger.kernel.org
+References: <20021211063031.GH9882@holomorphy.com> <1039588429.832.6.camel@phantasy> <3DF6DE1A.6FD498C9@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1039577938.388.9.camel@darwin>
+In-Reply-To: <3DF6DE1A.6FD498C9@digeo.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 10 2002, Wil Reichert wrote:
-> Exact error with debug is:
-> 
-> darwin:/a01/mp3s/Skinny Puppy/Too Dark Park# ogg123 -q 01\ -\
-> Convulsion.ogg
-> bio too big device ide0(3,4) (256 > 255)
+Robert Love wrote:
+>> ...
 
-looks like a one-off in the dm merge_bvec function.
+On Tue, Dec 10, 2002 at 10:41:30PM -0800, Andrew Morton wrote:
+> Guys, it's noise.  Just nuke it.
 
--- 
-Jens Axboe
+Fine by me. I just notice the format string business.
 
+
+Bill

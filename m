@@ -1,96 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265296AbUBIREo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 12:04:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265303AbUBIREo
+	id S265263AbUBIRO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 12:14:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265270AbUBIROZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 12:04:44 -0500
-Received: from fw.osdl.org ([65.172.181.6]:47265 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265296AbUBIREm (ORCPT
+	Mon, 9 Feb 2004 12:14:25 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:5271 "EHLO terminus.zytor.com")
+	by vger.kernel.org with ESMTP id S265263AbUBIROY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 12:04:42 -0500
-Date: Mon, 9 Feb 2004 08:58:17 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Olaf Hering <olh@suse.de>
-Cc: linux-kernel@vger.kernel.org, jejb <james.bottomley@steeleye.com>,
-       gibbs@scsiguy.com
-Subject: Re: 2.6.3 CONFIG_SCSI_AIC7 X X X Kconfig bug
-Message-Id: <20040209085817.055e1419.rddunlap@osdl.org>
-In-Reply-To: <20040207162054.GA25651@suse.de>
-References: <20040207162054.GA25651@suse.de>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 9 Feb 2004 12:14:24 -0500
+Message-ID: <4027BFE7.5040100@zytor.com>
+Date: Mon, 09 Feb 2004 09:14:15 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040105
+X-Accept-Language: en, sv, es, fr
+MIME-Version: 1.0
+To: Albert Cahalan <albert@users.sourceforge.net>
+CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Does anyone still care about BSD ptys?
+References: <1076334541.27234.140.camel@cube>
+In-Reply-To: <1076334541.27234.140.camel@cube>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Feb 2004 17:20:54 +0100 Olaf Hering <olh@suse.de> wrote:
+Albert Cahalan wrote:
+> 
+> The BSD-style ptys are used all the time for
+> serial port emulation. The SysV-style ones are
+> useless for this, since they don't have a fixed
+> mapping from master to slave. You might make a
+> symlink from /dev/testbox to /dev/ptyp0, then
+> configure gdb to use /dev/testbox for remote
+> debugging. Then you start a remserial process
+> to connect /dev/ttyp0 with port 7455 on some
+> terminal server, and on the terminal server you
+> have remserial connect port 7455 to /dev/C7.
+> Now, whenever you run gdb, you're debugging
+> a test box over a serial line connected to the
+> terminal server. With SysV-style ttys, you
+> can't set up your config as nicely. The above
+> would likely have a few extra symlinks BTW.
+> 
 
-| 
-| who made that 'XXX in subject' reject? That is bug one.
+Eh?!  Have your server process create the appropriate symlinks... 
+problem solved.
 
-Yeah, I just use xyz instead...
+> In your use of the larger dev_t, please keep
+> the first 2047 or 2048 ptys as they are today.
+> Let the last major use the full 20-bit minor,
+> while restricting the first 7 minors to 8 bits.
+> This avoids breaking userspace software.
 
+No bloody way in hell.  However, unless I have a strong reason to the 
+contrary I'll keep them on major 136, so your little formula should 
+still woprk.
 
-| another bug:
-| 
-| scsi is a module, but aic7xxx doesnt get build because it is set to yes.
-| plain 2.6.3-rc1, happend also with 2.6.2.
-| 
-| grep SCSI .config | grep =
-| CONFIG_BLK_DEV_IDESCSI=m
-| CONFIG_SCSI=m
-| CONFIG_SCSI_MULTI_LUN=y
-| CONFIG_SCSI_REPORT_LUNS=y
-| CONFIG_SCSI_CONSTANTS=y
-| CONFIG_SCSI_LOGGING=y
-| CONFIG_SCSI_AIC7XXX=y
-| CONFIG_SCSI_QLA2XXX_CONFIG=m
-| CONFIG_SCSI_DEBUG=m
-| CONFIG_USB_HPUSBSCSI=m
-| 
-| I can not set CONFIG_SCSI_DEBUG to y, this is handled correctly.
-
-Missing SCSI in "depends".  Patch is below.
-
---
-~Randy
+> For example, due to the lack of /proc/*/tty links,
+> procps uses min+(maj-136)*256 to guess the number
+> of a SysV-style pty. A 32-bit dev_t will be handled
+> correctly by procps 3.2 if you extend the pty usage
+> as explained above.
 
 
+> Adding /proc/*/tty links solves the problem as
+> well, subject to a linux-2.7.0 version check.
 
-product_versions: linux-262-pv
-description:	make Adaptec AIC7xyx drivers depend on SCSI tristate
+Presumably it should be: subject to an existence check.
 
-diffstat:=
- drivers/scsi/aic7xxx/Kconfig.aic79xx |    2 +-
- drivers/scsi/aic7xxx/Kconfig.aic7xxx |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+	-hpa
 
-diff -Naurp ./drivers/scsi/aic7xxx/Kconfig.aic7xxx~depends ./drivers/scsi/aic7xxx/Kconfig.aic7xxx
---- ./drivers/scsi/aic7xxx/Kconfig.aic7xxx~depends	2004-02-03 19:43:42.000000000 -0800
-+++ ./drivers/scsi/aic7xxx/Kconfig.aic7xxx	2004-02-09 09:04:01.000000000 -0800
-@@ -4,7 +4,7 @@
- #
- config SCSI_AIC7XXX
- 	tristate "Adaptec AIC7xxx Fast -> U160 support (New Driver)"
--	depends on PCI || EISA
-+	depends on (PCI || EISA) && SCSI
- 	---help---
- 	This driver supports all of Adaptec's Fast through Ultra 160 PCI
- 	based SCSI controllers as well as the aic7770 based EISA and VLB
-diff -Naurp ./drivers/scsi/aic7xxx/Kconfig.aic79xx~depends ./drivers/scsi/aic7xxx/Kconfig.aic79xx
---- ./drivers/scsi/aic7xxx/Kconfig.aic79xx~depends	2004-02-03 19:43:43.000000000 -0800
-+++ ./drivers/scsi/aic7xxx/Kconfig.aic79xx	2004-02-09 09:03:52.000000000 -0800
-@@ -4,7 +4,7 @@
- #
- config SCSI_AIC79XX
- 	tristate "Adaptec AIC79xx U320 support"
--	depends on PCI
-+	depends on PCI && SCSI
- 	help
- 	This driver supports all of Adaptec's Ultra 320 PCI-X
- 	based SCSI controllers.
+

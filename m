@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270772AbRHSUzC>; Sun, 19 Aug 2001 16:55:02 -0400
+	id <S270774AbRHSU4m>; Sun, 19 Aug 2001 16:56:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270774AbRHSUyx>; Sun, 19 Aug 2001 16:54:53 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:54799 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S270772AbRHSUyj>; Sun, 19 Aug 2001 16:54:39 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.8/2.4.9 VM problems
-Date: Sun, 19 Aug 2001 23:00:32 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <200108171310.PAA26032@lambik.cc.kuleuven.ac.be>
-In-Reply-To: <200108171310.PAA26032@lambik.cc.kuleuven.ac.be>
+	id <S270775AbRHSU4c>; Sun, 19 Aug 2001 16:56:32 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54825 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S270774AbRHSU4Z>; Sun, 19 Aug 2001 16:56:25 -0400
+To: esr@thyrsus.com
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>, gars@lanm-pc.com
+Subject: Re: Swap size for a machine with 2GB of memory
+In-Reply-To: <20010819024233.A26916@thyrsus.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 Aug 2001 14:49:23 -0600
+In-Reply-To: <20010819024233.A26916@thyrsus.com>
+Message-ID: <m11ym7ojvw.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010819205452Z16128-32383+429@humbolt.nl.linux.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 17, 2001 03:10 pm, Frank Dekervel wrote:
-> Hello,
-> 
-> since i upgraded to kernel 2.4.8/2.4.9, i noticed everything became noticably 
-> slower, and the number of swapins/swapouts increased significantly. When i 
-> run 'vmstat 1' i see there is a lot of swap activity constantly when i am 
-> reading my mail in kmail. After a fresh bootup in the evening, i can get 
-> everything I normally need swapped out by running updatedb or ht://dig. When 
-> i do that, my music stops playing for several seconds, and it takes about 3 
-> seconds before my applications repaint when i switch back to X after an 
-> updatedb run.
-> the last time that happent (and the last time i had problems with VM at all) 
-> was in 2.4.0-testXX so i think something is wrong ...
-> is it possible new used_once does not work for me (and drop_behind used to 
-> work fine) ?
-> 
-> My system configuration : athlon 750, 384 meg ram, 128 meg swap, XFree4.1 and 
-> kde2.2.
+"Eric S. Raymond" <esr@thyrsus.com> writes:
 
-Could you please try this patch against 2.4.9 (patch -p0):
+> The Red Hat installation manual claims that the size of the swap partition
+> should be twice the size of physical memory, but no more than 128MB.
+> 
+> The screaming hotrod machine Gary Sandine and I built around the Tyan S2464
+> has 2GB of physical memory.  Should I believe the above formula?  If not,
+> is there a more correct one for calculating needed swap on machines with
+> very large memory?
 
---- ../2.4.9.clean/mm/memory.c	Mon Aug 13 19:16:41 2001
-+++ ./mm/memory.c	Sun Aug 19 21:35:26 2001
-@@ -1119,6 +1119,7 @@
- 			 */
- 			return pte_same(*page_table, orig_pte) ? -1 : 1;
- 		}
-+		SetPageReferenced(page);
- 	}
- 
- 	/*
+There is no magic formula for calculating the amount of swap space
+needed.  It really needs to be sized to the expected load on your box
+plus some.  If you seriously expect to be using swap,  have swapsize >
+memsize and figure the amount of virtual memory you have is swapsize.
+
+With respect to swap partitions the current limit is about 64Gig.
+You can actually make a larger swap partition but the kernel on x86
+only uses 24 offset bits into that partition.  The 128MB partition
+existed but was removed long ago.
+
+Eric

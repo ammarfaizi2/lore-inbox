@@ -1,76 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267564AbTBRCEQ>; Mon, 17 Feb 2003 21:04:16 -0500
+	id <S267558AbTBRCGP>; Mon, 17 Feb 2003 21:06:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267566AbTBRCEQ>; Mon, 17 Feb 2003 21:04:16 -0500
-Received: from darkwing.uoregon.edu ([128.223.142.13]:58340 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S267564AbTBRCEO>; Mon, 17 Feb 2003 21:04:14 -0500
-Date: Mon, 17 Feb 2003 18:14:11 -0800 (PST)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Steve Lee <steve@tuxsoft.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: What language has Alan's portaloo changed to?
-In-Reply-To: <003001c2d6eb$40954c20$e501a8c0@saturn>
-Message-ID: <Pine.LNX.4.44.0302171812050.15078-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267560AbTBRCGP>; Mon, 17 Feb 2003 21:06:15 -0500
+Received: from tapu.f00f.org ([202.49.232.129]:31630 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S267558AbTBRCGN>;
+	Mon, 17 Feb 2003 21:06:13 -0500
+Date: Mon, 17 Feb 2003 18:16:14 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: Linux v2.5.62 --- spontaneous reboots
+Message-ID: <20030218021614.GA7924@f00f.org>
+References: <20030218015353.GA7844@f00f.org> <Pine.LNX.4.44.0302171752560.1754-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0302171752560.1754-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.28i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-what's wrong with welsh?
+On Mon, Feb 17, 2003 at 06:02:03PM -0800, Linus Torvalds wrote:
 
-joelja
+> Can you check mjb 1-3 too? The better it gets pinpointed, the easier
+> it's going to be to find.
 
-On Mon, 17 Feb 2003, Steve Lee wrote:
+Sure... I'll test them later on.
 
-> I hadn't noticed this yet, but I'm disappointed as well.  I usually read
-> his diary on a weekly basis.
-> 
-> Alan???
-> 
-> 
-> Steve
-> 
-> 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of
-> jlnance@unity.ncsu.edu
-> Sent: Monday, February 17, 2003 11:25 AM
-> To: linux-kernel@vger.kernel.org
-> Subject: What language has Alan's portaloo changed to?
-> 
-> I notice that the entries on http://www.linux.org.uk/diary/ have changed
-> to a different language.  Is it Welsh?  Hm.  I wonder if bablefish can
-> help me translate it.
-> 
-> Thanks,
-> 
-> Jim
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Also, if you can figure out _which_ part of the patch makes a
+> difference, that would obviously be even better.
 
--- 
--------------------------------------------------------------------------- 
-Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
---    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
-  In Dr. Johnson's famous dictionary patriotism is defined as the last
-  resort of the scoundrel.  With all due respect to an enlightened but
-  inferior lexicographer I beg to submit that it is the first.
-	   	            -- Ambrose Bierce, "The Devil's Dictionary"
+I'll try to narrow this down.
+
+> Part of the stuff in mjb is already merged in later kernels (ie
+> things like using sequence locks for xtime is already there in
+> 2.5.60, so clearly that doesn't seem to be the thing that helps your
+> situation).
+
+I don't think it's anything really obvious.  If the problem I'm seeing
+is the same as the one showing up on *some* IBM NUMA-Q (or whatever
+they are) boxen then it's probably not a driver or fs thing --- as we
+have nothing in common.
+
+Now... it could be two different problems, except the same kernel
+which the IBM people found works for them also works for me.
+
+Oddly, wli has not seen this problem and he's using similar hardware
+(I think) to the other IBM people and the same compiler as me.
+
+> Do you use the starfire driver?
+
+Nope.
+
+A stripped down kernel, compile for a 486 with no IO-APIC support (in
+an attempt to slow things down and hopefully avoid possible hardware
+problems such as overheating) still reboots on me.
+
+The only thing I can think of is a triple-fault...  I'm wondering
+about using gcc-3.2 instead of 2.95.4 (Debian blah blort blem) on the
+off chance it's a weird compiler problem.
 
 
+
+  --cw

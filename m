@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130102AbRB1Ibt>; Wed, 28 Feb 2001 03:31:49 -0500
+	id <S130115AbRB1Ic7>; Wed, 28 Feb 2001 03:32:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130105AbRB1Ibj>; Wed, 28 Feb 2001 03:31:39 -0500
-Received: from ncc1701.cistron.net ([195.64.68.38]:30982 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S130102AbRB1Iba>; Wed, 28 Feb 2001 03:31:30 -0500
-From: dth@HoHo.nl (Danny ter Haar)
-Subject: Re: making menuconfig on a 2.4.2-ac6 kernel :-)
-Date: Wed, 28 Feb 2001 08:31:26 +0000 (UTC)
-Organization: Holland Hosting
-Message-ID: <97id0u$hmu$1@voyager.cistron.net>
-In-Reply-To: <DF71F1B1D60BD5118D2C0004AC538C650D08C9@db_srv>
-X-Trace: voyager.cistron.net 983349086 18142 62.216.31.57 (28 Feb 2001 08:31:26 GMT)
-X-Complaints-To: abuse@cistron.nl
-To: linux-kernel@vger.kernel.org
+	id <S130111AbRB1Icu>; Wed, 28 Feb 2001 03:32:50 -0500
+Received: from t2.redhat.com ([199.183.24.243]:55796 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S130105AbRB1Ich>; Wed, 28 Feb 2001 03:32:37 -0500
+To: lkthomas@hkicable.com
+Cc: Dan Kegel <dank@alumni.caltech.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Wine + kernel ?? How to do that? 
+In-Reply-To: Your message of "Wed, 28 Feb 2001 02:54:45 +0800."
+             <3A9BF7F5.E3AE76AB@hkicable.com> 
+Date: Wed, 28 Feb 2001 08:32:25 +0000
+Message-ID: <6254.983349145@warthog.cambridge.redhat.com>
+From: David Howells <dhowells@cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lombardo, Federico <FLombardo@grandistazioni.it> wrote:
->Please report alan :-)
 
-patch has already been posted here.
+lkthomas@hkicable.com wrote:
+> hey, I hear that wine ( windows emulator ) can port into kernel and make 
+> it running faster, How can I do it? 
+> or anyone can make a patch to add wine code into kernel? 
+> waiting for answer, Thanks 
 
-Incremental ac patches are available at: www.bzimage.org
+I've been writing one to provide all the Windows kernel objects in Linux
+kernel space (the speed up appears as though it should be impressive). It is,
+however, not entirely complete yet. You can grab a copy by CVS from the wine
+repository:
 
-ac5-ac6 is patched with right EXTRAVERSION and make menuconfig patch.
+	export CVSROOT=:pserver:cvs@cvs.winehq.com:/home/wine
+	cvs login
+	  (the password is cvs)
+	cvs -z3 checkout kernel-win32
 
-Danny
+Or you can browse it:
 
+	http://cvs.winehq.com/cvsweb/kernel-win32/
 
+The numbers are looking good: the system call latency appears to be about half
+that of Win2000 on the same box! (however, use this number with caution).
+
+David

@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265568AbUAGNoM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 08:44:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266197AbUAGNoL
+	id S265560AbUAGNjK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 08:39:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265566AbUAGNjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 08:44:11 -0500
-Received: from albatross-ext.wise.edt.ericsson.se ([193.180.251.49]:62707 "EHLO
-	albatross-ext.wise.edt.ericsson.se") by vger.kernel.org with ESMTP
-	id S265568AbUAGNnu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 08:43:50 -0500
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Miklos.Szeredi@eth.ericsson.se (Miklos Szeredi)
-Date: Wed, 7 Jan 2004 14:43:30 +0100 (MET)
-Message-Id: <200401071343.i07DhUS25219@duna48.eth.ericsson.se>
-To: avf-fuse-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] Filesystem in Userspace (FUSE) 1.1-pre1
+	Wed, 7 Jan 2004 08:39:10 -0500
+Received: from [212.28.208.94] ([212.28.208.94]:34568 "HELO dewire.com")
+	by vger.kernel.org with SMTP id S265560AbUAGNjG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 08:39:06 -0500
+From: Robin Rosenberg <roro.l@dewire.com>
+To: ncunningham@users.sourceforge.net
+Subject: Re: udev and devfs - The final word
+Date: Wed, 7 Jan 2004 14:39:03 +0100
+User-Agent: KMail/1.5.3
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040103040013.A3100@pclin040.win.tue.nl> <200401051201.58356.roro.l@dewire.com> <1073306368.4181.103.camel@laptop-linux>
+In-Reply-To: <1073306368.4181.103.camel@laptop-linux>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200401071439.03915.roro.l@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+måndagen den 5 januari 2004 13.39 skrev Nigel Cunningham:
+> Hi.
+>
+> The suspend to disk implementations all assume that devices are not
+> [dis]appearing under us while we're suspended. If you do go adding and
+> removing devices while the power is off, you can expect the same
+> problems you'd get if you removed them without suspending the machine.
+> It would be roughly equivalent to hot[un]plugging devices.
 
-I did a release at long last, it's got proper 2.6 kernel support and
-all the rest of the stuff that people contributed since 1.0.
+Yes. It's very unclear unless you do mind reading, but I had in mind mounted filesystems
+such as /home on a USB stick or firewire Reasonable? yes! But such devices have to
+be rediscovered and allocated in such a way that the user can resume using the device
+as soon as it has been found. And it should not fail miserably if the user forgets to connect
+the device before resuming the machine. As you cannot unmount /home (usually) the
+kernel must remember the device somehow or make mounting file systems more loosely
+than today.
 
-It can be downloaded from the usual place:
+-- robin
 
-   http://sourceforge.net/projects/avf
 
-If you find a problem please report!
-
-Thanks,
-Miklos

@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbVCGVZj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVCGVyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261529AbVCGVZj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 16:25:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbVCGVYa
+	id S261273AbVCGVyW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 16:54:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbVCGV0C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 16:24:30 -0500
-Received: from a26.t1.student.liu.se ([130.236.221.26]:27576 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261829AbVCGUQQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 15:16:16 -0500
-Message-ID: <422CB68A.1050900@drzeus.cx>
-Date: Mon, 07 Mar 2005 21:16:10 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird  (X11/20041216)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, Mark Canter <marcus@vfxcomputing.com>,
-       rlrevell@joe-job.com, nish.aravamudan@gmail.com,
-       linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
-Subject: Re: [Alsa-devel] Re: intel 8x0 went silent in 2.6.11
-References: <4227085C.7060104@drzeus.cx>	<29495f1d05030309455a990c5b@mail.gmail.com>	<Pine.LNX.4.62.0503031342270.19015@krusty.vfxcomputing.com>	<1109875926.2908.26.camel@mindpipe>	<Pine.LNX.4.62.0503031356150.19015@krusty.vfxcomputing.com>	<1109876978.2908.31.camel@mindpipe>	<Pine.LNX.4.62.0503031527550.30702@krusty.vfxcomputing.com>	<20050303154929.1abd0a62.akpm@osdl.org>	<4227ADE7.3080100@drzeus.cx>	<4228D013.8010307@drzeus.cx> <s5hmztfwon1.wl@alsa2.suse.de>
-In-Reply-To: <s5hmztfwon1.wl@alsa2.suse.de>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Mar 2005 16:26:02 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57062 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261344AbVCGUoW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 15:44:22 -0500
+Date: Mon, 7 Mar 2005 21:44:01 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Bruno Ducrot <ducrot@poupinou.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>, seife@suse.de,
+       Len Brown <len.brown@intel.com>
+Subject: Re: [ACPI] s4bios: does anyone use it?
+Message-ID: <20050307204401.GA15212@elf.ucw.cz>
+References: <20050305191405.GA1463@elf.ucw.cz> <20050307170852.GB31985@poupinou.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050307170852.GB31985@poupinou.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai wrote:
+Hi!
 
->At Fri, 04 Mar 2005 22:16:03 +0100,
->Pierre Ossman wrote:
->  
->
->>It seems I spoke too soon. The defaults picked by the driver are 
->>actually fine. It seems to be alsactl store/restore that did something 
->>strange when coming from an older kernel.
->>    
->>
->
->My guess is that kmix is the cuplrit.
->kmix tends to turn on all mixer switches uncoditionally, and
->saves/restores the mixer config by itself.
->  
->
-I use Gnome, not KDE so kmix is not an issue.
+> > 
+> > Is there single user of s4bios? It used to work for me 4 notebooks
+> > ago, but I never really used it.
+> 
+> I don't have anymore my toshiba laptop where S4 bios was first
+> implemented.
+> 
+> > I think I'm the only person that ever
+> > seen it working, but I could be wrong.
+> 
+> You are indeed wrong.
 
->Look at /etc/asound.state whether it contains the value of "Headphone
->Jack Sense" control true or false.
->  
->
-It saves the setting once I've been in 2.6.11. From an earlier kernel
-there is no such entry.
+Okay, so we had 2 users in past but have 0 users now? :-).
 
->BTW, the default value of this control switch was fixed for ThinkPads
->on ALSA tree since long time ago, but unfortunately the patch wasn't
->accepted for 2.6.11...
->  
->
-My machine is a hp/compaq, not a thinkpad, so I don't know if it would
-have any effect here.
-
-Rgds
-Pierre
-
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

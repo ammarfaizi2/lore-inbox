@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318115AbSIPEVd>; Mon, 16 Sep 2002 00:21:33 -0400
+	id <S318795AbSIPE1M>; Mon, 16 Sep 2002 00:27:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318790AbSIPEVd>; Mon, 16 Sep 2002 00:21:33 -0400
-Received: from web40509.mail.yahoo.com ([66.218.78.126]:13673 "HELO
-	web40509.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S318115AbSIPEVc>; Mon, 16 Sep 2002 00:21:32 -0400
-Message-ID: <20020916042625.55842.qmail@web40509.mail.yahoo.com>
-Date: Sun, 15 Sep 2002 21:26:25 -0700 (PDT)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: Re: To Anyone with a Radeon 7500 board and the ali developer
-To: Nicholas <TheUnforgiven@attbi.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318798AbSIPE1M>; Mon, 16 Sep 2002 00:27:12 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:32991 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318795AbSIPE1L>;
+	Mon, 16 Sep 2002 00:27:11 -0400
+Date: Sun, 15 Sep 2002 21:23:21 -0700 (PDT)
+Message-Id: <20020915.212321.64867280.davem@redhat.com>
+To: hadi@cyberus.ca
+Cc: linux-kernel@vger.kernel.org, todd-lkml@osogrande.com,
+       tcw@tempest.prismnet.com, netdev@oss.sgi.com, pfeather@cs.unm.edu
+Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.GSO.4.30.0209151053530.22001-100000@shell.cyberus.ca>
+References: <20020913.150439.27187393.davem@redhat.com>
+	<Pine.GSO.4.30.0209151053530.22001-100000@shell.cyberus.ca>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just out of curiosity, do you have AGPMode set to any value other than "1"
-in your XF86Config file? If so, try setting it to "1".
+   From: jamal <hadi@cyberus.ca>
+   Date: Sun, 15 Sep 2002 16:16:13 -0400 (EDT)
 
--Alex
+   Your proposal does make sense although compute power would still be
+   a player. I think the key would be parallelization;
 
->	Dear Readers:
->I would like to ask that anyone with this setup to please test this out
->i think there is a kernel bug (if not Sorry for the email) when i run
->glxgears (or any opengl) with my pc it locks hard when direct rendering
->is enabled.
+Oh I forgot to mention that some of these cards also compute a cookie
+for you on receive packets, and your meant to point the input
+processing for that packet to a cpu whose number is derived from that
+cookie it gives you.
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Finance - Get real-time stock quotes
-http://finance.yahoo.com
+Lockless per-cpu packet input queues make this sort of hard for us
+to implement currently.

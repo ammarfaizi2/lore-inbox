@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270795AbRIAQ0t>; Sat, 1 Sep 2001 12:26:49 -0400
+	id <S270823AbRIAQoc>; Sat, 1 Sep 2001 12:44:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270797AbRIAQ0k>; Sat, 1 Sep 2001 12:26:40 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:38532 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S270795AbRIAQ0Y>;
-	Sat, 1 Sep 2001 12:26:24 -0400
-Date: Sat, 1 Sep 2001 12:26:41 -0400 (EDT)
+	id <S270818AbRIAQoW>; Sat, 1 Sep 2001 12:44:22 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:41630 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S270800AbRIAQoN>;
+	Sat, 1 Sep 2001 12:44:13 -0400
+Date: Sat, 1 Sep 2001 12:44:29 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
-To: Andries.Brouwer@cwi.nl
-cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] lazy allocation of struct block_device
-In-Reply-To: <200109011330.NAA16793@vlet.cwi.nl>
-Message-ID: <Pine.GSO.4.21.0109011208001.18705-100000@weyl.math.psu.edu>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+cc: Bryan Henderson <hbryan@us.ibm.com>, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [RFD] readonly/read-write semantics
+In-Reply-To: <20010901164238.P9870@nightmaster.csn.tu-chemnitz.de>
+Message-ID: <Pine.GSO.4.21.0109011226580.18705-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,54 +21,36 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sat, 1 Sep 2001 Andries.Brouwer@cwi.nl wrote:
+On Sat, 1 Sep 2001, Ingo Oeser wrote:
 
-> A kdev_t is a pointer to a struct that has the info now found in
-> the arrays (and major, minor fields, and a name function..).
-> This struct is allocated by the driver.
-> Maybe it is statically compiled in, and no refcounting is needed.
-> Maybe it is a static struct in the driver which is a module.
-> Now refcounting is needed so that we can refuse to unload the driver
-> when the count is nonzero.
-> Maybe the struct was allocated dynamically, and we need a refcount
-> to be able to free it again.
-> Only the driver knows such details.
-
-Umm... Apply the arguments from the char_device thread - pointers to
-unions are rather bad idea.  IOW, kdev_t must die - kernel always
-knows which kind we are dealing with.
-
-> To be more precise, I usually used two levels: driverstruct and
-> devicestruct, where a kdev_t is a pointer to a devicestruct
-> and the devicestruct contains a pointer to the driverstruct.
-> In the block device case, the handling of devicestructs is the
-> task of the partitioning code. Of course the driverstructs belong
-> to the driver.
+> On Sat, Sep 01, 2001 at 12:23:05AM -0400, Alexander Viro wrote:
+> > > 2) I'd like to see a readonly mount state defined as "the filesystem will
+> > > not change.  Period."  Not for system calls in progress, not for cache
+> > > synchronization, not to set an "unmounted" flag, not for writes that are
+> > > queued in the device driver or device.  (That last one may stretch
+> > > feasability, but it's a worthy goal anyway).
+> > 
+> > It doesn't work.  Think of r/o mounting of remote filesystem.  Do you
+> > suggest that it should make it impossible to change from other clients?
 > 
-> An inode has fields kdev_t i_dev and dev_t i_rdev and kdev_t i_bcdev
-> where the last two are significant only for devices, and the last one
-> only for opened devices. It is the opened version of i_rdev, and
-> significant whenever non-NULL.
+> It's sufficient for local file systems. Or see it this way: The
+> machine, that mounted it r/o will NOT write to it until it is
+> mounted r/w again.
 
-How do you tell when inode is not opened anymore? Notice that counting
-openers of _device_ is wrong answer - several inodes can have the same
-major:minor.  By the time when the last one is closed you may have a
-lot of trouble finding other ones...
+That's _also_ not true for remote filesystems.  We can mount the same
+filesystem over NFS again without unmounting the old instance.  Always
+could.
 
-> Concerning refcounting:
-> i_dev comes from s_dev and no refcount is required as long as sb exists
-> s_dev comes from get_unnamed_dev() or ROOT_DEV or i_bcdev
-> and a refcount must be incremented when it is set
-> i_bcdev comes from opening i_rdev and a refcount must be incremented
-> when it is set.
+IMO a part of the problem is that we are mixing "I'm not asking that
+to be writable" with "I won't let you write".  The former belongs
+to the mounting side, the latter - to filesystem.
 
-When do you reset it?
+Notice that setups along the lines "mount /dev/sda5 read-only on /home/jail/pub
+and read-write on /home/ftp/pub" are not that unreasonable, so even for local
+filesystems it might make sense.
 
-> This "a refcount" is the openct field of the device struct,
-> somewhat like the present bd_openers.
-> 
-> The decrements of the refcount are done in kill_super() for s_dev
-> and at the close/umount corresponding to the open/mount that set it for i_bcdev.
-
-??? So you decrement twice on umount?
+IOW, I suspect that right solution would have two separate layers -
+	* does anyone get write access under that mountpoint? (VFS)
+	* is this fs asked to handle write access and had it agreed with that?
+(filesystem)
 

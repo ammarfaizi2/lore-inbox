@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132533AbRDATEV>; Sun, 1 Apr 2001 15:04:21 -0400
+	id <S132535AbRDATEL>; Sun, 1 Apr 2001 15:04:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132534AbRDATEM>; Sun, 1 Apr 2001 15:04:12 -0400
-Received: from eax.student.umd.edu ([129.2.228.67]:39184 "EHLO
-	eax.student.umd.edu") by vger.kernel.org with ESMTP
-	id <S132533AbRDATDz>; Sun, 1 Apr 2001 15:03:55 -0400
-Date: Sun, 1 Apr 2001 15:05:47 -0500 (EST)
-From: Adam <adam@eax.com>
-X-X-Sender: <adam@eax.student.umd.edu>
-To: Chris Meadors <clubneon@hereintown.net>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+	id <S132534AbRDATDw>; Sun, 1 Apr 2001 15:03:52 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:18440 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S132533AbRDATDb>; Sun, 1 Apr 2001 15:03:31 -0400
+Date: 01 Apr 2001 13:16:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <7z0az3Wmw-B@khms.westfalen.de>
+In-Reply-To: <20010401205207.F28831@higherplane.net>
 Subject: Re: New directions for kernel development
-In-Reply-To: <Pine.LNX.4.33.0104011334430.18070-100000@clubneon.com>
-Message-ID: <Pine.LNX.4.33.0104011500180.17287-100000@eax.student.umd.edu>
+X-Mailer: CrossPoint v3.12d.kh5 R/C435
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <200104010922.f319Mmq04522@mobilix.atnf.CSIRO.AU> <rgooch@ras.ucalgary.ca> <BFECLKCMHDOFPPMBMMDKAEALCAAA.torvalds@transmeta.com> <200104010922.f319Mmq04522@mobilix.atnf.CSIRO.AU> <20010401205207.F28831@higherplane.net>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 	Uhm, yeah... I don't know who wrote this, but it came from Washington
-> > state and was written with MS Outlook... Something tells me that this
-> > April Fool's joke wasn't Linus'. :-)
+indigoid@higherplane.net (john slee)  wrote on 01.04.01 in <20010401205207.F28831@higherplane.net>:
+
+> On Sun, Apr 01, 2001 at 01:22:48AM -0800, Richard Gooch wrote:
+> > Linus Torvalds writes:
+> >
+> > Ho, hum. No, he didn't. It's April Wankers^WFools again.
 >
-> Yeah, the quality of these jokes has really gone down hill.  Last year we
-> had forged headers and composed with Pine.  This year we have someone with
-> a dialup account using Outlook, with all it's ^Os and long lines of text.
+> we aussies are supposed to have a good sense of humour :P
 
-BZZT, wrong. Headers were forged intentionally to show pine since it is
-what Linus uses.
-
-I had a joke for this year as well, but I didn't hear back from Linus if
-that's cool with him to send it to LKML (I suppose I should have asked him
-earlier than 24hrs) so I did not send it.
-
-For those interested, a rought draft is at
-
-	http://www.eax.com/linux2001/linux2001.txt
+Yeah, but this one was fairly lame.
 
 
--- 
-Adam
-http://www.eax.com      The Supreme Headquarters of the 32 bit registers
-
-
+MfG Kai

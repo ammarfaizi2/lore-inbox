@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261276AbSI3T7J>; Mon, 30 Sep 2002 15:59:09 -0400
+	id <S261324AbSI3UFQ>; Mon, 30 Sep 2002 16:05:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261284AbSI3T7J>; Mon, 30 Sep 2002 15:59:09 -0400
-Received: from bitchcake.off.net ([216.138.242.5]:44458 "EHLO mail.off.net")
-	by vger.kernel.org with ESMTP id <S261276AbSI3T7I>;
-	Mon, 30 Sep 2002 15:59:08 -0400
-Date: Mon, 30 Sep 2002 16:04:34 -0400
-From: Zach Brown <zab@zabbo.net>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5] Single linked lists for Linux, overly complicated v2
-Message-ID: <20020930160434.Q13755@bitchcake.off.net>
-References: <Pine.LNX.4.44L.0209261628490.1837-100000@duckman.distro.conectiva> <Pine.LNX.4.44.0209261337290.7827-100000@hawkeye.luckynet.adm> <20020926205727.T13817@bitchcake.off.net> <E17w6Mc-0005p6-00@starship>
+	id <S261328AbSI3UFQ>; Mon, 30 Sep 2002 16:05:16 -0400
+Received: from starcraft.mweb.co.za ([196.2.45.78]:7874 "EHLO
+	starcraft.mweb.co.za") by vger.kernel.org with ESMTP
+	id <S261324AbSI3UFP>; Mon, 30 Sep 2002 16:05:15 -0400
+Subject: Re: cdrecord, IDE-SCSI and 2.5.39
+From: Bongani <bonganilinux@mweb.co.za>
+To: Thomas Molina <tmolina@cox.net>
+Cc: Felipe Alfaro Solana <felipe_alfaro@msn.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0209301443230.3692-100000@dad.molina>
+References: <Pine.LNX.4.44.0209301443230.3692-100000@dad.molina>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8-3mdk 
+Date: 30 Sep 2002 22:13:46 +0200
+Message-Id: <1033416829.2041.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E17w6Mc-0005p6-00@starship>; from phillips@arcor.de on Mon, Sep 30, 2002 at 09:37:53PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Friday 27 September 2002 02:57, Zach Brown wrote:
-> > #define tslist_add(_head, _elem) 			\
-> > 	do {  						\
-> > 		BUG_ON(tslist_on_list(_head, _elem));	\
-> > 		(_elem)->_slist_next = (_head);		\
-> > 		(_head) = (_elem);			\
-> > 	} while(0)
+On Mon, 2002-09-30 at 21:45, Thomas Molina wrote:
+> On Mon, 30 Sep 2002, Felipe Alfaro Solana wrote:
 > 
-> This evaluates _head and _elem twice each, or three times if you count
-> the BUG_ON.
+> > Hello,
+> > 
+> > I have found that cdrecord 1.11a34 has stopped working on linux kernel 
+> > 2.5.38+. I have a SONY CRX185E3 ATAPI burner and it works fine on 2.4.19 
+> > using "hdd=ide-scsi" kernel parameter, but with kernel 2.5.38+, cdrecord 
+> > fails when trying to access the "/dev/pg*" device files. When I run cdrecord 
+> > -scanbus, it complains with:
+> > 
+> > cdrecord: No such file or directory. Cannot open '/dev/pg*'. Cannot open 
+> > SCSI driver.
+> 
+> I'm using the cdrecord included in RedHat 7.3 (1.10) with no problems.  My 
+> cd burner is being seen at /dev/scd0
+> 
 
-yes, I wss saving that trivial fix for later. (its a little less trivial
-in the presence of bare struct * heads, rather than full struct
-instances, but still just language mechanics.)
+Which kernel are you running? I have compiled ide-scsi support into
+2.5.39 and I get an Oops after booting.
 
-> Smaller point: why bother obfuscating the parameter names?  You will
-> need to do that for locals in macros but parameters should cause no
-> name conflicts.
-
-*shrug*  either way is fine with me.
-
-but really, I think these are DOA.  having to define a single magical
-structure member makes these more trouble than they're worth.  I've come
-to prefer wli's 'struct list' approach.  It has the added benefit of
-actually being sanely implementable with shared code, something
-ridiculously low memory setups might appreciate.  the deltion walking
-function might actually be bugger than the function-calling code
-overhead :)
-
-- z

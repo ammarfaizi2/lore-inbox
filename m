@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136769AbRBWUiS>; Fri, 23 Feb 2001 15:38:18 -0500
+	id <S130916AbRBWUhB>; Fri, 23 Feb 2001 15:37:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130333AbRBWUgu>; Fri, 23 Feb 2001 15:36:50 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:49671 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S129975AbRBWUgo>;
-	Fri, 23 Feb 2001 15:36:44 -0500
-Date: Fri, 23 Feb 2001 22:36:27 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: linux-kernel@vger.kernel.org
-Subject: Testing EZMLM-alike tricks at this list..
-Message-ID: <20010223223627.B15688@mea-ext.zmailer.org>
+	id <S129849AbRBWUUs>; Fri, 23 Feb 2001 15:20:48 -0500
+Received: from xanadu.kublai.com ([166.84.169.10]:896 "HELO xanadu.kublai.com")
+	by vger.kernel.org with SMTP id <S129193AbRBWUU3>;
+	Fri, 23 Feb 2001 15:20:29 -0500
+Date: Fri, 23 Feb 2001 15:20:29 -0500
+From: Brendan Cully <brendan@kublai.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: regular lockup on 2.4.2 (w/oops)
+Message-ID: <20010223152029.A384@xanadu.kublai.com>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010223143458.A596@xanadu.kublai.com> <E14WOF1-0006yd-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <E14WOF1-0006yd-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Feb 23, 2001 at 07:50:57PM +0000
+X-Operating-System: Linux 2.4.2 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For reasons seen earlier today, I implemented ways to produce
-individual SMTP-level MAIL FROM envelope addresses per recipient.
-Idea for it is partially from EZMLM, but details (location of
-the devil, as saying goes) are different.
+On Friday, 23 February 2001 at 19:50, Alan Cox wrote:
+> > I wonder if it's related to ACPI and/or IDE - I seem to get on
+> > occasion one ide_dmaproc: lost interrupt message during fsck - after a
+> > few seconds it recovers only to hang for good some 10-15 seconds
+> > later.
+> 
+> Turn off ACPI and try that kernel. If that one also causes problems then it
+> helps a lot as it implies its not ACPI. If it works then its ACPI and most
+> of us will be happy (except Andrew of course)
 
-Because we really like the normal operation where each message
-thru a list gets expanded into *very few* internal messages, and
-thus consumes very little of local disk space, this EZMLM-alike
-method won't be kept running constantly.
+Preliminary results indicate ACPI was the culprit. I brought up my
+system a couple times and SysRq-S,B'd, forcing full fsck's of all my
+filesystems. With ACPI enabled I never got through all of them, now
+everything appears ok. Will let you know if the problem reoccurs.
 
-Consider, list gets email of 60 kB with some log, or large patch
-(a few each week).  Our normal case expands it to 1-3 sub-files
-for 3000+ recipients total.  Production of individual MAIL FROM-
-addresses mandates that we generate, route, and deliver 3000+ copies
-of the message.  (Gee momma, who blew away 180 MB diskspace ?)
-
-Hmm..  Indeed I see a way to do things smarter, but the MAIL FROM
-mungling needs to be moved to SMTP speakers, which needs complicated
-signaling from list-expander thru the entire MTA to the SMTP output
-subsystem...  Not quite trivial -- at least not tonight.
-
-After I have seen that this message goes thru with appropriate
-manglings, I turn things back into old mode.  List-Owner(s) will
-have their tools for pathology hunting, if they choose to turn
-them on.
-
-/Matti Aarnio - co-postmaster of vger.kernel.org
-
-PS: If you care about the coding, it is: linux-kernel-owner+RCPTMUNGLE
-    where the mungle has plain characters, and '=' characters following
-    with two HEX digits, just like with Quoted-Printable encoding.
-    Decode  =HH  parts, and you should see your own address.
+Thanks,
+Brendan

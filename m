@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262824AbTJFIiH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 04:38:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262836AbTJFIiG
+	id S262836AbTJFIiU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 04:38:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262839AbTJFIiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 04:38:06 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:27148
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S262824AbTJFIiE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 04:38:04 -0400
-Date: Mon, 6 Oct 2003 01:38:03 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Arjan van de Ven <arjanv@redhat.com>
+	Mon, 6 Oct 2003 04:38:20 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6661 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262836AbTJFIiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 04:38:17 -0400
+Date: Mon, 6 Oct 2003 09:38:12 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Dmitry Torokhov <dtor_core@ameritech.net>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 71MB compressed for COMPILED(!!!) 2.6.0-test6
-Message-ID: <20031006083803.GB1135@matchmail.com>
-Mail-Followup-To: Arjan van de Ven <arjanv@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <20031006082340.GA1135@matchmail.com> <1065428996.5033.5.camel@laptop.fenrus.com>
+Subject: Re: [PATCH 2.6] Warnings in 8250_acpi
+Message-ID: <20031006093811.A12713@flint.arm.linux.org.uk>
+Mail-Followup-To: Dmitry Torokhov <dtor_core@ameritech.net>,
+	Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-kernel@vger.kernel.org
+References: <200310060131.55852.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1065428996.5033.5.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200310060131.55852.dtor_core@ameritech.net>; from dtor_core@ameritech.net on Mon, Oct 06, 2003 at 01:31:55AM -0500
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 06, 2003 at 10:29:56AM +0200, Arjan van de Ven wrote:
-> On Mon, 2003-10-06 at 10:23, Mike Fedyk wrote:
-> > Hi LK,
-> > 
-> > A while back (after 2.6.0-test2-mm1 which came to 6.4MB compressed, and
-> > 2.6.0-test3-mm2 which came out to 34MB compressed), I noticed that the file
-> > sizes for compiled object code got a lot bigger.  I reported it at the time,
-> > but nobody was interested.
-> > 
-> > Today after using 2.6.0-test4-mm3 for a few weeks, I decided to upgrade to
-> > test6 and it's up to 71MB compressed!
-> 
-> 
-> CONFIG_DEBUG_INFO=y
-> 
-> makes the kernel be compiled with -g which gives it debuginfo, which
-> basically ends up being the entire sourcecode included in the
-> modules/kernel
-> 
+On Mon, Oct 06, 2003 at 01:31:55AM -0500, Dmitry Torokhov wrote:
+> Lastest changes in 8250_acpi.c produce warnings about type mismatch
+> in printk. We could either change format to print long long arguments
+> or, until most of us are on 64 bits, just trim values to 32.
 
-Thanks Arjan.
+I'd like Bjorn to comment before I apply this.
 
-config DEBUG_INFO
-	bool "Compile the kernel with debug info"
-	depends on DEBUG_KERNEL
-	help
-          If you say Y here the resulting kernel image will include
-	  debugging info resulting in a larger kernel image.
-	  Say Y here only if you plan to use gdb to debug the kernel.
-	  If you don't debug the kernel, you can say N.
+--- 1.3/drivers/serial/8250_acpi.c      Wed Oct  1 04:11:17 2003
++++ edited/drivers/serial/8250_acpi.c   Mon Oct  6 01:18:22 2003
+@@ -28,8 +28,9 @@
+        req->iomem_base = ioremap(req->iomap_base, size);
+        if (!req->iomem_base) {
+                printk(KERN_ERR "%s: couldn't ioremap 0x%lx-0x%lx\n",
+-                       __FUNCTION__, addr->min_address_range,
+-                       addr->max_address_range);
++                       __FUNCTION__,
++                       (unsigned long)addr->min_address_range,
++                       (unsigned long)addr->max_address_range);
+                return AE_ERROR;
+        }
+        req->io_type = SERIAL_IO_MEM;
 
-"Larger kernel image" yeah, NO SHIT! ;)
-
-Maybe something that says it may enlarge your kernel by 5-10 times would be
-nice...
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                      2.6 Serial core

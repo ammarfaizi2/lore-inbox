@@ -1,62 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313535AbSC3TIK>; Sat, 30 Mar 2002 14:08:10 -0500
+	id <S312497AbSC3TSA>; Sat, 30 Mar 2002 14:18:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313536AbSC3TIA>; Sat, 30 Mar 2002 14:08:00 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5383 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313535AbSC3THx>;
-	Sat, 30 Mar 2002 14:07:53 -0500
-Message-ID: <3CA60CB1.E33080D5@zip.com.au>
-Date: Sat, 30 Mar 2002 11:06:25 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [patch] block/IDE/interrupt lockup
-In-Reply-To: <3CA603B0.8B73FD4C@zip.com.au> from "Andrew Morton" at Mar 30, 2002 10:28:00 AM <E16rNxa-0003UM-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S313537AbSC3TRu>; Sat, 30 Mar 2002 14:17:50 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:43686 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S312497AbSC3TRd>; Sat, 30 Mar 2002 14:17:33 -0500
+Date: Sat, 30 Mar 2002 12:17:10 -0700
+Message-Id: <200203301917.g2UJHAp07198@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: [PATCH] devfs v199.11 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > The kernel calls request_irq() inside cli() in lots of places.
-> > That's the same bug: "if you called cli(), how come you're
-> > allowing kmalloc to clear it?".
-> 
-> Those places should if possible be fixed. I take patches. If we can get 2.4
-> to BUG() on those kmalloc violations and clean them up it sounds like
-> progress
+  Hi, all. Version 199.11 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
-What I'd like is a debugging function `can_sleep()'.  This
-is good for documentary purposes, and will catch bugs.
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
 
-So kmalloc() would gain:
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
 
-	if (gfp_flags & __GFP_WAIT)
-		can_sleep();
+This is against 2.4.19-pre5. Highlights of this release:
 
-can_sleep() would do the following:
+- Ported to kernel 2.4.19-pre5
 
-- If CONFIG_PREEMPT, check the locking depth (minus BKL depth),
-  whine if non-zero.
+- Updated README from master HTML file
 
-- If inside cli(), whine.
+				Regards,
 
-- If inside __cli(), also whine (not really a bug, but a design error).
-
-- whining will include generation of a backtrace.
-
-I suspect a 2.4 version would generate too many bug reports :)
-It would have to implement its own lock depth accounting if
-we want the sleep-inside-spinlock checking.
-
-There's some arch-dependent stuff in there.  I'll do a 2.5
-patch.  I suspect it'll generate showers of stuff.  We can
-feed fixes back into 2.4.
-
--
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

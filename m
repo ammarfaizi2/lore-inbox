@@ -1,80 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbUHIPZD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266617AbUHIPY7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbUHIPZD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 11:25:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266181AbUHIPVr
+	id S266617AbUHIPY7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 11:24:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUHIPWk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 11:21:47 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:9697 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261563AbUHIPRs (ORCPT
-	<rfc822;Linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 11:17:48 -0400
-Date: Mon, 9 Aug 2004 17:17:18 +0200
+	Mon, 9 Aug 2004 11:22:40 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:39630 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266643AbUHIOYX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 10:24:23 -0400
+Date: Mon, 9 Aug 2004 16:23:41 +0200
 From: Jens Axboe <axboe@suse.de>
-To: Alexander Gran <alex@zodiac.dnsalias.org>
-Cc: Linux-kernel@vger.kernel.org
-Subject: Re: Cannot burn without strace on 2.6.8-rc3-mm1
-Message-ID: <20040809151717.GZ10418@suse.de>
-References: <200408091649.20180@zodiac.zodiac.dnsalias.org>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: alan@lxorguk.ukuu.org.uk, James.Bottomley@steeleye.com, eric@lammerts.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <20040809142341.GS10418@suse.de>
+References: <200408091421.i79ELiPS010580@burner.fokus.fraunhofer.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200408091649.20180@zodiac.zodiac.dnsalias.org>
+In-Reply-To: <200408091421.i79ELiPS010580@burner.fokus.fraunhofer.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 09 2004, Alexander Gran wrote:
-> Ok, thats strange:
+On Mon, Aug 09 2004, Joerg Schilling wrote:
 > 
-> Just switched form 2.6.7-mm5 to 2.6.8-rc3-mm1
-> However I cannot burn with cdrecord.
-> cdrecord -v dev=/dev/hdc -dao driveropts=burnfree 
-> -data /files/Pakete/KNOPPIX_V3.4-2004-05-17-DE.iso
-> gives:
+> >From: Jens Axboe <axboe@suse.de>
 > 
-> alex@t40:~$ cdrecord -v dev=/dev/hdc -dao driveropts\=burnfree 
-> -data /files/Pakete/KNOPPIX_V3.4-2004-05-17-DE.iso
-> Cdrecord-Clone 2.01a34 (i686-pc-linux-gnu) Copyright (C) 1995-2004 Jörg 
-> Schilling
-> NOTE: this version of cdrecord is an inofficial (modified) release of cdrecord
->       and thus may have bugs that are not present in the original version.
->       Please send bug reports and support requests to 
-> <cdrtools@packages.debian.org>.
->       The original author should not be bothered with problems of this 
-> version.
+> >On Mon, Aug 09 2004, Alan Cox wrote:
+> >> On Llu, 2004-08-09 at 13:24, Joerg Schilling wrote:
+> >> > On Linux, it is impossible to run cdrecord without root privilleges.
+> >> > Make cdrecord suid root, it has been audited....
+> >> 
+> >> Wrong. Although in part that is a bug in the kernel urgently needing
+> >> a fix.
 > 
-> TOC Type: 1 = CD-ROM
-> scsidev: '/dev/hdc'
-> devname: '/dev/hdc'
-> scsibus: -2 target: -2 lun: -2
-> Warning: Open by 'devname' is unintentional and not supported.
-> Linux sg driver version: 3.5.27
-> Using libscg version 'schily-0.8'.
-> Driveropts: 'burnfree'
-> SCSI buffer size: 64512
-> cdrecord: Cannot allocate memory. Cannot get SCSI I/O buffer.
+> >Even with that fixing, write privileges on the device would be enough.
+> >So root would still not be required.
+> 
+> Please try again after you had a look into the cdrtools sources.
+> 
+> Cdrecord also needs privilleges to lock memory and to raise prioirity.
 
-Apply this patch.
-
-> However 
-> strace cdrecord -v dev=/dev/hdc -dao driveropts=burnfree 
-> -data /files/Pakete/KNOPPIX_V3.4-2004-05-17-DE.iso
-> just works..Strange, um?
-
-Uhm are you sure?
-
---- linux-2.6.8-rc3-mm1/drivers/block/scsi_ioctl.c~	2004-08-09 08:59:06.817350600 +0200
-+++ linux-2.6.8-rc3-mm1/drivers/block/scsi_ioctl.c	2004-08-09 08:59:36.480841064 +0200
-@@ -90,7 +90,7 @@
- 	if (size < 0)
- 		return -EINVAL;
- 	if (size > (q->max_sectors << 9))
--		return -EINVAL;
-+		size = q->max_sectors << 9;
- 
- 	q->sg_reserved_size = size;
- 	return 0;
+They are not required, or at least not with the version I use. It warns
+of failing to set priority and lock memory, I can continue fine though.
+With the casual burning of CDs I do, it's never been a problem.
 
 -- 
 Jens Axboe

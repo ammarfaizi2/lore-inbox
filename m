@@ -1,43 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbVA3WfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261817AbVA3Wex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261816AbVA3WfP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 17:35:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVA3WfP
+	id S261817AbVA3Wex (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 17:34:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbVA3Wex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 17:35:15 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:6265 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261816AbVA3WfK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 17:35:10 -0500
-Date: Sun, 30 Jan 2005 23:36:55 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/8] Kconfig: cleanup the menu structure
-Message-ID: <20050130223655.GF14816@mars.ravnborg.org>
-Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0501292301470.7147@scrub.home>
+	Sun, 30 Jan 2005 17:34:53 -0500
+Received: from ns.suse.de ([195.135.220.2]:17285 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261813AbVA3Weu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 17:34:50 -0500
+Date: Sun, 30 Jan 2005 23:34:48 +0100
+From: Karsten Keil <kkeil@suse.de>
+To: LKML <linux-kernel@vger.kernel.org>,
+       isdn4linux <isdn4linux@listserv.isdn4linux.de>
+Subject: Re: [PATCH] remove unused label and obsolete preprocessor gunk from hisax
+Message-ID: <20050130223448.GA7901@pingi3.kke.suse.de>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>,
+	isdn4linux <isdn4linux@listserv.isdn4linux.de>
+References: <Pine.LNX.4.62.0501302133220.2731@dragon.hygekrogen.localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0501292301470.7147@scrub.home>
+In-Reply-To: <Pine.LNX.4.62.0501302133220.2731@dragon.hygekrogen.localhost>
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.6.8-24.10-default i686
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 29, 2005 at 11:18:26PM +0100, Roman Zippel wrote:
-> Hi,
+On Sun, Jan 30, 2005 at 09:43:05PM +0100, Jesper Juhl wrote:
 > 
-> The following patches cleans up some of the worst offenders, which mess up 
-> the kconfig menu structure.
+> 
+> Here's a patch to remove an unused label and some obsolete preprocessor 
+> magic around it. Thus killing this warning:
+> drivers/isdn/hisax/hisax_fcpcipnp.c:1014: warning: label `out_unregister_isapnp' defined but not used
+>  Please apply.
+> 
 
-I have applied all 8 patched - using the latest version you posted for
-input. If more work is need for input then it should be on top of this
-patch.
+Agree.
 
-The pach below I have not looked into.
 
-Thanks for doing this cleaning.
+Signed-off-by: Karsten Keil <kkeil@suse.de>
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-	Sam
+--- linux-2.6.11-rc2-bk7-orig/drivers/isdn/hisax/hisax_fcpcipnp.c	2005-01-22 21:59:37.000000000 +0100
++++ linux-2.6.11-rc2-bk7/drivers/isdn/hisax/hisax_fcpcipnp.c	2005-01-30 20:04:00.000000000 +0100
+@@ -1010,12 +1010,6 @@ static int __init hisax_fcpcipnp_init(vo
+ #endif
+ 	return 0;
+ 
+-#if !defined(CONFIG_HOTPLUG) || defined(MODULE)
+- out_unregister_isapnp:
+-#ifdef __ISAPNP__
+-	pnp_unregister_driver(&fcpnp_driver);
+-#endif
+-#endif
+  out_unregister_pci:
+ 	pci_unregister_driver(&fcpci_driver);
+  out:
+
+
+
+
+
+ 
+-- 
+Karsten Keil
+SuSE Labs
+ISDN development

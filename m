@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281933AbRKURnq>; Wed, 21 Nov 2001 12:43:46 -0500
+	id <S281931AbRKUSFq>; Wed, 21 Nov 2001 13:05:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281931AbRKURnh>; Wed, 21 Nov 2001 12:43:37 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:28751 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S281927AbRKURn0>; Wed, 21 Nov 2001 12:43:26 -0500
-Date: Wed, 21 Nov 2001 17:45:16 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Rik van Riel <riel@conectiva.com.br>, "David S. Miller" <davem@redhat.com>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.14 + Bug in swap_out.
-In-Reply-To: <m1y9l0ytsi.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.21.0111211712140.1506-100000@localhost.localdomain>
+	id <S281927AbRKUSFh>; Wed, 21 Nov 2001 13:05:37 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:58631 "HELO palrel13.hp.com")
+	by vger.kernel.org with SMTP id <S281395AbRKUSFa>;
+	Wed, 21 Nov 2001 13:05:30 -0500
+Message-ID: <3BFBECE4.BD24CD73@cup.hp.com>
+Date: Wed, 21 Nov 2001 10:05:24 -0800
+From: Rafael Hernandez <rafael@cup.hp.com>
+Reply-To: rhernandez@hp.com
+X-Mailer: Mozilla 4.76 [en] (X11; U; HP-UX B.11.00 9000/889)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: ia64-list@redhat.com, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: SHM_REMAP
+In-Reply-To: <200111200043.QAA32367@wilson.cygnus.com> <3BFA9D0F.F0BFDEEA@cup.hp.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 Nov 2001, Eric W. Biederman wrote:
-> 
-> The primary problem with swap_mm is that swap_mm is used totally
-> unexpectedly in a different file.  Instead of it's usage being small
-> local and contained.
+Hi,
+in sys/shm.h and in  bits/shm.h there's defined a flag  SHM_REMAP
 
-swap_mm is not the kernel's only global variable, and it is commented:
+but I don't see it being used anywhere in the kernel. This was used in 2.2.x
+kernels
+in the file ipc/shm.c but I have looked for it in the latest 2.4.14 and it seems
+it not used
+anymore and it's not used in the Itanium RedHat linux-2.4.7-2 we have installed
+either.
 
-/* Placeholder for swap_out(): may be updated by fork.c:mmput() */
-struct mm_struct *swap_mm = &init_mm;
+Has this support for SHM_REMAP been droped or am I missing someting?
 
-I think the problem is rather that people thought they knew this code
-without reading it, then found it different from what they imagined.
+Thanks in advance,
+Rafa
 
-> There is some sense in allowing swapoff not to check new processes
+--
+                   __         Rafael M. Hernandez
+                  / /\          Enterprise Software Technology Lab
+        __       / /  \         Core HP-UX Operation
+       /_/\     /_/ /\ \      e-mail: rafael@cup.hp.com
+       \ \ \  __\ \ \_\ \     e-mail: rhernandez@hp.com
+        \ \ \/ /\\ \ \/ /     Hewlett-Packard Company
+         \ \ \/\ \\ \ \/      19447 Pruneridge Ave.
+          \ \ \ \ \\ \ \      MailStop 47LT
+           \ \ \_\/ \ \ \     Cupertino, CA 95014-0603
+            \ \ \    \_\/     Tel: 1-(408)-447-3637
+             \_\/             Telnet : 447-3637
 
-No, it used to miss new processes, it needs to catch them, now it does.
-But that's not the reason for the mmlist ordering: the ordering is
-desirable so that you can eliminate all swapents from parent, then
-eliminate all from child - other way round may leave some in child.
+~
+~
 
-> but...  The only optimization that really makes sense with swapoff is
-> to turn it inside out and traverse each process only once...  With
-> possibly a little of the current logic to handle the shared swap case.
 
-I wouldn't say "only"; and isn't it true that at least the current
-(hideously cpu intensive) way does minimize swap disk head movement?
-which may often (especially at shutdown time) be more important than
-than minimizing cpu use.
-
-But certainly, cpu-wise, it's much more attractive at least to try
-to traverse each mm once only.  Unfortunately, as you observe, it
-does then still need the current logic to pick up the leftovers.
-That current logic could certainly be simplified (once it's a rare
-path, throw out complicating speedups); but overall it would be
-more not less complicated - a series of two different methods -
-so I haven't yet gathered up the energy to go that way.
-
-Hugh
 

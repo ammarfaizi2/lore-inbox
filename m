@@ -1,73 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265782AbUGJQFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265692AbUGJQSq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265782AbUGJQFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 12:05:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265692AbUGJQFI
+	id S265692AbUGJQSq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 12:18:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbUGJQSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 12:05:08 -0400
-Received: from c-67-171-146-69.client.comcast.net ([67.171.146.69]:24986 "EHLO
-	tp-timw.internal.splhi.com") by vger.kernel.org with ESMTP
-	id S265782AbUGJQEw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 12:04:52 -0400
-Subject: Re: rmmod st "hangs" - bad interaction with sg
-From: Tim Wright <timw@splhi.com>
-Reply-To: timw@splhi.com
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040710154145.GA17691@infradead.org>
-References: <1089473460.1473.17.camel@tp-timw.internal.splhi.com>
-	 <20040710154145.GA17691@infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Splhi
-Message-Id: <1089475422.1473.25.camel@tp-timw.internal.splhi.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 10 Jul 2004 09:03:42 -0700
+	Sat, 10 Jul 2004 12:18:46 -0400
+Received: from mail001.syd.optusnet.com.au ([211.29.132.142]:32898 "EHLO
+	mail001.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265692AbUGJQSo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 12:18:44 -0400
+Message-ID: <40F016D9.8070300@kolivas.org>
+Date: Sun, 11 Jul 2004 02:18:33 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+Cc: ck kernel mailing list <ck@vds.kolivas.org>, linux-kernel@vger.kernel.org
+Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
+References: <20040709182638.GA11310@elte.hu> <20040709195105.GA4807@infradead.org> <20040710124814.GA27345@elte.hu> <40F0075C.2070607@kolivas.org>
+In-Reply-To: <40F0075C.2070607@kolivas.org>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig781F0FF94E94B8AA84B38746"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph!
-On Sat, 2004-07-10 at 08:41, Christoph Hellwig wrote:
-> On Sat, Jul 10, 2004 at 08:31:00AM -0700, Tim Wright wrote:
-> > Hi,
-> > I was working on the qlogicisp/isp1020 driver in 2.6, as I still have
-> > one of these antiques and the driver is a bit out of date (a patch is
-> > forthcoming). In the process of testing my changes, I came across the
-> > following:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig781F0FF94E94B8AA84B38746
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Con Kolivas wrote:
+> I've conducted some of the old fashioned Benno's latency test on this 
+> patch in various sysctl configurations. This was done on top of a 
+> different tree but everything else was kept static. I have to preface 
+> these results by saying I don't really get the 50ms size latencies 
+> normally but I'm usually unable to get better than 3ms so I wasn't sure 
+> what to expect.
 > 
-> qlogicisp is slowly going away.  If you look at the qla1280 driver in current
-> mainline you'll see it has most of the support for the 1020/1040 already,
-> I just need to fix a final bug and add firmware/pci ids.  This has come up
-> on linux-scsi a few times..
+> Only the both preempt off showed any "outlying" results with one spike 
+> of ~20ms but the rest of the time being ~3ms. Enabling both forms of 
+> preempt seemed to help a little but nothing drastic, and never below 
+> 1ms. It was not universal that the latencies were better, but there was 
+> a trend towards better latency. I suspect that those who are getting 
+> huge latencies may see a bigger change with this patch than I did.
 > 
-
-Ah thanks. Of course, as soon as I posted, I realized I should probably
-have copied linux-scsi and/or gone and checked the archives there sigh.
-Just getting back into the swing of things. If you need a tester, I'm
-happy to do so on my setup.
-
-> > This seems bad to me - either the original rmmod should fail with EBUSY,
-> > or it should complete. However, for it to do so, it seems that st needs
-> > to know that sg has its hooks into the device it controls, and it needs
-> > to be able to make it let go. My workaround is impractical if sg is in
-> > use on other devices too.
+> http://ck.kolivas.org/latency/
 > 
-> I don't think we can fix much about this, it's how the driver model code
-> works.  Best workarond is to not use sg.
+> Con
 
-Hmmm... the problem was that it was autoloaded - I haven't gone and
-checked the code yet, but it seems that unless you don't actually build
-sg at all, it gets pulled in whether you want it or not. Now that the
-ATA passthrough stuff works for CDRW etc., I actually have no good
-reason to load it. It just seemed a little "sucky" - if I had tried to
-e.g. rmmod qlogicisp, it would correctly fail because st depends on it.
-It seems weak that an attempt to unload st didn't catch the hidden
-dependency. Actually, it seems that a workaround with no side effects is
-to 'echo 1 > /sys/class/scsi_device/.../delete' for the tape drive. That
-frees things up and unhooks sg without unloading it.
 
-Thanks,
+Ooops forgot to mention this was running reiserFS 3.6 on software raid0 
+2x IDE with cfq elevator.
 
-Tim
+Con
 
+--------------enig781F0FF94E94B8AA84B38746
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFA8BbbZUg7+tp6mRURAiJFAJ91HSd22Q8acctC3+mMBSW9zyAEAACcDWNG
+wFSo3KbA2e/RpvmAUeiGWbk=
+=YwDv
+-----END PGP SIGNATURE-----
+
+--------------enig781F0FF94E94B8AA84B38746--

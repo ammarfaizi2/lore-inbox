@@ -1,44 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261545AbSJHJFW>; Tue, 8 Oct 2002 05:05:22 -0400
+	id <S261565AbSJHJQp>; Tue, 8 Oct 2002 05:16:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261554AbSJHJFV>; Tue, 8 Oct 2002 05:05:21 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:30665 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S261545AbSJHJFV>;
-	Tue, 8 Oct 2002 05:05:21 -0400
-Date: Tue, 8 Oct 2002 11:11:01 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-Cc: linux-kernel@vger.kernel.org
+	id <S261578AbSJHJQp>; Tue, 8 Oct 2002 05:16:45 -0400
+Received: from tungsten.btinternet.com ([194.73.73.81]:26578 "EHLO
+	tungsten.btinternet.com") by vger.kernel.org with ESMTP
+	id <S261565AbSJHJQo>; Tue, 8 Oct 2002 05:16:44 -0400
+From: Nick Sanders <sandersn@btinternet.com>
+To: "Miquel van Smoorenburg" <miquels@cistron.nl>,
+       linux-kernel@vger.kernel.org
 Subject: Re: experiences with 2.5.40 on a busy usenet news server
-Message-ID: <20021008091101.GA25131@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Miquel van Smoorenburg <miquels@cistron.nl>,
-	linux-kernel@vger.kernel.org
+Date: Tue, 8 Oct 2002 10:22:33 +0100
+User-Agent: KMail/1.4.7
 References: <anu60s$oev$1@ncc1701.cistron.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <anu60s$oev$1@ncc1701.cistron.net>
-User-Agent: Mutt/1.3.28i
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200210081022.33946.sandersn@btinternet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 08, 2002 at 08:46:20AM +0000, Miquel van Smoorenburg wrote:
+On Tuesday 08 October 2002 9:46 am, Miquel van Smoorenburg wrote:
 > Just FYI:
-> 
+>
 > So I booted 2.5.40 with the raid0 fix on our usenet news peering
 > server yesterday. It is a box that exchanges binary feeds with
 > about 40 peers, 400 GB/day in, 600 GB/day out.
+>
+> It's a dual PIII/450, 1 GB RAM, 4x18 GB article spool directly
+> on partitions (not raw, but normal partitions). INN-2.4/CNFS.
+>
+> With 2.4.19, it runs fine. With 2.5.40, it goes wildly into
+> swap. I'm assuming the I/O is pushing the newsserver binaries
+> and database mappings into swap.
+>
+> # free
+>              total       used       free     shared    buffers     cached
+> Mem:       1033308    1027316       5992          0     836884      29776
+> -/+ buffers/cache:     160656     872652
+> Swap:       976888     364032     612856
+>
+> No need to swap 364 MB when there's 872 MB still free...
+> This makes the machine dogslow. An 'expire' process that
+> runs every night normally takes 15 minutes to finish now
+> has been running for 10 hours and its still not finished.
+>
+> Article acceptance rate has halved, the machine can't keep up
+> with the binaries it is fed.
+>
+> I'm going to risk corrupting the databases and reboot back
+> to 2.4.19 now.
+>
+You might want to try 2.5.40-mm2
 
-If you'd dare to try a next time, could you try 2.5.4x-mm ? It tends to be
-far more well tuned and is where vm development takes place.
+[snip]
+- Started work on /proc/sys/vm/swappiness.  Setting it to 100% gives
+  you current 2.5 behaviour.  Setting it to 0 feels pretty similar to
+  2.4.19.
+[snip]
 
-Regards,
+then you would be able to test different swap behaviours
 
-bert
+i.e echo 0 > /proc/sys/vm/swappiness for 2.4.19 behaviour
 
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Nick

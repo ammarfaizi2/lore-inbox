@@ -1,46 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317005AbSHOOPk>; Thu, 15 Aug 2002 10:15:40 -0400
+	id <S316996AbSHOOOv>; Thu, 15 Aug 2002 10:14:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317006AbSHOOPk>; Thu, 15 Aug 2002 10:15:40 -0400
-Received: from pat.uio.no ([129.240.130.16]:64910 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S317005AbSHOOPi>;
-	Thu, 15 Aug 2002 10:15:38 -0400
+	id <S317005AbSHOOOv>; Thu, 15 Aug 2002 10:14:51 -0400
+Received: from exchange.shagmail.com ([4.37.106.13]:65037 "EHLO
+	exchange.shagmail.com") by vger.kernel.org with ESMTP
+	id <S316996AbSHOOOu>; Thu, 15 Aug 2002 10:14:50 -0400
+Message-ID: <D0413D7A9695D41187260001022A07CD084C6ED8@exchange.shagmail.com>
+From: NAVMSE-EXCHANGE@shagmail.com
+To: linux-kernel@vger.kernel.org
+Subject: Norton AntiVirus detected a virus in a message you sent.  The inf
+	ected attachment was deleted.
+Date: Thu, 15 Aug 2002 09:30:44 -0500
+X-MS-TNEF-Correlator: <D0413D7A9695D41187260001022A07CD084C6ED8@exchange.shagmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15707.47212.44395.87243@charged.uio.no>
-Date: Thu, 15 Aug 2002 16:19:24 +0200
-To: marius@citi.umich.edu
-Cc: Brian Pawlowski <beepy@netapp.com>, dax@gurulabs.com,
-       torvalds@transmeta.com, kmsmith@umich.edu, linux-kernel@vger.kernel.org,
-       nfs@lists.sourceforge.net
-Subject: Re: [NFS] Re: Will NFSv4 be accepted?
-In-Reply-To: <20020815062332.GB9122@umich.edu>
-References: <shs8z39dr15.fsf@charged.uio.no>
-	<200208142234.g7EMYvQ21700@tooting-fe.eng>
-	<20020815062332.GB9122@umich.edu>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_000_01C24468.5731BC40"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == marius aamodt eriksen <marius@umich.edu> writes:
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
-     > and let's not forget such things as getting rid of the
-     > representation of users as UIDs over the wire, as well as
-     > delegations (i.e. better caching == better performance), named
-     > (extended) attributes support, soon-to-come interoperability
-     > with a vast array of operating systems, etc. etc.
+------_=_NextPart_000_01C24468.5731BC40
+Content-Type: text/plain
 
-Right. I wasn't saying that NFSv4 doesn't have anything going for
-it. Just that Kerberos isn't the killer argument: it can easily be
-integrated with earlier versions of NFS (and in fact Andy and I had
-the basic Linux version running on NFSv3 in February *before* it was
-tested for NFSv4).
+Recipient of the infected attachment:  Erica Guntner\Deleted Items
+Subject of the message:  Happy Assumption
+One or more attachments were deleted
+  Attachment Kwxma.scr was Deleted for the following reasons:
+    Virus W32.Klez.H@mm was found.
 
-IMHO the main argument for NFSv4 is the improved support for WANs.
+------_=_NextPart_000_01C24468.5731BC40
+Content-Type: application/ms-tnef
+Content-Transfer-Encoding: base64
 
-Cheers,
-  Trond
+eJ8+Ii4OAQaQCAAEAAAAAAABAAEAAQeQBgAIAAAA5AQAAAAAAADoAAEIgAcAGAAAAElQTS5NaWNy
+b3NvZnQgTWFpbC5Ob3RlADEIAQWAAwAOAAAA0gcIAA8ACQAeACwABABHAQEggAMADgAAANIHCAAP
+AAkAHgAtAAQASAEBCYABACEAAABDNzUyNzUyMzhEQjk0QjQ5Qjc1N0I5MUZEQ0MwOEYwQQBMBwEE
+gAEAXwAAAE5vcnRvbiBBbnRpVmlydXMgZGV0ZWN0ZWQgYSB2aXJ1cyBpbiBhIG1lc3NhZ2UgeW91
+IHNlbnQuICBUaGUgaW5mZWN0ZWQgYXR0YWNobWVudCB3YXMgZGVsZXRlZC4AHyIBDYAEAAIAAAAC
+AAIAAQOQBgDUBQAAIQAAAAIBCRABAAAAPwEAADsBAADAAQAATFpGdbj6n+uHAAoBDQNDdGV4dAH3
+/wKkA+QF6wKDAFAC8wa0AoMmMgPFAgBjaArAc2XYdDAgBxMCgH0KgAjP/wnZAoAKhAs3EsIB0Afw
+BZAHBSAIkAIwIG9mIHRoaGUgC4BmBZAO8GRsIGECQADQaAeAAjA6CCAgRQUQY2EgRwp1AjBuBJBc
+XERl1mwTsBlBSQ7wbRMwCrLhCoBTdWJqGREYZgeBEHNhZ2UaEUhhcExweRPgBBB1bQUwafsCIBwF
+TxrgGGAFwARgFUD7GWkEIHcEkBjAAQAbUwqjCgoaIEEZhyBLd3jtAMAuBPEg4GEEIBs2AhA3BcAY
+ogIQbBTQA/BuZ84gFUAjkAIgczocBRogIRogVmlydQQgVzMIMi5LG1B6LkhAnG1tI3MCEBqwZC4c
+BQJ9KPAAAwD9P+QEAABAADkAQLwxV2hEwgEDAPE/CQQAAB4AMUABAAAAEAAAAE5BVk1TRS1FWENI
+QU5HRQADABpAAAAAAB4AMEABAAAAEAAAAE5BVk1TRS1FWENIQU5HRQADABlAAAAAAAIBcQABAAAA
+FgAAAAHCRGhXMxcwBYNuKkvxmqoBoa/idp0AAAMAJgAAAAAAAwA2AAAAAAAeAHAAAQAAAF8AAABO
+b3J0b24gQW50aVZpcnVzIGRldGVjdGVkIGEgdmlydXMgaW4gYSBtZXNzYWdlIHlvdSBzZW50LiAg
+VGhlIGluZmVjdGVkIGF0dGFjaG1lbnQgd2FzIGRlbGV0ZWQuAAALAPIQAQAAAAIBRwABAAAAMwAA
+AGM9VVM7YT0gO3A9U2hhZ21haWw7bD1FWENIQU5HRS0wMjA4MTUxNDMwNDVaLTEwMzM0AAACAfk/
+AQAAAFgAAAAAAAAA3KdAyMBCEBq0uQgAKy/hggEAAAAAAAAAL089U0hBR01BSUwvT1U9U0VORE9V
+VE1BSUwvQ049UkVDSVBJRU5UUy9DTj1OQVZNU0UtRVhDSEFOR0UAHgD4PwEAAAAkAAAATkFWIGZv
+ciBNaWNyb3NvZnQgRXhjaGFuZ2UtRVhDSEFOR0UAHgA4QAEAAAAQAAAATkFWTVNFLUVYQ0hBTkdF
+AAIB+z8BAAAAWAAAAAAAAADcp0DIwEIQGrS5CAArL+GCAQAAAAAAAAAvTz1TSEFHTUFJTC9PVT1T
+RU5ET1VUTUFJTC9DTj1SRUNJUElFTlRTL0NOPU5BVk1TRS1FWENIQU5HRQAeAPo/AQAAACQAAABO
+QVYgZm9yIE1pY3Jvc29mdCBFeGNoYW5nZS1FWENIQU5HRQAeADlAAQAAABAAAABOQVZNU0UtRVhD
+SEFOR0UAQAAHMMAyKldoRMIBQAAIMPAsRFdoRMIBHgA9AAEAAAABAAAAAAAAAB4AHQ4BAAAAXwAA
+AE5vcnRvbiBBbnRpVmlydXMgZGV0ZWN0ZWQgYSB2aXJ1cyBpbiBhIG1lc3NhZ2UgeW91IHNlbnQu
+ICBUaGUgaW5mZWN0ZWQgYXR0YWNobWVudCB3YXMgZGVsZXRlZC4AAB4ANRABAAAAQQAAADxEMDQx
+M0Q3QTk2OTVENDExODcyNjAwMDEwMjJBMDdDRDA4NEM2RUQ4QGV4Y2hhbmdlLnNoYWdtYWlsLmNv
+bT4AAAAACwApAAAAAAALACMAAAAAAAMABhCEOS1JAwAHEMYAAAADABAQAAAAAAMAERABAAAAHgAI
+EAEAAABlAAAAUkVDSVBJRU5UT0ZUSEVJTkZFQ1RFREFUVEFDSE1FTlQ6RVJJQ0FHVU5UTkVSREVM
+RVRFRElURU1TU1VCSkVDVE9GVEhFTUVTU0FHRTpIQVBQWUFTU1VNUFRJT05PTkVPUk1PUgAAAAAC
+AX8AAQAAAEEAAAA8RDA0MTNEN0E5Njk1RDQxMTg3MjYwMDAxMDIyQTA3Q0QwODRDNkVEOEBleGNo
+YW5nZS5zaGFnbWFpbC5jb20+AAAAAOty
+
+------_=_NextPart_000_01C24468.5731BC40--

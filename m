@@ -1,48 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265590AbSJXS3D>; Thu, 24 Oct 2002 14:29:03 -0400
+	id <S265482AbSJXSsa>; Thu, 24 Oct 2002 14:48:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265593AbSJXS3C>; Thu, 24 Oct 2002 14:29:02 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:24298 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S265590AbSJXS3A>;
-	Thu, 24 Oct 2002 14:29:00 -0400
-Message-Id: <200210241834.g9OIYxK28655@mail.osdl.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Rik van Riel <riel@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       cliffw@osdl.org
-Subject: Re: Yay, bug tracking! (was Re: Bug tracking in the run up from 2.5 
- to 2.6)
-In-Reply-To: Message from Jeff Garzik <jgarzik@pobox.com> 
-   of "Tue, 22 Oct 2002 05:37:30 EDT." <3DB51C5A.2060102@pobox.com> 
+	id <S265576AbSJXSsa>; Thu, 24 Oct 2002 14:48:30 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:8075 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265482AbSJXSs3>;
+	Thu, 24 Oct 2002 14:48:29 -0400
+Date: Thu, 24 Oct 2002 19:56:37 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [CFT] faster athlon/duron memory copy implementation
+Message-ID: <20021024185637.GB10584@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	linux-kernel@vger.kernel.org
+References: <3DB82ABF.8030706@colorfullife.com> <20021024184328.GA5667@himi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 24 Oct 2002 11:34:59 -0700
-From: Cliff White <cliffw@osdl.org>
+Content-Disposition: inline
+In-Reply-To: <20021024184328.GA5667@himi.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alan Cox wrote:
-> > Bug reporting systems need maintenance or they collapse
-> 
-> Agreed, and IBM said that they would provide people doing this... 
-> otherwise I would not have been so enthusiastic :)
-> 
-OSDL is very interested in linking this with the PLM - since the 
-PLM is doing automated kernel builds with multiple .configs, we can
-harvest build bugs from there.  I am also willing to help with some of the
-maintenance and sorting work. 
+On Fri, Oct 25, 2002 at 04:43:28AM +1000, Simon Fowler wrote:
+ > <deletia>
+ > 
+ > copy_page() tests 
+ > copy_page function 'warm up run'         took 12855 cycles per page
+ > copy_page function '2.4 non MMX'         took 17267 cycles per page
+ > copy_page function '2.4 MMX fallback'    took 14930 cycles per page
+ > copy_page function '2.4 MMX version'     took 10642 cycles per page
+ > copy_page function 'faster_copy'         took 10591 cycles per page
+ > copy_page function 'even_faster'         took 13035 cycles per page
+ > copy_page function 'no_prefetch'         took 11657 cycles per page
+ > Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $ 
+ > 
+ > copy_page() tests 
+ > copy_page function 'warm up run'         took 12871 cycles per page
+ > copy_page function '2.4 non MMX'         took 18482 cycles per page
+ > copy_page function '2.4 MMX fallback'    took 15013 cycles per page
+ > copy_page function '2.4 MMX version'     took 10679 cycles per page
+ > copy_page function 'faster_copy'         took 12268 cycles per page
+ > copy_page function 'even_faster'         took 10789 cycles per page
+ > copy_page function 'no_prefetch'         took 11691 cycles per page
+ > Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $ 
+ > 
+ > copy_page() tests 
+ > copy_page function 'warm up run'         took 13110 cycles per page
+ > copy_page function '2.4 non MMX'         took 14958 cycles per page
+ > copy_page function '2.4 MMX fallback'    took 14952 cycles per page
+ > copy_page function '2.4 MMX version'     took 12864 cycles per page
+ > copy_page function 'faster_copy'         took 10581 cycles per page
+ > copy_page function 'even_faster'         took 10629 cycles per page
+ > copy_page function 'no_prefetch'         took 11607 cycles per page
 
-Martin, i left you a message. 
-cliffw
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Wow. The 612 really sucked badly here. I think this is the only
+time I've seen 'even_faster' lose.  A few people (myself included)
+have in the past talked about making the memory copy routines
+do a boot time benchmark somewhat like the RAID code does to deduce
+the best.  Seeing results like this makes me really believe this is
+the way forward.
 
+With something like that inplace, we could then have seperate
+implementations for each processor revision if needbe without
+pessimising for earlier revisions.
 
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

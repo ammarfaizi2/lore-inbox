@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264986AbTAWUX3>; Thu, 23 Jan 2003 15:23:29 -0500
+	id <S266731AbTAWUtN>; Thu, 23 Jan 2003 15:49:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265513AbTAWUX3>; Thu, 23 Jan 2003 15:23:29 -0500
-Received: from auto-matic.ca ([216.209.85.42]:4112 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S264986AbTAWUX2>;
-	Thu, 23 Jan 2003 15:23:28 -0500
-Date: Thu, 23 Jan 2003 15:40:56 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Lennert Buytenhek <buytenh@math.leidenuniv.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: {sys_,/dev/}epoll waiting timeout
-Message-ID: <20030123204056.GC2490@mark.mielke.cc>
-References: <20030122065502.GA23790@math.leidenuniv.nl> <20030122080322.GB3466@bjl1.asuk.net> <Pine.LNX.4.50.0301230544320.820-100000@blue1.dev.mcafeelabs.com> <20030123154304.GA7665@bjl1.asuk.net> <20030123172734.GA2490@mark.mielke.cc> <20030123182831.GA8184@bjl1.asuk.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030123182831.GA8184@bjl1.asuk.net>
-User-Agent: Mutt/1.4i
+	id <S266986AbTAWUtM>; Thu, 23 Jan 2003 15:49:12 -0500
+Received: from moutng.kundenserver.de ([212.227.126.185]:14794 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S266731AbTAWUtM>; Thu, 23 Jan 2003 15:49:12 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Bug in awedrv
+From: public@zakweb.de
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+MIME-Version: 1.0
+X-Originating-From: 6593015
+X-Binford: 6100 (more power)
+Message-Id: <E18boQX-00079s-00@config7.kundenserver.de>
+Date: Thu, 23 Jan 2003 21:58:21 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 23, 2003 at 06:28:31PM +0000, Jamie Lokier wrote:
-> Mark Mielke wrote:
-> > Or, fix sys_poll(). With the +1, this means that sys_poll() would have
-> > a 1 in 1001 chance per second of returning one jiffie too early.
-> Nope.  Read the expression again.
+Hello, 
+I use Debian woody and just tried to compile my first own kernel. As I
+did so the compiler warned me about a failing identifier in
+/drivers/sound/awe_wave.c in line 2896 (AWE_REMOVE_INFO). I don't know
+much about C and nothing about kernel programming, but I searched in all
+#include<*> files after any "patch" struct and found one
+(/include/linux/awe_voice.h) in which I inserted one line  (after line58
+"#de#define AWE_REMOVE_INFO 7, which helped to compile the kernel
+without failures. I don't know how it helped because the struct had
+another name. But I just thought it could help you if I write this to
+you.
 
-Sorry... not 1 in 1001... almost 100% chance of returning of one
-jiffie too many. In practice, even on a relatively idle system,
-the process will not be able to wake up as frequently as it might
-be able to expect.
-
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+GbY,madroach

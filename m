@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267566AbUIXAdD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267653AbUIXAhw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267566AbUIXAdD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 20:33:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267598AbUIXAdD
+	id S267653AbUIXAhw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 20:37:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267602AbUIXAhi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 20:33:03 -0400
-Received: from gate.crashing.org ([63.228.1.57]:56032 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S267566AbUIXAaq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 20:30:46 -0400
-Subject: [PATCH] ppc32: Fix use of uninitialized pointer in offb
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
+	Thu, 23 Sep 2004 20:37:38 -0400
+Received: from maceio.ic.unicamp.br ([143.106.7.31]:50346 "EHLO
+	maceio.ic.unicamp.br") by vger.kernel.org with ESMTP
+	id S267657AbUIXAgw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 20:36:52 -0400
+Subject: Re: PATCH: tty locking for 2.6.9rc2
+From: Ulisses <ra993482@ic.unicamp.br>
+To: alan@redhat.com
+Cc: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Message-Id: <1095985833.12950.25.camel@gaston>
+Message-Id: <1095986215.23984.8.camel@malazarte.lsd.ic.unicamp.br>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 24 Sep 2004 10:30:34 +1000
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 23 Sep 2004 21:36:56 -0300
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+[ ... ]
 
-The recent ppc64 changes for offb introduced an uninitialized pointer
-use for ppc32, here's the fix:
++++ linux-2.6.9rc2/drivers/char/rocket.c	2004-09-14 14:29:10.284530328 +0100
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+[ ... ]
 
-===== drivers/video/offb.c 1.32 vs edited =====
---- 1.32/drivers/video/offb.c	2004-09-23 17:36:23 +10:00
-+++ edited/drivers/video/offb.c	2004-09-24 10:29:23 +10:00
-@@ -246,7 +246,7 @@
- 
- int __init offb_init(void)
- {
--	struct device_node *dp, *boot_disp = NULL;
-+	struct device_node *dp = NULL, *boot_disp = NULL;
- #if defined(CONFIG_BOOTX_TEXT) && defined(CONFIG_PPC32)
- 	struct device_node *macos_display = NULL;
- #endif
+-	space = tty->ldisc.receive_room(tty);
++	if (ld)
++		space = tty->ldisc.receive_room(tty);
+                        ^^^
+Alan,
+
+	It's supposed to be 'ld->receive_room(tty)', isn't it? :-)
+
+Regards,
+
+-- Ulisses
 
 

@@ -1,72 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270028AbTGMAI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 20:08:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270029AbTGMAI5
+	id S270040AbTGMAUL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 20:20:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270044AbTGMAUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 20:08:57 -0400
-Received: from maila.telia.com ([194.22.194.231]:37622 "EHLO maila.telia.com")
-	by vger.kernel.org with ESMTP id S270028AbTGMAI4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 20:08:56 -0400
-X-Original-Recipient: <linux-kernel@vger.kernel.org>
-Subject: Re: [2.7.75] Misc compiler warnings
-From: Christian Axelsson <smiler@lanil.mine.nu>
-Reply-To: smiler@lanil.mine.nu
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1058053975.12250.2.camel@sm-wks1.lan.irkk.nu>
-References: <1058053975.12250.2.camel@sm-wks1.lan.irkk.nu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-uMKG2o+jwbKgqzuIInWm"
-Organization: LANIL
-Message-Id: <1058055803.12256.27.camel@sm-wks1.lan.irkk.nu>
+	Sat, 12 Jul 2003 20:20:11 -0400
+Received: from genius.impure.org.uk ([195.82.120.210]:27572 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S270040AbTGMAUG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 20:20:06 -0400
+Date: Sun, 13 Jul 2003 01:37:27 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: David van Hoose <davidvh@cox.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.69-bk1] Modprobe error with agpgart
+Message-ID: <20030713003727.GC16201@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	David van Hoose <davidvh@cox.net>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <3EB80FE0.4040707@cox.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 13 Jul 2003 02:23:29 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EB80FE0.4040707@cox.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 06, 2003 at 02:41:20PM -0500, David van Hoose wrote:
 
---=-uMKG2o+jwbKgqzuIInWm
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+[digging through large email backlog]
 
-On Sun, 2003-07-13 at 01:52, Christian Axelsson wrote:
-> Here are some compiler warnings:
->=20
->   CC      drivers/i2c/i2c-dev.o
-> drivers/i2c/i2c-dev.c: In function `show_dev':
-> drivers/i2c/i2c-dev.c:121: warning: unsigned int format, different type
-> arg (arg 3)
->=20
->   CC      drivers/usb/core/file.o
-> drivers/usb/core/file.c: In function `show_dev':
-> drivers/usb/core/file.c:96: warning: unsigned int format, different type
-> arg (arg 3)
->=20
->   AS      arch/i386/boot/setup.o
-> arch/i386/boot/setup.S: Assembler messages:
-> arch/i386/boot/setup.S:165: Warning: value 0x37ffffff truncated to
-> 0x37ffffff
+ > I get the following with modprobe when I try to probe agpgart with the 
+ > following lines in my modprobe.conf.
+ > 
+ > Entries in /etc/modprobe.conf:
+ > alias char-major-10-175 agpgart
+ > options agpgart agp_try_unsupported=1
+ > 
+ > Error in dmesg:
+ > agpgart: Unknown parameter `agp_try_unsupported'
+ > 
+ > Is this a problem in modprobe or in the agpgart driver?
 
-Ehm sorry, I should say that this is 2.5.75-mm1
+In case you didn't figure it out yet, the option is no longer
+part of the agpgart.ko, but has now moved to the chipset specific
+module (via-agp.ko, intel-agp.ko, sis-agp.ko etc...)
 
-On 2.5.75-vanilla only the AS message occour.
-
---=20
-Christian Axelsson
-smiler@lanil.mine.nu
-
---=-uMKG2o+jwbKgqzuIInWm
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/EKZ7yqbmAWw8VdkRAqs4AKCboFIWdCnutrOX7IC1di6IKt/xlQCgsVwB
-kkc0e9ACZuz6lf+l1khLSfk=
-=KGS0
------END PGP SIGNATURE-----
-
---=-uMKG2o+jwbKgqzuIInWm--
-
+		Dave

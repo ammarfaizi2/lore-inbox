@@ -1,57 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262862AbUEOHTp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264660AbUEOHnQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262862AbUEOHTp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 03:19:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264660AbUEOHTp
+	id S264660AbUEOHnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 03:43:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264663AbUEOHnQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 03:19:45 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:33460 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262862AbUEOHTn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 03:19:43 -0400
-Date: Sat, 15 May 2004 09:19:09 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       benh@kernel.crashing.org, kronos@kronoz.cjb.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [4KSTACK][2.6.6] Stack overflow in radeonfb
-Message-ID: <20040515071908.GA27240@devserv.devel.redhat.com>
-References: <20040513145640.GA3430@dreamland.darkstar.lan> <1084488901.3021.116.camel@gaston> <20040513182153.1feb488b.akpm@osdl.org> <20040514094923.GB29106@devserv.devel.redhat.com> <20040514114746.GB23863@wohnheim.fh-wedel.de> <20040514151520.65b31f62.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
-Content-Disposition: inline
-In-Reply-To: <20040514151520.65b31f62.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Sat, 15 May 2004 03:43:16 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:13425 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S264660AbUEOHnP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 03:43:15 -0400
+Date: Sat, 15 May 2004 08:43:05 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       <hch@infradead.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-mm2
+In-Reply-To: <20040515024336.GN3044@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0405150840590.4115-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 15 May 2004, Andrea Arcangeli wrote:
+> paging, paging of nonlinear VMAs works fine, but the truncate of the
+> nonlinear vmas doesn't work yet correctly. This will be eventually fixed
 
---huq684BweRXVnRxX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Already fixed in 2.6.6: look for "details" in mm/memory.c.
 
-On Fri, May 14, 2004 at 03:15:20PM -0700, Andrew Morton wrote:
-> would be better to do:
-> 
-> find . -name '*.o' | xargs objdump -d | perl scripts/checkstack.pl i386
+Hugh
 
-if you do '*.ko' you only look at the modules not the intermediate results
-(which duplicate the vmlinux twice, once for the .o, once for the
-built-in.o)
-
-
---huq684BweRXVnRxX
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFApcRsxULwo51rQBIRAtSNAKCkvmyGvqkxc4fDGK95KMsMAXbYnwCcDqK6
-ouhpirkSHL5HPMcU/SskZ+g=
-=vqiy
------END PGP SIGNATURE-----
-
---huq684BweRXVnRxX--

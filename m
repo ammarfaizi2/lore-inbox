@@ -1,80 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280826AbRKCJek>; Sat, 3 Nov 2001 04:34:40 -0500
+	id <S280933AbRKCJjt>; Sat, 3 Nov 2001 04:39:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280933AbRKCJea>; Sat, 3 Nov 2001 04:34:30 -0500
-Received: from hal.astr.lu.lv ([195.13.134.67]:40964 "EHLO hal.astr.lu.lv")
-	by vger.kernel.org with ESMTP id <S280826AbRKCJeV>;
-	Sat, 3 Nov 2001 04:34:21 -0500
-Message-Id: <200111030934.fA39YBf00763@hal.astr.lu.lv>
-Content-Type: text/plain; charset=US-ASCII
-From: Andris Pavenis <pavenis@latnet.lv>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: PATCH: partial fix for i810_audio.c problems under KDE [WAS: Re: 2.4.12-ac5: i810_audio does not work#]
-Date: Sat, 3 Nov 2001 11:34:11 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15vdKC-0001eY-00@the-village.bc.nu>
-In-Reply-To: <E15vdKC-0001eY-00@the-village.bc.nu>
+	id <S280934AbRKCJjl>; Sat, 3 Nov 2001 04:39:41 -0500
+Received: from [196.28.7.2] ([196.28.7.2]:36793 "HELO netfinity.realnet.co.sz")
+	by vger.kernel.org with SMTP id <S280933AbRKCJjZ>;
+	Sat, 3 Nov 2001 04:39:25 -0500
+Date: Sat, 3 Nov 2001 11:51:09 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.13-ac5-preempt, overflow in cached memory stat?
+Message-ID: <Pine.LNX.4.33.0111031149260.30382-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 October 2001 14:32, Alan Cox wrote:
-> > reverted one of the patches between 2.4.6-ac1 and 2.4.6-ac2) which mostly
-> > works for KDE with fragment size up to 512 bytes. 2.4.7 worked with any
-> > fragment size set in kcontrol.
->
-> Thanks
->
-> > I haven't tested much under GNOME, as I'm starting it very seldom
->
-> Gnome esd is very simple in how it drives the hardware - it works in many
-> cases where drivers are buggy and arts shows up problems
+I experienced a power loss and upon booting of the system, fsck was run on
+my / partition (ext3). When it was done i noticed the following;
 
-Verified that reverting one patch from 2.4.6-ac time partially fixes 
-i810_audio problems for 2.4.13-ac5 for KDE (it works with fragment size not 
-larger than 512 bytes and gives garbled sound for larger fragment size).  
-This is the same patch which reverting helped me earlier. Below are diffs.
+zwane@montezuma:~ $ cat /proc/version
+Linux version 2.4.13-ac5-preempt (zwane@montezuma.localnet) (gcc version
+2.96 20000731 (Red Hat Linux 7.1 2.96-81)) #1 Wed Oct 31 19:55:49 SAST
+2001
 
-Andris
+zwane@montezuma:~ $ cat /proc/meminfo
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  525602816 243605504 281997312   552960 145076224
+18446744073614016512
+Swap: 139788288        0 139788288
+MemTotal:       513284 kB
+MemFree:        275388 kB
+MemShared:         540 kB
+Buffers:        141676 kB
+Cached:       4294874000 kB
+SwapCached:          0 kB
+Active:         188024 kB
+Inact_dirty:      2032 kB
+Inact_clean:         0 kB
+Inact_target:   104852 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       513284 kB
+LowFree:        275388 kB
+SwapTotal:      136512 kB
+SwapFree:       136512 kB
 
---- i810_audio.c.orig	Tue Oct 30 09:17:35 2001
-+++ i810_audio.c	Sat Nov  3 11:00:45 2001
-@@ -1405,30 +1405,23 @@
- 		if (dmabuf->count < 0) {
- 			dmabuf->count = 0;
- 		}
--		cnt = dmabuf->dmasize - dmabuf->fragsize - dmabuf->count;
--		// this is to make the copy_from_user simpler below
--		if(cnt > (dmabuf->dmasize - swptr))
--			cnt = dmabuf->dmasize - swptr;
-+		cnt = dmabuf->dmasize - swptr;
-+		if(cnt > (dmabuf->dmasize - dmabuf->count))
-+			cnt = dmabuf->dmasize - dmabuf->count;
- 		spin_unlock_irqrestore(&state->card->lock, flags);
- 
--#ifdef DEBUG2
--		printk(KERN_INFO "i810_audio: i810_write: %d bytes available space\n", 
-cnt);
--#endif
- 		if (cnt > count)
- 			cnt = count;
- 		if (cnt <= 0) {
- 			unsigned long tmo;
- 			// There is data waiting to be played
-+			i810_update_lvi(state,0);
- 			if(!dmabuf->enable && dmabuf->count) {
- 				/* force the starting incase SETTRIGGER has been used */
- 				/* to stop it, otherwise this is a deadlock situation */
- 				dmabuf->trigger |= PCM_ENABLE_OUTPUT;
- 				start_dac(state);
- 			}
--			// Update the LVI pointer in case we have already
--			// written data in this syscall and are just waiting
--			// on the tail bit of data
--			i810_update_lvi(state,0);
- 			if (file->f_flags & O_NONBLOCK) {
- 				if (!ret) ret = -EAGAIN;
- 				goto ret;
+System still ran fine like this, but when i opened a 100Mb avi with
+mplayer the disk cache dropped down to 2megs. There now seems to be a
+slight discrepancy with regards to how ram is allocated, i just started X
+but i seem to have more memory under used/shared in xosview than normal
+(~100megs discrepancy)
+
+zwane@montezuma:~ $ cat /proc/meminfo
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  525602816 417894400 107708416  1089536 155455488  3702784
+Swap: 139788288        0 139788288
+MemTotal:       513284 kB
+MemFree:        105184 kB
+MemShared:        1064 kB
+Buffers:        151812 kB
+Cached:           3616 kB
+SwapCached:          0 kB
+Active:         192816 kB
+Inact_dirty:    114424 kB
+Inact_clean:         0 kB
+Inact_target:   104852 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       513284 kB
+LowFree:        105184 kB
+SwapTotal:      136512 kB
+SwapFree:       136512 kB
+
+

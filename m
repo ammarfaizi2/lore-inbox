@@ -1,67 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbVCWQE3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262621AbVCWQHJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261652AbVCWQE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 11:04:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbVCWQE3
+	id S262621AbVCWQHJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 11:07:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVCWQHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 11:04:29 -0500
-Received: from alog0379.analogic.com ([208.224.222.155]:6309 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261663AbVCWQEI
+	Wed, 23 Mar 2005 11:07:09 -0500
+Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:59346 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP id S261650AbVCWQGy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 11:04:08 -0500
-Date: Wed, 23 Mar 2005 11:01:33 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: sounak chakraborty <sounakrin@yahoo.co.in>,
-       linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: error while implementing kill()
-In-Reply-To: <Pine.LNX.4.61.0503231548450.10048@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.61.0503231058380.15396@chaos.analogic.com>
-References: <20050323140803.15895.qmail@web53308.mail.yahoo.com>
- <Pine.LNX.4.61.0503231548450.10048@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 23 Mar 2005 11:06:54 -0500
+Date: Wed, 23 Mar 2005 11:06:52 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: unable to handle paging request in worker_thread on apm resume
+Message-ID: <20050323160652.GB19669@fieldses.org>
+References: <20050322040657.GA28404@fieldses.org> <20050323023344.62ba883b.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050323023344.62ba883b.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 23, 2005 at 02:33:44AM -0800, Andrew Morton wrote:
+> Seems that there's a `struct work_struct' which is still registered but its
+> memory has been freed.  It's likely that CONFIG_DEBUG_PAGEALLOC caught this.
+> 
+> Either that, or some module got unloaded without flushing its workqueue.
+> 
+> Are you using any modules which do schedule_work()?
 
-kill_proc(pid, SIGNAL, x) is used inside the kernel to
-send signals to kernel threads. It is not necessarily
-the way to kill user-mode tasks. They should be
-sent a fatal signal from user-mode.
+No.
 
-On Wed, 23 Mar 2005, Jan Engelhardt wrote:
+> Have you added any code which does schedule_work()?
 
->> dear sir,
->> I am unable to use the system call kill(pid,sig).I
->> have included the header file <signal.h>. I used it in
->> a module to kill a process. The module is compiling
->> properly but giving the following error while
->> inserting the module,
->>   unresolved symbol kill()
->
-> Who says that kill() is
-> 1) a defined function
-> 2) is the function that does what the libc call does
-> 3) is the function that does what you expect
->
-> As for sending signals,
-> it's been posted today already, see the archives.
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=111155537319322&w=2
->
->
-> Jan Engelhardt
-> -- 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Hm, I don't think so.  But of course I have some nfsv4 patches, and the
+nfsv4 nfsd code does use schedule_delayed_work().  It's possible the
+cleanup is wrong, and that bringing nfsd up and down could get nfsv4
+into some bad state.  I'll take a look.  Would that explain this?
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+I'm not claiming this is a recent regression, by the way; apm resume has
+always had intermittent problems on this laptop.  It's only recently
+that I've actually tried to pay attention to those problems.  (Bad me!)
+
+--b.

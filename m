@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261844AbTCaUzI>; Mon, 31 Mar 2003 15:55:08 -0500
+	id <S261848AbTCaU75>; Mon, 31 Mar 2003 15:59:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261845AbTCaUzI>; Mon, 31 Mar 2003 15:55:08 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:39135 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S261844AbTCaUzG>; Mon, 31 Mar 2003 15:55:06 -0500
-Date: Mon, 31 Mar 2003 23:06:21 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, Muli Ben-Yehuda <mulix@mulix.org>,
-       John Levon <levon@movementarian.org>, trivial@rustcorp.com.au
-Subject: [2.4 patch] trident 1/1 fix operator precedence bug
-Message-ID: <20030331210620.GA864@fs.tum.de>
+	id <S261849AbTCaU75>; Mon, 31 Mar 2003 15:59:57 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:13525 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261848AbTCaU74>;
+	Mon, 31 Mar 2003 15:59:56 -0500
+Date: Mon, 31 Mar 2003 23:11:10 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Autorepeat problems in 2.5.66
+Message-ID: <20030331231110.A27978@ucw.cz>
+References: <20030331191128.GA204@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030331191128.GA204@elf.ucw.cz>; from pavel@ucw.cz on Mon, Mar 31, 2003 at 09:11:28PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below by John Levon is already in 2.5. Muli Ben-Yehuda wrote:
+On Mon, Mar 31, 2003 at 09:11:28PM +0200, Pavel Machek wrote:
 
-<--  snip  -->
+> I have strange autorepeat problems in 2.5.66: it sometimes repeats a
+> key (on console) when it should not do that. Perhaps vesafb blocks
+> interrupts for too long and software autorepeat screws it up?
 
-Fix an operator precedence bug that caused a comparison to always
-return false. Patch from John Levon <levon@movementarian.org>. Tested,
-works fine. 
+Might be.
 
-<--  snip  -->
-
-Please apply
-Adrian
-
---- linux-2.4.21-pre6-full/drivers/sound/trident.c.old	2003-03-31 22:57:08.000000000 +0200
-+++ linux-2.4.21-pre6-full/drivers/sound/trident.c	2003-03-31 22:57:29.000000000 +0200
-@@ -3060,7 +3060,7 @@
-         ncount = 10;
- 	while(1) {
- 		wcontrol = inw(TRID_REG(card, ALI_AC97_WRITE));
--		if(!wcontrol & 0x8000)
-+		if(!(wcontrol & 0x8000))
- 			break;
- 		if(ncount <= 0)
- 			break;
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

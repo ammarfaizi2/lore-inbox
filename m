@@ -1,57 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbUB1VgE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 16:36:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbUB1VgE
+	id S261933AbUB1VnL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 16:43:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUB1VnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 16:36:04 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:14341 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261930AbUB1VgB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 16:36:01 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: "johnny zhao" <filamoon2@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: udp packet loss even with large socket buffer
-Date: Sat, 28 Feb 2004 23:22:50 +0200
-User-Agent: KMail/1.5.4
-References: <BAY14-F68kiyPoHZgzD000006ad@hotmail.com>
-In-Reply-To: <BAY14-F68kiyPoHZgzD000006ad@hotmail.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200402282255.18609.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="koi8-r"
+	Sat, 28 Feb 2004 16:43:11 -0500
+Received: from ssatchell1.pyramid.net ([208.170.252.115]:7553 "EHLO
+	ssatchell1.pyramid.net") by vger.kernel.org with ESMTP
+	id S261933AbUB1VnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 16:43:07 -0500
+Subject: RE: another hard disk broken or xfs problems?
+From: Stephen Satchell <list@satchell.net>
+To: Michael Joy <mdj00b@acu.edu>
+Cc: "'Nathan Scott'" <nathans@sgi.com>,
+       "'Nico Schottelius'" <nico-kernel@schottelius.org>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040225231045.LJJM25915.lakemtao08.cox.net@nagasaki>
+References: <20040225231045.LJJM25915.lakemtao08.cox.net@nagasaki>
+Content-Type: text/plain
+Message-Id: <1078004585.3347.14.camel@ssatchell1.pyramid.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 28 Feb 2004 13:43:06 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 28 February 2004 03:09, johnny zhao wrote:
-> Hi,
->
-> I have a problem when trying to receive udp packets containing video data
-> sent by Microsoft Windows Messenger. Here is a detailed description:
->
-> Linux box:
->     Linux-2.4.21-0.13mdksmp, P4 2.6G HT
-> socket mode:
->     blocked mode
-> code used:
->     while ( recvfrom(...) )
-> socket buffer size:
->     8388608, set by using sysctl -w net.core.rmem_default and rmem_max
->
-> I used ethereal(using libpcap) to monitor the network traffic. All the
-> packets were transferred and captured by libpcap. But my program constantly
-> suffers from packet loss. According to ethereal, the average time interval
-> between 2 packets  is 70-80ms, and the minimum interval can go down to
-> ~1ms. Each packet is smaller than 1500 bytes (ethernet MTU).
->
-> Can anybody help me? I googled and found a similar case that had been
-> solved by increasing the socket buffer size. But it doesn't work for me. I
-> think 8M is a crazily large size :(
+On Wed, 2004-02-25 at 15:10, Michael Joy wrote:
+> One thing I've run into recently is that Hitachi drives come from the
+> factory with bad sectors out of the box. If you run a full format on the
+> drive checking for bad sectors the first time you use the drive, it will
+> occasionally find an error, the format will die, and the next time you
+> format nothing will be found.
+> 
+> It's a symptom of Hitachi not properly QC'ing their drives by fully
+> formatting them several times. The problem can reoccur over the first few
+> days until the drive finds all the questionable bad sectors and reallocates
+> backup sectors to cover for it.
 
-Post a small program demonstrating your problem.
-(I'd test udp receive with netcat too)
---
-vda
+It's not just Hitachi drives, either.  I just purchased a NEW (not
+reburbed) Maxtor 80-GB drive to replace a Fujitsu that finally reached
+end of life, and found that I had to zero the drive before it would mkfs
+properly.  The command I used to make this happen is:
+
+   dd if=/dev/zero of=/dev/hdb bs=1M
+
+I'm used to doing this because I've discovered that the refurb drives my
+employer has been buying have been needing zeroing before use.  I know
+that's not as good as using a worst-case pattern specific to the drive,
+but it's good enough to get the known bad sectors remapped at the start,
+then let the drive discover other bad sectors as it goes.  To that end,
+the systems under my control run a weekly CRON job that looks something
+like this:
+
+  /bin/nice -n 15 /bin/dd if=/dev/hda of=/dev/null bs=128k
+  /bin/nice -n 15 /bin/dd if=/dev/hdc of=/dev/null bs=128k
+  /bin/nice -n 15 /bin/dd if=/dev/sda of=/dev/null bs=128k
+
+This ensures that all sectors are readable, regardless of file system
+state, and relocates and reassigns those sectors that can be read in any
+way.
+
+I also have started installing smartmontools into all my systems, and
+configuring them to e-mail me when a critical parameter changes -- I'm
+getting tired of coming in to work and discovering that a hard drive has
+finally bit the big one.  (It doesn't help prevent a crisis, because a
+thrown head is such a catastropic event, but it does help with
+end-of-life discovery, so a disk change can be scheduled.)
 

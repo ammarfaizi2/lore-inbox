@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbTJCVIR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 17:08:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbTJCVIR
+	id S261226AbTJCVUn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 17:20:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbTJCVUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 17:08:17 -0400
-Received: from ns.suse.de ([195.135.220.2]:34696 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261162AbTJCVIQ (ORCPT
+	Fri, 3 Oct 2003 17:20:43 -0400
+Received: from fw.osdl.org ([65.172.181.6]:34511 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261226AbTJCVUm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 17:08:16 -0400
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: backport AMD K7 MCE changes.
-References: <20031003205408.GA17829@redhat.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 03 Oct 2003 23:08:12 +0200
-In-Reply-To: <20031003205408.GA17829@redhat.com.suse.lists.linux.kernel>
-Message-ID: <p73pthexc5f.fsf@oldwotan.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Fri, 3 Oct 2003 17:20:42 -0400
+Date: Fri, 3 Oct 2003 14:28:43 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Pavel Machek <pavel@ucw.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [pm] Some typos
+In-Reply-To: <20031001215110.GA5289@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0310031427430.28816-100000@cherise>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> writes:
->  			 */
-> -			if(c->x86 == 6 || c->x86 == 15)
-> +			
-> +			if(c->x86 == 6 || c->x86 == 15) {
-> +				startbank = 1;
 
-Can you please add comments to such magic changes ?
+> --- tmp/linux/kernel/power/swsusp.c	2003-10-01 23:24:42.000000000 +0200
+> +++ linux/kernel/power/swsusp.c	2003-10-01 23:18:27.000000000 +0200
 
-I still think we should not do anything without an official errata.
+> -static void __init software_resume(void)
+> +static int __init software_resume(void)
 
-The K7 actually has two MCE enable registers: a mask that is only
-supposed to be programmed by the BIOS and works around bugs and the
-standardized IA32 register controlled by the OS. I suspect your case
-only happens with some buggy BIOS that doesn't program the shadow mask
-correctly. This would imply that it would make more sense to test it
-and program it correctly based on a known good value.
+This piece failed. It's easy to fix, but please be more careful when 
+sending incremental patches.
 
--Andi
+Thanks,
+
+
+	Pat
+

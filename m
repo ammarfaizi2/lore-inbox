@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135954AbRDTQFM>; Fri, 20 Apr 2001 12:05:12 -0400
+	id <S135955AbRDTQGw>; Fri, 20 Apr 2001 12:06:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135955AbRDTQFD>; Fri, 20 Apr 2001 12:05:03 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:48392 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S135954AbRDTQEn>;
-	Fri, 20 Apr 2001 12:04:43 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200104201603.UAA00975@ms2.inr.ac.ru>
-Subject: Re: CONFIG_PACKET_MMAP help
-To: kambo@home.COM
-Date: Fri, 20 Apr 2001 20:03:28 +0400 (MSK DST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <10336.010418@home.com> from "kambo@home.COM" at Apr 19, 1 04:15:05 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S135956AbRDTQGm>; Fri, 20 Apr 2001 12:06:42 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:2024 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S135955AbRDTQG0>;
+	Fri, 20 Apr 2001 12:06:26 -0400
+Message-ID: <3AE05E7C.F9C76ED2@mandrakesoft.com>
+Date: Fri, 20 Apr 2001 12:06:20 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: "Eric S. Raymond" <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Matthew Wilcox <willy@ldl.fc.hp.com>,
+        james rich <james.rich@m.cc.utah.edu>, linux-kernel@vger.kernel.org,
+        parisc-linux@parisc-linux.org
+Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is anyone 
+ paying attention?
+In-Reply-To: <20010420101951.A6011@thyrsus.com> <E14qc9E-0001PW-00@the-village.bc.nu> <20010420105934.A6668@thyrsus.com> <20010420085148.V13403@opus.bloom.county>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Tom Rini wrote:
+> Which does boil down to having to work with trees other than Linus or
+> Alans.  Remember, the official tree is not always the up-to-date tree,
+> or in the case of other arches, the most relevant tree.
 
-> 1. for tp_frame_size, I dont want to truncate any data on ethernet, I
-> need 1514 bytes, is this the best way to do it and not waste space?
+Yep.  You could even look at Linus as simply the x86 port maintainer :)
 
-To select small snapsize (obtained from later experiments),
-to set PACKET_COPY_THRESH to read larger packets via recvmsg().
+Except for alpha and x86, AFAIK, most people wind up going through
+arch-specific channels to get their kernels...
 
-> 2. what is tp_block_nr for?  I dont understand it, I just set it to 1
-> and make tp_block_size big enough for all the frames I need, so its
-> just one contiguous space, all I need is about a megabyte I think.
-
-Kernel has problems with allocating large chunks of memory.
-If you see problems with allocating large chuns, split them
-to less ones.
-
-> while(1) {
->    if (tp->status == 0) poll() for pollin on the socket  /* is there a
->    race here? */
-
-No. poll returns, when new frame appears.
-
-
-> 4. what does the copy threshold setsockopt tuning accomplish? doesnt it always
-> have to copy anyway, to the mmaped area?
-
-see anser to question 1. It has a sense when size of chunk is small enough.
-Small packets are copied to ring, large ones (which are truncated) are queued
-to socket to be received via recvmsg().
-
-Alexey
+-- 
+Jeff Garzik      | The difference between America and England is that
+Building 1024    | the English think 100 miles is a long distance and
+MandrakeSoft     | the Americans think 100 years is a long time.
+                 |      (random fortune)

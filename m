@@ -1,56 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264682AbTE1LWc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 07:22:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264684AbTE1LWc
+	id S264688AbTE1Lc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 07:32:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264689AbTE1Lc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 07:22:32 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:43558 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264682AbTE1LWb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 07:22:31 -0400
-Date: Wed, 28 May 2003 04:36:00 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.70: CODA breaks boot
-Message-Id: <20030528043600.650a2f82.akpm@digeo.com>
-In-Reply-To: <20030528112437.GA442@elf.ucw.cz>
-References: <20030528112437.GA442@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 28 May 2003 07:32:58 -0400
+Received: from griffon.mipsys.com ([217.167.51.129]:8151 "EHLO gaston")
+	by vger.kernel.org with ESMTP id S264688AbTE1Lc5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 07:32:57 -0400
+Subject: Console & FBDev vs. locking
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Cc: James Simmons <jsimmons@infradead.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 May 2003 11:35:47.0034 (UTC) FILETIME=[48105BA0:01C3250D]
+Organization: 
+Message-Id: <1054122360.602.197.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 28 May 2003 13:46:00 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote:
->
-> ...it oopses in kmem_cache_create, called from release_console_sem and
->  coda_init_inodecache.
+Hi !
 
-You'll be needing this one.
+While working on various power management issues with fbdev, I noticed
+that there's an almost complete lack of locking in there and I've
+spotted several races. Some of them seem to be present at the vt
+subsystem level as well. Unless I've missed something, what we have
+today is:
 
- fs/coda/inode.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+All printk originated console call should done with the console
+semaphore held. The console-sem is the de-facto locking mecanism for the
+console today, while not fine-grained, it's probably plenty enough for
+what we need in 2.5 and unless previous implementations which ran with
+irqs off, the console drivers can actually block and rely on HW
+interrupts.
 
-diff -puN fs/coda/inode.c~coda-typo-fix fs/coda/inode.c
---- 25/fs/coda/inode.c~coda-typo-fix	2003-05-27 22:27:11.000000000 -0700
-+++ 25-akpm/fs/coda/inode.c	2003-05-27 22:27:27.000000000 -0700
-@@ -69,9 +69,9 @@ static void init_once(void * foo, kmem_c
- int coda_init_inodecache(void)
- {
- 	coda_inode_cachep = kmem_cache_create("coda_inode_cache",
--					     sizeof(struct coda_inode_info),
--					     0, SLAB_HWCACHE_ALIGN||SLAB_RECLAIM_ACCOUNT,
--					     init_once, NULL);
-+				sizeof(struct coda_inode_info),
-+				0, SLAB_HWCACHE_ALIGN|SLAB_RECLAIM_ACCOUNT,
-+				init_once, NULL);
- 	if (coda_inode_cachep == NULL)
- 		return -ENOMEM;
- 	return 0;
+However, the following (at least), break the rule and call the console
+driver in a racy way:
 
-_
+ - Most of vt_ioctl.c userland calls. Things like KDSETMODE for example
+can end up into a call to unblank_screen() -> redraw_screen()
+
+ - Console blanking/unblanking: worst, that one is called at interrupt
+time from a timer
+
+ - In fbcon: all of the cursor handling (fortunately, _at least_, it's
+no longer calling the driver at interrupt time).
+
+ - Any userland access to fbcon via ioctls, that is mode change for
+example, which can be a tricky task and leave the card in some unuseable
+state until the mode change is complete, do race with anything else.
+
+I can produce a patch fixing as much of these as I can find if you agree
+that is the correct way, that is adding acquire_console_sem() in places
+where it belongs, that is almost every of the above, except for the
+blanking timer which has to be deferred to process context.
+
+Any comments ?
+
+Regards,
+Ben.
 

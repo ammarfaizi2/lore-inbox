@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290151AbSAKW4U>; Fri, 11 Jan 2002 17:56:20 -0500
+	id <S290150AbSAKW4U>; Fri, 11 Jan 2002 17:56:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290150AbSAKW4L>; Fri, 11 Jan 2002 17:56:11 -0500
-Received: from smtp3.vol.cz ([195.250.128.83]:56837 "EHLO smtp3.vol.cz")
-	by vger.kernel.org with ESMTP id <S290151AbSAKWzy>;
-	Fri, 11 Jan 2002 17:55:54 -0500
-Date: Fri, 11 Jan 2002 22:19:34 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Paul.Clements@steeleye.com
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: nbd request too big
-Message-ID: <20020111211933.GA371@elf.ucw.cz>
-In-Reply-To: <20020107152423.78321.qmail@web14906.mail.yahoo.com> <Pine.LNX.4.10.10201071231440.5690-300000@clements.sc.steeleye.com>
-Mime-Version: 1.0
+	id <S290152AbSAKW4K>; Fri, 11 Jan 2002 17:56:10 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39178 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290150AbSAKWzw>; Fri, 11 Jan 2002 17:55:52 -0500
+Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
+To: rth@twiddle.net (Richard Henderson)
+Date: Fri, 11 Jan 2002 23:07:21 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        Ronald.Wahl@informatik.tu-chemnitz.de (Ronald Wahl),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020111141850.A9873@twiddle.net> from "Richard Henderson" at Jan 11, 2002 02:18:50 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10201071231440.5690-300000@clements.sc.steeleye.com>
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16PAld-0000c9-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> > It means the compiler for -m686 shouldn't have assumed cmov was available
+> 
+> Eh?  -march=i686 *asserts* that cmov is available.
 
-> If you're using the nbd-server from Pavel Machek's web site, you'll need to patch 
-> nbd-server.c to make it work on ~2.4.3+ kernels. My patched version of nbd-server.c
-> and cliserv.h are attached. The patched files make the server's request buffer be
-> dynamically allocated, so any size request can be handled by the server. 
-> The patched version also fixes some other outdated code (e.g., llseek -> lseek64).
+So why is it called "i686" when the intel i686 machine definition says
+its optional ? Its just the naming that seems odd
 
-You seem to be have used old version of nbd-server to do the
-patch. Could you port it to new version (at nbd.sourceforge.net) and
-mail me a patch?
+> What's the point of optimizing an IF to a cmov if I have
+> to insert another IF to see if I can use cmov?
 
-									Pavel
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+I've always wondered. Intel made the instruction optional yet there isnt
+an obvious way to do runtime fixups on it

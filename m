@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132964AbRAFVKY>; Sat, 6 Jan 2001 16:10:24 -0500
+	id <S130215AbRAFVXQ>; Sat, 6 Jan 2001 16:23:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132975AbRAFVKP>; Sat, 6 Jan 2001 16:10:15 -0500
-Received: from senf.hammerschmid.com ([195.70.243.25]:64516 "EHLO
-	hammerschmid.com") by vger.kernel.org with ESMTP id <S132964AbRAFVJ6>;
-	Sat, 6 Jan 2001 16:09:58 -0500
-Message-ID: <3A5789A1.34526AD1@hammerschmid.com>
-Date: Sat, 06 Jan 2001 22:09:53 +0100
-From: Martin Hammerschmid <martin@hammerschmid.com>
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.17 i686)
-X-Accept-Language: en, de
+	id <S131350AbRAFVXG>; Sat, 6 Jan 2001 16:23:06 -0500
+Received: from bzq-128-3.bezeqint.net ([212.179.127.3]:47878 "HELO arava.co.il")
+	by vger.kernel.org with SMTP id <S130215AbRAFVW5>;
+	Sat, 6 Jan 2001 16:22:57 -0500
+Date: Sat, 6 Jan 2001 23:22:18 +0200 (IST)
+From: Matan Ziv-Av <matan@svgalib.org>
+Reply-To: Matan Ziv-Av <matan@svgalib.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] svgalib error in mmap documentation
+In-Reply-To: <E14EvUA-0001Bg-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21_heb2.09.0101062320210.808-100000@matan.home>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: neither 2.2.18 nor 2.4.0 boot on my Cyrix III
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not subscribed to the list but I want to report this problem:
+On Sat, 6 Jan 2001, Alan Cox wrote:
 
-I found this in the kernel mailing list archive :
-
-> The cyrixIII chips by via have the centaur vendor id which causes the 
-> identify_cpu call in arch/i386/kernel/setup.c to fail. It is probably 
-> reasonable for it to have the centaur id as via owns centaur as well. I 
-> just replaced the centaur_model call with the cyrix_model one, but I 
-> know that I am using a cyrix chip. 
+> > +If you want svgalib programs to run with kernel 2.4.0 or newer, svgalib
+> > +needs to be compiled without background support (BACKGROUND not defined in
+> > +Makefile.cfg). This is relevant to any svgalib version.
+> > +This is because svgalib uses mmap of/proc/mem to emulate vga's memory bank
+> > +switching when in background, and kernel 2.4.0 stopped supporting this feature.
 > 
-> A test probably needs to be added in the centaur_model section to test 
-> for the cyrixIII in disguise. 
-> 
-> The error is a general protection fault. 
+> 2.4 has real support for shared mappings, so you can I suspect do it properly
+> now
 
-I had the same problem as described above with 2.2.18 and 2.4.0 
-(2.2.17 boots without any problems)
-I changed setup.c as suggested in this post and was able to boot both
-(2.2.18 and 2.4.0).
-I don't have any kernel knowledge but I'm willing to test something on
-my box if 
-anyone is interested in solving this problem.
+I hope it is reasonable to ask, how?
 
-(via Cyrix III on a Aopen mx3s board (i815))
+What I need is to allocate a big amount of memory (say 1MB, for
+example), copy the video memory to it, and then have fixed 64K of
+virutal address of the process point to any 64K window of the large
+allocated memory. How can I do it?
 
-TIA
 
-Martin Hammerschmid
+-- 
+Matan Ziv-Av.                         matan@svgalib.org
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

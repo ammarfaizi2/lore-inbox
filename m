@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288609AbSADMHP>; Fri, 4 Jan 2002 07:07:15 -0500
+	id <S288610AbSADMIO>; Fri, 4 Jan 2002 07:08:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288608AbSADMHF>; Fri, 4 Jan 2002 07:07:05 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:29576 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S288607AbSADMG5>;
-	Fri, 4 Jan 2002 07:06:57 -0500
-Date: Fri, 4 Jan 2002 15:04:18 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Dieter Nutzel <Dieter.Nuetzel@hamburg.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
-In-Reply-To: <Pine.LNX.4.40.0201040330460.7718-100000@dlang.diginsite.com>
-Message-ID: <Pine.LNX.4.33.0201041502260.6188-100000@localhost.localdomain>
+	id <S288611AbSADMIF>; Fri, 4 Jan 2002 07:08:05 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:41333 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S288610AbSADMHz>; Fri, 4 Jan 2002 07:07:55 -0500
+Date: Fri, 4 Jan 2002 12:09:56 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Harald Holzer <harald.holzer@eunet.at>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Timothy D. Witham" <wookie@osdl.org>
+Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
+In-Reply-To: <Pine.LNX.4.33L.0201031129410.24031-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.21.0201041206290.16016-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 3 Jan 2002, Rik van Riel wrote:
+> On Thu, 3 Jan 2002, Alan Cox wrote:
+> > A lot of it is the page structs (64bytes per page - which really
+> > should be nearer the 32 some rival Unix OS's achieve on x86)
+> 
+> The 2.4 kernel has the page struct at 52 bytes in size,
+> William Lee Irwin and I have brought this down to 36.
 
-On Fri, 4 Jan 2002, David Lang wrote:
+Please restate those numbers, Rik: I share Alan's belief that the
+current standard 2.4 kernel has page struct at 64 bytes in size.
 
-> I remember running into problems with some user apps (not lockups, but
-> the apps failed) on my 2x400MHz pentium box. I specificly remember the
-> Citrix client hanging, but I think there were others as well.
-
-ok. Generally there is no guarantee that the parent will run first under
-the current scheduler, but it's likely to run first. But if eg. a higher
-priority process preempts the forking process while it's doing fork() then
-the child will run first in 50% of the cases. So this ordering is not
-guaranteed by the 2.4 (or 2.2) Linux scheduler in any way.
-
-	Ingo
+Hugh
 

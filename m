@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265824AbTFVTqq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 15:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265837AbTFVTqb
+	id S265856AbTFVTs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 15:48:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265863AbTFVTs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 15:46:31 -0400
-Received: from clem.clem-digital.net ([68.16.168.10]:48900 "EHLO
-	clem.clem-digital.net") by vger.kernel.org with ESMTP
-	id S265824AbTFVTq1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 15:46:27 -0400
-From: Pete Clements <clem@clem.clem-digital.net>
-Message-Id: <200306222000.QAA12975@clem.clem-digital.net>
-Subject: 2.5.73 fails complile (hotplug.c)
-To: linux-kernel@vger.kernel.org (linux-kernel)
-Date: Sun, 22 Jun 2003 16:00:31 -0400 (EDT)
-X-Mailer: ELM [version 2.4ME+ PL48 (25)]
+	Sun, 22 Jun 2003 15:48:58 -0400
+Received: from p68.rivermarket.wintek.com ([208.13.56.68]:4992 "EHLO
+	dust.p68.rivermarket.wintek.com") by vger.kernel.org with ESMTP
+	id S265856AbTFVTsz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 15:48:55 -0400
+Date: Sun, 22 Jun 2003 15:06:17 -0500 (EST)
+From: Alex Goddard <agoddard@purdue.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.73
+In-Reply-To: <Pine.LNX.4.44.0306221150440.17823-100000@old-penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.56.0306221453010.1455@dust>
+References: <Pine.LNX.4.44.0306221150440.17823-100000@old-penguin.transmeta.com>
+X-GPG-PUBLIC_KEY: N/a
+X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI:
+On Sun, 22 Jun 2003, Linus Torvalds wrote:
 
-drivers/pci/hotplug.c: In function `pci_remove_bus_device':
-drivers/pci/hotplug.c:262: warning: implicit declaration of function `pci_destroy_dev'
-drivers/pci/hotplug.c: At top level:
-drivers/pci/hotplug.c:224: warning: `pci_free_resources' defined but not used
+> 
+> Various updates all over the map here. Lots of ia64 updates, and Andrew 
+> merged the ext3 locking cleanups/fixes that have been in the -mm tree for 
+> a while.
 
----
+The ehci-hid compile error from .72 is still there.  A fix was posted by 
+akpm in the lkml thread [patch] ehci_hcd.c linkage fix.
 
-drivers/built-in.o: In function `pci_remove_bus_device':
-drivers/built-in.o(.text+0x2402): undefined reference to `pci_destroy_dev'
-make: *** [.tmp_vmlinux1] Error 1
+Death of compilation output:
+
+CC      drivers/usb/host/ehci-hcd.o
+drivers/usb/host/ehci-hcd.c:977: error: pci_ids causes a section type 
+conflict
+make[3]: *** [drivers/usb/host/ehci-hcd.o] Error 1
+make[2]: *** [drivers/usb/host] Error 2
+make[1]: *** [drivers/usb] Error 2
+make: *** [drivers] Error 2
 
 -- 
-Pete Clements 
-clem@clem.clem-digital.net
+Alex Goddard
+agoddard@purdue.edu

@@ -1,35 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261452AbRERTNF>; Fri, 18 May 2001 15:13:05 -0400
+	id <S261454AbRERTRF>; Fri, 18 May 2001 15:17:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261454AbRERTM4>; Fri, 18 May 2001 15:12:56 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:30984 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S261452AbRERTMn>;
-	Fri, 18 May 2001 15:12:43 -0400
-To: Keith Owens <kaos@ocs.com.au>
-Cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2 design philosophy heads-up
-In-Reply-To: <1694.990198581@ocs3.ocs-net>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 18 May 2001 21:12:34 +0200
-In-Reply-To: Keith Owens's message of "Sat, 19 May 2001 01:09:41 +1000"
-Message-ID: <d3sni2o4il.fsf@lxplus013.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S261456AbRERTQz>; Fri, 18 May 2001 15:16:55 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:14607 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261454AbRERTQj>; Fri, 18 May 2001 15:16:39 -0400
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+To: esr@thyrsus.com
+Date: Fri, 18 May 2001 20:13:04 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), kaos@ocs.com.au (Keith Owens),
+        linux-kernel@vger.kernel.org (CML2),
+        kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010518142508.B16093@thyrsus.com> from "Eric S. Raymond" at May 18, 2001 02:25:08 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E150pgP-0007Y5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Keith" == Keith Owens <kaos@ocs.com.au> writes:
+> For CML1 and CML2 to handle the same language, we would either have
+> to live with the CML1 language's limitations or retrofit the old tools
+> to speak CML2 language.  The chance of the latter happening is, I think
+> we can agree, effectively zero.
 
-Keith> cc trimmed back to mailing lists only.  On Fri, 18 May 2001
-Keith> 10:53:53 -0400, "Eric S. Raymond" <esr@thyrsus.com> wrote:
->> (a) Back off the capability approach.  That is, accept that people
->> doing configuration are going to explicitly and exhaustively
->> specify low-level hardware.
+Being able to turn CML2 into CML1 might be the more useful exercise.
 
-Keith> No, you loose one of the nicer features of CML2.
+Alan
 
-No, explicit selection *must* be available as an option.
-
-Jes

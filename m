@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284398AbRLIVCZ>; Sun, 9 Dec 2001 16:02:25 -0500
+	id <S284436AbRLIVQl>; Sun, 9 Dec 2001 16:16:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284410AbRLIVCP>; Sun, 9 Dec 2001 16:02:15 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:270 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S284398AbRLIVCB>; Sun, 9 Dec 2001 16:02:01 -0500
-Date: Sun, 9 Dec 2001 17:45:36 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>, Rene Rebe <rene.rebe@gmx.net>,
-        linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
-Subject: Re: devfs unable to handle permission: 2.4.17-pre[4,5] 
- /ALSA-0.9.0beta[9,10]
-In-Reply-To: <3C1378D6.A5BAB1FA@linux-m68k.org>
-Message-ID: <Pine.LNX.4.21.0112091744430.24350-100000@freak.distro.conectiva>
+	id <S284440AbRLIVQb>; Sun, 9 Dec 2001 16:16:31 -0500
+Received: from vp242.dmp01.sea.blarg.net ([206.124.142.242]:50843 "EHLO
+	mail.rudedog.org") by vger.kernel.org with ESMTP id <S284436AbRLIVQ1>;
+	Sun, 9 Dec 2001 16:16:27 -0500
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.16: Bizarre TCP throughput problems
+In-Reply-To: <3C133AEA.50605@colorfullife.com>
+From: Dave Carrigan <dave@rudedog.org>
+Organization: Rudedog.org
+Date: 09 Dec 2001 13:16:26 -0800
+In-Reply-To: <3C133AEA.50605@colorfullife.com>
+Message-ID: <877krwjdqt.fsf@cbgb.rudedog.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Civil Service)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Manfred Spraul <manfred@colorfullife.com> writes:
 
-
-On Sun, 9 Dec 2001, Roman Zippel wrote:
-
-> Richard Gooch wrote:
+> Could you try:
+> - if concurrent flood pings between cbgb an dpern improve the throughput
+>   with 2.4.16 and HTTP?
 > 
-> > Oh, the "tar kludge". That script has been obsolete for over a year
-> > and a half. I should have removed it ages ago. I really should get
-> > around to doing that one day.
-> 
-> You should have done this a year ago. Permission management with the
-> "tar kludge" was a valid option so far and is currently in use. There
-> was no warning period that this future would be obsolete.
-> BTW from your devfsd-v1.3.20 release notes:
-> 
-> "NOTE: this release finally provides complete permissions management.
-> Manually (i.e. non driver or devfsd) created inodes can now be
-> restored when devfsd starts up. This requires v1.2 of the devfs core
-> (available in 2.4.17-pre1) for best operation."
-> 
-> The tar solution only works until 2.4.16, the new devfsd provides this
-> only with 2.4.17. I'll leave the final decision to Marcelo, whether he
-> accepts this or not. I shut up now, may someone else explain the meaning
-> of compatibility to you.
+>  # ping -f pern
+> or
+> # ping -f cbdb
 
-Roman, 
+This didn't seem to make a difference.
 
-I haven't read the whole thread.
+> - Could you check what happens with 2.4.16 if you revert to the tulip
+>   driver from 2.4.14?
 
-Could you please explain me what is the problem in detail? 
+This definitely made a difference. I compiled the 2.4.14 tulip.o as a
+module for the 2.4.16 kernel. If I insmod the 2.4.14 version, TCP
+throughput is fine. If I take the interface down then insmod the 2.4.16
+version, TCP throughput is very poor.
 
+Regards,
+
+-- 
+Dave Carrigan (dave@rudedog.org)            | Yow! If I pull this SWITCH I'll
+UNIX-Apache-Perl-Linux-Firewalls-LDAP-C-DNS | be RITA HAYWORTH!!  Or a
+Seattle, WA, USA                            | SCIENTOLOGIST!
+http://www.rudedog.org/                     | 

@@ -1,74 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284918AbRLXONR>; Mon, 24 Dec 2001 09:13:17 -0500
+	id <S285006AbRLXO2K>; Mon, 24 Dec 2001 09:28:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284926AbRLXONH>; Mon, 24 Dec 2001 09:13:07 -0500
-Received: from a212-113-174-249.netcabo.pt ([212.113.174.249]:24354 "EHLO
-	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S284918AbRLXOMy>;
-	Mon, 24 Dec 2001 09:12:54 -0500
-Message-ID: <002a01c18c85$30136140$d500a8c0@mshome.net>
-From: "Astinus" <Astinus@netcabo.pt>
-To: <linux-kernel@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <m16IMMg-0005khC@gherkin.frus.com>
-Subject: WHICH MACHINE?????
-Date: Mon, 24 Dec 2001 14:13:35 -0000
+	id <S285018AbRLXO2B>; Mon, 24 Dec 2001 09:28:01 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:27921 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S285006AbRLXO15>; Mon, 24 Dec 2001 09:27:57 -0500
+Date: Mon, 24 Dec 2001 06:27:48 -0800 (PST)
+From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: Total system lockup with Alt-SysRQ-L
+In-Reply-To: <20011224083752.A1181@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.33.0112240621370.26289-100000@shell1.aracnet.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-OriginalArrivalTime: 24 Dec 2001 14:11:20.0638 (UTC) FILETIME=[DC854DE0:01C18C84]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is not a direct question about the kernel itself, so if u don't want to
-help me with this just ignore it!!!!!
+On Mon, 24 Dec 2001, Russell King wrote:
 
-well, i m about to invest in a new machine, in which i will only run one of
-linux distros ( haven't decided which but probably suse 7.x or red hat
-7.x ).
+> The problem was definitely in the exit_notify code, where it
+> manipulated the task links indefinitely.  (I think it was cptr never
+> becomes null, so the loop never terminates).
+>
+> However, if we're saying that "pid1 must not die" then maybe we should
+> get rid of the 'killall' sysrq option since it serves no useful
+> purpose, and add a suitable panic in the do_exit path?
+>
+> I'll generate a patch for that if there's interest.
 
-I talked to some guys, and came up with this machine:
+What would be even better, and I think there may already be such an
+option, would be a one-button "sync up all the disks, forbid any more
+writes, save as much state as possbile (registers, memory) to a swap
+partition, set a flag for crash dump processing and reboot" capability.
 
-        Motherboard => Intel D850GB Al ( with network and sound )
-        Processor => Intel P4 2 GHz
-        Hard Drive => Seagate SCSI Cheata 10 000 rmp ( i think it is written
-like this: Cheata ) with 16 megs of cache
-        Scsi controler => adaptec scsi ultra 160 whith two channels
-        Ram => 1000 mb ram 2x 512 rims
-        Video card => (haven't decided but probably a geforce 2 with 64 mb
-ram )
+-- 
+M. Edward Borasky
 
-Well these are the main components that i am thinking to use for building a
-new machine.
+znmeb@borasky-research.net
+http://www.borasky-research.net
 
-I would like u to tell me if it is a good choice, or if i should buy a dual
-xenon processor machine instead.....
-
-Also if one of u kernel hackers/and any other ppl who  has the knowlege and
-patince to indicate me alll the main components of a good machine i would
-appreciate that.
-
-I am also trying to build a machine that won't give me problems with the
-kernel itself... like hardware imcompatibilities..... and so on!!
-
-and one last thing, what kind of computers do u guys use?? Tower ones as
-this i am about to buy or laptop ones.
-
-I find the laptop a funny toy, though i am not sure if it is a good
-investment....
-
-Plz some one... give me some advice so i can choose the best set up machine
-possible ( and that i can affor ).
-
-If u want to know, this machine set up  i posted plus taxes and cd-rom, and
-cd-writter, costs arround 8 500 dollars i think.
-
-I live in Europe.. and thing s tend to be more expensive than in the states.
-
-
+If God had meant carrots to be eaten cooked, He would have given rabbits
+fire.
 

@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266952AbTA0Nyd>; Mon, 27 Jan 2003 08:54:33 -0500
+	id <S267128AbTA0ODL>; Mon, 27 Jan 2003 09:03:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267103AbTA0Nyd>; Mon, 27 Jan 2003 08:54:33 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:61358 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S266952AbTA0Ny3>;
-	Mon, 27 Jan 2003 08:54:29 -0500
-Date: Mon, 27 Jan 2003 15:03:30 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-       Mark Hahn <hahn@physics.mcmaster.ca>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: ATA TCQ  problems in 2.5.59
-Message-ID: <20030127140330.GJ889@suse.de>
-References: <200301261605.00539.roy@karlsbakk.net> <Pine.LNX.4.44.0301261116390.16853-100000@coffee.psychology.mcmaster.ca> <20030126162120.GO889@suse.de> <200301271450.59304.roy@karlsbakk.net>
-Mime-Version: 1.0
+	id <S267129AbTA0ODL>; Mon, 27 Jan 2003 09:03:11 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:62698 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S267128AbTA0ODK>; Mon, 27 Jan 2003 09:03:10 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200301271450.59304.roy@karlsbakk.net>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15925.15947.576552.209252@laputa.namesys.com>
+Date: Mon, 27 Jan 2003 17:12:27 +0300
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Cc: Andrew Morton <AKPM@Digeo.COM>, Alexander Viro <viro@math.psu.edu>
+Subject: possible deadlock in sys_pivot_root()?
+X-Mailer: VM 7.07 under 21.5  (beta9) "brussels sprouts" XEmacs Lucid
+X-NSA-Fodder: Ortega Area 51 Janet Reno Semtex quiche AK-47 constitution
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 27 2003, Roy Sigurd Karlsbakk wrote:
-> > > but it's a flag, not a count.  use CONFIG_BLK_DEV_IDE_TCQ_DEPTH
-> > > if you want something other than the default depth of 1.
-> >
-> > It's a flag, correct. The default depth is 32 though, not 1. And with
-> > newer hdparms you can use -Q to set/query the tag depth of the drive. Be
-> > careful with that though, it's not too well tested. IDE TCQ in 2.5 needs
-> > a bit of work, I hope to do so soonish...
-> 
-> but shouldn't the 'echo using_tcq:32' be equivilent of hdparm -Q?
+Hello,
 
-Yes, doesn't that work?
+sys_pivot_root() first takes BKL, then ->i_sem on the old root
+directory. On the other hand, vfs_readdir() first takes ->i_sem on a
+directory and then calls file system ->readdir() method, that usually
+takes BKL. Isn't there a deadlock possibility? Of course,
+sys_pivot_root() is probably not supposed to be called frequently, but
+still.
 
--- 
-Jens Axboe
-
+Nikita.

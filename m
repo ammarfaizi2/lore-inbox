@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267762AbUHEQMi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267769AbUHEQNj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267762AbUHEQMi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 12:12:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267763AbUHEQMi
+	id S267769AbUHEQNj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 12:13:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267768AbUHEQNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 12:12:38 -0400
-Received: from cantor.suse.de ([195.135.220.2]:62418 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267762AbUHEQMh (ORCPT
+	Thu, 5 Aug 2004 12:13:39 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:22216 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267766AbUHEQNa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 12:12:37 -0400
-Date: Thu, 5 Aug 2004 18:12:36 +0200
-From: Olaf Hering <olh@suse.de>
-To: Paul Jackson <pj@sgi.com>
-Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org, spot@redhat.com,
+	Thu, 5 Aug 2004 12:13:30 -0400
+Date: Thu, 5 Aug 2004 09:13:12 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: pluto@pld-linux.org, linux-kernel@vger.kernel.org, spot@redhat.com,
        akpm@osdl.org
 Subject: Re: Make MAX_INIT_ARGS 25
-Message-ID: <20040805161236.GD26568@suse.de>
-References: <20040804193243.36009baa@lembas.zaitcev.lan> <20040805143933.GA19219@suse.de> <20040805090843.5eaeed43.pj@sgi.com>
+Message-Id: <20040805091312.53571e46.pj@sgi.com>
+In-Reply-To: <20040805082130.354fac9f@lembas.zaitcev.lan>
+References: <20040804193243.36009baa@lembas.zaitcev.lan>
+	<200408050752.46409.pluto@pld-linux.org>
+	<20040805082130.354fac9f@lembas.zaitcev.lan>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040805090843.5eaeed43.pj@sgi.com>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Thu, Aug 05, Paul Jackson wrote:
+> You should also increase the COMMAND_LINE_SIZE.
 
-> > Can the whole thing be dynamic?
-> 
-> We're a little short of dynamic memory allocation mechanisms
-> this early in the boot, I'm afraid.
+Unlike the generic settings in init/main.c of MAX_INIT_ARGS and
+MAX_INIT_ENV, the setting of COMMAND_LINE_SIZE is arch-specific, and on
+many arch's already set to an ample value such as 512, 896 or 1024.
 
-Ok, I'm fine with 32, we have such a patch since ages.
-
+If you have a specific arch for which this value is too small
+for your needs, you probably need to take that up with the
+maintainers of that arch code.
 
 -- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, nÜRNBERG
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

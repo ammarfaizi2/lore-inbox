@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261403AbSJMCwV>; Sat, 12 Oct 2002 22:52:21 -0400
+	id <S261401AbSJMCjD>; Sat, 12 Oct 2002 22:39:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261404AbSJMCwV>; Sat, 12 Oct 2002 22:52:21 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:41481 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S261403AbSJMCwU>;
-	Sat, 12 Oct 2002 22:52:20 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: How does ide-scsi get loaded? 
-In-reply-to: Your message of "12 Oct 2002 12:01:19 -0400."
-             <m37kgn3auo.fsf@varsoon.wireboard.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 13 Oct 2002 12:57:59 +1000
-Message-ID: <13355.1034477879@ocs3.intra.ocs.com.au>
+	id <S261403AbSJMCjD>; Sat, 12 Oct 2002 22:39:03 -0400
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:38055 "EHLO
+	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261401AbSJMCjC>; Sat, 12 Oct 2002 22:39:02 -0400
+Date: Sat, 12 Oct 2002 23:44:37 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Hell.Surfers@cwctv.net
+cc: jw@pegasys.ws, <linux-kernel@vger.kernel.org>
+Subject: RE:Re: OT (Re: Re: The end of embedded Linux?)
+In-Reply-To: <01bfc2922210ca2DTVMAIL10@smtp.cwctv.net>
+Message-ID: <Pine.LNX.4.44L.0210122343580.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.44L.0210122343582.22735@imladris.surriel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Oct 2002 12:01:19 -0400, 
-Doug McNaught <doug@mcnaught.org> wrote:
->Alan Chandler <alan@chandlerfamily.org.uk> writes:
->
->> so isn't /etc/lilo.conf in /etc.
->> 
->> I keep saying - the string ide-scsi is not used anywhere in /etc
->> 
->> [and believe me, I have also looked manually at all these sorts of places]
->
->Why not wrap /sbin/modprobe in a script that logs the module name to
->the console?
+On Sat, 12 Oct 2002 Hell.Surfers@cwctv.net wrote:
 
-man insmod, see /var/log/ksymoops.  insmod/modprobe not only record the
-symbols, they also append to the daily log.
+> brilliantly this summerises every problem, theres no enter.. am i really
+> replying by attachment...?
 
-# cat /var/log/ksymoops/20021012.log 
-20021012 103139 start modprobe -r 3c589_cs safemode=0
-20021012 103139 rmmod returned 0
-20021012 103141 start /sbin/modprobe ide-probe-mod safemode=0
-20021012 103141 probe ended
-20021012 103141 start /sbin/modprobe ide-probe safemode=0
-20021012 103141 probe ended
-20021012 103141 start /sbin/modprobe -k -C /etc/modules.devfs /dev/fd1 safemode=0
-20021012 103141 probe ended
-20021012 103141 start /sbin/modprobe -k -C /etc/modules.devfs /dev/fd2 safemode=0
-20021012 103141 probe ended
-20021012 103141 start /sbin/modprobe -k -C /etc/modules.devfs /dev/fd3 safemode=0
-20021012 103141 probe ended
+Yes.  The output of your mail program is so bad that I'm
+seriously pondering killfiling all of cwctv.net, preferably
+at the SMTP level.
 
-... lots more devfs probes deleted.
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 

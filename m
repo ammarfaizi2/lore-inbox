@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267260AbTAAQFI>; Wed, 1 Jan 2003 11:05:08 -0500
+	id <S267261AbTAAQLh>; Wed, 1 Jan 2003 11:11:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267261AbTAAQFI>; Wed, 1 Jan 2003 11:05:08 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:26815 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S267260AbTAAQFF>; Wed, 1 Jan 2003 11:05:05 -0500
-Date: Wed, 1 Jan 2003 17:13:29 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] only show the PCI hotplug submenu if PCI hotplug is selected
-Message-ID: <20030101161329.GE15200@louise.pinerecords.com>
+	id <S267263AbTAAQLh>; Wed, 1 Jan 2003 11:11:37 -0500
+Received: from mail.mediaways.net ([193.189.224.113]:15188 "HELO
+	mail.mediaways.net") by vger.kernel.org with SMTP
+	id <S267261AbTAAQLg>; Wed, 1 Jan 2003 11:11:36 -0500
+Subject: Re: ide harddisk freeze WDC WD1800JB vs VIA VT8235
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Mark Rutherford <mark@justirc.net>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E13107E.3D579F3@justirc.net>
+References: <1041435181.983.76.camel@sun>  <3E13107E.3D579F3@justirc.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1041437870.961.87.camel@sun>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Date: 01 Jan 2003 17:17:51 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trivial: This is a follow-up to your "Gigabit Ethernet submenu" precedent.
+On Wed, 2003-01-01 at 16:59, Mark Rutherford wrote:
+> Q: are you using cables with a slave connector, but its not in use?
+> I had this problem, with this chipset and it turned out that it didnt like
+> having
+> a long 80 wire cable with a loose connector
+> I got a round cable with just 2 connectors, 1 for the board and 1 for the
+> drive....
+> never locked again.
+> I thought it to be strange as well.
+> but with my setup it happened more frequently, say once every 2-3 hours.
+> hope this is of any help.
 
-Only show the PCI hotplug submenu if the PCI hotplug entry is selected.
+Thanks for your answer.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+Indeed these cables have slave connectors (which are unused). I tried a
+round cable and 2 different non-round ones... I also went down to udma4
+(==udma66)... no use..
 
-diff -urN a/drivers/hotplug/Kconfig b/drivers/hotplug/Kconfig
---- a/drivers/hotplug/Kconfig	2002-11-11 08:45:02.000000000 +0100
-+++ b/drivers/hotplug/Kconfig	2003-01-01 17:10:06.000000000 +0100
-@@ -2,12 +2,9 @@
- # PCI Hotplug support
- #
- 
--menu "PCI Hotplug Support"
--	depends on HOTPLUG
--
- config HOTPLUG_PCI
- 	tristate "Support for PCI Hotplug (EXPERIMENTAL)"
--	depends on PCI && EXPERIMENTAL
-+	depends on HOTPLUG && PCI && EXPERIMENTAL
- 	---help---
- 	  Say Y here if you have a motherboard with a PCI Hotplug controller.
- 	  This allows you to add and remove PCI cards while the machine is
-@@ -21,6 +18,9 @@
- 
- 	  When in doubt, say N.
- 
-+menu "PCI Hotplug Support config"
-+	depends on HOTPLUG_PCI
-+
- config HOTPLUG_PCI_COMPAQ
- 	tristate "Compaq PCI Hotplug driver"
- 	depends on HOTPLUG_PCI && X86
+I am not sure whether the harddisk should cold-freeze... 
+
+Soeren.
+

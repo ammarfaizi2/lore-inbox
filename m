@@ -1,67 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263850AbUGRMix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263881AbUGRMm6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263850AbUGRMix (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 08:38:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263881AbUGRMix
+	id S263881AbUGRMm6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 08:42:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUGRMm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 08:38:53 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:64914 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S263850AbUGRMiv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 08:38:51 -0400
-From: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Organization: SiSK
-To: Andi Kleen <ak@muc.de>
-Subject: Re: 2.6.8-rc1: Possible SCSI-related problem on dual Opteron w/ NUMA
-Date: Sun, 18 Jul 2004 14:48:14 +0200
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200407171826.03709.rjwysocki@sisk.pl> <20040717181240.GA67332@muc.de> <200407172109.38088.rjwysocki@sisk.pl>
-In-Reply-To: <200407172109.38088.rjwysocki@sisk.pl>
+	Sun, 18 Jul 2004 08:42:58 -0400
+Received: from colossus.systems.pipex.net ([62.241.160.73]:6868 "EHLO
+	colossus.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S263881AbUGRMm4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 08:42:56 -0400
+Date: Sun, 18 Jul 2004 13:41:34 +0100 (BST)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+X-X-Sender: tigran@einstein.homenet
+To: Solar Designer <solar@openwall.com>
+Cc: Alan Cox <alan@redhat.com>, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: question about /proc/<PID>/mem in 2.4 (fwd)
+In-Reply-To: <20040707234852.GA8297@openwall.com>
+Message-ID: <Pine.LNX.4.44.0407181336040.2374-100000@einstein.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200407181448.14614.rjwysocki@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
+Hi,
 
-On Saturday 17 of July 2004 21:09, R. J. Wysocki wrote:
-> On Saturday 17 of July 2004 20:12, Andi Kleen wrote:
-> > On Sat, Jul 17, 2004 at 06:26:03PM +0200, R. J. Wysocki wrote:
-> > > I got this on a dual Opteron system on 2.6.8-rc1 with the latest x86-64
-> > > patchset from Andi:
-> >
-> > Does it happen with x86_64-2.6.8-1 too ?
->
-> It did not happen when I was running that kernel, but I had only run it for
-> a couple of times.  It generally does not happen with this one either. 
-> It's happened only once and I reported it immediately.  But ...
->
-[snip]
+Thank you for your reply, but this one bit still remains utterly unclear 
+to me:
 
-I had this problem again this morning.  I was unpacking the kernel tarball to 
-/dev/sda8 and it went south (the tarball had been partially unpacked before 
-the partition was remounted r-o).  Then, I got back to 2.6.7 and ran fsck - 
-now it found some errors (obviously) and fixed them.  Next (on 2.6.7), I 
-unpacked the kernel to /dev/sda8 (again) and compiled the 2.6.8-rc2.  I ran 
-it, unpacked the kernel to /dev/sda8 (again) and compiled it - everything 
-worked.  Then, I applied your patch on top of the newly created 2.6.8-rc2 
-tree and compiled the kernel.  After installing and running it I tried to 
-unpack the kernel to /dev/sda8 (again) and it went south, so I got back to 
-the "plain" 2.6.8-rc2, ran fsck and fixed the partition, unpacked the kernel 
-to /dev/sda8 - and it all worked.
+> Alan has already pointed out a reason why the MAY_PTRACE()
+> check was needed:
+> 
+> | Consider what happens if your setuid app reads stdin
+> | 
+> | 	setuidapp < /proc/self/mem
+> 
+> ... 
+> See Alan's example I've quoted above.  In this scenario, it would be
+> the program being attacked which will be checked for possession of the
+> capability... if it is SUID root, the attack will succeed.
 
-So, it seems, there's something in your patch that causes this misbehavior.
+In the above example there is nothing forbidden and the current state of 
+things doesn't prevent the program from reading it's own address space.
 
-rjw
+Thus I see absolutely nothing special about the case:
 
--- 
-Rafael J. Wysocki
-----------------------------
-For a successful technology, reality must take precedence over public 
-relations, for nature cannot be fooled.
-					-- Richard P. Feynman
+# setuidapp < /proc/self/mem
+
+and this program reading stdin. Maybe I am missing something obvious but I
+have 10+ years of Unix systems programming experience and having consulted
+some people who have 20+ years of such experience they are also of the
+same opinion, i.e. nothing special in the above case.
+
+Could you therefore clarify it, please? Thank you in advance!
+
+Kind regards
+Tigran
+

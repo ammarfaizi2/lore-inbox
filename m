@@ -1,92 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315266AbSEaNUN>; Fri, 31 May 2002 09:20:13 -0400
+	id <S315275AbSEaNXN>; Fri, 31 May 2002 09:23:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315267AbSEaNUM>; Fri, 31 May 2002 09:20:12 -0400
-Received: from smtp01ffm.de.uu.net ([192.76.144.150]:18771 "EHLO
-	smtp01ffm.de.uu.net") by vger.kernel.org with ESMTP
-	id <S315266AbSEaNUM>; Fri, 31 May 2002 09:20:12 -0400
-From: Roland Fehrenbacher <Roland.Fehrenbacher@transtec.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S315276AbSEaNXM>; Fri, 31 May 2002 09:23:12 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:7165 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315275AbSEaNXM>; Fri, 31 May 2002 09:23:12 -0400
+Subject: Re: do_mmap
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.05.10205311456070.10633-100000@mausmaki.cosy.sbg.ac.at>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <15607.30844.526469.488274@transtec.de>
-Date: Fri, 31 May 2002 15:19:56 +0200
-To: linux-kernel@vger.kernel.org
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-        "Nakajima, Jun" <jun.nakajima@intel.com>,
-        "Seth, Rohit" <rohit.seth@intel.com>,
-        "Luck, Tony" <tony.luck@intel.com>,
-        "Mallick, Asit K" <asit.k.mallick@intel.com>,
-        "Hugh Dickins" <hugh@veritas.com>, pk@q-leap.com
-Subject: Re: Q: backport of the free_pgtables tlb fixes to 2.4
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 31 May 2002 15:27:23 +0100
+Message-Id: <1022855243.12888.410.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Fri, 2002-05-31 at 14:00, Thomas 'Dent' Mirlacher wrote:
+> and the checks in various places are really strange. - well some
+> places check for:
+> 	o != NULL
+> 	o > -1024UL
 
-we actually also ran into this bug on a dual xeon (2GHz
-Prestonia) with Hyperthreading enabled. Without Hyperthreading, it was hard to
-reproduce the problem. The following script (requires bash >=  2.0.5) provokes
-the problem in a very short time. With the patch from Intel, the problem is
-gone (patched into 2.4.18), no side effects discovered so far.
+"Not an error". Its relying as some other bits of code do actually that
+the top mappable user address is never in the top 1K of the address
+space
 
-Thanks to Hugh Dickins <hugh@veritas.com> for pointing out the patch to us.
+> is it possible to have 0 as a valid address? - if not, this should
+> be the return on errors.
 
-Cheers,
-
-Roland
-
-Here is the script:
------------------------
-#!/bin/sh
-
-# Small script to provoke a SIGSEV on SMP machines with kernel problem
-# requires bash > 2.0.5. The script fails e.g. on dual xeon systems without
-# Intel patch (Message title: Illegal instruction failures fixes for 2.4.18 in # kernel mailing list, 22.5.2002).
-# Script simply executes a couple of mktemp loops in the background, and tries
-# to read the generated file back.
-# 
-
-# Author: Roland Fehrenbacher, rf@q-leap.com
-base_out=/tmp/test-sigsev
-maxprocs=5
-
-myname=`basename $0`
-pids=""
-files=""
-
-trap 'killall $myname; rm -f $files ${base_out}??????;' 0 1 2 3 15
-
-for (( num=1; num <= $maxprocs; num++ )); do
-  while true; do 
-    file=`mktemp ${base_out}XXXXXX` || { echo mktemp failed; break; }
-    cat $file || { echo open $file failed; break; }
-    rm -f $file
-  done > ${base_out}-${num}.out 2>&1 &
-  pids="$pids $!"
-  files="$files ${base_out}-${num}.out"
-done
-
-printf "PIDS running = $pids\n--\n"
-printf "No further output should appear if no bug is present. Run script for\n"
-printf "a couple of hours to be sure everything is ok. Ctrl-C to stop.\n--\n"
-
-i=1
-while true; do
-  echo $i: ok >> ${base_out}-${num}.out
-  for pid in $pids; do 
-    ps -p $pid > /dev/null 2>&1 || \
-      { echo "count = $i: Pid $pid died" >> ${base_out}-${num}.out; \
-	pids=`echo $pids | sed -e s/$pid//g`; }
-  done
-  sleep 10
-  ((i++))
-done &
-
-files="$files ${base_out}-${num}.out"
-
-sleep 1
-tail -f $files | grep "count ="
+SuS explicitly says that 0 is not a valid mmap return address.
 

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263343AbTDMFmj (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 01:42:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263354AbTDMFmj (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 01:42:39 -0400
-Received: from smtp03.web.de ([217.72.192.158]:31259 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S263343AbTDMFmi (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Apr 2003 01:42:38 -0400
-From: Ali Akcaagac <aliakc@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.5.X] SCSI Tekram DC395x port half done, help needed.
-Date: Sun, 13 Apr 2003 07:54:47 +0200
-User-Agent: KMail/1.5.9
+	id S263354AbTDMG2q (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 02:28:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbTDMG2q (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 02:28:46 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:3712 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263354AbTDMG2p (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 02:28:45 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304130621.h3D6LuuL000348@81-2-122-30.bradfords.org.uk>
+Subject: Re: kernel support for non-English user messages
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Sun, 13 Apr 2003 07:21:56 +0100 (BST)
+Cc: 76306.1226@compuserve.com (Chuck Ebbert),
+       john@grabjohn.com (John Bradford),
+       linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <1050161671.16385.0.camel@dhcp22.swansea.linux.org.uk> from "Alan Cox" at Apr 12, 2003 04:34:32 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200304130754.48251.aliakc@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> On Sad, 2003-04-12 at 16:20, Chuck Ebbert wrote:
+> > > /Documentation could be a lot better than it is...  Some of it
+> > > is very out of date.
+> > 
+> > 
+> >   You are being way too kind.
+> > 
+> >   /Documentation is *awful*.
+> 
+> You know where to submit contributions
 
-I hit some problems porting the Tekram DC395x driver to Kernel 2.5.6x and 
-would like to ask for a bit help.
+Aim the flame thrower further away from me :-)
 
-I have tried to contact the Maintainer of that Driver around 3-4 times now and 
-unfortunately didn't get a reply on my mails, so I have started to port the 
-driver myself but I'm no Kernel GURU so I hit on some minor problems with 
-structure items not being found etc.
+I suggested a grepme file, and nobody seemed interested.  The
+documentation needs to be improved, but how?  Suggestions would be
+useful here...
 
-If someone is interested and willing to help me then please reply to me, so I 
-can sent you the stuff I have done so far.
-
-If someone did the port already then please also do contact me.
-
-greetings,
-
-Ali Akcaagac
-
-PS: CC me, because I'm NOT subscribed to the list.
+John.

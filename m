@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbUJZFr4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262126AbUJZFr4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261941AbUJZFr4 (ORCPT <rfc822;willy@w.ods.org>);
+	id S262126AbUJZFr4 (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 26 Oct 2004 01:47:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUJZFpE
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbUJZFpR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 01:45:04 -0400
-Received: from math.ut.ee ([193.40.5.125]:35020 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S261925AbUJZFgC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 01:36:02 -0400
-Date: Tue, 26 Oct 2004 08:36:00 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: hddtemp hangs with USB SCSI disks; blk_execute_rq again
-Message-ID: <Pine.GSO.4.44.0410260827240.8730-100000@math.ut.ee>
+	Tue, 26 Oct 2004 01:45:17 -0400
+Received: from siaag1ag.compuserve.com ([149.174.40.13]:23762 "EHLO
+	siaag1ag.compuserve.com") by vger.kernel.org with ESMTP
+	id S261941AbUJZFnP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 01:43:15 -0400
+Date: Tue, 26 Oct 2004 01:40:16 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: My thoughts on the "new development model"
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200410260142_MC3-1-8D2A-45C2@compuserve.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Bill Davidsen wrote:
 
-hddtemp startup script hangs on my machine. Just the hddtemp process is
-in D state (blk_execute_rq) and unkillable, other processes run fine.
-The startup script calls hddtemp -wn /dev/sda. /dev/sda
-is a CF slot in a USB 6-in-1 memory card reader, currently empty.
-/proc/partitions shows only 2 ide disks.
+> I don't see the need for a development kernel, and it is desirable to be 
+> able to run kernel.org kernels.
 
-Since hddtemp is not converted to SG_IO yet, the kernel logs
-program hddtemp is using a deprecated SCSI ioctl, please convert it to SG_IO
-but this should not cause hddtemp to hang.
+  Problem is, kernel.org 'release' kernels are quite buggy.  For example 2.6.9
+has a long list of bugs:
 
-This is another case of process hanging in blk_execute_rq, see the
-recent thread "readcd hangs in blk_execute_rq" (also reported by me but
-about a different computer).
+  - superio parports don't work
+  - TCP networking using TSO gives memory allocation failures
+  - s390 has a serious security bug (sacf)
+  - ppp hangup is broken with some peers
+  - exec leaks POSIX timer memory and loses signals
+  - auditing can deadlock
+  - O_DIRECT and mmap IO can't be used together
+  - procfs shows the wrong parent PID in some cases
+  - i8042 fails to initialize with some boards using legacy USB
+  - kswapd still goes into a frenzy now and then
 
-I have noticed it some weeks ago but didn't have time then to
-investigate and disabled hddtemp. Today I looked at it again and now I'm
-reporting it.
+  Sure, the next release will (may?) fix these bugs, but it will definitely
+add a whole set of new ones.
 
--- 
-Meelis Roos (mroos@linux.ee)
 
+--Chuck Ebbert  26-Oct-04  01:36:21

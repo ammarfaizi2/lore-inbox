@@ -1,38 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbUDXNXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262311AbUDXNkr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262256AbUDXNXo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Apr 2004 09:23:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbUDXNXo
+	id S262311AbUDXNkr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Apr 2004 09:40:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbUDXNkr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Apr 2004 09:23:44 -0400
-Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:9362 "EHLO
-	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S262256AbUDXNXn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Apr 2004 09:23:43 -0400
-X-OB-Received: from unknown (205.158.62.133)
-  by wfilter.us4.outblaze.com; 24 Apr 2004 13:22:03 -0000
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	Sat, 24 Apr 2004 09:40:47 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:18194 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S262311AbUDXNko (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Apr 2004 09:40:44 -0400
+Date: Sat, 24 Apr 2004 21:43:24 +0800 (WST)
+From: raven@themaw.net
+To: Christoph Hellwig <hch@infradead.org>
+cc: Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-rc2-mm1
+In-Reply-To: <20040423143521.A1961@infradead.org>
+Message-ID: <Pine.LNX.4.58.0404242141030.22603@donald.themaw.net>
+References: <20040421014544.37942eb4.akpm@osdl.org>
+ <Pine.LNX.4.58.0404222321310.6767@donald.themaw.net> <20040423131149.B1218@infradead.org>
+ <Pine.LNX.4.58.0404232125420.5889@donald.themaw.net> <20040423143521.A1961@infradead.org>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Mohamed Aslan" <mkernel@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Sat, 24 Apr 2004 21:24:02 +0800
-Subject: Re: Rewrite Kernel
-X-Originating-Ip: 62.114.190.49
-X-Originating-Server: ws5-3.us4.outblaze.com
-Message-Id: <20040424132402.7EBB923AB1@ws5-3.us4.outblaze.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.2, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, PATCH_UNIFIED_DIFF,
+	QUOTED_EMAIL_TEXT, REFERENCES, REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No I Could Create Assembly Code Faster Than Gcc
-Gcc 2.95 was good but 3 isn't as 2,it's not my words linus recommended compiling kernel with 2.95
-don't forget something assemblying requires less time than compiling
--- 
-______________________________________________
-Check out the latest SMS services @ http://www.linuxmail.org 
-This allows you to send and receive SMS through your mailbox.
+On Fri, 23 Apr 2004, Christoph Hellwig wrote:
 
+> 
+> It's say keep may_umount as is, and do a no-argument may_umount_tree
+> in namespace.c aswell.  As for what patches is best ask akpm.
+> 
 
-Powered by Outblaze
+Incremental patch to revert previous may_umount_tree patch based on 
+Christophs' further observation.
+
+diff -Nur linux-2.6.6-rc1-mm1/fs/namespace.c linux-2.6.6-rc1-mm1.revert/fs/namespace.c
+--- linux-2.6.6-rc1-mm1/fs/namespace.c	2004-04-22 21:06:09.000000000 +0800
++++ linux-2.6.6-rc1-mm1.revert/fs/namespace.c	2004-04-24 21:18:46.000000000 +0800
+@@ -260,7 +260,15 @@
+ 	.show	= show_vfsmnt
+ };
+ 
+-static int __may_umount_tree(struct vfsmount *mnt, int root_mnt_only)
++/**
++ * may_umount_tree - check if a mount tree is busy
++ * @mnt: root of mount tree
++ *
++ * This is called to check if a tree of mounts has any
++ * open files, pwds, chroots or sub mounts that are
++ * also busy.
++ */
++int may_umount_tree(struct vfsmount *mnt)
+ {
+ 	struct list_head *next;
+ 	struct vfsmount *this_parent = mnt;
+@@ -271,12 +279,6 @@
+ 	actual_refs = atomic_read(&mnt->mnt_count);
+ 	minimum_refs = 2;
+ 
+-	if (root_mnt_only) {
+-		if (actual_refs > minimum_refs)
+-			return -EBUSY;
+-		return 0;
+-	}
+-
+ repeat:
+ 	next = this_parent->mnt_mounts.next;
+ resume:
+@@ -307,19 +309,6 @@
+ 	return 0;
+ }
+ 
+-/**
+- * may_umount_tree - check if a mount tree is busy
+- * @mnt: root of mount tree
+- *
+- * This is called to check if a tree of mounts has any
+- * open files, pwds, chroots or sub mounts that are
+- * also busy.
+- */
+-int may_umount_tree(struct vfsmount *mnt)
+-{
+-	return __may_umount_tree(mnt, 0);
+-}
+-
+ EXPORT_SYMBOL(may_umount_tree);
+ 
+ /**
+@@ -337,7 +326,9 @@
+  */
+ int may_umount(struct vfsmount *mnt)
+ {
+-	return __may_umount_tree(mnt, 1);
++	if (atomic_read(&mnt->mnt_count) > 2)
++		return -EBUSY;
++	return 0;
+ }
+ 
+ EXPORT_SYMBOL(may_umount);

@@ -1,125 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267327AbUGNI6z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267330AbUGNJCE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267327AbUGNI6z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 04:58:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267328AbUGNI6z
+	id S267330AbUGNJCE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 05:02:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267333AbUGNJCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 04:58:55 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:15573 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267327AbUGNI6v (ORCPT
+	Wed, 14 Jul 2004 05:02:04 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:3846 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S267331AbUGNJCB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 04:58:51 -0400
-Date: Wed, 14 Jul 2004 14:27:58 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, dipankar@in.ibm.com
-Subject: Re: [RFC] Refcounting of objects part of a lockfree collection
-Message-ID: <20040714085758.GA4165@obelix.in.ibm.com>
-References: <20040714045345.GA1220@obelix.in.ibm.com> <20040714070700.GA12579@kroah.com>
+	Wed, 14 Jul 2004 05:02:01 -0400
+Date: Wed, 14 Jul 2004 11:01:59 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] kill drive_info
+Message-ID: <20040714090159.GA3821@pclin040.win.tue.nl>
+References: <20040714000810.GA7308@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040714070700.GA12579@kroah.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20040714000810.GA7308@fs.tum.de>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: : 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 14, 2004 at 12:07:00AM -0700, Greg KH wrote:
-> On Wed, Jul 14, 2004 at 10:23:50AM +0530, Ravikiran G Thirumalai wrote:
-> > 
-> > The attatched patch provides infrastructure for refcounting of objects
-> > in a rcu protected collection.
+On Wed, Jul 14, 2004 at 02:08:10AM +0200, Adrian Bunk wrote:
+
+> What about the patch below to kill drive_info?
 > 
-> This is really close to the kref implementation.  Why not just use that
-> instead?
+> Please double-check this patch, all I checked was a test of compilation
+> on i386.
 
-Close, but not the same.  I just had a quick look at krefs.
-Actually, this refrerence count infrastructure I am proposing is not for 
-traditional refcounting.  This is for refcounting of elemnts of a list
-or array (collection) which can be 'read' in a lock free manner.
+> -		unsigned char *BIOS = (unsigned char *) &drive_info;
+> +		unsigned char *BIOS = &boot_params[0x80];
 
-For ex. With traditional refcounting, you can have 
+Ugly. There is already a define DRIVE_INFO for this right hand side:
 
-1.                                  2.
-add()                               search_and_reference()
-{                                   {
-    alloc_object                            read_lock(&list_lock);
-    ...                                     search_for_element
-    refcount_init(&el->rc)                  refcount_get(&el->rc);
-    write_lock(&list_lock);                 ...
-    add_element                             read_unlock(&list_lock);
-    ...                                     ...
-    write_unlock(&list_lock);       }
-}
-
-3.                                  4.
-release_referenced()                delete()
-{                                   {
-    ...                             write_lock(&list_lock);
-    if (refcount_put(&el->rc))      ...
-            start_cleanup_object    ...
-            free_object             delete_element
-    ...                             write_unlock(&list_lock);
-}                                   ...
-                                    if (refcount_put(&el->rc))
-                                            start_cleanup_object
-                                            free_object
-                                    }
-
-add() puts the refcounted element into the system with the list_lock
-taken for write, search_and_reference() takes the list_lock for read
-and gets the refcount.  Now if the list was a read mostly kind, then
-we could replace the list_lock rw lock with a spinlock,
-serialise updates to the list with the spinlock taken (in the add())
-and use rcu_read_lock() and rcu_read_unlock() on the reader side
-(search_and_reference()) replacing the read_locks in 2. above. 
-
-But, with rcu, search and reference could see stale elements, that is
-elements which have been taken off the list from delete(). Using call_rcu
-to free the object from release_referenced() (free_object in 3.) will defer 
-freeing, so that &el memory location above is not freed 'til the reader 
-comes out of rcu_read_lock protected code, _but_ the 
-search_and_reference thread could potentially get a reference to a 
-deleted list element.  Hence, under lockfree circumstances, just an 
-atomic_inc to the refcount is not sufficient.  
-We do:
-
-	...
-	c = atomic_read(&rc->count);
-	while ( c && (old = cmpxchg(&rc->count.counter, c, c+1)) != c)
-		c = old;
-	return c;
+  setup.h:#define PARAM (boot_params)
+  setup.h:#define DRIVE_INFO (*(struct drive_info_struct *) (PARAM+0x80))
 
 
-which is abstracted out as refcount_get_rcu()
+> - 	drive_info = DRIVE_INFO;
 
-Hence, in the example above, search_and_reference would look like
+Hmm. setup.c copies this info from where it was left after booting
+to some safe place. You seem to think that this saving is not required.
+Is it not?
 
-search_and_reference()
-{
-    rcu_read_lock();
-    search_for_element
-    if (!refcount_get_rcu(&el->rc)) {
-            rcu_read_unlock();
-            return FAIL;
-    }
-    ...
-    ...
-    rcu_read_unlock();
-}
-
-Hope that clears things up.
-
-> 
-> Oh, and I think you need to use atomic_set() instead of initializing the
-> atomic_t by hand.
-
-I have used atomic_set for the case where arch has cmpxchg.  But for 
-arches lacking cmpxchg, I need to use hashed spinlocks to implement 
-the ref_count_get_rcu.
-No point in having more atomic operations when I hold spinlocks.  Admittedly,
-might be a bit yucky to assume atomic_t internals, but it is just one header
-file :) <ducks>
-
-Thanks,
-Kiran
+Andries

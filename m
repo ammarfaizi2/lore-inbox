@@ -1,63 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262433AbREUJ7x>; Mon, 21 May 2001 05:59:53 -0400
+	id <S262439AbREUKBx>; Mon, 21 May 2001 06:01:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262438AbREUJ7n>; Mon, 21 May 2001 05:59:43 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:37382 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S262435AbREUJ7c>;
-	Mon, 21 May 2001 05:59:32 -0400
-To: Jakob =?iso-8859-1?q?=D8stergaard?= <jakob@unthought.net>
-Cc: "Robert M. Love" <rml@tech9.net>, John Cowan <jcowan@reutershealth.com>,
-        esr@thyrsus.com, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
-In-Reply-To: <20010505192731.A2374@thyrsus.com> <d33da9tjjw.fsf@lxplus015.cern.ch> <20010513112543.A16121@thyrsus.com> <d3d79awdz3.fsf@lxplus015.cern.ch> <20010515173316.A8308@thyrsus.com> <d3wv7eptuz.fsf@lxplus015.cern.ch> <3B054500.2090408@reutershealth.com> <d31ypj1r4y.fsf@lxplus015.cern.ch> <990411054.773.0.camel@phantasy> <20010521043553.C20911@unthought.net>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 21 May 2001 11:58:34 +0200
-In-Reply-To: Jakob =?iso-8859-1?q?=D8stergaard's?= message of "Mon, 21 May 2001 04:35:53 +0200"
-Message-ID: <d3ofsnowfp.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
-MIME-Version: 1.0
+	id <S262438AbREUKBn>; Mon, 21 May 2001 06:01:43 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:14596 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S262439AbREUKBe>;
+	Mon, 21 May 2001 06:01:34 -0400
+Date: Mon, 21 May 2001 06:04:40 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Background to the argument about CML2 design philosophy
+Message-ID: <20010521060440.A1738@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <15823.990372866@redhat.com> <20010520114411.A3600@thyrsus.com> <16267.990374170@redhat.com> <20010520131457.A3769@thyrsus.com> <18686.990380851@redhat.com> <20010520164700.H4488@thyrsus.com> <20010520165952.A9622@devserv.devel.redhat.com> <25499.990399116@redhat.com> <20010520211346.A6170@thyrsus.com> <6382.990427297@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <6382.990427297@redhat.com>; from dwmw2@infradead.org on Mon, May 21, 2001 at 07:41:37AM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jakob" == Jakob Østergaard <jakob@unthought.net> writes:
+David Woodhouse <dwmw2@infradead.org>:
+> Because it is evidently confusing the issue. Perhaps because it sounds like 
+> you were intending to feed Linus large patches for 2.5.[12] which effect 
+> _both_ changes.
 
-Jakob> On Sun, May 20, 2001 at 10:10:49PM -0400, Robert M. Love wrote:
->> I think this is a very important point, and one I agree with.  I
->> tend to let my distribution handle stuff like python.  now, I use
->> RedHat's on-going devel, RawHide. it is not using python2.  in
->> fact, since switching to python2 may break old stuff, I don't
->> expect python2 until 8.0. that wont be for 9 months.  90% of
->> RedHat's configuration tools, et al, are written in python1 and
->> they just are not going to change on someone's whim.
+I'm going to give Linus the same installation kit the people working with CML2
+have now.  That will include both the CML2 engine and the rulesfiles.
+ 
+> Have patience - let the less contentious part of CML2 go in first, and then
+> we can deal with the other stuff later, once CML2 has been accepted (however
+> grudgingly in some cases) by developers.
 
-Jakob> 2.6.0 isn't going to happen for at least a year or two.  What's
-Jakob> the problem ?
+I don't think there is a "less contentious" part.  The same people who bitched
+about the engine are now bitching about the changes I'm contemplating in the
+rulesfiles.  It seems clear to me that their attitude, in general, has little
+to do with technical specifics of the engine or rulesets and everything to
+do with resistance to change in general and fear of losing control and/or
+hard-won implicit knowledge about the old system.
 
-Jakob> Want 2.5.X ?  Get the tools too.
+I can sympathize with their upset, but I don't intend to let it stop
+me.  And since I'm going to have these people angry at me unless I
+give up entirely, I figure I have little to lose by steaming ahead full.
 
-Some people grab the latest devel kernels because thats all that works
-on their hardware.
+> > The engine is working.  Why is it not yet time to discuss ruleset design
+> > and modes?
+> 
+> For a man who claims to hack social systems, that's an incredibly naïve 
+> question.
 
-Jakob> I'm in no position to push people around, but I think the
-Jakob> whining about CML2 tool requirements is completely unjustified.
-Jakob> If we required that everything worked with GCC 2.7.2 and nmake,
-Jakob> where would we be today ?  I'm a lot more worried about CML2
-Jakob> itself than about the tools it requires :)
+You think so, eh?  Heh.  Experience has taught me that sometimes
+hacking social systems requires a certain amount of sheer
+bloodymindedness.
 
-gcc-2.7.2 is broken it miscompiles the kernel, Python1 or bash are
-not.
+See, I've already written off the chronic bellyachers.  Since I can't
+please them without scrapping the whole plan, I'm going to ignore
+them.  In particular, anybody who repeated "fsck Python..." after Linus
+ruled that Python is not an issue and Greg Banks announced the C
+implementation of CML2 has got a sufficiently severe case of
+rectocranial insertion that they've defined themselves out of the
+conversation.
 
-Jakob> Whether CML2 requires python2 or not, the distributions will
-Jakob> change. This is not about Eric pushing something down people's
-Jakob> throats. Tools evolve, and new revisions introduce
-Jakob> incompatibilities, but distributions still follow the
-Jakob> evolution.  Nobody ships perl4 today either.
+Instead I'll take my cues from people like you and Ray Knight and Tom
+Rini and Alan Cox and Martin Schwidefsky who are actually offering
+help and constructive criticism.  (Arjan de Ven is trying but he's not
+up to speed on the language yet.)  I trust you've noticed by now that
+I *do* listen very carefully in that situation, and I follow up with
+questions when I'm not sure what people are trying to tell me.  I'll
+keep doing that.
 
-The point is that Eric has been trying to push distributions to ship
-P2.
+Eventually the bellyachers may get a message about what kind of behavior
+gains them influence and what kind loses them influence.  That's a
+social-systems hack of a sort ;-).
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Jes
+I don't like the idea that the police department seems bent on keeping
+a pool of unarmed victims available for the predations of the criminal
+class.
+         -- David Mohler, 1989, on being denied a carry permit in NYC

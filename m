@@ -1,70 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262109AbRE2D53>; Mon, 28 May 2001 23:57:29 -0400
+	id <S262215AbRE2ENB>; Tue, 29 May 2001 00:13:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262215AbRE2D5U>; Mon, 28 May 2001 23:57:20 -0400
-Received: from mail1.netcabo.pt ([212.113.161.135]:44555 "EHLO netcabo.pt")
-	by vger.kernel.org with ESMTP id <S262194AbRE2D5G>;
-	Mon, 28 May 2001 23:57:06 -0400
-Message-ID: <3B131E9E.70505@europe.com>
-Date: Tue, 29 May 2001 04:59:26 +0100
-From: Vasco Figueira <figueira@europe.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5 i686; en-US; rv:0.9) Gecko/20010507
-X-Accept-Language: en
+	id <S262235AbRE2EMv>; Tue, 29 May 2001 00:12:51 -0400
+Received: from [206.14.214.140] ([206.14.214.140]:26384 "EHLO transvirtual.com")
+	by vger.kernel.org with ESMTP id <S262215AbRE2EMk>;
+	Tue, 29 May 2001 00:12:40 -0400
+Date: Mon, 28 May 2001 21:11:40 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Pavel Roskin <proski@gnu.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: AT keyboard optional on i386?
+In-Reply-To: <Pine.LNX.4.33.0105252003530.32376-100000@vesta.nine.com>
+Message-ID: <Pine.LNX.4.10.10105282027030.3783-100000@transvirtual.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.4 kernel freeze for unknown reason
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-On Fri May 11 2001 - 13:45:24 EST, Vincent Stemen 
-(linuxkernel@AdvancedResearch.org) wrote:
+> I'm trying to run Linux on a broken motherboard that is constantly
+> producing random noice on the AT keyboard port. I'm going to use a USB
+> keyboard, but I cannot get Linux to ignore the AT keyboard port.
 
- >On Wednesday 09 May 2001 22:57, Jacky Liu wrote:
+Not that I know. The current way it works is:
 
- >> The machine has been randomly lockup (totally freeze) for number of
- >> times without any traceable clue or error message. Usually the time
- >> frame between each lockup is between 24 to 72 hours. The screen just
- >> freeze when it's lockup (either in Console or X) and no "kernel >panic"
- >> type or any error message prompt up. All services (SSH, DNS, etc..)
- >> are dead when it's lockup
-(...)
+1) Current 2.4 way for AT keyboards:
 
- >I have been experiencing these same problems since version 2.4.0.
- >Although, I think it has improved a little in 2.4.4, it still locks
- >up. The problem seems to be related to memory management and/or swap,
- >and is seems to do it primarily on machines with over 128Mb of RAM.
- >Although, I have not tested systematically enough to confirm this.
+pc_keyb.c -(raw)-> keyboard.c -(raw)-> pc_keyb.c -->
+>--(cooked)-> keyboard.c -(chars)-> tty
 
-I have the same problem on a Toshiba satellite 4070, 366 celeron, 64M 
-ram, redhat 7.1 and vanilla 2.4.5. Exactly the same bug description. 
-Totally reproducible.
+2) Current 2.4 way for USB keyboards (uses keybdev):
 
- >I have been monitoring the memory usage constantly with the gnome
- >memory usage meter and noticed that as swap grows it is never freed
- >back up. I can kill off most of the large applications, such as
- >netscape, xemacs, etc, and little or no memory and swap will be freed.
- >Once swap is full after a few days, my machine will lock up.
+usb.c -(usb)-> hid.c -(events)-> input.c -(events)-> keybdev.c -->
+>--(raw)-> keyboard.c -(raw)-> pc_keyb.c -(cooked)-> keyboard.c -->
+>--(chars)-> tty
 
-After a few *hours*.
+So as you can see even USB keyboards depend on pc_keyb.c. So their is no
+way around this. 
 
-Then I have (as you said) to do swapoff /dev/hda4 ; swapon -a in order 
-to free the swap. If I do this, everything is fine... till it fills up 
-again.
+> Is there any way to disable the AT keyboard? I think the best solution
+> would be to make it optional, just like almost everything in the kernel,
+> e.g. PS/2 mouse. Some embedded i386 systems could save a few kilobytes of
+> RAM by disabling the AT keyboard.
 
- >(...)I am
- >disappointed that we are now on the forth 2.4.x kernel version and
- >such as serious problem that has been there since 2.4.0 still exists.
- >This is pretty much a show stopper for having a production machine.
+  This is a 2.5.X issue since changing the current pc_keyb.c keyboard
+driver would break many drivers which like the USB keybaords fake they are
+PS/2 keyboards. 
+  BTW I already have a kernel tree that does allow the AT keyboard to be
+optional. The AT keyboard has been ported to the linux input api and it
+has been working very well for along time. In this kernel tree you have:
 
-Totally agree. This is quite a showstopper. Do_try_to_free_pages, err... 
-sorry, fix_bug.
+3) Ruby (my tree's name) way for AT keyboards:
 
-Regards,
+i8042.c -(raw)-> atkbd.c -(events)-> input.c -->
+>--(events)-> keyboard.c -(chars)-> tty
 
-Vasco Figueira
+4) Ruby way for USB keyboards:
+
+usb.c -(usb)-> hid.c -(events)-> input.c -->
+>--(events)-> keyboard.c -(chars)-> tty
+
+You can a few nice tricks with it like plug in two PS/2 keyboards. I have
+this for my home setup. The only thing is make sure you don't have both
+keyboards plugged in when you turn your PC on. I found BIOS get confussed 
+by two PS/2 keyboards. As you can it is very easy to multiplex many
+keyboards with the above design. I have had 4 different keyboards hooked
+up to my system and functioning at the same time. We even got a Sun
+keyboard to work on a intel box :-) Another nice feature is event numbers
+from the input api can be used in the keymap. This has a nice effect that
+keymaps will be architecture independent, too. The only mess is raw mode
+which /dev/event makes obsolute.
 

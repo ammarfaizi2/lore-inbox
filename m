@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314497AbSD1UtH>; Sun, 28 Apr 2002 16:49:07 -0400
+	id <S314498AbSD1Utr>; Sun, 28 Apr 2002 16:49:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314498AbSD1UtH>; Sun, 28 Apr 2002 16:49:07 -0400
-Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:34244 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S314497AbSD1UtG>;
-	Sun, 28 Apr 2002 16:49:06 -0400
-Message-ID: <3CCC6036.1080500@acm.org>
-Date: Sun, 28 Apr 2002 15:48:54 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
+	id <S314499AbSD1Uto>; Sun, 28 Apr 2002 16:49:44 -0400
+Received: from smtp1.wanadoo.nl ([194.134.35.136]:44203 "EHLO smtp1.wanadoo.nl")
+	by vger.kernel.org with ESMTP id <S314498AbSD1Utf>;
+	Sun, 28 Apr 2002 16:49:35 -0400
+Message-Id: <200204282049.g3SKnQ005127@smtp1.wanadoo.nl>
+Content-Type: text/plain; charset=US-ASCII
+From: Rudmer van Dijk <rudmer@legolas.dynup.net>
+Reply-To: rudmer@legolas.dynup.net
+To: Alexander Hoogerhuis <alexh@ihatent.com>
+Subject: Re: Linux 2.5.10-dj1
+Date: Sun, 28 Apr 2002 22:49:47 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020427030823.GA21608@suse.de> <200204281145.g3SBjJJ20178@smtp2.wanadoo.nl> <m3lmb7zjkp.fsf@lapper.ihatent.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH} SMBIOS support
-In-Reply-To: <E171U1r-0008Pk-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-
->>The following patch adds support for reading the SMBIOS table (which 
->>contains system management information).  It's required for IPMI and has 
->>useful information in it.  But anyway, since I did the work, I thought I 
->>would post this.
->>
+On Sunday 28 April 2002 21:53, Alexander Hoogerhuis wrote:
+> I have an Compaq Armada M700, same problem. No ACPI configured,
+> symtoms vary a bit from kernel to kernel, but generally either
+> keyboard is totally dead, or it starts to get utterly confused about
+> caps lock and shift.
 >
->We already have DMI table parsing code in 2.4 and 2.5. Its been there for
->a very long time.  Please use that instead
->
->
->Alan
->
-Ah, now I see.  All the documentation I had referenced SMBIOS and didn't 
-say much about DMI, so I searched around everywhere for SMBIOS, not for DMI.
+> On 2.5.10-dj1 it works like this: keyboard led is responsive to
+> hitting caps lock, but when LED is off I get upper case letter typed,
+> and when LED is off I get lower case letters. However, the strange bit
+> is that lets say I type in my username and password so that they
+> appear in lowercase on the screen, I still don't get in. And just fir
+> having tried, typing with the caps lock LED off, thus getting upper
+> case text, doesn't help either.
 
-Thanks,
+I never saw this, but sometimes the keyboard is totally dead, and sometimes 
+it is dead on startup but after about an hour it is working...
 
--Corey
+And for the mouse (a Logitech Optical Wheelmouse or a Fujitsu-Siemens 
+wheelmouse) the scrollwheel does not work (it does for 2.4.x)
 
+	Rudmer

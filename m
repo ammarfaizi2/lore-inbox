@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262437AbTFKPim (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 11:38:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbTFKPim
+	id S262584AbTFKPkF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 11:40:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262589AbTFKPkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 11:38:42 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:29714 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262437AbTFKPij
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 11:38:39 -0400
-Date: Wed, 11 Jun 2003 17:57:34 +0200
-To: neilb@cse.unsw.edu.au
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.70-mm8 - RAID1 and fb works!
-Message-ID: <20030611155734.GA2966@hh.idb.hist.no>
-References: <20030611013325.355a6184.akpm@digeo.com> <3EE70D9C.3050804@aitel.hist.no>
+	Wed, 11 Jun 2003 11:40:05 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:4268
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262584AbTFKPkA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 11:40:00 -0400
+Subject: Re: [PATCH] nfs_unlink() race (was: nfs_refresh_inode: inode
+	number mismatch)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, Frank Cusack <fcusack@fcusack.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0306110804360.4413-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0306110804360.4413-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1055346664.2420.5.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EE70D9C.3050804@aitel.hist.no>
-User-Agent: Mutt/1.5.4i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 11 Jun 2003 16:51:04 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 11, 2003 at 01:08:12PM +0200, Helge Hafting wrote:
-[...]
-> This is great, both raid-1 and framebuffer works again!
+On Mer, 2003-06-11 at 16:08, Linus Torvalds wrote:
+> > cd foo
+> > mv ../file .
+> > more file
+> > 
+> > ESTALE.
 > 
-> I'll test raid0 too later this evening.
+> Yes, VFAT ends up encoding the parent directory in the FH, so renaming 
+> will invalidate the old file handle, and if you cache inodes (and thus 
+> filehandles) over a directory move, badness happens.
+> 
+> Arguably it's a NFS client problem
 
-
-raid0 is fine too :-)
-Helge Hafting
+No no - this happens on LOCAL disk. No NFS needed at all.
 

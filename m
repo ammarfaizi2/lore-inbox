@@ -1,47 +1,179 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312148AbSCVLwB>; Fri, 22 Mar 2002 06:52:01 -0500
+	id <S311969AbSCVLsv>; Fri, 22 Mar 2002 06:48:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312050AbSCVLvu>; Fri, 22 Mar 2002 06:51:50 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:48136 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S312034AbSCVLvs>; Fri, 22 Mar 2002 06:51:48 -0500
-Message-ID: <3C9B1A73.2070606@evision-ventures.com>
-Date: Fri, 22 Mar 2002 12:50:11 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, John Langford <jcl@cs.cmu.edu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: BUG: 2.4.18 & ALI15X3 DMA hang on boot
-In-Reply-To: <Pine.LNX.4.10.10203220309400.10409-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+	id <S311971AbSCVLsl>; Fri, 22 Mar 2002 06:48:41 -0500
+Received: from [212.57.170.230] ([212.57.170.230]:14086 "EHLO zzz.zzz")
+	by vger.kernel.org with ESMTP id <S311969AbSCVLsV>;
+	Fri, 22 Mar 2002 06:48:21 -0500
+Date: Fri, 22 Mar 2002 16:47:08 +0500
+From: Denis Zaitsev <zzz@cd-club.ru>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] matroxfb_base.c - not a so little patch
+Message-ID: <20020322164708.A555@natasha.zzz.zzz>
+In-Reply-To: <144D3761283A@vcnet.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
-> Martin,
-> 
-> You go and play in 2.5, please.
+So, why I asked all my questions...  It's another patch for
+matroxfb_decode_var.  I've replaced a very long if-else tree with
+some, say, "table-driven" code.  It's much more compact.  The copule
+of a remarks are:
 
-I didn't look at the issue but anyway the following is still
-obviously wrong. hwif->index should be hwif->channel
+a) Knowing you point of view for the #ifdef's - the table <must> be
+splitted with #ifdef's, there is no way for compiler to optimize the
+table.
 
-Anyway please note the following:
+b) There is another similar table (named "colors") somewhere in the
+code.  I've made the separate one to make the patch as <little and
+local> as possible.  If you approve the patch at whole, I'll merge
+them thru some way.
 
-diff -urN linux-2.5.7/drivers/ide/alim15x3.c linux/drivers/ide/alim15x3.c
---- linux-2.5.7/drivers/ide/alim15x3.c	Thu Mar 21 23:54:16 2002
-+++ linux/drivers/ide/alim15x3.c	Fri Mar 22 02:08:58 2002
-@@ -247,8 +247,8 @@
-  	int s_time, a_time, c_time;
-  	byte s_clc, a_clc, r_clc;
-  	unsigned long flags;
-	int port = hwif->index ? 0x5c : 0x58;
-	int portFIFO = hwif->channel ? 0x55 : 0x54;
+The patch is against 2.5.5.  It seems that matroxfb_base.c is still
+the same since that time.  And I assume matroxfb_base.c with
+<if (var->bits_per_pixel == 4)> branch present, i.e. without my
+previous little fix.
 
-The usage of hwif->index *is* wrong.
+Petr, please, apply this patch.
 
 
+--- drivers/video/matrox/matroxfb_base.c.orig	Mon Feb 25 21:38:33 2002
++++ drivers/video/matrox/matroxfb_base.c	Sat Mar 16 04:42:19 2002
+@@ -483,89 +483,52 @@ static int matroxfb_decode_var(CPMINFO s
+ 		var->xoffset = var->xres_virtual - var->xres;
+ 	if (var->yoffset + var->yres > var->yres_virtual)
+ 		var->yoffset = var->yres_virtual - var->yres;
++{
++	struct {
++		unsigned char bpp;
++		struct {
++			unsigned char offset,
++				      length;
++		} rgbt[4];
++		char visual;
++	}
++	static const table[]= {
++#if defined FBCON_HAS_VGATEXT
++		{ 0,{{ 0,6},{0,6},{0,6},{ 0,0}},MX_VISUAL_PSEUDOCOLOR},
++#endif
++#if defined FBCON_HAS_CFB4\
++ || defined FBCON_HAS_CFB8
++		{ 8,{{ 0,8},{0,8},{0,8},{ 0,0}},MX_VISUAL_PSEUDOCOLOR},
++#endif
++#if defined FBCON_HAS_CFB16
++		{15,{{10,5},{5,5},{0,5},{15,1}},MX_VISUAL_DIRECTCOLOR},
++		{16,{{11,5},{5,6},{0,5},{ 0,0}},MX_VISUAL_DIRECTCOLOR},
++#endif
++#if defined FBCON_HAS_CFB24
++		{24,{{16,8},{8,8},{0,8},{ 0,0}},MX_VISUAL_DIRECTCOLOR},
++#endif
++#if defined FBCON_HAS_CFB32
++		{32,{{16,8},{8,8},{0,8},{24,8}},MX_VISUAL_DIRECTCOLOR}
++#endif
++	};
++	const unsigned char *p;
++
++	unsigned char bpp= var->bits_per_pixel;
++	if (bpp == 16 && var->green.length == 5) bpp--;/* an artifical value - 15 */
+ 
+-	if (var->bits_per_pixel == 0) {
+-		var->red.offset = 0;
+-		var->red.length = 6;
+-		var->green.offset = 0;
+-		var->green.length = 6;
+-		var->blue.offset = 0;
+-		var->blue.length = 6;
+-		var->transp.offset = 0;
+-		var->transp.length = 0;
+-		*visual = MX_VISUAL_PSEUDOCOLOR;
+-	} else if (var->bits_per_pixel == 4) {
+-		var->red.offset = 0;
+-		var->red.length = 8;
+-		var->green.offset = 0;
+-		var->green.length = 8;
+-		var->blue.offset = 0;
+-		var->blue.length = 8;
+-		var->transp.offset = 0;
+-		var->transp.length = 0;
+-		*visual = MX_VISUAL_PSEUDOCOLOR;
+-	} else if (var->bits_per_pixel <= 8) {
+-		var->red.offset = 0;
+-		var->red.length = 8;
+-		var->green.offset = 0;
+-		var->green.length = 8;
+-		var->blue.offset = 0;
+-		var->blue.length = 8;
+-		var->transp.offset = 0;
+-		var->transp.length = 0;
+-		*visual = MX_VISUAL_PSEUDOCOLOR;
+-	} else {
+-		if (var->bits_per_pixel <= 16) {
+-			if (var->green.length == 5) {
+-				var->red.offset    = 10;
+-				var->red.length    = 5;
+-				var->green.offset  = 5;
+-				var->green.length  = 5;
+-				var->blue.offset   = 0;
+-				var->blue.length   = 5;
+-				var->transp.offset = 15;
+-				var->transp.length = 1;
+-			} else {
+-				var->red.offset    = 11;
+-				var->red.length    = 5;
+-				var->green.offset  = 5;
+-				var->green.length  = 6;
+-				var->blue.offset   = 0;
+-				var->blue.length   = 5;
+-				var->transp.offset = 0;
+-				var->transp.length = 0;
+-			}
+-		} else if (var->bits_per_pixel <= 24) {
+-			var->red.offset    = 16;
+-			var->red.length    = 8;
+-			var->green.offset  = 8;
+-			var->green.length  = 8;
+-			var->blue.offset   = 0;
+-			var->blue.length   = 8;
+-			var->transp.offset = 0;
+-			var->transp.length = 0;
+-		} else {
+-			var->red.offset    = 16;
+-			var->red.length    = 8;
+-			var->green.offset  = 8;
+-			var->green.length  = 8;
+-			var->blue.offset   = 0;
+-			var->blue.length   = 8;
+-			var->transp.offset = 24;
+-			var->transp.length = 8;
+-		}
++	for (p= &table[0].bpp; *p < bpp; p+= sizeof table[0]);
++	var->red   .offset= *++p; var->red   .length= *++p;
++	var->green .offset= *++p; var->green .length= *++p;
++	var->blue  .offset= *++p; var->blue  .length= *++p;
++	var->transp.offset= *++p; var->transp.length= *++p;
++	*visual= *(signed char*)++p;
++
++	if (bpp > 8)
+ 		dprintk("matroxfb: truecolor: "
+-		       "size=%d:%d:%d:%d, shift=%d:%d:%d:%d\n",
+-		       var->transp.length,
+-		       var->red.length,
+-		       var->green.length,
+-		       var->blue.length,
+-		       var->transp.offset,
+-		       var->red.offset,
+-		       var->green.offset,
+-		       var->blue.offset);
+-		*visual = MX_VISUAL_DIRECTCOLOR;
+-	}
++			"size=%d:%d:%d:%d, shift=%d:%d:%d:%d\n",
++			var->transp.length, var->red.length, var->green.length, var->blue.length,
++			var->transp.offset, var->red.offset, var->green.offset, var->blue.offset);
++}
+ 	*video_cmap_len = matroxfb_get_cmap_len(var);
+ 	dprintk(KERN_INFO "requested %d*%d/%dbpp (%d*%d)\n", var->xres, var->yres, var->bits_per_pixel,
+ 				var->xres_virtual, var->yres_virtual);

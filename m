@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281318AbRKZBQy>; Sun, 25 Nov 2001 20:16:54 -0500
+	id <S281360AbRKZBfy>; Sun, 25 Nov 2001 20:35:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281324AbRKZBQp>; Sun, 25 Nov 2001 20:16:45 -0500
-Received: from adsl-63-199-104-197.dsl.lsan03.pacbell.net ([63.199.104.197]:2308
-	"HELO mail.theoesters.com") by vger.kernel.org with SMTP
-	id <S281318AbRKZBQ3>; Sun, 25 Nov 2001 20:16:29 -0500
-From: "Phil Oester" <kernel@theoesters.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: Linux 2.4.16-pre1
-Date: Sun, 25 Nov 2001 17:16:27 -0800
-Message-ID: <000001c17617$f9437e80$6400a8c0@philxp>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <20011125195637.O238@localhost>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S281369AbRKZBfn>; Sun, 25 Nov 2001 20:35:43 -0500
+Received: from grip.panax.com ([63.163.40.2]:5383 "EHLO panax.com")
+	by vger.kernel.org with ESMTP id <S281360AbRKZBfj>;
+	Sun, 25 Nov 2001 20:35:39 -0500
+Date: Sun, 25 Nov 2001 20:33:30 -0500
+From: Patrick McFarland <unknown@panax.com>
+To: "Mohammad A. Haque" <mhaque@haque.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.16-pre1
+Message-ID: <20011125203330.P238@localhost>
+Mail-Followup-To: "Mohammad A. Haque" <mhaque@haque.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011125171818.I238@localhost> <3462119E-E20B-11D5-AEE4-00306569F1C6@haque.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3462119E-E20B-11D5-AEE4-00306569F1C6@haque.net>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.4.14 i686
+X-Distributed: Join the Effort!  http://www.distributed.net/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hmm...killfile just got one more entry...
+No, you are. Sorry to say that but you are. Im probably maybe one of 10 people on this whole planet that would like to see the kernel become more than it is, and would actually help doing it. Obviously, the whole damn community is having problems with me disagreeing with it, so screw it. You guys blew it.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Patrick
-McFarland
-Sent: Sunday, November 25, 2001 4:57 PM
-To: Andrew Pimlott
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.16-pre1
+On 25-Nov-2001, Mohammad A. Haque wrote:
+> On Sunday, November 25, 2001, at 05:18 , Patrick McFarland wrote:
+> 
+> >To clarify, I was talking about the 2.5 tree. Linus is technically 
+> >still (a) maintainer for it.
+> 
+> ok, now i think you're just being a dick. he's developing 2.5 .. not 
+> maintaining.
+> --
+> 
+> =====================================================================
+> Mohammad A. Haque                              http://www.haque.net/
+>                                                mhaque@haque.net
+> 
+>   "Alcohol and calculus don't mix.             Developer/Project Lead
+>    Don't drink and derive." --Unknown          http://www.themes.org/
+>                                                batmanppc@themes.org
+> =====================================================================
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-
-For the 52 and a half time, Im not trying to nock Linus. I think hes
-possibly the best coder we have. (if not the best, atleast in the top 3)
-But he isnt the best choice of maintainer. And yeah, he did pretty well
-with 2.4, but it wasnt as good as it could have been. And also, ive been
-noticing, alot of people disagree with me on this, that the head
-developer shouldnt be the head maintainer. But how many projects that
-are this large can you name? Like, i dunno, xfree? That has questionable
-maintainability. Gnome? KDE? They are fairing okay, but It could be
-better. And I like the kernel qa group idea, but where would we get the
-people to be on it? ac and lt are usually too busy, tho, atleast with ac
-(in top 3 of coders, best linux maintainer we have ever had) 2.5 would
-get maintained well so linus can focus on coding like I belive he should
-be. Im a coder myself, so I know how hard it is to maintain a project
-when it gets big. (I kinda get bored of it like linus does) 
-
-Also, alot of people have been saying that I dont know about the section
-maintainers, like that dave m guy is a maintainer for the network stuff,
-im talking more of a kernel wide maintainer. Which brings another point.
-We have per section maintainers, but no real dedicated development tree
-kernel wide maintainer. 
-
+-- 
+Patrick "Diablo-D3" McFarland || unknown@panax.com

@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265732AbUGIXwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265222AbUGIXy0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265732AbUGIXwF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 19:52:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265782AbUGIXwE
+	id S265222AbUGIXy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 19:54:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265977AbUGIXy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 19:52:04 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:24565 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265732AbUGIXvw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 19:51:52 -0400
-Subject: [RFC]HVCS driver for Linux 2.6 on Power-5
-From: Ryan Arnold <rsa@us.ibm.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Hollis Blanchard <hollisb@us.ibm.com>,
-       Paul Mackerras <paulus@samba.org>, David Boutcher <boutcher@us.ibm.com>
-Content-Type: text/plain
-Organization: IBM
-Message-Id: <1089417112.3385.13.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 09 Jul 2004 18:51:52 -0500
+	Fri, 9 Jul 2004 19:54:26 -0400
+Received: from gizmo12ps.bigpond.com ([144.140.71.43]:53915 "HELO
+	gizmo12ps.bigpond.com") by vger.kernel.org with SMTP
+	id S265222AbUGIXx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 19:53:26 -0400
+Message-ID: <40EF2FF2.6000001@bigpond.net.au>
+Date: Sat, 10 Jul 2004 09:53:22 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <piggin@cyberone.com.au>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Likelihood of rt_tasks
+References: <40EE6CC2.8070001@kolivas.org>
+In-Reply-To: <40EE6CC2.8070001@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+Con Kolivas wrote:
+> A quick question about the usefulness of making rt_task() checks 
+> unlikely in sched-unlikely-rt_task.patch which is in -mm
+> 
+> quote:
+> 
+> diff -puN include/linux/sched.h~sched-unlikely-rt_task 
+> include/linux/sched.h
+> --- 25/include/linux/sched.h~sched-unlikely-rt_task    Fri Jul  2 
+> 16:33:01 2004
+> +++ 25-akpm/include/linux/sched.h    Fri Jul  2 16:33:01 2004
+> @@ -300,7 +300,7 @@ struct signal_struct {
+> 
+>  #define MAX_PRIO        (MAX_RT_PRIO + 40)
+> 
+> -#define rt_task(p)        ((p)->prio < MAX_RT_PRIO)
+> +#define rt_task(p)        (unlikely((p)->prio < MAX_RT_PRIO))
+> 
+>  /*
+>   * Some day this will be a full-fledged user tracking system..
+> 
+> ---
+> While rt tasks are normally unlikely, what happens in the case when you 
+> are scheduling one or many running rt_tasks and the majority of your 
+> scheduling is rt? Would it be such a good idea in this setting that it 
+> is always hitting the slow path of branching all the time?
 
-The following patch, built against linux-2.6.7, includes the driver 
-source code, the arch source code (which interacts with firmware and
-provides an arch abstracted interface to the driver), and installation
-documentation for this driver.
+Even when this isn't the case you don't want to make all rt_task() 
+checks "unlikely".  In particular, during "wake up" using "unlikely" 
+around rt_task() will increase the time that it takes for SCHED_FIFO 
+tasks to get onto the CPU when they wake which will be bad for latency 
+(which is generally important to these tasks as evidenced by several 
+threads on the topic).
 
-http://www-124.ibm.com/linux/patches/misc/hvcs_to_mainline.diff
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-This driver implements a virtual console server which provides a tty 
-interface for interacting with the virtual consoles of logically
-partitioned operating systems on Power-5 hardware from within another
-linux partition.  This is required because a physical console adapter
-for each partition on a large multi-partition system is impractical.
-
-We would like this patch considered for inclusion into the mainline
-2.6 tree.
-
-I'm interested in any comments and critiques.
-
-Thanks,
-Ryan S. Arnold
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce
 

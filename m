@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265686AbUBJHbG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 02:31:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265689AbUBJHbG
+	id S265689AbUBJHcs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 02:32:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265694AbUBJHcs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 02:31:06 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:32405 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S265686AbUBJHbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 02:31:03 -0500
-Date: Tue, 10 Feb 2004 16:30:23 +0900 (JST)
-From: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
-Subject: [PATCH] packet_sendmsg_spkt incorrectly truncates an interface name
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, maeda.naoaki@jp.fujitsu.com
-Message-id: <20040210.163023.112606425.maeda@jp.fujitsu.com>
-MIME-version: 1.0
-X-Mailer: Mew version 2.2 on Emacs 20.3 / Mule 4.0 (HANANOEN)
-Content-type: Text/Plain; charset=us-ascii
-Content-transfer-encoding: 7bit
+	Tue, 10 Feb 2004 02:32:48 -0500
+Received: from data.idl.com.au ([203.32.82.9]:11661 "EHLO smtp.idl.net.au")
+	by vger.kernel.org with ESMTP id S265689AbUBJHcq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 02:32:46 -0500
+From: Athol Mullen <athol_SPIT_SPAM@idl.net.au>
+Subject: Re: HT CPU handling - 2.6.2
+Newsgroups: linux.kernel
+References: <1nyMT-4MT-11@gated-at.bofh.it> <1nyMT-4MT-9@gated-at.bofh.it>
+Organization: Mullen Automotive Engineering
+Date: Tue, 10 Feb 2004 18:28:41 +1100
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402101828.42001.athol_SPIT_SPAM@idl.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Len Brown <len.brown@intel.com> wrote:
+> Your BIOS is reporting the 2nd CPU as disabled, and telling us that it
+> has LAPIC id 0x81 = 129.  The ACPI table code prints this out and
+> registers the processor anyway, but that chokes because the LAPIC ID is
+> way out of bounds.
 
-When I renamed a network interface name with long name such as heartbeat.eth1,
-DHCP client failed to assign an IP address to the interface. 
+IIRC, This is what happens with any P4 that sets the HT flag but only
+has one logical CPU.  Completely within Intel specs.  I spent several
+days struggling with this months ago when I thought that the 2.4GHz P4
+I've got was HT capable.  Then I RTFM...
 
-Problem is that packet_sendmsg_spkt() truncates an interface name 
-by 12 characters. That is why the following dev_get_by_name() fails to find
-the corresponding net_device structure.
+BTW, IIRC, the BIOS of my machine shows "Local APIC Support" instead of
+"Hyperthreading Support" if the CPU installed isn't really HT capable.
 
-Obviously, max name length of a network interface name is IFNAMESIZ-1, 
-which is 15. I can not come up with any reasonable reason that
-packet_sendmsg_spkt() should truncate the interface name by 12.
-I guess it is just a trivial bug.
+> I'm thinking that ACPI should not register a processor that the BIOS
+> marked as disabled...
 
-The following patch fix the problem.
+The processor counter should find "logical processors present" is one
+and ignore the hardware disabled 2nd logical CPU.
 
-Thanks,
-Naoaki
+> What should you do?  Apparently you've got an HT-enabled platform, BIOS,
+> and OS, but do not have an HT-enabled processor.  Your choices are to
+> disable HT in the BIOS SETUP to clean up this message, or plug in an
+> HT-enabled processor.
 
-diff -Naur linux-2.6.2.org/net/packet/af_packet.c linux-2.6.2/net/packet/af_packet.c
---- linux-2.6.2.org/net/packet/af_packet.c	2004-02-10 15:29:14.160320269 +0900
-+++ linux-2.6.2/net/packet/af_packet.c	2004-02-10 15:29:52.656413548 +0900
-@@ -311,7 +311,7 @@
- 	 *	Find the device first to size check it 
- 	 */
- 
--	saddr->spkt_device[13] = 0;
-+	saddr->spkt_device[IFNAMSIZ-1] = 0;
- 	dev = dev_get_by_name(saddr->spkt_device);
- 	err = -ENODEV;
- 	if (dev == NULL)
+Better still, enable Local APIC but not SMP or HT when you build a
+kernel.  That way, you get Local APIC support without SMP kernel.
+
+-- 
+Athol
+<http://cust.idl.com.au/athol>
+Linux Registered User # 254000
+I'm a Libran Engineer. I don't argue, I discuss.
+
+

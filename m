@@ -1,48 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317833AbSHKIgz>; Sun, 11 Aug 2002 04:36:55 -0400
+	id <S317898AbSHKInG>; Sun, 11 Aug 2002 04:43:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317898AbSHKIgz>; Sun, 11 Aug 2002 04:36:55 -0400
-Received: from rammstein.mweb.co.za ([196.2.53.175]:58850 "EHLO
-	rammstein.mweb.co.za") by vger.kernel.org with ESMTP
-	id <S317833AbSHKIgy>; Sun, 11 Aug 2002 04:36:54 -0400
-Message-ID: <3D5622FC.7080602@netactive.co.za>
-Date: Sun, 11 Aug 2002 10:40:28 +0200
-From: Chris the Elder <chippo@netactive.co.za>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Ancient NFS patch sought
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317945AbSHKInG>; Sun, 11 Aug 2002 04:43:06 -0400
+Received: from peace.netnation.com ([204.174.223.2]:48269 "EHLO
+	peace.netnation.com") by vger.kernel.org with ESMTP
+	id <S317898AbSHKInF>; Sun, 11 Aug 2002 04:43:05 -0400
+Date: Sun, 11 Aug 2002 01:46:52 -0700
+From: Simon Kirby <sim@netnation.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
+Message-ID: <20020811084652.GB22497@netnation.com>
+References: <20020810201027.E306@kushida.apsleyroad.org> <Pine.LNX.4.44.0208101529490.2401-100000@home.transmeta.com> <20020811031705.GA13878@netnation.com> <3D55FF30.6164040D@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D55FF30.6164040D@zip.com.au>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greets,
+On Sat, Aug 10, 2002 at 11:07:44PM -0700, Andrew Morton wrote:
 
-I'm looking for a few terms that I can use to STFW with google, to find
-the patch (or code) for a wierd ancient NFS feature.
+> This is interesting.
+> 
+> The 2.5 readahead sort-of does the wrong thing for you.  Note how
+> fs/mpage.c:mpage_end_io_read() walks the BIO's pages backwards when
+> unlocking the pages.  And also note that the BIOs are 64kbytes, and
+> the readahead window is up to 128k, etc.
+> 
+> See, a boring old commodity disk drive will read 10,000 pages per
+> second.  The BIO code there is designed to *not* result in 10,000
+> context-switches per second in the common case.  If the reader is
+> capable of processing the data faster than the disk then hold
+> them off and present them with large chunks of data.
 
-Many years ago I was using someone else's Linux box with NFS.  This
-version of NFS had the feature that:
+Hmm.  I understand, but I now that I think about it a bit more, I think
+I failed to notice the real problem:
 
-On the server you could copy a file to it's own name followed by a '#'
-followed by the MAC address of one of the clients, and then that client
-would see this copy of the file as though it were the original.  The two
-files would typically be different, and the server and the client get
-their own versions each.  The process could be continued for any number
-of different clients.
+The size of the readahead wouldn't matter if it actually prefetched the
+data in advance.  It's not doing that right now.
 
-Can anyone give me some search terms (or an URL) to help me find the
-code for this feature on the web?
+What's happening with my MP3 streaming is:
 
-TIA,
-chippo
+1. read(4k) gets data after a delay.  xmms starts playing.
+2. read(4k) gets some more data, right way, because readahead worked.
+   xmms continues.
+   ...
+3. read(4k) blocks for a long time while readahead starts up again and
+   reads a huge block of data.  read() then returns the 4k.  meanwhile,
+   xmms has underrun.  xmms starts again.
+4. goto 2.
 
-PS: What I really want to know (which I'll hopefully glean from the
-code/URL when located) is:
- - was this a user-space or kernel-space implementation of NFS
- - how much mission it'll be to get the same (or similar) functionality
-on a 2.4 kern.
+It's really easy to see this behavior with the xmms-crossfade plugin and
+a large buffer with "buffer debugging" display on.  With tcpdump in
+another window, I can see that the readahead doesn't start prefetching
+until it's right near the end of the data it fetched last, rather than
+doing it in advance.  This is not obvious except in the case where
+read() speed is limited by something like audio playback rates or heavy
+processing times.
 
+> But that's all disks.  You're not talking about disks.
+
+Well, my example with grep was assuming a CPU the speed of what I have
+right now, not something modern. :)  "bzip2 -9" would likely apply these
+days.
+
+> > This problem is showing up with NFS over a slow link, causing streaming
+> > audio to be unusable.  On the other end of the speed scale, it probably
+> > also affects "grep" and other applications reading from hard disks, etc.
+> 
+> Well, the question is "is the link saturated"?  If so then it's not
+> solvable.  If is is not then that's a bug.
+
+The link is not saturated, but it is used in huge bursts mixed with
+periods of silence (where readahead is finished but has not yet started
+the next block).
+
+> OK, it's doing 128k of readahead there, which is a bit gross for a floppy.
+> You can tune that down with `blockdev --setra N /dev/floppy'.  The
+
+Ooh, is there something like this for NFS?
+
+> but `mke2fs /dev/fd0' oopses in 2.5.30.  ho hum)
+
+Yes, floppy in 2.5 has been broken for a while...
+
+> So hmm.  Good point, thanks.  I'll go play some MP3's off floppies.
+
+:)
+
+Simon-
+
+[        Simon Kirby        ][        Network Operations        ]
+[     sim@netnation.com     ][     NetNation Communications     ]
+[  Opinions expressed are not necessarily those of my employer. ]

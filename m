@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271995AbRIQSm7>; Mon, 17 Sep 2001 14:42:59 -0400
+	id <S271982AbRIQSgT>; Mon, 17 Sep 2001 14:36:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272048AbRIQSmt>; Mon, 17 Sep 2001 14:42:49 -0400
-Received: from [213.96.124.18] ([213.96.124.18]:26347 "HELO dardhal")
-	by vger.kernel.org with SMTP id <S271995AbRIQSmh>;
-	Mon, 17 Sep 2001 14:42:37 -0400
-Date: Mon, 17 Sep 2001 20:44:52 +0000
-From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
-	<jdomingo@internautas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9: multiply mounting filesystem
-Message-ID: <20010917204452.C1315@dardhal.mired.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3BA5BE90.29409.43AC7B@localhost> <Pine.GSO.4.21.0109170440050.20053-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.GSO.4.21.0109170440050.20053-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.3.20i
+	id <S271995AbRIQSgK>; Mon, 17 Sep 2001 14:36:10 -0400
+Received: from mail.myrio.com ([63.109.146.2]:19453 "HELO smtp1.myrio.com")
+	by vger.kernel.org with SMTP id <S271982AbRIQSf6>;
+	Mon, 17 Sep 2001 14:35:58 -0400
+Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CA10@mail0.myrio.com>
+From: Torrey Hoffman <torrey.hoffman@myrio.com>
+To: "'Kristian Peters'" <kristian.peters@korseby.net>,
+        "Magnus Naeslund(f)" <mag@fbab.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: RE: IBM DTLA IDE Made In Hungary
+Date: Mon, 17 Sep 2001 11:35:59 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 17 September 2001, at 04:40:21 -0400,
-Alexander Viro wrote:
+Without doing statistical failure analysis, it's hard to say
+if the seemingly large numbers of failing IBM drives are due to
+real hardware problems, or just because there are a lot of those
+drives out there.
 
-> 
-> 
-> On Mon, 17 Sep 2001, Ulrich Windl wrote:
-> 
-> > complained. I'm very much afraid this could corrupt the filesystem. Or 
-> > is Linux really smart enough to handle the case?  
-> 
-> Yes.
-> 
-And what about union mounts ?. When read "The magic world of Linux kernel
-2.4" it appears that such feature was already present on 2.4.x kernels,
-but I've seen nothing else about it so far.
+Perhaps some sysadmins at large companies who manage hundreds of 
+computers can comment on failure rates?
 
-Is it already usable, or is something still being worked on ?
+Nonetheless... I've had two IBM DLTA's fail on me in the last year,
+and no non-IBM failures. I have about 12 drives, mostly Maxtor and
+IBM in the various machines I use, so my sample set is perhaps
+somewhat meaningful.  
 
--- 
-José Luis Domingo López
-Linux Registered User #189436     Debian GNU/Linux Potato (P166 64 MB RAM)
- 
-jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
-jdomingo AT internautas DOT   org  => Spam at your own risk
+I just had a 40 GB 5400 RPM IBM drive die on me.  It was less than 
+a year old, made in Thailand, and had seen little use.  BIOS'es on 
+two different computers didn't even see the drive, it's was like 
+there was nothing on the wire.  I revived it and rescued my data by 
+putting it in a freezer for an hour and plugging it in ice-cold.  
 
+It was still working when I finished pulling data off it, but I 
+don't really trust it now...
+
+And last year I had an HP drive (actually made by IBM Storage 
+Products Hungary) die in the classic way - bad sectors, seek errors,
+etc. That was a 7200RPM 15 GB disk.  OTOH, the 40 GB IBM I replaced 
+it with has been fine...
+
+still, I will use Maxtor for my new RAID, I've never had one of 
+those fail.  Yet.  
+
+Torrey Hoffman

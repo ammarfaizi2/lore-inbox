@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262577AbRENXf5>; Mon, 14 May 2001 19:35:57 -0400
+	id <S262581AbRENXih>; Mon, 14 May 2001 19:38:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262578AbRENXfr>; Mon, 14 May 2001 19:35:47 -0400
-Received: from intranet.resilience.com ([209.245.157.33]:42479 "EHLO
-	intranet.resilience.com") by vger.kernel.org with ESMTP
-	id <S262577AbRENXfl>; Mon, 14 May 2001 19:35:41 -0400
-Message-ID: <3B006CC7.AAD065BA@resilience.com>
-Date: Mon, 14 May 2001 16:39:51 -0700
-From: Jeff Golds <jgolds@resilience.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Wayne Whitney <whitney@math.berkeley.edu>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.4 kernel reports wrong amount of physical memory
-In-Reply-To: <Pine.LNX.4.33.0105142025000.18102-100000@duckman.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262587AbRENXi1>; Mon, 14 May 2001 19:38:27 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:666 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S262581AbRENXiK>; Mon, 14 May 2001 19:38:10 -0400
+Date: Mon, 14 May 2001 17:34:44 -0600
+Message-Id: <200105142334.f4ENYiG19426@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Andi Kleen <ak@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <20010514230954.A4305@gruyere.muc.suse.de>
+In-Reply-To: <3B003EFC.61D9C16A@mandrakesoft.com>
+	<Pine.LNX.4.31.0105141328020.22874-100000@penguin.transmeta.com>
+	<20010514230954.A4305@gruyere.muc.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
+Andi Kleen writes:
+> On Mon, May 14, 2001 at 01:29:51PM -0700, Linus Torvalds wrote:
+> > Big device numbers are _not_ a solution. I will accept a 32-bit one, but
+> > no more, and I will _not_ accept a "manage by hand" approach any more. The
+> > time has long since come to say "No". Which I've done. If you can't make
+> > it manage the thing automatically with a script, you won't get a hardcoded
+> > major device number just because you're lazy.
 > 
-> On Mon, 14 May 2001, Wayne Whitney wrote:
-> > In mailing-lists.linux-kernel, you wrote:
-> >
-> > > You need to compile highmem support into the kernel if you want to
-> > > use more than 890 MB of RAM, set it to maximum 4GB for best
-> > > performance...
-> >
-> > On a similar note, what is the maximum physical memory supported
-> > by the 4GB option?
-> 
-> Ummm, 4GB maybe? ;)
-> 
-> Rik
+> As far as I can see it just needs a /proc/devices that also outputs
+> minor ranges with names, and a small program similar to scsidev to 
+> generate nodes in /dev based on that on the fly on early bootup.
 
-Ahh, it's totally obvious.  1 GB option = 890 MB, 4 GB option = 4GB.  Can I assume a linear relation and get 66.2 MB when I select the 64 MB option?
+You can do that with devfs. It provides all this information. If you
+really don't want to mount devfs over /dev, then mount it elsewhere
+and just use it as an information source to populate /dev. No need to
+add more code to the kernel to do it another way.
 
-;)
+				Regards,
 
--Jeff
-
--- 
-Jeff Golds
-jgolds@resilience.com
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

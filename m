@@ -1,73 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbUHGMvD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUHGMwX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261857AbUHGMvD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 08:51:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUHGMvD
+	id S261875AbUHGMwX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 08:52:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbUHGMwX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 08:51:03 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:47876 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261857AbUHGMu7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 08:50:59 -0400
-Date: Sat, 7 Aug 2004 13:50:56 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       linux-mtd@lists.infradead.org
-Subject: [BUG] 2.6.8-rc3 redboot.c tries to kmalloc 256K
-Message-ID: <20040807135056.C2805@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	linux-mtd@lists.infradead.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Sat, 7 Aug 2004 08:52:23 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:7903 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S261875AbUHGMwK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 08:52:10 -0400
+Date: Sat, 7 Aug 2004 14:51:35 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200408071251.i77CpZqE007029@burner.fokus.fraunhofer.de>
+To: axboe@suse.de, schilling@fokus.fraunhofer.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Linux Kernel bug report (includes fix)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-	Linux Kernel include files (starting with Linux-2.5) are buggy and 
+	prevent compilation. Many files may be affected but let me name
+	the most important files for me:
 
-With 2.6.8-rc3, I'm unable to mount the jffs2 root filesystem on one of
-my test systems.  The system uses redboot, so has a redboot partition
-table.  However, the kernel was not detecting the table.
+	-	/usr/src/linux/include/scsi/scsi.h depends on a nonexistant
+		type "u8". The correct way to fix this would be to replace
+		any "u8" by "uint8_t". A quick and dirty fix is to call:
 
-After prodding about for a while, I've found that redboot.c seems to
-be trying to kmalloc 256K of memory.   The largest size that kmalloc
-supports is 128K on MMUfull systems.
+			"change u8 __u8 /usr/src/linux/include/scsi/scsi.h"
 
-static int parse_redboot_partitions(struct mtd_info *master,
-                             struct mtd_partition **pparts,
-                             unsigned long fis_origin)
-{
-	...
-printk("erasesize: %d\n", master->erasesize);
-        buf = kmalloc(master->erasesize, GFP_KERNEL);
+		ftp://ftp.berlios.de/pub/change/
 
-        if (!buf)
-                return -ENOMEM;
+	-	/usr/src/linux/include/scsi/sg.h includes "extra text" "__user"
+		in some structure definitions. This may be fixed by adding
+		#include <linux/compiler.h> somewhere at the beginning of
+		/usr/src/linux/include/scsi/sg.h
 
-produces:
+	This bug has been reported several times (starting with Linux-2.5).
 
-sa1100-0: Found 2 x16 devices at 0x0 in 32-bit bank
- Intel/Sharp Extended Query Table at 0x0031
-cfi_cmdset_0001: Erase suspend on write enabled
-Using buffer write method
-SA1100 flash: CFI device at 0x00000000, 32MiB, 32-bit
-CFI: Found no sa1100-1 device at location zero
-cmdlinepart: c03e69ec
-cmdlinepart: returned -22
-RedBoot: c03e69d8
-erasesize: 262144
-RedBoot: returned -12
-SA1100 flash: using static partition definition
-Creating 3 MTD partitions on "sa1100-0":
-0x00000000-0x00040000 : "bootloader"
-0x00040000-0x00080000 : "bootloader params"
-0x00080000-0x02000000 : "jffs"
-...
-Kernel panic: VFS: Unable to mount root fs on unknown-block(0,0)
+	Time to fix: 5 minutes.
+	
+I did spend far to much time with the discussion on LKML..... so I need a cue
+whether it makes sense to continue this discussion.
+
+You now again have the bug report _and_ the fix in a single short mail.
+
+If the bug mentioned above is not fixed in Linux-2.6.8, I will asume that it 
+makes no sense to spend further time in discussions with LKML.
+
+Best regards
+
+Jörg
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

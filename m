@@ -1,70 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270201AbTGRKdM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 06:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270203AbTGRKdM
+	id S271605AbTGRKe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 06:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271617AbTGRKe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 06:33:12 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:15375 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S270201AbTGRKdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 06:33:09 -0400
-Date: Fri, 18 Jul 2003 11:48:04 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Vasquez <andrew.vasquez@qlogic.com>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Linux-SCSI <linux-scsi@vger.kernel.org>
-Subject: Re: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b4).
-Message-ID: <20030718114804.A22815@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Vasquez <andrew.vasquez@qlogic.com>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>,
-	Linux-SCSI <linux-scsi@vger.kernel.org>
-References: <B179AE41C1147041AA1121F44614F0B0598B10@AVEXCH02.qlogic.org>
-Mime-Version: 1.0
+	Fri, 18 Jul 2003 06:34:27 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:17674 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S271605AbTGRKeY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 06:34:24 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200307181049.h6IAnFi00440@devserv.devel.redhat.com>
+Subject: Re: new raid server crashed - no idea why!
+To: raz@macs.hw.ac.uk (Ross Macintyre)
+Date: Fri, 18 Jul 2003 06:49:15 -0400 (EDT)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org,
+       linux-megaraid-devel@dell.com, salvini@macs.hw.ac.uk,
+       donald@macs.hw.ac.uk
+In-Reply-To: <SIMEON.10307181006.C@pcraz.macs.hw.ac.uk> from "Ross Macintyre" at Gor 18, 2003 10:37:06 
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <B179AE41C1147041AA1121F44614F0B0598B10@AVEXCH02.qlogic.org>; from andrew.vasquez@qlogic.com on Thu, Jul 17, 2003 at 04:40:00PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 17, 2003 at 04:40:00PM -0700, Andrew Vasquez wrote:
-> Finally, regarding some of the more interesting (if not the) question(s)
-> pertaining to the development of qla2xxx:
+> > guess fro the traces and the fact the dual athlons are infamously 
+> > sensitive about ram
 > 
->   o Creation of a single driver module rather than three distinct
-> 	drivers for each ISP type (21xx, 22xx, and 23xx).
-> 
->   From the technical side, there aren't many compelling reasons for
->   the change to not occur.  Support for 2k logins on 2300s did
->   introduce a rather large, but manageable (through the compile-time
->   preprocessor), interface change between the host driver and
->   firmware.  The driver could of course manage this during run-time
->   with some creative structure overlays, etc.  Secondly, bundling
->   firmware for all ISP types can lead to a rather large binary
->   module (21xx - ~64kbytes, 22xx - ~90kbytes, 23xx - ~110kbytes).
+> Could you be a bit more specific about this please?
 
-Well, support for each of the subtypes can be conditional or even
-in their own submodules that share a common "library" module.
+I have a near endless series of dual athlon bug reporta that go
 
->   Unfortunately, it is support that ultimately becomes the
->   overriding factor in maintaining the three-module build process.
+	It crashes randomly
+	Run memtest86
+	It says lots of bad things
 
-Well, the current build process is horrible :)
+In paticular if you have more than two banks of RAM on dual athlon boards it
+almost always has to be registered DIMM.
 
->   By building distinct modules (i.e. qla2300.ko to support ISP2300,
->   ISP2312, and ISP2322 chips) our DVT group would focus their time and
->   efforts on testing 23xx HBAs and not on regressing support with
->   EOL'd products.
+> swap the memory about and run memtest86 on the problem machine's memory 
+> in the other machine. (I am assuming here that the machine needs to be 
+> shut down to run memtest86?)
 
-Why can't you declare the others unsupported even if they are in
-the same module? You'd have three config option for including support
-for each specific chip type and two of them would be marked unsupported.
+Only if its another identical dual athlon and then you'd be better
+running the other one and testing the one with the problem.
 
-> Until a policy change, the 8.x driver in its current form will have
-> the limitation of only one driver, qla2100, qla2200, or qla2300, can
-> be built as part of the kernel at any given time.
+> to have it crashing on me, but before I test the memory, I want to have 
+> looked at all the other possibilities first.
+> Any more suggestions?
 
-This is not acceptable for a driver in mainline, just FYI.
-
+Until you've checked the memory - not really.

@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264974AbUEYRCH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264979AbUEYREt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264974AbUEYRCH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 13:02:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264986AbUEYRCG
+	id S264979AbUEYREt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 13:04:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264980AbUEYREt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 13:02:06 -0400
-Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:56459 "EHLO
-	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
-	id S264974AbUEYRAY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 13:00:24 -0400
-Date: Tue, 25 May 2004 11:02:14 -0600
-From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
-To: Giuliano Pochini <pochini@denise.shiny.it>
-Cc: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
-       Tom Vier <tmv@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel 2.6.6 IDE shutdown problems.
-Message-ID: <20040525170214.GA26785@bounceswoosh.org>
-Mail-Followup-To: Giuliano Pochini <pochini@denise.shiny.it>,
-	"Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
-	Tom Vier <tmv@comcast.net>, linux-kernel@vger.kernel.org
-References: <BAY18-F105X7rz6AvEm0002622f@hotmail.com> <200405151506.20765.bzolnier@elka.pw.edu.pl> <c8bdqv$lib$1@gatekeeper.tmr.com> <20040524024136.GB2502@zero> <20040524171656.GA19026@bounceswoosh.org> <Pine.LNX.4.58.0405251101240.1197@denise.shiny.it>
+	Tue, 25 May 2004 13:04:49 -0400
+Received: from poup.poupinou.org ([195.101.94.96]:4408 "EHLO poup.poupinou.org")
+	by vger.kernel.org with ESMTP id S264973AbUEYRE3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 13:04:29 -0400
+Date: Tue, 25 May 2004 19:04:14 +0200
+To: Manuel Kasten <kasten.m@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [speedste-centrino] couldn't enable Enhanced SpeedStep
+Message-ID: <20040525170414.GB10063@poupinou.org>
+References: <200405231126.11815.kasten.m@gmx.de> <20040525145259.GA10063@poupinou.org> <200405251715.40529.kasten.m@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0405251101240.1197@denise.shiny.it>
+In-Reply-To: <200405251715.40529.kasten.m@gmx.de>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Bruno Ducrot <poup@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 25 at 11:05, Giuliano Pochini wrote:
->
->
->On Mon, 24 May 2004, Eric D. Mudama wrote:
->
->> Picture a nice fast drive doing 100 writes/second to the media... if
->> you give it over 200 writes at a time, it'll occupy your 2 seconds.
->> Newer drives with 8MB or larger buffers are certainly capable of
->> caching a lot more than 200 writes...
->
->Quite unlikely. Usually disks have a big cache but it can hold a very
->limited number of blocks. 8MB of cache is probably divided in 8 blocks
->of 1MB each.
+Hi,
 
-Sorry, but that isn't true, unless some company is just plain stupid.
+On Tue, May 25, 2004 at 05:15:40PM +0200, Manuel Kasten wrote:
+> Hello,
+> 
+> > Could you please try with CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI
+> > enabled?  Sometimes, the BIOS would require that the OS take
+> > ownership of the performance stuff..
+> 
+> I have done that already. The only change is, that he won't report 
+> "found: Intel(R) Pentium(R) M processor 1500MHz". The line with 
+> "couldn't enable Enhanced SpeedStep" remains unchanged.
 
-Everyone has different metrics for cache granularity based on their
-cache architecture, but I can assure you that 8x 1MB segments is off
-by 1-2 orders of magnitude, and has been for years.
+Could you please send me privately the output of acpidmp?
 
-In practice, depending on the workload, there may appear to only be 8
-active segments as drives today can merge cache segments or other
-similar things (architectually dependant), but the worst-case (best
-case?) is significantly more.
+wget ftp://ftp.kernel.org//pub/linux/kernel/people/lenb/acpi/utils/pmtools-20031210.tar.bz2
+tar xjvfp pmtools-20031210.tar.bz2
+cd pmtools-20031210/acpidmp
+make
+sudo ./acpidmp > acpidmp.out
+bzip2 acpidmp.out 
 
---eric
-
-
+Cheers,
 
 -- 
-Eric D. Mudama
-edmudama@mail.bounceswoosh.org
+Bruno Ducrot
 
+--  Which is worse:  ignorance or apathy?
+--  Don't know.  Don't care.

@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274919AbRIXTsC>; Mon, 24 Sep 2001 15:48:02 -0400
+	id <S274926AbRIXUBN>; Mon, 24 Sep 2001 16:01:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274920AbRIXTrx>; Mon, 24 Sep 2001 15:47:53 -0400
-Received: from cpe-24-221-186-48.ca.sprintbbd.net ([24.221.186.48]:35332 "HELO
-	jose.vato.org") by vger.kernel.org with SMTP id <S274919AbRIXTrj>;
-	Mon, 24 Sep 2001 15:47:39 -0400
-From: tpepper@vato.org
-Date: Mon, 24 Sep 2001 12:48:04 -0700
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Paul Larson <plars@austin.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: __alloc_pages: 0-order allocation failed
-Message-ID: <20010924124804.A30538@cb.vato.org>
-In-Reply-To: <1001331342.4610.49.camel@plars.austin.ibm.com> <Pine.LNX.4.21.0109241212140.1593-100000@freak.distro.conectiva>
-Mime-Version: 1.0
+	id <S274925AbRIXUBE>; Mon, 24 Sep 2001 16:01:04 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:56586 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S274924AbRIXUAw>;
+	Mon, 24 Sep 2001 16:00:52 -0400
+Message-ID: <XFMail.20010924130453.davidel@xmailserver.org>
+X-Mailer: XFMail 1.5.0 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0109241212140.1593-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Mon, Sep 24, 2001 at 12:12:53PM -0300
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <m1adzk75r2.fsf@frodo.biederman.org>
+Date: Mon, 24 Sep 2001 13:04:53 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: <ebiederm@xmission.com (Eric W. Biederman)>
+Subject: Re: [PATCH] /dev/epoll update ...
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        "Christopher K. St. John" <cks@distributopia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just to confirm I'm seeing this also.  I've a machine with 512mb ram and a
-gig of swap.  Running a filesystem i/o stress test app causes the machine
-to pretty much run out of memory.  The swap is hardly touched.  Then the
-VM starts killing things...klogd, the file i/o app, the shell it was in...
 
-I didn't see any significant change here with the patch.
+On 24-Sep-2001 Eric W. Biederman wrote:
+>> Coroutines or not, this does not change the picture.
+>> All multiplexed servers have an IO driven scheduler that calls
+>> code sections based on the fd.
+>> Obviously if you've a one-thread-per-socket model, epoll is not your answer.
+> 
+> A couroutine is a thread, the two terms are synonyms.  Generally
+> coroutines refer to threads with a high volumne of commniucation
+> between them.  And the terms come from different programming groups.
+> 
+> However a fully cooperative thread (as is implemented in the current
+> coroutine library) can be quite cheap, and is a easy way to implement
+> a state machine.  A pure state machine will have a smaller data
+> footprint than the stack of a cooperative thread, but otherwise
+> the concepts are pretty much the same.  Language support for
+> cooperative threads, so you could verify you wouldn't overflow your
+> stack would be very nice. 
+> 
+> So epoll is a good solution if you have a one-thread-per-socket model,
+> and you are doing cooperative threads.  The thread being used here is
+> simply a shortcut to writing a state machine.
 
-Here's meminfo prior to and towards the end of things for what it's worth:
+If you'd be the os i guess you'd not say the same :)
+It was pretty clear the model i meant was one real thread/process per fd.
+The main difference with coroutines is that the /dev/epoll engine become
+the scheduler of your app.
+It's also clear that you can avoid the coroutines by writing a state machine.
+There's a HUGE memory save with the stack removal that you pay with a more
+complicated code.
 
-[root@foobox /root]# cat /proc/meminfo 
-        total:    used:    free:  shared: buffers:  cached:
-				Mem:  526299136 66060288 460238848        0   864256 21032960
-				Swap: 1074765824  4374528 1070391296
-				MemTotal:       513964 kB
-				MemFree:        449452 kB
-				MemShared:           0 kB
-				Buffers:           844 kB
-				Cached:          16268 kB
-				SwapCached:       4272 kB
-				Active:           5804 kB
-				Inactive:        15580 kB
-				HighTotal:           0 kB
-				HighFree:            0 kB
-				LowTotal:       513964 kB
-				LowFree:        449452 kB
-				SwapTotal:     1049576 kB
-				SwapFree:      1045304 kB
 
-[root@foobox /root]# cat /proc/meminfo 
-        total:    used:    free:  shared: buffers:  cached:
-				Mem:  526299136 522604544  3694592        0  1212416 435134464
-				Swap: 1074765824  3366912 1071398912
-				MemTotal:       513964 kB
-				MemFree:          3608 kB
-				MemShared:           0 kB
-				Buffers:          1184 kB
-				Cached:         424784 kB
-				SwapCached:        152 kB
-				Active:         356640 kB
-				Inactive:        69480 kB
-				HighTotal:           0 kB
-				HighFree:            0 kB
-				LowTotal:       513964 kB
-				LowFree:          3608 kB
-				SwapTotal:     1049576 kB
-				SwapFree:      1046288 kB
+
+
+- Davide
+

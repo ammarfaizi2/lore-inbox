@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261482AbTDQOgD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 10:36:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbTDQOgD
+	id S261341AbTDQOjr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 10:39:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbTDQOjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 10:36:03 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:45510
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261482AbTDQOgC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 10:36:02 -0400
-Subject: Re: kernel support for non-English user messages
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: EricAltendorf@orst.edu
-Cc: Linus Torvalds <torvalds@transmeta.com>, John Bradford <john@grabjohn.com>,
-       vda@port.imtp.ilyichevsk.odessa.ua,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200304141645.48020.EricAltendorf@orst.edu>
-References: <Pine.LNX.4.44.0304141024250.19302-100000@home.transmeta.com>
-	 <200304141645.48020.EricAltendorf@orst.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050587213.31412.48.camel@dhcp22.swansea.linux.org.uk>
+	Thu, 17 Apr 2003 10:39:46 -0400
+Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:17389 "HELO
+	cocodriloo.com") by vger.kernel.org with SMTP id S261341AbTDQOjl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 10:39:41 -0400
+Date: Thu, 17 Apr 2003 17:03:21 +0200
+From: Antonio Vargas <wind@cocodriloo.com>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Antonio Vargas <wind@cocodriloo.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: RedHat 9 and 2.5.x support
+Message-ID: <20030417150321.GC16335@wind.cocodriloo.com>
+References: <20030416165408.GD30098@wind.cocodriloo.com> <1050517953.598.16.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 17 Apr 2003 14:46:54 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1050517953.598.16.camel@teapot.felipe-alfaro.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-04-15 at 19:02, Eric Altendorf wrote:
-> If you find yourself having to write comments and documentation to 
-> explain your code, probably your identifiers are not well named, your 
-> functions are not short enough, and your code is not well structured 
-> enough.
+On Wed, Apr 16, 2003 at 08:32:34PM +0200, Felipe Alfaro Solana wrote:
+> On Wed, 2003-04-16 at 18:54, Antonio Vargas wrote:
+> > I've just installed RedHat 9 on my desktop machine and I'd like
+> > if it will support running under 2.5.65+ instead of his usual
+> > 2.4.19+.
 > 
-> Ideal code is completely self-documenting.
+> I'm running on RHL 9 with 2.5.67-mm3 (plus Russell King PCMCIA/CardBus
+> patches) and updated modutils + procutils + nfs-utils. It works
+> flawlessly, although I needed some tweaking for "/etc/init.d/rc.sysinit"
+> which insists in setting the module and hotplug helper binaries to
+> "/sbin/true" due to missing "/proc/ksyms".
 
-We have a lot of elegant small functions that require knowledge of
-the data structures and lock ordering, which is why I do go around
-sticking kernel-doc into stuff I touch. 
+I managed to avoid some of these things:
 
-Explaining the function is one thing, explaining the context in which
-it operates is another [IMHO]
+1. I compiled everything in-kernel and disabled modules, thus no modules
+   related problems (*)
 
+2. RH9 procutils _seems_ to work fine: I can do "vmstat 1" whereas the older
+   gentoo image from summer I used to test boot 2.5 didn't.
+
+
+(*) RH9 detected my elitegroup motherboard integrated sound and unsed the i810
+    module, but now with everything in it seems I can't have sound any ideas?
+    Hmm, yes I _did_ compile i810 support in-kernel ;)
+
+I'm also having another problem: gnome-terminal is freaking out when i run
+"make menuconfig" on it, very strange....

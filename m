@@ -1,30 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284791AbRLZTDF>; Wed, 26 Dec 2001 14:03:05 -0500
+	id <S284765AbRLZS7p>; Wed, 26 Dec 2001 13:59:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284732AbRLZTCz>; Wed, 26 Dec 2001 14:02:55 -0500
-Received: from f44.law4.hotmail.com ([216.33.149.44]:40714 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S284800AbRLZTCe>;
-	Wed, 26 Dec 2001 14:02:34 -0500
-X-Originating-IP: [205.231.90.227]
-From: "victor1 torres" <camel_3@hotmail.com>
-To: pavel@suse.cz, alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Concerning a driver rewrite (NOT THE KERNEL)
-Date: Wed, 26 Dec 2001 19:02:29 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F44U0gwrBMXIXbrbbnA00010b8d@hotmail.com>
-X-OriginalArrivalTime: 26 Dec 2001 19:02:29.0312 (UTC) FILETIME=[DD7CEC00:01C18E3F]
+	id <S284732AbRLZS7f>; Wed, 26 Dec 2001 13:59:35 -0500
+Received: from mail.gmx.net ([213.165.64.20]:17650 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S284809AbRLZS7S> convert rfc822-to-8bit;
+	Wed, 26 Dec 2001 13:59:18 -0500
+From: toxischerabflussreiniger@gmx.net
+To: "Bjoern A. Zeeb" <bzeeb+linuxkernel@zabbadoz.net>
+Date: Wed, 26 Dec 2001 19:58:46 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
+Subject: Re: writing device drivers for commercial hardware
+CC: linux-kernel@vger.kernel.org
+Message-ID: <3C2A2BF6.9718.4C5955@localhost>
+In-Reply-To: <3C2A1D7E.25900.13D1DF@localhost>
+In-Reply-To: <Pine.BSF.4.30.0112261942310.727-100000@noc.zabbadoz.net>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan-
-What do you mean by this??
-(The line interface on the i810 chipset seems to be totally documented. Its
-a dumb digitizer with AC97 2.0 modem on it.)
-Is the Modem just there or is it just able to transfer analog signal?
+On 26 Dec 2001, at 19:50, Bjoern A. Zeeb wrote:
 
-_________________________________________________________________
-Chat with friends online, try MSN Messenger: http://messenger.msn.com
 
+> BTW what card reader is it ? There are already enough _user space_
+> implementations for serial smartcard readers. 
+
+As I've said, this is a really cheap one, I don't think that it's well-
+known.
+It's from ELV and called 'GSM- und Chipkartenlesegerät', so, it's a 
+German one. Sorry for that.
+But thanks for all your hints and tips. I'll keep on trying.
+
+
+
+-----------------
+Marc,
+<toxischerabflussreiniger@gmx.net>

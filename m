@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264564AbRGIOoH>; Mon, 9 Jul 2001 10:44:07 -0400
+	id <S264952AbRGIOrR>; Mon, 9 Jul 2001 10:47:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264924AbRGIOn5>; Mon, 9 Jul 2001 10:43:57 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:18573 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S264564AbRGIOnt>; Mon, 9 Jul 2001 10:43:49 -0400
-Message-ID: <3B49C300.185DFCA4@uow.edu.au>
-Date: Tue, 10 Jul 2001 00:43:12 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
+	id <S264924AbRGIOrH>; Mon, 9 Jul 2001 10:47:07 -0400
+Received: from dnscache.cbr.au.asiaonline.net ([210.215.8.100]:40066 "EHLO
+	dnscache.cbr.au.asiaonline.net") by vger.kernel.org with ESMTP
+	id <S264954AbRGIOqx>; Mon, 9 Jul 2001 10:46:53 -0400
+Message-ID: <3B49C3C5.1A852029@acm.org>
+Date: Tue, 10 Jul 2001 00:46:29 +1000
+From: Gareth Hughes <gareth.hughes@acm.org>
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Abraham vd Merwe <abraham@2d3d.co.za>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: msync() bug
-In-Reply-To: <20010709105044.A29658@crystal.2d3d.co.za> <3B49A44B.F5E3C6A7@uow.edu.au>,
-		<3B49A44B.F5E3C6A7@uow.edu.au>; from andrewm@uow.edu.au on Mon, Jul 09, 2001 at 10:32:11PM +1000 <20010709162131.F1594@athlon.random>
+To: "Ernest N. Mamikonyan" <ernest@newton.physics.drexel.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: increasing the TASK_SIZE
+In-Reply-To: <3B44DA51.10D3F0C0@newton.physics.drexel.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
+"Ernest N. Mamikonyan" wrote:
 > 
-> Wrong fix, `page' is just garbage if some non memory was mapped in
-> userspace (like framebuffers or similar mmio regions were mapped etc..).
+> I was wondering how I can increase the process address space, TASK_SIZE
+> (PAGE_OFFSET), in the current kernel. It looks like the 3 GB value is
+> hardcoded in a couple of places and is thus not trivial to alter. Is
+> there any good reason to limit this value at all, why not just have it
+> be the same as the max addressable space (64 GB)? We have an ix86 SMP
+> box with 4 GB of RAM and want to be able to allocate all of it to a
+> single program (physics simulation). I would greatly appreciate any help
+> on this.
 
-Now we're getting somewhere.  Thanks.  Tell me if this is right:
- 
+Sounds like you just need to enable highmem.  Check the help for "High
+Memory Support" in "Processor type and features".
 
-> if (VALID_PAGE(page)
-
-If the physical address of the page is somewhere inside our
-working RAM.
-
-> !PageReserved(page)
-
-And it's not a reserved page (discontigmem?)
-
-> ptep_test_and_clear_dirty(ptep))
-
-And if it was modified via this mapping
-
-> +                       flush_tlb_page(vma, address);
-> +                       set_page_dirty(page);
-
-Question:  What happens if a program mmap's a part of /dev/mem
-which passes all of these tests?   Couldn't it then pick some
-arbitrary member of mem_map[] which may or may not have
-a non-zero ->mapping?
+-- Gareth

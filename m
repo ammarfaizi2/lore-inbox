@@ -1,52 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264501AbTLQSxy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 13:53:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264504AbTLQSxy
+	id S264527AbTLQTb3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 14:31:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264528AbTLQTb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 13:53:54 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:47440 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S264501AbTLQSxw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 13:53:52 -0500
-Date: Wed, 17 Dec 2003 13:53:28 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Roger Luethi <rl@hellgate.ch>
-cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       <wli@holomorphy.com>, <kernel@kolivas.org>,
-       <chris@cvine.freeserve.co.uk>, <linux-kernel@vger.kernel.org>,
-       <mbligh@aracnet.com>
-Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
-In-Reply-To: <20031216112307.GA5041@k3.hellgate.ch>
-Message-ID: <Pine.LNX.4.44.0312171351080.28701-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 17 Dec 2003 14:31:29 -0500
+Received: from [38.119.218.103] ([38.119.218.103]:5603 "HELO
+	mail.bytehosting.com") by vger.kernel.org with SMTP id S264527AbTLQTb0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 14:31:26 -0500
+X-Qmail-Scanner-Mail-From: drunk@conwaycorp.net via digital.bytehosting.com
+X-Qmail-Scanner: 1.20rc3 (Clear:RC:1:. Processed in 0.178685 secs)
+Date: Wed, 17 Dec 2003 13:31:24 -0600
+From: Nathan Poznick <kraken@drunkmonkey.org>
+To: linux-kernel@vger.kernel.org
+Cc: Richard Henderson <rth@twiddle.net>
+Subject: Re: [PATCH] Handle R_ALPHA_REFLONG relocation on Alpha (2.6.0-test11)
+Message-ID: <20031217193124.GA4837@wang-fu.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Richard Henderson <rth@twiddle.net>
+References: <20031213003841.GA5213@wang-fu.org> <20031217121010.GA11062@twiddle.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
+Content-Disposition: inline
+In-Reply-To: <20031217121010.GA11062@twiddle.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Dec 2003, Roger Luethi wrote:
 
-> One potential problem with the benchmarks is that my test box has
-> just one bar with 256 MB RAM. The kbuild and efax tests were run with
-> mem=64M and mem=32M, respectively. If the difference between mem=32M
+--SLDf9lqlvOQaIe6s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-OK, I found another difference with 2.4.
+Thus spake Richard Henderson:
+> Which module?  This relocation should never EVER show up in kernel code.
 
-Try "echo 256 > /proc/sys/vm/min_free_kbytes", I think
-that should give the same free watermarks that 2.4 has.
+Well, it was happening on anything I attempted to make a module.
 
-Using 1MB as the min free watermark for lowmem is bound
-to result in more free (and less used) memory on systems
-with less than 128 MB RAM ... significantly so on smaller
-systems.
+> (It will show up in dwarf2 debug info, so make sure you're not looking at
+> objects compiled with -g, but debug sections ought to be ignored by the
+> module loading code.)
 
-The fact that ZONE_HIGHMEM and ZONE_NORMAL are recycled
-at very different rates could also be of influence on
-some performance tests...
+I think that may have been the root cause of this; I had
+CONFIG_DEBUG_INFO enabled from debugging attempts related to a past
+problem.  With that enabled, -g is used for the compile, so the
+relocations were added, and module loading failed.  After disabling it,
+R_ALPHA_REFLONG did not appear in any of the object files.  So I suppose
+my next question is if this is a known/intended side effect -- enabling
+CONFIG_DEBUG_INFO means that modules cannot be used?
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
 
+--=20
+Nathan Poznick <kraken@drunkmonkey.org>
+
+My school colors were clear. We used to say, "I'm not naked, I'm in the
+band." -Stephen Wright
+
+
+--SLDf9lqlvOQaIe6s
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/4K8MYOn9JTETs+URAuViAJ0XhVhApOgUS/8kjQSU0/TtmPOAcQCeLix+
+sZLxkcdUxYDQb6HHixO50H8=
+=p8ph
+-----END PGP SIGNATURE-----
+
+--SLDf9lqlvOQaIe6s--

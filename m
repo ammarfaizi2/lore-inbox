@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131163AbQLMWmp>; Wed, 13 Dec 2000 17:42:45 -0500
+	id <S131451AbQLMWmz>; Wed, 13 Dec 2000 17:42:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131478AbQLMWmg>; Wed, 13 Dec 2000 17:42:36 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:35338 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S131163AbQLMWmY>;
-	Wed, 13 Dec 2000 17:42:24 -0500
-Date: Wed, 13 Dec 2000 23:11:55 +0100
-From: Andi Kleen <ak@suse.de>
-To: Tim Waugh <twaugh@redhat.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [patch] 2.4.0-test12:
-Message-ID: <20001213231155.A2690@gruyere.muc.suse.de>
-In-Reply-To: <20001213192352.L5918@redhat.com>
-Mime-Version: 1.0
+	id <S131478AbQLMWmq>; Wed, 13 Dec 2000 17:42:46 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39437 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131451AbQLMWm1>; Wed, 13 Dec 2000 17:42:27 -0500
+Subject: Re: insmod problem after modutils upgrading
+To: kaos@ocs.com.au (Keith Owens)
+Date: Wed, 13 Dec 2000 22:13:29 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        chris@chrullrich.de (Christian Ullrich), linux-kernel@vger.kernel.org
+In-Reply-To: <4381.976745113@ocs3.ocs-net> from "Keith Owens" at Dec 14, 2000 09:05:13 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001213192352.L5918@redhat.com>; from twaugh@redhat.com on Wed, Dec 13, 2000 at 07:23:52PM +0000
+Content-Transfer-Encoding: 7bit
+Message-Id: <E146K9T-0003MT-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 13, 2000 at 07:23:52PM +0000, Tim Waugh wrote:
-> + * atomic_add - add integer to atomic variable
-> + * @i: integer value to add
-> + * @v: pointer of type atomic_t
-> + * 
-> + * Atomically adds @i to @v.
+> previously because nobody used those options.  Since these are bugs in
+> the modules and only a few modules are affected (less than 5 reported),
+> the fix is to correct the modules that have coding errors.
 
-Perhaps it should mention that the guaranteed useful range of atomic_t 
-is only 24bit ?  Documentation without source would rather useless if it
-didn't mention such pitfalls.
-
-
--Andi
-
+That wont be happening in 2.2 until 2.2.19 which probably means 6 months.
+If this is your decision please make it abundantly clear that the new
+modutils are a 2.4 only package.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,86 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263419AbUE1PKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263435AbUE1PQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263419AbUE1PKc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 11:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbUE1PKc
+	id S263435AbUE1PQG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 11:16:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbUE1PQG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 11:10:32 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:12929 "EHLO
+	Fri, 28 May 2004 11:16:06 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:17281 "EHLO
 	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S263419AbUE1PKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 11:10:30 -0400
-Date: Fri, 28 May 2004 19:10:28 +0400
+	id S263435AbUE1PQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 11:16:03 -0400
+Date: Fri, 28 May 2004 19:16:01 +0400
 From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.6] don't put IDE disks in standby mode on halt on Alpha
-Message-ID: <20040528191028.A1117@jurassic.park.msu.ru>
-References: <20040527194920.A1709@jurassic.park.msu.ru> <200405271854.21499.bzolnier@elka.pw.edu.pl> <20040527210821.A2004@jurassic.park.msu.ru> <200405271940.49386.bzolnier@elka.pw.edu.pl>
+To: Balint Cristian <rezso@rdsor.ro>
+Cc: Herbert Poetzl <herbert@13thfloor.at>, linux-admin@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org
+Subject: Re: Kernel crash/ oops >= 2.6.5 with gcc 3.4.0 on alpha
+Message-ID: <20040528191601.B1117@jurassic.park.msu.ru>
+References: <40B726C0.5030400@steudten.com> <20040528123758.GE19544@MAIL.13thfloor.at> <40B74779.40406@steudten.com> <200405281719.20593.rezso@rdsor.ro>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <200405271940.49386.bzolnier@elka.pw.edu.pl>; from B.Zolnierkiewicz@elka.pw.edu.pl on Thu, May 27, 2004 at 07:40:49PM +0200
+In-Reply-To: <200405281719.20593.rezso@rdsor.ro>; from rezso@rdsor.ro on Fri, May 28, 2004 at 05:19:20PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 27, 2004 at 07:40:49PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > Would #ifdef __alpha__ be better?
+On Fri, May 28, 2004 at 05:19:20PM -0400, Balint Cristian wrote:
+> > {standard input}: Assembler messages:
+> > {standard input}:7: Warning: setting incorrect section attributes for .got
+> >
+> Hi  !
 > 
-> actually CONFIG_ALPHA + comment why it is needed
+> I got same error with 2.6.7-rc1 !
 
-Ok, but now I'm thinking of probably better solution:
-consider sys_state == SYSTEM_HALT as another special case
-where we put the disk into standby mode *only* if it does
-have write cache but doesn't suppurt cache flush command
-(or cache flush fails for some reason).
-
-Hopefully, most drives won't be spun down on halt.
-I think that it should be acceptable for x86 as well.
+It's not an error, just a warning, and it's unrelated to reported oops.
 
 Ivan.
-
---- 2.6/drivers/ide/ide-disk.c	Fri May 28 17:46:35 2004
-+++ linux/drivers/ide/ide-disk.c	Fri May 28 18:42:47 2004
-@@ -1686,13 +1686,19 @@ static void idedisk_setup (ide_drive_t *
- #endif
- }
- 
--static void ide_cacheflush_p(ide_drive_t *drive)
-+static int ide_cacheflush_p(ide_drive_t *drive)
- {
--	if (!drive->wcache || !ide_id_has_flush_cache(drive->id))
--		return;
-+	if (!drive->wcache)
-+		return 0;
-+
-+	if (!ide_id_has_flush_cache(drive->id))
-+		return 1;
- 
--	if (do_idedisk_flushcache(drive))
--		printk(KERN_INFO "%s: wcache flush failed!\n", drive->name);
-+	if (!do_idedisk_flushcache(drive))
-+		return 0;
-+
-+	printk(KERN_INFO "%s: wcache flush failed!\n", drive->name);
-+	return 1;
- }
- 
- static int idedisk_cleanup (ide_drive_t *drive)
-@@ -1713,10 +1719,16 @@ static void ide_device_shutdown(struct d
- {
- 	ide_drive_t *drive = container_of(dev, ide_drive_t, gendev);
- 
-+	/* Never spin the disk down on reboot. */
- 	if (system_state == SYSTEM_RESTART) {
- 		ide_cacheflush_p(drive);
- 		return;
- 	}
-+
-+	/* Spin the disk down on halt only if attempt to flush the
-+	   write cache fails. */
-+	if (system_state == SYSTEM_HALT && !ide_cacheflush_p(drive))
-+		return;
- 
- 	printk("Shutdown: %s\n", drive->name);
- 	dev->bus->suspend(dev, PM_SUSPEND_STANDBY);

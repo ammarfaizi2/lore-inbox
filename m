@@ -1,60 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264389AbTCYXx6>; Tue, 25 Mar 2003 18:53:58 -0500
+	id <S264387AbTCYXv3>; Tue, 25 Mar 2003 18:51:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264406AbTCYXx6>; Tue, 25 Mar 2003 18:53:58 -0500
-Received: from CPE-144-132-194-153.nsw.bigpond.net.au ([144.132.194.153]:42882
-	"EHLO anakin.wychk.org") by vger.kernel.org with ESMTP
-	id <S264389AbTCYXx4>; Tue, 25 Mar 2003 18:53:56 -0500
-Date: Wed, 26 Mar 2003 07:55:30 +0800
-From: Geoffrey Lee <glee@gnupilgrims.org>
-To: linux-kernel@vger.kernel.org, pleb@cse.unsw.edu.au
-Cc: linux-arm-kernel@lists.arm.linux.org.uk
-Subject: Re: [Patch] [arm] support older plebs
-Message-ID: <20030325235530.GA4438@anakin.wychk.org>
-References: <20030325161358.GA30538@anakin.wychk.org> <20030325163843.D24418@flint.arm.linux.org.uk>
+	id <S264389AbTCYXv3>; Tue, 25 Mar 2003 18:51:29 -0500
+Received: from mail135.mail.bellsouth.net ([205.152.58.95]:42034 "EHLO
+	imf46bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S264387AbTCYXv1>; Tue, 25 Mar 2003 18:51:27 -0500
+Subject: Re: 2.5 and modules ?
+From: Louis Garcia <louisg00@bellsouth.net>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.51.0303251219250.9373@dns.toxicfilms.tv>
+References: <1048564993.2994.13.camel@tiger>
+	 <Pine.LNX.4.51.0303251219250.9373@dns.toxicfilms.tv>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1048636973.1569.20.camel@tiger>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=big5
-Content-Disposition: inline
-In-Reply-To: <20030325163843.D24418@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
+Date: 25 Mar 2003 19:02:53 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[cc-ing to linux-arm-kernel ]
-
-On Tue, Mar 25, 2003 at 04:38:43PM +0000, Russell King wrote:
-> On Wed, Mar 26, 2003 at 12:13:58AM +0800, Geoffrey Lee wrote:
-> > The PLEB is a SA-1100-based ARM computer developed at CSE at the
-> > University of New South Wales.  I have discovered some of the earlier
-> > models would not set register 1 properly, which was required for Linux
-> > to boot.  This was inside their (very old) kernel tree but which they 
-> > never submitted for inclusion (?)  It is a Photon1 with catapult
-> > bootloader combination.
-> 
-> I've been killing these - people should really be passing the right
-> value of r1 to the kernel.  Think what happens when 200 different
-> machine types add these 3 lines.
-> 
-
-I totally agree that it is wrong not to set r1.
+I'm on a RH phoebe beta box. I think this is due to my rc.sysinit not
+being ready for 2.5 because I have built my nic driver as a module and
+it loaded fine. I am not able to load USB modules or ntfs and vfat
+modules. This is what I get at startup:
 
 
-Thank goodness that in 2.4.x not many arm boards need this hack :)
+Setting hostname tiger:                              [  OK  ]
+Initializing USB controller (usb-uhci): FATAL: Module usb_uhci
+ not found.                                          [ FAILED ]
+Mounting USB filesystem:                             [  OK  ]
+grep: /proc/bus/usb/drivers:  No such file or directory.
+Initializing USB HID interface:                      [  OK  ]
+Initializing USB Keyboard: FATAL: Module keybdev not found.
+                                                     [ FAILED ]
+Initializing USB Mouse: FATAL: Module mousedev not found.
+                                                     [ FAILED ]
 
-Anyway, inside the (very old) pleb kernel tree, it was marked as a "hack".  
+[ some more stuff thats ok ]
 
-> A saner solution would be to define this appropriately if we're only
-> being built for one platform.
-> 
-
-Yes.  That sounds good.
+Mounting local filesystems:  mount: fs type ntfs not supported by
+kernel.  mount: fs type vfat not supported by kernel.
+                                                     [ FAILED ]
 
 
-	-- G.
--- 
-char p[] = "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
-  "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
-  "\x80\xe8\xdc\xff\xff\xff/bin/sh";
+I have built all required modules:
 
+ls /lib/modules/2.4.66/kernel/drivers/usb/host
+uhci-hcd.ko
+
+ls /lib/modules/2.4.66/kernel/fs/fat
+fat.ko
+
+ls /lib/modules/2.4.66/kernel/fs/ntfs
+ntfs.ko
+
+
+
+On Tue, 2003-03-25 at 06:19, Maciej Soltysiak wrote:
+> > except modules. I recompiled the modutils package with module-init-tools
+> > according to rusty's old modutils package spec. I am able to compile 2.5
+> > as modules without any depmod errors but when I boot 2.5 I can't load
+> > any.
+> What are the error messages?
 

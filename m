@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265348AbUEZIKI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265354AbUEZI1V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265348AbUEZIKI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 04:10:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265352AbUEZIKI
+	id S265354AbUEZI1V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 04:27:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265355AbUEZI1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 04:10:08 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:20207 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S265348AbUEZIKF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 04:10:05 -0400
-Date: Wed, 26 May 2004 04:11:13 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: Duncan Sands <baldrick@free.fr>
-Cc: Keith Owens <kaos@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.6-mm] i386: enable interrupts on contention in
- spin_lock_irq
-In-Reply-To: <200405260958.21252.baldrick@free.fr>
-Message-ID: <Pine.LNX.4.58.0405260401320.1794@montezuma.fsmlabs.com>
-References: <14280.1085556586@kao2.melbourne.sgi.com> <200405260958.21252.baldrick@free.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 26 May 2004 04:27:21 -0400
+Received: from mail6.bluewin.ch ([195.186.4.229]:38837 "EHLO mail6.bluewin.ch")
+	by vger.kernel.org with ESMTP id S265354AbUEZI1U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 04:27:20 -0400
+Date: Wed, 26 May 2004 10:27:12 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Anthony DiSante <orders@nodivisions.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: why swap at all?
+Message-ID: <20040526082712.GA32326@k3.hellgate.ch>
+Mail-Followup-To: Anthony DiSante <orders@nodivisions.com>,
+	linux-kernel@vger.kernel.org
+References: <40B43B5F.8070208@nodivisions.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40B43B5F.8070208@nodivisions.com>
+X-Operating-System: Linux 2.6.6 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 May 2004, Duncan Sands wrote:
+On Wed, 26 May 2004 02:38:23 -0400, Anthony DiSante wrote:
+> Now I buy another 256MB of ram, so I have 512MB of real memory.  Why not 
+> just disable my swap completely now?  I won't have increased my memory's 
+> size at all, but won't I have increased its performance lots?
+> 
+> Or, to make it more appealing, say I initially had 512MB ram and now I have 
+> 1GB.  Wouldn't I much rather not use swap at all anymore, in this case, on 
+> my desktop?
 
-> > However I have seen buggy code where spin_lock_irq() was issued with
-> > interrupts disabled. [...]
->
-> Some time ago I sent a patch to lkml that tests for this [1].
-> And guess what - it happens all over the place [2].  Also, the
-> scheduler often gets called with interrupts disabled (schedule()
-> does spin_lock_irq), but the cases I checked all turned out to be
-> OK [3].  Perhaps it is more problematic now?
+Swap serves another (often underrated) purpose: Graceful degradation.
 
-I'll run with the debug code and audit any suspect ones. The ones
-mentioned below all seem ok.
+If you have a reasonably amount of swap space mounted, you will know
+you are running out of RAM because your system will become noticeably
+slower. If you have no swap whatsoever, your first warning will quite
+possibly be an application OOM killed or losing data due to a failed
+memory allocation.
 
-> [1] http://seclists.org/lists/linux-kernel/2003/May/5585.html
-> [2] http://seclists.org/lists/linux-kernel/2003/May/5842.html
-> [3] http://seclists.org/lists/linux-kernel/2003/May/5581.html
+Think of the slowness of swap as a _feature_.
+
+Roger

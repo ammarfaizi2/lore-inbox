@@ -1,99 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270207AbRH1Du1>; Mon, 27 Aug 2001 23:50:27 -0400
+	id <S270227AbRH1EHS>; Tue, 28 Aug 2001 00:07:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270221AbRH1DuR>; Mon, 27 Aug 2001 23:50:17 -0400
-Received: from web14203.mail.yahoo.com ([216.136.172.145]:58125 "HELO
-	web14203.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S270207AbRH1DuK>; Mon, 27 Aug 2001 23:50:10 -0400
-Message-ID: <20010828035026.3091.qmail@web14203.mail.yahoo.com>
-Date: Mon, 27 Aug 2001 20:50:26 -0700 (PDT)
-From: java programmer <javadesigner@yahoo.com>
-Subject: Intel e100 Ethernet card support in core Kernel
-To: linux-kernel@vger.kernel.org
-Cc: javadesigner@yahoo.com
+	id <S270229AbRH1EHI>; Tue, 28 Aug 2001 00:07:08 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:58072 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S270227AbRH1EGz>;
+	Tue, 28 Aug 2001 00:06:55 -0400
+Message-ID: <3B8B18EA.A66C2281@candelatech.com>
+Date: Mon, 27 Aug 2001 21:07:06 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: java programmer <javadesigner@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Intel e100 Ethernet card support in core Kernel
+In-Reply-To: <20010828035026.3091.qmail@web14203.mail.yahoo.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi:
+java programmer wrote:
+> 
+> Hi:
+> 
+> There is built in support for intel cards in the
+> core kernel. My question is, whether using this
+> kernel support is the best way to drive intel cards.
 
-There is built in support for intel cards in the
-core kernel. My question is, whether using this
-kernel support is the best way to drive intel cards.
+The intel driver is generally fast and stable, but I'm sure
+it's not perfect.  Have you tried the eepro100 driver for
+this NIC?
 
-I have a dual port intel pro/100 adapter and am
-experiencing a complete lockup (not even pingable)
-after a certain amount of time. I am on kernel 2.4.7,
-downloaded from kernel.org and compiled. I have 
-libc-2.2.3.so in /lib
+The fact that the eepro100 complains about the lockup bug,
+and the e100 doesn't, probably does not mean the e100 doesn't
+work around the bug too:  Intel is just more quiet about it's
+hardware bugs :)
 
-Here's the relevant section from dmesg (shown for 
-eth0 only):
+I'm not sure it will help you, but I have a listing of all the
+cards I've tried (recently).  There is a 2-port Intel based NIC
+on there (The Compaq one) but it may not be your particular version.
+It did work very well for me.
 
-----------
-Intel(R) PRO/100 Fast Ethernet Adapter - Loadable
-driver, ver 1.6.13
-Copyright (c) 2001 Intel Corporation
+Here's my ethernet NIC listing page:
+http://www.candelatech.com/linux_ethernet.html
 
-eth0: Compaq Fast Ethernet Server Adapter
-Using specified speed/duplex mode of 0.
-Using specified ucode value of 1.
-Using specified CPU saver interrupt delay value of
-1536.
-Using specified CPU saver bundle max value of 10.
-Mem:0xc6cf0000  IRQ:11  Speed:100 Mbps  Dx:Full
-Hardware receive checksums disabled
-----------------
+At any rate, you should probably send this question off to the
+eepro100@scyld.com mailing list, especially if you have problems
+with the eepro100 driver...
 
-And here is the module load line from
-/etc/rc.d/rc.modules
+Enjoy,
+Ben
 
-/sbin/modprobe e100 ucode=1,1 IntDelay=0x600,0x600
-BundleMax=10,6 e100_speed_duplex=0,0
-
-The above is my current configuration that leads to
-the lockup. Please note, this is the absolute latest
-and well tested driver - for this card - straight from
-intel.
-
-Now here's the thing: initially I had a 2.4.5 kernel,
-with a stock, built in driver for this card that gave
-me the following dmesg:
-
------
-eth0: OEM i82557/i82558 10/100 Ethernet,
-:50:8B:E3:AA:B4, IRQ 11.
-Receiver lock-up bug exists -- enabling work-around.
-Board assembly 009542-003, Physical connectors
-present: RJ45
-Primary interface chip i82555 PHY #1.
-General self-test: passed.
-Serial sub-system self-test: passed.
-Internal registers self-test: passed.
-ROM checksum self-test: passed (0x24c9f043).
-Receiver lock-up workaround activated.
-------
-
-I took the above driver out, in favor of the newer
-intel driver, but note, the newer intel driver gives
-me no message about the "lock up bug", that this other
-older driver gives me (see first line in dmesg output
-above).
-
-So does anyone know what's going on and whether the
-newer intel drivers are in fact more broken than the
-older ones that came with the kernel ? I haven't tried
-the older ones enough to know whether the lock up
-would exist with them  too or not, any driver writers
-care to shed some light on this ?
-
-Best regards,
-
-javadesigner@yahoo.com
-
-__________________________________________________
-Do You Yahoo!?
-Make international calls for as low as $.04/minute with Yahoo! Messenger
-http://phonecard.yahoo.com/
+-- 
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

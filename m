@@ -1,13 +1,12 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267089AbSLDVMb>; Wed, 4 Dec 2002 16:12:31 -0500
+	id <S267091AbSLDVOS>; Wed, 4 Dec 2002 16:14:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267090AbSLDVMb>; Wed, 4 Dec 2002 16:12:31 -0500
-Received: from smtp02.fields.gol.com ([203.216.5.132]:54970 "EHLO
-	smtp02.fields.gol.com") by vger.kernel.org with ESMTP
-	id <S267089AbSLDVMa>; Wed, 4 Dec 2002 16:12:30 -0500
-To: James@tc-1-100.kawasaki.gol.ne.jp,
-       Bottomley@tc-1-100.kawasaki.gol.ne.jp (James.Bottomley@SteelEye.com)
+	id <S267090AbSLDVOS>; Wed, 4 Dec 2002 16:14:18 -0500
+Received: from smtp01.fields.gol.com ([203.216.5.131]:18583 "EHLO
+	smtp01.fields.gol.com") by vger.kernel.org with ESMTP
+	id <S267091AbSLDVOR>; Wed, 4 Dec 2002 16:14:17 -0500
+To: James Bottomley <James.Bottomley@SteelEye.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: [RFC] generic device DMA implementation
 In-Reply-To: <200212041747.gB4HlEF03005@localhost.localdomain>
@@ -15,8 +14,8 @@ References: <200212041747.gB4HlEF03005@localhost.localdomain>
 Reply-To: Miles Bader <miles@gnu.org>
 System-Type: i686-pc-linux-gnu
 From: Miles Bader <miles@gnu.org>
-Date: 05 Dec 2002 06:19:57 +0900
-Message-ID: <87vg29iirm.fsf@tc-1-100.kawasaki.gol.ne.jp>
+Date: 05 Dec 2002 06:21:42 +0900
+Message-ID: <87smxdiiop.fsf@tc-1-100.kawasaki.gol.ne.jp>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Abuse-Complaints: abuse@gol.com

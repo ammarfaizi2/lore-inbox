@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265574AbRF1HAO>; Thu, 28 Jun 2001 03:00:14 -0400
+	id <S265584AbRF1Htf>; Thu, 28 Jun 2001 03:49:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265575AbRF1HAE>; Thu, 28 Jun 2001 03:00:04 -0400
-Received: from mail.muc.eurocyber.net ([195.143.108.5]:40386 "EHLO
-	mail.muc.eurocyber.net") by vger.kernel.org with ESMTP
-	id <S265574AbRF1G7y>; Thu, 28 Jun 2001 02:59:54 -0400
-Message-ID: <3B3AD5DC.EE9A2B82@TeraPort.de>
-Date: Thu, 28 Jun 2001 08:59:40 +0200
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac19 i686)
-X-Accept-Language: en, de
+	id <S265586AbRF1HtZ>; Thu, 28 Jun 2001 03:49:25 -0400
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:11016 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S265584AbRF1HtP>; Thu, 28 Jun 2001 03:49:15 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Patrick Dreker <patrick@dreker.de>
+Organization: Chaos Inc.
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Cosmetic JFFS patch.
+Date: Thu, 28 Jun 2001 09:43:21 +0200
+X-Mailer: KMail [version 1.2]
+Cc: David Woodhouse <dwmw2@infradead.org>, <jffs-dev@axis.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0106271514260.7355-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0106271514260.7355-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: VM Requirement Document - v0.0
-In-Reply-To: <Pine.LNX.4.33L.0106271512570.23373-100000@duckman.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01062809432100.00590@wintermute>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Wed, 27 Jun 2001, Martin Knoblauch wrote:
-> 
-> >  I do not care much whether the cache is using 99% of the systems memory
-> > or 50%. As long as there is free memory, using it for cache is great. I
-> > care a lot if the cache takes down interactivity, because it pushes out
-> > processes that it thinks idle, but that I need in 5 seconds. The caches
-> > pressure against processes
-> 
-> Too bad that processes are in general cached INSIDE the cache.
-> 
-> You'll have to write a new balancing story now ;)
-> 
+Hello...
 
- maybe that is part of "the answer" :-)
+Am Donnerstag, 28. Juni 2001 00:16 schrieb Linus Torvalds:
+> I don't _have_ any instances of my name being printed out to annoy the
+> user, so that's a very theoretical argument.
 
-Martin
+Err.... Just nitpicking...
+
+dreker@wintermute:~> dmesg | grep -C Linus
+hub.c: 2 ports detected
+uhci.c:  Linus Torvalds, Johannes Erdfelt, Randy Dunlap, Georg Acher, Deti 
+Fliegl, Thomas Sailer, Roman Weissgaerber
+
+dreker@wintermute:~> uname -a
+Linux wintermute 2.4.5-ac15 #1 Son Jun 17 12:44:01 CEST 2001 i686 unknown
+
+> This is my current patch in my tree. I refuse to have bickering in
+> printk's. You can edit the comment all you want.
+>
+> 		Linus
+>
+
 -- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
+Patrick Dreker

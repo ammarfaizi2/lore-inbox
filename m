@@ -1,45 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263812AbTKXT0v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 14:26:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263821AbTKXT0v
+	id S263827AbTKXT3x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 14:29:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263852AbTKXT3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 14:26:51 -0500
-Received: from bab72-140.optonline.net ([167.206.72.140]:59242 "EHLO
-	shookay.newview.com") by vger.kernel.org with ESMTP id S263812AbTKXT0s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 14:26:48 -0500
-To: Valdis.Kletnieks@vt.edu
-Cc: splite@purdue.edu, root@chaos.analogic.com, linux-kernel@vger.kernel.org
-Subject: Re: hard links create local DoS vulnerability and security proble
-References: <200311241829.hAOITdKL014364@turing-police.cc.vt.edu>
-X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w 3:{EoxBR
-From: Mathieu Chouquet-Stringer <mathieu@newview.com>
-Date: 24 Nov 2003 14:25:31 -0500
-In-Reply-To: <200311241829.hAOITdKL014364@turing-police.cc.vt.edu>
-Message-ID: <xltptfhd0wk.fsf@shookay.newview.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Mon, 24 Nov 2003 14:29:53 -0500
+Received: from netlx014.civ.utwente.nl ([130.89.1.88]:5195 "EHLO
+	netlx014.civ.utwente.nl") by vger.kernel.org with ESMTP
+	id S263827AbTKXT3u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 14:29:50 -0500
+Date: Mon, 24 Nov 2003 20:29:33 +0100 (CET)
+From: mp3project@sarijopen.student.utwente.nl
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test10 : compile error in /fs/proc/array.c
+Message-ID: <Pine.LNX.4.44.0311242014030.8867-100000@sarijopen.student.utwente.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-UTwente-MailScanner-Information: Scanned by MailScanner. Contact helpdesk@ITBE.utwente.nl for more information.
+X-UTwente-MailScanner: Found to be clean
+X-UTwente-MailScanner-SpamScore: s
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu writes:
-> mkdir ~/bin
-> chmod 700 ~/bin
-> cat > ~/bin/show-me
-> #!/bin/sh
-> whoami
-> ^D
-> chmod 4755 ~/bin/show-me
-> 
-> No separate partitions needed.
 
-It's always been my understanding that you cannot have suid shell script
-because you could easily change the IFS. Am i wrong? (
+Ave people
 
--- 
-Mathieu Chouquet-Stringer              E-Mail : mathieu@newview.com
-       Never attribute to malice that which can be adequately
-                    explained by stupidity.
-                     -- Hanlon's Razor --
+My redhat 7.3 compiler (gcc 2.96--113) is still complaining about that 
+file.
+
+make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+  CHK     include/linux/compile.h
+  CC      fs/proc/array.o
+fs/proc/array.c: In function `proc_pid_stat':
+fs/proc/array.c:398: Unrecognizable insn:
+(insn/i 1332 1663 1657 (parallel[ 
+            (set (reg:SI 0 eax)
+                (asm_operands ("") ("=a") 0[ 
+                        (reg:DI 1 edx)
+                    ] 
+                    [ 
+                        (asm_input:DI ("A"))
+                    ]  ("include/linux/times.h") 38))
+            (set (reg:SI 1 edx)
+                (asm_operands ("") ("=d") 1[ 
+                        (reg:DI 1 edx)
+                    ] 
+                    [ 
+                        (asm_input:DI ("A"))
+                    ]  ("include/linux/times.h") 38))
+            (clobber (reg:QI 19 dirflag))
+            (clobber (reg:QI 18 fpsr))
+            (clobber (reg:QI 17 flags))
+        ] ) -1 (insn_list 1326 (nil))
+    (nil))
+fs/proc/array.c:398: confused by earlier errors, bailing out
+make[2]: *** [fs/proc/array.o] Error 1
+make[1]: *** [fs/proc] Error 2
+make: *** [fs] Error 2
+
+
+It's a known error and various patches are floating around on lkml.
+
+Is this
+a)a post 2.6.0 item
+b)a case of fix the compiler,we ain't gonna work around.
+
+Patching the source is not difficult to do,but it would be nice if 
+vanilla 2.6.0 is gonna compile cleanly without patching on redhat 7.3 
+
+Greetz Mu
+ 
+

@@ -1,79 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVCFJdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVCFJr2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbVCFJdx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 04:33:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVCFJdx
+	id S261339AbVCFJr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 04:47:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVCFJr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 04:33:53 -0500
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:23452 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S261339AbVCFJdg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 04:33:36 -0500
-Date: Sun, 6 Mar 2005 01:33:21 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-serial@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix for 8250.c *wrongly* detecting XScale UART(s) on x86 PC
-Message-ID: <20050306093321.GA3040@taniwha.stupidest.org>
+	Sun, 6 Mar 2005 04:47:28 -0500
+Received: from thumbler.kulnet.kuleuven.ac.be ([134.58.240.45]:4285 "EHLO
+	thumbler.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id S261339AbVCFJrU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 04:47:20 -0500
+From: "Panagiotis Issaris" <panagiotis.issaris@mech.kuleuven.ac.be>
+Date: Sun, 6 Mar 2005 10:47:17 +0100
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.11-mm1] efi: fix failure handling
+Message-ID: <20050306094717.GA3843@mech.kuleuven.ac.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell,
+The EFI driver allocates memory and writes into it without checking the
+success of the allocation. Furthermore, on failure of the firmware_register() it
+doesn't free the allocated memory and on failure of the subsys_create_file()
+calls it returns zero instead of the errorcode.
 
-> 1.2073.10.1 05/03/04 21:19:20 gtj.member@com.rmk.(none)[rmk] +1 -0
-> [ARM PATCH] 2472/1: Updates 8250.c to correctly detect XScale UARTs
->
-> Patch from George Joseph
->
-> Modifications to autoconfig_16550a to add a testcase
-> to detect XScale UARTS.
->
-> Signed-off-by: George Joseph
-> Signed-off-by: Russell King
+Signed-off-by: Panagiotis Issaris <panagiotis.issaris@mech.kuleuven.ac.be>
 
-Breaks my UARTS.
-
-I'm not thrilled with this patch but 8250.c has similar warts so I
-guess it's not too bad.  Ideally we could refactor this a bit so if
-this isn't acceptable let me know and I'll do that instead.
-
-
-
-===== drivers/serial/8250.c 1.96 vs edited =====
-Index: kernel-taniwha-2.6.11post-cw3/drivers/serial/8250.c
-===================================================================
---- kernel-taniwha-2.6.11post-cw3.orig/drivers/serial/8250.c	2005-03-06 01:10:38.677251721 -0800
-+++ kernel-taniwha-2.6.11post-cw3/drivers/serial/8250.c	2005-03-06 01:13:26.288802003 -0800
-@@ -642,7 +642,9 @@
- static void autoconfig_16550a(struct uart_8250_port *up)
+diff -pruN linux-2.6.11-orig/drivers/firmware/efivars.c linux-2.6.11-pi/drivers/firmware/efivars.c
+--- linux-2.6.11-orig/drivers/firmware/efivars.c	2005-03-05 02:23:29.000000000 +0100
++++ linux-2.6.11-pi/drivers/firmware/efivars.c	2005-03-05 21:09:33.000000000 +0100
+@@ -665,13 +665,19 @@ efivars_init(void)
  {
- 	unsigned char status1, status2;
-+#ifdef CONFIG_ARM
- 	unsigned int iersave;
-+#endif /* CONFIG_ARM */
+ 	efi_status_t status = EFI_NOT_FOUND;
+ 	efi_guid_t vendor_guid;
+-	efi_char16_t *variable_name = kmalloc(1024, GFP_KERNEL);
++	efi_char16_t *variable_name;
+ 	struct subsys_attribute *attr;
+ 	unsigned long variable_name_size = 1024;
+ 	int i, rc = 0, error = 0;
  
- 	up->port.type = PORT_16550A;
- 	up->capabilities |= UART_CAP_FIFO;
-@@ -738,6 +740,11 @@
- 		return;
+ 	if (!efi_enabled)
+ 		return -ENODEV;
++	
++	variable_name = kmalloc(variable_name_size, GFP_KERNEL);
++	if (!variable_name)
++		return -ENOMEM;
++	
++	memset(variable_name, 0, variable_name_size);
+ 
+ 	printk(KERN_INFO "EFI Variables Facility v%s %s\n", EFIVARS_VERSION,
+ 	       EFIVARS_DATE);
+@@ -682,8 +688,10 @@ efivars_init(void)
+ 
+ 	rc = firmware_register(&efi_subsys);
+ 
+-	if (rc)
++	if (rc) {	
++		kfree(variable_name);
+ 		return rc;
++	}
+ 
+ 	kset_set_kset_s(&vars_subsys, efi_subsys);
+ 	subsystem_register(&vars_subsys);
+@@ -693,8 +701,6 @@ efivars_init(void)
+ 	 * the variable name and variable data is 1024 bytes.
+ 	 */
+ 
+-	memset(variable_name, 0, 1024);
+-
+ 	do {
+ 		variable_name_size = 1024;
+ 
+@@ -735,7 +741,7 @@ efivars_init(void)
  	}
  
-+	/* We only do this check for ARM build because it seems to
-+	 * falsely trigger on (some) PCs which breaks things.
-+	 * Besides, if this is XScale specific why do all platforms
-+	 * need this code and why is it here? */
-+#ifdef CONFIG_ARM
- 	/*
- 	 * Try writing and reading the UART_IER_UUE bit (b6).
- 	 * If it works, this is probably one of the Xscale platform's
-@@ -771,6 +778,7 @@
- 		DEBUG_AUTOCONF("Couldn't force IER_UUE to 0 ");
- 	}
- 	serial_outp(up, UART_IER, iersave);
-+#endif /* CONFIG_ARM */
+ 	kfree(variable_name);
+-	return 0;
++	return error;
  }
  
- /*
+ static void __exit

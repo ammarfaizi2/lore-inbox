@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbUL2JLg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbUL2JWk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261328AbUL2JLg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 04:11:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbUL2JLg
+	id S261333AbUL2JWk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 04:22:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbUL2JWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 04:11:36 -0500
-Received: from postfix4-1.free.fr ([213.228.0.62]:7344 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S261328AbUL2JLY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 04:11:24 -0500
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10 and speedtouch usb
-Date: Wed, 29 Dec 2004 10:11:21 +0100
-User-Agent: KMail/1.6.2
-Cc: Serge Tchesmeli <zztchesmeli@echo.fr>
-References: <200412271108.47578.zztchesmeli@echo.fr>
-In-Reply-To: <200412271108.47578.zztchesmeli@echo.fr>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 29 Dec 2004 04:22:36 -0500
+Received: from h80ad25cd.async.vt.edu ([128.173.37.205]:12427 "EHLO
+	h80ad25cd.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261331AbUL2JWc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 04:22:32 -0500
+Message-Id: <200412290920.iBT9KcCq026840@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
+To: Dave Airlie <airlied@linux.ie>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: running Linus kernel on FC3 
+In-Reply-To: Your message of "Wed, 29 Dec 2004 08:57:59 GMT."
+             <Pine.LNX.4.58.0412290853540.2899@skynet> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.58.0412290853540.2899@skynet>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1209894584P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200412291011.21931.duncan.sands@math.u-psud.fr>
+Date: Wed, 29 Dec 2004 04:20:35 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> i have try the new kernel 2.6.10, compil with exactly the same option from my 
-> 2.6.9 (i have copied the .config) but i notice a high load on my machine, and 
-> i see that was syslogd.
-> So, i look at my log and see:
-> 
-> Dec 26 19:40:44 gateway last message repeated 137 times
-> Dec 26 19:40:46 gateway kernel: usb 2-1: events/0 timed out on ep0in
-> Dec 26 19:40:46 gateway kernel: SpeedTouch: Error -110 fetching device status
-> Dec 26 19:40:46 gateway kernel: usb 2-1: modem_run timed out on ep0in
-> Dec 26 19:40:46 gateway kernel: usb 2-1: usbfs: USBDEVFS_CONTROL failed cmd 
-> modem_run rqt 192 rq 18 len 8 ret -110
-> Dec 26 19:40:46 gateway kernel: usb 2-1: usbfs: process 5296 (modem_run) did 
-> not claim interface 0 before use
-> Dec 26 19:40:49 gateway last message repeated 413 times
-> Dec 26 19:40:51 gateway kernel: usb 2-1: events/0 timed out on ep0in
-> Dec 26 19:40:51 gateway kernel: SpeedTouch: Error -110 fetching device status
-> Dec 26 19:40:51 gateway kernel: usb 2-1: modem_run timed out on ep0in
-> Dec 26 19:40:51 gateway kernel: usb 2-1: usbfs: USBDEVFS_CONTROL failed cmd 
-> modem_run rqt 192 rq 18 len 8 ret -110
-> Dec 26 19:40:51 gateway kernel: usb 2-1: usbfs: process 5296 (modem_run) did 
-> not claim interface 0 before use
-> Dec 26 19:40:59 gateway last message repeated 1105 times
+--==_Exmh_-1209894584P
+Content-Type: text/plain; charset=us-ascii
 
-Hi Serge, please turn on the kernel config option CONFIG_USB_DEBUG.  Also, change
+On Wed, 29 Dec 2004 08:57:59 GMT, Dave Airlie said:
+> I'm trying to run a linus bk tree on my FC3 system, but I get a lot of
+> Selinux warnings with minilogd,
 
-/*
-#define DEBUG
-#define VERBOSE_DEBUG
-*/
+This would be a lot easier to answer if you actually told us what the warnings were.
 
-to
+Also, you might want to check at the fedora-selinux list:
 
-#define DEBUG
-/*
-#define VERBOSE_DEBUG
-*/
+http://www.redhat.com/mailman/listinfo/fedora-selinux-list
 
-in drivers/usb/atm/speedtch.c and drivers/usb/atm/usb_atm.c.  You should then
-get a bunch of stuff in your system logs.
+and if that doesn't help, the selinux@tycho.nsa.govmailing list...
 
-Ciao,
 
-Duncan.
+--==_Exmh_-1209894584P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFB0nbgcC3lWbTT17ARAkVqAKDEnJNBGSWPZXHK/4uwIW8Jq4frZwCg65GR
+3pC5V/QAKo3XbsqMx7OzZcA=
+=8ejU
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1209894584P--

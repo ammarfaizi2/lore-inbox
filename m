@@ -1,68 +1,214 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261686AbVBXAYo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVBXA0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261686AbVBXAYo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 19:24:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVBXAYM
+	id S261661AbVBXA0m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 19:26:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVBXA0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 19:24:12 -0500
-Received: from waste.org ([216.27.176.166]:28807 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261686AbVBXARU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 19:17:20 -0500
-Date: Wed, 23 Feb 2005 16:17:00 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Mathieu Segaud <Mathieu.Segaud@crans.org>
-Cc: Andrew Morton <akpm@osdl.org>, Helge Hafting <helge.hafting@aitel.hist.no>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc4-mm1 : IDE crazy numbers, hdb renumbered to hdq ?
-Message-ID: <20050224001700.GG3163@waste.org>
-References: <20050223014233.6710fd73.akpm@osdl.org> <421C7FC2.1090402@aitel.hist.no> <20050223121207.412c7eeb.akpm@osdl.org> <878y5eq2c4.fsf@barad-dur.crans.org>
+	Wed, 23 Feb 2005 19:26:12 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:63697 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261661AbVBXARJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 19:17:09 -0500
+From: Darren Williams <dsw@gelato.unsw.edu.au>
+To: Burn Alting <burn@goldweb.com.au>
+Date: Thu, 24 Feb 2005 11:16:47 +1100
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG: stallion module cannot register it's ISR in a 2.6.10 kernel on a FC3 system
+Message-ID: <20050224001647.GB25713@cse.unsw.EDU.AU>
+Mail-Followup-To: Burn Alting <burn@goldweb.com.au>,
+	linux-kernel@vger.kernel.org
+References: <1108716493.6213.8.camel@swtf.comptex.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="CblX+4bnyfN0pR09"
 Content-Disposition: inline
-In-Reply-To: <878y5eq2c4.fsf@barad-dur.crans.org>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1108716493.6213.8.camel@swtf.comptex.com.au>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 24, 2005 at 12:32:59AM +0100, Mathieu Segaud wrote:
-> Andrew Morton <akpm@osdl.org> disait derni??rement que :
+
+--CblX+4bnyfN0pR09
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi Burn
+
+Could you try the attached patch
+
+It solved the same problem for me, it is NOT SMP safe due
+to cli() calls, though will run fine on your system. I have been
+running a console box for about 1mth non-stop with these applied.
+
+The patch does two things it allows the driver to be built-in and
+updates the call to request_irq, which is what is causing the
+problem.
+
+On Fri, 18 Feb 2005, Burn Alting wrote:
+
+> Here is the bug report. Stallion was purchased by Lantronix and they
+> don't really care about this bug.
 > 
-> > Helge Hafting <helge.hafting@aitel.hist.no> wrote:
-> >>
-> >> This kernel came up, but my boot script complained about no /dev/hdb3
-> >>  when trying to mount /var.
-> >>  (I have two IDE disks on the same cable, and an IDE cdrom on another.)
-> >>  They are usually hda, hdb, and hdc.
-> >> 
-> >>  MAKEDEV hdq did not help.  Looking at sysfs, it turns out that
-> >>  /dev/hdq1 is at major:3 minor:1025 if I interpret things right. 
-> >>  (/dev/hda1 is at 3:1, which is correct.)
-> >>  These numbers did not work with my mknod, it created 7:1 instead.
-> >>  So I didn't get to test this mysterious device.
-> >> 
-> >>  But I assume this is a mistake of some sort, I haven't heard about any
-> >>  change in the IDE numbering coming up?  2.6.1-rc3-mm1 works as expected.
-> >> 
-> >>  It may be interesting to note that my root raid-1 came up fine,
-> >>  consisting of hdq1 and hda1 instead of the usual hdb1 and hda1.
-> >
-> > I don't know what could be causing that.  Please send .config.  If you set
-> > CONFIG_BASE_FULL=n, try setting it to `y'.
+
 > 
-> I've got the same problem here on my box, udev creates hds and hdu
-> entries when running 2.6.11-rc4-mm1, whereas it creates correctly hdf
-> et hdh, on other kernels.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+--------------------------------------------------
+Darren Williams <dsw AT gelato.unsw.edu.au>
+Gelato@UNSW <www.gelato.unsw.edu.au>
+--------------------------------------------------
 
-Are these misnamed and misnumbered devices mountable? If not, can you
-mknod device nodes at the proper major:minor location and have them
-work?
+--CblX+4bnyfN0pR09
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="02-stl-built-in-final-UP.patch"
 
-Seems ->disk_name is getting modified between ide_setup() and
-add_disk() somehow, giving us:
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/12/08 13:37:06+11:00 dsw@vanilla.gelato 
+#   Allow stallion console driver to be built-in, and register irqs correctly with dev_id != NULL
+# 
+#   Signed-off Darren Williams <dswATgelato.unsw.edu.au>
+# drivers/char/stallion.c
+#   2004/12/08 13:36:57+11:00 dsw@vanilla.gelato +12 -15
+#   Pass non NULL dev_id to request_irq to allow correct irq registration. We use the board pointer as the dev_id
+#   to allow unique identification across shared interupts.
+#   
+#   Remove remaining #ifdef MODULES to allow for built-in support.
+#
+# Signed-off Darren Williams <dswATgelato.unsw.edu.au>
+#  
+diff -Nru a/drivers/char/stallion.c b/drivers/char/stallion.c
+--- a/drivers/char/stallion.c	2004-12-08 13:44:57 +11:00
++++ b/drivers/char/stallion.c	2004-12-08 13:44:57 +11:00
+@@ -240,7 +240,6 @@
+ 
+ /*****************************************************************************/
+ 
+-#ifdef MODULE
+ /*
+  *	Define some string labels for arguments passed from the module
+  *	load line. These allow for easy board definitions, and easy
+@@ -316,7 +315,6 @@
+ MODULE_PARM(board3, "1-4s");
+ MODULE_PARM_DESC(board3, "Board 3 config -> name[,ioaddr[,ioaddr2][,irq]]");
+ 
+-#endif
+ 
+ /*****************************************************************************/
+ 
+@@ -472,12 +470,10 @@
+  *	Declare all those functions in this driver!
+  */
+ 
+-#ifdef MODULE
+ static void	stl_argbrds(void);
+ static int	stl_parsebrd(stlconf_t *confp, char **argp);
+ 
+ static unsigned long stl_atol(char *str);
+-#endif
+ 
+ int		stl_init(void);
+ static int	stl_open(struct tty_struct *tty, struct file *filp);
+@@ -504,7 +500,7 @@
+ 
+ static int	stl_brdinit(stlbrd_t *brdp);
+ static int	stl_initports(stlbrd_t *brdp, stlpanel_t *panelp);
+-static int	stl_mapirq(int irq, char *name);
++static int	stl_mapirq(stlbrd_t *brdp, char *name);
+ static int	stl_getserial(stlport_t *portp, struct serial_struct __user *sp);
+ static int	stl_setserial(stlport_t *portp, struct serial_struct __user *sp);
+ static int	stl_getbrdstats(combrd_t __user *bp);
+@@ -735,7 +731,6 @@
+ 
+ static struct class_simple *stallion_class;
+ 
+-#ifdef MODULE
+ 
+ /*
+  *	Loadable module initialization stuff.
+@@ -959,7 +954,6 @@
+ 	return(1);
+ }
+ 
+-#endif
+ 
+ /*****************************************************************************/
+ 
+@@ -2179,26 +2173,27 @@
+  *	interrupt across multiple boards.
+  */
+ 
+-static int __init stl_mapirq(int irq, char *name)
++static int __init stl_mapirq(stlbrd_t *brdp, char *name)
+ {
+ 	int	rc, i;
+ 
+ #ifdef DEBUG
+-	printk("stl_mapirq(irq=%d,name=%s)\n", irq, name);
++	printk("stl_mapirq(irq=%d,name=%s)\n", brdp->irq, name);
+ #endif
+ 
+ 	rc = 0;
+ 	for (i = 0; (i < stl_numintrs); i++) {
+-		if (stl_gotintrs[i] == irq)
++		if (stl_gotintrs[i] == brdp->irq)
+ 			break;
+ 	}
+ 	if (i >= stl_numintrs) {
+-		if (request_irq(irq, stl_intr, SA_SHIRQ, name, NULL) != 0) {
++		/* pass the unique board pointer for shared interrupt dev_id */
++		if ( request_irq(brdp->irq, stl_intr, SA_SHIRQ, name, brdp) != 0) {
+ 			printk("STALLION: failed to register interrupt "
+-				"routine for %s irq=%d\n", name, irq);
++				"routine for %s irq=%d\n", name, brdp->irq);
+ 			rc = -ENODEV;
+ 		} else {
+-			stl_gotintrs[stl_numintrs++] = irq;
++			stl_gotintrs[stl_numintrs++] = brdp->irq;
+ 		}
+ 	}
+ 	return(rc);
+@@ -2389,7 +2384,7 @@
+ 	brdp->nrpanels = 1;
+ 	brdp->state |= BRD_FOUND;
+ 	brdp->hwid = status;
+-	rc = stl_mapirq(brdp->irq, name);
++	rc = stl_mapirq(brdp, name);
+ 	return(rc);
+ }
+ 
+@@ -2594,7 +2589,7 @@
+ 		outb((brdp->ioctrlval | ECH_BRDDISABLE), brdp->ioctrl);
+ 
+ 	brdp->state |= BRD_FOUND;
+-	i = stl_mapirq(brdp->irq, name);
++	i = stl_mapirq(brdp, name);
+ 	return(i);
+ }
+ 
+@@ -2807,9 +2802,7 @@
+  */
+ 	for (i = 0; (i < stl_nrbrds); i++) {
+ 		confp = &stl_brdconf[i];
+-#ifdef MODULE
+ 		stl_parsebrd(confp, stl_brdsp[i]);
+-#endif
+ 		if ((brdp = stl_allocbrd()) == (stlbrd_t *) NULL)
+ 			return(-ENOMEM);
+ 		brdp->brdnr = i;
+@@ -2825,9 +2818,7 @@
+  *	Find any dynamically supported boards. That is via module load
+  *	line options or auto-detected on the PCI bus.
+  */
+-#ifdef MODULE
+ 	stl_argbrds();
+-#endif
+ #ifdef CONFIG_PCI
+ 	stl_findpcibrds();
+ #endif
 
-hdb: ...
- hdq: hdq1 hdq2...
-
--- 
-Mathematics is the supreme nostalgia of our time.
+--CblX+4bnyfN0pR09--

@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132046AbQKXGmQ>; Fri, 24 Nov 2000 01:42:16 -0500
+        id <S131933AbQKXGpq>; Fri, 24 Nov 2000 01:45:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132042AbQKXGl4>; Fri, 24 Nov 2000 01:41:56 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:46826 "EHLO math.psu.edu")
-        by vger.kernel.org with ESMTP id <S131987AbQKXGlp>;
-        Fri, 24 Nov 2000 01:41:45 -0500
-Date: Fri, 24 Nov 2000 01:11:40 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Ion Badulescu <ionut@moisil.cs.columbia.edu>,
-        Guest section DW <dwguest@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
-In-Reply-To: <Pine.LNX.4.10.10011232155540.2957-100000@master.linux-ide.org>
-Message-ID: <Pine.GSO.4.21.0011240103021.12702-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S131916AbQKXGph>; Fri, 24 Nov 2000 01:45:37 -0500
+Received: from smtp-fwd.valinux.com ([198.186.202.196]:47373 "EHLO
+        mail.valinux.com") by vger.kernel.org with ESMTP id <S131987AbQKXGp1>;
+        Fri, 24 Nov 2000 01:45:27 -0500
+Date: Thu, 23 Nov 2000 22:15:24 -0800
+From: "H . J . Lu" <hjl@valinux.com>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: lseek patch for 2.2.18pre23
+Message-ID: <20001123221524.A32154@valinux.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2.2.18pre23 allows lseek to negative offsets in ext2 and has no checks
+for proc. Here is a patch.
 
+BTW, ext2 2.4-test10 is ok. 
 
-On Thu, 23 Nov 2000, Andre Hedrick wrote:
-
-> What the F*** does that have to do with the price of eggs in china, heh?
-> Just maybe if you could follow a thread, you would see that that Alex Viro
-> has pointed out that changes in the FS layer as dorked things.
-
-?
-If you have a l-k feed from future - please share. I'm not saying that
-fs/* is not the source of that stuff, but I sure as hell had not said
-that it is. I simply don't know yet.
+-- 
+H.J. Lu (hjl@valinux.com)
+---
+--- linux/fs/ext2/file.c.lseek	Sat Nov 18 17:18:49 2000
++++ linux/fs/ext2/file.c	Thu Nov 23 21:54:58 2000
+@@ -120,6 +120,8 @@ static long long ext2_file_lseek(
+ 		case 1:
+ 			offset += file->f_pos;
+ 	}
++	if (offset < 0)
++		return -EINVAL;
+ 	if (((unsigned long long) offset >> 32) != 0) {
+ #if BITS_PER_LONG < 64
+ 		return -EINVAL;
+--- linux/fs/proc/mem.c.lseek	Tue Jan  4 10:12:23 2000
++++ linux/fs/proc/mem.c	Sat Nov 18 17:19:28 2000
+@@ -196,14 +196,17 @@ static long long mem_lseek(struct file *
+ {
+ 	switch (orig) {
+ 		case 0:
+-			file->f_pos = offset;
+-			return file->f_pos;
++			break;
+ 		case 1:
+-			file->f_pos += offset;
+-			return file->f_pos;
++			offset += file->f_pos;
++			break;
+ 		default:
+ 			return -EINVAL;
+ 	}
++	if (offset < 0)
++			return -EINVAL;
++	file->f_pos = offset;
++	return offset;
+ }
  
-> Since there have been not kernel changes to the driver that effect the
-> code since 2.4.0-test5 or test6 and it now randomly shows up after five or
-> six revisions out from the change, and the changes were chipset only.
-
-generic_unplug_device() was changed more or less recently. I doubt that
-it is relevant, but...
-
+ /*
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

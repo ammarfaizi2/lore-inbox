@@ -1,38 +1,190 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262414AbSJOFVD>; Tue, 15 Oct 2002 01:21:03 -0400
+	id <S262416AbSJOFXW>; Tue, 15 Oct 2002 01:23:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262416AbSJOFVD>; Tue, 15 Oct 2002 01:21:03 -0400
-Received: from dp.samba.org ([66.70.73.150]:16321 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S262414AbSJOFVB>;
-	Tue, 15 Oct 2002 01:21:01 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Roman Zippel <zippel@linux-m68k.org>
+	id <S262418AbSJOFXW>; Tue, 15 Oct 2002 01:23:22 -0400
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:25863 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262416AbSJOFXO>;
+	Tue, 15 Oct 2002 01:23:14 -0400
+Date: Mon, 14 Oct 2002 22:29:17 -0700
+From: Greg KH <greg@kroah.com>
+To: Steven Dake <sdake@mvista.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] In-kernel module loader 1/7 
-In-reply-to: Your message of "Fri, 27 Sep 2002 01:38:56 +0200."
-             <Pine.LNX.4.44.0209261845420.338-100000@serv> 
-Date: Tue, 15 Oct 2002 14:53:41 +1000
-Message-Id: <20021015052656.3455E2C073@lists.samba.org>
+Subject: Re: [ANNOUNCE] [PATCHES] Advanced TCA Hotswap Support in Linux Kernel
+Message-ID: <20021015052916.GA11190@kroah.com>
+References: <3DAB1007.6040400@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DAB1007.6040400@mvista.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0209261845420.338-100000@serv> you write:
-> I'm not completely opposed to a kernel, but completely disabling the user
-> space loader is IMO not acceptable (at least not until the new loader went
-> through one stable release).
+On Mon, Oct 14, 2002 at 11:42:15AM -0700, Steven Dake wrote:
+> 
+> I welcome comments questions or code to be added to the sourceforge project.
 
-Huh?  We're talking about 50 lines of code for insmod (modprobe is
-harder, yes).  But risking this instability is what unstable kernels
-are *for*!
+Hi,
 
-You're still talking about forcing us to maintain a *very intimate*
-interface in order to remove 200 lines from the kernel.  Ask Keith the
-troubles of keeping modutils in sync with the kernel.  I've been
-following it for about 18 months, and I haven't envied the (excellent)
-job he had to do.
+Here's some specific comments on your different patches.
 
-200 lines! 8)
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+--- linux-2.4.19/Documentation/Configure.help	Fri Aug  2 17:39:42 2002
++++ linux-2.4.19-gamap/Documentation/Configure.help	Mon Oct 14 11:16:22 2002
+@@ -6795,6 +6795,19 @@
+   module if your root file system (the one containing the directory /)
+   is located on a SCSI device.
+ 
++Geographical Address Mapping support
++CONFIG_GAMAP
++  This driver will provide device filesystem dynamic mapping of WWNs
++  to their logical geographical address.  The result is that block
++  storage devices can be accessed using:
++
++      /dev/scsi/chassis/slot/host
++
++  This feature also works after an fdisk updating the appropriate files
++  to match the state of the system.
++
++  This feature is only supported by the Qlogic V6 driver.
++
+
+In looking at this patch (and the others) it looks like you are relying
+on devfs being in the system.  Is this true?  What about the other 99%
+of machines out there with devfs disabled?
+
+diff -uNr linux-2.4.19/Documentation/devices.txt linux-2.4.19-gamap/Documentation/devices.txt
+--- linux-2.4.19/Documentation/devices.txt	Wed Nov  7 15:46:01 2001
++++ linux-2.4.19-gamap/Documentation/devices.txt	Mon Oct 14 11:06:00 2002
+@@ -417,8 +417,8 @@
+ 		218 = /dev/kchuid	Inter-process chuid control
+ 		219 = /dev/modems/mwave	MWave modem firmware upload
+ 		220 = /dev/mptctl	Message passing technology (MPT) control
+-		221 = /dev/mvista/hssdsi	Montavista PICMG hot swap system driver
+-		222 = /dev/mvista/hasi		Montavista PICMG high availability
++		221 = /dev/scsi/hotswap	MontaVista SCSI/FC hotswap driver
++		222 = /dev/scsi/gamap	MontaVista SCSI/FC geographical address mapping driver
+ 		240-255			Reserved for local use
+ 
+  11 char	Raw keyboard device
+
+You are re-using minors that have previously been reserved.  Does this
+mean Montavista is dropping their PICMG patches?
+
+diff -uNr linux-2.4.19/drivers/scsi/gamap.c linux-2.4.19-gamap/drivers/scsi/gamap.c
+--- linux-2.4.19/drivers/scsi/gamap.c	Wed Dec 31 17:00:00 1969
++++ linux-2.4.19-gamap/drivers/scsi/gamap.c	Mon Oct 14 11:06:00 2002
+<snip>
++#define __KERNEL_SYSCALLS__
++
++#include <linux/unistd.h>
+
+Any reason for this?  I didn't see any internal syscalls being made, but
+I might have missed them.
+
++int ioctl_gamap_getga_from_fc_wwn (unsigned long parameters);
++int ioctl_gamap_getwwn_from_ga (unsigned long parameters);
++int ioctl_gamap_insert_by_scsi_id (unsigned long parameters);
++int ioctl_gamap_remove_by_scsi_id (unsigned long parameters);
++int ioctl_gamap_insert_by_fc_wwn (unsigned long parameters);
++int ioctl_gamap_remove_by_fc_wwn (unsigned long parameters);
+
+These should all be static (along with being a little shorter).
+
++int gamap_insert_by_fc_wwn (int chassis, int slot, unsigned long long wwn) {
++int i = 0;
++struct Scsi_Host *hba_p;
++Scsi_Device *scsi_device;
++int host, channel, lun, id;
++char devname[32];
++struct gendisk *gendisk;
++int part;
++
++	/*
++	 * Ensure entry not already present in map
++	 * chassis and slot are a match, wwn is seperate match
++	 */
+
+This style is all through the patches.  It is a SCSI way of defining
+local variables?  I'd really recommend indenting them to follow the rest
+of the kernel style.
+
++static int gamap_ioctl (struct inode *inode,
++	struct file *file,
++	unsigned int cmd,
++	unsigned long parameters) {
++
++int result = -EINVAL;
++
++	switch (cmd) {
+
+So you let any user do an ioctl command on the device (this goes for the
+other patch too.)  You should restrict this to CAP_SYS_ADMIN users only.
+
+All of these ioctl commands look like they can easily be done through a
+ramfs like interface.  
+
++EXPORT_SYMBOL (gamap_getga_from_fc_wwn);
++EXPORT_SYMBOL (gamap_getwwn_from_ga);
++EXPORT_SYMBOL (gamap_insert_by_scsi_id);
++EXPORT_SYMBOL (gamap_remove_by_scsi_id);
++EXPORT_SYMBOL (gamap_insert_by_fc_wwn);
++EXPORT_SYMBOL (gamap_remove_by_fc_wwn);
+
+I don't see any other code using these functions.  Is there a need to
+export them?
+
+diff -uNr linux-2.4.19/fs/partitions/check.c linux-2.4.19-gamap/fs/partitions/check.c
+--- linux-2.4.19/fs/partitions/check.c	Fri Aug  2 17:39:45 2002
++++ linux-2.4.19-gamap/fs/partitions/check.c	Mon Oct 14 11:06:21 2002
+@@ -334,6 +334,35 @@
+ }
+ #endif  /*  CONFIG_DEVFS_FS  */
+ 
++#ifdef CONFIG_GAMAP
++static void devfs_gamap_register_partition (struct gendisk *gendisk, int minor, int part) {
++char devname[16];
+
+You shouldn't use a #ifdef within this .c file.  I think you could move
+it to your specific file, and then use #ifdef within a .h file.  This
+also goes for your other change to this file.
+
+diff -uNr linux-2.4.19/include/linux/genhd.h linux-2.4.19-gamap/include/linux/genhd.h
+--- linux-2.4.19/include/linux/genhd.h	Fri Aug  2 17:39:45 2002
++++ linux-2.4.19-gamap/include/linux/genhd.h	Mon Oct 14 11:14:20 2002
+@@ -63,6 +63,8 @@
+ 	unsigned long nr_sects;
+ 	devfs_handle_t de;              /* primary (master) devfs entry  */
+ 	int number;                     /* stupid old code wastes space  */
++	devfs_handle_t de_gamap;	/* ga map device entry */
++
+ 
+ 	/* Performance stats: */
+ 	unsigned int ios_in_flight;
+@@ -98,6 +100,8 @@
+ 	struct gendisk *next;
+ 	struct block_device_operations *fops;
+ 
++	devfs_handle_t de_gadir;	/* GA device entry directory chassis/slot/host */
++	devfs_handle_t de_gamap[17];	/* for GA Mapping, need 17 entries  (disc + 16 parts ) */
+ 	devfs_handle_t *de_arr;         /* one per physical disc */
+ 	char *flags;                    /* one per physical disc */
+ };
+
+
+Ouch, do you really need all of these handles?
+
+As the gendisk interface has been cleaned up a _lot_ in 2.5, I'm not so
+sure how well this implementation will now work.
+
+Pretty much the same comments apply for your scsi-hotswap-main.patch
+(devfs reliance, coding style, loads of ioctls, long ioctl function
+names, global functions that don't need to be, etc.)
+
+I also noticed that this code is included in the CGL CVS tree.  What is
+MontaVista's (and yours) future plans for this feature?  Do you want it
+in the main kernel tree, and are you willing to port it to 2.5?
+
+thanks,
+
+greg k-h

@@ -1,67 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315454AbSHBPqX>; Fri, 2 Aug 2002 11:46:23 -0400
+	id <S315503AbSHBPsQ>; Fri, 2 Aug 2002 11:48:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315456AbSHBPqX>; Fri, 2 Aug 2002 11:46:23 -0400
-Received: from mta02bw.bigpond.com ([139.134.6.34]:53720 "EHLO
-	mta02bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S315454AbSHBPqW>; Fri, 2 Aug 2002 11:46:22 -0400
-Message-ID: <3D4AAB32.8050608@snapgear.com>
-Date: Sat, 03 Aug 2002 01:54:26 +1000
-From: gerg <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.0.0) Gecko/20020530
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: linux-2.5.30uc0 MMU-less patches
-References: <3D4A27FE.8030801@snapgear.com> <20020802141652.E25761@suse.de> <3D4AA573.3000705@snapgear.com> <20020802173449.N25761@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315513AbSHBPsP>; Fri, 2 Aug 2002 11:48:15 -0400
+Received: from noose.gt.owl.de ([62.52.19.4]:40970 "HELO noose.gt.owl.de")
+	by vger.kernel.org with SMTP id <S315503AbSHBPsO>;
+	Fri, 2 Aug 2002 11:48:14 -0400
+Date: Fri, 2 Aug 2002 17:51:41 +0200
+From: Florian Lohoff <flo@rfc822.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4.19-rc5 cyclades.c one liner
+Message-ID: <20020802155141.GB26459@paradigm.rfc822.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/WwmFnJnmDyWGHa4"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organization: rfc822 - pure communication
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
 
-Dave Jones wrote:
-> On Sat, Aug 03, 2002 at 01:29:55AM +1000, gerg wrote:
->  > Yep, there sure is some crap in there :-)
->  > Obviously left over from the original copy out
->  > from arch/i386/config.in.
->  > 
->  > I have cleaned all that silly stuff out for the
->  > next patch.
-> 
-> With the silly nits like that aside, it leaves just the
-> more serious 'issues' such as those brought up by Willy
-> earlier.
-> 
-> The whole idea of a seperate mmnommu (or was it nommumm/ ?)
-> directory seemed a bit odd-looking too. (Asides from the
-> horrible name)
-
-It surely is a horrible name :-)
+--/WwmFnJnmDyWGHa4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-> I didn't check the code in detail, but
-> is there really that little that can be shared between
-> the regular mm/ ?
+Hi,
+i dont think this is left over intentionally - At least it breaks the
+Cyclades-Z=20
 
-No, there is actually a lot in common. Probably something
-like 70%. This is really a question of organization.
+diff -Nur linux-2.4.19-rc5/drivers/char/cyclades.c linux/drivers/char/cycla=
+des.c
+--- linux-2.4.19-rc5/drivers/char/cyclades.c	Mon Feb 25 19:37:57 2002
++++ linux/drivers/char/cyclades.c	Fri Aug  2 15:45:38 2002
+@@ -5175,7 +5175,6 @@
+ 		/* Although we don't use this I/O region, we should
+ 		   request it from the kernel anyway, to avoid problems
+ 		   with other drivers accessing it. */
+-		request_region(cy_pci_phys1, CyPCI_Zctl, "Cyclades-Z");
+ 		resource =3D request_region(cy_pci_phys1, CyPCI_Zctl,=20
+ 					  "Cyclades-Z");
+ 		if (resource =3D=3D NULL) {
 
-I would much prefer to see the non-mmu support in with mm.
-But it would mean a few #ifdef's in there to allow for
-the differences.
+Flo
+--=20
+Florian Lohoff                  flo@rfc822.org             +49-5201-669912
+                        Heisenberg may have been here.
 
-Regards
-Greg
+--/WwmFnJnmDyWGHa4
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.snapgear.com
+iD8DBQE9SqqNUaz2rXW+gJcRAkCrAJ0SZKI60R2cyiNEfMJA1Mysf1xoZACg2a2S
+4yXAfNIYDvpioZotusIf8r8=
+=XKOo
+-----END PGP SIGNATURE-----
 
+--/WwmFnJnmDyWGHa4--

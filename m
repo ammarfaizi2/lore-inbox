@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbUKOBT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbUKOBRD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261436AbUKOBT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 20:19:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbUKOBT5
+	id S261424AbUKOBRD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 20:17:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbUKOBQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 20:19:57 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:35089 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261436AbUKOBTp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 20:19:45 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Ralf.Hildebrandt@charite.de (Ralf Hildebrandt)
-Subject: Re: Linux 2.6.9-ac8
-Cc: linux-kernel@vger.kernel.org
-Organization: Core
-In-Reply-To: <20041114182138.GF5708@charite.de>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1CTVWg-00079i-00@gondolin.me.apana.org.au>
-Date: Mon, 15 Nov 2004 12:19:26 +1100
+	Sun, 14 Nov 2004 20:16:54 -0500
+Received: from ozlabs.org ([203.10.76.45]:57009 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261425AbUKOBOv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 20:14:51 -0500
+Subject: Re: [PATCH] handle quoted module parameters
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: yiding_wang@agilent.com, arjan@infradead.org,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <41943931.4090008@osdl.org>
+References: <08A354A3A9CCA24F9EE9BE13600CFBC50F3AED@wcosmb07.cos.agilent.com>
+	 <41943754.6090806@osdl.org>  <41943931.4090008@osdl.org>
+Content-Type: text/plain
+Date: Mon, 15 Nov 2004 12:14:47 +1100
+Message-Id: <1100481287.7381.20.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralf Hildebrandt <Ralf.Hildebrandt@charite.de> wrote:
+On Thu, 2004-11-11 at 20:16 -0800, Randy.Dunlap wrote: 
+> Here's a patch with better description.
 > 
-> I'm seeing these with 2.6.9-ac8:
 > 
-> Nov 14 18:40:09 kasbah kernel: retrans_out leaked.                      
-> Nov 14 18:41:25 kasbah kernel: retrans_out leaked.                      
-> Nov 14 18:42:44 kasbah kernel: retrans_out leaked.                      
-> 
-> What is that?
+> Fix module parameter quote handling.
+> Module parameter strings (with spaces) are quoted like so:
+> "modprm=this test"
+> and not like this:
+> modprm="this test"
 
-There are known TCP problems in 2.6.9.  Please test 2.6.10-rc1 or
-later.
+Well, the quote handling in insmod was ripped out after 3.0, exactly
+because it was broken like this.  But modprobe will use the latter form,
+since it will paste it straight from the modprobe.conf file (which needs
+quotes in options lines).
+
+Hope that clarifies,
+Rusty.
+PS. module-init-tools 3.1 just out...
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+A bad analogy is like a leaky screwdriver -- Richard Braakman
+

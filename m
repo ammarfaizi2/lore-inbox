@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315346AbSDWUp0>; Tue, 23 Apr 2002 16:45:26 -0400
+	id <S315326AbSDWVIO>; Tue, 23 Apr 2002 17:08:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315348AbSDWUpZ>; Tue, 23 Apr 2002 16:45:25 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:3085 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S315346AbSDWUpZ>; Tue, 23 Apr 2002 16:45:25 -0400
-Date: Tue, 23 Apr 2002 17:45:11 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Pavel Machek <pavel@suse.cz>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, Larry McVoy <lm@bitmover.com>,
-        Ian Molton <spyro@armlinux.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-In-Reply-To: <20020421231620.F155@toy.ucw.cz>
-Message-ID: <Pine.LNX.4.44L.0204231743370.7447-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S315335AbSDWVIN>; Tue, 23 Apr 2002 17:08:13 -0400
+Received: from daimi.au.dk ([130.225.16.1]:31037 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S315326AbSDWVIM>;
+	Tue, 23 Apr 2002 17:08:12 -0400
+Message-ID: <3CC5CD38.DC57DFA3@daimi.au.dk>
+Date: Tue, 23 Apr 2002 23:08:08 +0200
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-12smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.5.9 remove warnings
+In-Reply-To: <10704.1019533171@kao2.melbourne.sgi.com> <3CC5A8AF.432380E3@zip.com.au>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Apr 2002, Pavel Machek wrote:
+Andrew Morton wrote:
+> 
+> Is it not possible to fix it for all time?
+> 
+> --- linux-2.5.9/include/linux/compiler.h        Sun Apr 14 15:45:08 2002
+> +++ 25/include/linux/compiler.h Tue Apr 23 11:27:37 2002
+> @@ -10,8 +10,8 @@
+>  #define __builtin_expect(x, expected_value) (x)
+>  #endif
+> 
+> -#define likely(x)      __builtin_expect((x),1)
+> -#define unlikely(x)    __builtin_expect((x),0)
+> +#define likely(x)      __builtin_expect((x) != 0, 1)
+> +#define unlikely(x)    __builtin_expect((x) != 0, 0)
+> 
+>  /* This macro obfuscates arithmetic on a variable address so that gcc
+>     shouldn't recognize the original var, and make assumptions about it */
 
-> > > How about a URL instead?  Any objection?
-> >
-> > Yes.  Why should I have to cut and paste (assuming I'm in X) or
-> > write down and transpose some URL from a file that used to contain
->
-> And why should I waste my disk space with BK docs?
+Wouldn't "!!(x)" make more sense here than "(x) != 0"?
+(I don't like comparing pointers with integers.)
 
-Because they're useful for many people.
-
-It's easy to rephrase that question to:
-
-"Why should I waste my disk space with SCSI drivers?"
-"Why should I waste my disk space with MIPS support?"
-"Why should I waste my disk space with bluetooth drivers?"
-
-In each of these cases you'll get the same answer that I gave
-to your question.
-
-regards,
-
-Rik
 -- 
-	http://www.linuxsymposium.org/2002/
-"You're one of those condescending OLS attendants"
-"Here's a nickle kid.  Go buy yourself a real t-shirt"
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:razor-report@daimi.au.dk

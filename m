@@ -1,59 +1,88 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314149AbSEaBYW>; Thu, 30 May 2002 21:24:22 -0400
+	id <S314227AbSEaB2u>; Thu, 30 May 2002 21:28:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314227AbSEaBYV>; Thu, 30 May 2002 21:24:21 -0400
-Received: from dsl-213-023-038-015.arcor-ip.net ([213.23.38.15]:37086 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S314149AbSEaBYU>;
-	Thu, 30 May 2002 21:24:20 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Skip Ford <skip.ford@verizon.net>
-Subject: Re: KBuild 2.5 Impressions
-Date: Fri, 31 May 2002 03:24:00 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200205302155.g4ULtEb09500@buggy.badula.org> <E17Daa5-0007iZ-00@starship> <20020531011600.ENOZ28280.pop018.verizon.net@pool-141-150-239-239.delv.east.verizon.net>
+	id <S314241AbSEaB2t>; Thu, 30 May 2002 21:28:49 -0400
+Received: from [64.86.155.132] ([64.86.155.132]:40722 "HELO vger.kernel.org")
+	by vger.kernel.org with SMTP id <S314227AbSEaB2s>;
+	Thu, 30 May 2002 21:28:48 -0400
+From: "Dr.TONDE" <dr_tonde@rediffmail.com>
+Date: Fri, 31 May 2002 02:29:44
+To: linux-kernel@vger.kernel.org
+Subject: PRIVATE BUSINESS
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17Db96-0007iy-00@starship>
+Content-Type: text/plain;charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20020531012848Z314227-22651+70622@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 31 May 2002 03:20, Skip Ford wrote:
-> Daniel Phillips wrote:
-> > On Friday 31 May 2002 02:13, Kenneth Johansson wrote:
-> > > On Fri, 2002-05-31 at 01:19, Daniel Phillips wrote:
-> > > > 
-> > > > I think that with these breakups done the thing would be sufficiently
-> > > > digestible to satisfy Linus.  Now that I think of it, Linus's request
-> > > 
-> > > Maybe I'm the idiot here but what dose this gain you??
-> > >
-> > > The reason to break up a patch is not simply to get more of them. There
-> > > is no point in splitting if you still need to use every single one of
-> > > them to make anything work. 
-> > 
-> > See above.  It's all about analyzing the structure of the patch.  To be
-> > fair though, it took me less than an hour to get a pretty good idea of
-> > how the current patch set is structured.
-> 
-> I could be wrong but I think Linus wants small patches that slowly
-> convert kbuild24 to kbuild25, and not just a chopped up wholesale
-> kbuild25.
+The Desk of Dr.TONDE
+ 
+ 
+Zenith Bank of Nigeria,
+Lagos-Nigeria.
+ 
+Dear Sir,
 
-I hope you're wrong, because that does not sound reasonable.  On the other
-hand, the two build systems coexist quite happily in the same tree.  You
-have to explicitly do the -f Makefile-2.5 for the new build system to kick
-in.  So nobody is being asked to make any sudden change, people can convert
-at their own convenience.
+STRICTLY A PRIVATE BUSINESS PROPOSAL
+ 
+I am Dr.TONDE, The manager, Bills and
+Exchange at the Foreign Remittance Department of the Zenith
+Bank of Nigeria Plc. I am writing this letter to ask for your
+support and cooperation to carry out this business opportunity in 
+my department.
+We discovered an  abandoned sum of USD$50.3M(Fifty million three 
+hundreds United States Dollars only) in an account that belongs to 
+one of our foreign customers who died along with his entire family 
+of a wife and two children in November 1997 in a Plane crash.
 
-> There's a big difference between splitting kb25 into pieces and figuring
-> out a way to migrate from kb24 to kb25 with small patches.  You're
-> suggesting the former while Linus wants the latter.
+Since we heard of his death, we have been expecting
+his next-of-kin to come over and put claims for his money as the 
+heir, because we cannot release the fund from his account unless 
+someone applies for claim as the next-of-kin to
+the deceased as indicated in our banking guidelines.
+Unfortunately, neither their family member nor
+distant relative has everappeared to claim the said fund. Upon this
+discovery, I and other officials in my department have agreed to 
+make business with you and release the total amount into your 
+account as the heir of the fund since no one came
+for it or discovered he maintained account with our bank, otherwise 
+the fund will be returned to the banks treasury as unclaimed fund.
+We have agreed that our ratio of sharing will be as
+stated thus;
 
-If that's really a correct interpretation, it would be weird.  I hope it
-isn't.
+20 % for you as foreign partner,
+5 % for us the officials in my department and
+5 % for the settlement of all local and foreign
+expences incurred by us and you during the course of
+this business.
+Upon the successful completion of this transfer, I
+and one of my colleagues will come to your country and
+mind our share. It is from our 75 % we intend to import 
+Agricultural Machineries into my country
+as a way of recycling the fund. To commence this
+transaction, we require you to immediately
+indicate your interest by a return e-mail and
+enclose your private contact telephone number, fax number full
+name and address and your designated bank coordinates to enable us 
+file letter of claim to the appropriate departments for necessary 
+approvals before the transfer can be
+made. 
 
--- 
-Daniel
+Note also, this transaction must be kept STRICTLY
+CONFIDENTIAL because of its nature.
+ 
+I look forward to receiving your prompt response through me 
+alternative e-mail address (dr_tonde@rediffmail.com).
+ 
+Dr.TONDE
+
+Zenith Bank of Nigeria
+
+
+
+
+
+
+

@@ -1,73 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbUKJOzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbUKJOx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261910AbUKJOzX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 09:55:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbUKJOy0
+	id S261911AbUKJOx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 09:53:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbUKJOxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 09:54:26 -0500
-Received: from dfw-gate1.raytheon.com ([199.46.199.230]:55590 "EHLO
-	dfw-gate1.raytheon.com") by vger.kernel.org with ESMTP
-	id S261910AbUKJOxH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 09:53:07 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.23
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OFB20B576E.5695CD7C-ON86256F48.0050136F@raytheon.com>
-From: Mark_H_Johnson@raytheon.com
-Date: Wed, 10 Nov 2004 08:51:53 -0600
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 11/10/2004 08:51:56 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+	Wed, 10 Nov 2004 09:53:40 -0500
+Received: from ppsw-4.csi.cam.ac.uk ([131.111.8.134]:54488 "EHLO
+	ppsw-4.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261911AbUKJNpU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 08:45:20 -0500
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ntfs-dev@lists.sourceforge.net
+Subject: [PATCH 16/26] NTFS 2.1.22 - Bug and race fixes and improved error handling.
+Message-Id: <E1CRsmf-0006Qj-0Q@imp.csi.cam.ac.uk>
+Date: Wed, 10 Nov 2004 13:45:13 +0000
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
->
->> >- everything else should be SCHED_OTHER. Do latencies get any better if
->> >you do this?
->
->> I can, but that is not necessarily an "apples to apples" comparison.
->
->the goal now would be to simplify the test and work down the issues in
->isolation, instead of looking at a complex setup of mixed workloads and
->just seeing 'it sucks' without knowing which component causes what.
+This is patch 16/26 in the series.  It contains the following ChangeSet:
 
-However based on the results of the last several weeks, it is apparent
-to me that the simple tests are finding only a subset of the problems.
-The stressful series of tests is finding a number of symptoms much
-sooner and more repeatable than those simple tests.
+<aia21@cantab.net> (04/11/03 1.2026.1.50)
+   NTFS: Modify fs/ntfs/aops.c::mark_ntfs_record_dirty() so it allocates
+         buffers for the page if they are not present and then marks the
+         buffers belonging to the ntfs record dirty.  This causes the buffers
+         to become busy and hence they are safe from removal until the page
+         has been written out.
+   
+   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
-I was thinking about this problem this morning and was wondering if
-we could do something like an "end trigger" to help determine the cause
-of some of these pauses. Something like:
- - start to fill / refresh the trace buffer (already doing this?)
- - run RT CPU loop & sample TSC every 100 iterations or so
- - if delta T exceeds 100 usec (or so), then set "end trigger" and
-dump the data from /proc/latency_trace.
-Repeat with some rate limit so we don't get too much data.
-I can still run the stressful test cases to cause the situations and
-get the "just in time" data for the analysis. Perhaps a variant of
-the interface you provided before on tracing a specific path.
+Best regards,
 
-I may do a variant on this anyway. I think its important to see if
-the symptom (> 100 usec CPU delay) is really:
- - lots of short delays
-OR
- - relatively few long delays
-and I have an idea of how to code that up and add to latencytrace.
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
 
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
+===================================================================
 
+diff -Nru a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
+--- a/fs/ntfs/ChangeLog	2004-11-10 13:45:16 +00:00
++++ b/fs/ntfs/ChangeLog	2004-11-10 13:45:16 +00:00
+@@ -61,6 +61,11 @@
+ 	  attribute was found.  (Thanks to Domen Puncer for the bug report.)
+ 	- Add MODULE_VERSION() to fs/ntfs/super.c.
+ 	- Make several functions and variables static.  (Adrian Bunk)
++	- Modify fs/ntfs/aops.c::mark_ntfs_record_dirty() so it allocates
++	  buffers for the page if they are not present and then marks the
++	  buffers belonging to the ntfs record dirty.  This causes the buffers
++	  to become busy and hence they are safe from removal until the page
++	  has been written out.
+ 
+ 2.1.21 - Fix some races and bugs, rewrite mft write code, add mft allocator.
+ 
+diff -Nru a/fs/ntfs/aops.c b/fs/ntfs/aops.c
+--- a/fs/ntfs/aops.c	2004-11-10 13:45:16 +00:00
++++ b/fs/ntfs/aops.c	2004-11-10 13:45:16 +00:00
+@@ -2170,29 +2170,43 @@
+  * @page:	page containing the ntfs record to mark dirty
+  * @ofs:	byte offset within @page at which the ntfs record begins
+  *
+- * If the ntfs record is the same size as the page cache page @page, set all
+- * buffers in the page dirty.  Otherwise, set only the buffers in which the
+- * ntfs record is located dirty.
++ * Set the buffers and the page in which the ntfs record is located dirty.
+  *
+- * Also, set the page containing the ntfs record dirty, which also marks the
+- * vfs inode the ntfs record belongs to dirty (I_DIRTY_PAGES).
++ * The latter also marks the vfs inode the ntfs record belongs to dirty
++ * (I_DIRTY_PAGES only).
++ *
++ * If the page does not have buffers, we create them and set them uptodate.
++ * The page may not be locked which is why we need to handle the buffers under
++ * the mapping->private_lock.  Once the buffers are marked dirty we no longer
++ * need the lock since try_to_free_buffers() does not free dirty buffers.
+  */
+ void mark_ntfs_record_dirty(struct page *page, const unsigned int ofs) {
+-	ntfs_inode *ni;
+-	struct buffer_head *bh, *head;
++	struct address_space *mapping = page->mapping;
++	ntfs_inode *ni = NTFS_I(mapping->host);
++	struct buffer_head *bh, *head, *buffers_to_free = NULL;
+ 	unsigned int end, bh_size, bh_ofs;
+ 
+-	BUG_ON(!page);
+-	BUG_ON(!page_has_buffers(page));
+-	ni = NTFS_I(page->mapping->host);
+-	BUG_ON(!ni);
+-	if (ni->itype.index.block_size == PAGE_CACHE_SIZE) {
+-		__set_page_dirty_buffers(page);
+-		return;
+-	}
++	BUG_ON(!PageUptodate(page));
+ 	end = ofs + ni->itype.index.block_size;
+-	bh_size = ni->vol->sb->s_blocksize;
+-	spin_lock(&page->mapping->private_lock);
++	bh_size = 1 << VFS_I(ni)->i_blkbits;
++	spin_lock(&mapping->private_lock);
++	if (unlikely(!page_has_buffers(page))) {
++		spin_unlock(&mapping->private_lock);
++		bh = head = alloc_page_buffers(page, bh_size, 1);
++		spin_lock(&mapping->private_lock);
++		if (likely(!page_has_buffers(page))) {
++			struct buffer_head *tail;
++
++			do {
++				set_buffer_uptodate(bh);
++				tail = bh;
++				bh = bh->b_this_page;
++			} while (bh);
++			tail->b_this_page = head;
++			attach_page_buffers(page, head);
++		} else
++			buffers_to_free = bh;
++	}
+ 	bh = head = page_buffers(page);
+ 	do {
+ 		bh_ofs = bh_offset(bh);
+@@ -2202,8 +2216,15 @@
+ 			break;
+ 		set_buffer_dirty(bh);
+ 	} while ((bh = bh->b_this_page) != head);
+-	spin_unlock(&page->mapping->private_lock);
++	spin_unlock(&mapping->private_lock);
+ 	__set_page_dirty_nobuffers(page);
++	if (unlikely(buffers_to_free)) {
++		do {
++			bh = buffers_to_free->b_this_page;
++			free_buffer_head(buffers_to_free);
++			buffers_to_free = bh;
++		} while (buffers_to_free);
++	}
+ }
+ 
+ #endif /* NTFS_RW */

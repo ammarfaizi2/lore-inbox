@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131983AbRBKEDi>; Sat, 10 Feb 2001 23:03:38 -0500
+	id <S131877AbRBKEIl>; Sat, 10 Feb 2001 23:08:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131933AbRBKED2>; Sat, 10 Feb 2001 23:03:28 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:7175
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S130384AbRBKEDT>; Sat, 10 Feb 2001 23:03:19 -0500
-Date: Sat, 10 Feb 2001 20:03:10 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Shawn Starr <Shawn.Starr@Home.net>
-cc: lkm <linux-kernel@vger.kernel.org>
-Subject: Re: [QUESTION]: IDE Driver support for S.M.A.R.T?
-In-Reply-To: <3A85F698.5DCB3F1E@Home.net>
-Message-ID: <Pine.LNX.4.10.10102102002430.9599-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S131934AbRBKEIc>; Sat, 10 Feb 2001 23:08:32 -0500
+Received: from msp-65-25-214-194.mn.rr.com ([65.25.214.194]:59789 "EHLO
+	msp-65-25-214-194.mn.rr.com") by vger.kernel.org with ESMTP
+	id <S130041AbRBKEIO>; Sat, 10 Feb 2001 23:08:14 -0500
+Date: Sat, 10 Feb 2001 22:08:08 -0600
+From: Rick Richardson <rickr@mn.rr.com>
+To: linux-kernel@vger.kernel.org
+Subject: Whats the rvmalloc() story?
+Message-ID: <20010210220808.A18488@mn.rr.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Feb 2001, Shawn Starr wrote:
 
-> Does the current (E)IDE driver support SMART?
+I note that at least 5 device drivers have similar implementations
+of rvmalloc()/rvfree() et al:
 
-Yes
+	ieee1394/video1394.c
+	usb/ibmcam.c
+	usb/ov511.c
+	media/video/bttv-driver.c
+	media/video/cpia.c
 
-> Will Linux report any S.M.A.R.T errors or warnings to the system log?
+rvmalloc()/rvfree() are functions that are used to allocate large
+amounts of physically non-contiguous kernel virtual memory that will
+then be mmap()'ed into a user process.
 
-No.
+I just got done writing a driver that needed rvmalloc() in order to do
+chip level simulation.  Yank and put to the rescue.
 
-> Shawn.
+Whats the story behind rvmalloc() et al?  From what I could tell,
+about a year ago there were some patches to move rvmalloc() into
+vmalloc() as a blessed feature of the kernel.  But it looks to
+me like these patches didn't "take".
 
-When? 2.5
+Is there some other way of doing this now?  If so, does somebody
+need to go into these drivers and patch them for the blessed way?
+If not, is there some plan in place to bless these functions and
+remvoe the code duplication?
 
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
+-Rick
 
+-- 
+Rick Richardson  rickr@mn.rr.com      http://home.mn.rr.com/richardsons/
+Twins Cities traffic animations are at http://members.nbci.com/tctraffic/#1
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

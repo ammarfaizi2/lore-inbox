@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261560AbSJ1WVS>; Mon, 28 Oct 2002 17:21:18 -0500
+	id <S261627AbSJ1Wad>; Mon, 28 Oct 2002 17:30:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261573AbSJ1WVS>; Mon, 28 Oct 2002 17:21:18 -0500
-Received: from dp.samba.org ([66.70.73.150]:51113 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261560AbSJ1WVQ>;
-	Mon, 28 Oct 2002 17:21:16 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: dipankar@gamebox.net
-Cc: Hugh Dickins <hugh@veritas.com>, Mingming Cao <cmm@us.ibm.com>,
-       Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]updated ipc lock patch 
-In-reply-to: Your message of "Tue, 29 Oct 2002 01:30:59 +0530."
-             <20021029013059.A13287@dikhow> 
-Date: Tue, 29 Oct 2002 08:41:19 +1100
-Message-Id: <20021028222738.3316B2C4D9@lists.samba.org>
+	id <S261630AbSJ1Wad>; Mon, 28 Oct 2002 17:30:33 -0500
+Received: from 64-60-75-69.cust.telepacific.net ([64.60.75.69]:23816 "EHLO
+	racerx.ixiacom.com") by vger.kernel.org with ESMTP
+	id <S261627AbSJ1Wac>; Mon, 28 Oct 2002 17:30:32 -0500
+Message-ID: <3DBDBBD6.3010602@ixiacom.com>
+Date: Mon, 28 Oct 2002 14:36:06 -0800
+From: Dan Kegel <dkegel@ixiacom.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
+MIME-Version: 1.0
+To: Dan Kegel <dkegel@ixiacom.com>
+CC: linux-kernel@vger.kernel.org, Martin Waitz <tali@admingilde.org>
+Subject: Re: [PATCH] epoll more scalable than poll
+References: <3DBDB33B.6000200@ixiacom.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20021029013059.A13287@dikhow> you write:
-> Hi Rusty,
-> 
-> I am pathologically late in catching up lkml, so if I missed some
-> context here, I apologize in advance. I have just started looking
-> at mm6 ipc code and I want to point out a few things.
+Dan Kegel wrote:
+> The idea of using the kqueue interface was discussed once before.  See
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=97236943118139&w=2
+> for Linus' opinion of kqueues (he doesn't like them much).
 
-That's OK, I'm still 1500 behind 8(
+Hang on - reading again, I wonder if the main reason he didn't like
+kqueue is because it allowed for multiple event queues
+(so libraries don't need to be tightly integrated into
+the main program, for instance).  He preferred one queue
+and callbacks.
 
-	If all current uses are embedded, can we remove the "void
-*arg" and reduce the size of struct rcu_head by 25%?  Users can always
-embed it in their own struct which has a "void *arg", but if that's
-the uncommon case, it'd be nice to slim it a little.
+However, I think Linus admitted later on that nobody liked his
+callback idea, so maybe he'd be receptive to the multiple
+event queue idea now.
 
-	It'd also be nice to change the double linked list to a single
-too: as far as I can tell the only issue is the list_add_tail in
-call_rcu(): how important is this ordering?  It can be done by keeping
-a head as well as a tail pointer if required.
+Um, I assume Ben's aio stuff allows multiple completion queues, right?
+- Dan
 
-I'd be happy to prepare a patch, to avoid more complaints of bloat 8)
-
-> That said, it seems that Ming/Hugh's patch does allocate
-> the rcu_head at the time of *growing* the array. It is just
-> that they allocate it for the freeing array rather than the
-> allocated array. I don't see how this is semantically different
-> from clubbing the two allocations other than the fact that
-> smaller number of allocation calls would likely reduce the
-> likelyhood of allocation failures.
-
-We must be looking at different variants of the patch.  This one does:
-IPC_RMID -> freeary() -> ipc_rcu_free -> kmalloc.
-
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264245AbUA0XdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 18:33:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbUA0XdJ
+	id S265464AbUA0XjK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 18:39:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265658AbUA0Xg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 18:33:09 -0500
-Received: from mail.kroah.org ([65.200.24.183]:6591 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265665AbUA0Xc6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 18:32:58 -0500
-Date: Tue, 27 Jan 2004 15:32:42 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Subject: [BK PATCH] i2c driver fixes for 2.6.2-rc2
-Message-ID: <20040127233242.GA28891@kroah.com>
+	Tue, 27 Jan 2004 18:36:56 -0500
+Received: from mail.kroah.org ([65.200.24.183]:37055 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265464AbUA0XeR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 18:34:17 -0500
+Subject: Re: [PATCH] i2c driver fixes for 2.6.2-rc2
+In-Reply-To: <1075246453858@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 27 Jan 2004 15:34:13 -0800
+Message-Id: <10752464533223@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ChangeSet 1.1474.148.3, 2004/01/23 17:14:52-08:00, khali@linux-fr.org
 
-Here are some i2c driver fixes for 2.6.2-rc2.  It's all a bit of small
-bugfixes and documentation updates.
+[PATCH] I2C: Fix bus reset in i2c-philips-par
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.6
-
-Individual patches will follow, sent to the sensors and linux-kernel
-lists.
-
-thanks,
-
-greg k-h
-
- Documentation/i2c/porting-clients    |    5 --
- drivers/i2c/busses/i2c-parport.h     |    7 ++-
- drivers/i2c/busses/i2c-philips-par.c |    4 +-
- drivers/i2c/busses/i2c-piix4.c       |   48 +++++++++++++-----------
- drivers/i2c/chips/lm75.c             |   12 +++---
- drivers/i2c/chips/lm78.c             |   12 +++---
- drivers/i2c/chips/lm85.c             |   69 ++++++++++-------------------------
- 7 files changed, 67 insertions(+), 90 deletions(-)
------
+This patch fixes the bus reset in i2c-philips-par when it is loaded with
+type!=0. For now, the reset is always made as is type==0. I guess that
+this driver will be abandoned in a while, but it probably doesn't hurt
+to fix that.
 
 
-Greg Kroah-Hartman:
-  o I2C: remove printk() calls in lm85, and clean up debug logic
+ drivers/i2c/busses/i2c-philips-par.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Jean Delvare:
-  o I2C: Bring lm75 and lm78 in compliance with sysfs naming conventions
-  o I2C: Add ADM1025EB support to i2c-parport
-  o I2C: Fix bus reset in i2c-philips-par
-  o I2C: undo documentation change
 
-Mark M. Hoffman:
-  o I2C: i2c-piix4.c bugfix
+diff -Nru a/drivers/i2c/busses/i2c-philips-par.c b/drivers/i2c/busses/i2c-philips-par.c
+--- a/drivers/i2c/busses/i2c-philips-par.c	Tue Jan 27 15:27:08 2004
++++ b/drivers/i2c/busses/i2c-philips-par.c	Tue Jan 27 15:27:08 2004
+@@ -184,8 +184,8 @@
+ 		return;
+ 	}
+ 	/* reset hardware to sane state */
+-	bit_lp_setsda(port, 1);
+-	bit_lp_setscl(port, 1);
++	adapter->bit_lp_data.setsda(port, 1);
++	adapter->bit_lp_data.setscl(port, 1);
+ 	parport_release(adapter->pdev);
+ 
+ 	if (i2c_bit_add_bus(&adapter->adapter) < 0) {
 

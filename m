@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262261AbTFIW4c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 18:56:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbTFIW4c
+	id S262267AbTFIXBv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 19:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbTFIXBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 18:56:32 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:16092 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262261AbTFIW4Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 18:56:25 -0400
-Message-ID: <3EE5190D.3070401@austin.ibm.com>
-Date: Mon, 09 Jun 2003 18:32:29 -0500
-From: Steven Pratt <slpratt@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
-X-Accept-Language: en-us, en
+	Mon, 9 Jun 2003 19:01:50 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:26380 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id S262267AbTFIXBu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 19:01:50 -0400
+Date: Tue, 10 Jun 2003 01:14:56 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: "David S. Miller" <davem@redhat.com>
+cc: zippel@linux-m68k.org, <wa@almesberger.net>, <chas@cmf.nrl.navy.mil>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations
+ (take 2)
+In-Reply-To: <20030609.160013.74730356.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0306100113420.12110-100000@serv>
+References: <Pine.LNX.4.44.0306082228460.5042-100000@serv>
+ <20030608.223501.71104915.davem@redhat.com> <Pine.LNX.4.44.0306100011230.5042-100000@serv>
+ <20030609.160013.74730356.davem@redhat.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.70-mm2 causes performance drop of random read O_DIRECT
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Starting in 2.5.70-mm2 and continuing in the mm tree, there is a 
-significant degrade in random read for block devices using O_DIRECT.   
- The drop occurs for all block sizes and ranges from 30%-40.  CPU usage 
-is also lower although it may already be so low as to be irrelavent.
+Hi,
 
+On Mon, 9 Jun 2003, David S. Miller wrote:
 
-                                 tolerance = 0.00 + 3.00% of 2.5.70-mm1
-             2.5.70-mm1   2.5.70-mm2
- Blocksize      KBs/sec      KBs/sec    %diff         diff    tolerance
----------- ------------ ------------ -------- ------------ ------------
-      4096         1567          924   -41.03      -643.00        47.01  * 
-      8192         3057         1815   -40.63     -1242.00        91.71  * 
-     16384         5745         3509   -38.92     -2236.00       172.35  * 
-     65536        17357        11283   -34.99     -6074.00       520.71  * 
-    262144        37537        27302   -27.27    -10235.00      1126.11  * 
+>    You still need to synchronize with already running functions
+> 
+> netdev->dead = 1;
+> netdev->op_this = NULL;
+> netdev->op_that = NULL;
+> netdev->op_whatever = NULL;
+> synchronize_kernel();
 
+That assumes of course that the functions don't sleep.
+(RCU isn't really the answer to everything.)
 
-Full results can be found at:
-http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-mm2/2.5.70-mm1-vs-2.5.70-mm2/
-
-Steve
+bye, Roman
 

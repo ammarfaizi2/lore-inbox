@@ -1,55 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264702AbUGZAbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264692AbUGZAeh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264702AbUGZAbY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 20:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264701AbUGZAbY
+	id S264692AbUGZAeh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 20:34:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264697AbUGZAeh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 20:31:24 -0400
-Received: from viriato1.servicios.retecal.es ([212.89.0.44]:21233 "EHLO
-	viriato1.servicios.retecal.es") by vger.kernel.org with ESMTP
-	id S264692AbUGZAbM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 20:31:12 -0400
-Message-ID: <410450CA.9080708@hispalinux.es>
-Date: Mon, 26 Jul 2004 02:31:06 +0200
-From: =?ISO-8859-1?Q?Ram=F3n_Rey_Vicente?= <ramon.rey@hispalinux.es>
-User-Agent: Mozilla Thunderbird 0.7.2 (X11/20040714)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Adam J. Richter" <adam@yggdrasil.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Future devfs plans
-References: <200407261445.i6QEjAS04697@freya.yggdrasil.com>
-In-Reply-To: <200407261445.i6QEjAS04697@freya.yggdrasil.com>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sun, 25 Jul 2004 20:34:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:42978 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264692AbUGZAeg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 20:34:36 -0400
+Date: Sun, 25 Jul 2004 17:33:24 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH][2.6.8-rc1-mm1] ipv6/route.c gcc-341 fix inline
+Message-Id: <20040725173324.01451f2b.davem@redhat.com>
+In-Reply-To: <410381B4.1080302@kolivas.org>
+References: <410381B4.1080302@kolivas.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, 25 Jul 2004 19:47:32 +1000
+Con Kolivas <kernel@kolivas.org> wrote:
 
-Adam J. Richter wrote:
+> Fixes the inline error when compiling net/ipv6/route.c with gcc-3.4.1
 
-| 	devfs allows drivers to be loaded when user level programs
-| need them,
+Applied, thanks.
 
-With udev you can do that, and without important bugs :). And the more
-important thing is _udev is in active development_
-- --
-Ramón Rey Vicente       <ramon dot rey at hispalinux dot es>
-jabber ID               <rreylinux at jabber dot org>
-GPGid 9F28E377 - 0BC2 8014 2445 51E8 DE87  C888 C385 A9D3 9F28 E377
-===================================================================
-"Copyright doesn't cover ideas; it's your expression of those
-ideas." (Richard M. Stallman)
-===================================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Please send this, just like any other networking patch,
+to netdev@oss.sgi.com next time.
 
-iD8DBQFBBFDJw4Wp058o43cRAvQtAKCs7YamhdOR2CsJVrtESenJ9Wf+JgCgiWfr
-PKkTykrzFtze8NPX/1Xnl+g=
-=3O07
------END PGP SIGNATURE-----
+

@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264931AbTLWBRN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 20:17:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264937AbTLWBRN
+	id S264887AbTLWBTD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 20:19:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264889AbTLWBTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 20:17:13 -0500
-Received: from amber.ccs.neu.edu ([129.10.116.51]:30677 "EHLO
-	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S264931AbTLWBRD
+	Mon, 22 Dec 2003 20:19:03 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:7810 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S264887AbTLWBTB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 20:17:03 -0500
-Subject: Re: SCO's infringing files list
-From: Stan Bubrouski <stan@ccs.neu.edu>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031223002641.GD28269@pegasys.ws>
-References: <1072125736.1286.170.camel@duergar>
-	 <200312221519.04677.tcfelker@mtco.com>
-	 <Pine.LNX.4.58.0312221337010.6868@home.osdl.org>
-	 <20031223002641.GD28269@pegasys.ws>
-Content-Type: text/plain
-Message-Id: <1072142221.2947.24.camel@duergar>
+	Mon, 22 Dec 2003 20:19:01 -0500
+Date: Mon, 22 Dec 2003 17:18:50 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jonathan Corbet <corbet@lwn.net>, anton@samba.org, mh@nadir.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] seq_file version of /proc/interrupts
+Message-ID: <20031223011850.GV6438@matchmail.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Jonathan Corbet <corbet@lwn.net>, anton@samba.org, mh@nadir.org,
+	linux-kernel@vger.kernel.org
+References: <20031223002217.GC934@krispykreme> <20031223003831.25486.qmail@lwn.net> <20031222164946.61644783.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 22 Dec 2003 20:17:02 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031222164946.61644783.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-12-22 at 19:26, jw schultz wrote:
-> And for the names, perhaps they would care to sue The Open
-> Group?
-> http://www.opengroup.org/onlinepubs/007904975/basedefs/signal.h.html
-> And that probably applies to the rest of these header files.
-
-Just to shore up what jw was talking about:
-
-http://www.opengroup.org/onlinepubs/007904975/basedefs/signal.h.html
-http://www.opengroup.org/onlinepubs/007904975/basedefs/errno.h.html
-http://www.opengroup.org/onlinepubs/007904975/basedefs/ctype.h.html
-
-and for a listing of all the defines the open group has (dir listing):
-
-http://www.opengroup.org/onlinepubs/007904975/basedefs/
-
-Best Regards,
-
-sb
-
+On Mon, Dec 22, 2003 at 04:49:46PM -0800, Andrew Morton wrote:
+> hmm, I seem to have already fixed pppc64.  I'll fix up the other
+                                    ^^^
+Hmm, do their cross connects use PPP? ;)

@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293625AbSCFP7N>; Wed, 6 Mar 2002 10:59:13 -0500
+	id <S293599AbSCFP6N>; Wed, 6 Mar 2002 10:58:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293631AbSCFP7G>; Wed, 6 Mar 2002 10:59:06 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:14607 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S293625AbSCFP6r>;
-	Wed, 6 Mar 2002 10:58:47 -0500
-Date: Wed, 6 Mar 2002 12:58:35 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: The Open Source Club at The Ohio State University 
-	<opensource-admin@cis.ohio-state.edu>
-Cc: linux-kernel@vger.kernel.org, <opensource@cis.ohio-state.edu>
-Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux
- Maintainers
-In-Reply-To: <20020305165233.A28212@fireball.zosima.org>
-Message-ID: <Pine.LNX.4.44L.0203061253040.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S293625AbSCFP6D>; Wed, 6 Mar 2002 10:58:03 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:57836 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S293599AbSCFP5z>; Wed, 6 Mar 2002 10:57:55 -0500
+Date: Wed, 6 Mar 2002 17:43:28 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Vincent Bernat <bernat@free.fr>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@zip.com.au>
+Subject: Re: xmms segfaulting on 2.4.18 and 2.4.19-pre2-ac2 + oops
+In-Reply-To: <m3pu2hn1z2.fsf@neo.loria>
+Message-ID: <Pine.LNX.4.44.0203061739480.19993-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Mar 2002, The Open Source Club at The Ohio State University wrote:
+On Wed, 6 Mar 2002, Vincent Bernat wrote:
 
-> Petition Against Official Endorsement of BitKeeper by Linux Maintainers
->
-> We, the undersigned members and officers of the Open Source Club at
-> the Ohio State University, are unhappy with the advocacy of the
-> proprietary[1] BitKeeper software for use in maintaining the Linux
-> kernel.
+> Unable to handle kernel paging request at virtual address d8d5c000
+> d8d56730
+> *pde = 17c45067
+> Oops: 0000
+> CPU:    0
+> EIP:    0010:[3c59x:__insmod_3c59x_S.bss_L40+828820/101914768]    Not tainted
+> EFLAGS: 00210202
+> eax: 00000001   ebx: 00000003   ecx: ffff389f   edx: fffff888
+> esi: fffff888   edi: d8d59fa6   ebp: d8d5bffe   esp: c445fe90
+> ds: 0018   es: 0018   ss: 0018
+> Process xmms (pid: 2679, stackpage=c445f000)
+> Stack: d8d56840 d8d56730 cae1c710 cae1c6f0 00000000 00000004 00000004 00000001 
+>        f871f871 00000c29 000003ec 00000400 cae1c680 c551b3c0 d8d56a8a cae1c680 
+>        c7a8b500 c7a8b480 00000400 000003ec cae1c680 00000400 cae1c680 00000400 
+> Call Trace: [3c59x:__insmod_3c59x_S.bss_L40+829092/101914496] [3c59x:__insmod_3c59x_S.bss_L40+828820/101914768] [3c59x:__insmod_3c59x_S.bss_L40+829678/101913910] [3c59x:__insmod_3c59x_S.bss_L40+817016/101926572] [3c59x:__insmod_3c59x_S.bss_L40+802037/101941551] 
+> Code: 8b 75 00 e9 87 00 00 00 8b 75 00 81 f6 00 80 00 00 eb 7c 8b 
+> Using defaults from ksymoops -t elf32-i386 -a i386
 
-Maybe I'll take you seriously after you've written something
-better than bitkeeper that is free software.
+I don't think its the 3com's driver fault, please run the decoded oops 
+right after xmms crashes and make sure the map file specified is the 
+correct one. Check out ksymoops(8) for perhaps more help.
 
-Currently bitkeeper is saving kernel hackers many hours of
-work and is benefitting kernel development a lot.
+	Zwane
 
-You won't get me to stop using a good tool that is speeding
-up my development and saving me lots of frustration. OTOH,
-if you have a free software alternative to bitkeeper that
-comes close in functionality, I might be willing to look
-into it.
-
-Until then, the choice between a not-quite-free tool and no
-useful tool at all is easy.
-
-regards,
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
 

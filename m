@@ -1,147 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbUKWTaI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbUKWTaJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261541AbUKWTaI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 14:30:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbUKWT2r
+	id S261543AbUKWTaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 14:30:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbUKWT2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 14:28:47 -0500
-Received: from dfw-gate1.raytheon.com ([199.46.199.230]:24530 "EHLO
-	dfw-gate1.raytheon.com") by vger.kernel.org with ESMTP
-	id S261516AbUKWTZe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 14:25:34 -0500
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-From: Mark_H_Johnson@raytheon.com
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-9
-Date: Tue, 23 Nov 2004 13:24:28 -0600
-Message-ID: <OF103A6225.8159BCC7-ON86256F55.006A9C20-86256F55.006A9C62@raytheon.com>
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 11/23/2004 01:24:40 PM
+	Tue, 23 Nov 2004 14:28:05 -0500
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:13888 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S261519AbUKWT0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 14:26:50 -0500
+Message-ID: <41A38F10.8000609@suse.com>
+Date: Tue, 23 Nov 2004 14:27:12 -0500
+From: Jeff Mahoney <jeffm@suse.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+To: Chris Wright <chrisw@osdl.org>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       James Morris <jmorris@redhat.com>
+Subject: Re: [PATCH 2/5] selinux: adds a private inode operation
+References: <20041121001318.GC979@locomotive.unixthugs.org> <1101145050.18273.68.camel@moss-spartans.epoch.ncsc.mil> <41A22A2D.1000708@suse.com> <1101148090.18273.94.camel@moss-spartans.epoch.ncsc.mil> <41A23922.80501@suse.com> <20041122123000.C14339@build.pdx.osdl.net>
+In-Reply-To: <20041122123000.C14339@build.pdx.osdl.net>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Bogosity: No, tests=bogofilter, spamicity=0.000000, version=0.92.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->i have released the -V0.7.30-9 Real-Time Preemption patch,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The profile script (5 second wait, dump data if wait > 10 seconds) was
-stuck for over 300 seconds & when it woke up there were 34 jobs waiting
-to run. A couple excerpts from the data [will send that separately].
-This was with -V0.7.30-7 (PREEMPT_RT) running latencytest & I believe
-the disk write test (comparing date/time modified of log files...) plus
-a pair of data collecting scripts.
+Chris Wright wrote:
+| * Jeff Mahoney (jeffm@suse.com) wrote:
+|
+|>Excellent. Thanks. Preliminary testing works as expected (ie: deadlocks
+|>don't occur, xattrs/<dir> is removed when owning file is deleted)
+|>
+|>I've integrated the changes into my patch set. With those issues
+|>addressed, would you feel these would be appropriate for inclusion? I
+|>suspect you may have gotten questions as many interested parties in this
+|>feature working as I have.
+|
+|
+| Why add extra hook, when this could be done in VFS with i_flags?
 
-Don't know if this is the journaling problem you mention being fixed
-in -9 or not. This huge delay did not recur with the disk copy test.
+Sure, it could be done w/ an i_flags bit. However, since it's explicitly
+related to the security infrastructure, I think it's more appropriate
+there. There's no change in the size of inode_security_struct, and the
+addition of the deref is trivial given how many other places in the
+file-io path use the same call table. That said, I'll change it to use
+whatever ends up being agreed upon. I'm just looking to get selinux to
+not call xattr routines on reiserfs-internal files/directories.
 
-The odd data point I notice here was the nearly 100% cpu time for
-the shell script get_ltrace.sh which is...
+- -Jeff
 
-#!/bin/sh
+- --
+Jeff Mahoney
+SuSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-let MAX=`cat /proc/sys/kernel/preempt_max_latency`
-let I=0 J=1
-let MP=${1:-1000}
-echo "Current Maximum is $MAX, limit will be $MP."
-while (( I < 100 )) ; do
-    sleep 1s
-    let NOW=`cat /proc/sys/kernel/preempt_max_latency`
-    if (( MAX != NOW )) ; then
-        echo "New trace $I w/ $NOW usec latency."
-        cat /proc/latency_trace > lt.`printf "%02d" $I`
-        sync ; sync
-        let I++
-        let MAX=NOW
-    elif (( J++ >= 10 )) ; then
-        if (( MAX != MP )) ; then
-            echo "Resetting max latency from $MAX to $MP."
-            echo $MP > /proc/sys/kernel/preempt_max_latency
-            let MAX=$MP
-        else
-            echo "No new latency samples at `date`."
-        fi
-        let J=1
-# else do nothing...
-    fi
-done
-
-Perhaps the sync caused the 100% CPU usage for the moment (but certainly
-not for five minutes!). It is however suspicious that the total run time
-for that script (5:33) is very close to the delay time (336 seconds) for
-the profile script. Both of these run at RT FIFO priority 1. There is also
-a 5 minute gap in the files generated by get_ltrace.sh as well.
-
---Mark
-
---- excerpts follow ---
-
-Tue Nov 23 12:40:48 CST 2004
-336 seconds elapsed time.
-Load Average ->
-36.00 24.57 12.44 36/125 8600
-
-Tasks in RUN state...
-
-                        PID PRI RTPRIO  NI S     TIME %CPU CMD
-041123-01/prof002.txt:    1  23      -   0 R 00:00:04  0.1 init [5]
-041123-01/prof002.txt:    5  34      - -10 R 00:00:00  0.0 [desched/0]
-041123-01/prof002.txt:    8  34      - -10 R 00:00:00  0.0 [desched/1]
-041123-01/prof002.txt:  100  24      -   0 R 00:00:00  0.0 [pdflush]
-041123-01/prof002.txt:  310  24      -   0 R 00:00:00  0.0 [kirqd]
-041123-01/prof002.txt:  320  24      -   0 R 00:00:02  0.1 [kjournald]
-041123-01/prof002.txt: 1208  23      -   0 R 00:00:03  0.1 [kjournald]
-041123-01/prof002.txt: 1803  23      -   0 R 00:00:00  0.0 /sbin/dhclient
--1 -q -lf /var/lib/dhcp/dhclient-eth0.leases -pf /var/run/dhclient-eth0.pid
--cf /etc/dhclient-eth0.conf eth0
-041123-01/prof002.txt: 1838  23      -   0 R 00:00:00  0.0 syslogd -m 0
-041123-01/prof002.txt: 1909  23      -   0 R 00:00:00  0.0 rpc.idmapd
-041123-01/prof002.txt: 2040  23      -   0 R 00:00:18  0.7 /usr/sbin/nscd
-041123-01/prof002.txt: 2072  23      -   0 R 00:00:02  0.0 cupsd
-041123-01/prof002.txt: 2361  23      -   0 R 00:00:00  0.0 ntpd -U ntp -p
-/var/run/ntpd.pid
-041123-01/prof002.txt: 2381  23      -   0 R 00:00:00  0.0
-/usr/local/nagios/sbin/nrpe -c /usr/local/nagios/etc/nrpe.cfg -d
-041123-01/prof002.txt: 2400  23      -   0 R 00:00:00  0.0 sendmail:
-accepting connections
-041123-01/prof002.txt: 2426  23      -   0 R 00:00:00  0.0 gpm -m
-/dev/input/mice -t imps2
-041123-01/prof002.txt: 2551  23      -   0 R 00:00:00  0.0 crond
-041123-01/prof002.txt: 2574  23      -   0 R 00:00:00  0.0 xfs -droppriv
--daemon
-041123-01/prof002.txt: 2593  23      -   0 R 00:00:00  0.0 /usr/sbin/atd
-041123-01/prof002.txt: 2911  23      -   0 R 00:00:00  0.0
-/usr/bin/ssh-agent /home/u21305/.Xclients
-041123-01/prof002.txt: 2944  23      -   0 R 00:00:00  0.0 kdeinit:
-klauncher
-041123-01/prof002.txt: 2947  24      -   0 R 00:00:02  0.1 kdeinit: kded
-041123-01/prof002.txt: 3174  24      -   0 R 00:00:03  0.1 kdeinit: knotify
-041123-01/prof002.txt: 3196  23      -   0 R 00:00:00  0.0 kwrapper
-ksmserver
-041123-01/prof002.txt: 3201  23      -   0 R 00:00:02  0.0 kdeinit:
-kdesktop
-041123-01/prof002.txt: 3203  24      -   0 R 00:00:18  0.7 kdeinit: kicker
-041123-01/prof002.txt: 3216  23      -   0 R 00:00:00  0.0
-/sbin/pam_timestamp_check -d root
-041123-01/prof002.txt: 3220  23      -   0 R 00:00:11  0.4 kdeinit: konsole
--session 11c034d757000106674694500000017150004_1101232254_900758
-041123-01/prof002.txt: 3624  41      1   0 R 00:00:04  0.2 /bin/sh
-./getlog.sh
-041123-01/prof002.txt: 3782   4      -  10 R 00:20:05 68.5 ./cpu_burn
-041123-01/prof002.txt: 6030  23      -   0 R 00:00:01  0.1
-/usr/bin/kdesktop_lock
-041123-01/prof002.txt: 8497  21      -   0 R 00:00:06  1.6 head -c
-750000000 /dev/zero
-041123-01/prof002.txt: 8594  70      1   0 R 00:05:33 99.9 /bin/sh
-./get_ltrace.sh 100
-
+iD8DBQFBo48QLPWxlyuTD7IRAiIlAJ9wN7JPywCVz/UVJ1dVTM1kQphPRQCgoK8J
+TMDL9KrBABk49cbfN7AcoOA=
+=6RPR
+-----END PGP SIGNATURE-----

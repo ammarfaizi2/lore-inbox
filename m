@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315491AbSG3Rog>; Tue, 30 Jul 2002 13:44:36 -0400
+	id <S318370AbSG3Rqb>; Tue, 30 Jul 2002 13:46:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315856AbSG3Rog>; Tue, 30 Jul 2002 13:44:36 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:1664 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S315491AbSG3Rof>;
-	Tue, 30 Jul 2002 13:44:35 -0400
-Date: Tue, 30 Jul 2002 00:24:36 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2/9] 2.5.6 lm_sensors
-Message-ID: <20020729222434.GB15219@elf.ucw.cz>
-References: <3D381CD1.6A0B9909@bellsouth.net> <1027130877.14314.6.camel@irongate.swansea.linux.org.uk> <20020726104640.GD279@elf.ucw.cz> <1027694678.13429.40.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1027694678.13429.40.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S315856AbSG3Rqa>; Tue, 30 Jul 2002 13:46:30 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:4100 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S318367AbSG3RqY>; Tue, 30 Jul 2002 13:46:24 -0400
+Date: Tue, 30 Jul 2002 14:49:39 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Robert Love <rml@tech9.net>,
+       <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] 2.5-rmap: VM strict overcommit
+In-Reply-To: <20020729222052.GA15219@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44L.0207301449100.8815-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 30 Jul 2002, Pavel Machek wrote:
 
-> > Someone should write windows virus killing thinkpads -- to get some
-> > nice publicity for IBM. Hardware that commits suicide on i2c access is
-> > just not nice.
-> > 
-> > Hmm, perhaps bugtraq article with "severe DoS on thinkpad hardware"
-> > would be nice, too.
-> 
-> Given an afternoon someone competent can easily write a worm that
-> destroys every scsi hard disk, almost every PC bios, your IDE firmware,
-> some laptop batteries some USB devices and far more.
+> > > In what scenario can "strict overcommit" kill?
+> >
+> > When the kernel grabs over 50% of RAM. Remember that includes page
+> > tables. I've seen the kernel taking 35% of RAM.
+>
+> But it could happen that kernel would attempt to allocate 101% of RAM
+> for page tables, right? At that even "paranoid overcommit" might be OOM,
+> right?
 
-Every scsi harddisk? I do not think *all* of them have upgradable
-firmware.
+Indeed, there are a number of places where memory allocation
+by the kernel is pretty much unbound.
 
-Every PC bios? I believe many manufacturers are clever enough to
-require jumper.
+IMHO we need to fix those.
 
-If hardware is so crappy it is possible to kill it ... well ... I
-believe it is at least bugtraq topic.
+regards,
 
-> The "you cant break the computer" thing is simply not true for almost
-> any PC class device. 
-> 
-> I wouldn't pick on IBM here.
-
-They were the first where breaking hardware by software is so easy
-that it happens by accident. That's looks like good enough reason to
-pick on them.
-								Pavel
+Rik
 -- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+	http://www.linuxsymposium.org/2002/
+"You're one of those condescending OLS attendants"
+"Here's a nickle kid.  Go buy yourself a real t-shirt"
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,78 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267860AbUGWRvq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267871AbUGWSU1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267860AbUGWRvq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 13:51:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267861AbUGWRvq
+	id S267871AbUGWSU1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 14:20:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267872AbUGWSU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 13:51:46 -0400
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:38625 "EHLO mta1.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S267860AbUGWRvf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 13:51:35 -0400
-To: linux-kernel@vger.kernel.org
-cc: Keir.Fraser@cl.cam.ac.uk, Ian.Pratt@cl.cam.ac.uk, Steven.Hand@cl.cam.ac.uk
-Subject: [RFC] Blkdev request merging over discontiguous DMA memory
-Date: Fri, 23 Jul 2004 18:51:33 +0100
-From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Message-Id: <E1Bo4Cj-00013Z-00@mta1.cl.cam.ac.uk>
+	Fri, 23 Jul 2004 14:20:27 -0400
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:26773 "EHLO
+	websrv.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S267871AbUGWSUZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 14:20:25 -0400
+Subject: Re: [PATCH] Delete cryptoloop
+From: Christophe Saout <christophe@saout.de>
+To: Kevin Corry <kevcorry@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org,
+       Walter Hofmann <lkml-040723143345-5954@secretlab.mine.nu>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200407230901.33814.kevcorry@us.ibm.com>
+References: <2kvT4-5AY-1@gated-at.bofh.it> <2kECW-3a0-7@gated-at.bofh.it>
+	 <E1BnzGM-0005zX-00@gimli.local>  <200407230901.33814.kevcorry@us.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-hUz+enPtvGAuuodtMS/u"
+Date: Fri, 23 Jul 2004 20:20:18 +0200
+Message-Id: <1090606819.17093.1.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.9.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
+--=-hUz+enPtvGAuuodtMS/u
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-As a developer of the Xen virtual machine monitor, I'm finding that
-our approach to physical memory management is causing us headaches in
-integrating with Linux's physical block-device drivers. The problem is
-the request-merging code in the IDE and SCSI layers, which assume that
-adjacent requests in 'physical' memory can be merged, even when the
-merged buffer straddles a page boundary.  This is a problem when
-running over Xen, as the underlying machine pages allocated to the OS
-are not necessarily contiguous.
+Am Fr, den 23.07.2004 um 9:01 Uhr -0500 schrieb Kevin Corry:
 
-We can see a few possible approaches to resolving this problem; our
-current stop-gap fix is to check for invalidly-merged scatter-gather
-lists within pci_map_sg/dma_map_sg(), and to return 0 (a fairly
-widely-recognised error return for this function) to the caller if a
-bad multi-page element is found.
+> > I use cryptoloop and I would be really annoyed if it disappeared in
+> > the stable kernel series. Besides, I read in another mail in this threa=
+d
+> > that dm-crypt will not work with file-based storage (I'm using
+> > cryptoloop on a file), and that it is new and potentially buggy.
+>=20
+> Just to clarify this one point...
+> Device-Mapper (and thus dm-crypt) can only create mappings on block-devic=
+es.=20
+> However, in your situation, you could just take a two-step approach of=20
+> creating a loop device on the encrypted file (using losetup), and then us=
+ing=20
+> dm-crypt on top of this loop device.
 
-We're not sure whether this is the best possible solution to the
-problem, and we've thought up some other possibilites which we list
-below (appended to this email). Does anyone have any comments on
-these, or can anyone point out a better existing solution to this
-problem in 2.4 or 2.6? Help would be greatly appreciated! :-)
+Yes, just look at the Wiki page on http://www.saout.de/misc/dm-crypt/ ,
+people have contributed a lot of scripts.
 
-Please CC any responses to my personal email address as I am not
-subscribed to linux-kernel.
 
-Thanks in advance for any comments/help/insight that anyone can
-provide!
+--=-hUz+enPtvGAuuodtMS/u
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
- -- Keir Fraser
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
- 1. Add an arch-specific compile macro (e.g.,
- BLKDEV_NO_MULTIPAGE_MERGE) that would prevent request merging across
- page boundaries in the various blkdev drivers.
+iD8DBQBBAVbiZCYBcts5dM0RAoY7AJ4jL+PM2B6MkDh2BDNf0BgRh5K4owCfXJ0n
+ka33HqG1o4zYcwvf0/vEF9Q=
+=Z0Kp
+-----END PGP SIGNATURE-----
 
- 2. Allow pci_map_sg() to /increase/ the number of sg elements in
- cases where arch-specific code determines that multi-page elements
- need to be split.
-
- 3. Ensure that all callers to pci_map_sg() can handle an error return
- (return 0) in a safe manner. This si what we currently rely on, and I
- believe it is a safe fix for IDE devices, which should fall back to PIO
- mode for that sg list. However, I think the merging problem may also
- exist for SCSI devices, and most of those do not seem to correctly
- pick up and handle a 0 return value as meaning 'could not map the sg
- list to DMA addresses'. Am I mistaken in my reading of the code?
- 
- 4. Define that individual elements of the generic scatter-gather list
- structure must each reside entirely within a single memory page (i.e.,
- elements should not span page boundaries). This would avoid
- overzealous merging in the blkdev drivers (since it would be
- disallowed). My guess is that performance would hardly be affected in
- most cases as the chances of allocating adjacent memory pages for
- blkdev transfers are pretty small. In any case, pci_map_sg/dma_map_sg
- could then be allowed to merge across page boundaries in an
- arch-specific and -safe manner.
+--=-hUz+enPtvGAuuodtMS/u--
 

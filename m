@@ -1,75 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264117AbTICRSR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 13:18:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264116AbTICRRD
+	id S263830AbTICRIp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 13:08:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264079AbTICRHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 13:17:03 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:65034 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id S264115AbTICRQw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 13:16:52 -0400
-Date: Wed, 3 Sep 2003 18:18:28 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: "Nikita V. Youshchenko" <yoush@cs.msu.su>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Strange situation while writing CDR from iso file on tmpfs
-In-Reply-To: <200309030120.54112@sercond.localdomain>
-Message-ID: <Pine.LNX.4.44.0309031745110.2222-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Wed, 3 Sep 2003 13:07:00 -0400
+Received: from alfarrabio.di.uminho.pt ([193.136.20.210]:34265 "HELO
+	alfarrabio.di.uminho.pt") by vger.kernel.org with SMTP
+	id S263980AbTICRFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 13:05:33 -0400
+Subject: Re: Problems compiling kernel 2.4.22
+From: Alberto Manuel =?ISO-8859-1?Q?Brand=E3o_Sim=F5es?= 
+	<albie@alfarrabio.di.uminho.pt>
+Reply-To: albie@alfarrabio.di.uminho.pt
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.53.0309031257410.28170@chaos>
+References: <1062606509.623.20.camel@eremita.di.uminho.pt>
+	 <1062607884.623.23.camel@eremita.di.uminho.pt>
+	 <Pine.LNX.4.53.0309031257410.28170@chaos>
+Content-Type: text/plain; charset=iso-8859-15
+Organization: Departamento de  =?ISO-8859-1?Q?=20Inform=C3=A1tica?= - Universidade do Minho
+Message-Id: <1062609049.860.4.camel@eremita.di.uminho.pt>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 03 Sep 2003 18:10:50 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Sep 2003, Nikita V. Youshchenko wrote:
+On Wed, 2003-09-03 at 17:58, Richard B. Johnson wrote:
+> On Wed, 3 Sep 2003, Alberto Manuel [ISO-8859-1] Brandão Simões wrote:
+> > On Wed, 2003-09-03 at 17:28, Alberto Manuel Brandão Simões wrote:
+> > > [1.] One line summary of the problem:
+> > >  modules symbols broken references
+> > >
+> > > [2.] Full description of the problem/report:
+> > >  when I make 'make modules_install' I get:
+> > >  depmod: *** Unresolved symbols in /lib/modules/2.4.22/kernel/net/ipv4/ipip.o
+> > >  depmod:         ip_send_check
+> > >  depmod:         register_netdevice
+> > >  ..
+> > >
+> > > and so on, and not only for these modules: vfat, smbfs, msdos, etc
+> > >
+> > > By the way, when I tried to ssh to paste more information, I got in the
+> > > console:
 > 
-> First I grabbed the iso image to a file in /tmp, which is tmpfs on my 
-> system.
-> Then I tried to write it using cdrecord at speed 24, and got an i/o error 
-> that looked like buffer underrun.
-> I insered another disk and repeated write attempt. And got i/o error again 
-> almost at the same byte offset (459716608 first time, 459399168 second 
-> time).
+> [SNIPPED...]
+> 
+> BYW. Did you try booting the new system, THEN, executing `depmod -a` ?
+ok. In this case, it does not give any broken reference.
+But, then, why does make modules_install run depmod if we know (almost
+certain) that it will give broken references?
 
-That's curious, I don't have an explanation for why 438MB should be
-repeatably significant on your 256MB system.  I'm pretty sure tmpfs
-itself doesn't have any "438MB" coded into it!  Maybe it tended to
-to horrible seeking around swap at that point; maybe shrink_cache
-got stuck too much on wait_on_page; I'm only guessing.
+But, I need some more help. I can't load any ACPI modules, getting a No
+such device as answer. I don't have also a /proc/acpi directory.
 
-> I was able to write the image only after I copied it from tmpfs to my home 
-> directory on reiserfs (file was copied without any errors).
-> ... 
-> Computer on which it happened has only 256M of RAM, and iso file size was 
-> about 700M. So large parts of the file in tmpfs actually resided in swap.
-
-I'm sure you did the right thing, copying it to a grown-up filesystem.
-
-tmpfs is fine while everything is in memory, and even when a little
-overflowed to swap; but with so much on swap it's at the mercy of the
-vagaries of the LRU lists, and swap allocation might work out far
-from optimal for it.  tmpfs use of swap is not something we've ever
-tried to optimize for.
-
-Perhaps something exceptionally stupid and avoidable occurs, I'll keep
-your mail as reminder to investigate some day.  But if most of your
-file is going to be on disk, much better to keep it in a filesystem
-which allocates disk blocks to files in a well-designed way, than to
-rely on tmpfs use of swap.
-
-> It seems that several times it took tmpfs unacceptably long to deliver 
-> same part of the file to the reading process. Since it was the same part 
-> of the file, I thought that these particular blocks (located on 
-> particular blocks of the swap partition) could trigger some situation 
-> when tmpfs misbehaves.
-
-I'm assuming you ran it two or three times without rebooting or running
-swapoff.  In which case, I doubt that the same parts of the file got the
-same swap blocks each time (the association is not persistent), so I
-don't think it would be a problem with your swap partition itself.
-
-Sorry for tmpfs wasting your CDs: trust your reiserfs next time.
-
-Hugh
+Thanks for any help.
+Alberto 
+> 
+> 
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
+>             Note 96.31% of all statistics are fiction.
+> 
+> 
 

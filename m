@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132453AbRACQMi>; Wed, 3 Jan 2001 11:12:38 -0500
+	id <S132484AbRACQN6>; Wed, 3 Jan 2001 11:13:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132290AbRACQM2>; Wed, 3 Jan 2001 11:12:28 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:11422 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S132469AbRACQMQ>; Wed, 3 Jan 2001 11:12:16 -0500
-Date: Wed, 3 Jan 2001 16:39:11 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Andries.Brouwer@cwi.nl
-cc: linux-kernel@vger.kernel.org, sfr@gmx.net
-Subject: Re: Timeout: AT keyboard not present?
-In-Reply-To: <UTC200101031432.PAA136866.aeb@texel.cwi.nl>
-Message-ID: <Pine.GSO.3.96.1010103162016.28582A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132290AbRACQNs>; Wed, 3 Jan 2001 11:13:48 -0500
+Received: from mailgate2.zdv.Uni-Mainz.DE ([134.93.8.57]:47495 "EHLO
+	mailgate2.zdv.Uni-Mainz.DE") by vger.kernel.org with ESMTP
+	id <S132488AbRACQNg>; Wed, 3 Jan 2001 11:13:36 -0500
+Date: Wed, 3 Jan 2001 16:43:07 +0100
+From: Dominik Kubla <dominik.kubla@uni-mainz.de>
+To: Manfred <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Further ACPI woes with 2.4.0-prerelease
+Message-ID: <20010103164307.A31685@uni-mainz.de>
+Mail-Followup-To: Dominik Kubla <dominik.kubla@uni-mainz.de>,
+	Manfred <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3A5335D4.C349DC4A@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.11i
+In-Reply-To: <3A5335D4.C349DC4A@colorfullife.com>; from manfred@colorfullife.com on Wed, Jan 03, 2001 at 03:23:16PM +0100
+X-No-Archive: yes
+Restrict: no-external-archive
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jan 2001 Andries.Brouwer@cwi.nl wrote:
-
-> (Ordinarily a key-up event gets scancode of key-down but with
-> high-order bit set. In scancode set 1, a key-up event get the
-> scancode of key-down prefixed by 0xf0. Since the high-order bit
-> is masked here, this 0xf0 would show up as 0x70.
-> Moreover, the key-up for a sequence like e0 71 is e0 f0 71,
-> again what you see here.)
+On Wed, Jan 03, 2001 at 03:23:16PM +0100, Manfred wrote:
+> > ACPI: System description tables not found
 > 
-> How you got into scancode mode 1 I don't know
-> (maybe by sending the command f0 01 to the keyboard).
+> I would check the Tyan pages for bios upgrades. I had to upgrade my bios
+> (gigabyte bxd dual cpu board) before w2k accepted the acpi tables.
+> 
+> Linux still refuses to accept the acpi tables :-(
 
- It looks like untranslated mode 2 (i.e. the AT keyboard's mode).  You
-switch translation on or off by toggling a bit in the onboard 8042's
-command byte. 
+Unfortunately there has been no update available for this board since
+late 1999 (it's a i440LX board after all) and the board is discontinued.
 
- PS/2-style keyboards start in mode 2 usually.  An XT compatibility (bit 7
-meaning release) is provided by the onboard 8042 translating codes.  Some
-systems (I think DEC OSF/1, for example) program keyboards to work in mode
-3 (the PS/2 native mode) or possibly mode 1 (XT compatibility mode); for
-these modes the 8042's translation has to disabled or the keyboard will be
-next to useless.  It's also meaningful to disable the translation in mode
-2 -- you are presented with the AT interface then.
+I am currently browsing the web for ACPI and DMI tools to see if one of
+them will give me some information from the ACPI/DMI tables.
 
+Yours,
+  Dominik
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+http://petition.eurolinux.org/index_html - No Software Patents In Europe!
+http://petition.lugs.ch/ (in Switzerland)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271401AbTG2LMY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 07:12:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271391AbTG2LMK
+	id S271391AbTG2LM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 07:12:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271395AbTG2LMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 07:12:10 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:42633
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S271395AbTG2LLe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 07:11:34 -0400
-Date: Tue, 29 Jul 2003 07:27:25 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: matroxfb and 2.6.0-test2
-Message-ID: <20030729072725.B12426@animx.eu.org>
-References: <Pine.LNX.4.56.0307281958410.193@pervalidus.dyndns.org> <20030729021321.GA1282@vana.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <20030729021321.GA1282@vana.vc.cvut.cz>; from Petr Vandrovec on Tue, Jul 29, 2003 at 04:13:21AM +0200
+	Tue, 29 Jul 2003 07:12:18 -0400
+Received: from gate.corvil.net ([213.94.219.177]:43782 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S271394AbTG2LKx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 07:10:53 -0400
+Message-ID: <3F265630.1080503@draigBrady.com>
+Date: Tue, 29 Jul 2003 12:10:40 +0100
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Balram Adlakha <b_adlakha@softhome.net>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1 NFS file transfer
+References: <20030728225947.GA1694@localhost.localdomain> <20030729014822.6488539d.akpm@osdl.org> <20030729105706.GA2761@localhost.localdomain>
+In-Reply-To: <20030729105706.GA2761@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > WARNING: /lib/modules/2.6.0-test2/kernel/drivers/video/matrox/matroxfb_crtc2.ko
-> > needs unknown symbol matroxfb_enable_irq
+Balram Adlakha wrote:
+> On Tue, Jul 29, 2003 at 01:48:22AM -0700, Andrew Morton wrote:
+> 
+>>Balram Adlakha <b_adlakha@softhome.net> wrote:
+>>
+>>>I cannot transfer files larger than 914 mb from an NFS mounted
+>>>filesystem to a local filesystem. A larger file than that is
+>>>simply cut of at 914 MB. This is using 2.6.0-test1, 2.4.20 
+>>>works fine.
 
-I have an old matrox millenium 1 card.  does the matrox fb support this
-card?  All I got was a blank screen.  fbcon and matroxfb with support for
-I/II cards compiled in.  When I had vga16 compiled in as well, I would get the
-console if I switched to vt2 and back to vt1.
+Looks like rounding around 32 bits to me:
 
-I don't know if there's an IRQ being assigned to the card.
+$ echo "((2^32)+(914*(1024^2)))/(1024^3)" | bc -l
+4.89 #GB
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Pádraig.
+

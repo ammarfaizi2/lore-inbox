@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316185AbSFZA0c>; Tue, 25 Jun 2002 20:26:32 -0400
+	id <S315458AbSFZAqa>; Tue, 25 Jun 2002 20:46:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316187AbSFZA0b>; Tue, 25 Jun 2002 20:26:31 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:10722 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S316185AbSFZA0a>; Tue, 25 Jun 2002 20:26:30 -0400
-Date: Tue, 25 Jun 2002 18:57:46 -0400
-From: Doug Ledford <dledford@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@redhat.com, linux-scsi@redhat.com
-Subject: [PATCH] initio driver update
-Message-ID: <20020625185746.A19388@redhat.com>
+	id <S316163AbSFZAq3>; Tue, 25 Jun 2002 20:46:29 -0400
+Received: from rrcs-sw-24-153-135-82.biz.rr.com ([24.153.135.82]:18587 "HELO
+	UberGeek") by vger.kernel.org with SMTP id <S315458AbSFZAq3>;
+	Tue, 25 Jun 2002 20:46:29 -0400
+Subject: max_scsi_luns and 2.4.19-pre10.
+From: Austin Gonyou <austin@digitalroadkill.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 25 Jun 2002 19:46:25 -0500
+Message-Id: <1025052385.19462.5.camel@UberGeek>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The initio a100 driver has not worked for some time now (needed updating 
-to the DMA mapping API).  This patch implements an update to the DMA 
-mapping API plus fixes a lot of obvious problems I saw in the driver (I'm 
-sure more exist).  I don't have hardware to test this, so testers would 
-be *much* appreciated.  It compiles, that's all I guarantee until testers 
-step forward.  However, it can't be any worse than the old version since 
-the old version wouldn't compile.  Linus, please apply this (and let me 
-know if you don't like pulling patches this way, it was too big to send 
-to the mailing lists).  Thanks.
+This originally was asking for help regarding QLA2200's, but I've since
+discovered it's a kernel param problem that I'm not sure how to solve.
 
-http://people.redhat.com/dledford/patches/initio.patch
+Using a default RH kernel (from SGI XFS installer) and passing
+max_scsi_luns=128 in grub, and for scsi_mod, it seems to work. 
 
+But when I compile my own kernels, none of that stuff is modular, it's
+all built in. I though that passing max_scsi_luns at boot time would
+make the scsi subsystem just work with > 8 luns, but so far that doesn't
+appear to be the case. 
+
+
+Can someone please tell me where I've gone wrong? I'm so deep into this,
+I can't tell which way is up. 
+
+TIA
 -- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  
+Austin Gonyou <austin@digitalroadkill.net>

@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270319AbTHSOMt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 10:12:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270436AbTHSOKT
+	id S270684AbTHSOsU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 10:48:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270688AbTHSOsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 10:10:19 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:16021 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S270754AbTHSNgh convert rfc822-to-8bit (ORCPT
+	Tue, 19 Aug 2003 10:48:20 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:32271 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S270684AbTHSOsT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 09:36:37 -0400
-Subject: Re: [OT] 'the the' in mails ...
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: herbert@13thfloor.at
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030819012411.GA30871@www.13thfloor.at>
-References: <20030819012411.GA30871@www.13thfloor.at>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1061299931.30565.40.camel@dhcp23.swansea.linux.org.uk>
+	Tue, 19 Aug 2003 10:48:19 -0400
+Date: Tue, 19 Aug 2003 16:48:13 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: CaT <cat@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/10] 2.6.0-t3: struct C99 initialiser conversion
+Message-ID: <20030819144813.GE1261@mars.ravnborg.org>
+Mail-Followup-To: CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org
+References: <20030819063050.GA17577@zip.com.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 19 Aug 2003 14:32:12 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030819063050.GA17577@zip.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-08-19 at 02:24, Herbert Pötzl wrote:
-> I know this is absolutely off topic, but
-> about 30 threads, in the last two months,
-> on lkml contain this strange construct, 
-> and I'm worried that I miss something very
-> important ...
+On Tue, Aug 19, 2003 at 04:30:51PM +1000, CaT wrote:
+> Hmmm... looks like 130k is too big for lk so I'll resend all split up.
 
-Its a very common typo, especially at the end of a line.
+Could you please use more sensible subject - for example:
+[PATCH] Documentation/ - C99 designators
 
+So people from the subject can see if they have interest in that part
+of the kernel.
+
+	Sam

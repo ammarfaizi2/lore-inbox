@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbVAXKqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbVAXK4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261488AbVAXKqz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 05:46:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVAXKqz
+	id S261489AbVAXK4a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 05:56:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVAXK4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 05:46:55 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:24204 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261488AbVAXKqn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 05:46:43 -0500
-Date: Mon, 24 Jan 2005 11:46:23 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Cc: "Jack O'Quin" <joq@io.com>, Paul Davis <paul@linuxaudiosystems.com>,
-       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
-       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
-       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
-Message-ID: <20050124104623.GA25119@elte.hu>
-References: <200501201542.j0KFgOwo019109@localhost.localdomain> <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu> <87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu> <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu> <4d8e3fd3050124015528615310@mail.gmail.com>
+	Mon, 24 Jan 2005 05:56:30 -0500
+Received: from bbned23-32-100.dsl.hccnet.nl ([80.100.32.23]:33750 "EHLO
+	fw-loc.vanvergehaald.nl") by vger.kernel.org with ESMTP
+	id S261489AbVAXK42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 05:56:28 -0500
+Date: Mon, 24 Jan 2005 11:56:10 +0100
+From: Toon van der Pas <toon@hout.vanvergehaald.nl>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Alessandro Sappia <a.sappia@ngi.it>, linux-kernel@vger.kernel.org
+Subject: Re: chvt issue
+Message-ID: <20050124105610.GA20644@hout.vanvergehaald.nl>
+References: <41F442B0.80900@ngi.it> <20050124081449.GA2650@pclin040.win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4d8e3fd3050124015528615310@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050124081449.GA2650@pclin040.win.tue.nl>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
-
-> On Mon, 24 Jan 2005 09:59:02 +0100, Ingo Molnar <mingo@elte.hu> wrote:
-> [...]
-> > - CKRM is another possibility, and has nonzero costs as well, but solves
-> >  a wider range of problems.
+On Mon, Jan 24, 2005 at 09:14:49AM +0100, Andries Brouwer wrote:
+> On Mon, Jan 24, 2005 at 01:34:56AM +0100, Alessandro Sappia wrote:
 > 
-> BTW, do you know what's the status of CKRM ? If I'm not wrong it is
-> already widely used, is there any plan to push it to mainstream ?
+> > I was reading vt driver
+> > and I saw
+> >         /*
+> >          * To have permissions to do most of the vt ioctls, we either have
+> >          * to be the owner of the tty, or have CAP_SYS_TTY_CONFIG.
+> >          */
+> >         perm = 0;
+> >         if (current->signal->tty == tty || capable(CAP_SYS_TTY_CONFIG))
+> >                 perm = 1;
+> > 
+> > (lines 382-388 - drivers/char/vt_ioctl.c)
+> > 
+> > After reading the comment I thinked I can change vt
+> > from one of my own to another one of mine.
+> 
+> Yes, the comment. But you should read the code instead.
 
-it's a bit complex and thus not a no-brainer in terms of merging. Also,
-the last version of it seems to be against 2.6.8.1. CKRM-cpu is in
-essence an additional layer ontop of normal scheduling. Another patch in
-this area is fairsched.
+In general, a comment reflects the intention of the programmer, whereas
+the code reflects what he in fact ended up doing (the implementation).
+So if the two don't match, the code is probably buggy.
+This is why comments can be important; they reflect the intention of
+the programmer at the time he wrote the code.
 
-	Ingo
+Toon.
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

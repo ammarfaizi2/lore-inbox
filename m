@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbUAAWwi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 17:52:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUAAWwi
+	id S261758AbUAAWya (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 17:54:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbUAAWya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 17:52:38 -0500
-Received: from smtp.vnoc.murphx.net ([217.148.32.26]:38129 "HELO
-	smtp.vnoc.murphx.net") by vger.kernel.org with SMTP id S261606AbUAAWwh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 17:52:37 -0500
-Message-ID: <3FF4A4DF.1010301@gadsdon.giointernet.co.uk>
-Date: Thu, 01 Jan 2004 22:53:19 +0000
-From: Robert Gadsdon <robert@gadsdon.giointernet.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031215
-X-Accept-Language: en-gb, en, en-us
-MIME-Version: 1.0
+	Thu, 1 Jan 2004 17:54:30 -0500
+Received: from dp.samba.org ([66.70.73.150]:12498 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261758AbUAAWy2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 17:54:28 -0500
+Date: Fri, 2 Jan 2004 09:43:29 +1100
+From: Anton Blanchard <anton@samba.org>
 To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-rc1-mm1 - ieee1394 broken again?
-References: <3FF2EFF3.6010001@gadsdon.giointernet.co.uk> <20031231115442.24df8501.akpm@osdl.org>
-In-Reply-To: <20031231115442.24df8501.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: joneskoo@derbian.org, linux-kernel@vger.kernel.org
+Subject: Re: swapper: page allocation failure. order:3, mode:0x20
+Message-ID: <20040101224329.GO28023@krispykreme>
+References: <20040101093553.GA24788@derbian.org> <20040101101541.GJ28023@krispykreme> <20040101022553.2be5f043.akpm@osdl.org> <20040101130147.GM28023@krispykreme> <20040101124504.69c80a14.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040101124504.69c80a14.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks.  That fixed the problem.
+ 
+> This seems a bit odd.  It means that the further apart the message bursts
+> are, the longer they are allowed to be.  Or something.
+>
+> Wouldn't it be better to say "after each greater-than-five second window,
+> allow up to ten printk's as long as they happen in the next five
+> milliseconds"?
 
-Andrew Morton wrote:
+Its 100% copied from the networking code. I would have thought we really
+want that behaviour, if Im on a serial console I can only tolerate a
+decent sized backtrace every few seconds. If I allow 10 bursts every 5
+seconds then im screwed.
 
-> 
-> 
-> aargh, sorry.  You need to revert
-> 
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1-rc1/2.6.1-rc1-mm1/broken-out/sysfs-add-vc-class.patch
-> 
-> This is the totally weird tty oops which Greg and I have been starting
-> at bemusedly for a few days.
-> 
-> 
-> 
+Instead we allow the burst of 10 once but then ratelimit it to one
+per 5 seconds until we have had a long enough period of silence. The
+main thing is that over the long term we have an average of one message
+per 5 seconds.
 
--- 
-..................................
-Robert Gadsdon
-..................................
+Anton

@@ -1,59 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVBRUEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVBRUJe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261477AbVBRUEF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 15:04:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbVBRUEE
+	id S261468AbVBRUJe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 15:09:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVBRUJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 15:04:04 -0500
-Received: from ra.tuxdriver.com ([24.172.12.4]:25094 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S261468AbVBRUDp (ORCPT
+	Fri, 18 Feb 2005 15:09:33 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:34472 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261468AbVBRUE3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 15:03:45 -0500
-Date: Fri, 18 Feb 2005 15:03:37 -0500
-From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: [patch libata-dev-2.6 3/5] libata: filter SET_FEATURES - XFER MODE from ATA pass thru
-Message-ID: <20050218200337.GD3197@tuxdriver.com>
-Mail-Followup-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-	jgarzik@pobox.com
-References: <20050218195027.GB3197@tuxdriver.com> <20050218195512.GC3197@tuxdriver.com>
+	Fri, 18 Feb 2005 15:04:29 -0500
+Date: Fri, 18 Feb 2005 21:05:02 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: dtor_core@ameritech.net
+Cc: Pavel Machek <pavel@suse.cz>, Oliver Neukum <oliver@neukum.org>,
+       Richard Purdie <rpurdie@rpsys.net>,
+       James Simmons <jsimmons@pentafluge.infradead.org>,
+       Adrian Bunk <bunk@stusta.de>,
+       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6: drivers/input/power.c is never built
+Message-ID: <20050218200502.GA2556@ucw.cz>
+References: <20050213004729.GA3256@stusta.de> <047401c515bb$437b5130$0f01a8c0@max> <20050218132651.GA1813@elf.ucw.cz> <200502181436.01943.oliver@neukum.org> <20050218160153.GC12434@elf.ucw.cz> <20050218170036.GA1672@ucw.cz> <d120d50005021810195f16ac0d@mail.gmail.com> <20050218183936.GA2242@ucw.cz> <d120d5000502181120392a9a0f@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050218195512.GC3197@tuxdriver.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <d120d5000502181120392a9a0f@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Filter-out attempts to issue a SET_FEATURES - XFER MODE command
-via the ATA pass thru mechanism.
+On Fri, Feb 18, 2005 at 02:20:13PM -0500, Dmitry Torokhov wrote:
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
+> > > But input layer shoudl not be used as a generic transport. I mean
+> > > battery low, docking requests, etc has nothing to do with input.
+> > 
+> > Well, plugging in a power cord is a physical user action much like
+> > closing the lid is, much like pressing the power button is, much like
+> > pressing a key is.
+> 
+> What about power dying and my UPS switing on? I think it is out of
+> input layer,
 
- drivers/scsi/libata-scsi.c |   11 +++++++++++
- 1 files changed, 11 insertions(+)
+Yes, I was thinking about this, too. An UPS is pretty much the same
+thing to a desktop as a battery is to a notebook. And I also got to the
+conclusion that this is a bad idea.
 
---- sata-smart-2.6/drivers/scsi/libata-scsi.c.filter	2005-02-17 16:49:51.362715273 -0500
-+++ sata-smart-2.6/drivers/scsi/libata-scsi.c	2005-02-17 16:50:03.907040725 -0500
-@@ -1764,6 +1764,17 @@ ata_scsi_pass_thru(struct ata_queued_cmd
- 	}
- 
- 	/*
-+	 * Filter SET_FEATURES - XFER MODE command -- otherwise,
-+	 * SET_FEATURES - XFER MODE must be preceded/succeeded
-+	 * by an update to hardware-specific registers for each
-+	 * controller (i.e. the reason for ->set_piomode(),
-+	 * ->set_dmamode(), and ->post_set_mode() hooks).
-+	 */
-+	if ((tf->command == ATA_CMD_SET_FEATURES)
-+	 && (tf->feature == SETFEATURES_XFER))
-+		return 1;
-+
-+	/*
- 	 * Set flags so that all registers will be written,
- 	 * and pass on write indication (used for PIO/DMA
- 	 * setup.)
+But now that you are talking about this, I think there is some merit to
+that way.
+
+UPSes are usually handled by userspace daemons, either through serial
+ports or via USB over hiddev (which is another driver that should be
+redone from scratch). 
+
+So we may need a way to loop these events through the kernel to make
+them available to the power event handling software. uinput would be a
+rather straightforward solution here ...
+
+> we need PM/system state messaging layer. It can be based
+> on acpi events and acpid or maybe kevents (but I don't like the idea
+> of needing kobjects for that).
+
+ACPI is too platform specific. We really need some platform independent
+way to be able to have a simple software solution.
+
+> Still power.c seems like the good place to hide all the ugliness and
+> glue between that new (or old) layer and input layer.
+
+Yes, it's a reasonable way. But the other way around (passing most power
+related events through input) also is quite compelling.
+
+
 -- 
-John W. Linville
-linville@tuxdriver.com
+Vojtech Pavlik
+SuSE Labs, SuSE CR

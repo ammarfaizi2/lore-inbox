@@ -1,66 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273664AbRIWWSm>; Sun, 23 Sep 2001 18:18:42 -0400
+	id <S273661AbRIWWWC>; Sun, 23 Sep 2001 18:22:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273663AbRIWWSd>; Sun, 23 Sep 2001 18:18:33 -0400
-Received: from dakar-41.budapest.interware.hu ([195.70.51.105]:3844 "EHLO
-	scream.lonyay.edu.hu") by vger.kernel.org with ESMTP
-	id <S273664AbRIWWSW>; Sun, 23 Sep 2001 18:18:22 -0400
-Date: Mon, 24 Sep 2001 00:18:43 +0200
-From: Gergely Nagy <algernon@debian.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Michael Rothwell <rothwell@holly-springs.nc.us>
-Subject: Re: Linux-2.4.10 + ext3
-Message-ID: <20010924001842.A877@iluvatar>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Michael Rothwell <rothwell@holly-springs.nc.us>
-In-Reply-To: <Pine.LNX.4.33.0109231142060.1078-100000@penguin.transmeta.com> <1001280620.3540.33.camel@gromit.house>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
-Content-Disposition: inline
-In-Reply-To: <1001280620.3540.33.camel@gromit.house>
-User-Agent: Mutt/1.3.22i
-Organization: The MadHouse Project
-X-Emacs-Acronym: Esoteric Malleability Always Considered Silly
+	id <S273663AbRIWWVo>; Sun, 23 Sep 2001 18:21:44 -0400
+Received: from [216.217.111.75] ([216.217.111.75]:39175 "EHLO synitech.com")
+	by vger.kernel.org with ESMTP id <S273661AbRIWWVZ>;
+	Sun, 23 Sep 2001 18:21:25 -0400
+Message-ID: <32832.65.11.238.48.1001284227.squirrel@mail.synitech.com>
+Date: Sun, 23 Sep 2001 18:30:27 -0400 (EDT)
+Subject: EMU10k1 Driver
+From: "Matthew Koch" <mkoch@synitech.com>
+To: linux-kernel@vger.kernel.org
+X-Mailer: SquirrelMail (version 1.0.3)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm experiencing issues with the EMU10k1 driver in kernel's 2.4.9 and
+2.4.10.  I have an SB Live! X-Gamer card (not 5.1).  It worked perfectly
+under 2.4.7.  The mixer is recognized as a SigmaTel card, which is obviously
+mistaken.  In addition to that, sound quality is poor and the mixer is not
+displaying all the options, specifically digital1 and digital2, the front
+and rear outputs.  I'm writing here because the code itself has no contacts
+listed as far as I found.  Are there any known fixes to this?  Thank you.
 
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Thus spoke Michael Rothwell <rothwell@holly-springs.nc.us> on 2001-09-23 17=
-:30:20:
-> On 23 Sep 2001 11:54:13 -0700, Linus Torvalds wrote:
-> >=20
-> > Ok, I released a real 2.4.10, let the fun begin..
->=20
-> I'd love to have ext3 support in it... ;) Fun begins later, I suppose...
-
-I have an ext3 0.9.9 patch against 2.4.10 on
-midgard.debian.net/~algernon/, which I made from a patch against
-2.4.10-pre4. Since I'm no kernel hacker, I don't know if I did
-everything right, but it appears to work :)
-
-However, seeing it in the official Linus tree would be cool :)
-
-Cheers,
---=20
-Gergely Nagy \ mhp/|8]
-
---5vNYLRcllDrimb99
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iEYEARECAAYFAjuuX8IACgkQR47eFMOy/N5oPgCghWVTSRP4ztQ+iYphqa1zCxJA
-ZJMAn2JIyyzWjP3Mia/2dHSvHI27EPsn
-=YIYM
------END PGP SIGNATURE-----
-
---5vNYLRcllDrimb99--

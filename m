@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271706AbTG2Nvj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 09:51:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271712AbTG2Nvi
+	id S271722AbTG2NxH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 09:53:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271729AbTG2NxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 09:51:38 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:39816 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S271706AbTG2Nvg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 09:51:36 -0400
-Date: Tue, 29 Jul 2003 09:53:23 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Andries.Brouwer@cwi.nl
-cc: clepple@ghz.cc, linux-kernel@vger.kernel.org
-Subject: Re: Turning off automatic screen clanking
-In-Reply-To: <UTC200307291302.h6TD2q310517.aeb@smtp.cwi.nl>
-Message-ID: <Pine.LNX.4.53.0307290950001.1696@chaos>
-References: <UTC200307291302.h6TD2q310517.aeb@smtp.cwi.nl>
+	Tue, 29 Jul 2003 09:53:07 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:55982
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S271722AbTG2NxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 09:53:02 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Timothy Miller <miller@techsource.com>,
+       Daniel Phillips <phillips@arcor.de>
+Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
+Date: Tue, 29 Jul 2003 23:57:19 +1000
+User-Agent: KMail/1.5.2
+Cc: Andrew Morton <akpm@osdl.org>, ed.sweetman@wmich.edu,
+       eugene.teo@eugeneteo.net, linux-kernel@vger.kernel.org
+References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200307271517.55549.phillips@arcor.de> <3F267CF9.40500@techsource.com>
+In-Reply-To: <3F267CF9.40500@techsource.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307292357.19647.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jul 2003 Andries.Brouwer@cwi.nl wrote:
+On Tue, 29 Jul 2003 23:56, Timothy Miller wrote:
+> First, since we're dealing with real-time and audio issues, is there any
 
->     Yes. This is f*ing absurb. A default that kills the screen and the
->     requirement to send some @!_$%!@$ sequences to turn it off. This
->     is absolute crap, absolutely positively, with no possible justification
->     whatsoever. If I made an ioctl, it will probably be rejected.........
->
-> What language. What about the below (not compiled, not tested)?
->
-[SNIPPED...]
+Actually this is only a tiny part of this work and adequate improvement in 
+many different scheduler tweaks have already addressed this. This is now more 
+about maintaining good all round interactivity and fairness. Improving audio 
+beyond ordinary scheduling tweaks is another issue which may lead to some 
+form of soft user RR task. su tasks already can be reniced or made RR to 
+help.
 
-I think you need to call poke_blanked_console() after setting the
-blanking interval. Also this won't patch on 2.4.20 because the
-header file is different. Anyway, I will try it after I take a
-work-break.
+> interactive processing in the desired time.  I don't think we should be
+> making scheduler tweaks to fix this corner case because it's impossible
+> to fix, no?
 
+Your concerns are well founded. However neither Ingo nor I (and all the other 
+contributors) are trying to make an audio app scheduler. At some stage a 
+modification will be made to the mainline kernel which will have adequate 
+audio performance in many (but not all) settings, and more importantly be 
+fair and interactive.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+Con
 

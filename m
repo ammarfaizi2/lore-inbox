@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261550AbREXLZO>; Thu, 24 May 2001 07:25:14 -0400
+	id <S261509AbREXLe5>; Thu, 24 May 2001 07:34:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261547AbREXLZE>; Thu, 24 May 2001 07:25:04 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:3272 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261504AbREXLY6>;
-	Thu, 24 May 2001 07:24:58 -0400
-Date: Thu, 24 May 2001 07:24:56 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Mike Galbraith <mikeg@wen-online.de>
-cc: Maciek Nowacki <maciek@Voyager.powersurfr.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Busy on BLKFLSBUF w/initrd
-In-Reply-To: <Pine.LNX.4.33.0105241250000.635-100000@mikeg.weiden.de>
-Message-ID: <Pine.GSO.4.21.0105240724000.21818-100000@weyl.math.psu.edu>
+	id <S261547AbREXLer>; Thu, 24 May 2001 07:34:47 -0400
+Received: from horus.its.uow.edu.au ([130.130.68.25]:2433 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S261509AbREXLeh>; Thu, 24 May 2001 07:34:37 -0400
+Message-ID: <3B0CF068.A6ADA562@uow.edu.au>
+Date: Thu, 24 May 2001 21:28:40 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Stephen C. Tweedie" <sct@redhat.com>
+CC: Manas Garg <mls@chakpak.net>, linux-kernel@vger.kernel.org
+Subject: Re: O_TRUNC problem on a full filesystem
+In-Reply-To: <20010523114318.A8336@cygsoft.com> <3B0B8924.F0B78288@uow.edu.au>,
+		<3B0B8924.F0B78288@uow.edu.au>; from andrewm@uow.edu.au on Wed, May 23, 2001 at 07:55:48PM +1000 <20010524121634.O8080@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 24 May 2001, Mike Galbraith wrote:
-
-> On Thu, 24 May 2001, Alexander Viro wrote:
+"Stephen C. Tweedie" wrote:
 > 
-> > On Thu, 24 May 2001, Mike Galbraith wrote:
-> >
-> > > On Wed, 23 May 2001, Alexander Viro wrote:
-> > >
-> > > > Folks, who the hell is responsible for rd_inodes[] idiocy?
-> > >
-> > > That would have been me.  It was simple and needed at the time..
-> > > feel free to rip it up :)
-> >
-> > Mike, I see what you are using it for, but you do realize that it
-> > means that creating /tmp/ram0 and opening it once will make /tmp
-> > impossible to unmount?
+> On Wed, May 23, 2001 at 07:55:48PM +1000, Andrew Morton wrote:
 > 
-> I don't _think_ that was the case at the time I did it.  I tested
-> the idio^Wbandaid before submission.. mighta fscked up though :)
+> > When you truncated your file, the blocks remained preallocated
+> > on behalf of the file, and were hence considered "used".  For
+> > some reason, a subsequent attempt to allocate blocks for the
+> > same file failed to use that file's preallocated blocks.
+> 
+> Nope.  ext2_truncate() calls ext2_discard_prealloc() to fix this up.
+> Both 2.2 and 2.4 do this correctly.
 
-Erm... You pin the inode down. That makes filesystem busy by any
-definition I can think of...
-
+But the problem goes away when you disable EXT2_PREALLOCATE.
+I tested it.

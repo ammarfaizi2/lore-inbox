@@ -1,64 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317433AbSHCDmv>; Fri, 2 Aug 2002 23:42:51 -0400
+	id <S317434AbSHCEKC>; Sat, 3 Aug 2002 00:10:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317434AbSHCDmv>; Fri, 2 Aug 2002 23:42:51 -0400
-Received: from dsl-213-023-043-125.arcor-ip.net ([213.23.43.125]:7353 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317433AbSHCDmu>;
-	Fri, 2 Aug 2002 23:42:50 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: [PATCH] Rmap speedup
-Date: Sat, 3 Aug 2002 05:47:43 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <E17aiJv-0007cr-00@starship> <3D4AE995.DFD862EF@zip.com.au>
-In-Reply-To: <3D4AE995.DFD862EF@zip.com.au>
+	id <S317435AbSHCEKC>; Sat, 3 Aug 2002 00:10:02 -0400
+Received: from webmail10.rediffmail.com ([202.54.124.179]:22159 "HELO
+	webmail10.rediffmail.com") by vger.kernel.org with SMTP
+	id <S317434AbSHCEKB>; Sat, 3 Aug 2002 00:10:01 -0400
+Date: 3 Aug 2002 04:12:56 -0000
+Message-ID: <20020803041256.2352.qmail@webmail10.rediffmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17aptH-0008DR-00@starship>
+From: "Enugala Venkata Ramana" <caps_linux@rediffmail.com>
+Reply-To: "Enugala Venkata Ramana" <caps_linux@rediffmail.com>
+To: "Greg KH" <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Re: Re: Re: installation of latest kernel on compaq notebook
+Content-type: text/plain;
+	format=flowed
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 02 August 2002 22:20, Andrew Morton wrote:
-> Daniel Phillips wrote:
-> > 
-> > This patch eliminates about 35% of the raw rmap setup/teardown overhead by
-> > adopting a new locking interface that allows the add_rmaps to be batched
-> > in copy_page_range.
-> 
-> Well that's fairly straightforward, thanks.  Butt-ugly though ;)
+Hi Greg,
+  I tried to configure my kernel. But when ever i try with kerel 
+2.4.xx i always find the catc driver for the usb is not enabled. I 
+cannot add that into my kernel at all.can u please let me know 
+what needs to be done in this is situation and what is the kernal 
+version from which it is been enabled.
+Regards
+Venku.
 
-I could try "fast is beautiful" or "beauty is in the eye of the beholder", 
-but I think I'll stick with "beauty isn't the point just now".
+On Sat, 03 Aug 2002 Greg KH wrote :
+>On Fri, Aug 02, 2002 at 06:38:03PM -0000, Enugala Venkata Ramana 
+>wrote:
+> > Hi Greg,
+> > Can you please help me to find information on the installation 
+>of
+> > the driver and where can i find the driver. I tried some of 
+>the
+> > drivers on the net but when i trid to make the progra, i get a 
+>lot
+> > of errors.
+>
+>It's part of the main kernel tree.  Please read the Linux USB 
+>Guide at
+>http://www.linux-usb.org/ for how to set up USB drivers and your 
+>system
+>on Linux.
+>
+>I also suggest if you have any followup questions after reading 
+>the
+>guide, to read the FAQ and provide all of the information needed 
+>there
+>to the linux-usb-users mailing list.
+>
+>Good luck,
+>
+>greg k-h
+>-
+>To unsubscribe from this list: send the line "unsubscribe 
+>linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  
+>http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-> Don't bother doing teardown yet.  I have patches which batch
-> all the zap_page_range activity into 16-page chunks, so we
-> eventually end up in a single function with 16 virtually-contiguous
-> pages to release.  Adding the batched locking to that will
-> be simple.
+__________________________________________________________
+Give your Company an email address like
+ravi @ ravi-exports.com.  Sign up for Rediffmail Pro today!
+Know more. http://www.rediffmailpro.com/signup/
 
-Great.  Well, both the locking locality of anonymous pages and the dispersion 
-of mmaped pages could be improved considrably, so maybe I'll play around with 
-those a little.  Taking a wild guess, it might be good for another 5-10% 
-overhead reduction, and won't impact the basic structure.
-
-> Sigh.  I have a test which sends the 2.5.30 VM into a five-minute
-> coma
-
-That doesn't sound like a rmap problem per se.  Is the test posted?
-
-> and which immediately panics latest -ac with pte_chain oom.
-> Remind me again why all this is worth it?
-
-It will be worth it when we finally have a system that swaps well and doesn't 
-die if you throw a lot of disk IO at it (like BSD).  It will be doubly worth 
-it when active defragmentation happens.
-
-What we will end up with at the end of this cycle will have all the solidity 
-and flexibility of the BSD VM with little of the complexity.  According to me 
-anyway ;-)
-
--- 
-Daniel

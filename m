@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280682AbRKBNPB>; Fri, 2 Nov 2001 08:15:01 -0500
+	id <S280681AbRKBNKv>; Fri, 2 Nov 2001 08:10:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280683AbRKBNOw>; Fri, 2 Nov 2001 08:14:52 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:55560 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S280682AbRKBNOk>;
-	Fri, 2 Nov 2001 08:14:40 -0500
-Date: Fri, 2 Nov 2001 11:14:21 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: safemode <safemode@speakeasy.net>
-Cc: Mark Hahn <hahn@physics.mcmaster.ca>, <linux-kernel@vger.kernel.org>
-Subject: Re: graphical swap comparison of aa and rik vm
-In-Reply-To: <20011102130750.1760138C77@perninha.conectiva.com.br>
-Message-ID: <Pine.LNX.4.33L.0111021110000.2963-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S280682AbRKBNKl>; Fri, 2 Nov 2001 08:10:41 -0500
+Received: from fw-akustik.rz.RWTH-Aachen.DE ([137.226.38.42]:55984 "EHLO
+	verdi.akustik.rwth-aachen.de") by vger.kernel.org with ESMTP
+	id <S280681AbRKBNK0>; Fri, 2 Nov 2001 08:10:26 -0500
+Message-ID: <3BE29B41.65889D33@akustik.rwth-aachen.de>
+Date: Fri, 02 Nov 2001 14:10:25 +0100
+From: Andreas Franck <Andreas.Franck@akustik.rwth-aachen.de>
+Reply-To: Andreas.Franck@akustik.rwth-aachen.de
+Organization: Institut =?iso-8859-1?Q?f=FCr?= Technische Akustik
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Weird /proc/meminfo output on 2.4.13-ac5
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Nov 2001, safemode wrote:
+Hello folks,
 
-> I'll try it with more swap later on today after work.  But realize,
-> though, the fact that you need much more swap to do the same thing
-> (compared to aa's)  is not helping any adoption of the VM.
+since about two days I'm running a machine here with 2.4.13-ac5,
+and am quite satisfied with the performance. But now, I noticed
+some strange output in /proc/meminfo:
 
-Uhhh ... this is nothing but a classical speed/size tradeoff.
+$ cat /proc/meminfo
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  789250048 781295616  7954432   659456 402890752
+18446744073478758400
+Swap: 6744576000   282624 6744293376
+MemTotal:       770752 kB
+MemFree:          7768 kB
+MemShared:         644 kB
+Buffers:        393448 kB
+Cached:       4294741680 kB     <------ This is impossible, i think? :-)
+SwapCached:        232 kB
+Active:         254160 kB
+Inact_dirty:    307272 kB
+Inact_clean:        80 kB
+Inact_target:   157284 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       770752 kB
+LowFree:          7768 kB
+SwapTotal:     6586500 kB
+SwapFree:      6586224 kB
 
-The fact that under my VM swap space stays reserved for the
-program on swapin means that if the page isn't dirtied, we
-can just drop it without having to write it to disk again.
+The machine is an AMD Athlon 1200, with 768 MB RAM and about 6G swap.
+Is there anything more you need to investigate this problem? Then please
+don't hesitate to ask.
 
-In situations where there is enough swap available, this
-should be a win (and it has traditionally been a big win).
-
-Andrea's VM always frees swap space on swapin, so even if
-the process doesn't write to its memory at all, the data
-still needs to be written out to disk again.
-
-Only in the one corner-case where my VM runs out of swap
-space and Andrea's VM doesn't yet run out of swap you'll
-find situations where the tactic used by Andrea's VM has
-its advantages, but I consider this to be a rare situation.
-
-regards,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Greetings,
+Andreas

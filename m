@@ -1,98 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262583AbRENX5h>; Mon, 14 May 2001 19:57:37 -0400
+	id <S262587AbREOAEH>; Mon, 14 May 2001 20:04:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262587AbRENX52>; Mon, 14 May 2001 19:57:28 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:19847 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S262583AbRENX5O>; Mon, 14 May 2001 19:57:14 -0400
-Message-ID: <3B006F84.C1427EB3@uow.edu.au>
-Date: Tue, 15 May 2001 09:51:32 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac13 i686)
-X-Accept-Language: en
+	id <S262585AbREOAD5>; Mon, 14 May 2001 20:03:57 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:24075 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S262588AbREOADs>; Mon, 14 May 2001 20:03:48 -0400
+Date: Mon, 14 May 2001 19:25:32 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vmscan.c fixes
+In-Reply-To: <Pine.LNX.4.21.0105140335580.4671-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.21.0105141922490.32493-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru
-CC: Jeff Garzik <jgarzik@mandrakesoft.com>, davem@redhat.COM,
-        linux-kernel@vger.kernel.org
-Subject: Re: NETDEV_CHANGE events when __LINK_STATE_NOCARRIER is modified
-In-Reply-To: <3B002001.AEEEE415@mandrakesoft.com> from "Jeff Garzik" at May 14, 1 02:12:17 pm <200105141840.WAA16086@ms2.inr.ac.ru>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
+
+
+On Mon, 14 May 2001, Rik van Riel wrote:
+
+> Hi Linus,
 > 
-> Hello!
-> 
-> > Note that using dev->name during probe was always incorrect.  Think
-> > about the error case:
-> ...
-> > So, using interface name in this manner was always buggy because it
-> > conveys no useful information to the user.
-> 
-> I used to think about cases of success. 8)
-> In any case the question follows: do we have some another generic
-> unique human-readable identifier? Only if device is PCI?
-> 
-> Actually, I am puzzled mostly with Andrew's note about "simplicity".
-> Andrew's patch was evidently much __simpler__ than yours, at least,
-> it required one liner for each device and surely was not a "2.5 material".
+> the following patch does:
 
-mmm...  I had to do a bit of mangling in the net core to be able
-to "reserve" the netdevice name at init_etherdev() time, but make
-it unavailable in namespace lookups.
 
-As Jeff points out, it was an unusual interface - a two-phase
-registration where we first reserve the name and then later
-either commit it or withdraw it.  That's not the way kernel
-normally does things, and it was done that way for back-compatibility,
-and to make the device naming prettier.
+<snip>
 
-And yes, it was a 140k patch because it modified about eighty drivers,
-pulled out the old interfaces and pulled out dev_probe_lock().
+>  	pg_data_t *pgdat = pgdat_list;
+>  	int sum = 0;
+>  	int freeable = nr_free_pages() + nr_inactive_clean_pages();
+> +	/* XXX: dynamic free target is complicated and may be wrong... */
+>  	int freetarget = freepages.high + inactive_target / 3;
 
-> > I'm all for removing it...  I do not like removing it in a so-called
-> > "stable" series, though.  alloc_etherdev() was enough to solve the race
-> > and flush out buggy drivers using dev->name during probe.  Notice I did
-> > not remove init_etherdev and fix it properly -- IMHO that is 2.5
-> > material.
-> 
-> Nope, guy. Fixing fatal bug is always material of released kernel.
-> 
-> In any case the question remains: what is the sense of dev_probe_lock now?
+I think its better if we just remove " + inactive_target / 3" here ---
+callers already account for the inactive_target when trying to
+calculate the free target anyway.
 
-It protects the as-yet-unchanged PCI and Cardbus drivers from a
-fatal race.
+Example: 
 
-This is not some theoretical race, BTW: as an experiment I put
-a simple "schedule()" into vortex_probe1() and it killed the
-driver.  Because:
+static int refill_inactive(unsigned int gfp_mask, int user)
+{
+        int count, start_count, maxtry;
 
-      sys_init_module()
-      ->vortex_probe1()
-        ->init_etherdev()
-	  ->register_netdev()
-	    ->/sbin/hotplug  (an asynchronous execve)
-	      -> ifconfig eth0 up
+        count = inactive_shortage() + free_shortage();
 
-ifconfig is executed before vortex_probe1() had fully initialised the
-device and the data structures.  The probe takes tens of milliseconds.
+...
 
-The only thing which prevents this race is the fact that sys_init_module()
-and sys_ioctl() both do lock_kernel().  If xxx_probe() drops the BKL,
-ifconfig gets in there and fails.  Usually, ifconfig finds the driver
-has a null ->open() method, so the interface open "succeeds" but the
-hardware wasn't opened.  A subsequent ->close() will probably crash
-the machine.
 
-That is what dev_probe_lock() is doing today.  It blocks
-ifconfig while ->probe() is in progress.  Drivers which
-do not use alloc_etherdev() and which can drop the BKL
-in probe may fail to work with /sbin/hotplug initialisation
-if dev_probe_lock() is removed.  At present that seems to
-include acenic, eepro100, pcnet32 and everyone's 3c59x
-except mine :)
-
--

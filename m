@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131728AbQLIP31>; Sat, 9 Dec 2000 10:29:27 -0500
+	id <S131751AbQLIPcQ>; Sat, 9 Dec 2000 10:32:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131751AbQLIP3R>; Sat, 9 Dec 2000 10:29:17 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:22153 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S131728AbQLIP3A>;
-	Sat, 9 Dec 2000 10:29:00 -0500
-Date: Sat, 9 Dec 2000 06:42:38 -0800
-Message-Id: <200012091442.GAA20532@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: kernel@tekno-soft.it
-CC: rasmus@jaquet.dk, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <4.3.2.7.2.20001209152806.00c8e7b0@mail.tekno-soft.it> (message
-	from Roberto Fichera on Sat, 09 Dec 2000 15:48:05 +0100)
-Subject: Re: [PATCH] mm->rss is modified without page_table_lock held
-In-Reply-To: <4.3.2.7.2.20001209111347.00c829f0@mail.tekno-soft.it>
- <4.3.2.7.2.20001209111347.00c829f0@mail.tekno-soft.it> <4.3.2.7.2.20001209152806.00c8e7b0@mail.tekno-soft.it>
+	id <S131811AbQLIPcH>; Sat, 9 Dec 2000 10:32:07 -0500
+Received: from smtprelay.abs.adelphia.net ([64.8.20.11]:29835 "EHLO
+	smtprelay3.abs.adelphia.net") by vger.kernel.org with ESMTP
+	id <S131751AbQLIPcC>; Sat, 9 Dec 2000 10:32:02 -0500
+Date: Sat, 9 Dec 2000 10:05:46 -0500 (EST)
+From: "Steven N. Hirsch" <shirsch@adelphia.net>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18-25 and PS/2 Mouse 
+In-Reply-To: <20001208212929.A10469@vger.timpanogas.org>
+Message-ID: <Pine.LNX.4.21.0012091005010.3459-100000@pii.fast.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Sat, 09 Dec 2000 15:48:05 +0100
-   From: Roberto Fichera <kernel@tekno-soft.it>
+On Fri, 8 Dec 2000, Jeff V. Merkey wrote:
 
-   >atomic_t does not guarentee a large enough range necessary for mm->rss
+> The mouse problems have gone away with the 2.2.18-25 pre-patch.  I 
+> am not seeing the problems anymore on the affected systems.  I am
+> trying this evening to apply the 2.4 patch sent to me to see if it
+> helps with the page cache corruption problem with fork().
 
-   If we haven't some atomic_t that can be negative we could define atomic_t 
-   as unsigned long for all arch,
-   this is sufficient to fitting all the range for the mm->rss.
+Phantom PS/2 mouse still detected on my ASUS P2B-DS system board w/ pre25.
 
-32-bit Sparc has unsigned long as 32-bit, and the top 8 bits of the
-atomic_t are used for a spinlock, thus a 27-bit atomic_t, there
-is not enough precision.
 
-Later,
-David S. Miller
-davem@redhat.com
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

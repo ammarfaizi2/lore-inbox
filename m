@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUKUBuZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263220AbUKUDXL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbUKUBuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 20:50:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbUKUBuZ
+	id S263220AbUKUDXL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 22:23:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263206AbUKUDXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 20:50:25 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:15044 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S261724AbUKUBuS (ORCPT
+	Sat, 20 Nov 2004 22:23:11 -0500
+Received: from stutter.bur.st ([202.61.227.61]:49954 "EHLO stutter.bur.st")
+	by vger.kernel.org with ESMTP id S263208AbUKUDVv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 20:50:18 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Announce: ksymoops 2.4.10 is available
-Date: Sun, 21 Nov 2004 12:50:07 +1100
-Message-ID: <32545.1101001807@ocs3.ocs.com.au>
+	Sat, 20 Nov 2004 22:21:51 -0500
+Date: Sun, 21 Nov 2004 11:21:48 +0800
+From: Trent Lloyd <lathiat@bur.st>
+To: cranium2003 <cranium2003@yahoo.com>, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: can netfilter help me.....
+Message-ID: <20041121032148.GA19274@sweep.bur.st>
+References: <20041121031849.95509.qmail@web41415.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041121031849.95509.qmail@web41415.mail.yahoo.com>
+X-Random-Number: -1.04485277695876e-42
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi Cranium,
 
-ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops/v2.4
+There is the possibility to use some userspace magic and queue packets
+via it, and I assume you can probably modify those packets. I assume
+theres some docs on the netfilter website.
 
-ksymoops-2.4.10.tar.gz           Source tarball, includes RPM spec file
-ksymoops-2.4.10-1.src.rpm        As above, in SRPM format
-ksymoops-2.4.10-1.i386.rpm       Compiled with gcc 3.4.2, glibc 2.3.3
-patch-ksymoops-2.4.10.gz         Patch from ksymoops 2.4.9 to 2.4.10.
+Cheers,
+Trent
+Bur.st
 
-Changelog extract
+> hello,
+>        For adding new header in packet, can it be
+> possible for me to use netfilter to add my own header
+> in between ip and ethernet header? 
+> can anybody please help to how can i use netfilter
+> hooks to add new header?
+> can netfilter also allow me to change its
+> identification as ETH_IP to ETH_MY_IP?
+> regrads,
+> cranium.
+> 
+> 
+> 		
+> __________________________________ 
+> Do you Yahoo!? 
+> Meet the all-new My Yahoo! - Try it today! 
+> http://my.yahoo.com 
+>  
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-net" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-        * Fix typo in man page.
-        * Unlike syslogd, syslog-ng does not prefix lines with ' kernel:'.
-          Handle both formats.  Reported by gentoo.
-        * Explictly pass --target on calls to nm and objdump.  Resolves
-          cases where objdump/nm complain 'File format is ambiguous'.
-          Robin Johnson.
-
-
-Some people have reported problems building ksymoops, with unresolved
-references in libbfd (htab_create, htab_find_slot_with_hash).  Try
-http://www.cs.helsinki.fi/linux/linux-kernel/2002-13/0196.html first,
-if that does not work, contact the binutils maintainers.  This is not a
-ksymoops problem, ksymoops only uses libbfd.  Any unresolved references
-from libbfd are a binutils problem.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQFBn/RPi4UHNye0ZOoRAj/FAJ46l4CPjHAcxx1aq2EeKl+eS83nrwCeLwq3
-0uSJypb6rMhqxctZOErRzqg=
-=uPT2
------END PGP SIGNATURE-----
-
+-- 
+Trent Lloyd <lathiat@bur.st>
+Bur.st Networking Inc.

@@ -1,79 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266205AbTGLQro (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 12:47:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267522AbTGLQro
+	id S268102AbTGLQze (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 12:55:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268098AbTGLQze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 12:47:44 -0400
-Received: from 213-84-203-196.adsl.xs4all.nl ([213.84.203.196]:57860 "EHLO
-	gateway.bencastricum.nl") by vger.kernel.org with ESMTP
-	id S266205AbTGLQrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 12:47:40 -0400
-Message-ID: <001501c34896$baddd3e0$0802a8c0@pc>
-From: "Ben Castricum" <lk@bencastricum.nl>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <000901c343df$9165ed10$0802a8c0@pc> <1057578275.2749.11.camel@dhcp22.swansea.linux.org.uk>
-Subject: Re: 2.4.22-pre3 : SoundBlaster IDE interface missing
-Date: Sat, 12 Jul 2003 18:57:49 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-MailScanner: Found to be clean
+	Sat, 12 Jul 2003 12:55:34 -0400
+Received: from [132.216.18.133] ([132.216.18.133]:29195 "EHLO
+	signal.ckut-fake.ca") by vger.kernel.org with ESMTP id S268102AbTGLQza
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 12:55:30 -0400
+Date: Sat, 12 Jul 2003 13:10:03 -0400
+From: Marc Heckmann <mh@nadir.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21 smp: system lockup
+Message-ID: <20030712171001.GA18262@nadir.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="FCuugMFkClbJLl1L"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> On Sul, 2003-07-06 at 17:56, Ben Castricum wrote:
-> > I have one of those ancients ISA-PNP SoundBlaster cards with an
-additional
-> > IDE interface on it. It all worked perfectly up till 2.4.22-pre2 but
-with
-> > pre3 the IDE interface is no longer detected.
->
-> Oops. I have redone the initialization for the ISAPnP IDE devices so its
-> quite possible I got this bit wrong. I'll take a look at it
-> today/tomorrow see why its vanished.
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I took a look at it myself as well and it seems that the code was just
-removed. This patch restores a couple of line from pre2 and fixes the
-problem for me. It's diffed againts the current bk-2.4 tree.
+Hi,
 
-Hope this helps,
-Ben
+I recently experienced a lockup on an SMP 2.4.21 kernel (vanilla).
 
+The machine was under very heavy IO at the time. (a full backup was in
+progress). gzipped Alt+sysrq+t output is attached. I forgot
+Alt+sysrq+P unfortunatly.
 
-diff -u linux/drivers/ide/ide-pnp.c linux-fix/drivers/ide/ide-pnp.c
---- linux/drivers/ide/ide-pnp.c 2003-07-12 18:03:05.000000000 +0200
-+++ linux-fix/drivers/ide/ide-pnp.c     2003-07-12 18:26:13.000000000 +0200
-@@ -99,7 +99,7 @@
-  * Probe for ISA PnP IDE interfaces.
-  */
+iptables was still functional, it still responded to pings, but
+everything else was locked up. obviously sysrq was still working. I
+managed to reboot it with sysrq+b over the serial line.
 
--static void pnpide_init(int enable)
-+void __init pnpide_init(int enable)
- {
-        struct pci_dev *dev = NULL;
-        struct pnp_dev_t *dev_type;
-diff -u linux/drivers/ide/ide.c linux-fix/drivers/ide/ide.c
---- linux/drivers/ide/ide.c     2003-07-12 18:03:01.000000000 +0200
-+++ linux-fix/drivers/ide/ide.c 2003-07-12 18:25:11.000000000 +0200
-@@ -2318,6 +2318,12 @@
-                buddha_init();
-        }
- #endif /* CONFIG_BLK_DEV_BUDDHA */
-+#if defined(CONFIG_BLK_DEV_ISAPNP) && defined(CONFIG_ISAPNP)
-+       {
-+               extern void pnpide_init(int enable);
-+               pnpide_init(1);
-+       }
-+#endif /* CONFIG_BLK_DEV_ISAPNP */
- }
+the machine has been in production for a while and has run in the past
+for almost 2 months w/o any problems, so I don't believe it's hardware
+related.
 
- void __init ide_init_builtin_subdrivers (void)
+A similar lockup happened once with the redhat 2.4.20-13.9 kernel. I
+blamed that on all the extra patches present and switched to 2.4.21
+hoping that it would alleviate the problem.
 
+PS: I'm not an linux-kernel so please CC me directly.
+
+-m
+
+--FCuugMFkClbJLl1L
+Content-Type: application/x-gzip
+Content-Disposition: attachment; filename="loging.txt.gz"
+Content-Transfer-Encoding: base64
+
+H4sICGk+ED8AA2xvZ2luZy50eHQA7Z1ZjyM5csff61Pkow14DN5Hw1hApZKeFvaie/3ixaCR
+Z5fcqmMk1fSWP715k5lMpaTq7lJ6PQJmUKmLv/gzGAwGmepPr/uPvxUfik/3T9+KT4fy0N7c
+FMce3a5tj72231TbzeMX9eFDuf/ae+kvS/OGQ1nr5583TdGVh/t2V9T3m21TvD69PH5RV0/b
+pt3dbB43h/jRjwXQDyRYUWAkhHkS2teA+osCMeD4p3//j7/++fafb5bldlv8dVfW7Qf99N/+
+rQYQlpSJP/1qL3ApBfUXsCQd8Bek5oj7C4p51fzp15vCX9a0DW8sCZD+AkjcduqNX9vf28dD
+43A+Fcv1GgllQ1FQQSwtKlI73AN7A/78y1EDqBQ8GIDqqoPxomyCAYCq9sIFp2UbDXBvvPm6
+f+oOm91vzeflX/5T6byUdwIZTEIJSYn6mMRZMIWJcMm6KRj/NlnnKEqxxd2KWMUYIkmrAxTq
+KKdROOOxwQu5vpXPviOL/7KuCICCIN4V6RgXc8iTXLCWEUWWZXRFySVxFwiiktXRYztCQ0+q
+13gJIrOoSbxIjeaIlPHLSRWNlqQFiWvLlqHg9rKj4fuwZAQnFyWLF7yKfFJgEb8PS8ma02qr
+TxmHrJpu+7K/dxp+9GorL2Bq5CfCDtTmriOm1IZlExskip+f5iJMCuMFL8+NCotNjwsJZLwA
+JAgDLumQp7l8QGqAQISBoGU/IDHe1vGigiiq3DdgwpqSa2seml1bP/3e7l61QTo6rVbrtVAR
+mnKnshyxBlFn6JQ1LWAwdHjTEcFOczUdMj64KzcNDGPtU9L7hYn0ikeMcHFzBeUkV0RRKgPM
+YH0aZf/6WDcRBfE7JREiFgiOSWT5ELgIBeGLVFFzCQBL63UYufZGUAwfgj9TFYWyviM46SAE
+xxzHvjQ9X3y3KqsVvFukKGMzrOVD0/PFD/CVvtuisVnU8qHpKeI7VbEgEiUoY7Oo5UPT8fNC
+Vb7+99PL7rHcNr6DbgFZ2twCEODaG0GxfNODOYZyjVJTGKYslYCVKL6C6WgKZF8zsfDr/UsV
+BOt1nh/ofMSlITXsargfxVRtYMBh52EwYByEi5a6YN67yDHdp3I1VUJJUh9zRENM5ix4LzV7
+mCqhpCu+WoiopiPqY1LkLXgnzPZwn7T/0cQxZtSEBLNANMRk0llw3nQ+nMFBS0ETX2lR8I22
+7CqZTOdhPNnXoGbev+63T1+awGzT0PVaj14znizekJljZ86JNVFVebKWl1UYzS0UXfBNtwzq
+LYK8tFBCQZIOscughLivsxrhLOANmQV25kwyq0ATPIBA3uBh62o1UZXb8rFufevLNVy5MSNC
+Q4PWGaYO7OxVZK+XEWcgQ3ksH9o0yizV+6RY3QYU26pDYdgmk4wCRzmFor6oDZ2nMkhWTbee
+ZtVQLRJigxaCkX4Oe8Fyurdo7qlCcUdDJkgJRFXi7kdEcpRcezhHhk8UiTy+v+QZmGfoMjJx
+u+8eNEiAY5lqsJUV5m/sFd+6nSaHrUMH9tPcM623BBSYo0Q5zo0tCEBes8tiS4K5399HSjuK
+8IKvVFJOhAkndsAUehQhtYC3aQ9jVjE6iYnLZHmFWpxG6hMGxLJQbkLfgL9vHtvDMD0zOlNm
+Ot6yFoOIxL1tl8bwm2/l5vD56fGzCoX/UujCCvygw+IH3cDf1H+gUGvu+w+FvQbq/7/efDI1
+uubl4Xn/4UZ/BnwIrvmdf/iq4my/byyLk7LBIXGTshXJxYlXboq3fOof5vtubqzL1VxWsKmD
+0DD+0blHfEYPl6oshfoD4VaNtvjSoLuJeW9Zq3EeP921LWxLoF+SlHZVUbcS1rz1jatMyAB2
+an3sv68GGAgu/Ifq5L0mYipzoo/oN3PSkPhH5BudebQxIRBoWn9h+KKCiih5pU6KcobgjCIf
+pihWoivA40VTVUlRjpYNhjGIIRDjBoJNUvWmKHlbL1i3pEoDn5IhfkVLs3r4zRsj/uPhOYn4
+adJLiI2KfGQ9wczMpWPpz0x6E8zf910COpZIiBFMwamz4GxMLNvKV4wRYITzeEE7Xz5Wc18J
+YpFYdYl6OXYJ6NrJztqXXfv54XX/29aVBwFag+VKr9wFIwHcWaM81/wtuXSGTiarsE3SItdg
+aMvJF+d1l5+6Nmy7EgyTkLPn9d5UriZ5ONnlo9s9QFAopg34mCYm1JToHLO1Q160XzU04IJs
+Oxhg8+1p0W3E0zkTIYJEzFzu08yj+e5DuT+0uyiSbdANDBE8yLgVVLHfDhVpNll0z78t3714
+LH95fkistLrcIbLSq2iTZEqRF6Gh+jpnwTth3h/S0JgurRFRM6Mn8moSbDFNeU1b8DbM0ylu
+vXt6nFrVOIShfBg75B+4qtk/VEeXC3o9aVt1EkkIkUPhjvKC5QKKE+Xx5YIbr+cvFx57BqRa
+YkGRZ8201JVAY9vbtBzb+Z50xfKQUGpXFER5o168YsyAJ8ow9TAyFkxhkhJxPBr9Tvf/8+vh
+/ukx6X81RJbLlXI/CvVItgiOS33KlnQh4A754nms3+DHmBjqh7FWyCJt1woh3aL1p43JIdfy
+FiCGSCh3OoSMCzrkKS5aipg+XgY59KMMk93eMblIQocmyjGRs+BKmL1eBp4ox8TOgvfq5chF
+EBMeIeciDvmduXQ6iSHyCDkXdchX4DJ7+i4i9LkS1X4W10NTNjEFcVwSqL4jUJ8dshHKYCRE
+EGLHOhlOsRoJIdCLpmpOjwkXW4fD4GHz+KU9HF5t+/rAjlwtkK7QqpUZ8EQ5JnEWTEbXVsRT
+Lb0FkFADGcULigOzUEveBLO3I4ABhdn0MDQgGccMCM+aG0CdbWcv2k4y94jDyZlzmJeML++Q
+LYsXwOPlzMyZM2fRvQH5Slk9yZ1tcxA9MlNoUm2DlzMLZ841mMuEeDAZcEY83oCZSSacOT+Z
+GVUkrzv89vBlF2HSYo8dkJjaw0lhnageWAXpcGjyfVZex3chjAsjTO1eni7YqwuziYOkYOds
+Ux2tVihpazJcSfSYx6sVjrkqw6E6yyzYiiyFiMwa06FTxi+psIymwn2RPmYieT2MSGo9qjMm
+u2VjIeYgEkNI5Z/MaKHWCw4z7crzRcIVRT8yuCY6FylzusOOme9L74aXMR+XViBlzyVjpn7d
+vex/8RWgT/3aD/CRRz9stUJrruMQc5Hq3KHdX3C/7UD30bl2jaCMc63Ds8zhYQ+jG3OuPtfu
+x8oHNp4WKvH2JY9YBrnMN36K6MfjhjlAFHZ1TdxAxGdohR+Xc4gbS4BW6zUMwdViWnTl3PyS
+6u9ocN08JEfSTYOCr9ygV12KBDLr+TiojDwQ0DMaxFilWcF6qixOLup4NJw2bXyFQUQSkVjJ
+w3YQhW0bvw+BJjsklFlDwXLpK5kggA+sYZQ7QyeX/RcZ0MMP1lxswKDkaVkHBmCAEXe2HTVA
+n1hjMG5SRJ81r9QYhBE4shXkbxFwm0Eu20m3gvQu4zENJG/iZ8wm0TCm5/1G75AzGxFnYWa2
+UAtZq8jMvRBCuY4ZkgUfWKOyAkSdofOy5rDb/L4pt7/s2m+7jbZmuQDL6JIha05T6YIQXV8z
+WfbkySYiu/Fq9xt31Bxz92379OVbeahNME3rMYjoPYN4n9fwfJqdin/AdHU28+hNX9mWDF4K
+SUioX2LObP3Sr9GN6KYUbR6TgSzdi+8tZnrMF+8CTm4jiYDXZ1a+SZw512B+3tRfX54TZoAW
+iXM7Px46t8rmnd9f4twXLBqn85qHgc79vMbiDZmpWaobc960Q3za08/fi+o7SjrJEUGA94nM
+UfQZf+NDU5NcI+ou9DJvOAkZT9d2PDB3HSQkXgCRHJFxl+4CkooP3ugumqaO6pBaenUQVB2Q
+HGlpcVPHCZVKKaNyhAanoLKskmQXRqcgqCzLZNLsOtKcr6l1Citfpqn2biP31TRtKWbtmIz9
+k5OoLZNERE2oLK5m0q8YHJY9LZUaP3fsbomYHfPEqzKUSgiv4jXiVDbmIV4vkjhlh/dgzEus
+D1+YcHCNOHXcJZ3ORtKBzsxUyk0X/DHMT/uuPmu4QqvgB1a+gabSZM9G7kk/eI/Te9ngWywQ
+lTGxsaxDA4iAzrZrDL5625aPIUv4OMyA3TgbDj6uV+1mXM5u8AEv6VBnqk/Fyck1yB+D77im
+Rr5MU0Gd3DPUFELV8hs0zUPAcYFDldFKfMnMTNbwTjKT0+r6otVyKDDTN+Ia7Wex6rnFdEGW
+0SkMXsasD9EZc67BvH3oO3K8nzYwZ2WyQkoVFmzt4voBrX//n2UmeERnXS4zXTAL3yByhZYo
+JOWumjdg5vq4qjHn+pPdiG9wmO2cKgP0uRszD87BN4aZppU009kE5lPlw8uk7Qk7fc52ZP7g
+Y+GNC+4s+GP+uHD+GBF4ZLwJHeyM9lfxA33IdQ1WcOH3XBxRjimcBfMIZWixXJhqDdJ7lxYv
+Y8bMmXN95pHxZvAyZgKcOX+Mt4vGW150slpmAlOv/ZRTXKbpuMBvX1f0FPW7X9+xruiJeOa8
+AP29yFaxXEbsFJ6HjGOueY6MZ7lm78z1968rOKUcLYC/D8dqmQnMqNP++sHL5Y7+t0SAxxsy
+S+zNucpuytMz7u9MILC6XfLALPNtXPUk80uOCWYE2qqOBamzNj6VpzVNcoLowo3PfJpeMIni
+PQRW7KwHpHCdc/0e0BvpCyjSKc+I3e8BZYA+iWQ65+oHIE6mcEbfvugQ6Bu4bX/MI5V3RBmm
+PpBsLPj/llq4+B1C9qkp8tRIXFNwhxK1YTYS9ZPcdcT14/eYh8BsLQL1XbPOnFl4yM+d1L9/
+9yMkSl5TJEc0xV7u2QQHnOVz+knoLJhF18+69q5TixVneGXuO1RzmZUv01R1l5P7+pNxNpe5
+eXc4GSN9l7+Zp+dxmK+31T51mG/st4BPxnEJxdL/iprtr5FO5K5/rx/H9YYlXgK4SDoxr+Hq
+C+nMuT5zGoDMj2BYvJyZEWfODAPQnAsfOhpxvL7VToH0/Z5WyxGBvfbXdwrFvJKcr1a+WGPx
+Rpi5M2cezLeE3K2SwcfGBh+TzpxZMOvjRbTHPDb4uDdnDsz1y27XPrp/NwE4vBFm7MyZ/AEX
++4NRrvWyjjeXYIKqeAcxrGjj5zAoAUtmFgIlzm5JyX1jeXd7a24X1j+UY/FGmKkz5/o69zJD
+ToDDG2FmzpxZBOa5FUz1vzWxXN/eLZMhxsdCmYBO4Zl1PUTA4Y0wI2fOPIq88+t6sUbY/KBY
+oY9wWsVGZMRO4Zl1vXNXMRapBHHmzO9sbq/rVV+TVvS6vsSnu55ymdzcN9H1BNQNu0RTiJx8
+I5oyJ/csIums19ijmo6EVWQnrqmjH/84mn7fPpQ+xR2Uy+82ccdohmdrEPbHbt7pVwm2T3W5
+TTH7510dUY4JnQXXOAK0HUrLOVjFrejwI4C9M7qJwNdiPpYSUORLQVl9iHBXOvr++hBsORIx
+VnNMkziO6jb+GPzx+hBpkIjL6jNu9jw5HaL81ID92UEbgWYYZv4P7Z2MqJ3vfQfNT/5O+I+q
+mQ83LjWiyj6WCWa+dRzG7/QNLu+ycdm9bLefq1LfTviv+3Dn/m1igCa3N/DrO/dtsh/v4L/4
+zv1uk/w4ZhhGegPERzxdZ3DtRq34Ob8QqHws/ruApGYohJJ+1ja2Lv+ya59TriUlfIHcPwEI
+PELOBR3y27h6v149yvVc/r3ocfUPtro+sVz6gvTopgfCgIvGuvq4RP+z6U1W+ZjkpAhekj8m
+yy2SSD3xHJ6SJsyEuOao30bwx/7DSvC2XOPiX3P5X968RV8wdAAA
+
+--FCuugMFkClbJLl1L--

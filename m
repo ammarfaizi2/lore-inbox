@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131961AbQKBA2I>; Wed, 1 Nov 2000 19:28:08 -0500
+	id <S130879AbQKBAaS>; Wed, 1 Nov 2000 19:30:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131986AbQKBA16>; Wed, 1 Nov 2000 19:27:58 -0500
-Received: from gap.cco.caltech.edu ([131.215.139.43]:11218 "EHLO
-	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
-	id <S131961AbQKBA1l>; Wed, 1 Nov 2000 19:27:41 -0500
-Date: Thu, 2 Nov 2000 00:59:27 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Michael Rothwell <rothwell@holly-springs.nc.us>
-Cc: wnoise@ugcs.caltech.edu, mlist-linux-kernel@nntp-server.caltech.edu
-Subject: Re: working userspace nfs v3 for linux?
-Message-ID: <20001102005927.A26355@khan.acc.umu.se>
-In-Reply-To: <linux.kernel.3A008510.FAE271A1@holly-springs.nc.us> <slrn9015t8.u5t.wnoise@barter.ugcs.caltech.edu> <3A00A84E.F3A1C585@holly-springs.nc.us>
+	id <S131465AbQKBAaI>; Wed, 1 Nov 2000 19:30:08 -0500
+Received: from hybrid-024-221-152-185.az.sprintbbd.net ([24.221.152.185]:63220
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S130879AbQKBAaB>; Wed, 1 Nov 2000 19:30:01 -0500
+Date: Wed, 1 Nov 2000 17:22:52 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Nathan Paul Simons <npsimons@fsmlabs.com>
+Cc: "David S. Miller" <davem@redhat.com>, garloff@suse.de, jamagallon@able.es,
+        linux-kernel@vger.kernel.org
+Subject: Re: Where did kgcc go in 2.4.0-test10 ?
+Message-ID: <20001101172252.E32641@opus.bloom.county>
+In-Reply-To: <20001101234058.B1598@werewolf.able.es> <20001101235734.D10585@garloff.etpnet.phys.tue.nl> <200011012247.OAA19546@pizda.ninka.net> <20001101163752.B2616@fsmlabs.com> <200011012329.PAA19890@pizda.ninka.net> <20001101171158.A4708@fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <3A00A84E.F3A1C585@holly-springs.nc.us>; from rothwell@holly-springs.nc.us on Wed, Nov 01, 2000 at 06:33:34PM -0500
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001101171158.A4708@fsmlabs.com>; from npsimons@fsmlabs.com on Wed, Nov 01, 2000 at 05:11:58PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2000 at 06:33:34PM -0500, Michael Rothwell wrote:
-> Aaron Denney wrote:
-> > I am not aware of any userspace NFSv3 server.  Your best bet would
-> > probably to take the v2 server and mutate it.  Why do you want this beast?
+On Wed, Nov 01, 2000 at 05:11:58PM -0700, Nathan Paul Simons wrote:
+> On Wed, Nov 01, 2000 at 03:29:15PM -0800, David S. Miller wrote:
+> > Please get your facts straight.
+> > 
+> > The rest of this thread will show you that this is not a "Red Hat
+> > thing".  Connectiva, Mandrake, and others do the same thing.  In fact
+> > we choose the name "kgcc" to match the convention set by these other
+> > distributions.
 > 
-> So I can use Linux rather than Solaris 7 and the Solstice Disk Suite,
-> which performs like crap thanks to UFS, and the Linux NFS v2
-> implementation.
+> 	So other distro's did it too.  Why did nobody complain till RedHat
+> did it?  Because no one else decided to use, as the default, a bleeding edge 
+> compiler that not only won't compile the kernel but won't even touch a lot of 
+> userspace code either.
 
-Yes, but why do you need a userspace NFSv3 server? v2.2.18 will contain
-knfsdv3, shouldn't this be good enough?
+That's not quite true.  gcc 2.96/7 isn't bad.  It's just not intended for use
+on production systems.  But, it has a lot of things that people will have to
+get used to for gcc 3.0.  It also has a more robust/not-as-sucky C++ abi.
+RedHat decided haveing a g++ that sucks less and including more compat
+libraries in 7.1/whatever was worth it.  I don't think so, but I'm not RedHat
+:)
 
+The idea of kgcc isn't a new one.  It's been around, unoffically, since Linus
+said "Ok, I'd recommend people use X compiler".  It's now a more formal idea
+and most x86 distributions have one now.
+/me is glad he has more PPC boxes then x86 ones.
 
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

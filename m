@@ -1,49 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281934AbRKUSLh>; Wed, 21 Nov 2001 13:11:37 -0500
+	id <S281970AbRKUSNr>; Wed, 21 Nov 2001 13:13:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281927AbRKUSL1>; Wed, 21 Nov 2001 13:11:27 -0500
-Received: from [213.97.45.174] ([213.97.45.174]:22022 "EHLO pau.intranet.ct")
-	by vger.kernel.org with ESMTP id <S281395AbRKUSLT>;
-	Wed, 21 Nov 2001 13:11:19 -0500
-Date: Wed, 21 Nov 2001 19:10:43 +0100 (CET)
-From: Pau Aliagas <pau@newtral.com>
-X-X-Sender: <pau@pau.intranet.ct>
-To: Dave McCracken <dmccr@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>, Jeff Long <jeffwlong@hotmail.com>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Subject: Re: [PATCH] Re: Zombies with 2.4.15pre5 (exit.c)
-In-Reply-To: <41490000.1006272492@baldur>
-Message-ID: <Pine.LNX.4.33.0111211908210.1844-100000@pau.intranet.ct>
+	id <S281942AbRKUSN1>; Wed, 21 Nov 2001 13:13:27 -0500
+Received: from gatekeeper.corp.netcom.net.uk ([194.42.224.25]:45498 "EHLO
+	gatekeeper") by vger.kernel.org with ESMTP id <S281953AbRKUSNX>;
+	Wed, 21 Nov 2001 13:13:23 -0500
+Message-ID: <3BFBEEAD.67DF8932@netcomuk.co.uk>
+Date: Wed, 21 Nov 2001 18:13:01 +0000
+From: Bill Crawford <billc@netcomuk.co.uk>
+Reply-To: bill@eb0ne.net
+Organization: Netcom Internet Ltd
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-0.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+CC: bill@eb0ne.net, linux-kernel@vger.kernel.org
+Subject: Re: Linux-kernel-daily-digest digest, Vol 1 #171 - 281 msgs
+In-Reply-To: <200111201202.fAKC2Md29689@lists.us.dell.com> <01112112032600.01961@nemo> <3BFBC5C5.82366455@netcomuk.co.uk> <01112117394902.02798@nemo>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Nov 2001, Dave McCracken wrote:
+vda wrote:
 
-> > Running 2.4.15pre5 (UP) on i386, running UML 2.4.14-2.
-> > UML processes create threads on the host system that don't
-> > die.  Threads are stuck at do_exit( ), so I backed out the
-> > patch to kernel/exit.c @ 539 (in 2.4.15pre5 patch):
-> > 
-> >   p->state = TASK_DEAD;
-> > 
-> > and things work fine.  I do not see zombies with anything
-> > other than UML processes/native threads.
+> Hmm. I thought proper group management can let you live with std UNIX
+> file permissions model... NT ACLs are horrendously complex.
+> "Make it as simple as possible, but not simpler"
+
+ You can, but there are situations where you end up with a combinatorial
+explosion of groups to accommodate a matrix of possible permissions on
+things.  And there is another significantly limiting factor which is the
+restriction on the number of groups a process can belong to (currently
+32 I believe).
+
+ I think ACLs are a good solution to the problem, and indeed are what
+*should* have been done originally ... however I suspect that would have
+added a significant overhead to the original UNIX, and one of the great
+benefits at the time was that UNIX was designed to run on pretty low-end
+hardware.  VMS was a heavyweight beast on VAXen, did it ever run on PDP
+machines?  There was a complex system :o)
+
+ I'm thinking of Solaris' ACLs rather than NT, I don't know much about
+the latter so I can't really comment on them.
+
+> It is legitimate to do that. Do I really have to explain?
+
+ No, I know what you're trying to do.  I have done it myself many times.
+Why some sources come packed so they're only readable by root is beyond
+me :o)
+
+> I have a script which is designed to sweep entire tree starting from /
+> and do some sanity checks. For example, it Opens Source:
 > 
-> The intent of the original patch was to make the task unfindable to other
-> waiters, which fixed a race condition in sys_wait4().  My assumption was
-> that the task was about to be cleaned up in release_task().  What I missed
-> was that there are a couple of code paths that don't release the task, but
-> assume it'll be cleaned up later.
+> chmod -R -c a+R /usr/src
 > 
-> The patch below should fix the problem.
+> 8-)
 
-It doesn't for me.
-I'll try OGAWA Hirofumi's patch -posted to the list- and let you know.
+ OK, point conceded, although I can live with two passes for that sort
+of thing.  Yours is a neat solution in fact.
 
-Pau
+> --
+> vda
 
-
-
+-- 
+/* Bill Crawford, Unix Systems Developer, Ebone (formerly GTS Netcom) */
+#include <stddiscl>
+const char *addresses[] = {
+    "bill@syseng.netcom.net.uk", "Bill.Crawford@ebone.com",     // work
+    "billc@netcomuk.co.uk", "bill@eb0ne.net"                    // home
+};

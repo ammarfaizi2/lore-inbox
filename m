@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268201AbTB1WDp>; Fri, 28 Feb 2003 17:03:45 -0500
+	id <S268191AbTB1WAm>; Fri, 28 Feb 2003 17:00:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268209AbTB1WDp>; Fri, 28 Feb 2003 17:03:45 -0500
-Received: from dhcp-66-212-193-131.myeastern.com ([66.212.193.131]:64448 "EHLO
-	mail.and.org") by vger.kernel.org with ESMTP id <S268201AbTB1WDo>;
-	Fri, 28 Feb 2003 17:03:44 -0500
-To: Dan Kegel <dank@kegel.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Protecting processes from the OOM killer
-References: <3E5EB9A8.3010807@kegel.com>
-	<1046439618.16599.22.camel@irongate.swansea.linux.org.uk>
-	<3E5F8985.60606@kegel.com>
-From: James Antill <james@and.org>
-Content-Type: text/plain; charset=US-ASCII
-Date: 28 Feb 2003 17:13:56 -0500
-In-Reply-To: <3E5F8985.60606@kegel.com>
-Message-ID: <m3smu82guz.fsf@code.and.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
-MIME-Version: 1.0
+	id <S268209AbTB1WAm>; Fri, 28 Feb 2003 17:00:42 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37391 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268191AbTB1WAm>; Fri, 28 Feb 2003 17:00:42 -0500
+Date: Fri, 28 Feb 2003 22:11:01 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: dsaxena@mvista.com, linux-kernel@vger.kernel.org
+Subject: Re: Proposal: Eliminate GFP_DMA
+Message-ID: <20030228221101.B18571@flint.arm.linux.org.uk>
+Mail-Followup-To: Pete Zaitcev <zaitcev@redhat.com>, dsaxena@mvista.com,
+	linux-kernel@vger.kernel.org
+References: <1046445897.16599.60.camel@irongate.swansea.linux.org.uk> <Pine.SGI.4.10.10302282138180.244855-100000@Sky.inp.nsk.su> <20030228155841.GA4678@gtf.org> <mailman.1046456425.7772.linux-kernel2news@redhat.com> <200302282051.h1SKpNm32220@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200302282051.h1SKpNm32220@devserv.devel.redhat.com>; from zaitcev@redhat.com on Fri, Feb 28, 2003 at 03:51:23PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Kegel <dank@kegel.com> writes:
+On Fri, Feb 28, 2003 at 03:51:23PM -0500, Pete Zaitcev wrote:
+> Pay it no mind and
+> implement it properly, that means copy it from sparc64.
 
-> Alan Cox wrote:
-> > On Fri, 2003-02-28 at 01:21, Dan Kegel wrote:
-> >
-> > Everything else is armwaving "works half the time" stuff. By the time
-> > the OOM kicks in the game is already over.
-> 
-> Even with overcommit disallowed, the OOM killer is going to run
-> when my users try to run too big a job, so I would still like
-> the OOM killer to behave "well".
-
- If OOM is called you've overcommitted memory, so this isn't true
-... no overcommit == NULL from malloc() etc.
+and fix the documentation so the next unsuspecting individual doesn't
+fall into the same trap and ask the same question on the same mailing
+list. 8)
 
 -- 
-# James Antill -- james@and.org
-:0:
-* ^From: .*james@and\.org
-/dev/null
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

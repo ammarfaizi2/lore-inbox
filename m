@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262374AbTEFGSg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 02:18:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbTEFGSg
+	id S262378AbTEFG2i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 02:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbTEFG2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 02:18:36 -0400
-Received: from zero.aec.at ([193.170.194.10]:64776 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S262374AbTEFGSf (ORCPT
+	Tue, 6 May 2003 02:28:38 -0400
+Received: from [12.47.58.20] ([12.47.58.20]:24337 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S262378AbTEFG2h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 02:18:35 -0400
-Date: Tue, 6 May 2003 08:30:55 +0200
-From: Andi Kleen <ak@muc.de>
-To: torvalds@transmeta.com
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix .altinstructions linking failures
-Message-ID: <20030506063055.GA15424@averell>
+	Tue, 6 May 2003 02:28:37 -0400
+Date: Mon, 5 May 2003 23:42:48 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: davem@redhat.com, rusty@rustcorp.com.au, dipankar@in.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kmalloc_percpu
+Message-Id: <20030505234248.7cc05f43.akpm@digeo.com>
+In-Reply-To: <20030505224815.07e5240c.akpm@digeo.com>
+References: <20030506040856.8B3712C36E@lists.samba.org>
+	<20030505.204002.08338116.davem@redhat.com>
+	<20030505220250.213417f6.akpm@digeo.com>
+	<20030505.211606.28803580.davem@redhat.com>
+	<20030505224815.07e5240c.akpm@digeo.com>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 May 2003 06:41:02.0055 (UTC) FILETIME=[75E83770:01C3139A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton <akpm@digeo.com> wrote:
+>
+> - DEFINE_PER_CPU and kmalloc_percpu() work in core kernel, and use the 32k
+>   pool.
 
-Some configs didn't link anymore because they got references from
-.altinstructions to __exit functions. Fixing it at the linker level
-is not easily possible. This patch just discards .text.exit at runtime
-instead of link time to avoid this.
+except sizeof(struct disk_stats)=44, so we run out of percpu space at 744
+disks.
 
-Idea from Andrew Morton.
-
-It will also fix a related problem with .eh_frame in modern gcc (so far 
-only observed on x86-64, but could happen on i386 too) 
-
-Index: linux/arch/i386/vmlinux.lds.S
-===================================================================
-RCS file: /home/cvs/linux-2.5/arch/i386/vmlinux.lds.S,v
-retrieving revision 1.18
-diff -u -u -r1.18 vmlinux.lds.S
---- linux/arch/i386/vmlinux.lds.S	30 Apr 2003 14:32:05 -0000	1.18
-+++ linux/arch/i386/vmlinux.lds.S	6 May 2003 05:28:28 -0000
-@@ -85,7 +85,10 @@
-   __alt_instructions = .;
-   .altinstructions : { *(.altinstructions) } 
-   __alt_instructions_end = .; 
-- .altinstr_replacement : { *(.altinstr_replacement) }
-+ .altinstr_replacement : { *(.altinstr_replacement) } 
-+  /* .exit.text is discard at runtime, not link time, to deal with references
-+     from .altinstructions and .eh_frame */
-+  .exit.text : { *(.exit.text) }
-   . = ALIGN(4096);
-   __initramfs_start = .;
-   .init.ramfs : { *(.init.ramfs) }
-@@ -106,7 +109,6 @@
- 
-   /* Sections to be discarded */
-   /DISCARD/ : {
--	*(.exit.text)
- 	*(.exit.data)
- 	*(.exitcall.exit)
- 	}
+Can't think of anything very clever there, except to go and un-percpuify the
+disk stats.  I think that's best, really - disk requests only come in at 100
+to 200 per second - atomic_t's or int-plus-per-disk-spinlock will be fine.
 

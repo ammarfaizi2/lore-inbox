@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290761AbSAYSWW>; Fri, 25 Jan 2002 13:22:22 -0500
+	id <S290760AbSAYSZm>; Fri, 25 Jan 2002 13:25:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290766AbSAYSWC>; Fri, 25 Jan 2002 13:22:02 -0500
-Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:33805
-	"EHLO inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S290761AbSAYSVw>; Fri, 25 Jan 2002 13:21:52 -0500
-Date: Fri, 25 Jan 2002 19:21:48 +0100
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-To: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC] SiS 2.4 IDE driver update (+= ATA16|ATA33|ATA100)
-Message-ID: <20020125192148.A21145@bouton.inet6-interne.fr>
-Mail-Followup-To: Liakakis Kostas <kostas@skiathos.physics.auth.gr>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020125172155.A11517@bouton.inet6-interne.fr> <Pine.GSO.4.21.0201251942130.19355-200000@skiathos.physics.auth.gr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0201251942130.19355-200000@skiathos.physics.auth.gr>; from kostas@skiathos.physics.auth.gr on Fri, Jan 25, 2002 at 08:02:43PM +0200
+	id <S290762AbSAYSZc>; Fri, 25 Jan 2002 13:25:32 -0500
+Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:2290 "EHLO
+	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S290760AbSAYSZY>; Fri, 25 Jan 2002 13:25:24 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Subject: Re: filesystem corruption with 2.5.2-dj5
+Date: Fri, 25 Jan 2002 19:25:00 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16U2Og-0000qu-00@baldrick> <15441.21347.214934.178562@harpo.it.uu.se>
+In-Reply-To: <15441.21347.214934.178562@harpo.it.uu.se>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16UB25-0000L5-00@baldrick>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 25, 2002 at 08:02:43PM +0200, Liakakis Kostas wrote:
-> 
-> Well, success :-)
-> Stock 2.4.17 doesn't hang any more :-)
-> 
+On Friday 25 January 2002 1:45 pm, Mikael Pettersson wrote:
+> Duncan Sands writes:
+>  > I just gave 2.5.2-dj5 a try.  On a subsequent reboot and fsck
+>  > (with a stable kernel), I got a slew of messages about bad inode
+>  > fsizes on files modified while using 2.5.2-dj5.  The partition uses
+>  > ext2.  This is a UP i386 (AMD K6) machine with no other patches.
+>  > What can I do to help track this down?
+>
+> I reported this a couple of hours ago for 2.5.3-pre and Al Viro posted
+> this patch:
+>
+> --- C3-pre4/fs/ext2/ialloc.c	Wed Jan 23 20:45:32 2002
+> +++ /tmp/ialloc.c	Thu Jan 24 21:41:52 2002
+> @@ -392,6 +392,7 @@
+>  		ei->i_flags &= ~(EXT2_IMMUTABLE_FL|EXT2_APPEND_FL);
+>  	ei->i_faddr = 0;
+>  	ei->i_frag_no = 0;
+> +	ei->i_frag_size = 0;
+>  	ei->i_osync = 0;
+>  	ei->i_file_acl = 0;
+>  	ei->i_dir_acl = 0;
+> --- C3-pre4/fs/ext2/inode.c	Wed Jan 23 20:45:32 2002
+> +++ /tmp/inode.c	Thu Jan 24 21:44:48 2002
+> @@ -963,6 +963,7 @@
+>  	ei->i_frag_size = raw_inode->i_fsize;
+>  	ei->i_osync = 0;
+>  	ei->i_file_acl = le32_to_cpu(raw_inode->i_file_acl);
+> +	ei->i_dir_acl = 0;
+>  	if (S_ISREG(inode->i_mode))
+>  		inode->i_size |= ((__u64)le32_to_cpu(raw_inode->i_size_high)) << 32;
+>  	else
 
-Cool.
+Yes, that was the problem.  Thanks for the info, I hadn't spotted the patch.
 
-> One question though, hdparm -i/I says my drive is udma2 (UDMA/33 isnt it?)
-> capable. Why don't I get it on boot? (or is my chipset UDMA/33 capable?).
-
-Don't think so. IIRC (don't have the specs right now at hand) SiS5513 isn't UDMA capable.
-
-> hdparm -X66 /dev/hda hangs the machine completely. Same with 65 and 64.
-
-If I'm correct with UDMA above, this is expected behavior...
-I don't know the IDE framework and hdparm enough yet to know if I can trap hdparm
-actions at the chip driver level... it may speak (and I believe it to do so) to the drives directly.
-
-> The debug messages that appear when I do so say:
-> 
-> sis5513_tune_chipset start, changed registers: none 
-> sis5513_tune_chipset ,drive 0, speed 66
-> sis5513_tune_chipset end, changed registers: none
-> 
-> Attached is the boot time debug info.
-
-Many thanks. My database of BIOS init behaviour will grow, this is *good*.
-
-I'm mostly away (Palm with GSM is kind of... slow) from Net access this week-end and I'll be away too from tuesday
-on next week. So don't be surprised if I don't answer bug reports or
-enhancement requests in the following days, be patient and don't hesitate
-to repost your message if you don't have any answer February the 6.
-
-LB.
+Duncan.

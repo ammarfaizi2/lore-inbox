@@ -1,62 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269628AbTGJWMx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 18:12:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269589AbTGJWMw
+	id S269589AbTGJWP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 18:15:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269646AbTGJWP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 18:12:52 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:15756 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269633AbTGJWLm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 18:11:42 -0400
-Date: Thu, 10 Jul 2003 15:26:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.75
-In-Reply-To: <20030710223548.A20214@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0307101512350.4757-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 10 Jul 2003 18:15:27 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:27808 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S269589AbTGJWNd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 18:13:33 -0400
+Date: Thu, 10 Jul 2003 15:28:08 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Style question: Should one check for NULL pointers?
+Message-ID: <20030710222808.GA19308@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <7QmZ.5RP.17@gated-at.bofh.it> <3F0DD3FD.3030403@triphoenix.de> <bekof0$g7i$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bekof0$g7i$1@cesium.transmeta.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 10 Jul 2003, Russell King wrote:
+On Thu, Jul 10, 2003 at 03:13:52PM -0700, H. Peter Anvin wrote:
+> Followup to:  <3F0DD3FD.3030403@triphoenix.de>
+> By author:    Dennis Bliefernicht <itsme.nospam@triphoenix.de>
+> In newsgroup: linux.dev.kernel
+> > 
+> > The problem is IMHO code where some pretty fragile things are handled, 
+> > especially file systems. I'd say: DO the paranoia checks if some fragile 
+> > things are involved like key structures of the file system that can take 
+> > _permanent_ damage. If you check for a NULL pointer you still have the 
+> > chance to properly leave the system in a consistent state and no user 
+> > will be happy if his filesystem goes messy just because someone saved a 
+> > check to have nicer code, even if the original of the NULL pointer 
+> > wasn't his fault, even if it's a developing version. So if the check 
+> > isn't a total performace disaster, do it whenever permanent damage could 
+> > occur.
+> > 
 > 
-> Well, only two words from me.  Oh Shit.
+> Actually, you have it somewhat backwards.
+> 
+> In most cases, checking for NULL pointers (and returning an error
+> whatnot) is actually *more* likely to cause permanent damage than
+> having the kernel bomb out.  At least with the kernel bombing out you
+> won't keep grinding on a filesystem for which your kernel
+> datastructures are bad.  This is *IMPORTANT*.
 
-Hey, this is already much later than it should have been, so it's not as
-if this is a huge surprise.
+In BK, we have a READ_ONLY flag on each revision history file.  Whenever
+we get into a state where we don't understand what's going on, we set that
+flag.  That flag is checked in the code path which writes the file and it
+will simply refuse the write the file if the flag is set.
 
-> The 2.5.70 ARM patch currently looks like this:
-
-We can sort it out later. Obviously, clearly arm-specific patches (ie
-stuff in arch/arm and include/asm-arm) I wouldn't mind per se, but I'd
-rather hold back on even those just to make the patches and the changlogs
-not be mixed up with the "main bugfixes".
-
-We've never had a first stable release that has all architectures
-up-to-date, and I'm not planning on changing that for 2.6.x. This is _not_
-the time to try to make my tree build on arm (or other architectures
-either), considering that my tree hasn't been the main ARM tree for a long 
-time.
-
-> Frustrated such an understatement.
-
-To be blunt, which part of "we want to release 2.6.x this year" came as a
-surprise to you? I
-
-That means that I'm not willing to hold stuff up any more. Stuff that 
-hasn't followed the development tree doesn't magically just "get fixed". 
-
-Also, the only real point of a stable release is for distribution makers.
-That pretty much cuts the list of "needs to be supported" down to x86,
-ia64, x86-64 and possibly sparc/alpha.
-
-So everything else is a bonus, but can equally well just play catch-up
-later. Embedded people tend to want to stay back anyway, which is 
-obviously why they don't follow the development tree in the first place. 
-
-			Linus
-
+Seems like the same idea would work here.  I can imagine a lot of use for
+a file system which remounts itself as read only the second it sees a 
+problem it can't handle.  At least you can poke around and try and figure
+out what is going on.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

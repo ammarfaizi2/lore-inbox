@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263025AbTC0PvL>; Thu, 27 Mar 2003 10:51:11 -0500
+	id <S263044AbTC0P4d>; Thu, 27 Mar 2003 10:56:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263028AbTC0PvL>; Thu, 27 Mar 2003 10:51:11 -0500
-Received: from bitmover.com ([192.132.92.2]:43442 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S263025AbTC0PvK>;
-	Thu, 27 Mar 2003 10:51:10 -0500
-Date: Thu, 27 Mar 2003 08:02:20 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: ECC error in 2.5.64 + some patches
-Message-ID: <20030327160220.GA29195@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <20030324212813.GA6310@osiris.silug.org> <20030324180107.A14746@vger.timpanogas.org> <20030324234410.GB10520@work.bitmover.com> <20030324182508.A15039@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263062AbTC0P4d>; Thu, 27 Mar 2003 10:56:33 -0500
+Received: from smtp1.eunet.yu ([194.247.192.50]:2717 "EHLO smtp1.eunet.yu")
+	by vger.kernel.org with ESMTP id <S263044AbTC0P4c>;
+	Thu, 27 Mar 2003 10:56:32 -0500
+From: Toplica Tanaskovic <toptan@EUnet.yu>
+To: James Simmons <jsimmons@infradead.org>
+Subject: Re: [REPRODUCABLE BUGS] Linux 2.5.66
+Date: Thu, 27 Mar 2003 17:05:23 +0100
+User-Agent: KMail/1.5.9
+References: <Pine.LNX.4.44.0303262024270.21188-100000@phoenix.infradead.org>
+In-Reply-To: <Pine.LNX.4.44.0303262024270.21188-100000@phoenix.infradead.org>
+Cc: linux-kernel@vger.kernel.org, thoffman@arnor.net
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20030324182508.A15039@vger.timpanogas.org>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200303271705.23957.toptan@EUnet.yu>
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from quoted-printable to 8bit by smtp1.eunet.yu id h2RG7iV26914
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting these on the machine we use to do the BK->CVS conversions.
-My guess is that this means there was a memory error and ECC fixed it.
-The only problem is that I'm reasonably sure that there isn't ECC on
-these DIMMs.  Does anyone have the table of error codes to explanations?
-Google didn't find anything for this one.
+Dana sreda 26. mart 2003. 21:24 napisali ste:
+> > > For console resizing try using stty cols xxx rows xx.
+> >
+> > 	Tried.  Not working again. Last line of the text is at same position
+> > like when changing mode with fbset, upper lines are now on the right
+> > where garbage is when using fbset.
+> > 	First scrolling gives an oops, but due to screen corruption I could not
+> > write down message displayed. Nothing in logs due to irregular reboot.
+>
+> I seen this bug. I fixed it in BK.
 
-Thanks.
-
-Message from syslogd@slovax at Thu Mar 27 05:53:49 2003 ...
-slovax kernel: MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
-
-Message from syslogd@slovax at Thu Mar 27 05:53:49 2003 ...
-slovax kernel: Bank 1: 9000000000000151
+	Nope, not fixed in BK3 either. Same thing is happening with, and without BK 
+patch.
 
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Pozdrav,
+Tanasković Toplica
+
+

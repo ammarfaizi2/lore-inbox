@@ -1,79 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266482AbUBDU3d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 15:29:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266412AbUBDU3S
+	id S266586AbUBDUpl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 15:45:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266538AbUBDUYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 15:29:18 -0500
-Received: from tolkor.SGI.COM ([198.149.18.6]:12751 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id S266566AbUBDU0h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 15:26:37 -0500
-From: Pat Gefre <pfg@sgi.com>
-Message-Id: <200402042026.i14KQZi7020354@fsgi900.americas.sgi.com>
-Subject: [PATCH 2.6] small Altix mod [1/2]
+	Wed, 4 Feb 2004 15:24:33 -0500
+Received: from maynard.mail.mindspring.net ([207.69.200.243]:44079 "EHLO
+	maynard.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id S266522AbUBDUXa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 15:23:30 -0500
+Message-ID: <18852317.1075926209540.JavaMail.root@wamui01.slb.atl.earthlink.net>
+Date: Wed, 4 Feb 2004 15:23:29 -0500 (GMT-05:00)
+From: Oliver Dain <odain2@mindspring.com>
+Reply-To: Oliver Dain <odain2@mindspring.com>
 To: linux-kernel@vger.kernel.org
-Date: Wed, 4 Feb 2004 14:26:34 -0600 (CST)
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+Subject: proper place for devfs_register_chrdev with pci_module_init
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Mailer: Earthlink Zoo Mail 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a small mod to the Altix code.
+I'm writing a char driver for a PCI card.  Looking at examples of such things I've found that most have a module_init like this:
 
--- Pat
+int foo_init(void)
+{
+	/* stuff... */
+	devfs_register_chrdev(...);
+	/* more stuff... */
+	pci_module_init(...);
+}
 
+This seems strange to me.  The devfs_register_chrdev call will register the module and cause it to be held in memory even if the associated PCI device isn't present on the system.  It seems like a better way to do this is to have the init method just call pci_module_init(...) and then in that method, after the PCI device has been initialized, call devfs_register_chrdev to associate the driver with the device.  That way the kernel can unload the module if no such device is present, but if the device is present (or if one appears via hotplug) the module will be loaded and can then register itself.  Will this work?  Is there a reason people don't do this?
 
+I'm not subscribed to the LKML so please CC me on any responses.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1519  -> 1.1520 
-#	arch/ia64/sn/io/sn2/ml_SN_intr.c	1.8     -> 1.9    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 04/01/16	pfg@attica.americas.sgi.com	1.1520
-# arch/ia64/sn/io/sn2/ml_SN_intr.c
-#     Use the pda to keep the num of interrupts
-# --------------------------------------------
-#
-diff -Nru a/arch/ia64/sn/io/sn2/ml_SN_intr.c b/arch/ia64/sn/io/sn2/ml_SN_intr.c
---- a/arch/ia64/sn/io/sn2/ml_SN_intr.c	Fri Jan 16 16:13:35 2004
-+++ b/arch/ia64/sn/io/sn2/ml_SN_intr.c	Fri Jan 16 16:13:35 2004
-@@ -30,6 +30,7 @@
- #include <asm/sal.h>
- #include <asm/sn/sn_sal.h>
- #include <asm/sn/sn2/shub_mmr.h>
-+#include <asm/sn/pda.h>
- 
- extern irqpda_t	*irqpdaindr;
- extern cnodeid_t master_node_get(vertex_hdl_t vhdl);
-@@ -216,7 +217,6 @@
- {
- 	cpuid_t		cpu, best_cpu = CPU_NONE;
- 	int		slice, min_count = 1000;
--	irqpda_t	*irqs;
- 
- 	for (slice = CPUS_PER_NODE - 1; slice >= 0; slice--) {
- 		int intrs;
-@@ -227,8 +227,7 @@
- 		if (!cpu_online(cpu))
- 			continue;
- 
--		irqs = irqpdaindr;
--		intrs = irqs->num_irq_used;
-+		intrs = pdacpu(cpu)->sn_num_irqs;
- 
- 		if (min_count > intrs) {
- 			min_count = intrs;
-@@ -243,6 +242,7 @@
- 			}
- 		}
- 	}
-+	pdacpu(best_cpu)->sn_num_irqs++;
- 	return best_cpu;
- }
+Thanks,
+Oliver

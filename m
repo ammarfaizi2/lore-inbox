@@ -1,155 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264449AbUAZRrT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 12:47:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264471AbUAZRrT
+	id S264574AbUAZRkT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 12:40:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264586AbUAZRkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 12:47:19 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:19151 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264449AbUAZRrJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 12:47:09 -0500
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: Encrypted Filesystem
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OFA97B290B.67DE842E-ON87256E27.0061728C-86256E27.0061BB0E@us.ibm.com>
-From: Michael A Halcrow <mahalcro@us.ibm.com>
-Date: Mon, 26 Jan 2004 11:46:29 -0600
-X-MIMETrack: Serialize by Router on D03NM115/03/M/IBM(Release 6.0.2CF2HF168 | December 5, 2003) at
- 01/26/2004 10:46:37,
-	Serialize complete at 01/26/2004 10:46:37
-Content-Type: text/plain; charset="US-ASCII"
+	Mon, 26 Jan 2004 12:40:19 -0500
+Received: from gprs40-2.eurotel.cz ([160.218.40.2]:23868 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S264574AbUAZRkP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 12:40:15 -0500
+Date: Mon, 26 Jan 2004 18:39:58 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Max Krasnyansky <maxk@qualcomm.com>
+Subject: Re: Bluetooth USB oopses on unplug (2.6.1)
+Message-ID: <20040126173958.GA310@elf.ucw.cz>
+References: <20040126102041.GA1112@elf.ucw.cz> <1075124726.25442.2.camel@pegasus> <20040126161625.GB227@elf.ucw.cz> <1075136997.25442.99.camel@pegasus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1075136997.25442.99.camel@pegasus>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi!
 
-I have some time this year to work on an encrypted filesystem for
-Linux.  I have surveyed various LUG's, tested and reviewed code for
-currently existing implementations, and have started modifying some
-of them.  I would like to settle on a single approach on which to
-focus my efforts, and I am interested in getting feedback from the
-LKML community as to which approach is the most feasible.
+> > I'll have to hand-copy the oops, as machine dies after unplug. Here it
+> > is:
+> > 
+> > Oops: 2
+> > EIP  is at uhci_remov_pending_qhs
+> > Call trace:
+> > 	uhci_irq
+> > 	usb_hcd_irq
+> > 	handle_irq_event
+> > 	do_IRQ
+> > 	common_interrupt_1
+> 
+> as I expected. It is an UHCI host adapter and it looks like the uhci_hcd
+> driver has problems to unlink the ISOC URB's. Look at the LKML and USB
+> mailing lists for similiar post. At the moment I don't know of any patch
+> for it. Sorry.
 
-This is the feature wish-list that I have compiled, based on personal
-experience and feedback I have received from other individuals and
-groups:
+No problem. For the record, it works okay without SCO. Thanks for that.
+									Pavel
 
- - Seamless application to the root filesystem
-  - Layered over the entire root filesystem
-  - Unencrypted pass-through mode with minimal overhead
-  - Files are marked as  ``encrypted'' or ``unencrypted'' and treated
-    accordingly by the encryption layer
- - Key->file association
-  - As opposed to key->blkdev or key->directory granularity
-  - No encryption metafiles in directories, instead placing that
-    information into Extended Attributes
-  - May break some backup utilities that are not EA-aware; may require
-    another mode where encryption metadata is stored in a header block
-    on the encrypted file
-  - Directories can be flagged as ``encrypted-only'', where any new
-    files created in that directory are, by default, encrypted, with
-    the key and permissions defined in the directory's metadata
-  - Processes may have encryption contexts, whereby any new files they
-    create are encrypted by default according to the process'
-    authentication
-  - Make as much metadata about the file as confidential as possible
-    (filesize, executable bit, etc.)
- - Pluggable encryption (I wouldn't mind using a block cipher in CTR
-   mode)
- - Authentication via PAM
-  - pam_usb
-  - Bluetooth
-  - Kerberos
-  - PAM checks for group membership before allowing access to certain
-    encrypted files
- - Rootplug-based LSM to provide key management (necessary to use
-   LSM?)
- - Secret splitting and/or (m,n)-threshold support on the keys
- - Signatures on files flagged for auditing in order to detect
-   attempts to circumvent the encryption layer (via direct
-   modifications to the files themselves in the underlying filesystem)
- - Ad-hoc groups for access to decrypted versions of files
-  - i.e., launch web browser, drop group membership by default (like
-    capability inheritance masks) so that the browser does not have
-    access to decrypted files by default; PAM module checks for group
-    membership before allowing access (explicit user authorization on
-    application access requests)
- - Userland utilities to support encrypted file management
- - Extensions to nautilus and konqueror to be able to use these
-   utilities from a common interface (think: right-click, encrypted)
- - Distro installation integration
- - Transparent shredding, where the underlying filesystem supports it
- - Versioning and snapshots (CVS-ish behavior)
- - Design to work w/ SE Linux
-
-These are features that have been requested, but are not necessarily
-hard requirements for the encrypted filesystem.  They are just
-suggestions that I have received, and I am not convinced that they are
-all feasible.
-
-There are several potential approaches to an encrypted filesystem with
-these features, all with varying degrees of modification to the kernel
-itself, each with its own set of advantages and disadvantages.
-
-Options that I am aware of include:
-
- - NFS-based (CFS, TCFS)
-  - CFS is mature
-  - Performance issues
-  - Violates UNIX semantics w/ hole behavior
-  - Single-threaded
-
- - Userland filesystem-based (EncFS+FUSE, CryptoFS+LUFS)
-  - Newer solutions, not as well accepted or tested as CFS
-  - KDE team is using SSHFS+FUSE
-
- - Loopback (cryptoloop) encrypted block device
-  - Mature; in the kernel
-  - Block device granularity; breaks most incremental backup
-    applications
-
- - LSM-based
-  - Is this even possible?  Are the hooks that we need there?
-
- - Modifications to VFS (stackable filesystem, like NCryptfs)
-  - Very low overhead claimed by Erez Zadok
-  - Full implementation not released
-  - Key->directory granularity
-  - Evicts cleartext pages from the cache on process death
-  - Uses dcache to store attaches
-  - Other niceties, but it's not released...
-
-My goal is to develop an encrypted filesystem ``for the desktop'',
-where a user can right-click on a file in konqueror or nautilus and
-check the ``encrypted'' box, and all subsequent accesses by any
-processes to that file will require authentication in order for the
-file to be decrypted.  I have already made some modifications to CFS
-to support this functionality, but I am not sure at this moment
-whether or not CFS is the best route to go for this.
-
-I have had requests to write a kernel module that, when loaded,
-transparently starts acting as the encryption layer on top of whatever
-root filesystem is mounted.  For example, an ext3 partition may have
-encrypted files strewn about, which are accessible only after loading
-the module (and authenticating, etc.).
-
-Any advise or direction that the kernel community could provide would
-be very much appreciated.
-
-Thanks,
-Mike
-.___________________________________________________________________.
-                         Michael A. Halcrow 
-       Security Software Engineer, IBM Linux Technology Center 
-GnuPG Fingerprint: 05B5 08A8 713A 64C1 D35D  2371 2D3C FDDA 3EB6 601D
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQFAFU9wLTz92j62YB0RAkOfAKClVMzKIhw6JtyGvKf8+iFp4e12AwCdFARU
-uAhpA7wVjvPMdDQtKSnFzzI=
-=TM5Y
------END PGP SIGNATURE-----
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

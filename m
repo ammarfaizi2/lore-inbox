@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263737AbTHJLFq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 07:05:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263738AbTHJLFq
+	id S263638AbTHJLMh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 07:12:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTHJLLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 07:05:46 -0400
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:31500 "EHLO
+	Sun, 10 Aug 2003 07:11:12 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:39180 "EHLO
 	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id S263737AbTHJLFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 07:05:44 -0400
-Date: Sun, 10 Aug 2003 20:05:51 +0900 (JST)
-Message-Id: <20030810.200551.24856481.yoshfuji@linux-ipv6.org>
+	id S263638AbTHJLKE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 07:10:04 -0400
+Date: Sun, 10 Aug 2003 20:10:13 +0900 (JST)
+Message-Id: <20030810.201013.124121938.yoshfuji@linux-ipv6.org>
 To: davem@redhat.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 3/9] convert net to virt_to_pageoff()
+Subject: [PATCH 9/9] convert fs/jbd to virt_to_pageoff()
 From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
 	<yoshfuji@linux-ipv6.org>
 In-Reply-To: <20030810020444.48cb740b.davem@redhat.com>
@@ -33,62 +33,47 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[3/9] convert net virt_to_pageoff().
+[9/9] convert fs/jbd to virt_to_pageoff().
 
-Index: linux-2.6/net/ipv6/addrconf.c
+Index: linux-2.6/fs/jbd/journal.c
 ===================================================================
-RCS file: /home/cvs/linux-2.5/net/ipv6/addrconf.c,v
-retrieving revision 1.48
-diff -u -r1.48 addrconf.c
---- linux-2.6/net/ipv6/addrconf.c	25 Jul 2003 23:58:59 -0000	1.48
-+++ linux-2.6/net/ipv6/addrconf.c	10 Aug 2003 08:40:55 -0000
-@@ -1110,10 +1110,10 @@
- 	struct scatterlist sg[2];
+RCS file: /home/cvs/linux-2.5/fs/jbd/journal.c,v
+retrieving revision 1.62
+diff -u -r1.62 journal.c
+--- linux-2.6/fs/jbd/journal.c	11 Jul 2003 07:04:11 -0000	1.62
++++ linux-2.6/fs/jbd/journal.c	10 Aug 2003 08:40:54 -0000
+@@ -278,9 +278,6 @@
+  * Bit 1 set == buffer copy-out performed (kfree the data after IO)
+  */
  
- 	sg[0].page = virt_to_page(idev->entropy);
--	sg[0].offset = ((long) idev->entropy & ~PAGE_MASK);
-+	sg[0].offset = virt_to_pageoff(idev->entropy);
- 	sg[0].length = 8;
- 	sg[1].page = virt_to_page(eui64);
--	sg[1].offset = ((long) eui64 & ~PAGE_MASK);
-+	sg[1].offset = virt_to_pageoff(eui64);
- 	sg[1].length = 8;
- 
- 	dev = idev->dev;
-Index: linux-2.6/net/sunrpc/auth_gss/gss_krb5_crypto.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/net/sunrpc/auth_gss/gss_krb5_crypto.c,v
-retrieving revision 1.3
-diff -u -r1.3 gss_krb5_crypto.c
---- linux-2.6/net/sunrpc/auth_gss/gss_krb5_crypto.c	4 Feb 2003 17:55:46 -0000	1.3
-+++ linux-2.6/net/sunrpc/auth_gss/gss_krb5_crypto.c	10 Aug 2003 08:40:55 -0000
-@@ -75,7 +75,7 @@
- 
- 	memcpy(out, in, length);
- 	sg[0].page = virt_to_page(out);
--	sg[0].offset = ((long)out & ~PAGE_MASK);
-+	sg[0].offset = virt_to_pageoff(out);
- 	sg[0].length = length;
- 
- 	ret = crypto_cipher_encrypt(tfm, sg, sg, length);
-@@ -114,7 +114,7 @@
- 
- 	memcpy(out, in, length);
- 	sg[0].page = virt_to_page(out);
--	sg[0].offset = ((long)out  & ~PAGE_MASK);
-+	sg[0].offset = virt_to_pageoff(out);
- 	sg[0].length = length;
- 
- 	ret = crypto_cipher_decrypt(tfm, sg, sg, length);
-@@ -151,7 +151,7 @@
- 		goto out_free_tfm;
+-static inline unsigned long virt_to_offset(void *p) 
+-{return ((unsigned long) p) & ~PAGE_MASK;}
+-					       
+ int journal_write_metadata_buffer(transaction_t *transaction,
+ 				  struct journal_head  *jh_in,
+ 				  struct journal_head **jh_out,
+@@ -318,10 +315,10 @@
+ 	if (jh_in->b_frozen_data) {
+ 		done_copy_out = 1;
+ 		new_page = virt_to_page(jh_in->b_frozen_data);
+-		new_offset = virt_to_offset(jh_in->b_frozen_data);
++		new_offset = virt_to_pageoff(jh_in->b_frozen_data);
+ 	} else {
+ 		new_page = jh2bh(jh_in)->b_page;
+-		new_offset = virt_to_offset(jh2bh(jh_in)->b_data);
++		new_offset = virt_to_pageoff(jh2bh(jh_in)->b_data);
  	}
- 	sg[0].page = virt_to_page(input->data);
--	sg[0].offset = ((long)input->data & ~PAGE_MASK);
-+	sg[0].offset = virt_to_pageoff(input->data);
- 	sg[0].length = input->len;
  
- 	crypto_digest_init(tfm);
+ 	mapped_data = kmap_atomic(new_page, KM_USER0);
+@@ -358,7 +355,7 @@
+ 		   address kmapped so that we can clear the escaped
+ 		   magic number below. */
+ 		new_page = virt_to_page(tmp);
+-		new_offset = virt_to_offset(tmp);
++		new_offset = virt_to_pageoff(tmp);
+ 		done_copy_out = 1;
+ 	}
+ 
 
 -- 
 Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>

@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310929AbSCMRna>; Wed, 13 Mar 2002 12:43:30 -0500
+	id <S310913AbSCMRoU>; Wed, 13 Mar 2002 12:44:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310918AbSCMRnL>; Wed, 13 Mar 2002 12:43:11 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39685 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S310923AbSCMRnI>; Wed, 13 Mar 2002 12:43:08 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: 2.5.6: ide driver broken in PIO mode
-Date: Wed, 13 Mar 2002 17:41:42 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <a6o30m$25j$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.21.0203131339050.26768-100000@serv>
-X-Trace: palladium.transmeta.com 1016041366 641 127.0.0.1 (13 Mar 2002 17:42:46 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 13 Mar 2002 17:42:46 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S310917AbSCMRoL>; Wed, 13 Mar 2002 12:44:11 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:34064 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S310913AbSCMRoB>; Wed, 13 Mar 2002 12:44:01 -0500
+Message-Id: <200203131842.g2DIgjtb024607@pincoya.inf.utfsm.cl>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Bill Davidsen <davidsen@tmr.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] My AMD IDE driver, v2.7 
+In-Reply-To: Message from Jeff Garzik <jgarzik@mandrakesoft.com> 
+   of "Mon, 11 Mar 2002 20:50:05 EST." <3C8D5ECD.6090108@mandrakesoft.com> 
+Date: Wed, 13 Mar 2002 14:42:45 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.21.0203131339050.26768-100000@serv>,
-Roman Zippel  <zippel@linux-m68k.org> wrote:
->
->I first noticed the problem on my Amiga, but I can reproduce it on an ia32
->machine, when I turn off dma with hdparm.
+Jeff Garzik <jgarzik@mandrakesoft.com>
 
-With PIO, the current IDE/bio stuff doesn't like the write-multiple
-interface and has bad interactions. 
+[...]
 
-Jens, you talked about a patch from Supparna two weeks ago, any
-progress?
+> I -do- know the distrinction between hosts and devices.  I think there 
+> should be -some- way, I don't care how, to filter out those unknown 
+> commands (which may be perfectly valid for a small subset of special IBM 
+> drives).  The net stack lets me do filtering, I want to sell you on the 
+> idea of letting the ATA stack do the same thing.
 
-		Linus
+The net stack does filtering for handling traffic from _untrusted_ external
+sources, either for local consumtion or as a service for dumb machines
+downstream, and as a way of limiting outward access to _untrusted_
+users. Here we are talking of the ultimate _trusted_ user (root,
+CAP_SYS_RAWIO, whatever). It makes no sense for the _kernel_ to get in the
+way. Create a userland proggie for prodding IDE drives, and give it ways to
+check (as far as terminal paranoia demands, a little, or not at all) as
+desired. Unix ultimate simplicity is all about giving root enough rope to
+shoot at his own feet.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

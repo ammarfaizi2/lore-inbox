@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293504AbSB1RX4>; Thu, 28 Feb 2002 12:23:56 -0500
+	id <S293109AbSB1SAy>; Thu, 28 Feb 2002 13:00:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293626AbSB1RVV>; Thu, 28 Feb 2002 12:21:21 -0500
-Received: from adsl-209-76-109-63.dsl.snfc21.pacbell.net ([209.76.109.63]:12416
-	"EHLO adsl-209-76-109-63.dsl.snfc21.pacbell.net") by vger.kernel.org
-	with ESMTP id <S293527AbSB1RTL>; Thu, 28 Feb 2002 12:19:11 -0500
-Date: Thu, 28 Feb 2002 09:18:55 -0800
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Message-Id: <200202281718.g1SHItT14948@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-To: Dave Jones <davej@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.5-dj2
-In-Reply-To: <20020226223406.A26905@suse.de>
-In-Reply-To: <20020226223406.A26905@suse.de>
-Reply-To: whitney@math.berkeley.edu
+	id <S293643AbSB1R55>; Thu, 28 Feb 2002 12:57:57 -0500
+Received: from artemis.rus.uni-stuttgart.de ([129.69.1.28]:64495 "EHLO
+	artemis.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S293645AbSB1R4E>; Thu, 28 Feb 2002 12:56:04 -0500
+Date: Thu, 28 Feb 2002 18:55:50 +0100 (MET)
+From: Erich Focht <efocht@ess.nec.de>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] scheduler: migration_task deadlock
+Message-ID: <Pine.LNX.4.21.0202281852200.13192-100000@sx6.ess.nec.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-I need to use the patch below to get isofs.o to compile properly when
-I don't have CONFIG_ZISOFS set.  Without this patch neither branch was
-being executed in that case.
+in the migration scheme included into the 2.5.6-pre1 kernel there is a
+potential deadlock (which I encountered several times) in the migration
+task. If interrupts are not disabled before aquiring the double rq lock
+this task can be interrupted by a scheduler_tick() which will spinwait
+forever.
 
-Cheers,
-Wayne
+Best regards,
+Erich
 
---- linux-2.5.5-dj2/fs/isofs/Makefile.orig	Thu Feb 28 09:10:30 2002
-+++ linux-2.5.5-dj2/fs/isofs/Makefile	Thu Feb 28 08:44:10 2002
-@@ -11,9 +11,7 @@
+diff -urN 2.5.6-pre1/kernel/sched.c 2.5.6-pre1-fix/kernel/sched.c
+--- 2.5.6-pre1/kernel/sched.c	Thu Feb 28 19:10:49 2002
++++ 2.5.6-pre1-fix/kernel/sched.c	Thu Feb 28 19:14:29 2002
+@@ -1626,9 +1626,11 @@
+ 		cpu_src = p->thread_info->cpu;
+ 		rq_src = cpu_rq(cpu_src);
  
- ifeq ( $(CONFIG_ZISOFS), y )
- 	obj-y  := compress.o namei.o inode.o dir.o util.o rock.o
--endif
--
--ifeq ( $(CONFIG_ZISOFS), n )
-+else
- 	obj-y  := namei.o inode.o dir.o util.o rock.o
- endif
++		local_irq_save(flags);
+ 		double_rq_lock(rq_src, rq_dest);
+ 		if (p->thread_info->cpu != cpu_src) {
+ 			double_rq_unlock(rq_src, rq_dest);
++			local_irq_restore(flags);
+ 			goto repeat;
+ 		}
+ 		if (rq_src == rq) {
+@@ -1639,6 +1641,7 @@
+ 			}
+ 		}
+ 		double_rq_unlock(rq_src, rq_dest);
++		local_irq_restore(flags);
  
+ 		up(&req->sem);
+ 	}
 

@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261465AbSI1Nta>; Sat, 28 Sep 2002 09:49:30 -0400
+	id <S261490AbSI1Nyj>; Sat, 28 Sep 2002 09:54:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261490AbSI1Nta>; Sat, 28 Sep 2002 09:49:30 -0400
-Received: from B5684.pppool.de ([213.7.86.132]:31632 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S261465AbSI1Nt2>; Sat, 28 Sep 2002 09:49:28 -0400
-Subject: Re: detect udma66 cable (vt82c686a)
-From: Daniel Egger <degger@fhm.edu>
-To: Dennis =?ISO-8859-1?Q?Bj=F6rklund?= <db@zigo.dhs.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0209281253240.1342-100000@zigo.dhs.org>
-References: <Pine.LNX.4.44.0209281253240.1342-100000@zigo.dhs.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-V3/qKnXU7jMb9lzIsNQl"
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 28 Sep 2002 15:55:18 +0200
-Message-Id: <1033221318.26190.20.camel@sonja.de.interearth.com>
-Mime-Version: 1.0
+	id <S261498AbSI1Nyj>; Sat, 28 Sep 2002 09:54:39 -0400
+Received: from pD9E23260.dip.t-dialin.net ([217.226.50.96]:39560 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S261490AbSI1Nyj>; Sat, 28 Sep 2002 09:54:39 -0400
+Date: Sat, 28 Sep 2002 08:00:33 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Christoph Hellwig <hch@infradead.org>
+cc: Thunder from the hill <thunder@lightweight.ods.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rik van Riel <riel@conectiva.com.br>,
+       Tomas Szepe <szepe@pinerecords.com>, Zach Brown <zab@zaboo.net>
+Subject: Re: [PATCH][2.5] Single linked headed lists for Linux, v3
+In-Reply-To: <20020928144722.A356@infradead.org>
+Message-ID: <Pine.LNX.4.44.0209280757070.7827-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-V3/qKnXU7jMb9lzIsNQl
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Sat, 28 Sep 2002, Christoph Hellwig wrote:
+> All of those are utter crap.  Older gcc's had some little inlining
+> problems that generated suboptimal code, but that's cured now and I
+> don't thikn it even made a difference for the small list_* functions.
 
-Am Sam, 2002-09-28 um 13.07 schrieb Dennis Bj=F6rklund:
+I think if we scale slists to be like lists, we don't need to make the 
+difference at all. slists are supposed to be lightweight lists, single 
+direction, and working anywhere on any type of structure. (e.g. you can 
+access a whole struct thread through the ->next pointer, instead of 
+further crap.)
 
-> I can't get my Gigabyte 7ZX-1 to detect my udma66 cable. It is a brand ne=
-w=20
-> ata66/100 cable so I believe that the cable is not the problem.
-=20
-> As seen from /proc/ide/via below it thinks my cable is a 40w (on id0 I do=
-=20
-> have a 40w so that is correct, but in ide1 there is a 80w).
-> The computer is a redhat 7.3 with kernel 2.4.18-4
+If we can avoid type dependency, we should do now. If you want inlined 
+code, go read list.h. (I remember that's why the lists were called 
+`type-safe', BTW. Meant to be type-preserve, and definitely the same type 
+as before.)
 
-Same southbridgem, same kernel, same problem. I sent all sorts of
-messages for this one to Alan but so far there're no news on this
-matter.
-=20
---=20
-Servus,
-       Daniel
-
---=-V3/qKnXU7jMb9lzIsNQl
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9lbTGchlzsq9KoIYRAtqmAJ0QI4YM/cdmWgUIv1KboFmm5yTDEQCbByUb
-k5G9ZJeN8Rn7dtP6NghXHJI=
-=USAR
------END PGP SIGNATURE-----
-
---=-V3/qKnXU7jMb9lzIsNQl--
+			Thunder
+-- 
 

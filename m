@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266014AbUBKRW1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 12:22:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266020AbUBKRW1
+	id S265928AbUBKRbe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 12:31:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265966AbUBKRbd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 12:22:27 -0500
-Received: from emroute1.cind.ornl.gov ([160.91.4.119]:53736 "EHLO
-	emroute1.cind.ornl.gov") by vger.kernel.org with ESMTP
-	id S266014AbUBKRW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 12:22:26 -0500
-Date: Wed, 11 Feb 2004 12:22:13 -0500
-From: Lawrence MacIntyre <lpz@ornl.gov>
-Subject: aic7xxx driver, SuperMicro P4DL6, and 2.6.2 kernel
-To: linux-kernel@vger.kernel.org
-Message-id: <1076520132.17497.41.camel@nautique>
-Organization: High Performance Information Infrastructure Group
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.5
-Content-type: text/plain
-Content-transfer-encoding: 7bit
+	Wed, 11 Feb 2004 12:31:33 -0500
+Received: from ns.suse.de ([195.135.220.2]:3535 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265928AbUBKRbc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 12:31:32 -0500
+Date: Sat, 14 Feb 2004 20:43:26 +0100
+From: Andi Kleen <ak@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: ap@swapped.cc, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [2.6] [2/2] hlist: remove IFs from hlist functions
+Message-Id: <20040214204326.4d9fc423.ak@suse.de>
+In-Reply-To: <20040214195949.2ad9aa4f.ak@suse.de>
+References: <4029CB7E.4030003@swapped.cc.suse.lists.linux.kernel>
+	<4029CF24.1070307@osdl.org.suse.lists.linux.kernel>
+	<4029D2D5.7070504@swapped.cc.suse.lists.linux.kernel>
+	<p73y8ra5721.fsf@nielsen.suse.de>
+	<402A5CEC.2030603@swapped.cc>
+	<20040214195949.2ad9aa4f.ak@suse.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi:
+On Sat, 14 Feb 2004 19:59:49 +0100
+Andi Kleen <ak@suse.de> wrote:
+> 
+> A full cache miss is extremly costly on a modern Gigahertz+ CPU because
+> memory and busses are far slower than the CPU core. As a rule of 
+> thumb 1000+ cycles. An CMP is extremly cheap (a few cycles at worst), 
+> the only thing that could be more expensive is an mispredicted conditional
+> jump triggered  by the CMP. But even that would be at best a few tens of cycles.
+> If everything is mispredicted which should be common it's extremly fast
+                   ^^^^^^^^^^^^^
+                   predicted of course
 
-I have a dual XEON with a SuperMicro P4DL6 motherboard. It has an
-onboard dual AIC7899W controller. I have two disks, one with RH9 and one
-with Fedora Core 1. Both work fine. However, I want to upgrade the
-Fedora disk to the 2.6.2 kernel. I loaded the latest version of
-module-init-tools, procps, and quota, and built the kernel. It won't
-boot. It loads scsi_mod.ko and sd_mod.ko, but when it tries to load
-aic7xxx.ko, it says:
-
-loading aic7xxx.ko module
-insmod: error inserting /lib/aic7xxx.ko: -1 No such device
-
-I downloaded the latest driver from Justin's web site, but it does
-exactly the same thing. I added
-
-options aic7xxx aic7xxx=verbose,debug:0xffff
-
-to modprobe.conf, but that didn't help either. 
--- 
-    Lawrence MacIntyre     865.574.8696     lpz@ornl.gov
-               Oak Ridge National Laboratory
-High Performance Information Infrastructure Technology Group
-
+-Andi

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317883AbSFSNsN>; Wed, 19 Jun 2002 09:48:13 -0400
+	id <S317885AbSFSNsZ>; Wed, 19 Jun 2002 09:48:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317884AbSFSNsM>; Wed, 19 Jun 2002 09:48:12 -0400
-Received: from postfix2-1.free.fr ([213.228.0.9]:37055 "EHLO
+	id <S317886AbSFSNsY>; Wed, 19 Jun 2002 09:48:24 -0400
+Received: from postfix2-1.free.fr ([213.228.0.9]:43455 "EHLO
 	postfix2-1.free.fr") by vger.kernel.org with ESMTP
-	id <S317883AbSFSNsL>; Wed, 19 Jun 2002 09:48:11 -0400
-Message-ID: <001c01c21798$f100e230$3d5e06c7@slebriero2>
+	id <S317885AbSFSNsX>; Wed, 19 Jun 2002 09:48:23 -0400
+Message-ID: <001d01c21798$f80d8a60$3d5e06c7@slebriero2>
 From: "Sylvain Le Briero" <s.lebriero@free.fr>
 To: "Joshua Newton" <jpnewton@speakeasy.net>, <linux-kernel@vger.kernel.org>
 References: <1024420841.2631.14.camel@claymore.corona>
 Subject: Re: Incredible weirdness with eepro100?
-Date: Wed, 19 Jun 2002 15:55:15 +0200
+Date: Wed, 19 Jun 2002 15:55:28 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"

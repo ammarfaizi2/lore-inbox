@@ -1,74 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292694AbSBUSSJ>; Thu, 21 Feb 2002 13:18:09 -0500
+	id <S292701AbSBUS1U>; Thu, 21 Feb 2002 13:27:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292695AbSBUSSA>; Thu, 21 Feb 2002 13:18:00 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:4873 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S292694AbSBUSRk>;
-	Thu, 21 Feb 2002 13:17:40 -0500
-Message-ID: <3C75399F.8010207@evision-ventures.com>
-Date: Thu, 21 Feb 2002 19:17:03 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
+	id <S292702AbSBUS1K>; Thu, 21 Feb 2002 13:27:10 -0500
+Received: from smtp-1.llnl.gov ([128.115.250.81]:28059 "EHLO smtp-1.llnl.gov")
+	by vger.kernel.org with ESMTP id <S292701AbSBUS0y>;
+	Thu, 21 Feb 2002 13:26:54 -0500
+Date: Thu, 21 Feb 2002 10:26:47 -0800 (PST)
+From: "Tom Epperly" <tepperly@llnl.gov>
+X-X-Sender: epperly@tux06.llnl.gov
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.5 IDE cleanup 11
-In-Reply-To: <E16dxMU-0007eZ-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+cc: linux-kernel@vger.kernel.org
+Subject: Re: RH7.2 running 2.4.9-21-SMP (dual Xeon's) yields "Illegal
+ instructions"
+In-Reply-To: <E16dxoe-0007l6-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0202211010270.19681-100000@tux06.llnl.gov>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->>In esp using a CardBus ide adapter will give you after first
->>plug: /dev/hdc, after second plug /dev/hde and so on... on 2.4.17
+On Thu, 21 Feb 2002, Alan Cox wrote:
+
+> Almost every other report I have ever seen that looked like that one has
+> always turned out to be hardware related. The randomness in paticular
+> tends to be a pointer to thinks like cache faults.
+
+Is there any way to test this?
+ 
+> You do have ECC main memory which is good.
 > 
-> Just tried that - its working for me in 2.4.18pre - do you know what
-> triggers that ?
+> What other hardware is in the machine ?
 
-1. Clarification: The system where 2.4.18rc2, 2.5.5+x
+1. SCSI harddisk plugged into the motherboard
+2. Floppy drive plugged into the motherboard
+3. CD-ROM and a never used Zip disk drive plugged into IDE2 on the 
+   motherboard
+4. Sound Blaster live sound code plugged into a PCI slot.
+5. nVidia Corp NV15 GL (Quadro2) plugged into the AGP slot.
 
-2. Yes I know it is the very same bad workflow of initialization
-and deallocation routines. I suppose that the particular cause is
-inside the ide_module_t area.
+No USB ports are in use. The video output, mouse and keyboard are plugged 
+into a KVM switch.  There is also a CAT-5 cable attached to the network 
+jack.  Otherwise, there are no other external connections outside of the 
+power cable.
 
-3. I was compleatly ignorant about calling some device eject utilities
-or similar.
+By running without the X11 server, I hoped to remove the nVidia board as a 
+source of trouble.
 
->>I'm just rying to clarify the code-flow before stuff like the above
->>can be cleaned up.
->>
-> 
-> The problem is if you keep cleaning up stuff which was there ready to
-> merge new stuff, then its impossible to merge new stuff. At the moment
-> there are two many cooks involved in that code. It all needs to go via one
-> person and in an ordered way - even if it isnt Andre since Linus and Andre
-> aren't the most compatible people 8)
+$ /sbin/lspci
+00:00.0 Host bridge: Intel Corporation 82850 860 (Wombat) Chipset Host Bridge (MCH) (rev 04)
+00:01.0 PCI bridge: Intel Corporation 82850 850 (Tehama) Chipset AGP Bridge (rev 04)
+00:02.0 PCI bridge: Intel Corporation 82860 860 (Wombat) Chipset AGP Bridge (rev 04)
+00:1e.0 PCI bridge: Intel Corporation 82801BAM PCI (rev 04)
+00:1f.0 ISA bridge: Intel Corporation 82801BA ISA Bridge (ICH2) (rev 04)
+00:1f.1 IDE interface: Intel Corporation 82801BA IDE U100 (rev 04)
+00:1f.2 USB Controller: Intel Corporation 82801BA(M) USB (Hub A) (rev 04)
+00:1f.3 SMBus: Intel Corporation 82801BA(M) SMBus (rev 04)
+00:1f.4 USB Controller: Intel Corporation 82801BA(M) USB (Hub B) (rev 04)
+00:1f.5 Multimedia audio controller: Intel Corporation 82801BA(M) AC'97 Audio (rev 04)
+01:00.0 VGA compatible controller: nVidia Corporation NV15 GL (Quadro2) (rev a4)
+02:1f.0 PCI bridge: Intel Corporation 82806AA PCI64 Hub PCI Bridge (rev 03)
+03:00.0 PIC: Intel Corporation 82806AA PCI64 Hub Advanced Programmable Interrupt Controller (rev 01)
+03:0e.0 SCSI storage controller: Adaptec 7892P (rev 02)
+04:0b.0 Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink] (rev 78)
+04:0c.0 FireWire (IEEE 1394): Texas Instruments: Unknown device 8020
+04:0d.0 Multimedia audio controller: Creative Labs SB Live! EMU10000 (rev 08)
+04:0d.1 Input device controller: Creative Labs SB Live! (rev 08)
 
-Andre already asked in private if I would dare to take care of new stuff
-comming from him for 2.5.5.
+Tom
 
-Please note that thus far I didn't see *any* concerete code from him.
-
-But I still don't see any great problems in merging some forthcomming
-stuff iff it comes along.
-
-Please see as well the quite nice mode of cooperation I had with
-Vojtech Pavlik.
-
-Please note further that the foundations for true hot plugging done the
-right way where comming from Pavel Machek i have just picked it up
-as well as the _IDE_C mess and some other nit's here and there.
-
-And finally - I don't do anything inside an ebony tower - I just
-*post* everything to lkml - whatever finished or not.
-Please feel free to discuss it.
-
-Everybody who wants to contribute *please feel free* to post
-a ide-clean-11+x.diff. I'm NOT playing hodge on the code at all!
-
-So the political problems you talk about are perhaps just not there...
+--
+------------------------------------------------------------------------
+Tom Epperly
+Center for Applied Scientific Computing   Phone: 925-424-3159
+Lawrence Livermore National Laboratory      Fax: 925-424-2477
+L-661, P.O. Box 808, Livermore, CA 94551  Email: tepperly@llnl.gov
+------------------------------------------------------------------------
 

@@ -1,104 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265367AbTGLLuT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 07:50:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265387AbTGLLuT
+	id S265474AbTGLMWI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 08:22:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265483AbTGLMWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 07:50:19 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:28427 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S265367AbTGLLuN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 07:50:13 -0400
-Date: Sat, 12 Jul 2003 05:04:49 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Bug in open() function (?)
-Message-ID: <20030712120449.GB6842@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <20030712011716.GB4694@bouh.unh.edu> <16143.25800.785348.314274@cargo.ozlabs.ibm.com> <20030712024216.GA399@bouh.unh.edu> <200307112309.08542.jcwren@jcwren.com> <20030711203809.3c320823.akpm@osdl.org> <200307120511.h6C5BCSe017963@turing-police.cc.vt.edu> <20030711222300.7627a811.akpm@osdl.org> <200307120614.h6C6EhSe019742@turing-police.cc.vt.edu> <20030712093708.GA21282@win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 12 Jul 2003 08:22:08 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:29056 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S265474AbTGLMWG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 08:22:06 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+Organization: ( )
+To: <lista1@telia.com>, <axboe@suse.de>
+Subject: Re: 2.5.75 does not boot - TCQ oops
+Date: Sat, 12 Jul 2003 06:46:01 -0400
+User-Agent: KMail/1.5.2
+Cc: LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030712093708.GA21282@win.tue.nl>
-User-Agent: Mutt/1.3.27i
+Message-Id: <200307120646.01060.ivg2@cornell.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 12, 2003 at 11:37:08AM +0200, Andries Brouwer wrote:
-> On Sat, Jul 12, 2003 at 02:14:43AM -0400, Valdis.Kletnieks@vt.edu wrote:
-> 
-> > On Fri, 11 Jul 2003 22:23:00 PDT, Andrew Morton said:
-> > 
-> > > We've lived with it for this long.
-> > 
-> > Well... you have a point there..
-> > 
-> > > Given that the behaviour is undefined, the behaviour which we should
-> > > implement is clearly "whatever 2.4 is doing".  So let's leave it alone.
-> > 
-> > I suppose I could live with that *IF* somebody fixes 'man 2 open' to
-> > reflect reality.
-> 
-> Corrections and additions to manpages are always welcome.
-> Mail to aeb@cwi.nl .
-> 
-> 
-> (Concerning the topic under discussion, the man page says
-> 
->        O_TRUNC
->               If  the  file  already exists and is a regular file
->               and the open mode allows writing (i.e.,  is  O_RDWR
->               or  O_WRONLY) it will be truncated to length 0.  If
->               the file is a FIFO or  terminal  device  file,  the
->               O_TRUNC  flag  is  ignored. Otherwise the effect of
->               O_TRUNC is unspecified.
-> 
-> which is precisely right. It continues
-> 
->                                        (On many Linux versions it
->               will  be  ignored; on other versions it will return
->               an error.)
-> 
-> where someone may read this as if this is an exhaustive list of
-> possibilities. So adding ", or actually do the truncate" will
-> clarify.)
+Okay, I figured out some more things.
 
-I'd be inclined to at least drop the parenthetic, it only
-confuses things.  The alternative would be to tie the
-parenthetic to the FIFO and device files.
+I split my root fs in half and made two identical copies  - one on reiser and 
+one on xfs. I compiled a bunch of kernels, and tested some more.
 
-I'll grant that O_RDONLY would cause one to expect that the
-file would not be modified in any way so truncating it on a
-read-only seems wrong but that does fall under the
-definition of undefined so is not contrary to the
-documentation.
+A TCQ enabled kernel with AS, queue depth of 32 works fine on both reiser and 
+xfs. A TCQ enabled kernel with deadline, queue depth of 32 works fine on both 
+reiser and xfs. Note the depth of 32. I had TCQ enabled on previous <74 
+kernels and it worked fine, everywhere with depth 32. 
 
-Anyone depending on undefined behaviour is asking for
-trouble.  Given that there is code floating around expecting
-O_TRUNC|O_RDONLY to truncate, caution should be applied in
-changing this.
+However, the kernel that crashed was using the default
+(The default is 8, even though the comment says 32).
+I tested that kernel again with reiserfs, TCQ, the two elevators, and queue 
+depth 8 - on-boot fsck detects corruption every time, marks the system 
+unclean, and requires --rebuild-tree or --fix-fixable on any further mounts. 
+I now get "Wrong amount of used blocks." message.
 
-I'd suggest replacing this text to match that of SUSv3 which
-is much clearer.  Perhaps with the addition of a clause
-stating "The use of O_TRUNC in combination with O_RDONLY to
-truncate files is deprecated" or something to that effect.
+Have not tested depth 8 TCQ kernel with xfs, since that's my surviving root 
+fs, and I'd like to avoid corruption there. 
 
-SUSv3:
-|	O_TRUNC
-|		If the file exists and is a regular file,
-|		and the file is successfully opened O_RDWR
-|		or O_WRONLY, its length shall be truncated
-|		to 0, and the mode and owner shall be
-|		unchanged. It shall have no effect on FIFO
-|		special files or terminal device files. Its
-|		effect on other file types is
-|		implementation-defined. The result of using
-|		O_TRUNC with O_RDONLY is undefined.
+Have not tested queue depths other than 8 and 32. 
+I could test some more on reiser now that I have a backup root fs.
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
 
-		Remember Cernan and Schmitt
+
+

@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264352AbTKZWRX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 17:17:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264351AbTKZWRX
+	id S264373AbTKZWI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 17:08:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264378AbTKZWIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 17:17:23 -0500
-Received: from dp.samba.org ([66.70.73.150]:30130 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264352AbTKZWRW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 17:17:22 -0500
-Date: Wed, 26 Nov 2003 18:25:53 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Jack Steiner <steiner@sgi.com>
-Cc: Jes Sorensen <jes@trained-monkey.org>, Alexander Viro <viro@math.psu.edu>,
-       Andrew Morton <akpm@osdl.org>,
-       "William Lee Irwin, III" <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org, jbarnes@sgi.com
-Subject: Re: hash table sizes
-Message-ID: <20031126072553.GF26811@krispykreme>
-References: <16323.23221.835676.999857@gargle.gargle.HOWL> <20031125204814.GA19397@sgi.com> <20031125211611.GE26811@krispykreme> <20031125231108.GA5675@sgi.com>
+	Wed, 26 Nov 2003 17:08:55 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:49314 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S264373AbTKZWIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 17:08:53 -0500
+Subject: Re: Never mind. Re: Signal left blocked after signal handler.
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: bruce@perens.com, Linus Torvalds <torvalds@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1069883580.723.416.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031125231108.GA5675@sgi.com>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 26 Nov 2003 16:53:00 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> One difference in 2.4.x and 2.6.x is the signal blocking
+> wrt blocked signals that are _forced_ (ie anything that
+> is thread-synchronous, like a SIGSEGV/SIGTRAP/SIGBUS that
+> happens as a result of a fault):
+>
+>  - in 2.4.x they will just punch through the block
+>  - in 2.6.x they will refuse to punch through a blocked
+>    signal, but since they can't be delivered they will
+>    cause the process to be killed.
+...
+> and in 2.4.x this will cause infinte SIGSEGV's (well,
+> they'll be caught by the stack size eventually, but you
+> see the problem: do a "strace" to see what's going on).
+> In 2.6.x the second SIGSEGV will just kill the program
+> immediately.
 
-> That was a concern to me too. However, on IA64, all page structs are
-> in the vmalloc region (it isnt allocated by vmalloc but is in the same
-> region as vmalloc'ed pages. They are mapped with 16k pages instead of
-> the 64MB pages used for memory allocated by kmalloc).
-> 
-> Before switching to 16K pages for the page structs, we made numerous
-> performance measurements. As far as we could tell, there was no
-> performce degradation caused by the smaller pages. It seems to me that
-> if page structs are ok being mapped by 16k pages, the hash tables
-> would be ok too. 
+How about making the process sleep in a killable state?
 
-OK, on ppc64 with a 4kB base pagesize Id be more worried about using the
-vmalloc region.
+This is as if the blocking was obeyed, but doesn't
+burn CPU time. Only a debugger should be able to
+tell the difference.
 
-Anton
+
+

@@ -1,128 +1,169 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129908AbRAaPcb>; Wed, 31 Jan 2001 10:32:31 -0500
+	id <S129413AbRAaPmd>; Wed, 31 Jan 2001 10:42:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129805AbRAaPcX>; Wed, 31 Jan 2001 10:32:23 -0500
-Received: from smtp6.mail.yahoo.com ([128.11.69.103]:42502 "HELO
-	smtp6.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129757AbRAaPcS>; Wed, 31 Jan 2001 10:32:18 -0500
-X-Apparently-From: <p?gortmaker@yahoo.com>
-Message-ID: <3A782E16.39B5F09C@yahoo.com>
-Date: Wed, 31 Jan 2001 10:24:06 -0500
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
-X-Mailer: Mozilla 3.04 (X11; I; Linux 2.2.18 i486)
+	id <S129725AbRAaPmX>; Wed, 31 Jan 2001 10:42:23 -0500
+Received: from [64.160.188.242] ([64.160.188.242]:27667 "HELO
+	mail.hislinuxbox.com") by vger.kernel.org with SMTP
+	id <S129413AbRAaPmF>; Wed, 31 Jan 2001 10:42:05 -0500
+Date: Wed, 31 Jan 2001 07:41:17 -0800 (PST)
+From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VT82C686A corruption with 2.4.x
+In-Reply-To: <20010131123919.A1399@suse.cz>
+Message-ID: <Pine.LNX.4.21.0101310704370.8313-100000@ns-01.hislinuxbox.com>
 MIME-Version: 1.0
-To: linux-kernel list <linux-kernel@vger.kernel.org>
-CC: ag784@freenet.buffalo.edu
-Subject: [PATCH] sbpcd ignoring module options
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The old SB Pro CD-ROM driver currently ignores any and all options
-passed to it while used as a module (rendering it useless as it only
-autoprobes 1 address...)  The driver could probably use a cleanup,
-as it has sbpcd_setup called for both modular and in kernel (rather
-than just in kernel only) and it maintains a lot of state in global
-variables making it hard to maintain. However it is a legacy driver
-and probably not worth the effort, besides it is 2.4.x now, etc etc.
-
-Anyway this minimal patch fixes that, and also lets you specify
-max_drives as the 3rd setup int (vs. being compiled in) to get
-rid of those phantom detections on the really crap interface cards.
-
-Paul.
-
---- drivers/cdrom/sbpcd.c~	Mon Nov 20 04:16:39 2000
-+++ drivers/cdrom/sbpcd.c	Wed Jan 31 10:19:48 2001
-@@ -322,6 +322,9 @@
-  *		CD_AUDIO_COMPLETED state so workman (and other playes) can repeat play.
-  *		Andrew J. Kroll <ag784@freenet.buffalo.edu> Wed Jul 26 04:24:10 EDT 2000
-  *
-+ *  4.64 Fix module parameters - were being completely ignored.
-+ *	 Can also specify max_drives as 3rd setup int to get rid of
-+ *	 "ghost" drives on crap hardware (aren't they all?)   Paul Gortmaker
-  *
-  *  TODO
-  *     implement "read all subchannel data" (96 bytes per frame)
-@@ -473,7 +476,7 @@
- #else
- static int sbpcd[] = {CDROM_PORT, SBPRO}; /* probe with user's setup only */
- #endif
--MODULE_PARM(sbpcd, "2i");
-+MODULE_PARM(sbpcd, "3i");
- 
- #define NUM_PROBE  (sizeof(sbpcd) / sizeof(int))
- 
-@@ -561,7 +564,6 @@
- 
- static int sbpcd_ioaddr = CDROM_PORT;	/* default I/O base address */
- static int sbpro_type = SBPRO;
--static unsigned char setup_done;
- static unsigned char f_16bit;
- static unsigned char do_16bit;
- static int CDo_command, CDo_reset;
-@@ -578,15 +580,19 @@
- static unsigned char msgnum;
- static char msgbuf[80];
- 
--static const char *str_sb = "SoundBlaster";
-+static int max_drives = MAX_DRIVES;
-+#ifndef MODULE
-+static unsigned char setup_done;
- static const char *str_sb_l = "soundblaster";
--static const char *str_lm = "LaserMate";
--static const char *str_sp = "SPEA";
- static const char *str_sp_l = "spea";
--static const char *str_ss = "SoundScape";
- static const char *str_ss_l = "soundscape";
--static const char *str_t16 = "Teac16bit";
- static const char *str_t16_l = "teac16bit";
-+static const char *str_ss = "SoundScape";
-+#endif
-+static const char *str_sb = "SoundBlaster";
-+static const char *str_lm = "LaserMate";
-+static const char *str_sp = "SPEA";
-+static const char *str_t16 = "Teac16bit";
- static const char *type;
- 
- #if !(SBPCD_ISSUE-1)
-@@ -3739,7 +3745,7 @@
- 	
- 	msg(DBG_INI,"check_drives entered.\n");
- 	ndrives=0;
--	for (j=0;j<MAX_DRIVES;j++)
-+	for (j=0;j<max_drives;j++)
- 	{
- 		D_S[ndrives].drv_id=j;
- 		if (sbpro_type==1) D_S[ndrives].drv_sel=(j&0x01)<<1|(j&0x02)>>1;
-@@ -5540,6 +5546,7 @@
- int sbpcd_setup(char *s)
- #endif
- {
-+#ifndef MODULE
- 	int p[4];
- 	(void)get_options(s, ARRAY_SIZE(p), p);
- 	setup_done++;
-@@ -5555,6 +5562,12 @@
- 	else if (!strcmp(s,str_t16)) sbpro_type=3;
- 	else if (!strcmp(s,str_t16_l)) sbpro_type=3;
- 	if (p[0]>0) sbpcd_ioaddr=p[1];
-+	if (p[0]>2) max_drives=p[3];
-+#else
-+	sbpcd_ioaddr = sbpcd[0];
-+	sbpro_type = sbpcd[1];
-+	max_drives = sbpcd[2];
-+#endif
- 	
- 	CDo_command=sbpcd_ioaddr;
- 	CDi_info=sbpcd_ioaddr;
 
 
+On Wed, 31 Jan 2001, Vojtech Pavlik wrote:
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+> > > 1) You don't seem to have any drives on the VIA controller. If this is
+> > > true, I don't think this can be a VIA IDE driver problem.
+> > >
+
+Umm, since the only 2 controllers in the machine are the VIA Vt82C686A and
+the Promise PDC20265, yes I AM running drives on the VIA controller.
+
+I have NO drives on the ATA100 controller which is the Promise
+controller. Everything is running off the VIA.
+
+> 
+> > > 2) In your original message you suggest bs=1024M, which isn't a very
+> > > good idea, even on a 768 MB system. Here with bs=1024k it seems to run
+> > > fine.
+> > >
+
+Yes, that was a typo. My apologies. It _should_ have been a k not an M.
+
+> > > 3) You sent next to none VIA related debugging info. lspci -v itself
+> > > isn't much valuable because I don't get the register contents. Also
+> > > hdparm -i of the drives attached to the VIA chip would be useful. Plus
+> > > also the contents of /proc/ide/via.
+> > 
+
+OK, here are quite a few outputs. 
+
+lspci -n outputs
+
+00:00.0 Class 0600: 1106:0691 (rev c4)
+00:01.0 Class 0604: 1106:8598
+00:07.0 Class 0601: 1106:0686 (rev 22)
+00:07.1 Class 0101: 1106:0571 (rev 10)
+00:07.4 Class 0600: 1106:3057 (rev 30)
+00:07.5 Class 0401: 1106:3058 (rev 20)
+00:0c.0 Class 0180: 105a:0d30 (rev 02)
+00:0e.0 Class 0100: 10cd:2300
+00:10.0 Class 0200: 11ad:0002 (rev 20)
+01:00.0 Class 0300: 121a:0005 (rev 01)
+
+
+lspci -H1 outputs
+
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C691 [Apollo PRO] (rev c4)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3 AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 22)
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 10)
+00:0c.0 Unknown mass storage controller: Promise Technology, Inc.: Unknown device 0d30 (rev 02)
+00:0e.0 SCSI storage controller: Advanced System Products, Inc ABP940-UW
+00:10.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 20)
+01:00.0 VGA compatible controller: 3Dfx Interactive, Inc. Voodoo 3 (rev 01)
+
+lspci -m outputs
+
+00:00.0 "Host bridge" "VIA Technologies, Inc." "VT82C691 [Apollo PRO]" -rc4 "" ""
+00:01.0 "PCI bridge" "VIA Technologies, Inc." "VT82C598 [Apollo MVP3 AGP]" "" ""
+00:07.0 "ISA bridge" "VIA Technologies, Inc." "VT82C686 [Apollo Super]" -r22 "VIA Technologies, Inc." "VT82C686/A PCI to ISA Bridge"
+00:07.1 "IDE interface" "VIA Technologies, Inc." "VT82C586 IDE [Apollo]" -r10 -p8a "" ""
+00:07.4 "Host bridge" "VIA Technologies, Inc." "VT82C686 [Apollo Super ACPI]" -r30 "" ""
+00:07.5 "Multimedia audio controller" "VIA Technologies, Inc." "VT82C686 [Apollo Super AC97/Audio]" -r20 "VIA Technologies, Inc." "VT82C686 [Apollo Super AC97/Audio]"
+00:0c.0 "Unknown mass storage controller" "Promise Technology, Inc." "0d30" -r02 "Promise Technology, Inc." "0d30"
+00:0e.0 "SCSI storage controller" "Advanced System Products, Inc" "ABP940-UW" "" ""
+00:10.0 "Ethernet controller" "Lite-On Communications Inc" "LNE100TX" -r20 "Netgear" "FA310TX"
+01:00.0 "VGA compatible controller" "3Dfx Interactive, Inc." "Voodoo 3" -r01 "3Dfx Interactive, Inc." "Voodoo3 AGP"
+
+lspci outputs
+
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C691 [Apollo PRO] (rev c4)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3 AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 22)
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 10)
+00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
+00:07.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686 [Apollo Super AC97/Audio] (rev 20)
+00:0c.0 Unknown mass storage controller: Promise Technology, Inc.: Unknown device 0d30 (rev 02)
+00:0e.0 SCSI storage controller: Advanced System Products, Inc ABP940-UW
+00:10.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 20)
+01:00.0 VGA compatible controller: 3Dfx Interactive, Inc. Voodoo 3 (rev 01)
+
+
+hdparm -i /dev/hda outputs
+
+
+/dev/hda:
+
+ Model=WDC WD300BB-00AUA1, FwRev=18.20D18, SerialNo=WD-WMA6W1132085
+ Config={ HardSect NotMFM HdSw>15uSec SpinMotCtl Fixed DTR>5Mbs FmtGapReq }
+ RawCHS=16383/16/63, TrkSize=57600, SectSize=600, ECCbytes=40
+ BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=58633344
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4 
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 udma5 
+
+hdparm -i /dev/hdc outputs
+
+
+/dev/hdc:
+
+ Model=WDC WD153AA, FwRev=05.05B05, SerialNo=WD-WMA0R1258522
+ Config={ HardSect NotMFM HdSw>15uSec SpinMotCtl Fixed DTR>5Mbs FmtGapReq }
+ RawCHS=16383/16/63, TrkSize=57600, SectSize=600, ECCbytes=40
+ BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=30064608
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4 
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 
+
+cat /proc/ide/via outputs
+
+----------VIA BusMastering IDE Configuration----------------
+Driver Version:                     3.20
+South Bridge:                       VIA vt82c686a
+Revision:                           ISA 0x22 IDE 0x10
+BM-DMA base:                        0xb000
+PCI clock:                          33MHz
+Master Read  Cycle IRDY:            1ws
+Master Write Cycle IRDY:            1ws
+BM IDE Status Register Read Retry:  yes
+Max DRDY Pulse Width:               No limit
+-----------------------Primary IDE-------Secondary IDE------
+Read DMA FIFO flush:          yes                 yes
+End Sector FIFO flush:         no                  no
+Prefetch Buffer:               no                  no
+Post Write Buffer:             no                  no
+Enabled:                      yes                 yes
+Simplex only:                  no                  no
+Cable Type:                   40w                 40w
+-------------------drive0----drive1----drive2----drive3-----
+Transfer Mode:       UDMA       PIO      UDMA       PIO
+Address Setup:       30ns     120ns      30ns     120ns
+Cmd Active:          90ns      90ns      90ns      90ns
+Cmd Recovery:        30ns      30ns      30ns      30ns
+Data Active:         90ns     330ns      90ns     330ns
+Data Recovery:       30ns     270ns      30ns     270ns
+Cycle Time:          60ns     600ns      60ns     600ns
+Transfer Rate:   33.0MB/s   3.3MB/s  33.0MB/s   3.3MB/s
+
+
+Other than this I don't know what else to give you.
+
+David D.W. Downey
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

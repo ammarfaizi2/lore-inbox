@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261290AbSJZRH2>; Sat, 26 Oct 2002 13:07:28 -0400
+	id <S261375AbSJZRjA>; Sat, 26 Oct 2002 13:39:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261308AbSJZRH2>; Sat, 26 Oct 2002 13:07:28 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:24838 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261290AbSJZRH1>;
-	Sat, 26 Oct 2002 13:07:27 -0400
-Date: Sat, 26 Oct 2002 10:11:45 -0700
-From: Greg KH <greg@kroah.com>
-To: Kevin Brosius <cobra@compuserve.com>
-Cc: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.44-ac3 usb audio - illegal sleep call
-Message-ID: <20021026171145.GD2720@kroah.com>
-References: <3DBAA320.B02AB7FC@compuserve.com>
+	id <S261387AbSJZRjA>; Sat, 26 Oct 2002 13:39:00 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:44562
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S261375AbSJZRi7>; Sat, 26 Oct 2002 13:38:59 -0400
+Subject: Re: [PATCH] pre-decoded wchan output
+From: Robert Love <rml@tech9.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Christoph Hellwig <hch@infradead.org>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, riel@conectiva.com.br
+In-Reply-To: <20021021230856.GA120@elf.ucw.cz>
+References: <1034882043.1072.589.camel@phantasy>
+	<20021017205803.A7555@infradead.org> <1034885077.718.595.camel@phantasy> 
+	<20021021230856.GA120@elf.ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 26 Oct 2002 13:44:40 -0400
+Message-Id: <1035654281.1501.7596.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DBAA320.B02AB7FC@compuserve.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 26, 2002 at 10:13:52AM -0400, Kevin Brosius wrote:
-> I've been trying to get USB up to test a audio device and just managed
-> to get it all working to some extent.  When using xmms to play audio
-> (usb audio module - oss soundcore) I see the following kernel messages
-> repeatedly, maybe once a second or so:
+On Mon, 2002-10-21 at 19:08, Pavel Machek wrote:
 
-Can you try this patch and let us know if it fixes your problem?
+> Yes, and force users to update procps for no good reason. And "new"
+> procps will still need code to deal with get_wchan themselves... Plus
+> you loose information by killing get_wchan() -- two different wait
+> points in one function seems very possible to me.
 
-thanks,
+- users of 2.5 need a new procps but only wchan is "broken" and
+  only if CONFIG_KALLSYMS is set anyhow
 
-greg k-h
+- I did not kill get_wchan, just do not use it in stat - in fact
+  I use it in the new wchan approach, too
 
+- its not an issue now because the updated patch (posted 5 days
+  after this email you are replying to) keeps wchan.
 
-===== drivers/usb/class/audio.c 1.43 vs edited =====
---- 1.43/drivers/usb/class/audio.c	Fri Oct 18 21:31:28 2002
-+++ edited/drivers/usb/class/audio.c	Sat Oct 26 10:22:43 2002
-@@ -914,7 +914,7 @@
- 	if (!usbin_retire_desc(u, urb) &&
- 	    u->flags & FLG_RUNNING &&
- 	    !usbin_prepare_desc(u, urb) && 
--	    (suret = usb_submit_urb(urb, GFP_KERNEL)) == 0) {
-+	    (suret = usb_submit_urb(urb, GFP_ATOMIC)) == 0) {
- 		u->flags |= mask;
- 	} else {
- 		u->flags &= ~(mask | FLG_RUNNING);
-@@ -1274,7 +1274,7 @@
- 	if (!usbout_retire_desc(u, urb) &&
- 	    u->flags & FLG_RUNNING &&
- 	    !usbout_prepare_desc(u, urb) && 
--	    (suret = usb_submit_urb(urb, GFP_KERNEL)) == 0) {
-+	    (suret = usb_submit_urb(urb, GFP_ATOMIC)) == 0) {
- 		u->flags |= mask;
- 	} else {
- 		u->flags &= ~(mask | FLG_RUNNING);
+So you got your way.  Look at the patch posted 22 Oct.  It is now in
+2.5-mm.
+
+	Robert Love
+

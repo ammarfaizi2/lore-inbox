@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265445AbUBIXeb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 18:34:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265369AbUBIXcW
+	id S265514AbUBIXiG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 18:38:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265511AbUBIXbi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 18:32:22 -0500
-Received: from mail.kroah.org ([65.200.24.183]:25279 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265494AbUBIX24 convert rfc822-to-8bit
+	Mon, 9 Feb 2004 18:31:38 -0500
+Received: from mail.kroah.org ([65.200.24.183]:32447 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265369AbUBIX3N convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 18:28:56 -0500
+	Mon, 9 Feb 2004 18:29:13 -0500
 Subject: Re: [PATCH] Driver Core update for 2.6.3-rc1
-In-Reply-To: <10763691411688@kroah.com>
+In-Reply-To: <10763691411179@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Mon, 9 Feb 2004 15:25:41 -0800
-Message-Id: <10763691411179@kroah.com>
+Message-Id: <10763691411242@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -22,87 +22,127 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1500.19.3, 2004/02/04 13:48:53-08:00, greg@kroah.com
+ChangeSet 1.1607, 2004/02/09 14:01:07-08:00, greg@kroah.com
 
-[PATCH] Driver core: remove device_unregister_wait() as it's a very bad idea.
+Driver Core: fix up list_for_each() calls to list_for_each_entry()
 
-
- drivers/base/core.c    |   23 -----------------------
- include/linux/device.h |    2 --
- 2 files changed, 25 deletions(-)
+Now this should get that Rusty^Wmonkey off my back...
 
 
-diff -Nru a/drivers/base/core.c b/drivers/base/core.c
---- a/drivers/base/core.c	Mon Feb  9 15:09:04 2004
-+++ b/drivers/base/core.c	Mon Feb  9 15:09:04 2004
-@@ -76,7 +76,6 @@
- static void device_release(struct kobject * kobj)
+ drivers/base/class.c        |   25 +++++++------------------
+ drivers/base/class_simple.c |    4 +---
+ 2 files changed, 8 insertions(+), 21 deletions(-)
+
+
+diff -Nru a/drivers/base/class.c b/drivers/base/class.c
+--- a/drivers/base/class.c	Mon Feb  9 15:08:55 2004
++++ b/drivers/base/class.c	Mon Feb  9 15:08:55 2004
+@@ -3,8 +3,8 @@
+  *
+  * Copyright (c) 2002-3 Patrick Mochel
+  * Copyright (c) 2002-3 Open Source Development Labs
+- * Copyright (c) 2003 Greg Kroah-Hartman
+- * Copyright (c) 2003 IBM Corp.
++ * Copyright (c) 2003-2004 Greg Kroah-Hartman
++ * Copyright (c) 2003-2004 IBM Corp.
+  * 
+  * This file is released under the GPLv2
+  *
+@@ -278,7 +278,6 @@
  {
- 	struct device * dev = to_dev(kobj);
--	struct completion * c = dev->complete;
+ 	struct class * parent;
+ 	struct class_interface * class_intf;
+-	struct list_head * entry;
+ 	int error;
  
- 	if (dev->release)
- 		dev->release(dev);
-@@ -86,8 +85,6 @@
- 			dev->bus_id);
- 		WARN_ON(1);
+ 	class_dev = class_device_get(class_dev);
+@@ -302,11 +301,9 @@
+ 	if (parent) {
+ 		down_write(&parent->subsys.rwsem);
+ 		list_add_tail(&class_dev->node, &parent->children);
+-		list_for_each(entry, &parent->interfaces) {
+-			class_intf = container_of(entry, struct class_interface, node);
++		list_for_each_entry(class_intf, &parent->interfaces, node)
+ 			if (class_intf->add)
+ 				class_intf->add(class_dev);
+-		}
+ 		up_write(&parent->subsys.rwsem);
  	}
--	if (c)
--		complete(c);
- }
  
- static struct kobj_type ktype_device = {
-@@ -355,25 +352,6 @@
+@@ -330,16 +327,13 @@
+ {
+ 	struct class * parent = class_dev->class;
+ 	struct class_interface * class_intf;
+-	struct list_head * entry;
  
+ 	if (parent) {
+ 		down_write(&parent->subsys.rwsem);
+ 		list_del_init(&class_dev->node);
+-		list_for_each(entry, &parent->interfaces) {
+-			class_intf = container_of(entry, struct class_interface, node);
++		list_for_each_entry(class_intf, &parent->interfaces, node)
+ 			if (class_intf->remove)
+ 				class_intf->remove(class_dev);
+-		}
+ 		up_write(&parent->subsys.rwsem);
+ 	}
  
- /**
-- *	device_unregister_wait - Unregister device and wait for it to be freed.
-- *	@dev: Device to unregister.
-- *
-- *	For the cases where the caller needs to wait for all references to
-- *	be dropped from the device before continuing (e.g. modules with
-- *	statically allocated devices), this function uses a completion struct
-- *	to wait, along with a matching complete() in device_release() above.
-- */
--
--void device_unregister_wait(struct device * dev)
--{
--	struct completion c;
--	init_completion(&c);
--	dev->complete = &c;
--	device_unregister(dev);
--	wait_for_completion(&c);
--}
--
--/**
-  *	device_for_each_child - device child iterator.
-  *	@dev:	parent struct device.
-  *	@data:	data for the callback.
-@@ -421,7 +399,6 @@
+@@ -395,7 +389,6 @@
+ {
+ 	struct class * parent;
+ 	struct class_device * class_dev;
+-	struct list_head * entry;
  
- EXPORT_SYMBOL(device_del);
- EXPORT_SYMBOL(device_unregister);
--EXPORT_SYMBOL(device_unregister_wait);
- EXPORT_SYMBOL(get_device);
- EXPORT_SYMBOL(put_device);
- EXPORT_SYMBOL(device_find);
-diff -Nru a/include/linux/device.h b/include/linux/device.h
---- a/include/linux/device.h	Mon Feb  9 15:09:04 2004
-+++ b/include/linux/device.h	Mon Feb  9 15:09:04 2004
-@@ -265,7 +265,6 @@
- 	struct list_head children;
- 	struct device 	* parent;
+ 	if (!class_intf || !class_intf->class)
+ 		return -ENODEV;
+@@ -408,10 +401,8 @@
+ 	list_add_tail(&class_intf->node, &parent->interfaces);
  
--	struct completion * complete;	/* Notification for freeing device. */
- 	struct kobject kobj;
- 	char	bus_id[BUS_ID_SIZE];	/* position on parent bus */
+ 	if (class_intf->add) {
+-		list_for_each(entry, &parent->children) {
+-			class_dev = container_of(entry, struct class_device, node);
++		list_for_each_entry(class_dev, &parent->children, node)
+ 			class_intf->add(class_dev);
+-		}
+ 	}
+ 	up_write(&parent->subsys.rwsem);
  
-@@ -313,7 +312,6 @@
-  */
- extern int device_register(struct device * dev);
- extern void device_unregister(struct device * dev);
--extern void device_unregister_wait(struct device * dev);
- extern void device_initialize(struct device * dev);
- extern int device_add(struct device * dev);
- extern void device_del(struct device * dev);
+@@ -421,7 +412,7 @@
+ void class_interface_unregister(struct class_interface *class_intf)
+ {
+ 	struct class * parent = class_intf->class;
+-	struct list_head * entry;
++	struct class_device *class_dev;
+ 
+ 	if (!parent)
+ 		return;
+@@ -430,10 +421,8 @@
+ 	list_del_init(&class_intf->node);
+ 
+ 	if (class_intf->remove) {
+-		list_for_each(entry, &parent->children) {
+-			struct class_device *class_dev = container_of(entry, struct class_device, node);
++		list_for_each_entry(class_dev, &parent->children, node)
+ 			class_intf->remove(class_dev);
+-		}
+ 	}
+ 	up_write(&parent->subsys.rwsem);
+ 
+diff -Nru a/drivers/base/class_simple.c b/drivers/base/class_simple.c
+--- a/drivers/base/class_simple.c	Mon Feb  9 15:08:55 2004
++++ b/drivers/base/class_simple.c	Mon Feb  9 15:08:55 2004
+@@ -197,12 +197,10 @@
+ void class_simple_device_remove(dev_t dev)
+ {
+ 	struct simple_dev *s_dev = NULL;
+-	struct list_head *tmp;
+ 	int found = 0;
+ 
+ 	spin_lock(&simple_dev_list_lock);
+-	list_for_each(tmp, &simple_dev_list) {
+-		s_dev = list_entry(tmp, struct simple_dev, node);
++	list_for_each_entry(s_dev, &simple_dev_list, node) {
+ 		if (s_dev->dev == dev) {
+ 			found = 1;
+ 			break;
 

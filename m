@@ -1,37 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267089AbSKMBed>; Tue, 12 Nov 2002 20:34:33 -0500
+	id <S267092AbSKMBvy>; Tue, 12 Nov 2002 20:51:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267090AbSKMBed>; Tue, 12 Nov 2002 20:34:33 -0500
-Received: from mail3.noris.net ([62.128.1.28]:48778 "EHLO mail3.noris.net")
-	by vger.kernel.org with ESMTP id <S267089AbSKMBec>;
-	Tue, 12 Nov 2002 20:34:32 -0500
-From: "Matthias Urlichs" <smurf@noris.de>
-Date: Wed, 13 Nov 2002 02:41:18 +0100
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH 2.4: scsi and BLK_STATS
-Message-ID: <20021113024118.M18881@noris.de>
-References: <20021112172821.GA14195@play.smurf.noris.de> <20021113001530.A323@infradead.org> <20021113023059.K18881@noris.de> <20021113013717.A3008@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021113013717.A3008@infradead.org>; from hch@infradead.org on Wed, Nov 13, 2002 at 01:37:17AM +0000
+	id <S267093AbSKMBvy>; Tue, 12 Nov 2002 20:51:54 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:60399 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S267092AbSKMBvx>;
+	Tue, 12 Nov 2002 20:51:53 -0500
+Message-ID: <004b01c28ab8$2f89a2c0$77d40a0a@amr.corp.intel.com>
+From: "Rusty Lynch" <rusty@linux.co.intel.com>
+To: <vamsi@in.ibm.com>
+Cc: <rusty@rustcorp.com.au>, "lkml" <linux-kernel@vger.kernel.org>
+References: <20021112165053.A1342@in.ibm.com>
+Subject: Re: [PATCH] kprobes for 2.5.47
+Date: Tue, 12 Nov 2002 17:58:39 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+When register_kprobe() is called with a bad addr, we crash the kernel.
+Should it be the reponsibility of the caller, or the kernel to make sure the
+addr is ok?
 
-Christoph Hellwig:
-> > anyway, please disregard my patch and add
-> > 
-> > #include <linux/genhd.h>
-> > 
-> > in scsi/scsi_lib.c.  :-/
-> 
-> It already gets genhd.h through blk.h -> blkdev.h.. :)
+The kernel could check by adding a
 
-... then why did I get that undefined symbol in scsi_mod.o, I wonder ??
++unsigned short tmp;
+....
++if(__get_user(tmp, (unsigned short *)p->addr)) {
++        ret = -EINVAL;
++        goto out;
++}
 
--- 
-Matthias Urlichs     |     noris network AG     |     http://smurf.noris.de/
+to register_kprobe()
+
+> +int register_kprobe(struct kprobe *p)
+> +{
+> + int ret = 0;
+> +
+> + spin_lock_irq(&kprobe_lock);
+> + if (get_kprobe(p->addr)) {
+> + ret = -EEXIST;
+> + goto out;
+> + }
+> + list_add(&p->list, &kprobe_table[hash_ptr(p->addr, KPROBE_HASH_BITS)]);
+> +
+> + p->opcode = *p->addr;
+> + *p->addr = BREAKPOINT_INSTRUCTION;
+> + flush_icache_range(p->addr, p->addr + sizeof(kprobe_opcode_t));
+> + out:
+> + spin_unlock_irq(&kprobe_lock);
+> + return ret;
+> +}
+
+BTW, I have a stupid little sample char driver that reads in address/message
+pairs and then adds a probe that printk's the message at the address.  This
+was just my way of learning how to use kprobes.  Should I post it?  I would
+love to get feedback on what I did wrong, but I hate to spam the list.
+
+    -rustyl
+

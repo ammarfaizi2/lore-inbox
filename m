@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271707AbTHHRCx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 13:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271710AbTHHRCx
+	id S271717AbTHHRGp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 13:06:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271718AbTHHRGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 13:02:53 -0400
-Received: from mailrelay3.lanl.gov ([128.165.4.104]:46810 "EHLO
-	mailrelay3.lanl.gov") by vger.kernel.org with ESMTP id S271707AbTHHRCw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 13:02:52 -0400
-Subject: Re: [PATCH] Change all occurrences of 'flavour' to 'flavor'
-From: Steven Cole <elenstev@mesatop.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jasper Spaans <jasper@vs19.net>,
-       Linus Torvalds <torvalds@osdl.org>, andries.brouwer@cwi.nl,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3020000.1060301062@[10.10.2.4]>
-References: <20030807180032.GA16957@spaans.vs19.net>
-	 <1060295842.3169.83.camel@dhcp22.swansea.linux.org.uk>
-	 <3020000.1060301062@[10.10.2.4]>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1060361688.1967.9.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 08 Aug 2003 10:54:48 -0600
+	Fri, 8 Aug 2003 13:06:45 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:54532 "EHLO
+	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S271717AbTHHRGn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 13:06:43 -0400
+Message-ID: <3F33D840.2B9CDB03@SteelEye.com>
+Date: Fri, 08 Aug 2003 13:05:04 -0400
+From: Paul Clements <Paul.Clements@SteelEye.com>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.13 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: ldl@aros.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.0 NBD driver: remove send/recieve race for request
+References: <3F2FE078.6020305@aros.net>
+		<3F300760.8F703814@SteelEye.com>
+		<3F303430.1080908@aros.net>
+		<3F30510A.E918924B@SteelEye.com>
+		<3F30AF81.4070308@aros.net>
+		<3F332ED7.712DFE5D@SteelEye.com> <20030807222718.5ef37049.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-08-07 at 18:04, Martin J. Bligh wrote:
-> --Alan Cox <alan@lxorguk.ukuu.org.uk> wrote (on Thursday, August 07, 2003 23:37:23 +0100):
+Andrew Morton wrote:
 > 
-> > On Iau, 2003-08-07 at 19:00, Jasper Spaans wrote:
-> >> It changes all occurrences of 'flavour' to 'flavor' in the complete tree;
-> >> I've just comiled all affected files (that is, the config resulting from
-> >> make allyesconfig minus already broken stuff) succesfully on i386.
-> > 
-> > The Linux kernel tended to favour european spelling, and favOUr is
-> > indeed correct English.
+> Paul Clements <Paul.Clements@SteelEye.com> wrote:
+> >
+> > Here's the patch to fix up several race conditions in nbd. It requires
+> >  reverting the already included (but admittedly incomplete)
+> >  nbd-race-fix.patch that's in -mm5.
+> >
+> >  Andrew, please apply.
 > 
-> Either way, haven't we stopped piddling around with spelling fixes and
-> breaking everyone's patches yet? I thought we had ...
-> 
-> M.
+> Sure.  Could I please have a summary of what races were fixed, and how?
 
-Well, I for one have stopped with the spelling patches since the
-cost/benefit ratio was too high for many key folks.  When the spelling
-patches were being generated, we were quite careful not to "fix" English
-spellings.
+I outlined the other races in the mail I just sent. In addition, the
+updated patch will fix an Oops where lo->sock gets set to NULL (by
+NBD_CLEAR_SOCK) before NBD_DO_IT completes. This can happen when
+"nbd-client -d" is called to disconnect the nbd socket.
 
-I won't begin the next round of spelling fixes until 2.7.40, for those
-who want to plan ahead that far.  And next time, I'll send the patches
-through the maintainers. But we can still argue about spelling fixes if
-that makes people happier.
-
-Cheers,
-Steven (off-duty spelling cop)
-
+--
+Paul

@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261669AbVBSJeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVBSJhR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261669AbVBSJeT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 04:34:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVBSJeR
+	id S261679AbVBSJhR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 04:37:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVBSJhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 04:34:17 -0500
-Received: from ganesha.gnumonks.org ([213.95.27.120]:42914 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S261692AbVBSJ1l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 04:27:41 -0500
-Date: Sat, 19 Feb 2005 10:27:39 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: "Fao, Sean" <sean.fao@capitalgenomix.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Netfilter: TARPIT Target
-Message-ID: <20050219092738.GN3829@sunbeam.de.gnumonks.org>
-References: <4214AD2B.7020607@capitalgenomix.com>
+	Sat, 19 Feb 2005 04:37:16 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:20915 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261700AbVBSJgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 04:36:44 -0500
+Subject: Re: Should kirqd work on HT?
+From: Arjan van de Ven <arjan@infradead.org>
+To: ncunningham@cyclades.com
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1108804063.4098.35.camel@desktop.cunningham.myip.net.au>
+References: <1108794699.4098.28.camel@desktop.cunningham.myip.net.au>
+	 <4216E248.5070603@pobox.com>
+	 <1108804063.4098.35.camel@desktop.cunningham.myip.net.au>
+Content-Type: text/plain
+Date: Sat, 19 Feb 2005 10:36:33 +0100
+Message-Id: <1108805793.6304.75.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7316+HbuJYr43y0H"
-Content-Disposition: inline
-In-Reply-To: <4214AD2B.7020607@capitalgenomix.com>
-User-Agent: Mutt/1.5.6+20040907i
-X-Spam-Score: -2.3 (--)
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2005-02-19 at 20:07 +1100, Nigel Cunningham wrote:
+> Hi Jeff.
+> 
+> On Sat, 2005-02-19 at 17:52, Jeff Garzik wrote:
+> > Nigel Cunningham wrote:
+> > What are the results of running irqbalanced?
+> 
+> You mean the debugging output? I can reenable it and record the results
+> if that's what you mean.
 
---7316+HbuJYr43y0H
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+no Jeff meant
+http://people.redhat.com/arjanv/irqbalance/
+that app most likely....
 
-On Thu, Feb 17, 2005 at 09:41:47AM -0500, Fao, Sean wrote:
-> I wanted to use the TARPIT target provided by Netfilter, but I am unable=
-=20
-> to find the module in the kernel.  Has it been removed or am I looking=20
-> in the wrong place?
 
-1) it has never been in the mainstream kernel
-2) the netfilter project doesn't support it's dangerous protocol abuse
-   and will therefor never submit it into the mainline kernel
-3) as compromise with the authors, we included it to be part of the
-   patch-o-matic-ng patchset, available from http://www.netfilter.org/
-
-> Sean E. Fao
-
---=20
-- Harald Welte <laforge@gnumonks.org>               http://www.gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-"Privacy in residential applications is a desirable marketing option."
-                                                  (ETSI EN 300 175-7 Ch. A6)
-
---7316+HbuJYr43y0H
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCFwaKXaXGVTD0i/8RAghDAJ96JrL/wXNN3FDkLwbo8yPFdbdASQCgll8s
-CrJxQfkmroBKk+LCI6zn9JI=
-=iZbW
------END PGP SIGNATURE-----
-
---7316+HbuJYr43y0H--

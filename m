@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263103AbTE2XAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 19:00:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263131AbTE2XAQ
+	id S263146AbTE2XEY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 19:04:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263169AbTE2XEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 19:00:16 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:42215 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263103AbTE2XAO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 19:00:14 -0400
-Message-ID: <3ED69359.2060008@austin.ibm.com>
-Date: Thu, 29 May 2003 18:10:17 -0500
-From: Mark Peloquin <peloquin@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Craig Thomas <craiger@osdl.org>, "David S. Miller" <davem@redhat.com>,
-       linux-kernel@vger.kernel.org
+	Thu, 29 May 2003 19:04:23 -0400
+Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:28147 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S263146AbTE2XET (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 19:04:19 -0400
+Date: Thu, 29 May 2003 17:17:03 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Mark Peloquin <peloquin@austin.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
 Subject: Re: Nightly regression runs against current bk tree
-References: <3ED66C83.8070608@austin.ibm.com.suse.lists.linux.kernel> <p73smqx791m.fsf@oldwotan.suse.de> <20030529.142515.08325314.davem@redhat.com> <20030529212929.GA11309@wotan.suse.de> <1054245025.1957.113.camel@bullpen.pdx.osdl.net> <20030529220354.GD11309@wotan.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20030529171703.U29153@schatzie.adilger.int>
+Mail-Followup-To: Mark Peloquin <peloquin@austin.ibm.com>,
+	Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+References: <3ED66C83.8070608@austin.ibm.com.suse.lists.linux.kernel> <p73smqx791m.fsf@oldwotan.suse.de> <3ED68E3E.1060403@austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3ED68E3E.1060403@austin.ibm.com>; from peloquin@austin.ibm.com on Thu, May 29, 2003 at 05:48:30PM -0500
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On May 29, 2003  17:48 -0500, Mark Peloquin wrote:
+> Your correct. We're just getting started with this effort and we used 
+> this mix to get things going. Once ppl are happy with the presentation 
+> of data, we planned to add more tests to provide a more balanced mix. 
+> But since you asked, we have added lmbench to our -bk3 regression run. :)
 
+Mark, it would be nice to get a graph of the combined results for each
+test.  Something like:
 
-Andi Kleen wrote:
+                 tiobench sequential write rate
+  |                                  +++++++++++++++++      + = -mm-ext3
+M |        ++++++++++++++++++++++++++*****************      * = linus-ext3
+B | +++++++*****************   ######                       # = -ac-ext3
+/ |                                                         . = -mm-XFS
+s |                                                         = = -ac-XFS
+  |                         *********                       etc
+  |
+  +----------------------------------------------------
+			date
 
->>OSDL has a linux stabilization web page where several tests are run
->>    
->>
->
->[...] Would you be willing to change your scripts to report
->any new results to this new list?
->
->-Andi
->
+This allows at-a-glance trends for each group of tests and (as in the
+example above you could see easily when a performance bug was added
+and fixed in -ac before in the linus kernel, for example).  Probably
+having all of the comparable results on the same page, or even in the
+same graph results is a win.
 
-We have not automated the posting process ... yet, and will be happy to 
-post whereever is acceptable.
+Bonus points if you can click on a spot in the graph and get the results
+page for that date/test ;-).
 
-Mark
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

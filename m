@@ -1,79 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264819AbUDWOxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264836AbUDWO7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264819AbUDWOxE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 10:53:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264830AbUDWOxE
+	id S264836AbUDWO7P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 10:59:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264835AbUDWO7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 10:53:04 -0400
-Received: from web10410.mail.yahoo.com ([216.136.128.123]:7060 "HELO
-	web10410.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264819AbUDWOxA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 10:53:00 -0400
-Message-ID: <20040423145258.68956.qmail@web10410.mail.yahoo.com>
-Date: Fri, 23 Apr 2004 07:52:58 -0700 (PDT)
-From: "D.J. Barrow" <barrow_dj@yahoo.com>
-Reply-To: dj_barrow@ariasoft.ie
-Subject: love letter
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Fri, 23 Apr 2004 10:59:15 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:8591 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S264832AbUDWO7M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 10:59:12 -0400
+Date: Fri, 23 Apr 2004 16:58:58 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, netdev@oss.sgi.com
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org
+Subject: [PATCH] pktgen dependency (was: Re: Linux 2.4.27-pre1)
+In-Reply-To: <20040422130651.GB18358@logos.cnet>
+Message-ID: <Pine.GSO.4.58.0404231644470.15793@waterleaf.sonytel.be>
+References: <20040422130651.GB18358@logos.cnet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Let me tell you about Anne O' Sullivan the woman that drove me to no fear
-& the level of creativity I have now.
 
-She is Tom O Sullivans adopted daughter & at 13 looked at the most headfucked
-25 year old in the Church in Glantane & said he needs me.
-At 15 the test came a dropped tennis ball she was nearer & more in need of the exercise
-& Slut Ruby picked it up instead.
+The packet generator doesn't compile if procfs is disabled.
+IIRC, there was an agreement that this dependency is needed:
 
-She is getting married very soon 
-I am going to have karate sex with her anyway.
-I will look after her kids with the least self confidence because I know
-they have her metal.
+--- linux-2.4.27-pre1/net/Config.in.orig	2003-10-01 20:49:26.000000000 +0200
++++ linux-2.4.27-pre1/net/Config.in	2004-04-23 14:43:58.000000000 +0200
+@@ -99,7 +99,7 @@
 
-Tell her I love her to peices
+ mainmenu_option next_comment
+ comment 'Network testing'
+-tristate 'Packet Generator (USE WITH CAUTION)' CONFIG_NET_PKTGEN
++dep_tristate 'Packet Generator (USE WITH CAUTION)' CONFIG_NET_PKTGEN $CONFIG_PROC_FS
+ endmenu
 
-Phone: 00353-22-47181
-Address:
-Anne O Sullivan,
-Brittas,
-Glantane,
-Mallow,
-Co. Cork,
-Ireland.
+ endmenu
 
-Call by if in the area & tell her I was watching her under a microscope.
+Gr{oetje,eeting}s,
 
+						Geert
 
-Tell the boyfriend I'll buy the house if he likes,
-pay for the wedding & engagement ring if he likes,
-See if I can hook him up with a stripper, I have been subconciously
-matchmaking lately & the only close friend I have who I can't
-matchmake for is Benjamin Herrenschmidt
-he could keep typing with Anne Marie from Tahiti the
-biggest bitch I know slapping him in the face fucking him at the same
-time & drinking Jack Daniels & coke.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-When that fucker starts going the women had better be watching.
-
-Thanks for all your help,
-D.J.
-
-=====
-D.J. Barrow Linux kernel developer
-eMail: dj_barrow@ariasoft.ie 
-Home: +353-22-47196.
-Work IBM +49-7031-16-2943
-Mobile (IRL) +353-(0)86 1715438
-Mobile (DE) +49 (0)160-96659905
-Current Apt. +49 (0) 711 6332927
-
-
-	
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Photos: High-quality 4x6 digital prints for 25¢
-http://photos.yahoo.com/ph/print_splash
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

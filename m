@@ -1,32 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316487AbSEOUMw>; Wed, 15 May 2002 16:12:52 -0400
+	id <S316497AbSEOUPi>; Wed, 15 May 2002 16:15:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316491AbSEOULn>; Wed, 15 May 2002 16:11:43 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9735 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S316493AbSEOULU>; Wed, 15 May 2002 16:11:20 -0400
-Subject: Re: [RFC] ext2 and ext3 block reservations can be bypassed
-To: pavel@ucw.cz (Pavel Machek)
-Date: Wed, 15 May 2002 21:29:49 +0100 (BST)
-Cc: elladan@eskimo.com (Elladan), linux-kernel@vger.kernel.org (kernel list)
-In-Reply-To: <20020515194857.GA6485@elf.ucw.cz> from "Pavel Machek" at May 15, 2002 09:48:58 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S316488AbSEOUO1>; Wed, 15 May 2002 16:14:27 -0400
+Received: from skunk.directfb.org ([212.84.236.169]:49551 "EHLO
+	skunk.directfb.org") by vger.kernel.org with ESMTP
+	id <S316491AbSEOUON>; Wed, 15 May 2002 16:14:13 -0400
+Date: Wed, 15 May 2002 22:12:52 +0200
+From: Denis Oliver Kropp <dok@directfb.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Greg KH <greg@kroah.com>, Denis Oliver Kropp <dok@directfb.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] vmwarefb 0.5.2
+Message-ID: <20020515201252.GA2146@skunk.convergence.de>
+Reply-To: Denis Oliver Kropp <dok@directfb.org>
+In-Reply-To: <20020515010242.GA1257@skunk.convergence.de> <20020515042113.GA22029@kroah.com> <20020515145728.E37@toy.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1785PC-0002hn-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > If this is not a security feature, Documentation/filesystems/ext2.txt
-> > needs to be changed.  Eg., 
+Quoting Pavel Machek (pavel@suse.cz):
+> Hi
 > 
-> I'd suggest you to mail to bugtraq@securityfocus.com; it sounds like
-> security hole to me, and probably common across many unix variants.
+> > Is VMWare ok with releasing those files under the GPL?  If so, I suggest
+> > you add that line to those files, and then everything should be fine.
+> 
+> Code seems to come from XFree, and that should allow him to relicence like
+> that.
+> 
+> I have better question: "What is it good for"?
 
-The original Unix documentation for FFS refers to it only as a performance
-oriented reason.
+The driver at all?
 
-Alan
+I want to use DirectFB in VMware. I will also add console acceleration
+to the framebuffer driver and possibly write an accelerated DirectFB driver.
+
+-- 
+Best regards,
+  Denis Oliver Kropp
+
+.------------------------------------------.
+| DirectFB - Hardware accelerated graphics |
+| http://www.directfb.org/                 |
+"------------------------------------------"
+
+                            Convergence GmbH

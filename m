@@ -1,50 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVCAXhn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262120AbVCAXiQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262125AbVCAXhn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 18:37:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbVCAXhm
+	id S262120AbVCAXiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 18:38:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbVCAXiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 18:37:42 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29962 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262125AbVCAXh0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 18:37:26 -0500
-Date: Tue, 1 Mar 2005 23:37:20 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Karol Kozimor <sziwan@hell.org.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at drivers/serial/8250.c:1256!
-Message-ID: <20050301233720.B17470@flint.arm.linux.org.uk>
-Mail-Followup-To: Karol Kozimor <sziwan@hell.org.pl>,
-	linux-kernel@vger.kernel.org
-References: <20050301230946.GA30841@hell.org.pl>
-Mime-Version: 1.0
+	Tue, 1 Mar 2005 18:38:16 -0500
+Received: from smtp06.auna.com ([62.81.186.16]:42644 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S262130AbVCAXhq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 18:37:46 -0500
+Date: Tue, 01 Mar 2005 23:37:27 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: 2.6.11-rc5: Promise SATA150 TX4 failure
+To: Joerg Sommrey <jo@sommrey.de>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20050301014514.GA10653@sommrey.de>
+X-Mailer: Balsa 2.3.0
+Message-Id: <1109720247l.10975l.0l@werewolf.able.es>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050301230946.GA30841@hell.org.pl>; from sziwan@hell.org.pl on Wed, Mar 02, 2005 at 12:09:46AM +0100
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 02, 2005 at 12:09:46AM +0100, Karol Kozimor wrote:
-> I've finally got around to test latest kernels and managed to find a bug in 
-> the serial subsystem, which happens during suspend.
 
-Yes, serial_cs is claiming that we don't have a device associated with
-the port, so we're treating it as a legacy port.  However, serial_cs is
-implementing the suspend/resume methods.  This is wrong, since that
-means the port will be suspended twice, and hence causes this bug.
+On 03.01, Joerg Sommrey wrote:
+> Hi all,
+> 
+> a problem that was introduced between 2.6.10-ac9 and 2.6.10-ac11 made
+> it's way into 2.6.11-rc5.  While taking a backup onto a SCSI-streamer one
+> of my RAID1-arrays gets corrupted.  Afterwards the system hangs and
+> isn't even bootable.  Need to raidhotadd the failed partition in single
+> user mode to get the box working again. Error messages:
+> 
 
-serial_cs needs to register the ports along with the PCMCIA device with
-which the port belongs to.  This will stop it being treated as a legacy
-serial port.
+Me too :(. Just a slightly different case.
+I have a server with 6x250Gb SATA drives, hanged on a pair of Promise
+PDC20319 (FastTrak S150 TX4) (rev 02) controlers (each has 4 ports).
+Main use for the box is as a smb/atalk/nfs server.
 
-Unfortunately, it's too late tonight for me to dig into PCMCIA to work
-out how we get at the device structure - I can't find any examples off
-hand either.  Therefore, it may be a while before I can produce a patch
-to resolve this.
+With 2.6.20-rc3-mm2+libata-dev2, the box is stable, we can drop
+gigs of files throug samba amd it works. 
+Anything newer that that makes the box hang siliently, no messages,
+no oops. It also happened to me with just a local wget of a big
+file (oofice-2.0-beta), after download the box locked hard.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+I tried to apply libata-dev1 on top of newer kernels, but part of it
+is already there, and the rest drops too many rejects/offsets for
+me.
+
+I also have one other problem with flock, but thats subject for another
+post...
+
+Any ideas about what changed wrt sata ?
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.2 (Cooker) for i586
+Linux 2.6.10-jam12 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-3mdk)) #1
+
+
+
+
+
+
+
+
+
+

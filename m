@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265470AbTCELkV>; Wed, 5 Mar 2003 06:40:21 -0500
+	id <S265865AbTCELnO>; Wed, 5 Mar 2003 06:43:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265523AbTCELkU>; Wed, 5 Mar 2003 06:40:20 -0500
-Received: from visp12-175.visp.co.nz ([210.54.175.12]:65038 "EHLO
-	mdew.dyndns.org") by vger.kernel.org with ESMTP id <S265470AbTCELkU>;
-	Wed, 5 Mar 2003 06:40:20 -0500
-Subject: Re: reducing stack usage in v4l?
-From: mdew <mdew@mdew.dyndns.org>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <87u1eigomv.fsf@bytesex.org>
-References: <32833.4.64.238.61.1046841945.squirrel@www.osdl.org>
-	 <87u1eigomv.fsf@bytesex.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1046865047.2310.33.camel@nirvana.flat>
+	id <S265947AbTCELnO>; Wed, 5 Mar 2003 06:43:14 -0500
+Received: from host217-36-80-42.in-addr.btopenworld.com ([217.36.80.42]:49298
+	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
+	id <S265865AbTCELnN>; Wed, 5 Mar 2003 06:43:13 -0500
+Subject: 2.4 oprofile patches
+From: Gianni Tedesco <gianni@ecsc.co.uk>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-da2Z1777+LkraoDK0cUg"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 05 Mar 2003 11:54:14 +0000
+Message-Id: <1046865254.2283.26.camel@lemsip>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 06 Mar 2003 00:50:48 +1300
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On the topic of v4l, Ive had complete lockups on recent 2.5.x kernels
-when loading a v4l application Zapping. I havent tried anyother v4l
-applications just yet, have you seen this in action? should i compile
-debuging support to show it? /var/log/messages currently doesnt show it.
+--=-da2Z1777+LkraoDK0cUg
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Running Debian Sid/Gcc 3.2.3 20030228
+Anyone got oprofile 0.5.1 as a patch against 2.4?
 
+Not important but would save me 20 mins work :)
 
--- 
-mdew <mdew@mdew.dyndns.org>
+--=20
+// Gianni Tedesco (gianni at scaramanga dot co dot uk)
+lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+
+--=-da2Z1777+LkraoDK0cUg
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA+ZeVmkbV2aYZGvn0RArzsAJsFQxELFsaP9g9ivBAU4+upKstCLwCeJWnV
+d8txBGKBO+Q4s/AOwtDzoQU=
+=u/ex
+-----END PGP SIGNATURE-----
+
+--=-da2Z1777+LkraoDK0cUg--
 

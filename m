@@ -1,88 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262669AbVBBSns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbVBBSy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262669AbVBBSns (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 13:43:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbVBBSm6
+	id S262339AbVBBSy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 13:54:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbVBBSy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 13:42:58 -0500
-Received: from ra.tuxdriver.com ([24.172.12.4]:50961 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S262704AbVBBSiH (ORCPT
+	Wed, 2 Feb 2005 13:54:57 -0500
+Received: from www2.muking.org ([216.231.42.228]:45883 "HELO www2.muking.org")
+	by vger.kernel.org with SMTP id S262696AbVBBSs4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 13:38:07 -0500
-Date: Wed, 2 Feb 2005 13:37:55 -0500
-From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Cc: andyw@pobox.com, jgarzik@pobox.com
-Subject: [patch libata-dev-2.6 1/1] libata: sync SMART ioctls with ATA pass thru spec (T10/04-262r7)
-Message-ID: <20050202183753.GB17450@tuxdriver.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-	andyw@pobox.com, jgarzik@pobox.com
-Mime-Version: 1.0
+	Wed, 2 Feb 2005 13:48:56 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Real-Time Preemption and GFP_ATOMIC    
+From: Kevin Hilman <kevin@hilman.org>
+Organization: None to speak of.
+Date: 02 Feb 2005 10:48:54 -0800
+Message-ID: <83r7jyiyqx.fsf@www2.muking.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update libata's SMART-related ioctl handlers to match the current
-ATA command pass-through specification (T10/04-262r7).  Also change
-related SCSI op-code definition to match current spec.
+While testing an older driver on an -RT kernel (currently using
+-V0.7.37-03), I noticed something strange.
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
-Contact w/ spec author (Curtis Stevens @ Western Digital) indicates
-that while a revision 8 of the spec is expected, that it is really
-only a re-formatting of the text to match T10 requirements.  According
-to Stevens, revision 8 is expected to be the last version of the spec.
+The driver was triggering a "sleeping function called from invalid
+context" BUG().  It was coming from a case where the driver was doing
+a __get_free_page(GFP_ATOMIC) while interrupts were disabled (example
+trace below).  I know this is probably real bug and it shouldn't be
+allocating memory with interrupts disabled, but shouldn't this be
+possible?  Isn't the role of GFP_ATOMIC to say that "this caller
+cannot sleep". 
 
- drivers/scsi/libata-scsi.c |    6 ++++--
- include/scsi/scsi.h        |    6 +++---
- 2 files changed, 7 insertions(+), 5 deletions(-)
+To produce the following trace, I wrote a simple moudle which just has
+this as its init_module routine:
 
---- sata-smart-2.6/drivers/scsi/libata-scsi.c.orig	2005-02-01 16:24:01.687622085 -0500
-+++ sata-smart-2.6/drivers/scsi/libata-scsi.c	2005-02-01 16:49:18.213876086 -0500
-@@ -109,14 +109,16 @@ int ata_cmd_ioctl(struct scsi_device *sc
- 			return -ENOMEM;
+        local_irq_disable();
+        p = __get_free_page(GFP_ATOMIC);
+        local_irq_enable();
  
- 		scsi_cmd[1]  = (4 << 1); /* PIO Data-in */
-+		scsi_cmd[2]  = 0x0e;     /* no off.line or cc, read from dev,
-+		                            block count in sector count field */
- 		sreq->sr_data_direction = DMA_FROM_DEVICE;
- 	} else {
- 		scsi_cmd[1]  = (3 << 1); /* Non-data */
-+		/* scsi_cmd[2] is already 0 -- no off.line, cc, or data xfer */
- 		sreq->sr_data_direction = DMA_NONE;
- 	}
- 
- 	scsi_cmd[0] = ATA_16;
--	scsi_cmd[2] = 0x1f;     /* no off.line or cc, yes all registers */
- 
- 	scsi_cmd[4] = args[2];
- 	if (args[0] == WIN_SMART) { /* hack -- ide driver does this too... */
-@@ -179,7 +181,7 @@ int ata_task_ioctl(struct scsi_device *s
- 	memset(scsi_cmd, 0, sizeof(scsi_cmd));
- 	scsi_cmd[0]  = ATA_16;
- 	scsi_cmd[1]  = (3 << 1); /* Non-data */
--	scsi_cmd[2]  = 0x1f;     /* no off.line or cc, yes all registers */
-+	/* scsi_cmd[2] is already 0 -- no off.line, cc, or data xfer */
- 	scsi_cmd[4]  = args[1];
- 	scsi_cmd[6]  = args[2];
- 	scsi_cmd[8]  = args[3];
---- sata-smart-2.6/include/scsi/scsi.h.orig	2005-02-01 16:22:12.390234346 -0500
-+++ sata-smart-2.6/include/scsi/scsi.h	2005-02-01 16:23:02.828491161 -0500
-@@ -113,9 +113,9 @@ extern const char *const scsi_device_typ
- /* values for service action in */
- #define	SAI_READ_CAPACITY_16  0x10
- 
--/* Temporary values for T10/04-262 until official values are allocated */
--#define	ATA_16		      0x85	/* 16-byte pass-thru [0x85 == unused]*/
--#define	ATA_12		      0xb3	/* 12-byte pass-thru [0xb3 == obsolete set limits command] */
-+/* Values for T10/04-262r7 */
-+#define	ATA_16		      0x85	/* 16-byte pass-thru */
-+#define	ATA_12		      0xa1	/* 12-byte pass-thru */
- 
- /*
-  *  SCSI Architecture Model (SAM) Status codes. Taken from SAM-3 draft
--- 
-John W. Linville
-linville@tuxdriver.com
+And here's the trace:
+
+BUG: sleeping function called from invalid context insmod(2126) at kernel/rt.c:1448
+in_atomic():0 [00000000], irqs_disabled():1
+ [<c0102fa3>] dump_stack+0x23/0x30 (20)
+ [<c01133c5>] __might_sleep+0xe5/0x100 (36)
+ [<c012fbb8>] __spin_lock+0x38/0x60 (24)
+ [<c012fc8d>] _spin_lock_irqsave+0x1d/0x30 (16)
+ [<c0140e5c>] buffered_rmqueue+0x1c/0x190 (40)
+ [<c01413ce>] __alloc_pages+0x34e/0x390 (76)
+ [<c0141437>] __get_free_pages+0x27/0x50 (12)
+ [<c883205a>] kmod_init+0x5a/0x74 [kmod] (24)
+ [<c0138232>] sys_init_module+0x232/0x260 (28)
+ [<c010299c>] syscall_call+0x7/0xb (-8124)
+---------------------------
+| preempt count: 00000001 ]
+| 1-level deep critical section nesting:
+----------------------------------------
+.. [<c0133e3d>] .... print_traces+0x1d/0x60
+.....[<c0102fa3>] ..   ( <= dump_stack+0x23/0x30)
+
+
+
+

@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267381AbTALSHg>; Sun, 12 Jan 2003 13:07:36 -0500
+	id <S267380AbTALSGD>; Sun, 12 Jan 2003 13:06:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267384AbTALSHg>; Sun, 12 Jan 2003 13:07:36 -0500
-Received: from tomts22-srv.bellnexxia.net ([209.226.175.184]:4784 "EHLO
-	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S267381AbTALSHf>; Sun, 12 Jan 2003 13:07:35 -0500
-Subject: [FIXED] 2.5 evolution problem
-From: Shane Shrybman <shrybman@sympatico.ca>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1042395383.2397.8.camel@mars.goatskin.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 12 Jan 2003 13:16:24 -0500
-Content-Transfer-Encoding: 7bit
+	id <S267379AbTALSGC>; Sun, 12 Jan 2003 13:06:02 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:44189 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id <S267380AbTALSGC>;
+	Sun, 12 Jan 2003 13:06:02 -0500
+Date: Sun, 12 Jan 2003 18:14:45 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: andrea.glorioso@binary-only.com
+Cc: linux-mm@kvack.org, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux VM Documentation - Draft 1
+In-Reply-To: <87r8biw8ik.fsf@topo.binary-only.priv>
+Message-ID: <Pine.LNX.4.44.0301121806240.24444-100000@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 12 Jan 2003 andrea.glorioso@binary-only.com wrote:
 
-The bug causing problems with the evolution address book is fixed in
-2.5.56. I don't know if it was fixed in 2.5.55 or 2.5.56 but it was
-broken in 2.5.54.
+> If  the  license of  your work  allows,  you could   open a project on
+> Sourcerforge,  Berlios  or Savannah  (under non-GNU  projects ;) ) and
+> import your CVS tree there.
 
-This bug(#112) is listed as RESOLVED at bugme.osdl.org. Should it be
-moved to CLOSED?
+There is a savannagh project called the Linux Kernel Documentation Project
+(LKDP) (http://savannah.nongnu.org/projects/lkdp) set up by Abhishek
+Nayani but it has been inactive for some time. I will eventually merge
+with it (I have made contributions to it in the past) but am waiting to
+get the last chapters finished first. It might be me being awkward but
+it's difficult to have a number of people working on one document and
+keeping the writing style consistent.
 
-Also how would one find out what the resolution was at bugme.osdl.org?
-Is there a pointer to patch or cset that I missed somewhere there?
+-- 
+Mel Gorman
+MSc Student, University of Limerick
+http://www.csn.ul.ie/~mel
 
-Regards,
-
-Shane
 

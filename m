@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271737AbTHHSCd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 14:02:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271738AbTHHSCd
+	id S271734AbTHHSC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 14:02:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271737AbTHHSC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 14:02:33 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:40679 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S271737AbTHHSCc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 14:02:32 -0400
-Date: Fri, 8 Aug 2003 20:02:24 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Ian Hoffman <no99goal@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2 won't compile
-Message-ID: <20030808180224.GB16091@fs.tum.de>
-References: <20030808164337.35815.qmail@web13305.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 8 Aug 2003 14:02:28 -0400
+Received: from out004pub.verizon.net ([206.46.170.142]:51431 "EHLO
+	out004.verizon.net") by vger.kernel.org with ESMTP id S271734AbTHHSC1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 14:02:27 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jasper Spaans <jasper@vs19.net>
+Subject: Re: [PATCH] Change all occurrences of 'flavour' to 'flavor'
+Date: Fri, 8 Aug 2003 14:02:24 -0400
+User-Agent: KMail/1.5.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030807180032.GA16957@spaans.vs19.net> <20030808170336.GB12526@spaans.vs19.net> <1060364045.4937.64.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1060364045.4937.64.camel@dhcp22.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030808164337.35815.qmail@web13305.mail.yahoo.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200308081402.24345.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.10.101] at Fri, 8 Aug 2003 13:02:26 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 08, 2003 at 09:43:37AM -0700, Ian Hoffman wrote:
->...
->   AS      usr/initramfs_data.o
-> /tmp/ccdNnIMg.s: Assembler messages:
-> /tmp/ccdNnIMg.s:7: Error: Unknown pseudo-op: 
-> `.incbin'
-> make[1]: *** [usr/initramfs_data.o] Error 1
-> make: *** [usr] Error 2
->...
-> binutils               2.11.90.0.8
->...
+On Friday 08 August 2003 13:34, Alan Cox wrote:
+>On Gwe, 2003-08-08 at 18:03, Jasper Spaans wrote:
+>> > What about the scenario where both spellings are used in  a
+>> > header someplace that winds up being a systemwide reference?  I
+>> > don't know that it has been, but such a 'correction' has the
+>> > potential to take us back to square one and 1993.  I have had
+>> > recurring daytime nightmares of such possibilities since this
+>> > subject came up the first time a week or so ago.
+>>
+>> Wow. My FUD-o-meter just went berserk.
+>
+>Well we expose both Color and Colour in various application level
+>interfaces. As far as I am concerned English<->English changes are
+> just noise. Fixing real typos can be a big help especially to non
+> first language speakers who are wondering just wtf that word is..
 
-You need binutils >= 2.12 (this is also stated in 
-Documentation/Changes).
-
-cu
-Adrian
+As I relied to Jasper privately, the chances are slim but not 
+non-existant.  However I also commented that a spell checker able to 
+note that there is only one or two characters difference in the words 
+being compared, or only the order had been changed, would be a huge 
+help in running down typo's.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 

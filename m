@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbVCGPAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVCGPC6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261525AbVCGPAx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 10:00:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVCGPAw
+	id S261566AbVCGPC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 10:02:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVCGPC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 10:00:52 -0500
-Received: from mummy.ncsc.mil ([144.51.88.129]:36762 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S261525AbVCGPAs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 10:00:48 -0500
-Subject: Re: [PATCH 1/4] vfs: adds the S_PRIVATE flag and adds use to
-	security
-From: Stephen Smalley <sds@tycho.nsa.gov>
+	Mon, 7 Mar 2005 10:02:58 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:8456 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261566AbVCGPCx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 10:02:53 -0500
 To: Andrew Morton <akpm@osdl.org>
-Cc: Jeffrey Mahoney <jeffm@suse.com>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, chrisw@osdl.org,
-       James Morris <jmorris@redhat.com>
-In-Reply-To: <20050304212839.1d5aca4c.akpm@osdl.org>
-References: <20050304195204.GA19711@locomotive.unixthugs.org>
-	 <20050304212839.1d5aca4c.akpm@osdl.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Mon, 07 Mar 2005 09:53:01 -0500
-Message-Id: <1110207181.29984.35.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-8) 
-Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] FAT: Support synchronous update
+References: <87ll92rl6a.fsf@devron.myhome.or.jp>
+	<20050306171051.06c7f00c.akpm@osdl.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Tue, 08 Mar 2005 00:02:46 +0900
+In-Reply-To: <20050306171051.06c7f00c.akpm@osdl.org> (Andrew Morton's
+ message of "Sun, 6 Mar 2005 17:10:51 -0800")
+Message-ID: <87hdjncxd5.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-04 at 21:28 -0800, Andrew Morton wrote:
-> Jeffrey Mahoney <jeffm@suse.com> wrote:
-> >
-> >  This patch adds an S_PRIVATE flag to inode->i_flags to mark an inode as
-> >  filesystem-internal. As such, it should be excepted from the security
-> >  infrastructure to allow the filesystem to perform its own access control.
-> 
-> OK, thanks.  I'll assume that the other three patches are unchanged.
-> 
-> I don't think we've heard from the SELinux team regarding these patches?
-> 
-> (See http://www.zip.com.au/~akpm/linux/patches/stuff/selinux-reiserfs/)
+Andrew Morton <akpm@osdl.org> writes:
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> OK.  This email was way too big for linux-kernel, so nobody saw it.
+>
+> I put the modified fatfsprogs at
+> http://www.zip.com.au/~akpm/linux/patches/stuff/fatfsprogs.tar.bz2 and
+> updated the changlog to mention that.
+>
+> Is there an official place where people should go to download the modified
+> fatfsprogs?
 
+Oh, Thanks. Umm.. ok, I'll put fatfsprogs.tar.bz2 to the following for now.
+
+http://user.parknet.co.jp/hirofumi/tmp/fatfsprogs.tar.bz2
 -- 
-Stephen Smalley <sds@tycho.nsa.gov>
-National Security Agency
-
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

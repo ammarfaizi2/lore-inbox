@@ -1,48 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264961AbTGBMFi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 08:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264959AbTGBMFi
+	id S264956AbTGBMMk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 08:12:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264959AbTGBMMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 08:05:38 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:49050 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S264960AbTGBMFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 08:05:33 -0400
-Date: Wed, 2 Jul 2003 13:21:37 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org
-Subject: Re: To make a function get executed on cpu2
-Message-ID: <20030702122137.GA7562@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	linux-kernel@vger.kernel.org
-References: <E19XeSS-0008Rg-00@gondolin.me.apana.org.au> <Pine.LNX.4.53.0307020758001.13565@montezuma.mastecende.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 2 Jul 2003 08:12:40 -0400
+Received: from indyio.rz.uni-saarland.de ([134.96.7.3]:2314 "EHLO
+	indyio.rz.uni-saarland.de") by vger.kernel.org with ESMTP
+	id S264956AbTGBMMj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 08:12:39 -0400
+From: Michael Bellion and Thomas Heinz <nf@hipac.org>
+Reply-To: nf@hipac.org
+To: Pekka Savola <pekkas@netcore.fi>
+Subject: Re: [ANNOUNCE] nf-hipac v0.8 released
+Date: Wed, 2 Jul 2003 14:26:56 +0200
+User-Agent: KMail/1.5.2
+References: <Pine.LNX.4.44.0307020826530.23232-100000@netcore.fi>
+In-Reply-To: <Pine.LNX.4.44.0307020826530.23232-100000@netcore.fi>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0307020758001.13565@montezuma.mastecende.com>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200307021426.56138.nf@hipac.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 02, 2003 at 08:02:19AM -0400, Zwane Mwaikambo wrote:
- > On Wed, 2 Jul 2003, Herbert Xu wrote:
- > 
- > > Surely you can emulate it using smp_call_function and make it return
- > > straight away if it runs on the wrong CPU.
- > 
- > Yes you can, i thought about the same thing, but it simply generates 
- > unecessary APIC bus traffic and just sounds horrid. Not to mention it 
- > doesn't sound all that friendly on larger systems.
+Hi Pekka
 
-See do_cpuid in arch/i386/kernel/cpuid.c for an example of how to do this
-properly. It's a bit icky, but works. I've considered writing a generic
-run_on_cpu() when I did the on_each_cpu() stuff, but asides from
-cpuid.c, msr.c was the only other case I could find from a quick
-grep around that really cared, so it didn't seem worth the effort.
+> Thanks for your clarification.  We've also conducted some tests with
+> bridging firewall functionality, and we're very pleased with nf-hipac's
+> performance!  Results below.
 
-		Dave
+Great, thanks a lot. Your tests are very interesting for us as we haven't done 
+any gigabit or SMP tests yet. 
+
+> In the measurements, tests were run through a bridging Linux firewall,
+> with a netperf UDP stream of 1450 byte packets (launched from a different
+> computer connected with gigabit ethernet), with a varying amount of
+> filtering rules checks for each packet.
+> I don't have the specs of the Linux PC hardware handy, but I recall
+> they're *very* highend dual-P4's, like 2.4Ghz, very fast PCI bus, etc.
+
+Since real world network traffic always consists of a lot of different sized 
+packets taking maximum sized packets is very euphemistic. 1450 byte packets 
+at 950 Mbit/s correspond to approx. 80,000 packets/sec.
+We are really interested in how our algorithm performs at higher packet rates. 
+Our performance tests are based on 100 Mbit hardware so we coudn't test with 
+more than approx. 80,000 packets/sec even with minimum sized packets. At this 
+packet rate we were hardly able to drive the algorithm to its limit, even 
+with more than 25000 rules involved (and our test system was 1.3 GHz 
+uniprocessor).
+
+We'd appreciate it very much if you could run additional tests with smaller 
+packet sizes (including minimum packet size). This way we can get an idea of 
+whether our SMP optimizations work and whether our algorithm in general would 
+benefit from further fine tuning.
+
+
+Regards
+
++-----------------------+----------------------+
+|   Michael Bellion     |     Thomas Heinz     |
+| <mbellion@hipac.org>  |  <creatix@hipac.org> |
++-----------------------+----------------------+
 

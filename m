@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264826AbTIJS3d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 14:29:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265446AbTIJS3c
+	id S265446AbTIJSa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 14:30:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265452AbTIJSa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 14:29:32 -0400
-Received: from pop.gmx.de ([213.165.64.20]:51632 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264826AbTIJS3a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 14:29:30 -0400
-Message-ID: <3F5F6DE9.3070202@gmx.de>
-Date: Wed, 10 Sep 2003 20:31:05 +0200
-From: Andreas Schaufler <andreas.schaufler@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: how to find out address of gateway if ip packet's destination is
- outside of the current network ?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Sep 2003 14:30:56 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:14464 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S265446AbTIJSaw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 14:30:52 -0400
+Date: Wed, 10 Sep 2003 19:44:14 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200309101844.h8AIiEjB000518@81-2-122-30.bradfords.org.uk>
+To: andrea@suse.de, lm@bitmover.com
+Subject: Re: Inappropriate signatures
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+> Dear Andrea,
+>
+> We're providing the service which enables all of the below and without
+> our good will that service is at risk.  You're publicly slamming the
+> providers of that service.
+>
+> If you want to do that, that's your right, but that leads us to ask:
+>
+>     - wasn't the deal that we do the gateway and you stop whining?
+>     - why should we provide this gateway service at all if there is whining?
+>     - why shouldn't we firewall you off since you are whining?
+>     - or if firewalling fails, put in a day or two delay in the gateway?
+>
+> > /*
+> >  * If you refuse to depend on closed software for a critical
+> >  * part of your business, these links may be useful:
+> >  *
+> >  * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.5/
+> >  * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.4/
+> >  * http://www.cobite.com/cvsps/
+> >  *
+> >  * svn://svn.kernel.org/linux-2.6/trunk
+> >  * svn://svn.kernel.org/linux-2.4/trunk
+> >  */
 
-I just posted this to linux-net, but this list seems to be down. This I 
-post it again in here hoping that it is not to much off topic.
+Maybe you are mis-interpreting the signature - the information is
+'commented out', in the same way that obsolete code is often commented
+out.  It could be argued that Andrea used to think that way, but no
+longer does, and is trying to spread the message that criticising your
+product is 'so last year', and no longer trendy.  We need
+clarification on this.
 
-I am currently porting a  backplane networking system to Linux which 
-shall be able to do IP over PCI,CPCI, VME etc.
-
-Therefore i am currently developing a Linux network driver which is 
-using some lower level comminications API in order to transport IP 
-packets between several CPU boards (PPC), which are connected through 
-the busses mentioned above.
-The system is using an internal replacemant for ARP.  It is looking for 
-the destination address in the IP header and looking up the destination 
-CPU in some internal table where every CPU is accociated with an IP 
-address. Afterwards the IP packet is sent to this CPU and there it is 
-put into the IP Stack.
-
-My problem is: If the destination address is outside of the backplane 
-networking system (some CPU boards can have ethernet plugs) I need to 
-find out the gateway, which will send the packet to the outside network. 
-I guessed I could get this information out of void *daddr in the 
-hard_header function of the net device, but I was not successfull. Is 
-there a way to solve my problem ?
-
-thank you very much for your answers in advance
-best regards
--Andreas
-
+John.

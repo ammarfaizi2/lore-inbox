@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280983AbRLDAfx>; Mon, 3 Dec 2001 19:35:53 -0500
+	id <S284684AbRLDAVI>; Mon, 3 Dec 2001 19:21:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280838AbRLDAfe>; Mon, 3 Dec 2001 19:35:34 -0500
-Received: from chunnel.redhat.com ([199.183.24.220]:54510 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S281046AbRLDAdz>; Mon, 3 Dec 2001 19:33:55 -0500
-Date: Tue, 4 Dec 2001 00:33:50 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Steffen Persvold <sp@scali.no>, lkml <linux-kernel@vger.kernel.org>,
-        nfs list <nfs@lists.sourceforge.net>, ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: 2.4.9 kernel crash
-Message-ID: <20011204003350.L2857@redhat.com>
-In-Reply-To: <3C077FF8.AFBD8DB8@scali.no> <3C07E905.DF30E497@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C07E905.DF30E497@zip.com.au>; from akpm@zip.com.au on Fri, Nov 30, 2001 at 12:16:05PM -0800
+	id <S284680AbRLDAPE>; Mon, 3 Dec 2001 19:15:04 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:37285 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S284395AbRLCKGn>;
+	Mon, 3 Dec 2001 05:06:43 -0500
+Date: Sun, 2 Dec 2001 21:35:35 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Victor Yodaiken <yodaiken@fsmlabs.com>,
+        Andrew Morton <akpm@zip.com.au>, Larry McVoy <lm@bitmover.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Henning Schmiedehausen <hps@intermeta.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: Coding style - a non-issue
+In-Reply-To: <Pine.LNX.4.33L.0112021528300.4079-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.33.0112022117240.20031-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Fri, Nov 30, 2001 at 12:16:05PM -0800, Andrew Morton wrote:
+On Sun, 2 Dec 2001, Rik van Riel wrote:
 
-> There was a bug in ext3 which was fixed around about the 2.4.9
-> timeframe.  I don't know if the fix is present in that
-> particular Red Hat kernel.  It was fixed in ext3 0.9.8.  The
-> ext3 version number is displayed when you mount a filesystem.
-> 
-> The 0.9.8 changelog says:
-> 
-> - Fix an NFS oops when doing a local delete on an active, nfs-exported
->   file.
-> 
-> I never observed this bug - I think the fix came from Ted T'so.  I
-> do not know whether the bug manifested itself as "busy inodes
-> after unmount".  Perhaps Ted or Stephen can comment?
+> I think you've pretty much proven how well random
+> development works.
 
-The NFS bug could present as "bit already cleared", but I don't think
-I ever saw it leave busy inodes behind.
+i think it's fair to say that we should not increase entropy artificially,
+eg. we should not apply randomly generated patches to the kernel tree.
 
-Cheers,
- Stephen
+the point is, we should accept the fact that while this world appears to
+be governed by rules to a certain degree, the world is also chaotic to a
+large degree, and that a Grand Plan That Explains Everything does not
+exist. And even if it existed, we are very far away from achieving it, and
+even if some friendly alien dropped it on our head, we'd very likely be
+unable to get our 5 billion brain cells into a state that is commonly
+referred to as 'fully grokking it'.
+
+and having accepted these limitations, we should observe the unevitable
+effects of them: that any human prediction of future technology
+development beyond 5 years is very, very hypothetical, and thus we must
+have some fundamental way of dealing with this unpredictability. (such as
+trying to follow Nature's Smart Way Of Not Understanding Much But Still
+Getting Some Work Done - called evolution.)
+
+	Ingo
+

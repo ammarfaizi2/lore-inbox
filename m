@@ -1,57 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129823AbQKLDNW>; Sat, 11 Nov 2000 22:13:22 -0500
+	id <S129905AbQKLDTN>; Sat, 11 Nov 2000 22:19:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129905AbQKLDNN>; Sat, 11 Nov 2000 22:13:13 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:28671 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S129823AbQKLDMy>;
-	Sat, 11 Nov 2000 22:12:54 -0500
-Date: Sat, 11 Nov 2000 19:12:46 -0800
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S129930AbQKLDTE>; Sat, 11 Nov 2000 22:19:04 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:40693 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129905AbQKLDSs>;
+	Sat, 11 Nov 2000 22:18:48 -0500
+Date: Sat, 11 Nov 2000 22:18:46 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Dag Brattli <dagb@fast.no>
-Subject: Re: The IrDA patches !!! (was Re: [RANT] Linux-IrDA status)
-Message-ID: <20001111191246.D27826@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <20001110132551.K26405@bougret.hpl.hp.com> <Pine.LNX.4.10.10011111842470.3611-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <Pine.LNX.4.10.10011111842470.3611-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Nov 11, 2000 at 06:43:26PM -0800
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] show_task() and thread_saved_pc() fix for x86
+In-Reply-To: <Pine.LNX.4.10.10011111844080.3611-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0011112207230.24250-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 11, 2000 at 06:43:26PM -0800, Linus Torvalds wrote:
+
+
+On Sat, 11 Nov 2000, Linus Torvalds wrote:
+
+> On Fri, 10 Nov 2000, Alexander Viro wrote:
+> > diff -urN rc11-2/include/asm-i386/processor.h rc11-2-show_task/include/asm-i386/processor.h
+> > --- rc11-2/include/asm-i386/processor.h	Fri Nov 10 09:14:04 2000
+> > +++ rc11-2-show_task/include/asm-i386/processor.h	Fri Nov 10 16:08:15 2000
+> > @@ -412,7 +412,7 @@
+> >   */
+> >  extern inline unsigned long thread_saved_pc(struct thread_struct *t)
+> >  {
+> > -	return ((unsigned long *)t->esp)[3];
+> > +	return ((unsigned long **)t->esp)[0][1];
+> >  }
 > 
+> The above needs to get verified: it should be something like
 > 
-> Ok, thanks to the work of Jean, everything seems to be applied now.
+> 	unsigned long *ebp = *((unsigned long **)t->esp);
 > 
-> I'll make a test3 one of these days (probably tomorrow), please verify
-> that everything looks happy.
+> 	if ((void *) ebp < (void *) t)
+> 		return 0;
+> 	if ((void *) ebp >= (void *) t + 2*PAGE_SIZE)
+> 		return 0;
+> 	if (3 & (unsigned long)ebp)
+> 		return 0;
+> 	return *ebp;
 > 
-> 		Linus
+> because otherwise I guarantee that we'll eventually have a bug with a
+> invalid pointer reference in the debugging code and that would be bad.
 
-	Linus,
+I would probably turn it into
+	unsigned long *ebp = *((unsigned long **)t->esp);
 
-	Sorry to bother you again, but a important note...
-	I sent you the whole serie of patches. Then Dag sent it to you
-again today. The patches were the same *except* for #14. Dag did
-replace the original #14 patch that you didn't like with a cleaner
-version (using empty packet to trigger speed changes).
-	I'm sorry for the confusion. But don't worry, we will adjust
-for whatever you put in test3 and work from there, so please don't do
-anything ;-) And yes, I'll put it to the usual tests...
+	/* Bits 0,1 and 13..31 must be shared with the stack base */
+	if (((unsigned long)ebp ^ (unsigned long)t) & ~(2*PAGE_SIZE-4))
+		return 0;
 
-	And thanks again for taking the time to go through the patches
-so quickly. We do appreciate your great work ;-)
+	return *ebp;
 
-	Have fun ;-)
+Comments? Alternative variant: just let schedule() store its return address
+in the task_struct. Yeah, it's couple of tacts per schedule(). And much saner
+code, without second-guessing the compiler. OTOH, the value is used only
+by Alt-SysRq-T, so... Hell knows.
+								Cheers,
+									Al
 
-	Jean
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263173AbUEEHP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263611AbUEEHeO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263173AbUEEHP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 03:15:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbUEEHP1
+	id S263611AbUEEHeO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 03:34:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263636AbUEEHeO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 03:15:27 -0400
-Received: from fw.osdl.org ([65.172.181.6]:10187 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263173AbUEEHPZ (ORCPT
+	Wed, 5 May 2004 03:34:14 -0400
+Received: from holomorphy.com ([207.189.100.168]:36495 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263611AbUEEHeK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 03:15:25 -0400
-Date: Wed, 5 May 2004 00:14:25 -0700
-From: Andrew Morton <akpm@osdl.org>
+	Wed, 5 May 2004 03:34:10 -0400
+Date: Wed, 5 May 2004 00:24:31 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: Paul Jackson <pj@sgi.com>
-Cc: ashok.raj@intel.com, davidm@hpl.hp.com, linux-kernel@vger.kernel.org,
-       anil.s.keshavamurthy@intel.com, jreiser@BitWagon.com, mike@navi.cx,
-       pageexec@freemail.hu, colpatch@us.ibm.com, wli@holomorphy.com,
-       rusty@rustcorp.com.au, nickpiggin@yahoo.com.au
-Subject: Re: various cpu patches [was: (resend) take3: Updated CPU Hotplug
- patches]
-Message-Id: <20040505001425.6d4e8562.akpm@osdl.org>
-In-Reply-To: <20040505000348.018f88bb.pj@sgi.com>
-References: <20040504211755.A13286@unix-os.sc.intel.com>
-	<20040504225907.6c2fe459.akpm@osdl.org>
-	<20040505000348.018f88bb.pj@sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Cc: Andrew Morton <akpm@osdl.org>, ashok.raj@intel.com, davidm@hpl.hp.com,
+       linux-kernel@vger.kernel.org, anil.s.keshavamurthy@intel.com,
+       John Reiser <jreiser@BitWagon.com>, mike@navi.cx, pageexec@freemail.hu,
+       Matthew Dobson <colpatch@us.ibm.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: various cpu patches [was: (resend) take3: Updated CPU Hotplug patches]
+Message-ID: <20040505072431.GG1397@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>,
+	ashok.raj@intel.com, davidm@hpl.hp.com,
+	linux-kernel@vger.kernel.org, anil.s.keshavamurthy@intel.com,
+	John Reiser <jreiser@BitWagon.com>, mike@navi.cx,
+	pageexec@freemail.hu, Matthew Dobson <colpatch@us.ibm.com>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Nick Piggin <nickpiggin@yahoo.com.au>
+References: <20040504211755.A13286@unix-os.sc.intel.com> <20040504225907.6c2fe459.akpm@osdl.org> <20040505000348.018f88bb.pj@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040505000348.018f88bb.pj@sgi.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
->
+On Wed, May 05, 2004 at 12:03:48AM -0700, Paul Jackson wrote:
 > Hmmm .. we're getting backed up here.  Sure glad Andrew's got the job of
 > conducting this, not me ...
-> 
 > The purpose of this message is to list several patches that are
 > interacting, and the order that I'm guessing Andrew will end up taking
 > them.  I claim no authority, and at best very limited forecasting
 > ability.
-
-I try to keep patches in the expected merge-up order.  The patching order
-is in the series file - see the `patch-series' symlink in the kerne.org
-directory.
-
 > This is just to put a source of possible confusions on the table,
 > by running it up the flagpole, and inviting the shooting to begin.
-> 
 > The following patches are colliding or interacting, listed in the order
 > that I'm guessing they will end up going into *-mm, and with my guess of
 > their current status:
-> 
 >   1. Nick Piggin's sched_domains patches (in *-mm now)
 >   2. Ashok Raj's CPU Hotplug patches for IA64 (sent back to author for repair)
 >   3. Paul Jackson's bitmap/cpumask cleanup (in my workarea ready to submit)
@@ -58,22 +56,10 @@ directory.
 >   5. Matthew Dobson's nodemask_t (in Matthew's workarea, ready to submit)
 >   6. Andi Kleen's numa placement (being reviewed now, I think)
 
-Planned for shortly after 2.6.6 are:
+I don't see any essential interaction between these patches. This appears
+to be 100% mergewerk. I don't think there's any essential conflict, just
+potential PITA rediffing for the (re)senders if/when they touch the same
+lines of code and things get accepted in a different order from what ppl
+merged their stuff against. As far as I'm concerned, business as usual.
 
-sched-domains
-rmap 7-14		(15-23 probably a week later)
-numa api
-
-> Actually, bssprot is independent, once it resolves some ia64 issue, and
-> the last two (nodemask and numa) are sufficiently independent to go
-> in parallel or reverse order.
-
-I dropped bssprot - it was causing too much grief.
-
-> If you _wanted_, Andrew, to add to your current patch load, I'd be
-> delighted to submit my final bitmap/cpumask cleanup now - I'm just
-> guessing that you will politely ignore my offer.
-
-I confess to being vaguely stunned that it is possible to generate a ~20
-patch series againt the bitmap code.  I'll pay more attention next time it
-flies past.
+-- wli

@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283746AbRK3SUB>; Fri, 30 Nov 2001 13:20:01 -0500
+	id <S283751AbRK3SWl>; Fri, 30 Nov 2001 13:22:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283744AbRK3STv>; Fri, 30 Nov 2001 13:19:51 -0500
-Received: from [198.17.35.35] ([198.17.35.35]:63116 "HELO mx1.peregrine.com")
-	by vger.kernel.org with SMTP id <S283738AbRK3STj>;
-	Fri, 30 Nov 2001 13:19:39 -0500
-Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B296A@OTTONEXC1>
-From: Dana Lacoste <dana.lacoste@peregrine.com>
-To: "'Larry McVoy'" <lm@bitmover.com>,
-        Henning Schmiedehausen <hps@intermeta.de>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: RE: Coding style - a non-issue
-Date: Fri, 30 Nov 2001 10:19:26 -0800
+	id <S283748AbRK3SWa>; Fri, 30 Nov 2001 13:22:30 -0500
+Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:31620 "EHLO
+	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
+	id <S283744AbRK3SVn>; Fri, 30 Nov 2001 13:21:43 -0500
+Message-ID: <3C07CDFB.7F1A9FFC@randomlogic.com>
+Date: Fri, 30 Nov 2001 10:20:43 -0800
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+Organization: Akamai Technologies, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: Coding style - a non-issue
+In-Reply-To: <OF8451D8AC.A8591425-ON4A256B12.00806245@au.ibm.com> <Pine.GSO.4.21.0111281901110.8609-100000@weyl.math.psu.edu> <20011128162317.B23210@work.bitmover.com> <9u7lb0$8t9$1@forge.intermeta.de> <20011130072634.E14710@work.bitmover.com> <1007138360.6656.27.camel@forge> <3C07B820.4108246F@mandrakesoft.com> <20011130185359.Q31176@blu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any chance that you guys could calm down a bit?
-
-I bet the guys in Redmond who were referred to
-earlier are enjoying it, but it's just trash for
-the rest of us....
-
-> Henning, perhaps you can explain to me how the following isn't a 
+antirez wrote:
 > 
-> 	"I don't do XYZ"
+> On Fri, Nov 30, 2001 at 11:47:28AM -0500, Jeff Garzik wrote:
+> > The security community has shown us time and again that public shaming
+> > is often the only way to motivate vendors into fixing security
+> > problems.  Yes, even BSD security guys do this :)
 > 
-> 	"XYZ"
+> It's a bit different. Usually the security community uses it
+> when there isn't a way to fix the code (i.e. non-free code)
+> or when the maintaner of the code refused to fix the issue.
+> Also to "expose" the security problem isn't the same as
+> to flame.
 > 
-> statement?
+> While not a good idea, something like a long name
+> for a local var isn't a big problem like a completly
+> broken software with huge security holes used by milions of people
+> every day.
+> 
 
-This one I understood though :
-Al made a personal attack.  He defended against the attack,
-and preluded his defence with a disclaimer.
+A variable/function name should ALWAYS be descriptive of the
+variable/function purpose. If it takes a long name, so be it. At least
+the next guy looking at it will know what it is for.
 
-This issue has gone beyond productivity to personal name calling
-and spurious defence.  Can we all just move on a bit maybe?
-
-Thanks
-
---
-Dana Lacoste      - Linux Developer
-Peregrine Systems -  Ottawa, Canada
+PGA
+-- 
+Paul G. Allen
+UNIX Admin II ('til Dec. 3)/FlUnKy At LaRgE (forever!)
+Akamai Technologies, Inc.
+www.akamai.com

@@ -1,84 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261996AbVAYQMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261994AbVAYQL4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261996AbVAYQMW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 11:12:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261995AbVAYQMV
+	id S261994AbVAYQL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 11:11:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261997AbVAYQLz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 11:12:21 -0500
-Received: from rproxy.gmail.com ([64.233.170.201]:62445 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261996AbVAYQLp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 11:11:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=UPxi9DTwO1kuq+mJqN5bf0Gem+GAzlbRHh2zKlkd7oeBRScfPVr7wVWcPmq77u9SdXmLRCdRBHYJvdMByNrurzywDfXsTRR3+RCEqzCKxNs1CQn5jg/lZ+zsWF8ULfEN9ERDraoC/Ny+ZEJOPo8ePT/ptXbzztRxDXT8jEl3VBM=
-Message-ID: <d120d5000501250811295c298e@mail.gmail.com>
-Date: Tue, 25 Jan 2005 11:11:42 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: johnpol@2ka.mipt.ru
-Subject: Re: 2.6.11-rc2-mm1
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       greg@kroah.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1106666690.5257.97.camel@uganda>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050124021516.5d1ee686.akpm@osdl.org>
-	 <20050125125323.GA19055@infradead.org>
-	 <1106662284.5257.53.camel@uganda>
-	 <20050125142356.GA20206@infradead.org>
-	 <1106666690.5257.97.camel@uganda>
+	Tue, 25 Jan 2005 11:11:55 -0500
+Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:11167 "EHLO
+	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
+	id S261994AbVAYQLe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 11:11:34 -0500
+Date: Tue, 25 Jan 2005 11:10:46 -0500
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [PATCH] fix bad locking in drivers/base/driver.c
+In-reply-to: <41F64E87.8040501@tmr.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Greg KH <greg@kroah.com>, Jirka Kosina <jikos@jikos.cz>,
+       Patrick Mochel <mochel@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Message-id: <41F66F86.4000609@sun.com>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_+EaSiKU55S6+zOn3/jurnA)"
+X-Accept-Language: en-us, en
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <Pine.LNX.4.58.0501241921310.5857@twin.jikos.cz>
+ <20050125055651.GA1987@kroah.com> <41F5F623.5090903@sun.com>
+ <41F64E87.8040501@tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Jan 2005 18:24:50 +0300, Evgeniy Polyakov
-<johnpol@2ka.mipt.ru> wrote:
-> On Tue, 2005-01-25 at 14:23 +0000, Christoph Hellwig wrote:
-> > > > +static void pc8736x_fini(void)
-> > > > +{
-> > > > + sc_del_sc_dev(&pc8736x_dev);
-> > > > +
-> > > > + while (atomic_read(&pc8736x_dev.refcnt)) {
-> > > > +         printk(KERN_INFO "Waiting for %s to became free: refcnt=%d.\n",
-> > > > +                         pc8736x_dev.name, atomic_read(&pc8736x_dev.refcnt));
-> > > > +
-> > > > +         set_current_state(TASK_INTERRUPTIBLE);
-> > > > +         schedule_timeout(HZ);
-> > > > +
-> > > > +         if (current->flags & PF_FREEZE)
-> > > > +                 refrigerator(PF_FREEZE);
-> > > > +
-> > > > +         if (signal_pending(current))
-> > > > +                 flush_signals(current);
-> > > > + }
-> > > > +}
-> > > >
-> > > > And who gurantess this won't deadlock?  Please use a dynamically allocated
-> > > > driver model device and it's refcounting, thanks.
-> > >
-> > > Sigh.
-> > >
-> > > Christoph, please read the code before doing such comments.
-> > > I very respect your review and opinion, but only until you respect
-> > > others.
-> >
-> > The code above pretty much means you can keep rmmod stalled forever.
+This is a multi-part message in MIME format.
+
+--Boundary_(ID_+EaSiKU55S6+zOn3/jurnA)
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Bill Davidsen wrote:
 > 
-> Yes, and it is better than removing module whose structures are in use.
-> SuperIO core is asynchronous in it's nature, one can use logical device
-> through superio core and remove it's module on other CPU, above loop
-> will wait untill all reference counters are dropped.
+> Let's clean up the spelling as well
+>> - *    Though, once that is done, we attempt to take @drv->unload_sem.
+>> + *    Though, once that is done, we wait until @drv->unloaded is
+>> copmleted.
+> 
+> ------------------------------------------------------------------>completed
 
-I have a slightly different concern - the superio is a completely new
-subsystem and it should be integtrated with the driver model
-("superio" bus?). Right now it looks like it is reimplementing most of
-the abstractions (device lists, driver lists, matching, probing).
-Moving to driver model significatntly affects lifetime rules for the
-objects, etc. etc. and will definitely not allow code such as above.
+Thanks for pointing that out.  Updated patch attached.
 
-It would be nice it we get things right from the start.
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
 
--- 
-Dmitry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB9m+FdQs4kOxk3/MRAtusAJ9S+DSVR4DaAK2fLHquYzgRxamq7ACfZNSN
+LkPoYAx27W1MpHiW24RL2yM=
+=HBQX
+-----END PGP SIGNATURE-----
+
+--Boundary_(ID_+EaSiKU55S6+zOn3/jurnA)
+Content-type: text/x-patch; name=convert_unload_sem_to_completion.patch
+Content-transfer-encoding: 7BIT
+Content-disposition: inline; filename=convert_unload_sem_to_completion.patch
+
+Get rid of semaphore abuse by converting device_driver->unload_sem semaphore to device_driver->unloaded completion.
+
+This should get rid of any confusion as well as save a few bytes in the
+process.
+
+Signed-off-by: Mike Waychison <michael.waychison@sun.com>
+---
+
+ drivers/base/bus.c     |    2 +-
+ drivers/base/driver.c  |   13 ++++++-------
+ include/linux/device.h |    2 +-
+ 3 files changed, 8 insertions(+), 9 deletions(-)
+
+Index: linux-2.6.10/drivers/base/bus.c
+===================================================================
+--- linux-2.6.10.orig/drivers/base/bus.c	2004-12-24 16:34:26.000000000 -0500
++++ linux-2.6.10/drivers/base/bus.c	2005-01-25 02:14:10.000000000 -0500
+@@ -65,7 +65,7 @@ static struct sysfs_ops driver_sysfs_ops
+ static void driver_release(struct kobject * kobj)
+ {
+ 	struct device_driver * drv = to_driver(kobj);
+-	up(&drv->unload_sem);
++	complete(&drv->unloaded);
+ }
+ 
+ static struct kobj_type ktype_driver = {
+Index: linux-2.6.10/drivers/base/driver.c
+===================================================================
+--- linux-2.6.10.orig/drivers/base/driver.c	2004-12-24 16:35:25.000000000 -0500
++++ linux-2.6.10/drivers/base/driver.c	2005-01-25 11:09:23.579643112 -0500
+@@ -79,14 +79,14 @@ void put_driver(struct device_driver * d
+  *	since most of the things we have to do deal with the bus
+  *	structures.
+  *
+- *	The one interesting aspect is that we initialize @drv->unload_sem
+- *	to a locked state here. It will be unlocked when the driver
+- *	reference count reaches 0.
++ *	The one interesting aspect is that we setup @drv->unloaded
++ *	as a completion that gets complete when the driver reference
++ *	count reaches 0.
+  */
+ int driver_register(struct device_driver * drv)
+ {
+ 	INIT_LIST_HEAD(&drv->devices);
+-	init_MUTEX_LOCKED(&drv->unload_sem);
++	init_completion(&drv->unloaded);
+ 	return bus_add_driver(drv);
+ }
+ 
+@@ -97,7 +97,7 @@ int driver_register(struct device_driver
+  *
+  *	Again, we pass off most of the work to the bus-level call.
+  *
+- *	Though, once that is done, we attempt to take @drv->unload_sem.
++ *	Though, once that is done, we wait until @drv->unloaded is completed.
+  *	This will block until the driver refcount reaches 0, and it is
+  *	released. Only modular drivers will call this function, and we
+  *	have to guarantee that it won't complete, letting the driver
+@@ -107,8 +107,7 @@ int driver_register(struct device_driver
+ void driver_unregister(struct device_driver * drv)
+ {
+ 	bus_remove_driver(drv);
+-	down(&drv->unload_sem);
+-	up(&drv->unload_sem);
++	wait_for_completion(&drv->unloaded);
+ }
+ 
+ /**
+Index: linux-2.6.10/include/linux/device.h
+===================================================================
+--- linux-2.6.10.orig/include/linux/device.h	2004-12-24 16:35:28.000000000 -0500
++++ linux-2.6.10/include/linux/device.h	2005-01-25 02:13:13.000000000 -0500
+@@ -102,7 +102,7 @@ struct device_driver {
+ 	char			* name;
+ 	struct bus_type		* bus;
+ 
+-	struct semaphore	unload_sem;
++	struct completion	unloaded;
+ 	struct kobject		kobj;
+ 	struct list_head	devices;
+ 
+
+--Boundary_(ID_+EaSiKU55S6+zOn3/jurnA)--

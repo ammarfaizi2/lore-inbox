@@ -1,109 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269797AbUICXg4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269980AbUICXig@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269797AbUICXg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 19:36:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269973AbUICXg4
+	id S269980AbUICXig (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 19:38:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269982AbUICXif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 19:36:56 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:12698 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269797AbUICXgw (ORCPT
+	Fri, 3 Sep 2004 19:38:35 -0400
+Received: from spy23.spymac.net ([213.218.8.223]:37840 "EHLO spy23.spymac.net")
+	by vger.kernel.org with ESMTP id S269973AbUICXiL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 19:36:52 -0400
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
-From: john stultz <johnstul@us.ibm.com>
-To: george anzinger <george@mvista.com>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       Ulrich.Windl@rz.uni-regensburg.de, clameter@sgi.com,
-       Len Brown <len.brown@intel.com>, linux@dominikbrodowski.de,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com, jimix@us.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
-       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>
-In-Reply-To: <4138EBE5.2080205@mvista.com>
-References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
-	 <1094159379.14662.322.camel@cog.beaverton.ibm.com>
-	 <4137CB3E.4060205@mvista.com> <1094193731.434.7232.camel@cube>
-	 <41381C2D.7080207@mvista.com>
-	 <1094239673.14662.510.camel@cog.beaverton.ibm.com>
-	 <4138EBE5.2080205@mvista.com>
-Content-Type: text/plain
-Message-Id: <1094254342.29408.64.camel@cog.beaverton.ibm.com>
+	Fri, 3 Sep 2004 19:38:11 -0400
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: binary
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 03 Sep 2004 16:32:22 -0700
-Content-Transfer-Encoding: 7bit
+From: <d_a_m_revok@spymac.com>
+To: linux-kernel@vger.kernel.org
+Subject: Licensing bug, and...
+Reply-To: d_a_m_revok@spymac.com
+X-Mailer: AtMail 4.01
+X-Origin: 24.157.94.37
+X-Uidl: 10942546893135261
+Date: Fri, 03 Sep 2004 17:38:09 -0600
+Message-Id: <20040903233810.AD77438067@spy23.spymac.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Really quick: I'm off on vacation until Weds. Hopefully I've addressed
-in some way everyone's comments and my email box won't be stuffed when I
-return. I might peek in every once in awhile, though. 
+Possible:
+users ( SuSE, Kondara, Yggdrasil... ) of the Linux kernel are /required/ to
+inform the kernel-developers of discovered-bugs, if they didn't already know (
+search of archives of the list, or whatever ), and also are /required/ to forward
+any bugfix to the kernel-developers when said user commits it to their own
+system/distro, if the kernel-developers haven't corrected-it already.
 
-Just one last response...
+Currently:
+users of the Linux kernel can keep-quiet about discovered-bugs & develop their
+own fixes to 'em, posting them obscurely, so as to attack the /entire/ rest of
+the Linux community, in-order to leverage their position /in/ the community,
+against ( inadvertently ) the community itself.
 
-On Fri, 2004-09-03 at 15:10, George Anzinger wrote:
-> john stultz wrote:
-> > I feel trying to keep two notions of time, one in the timeofday code and
-> > one in the timer code is the real issue. Trying to better keep them
-> > synced will just lead to madness. Instead the timer subsystem needs to
-> > move to using monotonic_clock(), or get_lowres_timestamp() instead of
-> > using jiffies for its notion of time. Jiffies is just an interrupt
-> > counter. 
-> 
-> Well, there may be a better way.  Suppose we change all the accounting code to 
-> work with nanoseconds.  That way when we do an accounting pass we would just add 
-> what has elapsed since the last pass.  
 
-Yep, that'd work too. 
+The "Possible" version makes the kernel, and integrity, primary, and is the
+paradigm knowing Linux's competition against undealt-with defects.
 
-> Still need some way to do user timers that are tightly pegged to the clock.
+The "Current" version ignores that the kernel is crucial and damages Linux for
+sake of fragmentation-based "position"al leverage.
 
-I see that as just a problem of programming the timer interrupt
-generator. If you have a nanosecond (or as high as the best timesource
-on your system provides) resolution notion of time, then there is
-nothing to peg or tie the timer with. You simply just program it to go
-off every X nanoseconds. Should it be so inaccurate that it does not go
-off right at X nanoseconds, then you've hit a limit of the hardware.
-Pick a more accurate interval length, dynamically change your interval,
-or live with it.  If the soft-timers use monotonic-clock() to determine
-when they expire, then you won't get accumulating drift (as
-monotonic-clock()is NTP frequency adjusted), only the minor jitter
-caused latency caused by the interrupt programming.
 
-> A thought I had along these lines was to program a timer for each tick.  The PIT 
-> is much too slow for this, but the APIC timers seem to be rather easy to 
-> program.  I am not sure how fast the access is but it can not be anything like 
-> the PIT.  Under this scheme we would use the monotonic clock to figure out just 
-> how far out the next tick should be and program that.
+I'd rather see the kernel be /coherently/ improved, and this has bugged,
+at-least, the Gentoo groons ( in their direct experience, of having to study many
+distros' updates to discover fixes to the kernel that GPL allows to be "released"
+in a way that doesn't /directly make/ kernel-integrity ), and knowlege-types like
+me who can't stand broken algorithms, wherever they be.
 
-Yep, tickless systems also start being possible. We just have interrupts
-for scheduled events. 
+Is DNS is based on mathematical-root with reason?  I believe so...
 
-> This could be modified to use repeating hardware if it is available.  (What does 
-> the HPET provide?  Does it interrupt?)  Since the APIC clock is not the 
-> reference clock (the PIT & pm timer clock is) we would have to correct these 
-> from time to time but that is rather easy (I do it today in HRT code).
+=========================================
 
-Don't know the details of interrupt generation, so I can't tell ya. I'm
-not sure I followed the correction bit?
+I /believe/ that the kernel balances reads evenly across all RAID-1 components,
+but...
 
-> This brings up another issue.  We know what the PIT clock frequency is but not 
-> what the TSC clock frequency.  Currently we do a calibration run at boot to 
-> figure this but I can easily show that this run consistently gives the wrong 
-> answer (I am sure this has to do with the I/O access delays).  If we are going 
-> to use the TSC (or any other "clock" that is not derived from the PITs 
-> 14.3181818MHZ ital) we need both a way to get the correct value AND a way to 
-> adjust it for drift over time.  (Possibly this is the same thing.)  Of course 
-> this is all just x86 stuff.  Other archs will have their own issues.
+Why not have /asymmetrical/ RAID-1, like this:
 
-Again, monotonic_clock() and friends are NTP adjusted, so drift caused
-by inaccurate calibration shouldn't be a problem the interval timer code
-should need to worry about (outside of maybe adjusting its interval time
-if its always arriving late/early). If possible the timesource
-calibration code should be improved, but that's icing on the cake and
-isn't critical.
+(ECC) RAM-disk    \
+                       RAID-1
+RAID-6 array      /
 
-Again, thanks to everyone for the great feedback and discussion!
--john
+with ALL reads done from RAM, and writes going to both?
 
+Incredible speed coupled-with reliability, that TTBOMK, nothing else can
+compete-with.
+
+Maybe this already is the case, but I simply haven't found-out otherwise, so...
+
+=========================================
+
+Why don't any linux-type-developers make a 3D engine using stereogram-based display?
+
+Like the XMMS wine-dependent plugin Fishmatic.
+
+It'd make engineering-walkthroughs of complex complexes have visceral validity,
+though it'd eat Opterons like potato-chips, I guess...
+
+Good for Games, too: Depth-perception through a normal monitor.
+
+Just asking...
+
+-----------------------------------------
+
+I've kept-quiet about these for years, not being a coder, figuring everyone's
+/not/-doing 'em for good reason, but 
+What The Heck?
+
+Do with these ideas what you will, & I wish youse well, and
+I only read Kernel Traffic, not subscribe, so if you want to get me, e-mail,
+please: I cannot afford the web-mail space right now, and have no 'net
+connection, and am not getting yet-a-bloody-'nother e-mail address, since my
+password-remembering braincells are almost all gone...
+
+Cheers
+
+
+
+
+---- Introducing Spymac MailPro: http://www.spymac.com/mailpro/

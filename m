@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261313AbSIWTIS>; Mon, 23 Sep 2002 15:08:18 -0400
+	id <S261329AbSIWTcI>; Mon, 23 Sep 2002 15:32:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261332AbSIWSli>; Mon, 23 Sep 2002 14:41:38 -0400
+	id <S261310AbSIWTat>; Mon, 23 Sep 2002 15:30:49 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:27041 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S261308AbSIWSlY>;
-	Mon, 23 Sep 2002 14:41:24 -0400
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: Con Kolivas <conman@kolivas.net>, root@chaos.analogic.com,
-       linux-kernel@vger.kernel.org
+	by vger.kernel.org with ESMTP id <S261329AbSIWSlh>;
+	Mon, 23 Sep 2002 14:41:37 -0400
+Date: Mon, 23 Sep 2002 11:34:52 -0500
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Con Kolivas <conman@kolivas.net>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [BENCHMARK] Corrected gcc3.2 v gcc2.95.3 contest results
-References: <Pine.LNX.3.95.1020923101125.3233A-100000@chaos.analogic.com>
-	<1032791089.3d8f2431231ac@kolivas.net>
-	<20020923103417.V21220@devserv.devel.redhat.com>
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 23 Sep 2002 18:03:17 +0200
-In-Reply-To: Jakub Jelinek's message of "Mon, 23 Sep 2002 10:34:17 -0400"
-Message-ID: <yw1xofaowv5m.fsf@calippo.e.kth.se>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Message-ID: <20020923163452.GF9726@waste.org>
+References: <Pine.LNX.3.95.1020923101125.3233A-100000@chaos.analogic.com> <1032791089.3d8f2431231ac@kolivas.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1032791089.3d8f2431231ac@kolivas.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jakub Jelinek <jakub@redhat.com> writes:
+On Tue, Sep 24, 2002 at 12:24:49AM +1000, Con Kolivas wrote:
+> 
+> That is the system I was considering. I just need to run enough
+> benchmarks to make this worthwhile though. That means about 5 for
+> each it seems - which may take me a while. A basic mean will suffice
+> for a measure of central tendency. I also need to quote some measure
+> of variability. Standard deviation?
 
-> BTW: Have you tried gcc 3.2 with say -finline-limit=2000 too?
-> By default gcc 3.2 has for usual C code smaller inlining cutoff, so the IO
-> difference might as well be because some important, but big function was
-> inlined by 2.95.x and not by 3.2.x. On the other side there is
-> __attribute__((always_inline)) which you can use to tell gcc you don't
-> want any cutoff for a particular function.
-
-How about using -Winline?
+No, standard deviation is inappropriate here. We have no reason to
+expect the distribution of problem cases to be normal or even smooth.
+What we'd really like is range and mean. Don't throw out the outliers
+either, the pathological cases are of critical interest.
 
 -- 
-Måns Rullgård
-mru@users.sf.net
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

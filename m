@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131502AbRC0T0u>; Tue, 27 Mar 2001 14:26:50 -0500
+	id <S131496AbRC0TZk>; Tue, 27 Mar 2001 14:25:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131498AbRC0T0l>; Tue, 27 Mar 2001 14:26:41 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:36567 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131497AbRC0T02>;
-	Tue, 27 Mar 2001 14:26:28 -0500
-From: "Richard A. Smith" <rsmith@bitworks.com>
-To: "andre@linux-ide.org" <andre@linux-ide.org>
-Cc: "Padraig@AnteFacto.com" <Padraig@AnteFacto.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Tue, 27 Mar 2001 13:25:02 -0600
-Reply-To: "Richard A. Smith" <rsmith@bitworks.com>
-X-Mailer: PMMail 2000 Professional (2.20.2030) For Windows 98 (4.10.2222)
-In-Reply-To: <Pine.LNX.4.10.10103270912130.16125-100000@master.linux-ide.org>
+	id <S131497AbRC0TZU>; Tue, 27 Mar 2001 14:25:20 -0500
+Received: from bzq-128-3.bezeqint.net ([212.179.127.3]:55819 "HELO arava.co.il")
+	by vger.kernel.org with SMTP id <S131496AbRC0TZF>;
+	Tue, 27 Mar 2001 14:25:05 -0500
+Date: Tue, 27 Mar 2001 19:50:03 +0200 (IST)
+From: Matan Ziv-Av <matan@svgalib.org>
+Reply-To: Matan Ziv-Av <matan@svgalib.org>
+To: James Simmons <jsimmons@linux-fbdev.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: vgacon on which card?
+In-Reply-To: <Pine.LNX.4.31.0103270823230.1424-100000@linux.local>
+Message-ID: <Pine.LNX.4.21_heb2.09.0103271939590.2723-100000@matan.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Subject: Re: Compact flash disk and slave drives in 2.4.2
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-Return-Path: RSmith@bitworks.com
-Message-ID: <MDAEMON-F200103271328.AA284497MD89819@bitworks.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Mar 2001 09:17:48 -0800 (PST), Andre Hedrick wrote:
+On Tue, 27 Mar 2001, James Simmons wrote:
 
->not acceptable.  If you have a complain take it to CFA commitee and have
->them fix it.
+> 
+> Say you have several PCI graphics cards in a system but only have vgacon
+> running. Is their away to determine which PCI card vgacon is running on?
 
-Well my only real complaints are that 1) It was done silently.. 2) I could not override it 
-w/o a code mod.  Both of which are contrary to what I am accustom to when using linux.
+The enabled one :-)
 
->Logically treated, is true, but again CFA does not follow the rules of
->what the ATA committee gives them, and I refuse to break rules as the
->standard model.  Rule breaking are exceptions.
->
->Also show me a case where a laptop will do master/slave in CFA.
-
-Agreed... If CF does some wierd stuff then you shouldn't make the ATA driver break any 
-rules for it.. that wasn't what I was asking for.  Just some why's and perhaps a message 
-that indicated what it was doing.
-
-As for the laptops.. What laptops are you refering to?  Don't most of them have some sort 
-of std laptop HD or an ibm microdrive thing.  CF is terribly expensive compared to 
-mechanical HDs.
-
->/linux/drivers/ide/ide.c
->* "hdx=flash"          : allows for more than one ata_flash disk to be
->*                              registered. In most cases, only one device
->*                              will be present.
-
-Perhaps I missed something.. but this won't work for my original case.  I have a CF as hda 
-and I was trying to hook up a mechanical HD as the slave.  I specified hdb=c,h,s on the 
-command line but it was ignored.
+I don't see a general solution.
+You can know if an AGP card's vga portion is enabled by checking the
+corresponding bit in the pci bridge configuration space. But for PCI
+cards there is no standard way of enabling vga.
+If you have only one card with I/O enabled you can know this is the
+card. If you have more, you can write to the 0xb8000 region, and see in
+what linear aperture the write happens.
 
 
---
-Richard A. Smith                         Bitworks, Inc.               
-rsmith@bitworks.com               501.846.5777                        
-Sr. Design Engineer        http://www.bitworks.com   
 
+-- 
+Matan Ziv-Av.                         matan@svgalib.org
 

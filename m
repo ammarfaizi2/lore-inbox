@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264330AbTKZUpV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 15:45:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264356AbTKZUpU
+	id S264341AbTKZUmb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 15:42:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264342AbTKZUma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 15:45:20 -0500
-Received: from main.gmane.org ([80.91.224.249]:59285 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264330AbTKZUnB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 15:43:01 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: 2.6 not cat proof
-Date: Wed, 26 Nov 2003 21:42:58 +0100
-Message-ID: <yw1xoeuyvp2l.fsf@kth.se>
-References: <20031126201052.GA16106@outpost.ds9a.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:PAvKxrwJtUapv4blSSkOq9usvIw=
+	Wed, 26 Nov 2003 15:42:30 -0500
+Received: from out002pub.verizon.net ([206.46.170.141]:50828 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S264341AbTKZUlg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 15:41:36 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: amanda vs 2.6
+Date: Wed, 26 Nov 2003 15:41:35 -0500
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <200311261212.10166.gene.heskett@verizon.net> <Pine.LNX.4.58.0311261202050.1524@home.osdl.org> <20031126200754.GU8039@holomorphy.com>
+In-Reply-To: <20031126200754.GU8039@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311261541.35914.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.205.54.127] at Wed, 26 Nov 2003 14:41:35 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert <ahu@ds9a.nl> writes:
-
-> This bug has been seen here over eight years ago and it is back.. linux
-> 2.6.0-test4 is still not cat proof :-)
+On Wednesday 26 November 2003 15:07, William Lee Irwin III wrote:
+>On Wed, 26 Nov 2003, William Lee Irwin III wrote:
+>>> Okay, then we need to figure out what the hung process was doing.
+>>> Can you find its pid and check /proc/$PID/wchan?
 >
-> I found my cat asleep on the warm laptop,
-
-I found a cat on the monitor one day.
-
-> it is winter here, and the keyboard was dead. Mouse still works, but
-> I had to reboot before I could use the keyboard again. Restarting X,
-> which I could do with the mouse, did not help.
+>On Wed, Nov 26, 2003 at 12:04:56PM -0800, Linus Torvalds wrote:
+>> I've seen this before, and I'll bet you 5c (yeah, I'm cheap) that
+>> it's trying to log to syslogd.
+>> And syslogd is stopped for some reason - either a bug, a mistaken
+>> SIGSTOP, or simply because the console has been stopped with a
+>> simple ^S. That won't stop "su" working immediately - programs can
+>> still log to syslogd until the logging socket buffer fills up.
+>> Which can be _damn_ frsutrating to find (I haven't seen this
+>> behaviour lately, but I remember being perplexed like hell a long
+>> time ago).
 >
-> But I'm willing to live with this problem :-) Not sure if I want to debug
-> this, my previous laptop turned out to be filled with hair too. She never
-> lies on the keyboard when I'm at home!
-
-Was the lid open, so the cat pressed some keys that messed things up,
-or was did it overheat from fans being covered by cat?
-
-What model is the laptop?  My brother has a Fujitsu-Siemens where the
-keyboard locks up if you plug a wheel mouse into the PS/2 port and
-move the mouse at the same time you touch the touchpad.  He doesn't
-have a cat.
+>That'll do it. Gene, could you check on syslogd too, then?
+>
+See my reply to Linus.
+>
+>-- wli
 
 -- 
-Måns Rullgård
-mru@kth.se
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 

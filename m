@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267571AbUJORcD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268218AbUJORmG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267571AbUJORcD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 13:32:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268218AbUJOR17
+	id S268218AbUJORmG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 13:42:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267404AbUJORmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 13:27:59 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:28523 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268236AbUJOR1O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 13:27:14 -0400
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ZcUhYivbTNAa0dfa5EsbViTlbT5yh6As3UwOU1bvIXQuNHxFFDabS6w8H6wmqfewhHoEAVXLuOV1XVSvgheB0tbf05t6UFZqocDQRU+X0piuvaTAoljIHo5wpXwJzyNX72SyNYkDdrLTV9WAl1R0ZJvDfAO4QAblLhDLp50wBSU
-Message-ID: <58cb370e0410151027687d204f@mail.gmail.com>
-Date: Fri, 15 Oct 2004 19:27:10 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: "a.ledvinka@promon.cz" <a.ledvinka@promon.cz>
-Subject: Re: promise (105a:3319) unattended boot
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <OF77D5B4E1.A38CC6EC-ONC1256F2E.004E78A5-C1256F2E.0050B72C@promon.cz>
+	Fri, 15 Oct 2004 13:42:06 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:8779 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S268218AbUJORgy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 13:36:54 -0400
+Subject: Re: 2.6.9-rc4-mm1 : oops when rmmod uhci_hcd  [was: 2.6.9-rc3-mm2
+	: oops...]
+From: Paul Fulghum <paulkf@microgate.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Laurent Riffard <laurent.riffard@free.fr>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <Pine.LNX.4.44L0.0410151318580.1052-100000@ida.rowland.org>
+References: <Pine.LNX.4.44L0.0410151318580.1052-100000@ida.rowland.org>
+Content-Type: text/plain
+Message-Id: <1097861761.2820.18.camel@deimos.microgate.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 15 Oct 2004 12:36:02 -0500
 Content-Transfer-Encoding: 7bit
-References: <OF77D5B4E1.A38CC6EC-ONC1256F2E.004E78A5-C1256F2E.0050B72C@promon.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try to define 0 level RAID consisting of one disk only.
-This works with Promise PATA, I dunno about SATA.
+On Fri, 2004-10-15 at 12:21, Alan Stern wrote:
 
-On Fri, 15 Oct 2004 16:41:37 +0200, a.ledvinka@promon.cz
-<a.ledvinka@promon.cz> wrote:
-> Hello.
-> 
-> Got here http://pciids.sourceforge.net/iii/?i=105a3319
-> As http://linux.yyz.us/sata/faq-sata-raid.html#tx4 calls it
-> soft/accelerator raid version
-> Going to use latest kernel from /pub/linux/kernel/v2.4/
-> 
-> But bios even with keyboard unplugged requires me to press one of 2 keys
-> to either define array OR continue booting in case no array is defined.
-> 
-> What would you recommend me to do?
-> - stay with ft3xx module from promise  and 10 level RAID array and not use
-> sata_promise?
-> - define some array in bios and completely ignore that fact and use
-> sata_promise, bypass bios and define custom linux soft raid arrays?
-> - anything else (no bios flashing and no hw hacking)?
-> 
-> AlL.
-> 
-> please CC me... but anyway if you forget i will have a look into archive.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> As I understand it, the description field is just a human-readable string
+> that indicates what sort of device the hcd is.  It doesn't need to be
+> unique.  In fact, the kerneldoc for request_irq() (without the updates)
+> says that the dev_id value must be unique but says nothing about the
+> devname.
+
+In the SyncLink drivers I've always passed a devname
+that is unique to each device instance, using the
+form printf(devname, "%s%d", basename, instance_num).
+Ethernet device instances also seem to do this.
+
+I see that the generic serial 8250 driver uses
+a constant name, as does aic7xxx.
+
+Unique device names are useful for identifying
+which device instance is on a particular interrupt
+(/proc/interrupts), but other drivers beside uhci_hcd
+use a constant name so I guess that is legal :-)
+
+Either way, the generic IRQ code should deal with
+duplicates without generating an oops.
+
+-- 
+Paul Fulghum
+paulkf@microgate.com
+

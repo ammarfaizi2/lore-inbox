@@ -1,53 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135996AbRAJRjH>; Wed, 10 Jan 2001 12:39:07 -0500
+	id <S135994AbRAJRjH>; Wed, 10 Jan 2001 12:39:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135972AbRAJRi6>; Wed, 10 Jan 2001 12:38:58 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:58532 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S135994AbRAJRir>;
-	Wed, 10 Jan 2001 12:38:47 -0500
-Date: Wed, 10 Jan 2001 12:38:34 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Chris Mason <mason@suse.com>
-cc: Marc Lehmann <pcg@goof.com>, reiserfs-list@namesys.com,
-        linux-kernel@vger.kernel.org, vs@namesys.botik.ru
-Subject: Re: [reiserfs-list] major security bug in reiserfs (may affect SuSE
- Linux)
-In-Reply-To: <169460000.979141737@tiny>
-Message-ID: <Pine.GSO.4.21.0101101229050.13614-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135996AbRAJRi6>; Wed, 10 Jan 2001 12:38:58 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:24326 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S135972AbRAJRio>; Wed, 10 Jan 2001 12:38:44 -0500
+Date: Wed, 10 Jan 2001 18:38:52 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
+        linux-kernel@vger.kernel.org
+Subject: Re: `rmdir .` doesn't work in 2.4
+Message-ID: <20010110183852.N22197@athlon.random>
+In-Reply-To: <20010110160359.E19503@athlon.random> <Pine.GSO.4.21.0101101216370.13614-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0101101216370.13614-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Jan 10, 2001 at 12:28:38PM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 10, 2001 at 12:28:38PM -0500, Alexander Viro wrote:
+> That's precisely what I've already done. grep for IS_DEADDIR() and notice
 
+Fine ;)
 
-On Wed, 10 Jan 2001, Chris Mason wrote:
-
-> 
-> 
-> On Wednesday, January 10, 2001 12:47:17 AM -0500 Alexander Viro
-> <viro@math.psu.edu> wrote:
-> 
-> > However, actual code really looks like the end of filldir(). If that's the
-> > case we are deep in it - argument of filldir() gets screwed. buf, that is.
-> > Since it happens after we've already done dereferencing of buf in
-> > filldir() and we don't trigger them... Fsck knows. copy_to_user() and
-> > put_user() should not be able to screw the kernel stack.
-> > 
-> In filldir, I don't like the line where we ((char *)dirent += reclen ;  If
-> reclen is much larger than the buffer sent from userspace, I don't see how
-> we stay in bounds.
-
-	So? copy_to_user() and put_user() will refuse to scramble the
-kernel memory. IOW, dirent can be out of the userspace. Hell, user could
-call getdents() and pass it a kernel pointer. Try it and you'll see what
-happens.
-
-	BTW, in that particular line we are actually even protected from
-getting too large dirent, since if the sum was out of the user space we
-would die several lines above upon copy_to_user().
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

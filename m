@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290751AbSA3XiV>; Wed, 30 Jan 2002 18:38:21 -0500
+	id <S289228AbSA3XOu>; Wed, 30 Jan 2002 18:14:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290747AbSA3Xhd>; Wed, 30 Jan 2002 18:37:33 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:24912 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S290746AbSA3XhP>; Wed, 30 Jan 2002 18:37:15 -0500
-Date: Thu, 31 Jan 2002 00:38:29 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 18pre7aa1 pagetable corroops
-Message-ID: <20020131003829.N1309@athlon.random>
-In-Reply-To: <20020130212757.K1309@athlon.random> <Pine.LNX.4.21.0201302119130.1357-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.21.0201302119130.1357-100000@localhost.localdomain>; from hugh@veritas.com on Wed, Jan 30, 2002 at 09:23:12PM +0000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S289293AbSA3XOk>; Wed, 30 Jan 2002 18:14:40 -0500
+Received: from www.transvirtual.com ([206.14.214.140]:54024 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S289228AbSA3XO3>; Wed, 30 Jan 2002 18:14:29 -0500
+Date: Wed, 30 Jan 2002 15:14:04 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Robert Love <rml@tech9.net>, Alex Khripin <akhripin@mit.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: BKL in tty code?
+In-Reply-To: <20020130230532.I19292@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10201301510510.7609-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 09:23:12PM +0000, Hugh Dickins wrote:
-> On Wed, 30 Jan 2002, Andrea Arcangeli wrote:
-> > 
-> > right, thanks. BTW, I kept the other fixmap_init code beause of the many
-> > more BUG() checks (like the PTRS_PER_PMD checks with PAE) and because
-> > it is equivalent after all.
+
+> On Wed, Jan 30, 2002 at 02:58:29PM -0800, James Simmons wrote:
+> > All the locking should be moved to the upper tty layers. Why implement the
+> > wheel over and over agin for each type of tty device.
 > 
-> No, not equivalent, see other mail.  Do add BUG()s to mine if you like,
-> but they've not served well so far, and are not very helpful that early:
-> more a sign of insecurity.
+> By that statement, I can see that you haven't really done any analysis of
+> the tty nor serial locking.  Its not a simple case of "just add a per tty
+> semaphore in the tty layer and everything will be fine".
 
-I don't agree they're a sign of insecurity, I think it's the other way
-around. anyways I'll check your other email in detail now, thanks.
+I have to say no. I have been to busy cleaning up the fbdev layer right
+now. What I have done is work on a way to haev each console device have
+its own lock and then share that with struct tty_driver to protect
+hardware access. This is just the first step. I knew the tty layer would
+require more than just that. Since I haven't had time to look at all the
+details I'm curious to what you have discovered. I still believe that
+locking could be moved to the upper layer tho. I don't see why not.   
 
-Andrea

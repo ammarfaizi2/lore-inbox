@@ -1,80 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265351AbTAEWnR>; Sun, 5 Jan 2003 17:43:17 -0500
+	id <S265424AbTAEWrt>; Sun, 5 Jan 2003 17:47:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265361AbTAEWnR>; Sun, 5 Jan 2003 17:43:17 -0500
-Received: from h-64-105-35-112.SNVACAID.covad.net ([64.105.35.112]:33975 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S265351AbTAEWnP>; Sun, 5 Jan 2003 17:43:15 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sun, 5 Jan 2003 14:51:39 -0800
-Message-Id: <200301052251.OAA10215@adam.yggdrasil.com>
-To: akpm@digeo.com
-Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
-Cc: alan@lxorguk.ukuu.org.uk, andre@linux-ide.org, hell.surfers@cwctv.net,
-       linux-kernel@vger.kernel.org, lm@bitmover.com
+	id <S265423AbTAEWrr>; Sun, 5 Jan 2003 17:47:47 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:63107
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265373AbTAEWrk>; Sun, 5 Jan 2003 17:47:40 -0500
+Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: hps@intermeta.de
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <avachu$gnf$1@forge.intermeta.de>
+References: <20030102013736.GA2708@gnuppy.monkey.org>
+	 <1041806677.15071.8.camel@irongate.swansea.linux.org.uk>
+	 <avachu$gnf$1@forge.intermeta.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1041810027.15071.15.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 05 Jan 2003 23:40:28 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
->Is everyone OK with treating the contents
->of header files in the same was as EXPORT_SYMBOL()? ie: LGPL? 
+On Sun, 2003-01-05 at 22:45, Henning P. Schmiedehausen wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> 
+> >WLAN yes - openap is superb stuff
+> 
+> I didn't mention an open source access point. I already have a tried
 
-	I don't believe that anyone other than Linus has explicity
-given their permission for the "EXPORT_SYMBOL_GPL / EXPORT_SYMBOL"
-system.  However, I'm not trying to obstruct other people giving
-what permissions they want with the code that they wrote, so I'd
-like to point out a problem and suggest a fix to your proposal.
+I use openap for most of my card driving. Its much more resilient.
 
-	Your proposal would prevent "EXPORT_SYMBOL_GPL" inline
-functions.
+> >ACPI - very recently become a truely open project so will I hope now
+> >improve
+> 
+> "very recently". :-)
 
-	I can think of a solution which would
-		(1) allow both kinds of functions and
-		(2) which I think would be more legally defensible than
-		    posting a message to a mailing list and asking "is
-		    everyone OK with it]".
+Serious comment - Until very very recently Intel wouldn't take community
+changes. Intels focus has also been on correctness, so changes to handle
+things like broken MS AML 1.0 output haven't gone in - which burns some
+toshiba users for example.
 
-	Have the appropriate copyright owners move their "proprietary
-callers OK" inline functions to files with the appropriate copyright
-statements (such as LGPL or something similar), or submit changes to
-the copyright statements of entire .h files in cases where you've got
-the explicit agreement of all the copyright owners for that file.
+> >APM - reliable for years, bios code (the nonfree bit) often very buggy
+> 
+> The APM code on my Laptop still can't figure out how to display the
+> battery level correctly all the time (it flips to "0%" for a few
+> seconds every five to ten minutes), so I can't use the "shut down if
 
-	Along the same lines, those copyright owners (individuals,
-companies, etc.) who seek to create a kernel that contains only
-content that allows proprietary modules could start by explicitly
-stating that they now irrevocably give the same permission that Linus
-gave in his gnu.misc.discuss posting for their past contributions and
-any future contributions that they make before they say otherwise.  At
-least socially, it would come with better graces for people to grant
-permissions on their copyrights before trying to interpret away other
-contributors' copyrights.
+BIOS bug
 
-	However, before you grant such permission, I recommend that
-you consider whether permission that allows proprietary linking
-against only EXPORT_SYMBOL functions really means allowing proprietary
-modules to call *all* functions by just including a GPL-compatible
-library module like so:
+> below 5%" feature of apmd or my lap top would start shutting down
+> every five to ten minutes. Needless to tell that the Windows 2000 APM
+> has no such problem. BIOS? Really? (BTW: This is an Acer 710TE, one of
 
-void loophole_ide_setup_pci_device (struct pci_dev *dev, ide_pci_device_t *d)
-{
-	return ide_setup_pci_device(dev, d);
-	/* ide_setup_pci_device is an EXPORT_SYMBOL_GPL function in 2.5.54. */
-}
-EXPORT_SYMBOL(loophole_pci_hp_register);
+yes - BIOS. Most likely btw your Windows setup is using the ACPI
+interface.
 
 
-	One could presumably do the same with an function that is not
-even exported, and perhaps even avoid the subroutine jump by using
-static inline declarations.  As far as I can tell, it would be
-essentially equivalent to switching to the LGPL.  Come to think of it,
-if this _is_ what you want, then maybe you find it simpler to just
-grant permission to copy your code under the LGPL.
-
-	I'm not a lawyer, so don't take this is as legal advice.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."

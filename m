@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129874AbRA2IVk>; Mon, 29 Jan 2001 03:21:40 -0500
+	id <S130281AbRA2IYX>; Mon, 29 Jan 2001 03:24:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130281AbRA2IVa>; Mon, 29 Jan 2001 03:21:30 -0500
-Received: from snowbird.megapath.net ([216.200.176.7]:35597 "EHLO
-	megapathdsl.net") by vger.kernel.org with ESMTP id <S129874AbRA2IVU>;
-	Mon, 29 Jan 2001 03:21:20 -0500
-Message-ID: <3A75289F.FF6C9B78@snowbird.megapath.net>
-Date: Mon, 29 Jan 2001 00:23:59 -0800
-From: Miles Lane <miles@snowbird.megapath.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac12 i686)
+	id <S132014AbRA2IYN>; Mon, 29 Jan 2001 03:24:13 -0500
+Received: from hssx-sktn-167-47.sasknet.sk.ca ([142.165.167.47]:60169 "HELO
+	mail.thock.com") by vger.kernel.org with SMTP id <S130281AbRA2IYC>;
+	Mon, 29 Jan 2001 03:24:02 -0500
+Message-ID: <3A75278F.B41B492B@bigfoot.com>
+Date: Mon, 29 Jan 2001 02:19:27 -0600
+From: Dylan Griffiths <Dylan_G@bigfoot.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.1-pre11 -- Unresolved symbols in smctr.o and comx.o (fixed in Alan's 
- tree).
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: More on the VIA KT133 chipset misbehaving in Linux
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+The VIA KT133 chipset exhibits the following bugs under Linux 2.2.17 and
+2.4.0:
+1) PS/2 mouse cursor randomly jumps to upper right hand corner of screen and
+locks for a bit
+2) Detects a maximum of 64mb of ram, unless worked around by the "mem="
+switch
+3) The clock drifts slowly (more so under heavy load than light load),
+leaking time.
 
-Do you plan to take a patch from Alan that fixes this for 2.4.1?
-
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.1-pre11/kernel/drivers/net/tokenring/smctr.o
-depmod: 	__bad_udelay
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.1-pre11/kernel/drivers/net/wan/comx.o
-depmod: 	proc_get_inode
+I think #2 is because e820h memory detection is not properly implemented on
+the KT133 chipset, or because of some silly BIOS bug that VIA has not
+addressed.  I have no idea yet why #1 and #3 happen.  If any gurus out there
+have any pointers on where I can look, and what I should prod, I know my way
+around with a compiler and editor ;)
+--
+    www.kuro5hin.org -- technology and culture, from the trenches.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

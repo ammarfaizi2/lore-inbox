@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268420AbUHTRi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268408AbUHTRiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268420AbUHTRi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 13:38:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268429AbUHTRi7
+	id S268408AbUHTRiz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 13:38:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268429AbUHTRiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 13:38:59 -0400
-Received: from yacht.ocn.ne.jp ([222.146.40.168]:25547 "EHLO
-	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
-	id S268420AbUHTRiY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 13:38:24 -0400
-From: mita akinobu <amgta@yacht.ocn.ne.jp>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1-mm3 (build failture w/ CONFIG_NUMA)
-Date: Sat, 21 Aug 2004 02:38:32 +0900
-User-Agent: KMail/1.5.4
-References: <20040820031919.413d0a95.akpm@osdl.org>
-In-Reply-To: <20040820031919.413d0a95.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Aug 2004 13:38:55 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:24635 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S268408AbUHTRiM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 13:38:12 -0400
+Date: Fri, 20 Aug 2004 21:38:35 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Dave Hansen <haveblue@us.ibm.com>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Matt Mackall <mpm@selenic.com>
+Cc: Matt Mackall <mpm@selenic.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: ketchup versus patch-kernel
+Message-ID: <20040820193835.GB7298@mars.ravnborg.org>
+Mail-Followup-To: Dave Hansen <haveblue@us.ibm.com>,
+	"Randy.Dunlap" <rddunlap@osdl.org>, Matt Mackall <mpm@selenic.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1093021608.15662.1228.camel@nighthawk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200408210238.32922.amgta@yacht.ocn.ne.jp>
+In-Reply-To: <1093021608.15662.1228.camel@nighthawk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had tried to compile with CONFIG_NUMA and got this error:
+On Fri, Aug 20, 2004 at 10:06:48AM -0700, Dave Hansen wrote:
+> Since 2.6.8.1 came out, I'm sure a lot of automated tools stopped
+> working, ketchup included. 
 
-  CC      kernel/sched.o
-kernel/sched.c: In function `sched_domain_node_span':
-kernel/sched.c:4001: error: invalid lvalue in unary `&'
-make[1]: *** [kernel/sched.o] Error 1
-make: *** [kernel] Error 2
+Can someone please explain to me what is the difference between
+patch-kernel and ketchup?
 
-Below patch fixes this.
+With difference I ask for what problem they solve (and mayby how).
+I know very well ketchup uses phython - thats an implementation detail.
 
+Rationale behind the question is if we should include both patch-kernel
+and ketchup in the kernel.
 
---- linux-2.6.8.1-mm3/kernel/sched.c.orig	2004-08-21 00:32:26.000000000 +0900
-+++ linux-2.6.8.1-mm3/kernel/sched.c	2004-08-21 00:36:41.000000000 +0900
-@@ -3998,7 +3998,10 @@ cpumask_t __init sched_domain_node_span(
- 
- 	for (i = 0; i < size; i++) {
- 		int next_node = find_next_best_node(node, used_nodes);
--		cpus_or(span, span, node_to_cpumask(next_node));
-+		cpumask_t  nodemask;
-+
-+		nodemask = node_to_cpumask(next_node);
-+		cpus_or(span, span, nodemask);
- 	}
- 
- 	return span;
-
+	Sam

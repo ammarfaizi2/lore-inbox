@@ -1,67 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265065AbSLBWED>; Mon, 2 Dec 2002 17:04:03 -0500
+	id <S265074AbSLBWG1>; Mon, 2 Dec 2002 17:06:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265066AbSLBWED>; Mon, 2 Dec 2002 17:04:03 -0500
-Received: from packet.digeo.com ([12.110.80.53]:46490 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265065AbSLBWEC>;
-	Mon, 2 Dec 2002 17:04:02 -0500
-Message-ID: <3DEBDA8D.CBB4B6D0@digeo.com>
-Date: Mon, 02 Dec 2002 14:11:25 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] deprecate use of bdflush()
-References: <1038864066.1221.43.camel@phantasy>
-Content-Type: text/plain; charset=us-ascii
+	id <S265092AbSLBWG1>; Mon, 2 Dec 2002 17:06:27 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:51871 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265074AbSLBWG0>; Mon, 2 Dec 2002 17:06:26 -0500
+Subject: Re: [PATCH] set_cpus_allowed() for 2.4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Hellwig <hch@sgi.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       marcelo@connectiva.com.br.munich.sgi.com, rml@tech9.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021202201101.A26164@sgi.com>
+References: <20021202192652.A25938@sgi.com>
+	<1919608311.1038822649@[10.10.2.3]>  <20021202201101.A26164@sgi.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Dec 2002 22:11:25.0034 (UTC) FILETIME=[C0F794A0:01C29A4F]
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 02 Dec 2002 22:47:28 +0000
+Message-Id: <1038869248.8945.18.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
+On Tue, 2002-12-03 at 01:11, Christoph Hellwig wrote:
+> On Mon, Dec 02, 2002 at 09:50:50AM -0800, Martin J. Bligh wrote:
+> > There was talk of merging the O(1) scheduler into 2.4 at OLS.
+> > If every distro has it, and 2.5 has it, and it's been around for
+> > this long, I think that proves it stable.
+> > 
+> > Marcelo, what are the chances of getting this merged into mainline
+> > in the 2.4.20 timeframe?
 > 
-> We can never get rid of it if we do not deprecate it - so do so and
-> print a stern warning to those who still run bdflush daemons.
-> 
+> Ingo vetoed it.
 
-Ho-hum.  I was going to do this months ago but general exhaustion
-and sluggishness won out.
+I wasnt aware Ingo had a veto
 
-We should tell the user which process called sys_bdflush() to aid
-their expunging efforts.
-
-
---- 25/fs/buffer.c~deprecate-bdflush	Mon Dec  2 13:40:44 2002
-+++ 25-akpm/fs/buffer.c	Mon Dec  2 13:45:11 2002
-@@ -2755,11 +2755,25 @@ int block_sync_page(struct page *page)
- /*
-  * There are no bdflush tunables left.  But distributions are
-  * still running obsolete flush daemons, so we terminate them here.
-+ *
-+ * Use of bdflush() is deprecated and will be removed in a future kernel.
-+ * The `pdflush' kernel threads fully replace bdflush daemons and this call.
-  */
- asmlinkage long sys_bdflush(int func, long data)
- {
-+	static int msg_count;
-+
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EPERM;
-+
-+	if (msg_count < 5) {
-+		msg_count++;
-+		printk(KERN_INFO
-+			"warning: process `%s' used the obsolete bdflush"
-+			" system call\nFix your initscripts?\n",
-+			current->comm);
-+	}
-+
- 	if (func == 1)
- 		do_exit(0);
- 	return 0;
-
-_

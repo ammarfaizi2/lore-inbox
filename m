@@ -1,31 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261507AbSKBX67>; Sat, 2 Nov 2002 18:58:59 -0500
+	id <S261521AbSKCAMY>; Sat, 2 Nov 2002 19:12:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261508AbSKBX66>; Sat, 2 Nov 2002 18:58:58 -0500
-Received: from gateway.cinet.co.jp ([210.166.75.129]:15961 "EHLO
-	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S261507AbSKBX66>; Sat, 2 Nov 2002 18:58:58 -0500
-Message-ID: <3DC46840.48D0D3E8@cinet.co.jp>
-Date: Sun, 03 Nov 2002 09:05:20 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.45-pc98smp i686)
-X-Accept-Language: ja, en
+	id <S261523AbSKCAMY>; Sat, 2 Nov 2002 19:12:24 -0500
+Received: from 1-064.ctame701-1.telepar.net.br ([200.181.137.64]:3745 "EHLO
+	1-064.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261521AbSKCAMX>; Sat, 2 Nov 2002 19:12:23 -0500
+Date: Sat, 2 Nov 2002 22:18:22 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: "Theodore Ts'o" <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
+       <davej@suse.de>
+Subject: Re: Filesystem Capabilities in 2.6?
+In-Reply-To: <Pine.LNX.4.44.0211021025420.2413-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44L.0211022214580.3411-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [RFC][Patchset 1/20] Support for PC-9800
-References: <20021103023345.A1536@precia.cinet.co.jp>
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My bad! My mailer has broken some patches.
-Please get patchset this URL.
-http://downloads.sourceforge.jp/linux98/1480/linux98-2.5.45.patch.tar.bz2
+On Sat, 2 Nov 2002, Linus Torvalds wrote:
 
-Regards,
-Osamu Tomita
+> Clearly inode numbers are a bad way to handle it, but I don't think
+> inode attributes are that great either. I would personally prefer
+> directory entry attributes, so that the same file can show up with
+> different behaviour in different places.
+
+I'm sure we can come up with even more confusing behaviour
+if we want, but it'll take some serious creativity.
+
+Sure it's more flexible, but I wonder how many userland
+programs will be broken if we change the permission model
+and how well users can protect their data this way.
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+

@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266167AbUBJUll (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 15:41:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUBJUlk
+	id S266136AbUBJUji (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 15:39:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266161AbUBJUji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 15:41:40 -0500
-Received: from smtp.terra.es ([213.4.129.129]:24875 "EHLO tsmtp12.mail.isp")
-	by vger.kernel.org with ESMTP id S266167AbUBJUlj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 15:41:39 -0500
-Date: Tue, 10 Feb 2004 21:32:36 +0100
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
+	Tue, 10 Feb 2004 15:39:38 -0500
+Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:42130 "EHLO
+	ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
+	id S266136AbUBJUjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 15:39:37 -0500
+Date: Tue, 10 Feb 2004 15:39:00 -0500
+From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: devfs vs udev, thoughts from a devfs user
-Message-Id: <20040210213236.2f211677.diegocg@teleline.es>
-In-Reply-To: <40293508.1040803@nortelnetworks.com>
-References: <20040210113417.GD4421@tinyvaio.nome.ca>
-	<20040210170157.GA27421@kroah.com>
-	<20040210171337.GK4421@tinyvaio.nome.ca>
-	<40291A73.7050503@nortelnetworks.com>
-	<20040210192456.GB4814@tinyvaio.nome.ca>
-	<40293508.1040803@nortelnetworks.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Message-ID: <20040210203900.GA18263@ti19.telemetry-investments.com>
+Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+	"Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
+	linux-kernel@vger.kernel.org
+References: <20040210113417.GD4421@tinyvaio.nome.ca> <20040210170157.GA27421@kroah.com> <20040210171337.GK4421@tinyvaio.nome.ca> <40291A73.7050503@nortelnetworks.com> <20040210192456.GB4814@tinyvaio.nome.ca> <40293508.1040803@nortelnetworks.com> <40293AF8.1080603@backtobasicsmgmt.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40293AF8.1080603@backtobasicsmgmt.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Tue, 10 Feb 2004 14:46:16 -0500 Chris Friesen <cfriesen@nortelnetworks.com> escribió:
-
-> Mike Bell wrote:
+On Tue, Feb 10, 2004 at 01:11:36PM -0700, Kevin P. Fleming wrote:
+> devfs is "single-instance": it can be mounted during initrd/initramfs 
+> processing, then remounted after pivot_root without losing its contents
 > 
-> > Why does it make management easier to have no predictable name for a
-> > device?
-> 
-> I believe this is a misconception.
-> 
-> Udev uses standard rules by default.  If the end-user (or their distro) 
-> wants to add additional rules or override these rules, they can do that.
+> Granted, I'm sure someone can come up with a single-instance ramfs 
+> filesystem that can be used for udev, but today it does not exist.
+ 
+mount --move olddir newdir
 
-It even communicate the addition/removal of devices to userspace applications
-through DBUS (freedesktop.org standard that will be adopted by kde,
-gnome, etc - ie: useful stuff). So you don't even need to know the device names: 
-the application will receive the notificacion.
+Regards,
 
-Of course, this is doable with devfs. But it's been done already, in a
-*much* cleaner way, with udev. So why bother, I wonder...
-
-
+	Bill Rugolsky

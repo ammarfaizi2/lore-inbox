@@ -1,55 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270528AbSISI4I>; Thu, 19 Sep 2002 04:56:08 -0400
+	id <S270563AbSISJCf>; Thu, 19 Sep 2002 05:02:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270558AbSISI4H>; Thu, 19 Sep 2002 04:56:07 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:27800 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S270528AbSISI4H>; Thu, 19 Sep 2002 04:56:07 -0400
-Date: Thu, 19 Sep 2002 10:58:41 +0200
-From: Dominik Brodowski <linux@brodo.de>
-To: hpa@transmeta.com, linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
-Subject: cpufreq for 2.5.36 now available
-Message-ID: <20020919105841.A1586@brodo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
+	id <S270621AbSISJCe>; Thu, 19 Sep 2002 05:02:34 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:47349 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S270563AbSISJCd>; Thu, 19 Sep 2002 05:02:33 -0400
+Date: Thu, 19 Sep 2002 11:07:33 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Dominik Brodowski <linux@brodo.de>
+cc: Alan Cox <alan@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre7-ac2
+In-Reply-To: <20020919104233.A1812@brodo.de>
+Message-ID: <Pine.NEB.4.44.0209191106370.15721-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 19 Sep 2002, Dominik Brodowski wrote:
 
-Updated patches for CPU frequency and voltage scaling support are now
-available at
+> Not really CPUfreq related, but this should fix it:
+>...
 
-http://www.brodo.de/cpufreq/
+Unfortunately not:
 
-Changes since the version submitted on lkml for 2.5.35:
-- Documentation fixes (Hollis Blanchard, Xavier Bestel)
-- longrun.c 0% performance does not mean 0 MHz but lowest available frequency
+<--  snip  -->
 
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc
+-iwithprefix include -DKBUILD_BASENAME=cpufreq  -c -o cpufreq.o cpufreq.c
+In file included from
+/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/linux/irq.h:69,
+                 from
+/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/asm/hardirq.h:6,
+                 from
+/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/linux/interrupt.h:46,
+                 from cpufreq.c:21:
+/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/asm/hw_irq.h: In
+function `x86_do_profile':
+/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/asm/hw_irq.h:202:
+dereferencing pointer to incomplete type
+make[2]: *** [cpufreq.o] Error 1
+make[2]: Leaving directory
+`/home/bunk/linux/kernel-2.4/linux-2.4.19-full/kernel'
 
-complete patch for kernel 2.5.36:
-http://www.brodo.de/cpufreq/cpufreq-2.5.36-1.gz
+<--  snip  -->
 
-step-by-step patches for kernel 2.5.36:
-http://www.brodo.de/cpufreq/cpufreq-2.5.36-core-1
-http://www.brodo.de/cpufreq/cpufreq-2.5.36-i386-core-1
-http://www.brodo.de/cpufreq/cpufreq-2.5.36-i386-drivers-1
-http://www.brodo.de/cpufreq/cpufreq-2.5.36-doc-1
-http://www.brodo.de/cpufreq/cpufreq-2.5.36-24api-1
+> 	Dominik
+>...
 
-backport to kernel 2.4.19/2.4.20-pre7:
-http://www.brodo.de/cpufreq/cpufreq-2.4.19-3.gz
-http://www.brodo.de/cpufreq/cpufreq-2.4.20-pre7-3.gz
+cu
+Adrian
 
-This cpufreq version is included in 2.4.-ac patchsets since
-2.4.20-pre7-ac1, a few updates for -ac2 can be found here:
-http://www.brodo.de/cpufreq/cpufreq-2.4.20-pre7-ac2-1
+-- 
 
-Comments welcome; please ensure that the cpufreq development list at
-cpufreq@www.linux.org.uk receives a copy of all comments.
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 
-
-	Dominik

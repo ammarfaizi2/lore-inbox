@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131605AbRACMvj>; Wed, 3 Jan 2001 07:51:39 -0500
+	id <S131717AbRACMw3>; Wed, 3 Jan 2001 07:52:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131766AbRACMv3>; Wed, 3 Jan 2001 07:51:29 -0500
-Received: from dexter.allieddomecq.ro ([212.93.128.30]:56334 "HELO
-	mail.allieddomecq.ro") by vger.kernel.org with SMTP
-	id <S131605AbRACMvP>; Wed, 3 Jan 2001 07:51:15 -0500
-Date: Wed, 3 Jan 2001 15:10:40 +0200 (EET)
-From: <dex@dexter.allieddomecq.ro>
-To: linux-kernel@vger.kernel.org
-Subject: IBM ServeRAID 4L
-Message-ID: <Pine.LNX.4.21md.0101031510000.3841-100000@dexter.allieddomecq.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131878AbRACMwT>; Wed, 3 Jan 2001 07:52:19 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:20752 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131717AbRACMwP>;
+	Wed, 3 Jan 2001 07:52:15 -0500
+Date: Wed, 3 Jan 2001 12:16:09 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Andreas Dilger <adilger@enel.ucalgary.ca>,
+        Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org,
+        "Theodore Y. Ts'o" <tytso@mit.edu>,
+        Ext2 development mailing list 
+	<ext2-devel@lists.sourceforge.net>
+Subject: Re: [Ext2-devel] Re: [RFC] ext2_new_block() behaviour
+Message-ID: <20010103121609.C1290@redhat.com>
+In-Reply-To: <200101030147.f031lPa21470@webber.adilger.net> <Pine.GSO.4.21.0101022216250.13824-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.GSO.4.21.0101022216250.13824-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Tue, Jan 02, 2001 at 10:37:50PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Heil Gurus,
-don't know where to seek for help, I digged the web and IBM's support site
-up'n down with not much luck.
-I need to install RedHat 7.0 on a IBM NetFinity 5100 with a ServeRAID 4L
-controller (firmware 4.40.03).
-The plain RedHat 7.0 install CD-Rom doesn't detect the controller
-therefore I cannot install linux because it can't detect the RAID
-controller and therefore the disk array is not available.
-Unfortunately on IBM support site there is not clear documentation/howto
-for installing Linux RedHat 7.0 on this type of machine.
-I am thinking to make some custom setup diskette in which I would compile
-the available ServeRAID drivers from the IBM support site... but the
-problem is that I don't know how to make this custom RedHat 7.0 install
-diskette.
-Please CC me because I am not subscribed to the LKML.
+On Tue, Jan 02, 2001 at 10:37:50PM -0500, Alexander Viro wrote:
 
-Thank You & Best Wishes for the New Year!
+> Umm... OK, the last argument is convincing. Thanks...
+> 
+> BTW, what was the reason behind doing preallocation for directories on
+> ext2_bread() level? We both buy ourselves an oddity in directory structure
+> (preallocated blocks become refered from the inode immediately and they
+> are beyond i_size) and get more complicated ext2_alloc_block(). What do
+> we win here?
 
+Having preallocated blocks allocated immediately is deliberate:
+directories grow slowly and remain closed most of the time, so the
+normal preallocation regime of only preallocating open files and
+discarding preallocation on close just doesn't work.
 
-
+--Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

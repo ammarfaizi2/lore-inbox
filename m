@@ -1,67 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbULPQhM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbULPQkD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261431AbULPQhM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 11:37:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbULPQhM
+	id S261523AbULPQkD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 11:40:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbULPQkC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 11:37:12 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:55680 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261431AbULPQhE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 11:37:04 -0500
-Message-ID: <41C1B9A8.2020003@nortelnetworks.com>
-Date: Thu, 16 Dec 2004 10:36:56 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Ross <chris@tebibyte.org>
-CC: Linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: slow OOM killing with 2.6.9?
-References: <41C065A2.4040504@nortelnetworks.com> <41C1777A.3080105@tebibyte.org>
-In-Reply-To: <41C1777A.3080105@tebibyte.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 16 Dec 2004 11:40:02 -0500
+Received: from ms-smtp-04.texas.rr.com ([24.93.47.43]:57514 "EHLO
+	ms-smtp-04.texas.rr.com") by vger.kernel.org with ESMTP
+	id S261523AbULPQjj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 11:39:39 -0500
+Subject: automated filesystem testing for multiple Linux fs
+From: Steve French <smfrench@austin.rr.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, cliffw@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20041216121151.GH8246@logos.cnet>
+References: <41BDC9CD.60504@austin.rr.com>
+	 <20041213092057.5bf773fb.cliffw@osdl.org> <41BDE0B4.6020003@austin.rr.com>
+	 <41BDE2CF.9060402@austin.rr.com>  <20041216121151.GH8246@logos.cnet>
+Content-Type: text/plain
+Message-Id: <1103215183.12201.39.camel@smfhome.smfdom>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 16 Dec 2004 10:39:43 -0600
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Ross wrote:
+On Thu, 2004-12-16 at 06:11, Marcelo Tosatti wrote:
+> you mention several filesystem, that would increase the amount of results
+>  dramatically.
 > 
-> Chris Friesen escreveu:
-> 
->> I've got a ppc box with 2GB of ram, running 2.6.9.
->>
->> If I run a few instances of memory chewing programs, eventually the 
->> OOM-killer kicks in.  At that point, the machine locks up for about 10 
->> seconds while deciding what to kill.
-> 
-> 
-> OOM killing is known to be broken in 2.6.9, specifically it kills things 
-> even when the machine isn't out of memeory and/or kills the "wrong" 
-> things when it is. See threads assim for more details.
-> 
-> The OOM Killer is working properly again in 2.6.10-rc2-mm4. Could you 
-> try that kernel and report whether it fixed your problems too?
 
-Hmm...downloaded 2.6.9, patched to 2.6.10-rc2, patched to 2.6.10-rc2-mm4.  Tried 
-building and got the following error:
+Selfishly, thinking about what I would like to see for Samba servers on
+Linux ...  I could live with testing Samba well on a relatively small
+number of local filesystems perhaps JFS or even XFS, but at least
+testing on one local filesystem and CIFS (and even to a lesser extent
+NFS) are needed for us to feel more comfortable with Samba/Linux.  Since
+at present only XFS and JFS have the full combination of server
+features: better quotas, DMAPI, xattr support, ACL support and
+nanosecond file timestamps on disk - (and only JFS has case insensitive
+format option which is useful for Samba benchmarking with Windows
+clients), and since those two perform quite well on the Netbench
+benchmark that is most quoted - those two local filesystems are of the
+most interest to me (at least until future versions of Reiser or ext4
+...).  For perf tests run Linux CIFS client to Samba/Linux  - JFS on the
+server seems to perform best among the five major local filesystems so
+far.
 
-[cfriesen@hsdbsk204-83-218-112 linux-2.6.10-rc2-mm4]$ make
-   CHK     include/linux/version.h
-make[1]: `arch/ppc/kernel/asm-offsets.s' is up to date.
-   CHK     include/linux/compile.h
-   CHK     usr/initramfs_list
-   GEN     .version
-   CHK     include/linux/compile.h
-   UPD     include/linux/compile.h
-   CC      init/version.o
-   LD      init/built-in.o
-   LD      .tmp_vmlinux1
-arch/ppc/mm/built-in.o(.init.text+0x5f4): In function `paging_init':
-: undefined reference to `pgd_offset_is_obsolete'
-make: *** [.tmp_vmlinux1] Error 1
+The somewhat harder part of course is adding in CIFS and perhaps NFSv3
+and NFSv4 testing since that is a little harder to script the setup for
+and a few small pieces of a couple of the fs functional tests only run
+on a subset of the filesystems.  Part of the problem that I run into is
+that LTP has lots of tests but the filesystem tests are rather strangely
+not all in the kernel/testcases/fs directory - they are spread across
+multiple directories including an nfs one (for the posix connectathon fs
+test) and networking directory (e.g. for sendfile) and try finding the
+flock and DNOTIFY and SETLEASE and GETLEASE calls ones and the ones that
+hit O_DIRECT or O_ASYNC or test O_SYNC(the ones that might be Linux
+specific or have slightly different Linux behavior like those are among
+the more interesting but quite hard for me to find). 
 
-Any ideas?
 
-Chris
+> I would like to see different variations of memory size and CPU (1-2-4-8 CPU variation 
+> is already being done by STP), have been asking Cliff for such functionality for 
+> the past days.
+
+That is useful but we need to walk before we run and address the
+critical problems first.  I count at least four bad regressions in the
+two big network filesystems caused by sideeffects of other vfs changes -
+just this year.  We have need for much more basic functional tests and
+perf test to prevent more regressions - e.g to catch earlier or avoid
+completely cases like the mm writepage performance regression that hit
+NFS earlier this year and again the bug that hit nfs that caused 2.6.8
+-> 2.6.8.1 regression and the two vfs fcntl changes (dnotify and
+posix_lock_file) that regressed cifs. Part of the problem is that AFAIK
+we don't have a good Linux fcntl test suite that is easy enough to run
+that everyone doing an fs runs it :) 
+
+The other thing I noticed on the STP site is that the three types of
+tests are not easily distinguished on the site:
+	1) filesystem functional (e.g. connecathon "basic" and "special"
+	 subtests, fsx, and some of the ltp tests etc.)
+vs.
+	2)filesystem stress testing (fsstress etc.)
+vs.
+	3) filesystem perf testing 
+		microbenchmarks (iozone, bonnie etc.)
+		bigger benchmarks (dbench, specsfs, specweb etc.)
+
+
+

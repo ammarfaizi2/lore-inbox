@@ -1,52 +1,38 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154143-29165>; Sat, 5 Sep 1998 04:54:31 -0400
-Received: from vidar.diku.dk ([130.225.96.249]:4492 "EHLO vidar.diku.dk" ident: "root") by vger.rutgers.edu with ESMTP id <154157-29165>; Sat, 5 Sep 1998 04:49:16 -0400
-Date: Sat, 5 Sep 1998 13:06:29 +0200 (METDST)
-Message-Id: <199809051106.NAA18386@tyr.diku.dk>
-From: Morten Welinder <terra@diku.dk>
-To: linux-kernel@vger.rutgers.edu
-cc: allbery@kf8nh.apk.net
-Subject: Re: Virtual Machines, JVM in kernel
+Received: by vger.rutgers.edu id <154600-29165>; Sat, 5 Sep 1998 09:34:07 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:8803 "EHLO penguin.e-mind.com" ident: "TIMEDOUT") by vger.rutgers.edu with ESMTP id <154601-29165>; Sat, 5 Sep 1998 09:32:06 -0400
+Date: Sat, 5 Sep 1998 14:00:34 +0200 (CEST)
+From: Andrea Arcangeli <arcangeli@mbox.queen.it>
+To: Marty Leisner <leisner@twcny.rr.com>
+cc: "Eric S. Raymond" <esr@thyrsus.com>, linux-net@vger.rutgers.edu, linux-kernel@vger.rutgers.edu
+Subject: Re: Linux tcp/ip code has trouble with async network I/O  notification,u
+In-Reply-To: <199809040420.AAA02211@rochester.rr.com>
+Message-ID: <Pine.LNX.3.96.980905135552.405A-100000@dragon.bogus>
+X-PgP-Public-Key-URL: http://e-mind.com/~andrea/aa.asc
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+On Fri, 4 Sep 1998, Marty Leisner wrote:
 
-"Brandon S. Allbery KF8NH" <allbery@kf8nh.apk.net> writes:
+>I agree with Eric's basic problems with threads...
+>
+>A good, single threaded solution is far superior, easier, more
+>maintainable, etc. etc. then threads...
+>
+>
+>For more on why threads are a bad idea (usually) see:
+>http://www.scriptics.com/people/john.ousterhout/
 
-> [...] given a chunk of C code with a
-> proof attached, the proof is untrustworthy (in point of fact, it *lies* if
-> it claims there are no buffer overflows, except in degenerate cases that
-> only use scalar values --- but the packet itself is not a scalar).  You can
-> verify that the proof doesn't work, probably, which would be good enough...
-> except that (as noted) *no* purported proof will pass this because the
-> desired condition is not provable.  So proof-carrying code isn't going to
-> work here.
+That document about threads is very very generic (>10 page of repetitions)
+and not interesting. I don' t like such kind of docs (it seems to me to
+study for University also in the spare time). 
 
-This is rubbish.  C programs, as well as programs in other languages,
-can be proven correct and the proofs can be (machine) verified.  It is
-only a matter of time, lots of time.
+The only right repeated point is that threads are well used when there is
+high CPU usage for every thread.
 
-What you are claiming above is (essentially) that all C programs have
-buffer overflow.  That obviously isn't true.  Programs can be *made*
-safe by preceding all otherwise unsafe operations by syntactic checks
-for bounds.  So you would guard all array access with checks that the
-index was in the right range, and for all strcpy's you would verify
-that the string length was less than the target buffer length.  This
-is perfectly doable, but might require modification of the program
-in question.  Programs written this way should be quite easy to prove
-free of buffer overflows.
+Andrea[s] Arcangeli
 
-BACK ONTOPIC: code with proofs is interesting for the kernel in the
-case of packet filters.  You can get very impressive performance that
-way.  By a rule of thumb, the filtering time should decrease by an
-order of magnitude.
-
-Readings: George Necula's and Peter Lee's work on proof-carrying code
-"http://www.cs.cmu.edu/~petel/papers/pcc/pcc.html".  For a proof of
-an interpreter (not a Java interpreter in C, unfortunately), see
-[shameless plug] my own Ph.D. thesis which might be found at
-"http://www.diku.dk/students/terra/" [slow link].
-
-Morten
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

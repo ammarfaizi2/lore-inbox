@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266678AbSKHAZ7>; Thu, 7 Nov 2002 19:25:59 -0500
+	id <S266691AbSKHAat>; Thu, 7 Nov 2002 19:30:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266680AbSKHAZ7>; Thu, 7 Nov 2002 19:25:59 -0500
-Received: from dp.samba.org ([66.70.73.150]:63458 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266678AbSKHAZ5>;
-	Thu, 7 Nov 2002 19:25:57 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Werner Almesberger <wa@almesberger.net>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: [PATCH] Module loader against 2.5.46: 8/9 
-In-reply-to: Your message of "Wed, 06 Nov 2002 11:45:12 CDT."
-             <Pine.LNX.3.96.1021106113408.24531B-100000@gatekeeper.tmr.com> 
-Date: Thu, 07 Nov 2002 22:24:41 +1100
-Message-Id: <20021108003238.C3E872C103@lists.samba.org>
+	id <S266690AbSKHAas>; Thu, 7 Nov 2002 19:30:48 -0500
+Received: from ip68-105-128-224.tc.ph.cox.net ([68.105.128.224]:44221 "EHLO
+	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
+	id <S266689AbSKHAao>; Thu, 7 Nov 2002 19:30:44 -0500
+Date: Thu, 7 Nov 2002 17:37:21 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Templates and tweaks (for size performance and more)
+Message-ID: <20021108003721.GH6164@opus.bloom.county>
+References: <20021107190910.GC6164@opus.bloom.county> <20021107210304.C11437@flint.arm.linux.org.uk> <20021107220628.GA12151@opus.bloom.county> <20021108002905.F11437@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021108002905.F11437@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.3.96.1021106113408.24531B-100000@gatekeeper.tmr.com> you w
-rite:
-> On Tue, 5 Nov 2002, Rusty Russell wrote:
-> > No.  I don't think that my original version wasn't clear, nor do I
-> > have time to negate every suggestion, no matter how well meaning or
-> > not, even if I had no better things to do, which does not seem likely,
-> > does it not?
+On Fri, Nov 08, 2002 at 12:29:05AM +0000, Russell King wrote:
+> On Thu, Nov 07, 2002 at 03:06:29PM -0700, Tom Rini wrote:
+> > But having that as one line in arch/arm/Kconfig looks any better?
 > 
-> Please don't take this personally, but you just used another double
-> negative in your response.
+> Actually its supposed to depend on CONFIG_SA1111, not that random
+> collection of other symbols.  The following just happened to be a nice
+> way to specify it under CML1:
+> 
+> if [ "$CONFIG_ASSABET_NEPONSET" = "y" -o \
+>      "$CONFIG_SA1100_ACCELENT" = "y" -o \
+>      "$CONFIG_SA1100_ADSBITSY" = "y" -o \
+>      "$CONFIG_SA1100_BADGE4" = "y" -o \
+>      "$CONFIG_SA1100_CONSUS" = "y" -o \
+>      "$CONFIG_SA1100_GRAPHICSMASTER" = "y" -o \
+>      "$CONFIG_SA1100_JORNADA720" = "y" -o \
+>      "$CONFIG_SA1100_PFS168" = "y" -o \
+>      "$CONFIG_SA1100_PT_SYSTEM3" = "y" -o \
+>      "$CONFIG_SA1100_XP860" = "y" ]; then
+>    define_bool CONFIG_SA1111 y
+>    define_int CONFIG_FORCE_MAX_ZONEORDER 9
+> fi
+> 
+> The conversion should've been:
+> 
+> config FORCE_MAX_ZONEORDER
+>         int
+>         depends on SA1111
+>         default "9"
 
-Did I?  Not that I'm not sorry, but I just didn't realize my lack of
-clarity was causing confusion.  I shall take your words to heart.
+Ah.  I should have guessed :)  I've seen a few similar ones on PPC.
+I'll update the patch.
 
-> Now you may think that way, and talk that way, but a lot of people
-> who use Linux are not native speakers of English, and from
-> experience I suggest that the complex gramatical constructs in all
-> the help stuff should be avoided.
+> Even so, my original point remains about the dependency between config
+> symbols concentrating in one "tweaks" header file leading to the situation
+> where you change one symbol and everything rebuilds.
 
-I'd never have thought of that myself, but you're right.  Even among
-our peers on this mailing list, for example, the nuances of English
-sometimes go astray.
+Yes, this is an annoyance.  I'm trying to figure out how to adapt
+split-include to work with the tweak headers, and I don't think it will
+be too painful.  It'll just require something in the middle to take
+<asm/tweaks.h> and spit out something akin to <linux/autoconf.h>.
 
-I will try to ensure my writing is straigtforward and impossible to
-misunderstand.
+So aside from that, any other comments about the idea or implementation?
 
-> Eschew obfuscation.
-
-Sorry, I don't understand?
-
-But thankyou for your insight!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

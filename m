@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317601AbSGJURd>; Wed, 10 Jul 2002 16:17:33 -0400
+	id <S317603AbSGJUXE>; Wed, 10 Jul 2002 16:23:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317602AbSGJURc>; Wed, 10 Jul 2002 16:17:32 -0400
-Received: from dsl-213-023-043-112.arcor-ip.net ([213.23.43.112]:30168 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317601AbSGJURb>;
-	Wed, 10 Jul 2002 16:17:31 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Thunder from the hill <thunder@ngforever.de>, Adrian Bunk <bunk@fs.tum.de>
+	id <S317604AbSGJUXD>; Wed, 10 Jul 2002 16:23:03 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:6643 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S317603AbSGJUXD>; Wed, 10 Jul 2002 16:23:03 -0400
 Subject: Re: [STATUS 2.5]  July 10, 2002
-Date: Wed, 10 Jul 2002 22:21:31 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Guillaume Boissiere <boissiere@adiglobal.com>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0207101027380.5067-100000@hawkeye.luckynet.adm>
-In-Reply-To: <Pine.LNX.4.44.0207101027380.5067-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17SNxr-00028E-00@starship>
+From: Robert Love <rml@tech9.net>
+To: Cort Dougan <cort@fsmlabs.com>
+Cc: Ville Herva <vherva@niksula.hut.fi>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020710142005.U762@host110.fsmlabs.com>
+References: <3D2B89AC.25661.91896FEB@localhost>
+	<1026323661.1178.73.camel@sinai> <20020710191824.GT1548@niksula.cs.hut.fi>
+	<1026331418.1244.82.camel@sinai>  <20020710142005.U762@host110.fsmlabs.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 10 Jul 2002 13:25:38 -0700
+Message-Id: <1026332738.1244.86.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 July 2002 18:31, Thunder from the hill wrote:
-> On Wed, 10 Jul 2002, Adrian Bunk wrote:
-> > Are there any reasons why these don't make it into 2.5?
-> > >    - Build option for Linux Trace Toolkit (LTT)
-> 
-> Nobody seemed to be interested in this toolkit. The (s|l)trace toolkit and 
-> kdb seemed to be sufficient for the most developers.
+On Wed, 2002-07-10 at 13:20, Cort Dougan wrote:
 
-Please don't presume to speak for me on that.
+> Why was the rate incremented to maintain interactive performance?  Wasn't
+> that the whole idea of the pre-empt work?  Does the burden of pre-empt
+> actually require this?
 
--- 
-Daniel
+I did not say it was increased to improve interactivity response - and
+it certainly has little or nothing to do with kernel preemption being
+merged.
+
+I suspect a big benefit would be poll/select performance.  I think this
+is why RedHat increased HZ in their kernels.
+
+You would have to ask Linus exactly what his intentions were.
+
+> It seems that the added inefficiency of these extra interrupts is going to
+> drag performance down.
+
+	Robert Love
+

@@ -1,82 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261757AbUCPW0h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 17:26:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbUCPW0h
+	id S261773AbUCPW34 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 17:29:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbUCPW34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 17:26:37 -0500
-Received: from turing-police.cirt.vt.edu ([128.173.54.129]:2176 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261757AbUCPW0c (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 17:26:32 -0500
-Message-Id: <200403162226.i2GMQTGp003101@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Nick Orlov <bugfixer@list.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc1-mm1 hangs after Uncompressing kernel... 
-In-Reply-To: Your message of "Tue, 16 Mar 2004 12:51:56 EST."
-             <20040316175156.GA11785@nikolas.hn.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040316175156.GA11785@nikolas.hn.org>
+	Tue, 16 Mar 2004 17:29:56 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15495 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261763AbUCPW3w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 17:29:52 -0500
+Date: Tue, 16 Mar 2004 22:29:51 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc1 SCSI + st regressions (was: Linux 2.6.5-rc1)
+Message-ID: <20040316222951.GC25059@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.58.0403152154070.19853@ppc970.osdl.org> <20040316211203.GA3679@merlin.emma.line.org> <20040316211700.GA25059@parcelfarce.linux.theplanet.co.uk> <20040316215659.GA3861@merlin.emma.line.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_20999636P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 16 Mar 2004 17:26:29 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040316215659.GA3861@merlin.emma.line.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_20999636P
-Content-Type: text/plain; charset=us-ascii
-
-On Tue, 16 Mar 2004 12:51:56 EST, Nick Orlov <bugfixer@list.ru>  said:
-> 2.6.5-rc1-mm1 with 4k-stacks-always-on reverted hangs after
-> "Uncompressing kernel ..."
+On Tue, Mar 16, 2004 at 10:56:59PM +0100, Matthias Andree wrote:
+> I've backed out the 2004-03-12 ChangeSet,
+> willy@debian.org|ChangeSet|20040312212827|57687
 > 
-> reverting early-x86-cpu-detection-fix solved the problem for me.
+> and rebooted, result (does that make sense? Was that a complete
+> back-out?):
+[...]
+> Attached scsi CD-ROM sr0 at scsi0, channel 0, id 2, lun 0
+> st: Version 20040226, fixed bufsize 32768, s/g segs 256
+> Unable to handle kernel NULL pointer dereference at virtual address 0000002e
+>  printing eip:
+> d1ba00fc
+> *pde = 00000000
+> Oops: 0002 [#1]
 
-I had issues with that patch as well, except that rather than a hang, I'd
-get 'Uncompressing kernel...' and then the screen would clear and instead
-of a penguin logo and boot messages, there'd be a second or so of silence
-and then the dread 'ka-chunk' of the machine resetting for a reboot,
-and then I'd be looking at the BIOS screen again.
+OK, that confirms it's not the sym2 changes that were the problem.
+Thanks for testing!
 
-Reverting that patch fixed it for me as well.
-
-I'm running on a Dell Latitude C840, /proc/cpuinfo says:
-
-% cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Pentium(R) 4 Mobile CPU 1.60GHz
-stepping        : 4
-cpu MHz         : 1595.574
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
-bogomips        : 3153.92
-
-As usual, I'm willing to test additional/revised patches if needed...
-
---==_Exmh_20999636P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAV38UcC3lWbTT17ARAjfZAJ0RfcreElDmV3R/vHQlvYk31fGk4gCg85P2
-lq+XfWflcU8uBfcLwBevOYo=
-=TM7l
------END PGP SIGNATURE-----
-
---==_Exmh_20999636P--
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

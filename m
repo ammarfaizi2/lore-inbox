@@ -1,190 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317986AbSGPUzc>; Tue, 16 Jul 2002 16:55:32 -0400
+	id <S318190AbSGPVDt>; Tue, 16 Jul 2002 17:03:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317990AbSGPUy6>; Tue, 16 Jul 2002 16:54:58 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:11480 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S317984AbSGPUxm>;
-	Tue, 16 Jul 2002 16:53:42 -0400
-Date: Tue, 16 Jul 2002 13:56:38 -0700
-To: Jeff Garzik <jgarzik@mandrakesoft.com>, irda-users@lists.sourceforge.net,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] : ir255_nsc_speed-4.diff
-Message-ID: <20020716135638.F28412@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	id <S318191AbSGPVDs>; Tue, 16 Jul 2002 17:03:48 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:15880 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S318190AbSGPVDq>; Tue, 16 Jul 2002 17:03:46 -0400
+Date: Tue, 16 Jul 2002 23:06:39 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+Message-ID: <20020716210639.GC30235@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20020716193831.GC22053@merlin.emma.line.org> <Pine.LNX.4.44.0207161408270.3452-100000@hawkeye.luckynet.adm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Type: application/pgp; x-action=sign; format=text
+Content-Disposition: inline; filename="msg.pgp"
+In-Reply-To: <Pine.LNX.4.44.0207161408270.3452-100000@hawkeye.luckynet.adm>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir255_nsc_speed-4.diff :
-----------------------
-	o [FEATURE] Cleanly change speed back to 9600bps
-	o [CORRECT] Change speed under spinlock/irq disabled
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+On Tue, 16 Jul 2002, Thunder from the hill wrote:
 
-diff -u -p linux/include/net/irda/nsc-ircc.d2.h linux/include/net/irda/nsc-ircc.h
---- linux/include/net/irda/nsc-ircc.d2.h	Mon Jul 15 16:13:58 2002
-+++ linux/include/net/irda/nsc-ircc.h	Mon Jul 15 16:18:55 2002
-@@ -253,6 +253,7 @@ struct nsc_ircc_cb {
- 	
- 	__u32 flags;               /* Interface flags */
- 	__u32 new_speed;
-+	int speed_cnt;		   /* Number of frames before speed change */
- 	int index;                 /* Instance index */
- 
-         struct pm_dev *dev;
-diff -u -p linux/drivers/net/irda/nsc-ircc.d2.c linux/drivers/net/irda/nsc-ircc.c
---- linux/drivers/net/irda/nsc-ircc.d2.c	Mon Jul 15 15:42:50 2002
-+++ linux/drivers/net/irda/nsc-ircc.c	Tue Jul 16 10:43:37 2002
-@@ -953,6 +953,7 @@ static void nsc_ircc_change_dongle_speed
-  *
-  *    Change the speed of the device
-  *
-+ * This function *must* be called with irq off and spin-lock.
-  */
- static void nsc_ircc_change_speed(struct nsc_ircc_cb *self, __u32 speed)
- {
-@@ -1048,7 +1049,6 @@ static void nsc_ircc_change_speed(struct
-     	
- 	/* Restore BSR */
- 	outb(bank, iobase+BSR);
--	netif_wake_queue(dev);
- 	
- }
- 
-@@ -1074,20 +1074,30 @@ static int nsc_ircc_hard_xmit_sir(struct
- 
- 	netif_stop_queue(dev);
- 		
-+	/* Make sure tests *& speed change are atomic */
-+	spin_lock_irqsave(&self->lock, flags);
-+	
- 	/* Check if we need to change the speed */
- 	speed = irda_get_next_speed(skb);
- 	if ((speed != self->io.speed) && (speed != -1)) {
--		/* Check for empty frame */
-+		/* Check for empty frame. */
- 		if (!skb->len) {
--			nsc_ircc_change_speed(self, speed); 
-+			/* If we just sent a frame, we get called before
-+			 * the last bytes get out (because of the SIR FIFO).
-+			 * If this is the case, let interrupt handler change
-+			 * the speed itself... Jean II */
-+			if (self->io.direction == IO_RECV)
-+				nsc_ircc_change_speed(self, speed); 
-+			else
-+				self->new_speed = speed;
-+			spin_unlock_irqrestore(&self->lock, flags);
- 			dev_kfree_skb(skb);
-+			netif_wake_queue(dev);
- 			return 0;
- 		} else
- 			self->new_speed = speed;
- 	}
- 
--	spin_lock_irqsave(&self->lock, flags);
--	
- 	/* Save current bank */
- 	bank = inb(iobase+BSR);
- 	
-@@ -1126,20 +1136,34 @@ static int nsc_ircc_hard_xmit_fir(struct
- 
- 	netif_stop_queue(dev);
- 	
-+	/* Make sure tests *& speed change are atomic */
-+	spin_lock_irqsave(&self->lock, flags);
-+
- 	/* Check if we need to change the speed */
- 	speed = irda_get_next_speed(skb);
- 	if ((speed != self->io.speed) && (speed != -1)) {
--		/* Check for empty frame */
-+		/* Check for empty frame. */
- 		if (!skb->len) {
--			nsc_ircc_change_speed(self, speed); 
-+			/* If we are currently transmitting, defer to
-+			 * interrupt handler. - Jean II */
-+			if(self->tx_fifo.len == 0)
-+				nsc_ircc_change_speed(self, speed); 
-+			else {
-+				self->new_speed = speed;
-+				self->speed_cnt = self->tx_fifo.len;
-+			}
-+			spin_unlock_irqrestore(&self->lock, flags);
- 			dev_kfree_skb(skb);
-+			netif_wake_queue(dev);
- 			return 0;
--		} else
-+		} else {
- 			self->new_speed = speed;
-+			/* Save the number of frames currently in the fifo
-+			 * so that we know *when* to change the speed. */
-+			self->speed_cnt = self->tx_fifo.len + 1;
-+		}
- 	}
- 
--	spin_lock_irqsave(&self->lock, flags);
--
- 	/* Save current bank */
- 	bank = inb(iobase+BSR);
- 
-@@ -1334,16 +1358,23 @@ static int nsc_ircc_dma_xmit_complete(st
- 		self->stats.tx_packets++;
- 	}
- 
--	/* Check if we need to change the speed */
--	if (self->new_speed) {
--		nsc_ircc_change_speed(self, self->new_speed);
--		self->new_speed = 0;
--	}
--
- 	/* Finished with this frame, so prepare for next */
- 	self->tx_fifo.ptr++;
- 	self->tx_fifo.len--;
- 
-+	/* Check if we need to change the speed.
-+	 * Do it after self->tx_fifo.len--; to avoid races with
-+	 * nsc_ircc_hard_xmit_fir().
-+	 * We do it synchronous to the packets in the fifo, so that's
-+	 * why we wait for the right frame to do it. - Jean II */
-+	if ((self->new_speed) && (--self->speed_cnt == 0)) {
-+		/* There seem to be some issue with corrupting the
-+		 * frame just before a speed change. Workaround. Jean II */
-+		udelay(100);
-+		nsc_ircc_change_speed(self, self->new_speed);
-+		self->new_speed = 0;
-+	}
-+
- 	/* Any frames to be sent back-to-back? */
- 	if (self->tx_fifo.len) {
- 		nsc_ircc_dma_xmit(self, iobase);
-@@ -1634,7 +1665,12 @@ static void nsc_ircc_sir_interrupt(struc
- 	}
- 	/* Check if transmission has completed */
- 	if (eir & EIR_TXEMP_EV) {
--		/* Check if we need to change the speed? */
-+		/* Turn around and get ready to receive some data */
-+		self->io.direction = IO_RECV;
-+		self->ier = IER_RXHDL_IE;
-+		/* Check if we need to change the speed?
-+		 * Need to be after self->io.direction to avoid race with
-+		 * nsc_ircc_hard_xmit_sir() - Jean II */
- 		if (self->new_speed) {
- 			IRDA_DEBUG(2, __FUNCTION__ "(), Changing speed!\n");
- 			nsc_ircc_change_speed(self, self->new_speed);
-@@ -1649,9 +1685,6 @@ static void nsc_ircc_sir_interrupt(struc
- 				return;
- 			}
- 		}
--		/* Turn around and get ready to receive some data */
--		self->io.direction = IO_RECV;
--		self->ier = IER_RXHDL_IE;
- 	}
- 
- 	/* Rx FIFO threshold or timeout */
+> Hi,
+> 
+> On Tue, 16 Jul 2002, Matthias Andree wrote:
+> > > or the blockdevice-level snapshots already implemented in Linux..
+> > 
+> > That would require three atomic steps:
+> > 
+> > 1. mount read-only, flushing all pending updates
+> > 2. take snapshot
+> > 3. mount read-write
+> > 
+> > and then backup the snapshot. A snapshots of a live file system won't
+> > do, it can be as inconsistent as it desires -- if your corrupt target is
+> > moving or not, dumping it is not of much use.
+> 
+> Well, couldn't we just kindof lock the file system so that while backing 
+> up no writes get through to the real filesystem? This will possibly 
+> require a lot of memory (or another space to write to), but it might be 
+> done?
+
+But you would want to backup a consistent file system, so when entering
+the freeze or snapshot mode, you must flush all pending data in such a
+way that the snapshot is consistent (i. e. needs not fsck action
+whatsoever).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9NIrfFmbjPHp/pcMRAkAyAJ4wQhTUafOHDrmmA2DGrFKn9NEOHwCdHM3Q
+UdlrkGbhUynS86ogxstbdQM=
+=vK/f
+-----END PGP SIGNATURE-----

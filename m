@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267388AbUJGPkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267404AbUJGPlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267388AbUJGPkh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 11:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267397AbUJGPkh
+	id S267404AbUJGPlm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 11:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267397AbUJGPkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 11:40:37 -0400
-Received: from rproxy.gmail.com ([64.233.170.200]:28581 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267388AbUJGPkb (ORCPT
+	Thu, 7 Oct 2004 11:40:43 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:52702 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267396AbUJGPkc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 11:40:31 -0400
-Message-ID: <e7963922041007083940ed74f4@mail.gmail.com>
-Date: Thu, 7 Oct 2004 17:39:46 +0200
-From: Stefan Schweizer <sschweizer@gmail.com>
-Reply-To: Stefan Schweizer <sschweizer@gmail.com>
-To: Steve M <stevenm@umd.edu>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] RadeonFB ACPI S3 patch fixed to not break S4. 2.6.8.1, 2.6.7
-In-Reply-To: <1097134935.7805.1.camel@stevenm-laptop.student.umd.edu>
+	Thu, 7 Oct 2004 11:40:32 -0400
+Subject: Re: [PATCH]  no buddy bitmap patch : intro and includes [0/2]
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Matthew E Tolentino <matthew.e.tolentino@intel.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, lhms <lhms-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       "Luck, Tony" <tony.luck@intel.com>,
+       Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <D36CE1FCEFD3524B81CA12C6FE5BCAB007ED31D6@fmsmsx406.amr.corp.intel.com>
+References: <D36CE1FCEFD3524B81CA12C6FE5BCAB007ED31D6@fmsmsx406.amr.corp.intel.com>
+Content-Type: text/plain
+Message-Id: <1097163578.3625.43.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 07 Oct 2004 08:39:38 -0700
 Content-Transfer-Encoding: 7bit
-References: <1096868582.10456.9.camel@stevenm-laptop.student.umd.edu>
-	 <e796392204100706526247ece2@mail.gmail.com>
-	 <1097134935.7805.1.camel@stevenm-laptop.student.umd.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Nice that you also have the same problem.
-Do you have any clue what driver is causing this? Its really annoying
-for me with S3.
-Perhaps I could figure it out with more verbose messages, any I dea
-how to get them?
-
-Stefan
-
-On Thu, 07 Oct 2004 03:42:15 -0400, Steve M <stevenm <aaatt> umd.edu> wrote:
-> Hello.
-> Mine does this occasionally. I do not really understand why. Some say it
-> is because some things are missing interrupts, and I will try some more
-> rigorous mudile unloading and modulizing of things compiled in. Having
-> to press a key doesn't bother me that much, because with this modified
-> patch Suspend-to-Disk works again. I will play around with it further,
-> though.
+On Thu, 2004-10-07 at 08:03, Tolentino, Matthew E wrote:
+> >> Followings are patches for removing bitmaps from buddy=20
+> >allocator, against 2.6.9-rc3.
+> >> I think this version is much clearer than ones I posted a month ago.
+> >...
+> >> If there is unclear point, please tell me.
+> >
+> >What was the purpose behind this, again? Sorry, has been too long since
+> >I last looked.
 > 
-> On Thu, 2004-10-07 at 15:52 +0200, Stefan Schweizer wrote:
-> > Your patch has the same problem as Oles for me. It stops after
-> > "radeonfb: resumed !". If I press a key then, it proceedes.
+> For one, it avoids the otherwise requisite resizing of the bitmaps=20
+> during memory hotplug operations...
+
+It also simplifies the nonlinear implementation.  The whole reason we
+had the lpfn (Linear) stuff was so that the bitmaps could represent a
+sparse physical address space in a much more linear fashion.  With no
+bitmaps, this isn't an issue, and gets rid of a lot of code, and a
+*huge* source of bugs where lpfns and pfns are confused for each other. 
+-- Dave
+

@@ -1,88 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315102AbSDWJSZ>; Tue, 23 Apr 2002 05:18:25 -0400
+	id <S315115AbSDWJXo>; Tue, 23 Apr 2002 05:23:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315109AbSDWJSY>; Tue, 23 Apr 2002 05:18:24 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:31497 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S315102AbSDWJSX>;
-	Tue, 23 Apr 2002 05:18:23 -0400
-Date: Tue, 23 Apr 2002 11:18:09 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Miles Lane <miles@megapathdsl.net>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.9 -- OOPS in IDE code (symbolic dump and boot log included)
-Message-ID: <20020423091809.GM810@suse.de>
-In-Reply-To: <1019549894.1450.41.camel@turbulence.megapathdsl.net> <3CC51494.8040309@evision-ventures.com>
+	id <S315120AbSDWJXn>; Tue, 23 Apr 2002 05:23:43 -0400
+Received: from kiruna.synopsys.com ([204.176.20.18]:7605 "HELO
+	kiruna.synopsys.com") by vger.kernel.org with SMTP
+	id <S315115AbSDWJXm>; Tue, 23 Apr 2002 05:23:42 -0400
+Date: Tue, 23 Apr 2002 11:23:31 +0200
+From: Alex Riesen <Alexander.Riesen@synopsys.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, Release 2.1 is available
+Message-ID: <20020423112331.B1142@riesen-pc.gr05.synopsys.com>
+Reply-To: Alexander.Riesen@synopsys.com
+Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020422163606.A1142@riesen-pc.gr05.synopsys.com> <5928.1019516614@ocs3.intra.ocs.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 23 2002, Martin Dalecki wrote:
-> Miles Lane wrote:
-> >I should probably add the /proc/ksyms snapshotting stuff to 
-> >get the module information for you as well.  I hope this 
-> >current batch of info helps, for starters.
+
+oops, sorry about the trouble.
+
+This time:
++ kbuild-2.5-core-6
++ kbuild-2.5-common-2.5.8-3
++ kbuild-2.5-i386-2.5.8-1
+
+Small issue with generation of defkeymap.c:
+i got error that there was no permission to write in the file from
+/bin/sh. Sorry, accidentially typed Ctrl-L in terminal and the error was
+lost. I'll try to reproduce it (it's not every time).
+
+Btw, why it isn't possible to run "make clean installable"?
+Or at least "make clean oldconfig installable"?
+
+
+On Tue, Apr 23, 2002 at 09:03:34AM +1000, Keith Owens wrote:
+> On Mon, 22 Apr 2002 16:36:06 +0200, 
+> Alex Riesen <Alexander.Riesen@synopsys.com> wrote:
+> >On Sun, Apr 21, 2002 at 05:43:08PM +1000, Keith Owens wrote:
+> >> 
+> >> Release 2.1 of kernel build for kernel 2.5 (kbuild 2.5) is available.
+> >> http://sourceforge.net/projects/kbuild/, Package kbuild-2.5, download
+> >> release 2.1.
+> >> 
 > >
-> >ksymoops 2.4.4 on i686 2.4.7-10.  Options used
-> >     -v /usr/src/linux/vmlinux (specified)
-> >     -K (specified)
-> >     -L (specified)
-> >     -o /lib/modules/2.5.9/ (specified)
-> >     -m /boot/System.map-2.5.9 (specified)
+> >Hi, i've got some problems with 2.1:
+> >.../v2.5-1/arch/i386/kernel/entry.S:223: unterminated character constant
+> >.../v2.5-1/arch/i386/kernel/entry.S:264: unterminated character constant
+> >.../v2.5-1/arch/i386/kernel/entry.S:280: unterminated character constant
+> >That was Linus's bk tree (cset 1.562)
+> >+ kbuild-2.5-core-4
+> >+ kbuild-2.5-common-2.5.8-pre3-1
+> >+ kbuild-2.5-i386-2.5.8-pre3-1
 > 
+> Those are not release 2.1 files, you are using old patches.  Release
+> 2.1 uses core-6 and patches for 2.5.8, not 2.5.8-pre3.
 > 
-> Looks like the oops came from module code.
-> Which modules did you use: ide-flappy and ide-scsi are still
-> in need of the same medication ide-cd got.
-
-Martin,
-
-There are several 'issues' with the ide-cd changes, in fact I think they
-are horrible. I'll take part of the blame for that, I'll explain.
-
-The ata_ar_get() doesn't belong inside the do_request() strategies, the
-reason I did that for ide-disk was to get going on the tcq stuff and not
-spend too much time rewriting the ide request handling at that point. It
-was _never_ meant to propagate into the other ide drivers, and in fact
-the code in ide-disk has several tcq specific parts that really cannot
-work in ide-cd. Such as (ide-cd.c:ide_cdrom_do_request()):
-
-	spin_lock...
-
-	ar = ata_ar_get()
-	if (!ar) {
-		spin_unlock;
-		return ide_started;
-	}
-	...
-
-ide-disk guarentees that if ata_ar_get() fails, it's because we have
-some pending commands on the drive. The ide_started is bogus too, in
-this context it really should be ide_didnt_start_jack, but it works for
-ide-disk because of the above assumptions.
-
-Don't tell me you can read ide_cdrom_do_request() right now without a
-barf bag :-)
-
-I'd suggest moving the ata_ar_get() at the ide_queue_commands() level,
-and just pass { drive, ar } to the do_request() strategies. That's also
-why ide-disk.c:idedisk_do_request() has this comment:
-
-	/*
-	 * get a new command (push ar further down to avoid grabbing
-	 * lock here
-	 */
-	spin_lock_irqsave(DRIVE_LOCK(drive), flags);
-
-	ar = ata_ar_get(drive);
-	...
-
-I've been meaning to do this once tcq settled down, just didn't get
-around to it yet. But please don't start moving stuff like this into
-ide-cd too.
-
--- 
-Jens Axboe
-
+> >P.S. "phase 1" for xconfig is evil, is it absolutely unavoidable?
+> 
+> Yes.  A driver may not be in the main kernel source tree, it can be in
+> a separate tree.  Phase 1 finds all the files in all trees, including
+> config files.

@@ -1,241 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267699AbUHEPgZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267702AbUHEPlA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267699AbUHEPgZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 11:36:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267702AbUHEPgZ
+	id S267702AbUHEPlA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 11:41:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267711AbUHEPlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 11:36:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:36817 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267699AbUHEPgE (ORCPT
+	Thu, 5 Aug 2004 11:41:00 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:36766 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S267702AbUHEPkt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 11:36:04 -0400
-Date: Thu, 5 Aug 2004 08:14:45 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Rik van Riel <riel@redhat.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] increase mlock limit to 32k
-Message-Id: <20040805081445.1c4b085e.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0408050005380.25023-100000@dhcp83-102.boston.redhat.com>
-References: <Pine.LNX.4.44.0408050005380.25023-100000@dhcp83-102.boston.redhat.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Thu, 5 Aug 2004 11:40:49 -0400
+Date: Thu, 5 Aug 2004 08:39:29 -0700
+From: Grant Grundler <iod00d@hp.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Grant Grundler <iod00d@hp.com>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       linux-ia64@vger.kernel.org, Jesse Barnes <jbarnes@engr.sgi.com>,
+       linux-kernel@vger.kernel.org, fastboot@osdl.org
+Subject: Re: [Fastboot] Re: [BROKEN PATCH] kexec for ia64
+Message-ID: <20040805153929.GC6526@cup.hp.com>
+References: <200407261524.40804.jbarnes@engr.sgi.com> <200407261536.05133.jbarnes@engr.sgi.com> <20040730155504.2a51b1fa.rddunlap@osdl.org> <m18ycvhx1j.fsf@ebiederm.dsl.xmission.com> <20040804233335.GD548@cup.hp.com> <m1hdri2uw0.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1hdri2uw0.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Aug 2004 00:08:33 -0400 (EDT) Rik van Riel wrote:
+On Wed, Aug 04, 2004 at 08:14:55PM -0600, Eric W. Biederman wrote:
+> VGA/serial console devices rarely need to do be bus masters so they
+> should be fine.
 
-| Since various gnupg users have indicated that gpg wants to mlock
-| 32kB of memory, I created the patch below that increases the
-| default mlock ulimit to 32kB.
-| 
-| This is no security problem because it's trivial for processes
-| to lock way more memory than this in page tables, network buffers,
-| etc.   In fact, since this patch allows gnupg to mlock to prevent
-| passphrase data from being swapped out, the security people will
-| probably like it ;)
-| 
-| Signed-off-by: Rik van Riel <riel@redhat.com>
-| 
-| 
-| --- linux-2.6.7/include/asm-ppc64/resource.h.mlock	2004-08-04 07:46:42.000000000 -0400
-| +++ linux-2.6.7/include/asm-ppc64/resource.h	2004-08-04 07:47:06.000000000 -0400
-| @@ -45,7 +45,7 @@
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{             0,             0 },		\
-|  	{      INR_OPEN,     INR_OPEN  },		\
-| -	{ PAGE_SIZE,     PAGE_SIZE     },		\
-| +	{ 32768,	     32768     },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
-| --- linux-2.6.7/include/asm-m68k/resource.h.mlock	2004-08-04 07:46:42.000000000 -0400
-| +++ linux-2.6.7/include/asm-m68k/resource.h	2004-08-04 07:47:06.000000000 -0400
-| @@ -39,7 +39,7 @@
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{             0,             0 },		\
-|  	{      INR_OPEN,     INR_OPEN  },		\
-| -	{ PAGE_SIZE,     PAGE_SIZE     },		\
-| +	{ 	32768,		32768  },			\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
-| --- linux-2.6.7/include/asm-parisc/resource.h.mlock	2004-08-04 07:46:42.000000000 -0400
-| +++ linux-2.6.7/include/asm-parisc/resource.h	2004-08-04 07:47:06.000000000 -0400
-| @@ -39,7 +39,7 @@
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{             0,             0 },		\
-|  	{      INR_OPEN,     INR_OPEN  },		\
-| -	{ PAGE_SIZE,     PAGE_SIZE     },		\
-| +	{ 	32768,		32768  },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
-| --- linux-2.6.7/include/asm-ppc/resource.h.mlock	2004-08-04 07:46:42.000000000 -0400
-| +++ linux-2.6.7/include/asm-ppc/resource.h	2004-08-04 07:47:06.000000000 -0400
-| @@ -36,7 +36,7 @@
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{             0,             0 },		\
-|  	{      INR_OPEN,     INR_OPEN  },		\
-| -	{ PAGE_SIZE,     PAGE_SIZE     },		\
-| +	{	 32768,		32768  },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
-| --- linux-2.6.7/include/asm-x86_64/resource.h.mlock	2004-08-04 07:46:43.000000000 -0400
-| +++ linux-2.6.7/include/asm-x86_64/resource.h	2004-08-04 07:47:06.000000000 -0400
-| @@ -39,7 +39,7 @@
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{             0,             0 },		\
-|  	{      INR_OPEN,     INR_OPEN  },		\
-| -	{ PAGE_SIZE , PAGE_SIZE  },		\
-| +	{ 	32768 ,		32768  },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
-| --- linux-2.6.7/include/asm-ia64/resource.h.mlock	2004-08-04 07:46:42.000000000 -0400
-| +++ linux-2.6.7/include/asm-ia64/resource.h	2004-08-04 07:47:06.000000000 -0400
-| @@ -46,7 +46,7 @@
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{             0,             0 },		\
-|  	{      INR_OPEN,     INR_OPEN  },		\
-| -	{ PAGE_SIZE,     PAGE_SIZE     },		\
-| +	{ 	32768,		 32768 },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
-| --- linux-2.6.7/include/asm-arm/resource.h.mlock	2004-08-04 07:46:41.000000000 -0400
-| +++ linux-2.6.7/include/asm-arm/resource.h	2004-08-04 07:47:06.000000000 -0400
-| @@ -39,7 +39,7 @@
-|  	{ RLIM_INFINITY, RLIM_INFINITY },	\
-|  	{ 0,             0             },	\
-|  	{ INR_OPEN,      INR_OPEN      },	\
-| -	{ PAGE_SIZE,      PAGE_SIZE    },	\
-| +	{ 	32768,      	32768  },	\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },	\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },	\
-|  	{ MAX_SIGPENDING, MAX_SIGPENDING},	\
-| --- linux-2.6.7/include/asm-sparc/resource.h.mlock	2004-08-04 07:46:43.000000000 -0400
-| +++ linux-2.6.7/include/asm-sparc/resource.h	2004-08-04 07:47:06.000000000 -0400
-| @@ -44,7 +44,7 @@
-|      {       0, RLIM_INFINITY},		\
-|      {RLIM_INFINITY, RLIM_INFINITY},	\
-|      {INR_OPEN, INR_OPEN}, {0, 0},	\
-| -    {PAGE_SIZE, PAGE_SIZE},	\
-| +    {		32768,	 32768},	\
-|      {RLIM_INFINITY, RLIM_INFINITY},	\
-|      {RLIM_INFINITY, RLIM_INFINITY},	\
-|      {MAX_SIGPENDING, MAX_SIGPENDING},	\
-| --- linux-2.6.7/include/asm-alpha/resource.h.mlock	2004-08-04 07:46:41.000000000 -0400
-| +++ linux-2.6.7/include/asm-alpha/resource.h	2004-08-04 07:47:06.000000000 -0400
-| @@ -41,7 +41,7 @@
-|      {INR_OPEN, INR_OPEN},			/* RLIMIT_NOFILE */	\
-|      {LONG_MAX, LONG_MAX},			/* RLIMIT_AS */		\
-|      {LONG_MAX, LONG_MAX},			/* RLIMIT_NPROC */	\
-| -    {PAGE_SIZE, PAGE_SIZE},			/* RLIMIT_MEMLOCK */	\
-| +    {	32768, 32768},				/* RLIMIT_MEMLOCK */	\
-|      {LONG_MAX, LONG_MAX},			/* RLIMIT_LOCKS */	\
-|      {MAX_SIGPENDING, MAX_SIGPENDING},		/* RLIMIT_SIGPENDING */ \
-|      {MQ_BYTES_MAX, MQ_BYTES_MAX},		/* RLIMIT_MSGQUEUE */	\
-| --- linux-2.6.7/include/asm-h8300/resource.h.mlock	2004-08-04 07:46:41.000000000 -0400
-| +++ linux-2.6.7/include/asm-h8300/resource.h	2004-08-04 07:47:06.000000000 -0400
-| @@ -39,7 +39,7 @@
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{             0,             0 },		\
-|  	{      INR_OPEN,     INR_OPEN  },		\
-| -	{ PAGE_SIZE,     PAGE_SIZE     },		\
-| +	{ 	32768,     32768     },			\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
-| --- linux-2.6.7/include/asm-i386/resource.h.mlock	2004-08-04 07:46:42.000000000 -0400
-| +++ linux-2.6.7/include/asm-i386/resource.h	2004-08-04 07:47:06.000000000 -0400
-| @@ -40,7 +40,7 @@
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{             0,             0 },		\
-|  	{      INR_OPEN,     INR_OPEN  },		\
-| -	{ PAGE_SIZE,     PAGE_SIZE     },		\
-| +	{ 	32768,		32768  },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
-| --- linux-2.6.7/include/asm-s390/resource.h.mlock	2004-08-04 07:46:42.000000000 -0400
-| +++ linux-2.6.7/include/asm-s390/resource.h	2004-08-04 07:47:06.000000000 -0400
-| @@ -47,7 +47,7 @@
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{             0,             0 },		\
-|  	{ INR_OPEN, INR_OPEN },                         \
-| -	{ PAGE_SIZE,     PAGE_SIZE     },		\
-| +	{ 	32768,		32768  },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
-| --- linux-2.6.7/include/asm-cris/resource.h.mlock	2004-08-04 07:46:41.000000000 -0400
-| +++ linux-2.6.7/include/asm-cris/resource.h	2004-08-04 07:47:06.000000000 -0400
-| @@ -39,7 +39,7 @@
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{             0,             0 },		\
-|  	{      INR_OPEN,     INR_OPEN  },		\
-| -	{     PAGE_SIZE,    PAGE_SIZE  },               \
-| +	{	32768,		32768  },               \
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
-| --- linux-2.6.7/include/asm-sparc64/resource.h.mlock	2004-08-04 07:46:43.000000000 -0400
-| +++ linux-2.6.7/include/asm-sparc64/resource.h	2004-08-04 07:47:06.000000000 -0400
-| @@ -43,7 +43,7 @@
-|      {       0, RLIM_INFINITY},		\
-|      {RLIM_INFINITY, RLIM_INFINITY},	\
-|      {INR_OPEN, INR_OPEN}, {0, 0},	\
-| -    {PAGE_SIZE,     PAGE_SIZE    },	\
-| +    {	32768,     32768    },		\
-|      {RLIM_INFINITY, RLIM_INFINITY},	\
-|      {RLIM_INFINITY, RLIM_INFINITY},	\
-|      {MAX_SIGPENDING, MAX_SIGPENDING},	\
-| --- linux-2.6.7/include/asm-arm26/resource.h.mlock	2004-08-04 07:46:41.000000000 -0400
-| +++ linux-2.6.7/include/asm-arm26/resource.h	2004-08-04 07:47:06.000000000 -0400
-| @@ -39,7 +39,7 @@
-|  	{ RLIM_INFINITY, RLIM_INFINITY },	\
-|  	{ 0,             0             },	\
-|  	{ INR_OPEN,      INR_OPEN      },	\
-| -	{ PAGE_SIZE,     PAGE_SIZE     },	\
-| +	{ 32768,         32768         },	\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },	\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },	\
-|  	{ MAX_SIGPENDING, MAX_SIGPENDING},	\
-| --- linux-2.6.7/include/asm-v850/resource.h.mlock	2004-08-04 07:46:43.000000000 -0400
-| +++ linux-2.6.7/include/asm-v850/resource.h	2004-08-04 07:47:06.000000000 -0400
-| @@ -39,7 +39,7 @@
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{             0,             0 },		\
-|  	{      INR_OPEN,     INR_OPEN  },		\
-| -	{ PAGE_SIZE, PAGE_SIZE  },		\
-| +	{ 	32768,		 32768 },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
-| --- linux-2.6.7/include/asm-sh/resource.h.mlock	2004-08-04 07:46:43.000000000 -0400
-| +++ linux-2.6.7/include/asm-sh/resource.h	2004-08-04 07:47:06.000000000 -0400
-| @@ -39,7 +39,7 @@
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{             0,             0 },		\
-|  	{      INR_OPEN,     INR_OPEN  },		\
-| -	{ PAGE_SIZE,     PAGE_SIZE     },		\
-| +	{ 	32768,     32768     },			\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ RLIM_INFINITY, RLIM_INFINITY },		\
-|  	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
-| 
-| -
+yeah - you are right. I wasn't thinking.
+Can anyone comment on UGA or other console devices?
 
-Please s/32768/MLOCK_LIMIT/g (above)
+> In the general case it appears to be overkill, incorrect and
+> insufficient to disable bus mastering on all PCI devices.  Which is
+> why device_shutdown() calls device specific code.
 
-and use:
-#define MLOCK_LIMIT		32768
+Is anyone else considering using kexec() to recover from a oops/panic?
+What is the risk calling multiple device_shutdown() will expose another panic?
 
---
-~Randy
+While calling a device specific cleanup is best, I worry about how
+much code/data gets touched in this path. I was hoping something
+simple like twiddling bus master bit would be sufficient.
+If it's not, oh well.
+
+thanks,
+grant

@@ -1,64 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263053AbTKPW4d (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 17:56:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263131AbTKPW4d
+	id S263189AbTKPX0n (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 18:26:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbTKPX0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 17:56:33 -0500
-Received: from unthought.net ([212.97.129.88]:55990 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S263053AbTKPW4b (ORCPT
+	Sun, 16 Nov 2003 18:26:43 -0500
+Received: from mail.gmx.net ([213.165.64.20]:4236 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263189AbTKPX0l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 17:56:31 -0500
-Date: Sun, 16 Nov 2003 23:56:29 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Jens Axboe <axboe@suse.de>, Guillaume Chazarain <guichaz@yahoo.fr>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cfq + io priorities
-Message-ID: <20031116225629.GA14934@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Pavel Machek <pavel@suse.cz>, Jens Axboe <axboe@suse.de>,
-	Guillaume Chazarain <guichaz@yahoo.fr>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <SRLGXA875SP047EDQLEC055ZHDZX2V.3fae1da3@monpc> <20031109113928.GN2831@suse.de> <20031113125427.GB643@openzaurus.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031113125427.GB643@openzaurus.ucw.cz>
-User-Agent: Mutt/1.3.28i
+	Sun, 16 Nov 2003 18:26:41 -0500
+X-Authenticated: #15936885
+Message-ID: <3FB807A3.8010207@gmx.net>
+Date: Mon, 17 Nov 2003 00:26:27 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030821
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: netdev@oss.sgi.com, Andrew Morton <akpm@digeo.com>,
+       Bernhard Rosenkraenzer <bero@arklinux.org>,
+       Andrew de Quincey <adq@lidskialf.net>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: forcedeth: version 0.17 available
+X-Enigmail-Version: 0.76.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 13, 2003 at 01:54:28PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > > OK, I ask THE question : why not using the normal nice level, via
-> > > current->static_prio ?
-> > > This way, cdrecord would be RT even in IO, and nice -19 updatedb would have
-> > > a minimal impact on the system.
-> > 
-> > I don't want to tie io prioritites to cpu priorities, that's a design
-> > decision.
-> 
-> OTOH it might make sense to make "nice" command set
-> both by default.
+Hello all,
 
-The syscall actually.
+version 0.17 of forcedeth for Linux 2.4 and 2.6 is available at
+http://www.hailfinger.org/carldani/linux/patches/forcedeth/
 
-Users and developers alike, expect "nice" to mean "nice".
+Fixes in this release over 0.14:
+*  0.15: 08 Nov 2003: fix smp deadlock with set_multicast_list
+*                     during open.
+*  0.16: 15 Nov 2003: include file cleanup for ppc64, rx buffer
+*                     size increased to 1628 bytes.
+*  0.17: 16 Nov 2003: undo rx buffer size increase. Substract 1
+*                     from the tx length.
 
-Having cpu_nice and io_nice too would be nice for completeness, if for
-some unfathomable reason someone would want to set the one and not the
-other.
+Known issues:
+*  Oops during module removal, probably sysfs related. Could a
+   sysfs expert please take a look at the code? Call trace is at
+   http://www.ussg.iu.edu/hypermail/linux/kernel/0311.1/0213.html
+   More traces (roughly the same) available on request.
+*  Some boards give bogus MAC addresses and work only partially.
+   Same problem happens with nvnet on these boards.
+*  Transmit for packets close to MTU size was broken, should be
+   fixed now.
+
+Please test.
 
 
-All in my humble oppinion, of course  :)
+Regards,
+Carl-Daniel
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:

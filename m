@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265177AbSL0W3i>; Fri, 27 Dec 2002 17:29:38 -0500
+	id <S265187AbSL0Wfm>; Fri, 27 Dec 2002 17:35:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265187AbSL0W3h>; Fri, 27 Dec 2002 17:29:37 -0500
-Received: from flamingo.mail.pas.earthlink.net ([207.217.120.232]:51686 "EHLO
-	flamingo.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S265177AbSL0W3h>; Fri, 27 Dec 2002 17:29:37 -0500
-Date: Fri, 27 Dec 2002 17:42:27 -0500
-To: thunder7@xs4all.nl
-Cc: linux-kernel@vger.kernel.org, vandrove@vc.cvut.cz
-Subject: Re: also frustrated with the framebuffer and your matrox-card in 2.5.53? hack/patch available!
-Message-ID: <20021227224227.GA2671@rushmore>
+	id <S265198AbSL0Wfm>; Fri, 27 Dec 2002 17:35:42 -0500
+Received: from m3.azalea.se ([217.75.96.207]:5575 "HELO m3.azalea.se")
+	by vger.kernel.org with SMTP id <S265187AbSL0Wfl>;
+	Fri, 27 Dec 2002 17:35:41 -0500
+Subject: Re: Alot of DMA errors in 2.4.18, 2.4.20 and 2.5.52
+From: Mikael Olenfalk <mikael@netgineers.se>
+To: jw schultz <jw@pegasys.ws>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20021227071353.A4614@pegasys.ws>
+References: <1040815160.533.6.camel@devcon-x>
+	 <20021225115820.GB7348@louise.pinerecords.com>
+	 <20021226123710.GA2442@iapetus.localdomain>
+	 <1040994876.518.13.camel@devcon-x>  <20021227071353.A4614@pegasys.ws>
+Content-Type: text/plain
+Organization: Netgineers
+Message-Id: <1041028693.1620.4.camel@devcon-x>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: rwhron@earthlink.net
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 27 Dec 2002 23:38:13 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jurriaan wrote:
-> The patch is at
-> http://www.xs4all.nl/~thunder7/matroxfb_2553.diff.bz2
+jw schultz wrote:
+> I'm a bit suprised noone else has mentioned this so i will.
+> Your RAID description seems to indicate it is built of four
+> drives on a two channel HBA.  In other words you have two
+> pairs of drives each pair sharing a cable (master/slave).
+> It is my understanding that that is at best a recepe for
+> poor performance.  From what i have heard ata66 and above is
+> problematic (out of spec) in that configuration.  I imagine
+> such a configuration might also cause poor interactions
+> between the drives.  
 
-Thanks!  Your updated diff works for me too.  Mathijs' timer
-warning fix applies to it too:
+I've tried another setup with One Disk Per Channel(tm), I'm at 37.1% of
+the parity sync now with amazing speeds of 40K/sec and 20314.20 minutes
+left.
 
-http://marc.theaimsgroup.com/?l=linux-fbdev-devel&m=103875174429829&w=2
+The new setup is:
 
-Petr's matroxfb is truely an amazing programming feat.
-I use a 3 year old G400 instead of a newer nVidia card
-with more memory on my main box because of matroxfb's
-vast superiority in text mode.
+> 
+> Aside from the reputed problems with PDC and with the IBM
+> "deathstar" drives you might first try adding another HBA
+> and use better cables before you scrap the drives.
 
-http://home.earthlink.net/~rwhron/hardware/matrox.html
+What reputed problems? I've heard of problems with IBM disks (like dying
+after just one year of use and so on) But I've never heard of any PDC
+problems (BTW I have never heard of any success stories either 8) )...
+Can you recommend another controller, what's about the HPT, is that one
+usable?
+
+
+Thanks for your time, Mikael
+
 
 -- 
-Randy Hron
-http://home.earthlink.net/~rwhron/kernel/bigbox.html
-Linux rushmore 2.5.53-mm1 #1 Fri Dec 27 08:41:11 EST 2002 i686
+Mikael Olenfalk <mikael@netgineers.se>
+Netgineers
 

@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267377AbTAGNrE>; Tue, 7 Jan 2003 08:47:04 -0500
+	id <S267395AbTAGOPI>; Tue, 7 Jan 2003 09:15:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267375AbTAGNrE>; Tue, 7 Jan 2003 08:47:04 -0500
-Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:63426 "EHLO
-	mail.pronto.tv") by vger.kernel.org with ESMTP id <S267377AbTAGNrD> convert rfc822-to-8bit;
-	Tue, 7 Jan 2003 08:47:03 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Asterisk mailing list <asterisk@marko.net>
-Subject: DTMF noise
-Date: Tue, 7 Jan 2003 14:55:32 +0100
-User-Agent: KMail/1.4.1
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200301071455.32489.roy@karlsbakk.net>
+	id <S267397AbTAGOPI>; Tue, 7 Jan 2003 09:15:08 -0500
+Received: from marstons.services.quay.plus.net ([212.159.14.223]:52121 "HELO
+	marstons.services.quay.plus.net") by vger.kernel.org with SMTP
+	id <S267395AbTAGOPH>; Tue, 7 Jan 2003 09:15:07 -0500
+From: peter.holmes@fopet-esl.com
+To: faye@clara.net
+Date: Tue, 7 Jan 2003 14:23:05 -0000
+Subject: Re: [ACPI] acpi_os_queue_for_execution()
+Reply-to: peter.holmes@fopet-esl.com
+CC: linux-kernel@vger.kernel.org
+Message-ID: <3E1AE2C9.13240.1114A3C@localhost>
+X-mailer: Pegasus Mail for Windows (v4.01)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+>> Andrew McGregor [andrew@indranet.co.nz] wrote:
+>> So *that* is why ACPI kernels are so slow on my laptop (Dell i8k), 
+>> and make so much heat. I bet one of those threads ends up busy 
+>> looping because of other brokenness.
 
-when dialing out from the D-link MGCP phone (they actually work now - most of 
-the time), I get lots of DTMF noise whenever the other person talks. I only 
-get this from the MGCP phone - not with MSN messenger. This seems to be an 
-error in isdn4linux falsely detecting DTMF in speech with Asterisk creating 
-the actual noise.
+> Faye Pearson [faye@clara.net] wrote:
+> My laptop was a lot happier when I removed the GPE _L00 method from my
+> DSDT which was busylooping sending a processor 0x80 event.
 
-This testing has been done on hhe following cards (from lspci)
+As a relative newcomer to LINUX quite a lot of it is a foreign language,
+(no awful pun intended).  I've been around electronics and computers for
+quite a few years now.  So would you be so kind as to explain just what
+is "GPE_L00" and "DSDT".  And just how we remove the salient part?
+I have a new Acer Aspire 1304LC which I could cook an egg on.
+Windoze(2K & XP Pro) don't generate anything like so much warmth.
 
-02:09.0 Network controller: Cologne Chip Designs GmbH ISDN network controller 
-[HFC-PCI] (rev 02)
-02:0a.0 Network controller: Cologne Chip Designs GmbH ISDN network controller 
-[HFC-PCI] (rev 02)
-02:0b.0 Network controller: Cologne Chip Designs GmbH ISDN network controller 
-[HFC-PCI] (rev 02)
-
-roy
-
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+Peter

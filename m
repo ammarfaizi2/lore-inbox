@@ -1,55 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313060AbSFXMXZ>; Mon, 24 Jun 2002 08:23:25 -0400
+	id <S313087AbSFXMlZ>; Mon, 24 Jun 2002 08:41:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313087AbSFXMXY>; Mon, 24 Jun 2002 08:23:24 -0400
-Received: from cwbone.bsi.com.br ([200.194.240.1]:1128 "EHLO cwbone.bsi.com.br")
-	by vger.kernel.org with ESMTP id <S313060AbSFXMXX>;
-	Mon, 24 Jun 2002 08:23:23 -0400
-Message-ID: <3D170F37.7000900@PolesApart.dhs.org>
-Date: Mon, 24 Jun 2002 09:23:19 -0300
-From: "Alexandre P. Nunes" <alex@PolesApart.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a) Gecko/20020610
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Markus Schoder <markus_schoder@yahoo.de>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.4.19-pre10-ac2 bug in page_alloc.c:131
-References: <200206231945.27717.markus_schoder@yahoo.de>
-X-scanner: scanned by Inflex 1.0.9 - (http://pldaniels.com/inflex/)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S313113AbSFXMlY>; Mon, 24 Jun 2002 08:41:24 -0400
+Received: from h-64-105-35-162.SNVACAID.covad.net ([64.105.35.162]:65442 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S313087AbSFXMlX>; Mon, 24 Jun 2002 08:41:23 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Mon, 24 Jun 2002 04:42:45 -0700
+Message-Id: <200206241142.EAA04136@adam.yggdrasil.com>
+To: davem@redhat.com
+Subject: Re: RFC: turn scatterlist into a linked list, eliminate bio_vec
+Cc: akpm@zip.com.au, axboe@suse.de, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Markus Schoder wrote:
+>From: "David S. Miller" <davem@redhat.com>
+>Date: Sun, 23 Jun 2002 23:24:16 -0700 (PDT)
 
->Hi Alexandre,
->
->you are using the proprietary nVidia module (NVdriver), so you would have
->to address any kernel problems to nVidia since they are the ones who have the
->source.
->
->However lots of people (including myself) have seen the same problem when 
->using the nVidia module.  For me it went away when upgrading to the 1.0-2960 
->drivers.  If you haven't done so yet this would be the first thing to try.
->
->Hope this helps,
->Markus
->
->  
->
-I'm already using the 1.0-2960 version, and that's the version in the 
-report. It's possible that the NVdriver module is the cause of the 
-problem, but the bug spots in kernel's vm, in a place which it's no 
-supposed to, at the point I understand. So, or the module does something 
-very ugly, or the kernel really have a bug, or yet it's nothing related 
-to the nvdriver. Unfortunately, the backtrace don't help me figuring 
-that out, since I'm no vm expert, but perhaps someone will. I may 
-attempt to forward this to Nvidia folks, but reporting a bug which only 
-spotted once and in a "pre" series kernel may hurt their feelings...
+>>  	/* Let's assume the new pci_map_sg will free unused scatterlists. */
+>>  	while (sg != NULL && count--) {
+>>  		sg->driver_priv = mempool_alloc(q->sgpriv_pool, GFP_KERNEL);
+>>  
+>>  		sg->driver_priv_dma =
+>>  			pci_map_single(req->dma_map_dev, sg->driver_priv, len,
+>>  				       PCI_DMA_TODEVICE);
+>>  			if (sg_dma->dma_add_priv == 0);
+>>  				failed = fail_value;
+>>  		}
+>>  	}
 
-Thanks,
+>Driver descriptors are not supposed to be done using pci_map_*()
+>and friends.  You are supposed to use consistent DMA memory for
+>this purpose.  Please read DMA-mapping.txt a few more times Adam :-)
 
-Alexandre
+	Sorry if I was not clear enough about the purpose of of
+the new scatterlist->driver_priv field.  It is a "streaming" data
+structure to use the terminology of DMA-maping.txt (i.e., one that
+would typically only be allocated for a few microseconds as an IO is
+built up and sent).  Its purpose is to hold the hardware-specific
+gather-scatter segment descriptor, which typically look something like this:
+
+		struct foo_corporation_scsi_controller_sg_element {
+			u64	data_addr;
+			u64	next_addr;
+			u16	data_len;
+			u16	reserved;
+			u32	various_flags;
+		}
+		
+	I probably should not have mentioned adding sg->driver_priv{,_dma}
+in my proposal, because it is largely independent.  The reason that
+it is related is that it should allow the "mid-layer" device driver code
+(scsi.c, usb.c, etc.) to do all of the streaming DMA mapping for
+typical DMA-based device drivers.
+
+	Come to think of it, my use of pci_map_single is incorrect
+after all, because the driver has not yet filled in that data structure
+at that point.  Since the data structures are being allocated from a
+single contiguous block that spans a couple of pages that is being used
+only for this purpose, perhaps I would be fastest to pci_alloc_consistent
+the whole memory pool for those little descriptors at initialization time
+and then change that loop to do the following.
+
+		sg->driver_priv = mempool_alloc(q->sgpriv_pol, GFP_KERNEL);
+		sg->driver_priv_dma = (sg->driver_priv - q->driver_priv_start)+
+				sg->driver_priv_start_dma_addr;
 
 
+>Also, this while loop never terminates :-)
+
+	Oops!  Sorry.  The bottom of that loop needs
+
+		sg = sg->next;
+
+
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

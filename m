@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262859AbSLTRao>; Fri, 20 Dec 2002 12:30:44 -0500
+	id <S262828AbSLTR2W>; Fri, 20 Dec 2002 12:28:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263215AbSLTRao>; Fri, 20 Dec 2002 12:30:44 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28420 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262859AbSLTRan>; Fri, 20 Dec 2002 12:30:43 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: PTRACE_GET_THREAD_AREA
-Date: Fri, 20 Dec 2002 17:36:37 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <atvkf5$6io$1@penguin.transmeta.com>
-References: <200212200832.gBK8Wfg29816@magilla.sf.frob.com> <20021220102431.A26923@infradead.org>
-X-Trace: palladium.transmeta.com 1040405904 31580 127.0.0.1 (20 Dec 2002 17:38:24 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 20 Dec 2002 17:38:24 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S262859AbSLTR2W>; Fri, 20 Dec 2002 12:28:22 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:19142 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262828AbSLTR2U>;
+	Fri, 20 Dec 2002 12:28:20 -0500
+Date: Fri, 20 Dec 2002 18:35:44 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: george anzinger <george@mvista.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Bjorn Helgaas <bjorn_helgaas@hp.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] joydev: fix HZ->millisecond transformation
+Message-ID: <20021220183544.A26785@ucw.cz>
+References: <200212161227.38764.bjorn_helgaas@hp.com> <3E02F3EE.C1367073@mvista.com> <20021220142443.A26184@ucw.cz> <3E03526A.2AA4B685@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3E03526A.2AA4B685@mvista.com>; from george@mvista.com on Fri, Dec 20, 2002 at 09:24:58AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20021220102431.A26923@infradead.org>,
-Christoph Hellwig  <hch@infradead.org> wrote:
->
->I don't think ptrace is the right interface for this.  Just changed
->the get_thread_area/set_thread_area to take a new first pid_t argument.
+On Fri, Dec 20, 2002 at 09:24:58AM -0800, george anzinger wrote:
+> Vojtech Pavlik wrote:
+> > 
+> > On Fri, Dec 20, 2002 at 02:41:50AM -0800, george anzinger wrote:
+> > > Bjorn Helgaas wrote:
+> > > >
+> > > > * fix a problem with HZ->millisecond transformation on
+> > > >   non-x86 archs (from 2.5 change by vojtech@suse.cz)
+> > > >
+> > > > Applies to 2.4.20.
+> > > >
+> > > > diff -Nru a/drivers/input/joydev.c b/drivers/input/joydev.c
+> > > > --- a/drivers/input/joydev.c    Mon Dec 16 12:16:32 2002
+> > > > +++ b/drivers/input/joydev.c    Mon Dec 16 12:16:32 2002
+> > > > @@ -50,6 +50,8 @@
+> > > >  #define JOYDEV_MINORS          32
+> > > >  #define JOYDEV_BUFFER_SIZE     64
+> > > >
+> > > > +#define MSECS(t)       (1000 * ((t) / HZ) + 1000 * ((t) % HZ) / HZ)
+> > > Uh...
+> > > ^^^^^^^^^^^^^^^^
+> > > by definition this is zero, is it not?
+> > 
+> > No, both parts of the equaition can be nonzero.
+> 
+> I don't think so.  s%HZ has to be less than HZ.  Then
+> dividing that by HZ should result in zero.  Where is my
+> thinking flawed?
 
-No.  There is _no_ excuse for even looking at (much less changing)
-another process' thread area unless you are tracing that process. 
+You first multiply it by 1000.
 
-Basically, there is only _one_ valid user of getting/setting the thread
-area of somebody else, and that's for debugging. And debuggers use
-ptrace. It's as simple as that. They use ptrace to read and set memory
-contents, they use ptrace to read and set registers, and they should use
-ptrace to check status bits of the process.
+> > Though it might be easier to say (1000 * t) / HZ, now that I think about
+> > it.
+> 
+> That overflows...  As does the other if HZ is less than 1000....
 
-We do not introduce any extensions to existing system calls for
-debuggers. We already have the interface, and one that does a lot better
-at checking permissions in _one_ place than it would be to have magic
-"can this process read/modify another process" things.
+You're right, t can be all 32 bits.
 
-		Linus
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262811AbUCJURs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 15:17:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262815AbUCJURs
+	id S262803AbUCJUTD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 15:19:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbUCJUTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 15:17:48 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:18395 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262811AbUCJURn (ORCPT
+	Wed, 10 Mar 2004 15:19:03 -0500
+Received: from news.cistron.nl ([62.216.30.38]:1261 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S262823AbUCJUSx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 15:17:43 -0500
-Date: Wed, 10 Mar 2004 21:17:37 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com,
-       thornber@redhat.com
-Subject: Re: [PATCH] backing dev unplugging
-Message-ID: <20040310201737.GF15087@suse.de>
-References: <20040310124507.GU4949@suse.de> <20040310115545.16cb387f.akpm@osdl.org>
+	Wed, 10 Mar 2004 15:18:53 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: /dev/root: which approach ? [PATCH]
+Date: Wed, 10 Mar 2004 20:18:52 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <c2nt7c$r32$1@news.cistron.nl>
+References: <20040310162003.GA25688@cistron.nl> <20040310120145.248ae62d.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040310115545.16cb387f.akpm@osdl.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1078949932 27746 62.216.29.200 (10 Mar 2004 20:18:52 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 10 2004, Andrew Morton wrote:
-> Jens Axboe <axboe@suse.de> wrote:
-> >
-> > Here's a first cut at killing global plugging of block devices to reduce
-> > the nasty contention blk_plug_lock caused. This introduceds per-queue
-> > plugging, controlled by the backing_dev_info.
-> 
-> This is such an improvement over what we have now it isn't funny.
+In article <20040310120145.248ae62d.akpm@osdl.org>,
+Andrew Morton  <akpm@osdl.org> wrote:
+>Miquel van Smoorenburg <miquels@cistron.nl> wrote:
+>>
+>> Currently if you boot from a blockdevice with a dynamically
+>> allocated major number (such as LVM or partitionable raid),
+>> there is no way to check the root filesystem. The root
+>> fs is still read-only, so you cannot create a device node
+>> anywhere to point fsck at.
+>> 
+>> This was discussed on the linux-raid mailinglist, and I proposed
+>> (as proof of concept) a simple check in bdget() to see if the
+>> device is being opened is the /dev/root node and if so redirect
+>> it to the current root device. This is a 8-line patch, the only
+>> disadvantage I can think of is that for an open file, inode->i_rdev
+>> is then different from blockdevice->bd_dev.
+>
+>The /dev/root alias resolution looks nice to me, which probably means that
+>it has a fatal flaw.
+>
+>Is it not possible to create a device node on ramfs or ramdisk and point
+>fsck at that?
 
-It is pretty scary, once I dove into it...
+Yes, I thought of that too. But that wouldn't be trivial for
+existing installations, unless you're the maintainer of the
+distributions init package. Oh wait .. ;)
 
--- 
-Jens Axboe
+Anyway, it seemed to me to be very useful, and since /proc/mounts
+already refers to /dev/root it seemed to fit in naturally hence
+the proposed patches. If the definitive answer is "do it in
+userspace" then that's OK too.
+
+Mike.
 

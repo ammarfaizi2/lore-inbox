@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278541AbRJSQrF>; Fri, 19 Oct 2001 12:47:05 -0400
+	id <S278543AbRJSQ6d>; Fri, 19 Oct 2001 12:58:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278542AbRJSQqz>; Fri, 19 Oct 2001 12:46:55 -0400
-Received: from [208.129.208.52] ([208.129.208.52]:53252 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S278541AbRJSQqp>;
-	Fri, 19 Oct 2001 12:46:45 -0400
-Date: Fri, 19 Oct 2001 09:50:10 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Hubertus Franke <frankeh@watson.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] A try for a more fair scheduler ...
-In-Reply-To: <20011019083141.A10035@watson.ibm.com>
-Message-ID: <Pine.LNX.4.40.0110190942350.1424-100000@blue1.dev.mcafeelabs.com>
+	id <S278545AbRJSQ6X>; Fri, 19 Oct 2001 12:58:23 -0400
+Received: from colorfullife.com ([216.156.138.34]:47886 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S278543AbRJSQ6H>;
+	Fri, 19 Oct 2001 12:58:07 -0400
+Message-ID: <3BD05BC9.DED0A405@colorfullife.com>
+Date: Fri, 19 Oct 2001 18:58:49 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.13-pre3 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Poor floppy performance in kernel 2.4.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Oct 2001, Hubertus Franke wrote:
+ 
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> Seems like a good approach. Could that be made more flexible.
-> Architectures today expose cache miss numbers, which
-> through simple markovian chains approximation allow a much better estimation
-> of the cache footprint then inferring from time.
-> Any chance to incoporate something like
-> this into your cost function flexibly or is this just too <way out there> ?
+> And with
+> the floppy case, there was no way to notice at run-time whether the
+> unit was broken or not - the floppy drives have no ID's to blacklist
+> etc. 
 
-I just wanted to code a solution that is compatible with all architectures
-and that has the lower cost in terms of i-d/cache.
-That's why i used jiffies instead of get_cycles() and time instead of perf
-counters.
-The bottom line is that having to choose between a process that is run for
-10 ms and one that is run for 150 ms, by choosing the 150 one we have a
-very good probability to pick up the one that has a greater footprint.
-Coding more complex solutions will have the effect to add an extra cost
-that will _probably_ vanish the better behavior given by the patch.
+The standard trick is to start with media-change not supported, and
+enable it if you get the first change signal.
+There are really old floppies that don't support media-change signals,
+and they _never_ send it. If you see a media-change signal, then you
+know that the floppy is not broken.
 
+Probably a timer (2 seconds) and a delayed cache flush should fix the
+problem.
 
+If the device supports media-change and media-lock, then it could
+increase the timeout value.
 
-
-- Davide
-
-
+--
+	Manfred

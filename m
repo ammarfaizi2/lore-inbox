@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313070AbSEEP1m>; Sun, 5 May 2002 11:27:42 -0400
+	id <S313060AbSEEPeY>; Sun, 5 May 2002 11:34:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313084AbSEEP1l>; Sun, 5 May 2002 11:27:41 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:49929 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S313070AbSEEP1l>; Sun, 5 May 2002 11:27:41 -0400
-Date: Sun, 5 May 2002 17:27:24 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: <puw@cola.enlightnet.local>
-To: "Peter J. Milanese" <peterm@milanese.cc>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: SMBfs / Unicode problem perhaps?
-In-Reply-To: <1020611972.3cd54d84bf75d@www.milanese.cc>
-Message-ID: <Pine.LNX.4.33.0205051720470.4444-100000@cola.enlightnet.local>
+	id <S313084AbSEEPeY>; Sun, 5 May 2002 11:34:24 -0400
+Received: from jagor.srce.hr ([161.53.2.130]:27853 "EHLO jagor.srce.hr")
+	by vger.kernel.org with ESMTP id <S313060AbSEEPeX>;
+	Sun, 5 May 2002 11:34:23 -0400
+Message-Id: <200205051526.g45FQT89009651@jagor.srce.hr>
+Content-Type: text/plain; charset=US-ASCII
+From: Danijel Schiavuzzi <dschiavu@public.srce.hr>
+Organization: Dead Poets Society
+To: Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: Kernel patching 2.4.19pre1 -> 2.4.19pre2
+Date: Sun, 5 May 2002 17:26:45 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <Pine.NEB.4.44.0205051701330.283-100000@mimas.fachschaften.tu-muenchen.de>
+Cc: linux-kernel@vger.kernel.org
+X-UIN: 39223454
+X-Operating-System: GNU/Linux 2.4.17
+X-Troll: no
+X-URL: <http://danijels.cjb.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 May 2002, Peter J. Milanese wrote:
+On Sunday 05 May 2002 17:03, Adrian Bunk wrote:
+> Hi Danijel,
 
-> :\ - I am running 2.2.3a... I'll look at those messages and see if there is a
-> corelation. Thanks for the tip-
+Hi Adrian :)
 
-Are you sure your smbmount is 2.2.3a and that you don't have a mix of an
-old 2.2.1a install? smbmount from 2.2.3a should not negotiate unicode
-unless you told it to ...
+> > I'm trying to patch a 2.4.17 clean source tree to the latest 2.4.19-pre8
+> > tree. I can patch it until the 2.4.19pre1.
+> > When I try to apply patch-2.4.19pre2.bz2, this happens:
+> >...
+> > Where's the problem?
+> >...
+>
+> the 2.4.19pre patches are all against 2.4.18, IOW:
+> pre2 contains everything that is in pre1, too.
+>
+> You should apply the 2.4.19pre8 patch directly to the 2.4.18 kernel
+> sources.
 
-You could also try the untested patch below that only enables it if you
-also specify "codepage=unicode" as a mount option.
+Thank you very much for the explanation!
 
-/Urban
+Have a nice day,
 
-
-diff -urN -X exclude linux-2.5.13-kbuild-orig/fs/smbfs/proc.c linux-2.5.13-kbuild-smbfs/fs/smbfs/proc.c
---- linux-2.5.13-kbuild-orig/fs/smbfs/proc.c	Fri May  3 02:22:42 2002
-+++ linux-2.5.13-kbuild-smbfs/fs/smbfs/proc.c	Sun May  5 14:53:08 2002
-@@ -979,7 +979,9 @@
- 		SB_of(server)->s_maxbytes = ~0ULL >> 1;
- 		VERBOSE("LFS enabled\n");
- 	}
--	if (server->opt.capabilities & SMB_CAP_UNICODE) {
-+	if (server->opt.capabilities & SMB_CAP_UNICODE &&
-+	    server->remote_nls == &unicode_table) {
-+		/* Only enable unicode if the remote nls is also unicode */
- 		server->mnt->flags |= SMB_MOUNT_UNICODE;
- 		VERBOSE("Unicode enabled\n");
- 	} else {
-
+-- 
+Danijel Schiavuzzi

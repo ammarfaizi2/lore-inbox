@@ -1,69 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318404AbSGYJSt>; Thu, 25 Jul 2002 05:18:49 -0400
+	id <S318416AbSGYJZv>; Thu, 25 Jul 2002 05:25:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318392AbSGYJSt>; Thu, 25 Jul 2002 05:18:49 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:16890 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318404AbSGYJSs>; Thu, 25 Jul 2002 05:18:48 -0400
-Subject: Re: 2.4.19-rc3-ac2 I2O (Promise SX6000) funkiness
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Stuffed Crust <pizza@shaftnet.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020725034316.GA4501@shaftnet.org>
-References: <20020725034316.GA4501@shaftnet.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 25 Jul 2002 11:35:48 +0100
-Message-Id: <1027593348.9488.16.camel@irongate.swansea.linux.org.uk>
+	id <S318417AbSGYJZv>; Thu, 25 Jul 2002 05:25:51 -0400
+Received: from B5230.pppool.de ([213.7.82.48]:29704 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S318416AbSGYJZu>; Thu, 25 Jul 2002 05:25:50 -0400
+Subject: Re: Linux-2.5.28
+From: Daniel Egger <degger@fhm.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+In-Reply-To: <Pine.LNX.4.44.0207241803410.4293-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0207241803410.4293-100000@home.transmeta.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-u4NRQCKf8yo0JZAnXUJJ"
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 25 Jul 2002 11:21:00 +0200
+Message-Id: <1027588861.12730.11.camel@sonja.de.interearth.com>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-07-25 at 04:43, Stuffed Crust wrote:
-> It starts out fine, then the console starts spewing these messages after
-> about 30/2664 inode tables.
-> 
-> 	i2o/iop0: No handler for event (0x00000020)
-> 	i2o/iop0: No handler for event (0x00000020)
-> 	i2o/iop0: No handler for event (0x00000020)
-> 	i2o/iop0: No handler for event (0x00000020)
-> 	i2o/iop0: No handler for event (0x00000020)
 
-Its spewing events we didnt ask for then it dies
+--=-u4NRQCKf8yo0JZAnXUJJ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> 	i2o/iop0: Hardware Failure: Unknown Error  
-> 	i2o/iop0: Hardware Failure: Unknown Error  
-> 	i2o/iop0: Hardware Failure: Unknown Error  
+Am Don, 2002-07-25 um 03.08 schrieb Linus Torvalds:
 
-That says it all. Thats a message from the controller on the SX6000
-saying "I broke".
+> > So IDE-101 equals to the small snippet of code pasted somewhere in the
+> > evil flamewar?
+=20
+> Have you _looked_ at the full changelog? Apparently not.
 
-> FWIW, this is a newer SX6000 with PDC20276 chips on it, and it's sharing
-> IRQ10 with the usb controller.  Disabling it makes no difference.
+I was merely requesting a bit more verbose information in your regular
+changelog, the whole thing is quite exhaustive but this entry didn't
+really fit and contained no useful information at all.
 
-You will need at list 2.4.19ac from a cold boot for this card to work.
-Also check your boot logs to ensure it skipped over the PDC20276
-controllers correctly. I think the code is right but I am not yet sure.
+I will definitely consider reading the "full changelog" although I
+cannot remember having read anything about such a thing before this
+thread.
+=20
+> The snippet was posted as part of the IDE-2.5.27 thread. Go look for it
+> yourself.
 
-If we don't skip the 20276 chips properly then we reconfigure them and
-the raid card has kittens (rightly so)
+Exactly what I said, no?
 
-> Further details can be provided upon request...
-> 
-> I can move the controller to another machine this weekend for further
-> testing.  But in the mean time, Just what is event 0x00000020?
+> Most of the IDE stuff is FUD and misinformation. I've run every single
+> 2.5.x kernel on an IDE system ("penguin.transmeta.com" has everything on
+> IDE), and the main reported 2.5.27 corruption was actually from my BK tre=
+e
+> apparently due to the IRQ handling changes.
 
-Its an invalid I2O event code. Promise cards emit them before crashing
-when you ask them to do anything they take offence too.
+This is very encouraging information that had been missing from the
+threads at all: a success story from a person actually trusting und
+using this thing.
 
-> I suppose I can call up Promise, but as their driver won't even compile,
-> I don't have much faith in their ability to do anything but shave a
-> couple of hours off of my life.
+> The thing I dislike is how people who apparently haven't even read the
+> discussions, and didn't bother to look up the full changelog feel that
+> they are perfectly fine to spread FUD and misinformation about the IDE
+> layer.
 
-Actually the promise provided driver for the supertrak cards seems to
-work fine. I actually used it to debug the generic i2o_block support for
-their chips. It won't help if we are eating the ide controllers however
+I for one did read the discussion(s) but it's really hard to map IDE-101
+to some tiny patch in a huge tree of mails.
+
+> Do we have issues there? Yes. But there are actually _more_ problems with
+> people dissing the work than with the code itself.
+
+I appreciate Martins work and even more your word on it that it's pretty
+stable.=20
+
+Keep on the good work and let us end this thread for good.
+
+--=20
+Servus,
+       Daniel
+
+--=-u4NRQCKf8yo0JZAnXUJJ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9P8L8chlzsq9KoIYRAoCvAJ4l63b9QCo4cxbT+7Y62eLobplAIgCg1uyZ
+UrJSk90EiA6pFKtnoxjgMa0=
+=b/vN
+-----END PGP SIGNATURE-----
+
+--=-u4NRQCKf8yo0JZAnXUJJ--
 

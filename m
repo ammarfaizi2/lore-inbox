@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289677AbSAJVAL>; Thu, 10 Jan 2002 16:00:11 -0500
+	id <S289675AbSAJVAL>; Thu, 10 Jan 2002 16:00:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289679AbSAJVAD>; Thu, 10 Jan 2002 16:00:03 -0500
-Received: from [212.53.104.194] ([212.53.104.194]:47959 "EHLO
-	zhadum.bjavor.d2g.com") by vger.kernel.org with ESMTP
-	id <S289677AbSAJU7v>; Thu, 10 Jan 2002 15:59:51 -0500
-Date: Thu, 10 Jan 2002 21:59:46 +0100
-From: Balazs Javor <jb3@freemail.hu>
-To: linux-kernel@vger.kernel.org
-Subject: eth0: entered promiscuous mode
-Message-ID: <20020110205946.GB24838@zhadum.bjavor.d2g.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S289677AbSAJVAD>; Thu, 10 Jan 2002 16:00:03 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:24846 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S289675AbSAJU7r>; Thu, 10 Jan 2002 15:59:47 -0500
+Message-ID: <3C3DFF76.2DA2F5BD@zip.com.au>
+Date: Thu, 10 Jan 2002 12:54:14 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Matt Bernstein <matt@theBachChoir.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: oops with 2.4.17 + mini-ll patch
+In-Reply-To: <Pine.LNX.4.43.0201101544330.31242-100000@nick.dcs.qmul.ac.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.24i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Matt Bernstein wrote:
+> 
+> Not sure if this is related to your patch (which looked harmless enough to
+> me :), but here it is anyway.
 
-Can somebody please tell me what the above message means?
+mmm..  Probably coincidental.
 
-I very often encounter this in the syslog and sometimes
-also on the console.
+> Dual PIII 1GHz, modular everything inc. ATA/IDE (VIA); SCSI (gdth.o);
+> NFSv3 (udp, client only); autofs4; ext2 only for local fs. Debian woody.
 
-Many thanks for yout help in advance!
-best regards,
-Balazs
+It could be a timer deletion race.  There are still zillions of these,
+but nobody ever encounters them.
+
+What was the system doing at the time?  Do you think a module could
+have been in the process of unloading?  autofs unmount, something
+like that?
+
+-

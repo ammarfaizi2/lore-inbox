@@ -1,73 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263003AbUDLSbW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 14:31:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263006AbUDLSbW
+	id S263015AbUDLSgD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 14:36:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbUDLSgC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 14:31:22 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:27843 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S263003AbUDLSbU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 14:31:20 -0400
-Date: Mon, 12 Apr 2004 14:31:38 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-Cc: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>
-Subject: RE: [PATCH] 2.6.5- es7000 subarch update
-In-Reply-To: <Pine.LNX.4.58.0404121318510.18930@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.58.0404121430290.18930@montezuma.fsmlabs.com>
-References: <452548B29F0CCE48B8ABB094307EBA1C0422014B@USRV-EXCH2.na.uis.unisys.com>
- <Pine.LNX.4.58.0404121318510.18930@montezuma.fsmlabs.com>
+	Mon, 12 Apr 2004 14:36:02 -0400
+Received: from 80-218-57-148.dclient.hispeed.ch ([80.218.57.148]:62981 "EHLO
+	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S263015AbUDLSft
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 14:35:49 -0400
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+Reply-To: daniel.ritz@gmx.ch
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: [PATCH 2.4] fix IRQ routing on Acer TravelMate 360
+Date: Mon, 12 Apr 2004 20:30:47 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404122030.47958.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Apr 2004, Zwane Mwaikambo wrote:
+hi marcelo
 
-> On Mon, 12 Apr 2004, Protasevich, Natalie wrote:
->
-> > Since it is a valid entry, find_irq_entry() in setup_IO_APIC_irqs() searches the mp_irqs[] by the pin number and runs into this element first. It uses it to program the pin and never gets to the element down below that contains modified entry with a correct overwrite in it.
-> > I was able to get rid of this problem on the ES7000 with the following code:
-> >
-> >         for (i = 0; i < mp_irq_entries; i++) {
-> >                 if ((mp_irqs[i].mpc_srcbus == intsrc.mpc_srcbus)
-> >                       && (mp_irqs[i].mpc_srcbusirq == intsrc.mpc_srcbusirq)) {
-> >                         mp_irqs[i] = intsrc;
-> >   +                     if (intsrc.mpc_srcbusirq > pin) {
-> >   +                            int j;
-> >   +                            for (j = 0; j < i; j++)
-> >   +                                   if (mp_irqs[j].mpc_dstirq == intsrc.mpc_dstirq)
-> >   +                                         mp_irqs[j].mpc_irqtype = -1;
-> >   +                     }
-> >                         found = 1;
-> >                         break;
-> >                 }
-> >         }
-> > I will appreciate any feedback and suggestions.
->
-> Out of interest, doesn't this have the same effect?
+the same thing as been included in 2.6.5-mm4. here's the 2.4 version.
 
-Forgot the bus check;
+rgds
+-daniel
 
-Index: linux-2.6.5-mc3/arch/i386/kernel/mpparse.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.5-mc3/arch/i386/kernel/mpparse.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 mpparse.c
---- linux-2.6.5-mc3/arch/i386/kernel/mpparse.c	9 Apr 2004 17:53:27 -0000	1.1.1.1
-+++ linux-2.6.5-mc3/arch/i386/kernel/mpparse.c	12 Apr 2004 18:31:22 -0000
-@@ -968,8 +968,9 @@ void __init mp_override_legacy_irq (
- 	 * Otherwise create a new entry (e.g. gsi == 2).
- 	 */
- 	for (i = 0; i < mp_irq_entries; i++) {
--		if ((mp_irqs[i].mpc_srcbus == intsrc.mpc_srcbus)
--			&& (mp_irqs[i].mpc_srcbusirq == intsrc.mpc_srcbusirq)) {
-+		if ((mp_irqs[i].srcbus == MP_ISA_BUS) &&
-+			mp_irqs[i].mpc_dstirq == pin) {
+
+---snip---
+
+acer travelmate 360 has a broken interrupt routing. there's an interrupt storm
+on irq 10 w/o this patch  as soon as yenta_socket is loaded. the problem
+has been seen on different machines (reported on l-k and on pcmcia-cs
+list). there's also an USB controller on the same interrupt line as the CB
+which also works fine after the patch. and routing via ACPI fails too.
+
+
+
+--- 1.43/arch/i386/kernel/dmi_scan.c	Sun Mar 21 05:49:42 2004
++++ edited/arch/i386/kernel/dmi_scan.c	Sat Apr 10 21:59:56 2004
+@@ -459,6 +459,23 @@
+ }
+ 
+ /*
++ * Work around broken Acer TravelMate 360 Notebooks which assign Cardbus to
++ * IRQ 11 even though it is actually wired to IRQ 10
++ */
++static __init int fix_acer_tm360_irqrouting(struct dmi_blacklist *d)
++{
++#ifdef CONFIG_PCI
++	extern int acer_tm360_irqrouting;
++	if (acer_tm360_irqrouting == 0)
++	{
++		acer_tm360_irqrouting = 1;
++		printk(KERN_INFO "%s detected - fixing broken IRQ routing\n", d->ident);
++	}
++#endif
++	return 0;
++}
 +
- 			mp_irqs[i] = intsrc;
- 			found = 1;
- 			break;
++/*
+  *	Exploding PnPBIOS. Don't yet know if its the BIOS or us for
+  *	some entries
+  */
+@@ -820,6 +837,12 @@
+ 			MATCH(DMI_BOARD_VERSION, "OmniBook N32N-736")
+ 			} },
+ 
++	{ fix_acer_tm360_irqrouting, "Acer TravelMate 36x Laptop", {
++			MATCH(DMI_SYS_VENDOR, "Acer"),
++			MATCH(DMI_PRODUCT_NAME, "TravelMate 360"),
++			NO_MATCH, NO_MATCH
++			} },
++ 
+ 	/*
+ 	 *	Generic per vendor APM settings
+ 	 */
+@@ -935,6 +958,13 @@
+ 			/* newer BIOS, Revision 1011, does work */
+ 			MATCH(DMI_BIOS_VERSION, "ASUS A7V ACPI BIOS Revision 1007"),
+ 			NO_MATCH }},
++
++	{ disable_acpi_pci, "Acer TravelMate 36x Laptop", {
++			MATCH(DMI_SYS_VENDOR, "Acer"),
++			MATCH(DMI_PRODUCT_NAME, "TravelMate 360"),
++			NO_MATCH, NO_MATCH
++			} },
++ 
+ #endif	/* CONFIG_ACPI_PCI */
+ 
+ 	{ NULL, }
+--- 1.26/arch/i386/kernel/pci-irq.c	Fri Feb 27 06:47:27 2004
++++ edited/arch/i386/kernel/pci-irq.c	Sat Apr 10 21:53:03 2004
+@@ -23,6 +23,7 @@
+ #define PIRQ_VERSION 0x0100
+ 
+ int broken_hp_bios_irq9;
++int acer_tm360_irqrouting;
+ 
+ static struct irq_routing_table *pirq_table;
+ 
+@@ -892,6 +893,13 @@
+ 		dev->irq = 11;
+ 		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, 11);
+ 		r->set(pirq_router_dev, dev, pirq, 11);
++	}
++
++	/* same for Acer Travelmate 360, but with CB and irq 11 -> 10 */
++	if (acer_tm360_irqrouting && pirq == 0x63 && dev->irq == 11) {
++		dev->irq = 10;
++		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, 10);
++		r->set(pirq_router_dev, dev, pirq, 10);
+ 	}
+ 
+ 	/*
+

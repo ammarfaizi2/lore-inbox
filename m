@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129170AbRBVBp0>; Wed, 21 Feb 2001 20:45:26 -0500
+	id <S129243AbRBVBqq>; Wed, 21 Feb 2001 20:46:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130579AbRBVBpQ>; Wed, 21 Feb 2001 20:45:16 -0500
-Received: from blackhole.compendium-tech.com ([206.55.153.26]:2543 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S129170AbRBVBpA>; Wed, 21 Feb 2001 20:45:00 -0500
-Date: Wed, 21 Feb 2001 17:44:54 -0800 (PST)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-To: linux-kernel@vger.kernel.org
-Subject: RE: Linux stifles innovation...
-In-Reply-To: <BF9651D8732ED311A61D00105A9CA31503515C14@berkeley.gci.com>
-Message-ID: <Pine.LNX.4.21.0102211742550.31651-100000@sol.compendium-tech.com>
+	id <S130301AbRBVBqg>; Wed, 21 Feb 2001 20:46:36 -0500
+Received: from palrel1.hp.com ([156.153.255.242]:40964 "HELO palrel1.hp.com")
+	by vger.kernel.org with SMTP id <S129243AbRBVBq1>;
+	Wed, 21 Feb 2001 20:46:27 -0500
+Message-ID: <3A946F71.69D94D13@cup.hp.com>
+Date: Wed, 21 Feb 2001 17:46:25 -0800
+From: Rick Jones <raj@cup.hp.com>
+Organization: the Unofficial HP
+X-Mailer: Mozilla 4.75 [en] (X11; U; HP-UX B.11.00 9000/785)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Nye Liu <nyet@curtis.curtisfong.org>, linux-kernel@vger.kernel.org
+Subject: Re: Very high bandwith packet based interface and performance problems
+In-Reply-To: <E14VhQ7-0002s0-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Feb 2001, Leif Sawyer wrote:
-> > From: Dr. Kelsey Hudson [mailto:kernel@blackhole.compendium-tech.com]
-> > 
-> > 'good' in this case was meant to mean working properly, well-coded,
-> > does-what-it's-suppossed-to-do, eg not broken in one way or
-> > another. English should have a better word that 'good...' 
-> > 
+Alan Cox wrote:
 > 
-> Functional, perfect, clean, documented, readable, understandable,
-> tight, tuned, grok-able.
+> > that because the kernel was getting 99% of the cpu, the application was
+> > getting very little, and thus the read wasn't happening fast enough, and
+> 
+> Seems reasonable
+> 
+> > This is NOT what I'm seeing at all.. the kernel load appears to be
+> > pegged at 100% (or very close to it), the user space app is getting
+> > enough cpu time to read out about 10-20Mbit, and FURTHERMORE the kernel
+> > appears to be ACKING ALL the traffic, which I don't understand at all
+> > (e.g. the transmitter is simply blasting 300MBit of tcp unrestricted)
+> 
+> TCP _requires_ the remote end ack every 2nd frame regardless of progress.
 
-exactly what i meant, with the exception possibly of 'grok-able' as i'm
-not familiar with that term.
+um, I thought the spec says that ACK every 2nd segment is a SHOULD not a
+MUST?
 
-> Don't use one word to mean multiple things if you're trying to make
-> a clear case.  Otherwise you sound like a Micro$oft lawyer. :-)
-
-How dare you compare me to that scum-of-the-earth! :) 
-I do agree, though... I should have been more clear.
-
-> Really, this thread should just DIE already.
-
-It should!
-
-> We now return you to your regularly scheduled kernel bashing.
-
-Let the flames begin. :)
-
- Kelsey Hudson                                           khudson@ctica.com 
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------     
-
+rick jones
+-- 
+ftp://ftp.cup.hp.com/dist/networking/misc/rachel/
+these opinions are mine, all mine; HP might not want them anyway... :)
+feel free to email, OR post, but please do NOT do BOTH...
+my email address is raj in the cup.hp.com domain...

@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbULXMFI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbULXMHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261394AbULXMFI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Dec 2004 07:05:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbULXMFI
+	id S261395AbULXMHY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Dec 2004 07:07:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbULXMHX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Dec 2004 07:05:08 -0500
-Received: from web60606.mail.yahoo.com ([216.109.118.244]:14194 "HELO
-	web60606.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261394AbULXMFE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Dec 2004 07:05:04 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=Yy6tI8Z5XaoFszDT1ov3jMaSD4c/OO05Icq5EElkO+qMy2yapjvTUVFcpCyvIJYv610QodqLUkjoo47ViydQS2RXrkLBDnAsjNQ9fYHhIed7sDDm3yTnKwjLXEsMsfSqgH+tjxH4F5riegB8M/hnAw9C3IWhMP6rDItr3EJLNtc=  ;
-Message-ID: <20041224120504.81579.qmail@web60606.mail.yahoo.com>
-Date: Fri, 24 Dec 2004 04:05:04 -0800 (PST)
-From: selvakumar nagendran <kernelselva@yahoo.com>
-Subject: Booting problem : Checking partitions hda1, hda2 >
-To: linux-kernel@vger.kernel.org
+	Fri, 24 Dec 2004 07:07:23 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:25255 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261395AbULXMHO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Dec 2004 07:07:14 -0500
+Date: Fri, 24 Dec 2004 13:06:52 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+cc: Alan Cox <alan@redhat.com>, Moxa Technologies <support@moxa.com.tw>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix inlining related build failures in mxser.c
+In-Reply-To: <Pine.LNX.4.61.0412240155070.3504@dragon.hygekrogen.localhost>
+Message-ID: <Pine.LNX.4.61.0412241306340.19395@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0412240155070.3504@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-       I have kernel 2.4.28 in my system. But during
-booting it displays the follwing message and waits
-infinitely.
+>Hi,
+>
+>An allyesconfig build of 2.6.10-rc3-bk16 revealed the following build 
+>failures (which arefixed by the patch below) :
+>
+>  CC      drivers/char/mxser.o
+>drivers/char/mxser.c: In function `mxser_ioctl':
+>drivers/char/mxser.c:415: sorry, unimplemented: inlining failed in call to 
+>'mxser_check_modem_status': function body not available
+>drivers/char/mxser.c:1407: sorry, unimplemented: called from here
+>make[2]: *** [drivers/char/mxser.o] Error 1
+>make[1]: *** [drivers/char] Error 2
+>make: *** [drivers] Error 2
 
- Checking partition: hda1 hda2 >_
-  What is the solution for this problem?
-
-Thanks,
-selva
+Add -funit-at-a-time to the CFLAGS, and the compiler is happy.
 
 
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Jan Engelhardt
+-- 
+ENOSPC

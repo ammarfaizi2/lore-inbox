@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272473AbRIOSPV>; Sat, 15 Sep 2001 14:15:21 -0400
+	id <S272485AbRIOSPV>; Sat, 15 Sep 2001 14:15:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272483AbRIOSPK>; Sat, 15 Sep 2001 14:15:10 -0400
-Received: from w146.z064001233.sjc-ca.dsl.cnc.net ([64.1.233.146]:7892 "EHLO
-	windmill.gghcwest.com") by vger.kernel.org with ESMTP
-	id <S272473AbRIOSOy>; Sat, 15 Sep 2001 14:14:54 -0400
-Date: Sat, 15 Sep 2001 11:15:04 -0700 (PDT)
-From: "Jeffrey W. Baker" <jwbaker@acm.org>
-X-X-Sender: <jwb@windmill.gghcwest.com>
-To: Robert Love <rml@tech9.net>
-cc: <linux-kernel@vger.kernel.org>, <DevilKin@gmx.net>
-Subject: Re: [PATCH] AGP GART for AMD 761
-In-Reply-To: <1000577021.32706.29.camel@phantasy>
-Message-ID: <Pine.LNX.4.33.0109151114200.26946-100000@windmill.gghcwest.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272473AbRIOSPK>; Sat, 15 Sep 2001 14:15:10 -0400
+Received: from barry.mail.mindspring.net ([207.69.200.25]:39952 "EHLO
+	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S272462AbRIOSOv>; Sat, 15 Sep 2001 14:14:51 -0400
+Subject: Re: AGP Bridge support for AMD 761
+From: Robert Love <rml@ufl.edu>
+To: "Jeffrey W. Baker" <jwbaker@acm.org>
+Cc: Steven Spence <kwijibo@zianet.com>, DevilKin@gmx.net,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0109151108510.26946-100000@windmill.gghcwest.com>
+In-Reply-To: <Pine.LNX.4.33.0109151108510.26946-100000@windmill.gghcwest.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13.99+cvs.2001.09.14.18.39 (Preview Release)
+Date: 15 Sep 2001 14:14:56 -0400
+Message-Id: <1000577698.32706.32.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2001-09-15 at 14:09, Jeffrey W. Baker wrote:
+> I've found, with 2.4.9(-ac9), that the lilo append line doesn't work at
+> all.  agpgart *must* be a modules, or it won't work with 761.
 
+Try my patch (just reposted as `[PATCH] AGP GART for AMD 761'), it will
+enable the AGP GART to work with the 761 natively, so you can use it
+without try_unsupported=1 and thus statically in the kernel or as a
+module.
 
-On 15 Sep 2001, Robert Love wrote:
+Please let me know if it works, as I don't have an AMD 761.
 
-> The following patch provides AGP support from the AMD AGP driver for the
-> AMD 761.  I don't have an AMD 761 and I had to look the PCI ID up, so I
-> need some confirmation this works.  Despite this, it should.
->
-> Please test and let me know so I can forward it off.  Against
-> 2.4.10-pre9, but should apply to Alan's tree and 2.4.9.
-
-> @@ -2922,7 +2928,6 @@
->  		"Intel",
->  		"440GX",
->  		intel_generic_setup },
-> -	/* could we add support for PCI_DEVICE_ID_INTEL_815_1 too ? */
->  	{ PCI_DEVICE_ID_INTEL_815_0,
->  		PCI_VENDOR_ID_INTEL,
->  		INTEL_I815,
-
-What's the story with that chunk?  It looks like you removed a comment
-without changing the code, and it is totally unrelated to the AMD 761
-problems that you are trying to fix.
-
--jwb
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 

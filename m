@@ -1,939 +1,648 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262867AbTELWia (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 18:38:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262883AbTELWi3
+	id S262842AbTELWrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 18:47:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbTELWrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 18:38:29 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62213 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262867AbTELWiE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 18:38:04 -0400
-Date: Mon, 12 May 2003 23:48:28 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PCMCIA 2.5.X sleeping from illegal context
-Message-ID: <20030512234828.C17227@flint.arm.linux.org.uk>
-Mail-Followup-To: Paul Fulghum <paulkf@microgate.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1052775331.1995.49.camel@diemos> <1052773631.31825.18.camel@dhcp22.swansea.linux.org.uk> <1052742964.1467.3.camel@doobie>
+	Mon, 12 May 2003 18:47:24 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:32087 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262842AbTELWqq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 18:46:46 -0400
+Date: Mon, 12 May 2003 15:55:11 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 must-fix list, v2
+Message-Id: <20030512155511.21fb1652.akpm@digeo.com>
+In-Reply-To: <20030512155417.67a9fdec.akpm@digeo.com>
+References: <20030512155417.67a9fdec.akpm@digeo.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1052742964.1467.3.camel@doobie>; from paulkf@microgate.com on Mon, May 12, 2003 at 07:36:05AM -0500
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 May 2003 22:59:25.0221 (UTC) FILETIME=[2232FD50:01C318DA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 12, 2003 at 07:36:05AM -0500, Paul Fulghum wrote:
-> On Mon, 2003-05-12 at 16:07, Alan Cox wrote:
-> > On Llu, 2003-05-12 at 22:35, Paul Fulghum wrote:
-> > > The 2.5.X PCMCIA kernel support seems to have a problem
-> > > with drivers/pcmcia/rsrc_mgr.c in function undo_irq().
-> > 
-> > Does this still happen with all the patches Russell King posted
-> > that everyone else is ignoring ?
+Andrew Morton <akpm@digeo.com> wrote:
+>
 > 
-> I don't know, I've been ignoring them :-)
-> 
-> Seriously, are they centralized someplace or
-> should I scan back and try to extract them
-> from the lk archive? Do you know about when
-> they were posted?
+> There have been surprisingly few additions.
 
-Try this one.  Its a slightly updated version from the one I sent earlier.
+And here is the full list:
 
-diff -u /net/flint/usrc/linux-bk-2.5/linux-2.5-pcmcia/drivers/pcmcia/cs.c linux/drivers/pcmcia/cs.c
---- /net/flint/usrc/linux-bk-2.5/linux-2.5-pcmcia/drivers/pcmcia/cs.c	Sat Apr 26 23:00:59 2003
-+++ linux/drivers/pcmcia/cs.c	Sat Apr 26 23:07:24 2003
-@@ -302,11 +302,8 @@
-     
- ======================================================================*/
- 
--static int setup_socket(socket_info_t *);
--static void shutdown_socket(socket_info_t *);
--static void reset_socket(socket_info_t *);
--static void unreset_socket(socket_info_t *);
--static void parse_events(void *info, u_int events);
-+static int pccardd(void *__skt);
-+void pcmcia_unregister_socket(struct class_device *dev);
- 
- #define to_class_data(dev) dev->class_data
- 
-@@ -317,7 +314,7 @@
- {
- 	struct pcmcia_socket_class_data *cls_d = class_get_devdata(class_dev);
- 	socket_info_t *s_info;
--	unsigned int i, j;
-+	unsigned int i, j, ret;
- 
- 	if (!cls_d)
- 		return -EINVAL;
-@@ -330,6 +327,7 @@
- 	memset(s_info, 0, cls_d->nsock * sizeof(socket_info_t));
- 
- 	cls_d->s_info = s_info;
-+	ret = 0;
- 
- 	/* socket initialization */
- 	for (i = 0; i < cls_d->nsock; i++) {
-@@ -344,7 +342,7 @@
- 		s->erase_busy.next = s->erase_busy.prev = &s->erase_busy;
- 		INIT_LIST_HEAD(&s->cis_cache);
- 		spin_lock_init(&s->lock);
--    
-+
- 		/* TBD: remove usage of socket_table, use class_for_each_dev instead */
- 		for (j = 0; j < sockets; j++)
- 			if (socket_table[j] == NULL) break;
-@@ -353,6 +351,20 @@
- 
- 		init_socket(s);
- 		s->ss_entry->inquire_socket(s->sock, &s->cap);
-+
-+		init_completion(&s->thread_done);
-+		init_waitqueue_head(&s->thread_wait);
-+		init_MUTEX(&s->skt_sem);
-+		spin_lock_init(&s->thread_lock);
-+		ret = kernel_thread(pccardd, s, CLONE_KERNEL);
-+		if (ret < 0) {
-+			pcmcia_unregister_socket(class_dev);
-+			break;
-+		}
-+
-+		wait_for_completion(&s->thread_done);
-+		BUG_ON(!s->thread);
-+
- #ifdef CONFIG_PROC_FS
- 		if (proc_pccard) {
- 			char name[3];
-@@ -368,7 +380,7 @@
- 		}
- #endif
- 	}
--	return 0;
-+	return ret;
- } /* pcmcia_register_socket */
- 
- 
-@@ -407,8 +419,12 @@
- 			remove_proc_entry(name, proc_pccard);
- 		}
- #endif
--		
--		shutdown_socket(s);
-+		if (s->thread) {
-+			init_completion(&s->thread_done);
-+			s->thread = NULL;
-+			wake_up(&s->thread_wait);
-+			wait_for_completion(&s->thread_done);
-+		}
- 		release_cis_mem(s);
- 		while (s->clients) {
- 			client = s->clients;
-@@ -450,15 +466,6 @@
- 
- static int send_event(socket_info_t *s, event_t event, int priority);
- 
--/*
-- * Sleep for n_cs centiseconds (1 cs = 1/100th of a second)
-- */
--static void cs_sleep(unsigned int n_cs)
--{
--	current->state = TASK_INTERRUPTIBLE;
--	schedule_timeout( (n_cs * HZ + 99) / 100);
--}
--
- static void shutdown_socket(socket_info_t *s)
- {
-     client_t **c;
-@@ -505,132 +512,6 @@
-     free_regions(&s->c_region);
- } /* shutdown_socket */
- 
--/*
-- * Return zero if we think the card isn't actually present
-- */
--static int setup_socket(socket_info_t *s)
--{
--	int val, ret;
--	int setup_timeout = 100;
--
--	/* Wait for "not pending" */
--	for (;;) {
--		get_socket_status(s, &val);
--		if (!(val & SS_PENDING))
--			break;
--		if (--setup_timeout) {
--			cs_sleep(10);
--			continue;
--		}
--		printk(KERN_NOTICE "cs: socket %p voltage interrogation"
--			" timed out\n", s);
--		ret = 0;
--		goto out;
--	}
--
--	if (val & SS_DETECT) {
--		DEBUG(1, "cs: setup_socket(%p): applying power\n", s);
--		s->state |= SOCKET_PRESENT;
--		s->socket.flags &= SS_DEBOUNCED;
--		if (val & SS_3VCARD)
--		    s->socket.Vcc = s->socket.Vpp = 33;
--		else if (!(val & SS_XVCARD))
--		    s->socket.Vcc = s->socket.Vpp = 50;
--		else {
--		    printk(KERN_NOTICE "cs: socket %p: unsupported "
--			   "voltage key\n", s);
--		    s->socket.Vcc = 0;
--		}
--		if (val & SS_CARDBUS) {
--		    s->state |= SOCKET_CARDBUS;
--#ifndef CONFIG_CARDBUS
--		    printk(KERN_NOTICE "cs: unsupported card type detected!\n");
--#endif
--		}
--		set_socket(s, &s->socket);
--		cs_sleep(vcc_settle);
--		reset_socket(s);
--		ret = 1;
--	} else {
--		DEBUG(0, "cs: setup_socket(%p): no card!\n", s);
--		ret = 0;
--	}
--out:
--	return ret;
--} /* setup_socket */
--
--/*======================================================================
--
--    Reset_socket() and unreset_socket() handle hard resets.  Resets
--    have several causes: card insertion, a call to reset_socket, or
--    recovery from a suspend/resume cycle.  Unreset_socket() sends
--    a CS event that matches the cause of the reset.
--    
--======================================================================*/
--
--static void reset_socket(socket_info_t *s)
--{
--    DEBUG(1, "cs: resetting socket %p\n", s);
--    s->socket.flags |= SS_OUTPUT_ENA | SS_RESET;
--    set_socket(s, &s->socket);
--    udelay((long)reset_time);
--    s->socket.flags &= ~SS_RESET;
--    set_socket(s, &s->socket);
--    cs_sleep(unreset_delay);
--    unreset_socket(s);
--} /* reset_socket */
--
--#define EVENT_MASK \
--(SOCKET_SETUP_PENDING|SOCKET_SUSPEND|SOCKET_RESET_PENDING)
--
--static void unreset_socket(socket_info_t *s)
--{
--	int setup_timeout = unreset_limit;
--	int val;
--
--	/* Wait for "ready" */
--	for (;;) {
--		get_socket_status(s, &val);
--		if (val & SS_READY)
--			break;
--		DEBUG(2, "cs: socket %d not ready yet\n", s->sock);
--		if (--setup_timeout) {
--			cs_sleep(unreset_check);
--			continue;
--		}
--		printk(KERN_NOTICE "cs: socket %p timed out during"
--			" reset.  Try increasing setup_delay.\n", s);
--		s->state &= ~EVENT_MASK;
--		return;
--	}
--
--	DEBUG(1, "cs: reset done on socket %p\n", s);
--	if (s->state & SOCKET_SUSPEND) {
--	    s->state &= ~EVENT_MASK;
--	    if (verify_cis_cache(s) != 0)
--		parse_events(s, SS_DETECT);
--	    else
--		send_event(s, CS_EVENT_PM_RESUME, CS_EVENT_PRI_LOW);
--	} else if (s->state & SOCKET_SETUP_PENDING) {
--#ifdef CONFIG_CARDBUS
--	    if (s->state & SOCKET_CARDBUS) {
--		cb_alloc(s);
--		s->state |= SOCKET_CARDBUS_CONFIG;
--	    }
--#endif
--	    send_event(s, CS_EVENT_CARD_INSERTION, CS_EVENT_PRI_LOW);
--	    s->state &= ~SOCKET_SETUP_PENDING;
--	} else {
--	    send_event(s, CS_EVENT_CARD_RESET, CS_EVENT_PRI_LOW);
--	    if (s->reset_handle) { 
--		    s->reset_handle->event_callback_args.info = NULL;
--		    EVENT(s->reset_handle, CS_EVENT_RESET_COMPLETE,
--			  CS_EVENT_PRI_LOW);
--	    }
--	    s->state &= ~EVENT_MASK;
--	}
--} /* unreset_socket */
--
- /*======================================================================
- 
-     The central event handler.  Send_event() sends an event to all
-@@ -661,61 +542,266 @@
-     return ret;
- } /* send_event */
- 
--static void do_shutdown(socket_info_t *s)
-+static void pcmcia_error(socket_info_t *skt, const char *fmt, ...)
- {
--    client_t *client;
--    if (s->state & SOCKET_SHUTDOWN_PENDING)
--	return;
--    s->state |= SOCKET_SHUTDOWN_PENDING;
--    send_event(s, CS_EVENT_CARD_REMOVAL, CS_EVENT_PRI_HIGH);
--    for (client = s->clients; client; client = client->next)
--	if (!(client->Attributes & INFO_MASTER_CLIENT))
--	    client->state |= CLIENT_STALE;
--    if (s->state & (SOCKET_SETUP_PENDING|SOCKET_RESET_PENDING)) {
--	DEBUG(0, "cs: flushing pending setup\n");
--	s->state &= ~EVENT_MASK;
--    }
--    cs_sleep(shutdown_delay);
--    s->state &= ~SOCKET_PRESENT;
--    shutdown_socket(s);
-+	static char buf[128];
-+	va_list ap;
-+	int len;
-+
-+	va_start(ap, fmt);
-+	len = vsnprintf(buf, sizeof(buf), fmt, ap);
-+	va_end(ap);
-+	buf[len] = '\0';
-+
-+	printk(KERN_ERR "PCMCIA: socket %p: %s", skt, buf);
-+}
-+
-+#define cs_to_timeout(cs) (((cs) * HZ + 99) / 100)
-+
-+static void socket_remove_drivers(socket_info_t *skt)
-+{
-+	client_t *client;
-+
-+	send_event(skt, CS_EVENT_CARD_REMOVAL, CS_EVENT_PRI_HIGH);
-+
-+	for (client = skt->clients; client; client = client->next)
-+		if (!(client->Attributes & INFO_MASTER_CLIENT))
-+			client->state |= CLIENT_STALE;
-+}
-+
-+static void socket_shutdown(socket_info_t *skt)
-+{
-+	socket_remove_drivers(skt);
-+	set_current_state(TASK_UNINTERRUPTIBLE);
-+	schedule_timeout(cs_to_timeout(shutdown_delay));
-+	skt->state &= ~SOCKET_PRESENT;
-+	shutdown_socket(skt);
-+}
-+
-+static int socket_reset(socket_info_t *skt)
-+{
-+	int status, i;
-+
-+	skt->socket.flags |= SS_OUTPUT_ENA | SS_RESET;
-+	set_socket(skt, &skt->socket);
-+	udelay((long)reset_time);
-+
-+	skt->socket.flags &= ~SS_RESET;
-+	set_socket(skt, &skt->socket);
-+
-+	set_current_state(TASK_UNINTERRUPTIBLE);
-+	schedule_timeout(cs_to_timeout(unreset_delay));
-+	for (i = 0; i < unreset_limit; i++) {
-+		get_socket_status(skt, &status);
-+
-+		if (!(status & SS_DETECT))
-+			return CS_NO_CARD;
-+
-+		if (status & SS_READY)
-+			return CS_SUCCESS;
-+
-+		set_current_state(TASK_UNINTERRUPTIBLE);
-+		schedule_timeout(cs_to_timeout(unreset_check));
-+	}
-+
-+	pcmcia_error(skt, "time out after reset.\n");
-+	return CS_GENERAL_FAILURE;
-+}
-+
-+static int socket_setup(socket_info_t *skt, int initial_delay)
-+{
-+	int status, i;
-+
-+	get_socket_status(skt, &status);
-+	if (!(status & SS_DETECT))
-+		return CS_NO_CARD;
-+
-+	set_current_state(TASK_UNINTERRUPTIBLE);
-+	schedule_timeout(cs_to_timeout(initial_delay));
-+
-+	for (i = 0; i < 100; i++) {
-+		get_socket_status(skt, &status);
-+		if (!(status & SS_DETECT))
-+			return CS_NO_CARD;
-+
-+		if (!(status & SS_PENDING))
-+			break;
-+
-+		set_current_state(TASK_UNINTERRUPTIBLE);
-+		schedule_timeout(cs_to_timeout(10));
-+	}
-+
-+	if (status & SS_PENDING) {
-+		pcmcia_error(skt, "voltage interrogation timed out.\n");
-+		return CS_GENERAL_FAILURE;
-+	}
-+
-+	if (status & SS_CARDBUS) {
-+		skt->state |= SOCKET_CARDBUS;
-+#ifndef CONFIG_CARDBUS
-+		pcmcia_error(skt, "cardbus cards are not supported.\n");
-+		return CS_BAD_TYPE;
-+#endif
-+	}
-+
-+	/*
-+	 * Decode the card voltage requirements, and apply power to the card.
-+	 */
-+	if (status & SS_3VCARD)
-+		skt->socket.Vcc = skt->socket.Vpp = 33;
-+	else if (!(status & SS_XVCARD))
-+		skt->socket.Vcc = skt->socket.Vpp = 50;
-+	else {
-+		pcmcia_error(skt, "unsupported voltage key.\n");
-+		return CS_BAD_TYPE;
-+	}
-+	skt->state |= SOCKET_PRESENT;
-+	skt->socket.flags = SS_DEBOUNCED;
-+	set_socket(skt, &skt->socket);
-+
-+	/*
-+	 * Wait "vcc_settle" for the supply to stabilise.
-+	 */
-+	set_current_state(TASK_UNINTERRUPTIBLE);
-+	schedule_timeout(cs_to_timeout(vcc_settle));
-+
-+	return socket_reset(skt);
-+}
-+
-+/*
-+ * Handle card insertion.  Setup the socket, reset the card,
-+ * and then tell the rest of PCMCIA that a card is present.
-+ */
-+static int socket_insert(socket_info_t *skt)
-+{
-+	int ret;
-+
-+	ret = socket_setup(skt, setup_delay);
-+	if (ret == CS_SUCCESS) {
-+#ifdef CONFIG_CARDBUS
-+		if (skt->state & SOCKET_CARDBUS) {
-+			cb_alloc(skt);
-+			skt->state |= SOCKET_CARDBUS_CONFIG;
-+		}
-+#endif
-+		send_event(skt, CS_EVENT_CARD_INSERTION, CS_EVENT_PRI_LOW);
-+		skt->socket.flags &= ~SS_DEBOUNCED;
-+	} else
-+		socket_shutdown(skt);
-+
-+	return ret;
-+}
-+
-+static int socket_suspend(socket_info_t *skt)
-+{
-+	if (skt->state & SOCKET_SUSPEND)
-+		return CS_IN_USE;
-+
-+	send_event(skt, CS_EVENT_PM_SUSPEND, CS_EVENT_PRI_LOW);
-+	suspend_socket(skt);
-+	skt->state |= SOCKET_SUSPEND;
-+
-+	return CS_SUCCESS;
-+}
-+
-+/*
-+ * Resume a socket.  If a card is present, verify its CIS against
-+ * our cached copy.  If they are different, the card has been
-+ * replaced, and we need to tell the drivers.
-+ */
-+static int socket_resume(socket_info_t *skt)
-+{
-+	int ret;
-+
-+	if (!(skt->state & SOCKET_SUSPEND))
-+		return CS_IN_USE;
-+
-+	init_socket(skt);
-+
-+	ret = socket_setup(skt, resume_delay);
-+	if (ret == CS_SUCCESS) {
-+		/*
-+		 * FIXME: need a better check here for cardbus cards.
-+		 */
-+		if (verify_cis_cache(skt) != 0) {
-+			socket_remove_drivers(skt);
-+			destroy_cis_cache(skt);
-+			send_event(skt, CS_EVENT_CARD_INSERTION, CS_EVENT_PRI_LOW);
-+		} else {
-+			send_event(skt, CS_EVENT_PM_RESUME, CS_EVENT_PRI_LOW);
-+		}
-+		skt->socket.flags &= ~SS_DEBOUNCED;
-+	} else
-+		socket_shutdown(skt);
-+
-+	skt->state &= ~SOCKET_SUSPEND;
-+
-+	return CS_SUCCESS;
-+}
-+
-+static int pccardd(void *__skt)
-+{
-+	socket_info_t *skt = __skt;
-+	DECLARE_WAITQUEUE(wait, current);
-+
-+	daemonize("pccardd");
-+	skt->thread = current;
-+	complete(&skt->thread_done);
-+
-+	add_wait_queue(&skt->thread_wait, &wait);
-+	for (;;) {
-+		unsigned long flags;
-+		unsigned int events;
-+
-+		set_current_state(TASK_INTERRUPTIBLE);
-+
-+		spin_lock_irqsave(&skt->thread_lock, flags);
-+		events = skt->thread_events;
-+		skt->thread_events = 0;
-+		spin_unlock_irqrestore(&skt->thread_lock, flags);
-+
-+		if (events) {
-+			down(&skt->skt_sem);
-+			if (events & SS_DETECT && !(skt->state & SOCKET_SUSPEND)) {
-+				int status;
-+
-+				get_socket_status(skt, &status);
-+				if ((skt->state & SOCKET_PRESENT) &&
-+				     !(status & SS_DETECT))
-+					socket_shutdown(skt);
-+				if (status & SS_DETECT)
-+					socket_insert(skt);
-+			}
-+			if (events & SS_BATDEAD)
-+				send_event(skt, CS_EVENT_BATTERY_DEAD, CS_EVENT_PRI_LOW);
-+			if (events & SS_BATWARN)
-+				send_event(skt, CS_EVENT_BATTERY_LOW, CS_EVENT_PRI_LOW);
-+			if (events & SS_READY)
-+				send_event(skt, CS_EVENT_READY_CHANGE, CS_EVENT_PRI_LOW);
-+			up(&skt->skt_sem);
-+			continue;
-+		}
-+
-+		schedule();
-+		if (!skt->thread)
-+			break;
-+	}
-+	remove_wait_queue(&skt->thread_wait, &wait);
-+
-+	socket_shutdown(skt);
-+
-+	complete_and_exit(&skt->thread_done, 0);
- }
- 
- static void parse_events(void *info, u_int events)
- {
--    socket_info_t *s = info;
--    if (events & SS_DETECT) {
--	int status;
--
--	get_socket_status(s, &status);
--	if ((s->state & SOCKET_PRESENT) &&
--	    (!(s->state & SOCKET_SUSPEND) ||
--	     !(status & SS_DETECT)))
--	    do_shutdown(s);
--	if (status & SS_DETECT) {
--	    if (s->state & SOCKET_SETUP_PENDING) {
--		DEBUG(1, "cs: delaying pending setup\n");
--		return;
--	    }
--	    s->state |= SOCKET_SETUP_PENDING;
--	    if (s->state & SOCKET_SUSPEND)
--		cs_sleep(resume_delay);
--	    else
--		cs_sleep(setup_delay);
--	    s->socket.flags |= SS_DEBOUNCED;
--	    if (setup_socket(s) == 0)
--		s->state &= ~SOCKET_SETUP_PENDING;
--	    s->socket.flags &= ~SS_DEBOUNCED;
--	}
--    }
--    if (events & SS_BATDEAD)
--	send_event(s, CS_EVENT_BATTERY_DEAD, CS_EVENT_PRI_LOW);
--    if (events & SS_BATWARN)
--	send_event(s, CS_EVENT_BATTERY_LOW, CS_EVENT_PRI_LOW);
--    if (events & SS_READY) {
--	if (!(s->state & SOCKET_RESET_PENDING))
--	    send_event(s, CS_EVENT_READY_CHANGE, CS_EVENT_PRI_LOW);
--	else DEBUG(1, "cs: ready change during reset\n");
--    }
-+	socket_info_t *s = info;
-+
-+	spin_lock(&s->thread_lock);
-+	s->thread_events |= events;
-+	spin_unlock(&s->thread_lock);
-+
-+	wake_up(&s->thread_wait);
- } /* parse_events */
- 
- /*======================================================================
-@@ -727,27 +813,18 @@
-     
- ======================================================================*/
- 
--void pcmcia_suspend_socket (socket_info_t *s)
-+void pcmcia_suspend_socket (socket_info_t *skt)
- {
--    if ((s->state & SOCKET_PRESENT) && !(s->state & SOCKET_SUSPEND)) {
--	send_event(s, CS_EVENT_PM_SUSPEND, CS_EVENT_PRI_LOW);
--	suspend_socket(s);
--	s->state |= SOCKET_SUSPEND;
--    }
-+	down(&skt->skt_sem);
-+	socket_suspend(skt);
-+	up(&skt->skt_sem);
- }
- 
--void pcmcia_resume_socket (socket_info_t *s)
-+void pcmcia_resume_socket (socket_info_t *skt)
- {
--    int	stat;
--
--    /* Do this just to reinitialize the socket */
--    init_socket(s);
--    get_socket_status(s, &stat);
--
--    /* If there was or is a card here, we need to do something
--    about it... but parse_events will sort it all out. */
--    if ((s->state & SOCKET_PRESENT) || (stat & SS_DETECT))
--	parse_events(s, SS_DETECT);
-+	down(&skt->skt_sem);
-+	socket_resume(skt);
-+	up(&skt->skt_sem);
- }
- 
- 
-@@ -1461,15 +1538,8 @@
- 
-     s = socket_table[ns];
-     if (++s->real_clients == 1) {
--	int status;
- 	register_callback(s, &parse_events, s);
--	get_socket_status(s, &status);
--	if ((status & SS_DETECT) &&
--	    !(s->state & SOCKET_SETUP_PENDING)) {
--	    s->state |= SOCKET_SETUP_PENDING;
--	    if (setup_socket(s) == 0)
--		    s->state &= ~SOCKET_SETUP_PENDING;
--	}
-+	parse_events(s, SS_DETECT);
-     }
- 
-     *handle = client;
-@@ -2022,30 +2092,44 @@
- 
- int pcmcia_reset_card(client_handle_t handle, client_req_t *req)
- {
--    int i, ret;
--    socket_info_t *s;
-+	socket_info_t *skt;
-+	int ret;
-     
--    if (CHECK_HANDLE(handle))
--	return CS_BAD_HANDLE;
--    i = handle->Socket; s = socket_table[i];
--    if (!(s->state & SOCKET_PRESENT))
--	return CS_NO_CARD;
--    if (s->state & SOCKET_RESET_PENDING)
--	return CS_IN_USE;
--    s->state |= SOCKET_RESET_PENDING;
-+	if (CHECK_HANDLE(handle))
-+		return CS_BAD_HANDLE;
-+	DEBUG(1, "cs: resetting socket %d\n", handle->Socket);
-+	skt = SOCKET(handle);
-+
-+	down(&skt->skt_sem);
-+	do {
-+		if (!(skt->state & SOCKET_PRESENT)) {
-+			ret = CS_NO_CARD;
-+			break;
-+		}
-+		if (skt->state & SOCKET_SUSPEND) {
-+			ret = CS_IN_USE;
-+			break;
-+		}
-+		if (skt->state & SOCKET_CARDBUS) {
-+			ret = CS_UNSUPPORTED_FUNCTION;
-+			break;
-+		}
- 
--    ret = send_event(s, CS_EVENT_RESET_REQUEST, CS_EVENT_PRI_LOW);
--    if (ret != 0) {
--	s->state &= ~SOCKET_RESET_PENDING;
--	handle->event_callback_args.info = (void *)(u_long)ret;
--	EVENT(handle, CS_EVENT_RESET_COMPLETE, CS_EVENT_PRI_LOW);
--    } else {
--	DEBUG(1, "cs: resetting socket %d\n", i);
--	send_event(s, CS_EVENT_RESET_PHYSICAL, CS_EVENT_PRI_LOW);
--	s->reset_handle = handle;
--	reset_socket(s);
--    }
--    return CS_SUCCESS;
-+		ret = send_event(skt, CS_EVENT_RESET_REQUEST, CS_EVENT_PRI_LOW);
-+		if (ret == 0) {
-+			send_event(skt, CS_EVENT_RESET_PHYSICAL, CS_EVENT_PRI_LOW);
-+			if (socket_reset(skt) == CS_SUCCESS)
-+				send_event(skt, CS_EVENT_CARD_RESET, CS_EVENT_PRI_LOW);
-+		}
-+
-+		handle->event_callback_args.info = (void *)(u_long)ret;
-+		EVENT(handle, CS_EVENT_RESET_COMPLETE, CS_EVENT_PRI_LOW);
-+
-+		ret = CS_SUCCESS;
-+	} while (0);
-+	up(&skt->skt_sem);
-+
-+	return ret;
- } /* reset_card */
- 
- /*======================================================================
-@@ -2057,42 +2141,56 @@
- 
- int pcmcia_suspend_card(client_handle_t handle, client_req_t *req)
- {
--    int i;
--    socket_info_t *s;
-+	socket_info_t *skt;
-+	int ret;
-     
--    if (CHECK_HANDLE(handle))
--	return CS_BAD_HANDLE;
--    i = handle->Socket; s = socket_table[i];
--    if (!(s->state & SOCKET_PRESENT))
--	return CS_NO_CARD;
--    if (s->state & SOCKET_SUSPEND)
--	return CS_IN_USE;
--
--    DEBUG(1, "cs: suspending socket %d\n", i);
--    send_event(s, CS_EVENT_PM_SUSPEND, CS_EVENT_PRI_LOW);
--    suspend_socket(s);
--    s->state |= SOCKET_SUSPEND;
-+	if (CHECK_HANDLE(handle))
-+		return CS_BAD_HANDLE;
-+	DEBUG(1, "cs: suspending socket %d\n", handle->Socket);
-+	skt = SOCKET(handle);
-+
-+	down(&skt->skt_sem);
-+	do {
-+		if (!(skt->state & SOCKET_PRESENT)) {
-+			ret = CS_NO_CARD;
-+			break;
-+		}
-+		if (skt->state & SOCKET_CARDBUS) {
-+			ret = CS_UNSUPPORTED_FUNCTION;
-+			break;
-+		}
-+		ret = socket_suspend(skt);
-+	} while (0);
-+	up(&skt->skt_sem);
- 
--    return CS_SUCCESS;
-+	return ret;
- } /* suspend_card */
- 
- int pcmcia_resume_card(client_handle_t handle, client_req_t *req)
- {
--    int i;
--    socket_info_t *s;
-+	socket_info_t *skt;
-+	int ret;
-     
--    if (CHECK_HANDLE(handle))
--	return CS_BAD_HANDLE;
--    i = handle->Socket; s = socket_table[i];
--    if (!(s->state & SOCKET_PRESENT))
--	return CS_NO_CARD;
--    if (!(s->state & SOCKET_SUSPEND))
--	return CS_IN_USE;
--
--    DEBUG(1, "cs: waking up socket %d\n", i);
--    setup_socket(s);
-+	if (CHECK_HANDLE(handle))
-+		return CS_BAD_HANDLE;
-+	DEBUG(1, "cs: waking up socket %d\n", handle->Socket);
-+	skt = SOCKET(handle);
-+
-+	down(&skt->skt_sem);
-+	do {
-+		if (!(skt->state & SOCKET_PRESENT)) {
-+			ret = CS_NO_CARD;
-+			break;
-+		}
-+		if (skt->state & SOCKET_CARDBUS) {
-+			ret = CS_UNSUPPORTED_FUNCTION;
-+			break;
-+		}
-+		ret = socket_resume(skt);
-+	} while (0);
-+	up(&skt->skt_sem);
- 
--    return CS_SUCCESS;
-+	return ret;
- } /* resume_card */
- 
- /*======================================================================
-@@ -2103,57 +2201,58 @@
- 
- int pcmcia_eject_card(client_handle_t handle, client_req_t *req)
- {
--    int i, ret;
--    socket_info_t *s;
--    u_long flags;
-+	socket_info_t *skt;
-+	int ret;
-     
--    if (CHECK_HANDLE(handle))
--	return CS_BAD_HANDLE;
--    i = handle->Socket; s = socket_table[i];
--    if (!(s->state & SOCKET_PRESENT))
--	return CS_NO_CARD;
-+	if (CHECK_HANDLE(handle))
-+		return CS_BAD_HANDLE;
-+	DEBUG(1, "cs: user eject request on socket %d\n", handle->Socket);
-+	skt = SOCKET(handle);
-+
-+	down(&skt->skt_sem);
-+	do {
-+		if (!(skt->state & SOCKET_PRESENT)) {
-+			ret = CS_NO_CARD;
-+			break;
-+		}
- 
--    DEBUG(1, "cs: user eject request on socket %d\n", i);
-+		ret = send_event(skt, CS_EVENT_EJECTION_REQUEST, CS_EVENT_PRI_LOW);
-+		if (ret != 0)
-+			break;
- 
--    ret = send_event(s, CS_EVENT_EJECTION_REQUEST, CS_EVENT_PRI_LOW);
--    if (ret != 0)
--	return ret;
-+		socket_shutdown(skt);
-+		ret = CS_SUCCESS;
-+	} while (0);
-+	up(&skt->skt_sem);
- 
--    spin_lock_irqsave(&s->lock, flags);
--    do_shutdown(s);
--    spin_unlock_irqrestore(&s->lock, flags);
--    
--    return CS_SUCCESS;
--    
-+	return ret;
- } /* eject_card */
- 
- int pcmcia_insert_card(client_handle_t handle, client_req_t *req)
- {
--    int i, status;
--    socket_info_t *s;
--    u_long flags;
--    
--    if (CHECK_HANDLE(handle))
--	return CS_BAD_HANDLE;
--    i = handle->Socket; s = socket_table[i];
--    if (s->state & SOCKET_PRESENT)
--	return CS_IN_USE;
--
--    DEBUG(1, "cs: user insert request on socket %d\n", i);
-+	socket_info_t *skt;
-+	int ret;
- 
--    spin_lock_irqsave(&s->lock, flags);
--    if (!(s->state & SOCKET_SETUP_PENDING)) {
--	s->state |= SOCKET_SETUP_PENDING;
--	spin_unlock_irqrestore(&s->lock, flags);
--	get_socket_status(s, &status);
--	if ((status & SS_DETECT) == 0 || (setup_socket(s) == 0)) {
--	    s->state &= ~SOCKET_SETUP_PENDING;
--	    return CS_NO_CARD;
--	}
--    } else
--	spin_unlock_irqrestore(&s->lock, flags);
-+	if (CHECK_HANDLE(handle))
-+		return CS_BAD_HANDLE;
-+	DEBUG(1, "cs: user insert request on socket %d\n", handle->Socket);
-+	skt = SOCKET(handle);
-+
-+	down(&skt->skt_sem);
-+	do {
-+		if (skt->state & SOCKET_PRESENT) {
-+			ret = CS_IN_USE;
-+			break;
-+		}
-+		if (socket_insert(skt) == CS_NO_CARD) {
-+			ret = CS_NO_CARD;
-+			break;
-+		}
-+		ret = CS_SUCCESS;
-+	} while (0);
-+	up(&skt->skt_sem);
- 
--    return CS_SUCCESS;
-+	return ret;
- } /* insert_card */
- 
- /*======================================================================
-diff -u /net/flint/usrc/linux-bk-2.5/linux-2.5-pcmcia/drivers/pcmcia/cs_internal.h linux/drivers/pcmcia/cs_internal.h
---- /net/flint/usrc/linux-bk-2.5/linux-2.5-pcmcia/drivers/pcmcia/cs_internal.h	Sat Apr 26 23:01:03 2003
-+++ linux/drivers/pcmcia/cs_internal.h	Sat Apr 26 21:34:59 2003
-@@ -133,7 +133,6 @@
-     u_short			lock_count;
-     client_handle_t		clients;
-     u_int			real_clients;
--    client_handle_t		reset_handle;
-     pccard_mem_map		cis_mem;
-     u_char			*cis_virt;
-     config_t			*config;
-@@ -155,6 +154,14 @@
- #ifdef CONFIG_PROC_FS
-     struct proc_dir_entry	*proc;
- #endif
-+
-+    struct semaphore		skt_sem;	/* protects socket h/w state */
-+
-+    struct task_struct		*thread;
-+    struct completion		thread_done;
-+    wait_queue_head_t		thread_wait;
-+    spinlock_t			thread_lock;	/* protects thread_events */
-+    unsigned int		thread_events;
- } socket_info_t;
- 
- /* Flags in config state */
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Must-fix bugs
+=============
+
+drivers/char/
+-------------
+
+- TTY locking is broken.
+
+  - see FIXME in do_tty_hangup().  This causes ppp BUGs in local_bh_enable()
+
+  - Other problems: aviro, dipankar, Alan have details.
+
+
+
+drivers/block/
+--------------
+
+- RAID0 dies on strangely aligned BIOs
+
+  - Need to hoist BIO-split code out of device mapper, use that.
+
+ (neilb)
+
+ 1/ RAID5 should work fine.  It accepts any sort of bio and always
+    submits a 1-page bio to the underlying device, and if my
+    understanding is correct, every device must be able to handle a
+    single page bio, no matter what the alignment (which is why raid0
+    has a problem - it doesn't). 
+
+ 2/ RAID1 works pretty well.  The only improvement needed is to define
+    a merge_bvec_fn function which passes the question down to lower
+    layers.  This should be easy except for the small fact that it is
+    impossible :-)  There is no enforced pairing between calls to
+    merge_bvec_fn and submit_bh, so it is possible that a hot spare
+    with different restrictions could get swapped in between the one
+    and the other and could confuse things.  I suspect that can be
+    worked around somehow though...
+
+       Someone sent me a patch that is sorely needed - it allows you
+       to simply call blk_queue_stack() (or somethink like that), and it will
+       get your stacked limits set appropriately.
+
+ 3/ I just realised that raid0 is easier than I had previously
+    thought.  We don't need the completely functional bio splitting
+    that dm has.  We only need to be able to split a bio that has just
+    one page as the use of merge_bvec_fn will ensure that we never get
+    a larger bio that we cannot handle.  And splitting a bio with only
+    one page is a lot easier.  I now have code in my tree that
+    implements this quite cleanly and will probably post a patch
+    during the week.
+
+- ideraid hasn't been ported to 2.5 at all yet.
+
+- CD burning.  There are still a few quirks to solve wrt SG_IO and ide-cd.
+
+  Jens: The basic hang has been solved (double fault in ide-cd), there still
+  seems to be some cases that don't work too well.  Don't really have a
+  handle on those :/
+
+- IDE tcq. Either kill it or fix it. Not a "big todo", as such.
+
+drivers/video/
+--------------
+
+- Lots of drivers don't compile, others do but don't work.
+
+drivers/scsi/
+-------------
+
+- hch: large parts of the locking are hosed or not existant
+
+  - shost->my_devices isn't locked down at all
+
+  - the host list ist locked but not refcounted, mess can happen when the
+    spinlock is dropped
+
+  - there are lots of members of struct Scsi_Host/scsi_device/scsi_cmnd
+    with very unclear locking, many of them probably want to become
+    atomic_t's or bitmaps (for the 1bit bitfields).
+
+  - there's lots of volatile abuse in the scsi code that needs to be
+    thought about.
+
+  - there's some global variables incremented without any locks
+
+
+  (Mike Anderson, Patrick Mansfield, Badari Pulavarty)
+
+  - large parts of the locking are hosed or non existent
+
+    -- shost->my_devices isn't locked at all
+
+    -- host list locked but not refcounted
+
+    -- lots of members of struct scsi_host/scsi_device/ scsi_cmd with
+       very unclear locking
+
+    -- lots of volatile abuse in scsi code
+
+    -- global variables incremented without locks.
+
+fs/
+---
+
+- NFS client gets an OOM deadlock.
+
+  - Some fixes exist in -mm.  Seem to mostly work.
+
+- NFS client runs very slowly consuming 100% CPU under heavy writeout.
+
+  - Unsubtle fix exists in -mm.  (Looks like it's fixed anyway).
+
+- ext3 data=journal mode is bust.
+
+- ext3/htree doesn't play right with NFS server.  90% fixed in -mm.
+
+- AIO/direct-IO writes can race with truncate and wreck filesystems.
+
+  - Easy fix is to only allow the feature for S_ISBLK files.
+
+- davej: NFS seems to have a really bad time for some people.  (Including
+  myself on one testbox).  The common factor seems to be a high spec client
+  torturing an underpowered NFS server with lots of IO.  (fsx/fsstress etc
+  show this up).  Lots of "NFS server cheating" messages get dumped, and a
+  whole lot of bogus packets start appearing.  They look severely corrupted,
+  (they even crashed ethereal once 8-)
+
+- hch: devfs: there's a fundamental lookup vs devfsd race that's only
+  fixable by introducing a lookup vs devfs deadlock.  I can't see how this is
+  fixable without getting rid of the current devfsd design.  Mandrake seems
+  to have a workaround for this so this is at least not triggered so easily,
+  but that's not what I'd consider a fix..
+
+kernel/
+-------
+
+- O(1) scheduler starvation, poor behaviour seems unresolved.
+
+  Jens: "I've been running 2.5.67-mm3 on my workstation for two days, and
+  it still doesn't feel as good as 2.4.  It's not a disaster like some
+  revisisons ago, but it still has occasional CPU "stalls" where it feels
+  like a process waits for half a second of so for CPU time.  That's is very
+  noticable."
+
+   Also see Mike Galbraith's work.
+
+- Alan: 32bit uid support is *still* broken for process accounting.
+
+  (Test case?)
+
+mm/
+---
+
+- Overcommit accounting gets wrong answers
+
+  - underestimates reclaimable slab, gives bogus failures when
+    dcache&icache are large.
+
+  - gets confused by reclaimable-but-not-freed truncated ext3 pages. 
+    Lame fix exists in -mm.
+
+- Proper user level no overcommit also requires a root margin adding
+
+modules
+-------
+
+  (Rusty)
+
+- The .modinfo patch needs to go in.  It's trivial, but it's the major
+  missing functionality vs. 2.4.  Keeps bouncing off Linus.
+
+- __module_get(): "I know I have a refcount already and I don't care
+  if they're doing rmmod --wait, gimme.".  Keeps bouncing off Linus.
+
+- Per-cpu support inside modules (have patch, in testing).
+
+- driver class code is getting redone.  I have this now working, and will
+  send it out in a few days.
+
+net/
+----
+
+  (davem)
+
+- UDP apps can in theory deadlock, because the ip_append_data path can end
+  up sleeping while the socket lock is held.
+
+  It is OK to sleep with the socket held held, normally.  But in this case
+  the sleep happens while waiting for socket memory/space to become
+  available, if another context needs to take the socket lock to free up the
+  space we could hang.
+
+  I sent a rough patch on how to fix this to Alexey, and he is analyzing
+  the situation.  I expect a final fix from him next week or so.
+
+- Semantics for IPSEC during operations such as TCP connect suck currently.
+
+  When we first try to connect to a destination, we may need to ask the
+  IPSEC key management daemon to resolve the IPSEC routes for us.  For the
+  purposes of what the kernel needs to do, you can think of it like ARP.  We
+  can't send the packet out properly until we resolve the path.
+
+  What happens now for IPSEC is basically this:
+
+  O_NONBLOCK: returns -EAGAIN over and over until route is resolved
+
+  !O_NONBLOCK: Sleeps until route is resolved
+
+  These semantics are total crap.  The solution, which Alexey is working
+  on, is to allow incomplete routes to exist.  These "incomplete" routes
+  merely put the packet onto a "resolution queue", and once the key manager
+  does it's thing we finish the output of the packet.  This is precisely how
+  ARP works.
+
+  I don't know when Alexey will be done with this.
+
+- There are those mysterious TCP hangs of established state sockets. 
+  Someone has to get a good log in order for us to effectively debug this.
+
+
+
+net/*/netfilter/
+----------------
+
+  (Rusty)
+
+- Handle non-linear skbs everywhere.  This is going in via Dave now.
+
+- Rework conntrack hashing.
+
+- Module relationship bogosity fix (trivial, have patch).
+
+
+global
+------
+
+- Lots of 2.4 fixes including some security are not in 2.5
+
+- There are about 60 or 70 security related checks that need doing
+  (copy_user etc) from Stanford tools
+
+- A couple of hundred real looking bugzilla bugs
+
+
+
+
+Not-ready features and speedups
+===============================
+
+
+drivers/block/
+--------------
+
+- Framework for selecting IO schedulers.  This is the main one really. 
+  Once this is in place we can drop in new schedulers any old time, no risk.
+
+- Dynamic disk request allocation.  Patch exists.
+
+- Runtime-selectable disk scheduler framework.
+
+- Anticipatory scheduler.  Working OK now, still has problems with seeky
+  OLTP-style loads.
+
+- CFQ scheduler.  Seems to work but Jens planning significant rework.
+
+- The feral.com qlogic driver: needs work.
+
+
+fs/
+---
+
+- reiserfs_file_write() speedup.  There are concerns that some applications
+  do the wrong thing with large stat.st_blksize.
+
+- ext3 lock_kernel() removal: that part works OK and is mergeable.  But
+  we'll also need to make lock_journal() a spinlock, and that's deep surgery.
+
+- 32bit quota needs a lot more testing but may work now
+
+- Integrate Chris Mason's 2.4 reiserfs ordered data and data journaling
+  patches.  They make reiserfs a lot safer.
+
+- (Trond:) Yes: I'm still working on an atomic "open()", i.e.  one
+           where we short-circuit the usual VFS path_walk() + lookup() +
+           permission() + create() + ....  bullsh*t...
+
+           I have several reasons for wanting to do this (all of
+           them related to NFS of course, but much of the reasoning applies
+           to *all* networked file systems).
+
+   1) The above sequence is simply not atomic on *any* networked
+      filesystem.
+
+   2) It introduces a sh*tload of completely unnecessary RPC calls (why
+      do a 'permission' RPC call when the server is in *any* case going to
+      tell you whether or not this operations is allowed.  Why do a
+      'lookup()' when the 'create()' call can be made to tell you whether or
+      not a file already exists).
+
+   3) It is incompatible with some operations: the current create()
+      doesn't pass an 'EXCLUSIVE' flag down to the filesystems.
+
+   4) (NFS specific?) open() has very different cache consistency
+      requirements when compared to most other VFS operations.
+
+   I'd very much like for something like Peter Braam's 'lookup with
+   intent' or (better yet) for a proper dentry->open() to be integrated with
+   path_walk()/open_namei().  I'm still working on the latter (Peter has
+   already completed the lookup with intent stuff).
+
+
+kernel/
+-------
+
+  (Rusty)
+
+- Zippel's Reference count simplification.  Tricky code, but cuts about 120
+  lines from module.c.  Patch exists, needs stressing.
+
+- /proc/kallsyms.  What most people really wanted from /proc/ksyms.  Patch
+  exists.
+
+- Fix module-failed-init races by starting module "disabled".  Patch
+  exists, requires some subsystems (ie.  add_partition) to explicitly say
+  "make module live now".  Without patch we are no worse off than 2.4 etc. 
+
+- Integrate userspace irq balancing daemon.
+
+- kexec.  Seems to work, is in -mm.
+
+mm/
+---
+
+- objrmap: concerns over page reclaim performance at high sharing levels,
+  and interoperation with nonlinear mappings is hairy.
+
+- Readd and make /proc/sys/vm/freepages writable again so that boxes can be
+  tuned for heavy interrupt load.
+
+net/
+----
+
+  (davem)
+
+- Real serious use of IPSEC is hampered by lack of MPLS support.  MPLS is a
+  switching technology that works by switching based upon fixed length labels
+  prepended to packets.  Many people use this and IPSEC to implement VPNs
+  over public networks, it is also used for things like traffic engineering.
+
+  A good reference site is:
+
+	http://www.mplsrc.com/
+
+  Anyways, an existing (crappy) implementation exists.  I've almost
+  completed a rewrite, I should have something in the tree next week.
+
+- Sometimes we generate IP fragments when it truly isn't necessary.
+
+  The way IP fragmentation is specified, each fragment must be modulo 8
+  bytes in length.  So suppose the device has an MTU that is not 0 modulo 8,
+  ethernet even classifies in this way.  1500 == (8 * 187) + 4
+
+  Our IP fragmenting engine can fragment on packets that are sized within
+  the last modulo 8 bytes of the MTU.  This happens in obscure cases, but it
+  does happen.
+
+  I've proposed a fix to Alexey, whereby very late in the output path we
+  check the packet, if we fragmented but the data length would fit into the
+  MTU we unfragment the packet.
+
+  This is low priority, because technically it creates suboptimal behavior
+  rather than mis-operation.
+
+- IPV4 output engine changes for IPSEC need to be moved over to IPV6.
+
+  IPV6 ipsec works but gravely suboptimally in some cases.  It is also for
+  this reason that the zerocopy UDP stuff isn't functional on the ipv6 side.
+
+  The USAGI project (www.linux-ipv6.org) is working with Alexey on this
+  work.
+
+net/*/netfilter/
+----------------
+
+- Lots of misc. cleanups, which are happening slowly.
+
+- davem: Netfilter needs to stop linearizing packets as much as possible.
+
+  Zerocopy output packets are basically undone by netfilter becuase all of
+  it assumed it was working with linear socket buffers.
+
+  Rusty is fixing this piece by piece.  He is nearly done with this work. 
+
+power management
+----------------
+
+  (Pat) There is some preliminary work at bk://ldm.bkbits.net/linux-2.5-power,
+  though I'm currently in the process of reworking it.  
+
+  It includes: 
+
+- New device power management core code, both for individual devices, 
+  and for global state transitions. 
+
+- A generic user interface for triggering system power state transitions.
+
+- Arch-independent code for performing state transitions, that calls 
+  platform-specific methods along the way. 
+
+- A better suspend-to-disk mechanism than swsusp. 
+
+  There are various other details to be worked out, which are the real fun
+  part.  And of course, driver support, but that is something that can happen
+  at any time.  
+
+  (Alan)
+
+- PCI locking
+
+- Frame buffer restore codepaths (that requires some deep PCI magic)
+
+- XFree86 hooks
+
+- AGP restoration
+
+- DRI restoration
+
+- IDE suspend/resume without races (Ben is looking at this a little)
+
+- How to deal with devices that babble (some stuff we have to global IRQ
+  off to save, and global IRQ on -after- we recover with APM)
+
+- Pat's swsusp rework?
+
+- Pat: There are already CPU device structures; MTRRs should be a
+  dynamically registered interface of CPUs, which implies there needs
+  to be some other glue to know that there are MTRRs that need to be
+  saved/restored.
+
+arch/i386/
+----------
+
+- Andi: i386 sub architectures for common boxes (in particular bigsmp and
+  summit) need to be runtime probed options, not compile time.  Vendors
+  cannot ship an own kernel rpm for all these cases.  (patch is in -mm, works
+  OK).
+
+- Also PC9800 merge needs finishing to the point we want for 2.6 (not all).
+
+- ES7000 wants merging (now we are all happy with it).  That shouldn't be a
+  big problem.
+
+global
+------
+
+- 64-bit dev_t.  Seems almost ready, but it's not really known how much
+  work is still to do.  Patches exist in -mm but with the recent rise of the
+  neo-viro I'm not sure where things are at.
+
+- We need a kernel side API for reporting error events to userspace (could
+  be async to 2.6 itself)
+
+  (Prototype core based on netlink exists)
+
+- Kai: Introduce a sane, easy and standard way to build external modules
+
+- Kai: Allow separate src/objdir
+
+
+
+
+
+drivers
+=======
+
+- Alan: PCI random reordering from 2.4 to 2.5 isnt understood yet (might be
+  fixed now?)
+
+- Alan: We have multiple drivers walking the pci device lists and also
+  using things like pci_find_device in unsafe ways with no refcounting.  I
+  think we have to make pci_find_device etc refcount somewhere and add
+  pci_device_put as was done with networking.
+
+- Lots of network drivers don't even build
+
+- Alan: PCI hotplug is unsafe (locking is totally screwed)
+
+- Ditto cardbus
+
+- Alan: Cardbus/PCMCIA requires all Russell's stuff is merged to do
+  multiheader right and so on
+
+drivers/acpi/
+-------------
+
+- davej: ACPI has a number of failures right now.  There are a number of
+  entries in bugzilla which could all be the same bug.  It manifests as a
+  "network card doesn't recieve packets" booting with 'acpi=off noapic' fixes
+  it.
+
+- davej: There's also another nasty 'doesnt boot' bug which quite a few
+  people (myself included) are seeing on some boxes (especially laptops).
+
+drivers/block/
+--------------
+
+- Alan: Partition handling is hosed for DM users.  (I have some partly
+  debugged patches in the -ac tree, but Andries objects to them and I think
+  his user knows magic options hack is unacceptable too.  Mostly this is
+  figuring out the right answer)
+
+- Floppy is almost unusably buggy still
+
+drivers/char/
+-------------
+
+- Alan: Multiple serious bugs in the DRI drivers (most now with patches
+  thankfully).  "The badness I know about is almost entirely IRQ mishandling.
+   DRI failing to mask PCI irqs on exit paths."
+
+- Various suspect things in AGP.
+
+drivers/ide/
+------------
+
+  (Alan)
+
+- IDE requires bio walking
+
+- IDE PIO has occasional unexplained PIO disk eating reports
+
+- IDE has multiple zillions of races/hangs in 2.5 still
+
+- IDE eats disks with HPT372N on 2.5.x
+
+- IDE scsi needs rewriting
+
+- IDE needs significant reworking to handle Simplex right
+
+- IDE hotplug handling for 2.5 is completely broken still
+
+drivers/isdn/
+-------------
+
+  (Kai, rmk)
+
+- isdn_tty locking is completely broken (cli() and friends)
+
+- fix lots of remaining bugs in the isdn link layer / hisax protocol layer
+  / hisax subdrivers, so that at least 99% of the users have a usable ISDN
+  subsystem
+
+- fix other drivers
+
+- lots more cleanups, adaption to recent APIs etc
+
+- fixup tty-based ISDN drivers which provide TIOCM* ioctls (see my recent
+  3-set patch for serial stuff)
+
+  Alternatively, we could re-introduce the fallback to driver ioctl parsing
+  for these if not enough drivers get updated.
+
+- fixup the usb-serial core and drivers to provide support for this
+  patch.
+
+drivers/net/
+------------
+
+- davej: Either Wireless network drivers or PCMCIA broke somewhen.  A
+  configuration that worked fine under 2.4 doesn't receive any packets.  Need
+  to look into this more to make sure I don't have any misconfiguration that
+  just 'happened to work' under 2.4
+
+
+drivers/scsi/
+-------------
+
+- Half of SCSI doesn't compile
+
+arch/i386/
+----------
+
+- 2.5.x won't boot on some 440GX
+
+- 2.5.x doesn't handle VIA APIC right yet - dont know why
+
+- ACPI needs the relax patches merging to work on lots of laptops
+
+- ECC driver questions are not yet sorted (DaveJ is working on this)
+
+arch/x86_64/
+------------
+
+  (Andi)
+
+- time handling is broken. Need to move up 2.4 time.c code.
+
+- memory corruption with IOMMU pci_free_consistent - often causes crashes
+  at shutdown.  This is rather mysterious, the code is basically identical to
+  2.4 which works fine.  Can only be seen on systems with >4GB of memory or
+  with iommu=force
+
+- Another report of a crash at shutdown on Simics with no iommu when all
+  memory was used.  Could be related to the one above.
+
+- change_page_attr corrupts memory/crashes. Breaks some AGP users.
+
+- NMI watchdog seems to tick too fast
+
+- some fixes from 2.4 still need to be merged
+
+- not very well tested. probably more bugs lurking.
+
 

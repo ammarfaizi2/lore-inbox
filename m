@@ -1,155 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317058AbSGNUIo>; Sun, 14 Jul 2002 16:08:44 -0400
+	id <S317056AbSGNUDH>; Sun, 14 Jul 2002 16:03:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317059AbSGNUIn>; Sun, 14 Jul 2002 16:08:43 -0400
-Received: from mx-00.sil.at ([62.116.68.196]:52997 "EHLO mx-00.sil.at")
-	by vger.kernel.org with ESMTP id <S317058AbSGNUIl>;
-	Sun, 14 Jul 2002 16:08:41 -0400
-Subject: [Fwd: Re: PROBLEM: Oops in 2.4.18 (swapper)]
-From: Raphael Wegmann <wegmann@psi.co.at>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-2asGO9BQzVlZI3wbWmSv"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 14 Jul 2002 22:12:18 +0200
-Message-Id: <1026677539.1428.7.camel@exodus>
-Mime-Version: 1.0
+	id <S317058AbSGNUDG>; Sun, 14 Jul 2002 16:03:06 -0400
+Received: from mailhub.fokus.gmd.de ([193.174.154.14]:45554 "EHLO
+	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
+	id <S317056AbSGNUDF>; Sun, 14 Jul 2002 16:03:05 -0400
+Date: Sun, 14 Jul 2002 22:04:21 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.gmd.de>
+Message-Id: <200207142004.g6EK4LaV019433@burner.fokus.gmd.de>
+To: schilling@fokus.gmd.de, szepe@pinerecords.com
+Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
+Subject: Re: IDE/ATAPI in 2.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>From: Tomas Szepe <szepe@pinerecords.com>
 
---=-2asGO9BQzVlZI3wbWmSv
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+>> >A Pentium 1200, eh?
+>> >More like Pentium 120 or star just doesn't cut it.
+>> 
+>> star uses less CPU time than GNU tar. As GNU tar uses a proprietary 
+>> archive format, I never use it if I may avoid to use it.
 
-Hello,
+>How does this relate to the test? I got the archive directly off your
+>ftp site -> the software has been dealing with exactly the same format
+>in both cases.
 
-I've just forgot to cc THE LIST.
+Well. it took me only 8 years of repeated bug reports to make the GNU tar
+maintaners fix the worst problems so it is finally able to extract standard 
+compliant tar archives ;-).
 
+As recent GNU tar is still unable to _list_ those tar files correctly
+(try ftp://ftp.fokus.gme.de/pub/unix/star/testscripts/gtarfail.tar
+and ftp://ftp.fokus.gme.de/pub/unix/star/testscripts/gtarfail2.tar),
+I would never trust GNU tar. A program that behaves inconsistent in
+list vs. extract mode is not what I like to use.
 
---=-2asGO9BQzVlZI3wbWmSv
-Content-Disposition: inline
-Content-Description: Weitergeleitete Nachricht - Re: PROBLEM: Oops in 2.4.18
-	(swapper)
-Content-Type: message/rfc822
+The real problem of GNU tar is that is does still not create POSIX.1-1988
+compliantarchives while star is able to create POSIX.1-2001 archives for a year.
+This causes that many archives out on ftp servgers cannot be unpacked using
+compliant implementations.
 
-Subject: Re: PROBLEM: Oops in 2.4.18 (swapper)
-From: Raphael Wegmann <wegmann@psi.co.at>
-To: Adrian Bunk <bunk@fs.tum.de>
-In-Reply-To: 	<Pine.NEB.4.44.0207141637380.4981-100000@mimas.fachschaften.tu-muenchen.de>
-References: 	<Pine.NEB.4.44.0207141637380.4981-100000@mimas.fachschaften.tu-muenchen.de>
-Content-Type: multipart/mixed; boundary="=-Ha9Zc1L3ZuQv6zaOyVZ1"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 14 Jul 2002 22:03:48 +0200
-Message-Id: <1026677029.1428.3.camel@exodus>
-Mime-Version: 1.0
+To understand the problem, please fetch a recent star distribution and use the
+contained program 'tartest' together with 
 
+ftp://ftp.fokus.gme.de/pub/unix/star/testscripts/ustar-all-quicktest.tar
 
---=-Ha9Zc1L3ZuQv6zaOyVZ1
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+and the instructions in: 
 
-Am Son, 2002-07-14 um 16.39 schrieb Adrian Bunk:
-> On 12 Jul 2002, Raphael Wegmann wrote:
-> 
-> > Hello,
-> 
-> Hi Raphael,
-> 
-> > my plain 2.4.18 is frequently/randomly oopsing in swapper:
-> >...
-> > Please tell me, if I can help you somehow.
-> 
-> could you check whether these Oopses still appear in 2.4.19-rc1?
-> 
+ftp://ftp.fokus.gme.de/pub/unix/star/testscripts/README.quicktest
 
-Hello.
+to find the POSIX deviations in GNU tar.
 
-I just got a very similar oops during startup w/ 2.4.19-rc1
-(while e2fsck was running). Btw. all that oopses end with a crash.
-I've checked my memory, which is fine too.
+>> >Athlon 1GHz:
+>> 
+>> >kala@nibbler:/tmp/1$ time tar xjf rock.tar.bz2
+>> >real    3m19.703s
+>> >user    0m9.870s
+>> >sys     0m24.840s
+>> 
+>> >According to top, the system was ~90% idle during the extraction.
+>> >Linux 2.4.19-rc1-ac3, reiserfs 3.6.
+>> 
+>> Well, I wrote that this has been done with ext3 (I also checked ext2
+>> which is approx. the same speed.
+>> I don't have access to a reiserfs system that has not been compiled
+>> with debug and I don't like to put out false statements.
 
-Attached is my ksymoops output.
+>I honestly doubt ext3 would perform significantly worse than what I've
+>observed with reiserfs.
 
-best regards
--- 
-Raphael Wegmann
-raphael@wegmann.at
+Just try it, I did try it.
 
---=-Ha9Zc1L3ZuQv6zaOyVZ1
-Content-Disposition: attachment; filename=ksymoops5
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; name=ksymoops5; charset=ISO-8859-15
+>Never mind, however, the sole aim of my having tested the extraction of
+>rock.tar.bz2 was to show how easily you get to accuse people on lkml of
+>being incompetent w/o having any real support for your claims.
 
-ksymoops 2.4.5 on i686 2.4.19-rc1.  Options used
-     -V (default)
-     -k /var/log/ksymoops/20020714234646.ksyms (specified)
-     -l /var/log/ksymoops/20020714234646.modules (specified)
-     -o /lib/modules/2.4.19-rc1/ (default)
-     -m /boot/System.map-2.4.19-rc1 (default)
+It was (as I mentioned before) to show that there need to be some sort 
+of high level coordination to make Linux better and address the needs of the 
+future.
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000=
-0
-c0106f96
-*pde =3D 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c0106f96>]    Not Tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010246
-eax: 00000000   ebx: c0106f70   ecx: cfd10000   edx: cfd10270
-esi: c0276000   edi: c0106f70   ebp: c0277fd0   esp: c0277fd0
-ds: 0018   es: 0018   ss: 0018
-Process swapper (pid: 0, stackpage=3Dc0277000)
-Stack: c0277fe4 c0107012 00000000 000a0600 c0105000 c0277fec c010502a c0277=
-ff8=20
-       c0278747 c02b0aa0 0008e000 c0100191
-Call Trace: [<c0107018>] [<c0105000>] [<c010502a>]=20
-Code: ab 01 fb 89 ec 5d c3 8d 76 00 55 89 e5 fb ba 00 e0 ff ff 21=20
+>> >PS. Solaris is over 60% slower than Linux 2.2/2.4 in common fs
+>> >operations on my SMP SPARCstation 10.
+>> 
+>> If you make such statements, it would help a lot of you would mention
+>> the Solaris version you are running. I am always running a recent
+>> Solaris beta kernel - you may have used an outdated version.
 
+>Umm, let's see if I can fish out the install media from somewhere...
+>jup, Solaris 2.6 5/98.
 
->>EIP; c0106f96 <default_idle+26/30>   <=3D=3D=3D=3D=3D
+So did you compare Solaris performance with a 4 year old Linux?
 
->>ebx; c0106f70 <default_idle+0/30>
->>ecx; cfd10000 <_end+fa2c1ac/105431ac>
->>edx; cfd10270 <_end+fa2c41c/105431ac>
->>esi; c0276000 <init_task_union+0/2000>
->>edi; c0106f70 <default_idle+0/30>
->>ebp; c0277fd0 <init_task_union+1fd0/2000>
->>esp; c0277fd0 <init_task_union+1fd0/2000>
+Jörg
 
-Trace; c0107018 <cpu_idle+48/60>
-Trace; c0105000 <_stext+0/0>
-Trace; c010502a <rest_init+2a/30>
-
-Code;  c0106f96 <default_idle+26/30>
-00000000 <_EIP>:
-Code;  c0106f96 <default_idle+26/30>   <=3D=3D=3D=3D=3D
-   0:   ab                        stos   %eax,%es:(%edi)   <=3D=3D=3D=3D=3D
-Code;  c0106f97 <default_idle+27/30>
-   1:   01 fb                     add    %edi,%ebx
-Code;  c0106f99 <default_idle+29/30>
-   3:   89 ec                     mov    %ebp,%esp
-Code;  c0106f9b <default_idle+2b/30>
-   5:   5d                        pop    %ebp
-Code;  c0106f9c <default_idle+2c/30>
-   6:   c3                        ret   =20
-Code;  c0106f9d <default_idle+2d/30>
-   7:   8d 76 00                  lea    0x0(%esi),%esi
-Code;  c0106fa0 <poll_idle+0/30>
-   a:   55                        push   %ebp
-Code;  c0106fa1 <poll_idle+1/30>
-   b:   89 e5                     mov    %esp,%ebp
-Code;  c0106fa3 <poll_idle+3/30>
-   d:   fb                        sti   =20
-Code;  c0106fa4 <poll_idle+4/30>
-   e:   ba 00 e0 ff ff            mov    $0xffffe000,%edx
-Code;  c0106fa9 <poll_idle+9/30>
-  13:   21 00                     and    %eax,(%eax)
-
-
---=-Ha9Zc1L3ZuQv6zaOyVZ1--
-
-
---=-2asGO9BQzVlZI3wbWmSv--
-
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
+ URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix

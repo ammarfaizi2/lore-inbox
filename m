@@ -1,56 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318313AbSHUOmr>; Wed, 21 Aug 2002 10:42:47 -0400
+	id <S318353AbSHUPAw>; Wed, 21 Aug 2002 11:00:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318325AbSHUOmr>; Wed, 21 Aug 2002 10:42:47 -0400
-Received: from B5050.pppool.de ([213.7.80.80]:5861 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S318313AbSHUOmr>; Wed, 21 Aug 2002 10:42:47 -0400
-Subject: Re: 2.4.20-pre2-ac5 Promise PDC20269
-From: Daniel Egger <degger@fhm.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Jason C. Pion" <jpion@valhalla.homelinux.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1029937618.26533.32.camel@irongate.swansea.linux.org.uk>
-References: <Pine.LNX.4.44.0208201845060.10173-100000@valhalla.homelinux.org> 
-	<1029937618.26533.32.camel@irongate.swansea.linux.org.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-cVJuDmztioEJABwTrkDq"
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 21 Aug 2002 16:05:52 +0200
-Message-Id: <1029938753.3800.2.camel@sonja.de.interearth.com>
+	id <S318355AbSHUPAw>; Wed, 21 Aug 2002 11:00:52 -0400
+Received: from dhcp48.ists.dartmouth.edu ([129.170.249.148]:20096 "EHLO
+	karaya.com") by vger.kernel.org with ESMTP id <S318353AbSHUPAv>;
+	Wed, 21 Aug 2002 11:00:51 -0400
+Message-Id: <200208211506.g7LF6RQ02046@karaya.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: root@chaos.analogic.com
+To: lists@corewars.org, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Bad Network SIGIO on Linux-2.4.19 
+In-Reply-To: Your message of "Wed, 21 Aug 2002 10:36:13 EDT."
+             <Pine.LNX.3.95.1020821103155.31858B-100000@chaos.analogic.com> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 21 Aug 2002 11:06:27 -0400
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+root@chaos.analogic.com said:
+> Well if this is a 'fix' there is a lot of legacy software that just
+> got broken. It was discovered when the new kernel was booted on some
+> very reliable file-servers. 
 
---=-cVJuDmztioEJABwTrkDq
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Then your "very reliable" file-servers are broken and need fixing so they
+no longer depend on this bug.
 
-Am Mit, 2002-08-21 um 15.46 schrieb Alan Cox:
-
-> Ok that looks like one of the cases for 80pin cable detect came unstuck.
-> I've added it to the queue to look into
-
-I've the same troubles on a Socket-A Board with VIA686 chipset and=20
-IBM Deskstar harddrive. Do you need any output I may organise?
-=20
---=20
-Servus,
-       Daniel
-
---=-cVJuDmztioEJABwTrkDq
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9Y55Achlzsq9KoIYRAsaJAKCGPWTVhWC7q8TLU9993ypkAorkDwCfYo2p
-yTB1Go5TCm+2Lc6NdVG9jf0=
-=CAr1
------END PGP SIGNATURE-----
-
---=-cVJuDmztioEJABwTrkDq--
+				Jeff
 

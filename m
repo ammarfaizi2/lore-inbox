@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268907AbUJUAH2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270514AbUJUAMu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268907AbUJUAH2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 20:07:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269066AbUJUADN
+	id S270514AbUJUAMu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 20:12:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269187AbUJUALv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 20:03:13 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:19520 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S270452AbUJUAAb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 20:00:31 -0400
-Subject: Re: Fwd: [Bug 3592] New: pppd "IPCP: timeout sending
-	Config-Requests"
-From: Paul Fulghum <paulkf@microgate.com>
-To: Alan Cox <alan@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20041020234659.GA26810@devserv.devel.redhat.com>
-References: <20041019131240.A20243@flint.arm.linux.org.uk>
-	 <1098195468.8467.7.camel@deimos.microgate.com>
-	 <1098199942.2857.7.camel@deimos.microgate.com>
-	 <1098309449.12411.57.camel@localhost.localdomain>
-	 <1098315760.6006.13.camel@at2.pipehead.org>
-	 <20041020234659.GA26810@devserv.devel.redhat.com>
-Content-Type: text/plain
-Message-Id: <1098316806.6006.23.camel@at2.pipehead.org>
+	Wed, 20 Oct 2004 20:11:51 -0400
+Received: from cantor.suse.de ([195.135.220.2]:64717 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S270517AbUJUAKy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 20:10:54 -0400
+Date: Thu, 21 Oct 2004 02:10:42 +0200
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Andi Kleen <ak@suse.de>, dhowells@redhat.com, torvalds@osdl.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       sparclinux@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-m68k@vger.kernel.org, linux-sh@m17n.org,
+       linux-arm-kernel@lists.arm.linux.org.uk, parisc-linux@parisc-linux.org,
+       linux-ia64@vger.kernel.org, linux-390@vm.marist.edu,
+       linux-mips@linux-mips.org
+Subject: Re: [discuss] Re: [PATCH] Add key management syscalls to non-i386 archs
+Message-ID: <20041021001041.GI995@wotan.suse.de>
+References: <3506.1098283455@redhat.com> <20041020150149.7be06d6d.davem@davemloft.net> <20041020225625.GD995@wotan.suse.de> <20041020160450.0914270b.davem@davemloft.net> <20041020232509.GF995@wotan.suse.de> <20041020164144.3457eafe.davem@davemloft.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 20 Oct 2004 19:00:06 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041020164144.3457eafe.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-20 at 18:46, Alan Cox wrote:
-> On Wed, Oct 20, 2004 at 06:42:40PM -0500, Paul Fulghum wrote:
-> > I'm not sure I would characterize using DCD
-> > for a serial connection indicator as odd.
+On Wed, Oct 20, 2004 at 04:41:44PM -0700, David S. Miller wrote:
+> On Thu, 21 Oct 2004 01:25:09 +0200
+> Andi Kleen <ak@suse.de> wrote:
 > 
-> The default setup trusts LCP closes sent between the two ends
+> > IMHO breaking the build unnecessarily is extremly bad because
+> > it will prevent all testing. And would you really want to hold
+> > up the whole linux testing machinery just for some obscure 
+> > system call? IMHO not a good tradeoff.
+> 
+> Then change the unistd.h cookie from "#error" to a "#warning".  It
+> accomplishes both of our goals.
 
-Yes.
+#warnings would be fine for me.
 
-In the case of this bug report, it looks like Window NT4
-is dropping the connection without sending the LCP close.
-That is crappy behavior.
-
-DCD makes a good check on the physical layer in case
-your POTS line is on the crackly side.
-May I never suffer dialup again :-P
-
--- 
-Paul Fulghum
-paulkf@microgate.com
-
-
+-Andi

@@ -1,75 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261413AbUBYUJD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 15:09:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbUBYUJD
+	id S261424AbUBYUNS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 15:13:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbUBYUNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 15:09:03 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:28550 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261413AbUBYUHv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 15:07:51 -0500
-Content-Class: urn:content-classes:message
+	Wed, 25 Feb 2004 15:13:17 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:17025 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261304AbUBYUNI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 15:13:08 -0500
+Message-ID: <403D02E3.4070208@tmr.com>
+Date: Wed, 25 Feb 2004 15:17:39 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+Reply-To: bill davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE:  Re: Intel vs AMD x86-64
-Date: Wed, 25 Feb 2004 12:07:35 -0800
-Message-ID: <7F740D512C7C1046AB53446D37200173EA27D6@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re: Intel vs AMD x86-64
-Thread-Index: AcP7vP9o4mi/Dv5WRNqew8oMRH63uQAG/dsg
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 25 Feb 2004 20:07:36.0451 (UTC) FILETIME=[03134530:01C3FBDB]
+To: Nick Piggin <piggin@cyberone.com.au>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IO scheduler, queue depth, nr_requests
+References: <1qJVx-75K-15@gated-at.bofh.it> <1qJVx-75K-17@gated-at.bofh.it> <1qJVw-75K-11@gated-at.bofh.it> <1qLb8-6m-27@gated-at.bofh.it> <1qLXl-XV-17@gated-at.bofh.it> <1qMgF-1dA-5@gated-at.bofh.it> <1qTs3-7A2-51@gated-at.bofh.it> <1qTBB-7Hh-7@gated-at.bofh.it> <1r3AS-1hW-5@gated-at.bofh.it> <1r5jD-2RQ-31@gated-at.bofh.it> <1r6fH-3L8-11@gated-at.bofh.it> <1r6S4-6cv-1@gated-at.bofh.it>
+In-Reply-To: <1r6S4-6cv-1@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For near branches (CALL, RET, JCC, JCXZ, JMP, etc.), the operand size is
-forced to 64 bits on both processors in 64-bit mode, basically meaning
-RIP is updated.
+linux.kernelNick Piggin wrote:
 
-Compilers would typically use a JMP short for "intraprocedural jumps",
-which requires just an 8-bit displacement relative to RIP. 
+> But the whole reason it is getting blocked in the first place
+> is because your controller is sucking up all your requests.
+> The whole problem is not a problem if you use properly sized
+> queues.
+> 
+> I'm a bit surprised that it wasn't working well with a controller
+> queue depth of 64 and 128 nr_requests. I'll give you a per process
+> request limit patch to try in a minute.
 
-Jun
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
->owner@vger.kernel.org] On Behalf Of H. Peter Anvin
->Sent: Wednesday, February 25, 2004 8:17 AM
->To: linux-kernel@vger.kernel.org
->Subject: Re: Intel vs AMD x86-64
->
->Followup to:  <403CCBE0.7050100@techsource.com>
->By author:    Timothy Miller <miller@techsource.com>
->In newsgroup: linux.dev.kernel
->>
->>
->> Nakajima, Jun wrote:
->> > No, it's not a problem. Branches with 16-bit operand size are not
->useful
->> > for compilers.
->>
->>  From AMD's documentation, I got the impression that 66H caused near
->> branches to be 32 bits in long mode (default is 64).
->>
->> So, Intel makes it 16 bits, and AMD makes it 32 bits?
->>
->> Either way, I don't see much use for either one.
->>
->
->Both claims are pretty bogus.  Shorter branches are quite nice for
->intraprocedural jumps; it reduces the cache footprint.
->
->	-hpa
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+And there's the rub... he did try what you are calling correctly sized 
+queues, and his patch works better. I'm all in favor of having the 
+theory and then writing the code, but when something works I would 
+rather understand why and modify the theory.
+
+In other words, given a patch which does help performance in this case, 
+it would be good to understand why, instead of favoring a solution which 
+is better in theory, but which has been tried and found inferior in 
+performance.
+
+I am NOT saying we should just block, effective as Miquel's patch seems, 
+just that we should understand why it works well instead of saying it is 
+in theory bad. I agree, but it works! Hopefully per-process limits solve 
+this, but they "in theory" could result in blocking a process in an 
+otherwise idle system. Unless I midread what you mean of course. 
+Processes which calculate for a while and write results are not uncomon, 
+and letting such a process write a whole bunch of data and then go 
+calculate while it is written is certainly the way it should work. I'm 
+unconvinced that per-process limits are the whole answer without 
+considering the entire io load on the system.
+
+Feel free to tell me I'm misreading your intent (and why).
+-- 
+bill on the road <davidsen@tmr.com>

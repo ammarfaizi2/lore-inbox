@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132038AbRDNLsg>; Sat, 14 Apr 2001 07:48:36 -0400
+	id <S132039AbRDNMGJ>; Sat, 14 Apr 2001 08:06:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132039AbRDNLs1>; Sat, 14 Apr 2001 07:48:27 -0400
-Received: from pc57-cam4.cable.ntl.com ([62.253.135.57]:16770 "EHLO
-	kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
-	id <S132038AbRDNLsY>; Sat, 14 Apr 2001 07:48:24 -0400
-X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
-To: vivid_liou@dlink.com.tw
-cc: linux-kernel@vger.kernel.org
-Subject: Re: why can't include /sys/types and /linux/fs.h in the same file 
-In-Reply-To: Message from vivid_liou@dlink.com.tw 
-   of "Sat, 14 Apr 2001 19:39:16 +0800." <48256A2E.003F9F29.00@dlink.com.tw> 
-In-Reply-To: <48256A2E.003F9F29.00@dlink.com.tw> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 14 Apr 2001 12:47:41 +0100
-From: Philip Blundell <philb@gnu.org>
-Message-Id: <E14oOWj-0008L7-00@kings-cross.london.uk.eu.org>
+	id <S132042AbRDNMF7>; Sat, 14 Apr 2001 08:05:59 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:55301 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S132039AbRDNMFs>; Sat, 14 Apr 2001 08:05:48 -0400
+Date: Sat, 14 Apr 2001 07:24:42 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Alexander Viro <viro@math.psu.edu>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: generic_osync_inode/ext2_fsync_inode still not safe
+Message-ID: <Pine.LNX.4.21.0104140632300.1615-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->#include <kernel/fs.h>
->#include <sys/types.h>
->int main ()
->{
->;  // contains no C programs,
->}
->and give the command " cc  -D__KERNEL__ -I/usr/src/linux/include  to compiler
->the program .
 
-You can't mix environments.  Either you're building part of the kernel, in which 
-case you need to use -D__KERNEL__ and <linux/*> headers, or you're building an 
-application, in which case you need to use the headers from libc.
+Hi,
 
-p.
+As described earlier, code which wants to write an inode cannot rely on
+the I_DIRTY bits (on inode->i_state) being clean to guarantee that the
+inode and its dirty pages, if any, are safely synced on disk.
+
+The reason for that is sync_one() --- it cleans the I_DIRTY bits of an
+inode, sets the I_LOCK and starts a writeout. 
+
+If sync_one() is called to write an inode _asynchronously_, there is no
+guarantee that an inode will have its data fully synced on disk even if
+the inode gets unlocked, which means the previous fix to
+generic_osync_inode() is not safe.
+
+The easy and safe fix is to simply remove the I_DIRTY_* checks from
+generic_osync_inode and ext2_fsync_inode. Easy but slow. Another fix would
+be to make sync_one() unconditionally synchronous... slow.
+
+Any suggestion for a fast, safe, but simple fix to this bug?
 
 
